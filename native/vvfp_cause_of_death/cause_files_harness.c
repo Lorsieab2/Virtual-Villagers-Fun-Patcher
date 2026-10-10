@@ -489,14 +489,17 @@ int main(int argc, char **argv) {
     saved(5);
     roster_of(5, path);
     n = read_file(path, buf, sizeof buf);
-    CHECK(n == 32 + 8 * (16 + STRIDE) && *(unsigned int *)buf == 0x31524356u && *(unsigned int *)(buf + 12) == 8u,
-          "the first save writes the roster: 'VCR1', 8 entries (%ld bytes)", n);
+    /* Version 3 (A New Home): each entry ends with the parents' names, 2 x char[32] (cod_roster.inc). */
+    CHECK(n == 32 + 8 * (16 + STRIDE + 64) && *(unsigned int *)buf == 0x31524356u && *(unsigned int *)(buf + 4) == 3u
+          && *(unsigned int *)(buf + 12) == 8u,
+          "the first save writes the roster: 'VCR1' version 3, 8 entries (%ld bytes)", n);
     CHECK(unaccounted() == 0, "and reports nothing");
     rec(2)[PRESENT] = 0;                /* gone, nothing reported */
     saved(5);
     CHECK(unaccounted() == 1, "a villager gone with no report: one Unaccounted record");
     n = read_file(path, buf, sizeof buf);
-    CHECK(n == 32 + 7 * (16 + STRIDE) && buf[32 + 2 * (16 + STRIDE)] == 3 && buf[32 + 2 * (16 + STRIDE) + 2] == 2,
+    CHECK(n == 32 + 7 * (16 + STRIDE + 64) && buf[32 + 2 * (16 + STRIDE + 64)] == 3
+          && buf[32 + 2 * (16 + STRIDE + 64) + 2] == 2,
           "the roster keeps record 3 at rank 2");
     unload();
     game_reload();                      /* a new session: 3..7 now in 2..6 */

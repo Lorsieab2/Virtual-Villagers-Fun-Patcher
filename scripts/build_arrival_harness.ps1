@@ -67,7 +67,35 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Arrival harness compilation failed."
     }
-    & (Join-Path $OutDir "arrival_harness.exe") $dll $causeTest $saveReset
+    # A stand-in "VVFP VV1 Parentage.dll" (native/population_export/vv1_parentage_stub.c) for the
+    # Unaccounted records' parents in A New Home; the harness puts it in its patcher folder for
+    # that case only.
+    $stubOut = Join-Path $OutDir "vv1_parentage_stub"
+    New-Item -ItemType Directory -Path $stubOut -Force | Out-Null
+    $popRoot = Join-Path $projectRoot "native\population_export"
+    & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") `
+        /nologo `
+        ("/Fo" + $stubOut + "\") `
+        /LD `
+        /O2 `
+        /MT `
+        /I (Join-Path $vsTools "include") `
+        /I (Join-Path $sdkRoot "Include\$sdkVersion\um") `
+        /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
+        /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
+        (Join-Path $popRoot "vv1_parentage_stub.c") `
+        /link `
+        ("/DEF:" + (Join-Path $popRoot "vv1_parentage_stub.def")) `
+        ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
+        ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
+        ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
+        ("/IMPLIB:" + (Join-Path $stubOut "vv1_parentage_stub.lib")) `
+        ("/OUT:" + (Join-Path $stubOut "vv1_parentage_stub.dll")) `
+        kernel32.lib
+    if ($LASTEXITCODE -ne 0) {
+        throw "Stand-in VV1 Parentage compilation failed."
+    }
+    & (Join-Path $OutDir "arrival_harness.exe") $dll $causeTest $saveReset (Join-Path $stubOut "vv1_parentage_stub.dll")
     if ($LASTEXITCODE -ne 0) {
         throw "Arrival harness reported failures."
     }

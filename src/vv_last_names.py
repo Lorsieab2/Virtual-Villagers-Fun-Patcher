@@ -1352,18 +1352,33 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
         original = path.read_bytes()
         if original[:4] != b"VCR1" or len(original) < 32:
             continue
+        version = struct.unpack_from("<I", original, 4)[0]
         count, lo, hi = struct.unpack_from("<III", original, 12)
         rec_name = RECORD[game]["name"]
-        if not lo <= rec_name < hi or len(original) != 32 + count * (16 + hi - lo):
+        # Version 3 (A New Home): each entry ends with the villager's parents' names, 2 x char[32]
+        # (native/vvfp_cause_of_death/cod_roster.inc).
+        tail = 64 if version == 3 and game == 1 else 0
+        if not lo <= rec_name < hi or len(original) != 32 + count * (16 + hi - lo + tail):
             result.notes.append(f"{path.name} is damaged or another build's; left as it is.")
             continue
-        size = 16 + (hi - lo)
+        size = 16 + (hi - lo) + tail
         buf = bytearray(original)
         n = 0
+        # A parent kept by name alone is renamed only when that name is one villager's.
+        by_parent_name: dict[str, set[str]] = {}
+        for (old, _head, _body), new in renames.items():
+            by_parent_name.setdefault(old, set()).add(new)
         for i in range(count):
             base = 32 + i * size + 16 - lo
             if base + hi > len(buf):
                 break
+            if tail:
+                for at in (32 + i * size + size - 64, 32 + i * size + size - 32):
+                    parent = _cstr(original, at, 32)
+                    news = by_parent_name.get(parent, set())
+                    if parent and len(news) == 1:
+                        _put_name(buf, at, 32, next(iter(news)))
+                        n += 1
             cap = FIELDS[game].name_cap
             own = (_cstr(buf, base + rec["name"], cap), _i32(buf, base + rec["head"]), _i32(buf, base + rec["body"]))
             if own in renames:

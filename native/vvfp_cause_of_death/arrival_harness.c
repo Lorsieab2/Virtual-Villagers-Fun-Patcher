@@ -650,6 +650,81 @@ static void quit_cases(void) {
     free(buffer);
 }
 
+/* 8: the villager's own parents on an Unaccounted record, in every game (the owner, 2026-10-09: no
+   game gets less information).  The Lost Children to New Believers keep them on the record, so the
+   record a villager who left unseen gets prints its "Parents:" block from the snapshot; A New Home
+   keeps none, so the Village Roster file keeps the Show Parents companion's names beside the record
+   (version 3) and the record prints them in the same place -- here from a stand-in companion
+   (native/population_export/vv1_parentage_stub.c: record 1, father Goro, mother Aisha).  A newcomer
+   nobody reported, in that record, gets the block from the companion as it is now. */
+static const char *vv1_stub_path;
+
+static void parents_cases(void) {
+    char unacc[MAX_PATH], stub[MAX_PATH];
+    unsigned char *buffer;
+    int i;
+    const char *block = game == 1 ? "  Parents:\r\n    Father: Goro\r\n    Mother: Aisha\r\n"
+                                  : "  Parents:\r\n    Father: Kito\r\n    Mother: (none)\r\n";
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    stub[0] = '\0';
+    if (game == 1) {
+        _snprintf(stub, MAX_PATH, "%s\\VVFP VV1 Parentage.dll", files_dir);
+        if (vv1_stub_path == NULL || !CopyFileA(vv1_stub_path, stub, FALSE)) {
+            CHECK(0, "parents: the stand-in Show Parents companion is in place");
+            return;
+        }
+    }
+    write_save_file();
+    vv_village_publish("");
+    buffer = save_buffer("Arrival Tribe");
+    unaccounted_path(unacc);
+    villager(0, "Parmum", 900, 4, 9, 0);
+    villager(1, "Parleft", 300, 5, 5, 1);
+    save_done(1, buffer);                     /* the roster this village is reconciled against */
+    rec(1)[g->active] = 0;                    /* gone, with no Death or Disappeared record */
+    save_done(1, buffer);
+    read_into(unacc);
+    CHECK(record_has("Parleft", "  What: Left the village with no Death or Disappeared record\r\n")
+          && record_has("Parleft", block),
+          "parents: a villager who left unseen: the Unaccounted record names their parents (%s)",
+          game == 1 ? "the Village Roster file kept the Show Parents names" : "from the record");
+    villager(1, "Parnew", 200, 6, 6, 1);      /* a newcomer nobody reported, in that record */
+    save_done(1, buffer);
+    read_into(unacc);
+    CHECK(record_has("Parnew", "  What: Arrived with no Birth record or known arrival\r\n")
+          && record_has("Parnew", block),
+          "parents: a newcomer nobody reported: the Unaccounted record names their parents too");
+    /* An island event's newcomer whose parents are known: the Arrived record names them before
+       "How:", where the other games' exporter prints the record's own. */
+    {
+        char births[MAX_PATH], want[256];
+        rec(1)[g->active] = 0;
+        save_done(1, buffer);
+        villager(1, "Pararr", 500, 7, 7, 1);
+        created(1, MARK[game - 1].event);
+        arrival_tick();
+        save_done(1, buffer);
+        births_path(1, births);
+        read_into(births);
+        _snprintf(want, sizeof want, "%s  How: %s\r\n", block, MARK[game - 1].label);
+        CHECK(record_has("Pararr", want),
+              "parents: an Arrived record names the newcomer's known parents, before \"How:\"");
+    }
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    free(buffer);
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    if (game == 1) {
+        HMODULE loaded = GetModuleHandleA("VVFP VV1 Parentage.dll");
+        while (loaded != NULL && FreeLibrary(loaded) && GetModuleHandleA("VVFP VV1 Parentage.dll") != NULL) {
+        }
+        DeleteFileA(stub);
+    }
+}
+
 /* 6: a new village's founders are seeded before the game gives the village
    its slot (live, The Lost Children with a fresh profile: the host said 5,
    the village was saved in 1), and The Tree of Life and New Believers save
@@ -1041,6 +1116,7 @@ int main(int argc, char **argv) {
     if (!CopyFileA(argv[2], path, FALSE)) { printf("cannot copy %s\n", argv[2]); return 2; }
     _snprintf(path, MAX_PATH, "%s\\VVFP Save Reset.dll", files_dir);
     if (!CopyFileA(argv[3], path, FALSE)) { printf("cannot copy %s\n", argv[3]); return 2; }
+    vv1_stub_path = argc > 4 ? argv[4] : NULL;   /* the stand-in Show Parents companion (parents_cases) */
     stand_in("VVFP Statistics Export.dll", 0);
 
     for (game = 1; game <= 5; ++game) {
@@ -1363,6 +1439,7 @@ int main(int argc, char **argv) {
         stale_slot_cases();
         creation_save_cases();
         renamed_cases();
+        parents_cases();
         if (game == 5) {
             /* Another village loaded (another slot): a Heathen in this
                village's record and a believer in the same record of the
