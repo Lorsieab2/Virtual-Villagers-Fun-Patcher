@@ -28,6 +28,7 @@ by native/vvfp_cause_of_death/cause_files_harness.c
 from __future__ import annotations
 
 import json
+import re
 import struct
 import sys
 import unittest
@@ -55,6 +56,23 @@ WRITE_RECORD = 0x0C200000
 SLOT_FN = 0x0C200100
 DEATH, DISAPPEARED, EPITAPH, UNACCOUNTED = 2, 3, 4, 5
 NO_GRAVE = "no grave (never buried: the game removed the body)"
+# New Believers' own words (eStringCauseOfDeath*, eEulogyText*), as its executable holds them.
+VV5_CAUSES = ("Unknown causes", "Disease", "Starvation", "Old age", "Work accident", "Act of Nature")
+VV5_EPITAPHS = ("Respected Citizen", "Child of the Earth", "Nature's Friend", "Parent, Teacher, Friend",
+                "Dedicated to Children", "Guardian of Health", "Dedicated to Others", "Dedicated Student",
+                "Inspired Inventor", "Inspired Architect", "Strong Arms, Big Heart", "Curious and Playful",
+                "Loving and Special")
+# The Lost Children's own burial lines (string ids 0x1E4-0x1EF) spelt otherwise, and New Believers'.
+VV2_RESPELLINGS = {
+    "Child Of The Earth": "Child of the Earth",
+    "Parent, Teacher, Friend ": "Parent, Teacher, Friend",
+    "Dedicated To Children": "Dedicated to Children",
+    "Guardian Of Health": "Guardian of Health",
+    "Dedicated To Others": "Dedicated to Others",
+    "Curious And Playful": "Curious and Playful",
+    "Loving And Special": "Loving and Special",
+}
+STOCK_STRING = re.compile(rb"(?<=\0)[\x20-\x7E]{3,}(?=\0)")
 STAT_NAMES = ("deaths", "unhooked", "burials", "graves_set", "draws", "logged", "published",
               "departed", "arrived", "unaccounted")
 
@@ -748,10 +766,11 @@ class LostChildren:
     def injury(self, i: int, damage: int) -> None:
         self.g.run(0x462AD9, 0x462AE1, edi=self.record(i) + V2["health"], eax=damage, esi=self.pool)
 
-    def bury(self, i: int) -> int:
+    def bury(self, i: int, epitaph: bytes = b"Respected Citizen") -> int:
         """The burial's grave loop, 0x465042..0x46533B (the record already
         freed by 0x46503B, as the game does just before), and the hook
-        after it."""
+        after it.  `epitaph` is the line the game's string lookup hands the
+        burial."""
         p = self.g.p
         before = [p.u32(self.grave(k) + V2["grave_age"]) for k in range(50)]
         burier = p.alloc(0x100)
@@ -760,7 +779,7 @@ class LostChildren:
         p.stub(0x44B4D0, lambda proc: (30, 8))
         p.stub(0x4031A0, lambda proc: (0, 0))
         strings = p.alloc(0x100)
-        p.write(strings, b"Respected Citizen\0")
+        p.write(strings, epitaph + b"\0")
         p.stub(0x441680, lambda proc: (strings, 4))
 
         def sprintf(proc):
@@ -920,6 +939,33 @@ class LostChildrenCauseOfDeath(unittest.TestCase):
         self.assertEqual([(e["Old epitaph"], e["New epitaph"], e["Age at death"]) for e in change],
                          [("Respected Citizen", "Mother of Many", "1500")])
 
+    def test_the_games_own_lines_are_logged_in_new_believers_spelling(self):
+        """The owner: "For the Causes of Death and the Epitaphs, please use
+        the spelling/capitalization that VV5 uses."  The grave keeps the
+        game's own line; the logs carry New Believers'.  The player's typed
+        text is logged exactly as typed, even when it is a game line."""
+        for own, vv5 in VV2_RESPELLINGS.items():
+            for mode in MODES:
+                g, w = vv2(mode)
+                w.villager(3, "Olda", 1500, 40)
+                w.old_age(3)
+                k = w.bury(3, own.encode())
+                self.assertEqual(g.p.cstring(w.grave(k) + 0x19), own, mode)       # the game's grave untouched
+                self.assertEqual([e["Epitaph"] for e in g.of_kind(DEATH)], [vv5], (own, mode))
+                w.done(k, "Mother of Many")
+                w.done(k, own)                                                   # typed back by the player
+                kept = g.p.cstring(w.grave(k) + 0x19)                            # what the game kept of it
+                self.assertEqual(kept, own.rstrip(" "), (own, mode))
+                self.assertEqual([(e["Old epitaph"], e["New epitaph"]) for e in g.of_kind(EPITAPH)],
+                                 [(vv5, "Mother of Many"), ("Mother of Many", kept)], (own, mode))
+        # A line the game spells as New Believers does, and the player's own, are logged as they are.
+        for line in ("Respected Citizen", "Child Of the Earth", "child of the earth"):
+            g, w = vv2()
+            w.villager(3, "Olda", 1500, 40)
+            w.old_age(3)
+            w.bury(3, line.encode())
+            self.assertEqual([e["Epitaph"] for e in g.of_kind(DEATH)], [line])
+
     def test_a_name_that_fills_the_record_field_still_matches_its_grave(self):
         """The record's name field is 0x18 bytes and the burial copies it
         with sprintf to its terminator: a 24-letter name carries the bytes
@@ -1002,6 +1048,13 @@ class Later:
             proc.write(at, b"Ep%d\0" % (proc.reg("ecx") & 0x3FF))
             return at, 0
         p.stub(self.l["strings"][1], text)
+
+    def every_line_is(self, line: bytes) -> None:
+        """The game's string lookup hands every burial `line`."""
+        p = self.g.p
+        at = p.alloc(0x40)
+        p.write(at, line + b"\0")
+        p.stub(self.l["strings"][1], lambda proc: (at, 0))
 
     def record(self, i: int) -> int:
         return self.l["table"] + self.l["base"] + i * self.l["stride"]
@@ -1129,6 +1182,27 @@ class LaterGames(unittest.TestCase):
             change = g.of_kind(EPITAPH)
             self.assertEqual([(e["Old epitaph"], e["New epitaph"], e["Age at death"]) for e in change],
                              [(old, "Always Remembered", "1500")], game)
+
+    def test_the_games_own_lines_are_logged_in_new_believers_spelling(self):
+        """The Secret City's and The Tree of Life's "Child Of the Earth" is
+        logged as New Believers' "Child of the Earth"; the grave keeps the
+        game's own; New Believers itself, and the player's typed text, are
+        logged as they are."""
+        for game in self.games():
+            for mode in MODES:
+                g, w = later(game, mode)
+                w.every_line_is(b"Child Of the Earth")
+                w.villager(0, "Elda", 1500, 0, 2)
+                w.bury(0)
+                expected = "Child of the Earth" if game in ("vv3", "vv4") else "Child Of the Earth"
+                self.assertEqual([e["Epitaph"] for e in g.of_kind(DEATH)], [expected], (game, mode))
+                stone = 0x5973F0 + 8 if game == "vv3" else w.entry(0) + 0x38
+                self.assertEqual(g.p.cstring(stone), "Child Of the Earth", (game, mode))
+                w.done(0, "Always Remembered")
+                w.done(0, "Child Of the Earth")
+                self.assertEqual([(e["Old epitaph"], e["New epitaph"]) for e in g.of_kind(EPITAPH)],
+                                 [(expected, "Always Remembered"), ("Always Remembered", "Child Of the Earth")],
+                                 (game, mode))
 
     def test_the_tsunami_and_the_sealed_box_are_disappearances(self):
         if "vv3" in self.games():
@@ -1325,6 +1399,40 @@ class DeathRecords256(unittest.TestCase):
                     self.assertTrue(self.accepted(game, big, 0x800000, slot))
                     if slot <= 150:          # record 150 is the first past the ordinary table
                         self.assertEqual(self.accepted(game, ordinary, LATER[game]["table"], slot), slot < 150)
+
+
+class NewBelieversSpelling(unittest.TestCase):
+    """Every cause and epitaph the patcher writes is spelt as New Believers
+    spells it -- read from its own executable."""
+
+    def strings(self, game: str) -> set[bytes]:
+        return set(STOCK_STRING.findall(STOCK[game].read_bytes()))
+
+    @unittest.skipUnless(STOCK["vv5"].is_file(), STOCK_ABSENT)
+    def test_the_patchers_words_are_new_believers_own(self):
+        vv5 = self.strings("vv5")
+        for words in VV5_CAUSES + VV5_EPITAPHS + tuple(VV2_RESPELLINGS.values()) + ("Child of the Earth",):
+            self.assertIn(words.encode(), vv5, words)
+        for dll in (SHIPPED_DLL, TEST_DLL):
+            if not dll.is_file():
+                continue
+            text = dll.read_bytes()
+            for words in VV5_CAUSES + VV5_EPITAPHS:
+                self.assertIn(b"\0" + words.encode() + b"\0", text, (dll.name, words))
+            # The Lost Children's spellings are in the DLL once: in the table that recognises them.
+            for own in VV2_RESPELLINGS:
+                self.assertEqual(text.count(b"\0" + own.encode() + b"\0"), 1, (dll.name, own))
+
+    def test_the_respelt_lines_are_the_games_own(self):
+        for game, lines in (("vv2", tuple(VV2_RESPELLINGS)), ("vv3", ("Child Of the Earth",)),
+                            ("vv4", ("Child Of the Earth",))):
+            if not STOCK[game].is_file():
+                continue
+            own = self.strings(game)
+            for line in lines:
+                self.assertIn(line.encode(), own, (game, line))
+                self.assertNotIn(line.encode(), self.strings("vv5") if STOCK["vv5"].is_file() else set(),
+                                 (game, line))
 
 
 class ManifestsAndShipping(unittest.TestCase):
