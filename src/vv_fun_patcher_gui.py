@@ -18,6 +18,7 @@ import patcher_files
 import vv_how_to_use
 import vv_log_tools
 import vv_log_additions
+import vv_move_old_names
 import vv_last_names
 import vv_cut_names
 import vv_number_names
@@ -3022,6 +3023,17 @@ class App(tk.Tk):
         buttons.grid(row=5, column=0, columnspan=3, sticky="w", pady=(12, 0))
         go_button = ttk.Button(buttons, text="Repair Saves & Logs" if repair else "Check")
         go_button.pack(side="left")
+        move_button = None
+        if repair:
+            # The owner, 2026-10-09: "Repair logs should have the move legacy files button!" -- for
+            # the chosen save folder, whichever tribe is picked (src/vv_move_old_names.py).
+            move_button = ttk.Button(
+                buttons, text="Move Old Files to New Names...",
+                command=lambda: self._move_old_files(dialog, state["folders"][folder_box.current()])
+                if state["folders"] else None,
+            )
+            move_button.pack(side="left", padx=(8, 0))
+            self._help_button(buttons, "repair_logs").pack(side="left", padx=(2, 0))
         ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
 
         def game() -> vv_tribe_rename.GameSaves:
@@ -3042,6 +3054,8 @@ class App(tk.Tk):
                 problem = "Choose a tribe."
             problem_var.set(problem or "")
             go_button.configure(state="normal" if problem is None else "disabled")
+            if move_button is not None:
+                move_button.configure(state="normal" if state["folders"] else "disabled")
 
         def load_slots(*_args) -> None:
             slot_list.delete(0, "end")
@@ -3090,6 +3104,79 @@ class App(tk.Tk):
         dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
         dialog.update_idletasks()
         dialog.grab_set()
+
+    def _game_folders_for(self, folder: Path) -> list[Path]:
+        """Where the game that saves into `folder` may be: a built game folder has the save folder's
+        own name, beside the original game's folder or in the chosen output folder."""
+        places = [Path(p) for p in self.last_modified_paths.values()]
+        sources = [self.exe_var.get().strip()] + [var.get().strip() for var in self.all_folder_vars.values()]
+        for value in filter(None, sources):
+            source = Path(value)
+            source = source.parent if source.suffix.lower() == ".exe" else source
+            for root in filter(None, (self._output_root(), source.parent)):
+                places.append(Path(root) / folder.name)
+        return places
+
+    def _move_old_files(self, parent, folder: Path) -> None:
+        """Repair Saves & Logs' "Move Old Files to New Names..." (src/vv_move_old_names.py): list what
+        is still under an older build's name, ask, then move it with the game closed."""
+        title = "Move Old Files to New Names"
+        try:
+            items = vv_move_old_names.plan(folder)
+        except OSError as exc:
+            messagebox.showerror(title, f"The save folder could not be read ({exc}). Nothing was changed.",
+                                 parent=parent)
+            return
+        if not items:
+            messagebox.showinfo(title, f"Nothing in {folder.name} is under an older name. Nothing to move.",
+                                parent=parent)
+            return
+        exe = vv_save_backup.game_exe_name(folder)
+        if vv_save_backup.running_game_count(folder):
+            messagebox.showerror(
+                title, f"{exe} is running.\n\nQuit the game first (from its own menu), then try again. "
+                "Moving old files never pauses or closes a game. Nothing was changed.", parent=parent)
+            return
+        patched = vv_move_old_names.patched_by(folder, self._game_folders_for(folder))
+        if patched.refused:
+            messagebox.showerror(title, vv_move_old_names.refusal(patched), parent=parent)
+            return
+        shown = [item.describe() for item in items[:20]]
+        if len(items) > 20:
+            shown.append(f"... and {len(items) - 20} more")
+        if patched.version is not None:
+            who = f"The game was patched by v{'.'.join(map(str, patched.version))}, which reads the new names."
+        else:
+            who = ("The patcher cannot tell which version patched this game. Patch it again with this "
+                   "patcher first if you are not sure.")
+        if not messagebox.askyesno(
+                title,
+                f"{folder.name}: these are still under the names an older patcher used:\n\n"
+                + "\n".join(shown)
+                + "\n\nDo this only once EVERY game that plays this save is patched with v1.35.64 or "
+                "newer: older patches look only under the old names, and would find their logs and "
+                f"records missing. {who}\n\nThe save folder is backed up first. Nothing is deleted: "
+                "whatever is replaced is kept in Copies Made Before Repairs.\n\nMove them now?",
+                parent=parent):
+            return
+        try:
+            result = self._run_with_wait(
+                "Moving the old files…\n\nThe save folder is backed up first.",
+                lambda: vv_move_old_names.move_old_files(folder, patched=patched),
+            )
+        except (vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
+            _regrab(parent)
+            self.status_var.set("Move Old Files to New Names did not finish. See the message for what moved.")
+            messagebox.showerror(title, str(exc), parent=parent)
+            return
+        _regrab(parent)
+        lines = result.lines() or ["Nothing needed moving."]
+        if len(lines) > 30:
+            lines = lines[:30] + [f"... and {len(lines) - 30} more (all of it is in the Repairs Made log)"]
+        if result.backup is not None:
+            lines.append(f"Backup: {result.backup.backup_folder}")
+        self.status_var.set(f"Move Old Files to New Names: {folder.name} done.")
+        messagebox.showinfo(title, "\n".join(lines), parent=parent)
 
     def _check_logs(self, parent, folder: Path, number: int, info) -> None:
         """Run the read-only checker off the main thread and show its report."""
