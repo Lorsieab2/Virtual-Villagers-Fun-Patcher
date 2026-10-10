@@ -1749,6 +1749,24 @@ static int vvfp_xc_masks_repair(int game, int slot) {
     return done;
 }
 
+#if VV_STORY_GAME == 1
+/* The Barrel of Babies bought and not delivered yet (native/shared/paid_purchases.h):
+   its pending token 0x48D700 (1 bought, 2 the Tech screen closed and the
+   delay counting) and delay counter 0x48D704, re-armed as 2 after a relaunch. */
+#include "../shared/paid_purchases.h"
+static const vv_paid_game VV1_PAID = {
+    (volatile unsigned char *)0x0048D700, (volatile unsigned int *)0x0048D704, 2, "Virtual Villagers"
+};
+
+static void vv1_paid_tick(int slot) {
+    static unsigned int live[VV_MASK_SLOTS];
+    if (vv1_mask_live_roster(live) == 0) {
+        return;
+    }
+    vv_paid_tick(1, slot, live, &VV1_PAID);
+}
+#endif
+
 void __stdcall Vv1MaskTick(void) {
     int swept;
     int birth_dirty;
@@ -1772,6 +1790,9 @@ void __stdcall Vv1MaskTick(void) {
        is played; any question waits for the quit (crosscheck_bridge.h).  No
        village frame for a while (the menus, a load) is a new load to it. */
     vvfp_crosscheck_bridge(1, 1);
+#if VV_STORY_GAME == 1
+    vv1_paid_tick(slot);        /* a bought Barrel not delivered yet survives a quit */
+#endif
     if (!vv_sidecar_gate_ready(&vv1_mask_gate, slot)) {
         /* This slot's sidecar has not loaded: never read yet, or present but
            unopenable when last tried.  Retry here -- the load itself is a

@@ -2047,6 +2047,23 @@ static int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
 /* base = record[0], forwarded from the compositor's ECX before any call could
    clobber it, so the sweep walks exactly the array the game is about to draw.
    A null base means the hook fired with no village; do nothing. */
+/* The Barrel of Babies bought and not delivered yet (native/shared/paid_purchases.h):
+   its pending token 0x49C700 (1 bought, 2 the Tech screen closed, 3 counting
+   down) and cue counter 0x49C708, re-armed as 2 after a relaunch. */
+#include "../shared/paid_purchases.h"
+static const vv_paid_game VV2_PAID = {
+    (volatile unsigned char *)0x0049C700, (volatile unsigned int *)0x0049C708, 2,
+    "Virtual Villagers - The Lost Children"
+};
+
+static void vv2_paid_tick(const unsigned char *base) {
+    static unsigned int ids[VV2_RECORD_COUNT];
+    if (base == 0 || vv2_roster_identities(base, ids) == 0) {
+        return;
+    }
+    vv_paid_tick(2, VV2_MASK_SLOT_NOW, ids, &VV2_PAID);
+}
+
 void __stdcall Vv2MaskSweep(unsigned char *base) {
     int i;
     vvfp_pathfinding_bridge(2); /* pathfinding companion: installs its detours once, fail-open */
@@ -2057,6 +2074,7 @@ void __stdcall Vv2MaskSweep(unsigned char *base) {
     vvfp_cause_bridge(2);  /* cause of death companion: once, fail-open */
     g_vv2_sweep_base = base;    /* the records the cross-check's mask scan reads */
     vvfp_crosscheck_bridge(2, base != 0);  /* the cross-check, silent while played (A New Home's header, compiled in) */
+    vv2_paid_tick(base);        /* a bought Barrel not delivered yet survives a quit */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }

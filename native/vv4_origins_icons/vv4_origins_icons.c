@@ -1188,12 +1188,49 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(4));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
 }
 
+/* The Barrel of Babies bought and not delivered yet (native/shared/paid_purchases.h).
+   The purchase charges (saved), arms 0x728B04, sets the three-children flag
+   0x728B00, clears the barrel's cooldown 0x4CCA0D and zeroes the island
+   timer [world+0x170E0] (saved) so the next scheduler tick presents it; the
+   two flags are process-only, so after a relaunch the saved zero timer gave
+   a random event instead and the barrel was gone.  Re-armed exactly as the
+   purchase arms it, without the charge. */
+#include "../shared/paid_purchases.h"
+static void vv4_paid_rearm(void) {
+    unsigned char *world = *(unsigned char *volatile *)(UINT_PTR)0x004CB51Cu;
+    *(volatile unsigned char *)(UINT_PTR)0x00728B00u = 1;      /* three children */
+    *(volatile unsigned char *)(UINT_PTR)0x004CCA0Du = 0;      /* no cooldown */
+    if (world != NULL) {
+        *(volatile unsigned int *)(world + 0x170E0u) = 0u;     /* due now */
+    }
+}
+static const vv_paid_game VV4_PAID = {
+    (volatile unsigned char *)0x00728B04, NULL, 1, "Virtual Villagers - The Tree of Life", vv4_paid_rearm
+};
+
+static void vv4_paid_tick(void) {
+    static unsigned int ids[VV_PAID_RECORDS];
+    int slots = vv_slots(), i;
+    if (VV_REC_ARRAY_BASE == 0u || slots <= 0 || slots > VV_PAID_RECORDS) {
+        return;
+    }
+    memset(ids, 0, sizeof ids);
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *rec = (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)i * VV_REC_STRIDE);
+        if (rec[VV_OCCUPIED_OFFSET] != 0) {
+            ids[i] = vv_fingerprint(rec);
+        }
+    }
+    vv_paid_tick(4, vv_captured_save_slot(), ids, &VV4_PAID);
+}
+
 void __stdcall Vv4MaskCacheSurface(void *surface) {
     int cleared;
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
     vvfp_story_bridge(4);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(4);  /* cause of death companion: once, fail-open */
     (void)surface;   /* the hook still passes the render target; nothing here draws */
+    vv4_paid_tick();            /* a bought Barrel not delivered yet survives a quit */
     vv_prepare_mask_state();
     cleared = vv_mask_sweep();  /* clear masks on slots the game freed/reused */
     if (cleared && g_current_slot > 0) {

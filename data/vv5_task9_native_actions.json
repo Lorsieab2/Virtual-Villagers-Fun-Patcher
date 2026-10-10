@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "33D236E259E1A015F7BB9509A7FBDDF59BC07B1A6F91813E06B0001C26CF8607",
-      "size": 143360
+      "sha256": "ECA25187D2E1F98D48D97824F3878674FB0D7BFC10E8ECE829E2752987D320B7",
+      "size": 143872
     }
   ],
   "doubler_evidence": {
@@ -506,8 +506,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "841A4F6BD569E8796B4AC0EA3EFF844B031E19EEBB4516BC75A1981E1A23EBD7",
-  "base_file_sha256": "841A4F6BD569E8796B4AC0EA3EFF844B031E19EEBB4516BC75A1981E1A23EBD7",
+  "base_source_text_sha256": "9FE8F51F647F2AD0E21692432C2329F8EDF69FDBD7C244041450850520872865",
+  "base_file_sha256": "9FE8F51F647F2AD0E21692432C2329F8EDF69FDBD7C244041450850520872865",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -517,7 +517,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "DF408EAF519088BA01B9B3D50289BDBA452216BCD5BC8E435AD41E3CB7704503"
+      "source_text_sha256": "C2FE1FDB67223A791CB7C13386F66570561A79D2BC162633FDCA78461403822B"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -545,7 +545,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "841A4F6BD569E8796B4AC0EA3EFF844B031E19EEBB4516BC75A1981E1A23EBD7"
+      "source_text_sha256": "9FE8F51F647F2AD0E21692432C2329F8EDF69FDBD7C244041450850520872865"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -801,5 +801,9 @@
       }
     ]
   },
+<<<<<<< HEAD
   "task9_map_canonical_sha256": "1F8938F45D0C4140E1412B625B6DF8C62EC71697D2C83B71F2DE5232C9B1B1CE"
+=======
+  "task9_map_canonical_sha256": "8FDD3FE4556BAFDF6360558277B2DE697C36F88A0E7E408DA469DEFC73E59E2B"
+>>>>>>> origin/fix/live66-barrel-persist
 }

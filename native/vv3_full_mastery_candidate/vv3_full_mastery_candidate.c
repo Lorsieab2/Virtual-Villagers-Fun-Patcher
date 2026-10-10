@@ -1861,6 +1861,46 @@ static int vv3_scaled_nudge(int px, float scale)
    stock 0x42E5E0 call at 0x460C7F, while its untouched six arguments remain on
    the stack.  The mask reuses those exact x/y/facing/scale values and changes
    only the atlas and row.  No post-handler reconstruction or action hook exists. */
+/* The Barrel of Babies bought and not delivered yet (native/shared/paid_purchases.h):
+   the payload's pending flag 0x6E0058 (1 until barrel_present delivers it) and
+   its due time 0x6E004C, both in the process-only .vv3md page -- the charge
+   is in the save (0x582644), the barrel was not.  Re-armed as pending and due
+   at once after a relaunch. */
+#include "../shared/paid_purchases.h"
+static const vv_paid_game VV3_PAID = {
+    (volatile unsigned char *)0x006E0058, (volatile unsigned int *)0x006E004C, 1,
+    "Virtual Villagers - The Secret City", NULL
+};
+
+/* Once a quarter second at most: the world draw runs for every villager. */
+static void vv3_paid_tick(void) {
+    static unsigned int ids[VV_PAID_RECORDS];
+    static DWORD last;
+    unsigned int bound, i;
+    const unsigned char *base;
+    DWORD now = GetTickCount();
+    if (now - last < 250u) {
+        return;
+    }
+    last = now;
+    if (vv3_population_manager() == 0u) {
+        return;
+    }
+    bound = *(volatile unsigned int *)(UINT_PTR)VV3_SLOT_BOUND_PTR;
+    base = (const unsigned char *)(UINT_PTR)VV3_RECORD_BASE;
+    if (bound == 0u || bound > VV_PAID_RECORDS) {
+        return;
+    }
+    memset(ids, 0, sizeof ids);
+    for (i = 0; i < bound; ++i) {
+        const unsigned char *rec = base + (size_t)i * VV3_RECORD_STRIDE;
+        if (rec[VV3_OFF_ACTIVE] != 0) {
+            ids[i] = vv3_mask_fingerprint(rec);
+        }
+    }
+    vv_paid_tick(3, vv3_mask_captured_slot(), ids, &VV3_PAID);
+}
+
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 {
     void *atlas;
@@ -1873,6 +1913,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     vvfp_story_bridge(3);
     vvfp_cause_bridge(3);  /* cause of death companion: once, fail-open */
     vvfp_crosscheck_bridge(3, record != NULL);  /* the cross-check, silent while played: a villager is drawn */
+    vv3_paid_tick();             /* a bought Barrel not delivered yet survives a quit */
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) return;
