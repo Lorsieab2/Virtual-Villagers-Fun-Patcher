@@ -51,6 +51,8 @@ CHECKED = {
                      "every Births and Conceptions log file, after any numbered ones before them",
     "lost": "the Conceptions with no Birth whose mother has a Death or Disappeared record, against her age, "
             "the village now and the player's answers",
+    "contradictions": "the records that contradict each other (one villager born and arrived, or arrived twice; "
+                      "a Death or Repair number used twice), against the save, the logs and the player's answers",
     "born_arrived": "the backfilled \"How: unknown\" Arrived records of villagers the log already records "
                     "(a Birth record, or an Arrived record that says how they came), and the player's answers",
 }
@@ -59,6 +61,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "appearance": "Appearance changed record added",
          "faction": "Faction added", "birth_numbers": "Birth number added",
          "lost": "Lost before birth added",
+         "contradictions": "Contradicting records taken out or renumbered",
          "born_arrived": "Duplicate backfilled Arrived record removed"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
@@ -94,12 +97,13 @@ class Insert:
 @dataclass
 class Remove:
     """A whole record to take out of a log (with the blank line after it), when the player's answer
-    to `question` is `when`."""
+    to `question` is `when` (or one of them, a tuple)."""
     path: Path
     start: int                              # its heading's line index
     count: int                              # its lines, the blank line after it included
     question: str
-    when: str
+    when: str | tuple
+    also: list = field(default_factory=list)     # (question, answer): further answers it needs
     retro: str | None = None                # "Retroactively edit records?": No keeps the record
     decision: dict | None = None            # ...and remembers this (src/vv_log_decisions.py)
 
@@ -113,10 +117,13 @@ class Kind:
     notes: list[str] = field(default_factory=list)
     context: dict = field(default_factory=dict)  # birth_numbers: the game and slot it numbers again at apply
     removes: list[Remove] = field(default_factory=list)
+    # (path, line index, new text[, needs]): a line put right where it is (a repeated "Death <n>"),
+    # decided, or only on the answers `needs` names.
+    replaces: list[tuple] = field(default_factory=list)
 
     @property
     def decided(self) -> int:
-        return sum(1 for i in self.inserts if i.line)
+        return sum(1 for i in self.inserts if i.line) + sum(1 for r in self.replaces if len(r) == 3)
 
     @property
     def asked(self) -> int:
@@ -577,7 +584,9 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
     SHOULD BE LISTED AS A BIRTH WITH THEIR PARENTS LISTED" -- parents, age, skills, likes and
     dislikes).  An older patcher wrote it as an Arrived record with no parents.  The pregnancy
     it ended is a Conception with no Birth after it; the player picks which (the logs alone
-    cannot tell), and a Birth record is added after the Arrived one, which is kept."""
+    cannot tell), and the Birth record takes the Arrived record's place: a villager is never both
+    born and arrived (the owner, 2026-10-10, on Lulu Chuchip's Arrived and Birth records; the
+    Arrived record stays in the copy of the log made before the repair)."""
     kind = Kind("golden", "The Golden Child as a Birth, with its parents")
     kind.context = {"game": game, "slot": slot}     # its Birth's number (_number_births)
     if game != 1:
@@ -616,14 +625,17 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
         kind.questions[key] = Question(
             key, f"{name} is the Golden Child: whose pregnancy did the puzzle end? (mother and father)",
             list(choices) + [DONT_KNOW], DONT_KNOW)
+        # The Birth record goes where the Arrived record was: added after its last line, the Arrived
+        # lines taken out on the same answer (the blank line after it stays as the separator).
         kind.inserts.append(Insert(b.path, b.start + len(b.lines) - 1, 9, question=key, by_answer={
-            words: _golden_birth(b, m, f) for words, (m, f) in choices.items()}))
+            words: "\n".join(_golden_birth(b, m, f)) for words, (m, f) in choices.items()}))
+        kind.removes.append(Remove(b.path, b.start, len(b.lines), key, tuple(choices)))
     return kind
 
 
-def _golden_birth(arrived: Block, mother: tuple, father: tuple) -> str:
+def _golden_birth(arrived: Block, mother: tuple, father: tuple) -> list[str]:
     """A Birth record, as the exporter writes one, for the Golden Child's Arrived record."""
-    lines = ["", "Birth", f"  Child: {arrived.value('Name')}"]
+    lines = ["Birth", f"  Child: {arrived.value('Name')}"]
     for label in ("Sex", "Head", "Body", "Likes", "Dislikes"):
         if arrived.value(label) is not None:
             lines.append(f"    {label}: {arrived.value(label)}")
@@ -641,7 +653,7 @@ def _golden_birth(arrived: Block, mother: tuple, father: tuple) -> str:
         lines += [f"  {label}: {name}", f"    Head: {head}", f"    Body: {body}"]
     lines += ["  Born as: Golden Child", "  Age at birth: 100 (5 years old)",
               "  Note: Recorded afterwards (the Golden Child's parents, from the pregnancy the player chose)"]
-    return "\n".join(lines)
+    return lines
 
 
 def _babies_value(b: Block) -> str | None:
@@ -1126,6 +1138,8 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_born_arrived(folder, game, slot),
         plan_birth_numbers(folder, game, slot),
     ]
+    import vv_log_contradictions
+    kinds.append(vv_log_contradictions.plan(folder, game, slot))
     return kinds
 
 
@@ -1160,7 +1174,8 @@ def resolve_removes(kinds: list[Kind], chosen: set[str],
         if kind.id not in chosen:
             continue
         for rem in kind.removes:
-            if answers.get(rem.question, "") == rem.when \
+            whens = rem.when if isinstance(rem.when, tuple) else (rem.when,)
+            if answers.get(rem.question, "") in whens and all(answers.get(q, "") == a for q, a in rem.also) \
                     and (rem.retro is None or answers.get(rem.retro, "") == RETRO_YES):
                 out.setdefault(rem.path, []).append((rem.start, rem.count, kind.id))
     return out
@@ -1253,11 +1268,15 @@ class _Doc:
         for items in self.inserts.values():
             for _rank, _text, kind in items:
                 out[kind] = out.get(kind, 0) + 1
+        added = set(out)
+        # A record replaced by one added in its place (the Golden Child's Birth for its Arrived record)
+        # is counted once, as added.
         for _text, kind in self.replaced.values():
-            if kind != RENUMBERED:
+            if kind != RENUMBERED and kind not in added:
                 out[kind] = out.get(kind, 0) + 1
         for _start, _count, kind in self.removes:
-            out[kind] = out.get(kind, 0) + 1
+            if kind not in added:
+                out[kind] = out.get(kind, 0) + 1
         for items in self.inserts.values():          # Birth numbers given to added records
             for _rank, text, kind in items:
                 if kind != "birth_numbers" and getattr(text, "numbered", 0):
@@ -1387,6 +1406,13 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
             doc.removed.update(range(start, start + count))
             if (m := GAME_IN_NAME.search(path.name)):
                 removed_by[int(m.group(1))] = kind_id
+    # Lines put right where they are (a repeated "Death <n>" or "Repair <n>" heading): decided, or only
+    # on the answers they name (a contradiction's resolution and "Yes").
+    for kind in kinds:
+        if kind.id in chosen:
+            for rpath, index, new_text, *needs in kind.replaces:
+                if all(answers.get(q, "") == a for q, a in (needs[0] if needs else ())):
+                    docs.setdefault(rpath, _Doc(rpath)).replaced[index] = (new_text, kind.id)
     for game_number in sorted(removed_by):
         arrived = 0
         for path in births_files(folder, game_number):

@@ -1189,7 +1189,9 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
               "Repair %d\r\n"
               "  Date: %04u-%02u-%02u %02u:%02u:%02u\r\n"
               "  Checked: the parents recorded for each living villager, against the Births and Conceptions log\r\n",
-              repairs + 1, now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond);
+              /* after an older build's "Repairs" folder's own records (save_layout.h) */
+              repairs + 1 + vv_layout_older_repairs(folder, 1, file_number),
+              now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond);
     for (i = 0; i < plan->count; ++i) {
         const vv1_xc_change *c = &plan->changes[i];
         char name[VV1_NAME_CAPACITY];

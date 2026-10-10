@@ -1340,6 +1340,18 @@ static void older_names_case(void) {
     check(vv1_xc_subfolder(p, sizeof(p), "Virtual Villagers Fun Patcher Logs", "Repairs Made", 80)
           && lstrcmpA(p, dir) == 0 && exists(old_dir),
           "... and with both, new records go to Repairs Made, the older folder kept");
+    /* The owner's A New Home log (2026-10-10): "Repairs\...Log 1.txt" held Repair 1-11 and
+       "Repairs Made\...Log 1.txt" began again at Repair 1.  A new record's number continues after
+       the older folder's file of the same number. */
+    wsprintfA(old_file, "%s\\Virtual Villagers 1 Repairs Log 1.txt", old_dir);
+    write_text(old_file, "Village: T (Save 1)\r\nRepair 1\r\n  Date: x\r\n\r\nRepair 2\r\n  Date: y\r\n"
+                         "  Checked: Repair 9 in the text is not a record\r\n\r\n");
+    check(vv_layout_older_repairs(p, 1, 1) == 2 && vv_layout_older_repairs(p, 1, 2) == 0
+          && vv_layout_older_repairs(old_dir, 1, 1) == 0,
+          "with both folders, Repairs Made's Log 1 numbers on after the older Repairs' Log 1 (2 there); "
+          "a file of another number, or the older folder itself, adds nothing");
+    DeleteFileA(old_file);
+    check(vv_layout_older_repairs(p, 1, 1) == 0, "... and nothing when the older file is not there");
     RemoveDirectoryA(old_dir);
 }
 

@@ -216,6 +216,7 @@ FILES = [
     "src/vv_log_additions.py",
     "src/vv_log_decisions.py",
     "src/vv_move_old_names.py",
+    "src/vv_log_contradictions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).
     "src/vv_genealogy.py",

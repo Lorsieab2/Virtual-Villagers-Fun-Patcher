@@ -885,8 +885,33 @@ def missing_births(roster: list[Villager], births: list[LogRecord]) -> list[Vill
         named = [x for x in keys if x[0] == v.name]
         if len(named) == 1 and sum(w.name == v.name for w in roster) == 1 and not taken.get(k):
             continue
+        # A record of the villager's day: the same looks, the name with a last name or a number added
+        # or dropped, or cut short -- one such record, and no other villager it could be
+        # (arrival_backfill.inc arrival_names_related).
+        game = 1 if v.raw else 2
+        related = [x for x in keys if x[1:] == k[1:] and names_related(game, x[0], v.name)
+                   and not any((w.name, w.head, w.body) == x
+                               or (w is not v and (w.head, w.body) == x[1:] and names_related(game, x[0], w.name))
+                               for w in roster)]
+        if len(related) == 1:
+            continue
         out.append(v)
     return out
+
+
+def names_related(game: int, record: str, living: str) -> bool:
+    """native/parentage_export/arrival_backfill.inc arrival_names_related: a word added or dropped at
+    the end ("Cheop" / "Cheop Bahati"), or the living name a cut of the record's as the Villager
+    Details screen cuts one."""
+    r, l = len(record), len(living)
+    if r < 2 or l < 2 or r == l:
+        return False
+    if r < l:
+        return living.startswith(record) and living[r] == " "
+    if not record.startswith(living):
+        return False
+    low, high = (9, 10) if game == 1 else (15, 18)
+    return record[l] == " " or low <= l <= high
 
 
 def vv25_parents_vs_births(roster: list[Villager], births: list[LogRecord], rep: Report, game: int,

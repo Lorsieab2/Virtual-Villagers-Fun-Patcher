@@ -851,6 +851,72 @@ static void births_cases(void) {
     free(buffer);
 }
 
+/* 6: a record keeps the name and looks of its day (the owner's A New Home
+   log, 2026-10-10: a Birth record "Cheop" and an Arrived record "Hoani"
+   written before last names were given, then "Arrived 11 / Cheop Bahati"
+   and "Arrived 12 / Hoani Chuchip" backfilled beside them).
+     0 Cheop Bahati   the log's Birth "Cheop", same looks         -> none
+     1 Hoani Chuchip  the log's Arrived "Hoani", same looks        -> none
+     2 Papu (5/14)    Birth "Papu" 16/14, then "Appearance changed"
+                      16/14 -> 5/14                                -> none
+     3 Papu (7/7)     Arrived "Papu" 7/7                           -> none
+     4 Kito Bahati \  one Birth "Kito" 0/18 either could be:
+     5 Kito Wanjiko/  it decides nothing                           -> one each
+     6 Founda         no record at all                             -> one */
+static void renamed_cases(void) {
+    char path[MAX_PATH];
+    unsigned char *buffer;
+    int i;
+    reset(game, 1);
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    villager(0, "Cheop Bahati", 900, 4, 15, 0);
+    villager(1, "Hoani Chuchip", 577, 11, 2, 0);
+    villager(2, "Papu", 383, 5, 14, 0);
+    villager(3, "Papu", 383, 7, 7, 0);
+    villager(4, "Kito Bahati", 500, 0, 18, 0);
+    villager(5, "Kito Wanjiko", 500, 0, 18, 0);
+    villager(6, "Founda", 400, 1, 1, 0);
+    births_path(1, path);
+    write_text(path,
+        "Village: Rename Tribe (Save 1)\n"
+        "Birth\n  Child: Cheop\n    Head: 4\n    Body: 15\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chapa\n    Head: 18\n    Body: 0\n  Father: Usutu\n    Head: 18\n    Body: 1\n\n"
+        "Birth\n  Child: Papu\n    Head: 16\n    Body: 14\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chapa\n    Head: 18\n    Body: 0\n  Father: Usutu\n    Head: 18\n    Body: 1\n\n"
+        "Birth\n  Child: Kito\n    Head: 0\n    Body: 18\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chapa\n    Head: 18\n    Body: 0\n  Father: Usutu\n    Head: 18\n    Body: 1\n\n"
+        "Arrived 1\n  Name: Hoani\n  Age at arrival: 88\n  Sex: Male\n  Head: 11\n  Body: 2\n"
+        "  Likes: (none)\n  Dislikes: (none)\n  How: Barrel of Babies\n\n"
+        "Arrived 2\n  Name: Papu\n  Age at arrival: 300\n  Sex: Male\n  Head: 7\n  Body: 7\n"
+        "  Likes: (none)\n  Dislikes: (none)\n  How: unknown\n\n"
+        "Appearance changed\n  Name: Papu\n  Old head: 16\n  Old body: 14\n  New head: 5\n  New body: 14\n"
+        "  Changed by: an island event\n\n");
+    write_save_named("Rename Tribe");
+    vv_village_publish("");
+    buffer = save_buffer("Rename Tribe");
+    CHECK(scan_arrivals(game, 1) == 3,
+          "renamed: the scan counts the two Kitos and Founda only (Cheop, Hoani and both Papus are in the log)");
+    repair_arrivals(game, 1, 1);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(strstr(text, "  Name: Cheop Bahati\r\n") == NULL,
+          "renamed: Cheop Bahati's Birth record says \"Cheop\" (no last name then): no Arrived record");
+    CHECK(strstr(text, "  Name: Hoani Chuchip\r\n") == NULL,
+          "renamed: Hoani Chuchip's Arrived record says \"Hoani\": no second Arrived record");
+    CHECK(count_of(text, "  Name: Papu\r\n") == 2,
+          "renamed: the Papu whose look changed is followed through the Appearance changed record: no new"
+          " record for either Papu");
+    CHECK(count_of(text, "  Name: Kito Bahati\r\n") == 1 && count_of(text, "  Name: Kito Wanjiko\r\n") == 1,
+          "renamed: a record either of two villagers could be decides nothing: both are written");
+    CHECK(count_of(text, "  Name: Founda\r\n") == 1, "renamed: a villager with no record still gets one");
+    CHECK(scan_arrivals(game, 1) == 0, "renamed: the scan then finds nothing");
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, "Village: Rename Tribe (Save 1)\n");
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    free(buffer);
+}
+
 int main(int argc, char **argv) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     char path[MAX_PATH], marker[MAX_PATH], unacc[MAX_PATH];
@@ -1184,6 +1250,7 @@ int main(int argc, char **argv) {
         births_cases();
         quit_cases();
         stale_slot_cases();
+        renamed_cases();
         if (game == 5) {
             /* Another village loaded (another slot): a Heathen in this
                village's record and a believer in the same record of the
