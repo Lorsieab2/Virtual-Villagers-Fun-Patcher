@@ -34,5 +34,9 @@ EXPORTS
     VvfpCauseTestArrivalState=_VvfpCauseTestArrivalState@4
     VvfpCauseTestVv1Births=_VvfpCauseTestVv1Births@4
     VvfpCauseTestDeparted=_VvfpCauseTestDeparted@4
+    VvfpCauseTestWriter=_VvfpCauseTestWriter@4
+    VvfpCauseTestVv1Stash=_VvfpCauseTestVv1Stash@4
+    VvfpCauseTestDeathRecord=_VvfpCauseTestDeathRecord@8
+    VvfpCauseTestLostTick=_VvfpCauseTestLostTick@0
     VvfpCauseStats DATA
     VvfpCauseRollTest DATA

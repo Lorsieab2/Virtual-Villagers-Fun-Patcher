@@ -2140,6 +2140,28 @@ __declspec(dllexport) int __stdcall Vv1ParentageQueryNames(int index, char *fath
     return 1;
 }
 
+/* The father stashed for the pregnancy of the mother in record `index`
+   (A New Home keeps no father on the mother): his name into `father`
+   (`capacity` bytes), his head and body (-1 each when unknown; 0 is a real
+   value).  For "VVFP Cause of Death.dll"'s "Lost before birth" record, when
+   a pregnant mother dies or disappears.  Returns 1 when a stash is held. */
+__declspec(dllexport) int __stdcall Vv1ParentageQueryStash(int index, char *father, int capacity,
+                                                           int *head, int *body) {
+    const vv1_parent_entry *e;
+    if (father == NULL || capacity < 1 || head == NULL || body == NULL
+        || index < 0 || index >= VV1_RECORD_COUNT || !vv1_parents_sync()) {
+        return 0;
+    }
+    e = &g_entries[index];
+    if (!(e->stash_head || e->stash_body || e->stash_name[0])) {
+        return 0;
+    }
+    lstrcpynA(father, e->stash_name, capacity);
+    *head = (int)e->stash_head - 1;
+    *body = (int)e->stash_body - 1;
+    return 1;
+}
+
 /* Write access for the Story / Cheat Upgrades Custom Island Event, the
    owner's "alter the parents' attributes" (A New Home keeps them only in
    this sidecar): the parents recorded for the villager in record `index`.
