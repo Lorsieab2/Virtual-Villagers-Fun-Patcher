@@ -38,6 +38,7 @@ import vv_log_tools
 import vv_number_names
 import vv_save_backup
 import vv_tribe_rename
+import vv_villager_info
 from vv_tree_editor_tools import BOLD_ROLES, CanvasTools, ScrollingTab, picture_scene, panel_colour
 
 SELECT = "#1f6fd1"
@@ -608,6 +609,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.notebook = ttk.Notebook(right)
         self.notebook.pack(fill="both", expand=True)
         self._selected_tab()
+        self.info_tab = vv_villager_info.VillagerInfoTab(self)     # read-only: who the one selected is
         self._marks_tab()
         self._tree_tab()
         self._background_tab()
@@ -2897,6 +2899,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.own_detail.set_quietly(details_.pop() if len(details_) == 1 else "")
         turns = {round(self._entry(q).get("angle", 0.0), 1) for q in people}
         self.own_turn.set(f"{turns.pop():g}" if len(turns) == 1 else "")
+        if hasattr(self, "info_tab"):
+            self.info_tab.refresh()
 
     # ---- changing -----------------------------------------------------------
     def _group_style(self, attr: str, group: str, value: str) -> None:
@@ -3233,7 +3237,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self._change(special_count=int(n))
 
     # Short enough that all eight show whole in the side panel (the owner, 2026-10-09: the names were cut off).
-    TAB_ORDER = ("Selected", "Shapes", "Faces & Text", "Fonts", "Layout", "Marks", "Background", "Pictures")
+    TAB_ORDER = ("Selected", "Villager Info", "Shapes", "Faces & Text", "Fonts", "Layout", "Marks", "Background", "Pictures")
 
     def _order_tabs(self) -> None:
         """The tabs from the villagers outwards: the selected ones, every portrait, the words, the tree, then
