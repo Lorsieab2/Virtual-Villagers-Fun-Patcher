@@ -302,7 +302,7 @@ class RepairWiring(unittest.TestCase):
     def test_the_survey_finds_them_and_the_checklist_offers_them_ticked(self):
         repair = self.body("    def _repair_logs(", "    def _repair_checklist(")
         self.assertIn("cuts = vv_cut_names.find_cut(folder, number, info.slot)", repair)
-        self.assertIn("rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice = picked", repair)
+        self.assertIn("rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked", repair)
         checklist = self.body("    def _repair_checklist(", "    def _last_names_dialog(")
         self.assertIn("cuts_var = tk.BooleanVar(value=bool(cuts))", checklist)
         self.assertIn('text=f"Restore {len(cuts)} name(s) the Villager Details screen cut short "', checklist)

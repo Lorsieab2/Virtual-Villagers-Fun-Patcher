@@ -22,6 +22,7 @@ import vv_log_additions
 import vv_move_old_names
 import vv_last_names
 import vv_cut_names
+import vv_graves
 import vv_number_names
 import vv_save_backup
 import vv_startup_questions
@@ -3361,13 +3362,17 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError,
                     struct.error):
                 misnumbered = {}
+            # Each grave against its records (src/vv_graves.py); one that cannot be read is said so.
+            try:
+                graves = vv_graves.survey(folder, number, info.slot)
+            except (vv_graves.GraveError, vv_last_names.LastNamesError, ValueError, OSError, struct.error) as exc:
+                graves = f"The graves were not checked: a file could not be read ({exc})."
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
-                    cuts, unpaused, speed, misnumbered)
+                    cuts, unpaused, speed, misnumbered, graves)
 
         try:
-            checked, old_words, kinds, (cuts, cut_notes), unpaused, speed, misnumbered = self._run_with_wait(
-                "Checking the logs…\n\nNothing is changed.", survey
-            )
+            (checked, old_words, kinds, (cuts, cut_notes), unpaused, speed, misnumbered,
+             graves) = self._run_with_wait("Checking the logs…\n\nNothing is changed.", survey)
             found = (
                 f"The read-only check finds {checked.wrong} confirmed wrong ({checked.summary})"
                 if checked.wrong
@@ -3377,10 +3382,10 @@ class App(tk.Tk):
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
-                                        unpaused, speed, misnumbered)
+                                        unpaused, speed, misnumbered, graves)
         if picked is None:
             return
-        rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice = picked
+        rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked
         try:
             result = self._run_with_wait(
                 "Repairing the logs…\n\nThe save folder is backed up first.",
@@ -3393,6 +3398,9 @@ class App(tk.Tk):
             self.status_var.set("Repair Saves & Logs did not finish. See the message for what changed.")
             messagebox.showerror("Repair Saves & Logs", str(exc), parent=parent)
             return
+        # The graves the player put right, first of the save edits: the renames below then find each grave
+        # under the name its records give it.
+        grave_lines = self._fix_graves(parent, folder, number, info, grave_fixes) if grave_fixes else []
         # The cut names first of the renames, so last names and numbering never work from a cut name
         # (the checklist leaves those off while the cut names are restored).  After the lines above
         # are added: a renamed line changes no line count, and the like / dislike words are put right
@@ -3440,7 +3448,7 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The duplicate names were not numbered. {exc}", parent=parent)
-        lines = list(named_lines)
+        lines = list(named_lines) + grave_lines
         if names is not None and names.get("arrivals") is not None \
                 and names["arrivals"] != vv_last_names.read_arrivals(folder, number, info.slot):
             try:
@@ -3723,7 +3731,7 @@ class App(tk.Tk):
 
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
-                          speed: tuple | None = None, misnumbered: dict | None = None):
+                          speed: tuple | None = None, misnumbered: dict | None = None, graves=None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -3824,6 +3832,22 @@ class App(tk.Tk):
 
         cuts_var.trace_add("write", cut_first)
         cut_first()
+        # Fix grave information (src/vv_graves.py): never ticked until the player answers something.
+        graves_var = tk.BooleanVar(value=False)
+        grave_state: dict = {"answers": {}, "fixes": [], "edits": {}}
+        if isinstance(graves, str):
+            ttk.Label(frame, text=f"Graves: {graves}", wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", pady=(4, 0))
+        elif graves is not None:
+            graves_row = ttk.Frame(frame)
+            graves_row.pack(anchor="w", pady=(4, 0))
+            ttk.Checkbutton(graves_row, variable=graves_var,
+                            text=f"Fix grave information (name, age, cause, epitaph...): "
+                                 f"{len(graves.differences)} difference(s) in {len(graves.graves)} grave(s)"
+                            ).pack(side="left")
+            ttk.Button(graves_row, text="Choose…",
+                       command=lambda: self._graves_dialog(window, number, graves, grave_state, graves_var)
+                       ).pack(side="left", padx=(8, 0))
         # Game speed Paused in backups and in saves the player picks (the owner, 2026-10-08): a
         # restored backup must never catch up on the time since it was made.
         pause_backups_var = tk.BooleanVar(value=bool(unpaused))
@@ -3880,7 +3904,8 @@ class App(tk.Tk):
                                  if number_var.get() and not restore else None,
                                  restore,
                                  (list(unpaused) if pause_backups_var.get() else []) + list(picked_saves),
-                                 next((k for k, v in vv_save_backup.SPEED_CHOICES.items() if v == speed_var.get()), None))
+                                 next((k for k, v in vv_save_backup.SPEED_CHOICES.items() if v == speed_var.get()), None),
+                                 grave_state if graves_var.get() else None)
             window.destroy()
 
         ttk.Button(buttons, text="Repair", command=go).pack(side="left")
@@ -4450,6 +4475,189 @@ class App(tk.Tk):
         window.grab_set()
         parent.wait_window(window)
         _regrab(parent)
+
+    # FIX GRAVE INFORMATION (the owner, 2026-10-10: "add an option in Repair logs/saves to fix grave
+    # information too: Name, age, etc." and "account for mod-added stuff too"; src/vv_graves.py).
+    def _graves_dialog(self, parent, number: int, surveyed, state: dict, tick) -> None:
+        """Every difference between a grave and its records, each answered from its own values or
+        "Don't know / leave it" (nothing is chosen beforehand), and any grave edited directly.  The
+        answers are kept in state["answers"] / state["edits"]; `tick` is ticked when any is given."""
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: grave information")
+        window.transient(parent)
+        canvas = tk.Canvas(window, width=760, height=500, highlightthickness=0)
+        bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
+        inner = ttk.Frame(canvas, padding=12)
+        inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.configure(yscrollcommand=bar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        bar.pack(side="right", fill="y")
+        dont = vv_graves.DONT_KNOW
+        ttk.Label(inner, wraplength=720, justify="left", text=(
+            "Each grave in the save is compared with its Death record, the patcher's grave files, the "
+            "last-names record and the villager's last snapshot. For each difference, choose the value "
+            "that is right, or \"Don't know / leave it\" to change nothing. After Repair you are asked "
+            "whether to edit the old records too.")).grid(row=0, column=0, sticky="w")
+        row = 1
+        chosen: dict[str, tuple] = {}
+        if not surveyed.differences:
+            ttk.Label(inner, text="Every grave agrees with its records.", foreground="#555555").grid(
+                row=row, column=0, sticky="w", pady=(8, 0))
+            row += 1
+        for diff in surveyed.differences:
+            ttk.Label(inner, text=diff.text, wraplength=720, justify="left").grid(
+                row=row, column=0, sticky="w", pady=(8, 0))
+            shown = [dont] + [f"{vv_graves._show(v)}" for v in diff.choices]
+            var = tk.StringVar(value=state["answers"].get(diff.key, dont))
+            ttk.Combobox(inner, textvariable=var, values=shown, state="readonly", width=60).grid(
+                row=row + 1, column=0, sticky="w")
+            chosen[diff.key] = (diff, var)
+            row += 2
+        for note in surveyed.notes:
+            ttk.Label(inner, text=note, wraplength=720, justify="left", foreground="#555555").grid(
+                row=row, column=0, sticky="w", pady=(4, 0))
+            row += 1
+        # Editing a grave whose information is simply wrong.
+        edit_row = ttk.Frame(inner)
+        edit_row.grid(row=row, column=0, sticky="w", pady=(12, 0))
+        row += 1
+        ttk.Label(edit_row, text="Edit a grave yourself:").pack(side="left")
+        labels = [g.label() for g in surveyed.graves]
+        grave_var = tk.StringVar(value=labels[0] if labels else "")
+        grave_box = ttk.Combobox(edit_row, textvariable=grave_var, values=labels, state="readonly", width=48)
+        grave_box.pack(side="left", padx=(8, 0))
+        edits_note = ttk.Label(inner, foreground="#555555", wraplength=720, justify="left")
+        edits_note.grid(row=row, column=0, sticky="w")
+        row += 1
+
+        def show_edits() -> None:
+            done = [vv_graves.describe(fix) for fix in state["edits"].values()]
+            edits_note.configure(text=("Your edits: " + "; ".join(done)) if done else "")
+
+        def edit() -> None:
+            if not labels or grave_box.current() < 0:
+                return
+            self._grave_editor(window, number, surveyed, surveyed.graves[grave_box.current()], state)
+            if window.winfo_exists():
+                show_edits()
+
+        ttk.Button(edit_row, text="Edit…", command=edit,
+                   state="normal" if labels else "disabled").pack(side="left", padx=(8, 0))
+        show_edits()
+
+        def keep() -> None:
+            answers = {}
+            for key, (diff, var) in chosen.items():
+                if var.get() != dont:
+                    answers[key] = var.get()
+            state["answers"] = answers
+            state["fixes"] = []
+            for key, value in answers.items():
+                diff = chosen[key][0]
+                picked = next(v for v in diff.choices if vv_graves._show(v) == value)
+                state["fixes"].append(vv_graves.Fix(diff.place, diff.field, picked, diff.who))
+            if state["fixes"] or state["edits"]:
+                tick.set(True)
+            window.destroy()
+
+        buttons = ttk.Frame(inner)
+        buttons.grid(row=row, column=0, sticky="w", pady=(12, 0))
+        ttk.Button(buttons, text="Keep these answers", command=keep).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+
+    def _grave_editor(self, parent, number: int, surveyed, grave, state: dict) -> None:
+        """One grave's fields, as the grave and its Death record have them, to put right directly."""
+        window = tk.Toplevel(parent)
+        window.title(f"Edit the grave of {grave.name}")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=12)
+        frame.pack(fill="both", expand=True)
+        record = grave.record
+        boxes: dict[str, tk.StringVar] = {}
+        start: dict[str, str] = {}
+        for row, key in enumerate(vv_graves.editable(number, grave)):
+            if key in ("custom", "mask"):
+                if record is None:
+                    continue
+                now = record.value(vv_graves.RECORD_LINE[key]) or ""
+            else:
+                now = grave.values.get(key, grave.sidecar.get(key, ""))
+            now = "" if now is None else str(now)
+            ttk.Label(frame, text=vv_graves.FIELDS[key] + ":").grid(row=row, column=0, sticky="w", pady=2)
+            var = tk.StringVar(value=now)
+            if key == "cause":
+                ttk.Combobox(frame, textvariable=var, values=list(vv_graves.CAUSE_WORDS.values()),
+                             state="readonly", width=40).grid(row=row, column=1, sticky="w")
+            elif key == "sex":
+                ttk.Combobox(frame, textvariable=var, values=["Male", "Female"], state="readonly",
+                             width=40).grid(row=row, column=1, sticky="w")
+            elif key == "title":
+                now = now or "(no title)"
+                var.set(now)
+                ttk.Combobox(frame, textvariable=var, state="readonly", width=40,
+                             values=["(no title)", "Esteemed Elder"] + (["Tribal Chief"] if number == 3 else [])
+                             ).grid(row=row, column=1, sticky="w")
+            else:
+                ttk.Entry(frame, textvariable=var, width=42).grid(row=row, column=1, sticky="w")
+            boxes[key], start[key] = var, now
+        problem = ttk.Label(frame, foreground="#a01010", wraplength=420, justify="left")
+        problem.grid(row=len(boxes) + 1, column=0, columnspan=2, sticky="w", pady=(6, 0))
+
+        def keep() -> None:
+            found = {}
+            for key, var in boxes.items():
+                if var.get() == start[key]:
+                    continue
+                value = "" if key == "title" and var.get() == "(no title)" else var.get()
+                try:
+                    found[key] = vv_graves.check_value(number, key, value, surveyed)
+                except vv_graves.GraveError as exc:
+                    problem.configure(text=f"{vv_graves.FIELDS[key]}: {exc}")
+                    return
+            who = record.identity if record is not None else ()
+            for key, value in found.items():
+                state["edits"][(grave.place, key)] = vv_graves.Fix(grave.place, key, value, who, start[key])
+            window.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.grid(row=len(boxes) + 2, column=0, columnspan=2, sticky="w", pady=(10, 0))
+        ttk.Button(buttons, text="OK", command=keep).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+
+    def _fix_graves(self, parent, folder: Path, number: int, info, graves: dict) -> list[str]:
+        """The chosen grave fixes, after "Retroactively edit records?"; returns the summary lines."""
+        fixes = list(graves.get("fixes", []))
+        edited = {(f.place, f.field) for f in graves.get("edits", {}).values()}
+        fixes = [f for f in fixes if (f.place, f.field) not in edited] + list(graves.get("edits", {}).values())
+        if not fixes:
+            return []
+        retro = messagebox.askyesno(
+            "Repair Saves & Logs",
+            "Grave information to set:\n\n" + "\n".join(vv_graves.describe(f) for f in fixes[:20])
+            + (f"\n... and {len(fixes) - 20} more" if len(fixes) > 20 else "")
+            + "\n\nRetroactively edit records?\n\nYes: the Death records (and Epitaph changed records) are "
+            "corrected too, a copy of each kept in Copies Made Before Repairs.\nNo: only the save and the "
+            "patcher's grave files change; every record is left as it is, and your answers are remembered "
+            "so these are not asked again.", parent=parent)
+        try:
+            result = self._run_with_wait(
+                "Fixing the grave information…\n\nThe save folder is backed up first.",
+                lambda: vv_graves.fix_graves(folder, number, info.slot, fixes, retro))
+        except (vv_graves.GraveError, vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
+            messagebox.showerror("Repair Saves & Logs", f"The grave information was not fixed. {exc}", parent=parent)
+            return []
+        return [f"Grave information fixed: {len(result.fixes)} field(s), in {len(result.files)} file(s)"
+                + (" (the old records were left as they were)" if not retro else "")
+                + f". Backup: {result.backup.backup_folder}"]
 
     def _close(self) -> None:
         self._save_settings()
