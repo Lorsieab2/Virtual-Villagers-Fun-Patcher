@@ -76,6 +76,25 @@ enum { CE_TITLE_KEEP = 0, CE_TITLE_SET = 1, CE_TITLE_CLEAR = 2 };
 #define CE_AMOUNT_HEADROOM 1000000
 #define CE_MAX_AMOUNT (0x7FFFFFFF - CE_AMOUNT_HEADROOM)
 
+/* Health (the owner, 2026-10-10, the simplest method): above 0 alive, 0
+   kills -- the game's own death, as "Dies" (a skeleton). */
+#define CE_HEALTH_MAX 100
+
+/* Where a parent the player chose comes from (the Parents dialog).  KEEP: no
+   change (Villager changes only); UNKNOWN: no parent recorded (a parent the
+   villager had is cleared); VILLAGER: a villager of the village, living or a
+   body awaiting burial, read when the dialog closes (frozen, as a birth
+   records its parents once); JOEY: the default father The Tree of Life and
+   New Believers give their seeded pregnancies ("Joey", head 2, body 2: VV4
+   0x467C00..0x467C04, VV5 0x471B58..0x471B5C push 2, 2 and the string
+   "Joey" before the conception routine); CUSTOM: a typed name and looks. */
+enum { CE_PARENT_KEEP = 0, CE_PARENT_UNKNOWN = 1, CE_PARENT_VILLAGER = 2, CE_PARENT_JOEY = 3,
+       CE_PARENT_CUSTOM = 4 };
+#define CE_JOEY_NAME "Joey"
+#define CE_JOEY_FULL_NAME "Joey Joerson"   /* with Last Names (the owner) */
+#define CE_JOEY_HEAD 2
+#define CE_JOEY_BODY 2
+
 /* One kind of new villager.  `count` of them are made (0 up to the room the
    village has: ce_room_left; the delivery still stops at the game's own room
    predicate). */
@@ -93,6 +112,20 @@ typedef struct {
     char title[32];                  /* "" = none */
     int mask;                        /* CE_KEEP = none */
     int faction;                     /* CE_KEEP = the game's own */
+    int health;                      /* CE_KEEP = the game's own; 0 = dies at once */
+    /* The parents (CAP_PARENTS), recorded as a birth records them: 1 when
+       either is chosen.  A name "" with CE_KEEP looks is no parent. */
+    int parents_set;
+    char father_name[CE_NAME_BYTES];
+    char mother_name[CE_NAME_BYTES];
+    int father_head;
+    int father_body;
+    int mother_head;
+    int mother_body;
+    int father_kind;                 /* CE_PARENT_*, for the dialog when the entry is edited */
+    int mother_kind;
+    int father_record;               /* CE_PARENT_VILLAGER: the record index chosen, else -1 */
+    int mother_record;
 } ce_spawn;
 
 /* The changes for one villager. */
@@ -133,6 +166,12 @@ typedef struct {
     int unborn_skill_value;
     int faith;                       /* CAP_FAITH: CE_KEEP, else CE_FAITH_MIN..CE_FAITH_MAX,
                                         written as it is (the faction stays) */
+    int health;                      /* CE_KEEP, else 0..CE_HEALTH_MAX: 0 kills */
+    int father_kind;                 /* CE_PARENT_*: UNKNOWN clears that parent; KEEP with a
+                                        name or looks given sets them (as before) */
+    int mother_kind;
+    int father_record;               /* CE_PARENT_VILLAGER: the record index chosen, else -1 */
+    int mother_record;
 } ce_change;
 
 /* A food source or store set to an amount: the adapter's values[which]. */

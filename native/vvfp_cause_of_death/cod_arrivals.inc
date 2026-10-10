@@ -59,6 +59,7 @@
 #define ARRIVAL_PENDING 2       /* an arrival, its record written at the next save */
 
 #define ARRIVAL_HOW 48
+#define ARRIVAL_PARENTS 256
 
 static vv_arrival_fact arrival_facts[RECORDS_MAX];
 static int arrival_fact_index[RECORDS_MAX];
@@ -70,6 +71,9 @@ static struct {
     unsigned char founder;      /* made by the new-village seeding */
     int age;                    /* at arrival */
     char how[ARRIVAL_HOW];
+    /* The parents the Custom Island Event chose (VvfpCauseArrivedParents):
+       the "  Parents:" block, as every Village History record prints it. */
+    char parents[ARRIVAL_PARENTS];
 } arrivals[RECORDS_MAX];
 
 /* New Believers: -1 unknown, 0 a believer, 1 a Heathen -- as the tick last
@@ -168,6 +172,7 @@ static void arrival_created(int index, unsigned int site_va, const unsigned int 
     }
     arrivals[index].age = 0;
     arrivals[index].how[0] = '\0';
+    arrivals[index].parents[0] = '\0';
     if (m != NULL && m->label != NULL) {
         lstrcpynA(arrivals[index].how, m->label, ARRIVAL_HOW);
     }
@@ -214,13 +219,13 @@ static void arrival_decide(int index) {
 static void arrival_write(int index) {
     const unsigned char *record = cod_record(index);
     char before[VV_ARRIVAL_BEFORE];
-    char after[96];
+    char after[96 + ARRIVAL_PARENTS];
     if (record == NULL) {
         return;
     }
     wsprintfA(before, "  Age at arrival: %d\n  Sex: %s\n", arrivals[index].age,
               roster_sex(*(const int *)(record + REC[g_game].sex)));
-    wsprintfA(after, "  How: %s\n", arrivals[index].how);
+    wsprintfA(after, "  How: %s\n%s", arrivals[index].how, arrivals[index].parents);
     COD_COUNT(arrivals);
     cod_write(LOG_ARRIVED, record, 1, before, after, 2);
 }
@@ -329,6 +334,7 @@ static void arrival_tick(void) {
             arrivals[i].born = 0;
             arrivals[i].age = rec_age(record);
             lstrcpynA(arrivals[i].how, "Converted from the Heathens", ARRIVAL_HOW);
+            arrivals[i].parents[0] = '\0';
             roster_arrived(i);
         }
         faction_seen[i] = (signed char)heathen;
@@ -703,4 +709,18 @@ __declspec(dllexport) int __stdcall VvfpCauseRepairBirthsNow(int game, int slot)
     /* As for the arrivals: the marker, written only once every record is on
        disk, never a record merely held for a save that never comes. */
     return vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot, cod_marker_village(slot));
+}
+
+/* ...and the parents it chose for that villager (the owner, 2026-10-10:
+   "the Births log's Arrived record ... must show the chosen parents"): the
+   "  Parents:" block with each known parent's name, head and body, written
+   after "How:" -- the block every Village History and Population record
+   has, which the Family Tree and the Matchmaker read.  Right after
+   VvfpCauseArrivedBy, in the same frame. */
+__declspec(dllexport) void __stdcall VvfpCauseArrivedParents(int game, int index, const char *parents) {
+    if (install_state != 1 || game != g_game || index < 0 || index >= RECORDS_MAX || parents == NULL
+        || arrivals[index].state != ARRIVAL_MADE) {
+        return;
+    }
+    lstrcpynA(arrivals[index].parents, parents, ARRIVAL_PARENTS);
 }

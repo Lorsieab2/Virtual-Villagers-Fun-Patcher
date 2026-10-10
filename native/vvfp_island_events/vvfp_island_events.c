@@ -423,7 +423,7 @@ static void compare(struct snapshot *s) {
         int k2 = copy_of(s, now[i]);
         int was = k2 >= 0 && !reused(s->copy + (size_t)k2 * g_layout->copy_size, now[i]);
         if (!was) {
-            char arrival[128];
+            char arrival[512];
             more_arrival(now[i], arrival, sizeof arrival);
             g_write(g_game, KIND_ISLAND_EVENT, now[i], 1, before, arrival, 2);
             ++g_more_wrote;

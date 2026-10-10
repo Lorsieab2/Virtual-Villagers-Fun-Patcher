@@ -1241,6 +1241,33 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeInitChange(ce_change *change)
     ce_change_init(change);
 }
 
+/* Edit: the dialog's OK for the entry at `position` (ce_replace). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeReplace(ce_event *event, int position, const ce_change *change,
+                                                          unsigned int fingerprint) {
+    if (position < 0 || position >= event->change_count) {
+        return 0;
+    }
+    ce_replace(event, position, change, fingerprint);
+    return 1;
+}
+
+/* The "Parents:" blocks the last deliveries told the Births log's Arrived
+   records (ce_tell_arrival), in order; returns how many were told, and
+   copies the `k`-th into `out`. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeArrivalParents(int k, char *out, int size) {
+    if (out != NULL && size > 0) {
+        out[0] = '\0';
+        if (k >= 0 && k < test_arrival_told) {
+            lstrcpynA(out, test_arrival_parents[k], size);
+        }
+    }
+    return test_arrival_told;
+}
+
+__declspec(dllexport) void __stdcall VvfpStoryProbeArrivalReset(void) {
+    test_arrival_told = 0;
+}
+
 /* Custom titles without the file: bind the table to `slot` as loaded, with
    no entries; then VvfpStoryProbeTitleSet adds one without publishing. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeTitlesLoaded(int game, int slot, const char *path) {

@@ -26,7 +26,7 @@ SDK_VERSION = "10.0.26100.0"
 # Per game: nothing changed, the newcomer, the parents, the title set and removed, the Special
 # villager title, the whole likes list, no same-reading line, the village, the weather (or\n# none), a food store = 11; New Believers' Heathen
 # mask and The Lost Children's totem one more each.
-CHECKS = 5 * 14 + 2 + 3   # and the weather with no word, in the three games that have weather
+CHECKS = 5 * 15 + 2 + 3   # and the weather with no word, in the three games that have weather
 # Labels the games have no word for, approved by the owner on 2026-10-09 (the coordinator's message:
 # "The owner approved all of your proposals"); every other village label must be the exe's own words.
 APPROVED = {

@@ -114,6 +114,11 @@ static int c1_kill(int index) {
     return 1;
 }
 
+/* Health is +0x344 alone, the field the death above and c1_revive write. */
+static void c1_set_health(int index, int health) {
+    *(int *)(c1_record(index) + 0x344) = health;
+}
+
 /* "Get a closer look... never heard from again" (0x41979D): the record is
    freed, and the selection cleared (0x4393E0) when it was the selected one. */
 static int c1_vanish(int index) {
@@ -387,7 +392,7 @@ static int c1_golden_child(void) {
     /* He arrived by this event, as the spawns do (ce_apply): told now, in
        the creator's frame.  Untold, Cause of Death logged him "How: unknown"
        (the owner's v1.35.58 preview). */
-    ce_tell_arrival(1, index);
+    ce_tell_arrival(1, index, NULL);
     if (world[0xA008] == 0) {
         world[0xA008] = 1;
         *(int *)(world + 0x9E80) = c1_hours();
@@ -670,9 +675,11 @@ static int vv1_set_parents(int index, const ce_change *c) {
     if (set_parents == NULL) {
         return 0;
     }
-    return set_parents(index, c->father_name, c->father_head == CE_KEEP ? -1 : c->father_head,
+    /* "Unknown" clears that parent: a head of -2 (Vv1ParentageSetParents). */
+    return set_parents(index, c->father_name,
+                       c->father_kind == CE_PARENT_UNKNOWN ? -2 : c->father_head == CE_KEEP ? -1 : c->father_head,
                        c->father_body == CE_KEEP ? -1 : c->father_body, c->mother_name,
-                       c->mother_head == CE_KEEP ? -1 : c->mother_head,
+                       c->mother_kind == CE_PARENT_UNKNOWN ? -2 : c->mother_head == CE_KEEP ? -1 : c->mother_head,
                        c->mother_body == CE_KEEP ? -1 : c->mother_body);
 }
 
@@ -793,7 +800,9 @@ static const ce_adapter C1_ADAPTER = {
     "- Actions that solve or advance a puzzle, burying, picking things up and embracing.\r\n"
     "- Revive: buried villagers (their record is gone) and skeletons that have already "
     "crumbled away.\r\n"
-    "- The grave screen keeps the job a villager had when buried.",
+    "- The grave screen keeps the job a villager had when buried.\r\n"
+    "- Joey as a parent: only The Tree of Life and New Believers have him (their default "
+    "father); choose Custom to give any parent a name and looks.",
     51, 14, 51, 0,
     "Refills the berry bushes and, once the farm is producing, the crops.",
     "Your tribe gains %d food.", "Your tribe loses %d food.",
@@ -818,7 +827,8 @@ static const ce_adapter C1_ADAPTER = {
     "villager made one is given the Golden Child's age at the game's next update and keeps "
     "their own looks, sex and skills; with more than one, the Golden Child's puzzles and "
     "powers may pick any of them.",
-    0
+    0,
+    c1_set_health
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
