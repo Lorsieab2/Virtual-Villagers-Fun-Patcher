@@ -3814,6 +3814,66 @@ __declspec(dllexport) int __stdcall VillagePreferenceText(int game_id, const voi
     return 1;
 }
 
+/* A living villager's custom title as the villager logs print it (the
+   "  Custom title:" line's value), for "VVFP Island Events.dll", which shows
+   a Custom Island Event's title change as "old -> new".  `out` gets the
+   title, or "" when the villager has none.  0 when the game, the record or
+   the titles cannot be read (then nothing is compared). */
+__declspec(dllexport) int __stdcall VillageCustomTitle(int game_id, const void *record_pointer, char *out,
+                                                        int out_size) {
+    const struct game_layout *g;
+    const unsigned char *records;
+    char line[96];
+    const char *start;
+    size_t n;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || record_pointer == NULL || out == NULL || out_size <= 0) {
+        return 0;
+    }
+    out[0] = '\0';
+    g = layout_of(game_id);
+    records = villager_table(game_id);
+    if (!layout_is_usable(g) || records == NULL
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)
+        || !is_record_slot(g, records, (const unsigned char *)record_pointer)) {
+        return 0;
+    }
+    if (!record_custom_title(game_id, g, (const unsigned char *)record_pointer, records, 0, line, sizeof line)) {
+        return 1;                         /* no title */
+    }
+    start = strstr(line, ": ");
+    start = start != NULL ? start + 2 : line;
+    n = strcspn(start, "\r\n");
+    if (n >= (size_t)out_size) {
+        n = (size_t)out_size - 1;
+    }
+    memcpy(out, start, n);
+    out[n] = '\0';
+    return 1;
+}
+
+/* A village-wide island event record ("VVFP Island Events.dll": the food,
+   tech points, food stores, puzzles and weather an event changed), filed in
+   the Island Events log as every "Island event <n>" record is -- held until
+   the next save like the villagers' -- with no villager of its own.  `text`
+   is the record's lines after its heading, each "  Label: value\n". */
+__declspec(dllexport) int __stdcall WriteVillageEventRecord(int game_id, const char *text) {
+    const struct game_layout *g;
+    char record[RECORD_TEXT_MAX];
+    int written;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || text == NULL || text[0] == '\0') {
+        return 0;
+    }
+    g = layout_of(game_id);
+    if (!layout_is_usable(g)) {
+        return 0;
+    }
+    written = _snprintf(record, sizeof record, "%s\n", text);
+    if (written < 0 || (size_t)written >= sizeof record) {
+        return 0;
+    }
+    return emit_record(game_id, KIND_ISLAND_EVENT, villager_table(game_id), record);
+}
+
 /* The Deaths and Unaccounted Villagers records, filed for "VVFP Cause of
    Death.dll", which sees the deaths, burials, removals and arrivals and
    decides what each record says.  One format in all five games:

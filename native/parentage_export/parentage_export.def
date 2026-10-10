@@ -13,3 +13,5 @@ EXPORTS
     RecordArrivalsMissingFromLog=_RecordArrivalsMissingFromLog@24
     RecordBirthsMissingFromLog=_RecordBirthsMissingFromLog@24
     VillagePreferenceText=_VillagePreferenceText@20
+    VillageCustomTitle=_VillageCustomTitle@16
+    WriteVillageEventRecord=_WriteVillageEventRecord@8

@@ -124,6 +124,13 @@ static const struct field VV2_FIELDS[] = {
     { "Healing", 0x7F0, F_INT, 0 },
     { "Research", 0x7F4, F_INT, 0 },
     { "Esteemed Elder", 0x7FC, F_BYTE_FLAG, 0 },
+    /* The parents (the Custom Island Event can change them; the parentage exporter's offsets). */
+    { "Father", 0x57D, F_NAME, 0x18 },
+    { "Father's head", 0x5B0, F_INT, 0 },
+    { "Father's body", 0x5B4, F_INT, 0 },
+    { "Mother", 0x596, F_NAME, 0x18 },
+    { "Mother's head", 0x5B8, F_INT, 0 },
+    { "Mother's body", 0x5BC, F_INT, 0 },
 };
 
 static const struct field VV3_FIELDS[] = {
@@ -147,6 +154,13 @@ static const struct field VV3_FIELDS[] = {
     { "Building", 0xEBC, F_INT, 0 },
     { "Likes", 0xFB4, F_LIKES, 3 },
     { "Dislikes", 0xFC0, F_DISLIKES, 3 },
+    /* The parents (the Custom Island Event can change them; the parentage exporter's offsets). */
+    { "Father", 0xDF8, F_NAME, 0x19 },
+    { "Father's head", 0xE2C, F_INT, 0 },
+    { "Father's body", 0xE30, F_INT, 0 },
+    { "Mother", 0xE11, F_NAME, 0x19 },
+    { "Mother's head", 0xE34, F_INT, 0 },
+    { "Mother's body", 0xE38, F_INT, 0 },
 };
 
 static const struct field VV5_FIELDS[] = {
@@ -172,6 +186,13 @@ static const struct field VV5_FIELDS[] = {
     { "Faith", 0x1CF0, F_INT, 0 },
     { "Likes", 0x1F5C, F_LIKES, 3 },
     { "Dislikes", 0x1F68, F_DISLIKES, 3 },
+    /* The parents (the Custom Island Event can change them; the parentage exporter's offsets). */
+    { "Father", 0x1BC0, F_NAME, 0x19 },
+    { "Father's head", 0x1BF4, F_INT, 0 },
+    { "Father's body", 0x1BF8, F_INT, 0 },
+    { "Mother", 0x1BD9, F_NAME, 0x19 },
+    { "Mother's head", 0x1BFC, F_INT, 0 },
+    { "Mother's body", 0x1C00, F_INT, 0 },
 };
 
 static const struct field VV4_FIELDS[] = {
@@ -194,6 +215,13 @@ static const struct field VV4_FIELDS[] = {
     { "Building", 0x1C6C, F_FLOAT, 0 },
     { "Likes", 0x1E60, F_LIKES, 3 },
     { "Dislikes", 0x1E6C, F_DISLIKES, 3 },
+    /* The parents (the Custom Island Event can change them; the parentage exporter's offsets). */
+    { "Father", 0x1BC0, F_NAME, 0x19 },
+    { "Father's head", 0x1BF4, F_INT, 0 },
+    { "Father's body", 0x1BF8, F_INT, 0 },
+    { "Mother", 0x1BD9, F_NAME, 0x19 },
+    { "Mother's head", 0x1BFC, F_INT, 0 },
+    { "Mother's body", 0x1C00, F_INT, 0 },
 };
 
 #define FIELDS(a) a, (int)(sizeof a / sizeof a[0])

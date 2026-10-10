@@ -51,7 +51,8 @@ enum {
     F_BYTE_FLAG,                          /* a byte: 0 "no", anything else "yes" */
     F_SEX12,                              /* 1 Male, 2 Female (A New Home, The Lost Children) */
     F_SEX01,                              /* 0 Male, 1 Female (the later games) */
-    F_LIKES, F_DISLIKES                   /* `size` word indexes, as the logs print them */
+    F_LIKES, F_DISLIKES,                  /* `size` word indexes, as the logs print them */
+    F_NAME                                /* a parent's name, `size` bytes: "(none)" when empty */
 };
 struct field {
     const char *label;                    /* "Head", "Farming", ... */
@@ -106,6 +107,13 @@ static struct snapshot g_snaps[1];
 static char g_choice[TITLE_MAX];         /* the answer clicked, when there was one */
 static int g_depth;
 
+/* island_event_more.inc: what is not in the record copies, the village, a
+   newcomer's sex and age. */
+static void more_take(const struct snapshot *s);
+static size_t more_villager_changes(int i, const unsigned char *live, char *changes, size_t used, size_t size);
+static void more_arrival(const unsigned char *record, char *out, size_t size);
+static void more_village(const char *before);
+
 static int readable(const void *at, size_t size) {
     MEMORY_BASIC_INFORMATION info;
     if (at == NULL || VirtualQuery(at, &info, sizeof(info)) != sizeof(info) || info.State != MEM_COMMIT
@@ -135,6 +143,7 @@ static void take(struct snapshot *s) {
             s->where[i] = NULL;
         }
     }
+    more_take(s);
 }
 
 typedef int (__stdcall *preference_text_fn)(int, const void *, int, char *, int);
@@ -145,13 +154,17 @@ static void field_text(const struct field *f, const unsigned char *record, char 
     int value = *(const int *)(record + f->offset);
     out[0] = '\0';
     switch (f->type) {
-    case F_TEXT: {
+    case F_TEXT:
+    case F_NAME: {
         size_t n = 0;
         while (n < f->size && n + 1 < size && record[f->offset + n] != 0) {
             out[n] = (char)record[f->offset + n];
             ++n;
         }
         out[n] = '\0';
+        if (n == 0 && f->type == F_NAME) {
+            _snprintf(out, size, "(none)");
+        }
         break;
     }
     case F_FLOAT:
@@ -188,13 +201,13 @@ static void field_text(const struct field *f, const unsigned char *record, char 
 }
 
 static int field_same(const struct field *f, const unsigned char *a, const unsigned char *b) {
-    unsigned int n = f->type == F_TEXT ? f->size
+    unsigned int n = f->type == F_TEXT || f->type == F_NAME ? f->size
         : f->type == F_LIKES || f->type == F_DISLIKES ? f->size * 4
         : f->type == F_BYTE_FLAG ? 1 : 4;
     if (f->type == F_FLAG) {
         return (*(const int *)(a + f->offset) != 0) == (*(const int *)(b + f->offset) != 0);
     }
-    if (f->type == F_TEXT) {
+    if (f->type == F_TEXT || f->type == F_NAME) {
         /* the text, not what is left after its terminator */
         return strncmp((const char *)a + f->offset, (const char *)b + f->offset, n) == 0;
     }
@@ -293,6 +306,7 @@ static void compare(struct snapshot *s) {
                 used = n < 0 ? sizeof changes : used + (size_t)n;
             }
         }
+        used = more_villager_changes(i, live, changes, used, sizeof changes);
         if (changes[0] == '\0') {
             continue;
         }
@@ -322,9 +336,12 @@ static void compare(struct snapshot *s) {
         int k2 = copy_of(s, now[i]);
         int was = k2 >= 0 && !reused(s->copy + (size_t)k2 * g_layout->copy_size, now[i]);
         if (!was) {
-            g_write(g_game, KIND_ISLAND_EVENT, now[i], 1, before, "  New villager: yes\n", 2);
+            char arrival[128];
+            more_arrival(now[i], arrival, sizeof arrival);
+            g_write(g_game, KIND_ISLAND_EVENT, now[i], 1, before, arrival, 2);
         }
     }
+    more_village(before);
 }
 
 /* ---- The sites ----------------------------------------------------------- */
@@ -454,6 +471,7 @@ static void event_text(const char *text, size_t cap, struct snapshot_text *out) 
 }
 
 #include "island_event_games.inc"         /* the five games' layouts and sites */
+#include "island_event_more.inc"          /* a newcomer's sex and age, titles, masks, the village */
 
 #define MAX_SITES 16
 #define RETURNS 256                       /* far beyond any nesting the games make */
