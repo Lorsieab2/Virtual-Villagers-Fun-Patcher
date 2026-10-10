@@ -1547,7 +1547,10 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     # lots of portraits per page"); the gap between two portraits is the player's.
     shrink_now = 1.0
     shown = in_tree | set(others)
-    widest_frame = max([NODE_W] + [frame_size(edits, village, people[q], own=False)[0] for q in shown])
+    # A shape drawn turned (SHAPE_BAKES) spaced by its traced box, as before it was (the owner's trees keep their
+    # look); its drawing's real reach is measured as drawn (outline, drawn_reach), so none overlap.
+    widest_frame = max([NODE_W] + [own_box(shape_of(edits, village, people[q]),
+                                           *frame_size(edits, village, people[q], own=False))[0] for q in shown])
     # The Packed layouts close the player's gaps as the packing nears 100 (squeeze): touching there.
     tight = squeeze(edits)
     gap = edits.portrait_gap * (1 - tight)
@@ -1555,7 +1558,8 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         # Never so near that two portraits' drawings overlap: their borders' strokes (and a special
         # border's leaves, a mark) at least meet (frame_pad).
         gap = max(gap, 2 * max([0.0] + [frame_pad(edits, edits.entries.get(entry_key(village, people[q]), {}),
-                                                  group_of(people[q]), *frame_size(edits, village, people[q]))
+                                                  group_of(people[q]), *own_box(shape_of(edits, village, people[q]),
+                                                                                   *frame_size(edits, village, people[q])))
                                         for q in shown]))
     subgap = SUBGAP * (1 - tight)
     widest_row_n = max([len(r) for r in rows.values()] + [1])
@@ -1577,7 +1581,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             # Faces and words at one size: they may reach past a short frame -- counted as drawn.
             top, bottom = fixed_words_reach(probe, p, w, h)
             words = (-w / 2, w / 2, top, bottom)
-        return _profile(kind, w, h, entry.get("angle", 0.0), frame_pad(edits, entry, group_of(p), w, h), words)
+        return _profile(kind, w, h, entry.get("angle", 0.0), frame_pad(edits, entry, group_of(p), *own_box(kind, w, h)), words)
 
     # (A layout with no places yet, for measuring portraits' words as they will be drawn.)
     probe = Layout(village, rows, {}, {}, [], [], 0.0, 0.0, 0.0, edits=edits, shrink=shrink_now,

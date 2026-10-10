@@ -62,6 +62,10 @@ class ShapeBakesTest(unittest.TestCase):
         self.assertEqual({k: x for k, x in e.entries.items() if x}, {})          # straight now
         w, h = e.sizes["Female"]
         self.assertAlmostEqual(h / 114.7, b := ft.BAKED["monstera"]["new_h"], places=3)
+        # Spaced by the leaf's traced box, as before: the owner's tree keeps its width.
+        ow, oh = ft.own_box("monstera", w, h)
+        self.assertAlmostEqual(ow, 110.0, delta=0.05)
+        self.assertAlmostEqual(oh, 114.7, delta=0.05)
         again = ft.Edits.from_data(e.to_data())                                    # never twice
         ft.settle_shapes(again, v)
         self.assertEqual(again.sizes["Female"], e.sizes["Female"])
