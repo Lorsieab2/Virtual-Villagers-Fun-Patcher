@@ -106,7 +106,8 @@ class BornAndArrivedTests(unittest.TestCase):
         f.births(arrived(13, "Lulu Chuchip", 19, 19, special="Golden Child")
                  + birth("Lulu Chuchip", 19, 19, "Recorded afterwards (the Golden Child's parents)"))
         self.assertEqual(contra.find(f.path, 1, 1), [])
-        self.assertEqual(len(additions.plan_born_arrived(f.path, 1, 1).removes), 1)
+        # (plan_born_arrived offers it once who is alive can be read: here, nobody of that look.)
+        self.assertEqual(len(additions.plan_backfilled_arrivals(f.path, 1, 1, {}, None).removes), 1)
 
     def test_arrived_twice_the_backfilled_unknown_one_is_taken_out(self):
         f = Folder(1)

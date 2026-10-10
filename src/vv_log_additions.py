@@ -103,9 +103,9 @@ class Remove:
     count: int                              # its lines, the blank line after it included
     question: str
     when: str | tuple
-    also: list = field(default_factory=list)     # (question, answer): further answers it needs
     retro: str | None = None                # "Retroactively edit records?": No keeps the record
     decision: dict | None = None            # ...and remembers this (src/vv_log_decisions.py)
+    also: list = field(default_factory=list)     # (question, answer): further answers it needs
 
 
 @dataclass

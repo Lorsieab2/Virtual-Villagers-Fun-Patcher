@@ -141,6 +141,9 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
         alive = None
     dead = [b.identity for b in additions.person_blocks(folder, slot, game)
             if b.heading.startswith("Death") or b.heading.startswith("Disappeared")]
+    # The backfilled records plan_born_arrived offers (a duplicate of a real Arrived record of the same
+    # name, head and body, when who is alive can be read): asked about there, never twice.
+    offered_elsewhere = {(r.path, r.start) for r in additions.plan_born_arrived(folder, game, slot).removes}
     by_key: dict[tuple, list] = {}
     for b, kind, key in records:
         by_key.setdefault(now(key), []).append((b, kind))
@@ -161,13 +164,10 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
         others = [b for b, _ in recs]
         for b, _kind in backfilled[:surplus]:
             if (b.value("How") or "").strip().lower() == "unknown" and any(
-                    (kind == "birth" and _child(o) == b.identity)
-                    or (kind == "arrived" and o is not b and o.identity == b.identity
-                        and not additions.is_backfilled_arrival(o) and o.value("How"))
-                    for o, kind in recs):
-                # A Birth record, or an Arrived record that says how they came, of the same name, head and
-                # body: vv_log_additions.plan_born_arrived and the checker take this one.
-                continue
+                    kind == "birth" and _child(o) == b.identity for o, kind in recs):
+                continue        # vv_log_additions.plan_born_arrived and the checker take this one
+            if (b.path, b.start) in offered_elsewhere:
+                continue        # ...and so it does a backfill of a real Arrived record it offers itself
             kept = [o for o in others if o is not b]
             what = ", ".join(f"{o.heading} ({o.path.name})" for o in kept)
             ident = f"born_and_arrived|{b.heading}|{key[0]}|{key[1]}|{key[2]}"
