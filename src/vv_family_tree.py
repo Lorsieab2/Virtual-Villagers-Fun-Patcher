@@ -364,6 +364,9 @@ class Edits:
     # Family lines straight and behind the portraits (the owner, 2026-10-09: "a toggle for lines run
     # behind portraits"); None until the player says: behind only in a Packed layout packed 98 or more.
     lines_behind: bool | None = None
+    # A thin dark or white outline under family lines whose own colour would blend into the background
+    # (the owner, 2026-10-10: "make it an optional toggle default off").
+    outline_lines: bool = False
     picture_size: float = 100.0        # every portrait's face, percent (PICTURE_SCALE_MIN..MAX)
     text_size: float = 100.0           # every portrait's words, percent (TEXT_SCALE_MIN..MAX)
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
@@ -514,6 +517,7 @@ class Edits:
         out.others_side = data.get("others_side") if data.get("others_side") in OTHERS_SIDES else "right"
         out.packing = int(_number(data.get("packing"), 0, 100, PACKING))
         out.lines_behind = data.get("lines_behind") if isinstance(data.get("lines_behind"), bool) else None
+        out.outline_lines = data.get("outline_lines") is True
         out.picture_size = _number(data.get("picture_size"), PICTURE_SCALE_MIN, PICTURE_SCALE_MAX, 100.0)
         out.text_size = _number(data.get("text_size"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
@@ -683,7 +687,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -5392,6 +5396,7 @@ class Line:
     opacity: float = 1.0
     dash: str = ""                      # LINE_TYPES
     pid: int | None = None              # the villager whose portrait it is part of (a border, a vine)
+    casing: bool = False                # the thin outline under a family line that would blend into the background
 
 
 @dataclass
@@ -5649,6 +5654,15 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
             out.stickers.append(item)
     if not canvas:
         _fit_page(out)
+    # The thin casings under family lines whose own colour would blend into the background somewhere
+    # (Auto-colour family lines; the owner, 2026-10-10: an option, "Outline lines that blend into the
+    # background", off unless the player ticks it), under every family line.
+    if lay.edits.outline_lines:
+        import vv_line_colours              # here: it draws on this module
+        cased = vv_line_colours.casings(lay, out)
+        if cased:
+            at = next(k for k, i in enumerate(out.items) if isinstance(i, Line) and i.piece)
+            out.items[at:at] = cased
     return out
 
 

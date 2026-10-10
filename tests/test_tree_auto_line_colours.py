@@ -2,7 +2,7 @@
 tree maker. (should be distinct from other line colors and not blend into the background)"): lines only,
 each family's a colour clearly different from every other's (most where lines cross or run close), at least
 3:1 (WCAG non-text contrast) against the background actually under it -- plain, gradient, picture or
-transparent -- at the lines' opacity; the same tree always the same colours; undo, Reset and saving; and the
+transparent -- at the lines' opacity, or else a thin casing under it; the same tree always the same colours; undo, Reset and saving; and the
 editor, the PNG and the SVG all drawing the same colours."""
 import json
 import math
@@ -27,8 +27,9 @@ from test_genealogy import village  # noqa: E402
 
 GAME = "Virtual Villagers - A New Home"
 # The closest two families' OKLab distance (x100; about 2 is just noticeable) the button must reach on a white
-# page, by how many families there are (it reaches about 23, 11 and 7.6 -- see test_distinct_from_each_other).
-NEAREST = {10: 18.0, 50: 9.0, 112: 6.0}
+# page, by how many families there are.  Measured 2026-10-10 (any colour, a casing where one blends): 21.8, 10.6
+# and 7.6 (the closest crossing or nearby pair 38.6, 17.0 and 12.5).
+NEAREST = {10: 19.0, 50: 9.5, 112: 6.5}
 
 
 # ---- independent checks (not the module's own arithmetic) ------------------------------------------
@@ -118,14 +119,15 @@ def page_colours(backdrop: ft.Backdrop, width: float, height: float):
     return lambda x, y: plain
 
 
-def worst_on_page(sc: ft.Scene, frames=()) -> dict[str, float]:
+def worst_on_page(sc: ft.Scene, frames=(), casing: bool = False) -> dict[str, float]:
     """Each family's lowest contrast against the background, every 2 pixels along its lines and up to 4
     pixels either side, at the lines' opacity (blended over the background as GDI+ blends it)."""
     backdrop = next(i for i in sc.items if isinstance(i, ft.Backdrop))
     under = page_colours(backdrop, sc.width, sc.height)
     out: dict[str, float] = {}
     for item in sc.items:
-        if not (isinstance(item, ft.Line) and item.target and item.target[0] == "family"):
+        if not (isinstance(item, ft.Line) and item.target and item.target[0] == "family"
+                and item.casing == casing):
             continue
         c = _rgb(item.colour)
         a = item.opacity
@@ -186,9 +188,23 @@ def recoloured(pages, colours: dict[str, str]):
     return pages
 
 
+def coloured(pages, colours: dict[str, str]):
+    """The pages with the families' lines in these colours (saved as their own) and the casings the scene
+    puts under them."""
+    for lay, sc in pages:
+        lc.apply(lay.edits, colours)
+        for item in sc.items:
+            if isinstance(item, ft.Line) and item.target and item.target[1] in colours:
+                item.colour = colours[item.target[1]]
+        cased = lc.casings(lay, sc)
+        sc.items[1:1] = cased
+    return pages
+
+
 @unittest.skipUnless(vv_gdiplus.available(), "the background is drawn with GDI+ (Windows)")
 class ContrastTests(unittest.TestCase):
-    """Never blending into the background: at least 3:1 against the worst point under every family's lines."""
+    """Never blending into the background: a family's colour that would fall below 3:1 against the worst
+    point under its lines gets a thin casing, dark or white, whichever stands out more there."""
 
     def backgrounds(self, folder: Path) -> dict[str, ft.Backdrop]:
         stripes = folder / "stripes.png"
@@ -210,56 +226,104 @@ class ContrastTests(unittest.TestCase):
         }
 
     # Backgrounds where a line may lie over both a dark and a light part (the vivid rainbow's blue and cyan, a
-    # dark picture fitted between white bars, a half see-through picture over white or black): there no
-    # colour at all can stand out 3:1 against both, and those families are only as strong as can be.
-    MIXED = {"rainbow", "dark picture, fitted", "picture on transparent, 50%"}
+    # dark picture fitted between white bars, a half see-through picture over white or black): there neither
+    # a dark nor a white casing stands out 3:1 everywhere, only the better of the two.
+    MIXED = {"rainbow", "dark picture, fitted", "picture on transparent, 50%", "transparent"}
 
-    def test_every_family_stands_out_on_every_background(self):
+    def test_every_family_stands_out_or_is_cased_on_every_background(self):
         with tempfile.TemporaryDirectory() as tmp:
             for name, backdrop in self.backgrounds(Path(tmp)).items():
                 with self.subTest(background=name):
                     pages = many_families(30, backdrop)
                     res = lc.auto_colours(pages)
                     self.assertEqual(len(res.colours), 30)
-                    if name not in self.MIXED:
-                        self.assertEqual(res.short, [])
-                    worst = worst_on_page(recoloured(pages, res.colours)[0][1])
+                    sc = coloured(pages, res.colours)[0][1]
+                    lines = worst_on_page(sc)
+                    cases = worst_on_page(sc, casing=True)
                     fams = lc.gather(pages)
-                    for key, ratio in worst.items():
-                        if key in res.short:
-                            best = max(lc.worst_contrast(fams[key], c) for c in lc.candidates())
-                            self.assertLess(best, lc.FLOOR)         # truly impossible...
-                            self.assertGreaterEqual(res.contrast[key], 0.95 * best)   # ...and as strong as can be
-                        else:
+                    cased = {i.target[1]: i.colour for i in sc.items if isinstance(i, ft.Line) and i.casing}
+                    self.assertEqual(sorted(cased), res.cased)
+                    for key, ratio in lines.items():
+                        if key not in cased:
                             self.assertGreaterEqual(ratio, lc.FLOOR - 0.05, (name, key))
-                            self.assertGreaterEqual(res.contrast[key], lc.FLOOR)
-                    self.assertLess(len(res.short), 15)
+                            continue
+                        self.assertIn(cased[key], lc.CASINGS)
+                        other = next(c for c in lc.CASINGS if c != cased[key])
+                        self.assertGreaterEqual(lc.worst_contrast(fams[key], cased[key]),
+                                                lc.worst_contrast(fams[key], other))    # the better of the two
+                        if name not in self.MIXED:
+                            self.assertGreaterEqual(cases[key], lc.FLOOR - 0.05, (name, key))
 
     def test_the_lines_opacity_is_counted(self):
         pages = many_families(20, ft.Backdrop("#ffffff"), opacity=0.6)
         res = lc.auto_colours(pages)
-        self.assertEqual(res.short, [])
-        worst = worst_on_page(recoloured(pages, res.colours)[0][1])
-        self.assertGreaterEqual(min(worst.values()), lc.FLOOR - 0.05)
-        # Too see-through to reach 3:1 anywhere: as strong as can be, and said so.
+        sc = coloured(pages, res.colours)[0][1]
+        lines = worst_on_page(sc)
+        cased = {i.target[1] for i in sc.items if isinstance(i, ft.Line) and i.casing}
+        self.assertEqual({k for k, r in lines.items() if r < lc.FLOOR - 0.05} - cased, set())
+        self.assertTrue(all(i.opacity == 0.6 for i in sc.items if isinstance(i, ft.Line) and i.casing))
+        # Too see-through to stand out anywhere: every family cased.
         faint = lc.auto_colours(many_families(5, ft.Backdrop("#ffffff"), opacity=0.25))
-        self.assertEqual(len(faint.short), 5)
-        self.assertTrue(all(c > 1.5 for c in faint.contrast.values()))
+        self.assertEqual(len(faint.cased), 5)
 
     def test_a_transparent_page_is_checked_on_white_and_black(self):
-        res = lc.auto_colours(many_families(12, ft.Backdrop(ft.TRANSPARENT)))
-        for colour in res.colours.values():
-            self.assertGreaterEqual(_ratio(_rgb(colour), (255, 255, 255)), lc.FLOOR)
-            self.assertGreaterEqual(_ratio(_rgb(colour), (0, 0, 0)), lc.FLOOR)
+        pages = many_families(12, ft.Backdrop(ft.TRANSPARENT))
+        res = lc.auto_colours(pages)
+        for key, colour in res.colours.items():
+            blends = min(_ratio(_rgb(colour), (255, 255, 255)), _ratio(_rgb(colour), (0, 0, 0))) < lc.FLOOR
+            self.assertEqual(key in res.cased, blends, colour)
 
     def test_behind_a_portrait_does_not_count(self):
-        # A line wholly over a black box drawn under a white portrait: only the part outside counts.
+        # A line wholly behind a portrait: nothing read; the page's own colour counts.
         pages = many_families(1, ft.Backdrop("#ffffff"))
         lay = pages[0][0]
         lay.x = {1: 0}
         lay.frame_points = lambda q: [(0, 0), (2000, 0), (2000, 2000), (0, 2000)]
         fams = lc.gather(pages)
-        self.assertEqual(fams["family 000"].colours, [(255, 255, 255)])   # the page's own colour, nothing read
+        self.assertEqual(fams["family 000"].colours, [(255, 255, 255)])
+
+
+class CasingTests(unittest.TestCase):
+    def test_only_where_needed_under_every_line_wider_and_the_same_everywhere(self):
+        v = village()
+        e = ft.Edits()
+        lay = ft.layout(v, e)
+        keys = sorted({ft.family_key(v, f) for f in lay.families})
+        self.assertGreaterEqual(len(keys), 2)
+        e.family_lines[keys[0]] = {"colour": "#fafafa"}         # by hand: white lines on a white page
+        e.family_lines[keys[1]] = {"colour": "#202020"}         # and dark ones, which stand out
+        # Off unless the player ticks "Outline lines that blend into the background" (the owner, 2026-10-10):
+        # nothing drawn, anywhere.
+        self.assertFalse(e.outline_lines)
+        off = ft.scene(ft.layout(v, e), GAME, {})
+        self.assertFalse(any(isinstance(i, ft.Line) and i.casing for i in off.items))
+        self.assertNotIn('stroke="#1a1a1a"', ft.to_svg(off, {}))
+        e.outline_lines = True
+        self.assertTrue(ft.Edits._from_data(json.loads(json.dumps(e.to_data()))).outline_lines)
+        self.assertFalse(ft.Edits._from_data({}).outline_lines)
+        sc = ft.scene(ft.layout(v, e), GAME, {})
+        cases = [i for i in sc.items if isinstance(i, ft.Line) and i.casing]
+        lines = [i for i in sc.items if isinstance(i, ft.Line) and i.piece]
+        self.assertTrue(cases)
+        self.assertEqual({i.target[1] for i in cases}, {keys[0]})
+        self.assertEqual({i.colour for i in cases}, {"#1a1a1a"})
+        first_line = sc.items.index(lines[0])
+        self.assertTrue(all(sc.items.index(c) < first_line for c in cases))   # under every family line
+        mine = [i for i in lines if i.target[1] == keys[0]]
+        self.assertEqual(sorted((tuple(map(tuple, i.points)), i.width + 2 * lc.CASING) for i in mine),
+                         sorted((tuple(map(tuple, c.points)), c.width) for c in cases))
+        svg = ft.to_svg(sc, {})
+        self.assertIn('stroke="#1a1a1a"', svg)
+        # The casings fade with the Family lines opacity, as their lines do.
+        e.opacity["lines"] = 40
+        faded = [i for i in ft.scene(ft.layout(v, e), GAME, {}).items if isinstance(i, ft.Line) and i.casing]
+        self.assertTrue(faded and all(abs(i.opacity - 0.4) < 1e-9 for i in faded))
+        # Reset to family colours: no outlines either.
+        self.assertTrue(lc.reset(e))
+        self.assertFalse(e.outline_lines)
+        # Family colours (no colour of their own) are never cased: older trees look as they did.
+        plain = ft.scene(ft.layout(v, ft.Edits(outline_lines=True)), GAME, {})
+        self.assertFalse(any(isinstance(i, ft.Line) and i.casing for i in plain.items))
 
 
 class DistinctTests(unittest.TestCase):
@@ -309,7 +373,7 @@ class EditsTests(unittest.TestCase):
         self.assertEqual(shapes, [(i.pid, i.stroke, i.fill) for i in after.items
                                   if isinstance(i, ft.Shape) and i.pid is not None])
         for item in after.items:
-            if isinstance(item, ft.Line) and item.target and item.target[0] == "family":
+            if isinstance(item, ft.Line) and item.piece:
                 self.assertEqual(item.colour, res.colours[item.target[1]])
 
     def test_an_own_line_colour_wins_over_the_lines_scheme(self):
@@ -420,7 +484,7 @@ class ExportTests(unittest.TestCase):
         lay = ft.layout(v, e)
         lc.apply(e, lc.auto_colours([(lay, ft.scene(lay, GAME, {}))]).colours)
         sc = ft.scene(ft.layout(v, e), GAME, {})
-        lines = [i for i in sc.items if isinstance(i, ft.Line) and i.target and i.target[0] == "family"]
+        lines = [i for i in sc.items if isinstance(i, ft.Line) and i.piece]
         svg = ft.to_svg(sc, {})
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "tree.png"

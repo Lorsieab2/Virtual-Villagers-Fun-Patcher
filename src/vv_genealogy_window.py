@@ -1343,6 +1343,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(row, text="Auto-colour family lines", command=self._auto_line_colours).pack(side="left")
         ttk.Button(row, text="Reset to family colours", command=self._reset_line_colours).pack(side="left",
                                                                                               padx=(6, 0))
+        # A thin dark or white outline under lines whose own colour would blend into the background (the
+        # owner, 2026-10-10: "make it an optional toggle default off").
+        self.outline_var = tk.BooleanVar(value=e.outline_lines)
+        ttk.Checkbutton(tab, text="Outline lines that blend into the background", variable=self.outline_var,
+                        command=lambda: self._change(outline_lines=bool(self.outline_var.get()))).pack(
+            anchor="w", pady=(4, 0))
         tab = l_deleted
         box = ttk.LabelFrame(tab, text="Deleted items", padding=6)
         box.pack(fill="x", pady=(12, 0))
@@ -3522,7 +3528,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.update_idletasks()
         try:
             pages = [self._page_scene(k) for k in range(max(1, self.lay.pages))]
-            result = vv_line_colours.auto_colours(pages)
+            result = vv_line_colours.auto_colours(pages, outline=self.edits.outline_lines)
         finally:
             self.configure(cursor="")
         if not result.colours:
@@ -3532,17 +3538,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         vv_line_colours.apply(self.edits, result.colours)
         if json.dumps(self.edits.family_lines, sort_keys=True) != before:
             self._saved()
-        words = (f"{len(result.colours)} families' lines coloured: each at least "
-                 f"{min(result.contrast.values()):.1f}:1 against the background.")
-        if result.short:
-            words += (f"  {len(result.short)} are too see-through (Opacity > Family lines) to reach 3:1 and are "
-                      "as strong as they can be.")
+        words = f"{len(result.colours)} families' lines coloured, each its own colour."
+        if result.cased and self.edits.outline_lines:
+            words += (f"  {len(result.cased)} would blend into the background in places, so they have a thin "
+                      "outline.")
+        elif result.cased:
+            words += (f"  {len(result.cased)} blend into the background in places: tick \"Outline lines that "
+                      "blend into the background\" to outline them.")
         self.status.set(words + "  Ctrl+Z undoes it.")
 
     def _reset_line_colours(self) -> None:
         """Every family's lines back in their family's colour.  One step to undo."""
         if vv_line_colours.reset(self.edits):
             self._saved()
+            self._refresh_panels()
             self.status.set("The family lines are in their families' colours again.")
         else:
             self.status.set("The family lines are already in their families' colours.")
@@ -3693,6 +3702,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.packing_scale.set(e.packing)
         self._show_packing()
         self.lines_behind_var.set(ft.behind(e))
+        self.outline_var.set(e.outline_lines)
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))
