@@ -117,16 +117,17 @@ static int __stdcall stub_title(int game, const void *record, char *out, int siz
 /* A New Home's parents, by record index: what the Show Parents companion keeps. */
 static char g_vv1_father[0x20], g_vv1_mother[0x20];
 static int g_vv1_looks[4] = { -1, -1, -1, -1 };
+static int g_vv1_index = 2;               /* the record the stubs answer for */
 static int __stdcall stub_vv1_query(int index, int *out) {
     int k;
     for (k = 0; k < 4; ++k) {
-        out[k] = index == 2 ? g_vv1_looks[k] : -1;
+        out[k] = index == g_vv1_index ? g_vv1_looks[k] : -1;
     }
     return 1;
 }
 static int __stdcall stub_vv1_names(int index, char *father, char *mother, int capacity) {
-    lstrcpynA(father, index == 2 ? g_vv1_father : "", capacity);
-    lstrcpynA(mother, index == 2 ? g_vv1_mother : "", capacity);
+    lstrcpynA(father, index == g_vv1_index ? g_vv1_father : "", capacity);
+    lstrcpynA(mother, index == g_vv1_index ? g_vv1_mother : "", capacity);
     return 1;
 }
 
@@ -256,6 +257,7 @@ int main(void) {
         const struct field *age = field_named(&layout, "Age");
         const struct field *father = field_named(&layout, "Father");
         const struct field *mother_head = field_named(&layout, "Mother's head");
+        const struct field *health = field_named(&layout, "Health");
         unsigned int present = ARRAYS[g_harness_game].present;
         int female = g_harness_game <= 2 ? 2 : 1;   /* F_SEX12 / F_SEX01 */
         int type;
@@ -303,11 +305,12 @@ int main(void) {
         put_text(slot(3) + layout.name, "Newt");
         put_int(sex, slot(3), female);
         put_int(age, slot(3), 340);
+        put_int(health, slot(3), 75);
         compare(&g_snaps[0]);
         CHECK(record_of(slot(3)) != NULL
               && strcmp(record_of(slot(3))->changes,
-                        "  New villager: yes\n  Sex: Female\n  Age: 340 (17 years old)\n") == 0,
-              "a new villager's record says \"Sex: Female\" and \"Age: 340 (17 years old)\"");
+                        "  New villager: yes\n  Sex: Female\n  Age: 340 (17 years old)\n  Health: 75\n") == 0,
+              "a new villager's record says \"Sex: Female\", \"Age: 340 (17 years old)\" and \"Health: 75\"");
         /* 0 is a valid head, body and age (the owner): a newborn-aged newcomer
            with head 0 and body 0 is named with them, never as unknown. */
         begin();
@@ -319,8 +322,50 @@ int main(void) {
         put_int(age, slot(6), 0);
         compare(&g_snaps[0]);
         CHECK(record_of(slot(6)) != NULL
-              && strcmp(record_of(slot(6))->changes, "  New villager: yes\n  Sex: Female\n  Age: 0 (0 years old)\n") == 0,
+              && strcmp(record_of(slot(6))->changes,
+                        "  New villager: yes\n  Sex: Female\n  Age: 0 (0 years old)\n  Health: 0\n") == 0,
               "a newcomer of age 0, head 0, body 0: \"Age: 0 (0 years old)\", recorded like any other");
+
+        /* 1b. A Custom Island Event's new villager with the parents it chose
+           (the owner, 2026-10-10): each named parent and their looks, in the
+           labels a parents change prints -- Joey (head 2, body 2) and a
+           mother with head 0 and body 0 (real looks, never "unknown"). */
+        begin();
+        slot(7)[present] = 1;
+        put_text(slot(7) + layout.name, "Kiri");
+        put_int(sex, slot(7), female);
+        put_int(age, slot(7), 100);
+        put_int(health, slot(7), 60);
+        if (g_harness_game == 1) {
+            g_vv1_index = 7;
+            lstrcpynA(g_vv1_father, "Joey", sizeof g_vv1_father);
+            lstrcpynA(g_vv1_mother, "Ana Moana", sizeof g_vv1_mother);
+            g_vv1_looks[0] = 2;
+            g_vv1_looks[1] = 2;
+            g_vv1_looks[2] = 0;
+            g_vv1_looks[3] = 0;
+        } else {
+            const struct field *fh = field_named(&layout, "Father's head");
+            const struct field *fb = field_named(&layout, "Father's body");
+            const struct field *mb = field_named(&layout, "Mother's body");
+            put_text(slot(7) + father->offset, "Joey");
+            put_text(slot(7) + field_named(&layout, "Mother")->offset, "Ana Moana");
+            put_int(fh, slot(7), 2);
+            put_int(fb, slot(7), 2);
+            put_int(mother_head, slot(7), 0);
+            put_int(mb, slot(7), 0);
+        }
+        compare(&g_snaps[0]);
+        CHECK(record_of(slot(7)) != NULL
+              && strcmp(record_of(slot(7))->changes,
+                        "  New villager: yes\n  Sex: Female\n  Age: 100 (5 years old)\n  Health: 60\n"
+                        "  Father: Joey\n  Father's head: 2\n  Father's body: 2\n"
+                        "  Mother: Ana Moana\n  Mother's head: 0\n  Mother's body: 0\n") == 0,
+              "a new villager's chosen parents: \"Father: Joey\", his head 2 and body 2, \"Mother: Ana Moana\", 0 and 0");
+        g_vv1_index = 2;
+        g_vv1_father[0] = g_vv1_mother[0] = '\0';
+        g_vv1_looks[0] = g_vv1_looks[1] = g_vv1_looks[2] = g_vv1_looks[3] = -1;
+        slot(7)[present] = 0;
 
         /* 2. Parents. */
         begin();

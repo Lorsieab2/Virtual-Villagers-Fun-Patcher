@@ -2339,7 +2339,8 @@ __declspec(dllexport) int __stdcall Vv1ParentageQueryStash(int index, char *fath
    owner's "alter the parents' attributes" (A New Home keeps them only in
    this sidecar): the parents recorded for the villager in record `index`.
    An empty or NULL name, or an appearance below 0, leaves that value as it
-   is; an appearance is 0..VV1_APPEARANCE_MAX.  The entry is the record's
+   is; an appearance is 0..VV1_APPEARANCE_MAX; a head of -2 makes that
+   parent unknown (the Custom Island Event's "Unknown").  The entry is the record's
    current occupant's (the roster is written with it), and the table is
    persisted like every other change.  Returns 1 when stored and persisted. */
 __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char *father,
@@ -2362,6 +2363,22 @@ __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char
     }
     e = &g_entries[index];
     before = *e;
+    /* A head of -2: that parent is "Unknown" -- name and looks cleared (a
+       looks byte of 0 is unknown in this table's +1 encoding). */
+    if (father_head == -2) {
+        memset(e->father_name, 0, sizeof e->father_name);
+        e->father_head = 0;
+        e->father_body = 0;
+        father = NULL;
+        father_head = father_body = -1;
+    }
+    if (mother_head == -2) {
+        memset(e->mother_name, 0, sizeof e->mother_name);
+        e->mother_head = 0;
+        e->mother_body = 0;
+        mother = NULL;
+        mother_head = mother_body = -1;
+    }
     if (father != NULL && father[0] != '\0') {
         lstrcpynA(e->father_name, father, VV1_NAME_CAPACITY);
     }

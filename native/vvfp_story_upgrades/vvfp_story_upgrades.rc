@@ -7,9 +7,12 @@
    302 Custom Island Event: the event's title and description, the village
        changes, the new villagers and the villager changes.
    303 Villager changes: the villagers (extended selection) and the five group
-       toggles, and the changes for them.
-   304 New villagers: one kind of new villager and how many.
-   305 Parents: the parentage data of the chosen villagers.
+       toggles, and the changes for them (health included); reopened by Edit
+       for one entry, its villager fixed.
+   304 New villagers: one kind of new villager and how many, their health and
+       parents; reopened by Edit for one entry.
+   305 Parents: each parent a villager of the village, Unknown, Joey or
+       Custom (first and last name, head and body).
    306 Food sources: set a food source or store to an amount.
    307 Puzzles: mark puzzles solved or unsolved.
    308 Revive: skeletons brought back to life.
@@ -85,21 +88,24 @@ BEGIN
     LISTBOX     1108, 254, 108, 152, 52, LBS_MULTIPLESEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
 
     GROUPBOX    "New villagers", -1, 8, 170, 404, 66
-    LISTBOX     1111, 16, 182, 300, 50, LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    LISTBOX     1111, 16, 182, 300, 50, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
     PUSHBUTTON  "Add...", 1112, 324, 182, 80, 14, WS_TABSTOP
-    PUSHBUTTON  "Remove", 1113, 324, 200, 80, 14, WS_TABSTOP
+    PUSHBUTTON  "Edit...", 1115, 324, 198, 80, 14, WS_TABSTOP
+    PUSHBUTTON  "Remove", 1113, 324, 214, 80, 14, WS_TABSTOP
 
     GROUPBOX    "Villager changes", -1, 8, 240, 404, 84
-    LISTBOX     1121, 16, 252, 300, 68, LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    LISTBOX     1121, 16, 252, 300, 68, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
     PUSHBUTTON  "Add...", 1122, 324, 252, 80, 14, WS_TABSTOP
-    PUSHBUTTON  "Remove", 1123, 324, 270, 80, 14, WS_TABSTOP
+    PUSHBUTTON  "Edit...", 1125, 324, 268, 80, 14, WS_TABSTOP
+    PUSHBUTTON  "Remove", 1123, 324, 284, 80, 14, WS_TABSTOP
 
     GROUPBOX    "Food sources, puzzles and revivals", -1, 8, 328, 404, 62
-    LISTBOX     1131, 16, 340, 300, 46, LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    LISTBOX     1131, 16, 340, 300, 46, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
     PUSHBUTTON  "Food sources...", 1132, 324, 338, 80, 11, WS_TABSTOP
     PUSHBUTTON  "Puzzles...", 1133, 324, 350, 80, 11, WS_TABSTOP
     PUSHBUTTON  "Revive...", 1134, 324, 362, 80, 11, WS_TABSTOP
-    PUSHBUTTON  "Remove", 1135, 324, 374, 80, 11, WS_TABSTOP
+    PUSHBUTTON  "Edit...", 1140, 324, 374, 38, 11, WS_TABSTOP
+    PUSHBUTTON  "Remove", 1135, 366, 374, 38, 11, WS_TABSTOP
 
     AUTOCHECKBOX "Ask a question with two choices", 1137, 8, 396, 150, 10, WS_TABSTOP
     PUSHBUTTON  "Choices...", 1138, 162, 394, 80, 14, WS_TABSTOP
@@ -110,7 +116,7 @@ BEGIN
     PUSHBUTTON  "Cancel", 2, 348, 412, 64, 15
 END
 
-303 DIALOGEX 0, 0, 460, 362
+303 DIALOGEX 0, 0, 460, 392
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager changes"
 FONT 9, "Segoe UI"
@@ -185,12 +191,16 @@ BEGIN
     LTEXT       "Faith (-100 to 100):", 2076, 206, 308, 72, 10
     EDITTEXT    2075, 280, 306, 40, 13, WS_TABSTOP
     LTEXT       "blank = no change; the faction stays", 2077, 324, 308, 128, 10
-    LTEXT       "", 2090, 8, 322, 444, 20
-    DEFPUSHBUTTON "Add to event", 1, 316, 342, 64, 15
-    PUSHBUTTON  "Cancel", 2, 388, 342, 64, 15
+    LTEXT       "Health (0-100):", -1, 206, 324, 72, 10
+    EDITTEXT    2084, 280, 322, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "blank = no change", -1, 324, 324, 128, 10
+    LTEXT       "", 2085, 206, 338, 246, 10
+    LTEXT       "", 2090, 8, 352, 444, 20
+    DEFPUSHBUTTON "Add to event", 1, 316, 372, 64, 15
+    PUSHBUTTON  "Cancel", 2, 388, 372, 64, 15
 END
 
-304 DIALOGEX 0, 0, 300, 250
+304 DIALOGEX 0, 0, 300, 300
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "New villagers"
 FONT 9, "Segoe UI"
@@ -238,30 +248,43 @@ BEGIN
     COMBOBOX    3141, 92, 186, 120, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT       "Faction:", -1, 8, 204, 80, 10
     COMBOBOX    3142, 92, 202, 120, 60, CBS_DROPDOWNLIST | WS_TABSTOP
-    LTEXT       "", 3150, 8, 218, 284, 10
-    DEFPUSHBUTTON "Add", 1, 156, 230, 64, 15
-    PUSHBUTTON  "Cancel", 2, 228, 230, 64, 15
+    LTEXT       "Health (0-100):", -1, 8, 220, 80, 10
+    EDITTEXT    3163, 92, 218, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "blank = the game's own", -1, 136, 220, 156, 10
+    LTEXT       "", 3164, 8, 234, 284, 10
+    PUSHBUTTON  "Parents...", 3165, 8, 248, 80, 14, WS_TABSTOP
+    LTEXT       "", 3166, 92, 250, 200, 10
+    LTEXT       "", 3150, 8, 266, 284, 10
+    DEFPUSHBUTTON "Add", 1, 156, 280, 64, 15
+    PUSHBUTTON  "Cancel", 2, 228, 280, 64, 15
 END
 
-305 DIALOGEX 0, 0, 280, 130
+305 DIALOGEX 0, 0, 330, 198
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Parents"
 FONT 9, "Segoe UI"
 BEGIN
-    LTEXT       "Blank = no change.  These are the parents the game records for the chosen villagers.", -1, 8, 6, 264, 18
-    LTEXT       "Father's name:", -1, 8, 30, 70, 10
-    EDITTEXT    3201, 82, 28, 110, 13, ES_AUTOHSCROLL | WS_TABSTOP
-    LTEXT       "Head / body:", -1, 8, 46, 70, 10
-    EDITTEXT    3202, 82, 44, 40, 13, ES_NUMBER | WS_TABSTOP
-    EDITTEXT    3203, 126, 44, 40, 13, ES_NUMBER | WS_TABSTOP
-    LTEXT       "Mother's name:", -1, 8, 66, 70, 10
-    EDITTEXT    3204, 82, 64, 110, 13, ES_AUTOHSCROLL | WS_TABSTOP
-    LTEXT       "Head / body:", -1, 8, 82, 70, 10
-    EDITTEXT    3205, 82, 80, 40, 13, ES_NUMBER | WS_TABSTOP
-    EDITTEXT    3206, 126, 80, 40, 13, ES_NUMBER | WS_TABSTOP
-    LTEXT       "", 3207, 172, 46, 100, 40
-    DEFPUSHBUTTON "OK", 1, 136, 108, 64, 15
-    PUSHBUTTON  "Cancel", 2, 208, 108, 64, 15
+    LTEXT       "Choose each parent: a villager of the village, Unknown, Joey (The Tree of Life and New Believers) or Custom (type a first name, a last name and the looks).", -1, 8, 6, 314, 18
+    LTEXT       "Father:", -1, 8, 30, 40, 10
+    COMBOBOX    3208, 52, 28, 270, 160, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "First / last name:", -1, 16, 46, 64, 10
+    EDITTEXT    3201, 84, 44, 100, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    EDITTEXT    3209, 188, 44, 134, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "Head / body:", -1, 16, 62, 64, 10
+    EDITTEXT    3202, 84, 60, 40, 13, ES_NUMBER | WS_TABSTOP
+    EDITTEXT    3203, 128, 60, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3207, 176, 62, 146, 10
+    LTEXT       "Mother:", -1, 8, 82, 40, 10
+    COMBOBOX    3210, 52, 80, 270, 160, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT       "First / last name:", -1, 16, 98, 64, 10
+    EDITTEXT    3204, 84, 96, 100, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    EDITTEXT    3211, 188, 96, 134, 13, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT       "Head / body:", -1, 16, 114, 64, 10
+    EDITTEXT    3205, 84, 112, 40, 13, ES_NUMBER | WS_TABSTOP
+    EDITTEXT    3206, 128, 112, 40, 13, ES_NUMBER | WS_TABSTOP
+    LTEXT       "", 3212, 8, 134, 314, 32
+    DEFPUSHBUTTON "OK", 1, 186, 176, 64, 15
+    PUSHBUTTON  "Cancel", 2, 258, 176, 64, 15
 END
 
 306 DIALOGEX 0, 0, 380, 220

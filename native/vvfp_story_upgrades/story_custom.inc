@@ -173,6 +173,10 @@ typedef struct {
     void (*set_faith)(int index, int faith);   /* CAP_FAITH */
     const char *status_note;       /* a warning beside the status choices, or NULL */
     int status_risky_from;         /* the first status the note is asked for (0 = every one) */
+    /* A living villager's health set to 1..CE_HEALTH_MAX: the same write each
+       game's revive makes (its own health field or setter), without the
+       revive's clock and stop.  Health 0 is the adapter's kill. */
+    void (*set_health)(int index, int health);
 } ce_adapter;
 
 static const ce_adapter *ce_adapter_for(int game);
@@ -964,6 +968,18 @@ static int ce_set_record_parents(unsigned char *r, unsigned int father_name, uns
         || lstrlenA(c->father_name) > room || lstrlenA(c->mother_name) > room) {
         return 0;
     }
+    /* "Unknown": no parent, as a founder's record has none -- the name field
+       empty (what every reader takes as no parent) and the looks 0. */
+    if (c->father_kind == CE_PARENT_UNKNOWN) {
+        memset(r + father_name, 0, (size_t)name_bytes);
+        *(int *)(r + father_head) = 0;
+        *(int *)(r + father_body) = 0;
+    }
+    if (c->mother_kind == CE_PARENT_UNKNOWN) {
+        memset(r + mother_name, 0, (size_t)name_bytes);
+        *(int *)(r + mother_head) = 0;
+        *(int *)(r + mother_body) = 0;
+    }
     /* Both names were measured against the room above, so neither write is
        refused part-way through the change. */
     if (c->father_name[0] != '\0') {
@@ -1076,13 +1092,82 @@ static void ce_tell_cause_of_death(int game, int index) {
    record, "Custom Island Event", in the Births and Conceptions log
    (cod_arrivals.inc).  Told right after the game's creator made them, in the
    same frame.  Absent (its row off): nothing. */
-static void ce_tell_arrival(int game, int index) {
+/* A new villager's chosen parents as a ce_change the adapters' set_parents
+   take (only the parents' fields are read). */
+static void ce_spawn_parents(const ce_spawn *s, ce_change *c) {
+    memset(c, 0, sizeof *c);
+    c->index = -1;
+    c->father = -1;
+    c->parents_set = s->parents_set;
+    lstrcpynA(c->father_name, s->father_name, CE_NAME_BYTES);
+    lstrcpynA(c->mother_name, s->mother_name, CE_NAME_BYTES);
+    c->father_head = s->father_head;
+    c->father_body = s->father_body;
+    c->mother_head = s->mother_head;
+    c->mother_body = s->mother_body;
+    c->father_kind = s->father_kind;
+    c->mother_kind = s->mother_kind;
+    c->father_record = s->father_record;
+    c->mother_record = s->mother_record;
+    c->head = c->body = CE_KEEP;
+    c->mask = c->status = c->behaviour = c->faith = c->health = CE_KEEP;
+}
+
+/* A parent who is known: a name with both looks (0 is a real head and body). */
+static int ce_parent_known(const char *name, int head, int body) {
+    return name[0] != '\0' && head != CE_KEEP && body != CE_KEEP;
+}
+
+/* The new villager's parents as the Births and Conceptions log's Arrived
+   record prints them -- the "Parents:" block every Village History and
+   Population record has (population_export.c), which the Family Tree and
+   the Matchmaker read: each known parent, father first.  "" when neither
+   is known. */
+static void ce_parents_block(const ce_spawn *s, char *out, int size) {
+    char line[160];
+    out[0] = '\0';
+    if (s == NULL || !s->parents_set || (!ce_parent_known(s->father_name, s->father_head, s->father_body)
+                            && !ce_parent_known(s->mother_name, s->mother_head, s->mother_body))) {
+        return;
+    }
+    lstrcpynA(out, "  Parents:\n", size);
+    if (ce_parent_known(s->father_name, s->father_head, s->father_body)) {
+        wsprintfA(line, "    Father: %s\n      Head: %d\n      Body: %d\n", s->father_name, s->father_head,
+                  s->father_body);
+        if (lstrlenA(out) + lstrlenA(line) < size) lstrcatA(out, line);
+    }
+    if (ce_parent_known(s->mother_name, s->mother_head, s->mother_body)) {
+        wsprintfA(line, "    Mother: %s\n      Head: %d\n      Body: %d\n", s->mother_name, s->mother_head,
+                  s->mother_body);
+        if (lstrlenA(out) + lstrlenA(line) < size) lstrcatA(out, line);
+    }
+}
+
+#ifdef VVFP_TEST
+static char test_arrival_parents[CE_MAX_SPAWN_GROUPS * 4][256];   /* TEST build: the last blocks told */
+static int test_arrival_told;
+#endif
+
+static void ce_tell_arrival(int game, int index, const ce_spawn *s) {
     typedef void (__stdcall *arrived_fn)(int, int, const char *);
+    typedef void (__stdcall *parents_fn)(int, int, const char *);
+    char block[256];
     HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
     arrived_fn arrived = module != NULL
         ? (arrived_fn)GetProcAddress(module, "VvfpCauseArrivedBy") : NULL;
+    parents_fn parents = module != NULL
+        ? (parents_fn)GetProcAddress(module, "VvfpCauseArrivedParents") : NULL;
+    ce_parents_block(s, block, (int)sizeof block);
+#ifdef VVFP_TEST
+    if (test_arrival_told < (int)(sizeof test_arrival_parents / sizeof test_arrival_parents[0])) {
+        lstrcpynA(test_arrival_parents[test_arrival_told++], block, 256);
+    }
+#endif
     if (arrived != NULL) {
         arrived(game, index, "Custom Island Event");
+    }
+    if (parents != NULL && block[0] != '\0') {
+        parents(game, index, block);
     }
 }
 
@@ -1191,7 +1276,9 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             continue;
         }
         ++r->changed;
-        if (c->fate == CE_FATE_KILL && (a->caps & CAP_KILL)) {
+        /* Health 0 kills (the owner: "0 kills the villager"): the game's own
+           death, exactly as "Dies". */
+        if ((c->fate == CE_FATE_KILL || (c->fate == CE_FATE_NONE && c->health == 0)) && (a->caps & CAP_KILL)) {
             if (a->kill(c->index)) {
                 ++r->died;
             }
@@ -1245,6 +1332,9 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         if ((a->caps & CAP_BEHAVIOUR) && c->behaviour != CE_KEEP && !a->behave(c->index, c->behaviour)) {
             ce_refuse_as(r, CE_WHY_BEHAVIOUR);
         }
+        if (c->health != CE_KEEP && c->health >= 1 && c->health <= CE_HEALTH_MAX && a->set_health != NULL) {
+            a->set_health(c->index, c->health);
+        }
     }
 
     /* Pregnancies, then new villagers: each baby and each villager only
@@ -1255,7 +1345,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             int father = -1;
             const unsigned char *mother = same[i] ? a->record(c->index) : NULL;
             const unsigned char *sire = father_same[i] ? a->record(c->father) : NULL;
-            if (c->litter == 0 || c->fate != CE_FATE_NONE || mother == NULL || !a->listed(mother)) {
+            if (c->litter == 0 || c->fate != CE_FATE_NONE || c->health == 0 || mother == NULL || !a->listed(mother)) {
                 continue;
             }
             if (c->litter == CE_LITTER_CANCEL) {
@@ -1290,7 +1380,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
             const ce_change *c = &e->changes[i];
             const unsigned char *mother = same[i] ? a->record(c->index) : NULL;
-            if (!c->unborn_set || c->fate != CE_FATE_NONE) {
+            if (!c->unborn_set || c->fate != CE_FATE_NONE || c->health == 0) {
                 continue;
             }
             if (mother == NULL || !a->listed(mother) || *(const int *)(mother + a->off_pregnant) == 0) {
@@ -1318,7 +1408,19 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                     break;
                 }
                 ++r->born;
-                ce_tell_arrival(e->game, index);
+                ce_tell_arrival(e->game, index, s);
+                /* The parents, where the game (or A New Home's Show Parents
+                   sidecar) keeps a born villager's: the same writes as the
+                   Villager changes' Parents. */
+                if ((a->caps & CAP_PARENTS) && s->parents_set) {
+                    ce_change parents;
+                    ce_spawn_parents(s, &parents);
+                    if (!a->parents_supported()) {
+                        ce_refuse(r, CE_WHY_SHOW_PARENTS);
+                    } else if (!a->set_parents(index, &parents)) {
+                        ce_refuse_as(r, CE_WHY_PARENTS);
+                    }
+                }
                 if ((a->caps & CAP_TITLE) && s->title[0] != '\0'
                     && !titles_set(e->game, index, s->title)) {
                     ce_refuse(r, CE_WHY_TITLE);
@@ -1328,6 +1430,15 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                     if (record == NULL || !story_set_mask(e->game, record, s->mask)) {
                         ce_refuse(r, CE_WHY_MASK);
                     }
+                }
+                /* Health last: 0 is the game's own death, a skeleton that
+                   keeps everything above. */
+                if (s->health == 0 && (a->caps & CAP_KILL)) {
+                    if (a->kill(index)) {
+                        ++r->died;
+                    }
+                } else if (s->health >= 1 && s->health <= CE_HEALTH_MAX && a->set_health != NULL) {
+                    a->set_health(index, s->health);
                 }
             }
         }

@@ -45,8 +45,22 @@ enum {
     IDC_SP_UNITS = 3160, IDC_SP_YEARS = 3161, IDC_SP_COUNT_RANGE = 3162,
     IDC_PA_FATHER = 3201, IDC_PA_FATHER_HEAD = 3202, IDC_PA_FATHER_BODY = 3203,
     IDC_PA_MOTHER = 3204, IDC_PA_MOTHER_HEAD = 3205, IDC_PA_MOTHER_BODY = 3206,
-    IDC_PA_RANGE = 3207
+    IDC_PA_RANGE = 3207,
+    /* Health, parents of new villagers, and Edit (the owner, 2026-10-10). */
+    IDC_CE_SPAWN_EDIT = 1115, IDC_CE_CHANGE_EDIT = 1125, IDC_CE_OTHER_EDIT = 1140,
+    IDC_CH_HEALTH = 2084, IDC_CH_HEALTH_NOTE = 2085,
+    IDC_SP_HEALTH = 3163, IDC_SP_HEALTH_NOTE = 3164, IDC_SP_PARENTS = 3165, IDC_SP_PARENTS_NOTE = 3166,
+    IDC_PA_FATHER_FROM = 3208, IDC_PA_FATHER_LAST = 3209, IDC_PA_MOTHER_FROM = 3210,
+    IDC_PA_MOTHER_LAST = 3211, IDC_PA_NOTE = 3212
 };
+
+/* A Parents choice's item data: a CE_PARENT_* kind, or a villager's record
+   index plus this. */
+#define UI_PARENT_RECORD 1000
+
+/* The health warning under both Health boxes (the owner: "a warning under it
+   that 0 kills the villager"). */
+#define UI_HEALTH_WARNING "Warning: health 0 kills the villager (they die and leave a skeleton)."
 
 #define UI_ROSTER_MAX 256
 
@@ -74,6 +88,11 @@ static struct {
     int outcome_button;                   /* the outcome being edited */
     int outcome_index;
     int filling;                          /* the choices dialog is setting its own controls */
+    /* Edit: the entry an Add dialog reopened for (-1: a new one). */
+    int spawn_editing;
+    int change_editing;
+    int other_select;                     /* the Food sources / Puzzles row to show chosen, -1 none */
+    int parents_for_spawn;                /* the Parents dialog is for new villagers (no "No change") */
 } ui;
 
 /* The main dialog's two uses, its DialogBoxParam argument. */
@@ -278,50 +297,235 @@ static const char *ui_name_of(int index) {
 
 /* ---- The parents dialog ------------------------------------------------ */
 
-static INT_PTR CALLBACK ui_parents_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+static void ui_select_data(HWND window, int id, int data);
+
+/* The owner (2026-10-10): each parent is a villager of the village (living,
+   or a body awaiting burial), Unknown, Joey (the default father The Tree of
+   Life and New Believers give their seeded pregnancies) or Custom (a typed
+   first and last name, head and body; 0 is a real head and body).  The
+   Villager changes' Parents adds "No change".  A villager is read when OK
+   is pressed: the parents are frozen then, as a birth records its own. */
+
+/* Joey is in The Tree of Life and New Believers only (the "Joey" their
+   seeding passes to the conception routine; no other game has the name). */
+static int ui_has_joey(void) {
+    return ui.game == 4 || ui.game == 5;
+}
+
+/* Joey's name: "Joey", or "Joey Joerson" when the village's villagers get
+   last names ("VVFP Last Names.dll" is loaded; the owner). */
+static const char *ui_joey_name(void) {
+    return GetModuleHandleA("VVFP Last Names.dll") != NULL ? CE_JOEY_FULL_NAME : CE_JOEY_NAME;
+}
+
+static void ui_fill_parent_choices(HWND window, int id, int kind, int record) {
     char text[96];
+    char years[16];
+    int i;
+    if (!ui.parents_for_spawn) {
+        ui_combo_add(window, id, "No change", CE_PARENT_KEEP);
+    }
+    ui_combo_add(window, id, "Unknown", CE_PARENT_UNKNOWN);
+    if (ui_has_joey()) {
+        wsprintfA(text, "%s (the game's default father)", ui_joey_name());
+        ui_combo_add(window, id, text, CE_PARENT_JOEY);
+    }
+    ui_combo_add(window, id, "Custom (type the name and looks below)", CE_PARENT_CUSTOM);
+    for (i = 0; i < ui.roster_count; ++i) {
+        wsprintfA(text, "%s (%s, %s%s)", ui.names[i], ui.roster[i].sex == STORY_SEX_MALE ? "male" : "female",
+                  ui_years(ui.roster[i].age, years), ui.roster[i].dead ? ", dead" : "");
+        ui_combo_add(window, id, text, UI_PARENT_RECORD + ui.roster[i].index);
+    }
+    SendDlgItemMessageA(window, id, CB_SETCURSEL, 0, 0);
+    if (kind == CE_PARENT_VILLAGER && record >= 0 && ui_roster_position(record) >= 0) {
+        ui_select_data(window, id, UI_PARENT_RECORD + record);
+    } else if (kind == CE_PARENT_JOEY && !ui_has_joey()) {
+        ui_select_data(window, id, CE_PARENT_CUSTOM);
+    } else if (kind != CE_PARENT_VILLAGER) {
+        ui_select_data(window, id, kind);
+    } else {
+        ui_select_data(window, id, CE_PARENT_CUSTOM);   /* the villager is gone: their name and looks, typed */
+    }
+}
+
+/* The typed boxes of one parent: on for Custom only. */
+static void ui_parent_boxes(HWND window, int from, int first, int last, int head, int body) {
+    int custom = ui_combo_data(window, from) == CE_PARENT_CUSTOM;
+    ui_enable(window, first, custom);
+    ui_enable(window, last, custom);
+    ui_enable(window, head, custom);
+    ui_enable(window, body, custom);
+}
+
+/* A name into the first and last name boxes, split at its first space. */
+static void ui_put_name(HWND window, int first, int last, const char *name) {
+    char text[CE_NAME_BYTES];
+    int i;
+    lstrcpynA(text, name, sizeof text);
+    for (i = 0; text[i] != '\0' && text[i] != ' '; ++i) {
+    }
+    if (text[i] == ' ') {
+        text[i] = '\0';
+        SetDlgItemTextA(window, last, text + i + 1);
+    }
+    SetDlgItemTextA(window, first, text);
+}
+
+static void ui_put_number(HWND window, int id, int value) {
+    if (value != CE_KEEP) {
+        SetDlgItemInt(window, id, (UINT)value, FALSE);
+    }
+}
+
+/* Read one parent; 0 (after saying why) when refused.  `who` names it. */
+static int ui_read_parent(HWND window, const char *who, int from, int first_id, int last_id, int head_id,
+                          int body_id, char *name, int *head, int *body, int *kind, int *record) {
+    char text[160];
+    int data = ui_combo_data(window, from);
+    name[0] = '\0';
+    *head = *body = CE_KEEP;
+    *record = -1;
+    if (data >= UI_PARENT_RECORD) {
+        const unsigned char *r = ui.a->record(data - UI_PARENT_RECORD);
+        if (r == NULL || ui_roster_position(data - UI_PARENT_RECORD) < 0) {
+            wsprintfA(text, "The %s chosen is no longer in the village.", who);
+            ui_message(window, text);
+            return 0;
+        }
+        ce_copy_name(name, CE_NAME_BYTES, r + ui.a->off_name, ui.a->name_bytes);
+        if (lstrlenA(name) > ui.a->name_room) {
+            name[ui.a->name_room] = '\0';      /* never: a villager's own name fits */
+        }
+        *head = *(const int *)(r + ui.a->off_head);
+        *body = *(const int *)(r + ui.a->off_body);
+        *kind = CE_PARENT_VILLAGER;
+        *record = data - UI_PARENT_RECORD;
+        return 1;
+    }
+    *kind = data < 0 ? CE_PARENT_KEEP : data;
+    if (*kind == CE_PARENT_JOEY) {
+        lstrcpynA(name, ui_joey_name(), CE_NAME_BYTES);
+        *head = CE_JOEY_HEAD;
+        *body = CE_JOEY_BODY;
+        return 1;
+    }
+    if (*kind == CE_PARENT_CUSTOM) {
+        char first[CE_NAME_BYTES];
+        char last[CE_NAME_BYTES];
+        GetDlgItemTextA(window, first_id, first, sizeof first);
+        GetDlgItemTextA(window, last_id, last, sizeof last);
+        if (!ce_text_ok(first, 0) || !ce_text_ok(last, 0)) {
+            ui_message(window, "A name may use letters, numbers, spaces and . , ! ? : - ' only.");
+            return 0;
+        }
+        if (first[0] == '\0' && last[0] != '\0') {
+            wsprintfA(text, "Type the %s's first name too.", who);
+            ui_message(window, text);
+            return 0;
+        }
+        if (lstrlenA(first) + (last[0] ? 1 + lstrlenA(last) : 0) > ui.a->name_room) {
+            wsprintfA(text, "The %s's whole name may be at most %d characters in this game.", who,
+                      ui.a->name_room);
+            ui_message(window, text);
+            return 0;
+        }
+        wsprintfA(name, last[0] ? "%s %s" : "%s", first, last);
+        *head = ui_number(window, head_id);
+        *body = ui_number(window, body_id);
+        if ((*head != CE_KEEP && (*head < 0 || *head >= ui.a->head_count))
+            || (*body != CE_KEEP && (*body < 0 || *body >= ui.a->body_count))) {
+            wsprintfA(text, "Heads are 0-%d and bodies 0-%d in this game.", ui.a->head_count - 1,
+                      ui.a->body_count - 1);
+            ui_message(window, text);
+            return 0;
+        }
+        /* A new villager's parent is recorded whole, as a birth records one:
+           a name, a head and a body (0 is a real head and body). */
+        if (ui.parents_for_spawn && (name[0] == '\0' || *head == CE_KEEP || *body == CE_KEEP)) {
+            wsprintfA(text, "Type the %s's first name, head and body (0 is a real head and body), "
+                            "or choose Unknown.", who);
+            ui_message(window, text);
+            return 0;
+        }
+        return 1;
+    }
+    return 1;                                  /* No change / Unknown: nothing typed */
+}
+
+static INT_PTR CALLBACK ui_parents_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    char text[200];
+    ce_change *p = &ui.parents;
     (void)lparam;
     if (message == WM_INITDIALOG) {
+        int legacy;
+        ui_load_roster();
         SendDlgItemMessageA(window, IDC_PA_FATHER, EM_LIMITTEXT, (WPARAM)ui.a->name_room, 0);
         SendDlgItemMessageA(window, IDC_PA_MOTHER, EM_LIMITTEXT, (WPARAM)ui.a->name_room, 0);
+        SendDlgItemMessageA(window, IDC_PA_FATHER_LAST, EM_LIMITTEXT, (WPARAM)ui.a->name_room, 0);
+        SendDlgItemMessageA(window, IDC_PA_MOTHER_LAST, EM_LIMITTEXT, (WPARAM)ui.a->name_room, 0);
         wsprintfA(text, "Heads 0-%d, bodies 0-%d.", ui.a->head_count - 1, ui.a->body_count - 1);
         SetDlgItemTextA(window, IDC_PA_RANGE, text);
+        /* An entry made before these choices (a name or looks with no kind)
+           is shown as Custom. */
+        legacy = p->father_kind == CE_PARENT_KEEP
+                 && (p->father_name[0] || p->father_head != CE_KEEP || p->father_body != CE_KEEP);
+        ui_fill_parent_choices(window, IDC_PA_FATHER_FROM, legacy ? CE_PARENT_CUSTOM : p->father_kind,
+                               p->father_record);
+        legacy = p->mother_kind == CE_PARENT_KEEP
+                 && (p->mother_name[0] || p->mother_head != CE_KEEP || p->mother_body != CE_KEEP);
+        ui_fill_parent_choices(window, IDC_PA_MOTHER_FROM, legacy ? CE_PARENT_CUSTOM : p->mother_kind,
+                               p->mother_record);
+        if (ui_combo_data(window, IDC_PA_FATHER_FROM) == CE_PARENT_CUSTOM) {
+            ui_put_name(window, IDC_PA_FATHER, IDC_PA_FATHER_LAST, p->father_name);
+            ui_put_number(window, IDC_PA_FATHER_HEAD, p->father_head);
+            ui_put_number(window, IDC_PA_FATHER_BODY, p->father_body);
+        }
+        if (ui_combo_data(window, IDC_PA_MOTHER_FROM) == CE_PARENT_CUSTOM) {
+            ui_put_name(window, IDC_PA_MOTHER, IDC_PA_MOTHER_LAST, p->mother_name);
+            ui_put_number(window, IDC_PA_MOTHER_HEAD, p->mother_head);
+            ui_put_number(window, IDC_PA_MOTHER_BODY, p->mother_body);
+        }
+        ui_parent_boxes(window, IDC_PA_FATHER_FROM, IDC_PA_FATHER, IDC_PA_FATHER_LAST, IDC_PA_FATHER_HEAD,
+                        IDC_PA_FATHER_BODY);
+        ui_parent_boxes(window, IDC_PA_MOTHER_FROM, IDC_PA_MOTHER, IDC_PA_MOTHER_LAST, IDC_PA_MOTHER_HEAD,
+                        IDC_PA_MOTHER_BODY);
+        SetDlgItemTextA(window, IDC_PA_NOTE,
+                        ui.parents_for_spawn
+                            ? "Recorded as a birth records its parents: in the logs, the Family Tree and the "
+                              "Matchmaker. A buried villager: choose Custom and type their name and looks."
+                            : "Custom: a blank box is no change. Unknown clears that parent. A buried "
+                              "villager: choose Custom and type their name and looks.");
+        return TRUE;
+    }
+    if (message == WM_COMMAND && HIWORD(wparam) == CBN_SELCHANGE
+        && (LOWORD(wparam) == IDC_PA_FATHER_FROM || LOWORD(wparam) == IDC_PA_MOTHER_FROM)) {
+        ui_parent_boxes(window, IDC_PA_FATHER_FROM, IDC_PA_FATHER, IDC_PA_FATHER_LAST, IDC_PA_FATHER_HEAD,
+                        IDC_PA_FATHER_BODY);
+        ui_parent_boxes(window, IDC_PA_MOTHER_FROM, IDC_PA_MOTHER, IDC_PA_MOTHER_LAST, IDC_PA_MOTHER_HEAD,
+                        IDC_PA_MOTHER_BODY);
         return TRUE;
     }
     if (message == WM_COMMAND && LOWORD(wparam) == IDOK) {
-        ce_change *p = &ui.parents;
-        int values[4];
-        int ids[4] = { IDC_PA_FATHER_HEAD, IDC_PA_FATHER_BODY, IDC_PA_MOTHER_HEAD, IDC_PA_MOTHER_BODY };
-        int limits[4];
-        int i;
-        limits[0] = limits[2] = ui.a->head_count;
-        limits[1] = limits[3] = ui.a->body_count;
-        GetDlgItemTextA(window, IDC_PA_FATHER, p->father_name, CE_NAME_BYTES);
-        GetDlgItemTextA(window, IDC_PA_MOTHER, p->mother_name, CE_NAME_BYTES);
-        if (!ce_text_ok(p->father_name, 0) || !ce_text_ok(p->mother_name, 0)) {
-            ui_message(window, "A name may use letters, numbers, spaces and . , ! ? : - ' only.");
+        ce_change read = *p;
+        if (!ui_read_parent(window, "father", IDC_PA_FATHER_FROM, IDC_PA_FATHER, IDC_PA_FATHER_LAST,
+                            IDC_PA_FATHER_HEAD, IDC_PA_FATHER_BODY, read.father_name, &read.father_head,
+                            &read.father_body, &read.father_kind, &read.father_record)
+            || !ui_read_parent(window, "mother", IDC_PA_MOTHER_FROM, IDC_PA_MOTHER, IDC_PA_MOTHER_LAST,
+                               IDC_PA_MOTHER_HEAD, IDC_PA_MOTHER_BODY, read.mother_name, &read.mother_head,
+                               &read.mother_body, &read.mother_kind, &read.mother_record)) {
             return TRUE;
         }
-        if (lstrlenA(p->father_name) > ui.a->name_room || lstrlenA(p->mother_name) > ui.a->name_room) {
-            wsprintfA(text, "A name may be at most %d characters in this game.", ui.a->name_room);
-            ui_message(window, text);
-            return TRUE;
+        read.parents_set = read.father_kind != CE_PARENT_KEEP || read.mother_kind != CE_PARENT_KEEP;
+        if (read.father_kind == CE_PARENT_CUSTOM && read.father_name[0] == '\0'
+            && read.father_head == CE_KEEP && read.father_body == CE_KEEP) {
+            read.father_kind = CE_PARENT_KEEP;    /* Custom with nothing typed: no change */
         }
-        for (i = 0; i < 4; ++i) {
-            values[i] = ui_number(window, ids[i]);
-            if (values[i] != CE_KEEP && (values[i] < 0 || values[i] >= limits[i])) {
-                ui_message(window, i % 2 == 0 ? "A head is out of range for this game."
-                                              : "A body is out of range for this game.");
-                return TRUE;
-            }
+        if (read.mother_kind == CE_PARENT_CUSTOM && read.mother_name[0] == '\0'
+            && read.mother_head == CE_KEEP && read.mother_body == CE_KEEP) {
+            read.mother_kind = CE_PARENT_KEEP;
         }
-        p->father_head = values[0];
-        p->father_body = values[1];
-        p->mother_head = values[2];
-        p->mother_body = values[3];
-        p->parents_set = p->father_name[0] != '\0' || p->mother_name[0] != '\0'
-            || values[0] != CE_KEEP || values[1] != CE_KEEP || values[2] != CE_KEEP
-            || values[3] != CE_KEEP;
+        read.parents_set = read.father_kind != CE_PARENT_KEEP || read.mother_kind != CE_PARENT_KEEP;
+        *p = read;
         EndDialog(window, IDOK);
         return TRUE;
     }
@@ -330,6 +534,26 @@ static INT_PTR CALLBACK ui_parents_dialog(HWND window, UINT message, WPARAM wpar
         return TRUE;
     }
     return FALSE;
+}
+
+/* What the chosen parents are, for a dialog's note and the lists: "father
+   Joey, mother Ana" -- "unknown" for Unknown, nothing for No change. */
+static void ui_parents_words(const ce_change *p, char *out) {
+    char *at = out;
+    out[0] = '\0';
+    if (!p->parents_set) {
+        return;
+    }
+    if (p->father_kind == CE_PARENT_UNKNOWN) {
+        at += wsprintfA(at, "father unknown");
+    } else if (p->father_name[0] != '\0' || p->father_head != CE_KEEP || p->father_body != CE_KEEP) {
+        at += wsprintfA(at, "father %s", p->father_name[0] ? p->father_name : "(looks)");
+    }
+    if (p->mother_kind == CE_PARENT_UNKNOWN) {
+        at += wsprintfA(at, "%smother unknown", at != out ? ", " : "");
+    } else if (p->mother_name[0] != '\0' || p->mother_head != CE_KEEP || p->mother_body != CE_KEEP) {
+        at += wsprintfA(at, "%smother %s", at != out ? ", " : "", p->mother_name[0] ? p->mother_name : "(looks)");
+    }
 }
 
 /* ---- The unborn baby's father dialog ------------------------------------ */
@@ -431,7 +655,7 @@ static int ui_change_is_empty(const ce_change *c) {
         || c->body != CE_KEEP || c->like_add >= 0 || c->like_remove >= 0
         || c->dislike_add >= 0 || c->dislike_remove >= 0 || c->title_op != CE_TITLE_KEEP
         || c->mask != CE_KEEP || c->status != CE_KEEP || c->behaviour != CE_KEEP
-        || c->faith != CE_KEEP || c->parents_set) {
+        || c->faith != CE_KEEP || c->health != CE_KEEP || c->parents_set) {
         return 0;
     }
     for (i = 0; i < CE_SKILLS; ++i) {
@@ -457,7 +681,12 @@ static void ce_change_init(ce_change *c) {
     c->unborn_head = c->unborn_body = CE_KEEP;
     c->unborn_skill = c->unborn_skill_value = CE_KEEP;
     c->faith = CE_KEEP;
+    c->health = CE_KEEP;
+    c->father_kind = c->mother_kind = CE_PARENT_KEEP;
+    c->father_record = c->mother_record = -1;
 }
+
+static void ce_merge_into(ce_change *c, const ce_change *t, unsigned int fingerprint);
 
 /* Merge `t` (the dialog's changes) into the draft's entry for villager
    `index`, creating it: every field `t` sets replaces the earlier one. */
@@ -478,6 +707,22 @@ static int ce_merge(ce_event *e, const ce_change *t, int index, unsigned int fin
         ce_change_init(c);
         c->index = index;
     }
+    ce_merge_into(c, t, fingerprint);
+    return 1;
+}
+
+/* Edit: the draft's entry `position` replaced by `t` alone, in place (the
+   owner: "OK replaces the entry in place"). */
+static void ce_replace(ce_event *e, int position, const ce_change *t, unsigned int fingerprint) {
+    ce_change *c = &e->changes[position];
+    int index = c->index;
+    ce_change_init(c);
+    c->index = index;
+    ce_merge_into(c, t, fingerprint);
+}
+
+static void ce_merge_into(ce_change *c, const ce_change *t, unsigned int fingerprint) {
+    int i;
     c->fingerprint = fingerprint;
     if (t->fate != CE_FATE_NONE) c->fate = t->fate;
     if (t->sick) c->sick = 1;
@@ -509,8 +754,27 @@ static int ce_merge(ce_event *e, const ce_change *t, int index, unsigned int fin
     if (t->status != CE_KEEP) c->status = t->status;
     if (t->faith != CE_KEEP) c->faith = t->faith;
     if (t->behaviour != CE_KEEP) c->behaviour = t->behaviour;
+    if (t->health != CE_KEEP) c->health = t->health;
     if (t->parents_set) {
         c->parents_set = 1;
+        /* Each parent the dialog chose replaces the earlier choice whole
+           (a villager, Joey or Unknown is one choice, never mixed). */
+        if (t->father_kind != CE_PARENT_KEEP && t->father_kind != CE_PARENT_CUSTOM) {
+            c->father_name[0] = '\0';
+            c->father_head = c->father_body = CE_KEEP;
+        }
+        if (t->mother_kind != CE_PARENT_KEEP && t->mother_kind != CE_PARENT_CUSTOM) {
+            c->mother_name[0] = '\0';
+            c->mother_head = c->mother_body = CE_KEEP;
+        }
+        if (t->father_kind != CE_PARENT_KEEP) {
+            c->father_kind = t->father_kind;
+            c->father_record = t->father_record;
+        }
+        if (t->mother_kind != CE_PARENT_KEEP) {
+            c->mother_kind = t->mother_kind;
+            c->mother_record = t->mother_record;
+        }
         if (t->father_name[0]) lstrcpynA(c->father_name, t->father_name, CE_NAME_BYTES);
         if (t->mother_name[0]) lstrcpynA(c->mother_name, t->mother_name, CE_NAME_BYTES);
         if (t->father_head != CE_KEEP) c->father_head = t->father_head;
@@ -518,7 +782,6 @@ static int ce_merge(ce_event *e, const ce_change *t, int index, unsigned int fin
         if (t->mother_head != CE_KEEP) c->mother_head = t->mother_head;
         if (t->mother_body != CE_KEEP) c->mother_body = t->mother_body;
     }
-    return 1;
 }
 
 /* Read the changes dialog into `t`; 0 (after saying why) when a value is
@@ -625,6 +888,11 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
         t->unborn_head = ui.unborn.unborn_head;
         t->unborn_body = ui.unborn.unborn_body;
     }
+    t->health = ui_number(window, IDC_CH_HEALTH);
+    if (t->health != CE_KEEP && (t->health < 0 || t->health > CE_HEALTH_MAX)) {
+        ui_message(window, "Health is 0-100 (0 kills the villager).");
+        return 0;
+    }
     if (ui.parents_chosen && ui.parents.parents_set) {
         t->parents_set = 1;
         lstrcpynA(t->father_name, ui.parents.father_name, CE_NAME_BYTES);
@@ -633,6 +901,19 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
         t->father_body = ui.parents.father_body;
         t->mother_head = ui.parents.mother_head;
         t->mother_body = ui.parents.mother_body;
+        t->father_kind = ui.parents.father_kind;
+        t->mother_kind = ui.parents.mother_kind;
+        t->father_record = ui.parents.father_record;
+        t->mother_record = ui.parents.mother_record;
+        for (i = 0; i < count; ++i) {
+            if ((t->father_kind == CE_PARENT_VILLAGER && t->father_record == targets[i])
+                || (t->mother_kind == CE_PARENT_VILLAGER && t->mother_record == targets[i])) {
+                /* The logs' family trees would hold a villager as their own
+                   parent. */
+                ui_message(window, "A villager can not be their own parent.");
+                return 0;
+            }
+        }
     }
     if (count == 0) {
         ui_message(window, "Choose at least one villager (or tick a group).");
@@ -766,15 +1047,82 @@ static void ui_setup_changes(HWND window) {
                     "A villager who dies or disappears gets no other change. A pregnancy that "
                     "is already on its way changes its number of babies. \"Not in this "
                     "game...\" lists what is unavailable.");
+    SendDlgItemMessageA(window, IDC_CH_HEALTH, EM_LIMITTEXT, 3, 0);
+    SetDlgItemTextA(window, IDC_CH_HEALTH_NOTE, UI_HEALTH_WARNING);
     ui.parents_chosen = 0;
     ui.unborn_chosen = 0;
+    ce_change_init(&ui.parents);
+    ce_change_init(&ui.unborn);
     ui_show_count(window);
 }
 
+/* Edit: the dialog's controls set to the draft's entry `c`. */
+static void ui_prefill_changes(HWND window, const ce_change *c) {
+    char text[128];
+    int i;
+    ui_select_data(window, IDC_CH_FATE, c->fate);
+    CheckDlgButton(window, IDC_CH_SICK, c->sick ? BST_CHECKED : BST_UNCHECKED);
+    ui_select_data(window, IDC_CH_PREGNANCY, c->litter);
+    ui_select_data(window, IDC_CH_FATHER, c->litter > 0 ? c->father : -1);
+    ui_put_number(window, IDC_CH_HEAD, c->head);
+    ui_put_number(window, IDC_CH_BODY, c->body);
+    ui_select_data(window, IDC_CH_LIKE_ADD, c->like_add);
+    ui_select_data(window, IDC_CH_LIKE_REMOVE, c->like_remove);
+    ui_select_data(window, IDC_CH_DISLIKE_ADD, c->dislike_add);
+    ui_select_data(window, IDC_CH_DISLIKE_REMOVE, c->dislike_remove);
+    for (i = 0; i < CE_SKILLS; ++i) {
+        ui_put_number(window, IDC_CH_SKILL_FIRST + i, c->skills[i]);
+    }
+    if (c->title_op == CE_TITLE_SET) {
+        SetDlgItemTextA(window, IDC_CH_TITLE, c->title);
+    }
+    CheckDlgButton(window, IDC_CH_TITLE_CLEAR, c->title_op == CE_TITLE_CLEAR ? BST_CHECKED : BST_UNCHECKED);
+    ui_select_data(window, IDC_CH_MASK, c->mask);
+    ui_select_data(window, IDC_CH_STATUS, c->status);
+    ui_select_data(window, IDC_CH_BEHAVIOUR, c->behaviour);
+    if (c->faith != CE_KEEP) {
+        wsprintfA(text, "%d", c->faith);
+        SetDlgItemTextA(window, IDC_CH_FAITH, text);
+    }
+    ui_put_number(window, IDC_CH_HEALTH, c->health);
+    if (c->parents_set) {
+        ui.parents = *c;
+        ui.parents_chosen = 1;
+        ui_parents_words(c, text);
+        SetDlgItemTextA(window, IDC_CH_PARENTS_NOTE, text);
+    }
+    if (c->unborn_set) {
+        ui.unborn = *c;
+        ui.unborn_chosen = 1;
+        SetDlgItemTextA(window, IDC_CH_UNBORN_NOTE, "The baby's father will change.");
+    }
+}
+
 static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
-    (void)lparam;
     if (message == WM_INITDIALOG) {
         ui_setup_changes(window);
+        if (lparam != 0 && ui.change_editing >= 0 && ui.change_editing < ui.draft.change_count) {
+            /* Edit: the entry's own villager, fixed (one entry is one
+               villager), and every change it holds. */
+            const ce_change *c = &ui.draft.changes[ui.change_editing];
+            int position = ui_roster_position(c->index);
+            int rows = (int)SendDlgItemMessageA(window, IDC_CH_LIST, LB_GETCOUNT, 0, 0);
+            int i;
+            for (i = 0; i < rows; ++i) {
+                if ((int)SendDlgItemMessageA(window, IDC_CH_LIST, LB_GETITEMDATA, (WPARAM)i, 0) == position) {
+                    SendDlgItemMessageA(window, IDC_CH_LIST, LB_SETSEL, TRUE, (LPARAM)i);
+                    SendDlgItemMessageA(window, IDC_CH_LIST, LB_SETTOPINDEX, (WPARAM)i, 0);
+                }
+            }
+            ui_enable(window, IDC_CH_LIST, 0);
+            for (i = 0; i < UI_TOGGLES; ++i) {
+                ui_enable(window, UI_TOGGLE_IDS[i], 0);
+            }
+            ui_prefill_changes(window, c);
+            SetWindowTextA(window, "Villager changes (edit)");
+            SetDlgItemTextA(window, IDOK, "OK");
+            ui_show_count(window);
+        }
         return TRUE;
     }
     if (message == WM_COMMAND) {
@@ -785,30 +1133,40 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
             return TRUE;
         }
         if (id == IDC_CH_UNBORN) {
+            ce_change kept = ui.unborn;
             ce_change_init(&ui.unborn);
             if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_UNBORN), window,
                                 ui_unborn_dialog, 0) == IDOK) {
                 ui.unborn_chosen = ui.unborn.unborn_set;
                 SetDlgItemTextA(window, IDC_CH_UNBORN_NOTE,
                                 ui.unborn_chosen ? "The baby's father will change." : "");
+            } else {
+                ui.unborn = kept;              /* Cancel: as it was */
             }
             return TRUE;
         }
         if (id == IDC_CH_PARENTS) {
-            ce_change_init(&ui.parents);
+            char words[160];
+            /* The choices already made are shown again (Edit, or a second
+               opening); Cancel leaves them as they were. */
+            ui.parents_for_spawn = 0;
             if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_PARENTS), window,
                                 ui_parents_dialog, 0) == IDOK) {
                 ui.parents_chosen = ui.parents.parents_set;
-                SetDlgItemTextA(window, IDC_CH_PARENTS_NOTE,
-                                ui.parents_chosen ? "Parents will change." : "");
+                ui_parents_words(&ui.parents, words);
+                SetDlgItemTextA(window, IDC_CH_PARENTS_NOTE, ui.parents_chosen ? words : "");
             }
             return TRUE;
         }
         if (id == IDOK) {
             int targets[UI_ROSTER_MAX];
-            int count = ui_targets(window, targets);
+            int editing = ui.change_editing >= 0 && ui.change_editing < ui.draft.change_count;
+            int count = editing ? 1 : ui_targets(window, targets);
             ce_change t;
             int i;
+            if (editing) {
+                targets[0] = ui.draft.changes[ui.change_editing].index;
+            }
             if (!ui_read_changes(window, &t, targets, count)) {
                 return TRUE;
             }
@@ -853,6 +1211,14 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
                     }
                     mine.fate = CE_FATE_NONE;
                 }
+                if (editing) {
+                    /* In place; a villager gone since keeps the identity
+                       queued (the delivery then skips them). */
+                    ce_replace(&ui.draft, ui.change_editing, &mine,
+                               record != NULL && position >= 0 ? ce_identity(ui.a, record)
+                                                               : ui.draft.changes[ui.change_editing].fingerprint);
+                    break;
+                }
                 if (record == NULL || !ce_merge(&ui.draft, &mine, targets[i], ce_identity(ui.a, record))) {
                     ui_message(window, "The event can hold changes for 256 villagers at most.");
                     break;
@@ -885,6 +1251,9 @@ static int ui_spawn_room(int heathen) {
     int i;
     for (i = 0; i < ui.draft.spawn_groups; ++i) {
         int drafted_heathen = (ui.a->caps & CAP_SPAWN_FACTION) && ui.draft.spawns[i].faction == 1;
+        if (i == ui.spawn_editing) {
+            continue;                     /* the entry being edited is replaced, not added to */
+        }
         if (heathen || !drafted_heathen) {
             room -= ui.draft.spawns[i].count;
         }
@@ -945,12 +1314,100 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
         ui_enable(window, IDC_SP_BODY, (a->caps & CAP_APPEARANCE) != 0);
         ui_enable(window, IDC_SP_TITLE, (a->caps & CAP_TITLE) != 0);
         SetDlgItemTextA(window, IDC_SP_NOTE, "New villagers are made only while the village has room.");
+        SendDlgItemMessageA(window, IDC_SP_HEALTH, EM_LIMITTEXT, 3, 0);
+        SetDlgItemTextA(window, IDC_SP_HEALTH_NOTE, UI_HEALTH_WARNING);
+        /* The parents: where the game (A New Home: the Show Parents sidecar)
+           keeps a born villager's. */
+        ce_change_init(&ui.parents);
+        ui.parents_chosen = 0;
+        ui_enable(window, IDC_SP_PARENTS, (a->caps & CAP_PARENTS) != 0 && a->parents_supported());
+        SetDlgItemTextA(window, IDC_SP_PARENTS_NOTE,
+                        (a->caps & CAP_PARENTS) != 0 && a->parents_supported()
+                            ? "Unknown" : "Needs Show Parents in Details Screen");
+        if (lparam != 0 && ui.spawn_editing >= 0 && ui.spawn_editing < ui.draft.spawn_groups) {
+            /* Edit: the entry's own values. */
+            const ce_spawn *e = &ui.draft.spawns[ui.spawn_editing];
+            ce_change parents;
+            char words[160];
+            SetDlgItemInt(window, IDC_SP_COUNT, (UINT)e->count, FALSE);
+            ui_select_data(window, IDC_SP_SEX, e->sex);
+            if (e->age % 20 == 0) {
+                SetDlgItemInt(window, IDC_SP_AGE, (UINT)(e->age / 20), FALSE);
+            } else {
+                /* An age that is no whole number of years: shown in game units. */
+                CheckDlgButton(window, IDC_SP_YEARS, BST_UNCHECKED);
+                CheckDlgButton(window, IDC_SP_UNITS, BST_CHECKED);
+                SetDlgItemInt(window, IDC_SP_AGE, (UINT)e->age, FALSE);
+            }
+            SetDlgItemTextA(window, IDC_SP_NAME, e->name);
+            ui_put_number(window, IDC_SP_HEAD, e->head);
+            ui_put_number(window, IDC_SP_BODY, e->body);
+            if (e->prefs_set) {
+                for (i = 0; i < CE_SPAWN_PREFS; ++i) {
+                    ui_select_data(window, IDC_SP_LIKE_FIRST + i, e->likes[i]);
+                    ui_select_data(window, IDC_SP_DISLIKE_FIRST + i, e->dislikes[i]);
+                }
+            }
+            for (i = 0; i < CE_SKILLS; ++i) {
+                ui_put_number(window, IDC_SP_SKILL_FIRST + i, e->skills[i]);
+            }
+            SetDlgItemTextA(window, IDC_SP_TITLE, e->title);
+            ui_select_data(window, IDC_SP_MASK, e->mask);
+            ui_select_data(window, IDC_SP_FACTION, e->faction);
+            ui_put_number(window, IDC_SP_HEALTH, e->health);
+            if (e->parents_set) {
+                ce_spawn_parents(e, &parents);
+                ui.parents = parents;
+                ui.parents_chosen = 1;
+                ui_parents_words(&parents, words);
+                SetDlgItemTextA(window, IDC_SP_PARENTS_NOTE, words);
+            }
+            SetWindowTextA(window, "New villagers (edit)");
+            SetDlgItemTextA(window, IDOK, "OK");
+        }
+        return TRUE;
+    }
+    if (message == WM_COMMAND && LOWORD(wparam) == IDC_SP_PARENTS) {
+        char words[160];
+        ui.parents_for_spawn = 1;
+        if (!ui.parents_chosen) {
+            ce_change_init(&ui.parents);
+            ui.parents.father_kind = ui.parents.mother_kind = CE_PARENT_UNKNOWN;
+        }
+        if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_PARENTS), window, ui_parents_dialog, 0)
+            == IDOK) {
+            ui.parents_chosen = 1;
+            ui_parents_words(&ui.parents, words);
+            SetDlgItemTextA(window, IDC_SP_PARENTS_NOTE, words[0] ? words : "Unknown");
+        }
         return TRUE;
     }
     if (message == WM_COMMAND && LOWORD(wparam) == IDOK) {
         ce_spawn *s = &ui.spawn;
         int years;
         memset(s, 0, sizeof *s);
+        s->health = ui_number(window, IDC_SP_HEALTH);
+        if (s->health != CE_KEEP && (s->health < 0 || s->health > CE_HEALTH_MAX)) {
+            ui_message(window, "Health is 0-100 (0 kills the new villager).");
+            return TRUE;
+        }
+        s->father_record = s->mother_record = -1;
+        s->father_head = s->father_body = s->mother_head = s->mother_body = CE_KEEP;
+        if (ui.parents_chosen && ui.parents.parents_set && (a->caps & CAP_PARENTS)) {
+            const ce_change *p = &ui.parents;
+            s->parents_set = p->father_kind != CE_PARENT_UNKNOWN || p->mother_kind != CE_PARENT_UNKNOWN
+                             || p->father_name[0] || p->mother_name[0];
+            lstrcpynA(s->father_name, p->father_name, CE_NAME_BYTES);
+            lstrcpynA(s->mother_name, p->mother_name, CE_NAME_BYTES);
+            s->father_head = p->father_head;
+            s->father_body = p->father_body;
+            s->mother_head = p->mother_head;
+            s->mother_body = p->mother_body;
+            s->father_kind = p->father_kind;
+            s->mother_kind = p->mother_kind;
+            s->father_record = p->father_record;
+            s->mother_record = p->mother_record;
+        }
         s->faction = (a->caps & CAP_SPAWN_FACTION) ? ui_combo_data(window, IDC_SP_FACTION) : CE_KEEP;
         s->count = ui_number(window, IDC_SP_COUNT);
         {
@@ -1072,6 +1529,15 @@ static INT_PTR CALLBACK ui_values_dialog(HWND window, UINT message, WPARAM wpara
             ui.values[ui.draft.values[i].which] = ui.draft.values[i].amount;
         }
         ui_values_fill(window);
+        if (ui.other_select >= 0 && ui.other_select < ui.a->value_count && ui.other_select < CE_MAX_VALUES) {
+            /* Edit: that row chosen, its amount typed in. */
+            SendDlgItemMessageA(window, IDC_VA_LIST, LB_SETCURSEL, (WPARAM)ui.other_select, 0);
+            if (ui.values[ui.other_select] != CE_KEEP) {
+                SetDlgItemInt(window, IDC_VA_AMOUNT, (UINT)ui.values[ui.other_select], FALSE);
+            }
+            SetDlgItemTextA(window, IDC_VA_NOTE, ui.a->values[ui.other_select].note != NULL
+                                                     ? ui.a->values[ui.other_select].note : "");
+        }
         return TRUE;
     }
     if (message == WM_COMMAND) {
@@ -1163,6 +1629,13 @@ static INT_PTR CALLBACK ui_puzzles_dialog(HWND window, UINT message, WPARAM wpar
             ui.puzzles[ui.draft.puzzles[i].which] = ui.draft.puzzles[i].solved;
         }
         ui_puzzles_fill(window);
+        if (ui.other_select >= 0 && ui.other_select < count) {
+            /* Edit: that puzzle chosen. */
+            SendDlgItemMessageA(window, IDC_PZ_LIST, LB_SETSEL, TRUE, (LPARAM)ui.other_select);
+            SendDlgItemMessageA(window, IDC_PZ_LIST, LB_SETCARETINDEX, (WPARAM)ui.other_select, FALSE);
+            SetDlgItemTextA(window, IDC_PZ_NOTE, ui.a->puzzles[ui.other_select].note != NULL
+                                                     ? ui.a->puzzles[ui.other_select].note : "");
+        }
         return TRUE;
     }
     if (message == WM_COMMAND) {
@@ -1382,7 +1855,12 @@ static void ui_describe_change(const ce_change *c, char *out) {
     if (c->status != CE_KEEP) p += wsprintfA(p, " %s", ui.a->statuses[c->status]);
     if (c->faith != CE_KEEP) p += wsprintfA(p, " faith %d", c->faith);
     if (c->behaviour != CE_KEEP) p += wsprintfA(p, " %s", ui.a->behaviours[c->behaviour].label);
-    if (c->parents_set) p += wsprintfA(p, " parents");
+    if (c->health != CE_KEEP) p += wsprintfA(p, c->health == 0 ? " health 0 (dies)" : " health %d", c->health);
+    if (c->parents_set) {
+        char words[160];
+        ui_parents_words(c, words);
+        p += wsprintfA(p, " (%s)", words[0] ? words : "parents");
+    }
     if (c->unborn_set) p += wsprintfA(p, " baby's father");
 }
 
@@ -1424,9 +1902,22 @@ static void ui_refresh_lists(HWND window) {
     SendDlgItemMessageA(window, IDC_CE_SPAWNS, LB_RESETCONTENT, 0, 0);
     for (i = 0; i < ui.draft.spawn_groups; ++i) {
         const ce_spawn *s = &ui.draft.spawns[i];
-        wsprintfA(text, "%d x %s, %s years (%d units)%s%s", s->count,
-                  s->sex == STORY_SEX_MALE ? "male" : "female", ui_years(s->age, years), s->age,
-                  s->name[0] ? ", " : "", s->name);
+        char *p = text;
+        p += wsprintfA(p, "%d x %s, %s years (%d units)%s%s", s->count,
+                       s->sex == STORY_SEX_MALE ? "male" : "female", ui_years(s->age, years), s->age,
+                       s->name[0] ? ", " : "", s->name);
+        if (s->health != CE_KEEP) {
+            p += wsprintfA(p, s->health == 0 ? ", health 0 (dies)" : ", health %d", s->health);
+        }
+        if (s->parents_set) {
+            ce_change parents;
+            char words[160];
+            ce_spawn_parents(s, &parents);
+            ui_parents_words(&parents, words);
+            if (words[0]) {
+                wsprintfA(p, ", %s", words);
+            }
+        }
         SendDlgItemMessageA(window, IDC_CE_SPAWNS, LB_ADDSTRING, 0, (LPARAM)text);
     }
     SendDlgItemMessageA(window, IDC_CE_CHANGES, LB_RESETCONTENT, 0, 0);
@@ -1644,6 +2135,7 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
             return TRUE;
         }
         if (id == IDC_CE_SPAWN_ADD) {
+            ui.spawn_editing = -1;
             if (ui.draft.spawn_groups >= CE_MAX_SPAWN_GROUPS) {
                 ui_message(window, "The event can hold eight kinds of new villagers.");
             } else if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_SPAWN), window,
@@ -1651,6 +2143,67 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
                 ui.draft.spawns[ui.draft.spawn_groups++] = ui.spawn;
                 ui_refresh_lists(window);
             }
+            return TRUE;
+        }
+        /* Edit (the owner, 2026-10-10): the same dialog, filled in with the
+           chosen entry; OK replaces it in place, Cancel leaves it. */
+        if (id == IDC_CE_SPAWN_EDIT || (id == IDC_CE_SPAWNS && HIWORD(wparam) == LBN_DBLCLK)) {
+            int sel = (int)SendDlgItemMessageA(window, IDC_CE_SPAWNS, LB_GETCURSEL, 0, 0);
+            if (sel < 0 || sel >= ui.draft.spawn_groups) {
+                ui_message(window, "Choose a kind of new villager in the list first.");
+                return TRUE;
+            }
+            ui.spawn_editing = sel;
+            if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_SPAWN), window, ui_spawn_dialog, 1)
+                == IDOK) {
+                ui.draft.spawns[sel] = ui.spawn;
+                ui_refresh_lists(window);
+                SendDlgItemMessageA(window, IDC_CE_SPAWNS, LB_SETCURSEL, (WPARAM)sel, 0);
+            }
+            ui.spawn_editing = -1;
+            return TRUE;
+        }
+        if (id == IDC_CE_CHANGE_EDIT || (id == IDC_CE_CHANGES && HIWORD(wparam) == LBN_DBLCLK)) {
+            int sel = (int)SendDlgItemMessageA(window, IDC_CE_CHANGES, LB_GETCURSEL, 0, 0);
+            if (sel < 0 || sel >= ui.draft.change_count) {
+                ui_message(window, "Choose a villager's changes in the list first.");
+                return TRUE;
+            }
+            ui.change_editing = sel;
+            if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CHANGES), window, ui_changes_dialog, 1)
+                == IDOK) {
+                ui_refresh_lists(window);
+                SendDlgItemMessageA(window, IDC_CE_CHANGES, LB_SETCURSEL, (WPARAM)sel, 0);
+            }
+            ui.change_editing = -1;
+            return TRUE;
+        }
+        if (id == IDC_CE_OTHER_EDIT || (id == IDC_CE_OTHER && HIWORD(wparam) == LBN_DBLCLK)) {
+            int sel = (int)SendDlgItemMessageA(window, IDC_CE_OTHER, LB_GETCURSEL, 0, 0);
+            int dialog;
+            DLGPROC proc;
+            if (sel < 0 || sel >= ui_other_rows()) {
+                ui_message(window, "Choose a food source, puzzle or revival in the list first.");
+                return TRUE;
+            }
+            if (sel < ui.draft.value_count) {
+                ui.other_select = ui.draft.values[sel].which;
+                dialog = IDD_VALUES;
+                proc = ui_values_dialog;
+            } else if (sel < ui.draft.value_count + ui.draft.puzzle_count) {
+                ui.other_select = ui.draft.puzzles[sel - ui.draft.value_count].which;
+                dialog = IDD_PUZZLES;
+                proc = ui_puzzles_dialog;
+            } else {
+                ui.other_select = -1;
+                dialog = IDD_REVIVE;
+                proc = ui_revive_dialog;
+            }
+            if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(dialog), window, proc, 0) == IDOK) {
+                ui_refresh_other(window);
+                SendDlgItemMessageA(window, IDC_CE_OTHER, LB_SETCURSEL, (WPARAM)sel, 0);
+            }
+            ui.other_select = -1;
             return TRUE;
         }
         if (id == IDC_CE_SPAWN_REMOVE) {
@@ -1702,6 +2255,7 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
             return TRUE;
         }
         if (id == IDC_CE_CHANGE_ADD) {
+            ui.change_editing = -1;
             if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CHANGES), window,
                                 ui_changes_dialog, 0) == IDOK) {
                 ui_refresh_lists(window);
@@ -2035,6 +2589,7 @@ static int story_custom_island_event(int game, HWND owner) {
     }
     ui.game = game;
     ui.a = ce_adapter_for(game);
+    ui.spawn_editing = ui.change_editing = ui.other_select = -1;
     refusal = ui.a->arm_refusal();
     if (refusal != NULL) {
         ui_message(owner, refusal);

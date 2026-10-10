@@ -115,6 +115,11 @@ static int c2_kill(int index) {
     return 1;
 }
 
+/* Health is +0x52C alone, the field the death above and c2_revive write. */
+static void c2_set_health(int index, int health) {
+    *(int *)(c2_record(index) + 0x52C) = health;
+}
+
 /* A Dangerous Mission (0x433E9C) clears the record's active byte; the
    game's own removal of a long-dead skeleton (0x43B720) also drops the
    selection when the record was the selected one, which is done first. */
@@ -796,7 +801,9 @@ static const ce_adapter C2_ADAPTER = {
     "- Actions that solve or advance a puzzle, burying, picking things up, new clothes, "
     "embracing, and lessons or games that stop other villagers.\r\n"
     "- Revive: totems, buried villagers (their record is gone) and skeletons that have "
-    "already crumbled away.",
+    "already crumbled away.\r\n"
+    "- Joey as a parent: only The Tree of Life and New Believers have him (their default "
+    "father); choose Custom to give any parent a name and looks.",
     46, 20, 46, 0,
     "Refills the coconut trees, the fish (to the village's starting stock), the field's "
     "protection from birds and, while the farm is planted, the crops.",
@@ -817,7 +824,7 @@ static const ce_adapter C2_ADAPTER = {
        text, title included; labels of 30 characters (the longest stock). */
     46, 16, 46, 16, 1, 30, c2_rand_below, NULL, c2_role,
     C2_PROBE, (int)(sizeof C2_PROBE / sizeof C2_PROBE[0]),
-    NULL, NULL
+    NULL, NULL, 0, c2_set_health
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

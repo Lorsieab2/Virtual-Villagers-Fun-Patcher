@@ -152,6 +152,12 @@ static int c5_kill(int index) {
     return 1;
 }
 
+/* Health through SetHealth (value, cause -1, as c5_revive writes it); a
+   living villager's activity goes on. */
+static void c5_set_health(int index, int health) {
+    TC2(0x4758B0u, c5_record(index) + 0x1C34, health, -1);
+}
+
 /* Disappearance is the game's own removal of a record without a body: the
    presence byte +0x1CD4 cleared, as the stock code clears it for a living
    villager it takes away (0x420142, 0x46723E) and for a body it removes
@@ -837,7 +843,8 @@ static const ce_adapter C5_ADAPTER = {
     "Do at your own risk: purple, Chief and Heathen Mommy are the roles the game's "
     "puzzles use; giving them to anyone, or changing a puzzle's own Heathen, can change "
     "or break those puzzles.",
-    5                                 /* the note is for purple, the Chief and the Mommy */
+    5,
+    c5_set_health                                /* the note is for purple, the Chief and the Mommy */
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

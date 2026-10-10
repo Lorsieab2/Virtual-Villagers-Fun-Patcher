@@ -951,6 +951,13 @@ int main(int argc, char **argv) {
             check(Vv1ParentageSetParents(5, "Zed", 1, 2, "Yara", 3, 4) == 1
                   && lstrcmpA(g_entries[5].father_name, "Zed") == 0,
                   "a parent change whose save succeeds is kept");
+            /* The Custom Island Event's "Unknown": a head of -2 clears that
+               parent (name and looks), the other is left as it is. */
+            check(Vv1ParentageSetParents(5, NULL, -2, -1, NULL, -1, -1) == 1
+                  && g_entries[5].father_name[0] == '\0' && g_entries[5].father_head == 0
+                  && g_entries[5].father_body == 0 && lstrcmpA(g_entries[5].mother_name, "Yara") == 0
+                  && g_entries[5].mother_head == 4 && g_entries[5].mother_body == 5,
+                  "Unknown (a head of -2) clears the father; the mother stays");
             *(unsigned char **)0x0048B614u = NULL;
         }
     }
