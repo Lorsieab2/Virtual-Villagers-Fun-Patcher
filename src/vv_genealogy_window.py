@@ -24,6 +24,7 @@ from fractions import Fraction
 import re
 from datetime import datetime
 import tempfile
+import threading
 import tkinter as tk
 from pathlib import Path
 from types import SimpleNamespace
@@ -44,6 +45,7 @@ from vv_tree_editor_tools import BOLD_ROLES, CanvasTools, ScrollingTab, picture_
 SELECT = "#1f6fd1"
 OUTSIDE = "#9a9a9a"                     # the canvas around the page
 TREES = ft.TREES                        # the folder in the save folder the tree files go to
+_WRITING: list = []                     # the tree outputs being written in the background (_write_outputs)
 
 
 def faded(colour: str, opacity: float, under: str) -> str:
@@ -509,8 +511,25 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._build()
         self._follow_looks()
         self.redraw()
-        self._write_outputs()
+        self.written = None
+        # Once the window is up and drawn: in the background, so the first moments of editing are not slowed.
+        self._write_job = self.after(1500, lambda: self._write_outputs(later=True))
         self.protocol("WM_DELETE_WINDOW", self._close)
+
+    def destroy(self) -> None:
+        """Closed: nothing left waiting to run on it (the background picture still being drawn, say)."""
+        done = self.__dict__.get("_backdrop_done", {})
+        done["closed"] = True
+        if "ok" in done and done.get("temp") is not None:     # drawn, but not yet shown
+            done["temp"].unlink(missing_ok=True)
+        for name in ("_backdrop_poll", "_write_job", "_backdrop_job"):
+            job = self.__dict__.pop(name, None)
+            if job is not None:
+                try:
+                    self.after_cancel(job)
+                except tk.TclError:
+                    pass
+        super().destroy()
 
     # ---- the window -------------------------------------------------------
     def _build(self) -> None:
@@ -1576,8 +1595,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.canvas.xview_moveto(max(0.0, (px * self.z - sx) / width))
         self.canvas.yview_moveto(max(0.0, (py * self.z - sy) / height))
 
-    def redraw(self) -> None:
+    def redraw(self, rescene: bool = True) -> None:
         anchor = self._view_anchor()
+        self._same_scene = not rescene
         self._draw_tree()
         self._keep_view(anchor)
         self._refresh_pages()
@@ -1632,92 +1652,250 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._saved()
 
     def _draw_tree(self) -> None:
-        sc = self._scene()
+        """The tree on the canvas.  Only what changed is drawn again (the owner's tree of vines took well
+        over a second for every change, edit, undo and zoom: some 60,000 leaves, petals and stems made
+        again each time): every item -- or a portrait's whole special border -- keeps its canvas items
+        while the scene draws it just the same, what is new goes into its place among them, what has
+        gone is deleted, and a zoom scales what is kept.  The page, background, grid, stickers,
+        selection and handles are drawn again every time, as they always were."""
+        # The scene as it was when only the zoom or the background picture changed (_same_scene).
+        sc = self.sc if self.__dict__.pop("_same_scene", False) and hasattr(self, "sc") else self._scene()
         self.sc = sc
         c = self.canvas
         z = self.z
-        c.delete("all")
+        c.addtag_withtag("doomed", "all")
+        c.dtag("tree", "doomed")
+        c.delete("doomed")
         self.targets: dict[int, tuple] = {}
         self.editable: dict[int, str] = {}                  # canvas item -> what retyping it changes
         self.pieces: dict[int, str] = {}                    # canvas item -> its line piece, draggable
         c.configure(scrollregion=(0, 0, sc.width * z, sc.height * z), background=OUTSIDE)
         # The page itself, in its colour (the space around it is grey, as around a slide).
-        c.create_rectangle(0, 0, sc.width, sc.height, fill=tk_colour(sc.background, "#ffffff"), width=0,
-                           tags="backdrop")
-        for item in sc.items:
-            iid = None
+        page = c.create_rectangle(0, 0, sc.width, sc.height, fill=tk_colour(sc.background, "#ffffff"), width=0,
+                                  tags=("backdrop", "fresh"))
+        backdrop = None
+        # What the tree is drawn as, in order: (what it is drawn as -- its canvas items' types, places,
+        # options and tags -- and, once drawn, its canvas items).
+        units: list[list] = []
+        items = sc.items
+        old_ops = self.__dict__.get("_block_ops", {})
+        block_ops: dict = {}
+        k, n = 0, len(items)
+        while k < n:
+            item = items[k]
+            block = item.__dict__.get("block")
+            if block is not None:               # a portrait's special border: worked out once (ft.special_border_items)
+                j = k + len(ft._SPECIAL_CACHE.get(block, ()))
+                if not (k < j <= n and items[j - 1].__dict__.get("block") is block
+                        and (j == n or items[j].__dict__.get("block") is not block)):
+                    j = k + 1                   # not as worked out (another thread's tree emptied the cache): counted
+                    while j < n and items[j].__dict__.get("block") is block:
+                        j += 1
+                group = items[k:j]
+                # (its pieces as faded -- by the portraits' opacity and the special borders' own -- and as moved
+                # and shrunk onto a canvas of the player's size: Scene.fit)
+                sig = ("border", block, sc.background, getattr(sc, "fit", None),
+                       frozenset((type(i), i.opacity) for i in group), j - k)
+                drawn = old_ops.get(sig) or block_ops.get(sig)
+                if drawn is None:
+                    ops = tuple(op for i in group for op in self._ops(i, sc))
+                    metas = {op[2] for op in ops}
+                    drawn = (ops, frozenset(op[1] for op in ops if op[1] is not None),
+                             next(iter(metas)) if len(metas) == 1 else None)
+                block_ops[sig] = drawn
+                units.append([sig, drawn[0], (), drawn[1], drawn[2]])
+                k = j
+                continue
+            k += 1
             if isinstance(item, ft.Backdrop):
-                iid = self._draw_backdrop(item, sc)
-            elif isinstance(item, ft.Line):
-                flat = [v for point in item.points for v in point]
-                iid = c.create_line(*flat, fill=tk_colour(faded(item.colour, item.opacity, sc.background)),
-                                    width=item.width * z, joinstyle="round", dash=ft.TK_DASHES.get(item.dash))
-            elif isinstance(item, ft.Poly):
-                flat = [v for point in item.points for v in point]
-                iid = c.create_polygon(*flat, fill=tk_colour(faded(item.fill, item.opacity, sc.background)) if item.fill else "",
-                                       outline=tk_colour(faded(item.stroke, item.opacity, sc.background)) if item.width else "",
-                                       width=item.width * z,
-                                       joinstyle="round")
-            elif isinstance(item, ft.Shape):
-                fill = tk_colour(item.fill or "")
-                dash = ft.TK_DASHES.get(item.dash)
-                width = (item.width or 0) * z
-                outline = tk_colour(item.stroke) if width else ""
-                # The canvas cannot blend: a see-through fill is drawn as a fine dot pattern.
-                see = item.opacity
-                stipple = "" if see >= 1 else ("gray75" if see >= 0.7 else "gray50" if see >= 0.4 else "gray25")
-                if see < 1:                     # the border fades with it, into what is really under it:
-                    # the background picture's own colour there, not a plain white (the owner,
-                    # 2026-10-08: a mark is the colour chosen, never washed out to white)
-                    under = self._colour_under(item.x + item.w / 2, item.y, sc)
-                    outline = tk_colour(faded(item.stroke, see, under)) if width else ""
-                corners = ft.outline(item.kind, item.x, item.y, item.w, item.h)
-                if item.angle:                  # the canvas cannot turn a shape: its corners, turned
-                    pts = [v for point in item.points() for v in point]
-                    iid = c.create_polygon(*pts, fill=fill, outline=outline, width=width, dash=dash, stipple=stipple)
-                elif item.kind in ("ellipse", "circle"):
-                    ox, oy, ow, oh = ft.oval_box(item.kind, item.x, item.y, item.w, item.h)
-                    iid = c.create_oval(ox, oy, ox + ow, oy + oh, fill=fill, outline=outline, width=width, dash=dash,
-                                        stipple=stipple)
-                elif corners is not None:
-                    pts = [v for point in corners for v in point]
-                    iid = c.create_polygon(*pts, fill=fill, outline=outline, width=width, dash=dash, stipple=stipple)
-                elif item.radius > 0:           # rounded corners: the canvas has no rounded rectangle
-                    pts = [v for point in item.points() for v in point]
-                    iid = c.create_polygon(*pts, fill=fill, outline=outline, width=width, dash=dash, stipple=stipple)
-                else:
-                    iid = c.create_rectangle(item.x, item.y, item.x + item.w, item.y + item.h, fill=fill,
-                                             outline=outline, width=width, dash=dash, stipple=stipple)
-            elif isinstance(item, ft.Head):
-                image = self._head(item.sheet, item.row, item.scale)
-                if image is not None:
-                    iid = c.create_image(item.x, item.y, image=image, anchor="nw")
-            elif isinstance(item, ft.Text) and (item.mirror_h or item.mirror_v):
-                iid = self._mirrored_words(item)            # the canvas cannot mirror words: drawn as a picture
-            elif isinstance(item, ft.Text) and item.runs:
-                for run in self._draw_runs(item, sc.background):
-                    self._tag(run, item)
-            elif isinstance(item, ft.Text):
-                style = ["bold" if item.bold else "normal"] + (["italic"] if item.italic else []) \
-                    + (["underline"] if item.underline else []) + (["overstrike"] if item.strike else [])
-                font = (item.font or vv_gdiplus.FONT, -max(1, int(round(item.size * z))), *style)
-                ox, oy = ft.turn(0.0, item.size * 0.24, item.angle) if item.angle else (0.0, item.size * 0.24)
-                iid = c.create_text(item.x + ox, item.y + oy, text=item.text,
-                                    fill=tk_colour(faded(item.colour, item.opacity, sc.background)),
-                                    font=font, anchor="s" if item.centre else "se" if item.end else "sw",
-                                    angle=-item.angle)          # the canvas turns the other way round
-            if iid is not None:
-                self._tag(iid, item)
-        c.scale("all", 0, 0, z, z)
+                backdrop = self._draw_backdrop(item, sc)
+                if backdrop is not None:
+                    self.targets[backdrop] = ("background",)
+                continue
+            ops = tuple(self._ops(item, sc))
+            units.append([ops, ops, (), {op[1] for op in ops if op[1] is not None}, None])
+        self._block_ops = block_ops
+        self._place_units(units)
+        if backdrop is not None:
+            c.tag_lower(backdrop)
+        c.tag_lower(page)
+        c.scale("fresh", 0, 0, z, z)
+        c.dtag("fresh", "fresh")
+        targets, editable, pieces = self.targets, self.editable, self.pieces
+        for _sig, ops, iids, _wbases, same in units:
+            if same is not None:                # every piece of a special border is the same thing
+                _tags, target, piece, edit = same
+                if target is not None:
+                    targets.update(dict.fromkeys(iids, target))
+                if piece:
+                    pieces.update(dict.fromkeys(iids, piece))
+                if edit:
+                    editable.update(dict.fromkeys(iids, edit))
+                continue
+            for iid, op in zip(iids, ops):
+                _tags, target, piece, edit = op[2]
+                if target is not None:
+                    targets[iid] = target
+                if piece:
+                    pieces[iid] = piece
+                if edit:
+                    editable[iid] = edit
         self._draw_grid()
         self._draw_stickers()
         self._draw_selection()
         if hasattr(self, "preset_labels"):
             self._show_background()
 
+    def _place_units(self, units: list) -> None:
+        """Each unit's canvas items: the last drawing's when it drew the unit the same (and nothing on it
+        was dragged since), else made now and put in their place in the stacking order; the last
+        drawing's items no longer drawn deleted, and those kept scaled to a new zoom."""
+        c, z = self.canvas, self.z
+        old = self.__dict__.get("_units", [])
+        moved = set(c.find_withtag("moved")) if old else set()
+        pool: dict = {}
+        for idx, (sig, _ops, iids, _wbases, _same) in enumerate(old):
+            if moved and any(i in moved for i in iids):
+                continue                        # dragged on the canvas since: drawn again where it is
+            pool.setdefault(sig, []).append(idx)
+        kept = []
+        last, in_order = -1, True
+        for unit in units:
+            same = pool.get(unit[0])
+            idx = same.pop(0) if same else None
+            if idx is not None:
+                in_order = in_order and idx > last
+                last = idx
+            kept.append(idx)
+        if not in_order:                        # the order changed (lines brought in front, say): all again
+            kept = [None] * len(units)
+        used = {idx for idx in kept if idx is not None}
+        stale = [i for idx, unit in enumerate(old) if idx not in used for i in unit[2]]
+        for at in range(0, len(stale), 4000):
+            c.delete(*stale[at:at + 4000])
+        c.dtag("moved", "moved")
+        z_was = self.__dict__.get("_drawn_z", z)
+        if used and z_was != z:                 # zoomed: what is kept scaled, its lines as thick as the zoom says
+            c.scale("tree", 0, 0, 1 / z_was, 1 / z_was)
+            c.scale("tree", 0, 0, z, z)
+            for wbase in self.__dict__.get("_wbases", ()):
+                c.itemconfigure(f"w{float(wbase)!r}", width=wbase * z)
+        self._drawn_z = z
+        # Where each new unit goes: under the first kept unit after it (on top when none is).
+        under = [None] * len(units)
+        anchor = None
+        for at in range(len(units) - 1, -1, -1):
+            under[at] = anchor
+            idx = kept[at]
+            if idx is not None and old[idx][2]:
+                anchor = old[idx][2][0]
+        call, w, getint = c.tk.call, c._w, c.tk.getint
+        wbases = set()
+        for unit, idx, below in zip(units, kept, under):
+            if idx is not None:
+                unit[2] = old[idx][2]
+            else:
+                iids = []
+                for head, wbase, _meta, tags in unit[1]:
+                    if wbase is None:
+                        iid = getint(call(w, *head, "-tags", tags))
+                    else:
+                        iid = getint(call(w, *head, "-width", wbase * z, "-tags", tags))
+                    if below is not None:
+                        call(w, "lower", iid, below)
+                    iids.append(iid)
+                unit[2] = iids
+            wbases |= unit[3]
+        self._units = units
+        self._wbases = wbases
+
+    def _ops(self, item, sc: ft.Scene) -> list:
+        """_item_ops ready to make: (the canvas's create command but its width and tags, the line width
+        before the zoom or None, what it is -- _tag -- and its tags)."""
+        out = []
+        for kind, coords, opts, wbase, meta in self._item_ops(item, sc):
+            tags = meta[0] + ("tree", "fresh") + ((f"w{float(wbase)!r}",) if wbase is not None else ())
+            out.append((("create", kind) + coords + opts, wbase, meta, tags))
+        return out
+
+    def _faded(self, colour: str, opacity: float, under: str) -> str:
+        """tk_colour(faded(...)), remembered (a special border's thousands of pieces share a few colours)."""
+        memo = self.__dict__.setdefault("_faded_memo", {})
+        key = (colour, opacity, under)
+        if key not in memo:
+            if len(memo) > 20000:
+                memo.clear()
+            memo[key] = tk_colour(faded(colour, opacity, under))
+        return memo[key]
+
+    def _item_ops(self, item, sc: ft.Scene) -> list:
+        """How a scene item is drawn on the canvas, before the zoom scales it: (item type, its points,
+        its options, its line width before the zoom or None, and what it is -- _tag) for each canvas item."""
+        c = self.canvas
+        z = self.z
+        opts = c._options
+        meta = self._tag(item)
+        if isinstance(item, ft.Line):
+            flat = tuple(v for point in item.points for v in point)
+            dash = ft.TK_DASHES.get(item.dash)          # (as tkinter passes these: plain words, none left out)
+            return [("line", flat, ("-fill", self._faded(item.colour, item.opacity, sc.background), "-joinstyle", "round")
+                     + (("-dash", dash) if dash is not None else ()), item.width, meta)]
+        if isinstance(item, ft.Poly):
+            flat = tuple(v for point in item.points for v in point)
+            return [("polygon", flat,
+                     ("-fill", self._faded(item.fill, item.opacity, sc.background) if item.fill else "",
+                      "-outline", self._faded(item.stroke, item.opacity, sc.background) if item.width else "",
+                      "-joinstyle", "round"), item.width, meta)]
+        if isinstance(item, ft.Shape):
+            fill = tk_colour(item.fill or "")
+            dash = ft.TK_DASHES.get(item.dash)
+            width = item.width or 0
+            outline = tk_colour(item.stroke) if width else ""
+            # The canvas cannot blend: a see-through fill is drawn as a fine dot pattern.
+            see = item.opacity
+            stipple = "" if see >= 1 else ("gray75" if see >= 0.7 else "gray50" if see >= 0.4 else "gray25")
+            if see < 1:                     # the border fades with it, into what is really under it:
+                # the background picture's own colour there, not a plain white (the owner,
+                # 2026-10-08: a mark is the colour chosen, never washed out to white)
+                under = self._colour_under(item.x + item.w / 2, item.y, sc)
+                outline = tk_colour(faded(item.stroke, see, under)) if width else ""
+            look = opts({"fill": fill, "outline": outline, "dash": dash, "stipple": stipple})
+            corners = ft.outline(item.kind, item.x, item.y, item.w, item.h)
+            if item.angle:                  # the canvas cannot turn a shape: its corners, turned
+                return [("polygon", tuple(v for point in item.points() for v in point), look, width, meta)]
+            if item.kind in ("ellipse", "circle"):
+                ox, oy, ow, oh = ft.oval_box(item.kind, item.x, item.y, item.w, item.h)
+                return [("oval", (ox, oy, ox + ow, oy + oh), look, width, meta)]
+            if corners is not None:
+                return [("polygon", tuple(v for point in corners for v in point), look, width, meta)]
+            if item.radius > 0:             # rounded corners: the canvas has no rounded rectangle
+                return [("polygon", tuple(v for point in item.points() for v in point), look, width, meta)]
+            return [("rectangle", (item.x, item.y, item.x + item.w, item.y + item.h), look, width, meta)]
+        if isinstance(item, ft.Head):
+            image = self._head(item.sheet, item.row, item.scale)
+            if image is None:
+                return []
+            return [("image", (item.x, item.y), opts({"image": str(image), "anchor": "nw"}), None, meta)]
+        if isinstance(item, ft.Text) and (item.mirror_h or item.mirror_v):
+            op = self._mirrored_words(item)     # the canvas cannot mirror words: drawn as a picture
+            return [op + (None, meta)] if op is not None else []
+        elif isinstance(item, ft.Text) and item.runs:
+            return [run + (None, meta) for run in self._draw_runs(item, sc.background)]
+        elif isinstance(item, ft.Text):
+            style = ["bold" if item.bold else "normal"] + (["italic"] if item.italic else []) \
+                + (["underline"] if item.underline else []) + (["overstrike"] if item.strike else [])
+            font = (item.font or vv_gdiplus.FONT, -max(1, int(round(item.size * z))), *style)
+            ox, oy = ft.turn(0.0, item.size * 0.24, item.angle) if item.angle else (0.0, item.size * 0.24)
+            return [("text", (item.x + ox, item.y + oy),
+                     opts({"text": item.text, "fill": tk_colour(faded(item.colour, item.opacity, sc.background)),
+                           "font": font, "anchor": "s" if item.centre else "se" if item.end else "sw",
+                           "angle": -item.angle}), None, meta)]          # the canvas turns the other way round
+        return []
+
     def _mirrored_words(self, item: ft.Text):
         """Mirrored words (Edits.flip_words), drawn by Windows into a see-through picture at the zoom and
-        placed where they belong; kept for the next drawing."""
+        placed where they belong (the picture kept for the next drawing): its canvas image, as
+        _item_ops gives it, without its width and what it is."""
         if not vv_gdiplus.available():
             return None
         import dataclasses
@@ -1738,12 +1916,13 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         photo = cache[key]
         if photo is None:
             return None
-        return self.canvas.create_image(left, top, image=photo, anchor="nw")
+        return ("image", (left, top), self.canvas._options({"image": str(photo), "anchor": "nw"}))
 
-    def _draw_runs(self, item: ft.Text, background: str) -> list[int]:
+    def _draw_runs(self, item: ft.Text, background: str) -> list[tuple]:
         """A portrait's formatted words: each run in its own font (ft.run_look), measured, the whole
         line centred where the Text says and each run drawn after the one before it (a superscript
-        or subscript smaller, raised or lowered)."""
+        or subscript smaller, raised or lowered).  Their canvas texts, as _item_ops gives them,
+        without their width and what they are."""
         c, z = self.canvas, self.z
         pieces = []
         for text, style in item.runs:
@@ -1758,8 +1937,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         for text, look, font, width in pieces:
             # Along the line, turned about where it starts when the words turn with the portrait.
             dx, dy = ft.turn(x - item.x, look["dy"] + look["size"] * 0.24, item.angle)
-            out.append(c.create_text(item.x + dx, item.y + dy, text=text, font=font, angle=-item.angle,
-                                     fill=tk_colour(faded(look["colour"], item.opacity, background)), anchor="sw"))
+            out.append(("text", (item.x + dx, item.y + dy),
+                        c._options({"text": text, "font": font, "angle": -item.angle,
+                                    "fill": tk_colour(faded(look["colour"], item.opacity, background)), "anchor": "sw"})))
             x += width
         return out
 
@@ -1770,8 +1950,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             fonts[font] = tkfont.Font(self, font=font)
         return fonts[font].measure(text)
 
-    def _tag(self, iid: int, item) -> None:
-        """What a canvas item is (for a right click) and what dragging it moves."""
+    def _tag(self, item) -> tuple:
+        """What a canvas item is (for a right click) and what dragging it moves: (its tags, what a right
+        click on it changes, its line piece when it can be dragged, what retyping it changes)."""
         tags = []
         pid = getattr(item, "pid", None)
         if pid is not None:
@@ -1780,13 +1961,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             tags.append(f"m_{item.move}")
         if getattr(item, "part", ""):
             tags.append(f"lp_{item.part}")
-        if tags:
-            self.canvas.itemconfigure(iid, tags=tags)
         piece = getattr(item, "piece", "")
-        if piece and len(item.points) == 2 and item.points[0] != item.points[1]:
-            self.pieces[iid] = piece
-        if getattr(item, "edit", ""):
-            self.editable[iid] = item.edit
+        if not (piece and len(item.points) == 2 and item.points[0] != item.points[1]):
+            piece = ""
         target = getattr(item, "target", None)
         if target is None and isinstance(item, ft.Text) and item.role:
             target = ("role", item.role)
@@ -1794,8 +1971,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             target = ("person", pid)
         if target is None and isinstance(item, ft.Backdrop):
             target = ("background",)
-        if target is not None:
-            self.targets[iid] = target
+        return tuple(tags), target, piece, getattr(item, "edit", "") or ""
 
     def _grab(self, event) -> int | None:
         """What a press picks up: the topmost item exactly under the pointer (a line within a few
@@ -2456,6 +2632,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 x0, y0, x1, y1 = self.canvas.coords(m["iid"])[:4]
                 dx, dy = (dx, 0.0) if x0 == x1 and y0 != y1 else (0.0, dy)
             self.canvas.move(m["iid"], (dx - m["dx"]) * self.z, (dy - m["dy"]) * self.z)
+            self.canvas.addtag_withtag("moved", m["iid"])      # drawn again where it belongs (_place_units)
             m["dx"], m["dy"] = dx, dy
             return
         if "box" not in m:                      # villagers: the box round every one moving
@@ -2466,9 +2643,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         step_x, step_y = (dx - m["dx"]) * self.z, (dy - m["dy"]) * self.z
         if "name" in m:
             self.canvas.move(f"m_{m['name']}", step_x, step_y)
+            self.canvas.addtag_withtag("moved", f"m_{m['name']}")   # drawn again where it belongs (_place_units)
         else:
             for q in m["pids"]:
                 self.canvas.move(f"p{q}", step_x, step_y)
+                self.canvas.addtag_withtag("moved", f"p{q}")
             self.canvas.move("selection", step_x, step_y)
         m["dx"], m["dy"] = dx, dy
 
@@ -2689,32 +2868,57 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                                                           tags="backdrop")
         return self._backdrop_iid
 
-    def _make_backdrop(self, item: ft.Backdrop, sc: ft.Scene, key: tuple) -> None:
+    def _make_backdrop(self, item: ft.Backdrop, sc: ft.Scene, key: tuple, keep: bool = False) -> None:
+        """The background picture or gradient drawn by GDI+ in the background, and the tree drawn again
+        with it when it is ready (a picture took over a second to draw, and opening the editor waited
+        for it); the page's colour meanwhile -- or, `keep`, the picture as it was."""
         self.backdrop_key = key
-        self.photos.pop("backdrop", None)
-        if (item.colour2 or item.picture is not None) and vv_gdiplus.available():
-            temp = Path(tempfile.gettempdir()) / f"vvfp-tree-backdrop-{os.getpid()}.png"
-            plain = ft.Scene(sc.width, sc.height, item.colour, [item])
+        if not keep:
+            self.photos.pop("backdrop", None)
+        if not ((item.colour2 or item.picture is not None) and vv_gdiplus.available()):
+            self.photos.pop("backdrop", None)
+            return
+        self._backdrop_n = number = self.__dict__.get("_backdrop_n", 0) + 1
+        temp = Path(tempfile.gettempdir()) / f"vvfp-tree-backdrop-{os.getpid()}-{number}.png"
+        plain, z, done = ft.Scene(sc.width, sc.height, item.colour, [item]), self.z, {"temp": temp}
+
+        def work() -> None:
             try:
-                if vv_gdiplus.save_scene(plain, {}, temp, scale=self.z):
-                    self.photos["backdrop"] = tk.PhotoImage(master=self, file=str(temp))
-            except (OSError, tk.TclError):
+                done["ok"] = vv_gdiplus.save_scene(plain, {}, temp, scale=z)
+            except (OSError, ValueError):
+                done["ok"] = False
+            if done.get("closed"):              # the editor closed meanwhile: nobody will show it
+                temp.unlink(missing_ok=True)
+        self._backdrop_done = done
+        thread = threading.Thread(target=work, name="Family Tree background", daemon=True)
+        thread.start()
+        self._backdrop_ready(thread, done, temp, key)
+
+    def _backdrop_ready(self, thread, done: dict, temp: Path, key: tuple) -> None:
+        """The background picture shown once GDI+ has drawn it (unless the background changed again)."""
+        self._backdrop_poll = None
+        if thread.is_alive():
+            self._backdrop_poll = self.after(30, lambda: self._backdrop_ready(thread, done, temp, key))
+            return
+        try:
+            if done.get("ok") and key == self.backdrop_key:
+                self.photos["backdrop"] = tk.PhotoImage(master=self, file=str(temp))
+                self._same_scene = True         # see-through marks fade into it (_colour_under)
+                self._draw_tree()
+        except tk.TclError:
+            pass                                # the editor was closed meanwhile
+        finally:
+            try:
+                temp.unlink()
+            except OSError:
                 pass
-            finally:
-                try:
-                    temp.unlink()
-                except OSError:
-                    pass
 
     def _redraw_backdrop(self, item: ft.Backdrop, sc: ft.Scene, key: tuple) -> None:
         """The background drawn again at the page's new size or zoom, put in place of the old one."""
         self._backdrop_job = None
         if self.sc is not sc and (int(self.sc.width), int(self.sc.height)) != key[5:7]:
             return                              # the page changed again: its own redraw has asked
-        self._make_backdrop(item, sc, key)
-        iid = getattr(self, "_backdrop_iid", None)
-        if "backdrop" in self.photos and iid is not None and self.canvas.type(iid) == "image":
-            self.canvas.itemconfigure(iid, image=self.photos["backdrop"])
+        self._make_backdrop(item, sc, key, keep=True)
 
     def _draw_selection(self) -> None:
         self.canvas.delete("selection")
@@ -4355,15 +4559,55 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self._change(background_image=chosen)
 
     # ---- output ---------------------------------------------------------------
-    def _write_outputs(self) -> None:
+    def _write_outputs(self, later: bool = False) -> None:
         """The tree's page, picture and report in the save folder's Family Trees\\Reports (as Family Tree
-        always writes them), with the edits as they are now."""
+        always writes them), with the edits as they are now.  `later`: in the background, from a copy of
+        the edits (opening and closing the editor waited over two seconds for them); whatever writes them
+        next waits for that first."""
+        job = self.__dict__.pop("_write_job", None)
+        if job is not None:
+            try:
+                self.after_cancel(job)
+            except tk.TclError:
+                pass
+        self._wait_outputs()
+        if later:
+            edits = ft.Edits.from_data(json.loads(json.dumps(self.edits.to_data())))
+            args = (self.folder, self.game, self.slot, self.images, self.game_title)
+            library, done = self.library, {}
+
+            def work() -> None:
+                try:
+                    done["written"] = ft.write(*args, edits=edits, library=library)
+                except (OSError, ValueError) as exc:
+                    done["error"] = exc
+            self._writer = (threading.Thread(target=work, name="Family Tree outputs"), done)
+            _WRITING[:] = [self._writer[0]]     # an editor opened again soon after waits for it too
+            self._writer[0].start()
+            return
         try:
             self.written = ft.write(self.folder, self.game, self.slot, self.images, self.game_title,
                                     edits=self.edits, library=self.library)
         except (OSError, ValueError) as exc:
             self.written = None
             self.status.set(f"The tree's page could not be written: {exc}")
+
+    def _wait_outputs(self) -> None:
+        """The outputs being written in the background (_write_outputs), finished; what came of it shown."""
+        for thread in _WRITING:                # another editor's (closed on this save, say)
+            thread.join()
+        writer = self.__dict__.pop("_writer", None)
+        if writer is None:
+            return
+        writer[0].join()
+        if "written" in writer[1]:
+            self.written = writer[1]["written"]
+        elif "error" in writer[1]:
+            self.written = None
+            try:
+                self.status.set(f"The tree's page could not be written: {writer[1]['error']}")
+            except tk.TclError:
+                pass
 
     def _trees_folder(self) -> Path | None:
         """The save folder's own folder for family tree pictures (made when first needed)."""
@@ -4526,7 +4770,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         sx, sy = (c.canvasx(ax) / self.z, c.canvasy(ay) / self.z)
         self.z = z
         self.zoom_var.set(f"{int(z * 100)}%")
-        self.redraw()
+        self.redraw(rescene=False)                # the same tree, only bigger or smaller
         width, height = self.sc.width * z, self.sc.height * z
         c.xview_moveto(max(0.0, (sx * z - ax) / width))
         c.yview_moveto(max(0.0, (sy * z - ay) / height))
@@ -4629,7 +4873,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 except ValueError:
                     self.edits = ft.Edits.from_data(json.loads(self.opened_edits))
         self._remember_window(keep_look=keep_look)
-        self._write_outputs()
+        self._write_outputs(later=True)
         self._tools_close()
         self.destroy()
 
