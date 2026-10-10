@@ -2238,9 +2238,10 @@ static INT_PTR CALLBACK upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
+            || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island
-               Event row's lock. */
+               Event row's lock (Choose Time Skip Amount ignores it). */
             if (vvfp_story_pick_clicked(
                     VV_STORY_GAME, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
@@ -2299,9 +2300,14 @@ static int __stdcall vv1_story_mask_set(void *record, int mask) {
     return vv1_mask_get((unsigned char *)record) == mask && vv1_mask_sidecar_save();
 }
 
+/* Choose Time Skip Amount: defined with the Time Warp below. */
+static int __stdcall vv1_story_time_skip_step(int years);
+static int __stdcall vv1_story_time_skip_settled(void);
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
-        sizeof(vvfp_story_host), vv1_story_slot, vv1_story_mask_get, vv1_story_mask_set, NULL
+        sizeof(vvfp_story_host), vv1_story_slot, vv1_story_mask_get, vv1_story_mask_set, NULL,
+        vv1_story_time_skip_step, vv1_story_time_skip_settled
     };
     return &host;
 }
@@ -3683,6 +3689,60 @@ int __stdcall ShowOriginsTimeWarp(
     );
     return VV1_TW_APPLIED;
 }
+
+#if VV_STORY_GAME == 1
+/* Choose Time Skip Amount (the Story DLL drives it): one step of the Time
+   Warp below, at most the years one Time Warp buys at the current speed, so
+   every step is exactly a Time Warp the game already handles.  The step
+   then waits for the game's own villager tick (0x42E900, every two seconds
+   of the clock) to replay it -- that tick rewrites every record's marker
+   (+0x340, 0x42EAE3), so a marker that moved off the value the step left
+   is the sign. */
+static int vv1_skip_watch = -1;        /* the record watched, -1 = none */
+static int vv1_skip_mark;              /* its marker as the step left it */
+
+static int __stdcall vv1_story_time_skip_step(int years) {
+    unsigned char *world = *(unsigned char **)(UINT_PTR)0x0048AEDCu;
+    unsigned char *base = VV_MASK_MANAGER;
+    int speed, step, i;
+    if (world == NULL || base == NULL || years <= 0) {
+        return 0;
+    }
+    speed = *(int *)(world + VV1_TW_SPEED_OFFSET);
+    step = vv1_time_warp_years(speed);
+    if (step <= 0) {
+        return -1;                     /* paused, or a speed we do not know */
+    }
+    if (step > years) {
+        step = years;
+    }
+    if (vv1_time_warp_apply(speed, step) <= 0) {
+        return 0;
+    }
+    vv1_skip_watch = -1;
+    for (i = 0; i < VV_MASK_SLOTS; i++) {
+        unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
+        if (rec[VV_OCCUPIED_OFFSET] == 1 && *(int *)(rec + VV1_TW_HEALTH_OFFSET) > 0) {
+            vv1_skip_watch = i;
+            vv1_skip_mark = *(int *)(rec + VV1_TW_LAST_SEEN_OFFSET);
+            break;
+        }
+    }
+    return step;
+}
+
+static int __stdcall vv1_story_time_skip_settled(void) {
+    unsigned char *base = VV_MASK_MANAGER;
+    unsigned char *rec;
+    if (vv1_skip_watch < 0 || base == NULL) {
+        return 1;
+    }
+    rec = base + (size_t)vv1_skip_watch * VV_RECORD_STRIDE;
+    return rec[VV_OCCUPIED_OFFSET] != 1 || *(int *)(rec + VV1_TW_HEALTH_OFFSET) <= 0
+        || *(int *)(rec + VV1_TW_LAST_SEEN_OFFSET) != vv1_skip_mark;
+}
+
+#endif
 
 int __stdcall ShowOriginsRowMessage(
     int is_detail,

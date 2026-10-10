@@ -97,7 +97,22 @@ VV2_GONG_NOTE = (
     "sick -- defaulting to \"Random (original game)\"; the choice is used for one ring, in "
     "this save slot, within ten minutes."
 )
-# A New Home keeps parents only in the Show Parents companion's file.
+# Choose Time Skip Amount (the owner, 2026-10-10): "add a cheat upgrade: Choose
+# Time Skip Amount (costs same as the normal upgrade). Choose a number of years
+# to skip from 1-72."  Offered where the game's Origins companion hands the
+# Story companion its Time Warp (story_bridge.h, time_skip_step).
+TIME_SKIP_GAMES = ("vv1",)
+TIME_WARP_PRICE = 50000              # the Origins Time Warp upgrade, all five games
+TIME_SKIP_NOTE = (
+    " Also adds Choose Time Skip Amount (0 Tech Points, the same as Time Warp): the player types "
+    "how many years to skip, from 1 to 72, and the village moves forward that many villager years "
+    "as a run of the Time Warp upgrade's own advance -- one Time Warp at a time (3 years on slow, 6 "
+    "on normal, 12 on fast, the last one only what is left), each caught up by the game before the "
+    "next -- so villagers work, eat, have babies, grow up and die of old age through the skipped "
+    "years just as after a Time Warp. **Keep the game running until the skip is done: it pauses "
+    "while the game is paused, and loading another village, Start Over or deleting the tribe drops "
+    "the rest.** Cancel charges nothing."
+)# A New Home keeps parents only in the Show Parents companion's file.
 VV1_PARENTS_NOTE = (
     " **In A New Home a custom event can change a villager's parents only with Show "
     "Parents in Details Screen ticked (its file is where A New Home's parents are kept).**"
@@ -627,7 +642,8 @@ def build() -> None:
             "game_id": game,
             "name": NAME,
             "description": DESCRIPTION + (VV1_PARENTS_NOTE if game == "vv1" else "")
-            + (VV2_GONG_NOTE if game == "vv2" else ""),
+            + (VV2_GONG_NOTE if game == "vv2" else "")
+            + (TIME_SKIP_NOTE if game in TIME_SKIP_GAMES else ""),
             "output_tag": "Story Cheat Upgrades",
             "dependencies": [f"{game}_origins_village_wide_upgrades"],
             "behavior_changes": [
@@ -636,6 +652,15 @@ def build() -> None:
                 "is set to 0 at run time, and the Origins companion shows and charges 0.",
                 "Every existing refusal stays: one pending Island Event or Barrel of Babies at a "
                 "time, room for the Barrel's children, and every \"nothing to change\" check.",
+            ] + ([
+                "Adds a Choose Time Skip Amount upgrade (the Time Warp's price: 0 tech points, or "
+                f"{TIME_WARP_PRICE:,} with Story / Cheat Upgrades cost Tech Points) to the Origins "
+                "Tech menu: a plain Windows dialog takes 1-72 years (20 age units a year), and the "
+                "Origins companion's own Time Warp advance runs in steps of at most one Time Warp at "
+                "the current speed, the next step only once the game's villager tick has replayed "
+                "the last (its catch-up), so no jump is bigger than a Time Warp.  Charged once, when "
+                "the first step is made; Cancel, a paused game or an empty village charge nothing.",
+            ] if game in TIME_SKIP_GAMES else []) + [
                 "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a "
                 "plain Windows list of this game's island events by their official titles, each "
                 "with a one-line description.  The pick makes the island event due exactly as "
@@ -727,6 +752,9 @@ ISLAND_EVENT_PRICE = 30000           # the Origins Island Event upgrade, all fiv
 
 def cost_record(game: str) -> dict:
     gong = (" and Pick Gong of Wonder Outcome" if game == "vv2" else "")
+    skip = (
+        f" Choose Time Skip Amount costs what the Time Warp upgrade costs: {TIME_WARP_PRICE:,} tech "
+        "points, paid when the skip starts." if game in TIME_SKIP_GAMES else "")
     return {
         "id": f"{game}_story_cheat_upgrades_cost_tech_points",
         "enabled": True,
@@ -737,8 +765,8 @@ def cost_record(game: str) -> dict:
             "normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island "
             "Event" + gong + " each cost what the Island Event upgrade costs: "
             f"{ISLAND_EVENT_PRICE:,} tech points, paid when the event is queued. With too few tech "
-            "points you are told, and nothing is queued or spent. Untick it to keep every upgrade "
-            "free. Ticking Story / Cheat Upgrades ticks this too."
+            "points you are told, and nothing is queued or spent." + skip + " Untick it to keep "
+            "every upgrade free. Ticking Story / Cheat Upgrades ticks this too."
         ),
         "output_tag": "Story Cheat Costs",
         "dependencies": [f"{game}_story_cheat_upgrades"],
