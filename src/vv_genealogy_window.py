@@ -2922,6 +2922,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         for name in names:
             own.pop(name)
+        if {"picture_size", "text_size"} & set(names):
+            self._end_equal(group)
         if "text_valign" not in own:
             own.pop("centre_heads", None)
         groups = {g: v for g, v in self.edits.group_opts.items() if g != group}
@@ -2934,6 +2936,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _all_groups_same(self) -> None:
         """Every group's own settings cleared: every portrait as everyone's.  One step to undo."""
         if self.edits.group_opts:
+            for group, own in self.edits.group_opts.items():
+                if {"picture_size", "text_size"} & set(own):
+                    self._end_equal(group)
             self.edits.group_opts = {}
             self._saved()
             self._refresh_panels()
@@ -2941,13 +2946,56 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _equalize(self, group: str | None) -> None:
         """Every villager's face and text at the tree's own sizes -- everyone's, or one group's: each one's own
         face size and text size cleared (the owner, 2026-10-09: "buttons to "equalize" text/face sizes etc
-        across the entire family tree or by group")."""
-        people = [p for p in self.village.people.values() if group is None or ft.group_of(p) == group]
-        changed = [p for p in people if {"picture_scale", "text_scale"} & set(self._entry(p))]
-        for p in changed:
-            self._set_entry(p, picture_scale=None, text_scale=None)
-        if changed:
-            self._saved()
+        across the entire family tree or by group").  Exactly the same (the owner, 2026-10-10: "should
+        have the exact same font size and icon dimensions regardless of other settings"): faces and words
+        keep one size, the scope's own face and text sizes are cleared, and the scope keeps one face size
+        and one font size, the largest that fits every one of its portraits (Edits.equal_sizes), whatever
+        is resized or added later -- until a face or text size is changed again.  One undo step."""
+        e = self.edits
+        groups = list(ft.GROUPS) if group is None else [group]
+        for p in self.village.people.values():
+            if ft.group_of(p) in groups and {"picture_scale", "text_scale"} & set(self._entry(p)):
+                self._set_entry(p, picture_scale=None, text_scale=None)
+        opts = {g: dict(v) for g, v in e.group_opts.items()}
+        for g in groups:
+            own = opts.get(g, {})
+            for name in ("picture_size", "text_size", "fixed_face_size"):
+                own.pop(name, None)
+            if group is not None and not e.fixed_face_size:
+                own["fixed_face_size"] = True
+            opts[g] = own
+        e.group_opts = {g: v for g, v in opts.items() if v}
+        if group is None:
+            e.fixed_face_size = True
+            e.equal_sizes = {}
+        sizes = {"face": float(e.picture_size), "text": float(e.text_size)}
+        e.equal_sizes = dict(e.equal_sizes, **{group or "all": sizes})
+        self._saved()
+        self._refresh_panels()
+        self.status.set(f"{'Everyone' if group is None else ft.GROUPS[group]}: every face and every name the same "
+                        "size.  Changing a face or text size again ends it.  Ctrl+Z undoes it.")
+
+    def _end_own_equal(self) -> None:
+        """The selected villagers' own face or text size changed: their groups no longer kept the same."""
+        for group in {ft.group_of(self.village.people[q]) for q in self.selected}:
+            self._end_equal(group)
+
+    def _end_equal(self, group: str | None) -> None:
+        """A face or text size changed for everyone (None) or one group: those portraits are no longer
+        kept the same ("Same face and text size for:"); the other groups made the same with everyone stay so."""
+        sizes = self.edits.equal_sizes
+        if not sizes:
+            return
+        if group is None:
+            self.edits.equal_sizes = {}
+            return
+        sizes = dict(sizes)
+        everyone = sizes.pop("all", None)
+        if everyone is not None:
+            for g in ft.GROUPS:
+                sizes.setdefault(g, dict(everyone))
+        sizes.pop(group, None)
+        self.edits.equal_sizes = sizes
 
     def _equalize_sizes(self) -> None:
         """Every villager back to their group's portrait size: each one's own width and height cleared."""
@@ -2963,6 +3011,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         for q in self.selected:
             self._set_entry(self.village.people[q], picture_scale=None, text_scale=None)
+        self._end_own_equal()
         self.own_picture.set("100")
         self.own_text.set("100")
         self._saved()
@@ -3277,6 +3326,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 self._set_entry(p, text_scale=percent if percent != 100.0 else None)
                 changed = True
         if changed:
+            self._end_own_equal()
             self._saved()
 
     def _own_picture_size(self) -> None:
@@ -3291,6 +3341,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 self._set_entry(p, picture_scale=percent if percent != 100.0 else None)
                 changed = True
         if changed:
+            self._end_own_equal()
             self._saved()
 
     def _own_size(self, axis: int | None = None) -> None:
@@ -3566,6 +3617,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         `everyone`), settings a group may have of its own (ft.GROUP_FIELDS) are that group's: a value
         the same as everyone's is no setting of its own."""
         group = None if everyone else self._scope()
+        if {"picture_size", "text_size"} & set(values):    # a face or text size changed: no longer kept the same
+            self._end_equal(group if group and all(name in ft.GROUP_FIELDS for name in values) else None)
         if group and values and all(name in ft.GROUP_FIELDS for name in values):
             own = dict(self.edits.group_opts.get(group, {}))
             for name, value in values.items():

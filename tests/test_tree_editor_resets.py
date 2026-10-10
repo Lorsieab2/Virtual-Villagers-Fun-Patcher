@@ -61,6 +61,61 @@ class OpacityTests(unittest.TestCase):
         self.assertTrue(all(abs(i.opacity - 0.2) < 1e-9 for i in swatches))
 
 
+def uneven() -> ft.Edits:
+    """Faces and words every which size: a group's own, a villager's own, frames of every size, words
+    kept inside the shape."""
+    v = village()
+    e = ft.Edits(shapes={"Male": "rect", "Female": "circle", "Upcoming": "diamond"}, text_inside=True,
+                 sizes={"Male": [150.0, 60.0], "Female": [90.0, 90.0]})
+    e.group_opts = {"Female": {"picture_size": 70.0, "text_size": 70.0}}
+    first = next(p for p in v.people.values() if ft.group_of(p) == "Male")
+    e.entries[ft.entry_key(v, first)] = {"text_scale": 150.0, "picture_scale": 130.0, "w": 200.0, "h": 120.0}
+    return e
+
+
+def measured(edits: ft.Edits, group: str | None = None) -> tuple[set, set, set]:
+    """(face sizes, name font sizes, other line font sizes) of the portraits in scope, as drawn."""
+    v = village()
+    lay = ft.layout(v, edits)
+    faces, names, lines = set(), set(), set()
+    for pid in lay.x:
+        p = v.people[pid]
+        if group in (None, ft.group_of(p)) and not p.upcoming:
+            fw, fh = ft.frame_size(edits, v, p, shrink=lay.shrink)
+            faces.add(round(ft.inner_sizes(lay, p)[0] * ft.fixed_scale(lay, p, fw, fh), 6))
+    for i in ft.scene(lay, TITLE, {}).items:
+        if isinstance(i, ft.Text) and i.pid is not None and group in (None, ft.group_of(v.people[i.pid])):
+            if i.role == "names":
+                names.add(round(i.size, 6))
+            elif i.role == "portraits":
+                lines.add(round(i.size, 6))
+    return faces, names, lines
+
+
+class EqualSizeTests(unittest.TestCase):
+    def test_everyone_gets_exactly_one_face_and_one_font_size(self) -> None:
+        before = measured(uneven())
+        self.assertGreater(len(before[1]), 1)
+        e = uneven()
+        e.fixed_face_size = True
+        e.equal_sizes = {"all": {"face": 100.0, "text": 100.0}}
+        faces, names, lines = measured(e)
+        self.assertEqual((len(faces), len(names), len(lines)), (1, 1, 1), (faces, names, lines))
+
+    def test_one_group_alone(self) -> None:
+        e = uneven()
+        e.equal_sizes = {"Male": {"face": 100.0, "text": 100.0}}
+        faces, names, lines = measured(e, "Male")
+        self.assertEqual((len(faces), len(names), len(lines)), (1, 1, 1), (faces, names, lines))
+
+    def test_saved_and_read_back_and_bad_ones_dropped(self) -> None:
+        e = ft.Edits(equal_sizes={"all": {"face": 90.0, "text": 80.0}})
+        self.assertEqual(ft.Edits.from_data(e.to_data()).equal_sizes, e.equal_sizes)
+        self.assertEqual(ft.Edits.from_data({"equal_sizes": {"x": {}, "Male": {"face": "a", "text": 1}}}).equal_sizes,
+                         {})
+        self.assertIn("equal_sizes", ft.STYLE_KEYS)
+
+
 class EditorTests(unittest.TestCase):
     def setUp(self) -> None:
         try:
@@ -149,6 +204,31 @@ class EditorTests(unittest.TestCase):
         ed._undo()
         self.assertEqual(ed.edits.sizes, {"Female": [150.0, 150.0]})
         self.assertTrue(ed._entry(p).get("flip_v"))
+
+    def test_same_face_and_text_size_button(self) -> None:
+        ed = self.open(uneven())
+        steps = len(ed.history)
+        ed._equalize(None)
+        self.assertEqual(len(ed.history), steps + 1)          # one undo step
+        faces, names, lines = measured(ed.edits)
+        self.assertEqual((len(faces), len(names), len(lines)), (1, 1, 1), (faces, names, lines))
+        self.assertEqual(ed.edits.group_opts.get("Female", {}).get("picture_size"), None)
+        self.assertTrue(all("text_scale" not in ed._entry(p) for p in ed.village.people.values()))
+        # It stays equal when a portrait is resized ...
+        p = self.group("Female")[0]
+        ed._set_entry(p, w=40.0, h=40.0)
+        ed._saved()
+        faces, names, _lines = measured(ed.edits)
+        self.assertEqual((len(faces), len(names)), (1, 1))
+        # ... until a face or text size is changed again (a group's own: the others stay the same).
+        ed._undo()
+        ed._undo()
+        self.assertEqual(ed.edits.equal_sizes, {})
+        ed._equalize(None)
+        ed.scope_var.set(ft.GROUPS["Female"])
+        ed._change(text_size=60.0)
+        self.assertEqual(set(ed.edits.equal_sizes), {"Male", "Upcoming"})
+        self.assertEqual(len(measured(ed.edits, "Male")[1]), 1)
 
     def test_delete_this_tree_starts_again_in_the_remembered_look(self) -> None:
         ed = self.open()

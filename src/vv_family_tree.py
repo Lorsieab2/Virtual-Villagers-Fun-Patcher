@@ -310,6 +310,12 @@ class Edits:
     # Faces and words at one size whatever the portrait's shape and size (the owner, 2026-10-09: the
     # males' turtle shells drew their faces and words a quarter smaller than the females' leaves).
     fixed_face_size: bool = False
+    # "Same face and text size for:" (the owner, 2026-10-10: "equalizing villager icons and text = should
+    # have the exact same font size and icon dimensions regardless of other settings"): EQUAL_SCOPES ->
+    # {"face": percent, "text": percent}.  Every portrait in the scope gets one face size and one font
+    # size -- the largest that fits all of them (equal_scale, _equal_words) -- until the player changes a
+    # face or text size again.
+    equal_sizes: dict = field(default_factory=dict)
     # Whether a turned portrait's words turn with it (the owner, 2026-10-09); off, they stay upright.
     turn_words: bool = False
     # Whether a flipped portrait's words are mirrored with it (the owner, 2026-10-09: "if people want to
@@ -640,6 +646,7 @@ class Edits:
             sticker = clean_sticker(raw)
             if sticker is not None:
                 out.stickers.append(sticker)
+        out.equal_sizes = clean_equal_sizes(data.get("equal_sizes"))
         out.group_opts = clean_group_opts(data.get("group_opts"))
         return out
 
@@ -672,7 +679,7 @@ class Edits:
                 "line_moves": self.line_moves,
                 "generations": self.generations, "words": self.words, "marks": self.marks, "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers,
-                "group_opts": self.group_opts}
+                "group_opts": self.group_opts, "equal_sizes": self.equal_sizes}
 
 
 # The settings a group's portraits may have of their own (Edits.group_opts): only what is drawn inside
@@ -1039,7 +1046,7 @@ STYLE_KEYS = (
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
     "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
-    "label_line_reach", "marks", "group_opts",
+    "label_line_reach", "marks", "group_opts", "equal_sizes",
 )
 
 
@@ -1493,7 +1500,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         kind = flipped_kind(shape_of(edits, village, p), entry.get("flip_h", False), entry.get("flip_v", False))
         w, h = frame_size(edits, village, p, shrink=shrink_now)
         words = None
-        if opt(edits, p, "fixed_face_size") and not p.upcoming:
+        if is_fixed(edits, p) and not p.upcoming:
             # Faces and words at one size: they may reach past a short frame -- counted as drawn.
             top, bottom = fixed_words_reach(probe, p, w, h)
             words = (-w / 2, w / 2, top, bottom)
@@ -3775,7 +3782,12 @@ def born_with(lay: Layout, p: gen.Person) -> list[str]:
 
 def inner_sizes(lay: Layout, p: gen.Person) -> tuple[float, float]:
     """(the face's size, the words' size) inside this villager's portrait, as factors: every portrait's
-    setting (their group's, else the tree's) times their own."""
+    setting (their group's, else the tree's) times their own -- or, made the same for their scope
+    ("Same face and text size for:", Edits.equal_sizes), the scope's one size, whatever else is set."""
+    scope = equal_scope(lay.edits, p)
+    if scope:
+        sizes = lay.edits.equal_sizes[scope]
+        return sizes["face"] / 100, sizes["text"] / 100
     entry = lay.entry(p)
     return (lay.opt(p, "picture_size") / 100 * entry.get("picture_scale", 100.0) / 100,
             lay.opt(p, "text_size") / 100 * entry.get("text_scale", 100.0) / 100)
@@ -3784,11 +3796,38 @@ def inner_sizes(lay: Layout, p: gen.Person) -> tuple[float, float]:
 FACE_ROOM = 8                           # a face at one size keeps this far inside its frame (fixed_face_size)
 
 
-def fixed_scale(lay: Layout, p: gen.Person, fw: float, fh: float) -> float:
-    """Faces and words at one size (Edits.fixed_face_size, the owner, 2026-10-09: the males' faces and
-    words looked a quarter smaller than the females'): 1 for every portrait, whatever its shape and size --
-    unless the frame is too small for the face, which then shrinks just enough to stay inside it (the
-    face never leaves its portrait), and the words with it."""
+EQUAL_SCOPES = ("all",) + tuple(GROUPS)       # Edits.equal_sizes: everyone, or one group
+
+
+def clean_equal_sizes(raw) -> dict:
+    """Edits.equal_sizes as saved, each scope's sizes checked; a bad one is dropped."""
+    out = {}
+    if isinstance(raw, dict):
+        for scope, sizes in raw.items():
+            if scope in EQUAL_SCOPES and isinstance(sizes, dict):
+                face, text = sizes.get("face"), sizes.get("text")
+                if all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in (face, text)):
+                    out[scope] = {"face": max(PICTURE_SCALE_MIN, min(PICTURE_SCALE_MAX, float(face))),
+                                  "text": max(TEXT_SCALE_MIN, min(TEXT_SCALE_MAX, float(text)))}
+    return out
+
+
+def equal_scope(edits: "Edits", p: gen.Person) -> str | None:
+    """The "Same face and text size for:" scope this villager's portrait is in (their group's, else
+    everyone's), or None."""
+    if not edits.equal_sizes:
+        return None
+    group = group_of(p)
+    return group if group in edits.equal_sizes else "all" if "all" in edits.equal_sizes else None
+
+
+def is_fixed(edits: "Edits", p: gen.Person) -> bool:
+    """Whether this portrait's face and words keep one size (fixed_face_size, or made the same)."""
+    return bool(opt(edits, p, "fixed_face_size") or equal_scope(edits, p))
+
+
+def _own_fixed_scale(lay: Layout, p: gen.Person, fw: float, fh: float) -> float:
+    """One portrait's own scale with its face and words at one size (fixed_scale)."""
     pic, words = inner_sizes(lay, p)
     face = FACE_H * HEAD_SCALE * pic
     room = min(fw, fh) - 2 * FACE_ROOM
@@ -3800,6 +3839,33 @@ def fixed_scale(lay: Layout, p: gen.Person, fw: float, fh: float) -> float:
         block = face + 8 + len(lines) * LINE_H * words
         scale = min(scale, max(0.2, (fh - 2 * FACE_ROOM) / block))
     return scale
+
+
+def equal_scale(lay: Layout, scope: str) -> float:
+    """One scale for every portrait in a "Same face and text size" scope: the largest at which every
+    one of their faces (and, kept inside the shape, their words) fits its frame -- so none is shrunk
+    and the others not (the owner, 2026-10-10)."""
+    cache = lay.__dict__.setdefault("_equal_scales", {})
+    if scope not in cache:
+        edits, village = lay.edits, lay.village
+        scales = [_own_fixed_scale(lay, q, *frame_size(edits, village, q, shrink=lay.shrink))
+                  for q in village.people.values()
+                  if not q.upcoming and equal_scope(edits, q) == scope
+                  and not edits.entries.get(entry_key(village, q), {}).get("hidden")]
+        cache[scope] = min(scales, default=1.0)
+    return cache[scope]
+
+
+def fixed_scale(lay: Layout, p: gen.Person, fw: float, fh: float) -> float:
+    """Faces and words at one size (Edits.fixed_face_size, the owner, 2026-10-09: the males' faces and
+    words looked a quarter smaller than the females'): 1 for every portrait, whatever its shape and size --
+    unless the frame is too small for the face, which then shrinks just enough to stay inside it (the
+    face never leaves its portrait), and the words with it.  Made the same for a scope: the scope's
+    one scale (equal_scale)."""
+    scope = equal_scope(lay.edits, p)
+    if scope:
+        return equal_scale(lay, scope)
+    return _own_fixed_scale(lay, p, fw, fh)
 
 
 def face_inside(lay: Layout, p: gen.Person, present: dict, y: float, fy: float, fh: float, scale: float) -> float:
@@ -5389,6 +5455,7 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         x0, y0 = min(min(xs), lay.x[pid]), min(min(ys), lay.y[pid])
         x1, y1 = max(max(xs), lay.x[pid] + NODE_W), max(max(ys), lay.y[pid] + NODE_H)
         out.boxes[pid] = (x0, y0, x1 - x0, y1 - y0)
+    _equal_words(lay, out.items)
     key_text = words(lay, "footer")
     # With Shrink to fit, the footer goes onto as many lines as keep it inside that width, rather than
     # widening the page again (Codex, #575); otherwise it is the one line it always was.
@@ -5482,6 +5549,25 @@ def _fit_page(out: "Scene") -> None:
 def see_through(edits: Edits, part: str) -> float:
     """How opaque a part of the tree is (OPACITY), 0 to 1."""
     return edits.opacity.get(part, OPACITY[part][1]) / 100
+
+
+def _equal_words(lay: Layout, items: list) -> None:
+    """Every portrait in a "Same face and text size" scope with its words at one font size: the
+    smallest that any of them was fitted to (_node's fitting into the shape), so none is made smaller
+    and the others not (the owner, 2026-10-10)."""
+    fits = lay.__dict__.get("_word_fits", {})
+    people = lay.village.people
+    scope_of = {pid: equal_scope(lay.edits, people[pid]) for pid in lay.x}
+    common: dict[str, float] = {}
+    for pid, scope in scope_of.items():
+        if scope:
+            common[scope] = min(common.get(scope, 1.0), fits.get(pid, 1.0))
+    if not common:
+        return
+    for item in items:
+        if isinstance(item, Text) and item.role in ("names", "portraits") and scope_of.get(item.pid):
+            fit = fits.get(item.pid, 1.0)
+            item.size *= common[scope_of[item.pid]] / fit
 
 
 def _apply_opacity(items: list, edits: Edits) -> None:
@@ -6068,7 +6154,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     # kept a giant face when their group was made tiny (the owner, 2026-10-09: 8-pixel males, faces 4x).
     w0, h0 = natural_width(base_kind(kind)), NODE_H
     scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (round(fw, 3), round(fh, 3)) != (round(w0, 3), round(h0, 3)) else 1.0
-    fixed = lay.opt(p, "fixed_face_size")
+    fixed = is_fixed(lay.edits, p)
     if fixed:
         scale = fixed_scale(lay, p, fw, fh)
     # The face and words go with the frame when the row lines portraits up by their tops or bottoms
@@ -6106,8 +6192,10 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
 
     pic, own = inner_sizes(lay, p)          # the face's and the words' sizes inside the shape
     if p.upcoming:
+        # Made the same as others' (Edits.equal_sizes): their names' and lines' font sizes too.
+        sizes = (11.5, 10) if equal_scope(lay.edits, p) else (12, 11)
         for k, text in enumerate(node_text(lay, p)):
-            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15 * own, text, (12 if k == 0 else 11) * own, ink,
+            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15 * own, text, sizes[k > 0] * own, ink,
                      bold=k == 0, centre=True, pid=p.id, role="names" if k == 0 else "portraits",
                      edit=f"person:{p.id}"))
         return
@@ -6144,6 +6232,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         needed = len(text) * size * (0.58 if bold else 0.55)
         if room > 0 and needed > room:
             fit = min(fit, room / needed)
+    lay.__dict__.setdefault("_word_fits", {})[p.id] = fit     # (made the same for a scope: _equal_words)
     # Left or right: every line from (or to) one edge, the narrowest the shape is across the words,
     # so no line leaves a round or pointed portrait (Edits.text_align).
     align = lay.opt(p, "text_align")
