@@ -9,7 +9,9 @@ editor's side panel, follows the selection, and selects a partner or child click
 """
 from __future__ import annotations
 
+import struct
 import tkinter as tk
+from pathlib import Path
 from tkinter import ttk
 
 import vv_family_tree as ft
@@ -81,10 +83,11 @@ def _born_order(p: gen.Person) -> tuple:
     return (p.upcoming, logged, p.birth_record if logged else 0, -(p.age or 0), p.name)
 
 
-def info_lines(village: gen.Village, edits: ft.Edits, pid: int, names: dict | None = None) -> list[list[Run]]:
+def info_lines(village: gen.Village, edits: ft.Edits, pid: int, names: dict | None = None,
+               titles: dict | None = None) -> list[list[Run]]:
     """The tab's lines for one villager, each a list of runs.  The first line is their name, the
     second their age; then their partners with their children and babies on the way together, the
-    children whose other parent is unknown, and the notes that apply."""
+    children whose other parent is unknown, and the notes that apply.  `titles` is village_titles'."""
     names = names or {}
     people = village.people
     p = people[pid]
@@ -115,7 +118,7 @@ def info_lines(village: gen.Village, edits: ft.Edits, pid: int, names: dict | No
         lines.append([("Other parent unknown", "heading", None)])
         lines.extend(_children_lines(village, edits, names, p, None, groups[None]))
 
-    notes = _notes(village, edits, names, p)
+    notes = _notes(village, edits, names, p, titles)
     if notes:
         lines.append([])
         lines.append([("Notes", "heading", None)])
@@ -149,7 +152,8 @@ def _children_lines(village, edits, names, p, partner, kids) -> list[list[Run]]:
     return out
 
 
-def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person) -> list[list[Run]]:
+def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person,
+           titles: dict | None = None) -> list[list[Run]]:
     people = village.people
     out: list[list[Run]] = []
 
@@ -171,11 +175,15 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person) ->
         note(("Golden Child (5 years old for life)", "plain", None))
     if p.heathen:
         note(("Heathen (not one of the tribe)", "plain", None))
+    own = titles_of(village, titles or {}, p)
+    if own.get("custom"):
+        note((f"Custom title: {own['custom']}", "plain", None))
+    special = own.get("special")
+    golden = village.game == 1 and (p.family == 199 or p.how == "Golden Child")
+    if special and not (golden and special == "Golden Child"):     # the Golden Child line above says it
+        note((f"Special title: {special}", "plain", None))
     if entry.get("mark"):
         note((f"Special mark: {entry['mark']}", "plain", None))
-    for key in ("title", "custom_title"):
-        if isinstance(entry.get(key), str) and entry[key].strip():
-            note((f"Title: {entry[key].strip()}", "plain", None))
     if p.litter is not None and not p.upcoming:
         others = sorted((q for q in people.values() if q.litter == p.litter and q.id != p.id and not q.upcoming),
                         key=_born_order)
@@ -198,6 +206,117 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person) ->
     lost = getattr(p, "lost_before_birth", None)
     if lost:
         note((f"Lost before birth: {lost}", "plain", None))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Titles: the player's Custom title and the game's Special villager title
+# ---------------------------------------------------------------------------
+
+TITLES_FILE = "Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save {slot}.dat"
+
+
+def read_titles_file(path: Path, game: int) -> list[tuple[int, int, str]]:
+    """native/shared/custom_titles.h: (record index, identity, title) for each entry of a v2 file for
+    this game; nothing for a missing, older or damaged one."""
+    try:
+        data = Path(path).read_bytes()
+    except OSError:
+        return []
+    if len(data) < 16 or data[:4] != b"VCT1" or struct.unpack_from("<III", data, 4)[:2] != (2, game):
+        return []
+    count = struct.unpack_from("<I", data, 12)[0]
+    if len(data) != 16 + 40 * count:
+        return []
+    out = []
+    for k in range(count):
+        index, identity = struct.unpack_from("<II", data, 16 + 40 * k)
+        title = data[24 + 40 * k:56 + 40 * k].split(b"\0", 1)[0].decode("ascii", "replace").strip()
+        if title:
+            out.append((index, identity, title))
+    return out
+
+
+def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:
+    """Each villager the save holds with a Custom title in the titles file, by (name, head, body):
+    the entry's identity (the name, likes and dislikes -- vv_title_identity) is that villager's, as
+    the game's load matches it.  An identity two villagers share is nobody's.  None when the file
+    or the save cannot be read (the logs then say)."""
+    import vv_last_names as ln
+    import vv_save_layout as layout
+    path = layout.find(Path(folder), TITLES_FILE.format(slot=slot))
+    if not path.is_file():
+        return None
+    entries = read_titles_file(path, game)
+    try:
+        data = ln.save_path(folder, game, slot).read_bytes()
+        held = ln.living(folder, game, slot, bodies=True)
+    except (OSError, ln.LastNamesError, ValueError):
+        return None
+    f = ln.FIELDS[game]
+    by_identity: dict[int, list[tuple]] = {}
+    for v in held:
+        by_identity.setdefault(ln._title_identity(data, v.at, f), []).append(v.identity)
+    out = {}
+    for _index, identity, title in entries:
+        owners = by_identity.get(identity, [])
+        if len(owners) == 1:
+            out[owners[0]] = title
+    # Everyone the save holds is decided by the file: no entry, no title.
+    return {v.identity: out.get(v.identity, "") for v in held}
+
+
+def log_titles(folder: Path, game: int, slot: int) -> dict[tuple, dict]:
+    """Each villager's Custom title and Special villager title as their latest record says: the
+    Village Population page, then the History snapshots newest first, then the other records."""
+    import vv_log_additions as additions
+    try:
+        blocks = additions.person_blocks(Path(folder), slot, game)
+    except (OSError, ValueError):
+        return {}
+    try:
+        population = list(additions.population_page(Path(folder), slot, game)[1].values())     # the latest page
+    except (OSError, ValueError):
+        population = []
+    history = sorted((b for b in blocks if not additions.is_population(b.path) and b.date
+                      and b.heading.startswith("Villager ")), key=lambda b: b.date, reverse=True)
+    taken = {id(b) for b in history}
+    rest = [b for b in reversed(blocks) if id(b) not in taken and not additions.is_population(b.path)]
+    out: dict[tuple, dict] = {}
+    for b in population + history + rest:
+        name, head, body = b.identity
+        if not name or head is None or body is None:
+            continue
+        got = out.setdefault((name, head, body), {})
+        for key, label in (("custom", "Custom title"), ("special", "Special villager")):
+            value = b.value(label)
+            if key not in got and value is not None:
+                got[key] = "" if value.strip().lower() in ("", "none", "-") else value.strip()
+    return out
+
+
+def village_titles(folder: Path, game: int, slot: int) -> dict[tuple, dict]:
+    """Every villager's titles by (name, head, body) -- 0 a real head and body: the Custom title from
+    the save folder's Custom Titles file for the villagers the save holds, else their latest record's;
+    the Special villager title from the latest record."""
+    out = log_titles(folder, game, slot)
+    held = file_titles(folder, game, slot)
+    for key, title in (held or {}).items():
+        out.setdefault(key, {})["custom"] = title
+    return out
+
+
+def titles_of(village: gen.Village, titles: dict, p: gen.Person) -> dict:
+    """One villager's titles, found by their key now, the keys of their earlier looks (Change
+    Appearance) or of the cut name the records give (village.full_names)."""
+    if p.upcoming or not titles:
+        return {}
+    keys = [p.key] + [old for old, now in village.relooked.items() if now == p.key] \
+        + [cut for cut, full in village.full_names.items() if (full, cut[1], cut[2]) == p.key]
+    out: dict = {}
+    for key in keys:
+        for k, v in titles.get(key, {}).items():
+            out.setdefault(k, v)
     return out
 
 
@@ -239,9 +358,24 @@ class VillagerInfoTab:
         text.tag_bind("link", "<Enter>", lambda _e: text.configure(cursor="hand2"))
         text.tag_bind("link", "<Leave>", lambda _e: text.configure(cursor="arrow"))
         self.icon = None
+        self.titles: dict = {}
+        self.titles_for = None
         self.sheets: dict = {}
         self.links: dict[str, int] = {}
         self.refresh()
+
+    def _titles(self) -> dict:
+        """village_titles for the village shown, read again when it is read again (Update from
+        Logs/Saves gives the editor a new Village)."""
+        ed = self.editor
+        if self.titles_for is not ed.village:
+            folder, slot = getattr(ed, "folder", None), getattr(ed, "slot", None)
+            try:
+                self.titles = village_titles(folder, ed.game, slot) if folder is not None and slot is not None else {}
+            except Exception:           # titles are extra: the tab still shows everything else
+                self.titles = {}
+            self.titles_for = ed.village
+        return self.titles
 
     def _face(self, p: gen.Person):
         """The face the portrait shows, at ICON_ZOOM, or None (no sprite for them)."""
@@ -302,7 +436,7 @@ class VillagerInfoTab:
         else:
             text.window_create("end", window=self._placeholder(p))
         text.insert("end", "\n")
-        for n, line in enumerate(info_lines(ed.village, ed.edits, p.id, names)):
+        for n, line in enumerate(info_lines(ed.village, ed.edits, p.id, names, self._titles())):
             for words, style, pid in line:
                 tags = style.split("+") + (["title"] if n == 0 else [])
                 if pid is not None:

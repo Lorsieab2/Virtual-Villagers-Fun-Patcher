@@ -100,6 +100,47 @@ class InfoTests(unittest.TestCase):
         self.assertIn("Special mark: Tribal Chief", text(v, 1, edits))
         self.assertEqual(repr(edits.entries), before)
 
+    def test_custom_and_special_titles_in_the_notes(self):
+        # The owner, 2026-10-10: Hoani Chuchip is "Helpful Spirit" -- the Notes say so.
+        for game in (1, 2, 3, 4, 5):
+            v = town(game)
+            titles = {("Ago", 0, 0): {"custom": "Helpful Spirit", "special": "Esteemed Elder"}}
+            out = vi.plain_text(vi.info_lines(v, ft.Edits(), 1, titles=titles))
+            self.assertIn("Custom title: Helpful Spirit", out)
+            self.assertIn("Special title: Esteemed Elder", out)
+            self.assertNotIn("Custom title", vi.plain_text(vi.info_lines(v, ft.Edits(), 2, titles=titles)))
+        v5 = town(5)
+        out = vi.plain_text(vi.info_lines(v5, ft.Edits(), 2, titles={("Bela", 3, 1): {"special": "Former Heathen"}}))
+        self.assertIn("Special title: Former Heathen", out)
+        # The Golden Child is said once.
+        v1 = town(1)
+        v1.people[7].family = 199
+        out = vi.plain_text(vi.info_lines(v1, ft.Edits(), 7, titles={("Gil", 8, 6): {"special": "Golden Child"}}))
+        self.assertEqual(out.count("Golden Child"), 1)
+
+    def test_titles_follow_earlier_looks(self):
+        v = town()
+        v.relooked[("Ago", 9, 9)] = ("Ago", 0, 0)
+        self.assertEqual(vi.titles_of(v, {("Ago", 9, 9): {"custom": "Chief Cook"}}, v.people[1]),
+                         {"custom": "Chief Cook"})
+
+    def test_the_titles_file_is_read_and_wins_over_the_logs(self):
+        import struct
+        import tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "t.dat"
+            path.write_bytes(b"VCT1" + struct.pack("<III", 2, 1, 1) + struct.pack("<II", 4, 77)
+                             + b"Helpful Spirit".ljust(32, b"\0"))
+            self.assertEqual(vi.read_titles_file(path, 1), [(4, 77, "Helpful Spirit")])
+            self.assertEqual(vi.read_titles_file(path, 2), [])          # another game's file
+        with mock.patch.object(vi, "log_titles", return_value={("A", 0, 0): {"custom": "Old", "special": "Scholar"},
+                                                                 ("B", 1, 1): {"custom": "Gone"}}), \
+                mock.patch.object(vi, "file_titles", return_value={("A", 0, 0): "New"}):
+            got = vi.village_titles(Path("."), 1, 1)
+        self.assertEqual(got[("A", 0, 0)], {"custom": "New", "special": "Scholar"})
+        self.assertEqual(got[("B", 1, 1)], {"custom": "Gone"})            # not in the save: the logs say
+
     def test_tab_shows_hint_unless_one_selected(self):
         try:
             root = tk.Tk()
