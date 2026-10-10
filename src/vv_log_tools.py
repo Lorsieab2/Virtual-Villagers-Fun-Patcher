@@ -166,8 +166,19 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
                        "Repair Saves & Logs restores them.")
         for note in cut_notes:
             report.add(f"{LOGS} (cut names)", "NOTE", note)
+    # Records that contradict each other (src/vv_log_contradictions.py): one villager born and
+    # arrived or arrived twice, a Death or Repair number used twice -- confirmed wrong, and repaired
+    # by Repair Saves & Logs; what no file can prove wrong is a note.
+    import vv_log_contradictions
+    try:
+        contradictions = vv_log_contradictions.find(Path(folder), game, slot)
+    except OSError as exc:
+        contradictions = []
+        report.add(f"{LOGS} (contradictions)", "UNCHECKED", f"a log could not be read ({exc.strerror or exc})")
+    for found in contradictions:
+        report.add(f"{LOGS} (contradictions)", "WRONG" if found.wrong else "NOTE", found.text)
     for kind in kinds:
-        if kind.id == "sex" or not (kind.decided or kind.asked):
+        if kind.id in ("sex", "contradictions") or not (kind.decided or kind.asked):
             continue
         asked = f", and {kind.asked} question(s) it asks you" if kind.asked else ""
         report.add(f"{LOGS} ({kind.label})", "NOTE",
@@ -407,11 +418,12 @@ def approve_repair(
         note_word_repair(folder, game, village, words, now)
     if kinds is None:
         kinds = additions.plan(folder, game, slot)
-    added = additions.apply(folder, kinds, chosen, answers or {})
+    added = additions.apply(folder, kinds, chosen, answers or {}, game)
     for kind in kinds:
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,
-                             checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id])
+                             checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id],
+                             unit="record(s)" if kind.id == "contradictions" else "villager(s)")
     # Nothing is moved or renamed: an older build's folders and files keep their names, and every
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
@@ -498,8 +510,11 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
 def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[WordFix],
                      now: datetime | None = None,
                      checked: str = "the like and dislike words in the logs, against the game's own list",
-                     corrected: str = "Corrected") -> None:
-    """One "Repair <n>" record in the Repairs log (native/shared/repairs_log.h's shape)."""
+                     corrected: str = "Corrected", unit: str = "villager(s)") -> None:
+    """One "Repair <n>" record in the Repairs log (native/shared/repairs_log.h's shape).  Written in
+    "Repairs Made" (an older build's "Repairs" while only it exists); with both folders there, its
+    number continues after the older folder's file of the same number (save_layout.h
+    vv_layout_older_repairs: "Repair 1" never comes twice)."""
     if not fixes:
         return
     logs = layout.find(folder, f"{layout.LOGS}\\{layout.REPAIRS_LOGS}")    # "Repairs" in older builds
@@ -513,14 +528,20 @@ def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[W
     if repairs >= 256 or len(existing) >= 4 * 1024 * 1024:
         path = logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt"
         existing, repairs = "", 0
+    older = 0
+    if logs.name == layout.REPAIRS_LOGS:
+        old = Path(folder) / layout.LOGS / "Repairs" / path.name
+        if old.is_file():
+            older = sum(1 for line in old.read_bytes().decode("latin-1").splitlines()
+                        if line.startswith("Repair ") and line[7:8].isdigit())
     header = village or "Village: (all villages in this save folder)"
     last = [line for line in existing.splitlines() if line.startswith("Village:")]
     when = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
     text = "" if last and last[-1].rstrip() == header else header + "\r\n"
-    text += f"Repair {repairs + 1}\r\n  Date: {when}\r\n"
+    text += f"Repair {repairs + 1 + older}\r\n  Date: {when}\r\n"
     text += f"  Checked: {checked}\r\n"
     for fix in fixes:
-        text += f"  {corrected}: {fix.name} -- {fix.count} " + ("word(s)" if corrected == "Corrected" else "villager(s)") + "\r\n"
+        text += f"  {corrected}: {fix.name} -- {fix.count} " + ("word(s)" if corrected == "Corrected" else unit) + "\r\n"
     text += "  Backup: " + ", ".join(fix.backup for fix in fixes) + "\r\n\r\n"
     with open(path, "ab") as log:
         log.write(text.encode("latin-1", "replace"))

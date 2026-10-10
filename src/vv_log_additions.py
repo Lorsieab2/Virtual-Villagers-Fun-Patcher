@@ -28,6 +28,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import vv_log_tools as tools
+import vv_save_layout as layout
 
 DONT_KNOW = "Don't know (add nothing)"
 
@@ -44,10 +45,13 @@ CHECKED = {
     "golden": "the Golden Child's Arrived records, against the pregnancies with no Birth and the player's answers",
     "appearance": "the villagers whose look changed with no Appearance changed record, against the save, the "
                   "logs and the player's answers",
+    "contradictions": "the records that contradict each other (one villager born and arrived, or arrived twice; "
+                      "a Death or Repair number used twice), against the save, the logs and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
-         "appearance": "Appearance changed record added"}
+         "appearance": "Appearance changed record added",
+         "contradictions": "Contradicting records taken out or renumbered"}
 FROM_NOW = "Only from now on (add nothing)"
 
 # The order the lines take under a villager's name (as the exporters print them).
@@ -73,16 +77,32 @@ class Insert:
 
 
 @dataclass
+class Edit:
+    """Lines `start`..`end` (indexes, both kept in the plan's reading of the file) replaced by
+    `lines` (none: removed) -- decided, or by the answer to `question` (an answer not in
+    `by_answer` changes nothing).  A record taken out of a log is kept in the copy of the whole file
+    made before the repair (Data\\Copies Made Before Repairs)."""
+    path: Path
+    start: int
+    end: int
+    lines: list[str] | None = None
+    question: str | None = None
+    by_answer: dict[str, list[str]] = field(default_factory=dict)
+
+
+@dataclass
 class Kind:
     id: str
     label: str                              # the checklist's words
     inserts: list[Insert] = field(default_factory=list)
     questions: dict[str, Question] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
+    edits: list[Edit] = field(default_factory=list)
+    verb: str = "Add"                       # the checklist's "Add <label>" / "Put right <label>"
 
     @property
     def decided(self) -> int:
-        return sum(1 for i in self.inserts if i.line)
+        return sum(1 for i in self.inserts if i.line) + sum(1 for e in self.edits if e.question is None)
 
     @property
     def asked(self) -> int:
@@ -533,7 +553,9 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
     SHOULD BE LISTED AS A BIRTH WITH THEIR PARENTS LISTED" -- parents, age, skills, likes and
     dislikes).  An older patcher wrote it as an Arrived record with no parents.  The pregnancy
     it ended is a Conception with no Birth after it; the player picks which (the logs alone
-    cannot tell), and a Birth record is added after the Arrived one, which is kept."""
+    cannot tell), and the Birth record takes the Arrived record's place: a villager is never both
+    born and arrived (the owner, 2026-10-10, on Lulu Chuchip's Arrived and Birth records; the
+    Arrived record stays in the copy of the log made before the repair)."""
     kind = Kind("golden", "The Golden Child as a Birth, with its parents")
     if game != 1:
         return kind
@@ -571,14 +593,14 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
         kind.questions[key] = Question(
             key, f"{name} is the Golden Child: whose pregnancy did the puzzle end? (mother and father)",
             list(choices) + [DONT_KNOW], DONT_KNOW)
-        kind.inserts.append(Insert(b.path, b.start + len(b.lines) - 1, 9, question=key, by_answer={
+        kind.edits.append(Edit(b.path, b.start, b.start + len(b.lines) - 1, question=key, by_answer={
             words: _golden_birth(b, m, f) for words, (m, f) in choices.items()}))
     return kind
 
 
-def _golden_birth(arrived: Block, mother: tuple, father: tuple) -> str:
+def _golden_birth(arrived: Block, mother: tuple, father: tuple) -> list[str]:
     """A Birth record, as the exporter writes one, for the Golden Child's Arrived record."""
-    lines = ["", "Birth", f"  Child: {arrived.value('Name')}"]
+    lines = ["Birth", f"  Child: {arrived.value('Name')}"]
     for label in ("Sex", "Head", "Body", "Likes", "Dislikes"):
         if arrived.value(label) is not None:
             lines.append(f"    {label}: {arrived.value(label)}")
@@ -596,7 +618,7 @@ def _golden_birth(arrived: Block, mother: tuple, father: tuple) -> str:
         lines += [f"  {label}: {name}", f"    Head: {head}", f"    Body: {body}"]
     lines += ["  Born as: Golden Child", "  Age at birth: 100 (5 years old)",
               "  Note: Recorded afterwards (the Golden Child's parents, from the pregnancy the player chose)"]
-    return "\n".join(lines)
+    return lines
 
 
 def _sub_identity(b: Block, label: str) -> tuple | None:
@@ -707,6 +729,8 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_golden(folder, game, slot),
         plan_appearance(folder, game, slot),
     ]
+    import vv_log_contradictions
+    kinds.append(vv_log_contradictions.plan(folder, game, slot))
     return kinds
 
 
@@ -731,23 +755,105 @@ def resolve(kinds: list[Kind], chosen: set[str],
     return out
 
 
+def resolve_edits(kinds: list[Kind], chosen: set[str],
+                  answers: dict[str, str]) -> dict[Path, list[tuple[int, int, list[str], str]]]:
+    """The lines to replace or take out, per file: (start, end, new lines, kind id), for the ticked
+    kinds and the answers given."""
+    out: dict[Path, list[tuple[int, int, list[str], str]]] = {}
+    for kind in kinds:
+        if kind.id not in chosen:
+            continue
+        for edit in kind.edits:
+            if edit.question is None:
+                lines = list(edit.lines or [])
+            elif answers.get(edit.question, "") in edit.by_answer:
+                lines = list(edit.by_answer[answers[edit.question]])
+            else:
+                continue
+            out.setdefault(edit.path, []).append((edit.start, edit.end, lines, kind.id))
+    return out
+
+
+def _rewrite(lines: list[str], adds: list, edits: list) -> tuple[list[str], list[int | None]]:
+    """`lines` with the inserts and edits made (every index is the file's as read), and where each
+    line as read now begins: its index in the new lines, or None when an edit took it out."""
+    starts = {start: (end, new) for start, end, new, _kind in edits}
+    after: dict[int, list] = {}
+    for a in sorted(adds, key=lambda a: (a[0], a[1])):
+        after.setdefault(a[0], []).append(a[2])
+    out: list[str] = []
+    where: list[int | None] = [None] * len(lines)
+    skip_to = -1
+    for i, line in enumerate(lines):
+        if i in starts and i > skip_to:
+            end, new = starts[i]
+            out.extend(new)
+            skip_to = end
+        if i > skip_to:
+            where[i] = len(out)
+            out.append(line)
+        for text in after.get(i, ()):
+            out.append(text)
+    return out, where
+
+
+def _move_word_boundaries(folder: Path, game: int | None, path: Path, old: list[str], new: list[str],
+                          where: list[int | None], crlf: bool) -> None:
+    """The Like and Dislike Words boundary of `path` (the byte before which an older patcher's words
+    are), moved with the lines it falls among: a record taken out or added before it moves it."""
+    if game is None:
+        return
+    checker = tools.load_checker()
+    name = checker.word_key(str(Path(path).resolve().relative_to(Path(folder).resolve())))
+    boundary = checker.word_boundaries(folder, game).get(name.lower())
+    if not boundary:
+        return
+    nl = 2 if crlf else 1
+
+    def starts(lines: list[str]) -> list[int]:
+        out, at = [], 0
+        for line in lines:
+            out.append(at)
+            at += len(line.encode("latin-1", "replace").replace(b"\n", b"\r\n" if crlf else b"\n")) + nl
+        return out
+    old_starts, new_starts = starts(old), starts(new)
+    moved = None
+    for i in range(len(old)):
+        if old_starts[i] <= boundary and (i + 1 == len(old) or boundary < old_starts[i + 1]):
+            j = where[i]
+            if j is not None:
+                moved = new_starts[j] + (boundary - old_starts[i])
+            else:                               # inside a line taken out: the next line kept
+                later = [where[k] for k in range(i + 1, len(old)) if where[k] is not None]
+                moved = new_starts[later[0]] if later else sum(len(l) + nl for l in new)
+            break
+    if moved is None or moved == boundary:
+        return
+    dat = layout.writable(folder, checker.LOG_WORDS.format(game=game))
+    dat.parent.mkdir(parents=True, exist_ok=True)
+    with open(dat, "ab") as boundaries:
+        boundaries.write(f"{moved}\t{name}\r\n".encode("utf-8"))
+
+
 def apply(folder: Path, kinds: list[Kind], chosen: set[str],
-          answers: dict[str, str]) -> dict[str, list[tools.WordFix]]:
-    """Add the chosen kinds' lines, every file in one pass (the plan's line numbers are the
-    file's as read).  Each file is copied first, into Data\\Copies Made Before Repairs (never
-    replacing a copy), and
-    rewritten through a temporary file.  Returns, per kind, the files it added lines to."""
+          answers: dict[str, str], game: int | None = None) -> dict[str, list[tools.WordFix]]:
+    """Add the chosen kinds' lines and make their edits, every file in one pass (the plan's line
+    numbers are the file's as read).  Each file is copied first, into Data\\Copies Made Before
+    Repairs (never replacing a copy) -- so a record taken out is kept there -- and rewritten
+    through a temporary file; the file's Like and Dislike Words boundary moves with its lines
+    (`game` names the boundary file).  Returns, per kind, the files it changed."""
     folder = Path(folder)
     done: dict[str, list[tools.WordFix]] = {}
     written = 0
-    for path, adds in resolve(kinds, chosen, answers).items():
-        adds = sorted(set(adds), key=lambda a: (a[0], a[1]))
+    all_adds = resolve(kinds, chosen, answers)
+    all_edits = resolve_edits(kinds, chosen, answers)
+    for path in sorted(set(all_adds) | set(all_edits), key=str):
+        adds = sorted(set(all_adds.get(path, [])), key=lambda a: (a[0], a[1]))
+        edits = sorted(all_edits.get(path, []), key=lambda e: e[0])
         raw = path.read_bytes()
         crlf = b"\r\n" in raw
-        lines = raw.decode("latin-1").replace("\r\n", "\n").split("\n")
-        # Highest line first; at one line, the highest rank first, so ranks read in order.
-        for after, _rank, line, _kind in reversed(adds):
-            lines.insert(after + 1, line)
+        original = raw.decode("latin-1").replace("\r\n", "\n").split("\n")
+        lines, where = _rewrite(original, adds, edits)
         text = "\n".join(lines)
         if crlf:
             text = text.replace("\n", "\r\n")
@@ -766,7 +872,8 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
             raise tools.LogToolError(f"{path.name} could not be given its added lines ({exc}). "
                                      f"{written} log file(s) were given them before it.") from exc
         written += 1
-        for kind_id in sorted({a[3] for a in adds}):
-            count = sum(1 for a in adds if a[3] == kind_id)
+        _move_word_boundaries(folder, game, path, original, lines, where, crlf)
+        for kind_id in sorted({a[3] for a in adds} | {e[3] for e in edits}):
+            count = sum(1 for a in adds if a[3] == kind_id) + sum(1 for e in edits if e[3] == kind_id)
             done.setdefault(kind_id, []).append(tools.WordFix(str(path.relative_to(folder)), count, backup.name))
     return done
