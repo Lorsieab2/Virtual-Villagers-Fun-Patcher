@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv3",
   "name": "Write Island Events Log to Text File",
-  "description": "Every change an island event makes to a villager is written to a new log, the Island Events log (\"Virtual Villagers Fun Patcher Logs\\Island Events\\Virtual Villagers 3 Island Events Log 1.txt\"): one numbered record per villager it changed, with the event's title as the game shows it, the answer you picked when it asked, and each change as old -> new -- health, age, sickness, pregnancy, head, body, name, likes, dislikes, every skill, parents, custom title, mask and Special villager title, and Tribal Chief -- \"Gone\" for a villager the event took away, and the sex and age of a villager it brought. What an event changes in the village as a whole -- food, tech points, the fruit trees and honey and puzzles solved or unsolved -- is one record of its own, a \"Village:\" list of old -> new, and an event that changes nothing still gets its record, \"Changes: none\". A villager whose head or body an event changed also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old and the new look are the same villager. The records are written when the game saves, like the other logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.**",
+  "description": "Every change an island event makes to a villager is written to a new log, the Island Events log (\"Virtual Villagers Fun Patcher Logs\\Island Events\\Virtual Villagers 3 Island Events Log 1.txt\"): one numbered record per villager it changed, with the event's title as the game shows it, the answer you picked when it asked, and each change as old -> new -- health, age, sickness, pregnancy, head, body, name, likes, dislikes, every skill, parents, custom title, mask and Special villager title, and Tribal Chief -- \"Gone\" for a villager the event took away, and the sex and age of a villager it brought. What an event changes in the village as a whole -- food, tech points, the fruit trees and honey, puzzles solved or unsolved and the weather -- is one record of its own, a \"Village:\" list of old -> new, and an event that changes nothing still gets its record, \"Changes: none\". A villager whose head or body an event changed also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old and the new look are the same villager. The records are written when the game saves, like the other logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.**",
   "output_tag": "Island Events",
   "needs_on": [
     {
@@ -15,7 +15,7 @@
   ],
   "behavior_changes": [
     "When an island event runs, every villager is copied just before the game applies it and compared just after; each difference is one line of the villager's \"Island event <n>\" record.",
-    "The village's food, tech points, food stores and puzzles are read just before and just after too; what changed is one \"Island event <n>\" record with a \"Village:\" list, and an event that changes nothing is one record ending \"Changes: none\".",
+    "The village's food, tech points, food stores, puzzles and (where the game has one) weather are read just before and just after too; what changed is one \"Island event <n>\" record with a \"Village:\" list, and an event that changes nothing is one record ending \"Changes: none\".",
     "A villager the event brings is named with its sex and its age, in game units and years (\"Age: 340 (17 years old)\").",
     "A head or body change is also an \"Appearance changed\" record in the Births and Conceptions log, ending \"Changed by: <event> (island event)\".",
     "A new village gets its Island Events log when it is made, like the other logs."
@@ -30,7 +30,7 @@
     {
       "source": "assets/island_events/VVFP Island Events.dll",
       "destination": "VVFP Island Events.dll",
-      "sha256": "AB074C0D2D272D93303C42E6B83EBBC9C10DE980716F64E8F099ACE547BB8C01"
+      "sha256": "49EB969682231AFA68532CE03A934EC302B4F91F8168341D59BD3E3A408F5C4D"
     }
   ],
   "runtime_detours": [

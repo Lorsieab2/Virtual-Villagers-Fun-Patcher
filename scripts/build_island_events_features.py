@@ -81,9 +81,11 @@ def row(game: str, sha: str) -> dict:
         + {"vv2": ", Esteemed Elder and totem", "vv3": ", and Tribal Chief", "vv5": ", faith and Heathen"}.get(game, "")
         + " -- \"Gone\" for a villager the event took away, and the sex and age of a villager it brought. "
         "What an event changes in the village as a whole -- food, tech points, "
-        + {"vv1": "the berries and crops", "vv2": "the coconut trees, fish and crops", "vv3": "the fruit trees and honey", "vv4": "the blackberries, cutting tools and bars of soap",
+        + {"vv1": "the berries and crops", "vv2": "the coconut trees, fish, the field's protection from birds and the crops", "vv3": "the fruit trees and honey", "vv4": "the blackberries, cutting tools and bars of soap",
            "vv5": "the noni and crops"}[game]
-        + " and puzzles solved or unsolved -- is one record of its own, a \"Village:\" list of old -> new, and an event that "
+        + ", puzzles solved or unsolved"
+        + {"vv3": " and the weather", "vv4": " and the weather", "vv5": " and the weather"}.get(game, "")
+        + " -- is one record of its own, a \"Village:\" list of old -> new, and an event that "
         "changes nothing still gets its record, \"Changes: none\". A villager whose head or body an event changed "
         "also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old "
         "and the new look are the same villager. The records are written when the game saves, like the other "
@@ -105,7 +107,7 @@ def row(game: str, sha: str) -> dict:
         "behavior_changes": [
             "When an island event runs, every villager is copied just before the game applies it and compared just "
             "after; each difference is one line of the villager's \"Island event <n>\" record.",
-            "The village's food, tech points, food stores and puzzles are read just "
+            "The village's food, tech points, food stores, puzzles and (where the game has one) weather are read just "
             "before and just after too; what changed is one \"Island event <n>\" record with a \"Village:\" list, and an "
             "event that changes nothing is one record ending \"Changes: none\".",
             "A villager the event brings is named with its sex and its age, in game units and years "

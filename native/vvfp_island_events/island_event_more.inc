@@ -27,7 +27,9 @@
         <old> -> <new>" lines, written only when something changed ("VVFP
         Parentage Export.dll" WriteVillageEventRecord).  Every label is the
         game's own words (the owner: every printed word from the exe or the
-        save); a store or puzzle the game has no word for is not logged.
+        save); the few the game has no word for are the owner's (2026-10-09:
+        Small hut 1/2/3, The nursery school (building), Field protection from
+        birds, Weather and its "clear").
      4. An event that changes nothing still gets its record, "Changes: none"
         (the owner, 2026-10-09), exactly one per event shown (more_village).
 
@@ -300,7 +302,8 @@ enum {
     VF_SOLVED_BYTE,                       /* a puzzle's solved byte */
     VF_SOLVED_AT,                         /* a puzzle's progress at least `extra` */
     VF_SOLVED_TABLE,                      /* a puzzle's progress at least the dword at `extra` (filled by the game) */
-    VF_TREE_KIND                          /* The Secret City's fruit tree: 0 Banana, 1 Mango, 2 Papaya (the exe's words) */
+    VF_TREE_KIND,                         /* The Secret City's fruit tree: 0 Banana, 1 Mango, 2 Papaya (the exe's words) */
+    VF_WEATHER                            /* the weather object's type; extra is the game (WEATHER_WORDS) */
 };
 struct village_field {
     const char *label;
@@ -332,6 +335,8 @@ static const struct village_field VV1_VILLAGE[] = {
     { "The Butterflies", W1, 0xA088, VF_SOLVED_BYTE, 0 },
     { "The Treasure", W1, 0x9FC8, VF_SOLVED_BYTE, 0 },
     { "The Cave", W1, 0x9FA8, VF_SOLVED_BYTE, 0 },
+    { "Small hut 2", W1, 0x9FF0, VF_SOLVED_BYTE, 0 },
+    { "Small hut 3", W1, 0x9FF8, VF_SOLVED_BYTE, 0 },
     { NULL, 0, 0, 0, 0 },
 };
 
@@ -342,6 +347,7 @@ static const struct village_field VV2_VILLAGE[] = {
     { "Tech points", W2, 0x2EADC, VF_INT, 0 },
     { "Coconut trees", W2, 0x2EACC, VF_INT, 0 },
     { "Fish", W2, 0x2EAD0, VF_INT, 0 },
+    { "Field protection from birds", W2, 0x2EAD4, VF_INT, 0 },
     { "Crops", W2, 0x2EAD8, VF_INT, 0 },
     { "The Lovely Hut", W2, 0x2E760, VF_SOLVED_BYTE, 0 },
     { "Fire", W2, 0x2E768, VF_SOLVED_BYTE, 0 },
@@ -376,6 +382,7 @@ static const struct village_field VV3_VILLAGE[] = {
     { "Tree 2, Fruit Tree", 0, 0x594824u, VF_TREE_KIND, 0 },
     { "Tree 3, Fruit Tree", 0, 0x59483Cu, VF_TREE_KIND, 0 },
     { "Honey", 0, 0x5945E0u, VF_INT, 0 },
+    { "Weather", 0, 0x4B86C4u, VF_WEATHER, 3 },
     { "The First Chief", 0, P3(0), VF_SOLVED_AT, 1 },
     { "The Bee Hive", 0, P3(1), VF_SOLVED_AT, 1 },
     { "The Alchemy Lab", 0, P3(2), VF_SOLVED_AT, 5 },
@@ -404,6 +411,7 @@ static const struct village_field VV4_VILLAGE[] = {
     { "Blackberries", 0x4CB51Cu, 0x170F8, VF_INT, 0 },
     { "Cutting tools", 0, 0x4D8618u, VF_INT, 0 },
     { "Bars of soap", 0, 0x4D8D98u, VF_INT, 0 },
+    { "Weather", 0, 0x6C461Cu, VF_WEATHER, 4 },
     { "The Cutting Tool", 0, P4(0) },
     { "The Stream", 0, P4(1) },
     { "Boiling Water", 0, P4(2) },
@@ -431,6 +439,7 @@ static const struct village_field VV5_VILLAGE[] = {
     { "Tech points", 0, 0x51D5F8u, VF_INT, 0 },
     { "Noni remaining", 0x4DACE0u, 0x17D58, VF_INT, 0 },
     { "Crops", 0x4DACE0u, 0x17D5C, VF_INT, 0 },
+    { "Weather", 0, 0x718EA0u, VF_WEATHER, 5 },
     { "The Nursery School", 0, P5(0) },
     { "The Prison Break", 0, P5(2) },
     { "The Hungry Totem", 0, P5(3) },
@@ -443,8 +452,12 @@ static const struct village_field VV5_VILLAGE[] = {
     { "The Rainbow Totem", 0, P5(12) },
     { "The Tribute Statue", 0, P5(14) },
     { "The Blind Totem", 0, P5(15) },
+    { "Small hut 1", 0, P5(19) },
+    { "Small hut 2", 0, P5(20) },
+    { "Small hut 3", 0, P5(21) },
     { "The Clothing Hut", 0, P5(22) },
     { "The love shack", 0, P5(23) },
+    { "The nursery school (building)", 0, P5(24) },
     { NULL, 0, 0, 0, 0 },
 };
 
@@ -478,6 +491,28 @@ static const unsigned char *village_dword(const struct village_field *f, unsigne
     return at != NULL && readable(at, 4) ? at : NULL;
 }
 
+/* The weather object's type, in each game's words, from the code that sets
+   it (the setters 0x41FB40 / 0x46BC30 / 0x477060 and their callers):
+     The Secret City   0 clear, 2 rain and 3 storm (The Omen in the Clouds:
+                       dance or warn, 0x4167A8 / 0x4166B6, "a storm, violent
+                       and filled"), 4 fog (The Mysterious Fog events)
+     The Tree of Life  0 clear, 1 arc of brilliant colors (The Arc of
+                       Brilliant Colors, 0x415097), 2 rain (The Rainy Season),
+                       4 fog (The Mysterious Fog)
+     New Believers     0 clear, 2 rain, 4 fog (The Mysterious Footprints, seen
+                       live), 5 storm (the Tempest spell, case 5 of 0x422F95:
+                       "Tempest: summon a grand storm!")
+   "clear" is the owner's word (2026-10-09); any other type is "type N". */
+static const char *weather_word(int game, int value) {
+    static const char *const WORDS[GAMES + 1][6] = {
+        { NULL }, { NULL }, { NULL },
+        { "clear", NULL, "rain", "storm", "fog", NULL },
+        { "clear", "arc of brilliant colors", "rain", NULL, "fog", NULL },
+        { "clear", NULL, "rain", NULL, "fog", "storm" },
+    };
+    return game >= 1 && game <= GAMES && value >= 0 && value <= 5 ? WORDS[game][value] : NULL;
+}
+
 /* "" when it cannot be read (then it is not compared). */
 static void village_text(const struct village_field *f, char *out, size_t size) {
     const unsigned char *at = village_dword(f, f->at);
@@ -509,6 +544,13 @@ static void village_text(const struct village_field *f, char *out, size_t size) 
     }
     case VF_TREE_KIND:
         _snprintf(out, size, "%s", value == 0 ? "Banana" : value == 1 ? "Mango" : value == 2 ? "Papaya" : "(unknown)");
+        break;
+    case VF_WEATHER:
+        if (weather_word((int)f->extra, value) != NULL) {
+            _snprintf(out, size, "%s", weather_word((int)f->extra, value));
+        } else {
+            _snprintf(out, size, "type %d", value);
+        }
         break;
     default:
         _snprintf(out, size, "%d", value);

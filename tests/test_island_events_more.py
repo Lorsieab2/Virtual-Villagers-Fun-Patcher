@@ -27,6 +27,14 @@ SDK_VERSION = "10.0.26100.0"
 # villager title, the whole likes list, no same-reading line, the village, the weather (or\n# none), a food store = 11; New Believers' Heathen
 # mask and The Lost Children's totem one more each.
 CHECKS = 5 * 14 + 2
+# Labels the games have no word for, approved by the owner on 2026-10-09 (the coordinator's message:
+# "The owner approved all of your proposals"); every other village label must be the exe's own words.
+APPROVED = {
+    1: ("Small hut 2", "Small hut 3"),
+    2: ("Field protection from birds",),
+    5: ("Small hut 1", "Small hut 2", "Small hut 3", "The nursery school (building)", "Weather"),
+}
+
 
 
 def table(source: str, head: str) -> str:
@@ -93,8 +101,7 @@ class IslandEventsMoreSource(unittest.TestCase):
         flags1 = re.findall(r"\{ (0x[0-9A-F]+), (?:0x[0-9A-F]+|0), \d+, \d+, 0x[0-9A-F]+, [^}]*\}",
                             table(c1, "static const c1_puzzle C1_PUZZLES[] = {"))
         mine1 = re.findall(r"W1, (0x[0-9A-F]+), VF_SOLVED_BYTE", self.more)
-        # The second and third small huts are not logged: the game has no name for them.
-        self.assertEqual([int(f, 16) for f in flags1][:15], [int(f, 16) for f in mine1])
+        self.assertEqual([int(f, 16) for f in flags1], [int(f, 16) for f in mine1])
         flags2 = re.findall(r"\{ (0x[0-9A-F]+), (?:0x[0-9A-F]+|0), \d+, 0x[0-9A-F]+, 0x[0-9A-F]+, [^}]*\}",
                             table(c2, "static const c2_puzzle C2_PUZZLES[] = {"))
         mine2 = re.findall(r"W2, (0x[0-9A-F]+), VF_SOLVED_BYTE", self.more)
@@ -110,29 +117,39 @@ class IslandEventsMoreSource(unittest.TestCase):
         self.assertIn("0x51DF30u + 4u * (unsigned int)(id)", c5)
         ids5 = [int(i) for i in re.findall(r"\{ (\d+), [^}]*\}", table(c5, "static const c5_puzzle C5_PUZZLES[] = {"))]
         mine5 = [int(i) for i in re.findall(r"P5\((\d+)\) \}", self.more)]
-        # Huts 1-3 (19-21) and the nursery school building (24): the game has no name for them.
-        self.assertEqual([i for i in ids5 if i not in (19, 20, 21, 24)], mine5)
+        self.assertEqual(ids5, mine5)
 
     def test_every_village_label_is_the_games_own_words(self):
         # The owner: every printed word comes from the game's exe or save data.  A label is one of
         # the executable's own strings, or two of them joined (The Secret City's "Tree 1" object
         # and its "Fruit on tree" / "Fruit Tree" words); the tree kinds print "Banana", "Mango",
-        # "Papaya" as the exe spells them.  Nothing the game has no word for is logged (no weather).
+        # "Papaya" as the exe spells them.  The only other words are the owner's (APPROVED).
         stock = ROOT / "research" / "stock-executables"
         if not stock.is_dir():
             self.skipTest("the stock executables are not here")
         names = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
                  5: "New Believers"}
-        self.assertNotIn("VF_WEATHER", self.more)
         for game, title in names.items():
             data = (stock / f"Virtual Villagers - {title}.exe").read_bytes().lower()
             labels = re.findall(r'\{ "([^"]+)"', table(self.more, f"static const struct village_field VV{game}_VILLAGE[] = {{"))
             self.assertTrue(labels, game)
             for label in labels:
                 with self.subTest(game=game, label=label):
+                    if label in APPROVED.get(game, ()):
+                        continue
                     parts = label.split(", ")
                     for part in parts:
                         self.assertIn(part.lower().encode(), data)
+        # The weather's words: each in its own game's executable, but "clear" (the owner's, 2026-10-09).
+        words = re.findall(r'\{ ("[^"]*"|NULL), ("[^"]*"|NULL), ("[^"]*"|NULL), ("[^"]*"|NULL), ("[^"]*"|NULL), ("[^"]*"|NULL) \}',
+                           self.more[self.more.index("static const char *weather_word("):])
+        self.assertEqual(len(words), 3)
+        for game, row in zip((3, 4, 5), words):
+            data = (stock / f"Virtual Villagers - {names[game]}.exe").read_bytes().lower()
+            for word in row:
+                if word not in ("NULL", '"clear"'):
+                    with self.subTest(game=game, weather=word):
+                        self.assertIn(word.strip('"').encode(), data)
         data3 = (stock / "Virtual Villagers - The Secret City.exe").read_bytes()
         for word in (b"Banana\x00", b"Mango\x00", b"Papaya\x00"):
             self.assertIn(word, data3)

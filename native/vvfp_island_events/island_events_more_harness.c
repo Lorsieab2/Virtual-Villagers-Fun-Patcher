@@ -447,7 +447,7 @@ int main(void) {
 
         /* 6. The village. */        food = village_at("Food", &type, &extra);
         tech = village_at("Tech points", &type, &extra);
-        weather = village_at("Weather", &type, &extra);   /* none: no game has a word for its kinds */
+        weather = village_at("Weather", &type, &extra);
         puzzle = first_puzzle();
         if (puzzle != NULL && puzzle->type == VF_SOLVED_TABLE) {
             *(int *)harness_address(puzzle->extra) = 5;    /* the threshold the game fills */
@@ -455,6 +455,9 @@ int main(void) {
         begin();
         *(int *)food = 120;
         *(int *)tech = 75;
+        if (weather != NULL) {
+            *(int *)weather = 2;
+        }
         if (puzzle != NULL) {
             unsigned char *at = puzzle->global != 0 ? g_world + puzzle->at : harness_address(puzzle->at);
             if (puzzle->type == VF_SOLVED_BYTE) {
@@ -477,7 +480,12 @@ int main(void) {
         }
         /* Exactly one record per event shown: a routine that is no whole event,
            an answer whose OK follows, an event with no title -- no "Changes: none". */
-        CHECK(weather == NULL && strstr(g_village_out[0], "Weather") == NULL, "no weather line (the games have no word for its kinds)");
+        if (g_harness_game >= 3) {
+            CHECK(g_village_outs == 1 && strstr(g_village_out[0], "    Weather: clear -> rain\n") != NULL,
+                  "...and the weather, \"Weather: clear -> rain\"");
+        } else {
+            CHECK(weather == NULL, "%s keeps no weather the events change: none is compared", GAME_NAMES[g_harness_game]);
+        }
         begin();
         if (g_harness_game == 1) {
             g_snaps[0].title[0] = '\0';
