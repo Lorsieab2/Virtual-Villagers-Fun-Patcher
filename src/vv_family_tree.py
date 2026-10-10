@@ -1592,6 +1592,21 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     for q, entry in shifts.items():
         x[q] = max(MARGIN, x[q] + entry.get("dx", 0.0))
     width = max([width] + [x[q] + NODE_W + 40 for q in x])
+    # The page holds all of every portrait: a frame wider than a portrait's place (a butterfly's wings),
+    # whatever it draws beside its outline, its border's stroke, a special border, a mark or a glow, and
+    # its words' place -- nowhere nearer the page's edge than PAGE_MARGIN.  A tree that would reach past
+    # the left edge moves right, its Other Members and labels with it.
+    reach = {q: drawn_reach(edits, village, people[q], outline(q)) for q in x}
+    left_most = min([x[q] + NODE_W / 2 - reach[q][0] for q in x], default=PAGE_MARGIN)
+    if left_most < PAGE_MARGIN:
+        nudge = PAGE_MARGIN - left_most
+        for q in x:
+            x[q] += nudge
+        others_left += nudge
+        if label_left or (others and edits.others_side == "left"):
+            label_left += nudge
+        move += nudge
+    width = max([width] + [x[q] + NODE_W / 2 + reach[q][1] + PAGE_MARGIN for q in x])
     # One lane per family (the owner: "spread the lines connecting parents to children a bit more
     # vertically"): every family whose children are in a row has a line of its own between that
     # row and the one above, shared only with families whose lines do not overlap it; the gap
@@ -1705,7 +1720,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             if fam.id in cl.ways and not any(shifts[q].get("dx") or shifts[q].get("dy") for q in mine):
                 fam.way = [(px + move, py) for px, py in cl.ways[fam.id]]
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
-    height = max([height] + [y[q] + NODE_H + 190 for q in y])
+    height = max([height] + [y[q] + NODE_H + 190 for q in y] + [y[q] + reach[q][3] + FOOTER_ROOM + PAGE_MARGIN for q in y])
     out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands, shrink=shrink_now,
                  edits=edits, page=page, pages=len(spans), label_left=label_left, row_keys=row_keys,
                  subs={q: sub.get(q, 0) for q in in_tree},
@@ -1976,6 +1991,21 @@ def frame_pad(edits: Edits, entry: dict, group: str, w: float, h: float) -> floa
     if entry.get("mark") and edits.marks.get(entry["mark"]) and edits.mark_style == "border":
         pad += MARK_GAP + 3.0
     return pad
+
+
+PAGE_MARGIN = 10                # nothing a portrait draws comes nearer a page's edge than this (as MARGIN)
+FOOTER_ROOM = 110               # the footer's plate starts this far above the page's bottom
+
+
+def drawn_reach(edits: Edits, village, p, profile: tuple) -> tuple[float, float, float, float]:
+    """How far all a portrait draws reaches from its place's middle across (left, right) and from its top
+    down (top, bottom): its frame as drawn (_profile, _reach: outline, decorations, stroke, special
+    border, mark), a glow round it, and its place's own box, where its words go."""
+    left, right, top, bottom = _reach(profile)
+    entry = edits.entries.get(entry_key(village, p), {})
+    if entry.get("mark") and edits.marks.get(entry["mark"]) and edits.mark_style == "glow":
+        left, right, top, bottom = left + edits.mark_glow, right + edits.mark_glow, top - edits.mark_glow, bottom + edits.mark_glow
+    return max(left, NODE_W / 2), max(right, NODE_W / 2), min(top, 0.0), max(bottom, float(NODE_H))
 
 
 def _profile(kind: str, w: float, h: float, angle: float, pad: float = 0.0) -> tuple[int, list, list]:

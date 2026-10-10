@@ -439,6 +439,31 @@ MIXED_SHAPES = ({"Male": "beetle", "Female": "paw", "Upcoming": "bananas"},
                 {"Male": "star", "Female": "heart", "Upcoming": "butterfly"})
 
 
+def off_page(lay) -> list:
+    """Portraits any part of whose drawing -- outline, decorations, with its stroke and any mark -- lies
+    outside the page or within PAGE_MARGIN of its edge (above the footer at the bottom)."""
+    out = []
+    for q in lay.x:
+        p = lay.village.people[q]
+        x0, y0, w, h, angle = lay.frame(q)
+        cx, cy = x0 + w / 2, y0 + h / 2
+        pts = list(lay.frame_points(q))
+        for line in ft.decor(lay.shape(p)):
+            for u, v in line:
+                px, py = x0 + u * w, y0 + v * h
+                if angle:
+                    dx, dy = ft.turn(px - cx, py - cy, angle)
+                    px, py = cx + dx, cy + dy
+                pts.append((px, py))
+        pad = ft.frame_pad(lay.edits, lay.entry(p), ft.group_of(p), w, h)
+        xs, ys = [px for px, _py in pts], [py for _px, py in pts]
+        m = ft.PAGE_MARGIN - 0.5
+        if min(xs) - pad < m or max(xs) + pad > lay.width - m or min(ys) - pad < m \
+                or max(ys) + pad > lay.height - ft.FOOTER_ROOM - m:
+            out.append(q)
+    return out
+
+
 def drawn_overlaps(lay) -> list:
     """Pairs where what one portrait draws -- its outline and each of its decorations (a butterfly's
     feelers and their round tips), with its border's stroke -- runs into another's outline or that
@@ -534,6 +559,19 @@ class NoOverlapTests(unittest.TestCase):
                         e = ft.Edits(positioning=positioning, packing=packing, shapes=dict(ft.DEFAULT_SHAPES, **shapes))
                         lay = ft.layout(make(), e)
                         self.assertEqual(drawn_overlaps(lay), [], (make.__name__, shapes["Male"], positioning, packing))
+
+    def test_everything_drawn_is_on_the_page(self):
+        # The owner's sample: a butterfly's wing ran past the page's left edge (Packed families, 100).
+        for make in (village, big_village, owner_like_village):
+            for shapes in MIXED_SHAPES:
+                for positioning in LAYOUTS:
+                    for packing in (0, 60, 100):
+                        for side in ft.OTHERS_SIDES:
+                            e = ft.Edits(positioning=positioning, packing=packing, others_columns=2, others_side=side,
+                                         shapes=dict(ft.DEFAULT_SHAPES, **shapes))
+                            lay = ft.layout(make(), e)
+                            off = off_page(lay)
+                            self.assertEqual(off, [], (make.__name__, shapes["Male"], positioning, packing, side))
 
     def test_still_touching_at_100(self):
         for shapes in MIXED_SHAPES:
