@@ -247,6 +247,55 @@ static void arrival_left_for_the_heathens(int index, const unsigned char *record
     cod_write(LOG_DISAPPEARED, record, 1, before, NULL, 1);
 }
 
+/* New Believers: the leaving seen where it happens, the faction setter
+   0x466880 (thiscall on the record; [esp+4] = the new faction byte; ret 4),
+   before it writes +0x1CEC.  The tick alone cannot see a believer who
+   becomes a Heathen between two of its looks: the life tick 0x472C90 runs
+   for every age unit, live and in the load-time catch-up (and a Time
+   Warp), and its belief drift 0x468040 can bring faith to 0, which
+   converts (0x467F90 -> 0x4669E0) -- in the catch-up inside the load, so
+   the tick's first look already finds a Heathen (faction_seen -1) and the
+   roster, which keeps Heathens, never calls her Unaccounted: she left with
+   no record.  Every setter call that makes a believer a Heathen, by its
+   return address (all seven callers enumerated in the stock executable):
+     0x466A04  to a Heathen, 0x4669E0 -- its one caller is SetFaith
+               0x467F90 at faith 0 or below (the belief drift, preaching,
+               The Spa, The Cracked Mask, every faith change) and the
+               Custom Island Event's "Becomes a Heathen";
+     0x415D11  The Spa, "Enjoy the pools" (after its SetFaith(-10));
+     0x416C60  The Cracked Mask, "Trick" (likewise).
+   Not leavings: 0x46697D the conversion to a believer (0), 0x41699F (0),
+   0x466BEA a load copying the saved byte into a record the reset emptied,
+   0x46FC4E the Heathen creator's new record.  A record that is already a
+   Heathen (The Spa's second call) is no change.  The tick then knows her
+   as a Heathen, so it writes nothing more. */
+static void vv5_faction_set(int site, const unsigned int *regs) {
+    unsigned char *record = (unsigned char *)(uintptr_t)regs[R_ECX];
+    unsigned int from = reg_stack(regs, 0);
+    int index;
+    (void)site;
+    if ((reg_stack(regs, 4) & 0xFFu) == 0
+        || (from != 0x466A04u && from != 0x415D11u && from != 0x416C60u)) {
+        return;
+    }
+    index = cod_index_of(record);
+    if (index < 0 || index >= RECORDS_MAX || !roster_member(record) || arrival_heathen(record)) {
+        return;
+    }
+    if (!faction_ready) {
+        memset(faction_seen, -1, sizeof faction_seen);
+        faction_ready = 1;
+    }
+    arrival_left_for_the_heathens(index, record);
+    faction_seen[index] = 1;
+}
+
+static void faction_sites(void) {
+    if (g_game == 5) {
+        cod_add(0x466880u, "8A442404" "8AD0", vv5_faction_set);
+    }
+}
+
 /* Every frame: decide what was made, and see New Believers' conversions. */
 static void arrival_tick(void) {
     unsigned char *records = cod_records();

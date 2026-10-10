@@ -710,6 +710,7 @@ __declspec(dllexport) int __stdcall VvfpCauseInstall(int game, const void *host)
         v345_edit_sites();
     }
     gone_sites();
+    faction_sites();
     roster_sites();
     if (!save_armed) {
         roster_save_site();
