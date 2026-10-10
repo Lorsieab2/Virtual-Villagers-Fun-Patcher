@@ -1694,26 +1694,29 @@ static int deaths_highest_number(const wchar_t *folder, const wchar_t *stem) {
    older build's "Deaths" folder sits beside "Deaths and Disappearances": counting the new folder's
    records and taking the larger of that and the older folder's count gave every record after the
    first the same number (the owner's A New Home, v1.35.66: four records all "Death 15" after the
-   older folder's Death 1-14).  So the HIGHEST NUMBER PRINTED in either folder counts too: Death 1-5
-   in the old and 1-3 in the new still gives Death 6, and old 1-14 with new 15 gives Death 16. */
+   older folder's Death 1-14).  So with both folders there the HIGHEST NUMBER PRINTED in either
+   folder counts too: Death 1-5 in the old and 1-3 in the new still gives Death 6, and old 1-14 with
+   new 15 gives Death 16.  With one folder the count alone decides, as it always has (a record an
+   interrupted append cut short must not move the numbering). */
 static int older_deaths_total(const struct game_layout *g) {
     wchar_t root[MAX_PATH], folder[MAX_PATH], path[MAX_LOG_PATH];
     const wchar_t *stem = family_stem(g, LOG_DEATHS);
     int ceiling, number, total = 0, highest;
-    if (stem == NULL || !vv_save_folder_w(root, 64)) {
-        return 0;
-    }
-    /* The folder written into: its own highest number (its count is the caller's). */
-    if (_snwprintf_s(folder, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, deaths_folder()) < 0) {
-        return 0;
-    }
-    highest = deaths_highest_number(folder, stem);
-    if (lstrcmpiW(deaths_folder(), VV_DEATHS_LOGS_DIR) != 0) {
-        return highest;         /* writing into the older folder: its records are the ones counted */
+    if (stem == NULL || !vv_save_folder_w(root, 64)
+        || lstrcmpiW(deaths_folder(), VV_DEATHS_LOGS_DIR) != 0) {
+        return 0;               /* writing into the older folder: its records are the ones counted */
     }
     if (_snwprintf_s(folder, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_OLD) < 0
         || vv_layout_probe_w(folder, NULL) != VV_LAYOUT_DIR) {
-        return highest;
+        return 0;               /* one folder: the caller's count, as always */
+    }
+    /* Both folders: the highest number printed in the folder written into counts too. */
+    {
+        wchar_t written[MAX_PATH];
+        if (_snwprintf_s(written, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_DIR) < 0) {
+            return 0;
+        }
+        highest = deaths_highest_number(written, stem);
     }
     ceiling = highest_log_number(stem, folder);
     for (number = 1; number <= ceiling && number <= 4096; ++number) {
