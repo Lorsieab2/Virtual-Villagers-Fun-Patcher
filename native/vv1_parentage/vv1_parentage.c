@@ -2140,6 +2140,32 @@ __declspec(dllexport) int __stdcall Vv1ParentageQueryNames(int index, char *fath
     return 1;
 }
 
+/* The expected father of the pregnancy the woman in record `index` carries,
+   as the conception stashed him against her THIS SESSION (Vv1ParentageConceived:
+   the father's record the conception's caller held) -- for the Island Events
+   log, which A New Home's own records cannot give it: the game keeps no trace
+   of the father on the mother.  His name into `name` (`capacity` bytes), his
+   head and body (each -1 when not recorded).  Returns 1 when such a stash is
+   there; 0 when none (no village, an index out of range, or no conception
+   this session -- a stash an earlier session left is not told, so a stale
+   one can never be printed as this pregnancy's father). */
+__declspec(dllexport) int __stdcall Vv1ParentageQueryExpected(int index, char *name, int capacity,
+                                                              int *head, int *body) {
+    const vv1_parent_entry *e;
+    if (name == NULL || capacity < 1 || head == NULL || body == NULL
+        || index < 0 || index >= VV1_RECORD_COUNT || !vv1_parents_sync()) {
+        return 0;
+    }
+    e = &g_entries[index];
+    if (!g_session_stash[index] || !(e->stash_head || e->stash_body || e->stash_name[0])) {
+        return 0;
+    }
+    lstrcpynA(name, e->stash_name, capacity);
+    *head = vv1_decode(e->stash_head);
+    *body = vv1_decode(e->stash_body);
+    return 1;
+}
+
 /* Write access for the Story / Cheat Upgrades Custom Island Event, the
    owner's "alter the parents' attributes" (A New Home keeps them only in
    this sidecar): the parents recorded for the villager in record `index`.

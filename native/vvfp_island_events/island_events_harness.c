@@ -18,10 +18,13 @@
         it brings is still "New villager".
      3. An event that starts a pregnancy logs the conception's lasting fields on the
         mother, not only her Pregnant flag: the babies and the expected
-        father's name, head and body (Codex, #577): The Secret City, The
-        Tree of Life and New Believers; A New Home the babies.  The Lost
-        Children only the Pregnant flag: the owner's own VV2 log disproved
-        its father offsets on the mother, and its babies offset is unconfirmed.
+        father's name, head and body (Codex, #577), in all five games: A New
+        Home's father from the Show Parents companion's record of the
+        conception (a stand-in here), and none printed when it has none
+        (3d).  They are printed whole even when the last pregnancy left the
+        same father or babies on her (3b), A New Home's and The Lost
+        Children's 0 for one baby as 1; a pregnancy's babies changed later
+        are "old -> new" (3c).
      4. Bytes after a name's terminator are not a change.
      5. A record slot the event freed and filled with someone else (the name
         AND the head or body differ) is the one before "Gone" and the one now
@@ -79,6 +82,28 @@ static int harness_villagers(unsigned char **out, int capacity) {
                            capacity);
 }
 
+/* A New Home's expected father: the harness's array in place of the game's,
+   and a stand-in for the Show Parents companion's Vv1ParentageQueryExpected
+   that knows a conception by Rongo (head 3, body 7) for record
+   g_vv1_stash_index only, and remembers the record it was asked about. */
+static int g_vv1_stash_index = 2;
+static int g_vv1_queried = -1;
+
+static unsigned char *harness_array(void) {
+    return g_array;
+}
+
+static int __stdcall stub_query_expected(int index, char *name, int capacity, int *head, int *body) {
+    g_vv1_queried = index;
+    if (index != g_vv1_stash_index) {
+        return 0;
+    }
+    lstrcpynA(name, "Rongo", capacity);
+    *head = 3;
+    *body = 7;
+    return 1;
+}
+
 static unsigned char *slot(int i) {
     return g_array + (size_t)i * ARRAYS[g_harness_game].stride;
 }
@@ -129,6 +154,9 @@ int main(void) {
     };
     setvbuf(stdout, NULL, _IONBF, 0);
     g_write = stub_write;
+    g_vv1_array = harness_array;
+    g_vv1_query_expected = stub_query_expected;
+    g_vv1_query_looked = 1;
     for (g_harness_game = 1; g_harness_game <= GAMES; ++g_harness_game) {
         struct game_layout layout = *GAME_LAYOUTS[g_harness_game];
         const struct field *research = field_named(&layout, "Research");
@@ -139,11 +167,10 @@ int main(void) {
         const struct field *father_body = field_named(&layout, "Expected father's body");
         unsigned int present = ARRAYS[g_harness_game].present;
         int skills_float = research != NULL && research->type == F_FLOAT;
-        char want[128];
         printf("Virtual Villagers %d (%s)\n", g_harness_game, GAME_NAMES[g_harness_game]);
         g_array = (unsigned char *)VirtualAlloc(NULL, (SIZE_T)SLOTS * ARRAYS[g_harness_game].stride + 0x1000,
                                                 MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-        if (g_array == NULL || research == NULL || pregnant == NULL || (babies == NULL) != (g_harness_game == 2)) {
+        if (g_array == NULL || research == NULL || pregnant == NULL || babies == NULL) {
             printf("  FAIL cannot set the game up\n");
             ++failures;
             continue;
@@ -191,50 +218,70 @@ int main(void) {
               && g_out[1].record == slot(3) && strstr(g_out[1].changes, "  New villager: yes\n") != NULL,
               "a villager removed is \"Gone\" (named from the copy), one brought is \"New villager\"");
 
-        /* 3. A pregnancy the event starts, on Tavi. */
+        /* 3. A pregnancy the event starts, on Tavi: twins by Rongo.  The
+           Pregnant field holds what each game writes (The Lost Children a
+           countdown, the others 1). */
         begin();
-        *(int *)(slot(2) + pregnant->offset) = 1;
-        if (babies != NULL) {
-            *(int *)(slot(2) + babies->offset) = 2;
-        }
+        *(int *)(slot(2) + pregnant->offset) = g_harness_game == 2 ? 710 : 1;
+        *(int *)(slot(2) + babies->offset) = 2;
         if (father != NULL) {
             put_name(slot(2), father->offset, "Rongo");
             *(int *)(slot(2) + father_head->offset) = 3;
             *(int *)(slot(2) + father_body->offset) = 7;
         }
-        if (g_harness_game == 2) {
-            /* What the disproved father offsets and the unconfirmed babies
-               offset would read changes too, and is not logged. */
-            put_name(slot(2), 0x5C0, "Rongo");
-            *(int *)(slot(2) + 0x5E0) = 3;
-            *(int *)(slot(2) + 0x5DC) = 7;
-            *(int *)(slot(2) + 0x544) = 2;
-        }
         compare(&g_snaps[0]);
-        if (g_harness_game == 2) {
-            CHECK(g_outs == 1 && g_out[0].record == slot(2)
-                  && strcmp(g_out[0].changes, "  Pregnant: no -> yes\n") == 0,
-                  "a pregnancy the event starts: only Pregnant (the father and babies offsets are unproven)");
-        } else {
-            CHECK(g_outs == 1 && g_out[0].record == slot(2)
-                  && strstr(g_out[0].changes, "  Pregnant: no -> yes\n") != NULL
-                  && strstr(g_out[0].changes, "  Babies in pregnancy: 0 -> 2\n") != NULL,
-                  "a pregnancy the event starts: Pregnant and the babies");
-        }
+        CHECK(g_outs == 1 && g_out[0].record == slot(2)
+              && strstr(g_out[0].changes, "  Pregnant: no -> yes\n") != NULL
+              && strstr(g_out[0].changes, "  Babies in pregnancy: 2\n") != NULL,
+              "a pregnancy the event starts: Pregnant and the babies");
+        CHECK(g_outs == 1
+              && strstr(g_out[0].changes, "  Babies in pregnancy: 2\n  Expected father: Rongo\n"
+                                          "  Expected father's head: 3\n  Expected father's body: 7\n") != NULL
+              && (g_harness_game == 1 ? father == NULL && father_head == NULL && father_body == NULL
+                                      : father != NULL && father_head != NULL && father_body != NULL),
+              "...and the expected father's name, head and body (%s)",
+              g_harness_game == 1 ? "the Show Parents companion's record of the conception"
+                                  : "the conception copied them onto her");
+
+        /* 3b. Delivered (A New Home and The Lost Children clear the litter;
+           the later games leave their 1, 2 or 3), then one baby by the same
+           father: the conception is printed whole though its father is the
+           one already on her record. */
+        *(int *)(slot(2) + pregnant->offset) = 0;
+        *(int *)(slot(2) + babies->offset) = g_harness_game <= 2 ? 0 : 1;
+        begin();
+        *(int *)(slot(2) + pregnant->offset) = g_harness_game == 2 ? 615 : 1;
+        compare(&g_snaps[0]);
+        CHECK(g_outs == 1 && g_out[0].record == slot(2)
+              && strstr(g_out[0].changes, "  Pregnant: no -> yes\n") != NULL
+              && strstr(g_out[0].changes, "  Babies in pregnancy: 1\n") != NULL
+              && strstr(g_out[0].changes, "  Expected father: Rongo\n") != NULL
+              && strstr(g_out[0].changes, "  Expected father's head: 3\n") != NULL
+              && strstr(g_out[0].changes, "  Expected father's body: 7\n") != NULL,
+              "a second conception by the same father, one baby: \"Babies in pregnancy: 1\" and the father again");
         if (g_harness_game == 1) {
-            CHECK(father == NULL && father_head == NULL && father_body == NULL,
-                  "A New Home keeps no trace of the father on the mother: none is compared");
-        } else if (g_harness_game == 2) {
-            CHECK(father == NULL && father_head == NULL && father_body == NULL && babies == NULL,
-                  "The Lost Children compares no father and no babies (its own log disproved the offsets)");
-        } else {
-            _snprintf(want, sizeof want, "  Expected father: %s -> Rongo\n", "");
-            CHECK(father != NULL && father_head != NULL && father_body != NULL && g_outs == 1
-                  && strstr(g_out[0].changes, want) != NULL
-                  && strstr(g_out[0].changes, "  Expected father's head: 0 -> 3\n") != NULL
-                  && strstr(g_out[0].changes, "  Expected father's body: 0 -> 7\n") != NULL,
-                  "...and the expected father's name, head and body the conception copied onto her");
+            /* 3d. A New Home with no conception recorded this session (the
+               companion answers 0): no father line, never a stale one. */
+            g_vv1_stash_index = -1;
+            *(int *)(slot(2) + pregnant->offset) = 0;
+            *(int *)(slot(2) + babies->offset) = 0;
+            begin();
+            *(int *)(slot(2) + pregnant->offset) = 1;
+            compare(&g_snaps[0]);
+            CHECK(g_outs == 1 && strcmp(g_out[0].changes, "  Pregnant: no -> yes\n  Babies in pregnancy: 1\n") == 0
+                  && g_vv1_queried == 2,
+                  "A New Home with no conception recorded for her: no expected father printed (record 2 asked)");
+            g_vv1_stash_index = 2;
         }
+
+        /* 3c. An event that changes the babies of a pregnancy (a Custom
+           Island Event): one baby becomes three, "1 -> 3" in every game. */
+        begin();
+        *(int *)(slot(2) + babies->offset) = 3;
+        compare(&g_snaps[0]);
+        CHECK(g_outs == 1 && g_out[0].record == slot(2)
+              && strcmp(g_out[0].changes, "  Babies in pregnancy: 1 -> 3\n") == 0,
+              "a pregnancy's babies changed: \"Babies in pregnancy: 1 -> 3\" alone");
 
         /* 4. Stale bytes after a name's terminator. */
         begin();
