@@ -1,3 +1,0 @@
-LIBRARY "VVFP Fix Huts"
-EXPORTS
-    VvfpFixHutsInstall=_VvfpFixHutsInstall@4

@@ -1,3 +1,0 @@
-LIBRARY "VVFP Improved Pathfinding"
-EXPORTS
-    VvfpPathfindingInstall=_VvfpPathfindingInstall@4
