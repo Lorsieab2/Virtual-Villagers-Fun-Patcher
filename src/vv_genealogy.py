@@ -45,6 +45,17 @@ VV5_FACTION_FROM_NAME = -0x1F
 # Children leave it 0 for one baby.
 LITTER_FROM_NAME = {1: -0x14, 2: -0x20, 3: 0xBC, 4: 0xB4, 5: 0xB4}
 
+# A New Home's Parents (A New Home) sidecar, "Virtual Villagers 1 Parentage Records - Save <slot>.dat"
+# (native/vv1_parentage/vv1_parentage.c): a 12-byte 'VP02' header, 256 roster occupants of 36 bytes
+# (gender 1/2, departed, head+1, body+1, family scalar, name[28]) and 256 entries of 92 bytes (father
+# head+1/body+1, mother head+1/body+1, the pregnancy stash's father head+1/body+1, 2 spare, then the
+# father's, the mother's and the stashed father's names, 28 bytes each).
+VV1_SIDECAR_MAGIC = b"VP02"
+VV1_SIDECAR_NAME = 28
+VV1_SIDECAR_OCCUPANT = 36
+VV1_SIDECAR_ENTRY = 92
+VV1_SIDECAR_SIZE = 12 + 256 * (VV1_SIDECAR_OCCUPANT + VV1_SIDECAR_ENTRY)
+
 
 class GenealogyError(Exception):
     """The family could not be read; the message says why."""
@@ -144,6 +155,8 @@ class _Registry:
         self.conceptions: dict[Key, tuple] = {}        # mother -> (father key, babies), not born yet
         self.relooked: dict[Key, Key] = {}             # an old look -> the look it changed to
         self.full: dict[Key, Key] = {}                 # a name the Details screen cut -> the full name's key
+        # A New Home's living villagers as its save names them: (id, name, gender, family, head, body).
+        self.vv1_living: list[tuple] = []
 
     def current(self, key: Key) -> Key:
         """The look a villager has now, following their Change Appearance records, under the full name
@@ -184,6 +197,10 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         p.family = _i32(data, at + f.family)
         if game == 1:
             p.expecting = _i32(data, at - 0x370 + 0x358) != 0       # the delivery the game counts down
+            # Who she is in the save's own words, for the Parents (A New Home) sidecar (_vv1_expected).
+            reg.vv1_living.append((p.id, _cstr(data, at, f.name_cap)[:VV1_SIDECAR_NAME - 1],
+                                   1 if _i32(data, at + f.sex) == f.male else 2, _i32(data, at + f.family),
+                                   _i32(data, at + f.head), _i32(data, at + f.body)))
         elif f.expecting is not None:
             p.expecting = p.sex == "Female" and data[at + f.expecting] != 0
             if p.expecting:
@@ -361,6 +378,8 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
     _appearance_changes(reg, folder, game, slot)
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
+    if game == 1:
+        _vv1_expected(reg, folder, slot)
     _log_people(reg, folder, game, slot)
     _unrecorded_looks(reg)
     checker = tools.load_checker()
@@ -458,6 +477,70 @@ def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> N
             old, new = (name, old_head, old_body), (name, new_head, new_body)
             reg.relooked.pop(new, None)
             reg.relooked[old] = new
+
+
+def _vv1_stashes(folder: Path, slot: int) -> list[tuple[tuple, Key]]:
+    """A New Home's pregnancy stashes: [((name, gender, family, head, body), father key)], one per
+    mother the Parents (A New Home) sidecar holds a father for -- head and body None where an older
+    build's roster did not keep them.  Under the new folder name or the old one (vv_save_layout);
+    nothing when the file is missing, unreadable or not a VP02 file of this length."""
+    import vv_save_layout as layout
+    name = f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"
+    path = layout.find(Path(folder), f"{layout.DATA}\\{layout.PARENTS_VV1}\\{name}")
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return []
+    if len(data) != VV1_SIDECAR_SIZE or data[:4] != VV1_SIDECAR_MAGIC or _i32(data, 8) != slot:
+        return []
+    out = []
+    for i in range(256):
+        occ = 12 + i * VV1_SIDECAR_OCCUPANT
+        e = 12 + 256 * VV1_SIDECAR_OCCUPANT + i * VV1_SIDECAR_ENTRY
+        gender, departed, head, body = data[occ], data[occ + 1], data[occ + 2], data[occ + 3]
+        stash_head, stash_body = data[e + 4], data[e + 5]
+        father = _cstr(data, e + 64, VV1_SIDECAR_NAME)[:VV1_SIDECAR_NAME - 1]
+        # Only a record's present occupant (not one who had left it: `departed`), and only a father
+        # the stash names with both looks -- 0 is "not recorded", every real value is stored +1.
+        if gender not in (1, 2) or departed or not father or not stash_head or not stash_body:
+            continue
+        who = (_cstr(data, occ + 8, VV1_SIDECAR_NAME)[:VV1_SIDECAR_NAME - 1], gender, _i32(data, occ + 4),
+               head - 1 if head and body else None, body - 1 if head and body else None)
+        out.append((who, (father, stash_head - 1, stash_body - 1)))
+    return out
+
+
+def _vv1_expected(reg: _Registry, folder: Path, slot: int) -> None:
+    """The expected father of each A New Home pregnancy, which the game keeps nowhere (the later
+    games copy him onto the mother: `_save_people`): the companion's own rule (vv1_expected_father in
+    native/vv1_parentage) -- her last Conception record in the Births and Conceptions log, written
+    with the save, else the father the Parents (A New Home) sidecar stashed against her at that
+    conception.  The sidecar's entry is hers only when its roster names exactly one living villager
+    -- name, sex, family number and, where it kept them, head and body -- and she is the only one
+    who fits it; anything else is left unknown rather than guessed (patcher data follows the
+    villager, never a record number)."""
+    expecting = {pid for pid, *_ in reg.vv1_living if reg.people[pid].expecting}
+    if not expecting:
+        return
+    for pid in expecting:
+        father = reg.conceptions.get(reg.people[pid].key, (None, 1))[0]
+        if father and father[0]:
+            reg.expected[pid] = father
+    stashes = _vv1_stashes(folder, slot)
+
+    def fits(who: tuple, living: tuple) -> bool:
+        name, gender, family, head, body = who
+        _pid, l_name, l_gender, l_family, l_head, l_body = living
+        return (name, gender, family) == (l_name, l_gender, l_family) \
+            and (head is None or (head, body) == (l_head, l_body))
+
+    for who, father in stashes:
+        holders = [v for v in reg.vv1_living if fits(who, v)]
+        if len(holders) != 1 or sum(1 for other, _f in stashes if fits(other, holders[0])) != 1:
+            continue
+        pid = holders[0][0]
+        if pid in expecting and pid not in reg.expected:
+            reg.expected[pid] = father
 
 
 def _upcoming(reg: _Registry) -> None:

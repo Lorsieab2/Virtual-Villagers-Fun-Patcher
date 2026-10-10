@@ -6,6 +6,7 @@ EXPORTS
     Vv1ParentageDrawPortrait=_Vv1ParentageDrawPortrait@16
     Vv1ParentageQuery=_Vv1ParentageQuery@8
     Vv1ParentageQueryNames=_Vv1ParentageQueryNames@16
+    Vv1ParentageQueryExpectedFather=_Vv1ParentageQueryExpectedFather@16
     Vv1ParentageSetParents=_Vv1ParentageSetParents@28
     Vv1ParentageCrossCheckScan=_Vv1ParentageCrossCheckScan@4
     Vv1ParentageCrossCheckApply=_Vv1ParentageCrossCheckApply@0
@@ -23,3 +24,4 @@ EXPORTS
     Vv1ParentageProbeBind=_Vv1ParentageProbeBind@4
     Vv1ParentageProbeDropBaseline=_Vv1ParentageProbeDropBaseline@0
     Vv1ParentageProbeFollow=_Vv1ParentageProbeFollow@4
+    Vv1ParentageProbeExpected=_Vv1ParentageProbeExpected@20
