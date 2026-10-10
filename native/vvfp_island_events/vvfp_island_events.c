@@ -114,6 +114,9 @@ struct snapshot {
 /* The outermost watched call's copy (see before_call). */
 static struct snapshot g_snaps[1];
 static char g_choice[TITLE_MAX];         /* the answer clicked, when there was one */
+static char g_answer[TITLE_MAX];         /* the last two-choice answer clicked (struct site's answer) */
+static unsigned int g_answer_self;       /* ...in this dialog */
+static int g_answering;                  /* the outermost call is an answer click */
 static int g_depth;
 
 static int readable(const void *at, size_t size) {
@@ -420,6 +423,12 @@ struct site {
     int (*watch)(const unsigned int *frame);
     void (*before)(const unsigned int *frame, struct snapshot_text *out);
     void (*after)(unsigned int self, struct snapshot_text *out);
+    /* A two-choice dialog's answer click, read whatever is watched: the
+       clicked button's label into `out` (empty when this call is no answer
+       click).  The later games apply a stock two-choice event on the OK that
+       follows the answer, so the answer is kept for the record that OK (or
+       the presenter around both) writes. */
+    void (*answer)(const unsigned int *frame, char *out, size_t size);
 };
 
 /* The first line of `text` with its padding taken off, at most size - 1 bytes. */
@@ -548,11 +557,31 @@ static void __cdecl before_call(const unsigned int *frame, int index) {
     struct snapshot_text text;
     fill_text(&text);
     if (g_depth == 0) {
+        g_answering = 0;
+    }
+    if (site->answer != NULL) {
+        char label[TITLE_MAX];
+        label[0] = '\0';
+        site->answer(frame, label, sizeof label);
+        if (label[0] != '\0') {
+            g_answering = g_depth == 0;   /* the answer itself is the outermost call */
+            memcpy(g_answer, label, sizeof g_answer);
+            g_answer_self = frame[6];
+            if (g_depth > 0 && g_watching) {
+                memcpy(g_choice, label, sizeof g_choice);   /* inside the presenter's bracket */
+            }
+        }
+    }
+    if (g_depth == 0) {
         g_watching = site->watch == NULL || site->watch(frame);
         if (g_watching) {
             g_snaps[0].title[0] = '\0';
             g_snaps[0].text[0] = '\0';
             g_choice[0] = '\0';
+            if (site->answer != NULL && g_answer[0] != '\0' && g_answer_self == frame[6]) {
+                /* this dialog's OK (or its answer itself): the answer clicked in it */
+                memcpy(g_choice, g_answer, sizeof g_choice);
+            }
             if (site->before != NULL) {
                 site->before(frame, &text);
             }
@@ -581,6 +610,13 @@ static unsigned int __cdecl after_call(void) {
     if (g_depth == 0 && g_watching) {
         compare(&g_snaps[0]);
         g_watching = 0;
+        if (!g_answering) {
+            /* told: never carried to a later dialog at the same address.  An
+               answer that was itself the call compared (New Believers' click
+               on a custom event's answer) is kept for the OK that follows. */
+            g_answer[0] = '\0';
+            g_answer_self = 0;
+        }
     }
     return g_depth < RETURNS ? g_returns[g_depth] : 0;
 }

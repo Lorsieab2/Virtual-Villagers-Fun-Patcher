@@ -52,6 +52,7 @@ SITES = {
         (0x418000, "6AFF681B664800", "the event presenter: picks, shows and applies the event (a Custom Island Event too)"),
         (0x418190, "6AFF685B664800", "the single-event presenter (the Origins Barrel)"),
         (0x417790, "6AFF68B9654800", "the event dialog's constructor (it names the event)"),
+        (0x417EA0, "837C240408", "the event dialog's button handler (the two-choice answer clicked)"),
     ],
     "vv5": [
         (0x418870, "6AFF68DB154900", "the island event presenter: picks, shows and applies the event (a Custom Island Event too)"),

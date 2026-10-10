@@ -28,7 +28,7 @@
     {
       "source": "assets/island_events/VVFP Island Events.dll",
       "destination": "VVFP Island Events.dll",
-      "sha256": "60031B956F43C283AB976F0271D3BF5F62B5E20F5ADD2B604309FED20D71B04E"
+      "sha256": "9A2C9224B7D0A5B4FF57C050ABA0CC2ACBEF4DB376905F89AC9EFB382CFC025F"
     }
   ],
   "runtime_detours": [
@@ -48,6 +48,12 @@
       "va": "0x417790",
       "stock_bytes": "6AFF68B9654800",
       "routine": "the event dialog's constructor (it names the event)",
+      "installed_by": "VVFP Island Events.dll, VvfpStartup"
+    },
+    {
+      "va": "0x417ea0",
+      "stock_bytes": "837C240408",
+      "routine": "the event dialog's button handler (the two-choice answer clicked)",
       "installed_by": "VVFP Island Events.dll, VvfpStartup"
     }
   ],

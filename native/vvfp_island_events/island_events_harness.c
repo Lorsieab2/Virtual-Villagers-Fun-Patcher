@@ -34,6 +34,12 @@
         Life's ghosts, New Believers' Reanimate stand-ins) are never logged,
         though an event changes everyone; the villagers still are.
 
+     7. The Secret City, The Tree of Life and New Believers: the answer
+        clicked in their two-choice dialog is the record's "Choice:" line, as
+        in A New Home and The Lost Children -- inside the presenter, and (The
+        Secret City, New Believers) for the dialog on its own, its OK's record;
+        never carried to the next event shown at the same address.
+
    Exit code 0 when every check passes. */
 #include "vvfp_island_events.c"
 
@@ -48,6 +54,7 @@ struct written {
     int kind;
     const void *record;
     int live;
+    char before[512];
     char changes[2048];
 };
 static struct written g_out[32];
@@ -56,12 +63,12 @@ static int g_outs;
 static int __stdcall stub_write(int game, int kind, const void *record, int live, const char *before,
                                 const char *changes, int arrival) {
     (void)game;
-    (void)before;
     (void)arrival;
     if (g_outs < (int)(sizeof g_out / sizeof g_out[0])) {
         g_out[g_outs].kind = kind;
         g_out[g_outs].record = record;
         g_out[g_outs].live = live;
+        lstrcpynA(g_out[g_outs].before, before != NULL ? before : "", sizeof g_out[g_outs].before);
         lstrcpynA(g_out[g_outs].changes, changes != NULL ? changes : "", sizeof g_out[g_outs].changes);
         ++g_outs;
     }
@@ -146,6 +153,110 @@ static int any_contains(const char *text) {
         }
     }
     return 0;
+}
+
+/* A two-choice dialog as the later games build it: the event at +0x50, the
+   answer buttons at +0x85C / +0x860, each button's control at +0x10 keeping
+   its label at +0x40. */
+static unsigned char g_dialog[0x900];
+static unsigned char g_buttons[2][0x20];
+static unsigned char g_controls[2][0x60];
+static char g_labels[2][32];
+
+static void build_dialog(void) {
+    int b;
+    memset(g_dialog, 0, sizeof g_dialog);
+    *(unsigned int *)(g_dialog + 0x50) = (unsigned int)(uintptr_t)g_buttons;   /* any event: non-zero */
+    lstrcpynA(g_labels[0], "Swim it back\n", sizeof g_labels[0]);
+    lstrcpynA(g_labels[1], "Leave it.", sizeof g_labels[1]);
+    for (b = 0; b < 2; ++b) {
+        *(unsigned int *)(g_dialog + 0x85C + 4 * b) = (unsigned int)(uintptr_t)g_buttons[b];
+        *(unsigned int *)(g_buttons[b] + 0x10) = (unsigned int)(uintptr_t)g_controls[b];
+        *(unsigned int *)(g_controls[b] + 0x40) = (unsigned int)(uintptr_t)g_labels[b];
+    }
+}
+
+/* One call of site `site` (index 0 or 1 in g_sites) with `this` and the click
+   (msg, id); `inside` runs between its entry and its return. */
+static void call_site(int index, const void *self, unsigned int msg, unsigned int id, void (*inside)(void)) {
+    unsigned int frame[12];
+    memset(frame, 0, sizeof frame);
+    frame[6] = (unsigned int)(uintptr_t)self;
+    frame[8] = 0x401000u;
+    frame[9] = msg;
+    frame[10] = id;
+    before_call(frame, index);
+    if (inside != NULL) {
+        inside();
+    }
+    (void)after_call();
+}
+
+static int g_choice_research;
+static int g_choice_float;
+static void gain_research(void) {
+    if (g_choice_float) {
+        *(float *)(slot(0) + g_choice_research) += 1.0f;
+    } else {
+        *(int *)(slot(0) + g_choice_research) += 1;
+    }
+}
+static void answer_second_then_ok(void) {
+    call_site(1, g_dialog, 8, 3, NULL);
+    call_site(1, g_dialog, 8, 1, gain_research);
+}
+
+static void check_choice(const struct game_layout *layout, const struct field *research, int skills_float) {
+    const struct site *sites = GAME_SITES[g_harness_game];
+    const struct site *click = NULL;
+    int k;
+    (void)layout;
+    for (k = 0; sites[k].entry != 0; ++k) {
+        if (sites[k].answer != NULL) {
+            click = &sites[k];
+        }
+    }
+    CHECK(click != NULL && sites[0].watch == NULL && sites[0].answer == NULL,
+          "the two-choice dialog's button handler is watched for the answer");
+    if (click == NULL) {
+        return;
+    }
+    g_sites[0] = &sites[0];               /* the presenter */
+    g_sites[1] = click;
+    g_choice_research = (int)research->offset;
+    g_choice_float = skills_float;
+    build_dialog();
+
+    /* a. Inside the presenter: the second answer, then OK applies the event. */
+    g_outs = 0;
+    call_site(0, NULL, 0, 0, answer_second_then_ok);
+    CHECK(g_outs == 1 && strstr(g_out[0].before, "  Choice: Leave it\n") != NULL
+          && strstr(g_out[0].changes, "  Research: ") != NULL,
+          "inside the presenter: \"Choice: Leave it\" (the second answer's label, as shown) on the record");
+
+    /* b. The next event at the same address, no answer clicked: no Choice. */
+    g_outs = 0;
+    call_site(0, NULL, 0, 0, gain_research);
+    CHECK(g_outs == 1 && strstr(g_out[0].before, "Choice:") == NULL,
+          "the next event shown in the same dialog, no answer: no Choice carried over");
+
+    /* c. The dialog on its own (no presenter): the first answer, then OK. */
+    if (click->watch != never) {
+        g_outs = 0;
+        *(unsigned int *)(g_dialog + 0x50) = (unsigned int)(uintptr_t)g_buttons;
+        call_site(1, g_dialog, 8, 2, NULL);
+        call_site(1, g_dialog, 8, 1, gain_research);
+        CHECK(g_outs == 1 && strstr(g_out[0].before, "  Choice: Swim it back\n") != NULL,
+              "the dialog on its own: the answer is kept for the OK's record (\"Choice: Swim it back\")");
+    } else {
+        /* The Tree of Life: its click handler starts no comparison. */
+        g_outs = 0;
+        call_site(1, g_dialog, 8, 3, gain_research);
+        CHECK(g_outs == 0 && g_depth == 0, "The Tree of Life's click handler alone writes nothing");
+        g_answer[0] = '\0';
+        g_answer_self = 0;
+    }
+    g_sites[0] = g_sites[1] = NULL;
 }
 
 int main(void) {
@@ -330,6 +441,12 @@ int main(void) {
                   && g_out[0].record == slot(0) && g_out[1].record == slot(2) && g_out[2].record == slot(3),
                   "look-alikes (+0x%X) are never logged, before, after or appearing; the three villagers are",
                   LOOKALIKE[g_harness_game]);
+        }
+
+        /* 7. The later games' two-choice answer: "Choice:" as A New Home and
+           The Lost Children write it (their answer_label). */
+        if (g_harness_game >= 3) {
+            check_choice(&layout, research, skills_float);
         }
 
         memset(g_array, 0, (size_t)SLOTS * ARRAYS[g_harness_game].stride);

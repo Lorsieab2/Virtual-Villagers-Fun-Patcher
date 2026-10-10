@@ -380,15 +380,52 @@ static void title_pointer_54(const unsigned int *frame, struct snapshot_text *ou
    stubs 0x419BDB, 0x41895B) -- show it and run its OK inside their own modal loop, which runs only
    the dialog (as The Tree of Life's): one bracket around each, the click handler inside naming the
    event.  The click handler is watched on its own too, for a dialog shown outside them. */
+/* The answer clicked in The Secret City's, The Tree of Life's and New
+   Believers' two-choice dialog (the stock two-choice events, e.g. The
+   Secret City's vtable 0x47EA40, The Tree of Life's The Sealed Box, and a
+   Custom Island Event's question), worded as A New Home's and The Lost
+   Children's "Choice:" line.  The three dialogs are one design (constructors
+   0x4192F0 / 0x417790 / 0x418020): the click handler (0x419A00 / 0x417EA0 /
+   0x418720) takes msg 8 with id 2 for the first answer and 3 for the second
+   (0x419A7D `cmp edi, 2; setne al` -> the choice +0x830), and the two
+   answer buttons are the dialog's +0x85C and +0x860.  Each button's label,
+   as shown, is set through its +0x10 control (0x401620 / 0x401600 /
+   0x4015D0 -> 0x4012E0 / 0x401140 / 0x401110), which keeps its own copy
+   of the text at +0x40. */
+static void dialog_answer(const unsigned int *frame, char *out, size_t size) {
+    const unsigned char *self = (const unsigned char *)(uintptr_t)frame[6];
+    const unsigned char *button, *control;
+    out[0] = '\0';
+    if (frame[9] != 8 || (frame[10] != 2 && frame[10] != 3) || !readable(self + 0x85C, 8)) {
+        return;
+    }
+    button = *(const unsigned char *const *)(self + (frame[10] == 2 ? 0x85C : 0x860));
+    if (button == NULL || !readable(button + 0x10, 4)) {
+        return;
+    }
+    control = *(const unsigned char *const *)(button + 0x10);
+    if (control == NULL || !readable(control + 0x40, 4)) {
+        return;
+    }
+    first_line(*(const char *const *)(control + 0x40), 0x100, out, size);
+}
+
+/* The Tree of Life's click handler starts no comparison of its own (its
+   presenter's bracket is exact, see below): it is watched for the answer. */
+static int never(const unsigned int *frame) {
+    (void)frame;
+    return 0;
+}
+
 static const struct site VV3_SITES[] = {
     { 0x419B30, { 0x64, 0xA1, 0x00, 0x00, 0x00, 0x00 }, 6, NULL, NULL, NULL },
-    { 0x419A00, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, vv3_ok, title_pointer_54, NULL },
+    { 0x419A00, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, vv3_ok, title_pointer_54, NULL, dialog_answer },
     { 0 },
 };
 
 static const struct site VV5_SITES[] = {
     { 0x418870, { 0x6A, 0xFF, 0x68, 0xDB, 0x15, 0x49, 0x00 }, 7, NULL, NULL, NULL },
-    { 0x418720, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, vv5_click, title_pointer_54, NULL },
+    { 0x418720, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, vv5_click, title_pointer_54, NULL, dialog_answer },
     { 0 },
 };
 
@@ -408,6 +445,7 @@ static const struct site VV4_SITES[] = {
     { 0x418000, { 0x6A, 0xFF, 0x68, 0x1B, 0x66, 0x48, 0x00 }, 7, NULL, NULL, NULL },
     { 0x418190, { 0x6A, 0xFF, 0x68, 0x5B, 0x66, 0x48, 0x00 }, 7, NULL, NULL, NULL },
     { 0x417790, { 0x6A, 0xFF, 0x68, 0xB9, 0x65, 0x48, 0x00 }, 7, NULL, NULL, title_pointer_54_after },
+    { 0x417EA0, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, never, NULL, NULL, dialog_answer },
     { 0 },
 };
 
