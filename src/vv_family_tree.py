@@ -7109,20 +7109,27 @@ def face_anchor(kind: str, frame: tuple, points: list, bands: list, words: tuple
                 return (mx + (b[0] - mx) * k - m, my + (b[1] - my) * k - m, mx + (b[2] - mx) * k + m, my + (b[3] - my) * k + m)
             wd = small((wx0, wy0, wx1, wy1))
             f = small((fx0, fy0, fx1, fy1))
-            for margin in (3.0, 1.0, 0.0):
-                bs = [small(b, margin) for b in bands]
+            for margin in (3.0, 0.0):
+                # The widest bands first: most places fail on them, at once.
+                bs = sorted((small(b, margin) for b in bands), key=lambda b: b[0] - b[2])
                 best = None
                 # Moves by every other cell, from none (a symmetrical shape keeps its face in its middle):
                 # near enough, and four times as fast.
                 r0, r1 = math.floor((grid[1] - f[1]) / cell / 2), math.ceil((grid[1] + grid[3] * cell - f[3]) / cell / 2)
                 c0, c1 = math.floor((grid[0] - f[0]) / cell / 2), math.ceil((grid[0] + grid[2] * cell - f[2]) / cell / 2)
+                # Each band as the cells it touches, unmoved: a move by whole cells moves those by whole cells.
+                left, gtop, cols, rows, sums, _cell = grid
+                need = [(math.floor((b[0] - left) / cell), math.ceil((b[2] - left) / cell),
+                         math.floor((b[1] - gtop) / cell), math.ceil((b[3] - gtop) / cell)) for b in bs]
                 for r in range(r0, r1 + 1):
                     dy = 2 * r * cell
                     for c in range(c0, c1 + 1):
                         dx = 2 * c * cell
-                        for b in bs:
-                            n, total = _cells_inside(grid, b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy)
-                            if n < total or not total:
+                        for bc0, bc1, br0, br1 in need:
+                            a0, a1, b0, b1 = bc0 + 2 * c, bc1 + 2 * c, br0 + 2 * r, br1 + 2 * r
+                            # Every cell it touches inside the shape (none of them beyond the grid).
+                            if a0 < 0 or b0 < 0 or a1 > cols or b1 > rows or a1 <= a0 or b1 <= b0 or \
+                                    sums[b1][a1] - sums[b0][a1] - sums[b1][a0] + sums[b0][a0] < (a1 - a0) * (b1 - b0):
                                 break
                         else:
                             wn, wt = _cells_inside(grid, wd[0] + dx, wd[1] + dy, wd[2] + dx, wd[3] + dy)
