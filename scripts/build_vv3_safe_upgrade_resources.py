@@ -94,9 +94,10 @@ FOUNDATION_OUTPUT = (
 # native/shared/startup_companions.h: VVFP Storytelling.dll appended; the quit check's
 # missing last names question).
 # Recertified for v1.35.67 (native/shared/paid_purchases.h: the Story / Cheat
-# Upgrades queue kept beside the paid Barrel).
-SOURCE_SHA256 = "CD8C24CA88B47E09F672C82546B92F9A33CC3B6253DC495442D0BD1386F69ECE"
-SOURCE_SIZE = 1974272
+# Upgrades queue kept beside the paid Barrel).  Recertified for one folder of logs per save slot
+# (native/shared/log_slot.h, through the orphan masks' Repairs log).
+SOURCE_SHA256 = "D78623BF1C53962FEFBD4324FFAF75D895ED8A3644B99D650B74044F1D3D310E"
+SOURCE_SIZE = 1976832
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

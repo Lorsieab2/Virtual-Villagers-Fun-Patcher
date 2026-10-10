@@ -773,12 +773,26 @@ still, beside the saves):
 
     Virtual Villagers 1 Origins Doublers - Save <slot>.dat   (vv1_doublers_<slot>.dat)
 
-Exported logs:
+Exported logs -- one folder per save slot, so each village's history is in
+its own place:
 
-    Virtual Villagers Fun Patcher Logs\Births and Conceptions\
-        Virtual Villagers <N> Births and Conceptions Log <n>.txt
-    Village Statistics - Save <slot>.txt
-    Village Population <slot>.txt
+    Virtual Villagers Fun Patcher Logs\Save <slot>\
+        Births and Conceptions\Virtual Villagers <N> Births and Conceptions Log <n>.txt
+        Deaths and Disappearances\Virtual Villagers <N> Deaths Log <n>.txt
+        Unaccounted Villagers\Virtual Villagers <N> Unaccounted Villagers Log <n>.txt
+        Island Events\Virtual Villagers <N> Island Events Log <n>.txt
+        Tribe Population\Village Population <n>.txt
+        Tribe History\Village History <n>.txt
+        Village Statistics\Village Statistics v2 - Save <slot>.txt
+        Repairs Made\Virtual Villagers <N> Repairs Log <n>.txt
+
+    Logs an older patcher wrote for every slot together (straight inside
+    "Virtual Villagers Fun Patcher Logs\<log>\") are kept exactly as they
+    were: never moved, split, renamed or deleted. The patcher and the games
+    read them as the start of each village's history (each record is filed
+    under its own "Village: <name> (Save <slot>)" line), then the slot's own
+    folder. Numbers such as "Birth 12" or "Death 7" carry on across both,
+    counted over the whole game, so no number is used twice.
 
 DELETING ANY OF THESE IS SAFE. None of them is the game's save, and none is
 required for the game to run. Every mask file is read by code that clears its

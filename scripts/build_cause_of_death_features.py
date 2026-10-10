@@ -173,7 +173,7 @@ def logs_text(n: str, game: str) -> str:
                       "never a villager; converted back, they get an \"Arrived\" record again)")
     return (
         f"Every death that leaves a body is written to the Deaths log ('Virtual Villagers {n} "
-        "Deaths Log <n>.txt' in the 'Virtual Villagers Fun Patcher Logs\\Deaths and Disappearances' folder beside the "
+        "Deaths Log <n>.txt' in the save slot's own 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Deaths and Disappearances' folder beside the "
         "game's saves, or 'Deaths' in a save an older version made: nothing is moved) when it is final: when the body is buried, with the skill line and epitaph "
         "the grave was given, or when the game removes a body nobody buried (\"no grave\"). Each "
         "Death record gives the villager's name, head, body, likes and dislikes, their age at death "
@@ -226,7 +226,7 @@ def logs_text(n: str, game: str) -> str:
         "At every save, the village is checked against the one saved before: a villager who left "
         "with no Death or Disappeared record, or arrived with no birth or known arrival, is written "
         f"with everything known about them to the Unaccounted Villagers log ('Virtual Villagers {n} "
-        "Unaccounted Villagers Log <n>.txt' in 'Virtual Villagers Fun Patcher Logs\\Unaccounted "
+        "Unaccounted Villagers Log <n>.txt' in 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Unaccounted "
         "Villagers'). Both logs are headed with the village and its save slot, are created when a "
         "village is started and again after Start Over (which deletes them with the village), only "
         "ever grow, and start a new numbered file after every 256 records. The village as it was at "
