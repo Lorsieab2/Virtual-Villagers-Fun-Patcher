@@ -10,6 +10,7 @@ import time
 import tkinter as tk
 import tkinter.font as tkfont
 import webbrowser
+from dataclasses import dataclass
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
@@ -23,6 +24,7 @@ import vv_last_names
 import vv_cut_names
 import vv_number_names
 import vv_save_backup
+import vv_startup_questions
 import vv_tribe_rename
 import vv_genealogy
 import vv_genealogy_window
@@ -314,6 +316,13 @@ def last_name_rows(people: list, parents: dict) -> list[str]:
                 else:
                     rows[k] += f" -- {n} of {len(same)}"
     return rows
+
+@dataclass
+class _SlotLike:
+    """The tribe a last-names window is for, when no slot list was read (the missing-last-names prompt)."""
+    slot: int
+    name: str
+
 
 class _LastNamesKind:
     """The questions window's label for the last names' questions."""
@@ -768,6 +777,9 @@ class App(tk.Tk):
             splash.close()
             self.deiconify()
         self.protocol("WM_DELETE_WINDOW", self._close)
+        # What the games' quit checks queued for the player (src/vv_startup_questions.py): asked once
+        # the window is up (the owner, v1.35.66).
+        self.after(1500, self._ask_startup_questions)
 
     def _run_with_wait(self, message: str, work):
         """Run ``work`` off the main thread while a wait window stays alive.
@@ -3293,6 +3305,9 @@ class App(tk.Tk):
                 parent=parent,
             )
             return
+        # Villagers with no last name, first (the owner, v1.35.66), so the check below reads the names
+        # as they will be: arrivals get their own new last name automatically, the rest are asked about.
+        named_lines = self._missing_last_names_at_repair(parent, folder, number, info)
 
         def survey():
             checked = vv_log_tools.check_logs(folder, info.slot, number)
@@ -3404,7 +3419,15 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The duplicate names were not numbered. {exc}", parent=parent)
-        lines = []
+        lines = list(named_lines)
+        if names is not None and names.get("arrivals") is not None \
+                and names["arrivals"] != vv_last_names.read_arrivals(folder, number, info.slot):
+            try:
+                vv_last_names.save_arrivals(folder, number, info.slot, names["arrivals"])
+                lines.append("Arriving villagers get their own new last name automatically: "
+                             + ("on." if names["arrivals"] else "off."))
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The arrivals setting was not kept. {exc}", parent=parent)
         if to_pause:
             paused = self._run_with_wait("Setting the saves to Paused…", lambda: vv_save_backup.pause_saves(to_pause))
             text = f"Game speed set to Paused in {len(paused.paused)} save(s)"
@@ -3472,6 +3495,208 @@ class App(tk.Tk):
             "\n\n".join(lines + [f"Backup: {result.backup.backup_folder}"]),
             parent=parent,
         )
+
+    # MISSING LAST NAMES (the owner, v1.35.66: "if repair logs detects a missing last name, please prompt
+    # the player to add one if auto check is enabled" -- "and direct them how to add last names").  With
+    # "Check logs automatically" on, the patcher asks when it opens about the villages whose game asked
+    # to be reminded at its quit (vv_last_names.requests), and Repair Saves & Logs asks about the village
+    # it repairs.  Last names are given with the game closed, by vv_last_names (backup first, every
+    # file swapped in and read back, the save and every log together).
+    _LN_HOW = ("To give villagers last names yourself at any time: close the game, choose Repair Saves & "
+               "Logs..., pick the game, its save folder and the tribe, and press Repair Saves & Logs. Tick "
+               "\"Give villagers last names, in the game and the logs\" and press Choose…: the villagers with "
+               "no last name are highlighted, with a last name suggested. Keep it, pick another from the list "
+               "or type your own, press OK, then Repair.")
+
+    def _ask_startup_questions(self) -> None:
+        """At the patcher's start, with "Check logs automatically" on: every question a game queued at
+        its quit (src/vv_startup_questions.py -- the missing last names, and any other feature that
+        registers one), for each village whose game is closed now."""
+        try:
+            if not self.check_logs_var.get():
+                return
+            documents = vv_save_backup.documents_folder()
+            if documents is None:
+                return
+            for build in self.builds:
+                game = vv_tribe_rename.game_for_title(build.title)
+                for folder in vv_save_backup.find_save_folders(build.title, documents):
+                    queued = vv_startup_questions.pending(folder, game.number)
+                    if not queued or vv_save_backup.running_game_count(folder):
+                        continue                # asked again the next time, with the game closed
+                    tribes = {i.slot: i.name for i in vv_tribe_rename.read_slots(game, folder) if i.name}
+                    for question in queued:
+                        asker = getattr(self, question.source.asker, None)
+                        if asker is not None:
+                            asker(folder, game.number, question.slot, tribes.get(question.slot, f"Save {question.slot}"))
+        except (tk.TclError, OSError, vv_log_tools.LogToolError):
+            pass
+
+    def _ask_missing_last_names_for(self, folder: Path, number: int, slot: int, tribe: str) -> None:
+        """The game asked to be reminded of villagers with no last name (vv_last_names.requests)."""
+        try:
+            missing = self._run_with_wait(
+                "Looking for villagers with no last name…\n\nNothing is changed.",
+                lambda: vv_last_names.missing_last_names(folder, number, slot))
+        except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, vv_log_tools.LogToolError, OSError,
+                ValueError, struct.error):
+            return
+        if not missing:
+            vv_last_names.clear_missing(folder, number, slot)
+            return
+        self._missing_last_names_prompt(self, folder, number, slot, tribe, missing)
+
+    def _missing_last_names_prompt(self, parent, folder: Path, number: int, slot: int, tribe: str,
+                                   missing: list) -> str | None:
+        """"These villagers have no last name: ... Give them one now?" -- "Give the suggested names",
+        "Choose each…" (the last-names window, their boxes highlighted and the suggestions filled in) or
+        "Not now" (not asked again about these villagers).  Returns "given", "chosen", "not now" or None
+        (closed: asked again next time)."""
+        window = tk.Toplevel(parent)
+        window.title("Villagers with no last name")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=16)
+        frame.pack(fill="both", expand=True)
+        lines = [f"• {m.describe()}" + (f" -- suggested: {m.suggested}" if m.suggested else "")
+                 for m in missing[:20]]
+        if len(missing) > 20:
+            lines.append(f"... and {len(missing) - 20} more")
+        ttk.Label(frame, wraplength=640, justify="left",
+                  text=f"{tribe} ({folder.name}, Save {slot}): these villagers have no last name:\n\n"
+                       + "\n".join(lines) + "\n\nGive them one now? The game must stay closed; the save folder is "
+                       "backed up first, and the save and every log are updated together.").pack(anchor="w")
+        ttk.Label(frame, wraplength=640, justify="left", foreground="#555555",
+                  text="Give the suggested names: each gets the last name shown. Choose each…: the last-names "
+                       "window opens with their boxes highlighted. Not now: you are not asked about these "
+                       "villagers again (only when another villager has no last name).\n\n" + self._LN_HOW
+                  ).pack(anchor="w", pady=(8, 0))
+        outcome: dict = {}
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(12, 0))
+
+        def answer(what: str) -> None:
+            outcome["answer"] = what
+            window.destroy()
+
+        give = ttk.Button(buttons, text="Give the suggested names", command=lambda: answer("given"))
+        give.pack(side="left")
+        if not any(m.suggested for m in missing):
+            give.state(["disabled"])
+        ttk.Button(buttons, text="Choose each…", command=lambda: answer("chosen")).pack(side="left", padx=(8, 0))
+        ttk.Button(buttons, text="Not now", command=lambda: answer("not now")).pack(side="left", padx=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+        what = outcome.get("answer")
+        if what == "not now":
+            try:
+                vv_last_names.write_missing(folder, number, slot, vv_last_names.NOT_NOW,
+                                            [m.villager.identity for m in missing])
+            except (vv_last_names.LastNamesError, OSError) as exc:
+                messagebox.showerror("Last names", f"Your answer could not be kept ({exc}).", parent=parent)
+            return what
+        if what is None:
+            return None
+        if vv_save_backup.running_game_count(folder):
+            messagebox.showerror("Last names", f"{vv_save_backup.game_exe_name(folder)} is running. Quit the game "
+                                 "first (from its own menu); nothing was changed.", parent=parent)
+            return None
+        if what == "given":
+            try:
+                result = self._run_with_wait(
+                    "Giving the last names…\n\nThe save folder is backed up first.",
+                    lambda: vv_last_names.give_missing(folder, number, slot, missing))
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    vv_genealogy.GenealogyError, OSError) as exc:
+                messagebox.showerror("Last names", f"The last names were not given. {exc}", parent=parent)
+                return None
+            messagebox.showinfo("Last names", f"Last names given: {len(result.renamed)} villager(s), in the save "
+                                f"and {len(result.files) - 1} other file(s). Backup: {result.backup.backup_folder}",
+                                parent=parent)
+            return what
+        info = _SlotLike(slot, tribe)
+        ids = {m.villager.identity for m in missing}
+        names: dict = {"chosen": {m.villager.identity: m.suggested for m in missing if m.suggested},
+                       "answers": {}, "mine": set(ids), "highlight": set(ids)}
+        names_var = tk.BooleanVar(value=False)
+        self._last_names_dialog(parent, folder, number, info, names, names_var)
+        if not names_var.get():
+            return None
+        done = self._apply_last_names(parent, folder, number, slot, names)
+        if done:
+            try:
+                if not vv_last_names.missing_last_names(folder, number, slot):
+                    vv_last_names.clear_missing(folder, number, slot)
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError, struct.error):
+                pass
+            messagebox.showinfo("Last names", "\n\n".join(done), parent=parent)
+        return "chosen" if done else None
+
+    def _missing_last_names_at_repair(self, parent, folder: Path, number: int, info) -> list[str]:
+        """Repair Saves & Logs, with the game closed: arrived villagers with no last name get their own new
+        one automatically when the village's arrivals toggle is on (the owner, v1.35.66: "automatically
+        assigning unique last names for arrived villagers"); with "Check logs automatically" on, the
+        player is asked about the rest -- unless they said "Not now" to every one of them.  Returns the
+        lines for Repair's summary."""
+        try:
+            missing = self._run_with_wait("Looking for villagers with no last name…\n\nNothing is changed.",
+                                          lambda: vv_last_names.missing_last_names(folder, number, info.slot))
+        except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, vv_log_tools.LogToolError, OSError,
+                ValueError, struct.error):
+            return []                           # Check Saves & Logs reports what could not be read
+        lines: list[str] = []
+        auto = [m for m in missing if m.auto]
+        if auto:
+            try:
+                result = self._run_with_wait(
+                    "Giving arrived villagers their own new last name…\n\nThe save folder is backed up first.",
+                    lambda: vv_last_names.give_missing(folder, number, info.slot, auto))
+                lines.append("Arrived villagers given their own new last name: " + ", ".join(
+                    f"{old} -> {new}" for (old, _h, _b), new in result.renamed.items())
+                    + f". Backup: {result.backup.backup_folder}")
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    vv_genealogy.GenealogyError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The arrived villagers were not given last names. {exc}",
+                                     parent=parent)
+        rest = [m for m in missing if not m.auto]
+        if rest and self.check_logs_var.get() and vv_last_names.should_ask(folder, number, info.slot, rest):
+            self._missing_last_names_prompt(parent, folder, number, info.slot, info.name, rest)
+        return lines
+
+    def _apply_last_names(self, parent, folder: Path, number: int, slot: int, names: dict) -> list[str]:
+        """What the last-names window chose (`names`), kept and given: the arrivals toggle, the rules,
+        then the names.  Each step's own error is shown; returns the lines that say what was done."""
+        lines: list[str] = []
+        if names.get("arrivals") is not None and names["arrivals"] != vv_last_names.read_arrivals(folder, number, slot):
+            try:
+                vv_last_names.save_arrivals(folder, number, slot, names["arrivals"])
+                lines.append("Arriving villagers get their own new last name automatically: "
+                             + ("on." if names["arrivals"] else "off."))
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Last names", f"The arrivals setting was not kept. {exc}", parent=parent)
+        if names.get("rules_changed"):
+            try:
+                ruled = self._run_with_wait(
+                    "Keeping the last-name rules…",
+                    lambda: vv_last_names.save_own_rules(folder, number, slot, names["rule"], names["own"]))
+                lines.append(f"Last names come from: {vv_last_names.INHERIT[names['rule']]}; "
+                             f"{len(ruled)} villager(s) with a rule of their own.")
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Last names", f"The last-name rules were not kept. {exc}", parent=parent)
+        if names.get("chosen"):
+            try:
+                renamed = self._run_with_wait(
+                    "Giving the last names…\n\nThe save folder is backed up first.",
+                    lambda: vv_last_names.give_last_names(folder, number, slot, names["chosen"],
+                                                          answers=names.get("answers"), rule=names.get("rule"),
+                                                          mine=names.get("mine_names"), whole=names.get("whole")))
+                lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
+                             f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    OSError) as exc:
+                messagebox.showerror("Last names", f"The last names were not given. {exc}", parent=parent)
+        return lines
 
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
@@ -3622,7 +3847,8 @@ class App(tk.Tk):
         def go() -> None:
             restore = bool(cuts) and cuts_var.get()
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
-                                 names if names_var.get() and (names["chosen"] or names.get("rules_changed"))
+                                 names if names_var.get() and (names["chosen"] or names.get("rules_changed")
+                                                               or names.get("arrivals_changed"))
                                  and not restore else None,
                                  next(k for k, v in vv_genealogy.NUMBER_ORDERS.items() if v == number_order_var.get())
                                  if number_var.get() and not restore else None,
@@ -3677,7 +3903,7 @@ class App(tk.Tk):
                        "name - type here...) and type your own, or choose none. A name longer than the game "
                        "allows is marked and cannot be given. A villager's descendants inherit the name you give them by "
                        "the rule above. A villager who arrived through an event has no last name unless you give "
-                       "one. A last name the rule does not give is marked; Fix wrong last names "
+                       "one (or the box below gives arrivals their own). Highlighted: no last name yet. A last name the rule does not give is marked; Fix wrong last names "
                        "puts them right. The game must stay closed.").pack(anchor="w")
         rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
         rule_row.pack(anchor="w")
@@ -3697,6 +3923,13 @@ class App(tk.Tk):
         ttk.Button(rule_row, text="Each villager's own rule…",
                    command=lambda: self._own_rules_dialog(window, people, parents, own_state, lambda: by_rule())
                    ).pack(side="left", padx=(8, 0))
+        # Arriving villagers' own new last names (the owner, v1.35.66: "an optional toggle (default on) for
+        # automatically assigning unique last names for arrived villagers"), kept with the village.
+        recorded_arrivals = vv_last_names.read_arrivals(folder, number, info.slot)
+        arrivals_var = tk.BooleanVar(value=names.get("arrivals", recorded_arrivals))
+        ttk.Checkbutton(window, variable=arrivals_var, padding=(12, 4, 12, 0),
+                        text="Give arriving villagers their own new last name automatically (one no living "
+                             "villager has, from the game's list)").pack(anchor="w")
         wrong_var = tk.StringVar()
         ttk.Label(window, textvariable=wrong_var, padding=(12, 4, 12, 0), foreground="#a33", wraplength=700,
                   justify="left").pack(anchor="w")
@@ -3714,8 +3947,13 @@ class App(tk.Tk):
         mine: set = set(names.get("mine", ()))
         mine |= {v.identity for v in people if (split(v.name)[0], v.head, v.body) in recorded}
         filling = [False]                       # the window itself is filling the rows in
+        # The villagers with no last name the prompt is about (the owner, v1.35.66): highlighted.
+        highlight = set(names.get("highlight", ()))
         for row, (v, who) in enumerate(zip(people, last_name_rows(people, parents))):
-            ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
+            if v.identity in highlight:
+                tk.Label(inner, text=who, background="#fff2a8", foreground="#000000").grid(row=row, column=0, sticky="w")
+            else:
+                ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
             start_value = names["chosen"].get(v.identity, now[v.identity])
             value = tk.StringVar(value=start_value or none)
             first = list(dict.fromkeys(n for n in (by_father.get(v.identity), by_mother.get(v.identity)) if n))
@@ -3892,7 +4130,9 @@ class App(tk.Tk):
             # A village with no record yet keeps the rule shown only once the player picks one.
             names["rules_changed"] = names["own"] != written_own or (
                 rule_key() != recorded_rule and (recorded_rule is not None or rule_touched[0]))
-            names_var.set(bool(chosen) or names["rules_changed"])
+            names["arrivals"] = arrivals_var.get()
+            names["arrivals_changed"] = arrivals_var.get() != recorded_arrivals
+            names_var.set(bool(chosen) or names["rules_changed"] or names["arrivals_changed"])
             window.destroy()
 
         ttk.Button(buttons, text="Fix wrong last names", command=by_rule).pack(side="left")
