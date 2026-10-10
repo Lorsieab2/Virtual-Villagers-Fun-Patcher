@@ -3357,7 +3357,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "    Body: %s\n"
         "    Likes: %s\n"
         "    Dislikes: %s\n"
-        "  Babies in pregnancy: %d\n"
+        "  Babies nursing: %d\n"
         "%s"
         "\n",
         mother_name,

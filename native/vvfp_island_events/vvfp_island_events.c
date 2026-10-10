@@ -329,7 +329,7 @@ static void compare(struct snapshot *s) {
             ++g_more_wrote;
             continue;
         }
-        /* A conception the event started (Pregnant no -> yes): what it wrote
+        /* A conception the event started (Nursing no -> yes): what it wrote
            on the mother -- the babies, and the expected father's name, head
            and body -- is printed whole, as the Births and Conceptions log
            words a conception, even where it equals what the last pregnancy
@@ -339,7 +339,7 @@ static void compare(struct snapshot *s) {
         conceived = 0;
         for (k = 0; k < g_layout->field_count; ++k) {
             const struct field *f = &g_layout->fields[k];
-            if (f->type == F_FLAG && strcmp(f->label, "Pregnant") == 0) {
+            if (f->type == F_FLAG && strcmp(f->label, "Nursing") == 0) {
                 conceived = *(const int *)(old + f->offset) == 0 && *(const int *)(live + f->offset) != 0;
             }
         }
@@ -358,7 +358,7 @@ static void compare(struct snapshot *s) {
                    father comes from where its conception recorded him
                    (expected_father), right after the babies, as the later
                    games' table order prints him. */
-                if (g_layout->expected_father != NULL && strcmp(f->label, "Babies in pregnancy") == 0
+                if (g_layout->expected_father != NULL && strcmp(f->label, "Babies nursing") == 0
                     && g_layout->expected_father(live, name, sizeof name, &head, &body) && used < sizeof changes) {
                     char head_text[32], body_text[32];
                     int n;

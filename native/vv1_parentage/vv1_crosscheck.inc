@@ -522,7 +522,8 @@ static int vv1_xc_parse(vv1_xc_log *log, char *text, int slot) {
                     } else if (vv1_xc_starts(trimmed, "Father:")) {
                         person = &rec.father;
                         vv1_xc_person_start(person, trimmed + 7);
-                    } else if (vv1_xc_starts(trimmed, "Skills") || vv1_xc_starts(trimmed, "Babies in pregnancy")
+                    } else if (vv1_xc_starts(trimmed, "Skills") || vv1_xc_starts(trimmed, "Babies nursing")
+                               || vv1_xc_starts(trimmed, "Babies in pregnancy")
                                || vv1_xc_starts(trimmed, "Note")) {
                         person = NULL;
                     } else if (person != NULL && vv1_xc_starts(trimmed, "Head:")) {

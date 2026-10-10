@@ -182,8 +182,8 @@ class PregnancyOutputTests(unittest.TestCase):
 
     def test_pregnancy_prints_state_not_the_countdown(self):
         """The raw value would change every tick and mean nothing to a reader."""
-        self.assertIn('fprintf(file, "  Pregnant: yes\\n")', self.writer)
-        self.assertNotIn('"  Pregnant: %d', self.writer)
+        self.assertIn('fprintf(file, "  Nursing: yes\\n")', self.writer)
+        self.assertNotIn('"  Nursing: %d', self.writer)
         self.assertNotIn('"  Due: %d', self.writer)
 
     def test_pregnancy_is_only_printed_when_true(self):
@@ -209,13 +209,13 @@ class PregnancyOutputTests(unittest.TestCase):
 
     def test_the_lines_are_written_before_the_preferences(self):
         """A villager's own facts stay together, ahead of likes and dislikes."""
-        preg = self.writer.index('"  Pregnant: yes')
+        preg = self.writer.index('"  Nursing: yes')
         likes = self.writer.index('"  Likes: %s')
         self.assertLess(preg, likes)
 
     def test_both_lines_check_their_write(self):
         """Every other field in this writer fails the export on a short write."""
-        block = self.writer[self.writer.index('"  Pregnant: yes'):]
+        block = self.writer[self.writer.index('"  Nursing: yes'):]
         block = block[:block.index("Likes and dislikes")]
         self.assertEqual(block.count("return 0;"), 2,
                          "a pregnancy write is not checked")

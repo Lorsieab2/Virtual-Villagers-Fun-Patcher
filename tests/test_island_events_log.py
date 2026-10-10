@@ -93,17 +93,17 @@ class IslandEventsSource(unittest.TestCase):
                 self.assertIn(f'{{ "Expected father\'s body", 0x{body_:X}, F_INT, 0, 1 }}', text)
                 if name == "VV2_FIELDS":
                     # 0 for one baby, as A New Home: printed 1 while she is pregnant (+0x540).
-                    self.assertIn('{ "Babies in pregnancy", 0x544, F_BABIES, 0x540, 1 }', text)
-                    self.assertIn('{ "Pregnant", 0x540, F_FLAG, 0 }', text)
+                    self.assertIn('{ "Babies nursing", 0x544, F_BABIES, 0x540, 1 }', text)
+                    self.assertIn('{ "Nursing", 0x540, F_FLAG, 0 }', text)
                 else:
-                    self.assertIn(f'{{ "Babies in pregnancy", 0x{litter:X}, F_INT, 0, 1 }}', text)
-        self.assertIn('{ "Babies in pregnancy", 0x35C, F_BABIES, 0x358, 1 }', tables["VV1_FIELDS"])
-        self.assertIn('{ "Pregnant", 0x358, F_FLAG, 0 }', tables["VV1_FIELDS"])
+                    self.assertIn(f'{{ "Babies nursing", 0x{litter:X}, F_INT, 0, 1 }}', text)
+        self.assertIn('{ "Babies nursing", 0x35C, F_BABIES, 0x358, 1 }', tables["VV1_FIELDS"])
+        self.assertIn('{ "Nursing", 0x358, F_FLAG, 0 }', tables["VV1_FIELDS"])
         self.assertNotIn("Expected father", tables["VV1_FIELDS"])
         # The same four facts in every game but A New Home (which keeps no father on the mother).
         for name in ("VV2_FIELDS", "VV3_FIELDS", "VV4_FIELDS", "VV5_FIELDS"):
             labels = re.findall(r'\{ "([^"]+)", 0x[0-9A-F]+, F_\w+, \w+, 1 \}', tables[name])
-            self.assertEqual(labels, ["Babies in pregnancy", "Expected father", "Expected father's head",
+            self.assertEqual(labels, ["Babies nursing", "Expected father", "Expected father's head",
                                       "Expected father's body"], name)
 
     def test_the_offsets_are_the_parentage_exporters(self):
@@ -115,7 +115,7 @@ class IslandEventsSource(unittest.TestCase):
     def test_a_conception_prints_its_fields_whole(self):
         source = (NATIVE / "vvfp_island_events.c").read_text(encoding="utf-8")
         compare = body(source, "static void compare(struct snapshot *s)")
-        self.assertIn('if (f->type == F_FLAG && strcmp(f->label, "Pregnant") == 0) {', compare)
+        self.assertIn('if (f->type == F_FLAG && strcmp(f->label, "Nursing") == 0) {', compare)
         self.assertIn("if (conceived && f->conception) {", compare)
         text = body(source, "static void field_text(")
         self.assertIn("value = value == 3 ? 3 : value != 0 ? 2 : 1;", text)

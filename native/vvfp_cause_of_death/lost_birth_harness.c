@@ -185,7 +185,7 @@ static void run_game(void) {
                       babies > 1 ? "babies" : "baby");
             CHECK(has(find(departed_kind[path]), want), "game %d %s, %d baby/babies: the Nursing line",
                   game, paths[path], babies);
-            wsprintfA(want, "  Babies in pregnancy: %d\n", babies);
+            wsprintfA(want, "  Babies nursing: %d\n", babies);
             CHECK(count(9) == 1 && has(find(9), "  Mother: Ann\n    Head: 0\n    Body: 0\n")
                   && has(find(9), "  Father: Tamil\n    Head: 0\n    Body: 7\n") && has(find(9), want),
                   "game %d %s, %d baby/babies: Lost before birth names mother, father, babies", game,

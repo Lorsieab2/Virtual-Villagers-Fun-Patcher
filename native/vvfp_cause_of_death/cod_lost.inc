@@ -195,7 +195,7 @@ static void lost_record(const unsigned char *record, int babies, const char *how
     wsprintfA(before,
               "  Mother: %s\n    Head: %d\n    Body: %d\n"
               "  Father: %s\n    Head: %s\n    Body: %s\n"
-              "  Babies in pregnancy: %d\n"
+              "  Babies nursing: %d\n"
               "  What happened: the mother %s while nursing; never born\n",
               mother, *(const int *)(record + r->head), *(const int *)(record + r->body),
               father, fh, fb, babies, how);

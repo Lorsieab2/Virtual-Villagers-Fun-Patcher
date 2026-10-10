@@ -297,8 +297,8 @@ int main(void) {
     for (g_harness_game = 1; g_harness_game <= GAMES; ++g_harness_game) {
         struct game_layout layout = *GAME_LAYOUTS[g_harness_game];
         const struct field *research = field_named(&layout, "Research");
-        const struct field *pregnant = field_named(&layout, "Pregnant");
-        const struct field *babies = field_named(&layout, "Babies in pregnancy");
+        const struct field *pregnant = field_named(&layout, "Nursing");
+        const struct field *babies = field_named(&layout, "Babies nursing");
         const struct field *father = field_named(&layout, "Expected father");
         const struct field *father_head = field_named(&layout, "Expected father's head");
         const struct field *father_body = field_named(&layout, "Expected father's body");
@@ -368,11 +368,11 @@ int main(void) {
         }
         compare(&g_snaps[0]);
         CHECK(g_outs == 1 && g_out[0].record == slot(2)
-              && strstr(g_out[0].changes, "  Pregnant: no -> yes\n") != NULL
-              && strstr(g_out[0].changes, "  Babies in pregnancy: 2\n") != NULL,
+              && strstr(g_out[0].changes, "  Nursing: no -> yes\n") != NULL
+              && strstr(g_out[0].changes, "  Babies nursing: 2\n") != NULL,
               "a pregnancy the event starts: Pregnant and the babies");
         CHECK(g_outs == 1
-              && strstr(g_out[0].changes, "  Babies in pregnancy: 2\n  Expected father: Rongo\n"
+              && strstr(g_out[0].changes, "  Babies nursing: 2\n  Expected father: Rongo\n"
                                           "  Expected father's head: 3\n  Expected father's body: 7\n") != NULL
               && (g_harness_game == 1 ? father == NULL && father_head == NULL && father_body == NULL
                                       : father != NULL && father_head != NULL && father_body != NULL),
@@ -390,12 +390,12 @@ int main(void) {
         *(int *)(slot(2) + pregnant->offset) = g_harness_game == 2 ? 615 : 1;
         compare(&g_snaps[0]);
         CHECK(g_outs == 1 && g_out[0].record == slot(2)
-              && strstr(g_out[0].changes, "  Pregnant: no -> yes\n") != NULL
-              && strstr(g_out[0].changes, "  Babies in pregnancy: 1\n") != NULL
+              && strstr(g_out[0].changes, "  Nursing: no -> yes\n") != NULL
+              && strstr(g_out[0].changes, "  Babies nursing: 1\n") != NULL
               && strstr(g_out[0].changes, "  Expected father: Rongo\n") != NULL
               && strstr(g_out[0].changes, "  Expected father's head: 3\n") != NULL
               && strstr(g_out[0].changes, "  Expected father's body: 7\n") != NULL,
-              "a second conception by the same father, one baby: \"Babies in pregnancy: 1\" and the father again");
+              "a second conception by the same father, one baby: \"Babies nursing: 1\" and the father again");
         if (g_harness_game == 1) {
             /* 3d. A New Home with no father recorded for her (the companion
                answers an empty name and -1 / -1): no father line, never a stale one. */
@@ -405,7 +405,7 @@ int main(void) {
             begin();
             *(int *)(slot(2) + pregnant->offset) = 1;
             compare(&g_snaps[0]);
-            CHECK(g_outs == 1 && strcmp(g_out[0].changes, "  Pregnant: no -> yes\n  Babies in pregnancy: 1\n") == 0
+            CHECK(g_outs == 1 && strcmp(g_out[0].changes, "  Nursing: no -> yes\n  Babies nursing: 1\n") == 0
                   && g_vv1_queried == 2,
                   "A New Home with no conception recorded for her: no expected father printed (record 2 asked)");
             g_vv1_stash_index = 2;
@@ -417,8 +417,8 @@ int main(void) {
         *(int *)(slot(2) + babies->offset) = 3;
         compare(&g_snaps[0]);
         CHECK(g_outs == 1 && g_out[0].record == slot(2)
-              && strcmp(g_out[0].changes, "  Babies in pregnancy: 1 -> 3\n") == 0,
-              "a pregnancy's babies changed: \"Babies in pregnancy: 1 -> 3\" alone");
+              && strcmp(g_out[0].changes, "  Babies nursing: 1 -> 3\n") == 0,
+              "a pregnancy's babies changed: \"Babies nursing: 1 -> 3\" alone");
 
         /* 4. Stale bytes after a name's terminator. */
         begin();

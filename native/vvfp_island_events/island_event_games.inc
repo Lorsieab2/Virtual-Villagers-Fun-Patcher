@@ -82,7 +82,7 @@ static int vv5_villagers(unsigned char **out, int capacity) {
    its table has only the babies, and the expected father comes from the
    Show Parents companion's record of the conception (vv1_expected_father
    below), printed in the same three lines.  These fields are marked `conception`: when the
-   event makes a woman pregnant they are printed whole ("Babies in pregnancy:
+   event makes a woman pregnant they are printed whole ("Babies nursing:
    2", "Expected father: Rongo"), even when the last pregnancy left the same
    values there (compare() in vvfp_island_events.c).  A New Home and The Lost
    Children store 0 for one baby (F_BABIES prints it as 1 while she is
@@ -99,7 +99,7 @@ static int vv5_villagers(unsigned char **out, int capacity) {
    owner's VV2 save folders (the unpatched game's own of 2023 among them)
    every pregnant woman's +0x5C0 names a villager of
    the save whose own head and body are her +0x5E0 / +0x5DC (no mismatch),
-   and Topaz Temitope's +0x544 of 2 is the "Babies in pregnancy: 2" of her
+   and Topaz Temitope's +0x544 of 2 is the "Babies nursing: 2" of her
    conception in the owner's Births and Conceptions log, whose delivery the
    same log records as two Twin births.  The Gong of Wonder's pregnancies
    (its case 0x44EAA5) have no father: the game itself writes "?", head 0
@@ -111,8 +111,8 @@ static const struct field VV1_FIELDS[] = {
     { "Age", 0x348, F_INT, 0 },
     { "Sex", 0x350, F_SEX12, 0 },
     { "Sick", 0x354, F_FLAG, 0 },
-    { "Pregnant", 0x358, F_FLAG, 0 },
-    { "Babies in pregnancy", 0x35C, F_BABIES, 0x358, 1 },
+    { "Nursing", 0x358, F_FLAG, 0 },
+    { "Babies nursing", 0x35C, F_BABIES, 0x358, 1 },
     { "Head", 0x360, F_INT, 0 },
     { "Body", 0x364, F_INT, 0 },
     { "Name", 0x370, F_TEXT, 0x1C },
@@ -130,8 +130,8 @@ static const struct field VV2_FIELDS[] = {
     { "Age", 0x530, F_INT, 0 },
     { "Sex", 0x538, F_SEX12, 0 },
     { "Sick", 0x53C, F_FLAG, 0 },
-    { "Pregnant", 0x540, F_FLAG, 0 },
-    { "Babies in pregnancy", 0x544, F_BABIES, 0x540, 1 },
+    { "Nursing", 0x540, F_FLAG, 0 },
+    { "Babies nursing", 0x544, F_BABIES, 0x540, 1 },
     { "Expected father", 0x5C0, F_TEXT, 0x18, 1 },
     { "Expected father's head", 0x5E0, F_INT, 0, 1 },
     { "Expected father's body", 0x5DC, F_INT, 0, 1 },
@@ -164,8 +164,8 @@ static const struct field VV3_FIELDS[] = {
     { "Health", 0xE78, F_INT, 0 },
     { "Tribal Chief", 0xE80, F_BYTE_FLAG, 0 },
     { "Sick", 0xE89, F_BYTE_FLAG, 0 },
-    { "Pregnant", 0xE8C, F_FLAG, 0 },
-    { "Babies in pregnancy", 0xE90, F_INT, 0, 1 },
+    { "Nursing", 0xE8C, F_FLAG, 0 },
+    { "Babies nursing", 0xE90, F_INT, 0, 1 },
     { "Expected father", 0xE48, F_TEXT, 0x18, 1 },
     { "Expected father's head", 0xE68, F_INT, 0, 1 },
     { "Expected father's body", 0xE64, F_INT, 0, 1 },
@@ -193,8 +193,8 @@ static const struct field VV5_FIELDS[] = {
     { "Body", 0x1BBC, F_INT, 0 },
     { "Health", 0x1C40, F_INT, 0 },
     { "Sick", 0x1C48, F_BYTE_FLAG, 0 },
-    { "Pregnant", 0x1C4C, F_FLAG, 0 },
-    { "Babies in pregnancy", 0x1C50, F_INT, 0, 1 },
+    { "Nursing", 0x1C4C, F_FLAG, 0 },
+    { "Babies nursing", 0x1C50, F_INT, 0, 1 },
     { "Expected father", 0x1C10, F_TEXT, 0x18, 1 },
     { "Expected father's head", 0x1C30, F_INT, 0, 1 },
     { "Expected father's body", 0x1C2C, F_INT, 0, 1 },
@@ -225,8 +225,8 @@ static const struct field VV4_FIELDS[] = {
     { "Body", 0x1BBC, F_INT, 0 },
     { "Health", 0x1C40, F_INT, 0 },
     { "Sick", 0x1C48, F_BYTE_FLAG, 0 },
-    { "Pregnant", 0x1C4C, F_FLAG, 0 },
-    { "Babies in pregnancy", 0x1C50, F_INT, 0, 1 },
+    { "Nursing", 0x1C4C, F_FLAG, 0 },
+    { "Babies nursing", 0x1C50, F_INT, 0, 1 },
     { "Expected father", 0x1C10, F_TEXT, 0x18, 1 },
     { "Expected father's head", 0x1C30, F_INT, 0, 1 },
     { "Expected father's body", 0x1C2C, F_INT, 0, 1 },

@@ -509,7 +509,7 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
             b = all_blocks[k]
             if b.heading.startswith("Conception"):
                 mother = _sub_identity(b, "Mother")
-                babies = b.value("Babies in pregnancy")
+                babies = _babies_value(b)
                 if mother and babies and babies.isdigit():
                     last_babies[mother] = int(babies)
                 k += 1
@@ -621,6 +621,13 @@ def _golden_birth(arrived: Block, mother: tuple, father: tuple) -> str:
     return "\n".join(lines)
 
 
+def _babies_value(b: Block) -> str | None:
+    """A Conception's babies: "Babies nursing" (the owner, 2026-10-10: the games' own word), or
+    "Babies in pregnancy" as older logs say it."""
+    value = b.value("Babies nursing")
+    return value if value is not None else b.value("Babies in pregnancy")
+
+
 def _sub_identity(b: Block, label: str) -> tuple | None:
     """(name, head, body) of a Birth / Conception record's Mother or Father section."""
     at = None
@@ -679,7 +686,7 @@ def _lost_record(mother: tuple, father: tuple | None, babies: int, how: str) -> 
     fname, fhead, fbody = father if known else ("(unknown)", None, None)
     return "\n".join(["", LOST_HEADING, f"  Mother: {name}", f"    Head: {number(head)}", f"    Body: {number(body)}",
                       f"  Father: {fname}", f"    Head: {number(fhead)}", f"    Body: {number(fbody)}",
-                      f"  Babies in pregnancy: {babies}",
+                      f"  Babies nursing: {babies}",
                       f"  What happened: the mother {how} while nursing; never born",
                       "  Note: Recorded afterwards (her Conception had no Birth, and her "
                       f"{'Death' if how == 'died' else 'Disappeared'} record follows it)"])
@@ -753,7 +760,7 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
         records = gone.get(mother, [])
         if not records or mother in living:
             continue
-        babies = _as_int(conception.value("Babies in pregnancy")) or 1
+        babies = _as_int(_babies_value(conception)) or 1
         father = _sub_identity(conception, "Father")
         conceived = _as_int(_sub_value(conception, "Mother", "Age at conception"))
 

@@ -456,12 +456,12 @@ int main(int argc, char **argv) {
            Births and Conceptions log, unnumbered, every line the caller's. */
         CHECK(write_record(game, 9, rec(1), 1,
                            "  Mother: Bonedry\n    Head: 0\n    Body: 0\n  Father: (unknown)\n    Head: (unknown)\n"
-                           "    Body: (unknown)\n  Babies in pregnancy: 2\n", NULL, 0) == 1,
+                           "    Body: (unknown)\n  Babies nursing: 2\n", NULL, 0) == 1,
               "a Lost before birth record is written");
         CHECK(read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
               && strstr(text, "\r\nLost before birth\r\n  Mother: Bonedry\r\n    Head: 0\r\n    Body: 0\r\n"
                               "  Father: (unknown)\r\n    Head: (unknown)\r\n    Body: (unknown)\r\n"
-                              "  Babies in pregnancy: 2\r\n\r\n") != NULL,
+                              "  Babies nursing: 2\r\n\r\n") != NULL,
               "Lost before birth: in the Births and Conceptions log, unnumbered, the caller's lines only");
         CHECK(write_record(game, 9, rec(1), 1, "", NULL, 0) == 0, "...and refused with no lines");
         CHECK(read_deaths(game, 1) && strstr(text, "Lost before birth") == NULL, "...never in the Deaths log");

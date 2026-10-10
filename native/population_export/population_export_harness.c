@@ -356,9 +356,9 @@ static void run_game(const struct game *g, write_population_t write) {
        nothing to do with pregnancies. This is the history file, so not
        one of these lines may appear in it -- not even for Nina, who is
        genuinely carrying. */
-    CHECK(strstr(log, "Pregnant:") == NULL,
-          "the history prints no Pregnant line at all");
-    CHECK(strstr(log, "Babies in pregnancy:") == NULL,
+    CHECK(strstr(log, "Nursing:") == NULL && strstr(log, "Pregnant:") == NULL,
+          "the history prints no Nursing line at all");
+    CHECK(strstr(log, "Babies nursing:") == NULL,
           "the history prints no litter count");
 
     /* Nina is written, and it is only her PREGNANCY that is dropped:
@@ -403,7 +403,7 @@ static void run_game(const struct game *g, write_population_t write) {
 
     block = villager_block(log, 3, &length);
     CHECK(block != NULL, "roster: the carrying villager is present");
-    CHECK(block_has(block, length, "  Pregnant: yes"),
+    CHECK(block_has(block, length, "  Nursing: yes"),
           "roster: the carrying villager is marked pregnant");
     CHECK(block_has(block, length, "  Father: Papago"),
           "roster: the carrying villager's father IS named");
@@ -420,7 +420,7 @@ static void run_game(const struct game *g, write_population_t write) {
 
     block = villager_block(log, 4, &length);
     CHECK(block != NULL, "roster: the non-carrying villager is present");
-    CHECK(!block_has(block, length, "  Pregnant: yes"),
+    CHECK(!block_has(block, length, "  Nursing: yes"),
           "roster: the non-carrying villager is NOT marked pregnant");
     CHECK(!block_has(block, length, "  Father: Papago"),
           "roster: a STALE carrying-father is never printed");
@@ -493,19 +493,19 @@ static void run_vv1(write_population_t write) {
 
     block = villager_block(log, 3, &length);
     CHECK(block_has(block, length, "Name: Nina"), "roster: the carrying villager is present");
-    CHECK(block_has(block, length, "  Pregnant: yes"), "roster: the carrying villager is marked pregnant");
+    CHECK(block_has(block, length, "  Nursing: yes"), "roster: the carrying villager is marked pregnant");
     CHECK(block_has(block, length, "  Father: Papago\r\n    Head: 7\r\n    Body: 0\r\n")
           || block_has(block, length, "  Father: Papago\n    Head: 7\n    Body: 0\n"),
           "roster: her expected father, head and body, in the later games' shape");
 
     block = villager_block(log, 4, &length);
     CHECK(block_has(block, length, "Name: Zea"), "roster: the non-carrying villager is present");
-    CHECK(!block_has(block, length, "Pregnant: yes"), "roster: the non-carrying villager is NOT marked pregnant");
+    CHECK(!block_has(block, length, "Nursing: yes"), "roster: the non-carrying villager is NOT marked pregnant");
     CHECK(!block_has(block, length, "Father: Papago"), "roster: no father is printed for a woman not carrying");
 
     block = villager_block(log, 5, &length);
     CHECK(block_has(block, length, "Name: Lea"), "roster: the carrying villager with no recorded father is present");
-    CHECK(block_has(block, length, "  Pregnant: yes"), "roster: ...and marked pregnant");
+    CHECK(block_has(block, length, "  Nursing: yes"), "roster: ...and marked pregnant");
     CHECK(!block_has(block, length, "Father:"), "roster: ...with no Father block, as the later games print none for an unknown father");
     free(log);
 
