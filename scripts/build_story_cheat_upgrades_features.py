@@ -68,7 +68,7 @@ DESCRIPTION = (
     "this game. A custom title is kept per save slot in a file beside the saves and is "
     "removed by Start Over. "
     "A custom event can also ask a question with two choices: the player writes the question, "
-    "the two button labels and, for each button, one to four outcomes, each with its own chance, "
+    "the two button labels and, for each button, one to sixteen outcomes, each with its own chance, "
     "result text and changes (everything the event itself can change); clicking a button rolls "
     "one of its outcomes by those chances and makes only that outcome's changes. **A question "
     "with two choices can be queued only in a game whose own two-button island-event popup the "

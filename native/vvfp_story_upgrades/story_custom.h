@@ -66,6 +66,10 @@ enum { CE_FATE_NONE = 0, CE_FATE_KILL = 1, CE_FATE_VANISH = 2 };
 enum { CE_AMOUNT_NONE = 0, CE_AMOUNT_ADD = 1, CE_AMOUNT_SUBTRACT = 2, CE_AMOUNT_ZERO = 3 };
 enum { CE_TITLE_KEEP = 0, CE_TITLE_SET = 1, CE_TITLE_CLEAR = 2 };
 #define CE_MAX_AMOUNT 1000000
+/* The largest amount a food source or store may be set to where the game
+   puts no ceiling on it and nothing adds to it: the most the number box
+   reads (ui_number takes up to ten digits). */
+#define CE_MAX_STORE 1000000000
 
 /* One kind of new villager.  `count` of them are made. */
 typedef struct {
@@ -174,14 +178,23 @@ typedef struct {
    outcomes; when the button is clicked one outcome is rolled, weighted by
    the chances, and its ce_event (`effects`: its text is the RESULT text, its
    title is unused) is applied exactly as a plain custom event is.  Kept in
-   static storage only: a ce_choice is about half a megabyte. */
-#define CE_MAX_OUTCOMES 4
+   static storage only: a ce_choice is about two megabytes.
+
+   The owner wants as much flexibility as is safe.  Nothing in a game limits
+   the outcomes (they are this companion's own data), so a button has up to
+   CE_MAX_OUTCOMES; each chance is any weight from 1 while the button's
+   chances add up to at most CE_MAX_CHANCE_TOTAL, the largest bound every
+   game's own random routine draws exactly (rand() % n for n <= 0x7FFF:
+   A New Home 0x402F10, The Lost Children 0x4031A0, The Secret City
+   0x4032D0, The Tree of Life 0x4036D0, New Believers 0x403660; above it A
+   New Home scales a 15-bit number and a chance of 1 could never come up). */
+#define CE_MAX_OUTCOMES 16
 #define CE_BUTTON_BYTES 40              /* a button label, NUL included (New Believers: 38) */
-#define CE_MAX_CHANCE 100               /* chances are weights 1..CE_MAX_CHANCE */
+#define CE_MAX_CHANCE_TOTAL 0x7FFF      /* one button's chances (weights) add up to at most this */
 #define CE_LABEL_DEFAULT_WIDTH 12       /* a label's characters when the adapter sets none */
 
 typedef struct {
-    int chance;                          /* 1..CE_MAX_CHANCE, a weight */
+    int chance;                          /* a weight from 1; a button's add up to <= CE_MAX_CHANCE_TOTAL */
     ce_event effects;                    /* effects.text = the result text */
 } ce_outcome;
 

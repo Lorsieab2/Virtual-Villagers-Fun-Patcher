@@ -95,7 +95,12 @@ class ValueTests(unittest.TestCase):
         s.proc.stub(0x43AE80, lambda p: (farm[0], 4))
         return [(0, w + 0x17D58, None), (1, w + 0x17D5C, lambda: farm.__setitem__(0, 1))]
 
-    RANGES = {"vv1": [(0, 5000), (0, 800)], "vv2": [(0, 1500), (0, 2200), (0, 1000), (0, 800)],
+    # A New Home's berry bushes and The Lost Children's fish and field protection
+    # have no ceiling in the game (StoreCeilingEvidenceTests): the berries are
+    # held to what an event may add to food (1,000,000, since harvests turn
+    # them into food), the other two to the most the number box reads.
+    RANGES = {"vv1": [(0, 1_000_000), (0, 800)],
+              "vv2": [(0, 1500), (0, 1_000_000_000), (0, 1_000_000_000), (0, 800)],
               "vv3": [(0, 1000)] * 3 + [(0, 2)] * 3 + [(0, 3000)],
               "vv4": [(0, 1000), (0, 6), (0, 99)], "vv5": [(0, 1000), (0, 800)]}
 
@@ -145,6 +150,71 @@ class ValueTests(unittest.TestCase):
         w = s.village.world
         ok, r, _ = s.apply(Event(refill=1, values=[(0, 40)]))
         self.assertEqual(s.proc.u32(w + 0x170F8), 40)
+
+
+class StoreCeilingEvidenceTests(unittest.TestCase):
+    """Why three stores may be set far past their old caps: the stock game
+    itself puts no ceiling on them.  Every instruction of the stock
+    executable that touches the store is listed, and none caps it from above
+    (a ceiling is a compare with a constant and a store of that constant,
+    as The Tree of Life's 0x4203D4-0x4203E1 or The Lost Children's coconut
+    regrowth 0x43B9DA-0x43B9E2 are)."""
+
+    @staticmethod
+    def _touching(game, disp):
+        import capstone
+        import pefile
+        pe = pefile.PE(str(base.stock_path(game)), fast_load=True)
+        text = next(s for s in pe.sections if s.Name.rstrip(b"\0") == b".text")
+        va = pe.OPTIONAL_HEADER.ImageBase + text.VirtualAddress
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        md.detail = True
+        md.skipdata = True
+        out = []
+        for ins in md.disasm(text.get_data(), va):
+            if ins.id == 0:
+                continue
+            for op in ins.operands:
+                if op.type == capstone.x86.X86_OP_MEM and op.mem.disp == disp and op.mem.base != 0:
+                    out.append(ins)
+                    break
+        return out
+
+    def _writes(self, game, disp):
+        """(address, mnemonic, immediate or None) of every write to the store."""
+        import capstone
+        rows = []
+        for ins in self._touching(game, disp):
+            first = ins.operands[0]
+            if ins.mnemonic in ("mov", "add", "sub") and first.type == capstone.x86.X86_OP_MEM \
+                    and first.mem.disp == disp:
+                second = ins.operands[1]
+                rows.append((ins.address, ins.mnemonic,
+                             second.imm if second.type == capstone.x86.X86_OP_IMM else None))
+        return rows
+
+    def test_a_new_homes_berry_bushes_are_only_added_to_set_new_or_floored(self):
+        if not have_stock("vv1"):
+            self.skipTest("no stock executable")
+        writes = self._writes("vv1", 0xA2F4)
+        stored = {(m, imm) for _, m, imm in writes if m == "mov" and imm is not None}
+        self.assertEqual(stored, {("mov", 0x578), ("mov", 0x76C)}, "only a new village's 1400 / 1900")
+        reg_moves = [a for a, m, imm in writes if m == "mov" and imm is None]
+        # The register stores: Harvest / Locusts floors (ebx = 0 after a sub)
+        # and the read-add-write of North Wind and the Honeybees.
+        self.assertEqual(reg_moves, [0x419688, 0x427F39, 0x427FCC, 0x42841A, 0x42F2DE, 0x43ADAF])
+        self.assertIn((0x42EC0D, "add", 30), writes, "regrowth adds 30 with no cap")
+
+    def test_the_lost_childrens_fish_and_field_are_only_set_new_and_lowered(self):
+        if not have_stock("vv2"):
+            self.skipTest("no stock executable")
+        for disp, news in ((0x2EAD0, {0x226, 0x44C, 0x898}), (0x2EAD4, {0x3E8})):
+            with self.subTest(store=hex(disp)):
+                writes = self._writes("vv2", disp)
+                self.assertTrue(writes)
+                for address, mnemonic, imm in writes:
+                    self.assertTrue(mnemonic == "sub" or (mnemonic == "mov" and imm in news),
+                                    (hex(address), mnemonic, imm))
 
 
 # ---------------------------------------------------------------------------

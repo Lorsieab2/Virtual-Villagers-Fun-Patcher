@@ -1199,8 +1199,8 @@ static const char *ce_result_refusal(const ce_adapter *a, const ce_event *e, con
 
 /* Why outcome `o` cannot be part of an event titled `title`, or NULL. */
 static const char *ce_outcome_refusal(const ce_adapter *a, const ce_outcome *o, const char *title) {
-    if (o->chance < 1 || o->chance > CE_MAX_CHANCE) {
-        return "Each outcome's chance is 1 to 100.";
+    if (o->chance < 1) {
+        return "Each outcome's chance is at least 1.";
     }
     return ce_result_refusal(a, &o->effects, title);
 }
@@ -1214,6 +1214,7 @@ static const char *ce_buttons_refusal(const ce_adapter *a, const ce_choice *c, c
     int b;
     int k;
     for (b = 0; b < 2; ++b) {
+        long long total = 0;           /* each chance is at least 1 here, but any size */
         why = ce_label_refusal(a, c->labels[b]);
         if (why != NULL) {
             wsprintfA(reason, "%s: %s", BUTTON[b], why);
@@ -1229,6 +1230,12 @@ static const char *ce_buttons_refusal(const ce_adapter *a, const ce_choice *c, c
                 wsprintfA(reason, "%s, outcome %d: %s", BUTTON[b], k + 1, why);
                 return reason;
             }
+            total += c->outcomes[b][k].chance;
+        }
+        if (total > CE_MAX_CHANCE_TOTAL) {
+            wsprintfA(reason, "%s: its chances add up to more than %d. Lower one of them.", BUTTON[b],
+                      CE_MAX_CHANCE_TOTAL);
+            return reason;
         }
     }
     return NULL;

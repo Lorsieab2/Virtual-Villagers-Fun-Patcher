@@ -313,7 +313,7 @@ STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMEN
 CAPTION "Choices"
 FONT 9, "Segoe UI"
 BEGIN
-    LTEXT       "The player answers the question with one of two buttons. Each button has one to four outcomes; when it is clicked, one of them happens, picked by the chances.", -1, 8, 6, 424, 18
+    LTEXT       "The player answers the question with one of two buttons. Each button has one to sixteen outcomes; when it is clicked, one of them happens, picked by the chances.", -1, 8, 6, 424, 18
 
     GROUPBOX    "First button", -1, 8, 28, 210, 208
     LTEXT       "Label:", -1, 16, 42, 30, 10
@@ -323,7 +323,7 @@ BEGIN
     PUSHBUTTON  "Add...", 3721, 16, 154, 60, 14, WS_TABSTOP
     PUSHBUTTON  "Edit...", 3731, 82, 154, 60, 14, WS_TABSTOP
     PUSHBUTTON  "Remove", 3741, 148, 154, 62, 14, WS_TABSTOP
-    LTEXT       "Chance of the chosen outcome (1-100):", -1, 16, 175, 140, 10
+    LTEXT       "Chance of the chosen outcome (from 1):", -1, 16, 175, 140, 10
     EDITTEXT    3751, 160, 173, 50, 13, ES_NUMBER | WS_TABSTOP
     LTEXT       "", 3761, 16, 192, 194, 40
 
@@ -335,7 +335,7 @@ BEGIN
     PUSHBUTTON  "Add...", 3722, 230, 154, 60, 14, WS_TABSTOP
     PUSHBUTTON  "Edit...", 3732, 296, 154, 60, 14, WS_TABSTOP
     PUSHBUTTON  "Remove", 3742, 362, 154, 62, 14, WS_TABSTOP
-    LTEXT       "Chance of the chosen outcome (1-100):", -1, 230, 175, 140, 10
+    LTEXT       "Chance of the chosen outcome (from 1):", -1, 230, 175, 140, 10
     EDITTEXT    3752, 374, 173, 50, 13, ES_NUMBER | WS_TABSTOP
     LTEXT       "", 3762, 230, 192, 194, 40
 

@@ -1162,7 +1162,7 @@ __declspec(dllexport) const void *__stdcall VvfpStoryProbeObject(void) {
 
 /* The layout the tests pack choices in: sizeof ce_choice, sizeof
    ce_outcome, the offsets of .labels, .outcome_count and .outcomes,
-   CE_BUTTON_BYTES, CE_MAX_OUTCOMES, CE_MAX_CHANCE, CE_LABEL_DEFAULT_WIDTH,
+   CE_BUTTON_BYTES, CE_MAX_OUTCOMES, CE_MAX_CHANCE_TOTAL, CE_LABEL_DEFAULT_WIDTH,
    offsetof(ce_outcome, effects). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceSizes(int *out) {
     out[0] = (int)sizeof(ce_choice);
@@ -1172,7 +1172,7 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceSizes(int *out) {
     out[4] = (int)offsetof(ce_choice, outcomes);
     out[5] = CE_BUTTON_BYTES;
     out[6] = CE_MAX_OUTCOMES;
-    out[7] = CE_MAX_CHANCE;
+    out[7] = CE_MAX_CHANCE_TOTAL;
     out[8] = CE_LABEL_DEFAULT_WIDTH;
     out[9] = (int)offsetof(ce_outcome, effects);
 }
@@ -1201,7 +1201,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeRollIndex(const int *chances, 
 }
 
 /* `times` rolls of `button` of `choice` in `game` through the real random
-   source, counting each outcome in counts[0..3]. */
+   source, counting each outcome in counts[0..CE_MAX_OUTCOMES - 1]. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeRollMany(int game, const ce_choice *choice, int button,
                                                             int times, int *counts) {
     const ce_adapter *a = ce_adapter_for(game);

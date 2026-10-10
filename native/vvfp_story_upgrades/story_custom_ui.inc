@@ -1495,6 +1495,18 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
    main dialog's outcome mode, on the outcome's own changes.  1 when kept. */
 static void ui_choice_read_labels(HWND window);
 
+/* The sum of `button`'s chances, leaving out outcome `except` (-1: none). */
+static int ui_chance_total(int button, int except) {
+    int total = 0;
+    int k;
+    for (k = 0; k < ui.choice.outcome_count[button]; ++k) {
+        if (k != except) {
+            total += ui.choice.outcomes[button][k].chance;
+        }
+    }
+    return total;
+}
+
 static int ui_edit_outcome(HWND owner, int button, int index) {
     ce_outcome *o = &ui.choice.outcomes[button][index];
     int is_new = index >= ui.choice.outcome_count[button];
@@ -1516,7 +1528,8 @@ static int ui_edit_outcome(HWND owner, int button, int index) {
         o->effects = ui.draft;
         o->effects.title[0] = '\0';
         if (is_new) {
-            o->chance = 50;
+            int room = CE_MAX_CHANCE_TOTAL - ui_chance_total(button, -1);
+            o->chance = room < 50 ? room : 50;
             ++ui.choice.outcome_count[button];
         }
     }
@@ -1524,9 +1537,15 @@ static int ui_edit_outcome(HWND owner, int button, int index) {
     return answer == IDOK;
 }
 
-/* A percentage to one place: chance of total, rounded. */
-static int ui_percent(int chance, int total) {
-    return total > 0 ? (chance * 100 + total / 2) / total : 0;
+/* A share in whole percent, rounded; an outcome that can come up but rounds
+   to 0 says so ("under 1%"). */
+static void ui_share(char *out, int chance, int total) {
+    int percent = total > 0 ? (int)(((long long)chance * 100 + total / 2) / total) : 0;
+    if (percent == 0 && chance > 0) {
+        lstrcpyA(out, "under 1%");
+    } else {
+        wsprintfA(out, "%d%%", percent);
+    }
 }
 
 /* One button's outcomes list (each row: its share and its result text) and
@@ -1534,18 +1553,18 @@ static int ui_percent(int chance, int total) {
 static void ui_choice_fill(HWND window, int button, int select) {
     char row[96];
     char note[200];
-    char *p = note;
     int count = ui.choice.outcome_count[button];
-    int total = 0;
+    int total = ui_chance_total(button, -1);
     int k;
     int i;
-    for (k = 0; k < count; ++k) {
-        total += ui.choice.outcomes[button][k].chance;
-    }
     SendDlgItemMessageA(window, IDC_CC_LIST_FIRST + button, LB_RESETCONTENT, 0, 0);
     for (k = 0; k < count; ++k) {
         const ce_outcome *o = &ui.choice.outcomes[button][k];
-        int n = wsprintfA(row, "%d%%: ", ui_percent(o->chance, total));
+        int n;
+        ui_share(row, o->chance, total);
+        n = lstrlenA(row);
+        row[n++] = ':';
+        row[n++] = ' ';
         for (i = 0; o->effects.text[i] != '\0' && n < (int)sizeof row - 4; ++i) {
             char c = o->effects.text[i];
             if (c == '\r') {
@@ -1564,12 +1583,8 @@ static void ui_choice_fill(HWND window, int button, int select) {
     } else if (count == 1) {
         lstrcpyA(note, "One outcome: it always happens when this button is clicked.");
     } else {
-        p += wsprintfA(p, "Chances add up to %d:", total);
-        for (k = 0; k < count; ++k) {
-            p += wsprintfA(p, "%s outcome %d is %d%%", k == 0 ? "" : ",", k + 1,
-                           ui_percent(ui.choice.outcomes[button][k].chance, total));
-        }
-        lstrcpyA(p, ".");
+        wsprintfA(note, "%d outcomes; their chances add up to %d (at most %d). Each row shows its "
+                        "share.", count, total, CE_MAX_CHANCE_TOTAL);
     }
     SetDlgItemTextA(window, IDC_CC_NOTE_FIRST + button, note);
     ui.filling = 1;
@@ -1583,7 +1598,7 @@ static void ui_choice_fill(HWND window, int button, int select) {
     ui_enable(window, IDC_CC_CHANCE_FIRST + button, select >= 0 && select < count);
     ui_enable(window, IDC_CC_EDIT_FIRST + button, select >= 0 && select < count);
     ui_enable(window, IDC_CC_REMOVE_FIRST + button, select >= 0 && select < count);
-    ui_enable(window, IDC_CC_ADD_FIRST + button, count < CE_MAX_OUTCOMES);
+    ui_enable(window, IDC_CC_ADD_FIRST + button, count < CE_MAX_OUTCOMES && total < CE_MAX_CHANCE_TOTAL);
     ui.filling = 0;
 }
 
@@ -1643,11 +1658,12 @@ static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wpar
         for (b = 0; b < 2; ++b) {
             SendDlgItemMessageA(window, IDC_CC_LABEL_FIRST + b, EM_LIMITTEXT, (WPARAM)width, 0);
             SetDlgItemTextA(window, IDC_CC_LABEL_FIRST + b, ui.choice.labels[b]);
-            SendDlgItemMessageA(window, IDC_CC_CHANCE_FIRST + b, EM_LIMITTEXT, 3, 0);
+            SendDlgItemMessageA(window, IDC_CC_CHANCE_FIRST + b, EM_LIMITTEXT, 5, 0);
             ui_choice_fill(window, b, ui.choice.outcome_count[b] > 0 ? 0 : -1);
         }
-        wsprintfA(text, "A label is up to %d characters in %s. A chance is 1-100: each outcome's "
-                        "share is its chance out of the button's total.", width, ui.a->game_name);
+        wsprintfA(text, "A label is up to %d characters in %s. A chance is any number from 1; each "
+                        "outcome's share is its chance out of the button's total (at most %d).",
+                  width, ui.a->game_name, CE_MAX_CHANCE_TOTAL);
         SetDlgItemTextA(window, IDC_CC_LIMIT, text);
         ui_choice_fill_featured(window);
         return TRUE;
@@ -1670,7 +1686,14 @@ static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wpar
             if (id == IDC_CC_ADD_FIRST + b) {
                 int count = ui.choice.outcome_count[b];
                 if (count >= CE_MAX_OUTCOMES) {
-                    ui_message(window, "A button can have four outcomes at most.");
+                    char text[80];
+                    wsprintfA(text, "A button can have %d outcomes at most.", CE_MAX_OUTCOMES);
+                    ui_message(window, text);
+                } else if (ui_chance_total(b, -1) >= CE_MAX_CHANCE_TOTAL) {
+                    char text[120];
+                    wsprintfA(text, "This button's chances already add up to %d: lower one first.",
+                              CE_MAX_CHANCE_TOTAL);
+                    ui_message(window, text);
                 } else if (ui_edit_outcome(window, b, count)) {
                     ui_choice_fill(window, b, count);
                 }
@@ -1687,15 +1710,19 @@ static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wpar
             }
             if (id == IDC_CC_CHANCE_FIRST + b && code == EN_CHANGE && !ui.filling) {
                 int chance = ui_number(window, IDC_CC_CHANCE_FIRST + b);
-                if (sel >= 0 && chance >= 1 && chance <= CE_MAX_CHANCE) {
+                int most = sel >= 0 ? CE_MAX_CHANCE_TOTAL - ui_chance_total(b, sel) : 0;
+                if (sel >= 0 && chance >= 1 && chance <= most) {
                     ui.choice.outcomes[b][sel].chance = chance;
                     /* The rows and the note, without resetting the box being typed in. */
                     ui.filling = 1;
                     ui_choice_fill(window, b, sel);
-                    SendDlgItemMessageA(window, IDC_CC_CHANCE_FIRST + b, EM_SETSEL, 4, 4);
+                    SendDlgItemMessageA(window, IDC_CC_CHANCE_FIRST + b, EM_SETSEL, 5, 5);
                     ui.filling = 0;
                 } else if (sel >= 0) {
-                    SetDlgItemTextA(window, IDC_CC_NOTE_FIRST + b, "Type a chance from 1 to 100.");
+                    char text[120];
+                    wsprintfA(text, "Type a chance from 1 to %d (what this button's other outcomes "
+                                    "leave of %d).", most, CE_MAX_CHANCE_TOTAL);
+                    SetDlgItemTextA(window, IDC_CC_NOTE_FIRST + b, text);
                 }
                 return TRUE;
             }

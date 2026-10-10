@@ -4,8 +4,9 @@ The owner: "I want the player to be able to choose the outcomes.  Some
 buttons should have a chance of multiple outcomes too."
 
 A two-choice event is the custom event's title and QUESTION, two button
-labels, and for each button one to four OUTCOMES, each with a chance (a
-weight 1-100), its own result text and its own changes.  This file tests the
+labels, and for each button one to sixteen OUTCOMES, each with a chance (a
+weight from 1; one button's add up to at most 32767, the most every game's
+own rand() % n draws exactly), its own result text and its own changes.  This file tests the
 game-independent engine (native/vvfp_story_upgrades/story_custom.inc) in the
 test build of "VVFP Story Upgrades.dll", mapped beside each game's rendered
 executable in the emulator, exactly as tests/test_story_custom_island_event.py
@@ -59,7 +60,9 @@ from test_story_custom_island_event import (  # noqa: E402
     have_stock,
 )
 
-CHOICE_BUF = EVENT_BUF + 0x20000
+# A ce_choice (16 outcomes a button) is about 2 MB: it lies below the event
+# buffers, above the stack (esp starts at HEAP + 0x3000000 and grows down).
+CHOICE_BUF = EVENT_BUF - 0x400000
 COUNTS = SCRATCH + 0x800
 CAP_CHOICE = 0x04000000
 
@@ -183,7 +186,7 @@ class ChoiceLayoutTests(unittest.TestCase):
         sizes = struct.unpack("<10i", story.proc.read(SCRATCH, 40))
         labels = 2 * Choice.BUTTON_BYTES
         self.assertEqual(sizes, (Choice.SIZE, Outcome.SIZE, 4, 4 + labels, 4 + labels + 8,
-                                 Choice.BUTTON_BYTES, Choice.MAX_OUTCOMES, 100, 12, 4))
+                                 Choice.BUTTON_BYTES, Choice.MAX_OUTCOMES, 0x7FFF, 12, 4))
 
     def test_the_event_layout_is_unchanged(self):
         """ce_event (packed by every Custom Island Event test) is untouched."""
@@ -198,7 +201,8 @@ class ChoiceLayoutTests(unittest.TestCase):
 # The weighted roll
 # ---------------------------------------------------------------------------
 
-SPLITS = [(1,), (100,), (1, 1), (3, 1), (1, 99), (1, 2, 3, 4), (100, 1, 50, 7), (100, 100, 100, 100)]
+SPLITS = [(1,), (100,), (1, 1), (3, 1), (1, 99), (1, 2, 3, 4), (100, 1, 50, 7), (100, 100, 100, 100),
+          tuple(range(1, 17))]
 
 
 @emulated
@@ -226,14 +230,17 @@ class RollTests(unittest.TestCase):
         choice = Choice(outcomes=([_result("x", chance=c) for c in chances], [_result("y")]))
         p.write(CHOICE_BUF, choice.pack())
         p.export("VvfpStoryProbeRollMany", 3, CHOICE_BUF, 0, times, COUNTS)
-        return list(struct.unpack("<4i", p.read(COUNTS, 16)))
+        n = Choice.MAX_OUTCOMES
+        return list(struct.unpack(f"<{n}i", p.read(COUNTS, 4 * n)))
 
     def test_one_outcome_always_happens(self):
-        self.assertEqual(self._many((1,), 200), [200, 0, 0, 0])
-        self.assertEqual(self._many((100,), 200), [200, 0, 0, 0])
+        none = [0] * (Choice.MAX_OUTCOMES - 1)
+        self.assertEqual(self._many((1,), 200), [200] + none)
+        self.assertEqual(self._many((100,), 200), [200] + none)
 
     def test_the_real_source_gives_each_outcome_its_share(self):
-        for chances, times in (((3, 1), 4000), ((1, 1, 1, 1), 4000), ((1, 2, 3, 4), 5000)):
+        for chances, times in (((3, 1), 4000), ((1, 1, 1, 1), 4000), ((1, 2, 3, 4), 5000),
+                               ((1,) * 16, 3200), ((30000, 2767), 4000)):
             counts = self._many(chances, times)
             total = sum(chances)
             with self.subTest(chances=chances):
@@ -242,7 +249,7 @@ class RollTests(unittest.TestCase):
                     expected = times * c / total
                     sd = (times * (c / total) * (1 - c / total)) ** 0.5
                     self.assertLess(abs(counts[k] - expected), 6 * sd, (k, counts))
-                self.assertEqual(counts[len(chances):], [0] * (4 - len(chances)))
+                self.assertEqual(counts[len(chances):], [0] * (Choice.MAX_OUTCOMES - len(chances)))
 
 
 # ---------------------------------------------------------------------------
@@ -319,11 +326,14 @@ class ChoiceRefusalTests(unittest.TestCase):
             def with_left(*outcomes, counts=None):
                 return _choice(story, outcomes=(list(outcomes), [ok]), counts=counts)
             cases = [
-                (Choice(labels=("Yes", "No"), outcomes=([ok], [])), "Second button: give it one to 4 outcomes."),
-                (with_left(ok, counts=(5, 1)), "First button: give it one to 4 outcomes."),
-                (with_left(ok, _result("x", chance=0)), "First button, outcome 2: Each outcome's chance is 1 to 100."),
-                (with_left(_result("x", chance=101)), "outcome 1: Each outcome's chance is 1 to 100."),
-                (with_left(_result("x", chance=-5)), "Each outcome's chance is 1 to 100."),
+                (Choice(labels=("Yes", "No"), outcomes=([ok], [])), "Second button: give it one to 16 outcomes."),
+                (with_left(ok, counts=(17, 1)), "First button: give it one to 16 outcomes."),
+                (with_left(ok, _result("x", chance=0)), "First button, outcome 2: Each outcome's chance is at least 1."),
+                (with_left(_result("x", chance=-5)), "Each outcome's chance is at least 1."),
+                (with_left(_result("x", chance=32768)),
+                 "First button: its chances add up to more than 32767. Lower one of them."),
+                (with_left(*[_result("x", chance=2048)] * 16), "First button: its chances add up to more than 32767."),
+                (with_left(ok, _result("x", chance=0x7FFFFFFF)), "its chances add up to more than 32767."),
                 (with_left(_result("")), "First button, outcome 1: Give each outcome a result text."),
                 (with_left(_result(" \r\n ")), "Give each outcome a result text."),
                 (with_left(_result("(odd)")), "The result text may use letters"),
@@ -332,7 +342,8 @@ class ChoiceRefusalTests(unittest.TestCase):
             for choice, words in cases:
                 with self.subTest(game=game, words=words):
                     self.assertIn(words, _refusal(story, _question(), choice) or "")
-            for chances in ((1,), (100,), (1, 100, 50, 7)):
+            for chances in ((1,), (100,), (1, 100, 50, 7), (101,), (32767,), (32766, 1), (1,) * 16,
+                            (2047,) * 15 + (2062,)):
                 with self.subTest(game=game, chances=chances):
                     choice = with_left(*[_result("x", chance=c) for c in chances])
                     self.assertIsNone(_refusal(story, _question(), choice))
