@@ -439,6 +439,10 @@ class Edits:
     # realistically and logically possible should be by group with options to equalize"): GROUPS ->
     # {GROUP_FIELDS name -> value}, each over the tree's own setting for that group only (opt()).
     group_opts: dict[str, dict] = field(default_factory=dict)
+    # Saved since the Monstera leaf and the feather are drawn turned (SHAPE_BAKES); False: their portraits'
+    # turns, flips and sizes are still as they were before, and settle_shapes moves them on.
+    monstera_v2: bool = True
+    feather_v2: bool = True
 
     @staticmethod
     def path(folder: Path, game: int, slot: int) -> Path:
@@ -475,6 +479,8 @@ class Edits:
         out = cls(str(data.get("title", "")), str(data.get("subtitle", "")),
                   data.get("centre_heads", True) is not False)
         out.text_inside = data.get("text_inside") is True
+        out.monstera_v2 = data.get("monstera_v2") is True       # saved before: moved on (settle_shapes)
+        out.feather_v2 = data.get("feather_v2") is True
         out.fixed_face_size = data.get("fixed_face_size") is True
         out.turn_words = data.get("turn_words") is True
         out.flip_words = data.get("flip_words") is True
@@ -707,7 +713,8 @@ class Edits:
                 "line_moves": self.line_moves,
                 "generations": self.generations, "words": self.words, "marks": self.marks, "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers,
-                "group_opts": self.group_opts, "equal_sizes": self.equal_sizes}
+                "group_opts": self.group_opts, "equal_sizes": self.equal_sizes, "monstera_v2": self.monstera_v2,
+                "feather_v2": self.feather_v2}
 
 
 # The settings a group's portraits may have of their own (Edits.group_opts): only what is drawn inside
@@ -1074,7 +1081,7 @@ STYLE_KEYS = (
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
     "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
-    "label_line_reach", "marks", "group_opts", "equal_sizes",
+    "label_line_reach", "marks", "group_opts", "equal_sizes", "monstera_v2", "feather_v2",
 )
 
 
@@ -1090,6 +1097,10 @@ def styled(style: dict | None) -> "Edits":
     base = Edits().to_data()
     if isinstance(style, dict):
         base.update({key: value for key, value in style.items() if key in STYLE_KEYS})
+        shapes = style.get("shapes") if isinstance(style.get("shapes"), dict) else {}
+        for name in SHAPE_BAKES:                # a look remembered before, with that shape: moved on
+            if f"{name}_v2" not in style and name in shapes.values():
+                base[f"{name}_v2"] = False
     try:
         return Edits.from_data(base)
     except ValueError:
@@ -1392,12 +1403,79 @@ def shape_of(edits: Edits, village: gen.Village, p: gen.Person) -> str:
     return edits.entries.get(entry_key(village, p), {}).get("shape") or edits.shapes[group_of(p)]
 
 
+def _baked_turn(name: str, angle: float, flip_h: bool, flip_v: bool) -> tuple[float, bool]:
+    """A portrait's (turn, flip across) drawing a shape drawn turned (SHAPE_BAKES) as (angle, flip_h, flip_v)
+    drew it before: composed with the undoing of the shape's own turn and mirroring.  A flip up and down
+    is a flip across turned half round."""
+    degrees, mirrored = SHAPE_BAKES[name]
+    angle += 180.0 if flip_v else 0.0
+    if (flip_h != flip_v) == mirrored:          # mirrored as often as the shape: no flip left
+        return (angle - degrees) % 360, False
+    return (angle + degrees) % 360, True
+
+
+def _baked_size(name: str, size) -> list[float]:
+    """A frame's (width, height) drawing a shape drawn turned (SHAPE_BAKES) as (width, height) drew it before."""
+    b = BAKED[name]
+    s = math.sqrt(size[0] / b["old_w"] * size[1] / b["old_h"])
+    return [max(FRAME_MIN, min(FRAME_MAX, s * b["new_w"])), max(FRAME_MIN, min(FRAME_MAX, s * b["new_h"]))]
+
+
+def settle_shapes(edits: Edits, village: gen.Village) -> None:
+    """Edits saved before a shape was drawn turned (SHAPE_BAKES; its marker, Edits.<shape>_v2, False)
+    moved on once, so every portrait looks as it did (the owner, 2026-10-10): each such portrait's turn
+    and flips composed with the shape's own (_baked_turn) -- the owner's Monstera leaves, turned 45 and
+    flipped across, now neither -- and its sizes the box the same picture now fills (_baked_size)."""
+    for name in SHAPE_BAKES:
+        if not getattr(edits, f"{name}_v2"):
+            _settle_shape(edits, village, name)
+            setattr(edits, f"{name}_v2", True)
+
+
+def _settle_shape(edits: Edits, village: gen.Village, name: str) -> None:
+    old_sizes = {g: list(v) for g, v in edits.sizes.items()}
+    edits.sizes, edits.entries = dict(edits.sizes), dict(edits.entries)    # never a dictionary shared elsewhere
+    for g, size in old_sizes.items():
+        if edits.shapes.get(g) == name:
+            edits.sizes[g] = _baked_size(name, size)
+    done = set()
+    for p in village.people.values():
+        key = entry_key(village, p)
+        if key in done:
+            continue
+        done.add(key)
+        entry = dict(edits.entries.get(key, {}))
+        this = (entry.get("shape") or edits.shapes[group_of(p)]) == name
+        group_size = old_sizes.get(group_of(p))
+        group_this = edits.shapes[group_of(p)] == name
+        if group_size and "w" not in entry and "h" not in entry and this != group_this:
+            # The group's size, which the group's change (or not) would change for this one: their own.
+            entry["w"], entry["h"] = _baked_size(name, group_size) if this else group_size
+        elif this and ("w" in entry or "h" in entry):
+            b = BAKED[name]                     # the side not their own: the group's, else the shape's as it was
+            w, h = group_size or (NODE_H * round(b["old_w"] / b["old_h"], 3), NODE_H)
+            entry["w"], entry["h"] = _baked_size(name, (entry.get("w", w), entry.get("h", h)))
+        if this:
+            angle, flip_h = _baked_turn(name, entry.get("angle", 0.0), entry.get("flip_h", False),
+                                        entry.get("flip_v", False))
+            for flip in ("angle", "flip_h", "flip_v"):
+                entry.pop(flip, None)
+            if round(angle, 6) % 360:
+                entry["angle"] = round(angle, 6) % 360
+            if flip_h:
+                entry["flip_h"] = True
+        if entry:
+            edits.entries[key] = entry
+        else:
+            edits.entries.pop(key, None)
+
 def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = True,
                unscaled: bool = False, shrink: float = 1.0) -> tuple[float, float]:
     """A portrait frame's width and height: the villager's own (`own`), else their group's default
     size, else their shape's own proportions, a portrait tall -- shrunk to fit the page when the
     player asked (Edits.fit_width; `unscaled`: the sizes as the player set them)."""
-    gw, gh = edits.sizes.get(group_of(p)) or (natural_width(shape_of(edits, village, p)), NODE_H)
+    kind = shape_of(edits, village, p)
+    gw, gh = edits.sizes.get(group_of(p)) or (natural_width(kind), natural_height(kind))
     entry = edits.entries.get(entry_key(village, p), {}) if own else {}
     s = 1.0 if unscaled else shrink
     return entry.get("w", gw) * s, entry.get("h", gh) * s
@@ -1447,6 +1525,8 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     """The page laid out.  With Shrink to fit (Edits.fit_width), the portraits shrink until the whole
     page -- the generation labels, the widest row and the Other Members -- fits that width, or until
     they are as small as they go (SHRINK_MIN)."""
+    if edits is not None:
+        settle_shapes(edits, village)           # saved before a shape was drawn turned: moved on once
     lay = _layout(village, edits, page)
     e = lay.edits
     if not e.fit_width:
@@ -1502,7 +1582,10 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     # lots of portraits per page"); the gap between two portraits is the player's.
     shrink_now = 1.0
     shown = in_tree | set(others)
-    widest_frame = max([NODE_W] + [frame_size(edits, village, people[q], own=False)[0] for q in shown])
+    # A shape drawn turned (SHAPE_BAKES) spaced by its traced box, as before it was (the owner's trees keep their
+    # look); its drawing's real reach is measured as drawn (outline, drawn_reach), so none overlap.
+    widest_frame = max([NODE_W] + [own_box(shape_of(edits, village, people[q]),
+                                           *frame_size(edits, village, people[q], own=False))[0] for q in shown])
     # The Packed layouts close the player's gaps as the packing nears 100 (squeeze): touching there.
     tight = squeeze(edits)
     gap = edits.portrait_gap * (1 - tight)
@@ -1510,7 +1593,8 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         # Never so near that two portraits' drawings overlap: their borders' strokes (and a special
         # border's leaves, a mark) at least meet (frame_pad).
         gap = max(gap, 2 * max([0.0] + [frame_pad(edits, edits.entries.get(entry_key(village, people[q]), {}),
-                                                  group_of(people[q]), *frame_size(edits, village, people[q]))
+                                                  group_of(people[q]), *own_box(shape_of(edits, village, people[q]),
+                                                                                   *frame_size(edits, village, people[q])))
                                         for q in shown]))
     subgap = SUBGAP * (1 - tight)
     widest_row_n = max([len(r) for r in rows.values()] + [1])
@@ -1532,7 +1616,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             # Faces and words at one size: they may reach past a short frame -- counted as drawn.
             top, bottom = fixed_words_reach(probe, p, w, h)
             words = (-w / 2, w / 2, top, bottom)
-        return _profile(kind, w, h, entry.get("angle", 0.0), frame_pad(edits, entry, group_of(p), w, h), words)
+        return _profile(kind, w, h, entry.get("angle", 0.0), frame_pad(edits, entry, group_of(p), *own_box(kind, w, h)), words)
 
     # (A layout with no places yet, for measuring portraits' words as they will be drawn.)
     probe = Layout(village, rows, {}, {}, [], [], 0.0, 0.0, 0.0, edits=edits, shrink=shrink_now,
@@ -4483,6 +4567,15 @@ def _drawn_outlines() -> dict[str, list[tuple[float, float]]]:
             "leaf": _traced(leaf, (0, 0))}
 
 
+# Shapes drawn as the owner straightened them (2026-10-10): (degrees turned, mirrored across first), as a
+# portrait so turned and flipped drew it before.  The Monstera leaf as every leaf of the owner's tree was set
+# ("treat this current monstera position as straight up and horizontal"); the feather lying across, its tip
+# to the left and its quill to the right.  Each with a marker in the edits (Edits.<shape>_v2): a tree saved
+# before is moved on once (settle_shapes).
+SHAPE_BAKES = {"monstera": (45.0, True), "feather": (270.0, False)}
+BAKED: dict = {}                        # each one's traced box's and its own box's sides, the traced height 1 (_shells)
+
+
 def _shells() -> dict[str, tuple[list, list]]:
     """The owner's shells (2026-10-09, from their pictures): a scallop -- seven rounded lobes fanned
     over a hinge, a small ear either side below -- and a snail's shell, its last whorl round a
@@ -4525,6 +4618,20 @@ def _shells() -> dict[str, tuple[list, list]]:
         decor = value[2] if len(value) > 2 else []
         xs, ys = zip(*(edge + ([q for line in decor for q in line] if name in FIT_EVERYTHING else [])))
         x0, y0, w, h = min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)
+        if name in SHAPE_BAKES:
+            # Drawn as the owner straightened it (SHAPE_BAKES): mirrored across (when it is) and turned about
+            # its box's middle, as a portrait turned and flipped so drew it, then fitted about that middle,
+            # so the face and words stay where they were on it.  BAKED keeps the boxes' sides (the old box
+            # one tall), for own_box and for moving a tree saved before (settle_shapes).
+            degrees, mirrored = SHAPE_BAKES[name]
+            cx, cy, m = x0 + w / 2, y0 + h / 2, -1 if mirrored else 1
+            moved = lambda line: [turn(m * (x - cx) / h, (y - cy) / h, degrees) for x, y in line]
+            edge = moved(edge)[::-1] if mirrored else moved(edge)    # the same way round (outline())
+            lines, decor = [moved(line) for line in lines], [moved(line) for line in decor]
+            xs, ys = zip(*(edge + ([q for line in decor for q in line] if name in FIT_EVERYTHING else [])))
+            BAKED[name] = {"old_w": w / h, "old_h": 1.0, "new_w": 2 * max(map(abs, xs)), "new_h": 2 * max(map(abs, ys))}
+            x0, y0 = -BAKED[name]["new_w"] / 2, -BAKED[name]["new_h"] / 2
+            w, h = BAKED[name]["new_w"], BAKED[name]["new_h"]
         unit = lambda p: ((p[0] - x0) / w, (p[1] - y0) / h)
         fitted[name] = ([unit(p) for p in edge], [[unit(p) for p in line] for line in lines], w / h,
                         [[unit(p) for p in line] for line in decor])
@@ -5002,6 +5109,7 @@ def _more_shapes() -> dict:
         [(405, 1338), (560, 1390), (715, 1348)], [(960, 1563), (1010, 1560), (1058, 1527)])]
     scale = lambda line: [(x / 1920, y / 1920) for x, y in line]
     # The holes are inside the leaf: light, like the veins (the owner: words may cross them, not the edge).
+    # (Drawn turned: SHAPE_BAKES.)
     out["monstera"] = (scale(mon), [scale(v) for v in veins] + [scale(h) for h in holes])
 
     return out
@@ -5249,8 +5357,24 @@ SIZE_STEPS = (8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72, 96, 
 LINE_STEPS = (0.25, 0.5, 0.75, 1, 1.5, 2.2, 2.25, 3, 4.5, 6, 8, 10, 12, 16, 20)
 
 
+def own_box(kind: str, w: float, h: float) -> tuple[float, float]:
+    """A frame's shape's own length and width: the frame's, but a shape drawn turned (SHAPE_BAKES) its
+    traced box's, as it was before, in the box it now fills -- what a special border's leaves and a words'
+    room measure, so they are as they were."""
+    b = BAKED.get(base_kind(kind))
+    if b is None:
+        return w, h
+    return w * b["old_w"] / b["new_w"], h * b["old_h"] / b["new_h"]
+
+
+def natural_height(kind: str) -> float:
+    """A portrait tall; a shape drawn turned (SHAPE_BAKES) as tall as it reached turned so from a
+    portrait's height, so it is the size it was drawn turned (the owner's Monstera leaves, 2026-10-10)."""
+    return NODE_H * BAKED[kind]["new_h"] if kind in BAKED else NODE_H
+
+
 def natural_width(kind: str) -> float:
-    return NODE_H * ASPECTS[kind] if kind in ASPECTS else NODE_W
+    return natural_height(kind) * ASPECTS[kind] if kind in ASPECTS else NODE_W
 
 
 def shape_points(kind: str, x: float, y: float, w: float, h: float, radius: float = 0.0,
@@ -6124,7 +6248,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
         return NATURAL[part]
 
     if border == "rope":
-        thick = max(5.0, 0.07 * min(w, h))
+        thick = max(5.0, 0.07 * min(own_box(kind, w, h)))
         walk = _resample(outline_points, thick / 3)
         if not walk:
             return []
@@ -6143,7 +6267,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
                                (x1_ + nx1 * r, y1_ + ny1 * r)], _shade(colours[k], 0.6), 1.0))
         return items + _sticking_out(border, kind, frame, outline_points, thick, colour_of, flower_look)
 
-    size = size or max(6.0, 0.1 * min(w, h))         # a leaf's length: small, outside the portrait (a toe: its pad's)
+    size = size or max(6.0, 0.1 * min(own_box(kind, w, h)))         # a leaf's length: small, outside the portrait (a toe: its pad's)
     walk = _resample(outline_points, size / 8)
     if not walk:
         return []
@@ -6244,7 +6368,7 @@ def scheme_outline(e: "Edits", part: str, kind: str, frame: tuple, radius: float
     """An outline drawn in `part`'s colour scheme, piece by piece round it: a rainbow, or the colours by
     turns in even arcs."""
     x, y, w, h, angle = frame
-    walk = _resample(shape_points(kind, x, y, w, h, radius, angle), max(1.0, (w + h) / (pieces * 2)))
+    walk = _resample(shape_points(kind, x, y, w, h, radius, angle), max(1.0, sum(own_box(kind, w, h)) / (pieces * 2)))
     n = len(walk)
     if n < 2:
         return []
@@ -6370,7 +6494,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     # never turn (the owner: "shrink/grow with the frame, stay upright").
     # Measured against the shape's own natural size, never the group's: a villager sized on their own
     # kept a giant face when their group was made tiny (the owner, 2026-10-09: 8-pixel males, faces 4x).
-    w0, h0 = natural_width(base_kind(kind)), NODE_H
+    w0, h0 = natural_width(base_kind(kind)), natural_height(base_kind(kind))
     scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (round(fw, 3), round(fh, 3)) != (round(w0, 3), round(h0, 3)) else 1.0
     fixed = is_fixed(lay.edits, p)
     if fixed:
@@ -6482,6 +6606,13 @@ def text_room_points(room: str, kind: str, outline_points: list, frame: tuple) -
         return outline_points
     x, y, w, h, angle = frame
     cx, cy = x + w / 2, y + h / 2
+    base, flip_h, flip_v = _unflipped(kind)
+    if base in SHAPE_BAKES:
+        # The shape's own length and width, turned with it (own_box): its room as it was before it was
+        # drawn turned (the owner's trees look as they did).
+        w, h = own_box(kind, w, h)
+        degrees = SHAPE_BAKES[base][0]
+        angle = angle + (-degrees if flip_h != flip_v else degrees)
     if room == "rect":
         # The words may pass the drawn outline but stay within the shape's own width and height (the
         # owner, 2026-10-09): the frame's rectangle, a little in from its sides, or the oval filling it.

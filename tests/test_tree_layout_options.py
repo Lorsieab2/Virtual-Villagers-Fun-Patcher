@@ -61,6 +61,10 @@ class ShapeTests(unittest.TestCase):
                 self.assertIn(kind, ft.PORTRAIT_SHAPES)
                 pts = ft.outline(kind, 0, 0, 100, 100)
                 xs, ys = zip(*pts)
+                if kind in ft.SHAPE_BAKES:      # fitted about its middle (drawn turned): reaching one side each way
+                    self.assertAlmostEqual(min(min(xs), 100 - max(xs)), 0, delta=0.5)
+                    self.assertAlmostEqual(min(min(ys), 100 - max(ys)), 0, delta=0.5)
+                    continue
                 self.assertAlmostEqual(min(xs), 0, delta=0.5)
                 self.assertAlmostEqual(max(xs), 100, delta=0.5)
                 self.assertAlmostEqual(min(ys), 0, delta=0.5)

@@ -16,7 +16,8 @@ from test_tree_packed import LAYOUTS, big_village, off_page  # noqa: E402
 
 GAME = "Virtual Villagers - A New Home"
 OWNER_GROUPS = dict(shapes={"Male": "turtle_h", "Female": "monstera", "Upcoming": "butterfly"},
-                    sizes={"Male": [120.0, 95.9], "Female": [120.0, 125.1], "Upcoming": [120.0, 82.9]})
+                    sizes={"Male": [120.0, 95.9], "Female": [120.0, 125.1], "Upcoming": [120.0, 82.9]},
+                    monstera_v2=False)     # saved before the leaf was drawn turned: moved on, as the owner's
 MALE, FEMALE, BABY = 3, 4, 30
 
 
@@ -55,7 +56,7 @@ class FixedFaceSizeTests(unittest.TestCase):
         before, _lay = sizes(ft.Edits(**OWNER_GROUPS))
         self.assertLess(before[MALE][0], before[FEMALE][0], "as the owner saw: the males' faces smaller")
         self.assertEqual(before, sizes(ft.Edits(fixed_face_size=False, **OWNER_GROUPS))[0])
-        self.assertAlmostEqual(before[MALE][0] / before[FEMALE][0], 95.9 / 156 / (120 / ft.natural_width("monstera")),
+        self.assertAlmostEqual(before[MALE][0] / before[FEMALE][0], 95.9 / 156 / (120 / (156 * round(ft.BAKED["monstera"]["old_w"], 3))),  # the leaf as it was
                                delta=0.02)
 
     def test_kept_inside_the_shape_the_words_still_fit(self):
