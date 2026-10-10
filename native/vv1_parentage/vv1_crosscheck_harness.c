@@ -209,8 +209,17 @@ static void log_person(const char *label, const villager *v) {
     wsprintfA(logtext + lstrlenA(logtext), "  %s: %s\n    Head: %d\n    Body: %d\n", label, v->name, v->head, v->body);
 }
 
+/* Every other birth "Birth <n>", as v1.35.66 writes it, the rest an older
+   build's plain "Birth": the check reads both, mixed in one log. */
+static int births_logged;
 static void log_birth_of(const villager *child, const villager *mother, const villager *father) {
-    wsprintfA(logtext + lstrlenA(logtext), "Birth\n  Child: %s\n    Head: %d\n    Body: %d\n    Likes: (none)\n    Dislikes: (none)\n"
+    ++births_logged;
+    if (births_logged % 2 == 0) {
+        wsprintfA(logtext + lstrlenA(logtext), "Birth %d\n", births_logged);
+    } else {
+        lstrcatA(logtext, "Birth\n");
+    }
+    wsprintfA(logtext + lstrlenA(logtext), "  Child: %s\n    Head: %d\n    Body: %d\n    Likes: (none)\n    Dislikes: (none)\n"
               "  Skills:\n    Breeding   0\n    Building   0\n", child->name, child->head, child->body);
     if (mother) log_person("Mother", mother);
     if (father) log_person("Father", father);
@@ -1263,6 +1272,14 @@ int main(int argc, char **argv) {
         return 2;
     }
     lstrcpyA(g_docs, argv[1]);
+    /* A Birth record's first line: "Birth <n>" (v1.35.66) and an older log's "Birth" -- and nothing else. */
+    check(vv_is_birth_heading("Birth") && vv_is_birth_heading("Birth 1") && vv_is_birth_heading("Birth 79\r\n")
+          && vv_is_birth_heading("Birth\n"),
+          "\"Birth\" and \"Birth <n>\" both open a Birth record");
+    check(!vv_is_birth_heading("Births") && !vv_is_birth_heading("Birth ") && !vv_is_birth_heading("Birth x")
+          && !vv_is_birth_heading("Birth 12a") && !vv_is_birth_heading("  Birth") && !vv_is_birth_heading("Birthday 3")
+          && !vv_is_birth_heading(NULL),
+          "...and nothing else does");
     vv1_parents_path(sidecar, sizeof(sidecar), SLOT);
     vv1_xc_marker_path(marker, sizeof(marker), SLOT);
     vv1_xc_subfolder(births_dir, sizeof(births_dir), "Virtual Villagers Fun Patcher Logs", "Births and Conceptions", 80);

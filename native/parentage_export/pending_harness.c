@@ -338,10 +338,10 @@ int main(int argc, char **argv) {
           "a mother who died before the save is still logged");
     CHECK(strstr(logtext, "Conception 5\r\n  Mother: Ika\r\n") != NULL,
           "a mother renamed before the save is logged under the name she had");
-    CHECK(strstr(logtext, "Birth\r\n  Child: Mahu\r\n") != NULL, "the tribe's birth is kept");
-    CHECK(strstr(logtext, "Birth\r\n  Child: Epeli\r\n") != NULL,
+    CHECK(strstr(logtext, "Birth 1\r\n  Child: Mahu\r\n") != NULL, "the tribe's birth is kept, as Birth 1");
+    CHECK(strstr(logtext, "Birth 2\r\n  Child: Epeli\r\n") != NULL,
           "a child who grew and took up a like before the save is logged (Epeli)");
-    CHECK(strstr(logtext, "Birth\r\n  Child: Samoa\r\n") != NULL,
+    CHECK(strstr(logtext, "Birth 3\r\n  Child: Samoa\r\n") != NULL,
           "a child de-aged and restyled before the save is logged");
     CHECK(strstr(logtext, "Conception 5") < strstr(logtext, "Birth"), "held records keep their order");
     CHECK(noted("  Mother: Makawa\r\n") == 1 && noted("  Mother: Tufi\r\n") == 1,
@@ -568,8 +568,15 @@ int main(int argc, char **argv) {
             CHECK(strstr(text, "  Mother: Kuka\r\n") != NULL,
                   "VV%d: the tribe's conception is logged although every founder was renamed and restyled",
                   G[k].game);
-            CHECK(strstr(text, "Birth\r\n  Child: Epeli\r\n") != NULL,
-                  "VV%d: a child who grew, took up a like, was de-aged and restyled is logged", G[k].game);
+            {
+                /* "Birth <n>", numbered like a Conception (v1.35.66): the game's
+                   first Birth, but The Secret City's fourth (the three above). */
+                char want[64];
+                _snprintf(want, sizeof want, "Birth %d\r\n  Child: Epeli\r\n", G[k].game == 3 ? 4 : 1);
+                CHECK(strstr(text, want) != NULL,
+                      "VV%d: a child who grew, took up a like, was de-aged and restyled is logged as %.8s",
+                      G[k].game, want);
+            }
             CHECK(strstr(text, "  Mother: Makawa\r\n") != NULL
                   && strstr(text, "  Mother: Makawa\r\n") < strstr(text, "  Mother: Kuka\r\n"),
                   "VV%d: the simulation's conception is kept too, in order", G[k].game);

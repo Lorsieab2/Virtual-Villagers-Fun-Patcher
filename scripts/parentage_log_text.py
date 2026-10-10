@@ -19,7 +19,9 @@ Each statement is checked against native/parentage_export/parentage_export.c:
     for_birth);
   * the Birth fields: WriteParentageBirth prints the child's name, head, body,
     likes, dislikes and skills, and each parent's name, head and body;
-  * the Arrived records: KIND_ARRIVED, numbered by count_arrived_records and
+  * the Birth records are numbered "Birth <n>" like Conceptions (v1.35.66), by
+    count_running_records, which counts an older log's plain "Birth" too;
+  * the Arrived records: KIND_ARRIVED, numbered by count_running_records and
     filed like a Birth (native/shared/arrival_backfill.h has the format),
     found by "VVFP Cause of Death.dll" (cod_arrivals.inc).
 """

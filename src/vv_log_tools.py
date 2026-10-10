@@ -451,6 +451,31 @@ def _word_backup(folder: Path, path: Path) -> Path:
     raise LogToolError(f"{path.name} has too many backups already; nothing was changed in it.")
 
 
+def move_word_boundary(folder: Path, path: Path, game: int, moved) -> None:
+    """After a log file was rewritten in place with bytes added or taken (src/vv_log_additions.py),
+    its Like and Dislike Words boundary moved with them: `moved(offset)` is where the byte at
+    `offset` of the file as it was is now.  In every boundary file that records one (both are read
+    and the smaller taken: native/shared/log_words.h), a new last line.  None recorded, or 0, needs
+    nothing (the whole file old, or all of it the game's own words)."""
+    checker = load_checker()
+    key = checker.word_key(str(Path(path).relative_to(folder))).lower()
+    for dat in layout.places(folder, checker.LOG_WORDS.format(game=game)):
+        recorded = None
+        for line in dat.read_bytes().decode("utf-8", "replace").splitlines():
+            offset, tab, name = line.partition("\t")
+            if tab and name.lower() == key:
+                try:
+                    recorded = (int(offset), name)
+                except ValueError:
+                    continue
+        if recorded is None or recorded[0] <= 0:
+            continue
+        now = moved(recorded[0])
+        if now != recorded[0]:
+            with open(dat, "ab") as boundaries:
+                boundaries.write(f"{now}\t{recorded[1]}\r\n".encode("utf-8"))
+
+
 def fix_log_words(folder: Path, game: int) -> list[WordFix]:
     """Put the game's own like and dislike words into every log an older patcher wrote with the
     wrong list (scripts/vvfp_consistency_check.py old_words), with the game closed.

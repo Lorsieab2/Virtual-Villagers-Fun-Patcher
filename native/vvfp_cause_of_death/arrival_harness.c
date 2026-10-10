@@ -520,12 +520,14 @@ static void parented(int i, const char *name, int head, int body) {
     }
 }
 
-static int has_birth_backfill(const char *child, int head, int body) {
+/* `number`: its "Birth <n>" -- numbered like a Conception (v1.35.66), after the
+   older log's unnumbered Birth records, which count. */
+static int has_birth_backfill(const char *child, int head, int body, int number) {
     char want[256], looks[128];
     const char *at, *end;
     /* The child's sex (the owner: every villager in the logs shows it), then
        the looks. */
-    _snprintf(want, sizeof want, "Birth\r\n  Child: %s\r\n    Sex: ", child);
+    _snprintf(want, sizeof want, "Birth %d\r\n  Child: %s\r\n    Sex: ", number, child);
     _snprintf(looks, sizeof looks, "    Head: %d\r\n    Body: %d\r\n", head, body);
     /* Any record of the child that is the backfill's (a hand-written one
        of the same child may come first). */
@@ -607,7 +609,7 @@ static void quit_cases(void) {
         CHECK(done == 0 && strcmp(first, text) == 0 && !file_exists(bmarker),
               "quit: A New Home keeps no parents -- no Birth records to write at the quit");
     } else {
-        CHECK(done == 1 && has_birth_backfill("Kid", 4, 4) && count_of(text, "born before this log existed") == 1
+        CHECK(done == 1 && has_birth_backfill("Kid", 4, 4, 3) && count_of(text, "born before this log existed") == 1
               && file_exists(bmarker),
               "quit: the Birth record from the save is written there and then, and its marker");
     }
@@ -721,7 +723,7 @@ static void births_cases(void) {
     repair_births(game, 1, 1);
     save_done(1, buffer);
     read_into(path);
-    CHECK(has_birth_backfill("Kid", 4, 4) && has_birth_backfill("Sam", 2, 9),
+    CHECK(has_birth_backfill("Kid", 4, 4, 5) && has_birth_backfill("Sam", 2, 9, 7),
           "births: after Repair the save writes Kid's and Sam's Birth records from the save, marked"
           " \"Recorded afterwards (born before this log existed)\"");
     {
@@ -729,7 +731,7 @@ static void births_cases(void) {
         const char *end = k != NULL ? strstr(k, "\r\n\r\n") : NULL;
         if (k != NULL && end != NULL) printf("%.*s\n", (int)(end - k + 2), k - 7);
     }
-    CHECK(count_of(text, "  Child: Twin\r\n") == 2 && has_birth_backfill("Twin", 6, 6),
+    CHECK(count_of(text, "  Child: Twin\r\n") == 2 && has_birth_backfill("Twin", 6, 6, 6),
           "births: two Twins, one record: one more is written");
     CHECK(count_of(text, "  Child: Nishi\r\n") == 1 && strstr(text, "  Child: Huata\r\n") == NULL
           && strstr(text, "  Child: Arr\r\n") == NULL && strstr(text, "  Child: Pagan\r\n") == NULL,

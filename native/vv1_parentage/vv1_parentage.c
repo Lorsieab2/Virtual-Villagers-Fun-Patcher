@@ -152,6 +152,7 @@
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/patcher_files.h"  /* the patcher's folder; full-path, wide loads */
 #include "../shared/save_layout.h"    /* the save folder's names, and the move from older ones */
+#include "../shared/birth_heading.h"  /* "Birth <n>", or an older log's "Birth" */
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)   /* what 0x41D500 returns */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* lazily built villager array */

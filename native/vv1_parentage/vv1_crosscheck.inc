@@ -444,7 +444,7 @@ static int vv1_xc_finish(vv1_xc_log *log, vv1_xc_record *rec, int in_slot, int h
 
 /* One file's text, in the same blocks the owner's repair tool reads: a
    "Village:" line names the village (and slot) the following records belong
-   to; a record is "Birth" or "Conception <n>" up to the next blank line; a
+   to; a record is "Birth <n>" (an older log's "Birth") or "Conception <n>" up to the next blank line; a
    "Child:", "Mother:" or "Father:" line starts a person, whose first "Head:"
    and "Body:" lines after it are theirs, and a "Skills", "Babies in
    pregnancy" or "Note" line ends that person.  Returns 0 when memory ran out. */
@@ -489,7 +489,7 @@ static int vv1_xc_parse(vv1_xc_log *log, char *text, int slot) {
                         log->village_header = header;
                     }
                 } else if (line[0] != ' ') {
-                    if (lstrcmpA(line, "Birth") == 0) {
+                    if (vv_is_birth_heading(line)) {      /* "Birth <n>", or an older log's "Birth" */
                         rec.kind = 1;
                     } else if (vv1_xc_starts(line, "Conception")) {
                         rec.kind = 2;

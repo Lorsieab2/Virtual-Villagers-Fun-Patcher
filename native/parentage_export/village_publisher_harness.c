@@ -344,7 +344,7 @@ int main(int argc, char **argv) {
               "the Deaths log opens with the header and the held death");
         CHECK(read_births(game)
               && STARTS("Village: Publisher Tribe (Save 2)\r\n")
-              && strstr(text, "Birth\r\n  Child: Cala\r\n") != NULL,
+              && strstr(text, "Birth 1\r\n  Child: Cala\r\n") != NULL,
               "the Births and Conceptions log opens with the header and the held birth");
 
         /* 3: after the save, straight under the header. */
@@ -469,7 +469,7 @@ int main(int argc, char **argv) {
         CHECK(save_done != NULL, "the TEST build has the save entry");
         if (save_done != NULL) save_done(1, buffer);
         CHECK(read_births(3) && STARTS("Village: Early Tribe (Save 1)\r\n")
-              && strstr(text, "Birth\r\n  Child: Cala\r\n") != NULL,
+              && strstr(text, "Birth 1\r\n  Child: Cala\r\n") != NULL,
               "the save names the village and writes the held birth under it");
         CHECK(read_deaths(3) && STARTS("Village: Early Tribe (Save 1)\r\nDeath 1\r\n  Name: Bonedry\r\n"),
               "...and the held death");
@@ -544,7 +544,7 @@ int main(int argc, char **argv) {
     villager(2, "Cala", 300, 1, 2);
     load();
     CHECK(birth(3, "", -1, -1, "Ana", 3, 4, "Bo", 7, 9, rec(2)) == 1 && read_births(3)
-          && STARTS("Birth\r\n  Child: Cala\r\n"),
+          && STARTS("Birth 1\r\n  Child: Cala\r\n"),
           "a birth is written at once, unlabelled, as before");
     FreeLibrary(dll);
     free_table(3);

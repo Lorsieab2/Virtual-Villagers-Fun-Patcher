@@ -397,6 +397,15 @@ class LogRecord:
     born_as: int = 0           # a Birth's "Born as:" line: 1 single, 2 twin, 3 triplet (0: none)
 
 
+BIRTH_HEADING = re.compile(r"Birth(?: \d+)?")
+
+
+def is_birth_heading(text: str) -> bool:
+    """A Birth record's first line: "Birth <n>", numbered like a Conception (v1.35.66), or an older
+    log's plain "Birth" -- both are read everywhere."""
+    return BIRTH_HEADING.fullmatch(text.strip()) is not None
+
+
 def numbered(folder: Path, stem: str) -> list[Path]:
     files = []
     if folder.is_dir():
@@ -491,13 +500,14 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 m = re.match(r"\s*Born as:\s*(Single birth|Twin|Triplet|Golden Child)\s*$", line)
                 if m:
                     rec.born_as = {"Single birth": 1, "Twin": 2, "Triplet": 3, "Golden Child": 1}[m.group(1)]
-            if kind == "Birth" or kind.startswith("Conception"):
-                main = rec.child if kind == "Birth" else rec.mother
+            birth = is_birth_heading(kind)
+            if birth or kind.startswith("Conception"):
+                main = rec.child if birth else rec.mother
                 if (main is None or not main.name or main.head is None or main.body is None
                         or not whole(rec.mother) or not whole(rec.father) or not whole(rec.child)):
                     damaged_in.add(header)        # cut short: the game reads the whole log as unreadable
                     continue
-            if kind == "Birth" and rec.child:
+            if birth and rec.child:
                 rec.kind = "birth"
             elif kind.startswith("Conception") and rec.mother:
                 rec.kind = "conception"
@@ -1907,12 +1917,13 @@ def _block_people_after_heading(lines: list[str]) -> list[dict]:
         if p["name"]:
             people.append(p)              # no Head line (an older record): the lists may still tell
         return people
-    if first == "Birth" or first.startswith("Conception"):
+    birth = is_birth_heading(first)
+    if birth or first.startswith("Conception"):
         current = None
         for k, line in enumerate(lines):
             m = SEX_PERSON.match(line)
             if m:
-                if first == "Birth" and m.group(1) != "  Child":
+                if birth and m.group(1) != "  Child":
                     current = None
                     continue
                 current = {"name": m.group(2).strip(), "head": None, "body": None, "has": False,

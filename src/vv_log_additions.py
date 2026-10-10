@@ -44,10 +44,12 @@ CHECKED = {
     "golden": "the Golden Child's Arrived records, against the pregnancies with no Birth and the player's answers",
     "appearance": "the villagers whose look changed with no Appearance changed record, against the save, the "
                   "logs and the player's answers",
+    "birth_numbers": "the Birth records an older patcher wrote without a number, in the order they appear in "
+                     "every Births and Conceptions log file, after any numbered ones before them",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
-         "appearance": "Appearance changed record added"}
+         "appearance": "Appearance changed record added", "birth_numbers": "Birth number added"}
 FROM_NOW = "Only from now on (add nothing)"
 
 # The order the lines take under a villager's name (as the exporters print them).
@@ -70,6 +72,7 @@ class Insert:
     line: str | None = None                 # decided
     question: str | None = None             # ...or the answer decides
     by_answer: dict[str, str] = field(default_factory=dict)
+    replace: bool = False                   # `line` replaces line `after` instead of following it
 
 
 @dataclass
@@ -79,6 +82,7 @@ class Kind:
     inserts: list[Insert] = field(default_factory=list)
     questions: dict[str, Question] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
+    context: dict = field(default_factory=dict)  # birth_numbers: the game and slot it numbers again at apply
 
     @property
     def decided(self) -> int:
@@ -95,6 +99,12 @@ class Kind:
 
 PERSON_HEAD = re.compile(r"^(Villager \d+|Death \d+|Disappeared|Arrived \d+|Unaccounted \d+)\s*$")
 SNAPSHOT = re.compile(r"^=== .* -- (.*) ===\s*$")
+# A Birth record's first line: "Birth <n>" (v1.35.66, numbered like a Conception) or an older "Birth".
+BIRTH_HEAD = re.compile(r"^Birth(?: (\d+))?\s*$")
+
+
+def is_birth(heading: str) -> bool:
+    return BIRTH_HEAD.match(heading) is not None
 VILLAGE = re.compile(r"^Village: .*\(Save (\d)\)\s*$")
 # The game a file's name ("Virtual Villagers 3 Deaths Log 1.txt"), a History snapshot
 # ("=== Virtual Villagers 3 -- ...") or a Population page's title names.
@@ -497,12 +507,12 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
                     last_babies[mother] = int(babies)
                 k += 1
                 continue
-            if b.heading != "Birth":
+            if not is_birth(b.heading):
                 k += 1
                 continue
             mother = _sub_identity(b, "Mother")
             group = [b]
-            while k + len(group) < len(all_blocks) and all_blocks[k + len(group)].heading == "Birth" \
+            while k + len(group) < len(all_blocks) and is_birth(all_blocks[k + len(group)].heading) \
                     and _sub_identity(all_blocks[k + len(group)], "Mother") == mother \
                     and len(group) < 3:
                 group.append(all_blocks[k + len(group)])
@@ -546,7 +556,7 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
     every: list[Block] = []
     for path in paths:
         every += [b for b in blocks(path) if b.of(slot, game, villages)]
-    born = {b.value("Child", "  ") for b in every if b.heading == "Birth"}
+    born = {b.value("Child", "  ") for b in every if is_birth(b.heading)}
     for k, b in enumerate(every):
         if not (b.heading.startswith("Arrived") and b.value("Special villager") == "Golden Child"):
             continue
@@ -560,7 +570,7 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
                 mother, father = _sub_identity(c, "Mother"), _sub_identity(c, "Father")
                 if mother and father:
                     open_ = [o for o in open_ if o[0] != mother] + [(mother, father)]
-            elif c.heading == "Birth":
+            elif is_birth(c.heading):
                 mother = _sub_identity(c, "Mother")
                 open_ = [o for o in open_ if o[0] != mother]
         if not open_:
@@ -693,6 +703,28 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
     return kind
 
 
+def births_files(folder: Path, game: int) -> list[Path]:
+    """The game's Births and Conceptions log files, in order: the files the exporter counts when it
+    numbers a new Birth (native/parentage_export count_running_records)."""
+    checker = tools.load_checker()
+    return checker.numbered(Path(folder) / checker.LOGS / "Births and Conceptions",
+                            f"Virtual Villagers {game} Births and Conceptions Log")
+
+
+def plan_birth_numbers(folder: Path, game: int, slot: int) -> Kind:
+    """"Birth <n>" for the Birth records an older patcher wrote as just "Birth" (the owner, 2026-10-09:
+    numbered "for convenience like conceptions").  The exporter numbers a new Birth by the Birth
+    records already in the game's files -- every file, every village, numbered or not -- so an
+    unnumbered record gets the number it would have had: one more than the record before it, in
+    file order.  A numbered record keeps its number, and the count goes on from it."""
+    kind = Kind("birth_numbers", "Numbers on older Birth records, as Conceptions have")
+    kind.context = {"game": game, "slot": slot}
+    docs = {path: _Doc(path) for path in births_files(folder, game)}
+    for path, index, number in _number_births(folder, game, slot, docs):
+        kind.inserts.append(Insert(path, index, 0, line=f"Birth {number}", replace=True))
+    return kind
+
+
 def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     """Everything older records of this slot's village lack, kind by kind.  Reads only."""
     folder = Path(folder)
@@ -706,6 +738,7 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_born_as(folder, game, slot),
         plan_golden(folder, game, slot),
         plan_appearance(folder, game, slot),
+        plan_birth_numbers(folder, game, slot),
     ]
     return kinds
 
@@ -717,10 +750,11 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
 def resolve(kinds: list[Kind], chosen: set[str],
             answers: dict[str, str]) -> dict[Path, list[tuple[int, int, str, str]]]:
     """The lines to add, per file: (after, rank, line, kind id), for the ticked kinds and the
-    answers given."""
+    answers given.  Birth numbers are not among them: they are worked out again once the other
+    kinds' lines are in (a Golden Child's Birth added in the same repair is numbered too)."""
     out: dict[Path, list[tuple[int, int, str, str]]] = {}
     for kind in kinds:
-        if kind.id not in chosen:
+        if kind.id not in chosen or kind.id == "birth_numbers":
             continue
         for ins in kind.inserts:
             line = ins.line
@@ -731,26 +765,156 @@ def resolve(kinds: list[Kind], chosen: set[str],
     return out
 
 
+class _Doc:
+    """One log file being changed: its lines as read (each keeps its own line ending), the lines
+    added after them and the lines replaced -- so every byte offset of the file as read can be
+    followed into the file as written (the Like and Dislike Words boundaries)."""
+
+    def __init__(self, path: Path):
+        self.path = path
+        self.raw = path.read_bytes()
+        self.crlf = b"\r\n" in self.raw
+        parts = self.raw.decode("latin-1").split("\n")
+        self.lines = [p[:-1] if p.endswith("\r") else p for p in parts]
+        self.ends = ["\r" if p.endswith("\r") else "" for p in parts]
+        self.inserts: dict[int, list[list]] = {}          # after -> [[rank, text, kind id]]
+        self.replaced: dict[int, tuple[str, str]] = {}    # index -> (text, kind id)
+
+    @property
+    def changed(self) -> bool:
+        return bool(self.inserts or self.replaced)
+
+    def _added(self, items: list[list]) -> str:
+        eol = "\r\n" if self.crlf else "\n"
+        return "".join(text.replace("\n", eol) + eol for _rank, text, _kind in items)
+
+    def render(self) -> str:
+        out = []
+        last = len(self.lines) - 1
+        eol = "\r\n" if self.crlf else "\n"
+        for i, line in enumerate(self.lines):
+            out.append(self.replaced.get(i, (line,))[0] + self.ends[i])
+            items = sorted(self.inserts.get(i, []), key=lambda item: item[0])
+            if i < last:
+                out.append("\n" + self._added(items))
+            elif items:
+                out.append("".join(eol + text.replace("\n", eol) for _rank, text, _kind in items))
+        return "".join(out)
+
+    def moved(self, boundary: int) -> int:
+        """Where the byte at `boundary` of the file as read is in the file as written: every byte
+        added or taken before it moves it (text added AT it is after it -- written by this build)."""
+        at, shift = 0, 0
+        last = len(self.lines) - 1
+        for i, line in enumerate(self.lines):
+            if at >= boundary:
+                break
+            if i in self.replaced:
+                shift += len(self.replaced[i][0]) - len(line)
+            at += len(line) + len(self.ends[i]) + (1 if i < last else 0)
+            if i < last and at < boundary and i in self.inserts:
+                shift += len(self._added(self.inserts[i]))
+        return boundary + shift
+
+    def counts(self) -> dict[str, int]:
+        out: dict[str, int] = {}
+        for items in self.inserts.values():
+            for _rank, _text, kind in items:
+                out[kind] = out.get(kind, 0) + 1
+        for _text, kind in self.replaced.values():
+            out[kind] = out.get(kind, 0) + 1
+        for items in self.inserts.values():          # Birth numbers given to added records
+            for _rank, text, kind in items:
+                if kind != "birth_numbers" and getattr(text, "numbered", 0):
+                    out["birth_numbers"] = out.get("birth_numbers", 0) + text.numbered
+        return out
+
+
+class _Numbered(str):
+    """Added text whose Birth headings were given numbers (how many, for the Repairs log)."""
+    numbered = 0
+
+
+def _number_births(folder: Path, game: int, slot: int, docs: dict[Path, _Doc],
+                   apply: bool = False) -> list[tuple[Path, int, int]]:
+    """Every unnumbered Birth heading of this slot's village, with the number it gets: (file, line,
+    number).  Counted as the exporter counts (every Birth line in the game's files, in order, any
+    village); a numbered one sets the count.  With `apply`, the numbers are written into `docs`
+    (their lines replaced, added records' headings numbered)."""
+    villages = current_villages(folder, game, slot)
+    found = []
+    count = 0
+    for path in births_files(folder, game):
+        doc = docs.get(path)
+        if doc is None:
+            doc = docs[path] = _Doc(path)
+        owner: dict[int, Block] = {}
+        for b in blocks(path, doc.lines):
+            for i in range(b.start, b.start + len(b.lines)):
+                owner[i] = b
+        for i, line in enumerate(doc.lines):
+            ours = i in owner and owner[i].of(slot, game, villages)
+            m = BIRTH_HEAD.match(line)
+            if m:
+                if m.group(1) is not None:
+                    count = int(m.group(1))
+                else:
+                    count += 1
+                    if ours:
+                        found.append((path, i, count))
+                        if apply:
+                            doc.replaced[i] = (f"Birth {count}", "birth_numbers")
+            for item in sorted(doc.inserts.get(i, []), key=lambda it: it[0]):
+                sub = item[1].split("\n")
+                given = 0
+                for k, text in enumerate(sub):
+                    m = BIRTH_HEAD.match(text)
+                    if not m:
+                        continue
+                    if m.group(1) is not None:
+                        count = int(m.group(1))
+                    else:
+                        count += 1
+                        if ours and apply:
+                            sub[k] = f"Birth {count}"
+                            given += 1
+                if given:
+                    item[1] = _Numbered("\n".join(sub))
+                    item[1].numbered = given
+    return found
+
+
+def _move_boundaries(folder: Path, doc: _Doc) -> None:
+    """The file's Like and Dislike Words boundary, moved with the bytes before it
+    (native/shared/log_words.h): in every boundary file that records one (both are read, and the
+    smaller taken), a new last line.  No boundary recorded, or 0, needs nothing."""
+    named = GAME_IN_NAME.search(doc.path.name)
+    if named:
+        tools.move_word_boundary(folder, doc.path, int(named.group(1)), doc.moved)
+
+
 def apply(folder: Path, kinds: list[Kind], chosen: set[str],
           answers: dict[str, str]) -> dict[str, list[tools.WordFix]]:
     """Add the chosen kinds' lines, every file in one pass (the plan's line numbers are the
-    file's as read).  Each file is copied first, into Data\\Copies Made Before Repairs (never
-    replacing a copy), and
-    rewritten through a temporary file.  Returns, per kind, the files it added lines to."""
+    file's as read), then the Birth numbers when chosen.  Each file is copied first, into
+    Data\\Copies Made Before Repairs (never replacing a copy), rewritten through a temporary file,
+    and its Like and Dislike Words boundary moved with the bytes added before it.  Returns, per
+    kind, the files it added lines to."""
     folder = Path(folder)
     done: dict[str, list[tools.WordFix]] = {}
-    written = 0
+    docs: dict[Path, _Doc] = {}
     for path, adds in resolve(kinds, chosen, answers).items():
-        adds = sorted(set(adds), key=lambda a: (a[0], a[1]))
-        raw = path.read_bytes()
-        crlf = b"\r\n" in raw
-        lines = raw.decode("latin-1").replace("\r\n", "\n").split("\n")
-        # Highest line first; at one line, the highest rank first, so ranks read in order.
-        for after, _rank, line, _kind in reversed(adds):
-            lines.insert(after + 1, line)
-        text = "\n".join(lines)
-        if crlf:
-            text = text.replace("\n", "\r\n")
+        doc = docs.setdefault(path, _Doc(path))
+        for after, rank, line, kind_id in sorted(set(adds), key=lambda a: (a[0], a[1])):
+            doc.inserts.setdefault(after, []).append([rank, line, kind_id])
+    for kind in kinds:
+        if kind.id == "birth_numbers" and kind.id in chosen and kind.context:
+            _number_births(folder, kind.context["game"], kind.context["slot"], docs, apply=True)
+    written = 0
+    for path, doc in docs.items():
+        if not doc.changed:
+            continue
+        text = doc.render()
         backup = tools._word_backup(folder, path)
         temporary = path.with_name(path.name + ".tmp")
         try:
@@ -758,6 +922,7 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
                 copy.write(source.read())
             temporary.write_bytes(text.encode("latin-1"))
             os.replace(temporary, path)
+            _move_boundaries(folder, doc)
         except OSError as exc:
             try:
                 temporary.unlink()
@@ -766,7 +931,6 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
             raise tools.LogToolError(f"{path.name} could not be given its added lines ({exc}). "
                                      f"{written} log file(s) were given them before it.") from exc
         written += 1
-        for kind_id in sorted({a[3] for a in adds}):
-            count = sum(1 for a in adds if a[3] == kind_id)
+        for kind_id, count in sorted(doc.counts().items()):
             done.setdefault(kind_id, []).append(tools.WordFix(str(path.relative_to(folder)), count, backup.name))
     return done
