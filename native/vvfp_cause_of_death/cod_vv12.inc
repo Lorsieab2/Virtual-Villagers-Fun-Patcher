@@ -9,9 +9,15 @@
    A grave keeps only a name, a best skill and the age (VV1 manager+0xA31C,
    50 x 0x2C: name char[0x1C], best value +0x1C, job +0x20, age +0x24;
    VV2 world+0x2EB0C, 50 x 0x7C: name char[0x19], epitaph char[0x41] +0x19,
-   best value +0x6C, job +0x70, age +0x74).  0 age = empty.  The burial
-   always takes the lowest empty grave and nothing in either game removes or
-   moves one, so a grave's slot is its order of burial. */
+   best value +0x6C, job +0x70, age +0x74).  The games' own code calls a
+   grave with age 0 free (VV1's recount 0x41CF10 and its popup 0x436D62, which
+   closes itself; VV2's allocator 0x464CD0), so the popup and the epitaph box
+   follow that (cod_grave_entry).  Everything else here never reads a 0 age
+   as "no grave": 0 is a real age (the owner, 2026-10-09), and a villager
+   buried at age 0 still has a grave until the game's next burial reuses its
+   slot.  A grave that was never dug has no name (cod_backfill.inc).  The
+   burial always takes the lowest free grave and nothing in either game
+   removes or moves one, so a grave's slot is its order of burial. */
 struct grave_geometry {
     unsigned int owner;          /* the graves' owner, read from the villager table */
     unsigned int graves;         /* the table's offset in its owner */
@@ -515,8 +521,12 @@ static void cod_buried(int index, int found, int slot) {
     e.index = index;
     cod_event(&e);
     roster_departed(index, record);
+    /* `found` is the game's own word that the loop wrote a grave at `slot`.
+       Its age is never asked: a villager buried at age 0 has a grave with
+       age 0, and 0 is a real age (the owner, 2026-10-09: "0 is a valid value
+       for head, body and age") -- never "the graveyard was full". */
     grave = found ? cod_grave(slot) : NULL;
-    if (grave == NULL || *(const int *)(grave + GRV[g_game].age) == 0) {
+    if (grave == NULL) {
         cod_log_death(record, cause, NO_GRAVE_FULL, NULL);
         return;
     }
@@ -605,6 +615,10 @@ typedef void (__fastcall *text_fn)(void *renderer, int unused_edx, const char *t
    rest on the stack for the callee to pop -- the same call. */
 static const struct cod_entry *cod_grave_entry(int slot, const unsigned char *grave) {
     struct cod_event e;
+    /* The age test is the GAME's: A New Home's popup closes itself for a
+       grave whose age is 0 (0x436D62) and both games' graveyards call it
+       free, so it gets no cause line and no epitaph box.  Its Death record was still written at the
+       burial (cod_buried) and by the backfill (cod_backfill.inc). */
     if (grave == NULL || slot < 0 || slot >= GRAVES || *(const int *)(grave + GRV[g_game].age) == 0) {
         return NULL;
     }

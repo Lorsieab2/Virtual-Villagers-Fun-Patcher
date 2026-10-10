@@ -49,6 +49,20 @@ class GraveBackfillSource(unittest.TestCase):
         self.assertIn("SavedVillageHeader=_SavedVillageHeader@16",
                       (ROOT / "native" / "save_reset_export" / "save_reset_export.def").read_text(encoding="utf-8"))
 
+    def test_a_grave_at_age_0_is_a_grave(self):
+        # The owner, 2026-10-09: "for all 5 games, 0 is a valid value for head, body and age!!!!"
+        # A grave or Roster of the Dead entry is told by its name (every burial copies it there
+        # first), never by an age of 0: a villager buried at age 0 gets a Death record too.
+        source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")
+        gather = source[source.index("static int backfill_gather(void) {"):]
+        gather = gather[:gather.index("\n}\n")]
+        self.assertNotIn("age == 0", gather)
+        self.assertEqual(gather.count("if (!backfill_dug("), 2)
+        dug = source[source.index("static int backfill_dug("):]
+        dug = dug[:dug.index("\n}\n")]
+        self.assertIn("grave[0] != '\\0'", dug)
+        self.assertNotIn("age", dug.split("{", 1)[1])
+
     def test_only_a_record_on_disk_accounts_for_a_departure(self):
         # Codex, #524: a record from the grave that is only held for the save
         # (VV_GRAVE_QUEUED) is lost if the game ends first, so it must not

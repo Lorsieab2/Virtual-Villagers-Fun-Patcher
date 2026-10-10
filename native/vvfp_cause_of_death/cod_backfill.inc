@@ -224,6 +224,15 @@ static const unsigned char *backfill_gravestone(int place) {
     return (const unsigned char *)(uintptr_t)(VV3_GRAVESTONES + (unsigned int)place * VV3_GRAVESTONE_STRIDE);
 }
 
+/* Whether a grave (A New Home, The Lost Children) or a Roster of the Dead
+   entry (The Secret City to New Believers) holds a villager: its name, which
+   every burial copies there first.  Never its age: a villager buried at age
+   0 has a grave too, and 0 is a real age (the owner, 2026-10-09: "0 is a
+   valid value for head, body and age").  A place never dug is all zeros. */
+static int backfill_dug(const unsigned char *grave) {
+    return grave != NULL && grave[0] != '\0';
+}
+
 /* Every grave the village holds into facts[], in place order, with its
    fingerprint in fact_fp[]; the count, or -1 when the graves cannot be read
    now.  The cause and epitaph are added only to the graves not yet covered
@@ -239,7 +248,7 @@ static int backfill_gather(void) {
             const unsigned char *grave = cod_grave(place);
             vv_grave_fact *f = &facts[n];
             int age = *(const int *)(grave + GRV[g_game].age);
-            if (age == 0) {
+            if (!backfill_dug(grave)) {
                 continue;
             }
             memset(f, 0, sizeof *f);
@@ -257,7 +266,7 @@ static int backfill_gather(void) {
         vv_grave_fact *f = &facts[n];
         int age = *(const int *)(entry + V345[g_game].e_age);
         unsigned int capacity = v345_name_capacity();
-        if (age == 0) {
+        if (!backfill_dug(entry)) {
             continue;
         }
         memset(f, 0, sizeof *f);
