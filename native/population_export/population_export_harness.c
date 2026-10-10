@@ -265,6 +265,11 @@ static void run_game(const struct game *g, write_population_t write) {
     put_int(rec, g->body, 23);
     put_name(rec, g->parent_father_name, "", g->parent_name_cap);
     put_name(rec, g->parent_mother_name, "", g->parent_name_cap);
+    /* New Believers: the founder is a Heathen (faction byte +0x1CEC), an
+       ordinary blue one (role 0: no "Special villager" line tells him apart). */
+    if (g->id == 5) {
+        rec[0x1CEC] = 1;
+    }
 
     /* Villagers 3 and 4 reproduce, exactly, what was measured live in
        the owner's VV2 village: two women BOTH holding the same man in
@@ -334,6 +339,16 @@ static void run_game(const struct game *g, write_population_t write) {
     CHECK(!block_has(block, length, "Parents:"),
           "a villager with no recorded parents gets NO Parents block");
 
+    /* New Believers' Faction line, worded as the Unaccounted record words
+       it (cod_roster.inc); no other game has a faction, so none prints it. */
+    if (g->id == 5) {
+        CHECK(block_has(block, length, "  Faction: Heathen"), "the Heathen founder's Faction: Heathen");
+        block = villager_block(log, 1, &length);
+        CHECK(block != NULL && block_has(block, length, "  Faction: Believer"), "the child's Faction: Believer");
+    } else {
+        CHECK(strstr(log, "Faction:") == NULL, "no Faction line outside New Believers");
+    }
+
     /* THE HISTORY CARRIES NO PREGNANCY, ANYWHERE.
 
        The owner's rule: the history lists the parents of children and
@@ -393,6 +408,14 @@ static void run_game(const struct game *g, write_population_t write) {
           "roster: the carrying villager's father IS named");
     CHECK(block_has(block, length, "    Head: 7"),
           "roster: the carrying father's head");
+    if (g->id == 5) {
+        CHECK(block_has(block, length, "  Faction: Believer"), "roster: Faction: Believer");
+        block = villager_block(log, 2, &length);
+        CHECK(block != NULL && block_has(block, length, "  Faction: Heathen"), "roster: Faction: Heathen");
+        block = villager_block(log, 3, &length);
+    } else {
+        CHECK(strstr(log, "Faction:") == NULL, "roster: no Faction line outside New Believers");
+    }
 
     block = villager_block(log, 4, &length);
     CHECK(block != NULL, "roster: the non-carrying villager is present");

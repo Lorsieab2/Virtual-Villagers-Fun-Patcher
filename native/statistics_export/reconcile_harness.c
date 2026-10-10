@@ -24,9 +24,12 @@
      Births   (The Lost Children) twin conceptions: 2 here, 1 elsewhere
      counters villagers_buried=1; twins_birthed=0 (The Lost Children);
               chiefs_robed=0 (The Secret City)
-   Expected: A New Home, The Secret City and The Tree of Life add Ghost and
-   Edge; The Lost Children (the game counts its own elders) and New Believers
-   (its History cannot tell a Heathen) add none.  Villagers Buried 1 -> 2,
+              (New Believers: every block says "Faction: Believer", and two
+              more dead villagers mastered in every skill: Pagan, "Faction:
+              Heathen", and Unsure, with no Faction line)
+   Expected: A New Home, The Secret City, The Tree of Life and New Believers
+   add Ghost and Edge (never Pagan or Unsure); The Lost Children (the game
+   counts its own elders) adds none.  Villagers Buried 1 -> 2,
    Twins 0 -> 2, Chiefs 0 -> 1.
 
      1. The scan finds exactly that, lists it for the prompt and writes
@@ -243,14 +246,27 @@ static void write_save_file(void) {
     free(data);
 }
 
+/* New Believers' snapshots say each villager's faction (population_export.c);
+   `faction` overrides it for the next block only (NULL: the line left out, as
+   a snapshot written before it had none). */
+static const char *next_faction = "Believer";
+static int next_faction_set = 0;
+
 /* One villager block of a History snapshot. */
 static void history_villager(char *out, size_t cap, int number, const char *name, int value, int masters,
                              int parents) {
     char block[1024];
     unsigned int k;
     size_t len;
-    _snprintf(block, sizeof block, "Villager %d\r\n  Name: %s\r\n  Age: 500\r\n  Head: 1\r\n  Body: 2\r\n",
+    const char *faction = next_faction_set ? next_faction : "Believer";
+    next_faction_set = 0;
+    _snprintf(block, sizeof block, "Villager %d\r\n  Name: %s\r\n  Age: 500\r\n  Sex: Male\r\n",
               number, name);
+    if (game == 5 && faction != NULL) {
+        len = strlen(block);
+        _snprintf(block + len, sizeof block - len, "  Faction: %s\r\n", faction);
+    }
+    strcat(block, "  Head: 1\r\n  Body: 2\r\n");
     if (parents) {
         strcat(block, "  Parents:\r\n    Father: Pa\r\n      Head: 3\r\n      Body: 4\r\n"
                       "    Mother: Ma\r\n      Head: 5\r\n      Body: 6\r\n");
@@ -278,6 +294,16 @@ static void write_files(int buried, int twins, int chiefs) {
     history_villager(h, sizeof h, 4, "Near", 100, 2, 0);
     history_villager(h, sizeof h, 5, "Edge", master, 3, 0);
     history_villager(h, sizeof h, 6, "Edge2", master - 1, 4, 0);
+    /* New Believers: a dead Heathen with every skill mastered, and a villager
+       from a snapshot written before the Faction line -- neither proves an
+       elder (Heathens never count); elsewhere both are ordinary elders'
+       blocks with no faction, so they are given another village. */
+    if (game == 5) {
+        next_faction = "Heathen"; next_faction_set = 1;
+        history_villager(h, sizeof h, 7, "Pagan", 100, 6, 0);
+        next_faction = NULL; next_faction_set = 1;
+        history_villager(h, sizeof h, 8, "Unsure", 100, 6, 0);
+    }
     strcat(h, "\r\n=== Virtual Villagers -- 2026-09-02 10:00:00 ===\r\nVillage: Other Tribe (Save 1)\r\n\r\n");
     history_villager(h, sizeof h, 1, "Stranger", 100, 5, 0);
     strcat(h, "\r\n=== Virtual Villagers -- 2026-09-03 10:00:00 ===\r\nVillage: Recon Tribe (Save 1)\r\n\r\n");
@@ -442,7 +468,7 @@ int main(int argc, char **argv) {
     }
 
     for (game = 1; game <= 5; ++game) {
-        int elders_expected = game == 1 || game == 3 || game == 4;
+        int elders_expected = game != 2;
         int expect = 1 + (elders_expected ? 2 : 0) + (game == 2) + (game == 3);
         int found;
         g = &LAYOUTS[game - 1];
@@ -488,7 +514,7 @@ int main(int argc, char **argv) {
                   "Village Elders: Ghost and Edge (not Old, on the list; Alive, alive; Near, Edge2, Stranger)");
         } else {
             CHECK(strstr(prompt, "Village Elders") == NULL,
-                  "Village Elders: none (%s)", game == 2 ? "the game counts its own" : "Heathens cannot be told apart");
+                  "Village Elders: none (the game counts its own)");
         }
         if (game == 2) {
             CHECK(strstr(prompt, "Twins Birthed is 0, but the Births log records 2 twin pregnancies") != NULL,
@@ -536,6 +562,10 @@ int main(int argc, char **argv) {
             CHECK(strstr(text, "\tNear\t") == NULL && strstr(text, "\tEdge2\t") == NULL && strstr(text, "\tStranger\t") == NULL
                   && strstr(strstr(text, "\tOld\t") + 1, "\tOld\t") == NULL,
                   "no line for Near (2 masteries), Edge2 (under the threshold), Stranger (another village) or a second Old");
+            if (game == 5) {
+                CHECK(strstr(text, "\tPagan\t") == NULL && strstr(text, "\tUnsure\t") == NULL,
+                      "New Believers: no line for Pagan (a Heathen) or Unsure (no Faction line: proves nothing)");
+            }
             CHECK(strstr(text, "G\t-1\tOld\t\t\t1\t0") != NULL, "the existing line is kept as it was");
             {
                 int ghosts = 0;
