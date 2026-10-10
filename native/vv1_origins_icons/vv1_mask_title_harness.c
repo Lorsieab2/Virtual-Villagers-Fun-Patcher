@@ -106,6 +106,12 @@ static DWORD read_file(const char *p, unsigned char *buf, DWORD cap) {
 }
 
 int main(int argc, char **argv) {
+    /* The whole process's Documents is a throwaway %TEMP% folder: no harness ever
+       writes under the real Documents\LDW (the owner's rule, 2026-10-10). */
+    if (!harness_redirect_documents_process()) {
+        fprintf(stderr, "cannot redirect Documents to a throwaway folder; not running\n");
+        return 2;
+    }
     char exe[MAX_PATH], file[MAX_PATH], *base, *dot;
     static unsigned char good[8192], now[8192];
     DWORD good_n, now_n;

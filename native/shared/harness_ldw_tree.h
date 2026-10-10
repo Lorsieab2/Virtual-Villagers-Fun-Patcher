@@ -45,6 +45,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+#include "harness_redirect_documents.h"   /* the whole process's Documents is a %TEMP% folder */
 
 #ifndef HARNESS_LDW_DOCUMENTS
 #define HARNESS_LDW_DOCUMENTS(buffer) \
@@ -133,6 +134,14 @@ static void harness_ldw_tree_begin(void) {
     HANDLE mutex;
     int n;
     if (harness_ldw_ready) return;
+    /* NEVER THE REAL DOCUMENTS (the owner, 2026-10-10: the saves are read-only,
+       not even a harness's own folder may be written beside them).  Before
+       anything resolves Documents, the whole process is pointed at a
+       throwaway folder under %TEMP% (harness_redirect_documents.h); a process
+       that cannot be redirected does not run. */
+    if (!harness_redirect_documents_process()) {
+        harness_ldw_refuse(L"cannot redirect Documents to a throwaway folder", L"");
+    }
     if (!HARNESS_LDW_DOCUMENTS(docs)) harness_ldw_refuse(L"cannot resolve Documents", L"");
     if (GetModuleFileNameW(NULL, exe, HARNESS_LDW_PATH) == 0) {
         harness_ldw_refuse(L"cannot resolve this executable's name", L"");
