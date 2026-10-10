@@ -2182,8 +2182,9 @@ static int vv2_story_index(void *record) {
 }
 
 static int __stdcall vv2_story_slot(void) {
-    int slot = VV2_MASK_SLOT;
-    return slot >= 1 && slot <= 5 ? slot : 0;
+    /* Not the stub's VV2_MASK_SLOT alone: after every save-all it holds the
+       backup generation, slot + 20 (native/shared/game_save_slot.h). */
+    return vv_current_save_slot(2, VV2_MASK_SLOT);
 }
 
 static int __stdcall vv2_story_mask_get(void *record) {

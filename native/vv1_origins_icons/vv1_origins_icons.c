@@ -7,6 +7,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
@@ -2285,7 +2286,7 @@ static INT_PTR CALLBACK upgrade_dialog(
    own host after the include. */
 #if VV_STORY_GAME == 1
 static int __stdcall vv1_story_slot(void) {
-    return vv1_mask_current_slot();
+    return vv_current_save_slot(1, vv1_mask_current_slot());
 }
 
 static int __stdcall vv1_story_mask_get(void *record) {
