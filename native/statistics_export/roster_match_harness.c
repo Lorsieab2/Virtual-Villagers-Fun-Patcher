@@ -146,6 +146,41 @@ int main(void) {
     add(now, &now_n, 0, "New1", 0x91); add(now, &now_n, 1, "New2", 0x92); add(now, &now_n, 2, "Kai", 0x22);
     check(same(), "a fingerprint match is found even when a same-name row could be taken first");
 
+    /* The owner's The Lost Children village (V7Test, 2026-10-08): an
+       occupied record the roster never listed went, so every listed
+       villager came back one record lower -- neither at its old record nor
+       at its rank -- and Last Names had renamed them all and changed the
+       children's fingerprints (their parents' names).  The statistics,
+       stews and elders were moved aside as another village's. */
+    reset();
+    add(was, &was_n, 3, "Mem", 0xFD710198u); add(was, &was_n, 9, "Tapu", 0x8466C8DCu);
+    add(was, &was_n, 10, "Sutai", 0xDA5D205Fu); add(was, &was_n, 14, "Tonga", 0x2E85BF95u);
+    add(now, &now_n, 2, "Mem", 0xFD710198u); add(now, &now_n, 8, "Tapu Chinaka", 0x8466C8DCu);
+    add(now, &now_n, 9, "Sutai Makawee", 0xDA5D205Fu); add(now, &now_n, 13, "Tonga Makawee", 0xC29381B0u);
+    check(same(), "villagers moved down a record by a reload and renamed are still the same village");
+
+    reset();
+    for (i = 0; i < 20; ++i) {
+        add(was, &was_n, i + 5, "Old", 0x2000 + i);
+        add(now, &now_n, i, "New", i == 7 ? 0x2000 + 9 : 0x9000 + i);     /* one fingerprint coincides, lower */
+    }
+    check(!same(), "one fingerprint found at a lower record is not enough for a new village to keep the old files");
+
+    reset();
+    add(was, &was_n, 2, "Ata", 0x11); add(was, &was_n, 3, "Bea", 0x22); add(was, &was_n, 9, "Cai", 0x99);
+    add(now, &now_n, 5, "Ata", 0x11); add(now, &now_n, 6, "Bea", 0x22); add(now, &now_n, 0, "Dov", 0x77);
+    check(!same(), "a villager never moves UP a record: fingerprints at higher records do not count");
+
+    reset();
+    add(was, &was_n, 4, "Ata", 0x11);
+    add(now, &now_n, 1, "Ata Lani", 0x11); add(now, &now_n, 2, "Kai", 0x33);
+    check(same(), "the only recorded villager found moved down is the same village");
+
+    reset();
+    _snprintf_s(was[was_n++], ROW, _TRUNCATE, "4\tAta\t-"); _snprintf_s(was[was_n++], ROW, _TRUNCATE, "5\tBea\t-");
+    _snprintf_s(now[now_n++], ROW, _TRUNCATE, "1\tTui\t-"); _snprintf_s(now[now_n++], ROW, _TRUNCATE, "2\tRua\t-");
+    check(!same(), "villagers with nothing to fingerprint never match as moved down");
+
     printf("%d failure(s)\n", failures);
     return failures == 0 ? 0 : 1;
 }

@@ -853,6 +853,128 @@ int vvs_counter_value(const vvs_context *context, int kind, int *value) {
     return 1;
 }
 
+/* ------------------------------------------- what the game itself proves
+
+   A village played before the stew hook existed made stews the .dat never
+   saw. The games keep their own record of the recipes discovered, in the
+   save, and where that record PROVES a stew was made it raises the count --
+   never by an invented combination.
+
+   The Lost Children: the cook routine 0x425B90 (every stew passes it) picks
+   one of 18 recipes from the herb counts and, the first time each recipe is
+   cooked, sets the byte manager+0x2EAAC+recipe (0x4260A5, 0x4260D4) beside
+   Special Stews Found +0x2E520. A recipe covers several combinations, so a
+   flag proves ONE of them was made without saying which: each discovered
+   recipe none of whose combinations is in the .dat adds one, never more.
+   vvs_vv2_recipe is the routine's decision, in its order, on the counts of
+   herbs 0x30..0x35. */
+int vvs_vv2_recipe(int h1, int h2, int h3) {
+    int c[6] = { 0, 0, 0, 0, 0, 0 };
+    int herbs[3];
+    int t;
+    herbs[0] = h1; herbs[1] = h2; herbs[2] = h3;
+    for (t = 0; t < 3; ++t) {
+        if (herbs[t] < 0x30 || herbs[t] > 0x35) {
+            return -1;
+        }
+        ++c[herbs[t] - 0x30];
+    }
+#define H(n) c[(n) - 0x30]
+    if (H(0x30) == 3 || (H(0x30) == 2 && H(0x33))) return 0xB;
+    if ((H(0x30) == 2 && H(0x31) == 1) || (H(0x30) && H(0x31) && H(0x32))) return 0xC;
+    if ((H(0x30) && H(0x31) && H(0x34)) || (H(0x30) && H(0x32) && H(0x34))) return 3;
+    if (H(0x30) && H(0x32) && H(0x35)) return 8;
+    if (H(0x33) == 3 || (H(0x33) && H(0x34) && H(0x35))) return 0xE;
+    if (H(0x33) == 2 && H(0x31)) return 5;
+    if (H(0x33) == 2 && H(0x35)) return 0xF;
+    if (H(0x33) && H(0x31) && H(0x35)) return 0x10;
+    if ((H(0x33) && H(0x32) && H(0x35)) || (H(0x32) && H(0x35) == 2)) return 9;
+    if (H(0x31) == 3) return 0x12;
+    if ((H(0x32) == 2 && H(0x35)) || (H(0x32) && H(0x34) && H(0x35))) return 0xD;
+    if (H(0x34) == 3 || (H(0x34) == 2 && H(0x35))) return 0xA;
+    if (H(0x33) && H(0x34) == 2) return 0x11;
+    if (H(0x35) == 3 || (H(0x33) && H(0x35) == 2)) return 6;
+    if (H(0x30) && H(0x35) == 2) return 7;
+    if (H(0x31) == 2) return 2;
+    if (H(0x31)) return 4;
+    return 1;
+#undef H
+}
+
+#define VV2_RECIPE_FLAGS 0x2EAACu
+#define VV2_RECIPES 0x12
+
+static int vv2_recipes_unaccounted(const vvs_context *c, const game_layout *g, const stew_file *file) {
+    int covered[VV2_RECIPES + 1];
+    int identity, recipe, extra = 0;
+    int n = g->stew_herbs;
+    int a, b, d;
+    if (c->manager == NULL) {
+        return 0;
+    }
+    memset(covered, 0, sizeof covered);
+    for (d = 0; d < n; ++d) {
+        for (b = 0; b <= d; ++b) {
+            for (a = 0; a <= b; ++a) {
+                identity = multiset_rank(a, b, d);
+                recipe = vvs_vv2_recipe(a + g->stew_first, b + g->stew_first, d + g->stew_first);
+                if (file->present[identity] && recipe >= 1 && recipe <= VV2_RECIPES) {
+                    covered[recipe] = 1;
+                }
+            }
+        }
+    }
+    for (recipe = 1; recipe <= VV2_RECIPES; ++recipe) {
+        if (c->manager[VV2_RECIPE_FLAGS + recipe] != 0 && !covered[recipe]) {
+            ++extra;
+        }
+    }
+    return extra;
+}
+
+/* The Secret City: the Alchemy Lab's recipe book, the object 0x59454C. Its
+   entries are 0x18 bytes from +0x18 (herbs at +0x20/+0x24/+0x28, the
+   discovered byte at +0x2C), the count at +0x978 (at most 100). The byte is
+   set only by 0x430510, whose only caller 0x430AAC runs after the brew
+   succeeded, and the save keeps the bytes (0x430110 writes them, 0x4300C0
+   reads them back): each one is an exact combination this village made.
+   (The Tree of Life's book sets its byte at the LOOKUP 0x42ECE1, before the
+   brew can still fail at 0x42EE43, so its bytes prove nothing.)
+
+   The book's reset 0x4305A0 (its first virtual method) empties it and
+   registers the 77 stock recipes again, so the bytes are this village's.
+   Only those 77 are read: an entry past them was added at run time (a
+   combination with herb 0x24, 0x43053E) and after a reload its herbs are
+   whatever the memory held, never this village's proof. */
+#define VV3_RECIPE_BOOK 0x19454Cu
+#define VV3_STOCK_RECIPES 77
+
+static void vv3_book_stews(const vvs_context *c, stew_file *file) {
+    const unsigned char *book;
+    int count, i;
+    if (c->module == NULL) {
+        return;
+    }
+    book = c->module + VV3_RECIPE_BOOK;
+    count = read_dword(book, 0x978u);
+    if (count < 0 || count > 100) {
+        return;
+    }
+    if (count > VV3_STOCK_RECIPES) {
+        count = VV3_STOCK_RECIPES;
+    }
+    for (i = 0; i < count; ++i) {
+        const unsigned char *entry = book + (unsigned int)i * 0x18u;
+        if (entry[0x2C] != 0) {
+            int identity = vvs_stew_identity(GAME_VV3, read_dword(entry, 0x20u),
+                                             read_dword(entry, 0x24u), read_dword(entry, 0x28u), 0);
+            if (identity >= 0) {
+                file->present[identity] = 1;
+            }
+        }
+    }
+}
+
 int vvs_stews_value(const vvs_context *context, int *value) {
     static stew_file file;
     const game_layout *g;
@@ -874,8 +996,14 @@ int vvs_stews_value(const vvs_context *context, int *value) {
     if (block != NULL) {
         merge_pending_stews(g, block + g->stew_bits, &file);
     }
+    if (g->game_id == GAME_VV3) {
+        vv3_book_stews(context, &file);
+    }
     for (identity = 0; identity < MAX_STEW_IDENTITIES; ++identity) {
         total += file.present[identity];
+    }
+    if (g->game_id == GAME_VV2) {
+        total += vv2_recipes_unaccounted(context, g, &file);
     }
     *value = total;
     return 1;

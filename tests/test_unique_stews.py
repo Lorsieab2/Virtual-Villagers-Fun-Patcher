@@ -901,9 +901,59 @@ class StoreSourceTests(unittest.TestCase):
                      "VV3 A:", "VV3 D:", "VV3 E:", "VV4 G:", "VV4 E:",
                      "a corrupt file invents no discoveries", "each flush is the union",
                      "the atomic replace leaves no .tmp", "an unreadable file is left alone",
-                     "increment -> PreSave", "reloading an older save does not double count"):
+                     "increment -> PreSave", "reloading an older save does not double count",
+                     # The owner's VV2/VV3 villages showed 0 stews (Special Stews Found 1).
+                     "[PASS] VV2 recipes are the cook routine's own decision",
+                     "[PASS] every VV2 combination is one of the 18 recipes",
+                     "[PASS] a recipe the game discovered before the hook counts as one stew",
+                     "[PASS] each discovered recipe the .dat has no combination of adds exactly one",
+                     "[PASS] the game's flags are never written into the .dat as invented combinations",
+                     "[PASS] each stock recipe the book marks discovered is one stew",
+                     "[PASS] a combination in both the book and the .dat counts once"):
             with self.subTest(case=name):
                 self.assertIn(name, result.stdout)
+
+
+STOCK = ROOT / "research" / "stock-executables"
+
+
+def _stock_bytes(title: str, va: int, size: int) -> bytes:
+    path = STOCK / f"Virtual Villagers - {title}.exe"
+    if not path.is_file():
+        raise unittest.SkipTest(f"stock executable absent: {path.name}")
+    data = path.read_bytes()
+    return data[va - 0x400000: va - 0x400000 + size]
+
+
+class GameStewRecordsTests(unittest.TestCase):
+    """The game records statistics_store.c reads for stews made before the hook."""
+
+    def test_vv2_cook_routine_flags_each_discovered_recipe(self):
+        # mov byte [esi+eax+0x2EAAC], 1 / mov byte [esi+edx+0x2EAAC], 1, then inc Special Stews +0x2E520.
+        self.assertEqual(_stock_bytes("The Lost Children", 0x4260A5, 8).hex(), "c68406acea020001")
+        self.assertEqual(_stock_bytes("The Lost Children", 0x4260D4, 8).hex(), "c68416acea020001")
+        self.assertEqual(_stock_bytes("The Lost Children", 0x4260DC, 6).hex(), "ff8620e50200")
+
+    def test_vv3_book_flag_is_set_only_after_a_successful_brew(self):
+        # 0x430510: mov byte [edi+0x2C], 1 -- and its only caller is the success path 0x430AAC.
+        self.assertEqual(_stock_bytes("The Secret City", 0x43055E, 4).hex(), "c6472c01")
+        self.assertEqual(_stock_bytes("The Secret City", 0x430AAC, 5).hex(), "e85ffaffff")
+        self.assertEqual(_stock_bytes("The Secret City", 0x430A9C, 2).hex(), "7e4f")   # failure skips it
+
+    def test_vv3_book_registers_77_stock_recipes(self):
+        code = _stock_bytes("The Secret City", 0x4305A0, 0x430A44 - 0x4305A0)
+        calls = 0
+        for i in range(len(code) - 5):
+            if code[i] == 0xE8:
+                target = 0x4305A0 + i + 5 + int.from_bytes(code[i + 1:i + 5], "little", signed=True)
+                calls += target == 0x430480
+        self.assertEqual(calls, 77)
+        self.assertIn("#define VV3_STOCK_RECIPES 77", STORE.read_text(encoding="utf-8"))
+
+    def test_vv4_book_flag_is_set_at_lookup_so_it_is_not_used(self):
+        # 0x42ECE1 mov byte [eax+0x34], 1 runs in the lookup, before the brew can fail at 0x42EE43.
+        self.assertEqual(_stock_bytes("The Tree of Life", 0x42ECE1, 4).hex(), "c6403401")
+        self.assertNotIn("VV4_RECIPE_BOOK", STORE.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

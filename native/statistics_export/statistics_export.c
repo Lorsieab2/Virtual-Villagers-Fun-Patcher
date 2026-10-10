@@ -402,8 +402,12 @@ static int vv1_village_elders(const unsigned char *manager) {
    The identities are recorded at the moment the game completes a stew, by the
    hooks in scripts/build_statistics_features.py; see statistics_store.c for
    the identity mapping and the file format. A village played before this
-   build has no record of which stews it made, so its count starts at zero
-   rather than at an invented figure. */
+   build has no .dat record of which stews it made, and no combination is
+   ever invented for it; where the game's own save proves stews were made --
+   The Lost Children's discovered-recipe flags, The Secret City's recipe
+   book -- the count is raised to what it proves (vvs_stews_value). The Tree
+   of Life's book proves nothing (its flag is set before the brew can fail),
+   so its count starts at zero. */
 static int stews_found(void) {
     int value = 0;
     if (!vvs_stews_value(&g_store, &value)) {
@@ -499,11 +503,20 @@ static int write_vv2(
        triplets test). This is the .dat total, started from the frozen
        counter +0x2E5D8.
 
+       Triplets Birthed: the game's own +0x2E524, triplet SETS only. Its one
+       increment, 0x44BAD2, follows `mov [litter], 3` (0x44BAB6); a twins
+       birth leaves at 0x44BAA5 or 0x44BAB4, both jumping past it to
+       0x44BAD8. The owner's village (2026-10-08) shows 4: its stock-played
+       save of 2026-04-24 already held 2 (Babies Made 94), and its Births log
+       records the 2 since -- no twins among them.
+
        Special Stews Found: the game's own +0x2E520, +1 the first time each
        of its 18 recipes is cooked (0x4260DC).
 
        Total Stews Found: the unique herb combinations of every stew the
-       cook routine 0x425B90 completes, with no Special Stews restriction. */
+       cook routine 0x425B90 completes, with no Special Stews restriction,
+       and at least one per recipe the game flagged discovered before the
+       hook saw it (statistics_store.c), so never below Special Stews. */
     int buried = store_counter(VVS_BURIED);
     return fprintf(
         file,
