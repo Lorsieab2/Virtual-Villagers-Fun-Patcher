@@ -6399,7 +6399,9 @@ def special_border_items(border: str, kind: str, frame: tuple, radius: float, ed
     Every piece's `block` (not a field) is the same tuple, so the editor can keep the canvas items of a
     border that has not changed, and _fit_page can take the border's extent at once."""
     e = edits or Edits()
-    key = (border, kind, tuple(frame), radius, e.special_mode, repr(sorted(e.special_pick.items())),
+    # (own_box: a shape drawn turned, SHAPE_BAKES, sizes its leaves by the box it had before -- a pure
+    # function of the shape and the frame, kept in the key all the same.)
+    key = (border, kind, tuple(frame), own_box(kind, frame[2], frame[3]), radius, e.special_mode, repr(sorted(e.special_pick.items())),
            tuple(e.special_palette[:e.special_count]), e.special_count, e.rainbow_strength, e.hibiscus, pid, see)
     made = _SPECIAL_CACHE.get(key)
     if made is None:
