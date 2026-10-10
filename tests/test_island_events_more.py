@@ -134,8 +134,8 @@ class IslandEventsMoreSource(unittest.TestCase):
         # New Believers: 0x477040 reads the type at [ecx].
         self.assertEqual(lines("Virtual Villagers - New Believers.exe", 0x477040, 1)[0], "mov eax, dword ptr [ecx]")
         self.assertIn('{ "Weather", 0, 0x4B86C4u, VF_WEATHER, 0 }', self.more)
-        self.assertIn('{ "Weather", 0, 0x6C461Cu, VF_WEATHER, 0 }', self.more)
-        self.assertIn('{ "Weather", 0, 0x718EA0u, VF_WEATHER, 0 }', self.more)
+        self.assertIn('{ "Weather", 0, 0x6C461Cu, VF_WEATHER, 4 }', self.more)
+        self.assertIn('{ "Weather", 0, 0x718EA0u, VF_WEATHER, 4 }', self.more)
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")

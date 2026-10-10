@@ -90,9 +90,17 @@ static custom_title_fn g_more_title;      /* resolved once (a harness sets its o
 static custom_title_fn more_custom_title(void) {
     static int looked;
     if (!looked && g_more_title == NULL) {
-        HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+        /* The Story companion's table in memory (it sets the titles; its file is
+           published later, so the file can not say at the moment of the event,
+           seen live in New Believers); without it, the file through the
+           Parentage Export DLL. */
+        HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
         looked = 1;
-        g_more_title = module != NULL ? (custom_title_fn)GetProcAddress(module, "VillageCustomTitle") : NULL;
+        g_more_title = story != NULL ? (custom_title_fn)GetProcAddress(story, "VvfpStoryCustomTitle") : NULL;
+        if (g_more_title == NULL) {
+            HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+            g_more_title = module != NULL ? (custom_title_fn)GetProcAddress(module, "VillageCustomTitle") : NULL;
+        }
     }
     return g_more_title;
 }
@@ -394,7 +402,7 @@ static const struct village_field VV4_VILLAGE[] = {
     { "Blackberries", 0x4CB51Cu, 0x170F8, VF_INT, 0 },
     { "Cutting tools", 0, 0x4D8618u, VF_INT, 0 },
     { "Bars of soap", 0, 0x4D8D98u, VF_INT, 0 },
-    { "Weather", 0, 0x6C461Cu, VF_WEATHER, 0 },
+    { "Weather", 0, 0x6C461Cu, VF_WEATHER, 4 },
     { "The Cutting Tool", 0, P4(0) },
     { "The Stream", 0, P4(1) },
     { "Boiling Water", 0, P4(2) },
@@ -422,7 +430,7 @@ static const struct village_field VV5_VILLAGE[] = {
     { "Tech points", 0, 0x51D5F8u, VF_INT, 0 },
     { "Noni remaining", 0x4DACE0u, 0x17D58, VF_INT, 0 },
     { "Crops", 0x4DACE0u, 0x17D5C, VF_INT, 0 },
-    { "Weather", 0, 0x718EA0u, VF_WEATHER, 0 },
+    { "Weather", 0, 0x718EA0u, VF_WEATHER, 4 },
     { "The Nursery School", 0, P5(0) },
     { "The Prison Break", 0, P5(2) },
     { "The Hungry Totem", 0, P5(3) },
@@ -514,6 +522,11 @@ static void village_text(const struct village_field *f, char *out, size_t size) 
             _snprintf(out, size, "clear");
         } else if (value == 2) {
             _snprintf(out, size, "rain");
+        } else if (value == 4 && f->extra == 4) {
+            /* The Tree of Life's and New Believers' type 4, the fog (its own
+               periodic check, 0x46BE10 / 0x477348; The Mysterious Footprints
+               sets it, seen live in New Believers). */
+            _snprintf(out, size, "fog");
         } else {
             _snprintf(out, size, "type %d", value);
         }
