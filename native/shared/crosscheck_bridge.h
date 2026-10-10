@@ -155,6 +155,7 @@
 #define VVFP_XC_APPROVAL_VERSION 1u
 
 typedef int (__stdcall *vvfp_xc_scan_parents_fn)(int *counts);
+typedef int (__stdcall *vvfp_xc_count_fn)(void);
 typedef int (__stdcall *vvfp_xc_apply_parents_fn)(void);
 typedef int (__stdcall *vvfp_xc_scan_graves_fn)(int game, int slot);
 typedef void (__stdcall *vvfp_xc_repair_graves_fn)(int game, int slot, int repair);
@@ -327,6 +328,7 @@ static struct {
     /* What the last scan found. */
     int parents_found;            /* the parentage scan said 1 */
     int counts[6];
+    int recorded;                 /* A New Home: Birth records to write afterwards from the parentage file */
     int graves;                   /* graves missing from the Deaths log, when > 0 */
     int arrivals;                 /* villagers with no Birth or Arrived record, when > 0 */
     int births;                   /* villagers born here with no Birth record, when > 0 */
@@ -428,9 +430,16 @@ static int vvfp_xc_scan(int game, int slot) {
     vvfp_xc_scan_text_fn scan_stats;
     int parents = 0, graves, arrivals, births, stats, masks;
     memset(vvfp_xc.counts, 0, sizeof(vvfp_xc.counts));
+    vvfp_xc.recorded = 0;
     if (game == 1) {
         scan_parents = (vvfp_xc_scan_parents_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL, "Vv1ParentageCrossCheckScan");
         parents = scan_parents != NULL ? scan_parents(vvfp_xc.counts) : 0;
+        {
+            /* Optional: a companion that predates it never writes one. */
+            vvfp_xc_count_fn recorded = (vvfp_xc_count_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL,
+                                                                       "Vv1ParentageCrossCheckRecorded");
+            vvfp_xc.recorded = parents == 1 && recorded != NULL ? recorded() : 0;
+        }
     }
     scan_graves = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanGraves");
     graves = scan_graves != NULL ? scan_graves(game, slot) : 0;
@@ -628,6 +637,9 @@ static void vvfp_xc_compose(void) {
                     "arrivals). They will be set to unknown.\r\n", c[1], "villager has", "villagers have");
         vvfp_xc_add("- %d %s parents the Births log cannot tell apart. They will be set to unknown.\r\n",
                     c[2], "villager has", "villagers have");
+        vvfp_xc_add("- %d %s parents recorded but no Birth or Arrived record in the Births log (born before "
+                    "that record existed). Their Birth records will be added from the parentage file.\r\n",
+                    vvfp_xc.recorded, "villager has", "villagers have");
         vvfp_xc_add("- %d %s no parents recorded. They will be filled in from the Births log.\r\n",
                     c[3], "villager has", "villagers have");
         vvfp_xc_add("- %d %s the wrong father recorded for a pregnancy. The father will be corrected "

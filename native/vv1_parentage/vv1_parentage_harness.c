@@ -225,6 +225,28 @@ int main(int argc, char **argv) {
                   && expected(records, -1, looks, who, 32) == 0, "an index out of range is refused");
             *(int *)(rec(1) + DUE) = 0; born_from(201, 1, "Nought"); tick(records);
             memset(rec(200), 0, STRIDE); memset(rec(201), 0, STRIDE); tick(records);   /* gone again: the later sections own every other record */
+
+            printf("== the Custom Island Event changes the unborn baby's father ==\n");
+            {
+                typedef int (__stdcall *set_expected_t)(int, const char *, int, int);
+                set_expected_t set_expected = (set_expected_t)GetProcAddress(dll, "Vv1ParentageProbeSetExpected");
+                CHECK(set_expected != NULL && GetProcAddress(dll, "Vv1ParentageSetExpectedFather") != NULL,
+                      "the set-expected export and its seam resolve");
+                if (set_expected != NULL) {
+                    conceived(conceive, 1, 2); *(int *)(rec(1) + DUE) = 830; tick(records);
+                    CHECK(set_expected(1, "Kito", 5, 6) == 1, "the father is set");
+                    CHECK(expected(records, 1, looks, who, 32) == 1 && strcmp(who, "Kito") == 0 && looks[0] == 5 && looks[1] == 6,
+                          "the expected father is now Kito 5/6 (got %s %d/%d)", who, looks[0], looks[1]);
+                    CHECK(set_expected(1, "", -1, 11) == 1
+                          && expected(records, 1, looks, who, 32) == 1 && strcmp(who, "Kito") == 0 && looks[0] == 5 && looks[1] == 11,
+                          "an empty name and a look below 0 keep theirs (got %s %d/%d)", who, looks[0], looks[1]);
+                    CHECK(set_expected(1, "Big", 254, 0) == 0, "a look past the encodable range is refused");
+                    *(int *)(rec(1) + DUE) = 0; born_from(202, 1, "Changed"); tick(records);
+                    entry(202, e); CHECK(same(e, 5, 11, 4, 9), "the baby is born to the father the event set (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+                    names(202, father, mother, 32); CHECK(strcmp(father, "Kito") == 0, "...by name too (%s)", father);
+                    memset(rec(202), 0, STRIDE); tick(records);
+                }
+            }
         }
     }
 

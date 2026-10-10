@@ -2049,6 +2049,8 @@ __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
 
    Apply: the player chose Repair.  1 done, 0 nothing could be changed (the
    next load asks again). */
+static int g_xc_recorded;
+
 __declspec(dllexport) int __stdcall Vv1ParentageCrossCheckScan(int *counts) {
     static vv1_xc_plan plan;
     int slot = vv1_parents_sync();
@@ -2065,7 +2067,16 @@ __declspec(dllexport) int __stdcall Vv1ParentageCrossCheckScan(int *counts) {
         counts[4] = plan.stashes;
         counts[5] = plan.stale;
     }
+    g_xc_recorded = found == 1 ? plan.recorded : 0;
     return found;
+}
+
+/* How many Birth records the last scan found to write afterwards from the
+   table (villagers with parents and no record at all in the log): apart from
+   the six counts above, so a bridge that reads only those six is never
+   handed a seventh. */
+__declspec(dllexport) int __stdcall Vv1ParentageCrossCheckRecorded(void) {
+    return g_xc_recorded;
 }
 
 __declspec(dllexport) int __stdcall Vv1ParentageCrossCheckApply(void) {
@@ -2193,6 +2204,61 @@ __declspec(dllexport) int __stdcall Vv1ParentageQueryExpectedFather(int index, i
         return 0;
     }
     vv1_expected_out(records, index, out, name, capacity);
+    return 1;
+}
+
+/* The unborn baby's father, for the Story / Cheat Upgrades Custom Island
+   Event -- what The Lost Children to New Believers do by rewriting the copy
+   of the father on the mother.  A New Home keeps him only in this pregnancy
+   stash, so the stash of the carrying villager in record `index` is
+   rewritten: a NULL or empty name, or a look below 0, keeps that value.  The
+   stash then counts as this session's conception (g_session_stash), so the
+   birth takes him and not the Births log's earlier record; the caller writes
+   the Conception record that names him.  Returns 1 when stored and
+   persisted, 0 for a record that is empty or not carrying. */
+static int vv1_set_stash(int index, const char *name, int head, int body) {
+    vv1_parent_entry *e = &g_entries[index];
+    if (head > VV1_APPEARANCE_MAX || body > VV1_APPEARANCE_MAX) {
+        return 0;
+    }
+    if (name != NULL && name[0] != '\0') {
+        lstrcpynA(e->stash_name, name, VV1_NAME_CAPACITY);
+    }
+    if (head >= 0) e->stash_head = vv1_plus_one(head);
+    if (body >= 0) e->stash_body = vv1_plus_one(body);
+    g_session_stash[index] = 1;
+    g_idle[index] = 0;
+    return 1;
+}
+
+__declspec(dllexport) int __stdcall Vv1ParentageSetExpectedFather(int index, const char *name,
+                                                                  int head, int body) {
+    const unsigned char *records = vv1_records();
+    const unsigned char *mother;
+    int slot;
+    vv1_parent_entry before;
+    unsigned char session_before, idle_before;
+    if (records == NULL || index < 0 || index >= VV1_RECORD_COUNT) {
+        return 0;
+    }
+    mother = records + (unsigned int)index * VV1_RECORD_STRIDE;
+    if (!mother[VV1_OCCUPIED_OFFSET] || *(const int *)(mother + VV1_DUE_OFFSET) == 0) {
+        return 0;
+    }
+    slot = vv1_parents_sync();
+    if (!slot) {
+        return 0;
+    }
+    before = g_entries[index];
+    session_before = g_session_stash[index];
+    idle_before = g_idle[index];
+    if (!vv1_set_stash(index, name, head, body) || !vv1_parents_save(slot, records)) {
+        /* Refused: the change must not show, nor reach a later save. */
+        g_entries[index] = before;
+        g_session_stash[index] = session_before;
+        g_idle[index] = idle_before;
+        return 0;
+    }
     return 1;
 }
 
@@ -2329,6 +2395,15 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeExpected(const void *record
     }
     vv1_expected_out((const unsigned char *)records, index, out, name, capacity);
     return 1;
+}
+
+/* The Custom Island Event's unborn-father change, without the file. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeSetExpected(int index, const char *name, int head,
+                                                                 int body) {
+    if (index < 0 || index >= VV1_RECORD_COUNT) {
+        return 0;
+    }
+    return vv1_set_stash(index, name, head, body);
 }
 
 /* The births the last probe tick saw: out[2*i] = child index, out[2*i+1] =

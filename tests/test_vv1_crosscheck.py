@@ -90,6 +90,10 @@ class Vv1CrossCheckHarnessTests(unittest.TestCase):
             "every living villager now has the parents the Births log names",
             "... Lisha [13] is Ghali and Onawa's again",
             "... and Silko, a grown arrival, has no parents",
+            # parents in the table and no record in the log at all: written afterwards (G6)
+            "Penyo, with parents and no record in the log, is to be recorded afterwards; Silko, recorded as arrived, set to unknown",
+            "on Repair Penyo keeps the parents the table holds",
+            "the Repairs log says Penyo's Birth record is written afterwards",
             "... and the backup is the file as it was, byte for byte",
             "the marker records that the check ran and repaired",
             "... and lists Lisha's correction",

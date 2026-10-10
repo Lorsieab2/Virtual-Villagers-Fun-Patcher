@@ -2,7 +2,9 @@ LIBRARY "VVFP Parentage Export"
 EXPORTS
     WriteParentageRecord=_WriteParentageRecord@12
     WriteParentageRecordWithFather=_WriteParentageRecordWithFather@16
+    WriteParentageConceptionFatherSet=_WriteParentageConceptionFatherSet@24
     WriteParentageBirth=_WriteParentageBirth@44
+    WriteParentageBirthAfterwards=_WriteParentageBirthAfterwards@44
     WriteParentageBirthLitter=_WriteParentageBirthLitter@48
     EnsureParentageLog=_EnsureParentageLog@8
     EnsureParentageLogForVillage=_EnsureParentageLogForVillage@12

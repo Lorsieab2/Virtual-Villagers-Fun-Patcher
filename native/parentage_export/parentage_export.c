@@ -3015,6 +3015,14 @@ static void vv1_parentage_bridge(const void *records, const void *mother, const 
     vv1_parentage_conceived(records, mother, father);
 }
 
+/* Set only for the length of one WriteParentageConceptionFatherSet call (A
+   New Home: a father the Custom Island Event set, with no record of his to
+   capture); NULL otherwise. */
+static struct {
+    const char *name;
+    int head, body;
+} g_father_set;
+
 __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     int game_id,
     const void *records_pointer,
@@ -3288,6 +3296,16 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
                   *(const int *)(mother + g->father_body_copy));
         father_body[sizeof(father_body) - 1] = '\0';
     }
+    /* A father the Custom Island Event set (WriteParentageConceptionFatherSet):
+       his name, head and body as the player gave them; his age, sex, likes
+       and dislikes stay "not captured", as for any father with no record. */
+    if (g_father_set.name != NULL && father_from_caller == NULL) {
+        lstrcpynA(father_name, g_father_set.name, (int)sizeof(father_name));
+        _snprintf(father_head, sizeof(father_head), "%d", g_father_set.head);
+        _snprintf(father_body, sizeof(father_body), "%d", g_father_set.body);
+        father_head[sizeof(father_head) - 1] = '\0';
+        father_body[sizeof(father_body) - 1] = '\0';
+    }
     /* Everything after the "Conception <n>" line. The number is assigned when
        the record is actually written, which for a record held until the
        village's first save is later than now -- see emit_record. */
@@ -3308,6 +3326,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "    Likes: %s\n"
         "    Dislikes: %s\n"
         "  Babies in pregnancy: %d\n"
+        "%s"
         "\n",
         mother_name,
         *(const int *)(mother + g->age),
@@ -3324,12 +3343,49 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         father_body,
         father_likes,
         father_dislikes,
-        babies
+        babies,
+        g_father_set.name != NULL && father_from_caller == NULL
+            ? "  Note: Father set by a Custom Island Event\n" : ""
     );
     if (written < 0 || (size_t)written >= sizeof(text)) {
         return 0;
     }
     return emit_record(game_id, 0, records, text);
+}
+
+/* A New Home: the Conception record of a pregnancy whose father the Custom
+   Island Event's "unborn baby's father" just changed.
+
+   The Lost Children to New Believers keep the father on the mother, and the
+   birth takes him from there.  A New Home keeps him only in the VV1
+   Parentage companion's pregnancy stash, and every reader of this log -- the
+   companion's first-load check, the Family Tree Maker, Repair Saves & Logs --
+   takes a pregnancy's father from her LAST Conception record.  So the change
+   is recorded as one, by the one function that renders a conception
+   (WriteParentageRecordWithFather, through g_father_set): the mother as she
+   is now, the father as the player set him -- his name, head and body;
+   nothing else of his was captured -- the babies she carries, and a note
+   saying how it came about.  VV1 only; 1 when written or held for the next
+   save. */
+__declspec(dllexport) int __stdcall WriteParentageConceptionFatherSet(
+    int game_id,
+    const void *records_pointer,
+    const void *mother_pointer,
+    const char *father_name,
+    int father_head,
+    int father_body
+) {
+    int result;
+    if (game_id != GAME_VV1 || father_name == NULL || father_name[0] == '\0'
+        || father_head < 0 || father_body < 0) {
+        return 0;
+    }
+    g_father_set.name = father_name;
+    g_father_set.head = father_head;
+    g_father_set.body = father_body;
+    result = WriteParentageRecordWithFather(game_id, records_pointer, mother_pointer, NULL);
+    g_father_set.name = NULL;
+    return result;
 }
 
 /* One birth record, written by the VV1 parentage companion the moment it sees
@@ -3640,6 +3696,33 @@ __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
        arrival, whether or not the record could be filed now. */
     tell_cause_of_death_birth(game_id, child_record);
     /* The child is the villager a held birth is re-checked against. */
+    return emit_record(game_id, KIND_BIRTH, NULL, text);
+}
+
+/* A New Home: the Birth record of a villager the Births log has none for,
+   written afterwards by the VV1 Parentage companion's cross-check from its
+   parentage file (vv1_crosscheck.inc) -- the record The Lost Children to New
+   Believers write from the save (arrival_backfill.inc), with the same
+   "Note: Recorded afterwards (born before this log existed)" and no
+   "Born as" line (how many came together is not known).  1 when written or
+   held for the next save. */
+__declspec(dllexport) int __stdcall WriteParentageBirthAfterwards(
+    int game_id,
+    const char *child_name, int child_head, int child_body,
+    const char *mother_name, int mother_head, int mother_body,
+    const char *father_name, int father_head, int father_body,
+    const void *child_record
+) {
+    char text[RECORD_TEXT_MAX];
+    /* Every game compose_birth accepts: only A New Home's companion calls it,
+       but the record is the one all five write. */
+    if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
+                          mother_body, father_name, father_head, father_body, child_record,
+                          /* arrival_backfill.inc's BIRTH_BACKFILL_NOTE, word for word */
+                          "  Note: Recorded afterwards (born before this log existed)\n",
+                          -1, text, sizeof text)) {
+        return 0;
+    }
     return emit_record(game_id, KIND_BIRTH, NULL, text);
 }
 

@@ -103,6 +103,8 @@
 #define VV1_XC_FILLED      2    /* the table knew none; the log names them */
 #define VV1_XC_CLEARED     3    /* the table names parents the log says this villager cannot have */
 #define VV1_XC_AMBIGUOUS   4    /* the table names parents; the log cannot tell which are right */
+#define VV1_XC_RECORDED    5    /* the table names parents and the log has no record of this villager at all:
+                                   their Birth record is written afterwards, from the table */
 
 typedef struct {
     char name[VV1_NAME_CAPACITY];
@@ -112,7 +114,7 @@ typedef struct {
 } vv1_xc_person;
 
 typedef struct {
-    int kind;                     /* 1 Birth, 2 Conception */
+    int kind;                     /* 1 Birth, 2 Conception, 3 Arrived (child: who arrived) */
     int header;                   /* index into the run's header table */
     vv1_xc_person child, mother, father;
 } vv1_xc_record;
@@ -139,6 +141,7 @@ typedef struct {
     vv1_xc_change changes[VV1_RECORD_COUNT];
     int count;
     int corrected, filled, cleared, ambiguous, stashes;
+    int recorded;                 /* Birth records to write afterwards (VV1_XC_RECORDED) */
     int stale;                    /* expected fathers left on villagers who are not expecting */
 } vv1_xc_plan;
 
@@ -421,8 +424,18 @@ static int vv1_xc_person_whole(const vv1_xc_person *p) {
    name). */
 static int vv1_xc_finish(vv1_xc_log *log, vv1_xc_record *rec, int in_slot, int header) {
     const vv1_xc_person *key_person;
-    if (!in_slot || (rec->kind != 1 && rec->kind != 2)) {
+    if (!in_slot || (rec->kind != 1 && rec->kind != 2 && rec->kind != 3)) {
         return 1;
+    }
+    if (rec->kind == 3) {
+        /* An Arrived record names a villager who was not born here: kept only
+           whole (name, head, body), and never a reason to doubt the log. */
+        if (!rec->child.present || rec->child.name[0] == '\0'
+            || rec->child.head == VV1_XC_UNSET || rec->child.body == VV1_XC_UNSET) {
+            return 1;
+        }
+        rec->header = header;
+        return vv1_xc_push(log, rec);
     }
     key_person = rec->kind == 1 ? &rec->child : &rec->mother;
     /* WriteParentageBirth always prints the Mother and the Father sections --
@@ -493,9 +506,14 @@ static int vv1_xc_parse(vv1_xc_log *log, char *text, int slot) {
                         rec.kind = 1;
                     } else if (vv1_xc_starts(line, "Conception")) {
                         rec.kind = 2;
+                    } else if (vv1_xc_starts(line, "Arrived")) {
+                        rec.kind = 3;
                     }
                 } else if (rec.kind) {
-                    if (vv1_xc_starts(trimmed, "Child:")) {
+                    if (rec.kind == 3 && vv1_xc_starts(trimmed, "Name:")) {
+                        person = &rec.child;
+                        vv1_xc_person_start(person, trimmed + 5);
+                    } else if (vv1_xc_starts(trimmed, "Child:")) {
                         person = &rec.child;
                         vv1_xc_person_start(person, trimmed + 6);
                     } else if (vv1_xc_starts(trimmed, "Mother:")) {
@@ -699,6 +717,56 @@ static int vv1_xc_shared(const unsigned char *records, const char *name, int hea
     return shared;
 }
 
+/* Does the log record this villager -- name, head and body -- as ARRIVED? */
+static int vv1_xc_arrived(const vv1_xc_log *log, const char *name, int head, int body) {
+    int k;
+    for (k = 0; k < log->count; ++k) {
+        const vv1_xc_record *r = &log->items[k];
+        if (r->kind == 3 && r->header == log->village_header && vv1_xc_is(&r->child, name, head, body)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The Birth record of a villager the log has none for, written afterwards
+   from the table ("VVFP Parentage Export.dll" WriteParentageBirthAfterwards:
+   the Birth record every game writes, with "Note: Recorded afterwards (born
+   before this log existed)").  Without the log row there is no log to write
+   to: nothing is written, and nothing else changes. */
+typedef int (__stdcall *vv1_write_afterwards_t)(int game_id,
+                                                const char *child_name, int child_head, int child_body,
+                                                const char *mother_name, int mother_head, int mother_body,
+                                                const char *father_name, int father_head, int father_body,
+                                                const void *child_record);
+
+static int vv1_xc_write_afterwards(const unsigned char *records, int index) {
+    static int state;             /* 0 = not tried, 1 = resolved, -1 = unavailable */
+    static vv1_write_afterwards_t write;
+    const unsigned char *child = records + (unsigned int)index * VV1_RECORD_STRIDE;
+    const vv1_parent_entry *e = &g_entries[index];
+    char child_name[VV1_NAME_CAPACITY];
+    if (state == 0) {
+        HMODULE companion = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+        state = -1;
+        if (companion != NULL) {
+            write = (vv1_write_afterwards_t)GetProcAddress(companion, "WriteParentageBirthAfterwards");
+            if (write != NULL) {
+                state = 1;
+            }
+        }
+    }
+    if (state != 1) {
+        return 0;
+    }
+    vv1_copy_name(child, child_name);
+    return write(1, child_name,
+                 *(const int *)(child + VV1_HEAD_OFFSET), *(const int *)(child + VV1_BODY_OFFSET),
+                 e->mother_name, vv1_decode(e->mother_head), vv1_decode(e->mother_body),
+                 e->father_name, vv1_decode(e->father_head), vv1_decode(e->father_body),
+                 child);
+}
+
 /* THE PREGNANCIES BROUGHT INTO THE SESSION.  The load-time catch-up delivers
    most babies before the village is even on screen -- long before the player
    can be asked -- and each newborn takes its father from its mother's stash.
@@ -845,6 +913,20 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
             if (!vv1_xc_parents_equal(&after, &g_entries[j])) {
                 what = vv1_xc_has_parents(&g_entries[j]) ? VV1_XC_CORRECTED : VV1_XC_FILLED;
             }
+        } else if (matches == 0 && named == 0 && shared == 1 && vv1_xc_has_parents(&g_entries[j])
+                   && g_entries[j].mother_head && g_entries[j].mother_body && g_entries[j].mother_name[0]
+                   && !vv1_xc_arrived(log, name, head, body)) {
+            /* No record of this villager in the log at all -- neither a Birth
+               nor an Arrived record -- while the table holds who delivered
+               them: born before the log existed, or with the log off.  The
+               table holds the facts, so it is kept and the Birth record is
+               written afterwards from it, "Recorded afterwards", exactly as
+               The Lost Children to New Believers write one from the save
+               (arrival_backfill.inc).  A villager the log records as ARRIVED
+               was not born here, and parents the table gives them are cleared
+               below (the owner's Silko: a grown arrival a drifted table had
+               given Ghali and Onawa). */
+            what = VV1_XC_RECORDED;
         } else if (matches > 0 || named == 0) {
             /* Ambiguous (records disagree, or more living villagers share the
                three than there are births), or no Birth record of this name
@@ -918,6 +1000,7 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
             if (what == VV1_XC_FILLED) ++plan->filled;
             if (what == VV1_XC_CLEARED) ++plan->cleared;
             if (what == VV1_XC_AMBIGUOUS) ++plan->ambiguous;
+            if (what == VV1_XC_RECORDED) ++plan->recorded;
             if (stash_changed) ++plan->stashes;
             if (stale) ++plan->stale;
         }
@@ -1114,6 +1197,9 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
             wsprintfA(text + len, "  Set to unknown: %s -- no Birth record in the log (was %s)\r\n", name, was);
         } else if (c->what == VV1_XC_AMBIGUOUS) {
             wsprintfA(text + len, "  Set to unknown: %s -- the log cannot tell (was %s)\r\n", name, was);
+        } else if (c->what == VV1_XC_RECORDED) {
+            wsprintfA(text + len, "  Recorded afterwards: %s -- no Birth record in the log; one is written from "
+                                  "the parentage file (%s)\r\n", name, was);
         }
         if (c->stale) {
             len = (size_t)lstrlenA(text);
@@ -1246,6 +1332,19 @@ static int vv1_xc_apply(int slot, const unsigned char *records) {
             DeleteFileA(backup);
         }
         return 0;
+    }
+    /* The Birth records afterwards, once the table that holds their facts is
+       safely written (a refused write leaves the villager for the next check,
+       which finds the record if it reached the log). */
+    for (i = 0; i < plan.count; ++i) {
+        if (plan.changes[i].what == VV1_XC_RECORDED
+            && !vv1_xc_write_afterwards(records, plan.changes[i].index)) {
+            char name[VV1_NAME_CAPACITY];
+            char line[VV1_NAME_CAPACITY + 96];
+            vv1_copy_name(records + (unsigned int)plan.changes[i].index * VV1_RECORD_STRIDE, name);
+            wsprintfA(line, "  Not recorded: %s -- the Births log could not be written\r\n", name);
+            vv1_xc_append(note, line);
+        }
     }
     vv1_xc_append(note, "\r\n");          /* the record's closing blank line */
     vv1_xc_marker_write(slot, VV1_XC_RESULT_REPAIRED, &plan, village);

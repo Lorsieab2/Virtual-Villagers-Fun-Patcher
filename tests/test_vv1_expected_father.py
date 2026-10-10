@@ -75,6 +75,80 @@ class PopulationLogTests(unittest.TestCase):
         self.assertIn(b"Vv1ParentageQueryExpectedFather", data)
 
 
+class UnbornFatherTests(unittest.TestCase):
+    """The Custom Island Event's "unborn baby's father" in A New Home: the companion's pregnancy
+    stash is rewritten (the father the birth records), and a Conception record names him -- every
+    reader of the Births log takes a pregnancy's father from her last Conception record."""
+
+    STORY_C1 = ROOT / "native" / "vvfp_story_upgrades" / "story_c1.inc"
+    STORY_DLL = ROOT / "assets" / "story_upgrades" / "VVFP Story Upgrades.dll"
+    EXPORT_DLL = ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"
+
+    def test_a_new_home_offers_the_option(self):
+        source = self.STORY_C1.read_text(encoding="utf-8")
+        adapter = source[source.index("static const ce_adapter C1_ADAPTER = {"):]
+        adapter = adapter[:adapter.index("\n};")]
+        self.assertIn("CAP_UNBORN", adapter)
+        self.assertIn("c1_cancel, c1_relitter, c1_unborn,", adapter)
+        self.assertNotIn("keeps no father on a pregnancy", source)
+
+    def test_the_three_dlls_carry_the_calls(self):
+        self.assertIn("Vv1ParentageSetExpectedFather", _exports(COMPANION))
+        self.assertIn("WriteParentageConceptionFatherSet", _exports(self.EXPORT_DLL))
+        story = self.STORY_DLL.read_bytes()
+        for name in (b"Vv1ParentageSetExpectedFather", b"Vv1ParentageQueryExpectedFather",
+                     b"WriteParentageConceptionFatherSet"):
+            self.assertIn(name, story)
+
+    def test_the_set_counts_as_this_sessions_conception(self):
+        source = PARENTAGE_C.read_text(encoding="utf-8")
+        body = source[source.index("static int vv1_set_stash("):]
+        body = body[:body.index("\n}\n")]
+        # so the birth takes him, not the Births log's earlier Conception record
+        self.assertIn("g_session_stash[index] = 1;", body)
+
+    def test_the_conception_record_is_in_the_log_format(self):
+        source = (ROOT / "native" / "parentage_export" / "parentage_export.c").read_text(encoding="utf-8")
+        body = source[source.index("__stdcall WriteParentageConceptionFatherSet("):]
+        body = body[:body.index("\n}\n")]
+        # rendered by the one function that renders every conception
+        self.assertIn("WriteParentageRecordWithFather(game_id, records_pointer, mother_pointer, NULL)", body)
+        self.assertIn("g_father_set.name = NULL;", body)
+        self.assertIn("game_id != GAME_VV1", body)
+        conception = source[source.index("__declspec(dllexport) int __stdcall WriteParentageRecordWithFather("):]
+        conception = conception[:conception.index("\n}\n")]
+        self.assertIn("lstrcpynA(father_name, g_father_set.name, (int)sizeof(father_name));", conception)
+        self.assertIn('"  Note: Father set by a Custom Island Event\\n"', conception)
+
+
+class BirthsRecordedAfterwardsTests(unittest.TestCase):
+    """Repair Saves & Logs writes A New Home's missing Birth records afterwards from the parentage
+    file, as it writes VV2-VV5's from the save (the cross-check harness runs the C code:
+    tests/test_vv1_crosscheck.py)."""
+
+    def test_the_cross_check_writes_them_and_the_prompt_says_so(self):
+        xc = (ROOT / "native" / "vv1_parentage" / "vv1_crosscheck.inc").read_text(encoding="utf-8")
+        self.assertIn('GetProcAddress(companion, "WriteParentageBirthAfterwards")', xc)
+        self.assertIn("Recorded afterwards: %s -- no Birth record in the log", xc)
+        self.assertIn("!vv1_xc_arrived(log, name, head, body)", xc, "an arrival is never given a Birth record")
+        bridge = (ROOT / "native" / "shared" / "crosscheck_bridge.h").read_text(encoding="utf-8")
+        self.assertIn('"Vv1ParentageCrossCheckRecorded"', bridge)
+        self.assertIn("Their Birth records will be added from the parentage file.", bridge)
+        self.assertIn("Vv1ParentageCrossCheckRecorded", _exports(COMPANION))
+        export = ROOT / "assets" / "parentage" / "VVFP Parentage Export.dll"
+        self.assertIn("WriteParentageBirthAfterwards", _exports(export))
+        origins = (ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll").read_bytes()
+        self.assertIn(b"Vv1ParentageCrossCheckRecorded", origins)
+
+    def test_the_note_is_the_later_games_word_for_word(self):
+        source = (ROOT / "native" / "parentage_export" / "parentage_export.c").read_text(encoding="utf-8")
+        backfill = (ROOT / "native" / "parentage_export" / "arrival_backfill.inc").read_text(encoding="utf-8")
+        note = '"  Note: Recorded afterwards (born before this log existed)\\n"'
+        self.assertIn(note, backfill)
+        body = source[source.index("__stdcall WriteParentageBirthAfterwards("):]
+        self.assertIn(note, body[:body.index("\n}\n")])
+
+
 class PopulationHarnessTests(unittest.TestCase):
     """native/population_export/population_export_harness.c, run on the shipped exporter: VV2-VV5 as
     before, and A New Home through a stand-in companion (vv1_parentage_stub.c)."""

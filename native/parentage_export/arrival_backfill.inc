@@ -422,7 +422,10 @@ static int record_missing(
         || apply < VV_ARRIVAL_COUNT || apply > VV_ARRIVAL_APPLY) {
         return -1;
     }
-    /* A New Home keeps no parents on the record: nothing says who was born. */
+    /* A New Home keeps no parents on the record: nothing here says who was
+       born.  Its parents are in the VV1 Parentage companion's file, whose
+       cross-check writes these Birth records instead (vv1_crosscheck.inc,
+       WriteParentageBirthAfterwards). */
     if (births && game_id == GAME_VV1) {
         return 0;
     }
