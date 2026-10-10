@@ -4,7 +4,7 @@
    call is RecordArrivalsMissingFromLog.  native/shared/arrival_backfill.h has
    the record's format, the matching rule and the hand-off.
 
-   WHICH VILLAGERS THE LOG ALREADY HAS.  Every Birth record ("Birth", then
+   WHICH VILLAGERS THE LOG ALREADY HAS.  Every Birth record ("Birth <n>", or an older log's "Birth", then
    "  Child: <name>", "    Head: <n>", "    Body: <n>") and every Arrived
    record ("Arrived <n>", then "  Name:", "  Head:", "  Body:") in this
    village's Births and Conceptions files, and those still held for the next
@@ -87,7 +87,7 @@ static int arrival_reader_line(struct arrival_reader *r, char *line) {
     const char *value;
     trim_line(line);
 
-    if (strcmp(line, "Birth") == 0) {
+    if (vv_is_birth_heading(line)) {          /* "Birth <n>", or an older log's "Birth" */
         if (!arrival_reader_close(r)) {
             return 0;
         }

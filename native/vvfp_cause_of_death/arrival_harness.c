@@ -525,12 +525,14 @@ static void parented(int i, const char *name, int head, int body) {
     }
 }
 
-static int has_birth_backfill(const char *child, int head, int body) {
+/* `number`: its "Birth <n>" -- numbered like a Conception (v1.35.66), after the
+   older log's unnumbered Birth records, which count. */
+static int has_birth_backfill(const char *child, int head, int body, int number) {
     char want[256], looks[128];
     const char *at, *end;
     /* The child's sex (the owner: every villager in the logs shows it), then
        the looks. */
-    _snprintf(want, sizeof want, "Birth\r\n  Child: %s\r\n    Sex: ", child);
+    _snprintf(want, sizeof want, "Birth %d\r\n  Child: %s\r\n    Sex: ", number, child);
     _snprintf(looks, sizeof looks, "    Head: %d\r\n    Body: %d\r\n", head, body);
     /* Any record of the child that is the backfill's (a hand-written one
        of the same child may come first). */
@@ -612,7 +614,7 @@ static void quit_cases(void) {
         CHECK(done == 0 && strcmp(first, text) == 0 && !file_exists(bmarker),
               "quit: A New Home keeps no parents -- no Birth records to write at the quit");
     } else {
-        CHECK(done == 1 && has_birth_backfill("Kid", 4, 4) && count_of(text, "born before this log existed") == 1
+        CHECK(done == 1 && has_birth_backfill("Kid", 4, 4, 3) && count_of(text, "born before this log existed") == 1
               && file_exists(bmarker),
               "quit: the Birth record from the save is written there and then, and its marker");
     }
@@ -734,13 +736,15 @@ static void births_cases(void) {
     births_path(1, path);
     write_text(path,
         "Village: Birth Tribe (Save 1)\n"
-        "Birth\n  Child: Nishi\n    Head: 7\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
+        /* Numbered with a gap and out of order, one plain (a mixed, hand-edited log): the
+           backfill goes on above the highest number, 9 -- never a number already used. */
+        "Birth 1\n  Child: Nishi\n    Head: 7\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
-        "Birth\n  Child: Twin\n    Head: 6\n    Body: 6\n    Likes: (none)\n    Dislikes: (none)\n"
+        "Birth 9\n  Child: Twin\n    Head: 6\n    Body: 6\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Birth\n  Child: Sam\n    Head: 1\n    Body: 9\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
-        "Birth\n  Child: Look\n    Head: 3\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
+        "Birth 3\n  Child: Look\n    Head: 3\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Arrived 1\n  Name: Arr\n  Age at arrival: 300\n  Sex: Male\n  Head: 5\n  Body: 5\n"
         "  Likes: (none)\n  Dislikes: (none)\n  How: unknown\n\n");
@@ -794,7 +798,7 @@ static void births_cases(void) {
     repair_births(game, 1, 1);
     save_done(1, buffer);
     read_into(path);
-    CHECK(has_birth_backfill("Kid", 4, 4) && has_birth_backfill("Sam", 2, 9),
+    CHECK(has_birth_backfill("Kid", 4, 4, 10) && has_birth_backfill("Sam", 2, 9, 12),
           "births: after Repair the save writes Kid's and Sam's Birth records from the save, marked"
           " \"Recorded afterwards (born before this log existed)\"");
     {
@@ -802,7 +806,7 @@ static void births_cases(void) {
         const char *end = k != NULL ? strstr(k, "\r\n\r\n") : NULL;
         if (k != NULL && end != NULL) printf("%.*s\n", (int)(end - k + 2), k - 7);
     }
-    CHECK(count_of(text, "  Child: Twin\r\n") == 2 && has_birth_backfill("Twin", 6, 6),
+    CHECK(count_of(text, "  Child: Twin\r\n") == 2 && has_birth_backfill("Twin", 6, 6, 11),
           "births: two Twins, one record: one more is written");
     CHECK(count_of(text, "  Child: Nishi\r\n") == 1 && strstr(text, "  Child: Huata\r\n") == NULL
           && strstr(text, "  Child: Arr\r\n") == NULL && strstr(text, "  Child: Pagan\r\n") == NULL,

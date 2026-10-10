@@ -80,6 +80,7 @@
 #include "save_folder.h"
 #include "save_layout.h"
 #include "log_words.h"
+#include "birth_heading.h"        /* "Birth <n>", or an older log's "Birth" */
 #include "special_title.h"
 #include "custom_titles.h"
 #include "former_heathens_read.h"
@@ -1228,7 +1229,8 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2, LOG_EVENTS = 3 };
 /* What a held or written record is.
 
      CONCEPTION   births family, numbered "Conception <n>"
-     BIRTH        births family, its own "Birth" block, never rolls
+     BIRTH        births family, "Birth <n>" (its own running count, like
+                  ARRIVED; older logs say just "Birth"), never rolls
      DEATH        deaths family, numbered "Death <n>"
      DISAPPEARED  deaths family, "Disappeared", never rolls
      EPITAPH      deaths family, "Epitaph changed", never rolls
@@ -1492,7 +1494,7 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
     if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0
         || strncmp(line, "Unaccounted ", 12) == 0 || strncmp(line, "Disappeared", 11) == 0
         || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0
-        || strncmp(line, "Appearance changed", 18) == 0) {
+        || strncmp(line, "Appearance changed", 18) == 0 || vv_is_birth_heading(line)) {
         fclose(file);
         return 0;
     }
@@ -2667,17 +2669,28 @@ static int saved_tribe_still_loaded(int game_id) {
     return same_tribe(saved_tribe, scratch_tribe, TRIBE_STRICT);
 }
 
-/* The Arrived records already in the game's Births and Conceptions files --
-   every file, every village, as a Conception's number counts them -- so the
-   next one's "Arrived <n>" continues the running count.  -1 when a file
+/* The Arrived records (`births` 0) or Birth records (`births` 1) already in
+   the game's Births and Conceptions files -- every file, every village, as a
+   Conception's number counts them -- so the next one's "Arrived <n>" or
+   "Birth <n>" continues the running count.  A Birth is counted whether an
+   older build wrote it as plain "Birth" or this one numbered it
+   (birth_heading.h), so the first numbered Birth after an older log's 79
+   follows them as "Birth 80".
+
+   A BIRTH NUMBER IS NEVER REPEATED (the owner, 2026-10-09).  For Births the
+   result is the larger of the count and the HIGHEST number already written:
+   a log with gaps, numbers out of order (a record Repair inserted earlier in
+   the file with the next unused number), or a hand-edited number goes on
+   above every number in it, so the next is always unused.  -1 when a file
    cannot be read. */
-static int count_arrived_records(const struct game_layout *g) {
+static int count_running_records(const struct game_layout *g, int births) {
     wchar_t folder[MAX_PATH];
     wchar_t path[MAX_LOG_PATH];
     char line[512];
     int ceiling;
     int number;
     int total = 0;
+    long highest = 0;
     if (!vv_save_subfolder_w(folder, family_folder(LOG_BIRTHS), 64)) {
         return -1;
     }
@@ -2695,8 +2708,15 @@ static int count_arrived_records(const struct game_layout *g) {
             return -1;
         }
         while (fgets(line, (int)sizeof line, file) != NULL) {
-            if (strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9') {
+            if (births ? vv_is_birth_heading(line)
+                       : strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9') {
                 ++total;
+                if (births && line[5] == ' ') {
+                    long n = strtol(line + 6, NULL, 10);
+                    if (n > highest) {
+                        highest = n < 0x7FFFFFFEL ? n : 0x7FFFFFFEL;
+                    }
+                }
             }
         }
         if (ferror(file)) {
@@ -2705,7 +2725,7 @@ static int count_arrived_records(const struct game_layout *g) {
         }
         fclose(file);
     }
-    return total;
+    return highest > total ? (int)highest : total;
 }
 
 /* What append_record reports. A record that fails with its file restored is
@@ -2745,11 +2765,11 @@ static int append_record(
             existing_records = older;
         }
     }
-    if (kind == KIND_ARRIVED) {
-        /* Its number: the Arrived records already written, in every file.
-           A file that cannot be read leaves the record held for a retry --
-           numbered wrong would be worse than numbered later. */
-        arrived_before = count_arrived_records(g);
+    if (kind == KIND_ARRIVED || (kind == KIND_BIRTH && strncmp(text, "Birth\n", 6) == 0)) {
+        /* Its number: the Arrived (or Birth) records already written, in
+           every file. A file that cannot be read leaves the record held for
+           a retry -- numbered wrong would be worse than numbered later. */
+        arrived_before = count_running_records(g, kind == KIND_BIRTH);
         if (arrived_before < 0) {
             return APPEND_RETRY;
         }
@@ -2773,6 +2793,10 @@ static int append_record(
     if (written) {
         if (kind == KIND_ARRIVED) {
             written = fprintf(file, "Arrived %d\n%s", arrived_before + 1, text) >= 0;
+        } else if (kind == KIND_BIRTH && strncmp(text, "Birth\n", 6) == 0) {
+            /* "Birth <n>", numbered like a Conception when it is written (the
+               owner, 2026-10-09): compose_birth's text opens with "Birth". */
+            written = fprintf(file, "Birth %d\n%s", arrived_before + 1, text + 6) >= 0;
         } else if (!kind_is_numbered(kind)) {
             written = fprintf(file, "%s", text) >= 0;
         } else {

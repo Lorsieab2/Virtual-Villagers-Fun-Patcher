@@ -19,7 +19,9 @@ Each statement is checked against native/parentage_export/parentage_export.c:
     for_birth);
   * the Birth fields: WriteParentageBirth prints the child's name, head, body,
     likes, dislikes and skills, and each parent's name, head and body;
-  * the Arrived records: KIND_ARRIVED, numbered by count_arrived_records and
+  * the Birth records are numbered "Birth <n>" like Conceptions (v1.35.66), by
+    count_running_records, which counts an older log's plain "Birth" too;
+  * the Arrived records: KIND_ARRIVED, numbered by count_running_records and
     filed like a Birth (native/shared/arrival_backfill.h has the format),
     found by "VVFP Cause of Death.dll" (cod_arrivals.inc).
 """
@@ -32,8 +34,11 @@ PLAYER_LOG_DESCRIPTION = (
     "Each Conception record gives both parents' names, both parents' ages at "
     "conception, both head and body values, both parents' likes and dislikes, "
     "and the number of babies; the mother's age determines the child's age. "
-    "Each Birth record gives the child's name, head, body, likes, dislikes and "
-    "skills, and its mother's and father's names, heads and bodies. A new "
+    "Each Birth record, numbered like the Conceptions (\"Birth 1\", \"Birth 2\", "
+    "...), gives the child's name, head, body, likes, dislikes and "
+    "skills, and its mother's and father's names, heads and bodies; Repair "
+    "Saves & Logs can number the Birth records an older patcher wrote without "
+    "one. A new "
     "numbered file is started after every 256 Conception records; Birth "
     "records go into the file holding the latest conceptions and do not count "
     "toward that limit. "
