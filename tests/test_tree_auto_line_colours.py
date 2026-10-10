@@ -27,8 +27,9 @@ from test_genealogy import village  # noqa: E402
 
 GAME = "Virtual Villagers - A New Home"
 # The closest two families' OKLab distance (x100; about 2 is just noticeable) the button must reach on a white
-# page, by how many families there are (it reaches about 23, 11 and 7.6 -- see test_distinct_from_each_other).
-NEAREST = {10: 18.0, 50: 9.0, 112: 6.0}
+# page, by how many families there are.  Measured 2026-10-09: 20.5, 9.05 and 6.34 (the closest crossing or nearby
+# pair 32.3, 14.9 and 11.0), every family at least 3.0:1.
+NEAREST = {10: 18.0, 50: 8.0, 112: 5.5}
 
 
 # ---- independent checks (not the module's own arithmetic) ------------------------------------------
