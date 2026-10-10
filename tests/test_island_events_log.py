@@ -25,7 +25,8 @@ VS_TOOLS = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools
 CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
-CHECKS = 5 * 11 + 4 + 1 + 3 * 4  # eleven checks in each of the five games; the look-alikes in the four
+CHECKS = 5 * 18 + 4 + 1 + 3 * 4  # eighteen checks in each of the five games (seven of them the time skip's);
+                                 # the look-alikes in the four
                                  # that have them; A New Home's conception with no father recorded;
                                  # the two-choice answer in the three later games
 
@@ -132,6 +133,32 @@ class IslandEventsSource(unittest.TestCase):
                       (parentage / "vv1_parentage.def").read_text(encoding="utf-8"))
         source = (parentage / "vv1_parentage.c").read_text(encoding="utf-8")
         self.assertIn("int __stdcall Vv1ParentageQueryExpectedFather(int index, int *out, char *name,", source)
+
+    def test_a_time_skip_step_waits_while_an_event_is_open(self):
+        # Live, The Secret City (2026-10-10): a Choose Time Skip Amount step taken while The Ants
+        # and the Granary's popup was open logged "Age: 694 -> 814" on every villager.  The event's
+        # bracket is open for as long as the presenter's modal loop runs; the Story companion's
+        # step waits while it is (the harness's check 9 runs the rule against the bracket).
+        source = (NATIVE / "vvfp_island_events.c").read_text(encoding="utf-8")
+        self.assertIn("int __stdcall VvfpIslandEventOpen(void) {\n    return g_depth > 0 && g_watching;\n}",
+                      source)
+        self.assertIn("VvfpIslandEventOpen=_VvfpIslandEventOpen@0",
+                      (NATIVE / "vvfp_island_events.def").read_text(encoding="utf-8"))
+        story = (ROOT / "native" / "vvfp_story_upgrades" / "story_time_skip.inc").read_text(encoding="utf-8")
+        self.assertIn('GetModuleHandleA("VVFP Island Events.dll")', story)
+        self.assertIn('GetProcAddress(module, "VvfpIslandEventOpen")', story)
+        tick = body(story, "static void time_skip_tick(int game) {")
+        # held before anything moves: the step, the replay wait, the closing popup
+        held = tick.index("if (time_skip_event_open()) {")
+        self.assertLess(held, tick.index("time_skip_step(host)"))
+        self.assertLess(held, tick.index("host->time_skip_settled()"))
+        self.assertLess(held, tick.index("time_skip_notice_arm("))
+        # the shipped DLL exports it
+        import pefile
+        pe = pefile.PE(str(ROOT / "assets" / "island_events" / "VVFP Island Events.dll"), fast_load=True)
+        pe.parse_data_directories(directories=[pefile.DIRECTORY_ENTRY["IMAGE_DIRECTORY_ENTRY_EXPORT"]])
+        names = {e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
+        self.assertIn("VvfpIslandEventOpen", names)
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
