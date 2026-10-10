@@ -3,3 +3,4 @@ EXPORTS
     VvfpStartup=_VvfpStartup@8
     VvfpGiveLastName=_VvfpGiveLastName@12
     VvfpRuleLastName2=_VvfpRuleLastName2@36
+    VvfpRelookLastName=_VvfpRelookLastName@28

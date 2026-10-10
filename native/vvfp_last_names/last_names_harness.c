@@ -19,6 +19,11 @@
         line for the other sex is not theirs.
      3. A name kept in UTF-8 in the record (Élodie) is the game's Latin-1.
      4. A record without "villager" lines (an earlier build's) works as before.
+     5. Head 0 and body 0 are real looks; only a negative look is unknown.
+     6. VvfpRelookLastName: a change of looks copies exactly the matching
+        line (name, sex, old looks) to the new looks right after it (the old
+        line stays for a child already conceived), through a temporary file;
+        with slot 0 the slot is the save that holds the name.
 
    Exit code 0 when every check passes. */
 #define _CRT_SECURE_NO_WARNINGS
@@ -166,6 +171,58 @@ int main(int argc, char **argv) {
     check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0, "the village's rule");
     DeleteFileA(g_path);
     check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Akikai") == 0, "no record: unchanged");
+
+    printf("5. Head 0 and body 0 are real looks\n");
+    record("father", "villager\tAgo Bahati\t0\t0\tM\tmother\nvillager\tAipi Wanjiko\t0\t0\tF\tmother\n");
+    check(strcmp(born("Ago Bahati", 0, 0, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0, "a father with head 0, body 0");
+    check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 0, 0), "Kid Wanjiko") == 0, "a mother with head 0, body 0");
+    check(strcmp(born("Ago Bahati", -1, -1, "Aipi Wanjiko", 7, 8), "Kid Bahati") == 0,
+          "unknown looks (negative) are not 0");
+
+    printf("6. A change of looks takes the villager's rule along (VvfpRelookLastName)\n");
+    {
+        static const char before[] = "VVFP LAST NAMES v1 game=3\nrule\tfather\nwhole\tBig Bob\n"
+                                     "villager\tAgo Bahati\t5\t6\tM\tmother\n"
+                                     "villager\tAgo Bahati\t5\t6\tF\trandom\n"
+                                     "villager\tAgo Bahati\t1\t1\tM\trandom\n"
+                                     "villager\t\xC3\x89lodie\t7\t8\tF\tmother\n";
+        static const char after[] = "VVFP LAST NAMES v1 game=3\nrule\tfather\nwhole\tBig Bob\n"
+                                    "villager\tAgo Bahati\t5\t6\tM\tmother\n"
+                                    "villager\tAgo Bahati\t0\t12\tM\tmother\n"
+                                    "villager\tAgo Bahati\t5\t6\tF\trandom\n"
+                                    "villager\tAgo Bahati\t1\t1\tM\trandom\n"
+                                    "villager\t\xC3\x89lodie\t7\t8\tF\tmother\n";
+        char got[1024], save[MAX_PATH * 2], tmp[MAX_PATH * 2 + 16];
+        FILE *fp;
+        size_t n;
+        record(NULL, "");
+        fp = fopen(g_path, "wb");
+        fputs(before, fp);
+        fclose(fp);
+        check(VvfpRelookLastName("Ago Bahati", 1, 5, 6, 0, 12, 1) == 1, "one line copied to the new looks");
+        fp = fopen(g_path, "rb");
+        n = fread(got, 1, sizeof got - 1, fp);
+        fclose(fp);
+        got[n] = '\0';
+        check(strcmp(got, after) == 0, "the copy right after it, nothing else changed, byte for byte");
+        _snprintf(tmp, sizeof tmp, "%s.relook-tmp", g_path);
+        check(GetFileAttributesA(tmp) == INVALID_FILE_ATTRIBUTES, "no temporary file left");
+        check(strcmp(born("Ago Bahati", 0, 12, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
+              "the next birth finds him by his new looks");
+        check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
+              "and a child conceived before the change still by the old ones");
+        check(VvfpRelookLastName("Ago Bahati", 1, 5, 6, 0, 12, 1) == 0, "done again: not doubled");
+        check(VvfpRelookLastName("Ago Bahati", 1, 8, 8, 9, 9, 1) == 0, "no line with those looks: nothing");
+        check(VvfpRelookLastName("Ago Bahati", 1, 0, 12, 0, 12, 1) == 0, "the same looks: nothing");
+        check(VvfpRelookLastName("\xC9lodie", 0, 7, 8, 2, 3, 1) == 1, "a Latin-1 name");
+        /* Slot 0: the slot whose save holds the name. */
+        _snprintf(save, sizeof save, "%s\\LDW\\%s\\Virtual Villagers - The Secret City1.ldw", g_docs, base);
+        fp = fopen(save, "wb");
+        fwrite("ldwg\0\0Ago Bahati\0\0", 1, 19, fp);
+        fclose(fp);
+        check(VvfpRelookLastName("Ago Bahati", 1, 1, 1, 4, 4, 0) == 1, "slot 0: found from the save");
+        DeleteFileA(save);
+    }
 
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);
     return failures ? 1 : 0;

@@ -34,7 +34,7 @@ VS_TOOLS = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools
 CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
-HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2
+HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10
 NOW = datetime(2026, 10, 9, 12, 0, 0)
 RULES = (None, "father", "mother", "random")
 
@@ -95,8 +95,13 @@ class InheritedFollowsTheOwnRules(unittest.TestCase):
         self.assertEqual(self.given("each", {}), "")
 
     def test_a_namesake_with_other_looks_or_sex_is_not_them(self):
+        self.people.append(person("Ago Bahati", "Male", 5, 7))         # a living namesake with those looks
         self.assertEqual(self.given("father", {("Ago Bahati", 5, 7, "Male"): "mother"}), "Bahati")
         self.assertEqual(self.given("father", {("Ago Bahati", 5, 6, "Female"): "mother"}), "Bahati")
+        self.people.pop()
+        # With no living villager of those looks, the one line of his name and sex is his after a change
+        # of looks no record told of.
+        self.assertEqual(self.given("father", {("Ago Bahati", 5, 7, "Male"): "mother"}), "Wanjiko")
 
 
 class TheRecordFile(unittest.TestCase):
@@ -240,11 +245,168 @@ class TheCompanionsPassTheLooks(unittest.TestCase):
                       export)
         vv1 = (ROOT / "native" / "vv1_parentage" / "vv1_parentage.c").read_text(encoding="utf-8")
         self.assertIn('GetProcAddress(dll, "VvfpRuleLastName2")', vv1)
-        self.assertIn("e->father_name, e->father_head && e->father_body ? e->father_head - 1 : -1,", vv1)
+        # A New Home's entry keeps each look + 1: a real head or body 0 is 1 there, and 0 is "not recorded"
+        # (an earlier build's entry) -- then the one living villager of that name and sex, if only one.
+        self.assertIn("fh = e->father_head && e->father_body ? e->father_head - 1 : -1;", vv1)
+        self.assertIn("mb = e->mother_head && e->mother_body ? e->mother_body - 1 : -1;", vv1)
+        self.assertIn("vv1_only_looks(e->father_name, 1, &fh, &fb);", vv1)
+        self.assertIn("rule(name, VV1_NAME_CAPACITY, e->father_name, fh, fb, e->mother_name, mh, mb, slot)", vv1)
+        self.assertIn("unsigned char father_head, father_body;   /* +1; 0 = unknown */", vv1)
+        only = vv1[vv1.index("static void vv1_only_looks("):]
+        self.assertIn("if (found == 1 && h >= 0 && b >= 0) {", only[:1200])
         definition = (NATIVE / "vvfp_last_names.def").read_text(encoding="utf-8")
         self.assertIn("VvfpRuleLastName2=_VvfpRuleLastName2@36", definition)
         self.assertNotIn("VvfpRuleLastName=", definition)
 
+
+class HeadAndBodyZeroAreRealLooks(unittest.TestCase):
+    """Head 0 / body 0 is a villager's real look (the first of each list), never "unknown"."""
+
+    def test_a_parent_with_head_0_and_body_0_keeps_their_rule(self):
+        dad, mum, kid = person("Ago Bahati", "Male", 0, 0), person("Aipi Wanjiko", "Female", 0, 0), person("Kid", "Male")
+        carried = lambda name: ln.split_name(2, name)[1]  # noqa: E731
+        parents = {kid.identity: (dad.identity, mum.identity)}
+        for own, want in (({ln.own_key(dad): "mother"}, "Wanjiko"), ({ln.own_key(mum): "mother"}, "Wanjiko"),
+                          ({}, "Bahati")):
+            with self.subTest(own=own):
+                self.assertEqual(ln.inherited([dad, mum, kid], parents, "father", None, None, carried, own)[kid.identity],
+                                 want)
+
+    def test_kept_and_read_back_with_head_0_and_body_0(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            save(folder, [entry("Ago Bahati", 0, 1, 0, 0), entry("Aipi", 1, 50, 7, 8)])
+            ago = ("Ago Bahati", 0, 0, "Male")
+            self.assertEqual(ln.save_own_rules(folder, 3, 1, "father", {ago: "mother"}, NoGame()), {ago: "mother"})
+            self.assertIn("villager\tAgo Bahati\t0\t0\tM\tmother\n", ln.record_path(folder, 3, 1).read_text("utf-8"))
+            self.assertEqual(ln.read_own(folder, 3, 1), {ago: "mother"})
+
+    def test_the_lost_children_to_new_believers_pass_the_childs_record_looks_as_they_are(self):
+        export = (ROOT / "native" / "parentage_export" / "parentage_export.c").read_text(encoding="utf-8")
+        rule = export[export.index("static void rule_last_name("):]
+        rule = rule[:rule.index("\n}\n")]
+        self.assertNotIn("? -1", rule, "no value of a look is taken for unknown")
+        native = (NATIVE / "vvfp_last_names.c").read_text(encoding="utf-8")
+        self.assertIn("if (name == NULL || name[0] == '\\0' || head < 0 || body < 0) {", native)
+
+
+class ARuleFollowsAChangeOfLooks(unittest.TestCase):
+    """The coordinator, 2026-10-09: a look change (an island event changed Papu's head in the owner's A
+    New Home) must not leave the villager's rule behind."""
+
+    def test_every_appearance_record_re_keys_the_line_in_the_game(self):
+        export = (ROOT / "native" / "parentage_export" / "parentage_export.c").read_text(encoding="utf-8")
+        self.assertIn('    } else if (kind == KIND_APPEARANCE) {\n        heading = "Appearance changed\\n";\n'
+                      '        relook_last_name(g, record, before);\n', export)
+        self.assertIn('GetProcAddress(dll, "VvfpRelookLastName")', export)
+        self.assertIn('"  Old head: %d\\n  Old body: %d\\n  New head: %d\\n  New body: %d"', export)
+        self.assertIn("VvfpRelookLastName=_VvfpRelookLastName@28",
+                      (NATIVE / "vvfp_last_names.def").read_text(encoding="utf-8"))
+        # Every writer of an "Appearance changed" record hands over those four lines first.
+        for path in (ROOT / "native" / "shared" / "appearance_log.h",
+                     ROOT / "native" / "vvfp_island_events" / "vvfp_island_events.c"):
+            with self.subTest(writer=path.name):
+                self.assertIn('"  Old head: %d\\n  Old body: %d\\n  New head: %d\\n  New body: %d\\n"',
+                              path.read_text(encoding="utf-8"))
+
+    def test_repair_re_keys_a_line_whose_looks_changed_with_no_record(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            save(folder, [entry("Papu", 0, 1, 9, 6), entry("Papu", 1, 2, 9, 6), entry("Aipi", 1, 50, 7, 8)])
+            ln.write_record(folder, 3, 1, "father", {}, own={("Papu", 3, 6, "Male"): "mother",
+                                                            ("Aipi", 1, 1, "Female"): "random"})
+            people = ln.living(folder, 3, 1)
+            now = ln.own_rules_now(folder, 3, 1, people)
+            self.assertEqual(now[("Papu", 9, 6, "Male")], "mother", "the one Papu (male) with no line of his own")
+            self.assertEqual(now[("Aipi", 7, 8, "Female")], "random")
+            kept = ln.save_own_rules(folder, 3, 1, "father", now, NoGame())
+            self.assertEqual(ln.read_own(folder, 3, 1), kept)
+            self.assertIn(("Papu", 9, 6, "Male"), kept, "re-keyed at the save")
+
+    def test_not_when_it_could_be_two_villagers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            save(folder, [entry("Papu", 0, 1, 9, 6), entry("Papu", 0, 2, 4, 4)])
+            ln.write_record(folder, 3, 1, "father", {}, own={("Papu", 3, 6, "Male"): "mother"})
+            self.assertEqual(ln.own_rules_now(folder, 3, 1, ln.living(folder, 3, 1)),
+                             {("Papu", 3, 6, "Male"): "mother"}, "two Papus with no line: neither")
+            # A living villager who still has the line's looks keeps it.
+            ln.write_record(folder, 3, 1, "father", {}, own={("Papu", 9, 6, "Male"): "mother"})
+            self.assertEqual(ln.own_rules_now(folder, 3, 1, ln.living(folder, 3, 1)),
+                             {("Papu", 9, 6, "Male"): "mother"})
+
+    def test_a_birth_finds_the_parent_after_a_change_of_looks(self):
+        mum, kid = person("Aipi Wanjiko", "Female", 7, 8), person("Kid", "Male")
+        dad = person("Papu Bahati", "Male", 9, 6)        # his looks now: 9 / 6, changed with no record
+        carried = lambda name: ln.split_name(3, name)[1]  # noqa: E731
+        parents = {kid.identity: (dad.identity, mum.identity)}
+        own = {("Papu Bahati", 3, 6, "Male"): "mother"}   # set while he looked 3 / 6
+        self.assertEqual(ln.inherited([dad, mum, kid], parents, "father", None, None, carried, own)[kid.identity],
+                         "Wanjiko", "the one line of his name and sex, whose looks nobody living has")
+        twin = person("Papu Bahati", "Male", 3, 6)        # a living namesake has those looks: not him
+        self.assertEqual(ln.inherited([dad, twin, mum, kid], parents, "father", None, None, carried, own)
+                         [kid.identity], "Bahati")
+        # A child conceived before the change keeps his old looks on its record: the in-game re-key keeps
+        # the old line beside the new one (VvfpRelookLastName), so both are found.
+        both = {("Papu Bahati", 3, 6, "Male"): "mother", ("Papu Bahati", 9, 6, "Male"): "mother"}
+        for looks in ((3, 6), (9, 6)):
+            parents = {kid.identity: (("Papu Bahati", *looks), mum.identity)}
+            self.assertEqual(ln.inherited([dad, mum, kid], parents, "father", None, None, carried, both)
+                             [kid.identity], "Wanjiko")
+
+
+class TheRowsReadAsTheLastNamesWindow(unittest.TestCase):
+    """The owner (Preview 11): the own-rule window's rows read as the last-names window's -- name, sex,
+    parents, "arrived" -- and never show a head or body value ("and no body/head value"); rows that would
+    read alike are told apart by age, then by "1 of 2"."""
+
+    def rows(self, people, parents):
+        import vv_fun_patcher_gui as gui
+        return gui.last_name_rows(people, parents)
+
+    def test_the_main_windows_format(self):
+        goro = ln.Living(0, "Goro Wanjiko", "Male", 3, 4, 1, "", age=400)
+        iruwa = ln.Living(0, "Iruwa Bandele", "Female", 0, 0, 1, "", arrived=True, age=500)
+        copy = ln.Living(0, "Kito", "Male", 5, 5, 1, "", arrived=True, age=500)
+        gone = ln.Living(-1, "Chika", "Female", 6, 6, 0, "", alive=False, age=900)
+        parents = {goro.identity: (("Kito Wanjiko", 1, 1), ("Chika Helaku", 2, 2)),
+                   copy.identity: (("Ago", 1, 1), None)}
+        self.assertEqual(self.rows([goro, iruwa, copy, gone], parents), [
+            "Goro Wanjiko (Male) -- father Kito Wanjiko, mother Chika Helaku",
+            "Iruwa Bandele (Female) -- arrived",
+            "Kito (Male) -- father Ago, mother unknown -- arrived",
+            "Chika (Female, no longer in the village)",
+        ])
+
+    def test_namesakes_by_age_then_by_number_never_by_looks(self):
+        pa = (("Kito", 1, 1), ("Chika", 2, 2))
+        twin1 = ln.Living(0, "Soda", "Female", 0, 0, 1, "", age=40)
+        twin2 = ln.Living(0, "Soda", "Female", 0, 1, 1, "", age=40)      # same-named twins
+        older = ln.Living(0, "Soda", "Female", 7, 7, 1, "", age=0)       # age 0 is a real age
+        lone = ln.Living(0, "Ago", "Male", 0, 0, 1, "", age=0)
+        parents = {twin1.identity: pa, twin2.identity: pa, older.identity: pa}
+        rows = self.rows([twin1, older, twin2, lone], parents)
+        self.assertEqual(rows, [
+            "Soda (Female) -- father Kito, mother Chika -- aged 2 -- 1 of 2",
+            "Soda (Female) -- father Kito, mother Chika -- aged 0",
+            "Soda (Female) -- father Kito, mother Chika -- aged 2 -- 2 of 2",
+            "Ago (Male)",
+        ])
+        for row in rows:
+            self.assertNotRegex(row, r"head|body")
+
+    def test_both_windows_use_it_and_scroll(self):
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        main = source[source.index("    def _last_names_dialog("):source.index("    def _own_rules_dialog(")]
+        own = source[source.index("    def _own_rules_dialog("):source.index("    def _repair_questions(")]
+        self.assertIn("for row, (v, who) in enumerate(zip(people, last_name_rows(people, parents))):", main)
+        self.assertIn("shown = [v for v in people if v.alive]", own)
+        self.assertIn("for row, (v, who) in enumerate(zip(shown, last_name_rows(shown, parents))):", own)
+        self.assertIn("window.resizable(True, True)", own)
+        self.assertIn('bar = ttk.Scrollbar(body, orient="vertical", command=canvas.yview)', own)
+        self.assertIn("canvas.configure(yscrollcommand=bar.set)", own)
+        for text in (main, own):
+            self.assertNotRegex(text, r"head \{|body \{|v\.head\}|v\.body\}")
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
 class OwnRulesHarness(unittest.TestCase):

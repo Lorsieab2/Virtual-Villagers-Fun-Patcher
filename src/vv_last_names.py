@@ -271,6 +271,7 @@ class Living:
     default: str                    # the family's last name, or "" outside 1..50
     alive: bool = True              # False: dead, disappeared or gone, known from the logs only (at -1)
     arrived: bool = False           # came through an event, not a founder (everyone(): ARRIVALS)
+    age: int | None = None          # game units (20 a year), when known
 
     @property
     def identity(self) -> tuple:
@@ -317,11 +318,12 @@ def living(folder: Path, game: int, slot: int, bodies: bool = False) -> list[Liv
     f = FIELDS[game]
     names = checker.LAST_NAMES[game]
     out = []
+    age_at = -0x28 if game == 1 else checker.LAYOUTS[game].age     # A New Home: record +0x348
     for at in _entries(game, data, bodies):
         family = _i32(data, at + f.family)
         out.append(Living(at, _cstr(data, at, f.name_cap), "Male" if _i32(data, at + f.sex) == f.male else "Female",
                           _i32(data, at + f.head), _i32(data, at + f.body), family,
-                          names[family - 1] if 1 <= family <= 50 else ""))
+                          names[family - 1] if 1 <= family <= 50 else "", age=_i32(data, at + age_at)))
     return out
 
 
@@ -564,8 +566,36 @@ def own_rules_now(folder: Path, game: int, slot: int, people: list[Living]) -> d
             moved = (*looks.current(key[:3]), key[3])
             if moved in living_keys and moved not in stored:
                 key = moved
+            else:
+                key = _relooked(key, stored, living_keys)
         out[key] = rule
     return out
+
+
+def _relooked(key: tuple, stored, living_keys: set[tuple]) -> tuple:
+    """A rule line whose looks no living villager has, for a name and sex only one line holds: the one
+    living villager of that name and sex who has no line of their own, after a change of looks no record
+    told of (the coordinator, 2026-10-09).  Else the line's own key."""
+    name, _head, _body, sex = key
+    if key in living_keys or sum(1 for k in stored if (k[0], k[3]) == (name, sex)) != 1:
+        return key
+    candidates = [k for k in living_keys if (k[0], k[3]) == (name, sex) and k not in stored]
+    return candidates[0] if len(candidates) == 1 else key
+
+
+def _parent_rule(own_rules: dict[tuple, str], parent: tuple | None, sex: str,
+                 living_keys: set[tuple]) -> str | None:
+    """A parent's own rule at a birth: their line; else, for a parent whose looks changed with no record,
+    the one line of their name and sex whose looks no living villager has."""
+    if parent is None:
+        return None
+    key = (*parent, sex)
+    if key in own_rules:
+        return own_rules[key]
+    lines = [k for k in own_rules if (k[0], k[3]) == (parent[0], sex)]
+    if len(lines) == 1 and lines[0] not in living_keys:
+        return own_rules[lines[0]]
+    return None
 
 
 def _expected_fathers(folder: Path, game: int, slot: int) -> set[str]:
@@ -676,7 +706,7 @@ def everyone(folder: Path, game: int, slot: int) -> tuple[list[Living], dict[tup
     for p in sorted(village.known(), key=lambda q: q.order_key()):
         if p.key not in have and not p.alive and p.head is not None and p.body is not None:
             people.append(Living(-1, p.name, p.sex or "", p.head, p.body, 0, "", alive=False,
-                                 arrived=p.key in arrivals))
+                                 arrived=p.key in arrivals, age=p.age))
             have.add(p.key)
     parents = {p.key: tuple(village.people[q].key if q is not None else None for q in (p.father, p.mother))
                for p in village.known()}
@@ -734,11 +764,12 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
     decide() gives from their father's, their mother's and `rule`."""
     fixed = fixed or {}
     own_rules = own_rules or {}
+    living_keys = {own_key(v) for v in people if v.alive}
 
     def rule_of(v: Living) -> str:
         father, mother = parents.get(v.identity, (None, None))
-        return decide(own_rules.get((*father, "Male")) if father else None,
-                      own_rules.get((*mother, "Female")) if mother else None, rule)
+        return decide(_parent_rule(own_rules, father, "Male", living_keys),
+                      _parent_rule(own_rules, mother, "Female", living_keys), rule)
 
     def chosen_or_listed(v: Living, r: str) -> str:
         if v.identity in fixed:

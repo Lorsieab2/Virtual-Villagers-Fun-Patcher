@@ -321,21 +321,35 @@ static int save_folder(char *out, size_t size) {
 /* The village's rule ("father", "mother", "random"; "" for none or anything
    else) and the file, kept in g_rule_file for the "whole" and "villager"
    lines.  0 when there is no file of this game to use. */
+static DWORD g_rule_size;                /* the bytes read; RULE_FILE_MAX: perhaps not all */
+
+/* The slot's record: "<save folder>\Virtual Villagers Fun Patcher Data\Last
+   Names\Virtual Villagers <game> Last Names - Save <slot>.dat". */
+static int record_path(int slot, char *path, size_t size) {
+    char folder[MAX_PATH];
+    if (slot < 1 || slot > 9 || g_game < 1 || !save_folder(folder, sizeof folder)) {
+        return 0;
+    }
+    if (_snprintf(path, size, "%s\\Virtual Villagers Fun Patcher Data\\Last Names\\"
+                  "Virtual Villagers %d Last Names - Save %d.dat", folder, g_game, slot) <= 0) {
+        return 0;
+    }
+    path[size - 1] = '\0';
+    return 1;
+}
+
 static int read_record(int slot, char *rule, size_t rule_size) {
-    char folder[MAX_PATH], path[MAX_PATH * 2];
+    char path[MAX_PATH * 2];
     char header[48];
     char *line;
     HANDLE h;
     DWORD got = 0;
     rule[0] = '\0';
-    if (slot < 1 || slot > 9 || g_game < 1 || !save_folder(folder, sizeof folder)) {
+    g_rule_size = 0;
+    g_rule_file[0] = '\0';
+    if (!record_path(slot, path, sizeof path)) {
         return 0;
     }
-    if (_snprintf(path, sizeof path, "%s\\Virtual Villagers Fun Patcher Data\\Last Names\\"
-                  "Virtual Villagers %d Last Names - Save %d.dat", folder, g_game, slot) <= 0) {
-        return 0;
-    }
-    path[sizeof path - 1] = '\0';
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
@@ -346,6 +360,7 @@ static int read_record(int slot, char *rule, size_t rule_size) {
     }
     CloseHandle(h);
     g_rule_file[got] = '\0';
+    g_rule_size = got;
     _snprintf(header, sizeof header, "VVFP LAST NAMES v1 game=%d", g_game);
     header[sizeof header - 1] = '\0';
     if (strncmp(g_rule_file, header, strlen(header)) != 0
@@ -418,10 +433,61 @@ static int number_of(const char *text, size_t n, int *value) {
     return 1;
 }
 
+/* One "villager" line (from `line` to its end): its name, head, body, sex
+   ('M' / 'F') and rule ('f', 'm', 'r'), and where the head and body are, for
+   a re-key.  0 for any other line, or a malformed one. */
+struct own_line {
+    char name[LONGEST_LAST + 1];
+    int head, body;
+    char sex, rule;
+    const char *looks;            /* the head field's first byte */
+    const char *looks_end;        /* the tab after the body field */
+};
+
+static int own_line_of(const char *line, struct own_line *o) {
+    const char *field[5];
+    size_t len[5], end = strcspn(line, "\r\n");
+    const char *p = line + 9, *stop = line + end;
+    int k;
+    if (strncmp(line, "villager\t", 9) != 0 || end < 9) {
+        return 0;
+    }
+    for (k = 0; k < 5; ++k) {           /* name, head, body, sex, rule */
+        const char *tab = (const char *)memchr(p, '\t', (size_t)(stop - p));
+        field[k] = p;
+        len[k] = (size_t)((k < 4 ? (tab ? tab : stop) : stop) - p);
+        if (k < 4) {
+            if (tab == NULL) {
+                break;
+            }
+            p = tab + 1;
+        }
+    }
+    if (k < 5 || memchr(field[4], '\t', len[4]) != NULL
+        || !latin1_of(field[0], len[0], o->name, sizeof o->name)
+        || !number_of(field[1], len[1], &o->head) || !number_of(field[2], len[2], &o->body)
+        || len[3] != 1 || (field[3][0] != 'M' && field[3][0] != 'F') || len[4] != 6) {
+        return 0;
+    }
+    if (strncmp(field[4], "father", 6) == 0) {
+        o->rule = 'f';
+    } else if (strncmp(field[4], "mother", 6) == 0) {
+        o->rule = 'm';
+    } else if (strncmp(field[4], "random", 6) == 0) {
+        o->rule = 'r';
+    } else {
+        return 0;
+    }
+    o->sex = field[3][0];
+    o->looks = field[1];
+    o->looks_end = field[2] + len[2];
+    return 1;
+}
+
 /* The rule of the parent `name` with these looks and sex ('M' / 'F') from
    the record's "villager" lines: 'f', 'm' or 'r'; 0 for none -- no line, the
-   looks unknown (negative), or two lines for the same villager that
-   disagree. */
+   looks unknown (negative; a head or body 0 is a real look), or two lines for
+   the same villager that disagree. */
 static char own_rule(const char *name, int head, int body, char sex) {
     const char *line;
     char found = 0;
@@ -429,49 +495,18 @@ static char own_rule(const char *name, int head, int body, char sex) {
         return 0;
     }
     for (line = g_rule_file; line != NULL; line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
-        const char *field[5];
-        size_t len[5], end = strcspn(line, "\r\n");
-        const char *p = line + 9, *stop = line + end;
-        char who[LONGEST_LAST + 1];
-        int k, h, b;
-        char rule;
-        if (strncmp(line, "villager\t", 9) != 0 || end < 9) {
+        struct own_line o;
+        if (!own_line_of(line, &o) || strcmp(o.name, name) != 0 || o.head != head || o.body != body
+            || o.sex != sex) {
             continue;
         }
-        for (k = 0; k < 5; ++k) {           /* name, head, body, sex, rule */
-            const char *tab = (const char *)memchr(p, '\t', (size_t)(stop - p));
-            field[k] = p;
-            len[k] = (size_t)((k < 4 ? (tab ? tab : stop) : stop) - p);
-            if (k < 4) {
-                if (tab == NULL) {
-                    break;
-                }
-                p = tab + 1;
-            }
-        }
-        if (k < 5 || memchr(field[4], '\t', len[4]) != NULL
-            || !latin1_of(field[0], len[0], who, sizeof who) || strcmp(who, name) != 0
-            || !number_of(field[1], len[1], &h) || h != head || !number_of(field[2], len[2], &b) || b != body
-            || len[3] != 1 || field[3][0] != sex || len[4] != 6) {
-            continue;
-        }
-        if (strncmp(field[4], "father", 6) == 0) {
-            rule = 'f';
-        } else if (strncmp(field[4], "mother", 6) == 0) {
-            rule = 'm';
-        } else if (strncmp(field[4], "random", 6) == 0) {
-            rule = 'r';
-        } else {
-            continue;
-        }
-        if (found != 0 && found != rule) {
+        if (found != 0 && found != o.rule) {
             return 0;
         }
-        found = rule;
+        found = o.rule;
     }
     return found;
 }
-
 /* The rule a birth uses (the owner, 2026-10-09): one parent's own; both
    parents' when they agree; else the village's (0: none). */
 static char decide(char father_rule, char mother_rule, char village) {
@@ -673,6 +708,87 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName2(char *name, unsigned int r
     name[n] = ' ';
     memcpy(name + n + 1, last, strlen(last) + 1);
     return 1;
+}
+
+/* A villager's looks changed (the coordinator, 2026-10-09: the rule must
+   follow the villager at the moment the look changes -- an island event
+   changed Papu's head in the owner's A New Home).  From the Parentage Export
+   DLL, as it is handed each "Appearance changed" record (Change Appearance,
+   the Island Events log, a Custom Island Event the Island Events log sees):
+   each "villager" line for `name` and this sex with the old looks gets a
+   copy with the new looks right after it.  The old line stays: a child
+   already conceived keeps the father's looks of its conception on its record
+   (Repair drops it once no pregnancy names him).  Nothing else in the record
+   changes; a line the new looks already have is not doubled.  `slot` 0: the slot save
+   holding the name (slot_of_parents).  Written through a temporary file
+   swapped in whole.  Returns the lines re-keyed. */
+__declspec(dllexport) int __stdcall VvfpRelookLastName(const char *name, int male, int old_head, int old_body,
+                                                       int new_head, int new_body, int slot) {
+    static char out[RULE_FILE_MAX + 64 * 64];
+    char rule[8], path[MAX_PATH * 2], temporary[MAX_PATH * 2 + 16];
+    const char *line;
+    size_t used = 0;
+    int moved = 0, has_new;
+    HANDLE h;
+    DWORD wrote = 0;
+    if (install_state != 1 || name == NULL || name[0] == '\0' || old_head < 0 || old_body < 0 || new_head < 0
+        || new_body < 0 || (old_head == new_head && old_body == new_body)) {
+        return 0;
+    }
+    if (slot <= 0) {
+        slot = male ? slot_of_parents(name, NULL) : slot_of_parents(NULL, name);
+    }
+    if (!read_record(slot, rule, sizeof rule) || g_rule_size >= RULE_FILE_MAX || !record_path(slot, path, sizeof path)) {
+        return 0;
+    }
+    has_new = own_rule(name, new_head, new_body, male ? 'M' : 'F') != 0;
+    for (line = g_rule_file; line != NULL && *line != '\0';
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        size_t n = strchr(line, '\n') ? (size_t)(strchr(line, '\n') + 1 - line) : strlen(line);
+        struct own_line o;
+        if (n >= sizeof out - used) {
+            return 0;
+        }
+        memcpy(out + used, line, n);
+        used += n;
+        if (own_line_of(line, &o) && strcmp(o.name, name) == 0 && o.sex == (male ? 'M' : 'F')
+            && o.head == old_head && o.body == old_body && !has_new) {
+            int k;
+            if (line[n - 1] != '\n') {          /* a last line without its newline */
+                if (used + 1 >= sizeof out) {
+                    return 0;
+                }
+                out[used++] = '\n';
+            }
+            k = _snprintf(out + used, sizeof out - used, "%.*s%d\t%d%.*s", (int)(o.looks - line), line,
+                          new_head, new_body, (int)(line + strcspn(line, "\r\n") - o.looks_end), o.looks_end);
+            if (k <= 0 || (size_t)k + 1 >= sizeof out - used) {
+                return 0;
+            }
+            used += (size_t)k;
+            out[used++] = '\n';
+            ++moved;
+        }
+    }
+    if (moved == 0 || _snprintf(temporary, sizeof temporary, "%s.relook-tmp", path) <= 0) {
+        return 0;
+    }
+    temporary[sizeof temporary - 1] = '\0';
+    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!WriteFile(h, out, (DWORD)used, &wrote, NULL) || wrote != used || !FlushFileBuffers(h)) {
+        CloseHandle(h);
+        DeleteFileA(temporary);
+        return 0;
+    }
+    CloseHandle(h);
+    if (!MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(temporary);
+        return 0;
+    }
+    return moved;
 }
 
 static int one_of(unsigned int value, const unsigned int *values) {

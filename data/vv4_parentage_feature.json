@@ -1,11 +1,11 @@
 {
-  "companion_sha256": "8EE8AB561454EA266162047733323FE9B71A7250D942D61E4F519E0CADD9C779",
+  "companion_sha256": "829F6BA02B81A1A0151133A6509F9716E0A4E8078952ECA54D558B43E21F3727",
   "features": [
     {
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "8EE8AB561454EA266162047733323FE9B71A7250D942D61E4F519E0CADD9C779",
+          "sha256": "829F6BA02B81A1A0151133A6509F9716E0A4E8078952ECA54D558B43E21F3727",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         },
         {
