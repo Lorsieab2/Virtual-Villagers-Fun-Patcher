@@ -5563,16 +5563,19 @@ def see_through(edits: Edits, part: str) -> float:
 
 
 def _apply_opacity(items: list, edits: Edits) -> None:
-    """Each item as see-through as its part of the tree: the boxes behind words, the portraits (their
-    frames, heads and words), the family lines and every other word."""
+    """Each item as see-through as its part of the tree: the boxes behind words, the portraits (everything
+    drawn for one villager -- frame, border, rope or vine with its leaves and flowers, detail lines, mark
+    or glow, face and words), the family lines and every other word (with the Key's swatches and the
+    generation labels' lines).  A portrait's own lines once went with the Words and its vines with
+    nothing at all."""
     for item in items:
         if isinstance(item, Shape) and item.target == ("plate",):
             item.opacity *= see_through(edits, "plates")
-        elif isinstance(item, (Shape, Head)) and item.pid is not None or isinstance(item, Text) and item.pid is not None:
+        elif getattr(item, "pid", None) is not None:
             item.opacity *= see_through(edits, "portraits")
         elif isinstance(item, Line) and item.piece:
             item.opacity *= see_through(edits, "lines")
-        elif isinstance(item, (Text, Line)):
+        elif isinstance(item, (Text, Line)) or isinstance(item, Shape) and item.move == "key":
             item.opacity *= see_through(edits, "words")
 
 
@@ -6062,11 +6065,13 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             for line in scheme_outline(lay.edits, "marks", kind, (fx - m, fy - m, fw + 2 * m, fh + 2 * m, angle),
                                        corner_radius(kind) + m, 2 * reach / GLOW_RINGS + 0.6,
                                        opacity=see * (1 - (k - 1) / GLOW_RINGS), target=target, pieces=32):
+                line.pid = p.id                 # part of the portrait, like a one-colour glow
                 add(line)
     elif mark and marks_scheme:
         m = MARK_GAP
         for line in scheme_outline(lay.edits, "marks", kind, (fx - m, fy - m, fw + 2 * m, fh + 2 * m, angle),
                                    corner_radius(kind) + m, 4, opacity=see, target=target):
+            line.pid = p.id                     # part of the portrait, like a one-colour mark
             add(line)
     elif mark and lay.edits.mark_style == "glow":
         reach = lay.edits.mark_glow
@@ -6115,7 +6120,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         # A paw print's toes filled like its pad (the owner, 2026-10-09: "include the extra toes for the
         # portrait background"), under their borders.
         for line in decor(kind):
-            add(Poly(placed(line), inside_colour, opacity=see_through(e, "portraits")))
+            add(Poly(placed(line), inside_colour))      # faded with the portrait by _apply_opacity
     if border in SPECIAL_BORDERS:              # the braided rope or a vine, round any shape, in its own colours
         see = e.special_opacity / 100            # as see-through as the player says
         for item in special_border(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind), e):
