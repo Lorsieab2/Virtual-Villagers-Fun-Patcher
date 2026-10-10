@@ -120,6 +120,9 @@ static void villager(int index, const char *name) {
     r[0xF10] = 1;
     lstrcpynA((char *)r + 0xDD4, name, 0x19);
     *(int *)(r + 0xDC4) = 600;
+    /* Alive: the exporter lists a record only at health above 0 (population_export.c
+       living_villager; VV3's health +0xE78) -- at 0 it is a body awaiting burial. */
+    *(int *)(r + 0xE78) = 100;
 }
 
 static void write_titles(int slot, const vv_custom_title *entries, int count) {
