@@ -3413,9 +3413,10 @@ class App(tk.Tk):
         for kind in kinds:
             fixes = result.added.get(kind.id)
             if fixes:
-                done_words = "record(s) put right" if kind.id == "contradictions" else "line(s) added"
-                lines.append(f"{kind.label}: {sum(f.count for f in fixes)} {done_words} "
-                             f"in {len(fixes)} log file(s).")
+                done = (f"{sum(f.count for f in fixes)} record(s) put right" if kind.id == "contradictions"
+                        else f"{sum(f.count for f in fixes)} record(s) removed" if getattr(kind, "removes", None)
+                        else f"{sum(f.count for f in fixes)} line(s) added")
+                lines.append(f"{kind.label}: {done} in {len(fixes)} log file(s).")
         if len(lines) > (1 if rearm else 0):
             lines.append("Each log was backed up beside itself; everything is listed in the Repairs log.")
         self.status_var.set(f"Repair Saves & Logs: {info.name} done.")
@@ -3459,13 +3460,16 @@ class App(tk.Tk):
         for kind in kinds:
             for key, question in kind.questions.items():
                 answers[key] = question.default
-            if not kind.inserts and not getattr(kind, "edits", None):
+            if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None):
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
                               justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
                 continue
             ticks[kind.id] = tk.BooleanVar(value=True)
-            text = f"{getattr(kind, 'verb', 'Add')} {kind.label.lower()}: {kind.decided} decided"
+            text = (f"Put right {kind.label[0].lower() + kind.label[1:]}: "
+                    f"{len(kind.removes) + len(kind.replaces)} found" if kind.id == "contradictions"
+                    else f"Remove {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
+                    if getattr(kind, "removes", None) else f"Add {kind.label.lower()}: {kind.decided} decided")
             if kind.asked:
                 text += f", {kind.asked} question(s) for you"
             ttk.Checkbutton(frame, variable=ticks[kind.id], text=text).pack(anchor="w")

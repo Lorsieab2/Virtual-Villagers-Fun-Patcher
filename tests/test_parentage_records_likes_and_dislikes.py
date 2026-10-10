@@ -130,7 +130,9 @@ class ConceptionRecordPrintsLikesAndDislikesTests(unittest.TestCase):
             self.source.replace("\r\n", "\n"),
         )
         self.assertIn(
-            "father_body,\n        father_likes,\n        father_dislikes,\n        babies\n",
+            # then only A New Home's optional "Note: Father set by a Custom Island Event" line
+            "father_body,\n        father_likes,\n        father_dislikes,\n        babies,\n"
+            "        g_father_set.name != NULL",
             self.source.replace("\r\n", "\n"),
         )
 

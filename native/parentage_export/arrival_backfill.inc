@@ -532,7 +532,10 @@ static int record_missing(
         || apply < VV_ARRIVAL_COUNT || apply > VV_ARRIVAL_APPLY) {
         return -1;
     }
-    /* A New Home keeps no parents on the record: nothing says who was born. */
+    /* A New Home keeps no parents on the record: nothing here says who was
+       born.  Its parents are in the VV1 Parentage companion's file, whose
+       cross-check writes these Birth records instead (vv1_crosscheck.inc,
+       WriteParentageBirthAfterwards). */
     if (births && game_id == GAME_VV1) {
         return 0;
     }
@@ -695,6 +698,41 @@ static int record_missing_core(
             if (records_named == 1 && villagers_named == 1 && taken == 0) {
                 on_disk = !only->held;
                 held = only->held;
+            }
+        }
+        /* LAST NAMES ARE GIVEN LATER (Villagers Have Last Names, Repair's
+           "Last names come from"): a record written before then names the
+           villager by the first name alone, with the same head and body.
+           The owner's Cheop Bahati was born "Cheop", and with no record of
+           "Cheop Bahati" a Birth record's villager was given a backfilled
+           Arrived record.  So a record whose name is this villager's first
+           word, with these looks, is theirs when exactly one record and
+           exactly one of these villagers fit it. */
+        if (on_disk + held <= taken && taken == 0) {
+            const char *space = strchr(names[i], ' ');
+            if (space != NULL && space > names[i]) {
+                size_t first = (size_t)(space - names[i]);
+                int records_fit = 0, villagers_fit = 0;
+                const struct arrival_key *only = NULL;
+                for (j = 0; j < arrival_key_count; ++j) {
+                    const struct arrival_key *k = &arrival_keys[j];
+                    if (!k->reserved && k->head == heads[i] && k->body == bodies[i]
+                        && strlen(k->name) == first && strncmp(k->name, names[i], first) == 0) {
+                        ++records_fit;
+                        only = k;
+                    }
+                }
+                for (j = 0; j < count; ++j) {
+                    if (heads[j] == heads[i] && bodies[j] == bodies[i]
+                        && strncmp(names[j], names[i], first) == 0
+                        && (names[j][first] == ' ' || names[j][first] == '\0')) {
+                        ++villagers_fit;
+                    }
+                }
+                if (records_fit == 1 && villagers_fit == 1) {
+                    on_disk = !only->held;
+                    held = only->held;
+                }
             }
         }
         /* THE NAME CHANGED SINCE THE RECORD (a last name or a number given or

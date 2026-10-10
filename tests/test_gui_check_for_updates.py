@@ -158,7 +158,7 @@ class ReleasesLinkTests(unittest.TestCase):
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_genealogy_window", "vv_tree_editor_tools",
-               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names"}
+               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_log_contradictions"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -171,8 +171,10 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_save_backup", set()),
             ("vv_tribe_rename", {"vv_save_backup"}),
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
-                              "vv_cut_names", "vv_save_layout"}),
-            ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy"}),
+                              "vv_cut_names", "vv_save_layout", "vv_log_contradictions"}),
+            ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_contradictions"}),
+            # Records that contradict each other (Check / Repair Saves & Logs).
+            ("vv_log_contradictions", {"vv_log_tools", "vv_save_layout", "vv_log_additions", "vv_last_names"}),
             # Giving last names re-keys the Family Tree Maker's edits (vv_family_tree.renamed_keys).
             ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree",
                                "vv_tribe_rename", "vv_genealogy", "vv_save_layout"}),
@@ -180,8 +182,9 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_how_to_use", set()),
             # The Family Tree Maker and the Village Matchmaker.
             # The tree shows a name the Villager Details screen cut by the logs' full name.
+            # ...and A New Home's parents file under either folder name (vv_save_layout).
             ("vv_genealogy", {"vv_log_tools", "vv_last_names", "vv_log_additions", "vv_tribe_rename",
-                              "vv_cut_names"}),
+                              "vv_cut_names", "vv_save_layout"}),
             # Restoring cut names renames through Last Names.
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions"}),
             ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout"}),

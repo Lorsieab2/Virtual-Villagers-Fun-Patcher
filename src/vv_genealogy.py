@@ -45,6 +45,17 @@ VV5_FACTION_FROM_NAME = -0x1F
 # Children leave it 0 for one baby.
 LITTER_FROM_NAME = {1: -0x14, 2: -0x20, 3: 0xBC, 4: 0xB4, 5: 0xB4}
 
+# A New Home's Parents (A New Home) sidecar, "Virtual Villagers 1 Parentage Records - Save <slot>.dat"
+# (native/vv1_parentage/vv1_parentage.c): a 12-byte 'VP02' header, 256 roster occupants of 36 bytes
+# (gender 1/2, departed, head+1, body+1, family scalar, name[28]) and 256 entries of 92 bytes (father
+# head+1/body+1, mother head+1/body+1, the pregnancy stash's father head+1/body+1, 2 spare, then the
+# father's, the mother's and the stashed father's names, 28 bytes each).
+VV1_SIDECAR_MAGIC = b"VP02"
+VV1_SIDECAR_NAME = 28
+VV1_SIDECAR_OCCUPANT = 36
+VV1_SIDECAR_ENTRY = 92
+VV1_SIDECAR_SIZE = 12 + 256 * (VV1_SIDECAR_OCCUPANT + VV1_SIDECAR_ENTRY)
+
 
 class GenealogyError(Exception):
     """The family could not be read; the message says why."""
@@ -144,6 +155,8 @@ class _Registry:
         self.conceptions: dict[Key, tuple] = {}        # mother -> (father key, babies), not born yet
         self.relooked: dict[Key, Key] = {}             # an old look -> the look it changed to
         self.full: dict[Key, Key] = {}                 # a name the Details screen cut -> the full name's key
+        # A New Home's living villagers as its save names them: (id, name, gender, family, head, body).
+        self.vv1_living: list[tuple] = []
 
     def current(self, key: Key) -> Key:
         """The look a villager has now, following their Change Appearance records, under the full name
@@ -184,6 +197,10 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         p.family = _i32(data, at + f.family)
         if game == 1:
             p.expecting = _i32(data, at - 0x370 + 0x358) != 0       # the delivery the game counts down
+            # Who she is in the save's own words, for the Parents (A New Home) sidecar (_vv1_from_sidecar).
+            reg.vv1_living.append((p.id, _cstr(data, at, f.name_cap)[:VV1_SIDECAR_NAME - 1],
+                                   1 if _i32(data, at + f.sex) == f.male else 2, _i32(data, at + f.family),
+                                   _i32(data, at + f.head), _i32(data, at + f.body)))
         elif f.expecting is not None:
             p.expecting = p.sex == "Female" and data[at + f.expecting] != 0
             if p.expecting:
@@ -238,6 +255,14 @@ def _snapshot_parents(lines: list[str]) -> dict[str, tuple]:
     return out
 
 
+def is_backfilled_arrival(b) -> bool:
+    """An Arrived record the arrival backfill wrote with no knowledge of how the villager came --
+    "How: unknown" -- which says only that the log had no record of them when it was written.  It
+    never outweighs a Birth record of the same villager; an Arrived record with a known "How" (an
+    event, a Custom Island Event, a barrel, "Founder") is a real arrival."""
+    return b.heading.startswith("Arrived") and (b.value("How") or "").strip().lower() == "unknown"
+
+
 def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     """The dead and departed, and every parent a snapshot names."""
     import vv_log_additions as additions
@@ -260,9 +285,15 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             # A New Home's Golden Child is born to a mother (its puzzle spends her pregnancy), never an
             # arrival (the owner, 2026-10-08); an older patcher backfilled an Arrived record for it.
             pass
+        elif b.heading.startswith("Arrived") and is_backfilled_arrival(b) and p.birth_record is not None:
+            # A Birth wins over a backfilled "How: unknown" Arrived record: the backfill wrote it when
+            # it could not see the Birth (the owner's Cheop Bahati, born "Cheop" before Last Names).
+            pass
         elif b.heading.startswith("Arrived"):
             p.arrived = True
-            p.how = b.value("How") or p.how
+            # A backfilled "How: unknown" never replaces how a real Arrived record says they came.
+            if not (is_backfilled_arrival(b) and p.how):
+                p.how = b.value("How") or p.how
             seen = re.search(r"first seen (\d{4}-\d{2}-\d{2} \d{2}:\d{2})", b.value("Age at arrival") or "")
             if seen and (p.first_seen is None or seen.group(1) < p.first_seen[:16]):
                 p.first_seen = seen.group(1)
@@ -362,6 +393,8 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
     _log_people(reg, folder, game, slot)
+    if game == 1:
+        _vv1_from_sidecar(reg, folder, slot)
     _unrecorded_looks(reg)
     checker = tools.load_checker()
     exact, by_name = checker.known_sexes(folder, game)
@@ -459,6 +492,104 @@ def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> N
             reg.relooked.pop(new, None)
             reg.relooked[old] = new
 
+
+@dataclass
+class _Vv1Entry:
+    """One record of A New Home's Parents (A New Home) sidecar: who held it (head and body None where
+    an older build's roster did not keep them), and the parents and the pregnancy's father it
+    names -- each (name, head, body), or None when not recorded."""
+    who: tuple                      # (name, gender 1/2, family scalar, head, body)
+    departed: bool                  # the record was empty: this is the villager who had held it
+    father: Key | None
+    mother: Key | None
+    stash: Key | None
+
+
+def _vv1_sidecar(folder: Path, slot: int) -> list[_Vv1Entry]:
+    """A New Home's Parents (A New Home) sidecar, the companion's record of every villager's parents
+    (native/vv1_parentage), under the new folder name or the old one (vv_save_layout); nothing when
+    the file is missing, unreadable or not a VP02 file of this length written for this slot."""
+    import vv_save_layout as layout
+    name = f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"
+    path = layout.find(Path(folder), f"{layout.DATA}\\{layout.PARENTS_VV1}\\{name}")
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return []
+    if len(data) != VV1_SIDECAR_SIZE or data[:4] != VV1_SIDECAR_MAGIC or _i32(data, 8) != slot:
+        return []
+    cut = VV1_SIDECAR_NAME - 1
+
+    def person(e: int, looks: int, at: int) -> Key | None:
+        # Every value is stored +1: 0 is "not recorded", and head 0 / body 0 are real looks.
+        name, head, body = _cstr(data, e + at, VV1_SIDECAR_NAME)[:cut], data[e + looks], data[e + looks + 1]
+        return (name, head - 1, body - 1) if name and head and body else None
+
+    out = []
+    for i in range(256):
+        occ = 12 + i * VV1_SIDECAR_OCCUPANT
+        e = 12 + 256 * VV1_SIDECAR_OCCUPANT + i * VV1_SIDECAR_ENTRY
+        gender, departed, head, body = data[occ], data[occ + 1], data[occ + 2], data[occ + 3]
+        if gender not in (1, 2):
+            continue
+        who = (_cstr(data, occ + 8, VV1_SIDECAR_NAME)[:cut], gender, _i32(data, occ + 4),
+               head - 1 if head and body else None, body - 1 if head and body else None)
+        out.append(_Vv1Entry(who, bool(departed), person(e, 0, 8), person(e, 2, 36), person(e, 4, 64)))
+    return out
+
+
+def _vv1_fits(who: tuple, living: tuple) -> bool:
+    name, gender, family, head, body = who
+    _pid, l_name, l_gender, l_family, l_head, l_body = living
+    return (name, gender, family) == (l_name, l_gender, l_family) \
+        and (head is None or (head, body) == (l_head, l_body))
+
+
+def _vv1_from_sidecar(reg: _Registry, folder: Path, slot: int) -> None:
+    """What A New Home keeps nowhere and the later games keep on the villager's own record
+    (`_save_people`), from the VV1 Parentage companion's sidecar: each villager's parents, and the
+    expected father of each pregnancy.
+
+    After the Births and Conceptions log, which wins where it speaks: it is written with the save,
+    and it is what the companion itself trusts over its own table (the first-load check,
+    native/vv1_parentage/vv1_crosscheck.inc).  So the expected father is her last Conception
+    record's, else the father the sidecar stashed against her at that conception
+    (vv1_expected_father); a parent is the Birth record's, else the sidecar's.
+
+    An entry is a living villager's only when its roster names exactly one living villager -- name,
+    sex, family number and, where it kept them, head and body -- and no other entry of the file fits
+    her; anything else is left unknown rather than guessed (patcher data follows the villager, never
+    a record number).  A record whose villager has died keeps her entry, flagged `departed`: it is
+    hers when her name and looks are a villager the logs know and the file holds no other such
+    entry."""
+    expecting = {pid for pid, *_ in reg.vv1_living if reg.people[pid].expecting}
+    for pid in expecting:
+        father = reg.conceptions.get(reg.people[pid].key, (None, 1))[0]
+        if father and father[0]:
+            reg.expected[pid] = father
+    entries = _vv1_sidecar(folder, slot)
+    present = [e for e in entries if not e.departed]
+    for e in entries:
+        if e.departed:
+            name, _g, _f, head, body = e.who
+            if head is None or sum(1 for o in entries if o.who == e.who) != 1:
+                continue
+            pid = reg.by_key.get(reg.current((name, head, body)))
+            if pid is None or reg.people[pid].alive:
+                continue
+            target = reg.people[pid]
+        else:
+            holders = [v for v in reg.vv1_living if _vv1_fits(e.who, v)]
+            if len(holders) != 1 or sum(1 for o in present if _vv1_fits(o.who, holders[0])) != 1:
+                continue
+            target = reg.people[holders[0][0]]
+            if e.stash is not None and target.id in expecting and target.id not in reg.expected:
+                reg.expected[target.id] = e.stash
+        for key, attr, sex in ((e.father, "father", "Male"), (e.mother, "mother", "Female")):
+            if key is not None and getattr(target, attr) is None:
+                parent = reg.get(*key)
+                parent.sex = parent.sex or sex
+                setattr(target, attr, parent.id)
 
 def _upcoming(reg: _Registry) -> None:
     """A baby on the way for every expecting mother (the owner: "another child with a diamond

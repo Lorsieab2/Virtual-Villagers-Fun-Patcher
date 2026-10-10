@@ -152,6 +152,9 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
             backfilled = backfilled[:-1]
         others = [b for b, _ in recs]
         for b, _kind in backfilled[:surplus]:
+            if (b.value("How") or "").strip().lower() == "unknown" and any(
+                    kind == "birth" and _child(o) == b.identity for o, kind in recs):
+                continue        # vv_log_additions.plan_born_arrived and the checker take this one
             kept = [o for o in others if o is not b]
             what = ", ".join(f"{o.heading} ({o.path.name})" for o in kept)
             key_q = f"contradiction|{b.path.name}|{b.start}"
@@ -160,8 +163,7 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
                        f"({what}, and {b.heading}) but {max(1, owners)} villager(s) to own them. "
                        f"{b.heading} was backfilled later. Take it out?",
                 [TAKE_OUT, KEEP, additions.DONT_KNOW], TAKE_OUT)
-            edit = additions.Edit(b.path, b.start, _end_with_blank(texts[b.path], b), question=key_q,
-                                  by_answer={TAKE_OUT: []})
+            edit = ("remove", b.path, b.start, _end_with_blank(texts[b.path], b) - b.start + 1)
             out.append(Found("born_and_arrived",
                              f"{key[0]} (head {key[1]}, body {key[2]}) has both {what} and a backfilled "
                              f"{b.heading} in {b.path.name} (line {b.start + 1}): one villager recorded twice "
@@ -203,7 +205,7 @@ def _death_numbers(folder: Path, game: int, slot: int) -> list[Found]:
                          f"\"Death {n}\" is used again for {b.value('Name') or 'a villager'} in "
                          f"{b.path.parent.name}\\{b.path.name} (line {b.start + 1}) (repairable: Repair Saves & Logs "
                          f"numbers it Death {highest})",
-                         [additions.Edit(b.path, b.start, b.start, lines=[f"Death {highest}"])]))
+                         [("replace", b.path, b.start, f"Death {highest}")]))
     return out
 
 
@@ -230,7 +232,7 @@ def _repair_numbers(folder: Path, game: int) -> list[Found]:
                 out.append(Found("repair_number",
                                  f"\"Repair {m.group(1)}\" in {layout.REPAIRS_LOGS}\\{new.name} repeats a number of "
                                  f"Repairs\\{old.name} (repairable: Repair Saves & Logs numbers it Repair {want})",
-                                 [additions.Edit(new, i, i, lines=[f"Repair {want}"])]))
+                                 [("replace", new, i, f"Repair {want}")]))
     return out
 
 
@@ -282,12 +284,16 @@ def find(folder: Path, game: int, slot: int) -> list[Found]:
 def plan(folder: Path, game: int, slot: int):
     """Repair Saves & Logs' kind: the records taken out (asked) and renumbered (decided)."""
     import vv_log_additions as additions
-    kind = additions.Kind("contradictions", "records that contradict each other", verb="Put right")
+    kind = additions.Kind("contradictions", "Records that contradict each other")
     for found in find(folder, game, slot):
         if not found.wrong:
             kind.notes.append(found.text)
             continue
-        kind.edits += found.edits
+        for edit in found.edits:
+            if edit[0] == "remove":
+                kind.removes.append(additions.Remove(edit[1], edit[2], edit[3], found.question.key, TAKE_OUT))
+            else:
+                kind.replaces.append((edit[1], edit[2], edit[3]))
         if found.question is not None:
             kind.questions[found.question.key] = found.question
     return kind

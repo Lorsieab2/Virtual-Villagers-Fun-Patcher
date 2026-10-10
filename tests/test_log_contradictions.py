@@ -74,7 +74,7 @@ class Folder:
         kinds = [contra.plan(self.path, self.game, 1)]
         chosen_answers = {k: q.default for kind in kinds for k, q in kind.questions.items()}
         chosen_answers.update(answers or {})
-        return additions.apply(self.path, kinds, {"contradictions"}, chosen_answers, self.game)
+        return additions.apply(self.path, kinds, {"contradictions"}, chosen_answers)
 
 
 class BornAndArrivedTests(unittest.TestCase):
@@ -82,7 +82,7 @@ class BornAndArrivedTests(unittest.TestCase):
         for game in (1, 2, 3, 4, 5):
             with self.subTest(game=game):
                 f = Folder(game)
-                path = f.births(birth("Cheop Bahati", 4, 15) + arrived(11, "Cheop Bahati", 4, 15))
+                path = f.births(birth("Cheop Bahati", 4, 15) + arrived(11, "Cheop Bahati", 4, 15, how="Founder"))
                 found = contra.find(f.path, game, 1)
                 self.assertEqual([x.kind for x in found], ["born_and_arrived"])
                 self.assertTrue(found[0].wrong)
@@ -99,15 +99,14 @@ class BornAndArrivedTests(unittest.TestCase):
                 self.assertEqual(contra.find(f.path, game, 1), [], "a second check finds nothing")
                 self.assertNotIn("\n\n\n", text, "no double blank line is left behind")
 
-    def test_the_golden_childs_backfilled_arrived_record_goes_its_birth_stays(self):
+    def test_a_how_unknown_pair_is_left_to_plan_born_arrived(self):
+        # The Golden Child Lulu: a Birth and a backfilled "How: unknown" Arrived record is the kind
+        # fix/vv1-expected-father's plan_born_arrived (and the checker) handle: not reported twice.
         f = Folder(1)
-        path = f.births(arrived(13, "Lulu Chuchip", 19, 19, special="Golden Child")
-                        + birth("Lulu Chuchip", 19, 19, "Recorded afterwards (the Golden Child's parents)"))
-        self.assertEqual(len(contra.find(f.path, 1, 1)), 1)
-        f.repair()
-        text = f.read(path)
-        self.assertNotIn("Arrived 13", text)
-        self.assertIn("  Child: Lulu Chuchip", text)
+        f.births(arrived(13, "Lulu Chuchip", 19, 19, special="Golden Child")
+                 + birth("Lulu Chuchip", 19, 19, "Recorded afterwards (the Golden Child's parents)"))
+        self.assertEqual(contra.find(f.path, 1, 1), [])
+        self.assertEqual(len(additions.plan_born_arrived(f.path, 1, 1).removes), 1)
 
     def test_arrived_twice_the_backfilled_unknown_one_is_taken_out(self):
         f = Folder(1)
@@ -118,12 +117,13 @@ class BornAndArrivedTests(unittest.TestCase):
         self.assertIn("Arrived 12", found[0].text)
         f.repair()
         text = f.read(path)
-        self.assertIn("Arrived 8", text)
-        self.assertNotIn("Arrived 12", text)
+        self.assertEqual(text.count("  Name: Hoani Chuchip"), 1)
+        self.assertIn("How: Barrel of Babies", text)
+        self.assertIn("Arrived 1\n", text, "the Arrived records are numbered on without a gap")
 
     def test_keep_both_answer_changes_nothing(self):
         f = Folder(1)
-        path = f.births(birth("Cheop Bahati", 4, 15) + arrived(11, "Cheop Bahati", 4, 15))
+        path = f.births(birth("Cheop Bahati", 4, 15) + arrived(11, "Cheop Bahati", 4, 15, how="Founder"))
         before = path.read_bytes()
         key = next(iter(contra.plan(f.path, 1, 1).questions))
         f.repair({key: contra.KEEP})
@@ -205,7 +205,7 @@ class NumberTests(unittest.TestCase):
 class BoundaryTests(unittest.TestCase):
     def test_the_like_and_dislike_words_boundary_moves_with_a_record_taken_out(self):
         f = Folder(1)
-        path = f.births(birth("Cheop Bahati", 4, 15) + arrived(11, "Cheop Bahati", 4, 15) + birth("Ahi", 5, 5))
+        path = f.births(birth("Cheop Bahati", 4, 15) + arrived(11, "Cheop Bahati", 4, 15, how="Founder") + birth("Ahi", 5, 5))
         data = path.read_bytes()
         boundary = data.index(b"Birth\r\n  Child: Ahi")       # the older words end before Ahi's record
         words = f.write(f"{DATA}\\Like and Dislike Words\\Virtual Villagers 1 Log Words.dat",
@@ -230,7 +230,7 @@ class GoldenTests(unittest.TestCase):
         kind = additions.plan_golden(f.path, 1, 1)
         key, question = next(iter(kind.questions.items()))
         answer = next(o for o in question.options if o != additions.DONT_KNOW)
-        additions.apply(f.path, [kind], {"golden"}, {key: answer}, 1)
+        additions.apply(f.path, [kind], {"golden"}, {key: answer})
         text = f.read(path)
         self.assertNotIn("Arrived 13", text)
         self.assertIn("Birth\n  Child: Lulu Chuchip", text)
@@ -254,7 +254,7 @@ class CheckerMirrorTests(unittest.TestCase):
             gzip.decompress((FIXTURES / "vv1-huttest-1.ldw.gz").read_bytes()))
         header = sorted(additions.current_villages(f.path, 1, 1))[0]      # the save's own village
         f.write(f"{LOGS}\\Births and Conceptions\\Virtual Villagers 1 Births and Conceptions Log 1.txt",
-                header + "\n" + birth("Cheop Bahati", 4, 15) + arrived(11, "Cheop Bahati", 4, 15))
+                header + "\n" + birth("Cheop Bahati", 4, 15) + arrived(11, "Cheop Bahati", 4, 15, how="Founder"))
         result = tools.check_logs(f.path, 1, 1)
         self.assertIn("one villager recorded twice", result.text)
         self.assertGreaterEqual(result.wrong, 1)

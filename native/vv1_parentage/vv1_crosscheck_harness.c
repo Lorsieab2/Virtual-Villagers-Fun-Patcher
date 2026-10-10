@@ -229,13 +229,27 @@ static void log_conception_of(const villager *mother, const villager *father) {
     lstrcatA(logtext, "  Babies in pregnancy: 1\n\n");
 }
 
-/* The owner's whole village's births, as the companion logged them. */
-static void log_owner_births(void) {
+/* Silko's Arrived record, as the owner's own log has it ("Arrived 2: Silko
+   Akikai"): a grown arrival, never born here. */
+static void log_silko_arrived(void) {
+    wsprintfA(logtext + lstrlenA(logtext), "Arrived 1\n  Name: %s\n  Age at arrival: 341\n  Sex: Male\n"
+              "  Head: %d\n  Body: %d\n  How: Custom Island Event\n\n", silko.name, silko.head, silko.body);
+}
+
+/* The owner's whole village's births, as the companion logged them, but for
+   `skip` (NULL: none), and Silko's arrival. */
+static void log_owner_births_but(const char *skip) {
     int i;
     for (i = 0; i < OWNER_COUNT; ++i) {
+        if (skip != NULL && lstrcmpA(owner[i].name, skip) == 0) continue;
         if (owner[i].couple == 1) log_birth_of(&owner[i], find("Chika"), find("Kito"));
         if (owner[i].couple == 2) log_birth_of(&owner[i], find("Onawa"), find("Ghali"));
     }
+    log_silko_arrived();
+}
+
+static void log_owner_births(void) {
+    log_owner_births_but(NULL);
 }
 
 static void log_save(int n) {
@@ -445,6 +459,70 @@ static void owner_scenario(void) {
         check(a == b && memcmp(repaired, again, a) == 0 && file_size(repairs) == note_size && !exists(backup2),
               "... and changes nothing, backs nothing up, notes nothing");
     }
+}
+
+/* A villager the table gives parents and the log records nowhere -- no
+   Birth, no Arrived -- was born before the log existed (or with it off):
+   the table holds the facts, so they are kept and the Birth record is
+   written afterwards; a grown arrival the log records as ARRIVED still loses
+   the parents a table gives him. */
+static void recorded_afterwards_case(void) {
+    static vv1_parent_entry entries[VV1_RECORD_COUNT];
+    int i, asked, penyo, silko_at;
+    char *note;
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births_but("Penyo");
+    log_save(1);
+    lay_out(after_load, "Kito", "Chika", 1);
+    memset(entries, 0, sizeof(entries));
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const unsigned char *rec = after_load + (unsigned int)i * VV1_RECORD_STRIDE;
+        if (rec[VV1_OCCUPIED_OFFSET]) true_entry(find((const char *)rec + VV1_NAME_OFFSET), &entries[i]);
+    }
+    penyo = where(after_load, "Penyo");
+    silko_at = where(after_load, "Silko");
+    true_entry(find("Lisha"), &entries[silko_at]);   /* a table that gives the arrival parents */
+    write_sidecar(after_load, entries);
+    asked = load_and_check(after_load, IDNO);
+    check(asked == 1 && g_plan.recorded == 1 && g_plan.cleared == 1 && g_plan.corrected == 0 && g_plan.filled == 0,
+          "Penyo, with parents and no record in the log, is to be recorded afterwards; Silko, recorded as arrived, set to unknown");
+    asked = load_and_check(after_load, IDYES);
+    check(asked == 1 && g_applied == 1 && entry_matches(penyo, &entries[penyo]),
+          "on Repair Penyo keeps the parents the table holds");
+    check(!vv1_xc_has_parents(&g_entries[silko_at]), "... and Silko has none");
+    note = slurp(repairs);
+    check(strstr(note, "Recorded afterwards: Penyo -- no Birth record in the log; one is written from the parentage "
+                       "file (father Ghali, mother Onawa)") != NULL,
+          "the Repairs log says Penyo's Birth record is written afterwards");
+    check(strstr(note, "Set to unknown: Silko -- no Birth record in the log") != NULL, "... and Silko's");
+
+    /* A BACKFILLED Arrived record ("How: unknown", the owner's Cheop and Lulu) is no arrival:
+       Penyo keeps the parents the table holds, and a Birth record still wins over one. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births_but("Penyo");
+    {
+        const villager *p = find("Penyo");
+        const villager *n = find("Nishi");
+        wsprintfA(logtext + lstrlenA(logtext), "Arrived 2\n  Name: %s\n  Age at arrival: (unknown)\n  Head: %d\n"
+                  "  Body: %d\n  How: unknown\n  Note: Recorded afterwards (arrived before this log existed)\n\n",
+                  p->name, p->head, p->body);
+        wsprintfA(logtext + lstrlenA(logtext), "Arrived 3\n  Name: %s\n  Age at arrival: (unknown)\n  Head: %d\n"
+                  "  Body: %d\n  How: unknown\n  Note: Recorded afterwards (arrived before this log existed)\n\n",
+                  n->name, n->head, n->body);
+    }
+    log_save(1);
+    write_sidecar(after_load, entries);
+    asked = load_and_check(after_load, IDNO);
+    check(asked == 1 && g_plan.recorded == 1 && g_plan.cleared == 1 && g_plan.corrected == 0 && g_plan.filled == 0,
+          "a backfilled 'How: unknown' Arrived record is no arrival: Penyo is still recorded afterwards, not cleared");
+    asked = load_and_check(after_load, IDYES);
+    check(asked == 1 && g_applied == 1 && entry_matches(penyo, &entries[penyo])
+          && entry_matches(where(after_load, "Nishi"), &entries[where(after_load, "Nishi")]),
+          "... Penyo keeps the table's parents, and Nishi's Birth record wins over her backfilled Arrived");
 }
 
 static void clean_and_no_log_cases(void) {
@@ -1320,6 +1398,7 @@ int main(int argc, char **argv) {
 
     older_names_case();
     owner_scenario();
+    recorded_afterwards_case();
     clean_and_no_log_cases();
     ambiguity_cases();
     stash_cases();
