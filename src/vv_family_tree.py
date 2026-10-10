@@ -5920,6 +5920,35 @@ def presets_available(images: Path | None, library: dict | None = None) -> list[
     return [p for p in PRESETS if not p[3] or picture_path(p[3], images, library) is not None]
 
 
+def continued_on(lay: Layout) -> dict[int, list[int]]:
+    """Each portrait on this page whose children are drawn on another page -> those pages' numbers (1-based).
+    A page ends with the generation the next page starts at, so a parent in that last row has no children
+    here: without a mark their family looked as if it had none (the owner: "these guys have children but
+    no button will make a proper family tree for them with lines!").  The family's lines are on the page
+    that shows both the parent and the child (page_spans)."""
+    v = lay.village
+    spans = page_spans(lay.edits, v)
+    if len(spans) < 2:
+        return {}
+    this = max(0, min(lay.page, len(spans) - 1))
+    out: dict[int, list[int]] = {}
+    for c in v.people.values():
+        if c.id in lay.others or lay.edits.entries.get(entry_key(v, c), {}).get("hidden"):
+            continue
+        for q in {c.father, c.mother} - {None}:
+            parent = v.people.get(q)
+            if parent is None or q not in lay.x or q in lay.others or c.id in lay.x:
+                continue
+            if lay.edits.entries.get(entry_key(v, parent), {}).get("hidden"):
+                continue
+            for k, (lo, hi) in enumerate(spans):
+                if k != this and lo <= parent.generation <= hi and lo <= c.generation <= hi:
+                    if k + 1 not in out.setdefault(q, []):
+                        out[q].append(k + 1)
+                    break
+    return {q: sorted(n) for q, n in out.items()}
+
+
 def scene(lay: Layout, game_title: str, present: dict, images: Path | None = None,
           library: dict | None = None) -> Scene:
     """The whole tree as shapes, lines, text and heads.  `present` names the head sheets found;
@@ -5986,6 +6015,13 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         if f"line:{key}|{piece}" not in lay.edits.hidden:
             add(Line(points, colour, style.get("width", lay.edits.line_width), target=("family", key),
                      piece=f"{key}|{piece}", dash=style.get("dash", lay.edits.line_dash)))
+    for pid, to_pages in continued_on(lay).items():
+        # A parent whose children are on another page (the page's last generation is the next one's founders):
+        # a short line down from the portrait and the page where the family goes on (the owner, 2026-10-10).
+        _xs, _ys = zip(*lay.frame_points(pid))
+        mid, foot = lay.x[pid] + NODE_W / 2, max(max(_ys), lay.y[pid] + NODE_H)
+        add(Line([(mid, foot), (mid, foot + 18)], ink, lay.edits.line_width, dash="dotted"))
+        add(Text(mid, foot + 32, "to page " + ", ".join(str(n) for n in to_pages), 12, ink, centre=True))
     for pid in lay.x:
         _node(lay, v.people[pid], present, add)
         xs, ys = zip(*lay.frame_points(pid))
