@@ -24,6 +24,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 HEADER = ROOT / "native" / "shared" / "harness_ldw_tree.h"
 BUILD = ROOT / "scripts" / "build_harness_ldw_tree_harness.ps1"
+BUILD_PARENTAGE = ROOT / "scripts" / "build_parentage_export_harness.ps1"
 CL = Path(
     r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC"
     r"\14.51.36231\bin\Hostx64\x86\cl.exe"
@@ -37,7 +38,7 @@ WRITES_DOCUMENTS = re.compile(
 # Harnesses that point the folder helpers somewhere else first, by macro or
 # by defining their own vv_save_folder over a %TEMP% folder.
 REDIRECTED = re.compile(
-    r"#define\s+(?:SHGetFolderPathA|vv_save_folder_w)\s|^int vv_save_folder\(", re.M
+    r"#define\s+(?:SHGetFolderPathA|vv_save_folder_w)\s|^int vv_save_folder\(|\bharness_redirect_documents\(", re.M
 )
 
 
@@ -60,7 +61,6 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
             found,
             {
                 "native/parentage_export/death_log_harness.c",
-                "native/parentage_export/parentage_export_harness.c",
                 "native/parentage_export/pending_harness.c",
                 "native/parentage_export/select_holes_harness.c",
                 "native/parentage_export/village_publisher_harness.c",
@@ -73,6 +73,47 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
                 "native/statistics_export/reconcile_harness.c",
             },
         )
+
+    def test_the_parentage_export_harness_never_touches_the_real_documents(self) -> None:
+        """It LoadLibrary()s the shipped DLL, which writes under <Documents>\\LDW\\<exe name>.  Cleaning up at
+        exit is not enough: a run killed part-way (a cancelled test run) left its folders in the owner's
+        real OneDrive\\Documents\\LDW.  So the DLL's own shell32 imports are patched to answer CSIDL_PERSONAL
+        with a throwaway %TEMP% folder (native/shared/harness_redirect_documents.h), before the DLL resolves
+        any folder; a killed run then leaves only an unreferenced %TEMP% folder."""
+        harness = (ROOT / "native" / "parentage_export" / "parentage_export_harness.c").read_text(encoding="utf-8")
+        header = (ROOT / "native" / "shared" / "harness_redirect_documents.h").read_text(encoding="utf-8")
+        self.assertIn('#include "../shared/harness_redirect_documents.h"', harness)
+        self.assertNotIn("CSIDL_PERSONAL", harness)
+        self.assertNotIn("SHGetSpecialFolderPathA(", harness)
+        load = harness.index("LoadLibraryA(argv[1])")
+        redirect = harness.index("harness_redirect_documents(dll)")
+        locate = harness.index("locate_folder()", redirect)
+        self.assertLess(load, redirect)
+        self.assertLess(redirect, locate)
+        self.assertIn("return 2", harness[redirect:redirect + 160], "an unredirected DLL must not run")
+        for name in ("SHGetFolderPathA", "SHGetFolderPathW", "SHGetSpecialFolderPathA", "SHGetSpecialFolderPathW"):
+            self.assertIn(f'"{name}"', header)
+        self.assertIn("GetTempPathA", header)
+        self.assertIn("atexit(harness_docs_cleanup)", header)
+
+    @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
+    def test_the_parentage_export_harness_leaves_the_real_ldw_listing_as_it_was(self) -> None:
+        import os
+        import tempfile
+        docs = Path(os.path.expanduser("~")) / "OneDrive" / "Documents" / "LDW"
+        if not docs.is_dir():
+            docs = Path(os.path.expanduser("~")) / "Documents" / "LDW"
+        before = sorted(p.name for p in docs.iterdir()) if docs.is_dir() else None   # read-only
+        tmp_before = set(Path(tempfile.gettempdir()).glob("vvfp_harness_docs_*"))
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(BUILD_PARENTAGE)],
+            capture_output=True, text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout[-2000:] + result.stderr[-1000:])
+        after = sorted(p.name for p in docs.iterdir()) if docs.is_dir() else None
+        self.assertEqual(before, after)
+        self.assertEqual(set(Path(tempfile.gettempdir()).glob("vvfp_harness_docs_*")) - tmp_before, set(),
+                         "the throwaway Documents is removed at exit")
 
     def test_each_ldw_harness_cleans_up_from_its_first_statement(self) -> None:
         for path in _harnesses():

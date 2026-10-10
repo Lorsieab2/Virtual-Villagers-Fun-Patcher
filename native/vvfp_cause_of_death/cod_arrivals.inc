@@ -59,6 +59,7 @@
 #define ARRIVAL_PENDING 2       /* an arrival, its record written at the next save */
 
 #define ARRIVAL_HOW 48
+#define ARRIVAL_PARENTS 256
 
 static vv_arrival_fact arrival_facts[RECORDS_MAX];
 static int arrival_fact_index[RECORDS_MAX];
@@ -70,6 +71,9 @@ static struct {
     unsigned char founder;      /* made by the new-village seeding */
     int age;                    /* at arrival */
     char how[ARRIVAL_HOW];
+    /* The parents the Custom Island Event chose (VvfpCauseArrivedParents):
+       the "  Parents:" block, as every Village History record prints it. */
+    char parents[ARRIVAL_PARENTS];
 } arrivals[RECORDS_MAX];
 
 /* New Believers: -1 unknown, 0 a believer, 1 a Heathen -- as the tick last
@@ -153,8 +157,22 @@ static void arrival_created(int index, unsigned int site_va, const unsigned int 
     arrivals[index].state = ARRIVAL_MADE;
     arrivals[index].born = (unsigned char)(m != NULL && (m->kind == MARK_BIRTH || m->kind == MARK_TEMPORARY));
     arrivals[index].founder = (unsigned char)(m != NULL && m->kind == MARK_FOUNDER);
+    /* A new village's founders are seeded before the game gives the village
+       its slot: the slot the host reports then is a stale one (live, The
+       Lost Children with a fresh profile: 5, the village then saved in 1), so
+       their records were never written.  They count for the slot of the
+       first save instead -- which writes them only when no village was saved
+       there before (arrival_save), so a seeding a load replaces still writes
+       nothing. */
+    if (arrivals[index].founder) {
+        arrivals[index].tag = REPORT_EARLY;
+        if (arrived[index] != REPORT_NONE) {
+            arrived[index] = REPORT_EARLY;    /* the reconciliation's report, likewise */
+        }
+    }
     arrivals[index].age = 0;
     arrivals[index].how[0] = '\0';
+    arrivals[index].parents[0] = '\0';
     if (m != NULL && m->label != NULL) {
         lstrcpynA(arrivals[index].how, m->label, ARRIVAL_HOW);
     }
@@ -201,15 +219,86 @@ static void arrival_decide(int index) {
 static void arrival_write(int index) {
     const unsigned char *record = cod_record(index);
     char before[VV_ARRIVAL_BEFORE];
-    char after[96];
+    char after[96 + ARRIVAL_PARENTS];
     if (record == NULL) {
         return;
     }
     wsprintfA(before, "  Age at arrival: %d\n  Sex: %s\n", arrivals[index].age,
               roster_sex(*(const int *)(record + REC[g_game].sex)));
-    wsprintfA(after, "  How: %s\n", arrivals[index].how);
+    wsprintfA(after, "  How: %s\n%s", arrivals[index].how, arrivals[index].parents);
     COD_COUNT(arrivals);
     cod_write(LOG_ARRIVED, record, 1, before, after, 2);
+}
+
+/* New Believers: a believer the tick saw become a Heathen -- The Mask's
+   "...and is a believer no more" (string 0xA41B8), the Custom Island Event's
+   "Becomes a Heathen", any path -- leaves the tribe (the owner: a Heathen is
+   never a villager), the mirror of "Converted from the Heathens": a
+   "Disappeared" record in the Deaths and Disappearances log, "Left the
+   tribe: became a Heathen".  The record is still theirs and still in the
+   Village Roster (Heathens are kept there too), so no departure is reported
+   to the reconciliation -- which would make the next save call them an
+   unaccounted arrival -- and they are never Unaccounted.  An Arrived record
+   not yet written is written first, so the two read in order.  Converted
+   back, the tick writes their Arrived record as for any Heathen. */
+static void arrival_left_for_the_heathens(int index, const unsigned char *record) {
+    char before[256];
+    if (arrivals[index].state != ARRIVAL_NONE) {
+        arrival_departed(index);
+    }
+    wsprintfA(before, "  Age: %d\n  Sex: %s\n  What happened: Left the tribe: became a Heathen\n",
+              rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
+    COD_COUNT(left_tribe);
+    cod_write(LOG_DISAPPEARED, record, 1, before, NULL, 1);
+}
+
+/* New Believers: the leaving seen where it happens, the faction setter
+   0x466880 (thiscall on the record; [esp+4] = the new faction byte; ret 4),
+   before it writes +0x1CEC.  The tick alone cannot see a believer who
+   becomes a Heathen between two of its looks: the life tick 0x472C90 runs
+   for every age unit, live and in the load-time catch-up (and a Time
+   Warp), and its belief drift 0x468040 can bring faith to 0, which
+   converts (0x467F90 -> 0x4669E0) -- in the catch-up inside the load, so
+   the tick's first look already finds a Heathen (faction_seen -1) and the
+   roster, which keeps Heathens, never calls her Unaccounted: she left with
+   no record.  Every setter call that makes a believer a Heathen, by its
+   return address (all seven callers enumerated in the stock executable):
+     0x466A04  to a Heathen, 0x4669E0 -- its one caller is SetFaith
+               0x467F90 at faith 0 or below (the belief drift, preaching,
+               The Spa, The Cracked Mask, every faith change) and the
+               Custom Island Event's "Becomes a Heathen";
+     0x415D11  The Spa, "Enjoy the pools" (after its SetFaith(-10));
+     0x416C60  The Cracked Mask, "Trick" (likewise).
+   Not leavings: 0x46697D the conversion to a believer (0), 0x41699F (0),
+   0x466BEA a load copying the saved byte into a record the reset emptied,
+   0x46FC4E the Heathen creator's new record.  A record that is already a
+   Heathen (The Spa's second call) is no change.  The tick then knows her
+   as a Heathen, so it writes nothing more. */
+static void vv5_faction_set(int site, const unsigned int *regs) {
+    unsigned char *record = (unsigned char *)(uintptr_t)regs[R_ECX];
+    unsigned int from = reg_stack(regs, 0);
+    int index;
+    (void)site;
+    if ((reg_stack(regs, 4) & 0xFFu) == 0
+        || (from != 0x466A04u && from != 0x415D11u && from != 0x416C60u)) {
+        return;
+    }
+    index = cod_index_of(record);
+    if (index < 0 || index >= RECORDS_MAX || !roster_member(record) || arrival_heathen(record)) {
+        return;
+    }
+    if (!faction_ready) {
+        memset(faction_seen, -1, sizeof faction_seen);
+        faction_ready = 1;
+    }
+    arrival_left_for_the_heathens(index, record);
+    faction_seen[index] = 1;
+}
+
+static void faction_sites(void) {
+    if (g_game == 5) {
+        cod_add(0x466880u, "8A442404" "8AD0", vv5_faction_set);
+    }
 }
 
 /* Every frame: decide what was made, and see New Believers' conversions. */
@@ -236,12 +325,16 @@ static void arrival_tick(void) {
         }
         heathen = arrival_heathen(record);
         former_tick(i, record, heathen, faction_seen[i]);
+        if (faction_seen[i] == 0 && heathen) {
+            arrival_left_for_the_heathens(i, record);
+        }
         if (faction_seen[i] == 1 && !heathen && arrivals[i].state == ARRIVAL_NONE) {
             arrivals[i].tag = report_tag();
             arrivals[i].state = ARRIVAL_PENDING;
             arrivals[i].born = 0;
             arrivals[i].age = rec_age(record);
             lstrcpynA(arrivals[i].how, "Converted from the Heathens", ARRIVAL_HOW);
+            arrivals[i].parents[0] = '\0';
             roster_arrived(i);
         }
         faction_seen[i] = (signed char)heathen;
@@ -473,6 +566,42 @@ __declspec(dllexport) int __stdcall VvfpCauseRepairArrivalsNow(int game, int slo
     return vv_arrival_marker_present(g_game, slot, cod_marker_village(slot));
 }
 
+/* VvfpCauseVillager(game, index, name, cap, looks): the village's villager in
+   record `index`, read only, for the cross-check's missing last names
+   (native/shared/crosscheck_bridge.h; the owner, v1.35.66: "if repair logs
+   detects a missing last name, please prompt the player to add one").
+   1: a living villager of the village -- their name in name[cap], their head
+   in looks[0] and body in looks[1] (0 is a real head and body); 0: no
+   villager there (an empty record, a body, a statue, ghost or stand-in, a
+   Heathen); -1: past the last record, or the table is not there. */
+__declspec(dllexport) int __stdcall VvfpCauseVillager(int game, int index, char *name, int cap, int *looks) {
+    const struct game_records *r;
+    const unsigned char *record;
+    unsigned char *records;
+    if (install_state == -1 || game < 1 || game > 5 || (g_game != 0 && game != g_game)
+        || name == NULL || cap < 2 || looks == NULL) {
+        return -1;
+    }
+    if (install_state == 0) {
+        g_game = game;
+        cod_locate_table();
+    }
+    r = &REC[g_game];
+    if (index < 0 || index >= RECORDS_MAX || (unsigned int)index >= r->slots
+        || (records = cod_records()) == NULL) {
+        return -1;
+    }
+    record = records + (size_t)index * r->stride;
+    if (!roster_member(record) || arrival_heathen(record) || rec_lookalike(record) || rec_health(record) <= 0
+        || record[r->name] == 0) {
+        return 0;
+    }
+    lstrcpynA(name, (const char *)(record + r->name), cap < (int)r->name_capacity + 1 ? cap : (int)r->name_capacity + 1);
+    looks[0] = *(const int *)(record + r->head);
+    looks[1] = *(const int *)(record + r->body);
+    return 1;
+}
+
 /* The Story / Cheat Upgrades companion: its Custom Island Event made the
    villager in `index` (right after the creator, in the same frame). */
 __declspec(dllexport) void __stdcall VvfpCauseArrivedBy(int game, int index, const char *how) {
@@ -580,4 +709,18 @@ __declspec(dllexport) int __stdcall VvfpCauseRepairBirthsNow(int game, int slot)
     /* As for the arrivals: the marker, written only once every record is on
        disk, never a record merely held for a save that never comes. */
     return vv_backfill_marker_present(VV_BACKFILL_BIRTHS, g_game, slot, cod_marker_village(slot));
+}
+
+/* ...and the parents it chose for that villager (the owner, 2026-10-10:
+   "the Births log's Arrived record ... must show the chosen parents"): the
+   "  Parents:" block with each known parent's name, head and body, written
+   after "How:" -- the block every Village History and Population record
+   has, which the Family Tree and the Matchmaker read.  Right after
+   VvfpCauseArrivedBy, in the same frame. */
+__declspec(dllexport) void __stdcall VvfpCauseArrivedParents(int game, int index, const char *parents) {
+    if (install_state != 1 || game != g_game || index < 0 || index >= RECORDS_MAX || parents == NULL
+        || arrivals[index].state != ARRIVAL_MADE) {
+        return;
+    }
+    lstrcpynA(arrivals[index].parents, parents, ARRIVAL_PARENTS);
 }

@@ -9,7 +9,8 @@
 
    WHAT IS PROVEN, AND WHAT IS DONE ABOUT IT.
 
-     Village Elders (A New Home, The Secret City, The Tree of Life).  The
+     Village Elders (A New Home, The Secret City, The Tree of Life, New
+     Believers).  The
      list is "every villager ever seen with Master in three or more skills"
      (docs/village-statistics-directive.md).  Each save adds the LIVING ones
      itself; what it cannot see is an elder who died or left before the list
@@ -25,9 +26,10 @@
      added again (names repeat: one line for a name is never doubled).
      The Lost Children counts its elders itself (the game's own counter, in
      the save): nothing to repair.  New Believers' snapshots list the
-     Heathens too, with nothing that tells them apart -- the Heathen Chief
-     has every skill at 100 -- so its History cannot prove a believer elder
-     (owner: Heathens never count): reported, not repaired.
+     Heathens too -- the Heathen Chief has every skill at 100 -- and
+     Heathens never count (owner): only a villager its snapshot calls
+     "Faction: Believer" (population_export.c) is an elder there; a
+     snapshot written before that line proves nothing.
 
      Villagers Buried (all five games).  A lower bound: the Death records
      of this village in its Deaths log whose Grave line names a grave (not
@@ -294,7 +296,7 @@ static void rc_visit_deaths(char *text, void *context) {
 }
 
 /* The Births and Conceptions log: this village's "Conception <n>" records
-   with "  Babies in pregnancy: 2". */
+   with "  Babies nursing: 2" ("  Babies in pregnancy: 2" in an older log). */
 static void rc_visit_births(char *text, void *context) {
     struct rc_count *c = (struct rc_count *)context;
     char *cursor = text;
@@ -310,7 +312,8 @@ static void rc_visit_births(char *text, void *context) {
             open = ours && strncmp(line, "Conception ", 11) == 0;
             continue;
         }
-        if (open && strcmp(line, "  Babies in pregnancy: 2") == 0) {
+        if (open && (strcmp(line, "  Babies nursing: 2") == 0
+                     || strcmp(line, "  Babies in pregnancy: 2") == 0)) {   /* an older log */
             ++c->twins;
             open = 0;
         }
@@ -366,6 +369,14 @@ static void rc_history_villager(struct rc_history *h, const struct rc_elder *v, 
     }
 }
 
+/* A snapshot's villager whose skills count: any, with skills read; in New
+   Believers only one its snapshot calls a Believer ("Faction: Believer",
+   population_export.c) -- a Heathen never counts (owner), and a snapshot
+   written before the Faction line cannot tell them apart, so it proves nothing. */
+static int rc_counted(const struct rc_history *h, int skills, int faction) {
+    return skills > 0 && (h->game != GAME_VV5 || faction == 1);
+}
+
 static void rc_visit_history(char *text, void *context) {
     struct rc_history *h = (struct rc_history *)context;
     char *cursor = text;
@@ -373,13 +384,14 @@ static void rc_visit_history(char *text, void *context) {
     int ours = 0, expect_village = 0;
     int open = 0, section = 0;    /* 1 Parents, 2 Skills */
     int mastered = 0, skills = 0;
+    int faction = 0;              /* New Believers: 1 Believer, 2 Heathen, 0 no line */
     struct rc_elder v;
     memset(&v, 0, sizeof v);
     while ((line = rc_line(&cursor)) != NULL) {
         int top = line[0] != ' ';
         if (top) {
             if (open) {
-                rc_history_villager(h, &v, mastered, skills > 0);
+                rc_history_villager(h, &v, mastered, rc_counted(h, skills, faction));
             }
             open = 0;
             section = 0;
@@ -395,7 +407,7 @@ static void rc_visit_history(char *text, void *context) {
             }
             if (ours && strncmp(line, "Villager ", 9) == 0) {
                 open = 1;
-                mastered = skills = 0;
+                mastered = skills = faction = 0;
                 memset(&v, 0, sizeof v);
             }
             continue;
@@ -411,6 +423,10 @@ static void rc_visit_history(char *text, void *context) {
                 section = 1;
             } else if (strcmp(line, "  Skills:") == 0) {
                 section = 2;
+            } else if (strcmp(line, "  Faction: Believer") == 0) {
+                faction = 1;
+            } else if (strcmp(line, "  Faction: Heathen") == 0) {
+                faction = 2;
             }
             continue;
         }
@@ -432,7 +448,7 @@ static void rc_visit_history(char *text, void *context) {
         }
     }
     if (open) {
-        rc_history_villager(h, &v, mastered, skills > 0);
+        rc_history_villager(h, &v, mastered, rc_counted(h, skills, faction));
     }
 }
 
@@ -510,7 +526,7 @@ static void rc_make_plan(int game, int slot, const char *village, const wchar_t 
     plan->buried_was = plan->twins_was = plan->chiefs_was = -1;
 
     /* Village Elders, from the Village History log. */
-    if (game == GAME_VV1 || game == GAME_VV3 || game == GAME_VV4) {
+    if (game == GAME_VV1 || game == GAME_VV3 || game == GAME_VV4 || game == GAME_VV5) {
         plan->elders_ok = rc_elder_names(game, slot, taken, &taken_count, RC_ELDERS_MAX * 4);
         if (plan->elders_ok) {
             struct rc_history h;

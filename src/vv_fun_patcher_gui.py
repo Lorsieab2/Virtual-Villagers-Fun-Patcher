@@ -10,6 +10,7 @@ import time
 import tkinter as tk
 import tkinter.font as tkfont
 import webbrowser
+from dataclasses import dataclass
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
@@ -21,8 +22,10 @@ import vv_log_additions
 import vv_move_old_names
 import vv_last_names
 import vv_cut_names
+import vv_graves
 import vv_number_names
 import vv_save_backup
+import vv_startup_questions
 import vv_tribe_rename
 import vv_genealogy
 import vv_genealogy_window
@@ -277,6 +280,70 @@ def _documents_folder() -> Path:
     except (OSError, AttributeError, ImportError):
         pass
     return Path.home() / "Documents"
+
+
+def last_name_row(v, parents: dict) -> str:
+    """A villager's row in the last-names windows: "Goro Wanjiko (Male) -- father Kito Wanjiko, mother
+    Chika Helaku", "Iruwa Bandele (Female) -- arrived".  Never their head or body (the owner)."""
+    father, mother = parents.get(v.identity, (None, None))
+    who = f"{v.name} ({v.sex or 'sex unknown'}{'' if v.alive else ', no longer in the village'})"
+    if father or mother:
+        who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
+    if v.arrived:
+        # The owner, 2026-10-07: "All newly-spawned villagers from events will default to
+        # no last name" -- (no last name) unless the player picks or types one; an event's
+        # copy of a villager (parents on record) too.
+        who += " -- arrived"
+    return who
+
+
+def last_name_rows(people: list, parents: dict) -> list[str]:
+    """Each villager's row (last_name_row), in their order.  Rows that would read alike are told apart
+    by age -- " -- aged N", in years as the logs word them -- and those still alike (same-named twins) by
+    " -- 1 of 2", " -- 2 of 2" in the game's own order (the owner: "no body/head value")."""
+    rows = [last_name_row(v, parents) for v in people]
+    for _round in range(2):
+        seen: dict[str, list[int]] = {}
+        for k, text in enumerate(rows):
+            seen.setdefault(text, []).append(k)
+        for same in seen.values():
+            if len(same) < 2:
+                continue
+            for n, k in enumerate(same, 1):
+                age = getattr(people[k], "age", None)
+                if _round == 0:
+                    if age is not None:
+                        rows[k] += f" -- aged {age // vv_genealogy.UNITS_PER_YEAR}"
+                else:
+                    rows[k] += f" -- {n} of {len(same)}"
+    return rows
+
+# A villager whose last name the window's current choice will assign or change reads in red bold (the
+# owner, 2026-10-10); the rest keep the normal font and colour.  A red that reads on a light and on a dark
+# window.  The pale yellow behind a row the prompt asked about stays (only its text turns red).
+LAST_NAME_CHANGED_COLOUR = "#d62828"
+LAST_NAME_ASKED_BACKGROUND = "#fff2a8"
+
+
+def last_names_changing(now: dict, shown: dict) -> set:
+    """The villagers whose last name the window's boxes (`shown`: identity -> the last name in the box,
+    "" none) would change from the one they have now (`now`)."""
+    return {key for key, last in shown.items() if last != now.get(key, "")}
+
+
+def last_name_row_style(changed: bool, asked: bool) -> dict:
+    """How a villager's row reads: red bold when its last name will change, else the normal font and
+    colour; `asked` rows (the prompt's) keep their pale background, black text unless changed."""
+    return {"bold": changed,
+            "foreground": LAST_NAME_CHANGED_COLOUR if changed else ("#000000" if asked else None),
+            "background": LAST_NAME_ASKED_BACKGROUND if asked else None}
+
+
+@dataclass
+class _SlotLike:
+    """The tribe a last-names window is for, when no slot list was read (the missing-last-names prompt)."""
+    slot: int
+    name: str
 
 
 class _LastNamesKind:
@@ -732,6 +799,9 @@ class App(tk.Tk):
             splash.close()
             self.deiconify()
         self.protocol("WM_DELETE_WINDOW", self._close)
+        # What the games' quit checks queued for the player (src/vv_startup_questions.py): asked once
+        # the window is up (the owner, v1.35.66).
+        self.after(1500, self._ask_startup_questions)
 
     def _run_with_wait(self, message: str, work):
         """Run ``work`` off the main thread while a wait window stays alive.
@@ -3257,6 +3327,9 @@ class App(tk.Tk):
                 parent=parent,
             )
             return
+        # Villagers with no last name, first (the owner, v1.35.66), so the check below reads the names
+        # as they will be: arrivals get their own new last name automatically, the rest are asked about.
+        named_lines = self._missing_last_names_at_repair(parent, folder, number, info)
 
         def survey():
             checked = vv_log_tools.check_logs(folder, info.slot, number)
@@ -3289,13 +3362,17 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError,
                     struct.error):
                 misnumbered = {}
+            # Each grave against its records (src/vv_graves.py); one that cannot be read is said so.
+            try:
+                graves = vv_graves.survey(folder, number, info.slot)
+            except (vv_graves.GraveError, vv_last_names.LastNamesError, ValueError, OSError, struct.error) as exc:
+                graves = f"The graves were not checked: a file could not be read ({exc})."
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
-                    cuts, unpaused, speed, misnumbered)
+                    cuts, unpaused, speed, misnumbered, graves)
 
         try:
-            checked, old_words, kinds, (cuts, cut_notes), unpaused, speed, misnumbered = self._run_with_wait(
-                "Checking the logs…\n\nNothing is changed.", survey
-            )
+            (checked, old_words, kinds, (cuts, cut_notes), unpaused, speed, misnumbered,
+             graves) = self._run_with_wait("Checking the logs…\n\nNothing is changed.", survey)
             found = (
                 f"The read-only check finds {checked.wrong} confirmed wrong ({checked.summary})"
                 if checked.wrong
@@ -3305,10 +3382,10 @@ class App(tk.Tk):
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
-                                        unpaused, speed, misnumbered)
+                                        unpaused, speed, misnumbered, graves)
         if picked is None:
             return
-        rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice = picked
+        rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked
         try:
             result = self._run_with_wait(
                 "Repairing the logs…\n\nThe save folder is backed up first.",
@@ -3321,6 +3398,9 @@ class App(tk.Tk):
             self.status_var.set("Repair Saves & Logs did not finish. See the message for what changed.")
             messagebox.showerror("Repair Saves & Logs", str(exc), parent=parent)
             return
+        # The graves the player put right, first of the save edits: the renames below then find each grave
+        # under the name its records give it.
+        grave_lines = self._fix_graves(parent, folder, number, info, grave_fixes) if grave_fixes else []
         # The cut names first of the renames, so last names and numbering never work from a cut name
         # (the checklist leaves those off while the cut names are restored).  After the lines above
         # are added: a renamed line changes no line count, and the like / dislike words are put right
@@ -3335,8 +3415,18 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The cut names were not restored. {exc}", parent=parent)
+        # The village's rule and each villager's own, first: kept under the names they have now, then
+        # carried by the renames below.
+        ruled = None
+        if names is not None and names.get("rules_changed"):
+            try:
+                ruled = self._run_with_wait(
+                    "Keeping the last-name rules…",
+                    lambda: vv_last_names.save_own_rules(folder, number, info.slot, names["rule"], names["own"]))
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The last-name rules were not kept. {exc}", parent=parent)
         renamed = None
-        if names is not None:
+        if names is not None and names["chosen"]:
             try:
                 renamed = self._run_with_wait(
                     "Giving the last names…\n\nThe save folder is backed up first.",
@@ -3358,7 +3448,15 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The duplicate names were not numbered. {exc}", parent=parent)
-        lines = []
+        lines = list(named_lines) + grave_lines
+        if names is not None and names.get("arrivals") is not None \
+                and names["arrivals"] != vv_last_names.read_arrivals(folder, number, info.slot):
+            try:
+                vv_last_names.save_arrivals(folder, number, info.slot, names["arrivals"])
+                lines.append("Arriving villagers get their own new last name automatically: "
+                             + ("on." if names["arrivals"] else "off."))
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The arrivals setting was not kept. {exc}", parent=parent)
         if to_pause:
             paused = self._run_with_wait("Setting the saves to Paused…", lambda: vv_save_backup.pause_saves(to_pause))
             text = f"Game speed set to Paused in {len(paused.paused)} save(s)"
@@ -3372,6 +3470,9 @@ class App(tk.Tk):
                          f"({', '.join(f'{old} -> {new}' for (old, _h, _b), new in restored.renamed.items())}), "
                          f"in the save and {len(restored.files) - 1} other file(s). "
                          f"Backup: {restored.backup.backup_folder}")
+        if ruled is not None:
+            lines.append(f"Last names come from: {vv_last_names.INHERIT[names['rule']]}; "
+                         f"{len(ruled)} villager(s) with a rule of their own.")
         if renamed is not None:
             lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
                          f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
@@ -3413,8 +3514,10 @@ class App(tk.Tk):
         for kind in kinds:
             fixes = result.added.get(kind.id)
             if fixes:
-                lines.append(f"{kind.label}: {sum(f.count for f in fixes)} line(s) added "
-                             f"in {len(fixes)} log file(s).")
+                done = (f"{sum(f.count for f in fixes)} record(s) put right" if kind.id == "contradictions"
+                        else f"{sum(f.count for f in fixes)} record(s) removed" if getattr(kind, "removes", None)
+                        else f"{sum(f.count for f in fixes)} line(s) added")
+                lines.append(f"{kind.label}: {done} in {len(fixes)} log file(s).")
         if len(lines) > (1 if rearm else 0):
             lines.append("Each log was backed up beside itself; everything is listed in the Repairs log.")
         self.status_var.set(f"Repair Saves & Logs: {info.name} done.")
@@ -3424,9 +3527,211 @@ class App(tk.Tk):
             parent=parent,
         )
 
+    # MISSING LAST NAMES (the owner, v1.35.66: "if repair logs detects a missing last name, please prompt
+    # the player to add one if auto check is enabled" -- "and direct them how to add last names").  With
+    # "Check logs automatically" on, the patcher asks when it opens about the villages whose game asked
+    # to be reminded at its quit (vv_last_names.requests), and Repair Saves & Logs asks about the village
+    # it repairs.  Last names are given with the game closed, by vv_last_names (backup first, every
+    # file swapped in and read back, the save and every log together).
+    _LN_HOW = ("To give villagers last names yourself at any time: close the game, choose Repair Saves & "
+               "Logs..., pick the game, its save folder and the tribe, and press Repair Saves & Logs. Tick "
+               "\"Give villagers last names, in the game and the logs\" and press Choose…: the villagers with "
+               "no last name are highlighted, with a last name suggested. Keep it, pick another from the list "
+               "or type your own, press OK, then Repair.")
+
+    def _ask_startup_questions(self) -> None:
+        """At the patcher's start, with "Check logs automatically" on: every question a game queued at
+        its quit (src/vv_startup_questions.py -- the missing last names, and any other feature that
+        registers one), for each village whose game is closed now."""
+        try:
+            if not self.check_logs_var.get():
+                return
+            documents = vv_save_backup.documents_folder()
+            if documents is None:
+                return
+            for build in self.builds:
+                game = vv_tribe_rename.game_for_title(build.title)
+                for folder in vv_save_backup.find_save_folders(build.title, documents):
+                    queued = vv_startup_questions.pending(folder, game.number)
+                    if not queued or vv_save_backup.running_game_count(folder):
+                        continue                # asked again the next time, with the game closed
+                    tribes = {i.slot: i.name for i in vv_tribe_rename.read_slots(game, folder) if i.name}
+                    for question in queued:
+                        asker = getattr(self, question.source.asker, None)
+                        if asker is not None:
+                            asker(folder, game.number, question.slot, tribes.get(question.slot, f"Save {question.slot}"))
+        except (tk.TclError, OSError, vv_log_tools.LogToolError):
+            pass
+
+    def _ask_missing_last_names_for(self, folder: Path, number: int, slot: int, tribe: str) -> None:
+        """The game asked to be reminded of villagers with no last name (vv_last_names.requests)."""
+        try:
+            missing = self._run_with_wait(
+                "Looking for villagers with no last name…\n\nNothing is changed.",
+                lambda: vv_last_names.missing_last_names(folder, number, slot))
+        except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, vv_log_tools.LogToolError, OSError,
+                ValueError, struct.error):
+            return
+        if not missing:
+            vv_last_names.clear_missing(folder, number, slot)
+            return
+        self._missing_last_names_prompt(self, folder, number, slot, tribe, missing)
+
+    def _missing_last_names_prompt(self, parent, folder: Path, number: int, slot: int, tribe: str,
+                                   missing: list) -> str | None:
+        """"These villagers have no last name: ... Give them one now?" -- "Give the suggested names",
+        "Choose each…" (the last-names window, their boxes highlighted and the suggestions filled in) or
+        "Not now" (not asked again about these villagers).  Returns "given", "chosen", "not now" or None
+        (closed: asked again next time)."""
+        window = tk.Toplevel(parent)
+        window.title("Villagers with no last name")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=16)
+        frame.pack(fill="both", expand=True)
+        lines = [f"• {m.describe()}" + (f" -- suggested: {m.suggested}" if m.suggested else "")
+                 for m in missing[:20]]
+        if len(missing) > 20:
+            lines.append(f"... and {len(missing) - 20} more")
+        ttk.Label(frame, wraplength=640, justify="left",
+                  text=f"{tribe} ({folder.name}, Save {slot}): these villagers have no last name:\n\n"
+                       + "\n".join(lines) + "\n\nGive them one now? The game must stay closed; the save folder is "
+                       "backed up first, and the save and every log are updated together.").pack(anchor="w")
+        ttk.Label(frame, wraplength=640, justify="left", foreground="#555555",
+                  text="Give the suggested names: each gets the last name shown. Choose each…: the last-names "
+                       "window opens with their boxes highlighted. Not now: you are not asked about these "
+                       "villagers again (only when another villager has no last name).\n\n" + self._LN_HOW
+                  ).pack(anchor="w", pady=(8, 0))
+        outcome: dict = {}
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(12, 0))
+
+        def answer(what: str) -> None:
+            outcome["answer"] = what
+            window.destroy()
+
+        give = ttk.Button(buttons, text="Give the suggested names", command=lambda: answer("given"))
+        give.pack(side="left")
+        if not any(m.suggested for m in missing):
+            give.state(["disabled"])
+        ttk.Button(buttons, text="Choose each…", command=lambda: answer("chosen")).pack(side="left", padx=(8, 0))
+        ttk.Button(buttons, text="Not now", command=lambda: answer("not now")).pack(side="left", padx=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+        what = outcome.get("answer")
+        if what == "not now":
+            try:
+                vv_last_names.write_missing(folder, number, slot, vv_last_names.NOT_NOW,
+                                            [m.villager.identity for m in missing])
+            except (vv_last_names.LastNamesError, OSError) as exc:
+                messagebox.showerror("Last names", f"Your answer could not be kept ({exc}).", parent=parent)
+            return what
+        if what is None:
+            return None
+        if vv_save_backup.running_game_count(folder):
+            messagebox.showerror("Last names", f"{vv_save_backup.game_exe_name(folder)} is running. Quit the game "
+                                 "first (from its own menu); nothing was changed.", parent=parent)
+            return None
+        if what == "given":
+            try:
+                result = self._run_with_wait(
+                    "Giving the last names…\n\nThe save folder is backed up first.",
+                    lambda: vv_last_names.give_missing(folder, number, slot, missing))
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    vv_genealogy.GenealogyError, OSError) as exc:
+                messagebox.showerror("Last names", f"The last names were not given. {exc}", parent=parent)
+                return None
+            messagebox.showinfo("Last names", f"Last names given: {len(result.renamed)} villager(s), in the save "
+                                f"and {len(result.files) - 1} other file(s). Backup: {result.backup.backup_folder}",
+                                parent=parent)
+            return what
+        info = _SlotLike(slot, tribe)
+        ids = {m.villager.identity for m in missing}
+        names: dict = {"chosen": {m.villager.identity: m.suggested for m in missing if m.suggested},
+                       "answers": {}, "mine": set(ids), "highlight": set(ids)}
+        names_var = tk.BooleanVar(value=False)
+        self._last_names_dialog(parent, folder, number, info, names, names_var)
+        if not names_var.get():
+            return None
+        done = self._apply_last_names(parent, folder, number, slot, names)
+        if done:
+            try:
+                if not vv_last_names.missing_last_names(folder, number, slot):
+                    vv_last_names.clear_missing(folder, number, slot)
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError, struct.error):
+                pass
+            messagebox.showinfo("Last names", "\n\n".join(done), parent=parent)
+        return "chosen" if done else None
+
+    def _missing_last_names_at_repair(self, parent, folder: Path, number: int, info) -> list[str]:
+        """Repair Saves & Logs, with the game closed: arrived villagers with no last name get their own new
+        one automatically when the village's arrivals toggle is on (the owner, v1.35.66: "automatically
+        assigning unique last names for arrived villagers"); with "Check logs automatically" on, the
+        player is asked about the rest -- unless they said "Not now" to every one of them.  Returns the
+        lines for Repair's summary."""
+        try:
+            missing = self._run_with_wait("Looking for villagers with no last name…\n\nNothing is changed.",
+                                          lambda: vv_last_names.missing_last_names(folder, number, info.slot))
+        except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, vv_log_tools.LogToolError, OSError,
+                ValueError, struct.error):
+            return []                           # Check Saves & Logs reports what could not be read
+        lines: list[str] = []
+        auto = [m for m in missing if m.auto]
+        if auto:
+            try:
+                result = self._run_with_wait(
+                    "Giving arrived villagers their own new last name…\n\nThe save folder is backed up first.",
+                    lambda: vv_last_names.give_missing(folder, number, info.slot, auto))
+                lines.append("Arrived villagers given their own new last name: " + ", ".join(
+                    f"{old} -> {new}" for (old, _h, _b), new in result.renamed.items())
+                    + f". Backup: {result.backup.backup_folder}")
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    vv_genealogy.GenealogyError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The arrived villagers were not given last names. {exc}",
+                                     parent=parent)
+        rest = [m for m in missing if not m.auto]
+        if rest and self.check_logs_var.get() and vv_last_names.should_ask(folder, number, info.slot, rest):
+            self._missing_last_names_prompt(parent, folder, number, info.slot, info.name, rest)
+        return lines
+
+    def _apply_last_names(self, parent, folder: Path, number: int, slot: int, names: dict) -> list[str]:
+        """What the last-names window chose (`names`), kept and given: the arrivals toggle, the rules,
+        then the names.  Each step's own error is shown; returns the lines that say what was done."""
+        lines: list[str] = []
+        if names.get("arrivals") is not None and names["arrivals"] != vv_last_names.read_arrivals(folder, number, slot):
+            try:
+                vv_last_names.save_arrivals(folder, number, slot, names["arrivals"])
+                lines.append("Arriving villagers get their own new last name automatically: "
+                             + ("on." if names["arrivals"] else "off."))
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Last names", f"The arrivals setting was not kept. {exc}", parent=parent)
+        if names.get("rules_changed"):
+            try:
+                ruled = self._run_with_wait(
+                    "Keeping the last-name rules…",
+                    lambda: vv_last_names.save_own_rules(folder, number, slot, names["rule"], names["own"]))
+                lines.append(f"Last names come from: {vv_last_names.INHERIT[names['rule']]}; "
+                             f"{len(ruled)} villager(s) with a rule of their own.")
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Last names", f"The last-name rules were not kept. {exc}", parent=parent)
+        if names.get("chosen"):
+            try:
+                renamed = self._run_with_wait(
+                    "Giving the last names…\n\nThe save folder is backed up first.",
+                    lambda: vv_last_names.give_last_names(folder, number, slot, names["chosen"],
+                                                          answers=names.get("answers"), rule=names.get("rule"),
+                                                          mine=names.get("mine_names"), whole=names.get("whole")))
+                lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
+                             f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    OSError) as exc:
+                messagebox.showerror("Last names", f"The last names were not given. {exc}", parent=parent)
+        return lines
+
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
-                          speed: tuple | None = None, misnumbered: dict | None = None):
+                          speed: tuple | None = None, misnumbered: dict | None = None, graves=None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -3458,13 +3763,16 @@ class App(tk.Tk):
         for kind in kinds:
             for key, question in kind.questions.items():
                 answers[key] = question.default
-            if not kind.inserts:
+            if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None):
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
                               justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
                 continue
             ticks[kind.id] = tk.BooleanVar(value=True)
-            text = f"Add {kind.label.lower()}: {kind.decided} decided"
+            text = (f"Put right {kind.label[0].lower() + kind.label[1:]}: "
+                    f"{len(kind.removes) + len(kind.replaces)} found" if kind.id == "contradictions"
+                    else f"Remove {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
+                    if getattr(kind, "removes", None) else f"Add {kind.label.lower()}: {kind.decided} decided")
             if kind.asked:
                 text += f", {kind.asked} question(s) for you"
             ttk.Checkbutton(frame, variable=ticks[kind.id], text=text).pack(anchor="w")
@@ -3524,6 +3832,22 @@ class App(tk.Tk):
 
         cuts_var.trace_add("write", cut_first)
         cut_first()
+        # Fix grave information (src/vv_graves.py): never ticked until the player answers something.
+        graves_var = tk.BooleanVar(value=False)
+        grave_state: dict = {"answers": {}, "fixes": [], "edits": {}}
+        if isinstance(graves, str):
+            ttk.Label(frame, text=f"Graves: {graves}", wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", pady=(4, 0))
+        elif graves is not None:
+            graves_row = ttk.Frame(frame)
+            graves_row.pack(anchor="w", pady=(4, 0))
+            ttk.Checkbutton(graves_row, variable=graves_var,
+                            text=f"Fix grave information (name, age, cause, epitaph...): "
+                                 f"{len(graves.differences)} difference(s) in {len(graves.graves)} grave(s)"
+                            ).pack(side="left")
+            ttk.Button(graves_row, text="Choose…",
+                       command=lambda: self._graves_dialog(window, number, graves, grave_state, graves_var)
+                       ).pack(side="left", padx=(8, 0))
         # Game speed Paused in backups and in saves the player picks (the owner, 2026-10-08): a
         # restored backup must never catch up on the time since it was made.
         pause_backups_var = tk.BooleanVar(value=bool(unpaused))
@@ -3573,12 +3897,15 @@ class App(tk.Tk):
         def go() -> None:
             restore = bool(cuts) and cuts_var.get()
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
-                                 names if names_var.get() and names["chosen"] and not restore else None,
+                                 names if names_var.get() and (names["chosen"] or names.get("rules_changed")
+                                                               or names.get("arrivals_changed"))
+                                 and not restore else None,
                                  next(k for k, v in vv_genealogy.NUMBER_ORDERS.items() if v == number_order_var.get())
                                  if number_var.get() and not restore else None,
                                  restore,
                                  (list(unpaused) if pause_backups_var.get() else []) + list(picked_saves),
-                                 next((k for k, v in vv_save_backup.SPEED_CHOICES.items() if v == speed_var.get()), None))
+                                 next((k for k, v in vv_save_backup.SPEED_CHOICES.items() if v == speed_var.get()), None),
+                                 grave_state if graves_var.get() else None)
             window.destroy()
 
         ttk.Button(buttons, text="Repair", command=go).pack(side="left")
@@ -3627,8 +3954,10 @@ class App(tk.Tk):
                        "name - type here...) and type your own, or choose none. A name longer than the game "
                        "allows is marked and cannot be given. A villager's descendants inherit the name you give them by "
                        "the rule above. A villager who arrived through an event has no last name unless you give "
-                       "one. A last name the rule does not give is marked; Fix wrong last names "
-                       "puts them right. The game must stay closed.").pack(anchor="w")
+                       "one (or the box below gives arrivals their own). Highlighted: no last name yet. A last name the rule does not give is marked; Fix wrong last names "
+                       "puts them right. Random last names gives villagers random ones from the game's list (see them here "
+                       "first). A villager whose last name will change is shown in red bold. The game must stay closed."
+                  ).pack(anchor="w")
         rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
         rule_row.pack(anchor="w")
         ttk.Label(rule_row, text="Last names come from:").pack(side="left")
@@ -3636,6 +3965,24 @@ class App(tk.Tk):
         rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["father"]))
         ttk.Combobox(rule_row, textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
                      state="readonly", width=34).pack(side="left", padx=(6, 0))
+        # Each living villager's own rule for their children's last name (the owner, 2026-10-09), beside
+        # the village's: the record's, or what the player chose here before.
+        living_keys = {vv_last_names.own_key(v) for v in people if v.alive}
+        saved_own = {k: r for k, r in vv_last_names.own_rules_now(folder, number, info.slot, people).items()
+                     if k in living_keys}
+        # The record's lines as written: a line re-keyed above (a change of looks) is written again on Repair.
+        written_own = {k: r for k, r in vv_last_names.read_own(folder, number, info.slot).items() if k in living_keys}
+        own_state: dict = dict(names["own"]) if "own" in names else dict(saved_own)
+        ttk.Button(rule_row, text="Each villager's own rule…",
+                   command=lambda: self._own_rules_dialog(window, people, parents, own_state, lambda: by_rule())
+                   ).pack(side="left", padx=(8, 0))
+        # Arriving villagers' own new last names (the owner, v1.35.66: "an optional toggle (default on) for
+        # automatically assigning unique last names for arrived villagers"), kept with the village.
+        recorded_arrivals = vv_last_names.read_arrivals(folder, number, info.slot)
+        arrivals_var = tk.BooleanVar(value=names.get("arrivals", recorded_arrivals))
+        ttk.Checkbutton(window, variable=arrivals_var, padding=(12, 4, 12, 0),
+                        text="Give arriving villagers their own new last name automatically (one no living "
+                             "villager has, from the game's list)").pack(anchor="w")
         wrong_var = tk.StringVar()
         ttk.Label(window, textvariable=wrong_var, padding=(12, 4, 12, 0), foreground="#a33", wraplength=700,
                   justify="left").pack(anchor="w")
@@ -3653,17 +4000,18 @@ class App(tk.Tk):
         mine: set = set(names.get("mine", ()))
         mine |= {v.identity for v in people if (split(v.name)[0], v.head, v.body) in recorded}
         filling = [False]                       # the window itself is filling the rows in
-        for row, v in enumerate(people):
-            father, mother = parents.get(v.identity, (None, None))
-            who = f"{v.name} ({v.sex or 'sex unknown'}{'' if v.alive else ', no longer in the village'})"
-            if father or mother:
-                who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
-            if v.arrived:
-                # The owner, 2026-10-07: "All newly-spawned villagers from events will default to
-                # no last name" -- (no last name) unless the player picks or types one; an event's
-                # copy of a villager (parents on record) too.
-                who += " -- arrived"
-            ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
+        # The villagers with no last name the prompt is about (the owner, v1.35.66): highlighted.
+        highlight = set(names.get("highlight", ()))
+        normal_font = tkfont.nametofont("TkDefaultFont")
+        bold_font = normal_font.copy()
+        bold_font.configure(weight="bold")
+        labels: dict = {}                       # identity -> (the row's label, whether the prompt asked about it)
+        for row, (v, who) in enumerate(zip(people, last_name_rows(people, parents))):
+            asked = v.identity in highlight
+            label = (tk.Label(inner, text=who, background=LAST_NAME_ASKED_BACKGROUND, foreground="#000000")
+                     if asked else ttk.Label(inner, text=who))
+            label.grid(row=row, column=0, sticky="w")
+            labels[v.identity] = (label, asked)
             start_value = names["chosen"].get(v.identity, now[v.identity])
             value = tk.StringVar(value=start_value or none)
             first = list(dict.fromkeys(n for n in (by_father.get(v.identity), by_mother.get(v.identity)) if n))
@@ -3735,7 +4083,7 @@ class App(tk.Tk):
             # The rest of a family follows the name the player gives one of them: their brothers
             # and sisters, and their descendants by the rule.
             return vv_last_names.inherited(people, parents, rule_key(), pool,
-                                           vv_last_names.with_siblings(fixed(), parents), carried)
+                                           vv_last_names.with_siblings(fixed(), parents), carried, own_state)
 
         def marks() -> None:
             """A last name the rule does not give -- in the box now -- is marked."""
@@ -3768,13 +4116,29 @@ class App(tk.Tk):
                 alerts.append(f"{len(shared)} villager(s) share a last name with a family they are not related "
                               f"to: {'; '.join(firsts)}{' and more' if len(shared) > 4 else ''}.")
             wrong_var.set("\n".join(alerts))
+            restyle()
             window.after_idle(fit_width)        # as wide as the longest mark, so nothing is cut off
+
+        def restyle() -> None:
+            """Red bold for each villager whose last name the boxes would change (the owner, 2026-10-10)."""
+            changing = last_names_changing(now, {v.identity: last_in(value) for v, value, _m in rows})
+            for key, (label, asked) in labels.items():
+                style = last_name_row_style(key in changing, asked)
+                font = bold_font if style["bold"] else normal_font
+                if asked:
+                    label.configure(font=font, foreground=style["foreground"], background=style["background"])
+                else:
+                    label.configure(font=font, foreground=style["foreground"] or "")
+
+        # Rows Random last names left as they are: the rule does not re-derive them (until Fix wrong last names).
+        held: set = set()
+        random_state = {"who": "missing", "families": False, "seed": vv_last_names.random_seed()}
 
         def fill(choice) -> None:
             filling[0] = True
             try:
                 for v, value, _m in rows:
-                    if v.identity not in mine:
+                    if v.identity not in mine and v.identity not in held:
                         value.set(choice(v) or none)
             finally:
                 filling[0] = False
@@ -3792,10 +4156,170 @@ class App(tk.Tk):
 
         def none_for_all() -> None:
             mine.clear()
+            held.clear()
             fill(lambda v: "")
             mine.update(v.identity for v, _value, _m in rows)
 
+        def fix_wrong() -> None:
+            held.clear()
+            by_rule()
+
+        def random_dialog() -> None:
+            """Random last names (the owner, 2026-10-10): from the game's own list, for villagers with none
+            or for everyone, each villager's own or one a family shares.  The boxes show the names at once
+            (red bold: they will change), Reroll draws others, any box can still be edited; nothing is
+            written until OK here and the repair runs."""
+            try:
+                skip = vv_last_names.heathen_identities(folder, number, info.slot)
+                earlier = vv_last_names.random_conflicts(folder, number, info.slot, people, known)
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError) as exc:
+                messagebox.showerror("Last names", f"The logs could not be read ({exc}).", parent=window)
+                return
+            snapshot = {v.identity: value.get() for v, value, _m in rows}
+            snapshot_mine, snapshot_held = set(mine), set(held)
+            shown_before = {key: ("" if text.strip() in (none, custom) else text.strip())
+                            for key, text in snapshot.items()}
+            state = random_state
+            sub = tk.Toplevel(window)
+            sub.title("Random last names")
+            sub.transient(window)
+            who_var = tk.StringVar(value=state["who"])
+            families_var = tk.StringVar(value="family" if state["families"] else "each")
+            seed_var = tk.StringVar(value=str(state["seed"]))
+            summary = tk.StringVar()
+            ttk.Label(sub, padding=(12, 12, 12, 0), wraplength=520, justify="left",
+                      text="Random last names, drawn from this game's own list. The names show in the list "
+                           "behind this window in red bold; change any of them, or press Reroll for others. "
+                           "Nothing is written until you press OK in the last-names window.").pack(anchor="w")
+            who_box = ttk.LabelFrame(sub, text="Who", padding=8)
+            who_box.pack(fill="x", padx=12, pady=(8, 0))
+            ttk.Radiobutton(who_box, text="Only villagers who have no last name", variable=who_var,
+                            value="missing").pack(anchor="w")
+            ttk.Radiobutton(who_box, text="Everyone (replaces the last names they have now)", variable=who_var,
+                            value="everyone").pack(anchor="w")
+            family_box = ttk.LabelFrame(sub, text="Families", padding=8)
+            family_box.pack(fill="x", padx=12, pady=(8, 0))
+            ttk.Radiobutton(family_box, text="Fully random per villager", variable=families_var,
+                            value="each").pack(anchor="w")
+            ttk.Radiobutton(family_box, text="Each family shares one random name (children follow their "
+                            "parents by the village's rule)", variable=families_var, value="family").pack(anchor="w")
+            seed_row = ttk.Frame(sub, padding=(12, 8, 12, 0))
+            seed_row.pack(anchor="w")
+            ttk.Label(seed_row, text="Seed:").pack(side="left")
+            ttk.Entry(seed_row, textvariable=seed_var, width=10).pack(side="left", padx=(6, 0))
+            ttk.Label(sub, textvariable=summary, padding=(12, 8, 12, 0), wraplength=520, justify="left").pack(anchor="w")
+
+            def restore() -> None:
+                filling[0] = True
+                try:
+                    for v, value, _m in rows:
+                        value.set(snapshot[v.identity])
+                finally:
+                    filling[0] = False
+                mine.clear()
+                mine.update(snapshot_mine)
+                held.clear()
+                held.update(snapshot_held)
+
+            def assigned_now() -> tuple | None:
+                try:
+                    seed = int(seed_var.get().strip())
+                except ValueError:
+                    return None
+                effective = rule_key() if rule_key() in ("father", "mother", "random") else "father"
+                return vv_last_names.random_last_names(
+                    number, people, parents, seed, who_var.get(), families_var.get() == "family", effective,
+                    shown_before, known, skip, pool, room)
+
+            def preview(*_args) -> None:
+                restore()
+                found = assigned_now()
+                if found is None:
+                    summary.set("The seed is a whole number.")
+                    marks()
+                    return
+                chosen_now, unfit = found
+                filling[0] = True
+                try:
+                    for v, value, _m in rows:
+                        if v.identity in chosen_now:
+                            value.set(chosen_now[v.identity])
+                finally:
+                    filling[0] = False
+                mine.update(chosen_now)
+                held.update(v.identity for v, _value, _m in rows if v.identity not in mine)
+                text = f"{len(chosen_now)} villager(s) get a new last name."
+                if unfit:
+                    text += f" {len(unfit)} could not be given one that fits the game's name field."
+                summary.set(text)
+                marks()
+
+            def reroll() -> None:
+                seed_var.set(str(vv_last_names.random_seed()))
+
+            def apply_it() -> None:
+                if assigned_now() is None:
+                    return
+                changed_now = [v for v, value, _m in rows if last_in(value) != shown_before[v.identity]]
+                replaced = [v for v in changed_now if shown_before[v.identity]]
+                if who_var.get() == "everyone" and replaced and not messagebox.askokcancel(
+                        "Random last names",
+                        f"This changes the last name of {len(replaced)} villager(s) who have one now, so the "
+                        "whole village's names change: in the save and in every log. A backup of the save folder "
+                        "is made first, and nothing is written until you press OK in the last-names window.\n\n"
+                        "Replace their last names?", icon="warning", parent=sub):
+                    return
+                asked = [v for v in changed_now if v.identity in earlier and not shown_before[v.identity]]
+                if asked:
+                    lines = "\n".join(f"{v.name}: an earlier record calls them {' or '.join(earlier[v.identity])}"
+                                      for v in asked[:12])
+                    answer = messagebox.askyesnocancel(
+                        "Random last names",
+                        f"Earlier records give these villagers a last name:\n\n{lines}"
+                        f"{chr(10) + 'and more' if len(asked) > 12 else ''}\n\n"
+                        "Yes: give them the random names anyway.\nNo: leave them as they are (no change).\n"
+                        "Cancel: go back.", icon="warning", parent=sub)
+                    if answer is None:
+                        return
+                    if not answer:
+                        filling[0] = True
+                        try:
+                            for v, value, _m in rows:
+                                if v in asked:
+                                    value.set(snapshot[v.identity])
+                        finally:
+                            filling[0] = False
+                        mine.difference_update(v.identity for v in asked if v.identity not in snapshot_mine)
+                        held.update(v.identity for v in asked)
+                        marks()
+                state.update(who=who_var.get(), families=families_var.get() == "family")
+                try:
+                    state["seed"] = int(seed_var.get().strip())
+                except ValueError:
+                    pass
+                sub.destroy()
+
+            def cancel() -> None:
+                restore()
+                marks()
+                sub.destroy()
+
+            for variable in (who_var, families_var, seed_var):
+                variable.trace_add("write", preview)
+            buttons_row = ttk.Frame(sub, padding=12)
+            buttons_row.pack(anchor="w")
+            ttk.Button(buttons_row, text="Reroll", command=reroll).pack(side="left")
+            ttk.Button(buttons_row, text="Use these", command=apply_it).pack(side="left", padx=(16, 0))
+            ttk.Button(buttons_row, text="Cancel", command=cancel).pack(side="left", padx=8)
+            sub.protocol("WM_DELETE_WINDOW", cancel)
+            preview()
+            sub.grab_set()
+            window.wait_window(sub)
+            _regrab(window)
+
         rule_var.trace_add("write", by_rule)
+        rule_touched = [bool(names.get("rule_touched"))]
+        rule_var.trace_add("write", lambda *_a: rule_touched.__setitem__(0, True))
         if not names["chosen"] and not any(now.values()):
             by_rule()
         else:
@@ -3832,11 +4356,20 @@ class App(tk.Tk):
             names["whole"] = whole
             names["mine"] = set(mine)
             names["mine_names"] = {key: last for key, last in fixed().items()}
-            names_var.set(bool(chosen))
+            names["own"] = {key: r for key, r in own_state.items() if r and key in living_keys}
+            names["rule_touched"] = rule_touched[0]
+            # The village's rule and the villagers' own are kept even when no name changes.
+            # A village with no record yet keeps the rule shown only once the player picks one.
+            names["rules_changed"] = names["own"] != written_own or (
+                rule_key() != recorded_rule and (recorded_rule is not None or rule_touched[0]))
+            names["arrivals"] = arrivals_var.get()
+            names["arrivals_changed"] = arrivals_var.get() != recorded_arrivals
+            names_var.set(bool(chosen) or names["rules_changed"] or names["arrivals_changed"])
             window.destroy()
 
-        ttk.Button(buttons, text="Fix wrong last names", command=by_rule).pack(side="left")
+        ttk.Button(buttons, text="Fix wrong last names", command=fix_wrong).pack(side="left")
         ttk.Button(buttons, text="None for all", command=none_for_all).pack(side="left", padx=(8, 0))
+        ttk.Button(buttons, text="Random last names…", command=random_dialog).pack(side="left", padx=(8, 0))
         ttk.Button(buttons, text="OK", command=ok).pack(side="left", padx=(16, 0))
         ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=8)
         window.protocol("WM_DELETE_WINDOW", window.destroy)
@@ -3844,6 +4377,72 @@ class App(tk.Tk):
         parent.wait_window(window)
         _regrab(parent)
 
+    def _own_rules_dialog(self, parent, people: list, parents: dict, own: dict, changed) -> None:
+        """Each living villager's own rule for their children's last name (the owner, 2026-10-09: "so
+        certain villagers can pass their last name with different rules from the rest of the
+        village"): "Use the village rule" or one of their own, kept in `own` on OK.  The rows read as
+        the last-names window's (last_name_rows), in its order.  Villagers a birth could not tell apart
+        (the same name, looks and sex) cannot have one."""
+        alike = vv_last_names.indistinguishable(people)
+        words = vv_last_names.OWN_RULES
+        shown = [v for v in people if v.alive]
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: each villager's own rule")
+        window.transient(parent)
+        window.resizable(True, True)
+        ttk.Label(window, padding=(12, 12, 12, 0), wraplength=620, justify="left",
+                  text="Where each living villager's children get their last name, if not by the village "
+                       "rule. When only one parent has a rule of their own, it is used; when both do and they "
+                       "agree, theirs; when they disagree, or neither has one, the village rule. Villagers "
+                       "who share a name, looks and sex cannot have one (number the duplicate names first). "
+                       "The game must stay closed.").pack(side="top", anchor="w")
+        buttons = ttk.Frame(window, padding=12)
+        buttons.pack(side="bottom", anchor="w")
+        body = ttk.Frame(window)
+        body.pack(side="top", fill="both", expand=True)
+        canvas = tk.Canvas(body, width=760, height=max(200, min(460, window.winfo_screenheight() - 300)),
+                           highlightthickness=0)
+        bar = ttk.Scrollbar(body, orient="vertical", command=canvas.yview)
+        inner = ttk.Frame(canvas, padding=12)
+        inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.configure(yscrollcommand=bar.set)
+        bar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+        values: dict = {}
+        for row, (v, who) in enumerate(zip(shown, last_name_rows(shown, parents))):
+            key = vv_last_names.own_key(v)
+            ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
+            if key in alike:
+                ttk.Label(inner, foreground="#a33",
+                          text="the same name, looks and sex as another villager: the village rule").grid(
+                    row=row, column=1, sticky="w", padx=(8, 0))
+            else:
+                values[key] = tk.StringVar(value=words.get(own.get(key, ""), words[""]))
+                ttk.Combobox(inner, textvariable=values[key], values=list(words.values()), state="readonly",
+                             width=22).grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
+
+        def fit_width() -> None:
+            try:
+                inner.update_idletasks()
+                canvas.configure(width=min(inner.winfo_reqwidth(), window.winfo_screenwidth() - 80))
+            except tk.TclError:
+                pass
+
+        def ok() -> None:
+            by_words = {text: rule for rule, text in words.items()}
+            own.clear()
+            own.update({key: by_words[var.get()] for key, var in values.items() if by_words[var.get()]})
+            window.destroy()
+            changed()
+
+        ttk.Button(buttons, text="OK", command=ok).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=8)
+        window.after_idle(fit_width)
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
     def _repair_questions(self, parent, questions: list, answers: dict) -> None:
         """One answer per question, from its own options; kept in `answers`."""
         window = tk.Toplevel(parent)
@@ -3876,6 +4475,189 @@ class App(tk.Tk):
         window.grab_set()
         parent.wait_window(window)
         _regrab(parent)
+
+    # FIX GRAVE INFORMATION (the owner, 2026-10-10: "add an option in Repair logs/saves to fix grave
+    # information too: Name, age, etc." and "account for mod-added stuff too"; src/vv_graves.py).
+    def _graves_dialog(self, parent, number: int, surveyed, state: dict, tick) -> None:
+        """Every difference between a grave and its records, each answered from its own values or
+        "Don't know / leave it" (nothing is chosen beforehand), and any grave edited directly.  The
+        answers are kept in state["answers"] / state["edits"]; `tick` is ticked when any is given."""
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: grave information")
+        window.transient(parent)
+        canvas = tk.Canvas(window, width=760, height=500, highlightthickness=0)
+        bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
+        inner = ttk.Frame(canvas, padding=12)
+        inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.configure(yscrollcommand=bar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        bar.pack(side="right", fill="y")
+        dont = vv_graves.DONT_KNOW
+        ttk.Label(inner, wraplength=720, justify="left", text=(
+            "Each grave in the save is compared with its Death record, the patcher's grave files, the "
+            "last-names record and the villager's last snapshot. For each difference, choose the value "
+            "that is right, or \"Don't know / leave it\" to change nothing. After Repair you are asked "
+            "whether to edit the old records too.")).grid(row=0, column=0, sticky="w")
+        row = 1
+        chosen: dict[str, tuple] = {}
+        if not surveyed.differences:
+            ttk.Label(inner, text="Every grave agrees with its records.", foreground="#555555").grid(
+                row=row, column=0, sticky="w", pady=(8, 0))
+            row += 1
+        for diff in surveyed.differences:
+            ttk.Label(inner, text=diff.text, wraplength=720, justify="left").grid(
+                row=row, column=0, sticky="w", pady=(8, 0))
+            shown = [dont] + [f"{vv_graves._show(v)}" for v in diff.choices]
+            var = tk.StringVar(value=state["answers"].get(diff.key, dont))
+            ttk.Combobox(inner, textvariable=var, values=shown, state="readonly", width=60).grid(
+                row=row + 1, column=0, sticky="w")
+            chosen[diff.key] = (diff, var)
+            row += 2
+        for note in surveyed.notes:
+            ttk.Label(inner, text=note, wraplength=720, justify="left", foreground="#555555").grid(
+                row=row, column=0, sticky="w", pady=(4, 0))
+            row += 1
+        # Editing a grave whose information is simply wrong.
+        edit_row = ttk.Frame(inner)
+        edit_row.grid(row=row, column=0, sticky="w", pady=(12, 0))
+        row += 1
+        ttk.Label(edit_row, text="Edit a grave yourself:").pack(side="left")
+        labels = [g.label() for g in surveyed.graves]
+        grave_var = tk.StringVar(value=labels[0] if labels else "")
+        grave_box = ttk.Combobox(edit_row, textvariable=grave_var, values=labels, state="readonly", width=48)
+        grave_box.pack(side="left", padx=(8, 0))
+        edits_note = ttk.Label(inner, foreground="#555555", wraplength=720, justify="left")
+        edits_note.grid(row=row, column=0, sticky="w")
+        row += 1
+
+        def show_edits() -> None:
+            done = [vv_graves.describe(fix) for fix in state["edits"].values()]
+            edits_note.configure(text=("Your edits: " + "; ".join(done)) if done else "")
+
+        def edit() -> None:
+            if not labels or grave_box.current() < 0:
+                return
+            self._grave_editor(window, number, surveyed, surveyed.graves[grave_box.current()], state)
+            if window.winfo_exists():
+                show_edits()
+
+        ttk.Button(edit_row, text="Edit…", command=edit,
+                   state="normal" if labels else "disabled").pack(side="left", padx=(8, 0))
+        show_edits()
+
+        def keep() -> None:
+            answers = {}
+            for key, (diff, var) in chosen.items():
+                if var.get() != dont:
+                    answers[key] = var.get()
+            state["answers"] = answers
+            state["fixes"] = []
+            for key, value in answers.items():
+                diff = chosen[key][0]
+                picked = next(v for v in diff.choices if vv_graves._show(v) == value)
+                state["fixes"].append(vv_graves.Fix(diff.place, diff.field, picked, diff.who))
+            if state["fixes"] or state["edits"]:
+                tick.set(True)
+            window.destroy()
+
+        buttons = ttk.Frame(inner)
+        buttons.grid(row=row, column=0, sticky="w", pady=(12, 0))
+        ttk.Button(buttons, text="Keep these answers", command=keep).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+
+    def _grave_editor(self, parent, number: int, surveyed, grave, state: dict) -> None:
+        """One grave's fields, as the grave and its Death record have them, to put right directly."""
+        window = tk.Toplevel(parent)
+        window.title(f"Edit the grave of {grave.name}")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=12)
+        frame.pack(fill="both", expand=True)
+        record = grave.record
+        boxes: dict[str, tk.StringVar] = {}
+        start: dict[str, str] = {}
+        for row, key in enumerate(vv_graves.editable(number, grave)):
+            if key in ("custom", "mask"):
+                if record is None:
+                    continue
+                now = record.value(vv_graves.RECORD_LINE[key]) or ""
+            else:
+                now = grave.values.get(key, grave.sidecar.get(key, ""))
+            now = "" if now is None else str(now)
+            ttk.Label(frame, text=vv_graves.FIELDS[key] + ":").grid(row=row, column=0, sticky="w", pady=2)
+            var = tk.StringVar(value=now)
+            if key == "cause":
+                ttk.Combobox(frame, textvariable=var, values=list(vv_graves.CAUSE_WORDS.values()),
+                             state="readonly", width=40).grid(row=row, column=1, sticky="w")
+            elif key == "sex":
+                ttk.Combobox(frame, textvariable=var, values=["Male", "Female"], state="readonly",
+                             width=40).grid(row=row, column=1, sticky="w")
+            elif key == "title":
+                now = now or "(no title)"
+                var.set(now)
+                ttk.Combobox(frame, textvariable=var, state="readonly", width=40,
+                             values=["(no title)", "Esteemed Elder"] + (["Tribal Chief"] if number == 3 else [])
+                             ).grid(row=row, column=1, sticky="w")
+            else:
+                ttk.Entry(frame, textvariable=var, width=42).grid(row=row, column=1, sticky="w")
+            boxes[key], start[key] = var, now
+        problem = ttk.Label(frame, foreground="#a01010", wraplength=420, justify="left")
+        problem.grid(row=len(boxes) + 1, column=0, columnspan=2, sticky="w", pady=(6, 0))
+
+        def keep() -> None:
+            found = {}
+            for key, var in boxes.items():
+                if var.get() == start[key]:
+                    continue
+                value = "" if key == "title" and var.get() == "(no title)" else var.get()
+                try:
+                    found[key] = vv_graves.check_value(number, key, value, surveyed)
+                except vv_graves.GraveError as exc:
+                    problem.configure(text=f"{vv_graves.FIELDS[key]}: {exc}")
+                    return
+            who = record.identity if record is not None else ()
+            for key, value in found.items():
+                state["edits"][(grave.place, key)] = vv_graves.Fix(grave.place, key, value, who, start[key])
+            window.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.grid(row=len(boxes) + 2, column=0, columnspan=2, sticky="w", pady=(10, 0))
+        ttk.Button(buttons, text="OK", command=keep).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+
+    def _fix_graves(self, parent, folder: Path, number: int, info, graves: dict) -> list[str]:
+        """The chosen grave fixes, after "Retroactively edit records?"; returns the summary lines."""
+        fixes = list(graves.get("fixes", []))
+        edited = {(f.place, f.field) for f in graves.get("edits", {}).values()}
+        fixes = [f for f in fixes if (f.place, f.field) not in edited] + list(graves.get("edits", {}).values())
+        if not fixes:
+            return []
+        retro = messagebox.askyesno(
+            "Repair Saves & Logs",
+            "Grave information to set:\n\n" + "\n".join(vv_graves.describe(f) for f in fixes[:20])
+            + (f"\n... and {len(fixes) - 20} more" if len(fixes) > 20 else "")
+            + "\n\nRetroactively edit records?\n\nYes: the Death records (and Epitaph changed records) are "
+            "corrected too, a copy of each kept in Copies Made Before Repairs.\nNo: only the save and the "
+            "patcher's grave files change; every record is left as it is, and your answers are remembered "
+            "so these are not asked again.", parent=parent)
+        try:
+            result = self._run_with_wait(
+                "Fixing the grave information…\n\nThe save folder is backed up first.",
+                lambda: vv_graves.fix_graves(folder, number, info.slot, fixes, retro))
+        except (vv_graves.GraveError, vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
+            messagebox.showerror("Repair Saves & Logs", f"The grave information was not fixed. {exc}", parent=parent)
+            return []
+        return [f"Grave information fixed: {len(result.fixes)} field(s), in {len(result.files)} file(s)"
+                + (" (the old records were left as they were)" if not retro else "")
+                + f". Backup: {result.backup.backup_folder}"]
 
     def _close(self) -> None:
         self._save_settings()

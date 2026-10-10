@@ -51,13 +51,19 @@ enum {
     F_BYTE_FLAG,                          /* a byte: 0 "no", anything else "yes" */
     F_SEX12,                              /* 1 Male, 2 Female (A New Home, The Lost Children) */
     F_SEX01,                              /* 0 Male, 1 Female (the later games) */
-    F_LIKES, F_DISLIKES                   /* `size` word indexes, as the logs print them */
+    F_LIKES, F_DISLIKES,                  /* `size` word indexes, as the logs print them */
+    F_BABIES,                             /* A New Home's and The Lost Children's litter: 0 one baby,
+                                             2 twins, 3 triplets while pregnant (their deliveries
+                                             0x42EF39 / 0x43BED6: any non-zero a second baby, 3 a
+                                             third); `size` is the Pregnant field's offset */
+    F_NAME                                /* a parent's name, `size` bytes: "(none)" when empty */
 };
 struct field {
     const char *label;                    /* "Head", "Farming", ... */
     unsigned int offset;                  /* from the villager's record */
     int type;
-    unsigned int size;                    /* F_TEXT: bytes; F_LIKES / F_DISLIKES: slots */
+    unsigned int size;                    /* F_TEXT: bytes; F_LIKES / F_DISLIKES: slots; F_BABIES: Pregnant */
+    int conception;                       /* written by the conception: printed whole when one starts */
 };
 
 /* How a game's villagers are found and read. */
@@ -69,6 +75,11 @@ struct game_layout {
     unsigned int head, body;
     const struct field *fields;
     int field_count;
+    /* A game that keeps no father on the mother (A New Home): the expected
+       father of the pregnancy `record` carries, from where the conception
+       recorded him -- name, head and body (-1 when not recorded); 0 when
+       there is none to tell.  NULL where the fields above hold him. */
+    int (*expected_father)(const unsigned char *record, char *name, size_t size, int *head, int *body);
 };
 
 static int g_game;
@@ -104,7 +115,18 @@ struct snapshot {
 /* The outermost watched call's copy (see before_call). */
 static struct snapshot g_snaps[1];
 static char g_choice[TITLE_MAX];         /* the answer clicked, when there was one */
+static char g_answer[TITLE_MAX];         /* the last two-choice answer clicked (struct site's answer) */
+static unsigned int g_answer_self;       /* ...in this dialog */
+static int g_answering;                  /* the outermost call is an answer click */
 static int g_depth;
+
+/* island_event_more.inc: what is not in the record copies, the village, a
+   newcomer's sex and age. */
+static void more_take(const struct snapshot *s);
+static size_t more_villager_changes(int i, const unsigned char *live, char *changes, size_t used, size_t size);
+static void more_arrival(const unsigned char *record, char *out, size_t size);
+static void more_village(const char *before);
+static int g_more_wrote;                  /* island_event_more.inc: the records this comparison wrote */
 
 static int readable(const void *at, size_t size) {
     MEMORY_BASIC_INFORMATION info;
@@ -135,23 +157,29 @@ static void take(struct snapshot *s) {
             s->where[i] = NULL;
         }
     }
+    more_take(s);
 }
 
 typedef int (__stdcall *preference_text_fn)(int, const void *, int, char *, int);
 
+static preference_text_fn g_preferences;  /* resolved once (a harness sets its own) */
+static int g_preferences_looked;
+
 static void field_text(const struct field *f, const unsigned char *record, char *out, size_t size) {
-    static preference_text_fn preferences;
-    static int looked;
     int value = *(const int *)(record + f->offset);
     out[0] = '\0';
     switch (f->type) {
-    case F_TEXT: {
+    case F_TEXT:
+    case F_NAME: {
         size_t n = 0;
         while (n < f->size && n + 1 < size && record[f->offset + n] != 0) {
             out[n] = (char)record[f->offset + n];
             ++n;
         }
         out[n] = '\0';
+        if (n == 0 && f->type == F_NAME) {
+            _snprintf(out, size, "(none)");
+        }
         break;
     }
     case F_FLOAT:
@@ -166,17 +194,31 @@ static void field_text(const struct field *f, const unsigned char *record, char 
     case F_SEX12:
         _snprintf(out, size, "%s", value == 1 ? "Male" : value == 2 ? "Female" : "(unknown)");
         break;
+    case F_BABIES:
+        /* The babies the delivery will make, as the later games store them
+           (1, 2 or 3); not pregnant, the field as it is. */
+        if (*(const int *)(record + f->size) != 0) {
+            value = value == 3 ? 3 : value != 0 ? 2 : 1;
+        }
+        _snprintf(out, size, "%d", value);
+        break;
     case F_SEX01:
         _snprintf(out, size, "%s", value == 0 ? "Male" : value == 1 ? "Female" : "(unknown)");
         break;
     case F_LIKES:
     case F_DISLIKES:
-        if (!looked) {
+        if (!g_preferences_looked && g_preferences == NULL) {
             HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
-            looked = 1;
-            preferences = module != NULL ? (preference_text_fn)GetProcAddress(module, "VillagePreferenceText") : NULL;
+            g_preferences_looked = 1;
+            /* Every like or dislike the villager has, not only the first the
+               Details panel shows: a change in a later slot is otherwise
+               "Likes: parrots -> parrots" (seen live in The Secret City). */
+            g_preferences = module != NULL ? (preference_text_fn)GetProcAddress(module, "VillagePreferenceListText") : NULL;
+            if (g_preferences == NULL && module != NULL) {
+                g_preferences = (preference_text_fn)GetProcAddress(module, "VillagePreferenceText");
+            }
         }
-        if (preferences == NULL || !preferences(g_game, record, f->type == F_DISLIKES, out, (int)size)) {
+        if (g_preferences == NULL || !g_preferences(g_game, record, f->type == F_DISLIKES, out, (int)size)) {
             _snprintf(out, size, "(changed)");
         }
         break;
@@ -188,13 +230,19 @@ static void field_text(const struct field *f, const unsigned char *record, char 
 }
 
 static int field_same(const struct field *f, const unsigned char *a, const unsigned char *b) {
-    unsigned int n = f->type == F_TEXT ? f->size
+    unsigned int n = f->type == F_TEXT || f->type == F_NAME ? f->size
         : f->type == F_LIKES || f->type == F_DISLIKES ? f->size * 4
         : f->type == F_BYTE_FLAG ? 1 : 4;
     if (f->type == F_FLAG) {
         return (*(const int *)(a + f->offset) != 0) == (*(const int *)(b + f->offset) != 0);
     }
-    if (f->type == F_TEXT) {
+    if (f->type == F_BABIES) {
+        char x[16], y[16];
+        field_text(f, a, x, sizeof x);
+        field_text(f, b, y, sizeof y);
+        return strcmp(x, y) == 0;
+    }
+    if (f->type == F_TEXT || f->type == F_NAME) {
         /* the text, not what is left after its terminator */
         return strncmp((const char *)a + f->offset, (const char *)b + f->offset, n) == 0;
     }
@@ -242,14 +290,36 @@ static int copy_of(const struct snapshot *s, const unsigned char *live) {
     return -1;
 }
 
+/* Choose Time Skip Amount's closing popup ("Time Skip" / "<N> years have
+   passed on the island.", the Story companion's story_time_skip.inc) is shown
+   through the game's island-event popup but is not an island event: it is
+   not written to the Island Events log and takes no event number (live,
+   v1.35.66: "Island event 20 / Event: Time Skip / Changes: none").  The Story
+   companion says whether the popup it filled last was that notice; the title
+   must be the notice's too, so a stock event (never "Time Skip") or a later
+   popup is never taken for it. */
+typedef int (__stdcall *notice_shown_fn)(int game);
+static notice_shown_fn g_notice_shown;    /* a harness sets its own */
+
+static int time_skip_notice(const struct snapshot *s) {
+    if (strcmp(s->title, "Time Skip") != 0) {
+        return 0;
+    }
+    if (g_notice_shown == NULL) {
+        HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
+        g_notice_shown = story != NULL ? (notice_shown_fn)GetProcAddress(story, "VvfpStoryTimeSkipNoticeShown") : NULL;
+    }
+    return g_notice_shown != NULL && g_notice_shown(g_game);
+}
+
 /* Compare and write: one record per villager the event changed. */
 static void compare(struct snapshot *s) {
     unsigned char *now[MAX_VILLAGERS];
-    int count, i, k;
+    int count, i, k, conceived;
     char before[2 * TITLE_MAX + TEXT_MAX + 64];
     char changes[2048];
     size_t at;
-    if (writer() == NULL || s->count == 0) {
+    if (writer() == NULL || s->count == 0 || time_skip_notice(s)) {
         return;
     }
     count = g_layout->enumerate(now, MAX_VILLAGERS);
@@ -278,26 +348,79 @@ static void compare(struct snapshot *s) {
                reused for someone else: named from the copy. */
             used += (size_t)_snprintf(changes + used, sizeof changes - used, "  Gone: yes\n");
             g_write(g_game, KIND_ISLAND_EVENT, old, 0, before, changes, 0);
+            ++g_more_wrote;
             continue;
+        }
+        /* A conception the event started (Nursing no -> yes): what it wrote
+           on the mother -- the babies, and the expected father's name, head
+           and body -- is printed whole, as the Births and Conceptions log
+           words a conception, even where it equals what the last pregnancy
+           left there (the same father again, or the same number of babies),
+           in all five games alike.  What was there before belongs to an
+           earlier pregnancy, so it is not printed as a "before". */
+        conceived = 0;
+        for (k = 0; k < g_layout->field_count; ++k) {
+            const struct field *f = &g_layout->fields[k];
+            if (f->type == F_FLAG && strcmp(f->label, "Nursing") == 0) {
+                conceived = *(const int *)(old + f->offset) == 0 && *(const int *)(live + f->offset) != 0;
+            }
         }
         for (k = 0; k < g_layout->field_count; ++k) {
             const struct field *f = &g_layout->fields[k];
-            char a[64], b[64];
+            char a[512], b[512];
+            if (conceived && f->conception) {
+                char name[64];
+                int head, body;
+                field_text(f, live, b, sizeof b);
+                if (used < sizeof changes) {
+                    int n = _snprintf(changes + used, sizeof changes - used, "  %s: %s\n", f->label, b);
+                    used = n < 0 ? sizeof changes : used + (size_t)n;
+                }
+                /* A New Home keeps no father on the mother: the expected
+                   father comes from where its conception recorded him
+                   (expected_father), right after the babies, as the later
+                   games' table order prints him. */
+                if (g_layout->expected_father != NULL && strcmp(f->label, "Babies nursing") == 0
+                    && g_layout->expected_father(live, name, sizeof name, &head, &body) && used < sizeof changes) {
+                    char head_text[32], body_text[32];
+                    int n;
+                    if (head >= 0) _snprintf(head_text, sizeof head_text, "%d", head);
+                    else _snprintf(head_text, sizeof head_text, "(not recorded)");
+                    if (body >= 0) _snprintf(body_text, sizeof body_text, "%d", body);
+                    else _snprintf(body_text, sizeof body_text, "(not recorded)");
+                    head_text[sizeof head_text - 1] = body_text[sizeof body_text - 1] = '\0';
+                    n = _snprintf(changes + used, sizeof changes - used,
+                                  "  Expected father: %s\n  Expected father's head: %s\n"
+                                  "  Expected father's body: %s\n", name, head_text, body_text);
+                    used = n < 0 ? sizeof changes : used + (size_t)n;
+                }
+                continue;
+            }
             if (field_same(f, old, live)) {
                 continue;
             }
             field_text(f, old, a, sizeof a);
             field_text(f, live, b, sizeof b);
+            if (strcmp(a, b) == 0
+                && !((f->type == F_LIKES || f->type == F_DISLIKES) && strcmp(a, "(changed)") == 0)) {
+                /* Never a line whose old and new read the same ("Likes:
+                   parrots -> parrots", seen live in The Secret City's Green
+                   Pearl) -- unless the likes could not be read at all
+                   ("(changed)"), where the slot did change. */
+                continue;
+            }
             if (used < sizeof changes) {
                 int n = _snprintf(changes + used, sizeof changes - used, "  %s: %s -> %s\n", f->label, a, b);
                 used = n < 0 ? sizeof changes : used + (size_t)n;
             }
         }
+        used = more_villager_changes(i, live, changes, used, sizeof changes);
         if (changes[0] == '\0') {
             continue;
         }
         changes[sizeof changes - 1] = '\0';
         g_write(g_game, KIND_ISLAND_EVENT, live, 1, before, changes, 0);
+        ++g_more_wrote;
         {
             int oh = *(const int *)(old + g_layout->head), ob = *(const int *)(old + g_layout->body);
             int nh = *(const int *)(live + g_layout->head), nb = *(const int *)(live + g_layout->body);
@@ -322,9 +445,13 @@ static void compare(struct snapshot *s) {
         int k2 = copy_of(s, now[i]);
         int was = k2 >= 0 && !reused(s->copy + (size_t)k2 * g_layout->copy_size, now[i]);
         if (!was) {
-            g_write(g_game, KIND_ISLAND_EVENT, now[i], 1, before, "  New villager: yes\n", 2);
+            char arrival[512];
+            more_arrival(now[i], arrival, sizeof arrival);
+            g_write(g_game, KIND_ISLAND_EVENT, now[i], 1, before, arrival, 2);
+            ++g_more_wrote;
         }
     }
+    more_village(before);
 }
 
 /* ---- The sites ----------------------------------------------------------- */
@@ -354,6 +481,12 @@ struct site {
     int (*watch)(const unsigned int *frame);
     void (*before)(const unsigned int *frame, struct snapshot_text *out);
     void (*after)(unsigned int self, struct snapshot_text *out);
+    /* A two-choice dialog's answer click, read whatever is watched: the
+       clicked button's label into `out` (empty when this call is no answer
+       click).  The later games apply a stock two-choice event on the OK that
+       follows the answer, so the answer is kept for the record that OK (or
+       the presenter around both) writes. */
+    void (*answer)(const unsigned int *frame, char *out, size_t size);
 };
 
 /* The first line of `text` with its padding taken off, at most size - 1 bytes. */
@@ -454,6 +587,7 @@ static void event_text(const char *text, size_t cap, struct snapshot_text *out) 
 }
 
 #include "island_event_games.inc"         /* the five games' layouts and sites */
+#include "island_event_more.inc"          /* a newcomer's sex and age, titles, masks, the village */
 
 #define MAX_SITES 16
 #define RETURNS 256                       /* far beyond any nesting the games make */
@@ -482,11 +616,31 @@ static void __cdecl before_call(const unsigned int *frame, int index) {
     struct snapshot_text text;
     fill_text(&text);
     if (g_depth == 0) {
+        g_answering = 0;
+    }
+    if (site->answer != NULL) {
+        char label[TITLE_MAX];
+        label[0] = '\0';
+        site->answer(frame, label, sizeof label);
+        if (label[0] != '\0') {
+            g_answering = g_depth == 0;   /* the answer itself is the outermost call */
+            memcpy(g_answer, label, sizeof g_answer);
+            g_answer_self = frame[6];
+            if (g_depth > 0 && g_watching) {
+                memcpy(g_choice, label, sizeof g_choice);   /* inside the presenter's bracket */
+            }
+        }
+    }
+    if (g_depth == 0) {
         g_watching = site->watch == NULL || site->watch(frame);
         if (g_watching) {
             g_snaps[0].title[0] = '\0';
             g_snaps[0].text[0] = '\0';
             g_choice[0] = '\0';
+            if (site->answer != NULL && g_answer[0] != '\0' && g_answer_self == frame[6]) {
+                /* this dialog's OK (or its answer itself): the answer clicked in it */
+                memcpy(g_choice, g_answer, sizeof g_choice);
+            }
             if (site->before != NULL) {
                 site->before(frame, &text);
             }
@@ -513,8 +667,16 @@ static unsigned int __cdecl after_call(void) {
         g_called[g_depth]->after(g_selves[g_depth], &text);
     }
     if (g_depth == 0 && g_watching) {
+        g_more_entry = g_called[0]->entry;   /* island_event_more.inc: which routine this is */
         compare(&g_snaps[0]);
         g_watching = 0;
+        if (!g_answering) {
+            /* told: never carried to a later dialog at the same address.  An
+               answer that was itself the call compared (New Believers' click
+               on a custom event's answer) is kept for the OK that follows. */
+            g_answer[0] = '\0';
+            g_answer_self = 0;
+        }
     }
     return g_depth < RETURNS ? g_returns[g_depth] : 0;
 }
@@ -612,6 +774,20 @@ static int install(int game) {
         FlushInstructionCache(GetCurrentProcess(), at, sites[i].length);
     }
     return 1;
+}
+
+/* Whether an island event is being compared right now: its routine has been
+   entered and has not returned.  In The Secret City, The Tree of Life and
+   New Believers that routine is the event's presenter, which shows the popup
+   and runs it in its own modal loop, so this is 1 for as long as the popup is
+   open -- and the Origins companion's per-frame path still runs in there.
+   The Story companion's Choose Time Skip Amount holds its next Time Warp
+   step while this is 1 (story_time_skip.inc): a step taken with the popup
+   open aged every villager between the event's "before" and its "after",
+   and the log gave the event the years (live, The Secret City, 2026-10-10:
+   "The Ants and the Granary ... Age: 694 -> 814" on every villager). */
+int __stdcall VvfpIslandEventOpen(void) {
+    return g_depth > 0 && g_watching;
 }
 
 /* Called once by "VVFP Startup.dll" as the game opens. */

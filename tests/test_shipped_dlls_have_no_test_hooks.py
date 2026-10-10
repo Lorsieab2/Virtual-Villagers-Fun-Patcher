@@ -51,6 +51,7 @@ TEST_BUILDS = {
     "assets/work_first/VVFP Work First.dll": ("VVFP Work First.test.dll", "vvfp_work_first"),
     "assets/pathfinding/VVFP Improved Pathfinding.dll": ("VVFP Improved Pathfinding.test.dll", "vvfp_pathfinding"),
     "assets/watering/VVFP VV1 Watering Builds.dll": ("VVFP VV1 Watering Builds.test.dll", "vv1_watering_builds"),
+    "assets/storytelling/VVFP Storytelling.dll": ("VVFP Storytelling.test.dll", "vvfp_storytelling"),
     "assets/number_keys/VVFP VV1 Number Keys.dll": ("VVFP VV1 Number Keys.test.dll", "vv1_number_keys"),
     "assets/parentage/VVFP VV1 Parentage.dll": ("VVFP VV1 Parentage.test.dll", "vv1_parentage"),
     "assets/sort_by/VVFP VV1 Sort By.dll": ("VVFP VV1 Sort By.test.dll", "vv1_sort_by"),

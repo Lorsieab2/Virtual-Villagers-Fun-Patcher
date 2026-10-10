@@ -160,6 +160,72 @@ static const char *vv_layout_dir_rel_a(const char *save, const char *old_rel, co
     return vv_layout_pick_dir_a(old_path, new_path) ? old_rel : new_rel;
 }
 
+/* The "Repair <n>" records an older build's "Repairs" folder already holds in the Repairs log file
+   numbered `number`, when `folder` is the new "...\Repairs Made" folder and the older one is there
+   too (both an older and a newer build repaired the village).  A new record's number continues
+   after them, so "Repair 1" never comes again beside the older folder's own (the owner's A New
+   Home log, 2026-10-10: "Repairs\...Log 1.txt" held Repair 1-11 and "Repairs Made\...Log 1.txt"
+   began again at Repair 1).  Read only; kernel32 only.  0 when there is no such file. */
+static int vv_layout_older_repairs(const char *folder, int game, int number) {
+    static const char made[] = "\\Repairs Made";
+    char path[MAX_PATH];
+    int len = lstrlenA(folder);
+    int made_len = (int)sizeof made - 1;
+    HANDLE file;
+    DWORD size, got = 0;
+    char *text;
+    int count = 0;
+    DWORD i;
+    if (len <= made_len || lstrcmpiA(folder + len - made_len, made) != 0
+        || len - made_len + 64 >= MAX_PATH) {
+        return 0;
+    }
+    if (game < 1 || game > 9 || number < 1 || number > 99999) {
+        return 0;
+    }
+    lstrcpynA(path, folder, len - made_len + 1);
+    lstrcatA(path, "\\Repairs\\Virtual Villagers ");
+    {
+        char digits[8];
+        int n = number, k = 0, m;
+        char g[2] = { (char)('0' + game), '\0' };
+        lstrcatA(path, g);
+        lstrcatA(path, " Repairs Log ");
+        do { digits[k++] = (char)('0' + n % 10); n /= 10; } while (n > 0);
+        for (m = 0; m < k / 2; ++m) { char t = digits[m]; digits[m] = digits[k - 1 - m]; digits[k - 1 - m] = t; }
+        digits[k] = '\0';
+        lstrcatA(path, digits);
+        lstrcatA(path, ".txt");
+    }
+    file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    size = GetFileSize(file, NULL);
+    if (size == INVALID_FILE_SIZE || size > 64u * 1024u * 1024u) {
+        CloseHandle(file);
+        return 0;
+    }
+    text = (char *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (SIZE_T)size + 1);
+    if (text == NULL) {
+        CloseHandle(file);
+        return 0;
+    }
+    if (ReadFile(file, text, size, &got, NULL)) {
+        for (i = 0; i < got; ++i) {
+            if ((i == 0 || text[i - 1] == '\n') && i + 8 <= got && text[i] == 'R' && text[i + 1] == 'e'
+                && text[i + 2] == 'p' && text[i + 3] == 'a' && text[i + 4] == 'i' && text[i + 5] == 'r'
+                && text[i + 6] == ' ' && text[i + 7] >= '0' && text[i + 7] <= '9') {
+                ++count;
+            }
+        }
+    }
+    HeapFree(GetProcessHeap(), 0, text);
+    CloseHandle(file);
+    return count;
+}
+
 /* Every folder from `path`'s save folder down to `path`'s own folder, created. */
 static void vv_layout_make_parents(wchar_t *path) {
     wchar_t *p;

@@ -41,6 +41,7 @@ SCRIPTS = (
     "build_vvfp_pathfinding.ps1",
     "build_vvfp_startup.ps1",
     "build_vvfp_story_upgrades.ps1",
+    "build_vvfp_storytelling.ps1",
     "build_vvfp_work_first.ps1",
 )
 

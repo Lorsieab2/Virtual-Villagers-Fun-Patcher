@@ -209,13 +209,29 @@ class Spawn:
     title: str = ""
     mask: int = KEEP
     faction: int = KEEP
+    health: int = KEEP           # 0..100, 0 kills (story_custom.h CE_HEALTH_MAX)
+    parents_set: int = 0
+    father_name: str = ""
+    mother_name: str = ""
+    father_head: int = KEEP
+    father_body: int = KEEP
+    mother_head: int = KEEP
+    mother_body: int = KEEP
+    father_kind: int = 0         # story_custom.h CE_PARENT_*
+    mother_kind: int = 0
+    father_record: int = -1
+    mother_record: int = -1
 
     def pack(self) -> bytes:
         return (struct.pack("<3i", self.count, self.sex, self.age) + _s(self.name, NAME_BYTES)
                 + struct.pack("<3i", self.head, self.body, self.prefs_set)
                 + struct.pack("<3i", *self.likes) + struct.pack("<3i", *self.dislikes)
                 + struct.pack("<6i", *self.skills) + _s(self.title, 32)
-                + struct.pack("<2i", self.mask, self.faction))
+                + struct.pack("<2i", self.mask, self.faction)
+                + struct.pack("<2i", self.health, self.parents_set)
+                + _s(self.father_name, NAME_BYTES) + _s(self.mother_name, NAME_BYTES)
+                + struct.pack("<8i", self.father_head, self.father_body, self.mother_head, self.mother_body,
+                              self.father_kind, self.mother_kind, self.father_record, self.mother_record))
 
 
 @dataclass
@@ -253,8 +269,13 @@ class Change:
     unborn_skill: int = KEEP
     unborn_skill_value: int = KEEP
     faith: int = KEEP                # New Believers (CAP_FAITH): -100..100
+    health: int = KEEP               # 0..100, 0 kills
+    father_kind: int = 0             # story_custom.h CE_PARENT_*: 1 Unknown clears
+    mother_kind: int = 0
+    father_record: int = -1
+    mother_record: int = -1
 
-    SIZE = 252
+    SIZE = 272
 
     def pack(self) -> bytes:
         return (struct.pack("<iIiiiiI", self.index, self.fingerprint, self.fate, self.sick, self.litter,
@@ -270,7 +291,9 @@ class Change:
                 + struct.pack("<i", self.unborn_set) + _s(self.unborn_name, NAME_BYTES)
                 + struct.pack("<4i", self.unborn_head, self.unborn_body, self.unborn_skill,
                               self.unborn_skill_value)
-                + struct.pack("<i", self.faith))
+                + struct.pack("<i", self.faith)
+                + struct.pack("<5i", self.health, self.father_kind, self.mother_kind, self.father_record,
+                              self.mother_record))
 
 
 @dataclass
@@ -290,7 +313,7 @@ class Event:
     puzzles: list = field(default_factory=list)     # (which, solved)
     revives: list = field(default_factory=list)     # (index, identity, health, cure)
 
-    SPAWN_SIZE = 140
+    SPAWN_SIZE = 236
     SIZE = (4 + 48 + 600 + 4 * 7 + 8 * SPAWN_SIZE + 4 + 256 * Change.SIZE
             + 4 + 16 * 8 + 4 + 32 * 8 + 4 + 256 * 16)
 

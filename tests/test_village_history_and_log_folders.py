@@ -122,9 +122,9 @@ class HistoryTests(unittest.TestCase):
         """Each snapshot is who is alive AT THAT SAVE. Dead villagers are
         preserved by earlier snapshots, not by reading dead slots.  Records the game
         keeps that are no villagers (statues, ghosts, stand-ins) are not written either
-        (native/shared/villager_lookalike.h)."""
-        self.assertIn("if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {",
-                      self.history)
+        (native/shared/villager_lookalike.h), and neither are bodies awaiting burial
+        (health 0 or below; tests/test_population_skips_bodies.py)."""
+        self.assertIn("if (!living_villager(g, record)) {", self.history)
 
     def test_every_failure_path_closes_the_file(self):
         """An append that fails must not leak the handle; the next save must

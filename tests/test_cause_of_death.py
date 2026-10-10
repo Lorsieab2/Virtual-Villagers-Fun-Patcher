@@ -56,7 +56,9 @@ SLOT_FN = 0x0C200100
 DEATH, DISAPPEARED, EPITAPH, UNACCOUNTED = 2, 3, 4, 5
 NO_GRAVE = "no grave (never buried: the game removed the body)"
 STAT_NAMES = ("deaths", "unhooked", "burials", "graves_set", "draws", "logged", "published",
-              "departed", "arrived", "unaccounted")
+              "departed", "arrived", "unaccounted", "armed", "backfilled", "arrivals", "arrivals_backfilled",
+              "births_backfilled", "left_tribe", "lost")
+ARRIVED = 6
 
 
 def manifest(game: str) -> dict:
@@ -700,6 +702,20 @@ class NewHomeCauseOfDeath(unittest.TestCase):
         _, calls = w.open_popup(5)
         self.assertEqual(calls[6][2], ["Respected Citizen"])
 
+    def test_a_villager_buried_at_age_0_has_a_grave(self):
+        # The owner, 2026-10-09: "for all 5 games, 0 is a valid value for head, body and age!!!!"  The
+        # game's grave loop wrote a grave (its counter says so); its age 0 is a real age, never "the
+        # graveyard was full".
+        for mode in MODES:
+            g, w = vv1(mode)
+            w.villager(3, "Babe", 0, 5)
+            w.injury(3, 9)
+            w.bury(3, best_skill=30, job=4)
+            self.assertEqual(bytes(g.p.read(w.grave(0), 5)), b"Babe\0", mode)
+            (death,) = g.of_kind(DEATH)
+            self.assertEqual((death["Age at death"], death["Grave"]), ("0", "Apprentice Builder"), mode)
+            self.assertNotIn("graveyard was full", death["Grave"], mode)
+
     def test_a_removed_body_is_a_death_with_no_grave(self):
         g, w = vv1()
         w.villager(12, "Gone", 1500, 30)
@@ -1075,6 +1091,18 @@ class LostChildrenCauseOfDeath(unittest.TestCase):
             self.assertEqual([t for t, _, _ in lines_ if t.startswith("\"")], ["\"", "\""], mode)
             self.assertEqual(g.stats()["draws"], 1, mode)
             self.assertEqual(bytes(g.p.read(w.grave(k) + 0x19, 18)), b"Respected Citizen\0")
+
+    def test_a_villager_buried_at_age_0_has_a_grave(self):
+        # The owner, 2026-10-09: 0 is a valid age in all five games -- a grave at age 0 is a grave.
+        for mode in MODES:
+            g, w = vv2(mode)
+            w.villager(3, "Babe", 0, 5)
+            w.injury(3, 9)
+            w.bury(3, best_skill=30, job=4)
+            self.assertEqual(bytes(g.p.read(w.grave(0), 5)), b"Babe\0", mode)
+            (death,) = g.of_kind(DEATH)
+            self.assertEqual(death["Age at death"], "0", mode)
+            self.assertTrue(death["Grave"].startswith("Apprentice "), (mode, death["Grave"]))
 
     def test_an_edited_epitaph_is_an_epitaph_changed_record(self):
         g, w = vv2()
@@ -1686,6 +1714,209 @@ class DeathRecords256(unittest.TestCase):
                     self.assertTrue(self.accepted(game, big, 0x800000, slot))
                     if slot <= 150:          # record 150 is the first past the ordinary table
                         self.assertEqual(self.accepted(game, ordinary, LATER[game]["table"], slot), slot < 150)
+
+
+@unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+class CustomIslandEventDisappearsEveryGame(unittest.TestCase):
+    """The Custom Island Event's "Disappears" is a "Disappeared in a custom
+    island event" record in all five games, each in the state its own
+    "Disappears" (native/vvfp_story_upgrades/story_c<N>.inc) leaves the
+    record: presence cleared, and in The Tree of Life health 0 as well
+    (The Sealed Box's own disappearance, which c4_vanish copies).  Before
+    the fix The Tree of Life's asked for health above 0 and wrote nothing,
+    so the villager surfaced later as Unaccounted."""
+
+    def vanish(self, game: str, mode: str) -> None:
+        if game == "vv1":
+            g, w = vv1(mode)
+            present = V1["present"]
+            r = w.villager(3, "Vanisher", 640, 70)
+        elif game == "vv2":
+            g, w = vv2(mode)
+            present = V2["present"]
+            r = w.villager(3, "Vanisher", 640, 70)
+        else:
+            g, w = later(game, mode)
+            present = LATER[game]["present"]
+            r = w.villager(3, "Vanisher", 640, 70)
+        no = int(game[-1])
+        g.p.export("VvfpCauseVanished", no, 3)               # still here: nothing
+        self.assertEqual(g.of_kind(DISAPPEARED), [], (game, mode))
+        if game == "vv4":
+            g.p.put32(r + LATER["vv4"]["health"], 0)          # c4_vanish: 0x46AF00(0, -1) first
+        g.p.write(r + present, b"\x00")
+        g.p.export("VvfpCauseVanished", no, 3)
+        g.p.export("VvfpCauseVanished", no % 5 + 1, 3)       # another game: nothing
+        gone = g.of_kind(DISAPPEARED)
+        self.assertEqual([(e["record"], e["Age"], e["What happened"]) for e in gone],
+                         [(r, "640", "Disappeared in a custom island event")], (game, mode))
+        self.assertEqual(g.stats()["departed"], 1, (game, mode))
+
+    def test_every_game_writes_the_disappeared_record(self):
+        for game in NAMES:
+            if not STOCK[game].is_file():
+                continue
+            for mode in MODES:
+                self.vanish(game, mode)
+
+    def test_a_dead_body_is_never_a_disappearance_where_the_vanish_keeps_health(self):
+        for game in ("vv3", "vv5"):
+            if not STOCK[game].is_file():
+                continue
+            g, w = later(game)
+            r = w.villager(2, "Body", 700, 0, 2)
+            g.p.write(r + LATER[game]["present"], b"\x00")
+            g.p.export("VvfpCauseVanished", int(game[-1]), 2)
+            self.assertEqual(g.of_kind(DISAPPEARED), [], game)
+
+    def test_the_tree_of_life_vanish_writes_health_then_presence(self):
+        """The record state the test above gives The Tree of Life is the one
+        c4_vanish leaves (source pin: 0x46AF00 with 0, then +0x1CC4 = 0)."""
+        source = (ROOT / "native" / "vvfp_story_upgrades" / "story_c4.inc").read_text(encoding="utf-8")
+        body = source[source.index("static int c4_vanish(int index)"):]
+        body = body[:body.index("\n}\n")]
+        self.assertLess(body.index("TC2(0x46AF00u, r + 0x1C34, 0, -1);"), body.index("r[0x1CC4] = 0;"))
+
+
+@unittest.skipUnless(STOCK["vv5"].is_file(), STOCK_ABSENT)
+@unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+class NewBelieversLeaveForTheHeathens(unittest.TestCase):
+    """The owner: a believer who goes over to the Heathens (The Mask's
+    "...and is a believer no more", the Custom Island Event's "Becomes a
+    Heathen") leaves the tribe -- a Disappeared record, "Left the tribe:
+    became a Heathen", mirroring the Arrived "Converted from the Heathens".
+    Never Unaccounted, never logged twice, and converting back still writes
+    the Arrived record."""
+
+    SAVE = 0x4245FF
+    FACTION = 0x1CEC
+
+    def test_a_believer_who_becomes_a_heathen_leaves_the_tribe_once(self):
+        for mode in MODES:
+            g = Game("vv5", rendered("vv5", mode, True), 1)
+            w = Later(g)
+            self.assertEqual(g.install(), 1)
+            leaver = w.villager(4, "Leaver", 900, 80)
+            w.villager(5, "Stay", 800, 80)
+            heathen = w.villager(6, "Pagan", 700, 80)
+            g.p.write(heathen + self.FACTION, b"\x01")         # a Heathen from the first sight: nothing
+            g.tick()
+            g.saved_epilogue(self.SAVE, 1, 1)                  # the roster the next save reconciles against
+            g.p.write(leaver + self.FACTION, b"\x01")          # The Mask, result A / "Becomes a Heathen"
+            g.tick()
+            g.tick()
+            gone = g.of_kind(DISAPPEARED)
+            self.assertEqual([(e["record"], e["Age"], e["Sex"], e["What happened"]) for e in gone],
+                             [(leaver, "900", "Male", "Left the tribe: became a Heathen")], mode)
+            self.assertEqual(gone[0]["check"], 1, mode)
+            self.assertEqual(g.stats()["left_tribe"], 1, mode)
+            self.assertEqual(g.stats()["departed"], 0, mode)   # still a record of the roster
+            g.saved_epilogue(self.SAVE, 1, 1)
+            g.tick()
+            self.assertEqual(g.of_kind(UNACCOUNTED), [], mode)
+            self.assertEqual(len(g.of_kind(DISAPPEARED)), 1, mode)
+            # Converted back: the Arrived record, as for any Heathen.
+            g.p.write(leaver + self.FACTION, b"\x00")
+            g.tick()
+            g.saved_epilogue(self.SAVE, 1, 1)
+            arrived = g.of_kind(ARRIVED)
+            self.assertEqual([(e["record"], e["How"]) for e in arrived],
+                             [(leaver, "Converted from the Heathens")], mode)
+            self.assertEqual(g.of_kind(UNACCOUNTED), [], mode)
+            self.assertEqual(len(g.of_kind(DISAPPEARED)), 1, mode)
+
+    def test_an_arrival_not_yet_written_is_written_before_the_leaving(self):
+        g = Game("vv5", rendered("vv5", "stock", True), 1)
+        w = Later(g)
+        self.assertEqual(g.install(), 1)
+        g.tick()
+        g.saved_epilogue(self.SAVE, 1, 1)
+        r = w.villager(7, "Newcomer", 500, 90)
+        g.run(0x468411, 0x46841A, esi=r, ebx=0)                # the creator: an arrival
+        g.tick()
+        g.p.write(r + self.FACTION, b"\x01")
+        g.tick()
+        kinds = [(e["kind"], e["record"]) for e in g.logged if e["kind"] in (ARRIVED, DISAPPEARED)]
+        self.assertEqual(kinds, [(ARRIVED, r), (DISAPPEARED, r)])
+        g.saved_epilogue(self.SAVE, 1, 1)
+        self.assertEqual(len(g.of_kind(ARRIVED)), 1)
+        self.assertEqual(g.of_kind(UNACCOUNTED), [])
+
+    FAITH = 0x1CF0
+
+    @staticmethod
+    def converting(g: Game) -> None:
+        """SetFaith 0x467F90 converts only in play: the game object's byte
+        +0x17E39 (0x425950 returns the object).  0x4669E0's two leaves --
+        the status text 0x44EF60 (thiscall, two arguments) and the activity
+        stop 0x473440 it tail-jumps to -- are scripted; the faction setter
+        between them is the game's own, detoured by the companion."""
+        p = g.p
+        world = p.alloc(0x18000)
+        p.write(world + 0x17E39, b"\x01")
+        p.stub(0x425950, lambda q: (world, 0))
+        p.stub(0x44EF60, lambda q: (0, 8))
+        p.stub(0x473440, lambda q: (0, 0))
+
+    def test_faith_falling_to_0_in_the_catch_up_leaves_the_tribe_at_once(self):
+        """The belief drift 0x468040 is called only by the life tick 0x472C90,
+        which runs for every age unit live and in the load-time catch-up (and
+        a Time Warp).  When it brings faith to 0, SetFaith 0x467F90 converts
+        through 0x4669E0 and the faction setter 0x466880.  In the catch-up no
+        tick comes between (the tick's first look finds a Heathen, and the
+        roster keeps Heathens), so the record is written at the setter, once,
+        and no later tick or save writes another or calls her Unaccounted."""
+        for mode in MODES:
+            g = Game("vv5", rendered("vv5", mode, True), 1)
+            w = Later(g)
+            self.assertEqual(g.install(), 1)
+            self.converting(g)
+            drifter = w.villager(4, "Drifter", 900, 80)
+            w.villager(5, "Stay", 800, 80)
+            g.p.put32(drifter + self.FAITH, 3)
+            g.p.call(0x467F90, [0, 1], ecx=drifter)              # no tick before it: the catch-up
+            self.assertEqual(g.p.read(drifter + self.FACTION, 1), b"\x01", mode)
+            gone = g.of_kind(DISAPPEARED)
+            self.assertEqual([(e["record"], e["Age"], e["Sex"], e["What happened"]) for e in gone],
+                             [(drifter, "900", "Male", "Left the tribe: became a Heathen")], mode)
+            self.assertEqual((gone[0]["check"], gone[0]["detail"]), (1, 1), mode)
+            g.tick()
+            g.saved_epilogue(self.SAVE, 1, 1)
+            g.tick()
+            g.saved_epilogue(self.SAVE, 1, 1)
+            self.assertEqual(len(g.of_kind(DISAPPEARED)), 1, mode)
+            self.assertEqual(g.of_kind(UNACCOUNTED), [], mode)
+            self.assertEqual(g.stats()["left_tribe"], 1, mode)
+            self.assertEqual(g.stats()["departed"], 0, mode)
+
+    def test_only_the_setter_calls_that_make_a_believer_a_heathen_leave(self):
+        """0x466880's seven callers in the stock executable: 0x4669E0 (return
+        0x466A04), The Spa (0x415D11) and The Cracked Mask (0x416C60) make a
+        believer a Heathen; the conversion to a believer (0x46697D, 0x41699F),
+        a load's copy (0x466BEF) and the Heathen creator (0x46FC53) never
+        do.  A Heathen set again (The Spa's own second call) is no change."""
+        cases = ((0x415D11, 1, 0, True), (0x416C60, 1, 0, True), (0x466A04, 1, 0, True),
+                 (0x46FC53, 1, 0, False), (0x466BEF, 1, 0, False), (0x466982, 0, 1, False),
+                 (0x4169A4, 0, 1, False), (0x415D11, 1, 1, False), (0x466A04, 0, 0, False))
+        for ret, value, already, leaves in cases:
+            g = Game("vv5", rendered("vv5", "stock", True), 1)
+            w = Later(g)
+            self.assertEqual(g.install(), 1)
+            r = w.villager(3, "Subject", 640, 70)
+            g.p.write(r + self.FACTION, bytes([already]))
+            g.p.put32(STACK, ret)
+            g.p.put32(STACK + 4, value)
+            g.run(0x466880, ret, ecx=r)
+            self.assertEqual(g.p.read(r + self.FACTION, 1), bytes([value]), hex(ret))
+            self.assertEqual([e["What happened"] for e in g.of_kind(DISAPPEARED)],
+                             ["Left the tribe: became a Heathen"] if leaves else [], (hex(ret), value, already))
+
+    def test_no_other_game_has_a_faction_to_leave_by(self):
+        source = (ROOT / "native" / "vvfp_cause_of_death" / "cod_arrivals.inc").read_text(encoding="utf-8")
+        tick = source[source.index("static void arrival_tick(void) {"):]
+        tick = tick[:tick.index("\n}\n")]
+        self.assertIn("if (REC[g_game].heathen == 0u || records == NULL) {", tick)
+        self.assertLess(tick.index("REC[g_game].heathen == 0u"), tick.index("arrival_left_for_the_heathens(i, record);"))
 
 
 class ManifestsAndShipping(unittest.TestCase):

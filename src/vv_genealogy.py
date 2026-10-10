@@ -45,12 +45,38 @@ VV5_FACTION_FROM_NAME = -0x1F
 # Children leave it 0 for one baby.
 LITTER_FROM_NAME = {1: -0x14, 2: -0x20, 3: 0xBC, 4: 0xB4, 5: 0xB4}
 
+# A New Home's Parents (A New Home) sidecar, "Virtual Villagers 1 Parentage Records - Save <slot>.dat"
+# (native/vv1_parentage/vv1_parentage.c): a 12-byte 'VP02' header, 256 roster occupants of 36 bytes
+# (gender 1/2, departed, head+1, body+1, family scalar, name[28]) and 256 entries of 92 bytes (father
+# head+1/body+1, mother head+1/body+1, the pregnancy stash's father head+1/body+1, 2 spare, then the
+# father's, the mother's and the stashed father's names, 28 bytes each).
+VV1_SIDECAR_MAGIC = b"VP02"
+VV1_SIDECAR_NAME = 28
+VV1_SIDECAR_OCCUPANT = 36
+VV1_SIDECAR_ENTRY = 92
+VV1_SIDECAR_SIZE = 12 + 256 * (VV1_SIDECAR_OCCUPANT + VV1_SIDECAR_ENTRY)
+
 
 class GenealogyError(Exception):
     """The family could not be read; the message says why."""
 
 
 Key = tuple  # (name, head, body)
+
+# The fathers that stand in when there is no man to name -- each shown as the logs write it, in
+# every game that has the mechanism, and never a villager:
+#   the games' OWN defaults, string literals in the executables, written onto the mother at
+#   conception by an event: The Lost Children's Gong of Wonder "?" (head 0, body 0); The Tree of
+#   Life's and New Believers' island-event babies "Joey" (2, 2), "Joey Joerson" with last names;
+#   and the patcher's fallback for a birth whose game wrote no father at all (A New Home, whose
+#   game keeps none): "Unknown" (0, 0) (the owner, 2026-09-21).
+GAME_DEFAULT_FATHERS: dict[int, frozenset] = {
+    2: frozenset({("?", 0, 0)}),
+    4: frozenset({("Joey", 2, 2), ("Joey Joerson", 2, 2)}),
+    5: frozenset({("Joey", 2, 2), ("Joey Joerson", 2, 2)}),
+}
+FALLBACK_FATHER: Key = ("Unknown", 0, 0)
+RUNNING = 38   # the like id of "running" in all five games' preference lists (grant_running.RUNNING)
 
 
 @dataclass
@@ -69,6 +95,7 @@ class Person:
     family: int | None = None           # the save's family number (the last name's), living only
     expecting: bool = False             # a living mother-to-be
     heathen: bool = False               # New Believers: a current Heathen
+    runner: bool = False                # likes running: the living by their save, the dead by their logs
     arrived: bool = False               # an Arrived record names them
     how: str = ""                       # the Arrived record's "How" ("Founder", an event's title...)
     first_seen: str | None = None       # the earliest History snapshot (or Arrived record) naming them
@@ -77,6 +104,7 @@ class Person:
     generation: int = 1
     number: int | None = None           # its place in the whole tree, oldest first (number_people)
     old_looks: list[tuple[int, int]] = field(default_factory=list)   # (head, body) before Change Appearance
+    placeholder: bool = False           # a default father, not a villager (is_placeholder_father)
 
     @property
     def key(self) -> Key:
@@ -142,8 +170,12 @@ class _Registry:
         self.expected: dict[int, Key] = {}             # mother -> the expected father (the save's)
         self.due: dict[int, int] = {}                  # mother -> babies she carries (the save's)
         self.conceptions: dict[Key, tuple] = {}        # mother -> (father key, babies), not born yet
+        self.lost: list[tuple[Key, int]] = []          # (mother, babies): "Lost before birth" records
         self.relooked: dict[Key, Key] = {}             # an old look -> the look it changed to
         self.full: dict[Key, Key] = {}                 # a name the Details screen cut -> the full name's key
+        # A New Home's living villagers as its save names them: (id, name, gender, family, head, body).
+        self.vv1_living: list[tuple] = []
+        self.ran: set[int] = set()                     # who a log says likes running
 
     def current(self, key: Key) -> Key:
         """The look a villager has now, following their Change Appearance records, under the full name
@@ -182,11 +214,19 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         p.sex = "Male" if _i32(data, at + f.sex) == f.male else "Female"
         p.age = _i32(data, at + age_at)
         p.family = _i32(data, at + f.family)
+        if len(data) >= at + f.likes + 4 * f.slots:
+            p.runner = RUNNING in [_i32(data, at + f.likes + 4 * k) for k in range(f.slots)]
         if game == 1:
-            p.expecting = _i32(data, at - 0x370 + 0x358) != 0       # the delivery the game counts down
+            p.expecting = ln.carrying(game, data, at)       # the delivery the game counts down
+            # Who she is in the save's own words, for the Parents (A New Home) sidecar (_vv1_from_sidecar).
+            reg.vv1_living.append((p.id, _cstr(data, at, f.name_cap)[:VV1_SIDECAR_NAME - 1],
+                                   1 if _i32(data, at + f.sex) == f.male else 2, _i32(data, at + f.family),
+                                   _i32(data, at + f.head), _i32(data, at + f.body)))
         elif f.expecting is not None:
-            p.expecting = p.sex == "Female" and data[at + f.expecting] != 0
-            if p.expecting:
+            # Her pregnancy field, as the Population log's "Nursing" -- never the expected father's
+            # name alone, which the game leaves on her after the delivery (ln.PREGNANCY).
+            p.expecting = p.sex == "Female" and ln.carrying(game, data, at)
+            if p.expecting and data[at + f.expecting] != 0:
                 _fh, _fb, _mh, _mb, eh, eb = f.looks
                 reg.expected[p.id] = (_cstr(data, at + f.expecting, f.parent_cap),
                                       _i32(data, at + eh), _i32(data, at + eb))
@@ -238,12 +278,27 @@ def _snapshot_parents(lines: list[str]) -> dict[str, tuple]:
     return out
 
 
+def is_backfilled_arrival(b) -> bool:
+    """An Arrived record the arrival backfill wrote with no knowledge of how the villager came --
+    "How: unknown" -- which says only that the log had no record of them when it was written.  It
+    never outweighs a Birth record of the same villager; an Arrived record with a known "How" (an
+    event, a Custom Island Event, a barrel, "Founder") is a real arrival."""
+    return b.heading.startswith("Arrived") and (b.value("How") or "").strip().lower() == "unknown"
+
+
 def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     """The dead and departed, and every parent a snapshot names."""
     import vv_log_additions as additions
+    import vv_log_decisions as decisions
+    # Backfilled Arrived records the player said to remove but chose to leave in the log
+    # ("Retroactively edit records?" No): read as if gone (src/vv_log_decisions.py).
+    voided = decisions.decided(folder, game, slot, "born_arrived", "remove",
+                               additions.current_villages(folder, game, slot))
     for b in additions.person_blocks(folder, slot, game):
         name, head, body = b.identity
         if not name or head is None or body is None:
+            continue
+        if voided and additions.is_removable_backfill(b) and b.identity in voided:
             continue
         p = reg.get(name, head, body)
         sex = b.value("Sex")
@@ -260,9 +315,15 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             # A New Home's Golden Child is born to a mother (its puzzle spends her pregnancy), never an
             # arrival (the owner, 2026-10-08); an older patcher backfilled an Arrived record for it.
             pass
+        elif b.heading.startswith("Arrived") and is_backfilled_arrival(b) and p.birth_record is not None:
+            # A Birth wins over a backfilled "How: unknown" Arrived record: the backfill wrote it when
+            # it could not see the Birth (the owner's Cheop Bahati, born "Cheop" before Last Names).
+            pass
         elif b.heading.startswith("Arrived"):
             p.arrived = True
-            p.how = b.value("How") or p.how
+            # A backfilled "How: unknown" never replaces how a real Arrived record says they came.
+            if not (is_backfilled_arrival(b) and p.how):
+                p.how = b.value("How") or p.how
             seen = re.search(r"first seen (\d{4}-\d{2}-\d{2} \d{2}:\d{2})", b.value("Age at arrival") or "")
             if seen and (p.first_seen is None or seen.group(1) < p.first_seen[:16]):
                 p.first_seen = seen.group(1)
@@ -270,6 +331,8 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             reg.snapshots.setdefault(b.date, set()).add(p.id)
             if p.first_seen is None or b.date < p.first_seen:
                 p.first_seen = b.date
+        if "running" in [w.strip().lower() for w in (b.value("Likes") or "").split(",")]:
+            reg.ran.add(p.id)
         age = b.value("Age")
         if age and age.lstrip("-").isdigit() and not p.alive and p.gone != "died":
             p.age = max(p.age or 0, int(age))
@@ -297,6 +360,12 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             mother = reg.current((rec.mother.name, rec.mother.head, rec.mother.body))
             father = rec.father and reg.current((rec.father.name, rec.father.head, rec.father.body))
             reg.conceptions[mother] = (father if father and father[0] else None, rec.babies or 1)
+        if rec.kind == "lost" and rec.mother is not None and rec.mother.name:
+            # Her babies were lost with her (she died or disappeared carrying or nursing them): the
+            # Conception is closed, and no baby of it is ever on the way (the owner, 2026-10-09).
+            mother = reg.current((rec.mother.name, rec.mother.head, rec.mother.body))
+            reg.conceptions.pop(mother, None)
+            reg.lost.append((mother, rec.babies or 1))
         if rec.kind != "birth" or rec.child is None or not rec.child.name:
             last = None
             continue
@@ -362,6 +431,11 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
     _log_people(reg, folder, game, slot)
+    if game == 1:
+        _vv1_from_sidecar(reg, folder, slot)
+    for pid in reg.ran:                 # the dead and gone: as their logs say (the living: their save)
+        if not reg.people[pid].alive:
+            reg.people[pid].runner = True
     _unrecorded_looks(reg)
     checker = tools.load_checker()
     exact, by_name = checker.known_sexes(folder, game)
@@ -377,12 +451,18 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
     except (OSError, KeyError, ValueError):
         pass
     _upcoming(reg)
+    for (name, _head, _body), babies in reg.lost:
+        notes.append(f"{name} lost {'a baby' if babies == 1 else f'{babies} babies'} before birth: she died or "
+                     "disappeared while carrying or nursing, and "
+                     f"{'it was' if babies == 1 else 'they were'} never born.")
     village = Village(game, slot, tribe, reg.people, notes, sorted(reg.snapshots))
     village.relooked = {old: reg.current(old) for old in reg.relooked if reg.current(old) != old}
     village.full_names = {cut: full[0] for cut, full in reg.full.items()}
     for old, now in village.relooked.items():
         if now in reg.by_key:
             reg.people[reg.by_key[now]].old_looks.append((old[1], old[2]))
+    for p in reg.people.values():
+        p.placeholder = is_placeholder_father(game, p)
     _generations(village, reg.snapshots)
     number_people(village)
     if additions.current_villages(folder, game, slot) is None:
@@ -459,6 +539,104 @@ def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> N
             reg.relooked.pop(new, None)
             reg.relooked[old] = new
 
+
+@dataclass
+class _Vv1Entry:
+    """One record of A New Home's Parents (A New Home) sidecar: who held it (head and body None where
+    an older build's roster did not keep them), and the parents and the pregnancy's father it
+    names -- each (name, head, body), or None when not recorded."""
+    who: tuple                      # (name, gender 1/2, family scalar, head, body)
+    departed: bool                  # the record was empty: this is the villager who had held it
+    father: Key | None
+    mother: Key | None
+    stash: Key | None
+
+
+def _vv1_sidecar(folder: Path, slot: int) -> list[_Vv1Entry]:
+    """A New Home's Parents (A New Home) sidecar, the companion's record of every villager's parents
+    (native/vv1_parentage), under the new folder name or the old one (vv_save_layout); nothing when
+    the file is missing, unreadable or not a VP02 file of this length written for this slot."""
+    import vv_save_layout as layout
+    name = f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"
+    path = layout.find(Path(folder), f"{layout.DATA}\\{layout.PARENTS_VV1}\\{name}")
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return []
+    if len(data) != VV1_SIDECAR_SIZE or data[:4] != VV1_SIDECAR_MAGIC or _i32(data, 8) != slot:
+        return []
+    cut = VV1_SIDECAR_NAME - 1
+
+    def person(e: int, looks: int, at: int) -> Key | None:
+        # Every value is stored +1: 0 is "not recorded", and head 0 / body 0 are real looks.
+        name, head, body = _cstr(data, e + at, VV1_SIDECAR_NAME)[:cut], data[e + looks], data[e + looks + 1]
+        return (name, head - 1, body - 1) if name and head and body else None
+
+    out = []
+    for i in range(256):
+        occ = 12 + i * VV1_SIDECAR_OCCUPANT
+        e = 12 + 256 * VV1_SIDECAR_OCCUPANT + i * VV1_SIDECAR_ENTRY
+        gender, departed, head, body = data[occ], data[occ + 1], data[occ + 2], data[occ + 3]
+        if gender not in (1, 2):
+            continue
+        who = (_cstr(data, occ + 8, VV1_SIDECAR_NAME)[:cut], gender, _i32(data, occ + 4),
+               head - 1 if head and body else None, body - 1 if head and body else None)
+        out.append(_Vv1Entry(who, bool(departed), person(e, 0, 8), person(e, 2, 36), person(e, 4, 64)))
+    return out
+
+
+def _vv1_fits(who: tuple, living: tuple) -> bool:
+    name, gender, family, head, body = who
+    _pid, l_name, l_gender, l_family, l_head, l_body = living
+    return (name, gender, family) == (l_name, l_gender, l_family) \
+        and (head is None or (head, body) == (l_head, l_body))
+
+
+def _vv1_from_sidecar(reg: _Registry, folder: Path, slot: int) -> None:
+    """What A New Home keeps nowhere and the later games keep on the villager's own record
+    (`_save_people`), from the VV1 Parentage companion's sidecar: each villager's parents, and the
+    expected father of each pregnancy.
+
+    After the Births and Conceptions log, which wins where it speaks: it is written with the save,
+    and it is what the companion itself trusts over its own table (the first-load check,
+    native/vv1_parentage/vv1_crosscheck.inc).  So the expected father is her last Conception
+    record's, else the father the sidecar stashed against her at that conception
+    (vv1_expected_father); a parent is the Birth record's, else the sidecar's.
+
+    An entry is a living villager's only when its roster names exactly one living villager -- name,
+    sex, family number and, where it kept them, head and body -- and no other entry of the file fits
+    her; anything else is left unknown rather than guessed (patcher data follows the villager, never
+    a record number).  A record whose villager has died keeps her entry, flagged `departed`: it is
+    hers when her name and looks are a villager the logs know and the file holds no other such
+    entry."""
+    expecting = {pid for pid, *_ in reg.vv1_living if reg.people[pid].expecting}
+    for pid in expecting:
+        father = reg.conceptions.get(reg.people[pid].key, (None, 1))[0]
+        if father and father[0]:
+            reg.expected[pid] = father
+    entries = _vv1_sidecar(folder, slot)
+    present = [e for e in entries if not e.departed]
+    for e in entries:
+        if e.departed:
+            name, _g, _f, head, body = e.who
+            if head is None or sum(1 for o in entries if o.who == e.who) != 1:
+                continue
+            pid = reg.by_key.get(reg.current((name, head, body)))
+            if pid is None or reg.people[pid].alive:
+                continue
+            target = reg.people[pid]
+        else:
+            holders = [v for v in reg.vv1_living if _vv1_fits(e.who, v)]
+            if len(holders) != 1 or sum(1 for o in present if _vv1_fits(o.who, holders[0])) != 1:
+                continue
+            target = reg.people[holders[0][0]]
+            if e.stash is not None and target.id in expecting and target.id not in reg.expected:
+                reg.expected[target.id] = e.stash
+        for key, attr, sex in ((e.father, "father", "Male"), (e.mother, "mother", "Female")):
+            if key is not None and getattr(target, attr) is None:
+                parent = reg.get(*key)
+                parent.sex = parent.sex or sex
+                setattr(target, attr, parent.id)
 
 def _upcoming(reg: _Registry) -> None:
     """A baby on the way for every expecting mother (the owner: "another child with a diamond
@@ -597,10 +775,26 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
 # Relatedness
 # ---------------------------------------------------------------------------
 
+def is_placeholder_father(game: int, p: Person) -> bool:
+    """A default father (GAME_DEFAULT_FATHERS, FALLBACK_FATHER) rather than a villager: one of those
+    names and looks, and nothing that only a real villager has -- alive in the save, parents of his
+    own, an Arrived, Death or Disappeared record."""
+    if p.key not in GAME_DEFAULT_FATHERS.get(game, frozenset()) and p.key != FALLBACK_FATHER:
+        return False
+    return not (p.alive or p.gone or p.arrived or p.father is not None or p.mother is not None)
+
+
+def real_parents(people: dict[int, Person], p: Person) -> list[int]:
+    """The parents a villager shares blood with: a default father stands for "no man named", so two
+    children of the Gong's "?" or of "Unknown" are not brothers through him."""
+    return [q for q in (p.father, p.mother) if q is not None and not people[q].placeholder]
+
+
 class Kinship:
     """Coefficients of kinship over the recorded family (Wright): two villagers' chance of
     sharing a gene by descent.  Twice it is how related they are: 1/2 a parent, child or full
-    sibling, 1/4 a half sibling, grandparent, aunt or uncle, 1/8 a first cousin."""
+    sibling, 1/4 a half sibling, grandparent, aunt or uncle, 1/8 a first cousin.  A default father
+    (is_placeholder_father) is nobody's kin."""
 
     def __init__(self, village: Village) -> None:
         self.people = village.people
@@ -615,7 +809,8 @@ class Kinship:
     def phi(self, a: int, b: int) -> Fraction:
         if a == b:
             p = self.people[a]
-            inbred = self.phi(p.father, p.mother) if p.father and p.mother else Fraction(0)
+            parents = real_parents(self.people, p)
+            inbred = self.phi(*parents) if len(parents) == 2 else Fraction(0)
             return (1 + inbred) / 2
         if self._order(a) < self._order(b):
             a, b = b, a
@@ -623,9 +818,8 @@ class Kinship:
         if key not in self.memo:
             p = self.people[a]
             total = Fraction(0)
-            for parent in (p.father, p.mother):
-                if parent is not None:
-                    total += self.phi(parent, b)
+            for parent in real_parents(self.people, p):
+                total += self.phi(parent, b)
             self.memo[key] = total / 2
         return self.memo[key]
 
@@ -641,8 +835,8 @@ def ancestors(village: Village, pid: int) -> dict[int, int]:
         nxt = []
         for q, depth in frontier:
             p = village.people[q]
-            for parent in (p.father, p.mother):
-                if parent is not None and (parent not in out or out[parent] > depth + 1):
+            for parent in real_parents(village.people, p):
+                if parent not in out or out[parent] > depth + 1:
                     out[parent] = depth + 1
                     nxt.append((parent, depth + 1))
         frontier = nxt
@@ -661,9 +855,10 @@ def relationship(village: Village, a: int, b: int) -> str:
         older, younger, depth = (b, a, up_a[b]) if b in up_a else (a, b, up_b[a])
         names = {1: "parent and child", 2: "grandparent and grandchild"}
         return names.get(depth, f"{'great-' * (depth - 2)}grandparent and grandchild")
-    shared_parents = {pa.father, pa.mother} & {pb.father, pb.mother} - {None}
+    real_a, real_b = set(real_parents(village.people, pa)), set(real_parents(village.people, pb))
+    shared_parents = real_a & real_b
     if shared_parents:
-        both = pa.father and pa.mother and {pa.father, pa.mother} == {pb.father, pb.mother}
+        both = len(real_a) == 2 and real_a == real_b
         if both and pa.litter is not None and pa.litter == pb.litter:
             return "twins" if sum(1 for p in village.people.values() if p.litter == pa.litter) == 2 \
                 else "triplets"
@@ -693,6 +888,17 @@ def relationship(village: Village, a: int, b: int) -> str:
 # The rules and the pairs
 # ---------------------------------------------------------------------------
 
+# How the pairings can be listed: (words in the report, ascending, descending).
+LIST_BY = {
+    "default": ("Listed in the default order (least related first)", "", ""),
+    "generation": ("Listed by generation (the later generation of the pair, then the other)",
+                    "oldest generation at the top", "latest generation at the top"),
+    "age": ("Listed by age (the woman's, then the man's)", "youngest at the top", "oldest at the top"),
+    "number": ("Listed by family tree number (the woman's, then the man's)",
+               "lowest number at the top", "highest number at the top"),
+}
+
+
 @dataclass
 class Rules:
     """Every rule is the player's toggle.  The defaults are only where the window starts."""
@@ -715,6 +921,15 @@ class Rules:
     one_family_per_partner: bool = True   # no partner from a family they already have a child with
     prefer_previous_partners: bool = True   # established couples first (the owner, 2026-10-08)
     prefer_fresh_blood: bool = True
+    # How the pairings are LISTED (the owner, 2026-10-10: "prioritize latest generation", then "List pairings by"):
+    # only the order changes, never who may pair with whom.  The default is the newest generation first.
+    list_by: str = "generation"            # one of LIST_BY
+    list_direction: str = "descending"    # "ascending" or "descending"
+
+    @property
+    def prefer_latest_generation(self) -> bool:
+        return self.list_by == "generation" and self.list_direction == "descending"
+
     # How the report shows ages, not a pairing rule (the owner, 2026-10-08: "a toggle to turn Age
     # Units on and off"): "1379 game units (68 years old)", or "68 years old" alone.
     show_age_units: bool = True
@@ -746,7 +961,15 @@ class Rules:
                             (self.prefer_fresh_blood, "Fresh blood first")):
             if flag:
                 out.append(words)
+        out.append(self.listing())
         return out
+
+    def listing(self) -> str:
+        by = LIST_BY.get(self.list_by, LIST_BY["default"])
+        if self.list_by not in LIST_BY or self.list_by == "default":
+            return by[0]
+        down = self.list_direction != "ascending"
+        return f"{by[0]}, {by[2] if down else by[1]}"
 
 
 @dataclass
@@ -870,8 +1093,8 @@ def _partner_families(village: Village) -> dict[int, set[tuple[str, int]]]:
     way, with."""
     out: dict[int, set[tuple[str, int]]] = {}
     for child in village.people.values():
-        if child.father is None or child.mother is None:
-            continue
+        if child.father is None or child.mother is None or village.people[child.father].placeholder:
+            continue            # a default father ("?", "Joey", "Unknown") is no family
         for one, other in ((child.father, child.mother), (child.mother, child.father)):
             name = _last_name(village.people[other].name).casefold()
             if name:
@@ -913,10 +1136,25 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     couples = {(c.father, c.mother) for c in village.people.values()
                if c.father is not None and c.mother is not None}
 
+    sign = -1 if rules.list_direction != "ascending" else 1
+
+    def listkey(pair: Pair) -> tuple:
+        """The listing order the player chose, a key (all zero for the default order); ties keep the ranking."""
+        m, w = pair.man, pair.woman
+        if rules.list_by == "generation":
+            return (sign * max(m.generation, w.generation), sign * min(m.generation, w.generation))
+        if rules.list_by == "age":
+            # An age of 0 is a real age; an unknown one goes last either way.
+            return (w.age is None, sign * (w.age or 0), m.age is None, sign * (m.age or 0))
+        if rules.list_by == "number":
+            return (w.number is None, sign * (w.number or 0), m.number is None, sign * (m.number or 0))
+        return (0, 0)
+
     def rank(pair: Pair) -> tuple:
         gap = abs((pair.man.age or 0) - (pair.woman.age or 0))
         established = rules.prefer_previous_partners and (pair.man.id, pair.woman.id) in couples
-        return (not established, pair.related,
+        newest = (listkey(pair) if rules.list_by == "generation" else (0, 0))
+        return (newest, not established, pair.related,
                 (fresh(pair.man) + fresh(pair.woman)) if rules.prefer_fresh_blood else 0,
                 pair.shared, gap, pair.woman.id, pair.man.id)
 
@@ -930,7 +1168,14 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     partner: dict[int, Pair] = {}           # man -> his pair
 
     def place(woman: int, seen: set) -> bool:
-        for pair in per_woman.get(woman, []):
+        options = per_woman.get(woman, [])
+        if rules.list_by == "generation":
+            # A free man in her own best order before moving another woman off hers, so the newest
+            # generation's couples are not split to pair them with an older generation (stable: the
+            # order among the free and among the taken is unchanged).
+            options = ([p for p in options if p.man.id not in partner]
+                       + [p for p in options if p.man.id in partner])
+        for pair in options:
             if pair.man.id in seen:
                 continue
             seen.add(pair.man.id)
@@ -941,8 +1186,12 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
 
     for woman in sorted(per_woman, key=lambda w: rank(per_woman[w][0])):
         place(woman, set())
-    one_to_one = sorted(partner.values(), key=rank)
-    fallback = [] if allowed else sorted(every, key=rank)[:10]
+    one_to_one = sorted(sorted(partner.values(), key=rank), key=listkey)
+    fallback = [] if allowed else sorted(sorted(every, key=rank)[:10], key=listkey)
+    # The chosen listing order, a stable sort: the women, and each woman's partners, keep the ranking in ties.
+    for wid in per_woman:
+        per_woman[wid] = sorted(per_woman[wid], key=listkey)
+    per_woman = dict(sorted(per_woman.items(), key=lambda item: listkey(item[1][0])))
     return one_to_one, per_woman, fallback
 
 
@@ -1107,8 +1356,10 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
 
     def age(p: Person) -> str:
         if rules.show_age_units or p.age is None:
-            return p.age_text()
-        return f"died at {p.years} years old" if p.gone == "died" else f"{p.years} years old"
+            text = p.age_text()
+        else:
+            text = f"died at {p.years} years old" if p.gone == "died" else f"{p.years} years old"
+        return f"{text}, Generation {roman(p.generation)}"
     lines = [f"{game_title} -- Village Matchmaker",
              f"Village: {village.tribe} (Save {village.slot})" if village.tribe else f"Save {village.slot}",
              "",
@@ -1127,7 +1378,8 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     else:
         lines.append("  No pair meets every rule.  The least related pairs available:")
         for pair in fallback:
-            lines.append(f"    {pair.man.name} and {pair.woman.name}: {pair.relation}, related {pair.percent:g}%"
+            lines.append(f"    {pair.man.name} (Generation {roman(pair.man.generation)}) and "
+                         f"{pair.woman.name} (Generation {roman(pair.woman.generation)}): {pair.relation}, related {pair.percent:g}%"
                          + (f"; {pair.together}" if pair.together else ""))
     lines.append("")
     lines.append("== Every allowed partner, per woman ==")

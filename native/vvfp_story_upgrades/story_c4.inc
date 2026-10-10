@@ -137,6 +137,12 @@ static int c4_kill(int index) {
     return 1;
 }
 
+/* Health through the same setter (value, cause -1, as c4_revive writes it);
+   a living villager's task goes on. */
+static void c4_set_health(int index, int health) {
+    TC2(0x46AF00u, c4_record(index) + 0x1C34, health, -1);
+}
+
 /* The Sealed Box's disappearance (0x415D91): the same death, then the
    record's active byte cleared, so no corpse or grave is left. */
 static int c4_vanish(int index) {
@@ -650,7 +656,7 @@ static const ce_adapter C4_ADAPTER = {
        result, labels of 34 characters (the longest stock). */
     48, 11, 48, 11, 0, 34, c4_rand_below, NULL, NULL,
     C4_PROBE, (int)(sizeof C4_PROBE / sizeof C4_PROBE[0]),
-    NULL, NULL
+    NULL, NULL, 0, c4_set_health
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

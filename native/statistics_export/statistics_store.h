@@ -88,7 +88,8 @@ int vvs_flush(const vvs_context *context);
 int vvs_counter_value(const vvs_context *context, int kind, int *value);
 
 /* The number of distinct stew identities discovered. Returns 0 if this game
-   has no stews. */
+   has no stews. Raised by what the game's own save proves (statistics_store.c):
+   The Lost Children's discovered-recipe flags, The Secret City's recipe book. */
 int vvs_stews_value(const vvs_context *context, int *value);
 
 /* Build the two paths for a save slot under the save folder, creating the
@@ -100,6 +101,10 @@ int vvs_build_paths(int game_id, int save_id, wchar_t *counters, wchar_t *stews)
    Herbs are the game's own ids, in any order; `salt` matters only for VV4.
    Exposed for the harness. */
 int vvs_stew_identity(int game_id, int h1, int h2, int h3, int salt);
+
+/* The Lost Children's recipe (1..18) for three herbs 0x30..0x35, as its cook
+   routine 0x425B90 decides it, or -1. Exposed for the harness. */
+int vvs_vv2_recipe(int h1, int h2, int h3);
 
 /* Read a file's state without changing anything; for the harness. */
 int vvs_probe_file(const wchar_t *path, int game_id, int stews);

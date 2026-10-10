@@ -173,6 +173,10 @@ typedef struct {
     void (*set_faith)(int index, int faith);   /* CAP_FAITH */
     const char *status_note;       /* a warning beside the status choices, or NULL */
     int status_risky_from;         /* the first status the note is asked for (0 = every one) */
+    /* A living villager's health set to 1..CE_HEALTH_MAX: the same write each
+       game's revive makes (its own health field or setter), without the
+       revive's clock and stop.  Health 0 is the adapter's kill. */
+    void (*set_health)(int index, int health);
 } ce_adapter;
 
 static const ce_adapter *ce_adapter_for(int game);
@@ -310,6 +314,120 @@ static int ce_choice_pending(int game) {
 /* Whether a plain (one-popup) custom event is armed for `game`. */
 static int ce_plain_pending(int game) {
     return ce_pending(game) && !ce_armed_is_choice;
+}
+
+/* 1 while the armed plain event is Choose Time Skip Amount's closing notice
+   (story_time_skip.inc), not a player's own Custom Island Event. */
+static int ce_armed_is_notice;
+
+/* The game whose popup the custom-event path filled last was given Choose
+   Time Skip Amount's closing notice (0: the last one filled was a player's
+   own event, or none yet).  "VVFP Island Events.dll" asks it
+   (VvfpStoryTimeSkipNoticeShown) so the notice -- not an island event -- is
+   not written to the Island Events log and takes no event number (live,
+   v1.35.66: "Island event 20 / Event: Time Skip / Changes: none"). */
+static int ce_notice_shown;
+
+/* Each game's Island Events Seen counter (its own eNumCrisis, the Village
+   Statistics row) goes up by one in the island-event trigger just before it
+   builds the event an armed custom event is delivered into -- every caller
+   of the event builder does it:
+
+     A New Home        0x42392F / 0x423965 / 0x4239F2  ++world+0x9E40      -> 0x4286B0
+     The Lost Children 0x42F03F / 0x42F078 / 0x42F0E3  ++world+0x2E51C     -> 0x4348E0
+     The Secret City   0x468862                        ++[0x5824C4]        -> 0x419B30
+     The Tree of Life  0x43FBD6                        add [0x4D6E04], 1   -> 0x418000
+     New Believers     0x442849                        add [0x51D37C], 1   -> 0x418870
+
+   The time skip's notice is not an island event, so its delivery takes that
+   one back (ce_uncount_notice): the row keeps counting island events only.
+   The sites are checked byte for byte first.  A path whose count differs
+   but which still calls the builder (`call` at `call_site`) is one this
+   companion does not know, and the counter is left as it is.  A path that
+   no longer calls the builder at all builds no event, so no notice comes
+   through it and it does not matter: The Lost Children's Restore Missing
+   Island Events rewrites the first of its trigger's three paths
+   (0x42F032..0x42F062) into one that never reaches 0x4348E0, while the
+   other two still count and build. */
+typedef struct {
+    int game;
+    unsigned int site;
+    unsigned char bytes[14];
+    int length;
+    unsigned int call_site;            /* the path's `call <builder>` */
+    unsigned int builder;              /* the event builder it calls */
+} ce_count_site;
+
+static const ce_count_site CE_COUNT_SITES[] = {
+    { 1, 0x42392Fu, { 0x8B, 0x88, 0x40, 0x9E, 0x00, 0x00, 0x41, 0x57, 0x89, 0x88, 0x40, 0x9E, 0x00, 0x00 }, 14,
+      0x423942u, 0x4286B0u },
+    { 1, 0x423965u, { 0x8B, 0x88, 0x40, 0x9E, 0x00, 0x00, 0x41, 0x57, 0x89, 0x88, 0x40, 0x9E, 0x00, 0x00 }, 14,
+      0x423979u, 0x4286B0u },
+    { 1, 0x4239F2u, { 0x8B, 0x88, 0x40, 0x9E, 0x00, 0x00, 0x41, 0x57, 0x89, 0x88, 0x40, 0x9E, 0x00, 0x00 }, 14,
+      0x423A06u, 0x4286B0u },
+    { 2, 0x42F03Fu, { 0x8B, 0x88, 0x1C, 0xE5, 0x02, 0x00, 0x41, 0x57, 0x89, 0x88, 0x1C, 0xE5, 0x02, 0x00 }, 14,
+      0x42F052u, 0x4348E0u },
+    { 2, 0x42F078u, { 0x8B, 0x88, 0x1C, 0xE5, 0x02, 0x00, 0x41, 0x57, 0x89, 0x88, 0x1C, 0xE5, 0x02, 0x00 }, 14,
+      0x42F08Cu, 0x4348E0u },
+    { 2, 0x42F0E3u, { 0x8B, 0x88, 0x1C, 0xE5, 0x02, 0x00, 0x41, 0x57, 0x89, 0x88, 0x1C, 0xE5, 0x02, 0x00 }, 14,
+      0x42F0F7u, 0x4348E0u },
+    { 3, 0x468862u, { 0x8B, 0x0D, 0xC4, 0x24, 0x58, 0x00, 0x41, 0x56, 0x89, 0x0D, 0xC4, 0x24, 0x58, 0x00 }, 14,
+      0x468877u, 0x419B30u },
+    { 4, 0x43FBD6u, { 0x83, 0x05, 0x04, 0x6E, 0x4D, 0x00, 0x01 }, 7, 0x43FBE5u, 0x418000u },
+    { 5, 0x442849u, { 0x83, 0x05, 0x7C, 0xD3, 0x51, 0x00, 0x01 }, 7, 0x442858u, 0x418870u },
+};
+
+/* Whether `at` holds `call target` (E8 rel32). */
+static int ce_calls(unsigned int at, unsigned int target) {
+    int rel;
+    if (!mem_readable(at, 5) || *(const unsigned char *)(uintptr_t)at != 0xE8) {
+        return 0;
+    }
+    rel = *(const int *)(uintptr_t)(at + 1);
+    return at + 5u + (unsigned int)rel == target;
+}
+
+/* The counter of `game`, or NULL (no village, or a build whose trigger is
+   not the stock one). */
+static int *ce_event_counter(int game) {
+    int i, found = 0;
+    unsigned char *world;
+    for (i = 0; i < (int)(sizeof CE_COUNT_SITES / sizeof CE_COUNT_SITES[0]); ++i) {
+        const ce_count_site *s = &CE_COUNT_SITES[i];
+        if (s->game != game) {
+            continue;
+        }
+        if (!mem_matches(s->site, s->bytes, s->length)) {
+            if (ce_calls(s->call_site, s->builder)) {
+                return NULL;           /* builds an event, counted in a way not known here */
+            }
+            continue;                  /* builds no event: no notice comes through it */
+        }
+        ++found;
+    }
+    if (found == 0) {
+        return NULL;
+    }
+    switch (game) {
+    case 1:
+        world = *(unsigned char **)(uintptr_t)VV1_WORLD_GLOBAL;
+        return world != NULL ? (int *)(world + VV1_EVENT_COUNT_FIELD) : NULL;
+    case 2:
+        world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
+        return world != NULL ? (int *)(world + VV2_EVENT_COUNT_FIELD) : NULL;
+    case 3: return (int *)(uintptr_t)0x5824C4u;
+    case 4: return (int *)(uintptr_t)0x4D6E04u;
+    case 5: return (int *)(uintptr_t)0x51D37Cu;
+    default: return NULL;
+    }
+}
+
+/* The notice was delivered: the trigger's count of it is taken back. */
+static void ce_uncount_notice(int game) {
+    int *counter = ce_event_counter(game);
+    if (counter != NULL && *counter > 0) {
+        --*counter;
+    }
 }
 
 /* ---- Record helpers ------------------------------------------------------ */
@@ -964,6 +1082,18 @@ static int ce_set_record_parents(unsigned char *r, unsigned int father_name, uns
         || lstrlenA(c->father_name) > room || lstrlenA(c->mother_name) > room) {
         return 0;
     }
+    /* "Unknown": no parent, as a founder's record has none -- the name field
+       empty (what every reader takes as no parent) and the looks 0. */
+    if (c->father_kind == CE_PARENT_UNKNOWN) {
+        memset(r + father_name, 0, (size_t)name_bytes);
+        *(int *)(r + father_head) = 0;
+        *(int *)(r + father_body) = 0;
+    }
+    if (c->mother_kind == CE_PARENT_UNKNOWN) {
+        memset(r + mother_name, 0, (size_t)name_bytes);
+        *(int *)(r + mother_head) = 0;
+        *(int *)(r + mother_body) = 0;
+    }
     /* Both names were measured against the room above, so neither write is
        refused part-way through the change. */
     if (c->father_name[0] != '\0') {
@@ -1076,13 +1206,82 @@ static void ce_tell_cause_of_death(int game, int index) {
    record, "Custom Island Event", in the Births and Conceptions log
    (cod_arrivals.inc).  Told right after the game's creator made them, in the
    same frame.  Absent (its row off): nothing. */
-static void ce_tell_arrival(int game, int index) {
+/* A new villager's chosen parents as a ce_change the adapters' set_parents
+   take (only the parents' fields are read). */
+static void ce_spawn_parents(const ce_spawn *s, ce_change *c) {
+    memset(c, 0, sizeof *c);
+    c->index = -1;
+    c->father = -1;
+    c->parents_set = s->parents_set;
+    lstrcpynA(c->father_name, s->father_name, CE_NAME_BYTES);
+    lstrcpynA(c->mother_name, s->mother_name, CE_NAME_BYTES);
+    c->father_head = s->father_head;
+    c->father_body = s->father_body;
+    c->mother_head = s->mother_head;
+    c->mother_body = s->mother_body;
+    c->father_kind = s->father_kind;
+    c->mother_kind = s->mother_kind;
+    c->father_record = s->father_record;
+    c->mother_record = s->mother_record;
+    c->head = c->body = CE_KEEP;
+    c->mask = c->status = c->behaviour = c->faith = c->health = CE_KEEP;
+}
+
+/* A parent who is known: a name with both looks (0 is a real head and body). */
+static int ce_parent_known(const char *name, int head, int body) {
+    return name[0] != '\0' && head != CE_KEEP && body != CE_KEEP;
+}
+
+/* The new villager's parents as the Births and Conceptions log's Arrived
+   record prints them -- the "Parents:" block every Village History and
+   Population record has (population_export.c), which the Family Tree and
+   the Matchmaker read: each known parent, father first.  "" when neither
+   is known. */
+static void ce_parents_block(const ce_spawn *s, char *out, int size) {
+    char line[160];
+    out[0] = '\0';
+    if (s == NULL || !s->parents_set || (!ce_parent_known(s->father_name, s->father_head, s->father_body)
+                            && !ce_parent_known(s->mother_name, s->mother_head, s->mother_body))) {
+        return;
+    }
+    lstrcpynA(out, "  Parents:\n", size);
+    if (ce_parent_known(s->father_name, s->father_head, s->father_body)) {
+        wsprintfA(line, "    Father: %s\n      Head: %d\n      Body: %d\n", s->father_name, s->father_head,
+                  s->father_body);
+        if (lstrlenA(out) + lstrlenA(line) < size) lstrcatA(out, line);
+    }
+    if (ce_parent_known(s->mother_name, s->mother_head, s->mother_body)) {
+        wsprintfA(line, "    Mother: %s\n      Head: %d\n      Body: %d\n", s->mother_name, s->mother_head,
+                  s->mother_body);
+        if (lstrlenA(out) + lstrlenA(line) < size) lstrcatA(out, line);
+    }
+}
+
+#ifdef VVFP_TEST
+static char test_arrival_parents[CE_MAX_SPAWN_GROUPS * 4][256];   /* TEST build: the last blocks told */
+static int test_arrival_told;
+#endif
+
+static void ce_tell_arrival(int game, int index, const ce_spawn *s) {
     typedef void (__stdcall *arrived_fn)(int, int, const char *);
+    typedef void (__stdcall *parents_fn)(int, int, const char *);
+    char block[256];
     HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
     arrived_fn arrived = module != NULL
         ? (arrived_fn)GetProcAddress(module, "VvfpCauseArrivedBy") : NULL;
+    parents_fn parents = module != NULL
+        ? (parents_fn)GetProcAddress(module, "VvfpCauseArrivedParents") : NULL;
+    ce_parents_block(s, block, (int)sizeof block);
+#ifdef VVFP_TEST
+    if (test_arrival_told < (int)(sizeof test_arrival_parents / sizeof test_arrival_parents[0])) {
+        lstrcpynA(test_arrival_parents[test_arrival_told++], block, 256);
+    }
+#endif
     if (arrived != NULL) {
         arrived(game, index, "Custom Island Event");
+    }
+    if (parents != NULL && block[0] != '\0') {
+        parents(game, index, block);
     }
 }
 
@@ -1191,7 +1390,9 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             continue;
         }
         ++r->changed;
-        if (c->fate == CE_FATE_KILL && (a->caps & CAP_KILL)) {
+        /* Health 0 kills (the owner: "0 kills the villager"): the game's own
+           death, exactly as "Dies". */
+        if ((c->fate == CE_FATE_KILL || (c->fate == CE_FATE_NONE && c->health == 0)) && (a->caps & CAP_KILL)) {
             if (a->kill(c->index)) {
                 ++r->died;
             }
@@ -1245,6 +1446,9 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         if ((a->caps & CAP_BEHAVIOUR) && c->behaviour != CE_KEEP && !a->behave(c->index, c->behaviour)) {
             ce_refuse_as(r, CE_WHY_BEHAVIOUR);
         }
+        if (c->health != CE_KEEP && c->health >= 1 && c->health <= CE_HEALTH_MAX && a->set_health != NULL) {
+            a->set_health(c->index, c->health);
+        }
     }
 
     /* Pregnancies, then new villagers: each baby and each villager only
@@ -1255,7 +1459,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             int father = -1;
             const unsigned char *mother = same[i] ? a->record(c->index) : NULL;
             const unsigned char *sire = father_same[i] ? a->record(c->father) : NULL;
-            if (c->litter == 0 || c->fate != CE_FATE_NONE || mother == NULL || !a->listed(mother)) {
+            if (c->litter == 0 || c->fate != CE_FATE_NONE || c->health == 0 || mother == NULL || !a->listed(mother)) {
                 continue;
             }
             if (c->litter == CE_LITTER_CANCEL) {
@@ -1290,7 +1494,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
             const ce_change *c = &e->changes[i];
             const unsigned char *mother = same[i] ? a->record(c->index) : NULL;
-            if (!c->unborn_set || c->fate != CE_FATE_NONE) {
+            if (!c->unborn_set || c->fate != CE_FATE_NONE || c->health == 0) {
                 continue;
             }
             if (mother == NULL || !a->listed(mother) || *(const int *)(mother + a->off_pregnant) == 0) {
@@ -1318,7 +1522,19 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                     break;
                 }
                 ++r->born;
-                ce_tell_arrival(e->game, index);
+                ce_tell_arrival(e->game, index, s);
+                /* The parents, where the game (or A New Home's Show Parents
+                   sidecar) keeps a born villager's: the same writes as the
+                   Villager changes' Parents. */
+                if ((a->caps & CAP_PARENTS) && s->parents_set) {
+                    ce_change parents;
+                    ce_spawn_parents(s, &parents);
+                    if (!a->parents_supported()) {
+                        ce_refuse(r, CE_WHY_SHOW_PARENTS);
+                    } else if (!a->set_parents(index, &parents)) {
+                        ce_refuse_as(r, CE_WHY_PARENTS);
+                    }
+                }
                 if ((a->caps & CAP_TITLE) && s->title[0] != '\0'
                     && !titles_set(e->game, index, s->title)) {
                     ce_refuse(r, CE_WHY_TITLE);
@@ -1328,6 +1544,15 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                     if (record == NULL || !story_set_mask(e->game, record, s->mask)) {
                         ce_refuse(r, CE_WHY_MASK);
                     }
+                }
+                /* Health last: 0 is the game's own death, a skeleton that
+                   keeps everything above. */
+                if (s->health == 0 && (a->caps & CAP_KILL)) {
+                    if (a->kill(index)) {
+                        ++r->died;
+                    }
+                } else if (s->health >= 1 && s->health <= CE_HEALTH_MAX && a->set_health != NULL) {
+                    a->set_health(index, s->health);
                 }
             }
         }
@@ -1347,15 +1572,22 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
    event asks a question: that one is delivered by ce_choice_begin. */
 static int ce_deliver(int game, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
+    int notice;
     if (a == NULL || !ce_plain_pending(game)) {
         return 0;
     }
+    notice = ce_armed_is_notice;
     ce_armed = 0;
+    ce_armed_is_notice = 0;
+    ce_notice_shown = notice ? game : 0;
     ce_apply(a, &ce_armed_event, &ce_last_result);
     if (!ce_compose(a, &ce_armed_event, &ce_last_result, text, size)) {
         /* The outcome lines do not fit: the title and description were
            checked when the event was queued, so show those alone. */
         ce_compose(a, &ce_armed_event, NULL, text, size);
+    }
+    if (notice) {
+        ce_uncount_notice(game);   /* the time skip's notice is not an island event */
     }
     STORY_COUNT(delivered);
     return 1;
@@ -1737,6 +1969,7 @@ static int ce_choice_begin(int game, char *text, int size) {
     }
     ce_armed = 0;
     ce_armed_is_choice = 0;
+    ce_notice_shown = 0;              /* a player's own question, never the notice */
     ce_asked = 1;
     ce_asked_store = ce_armed_store;
     ce_asked_game = game;

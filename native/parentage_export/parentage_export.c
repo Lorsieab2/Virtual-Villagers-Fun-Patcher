@@ -80,6 +80,7 @@
 #include "save_folder.h"
 #include "save_layout.h"
 #include "log_words.h"
+#include "birth_heading.h"        /* "Birth <n>", or an older log's "Birth" */
 #include "special_title.h"
 #include "custom_titles.h"
 #include "former_heathens_read.h"
@@ -1228,7 +1229,8 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2, LOG_EVENTS = 3 };
 /* What a held or written record is.
 
      CONCEPTION   births family, numbered "Conception <n>"
-     BIRTH        births family, its own "Birth" block, never rolls
+     BIRTH        births family, "Birth <n>" (its own running count, like
+                  ARRIVED; older logs say just "Birth"), never rolls
      DEATH        deaths family, numbered "Death <n>"
      DISAPPEARED  deaths family, "Disappeared", never rolls
      EPITAPH      deaths family, "Epitaph changed", never rolls
@@ -1244,11 +1246,19 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2, LOG_EVENTS = 3 };
                   an island event changed in one villager, each change "old
                   -> new", under the event's title ("VVFP Island Events.dll";
                   the owner, 2026-10-08: "all island event changes should be
-                  logged"); held until the next save like APPEARANCE */
+                  logged"); held until the next save like APPEARANCE
+     LOST_BIRTH   births family, "Lost before birth", never rolls -- the
+                  babies a pregnant (nursing) mother carried when she died or
+                  disappeared: they are never born and get no record of their
+                  own, so this closes her open Conception (the owner,
+                  2026-10-09: "Nursing mothers who die will only produce a
+                  grave for the mother (nursing child just disappears)").
+                  "VVFP Cause of Death.dll" renders every line after the
+                  heading. */
 enum {
     KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
     KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7,
-    KIND_ISLAND_EVENT = 8
+    KIND_ISLAND_EVENT = 8, KIND_LOST_BIRTH = 9
 };
 
 #define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers"
@@ -1492,7 +1502,7 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
     if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0
         || strncmp(line, "Unaccounted ", 12) == 0 || strncmp(line, "Disappeared", 11) == 0
         || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0
-        || strncmp(line, "Appearance changed", 18) == 0) {
+        || strncmp(line, "Appearance changed", 18) == 0 || vv_is_birth_heading(line)) {
         fclose(file);
         return 0;
     }
@@ -2667,17 +2677,28 @@ static int saved_tribe_still_loaded(int game_id) {
     return same_tribe(saved_tribe, scratch_tribe, TRIBE_STRICT);
 }
 
-/* The Arrived records already in the game's Births and Conceptions files --
-   every file, every village, as a Conception's number counts them -- so the
-   next one's "Arrived <n>" continues the running count.  -1 when a file
+/* The Arrived records (`births` 0) or Birth records (`births` 1) already in
+   the game's Births and Conceptions files -- every file, every village, as a
+   Conception's number counts them -- so the next one's "Arrived <n>" or
+   "Birth <n>" continues the running count.  A Birth is counted whether an
+   older build wrote it as plain "Birth" or this one numbered it
+   (birth_heading.h), so the first numbered Birth after an older log's 79
+   follows them as "Birth 80".
+
+   A BIRTH NUMBER IS NEVER REPEATED (the owner, 2026-10-09).  For Births the
+   result is the larger of the count and the HIGHEST number already written:
+   a log with gaps, numbers out of order (a record Repair inserted earlier in
+   the file with the next unused number), or a hand-edited number goes on
+   above every number in it, so the next is always unused.  -1 when a file
    cannot be read. */
-static int count_arrived_records(const struct game_layout *g) {
+static int count_running_records(const struct game_layout *g, int births) {
     wchar_t folder[MAX_PATH];
     wchar_t path[MAX_LOG_PATH];
     char line[512];
     int ceiling;
     int number;
     int total = 0;
+    long highest = 0;
     if (!vv_save_subfolder_w(folder, family_folder(LOG_BIRTHS), 64)) {
         return -1;
     }
@@ -2695,8 +2716,15 @@ static int count_arrived_records(const struct game_layout *g) {
             return -1;
         }
         while (fgets(line, (int)sizeof line, file) != NULL) {
-            if (strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9') {
+            if (births ? vv_is_birth_heading(line)
+                       : strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9') {
                 ++total;
+                if (births && line[5] == ' ') {
+                    long n = strtol(line + 6, NULL, 10);
+                    if (n > highest) {
+                        highest = n < 0x7FFFFFFEL ? n : 0x7FFFFFFEL;
+                    }
+                }
             }
         }
         if (ferror(file)) {
@@ -2705,7 +2733,7 @@ static int count_arrived_records(const struct game_layout *g) {
         }
         fclose(file);
     }
-    return total;
+    return highest > total ? (int)highest : total;
 }
 
 /* What append_record reports. A record that fails with its file restored is
@@ -2745,11 +2773,11 @@ static int append_record(
             existing_records = older;
         }
     }
-    if (kind == KIND_ARRIVED) {
-        /* Its number: the Arrived records already written, in every file.
-           A file that cannot be read leaves the record held for a retry --
-           numbered wrong would be worse than numbered later. */
-        arrived_before = count_arrived_records(g);
+    if (kind == KIND_ARRIVED || (kind == KIND_BIRTH && strncmp(text, "Birth\n", 6) == 0)) {
+        /* Its number: the Arrived (or Birth) records already written, in
+           every file. A file that cannot be read leaves the record held for
+           a retry -- numbered wrong would be worse than numbered later. */
+        arrived_before = count_running_records(g, kind == KIND_BIRTH);
         if (arrived_before < 0) {
             return APPEND_RETRY;
         }
@@ -2773,6 +2801,10 @@ static int append_record(
     if (written) {
         if (kind == KIND_ARRIVED) {
             written = fprintf(file, "Arrived %d\n%s", arrived_before + 1, text) >= 0;
+        } else if (kind == KIND_BIRTH && strncmp(text, "Birth\n", 6) == 0) {
+            /* "Birth <n>", numbered like a Conception when it is written (the
+               owner, 2026-10-09): compose_birth's text opens with "Birth". */
+            written = fprintf(file, "Birth %d\n%s", arrived_before + 1, text + 6) >= 0;
         } else if (!kind_is_numbered(kind)) {
             written = fprintf(file, "%s", text) >= 0;
         } else {
@@ -3015,6 +3047,44 @@ static void vv1_parentage_bridge(const void *records, const void *mother, const 
     vv1_parentage_conceived(records, mother, father);
 }
 
+/* Set only for the length of one WriteParentageConceptionFatherSet call (A
+   New Home: a father the Custom Island Event set, with no record of his to
+   capture); NULL otherwise. */
+static struct {
+    const char *name;
+    int head, body;
+} g_father_set;
+
+/* The father's age, sex, likes and dislikes when the game's own default
+   father stands in for one (is_game_default_father): there is no villager to
+   read them from. */
+#define DEFAULT_FATHER_NONE "(none: game's default father)"
+
+/* 1 when `name`, the father name the game wrote onto the mother at
+   conception, is the game's OWN default father rather than a villager's:
+   the literal the conception caller passes from the executable's .rdata,
+   never a pointer into a record (verified in the stock executables):
+     The Lost Children  "?"     0x476290, the Gong of Wonder (caller 0x44EB3E,
+                                head 0 and body 0 pushed beside it);
+     The Tree of Life   "Joey"  0x4AB360, sub_467B00's island-event babies
+                                (0x467C04, head 2 and body 2);
+     New Believers      "Joey"  0x4B8E1C, the same event (0x471B5C, 2 and 2).
+   A New Home writes no father at all and The Secret City's two conception
+   callers always pass a villager.  "Joey Joerson" is how Joey reads once
+   Villagers Have Last Names has given him one (the owner, 2026-10-10). */
+static int is_game_default_father(int game_id, const char *name) {
+    if (name == NULL) {
+        return 0;
+    }
+    if (game_id == GAME_VV2) {
+        return strcmp(name, "?") == 0;
+    }
+    if (game_id == GAME_VV4 || game_id == GAME_VV5) {
+        return strcmp(name, "Joey") == 0 || strcmp(name, "Joey Joerson") == 0;
+    }
+    return 0;
+}
+
 __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     int game_id,
     const void *records_pointer,
@@ -3028,6 +3098,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         (const unsigned char *)father_pointer;
     const unsigned char *father_from_caller = NULL;
     int babies;
+    int default_father = 0;           /* the game's own "?" / "Joey" (is_game_default_father) */
     const unsigned char *father;
     /* The rendered record, written now or held until the village is known. */
     char text[RECORD_TEXT_MAX];
@@ -3160,7 +3231,13 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         copy_name_field(mother + g->father, father_name, sizeof(father_name),
                         father_key_width(g));
         father = father_from_caller;
-        if (father == NULL) {
+        /* The game's OWN default father -- The Lost Children's Gong of Wonder
+           "?" 0/0, The Tree of Life's and New Believers' "Joey" 2/2 -- is a
+           string in the executable, not a villager, so no record is captured
+           and none may be looked for: a living villager who happens to be
+           called Joey is not the father of an event's babies. */
+        default_father = father == NULL && is_game_default_father(game_id, father_name);
+        if (father == NULL && !default_father) {
             father = find_record_by_name(g, records, father_name);
         }
     } else {
@@ -3245,6 +3322,10 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         father_age[sizeof(father_age) - 1] = '\0';
     } else if (g->father_kind == FATHER_NOT_RECORDED) {
         memcpy(father_age, "not recorded by this game", 26);
+    } else if (default_father) {
+        /* No villager stands behind the game's default father, so he has no
+           age, sex, likes or dislikes -- and nothing failed to capture them. */
+        memcpy(father_age, DEFAULT_FATHER_NONE, sizeof DEFAULT_FATHER_NONE);
     } else {
         memcpy(father_age, "(not captured for this birth)", 30);
     }
@@ -3288,6 +3369,16 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
                   *(const int *)(mother + g->father_body_copy));
         father_body[sizeof(father_body) - 1] = '\0';
     }
+    /* A father the Custom Island Event set (WriteParentageConceptionFatherSet):
+       his name, head and body as the player gave them; his age, sex, likes
+       and dislikes stay "not captured", as for any father with no record. */
+    if (g_father_set.name != NULL && father_from_caller == NULL) {
+        lstrcpynA(father_name, g_father_set.name, (int)sizeof(father_name));
+        _snprintf(father_head, sizeof(father_head), "%d", g_father_set.head);
+        _snprintf(father_body, sizeof(father_body), "%d", g_father_set.body);
+        father_head[sizeof(father_head) - 1] = '\0';
+        father_body[sizeof(father_body) - 1] = '\0';
+    }
     /* Everything after the "Conception <n>" line. The number is assigned when
        the record is actually written, which for a record held until the
        village's first save is later than now -- see emit_record. */
@@ -3307,7 +3398,8 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "    Body: %s\n"
         "    Likes: %s\n"
         "    Dislikes: %s\n"
-        "  Babies in pregnancy: %d\n"
+        "  Babies nursing: %d\n"
+        "%s"
         "\n",
         mother_name,
         *(const int *)(mother + g->age),
@@ -3324,12 +3416,49 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         father_body,
         father_likes,
         father_dislikes,
-        babies
+        babies,
+        g_father_set.name != NULL && father_from_caller == NULL
+            ? "  Note: Father set by a Custom Island Event\n" : ""
     );
     if (written < 0 || (size_t)written >= sizeof(text)) {
         return 0;
     }
     return emit_record(game_id, 0, records, text);
+}
+
+/* A New Home: the Conception record of a pregnancy whose father the Custom
+   Island Event's "unborn baby's father" just changed.
+
+   The Lost Children to New Believers keep the father on the mother, and the
+   birth takes him from there.  A New Home keeps him only in the VV1
+   Parentage companion's pregnancy stash, and every reader of this log -- the
+   companion's first-load check, the Family Tree Maker, Repair Saves & Logs --
+   takes a pregnancy's father from her LAST Conception record.  So the change
+   is recorded as one, by the one function that renders a conception
+   (WriteParentageRecordWithFather, through g_father_set): the mother as she
+   is now, the father as the player set him -- his name, head and body;
+   nothing else of his was captured -- the babies she carries, and a note
+   saying how it came about.  VV1 only; 1 when written or held for the next
+   save. */
+__declspec(dllexport) int __stdcall WriteParentageConceptionFatherSet(
+    int game_id,
+    const void *records_pointer,
+    const void *mother_pointer,
+    const char *father_name,
+    int father_head,
+    int father_body
+) {
+    int result;
+    if (game_id != GAME_VV1 || father_name == NULL || father_name[0] == '\0'
+        || father_head < 0 || father_body < 0) {
+        return 0;
+    }
+    g_father_set.name = father_name;
+    g_father_set.head = father_head;
+    g_father_set.body = father_body;
+    result = WriteParentageRecordWithFather(game_id, records_pointer, mother_pointer, NULL);
+    g_father_set.name = NULL;
+    return result;
 }
 
 /* One birth record, written by the VV1 parentage companion the moment it sees
@@ -3574,47 +3703,89 @@ static int compose_birth(
     return 1;
 }
 
-typedef int (__stdcall *rule_last_name_t)(char *name, unsigned int room, const char *father,
-                                           const char *mother, int slot);
+/* The village's save slot for VVFP Last Names: the " (Save N)" the village
+   was last saved under, or 0 -- named only once it is saved; a birth in the
+   catch-up as it loads comes first, and the DLL then finds the slot from the
+   names. */
+static int last_names_slot(void) {
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    const char *at = NULL, *scan;
+    if (vv_village_recall(village, sizeof village)) {
+        for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
+            at = scan;
+        }
+    }
+    return at != NULL && at[7] >= '1' && at[7] <= '9' && at[8] == ')' ? at[7] - '0' : 0;
+}
+
+typedef int (__stdcall *rule_last_name_t)(char *name, unsigned int room, const char *father, int father_head,
+                                           int father_body, const char *mother, int mother_head,
+                                           int mother_body, int slot);
 
 /* The Lost Children to New Believers, at the child's creation: its name made
    its first name and the last name the player's rule gives (Repair Saves &
-   Logs' "Last names come from"; VVFP Last Names' VvfpRuleLastName), from the
-   parents the game keeps on its record -- before the Birth record or anything
-   else names it (the owner, 2026-10-08: babies named for their mother's
-   family number, not by the rule -- "fix it").  A New Home's companion does
-   the same at its own birth hook, with the parents it recorded. */
+   Logs' "Last names come from", and a parent's own rule; VVFP Last Names'
+   VvfpRuleLastName2), from the parents the game keeps on its record -- their
+   names, heads and bodies, as the Birth record shows them -- before the Birth
+   record or anything else names it (the owner, 2026-10-08: babies named for
+   their mother's family number, not by the rule -- "fix it").  A New Home's
+   companion does the same at its own birth hook, with the parents it
+   recorded. */
 static void rule_last_name(int game_id, unsigned char *rec) {
     static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
     static rule_last_name_t rule;
     const struct game_layout *g;
-    char village[VV_VILLAGE_NAME_MAX + 32];
     char father[MAX_NAME_BYTES], mother[MAX_NAME_BYTES];
-    const char *at = NULL, *scan;
     if (game_id < GAME_VV2 || game_id > GAME_VV5 || rec == NULL) {
         return;
     }
     if (state == 0) {
         HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
-        rule = dll ? (rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName") : NULL;
+        rule = dll ? (rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName2") : NULL;
         state = rule ? 1 : -1;
     }
     g = layout_of(game_id);
     if (state != 1 || !layout_is_usable(g) || g->parent_father_name == 0u) {
         return;
     }
-    /* The village is named only once it is saved; a birth in the catch-up as
-       it loads comes first, and the DLL finds the slot from the parents
-       (0 here). */
-    if (vv_village_recall(village, sizeof village)) {
-        for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
-            at = scan;
-        }
-    }
     copy_name_field(rec + g->parent_father_name, father, sizeof father, g->name_capacity);
     copy_name_field(rec + g->parent_mother_name, mother, sizeof mother, g->name_capacity);
-    rule((char *)(rec + g->name), g->name_capacity, father, mother,
-         at != NULL && at[7] >= '1' && at[7] <= '9' && at[8] == ')' ? at[7] - '0' : 0);
+    rule((char *)(rec + g->name), g->name_capacity,
+         father, *(const int *)(rec + g->parent_father_head), *(const int *)(rec + g->parent_father_body),
+         mother, *(const int *)(rec + g->parent_mother_head), *(const int *)(rec + g->parent_mother_body),
+         last_names_slot());
+}
+
+typedef int (__stdcall *relook_last_name_t)(const char *name, int male, int old_head, int old_body, int new_head,
+                                             int new_body, int slot);
+
+/* An "Appearance changed" record (Change Appearance, the Island Events log --
+   a Custom Island Event's change too): the villager's own last-name rule,
+   kept by name, head, body and sex, follows them to the new looks at once
+   (VVFP Last Names' VvfpRelookLastName), so the births before the next
+   Repair still find it.  `before` is the record's own "  Old head: ..\n  Old
+   body: ..\n  New head: ..\n  New body: ..\n" lines.  Nothing happens without
+   the Last Names DLL. */
+static void relook_last_name(const struct game_layout *g, const unsigned char *record, const char *before) {
+    static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
+    static relook_last_name_t relook;
+    char name[MAX_NAME_BYTES];
+    int oh, ob, nh, nb, male;
+    if (state == 0) {
+        HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
+        relook = dll ? (relook_last_name_t)GetProcAddress(dll, "VvfpRelookLastName") : NULL;
+        state = relook ? 1 : -1;
+    }
+    if (state != 1 || before == NULL
+        || sscanf_s(before, "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d", &oh, &ob, &nh, &nb) != 4) {
+        return;
+    }
+    male = strcmp(sex_text(g, record), "Male") == 0;
+    if (!male && strcmp(sex_text(g, record), "Female") != 0) {
+        return;
+    }
+    copy_villager_name(g, record, name, sizeof name);
+    (void)relook(name, male, oh, ob, nh, nb, last_names_slot());
 }
 
 /* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not
@@ -3640,6 +3811,33 @@ __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
        arrival, whether or not the record could be filed now. */
     tell_cause_of_death_birth(game_id, child_record);
     /* The child is the villager a held birth is re-checked against. */
+    return emit_record(game_id, KIND_BIRTH, NULL, text);
+}
+
+/* A New Home: the Birth record of a villager the Births log has none for,
+   written afterwards by the VV1 Parentage companion's cross-check from its
+   parentage file (vv1_crosscheck.inc) -- the record The Lost Children to New
+   Believers write from the save (arrival_backfill.inc), with the same
+   "Note: Recorded afterwards (born before this log existed)" and no
+   "Born as" line (how many came together is not known).  1 when written or
+   held for the next save. */
+__declspec(dllexport) int __stdcall WriteParentageBirthAfterwards(
+    int game_id,
+    const char *child_name, int child_head, int child_body,
+    const char *mother_name, int mother_head, int mother_body,
+    const char *father_name, int father_head, int father_body,
+    const void *child_record
+) {
+    char text[RECORD_TEXT_MAX];
+    /* Every game compose_birth accepts: only A New Home's companion calls it,
+       but the record is the one all five write. */
+    if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
+                          mother_body, father_name, father_head, father_body, child_record,
+                          /* arrival_backfill.inc's BIRTH_BACKFILL_NOTE, word for word */
+                          "  Note: Recorded afterwards (born before this log existed)\n",
+                          -1, text, sizeof text)) {
+        return 0;
+    }
     return emit_record(game_id, KIND_BIRTH, NULL, text);
 }
 
@@ -3814,6 +4012,110 @@ __declspec(dllexport) int __stdcall VillagePreferenceText(int game_id, const voi
     return 1;
 }
 
+/* Every like (`dislikes` 0) or dislike (1) a villager has, in the words the
+   logs print them (the first filled slot is what the Births log's "Likes:"
+   shows; this names each filled slot in order, ", " between them), or
+   "(none)" -- for "VVFP Island Events.dll", whose "Likes: old -> new" line
+   must show a change in any slot, not only the first.  0 when the game or
+   the record cannot be read. */
+__declspec(dllexport) int __stdcall VillagePreferenceListText(int game_id, const void *record_pointer, int dislikes,
+                                                              char *out, int out_size) {
+    const struct game_layout *g;
+    const unsigned char *record = (const unsigned char *)record_pointer;
+    unsigned int base, slot;
+    size_t used = 0;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL || out == NULL || out_size <= 0) {
+        return 0;
+    }
+    g = layout_of(game_id);
+    if (!layout_is_usable(g) || !memory_is_readable(record, g->stride)) {
+        return 0;
+    }
+    out[0] = '\0';
+    base = dislikes ? g->dislikes : g->likes;
+    if (base != 0u && g->preference_list != NULL) {
+        for (slot = 0; slot < g->preference_slots; ++slot) {
+            char word[64];
+            int value = *(const int *)(record + base + slot * 4u);
+            if (value < 0 || !preference_name(g->preference_list, value, word, sizeof word)) {
+                continue;
+            }
+            if (used + strlen(word) + 3 >= (size_t)out_size) {
+                break;
+            }
+            used += (size_t)_snprintf(out + used, (size_t)out_size - used, "%s%s", used ? ", " : "", word);
+        }
+    }
+    if (used == 0) {
+        _snprintf(out, (size_t)out_size, "(none)");
+    }
+    out[out_size - 1] = '\0';
+    return 1;
+}
+
+/* A living villager's custom title as the villager logs print it (the
+   "  Custom title:" line's value), for "VVFP Island Events.dll", which shows
+   a Custom Island Event's title change as "old -> new".  `out` gets the
+   title, or "" when the villager has none.  0 when the game, the record or
+   the titles cannot be read (then nothing is compared). */
+__declspec(dllexport) int __stdcall VillageCustomTitle(int game_id, const void *record_pointer, char *out,
+                                                        int out_size) {
+    const struct game_layout *g;
+    const unsigned char *records;
+    char line[96];
+    const char *start;
+    size_t n;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || record_pointer == NULL || out == NULL || out_size <= 0) {
+        return 0;
+    }
+    out[0] = '\0';
+    g = layout_of(game_id);
+    records = villager_table(game_id);
+    if (!layout_is_usable(g) || records == NULL
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)
+        || !is_record_slot(g, records, (const unsigned char *)record_pointer)) {
+        return 0;
+    }
+    if (!record_custom_title(game_id, g, (const unsigned char *)record_pointer, records, 0, line, sizeof line)) {
+        return 1;                         /* no title */
+    }
+    start = strstr(line, ": ");
+    start = start != NULL ? start + 2 : line;
+    n = strcspn(start, "\n");              /* the title ends at its line's end; a CR before it is not part of it */
+    if (n > 0 && start[n - 1] == '\r') {
+        --n;
+    }
+    if (n >= (size_t)out_size) {
+        n = (size_t)out_size - 1;
+    }
+    memcpy(out, start, n);
+    out[n] = '\0';
+    return 1;
+}
+
+/* A village-wide island event record ("VVFP Island Events.dll": the food,
+   tech points, food stores, puzzles and weather an event changed), filed in
+   the Island Events log as every "Island event <n>" record is -- held until
+   the next save like the villagers' -- with no villager of its own.  `text`
+   is the record's lines after its heading, each "  Label: value\n". */
+__declspec(dllexport) int __stdcall WriteVillageEventRecord(int game_id, const char *text) {
+    const struct game_layout *g;
+    char record[RECORD_TEXT_MAX];
+    int written;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || text == NULL || text[0] == '\0') {
+        return 0;
+    }
+    g = layout_of(game_id);
+    if (!layout_is_usable(g)) {
+        return 0;
+    }
+    written = _snprintf(record, sizeof record, "%s\n", text);
+    if (written < 0 || (size_t)written >= sizeof record) {
+        return 0;
+    }
+    return emit_record(game_id, KIND_ISLAND_EVENT, villager_table(game_id), record);
+}
+
 /* The Deaths and Unaccounted Villagers records, filed for "VVFP Cause of
    Death.dll", which sees the deaths, burials, removals and arrivals and
    decides what each record says.  One format in all five games:
@@ -3827,6 +4129,8 @@ __declspec(dllexport) int __stdcall VillagePreferenceText(int game_id, const voi
        Disappeared                     (the Deaths log; never rolls)
        Epitaph changed                 (the Deaths log; never rolls)
        Unaccounted <n>                 (numbered; the Unaccounted Villagers log)
+       Lost before birth               (the Births and Conceptions log; never
+                                        rolls; every line is `before`)
 
    The caller renders the lines that are its own (`before`, `after`; each
    line "  Label: value\n"); this exporter prints the heading, the name and
@@ -3863,7 +4167,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
-        || kind < KIND_DEATH || kind > KIND_ISLAND_EVENT) {
+        || kind < KIND_DEATH || kind > KIND_LOST_BIRTH) {
         return 0;
     }
     g = layout_of(game_id);
@@ -3880,12 +4184,26 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     if (!check && !memory_is_readable(record, g->stride)) {
         return 0;
     }
+    if (kind == KIND_LOST_BIRTH) {
+        /* Every line is the caller's (`before`): the mother, the father and
+           the babies, as a Conception names them.  `record` is the mother's,
+           only checked and used to file the record under her tribe. */
+        if (before == NULL || before[0] == '\0') {
+            return 0;
+        }
+        written = _snprintf(text, sizeof(text), "Lost before birth\n%s\n", before);
+        if (written < 0 || (size_t)written >= sizeof(text)) {
+            return 0;
+        }
+        return emit_record(game_id, kind, check ? records : NULL, text);
+    }
     if (kind == KIND_DISAPPEARED) {
         heading = "Disappeared\n";
     } else if (kind == KIND_EPITAPH) {
         heading = "Epitaph changed\n";
     } else if (kind == KIND_APPEARANCE) {
         heading = "Appearance changed\n";
+        relook_last_name(g, record, before);
     }
     copy_villager_name(g, record, name, sizeof name);
     preference_text(g, record, g->likes, likes, sizeof likes);
@@ -3919,7 +4237,11 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     }
     if (detail >= 2) {
         skill_text(g, record, skills, sizeof skills);
+        /* A caller that hands its own "Parents:" block (the Custom Island
+           Event's Arrived record: the chosen parents with their looks) has
+           the only one: never a second, names-only block above it. */
         if (g->parent_father_name != 0u
+            && (after == NULL || strstr(after, "  Parents:\n") == NULL)
             && (record[g->parent_father_name] != 0 || record[g->parent_mother_name] != 0)) {
             char pf[MAX_NAME_BYTES], pm[MAX_NAME_BYTES];
             pf[0] = pm[0] = '\0';

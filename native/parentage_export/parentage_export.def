@@ -2,7 +2,9 @@ LIBRARY "VVFP Parentage Export"
 EXPORTS
     WriteParentageRecord=_WriteParentageRecord@12
     WriteParentageRecordWithFather=_WriteParentageRecordWithFather@16
+    WriteParentageConceptionFatherSet=_WriteParentageConceptionFatherSet@24
     WriteParentageBirth=_WriteParentageBirth@44
+    WriteParentageBirthAfterwards=_WriteParentageBirthAfterwards@44
     WriteParentageBirthLitter=_WriteParentageBirthLitter@48
     EnsureParentageLog=_EnsureParentageLog@8
     EnsureParentageLogForVillage=_EnsureParentageLogForVillage@12
@@ -13,3 +15,6 @@ EXPORTS
     RecordArrivalsMissingFromLog=_RecordArrivalsMissingFromLog@24
     RecordBirthsMissingFromLog=_RecordBirthsMissingFromLog@24
     VillagePreferenceText=_VillagePreferenceText@20
+    VillageCustomTitle=_VillageCustomTitle@16
+    WriteVillageEventRecord=_WriteVillageEventRecord@8
+    VillagePreferenceListText=_VillagePreferenceListText@20

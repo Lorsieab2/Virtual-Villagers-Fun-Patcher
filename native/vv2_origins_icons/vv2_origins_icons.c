@@ -232,9 +232,10 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
             }
             return TRUE;
         }
-        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
+            || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island
-               Event row's lock. */
+               Event row's lock (Choose Time Skip Amount ignores it). */
             if (vvfp_story_pick_clicked(
                     2, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
@@ -1239,6 +1240,12 @@ int __stdcall GateVV2BarrelSilent(void *pool) {
    0 = no village loaded yet. The sidecar is keyed on this so village 2 cannot
    display -- or overwrite -- village 1's masks. */
 #define VV2_MASK_SLOT        (*(int *)0x004B3F10)
+/* The slot the masks belong to: the game's own current slot (its save manager,
+   native/shared/game_save_slot.h), else the stub's.  The stub alone was wrong
+   after every save-all (each 600 s autosave, Change Tribe, a new tribe): it
+   keeps the backup generation, slot + 20, so the masks had no slot until the
+   next load or quit save. */
+#define VV2_MASK_SLOT_NOW    vv_current_save_slot(2, VV2_MASK_SLOT)
 
 /* The .mtab section exists ONLY in a mask-patched exe. On a build produced by the
    patcher without the mask exe-patch, 0x004B3000 is one byte past the end of the
@@ -1542,7 +1549,7 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
 
 /* the CURRENT village's sidecar; slot published by the exe save-path hook */
 static int vv2_mask_sidecar_path(char *out) {
-    return vv2_mask_sidecar_path_slot(out, VV2_MASK_SLOT);
+    return vv2_mask_sidecar_path_slot(out, VV2_MASK_SLOT_NOW);
 }
 
 
@@ -1828,7 +1835,7 @@ static int vv2_mask_sidecar_save(void) {
     if (!g_vv2_have_roster) return 0;          /* unknown village -> do not write */
     /* Never before this slot's load settled: a file that is present but
        could not be opened still holds the masks this empty table lacks. */
-    if (!vv_sidecar_gate_ready(&g_vv2_mask_gate, VV2_MASK_SLOT)) return 0;
+    if (!vv_sidecar_gate_ready(&g_vv2_mask_gate, VV2_MASK_SLOT_NOW)) return 0;
     if (!vv2_mask_sidecar_path(path)) return 0;
     /* ATOMIC: this used to CREATE_ALWAYS the real file -- truncating it at
        once -- and ignore every WriteFile, so a crash or a full disk left a
@@ -1875,7 +1882,7 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
         for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
     memset(g_vv2_mask_id, 0, sizeof(g_vv2_mask_id));
     g_vv2_rewrite_after_load = 0;
-    vv_sidecar_gate_bind(&g_vv2_mask_gate, VV2_MASK_SLOT);
+    vv_sidecar_gate_bind(&g_vv2_mask_gate, VV2_MASK_SLOT_NOW);
     if (vv_sidecar_gate_throttled(&g_vv2_mask_gate)) return 0; /* retry window: no I/O */
     if (!vv2_mask_sidecar_path(path)) {
         vv_sidecar_gate_block(&g_vv2_mask_gate);
@@ -1965,7 +1972,7 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
 static int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     unsigned int cur[VV2_RECORD_COUNT];
     unsigned int cur_stable[VV2_RECORD_COUNT];
-    int slot = VV2_MASK_SLOT;   /* published by the slot stub; 0 = none yet */
+    int slot = VV2_MASK_SLOT_NOW;   /* the game's slot, else the stub's; 0 = none yet */
     int i;
     if (base == 0 || slot <= 0) {
         return 0;               /* nothing known yet -> do not touch anything */
@@ -2040,6 +2047,23 @@ static int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
 /* base = record[0], forwarded from the compositor's ECX before any call could
    clobber it, so the sweep walks exactly the array the game is about to draw.
    A null base means the hook fired with no village; do nothing. */
+/* The Barrel of Babies bought and not delivered yet (native/shared/paid_purchases.h):
+   its pending token 0x49C700 (1 bought, 2 the Tech screen closed, 3 counting
+   down) and cue counter 0x49C708, re-armed as 2 after a relaunch. */
+#include "../shared/paid_purchases.h"
+static const vv_paid_game VV2_PAID = {
+    (volatile unsigned char *)0x0049C700, (volatile unsigned int *)0x0049C708, 2,
+    "Virtual Villagers - The Lost Children"
+};
+
+static void vv2_paid_tick(const unsigned char *base) {
+    static unsigned int ids[VV2_RECORD_COUNT];
+    if (base == 0 || vv2_roster_identities(base, ids) == 0) {
+        return;
+    }
+    vv_paid_tick(2, VV2_MASK_SLOT_NOW, ids, &VV2_PAID);
+}
+
 void __stdcall Vv2MaskSweep(unsigned char *base) {
     int i;
     vvfp_pathfinding_bridge(2); /* pathfinding companion: installs its detours once, fail-open */
@@ -2050,6 +2074,7 @@ void __stdcall Vv2MaskSweep(unsigned char *base) {
     vvfp_cause_bridge(2);  /* cause of death companion: once, fail-open */
     g_vv2_sweep_base = base;    /* the records the cross-check's mask scan reads */
     vvfp_crosscheck_bridge(2, base != 0);  /* the cross-check, silent while played (A New Home's header, compiled in) */
+    vv2_paid_tick(base);        /* a bought Barrel not delivered yet survives a quit */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }
@@ -2126,7 +2151,7 @@ static int vv2_om_scan(int slot, vv_om_list *out) {
     int i;
     out->count = 0;
     if (slot < 1 || base == 0 || !vv2_mask_table_ok() || !g_vv2_have_roster || g_vv2_slot != slot
-        || VV2_MASK_SLOT != slot || !vv_sidecar_gate_ready(&g_vv2_mask_gate, slot)
+        || VV2_MASK_SLOT_NOW != slot || !vv_sidecar_gate_ready(&g_vv2_mask_gate, slot)
         || vv2_roster_identities(base, ids) == 0) {
         return -1;
     }
@@ -2181,8 +2206,9 @@ static int vv2_story_index(void *record) {
 }
 
 static int __stdcall vv2_story_slot(void) {
-    int slot = VV2_MASK_SLOT;
-    return slot >= 1 && slot <= 5 ? slot : 0;
+    /* Not the stub's VV2_MASK_SLOT alone: after every save-all it holds the
+       backup generation, slot + 20 (native/shared/game_save_slot.h). */
+    return vv_current_save_slot(2, VV2_MASK_SLOT);
 }
 
 static int __stdcall vv2_story_mask_get(void *record) {
@@ -2203,9 +2229,74 @@ static int __stdcall vv2_story_mask_set(void *record, int mask) {
     return 1;
 }
 
+/* Choose Time Skip Amount (the Story DLL drives it): one step of the Time
+   Warp above, at most the years one Time Warp buys at the current speed.
+   The game's villager tick (the catch-up loop that replays the new age
+   units) rewrites every living record's marker (+0x528) each time it runs,
+   so a marker that moved off the value the step left is the sign that it
+   has replayed the step.  The world is [0x4997BC], the context the Time
+   Warp is handed (its pool at +0x305A4, its speed at +0x2EB08). */
+#define VV2_TS_WORLD_GLOBAL 0x004997BCu
+static int vv2_skip_watch = -1;
+static int vv2_skip_mark;
+
+static unsigned char *vv2_skip_record(int i) {
+    unsigned char *world = *(unsigned char **)(UINT_PTR)VV2_TS_WORLD_GLOBAL;
+    unsigned char *base = world != NULL ? *(unsigned char **)(world + VV2_TW_RECORD_POOL_OFFSET) : NULL;
+    return base != NULL ? base + (size_t)i * VV2_RECORD_STRIDE : NULL;
+}
+
+static int __stdcall vv2_story_time_skip_step(int years) {
+    unsigned char *world = *(unsigned char **)(UINT_PTR)VV2_TS_WORLD_GLOBAL;
+    unsigned char *base;
+    int speed, step, i;
+    if (world == NULL || years <= 0) {
+        return 0;
+    }
+    base = *(unsigned char **)(world + VV2_TW_RECORD_POOL_OFFSET);
+    speed = *(int *)(world + VV2_TW_SPEED_OFFSET);
+    step = vv2_time_warp_years(speed);
+    if (step <= 0) {
+        return -1;                     /* paused, or a speed we do not know */
+    }
+    if (step > years) {
+        step = years;
+    }
+    if (vv2_time_warp_apply(base, speed, step) <= 0) {
+        return 0;
+    }
+    vv2_skip_watch = -1;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i) {
+        unsigned char *record = base + (size_t)i * VV2_RECORD_STRIDE;
+        if (record[VV2_ACTIVE_OFFSET] != 0 && vv2_record_eligible(record)) {
+            vv2_skip_watch = i;
+            vv2_skip_mark = *(int *)(record + VV2_TW_LAST_SEEN_OFFSET);
+            break;
+        }
+    }
+    return step;
+}
+
+static int __stdcall vv2_story_time_skip_settled(void) {
+    unsigned char *record = vv2_skip_watch >= 0 ? vv2_skip_record(vv2_skip_watch) : NULL;
+    if (record == NULL) {
+        return 1;
+    }
+    return record[VV2_ACTIVE_OFFSET] == 0 || !vv2_record_eligible(record)
+        || *(int *)(record + VV2_TW_LAST_SEEN_OFFSET) != vv2_skip_mark;
+}
+
+/* Whether the game's clock runs (a known speed, not paused): only that time
+   counts toward the time skip's replay wait (native/shared/story_bridge.h). */
+static int __stdcall vv2_story_time_skip_running(void) {
+    unsigned char *world = *(unsigned char **)(UINT_PTR)VV2_TS_WORLD_GLOBAL;
+    return world != NULL && vv2_time_warp_years(*(int *)(world + VV2_TW_SPEED_OFFSET)) > 0;
+}
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
-        sizeof(vvfp_story_host), vv2_story_slot, vv2_story_mask_get, vv2_story_mask_set, NULL
+        sizeof(vvfp_story_host), vv2_story_slot, vv2_story_mask_get, vv2_story_mask_set, NULL,
+        vv2_story_time_skip_step, vv2_story_time_skip_settled, vv2_story_time_skip_running
     };
     return &host;
 }

@@ -128,6 +128,9 @@ SITES = {
         ("0x46FF12", "889ED41C0000", "an unburied body's removal: the Death record (no grave)"),
         ("0x41CB33", "8B4E4C" "83C138", "the grave dialog's Done, before it keeps the epitaph: the old text"),
         ("0x41CB4B", "B001" "5E" "C20800", "the grave dialog's Done, after: the Epitaph changed record"),
+        ("0x466880", "8A442404" "8AD0", "the faction setter's entry: a believer made a Heathen (faith 0 or below, "
+         "live or in the catch-up; The Spa; The Cracked Mask; \"Becomes a Heathen\") leaves the tribe: the "
+         "Disappeared record"),
         ("0x468411", "8BCE" "89842490000000", "the villager init (0x4681F0): an arrival"),
         ("0x4687FE", "889ED51C0000", "the copy init (0x4687F0, twins, triplets): an arrival"),
         ("0x46FDE0", "5356" "8BD9" "57", "Reanimate's stand-in maker (not one of the tribe)"),
@@ -162,6 +165,12 @@ def logs_text(n: str, game: str) -> str:
                  if gone else
                  "a villager taken by the Custom Island Event's \"Disappears\" gets a "
                  "\"Disappeared\" record (the game itself has no such event)")
+    if game == "vv5":
+        gone_text += (", and a believer who goes over to the Heathens (faith falling to 0, in play or while "
+                      "the game catches up on time away or a Time Warp; The Spa; The Cracked Mask; or the "
+                      "Custom Island Event's \"Becomes a Heathen\") leaves the tribe with a \"Disappeared\" "
+                      "record, \"Left the tribe: became a Heathen\", written the moment it happens (a Heathen is "
+                      "never a villager; converted back, they get an \"Arrived\" record again)")
     return (
         f"Every death that leaves a body is written to the Deaths log ('Virtual Villagers {n} "
         "Deaths Log <n>.txt' in the 'Virtual Villagers Fun Patcher Logs\\Deaths and Disappearances' folder beside the "
@@ -190,7 +199,15 @@ def logs_text(n: str, game: str) -> str:
         "head, body, likes, dislikes, skills, and how they came (\"Founder\", the island event's title, "
         "\"Barrel of Babies\", \"Custom Island Event\""
         + (", \"Converted from the Heathens\"" if game == "vv5" else "") + ", or \"unknown\"). "
-        "A birth is never an arrival. Villagers already in a village who arrived before this record "
+        "A birth is never an arrival. "
+        "A mother who dies or disappears while nursing (the game's own word for a mother whose babies "
+        "are not yet born) loses them with her: they never become villagers and get no grave, so her "
+        "Death or Disappeared record says \"Nursing: yes, <n> babies (never born: lost with their "
+        "mother)\", and a \"Lost before birth\" record in the Births and Conceptions log closes her "
+        "Conception (the mother, the expected father, the babies). Repair Saves & Logs adds both to "
+        "older records where her Conception has no Birth and her one Death or Disappeared record "
+        "came before the babies were due, and asks the player where the records cannot settle it. "
+        "Villagers already in a village who arrived before this record "
         "existed (no Birth or Arrived record with their name, head and body) each get one the same "
         "way, only when the player says so, marked \"Recorded afterwards (arrived before this log "
         "existed)\", as \"Founder\" when the village's first Village History snapshot lists them and "
@@ -308,7 +325,7 @@ def manifest(game: str, sha: str) -> dict:
         "The grave's Done writes an Epitaph changed record when the epitaph's text changed; spaces typed before or after the same words are not a change.",
         "Every villager the game's own creators make is noted as an arrival; after each save the village is compared with the roster kept at the save before, and any departure with no Death or Disappeared record, or arrival with no known arrival, is written to the Unaccounted Villagers log.",
         f"The roster is kept in 'Virtual Villagers Fun Patcher Data\\Unaccounted Villagers\\Virtual Villagers {n} Villagers at Last Save - Save <n>.dat', or '... Village Roster ...' in a save an older version made, never renamed; under both names the one written last (written atomically; deleted by Start Over).",
-        "Arrivals: a villager a creator made that is neither a birth (the path's own return addresses, read at fixed places on the stack, or the Births and Conceptions log's note) nor a record the game takes away again is decided at the next tick, named by its path (Founder, the island event, Barrel of Babies), and gets an Arrived record at the next save of that village (at its departure if it leaves first); the Story / Cheat Upgrades DLL names the Custom Island Event's (VvfpCauseArrivedBy)" + ("; a Heathen made by a creator is not one, and a Heathen whose faction byte +0x1CEC the tick sees cleared is (\"Converted from the Heathens\")" if game == "vv5" else "") + ". A founder is written only at a save with no village saved in the slot before.",
+        "Arrivals: a villager a creator made that is neither a birth (the path's own return addresses, read at fixed places on the stack, or the Births and Conceptions log's note) nor a record the game takes away again is decided at the next tick, named by its path (Founder, the island event, Barrel of Babies), and gets an Arrived record at the next save of that village (at its departure if it leaves first); the Story / Cheat Upgrades DLL names the Custom Island Event's (VvfpCauseArrivedBy)" + ("; a Heathen made by a creator is not one, and a Heathen whose faction byte +0x1CEC the tick sees cleared is (\"Converted from the Heathens\")" if game == "vv5" else "") + ". A founder is written only at a save with no village saved in the slot before." + (" A believer made a Heathen leaves the tribe, seen at the faction setter's entry (0x466880, called to set +0x1CEC from the conversion 0x4669E0 -- faith 0 or below, live or in the catch-up -- The Spa or The Cracked Mask), or else by the tick seeing the byte set: a Disappeared record (\"Left the tribe: became a Heathen\") written then, with no departure reported to the roster, which keeps Heathens, so never an Unaccounted record; an Arrived record not yet written is written first." if game == "vv5" else ""),
         f"Arrivals before this record existed: VvfpCauseScanArrivals counts, writing nothing, the villagers (believers{', with no parents on their record' if game != 'vv1' else ''}) the village's Births and Conceptions log has no Birth or Arrived record for (name, head and body), for the first-load check; VvfpCauseRepairArrivals records the answer. Only after Repair, at the next save, each gets an Arrived record filed by RecordArrivalsMissingFromLog in \"VVFP Parentage Export.dll\", and none is an Unaccounted record; once all are on disk 'Virtual Villagers Fun Patcher Data\\Arrivals\\Virtual Villagers {n} Arrivals Recorded - Save <n>.dat' (deleted by Start Over) ends the backfill for good.",
         "All records are written through WriteVillageRecord in \"VVFP Parentage Export.dll\".",
     ]

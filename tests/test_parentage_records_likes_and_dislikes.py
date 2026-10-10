@@ -120,7 +120,7 @@ class ConceptionRecordPrintsLikesAndDislikesTests(unittest.TestCase):
             self.source,
             r'"  Father: %s\\n"\s*"    Age at conception: %s\\n"\s*"    Sex: %s\\n"\s*"    Head: %s\\n"\s*'
             r'"    Body: %s\\n"\s*"    Likes: %s\\n"\s*"    Dislikes: %s\\n"\s*'
-            r'"  Babies in pregnancy: %d\\n"',
+            r'"  Babies nursing: %d\\n"',
             "the father's likes and dislikes must follow his body, before the baby count",
         )
 
@@ -130,7 +130,9 @@ class ConceptionRecordPrintsLikesAndDislikesTests(unittest.TestCase):
             self.source.replace("\r\n", "\n"),
         )
         self.assertIn(
-            "father_body,\n        father_likes,\n        father_dislikes,\n        babies\n",
+            # then only A New Home's optional "Note: Father set by a Custom Island Event" line
+            "father_body,\n        father_likes,\n        father_dislikes,\n        babies,\n"
+            "        g_father_set.name != NULL",
             self.source.replace("\r\n", "\n"),
         )
 
@@ -203,7 +205,7 @@ class OffsetsAgreeWithThePopulationExporterTests(unittest.TestCase):
             "mother's likes", "mother's dislikes",
             "father's name", "father's age at conception", "father's head", "father's body",
             "father's dislikes", "Likes: (none)",
-            "Babies in pregnancy: 1", "Babies in pregnancy: 2", "Babies in pregnancy: 3",
+            "Babies nursing: 1", "Babies nursing: 2", "Babies nursing: 3",
             "Likes: (not captured for this birth)",
         ):
             self.assertIn(needle, source, needle)
@@ -219,7 +221,7 @@ class TheShippedDllAndManifestsCarryItTests(unittest.TestCase):
             "the shipped DLL must print the mother's likes and dislikes -- rebuild it if not",
         )
         self.assertIn(
-            b"    Body: %s\n    Likes: %s\n    Dislikes: %s\n  Babies in pregnancy: %d\n", blob,
+            b"    Body: %s\n    Likes: %s\n    Dislikes: %s\n  Babies nursing: %d\n", blob,
             "the shipped DLL must print the father's likes and dislikes -- rebuild it if not",
         )
         for head in (b"ants,crowds,resting,laundry,medicine,turnips,",):

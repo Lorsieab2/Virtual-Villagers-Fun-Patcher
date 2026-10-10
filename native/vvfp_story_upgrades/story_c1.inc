@@ -114,6 +114,11 @@ static int c1_kill(int index) {
     return 1;
 }
 
+/* Health is +0x344 alone, the field the death above and c1_revive write. */
+static void c1_set_health(int index, int health) {
+    *(int *)(c1_record(index) + 0x344) = health;
+}
+
 /* "Get a closer look... never heard from again" (0x41979D): the record is
    freed, and the selection cleared (0x4393E0) when it was the selected one. */
 static int c1_vanish(int index) {
@@ -387,7 +392,7 @@ static int c1_golden_child(void) {
     /* He arrived by this event, as the spawns do (ce_apply): told now, in
        the creator's frame.  Untold, Cause of Death logged him "How: unknown"
        (the owner's v1.35.58 preview). */
-    ce_tell_arrival(1, index);
+    ce_tell_arrival(1, index, NULL);
     if (world[0xA008] == 0) {
         world[0xA008] = 1;
         *(int *)(world + 0x9E80) = c1_hours();
@@ -670,10 +675,76 @@ static int vv1_set_parents(int index, const ce_change *c) {
     if (set_parents == NULL) {
         return 0;
     }
-    return set_parents(index, c->father_name, c->father_head == CE_KEEP ? -1 : c->father_head,
+    /* "Unknown" clears that parent: a head of -2 (Vv1ParentageSetParents). */
+    return set_parents(index, c->father_name,
+                       c->father_kind == CE_PARENT_UNKNOWN ? -2 : c->father_head == CE_KEEP ? -1 : c->father_head,
                        c->father_body == CE_KEEP ? -1 : c->father_body, c->mother_name,
-                       c->mother_head == CE_KEEP ? -1 : c->mother_head,
+                       c->mother_kind == CE_PARENT_UNKNOWN ? -2 : c->mother_head == CE_KEEP ? -1 : c->mother_head,
                        c->mother_body == CE_KEEP ? -1 : c->mother_body);
+}
+
+/* The unborn baby's father.  The Lost Children to New Believers rewrite the
+   copy of the father on the mother; A New Home keeps him only in the same
+   companion's pregnancy stash, which Vv1ParentageSetExpectedFather rewrites
+   (an empty name or CE_KEEP keeps that value) -- the father the birth then
+   records.  Every reader of the Births and Conceptions log takes a
+   pregnancy's father from her last Conception record, so with the Parentage
+   row ticked the change is written as one ("VVFP Parentage Export.dll"
+   WriteParentageConceptionFatherSet), naming the father now stashed.  Head
+   and body are rows of the 20-row sheets.  Without the companion: refused. */
+typedef int (__stdcall *vv1_set_expected_fn)(int index, const char *name, int head, int body);
+typedef int (__stdcall *vv1_query_expected_fn)(int index, int *looks, char *name, int capacity);
+typedef int (__stdcall *write_father_set_fn)(int game, const void *records, const void *mother,
+                                             const char *name, int head, int body);
+
+static int c1_unborn(int index, const ce_change *c) {
+    static int state;
+    static vv1_set_expected_fn set_expected;
+    static vv1_query_expected_fn query_expected;
+    unsigned char *r = c1_record(index);
+    int looks[2];
+    char name[CE_NAME_BYTES];
+    if (state == 0) {
+        HMODULE module = vvfp_load_patcher_dll("VVFP VV1 Parentage.dll");
+        state = -1;
+        if (module != NULL) {
+            set_expected = (vv1_set_expected_fn)GetProcAddress(module, "Vv1ParentageSetExpectedFather");
+            query_expected = (vv1_query_expected_fn)GetProcAddress(module, "Vv1ParentageQueryExpectedFather");
+            if (set_expected != NULL && query_expected != NULL) {
+                state = 1;
+            }
+        }
+    }
+    if (state != 1 || r == NULL
+        || (c->unborn_head != CE_KEEP && (c->unborn_head < 0 || c->unborn_head >= 20))
+        || (c->unborn_body != CE_KEEP && (c->unborn_body < 0 || c->unborn_body >= 20))
+        || lstrlenA(c->unborn_name) > 27) {
+        return 0;
+    }
+    if (!set_expected(index, c->unborn_name, c->unborn_head == CE_KEEP ? -1 : c->unborn_head,
+                      c->unborn_body == CE_KEEP ? -1 : c->unborn_body)) {
+        return 0;
+    }
+    if (story_parentage_ticked(1) && query_expected(index, looks, name, (int)sizeof name)
+        && name[0] != '\0' && looks[0] >= 0 && looks[1] >= 0) {
+        static int writer_state;
+        static write_father_set_fn write_father_set;
+        if (writer_state == 0) {
+            HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+            writer_state = -1;
+            if (module != NULL) {
+                write_father_set = (write_father_set_fn)GetProcAddress(module,
+                                                                       "WriteParentageConceptionFatherSet");
+                if (write_father_set != NULL) {
+                    writer_state = 1;
+                }
+            }
+        }
+        if (writer_state == 1) {
+            (void)write_father_set(1, VV1_ARRAY(), r, name, looks[0], looks[1]);
+        }
+    }
+    return 1;
 }
 
 static const char *const C1_SKILLS[] = { "Parenting", "Building", "Farming", "Healing", "Research" };
@@ -703,7 +774,7 @@ static const ce_adapter C1_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
         | CAP_BEHAVIOUR | CAP_VILLAGE | CAP_SPAWN_NAME | CAP_MALE_PREGNANCY | CAP_VALUES
-        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_REVIVE | CAP_CHOICE | CAP_STATUS,
+        | CAP_PUZZLES | CAP_CANCEL | CAP_RELITTER | CAP_UNBORN | CAP_REVIVE | CAP_CHOICE | CAP_STATUS,
     "A New Home",
     280, 1600,
     VV1_RECORD_COUNT, 0x1C, 27,
@@ -726,12 +797,12 @@ static const ce_adapter C1_ADAPTER = {
     "- The Golden Child puzzle: marked alone it leaves no Golden Child, so the Cave and "
     "The Butterflies could never be solved; a new Golden Child solves it.\r\n"
     "- Faction, Tribal Chief, Esteemed Elder, totems: A New Home has none.\r\n"
-    "- The unborn baby's father: A New Home keeps no father on a pregnancy (only his "
-    "family number, which is never shown).\r\n"
     "- Actions that solve or advance a puzzle, burying, picking things up and embracing.\r\n"
     "- Revive: buried villagers (their record is gone) and skeletons that have already "
     "crumbled away.\r\n"
-    "- The grave screen keeps the job a villager had when buried.",
+    "- The grave screen keeps the job a villager had when buried.\r\n"
+    "- Joey as a parent: only The Tree of Life and New Believers have him (their default "
+    "father); choose Custom to give any parent a name and looks.",
     51, 14, 51, 0,
     "Refills the berry bushes and, once the farm is producing, the crops.",
     "Your tribe gains %d food.", "Your tribe loses %d food.",
@@ -741,7 +812,7 @@ static const ce_adapter C1_ADAPTER = {
     c1_refill, vv1_parents_supported, vv1_set_parents,
     C1_VALUES, 2, c1_value_get, c1_value_set,
     C1_PUZZLE_DEFS, C1_PUZZLE_COUNT, c1_puzzle_solved, c1_puzzle_set,
-    c1_cancel, c1_relitter, NULL,
+    c1_cancel, c1_relitter, c1_unborn,
     c1_skeleton, c1_revive,
     0, 0x358,
     /* The villager encounters' popup (0x41A460): lines of 49 characters,
@@ -756,7 +827,8 @@ static const ce_adapter C1_ADAPTER = {
     "villager made one is given the Golden Child's age at the game's next update and keeps "
     "their own looks, sex and skills; with more than one, the Golden Child's puzzles and "
     "powers may pick any of them.",
-    0
+    0,
+    c1_set_health
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

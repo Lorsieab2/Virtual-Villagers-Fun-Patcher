@@ -106,6 +106,20 @@ FIELDS = {
               (0x58, 0x5C, 0x60, 0x64, 0x94, 0x90)),
 }
 
+# The pregnancy field, relative to the name in a saved entry: her age at conception, which the game
+# zeroes at the delivery (native/population_export GAME_LAYOUTS age_at_conception: +0x358, +0x540,
+# +0xE8C, +0x1C4C, +0x1C4C against the names at +0x370, +0x564, +0xDD4, +0x1B9C, +0x1B9C; in the
+# later games' saves it sits in the window that also holds the litter, one dword before it).  It is
+# THE test for "expecting": the expected father's name is copied onto her at conception and never
+# cleared at the birth, so a mother who has delivered still holds it (live, v1.35.66: The Secret
+# City's Lolla Salongo and The Tree of Life's Tautai Sakura).
+PREGNANCY = {1: 0x358 - 0x370, 2: 0x540 - 0x564, 3: 0xB8, 4: 0xB0, 5: 0xB0}
+
+
+def carrying(game: int, data: bytes | bytearray, at: int) -> bool:
+    """Whether the villager whose name is at `at` is expecting now (the Population log's "Nursing")."""
+    return _i32(data, at + PREGNANCY[game]) != 0
+
 # Each game's graves in the save file (the owner, 2026-10-07: renames "should be retroactive too! (in
 # logs, saves, graves, etc)"): (file offset, slots, stride, name field bytes, age-at-death offset,
 # (head, body) offsets or None).  The game copies a villager's name there at burial; The Secret City,
@@ -178,11 +192,15 @@ def _rename_graves(buf: bytearray, game: int, renames: dict[tuple, str], ages: d
     return done
 
 
-def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list) -> None:
+def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list,
+                      bodies: dict[int, int] | None = None) -> None:
     """The cause-of-death files that know a grave by its name-and-age fingerprint: the Graves file
     (A New Home, The Lost Children: cause and epitaph) and Graves Logged (every game: which graves
-    have their Death record), so nothing drifts or is filed twice."""
-    if not renamed:
+    have their Death record), so nothing drifts or is filed twice.  `bodies` maps an unburied body's
+    old fingerprint to its new one: the Graves file keeps the cause of a body still lying in the
+    village (kind 1) by the name and age of its record, so a renamed body would lose its cause."""
+    bodies = bodies or {}
+    if not renamed and not bodies:
         return
     cap = GRAVE_PRINT_CAP[game]
     moved = {(place, grave_fingerprint(old, cap, age)): grave_fingerprint(new, cap, age)
@@ -206,6 +224,11 @@ def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list)
             e = header + size * k
             if place_kind:                      # VCD1: u16 kind (0 grave), u16 index, u32 fingerprint
                 kind, place, fp = struct.unpack_from("<HHI", data, e)
+                if kind == 1:                   # a body still lying in the village, by its record
+                    new = bodies.get(fp)
+                    if new is not None:
+                        struct.pack_into("<I", data, e + 4, new)
+                    continue
                 if kind != 0:
                     continue
             else:                               # VCG1: u16 place, u16 0, u32 fingerprint
@@ -215,6 +238,23 @@ def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list)
                 struct.pack_into("<I", data, e + 4, new)
         if bytes(data) != original:
             result.changes.append(Change(path, original, bytes(data), "the graves' cause-of-death files"))
+
+
+def _renamed_bodies(game: int, people: list, original: bytes, after: bytes | bytearray,
+                    name_cap: int) -> dict[int, int]:
+    """Old fingerprint -> new for each record whose name the rename changes, as the cause-of-death
+    companion prints a lying body (cod_record_fingerprint: the record's name and age).  A print
+    two records share that would not move to one new print is left alone: the companion could no
+    longer tell which body the cause was for, and the cause is never given to the wrong one."""
+    cap = GRAVE_PRINT_CAP[game]
+    moves: dict[int, set] = {}
+    for v in people:
+        if v.age is None:
+            continue
+        old = grave_fingerprint(bytes(original[v.at:v.at + name_cap]), cap, v.age)
+        new = grave_fingerprint(bytes(after[v.at:v.at + name_cap]), cap, v.age)
+        moves.setdefault(old, set()).add(new)
+    return {old: next(iter(new)) for old, new in moves.items() if len(new) == 1 and old not in new}
 
 
 def _death_ages(folder: Path, game: int, slot: int) -> dict[tuple, int]:
@@ -271,6 +311,7 @@ class Living:
     default: str                    # the family's last name, or "" outside 1..50
     alive: bool = True              # False: dead, disappeared or gone, known from the logs only (at -1)
     arrived: bool = False           # came through an event, not a founder (everyone(): ARRIVALS)
+    age: int | None = None          # game units (20 a year), when known
 
     @property
     def identity(self) -> tuple:
@@ -317,11 +358,12 @@ def living(folder: Path, game: int, slot: int, bodies: bool = False) -> list[Liv
     f = FIELDS[game]
     names = checker.LAST_NAMES[game]
     out = []
+    age_at = -0x28 if game == 1 else checker.LAYOUTS[game].age     # A New Home: record +0x348
     for at in _entries(game, data, bodies):
         family = _i32(data, at + f.family)
         out.append(Living(at, _cstr(data, at, f.name_cap), "Male" if _i32(data, at + f.sex) == f.male else "Female",
                           _i32(data, at + f.head), _i32(data, at + f.body), family,
-                          names[family - 1] if 1 <= family <= 50 else ""))
+                          names[family - 1] if 1 <= family <= 50 else "", age=_i32(data, at + age_at)))
     return out
 
 
@@ -450,15 +492,297 @@ def known_names(folder: Path, game: int, slot: int, whole: set[str] | None = Non
     return set(fixed.values()) | {WHOLE + name for name in whole}
 
 
-def write_record(folder: Path, game: int, slot: int, rule: str, fixed: dict[tuple, str],
-                 whole: set[str] | None = None) -> None:
+def write_record(folder: Path, game: int, slot: int, rule: str | None, fixed: dict[tuple, str],
+                 whole: set[str] | None = None, own: dict[tuple, str] | None = None,
+                 arrivals: bool | None = None) -> None:
+    """The record, kept whole: `whole`, `own` (each villager's own rule) and `arrivals` (the arrivals
+    toggle) default to the record's."""
     whole = read_whole(folder, game, slot) if whole is None else whole
+    own = read_own(folder, game, slot) if own is None else own
+    arrivals = read_arrivals(folder, game, slot) if arrivals is None else arrivals
     path = record_path(folder, game, slot)
     path.parent.mkdir(parents=True, exist_ok=True)
-    lines = [RECORD_HEADER.format(game=game), f"rule\t{rule}"]
+    lines = [RECORD_HEADER.format(game=game)] + ([f"rule\t{rule}"] if rule else [])
     lines += [f"set\t{first}\t{head}\t{body}\t{last}" for (first, head, body), last in sorted(fixed.items())]
     lines += [f"whole\t{name}" for name in sorted(whole)]
+    lines += [own_line(key, r) for key, r in sorted(own.items()) if r in OWN_RULES and r]
+    if not arrivals:                            # on is the default: a line only when off
+        lines.append(f"arrivals\t{ARRIVALS_NONE}")
     _write(path, ("\n".join(lines) + "\n").encode("utf-8"))
+
+
+# ARRIVING VILLAGERS' OWN LAST NAMES (the owner, v1.35.66: "please add an optional toggle (default on)
+# for automatically assigning unique last names for arrived villagers").  A per-village choice kept in
+# the record as one line, "arrivals<TAB>unique" (on) or "arrivals<TAB>none" (off); no line is on.  An
+# earlier build's reader skips the line.  On: a villager who arrived with no last name is given one of
+# the game's own list that no living villager has (and, when the list allows, no villager the logs
+# know of), picked the same way each time (unique_last_name).  Babies follow the rules, never this.
+ARRIVALS_UNIQUE, ARRIVALS_NONE = "unique", "none"
+
+
+def read_arrivals(folder: Path, game: int, slot: int) -> bool:
+    """The arrivals toggle: True (on) unless the record says "none"."""
+    try:
+        lines = record_path(folder, game, slot).read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return True
+    if not lines or lines[0] != RECORD_HEADER.format(game=game):
+        return True
+    for line in lines[1:]:
+        parts = line.split("\t")
+        if parts[0] == "arrivals" and len(parts) == 2 and parts[1] in (ARRIVALS_UNIQUE, ARRIVALS_NONE):
+            return parts[1] == ARRIVALS_UNIQUE
+    return True
+
+
+def save_arrivals(folder: Path, game: int, slot: int, on: bool,
+                  processes: vv_save_backup.ProcessController | None = None) -> None:
+    """Keep the arrivals toggle in the record (refused while the game runs); the rest of the record as
+    it is (no rule line when there is no record yet: the patch then names babies as it always has)."""
+    controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
+    tools._refuse_if_running(Path(folder), controller)
+    rule, fixed = read_record(folder, game, slot)
+    if on == read_arrivals(folder, game, slot):
+        return
+    write_record(folder, game, slot, rule, fixed, arrivals=on)
+
+
+def unique_last_name(game: int, v: Living, living_lasts: set[str], dead_lasts: set[str],
+                     known: set[str] | frozenset = frozenset()) -> str:
+    """A last name of the game's own list for an arrival `v`: one no living villager has, and no dead
+    one either when the list still has such a name; the same one each time for the same villager (the
+    list is walked from a place their name, head and body decide).  One that fits the game's name
+    field; "" when none does."""
+    pool = list(tools.load_checker().LAST_NAMES[game])
+    start = zlib.crc32(repr(v.identity).encode("utf-8")) % len(pool)
+    order = pool[start:] + pool[:start]
+    fits = [n for n in order if len(with_last(game, v.name, n, known)) <= ROOM[game]]
+    for avoid in (living_lasts | dead_lasts, living_lasts):
+        name = next((n for n in fits if n not in avoid), "")
+        if name:
+            return name
+    return ""
+
+
+# EACH VILLAGER'S OWN RULE.  The owner, 2026-10-09: "set inheritance settings per-villager in addition
+# to the existing Global Settings (so certain villagers can pass their last name with different rules
+# from the rest of the village, ie so that half the village doesn't inherit a single person's last
+# name)".  A living villager may have a rule of their own for their children's last name; at a birth
+# (decide) one parent's own rule is used, both parents' when they agree, and the village's when they
+# disagree or neither has one.  Kept in the same record, a line per villager:
+#     villager<TAB>name<TAB>head<TAB>body<TAB>M|F<TAB>father|mother|random
+# A villager is their whole name, head, body and sex: what a child's record (A New Home: its parentage
+# entry) keeps of each parent, so VVFP Last Names.dll (VvfpRuleLastName2) finds the same villager at
+# the birth -- a father who died before it too.  Two living villagers who share all four cannot have a
+# rule of their own (indistinguishable); a rename (Give last names, Number Duplicate Names, restoring cut
+# names) carries the line along (_plan_own_rules), and so does a change of looks the logs record.
+# An earlier build's reader skips these lines.
+OWN_RULES = {
+    "": "Use the village rule",
+    "father": "From the father",
+    "mother": "From the mother",
+    "random": "50:50",
+}
+_SEX_LETTER = {"Male": "M", "Female": "F"}
+
+
+def own_key(v: Living) -> tuple:
+    """(name, head, body, sex): the villager an own-rule line is for."""
+    return (v.name, v.head, v.body, v.sex)
+
+
+def own_line(key: tuple, rule: str) -> str:
+    name, head, body, sex = key
+    return f"villager\t{name}\t{head}\t{body}\t{_SEX_LETTER[sex]}\t{rule}"
+
+
+def _own_entry(line: str) -> tuple[tuple, str] | None:
+    parts = line.split("\t")
+    if (len(parts) == 6 and parts[0] == "villager" and parts[1] and parts[2].lstrip("-").isdigit()
+            and parts[3].lstrip("-").isdigit() and parts[4] in ("M", "F") and parts[5] in OWN_RULES
+            and parts[5]):
+        return (parts[1], int(parts[2]), int(parts[3]), "Male" if parts[4] == "M" else "Female"), parts[5]
+    return None
+
+
+def read_own(folder: Path, game: int, slot: int) -> dict[tuple, str]:
+    """Each villager's own rule, as the record keeps it: (name, head, body, sex) -> rule.  Two lines for
+    one villager that disagree give none (as the DLL reads them)."""
+    try:
+        lines = record_path(folder, game, slot).read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return {}
+    if not lines or lines[0] != RECORD_HEADER.format(game=game):
+        return {}
+    out: dict[tuple, str] = {}
+    clash: set[tuple] = set()
+    for line in lines[1:]:
+        entry = _own_entry(line)
+        if entry is None:
+            continue
+        key, rule = entry
+        if out.get(key, rule) != rule:
+            clash.add(key)
+        out[key] = rule
+    return {key: rule for key, rule in out.items() if key not in clash}
+
+
+def decide(father_rule: str | None, mother_rule: str | None, village: str | None) -> str | None:
+    """The rule a birth uses (the owner, 2026-10-09): one parent's own; both parents' when they are the
+    same; the village's when they disagree or neither parent has one."""
+    if father_rule and mother_rule:
+        return father_rule if father_rule == mother_rule else village
+    return father_rule or mother_rule or village
+
+
+def indistinguishable(people: list[Living]) -> dict[tuple, list[Living]]:
+    """The living villagers no rule of their own can be kept for: each (name, head, body, sex) two or
+    more of them share -- a birth could not tell whose it is."""
+    groups: dict[tuple, list[Living]] = {}
+    for v in people:
+        if v.alive:
+            groups.setdefault(own_key(v), []).append(v)
+    return {key: group for key, group in groups.items() if len(group) > 1}
+
+
+def own_rules_now(folder: Path, game: int, slot: int, people: list[Living]) -> dict[tuple, str]:
+    """The record's own rules, each under the villager's key now: a line whose looks a living
+    villager has since changed from (the logs' "Appearance changed" records) is theirs."""
+    stored = read_own(folder, game, slot)
+    if not stored:
+        return {}
+    import vv_genealogy as gen
+    looks = gen._Registry()
+    try:
+        gen._appearance_changes(looks, folder, game, slot)
+    except (gen.GenealogyError, OSError, ValueError):
+        pass
+    living_keys = {own_key(v) for v in people if v.alive}
+    out: dict[tuple, str] = {}
+    for key, rule in stored.items():
+        if key not in living_keys:
+            moved = (*looks.current(key[:3]), key[3])
+            if moved in living_keys and moved not in stored:
+                key = moved
+            else:
+                key = _relooked(key, stored, living_keys)
+        out[key] = rule
+    return out
+
+
+def _relooked(key: tuple, stored, living_keys: set[tuple]) -> tuple:
+    """A rule line whose looks no living villager has, for a name and sex only one line holds: the one
+    living villager of that name and sex who has no line of their own, after a change of looks no record
+    told of (the coordinator, 2026-10-09).  Else the line's own key."""
+    name, _head, _body, sex = key
+    if key in living_keys or sum(1 for k in stored if (k[0], k[3]) == (name, sex)) != 1:
+        return key
+    candidates = [k for k in living_keys if (k[0], k[3]) == (name, sex) and k not in stored]
+    return candidates[0] if len(candidates) == 1 else key
+
+
+def _parent_rule(own_rules: dict[tuple, str], parent: tuple | None, sex: str,
+                 living_keys: set[tuple]) -> str | None:
+    """A parent's own rule at a birth: their line; else, for a parent whose looks changed with no record,
+    the one line of their name and sex whose looks no living villager has."""
+    if parent is None:
+        return None
+    key = (*parent, sex)
+    if key in own_rules:
+        return own_rules[key]
+    lines = [k for k in own_rules if (k[0], k[3]) == (parent[0], sex)]
+    if len(lines) == 1 and lines[0] not in living_keys:
+        return own_rules[lines[0]]
+    return None
+
+
+def _expected_fathers(folder: Path, game: int, slot: int) -> set[str]:
+    """The names a living mother's pregnancy names as the baby's father: the save's (The Lost Children
+    on), A New Home's parentage records' -- so a father who died before the birth keeps his rule."""
+    out: set[str] = set()
+    try:
+        if game == 1:
+            data_dir = Path(folder) / tools.DATA
+            for path in (layout.find(Path(folder), f"{layout.DATA}\\{layout.PARENTS_VV1}\\"
+                                                   f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"),
+                         data_dir / f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"):
+                if path.is_file():
+                    buf = path.read_bytes()
+                    if buf[:4] == b"VP02" and len(buf) >= 12 + 256 * 36 + 256 * 92:
+                        for i in range(256):
+                            out.add(_cstr(buf, 12 + 256 * 36 + i * 92 + 64, 28))
+        else:
+            f = FIELDS[game]
+            data = save_path(folder, game, slot).read_bytes()
+            for at in _entries(game, data):
+                if carrying(game, data, at):        # a delivered mother keeps the name: not expecting
+                    out.add(_cstr(data, at + f.expecting, 0x18))
+    except (OSError, LastNamesError, struct.error, ValueError, IndexError):
+        pass
+    return out - {""}
+
+
+def save_own_rules(folder: Path, game: int, slot: int, rule: str, own: dict[tuple, str],
+                   processes: vv_save_backup.ProcessController | None = None) -> dict[tuple, str]:
+    """Keep the village's rule and each living villager's own (`own`: (name, head, body, sex) -> rule,
+    "" for the village's).  Refused while the game runs, for a villager not living in the save, and for
+    villagers no birth could tell apart (indistinguishable).  The dead keep no rule -- except a father
+    a living mother is still expecting by (a birth after his death).  Returns the rules kept."""
+    folder = Path(folder)
+    controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
+    tools._refuse_if_running(folder, controller)
+    if rule not in INHERIT:
+        raise LastNamesError(f"{rule!r} is not a rule for last names.")
+    try:
+        people = living(folder, game, slot)
+    except (OSError, struct.error, ValueError) as exc:
+        raise LastNamesError(f"The save could not be read ({exc}); nothing was changed.") from exc
+    alive = {own_key(v) for v in people}
+    alike = indistinguishable(people)
+    wanted = {key: r for key, r in own.items() if r}
+    for key, r in wanted.items():
+        if r not in OWN_RULES:
+            raise LastNamesError(f"{r!r} is not a rule for last names.")
+        if key not in alive:
+            raise LastNamesError(f"{key[0]} is not a living villager of this save; nothing was changed.")
+        if key in alike:
+            raise LastNamesError(
+                f"{key[0]} has the same name, looks and sex as another living villager, so a birth could not "
+                "tell whose rule it is. Number the duplicate names first; nothing was changed.")
+    expected = _expected_fathers(folder, game, slot)
+    kept = {key: r for key, r in own_rules_now(folder, game, slot, people).items()
+            if key not in alive and key[3] == "Male" and key[0] in expected}
+    kept.update(wanted)
+    _old_rule, fixed = read_record(folder, game, slot)
+    write_record(folder, game, slot, rule, fixed, own=kept)
+    return kept
+
+
+def _plan_own_rules(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str]) -> None:
+    """A renamed villager's own rule follows them (`renames`: (name, head, body) -> new name)."""
+    path = record_path(folder, game, slot)
+    if not renames or not path.is_file():
+        return
+    original = path.read_bytes()
+    try:
+        lines = original.decode("utf-8").split("\n")
+    except UnicodeError:
+        return
+    if lines[0].rstrip("\r") != RECORD_HEADER.format(game=game):
+        return
+    changed = False
+    for k, line in enumerate(lines):
+        entry = _own_entry(line.rstrip("\r"))
+        if entry is None:
+            continue
+        (name, head, body, sex), rule = entry
+        new = renames.get((name, head, body))
+        if new and new != name:
+            lines[k] = own_line((new, head, body, sex), rule) + ("\r" if line.endswith("\r") else "")
+            changed = True
+    if changed:
+        result.changes.append(Change(path, original, "\n".join(lines).encode("utf-8"),
+                                     "each villager's own last-name rule"))
 
 
 def everyone(folder: Path, game: int, slot: int) -> tuple[list[Living], dict[tuple, tuple]]:
@@ -481,7 +805,7 @@ def everyone(folder: Path, game: int, slot: int) -> tuple[list[Living], dict[tup
     for p in sorted(village.known(), key=lambda q: q.order_key()):
         if p.key not in have and not p.alive and p.head is not None and p.body is not None:
             people.append(Living(-1, p.name, p.sex or "", p.head, p.body, 0, "", alive=False,
-                                 arrived=p.key in arrivals))
+                                 arrived=p.key in arrivals, age=p.age))
             have.add(p.key)
     parents = {p.key: tuple(village.people[q].key if q is not None else None for q in (p.father, p.mother))
                for p in village.known()}
@@ -522,7 +846,7 @@ def separate(people: list[Living], parents: dict[tuple, tuple], pool: list[str],
 
 def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
               pool: list[str] | None = None, fixed: dict[tuple, str] | None = None,
-              carried=own_last_name) -> dict[tuple, str]:
+              carried=own_last_name, own_rules: dict[tuple, str] | None = None) -> dict[tuple, str]:
     """Each living villager's last name by `rule` ("" for none): the father's, the mother's,
     either parent's at random, or one at random from the game's list -- a parent's being the one
     their name carries, else (a living parent being given one now) the one this rule gives them,
@@ -534,15 +858,28 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
     and their descendants inherit them by the rule (the owner, 2026-10-07: name Chapa "Chapa
     Chapstick", and with "From the mother" her descendants are Chapsticks).  `carried` reads the
     last name a name already has: a villager listed here with a recorded parent takes the rule's
-    name, not the one carried (a change of rule re-derives the family); one without keeps theirs."""
+    name, not the one carried (a change of rule re-derives the family); one without keeps theirs.
+    `own_rules`: each villager's own rule, (name, head, body, sex) -> rule: a child's rule is the one
+    decide() gives from their father's, their mother's and `rule`."""
     fixed = fixed or {}
-    if rule in PLAYER_RULES:
-        return {v.identity: fixed[v.identity] if v.identity in fixed else carried(v.name) for v in people}
-    if rule == "list":
-        return {v.identity: fixed[v.identity] if v.identity in fixed
-                else carried(v.name) if v.arrived                   # ARRIVALS: none by default
-                else random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(pool) if pool
-                else v.default for v in people}
+    own_rules = own_rules or {}
+    living_keys = {own_key(v) for v in people if v.alive}
+
+    def rule_of(v: Living) -> str:
+        father, mother = parents.get(v.identity, (None, None))
+        return decide(_parent_rule(own_rules, father, "Male", living_keys),
+                      _parent_rule(own_rules, mother, "Female", living_keys), rule)
+
+    def chosen_or_listed(v: Living, r: str) -> str:
+        if v.identity in fixed:
+            return fixed[v.identity]
+        if r in PLAYER_RULES or v.arrived:             # ARRIVALS: none by default
+            return carried(v.name)
+        return (random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(pool) if pool
+                else v.default)
+
+    if not own_rules and rule in (*PLAYER_RULES, "list"):
+        return {v.identity: chosen_or_listed(v, rule) for v in people}
     living_by = {v.identity: v for v in people}
     own = separate(people, parents, pool, carried) if pool else {}
     out: dict[tuple, str] = {}
@@ -560,6 +897,10 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
         if v.identity in fixed:                 # the player's own choice
             out[v.identity] = fixed[v.identity]
             return out[v.identity]
+        r = rule_of(v)
+        if r in (*PLAYER_RULES, "list"):
+            out[v.identity] = chosen_or_listed(v, r)
+            return out[v.identity]
         if v.identity in seen:                  # a loop in the records: their own
             return own.get(v.identity) or v.default
         father, mother = parents.get(v.identity, (None, None))
@@ -571,13 +912,13 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
             return out[v.identity]
         seen = seen | {v.identity}
         dad, mum = last_of(father, seen), last_of(mother, seen)
-        if rule == "father":
+        if r == "father":
             result = dad or mum
-        elif rule == "mother":
+        elif r == "mother":
             result = mum or dad
         elif dad and mum and carried(v.name) in (dad, mum):
             # "random": a child carrying either parent's last name already had its 50:50 -- the
-            # game's own at the birth (VVFP Last Names' VvfpRuleLastName, the owner, 2026-10-08).
+            # game's own at the birth (VVFP Last Names' VvfpRuleLastName2, the owner, 2026-10-08).
             result = carried(v.name)
         else:                                   # "random": 50:50 for each child (the owner)
             pick = random.Random(zlib.crc32(repr(v.identity).encode("utf-8")))
@@ -794,7 +1135,8 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     # The graves of the dead renamed (Number Duplicate Names, last names for the gone).
     graves = _rename_graves(after, game, renames, _death_ages(folder, game, slot), result) if dead else []
     result.changes.append(Change(path, original, bytes(after), "the save"))
-    _plan_grave_files(result, folder, game, slot, graves)
+    _plan_grave_files(result, folder, game, slot, graves, _renamed_bodies(game, people, original, after, f.name_cap)
+                      if dead else None)
 
     data_dir = folder / tools.DATA
     _plan_masks(result, game, slot, data_dir, mask_map, conflicts)
@@ -810,6 +1152,7 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     _plan_statistics(result, game, slot, data_dir, by_name, renamed)
     _plan_logs(result, folder, game, slot, asked, by_name, dead, renamed)
     _plan_family_trees(result, folder, game, slot, asked)
+    _plan_own_rules(result, folder, game, slot, asked)
     return result
 
 
@@ -1377,7 +1720,7 @@ def wrong_last_names(folder: Path, game: int, slot: int) -> tuple[str, list[tupl
             if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
     carried = lambda name: split_name(game, name, known)[1]  # noqa: E731
     given = inherited(people, parents, rule or "mother", list(tools.load_checker().LAST_NAMES[game]),
-                      with_siblings(mine, parents), carried)
+                      with_siblings(mine, parents), carried, own_rules_now(folder, game, slot, people))
     out = []
     for v in people:
         now = carried(v.name)
@@ -1386,6 +1729,357 @@ def wrong_last_names(folder: Path, game: int, slot: int) -> tuple[str, list[tupl
             continue
         out.append((v, now, should))
     return rule or "mother", out
+
+
+# RANDOM LAST NAMES.  The owner (2026-10-10): "for the repair logs, can you add an option for 'random' last
+# names everywhere".  In the last-names window, Random gives villagers last names drawn at random from the
+# game's own list, only to those with none or to everyone, each villager's own or one name a family shares
+# (the children follow the village's rule from their parents).  It only chooses the names: the window
+# shows them (changed ones in red bold), the player can edit any row, and nothing is written until OK, by
+# give_last_names like every other choice.  The same seed gives the same names; Reroll draws another.
+RANDOM_WHO = ("missing", "everyone")
+
+
+def random_seed() -> int:
+    """A fresh seed for Random last names (Reroll)."""
+    return random.SystemRandom().randrange(1, 1_000_000)
+
+
+def heathen_identities(folder: Path, game: int, slot: int) -> set[tuple]:
+    """The villagers the logs say are Heathens (New Believers): they never get a last name here."""
+    import vv_genealogy as gen
+    village = gen.load_village(Path(folder), game, slot, full_names=False)
+    return {p.key for p in village.known() if getattr(p, "heathen", False)}
+
+
+def earlier_record_names(game: int, village, known: set[str] | frozenset = frozenset()) -> dict[tuple, set[str]]:
+    """(first name, head, body) -> the last names an earlier record of that villager gives: a record of
+    nobody living, dead or gone (the dead are someone else: looks and names repeat)."""
+    recorded: dict[tuple, set[str]] = {}
+    for p in village.known():
+        if p.alive or p.gone:
+            continue
+        first, last, _suffix = split_name(game, p.name, known)
+        if last and p.head is not None and p.body is not None:
+            recorded.setdefault((first, p.head, p.body), set()).add(last)
+    return recorded
+
+
+def random_conflicts(folder: Path, game: int, slot: int, people: list[Living],
+                     known: set[str] | frozenset = frozenset()) -> dict[tuple, list[str]]:
+    """identity -> the last names an earlier record gives a living villager (the contradiction rule: the
+    player is asked, never overridden), for the villagers in `people`."""
+    import vv_genealogy as gen
+    village = gen.load_village(Path(folder), game, slot, full_names=False)
+    recorded = earlier_record_names(game, village, known)
+    out = {}
+    for v in people:
+        earlier = sorted(recorded.get((split_name(game, v.name, known)[0], v.head, v.body), ()))
+        if earlier and v.alive:
+            out[v.identity] = earlier
+    return out
+
+
+def random_last_names(game: int, people: list[Living], parents: dict[tuple, tuple], seed: int,
+                      who: str = "missing", families: bool = False, rule: str = "father",
+                      current: dict[tuple, str] | None = None, known: set[str] | frozenset = frozenset(),
+                      skip: set[tuple] | frozenset = frozenset(), pool: list[str] | None = None,
+                      room: int | None = None) -> tuple[dict[tuple, str], list[tuple]]:
+    """(the new last names, the villagers none fits): random last names from the game's list (`pool`)
+    for the villagers in `people` -- "missing": only those with no last name now (`current`: identity ->
+    the last name in their box, "" none, else the one their name carries); "everyone": all of them,
+    each given one that differs from the one they have.  Villagers in `skip` (Heathens) are left alone.
+    Only the changed names are returned, and every one fits the game's name field (`room`).  Not
+    unique by design, but a name no one else in the village has is preferred while the list has one.
+    `families`: a family shares one random name -- a villager with no recorded parent gets one, and
+    their children take their parents' by the village's rule `rule` ("father", "mother", or "random"
+    for either; any other rule gives the father's); without families every villager draws their own.
+    The same `seed` always gives the same names."""
+    room = ROOM[game] if room is None else room
+    names = [n for n in (pool if pool is not None else tools.load_checker().LAST_NAMES[game]) if n and storable(n)]
+    carried = lambda name: split_name(game, name, known)[1]  # noqa: E731
+    now = {v.identity: (current[v.identity] if current is not None and v.identity in current else carried(v.name))
+           for v in people}
+    by_id = {v.identity: v for v in people}
+    eligible = {v.identity for v in people
+                if v.identity not in skip and (who == "everyone" or not now[v.identity])}
+    used = {now[k] for k in now if k not in eligible} - {""}
+    out: dict[tuple, str] = {}
+    unfit: list[tuple] = []
+
+    def fits(v: Living, n: str) -> bool:
+        return len(with_last(game, v.name, n, known)) <= room
+
+    def draw(v: Living) -> str:
+        options = [n for n in names if fits(v, n)]
+        if not options:
+            return ""
+        options = [n for n in options if n != now[v.identity]] or options
+        rng = random.Random(f"{seed}|{v.identity!r}")
+        pick = rng.choice([n for n in options if n not in used] or options)
+        used.add(pick)
+        return pick
+
+    def parent_last(key, seen: frozenset) -> str:
+        if key is None:
+            return ""
+        if key in by_id:
+            return resolve(by_id[key], seen)
+        return carried(key[0])
+
+    def resolve(v: Living, seen: frozenset = frozenset()) -> str:
+        if v.identity not in eligible:
+            return now[v.identity]
+        if v.identity in out:
+            return out[v.identity]
+        last = ""
+        father, mother = parents.get(v.identity, (None, None))
+        if families and v.identity not in seen and (father or mother):
+            seen = seen | {v.identity}
+            dad, mum = parent_last(father, seen), parent_last(mother, seen)
+            if rule == "mother":
+                last = mum or dad
+            elif rule == "random" and dad and mum:
+                last = random.Random(f"{seed}|{v.identity!r}|parent").choice([dad, mum])
+            else:
+                last = dad or mum
+            if last and not fits(v, last):
+                last = ""
+        last = last or draw(v)
+        if last:
+            used.add(last)
+        out[v.identity] = last
+        return last
+
+    for v in people:
+        if v.identity in eligible:
+            resolve(v)
+    changed = {}
+    for v in people:
+        if v.identity not in eligible:
+            continue
+        last = out.get(v.identity, "")
+        if not last:
+            unfit.append(v.identity)
+        elif last != now[v.identity]:
+            changed[v.identity] = last
+    return changed, unfit
+
+
+# MISSING LAST NAMES.  The owner (v1.35.66): "if repair logs detects a missing last name, please prompt
+# the player to add one if auto check is enabled" -- "like for arrivals and stuff. and direct them how to
+# add last names".  In a village that uses last names, a living villager whose name carries none (as
+# split_name reads it: one word, a numeral after one word, or words the player said are one first name)
+# -- an island event's or a Custom Island Event's newcomer, an older villager from before the patch, a
+# rename that dropped it -- is found here, with a last name suggested.  Never a current Heathen (New
+# Believers: Heathens never count).  The game's quit check (native/shared/crosscheck_bridge.h) finds the
+# same villagers and queues the player's answer in the slot's request file:
+#     VVFP MISSING LAST NAMES v1 game=N
+#     asked<TAB>remind | not now
+#     villager<TAB>name<TAB>head<TAB>body              (Latin-1, the game's own bytes)
+# "remind": the patcher asks the next time it opens; "not now": nobody asks again while every villager
+# with no last name is one it lists.  Giving them their last names removes the file.
+MISSING_HEADER = "VVFP MISSING LAST NAMES v1 game={game}"
+REMIND, NOT_NOW = "remind", "not now"
+
+
+@dataclass
+class Missing:
+    """A living villager with no last name, and the one suggested ("" none fits)."""
+    villager: Living
+    how: str = ""                   # an arrival's "How:" (the Arrived record), else ""
+    suggested: str = ""
+    why: str = ""                   # where the suggestion comes from
+    auto: bool = False              # an arrival the arrivals toggle names, without asking
+    conflict: list = field(default_factory=list)   # last names an earlier record of them gives
+
+    def describe(self) -> str:
+        v = self.villager
+        text = (f"{v.name} arrived ({self.how or 'an event'}) with no last name" if v.arrived
+                else f"{v.name} has no last name")
+        if self.conflict:
+            text += f", but an earlier record calls them {' or '.join(self.conflict)}"
+        return text
+
+
+def missing_path(folder: Path, game: int, slot: int) -> Path:
+    return Path(folder) / tools.DATA / "Last Names" / f"Virtual Villagers {game} Missing Last Names - Save {slot}.dat"
+
+
+def read_missing(folder: Path, game: int, slot: int) -> tuple[str | None, set[tuple]]:
+    """The slot's request: (REMIND or NOT_NOW, the villagers it lists by (name, head, body)); (None,
+    set()) without one."""
+    try:
+        lines = missing_path(folder, game, slot).read_bytes().decode("latin-1").splitlines()
+    except OSError:
+        return None, set()
+    if not lines or lines[0] != MISSING_HEADER.format(game=game):
+        return None, set()
+    state, listed = None, set()
+    for line in lines[1:]:
+        parts = line.split("\t")
+        if parts[0] == "asked" and len(parts) == 2 and parts[1] in (REMIND, NOT_NOW):
+            state = parts[1]
+        elif (parts[0] == "villager" and len(parts) == 4 and parts[2].lstrip("-").isdigit()
+              and parts[3].lstrip("-").isdigit()):
+            listed.add((parts[1], int(parts[2]), int(parts[3])))
+    return state, listed
+
+
+def write_missing(folder: Path, game: int, slot: int, state: str, who) -> None:
+    """Keep the player's answer (REMIND or NOT_NOW) for these villagers ((name, head, body)), written
+    through a temporary file and read back."""
+    if state not in (REMIND, NOT_NOW):
+        raise LastNamesError(f"{state!r} is not an answer.")
+    path = missing_path(folder, game, slot)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [MISSING_HEADER.format(game=game), f"asked\t{state}"]
+    lines += [f"villager\t{name}\t{head}\t{body}" for name, head, body in sorted(set(who))]
+    _write(path, ("\n".join(lines) + "\n").encode("latin-1", errors="replace"))
+
+
+def clear_missing(folder: Path, game: int, slot: int) -> None:
+    try:
+        missing_path(folder, game, slot).unlink()
+    except FileNotFoundError:
+        pass
+
+
+def uses_last_names(folder: Path, game: int, slot: int, people: list[Living] | None = None,
+                    known: set[str] | None = None) -> bool:
+    """Whether the village uses last names: it has a last-names record, or the game's quit check asked
+    about them (only a game with the Last Names row, or a record, does), or a living villager carries
+    one of the game's own last names (the Villagers Have Last Names patch gave it)."""
+    if read_record(folder, game, slot)[0] is not None or record_path(folder, game, slot).is_file():
+        return True
+    if read_missing(folder, game, slot)[0] is not None:
+        return True
+    known = known_names(folder, game, slot) if known is None else known
+    people = living(folder, game, slot) if people is None else people
+    names = set(tools.load_checker().LAST_NAMES[game])
+    return any(split_name(game, v.name, known)[1] in names for v in people)
+
+
+def missing_last_names(folder: Path, game: int, slot: int) -> list[Missing]:
+    """Every living villager with no last name, in a village that uses last names ([] in one that does
+    not), each with a last name suggested: the one the village's rule -- or the parents' own rules --
+    gives them from their family; for an arrival or anyone the rule gives none, their family's from
+    the game's list when nobody has it yet, else the first of the list nobody has.  A suggestion is
+    always one that fits the game's name field."""
+    import vv_genealogy as gen
+    folder = Path(folder)
+    known = known_names(folder, game, slot)
+    people, parents = everyone(folder, game, slot)
+    alive = [v for v in people if v.alive]
+    if not alive or not uses_last_names(folder, game, slot, alive, known):
+        return []
+    village = gen.load_village(folder, game, slot, full_names=False)
+    by_key = {p.key: p for p in village.known()}
+
+    def carried(name: str) -> str:
+        return split_name(game, name, known)[1]
+
+    found = [v for v in alive if not carried(v.name) and not getattr(by_key.get(v.identity), "heathen", False)]
+    if not found:
+        return []
+    rule, fixed = read_record(folder, game, slot)
+    pool = list(tools.load_checker().LAST_NAMES[game])
+    mine = {v.identity: fixed[key] for v in people
+            if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
+    given = inherited(people, parents, rule or "mother", pool, with_siblings(mine, parents), carried,
+                      own_rules_now(folder, game, slot, people))
+    taken = {carried(v.name) for v in alive} - {""}
+    dead = {carried(v.name) for v in people if not v.alive} - {""}
+    unique = read_arrivals(folder, game, slot)
+    out = []
+    # A contradiction is asked about, never overwritten (the owner, v1.35.66): an earlier record of the
+    # same villager -- the same first name, head and body, on a record of nobody living, dead or gone
+    # (the dead are someone else: looks and names repeat) -- that gives them a last name.
+    recorded = earlier_record_names(game, village, known)
+    for v in found:
+        record = by_key.get(v.identity)
+        how = record.how if record is not None and v.arrived else ""
+        earlier = sorted(recorded.get((split_name(game, v.name, known)[0], v.head, v.body), ()))
+        if earlier:
+            last = earlier[0] if len(earlier) == 1 and len(with_last(game, v.name, earlier[0], known)) <= ROOM[game] \
+                else ""
+            out.append(Missing(v, how, last, "an earlier record of this villager gives them "
+                               + " or ".join(earlier) + ": the records disagree, so you are asked", conflict=earlier))
+            continue
+        if v.arrived and unique:            # their own new last name (the arrivals toggle)
+            last = unique_last_name(game, v, taken, dead, known)
+            if last:
+                taken.add(last)
+            out.append(Missing(v, how, last, "their own new last name (arrivals get one automatically)",
+                               auto=bool(last)))
+            continue
+        last = given.get(v.identity, "")
+        why = "the family's, by the village's rule" if last else ""
+        if last and len(with_last(game, v.name, last, known)) > ROOM[game]:
+            last = why = ""
+        if not last:
+            for name in ([v.default] if v.default else []) + pool:
+                if name and name not in taken and len(with_last(game, v.name, name, known)) <= ROOM[game]:
+                    last, why = name, "from the game's list, one nobody has yet"
+                    break
+        if last:
+            taken.add(last)
+        out.append(Missing(v, how, last, why))
+    return out
+
+
+def should_ask(folder: Path, game: int, slot: int, missing: list[Missing]) -> bool:
+    """Whether to ask about these villagers: not when the player said "Not now" to every one of them."""
+    if not missing:
+        return False
+    state, listed = read_missing(folder, game, slot)
+    return not (state == NOT_NOW and {m.villager.identity for m in missing} <= listed)
+
+
+def requests(folder: Path, game: int) -> list[int]:
+    """The slots of `folder` whose request asks the patcher to remind the player (REMIND)."""
+    out = []
+    for slot in range(1, 6):
+        if read_missing(folder, game, slot)[0] == REMIND:
+            out.append(slot)
+    return out
+
+
+def give_missing(folder: Path, game: int, slot: int, missing: list[Missing],
+                 processes: vv_save_backup.ProcessController | None = None, now: datetime | None = None) -> Result:
+    """Give each of `missing` its suggested last name, everywhere (give_last_names: refused while the
+    game runs, the save folder backed up first, every file swapped in and read back, every log
+    updated); kept as the player's own in the record when the village has a rule.  The request file
+    goes once nobody is left without one."""
+    chosen = {m.villager.identity: m.suggested for m in missing if m.suggested}
+    if not chosen:
+        raise LastNamesError("No last name could be suggested for them; choose each one instead.")
+    rule = read_record(folder, game, slot)[0]
+    result = give_last_names(folder, game, slot, chosen, processes, now, rule=rule, mine=chosen if rule else None)
+    try:
+        left = missing_last_names(folder, game, slot)
+    except (LastNamesError, OSError, ValueError):
+        left = None
+    if left is not None and not left:
+        clear_missing(folder, game, slot)
+    return result
+
+
+def _register_question() -> None:
+    """The game's reminders are one of the questions the patcher asks when it opens."""
+    import vv_startup_questions as questions
+    questions.register(questions.Source("missing last names", requests, "_ask_missing_last_names_for"))
+
+
+_register_question()
+
+
+def missing_note(game: int, missing: list[Missing], limit: int = 12) -> str:
+    """Check Saves & Logs' NOTE for them."""
+    shown = "; ".join(m.describe() for m in missing[:limit])
+    more = f"; and {len(missing) - limit} more" if len(missing) > limit else ""
+    return (f"{len(missing)} living villager(s) have no last name: {shown}{more}. Repair Saves & Logs, Give "
+            "villagers last names, gives them one (their boxes are highlighted).")
 
 
 def apply(folder: Path, work: Plan, controller: vv_save_backup.ProcessController, now: datetime | None,

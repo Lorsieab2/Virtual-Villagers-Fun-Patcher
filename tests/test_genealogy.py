@@ -628,6 +628,11 @@ def assert_connected(test: unittest.TestCase, lay, drawn: list) -> None:
     """Every end of every piece of a family's line lies on another piece of that line or on a
     portrait (the owner: "Keep. The. Lines. Connected.")."""
     frames = [(min(xs) - 1, min(ys) - 1, max(xs) + 1, max(ys) + 1) for xs, ys in (zip(*lay.frame_points(q)) for q in lay.x)]
+    # A family whose children are on a later page ends at its "continued on page N" words: its lowest end.
+    words = {max((pt for s in drawn if s[2] == f.id for pt in s[1]), key=lambda pt: (pt[1], pt[0]))
+             for f in lay.families if getattr(f, "onward", None) and any(s[2] == f.id for s in drawn)}
+    drawn = list(drawn) + [(None, [pt, pt], f.id, "words") for f in lay.families if getattr(f, "onward", None)
+                           for pt in words if any(s[2] == f.id and pt in s[1] for s in drawn)]
     for colour, pts, fid, piece in drawn:
         mine = [o for o in drawn if o[2] == fid and o[1] is not pts]
         for pt in (pts[0], pts[-1]):
@@ -725,7 +730,10 @@ class StickerTests(unittest.TestCase):
             boxes = []
             for q in lay.x:
                 x, y, w, h, angle = lay.frame(q)
-                self.assertEqual((w, h, angle), (ft.natural_width(kind), ft.NODE_H, 0.0))
+                # A portrait tall -- a shape drawn turned (SHAPE_BAKES) as tall as it reached turned so.
+                self.assertEqual((w, h, angle), (ft.natural_width(kind), ft.natural_height(kind), 0.0))
+                if kind not in ft.SHAPE_BAKES:
+                    self.assertEqual(h, ft.NODE_H)
                 xs, ys = zip(*lay.frame_points(q))
                 boxes.append((min(xs), min(ys), max(xs), max(ys)))
             for i, a in enumerate(boxes):           # spaced so no two frames overlap

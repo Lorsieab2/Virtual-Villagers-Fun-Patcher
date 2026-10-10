@@ -169,8 +169,9 @@ def _fnv(h: int, data: bytes) -> int:
 
 def entry(name: str, sex: int, family: int, head: int, body: int, likes=(1, 2, 3), dislikes=(4, 5, 6),
           father: tuple = ("", 0, 0), mother: tuple = ("", 0, 0), expecting: tuple = ("", 0, 0),
-          health: int = 90) -> bytes:
-    """One saved villager of The Secret City (name at entry +0x14)."""
+          health: int = 90, pregnant: int | None = None) -> bytes:
+    """One saved villager of The Secret City (name at entry +0x14).  `pregnant` is her pregnancy
+    field (her age at conception; 0 = not expecting): by default set when an expected father is named."""
     e = bytearray(STRIDE)
     struct.pack_into("<I", e, 0, 1)
     n = 0x14
@@ -185,6 +186,7 @@ def entry(name: str, sex: int, family: int, head: int, body: int, likes=(1, 2, 3
         struct.pack_into("<ii", e, n + looks, phead, pbody)
     e[n + 0x74:n + 0x74 + len(expecting[0])] = expecting[0].encode()
     struct.pack_into("<ii", e, n + 0x90, expecting[2], expecting[1])
+    struct.pack_into("<i", e, n + 0xB8, (580 if expecting[0] else 0) if pregnant is None else pregnant)
     struct.pack_into("<3i", e, n + 0xF0, *likes)
     struct.pack_into("<3i", e, n + 0xFC, *dislikes)
     struct.pack_into("<i", e, n + 0xA4, health)          # record +0xE78; 0 or less is a body
@@ -529,7 +531,7 @@ class TheWindow(unittest.TestCase):
         self.assertNotIn('state="readonly"', box, "the player may type a last name")
         self.assertIn("vv_last_names.name_problem(number, split(v.name)[0], last)", body)
         # The wrong ones are marked and can be put right.
-        self.assertIn('ttk.Button(buttons, text="Fix wrong last names", command=by_rule)', body)
+        self.assertIn('ttk.Button(buttons, text="Fix wrong last names", command=fix_wrong)', body)
 
 
 def grave_buffer(game: int, graves: dict[int, tuple]) -> bytearray:
@@ -713,6 +715,38 @@ class GraveFiles(unittest.TestCase):
         ln._plan_grave_files(result, Path(self.tmp.name), game, slot, [(7, b"Bob", b"Bob Stone", 300)])
         self.assertEqual([(c.path, c.updated) for c in result.changes],
                          [(logged, self.vcg1(game, [(7, new), (8, old)]))])
+
+    def test_a_renamed_unburied_body_keeps_its_cause(self):
+        # Live, v1.35.66: a body lying in the village was renamed and its kept cause was lost --
+        # the lying-body entry (kind 1) is keyed by the record's name and age, and only graves were
+        # moved to the new print.  Both games that keep causes (A New Home, The Lost Children).
+        for game in (1, 2):
+            with self.subTest(game=game):
+                slot, cap = 1, ln.GRAVE_PRINT_CAP[game]
+                old, new = ln.grave_fingerprint(b"Bob", cap, 300), ln.grave_fingerprint(b"Bob Stone", cap, 300)
+                other = ln.grave_fingerprint(b"Al", cap, 9)
+                graves = self.data / "Graves" / f"Virtual Villagers {game} Graves - Save {slot}.dat"
+                # The body (kind 1, record 12), another body, and a grave with the same print (a grave
+                # is moved only by its own place).
+                graves.write_bytes(self.vcd1(game, [(1, 12, old), (1, 13, other), (0, 4, old)]))
+                result = ln.Plan({})
+                ln._plan_grave_files(result, Path(self.tmp.name), game, slot, [], {old: new})
+                self.assertEqual([(c.path, c.updated) for c in result.changes],
+                                 [(graves, self.vcd1(game, [(1, 12, new), (1, 13, other), (0, 4, old)]))])
+                graves.unlink()
+
+    def test_renamed_bodies_maps_each_changed_record_and_refuses_a_shared_print(self):
+        cap = 0x1C
+        def rec(name):
+            return name.encode("latin-1").ljust(cap, b"\0")
+        people = [ln.Living(0, "Bob", "Male", 1, 1, 0, "", age=300),
+                  ln.Living(cap, "Al", "Male", 2, 2, 0, "", age=9),         # not renamed
+                  ln.Living(2 * cap, "Cy", "Male", 3, 3, 0, "", age=50),    # renamed ...
+                  ln.Living(3 * cap, "Cy", "Male", 4, 4, 0, "", age=50)]    # ... and a namesake who is not
+        original = rec("Bob") + rec("Al") + rec("Cy") + rec("Cy")
+        after = rec("Bob Stone") + rec("Al") + rec("Cy Reed") + rec("Cy")
+        got = ln._renamed_bodies(1, people, original, after, cap)
+        self.assertEqual(got, {ln.grave_fingerprint(b"Bob", cap, 300): ln.grave_fingerprint(b"Bob Stone", cap, 300)})
 
     def test_a_file_of_another_game_or_the_wrong_size_is_left_alone(self):
         game, slot, cap = 1, 1, ln.GRAVE_PRINT_CAP[1]

@@ -3,6 +3,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
@@ -252,7 +253,10 @@ static void vv_clear_mask_state(void) {
 
 static int vv_captured_save_slot(void) {
     int slot = *(volatile int *)(UINT_PTR)VV4_MASK_SAVE_SLOT_VA;
-    return (slot >= 1 && slot <= 5) ? slot : 0;
+    /* The game's own current slot first (its save manager,
+       native/shared/game_save_slot.h), then the stub's capture, which can lag
+       behind a village made or switched to in this session. */
+    return vv_current_save_slot(4, (slot >= 1 && slot <= 5) ? slot : 0);
 }
 
 /* Switch the sidecar namespace before any render or UI path can consume the
@@ -1137,7 +1141,7 @@ static void vvfp_fix_huts_bridge(void) {
    The save slot the mask sidecar is keyed by, and one villager's mask, set
    exactly as the Change Appearance picker commits one. */
 static int __stdcall vv4_story_slot(void) {
-    return vv_captured_save_slot();
+    return vv_current_save_slot(4, vv_captured_save_slot());
 }
 
 static int __stdcall vv4_story_mask_get(void *record) {
@@ -1153,9 +1157,15 @@ static int __stdcall vv4_story_mask_set(void *record, int mask) {
     return 1;
 }
 
+/* Choose Time Skip Amount: defined with the Time Warp below. */
+static int __stdcall vv4_story_time_skip_step(int years);
+static int __stdcall vv4_story_time_skip_settled(void);
+static int __stdcall vv4_story_time_skip_running(void);
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
-        sizeof(vvfp_story_host), vv4_story_slot, vv4_story_mask_get, vv4_story_mask_set, NULL
+        sizeof(vvfp_story_host), vv4_story_slot, vv4_story_mask_get, vv4_story_mask_set, NULL,
+        vv4_story_time_skip_step, vv4_story_time_skip_settled, vv4_story_time_skip_running
     };
     return &host;
 }
@@ -1178,12 +1188,49 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(4));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
 }
 
+/* The Barrel of Babies bought and not delivered yet (native/shared/paid_purchases.h).
+   The purchase charges (saved), arms 0x728B04, sets the three-children flag
+   0x728B00, clears the barrel's cooldown 0x4CCA0D and zeroes the island
+   timer [world+0x170E0] (saved) so the next scheduler tick presents it; the
+   two flags are process-only, so after a relaunch the saved zero timer gave
+   a random event instead and the barrel was gone.  Re-armed exactly as the
+   purchase arms it, without the charge. */
+#include "../shared/paid_purchases.h"
+static void vv4_paid_rearm(void) {
+    unsigned char *world = *(unsigned char *volatile *)(UINT_PTR)0x004CB51Cu;
+    *(volatile unsigned char *)(UINT_PTR)0x00728B00u = 1;      /* three children */
+    *(volatile unsigned char *)(UINT_PTR)0x004CCA0Du = 0;      /* no cooldown */
+    if (world != NULL) {
+        *(volatile unsigned int *)(world + 0x170E0u) = 0u;     /* due now */
+    }
+}
+static const vv_paid_game VV4_PAID = {
+    (volatile unsigned char *)0x00728B04, NULL, 1, "Virtual Villagers - The Tree of Life", vv4_paid_rearm
+};
+
+static void vv4_paid_tick(void) {
+    static unsigned int ids[VV_PAID_RECORDS];
+    int slots = vv_slots(), i;
+    if (VV_REC_ARRAY_BASE == 0u || slots <= 0 || slots > VV_PAID_RECORDS) {
+        return;
+    }
+    memset(ids, 0, sizeof ids);
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *rec = (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)i * VV_REC_STRIDE);
+        if (rec[VV_OCCUPIED_OFFSET] != 0) {
+            ids[i] = vv_fingerprint(rec);
+        }
+    }
+    vv_paid_tick(4, vv_captured_save_slot(), ids, &VV4_PAID);
+}
+
 void __stdcall Vv4MaskCacheSurface(void *surface) {
     int cleared;
     vvfp_fix_huts_bridge();     /* fix-huts companion: once, fail-open */
     vvfp_story_bridge(4);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(4);  /* cause of death companion: once, fail-open */
     (void)surface;   /* the hook still passes the render target; nothing here draws */
+    vv4_paid_tick();            /* a bought Barrel not delivered yet survives a quit */
     vv_prepare_mask_state();
     cleared = vv_mask_sweep();  /* clear masks on slots the game freed/reused */
     if (cleared && g_current_slot > 0) {
@@ -1726,9 +1773,10 @@ static INT_PTR CALLBACK upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
+            || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island
-               Event row's lock. */
+               Event row's lock (Choose Time Skip Amount ignores it). */
             if (vvfp_story_pick_clicked(
                     4, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
@@ -2935,6 +2983,63 @@ static int vv4_time_warp_apply(int speed, int years) {
         *(int *)(rec + VV4_TW_AGE_OFFSET) += units;
     }
     return occupied;
+}
+
+/* Choose Time Skip Amount (the Story DLL drives it): one step of the Time
+   Warp above, at most the years one Time Warp buys at the current speed.
+   The villager tick (whose catch-up replays the new age units) rewrites
+   every living record's marker (+0x1C38) each time it runs, so a marker that
+   moved off the value the step left is the sign it has replayed the step. */
+static int vv4_skip_watch = -1;
+static int vv4_skip_mark;
+
+static int __stdcall vv4_story_time_skip_step(int years) {
+    vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
+    unsigned char *world = get_world();
+    int speed, step, i, total;
+    if (world == 0 || years <= 0) {
+        return 0;
+    }
+    speed = *(int *)(world + VV4_TW_SPEED_OFFSET);
+    step = vv4_time_warp_years(speed);
+    if (step <= 0) {
+        return -1;                     /* paused, or a speed we do not know */
+    }
+    if (step > years) {
+        step = years;
+    }
+    if (vv4_time_warp_apply(speed, step) <= 0) {
+        return 0;
+    }
+    vv4_skip_watch = -1;
+    total = vv_record_total();
+    for (i = 0; i < total; ++i) {
+        unsigned char *rec = vv_record(i);
+        if (rec[VV_ACTIVE_OFFSET] != 0 && vv_eligible(rec)) {
+            vv4_skip_watch = i;
+            vv4_skip_mark = *(int *)(rec + VV4_TW_LAST_SEEN_OFFSET);
+            break;
+        }
+    }
+    return step;
+}
+
+static int __stdcall vv4_story_time_skip_settled(void) {
+    unsigned char *rec;
+    if (vv4_skip_watch < 0 || vv4_skip_watch >= vv_record_total()) {
+        return 1;
+    }
+    rec = vv_record(vv4_skip_watch);
+    return rec[VV_ACTIVE_OFFSET] == 0 || !vv_eligible(rec)
+        || *(int *)(rec + VV4_TW_LAST_SEEN_OFFSET) != vv4_skip_mark;
+}
+
+/* Whether the game's clock runs (a known speed, not paused): only that time
+   counts toward the time skip's replay wait (native/shared/story_bridge.h). */
+static int __stdcall vv4_story_time_skip_running(void) {
+    vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
+    unsigned char *world = get_world();
+    return world != 0 && vv4_time_warp_years(*(int *)(world + VV4_TW_SPEED_OFFSET)) > 0;
 }
 
 /* Group a cost with thousands separators, matching every other purchase box in

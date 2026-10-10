@@ -266,7 +266,7 @@ WORK_FIRST_DESCRIPTION = (
     "below Building level 3, whenever any hut is built; for one whose selected "
     "job is Healing it "
     "always first tries healing and study, whenever there is a patient or they "
-    "can study medicine. This comes before idling, farming or gathering. When "
+    "can study medicine{study}. This comes before idling, farming or gathering. When "
     "there is nothing of their own to do, they do whatever the game would have "
     "had them do. {catch_up} An addendum to Builders Fix Huts When Idle. **Requires "
     "Builders Fix Huts When Idle**, whose DLL loads this one (in The Secret "
@@ -328,11 +328,27 @@ CATCH_UP = {
 }
 
 
+# When a healer with no patient can study, per game (this patch only puts
+# Healing first; whether the Healing work then studies is the game's own rule,
+# or Easier Healing Mastery's in A New Home and The Lost Children).
+WORK_FIRST_STUDY = {
+    "vv1": (" (**in A New Home a healer with no patient studies the medical cactus only if you "
+            "dropped them on it, unless Easier Healing Mastery is also selected, which makes every "
+            "healer study it whenever no one is sick**)"),
+    "vv2": (" (**in The Lost Children a healer with no patient studies a plant only if you "
+            "dropped them on one, unless Easier Healing Mastery is also selected, which makes every "
+            "healer study whenever no one is sick**)"),
+    "vv3": " (**in The Secret City, only once Medicine 2 has been researched**)",
+    "vv4": " (**in The Tree of Life, only once the Hospital has been built**)",
+    "vv5": " (**in New Believers, only once the Pain Totem has been dismantled**)",
+}
+
+
 def work_first_description(game: str) -> str:
     catch_up = WORK_FIRST_CATCH_UP.format(
         farming=WORK_FIRST_CATCH_UP_FARMING if "farm" in CATCH_UP[game] else "",
         devotion=WORK_FIRST_CATCH_UP_DEVOTION if game == "vv5" else "")
-    return WORK_FIRST_DESCRIPTION.replace("{catch_up}", catch_up)
+    return WORK_FIRST_DESCRIPTION.replace("{catch_up}", catch_up).replace("{study}", WORK_FIRST_STUDY[game])
 
 
 def work_first_row(game: str, sha: str) -> dict:
@@ -1061,7 +1077,7 @@ def main() -> None:
                       if game in HUT_GATE_BEHAVIOR else "")]
               + [CU_ROLL_BEHAVIOR.format(worker=CU_WORKER[game],
                                          healers=(" and Healers Study Plants Regardless of Food"
-                                                  if game == "vv2" else ""))],
+                                                  if game in ("vv1", "vv2") else ""))],
             "explicit_non_changes": list(common_non_changes),
             "companion_files": [
                 {"source": "assets/fix_huts/VVFP Fix Huts.dll",

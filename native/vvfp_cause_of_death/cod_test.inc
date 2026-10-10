@@ -179,7 +179,56 @@ __declspec(dllexport) void __stdcall VvfpCauseTestVv1Births(int outcome) {
     test_vv1_births = outcome;
 }
 
+/* The harness's own record writer in place of "VVFP Parentage Export.dll"'s
+   WriteVillageRecord (cod_lost.inc's harness reads every record's text). */
+__declspec(dllexport) void __stdcall VvfpCauseTestWriter(write_record_fn fn) {
+    write_record = fn;
+    log_state = fn != NULL ? 1 : 0;
+}
+
+/* ...and its own "VVFP VV1 Parentage.dll" stash (NULL: none shipped). */
+__declspec(dllexport) void __stdcall VvfpCauseTestVv1Stash(vv1_stash_fn fn) {
+    vv1_stash = fn;
+    vv1_stash_state = fn != NULL ? 1 : -1;
+}
+
+/* The per-frame tick's copy of each living mother's pregnancy (cod_lost.inc). */
+__declspec(dllexport) void __stdcall VvfpCauseTestLostTick(void) {
+    lost_tick();
+}
+
+/* A Death record for record `index`, every game: what every burial and
+   unburied body's removal writes (cod_log_death). */
+__declspec(dllexport) void __stdcall VvfpCauseTestDeathRecord(int index, int cause) {
+    unsigned char *record = cod_record(index);
+    if (record != NULL) {
+        (void)cod_log_death(record, cause, "test grave", NULL);
+    }
+}
+
 /* A departure the hooks report (a burial, a removal, a disappearance). */
 __declspec(dllexport) void __stdcall VvfpCauseTestDeparted(int index) {
     roster_departed(index, cod_record(index));
+}
+
+/* The logs at village creation (cod_creation_save.inc): manager stands in
+   for the game's save manager (NULL: none), with the start global and A New
+   Home's clock; then one tick's decision.  Returns 1 when the save was asked
+   for (the manager's autosave field set to 0). */
+__declspec(dllexport) int __stdcall VvfpCauseTestCreationSave(void *manager, unsigned int start, unsigned int now) {
+    test_creation_manager = (unsigned char *)manager;
+    test_creation_start = start;
+    test_creation_now = now;
+    return creation_save_tick();
+}
+
+/* Where the game keeps the fields that decision reads, for game:
+   out[0] slot, [1] scene, [2] the village's own scene, [3] autosave,
+   [4] start field (0: a global). */
+__declspec(dllexport) void __stdcall VvfpCauseTestCreationFields(int game, unsigned int *out) {
+    out[0] = CREATION_SAVE[game].slot;
+    out[1] = CREATION_SAVE[game].state;
+    out[2] = CREATION_SAVE[game].main_state;
+    out[3] = CREATION_SAVE[game].autosave;
+    out[4] = CREATION_SAVE[game].start_field;
 }

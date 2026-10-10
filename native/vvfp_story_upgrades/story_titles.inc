@@ -451,3 +451,28 @@ static void titles_pass(int game, int sweep) {
 static void titles_tick(int game) {
     titles_pass(game, 1);
 }
+
+/* A villager's custom title for "VVFP Island Events.dll", which logs a Custom
+   Island Event's title change as "old -> new": the table in memory, as the
+   villager panel shows it -- the file is published later, so it can not say
+   at the moment of the event.  `out` gets the title or "" (none).  0 when
+   there is no record or no table for this game's slot yet. */
+__declspec(dllexport) int __stdcall VvfpStoryCustomTitle(int game, const void *record, char *out, int size) {
+    const char *title;
+    if (out == NULL || size <= 0 || record == NULL || game < 1 || game > 5) {
+        return 0;
+    }
+    out[0] = '\0';
+    if (story_record_index(game, (const unsigned char *)record) < 0) {
+        return 0;
+    }
+    titles_sync(game);
+    if (!titles.loaded) {
+        return 0;
+    }
+    title = titles_lookup(game, (const unsigned char *)record);
+    if (title != NULL) {
+        lstrcpynA(out, title, size);
+    }
+    return 1;
+}

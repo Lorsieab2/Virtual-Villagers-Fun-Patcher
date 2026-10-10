@@ -326,11 +326,15 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # the strings and skill-code table only that code read
         # (0x943A8+0xA0C.. and +0xC10..) -- nothing in either doubler wrapper
         # region (+0x820..0x960) or the positive writers.
+        # Re-pinned when the mask stage's slot stub stopped taking a save's
+        # backup generation (slot 21..25) for a change of village (v1.35.66:
+        # it cleared a bought Barrel at every save) -- the appended .vvmk
+        # page only, nothing in any doubler region.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "A5EC1789912FFBAC7B46543732BBB10F5CDFF9C1A1A40A2B57B9758E53A17820",
+            "8F2ED3D0F721E36FD050229B6A2AB902E8D92DFBE179E7CB6CB92EF7846B9BBD",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
@@ -378,10 +382,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # (a body is never aged), and again when the cross-check learned the
         # orphan mask entries (native/shared/orphan_masks.h, v1.35.59), and again
         # when the startup loader's companion list gained "VVFP Island Events.dll"
-        # (native/shared/startup_companions.h, v8).
+        # (native/shared/startup_companions.h, v8), and again when the quit check
+        # learned the missing last names (v1.35.66).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "AB8D86D461559DEE2ADCA2C538E8D1F17BDC6FE742AAA64A170F5D12A0A14DA0",
+            "917578BE8DC0270AE5895BA2F5DD5BF7644C8D55DF3DF3996D358BA22ADD2CAE",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

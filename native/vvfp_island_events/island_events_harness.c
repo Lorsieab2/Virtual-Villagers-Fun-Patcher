@@ -18,10 +18,13 @@
         it brings is still "New villager".
      3. An event that starts a pregnancy logs the conception's lasting fields on the
         mother, not only her Pregnant flag: the babies and the expected
-        father's name, head and body (Codex, #577): The Secret City, The
-        Tree of Life and New Believers; A New Home the babies.  The Lost
-        Children only the Pregnant flag: the owner's own VV2 log disproved
-        its father offsets on the mother, and its babies offset is unconfirmed.
+        father's name, head and body (Codex, #577), in all five games: A New
+        Home's father from the Show Parents companion's record of the
+        conception (a stand-in here), and none printed when it has none
+        (3d).  They are printed whole even when the last pregnancy left the
+        same father or babies on her (3b), A New Home's and The Lost
+        Children's 0 for one baby as 1; a pregnancy's babies changed later
+        are "old -> new" (3c).
      4. Bytes after a name's terminator are not a change.
      5. A record slot the event freed and filled with someone else (the name
         AND the head or body differ) is the one before "Gone" and the one now
@@ -30,6 +33,17 @@
         Esteemed Elder statues, The Secret City's +0xE94 records, The Tree of
         Life's ghosts, New Believers' Reanimate stand-ins) are never logged,
         though an event changes everyone; the villagers still are.
+
+     7. The Secret City, The Tree of Life and New Believers: the answer
+        clicked in their two-choice dialog is the record's "Choice:" line, as
+        in A New Home and The Lost Children -- inside the presenter, and (The
+        Secret City, New Believers) for the dialog on its own, its OK's record;
+        never carried to the next event shown at the same address.
+
+     9. Choose Time Skip Amount's Time Warp step waits while an event is
+        open (VvfpIslandEventOpen), so an event's record never holds the
+        years a step adds; the event's own Age change is still logged.  In
+        all five games.
 
    Exit code 0 when every check passes. */
 #include "vvfp_island_events.c"
@@ -45,6 +59,7 @@ struct written {
     int kind;
     const void *record;
     int live;
+    char before[512];
     char changes[2048];
 };
 static struct written g_out[32];
@@ -53,12 +68,12 @@ static int g_outs;
 static int __stdcall stub_write(int game, int kind, const void *record, int live, const char *before,
                                 const char *changes, int arrival) {
     (void)game;
-    (void)before;
     (void)arrival;
     if (g_outs < (int)(sizeof g_out / sizeof g_out[0])) {
         g_out[g_outs].kind = kind;
         g_out[g_outs].record = record;
         g_out[g_outs].live = live;
+        lstrcpynA(g_out[g_outs].before, before != NULL ? before : "", sizeof g_out[g_outs].before);
         lstrcpynA(g_out[g_outs].changes, changes != NULL ? changes : "", sizeof g_out[g_outs].changes);
         ++g_outs;
     }
@@ -77,6 +92,52 @@ static int g_harness_game;
 static int harness_villagers(unsigned char **out, int capacity) {
     return array_villagers(g_array, ARRAYS[g_harness_game].stride, SLOTS, ARRAYS[g_harness_game].present, out,
                            capacity);
+}
+
+/* A New Home's expected father: the harness's array in place of the game's,
+   and a stand-in for the Show Parents companion's Vv1ParentageQueryExpectedFather
+   that knows a conception by Rongo (head 3, body 7) for record
+   g_vv1_stash_index only, and remembers the record it was asked about. */
+static int g_vv1_stash_index = 2;
+static int g_vv1_queried = -1;
+
+static unsigned char *harness_array(void) {
+    return g_array;
+}
+
+static int __stdcall stub_query_expected(int index, int *out, char *name, int capacity) {
+    g_vv1_queried = index;
+    out[0] = out[1] = -1;
+    name[0] = '\0';
+    if (index == g_vv1_stash_index) {
+        lstrcpynA(name, "Rongo", capacity);
+        out[0] = 3;
+        out[1] = 7;
+    }
+    return 1;                             /* as the companion: 1 for a known village, the father empty when none */
+}
+
+/* A stand-in for the Parentage Export's VillagePreferenceText: the first
+   filled slot, as the logs and the Details panel show it. */
+static int __stdcall stub_preference(int game, const void *record, int dislikes, char *out, int size) {
+    int k;
+    (void)game;
+    for (k = 0; k < g_layout->field_count; ++k) {
+        const struct field *f = &g_layout->fields[k];
+        if (f->type == (dislikes ? F_DISLIKES : F_LIKES)) {
+            unsigned int s;
+            for (s = 0; s < f->size; ++s) {
+                int v = *(const int *)((const unsigned char *)record + f->offset + 4 * s);
+                if (v != 0) {
+                    _snprintf(out, (size_t)size, "word%d", v);
+                    return 1;
+                }
+            }
+            _snprintf(out, (size_t)size, "(none)");
+            return 1;
+        }
+    }
+    return 0;
 }
 
 static unsigned char *slot(int i) {
@@ -123,27 +184,216 @@ static int any_contains(const char *text) {
     return 0;
 }
 
+/* A two-choice dialog as the later games build it: the event at +0x50, the
+   answer buttons at +0x85C / +0x860, each button's control at +0x10 keeping
+   its label at +0x40. */
+static unsigned char g_dialog[0x900];
+static unsigned char g_buttons[2][0x20];
+static unsigned char g_controls[2][0x60];
+static char g_labels[2][32];
+
+static void build_dialog(void) {
+    int b;
+    memset(g_dialog, 0, sizeof g_dialog);
+    *(unsigned int *)(g_dialog + 0x50) = (unsigned int)(uintptr_t)g_buttons;   /* any event: non-zero */
+    lstrcpynA(g_labels[0], "Swim it back\n", sizeof g_labels[0]);
+    lstrcpynA(g_labels[1], "Leave it.", sizeof g_labels[1]);
+    for (b = 0; b < 2; ++b) {
+        *(unsigned int *)(g_dialog + 0x85C + 4 * b) = (unsigned int)(uintptr_t)g_buttons[b];
+        *(unsigned int *)(g_buttons[b] + 0x10) = (unsigned int)(uintptr_t)g_controls[b];
+        *(unsigned int *)(g_controls[b] + 0x40) = (unsigned int)(uintptr_t)g_labels[b];
+    }
+}
+
+/* One call of site `site` (index 0 or 1 in g_sites) with `this` and the click
+   (msg, id); `inside` runs between its entry and its return. */
+static void call_site(int index, const void *self, unsigned int msg, unsigned int id, void (*inside)(void)) {
+    unsigned int frame[12];
+    memset(frame, 0, sizeof frame);
+    frame[6] = (unsigned int)(uintptr_t)self;
+    frame[8] = 0x401000u;
+    frame[9] = msg;
+    frame[10] = id;
+    before_call(frame, index);
+    if (inside != NULL) {
+        inside();
+    }
+    (void)after_call();
+}
+
+static int g_choice_research;
+static int g_choice_float;
+static void gain_research(void) {
+    if (g_choice_float) {
+        *(float *)(slot(0) + g_choice_research) += 1.0f;
+    } else {
+        *(int *)(slot(0) + g_choice_research) += 1;
+    }
+}
+static void answer_second_then_ok(void) {
+    call_site(1, g_dialog, 8, 3, NULL);
+    call_site(1, g_dialog, 8, 1, gain_research);
+}
+
+static void check_choice(const struct game_layout *layout, const struct field *research, int skills_float) {
+    const struct site *sites = GAME_SITES[g_harness_game];
+    const struct site *click = NULL;
+    int k;
+    (void)layout;
+    for (k = 0; sites[k].entry != 0; ++k) {
+        if (sites[k].answer != NULL) {
+            click = &sites[k];
+        }
+    }
+    CHECK(click != NULL && sites[0].watch == NULL && sites[0].answer == NULL,
+          "the two-choice dialog's button handler is watched for the answer");
+    if (click == NULL) {
+        return;
+    }
+    g_sites[0] = &sites[0];               /* the presenter */
+    g_sites[1] = click;
+    g_choice_research = (int)research->offset;
+    g_choice_float = skills_float;
+    build_dialog();
+
+    /* a. Inside the presenter: the second answer, then OK applies the event. */
+    g_outs = 0;
+    call_site(0, NULL, 0, 0, answer_second_then_ok);
+    CHECK(g_outs == 1 && strstr(g_out[0].before, "  Choice: Leave it\n") != NULL
+          && strstr(g_out[0].changes, "  Research: ") != NULL,
+          "inside the presenter: \"Choice: Leave it\" (the second answer's label, as shown) on the record");
+
+    /* b. The next event at the same address, no answer clicked: no Choice. */
+    g_outs = 0;
+    call_site(0, NULL, 0, 0, gain_research);
+    CHECK(g_outs == 1 && strstr(g_out[0].before, "Choice:") == NULL,
+          "the next event shown in the same dialog, no answer: no Choice carried over");
+
+    /* c. The dialog on its own (no presenter): the first answer, then OK. */
+    if (click->watch != never) {
+        g_outs = 0;
+        *(unsigned int *)(g_dialog + 0x50) = (unsigned int)(uintptr_t)g_buttons;
+        call_site(1, g_dialog, 8, 2, NULL);
+        call_site(1, g_dialog, 8, 1, gain_research);
+        CHECK(g_outs == 1 && strstr(g_out[0].before, "  Choice: Swim it back\n") != NULL,
+              "the dialog on its own: the answer is kept for the OK's record (\"Choice: Swim it back\")");
+    } else {
+        /* The Tree of Life: its click handler starts no comparison. */
+        g_outs = 0;
+        call_site(1, g_dialog, 8, 3, gain_research);
+        CHECK(g_outs == 0 && g_depth == 0, "The Tree of Life's click handler alone writes nothing");
+        g_answer[0] = '\0';
+        g_answer_self = 0;
+    }
+    g_sites[0] = g_sites[1] = NULL;
+}
+
+/* 9. Choose Time Skip Amount (the Story companion's story_time_skip.inc)
+   takes its next Time Warp step from the Origins companion's per-frame path,
+   which The Secret City, The Tree of Life and New Believers still run inside
+   their presenter's modal loop, while the event's popup is open.  A step
+   there aged every villager between the event's "before" and "after" (live,
+   The Secret City: "The Ants and the Granary ... Age: 694 -> 814" on all of
+   them).  The Story companion now holds the step while VvfpIslandEventOpen
+   answers 1; this is that rule against the shipped bracket.  `g_step_age`
+   is the step's age units (6 years, 120), `g_event_age` what the event
+   itself gives villager 0 (a vial's years: still logged). */
+static int g_step_age;
+static int g_event_age;
+static int g_step_ignores_popup;          /* the old behaviour, for the contrast */
+static int g_steps_taken;
+static int g_open_inside;
+
+static void time_skip_frame(void) {
+    int s;
+    if (!g_step_ignores_popup && VvfpIslandEventOpen()) {
+        return;                           /* story_time_skip.inc time_skip_tick: held */
+    }
+    for (s = 0; s < 3; ++s) {
+        *(int *)(slot(s) + field_named(g_layout, "Age")->offset) += g_step_age;
+    }
+    ++g_steps_taken;
+}
+
+static void event_with_a_frame(void) {
+    g_open_inside = VvfpIslandEventOpen();
+    *(int *)(slot(0) + field_named(g_layout, "Age")->offset) += g_event_age;
+    time_skip_frame();                    /* a frame of the modal loop, popup open */
+}
+
+static void check_time_skip(const struct game_layout *layout) {
+    const struct field *age = field_named(layout, "Age");
+    char expect[64];
+    int age0;
+    g_sites[0] = &GAME_SITES[g_harness_game][0];   /* the presenter (A New Home, The Lost Children: the constructor) */
+    g_step_age = 120;
+    slot(1)[ARRAYS[g_harness_game].present] = 1;   /* Ana back (check 2 removed her): three villagers */
+
+    /* a. The step waits for the popup: only the event's own Age change is logged. */
+    *(int *)(slot(0) + age->offset) = 400;
+    *(int *)(slot(1) + age->offset) = 694;
+    *(int *)(slot(2) + age->offset) = 700;
+    age0 = 400;
+    g_event_age = 40;
+    g_step_ignores_popup = 0;
+    g_steps_taken = 0;
+    g_outs = 0;
+    CHECK(VvfpIslandEventOpen() == 0, "no event open: VvfpIslandEventOpen is 0");
+    call_site(0, NULL, 0, 0, event_with_a_frame);
+    _snprintf(expect, sizeof expect, "  Age: %d -> %d\n", age0, age0 + 40);
+    CHECK(g_open_inside == 1 && g_steps_taken == 0, "inside the event's bracket VvfpIslandEventOpen is 1: the step is held");
+    CHECK(g_outs == 1 && g_out[0].record == slot(0) && strcmp(g_out[0].changes, expect) == 0,
+          "the event's own Age change is logged (%s), and no other villager's age",
+          "Age: 400 -> 440");
+    CHECK(VvfpIslandEventOpen() == 0, "the event returned: VvfpIslandEventOpen is 0 again");
+    g_outs = 0;
+    time_skip_frame();                    /* the next frame: the held step */
+    CHECK(g_steps_taken == 1 && g_outs == 0 && *(int *)(slot(1) + age->offset) == 694 + 120,
+          "the held step runs once the popup is closed, and is in no island event record");
+
+    /* b. An event that changes nothing, with the step held: no record at all. */
+    g_event_age = 0;
+    g_steps_taken = 0;
+    g_outs = 0;
+    call_site(0, NULL, 0, 0, event_with_a_frame);
+    CHECK(g_outs == 0 && g_steps_taken == 0, "an event that changes nothing logs nothing, the step held");
+    time_skip_frame();
+
+    /* c. The contrast: a step taken inside the bracket is what the live log showed. */
+    g_step_ignores_popup = 1;
+    g_outs = 0;
+    call_site(0, NULL, 0, 0, event_with_a_frame);
+    CHECK(count_kind(KIND_ISLAND_EVENT) == 3 && any_contains("  Age: "),
+          "(a step inside the bracket would give every villager an Age line: %d records)", g_outs);
+    g_step_ignores_popup = 0;
+    g_sites[0] = NULL;
+}
+
 int main(void) {
     static const char *const GAME_NAMES[GAMES + 1] = {
         "", "A New Home", "The Lost Children", "The Secret City", "The Tree of Life", "New Believers",
     };
     setvbuf(stdout, NULL, _IONBF, 0);
     g_write = stub_write;
+    g_vv1_array = harness_array;
+    g_vv1_query_expected = stub_query_expected;
+    g_vv1_query_looked = 1;
+    g_preferences = stub_preference;
+    g_preferences_looked = 1;
     for (g_harness_game = 1; g_harness_game <= GAMES; ++g_harness_game) {
         struct game_layout layout = *GAME_LAYOUTS[g_harness_game];
         const struct field *research = field_named(&layout, "Research");
-        const struct field *pregnant = field_named(&layout, "Pregnant");
-        const struct field *babies = field_named(&layout, "Babies in pregnancy");
+        const struct field *pregnant = field_named(&layout, "Nursing");
+        const struct field *babies = field_named(&layout, "Babies nursing");
         const struct field *father = field_named(&layout, "Expected father");
         const struct field *father_head = field_named(&layout, "Expected father's head");
         const struct field *father_body = field_named(&layout, "Expected father's body");
         unsigned int present = ARRAYS[g_harness_game].present;
         int skills_float = research != NULL && research->type == F_FLOAT;
-        char want[128];
         printf("Virtual Villagers %d (%s)\n", g_harness_game, GAME_NAMES[g_harness_game]);
         g_array = (unsigned char *)VirtualAlloc(NULL, (SIZE_T)SLOTS * ARRAYS[g_harness_game].stride + 0x1000,
                                                 MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-        if (g_array == NULL || research == NULL || pregnant == NULL || (babies == NULL) != (g_harness_game == 2)) {
+        if (g_array == NULL || research == NULL || pregnant == NULL || babies == NULL) {
             printf("  FAIL cannot set the game up\n");
             ++failures;
             continue;
@@ -191,50 +441,70 @@ int main(void) {
               && g_out[1].record == slot(3) && strstr(g_out[1].changes, "  New villager: yes\n") != NULL,
               "a villager removed is \"Gone\" (named from the copy), one brought is \"New villager\"");
 
-        /* 3. A pregnancy the event starts, on Tavi. */
+        /* 3. A pregnancy the event starts, on Tavi: twins by Rongo.  The
+           Pregnant field holds what each game writes (The Lost Children a
+           countdown, the others 1). */
         begin();
-        *(int *)(slot(2) + pregnant->offset) = 1;
-        if (babies != NULL) {
-            *(int *)(slot(2) + babies->offset) = 2;
-        }
+        *(int *)(slot(2) + pregnant->offset) = g_harness_game == 2 ? 710 : 1;
+        *(int *)(slot(2) + babies->offset) = 2;
         if (father != NULL) {
             put_name(slot(2), father->offset, "Rongo");
             *(int *)(slot(2) + father_head->offset) = 3;
             *(int *)(slot(2) + father_body->offset) = 7;
         }
-        if (g_harness_game == 2) {
-            /* What the disproved father offsets and the unconfirmed babies
-               offset would read changes too, and is not logged. */
-            put_name(slot(2), 0x5C0, "Rongo");
-            *(int *)(slot(2) + 0x5E0) = 3;
-            *(int *)(slot(2) + 0x5DC) = 7;
-            *(int *)(slot(2) + 0x544) = 2;
-        }
         compare(&g_snaps[0]);
-        if (g_harness_game == 2) {
-            CHECK(g_outs == 1 && g_out[0].record == slot(2)
-                  && strcmp(g_out[0].changes, "  Pregnant: no -> yes\n") == 0,
-                  "a pregnancy the event starts: only Pregnant (the father and babies offsets are unproven)");
-        } else {
-            CHECK(g_outs == 1 && g_out[0].record == slot(2)
-                  && strstr(g_out[0].changes, "  Pregnant: no -> yes\n") != NULL
-                  && strstr(g_out[0].changes, "  Babies in pregnancy: 0 -> 2\n") != NULL,
-                  "a pregnancy the event starts: Pregnant and the babies");
-        }
+        CHECK(g_outs == 1 && g_out[0].record == slot(2)
+              && strstr(g_out[0].changes, "  Nursing: no -> yes\n") != NULL
+              && strstr(g_out[0].changes, "  Babies nursing: 2\n") != NULL,
+              "a pregnancy the event starts: Pregnant and the babies");
+        CHECK(g_outs == 1
+              && strstr(g_out[0].changes, "  Babies nursing: 2\n  Expected father: Rongo\n"
+                                          "  Expected father's head: 3\n  Expected father's body: 7\n") != NULL
+              && (g_harness_game == 1 ? father == NULL && father_head == NULL && father_body == NULL
+                                      : father != NULL && father_head != NULL && father_body != NULL),
+              "...and the expected father's name, head and body (%s)",
+              g_harness_game == 1 ? "the Show Parents companion's record of the conception"
+                                  : "the conception copied them onto her");
+
+        /* 3b. Delivered (A New Home and The Lost Children clear the litter;
+           the later games leave their 1, 2 or 3), then one baby by the same
+           father: the conception is printed whole though its father is the
+           one already on her record. */
+        *(int *)(slot(2) + pregnant->offset) = 0;
+        *(int *)(slot(2) + babies->offset) = g_harness_game <= 2 ? 0 : 1;
+        begin();
+        *(int *)(slot(2) + pregnant->offset) = g_harness_game == 2 ? 615 : 1;
+        compare(&g_snaps[0]);
+        CHECK(g_outs == 1 && g_out[0].record == slot(2)
+              && strstr(g_out[0].changes, "  Nursing: no -> yes\n") != NULL
+              && strstr(g_out[0].changes, "  Babies nursing: 1\n") != NULL
+              && strstr(g_out[0].changes, "  Expected father: Rongo\n") != NULL
+              && strstr(g_out[0].changes, "  Expected father's head: 3\n") != NULL
+              && strstr(g_out[0].changes, "  Expected father's body: 7\n") != NULL,
+              "a second conception by the same father, one baby: \"Babies nursing: 1\" and the father again");
         if (g_harness_game == 1) {
-            CHECK(father == NULL && father_head == NULL && father_body == NULL,
-                  "A New Home keeps no trace of the father on the mother: none is compared");
-        } else if (g_harness_game == 2) {
-            CHECK(father == NULL && father_head == NULL && father_body == NULL && babies == NULL,
-                  "The Lost Children compares no father and no babies (its own log disproved the offsets)");
-        } else {
-            _snprintf(want, sizeof want, "  Expected father: %s -> Rongo\n", "");
-            CHECK(father != NULL && father_head != NULL && father_body != NULL && g_outs == 1
-                  && strstr(g_out[0].changes, want) != NULL
-                  && strstr(g_out[0].changes, "  Expected father's head: 0 -> 3\n") != NULL
-                  && strstr(g_out[0].changes, "  Expected father's body: 0 -> 7\n") != NULL,
-                  "...and the expected father's name, head and body the conception copied onto her");
+            /* 3d. A New Home with no father recorded for her (the companion
+               answers an empty name and -1 / -1): no father line, never a stale one. */
+            g_vv1_stash_index = -1;
+            *(int *)(slot(2) + pregnant->offset) = 0;
+            *(int *)(slot(2) + babies->offset) = 0;
+            begin();
+            *(int *)(slot(2) + pregnant->offset) = 1;
+            compare(&g_snaps[0]);
+            CHECK(g_outs == 1 && strcmp(g_out[0].changes, "  Nursing: no -> yes\n  Babies nursing: 1\n") == 0
+                  && g_vv1_queried == 2,
+                  "A New Home with no conception recorded for her: no expected father printed (record 2 asked)");
+            g_vv1_stash_index = 2;
         }
+
+        /* 3c. An event that changes the babies of a pregnancy (a Custom
+           Island Event): one baby becomes three, "1 -> 3" in every game. */
+        begin();
+        *(int *)(slot(2) + babies->offset) = 3;
+        compare(&g_snaps[0]);
+        CHECK(g_outs == 1 && g_out[0].record == slot(2)
+              && strcmp(g_out[0].changes, "  Babies nursing: 1 -> 3\n") == 0,
+              "a pregnancy's babies changed: \"Babies nursing: 1 -> 3\" alone");
 
         /* 4. Stale bytes after a name's terminator. */
         begin();
@@ -283,6 +553,34 @@ int main(void) {
                   && g_out[0].record == slot(0) && g_out[1].record == slot(2) && g_out[2].record == slot(3),
                   "look-alikes (+0x%X) are never logged, before, after or appearing; the three villagers are",
                   LOOKALIKE[g_harness_game]);
+        }
+
+        /* 8. Likes: a slot the logs do not show changes -- no line ("Likes:
+           parrots -> parrots", The Secret City's Green Pearl, live); the shown
+           one changes -- "Likes: word5 -> word9". */
+        {
+            const struct field *likes = field_named(&layout, "Likes");
+            if (likes != NULL) {
+                *(int *)(slot(0) + likes->offset) = 5;
+                begin();
+                *(int *)(slot(0) + likes->offset + 4 * (likes->size - 1)) = 7;
+                compare(&g_snaps[0]);
+                CHECK(g_outs == 0, "a likes slot the log does not show changed: no record");
+                begin();
+                *(int *)(slot(0) + likes->offset) = 9;
+                compare(&g_snaps[0]);
+                CHECK(g_outs == 1 && strcmp(g_out[0].changes, "  Likes: word5 -> word9\n") == 0,
+                      "the shown like changed: \"Likes: word5 -> word9\"");
+            }
+        }
+
+        /* 9. A Choose Time Skip Amount step and an open event. */
+        check_time_skip(&layout);
+
+        /* 7. The later games' two-choice answer: "Choice:" as A New Home and
+           The Lost Children write it (their answer_label). */
+        if (g_harness_game >= 3) {
+            check_choice(&layout, research, skills_float);
         }
 
         memset(g_array, 0, (size_t)SLOTS * ARRAYS[g_harness_game].stride);

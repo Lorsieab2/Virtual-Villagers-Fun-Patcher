@@ -12,4 +12,8 @@ EXPORTS
     VvfpStoryAttachHost=_VvfpStoryAttachHost@8
     VvfpStoryVillageReset=_VvfpStoryVillageReset@8
     VvfpStoryPickGongOutcome=_VvfpStoryPickGongOutcome@8
+    VvfpStoryChooseTimeSkip=_VvfpStoryChooseTimeSkip@8
+    VvfpStoryTimeSkipPrice=_VvfpStoryTimeSkipPrice@4
     VvfpStoryCallerReturn=_VvfpStoryCallerReturn@4
+    VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
+    VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4

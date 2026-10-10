@@ -1,0 +1,3 @@
+LIBRARY "VVFP Storytelling"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8

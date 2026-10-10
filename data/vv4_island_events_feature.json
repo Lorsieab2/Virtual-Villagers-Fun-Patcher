@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv4",
   "name": "Write Island Events Log to Text File",
-  "description": "Every change an island event makes to a villager is written to a new log, the Island Events log (\"Virtual Villagers Fun Patcher Logs\\Island Events\\Virtual Villagers 4 Island Events Log 1.txt\"): one numbered record per villager it changed, with the event's title as the game shows it, the answer you picked when it asked, and each change as old -> new -- health, age, sickness, pregnancy, head, body, name, likes, dislikes and every skill -- and \"Gone\" for a villager the event took away. A villager whose head or body an event changed also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old and the new look are the same villager. The records are written when the game saves, like the other logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.**",
+  "description": "Every change an island event makes to a villager is written to a new log, the Island Events log (\"Virtual Villagers Fun Patcher Logs\\Island Events\\Virtual Villagers 4 Island Events Log 1.txt\"): one numbered record per villager it changed, with the event's title as the game shows it, the answer you picked when it asked, and each change as old -> new -- health, age, sickness, pregnancy, head, body, name, likes, dislikes, every skill, parents, custom title, mask and Special villager title -- \"Gone\" for a villager the event took away, and the sex and age of a villager it brought. What an event changes in the village as a whole -- food, tech points, the blackberries, cutting tools and bars of soap, puzzles solved or unsolved and the weather -- is one record of its own, a \"Village:\" list of old -> new, and an event that changes nothing still gets its record, \"Changes: none\". A villager whose head or body an event changed also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old and the new look are the same villager. The records are written when the game saves, like the other logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.**",
   "output_tag": "Island Events",
   "needs_on": [
     {
@@ -15,6 +15,8 @@
   ],
   "behavior_changes": [
     "When an island event runs, every villager is copied just before the game applies it and compared just after; each difference is one line of the villager's \"Island event <n>\" record.",
+    "The village's food, tech points, food stores, puzzles and (where the game has one) weather are read just before and just after too; what changed is one \"Island event <n>\" record with a \"Village:\" list, and an event that changes nothing is one record ending \"Changes: none\".",
+    "A villager the event brings is named with its sex and its age, in game units and years (\"Age: 340 (17 years old)\").",
     "A head or body change is also an \"Appearance changed\" record in the Births and Conceptions log, ending \"Changed by: <event> (island event)\".",
     "A new village gets its Island Events log when it is made, like the other logs."
   ],
@@ -28,7 +30,7 @@
     {
       "source": "assets/island_events/VVFP Island Events.dll",
       "destination": "VVFP Island Events.dll",
-      "sha256": "F675FDC86308E5F1FA808089AFFC71E199C93EAA99F0B9924DC624704971CD4E"
+      "sha256": "CD222501F8EB4064F6F3314AA5F43C5B8925CFF3A63AF3EFC80C22E1D9BD48DB"
     }
   ],
   "runtime_detours": [
@@ -48,6 +50,12 @@
       "va": "0x417790",
       "stock_bytes": "6AFF68B9654800",
       "routine": "the event dialog's constructor (it names the event)",
+      "installed_by": "VVFP Island Events.dll, VvfpStartup"
+    },
+    {
+      "va": "0x417ea0",
+      "stock_bytes": "837C240408",
+      "routine": "the event dialog's button handler (the two-choice answer clicked)",
       "installed_by": "VVFP Island Events.dll, VvfpStartup"
     }
   ],

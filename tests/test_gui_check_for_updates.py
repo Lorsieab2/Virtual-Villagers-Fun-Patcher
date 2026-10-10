@@ -157,8 +157,10 @@ class ReleasesLinkTests(unittest.TestCase):
         # imports only the standard library.
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
-               "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_genealogy_window", "vv_tree_editor_tools",
-               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names"}
+               "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
+               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_villager_info",
+               "vv_log_decisions", "vv_log_contradictions",
+               "vv_startup_questions", "vv_graves"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -171,24 +173,44 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_save_backup", set()),
             ("vv_tribe_rename", {"vv_save_backup"}),
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
-                              "vv_cut_names", "vv_save_layout"}),
-            ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy"}),
+                              "vv_cut_names", "vv_save_layout", "vv_log_decisions",
+                              "vv_log_contradictions",
+                              # PATCHER_VERSION: the repair copies are named for the running build.
+                              "transparency"}),
+            # The player's "Retroactively edit records?" No answers (vv_log_decisions).
+            ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
+                                  "vv_log_contradictions"}),
+            ("vv_log_decisions", {"vv_save_layout"}),
+            # Records that contradict each other (Check / Repair Saves & Logs).
+            ("vv_log_contradictions", {"vv_log_tools", "vv_save_layout", "vv_log_additions", "vv_last_names",
+                                       "vv_log_decisions"}),   # the answers kept for the readers (audit66)
             # Giving last names re-keys the Family Tree Maker's edits (vv_family_tree.renamed_keys).
             ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree",
-                               "vv_tribe_rename", "vv_genealogy", "vv_save_layout"}),
+                               "vv_tribe_rename", "vv_genealogy", "vv_save_layout",
+                               "vv_startup_questions"}),
+            # The queue of questions the patcher asks when it opens (the owner, v1.35.66).
+            ("vv_startup_questions", set()),
             ("patcher_files", set()),
             ("vv_how_to_use", set()),
             # The Family Tree Maker and the Village Matchmaker.
             # The tree shows a name the Villager Details screen cut by the logs' full name.
+            # ...and A New Home's parents file under either folder name (vv_save_layout).
             ("vv_genealogy", {"vv_log_tools", "vv_last_names", "vv_log_additions", "vv_tribe_rename",
-                              "vv_cut_names"}),
+                              "vv_cut_names", "vv_save_layout", "vv_log_decisions"}),
             # Restoring cut names renames through Last Names.
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions"}),
-            ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout"}),
+            # Fix grave information: the graves' fingerprints and writes through Last Names.
+            ("vv_graves", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_log_additions",
+                           "vv_log_decisions"}),
+            ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout", "vv_line_colours"}),
             ("vv_gdiplus", {"vv_family_tree"}),
-            ("vv_genealogy_window", {"vv_family_tree", "vv_gdiplus", "vv_genealogy", "vv_save_backup",
+            ("vv_line_colours", {"vv_family_tree", "vv_gdiplus"}),
+            ("vv_genealogy_window", {"vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy", "vv_save_backup",
                                      "vv_tribe_rename", "vv_tree_editor_tools", "vv_last_names", "vv_log_tools",
-                                     "vv_number_names"}),
+                                     "vv_number_names", "vv_villager_info"}),
+            # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).
+            ("vv_villager_info", {"vv_family_tree", "vv_genealogy", "vv_last_names",
+                                 "vv_save_layout", "vv_log_additions"}),
             # Number Duplicate Names renames through Last Names.
             ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup", "vv_log_additions",
                                  "vv_save_layout"}),

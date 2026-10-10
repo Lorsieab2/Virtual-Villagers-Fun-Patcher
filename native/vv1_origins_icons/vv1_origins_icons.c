@@ -7,6 +7,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
@@ -193,12 +194,19 @@ static unsigned char vv1_mask_seen_alive[VV_MASK_SLOTS];
    identity.  -1 means no slot has been loaded in this process yet. */
 static int vv1_mask_loaded_slot = -1;
 
+/* The game's own current slot first (its save manager,
+   native/shared/game_save_slot.h), then the slot the exe's save-path stub
+   captured.  The stub alone was wrong for the first village of a fresh save
+   folder: the game lists slots 1..5 by reading them, so the stub held 5 and
+   that village's masks went to "Village Masks - Save 5.dat" until its first
+   save.  The stub's value stays the fallback for the moment before the save
+   manager exists (and for the native harnesses). */
 static int vv1_mask_current_slot(void) {
     unsigned int slot = VV_MASK_SAVE_SLOT;
     if (slot < VV_MASK_FIRST_SAVE_SLOT || slot > VV_MASK_LAST_SAVE_SLOT) {
-        return 0;  /* slot zero, invalid values, and a not-yet-captured slot */
+        slot = 0;  /* slot zero, invalid values, and a not-yet-captured slot */
     }
-    return (int)slot;
+    return vv_current_save_slot(VV_STORY_GAME, (int)slot);
 }
 
 static void vv1_mask_forget_loaded(void);
@@ -1741,6 +1749,24 @@ static int vvfp_xc_masks_repair(int game, int slot) {
     return done;
 }
 
+#if VV_STORY_GAME == 1
+/* The Barrel of Babies bought and not delivered yet (native/shared/paid_purchases.h):
+   its pending token 0x48D700 (1 bought, 2 the Tech screen closed and the
+   delay counting) and delay counter 0x48D704, re-armed as 2 after a relaunch. */
+#include "../shared/paid_purchases.h"
+static const vv_paid_game VV1_PAID = {
+    (volatile unsigned char *)0x0048D700, (volatile unsigned int *)0x0048D704, 2, "Virtual Villagers"
+};
+
+static void vv1_paid_tick(int slot) {
+    static unsigned int live[VV_MASK_SLOTS];
+    if (vv1_mask_live_roster(live) == 0) {
+        return;
+    }
+    vv_paid_tick(1, slot, live, &VV1_PAID);
+}
+#endif
+
 void __stdcall Vv1MaskTick(void) {
     int swept;
     int birth_dirty;
@@ -1764,6 +1790,9 @@ void __stdcall Vv1MaskTick(void) {
        is played; any question waits for the quit (crosscheck_bridge.h).  No
        village frame for a while (the menus, a load) is a new load to it. */
     vvfp_crosscheck_bridge(1, 1);
+#if VV_STORY_GAME == 1
+    vv1_paid_tick(slot);        /* a bought Barrel not delivered yet survives a quit */
+#endif
     if (!vv_sidecar_gate_ready(&vv1_mask_gate, slot)) {
         /* This slot's sidecar has not loaded: never read yet, or present but
            unopenable when last tried.  Retry here -- the load itself is a
@@ -2238,9 +2267,10 @@ static INT_PTR CALLBACK upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
+            || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island
-               Event row's lock. */
+               Event row's lock (Choose Time Skip Amount ignores it). */
             if (vvfp_story_pick_clicked(
                     VV_STORY_GAME, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE
@@ -2284,7 +2314,7 @@ static INT_PTR CALLBACK upgrade_dialog(
    own host after the include. */
 #if VV_STORY_GAME == 1
 static int __stdcall vv1_story_slot(void) {
-    return vv1_mask_current_slot();
+    return vv_current_save_slot(1, vv1_mask_current_slot());
 }
 
 static int __stdcall vv1_story_mask_get(void *record) {
@@ -2299,9 +2329,15 @@ static int __stdcall vv1_story_mask_set(void *record, int mask) {
     return vv1_mask_get((unsigned char *)record) == mask && vv1_mask_sidecar_save();
 }
 
+/* Choose Time Skip Amount: defined with the Time Warp below. */
+static int __stdcall vv1_story_time_skip_step(int years);
+static int __stdcall vv1_story_time_skip_settled(void);
+static int __stdcall vv1_story_time_skip_running(void);
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
-        sizeof(vvfp_story_host), vv1_story_slot, vv1_story_mask_get, vv1_story_mask_set, NULL
+        sizeof(vvfp_story_host), vv1_story_slot, vv1_story_mask_get, vv1_story_mask_set, NULL,
+        vv1_story_time_skip_step, vv1_story_time_skip_settled, vv1_story_time_skip_running
     };
     return &host;
 }
@@ -3683,6 +3719,67 @@ int __stdcall ShowOriginsTimeWarp(
     );
     return VV1_TW_APPLIED;
 }
+
+#if VV_STORY_GAME == 1
+/* Choose Time Skip Amount (the Story DLL drives it): one step of the Time
+   Warp below, at most the years one Time Warp buys at the current speed, so
+   every step is exactly a Time Warp the game already handles.  The step
+   then waits for the game's own villager tick (0x42E900, every two seconds
+   of the clock) to replay it -- that tick rewrites every record's marker
+   (+0x340, 0x42EAE3), so a marker that moved off the value the step left
+   is the sign. */
+static int vv1_skip_watch = -1;        /* the record watched, -1 = none */
+static int vv1_skip_mark;              /* its marker as the step left it */
+
+static int __stdcall vv1_story_time_skip_step(int years) {
+    unsigned char *world = *(unsigned char **)(UINT_PTR)0x0048AEDCu;
+    unsigned char *base = VV_MASK_MANAGER;
+    int speed, step, i;
+    if (world == NULL || base == NULL || years <= 0) {
+        return 0;
+    }
+    speed = *(int *)(world + VV1_TW_SPEED_OFFSET);
+    step = vv1_time_warp_years(speed);
+    if (step <= 0) {
+        return -1;                     /* paused, or a speed we do not know */
+    }
+    if (step > years) {
+        step = years;
+    }
+    if (vv1_time_warp_apply(speed, step) <= 0) {
+        return 0;
+    }
+    vv1_skip_watch = -1;
+    for (i = 0; i < VV_MASK_SLOTS; i++) {
+        unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
+        if (rec[VV_OCCUPIED_OFFSET] == 1 && *(int *)(rec + VV1_TW_HEALTH_OFFSET) > 0) {
+            vv1_skip_watch = i;
+            vv1_skip_mark = *(int *)(rec + VV1_TW_LAST_SEEN_OFFSET);
+            break;
+        }
+    }
+    return step;
+}
+
+static int __stdcall vv1_story_time_skip_settled(void) {
+    unsigned char *base = VV_MASK_MANAGER;
+    unsigned char *rec;
+    if (vv1_skip_watch < 0 || base == NULL) {
+        return 1;
+    }
+    rec = base + (size_t)vv1_skip_watch * VV_RECORD_STRIDE;
+    return rec[VV_OCCUPIED_OFFSET] != 1 || *(int *)(rec + VV1_TW_HEALTH_OFFSET) <= 0
+        || *(int *)(rec + VV1_TW_LAST_SEEN_OFFSET) != vv1_skip_mark;
+}
+
+/* Whether the game's clock runs (a known speed, not paused): only that time
+   counts toward the time skip's replay wait (native/shared/story_bridge.h). */
+static int __stdcall vv1_story_time_skip_running(void) {
+    unsigned char *world = *(unsigned char **)(UINT_PTR)0x0048AEDCu;
+    return world != NULL && vv1_time_warp_years(*(int *)(world + VV1_TW_SPEED_OFFSET)) > 0;
+}
+
+#endif
 
 int __stdcall ShowOriginsRowMessage(
     int is_detail,

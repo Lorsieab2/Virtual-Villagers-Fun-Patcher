@@ -88,6 +88,58 @@ class LostChildrenPointsEarnedTests(unittest.TestCase):
         self.assertEqual(self.run_path(False), (74, 37))
 
 
+class LostChildrenTripletsCountSetsOnlyTests(unittest.TestCase):
+    """Triplets Birthed in The Lost Children is the game's own +0x2E524, and it
+    counts triplet SETS only: a twins pregnancy never reaches 0x44BAD2. (The
+    owner's village shows 4 with 2 triplet sets in its Births log: its
+    stock-played save of 2026-04-24 already held 2 -- audit, 2026-10-09.)
+    Runs the conception tail 0x44BA64..0x44BAD8 with rand(100) forced."""
+
+    def run_litter(self, patched, rolls):
+        mu = machine(2, patched)
+        record, obj, world = HEAP, HEAP + 0x10000, HEAP + 0x1000000
+        mu.mem_write(obj + 0xE574D4, struct.pack("<I", world))
+        mu.mem_write(world + 0x2EA8C, struct.pack("<I", 3))       # the fertility mode the rolls need
+        mu.reg_write(UC_X86_REG_ESI, record)
+        mu.reg_write(UC_X86_REG_EDI, obj)
+        queue = list(rolls)
+
+        def stub(uc, address, size, _):
+            # rand(100) returns the next roll; the patched build's population
+            # guard (0x473C70) counts the living through 0x473F9C: none here.
+            if address in (0x4031A0, 0x473F9C):
+                esp = uc.reg_read(UC_X86_REG_ESP)
+                ret = struct.unpack("<I", uc.mem_read(esp, 4))[0]
+                value = (queue.pop(0) if queue else 99) if address == 0x4031A0 else 0
+                uc.reg_write(UC_X86_REG_EAX, value)
+                uc.reg_write(UC_X86_REG_ESP, esp + 4)
+                uc.reg_write(UC_X86_REG_EIP, ret)
+
+        mu.hook_add(UC_HOOK_CODE, stub, begin=0x4031A0, end=0x4031A0)
+        mu.hook_add(UC_HOOK_CODE, stub, begin=0x473F9C, end=0x473F9C)
+        mu.emu_start(0x44BA64, 0x44BAD8, count=400)
+        return rd(mu, world + 0x2E524), rd(mu, world + 0x2E5E4), rd(mu, record + 0x544)
+
+    def test_twins_are_not_counted_as_triplets(self):
+        for patched in (False, True):
+            with self.subTest(patched=patched):
+                triplets, twins, litter = self.run_litter(patched, [0, 99])
+                self.assertEqual(litter, 2)
+                self.assertEqual(triplets, 0, "a twins birth leaves before the triplets increment")
+                self.assertEqual(twins, 1 if patched else 0)
+
+    def test_triplets_are_counted_once_and_not_as_twins(self):
+        for patched in (False, True):
+            with self.subTest(patched=patched):
+                triplets, twins, litter = self.run_litter(patched, [0, 0])
+                self.assertEqual(litter, 3)
+                self.assertEqual(triplets, 1)
+                self.assertEqual(twins, 0)
+
+    def test_one_baby_counts_neither(self):
+        self.assertEqual(self.run_litter(True, [99])[:2], (0, 0))
+
+
 class PeopleCuredTests(unittest.TestCase):
     # (je site, the +1's target address, counter address, instruction after the +1)
     SITES = {3: (0x45B968, 0x5824B0, 0x45B977), 4: (0x465179, 0x4D6DF0, 0x465189),

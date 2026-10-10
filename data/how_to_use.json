@@ -37,6 +37,14 @@
       ]
     },
     {
+      "ids": ["vv1_easier_healing_mastery"],
+      "guide": [
+        "Healers, and villagers who like Healing, study the Medical Cactus whenever nobody is sick.",
+        "Nothing to click: they train Healing on their own, also while the game catches up on time away.",
+        "Without it, only a villager you drop on the cactus studies it."
+      ]
+    },
+    {
       "ids": ["vv2_easier_healing_mastery"],
       "guide": [
         "Healers, and villagers who like Healing, study plants whenever nobody is sick.",
@@ -403,6 +411,14 @@
         "Villagers walk around things in their way, like in the later games, instead of giving up on their task.",
         "Nothing to click.",
         "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
+      ]
+    },
+    {
+      "ids": ["vv1_storytelling", "vv2_storytelling"],
+      "guide": [
+        "Drag an adult (18+) onto a child (under 18): the adult tells that child a story.",
+        "The adult gets a Parenting (Breeding) practice roll; the child listens. Parenting 50+ in VV2: teaching.",
+        "Only your own drop does this; other drops are unchanged. Tick it, patch, and play."
       ]
     },
     {
@@ -835,12 +851,12 @@
       "title": "Repair Saves & Logs",
       "guide": [
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
-        "A checklist shows what can be done: tick or untick each line, then click Repair. The save folder is backed up first.",
-        "Older records can get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack.",
-        "What the save and files cannot tell, you are asked. Don't know adds nothing.",
-        "Give villagers last names (Choose...): from the family, the father, the mother or either at random, or pick or type each one; in the game and every log.",
-        "Number duplicate names: namesakes numbered oldest first (Soda I, Soda II...), in the game and every log.",
-        "Let the game repair: play the tribe and quit from its menu; what is wrong is fixed (needs a patch that keeps logs).",
+        "Tick or untick each line of the checklist, then click Repair; the save folder is backed up first.",
+        "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; what the files cannot tell, you are asked.",
+        "Give villagers last names (Choose...): by the village rule, their own rule, or Random; in the game and every log.",
+        "Number duplicate names: Soda I, Soda II..., oldest first, in the game and every log.",
+        "Fix grave information (Choose...): where a grave and its records differ, pick the right value or Don't know, or edit a grave.",
+        "Let the game repair: play the tribe and quit from its menu (needs a patch that keeps logs).",
         "Move Old Files to New Names: moves files an older patcher named, after a backup. Only once every game playing the save has v1.35.64 or newer."
       ]
     },

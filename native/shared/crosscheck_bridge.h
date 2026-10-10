@@ -151,10 +151,16 @@
 #define VVFP_XC_QUIT_WAIT_MS  (5u * 60u * 1000u)   /* how long the quit prompt waits for an answer */
 #endif
 
+#define VVFP_XC_LAST_NAMES_DLL "VVFP Last Names.dll"
+#define VVFP_XC_NO_LAST_MAX    64                   /* villagers with no last name named in one prompt */
+#define VVFP_XC_NAME_BYTES     32                   /* every game's name field, and its terminator */
+#define VVFP_XC_LN_FILE_MAX    65536                /* the last-names files read here */
+
 #define VVFP_XC_APPROVAL_MAGIC   0x31415256u        /* 'V' 'R' 'A' '1' */
 #define VVFP_XC_APPROVAL_VERSION 1u
 
 typedef int (__stdcall *vvfp_xc_scan_parents_fn)(int *counts);
+typedef int (__stdcall *vvfp_xc_count_fn)(void);
 typedef int (__stdcall *vvfp_xc_apply_parents_fn)(void);
 typedef int (__stdcall *vvfp_xc_scan_graves_fn)(int game, int slot);
 typedef void (__stdcall *vvfp_xc_repair_graves_fn)(int game, int slot, int repair);
@@ -200,6 +206,11 @@ static FARPROC vvfp_xc_load(const char *module, const char *name) {
    build's companion bits at game start.  Off when it was not (no loader). */
 #ifndef VVFP_XC_AUTOMATIC
 #define VVFP_XC_AUTOMATIC() (vvfp_startup_known && (vvfp_startup_shipped & VVFP_STARTUP_CHECK_LOGS) != 0u)
+#endif
+/* Whether this build gives new villagers last names (the Villagers Have Last
+   Names row ships "VVFP Last Names.dll"). */
+#ifndef VVFP_XC_LAST_NAMES_SHIPPED
+#define VVFP_XC_LAST_NAMES_SHIPPED() vvfp_startup_ships(VVFP_XC_LAST_NAMES_DLL)
 #endif
 /* "<Documents>\LDW\<executable's name>": where the game saves (the same
    rule as native/shared/save_folder.c, which this companion does not link;
@@ -327,6 +338,7 @@ static struct {
     /* What the last scan found. */
     int parents_found;            /* the parentage scan said 1 */
     int counts[6];
+    int recorded;                 /* A New Home: Birth records to write afterwards from the parentage file */
     int graves;                   /* graves missing from the Deaths log, when > 0 */
     int arrivals;                 /* villagers with no Birth or Arrived record, when > 0 */
     int births;                   /* villagers born here with no Birth record, when > 0 */
@@ -345,7 +357,14 @@ static struct {
     /* The prompt. */
     volatile LONG answer;         /* 0 until answered; IDYES or IDNO */
     UINT box_type;
+    const char *yes_label;        /* the Yes button's words; NULL: "Repair" */
     char text[4096];
+    /* Living villagers with no last name in a village that uses last names
+       (the missing last names below): the last scan's, at most
+       VVFP_XC_NO_LAST_MAX of them. */
+    int no_last;
+    int no_last_looks[VVFP_XC_NO_LAST_MAX][2];
+    char no_last_name[VVFP_XC_NO_LAST_MAX][VVFP_XC_NAME_BYTES];
 } vvfp_xc;
 
 static HHOOK vvfp_xc_cbt_hook;
@@ -428,9 +447,16 @@ static int vvfp_xc_scan(int game, int slot) {
     vvfp_xc_scan_text_fn scan_stats;
     int parents = 0, graves, arrivals, births, stats, masks;
     memset(vvfp_xc.counts, 0, sizeof(vvfp_xc.counts));
+    vvfp_xc.recorded = 0;
     if (game == 1) {
         scan_parents = (vvfp_xc_scan_parents_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL, "Vv1ParentageCrossCheckScan");
         parents = scan_parents != NULL ? scan_parents(vvfp_xc.counts) : 0;
+        {
+            /* Optional: a companion that predates it never writes one. */
+            vvfp_xc_count_fn recorded = (vvfp_xc_count_fn)VVFP_XC_PROC(VVFP_XC_PARENTAGE_DLL,
+                                                                       "Vv1ParentageCrossCheckRecorded");
+            vvfp_xc.recorded = parents == 1 && recorded != NULL ? recorded() : 0;
+        }
     }
     scan_graves = (vvfp_xc_scan_graves_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseScanGraves");
     graves = scan_graves != NULL ? scan_graves(game, slot) : 0;
@@ -523,11 +549,29 @@ static int vvfp_xc_repair_now(int game, int slot) {
 
 /* ---- The quit prompt ----------------------------------------------------- */
 
-/* Relabel the prompt's two buttons as it opens. */
+/* As the prompt opens: relabel a Yes/No box's two buttons, and make sure the
+   box is SEEN.  The game minimises its own window for it, and the box comes
+   from a thread of its own, which Windows' foreground lock may refuse to
+   bring forward -- a box left behind other windows, with the game's window
+   in the taskbar, is a game that seems to hang windowless at the quit (live,
+   v1.35.66, A New Home: the process stayed up with no window for over 40 s
+   after the quit save).  So the box is put on top, shown, brought forward
+   and flashed in the taskbar. */
 static LRESULT CALLBACK vvfp_xc_cbt(int code, WPARAM wparam, LPARAM lparam) {
     if (code == HCBT_ACTIVATE) {
-        SetDlgItemTextA((HWND)wparam, IDYES, "Repair");
-        SetDlgItemTextA((HWND)wparam, IDNO, "Not now");
+        HWND box = (HWND)wparam;
+        FLASHWINFO flash;
+        if ((vvfp_xc.box_type & 0xFu) == MB_YESNO) {
+            SetDlgItemTextA(box, IDYES, vvfp_xc.yes_label != NULL ? vvfp_xc.yes_label : "Repair");
+            SetDlgItemTextA(box, IDNO, "Not now");
+        }
+        SetWindowPos(box, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+        SetForegroundWindow(box);
+        memset(&flash, 0, sizeof flash);
+        flash.cbSize = sizeof flash;
+        flash.hwnd = box;
+        flash.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG;
+        FlashWindowEx(&flash);
     }
     return CallNextHookEx(vvfp_xc_cbt_hook, code, wparam, lparam);
 }
@@ -546,21 +590,21 @@ static BOOL CALLBACK vvfp_xc_find_window(HWND window, LPARAM out) {
 static DWORD WINAPI vvfp_xc_box(LPVOID unused) {
     int answer;
     (void)unused;
-    if ((vvfp_xc.box_type & 0xFu) == MB_YESNO) {
-        vvfp_xc_cbt_hook = SetWindowsHookExA(WH_CBT, vvfp_xc_cbt, NULL, GetCurrentThreadId());
-    }
+    vvfp_xc_cbt_hook = SetWindowsHookExA(WH_CBT, vvfp_xc_cbt, NULL, GetCurrentThreadId());
     answer = MessageBoxA(NULL, vvfp_xc.text, "Virtual Villagers Fun Patcher",
                          vvfp_xc.box_type | MB_TOPMOST | MB_SETFOREGROUND);
     if (vvfp_xc_cbt_hook != NULL) {
         UnhookWindowsHookEx(vvfp_xc_cbt_hook);
         vvfp_xc_cbt_hook = NULL;
     }
-    InterlockedExchange(&vvfp_xc.answer, answer == IDYES ? IDYES : IDNO);
+    /* -1: the box could not be shown (no answer, as one let go). */
+    InterlockedExchange(&vvfp_xc.answer, answer == IDYES ? IDYES : answer == 0 ? -1 : IDNO);
     return 0;
 }
 
 /* Show vvfp_xc.text in a box of `type` and wait for the answer: IDYES or
-   IDNO, or 0 when it could not be shown or was not answered in time.  Only
+   IDNO; 0 when it was not answered in time (or its thread could not start),
+   -1 when the box could not be shown.  Only
    messages SENT to this thread are taken while waiting. */
 static int vvfp_xc_ask(UINT type) {
     HANDLE thread;
@@ -569,6 +613,9 @@ static int vvfp_xc_ask(UINT type) {
     vvfp_xc.answer = 0;
     vvfp_xc.box_type = type;
     EnumWindows(vvfp_xc_find_window, (LPARAM)&game_window);
+    /* The game's thread is the foreground one now: let the box's thread take
+       the foreground from it (see vvfp_xc_cbt). */
+    AllowSetForegroundWindow(ASFW_ANY);
     if (game_window != NULL && GetWindowThreadProcessId(game_window, NULL) == GetCurrentThreadId()) {
         ShowWindow(game_window, SW_MINIMIZE);   /* out of full screen: the box is not hidden behind it */
     }
@@ -628,6 +675,9 @@ static void vvfp_xc_compose(void) {
                     "arrivals). They will be set to unknown.\r\n", c[1], "villager has", "villagers have");
         vvfp_xc_add("- %d %s parents the Births log cannot tell apart. They will be set to unknown.\r\n",
                     c[2], "villager has", "villagers have");
+        vvfp_xc_add("- %d %s parents recorded but no Birth or Arrived record in the Births log (born before "
+                    "that record existed). Their Birth records will be added from the parentage file.\r\n",
+                    vvfp_xc.recorded, "villager has", "villagers have");
         vvfp_xc_add("- %d %s no parents recorded. They will be filled in from the Births log.\r\n",
                     c[3], "villager has", "villagers have");
         vvfp_xc_add("- %d %s the wrong father recorded for a pregnancy. The father will be corrected "
@@ -667,6 +717,306 @@ static void vvfp_xc_compose(void) {
     lstrcatA(vvfp_xc.text, VVFP_XC_CLOSING);
 }
 
+/* ---- Missing last names --------------------------------------------------
+
+   The owner (v1.35.66): "if repair logs detects a missing last name, please
+   prompt the player to add one if auto check is enabled" -- "like for
+   arrivals and stuff. and direct them how to add last names".  With "Check
+   logs automatically" on, a village that uses last names (this build ships
+   the Villagers Have Last Names row, or the slot has a Last Names record) is
+   looked at right after the quit save: every living villager of the village
+   (VVFP Cause of Death.dll's VvfpCauseVillager: never a body, a statue, a
+   ghost, a stand-in or a Heathen) whose name carries no last name, read as
+   src/vv_last_names.py split_name reads it -- the words after the first, less
+   a numeral ("Soda II"), and never a name the player said is one first name
+   (the record's "whole" lines).  Last names can only be given with the game
+   closed (the patcher writes the save and every log), so the box only
+   queues the request and says how to give them:
+
+     Remind me: the slot's request file says "remind" -- the patcher asks the
+                next time it opens (src/vv_fun_patcher_gui.py), with those
+                villagers' boxes highlighted and a last name suggested;
+     Not now:   it says "not now" -- neither the game nor the patcher asks
+                again while every villager with no last name is one it lists.
+
+   No answer (the box not shown, or let go) writes nothing.  The request file
+   (src/vv_last_names.py MISSING_HEADER), written through a temporary file:
+
+     <save folder>\Virtual Villagers Fun Patcher Data\Last Names\
+         Virtual Villagers N Missing Last Names - Save S.dat
+     VVFP MISSING LAST NAMES v1 game=N
+     asked<TAB>remind | not now
+     villager<TAB>name<TAB>head<TAB>body          (the game's own Latin-1)
+
+   A request that already lists every villager found asks nothing more. */
+
+typedef int (__stdcall *vvfp_xc_villager_fn)(int game, int index, char *name, int cap, int *looks);
+
+static char vvfp_xc_ln_record[VVFP_XC_LN_FILE_MAX + 1];
+static char vvfp_xc_ln_request[VVFP_XC_LN_FILE_MAX + 1];
+
+/* The slot's Last Names file: `request` 0 the record, 1 the request. */
+static int vvfp_xc_ln_path(int game, int slot, int request, wchar_t *path) {
+    wchar_t folder[MAX_PATH];
+    if (!VVFP_XC_SAVE_FOLDER(folder) || lstrlenW(folder) + 120 > MAX_PATH) {
+        return 0;
+    }
+    wsprintfW(path, request
+              ? L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names\\Virtual Villagers %d Missing Last Names - Save %d.dat"
+              : L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names\\Virtual Villagers %d Last Names - Save %d.dat",
+              folder, game, slot);
+    return 1;
+}
+
+/* A small text file whose first line is `header`, into buf (terminated); 0
+   when it is not there, cannot be read, is larger than the buffer or is
+   another file. */
+static int vvfp_xc_ln_read(const wchar_t *path, const char *header, char *buf) {
+    HANDLE f;
+    DWORD size, got = 0;
+    size_t n = (size_t)lstrlenA(header);
+    buf[0] = '\0';
+    f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    size = GetFileSize(f, NULL);
+    if (size == INVALID_FILE_SIZE || size > VVFP_XC_LN_FILE_MAX || !ReadFile(f, buf, size, &got, NULL) || got != size) {
+        CloseHandle(f);
+        buf[0] = '\0';
+        return 0;
+    }
+    CloseHandle(f);
+    buf[got] = '\0';
+    if (strncmp(buf, header, n) != 0 || (buf[n] != '\r' && buf[n] != '\n')) {
+        buf[0] = '\0';
+        return 0;
+    }
+    return 1;
+}
+
+/* The next line of `text` after `line`, or NULL. */
+static const char *vvfp_xc_ln_next(const char *line) {
+    const char *end = strchr(line, '\n');
+    return end != NULL && end[1] != '\0' ? end + 1 : NULL;
+}
+
+/* Whether `field` (up to tab, CR or LF; UTF-8 in the record) is the n
+   Latin-1 bytes at `text`. */
+static int vvfp_xc_ln_same(const char *field, const char *text, size_t n, int utf8) {
+    size_t k = 0;
+    while (*field != '\0' && *field != '\t' && *field != '\r' && *field != '\n') {
+        unsigned char c = (unsigned char)*field++;
+        if (utf8 && (c == 0xC2 || c == 0xC3) && ((unsigned char)*field & 0xC0u) == 0x80u) {
+            c = (unsigned char)(((c & 0x03u) << 6) | ((unsigned char)*field++ & 0x3Fu));
+        }
+        if (k >= n || (unsigned char)text[k] != c) {
+            return 0;
+        }
+        ++k;
+    }
+    return k == n;
+}
+
+static int vvfp_xc_ln_numeral(const char *word, size_t n) {
+    size_t i;
+    if (n == 0) {
+        return 0;
+    }
+    for (i = 0; i < n; ++i) {
+        if (strchr("IVXLCDM", word[i]) == NULL || word[i] == '\0') {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* White space as Python's str.isspace() reads a Latin-1 name. */
+static int vvfp_xc_ln_space(char ch) {
+    unsigned char c = (unsigned char)ch;
+    return c == ' ' || (c >= 0x09 && c <= 0x0D) || (c >= 0x1C && c <= 0x1F) || c == 0x85 || c == 0xA0;
+}
+
+/* Whether `name` carries no last name (split_name): one word, perhaps with a
+   numeral after it, or words the record says are one first name. */
+static int vvfp_xc_ln_missing(const char *name) {
+    const char *starts[16];
+    size_t lens[16];
+    int count = 0, k;
+    const char *p = name;
+    const char *line;
+    size_t base;
+    /* The words as Python's str.split() makes them: runs of white space
+       separate words and an empty word is never one, so a leading, trailing
+       or doubled space is never taken for a last name ("Kele " has none). */
+    while (count < 16) {
+        size_t n = 0;
+        while (*p != '\0' && vvfp_xc_ln_space(*p)) {
+            ++p;
+        }
+        if (*p == '\0') {
+            break;
+        }
+        while (p[n] != '\0' && !vvfp_xc_ln_space(p[n])) {
+            ++n;
+        }
+        starts[count] = p;
+        lens[count] = n;
+        ++count;
+        p += n;
+    }
+    if (count == 0) {
+        return 1;
+    }
+    k = count - 1;
+    while (k > 0 && vvfp_xc_ln_numeral(starts[k], lens[k])) {
+        --k;
+    }
+    if (k == 0) {
+        return 1;
+    }
+    base = (size_t)(starts[k] - name) + lens[k];
+    for (line = vvfp_xc_ln_record; line != NULL && *line != '\0'; line = vvfp_xc_ln_next(line)) {
+        if (strncmp(line, "whole\t", 6) == 0 && vvfp_xc_ln_same(line + 6, name, base, 1)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Whether the request file lists this villager. */
+static int vvfp_xc_ln_listed(const char *name, int head, int body) {
+    const char *line;
+    char tail[32];
+    size_t n = (size_t)lstrlenA(name);
+    wsprintfA(tail, "\t%d\t%d", head, body);
+    for (line = vvfp_xc_ln_request; line != NULL && *line != '\0'; line = vvfp_xc_ln_next(line)) {
+        if (strncmp(line, "villager\t", 9) == 0 && vvfp_xc_ln_same(line + 9, name, n, 0)
+            && strncmp(line + 9 + n, tail, (size_t)lstrlenA(tail)) == 0
+            && (line[9 + n + lstrlenA(tail)] == '\r' || line[9 + n + lstrlenA(tail)] == '\n'
+                || line[9 + n + lstrlenA(tail)] == '\0')) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Right after the quit save: the village's living villagers with no last
+   name, when the village uses last names.  How many to ask about -- 0 when
+   there are none, or the request file already lists every one (asked to be
+   reminded, or "Not now"). */
+static int vvfp_xc_last_names_scan(int game, int slot) {
+    vvfp_xc_villager_fn villager;
+    wchar_t path[MAX_PATH];
+    char header[48], name[VVFP_XC_NAME_BYTES];
+    int looks[2], i, r, all_listed = 1, record;
+    vvfp_xc.no_last = 0;
+    wsprintfA(header, "VVFP LAST NAMES v1 game=%d", game);
+    record = vvfp_xc_ln_path(game, slot, 0, path) && vvfp_xc_ln_read(path, header, vvfp_xc_ln_record);
+    if (!record && !VVFP_XC_LAST_NAMES_SHIPPED()) {
+        return 0;                     /* the village does not use last names */
+    }
+    villager = (vvfp_xc_villager_fn)VVFP_XC_PROC(VVFP_XC_CAUSE_DLL, "VvfpCauseVillager");
+    if (villager == NULL) {
+        return 0;
+    }
+    for (i = 0; i < 256 && vvfp_xc.no_last < VVFP_XC_NO_LAST_MAX; ++i) {
+        name[0] = '\0';
+        r = villager(game, i, name, (int)sizeof name, looks);
+        if (r < 0) {
+            break;
+        }
+        name[sizeof name - 1] = '\0';
+        if (r == 1 && name[0] != '\0' && vvfp_xc_ln_missing(name)) {
+            lstrcpynA(vvfp_xc.no_last_name[vvfp_xc.no_last], name, VVFP_XC_NAME_BYTES);
+            vvfp_xc.no_last_looks[vvfp_xc.no_last][0] = looks[0];
+            vvfp_xc.no_last_looks[vvfp_xc.no_last][1] = looks[1];
+            ++vvfp_xc.no_last;
+        }
+    }
+    if (vvfp_xc.no_last == 0) {
+        return 0;
+    }
+    wsprintfA(header, "VVFP MISSING LAST NAMES v1 game=%d", game);
+    if (vvfp_xc_ln_path(game, slot, 1, path) && vvfp_xc_ln_read(path, header, vvfp_xc_ln_request)) {
+        for (i = 0; i < vvfp_xc.no_last && all_listed; ++i) {
+            all_listed = vvfp_xc_ln_listed(vvfp_xc.no_last_name[i], vvfp_xc.no_last_looks[i][0],
+                                           vvfp_xc.no_last_looks[i][1]);
+        }
+        if (all_listed) {
+            return 0;                 /* already asked about every one of them */
+        }
+    }
+    return vvfp_xc.no_last;
+}
+
+#define VVFP_XC_LN_HOW \
+    "To give them last names: close the game, open the Virtual Villagers Fun Patcher and choose " \
+    "Repair Saves & Logs... Pick this game, its save folder and this tribe, and press Repair Saves & Logs. " \
+    "Tick 'Give villagers last names, in the game and the logs' and press Choose... Their boxes are " \
+    "highlighted, with a last name suggested: keep it, pick another from the list or type your own, " \
+    "press OK, then Repair."
+
+static void vvfp_xc_last_names_compose(void) {
+    int i;
+    lstrcpyA(vvfp_xc.text, "Before the game closes: in the village you just played, ");
+    wsprintfA(vvfp_xc.text + lstrlenA(vvfp_xc.text), vvfp_xc.no_last == 1 ? "%d villager has no last name:\r\n\r\n"
+                                                                          : "%d villagers have no last name:\r\n\r\n",
+              vvfp_xc.no_last);
+    for (i = 0; i < vvfp_xc.no_last && lstrlenA(vvfp_xc.text) + 2 * VVFP_XC_NAME_BYTES + 1200 < (int)sizeof vvfp_xc.text;
+         ++i) {
+        lstrcatA(vvfp_xc.text, i ? ", " : "  ");
+        lstrcatA(vvfp_xc.text, vvfp_xc.no_last_name[i]);
+    }
+    if (i < vvfp_xc.no_last) {
+        wsprintfA(vvfp_xc.text + lstrlenA(vvfp_xc.text), " and %d more", vvfp_xc.no_last - i);
+    }
+    lstrcatA(vvfp_xc.text,
+             "\r\n\r\nLast names can only be given while the game is closed. \"Remind me\": the Fun Patcher "
+             "offers to give them last names the next time you open it. \"Not now\": you will not be asked "
+             "about these villagers again (only when another villager has no last name).\r\n\r\n"
+             VVFP_XC_LN_HOW "\r\n\r\n" VVFP_XC_HOW_TO_STOP);
+}
+
+/* The player's answer, kept in the request file: `state` "remind" or "not
+   now", with every villager this scan found.  Written to a temporary file and
+   swapped in; 0 when it could not be. */
+static int vvfp_xc_last_names_answer(int game, int slot, const char *state) {
+    wchar_t path[MAX_PATH], temporary[MAX_PATH + 8], folder[MAX_PATH];
+    char line[96];
+    HANDLE f;
+    DWORD put;
+    int i, ok;
+    if (!vvfp_xc_ln_path(game, slot, 1, path) || !VVFP_XC_SAVE_FOLDER(folder)
+        || lstrlenW(folder) + 60 > MAX_PATH) {
+        return 0;
+    }
+    lstrcatW(folder, L"\\Virtual Villagers Fun Patcher Data");
+    CreateDirectoryW(folder, NULL);
+    lstrcatW(folder, L"\\Last Names");
+    CreateDirectoryW(folder, NULL);
+    wsprintfW(temporary, L"%ls.tmp", path);
+    f = CreateFileW(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    wsprintfA(line, "VVFP MISSING LAST NAMES v1 game=%d\nasked\t%s\n", game, state);
+    ok = WriteFile(f, line, (DWORD)lstrlenA(line), &put, NULL) && put == (DWORD)lstrlenA(line);
+    for (i = 0; ok && i < vvfp_xc.no_last; ++i) {
+        wsprintfA(line, "villager\t%s\t%d\t%d\n", vvfp_xc.no_last_name[i], vvfp_xc.no_last_looks[i][0],
+                  vvfp_xc.no_last_looks[i][1]);
+        ok = WriteFile(f, line, (DWORD)lstrlenA(line), &put, NULL) && put == (DWORD)lstrlenA(line);
+    }
+    ok = ok && FlushFileBuffers(f);
+    CloseHandle(f);
+    if (!ok || !MoveFileExW(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileW(temporary);
+        return 0;
+    }
+    return 1;
+}
+
 /* ---- At the quit --------------------------------------------------------- */
 
 /* The game is quitting: its quit save of `slot` (0: none) has just been
@@ -688,24 +1038,33 @@ static void vvfp_crosscheck_quit(int game, int slot) {
         if (vvfp_xc_any() ? vvfp_xc_repair_now(game, slot) && found >= 0 : found == 0) {
             vvfp_xc_consume_approval(game, slot);
         }
-        return;
-    }
-    if (!vvfp_xc.quit_found) {
+    } else if (!vvfp_xc.quit_found) {
         return;                       /* the setting is off: the load never looked, nothing is owed */
+    } else {
+        (void)vvfp_xc_scan(game, slot);   /* again, from the state just saved */
+        if (vvfp_xc_any()) {              /* nothing confirmed wrong now: nothing is asked */
+            vvfp_xc_compose();
+            vvfp_xc.yes_label = NULL;
+            /* Not now, or no answer: nothing is written */
+            if (vvfp_xc_ask(MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON1) == IDYES && !vvfp_xc_repair_now(game, slot)) {
+                lstrcpyA(vvfp_xc.text, "Some of the records could not be repaired: a file could not be read or written. "
+                                       "What could not be repaired was left as it was, and you will be asked about it "
+                                       "again the next time you close the game after playing this village.");
+                (void)vvfp_xc_ask(MB_OK | MB_ICONWARNING);
+            }
+        }
     }
-    (void)vvfp_xc_scan(game, slot);   /* again, from the state just saved */
-    if (!vvfp_xc_any()) {
-        return;                       /* nothing confirmed wrong now: nothing is asked */
-    }
-    vvfp_xc_compose();
-    if (vvfp_xc_ask(MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON1) != IDYES) {
-        return;                       /* Not now, or no answer: nothing is written */
-    }
-    if (!vvfp_xc_repair_now(game, slot)) {
-        lstrcpyA(vvfp_xc.text, "Some of the records could not be repaired: a file could not be read or written. "
-                               "What could not be repaired was left as it was, and you will be asked about it again "
-                               "the next time you close the game after playing this village.");
-        (void)vvfp_xc_ask(MB_OK | MB_ICONWARNING);
+    /* Villagers with no last name (the automatic check only): the request is
+       queued for the patcher, which gives them with the game closed. */
+    if (VVFP_XC_AUTOMATIC() && vvfp_xc_last_names_scan(game, slot) > 0) {
+        int answer;
+        vvfp_xc_last_names_compose();
+        vvfp_xc.yes_label = "Remind me";
+        answer = vvfp_xc_ask(MB_YESNO | MB_ICONINFORMATION | MB_DEFBUTTON1);
+        vvfp_xc.yes_label = NULL;
+        if (answer == IDYES || answer == IDNO) {
+            (void)vvfp_xc_last_names_answer(game, slot, answer == IDYES ? "remind" : "not now");
+        }
     }
 }
 

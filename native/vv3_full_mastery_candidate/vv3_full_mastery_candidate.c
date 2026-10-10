@@ -5,6 +5,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
@@ -777,9 +778,10 @@ static INT_PTR CALLBACK upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
+            || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island
-               Event row's lock. */
+               Event row's lock (Choose Time Skip Amount ignores it). */
             int island = vv3_row_block_reason(0, VV3_PENDING_ROW_ISLAND);
             if (vvfp_story_pick_clicked(
                     3, window, (int)command,
@@ -1242,7 +1244,10 @@ static void vv3_mask_sanitize_loaded_table(void) {
 
 static int vv3_mask_captured_slot(void) {
     int slot = *(int *)(UINT_PTR)VV3_MASK_SLOT_PTR;
-    return (slot >= 1 && slot <= 5) ? slot : 0;
+    /* The game's own current slot first (its save manager,
+       native/shared/game_save_slot.h), then the stub's capture, which can lag
+       behind a village made or switched to in this session. */
+    return vv_current_save_slot(3, (slot >= 1 && slot <= 5) ? slot : 0);
 }
 
 static int vv3_mask_sidecar_path(char *out, int cap, int slot) {
@@ -1684,7 +1689,7 @@ __declspec(dllexport) int __stdcall VV3_SetMaskForRecord(void *record, int mask)
    bracket around a likes/dislikes write, because this game's mask
    fingerprint includes both lists. */
 static int __stdcall vv3_story_slot(void) {
-    return vv3_mask_captured_slot();
+    return vv_current_save_slot(3, vv3_mask_captured_slot());
 }
 
 static int __stdcall vv3_story_mask_get(void *record) {
@@ -1698,10 +1703,15 @@ static int __stdcall vv3_story_mask_set(void *record, int mask) {
     return VV3_SetMaskForRecord(record, mask);
 }
 
+/* Choose Time Skip Amount: defined with the Time Warp below. */
+static int __stdcall vv3_story_time_skip_step(int years);
+static int __stdcall vv3_story_time_skip_settled(void);
+static int __stdcall vv3_story_time_skip_running(void);
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv3_story_slot, vv3_story_mask_get, vv3_story_mask_set,
-        VV3RunningMaskBoundary
+        VV3RunningMaskBoundary, vv3_story_time_skip_step, vv3_story_time_skip_settled, vv3_story_time_skip_running
     };
     return &host;
 }
@@ -1851,6 +1861,46 @@ static int vv3_scaled_nudge(int px, float scale)
    stock 0x42E5E0 call at 0x460C7F, while its untouched six arguments remain on
    the stack.  The mask reuses those exact x/y/facing/scale values and changes
    only the atlas and row.  No post-handler reconstruction or action hook exists. */
+/* The Barrel of Babies bought and not delivered yet (native/shared/paid_purchases.h):
+   the payload's pending flag 0x6E0058 (1 until barrel_present delivers it) and
+   its due time 0x6E004C, both in the process-only .vv3md page -- the charge
+   is in the save (0x582644), the barrel was not.  Re-armed as pending and due
+   at once after a relaunch. */
+#include "../shared/paid_purchases.h"
+static const vv_paid_game VV3_PAID = {
+    (volatile unsigned char *)0x006E0058, (volatile unsigned int *)0x006E004C, 1,
+    "Virtual Villagers - The Secret City", NULL
+};
+
+/* Once a quarter second at most: the world draw runs for every villager. */
+static void vv3_paid_tick(void) {
+    static unsigned int ids[VV_PAID_RECORDS];
+    static DWORD last;
+    unsigned int bound, i;
+    const unsigned char *base;
+    DWORD now = GetTickCount();
+    if (now - last < 250u) {
+        return;
+    }
+    last = now;
+    if (vv3_population_manager() == 0u) {
+        return;
+    }
+    bound = *(volatile unsigned int *)(UINT_PTR)VV3_SLOT_BOUND_PTR;
+    base = (const unsigned char *)(UINT_PTR)VV3_RECORD_BASE;
+    if (bound == 0u || bound > VV_PAID_RECORDS) {
+        return;
+    }
+    memset(ids, 0, sizeof ids);
+    for (i = 0; i < bound; ++i) {
+        const unsigned char *rec = base + (size_t)i * VV3_RECORD_STRIDE;
+        if (rec[VV3_OFF_ACTIVE] != 0) {
+            ids[i] = vv3_mask_fingerprint(rec);
+        }
+    }
+    vv_paid_tick(3, vv3_mask_captured_slot(), ids, &VV3_PAID);
+}
+
 __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
 {
     void *atlas;
@@ -1863,6 +1913,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     vvfp_story_bridge(3);
     vvfp_cause_bridge(3);  /* cause of death companion: once, fail-open */
     vvfp_crosscheck_bridge(3, record != NULL);  /* the cross-check, silent while played: a villager is drawn */
+    vv3_paid_tick();             /* a bought Barrel not delivered yet survives a quit */
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) return;
@@ -3032,6 +3083,68 @@ static int vv3_time_warp_apply(int speed, int years) {
         add_age(rec + VV3_TW_AGE_OFFSET, 0, units);
     }
     return occupied;
+}
+
+/* Choose Time Skip Amount (the Story DLL drives it): one step of the Time
+   Warp above, at most the years one Time Warp buys at the current speed.
+   The villager tick (whose catch-up replays the new age units) rewrites
+   every living record's marker (+0xE70) each time it runs, so a marker that
+   moved off the value the step left is the sign it has replayed the step. */
+static int vv3_skip_watch = -1;
+static int vv3_skip_mark;
+
+static int vv3_skip_living(const unsigned char *rec) {
+    return *(const volatile int *)(rec + VV3_OFF_ACTIVE) != 0
+        && *(const unsigned char *)(rec + VV3_TW_TICK_GATE_OFFSET) == 0
+        && *(const int *)(rec + VV3_TW_HEALTH_OFFSET) > 0;
+}
+
+static int __stdcall vv3_story_time_skip_step(int years) {
+    int *speed_field = vv3_speed_field();
+    unsigned int bound = *(volatile unsigned int *)(UINT_PTR)VV3_SLOT_BOUND_PTR;
+    unsigned char *base = (unsigned char *)(UINT_PTR)VV3_RECORD_BASE;
+    int speed, step;
+    unsigned int i;
+    if (speed_field == 0 || years <= 0) {
+        return 0;
+    }
+    speed = *speed_field;
+    step = vv3_time_warp_years(speed);
+    if (step <= 0) {
+        return -1;                     /* paused, or a speed we do not know */
+    }
+    if (step > years) {
+        step = years;
+    }
+    if (vv3_time_warp_apply(speed, step) <= 0) {
+        return 0;
+    }
+    vv3_skip_watch = -1;
+    for (i = 0; i < bound; ++i) {      /* bound is 1-256: the apply refused any other */
+        unsigned char *rec = base + i * VV3_RECORD_STRIDE;
+        if (vv3_skip_living(rec)) {
+            vv3_skip_watch = (int)i;
+            vv3_skip_mark = *(int *)(rec + VV3_TW_LAST_SEEN_OFFSET);
+            break;
+        }
+    }
+    return step;
+}
+
+static int __stdcall vv3_story_time_skip_settled(void) {
+    unsigned char *rec;
+    if (vv3_skip_watch < 0) {
+        return 1;
+    }
+    rec = (unsigned char *)(UINT_PTR)VV3_RECORD_BASE + (unsigned int)vv3_skip_watch * VV3_RECORD_STRIDE;
+    return !vv3_skip_living(rec) || *(int *)(rec + VV3_TW_LAST_SEEN_OFFSET) != vv3_skip_mark;
+}
+
+/* Whether the game's clock runs (a known speed, not paused): only that time
+   counts toward the time skip's replay wait (native/shared/story_bridge.h). */
+static int __stdcall vv3_story_time_skip_running(void) {
+    int *speed_field = vv3_speed_field();
+    return speed_field != 0 && vv3_time_warp_years(*speed_field) > 0;
 }
 
 /* Tech-menu row 0.  Owns its own confirmation, afford check, charge and

@@ -89,8 +89,12 @@ FOUNDATION_OUTPUT = (
 # Recertified when nothing moved any more (the owner, 2026-10-09: "use the new renaming, but it
 # also recognizes the old renaming"): an older build's Log Checks and Repairs folders are used
 # where they are, and an approval kept under both names is acted on under neither.
-SOURCE_SHA256 = "E56FCEA8356F26FC3E0216614EB03646878948FFBFB45F3246082F18F945E35D"
-SOURCE_SIZE = 1964032
+# Recertified for v1.35.66 (native/shared/crosscheck_bridge.h: the first-load
+# cross-check's A New Home "Birth records to write afterwards" count;
+# native/shared/startup_companions.h: VVFP Storytelling.dll appended; the quit check's
+# missing last names question).
+SOURCE_SHA256 = "A1007EDA8AD385B5868A7B0776F4E01874014D794019DB54B1D8618D7F22FA54"
+SOURCE_SIZE = 1974272
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

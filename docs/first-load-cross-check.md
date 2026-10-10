@@ -126,6 +126,29 @@ Villagers log, so a villager whose departure or arrival only a backfilled record
 already listed there as Unaccounted (logs are never rewritten). Every companion is armed when the game
 opens (`VVFP Startup.dll`), so in practice every death and arrival is seen live and this cannot arise.
 
+### Missing last names (v1.35.66)
+
+The owner: "if repair logs detects a missing last name, please prompt the player to add one if auto check
+is enabled" -- "like for arrivals and stuff. and direct them how to add last names". With **Check logs
+automatically** on, right after the quit save (and after the repair box, if there was one) the quit check
+looks for living villagers with no last name in a village that uses last names (the Villagers Have Last
+Names row ships, or the slot has a Last Names record). It reads them through `VvfpCauseVillager` in
+`VVFP Cause of Death.dll` (never a body, a statue, a ghost, a stand-in or a Heathen) and reads a name as
+`src/vv_last_names.py` `split_name` does: one word, a numeral after one word, or words the record says are
+one first name, carry none. Last names can only be given with the game closed, so the box (**Remind me** /
+**Not now**) names them, says step by step how to give them, and queues the answer in
+
+    <save folder>\Virtual Villagers Fun Patcher Data\Last Names\
+        Virtual Villagers N Missing Last Names - Save S.dat   ("asked remind" or "asked not now", the villagers)
+
+**Remind me**: the patcher asks when it next opens ("These villagers have no last name: ... Give them one
+now?" -- **Give the suggested names**, **Choose each...** (the last-names window, their boxes highlighted,
+the suggestions filled in) or **Not now**). **Not now**: neither the game nor the patcher asks again while
+every villager with no last name is one the file lists. Repair Saves & Logs asks the same about the village
+it repairs. Check Saves & Logs lists them as a NOTE. Arrived villagers get their own new last name
+automatically at Repair while the village's **Give arriving villagers their own new last name
+automatically** box (the last-names window; `arrivals none` in the Last Names record when off) is on.
+
 ### Never hangs the exit
 
 The quit box runs on a thread of its own, owned by nothing; the game's window is minimised first, so
@@ -148,11 +171,10 @@ prints why with each such file.
 | Births log: Birth records backfilled from the save | VV2-VV5 | each villager's own parents, kept on their save record for life | a living villager whose record keeps parents (born here) with neither a Birth nor an Arrived record of the same name, head and body (counted: two alike need two; a name only one record and one villager carry settles it when looks changed) | **Yes** (Repair; `RecordBirthsMissingFromLog` writes a Birth record from the save -- child's looks, likes, dislikes, skills, both parents -- marked "Recorded afterwards (born before this log existed)", at the next save or right after the quit save). VV1 keeps no parents in the save: nothing to backfill |
 | Births and Conceptions log, otherwise | all | -- (it is the source) | -- | never rewritten; VV2-VV5 Birth records compared with the parents the save keeps (reported) |
 | Deaths, Unaccounted Villagers logs | all | graves; the save | a death also listed as unaccounted is reported | never rewritten |
-| Village Elders .dat | VV1, VV3, VV4 | the Village History log's snapshots of this village (skills at every save) | a villager a snapshot shows with Master (the game's own threshold: 90 in VV1, 88 later) in 3+ skills, not alive now, whose name is on no line | **Yes** (Repair; a closed line `E -1 <name> <father> <mother> 0 0`, at the next save or right after the quit save; `statistics_reconcile.inc`). Living elders are added by every save already. Never removes a line |
+| Village Elders .dat | VV1, VV3, VV4, VV5 | the Village History log's snapshots of this village (skills at every save) | a villager a snapshot shows with Master (the game's own threshold: 90 in VV1, 88 later) in 3+ skills, not alive now, whose name is on no line; in VV5 only a snapshot's `Faction: Believer` villager (Heathens never count; a snapshot written before the Faction line proves nothing) | **Yes** (Repair; a closed line `E -1 <name> <father> <mother> 0 0`, at the next save or right after the quit save; `statistics_reconcile.inc`). Living elders are added by every save already. Never removes a line |
 | Village Elders .dat | VV2 | -- | -- | not applicable: The Lost Children counts its elders itself (the game's counter, in the save) |
-| Village Elders .dat | VV5 | -- | -- | reported only: the History log lists the Heathens too, with nothing telling them apart (the Heathen Chief has every skill at 100), and Heathens never count (owner) |
 | Village Statistics .dat: Villagers Buried | all | this village's Death records whose Grave line names a grave; the graves the memorial holds | the counter below that | **Yes** (Repair; raised to the bound at the next save or right after the quit save, never lowered) |
-| Village Statistics .dat: Twins Birthed | VV2 | this village's Conception records with "Babies in pregnancy: 2" (the patcher's counter counts at conception) | the counter below that | **Yes** (same) |
+| Village Statistics .dat: Twins Birthed | VV2 | this village's Conception records with "Babies nursing: 2" ("Babies in pregnancy: 2" in an older log) (the patcher's counter counts at conception) | the counter below that | **Yes** (same) |
 | Village Statistics .dat: Chiefs Robed | VV3 | a living robed Tribal Chief | 0 while one lives | **Yes** (same) |
 | Village Statistics .dat: Food Gathered, Debris Cleared, Heathens Converted | VV4, VV5 | **none** | -- | reported only: no save field or log bounds them (the Arrived records' "Converted from the Heathens" also follow the Maker's conversions, which do not count) |
 | Village Statistics log: the game's own rows | all | the save | -- | reported only: Highest Population, Oldest Villager, Babies Made, Triplets, Tech Points, People Cured, Mushrooms Found, Island Events Seen, Puzzles Solved (and Twins outside VV2) are the GAME's counters, kept in the save and printed at every save, so the log cannot disagree with the save, and the patcher never changes the game's own counters |

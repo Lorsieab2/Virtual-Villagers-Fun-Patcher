@@ -4,7 +4,7 @@
    call is RecordArrivalsMissingFromLog.  native/shared/arrival_backfill.h has
    the record's format, the matching rule and the hand-off.
 
-   WHICH VILLAGERS THE LOG ALREADY HAS.  Every Birth record ("Birth", then
+   WHICH VILLAGERS THE LOG ALREADY HAS.  Every Birth record ("Birth <n>", or an older log's "Birth", then
    "  Child: <name>", "    Head: <n>", "    Body: <n>") and every Arrived
    record ("Arrived <n>", then "  Name:", "  Head:", "  Body:") in this
    village's Births and Conceptions files, and those still held for the next
@@ -13,7 +13,21 @@
    with that key already matched, in the order Cause of Death hands them over;
    only the villagers left over get a record.  A record already in the log --
    hand-appended in the same shape, or written by an earlier run -- is never
-   written again. */
+   written again.
+
+   A RECORD KEEPS THE NAME AND LOOKS OF ITS DAY (the owner's A New Home log,
+   2026-10-10: Cheop's Birth record said "Cheop" and Hoani's Arrived record
+   "Hoani" when the save already called them "Cheop Bahati" and "Hoani
+   Chuchip" -- last names given afterwards -- so the backfill found no record
+   of theirs, wrote "Arrived 11" and "Arrived 12", and the log then held a
+   Birth and an Arrived record for Cheop and two Arrived records for Hoani).
+   So a record is followed through every "Appearance changed" record of its
+   name (its looks now), and, when no record has the villager's name, head
+   and body, a record of the same head and body whose name is the villager's
+   with a last name or a number added or dropped ("Cheop" / "Cheop Bahati",
+   "Kaula Bahati" / "Kaula Bahati I") or cut short by the Villager Details
+   screen ("Kaula Baha" / "Kaula Bahati") is theirs -- when exactly one such
+   record and exactly one villager of this village carry it. */
 
 #include "arrival_backfill.h"
 
@@ -23,6 +37,17 @@
 #define ARRIVAL_READ_NONE 0
 #define ARRIVAL_READ_BIRTH 1
 #define ARRIVAL_READ_ARRIVED 2
+#define ARRIVAL_READ_LOOK 3               /* an "Appearance changed" record: never a key itself */
+
+/* "Appearance changed": a villager of this name changed from these looks to those. */
+struct arrival_look {
+    char name[ARRIVAL_KEY_NAME];
+    int old_head, old_body, new_head, new_body;
+};
+
+#define ARRIVAL_LOOKS_MAX 512
+static struct arrival_look arrival_looks[ARRIVAL_LOOKS_MAX];
+static int arrival_look_count;
 
 struct arrival_key {
     char name[ARRIVAL_KEY_NAME];
@@ -59,11 +84,23 @@ struct arrival_reader {
     int have_name, have_head, have_body;
     int held;
     struct arrival_key key;
+    int have_new_head, have_new_body;  /* an "Appearance changed" record's "New head" / "New body" */
+    int new_head, new_body;
 };
 
 static int arrival_reader_close(struct arrival_reader *r) {
     int ok = 1;
-    if (r->open != ARRIVAL_READ_NONE && r->have_name && r->have_head && r->have_body) {
+    if (r->open == ARRIVAL_READ_LOOK) {
+        if (r->have_name && r->have_head && r->have_body && r->have_new_head && r->have_new_body
+            && arrival_look_count < ARRIVAL_LOOKS_MAX) {
+            struct arrival_look *look = &arrival_looks[arrival_look_count++];
+            lstrcpynA(look->name, r->key.name, (int)sizeof look->name);
+            look->old_head = r->key.head;
+            look->old_body = r->key.body;
+            look->new_head = r->new_head;
+            look->new_body = r->new_body;
+        }
+    } else if (r->open != ARRIVAL_READ_NONE && r->have_name && r->have_head && r->have_body) {
         r->key.held = r->held;
         r->key.kind = r->open;
         r->key.reserved = 0;
@@ -87,7 +124,7 @@ static int arrival_reader_line(struct arrival_reader *r, char *line) {
     const char *value;
     trim_line(line);
 
-    if (strcmp(line, "Birth") == 0) {
+    if (vv_is_birth_heading(line)) {          /* "Birth <n>", or an older log's "Birth" */
         if (!arrival_reader_close(r)) {
             return 0;
         }
@@ -99,6 +136,13 @@ static int arrival_reader_line(struct arrival_reader *r, char *line) {
             return 0;
         }
         r->open = ARRIVAL_READ_ARRIVED;
+        return 1;
+    }
+    if (strcmp(line, "Appearance changed") == 0) {
+        if (!arrival_reader_close(r)) {
+            return 0;
+        }
+        r->open = ARRIVAL_READ_LOOK;
         return 1;
     }
     if (line[0] != ' ') {
@@ -129,8 +173,72 @@ static int arrival_reader_line(struct arrival_reader *r, char *line) {
             r->key.body = atoi(value);
             r->have_body = 1;
         }
+    } else if (r->open == ARRIVAL_READ_LOOK) {
+        if (!r->have_name && (value = arrival_value(line, "  Name: ")) != NULL) {
+            lstrcpynA(r->key.name, value, (int)sizeof r->key.name);
+            r->have_name = 1;
+        } else if (!r->have_head && (value = arrival_value(line, "  Old head: ")) != NULL) {
+            r->key.head = atoi(value);
+            r->have_head = 1;
+        } else if (!r->have_body && (value = arrival_value(line, "  Old body: ")) != NULL) {
+            r->key.body = atoi(value);
+            r->have_body = 1;
+        } else if (!r->have_new_head && (value = arrival_value(line, "  New head: ")) != NULL) {
+            r->new_head = atoi(value);
+            r->have_new_head = 1;
+        } else if (!r->have_new_body && (value = arrival_value(line, "  New body: ")) != NULL) {
+            r->new_body = atoi(value);
+            r->have_new_body = 1;
+        }
     }
     return 1;
+}
+
+/* Each key's looks now: followed through the "Appearance changed" records of
+   its name, in the order they were written (a chain of changes; bounded). */
+static void arrival_follow_looks(void) {
+    int i, k, step;
+    for (i = 0; i < arrival_key_count; ++i) {
+        struct arrival_key *key = &arrival_keys[i];
+        for (step = 0; step < ARRIVAL_LOOKS_MAX; ++step) {
+            int moved = 0;
+            for (k = 0; k < arrival_look_count; ++k) {
+                const struct arrival_look *look = &arrival_looks[k];
+                if (look->old_head == key->head && look->old_body == key->body
+                    && (look->new_head != key->head || look->new_body != key->body)
+                    && strcmp(look->name, key->name) == 0) {
+                    key->head = look->new_head;
+                    key->body = look->new_body;
+                    moved = 1;
+                    break;
+                }
+            }
+            if (!moved) {
+                break;
+            }
+        }
+    }
+}
+
+/* 1 when `record` and `living` name one villager whose name changed since
+   the record: a word added or dropped at the end ("Cheop" / "Cheop Bahati",
+   "Kaula Bahati" / "Kaula Bahati I"), or the living name a cut of the
+   record's as the Villager Details screen cuts one (A New Home keeps 10
+   characters, the others 18, a wide name a few fewer: src/vv_cut_names.py).
+   Never for equal names (those are matched as they are) or a single letter. */
+static int arrival_names_related(int game_id, const char *record, const char *living) {
+    size_t r = strlen(record), l = strlen(living);
+    size_t cut_min = game_id == GAME_VV1 ? 9u : 15u, cut_max = game_id == GAME_VV1 ? 10u : 18u;
+    if (r < 2 || l < 2 || r == l) {
+        return 0;
+    }
+    if (r < l) {
+        return strncmp(living, record, r) == 0 && living[r] == ' ';
+    }
+    if (strncmp(record, living, l) != 0) {
+        return 0;
+    }
+    return record[l] == ' ' || (l >= cut_min && l <= cut_max);
 }
 
 /* This village's Birth and Arrived records into arrival_keys.  Returns 1
@@ -147,6 +255,7 @@ static int read_village_arrivals(const struct game_layout *g, int game_id, const
     int i;
 
     arrival_key_count = 0;
+    arrival_look_count = 0;
     *files = 0;
     if (!build_family_log_path(g, LOG_BIRTHS, 1, path)
         || !vv_save_subfolder_w(folder, family_folder(LOG_BIRTHS), 64)) {
@@ -221,6 +330,7 @@ static int read_village_arrivals(const struct game_layout *g, int game_id, const
             }
         }
     }
+    arrival_follow_looks();
     return 1;
 }
 
@@ -398,6 +508,21 @@ static const char ARRIVAL_BACKFILL_FOUNDER[] =
 static const char BIRTH_BACKFILL_NOTE[] =
     "  Note: Recorded afterwards (born before this log existed)\n";
 
+/* Whether a record's name and a villager's are two forms of one name: one
+   is the other followed by more words (a last name given later, a numeral
+   from Number Duplicate Names), or the villager's is the record's cut short
+   by the Villager Details screen (a cut name is at least 20 characters). */
+static int arrival_names_fit(const char *record, const char *villager) {
+    size_t r = strlen(record), v = strlen(villager);
+    const char *shorter = r < v ? record : villager;
+    const char *longer = r < v ? villager : record;
+    size_t n = r < v ? r : v;
+    if (n == 0 || r == v || strncmp(shorter, longer, n) != 0) {
+        return 0;
+    }
+    return longer[n] == ' ' || (shorter == villager && n >= 20);
+}
+
 static int record_missing_core(int births, int game_id, const void *save_buffer, int slot,
                                vv_arrival_fact *facts, int count, int apply,
                                const unsigned char *context);
@@ -422,7 +547,10 @@ static int record_missing(
         || apply < VV_ARRIVAL_COUNT || apply > VV_ARRIVAL_APPLY) {
         return -1;
     }
-    /* A New Home keeps no parents on the record: nothing says who was born. */
+    /* A New Home keeps no parents on the record: nothing here says who was
+       born.  Its parents are in the VV1 Parentage companion's file, whose
+       cross-check writes these Birth records instead (vv1_crosscheck.inc,
+       WriteParentageBirthAfterwards). */
     if (births && game_id == GAME_VV1) {
         return 0;
     }
@@ -585,6 +713,75 @@ static int record_missing_core(
             if (records_named == 1 && villagers_named == 1 && taken == 0) {
                 on_disk = !only->held;
                 held = only->held;
+            }
+        }
+        /* LAST NAMES ARE GIVEN LATER (Villagers Have Last Names, Repair's
+           "Last names come from"): a record written before then names the
+           villager by the first name alone, with the same head and body.
+           The owner's Cheop Bahati was born "Cheop", and with no record of
+           "Cheop Bahati" a Birth record's villager was given a backfilled
+           Arrived record.  So a record whose name is this villager's first
+           word, with these looks, is theirs when exactly one record and
+           exactly one of these villagers fit it. */
+        /* ...and the other way round: a record written with the full name the
+           Villager Details screen later cut, or with a last name or a numeral
+           since removed.  Either name a word-boundary prefix of the other, so a
+           villager who has ANY Birth or Arrived record of these looks under
+           an older form of the name is never given a second one. */
+        if (on_disk + held <= taken && taken == 0 && names[i][0] != '\0') {
+            int records_fit = 0, villagers_fit = 0;
+            const struct arrival_key *only = NULL;
+            for (j = 0; j < arrival_key_count; ++j) {
+                const struct arrival_key *k = &arrival_keys[j];
+                if (!k->reserved && k->head == heads[i] && k->body == bodies[i]
+                    && strcmp(k->name, names[i]) != 0 && arrival_names_fit(k->name, names[i])) {
+                    ++records_fit;
+                    only = k;
+                }
+            }
+            for (j = 0; j < count; ++j) {
+                if (only != NULL && heads[j] == heads[i] && bodies[j] == bodies[i]
+                    && (strcmp(only->name, names[j]) == 0 || arrival_names_fit(only->name, names[j]))) {
+                    ++villagers_fit;
+                }
+            }
+            if (records_fit == 1 && villagers_fit == 1) {
+                on_disk = !only->held;
+                held = only->held;
+            }
+        }
+        /* THE NAME CHANGED SINCE THE RECORD (a last name or a number given or
+           dropped, a name cut short): one record of the same head and body
+           whose name is related to this villager's, and no other villager of
+           the village it could be -- nor one who carries its own name and
+           looks.  The record is then this villager's alone (reserved). */
+        if (on_disk + held <= taken) {
+            struct arrival_key *only = NULL;
+            int records_related = 0;
+            for (j = 0; j < arrival_key_count; ++j) {
+                struct arrival_key *k = &arrival_keys[j];
+                int owners = 0, v;
+                if (k->reserved || k->head != heads[i] || k->body != bodies[i]
+                    || !arrival_names_related(game_id, k->name, names[i])) {
+                    continue;
+                }
+                for (v = 0; v < count; ++v) {
+                    if (names[v][0] != '\0' && heads[v] == k->head && bodies[v] == k->body
+                        && (strcmp(names[v], k->name) == 0
+                            || (v != i && arrival_names_related(game_id, k->name, names[v])))) {
+                        ++owners;
+                    }
+                }
+                if (owners == 0) {
+                    ++records_related;
+                    only = k;
+                }
+            }
+            if (records_related == 1) {
+                only->reserved = 1;
+                on_disk = !only->held;
+                held = only->held;
+                taken = 0;
             }
         }
         if (on_disk > taken) {

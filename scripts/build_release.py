@@ -49,6 +49,9 @@ FILES = [
     # loaded by each game's Origins companion; no executable bytes.
     "assets/pathfinding/VVFP Improved Pathfinding.dll",
     "assets/watering/VVFP VV1 Watering Builds.dll",
+    # Dropping an Adult on a Child Tells a Story: one companion for A New Home
+    # and The Lost Children, started by VVFP Startup.dll; no executable bytes.
+    "assets/storytelling/VVFP Storytelling.dll",
     "assets/fix_huts/VVFP Fix Huts.dll",
     "assets/lesson_cap/VVFP Lesson Cap.dll",
     "assets/healers_study/VVFP Healers Study.dll",
@@ -99,6 +102,8 @@ FILES = [
     "data/vv1_improved_pathfinding_feature.json",
     "data/vv2_improved_pathfinding_feature.json",
     "data/vv1_watering_trains_building_feature.json",
+    "data/vv1_storytelling_feature.json",
+    "data/vv2_storytelling_feature.json",
     "data/vv1_misc_text_fixes_feature.json",
     "data/vv1_restore_missing_island_events_feature.json",
     "data/vv1_builders_fix_huts_feature.json",
@@ -209,17 +214,25 @@ FILES = [
     # the read-only checker in the patcher's own process.
     "src/vv_log_tools.py",
     "src/vv_log_additions.py",
+    "src/vv_log_decisions.py",
     "src/vv_move_old_names.py",
+    "src/vv_log_contradictions.py",
+    "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).
     "src/vv_genealogy.py",
     "src/vv_family_tree.py",
     "src/vv_gdiplus.py",
+    # Auto-colour family lines (the Family Tree Maker's window imports it).
+    "src/vv_line_colours.py",
+    "src/vv_villager_info.py",
     "src/vv_genealogy_window.py",
     "src/vv_tree_editor_tools.py",
     "src/vv_last_names.py",
     "src/vv_number_names.py",
     "src/vv_cut_names.py",
+    # Repair Saves & Logs' Fix grave information (the GUI imports it).
+    "src/vv_graves.py",
     # The save folder's folder and file names, old and new: the Family Tree Maker finds its edits and
     # writes its reports through it, and Repair Saves & Logs moves older builds' folders with it.
     "src/vv_save_layout.py",

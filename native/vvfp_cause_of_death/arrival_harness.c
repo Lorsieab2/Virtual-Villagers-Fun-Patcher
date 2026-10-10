@@ -52,6 +52,18 @@
         the Birth records from the save (The Lost Children on; nothing in A
         New Home); a second call writes nothing.
 
+     6. A new village's founders seeded before the village has its slot (a
+        stale slot from the host), with and without an empty creation save
+        before them, get "How: Founder" at the first save holding them and
+        are never Unaccounted; a load over a seeding writes nothing.
+
+     7. The logs at village creation (cod_creation_save.inc): once a new
+        village's founders are made and it has started, the game's own
+        autosave is asked for once (its field set to 0); never without a
+        founder waiting, outside the village's scene, before the start, twice,
+        for an A New Home village started long ago, or in The Lost Children
+        and The Secret City.
+
    Usage:  arrival_harness.exe "<parentage dll>" "<cause of death test dll>" "<save reset dll>"
    Exit code 0 when every check passes. */
 #include <windows.h>
@@ -319,6 +331,7 @@ static int_t vv1_births;
 static int_t departed;
 static note_t note_birth;
 static arrived_by_t arrived_by;
+static arrived_by_t arrived_parents;          /* VvfpCauseArrivedParents: the same shape */
 
 static int host_slot_value = 1;
 static int __stdcall host_slot(void) { return host_slot_value; }
@@ -342,8 +355,9 @@ static void load(void) {
     departed = (int_t)GetProcAddress(cause, "VvfpCauseTestDeparted");
     note_birth = (note_t)GetProcAddress(cause, "VvfpCauseNoteArrival");
     arrived_by = (arrived_by_t)GetProcAddress(cause, "VvfpCauseArrivedBy");
+    arrived_parents = (arrived_by_t)GetProcAddress(cause, "VvfpCauseArrivedParents");
     if (!ensure_village || !setup || !save_done || !reset || !scan_arrivals || !repair_arrivals || !created
-        || !created_scoped || !arrival_tick || !vv1_births || !departed || !note_birth || !arrived_by
+        || !created_scoped || !arrival_tick || !vv1_births || !departed || !note_birth || !arrived_by || !arrived_parents
         || GetProcAddress(parentage, "RecordArrivalsMissingFromLog") == NULL) {
         printf("missing exports\n");
         exit(2);
@@ -396,6 +410,9 @@ static void write_old_logs(void) {
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Birth\n  Child: Hea\n    Head: 9\n    Body: 9\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Skills:\n    Breeding   0\n"
+        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
+        /* Born before Last Names gave him "Bahati": the record names him by his first name. */
+        "Birth\n  Child: Cheop\n    Head: 4\n    Body: 15\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Arrived 1\n  Name: Thabo\n  Age at arrival: 980 (about; hand-written)\n  Sex: Male\n"
         "  Head: 16\n  Body: 12\n  How: Custom Island Event\n"
@@ -520,12 +537,14 @@ static void parented(int i, const char *name, int head, int body) {
     }
 }
 
-static int has_birth_backfill(const char *child, int head, int body) {
+/* `number`: its "Birth <n>" -- numbered like a Conception (v1.35.66), after the
+   older log's unnumbered Birth records, which count. */
+static int has_birth_backfill(const char *child, int head, int body, int number) {
     char want[256], looks[128];
     const char *at, *end;
     /* The child's sex (the owner: every villager in the logs shows it), then
        the looks. */
-    _snprintf(want, sizeof want, "Birth\r\n  Child: %s\r\n    Sex: ", child);
+    _snprintf(want, sizeof want, "Birth %d\r\n  Child: %s\r\n    Sex: ", number, child);
     _snprintf(looks, sizeof looks, "    Head: %d\r\n    Body: %d\r\n", head, body);
     /* Any record of the child that is the backfill's (a hand-written one
        of the same child may come first). */
@@ -607,7 +626,7 @@ static void quit_cases(void) {
         CHECK(done == 0 && strcmp(first, text) == 0 && !file_exists(bmarker),
               "quit: A New Home keeps no parents -- no Birth records to write at the quit");
     } else {
-        CHECK(done == 1 && has_birth_backfill("Kid", 4, 4) && count_of(text, "born before this log existed") == 1
+        CHECK(done == 1 && has_birth_backfill("Kid", 4, 4, 4) && count_of(text, "born before this log existed") == 1
               && file_exists(bmarker),
               "quit: the Birth record from the save is written there and then, and its marker");
     }
@@ -629,6 +648,170 @@ static void quit_cases(void) {
         CHECK(!file_exists(approval), "quit: Start Over deletes the slot's Repair Saves & Logs approval");
     }
     free(buffer);
+}
+
+/* 6: a new village's founders are seeded before the game gives the village
+   its slot (live, The Lost Children with a fresh profile: the host said 5,
+   the village was saved in 1), and The Tree of Life and New Believers save
+   the new village once before its founders are chosen (an empty roster).
+   The founders still get "How: Founder" at the first save that holds them;
+   a load that replaces a seeded village (a roster with villagers) writes
+   nothing; and nobody is Unaccounted. */
+static void stale_slot_cases(void) {
+    char path[MAX_PATH], unacc[MAX_PATH];
+    unsigned char *buffer;
+    int i, empty_first;
+    for (empty_first = 0; empty_first <= 1; ++empty_first) {
+        reset(game, 1);
+        vv_reset_slot_state(game, 1, VILLAGE);
+        clean();
+        for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+        write_save_file();
+        vv_village_publish("");
+        buffer = save_buffer("Arrival Tribe");
+        births_path(1, path);
+        unaccounted_path(unacc);
+        if (empty_first) {
+            save_done(1, buffer);             /* the creation save, before the founders */
+        }
+        host_slot_value = 5;                  /* the stale slot at the seeding */
+        villager(0, "Staleone", 400, 1, 1, 0);
+        created(0, MARK[game - 1].founder);
+        villager(1, "Staletwo", 420, 2, 1, 0);
+        created(1, MARK[game - 1].founder);
+        /* The owner: 0 is a valid head, body and age in every game. */
+        villager(3, "Zerozero", 0, 0, 0, 0);
+        created(3, MARK[game - 1].founder);
+        arrival_tick();
+        host_slot_value = 1;
+        arrival_tick();
+        save_done(1, buffer);
+        read_into(path);
+        CHECK(record_has("Staleone", "  How: Founder\r\n") && record_has("Staletwo", "  How: Founder\r\n")
+              && count_of(text, "  Name: Staleone\r\n") == 1,
+              "stale slot%s: the founders seeded before the village had its slot get \"How: Founder\" at its"
+              " first save", empty_first ? ", after an empty creation save" : "");
+        CHECK(record_has("Zerozero", "  Age at arrival: 0\r\n") && record_has("Zerozero", "  Head: 0\r\n  Body: 0\r\n")
+              && record_has("Zerozero", "  How: Founder\r\n"),
+              "stale slot%s: a founder with head 0, body 0 and age 0 is a founder like any other",
+              empty_first ? ", after an empty creation save" : "");
+        read_into(unacc);
+        CHECK(strstr(text, "Stale") == NULL && strstr(text, "Zerozero") == NULL, "stale slot%s: ...and neither is Unaccounted",
+              empty_first ? ", after an empty creation save" : "");
+        /* A seeding a load then replaces, in a village saved before with
+           villagers in it: nothing. */
+        host_slot_value = 5;
+        villager(2, "Seedling", 300, 3, 1, 0);
+        created(2, MARK[game - 1].founder);
+        host_slot_value = 1;
+        villager(2, "Loadedin", 900, 3, 2, 0);   /* the load's villager in that record */
+        arrival_tick();
+        save_done(1, buffer);
+        read_into(path);
+        CHECK(strstr(text, "Seedling") == NULL && strstr(text, "  Name: Loadedin\r\n") == NULL,
+              "stale slot%s: a load over a seeding, in a village saved before, writes no Founder",
+              empty_first ? ", after an empty creation save" : "");
+        for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+        free(buffer);
+    }
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+}
+
+/* 7: the logs at village creation (cod_creation_save.inc).  A New Home, The
+   Tree of Life and New Believers make a new village's first save with nobody
+   in it; once its founders are made and it has started, the game is asked for
+   ONE save through its own autosave (the field set to 0) -- never for a
+   village with no founder waiting, never twice, never outside the village's
+   own scene, never in A New Home for a village started long ago (a load the
+   seeding ran ahead of), never in The Lost Children or The Secret City (they
+   save after their seeding already). */
+static void creation_save_cases(void) {
+    typedef int (__stdcall *creation_t)(void *, unsigned int, unsigned int);
+    typedef void (__stdcall *fields_t)(int, unsigned int *);
+    creation_t creation = (creation_t)GetProcAddress(cause, "VvfpCauseTestCreationSave");
+    fields_t fields_of = (fields_t)GetProcAddress(cause, "VvfpCauseTestCreationFields");
+    unsigned int f[5];
+    unsigned char *manager;
+    unsigned char *buffer;
+    int i, asked;
+    CHECK(creation != NULL && fields_of != NULL, "creation: the test DLL exports the probes");
+    if (creation == NULL || fields_of == NULL) return;
+    fields_of(game, f);
+    manager = (unsigned char *)calloc(1, 0x20000);
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    write_save_file();
+    vv_village_publish("");
+    buffer = save_buffer("Arrival Tribe");
+    host_slot_value = 1;
+    if (game == 2 || game == 3) {
+        villager(0, "Firstone", 400, 1, 1, 0);
+        created(0, MARK[game - 1].founder);
+        arrival_tick();
+        CHECK(creation(manager, 1000, 1010) == 0,
+              "creation: The Lost Children and The Secret City are never asked (they save after the seeding)");
+        save_done(1, buffer);
+        free(buffer);
+        free(manager);
+        return;
+    }
+    *(int *)(manager + f[0]) = 1;
+    *(unsigned int *)(manager + f[1]) = f[2];
+    *(unsigned int *)(manager + f[3]) = 12345u;
+    if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 1000u;
+    save_done(1, buffer);                                      /* the creation save, nobody in it */
+    CHECK(creation(manager, 1000, 1010) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
+          "creation: no founder waiting, no save asked");
+    villager(0, "Firstone", 400, 1, 1, 0);
+    created(0, MARK[game - 1].founder);
+    villager(1, "Secondone", 420, 2, 1, 0);
+    created(1, MARK[game - 1].founder);
+    arrival_tick();
+    *(unsigned int *)(manager + f[1]) = f[2] + 3u;            /* still the founder screen / intro */
+    CHECK(creation(manager, 1000, 1010) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
+          "creation: not before the village's own scene");
+    *(unsigned int *)(manager + f[1]) = f[2];
+    if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 0u;
+    CHECK(creation(manager, 0, 1010) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
+          "creation: not before the village has started");
+    if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 1000u;
+    if (game == 1) {
+        CHECK(creation(manager, 1000, 1000 + 3600) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
+              "creation: A New Home, a village started an hour ago is a load, never saved for this");
+    }
+    asked = creation(manager, 1000, 1010);
+    CHECK(asked == 1 && *(unsigned int *)(manager + f[3]) == 0u,
+          "creation: founders made and the village started -> the autosave field is 0 (one save, the game's own)");
+    *(unsigned int *)(manager + f[3]) = 12345u;
+    CHECK(creation(manager, 1000, 1011) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
+          "creation: asked once per village");
+    save_done(1, buffer);                                      /* that save */
+    {
+        char path[MAX_PATH];
+        births_path(1, path);
+        read_into(path);
+        CHECK(record_has("Firstone", "  How: Founder\r\n") && record_has("Secondone", "  How: Founder\r\n")
+              && count_of(text, "  Name: Firstone\r\n") == 1,
+              "creation: that save writes the founders' Arrived records, once");
+    }
+    /* A new village in the same slot later (Start Over): asked again. */
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    villager(2, "Thirdone", 300, 3, 1, 0);
+    created(2, MARK[game - 1].founder);
+    arrival_tick();
+    if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 2000u;
+    CHECK(creation(manager, 2000, 2010) == 1, "creation: a Start Over's new village is asked for its save too");
+    save_done(1, buffer);
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    free(buffer);
+    free(manager);
+    creation(NULL, 0, 0);
 }
 
 static void births_cases(void) {
@@ -661,13 +844,15 @@ static void births_cases(void) {
     births_path(1, path);
     write_text(path,
         "Village: Birth Tribe (Save 1)\n"
-        "Birth\n  Child: Nishi\n    Head: 7\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
+        /* Numbered with a gap and out of order, one plain (a mixed, hand-edited log): the
+           backfill goes on above the highest number, 9 -- never a number already used. */
+        "Birth 1\n  Child: Nishi\n    Head: 7\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
-        "Birth\n  Child: Twin\n    Head: 6\n    Body: 6\n    Likes: (none)\n    Dislikes: (none)\n"
+        "Birth 9\n  Child: Twin\n    Head: 6\n    Body: 6\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Birth\n  Child: Sam\n    Head: 1\n    Body: 9\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
-        "Birth\n  Child: Look\n    Head: 3\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
+        "Birth 3\n  Child: Look\n    Head: 3\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Arrived 1\n  Name: Arr\n  Age at arrival: 300\n  Sex: Male\n  Head: 5\n  Body: 5\n"
         "  Likes: (none)\n  Dislikes: (none)\n  How: unknown\n\n");
@@ -721,7 +906,7 @@ static void births_cases(void) {
     repair_births(game, 1, 1);
     save_done(1, buffer);
     read_into(path);
-    CHECK(has_birth_backfill("Kid", 4, 4) && has_birth_backfill("Sam", 2, 9),
+    CHECK(has_birth_backfill("Kid", 4, 4, 10) && has_birth_backfill("Sam", 2, 9, 12),
           "births: after Repair the save writes Kid's and Sam's Birth records from the save, marked"
           " \"Recorded afterwards (born before this log existed)\"");
     {
@@ -729,7 +914,7 @@ static void births_cases(void) {
         const char *end = k != NULL ? strstr(k, "\r\n\r\n") : NULL;
         if (k != NULL && end != NULL) printf("%.*s\n", (int)(end - k + 2), k - 7);
     }
-    CHECK(count_of(text, "  Child: Twin\r\n") == 2 && has_birth_backfill("Twin", 6, 6),
+    CHECK(count_of(text, "  Child: Twin\r\n") == 2 && has_birth_backfill("Twin", 6, 6, 11),
           "births: two Twins, one record: one more is written");
     CHECK(count_of(text, "  Child: Nishi\r\n") == 1 && strstr(text, "  Child: Huata\r\n") == NULL
           && strstr(text, "  Child: Arr\r\n") == NULL && strstr(text, "  Child: Pagan\r\n") == NULL,
@@ -771,6 +956,72 @@ static void births_cases(void) {
     free(buffer);
 }
 
+/* 6: a record keeps the name and looks of its day (the owner's A New Home
+   log, 2026-10-10: a Birth record "Cheop" and an Arrived record "Hoani"
+   written before last names were given, then "Arrived 11 / Cheop Bahati"
+   and "Arrived 12 / Hoani Chuchip" backfilled beside them).
+     0 Cheop Bahati   the log's Birth "Cheop", same looks         -> none
+     1 Hoani Chuchip  the log's Arrived "Hoani", same looks        -> none
+     2 Papu (5/14)    Birth "Papu" 16/14, then "Appearance changed"
+                      16/14 -> 5/14                                -> none
+     3 Papu (7/7)     Arrived "Papu" 7/7                           -> none
+     4 Kito Bahati \  one Birth "Kito" 0/18 either could be:
+     5 Kito Wanjiko/  it decides nothing                           -> one each
+     6 Founda         no record at all                             -> one */
+static void renamed_cases(void) {
+    char path[MAX_PATH];
+    unsigned char *buffer;
+    int i;
+    reset(game, 1);
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    villager(0, "Cheop Bahati", 900, 4, 15, 0);
+    villager(1, "Hoani Chuchip", 577, 11, 2, 0);
+    villager(2, "Papu", 383, 5, 14, 0);
+    villager(3, "Papu", 383, 7, 7, 0);
+    villager(4, "Kito Bahati", 500, 0, 18, 0);
+    villager(5, "Kito Wanjiko", 500, 0, 18, 0);
+    villager(6, "Founda", 400, 1, 1, 0);
+    births_path(1, path);
+    write_text(path,
+        "Village: Rename Tribe (Save 1)\n"
+        "Birth\n  Child: Cheop\n    Head: 4\n    Body: 15\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chapa\n    Head: 18\n    Body: 0\n  Father: Usutu\n    Head: 18\n    Body: 1\n\n"
+        "Birth\n  Child: Papu\n    Head: 16\n    Body: 14\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chapa\n    Head: 18\n    Body: 0\n  Father: Usutu\n    Head: 18\n    Body: 1\n\n"
+        "Birth\n  Child: Kito\n    Head: 0\n    Body: 18\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chapa\n    Head: 18\n    Body: 0\n  Father: Usutu\n    Head: 18\n    Body: 1\n\n"
+        "Arrived 1\n  Name: Hoani\n  Age at arrival: 88\n  Sex: Male\n  Head: 11\n  Body: 2\n"
+        "  Likes: (none)\n  Dislikes: (none)\n  How: Barrel of Babies\n\n"
+        "Arrived 2\n  Name: Papu\n  Age at arrival: 300\n  Sex: Male\n  Head: 7\n  Body: 7\n"
+        "  Likes: (none)\n  Dislikes: (none)\n  How: unknown\n\n"
+        "Appearance changed\n  Name: Papu\n  Old head: 16\n  Old body: 14\n  New head: 5\n  New body: 14\n"
+        "  Changed by: an island event\n\n");
+    write_save_named("Rename Tribe");
+    vv_village_publish("");
+    buffer = save_buffer("Rename Tribe");
+    CHECK(scan_arrivals(game, 1) == 3,
+          "renamed: the scan counts the two Kitos and Founda only (Cheop, Hoani and both Papus are in the log)");
+    repair_arrivals(game, 1, 1);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(strstr(text, "  Name: Cheop Bahati\r\n") == NULL,
+          "renamed: Cheop Bahati's Birth record says \"Cheop\" (no last name then): no Arrived record");
+    CHECK(strstr(text, "  Name: Hoani Chuchip\r\n") == NULL,
+          "renamed: Hoani Chuchip's Arrived record says \"Hoani\": no second Arrived record");
+    CHECK(count_of(text, "  Name: Papu\r\n") == 2,
+          "renamed: the Papu whose look changed is followed through the Appearance changed record: no new"
+          " record for either Papu");
+    CHECK(count_of(text, "  Name: Kito Bahati\r\n") == 1 && count_of(text, "  Name: Kito Wanjiko\r\n") == 1,
+          "renamed: a record either of two villagers could be decides nothing: both are written");
+    CHECK(count_of(text, "  Name: Founda\r\n") == 1, "renamed: a villager with no record still gets one");
+    CHECK(scan_arrivals(game, 1) == 0, "renamed: the scan then finds nothing");
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, "Village: Rename Tribe (Save 1)\n");
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    free(buffer);
+}
+
 int main(int argc, char **argv) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     char path[MAX_PATH], marker[MAX_PATH], unacc[MAX_PATH];
@@ -804,6 +1055,7 @@ int main(int argc, char **argv) {
         villager(4, "Dup", 500, 2, 2, 0);
         villager(5, "Dup", 500, 2, 2, 0);
         villager(6, "Hea", 400, 9, 9, game != 5);
+        villager(21, "Cheop Bahati", 901, 4, 15, 0);   /* his Birth record says "Cheop" (before Last Names) */
         if (game == 5) {
             rec(6)[VV5_FACTION] = 1;
             *(int *)(rec(6) + 0x1CFC) = 14;   /* a Heathen Master Scientist: the purple mask */
@@ -878,6 +1130,8 @@ int main(int argc, char **argv) {
               && strstr(text, "Arrived 10") == NULL,
               "Huata, Silko, the second Dup, Ponui and the other Thabo get Arrived 4-8, in the frozen format;"
               " Huata, in the village's first History snapshot, is a Founder, Silko (later) is not");
+        CHECK(strstr(text, "  Name: Cheop Bahati") == NULL,
+              "Cheop Bahati, whose Birth record names him 'Cheop' (before Last Names), gets no Arrived record");
         {
             const char *okwui = arrived(9, "Okwui");
             CHECK(count_of(text, "  Name: Okwui\r\n") == 1 && okwui != NULL
@@ -951,6 +1205,10 @@ int main(int argc, char **argv) {
         villager(10, "Cie", 800, 5, 5, 0);
         created(10, 0);
         arrived_by(game, 10, "Custom Island Event");
+        /* ...with the parents it chose (the owner, 2026-10-10): the "Parents:"
+           block every Village History record has, after How. */
+        arrived_parents(game, 10, "  Parents:\n    Father: Joey\n      Head: 2\n      Body: 2\n"
+                                  "    Mother: Ana\n      Head: 0\n      Body: 0\n");
         villager(11, "Babe", 0, 6, 6, 1);
         created(11, MARK[game - 1].birth);   /* a birth path, with no Births log note */
         villager(15, "Canoe", 540, 7, 2, 0);
@@ -992,8 +1250,10 @@ int main(int argc, char **argv) {
             CHECK(n != NULL && strncmp(n, "  Name: Newcomer\r\n  Age at arrival: 700\r\n  Sex: ", 46) == 0
                   && record_has("Newcomer", "  How: unknown\r\n\r\n"),
                   "an island event's newcomer: the age it arrived at, how unknown");
-            CHECK(c != NULL && record_has("Cie", "  How: Custom Island Event\r\n\r\n"),
-                  "the Custom Island Event's new villager: How: Custom Island Event");
+            CHECK(c != NULL && record_has("Cie", "  How: Custom Island Event\r\n  Parents:\r\n    Father: Joey\r\n"
+                                                 "      Head: 2\r\n      Body: 2\r\n    Mother: Ana\r\n"
+                                                 "      Head: 0\r\n      Body: 0\r\n\r\n"),
+                  "the Custom Island Event's new villager: How: Custom Island Event, then the parents it chose");
             CHECK(gone != NULL && record_has("Gone", "  Age at arrival: 650\r\n"),
                   "one who arrived and was buried before the save has the record too, at the burial");
             CHECK(strstr(text, "  Name: Reborn\r\n") == NULL, "...and whoever has the record now gets none");
@@ -1100,6 +1360,9 @@ int main(int argc, char **argv) {
 
         births_cases();
         quit_cases();
+        stale_slot_cases();
+        creation_save_cases();
+        renamed_cases();
         if (game == 5) {
             /* Another village loaded (another slot): a Heathen in this
                village's record and a believer in the same record of the

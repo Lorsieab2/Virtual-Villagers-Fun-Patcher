@@ -106,6 +106,9 @@ struct vvfp_cause_stats {
     int arrivals;        /* Arrived records written for an arrival seen live */
     int arrivals_backfilled;  /* Arrived records written by the backfill */
     int births_backfilled;    /* Birth records written by the backfill (VV2-VV5) */
+    int left_tribe;           /* New Believers: believers who became Heathens */
+    int lost;                 /* "Lost before birth" records (cod_lost.inc) */
+    int creation_saves;       /* saves asked for a new village's founders (cod_creation_save.inc) */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
@@ -126,10 +129,15 @@ typedef struct {
 
 static int g_game;
 static const cod_host *g_host;
+/* The slot the village was last saved to (cod_save_done), 0 = none: the
+   slot when the host reports none.  The host's slot was 0 for a whole session
+   in The Lost Children after a Change Tribe (native/shared/game_save_slot.h),
+   and the lying bodies' causes, kept only in memory, never reached a file. */
+static int saved_slot;
 
 static int cod_slot(void) {
     int slot = g_host != NULL && g_host->slot != NULL ? g_host->slot() : 0;
-    return slot >= 1 && slot <= 5 ? slot : 0;
+    return slot >= 1 && slot <= 5 ? slot : saved_slot;
 }
 
 /* ---- Words ------------------------------------------------------------- */
@@ -337,7 +345,8 @@ static unsigned int cod_name_hash(const unsigned char *record) {
 
 /* ---- The log -------------------------------------------------------------- */
 
-enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5, LOG_ARRIVED = 6 };
+enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5, LOG_ARRIVED = 6,
+       LOG_LOST_BIRTH = 9 };
 
 typedef int (__stdcall *write_record_fn)(int game, int kind, const void *record, int check,
                                          const char *before, const char *after, int detail);
@@ -411,15 +420,26 @@ static void cod_printable(char *out, int size, const char *text, int capacity) {
 /* The lines a Death record carries before the villager's identity. */
 static const char *roster_sex(int value);
 
+/* cod_lost.inc: the babies a mother carried when she died or disappeared. */
+static int lost_babies(const unsigned char *record);
+static void lost_line(char *out, int babies);
+static void lost_record(const unsigned char *record, int babies, const char *how);
+
 static int cod_log_death(const unsigned char *record, int cause, const char *grave,
                          const char *epitaph) {
-    char before[512];
+    char before[640];
+    char carrying[96];
+    int babies = lost_babies(record);
+    int written;
+    lost_line(carrying, babies);
     wsprintfA(before,
-              "  Age at death: %d\n  Sex: %s\n  Cause of death: %s\n  Grave: %s\n  Epitaph: %s\n",
+              "  Age at death: %d\n  Sex: %s\n  Cause of death: %s\n  Grave: %s\n  Epitaph: %s\n%s",
               rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)),
               cod_cause_words(cause), grave,
-              epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)");
-    return cod_write(LOG_DEATH, record, 1, before, NULL, 1);
+              epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)", carrying);
+    written = cod_write(LOG_DEATH, record, 1, before, NULL, 1);
+    lost_record(record, babies, "died");
+    return written;
 }
 
 /* ---- The site machinery ----------------------------------------------------
@@ -646,6 +666,9 @@ static int install_state;   /* 0 = not tried, 1 = installed, -1 = refused */
    it. */
 static int save_armed;
 
+/* cod_vv12.inc: the graves file written at each save. */
+static void vv12_saved(int slot);
+
 /* cod_backfill.inc: the graves no hook saw, at each save. */
 static void backfill_at_save(int slot, const void *save_buffer);
 static int backfill_accounts_for(const unsigned char *kept);
@@ -663,12 +686,14 @@ static void births_backfill_at_save(int slot, const void *save_buffer);
 
 #include "cod_roster.inc"
 #include "cod_gone.inc"
+#include "cod_lost.inc"
 #include "cod_vv12.inc"
 #include "cod_vv345.inc"
 #include "cod_epitaph_edit.inc"
 #include "cod_backfill.inc"
 #include "cod_former.inc"
 #include "cod_arrivals.inc"
+#include "cod_creation_save.inc"   /* the logs at village creation */
 
 /* ---- Exports --------------------------------------------------------------- */
 
@@ -695,6 +720,7 @@ __declspec(dllexport) int __stdcall VvfpCauseInstall(int game, const void *host)
         v345_edit_sites();
     }
     gone_sites();
+    faction_sites();
     roster_sites();
     if (!save_armed) {
         roster_save_site();
@@ -753,7 +779,9 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
         vv12_tick();
     }
     seen_tick();
+    lost_tick();
     arrival_tick();
+    (void)creation_save_tick();
 }
 
 /* Arm the save hook alone, before the install (Codex, #512 review).
@@ -818,10 +846,14 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
     if (g_game <= 2) {
         vv12_reset(slot);
     }
+    if (saved_slot == slot) {
+        saved_slot = 0;
+    }
     roster_reset(slot);
     backfill_reset(slot);
     arrival_reset(slot);
     memset(seen_alive, 0, sizeof seen_alive);
+    lost_forget();
     memset(temporary, 0, sizeof temporary);
     memset(temporary_name, 0, sizeof temporary_name);
 }

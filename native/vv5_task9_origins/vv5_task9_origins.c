@@ -5,6 +5,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
+#include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/vv5_villager_table.h" /* the table, its slot count and the mask table, from the image */
@@ -92,6 +93,10 @@ static DWORD vv5_mask_table_bytes(void) {
 /* Current save slot, written by the exe slot_capture detour (0 until the first
    save/load; village slots are >=1, slot 0 is the meta file). */
 #define VV5_SLOT_SCRATCH 0x007B1D7Cu
+/* The slot the masks belong to: the game's own current slot (its save manager,
+   native/shared/game_save_slot.h), else the stub's capture, which can lag behind
+   a village made or switched to in this session. */
+#define VV5_MASK_SLOT_NOW vv_current_save_slot(5, *(volatile int *)VV5_SLOT_SCRATCH)
 #define VV5_MASK_TABLE vv5_mask_table() /* nibble-packed side-table, one nibble per slot */
 
 static HINSTANCE module_instance;
@@ -238,7 +243,7 @@ static int build_mask_sidecar_path(char *out) {
     char exe[MAX_PATH];
     char *base;
     char *dot;
-    int slot = *(volatile int *)VV5_SLOT_SCRATCH;
+    int slot = VV5_MASK_SLOT_NOW;
     DWORD n;
     int docs_len, base_len;
     if (slot < 0 || slot > 5) {
@@ -575,7 +580,7 @@ static int vv5_write_mask_sidecar(const unsigned char *table) {
     /* Never before this slot's load settled: a file that is present but
        could not be opened still holds the masks this table lacks.  Checked
        before the path is built, so a blocked slot costs no file I/O. */
-    if (!vv_sidecar_gate_ready(&g_vv5_mask_gate, *(volatile int *)VV5_SLOT_SCRATCH)
+    if (!vv_sidecar_gate_ready(&g_vv5_mask_gate, VV5_MASK_SLOT_NOW)
         || !build_mask_sidecar_path(path)) {
         return 0;
     }
@@ -665,7 +670,7 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
     memset(table, 0, table_bytes);
     memset(g_vv5_mask_id, 0, sizeof(g_vv5_mask_id));
     g_vv5_rewrite_after_load = 0;
-    vv_sidecar_gate_bind(&g_vv5_mask_gate, *(volatile int *)VV5_SLOT_SCRATCH);
+    vv_sidecar_gate_bind(&g_vv5_mask_gate, VV5_MASK_SLOT_NOW);
     if (vv_sidecar_gate_throttled(&g_vv5_mask_gate)) {
         return 0;               /* blocked a moment ago: no I/O until the retry */
     }
@@ -811,7 +816,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
         return 1;                   /* checked a moment ago */
     }
     g_vv5_sync_tick = now;
-    slot = *(volatile int *)VV5_SLOT_SCRATCH;
+    slot = VV5_MASK_SLOT_NOW;
     if (slot <= 0) {
         return 0;                   /* nothing known yet -> do not touch anything */
     }
@@ -892,7 +897,7 @@ static int vv5_om_scan(int slot, vv_om_list *out) {
     const unsigned char *table = (const unsigned char *)VV5_MASK_TABLE;
     int i, slots = vv5_slots();
     out->count = 0;
-    if (slot < 1 || !g_vv5_have_roster || g_vv5_slot != slot || *(volatile int *)VV5_SLOT_SCRATCH != slot
+    if (slot < 1 || !g_vv5_have_roster || g_vv5_slot != slot || VV5_MASK_SLOT_NOW != slot
         || !vv_sidecar_gate_ready(&g_vv5_mask_gate, slot) || vv5_roster_identities(ids, stable) == 0) {
         return -1;
     }
@@ -2007,8 +2012,7 @@ static int vv5_story_index(void *record) {
 }
 
 static int __stdcall vv5_story_slot(void) {
-    int slot = *(volatile int *)VV5_SLOT_SCRATCH;
-    return slot >= 1 && slot <= 5 ? slot : 0;
+    return vv_current_save_slot(5, *(volatile int *)VV5_SLOT_SCRATCH);
 }
 
 static int __stdcall vv5_story_mask_get(void *record) {
@@ -2031,9 +2035,73 @@ static int __stdcall vv5_story_mask_set(void *record, int mask) {
     return 1;
 }
 
+/* Choose Time Skip Amount (the Story DLL drives it): one step of the Time
+   Warp above, at most the years one Time Warp buys at the current speed.
+   The villager tick (whose catch-up replays the new age units) rewrites
+   every living believer's marker (+0x1C38) each time it runs, so a marker
+   that moved off the value the step left is the sign it has replayed the
+   step.  A Heathen is never the one watched (the tick skips them). */
+static int vv5_skip_watch = -1;
+static int vv5_skip_mark;
+
+static int vv5_skip_living(const unsigned char *rec) {
+    return rec[VV5_OFF_ACTIVE] != 0 && rec[VV5_TW_FACTION_OFFSET] == 0
+        && *(const int *)(rec + 0x1C40) > 0;
+}
+
+static int __stdcall vv5_story_time_skip_step(int years) {
+    vv5_world_getter_fn get_world = (vv5_world_getter_fn)(UINT_PTR)VV5_TW_WORLD_GETTER;
+    unsigned char *world = get_world();
+    unsigned char *base = (unsigned char *)(UINT_PTR)VV5_REC_BASE;
+    int speed, step, i, slots;
+    if (world == 0 || years <= 0) {
+        return 0;
+    }
+    speed = *(int *)(world + VV5_TW_SPEED_OFFSET);
+    step = vv5_time_warp_years(speed);
+    if (step <= 0) {
+        return -1;                     /* paused, or a speed we do not know */
+    }
+    if (step > years) {
+        step = years;
+    }
+    if (vv5_time_warp_apply(speed, step) <= 0) {
+        return 0;
+    }
+    vv5_skip_watch = -1;
+    slots = vv5_slots();
+    for (i = 0; i < slots; ++i) {
+        unsigned char *rec = base + (size_t)i * VV5_REC_STRIDE;
+        if (vv5_skip_living(rec)) {
+            vv5_skip_watch = i;
+            vv5_skip_mark = *(int *)(rec + VV5_TW_LAST_SEEN_OFFSET);
+            break;
+        }
+    }
+    return step;
+}
+
+static int __stdcall vv5_story_time_skip_settled(void) {
+    unsigned char *rec;
+    if (vv5_skip_watch < 0 || vv5_skip_watch >= vv5_slots()) {
+        return 1;
+    }
+    rec = (unsigned char *)(UINT_PTR)VV5_REC_BASE + (size_t)vv5_skip_watch * VV5_REC_STRIDE;
+    return !vv5_skip_living(rec) || *(int *)(rec + VV5_TW_LAST_SEEN_OFFSET) != vv5_skip_mark;
+}
+
+/* Whether the game's clock runs (a known speed, not paused): only that time
+   counts toward the time skip's replay wait (native/shared/story_bridge.h). */
+static int __stdcall vv5_story_time_skip_running(void) {
+    vv5_world_getter_fn get_world = (vv5_world_getter_fn)(UINT_PTR)VV5_TW_WORLD_GETTER;
+    unsigned char *world = get_world();
+    return world != 0 && vv5_time_warp_years(*(int *)(world + VV5_TW_SPEED_OFFSET)) > 0;
+}
+
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
-        sizeof(vvfp_story_host), vv5_story_slot, vv5_story_mask_get, vv5_story_mask_set, NULL
+        sizeof(vvfp_story_host), vv5_story_slot, vv5_story_mask_get, vv5_story_mask_set, NULL,
+        vv5_story_time_skip_step, vv5_story_time_skip_settled, vv5_story_time_skip_running
     };
     return &host;
 }
@@ -2281,9 +2349,10 @@ static INT_PTR CALLBACK upgrade_dialog(
     }
     if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID) {
+        if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
+            || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island
-               Event row's lock. */
+               Event row's lock (Choose Time Skip Amount ignores it). */
             if (vvfp_story_pick_clicked(
                     5, window, (int)command,
                     block_reasons[PENDING_ROW_ISLAND] != BLOCK_NONE

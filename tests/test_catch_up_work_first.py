@@ -19,7 +19,8 @@ owner's decisions:
    The Secret City, The Tree of Life and New Believers dispatch Farming and
    Work First never overrides it.
 3. The Lost Children's healers continue plant study (state 9, the
-   scheduler's own continuation 0x460590(index, 40)) during catch-up.
+   scheduler's own continuation 0x460590(index, 40)) during catch-up; A New
+   Home's the same way (0x447CD0(index, 60), tests/test_easier_healing_mastery.py).
 
 Everything here is EMULATED FROM THE WORKER'S ENTRY in the executable the
 patcher renders for the rows (Origins base + Builders Fix Huts When Idle +
@@ -673,14 +674,17 @@ class LostChildrenHealersStudyInCatchUp(unittest.TestCase):
         self.assertGreater(share, 0.70)
         self.assertLess(share, 0.80)
 
-    def test_a_new_home_needs_no_site(self):
-        # A New Home's catch-up already continues plant study through its
-        # dispatcher's Healing case (job 5): activity 9 -> 0x443270.
-        code = _stock_bytes_at("vv1", 0x4478EF, 13)
-        self.assertEqual(code[:8], bytes.fromhex("83BC30B803000009"))     # cmp [rec+0x3B8], 9
-        self.assertEqual(code[8:12], bytes.fromhex("7508558B"))            # jne; push ebp; mov ecx, esi
-        target = (0x4478FC + 5 + struct.unpack("<i", _stock_bytes_at("vv1", 0x4478FD, 4))[0]) & 0xFFFFFFFF
-        self.assertEqual(target, 0x443270)
+    def test_a_new_home_has_the_same_site(self):
+        # A New Home's dispatcher continues plant study (0x4478EF, activity 9
+        # -> 0x443270) only when catch-up picks Healing and no one is sick,
+        # so it gets the same catch-up site at its pick dispatch (0x42E817);
+        # tests/test_easier_healing_mastery.py runs it.
+        self.assertEqual(_stock_bytes_at("vv1", 0x42E817, 10).hex().upper(), "8B4F045056E89F8A0100")
+        m = world("vv1")
+        code = bytes(m.mu.mem_read(0x42E817, 10))
+        self.assertEqual(code[0], 0xE9)
+        target = (0x42E817 + 5 + struct.unpack("<i", code[1:5])[0]) & 0xFFFFFFFF
+        self.assertTrue(0x12000000 <= target < 0x13000000)  # into "VVFP Healers Study.dll"
 
 
 if __name__ == "__main__":

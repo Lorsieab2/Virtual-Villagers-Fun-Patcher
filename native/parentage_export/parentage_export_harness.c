@@ -15,11 +15,13 @@
    copies but says "(not captured for this birth)" for his age, likes and
    dislikes -- never another villager's, even one sharing his name.
 
-   The DLL writes under Documents\LDW\<this exe's basename>\, exactly where a
-   game of that name would keep its saves.  harness_ldw_tree_begin() refuses
-   to run unless that folder is absent, and each game's logs are removed when
-   that game is done, so every game starts from an empty folder, nothing is
-   left behind and no player's folder is touched.
+   The DLL writes under <Documents>\LDW\<this exe's basename>\, where a game
+   of that name would keep its saves -- but its "Documents" is redirected to a
+   throwaway folder under %TEMP% (harness_redirect_documents.h patches the
+   DLL's own shell32 imports), so the player's real Documents\LDW is never
+   touched, even when this harness is killed part-way: all that is left then
+   is an unreferenced folder in %TEMP%.  Each game's logs are removed when
+   that game is done, so every game starts from an empty folder.
 
    Usage:  parentage_export_harness.exe "<path to VVFP Parentage Export.dll>"
    Exit code 0 when every check passes. */
@@ -28,7 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../shared/harness_ldw_tree.h"
+#include "../shared/harness_redirect_documents.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -50,7 +52,7 @@ struct layout {
     const char *title;
 };
 static const struct layout LAYOUTS[5] = {
-    { 1, 0x3D8,  256, 0,    0x28,   0x348,  0x360,  0x364,  0x370,  0x1C, 0,      0,    0,      0,      0x35C,  0x398,  0x3A8,  4, 46, "jokes",  "Virtual Villagers 1 Births and Conceptions Log" },
+    { 1, 0x3D8,  256, 0,    0x28,   0x348,  0x360,  0x364,  0x370,  0x1C, 0,      0,    0,      0,      0x35C,  0x398,  0x3A8,  4, 46, "sleeping", "Virtual Villagers 1 Births and Conceptions Log" },
     { 2, 0xE48C, 256, 0,    0x30,   0x530,  0x548,  0x54C,  0x564,  0x18, 0x5C0,  0x18, 0x5E0,  0x5DC,  0x544,  0x5F0,  0x6E8, 62, 61, "dirt",   "Virtual Villagers 2 Births and Conceptions Log" },
     { 3, 0x1F8C, 150, 0x14, 0xF10,  0xDC4,  0xDF0,  0xDF4,  0xDD4,  0x19, 0xE48,  0x18, 0xE68,  0xE64,  0xE90,  0xFB4,  0xFC0,  3, 78, "nature", "Virtual Villagers 3 Births and Conceptions Log" },
     { 4, 0x2E3C, 150, 0x44, 0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1C10, 0x18, 0x1C30, 0x1C2C, 0x1C50, 0x1E60, 0x1E6C, 3, 78, "nature", "Virtual Villagers 4 Births and Conceptions Log" },
@@ -91,7 +93,7 @@ static void game_copies_father_onto_mother(int mother, int father) {
 static char folder[MAX_PATH];
 static int locate_folder(void) {
     char docs[MAX_PATH], exe[MAX_PATH], *base, *dot;
-    if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) return 0;
+    lstrcpynA(docs, harness_redirect_documents_path(), MAX_PATH);   /* the throwaway Documents */
     if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) return 0;
     base = strrchr(exe, '\\'); base = base ? base + 1 : exe;
     dot = strrchr(base, '.'); if (dot) *dot = 0;
@@ -235,7 +237,7 @@ static void run_game(write_t write, const struct layout *layout) {
         CHECK(parent_has(r, "  Father:", "Likes: (none)"), "father with every like slot empty prints (none)");
         _snprintf(line, sizeof line, "Dislikes: %s", g->last_word);
         CHECK(parent_has(r, "  Father:", line), "father's dislikes: index %d names '%s' in THIS game's list", g->last_preference, g->last_word);
-        CHECK(record_has(r, "  Babies in pregnancy: 2"), "twins: 2 babies");
+        CHECK(record_has(r, "  Babies nursing: 2"), "twins: 2 babies");
     }
 
     /* --- triplets, no father record passed --- */
@@ -246,7 +248,7 @@ static void run_game(write_t write, const struct layout *layout) {
     r = conception(n_records(g));       /* the record just written */
     CHECK(r != NULL, "the twins-and-triplets record is in the log");
     if (r) {
-        CHECK(record_has(r, "  Babies in pregnancy: 3"), "triplets: 3 babies");
+        CHECK(record_has(r, "  Babies nursing: 3"), "triplets: 3 babies");
         CHECK(parent_has(r, "  Mother:", "Likes: turnips"), "mother's fields do not depend on the father");
         if (g->father_name != 0) {
             /* VV2..VV5: the game recorded his name and head/body on her, so
@@ -301,7 +303,7 @@ static void run_game(write_t write, const struct layout *layout) {
     ok = write(g->game, records, rec(3), rec(7));
     read_log();
     r = conception(n_records(g));       /* the record just written */
-    CHECK(r != NULL && record_has(r, "  Babies in pregnancy: 1"), "singleton: litter 0 is logged as 1 baby");
+    CHECK(r != NULL && record_has(r, "  Babies nursing: 1"), "singleton: litter 0 is logged as 1 baby");
 
     /* --- a namesake: only the ONE living Goro left is the other one --- */
     if (g->father_name != 0) {
@@ -335,17 +337,54 @@ static void run_game(write_t write, const struct layout *layout) {
         CHECK(r != NULL && parent_has(r, "  Father:", "Head: 1"), "...with the head the game copied for THIS conception");
     }
 
+    /* --- the game's OWN default father: VV2's Gong "?" 0/0, VV4/VV5's "Joey" 2/2 ---
+
+       The conception caller passes a string literal, not a villager, so
+       nothing is captured and nothing may be scanned for -- not even a living
+       villager who carries the very same name.  His name, head and body are
+       the game's copies on the mother; the rest say there is nobody. */
+    if (g->game == 2 || g->game == 4 || g->game == 5) {
+        const char *dflt = g->game == 2 ? "?" : "Joey";
+        int looks = g->game == 2 ? 0 : 2;
+        char want[64];
+        villager(11, dflt, 35 * 20, looks, looks);        /* a living namesake, who must not be read */
+        like(11, 0, 0);
+        memset(rec(3) + g->father_name, 0, g->father_key_cap);
+        strncpy((char *)rec(3) + g->father_name, dflt, g->father_key_cap);
+        *(int *)(rec(3) + g->father_head_copy) = looks;
+        *(int *)(rec(3) + g->father_body_copy) = looks;
+        *(int *)(rec(3) + g->litter) = 0;
+        ok = write(g->game, records, rec(3), NULL);
+        read_log();
+        r = conception(n_records(g));
+        CHECK(r != NULL, "the default father's record is in the log");
+        if (r) {
+            _snprintf(want, sizeof want, "  Father: %s", dflt);
+            CHECK(record_has(r, want), "the game's own default father is named: %s", dflt);
+            _snprintf(want, sizeof want, "Head: %d", looks);
+            CHECK(parent_has(r, "  Father:", want), "...with the head the game wrote (%d)", looks);
+            _snprintf(want, sizeof want, "Body: %d", looks);
+            CHECK(parent_has(r, "  Father:", want), "...and the body (%d)", looks);
+            CHECK(parent_has(r, "  Father:", "Age at conception: (none: game's default father)"), "no villager: no age, and nothing failed to capture it");
+            CHECK(parent_has(r, "  Father:", "Sex: (none: game's default father)"), "...no sex");
+            CHECK(parent_has(r, "  Father:", "Likes: (none: game's default father)"), "...no likes -- never the namesake's");
+            CHECK(parent_has(r, "  Father:", "Dislikes: (none: game's default father)"), "...no dislikes");
+        }
+        rec(11)[g->active] = 0;
+    }
+
     free(records);
     remove_logs();
 }
 
 int main(int argc, char **argv) {
-    harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     HMODULE dll; write_t write; int i;
     if (argc < 2) { fprintf(stderr, "usage: %s <VVFP Parentage Export.dll>\n", argv[0]); return 2; }
-    if (!locate_folder()) { fprintf(stderr, "cannot resolve Documents\\LDW\n"); return 2; }
     dll = LoadLibraryA(argv[1]);
     if (dll == NULL) { fprintf(stderr, "LoadLibrary failed: %lu\n", GetLastError()); return 2; }
+    /* Before the DLL resolves any folder: its Documents is a throwaway folder, never the player's. */
+    if (!harness_redirect_documents(dll)) { fprintf(stderr, "cannot redirect the DLL's Documents\n"); return 2; }
+    if (!locate_folder()) { fprintf(stderr, "cannot resolve the throwaway Documents\n"); return 2; }
     write = (write_t)GetProcAddress(dll, "WriteParentageRecordWithFather");
     if (write == NULL) { fprintf(stderr, "WriteParentageRecordWithFather not exported\n"); return 2; }
     printf("log folder: %s\n", folder);

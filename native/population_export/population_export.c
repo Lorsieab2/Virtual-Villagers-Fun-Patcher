@@ -343,6 +343,12 @@ struct game_layout {
     unsigned int sex;
     int sex_male;
     int sex_female;
+    /* The villager's health, i32: an occupied record at 0 or below is a body
+       awaiting burial, not a living villager (the owner, 2026-10-10: a
+       starved tribe's seven skeletons were listed as living).  The Cause of
+       Death companion's table (vvfp_cause_of_death.c) and its living test,
+       rec_health(record) > 0. */
+    unsigned int health;
 };
 
 static const struct game_layout GAME_LAYOUTS[6] = {
@@ -360,7 +366,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        written twice, which is the shape of a lazily-built singleton.
 
        VV1 copies nothing about the father onto the mother, so the father
-       block is zero here and those lines are simply absent from its roster.
+       block is zero here; its Father: lines come from the parentage
+       companion's record of the conception (write_vv1_expected_father).
        Its skill table comes from the shipped Origins Full Mastery
        walker, which sets every villager's every skill to mastered and so
        has to know exactly where they are: it compares [esi+0x3BC] through
@@ -372,7 +379,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0u, 0x3D8u, 256u,
         0x28u, 0x348u, 0x360u, 0x364u,
         0x370u, 0x1Cu,
-        0u, 0u, 0u, 0u,               /* no pregnancy-father copy in VV1 */
+        0u, 0u, 0u, 0u,               /* no pregnancy-father copy in VV1:
+                                         the sidecar supplies it */
         0u, 0u, 0u, 0u, 0u, 0u, 0u,   /* and no parents on the record at all:
                                          the sidecar supplies VV1's block */
         0x3BCu, 5u, 0,
@@ -380,7 +388,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x398u, 0x3A8u, 4u,
         PREFERENCES_47,
         "Virtual Villagers 1",
-        0x350u, 1, 2
+        0x350u, 1, 2,
+        0x344u
     },
     /* VV2 -- The Lost Children. The same singleton shape as VV1: the global
        at 0x499F24 (RVA 0x99F24), allocation 0xE57500, and the manager field
@@ -441,7 +450,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x5F0u, 0x6E8u, 62u,
         PREFERENCES_62,
         "Virtual Villagers 2",
-        0x538u, 1, 2
+        0x538u, 1, 2,
+        0x52Cu
     },
     /* VV3 -- The Secret City. Skills are INT32 here and the game's own
        predicate compares against 0x58, so the float path must not be used. */
@@ -457,7 +467,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xFB4u, 0xFC0u, 3u,
         PREFERENCES_79_VV3,
         "Virtual Villagers 3",
-        0xDC8u, 0, 1
+        0xDC8u, 0, 1,
+        0xE78u
     },
     /* VV4 -- The Tree of Life. */
     {
@@ -472,7 +483,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1E60u, 0x1E6Cu, 3u,
         PREFERENCES_79,
         "Virtual Villagers 4",
-        0x1B90u, 0, 1
+        0x1B90u, 0, 1,
+        0x1C40u
     },
     /* VV5 -- New Believers. Six skills, one more than VV3 and VV4. */
     {
@@ -487,7 +499,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1F5Cu, 0x1F68u, 3u,
         PREFERENCES_79,
         "Virtual Villagers 5",
-        0x1B90u, 0, 1
+        0x1B90u, 0, 1,
+        0x1C40u
     }
 };
 
@@ -580,6 +593,9 @@ static int layout_is_sane(const struct game_layout *g) {
         return 0;
     }
     if (g->active + 1u > g->stride) return 0;
+    /* Every game has a health field: without one, every body would read as
+       living (living_villager). */
+    if (g->health == 0u || g->health + WORD > g->stride) return 0;
     if (g->age + WORD > g->stride) return 0;
     if (g->head + WORD > g->stride) return 0;
     if (g->body + WORD > g->stride) return 0;
@@ -734,6 +750,8 @@ typedef int (__stdcall *vv1_parents_names_t)(int index, char *father, char *moth
 static int vv1_parents_state;     /* 0 = not tried, 1 = resolved, -1 = unavailable */
 static vv1_parents_query_t vv1_parents_query;
 static vv1_parents_names_t vv1_parents_names;
+typedef int (__stdcall *vv1_expected_father_t)(int index, int *looks, char *name, int capacity);
+static vv1_expected_father_t vv1_expected_father;
 
 static int vv1_parents_resolve(void) {
     HMODULE companion;
@@ -747,10 +765,44 @@ static int vv1_parents_resolve(void) {
     }
     vv1_parents_query = (vv1_parents_query_t)GetProcAddress(companion, "Vv1ParentageQuery");
     vv1_parents_names = (vv1_parents_names_t)GetProcAddress(companion, "Vv1ParentageQueryNames");
+    /* Optional: a companion that predates it still supplies the parents. */
+    vv1_expected_father = (vv1_expected_father_t)GetProcAddress(companion, "Vv1ParentageQueryExpectedFather");
     if (vv1_parents_query == NULL || vv1_parents_names == NULL) {
         return 0;
     }
     vv1_parents_state = 1;
+    return 1;
+}
+
+/* A New Home's "Father:" block -- the father of the child she is CARRYING,
+   in exactly the shape the later games print from the copy on the mother.
+   A New Home copies nothing onto her, but the parentage companion keeps the
+   father it captured at conception in its pregnancy stash, and hands back
+   the very father her child will be born to (the same rule its birth
+   follows, the Births log's confirmation included).  Gated on the pregnancy
+   by the caller and again by the companion; no companion, no export, or no
+   recorded father: no block, as the later games print none for an empty
+   name.  Returns 0 only on a write failure. */
+static int write_vv1_expected_father(FILE *file, int index) {
+    int looks[2];
+    char father[MAX_NAME_BYTES];
+    if (!vv1_parents_resolve() || vv1_expected_father == NULL
+        || !vv1_expected_father(index, looks, father, (int)sizeof(father))) {
+        return 1;
+    }
+    if (father[0] == '\0') {
+        return 1;
+    }
+    /* A father whose name is known but a look not (a stash an earlier build
+       wrote): the block is still written, the look "(unknown)" -- the name
+       is never dropped for want of a look (0 is a real look, -1 is none). */
+    if (fprintf(file, "  Father: %s\n", father) < 0) return 0;
+    if ((looks[0] >= 0 ? fprintf(file, "    Head: %d\n", looks[0]) : fprintf(file, "    Head: (unknown)\n")) < 0) {
+        return 0;
+    }
+    if ((looks[1] >= 0 ? fprintf(file, "    Body: %d\n", looks[1]) : fprintf(file, "    Body: (unknown)\n")) < 0) {
+        return 0;
+    }
     return 1;
 }
 
@@ -881,6 +933,22 @@ static int village_save_slot(const char *village) {
 static unsigned char g_former[VV_FORMER_FILE_MAX];
 static int g_former_loaded;
 
+/* A living villager of the tribe: the slot is live, the record is not a
+   look-alike (villager_lookalike.h) and its health is above 0.  A live
+   record at health 0 or below is a body awaiting burial -- the game keeps it
+   in the table until it is buried -- and is neither listed in the Population
+   nor in the History; its Death record comes from the burial (Cause of
+   Death).  The test is the Cause of Death companion's own: rec_present,
+   !rec_lookalike, rec_health > 0 (cod_lost.inc, cod_gone.inc).  New
+   Believers' villager being reanimated (+0x1CE1) stays a look-alike here,
+   as in the game's own list and the Statistics roster. */
+static int living_villager(const struct game_layout *g, const unsigned char *record) {
+    if (*(const unsigned char *)(record + g->active) != 1) {
+        return 0;
+    }
+    return !vv_lookalike(g->stride, record) && *(const int *)(record + g->health) > 0;
+}
+
 static const char *special_title_of(int game_id, const struct game_layout *g, const unsigned char *record) {
     int kind = -1;
     if (g_former_loaded && g->likes != 0u) {
@@ -928,6 +996,10 @@ static void load_custom_titles(int game_id, const struct game_layout *g, const c
 /* The same for New Believers' Former Heathens (Codex, #553): an identity two living villagers
    carry is nobody's, so neither is given the title.  Its entry's identity is cleared (an
    identity is never 0), so the lookup finds nothing. */
+/* Carriers are counted over every occupied record, a body awaiting burial
+   included, NOT living_villager: the Story companion (titles_live_count,
+   story_titles.inc) and the parentage exporter count them that way, and the
+   title must be dropped exactly where they show it on nobody. */
 static void drop_ambiguous_former(const struct game_layout *g, const unsigned char *villagers) {
     unsigned int count, i, index;
     if (!g_former_loaded) {
@@ -1037,6 +1109,14 @@ static int write_villager(
             return 0;
         }
     }
+    /* New Believers' Heathens are in the same records as the believers: the
+       faction byte +0x1CEC, worded as the Unaccounted record words it
+       (cod_roster.inc), so a blue, red or orange Heathen never reads as a
+       believer (and Repair's Village Elders backfill can leave them out). */
+    if (game_id == GAME_VV5
+        && fprintf(file, "  Faction: %s\n", record[VV5_FACTION] != 0 ? "Heathen" : "Believer") < 0) {
+        return 0;
+    }
     if (fprintf(file, "  Head: %d\n", *(const int *)(record + g->head)) < 0) {
         return 0;
     }
@@ -1056,11 +1136,11 @@ static int write_villager(
     if (with_pregnancy
             && g->age_at_conception != 0u
             && *(const int *)(record + g->age_at_conception) != 0) {
-        if (fprintf(file, "  Pregnant: yes\n") < 0) return 0;
+        if (fprintf(file, "  Nursing: yes\n") < 0) return 0;
     }
     if (with_pregnancy && g->litter != 0u) {
         int litter = *(const int *)(record + g->litter);
-        if (litter > 1 && fprintf(file, "  Babies in pregnancy: %d\n", litter) < 0) {
+        if (litter > 1 && fprintf(file, "  Babies nursing: %d\n", litter) < 0) {
             return 0;
         }
     }
@@ -1102,10 +1182,11 @@ static int write_villager(
        "Parents: Father: Poro", her actual father -- two different men
        under the same word.
 
-       So the PREGNANCY is the gate, the same test the Pregnant line above
+       So the PREGNANCY is the gate, the same test the Nursing line above
        uses and the one the field's own comment describes: it is zero when
        she is not carrying. Every game with father fields (VV2-VV5) has it;
-       VV1 has neither and its roster is unchanged.
+       VV1 has no copy on the mother; its block follows below, from the
+       parentage companion.
 
        An all-zero name means nothing was ever copied: a real name always has
        a first byte, and zero there cannot be a name. Head and body are NOT
@@ -1127,6 +1208,14 @@ static int write_villager(
                     *(const int *)(record + g->father_body)) < 0) {
             return 0;
         }
+    }
+    /* A New Home: the same block, from the parentage companion's record of
+       the conception (write_vv1_expected_father), under the same gate. */
+    if (with_pregnancy && game_id == GAME_VV1
+            && g->age_at_conception != 0u
+            && *(const int *)(record + g->age_at_conception) != 0
+            && !write_vv1_expected_father(file, index)) {
+        return 0;
     }
 
     /* This villager's OWN parents, which VV2 to VV5 keep on the record for
@@ -1368,7 +1457,7 @@ static int append_history(
     for (index = 0; index < g->slots; ++index) {
         const unsigned char *record =
             villagers + g->record_base + index * g->stride;
-        if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {
+        if (!living_villager(g, record)) {
             continue;
         }
         /* 0: no pregnancy lines in the history -- parents only. */
@@ -1473,7 +1562,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     for (index = 0; index < g->slots; ++index) {
         const unsigned char *record =
             villagers + g->record_base + index * g->stride;
-        if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {
+        if (!living_villager(g, record)) {
             continue;
         }
         if (file == NULL) {

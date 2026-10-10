@@ -152,6 +152,8 @@
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/patcher_files.h"  /* the patcher's folder; full-path, wide loads */
 #include "../shared/save_layout.h"    /* the save folder's names, and the move from older ones */
+#include "../shared/birth_heading.h"  /* "Birth <n>", or an older log's "Birth" */
+#include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)   /* what 0x41D500 returns */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* lazily built villager array */
@@ -228,7 +230,11 @@
    and body value, stored +1 like every other).  Children SPAWNED by an
    island event or a Barrel of Babies are not delivered by a mother and get
    no parents at all, so this is only ever reached for a real delivery whose
-   stash is empty. */
+   stash is empty.  (Corrected 2026-10-10: VV2 and VV3 never write "Unknown"
+   -- VV2's own default is "?" 0/0 and VV4/VV5's is "Joey" 2/2, each written by
+   the game itself; "Unknown" 0/0 is the patcher's placeholder for a birth
+   whose game provides no father at all, which is A New Home's case.) */
+#define VV1_FALLBACK_FATHER "Unknown"
 #define VV1_NEW_VILLAGE_STRIKES 30          /* frames of a roster sharing nobody with the table before it is another village's */
 #define VV1_APPEARANCE_MAX     253          /* fits in a byte once +1 is added */
 
@@ -305,9 +311,14 @@ static unsigned char *vv1_records(void) {
     return base ? base + VV1_RECORDS_OFFSET : NULL;
 }
 
+/* The game's own current slot (its save manager, 0x48AEDC + 0xABE4), else
+   the slot the save-path stub last captured: a first village made in a fresh
+   save folder leaves the stub at 5 (the game reads slots 1..5 to list them)
+   until its first save, and this table was written as "Save 5"
+   (native/shared/game_save_slot.h). */
 static int vv1_slot(void) {
     unsigned int slot = VV1_SAVE_SLOT_PTR;
-    return (slot >= 1u && slot <= 5u) ? (int)slot : 0;
+    return vv_current_save_slot(1, (slot >= 1u && slot <= 5u) ? (int)slot : 0);
 }
 
 static unsigned char vv1_plus_one(int value);
@@ -317,8 +328,12 @@ static void vv1_xc_prepare_fathers(int slot, const unsigned char *records);
 /* Fill child c's father from mother m's pregnancy stash, or -- when she has
    none, a fatherless delivery -- from the "Unknown" 0/0 fallback.  Never
    called for a spawn, which has no delivering mother. */
-static void vv1_set_father(int c, int m, const unsigned char *mother) {
-    vv1_parent_entry confirmed;
+/* The father of the child mother m is carrying, into out's stash fields:
+   1 when one is known, 0 when not.  The one rule both the birth
+   (vv1_set_father) and the Village Population log's expected father
+   (Vv1ParentageQueryExpectedFather) follow, so the log names exactly the man
+   the child will be born to. */
+static int vv1_expected_father(int m, const unsigned char *mother, vv1_parent_entry *out) {
     /* A stash that came from before the first-load cross-check ran may have
        drifted onto this mother from another villager.  While that check has
        not run, a pregnancy she brought into this session takes its father
@@ -326,21 +341,71 @@ static void vv1_set_father(int c, int m, const unsigned char *mother) {
        copied from -- whenever the log confirms one (vv1_crosscheck.inc); a
        birth is never logged with a drifted father.  A conception made THIS
        session set the stash itself, and is always right. */
-    if (!g_session_stash[m] && mother != NULL && vv1_xc_confirmed_father(mother, &confirmed)) {
-        g_entries[c].father_head = confirmed.stash_head;
-        g_entries[c].father_body = confirmed.stash_body;
-        memcpy(g_entries[c].father_name, confirmed.stash_name, VV1_NAME_CAPACITY);
-        return;
+    if (!g_session_stash[m] && mother != NULL && vv1_xc_confirmed_father(mother, out)) {
+        return 1;
     }
     /* The father is the one stashed against the mother at conception.  When
        she has no stash (a delivery with no captured father) the father is
        simply left blank: only the mother is recorded, as the manifest
        promises when Write Parentage Log is off. */
     if (g_entries[m].stash_head || g_entries[m].stash_body || g_entries[m].stash_name[0]) {
-        g_entries[c].father_head = g_entries[m].stash_head;
-        g_entries[c].father_body = g_entries[m].stash_body;
-        memcpy(g_entries[c].father_name, g_entries[m].stash_name, VV1_NAME_CAPACITY);
+        out->stash_head = g_entries[m].stash_head;
+        out->stash_body = g_entries[m].stash_body;
+        memcpy(out->stash_name, g_entries[m].stash_name, VV1_NAME_CAPACITY);
+        return 1;
     }
+    return 0;
+}
+
+static int vv1_father_capture_on(void);
+
+static void vv1_set_father(int c, int m, const unsigned char *mother) {
+    vv1_parent_entry father;
+    if (vv1_expected_father(m, mother, &father)) {
+        g_entries[c].father_head = father.stash_head;
+        g_entries[c].father_body = father.stash_body;
+        memcpy(g_entries[c].father_name, father.stash_name, VV1_NAME_CAPACITY);
+    } else if (vv1_father_capture_on()) {
+        /* A real delivery whose father nothing recorded: the owner's fallback
+           father (2026-09-21), "Unknown" with head 0 and body 0, stored +1
+           like every other value.  A New Home writes no father of its own
+           anywhere (the later games' "?" and "Joey" are their own defaults),
+           so this is the case the placeholder is for.  Never reached for a
+           spawn: only a delivering mother calls this.  Only while the
+           conception capture is installed (Write Births and Conceptions Log,
+           whose companion supplies the father): with it off the manifest
+           promises "only the mother is recorded", and a father that was
+           never looked for is not an unknown one. */
+        memset(g_entries[c].father_name, 0, VV1_NAME_CAPACITY);
+        memcpy(g_entries[c].father_name, VV1_FALLBACK_FATHER, sizeof VV1_FALLBACK_FATHER);
+        g_entries[c].father_head = vv1_plus_one(0);
+        g_entries[c].father_body = vv1_plus_one(0);
+    }
+}
+
+/* The expected father of the pregnancy in record `index` of `records`, for
+   the Village Population log: out[0] head and out[1] body (each -1 when not
+   known) and his name (empty when not known).  Nothing is known for a record
+   that is empty or not carrying -- the pregnancy is the gate, as in the later
+   games, where the copy on the mother outlives the birth. */
+static void vv1_expected_out(const unsigned char *records, int index, int *out,
+                             char *name, int capacity) {
+    vv1_parent_entry father;
+    const unsigned char *mother = records + (unsigned int)index * VV1_RECORD_STRIDE;
+    out[0] = -1;
+    out[1] = -1;
+    name[0] = '\0';
+    if (!mother[VV1_OCCUPIED_OFFSET] || *(const int *)(mother + VV1_DUE_OFFSET) == 0) {
+        return;
+    }
+    memset(&father, 0, sizeof(father));
+    if (!vv1_expected_father(index, mother, &father)) {
+        return;
+    }
+    out[0] = father.stash_head ? (int)father.stash_head - 1 : -1;
+    out[1] = father.stash_body ? (int)father.stash_body - 1 : -1;
+    father.stash_name[VV1_NAME_CAPACITY - 1] = '\0';
+    lstrcpynA(name, father.stash_name, capacity);
 }
 
 static unsigned char vv1_plus_one(int value) {
@@ -1315,6 +1380,22 @@ static vv1_write_birth_t vv1_log_writer(void) {
     return g_write_birth;
 }
 
+#ifdef VVFP_TEST
+static int g_test_capture = -1;   /* Vv1ParentageProbeCaptureOn: -1 = ask the companion */
+#endif
+
+/* Is the father captured at conception at all?  The parentage companion
+   (Write Births and Conceptions Log) is what supplies him, so its presence
+   is the answer. */
+static int vv1_father_capture_on(void) {
+#ifdef VVFP_TEST
+    if (g_test_capture >= 0) {
+        return g_test_capture;
+    }
+#endif
+    return vv1_log_writer() != NULL;
+}
+
 static int vv1_decode(unsigned char encoded) {
     return encoded ? (int)encoded - 1 : -1;
 }
@@ -1886,29 +1967,72 @@ static void vv1_golden_last_name(unsigned char *child, const unsigned char *moth
 }
 
 typedef int (__stdcall *vv1_rule_last_name_t)(char *name, unsigned int room, const char *father,
-                                               const char *mother, int slot);
+                                               int father_head, int father_body, const char *mother,
+                                               int mother_head, int mother_body, int slot);
 
 /* The last name the player's rule gives (Repair Saves & Logs' "Last names
-   come from"; VVFP Last Names' VvfpRuleLastName), from the parents this
-   birth recorded, before anything is logged or kept under the child's name
+   come from", and a parent's own rule; VVFP Last Names' VvfpRuleLastName2),
+   from the parents this birth recorded -- names and looks, as the Birth
+   record shows them; a look not recorded (0) is unknown (-1) -- before
+   anything is logged or kept under the child's name
    (the owner, 2026-10-08: babies named for their mother's family number,
    not by the rule -- "fix it").  The name the frame watch compares against
    follows it, so the change is no rename. */
+/* A parent whose looks the entry did not record: the looks of the one living
+   villager of that name and sex, when there is exactly one (else they stay
+   unknown, -1, and the parent has no rule of their own). */
+static void vv1_only_looks(const char *parent, int male, int *head, int *body) {
+    const unsigned char *records = vv1_records();
+    int i, found = 0, h = -1, b = -1;
+    if (records == NULL || parent[0] == '\0') {
+        return;
+    }
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const unsigned char *r = records + (size_t)i * VV1_RECORD_STRIDE;
+        if (!r[VV1_OCCUPIED_OFFSET] || (*(const int *)(r + VV1_GENDER_OFFSET) == VV1_GENDER_MALE) != male
+            || strncmp((const char *)(r + VV1_NAME_OFFSET), parent, VV1_NAME_CAPACITY) != 0) {
+            continue;
+        }
+        ++found;
+        h = *(const int *)(r + VV1_HEAD_OFFSET);
+        b = *(const int *)(r + VV1_BODY_OFFSET);
+    }
+    if (found == 1 && h >= 0 && b >= 0) {
+        *head = h;
+        *body = b;
+    }
+}
+
 static void vv1_rule_last_name(unsigned char *child, int c, int slot) {
     static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
     static vv1_rule_last_name_t rule;
     char *name = (char *)(child + VV1_NAME_OFFSET);
+    vv1_parent_entry *e;
+    int fh, fb, mh, mb;
     if (state == 0) {
         HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
-        rule = dll ? (vv1_rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName") : NULL;
+        rule = dll ? (vv1_rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName2") : NULL;
         state = rule ? 1 : -1;
     }
     if (state != 1 || memchr(name, '\0', VV1_NAME_CAPACITY) == NULL) {
         return;
     }
-    g_entries[c].father_name[VV1_NAME_CAPACITY - 1] = '\0';
-    g_entries[c].mother_name[VV1_NAME_CAPACITY - 1] = '\0';
-    if (rule(name, VV1_NAME_CAPACITY, g_entries[c].father_name, g_entries[c].mother_name, slot)
+    e = &g_entries[c];
+    e->father_name[VV1_NAME_CAPACITY - 1] = '\0';
+    e->mother_name[VV1_NAME_CAPACITY - 1] = '\0';
+    /* The entry keeps each look + 1, so a real head or body 0 is 1 there and
+       0 means "not recorded" (an entry an earlier build wrote). */
+    fh = e->father_head && e->father_body ? e->father_head - 1 : -1;
+    fb = e->father_head && e->father_body ? e->father_body - 1 : -1;
+    mh = e->mother_head && e->mother_body ? e->mother_head - 1 : -1;
+    mb = e->mother_head && e->mother_body ? e->mother_body - 1 : -1;
+    if (fh < 0) {
+        vv1_only_looks(e->father_name, 1, &fh, &fb);
+    }
+    if (mh < 0) {
+        vv1_only_looks(e->mother_name, 0, &mh, &mb);
+    }
+    if (rule(name, VV1_NAME_CAPACITY, e->father_name, fh, fb, e->mother_name, mh, mb, slot)
         && g_have_prev) {
         memcpy(g_prev_name[c], name, VV1_NAME_CAPACITY);
     }
@@ -2012,6 +2136,8 @@ __declspec(dllexport) int __stdcall Vv1ParentageTick(void) {
 
    Apply: the player chose Repair.  1 done, 0 nothing could be changed (the
    next load asks again). */
+static int g_xc_recorded;
+
 __declspec(dllexport) int __stdcall Vv1ParentageCrossCheckScan(int *counts) {
     static vv1_xc_plan plan;
     int slot = vv1_parents_sync();
@@ -2019,6 +2145,22 @@ __declspec(dllexport) int __stdcall Vv1ParentageCrossCheckScan(int *counts) {
     if (!slot) {
         return -1;
     }
+#ifndef VVFP_TEST
+    /* Not before the village has started (live, v1.35.66: the first village
+       of a fresh save folder got a "Cross-Check - Save 5.dat" during its
+       intro).  Until the start-or-skip scene sets the village's start time
+       ([manager+0x9E1C], 0x41EC40) the game itself does not save the slot
+       (0x41BF7D), its own slot field may still be unset and the stub's slot
+       is the 5 its slot list read last; the founders are only the seeding's.
+       Nothing can be told about this village yet: ask again later. */
+    {
+        const unsigned char *manager = VV1_VILLAGE_STATE_PTR;
+        if (vv_game_save_slot(1) != slot || manager == NULL
+            || *(const volatile unsigned int *)(manager + 0x9E1Cu) == 0u) {
+            return -1;
+        }
+    }
+#endif
     found = vv1_xc_scan(slot, vv1_records(), &plan);
     if (counts != NULL) {
         counts[0] = plan.corrected;
@@ -2028,7 +2170,16 @@ __declspec(dllexport) int __stdcall Vv1ParentageCrossCheckScan(int *counts) {
         counts[4] = plan.stashes;
         counts[5] = plan.stale;
     }
+    g_xc_recorded = found == 1 ? plan.recorded : 0;
     return found;
+}
+
+/* How many Birth records the last scan found to write afterwards from the
+   table (villagers with parents and no record at all in the log): apart from
+   the six counts above, so a bridge that reads only those six is never
+   handed a seventh. */
+__declspec(dllexport) int __stdcall Vv1ParentageCrossCheckRecorded(void) {
+    return g_xc_recorded;
 }
 
 __declspec(dllexport) int __stdcall Vv1ParentageCrossCheckApply(void) {
@@ -2140,11 +2291,115 @@ __declspec(dllexport) int __stdcall Vv1ParentageQueryNames(int index, char *fath
     return 1;
 }
 
+/* The expected father of the child the villager in record `index` is
+   carrying -- what VV2 to VV5 copy onto the mother at conception and A New
+   Home keeps only in this sidecar's pregnancy stash -- for the Village
+   Population log: out[0] head, out[1] body (-1 when unknown), and his name
+   into a caller buffer of `capacity` bytes (empty when unknown, and for a
+   villager who is not carrying).  The same father the birth will record
+   (vv1_expected_father).  Returns 1 when a village is identified and index
+   is in range. */
+__declspec(dllexport) int __stdcall Vv1ParentageQueryExpectedFather(int index, int *out, char *name,
+                                                                    int capacity) {
+    const unsigned char *records = vv1_records();
+    if (out == NULL || name == NULL || capacity < 1 || records == NULL
+        || index < 0 || index >= VV1_RECORD_COUNT || !vv1_parents_sync()) {
+        return 0;
+    }
+    vv1_expected_out(records, index, out, name, capacity);
+    return 1;
+}
+
+/* The unborn baby's father, for the Story / Cheat Upgrades Custom Island
+   Event -- what The Lost Children to New Believers do by rewriting the copy
+   of the father on the mother.  A New Home keeps him only in this pregnancy
+   stash, so the stash of the carrying villager in record `index` is
+   rewritten: a NULL or empty name, or a look below 0, keeps that value.  The
+   stash then counts as this session's conception (g_session_stash), so the
+   birth takes him and not the Births log's earlier record; the caller writes
+   the Conception record that names him.  Returns 1 when stored and
+   persisted, 0 for a record that is empty or not carrying. */
+static int vv1_set_stash(int index, const char *name, int head, int body) {
+    vv1_parent_entry *e = &g_entries[index];
+    if (head > VV1_APPEARANCE_MAX || body > VV1_APPEARANCE_MAX) {
+        return 0;
+    }
+    if (name != NULL && name[0] != '\0') {
+        lstrcpynA(e->stash_name, name, VV1_NAME_CAPACITY);
+    }
+    if (head >= 0) e->stash_head = vv1_plus_one(head);
+    if (body >= 0) e->stash_body = vv1_plus_one(body);
+    g_session_stash[index] = 1;
+    g_idle[index] = 0;
+    return 1;
+}
+
+__declspec(dllexport) int __stdcall Vv1ParentageSetExpectedFather(int index, const char *name,
+                                                                  int head, int body) {
+    const unsigned char *records = vv1_records();
+    const unsigned char *mother;
+    int slot;
+    vv1_parent_entry before;
+    unsigned char session_before, idle_before;
+    if (records == NULL || index < 0 || index >= VV1_RECORD_COUNT) {
+        return 0;
+    }
+    mother = records + (unsigned int)index * VV1_RECORD_STRIDE;
+    if (!mother[VV1_OCCUPIED_OFFSET] || *(const int *)(mother + VV1_DUE_OFFSET) == 0) {
+        return 0;
+    }
+    slot = vv1_parents_sync();
+    if (!slot) {
+        return 0;
+    }
+    before = g_entries[index];
+    session_before = g_session_stash[index];
+    idle_before = g_idle[index];
+    if (!vv1_set_stash(index, name, head, body) || !vv1_parents_save(slot, records)) {
+        /* Refused: the change must not show, nor reach a later save. */
+        g_entries[index] = before;
+        g_session_stash[index] = session_before;
+        g_idle[index] = idle_before;
+        return 0;
+    }
+    return 1;
+}
+
+/* The father stashed for the pregnancy of the mother in record `index`
+   (A New Home keeps no father on the mother): his name into `father`
+   (`capacity` bytes), his head and body (-1 each when unknown; 0 is a real
+   value).  For "VVFP Cause of Death.dll"'s "Lost before birth" record, when
+   a pregnant mother dies or disappears.  The same father the Birth would
+   record and Vv1ParentageQueryExpectedFather reports (vv1_expected_father,
+   which prefers the Births log's confirmed father to a stash that may have
+   drifted), but without that query's "still carrying" gate: a mother being
+   removed may no longer read as carrying.  Returns 1 when a father is held. */
+__declspec(dllexport) int __stdcall Vv1ParentageQueryStash(int index, char *father, int capacity,
+                                                           int *head, int *body) {
+    const unsigned char *records = vv1_records();
+    vv1_parent_entry found;
+    if (father == NULL || capacity < 1 || head == NULL || body == NULL
+        || index < 0 || index >= VV1_RECORD_COUNT || !vv1_parents_sync()) {
+        return 0;
+    }
+    memset(&found, 0, sizeof(found));
+    if (!vv1_expected_father(index, records != NULL ? records + (unsigned int)index * VV1_RECORD_STRIDE : NULL,
+                             &found)) {
+        return 0;
+    }
+    found.stash_name[VV1_NAME_CAPACITY - 1] = '\0';
+    lstrcpynA(father, found.stash_name, capacity);
+    *head = (int)found.stash_head - 1;
+    *body = (int)found.stash_body - 1;
+    return 1;
+}
+
 /* Write access for the Story / Cheat Upgrades Custom Island Event, the
    owner's "alter the parents' attributes" (A New Home keeps them only in
    this sidecar): the parents recorded for the villager in record `index`.
    An empty or NULL name, or an appearance below 0, leaves that value as it
-   is; an appearance is 0..VV1_APPEARANCE_MAX.  The entry is the record's
+   is; an appearance is 0..VV1_APPEARANCE_MAX; a head of -2 makes that
+   parent unknown (the Custom Island Event's "Unknown").  The entry is the record's
    current occupant's (the roster is written with it), and the table is
    persisted like every other change.  Returns 1 when stored and persisted. */
 __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char *father,
@@ -2167,6 +2422,22 @@ __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char
     }
     e = &g_entries[index];
     before = *e;
+    /* A head of -2: that parent is "Unknown" -- name and looks cleared (a
+       looks byte of 0 is unknown in this table's +1 encoding). */
+    if (father_head == -2) {
+        memset(e->father_name, 0, sizeof e->father_name);
+        e->father_head = 0;
+        e->father_body = 0;
+        father = NULL;
+        father_head = father_body = -1;
+    }
+    if (mother_head == -2) {
+        memset(e->mother_name, 0, sizeof e->mother_name);
+        e->mother_head = 0;
+        e->mother_body = 0;
+        mother = NULL;
+        mother_head = mother_body = -1;
+    }
     if (father != NULL && father[0] != '\0') {
         lstrcpynA(e->father_name, father, VV1_NAME_CAPACITY);
     }
@@ -2181,6 +2452,19 @@ __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char
         /* Refused: the change must not show, nor reach a later save. */
         *e = before;
         return 0;
+    }
+    /* A villager the Custom Island Event has just made: the frame snapshot
+       takes this slot's occupant now, as vv1_born does for a birth, so the
+       per-frame inference does not see an unknown new occupant on the next
+       frame and clear the parents just given (seen live, 2026-10-10: the
+       entry was empty in the saved sidecar). */
+    if (g_have_prev) {
+        const unsigned char *child = records + (unsigned int)index * VV1_RECORD_STRIDE;
+        g_prev_occupied[index] = child[VV1_OCCUPIED_OFFSET];
+        g_prev_variant[index] = *(const int *)(child + VV1_VARIANT_OFFSET);
+        memcpy(g_prev_name[index], child + VV1_NAME_OFFSET, VV1_NAME_CAPACITY);
+        g_prev_gender[index] = *(const int *)(child + VV1_GENDER_OFFSET);
+        g_prev_age[index] = *(const int *)(child + VV1_AGE_OFFSET);
     }
     return 1;
 }
@@ -2202,6 +2486,14 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeConceive(const void *record
                                                               const void *father) {
     return vv1_stash((const unsigned char *)records, (const unsigned char *)mother,
                      (const unsigned char *)father);
+}
+
+/* Whether the conception capture counts as installed (1/0), or -1 to ask
+   the parentage companion as the game does: the "Unknown" 0/0 fallback
+   father applies only while it is. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeCaptureOn(int on) {
+    g_test_capture = on;
+    return 1;
 }
 
 /* What a load, a slot change or a repack does to the per-frame inference:
@@ -2261,6 +2553,27 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeNames(int index, char *fath
     lstrcpynA(father, g_entries[index].father_name, capacity);
     lstrcpynA(mother, g_entries[index].mother_name, capacity);
     return 1;
+}
+
+/* The expected father over a caller-supplied records array, without the
+   game's globals or the file. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeExpected(const void *records, int index, int *out,
+                                                              char *name, int capacity) {
+    if (records == NULL || out == NULL || name == NULL || capacity < 1
+        || index < 0 || index >= VV1_RECORD_COUNT) {
+        return 0;
+    }
+    vv1_expected_out((const unsigned char *)records, index, out, name, capacity);
+    return 1;
+}
+
+/* The Custom Island Event's unborn-father change, without the file. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeSetExpected(int index, const char *name, int head,
+                                                                 int body) {
+    if (index < 0 || index >= VV1_RECORD_COUNT) {
+        return 0;
+    }
+    return vv1_set_stash(index, name, head, body);
 }
 
 /* The births the last probe tick saw: out[2*i] = child index, out[2*i+1] =

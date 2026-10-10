@@ -50,6 +50,19 @@ CHECKS += 2 * 4
 CHECKS += 2 * 5
 # New Believers' converted Heathen Master: the Former Heathens file and the Arrived record's title.
 CHECKS += 2
+# 8 per game: founders seeded before the village has its slot, with and without an empty creation
+# save before them (the stale slot; The Tree of Life's and New Believers' early save).
+CHECKS += 8 * 5
+# + 1 per game: a villager whose Birth record names him by his first name alone (born before Last
+# Names, the owner's Cheop Bahati) gets no Arrived record
+CHECKS += 5
+# + 7 per game: records that keep the name and looks of their day (a last name given since, a look
+# changed since; the owner's Cheop Bahati and Hoani Chuchip), arrival_harness.c renamed_cases
+CHECKS += 7 * 5
+# The logs at village creation (arrival_harness.c creation_save_cases): 8 in The Tree of Life and
+# New Believers, 9 in A New Home (a village started long ago is a load), 2 in The Lost Children and
+# The Secret City (never asked).
+CHECKS += 8 * 2 + 9 + 2 * 2
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
@@ -96,7 +109,7 @@ class ArrivedRecordSource(unittest.TestCase):
         self.assertLess(done.index("arrival_backfill_at_save(slot, save_buffer);"),
                         done.index("roster_reconcile(slot);"))
         reconcile = body(roster, "static void roster_reconcile(int slot)")
-        self.assertLess(reconcile.index("arrival_save(slot, have_previous);"),
+        self.assertLess(reconcile.index("arrival_save(slot, have_previous && kept_count > 0);"),
                         reconcile.index("Arrived with no Birth record or known arrival"))
 
     def test_a_birth_is_never_an_arrival(self):
@@ -123,7 +136,7 @@ class ArrivedRecordSource(unittest.TestCase):
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
         self.assertIn('arrived(game, index, "Custom Island Event");', source)
         spawn = source[source.index("int index = a->spawn(s);"):]
-        self.assertLess(spawn.index("ce_tell_arrival(e->game, index);"), spawn.index("titles_set"))
+        self.assertLess(spawn.index("ce_tell_arrival(e->game, index, s);"), spawn.index("titles_set"))
 
     def test_start_over_deletes_the_marker(self):
         source = (SHARED / "save_reset.c").read_text(encoding="utf-8")

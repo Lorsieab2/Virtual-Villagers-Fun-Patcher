@@ -155,6 +155,8 @@ static int ce_choice_pending(int game);
 static void *c3_choice_object(void);
 static void *c4_choice_object(void);
 static void *c5_choice_object(void);
+/* Defined with Choose Time Skip Amount (story_time_skip.inc), used earlier. */
+static void time_skip_tick(int game);
 static unsigned int choice_resolve_target(int game, unsigned int va, unsigned int ecx);
 /* ---- Memory ---------------------------------------------------------------- */
 
@@ -794,6 +796,8 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     if (!VvfpStoryArm(game)) {
         return 0;
     }
+    /* Choose Time Skip Amount: its next step, once the last is replayed. */
+    time_skip_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
     now = GetTickCount();
@@ -1009,6 +1013,7 @@ __declspec(dllexport) int __stdcall VvfpStoryPickPending(int game) {
 }
 
 #include "story_custom_ui.inc"
+#include "story_time_skip.inc"
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -1162,6 +1167,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetCustom(int game, const ce_e
     ce_armed_event = *event;
     ce_armed_event.game = game;
     ce_armed_is_choice = 0;
+    ce_armed_is_notice = 0;
     ce_armed = 1;
     (void)tick;                       /* a custom event never lapses with time */
     ce_armed_village = story_village_now(game);
@@ -1233,6 +1239,33 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeMerge(ce_event *event, const c
 
 __declspec(dllexport) void __stdcall VvfpStoryProbeInitChange(ce_change *change) {
     ce_change_init(change);
+}
+
+/* Edit: the dialog's OK for the entry at `position` (ce_replace). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeReplace(ce_event *event, int position, const ce_change *change,
+                                                          unsigned int fingerprint) {
+    if (position < 0 || position >= event->change_count) {
+        return 0;
+    }
+    ce_replace(event, position, change, fingerprint);
+    return 1;
+}
+
+/* The "Parents:" blocks the last deliveries told the Births log's Arrived
+   records (ce_tell_arrival), in order; returns how many were told, and
+   copies the `k`-th into `out`. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeArrivalParents(int k, char *out, int size) {
+    if (out != NULL && size > 0) {
+        out[0] = '\0';
+        if (k >= 0 && k < test_arrival_told) {
+            lstrcpynA(out, test_arrival_parents[k], size);
+        }
+    }
+    return test_arrival_told;
+}
+
+__declspec(dllexport) void __stdcall VvfpStoryProbeArrivalReset(void) {
+    test_arrival_told = 0;
 }
 
 /* Custom titles without the file: bind the table to `slot` as loaded, with

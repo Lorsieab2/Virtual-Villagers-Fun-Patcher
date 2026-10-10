@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import ctypes
 import sys
+import threading
 from ctypes import wintypes as W
 from pathlib import Path
 
@@ -67,9 +68,19 @@ def _argb(colour: str, alpha: int = 255) -> int:
     return (alpha << 24) | int(colour.lstrip("#"), 16)
 
 
+_LIB: list = []                         # gdiplus.dll, loaded once (each load took a tenth of a second)
+_LOCK = threading.RLock()               # one picture at a time: the editor may write its outputs in the background
+
+
+def _gdiplus():
+    if not _LIB:
+        _LIB.append(ctypes.WinDLL("gdiplus"))
+    return _LIB[0]
+
+
 class _Gdi:
     def __init__(self) -> None:
-        self.g = ctypes.WinDLL("gdiplus")
+        self.g = _gdiplus()
         token = ctypes.c_size_t()
         start = StartupInput(1, None, False, False)
         self._check(self.g.GdiplusStartup(ctypes.byref(token), ctypes.byref(start), None), "start")
@@ -126,6 +137,11 @@ def save_scene(sc, present: dict, path: Path, scale: float = 1.0, quality: int =
     OSError when it fails."""
     if not available():
         return False
+    with _LOCK:
+        return _save_scene(sc, present, path, scale, quality, transparent)
+
+
+def _save_scene(sc, present: dict, path: Path, scale: float, quality: int, transparent: bool) -> bool:
     import vv_family_tree as ft
     path = Path(path)
     encoder = ENCODERS.get(path.suffix.lower())
@@ -546,3 +562,53 @@ def render_sticker(s, path: Path, zoom: float = 1.0) -> tuple[float, float] | No
     moved = dataclasses.replace(s, cx=s.cx - x0, cy=s.cy - y0)
     scene = ft.Scene(int(x1) + 3 - x0, int(y1) + 3 - y0, "#000000", [moved])
     return (x0, y0) if save_scene(scene, {}, path, transparent=True) else None
+
+
+class _BitmapData(ctypes.Structure):
+    _fields_ = [("Width", ctypes.c_uint), ("Height", ctypes.c_uint), ("Stride", ctypes.c_int),
+                ("PixelFormat", ctypes.c_int), ("Scan0", ctypes.c_void_p), ("Reserved", ctypes.c_size_t)]
+
+
+class _Rect(ctypes.Structure):
+    _fields_ = [("X", ctypes.c_int), ("Y", ctypes.c_int), ("Width", ctypes.c_int), ("Height", ctypes.c_int)]
+
+
+def backdrop_pixels(item, width: float, height: float, scale: float = 1.0) -> tuple[int, int, bytes] | None:
+    """The page's background (a Family Tree Maker Backdrop) drawn exactly as save_scene draws it, at
+    `scale`, on nothing (a "transparent" colour stays see-through): (width, height, its pixels as
+    B, G, R, A bytes row by row, no padding), or None where GDI+ is not available.  What the Auto-colour
+    family lines button reads the background's colours under each line from (vv_line_colours)."""
+    if not available():
+        return None
+    import vv_family_tree as ft
+    gdi = _Gdi()
+    g = gdi.g
+    bitmap, graphics = ctypes.c_void_p(), ctypes.c_void_p()
+    try:
+        w, h = max(1, int(width * scale)), max(1, int(height * scale))
+        gdi._check(g.GdipCreateBitmapFromScan0(w, h, 0, PIXEL_FORMAT_32BPP_ARGB, None, ctypes.byref(bitmap)),
+                   f"make a {w} x {h} picture")
+        gdi._check(g.GdipGetImageGraphicsContext(bitmap, ctypes.byref(graphics)), "draw")
+        g.GdipSetSmoothingMode(graphics, 4)
+        g.GdipSetInterpolationMode(graphics, 5)
+        g.GdipSetPixelOffsetMode(graphics, 4)
+        g.GdipScaleWorldTransform(graphics, ctypes.c_float(scale), ctypes.c_float(scale), 0)
+        g.GdipGraphicsClear(graphics, _argb(item.colour))
+        _backdrop(gdi, graphics, item, ft, float(width), float(height))
+        g.GdipDeleteGraphics(graphics)
+        graphics = ctypes.c_void_p()
+        rect, data = _Rect(0, 0, w, h), _BitmapData()
+        gdi._check(g.GdipBitmapLockBits(bitmap, ctypes.byref(rect), 1, PIXEL_FORMAT_32BPP_ARGB, ctypes.byref(data)),
+                   "read the picture")
+        try:
+            stride = data.Stride
+            rows = [ctypes.string_at(data.Scan0 + y * stride, w * 4) for y in range(h)]
+        finally:
+            g.GdipBitmapUnlockBits(bitmap, ctypes.byref(data))
+        return w, h, b"".join(rows)
+    finally:
+        if graphics:
+            g.GdipDeleteGraphics(graphics)
+        if bitmap:
+            g.GdipDisposeImage(bitmap)
+        gdi.close()
