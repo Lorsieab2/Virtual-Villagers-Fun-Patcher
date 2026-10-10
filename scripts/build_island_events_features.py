@@ -52,6 +52,7 @@ SITES = {
         (0x418000, "6AFF681B664800", "the event presenter: picks, shows and applies the event (a Custom Island Event too)"),
         (0x418190, "6AFF685B664800", "the single-event presenter (the Origins Barrel)"),
         (0x417790, "6AFF68B9654800", "the event dialog's constructor (it names the event)"),
+        (0x417EA0, "837C240408", "the event dialog's button handler (the two-choice answer clicked)"),
     ],
     "vv5": [
         (0x418870, "6AFF68DB154900", "the island event presenter: picks, shows and applies the event (a Custom Island Event too)"),
@@ -89,6 +90,8 @@ def row(game: str, sha: str) -> dict:
         "also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old "
         "and the new look are the same villager. The records are written when the game saves, like the other "
         "logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.**"
+        + (" **A New Home keeps a villager's parents only with Show Parents in Details Screen on: without it, "
+           "parents are not logged.**" if game == "vv1" else "")
     )
     return {
         "id": f"{game}_island_events",

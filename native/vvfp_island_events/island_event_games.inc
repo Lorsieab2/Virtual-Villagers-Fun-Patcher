@@ -79,10 +79,32 @@ static int vv5_villagers(unsigned char **out, int capacity) {
    father_head_copy, father_body_copy, litter; the father's name 0x18 bytes,
    the conception's own copy count).  A New Home keeps no trace of the father
    on the mother (its parentage exporter captures him from the caller), so
-   there only the babies.  The Lost Children (whose Strange Request can start
-   one) logs only the Pregnant flag: the owner's own VV2 log disproved the
-   father offsets on the mother, and its babies offset has never been
-   confirmed by a real log -- a wrong line is worse than none. */
+   its table has only the babies, and the expected father comes from the
+   Show Parents companion's record of the conception (vv1_expected_father
+   below), printed in the same three lines.  These fields are marked `conception`: when the
+   event makes a woman pregnant they are printed whole ("Babies in pregnancy:
+   2", "Expected father: Rongo"), even when the last pregnancy left the same
+   values there (compare() in vvfp_island_events.c).  A New Home and The Lost
+   Children store 0 for one baby (F_BABIES prints it as 1 while she is
+   pregnant), the later games 1.
+
+   The Lost Children (its Strange Request and Gong of Wonder can start one):
+   the conception routine 0x44B980 sprintf's the father's name to +0x5C0
+   (0x44BA35..0x44BA49), stores his head at +0x5E0 (0x44BA43) and body at
+   +0x5DC (0x44BA24) -- every caller pushes his +0x54C, +0x548 and +0x564
+   -- and 2 or 3 at +0x544 for twins or triplets (0x44BA82, 0x44BAB6), 0 for
+   one baby.  The delivery 0x43BE52..0x43BE72 hands exactly those four to the
+   child's creation, and clears +0x544 at 0x43BF85.  Checked against the
+   owner's real saves, not a harness: in 38 save files from five of the
+   owner's VV2 save folders (the unpatched game's own of 2023 among them)
+   every pregnant woman's +0x5C0 names a villager of
+   the save whose own head and body are her +0x5E0 / +0x5DC (no mismatch),
+   and Topaz Temitope's +0x544 of 2 is the "Babies in pregnancy: 2" of her
+   conception in the owner's Births and Conceptions log, whose delivery the
+   same log records as two Twin births.  The Gong of Wonder's pregnancies
+   (its case 0x44EAA5) have no father: the game itself writes "?", head 0
+   and body 0 (the pushes at 0x44EB1D..0x44EB25),
+   and that is what is printed, as the Births and Conceptions log prints it. */
 
 static const struct field VV1_FIELDS[] = {
     { "Health", 0x344, F_INT, 0 },
@@ -90,7 +112,7 @@ static const struct field VV1_FIELDS[] = {
     { "Sex", 0x350, F_SEX12, 0 },
     { "Sick", 0x354, F_FLAG, 0 },
     { "Pregnant", 0x358, F_FLAG, 0 },
-    { "Babies in pregnancy", 0x35C, F_INT, 0 },
+    { "Babies in pregnancy", 0x35C, F_BABIES, 0x358, 1 },
     { "Head", 0x360, F_INT, 0 },
     { "Body", 0x364, F_INT, 0 },
     { "Name", 0x370, F_TEXT, 0x1C },
@@ -109,10 +131,10 @@ static const struct field VV2_FIELDS[] = {
     { "Sex", 0x538, F_SEX12, 0 },
     { "Sick", 0x53C, F_FLAG, 0 },
     { "Pregnant", 0x540, F_FLAG, 0 },
-    /* No conception fields here (see above): the owner's own Births and
-       Conceptions log disproved the father copies at 0x5C0 / 0x5E0 / 0x5DC
-       on the mother (the father printed unnamed, head 0, body 0), and no real
-       log has confirmed the babies at 0x544, so they would risk wrong lines. */
+    { "Babies in pregnancy", 0x544, F_BABIES, 0x540, 1 },
+    { "Expected father", 0x5C0, F_TEXT, 0x18, 1 },
+    { "Expected father's head", 0x5E0, F_INT, 0, 1 },
+    { "Expected father's body", 0x5DC, F_INT, 0, 1 },
     { "Head", 0x548, F_INT, 0 },
     { "Body", 0x54C, F_INT, 0 },
     { "Name", 0x564, F_TEXT, 0x18 },
@@ -143,10 +165,10 @@ static const struct field VV3_FIELDS[] = {
     { "Tribal Chief", 0xE80, F_BYTE_FLAG, 0 },
     { "Sick", 0xE89, F_BYTE_FLAG, 0 },
     { "Pregnant", 0xE8C, F_FLAG, 0 },
-    { "Babies in pregnancy", 0xE90, F_INT, 0 },
-    { "Expected father", 0xE48, F_TEXT, 0x18 },
-    { "Expected father's head", 0xE68, F_INT, 0 },
-    { "Expected father's body", 0xE64, F_INT, 0 },
+    { "Babies in pregnancy", 0xE90, F_INT, 0, 1 },
+    { "Expected father", 0xE48, F_TEXT, 0x18, 1 },
+    { "Expected father's head", 0xE68, F_INT, 0, 1 },
+    { "Expected father's body", 0xE64, F_INT, 0, 1 },
     { "Farming", 0xEAC, F_INT, 0 },
     { "Parenting", 0xEB0, F_INT, 0 },
     { "Healing", 0xEB4, F_INT, 0 },
@@ -172,10 +194,10 @@ static const struct field VV5_FIELDS[] = {
     { "Health", 0x1C40, F_INT, 0 },
     { "Sick", 0x1C48, F_BYTE_FLAG, 0 },
     { "Pregnant", 0x1C4C, F_FLAG, 0 },
-    { "Babies in pregnancy", 0x1C50, F_INT, 0 },
-    { "Expected father", 0x1C10, F_TEXT, 0x18 },
-    { "Expected father's head", 0x1C30, F_INT, 0 },
-    { "Expected father's body", 0x1C2C, F_INT, 0 },
+    { "Babies in pregnancy", 0x1C50, F_INT, 0, 1 },
+    { "Expected father", 0x1C10, F_TEXT, 0x18, 1 },
+    { "Expected father's head", 0x1C30, F_INT, 0, 1 },
+    { "Expected father's body", 0x1C2C, F_INT, 0, 1 },
     { "Farming", 0x1C5C, F_FLOAT, 0 },
     { "Parenting", 0x1C60, F_FLOAT, 0 },
     { "Healing", 0x1C64, F_FLOAT, 0 },
@@ -204,10 +226,10 @@ static const struct field VV4_FIELDS[] = {
     { "Health", 0x1C40, F_INT, 0 },
     { "Sick", 0x1C48, F_BYTE_FLAG, 0 },
     { "Pregnant", 0x1C4C, F_FLAG, 0 },
-    { "Babies in pregnancy", 0x1C50, F_INT, 0 },
-    { "Expected father", 0x1C10, F_TEXT, 0x18 },
-    { "Expected father's head", 0x1C30, F_INT, 0 },
-    { "Expected father's body", 0x1C2C, F_INT, 0 },
+    { "Babies in pregnancy", 0x1C50, F_INT, 0, 1 },
+    { "Expected father", 0x1C10, F_TEXT, 0x18, 1 },
+    { "Expected father's head", 0x1C30, F_INT, 0, 1 },
+    { "Expected father's body", 0x1C2C, F_INT, 0, 1 },
     { "Farming", 0x1C5C, F_FLOAT, 0 },
     { "Parenting", 0x1C60, F_FLOAT, 0 },
     { "Healing", 0x1C64, F_FLOAT, 0 },
@@ -224,12 +246,56 @@ static const struct field VV4_FIELDS[] = {
     { "Mother's body", 0x1C00, F_INT, 0 },
 };
 
+/* A New Home's expected father.  The game keeps no trace of him on the
+   mother, but its conception hands his record to the parentage exporter
+   (FATHER_BY_CAPTURE), which stashes his name, head and body against her
+   record index in the Show Parents companion's Parentage Records sidecar
+   (native/vv1_parentage, vv1_stash) before the event returns -- the same
+   record his Births and Conceptions entry and the child's parents come from.
+   Vv1ParentageQueryExpected tells only a stash this session's conception
+   set, never one a former pregnancy left.  Without that companion (Show
+   Parents not installed) there is no record of him and no line is printed. */
+typedef int (__stdcall *vv1_query_expected_fn)(int, char *, int, int *, int *);
+static vv1_query_expected_fn g_vv1_query_expected;
+static int g_vv1_query_looked;
+
+static unsigned char *vv1_live_array(void) {
+    return *(unsigned char **)(uintptr_t)0x48B614u;
+}
+static unsigned char *(*g_vv1_array)(void) = vv1_live_array;
+
+static int vv1_expected_father(const unsigned char *record, char *name, size_t size, int *head, int *body) {
+    unsigned char *array = g_vv1_array();
+    size_t span;
+    if (!g_vv1_query_looked) {
+        HMODULE module = vvfp_load_patcher_dll("VVFP VV1 Parentage.dll");
+        g_vv1_query_looked = 1;
+        if (module != NULL) {
+            g_vv1_query_expected = (vv1_query_expected_fn)GetProcAddress(module, "Vv1ParentageQueryExpected");
+        }
+    }
+    if (g_vv1_query_expected == NULL || array == NULL || record < array) {
+        return 0;
+    }
+    span = (size_t)(record - array);
+    if (span % 0x3D8 != 0 || span / 0x3D8 >= 256) {
+        return 0;
+    }
+    name[0] = '\0';
+    if (!g_vv1_query_expected((int)(span / 0x3D8), name, (int)size, head, body)) {
+        return 0;
+    }
+    name[size - 1] = '\0';
+    return 1;
+}
+
 #define FIELDS(a) a, (int)(sizeof a / sizeof a[0])
 
 /* copy: bytes kept per villager (the whole record but in The Lost Children,
    whose 58 KB records end long after the last field); pad: the record's
    stride, so the log writer can read a removed villager's copy as a record. */
-static const struct game_layout LAYOUT_VV1 = { vv1_villagers, 0x3D8, 0x3D8, 0x370, 0x360, 0x364, FIELDS(VV1_FIELDS) };
+static const struct game_layout LAYOUT_VV1 = { vv1_villagers, 0x3D8, 0x3D8, 0x370, 0x360, 0x364, FIELDS(VV1_FIELDS),
+                                              vv1_expected_father };
 static const struct game_layout LAYOUT_VV2 = { vv2_villagers, 0x800, 0xE48C, 0x564, 0x548, 0x54C, FIELDS(VV2_FIELDS) };
 static const struct game_layout LAYOUT_VV3 = { vv3_villagers, 0x1F8C, 0x1F8C, 0xDD4, 0xDF0, 0xDF4, FIELDS(VV3_FIELDS) };
 static const struct game_layout LAYOUT_VV4 = { vv4_villagers, 0x2E3C, 0x2E3C, 0x1B9C, 0x1BB8, 0x1BBC, FIELDS(VV4_FIELDS) };
@@ -342,15 +408,52 @@ static void title_pointer_54(const unsigned int *frame, struct snapshot_text *ou
    stubs 0x419BDB, 0x41895B) -- show it and run its OK inside their own modal loop, which runs only
    the dialog (as The Tree of Life's): one bracket around each, the click handler inside naming the
    event.  The click handler is watched on its own too, for a dialog shown outside them. */
+/* The answer clicked in The Secret City's, The Tree of Life's and New
+   Believers' two-choice dialog (the stock two-choice events, e.g. The
+   Secret City's vtable 0x47EA40, The Tree of Life's The Sealed Box, and a
+   Custom Island Event's question), worded as A New Home's and The Lost
+   Children's "Choice:" line.  The three dialogs are one design (constructors
+   0x4192F0 / 0x417790 / 0x418020): the click handler (0x419A00 / 0x417EA0 /
+   0x418720) takes msg 8 with id 2 for the first answer and 3 for the second
+   (0x419A7D `cmp edi, 2; setne al` -> the choice +0x830), and the two
+   answer buttons are the dialog's +0x85C and +0x860.  Each button's label,
+   as shown, is set through its +0x10 control (0x401620 / 0x401600 /
+   0x4015D0 -> 0x4012E0 / 0x401140 / 0x401110), which keeps its own copy
+   of the text at +0x40. */
+static void dialog_answer(const unsigned int *frame, char *out, size_t size) {
+    const unsigned char *self = (const unsigned char *)(uintptr_t)frame[6];
+    const unsigned char *button, *control;
+    out[0] = '\0';
+    if (frame[9] != 8 || (frame[10] != 2 && frame[10] != 3) || !readable(self + 0x85C, 8)) {
+        return;
+    }
+    button = *(const unsigned char *const *)(self + (frame[10] == 2 ? 0x85C : 0x860));
+    if (button == NULL || !readable(button + 0x10, 4)) {
+        return;
+    }
+    control = *(const unsigned char *const *)(button + 0x10);
+    if (control == NULL || !readable(control + 0x40, 4)) {
+        return;
+    }
+    first_line(*(const char *const *)(control + 0x40), 0x100, out, size);
+}
+
+/* The Tree of Life's click handler starts no comparison of its own (its
+   presenter's bracket is exact, see below): it is watched for the answer. */
+static int never(const unsigned int *frame) {
+    (void)frame;
+    return 0;
+}
+
 static const struct site VV3_SITES[] = {
     { 0x419B30, { 0x64, 0xA1, 0x00, 0x00, 0x00, 0x00 }, 6, NULL, NULL, NULL },
-    { 0x419A00, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, vv3_ok, title_pointer_54, NULL },
+    { 0x419A00, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, vv3_ok, title_pointer_54, NULL, dialog_answer },
     { 0 },
 };
 
 static const struct site VV5_SITES[] = {
     { 0x418870, { 0x6A, 0xFF, 0x68, 0xDB, 0x15, 0x49, 0x00 }, 7, NULL, NULL, NULL },
-    { 0x418720, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, vv5_click, title_pointer_54, NULL },
+    { 0x418720, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, vv5_click, title_pointer_54, NULL, dialog_answer },
     { 0 },
 };
 
@@ -370,6 +473,7 @@ static const struct site VV4_SITES[] = {
     { 0x418000, { 0x6A, 0xFF, 0x68, 0x1B, 0x66, 0x48, 0x00 }, 7, NULL, NULL, NULL },
     { 0x418190, { 0x6A, 0xFF, 0x68, 0x5B, 0x66, 0x48, 0x00 }, 7, NULL, NULL, NULL },
     { 0x417790, { 0x6A, 0xFF, 0x68, 0xB9, 0x65, 0x48, 0x00 }, 7, NULL, NULL, title_pointer_54_after },
+    { 0x417EA0, { 0x83, 0x7C, 0x24, 0x04, 0x08 }, 5, never, NULL, NULL, dialog_answer },
     { 0 },
 };
 

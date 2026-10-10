@@ -6,6 +6,7 @@ EXPORTS
     Vv1ParentageDrawPortrait=_Vv1ParentageDrawPortrait@16
     Vv1ParentageQuery=_Vv1ParentageQuery@8
     Vv1ParentageQueryNames=_Vv1ParentageQueryNames@16
+    Vv1ParentageQueryExpected=_Vv1ParentageQueryExpected@20
     Vv1ParentageSetParents=_Vv1ParentageSetParents@28
     Vv1ParentageCrossCheckScan=_Vv1ParentageCrossCheckScan@4
     Vv1ParentageCrossCheckApply=_Vv1ParentageCrossCheckApply@0

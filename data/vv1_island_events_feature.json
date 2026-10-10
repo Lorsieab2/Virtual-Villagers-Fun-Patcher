@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Write Island Events Log to Text File",
-  "description": "Every change an island event makes to a villager is written to a new log, the Island Events log (\"Virtual Villagers Fun Patcher Logs\\Island Events\\Virtual Villagers 1 Island Events Log 1.txt\"): one numbered record per villager it changed, with the event's title as the game shows it, the answer you picked when it asked, and each change as old -> new -- health, age, sickness, pregnancy, head, body, name, likes, dislikes, every skill, parents, custom title, mask and Special villager title -- \"Gone\" for a villager the event took away, and the sex and age of a villager it brought. What an event changes in the village as a whole -- food, tech points, the berries and crops, puzzles solved or unsolved -- is one record of its own, a \"Village:\" list of old -> new. A villager whose head or body an event changed also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old and the new look are the same villager. The records are written when the game saves, like the other logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.**",
+  "description": "Every change an island event makes to a villager is written to a new log, the Island Events log (\"Virtual Villagers Fun Patcher Logs\\Island Events\\Virtual Villagers 1 Island Events Log 1.txt\"): one numbered record per villager it changed, with the event's title as the game shows it, the answer you picked when it asked, and each change as old -> new -- health, age, sickness, pregnancy, head, body, name, likes, dislikes, every skill, parents, custom title, mask and Special villager title -- \"Gone\" for a villager the event took away, and the sex and age of a villager it brought. What an event changes in the village as a whole -- food, tech points, the berries and crops, puzzles solved or unsolved -- is one record of its own, a \"Village:\" list of old -> new. A villager whose head or body an event changed also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old and the new look are the same villager. The records are written when the game saves, like the other logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.** **A New Home keeps a villager's parents only with Show Parents in Details Screen on: without it, parents are not logged.**",
   "output_tag": "Island Events",
   "needs_on": [
     {
@@ -30,7 +30,7 @@
     {
       "source": "assets/island_events/VVFP Island Events.dll",
       "destination": "VVFP Island Events.dll",
-      "sha256": "A64A2A381C0B0DEA11CE79D484EB4B3129F6C6BF2937C9E368E22B17605ACB40"
+      "sha256": "DE3B40EF23BEBAB4C6DE18E1288EC89A5F34CD800464A6A167783279CD2FF928"
     }
   ],
   "runtime_detours": [
