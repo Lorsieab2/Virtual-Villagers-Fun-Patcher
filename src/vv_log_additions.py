@@ -51,6 +51,8 @@ CHECKED = {
                      "every Births and Conceptions log file, after any numbered ones before them",
     "lost": "the Conceptions with no Birth whose mother has a Death or Disappeared record, against her age, "
             "the village now and the player's answers",
+    "left_tribe": "New Believers' Heathens on the latest Village Population page against their Birth, Arrived, "
+                  "conversion and \"Left the tribe\" records, and the player's answers",
     "contradictions": "the records that contradict each other (one villager born and arrived, or arrived twice; "
                       "a Death or Repair number used twice), against the save, the logs and the player's answers",
     "born_arrived": "the backfilled \"How: unknown\" Arrived records of villagers the log already records "
@@ -61,6 +63,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "appearance": "Appearance changed record added",
          "faction": "Faction added", "birth_numbers": "Birth number added",
          "lost": "Lost before birth added",
+         "left_tribe": "Left the tribe record added",
          "contradictions": "Contradicting records taken out or renumbered",
          "born_arrived": "Duplicate backfilled Arrived record removed"}
 REMOVE_IT = "Remove"
@@ -1003,6 +1006,131 @@ def plan_faction(folder: Path, game: int, slot: int, people: list[Block], curren
     return kind
 
 
+LEFT_HEADING = "Left the tribe"
+LEFT_NOTE = ("  Note: Recorded afterwards (became a Heathen with no record written: while the game caught up "
+             "on time away or a Time Warp, or before this record existed)")
+LEFT_YES = "Yes: add the record"
+# After every record already in the file, in this order.
+RANK_LEFT = 9
+
+
+def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None) -> dict[tuple, list[int]]:
+    """Per (name, head, body): [came as a believer (a Birth's child, an Arrived record that is not a
+    conversion), converted from the Heathens, left for the Heathens, any other Death or Disappeared
+    record] -- how many records of each the logs hold for this slot's village."""
+    checker = tools.load_checker()
+    out: dict[tuple, list[int]] = {}
+
+    def add(who, k):
+        if who and None not in who:
+            out.setdefault(who, [0, 0, 0, 0])[k] += 1
+    for path in checker.log_files(folder):
+        for b in blocks(path):
+            if not b.of(slot, game, villages):
+                continue
+            if ARRIVED_HEADING.match(b.heading):
+                add(b.identity, 1 if b.value("How") == CONVERTED else 0)
+            elif checker.is_birth_heading(b.heading):
+                add(_sub_identity(b, "Child"), 0)
+            elif DISAPPEARED_HEADING.match(b.heading):
+                add(b.identity, 2 if b.value("What happened") == LEFT_FOR_THE_HEATHENS else 3)
+            elif b.heading.startswith("Death"):
+                add(b.identity, 3)
+    return out
+
+
+def _left_record(person: Block) -> str:
+    """A "Left the tribe" Disappeared record, laid out as "VVFP Parentage Export.dll" writes one
+    (native/parentage_export WriteVillageRecord, detail 1), from the villager's Village Population
+    entry.  When she left is not known: the age is "(unknown)", never guessed; titles and masks she
+    had then are not known either, so none is written."""
+    def line(label):
+        value = person.value(label)
+        return f"  {label}: {value if value is not None else '(unknown)'}"
+    return "\n".join(["Disappeared", line("Name"), "  Age: (unknown)", line("Sex"),
+                      f"  What happened: {LEFT_FOR_THE_HEATHENS}", line("Head"), line("Body"),
+                      line("Likes"), line("Dislikes"), LEFT_NOTE])
+
+
+def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
+    """New Believers: a believer who became a Heathen with no "Left the tribe: became a Heathen"
+    record.  Builds before v1.35.66 wrote it only when the companion's tick saw the change, so a
+    believer whose faith reached 0 in the load-time catch-up or a Time Warp (the belief drift, life tick
+    0x472C90) left with none (native/vvfp_cause_of_death/cod_arrivals.inc vv5_faction_set).
+
+    A Heathen on the slot's latest Village Population page needs one leaving for each time the logs
+    show them a believer: coming as one (a Birth, or an Arrived record that is not a conversion; once)
+    and each "Converted from the Heathens".  One fewer leaving than that is decided: one record is
+    appended to the Deaths log.  Asked instead: more than one missing (where each belongs cannot be
+    told), another living villager with the same name and looks, or a Death or Disappeared record with
+    them (a namesake whose records may be these) -- "Don't know" adds nothing."""
+    kind = Kind("left_tribe", "\"Left the tribe\" records of believers who became Heathens with none written")
+    if game != 5:
+        return kind
+    checker = tools.load_checker()
+    page, _current = population_page(folder, slot, game)
+    if page is None:
+        return kind
+    villages = current_villages(folder, game, slot)
+    # Every entry of the page (two villagers may share a name and looks: each is its own entry).
+    entries = [b for b in blocks(page) if b.of(slot, game, villages) and b.heading.startswith("Villager ")
+               and None not in b.identity]
+    heathens = [b for b in entries if b.value("Faction") == "Heathen"]
+    if not heathens:
+        return kind
+    deaths = checker.numbered(folder / checker.LOGS / checker.DEATHS_FOLDER(folder),
+                              f"Virtual Villagers {game} Deaths Log")
+    if not deaths:
+        return kind
+    counts = _side_counts(folder, game, slot, villages)
+    target = deaths[-1]
+    found = blocks(target)
+    header = None
+    if not (found and found[-1].of(slot, game, villages)):
+        header = entries[0].village
+        if header is None:
+            return kind
+    # Appended after everything in the file, as the companion appends a record: after the blank
+    # line that ends the last record (so every byte an older build wrote stays before it, where
+    # the file's Like and Dislike Words boundary counts it), with the blank line of its own.
+    lines = read_lines(target)
+    if len(lines) >= 2 and lines[-1] == "" and lines[-2].strip() == "":
+        anchor, lead = len(lines) - 2, ""
+    elif lines[-1] == "":
+        anchor, lead = len(lines) - 2, "\n"
+    else:
+        anchor, lead = len(lines) - 1, "\n"
+    population_count: dict[tuple, int] = {}
+    for b in entries:
+        population_count[b.identity] = population_count.get(b.identity, 0) + 1
+    for n, person in enumerate(heathens):
+        came, converted, left, gone = counts.get(person.identity, [0, 0, 0, 0])
+        missing = min(came, 1) + converted - left
+        if missing <= 0:
+            continue
+        # Under the village's own header when the file's last record is another village's: each
+        # record added (whichever the player's answers keep) names it.
+        text = (lead + (f"{header}\n" if header is not None else "")
+                + "\n\n".join([_left_record(person)] * missing) + "\n")
+        name, head, body = person.identity
+        why = ("another villager now has the same name, head and body" if population_count.get(person.identity, 0) > 1
+               else "a Death or Disappeared record has the same name, head and body (a namesake's records may be "
+                    "these)" if gone
+               else f"the logs miss {missing} leavings, and where each belongs cannot be told" if missing > 1
+               else None)
+        if why is None:
+            kind.inserts.append(Insert(target, anchor, RANK_LEFT + n, line=text))
+            continue
+        key = f"left_tribe|{name}|{head}|{body}|{n}"
+        kind.questions[key] = Question(
+            key, f"{name} (head {head}, body {body}) is a Heathen now, and the logs show them a believer "
+                 f"with no \"{LEFT_FOR_THE_HEATHENS}\" record after it; {why}. Add "
+                 f"{'a record' if missing == 1 else f'{missing} records'} of their leaving the tribe "
+                 "(when is not known)?", [LEFT_YES, DONT_KNOW], DONT_KNOW)
+        kind.inserts.append(Insert(target, anchor, RANK_LEFT + n, question=key, by_answer={LEFT_YES: text}))
+    return kind
+
+
 # After the Sex line (and the Sex line an older record is given, rank 0, first).
 RANK_FACTION = 5
 
@@ -1135,6 +1263,7 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_appearance(folder, game, slot),
         plan_faction(folder, game, slot, people, current),
         plan_lost(folder, game, slot),
+        plan_left_tribe(folder, game, slot),
         plan_born_arrived(folder, game, slot),
         plan_birth_numbers(folder, game, slot),
     ]
