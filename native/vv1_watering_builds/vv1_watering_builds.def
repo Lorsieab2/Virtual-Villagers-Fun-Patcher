@@ -1,3 +1,0 @@
-LIBRARY "VVFP VV1 Watering Builds"
-EXPORTS
-    VvfpVv1WateringBuildsInstall=_VvfpVv1WateringBuildsInstall@0
