@@ -236,6 +236,40 @@ class FamilyTreeTests(unittest.TestCase):
                                                      roster=roster))
         self.assertIsNone(father, "two entries fit Aisha: left unknown rather than guessed")
 
+    def parents_sidecar(self, game: Path, roster, parents: dict[int, tuple]) -> None:
+        """Overwrite the sidecar's entries with each record's own parents: parents[i] = (father,
+        mother), each (name, head, body)."""
+        path = game / DATA / "Parents (A New Home)" / "Virtual Villagers 1 Parentage Records - Save 1.dat"
+        data = bytearray(path.read_bytes())
+        for i, (father, mother) in parents.items():
+            e = 12 + 256 * 36 + i * 92
+            for (name, head, body), looks, at in ((father, 0, 8), (mother, 2, 36)):
+                data[e + looks], data[e + looks + 1] = head + 1, body + 1
+                data[e + at:e + at + 28] = name.encode().ljust(28, b"\0")
+        path.write_bytes(bytes(data))
+
+    def test_a_villagers_own_parents_come_from_the_sidecar(self):
+        # Nina has no Birth record in any log: only the companion's sidecar knows her parents.
+        game = self.build(stashes={})
+        self.parents_sidecar(game, VILLAGERS, {2: (("Goro", 7, 2), ("Aisha", 4, 9))})
+        village = gen.load_village(game, 1, 1)
+        nina = next(p for p in village.people.values() if p.name == "Nina")
+        self.assertEqual(village.people[nina.father].key, ("Goro", 7, 2))
+        self.assertEqual(village.people[nina.mother].key, ("Aisha", 4, 9))
+        self.assertEqual(nina.generation, 2, "no longer a founder")
+        goro = next(p for p in village.people.values() if p.name == "Goro")
+        self.assertIsNone(goro.father, "a founder stays a founder")
+
+    def test_a_birth_record_comes_before_the_sidecar(self):
+        log = "\n".join(["Village: Harness Tribe (Save 1)", "Birth", "  Child: Nina", "    Head: 11",
+                         "    Body: 3", "  Mother: Aisha", "    Head: 4", "    Body: 9", "  Father: Tadao",
+                         "    Head: 6", "    Body: 0", ""]) + "\n"
+        game = self.build(stashes={}, log=log)
+        self.parents_sidecar(game, VILLAGERS, {2: (("Goro", 7, 2), ("Aisha", 4, 9))})
+        village = gen.load_village(game, 1, 1)
+        nina = next(p for p in village.people.values() if p.name == "Nina")
+        self.assertEqual(village.people[nina.father].key, ("Tadao", 6, 0))
+
     def test_the_matchmaker_sees_the_baby_on_the_way(self):
         village, _father = self.upcoming_father(self.build(stashes={1: ("Goro", 7, 2)}))
         rules = gen.Rules(close_in_age=False, no_shared_ancestors=False, max_relatedness=False,

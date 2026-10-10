@@ -197,7 +197,7 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         p.family = _i32(data, at + f.family)
         if game == 1:
             p.expecting = _i32(data, at - 0x370 + 0x358) != 0       # the delivery the game counts down
-            # Who she is in the save's own words, for the Parents (A New Home) sidecar (_vv1_expected).
+            # Who she is in the save's own words, for the Parents (A New Home) sidecar (_vv1_from_sidecar).
             reg.vv1_living.append((p.id, _cstr(data, at, f.name_cap)[:VV1_SIDECAR_NAME - 1],
                                    1 if _i32(data, at + f.sex) == f.male else 2, _i32(data, at + f.family),
                                    _i32(data, at + f.head), _i32(data, at + f.body)))
@@ -378,9 +378,9 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
     _appearance_changes(reg, folder, game, slot)
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
-    if game == 1:
-        _vv1_expected(reg, folder, slot)
     _log_people(reg, folder, game, slot)
+    if game == 1:
+        _vv1_from_sidecar(reg, folder, slot)
     _unrecorded_looks(reg)
     checker = tools.load_checker()
     exact, by_name = checker.known_sexes(folder, game)
@@ -479,11 +479,22 @@ def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> N
             reg.relooked[old] = new
 
 
-def _vv1_stashes(folder: Path, slot: int) -> list[tuple[tuple, Key]]:
-    """A New Home's pregnancy stashes: [((name, gender, family, head, body), father key)], one per
-    mother the Parents (A New Home) sidecar holds a father for -- head and body None where an older
-    build's roster did not keep them.  Under the new folder name or the old one (vv_save_layout);
-    nothing when the file is missing, unreadable or not a VP02 file of this length."""
+@dataclass
+class _Vv1Entry:
+    """One record of A New Home's Parents (A New Home) sidecar: who held it (head and body None where
+    an older build's roster did not keep them), and the parents and the pregnancy's father it
+    names -- each (name, head, body), or None when not recorded."""
+    who: tuple                      # (name, gender 1/2, family scalar, head, body)
+    departed: bool                  # the record was empty: this is the villager who had held it
+    father: Key | None
+    mother: Key | None
+    stash: Key | None
+
+
+def _vv1_sidecar(folder: Path, slot: int) -> list[_Vv1Entry]:
+    """A New Home's Parents (A New Home) sidecar, the companion's record of every villager's parents
+    (native/vv1_parentage), under the new folder name or the old one (vv_save_layout); nothing when
+    the file is missing, unreadable or not a VP02 file of this length written for this slot."""
     import vv_save_layout as layout
     name = f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"
     path = layout.find(Path(folder), f"{layout.DATA}\\{layout.PARENTS_VV1}\\{name}")
@@ -493,55 +504,78 @@ def _vv1_stashes(folder: Path, slot: int) -> list[tuple[tuple, Key]]:
         return []
     if len(data) != VV1_SIDECAR_SIZE or data[:4] != VV1_SIDECAR_MAGIC or _i32(data, 8) != slot:
         return []
+    cut = VV1_SIDECAR_NAME - 1
+
+    def person(e: int, looks: int, at: int) -> Key | None:
+        # Every value is stored +1: 0 is "not recorded", and head 0 / body 0 are real looks.
+        name, head, body = _cstr(data, e + at, VV1_SIDECAR_NAME)[:cut], data[e + looks], data[e + looks + 1]
+        return (name, head - 1, body - 1) if name and head and body else None
+
     out = []
     for i in range(256):
         occ = 12 + i * VV1_SIDECAR_OCCUPANT
         e = 12 + 256 * VV1_SIDECAR_OCCUPANT + i * VV1_SIDECAR_ENTRY
         gender, departed, head, body = data[occ], data[occ + 1], data[occ + 2], data[occ + 3]
-        stash_head, stash_body = data[e + 4], data[e + 5]
-        father = _cstr(data, e + 64, VV1_SIDECAR_NAME)[:VV1_SIDECAR_NAME - 1]
-        # Only a record's present occupant (not one who had left it: `departed`), and only a father
-        # the stash names with both looks -- 0 is "not recorded", every real value is stored +1.
-        if gender not in (1, 2) or departed or not father or not stash_head or not stash_body:
+        if gender not in (1, 2):
             continue
-        who = (_cstr(data, occ + 8, VV1_SIDECAR_NAME)[:VV1_SIDECAR_NAME - 1], gender, _i32(data, occ + 4),
+        who = (_cstr(data, occ + 8, VV1_SIDECAR_NAME)[:cut], gender, _i32(data, occ + 4),
                head - 1 if head and body else None, body - 1 if head and body else None)
-        out.append((who, (father, stash_head - 1, stash_body - 1)))
+        out.append(_Vv1Entry(who, bool(departed), person(e, 0, 8), person(e, 2, 36), person(e, 4, 64)))
     return out
 
 
-def _vv1_expected(reg: _Registry, folder: Path, slot: int) -> None:
-    """The expected father of each A New Home pregnancy, which the game keeps nowhere (the later
-    games copy him onto the mother: `_save_people`): the companion's own rule (vv1_expected_father in
-    native/vv1_parentage) -- her last Conception record in the Births and Conceptions log, written
-    with the save, else the father the Parents (A New Home) sidecar stashed against her at that
-    conception.  The sidecar's entry is hers only when its roster names exactly one living villager
-    -- name, sex, family number and, where it kept them, head and body -- and she is the only one
-    who fits it; anything else is left unknown rather than guessed (patcher data follows the
-    villager, never a record number)."""
+def _vv1_fits(who: tuple, living: tuple) -> bool:
+    name, gender, family, head, body = who
+    _pid, l_name, l_gender, l_family, l_head, l_body = living
+    return (name, gender, family) == (l_name, l_gender, l_family) \
+        and (head is None or (head, body) == (l_head, l_body))
+
+
+def _vv1_from_sidecar(reg: _Registry, folder: Path, slot: int) -> None:
+    """What A New Home keeps nowhere and the later games keep on the villager's own record
+    (`_save_people`), from the VV1 Parentage companion's sidecar: each villager's parents, and the
+    expected father of each pregnancy.
+
+    After the Births and Conceptions log, which wins where it speaks: it is written with the save,
+    and it is what the companion itself trusts over its own table (the first-load check,
+    native/vv1_parentage/vv1_crosscheck.inc).  So the expected father is her last Conception
+    record's, else the father the sidecar stashed against her at that conception
+    (vv1_expected_father); a parent is the Birth record's, else the sidecar's.
+
+    An entry is a living villager's only when its roster names exactly one living villager -- name,
+    sex, family number and, where it kept them, head and body -- and no other entry of the file fits
+    her; anything else is left unknown rather than guessed (patcher data follows the villager, never
+    a record number).  A record whose villager has died keeps her entry, flagged `departed`: it is
+    hers when her name and looks are a villager the logs know and the file holds no other such
+    entry."""
     expecting = {pid for pid, *_ in reg.vv1_living if reg.people[pid].expecting}
-    if not expecting:
-        return
     for pid in expecting:
         father = reg.conceptions.get(reg.people[pid].key, (None, 1))[0]
         if father and father[0]:
             reg.expected[pid] = father
-    stashes = _vv1_stashes(folder, slot)
-
-    def fits(who: tuple, living: tuple) -> bool:
-        name, gender, family, head, body = who
-        _pid, l_name, l_gender, l_family, l_head, l_body = living
-        return (name, gender, family) == (l_name, l_gender, l_family) \
-            and (head is None or (head, body) == (l_head, l_body))
-
-    for who, father in stashes:
-        holders = [v for v in reg.vv1_living if fits(who, v)]
-        if len(holders) != 1 or sum(1 for other, _f in stashes if fits(other, holders[0])) != 1:
-            continue
-        pid = holders[0][0]
-        if pid in expecting and pid not in reg.expected:
-            reg.expected[pid] = father
-
+    entries = _vv1_sidecar(folder, slot)
+    present = [e for e in entries if not e.departed]
+    for e in entries:
+        if e.departed:
+            name, _g, _f, head, body = e.who
+            if head is None or sum(1 for o in entries if o.who == e.who) != 1:
+                continue
+            pid = reg.by_key.get(reg.current((name, head, body)))
+            if pid is None or reg.people[pid].alive:
+                continue
+            target = reg.people[pid]
+        else:
+            holders = [v for v in reg.vv1_living if _vv1_fits(e.who, v)]
+            if len(holders) != 1 or sum(1 for o in present if _vv1_fits(o.who, holders[0])) != 1:
+                continue
+            target = reg.people[holders[0][0]]
+            if e.stash is not None and target.id in expecting and target.id not in reg.expected:
+                reg.expected[target.id] = e.stash
+        for key, attr, sex in ((e.father, "father", "Male"), (e.mother, "mother", "Female")):
+            if key is not None and getattr(target, attr) is None:
+                parent = reg.get(*key)
+                parent.sex = parent.sex or sex
+                setattr(target, attr, parent.id)
 
 def _upcoming(reg: _Registry) -> None:
     """A baby on the way for every expecting mother (the owner: "another child with a diamond
