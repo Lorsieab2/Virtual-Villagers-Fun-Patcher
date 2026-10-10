@@ -86,13 +86,19 @@ class NativeHarness(unittest.TestCase):
 
     def test_every_death_and_departure_path_goes_through_the_two_writers(self):
         # Every Death record is cod_log_death's and every Disappeared record cod_log_gone's, and both
-        # say whether the babies were lost: no site writes either kind itself.
+        # say whether the babies were lost: no site writes either kind itself.  The one exception is
+        # New Believers' "Left the tribe: became a Heathen" (cod_arrivals.inc
+        # arrival_left_for_the_heathens): she is alive and keeps her pregnancy as a Heathen, so no
+        # babies are lost and she must not be reported as departed from the roster.
+        allowed = {("LOG_DISAPPEARED", "cod_gone.inc"), ("LOG_DISAPPEARED", "cod_arrivals.inc")}
         for path in COD.glob("cod_*.inc"):
             text = path.read_text(encoding="utf-8")
             for kind in ("LOG_DEATH", "LOG_DISAPPEARED"):
                 uses = text.count(f"cod_write({kind}")
-                self.assertEqual(uses, 1 if (kind, path.name) == ("LOG_DISAPPEARED", "cod_gone.inc") else 0,
+                self.assertEqual(uses, 1 if (kind, path.name) in allowed else 0,
                                  f"{path.name} writes {kind} itself")
+        arrivals = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
+        self.assertIn("Left the tribe: became a Heathen", arrivals)
         main = (COD / "vvfp_cause_of_death.c").read_text(encoding="utf-8")
         self.assertEqual(main.count("cod_write(LOG_DEATH"), 1)
         self.assertIn('lost_record(record, babies, "died")', main)
