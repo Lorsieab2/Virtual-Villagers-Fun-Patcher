@@ -50,6 +50,9 @@ CHECKS += 2 * 4
 CHECKS += 2 * 5
 # New Believers' converted Heathen Master: the Former Heathens file and the Arrived record's title.
 CHECKS += 2
+# 6 per game: founders seeded before the village has its slot, with and without an empty creation
+# save before them (the stale slot; The Tree of Life's and New Believers' early save).
+CHECKS += 6 * 5
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
@@ -96,7 +99,7 @@ class ArrivedRecordSource(unittest.TestCase):
         self.assertLess(done.index("arrival_backfill_at_save(slot, save_buffer);"),
                         done.index("roster_reconcile(slot);"))
         reconcile = body(roster, "static void roster_reconcile(int slot)")
-        self.assertLess(reconcile.index("arrival_save(slot, have_previous);"),
+        self.assertLess(reconcile.index("arrival_save(slot, have_previous && kept_count > 0);"),
                         reconcile.index("Arrived with no Birth record or known arrival"))
 
     def test_a_birth_is_never_an_arrival(self):

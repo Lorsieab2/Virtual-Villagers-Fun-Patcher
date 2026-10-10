@@ -153,6 +153,19 @@ static void arrival_created(int index, unsigned int site_va, const unsigned int 
     arrivals[index].state = ARRIVAL_MADE;
     arrivals[index].born = (unsigned char)(m != NULL && (m->kind == MARK_BIRTH || m->kind == MARK_TEMPORARY));
     arrivals[index].founder = (unsigned char)(m != NULL && m->kind == MARK_FOUNDER);
+    /* A new village's founders are seeded before the game gives the village
+       its slot: the slot the host reports then is a stale one (live, The
+       Lost Children with a fresh profile: 5, the village then saved in 1), so
+       their records were never written.  They count for the slot of the
+       first save instead -- which writes them only when no village was saved
+       there before (arrival_save), so a seeding a load replaces still writes
+       nothing. */
+    if (arrivals[index].founder) {
+        arrivals[index].tag = REPORT_EARLY;
+        if (arrived[index] != REPORT_NONE) {
+            arrived[index] = REPORT_EARLY;    /* the reconciliation's report, likewise */
+        }
+    }
     arrivals[index].age = 0;
     arrivals[index].how[0] = '\0';
     if (m != NULL && m->label != NULL) {

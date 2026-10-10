@@ -303,6 +303,7 @@ static void roster_reconcile(int slot) {
     DWORD length = 0;
     int result;
     int have_previous;
+    unsigned int kept_count = 0;
     unsigned int count = 0;
     unsigned int rank = 0;
     unsigned int i;
@@ -345,6 +346,7 @@ static void roster_reconcile(int slot) {
     memset((void *)kept, 0, sizeof kept);
     if (have_previous) {
         unsigned int n = *(const unsigned int *)(roster_buffer + 12);
+        kept_count = n;
         int by_record = 0;
         int by_rank = 0;
         int reported = 0;
@@ -380,8 +382,12 @@ static void roster_reconcile(int slot) {
     }
     /* The arrivals made for this slot get their Arrived records -- unless
        there is no village saved before to arrive in: a new village's
-       founders (cod_arrivals.inc). */
-    arrival_save(slot, have_previous);
+       founders (cod_arrivals.inc).  A roster with nobody in it is no
+       village to arrive in either: The Tree of Life and New Believers save
+       a new village once before its founders are chosen (seen live: an
+       empty roster at the creation save), and the founders' first save then
+       found that roster and wrote none of them. */
+    arrival_save(slot, have_previous && kept_count > 0);
     if (have_previous) {
         for (i = 0; i < r->slots; ++i) {
             unsigned char *now_record = records + (size_t)i * r->stride;
