@@ -236,5 +236,121 @@ class Planning(unittest.TestCase):
         self.assertIn("Special villager added: " + LOGS + "\\Tribe History", repairs)
 
 
+def vv5_snapshot(date: str, *people: str) -> str:
+    return f"=== Virtual Villagers 5 -- {date} ===\nVillage: Tribe (Save 1)\n" + "".join(people)
+
+
+def vv5_page(*people: str) -> str:
+    return "Village: Tribe (Save 1)\n" + "".join(people)
+
+
+class NewBelieversFaction(unittest.TestCase):
+    """New Believers' Faction line (native/population_export/population_export.c) in records an
+    older patcher wrote, worded exactly as the DLL writes it: decided where the records settle it,
+    asked where they do not."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.folder = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def faction(self):
+        return {k.id: k for k in additions.plan(self.folder, 5, 1)}["faction"]
+
+    def test_only_new_believers_has_a_faction_kind(self):
+        write(self.folder, "Tribe History/Village History 1.txt",
+              snapshot("2026-10-01 10:00", villager(1, "Sage", 1, 1)))
+        kind = {k.id: k for k in additions.plan(self.folder, 3, 1)}["faction"]
+        self.assertEqual((kind.decided, kind.asked), (0, 0))
+
+    def test_the_faction_the_records_decide_is_added_after_the_sex_line(self):
+        write(self.folder, "Tribe Population/Village Population 1.txt", vv5_page(
+            villager(1, "Kaia", 1, 1).replace("  Sex: Female\n", "  Sex: Female\n  Faction: Believer\n"),
+            villager(2, "Pagan", 2, 2).replace("  Sex: Female\n", "  Sex: Female\n  Faction: Heathen\n")))
+        history = write(self.folder, "Tribe History/Village History 1.txt",
+                        vv5_snapshot("2026-10-01 10:00", villager(1, "Kaia", 1, 1), villager(2, "Pagan", 2, 2),
+                                     villager(3, "Eimeo", 3, 3, "  Special villager: Heathen Chief\n"),
+                                     villager(4, "Vahine", 4, 4,
+                                              "  Special villager: Former Heathen (blue mask)\n")))
+        kind = self.faction()
+        self.assertEqual((kind.decided, kind.asked), (4, 0))
+        additions.apply(self.folder, [kind], {"faction"}, {})
+        text = history.read_bytes().decode("latin-1")
+        self.assertIn("  Name: Kaia\r\n  Age: 400\r\n  Sex: Female\r\n  Faction: Believer\r\n  Head: 1", text)
+        self.assertIn("  Name: Pagan\r\n  Age: 400\r\n  Sex: Female\r\n  Faction: Heathen\r\n", text)
+        self.assertIn("  Sex: Female\r\n  Faction: Heathen\r\n  Head: 3", text)
+        self.assertIn("  Sex: Female\r\n  Faction: Believer\r\n  Head: 4", text)
+        self.assertEqual(self.faction().decided + self.faction().asked, 0, "nothing left to add")
+
+    def test_a_change_of_side_the_logs_record_is_asked_by_date(self):
+        write(self.folder, "Tribe Population/Village Population 1.txt", vv5_page(
+            villager(1, "Narai", 1, 1).replace("  Sex: Female\n", "  Sex: Female\n  Faction: Heathen\n")))
+        history = write(self.folder, "Tribe History/Village History 1.txt",
+                        vv5_snapshot("2026-10-01 10:00", villager(1, "Narai", 1, 1))
+                        + vv5_snapshot("2026-10-02 10:00", villager(1, "Narai", 1, 1)))
+        write(self.folder, "Deaths and Disappearances/Virtual Villagers 5 Deaths Log 1.txt",
+              "Village: Tribe (Save 1)\nDisappeared\n  Name: Narai\n  Age: 440\n  Sex: Female\n"
+              "  What happened: Left the tribe: became a Heathen\n  Head: 1\n  Body: 1\n  Likes: (none)\n"
+              "  Dislikes: (none)\n\n")
+        kind = self.faction()
+        self.assertEqual((kind.decided, kind.asked), (0, 1))
+        [question] = kind.questions.values()
+        self.assertEqual(question.default, additions.DONT_KNOW)
+        self.assertIn("Heathen from 2026-10-02 10:00, a believer before", question.options)
+        additions.apply(self.folder, [kind], {"faction"},
+                        {question.key: "Heathen from 2026-10-02 10:00, a believer before"})
+        text = history.read_bytes().decode("latin-1")
+        first, second = text.index("2026-10-01"), text.index("2026-10-02")
+        self.assertIn("  Faction: Believer\r\n", text[first:second])
+        self.assertIn("  Faction: Heathen\r\n", text[second:])
+
+    def test_a_heathen_now_who_came_as_a_believer_is_asked_and_dont_know_adds_nothing(self):
+        write(self.folder, "Tribe Population/Village Population 1.txt", vv5_page(
+            villager(1, "Mask", 1, 1).replace("  Sex: Female\n", "  Sex: Female\n  Faction: Heathen\n")))
+        history = write(self.folder, "Tribe History/Village History 1.txt",
+                        vv5_snapshot("2026-10-01 10:00", villager(1, "Mask", 1, 1)))
+        write(self.folder, "Births and Conceptions/Virtual Villagers 5 Births and Conceptions Log 1.txt",
+              "Village: Tribe (Save 1)\nArrived 1\n  Name: Mask\n  Age at arrival: 400\n  Sex: Female\n"
+              "  Head: 1\n  Body: 1\n  How: Founder\n\n")
+        kind = self.faction()
+        self.assertEqual((kind.decided, kind.asked), (0, 1))
+        before = history.read_bytes()
+        additions.apply(self.folder, [kind], {"faction"}, {})
+        self.assertEqual(history.read_bytes(), before)
+
+    def test_head_0_body_0_and_age_0_are_real_values(self):
+        """The owner: 0 is a valid head, body and age in every game."""
+        zero = villager(1, "Zero", 0, 0).replace("  Age: 400\n", "  Age: 0\n")
+        write(self.folder, "Tribe Population/Village Population 1.txt", vv5_page(
+            zero.replace("  Sex: Female\n", "  Sex: Female\n  Faction: Heathen\n")))
+        history = write(self.folder, "Tribe History/Village History 1.txt",
+                        vv5_snapshot("2026-10-01 10:00", zero))
+        kind = self.faction()
+        self.assertEqual((kind.decided, kind.asked), (1, 0))
+        additions.apply(self.folder, [kind], {"faction"}, {})
+        self.assertIn("  Age: 0\r\n  Sex: Female\r\n  Faction: Heathen\r\n  Head: 0\r\n  Body: 0",
+                      history.read_bytes().decode("latin-1"))
+        # ...and a 0/0 founder's Arrived record is a believer's coming like any other.
+        write(self.folder, "Births and Conceptions/Virtual Villagers 5 Births and Conceptions Log 1.txt",
+              "Village: Tribe (Save 1)\nArrived 1\n  Name: Zero\n  Age at arrival: 0\n  Sex: Female\n"
+              "  Head: 0\n  Body: 0\n  How: Founder\n\n")
+        history.write_bytes(vv5_snapshot("2026-10-01 10:00", zero).replace("\n", "\r\n").encode("latin-1"))
+        kind = self.faction()
+        self.assertEqual((kind.decided, kind.asked), (0, 1), "a Heathen now who came as a believer is asked")
+
+    def test_a_villager_no_longer_in_the_village_is_asked(self):
+        write(self.folder, "Tribe Population/Village Population 1.txt", vv5_page(
+            villager(1, "Kaia", 1, 1).replace("  Sex: Female\n", "  Sex: Female\n  Faction: Believer\n")))
+        history = write(self.folder, "Tribe History/Village History 1.txt",
+                        vv5_snapshot("2026-10-01 10:00", villager(2, "Gone", 9, 9)))
+        kind = self.faction()
+        self.assertEqual((kind.decided, kind.asked), (0, 1))
+        [question] = kind.questions.values()
+        additions.apply(self.folder, [kind], {"faction"}, {question.key: "Heathen in every one of them"})
+        self.assertIn("  Sex: Female\r\n  Faction: Heathen\r\n  Head: 9", history.read_bytes().decode("latin-1"))
+
+
 if __name__ == "__main__":
     unittest.main()

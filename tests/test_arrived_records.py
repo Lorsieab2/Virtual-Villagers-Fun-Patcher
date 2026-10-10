@@ -50,9 +50,9 @@ CHECKS += 2 * 4
 CHECKS += 2 * 5
 # New Believers' converted Heathen Master: the Former Heathens file and the Arrived record's title.
 CHECKS += 2
-# 6 per game: founders seeded before the village has its slot, with and without an empty creation
+# 8 per game: founders seeded before the village has its slot, with and without an empty creation
 # save before them (the stale slot; The Tree of Life's and New Believers' early save).
-CHECKS += 6 * 5
+CHECKS += 8 * 5
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

@@ -665,6 +665,9 @@ static void stale_slot_cases(void) {
         created(0, MARK[game - 1].founder);
         villager(1, "Staletwo", 420, 2, 1, 0);
         created(1, MARK[game - 1].founder);
+        /* The owner: 0 is a valid head, body and age in every game. */
+        villager(3, "Zerozero", 0, 0, 0, 0);
+        created(3, MARK[game - 1].founder);
         arrival_tick();
         host_slot_value = 1;
         arrival_tick();
@@ -674,8 +677,12 @@ static void stale_slot_cases(void) {
               && count_of(text, "  Name: Staleone\r\n") == 1,
               "stale slot%s: the founders seeded before the village had its slot get \"How: Founder\" at its"
               " first save", empty_first ? ", after an empty creation save" : "");
+        CHECK(record_has("Zerozero", "  Age at arrival: 0\r\n") && record_has("Zerozero", "  Head: 0\r\n  Body: 0\r\n")
+              && record_has("Zerozero", "  How: Founder\r\n"),
+              "stale slot%s: a founder with head 0, body 0 and age 0 is a founder like any other",
+              empty_first ? ", after an empty creation save" : "");
         read_into(unacc);
-        CHECK(strstr(text, "Stale") == NULL, "stale slot%s: ...and neither is Unaccounted",
+        CHECK(strstr(text, "Stale") == NULL && strstr(text, "Zerozero") == NULL, "stale slot%s: ...and neither is Unaccounted",
               empty_first ? ", after an empty creation save" : "");
         /* A seeding a load then replaces, in a village saved before with
            villagers in it: nothing. */
