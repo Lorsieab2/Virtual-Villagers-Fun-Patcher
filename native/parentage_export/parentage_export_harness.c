@@ -378,6 +378,12 @@ static void run_game(write_t write, const struct layout *layout) {
 }
 
 int main(int argc, char **argv) {
+    /* The whole process's Documents is a throwaway %TEMP% folder: no harness ever
+       writes under the real Documents\LDW (the owner's rule, 2026-10-10). */
+    if (!harness_redirect_documents_process()) {
+        fprintf(stderr, "cannot redirect Documents to a throwaway folder; not running\n");
+        return 2;
+    }
     HMODULE dll; write_t write; int i;
     if (argc < 2) { fprintf(stderr, "usage: %s <VVFP Parentage Export.dll>\n", argv[0]); return 2; }
     dll = LoadLibraryA(argv[1]);

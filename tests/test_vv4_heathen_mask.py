@@ -764,4 +764,6 @@ class Vv4RenameAndRosterTests(unittest.TestCase):
         self.assertNotIn("changed |= !g_mask_roster_known || g_mask_by_index[idx] != 0;", self.follow)
 
     def test_the_stable_fields_are_unknown_after_a_load_or_reset(self) -> None:
-        self.assertEqual(self.c.count("g_mask_stable_known = 0;"), 2)
+        # ...and when a table is kept aside from another array, or comes back
+        # to its own village (native/shared/foreign_sidecar.h).
+        self.assertEqual(self.c.count("g_mask_stable_known = 0;"), 4)

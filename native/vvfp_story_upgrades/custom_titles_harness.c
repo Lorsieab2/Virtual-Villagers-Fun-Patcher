@@ -511,6 +511,35 @@ int main(void) {
     memset(g_records, 0, sizeof g_records);
     villager(0, "Hina"); villager(1, "Kai"); villager(2, "Lani");
 
+    /* -- the title screen: another array with the slot unchanged ---------
+       A quit to the menu leaves the startup slot list's seeded founders in
+       the records while the game's slot field still says 1 (the owner's
+       v1.35.67 parents loss).  The titles of villagers seen this session must
+       not be swept and written away; when the village is back -- packed
+       differently -- they follow it. */
+    new_session();
+    g_slot = 1;
+    DeleteFileA(path1);
+    check(titles_set(3, 1, "Keeper of Fire") == 1, "a title for Kai");
+    titles_tick(3);
+    titles_tick(3);                              /* Kai seen alive this session */
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Abebe"); villager(1, "Kanoa"); villager(2, "Mele"); villager(3, "Tavita");
+    titles.checked_at = GetTickCount();
+    titles_tick(3);
+    titles_tick(3);
+    check(titles.count == 1, "THE TITLE SCREEN'S FOUNDERS DO NOT SWEEP KAI'S TITLE AWAY");
+    check(file_size(path1) == 16 + 40, "and the file still holds it");
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); villager(1, "Lani");     /* the village loaded again, Hina gone */
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[0]);
+    check(seen != NULL && lstrcmpA(seen, "Keeper of Fire") == 0,
+          "BACK IN THE VILLAGE, KAI'S TITLE FOLLOWS HIM TO HIS NEW RECORD");
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Hina"); villager(1, "Kai"); villager(2, "Lani");
+
     /* -- Start Over: the reset deletes the slot's file, every game ------- */
     for (game = 1; game <= 5; ++game) {
         char what[96];

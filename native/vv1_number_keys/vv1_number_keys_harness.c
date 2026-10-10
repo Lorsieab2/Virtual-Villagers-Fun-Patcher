@@ -15,6 +15,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
+#include "../shared/harness_redirect_documents.h"   /* never the real Documents */
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -62,6 +63,12 @@ static void key_event(unsigned char *e, unsigned int type, int sym, unsigned cha
 }
 
 int main(int argc, char **argv) {
+    /* The whole process's Documents is a throwaway %TEMP% folder: no harness ever
+       writes under the real Documents\LDW (the owner's rule, 2026-10-10). */
+    if (!harness_redirect_documents_process()) {
+        fprintf(stderr, "cannot redirect Documents to a throwaway folder; not running\n");
+        return 2;
+    }
     HMODULE dll, sdl;
     install_t install;
     probe_t probe;

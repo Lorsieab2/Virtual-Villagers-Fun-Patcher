@@ -10,6 +10,7 @@
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/vv5_villager_table.h" /* the table, its slot count and the mask table, from the image */
 #include "../shared/mask_follow.h" /* masks follow their villagers through a reload */
+#include "../shared/foreign_sidecar.h" /* another village's file is never replaced */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/appearance_log.h" /* "Appearance changed" in the Births and Conceptions log */
 
@@ -531,6 +532,7 @@ static int vv5_roster_equal(const unsigned int *a, const unsigned int *b) {
    keyed by save slot: a write is refused until this slot's file has loaded,
    been found missing, or -- present but invalid -- been moved aside intact. */
 static vv_sidecar_gate g_vv5_mask_gate;
+static int g_vv5_mask_foreign;   /* the slot's file is another village's: never replaced (foreign_sidecar.h) */
 
 /* A file of `count` slots: the magic, `count` roster hashes, `count` / 2
    table bytes. */
@@ -599,6 +601,16 @@ static int vv5_write_mask_sidecar(const unsigned char *table) {
     vv_om_roster_to_write(VV5_RECORD_COUNT, g_vv5_roster, value, g_vv5_mask_id, written_roster);
     parts[1] = written_roster; sizes[1] = (DWORD)vv5_slots() * sizeof(unsigned int);
     parts[2] = table;         sizes[2] = vv5_mask_table_bytes();
+    {
+        /* ANOTHER VILLAGE'S FILE (native/shared/foreign_sidecar.h): an empty
+           table is never written over it, and the first table with a mask in
+           it moves it aside first, never replacing it. */
+        int nothing;
+        if (!vv_foreign_before_write(&g_vv5_mask_foreign, path,
+                                     vv_table_any(table, (int)vv5_mask_table_bytes()), &nothing)) {
+            return nothing;
+        }
+    }
     return vv_sidecar_publish(&g_vv5_mask_gate, path, parts, sizes, 3);
 }
 
@@ -670,6 +682,7 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
     memset(table, 0, table_bytes);
     memset(g_vv5_mask_id, 0, sizeof(g_vv5_mask_id));
     g_vv5_rewrite_after_load = 0;
+    g_vv5_mask_foreign = 0;
     vv_sidecar_gate_bind(&g_vv5_mask_gate, VV5_MASK_SLOT_NOW);
     if (vv_sidecar_gate_throttled(&g_vv5_mask_gate)) {
         return 0;               /* blocked a moment ago: no I/O until the retry */
@@ -709,7 +722,8 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
         vv5_roster_snapshot(names);   /* a name-only file is compared with names */
         against = names;
     }
-    if (vv5_roster_same(filesnap, against)) {
+    g_vv5_mask_foreign = !vv5_roster_same(filesnap, against);
+    if (!g_vv5_mask_foreign) {
         /* Sidecars are user-writable: only 0 (none) through 5 are valid
            nibbles, so normalise before publishing to the render thunks. */
         for (i = 0; i < (int)table_bytes; ++i) {

@@ -363,8 +363,17 @@ static int vv_paid_tick(int game, int slot, const unsigned int *roster, const vv
         restored = vv_paid_arrive(game, slot, roster, g);
         pending = *g->token != 0;
         if (pending && !restored) {
-            GetSystemTimeAsFileTime(&vv_paid_bought);
-            vv_paid_write(game, slot, *g->token, roster);
+            /* ANOTHER VILLAGE'S PURCHASE IS NEVER REPLACED (the owner's
+               v1.35.67 parents loss, native/shared/foreign_sidecar.h): a
+               purchase still in memory when the records show another array
+               -- the title screen's seeded founders after a quit to the menu,
+               the slot unchanged -- is not that array's, and the file of the
+               village it was bought in stays as it is. */
+            static vv_paid_file other;
+            if (!(vv_paid_read(game, slot, &other) > 0 && !vv_paid_same_village(other.roster, roster))) {
+                GetSystemTimeAsFileTime(&vv_paid_bought);
+                vv_paid_write(game, slot, *g->token, roster);
+            }
         }
         vv_paid_last = pending;
         return restored;

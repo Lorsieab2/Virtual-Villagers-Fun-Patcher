@@ -1811,6 +1811,7 @@ static int vv2_roster_equal(const unsigned int *a, const unsigned int *b) {
    a write is refused until the slot's file has loaded, been found missing,
    or -- when present but invalid -- been moved aside intact. */
 static vv_sidecar_gate g_vv2_mask_gate;
+static int g_vv2_mask_foreign;   /* the slot's file is another village's: never replaced (foreign_sidecar.h) */
 
 #define VV2_MASK_SIDECAR_BYTES \
     (4 + sizeof(g_vv2_roster) + VV2_MASK_TABLE_BYTES)
@@ -1848,6 +1849,19 @@ static int vv2_mask_sidecar_save(void) {
     vv_om_roster_to_write(VV2_RECORD_COUNT, g_vv2_roster, VV2_MASK_TABLE, g_vv2_mask_id, written_roster);
     parts[1] = written_roster;   sizes[1] = sizeof(written_roster);
     parts[2] = VV2_MASK_TABLE;   sizes[2] = VV2_MASK_TABLE_BYTES;
+    {
+        /* ANOTHER VILLAGE'S FILE (native/shared/foreign_sidecar.h): an empty
+           table is never written over it, and the first table with a mask in
+           it moves it aside first.  It used to be "left in place for this
+           village's first write to replace" -- and at a title screen whose
+           slot field already names the slot, the "village" on screen may be
+           only the startup slot list's leftovers, not the one about to load. */
+        int nothing;
+        if (!vv_foreign_before_write(&g_vv2_mask_foreign, path,
+                                     vv_table_any(VV2_MASK_TABLE, VV2_MASK_TABLE_BYTES), &nothing)) {
+            return nothing;
+        }
+    }
     return vv_sidecar_publish(&g_vv2_mask_gate, path, parts, sizes, 3);
 }
 
@@ -1882,6 +1896,7 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
         for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
     memset(g_vv2_mask_id, 0, sizeof(g_vv2_mask_id));
     g_vv2_rewrite_after_load = 0;
+    g_vv2_mask_foreign = 0;
     vv_sidecar_gate_bind(&g_vv2_mask_gate, VV2_MASK_SLOT_NOW);
     if (vv_sidecar_gate_throttled(&g_vv2_mask_gate)) return 0; /* retry window: no I/O */
     if (!vv2_mask_sidecar_path(path)) {
@@ -1930,7 +1945,8 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
         }
         against = names;
     }
-    if (vv2_roster_same(filesnap, against)) {
+    g_vv2_mask_foreign = !vv2_roster_same(filesnap, against);
+    if (!g_vv2_mask_foreign) {
         /* Sidecars are user-writable and older builds did not constrain every
            byte. Normalize before publishing anything to the render thunks:
            only 0 (none) through 5 (the five atlas rows) are valid. */

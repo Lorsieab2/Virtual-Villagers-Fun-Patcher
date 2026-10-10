@@ -160,11 +160,47 @@ int main(int argc, char **argv) {
     clear_village();
     set_villager(0, "Maupiti"); set_villager(1, "Kautawa"); set_villager(2, "Tai");
     set_villager(4, "Ali"); set_villager(5, "Tepeu"); set_villager(6, "Turuki"); set_villager(7, "Tiare");
-    /* the file on disk was rewritten by village B's chooser? no -- B never
-       chose masks, but sync re-saved on B's roster change ("Maupiti" added)
-       with B's empty table.  So A's masks were replaced by B's on disk. */
+    /* Village B never chose a mask.  Its roster change ("Maupiti" added) used
+       to persist B's empty table over A's file, and A's masks were gone: the
+       same loss as A New Home's parents at the title screen (v1.35.67).  A
+       file of another village is never replaced by an empty table now
+       (native/shared/foreign_sidecar.h). */
     CHECK(sync() == 1, "village A back on screen: sync known");
-    printf("      (A's masks are gone: village B's roster change persisted B's empty table -- expected, one file per slot)\n");
+    CHECK(table()[0] == 0x21 && table()[1] == 0x03,
+          "village A's masks come back: B's empty table never replaced A's file");
+
+    printf("== another village that really is played: its first mask moves A's file aside ==\n");
+    Sleep(300);
+    clear_village();
+    set_villager(0, "Puhi"); set_villager(1, "Hakuna"); set_villager(2, "Haapiti"); set_villager(3, "Nui");
+    CHECK(sync() == 1 && table_is_zero(), "village B again: no masks of A's");
+    table()[0] = 0x04;
+    writes(table());
+    {
+        char pattern[MAX_PATH];
+        WIN32_FIND_DATAA fd;
+        HANDLE h;
+        _snprintf(pattern, MAX_PATH, "%s.another-village-*", file);
+        h = FindFirstFileA(pattern, &fd);
+        CHECK(h != INVALID_HANDLE_VALUE, "A's file is kept aside (another-village), never replaced");
+        if (h != INVALID_HANDLE_VALUE) {
+            char aside[MAX_PATH];
+            char *slash;
+            lstrcpynA(aside, file, MAX_PATH);
+            slash = strrchr(aside, '\\');
+            if (slash != NULL) {
+                lstrcpynA(slash + 1, fd.cFileName, (int)(MAX_PATH - (slash + 1 - aside)));
+                DeleteFileA(aside);
+            }
+            FindClose(h);
+        }
+    }
+    CHECK(GetFileAttributesA(file) != INVALID_FILE_ATTRIBUTES, "B's own file is written");
+    Sleep(300);
+    clear_village();
+    set_villager(0, "Maupiti"); set_villager(1, "Kautawa"); set_villager(2, "Tai");
+    set_villager(4, "Ali"); set_villager(5, "Tepeu"); set_villager(6, "Turuki"); set_villager(7, "Tiare");
+    CHECK(sync() == 1, "village A on screen once more");
 
     printf("== slot change reloads ==\n");
     table()[0] = 0x21; writes(table());        /* A's masks under slot 1 again */
@@ -176,6 +212,22 @@ int main(int argc, char **argv) {
     CHECK(sync() == 1 && table()[0] == 0x21, "back to slot 1: A's masks reload from its file");
 
     DeleteFileA(file);
+    {
+        /* ...and any copy of another village's file this run set aside. */
+        char pattern[MAX_PATH], aside[MAX_PATH];
+        WIN32_FIND_DATAA fd;
+        HANDLE h;
+        _snprintf(pattern, MAX_PATH, "%s\\Village Masks - Save 1.dat.another-village-*", folder);
+        h = FindFirstFileA(pattern, &fd);
+        while (h != INVALID_HANDLE_VALUE) {
+            _snprintf(aside, MAX_PATH, "%s\\%s", folder, fd.cFileName);
+            DeleteFileA(aside);
+            if (!FindNextFileA(h, &fd)) {
+                FindClose(h);
+                break;
+            }
+        }
+    }
     RemoveDirectoryA(folder);   /* only succeeds if empty: never removes anything else */
     {
         /* ...and the Data folder above it, on the same terms. */

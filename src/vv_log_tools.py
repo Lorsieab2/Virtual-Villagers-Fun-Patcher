@@ -589,7 +589,10 @@ def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[W
     text += f"Repair {repairs + 1 + older}\r\n  Date: {when}\r\n"
     text += f"  Checked: {checked}\r\n"
     for fix in fixes:
-        text += f"  {corrected}: {fix.name} -- {fix.count} " + ("word(s)" if corrected == "Corrected" else unit) + "\r\n"
-    text += "  Backup: " + ", ".join(fix.backup for fix in fixes) + "\r\n\r\n"
+        if fix.count < 0:                   # a line that says it all, no count
+            text += f"  {corrected}: {fix.name}\r\n"
+        else:
+            text += f"  {corrected}: {fix.name} -- {fix.count} " + ("word(s)" if corrected == "Corrected" else unit) + "\r\n"
+    text += "  Backup: " + ", ".join(dict.fromkeys(fix.backup for fix in fixes)) + "\r\n\r\n"
     with open(path, "ab") as log:
         log.write(text.encode("latin-1", "replace"))
