@@ -785,20 +785,21 @@ class SettingsTests(unittest.TestCase):
 
 
 class OtherLayoutsUnchangedTests(unittest.TestCase):
-    """The two layouts there were before, exactly as they were laid out (pinned from 4db1906f)."""
+    """The two layouts there were before, exactly as they were laid out (pinned from 4db1906f; the lines
+    re-pinned when lines first kept 1 px between their edges: only runs that lay on one another moved)."""
     PINS = {
         "dynamic/0": ({1: (300, 150), 2: (478, 150), 3: (656, 150), 4: (834, 150), 5: (300, 434), 6: (478, 434),
                        7: (656, 434), 8: (834, 434), 9: (478, 732), 10: (656, 732), 11: (300, 732), 12: (1075, 732)},
-                      (1293, 1078), "9c27f76601e203ca759f31078b9b2ed827c8b60d"),
+                      (1293, 1078), "3dfab3a852b0a0efa094096a9c5a676805f8c388"),
         "dynamic/2": ({1: (300, 150), 2: (478, 150), 3: (300, 352), 4: (478, 352), 5: (300, 650), 6: (478, 650),
                        7: (300, 852), 8: (478, 852), 9: (300, 1352), 10: (478, 1352), 11: (389, 1150), 12: (719, 1150)},
-                      (937, 1698), "edc46aa74779f2a1d67500be4656b83b7571c199"),
+                      (937, 1698), "5e9e4b7ea6c20efd9cd4470b670279f775e2c80d"),
         "rows/0": ({1: (300, 150), 2: (478, 150), 3: (656, 150), 4: (834, 150), 5: (300, 434), 6: (478, 434),
                     7: (656, 434), 8: (834, 434), 9: (389, 732), 10: (567, 732), 11: (745, 732), 12: (1100, 732)},
-                   (1318, 1078), "c9e6c9709051dad2279c311d89970f92b5cf467e"),
+                   (1318, 1078), "60073066708355770260f7ee7d85566d39f47916"),
         "rows/2": ({1: (300, 150), 2: (478, 150), 3: (300, 352), 4: (478, 352), 5: (300, 650), 6: (478, 650),
                     7: (300, 852), 8: (478, 852), 9: (300, 1150), 10: (478, 1150), 11: (389, 1352), 12: (719, 1150)},
-                   (937, 1698), "ba1729931614f52105a70dabf5bc82f5dba7287a"),
+                   (937, 1698), "70e3fd8918fadc72b023d700615db8c05047af41"),
     }
 
     def test_dynamic_and_rows_are_as_they_were(self):

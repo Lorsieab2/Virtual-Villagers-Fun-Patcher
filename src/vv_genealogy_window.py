@@ -107,7 +107,8 @@ LINING THINGS UP (the toolbar)
   Snap to grid                    while dragging, snap to the grid (10, 20, 40 or 80); Show grid
   Allow diagonal lines            a dragged line may move any way (off: only across itself, so
                                   every line stays square)
-  Alt while dragging              no snapping
+  Alt while dragging              no snapping; a line let go with Alt held stays exactly there (without
+                                  Alt it is nudged to keep a pixel from any line it would lie on)
   Align                           line up the selected villagers (lefts, centres, rights, tops,
                                   middles, bottoms), centre them on the tree, or space them evenly
 
@@ -2471,7 +2472,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.canvas.move("selection", step_x, step_y)
         m["dx"], m["dy"] = dx, dy
 
-    def _move_end(self) -> None:
+    def _move_end(self, event=None) -> None:
         m, self.move = self.move, None
         self.canvas.delete("guide")
         if not m["started"]:
@@ -2493,6 +2494,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 self.edits.line_moves[m["piece"]] = shift
             else:
                 self.edits.line_moves.pop(m["piece"], None)
+            # Put down with Alt: exactly there (ft.Edits.free_lines); else nudged off any line it would lie on.
+            free = [p for p in self.edits.free_lines if p != m["piece"]]
+            if event is not None and event.state & ALT and m["piece"] in self.edits.line_moves:
+                free.append(m["piece"])
+            self.edits.free_lines = free
         elif "name" in m:
             old = self.edits.moved.get(m["name"], [0.0, 0.0])
             self.edits.moved[m["name"]] = [old[0] + m["dx"], old[1] + m["dy"]]
@@ -2804,7 +2810,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if self._tools_release(event):
             return
         if getattr(self, "move", None) is not None:
-            self._move_end()
+            self._move_end(event)
             return
         if self.pan is not None:
             if not self._pan_end(event):
