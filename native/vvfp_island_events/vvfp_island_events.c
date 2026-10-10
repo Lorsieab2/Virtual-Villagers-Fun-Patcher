@@ -754,6 +754,20 @@ static int install(int game) {
     return 1;
 }
 
+/* Whether an island event is being compared right now: its routine has been
+   entered and has not returned.  In The Secret City, The Tree of Life and
+   New Believers that routine is the event's presenter, which shows the popup
+   and runs it in its own modal loop, so this is 1 for as long as the popup is
+   open -- and the Origins companion's per-frame path still runs in there.
+   The Story companion's Choose Time Skip Amount holds its next Time Warp
+   step while this is 1 (story_time_skip.inc): a step taken with the popup
+   open aged every villager between the event's "before" and its "after",
+   and the log gave the event the years (live, The Secret City, 2026-10-10:
+   "The Ants and the Granary ... Age: 694 -> 814" on every villager). */
+int __stdcall VvfpIslandEventOpen(void) {
+    return g_depth > 0 && g_watching;
+}
+
 /* Called once by "VVFP Startup.dll" as the game opens. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     static int done;

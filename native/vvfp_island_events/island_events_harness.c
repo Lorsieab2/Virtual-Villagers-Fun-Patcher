@@ -40,6 +40,11 @@
         Secret City, New Believers) for the dialog on its own, its OK's record;
         never carried to the next event shown at the same address.
 
+     9. Choose Time Skip Amount's Time Warp step waits while an event is
+        open (VvfpIslandEventOpen), so an event's record never holds the
+        years a step adds; the event's own Age change is still logged.  In
+        all five games.
+
    Exit code 0 when every check passes. */
 #include "vvfp_island_events.c"
 
@@ -283,6 +288,87 @@ static void check_choice(const struct game_layout *layout, const struct field *r
     g_sites[0] = g_sites[1] = NULL;
 }
 
+/* 9. Choose Time Skip Amount (the Story companion's story_time_skip.inc)
+   takes its next Time Warp step from the Origins companion's per-frame path,
+   which The Secret City, The Tree of Life and New Believers still run inside
+   their presenter's modal loop, while the event's popup is open.  A step
+   there aged every villager between the event's "before" and "after" (live,
+   The Secret City: "The Ants and the Granary ... Age: 694 -> 814" on all of
+   them).  The Story companion now holds the step while VvfpIslandEventOpen
+   answers 1; this is that rule against the shipped bracket.  `g_step_age`
+   is the step's age units (6 years, 120), `g_event_age` what the event
+   itself gives villager 0 (a vial's years: still logged). */
+static int g_step_age;
+static int g_event_age;
+static int g_step_ignores_popup;          /* the old behaviour, for the contrast */
+static int g_steps_taken;
+static int g_open_inside;
+
+static void time_skip_frame(void) {
+    int s;
+    if (!g_step_ignores_popup && VvfpIslandEventOpen()) {
+        return;                           /* story_time_skip.inc time_skip_tick: held */
+    }
+    for (s = 0; s < 3; ++s) {
+        *(int *)(slot(s) + field_named(g_layout, "Age")->offset) += g_step_age;
+    }
+    ++g_steps_taken;
+}
+
+static void event_with_a_frame(void) {
+    g_open_inside = VvfpIslandEventOpen();
+    *(int *)(slot(0) + field_named(g_layout, "Age")->offset) += g_event_age;
+    time_skip_frame();                    /* a frame of the modal loop, popup open */
+}
+
+static void check_time_skip(const struct game_layout *layout) {
+    const struct field *age = field_named(layout, "Age");
+    char expect[64];
+    int age0;
+    g_sites[0] = &GAME_SITES[g_harness_game][0];   /* the presenter (A New Home, The Lost Children: the constructor) */
+    g_step_age = 120;
+    slot(1)[ARRAYS[g_harness_game].present] = 1;   /* Ana back (check 2 removed her): three villagers */
+
+    /* a. The step waits for the popup: only the event's own Age change is logged. */
+    *(int *)(slot(0) + age->offset) = 400;
+    *(int *)(slot(1) + age->offset) = 694;
+    *(int *)(slot(2) + age->offset) = 700;
+    age0 = 400;
+    g_event_age = 40;
+    g_step_ignores_popup = 0;
+    g_steps_taken = 0;
+    g_outs = 0;
+    CHECK(VvfpIslandEventOpen() == 0, "no event open: VvfpIslandEventOpen is 0");
+    call_site(0, NULL, 0, 0, event_with_a_frame);
+    _snprintf(expect, sizeof expect, "  Age: %d -> %d\n", age0, age0 + 40);
+    CHECK(g_open_inside == 1 && g_steps_taken == 0, "inside the event's bracket VvfpIslandEventOpen is 1: the step is held");
+    CHECK(g_outs == 1 && g_out[0].record == slot(0) && strcmp(g_out[0].changes, expect) == 0,
+          "the event's own Age change is logged (%s), and no other villager's age",
+          "Age: 400 -> 440");
+    CHECK(VvfpIslandEventOpen() == 0, "the event returned: VvfpIslandEventOpen is 0 again");
+    g_outs = 0;
+    time_skip_frame();                    /* the next frame: the held step */
+    CHECK(g_steps_taken == 1 && g_outs == 0 && *(int *)(slot(1) + age->offset) == 694 + 120,
+          "the held step runs once the popup is closed, and is in no island event record");
+
+    /* b. An event that changes nothing, with the step held: no record at all. */
+    g_event_age = 0;
+    g_steps_taken = 0;
+    g_outs = 0;
+    call_site(0, NULL, 0, 0, event_with_a_frame);
+    CHECK(g_outs == 0 && g_steps_taken == 0, "an event that changes nothing logs nothing, the step held");
+    time_skip_frame();
+
+    /* c. The contrast: a step taken inside the bracket is what the live log showed. */
+    g_step_ignores_popup = 1;
+    g_outs = 0;
+    call_site(0, NULL, 0, 0, event_with_a_frame);
+    CHECK(count_kind(KIND_ISLAND_EVENT) == 3 && any_contains("  Age: "),
+          "(a step inside the bracket would give every villager an Age line: %d records)", g_outs);
+    g_step_ignores_popup = 0;
+    g_sites[0] = NULL;
+}
+
 int main(void) {
     static const char *const GAME_NAMES[GAMES + 1] = {
         "", "A New Home", "The Lost Children", "The Secret City", "The Tree of Life", "New Believers",
@@ -487,6 +573,9 @@ int main(void) {
                       "the shown like changed: \"Likes: word5 -> word9\"");
             }
         }
+
+        /* 9. A Choose Time Skip Amount step and an open event. */
+        check_time_skip(&layout);
 
         /* 7. The later games' two-choice answer: "Choice:" as A New Home and
            The Lost Children write it (their answer_label). */
