@@ -33,7 +33,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 - **Cause of Death:** The Tree of Life's Custom Island Event "Disappears" writes its Disappeared record, a new village's founders get their Arrived records, and a villager buried at age 0 has a grave. Head 0, body 0 and age 0 are real values everywhere.
 - **Village Statistics:** a reload that moves villagers to other records is still the same village, and only stews the game proves are counted. Food Gathered, Debris Cleared and Heathens Converted count what they say.
 - **Last names: each villager's own rule** for their children's last name (From the father, From the mother or 50:50), beside the village's rule.
-- **A New Home: Dropping an Adult on a Child Tells a Story (new patch).** The adult tells the child a story, as in the later games, instead of trying to embrace.
+- **A New Home and The Lost Children: Dropping an Adult on a Child Tells a Story (new patch).** The adult always tells that child a story, as in the later games, instead of starting an embrace.
 - **Patch every game again** after updating: the logging companions changed.
 
 
