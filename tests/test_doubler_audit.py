@@ -326,11 +326,15 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # the strings and skill-code table only that code read
         # (0x943A8+0xA0C.. and +0xC10..) -- nothing in either doubler wrapper
         # region (+0x820..0x960) or the positive writers.
+        # Re-pinned when the mask stage's slot stub stopped taking a save's
+        # backup generation (slot 21..25) for a change of village (v1.35.66:
+        # it cleared a bought Barrel at every save) -- the appended .vvmk
+        # page only, nothing in any doubler region.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "A5EC1789912FFBAC7B46543732BBB10F5CDFF9C1A1A40A2B57B9758E53A17820",
+            "8F2ED3D0F721E36FD050229B6A2AB902E8D92DFBE179E7CB6CB92EF7846B9BBD",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
@@ -382,7 +386,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # learned the missing last names (v1.35.66).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "645C017AF9C0DE995435AB7406DD3A85224F1925B1A9F1998F94587BCAD1ACD5",
+            "9A7FB35F9B39FDE325D8F37DD557D8DDAC7E7C2658E22870B3E78214353C093A",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

@@ -315,9 +315,11 @@ VV2_MASK_STAGE2_PATCH_SPECS = (
     },
 )
 # Re-pinned when the slot-change stub stopped clearing the removed Barrel
-# "three children" flag (0x49C704): nothing arms or reads it any more.
+# "three children" flag (0x49C704): nothing arms or reads it any more; and when it
+# stopped taking a save's backup generation (slot 21..25) for a village change,
+# which dropped a bought Barrel O' Babies at every save (v1.35.66).
 VV2_MASK_STAGE2_APPEND_SHA256 = (
-    "465FB7B36DCF4DEDAA7F3AD7536F5F65246B6DE643FEB22EFACC28C4D1DA44EF"
+    "32867DE4BA267940AF46D0C9D36BDD6AB7F531BF132523B05D8087AF6ED7BDB0"
 )
 
 

@@ -253,7 +253,10 @@ static void vv_clear_mask_state(void) {
 
 static int vv_captured_save_slot(void) {
     int slot = *(volatile int *)(UINT_PTR)VV4_MASK_SAVE_SLOT_VA;
-    return (slot >= 1 && slot <= 5) ? slot : 0;
+    /* The game's own current slot first (its save manager,
+       native/shared/game_save_slot.h), then the stub's capture, which can lag
+       behind a village made or switched to in this session. */
+    return vv_current_save_slot(4, (slot >= 1 && slot <= 5) ? slot : 0);
 }
 
 /* Switch the sidecar namespace before any render or UI path can consume the

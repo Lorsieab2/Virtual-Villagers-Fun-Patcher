@@ -290,6 +290,28 @@ static int copy_of(const struct snapshot *s, const unsigned char *live) {
     return -1;
 }
 
+/* Choose Time Skip Amount's closing popup ("Time Skip" / "<N> years have
+   passed on the island.", the Story companion's story_time_skip.inc) is shown
+   through the game's island-event popup but is not an island event: it is
+   not written to the Island Events log and takes no event number (live,
+   v1.35.66: "Island event 20 / Event: Time Skip / Changes: none").  The Story
+   companion says whether the popup it filled last was that notice; the title
+   must be the notice's too, so a stock event (never "Time Skip") or a later
+   popup is never taken for it. */
+typedef int (__stdcall *notice_shown_fn)(int game);
+static notice_shown_fn g_notice_shown;    /* a harness sets its own */
+
+static int time_skip_notice(const struct snapshot *s) {
+    if (strcmp(s->title, "Time Skip") != 0) {
+        return 0;
+    }
+    if (g_notice_shown == NULL) {
+        HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
+        g_notice_shown = story != NULL ? (notice_shown_fn)GetProcAddress(story, "VvfpStoryTimeSkipNoticeShown") : NULL;
+    }
+    return g_notice_shown != NULL && g_notice_shown(g_game);
+}
+
 /* Compare and write: one record per villager the event changed. */
 static void compare(struct snapshot *s) {
     unsigned char *now[MAX_VILLAGERS];
@@ -297,7 +319,7 @@ static void compare(struct snapshot *s) {
     char before[2 * TITLE_MAX + TEXT_MAX + 64];
     char changes[2048];
     size_t at;
-    if (writer() == NULL || s->count == 0) {
+    if (writer() == NULL || s->count == 0 || time_skip_notice(s)) {
         return;
     }
     count = g_layout->enumerate(now, MAX_VILLAGERS);

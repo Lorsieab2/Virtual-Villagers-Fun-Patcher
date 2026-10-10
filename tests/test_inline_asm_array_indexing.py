@@ -109,6 +109,10 @@ class InlineAsmArrayIndexingTests(unittest.TestCase):
         image = VV3_DLL.read_bytes()
         base_va, ptr, size = _text_section(image)
         md = Cs(CS_ARCH_X86, CS_MODE_32)
+        # Past data in .text (a switch's jump table): a linear decode would
+        # stop at its first byte and examine almost nothing -- the v1.35.66
+        # rebuild placed one 0x4B0 bytes in.
+        md.skipdata = True
         decoded = list(md.disasm(image[ptr : ptr + size], base_va))
 
         def local_offset(instruction):

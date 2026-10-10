@@ -363,6 +363,13 @@ __declspec(dllexport) int __stdcall VvfpStoryTimeSkipPrice(int game) {
     return time_skip_price(game);
 }
 
+/* 1 when the popup `game` shows (or showed last) through the custom-event
+   path is the closing notice: "VVFP Island Events.dll" then writes nothing
+   for it -- it is not an island event, so no record and no event number. */
+__declspec(dllexport) int __stdcall VvfpStoryTimeSkipNoticeShown(int game) {
+    return game >= 1 && ce_notice_shown == game;
+}
+
 #ifdef VVFP_TEST
 /* Starts a skip as the purchase does, past the dialog and the prompts, at
    test tick `tick`.  Returns the first step's answer. */

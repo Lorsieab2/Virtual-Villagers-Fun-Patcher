@@ -80,3 +80,4 @@ EXPORTS
     VvfpStoryStats DATA
     VvfpStoryOutcomeStats DATA
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
+    VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4

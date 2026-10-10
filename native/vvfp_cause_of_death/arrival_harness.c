@@ -57,6 +57,13 @@
         before them, get "How: Founder" at the first save holding them and
         are never Unaccounted; a load over a seeding writes nothing.
 
+     7. The logs at village creation (cod_creation_save.inc): once a new
+        village's founders are made and it has started, the game's own
+        autosave is asked for once (its field set to 0); never without a
+        founder waiting, outside the village's scene, before the start, twice,
+        for an A New Home village started long ago, or in The Lost Children
+        and The Secret City.
+
    Usage:  arrival_harness.exe "<parentage dll>" "<cause of death test dll>" "<save reset dll>"
    Exit code 0 when every check passes. */
 #include <windows.h>
@@ -711,6 +718,102 @@ static void stale_slot_cases(void) {
     vv_reset_slot_state(game, 1, VILLAGE);
 }
 
+/* 7: the logs at village creation (cod_creation_save.inc).  A New Home, The
+   Tree of Life and New Believers make a new village's first save with nobody
+   in it; once its founders are made and it has started, the game is asked for
+   ONE save through its own autosave (the field set to 0) -- never for a
+   village with no founder waiting, never twice, never outside the village's
+   own scene, never in A New Home for a village started long ago (a load the
+   seeding ran ahead of), never in The Lost Children or The Secret City (they
+   save after their seeding already). */
+static void creation_save_cases(void) {
+    typedef int (__stdcall *creation_t)(void *, unsigned int, unsigned int);
+    typedef void (__stdcall *fields_t)(int, unsigned int *);
+    creation_t creation = (creation_t)GetProcAddress(cause, "VvfpCauseTestCreationSave");
+    fields_t fields_of = (fields_t)GetProcAddress(cause, "VvfpCauseTestCreationFields");
+    unsigned int f[5];
+    unsigned char *manager;
+    unsigned char *buffer;
+    int i, asked;
+    CHECK(creation != NULL && fields_of != NULL, "creation: the test DLL exports the probes");
+    if (creation == NULL || fields_of == NULL) return;
+    fields_of(game, f);
+    manager = (unsigned char *)calloc(1, 0x20000);
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    write_save_file();
+    vv_village_publish("");
+    buffer = save_buffer("Arrival Tribe");
+    host_slot_value = 1;
+    if (game == 2 || game == 3) {
+        villager(0, "Firstone", 400, 1, 1, 0);
+        created(0, MARK[game - 1].founder);
+        arrival_tick();
+        CHECK(creation(manager, 1000, 1010) == 0,
+              "creation: The Lost Children and The Secret City are never asked (they save after the seeding)");
+        save_done(1, buffer);
+        free(buffer);
+        free(manager);
+        return;
+    }
+    *(int *)(manager + f[0]) = 1;
+    *(unsigned int *)(manager + f[1]) = f[2];
+    *(unsigned int *)(manager + f[3]) = 12345u;
+    if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 1000u;
+    save_done(1, buffer);                                      /* the creation save, nobody in it */
+    CHECK(creation(manager, 1000, 1010) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
+          "creation: no founder waiting, no save asked");
+    villager(0, "Firstone", 400, 1, 1, 0);
+    created(0, MARK[game - 1].founder);
+    villager(1, "Secondone", 420, 2, 1, 0);
+    created(1, MARK[game - 1].founder);
+    arrival_tick();
+    *(unsigned int *)(manager + f[1]) = f[2] + 3u;            /* still the founder screen / intro */
+    CHECK(creation(manager, 1000, 1010) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
+          "creation: not before the village's own scene");
+    *(unsigned int *)(manager + f[1]) = f[2];
+    if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 0u;
+    CHECK(creation(manager, 0, 1010) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
+          "creation: not before the village has started");
+    if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 1000u;
+    if (game == 1) {
+        CHECK(creation(manager, 1000, 1000 + 3600) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
+              "creation: A New Home, a village started an hour ago is a load, never saved for this");
+    }
+    asked = creation(manager, 1000, 1010);
+    CHECK(asked == 1 && *(unsigned int *)(manager + f[3]) == 0u,
+          "creation: founders made and the village started -> the autosave field is 0 (one save, the game's own)");
+    *(unsigned int *)(manager + f[3]) = 12345u;
+    CHECK(creation(manager, 1000, 1011) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
+          "creation: asked once per village");
+    save_done(1, buffer);                                      /* that save */
+    {
+        char path[MAX_PATH];
+        births_path(1, path);
+        read_into(path);
+        CHECK(record_has("Firstone", "  How: Founder\r\n") && record_has("Secondone", "  How: Founder\r\n")
+              && count_of(text, "  Name: Firstone\r\n") == 1,
+              "creation: that save writes the founders' Arrived records, once");
+    }
+    /* A new village in the same slot later (Start Over): asked again. */
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    villager(2, "Thirdone", 300, 3, 1, 0);
+    created(2, MARK[game - 1].founder);
+    arrival_tick();
+    if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 2000u;
+    CHECK(creation(manager, 2000, 2010) == 1, "creation: a Start Over's new village is asked for its save too");
+    save_done(1, buffer);
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    free(buffer);
+    free(manager);
+    creation(NULL, 0, 0);
+}
+
 static void births_cases(void) {
     char path[MAX_PATH], marker[MAX_PATH], unacc[MAX_PATH], before_log[1 << 13];
     unsigned char *buffer;
@@ -1258,6 +1361,7 @@ int main(int argc, char **argv) {
         births_cases();
         quit_cases();
         stale_slot_cases();
+        creation_save_cases();
         renamed_cases();
         if (game == 5) {
             /* Another village loaded (another slot): a Heathen in this

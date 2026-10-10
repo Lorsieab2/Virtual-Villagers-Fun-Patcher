@@ -1244,7 +1244,10 @@ static void vv3_mask_sanitize_loaded_table(void) {
 
 static int vv3_mask_captured_slot(void) {
     int slot = *(int *)(UINT_PTR)VV3_MASK_SLOT_PTR;
-    return (slot >= 1 && slot <= 5) ? slot : 0;
+    /* The game's own current slot first (its save manager,
+       native/shared/game_save_slot.h), then the stub's capture, which can lag
+       behind a village made or switched to in this session. */
+    return vv_current_save_slot(3, (slot >= 1 && slot <= 5) ? slot : 0);
 }
 
 static int vv3_mask_sidecar_path(char *out, int cap, int slot) {

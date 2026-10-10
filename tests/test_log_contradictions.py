@@ -93,7 +93,7 @@ class BornAndArrivedTests(unittest.TestCase):
                 self.assertIn("  Child: Cheop Bahati", text)
                 self.assertEqual(done["contradictions"][0].count, 1)
                 copy = f.path / DATA / "Copies Made Before Repairs" / LOGS / "Births and Conceptions"
-                kept = list(copy.glob("*.before-v1.35.61-repair*"))
+                kept = list(copy.glob("*" + tools.WORD_BACKUP_SUFFIX + "*"))
                 self.assertEqual(len(kept), 1, "the record taken out is kept in the copy made before the repair")
                 self.assertIn("Arrived 11", kept[0].read_bytes().decode("latin-1"))
                 self.assertEqual(contra.find(f.path, game, 1), [], "a second check finds nothing")

@@ -475,6 +475,9 @@ class TimeSkipPopupTests(unittest.TestCase):
         self.assertEqual(story.proc.export("VvfpStoryProbeDeliver", 1, TEXT_BUF, 4096), 1)
         text = story.proc.cstring(TEXT_BUF)
         self.assertEqual(text, "Time Skip\n\n\n\n18 years have passed on the island.")
+        # "VVFP Island Events.dll" asks this so the notice is not logged as an island event.
+        self.assertEqual(story.proc.export("VvfpStoryTimeSkipNoticeShown", 1), 1)
+        self.assertEqual(story.proc.export("VvfpStoryTimeSkipNoticeShown", 2), 0, "only in its own game")
         for k in range(10):
             tick(story, at + 200 + 100 * k)
         self.assertEqual(story.proc.export("VvfpStoryProbeCustomPending", 1), 0)
@@ -565,6 +568,7 @@ class TimeSkipPopupTests(unittest.TestCase):
         before = story.proc.u32(counter_address(story))
         self.assertEqual(story.proc.export("VvfpStoryProbeDeliver", 1, TEXT_BUF, 4096), 1)
         self.assertEqual(story.proc.u32(counter_address(story)), before, "a real island event counts")
+        self.assertEqual(story.proc.export("VvfpStoryTimeSkipNoticeShown", 1), 0, "and is logged as one")
 
     def test_every_game_routes_it_to_its_own_island_event_popup(self):
         """VV1 / VV2: the island event's chooser call writes the popup text

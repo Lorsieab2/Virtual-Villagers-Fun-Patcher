@@ -16,3 +16,4 @@ EXPORTS
     VvfpStoryTimeSkipPrice=_VvfpStoryTimeSkipPrice@4
     VvfpStoryCallerReturn=_VvfpStoryCallerReturn@4
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
+    VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4

@@ -107,7 +107,8 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn('wsprintfA(name, "Village Masks - Save %d.dat", slot);', self.source)
         self.assertIn("vv_data_file_path(out, cap, VV_DATA_SUB_MASKS, name,", self.source)
         self.assertNotIn('vvfp_masks.dat', self.source)
-        self.assertIn("return (slot >= 1 && slot <= 5) ? slot : 0;", self.source)
+        # The game's own slot first, the stub's 1..5 capture only when it is unset (v1.35.66).
+        self.assertIn("return vv_current_save_slot(3, (slot >= 1 && slot <= 5) ? slot : 0);", self.source)
         self.assertIn("if (slot < 1 || slot > 5) return 0;", self.source)
         self.assertIn("if (g_vv3_mask_slot != slot)", self.source)
         self.assertIn("vv3_mask_clear_tables();", self.source)

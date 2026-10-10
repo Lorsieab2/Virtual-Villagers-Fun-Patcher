@@ -2145,6 +2145,22 @@ __declspec(dllexport) int __stdcall Vv1ParentageCrossCheckScan(int *counts) {
     if (!slot) {
         return -1;
     }
+#ifndef VVFP_TEST
+    /* Not before the village has started (live, v1.35.66: the first village
+       of a fresh save folder got a "Cross-Check - Save 5.dat" during its
+       intro).  Until the start-or-skip scene sets the village's start time
+       ([manager+0x9E1C], 0x41EC40) the game itself does not save the slot
+       (0x41BF7D), its own slot field may still be unset and the stub's slot
+       is the 5 its slot list read last; the founders are only the seeding's.
+       Nothing can be told about this village yet: ask again later. */
+    {
+        const unsigned char *manager = VV1_VILLAGE_STATE_PTR;
+        if (vv_game_save_slot(1) != slot || manager == NULL
+            || *(const volatile unsigned int *)(manager + 0x9E1Cu) == 0u) {
+            return -1;
+        }
+    }
+#endif
     found = vv1_xc_scan(slot, vv1_records(), &plan);
     if (counts != NULL) {
         counts[0] = plan.corrected;

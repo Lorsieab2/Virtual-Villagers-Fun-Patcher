@@ -194,12 +194,19 @@ static unsigned char vv1_mask_seen_alive[VV_MASK_SLOTS];
    identity.  -1 means no slot has been loaded in this process yet. */
 static int vv1_mask_loaded_slot = -1;
 
+/* The game's own current slot first (its save manager,
+   native/shared/game_save_slot.h), then the slot the exe's save-path stub
+   captured.  The stub alone was wrong for the first village of a fresh save
+   folder: the game lists slots 1..5 by reading them, so the stub held 5 and
+   that village's masks went to "Village Masks - Save 5.dat" until its first
+   save.  The stub's value stays the fallback for the moment before the save
+   manager exists (and for the native harnesses). */
 static int vv1_mask_current_slot(void) {
     unsigned int slot = VV_MASK_SAVE_SLOT;
     if (slot < VV_MASK_FIRST_SAVE_SLOT || slot > VV_MASK_LAST_SAVE_SLOT) {
-        return 0;  /* slot zero, invalid values, and a not-yet-captured slot */
+        slot = 0;  /* slot zero, invalid values, and a not-yet-captured slot */
     }
-    return (int)slot;
+    return vv_current_save_slot(VV_STORY_GAME, (int)slot);
 }
 
 static void vv1_mask_forget_loaded(void);

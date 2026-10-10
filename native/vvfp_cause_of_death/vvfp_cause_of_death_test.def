@@ -42,3 +42,5 @@ EXPORTS
     VvfpCauseTestLostTick=_VvfpCauseTestLostTick@0
     VvfpCauseStats DATA
     VvfpCauseRollTest DATA
+    VvfpCauseTestCreationSave=_VvfpCauseTestCreationSave@12
+    VvfpCauseTestCreationFields=_VvfpCauseTestCreationFields@8
