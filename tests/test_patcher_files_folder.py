@@ -140,6 +140,7 @@ SHIPPING_SOURCES = (
     "native/vvfp_golden_mushroom", "native/vvfp_story_upgrades", "native/vv1_parentage",
     "native/vvfp_work_first", "native/vvfp_lesson_cap", "native/vvfp_healers_study",
     "native/vvfp_pathfinding", "native/vv1_number_keys", "native/vv1_sort_by", "native/vv1_watering_builds",
+    "native/vv1_storytelling",
 )
 # The executable's own name decides the game's save folder, and the games
 # derive it with GetModuleFileNameA; these keep the ANSI call so the

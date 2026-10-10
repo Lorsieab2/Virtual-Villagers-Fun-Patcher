@@ -466,6 +466,7 @@ STALE = {
     "VVFP Healers Study.dll": "assets/healers_study/VVFP Healers Study.dll",
     "VVFP Last Names.dll": "assets/last_names/VVFP Last Names.dll",
     "VVFP Island Events.dll": "assets/island_events/VVFP Island Events.dll",
+    "VVFP VV1 Storytelling.dll": "assets/storytelling/VVFP VV1 Storytelling.dll",
 }
 ORIGINS_SOURCE = {
     "vv1": "assets/origins/VVFP VV1 Origins Icons.dll",

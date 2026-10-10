@@ -49,6 +49,9 @@ FILES = [
     # loaded by each game's Origins companion; no executable bytes.
     "assets/pathfinding/VVFP Improved Pathfinding.dll",
     "assets/watering/VVFP VV1 Watering Builds.dll",
+    # Dropping an Adult on a Child Tells a Story: A New Home only, started by
+    # VVFP Startup.dll; no executable bytes.
+    "assets/storytelling/VVFP VV1 Storytelling.dll",
     "assets/fix_huts/VVFP Fix Huts.dll",
     "assets/lesson_cap/VVFP Lesson Cap.dll",
     "assets/healers_study/VVFP Healers Study.dll",
@@ -99,6 +102,7 @@ FILES = [
     "data/vv1_improved_pathfinding_feature.json",
     "data/vv2_improved_pathfinding_feature.json",
     "data/vv1_watering_trains_building_feature.json",
+    "data/vv1_storytelling_feature.json",
     "data/vv1_misc_text_fixes_feature.json",
     "data/vv1_restore_missing_island_events_feature.json",
     "data/vv1_builders_fix_huts_feature.json",

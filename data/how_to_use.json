@@ -406,6 +406,14 @@
       ]
     },
     {
+      "ids": ["vv1_storytelling"],
+      "guide": [
+        "Drag an adult (18 or older) onto a child (under 18): the adult tells the child a story instead of trying to embrace.",
+        "The adult shows \"Telling a story\" and gets one Breeding practice roll per story; the child shows \"Listening to a story\" and waits where it is.",
+        "Only your own drop does this. Every other drop works as before. Nothing to click: tick it, patch, and play."
+      ]
+    },
+    {
       "ids": ["vv1_watering_trains_building"],
       "guide": [
         "\"Watering the field\" now trains Building, but only while it moves the garden puzzle forward (after the lagoon puzzle).",

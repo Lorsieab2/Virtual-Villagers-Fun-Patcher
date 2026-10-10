@@ -154,6 +154,11 @@ WATERING_BUILDS_FEATURE_PATHS = (
     # Misc Text Fixes: the owner's corrections to A New Home's English
     # string table, each guarded in place.
     ROOT / "data" / "vv1_misc_text_fixes_feature.json",
+    # Dropping an Adult on a Child Tells a Story: A New Home's drop of an
+    # adult on a child tells a story, as in the later games; companion only
+    # ("VVFP VV1 Storytelling.dll"), started by VVFP Startup.dll; generated
+    # by scripts/build_vv1_storytelling_feature.py.
+    ROOT / "data" / "vv1_storytelling_feature.json",
 )
 # Builders Fix Huts When Idle (default-off): one companion for all five
 # games; VV1/VV2/VV4/VV5 load it from a per-frame companion, VV3 through a
@@ -12006,7 +12011,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "308AE265E5D4C27B11380A81E99A5C371B1FC748157C3DD7DEF417BCA85715B8",
+    "sha256": "A1BA351FCFC4937217B0EE4BB4BC53739AF4A72E5ABC86786A88769673D12C91",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12043,6 +12048,7 @@ STARTUP_LOADER_COMPANIONS = (
     "VVFP Golden Mushroom.dll",
     "VVFP Last Names.dll",
     "VVFP Island Events.dll",
+    "VVFP VV1 Storytelling.dll",
 )
 # Bit 31 of the same word is not a companion: the "Check logs automatically"
 # setting (the patcher window, beside Check Saves & Logs / Repair Saves & Logs; ON by
