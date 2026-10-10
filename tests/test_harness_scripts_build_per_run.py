@@ -46,14 +46,12 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # build_arrival_harness.ps1 (the Arrived records),
         # build_reconcile_harness.ps1 (the Elders and Statistics reconcile) and
         # build_patcher_files_harness.ps1 (native/shared/patcher_files.h's
-<<<<<<< HEAD
-        # path builder, for the "Virtual Villagers Fun Patcher Files" folder) and\n        # build_lost_birth_harness.ps1 (the babies lost with their mother; it follows the same rules).
-=======
         # path builder, for the "Virtual Villagers Fun Patcher Files" folder),
-        # and build_cause_save_slot_harness.ps1 (a death in a village made in
-        # that session keeps its cause through the save and a reload).
->>>>>>> f10cb609
-        self.assertEqual(len(SCRIPTS), 25, [path.name for path in SCRIPTS])
+        # build_lost_birth_harness.ps1 (the babies lost with their mother; it
+        # follows the same rules) and build_cause_save_slot_harness.ps1 (a death
+        # in a village made in that session keeps its cause through the save
+        # and a reload).
+        self.assertEqual(len(SCRIPTS), 26, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:
