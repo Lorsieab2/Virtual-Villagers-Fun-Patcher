@@ -1341,6 +1341,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(row, text="Auto-colour family lines", command=self._auto_line_colours).pack(side="left")
         ttk.Button(row, text="Reset to family colours", command=self._reset_line_colours).pack(side="left",
                                                                                               padx=(6, 0))
+        # A thin dark or white outline under lines whose own colour would blend into the background (the
+        # owner, 2026-10-10: "make it an optional toggle default off").
+        self.outline_var = tk.BooleanVar(value=e.outline_lines)
+        ttk.Checkbutton(tab, text="Outline lines that blend into the background", variable=self.outline_var,
+                        command=lambda: self._change(outline_lines=bool(self.outline_var.get()))).pack(
+            anchor="w", pady=(4, 0))
         tab = l_deleted
         box = ttk.LabelFrame(tab, text="Deleted items", padding=6)
         box.pack(fill="x", pady=(12, 0))
@@ -1451,6 +1457,80 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                   wraplength=320, justify="left").pack(anchor="w", pady=(10, 1))
         self.plate_field = ColourField(tab, e.plate_colour, lambda c: self._change(plate_colour=c))
         self.plate_field.pack(anchor="w")
+        self._canvas_controls(tab)
+
+    # ---- the canvas size (the owner, 2026-10-09) ---------------------------------------
+    CANVAS_AUTO, CANVAS_CUSTOM = "Automatic (fits the tree)", "Custom"
+
+    def _canvas_controls(self, tab) -> None:
+        """Canvas size: Automatic (the page as large as the tree), a ready-made size, or a width and
+        height typed; the tree shrinks to fit a smaller canvas and is centred on a larger one."""
+        ttk.Label(tab, text="Canvas size (every page; the tree shrinks to fit or is centred):",
+                  wraplength=320, justify="left").pack(anchor="w", pady=(10, 1))
+        row = ttk.Frame(tab)
+        row.pack(anchor="w")
+        self.canvas_mode_var = tk.StringVar()
+        mode = ttk.Combobox(row, textvariable=self.canvas_mode_var, state="readonly", width=40,
+                            values=[self.CANVAS_AUTO] + list(ft.CANVAS_SIZES) + [self.CANVAS_CUSTOM])
+        mode.pack(side="left")
+        mode.bind("<<ComboboxSelected>>", lambda _e: self._canvas_mode())
+        self._reset_button(row, "canvas_w", "canvas_h").pack(side="left", padx=(6, 0))
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", pady=(4, 0))
+        self.canvas_w_var, self.canvas_h_var = tk.StringVar(), tk.StringVar()
+        ttk.Label(row, text="Width").pack(side="left")
+        self._live(ttk.Spinbox(row, textvariable=self.canvas_w_var, from_=ft.CANVAS_MIN, to=ft.CANVAS_MAX,
+                               increment=100, width=7), self._canvas_typed).pack(side="left", padx=(4, 8))
+        ttk.Label(row, text="x  Height").pack(side="left")
+        self._live(ttk.Spinbox(row, textvariable=self.canvas_h_var, from_=ft.CANVAS_MIN, to=ft.CANVAS_MAX,
+                               increment=100, width=7), self._canvas_typed).pack(side="left", padx=(4, 4))
+        ttk.Label(row, text="pixels").pack(side="left")
+        self._show_canvas()
+
+    def _show_canvas(self) -> None:
+        """The canvas controls showing the edits' canvas size."""
+        if not hasattr(self, "canvas_mode_var"):
+            return
+        e = self.edits
+        size = (e.canvas_w, e.canvas_h)
+        if not all(size):
+            self.canvas_mode_var.set(self.CANVAS_AUTO)
+            self.canvas_w_var.set("")
+            self.canvas_h_var.set("")
+            return
+        self.canvas_mode_var.set(next((name for name, s in ft.CANVAS_SIZES.items() if s == size), self.CANVAS_CUSTOM))
+        self.canvas_w_var.set(str(e.canvas_w))
+        self.canvas_h_var.set(str(e.canvas_h))
+
+    def _canvas_mode(self) -> None:
+        choice = self.canvas_mode_var.get()
+        if choice == self.CANVAS_AUTO:
+            size = (0, 0)
+        elif choice in ft.CANVAS_SIZES:
+            size = ft.CANVAS_SIZES[choice]
+        else:                                   # Custom: what is typed, else the page as it is now
+            size = self._canvas_numbers() or (int(round(self.sc.width)), int(round(self.sc.height)))
+        self._set_canvas(*size)
+
+    def _canvas_numbers(self) -> tuple[int, int] | None:
+        try:
+            w, h = int(float(self.canvas_w_var.get())), int(float(self.canvas_h_var.get()))
+        except ValueError:
+            return None
+        if w < ft.CANVAS_MIN or h < ft.CANVAS_MIN:     # still being typed, or too small: nothing yet
+            return None
+        return min(ft.CANVAS_MAX, w), min(ft.CANVAS_MAX, h)
+
+    def _canvas_typed(self) -> None:
+        size = self._canvas_numbers()
+        if size is not None:
+            self._set_canvas(*size)
+
+    def _set_canvas(self, w: int, h: int) -> None:
+        """The canvas this size (0 x 0: Automatic), one step to undo."""
+        if (w, h) != (self.edits.canvas_w, self.edits.canvas_h):
+            self._change(everyone=True, canvas_w=int(w), canvas_h=int(h))
+        self._show_canvas()
 
     # ---- drawing ------------------------------------------------------------
     def _scene(self) -> ft.Scene:
@@ -1472,9 +1552,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         c = self.canvas
         q = next((q for q in self.selected if q in self.lay.x), None)
         if q is not None:
-            sx = (self.lay.x[q] + ft.NODE_W / 2) * self.z - c.canvasx(0)
-            sy = (self.lay.y[q] + ft.NODE_H / 2) * self.z - c.canvasy(0)
-            return q, sx, sy
+            px, py = ft.to_page(self.sc, self.lay.x[q] + ft.NODE_W / 2, self.lay.y[q] + ft.NODE_H / 2)
+            return q, px * self.z - c.canvasx(0), py * self.z - c.canvasy(0)
         sx, sy = c.winfo_width() / 2, c.winfo_height() / 2
         return None, c.canvasx(sx) / self.z, c.canvasy(sy) / self.z, sx, sy
 
@@ -1487,7 +1566,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             q, sx, sy = anchor
             if q not in self.lay.x:
                 return
-            px, py = self.lay.x[q] + ft.NODE_W / 2, self.lay.y[q] + ft.NODE_H / 2
+            px, py = ft.to_page(self.sc, self.lay.x[q] + ft.NODE_W / 2, self.lay.y[q] + ft.NODE_H / 2)
         else:
             _none, px, py, sx, sy = anchor
         width, height = self.sc.width * self.z, self.sc.height * self.z
@@ -2201,7 +2280,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         font = tkfont.Font(font=self.canvas.itemcget(iid, "font"))
         if what.startswith("person:"):
             x, y, w, h, _a = self.lay.frame(int(what.partition(":")[2]))
-            x0, y0 = x * self.z, (y + h / 3) * self.z
+            x, y = ft.to_page(self.sc, x, y + h / 3)
+            x0, y0 = x * self.z, y * self.z
         else:
             x0, y0, _x1, _y1 = self.canvas.bbox(iid)
         lines = now.split("\n")
@@ -2399,6 +2479,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             if words is not None and words in self.editable:
                 self._edit_in_place(words, self.editable[words])
             return
+        k = self.sc.fit[0]                      # page distances back in the tree's own (a shrunk canvas)
+        m["dx"], m["dy"] = m["dx"] / k, m["dy"] / k
         if "piece" in m:
             old = self.edits.line_moves.get(m["piece"], [0.0, 0.0])
             if not isinstance(old, list):       # saved before lines moved both ways: across itself
@@ -2535,10 +2617,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 raw = self.edits.stickers[self.obj]
                 raw["cx"] += mx
                 raw["cy"] += my
-            else:
+            else:                               # page distances back in the tree's own (a shrunk canvas)
                 p = self.village.people[k]
                 entry = self._entry(p)
-                self._set_entry(p, dx=entry.get("dx", 0.0) + mx, dy=entry.get("dy", 0.0) + my)
+                s = self.sc.fit[0]
+                self._set_entry(p, dx=entry.get("dx", 0.0) + mx / s, dy=entry.get("dy", 0.0) + my / s)
         self._saved()
 
     def _head(self, sheet: str, row: int, scale: float = 1.0):
@@ -2639,7 +2722,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         """The villager clicked: inside their portrait's shape, or on their head or words -- never the
         empty corners round them (the owner: "make the click area for things limited to the object
         themselves")."""
-        x, y = self._where(event)
+        x, y = ft.to_tree(self.sc, *self._where(event))
         for pid in reversed(list(self.lay.x)):
             if ft.inside(self.lay.frame_points(pid), x, y):
                 return pid
@@ -3441,7 +3524,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.update_idletasks()
         try:
             pages = [self._page_scene(k) for k in range(max(1, self.lay.pages))]
-            result = vv_line_colours.auto_colours(pages)
+            result = vv_line_colours.auto_colours(pages, outline=self.edits.outline_lines)
         finally:
             self.configure(cursor="")
         if not result.colours:
@@ -3452,15 +3535,19 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if json.dumps(self.edits.family_lines, sort_keys=True) != before:
             self._saved()
         words = f"{len(result.colours)} families' lines coloured, each its own colour."
-        if result.cased:
+        if result.cased and self.edits.outline_lines:
             words += (f"  {len(result.cased)} would blend into the background in places, so they have a thin "
                       "outline.")
+        elif result.cased:
+            words += (f"  {len(result.cased)} blend into the background in places: tick \"Outline lines that "
+                      "blend into the background\" to outline them.")
         self.status.set(words + "  Ctrl+Z undoes it.")
 
     def _reset_line_colours(self) -> None:
         """Every family's lines back in their family's colour.  One step to undo."""
         if vv_line_colours.reset(self.edits):
             self._saved()
+            self._refresh_panels()
             self.status.set("The family lines are in their families' colours again.")
         else:
             self.status.set("The family lines are already in their families' colours.")
@@ -3611,6 +3698,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.packing_scale.set(e.packing)
         self._show_packing()
         self.lines_behind_var.set(ft.behind(e))
+        self.outline_var.set(e.outline_lines)
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))
@@ -3650,6 +3738,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.gap_var.set(f"{e.portrait_gap:g}")
         self.row_gap_var.set(f"{e.row_gap:g}")
         self.portrait_fit_var.set(str(e.fit_width))
+        self._show_canvas()
         self.page_gens_var.set(str(e.page_generations))
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)

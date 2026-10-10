@@ -41,6 +41,8 @@ SPACING = 6.0           # pixels between the points read along a line
 NEAR = 160.0            # lines nearer than this (pixels) count as running close together
 NEAR_SPACING = 12.0     # pixels between the points compared for nearness
 TIE = 1.0               # OKLab distance (x100) within which two colours are as distinct: the stronger contrast wins
+TIE_PLAIN = 3.0         # the same with no outlines (Edits.outline_lines off): standing out counts for more
+ENOUGH = 4.5            # contrast past which standing out more no longer counts (never only dark colours)
 MAX_PIXELS = 4_000_000  # the background is read at a scale that keeps it to about this many pixels
 ROUNDS = 40
 CASING = 1.25          # pixels of casing each side of a line that would blend into the background
@@ -216,13 +218,15 @@ class _Family:
     near: list = field(default_factory=list)        # (page, x, y): the points compared for nearness
 
 
-def _portraits(lay) -> list:
-    """The portraits that hide a line behind them: (left, top, right, bottom, corners)."""
+def _portraits(lay, fit: tuple = (1.0, 0.0, 0.0)) -> list:
+    """The portraits that hide a line behind them: (left, top, right, bottom, corners), where the scene
+    drew them (`fit`: the scene's shrink and shift onto a canvas of the player's size)."""
     if ft.see_through(lay.edits, "portraits") < 1 or lay.edits.portrait_fill == ft.TRANSPARENT:
         return []
+    s, ox, oy = fit
     out = []
     for q in lay.x:
-        corners = lay.frame_points(q)
+        corners = [(x * s + ox, y * s + oy) for x, y in lay.frame_points(q)]
         xs, ys = zip(*corners)
         out.append((min(xs), min(ys), max(xs), max(ys), corners))
     return out
@@ -238,7 +242,7 @@ def gather(pages: list, render: bool = True) -> dict[str, _Family]:
     for page, (lay, sc) in enumerate(pages):
         backdrop = next((i for i in sc.items if isinstance(i, ft.Backdrop)), None) or ft.Backdrop(sc.background)
         bg = Background(backdrop, sc.width, sc.height, render)
-        frames = _portraits(lay)
+        frames = _portraits(lay, getattr(sc, "fit", (1.0, 0.0, 0.0)))
         for item in sc.items:
             if not isinstance(item, ft.Line) or not item.target or item.target[0] != "family" or len(item.points) < 2:
                 continue
@@ -324,7 +328,7 @@ class Result:
     cased: list[str]                        # families whose colour is below FLOOR somewhere: drawn with a casing
 
 
-def choose(fams: dict[str, _Family]) -> Result:
+def choose(fams: dict[str, _Family], tie: float = TIE) -> Result:
     keys = sorted(fams)
     if not keys:
         return Result({}, {}, math.inf, math.inf, [])
@@ -373,8 +377,8 @@ def choose(fams: dict[str, _Family]) -> Result:
         values = spread(f, others)
         top = max(values)
         # As distinct as the best (within TIE), then the strongest contrast, then the first in the grid.
-        return max((k for k, v in enumerate(values) if v >= top - TIE),
-                   key=lambda k: (strength[f][used[choices[f][k]]], -k))
+        return max((k for k, v in enumerate(values) if v >= top - tie),
+                   key=lambda k: (min(ENOUGH, strength[f][used[choices[f][k]]]), -k))
 
     # The most constrained families (fewest colours, then most neighbours) first.
     crowd = [sum(1 - factor[f][g] for g in range(n) if g != f) for f in range(n)]
@@ -410,9 +414,10 @@ def choose(fams: dict[str, _Family]) -> Result:
                   [k for k in keys if worst[k] < FLOOR])
 
 
-def auto_colours(pages: list, render: bool = True) -> Result:
-    """The colours for every family's lines on the tree's pages ([(Layout, Scene)], as drawn)."""
-    return choose(gather(pages, render))
+def auto_colours(pages: list, render: bool = True, outline: bool = True) -> Result:
+    """The colours for every family's lines on the tree's pages ([(Layout, Scene)], as drawn); with no
+    outlines (`outline` False), among colours nearly as distinct, those standing out more win more often."""
+    return choose(gather(pages, render), TIE if outline else TIE_PLAIN)
 
 
 def apply(edits: "ft.Edits", colours: dict[str, str]) -> None:
@@ -422,8 +427,9 @@ def apply(edits: "ft.Edits", colours: dict[str, str]) -> None:
 
 
 def reset(edits: "ft.Edits") -> bool:
-    """Every family's lines back in the family's own colour; whether any changed."""
-    changed = False
+    """Every family's lines back in the family's own colour, and no outlines; whether any changed."""
+    changed = edits.outline_lines
+    edits.outline_lines = False
     for key in list(edits.family_lines):
         style = edits.family_lines[key]
         if "colour" in style:
@@ -487,7 +493,7 @@ def casings(lay, sc: "ft.Scene") -> list:
                  tuple((round(i.width, 2), tuple((round(x, 1), round(y, 1)) for x, y in i.points)) for i in items))
         if shape not in _CASED:
             if frames is None:
-                frames = _portraits(lay)
+                frames = _portraits(lay, getattr(sc, "fit", (1.0, 0.0, 0.0)))
             fam = _Family(key, max(i.width for i in items), min(i.opacity for i in items))
             for item in items:
                 _read(bg, frames, item, fam)

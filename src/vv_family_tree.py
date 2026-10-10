@@ -110,6 +110,18 @@ TEXT_ROOMS = {"auto": "Automatic", "shape": "Follow the shape", "rect": "Rectang
 TEXT_VALIGNS = {"top": "Top", "middle": "Middle", "bottom": "Bottom"}
 ROW_GAP_MIN, ROW_GAP_MAX = 0.0, 400.0   # the player's room under each generation's row (Edits.row_gap)
 FIT_MIN, FIT_MAX = 400, 100000          # the page width portraits shrink to fit
+CANVAS_MIN, CANVAS_MAX = 100, 30000     # a custom canvas's width and height (Edits.canvas_w / canvas_h)
+# The ready-made canvas sizes (the owner, 2026-10-09), width x height in pixels; print sizes at 300 dpi.
+CANVAS_SIZES = {
+    "HD (1920 x 1080)": (1920, 1080),
+    "4K (3840 x 2160)": (3840, 2160),
+    "Square (2048 x 2048)": (2048, 2048),
+    "A4 portrait (2480 x 3508, 300 dpi)": (2480, 3508),
+    "A4 landscape (3508 x 2480, 300 dpi)": (3508, 2480),
+    "US Letter portrait (2550 x 3300, 300 dpi)": (2550, 3300),
+    "US Letter landscape (3300 x 2550, 300 dpi)": (3300, 2550),
+    "Phone wallpaper (1080 x 1920)": (1080, 1920),
+}
 SHRINK_MIN = 0.2                        # never smaller than a fifth
 PAGE_GENS, PAGE_GENS_MIN, PAGE_GENS_MAX = 6, 2, 10   # generations on one page: the owner's default and limit
 TEXT_SCALE_MIN, TEXT_SCALE_MAX = 25.0, 400.0          # one villager's text size, in percent
@@ -352,6 +364,9 @@ class Edits:
     # Family lines straight and behind the portraits (the owner, 2026-10-09: "a toggle for lines run
     # behind portraits"); None until the player says: behind only in a Packed layout packed 98 or more.
     lines_behind: bool | None = None
+    # A thin dark or white outline under family lines whose own colour would blend into the background
+    # (the owner, 2026-10-10: "make it an optional toggle default off").
+    outline_lines: bool = False
     picture_size: float = 100.0        # every portrait's face, percent (PICTURE_SCALE_MIN..MAX)
     text_size: float = 100.0           # every portrait's words, percent (TEXT_SCALE_MIN..MAX)
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
@@ -359,6 +374,10 @@ class Edits:
     row_gap: float = 30.0               # pixels under a generation's row before its children's lines (LANE_TOP)
     show_founder: bool = False          # "Founder" in each generation I portrait (the owner, 2026-10-09)
     fit_width: int = 0                  # 0, or shrink every portrait so the widest row fits this many pixels
+    # The canvas (the owner, 2026-10-09): 0 x 0 is Automatic, the page as large as the tree; else every
+    # page is this many pixels, the tree shrunk evenly to fit it or centred on it at its own size.
+    canvas_w: int = 0
+    canvas_h: int = 0
     page_generations: int = 6           # the most generations on one page (the owner: 6, up to 10)
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
@@ -498,6 +517,7 @@ class Edits:
         out.others_side = data.get("others_side") if data.get("others_side") in OTHERS_SIDES else "right"
         out.packing = int(_number(data.get("packing"), 0, 100, PACKING))
         out.lines_behind = data.get("lines_behind") if isinstance(data.get("lines_behind"), bool) else None
+        out.outline_lines = data.get("outline_lines") is True
         out.picture_size = _number(data.get("picture_size"), PICTURE_SCALE_MIN, PICTURE_SCALE_MAX, 100.0)
         out.text_size = _number(data.get("text_size"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
@@ -506,6 +526,10 @@ class Edits:
         out.page_generations = int(_number(data.get("page_generations"), PAGE_GENS_MIN, PAGE_GENS_MAX, PAGE_GENS))
         fit = data.get("fit_width")
         out.fit_width = int(_number(fit, FIT_MIN, FIT_MAX, 0)) if isinstance(fit, (int, float)) and fit else 0
+        cw, ch = data.get("canvas_w"), data.get("canvas_h")
+        if all(isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0 for v in (cw, ch)):
+            out.canvas_w = int(_number(cw, CANVAS_MIN, CANVAS_MAX, 0))
+            out.canvas_h = int(_number(ch, CANVAS_MIN, CANVAS_MAX, 0))
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
         out.show_twins = data.get("show_twins", False) is True
@@ -663,7 +687,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -1045,7 +1069,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "fixed_face_size", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
-    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "canvas_w", "canvas_h", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
@@ -5490,6 +5514,21 @@ class Scene:
     items: list = field(default_factory=list)
     boxes: dict = field(default_factory=dict)       # pid -> (x, y, w, h), what a click selects
     stickers: list = field(default_factory=list)    # the Sticker items, bottom one first
+    # How the tree sits on a custom canvas (Edits.canvas_w / canvas_h): (scale, left, top), a point
+    # (x, y) of the laid-out tree drawn at (x * scale + left, y * scale + top).  (1, 0, 0) on Automatic.
+    fit: tuple = (1.0, 0.0, 0.0)
+
+
+def to_page(sc: "Scene", x: float, y: float) -> tuple[float, float]:
+    """A point of the laid-out tree (Layout's x / y / frames) where the page draws it (Scene.fit)."""
+    s, ox, oy = sc.fit
+    return x * s + ox, y * s + oy
+
+
+def to_tree(sc: "Scene", x: float, y: float) -> tuple[float, float]:
+    """A point of the page back in the laid-out tree's own units (to_page undone)."""
+    s, ox, oy = sc.fit
+    return (x - ox) / s, (y - oy) / s
 
 
 def picture_path(name: str, images: Path | None, library: dict | None = None) -> Path | None:
@@ -5604,20 +5643,60 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
     _apply_styles(out.items, lay.edits)
     _apply_opacity(out.items, lay.edits)
     _apply_moves(out.items, lay.edits)
+    canvas = (lay.edits.canvas_w, lay.edits.canvas_h) if lay.edits.canvas_w and lay.edits.canvas_h else None
+    if canvas:
+        _fit_page(out)                  # the tree's own page, everything drawn on it ...
+        _to_canvas(out, *canvas)        # ... shrunk onto the canvas, or centred on it
     for k, raw in enumerate(lay.edits.stickers):
         item = sticker_item(k, raw, images, library)
         if item is not None:
             add(item)
             out.stickers.append(item)
-    _fit_page(out)
+    if not canvas:
+        _fit_page(out)
     # The thin casings under family lines whose own colour would blend into the background somewhere
-    # (Auto-colour family lines; the owner, 2026-10-10), under every family line.
-    import vv_line_colours                  # here: it draws on this module
-    cased = vv_line_colours.casings(lay, out)
-    if cased:
-        at = next(k for k, i in enumerate(out.items) if isinstance(i, Line) and i.piece)
-        out.items[at:at] = cased
+    # (Auto-colour family lines; the owner, 2026-10-10: an option, "Outline lines that blend into the
+    # background", off unless the player ticks it), under every family line.
+    if lay.edits.outline_lines:
+        import vv_line_colours              # here: it draws on this module
+        cased = vv_line_colours.casings(lay, out)
+        if cased:
+            at = next(k for k, i in enumerate(out.items) if isinstance(i, Line) and i.piece)
+            out.items[at:at] = cased
     return out
+
+
+def _to_canvas(out: "Scene", width: int, height: int) -> None:
+    """The tree on a canvas of the player's size (the owner, 2026-10-09): larger than the canvas, every
+    part of it -- portraits, lines, words, labels, the Key, title and footer -- shrunk evenly to fit and
+    centred; smaller, centred at its own size.  The background fills the canvas; the pictures and text
+    boxes the player placed (added after) keep their own places and sizes."""
+    # The tree's page and everything drawn, even words a little wider than it (the footer centred on it):
+    # all of it on the canvas.
+    boxes = [b for b in map(_extent, out.items) if b is not None] + [(0.0, 0.0, out.width, out.height)]
+    x0, y0 = min(b[0] for b in boxes), min(b[1] for b in boxes)
+    x1, y1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
+    s = min(1.0, width / max(1.0, x1 - x0), height / max(1.0, y1 - y0))
+    ox, oy = (width - (x1 - x0) * s) / 2 - x0 * s, (height - (y1 - y0) * s) / 2 - y0 * s
+
+    def at(x: float, y: float) -> tuple[float, float]:
+        return x * s + ox, y * s + oy
+
+    for item in out.items:
+        if isinstance(item, (Line, Poly)):
+            item.points = [at(px, py) for px, py in item.points]
+            item.width *= s
+        elif isinstance(item, Shape):
+            item.x, item.y = at(item.x, item.y)
+            item.w, item.h, item.width, item.radius = item.w * s, item.h * s, item.width * s, item.radius * s
+        elif isinstance(item, Text):
+            item.x, item.y = at(item.x, item.y)
+            item.size *= s
+        elif isinstance(item, Head):
+            item.x, item.y = at(item.x, item.y)
+            item.scale *= s
+    out.boxes = {q: (*at(x, y), w * s, h * s) for q, (x, y, w, h) in out.boxes.items()}
+    out.width, out.height, out.fit = float(width), float(height), (s, ox, oy)
 
 
 MOVABLE = {"title": "the title", "subtitle": "the subtitle", "key": "the Key", "others": "the Other "

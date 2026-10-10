@@ -292,6 +292,15 @@ class CasingTests(unittest.TestCase):
         self.assertGreaterEqual(len(keys), 2)
         e.family_lines[keys[0]] = {"colour": "#fafafa"}         # by hand: white lines on a white page
         e.family_lines[keys[1]] = {"colour": "#202020"}         # and dark ones, which stand out
+        # Off unless the player ticks "Outline lines that blend into the background" (the owner, 2026-10-10):
+        # nothing drawn, anywhere.
+        self.assertFalse(e.outline_lines)
+        off = ft.scene(ft.layout(v, e), GAME, {})
+        self.assertFalse(any(isinstance(i, ft.Line) and i.casing for i in off.items))
+        self.assertNotIn('stroke="#1a1a1a"', ft.to_svg(off, {}))
+        e.outline_lines = True
+        self.assertTrue(ft.Edits._from_data(json.loads(json.dumps(e.to_data()))).outline_lines)
+        self.assertFalse(ft.Edits._from_data({}).outline_lines)
         sc = ft.scene(ft.layout(v, e), GAME, {})
         cases = [i for i in sc.items if isinstance(i, ft.Line) and i.casing]
         lines = [i for i in sc.items if isinstance(i, ft.Line) and i.piece]
@@ -305,8 +314,15 @@ class CasingTests(unittest.TestCase):
                          sorted((tuple(map(tuple, c.points)), c.width) for c in cases))
         svg = ft.to_svg(sc, {})
         self.assertIn('stroke="#1a1a1a"', svg)
+        # The casings fade with the Family lines opacity, as their lines do.
+        e.opacity["lines"] = 40
+        faded = [i for i in ft.scene(ft.layout(v, e), GAME, {}).items if isinstance(i, ft.Line) and i.casing]
+        self.assertTrue(faded and all(abs(i.opacity - 0.4) < 1e-9 for i in faded))
+        # Reset to family colours: no outlines either.
+        self.assertTrue(lc.reset(e))
+        self.assertFalse(e.outline_lines)
         # Family colours (no colour of their own) are never cased: older trees look as they did.
-        plain = ft.scene(ft.layout(v, ft.Edits()), GAME, {})
+        plain = ft.scene(ft.layout(v, ft.Edits(outline_lines=True)), GAME, {})
         self.assertFalse(any(isinstance(i, ft.Line) and i.casing for i in plain.items))
 
 
