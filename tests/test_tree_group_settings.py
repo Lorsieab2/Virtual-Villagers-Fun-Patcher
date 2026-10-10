@@ -155,6 +155,7 @@ class _Editor:
     _show_scope_note = gw.TreeEditor._show_scope_note
     _clear_group = gw.TreeEditor._clear_group
     _all_groups_same = gw.TreeEditor._all_groups_same
+    _end_equal = gw.TreeEditor._end_equal
     _detail_number = gw.TreeEditor._detail_number
     _reset_button = gw.TreeEditor._reset_button
     _number = staticmethod(gw.TreeEditor._number)
