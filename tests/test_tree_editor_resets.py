@@ -136,7 +136,7 @@ class EditorTests(unittest.TestCase):
             self.saved += 1
         self.root._save_settings = save
         for name in ("_follow_looks", "_write_outputs"):        # no save or logs to draw from here
-            patch = mock.patch.object(gw.TreeEditor, name, lambda self: None)
+            patch = mock.patch.object(gw.TreeEditor, name, lambda self, *a, **k: None)
             patch.start()
             self.addCleanup(patch.stop)
 
