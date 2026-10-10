@@ -1842,6 +1842,75 @@ class NewBelieversLeaveForTheHeathens(unittest.TestCase):
         self.assertEqual(len(g.of_kind(ARRIVED)), 1)
         self.assertEqual(g.of_kind(UNACCOUNTED), [])
 
+    FAITH = 0x1CF0
+
+    @staticmethod
+    def converting(g: Game) -> None:
+        """SetFaith 0x467F90 converts only in play: the game object's byte
+        +0x17E39 (0x425950 returns the object).  0x4669E0's two leaves --
+        the status text 0x44EF60 (thiscall, two arguments) and the activity
+        stop 0x473440 it tail-jumps to -- are scripted; the faction setter
+        between them is the game's own, detoured by the companion."""
+        p = g.p
+        world = p.alloc(0x18000)
+        p.write(world + 0x17E39, b"\x01")
+        p.stub(0x425950, lambda q: (world, 0))
+        p.stub(0x44EF60, lambda q: (0, 8))
+        p.stub(0x473440, lambda q: (0, 0))
+
+    def test_faith_falling_to_0_in_the_catch_up_leaves_the_tribe_at_once(self):
+        """The belief drift 0x468040 is called only by the life tick 0x472C90,
+        which runs for every age unit live and in the load-time catch-up (and
+        a Time Warp).  When it brings faith to 0, SetFaith 0x467F90 converts
+        through 0x4669E0 and the faction setter 0x466880.  In the catch-up no
+        tick comes between (the tick's first look finds a Heathen, and the
+        roster keeps Heathens), so the record is written at the setter, once,
+        and no later tick or save writes another or calls her Unaccounted."""
+        for mode in MODES:
+            g = Game("vv5", rendered("vv5", mode, True), 1)
+            w = Later(g)
+            self.assertEqual(g.install(), 1)
+            self.converting(g)
+            drifter = w.villager(4, "Drifter", 900, 80)
+            w.villager(5, "Stay", 800, 80)
+            g.p.put32(drifter + self.FAITH, 3)
+            g.p.call(0x467F90, [0, 1], ecx=drifter)              # no tick before it: the catch-up
+            self.assertEqual(g.p.read(drifter + self.FACTION, 1), b"\x01", mode)
+            gone = g.of_kind(DISAPPEARED)
+            self.assertEqual([(e["record"], e["Age"], e["Sex"], e["What happened"]) for e in gone],
+                             [(drifter, "900", "Male", "Left the tribe: became a Heathen")], mode)
+            self.assertEqual((gone[0]["check"], gone[0]["detail"]), (1, 1), mode)
+            g.tick()
+            g.saved_epilogue(self.SAVE, 1, 1)
+            g.tick()
+            g.saved_epilogue(self.SAVE, 1, 1)
+            self.assertEqual(len(g.of_kind(DISAPPEARED)), 1, mode)
+            self.assertEqual(g.of_kind(UNACCOUNTED), [], mode)
+            self.assertEqual(g.stats()["left_tribe"], 1, mode)
+            self.assertEqual(g.stats()["departed"], 0, mode)
+
+    def test_only_the_setter_calls_that_make_a_believer_a_heathen_leave(self):
+        """0x466880's seven callers in the stock executable: 0x4669E0 (return
+        0x466A04), The Spa (0x415D11) and The Cracked Mask (0x416C60) make a
+        believer a Heathen; the conversion to a believer (0x46697D, 0x41699F),
+        a load's copy (0x466BEF) and the Heathen creator (0x46FC53) never
+        do.  A Heathen set again (The Spa's own second call) is no change."""
+        cases = ((0x415D11, 1, 0, True), (0x416C60, 1, 0, True), (0x466A04, 1, 0, True),
+                 (0x46FC53, 1, 0, False), (0x466BEF, 1, 0, False), (0x466982, 0, 1, False),
+                 (0x4169A4, 0, 1, False), (0x415D11, 1, 1, False), (0x466A04, 0, 0, False))
+        for ret, value, already, leaves in cases:
+            g = Game("vv5", rendered("vv5", "stock", True), 1)
+            w = Later(g)
+            self.assertEqual(g.install(), 1)
+            r = w.villager(3, "Subject", 640, 70)
+            g.p.write(r + self.FACTION, bytes([already]))
+            g.p.put32(STACK, ret)
+            g.p.put32(STACK + 4, value)
+            g.run(0x466880, ret, ecx=r)
+            self.assertEqual(g.p.read(r + self.FACTION, 1), bytes([value]), hex(ret))
+            self.assertEqual([e["What happened"] for e in g.of_kind(DISAPPEARED)],
+                             ["Left the tribe: became a Heathen"] if leaves else [], (hex(ret), value, already))
+
     def test_no_other_game_has_a_faction_to_leave_by(self):
         source = (ROOT / "native" / "vvfp_cause_of_death" / "cod_arrivals.inc").read_text(encoding="utf-8")
         tick = source[source.index("static void arrival_tick(void) {"):]

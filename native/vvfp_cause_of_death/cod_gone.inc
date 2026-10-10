@@ -15,11 +15,38 @@
                                      Tide (0x415EFF) call: its entry and its
                                      exit, compared
      The Tree of Life                The Sealed Box's wave, 0x415DA6
-     New Believers                   none in the stock game
+     New Believers                   none in the stock game; a believer
+                                     who becomes a Heathen leaves the
+                                     tribe (cod_arrivals.inc: the faction
+                                     setter 0x466880, and the tick)
    The Custom Island Event's "Disappears" is reported by the Story / Cheat
    Upgrades companion itself (VvfpCauseVanished).  Anything else that takes
    a villager away is caught at the next save by the reconciliation
-   (cod_roster.inc) and logged as Unaccounted. */
+   (cod_roster.inc) and logged as Unaccounted.
+
+   THE AUDIT (2026-10-10, IDA over the five stock executables): every store
+   that clears a record's presence byte -- by displacement, and through a
+   pointer set up by a lea/add in the same routine -- and every caller.
+   Besides the sites above, the burials and the unburied body's removal
+   (cod_vv12.inc, cod_vv345.inc), they are only:
+     the new-village seeding and whole-table resets and loads (A New Home
+       0x41C090, 0x43B8C0; The Lost Children 0x424D41; the record
+       constructors The Secret City 0x456000, The Tree of Life 0x45D8A0,
+       New Believers 0x465100, each called only in 150-record loops), the
+       start-game balancing of the founders (0x41FEF0 / 0x4259D0) and the
+       founders screen (0x43B830, 0x43BB60 / 0x43E220, 0x43E560): no
+       village yet, or Start Over;
+     records that are not the tribe's: The Strange Request's stranger, The
+       Tree of Life's ghosts fading (0x45FB0E), Reanimate's stand-in
+       (0x420142);
+     The Tree of Life's wave sweep 0x4670B0, called only by The Tsunami
+       (0x4146F9), whose condition 0x4146E0 always returns false: never
+       offered by the game or the patcher (developer-dead);
+     New Believers 0x46723E, the ghosts' fade inherited from The Tree of
+       Life, reached only by a record under Reanimate (+0x1CE1, a look-alike
+       while it lasts) standing near an unclaimed effect point (0x413E40):
+       not proven to happen in play; should it, the save-time
+       reconciliation writes it as Unaccounted. */
 
 static void cod_log_gone(const unsigned char *record, const char *what) {
     char before[384];
