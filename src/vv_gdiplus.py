@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import ctypes
 import sys
+import threading
 from ctypes import wintypes as W
 from pathlib import Path
 
@@ -67,9 +68,19 @@ def _argb(colour: str, alpha: int = 255) -> int:
     return (alpha << 24) | int(colour.lstrip("#"), 16)
 
 
+_LIB: list = []                         # gdiplus.dll, loaded once (each load took a tenth of a second)
+_LOCK = threading.RLock()               # one picture at a time: the editor may write its outputs in the background
+
+
+def _gdiplus():
+    if not _LIB:
+        _LIB.append(ctypes.WinDLL("gdiplus"))
+    return _LIB[0]
+
+
 class _Gdi:
     def __init__(self) -> None:
-        self.g = ctypes.WinDLL("gdiplus")
+        self.g = _gdiplus()
         token = ctypes.c_size_t()
         start = StartupInput(1, None, False, False)
         self._check(self.g.GdiplusStartup(ctypes.byref(token), ctypes.byref(start), None), "start")
@@ -126,6 +137,11 @@ def save_scene(sc, present: dict, path: Path, scale: float = 1.0, quality: int =
     OSError when it fails."""
     if not available():
         return False
+    with _LOCK:
+        return _save_scene(sc, present, path, scale, quality, transparent)
+
+
+def _save_scene(sc, present: dict, path: Path, scale: float, quality: int, transparent: bool) -> bool:
     import vv_family_tree as ft
     path = Path(path)
     encoder = ENCODERS.get(path.suffix.lower())

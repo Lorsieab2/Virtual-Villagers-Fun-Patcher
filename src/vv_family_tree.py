@@ -5401,7 +5401,11 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
     for k, line in enumerate(footer_lines):
         add(Text(middle, lay.height - 90 + 18 * k, line, 13, ink, centre=True, role="footer", move="footer",
                  edit="word:footer"))
-    out.items[:] = [i for i in out.items if f"word:{getattr(i, 'move', '')}" not in lay.edits.hidden]
+    hidden = {h for h in lay.edits.hidden if isinstance(h, str)}
+    if hidden:                                  # (a special border's thousands of pieces never hidden this way)
+        blank = "word:" in hidden
+        out.items[:] = [i for i in out.items
+                        if type(i) is Poly and not blank or f"word:{getattr(i, 'move', '')}" not in hidden]
     _apply_styles(out.items, lay.edits)
     _apply_opacity(out.items, lay.edits)
     _apply_moves(out.items, lay.edits)
@@ -5454,7 +5458,10 @@ def _apply_moves(items: list, edits: Edits) -> None:
     """The words the player dragged, where they dragged them -- never off the top or left of the
     page (the owner: the words go "ON TOP OF THE PICTURE, NOT OUTSIDE")."""
     groups: dict[str, list] = {}
+    blank = edits.moved.get("")
     for item in items:
+        if type(item) is Poly and not blank:    # no Poly is moved by name (a special border's pieces)
+            continue
         if edits.moved.get(getattr(item, "move", "")):
             groups.setdefault(item.move, []).append(item)
     for name, group in groups.items():
@@ -5473,10 +5480,26 @@ def _apply_moves(items: list, edits: Edits) -> None:
 def _fit_page(out: "Scene") -> None:
     """The page as large as everything on it (words, pictures and lines dragged right or down), so
     the background lies under all of it."""
-    boxes = [b for b in map(_extent, out.items) if b is not None]
-    if boxes:
-        out.width = max(out.width, max(b[2] for b in boxes) + 2 * MARGIN)
-        out.height = max(out.height, max(b[3] for b in boxes) + 2 * MARGIN)
+    right = bottom = None
+    blocks = set()
+    for item in out.items:
+        block = item.__dict__.get("block")
+        if block in blocks:
+            continue
+        reach = _SPECIAL_EXTENT.get(block, False) if block is not None else False
+        if reach is not False:                  # a special border: its reach worked out once
+            blocks.add(block)
+            if reach is not None:
+                right = reach[0] if right is None else max(right, reach[0])
+                bottom = reach[1] if bottom is None else max(bottom, reach[1])
+            continue
+        b = _extent(item)
+        if b is not None:
+            right = b[2] if right is None else max(right, b[2])
+            bottom = b[3] if bottom is None else max(bottom, b[3])
+    if right is not None:
+        out.width = max(out.width, right + 2 * MARGIN)
+        out.height = max(out.height, bottom + 2 * MARGIN)
 
 
 def see_through(edits: Edits, part: str) -> float:
@@ -5487,21 +5510,25 @@ def see_through(edits: Edits, part: str) -> float:
 def _apply_opacity(items: list, edits: Edits) -> None:
     """Each item as see-through as its part of the tree: the boxes behind words, the portraits (their
     frames, heads and words), the family lines and every other word."""
+    plates, portraits = see_through(edits, "plates"), see_through(edits, "portraits")
+    lines_, words_ = see_through(edits, "lines"), see_through(edits, "words")
     for item in items:
+        if type(item) is Poly:                  # never faded here (most of a special border's pieces)
+            continue
         if isinstance(item, Shape) and item.target == ("plate",):
-            item.opacity *= see_through(edits, "plates")
+            item.opacity *= plates
         elif isinstance(item, (Shape, Head)) and item.pid is not None or isinstance(item, Text) and item.pid is not None:
-            item.opacity *= see_through(edits, "portraits")
+            item.opacity *= portraits
         elif isinstance(item, Line) and item.piece:
-            item.opacity *= see_through(edits, "lines")
+            item.opacity *= lines_
         elif isinstance(item, (Text, Line)):
-            item.opacity *= see_through(edits, "words")
+            item.opacity *= words_
 
 
 def _apply_styles(items: list, edits: Edits) -> None:
     """The player's fonts: one for every word, and each role's own font, size, style and colour."""
     for item in items:
-        if not isinstance(item, Text) or not item.role:
+        if type(item) is Poly or not isinstance(item, Text) or not item.role:
             continue
         style = edits.styles.get(item.role, {})
         item.font = style.get("font") or edits.font
@@ -5920,6 +5947,49 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
     return items + _sticking_out(border, kind, frame, outline_points, size, colour_of, flower_look, e)
 
 
+_SPECIAL_CACHE: dict = {}                # special_border_items: its key -> the border's pieces
+_SPECIAL_EXTENT: dict = {}               # its key -> the farthest right and down any piece reaches
+_SPECIAL_CACHE_MAX = 4096
+
+
+def _fresh(item):
+    """A shallow copy of a drawn item (its points shared: nothing changes them in place) -- far quicker
+    than copy.copy for the tens of thousands of a special border's pieces."""
+    new = object.__new__(type(item))
+    new.__dict__.update(item.__dict__)
+    return new
+
+
+def special_border_items(border: str, kind: str, frame: tuple, radius: float, edits: "Edits | None",
+                         pid: int, see: float) -> list:
+    """A portrait's special border (special_border) as its portrait draws it -- `see` times as opaque,
+    every piece the villager's -- worked out once for each border, shape, frame, corner, colours, villager
+    and opacity (the owner's tree of vines took a second for every change: every portrait's thousands of
+    leaves and petals made again).  The filled pieces are the same objects each time (nothing changes
+    a Poly once made); the lines are fresh copies, since _apply_opacity fades them with the words.
+    Every piece's `block` (not a field) is the same tuple, so the editor can keep the canvas items of a
+    border that has not changed, and _fit_page can take the border's extent at once."""
+    e = edits or Edits()
+    key = (border, kind, tuple(frame), radius, e.special_mode, repr(sorted(e.special_pick.items())),
+           tuple(e.special_palette[:e.special_count]), e.special_count, e.rainbow_strength, e.hibiscus, pid, see)
+    made = _SPECIAL_CACHE.get(key)
+    if made is None:
+        made = special_border(border, kind, frame, radius, e)
+        for item in made:
+            if see < 1:
+                item.opacity = item.opacity * see
+            item.pid = pid
+            item.target = ("person", pid) if item.target is None else item.target
+            item.__dict__["block"] = key
+        extents = [b for b in map(_extent, made) if b is not None]
+        if len(_SPECIAL_CACHE) >= _SPECIAL_CACHE_MAX:
+            _SPECIAL_CACHE.clear()
+            _SPECIAL_EXTENT.clear()
+        _SPECIAL_EXTENT[key] = (max(b[2] for b in extents), max(b[3] for b in extents)) if extents else None
+        _SPECIAL_CACHE[key] = made = tuple(made)
+    return [_fresh(item) if type(item) is Line else item for item in made]
+
+
 def scheme_colour(e: "Edits", part: str, t: float, j: int) -> str | None:
     """The colour `part` (SCHEME_PARTS) takes at `t` (0-1 of the way round or across) or by turn `j`, or
     None when the player keeps it as set."""
@@ -6004,6 +6074,8 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         m = MARK_GAP
         add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, mark, width=4, fill=None,
                   radius=corner_radius(kind) + m, pid=p.id, target=target, angle=angle, opacity=see))
+    put = add                                   # as it is: a special border's pieces are already the villager's
+
     def add(item, _add=add):
         """Whatever is drawn for this portrait is theirs (Codex, #577: a leaf or a rope beyond the shape
         could not be clicked or dragged)."""
@@ -6040,10 +6112,8 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             add(Poly(placed(line), inside_colour, opacity=see_through(e, "portraits")))
     if border in SPECIAL_BORDERS:              # the braided rope or a vine, round any shape, in its own colours
         see = e.special_opacity / 100            # as see-through as the player says
-        for item in special_border(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind), e):
-            if see < 1:
-                item.opacity = item.opacity * see
-            add(item)
+        for item in special_border_items(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind), e, p.id, see):
+            put(item)
     replaced = ({i for i, _pts, _closed in sticking_out(kind, (fx, fy, fw, fh, angle), lay.frame_points(p.id))}
                 if border in SPECIAL_BORDERS else set())
     for i, line in enumerate(decor(kind)):      # drawn like the border (a stamen, an antenna, the wave)
