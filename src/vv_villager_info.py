@@ -15,7 +15,8 @@ from tkinter import ttk
 import vv_family_tree as ft
 import vv_genealogy as gen
 
-# Bold, by sex, readable on the panel's light grey (contrast 5:1 or better on #f0f0f0).
+# Coloured by sex (not bold: the owner found bold pink and blue hard on the eyes), readable on the
+# panel's light grey (contrast 5:1 or better on #f0f0f0).
 MALE = "#1f5fbf"
 FEMALE = "#c2185b"
 UNKNOWN = "#666666"                     # a baby on the way, or anyone whose sex no record gives
@@ -220,11 +221,13 @@ class VillagerInfoTab:
         text.configure(yscrollcommand=bar.set)
         bar.pack(side="right", fill="y")
         text.pack(side="left", fill="both", expand=True)
-        bold = ("Segoe UI", 10, "bold")
-        text.tag_configure("Male", foreground=MALE, font=bold)
-        text.tag_configure("Female", foreground=FEMALE, font=bold)
-        text.tag_configure("unknown", foreground=UNKNOWN, font=bold)
-        text.tag_configure("title", font=("Segoe UI", 14, "bold"))
+        # Coloured by sex but not bold (the owner, 2026-10-10: "the bold pink and blue kind of hurts my
+        # eyes. you should unbold them").
+        plain = ("Segoe UI", 10)
+        text.tag_configure("Male", foreground=MALE, font=plain)
+        text.tag_configure("Female", foreground=FEMALE, font=plain)
+        text.tag_configure("unknown", foreground=UNKNOWN, font=plain)
+        text.tag_configure("title", font=("Segoe UI", 14))
         text.tag_configure("heading", font=("Segoe UI", 10, "bold"), spacing1=2)
         text.tag_configure("note", foreground="#444444")
         text.tag_configure("link", underline=True)
