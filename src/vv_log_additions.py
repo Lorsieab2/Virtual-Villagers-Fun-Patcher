@@ -49,11 +49,14 @@ CHECKED = {
                "departures to the Heathens the logs record, and the player's answers",
     "birth_numbers": "the Birth records an older patcher wrote without a number, in the order they appear in "
                      "every Births and Conceptions log file, after any numbered ones before them",
+    "lost": "the Conceptions with no Birth whose mother has a Death or Disappeared record, against her age, "
+            "the village now and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
          "appearance": "Appearance changed record added",
-         "faction": "Faction added", "birth_numbers": "Birth number added"}
+         "faction": "Faction added", "birth_numbers": "Birth number added",
+         "lost": "Lost before birth added"}
 FROM_NOW = "Only from now on (add nothing)"
 
 # The order the lines take under a villager's name (as the exporters print them).
@@ -511,6 +514,10 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
                     last_babies[mother] = int(babies)
                 k += 1
                 continue
+            if b.heading == LOST_HEADING:
+                last_babies.pop(_sub_identity(b, "Mother"), None)    # never born: no Birth is hers
+                k += 1
+                continue
             if not is_birth(b.heading):
                 k += 1
                 continue
@@ -575,7 +582,7 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
                 mother, father = _sub_identity(c, "Mother"), _sub_identity(c, "Father")
                 if mother and father:
                     open_ = [o for o in open_ if o[0] != mother] + [(mother, father)]
-            elif is_birth(c.heading):
+            elif is_birth(c.heading) or c.heading == LOST_HEADING:
                 mother = _sub_identity(c, "Mother")
                 open_ = [o for o in open_ if o[0] != mother]
         if not open_:
@@ -649,6 +656,156 @@ def _birth_anchor(b: Block) -> int:
         if at is not None:
             at = k
     return b.start + (at if at is not None else len(b.lines) - 1)
+
+
+# "Lost before birth": a mother's babies, never born because she died or disappeared carrying or
+# nursing them ("VVFP Cause of Death.dll", native/vvfp_cause_of_death/cod_lost.inc).
+LOST_HEADING = "Lost before birth"
+LOST_YES = "Yes: lost with her"
+# The child is created 40 age units after the conception, in all five games (cod_lost.inc).
+DELIVERY_UNITS = 40
+
+
+def _lost_line(babies: int) -> str:
+    return f"  Nursing: yes, {babies} {'baby' if babies == 1 else 'babies'} (never born: lost with their mother)"
+
+
+def _lost_record(mother: tuple, father: tuple | None, babies: int, how: str) -> str:
+    """A "Lost before birth" record, as the companion writes one, after the Conception it closes."""
+    def number(value):
+        return "(unknown)" if value is None else str(value)
+    name, head, body = mother
+    known = father is not None and father[0] and not father[0].startswith("(")
+    fname, fhead, fbody = father if known else ("(unknown)", None, None)
+    return "\n".join(["", LOST_HEADING, f"  Mother: {name}", f"    Head: {number(head)}", f"    Body: {number(body)}",
+                      f"  Father: {fname}", f"    Head: {number(fhead)}", f"    Body: {number(fbody)}",
+                      f"  Babies in pregnancy: {babies}",
+                      f"  What happened: the mother {how} while nursing; never born",
+                      "  Note: Recorded afterwards (her Conception had no Birth, and her "
+                      f"{'Death' if how == 'died' else 'Disappeared'} record follows it)"])
+
+
+def _sub_value(b: Block, label: str, value: str) -> str | None:
+    """A Mother / Father section's own line ("    Age at conception: 600")."""
+    inside = False
+    for line in b.lines:
+        if line.startswith(f"  {label}:"):
+            inside = True
+            continue
+        if inside:
+            if not line.startswith("    "):
+                break
+            if line.startswith(f"    {value}:"):
+                return line.split(":", 1)[1].strip()
+    return None
+
+
+def _as_int(text: str | None) -> int | None:
+    return int(text) if text is not None and text.lstrip("-").isdigit() else None
+
+
+def plan_lost(folder: Path, game: int, slot: int) -> Kind:
+    """Babies lost with their mother (the owner, 2026-10-09: "Nursing mothers who die will only produce
+    a grave for the mother (nursing child just disappears)").  Records written before the patcher logged
+    it leave her last Conception open for good.  Proved when her last Conception has no Birth (or Lost
+    before birth) after it, she is not in the village now, exactly one Death or Disappeared record has her
+    name, head and body, and its age is no earlier than the conception and short of the delivery (40 age
+    units on): then her record gets its Nursing line and the Births and Conceptions log a "Lost before
+    birth" record after the Conception.  When the record's age cannot settle it -- missing, or past the
+    delivery (a Birth the log may have missed), two records with her looks, or a Golden Child the puzzle
+    may have made of the pregnancy (A New Home) -- the player is asked."""
+    checker = tools.load_checker()
+    kind = Kind("lost", "Babies lost with their mother (never born)")
+    villages = current_villages(folder, game, slot)
+    # Every layout the Births and Conceptions log has had, the older first (as plan_appearance reads them).
+    current = checker.numbered(folder / checker.LOGS / "Births and Conceptions",
+                               f"Virtual Villagers {game} Births and Conceptions Log")
+    older = [path for root in (checker.LOGS, "VVFP Logs")
+             for sub, words in (("Births and Conceptions", "Births and Conceptions Log"),
+                                ("Tribe Parental Records", "Parentage Log"))
+             for path in checker.numbered(folder / root / sub, f"Virtual Villagers {game} {words}")
+             if path not in current]
+    every: list[Block] = []
+    for path in older + current:
+        every += [b for b in blocks(path) if b.of(slot, game, villages)]
+    last: dict[tuple, Block | None] = {}           # mother -> her last Conception, None once closed
+    for b in every:
+        mother = _sub_identity(b, "Mother")
+        if mother is None:
+            continue
+        if b.heading.startswith("Conception"):
+            last[mother] = b
+        elif is_birth(b.heading) or b.heading == LOST_HEADING:
+            last[mother] = None
+    open_ = {m: c for m, c in last.items() if c is not None and m[0] and None not in m}
+    if not open_:
+        return kind
+    _page, living = population_page(folder, slot, game)
+    gone: dict[tuple, list[Block]] = {}
+    for b in person_blocks(folder, slot, game):
+        if b.heading.startswith(("Death", "Disappeared")) and None not in b.identity:
+            gone.setdefault(b.identity, []).append(b)
+    golden_unsettled = game == 1 and any(
+        b.heading.startswith("Arrived") and b.value("Special villager") == "Golden Child"
+        and b.value("Name") not in {x.value("Child", "  ") for x in every if is_birth(x.heading)}
+        for b in every)
+    for mother, conception in open_.items():
+        records = gone.get(mother, [])
+        if not records or mother in living:
+            continue
+        babies = _as_int(conception.value("Babies in pregnancy")) or 1
+        father = _sub_identity(conception, "Father")
+        conceived = _as_int(_sub_value(conception, "Mother", "Age at conception"))
+
+        def age_of(record: Block) -> int | None:
+            return _as_int(record.value("Age at death" if record.heading.startswith("Death") else "Age"))
+        # A namesake with her looks who was gone before this conception is not her.
+        records = [r for r in records if conceived is None or age_of(r) is None or age_of(r) >= conceived]
+        if not records:
+            continue
+        end = conception.start + len(conception.lines) - 1
+        choices: dict[str, tuple[Block, str | None, str]] = {}
+        for record in records:
+            died = record.heading.startswith("Death")
+            at = age_of(record)
+            words = f"Yes: her {'Death' if died else 'Disappeared'} record" + (f", age {at}" if at is not None else "")
+            while words in choices:
+                words += " (another)"
+            choices[words] = (record, _lost_line(babies) if record.value("Nursing") is None and record.value("Pregnant") is None else None,
+                              _lost_record(mother, father, babies, "died" if died else "disappeared"))
+        only = records[0]
+        at = age_of(only)
+        if (len(records) == 1 and conceived is not None and at is not None
+                and at <= conceived + DELIVERY_UNITS and not golden_unsettled):
+            record, line, lost = next(iter(choices.values()))
+            if line:
+                kind.inserts.append(Insert(record.path, _lost_anchor(record), 4, line=line))
+            kind.inserts.append(Insert(conception.path, end, 8, line=lost))
+            continue
+        key = f"lost|{conception.path.name}|{conception.start}"
+        why = ("more than one record with her name and looks says she died or disappeared" if len(records) > 1
+               else "the Golden Child may have been born of it" if golden_unsettled
+               else "her records do not say how old she was" if at is None or conceived is None
+               else f"she was gone {at - conceived} age units after it, after the baby was due "
+                    "(its Birth may be missing)")
+        kind.questions[key] = Question(
+            key, f"{mother[0]} (head {mother[1]}, body {mother[2]}) was expecting {babies} "
+                 f"{'baby' if babies == 1 else 'babies'}, and no Birth follows; {why}. Were the babies lost "
+                 f"with her, never born?", [*choices, DONT_KNOW], DONT_KNOW)
+        for words, (record, line, _lost) in choices.items():
+            if line:
+                kind.inserts.append(Insert(record.path, _lost_anchor(record), 4, question=key,
+                                           by_answer={words: line}))
+        kind.inserts.append(Insert(conception.path, end, 8, question=key,
+                                   by_answer={words: lost for words, (_r, _l, lost) in choices.items()}))
+    return kind
+
+
+def _lost_anchor(record: Block) -> int:
+    """The line a Death record's (or a Disappeared record's) Nursing line follows, as the companion
+    writes it: after its Epitaph (What happened)."""
+    at = record.index_of("Epitaph" if record.heading.startswith("Death") else "What happened")
+    return at if at is not None else record.start + len(record.lines) - 1
 
 
 LOOK_CAUSES = ("An island event", "A Custom Island Event", "The Change Appearance upgrade")
@@ -852,6 +1009,7 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_golden(folder, game, slot),
         plan_appearance(folder, game, slot),
         plan_faction(folder, game, slot, people, current),
+        plan_lost(folder, game, slot),
         plan_birth_numbers(folder, game, slot),
     ]
     return kinds

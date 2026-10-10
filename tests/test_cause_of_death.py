@@ -57,7 +57,7 @@ DEATH, DISAPPEARED, EPITAPH, UNACCOUNTED = 2, 3, 4, 5
 NO_GRAVE = "no grave (never buried: the game removed the body)"
 STAT_NAMES = ("deaths", "unhooked", "burials", "graves_set", "draws", "logged", "published",
               "departed", "arrived", "unaccounted", "armed", "backfilled", "arrivals", "arrivals_backfilled",
-              "births_backfilled", "left_tribe")
+              "births_backfilled", "left_tribe", "lost")
 ARRIVED = 6
 
 

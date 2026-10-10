@@ -22,15 +22,19 @@
    (cod_roster.inc) and logged as Unaccounted. */
 
 static void cod_log_gone(const unsigned char *record, const char *what) {
-    char before[256];
+    char before[384];
+    char carrying[96];
     int index = cod_index_of(record);
-    wsprintfA(before, "  Age: %d\n  Sex: %s\n  What happened: %s\n", rec_age(record),
-              roster_sex(*(const int *)(record + REC[g_game].sex)), what);
+    int babies = lost_babies(record);      /* cod_lost.inc */
+    lost_line(carrying, babies);
+    wsprintfA(before, "  Age: %d\n  Sex: %s\n  What happened: %s\n%s", rec_age(record),
+              roster_sex(*(const int *)(record + REC[g_game].sex)), what, carrying);
     if (index >= 0) {
         seen_alive[index] = 0;
         roster_departed(index, record);
     }
     cod_write(LOG_DISAPPEARED, record, 1, before, NULL, 1);
+    lost_record(record, babies, "disappeared");
 }
 
 /* A villager of the tribe, alive, in its record. */

@@ -179,6 +179,33 @@ __declspec(dllexport) void __stdcall VvfpCauseTestVv1Births(int outcome) {
     test_vv1_births = outcome;
 }
 
+/* The harness's own record writer in place of "VVFP Parentage Export.dll"'s
+   WriteVillageRecord (cod_lost.inc's harness reads every record's text). */
+__declspec(dllexport) void __stdcall VvfpCauseTestWriter(write_record_fn fn) {
+    write_record = fn;
+    log_state = fn != NULL ? 1 : 0;
+}
+
+/* ...and its own "VVFP VV1 Parentage.dll" stash (NULL: none shipped). */
+__declspec(dllexport) void __stdcall VvfpCauseTestVv1Stash(vv1_stash_fn fn) {
+    vv1_stash = fn;
+    vv1_stash_state = fn != NULL ? 1 : -1;
+}
+
+/* The per-frame tick's copy of each living mother's pregnancy (cod_lost.inc). */
+__declspec(dllexport) void __stdcall VvfpCauseTestLostTick(void) {
+    lost_tick();
+}
+
+/* A Death record for record `index`, every game: what every burial and
+   unburied body's removal writes (cod_log_death). */
+__declspec(dllexport) void __stdcall VvfpCauseTestDeathRecord(int index, int cause) {
+    unsigned char *record = cod_record(index);
+    if (record != NULL) {
+        (void)cod_log_death(record, cause, "test grave", NULL);
+    }
+}
+
 /* A departure the hooks report (a burial, a removal, a disappearance). */
 __declspec(dllexport) void __stdcall VvfpCauseTestDeparted(int index) {
     roster_departed(index, cod_record(index));

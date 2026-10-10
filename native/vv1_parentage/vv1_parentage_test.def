@@ -8,6 +8,7 @@ EXPORTS
     Vv1ParentageQueryNames=_Vv1ParentageQueryNames@16
     Vv1ParentageQueryExpectedFather=_Vv1ParentageQueryExpectedFather@16
     Vv1ParentageSetExpectedFather=_Vv1ParentageSetExpectedFather@16
+    Vv1ParentageQueryStash=_Vv1ParentageQueryStash@20
     Vv1ParentageSetParents=_Vv1ParentageSetParents@28
     Vv1ParentageCrossCheckScan=_Vv1ParentageCrossCheckScan@4
     Vv1ParentageCrossCheckApply=_Vv1ParentageCrossCheckApply@0

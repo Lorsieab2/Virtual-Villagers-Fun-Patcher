@@ -107,6 +107,7 @@ struct vvfp_cause_stats {
     int arrivals_backfilled;  /* Arrived records written by the backfill */
     int births_backfilled;    /* Birth records written by the backfill (VV2-VV5) */
     int left_tribe;           /* New Believers: believers who became Heathens */
+    int lost;                 /* "Lost before birth" records (cod_lost.inc) */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
@@ -338,7 +339,8 @@ static unsigned int cod_name_hash(const unsigned char *record) {
 
 /* ---- The log -------------------------------------------------------------- */
 
-enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5, LOG_ARRIVED = 6 };
+enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5, LOG_ARRIVED = 6,
+       LOG_LOST_BIRTH = 9 };
 
 typedef int (__stdcall *write_record_fn)(int game, int kind, const void *record, int check,
                                          const char *before, const char *after, int detail);
@@ -412,15 +414,26 @@ static void cod_printable(char *out, int size, const char *text, int capacity) {
 /* The lines a Death record carries before the villager's identity. */
 static const char *roster_sex(int value);
 
+/* cod_lost.inc: the babies a mother carried when she died or disappeared. */
+static int lost_babies(const unsigned char *record);
+static void lost_line(char *out, int babies);
+static void lost_record(const unsigned char *record, int babies, const char *how);
+
 static int cod_log_death(const unsigned char *record, int cause, const char *grave,
                          const char *epitaph) {
-    char before[512];
+    char before[640];
+    char carrying[96];
+    int babies = lost_babies(record);
+    int written;
+    lost_line(carrying, babies);
     wsprintfA(before,
-              "  Age at death: %d\n  Sex: %s\n  Cause of death: %s\n  Grave: %s\n  Epitaph: %s\n",
+              "  Age at death: %d\n  Sex: %s\n  Cause of death: %s\n  Grave: %s\n  Epitaph: %s\n%s",
               rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)),
               cod_cause_words(cause), grave,
-              epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)");
-    return cod_write(LOG_DEATH, record, 1, before, NULL, 1);
+              epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)", carrying);
+    written = cod_write(LOG_DEATH, record, 1, before, NULL, 1);
+    lost_record(record, babies, "died");
+    return written;
 }
 
 /* ---- The site machinery ----------------------------------------------------
@@ -664,6 +677,7 @@ static void births_backfill_at_save(int slot, const void *save_buffer);
 
 #include "cod_roster.inc"
 #include "cod_gone.inc"
+#include "cod_lost.inc"
 #include "cod_vv12.inc"
 #include "cod_vv345.inc"
 #include "cod_epitaph_edit.inc"
@@ -754,6 +768,7 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
         vv12_tick();
     }
     seen_tick();
+    lost_tick();
     arrival_tick();
 }
 
@@ -823,6 +838,7 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
     backfill_reset(slot);
     arrival_reset(slot);
     memset(seen_alive, 0, sizeof seen_alive);
+    lost_forget();
     memset(temporary, 0, sizeof temporary);
     memset(temporary_name, 0, sizeof temporary_name);
 }

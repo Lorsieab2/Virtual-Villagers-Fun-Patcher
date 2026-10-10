@@ -452,13 +452,27 @@ int main(int argc, char **argv) {
             rec(6)[g->active] = 0;
         }
 
+        /* 3d: "Lost before birth" (kind 9, "VVFP Cause of Death.dll"'s cod_lost.inc): the
+           Births and Conceptions log, unnumbered, every line the caller's. */
+        CHECK(write_record(game, 9, rec(1), 1,
+                           "  Mother: Bonedry\n    Head: 0\n    Body: 0\n  Father: (unknown)\n    Head: (unknown)\n"
+                           "    Body: (unknown)\n  Babies in pregnancy: 2\n", NULL, 0) == 1,
+              "a Lost before birth record is written");
+        CHECK(read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+              && strstr(text, "\r\nLost before birth\r\n  Mother: Bonedry\r\n    Head: 0\r\n    Body: 0\r\n"
+                              "  Father: (unknown)\r\n    Head: (unknown)\r\n    Body: (unknown)\r\n"
+                              "  Babies in pregnancy: 2\r\n\r\n") != NULL,
+              "Lost before birth: in the Births and Conceptions log, unnumbered, the caller's lines only");
+        CHECK(write_record(game, 9, rec(1), 1, "", NULL, 0) == 0, "...and refused with no lines");
+        CHECK(read_deaths(game, 1) && strstr(text, "Lost before birth") == NULL, "...never in the Deaths log");
+
         /* 4: not a villager record; not a kind. */
         {
             unsigned char stray[0x4000];
             memset(stray, 0, sizeof stray);
             CHECK(write_record(game, DEATH, stray + 0x10, 1, BURIED, NULL, 1) == 0, "a record outside the table is refused");
             CHECK(write_record(game, DEATH, rec(1) + 4, 1, BURIED, NULL, 1) == 0, "a pointer inside a record is refused");
-            CHECK(write_record(game, 9, rec(1), 1, BURIED, NULL, 1) == 0
+            CHECK(write_record(game, 10, rec(1), 1, BURIED, NULL, 1) == 0
                   && write_record(game, 1, rec(1), 1, BURIED, NULL, 1) == 0, "a kind out of range is refused");
         }
         /* "Appearance changed" (kind 7): the Births and Conceptions log, unnumbered, the name and the

@@ -1246,11 +1246,19 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2, LOG_EVENTS = 3 };
                   an island event changed in one villager, each change "old
                   -> new", under the event's title ("VVFP Island Events.dll";
                   the owner, 2026-10-08: "all island event changes should be
-                  logged"); held until the next save like APPEARANCE */
+                  logged"); held until the next save like APPEARANCE
+     LOST_BIRTH   births family, "Lost before birth", never rolls -- the
+                  babies a pregnant (nursing) mother carried when she died or
+                  disappeared: they are never born and get no record of their
+                  own, so this closes her open Conception (the owner,
+                  2026-10-09: "Nursing mothers who die will only produce a
+                  grave for the mother (nursing child just disappears)").
+                  "VVFP Cause of Death.dll" renders every line after the
+                  heading. */
 enum {
     KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
     KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7,
-    KIND_ISLAND_EVENT = 8
+    KIND_ISLAND_EVENT = 8, KIND_LOST_BIRTH = 9
 };
 
 #define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers"
@@ -4077,6 +4085,8 @@ __declspec(dllexport) int __stdcall WriteVillageEventRecord(int game_id, const c
        Disappeared                     (the Deaths log; never rolls)
        Epitaph changed                 (the Deaths log; never rolls)
        Unaccounted <n>                 (numbered; the Unaccounted Villagers log)
+       Lost before birth               (the Births and Conceptions log; never
+                                        rolls; every line is `before`)
 
    The caller renders the lines that are its own (`before`, `after`; each
    line "  Label: value\n"); this exporter prints the heading, the name and
@@ -4113,7 +4123,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
-        || kind < KIND_DEATH || kind > KIND_ISLAND_EVENT) {
+        || kind < KIND_DEATH || kind > KIND_LOST_BIRTH) {
         return 0;
     }
     g = layout_of(game_id);
@@ -4129,6 +4139,19 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     }
     if (!check && !memory_is_readable(record, g->stride)) {
         return 0;
+    }
+    if (kind == KIND_LOST_BIRTH) {
+        /* Every line is the caller's (`before`): the mother, the father and
+           the babies, as a Conception names them.  `record` is the mother's,
+           only checked and used to file the record under her tribe. */
+        if (before == NULL || before[0] == '\0') {
+            return 0;
+        }
+        written = _snprintf(text, sizeof(text), "Lost before birth\n%s\n", before);
+        if (written < 0 || (size_t)written >= sizeof(text)) {
+            return 0;
+        }
+        return emit_record(game_id, kind, check ? records : NULL, text);
     }
     if (kind == KIND_DISAPPEARED) {
         heading = "Disappeared\n";
