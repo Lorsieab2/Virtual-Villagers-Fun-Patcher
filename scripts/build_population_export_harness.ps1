@@ -52,6 +52,33 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Population export harness compilation failed."
     }
+    # A stand-in "VVFP VV1 Parentage.dll" (vv1_parentage_stub.c), where the
+    # exporter looks for the real companion: beside the harness executable,
+    # in its patcher-files folder.  Never shipped; it lives only in $OutDir.
+    $stubDir = Join-Path $OutDir "Virtual Villagers Fun Patcher Files"
+    New-Item -ItemType Directory -Path $stubDir -Force | Out-Null
+    & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") `
+        /nologo `
+        /LD `
+        ("/Fo" + $OutDir + "\") `
+        /O2 `
+        /MT `
+        /I (Join-Path $vsTools "include") `
+        /I (Join-Path $sdkRoot "Include\$sdkVersion\um") `
+        /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
+        /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
+        (Join-Path $nativeRoot "vv1_parentage_stub.c") `
+        /link `
+        ("/DEF:" + (Join-Path $nativeRoot "vv1_parentage_stub.def")) `
+        ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
+        ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
+        ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
+        ("/IMPLIB:" + (Join-Path $OutDir "vv1_parentage_stub.lib")) `
+        ("/OUT:" + (Join-Path $stubDir "VVFP VV1 Parentage.dll")) `
+        kernel32.lib
+    if ($LASTEXITCODE -ne 0) {
+        throw "Stand-in VV1 parentage companion compilation failed."
+    }
     & (Join-Path $OutDir "population_export_harness.exe") $dll
     if ($LASTEXITCODE -ne 0) {
         throw "Population export harness reported failures."
