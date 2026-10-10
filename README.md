@@ -34,6 +34,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 - **Logs per save slot.** Each save slot now has its own log folders ("Logs\Save <n>\..."); everything older builds wrote to the shared folders is still read, as one history, and record numbers continue per game.
 - **Custom titles and Former Heathens follow a change of likes or dislikes** (island events, the Custom Island Event, vials and the Running upgrades change them), in all five games, and Repair Saves & Logs can give back titles older builds lost that way. A death the Custom Island Event causes is recorded as "Died in a custom island event".
 - **Log parity:** A New Home's Unaccounted and Arrived records name the villager's parents, as the other games' do; Deaths and Repairs numbers continue after an older build's folders, so no number is used twice.
+- **Full likes and dislikes everywhere.** The Village Population and Village History logs and every Birth, Arrived, Death, Disappeared, Unaccounted, Appearance changed and Island Events record now list a villager's whole likes and dislikes, not only the first one the Details screen shows, in all five games.
 - **Family Tree Maker:** generation label boxes hold every line at any font size; "1 male" / "1 female"; page names are no longer cut short.
 - **Patch every game again** after updating: the logging and Origins companions changed.
 
