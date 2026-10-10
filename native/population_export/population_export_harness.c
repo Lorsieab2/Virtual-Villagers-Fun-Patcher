@@ -20,7 +20,10 @@
      the Parents block appears, naming BOTH parents;
      each parent's head and body are the values planted in the record;
      a villager with no recorded parents gets NO Parents block, rather than
-       one naming "" or a pair of zeros.
+       one naming "" or a pair of zeros;
+     a body awaiting burial (slot live, health 0 or below) is listed in
+       neither log, nor is New Believers' villager being reanimated (a
+       look-alike) or Reanimate's stand-in corpse.
 
    VV1 stores no parents on the record at all; its blocks come from the
    parentage companion's sidecar, bound to a live village.  run_vv1 below
@@ -88,25 +91,27 @@ struct game {
     unsigned int father_body;
     /* Zero when not carrying: the pregnancy test. */
     unsigned int age_at_conception;
+    /* i32; at 0 or below an occupied record is a body awaiting burial. */
+    unsigned int health;
 };
 
 static const struct game GAMES[] = {
     { 2, "Virtual Villagers 2", 0x99F24u, 1, 0u, 0xE48Cu, 256u,
       0x30u, 0x530u, 0x548u, 0x54Cu, 0x564u, 0x18u,
       0x57Du, 0x596u, 0x18u, 0x5B0u, 0x5B4u, 0x5B8u, 0x5BCu,
-      0x5C0u, 0x18u, 0x5E0u, 0x5DCu, 0x540u },
+      0x5C0u, 0x18u, 0x5E0u, 0x5DCu, 0x540u, 0x52Cu },
     { 3, "Virtual Villagers 3", 0x19E110u, 0, 0x14u, 0x1F8Cu, 150u,
       0xF10u, 0xDC4u, 0xDF0u, 0xDF4u, 0xDD4u, 0x19u,
       0xDF8u, 0xE11u, 0x19u, 0xE2Cu, 0xE30u, 0xE34u, 0xE38u,
-      0xE48u, 0x18u, 0xE68u, 0xE64u, 0xE8Cu },
+      0xE48u, 0x18u, 0xE68u, 0xE64u, 0xE8Cu, 0xE78u },
     { 4, "Virtual Villagers 4", 0x10E568u, 0, 0x44u, 0x2E3Cu, 150u,
       0x1CC4u, 0x1B8Cu, 0x1BB8u, 0x1BBCu, 0x1B9Cu, 0x19u,
       0x1BC0u, 0x1BD9u, 0x19u, 0x1BF4u, 0x1BF8u, 0x1BFCu, 0x1C00u,
-      0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu, 0x1C4Cu },
+      0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu, 0x1C4Cu, 0x1C40u },
     { 5, "Virtual Villagers 5", 0x154148u, 0, 0x48u, 0x2F44u, 150u,
       0x1CD4u, 0x1B8Cu, 0x1BB8u, 0x1BBCu, 0x1B9Cu, 0x19u,
       0x1BC0u, 0x1BD9u, 0x19u, 0x1BF4u, 0x1BF8u, 0x1BFCu, 0x1C00u,
-      0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu, 0x1C4Cu }
+      0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu, 0x1C4Cu, 0x1C40u }
 };
 
 static void put_int(unsigned char *rec, unsigned int off, int v) {
@@ -246,6 +251,7 @@ static void run_game(const struct game *g, write_population_t write) {
     /* Villager 1: a child with both parents recorded. */
     rec = array + g->base;
     rec[g->active] = 1;
+    put_int(rec, g->health, 100);
     put_name(rec, g->name, "Kiwi", g->name_cap);
     put_int(rec, g->age, 240);
     put_int(rec, g->head, 7);
@@ -260,6 +266,7 @@ static void run_game(const struct game *g, write_population_t write) {
     /* Villager 2: a founder, with no recorded parents at all. */
     rec = array + g->base + g->stride;
     rec[g->active] = 1;
+    put_int(rec, g->health, 100);
     put_name(rec, g->name, "Budi", g->name_cap);
     put_int(rec, g->age, 900);
     put_int(rec, g->head, 11);
@@ -284,6 +291,7 @@ static void run_game(const struct game *g, write_population_t write) {
     /* Villager 3: CARRYING. */
     rec = array + g->base + g->stride * 2;
     rec[g->active] = 1;
+    put_int(rec, g->health, 100);
     put_name(rec, g->name, "Nina", g->name_cap);
     put_int(rec, g->age, 688);
     put_int(rec, g->head, 17);
@@ -302,6 +310,7 @@ static void run_game(const struct game *g, write_population_t write) {
     /* Villager 4: NOT carrying, but the same stale name left behind. */
     rec = array + g->base + g->stride * 3;
     rec[g->active] = 1;
+    put_int(rec, g->health, 100);
     put_name(rec, g->name, "Zea", g->name_cap);
     put_int(rec, g->age, 700);
     put_int(rec, g->head, 4);
@@ -317,9 +326,59 @@ static void run_game(const struct game *g, write_population_t write) {
     put_int(rec, g->father_body, 0);
     put_int(rec, g->age_at_conception, 0);     /* zero: NOT carrying */
 
+    /* Records 5 and 6: BODIES awaiting burial -- the slot still live, health
+       0 and below.  The owner's starved Lost Children tribe (2026-10-10):
+       seven unburied skeletons, every one listed as a living villager in the
+       Population and the History.  Neither log may list a body. */
+    rec = array + g->base + g->stride * 4;
+    rec[g->active] = 1;
+    put_int(rec, g->health, 0);
+    put_name(rec, g->name, "Skeleton", g->name_cap);
+    put_int(rec, g->age, 800);
+    rec = array + g->base + g->stride * 5;
+    rec[g->active] = 1;
+    put_int(rec, g->health, -3);
+    put_name(rec, g->name, "Starved", g->name_cap);
+    put_int(rec, g->age, 810);
+
+    /* New Believers: record 6 is a villager being reanimated (+0x1CE1), a
+       look-alike the game's own list leaves out, and record 7 the stand-in
+       corpse Reanimate makes for him, a health-0 body: neither is listed. */
+    if (g->id == 5) {
+        rec = array + g->base + g->stride * 6;
+        rec[g->active] = 1;
+        rec[0x1CE1] = 1;
+        put_int(rec, g->health, 0);
+        put_name(rec, g->name, "Lazaro", g->name_cap);
+        put_int(rec, g->age, 500);
+        rec = array + g->base + g->stride * 7;
+        rec[g->active] = 1;
+        put_int(rec, g->health, 0);
+        put_name(rec, g->name, "Standin", g->name_cap);
+    }
+
     remove_log();
     CHECK(write(g->id, image, "Village: Harness (Save 1)\n") == 4,
-          "the export writes all four villagers");
+          "the export writes every living villager and no body");
+    {
+        enum log_kind kinds[2] = { LOG_HISTORY, LOG_ROSTER };
+        int k;
+        for (k = 0; k < 2; ++k) {
+            const char *which = kinds[k] == LOG_HISTORY ? "history" : "roster";
+            log = read_log(kinds[k]);
+            CHECK(log != NULL && strstr(log, "Skeleton") == NULL,
+                  "%s: a health-0 body is not listed as living", which);
+            CHECK(log != NULL && strstr(log, "Starved") == NULL,
+                  "%s: a body below health 0 is not listed as living", which);
+            if (g->id == 5) {
+                CHECK(log != NULL && strstr(log, "Lazaro") == NULL,
+                      "%s: the villager being reanimated stays a look-alike", which);
+                CHECK(log != NULL && strstr(log, "Standin") == NULL,
+                      "%s: Reanimate's stand-in corpse is not", which);
+            }
+            free(log);
+        }
+    }
     log = read_log(LOG_HISTORY);
     if (log == NULL) { CHECK(0, "the roster file was written"); VirtualFree(image, 0, MEM_RELEASE); return; }
 
@@ -448,6 +507,7 @@ static void vv1_villager(unsigned char *array, int i, const char *name, int age,
                          int head, int body, int due) {
     unsigned char *rec = array + (unsigned int)i * VV1_STRIDE;
     rec[0x28] = 1;
+    put_int(rec, 0x344u, 100);                 /* health: alive */
     put_name(rec, 0x370u, name, 0x1Cu);
     put_int(rec, 0x348u, age);
     put_int(rec, 0x350u, sex);
@@ -475,9 +535,11 @@ static void run_vv1(write_population_t write) {
     vv1_villager(array, 2, "Nina", 688, 2, 17, 10, 600);   /* carrying, father Papago */
     vv1_villager(array, 3, "Zea", 700, 2, 4, 5, 0);        /* not carrying */
     vv1_villager(array, 4, "Lea", 650, 2, 3, 3, 610);      /* carrying, father not recorded */
+    vv1_villager(array, 5, "Skeleton", 800, 1, 2, 2, 0);   /* a body awaiting burial: */
+    put_int(array + 5u * VV1_STRIDE, 0x344u, 0);           /* the slot live, health 0 */
 
     remove_log();
-    CHECK(write(1, image, "Village: Harness (Save 1)\n") == 5, "the export writes all five villagers");
+    CHECK(write(1, image, "Village: Harness (Save 1)\n") == 5, "the export writes all five villagers and no body");
 
     log = read_log(LOG_ROSTER);
     if (log == NULL) {
@@ -507,6 +569,7 @@ static void run_vv1(write_population_t write) {
     CHECK(block_has(block, length, "Name: Lea"), "roster: the carrying villager with no recorded father is present");
     CHECK(block_has(block, length, "  Nursing: yes"), "roster: ...and marked pregnant");
     CHECK(!block_has(block, length, "Father:"), "roster: ...with no Father block, as the later games print none for an unknown father");
+    CHECK(strstr(log, "Skeleton") == NULL, "roster: a health-0 body is not listed as living");
     free(log);
 
     log = read_log(LOG_HISTORY);
