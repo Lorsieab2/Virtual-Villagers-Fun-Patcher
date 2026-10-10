@@ -13,7 +13,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "tests"))
 
 import vv_family_tree as ft  # noqa: E402
-from test_tree_packed import big_village, owner_like_village, rect_overlaps  # noqa: E402
+from test_tree_packed import big_village, owner_like_village, rect_overlaps, village  # noqa: E402
 
 GAME = "Virtual Villagers - A New Home"
 OWNER_SIZES = {"Male": [120.0, 95.9], "Female": [120.0, 125.1], "Upcoming": [120.0, 82.9]}
@@ -117,6 +117,67 @@ class JointsNeverBehindStrangersTests(unittest.TestCase):
         lay = ft.layout(owner_like_village(), e)
         self.assertFalse(ft.lines_behind(lay))
         self.assertEqual(ft.lines(lay), ft.lines(lay))
+
+
+def too_close(lay) -> list:
+    """Pairs of straight runs side by side with less than ft.LINE_GAP between their drawn edges along a
+    stretch they share (the owner: "lines should try not to overlap exactly ever. (min 1 pixel distance
+    between them in any position)").  One family's runs on one line are one path (its children's lines
+    from one point, a stem along its own line); lines crossing do not count."""
+    width = {f.id: lay.edits.family_lines.get(ft.family_key(lay.village, f), {}).get("width", lay.edits.line_width)
+             for f in lay.families}
+    runs = []
+    for _c, pts, fid, piece in ft.lines(lay):
+        for a, b in zip(pts, pts[1:]):
+            if a[0] == b[0] and a[1] != b[1]:
+                runs.append((0, a[0], min(a[1], b[1]), max(a[1], b[1]), fid, piece))
+            elif a[1] == b[1] and a[0] != b[0]:
+                runs.append((1, a[1], min(a[0], b[0]), max(a[0], b[0]), fid, piece))
+    runs.sort(key=lambda r: (r[0], r[1]))
+    out = []
+    for i, s in enumerate(runs):
+        for t in runs[i + 1:]:
+            if t[0] != s[0] or t[1] - s[1] > 40:
+                break
+            if (s[4], s[5]) == (t[4], t[5]) or (s[4] == t[4] and abs(s[1] - t[1]) < 0.5):
+                continue
+            need = (width[s[4]] + width[t[4]]) / 2 + ft.LINE_GAP
+            if t[1] - s[1] < need - 1e-6 and min(s[3], t[3]) - max(s[2], t[2]) > 0.5:
+                out.append((s[4], s[5], t[4], t[5], round(t[1] - s[1], 2)))
+    return out
+
+
+class LinesNeverOnEachOtherTests(unittest.TestCase):
+    def test_every_layout_and_packing(self):
+        for make in (village, big_village, owner_like_village):
+            for positioning in ft.POSITIONING:
+                for packing in ((0, 60, 98, 100) if positioning in ft.PACKED else (60,)):
+                    for behind in ((None, False) if positioning in ft.PACKED else (None,)):
+                        e = ft.Edits(positioning=positioning, packing=packing, lines_behind=behind)
+                        lay = ft.layout(make(), e)
+                        for page in range(lay.pages):
+                            self.assertEqual(too_close(ft.layout(make(), e, page)), [],
+                                             (make.__name__, positioning, packing, behind, page))
+
+    def test_thick_lines_keep_their_room(self):
+        for width in (1.0, 6.0):
+            for positioning in ("rows", "packed_families", "packed_generations"):
+                e = ft.Edits(positioning=positioning, packing=100, line_width=width)
+                self.assertEqual(too_close(ft.layout(owner_like_village(), e)), [], (width, positioning))
+
+    def test_a_dragged_line_is_nudged_off_another(self):
+        # Drag a family's children's line onto another's: it ends up beside it, not on it.
+        v = big_village()
+        e = ft.Edits()
+        lay = ft.layout(v, e)
+        level = {}
+        for _c, pts, fid, piece in ft.lines(lay):
+            if piece == "lane":
+                level[fid] = pts
+        (a, pa), (b, pb) = list(level.items())[:2]
+        fam = {f.id: f for f in lay.families}
+        e.line_moves[f"{ft.family_key(v, fam[a])}|lane"] = [0.0, pb[0][1] - pa[0][1]]
+        self.assertEqual(too_close(ft.layout(v, e)), [])
 
 
 if __name__ == "__main__":

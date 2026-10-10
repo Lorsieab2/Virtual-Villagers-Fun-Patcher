@@ -3376,10 +3376,14 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
             elif not lay.edits.diagonal_lines:  # only across itself, so every line stays square
                 shift = [shift[0], 0.0] if upright else [0.0, shift[1]]
             _move_piece(drawn, s, *shift, lay=lay)
-    _separate(drawn, lay)
+    widths = {f.id: lay.edits.family_lines.get(families[f.id], {}).get("width", lay.edits.line_width)
+              for f in lay.families}
     if lines_behind(lay):
         _clear_joints(drawn, lay)
     _fit(drawn)
+    for _pass in range(2):              # last: never two lines on each other, whatever moved them
+        _separate(drawn, lay, widths)
+        _fit(drawn)
     return [(colour, points, fid, piece) for colour, points, fid, piece, _anchors, _up in drawn]
 
 
@@ -3533,51 +3537,136 @@ def _follow(drawn: list, s: list, old: list, new: list, seen: set) -> None:
             _follow(drawn, other, before, points, seen)
 
 
-APART = 4                               # how far a line moves off another it would lie on
+LINE_GAP = 1.0                          # the least room between two lines' drawn edges (the owner)
 
 
-def _separate(drawn: list, lay: Layout | None = None) -> None:
-    """No two families' lines lie on top of each other (the owner: "they can be as close as
-    possible but not overlapping"): a straight run along another family's run moves the least it
-    can, APART at a time -- an upright one sideways, a level one up or down -- keeping its line
-    whole as any dragged piece does."""
-    def upright(s) -> bool:
-        pts = s[1]
-        return len(pts) == 2 and pts[0][0] == pts[1][0] and pts[0][1] != pts[1][1]
+def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None) -> None:
+    """No two lines lie on top of each other (the owner: "lines should try not to overlap exactly ever.
+    (min 1 pixel distance between them in any position)"): two straight runs side by side -- two
+    families', or one family's that do not start from one point -- with less than LINE_GAP between their
+    drawn edges (each line's width counted) along any stretch they share: one moves the least it can, an
+    upright one sideways, a level one up or down, keeping its line whole as any dragged piece does
+    (_move_piece).  Lines crossing are not touched.  Where it can, a run moves where it goes through no
+    portrait it did not go through already -- and, with the lines behind the portraits, puts no joint
+    behind a stranger's portrait (_clear_joints)."""
+    widths = widths or {}
+    width_of = lambda r: widths.get(r[2], LINE_WIDTH)      # noqa: E731
+    behind = lay is not None and lines_behind(lay)
+    frames = _frames(lay) if lay is not None else {}
+    fams = {f.id: f for f in lay.families} if lay is not None else {}
 
-    def level(s) -> bool:
-        pts = s[1]
-        return len(pts) == 2 and pts[0][1] == pts[1][1] and pts[0][0] != pts[1][0]
+    def axis_of(r) -> int | None:
+        pts = r[1]
+        if len(pts) != 2 or r[3].startswith("bar "):    # (twins' bar: held by their legs, never moved)
+            return None
+        if pts[0][0] == pts[1][0] and pts[0][1] != pts[1][1]:
+            return 0                        # upright: placed across by x
+        if pts[0][1] == pts[1][1] and pts[0][0] != pts[1][0]:
+            return 1                        # level: placed by y
+        return None
 
-    def span(pts, axis: int) -> tuple[float, float]:
-        a, b = pts[0][axis], pts[1][axis]
-        return min(a, b), max(a, b)
+    def runs_of(r) -> list:
+        """(axis, place across, from, to) of each straight stretch of a piece (a twins' leg has three)."""
+        out = []
+        for a, b in zip(r[1], r[1][1:]):
+            if a[0] == b[0] and a[1] != b[1]:
+                out.append((0, a[0], min(a[1], b[1]), max(a[1], b[1])))
+            elif a[1] == b[1] and a[0] != b[0]:
+                out.append((1, a[1], min(a[0], b[0]), max(a[0], b[0])))
+        return out
 
-    def overlaps(a, b, axis: int) -> bool:
-        """Runs on one line (the other axis within a pixel) sharing more than a pixel of it."""
-        (a0, a1), (b0, b1) = span(a, 1 - axis), span(b, 1 - axis)
-        return abs(a[0][axis] - b[0][axis]) < 1 and min(a1, b1) - max(a0, b0) > 1
+    def shared_start(a, b) -> bool:
+        """One family's two pieces from one point (two children's lines from the one place on the
+        children's line, the stem and a leg): one path by design."""
+        return a[2] == b[2] and any(abs(p[0] - q[0]) < 0.5 and abs(p[1] - q[1]) < 0.5
+                                    for p in (a[1][0], a[1][-1]) for q in (b[1][0], b[1][-1]))
 
-    for _round in range(12):
-        moved = False
-        for kind, axis in ((upright, 0), (level, 1)):
-            runs = [s for s in drawn if kind(s)]
-            for i, a in enumerate(runs):
-                # (Each run's place across checked first: most runs are nowhere near.)
-                at = a[1][0][axis]
-                if not kind(a) or not any(abs(b[1][0][axis] - at) < 1 and b[2] != a[2] and kind(b)
-                                          and overlaps(a[1], b[1], axis) for b in runs[:i]):
+    def clashes(r, axis: int, at: float, lo: float, hi: float, index: dict) -> bool:
+        need = width_of(r) / 2 + LINE_GAP
+        for key in range(int(at // 8) - 2, int(at // 8) + 3):
+            for o, (ax, oat, olo, ohi) in index.get((axis, key), ()):
+                if o is r or (o[2] == r[2] and o[3] == r[3]):
                     continue
-                for step in (1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6):
-                    shift = step * APART
-                    trial = [tuple(v + shift if k == axis else v for k, v in enumerate(pt)) for pt in a[1]]
-                    if not any(abs(b[1][0][axis] - at - shift) < 1 and b is not a and b[2] != a[2] and kind(b)
-                               and overlaps(trial, b[1], axis) for b in runs):
-                        break
-                _move_piece(drawn, a, shift if axis == 0 else 0.0, shift if axis == 1 else 0.0, lay)
-                moved = True
+                if abs(oat - at) < need + width_of(o) / 2 - 1e-6 and min(hi, ohi) - max(lo, olo) > 0.5 \
+                        and not shared_start(r, o):
+                    return True
+        return False
+
+    def through(r, axis: int, at: float, lo: float, hi: float) -> set:
+        """The portraits a run would go through (their frames' boxes, a little inside)."""
+        out = set()
+        for q, (x0, y0, x1, y1, _pts) in frames.items():
+            if axis == 0 and x0 + 2 < at < x1 - 2 and min(hi, y1 - 2) > max(lo, y0 + 2):
+                out.add(q)
+            elif axis == 1 and y0 + 2 < at < y1 - 2 and min(hi, x1 - 2) > max(lo, x0 + 2):
+                out.add(q)
+        return out
+
+    def stranger_joint(r, axis: int, shift: float) -> bool:
+        f = fams.get(r[2])
+        if f is None:
+            return False
+        members = {f.father, f.mother, *f.children}
+        _a, at, lo, hi = runs_of(r)[0]
+        joints = [r[1][0], r[1][-1]] + [p for o in drawn if o is not r and o[2] == r[2] for p in (o[1][0], o[1][-1])
+                                        if abs(p[axis] - at) < 0.5 and lo - 0.5 <= p[1 - axis] <= hi + 0.5]
+        return any(_behind_stranger(lay, frames, members, x + (shift if axis == 0 else 0.0),
+                                    y + (shift if axis == 1 else 0.0)) for x, y in joints)
+
+    near = None                             # after the first round: only runs near one that moved
+    for _round in range(16):
+        index: dict = {}
+        for r in drawn:
+            for run in runs_of(r):
+                index.setdefault((run[0], int(run[1] // 8)), []).append((r, run))
+        before = {id(r): list(r[1]) for r in drawn}
+        moved = False
+        for r in drawn:
+            if near is not None and not any((run[0], int(run[1] // 8)) in near for run in runs_of(r)):
+                continue
+            axis = axis_of(r)
+            if axis is None:
+                continue
+            _ax, at, lo, hi = runs_of(r)[0]
+            if not clashes(r, axis, at, lo, hi, index):
+                continue
+            was = through(r, axis, at, lo, hi) if not behind and frames else set()
+            joints_bad = behind and stranger_joint(r, axis, 0.0)
+            best = None
+            # Where it may go: just clear of each run near it, either side (the nearest first).
+            places = set()
+            for key in range(int(at // 8) - 8, int(at // 8) + 9):
+                for o, (_a, oat, olo, ohi) in index.get((axis, key), ()):
+                    if o is not r and min(hi, ohi) - max(lo, olo) > 0.5:
+                        room = width_of(r) / 2 + width_of(o) / 2 + LINE_GAP + 0.01
+                        places.update((oat - room - at, oat + room - at))
+            for shift in sorted((d for d in places if 0 < abs(d) <= 60), key=abs):
+                if clashes(r, axis, at + shift, lo, hi, index):
+                    continue
+                if best is None:
+                    best = shift                # the nearest clear place, whatever else
+                if frames and not behind and not through(r, axis, at + shift, lo, hi) <= was:
+                    continue
+                if behind and not joints_bad and stranger_joint(r, axis, shift):
+                    continue
+                best = shift
+                break
+            if best is None:
+                continue
+            _move_piece(drawn, r, best if axis == 0 else 0.0, best if axis == 1 else 0.0, lay)
+            moved = True
+            for run in runs_of(r):          # where it is now, for the runs still to be looked at
+                index.setdefault((run[0], int(run[1] // 8)), []).append((r, run))
         if not moved:
             break
+        near = set()
+        for r in drawn:
+            if r[1] != before.get(id(r)):
+                for pts in (before.get(id(r), []), r[1]):
+                    for a, b in zip(pts, pts[1:]):
+                        axis = 0 if a[0] == b[0] else 1
+                        at = a[axis]
+                        near.update((axis, k) for k in range(int(at // 8) - 2, int(at // 8) + 3))
 
 
 # ---------------------------------------------------------------------------
