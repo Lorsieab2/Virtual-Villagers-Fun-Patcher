@@ -617,7 +617,7 @@ static void quit_cases(void) {
         CHECK(done == 0 && strcmp(first, text) == 0 && !file_exists(bmarker),
               "quit: A New Home keeps no parents -- no Birth records to write at the quit");
     } else {
-        CHECK(done == 1 && has_birth_backfill("Kid", 4, 4, 3) && count_of(text, "born before this log existed") == 1
+        CHECK(done == 1 && has_birth_backfill("Kid", 4, 4, 4) && count_of(text, "born before this log existed") == 1
               && file_exists(bmarker),
               "quit: the Birth record from the save is written there and then, and its marker");
     }
