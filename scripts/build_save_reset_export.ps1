@@ -25,6 +25,7 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     (Join-Path $sharedRoot "village_identity.c") `
     (Join-Path $sharedRoot "save_folder.c") `
     /link `
+    /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "save_reset_export.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
@@ -33,6 +34,13 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     kernel32.lib `
     user32.lib `
     shell32.lib
+if ($LASTEXITCODE -ne 0) {
+    throw "Native Save Reset DLL compilation failed."
+}
+
+# /Brepro: the link writes no timestamp or other per-run value, so the same source always
+# builds the same bytes (two builds without it differed, and the VV5 Task9 record and the
+# manifests pin this DLL by SHA-256).
 
 # The intermediates land beside the project root; clear them so a rebuild
 # never links a stale object.

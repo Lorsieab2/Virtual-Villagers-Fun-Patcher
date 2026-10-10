@@ -387,7 +387,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # village's mask file was never to be replaced (native/shared/foreign_sidecar.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "71597B3ED74B92D760EBF0F51A0109B351023B88AB94B3C6D9347F045AB4DF1F",
+            "567FE4E876748E9F95431AD9BF58D1939B6B2E97102E1D97B254DB2FB07542C8",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

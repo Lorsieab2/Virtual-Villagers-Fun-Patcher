@@ -22,7 +22,23 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
-## What's new in v1.35.67
+## What's new in v1.35.68
+
+> **Warning -- A New Home players on v1.35.66 or v1.35.67:** those versions can **wipe A New Home's parents on launch** (the parents file was emptied while the game's villager list was still empty at load). Do not play A New Home with them. **To recover:**
+> 1. Patch with v1.35.68 **before** playing again.
+> 2. Close the game.
+> 3. In the patcher, open **Repair Saves & Logs** and choose **Restore A New Home Parents...** -- it puts back, from the copies the patcher kept of the parents file, the parents of every villager the file lost (it only ever adds; it never changes a parent that is there).
+> 4. For the newest children (in the owner's village, the 19 born since), run **Repair Saves & Logs** or accept the quit check's offer: their parents are filled in from the Births log.
+
+- **A New Home's parents are never wiped again.** The real cause, found live: for about five seconds after launch the game's villager list is empty while its slot is already set, and the patcher took that for the village. Nothing is loaded, replaced or written for a village until its own villagers are on screen, and the same rule now guards every per-slot file in all five games (masks, custom titles, the Barrel and Story purchases): another village's file is never written over.
+- **Logs per save slot.** Each save slot now has its own log folders ("Logs\Save <n>\..."); everything older builds wrote to the shared folders is still read, as one history, and record numbers continue per game.
+- **Custom titles and Former Heathens follow a change of likes or dislikes** (island events, the Custom Island Event, vials and the Running upgrades change them), in all five games, and Repair Saves & Logs can give back titles older builds lost that way. A death the Custom Island Event causes is recorded as "Died in a custom island event".
+- **Log parity:** A New Home's Unaccounted and Arrived records name the villager's parents, as the other games' do; Deaths and Repairs numbers continue after an older build's folders, so no number is used twice.
+- **Family Tree Maker:** generation label boxes hold every line at any font size; "1 male" / "1 female"; page names are no longer cut short.
+- **Patch every game again** after updating: the logging and Origins companions changed.
+
+
+## What was new in v1.35.67
 
 - **Story / Cheat Upgrades purchases survive a quit (all five games).** A Pick Island Event, Custom Island Event (with its question), The Lost Children's Pick Gong of Wonder Outcome, or the years still to go of a Choose Time Skip Amount, bought and not delivered yet, is now kept in the save folder's Paid Purchases folder and delivered once the village is played again -- the island event the save made due brings it, never a random one instead, and nothing is charged twice. **Limits:** a crash (or anything that keeps the game from saving) loses whatever was bought since the last save, as it loses the rest of that play; and a two-choice question already on screen when you quit is not kept. **Patch every game again** after updating: the Story / Cheat Upgrades, Origins and Save Reset companions changed.
 

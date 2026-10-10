@@ -417,10 +417,10 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # their older names, and the repairs' copies kept apart.  Larger again
         # when another village's mask file was never to be replaced
         # (native/shared/foreign_sidecar.h).
-        self.assertEqual(vv5_companion["size"], 1848832)
+        self.assertEqual(vv5_companion["size"], 1849856)
         self.assertEqual(
             vv5_companion["sha256"],
-            "62F56ACEC2F9F97CE5A2759201909947768131E6A543141505788537FE5D9629",
+            "631F811859666C1B9C97B48EBAD2F1C2B4B8882C2BB661E6E2351DADAC23563C",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:
