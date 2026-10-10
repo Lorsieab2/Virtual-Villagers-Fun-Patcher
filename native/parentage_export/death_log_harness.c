@@ -475,6 +475,57 @@ int main(int argc, char **argv) {
             rec(6)[g->active] = 0;
         }
 
+        /* 3e: every like and dislike, as the game's Details panel lists them (v1.35.68: the
+           records printed only the first filled slot).  Dado likes slots 0 and the last (an
+           empty slot between) and dislikes slots 0 and 1; Kele likes nothing and dislikes only
+           the last slot -- in every record that names a villager: Disappeared (as Death),
+           Arrived and Birth. */
+        {
+            typedef int (__stdcall *birth_t)(int, const char *, int, int, const char *, int, int,
+                                             const char *, int, int, const void *);
+            birth_t birth = (birth_t)GetProcAddress(dll, "WriteParentageBirth");
+            unsigned int slots = PREFS[game - 1].slots, s;
+            unsigned int likes = PREFS[game - 1].likes, dislikes = PREFS[game - 1].dislikes;
+            const char *at;
+            villager(8, "Dado", 700, 4, 5);
+            villager(9, "Kele", 701, 6, 7);
+            for (s = 0; s < slots; ++s) {
+                *(int *)(rec(8) + likes + 4 * s) = -1;
+                *(int *)(rec(8) + dislikes + 4 * s) = -1;
+                *(int *)(rec(9) + likes + 4 * s) = s == 1 ? 500 : -1;      /* past the end: empty */
+                *(int *)(rec(9) + dislikes + 4 * s) = -1;
+            }
+            *(int *)(rec(8) + likes) = 11;                                 /* herbs */
+            *(int *)(rec(8) + likes + 4 * (slots - 1)) = 1;                /* crowds */
+            *(int *)(rec(8) + dislikes) = 21;                              /* green */
+            *(int *)(rec(8) + dislikes + 4) = 1;                           /* crowds */
+            *(int *)(rec(9) + dislikes + 4 * (slots - 1)) = 12;            /* berries */
+            CHECK(write_record(game, DISAPPEARED, rec(8), 1, "  Age: 700\n", NULL, 1) == 1
+                  && write_record(game, DISAPPEARED, rec(9), 1, "  Age: 701\n", NULL, 1) == 1
+                  && read_deaths(game, 1)
+                  && strstr(text, "  Name: Dado\r\n  Age: 700\r\n  Head: 4\r\n  Body: 5\r\n"
+                                  "  Likes: herbs, crowds\r\n  Dislikes: green, crowds\r\n") != NULL,
+                  "Deaths log: every like and every dislike, \", \" between");
+            CHECK(strstr(text, "  Name: Kele\r\n  Age: 701\r\n  Head: 6\r\n  Body: 7\r\n"
+                               "  Likes: (none)\r\n  Dislikes: berries\r\n") != NULL,
+                  "Deaths log: none is \"(none)\"; one, in the last slot, is that word alone");
+            CHECK(write_record(game, 6, rec(8), 1, "  Age at arrival: 700\n", NULL, 2) == 1
+                  && read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+                  && (at = strstr(text, "  Name: Dado\r\n")) != NULL
+                  && strstr(at, "  Likes: herbs, crowds\r\n  Dislikes: green, crowds\r\n") != NULL,
+                  "Arrived record: every like and every dislike");
+            if (birth != NULL) {
+                birth(game, "Dado", 4, 5, "Mama", 8, 8, "Papa", 1, 1, rec(8));
+            }
+            CHECK(birth != NULL
+                  && read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+                  && (at = strstr(text, "  Child: Dado\r\n")) != NULL
+                  && strstr(at, "    Likes: herbs, crowds\r\n    Dislikes: green, crowds\r\n") != NULL,
+                  "Birth record: the child's every like and every dislike");
+            rec(8)[g->active] = 0;
+            rec(9)[g->active] = 0;
+        }
+
         /* 3d: "Lost before birth" (kind 9, "VVFP Cause of Death.dll"'s cod_lost.inc): the
            Births and Conceptions log, unnumbered, every line the caller's. */
         CHECK(write_record(game, 9, rec(1), 1,

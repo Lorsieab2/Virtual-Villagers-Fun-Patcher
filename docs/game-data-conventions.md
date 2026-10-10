@@ -40,8 +40,9 @@ happened.
 
 The game's Details panel displays **every filled** entry of each array,
 in slot order, separated by ", " ("herbs, crowds"), and skips the empty
-ones wherever they sit. The Village History and Village Population logs
-print the same list (since v1.35.68; older builds printed only the first
+ones wherever they sit. Every patcher log (Village History, Village
+Population, Births, Arrived, Deaths and Island Events records) prints the
+same list (since v1.35.68; older builds printed only the first
 filled entry, and every reader still accepts that one-word form). Two real
 villagers show why skipping matters: one whose first dislike slot is empty
 while the second holds the value the panel displays, and one whose slots

@@ -456,11 +456,10 @@ def approve_repair(
 # ---------------------------------------------------------------------------
 # A "Likes:" / "Dislikes:" line's value, old and new (v1.35.68)
 # ---------------------------------------------------------------------------
-# Since v1.35.68 the Village History and Village Population list EVERY filled slot, in slot order,
-# ", " between them ("herbs, crowds"), as the game's own Details panel does and the Island Events log
-# already did.  Older snapshots, and the Births, Arrived and Deaths records, print one word: the
-# first filled slot.  So a one-word value is what a full list's FIRST word would have printed, and
-# the two agree.  No word of any game's list holds a comma.
+# Since v1.35.68 every log lists EVERY filled slot, in slot order, ", " between them ("herbs, crowds"),
+# as the game's own Details panel does (the Island Events log's "old -> new" lines already did).
+# Records written before that print one word: the first filled slot.  So a one-word value is what a
+# full list's FIRST word would have printed, and the two agree.  No word of any game's list holds a comma.
 
 def preference_words(value: str | None) -> tuple[str, ...]:
     """The words of a Likes / Dislikes value, in order; () for none ("(none)", "", missing)."""

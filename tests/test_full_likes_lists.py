@@ -5,11 +5,13 @@ green") although the game's own Details panel lists every filled one ("green, cr
 of Life's Mahi Chuchip, New Believers' Dado ("herbs, crowds" printed as "herbs").  The Island
 Events log already printed the full list (VillagePreferenceListText).
 
-The exporter now prints every filled slot, in slot order, ", " between them, in the same words;
-the running exporter is checked per game by native/population_export/population_export_harness.c
-(several likes with an empty slot between, one, none, index 0, the last slot).  Every reader of a
-"Likes:" / "Dislikes:" line takes the full list AND the one-word lines older logs (and the Births,
-Arrived and Deaths records) hold: these tests pin that.
+Every log now prints every filled slot, in slot order, ", " between them, in the same words: the
+Village History and Village Population (population_export.c; checked per game by
+native/population_export/population_export_harness.c: several likes with an empty slot between,
+one, none, index 0, the last slot) and the Births, Arrived, Deaths and Island Events records
+(parentage_export.c preference_text; checked per game by
+native/parentage_export/death_log_harness.c).  Every reader of a "Likes:" / "Dislikes:" line takes
+the full list AND the one-word lines older logs hold: these tests pin that.
 """
 import re
 import sys
@@ -125,6 +127,53 @@ class TheExporterAndTheReadersMakeRoom(unittest.TestCase):
         self.assertNotIn("char dislikes[64];", graves)
         self.assertNotIn("char line[512];", graves)
         self.assertNotIn("char line[512];", ARRIVALS.read_text(encoding="latin-1"))
+
+
+PARENTAGE = ROOT / "native" / "parentage_export" / "parentage_export.c"
+DEATH_HARNESS = ROOT / "native" / "parentage_export" / "death_log_harness.c"
+ISLAND_EVENTS = ROOT / "native" / "vvfp_island_events" / "vvfp_island_events.c"
+
+
+class TheRecordsListEveryWordToo(unittest.TestCase):
+    """Births, Arrived, Deaths (and Disappeared, Unaccounted) and the Island Events records' own
+    lines: parentage_export.c's preference_text, one list for all five games."""
+
+    def setUp(self):
+        self.source = PARENTAGE.read_text(encoding="latin-1")
+
+    def test_every_record_prints_the_whole_list(self):
+        self.assertNotIn("first_preference", self.source)
+        body = self.source[self.source.index("static void preference_text("):]
+        self.assertIn("preference_list_text(record, base,", body[:body.index("\n}")])
+
+    def test_every_list_has_room(self):
+        self.assertIn("#define PREFERENCE_TEXT_MAX 1024", self.source)
+        self.assertNotRegex(self.source, r"char \w*likes\[64\]")
+        self.assertIn("#define RECORD_TEXT_MAX (2048 + 4 * PREFERENCE_TEXT_MAX)", self.source)
+
+    def test_one_export_says_it_and_island_events_asks_only_that(self):
+        self.assertNotIn("VillagePreferenceText(", self.source)
+        self.assertNotIn("VillagePreferenceText=", (PARENTAGE.parent / "parentage_export.def").read_text())
+        self.assertNotIn('"VillagePreferenceText"', ISLAND_EVENTS.read_text(encoding="latin-1"))
+        self.assertIn('"VillagePreferenceListText"', ISLAND_EVENTS.read_text(encoding="latin-1"))
+
+    def test_the_harness_checks_deaths_arrived_and_births(self):
+        harness = DEATH_HARNESS.read_text(encoding="latin-1")
+        self.assertIn('"  Likes: herbs, crowds\\r\\n  Dislikes: green, crowds\\r\\n"', harness)
+        self.assertIn('"    Likes: herbs, crowds\\r\\n    Dislikes: green, crowds\\r\\n"', harness)
+        self.assertIn('"  Likes: (none)\\r\\n  Dislikes: berries\\r\\n"', harness)
+
+
+class LostTitlesTakeBoth(unittest.TestCase):
+    def test_an_island_event_record_old_or_new_matches_the_save(self):
+        import vv_lost_titles as lt
+        prefs = {"Likes": [8, 9, -1], "Dislikes": [1, -1, -1]}
+        for likes in ("bees", "bees, the dark"):
+            e = SimpleNamespace(likes=likes, dislikes="crowds", changes={})
+            self.assertTrue(lt._words_now(5, prefs, e), likes)
+        e = SimpleNamespace(likes="the dark", dislikes="crowds", changes={})
+        self.assertFalse(lt._words_now(5, prefs, e))
+        self.assertFalse(hasattr(lt, "first_word"))
 
 
 if __name__ == "__main__":

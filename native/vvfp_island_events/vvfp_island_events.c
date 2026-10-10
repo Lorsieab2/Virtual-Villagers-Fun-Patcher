@@ -210,13 +210,11 @@ static void field_text(const struct field *f, const unsigned char *record, char 
         if (!g_preferences_looked && g_preferences == NULL) {
             HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
             g_preferences_looked = 1;
-            /* Every like or dislike the villager has, not only the first the
-               Details panel shows: a change in a later slot is otherwise
-               "Likes: parrots -> parrots" (seen live in The Secret City). */
+            /* Every like or dislike the villager has, as the Details panel
+               and the other logs list them: a change in a later slot is
+               otherwise "Likes: parrots -> parrots" (seen live in The Secret
+               City). */
             g_preferences = module != NULL ? (preference_text_fn)GetProcAddress(module, "VillagePreferenceListText") : NULL;
-            if (g_preferences == NULL && module != NULL) {
-                g_preferences = (preference_text_fn)GetProcAddress(module, "VillagePreferenceText");
-            }
         }
         if (g_preferences == NULL || !g_preferences(g_game, record, f->type == F_DISLIKES, out, (int)size)) {
             _snprintf(out, size, "(changed)");

@@ -22,8 +22,8 @@
          Sex: <Male | Female>
          Head: <n>
          Body: <n>
-         Likes: <word | (none)>
-         Dislikes: <word | (none)>
+         Likes: <words, ", " between | (none)>
+         Dislikes: <words, ", " between | (none)>
          Skills:
            <skill>    <n>                      (the game's own skills)
          Parents:                              (only when the record keeps any)

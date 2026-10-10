@@ -116,12 +116,6 @@ def list_text(game: int, values: list[int]) -> str:
     return out or "(none)"
 
 
-def first_word(game: int, values: list[int]) -> str:
-    """The first filled slot's word, or "(none)" -- what a record's own "Likes:" line prints."""
-    words = PREFERENCES[game]
-    return next((words[v] for v in values if 0 <= v < len(words)), "(none)")
-
-
 def _identity(name: bytes, game: int, prefs: dict[str, list[int]]) -> int:
     """vv_title_identity from the parts: the name, 0xFF, the likes and the dislikes arrays."""
     f = ln.FIELDS[game]
@@ -171,7 +165,7 @@ class Event:
     name: str | None
     head: int | None
     body: int | None
-    likes: str | None               # the record's own Likes / Dislikes lines (the first word)
+    likes: str | None               # the record's own Likes / Dislikes lines (every word; one in older logs)
     dislikes: str | None
     custom: str | None              # its "Custom title:" line, when it has one
     event: str
@@ -324,7 +318,7 @@ def _words_now(game: int, prefs: dict, e: Event) -> bool:
         if label in e.changes:
             if list_text(game, prefs[label]) != e.changes[label][1]:
                 return False
-        elif own is not None and first_word(game, prefs[label]) != own:
+        elif own is not None and not tools.preferences_agree(own, list_text(game, prefs[label])):
             return False
     return True
 

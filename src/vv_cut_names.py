@@ -167,8 +167,8 @@ def _is_gone(b) -> bool:
 
 def _likes_agree(blocks, cut: tuple, full: tuple) -> bool:
     """The likes and dislikes the logs record under the cut name and under the full one agree --
-    or one of them has none to compare.  A one-word line (a record that prints the first filled
-    slot, or a snapshot older than v1.35.68) agrees with a full list that starts with that word
+    or one of them has none to compare.  A one-word line (any record written before v1.35.68,
+    which printed only the first filled slot) agrees with a full list that starts with that word
     (vv_log_tools.preferences_agree)."""
     import vv_log_tools as tools
     under_cut, under_full = _words(blocks, cut), _words(blocks, full)
