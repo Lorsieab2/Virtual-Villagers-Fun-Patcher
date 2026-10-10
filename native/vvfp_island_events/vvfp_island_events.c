@@ -152,9 +152,10 @@ static void take(struct snapshot *s) {
 
 typedef int (__stdcall *preference_text_fn)(int, const void *, int, char *, int);
 
+static preference_text_fn g_preferences;  /* the Parentage Export's VillagePreferenceText */
+static int g_preferences_looked;
+
 static void field_text(const struct field *f, const unsigned char *record, char *out, size_t size) {
-    static preference_text_fn preferences;
-    static int looked;
     int value = *(const int *)(record + f->offset);
     out[0] = '\0';
     switch (f->type) {
@@ -192,12 +193,12 @@ static void field_text(const struct field *f, const unsigned char *record, char 
         break;
     case F_LIKES:
     case F_DISLIKES:
-        if (!looked) {
+        if (!g_preferences_looked) {
             HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
-            looked = 1;
-            preferences = module != NULL ? (preference_text_fn)GetProcAddress(module, "VillagePreferenceText") : NULL;
+            g_preferences_looked = 1;
+            g_preferences = module != NULL ? (preference_text_fn)GetProcAddress(module, "VillagePreferenceText") : NULL;
         }
-        if (preferences == NULL || !preferences(g_game, record, f->type == F_DISLIKES, out, (int)size)) {
+        if (g_preferences == NULL || !g_preferences(g_game, record, f->type == F_DISLIKES, out, (int)size)) {
             _snprintf(out, size, "(changed)");
         }
         break;
@@ -357,6 +358,12 @@ static void compare(struct snapshot *s) {
             }
             field_text(f, old, a, sizeof a);
             field_text(f, live, b, sizeof b);
+            if ((f->type == F_LIKES || f->type == F_DISLIKES) && strcmp(a, b) == 0 && strcmp(a, "(changed)") != 0) {
+                /* A slot the logs and the Details panel do not show changed
+                   ("Likes: parrots -> parrots", seen live in The Secret
+                   City's Green Pearl): what the log tells is unchanged. */
+                continue;
+            }
             if (used < sizeof changes) {
                 int n = _snprintf(changes + used, sizeof changes - used, "  %s: %s -> %s\n", f->label, a, b);
                 used = n < 0 ? sizeof changes : used + (size_t)n;

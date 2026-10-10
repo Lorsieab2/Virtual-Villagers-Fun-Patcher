@@ -112,6 +112,29 @@ static int __stdcall stub_query_expected(int index, int *out, char *name, int ca
     return 1;                             /* as the companion: 1 for a known village, the father empty when none */
 }
 
+/* A stand-in for the Parentage Export's VillagePreferenceText: the first
+   filled slot, as the logs and the Details panel show it. */
+static int __stdcall stub_preference(int game, const void *record, int dislikes, char *out, int size) {
+    int k;
+    (void)game;
+    for (k = 0; k < g_layout->field_count; ++k) {
+        const struct field *f = &g_layout->fields[k];
+        if (f->type == (dislikes ? F_DISLIKES : F_LIKES)) {
+            unsigned int s;
+            for (s = 0; s < f->size; ++s) {
+                int v = *(const int *)((const unsigned char *)record + f->offset + 4 * s);
+                if (v != 0) {
+                    _snprintf(out, (size_t)size, "word%d", v);
+                    return 1;
+                }
+            }
+            _snprintf(out, (size_t)size, "(none)");
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static unsigned char *slot(int i) {
     return g_array + (size_t)i * ARRAYS[g_harness_game].stride;
 }
@@ -269,6 +292,8 @@ int main(void) {
     g_vv1_array = harness_array;
     g_vv1_query_expected = stub_query_expected;
     g_vv1_query_looked = 1;
+    g_preferences = stub_preference;
+    g_preferences_looked = 1;
     for (g_harness_game = 1; g_harness_game <= GAMES; ++g_harness_game) {
         struct game_layout layout = *GAME_LAYOUTS[g_harness_game];
         const struct field *research = field_named(&layout, "Research");
@@ -442,6 +467,25 @@ int main(void) {
                   && g_out[0].record == slot(0) && g_out[1].record == slot(2) && g_out[2].record == slot(3),
                   "look-alikes (+0x%X) are never logged, before, after or appearing; the three villagers are",
                   LOOKALIKE[g_harness_game]);
+        }
+
+        /* 8. Likes: a slot the logs do not show changes -- no line ("Likes:
+           parrots -> parrots", The Secret City's Green Pearl, live); the shown
+           one changes -- "Likes: word5 -> word9". */
+        {
+            const struct field *likes = field_named(&layout, "Likes");
+            if (likes != NULL) {
+                *(int *)(slot(0) + likes->offset) = 5;
+                begin();
+                *(int *)(slot(0) + likes->offset + 4 * (likes->size - 1)) = 7;
+                compare(&g_snaps[0]);
+                CHECK(g_outs == 0, "a likes slot the log does not show changed: no record");
+                begin();
+                *(int *)(slot(0) + likes->offset) = 9;
+                compare(&g_snaps[0]);
+                CHECK(g_outs == 1 && strcmp(g_out[0].changes, "  Likes: word5 -> word9\n") == 0,
+                      "the shown like changed: \"Likes: word5 -> word9\"");
+            }
         }
 
         /* 7. The later games' two-choice answer: "Choice:" as A New Home and
