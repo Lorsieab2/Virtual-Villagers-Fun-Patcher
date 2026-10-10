@@ -235,7 +235,7 @@ static void run_game(write_t write, const struct layout *layout) {
         CHECK(parent_has(r, "  Father:", "Likes: (none)"), "father with every like slot empty prints (none)");
         _snprintf(line, sizeof line, "Dislikes: %s", g->last_word);
         CHECK(parent_has(r, "  Father:", line), "father's dislikes: index %d names '%s' in THIS game's list", g->last_preference, g->last_word);
-        CHECK(record_has(r, "  Babies in pregnancy: 2"), "twins: 2 babies");
+        CHECK(record_has(r, "  Babies nursing: 2"), "twins: 2 babies");
     }
 
     /* --- triplets, no father record passed --- */
@@ -246,7 +246,7 @@ static void run_game(write_t write, const struct layout *layout) {
     r = conception(n_records(g));       /* the record just written */
     CHECK(r != NULL, "the twins-and-triplets record is in the log");
     if (r) {
-        CHECK(record_has(r, "  Babies in pregnancy: 3"), "triplets: 3 babies");
+        CHECK(record_has(r, "  Babies nursing: 3"), "triplets: 3 babies");
         CHECK(parent_has(r, "  Mother:", "Likes: turnips"), "mother's fields do not depend on the father");
         if (g->father_name != 0) {
             /* VV2..VV5: the game recorded his name and head/body on her, so
@@ -301,7 +301,7 @@ static void run_game(write_t write, const struct layout *layout) {
     ok = write(g->game, records, rec(3), rec(7));
     read_log();
     r = conception(n_records(g));       /* the record just written */
-    CHECK(r != NULL && record_has(r, "  Babies in pregnancy: 1"), "singleton: litter 0 is logged as 1 baby");
+    CHECK(r != NULL && record_has(r, "  Babies nursing: 1"), "singleton: litter 0 is logged as 1 baby");
 
     /* --- a namesake: only the ONE living Goro left is the other one --- */
     if (g->father_name != 0) {

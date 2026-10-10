@@ -107,7 +107,7 @@ class TheChecker(unittest.TestCase):
             folder = Path(tmp)
             write(folder, BIRTHS.format(g=3), "Village: Tribe (Save 1)\n" + conception(1, "Ma", 0, 0, 600, 2)
                   + "Lost before birth\n  Mother: Ma\n    Head: 0\n    Body: 0\n  Father: Pa\n    Head: 0\n"
-                    "    Body: 2\n  Babies in pregnancy: 2\n"
+                    "    Body: 2\n  Babies nursing: 2\n"
                     "  What happened: the mother died while nursing; never born\n\n")
             records, _files = checker.births_log(folder, 3, 1)
             self.assertEqual([r.kind for r in records], ["conception", "lost"])
@@ -116,6 +116,40 @@ class TheChecker(unittest.TestCase):
             self.assertEqual((lost.father.name, lost.father.head, lost.father.body), ("Pa", 0, 2))
             self.assertEqual(lost.babies, 2)
             self.assertFalse(records.damaged)
+
+
+class BothWords(unittest.TestCase):
+    """The owner, 2026-10-10: "Babies nursing: N" from now on; old logs say "Babies in pregnancy: N",
+    and every reader takes both."""
+
+    def test_the_checker_and_repair_read_either_word(self):
+        checker = tools.load_checker()
+        for words in ("Babies nursing", "Babies in pregnancy"):
+            with self.subTest(words=words), tempfile.TemporaryDirectory() as tmp:
+                folder = Path(tmp)
+                text = conception(1, "Ma", 0, 0, 600, 2).replace("Babies in pregnancy", words)
+                write(folder, BIRTHS.format(g=3), "Village: Tribe (Save 1)\n" + text + birth("A", "Ma", 0, 0)
+                      + birth("B", "Ma", 0, 0))
+                records, _files = checker.births_log(folder, 3, 1)
+                self.assertEqual(records[0].babies, 2)
+                self.assertEqual((records[0].father.name, records[0].father.head, records[0].father.body), ("Pa", 0, 2))
+                kind = {k.id: k for k in additions.plan(folder, 3, 1)}["born_as"]
+                self.assertEqual((kind.decided, kind.asked), (2, 0), "Twin, from the Conception's babies")
+
+    def test_every_writer_uses_the_new_words(self):
+        for rel, want in (("native/population_export/population_export.c", '"  Nursing: yes\\n"'),
+                          ("native/population_export/population_export.c", '"  Babies nursing: %d\\n"'),
+                          ("native/parentage_export/parentage_export.c", '"  Babies nursing: %d\\n"'),
+                          ("native/vvfp_cause_of_death/cod_lost.inc", '"  Babies nursing: %d\\n"'),
+                          ("native/vvfp_cause_of_death/cod_roster.inc", '"  Nursing: yes, %d %s\\n"')):
+            self.assertIn(want, (ROOT / rel).read_text(encoding="utf-8"), rel)
+        table = (ROOT / "native/vvfp_island_events/island_event_games.inc").read_text(encoding="utf-8")
+        self.assertEqual(table.count('{ "Nursing", '), 5)
+        self.assertNotIn('"Pregnant"', table)
+        self.assertNotIn('"Babies in pregnancy"', table)
+        for rel, old in (("native/statistics_export/statistics_reconcile.inc", '"  Babies in pregnancy: 2"'),
+                         ("native/vv1_parentage/vv1_crosscheck.inc", '"Babies in pregnancy"')):
+            self.assertIn(old, (ROOT / rel).read_text(encoding="utf-8"), f"{rel} still reads old logs")
 
 
 class TheGenealogy(unittest.TestCase):
@@ -130,7 +164,7 @@ class TheGenealogy(unittest.TestCase):
     def test_the_conception_is_closed_and_noted(self):
         reg = self.registry(conception(1, "Ma", 0, 0, 600, 3)
                             + "Lost before birth\n  Mother: Ma\n    Head: 0\n    Body: 0\n  Father: Pa\n"
-                              "    Head: 0\n    Body: 2\n  Babies in pregnancy: 3\n\n")
+                              "    Head: 0\n    Body: 2\n  Babies nursing: 3\n\n")
         self.assertNotIn(("Ma", 0, 0), reg.conceptions)
         self.assertEqual(reg.lost, [(("Ma", 0, 0), 3)])
         gen._upcoming(reg)
@@ -171,7 +205,7 @@ class Repair(unittest.TestCase):
                       "  Head: 0\r\n", dtext)
         btext = births.read_bytes().decode("latin-1")
         self.assertIn("  Babies in pregnancy: 2\r\n\r\nLost before birth\r\n  Mother: Ma\r\n    Head: 0\r\n"
-                      "    Body: 0\r\n  Father: Pa\r\n    Head: 0\r\n    Body: 2\r\n  Babies in pregnancy: 2\r\n"
+                      "    Body: 0\r\n  Father: Pa\r\n    Head: 0\r\n    Body: 2\r\n  Babies nursing: 2\r\n"
                       "  What happened: the mother died while nursing; never born\r\n", btext)
         self.assertLess(btext.index("Lost before birth"), btext.index("Conception 2"),
                         "right after the Conception it closes")

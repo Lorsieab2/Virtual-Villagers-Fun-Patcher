@@ -414,7 +414,7 @@ def parse_person(lines: list[str], start: int, label: str) -> Person:
     if person.name in ("(unknown)", "(none)"):
         return None                       # WriteParentageBirth's "never captured": no parent
     for line in lines[start + 1:]:
-        if re.match(r"\s*(Child|Mother|Father|Skills|Babies in pregnancy|Note)\b", line):
+        if re.match(r"\s*(Child|Mother|Father|Skills|Babies nursing|Babies in pregnancy|Note)\b", line):
             break
         h = re.match(r"\s*Head:\s*(-?\d+)", line)
         b = re.match(r"\s*Body:\s*(-?\d+)", line)
@@ -486,7 +486,7 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                     rec.mother = parse_person(lines, k, "Mother")
                 elif re.match(r"\s*Father:", line):
                     rec.father = parse_person(lines, k, "Father")
-                m = re.match(r"\s*Babies in pregnancy:\s*(\d+)", line)
+                m = re.match(r"\s*Babies (?:nursing|in pregnancy):\s*(\d+)", line)   # older logs: "in pregnancy"
                 if m:
                     rec.babies = int(m.group(1))
                 m = re.match(r"\s*Born as:\s*(Single birth|Twin|Triplet|Golden Child)\s*$", line)

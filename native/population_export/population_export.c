@@ -1056,11 +1056,11 @@ static int write_villager(
     if (with_pregnancy
             && g->age_at_conception != 0u
             && *(const int *)(record + g->age_at_conception) != 0) {
-        if (fprintf(file, "  Pregnant: yes\n") < 0) return 0;
+        if (fprintf(file, "  Nursing: yes\n") < 0) return 0;
     }
     if (with_pregnancy && g->litter != 0u) {
         int litter = *(const int *)(record + g->litter);
-        if (litter > 1 && fprintf(file, "  Babies in pregnancy: %d\n", litter) < 0) {
+        if (litter > 1 && fprintf(file, "  Babies nursing: %d\n", litter) < 0) {
             return 0;
         }
     }
@@ -1102,7 +1102,7 @@ static int write_villager(
        "Parents: Father: Poro", her actual father -- two different men
        under the same word.
 
-       So the PREGNANCY is the gate, the same test the Pregnant line above
+       So the PREGNANCY is the gate, the same test the Nursing line above
        uses and the one the field's own comment describes: it is zero when
        she is not carrying. Every game with father fields (VV2-VV5) has it;
        VV1 has neither and its roster is unchanged.

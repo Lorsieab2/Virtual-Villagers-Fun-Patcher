@@ -341,8 +341,8 @@ static void run_game(const struct game *g, write_population_t write) {
        one of these lines may appear in it -- not even for Nina, who is
        genuinely carrying. */
     CHECK(strstr(log, "Pregnant:") == NULL,
-          "the history prints no Pregnant line at all");
-    CHECK(strstr(log, "Babies in pregnancy:") == NULL,
+          "the history prints no Nursing line at all");
+    CHECK(strstr(log, "Babies nursing:") == NULL,
           "the history prints no litter count");
 
     /* Nina is written, and it is only her PREGNANCY that is dropped:
@@ -387,7 +387,7 @@ static void run_game(const struct game *g, write_population_t write) {
 
     block = villager_block(log, 3, &length);
     CHECK(block != NULL, "roster: the carrying villager is present");
-    CHECK(block_has(block, length, "  Pregnant: yes"),
+    CHECK(block_has(block, length, "  Nursing: yes"),
           "roster: the carrying villager is marked pregnant");
     CHECK(block_has(block, length, "  Father: Papago"),
           "roster: the carrying villager's father IS named");
@@ -396,7 +396,7 @@ static void run_game(const struct game *g, write_population_t write) {
 
     block = villager_block(log, 4, &length);
     CHECK(block != NULL, "roster: the non-carrying villager is present");
-    CHECK(!block_has(block, length, "  Pregnant: yes"),
+    CHECK(!block_has(block, length, "  Nursing: yes"),
           "roster: the non-carrying villager is NOT marked pregnant");
     CHECK(!block_has(block, length, "  Father: Papago"),
           "roster: a STALE carrying-father is never printed");

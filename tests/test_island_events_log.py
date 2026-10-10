@@ -85,13 +85,13 @@ class IslandEventsSource(unittest.TestCase):
                 self.assertIn(f'{{ "Expected father", 0x{father:X}, F_TEXT, 0x18 }}', text)
                 self.assertIn(f'{{ "Expected father\'s head", 0x{head:X}, F_INT, 0 }}', text)
                 self.assertIn(f'{{ "Expected father\'s body", 0x{body_:X}, F_INT, 0 }}', text)
-                self.assertIn(f'{{ "Babies in pregnancy", 0x{litter:X}, F_INT, 0 }}', text)
-        self.assertIn('{ "Babies in pregnancy", 0x35C, F_INT, 0 }', tables["VV1_FIELDS"])
+                self.assertIn(f'{{ "Babies nursing", 0x{litter:X}, F_INT, 0 }}', text)
+        self.assertIn('{ "Babies nursing", 0x35C, F_INT, 0 }', tables["VV1_FIELDS"])
         self.assertNotIn("Expected father", tables["VV1_FIELDS"])
         # The Lost Children: the owner's own VV2 log disproved the father copies on the mother
         # (0x5C0 / 0x5E0 / 0x5DC) and no real log has confirmed the babies (0x544): only Pregnant.
-        self.assertIn('{ "Pregnant", 0x540, F_FLAG, 0 }', tables["VV2_FIELDS"])
-        for absent in ('"Expected father', '"Babies in pregnancy"', "0x5C0, F", "0x5E0, F", "0x5DC, F", "0x544, F"):
+        self.assertIn('{ "Nursing", 0x540, F_FLAG, 0 }', tables["VV2_FIELDS"])
+        for absent in ('"Expected father', '"Babies nursing"', "0x5C0, F", "0x5E0, F", "0x5DC, F", "0x544, F"):
             self.assertNotIn(absent, tables["VV2_FIELDS"])
 
     def test_the_offsets_are_the_parentage_exporters(self):

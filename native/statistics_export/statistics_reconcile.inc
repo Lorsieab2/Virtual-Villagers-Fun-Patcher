@@ -294,7 +294,7 @@ static void rc_visit_deaths(char *text, void *context) {
 }
 
 /* The Births and Conceptions log: this village's "Conception <n>" records
-   with "  Babies in pregnancy: 2". */
+   with "  Babies nursing: 2" ("  Babies in pregnancy: 2" in an older log). */
 static void rc_visit_births(char *text, void *context) {
     struct rc_count *c = (struct rc_count *)context;
     char *cursor = text;
@@ -310,7 +310,8 @@ static void rc_visit_births(char *text, void *context) {
             open = ours && strncmp(line, "Conception ", 11) == 0;
             continue;
         }
-        if (open && strcmp(line, "  Babies in pregnancy: 2") == 0) {
+        if (open && (strcmp(line, "  Babies nursing: 2") == 0
+                     || strcmp(line, "  Babies in pregnancy: 2") == 0)) {   /* an older log */
             ++c->twins;
             open = 0;
         }

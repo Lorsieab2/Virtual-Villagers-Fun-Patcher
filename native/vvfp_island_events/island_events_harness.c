@@ -132,8 +132,8 @@ int main(void) {
     for (g_harness_game = 1; g_harness_game <= GAMES; ++g_harness_game) {
         struct game_layout layout = *GAME_LAYOUTS[g_harness_game];
         const struct field *research = field_named(&layout, "Research");
-        const struct field *pregnant = field_named(&layout, "Pregnant");
-        const struct field *babies = field_named(&layout, "Babies in pregnancy");
+        const struct field *pregnant = field_named(&layout, "Nursing");
+        const struct field *babies = field_named(&layout, "Babies nursing");
         const struct field *father = field_named(&layout, "Expected father");
         const struct field *father_head = field_named(&layout, "Expected father's head");
         const struct field *father_body = field_named(&layout, "Expected father's body");
@@ -213,12 +213,12 @@ int main(void) {
         compare(&g_snaps[0]);
         if (g_harness_game == 2) {
             CHECK(g_outs == 1 && g_out[0].record == slot(2)
-                  && strcmp(g_out[0].changes, "  Pregnant: no -> yes\n") == 0,
+                  && strcmp(g_out[0].changes, "  Nursing: no -> yes\n") == 0,
                   "a pregnancy the event starts: only Pregnant (the father and babies offsets are unproven)");
         } else {
             CHECK(g_outs == 1 && g_out[0].record == slot(2)
-                  && strstr(g_out[0].changes, "  Pregnant: no -> yes\n") != NULL
-                  && strstr(g_out[0].changes, "  Babies in pregnancy: 0 -> 2\n") != NULL,
+                  && strstr(g_out[0].changes, "  Nursing: no -> yes\n") != NULL
+                  && strstr(g_out[0].changes, "  Babies nursing: 0 -> 2\n") != NULL,
                   "a pregnancy the event starts: Pregnant and the babies");
         }
         if (g_harness_game == 1) {
