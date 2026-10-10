@@ -700,6 +700,20 @@ class NewHomeCauseOfDeath(unittest.TestCase):
         _, calls = w.open_popup(5)
         self.assertEqual(calls[6][2], ["Respected Citizen"])
 
+    def test_a_villager_buried_at_age_0_has_a_grave(self):
+        # The owner, 2026-10-09: "for all 5 games, 0 is a valid value for head, body and age!!!!"  The
+        # game's grave loop wrote a grave (its counter says so); its age 0 is a real age, never "the
+        # graveyard was full".
+        for mode in MODES:
+            g, w = vv1(mode)
+            w.villager(3, "Babe", 0, 5)
+            w.injury(3, 9)
+            w.bury(3, best_skill=30, job=4)
+            self.assertEqual(bytes(g.p.read(w.grave(0), 5)), b"Babe\0", mode)
+            (death,) = g.of_kind(DEATH)
+            self.assertEqual((death["Age at death"], death["Grave"]), ("0", "Apprentice Builder"), mode)
+            self.assertNotIn("graveyard was full", death["Grave"], mode)
+
     def test_a_removed_body_is_a_death_with_no_grave(self):
         g, w = vv1()
         w.villager(12, "Gone", 1500, 30)
@@ -1075,6 +1089,18 @@ class LostChildrenCauseOfDeath(unittest.TestCase):
             self.assertEqual([t for t, _, _ in lines_ if t.startswith("\"")], ["\"", "\""], mode)
             self.assertEqual(g.stats()["draws"], 1, mode)
             self.assertEqual(bytes(g.p.read(w.grave(k) + 0x19, 18)), b"Respected Citizen\0")
+
+    def test_a_villager_buried_at_age_0_has_a_grave(self):
+        # The owner, 2026-10-09: 0 is a valid age in all five games -- a grave at age 0 is a grave.
+        for mode in MODES:
+            g, w = vv2(mode)
+            w.villager(3, "Babe", 0, 5)
+            w.injury(3, 9)
+            w.bury(3, best_skill=30, job=4)
+            self.assertEqual(bytes(g.p.read(w.grave(0), 5)), b"Babe\0", mode)
+            (death,) = g.of_kind(DEATH)
+            self.assertEqual(death["Age at death"], "0", mode)
+            self.assertTrue(death["Grave"].startswith("Apprentice "), (mode, death["Grave"]))
 
     def test_an_edited_epitaph_is_an_epitaph_changed_record(self):
         g, w = vv2()
