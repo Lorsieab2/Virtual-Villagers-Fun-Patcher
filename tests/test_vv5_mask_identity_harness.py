@@ -44,6 +44,9 @@ class Vv5MaskIdentityHarnessRunsTests(unittest.TestCase):
             "ok   file is magic + 150 roster dwords + 75-byte table",
             "ok   file magic is 'VM06'",
             "ok   back to slot 1: A's masks reload from its file",
+            # Another village's file is never replaced (native/shared/foreign_sidecar.h).
+            "ok   village A's masks come back: B's empty table never replaced A's file",
+            "ok   A's file is kept aside (another-village), never replaced",
         ):
             with self.subTest(case=case):
                 self.assertIn(case, result.stdout)

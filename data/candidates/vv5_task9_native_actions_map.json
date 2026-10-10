@@ -22,7 +22,7 @@
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "872E864D40CC2011A40EB3375DDDAADF594828BAF7A8802DED5DB6AA9B3597FE"
+      "source_text_sha256": "2ED4CE16D94BC449C94FC986A97C115E7A068713D677EAFF63957357ED97EDE7"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -67,8 +67,8 @@
     "unchanged": true
   },
   "companion": {
-    "size": 1847296,
-    "sha256": "A72E6EEB41C7124328FB7A15FD46A1656596C5566CEC2F3EF62B15BF89919252"
+    "size": 1847808,
+    "sha256": "4F445454B150F61D5F702AC2B33520694646ECF337B91317047C83B2845A3F74"
   },
   "payload": {
     "sha256": "FC05283D127AC9FEF5B9AA02406D320A9EC484FD3CE119011C0129C1F6F9ED51",

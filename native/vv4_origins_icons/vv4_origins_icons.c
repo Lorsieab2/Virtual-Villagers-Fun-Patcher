@@ -8,6 +8,7 @@
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
+#include "../shared/foreign_sidecar.h" /* another village's file is never replaced */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
@@ -223,6 +224,19 @@ static int g_mask_roster_known;
    the roster is replaced from a file or reset. */
 static unsigned int g_mask_stable[VV_MAX_VILLAGERS];
 static int g_mask_stable_known;
+/* ANOTHER VILLAGE IN THE ARRAY (native/shared/foreign_sidecar.h).  The
+   present hook that runs the sweep also runs at the menus, and since
+   v1.35.66 the slot comes from the game's own field, which names a slot
+   before its village is in the records.  When nobody on screen is in the
+   table's roster, the table is not this array's: it is kept aside here,
+   untouched, and the live table starts empty; the file is never replaced
+   (an empty table is not written over it, a first mask moves it aside).
+   The moment the table's own villagers are on screen again it comes back. */
+static unsigned char g_stash_mask[VV_MAX_VILLAGERS];
+static unsigned int g_stash_fp[VV_MAX_VILLAGERS];
+static unsigned int g_stash_roster[VV_MAX_VILLAGERS];
+static int g_stash_active;
+static int g_mask_foreign;
 
 /* The save builder cave records the game's selected save number here. This is
    patch-owned .shr storage, not a villager field or a save byte. The builder
@@ -249,6 +263,8 @@ static void vv_clear_mask_state(void) {
     g_fp_version = 3u;
     g_mask_roster_known = 0;
     g_mask_stable_known = 0;
+    g_stash_active = 0;
+    g_mask_foreign = 0;
 }
 
 static int vv_captured_save_slot(void) {
@@ -366,6 +382,41 @@ static int vv_mask_follow_table(void) {
     }
     if (!anyone) {
         return 0;
+    }
+    if (g_stash_active && vv_roster_shares(slots, g_stash_roster, live) == 1) {
+        /* The table's own village is back on screen: its masks return, as
+           they were, and are followed onto it below. */
+        for (idx = 0; idx < slots; idx++) {
+            g_mask_by_index[idx] = g_stash_mask[idx];
+            g_mask_fp[idx] = g_stash_fp[idx];
+            g_mask_roster[idx] = g_stash_roster[idx];
+            if (live[idx] == 0) {
+                g_slot_seen_alive[idx] = 0;      /* the other array's latches say nothing here */
+                g_slot_identity_ready[idx] = 0;
+            }
+        }
+        g_mask_roster_known = 1;
+        g_mask_stable_known = 0;
+        g_stash_active = 0;
+        g_mask_foreign = 0;
+    } else if (!g_stash_active && g_mask_roster_known && g_fp_version == 3u
+               && vv_table_any(g_mask_by_index, slots)
+               && vv_roster_shares(slots, g_mask_roster, live) == 0) {
+        /* Nobody on screen is in the table: another array (the menus' state,
+           another village).  Followed now, every mask would be dropped and
+           the empty table written over the file. */
+        for (idx = 0; idx < slots; idx++) {
+            g_stash_mask[idx] = g_mask_by_index[idx];
+            g_stash_fp[idx] = g_mask_fp[idx];
+            g_stash_roster[idx] = g_mask_roster[idx];
+            g_mask_by_index[idx] = 0;
+            g_mask_fp[idx] = 0;
+            g_mask_roster[idx] = 0;
+        }
+        g_mask_roster_known = 0;
+        g_mask_stable_known = 0;
+        g_stash_active = 1;
+        g_mask_foreign = 1;
     }
     /* A RENAME (Codex, #516).  The identity hashes the name, so a villager
        the player renames read as a new occupant and lost the mask.  One
@@ -994,6 +1045,16 @@ static int vv_write_mask_sidecar(void) {
        still in version-2 fingerprints (not yet followed) has no roster, and
        is written back in its own version-2 shape. */
     parts[4] = g_mask_roster;     sizes[4] = header[1] * (DWORD)sizeof(unsigned int);
+    if (g_mask_foreign) {
+        /* The file is the stashed village's (vv_mask_follow_table): an empty
+           table is never written over it; a table the player has put a mask
+           in moves it aside first, and that village's masks stay in the copy. */
+        int nothing;
+        if (!vv_foreign_before_write(&g_mask_foreign, path, vv_table_any(g_mask_by_index, vv_slots()), &nothing)) {
+            return nothing;
+        }
+        g_stash_active = 0;
+    }
     return vv_sidecar_publish(&g_mask_gate, path, parts, sizes, g_fp_version == 2u ? 4 : 5);
 }
 

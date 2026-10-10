@@ -414,11 +414,13 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # (native/shared/orphan_masks.h, save_folder.c linked). New digest for
         # ... Larger again with the save folder's new names (native/shared/
         # save_layout.h): the Log Checks and Repairs Made folders, moved from
-        # their older names, and the repairs' copies kept apart.
-        self.assertEqual(vv5_companion["size"], 1847296)
+        # their older names, and the repairs' copies kept apart.  Larger again
+        # when another village's mask file was never to be replaced
+        # (native/shared/foreign_sidecar.h).
+        self.assertEqual(vv5_companion["size"], 1847808)
         self.assertEqual(
             vv5_companion["sha256"],
-            "A72E6EEB41C7124328FB7A15FD46A1656596C5566CEC2F3EF62B15BF89919252",
+            "4F445454B150F61D5F702AC2B33520694646ECF337B91317047C83B2845A3F74",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

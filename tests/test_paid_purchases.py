@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "scripts/build_paid_purchases_harness.ps1"
 CL = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x86\cl.exe")
-CHECKS = 18
+CHECKS = 19
 
 
 class PaidPurchases(unittest.TestCase):

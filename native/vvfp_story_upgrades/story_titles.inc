@@ -18,6 +18,7 @@
    forgotten rather than written back. */
 
 #include "../shared/mask_follow.h"
+#include "../shared/foreign_sidecar.h"   /* vv_roster_shares: another array is not play */
 
 #define TITLES_CHECK_MS 2000u
 #define TITLES_ROSTER VV_MASK_FOLLOW_MAX    /* every game has 150 or 256 records */
@@ -40,6 +41,7 @@ static struct {
     unsigned int roster[TITLES_ROSTER];
     unsigned int roster_stable[TITLES_ROSTER];
     int roster_anyone;                  /* anybody was present at that look */
+    int swapped;                        /* the last look saw another array: the next village is a load */
 } titles;
 
 static unsigned char titles_buffer[VV_TITLES_FILE_MAX];
@@ -403,8 +405,22 @@ static void titles_pass(int game, int sweep) {
     /* Every tick, titled or not, so the last look is never stale when a
        title is set. */
     present = titles_take_roster(game, now, now_stable);
-    moved = !titles.roster_anyone || vv_roster_moved(TITLES_ROSTER, titles.roster, now);
     renamed = vv_roster_renamed(TITLES_ROSTER, titles.roster, titles.roster_stable, now, now_stable);
+    if (renamed < 0 && titles.roster_anyone && present > 0 && vv_roster_shares(TITLES_ROSTER, titles.roster, now) == 0) {
+        /* A WHOLE OTHER ARRAY IS NOT PLAY (native/shared/foreign_sidecar.h).
+           Nobody of the last look is on screen: the game has put another
+           village in the records with the slot unchanged -- the title screen
+           after a quit to the menu, whose slot list leaves seeded founders
+           there.  Swept now, every title whose villager was seen would be
+           dropped and the file written without them.  They are unseen
+           again -- the sweep drops only a title whose villager it has seen
+           -- and every look is a load until the table's villagers are back. */
+        memset(titles.seen, 0, sizeof titles.seen);
+        titles.swapped = 1;
+    } else if (renamed >= 0 || vv_roster_shares(TITLES_ROSTER, titles.roster, now) != 0) {
+        titles.swapped = 0;
+    }
+    moved = !titles.roster_anyone || titles.swapped || vv_roster_moved(TITLES_ROSTER, titles.roster, now);
     /* A RENAME (Codex, #516): the identity hashes the name, so the title of
        a villager the player renamed no longer matched their record and the
        sweep threw it away.  One record changed, the rest of the identity
