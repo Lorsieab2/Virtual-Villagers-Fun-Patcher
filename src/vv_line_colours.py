@@ -7,8 +7,9 @@ own colour, which its children's portraits share, is left as it was.
 How the colours are chosen, the same tree always giving the same colours (nothing here is random):
 
 * The candidates are a fixed grid spread evenly in OKLab, the perceptual colour space (equal steps look
-  equally different): every hue, lightness and strength of colour sRGB shows, bright and light ones too
-  (the owner, 2026-10-10: "Auto-color should use any color possible"), but no near-black or near-white.
+  equally different): the whole RGB cube, not only bright hues (the owner, 2026-10-10: "any color possible means any color
+  possible across the whole RGB values, meaning white, black, gray and brown are also included"): white
+  and black, grays, browns, pastels, dark shades and every bright colour.
 * Distinct from each other: the colours are chosen to make the closest pair of families as different
   (OKLab distance) as can be, families whose lines cross or run close together counting as closer than
   they are (their distance divided by 1 + how near their lines come, 0-1), so they end up the most
@@ -120,13 +121,13 @@ _CANDIDATES: list[str] = []
 
 def candidates() -> list[str]:
     """Every colour the button may give a family's lines, in a fixed order: an even grid in OKLCh
-    (lightness 0.30-0.90 in steps of 0.04 -- no near-black or near-white line --, colour strength 0-0.30 in
-    steps of 0.03, every 10 degrees of hue): every colour the screen shows, light, dark, bright or soft."""
+    (lightness 0-1 in steps of 0.04, so pure black and white too; colour strength 0-0.34 in steps of 0.02,
+    grays at 0; every 10 degrees of hue): the whole RGB cube, light, dark, bright, soft, gray or brown."""
     if not _CANDIDATES:
         seen = set()
-        for k in range(16):
-            L = 0.30 + k * 0.04
-            grid = [(L, 0.0, 0.0)] + [(L, 0.03 * c, h) for c in range(1, 11) for h in range(0, 360, 10)]
+        for k in range(26):
+            L = k * 0.04
+            grid = [(L, 0.0, 0.0)] + [(L, 0.02 * c, h) for c in range(1, 18) for h in range(0, 360, 10)]
             for L_, C, h in grid:
                 rgb = _from_oklch(L_, C, h)
                 if rgb is not None:
@@ -336,15 +337,17 @@ def choose(fams: dict[str, _Family], tie: float = TIE) -> Result:
     n = len(group)
     pool = candidates()
     labs = [oklab(_rgb(c)) for c in pool]
-    # Every colour is allowed (the owner, 2026-10-10: "Auto-color should use any color possible"): one that
-    # would blend into the background under a family's lines gets a thin casing (casings()).  How strongly
-    # each stands out only settles near-ties, the clearer one winning.
+    # Any colour of the whole RGB cube (white, black, grays and browns too; the owner, 2026-10-10) that
+    # stands out FLOOR against the background under the family's lines: white only on a dark page, black
+    # only on a light one.  Where nothing does (a background light and dark in turns) every colour is open
+    # and the one chosen is cased (casings()).  How strongly each stands out settles near-ties.
     allowed: list[list[int]] = []
     strength: list[dict[int, float]] = []
     for fam in group:
         few = _some(fam.colours) if fam.opacity < 1 else None
         strength.append({i: worst_contrast(fam, c, few) for i, c in enumerate(pool)})
-        allowed.append(list(range(len(pool))))
+        ok = [i for i, s in strength[-1].items() if s >= FLOOR]
+        allowed.append(ok or list(range(len(pool))))
     used = sorted({i for ok in allowed for i in ok})
     where = {c: k for k, c in enumerate(used)}
     used_labs = [labs[i] for i in used]

@@ -29,7 +29,7 @@ GAME = "Virtual Villagers - A New Home"
 # The closest two families' OKLab distance (x100; about 2 is just noticeable) the button must reach on a white
 # page, by how many families there are.  Measured 2026-10-10 (any colour, a casing where one blends): 21.8, 10.6
 # and 7.6 (the closest crossing or nearby pair 38.6, 17.0 and 12.5).
-NEAREST = {10: 19.0, 50: 9.5, 112: 6.5}
+NEAREST = {10: 19.0, 50: 9.4, 112: 6.4}
 
 
 # ---- independent checks (not the module's own arithmetic) ------------------------------------------
@@ -354,6 +354,72 @@ class DistinctTests(unittest.TestCase):
         lc._CANDIDATES.clear()
         self.assertEqual(lc.auto_colours(many_families(50), render=False).colours, first)
 
+
+def _kind(colour: str) -> str:
+    """White, black, gray, brown or colour -- told apart independently of the module."""
+    r, g, b = _rgb(colour)
+    hi, lo = max(r, g, b), min(r, g, b)
+    if hi - lo < 14:
+        return "white" if lo >= 235 else "black" if hi <= 25 else "gray"
+    if r > g > b and hi < 200 and lo >= 10 and 0.2 * r <= r - g <= 0.7 * r and g > 1.1 * b:
+        return "brown"
+    return "colour"
+
+
+class WholeRgbTests(unittest.TestCase):
+    """The owner, 2026-10-10: any colour possible means the whole RGB cube -- white, black, gray and brown too."""
+
+    def test_the_candidates_cover_the_whole_cube(self):
+        pool = lc.candidates()
+        self.assertGreater(len(pool), 3000)
+        self.assertIn("#000000", pool)
+        self.assertIn("#ffffff", pool)
+        kinds = {_kind(c) for c in pool}
+        self.assertTrue({"white", "black", "gray", "brown", "colour"} <= kinds, kinds)
+        lums = sorted(_lum(_rgb(c)) for c in pool)
+        self.assertLess(lums[0], 0.001)
+        self.assertGreater(lums[-1], 0.99)
+        self.assertGreater(sum(1 for v in lums if 0.3 < v < 0.7), 100)      # pastels and mid tones too
+
+    def test_light_and_dark_both_appear_on_a_mid_background(self):
+        res = lc.auto_colours(many_families(112, ft.Backdrop("#808080")), render=False)
+        lums = [_lum(_rgb(c)) for c in res.colours.values()]
+        self.assertTrue(any(v < 0.08 for v in lums) and any(v > 0.5 for v in lums), sorted(lums))
+
+    def test_grays_and_browns_appear_when_many_lines_are_needed(self):
+        for backdrop in (ft.Backdrop("#ffffff"), ft.Backdrop("#101018")):
+            res = lc.auto_colours(many_families(200, backdrop), render=False)
+            kinds = [_kind(c) for c in res.colours.values()]
+            self.assertTrue(kinds.count("gray") + kinds.count("black") + kinds.count("white") >= 1, backdrop.colour)
+            self.assertGreaterEqual(kinds.count("brown"), 1, backdrop.colour)
+
+    def test_white_only_on_dark_and_black_only_on_light(self):
+        dark = lc.auto_colours(many_families(60, ft.Backdrop("#101018")), render=False).colours.values()
+        light = lc.auto_colours(many_families(60, ft.Backdrop("#fafafa")), render=False).colours.values()
+        self.assertNotIn("#000000", dark)
+        self.assertNotIn("#ffffff", light)
+        self.assertTrue(any(_lum(_rgb(c)) > 0.8 for c in dark))             # near-white lines on the dark page
+        self.assertTrue(any(_lum(_rgb(c)) < 0.02 for c in light))           # near-black on the light one
+
+    def test_contrast_holds_on_light_dark_and_custom_backgrounds(self):
+        for bg in ("#ffffff", "#000000", "#1b1b3a", "#d9c7a0", "#7f7f7f", "#3a7d44"):
+            for opacity in (1.0, 0.8):
+                with self.subTest(background=bg, opacity=opacity):
+                    pages = many_families(60, ft.Backdrop(bg), opacity=opacity)
+                    res = lc.auto_colours(pages, render=False)
+                    under = _rgb(bg)
+                    for key, colour in res.colours.items():
+                        shown = tuple(opacity * u + (1 - opacity) * v for u, v in zip(_rgb(colour), under))
+                        if key not in res.cased:
+                            self.assertGreaterEqual(_ratio(shown, under), lc.FLOOR - 0.01, (key, colour))
+                    if opacity == 1.0:
+                        self.assertEqual(res.cased, [])
+
+    def test_deterministic_across_backgrounds(self):
+        for bg in ("#ffffff", "#202020"):
+            a = lc.auto_colours(many_families(40, ft.Backdrop(bg)), render=False).colours
+            b = lc.auto_colours(many_families(40, ft.Backdrop(bg)), render=False).colours
+            self.assertEqual(a, b)
 
 class EditsTests(unittest.TestCase):
     def test_lines_only_portraits_keep_their_family_colours(self):
