@@ -24,6 +24,7 @@ import vv_last_names
 import vv_cut_names
 import vv_number_names
 import vv_save_backup
+import vv_startup_questions
 import vv_tribe_rename
 import vv_genealogy
 import vv_genealogy_window
@@ -776,9 +777,9 @@ class App(tk.Tk):
             splash.close()
             self.deiconify()
         self.protocol("WM_DELETE_WINDOW", self._close)
-        # A game's quit check asked to be reminded of villagers with no last name: asked once the
-        # window is up (the owner, v1.35.66).
-        self.after(1500, self._ask_about_missing_last_names)
+        # What the games' quit checks queued for the player (src/vv_startup_questions.py): asked once
+        # the window is up (the owner, v1.35.66).
+        self.after(1500, self._ask_startup_questions)
 
     def _run_with_wait(self, message: str, work):
         """Run ``work`` off the main thread while a wait window stays alive.
@@ -3507,8 +3508,10 @@ class App(tk.Tk):
                "no last name are highlighted, with a last name suggested. Keep it, pick another from the list "
                "or type your own, press OK, then Repair.")
 
-    def _ask_about_missing_last_names(self) -> None:
-        """At the patcher's start: each village whose game asked to be reminded (and is closed now)."""
+    def _ask_startup_questions(self) -> None:
+        """At the patcher's start, with "Check logs automatically" on: every question a game queued at
+        its quit (src/vv_startup_questions.py -- the missing last names, and any other feature that
+        registers one), for each village whose game is closed now."""
         try:
             if not self.check_logs_var.get():
                 return
@@ -3518,24 +3521,30 @@ class App(tk.Tk):
             for build in self.builds:
                 game = vv_tribe_rename.game_for_title(build.title)
                 for folder in vv_save_backup.find_save_folders(build.title, documents):
-                    for slot in vv_last_names.requests(folder, game.number):
-                        if vv_save_backup.running_game_count(folder):
-                            continue            # asked again the next time, with the game closed
-                        try:
-                            missing = self._run_with_wait(
-                                "Looking for villagers with no last name…\n\nNothing is changed.",
-                                lambda f=folder, g=game.number, s=slot: vv_last_names.missing_last_names(f, g, s))
-                        except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError,
-                                struct.error):
-                            continue
-                        if not missing:
-                            vv_last_names.clear_missing(folder, game.number, slot)
-                            continue
-                        tribe = next((i.name for i in vv_tribe_rename.read_slots(game, folder)
-                                      if i.slot == slot and i.name), f"Save {slot}")
-                        self._missing_last_names_prompt(self, folder, game.number, slot, tribe, missing)
+                    queued = vv_startup_questions.pending(folder, game.number)
+                    if not queued or vv_save_backup.running_game_count(folder):
+                        continue                # asked again the next time, with the game closed
+                    tribes = {i.slot: i.name for i in vv_tribe_rename.read_slots(game, folder) if i.name}
+                    for question in queued:
+                        asker = getattr(self, question.source.asker, None)
+                        if asker is not None:
+                            asker(folder, game.number, question.slot, tribes.get(question.slot, f"Save {question.slot}"))
         except (tk.TclError, OSError, vv_log_tools.LogToolError):
             pass
+
+    def _ask_missing_last_names_for(self, folder: Path, number: int, slot: int, tribe: str) -> None:
+        """The game asked to be reminded of villagers with no last name (vv_last_names.requests)."""
+        try:
+            missing = self._run_with_wait(
+                "Looking for villagers with no last name…\n\nNothing is changed.",
+                lambda: vv_last_names.missing_last_names(folder, number, slot))
+        except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, vv_log_tools.LogToolError, OSError,
+                ValueError, struct.error):
+            return
+        if not missing:
+            vv_last_names.clear_missing(folder, number, slot)
+            return
+        self._missing_last_names_prompt(self, folder, number, slot, tribe, missing)
 
     def _missing_last_names_prompt(self, parent, folder: Path, number: int, slot: int, tribe: str,
                                    missing: list) -> str | None:

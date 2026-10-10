@@ -250,6 +250,29 @@ class ArrivalsToggle(Village):
         self.assertEqual(ln.unique_last_name(3, v, set(pool), set()), "")
 
 
+class Contradiction(Village):
+    """The owner (v1.35.66): an arriving villager whose last name conflicts with a record -- an earlier
+    record of the same villager gives another -- is a contradiction: asked about, never overwritten."""
+
+    def test_an_earlier_record_with_a_last_name_is_asked_not_overwritten(self):
+        self._log("Tribe History/Village History 1.txt",
+                  "=== Virtual Villagers 3 -- 2026-10-01 ===\nVillage: Tribe (Save 1)\n"
+                  "Villager 1\n  Name: Kalea Moa\n  Head: 4\n  Body: 4\n\n")
+        kalea = self.missing()["Kalea"]
+        self.assertFalse(kalea.auto, "not named automatically, whatever the arrivals toggle says")
+        self.assertEqual(kalea.conflict, ["Moa"])
+        self.assertEqual(kalea.suggested, "Moa", "the record's own is offered, for the player to choose")
+        self.assertIn("but an earlier record calls them Moa", kalea.describe())
+
+    def test_a_dead_namesake_with_the_same_looks_is_someone_else(self):
+        self._log("Deaths/Virtual Villagers 3 Deaths Log 1.txt",
+                  "Village: Tribe (Save 1)\nDeath 1\n  Name: Kalea Moa\n  Age at death: 1400\n"
+                  "  Head: 4\n  Body: 4\n\n")
+        kalea = self.missing()["Kalea"]
+        self.assertEqual(kalea.conflict, [])
+        self.assertTrue(kalea.auto)
+
+
 class ThePrompt(unittest.TestCase):
     """The patcher's side (src/vv_fun_patcher_gui.py), read from the source."""
     SOURCE = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
@@ -262,7 +285,7 @@ class ThePrompt(unittest.TestCase):
         body = self.body("_missing_last_names_prompt")
         for words in ('"Give the suggested names"', '"Choose each…"', '"Not now"', "self._LN_HOW"):
             self.assertIn(words, body)
-        how = self.SOURCE[self.SOURCE.index("    _LN_HOW = "):self.SOURCE.index("    def _ask_about_missing_last_names(")]
+        how = self.SOURCE[self.SOURCE.index("    _LN_HOW = "):self.SOURCE.index("    def _ask_startup_questions(")]
         for words in ("close the game, choose Repair Saves & \"\n               \"Logs...", "press Repair Saves & Logs",
                       "Give villagers last names, in the game and the logs", "press Choose…", "highlighted",
                       "press OK, then Repair"):
@@ -271,7 +294,7 @@ class ThePrompt(unittest.TestCase):
         self.assertIn("vv_last_names.give_missing(", body)
 
     def test_it_asks_only_with_the_automatic_check_on(self):
-        self.assertIn("if not self.check_logs_var.get():", self.body("_ask_about_missing_last_names"))
+        self.assertIn("if not self.check_logs_var.get():", self.body("_ask_startup_questions"))
         self.assertIn("self._missing_last_names_at_repair(", self.body("_repair_logs"))
         repair = self.body("_missing_last_names_at_repair")
         self.assertIn("self.check_logs_var.get()", repair)
@@ -281,12 +304,42 @@ class ThePrompt(unittest.TestCase):
     def test_the_patcher_looks_for_the_games_requests_when_it_opens(self):
         start = self.SOURCE.index("        self.protocol(\"WM_DELETE_WINDOW\", self._close)\n")
         self.assertIn("self.after(", self.SOURCE[start:start + 300])
-        self.assertIn("vv_last_names.requests(", self.body("_ask_about_missing_last_names"))
+        self.assertIn("self._ask_startup_questions)", self.SOURCE[start:start + 400])
+        loop = self.body("_ask_startup_questions")
+        self.assertIn("vv_startup_questions.pending(folder, game.number)", loop)
+        self.assertIn("vv_save_backup.running_game_count(folder)", loop)
+        self.assertIn("vv_last_names.missing_last_names(", self.body("_ask_missing_last_names_for"))
 
     def test_the_window_highlights_them_and_has_the_arrivals_toggle(self):
         body = self.body("_last_names_dialog")
         self.assertIn('names.get("highlight"', body)
         self.assertIn("Give arriving villagers their own new last name automatically", body)
+
+class TheQueue(unittest.TestCase):
+    """The questions the patcher asks when it opens are a queue any feature adds to
+    (src/vv_startup_questions.py); the missing last names are its first source."""
+
+    def test_the_last_names_source_is_registered(self):
+        import vv_startup_questions as questions
+        [source] = [s for s in questions.SOURCES if s.name == "missing last names"]
+        self.assertIs(source.pending, ln.requests)
+        self.assertTrue(hasattr(__import__("vv_fun_patcher_gui").App, source.asker))
+
+    def test_another_source_is_asked_in_turn_and_a_failing_one_is_skipped(self):
+        import vv_startup_questions as questions
+        saved = list(questions.SOURCES)
+        self.addCleanup(lambda: questions.SOURCES.__setitem__(slice(None), saved))
+
+        def broken(folder, game):
+            raise OSError("locked")
+
+        questions.register(questions.Source("other", lambda folder, game: [2, 4], "_ask_other_for"))
+        questions.register(questions.Source("broken", broken, "_ask_broken_for"))
+        with tempfile.TemporaryDirectory() as tmp:
+            ln.write_missing(Path(tmp), 3, 1, ln.REMIND, [("Kalea", 4, 4)])
+            found = [(q.source.name, q.slot) for q in questions.pending(Path(tmp), 3)]
+        self.assertEqual(found, [("missing last names", 1), ("other", 2), ("other", 4)])
+
 
 
 if __name__ == "__main__":
