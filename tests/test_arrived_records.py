@@ -66,6 +66,9 @@ CHECKS += 8 * 2 + 9 + 2 * 2
 # + 1 in New Believers (v1.35.68): a former Heathen whose likes an island event changed keeps her
 # Former Heathens entry, carried to her new identity (cod_former.inc former_follow).
 CHECKS += 1
+# + 3 per game: Unaccounted and Arrived records name the villager's own parents in every game -- A New
+# Home's from the Show Parents companion, kept in the roster file (arrival_harness.c parents_cases)
+CHECKS += 3 * 5
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

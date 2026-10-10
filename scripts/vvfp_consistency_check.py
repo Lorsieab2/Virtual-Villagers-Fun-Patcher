@@ -1466,11 +1466,12 @@ def vcr1_problem(data: bytes, game: int) -> str | None:
     if len(data) < 32:
         return "shorter than its header"
     magic, version, g, count, lo, hi = struct.unpack_from("<4sIIIII", data, 0)
-    if magic != b"VCR1" or version not in (1, 2) or g != game:
-        return "not a version 1 or 2 roster of this game"
+    # version 3 (A New Home only) follows each entry with the villager's parents' names, 2 x char[32]
+    if magic != b"VCR1" or not (version in (1, 2) or (version == 3 and game == 1)) or g != game:
+        return "not a version 1 or 2 roster of this game (or 3, A New Home's)"
     if hi <= lo or count > 256:
         return "impossible snapshot bounds or count"
-    entry = 16 + hi - lo
+    entry = 16 + hi - lo + (64 if version == 3 else 0)
     if len(data) != 32 + count * entry:
         return f"{len(data)} bytes does not hold {count} entries"
     prev = prev_rank = None
@@ -1481,6 +1482,8 @@ def vcr1_problem(data: bytes, game: int) -> str | None:
         if (index >= 256 or rank > index or data[e + 4] > (0 if version == 1 else 5) or any(data[e + 5:e + 8])
                 or (prev is not None and (index <= prev or rank <= prev_rank))):
             return f"entry {i} is out of order or malformed"
+        if version == 3 and (data[e + entry - 33] != 0 or data[e + entry - 1] != 0):
+            return f"entry {i}'s parents' names do not end inside their fields"
         prev, prev_rank = index, rank
     return None
 

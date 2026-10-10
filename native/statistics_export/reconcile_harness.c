@@ -669,6 +669,27 @@ int main(int argc, char **argv) {
                   " nothing left");
         }
 
+        /* 7b. An older build's "Repairs" folder beside "Repairs Made": the record is written in the
+           new folder and numbered after the older folder's own file of the same number, as A New
+           Home's parentage repair numbers it (save_layout.h vv_layout_older_repairs) -- never a
+           second "Repair 1". */
+        clean();
+        write_files(1, 0, 0);
+        {
+            char old_log[MAX_PATH], repairs[MAX_PATH], made[MAX_PATH];
+            _snprintf(old_log, MAX_PATH, LOGS "\\Repairs\\Virtual Villagers %d Repairs Log 1.txt", game);
+            write_file(old_log, "Village: Recon Tribe (Save 1)\r\nRepair 1\r\n  Date: 2026-10-04 10:00:00\r\n\r\n"
+                                "Repair 2\r\n  Date: 2026-10-04 10:00:01\r\n\r\nRepair 3\r\n  Date: 2026-10-04 10:00:02\r\n\r\n");
+            _snprintf(made, MAX_PATH, "%s\\" REPAIRS_DIR, root);
+            make_dirs(made);
+            repair(game, 1, 1);
+            save(game, 1, manager);
+            _snprintf(repairs, MAX_PATH, REPAIRS_DIR "\\Virtual Villagers %d Repairs Log 1.txt", game);
+            read_rel(repairs);
+            CHECK(strstr(text, "\r\nRepair 4\r\n") != NULL && strstr(text, "Repair 1\r\n") == NULL,
+                  "an older build's Repairs folder beside Repairs Made: the repair is Repair 4, after its Repair 3");
+        }
+
         /* 8. Both "Deaths" and "Deaths and Disappearances" (Codex, #577): the
            old folder cannot be moved over the new one, so both are read, and
            a record found in both is one burial. */
