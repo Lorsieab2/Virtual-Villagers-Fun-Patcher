@@ -4081,7 +4081,10 @@ __declspec(dllexport) int __stdcall VillageCustomTitle(int game_id, const void *
     }
     start = strstr(line, ": ");
     start = start != NULL ? start + 2 : line;
-    n = strcspn(start, "\r\n");
+    n = strcspn(start, "\n");              /* the title ends at its line's end; a CR before it is not part of it */
+    if (n > 0 && start[n - 1] == '\r') {
+        --n;
+    }
     if (n >= (size_t)out_size) {
         n = (size_t)out_size - 1;
     }

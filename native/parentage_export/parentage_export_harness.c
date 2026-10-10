@@ -15,11 +15,13 @@
    copies but says "(not captured for this birth)" for his age, likes and
    dislikes -- never another villager's, even one sharing his name.
 
-   The DLL writes under Documents\LDW\<this exe's basename>\, exactly where a
-   game of that name would keep its saves.  harness_ldw_tree_begin() refuses
-   to run unless that folder is absent, and each game's logs are removed when
-   that game is done, so every game starts from an empty folder, nothing is
-   left behind and no player's folder is touched.
+   The DLL writes under <Documents>\LDW\<this exe's basename>\, where a game
+   of that name would keep its saves -- but its "Documents" is redirected to a
+   throwaway folder under %TEMP% (harness_redirect_documents.h patches the
+   DLL's own shell32 imports), so the player's real Documents\LDW is never
+   touched, even when this harness is killed part-way: all that is left then
+   is an unreferenced folder in %TEMP%.  Each game's logs are removed when
+   that game is done, so every game starts from an empty folder.
 
    Usage:  parentage_export_harness.exe "<path to VVFP Parentage Export.dll>"
    Exit code 0 when every check passes. */
@@ -28,7 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../shared/harness_ldw_tree.h"
+#include "../shared/harness_redirect_documents.h"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -91,7 +93,7 @@ static void game_copies_father_onto_mother(int mother, int father) {
 static char folder[MAX_PATH];
 static int locate_folder(void) {
     char docs[MAX_PATH], exe[MAX_PATH], *base, *dot;
-    if (!SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) return 0;
+    lstrcpynA(docs, harness_redirect_documents_path(), MAX_PATH);   /* the throwaway Documents */
     if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0) return 0;
     base = strrchr(exe, '\\'); base = base ? base + 1 : exe;
     dot = strrchr(base, '.'); if (dot) *dot = 0;
@@ -376,12 +378,13 @@ static void run_game(write_t write, const struct layout *layout) {
 }
 
 int main(int argc, char **argv) {
-    harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     HMODULE dll; write_t write; int i;
     if (argc < 2) { fprintf(stderr, "usage: %s <VVFP Parentage Export.dll>\n", argv[0]); return 2; }
-    if (!locate_folder()) { fprintf(stderr, "cannot resolve Documents\\LDW\n"); return 2; }
     dll = LoadLibraryA(argv[1]);
     if (dll == NULL) { fprintf(stderr, "LoadLibrary failed: %lu\n", GetLastError()); return 2; }
+    /* Before the DLL resolves any folder: its Documents is a throwaway folder, never the player's. */
+    if (!harness_redirect_documents(dll)) { fprintf(stderr, "cannot redirect the DLL's Documents\n"); return 2; }
+    if (!locate_folder()) { fprintf(stderr, "cannot resolve the throwaway Documents\n"); return 2; }
     write = (write_t)GetProcAddress(dll, "WriteParentageRecordWithFather");
     if (write == NULL) { fprintf(stderr, "WriteParentageRecordWithFather not exported\n"); return 2; }
     printf("log folder: %s\n", folder);
