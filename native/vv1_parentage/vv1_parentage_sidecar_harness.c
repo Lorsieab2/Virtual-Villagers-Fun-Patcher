@@ -765,6 +765,25 @@ static void title_screen_cases(void) {
     put(founders, 3, "Tavita", 1, 1);
     put(founders, 4, "Leilani", 0, 1);
 
+    /* 29b. THE OWNER'S LOSS, AS SEEN LIVE (2026-10-10, a test copy of the
+           owner's village): from the first frame the game's slot field says
+           1, the villager array exists with nobody in it while the save is
+           read, the load's founders flash by for a few milliseconds -- no
+           frame of ours sees them -- and then the whole village is there.
+           A New Home's companion took that empty array for this village,
+           snapshotted it, and on the next frame read every villager as a new
+           arrival: all their parents wiped, the file written so. */
+    {
+        static unsigned char empty[VV1_RECORD_COUNT * VV1_RECORD_STRIDE];
+        memset(empty, 0, sizeof(empty));
+        write_good_sidecar();
+        game_ticks(empty, 1);                    /* one frame of it is enough */
+        game_ticks(village_a, 4 * VV1_NEW_VILLAGE_STRIKES);
+        check(loaded_alba() && !g_session_born[5],
+              "a load that shows an empty array first keeps every villager's parents");
+        check(file_names_alba(), "... and the file still names them");
+    }
+
     /* 30. The owner's session: the title screen's founders for a while, then
            the village chosen in that very slot. */
     write_good_sidecar();
