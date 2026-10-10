@@ -234,6 +234,12 @@ Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck
 
 - Patch ID: `vv1_watering_trains_building`
 
+**Dropping an Adult on a Child Tells a Story**
+
+When you drop an adult (18 or older) on a child (under 18), the adult now tells the child a story instead of trying to embrace, as in the later Virtual Villagers games. The adult shows "Telling a story" and talks for a little while, and each story gives the adult one ordinary Breeding practice roll (A New Home's name for Parenting), with the game's own chance and amount. The child shows "Listening to a story" and waits where it is until the story is over, like a villager listening to a joke. Only your own drop does this: villagers never start a story by themselves, and dropping an adult on an adult, a child on anyone, or a 14-17 year old on a child works exactly as before. A dead child, or a sick one (who is sent for healing, as before), gets no story. No executable bytes change: "VVFP Startup.dll" starts "VVFP VV1 Storytelling.dll" as the game opens, and it installs its hook only after verifying the stock bytes. The Lost Children needs no such patch: its own drop already tells stories (and, from Parenting 50, teaches children). **Needs no other patch.**
+
+- Patch ID: `vv1_storytelling`
+
 **Misc Text Fixes**
 
 Corrects a handful of A New Home's English texts: "breeding" becomes "parenting" wherever the game names the skill (the skill name, the improvement message and the Fish of Fertility popup), "This villager improved at farming" gains its full stop, and "Food available to villagers" loses its stray full stop. Each text is changed in place in the game's own string table; the other languages are untouched.
