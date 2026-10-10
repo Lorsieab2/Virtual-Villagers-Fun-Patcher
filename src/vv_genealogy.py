@@ -256,6 +256,14 @@ def _snapshot_parents(lines: list[str]) -> dict[str, tuple]:
     return out
 
 
+def is_backfilled_arrival(b) -> bool:
+    """An Arrived record the arrival backfill wrote with no knowledge of how the villager came --
+    "How: unknown" -- which says only that the log had no record of them when it was written.  It
+    never outweighs a Birth record of the same villager; an Arrived record with a known "How" (an
+    event, a Custom Island Event, a barrel, "Founder") is a real arrival."""
+    return b.heading.startswith("Arrived") and (b.value("How") or "").strip().lower() == "unknown"
+
+
 def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     """The dead and departed, and every parent a snapshot names."""
     import vv_log_additions as additions
@@ -278,9 +286,15 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             # A New Home's Golden Child is born to a mother (its puzzle spends her pregnancy), never an
             # arrival (the owner, 2026-10-08); an older patcher backfilled an Arrived record for it.
             pass
+        elif b.heading.startswith("Arrived") and is_backfilled_arrival(b) and p.birth_record is not None:
+            # A Birth wins over a backfilled "How: unknown" Arrived record: the backfill wrote it when
+            # it could not see the Birth (the owner's Cheop Bahati, born "Cheop" before Last Names).
+            pass
         elif b.heading.startswith("Arrived"):
             p.arrived = True
-            p.how = b.value("How") or p.how
+            # A backfilled "How: unknown" never replaces how a real Arrived record says they came.
+            if not (is_backfilled_arrival(b) and p.how):
+                p.how = b.value("How") or p.how
             seen = re.search(r"first seen (\d{4}-\d{2}-\d{2} \d{2}:\d{2})", b.value("Age at arrival") or "")
             if seen and (p.first_seen is None or seen.group(1) < p.first_seen[:16]):
                 p.first_seen = seen.group(1)

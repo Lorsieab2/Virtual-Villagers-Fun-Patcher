@@ -602,6 +602,7 @@ class ApprovalTests(FolderTest):
         self.assertIn('open(backup, "xb")', word_fix)
         self.assertEqual(word_fix.count("os.replace("), 1)
         self.assertEqual(word_fix.count('open(backup, "xb")'), 1)
+        # (a boundary moved by an added or removed record goes through move_word_boundary, the one helper)
         self.assertEqual(word_fix.count('"ab"'), 2)
         # ...and every line added to older records (src/vv_log_additions.py: the
         # Sex, Special villager, Custom title, Mask and Born as lines), the same way.

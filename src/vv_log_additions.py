@@ -51,12 +51,17 @@ CHECKED = {
                      "every Births and Conceptions log file, after any numbered ones before them",
     "lost": "the Conceptions with no Birth whose mother has a Death or Disappeared record, against her age, "
             "the village now and the player's answers",
+    "born_arrived": "the backfilled \"How: unknown\" Arrived records of villagers the log also has a Birth "
+                    "record for, and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
          "appearance": "Appearance changed record added",
          "faction": "Faction added", "birth_numbers": "Birth number added",
-         "lost": "Lost before birth added"}
+         "lost": "Lost before birth added",
+         "born_arrived": "Backfilled Arrived record removed (the villager was born here)"}
+REMOVE_IT = "Remove the Arrived record (they were born here)"
+KEEP_IT = "Keep it"
 FROM_NOW = "Only from now on (add nothing)"
 
 # The order the lines take under a villager's name (as the exporters print them).
@@ -83,6 +88,17 @@ class Insert:
 
 
 @dataclass
+class Remove:
+    """A whole record to take out of a log (with the blank line after it), when the player's answer
+    to `question` is `when`."""
+    path: Path
+    start: int                              # its heading's line index
+    count: int                              # its lines, the blank line after it included
+    question: str
+    when: str
+
+
+@dataclass
 class Kind:
     id: str
     label: str                              # the checklist's words
@@ -90,6 +106,7 @@ class Kind:
     questions: dict[str, Question] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
     context: dict = field(default_factory=dict)  # birth_numbers: the game and slot it numbers again at apply
+    removes: list[Remove] = field(default_factory=list)
 
     @property
     def decided(self) -> int:
@@ -1002,6 +1019,46 @@ def plan_birth_numbers(folder: Path, game: int, slot: int) -> Kind:
     return kind
 
 
+def is_backfilled_arrival(b: Block) -> bool:
+    """An Arrived record the arrival backfill wrote knowing nothing of how the villager came."""
+    return b.heading.startswith("Arrived") and (b.value("How") or "").strip().lower() == "unknown"
+
+
+def _birth_identity(b: Block) -> tuple | None:
+    return _sub_identity(b, "Child") if is_birth(b.heading) else None
+
+
+def plan_born_arrived(folder: Path, game: int, slot: int) -> Kind:
+    """A backfilled "How: unknown" Arrived record of a villager the log also has a Birth record for
+    (name, head and body): the arrival backfill wrote it when it could not see the Birth -- the owner's
+    Cheop Bahati, born "Cheop" before Last Names, and the Golden Child Lulu, whose Birth was added
+    later.  The villager was born here, so the Arrived record is wrong; the player is asked, and a
+    record they choose to remove is taken out (the file copied first)."""
+    kind = Kind("born_arrived", "Arrived records of villagers born here (backfilled, \"How: unknown\")")
+    checker = tools.load_checker()
+    villages = current_villages(folder, game, slot)
+    paths = checker.numbered(folder / checker.LOGS / "Births and Conceptions",
+                             f"Virtual Villagers {game} Births and Conceptions Log")
+    every: list[Block] = []
+    for path in paths:
+        every += [b for b in blocks(path) if b.of(slot, game, villages)]
+    born = {_birth_identity(b) for b in every if is_birth(b.heading)}
+    for b in every:
+        if not is_backfilled_arrival(b) or b.identity not in born or None in b.identity:
+            continue
+        name, head, body = b.identity
+        key = f"born_arrived|{b.path.name}|{b.start}"
+        kind.questions[key] = Question(
+            key, f"{b.heading}: {name} (head {head}, body {body}) has a Birth record, but a backfilled "
+                 "\"How: unknown\" Arrived record says they arrived. Remove the Arrived record?",
+            [REMOVE_IT, KEEP_IT], REMOVE_IT)
+        lines = read_lines(b.path)
+        count = len(b.lines) + (1 if b.start + len(b.lines) < len(lines)
+                                and not lines[b.start + len(b.lines)].strip() else 0)
+        kind.removes.append(Remove(b.path, b.start, count, key, REMOVE_IT))
+    return kind
+
+
 def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     """Everything older records of this slot's village lack, kind by kind.  Reads only."""
     folder = Path(folder)
@@ -1017,6 +1074,7 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_appearance(folder, game, slot),
         plan_faction(folder, game, slot, people, current),
         plan_lost(folder, game, slot),
+        plan_born_arrived(folder, game, slot),
         plan_birth_numbers(folder, game, slot),
     ]
     return kinds
@@ -1044,6 +1102,26 @@ def resolve(kinds: list[Kind], chosen: set[str],
     return out
 
 
+def resolve_removes(kinds: list[Kind], chosen: set[str],
+                    answers: dict[str, str]) -> dict[Path, list[tuple[int, int, str]]]:
+    """The records to take out, per file: (start, count, kind id), for the ticked kinds and the
+    answers given (a record is removed only on the answer that says so)."""
+    out: dict[Path, list[tuple[int, int, str]]] = {}
+    for kind in kinds:
+        if kind.id not in chosen:
+            continue
+        for rem in kind.removes:
+            if answers.get(rem.question, "") == rem.when:
+                out.setdefault(rem.path, []).append((rem.start, rem.count, kind.id))
+    return out
+
+
+# An Arrived record's numbered heading, renumbered after a removal (the game's running count).
+ARRIVED_NUMBERED = re.compile(r"^Arrived (\d+)\s*$")
+# The kind id the renumbered headings are written under: not counted as records changed.
+RENUMBERED = "_arrived_renumbered"
+
+
 class _Doc:
     """One log file being changed: its lines as read (each keeps its own line ending), the lines
     added after them and the lines replaced -- so every byte offset of the file as read can be
@@ -1058,10 +1136,12 @@ class _Doc:
         self.ends = ["\r" if p.endswith("\r") else "" for p in parts]
         self.inserts: dict[int, list[list]] = {}          # after -> [[rank, text, kind id]]
         self.replaced: dict[int, tuple[str, str]] = {}    # index -> (text, kind id)
+        self.removed: set[int] = set()                    # line indexes taken out
+        self.removes: list[tuple[int, int, str]] = []     # (start, count, kind id): the records taken out
 
     @property
     def changed(self) -> bool:
-        return bool(self.inserts or self.replaced)
+        return bool(self.inserts or self.replaced or self.removed)
 
     def _added(self, items: list[list]) -> str:
         eol = "\r\n" if self.crlf else "\n"
@@ -1072,8 +1152,12 @@ class _Doc:
         last = len(self.lines) - 1
         eol = "\r\n" if self.crlf else "\n"
         for i, line in enumerate(self.lines):
-            out.append(self.replaced.get(i, (line,))[0] + self.ends[i])
             items = sorted(self.inserts.get(i, []), key=lambda item: item[0])
+            if i in self.removed:
+                if i < last:
+                    out.append(self._added(items))
+                continue
+            out.append(self.replaced.get(i, (line,))[0] + self.ends[i])
             if i < last:
                 out.append("\n" + self._added(items))
             elif items:
@@ -1088,9 +1172,14 @@ class _Doc:
         for i, line in enumerate(self.lines):
             if at >= boundary:
                 break
-            if i in self.replaced:
+            size = len(line) + len(self.ends[i]) + (1 if i < last else 0)
+            if i in self.removed:
+                # A removed line takes its bytes with it; a boundary inside it lands where the next
+                # kept line now starts.
+                shift -= min(size, boundary - at)
+            elif i in self.replaced:
                 shift += len(self.replaced[i][0]) - len(line)
-            at += len(line) + len(self.ends[i]) + (1 if i < last else 0)
+            at += size
             if i < last and at < boundary and i in self.inserts:
                 shift += len(self._added(self.inserts[i]))
         return boundary + shift
@@ -1101,6 +1190,9 @@ class _Doc:
             for _rank, _text, kind in items:
                 out[kind] = out.get(kind, 0) + 1
         for _text, kind in self.replaced.values():
+            if kind != RENUMBERED:
+                out[kind] = out.get(kind, 0) + 1
+        for _start, _count, kind in self.removes:
             out[kind] = out.get(kind, 0) + 1
         for items in self.inserts.values():          # Birth numbers given to added records
             for _rank, text, kind in items:
@@ -1219,6 +1311,28 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
         doc = docs.setdefault(path, _Doc(path))
         for after, rank, line, kind_id in sorted(set(adds), key=lambda a: (a[0], a[1])):
             doc.inserts.setdefault(after, []).append([rank, line, kind_id])
+    # Records the player chose to take out (a backfilled Arrived record of a villager born here), then
+    # every later "Arrived <n>" in the game's Births and Conceptions files renumbered, so the running
+    # count the game continues from stays whole.
+    removing = resolve_removes(kinds, chosen, answers)
+    removed_by: dict[int, str] = {}
+    for path, removes in removing.items():
+        doc = docs.setdefault(path, _Doc(path))
+        for start, count, kind_id in removes:
+            doc.removes.append((start, count, kind_id))
+            doc.removed.update(range(start, start + count))
+            if (m := GAME_IN_NAME.search(path.name)):
+                removed_by[int(m.group(1))] = kind_id
+    for game_number in sorted(removed_by):
+        arrived = 0
+        for path in births_files(folder, game_number):
+            doc = docs.setdefault(path, _Doc(path))
+            for i, line in enumerate(doc.lines):
+                if i in doc.removed or not ARRIVED_NUMBERED.match(line):
+                    continue
+                arrived += 1
+                if line.strip() != f"Arrived {arrived}":
+                    doc.replaced[i] = (f"Arrived {arrived}", RENUMBERED)
     # Birth numbers: every older record when chosen; otherwise only the Births being added (a Golden
     # Child's), which take the next unused number in a log that has numbered Births -- a Birth number
     # is never repeated.
@@ -1250,6 +1364,10 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
             raise tools.LogToolError(f"{path.name} could not be given its added lines ({exc}). "
                                      f"{written} log file(s) were given them before it.") from exc
         written += 1
-        for kind_id, count in sorted(doc.counts().items()):
+        counts = doc.counts()
+        if not counts and any(kind == RENUMBERED for _text, kind in doc.replaced.values()):
+            # Only renumbered: listed under the removal that caused it.
+            counts = {kind_id: 0 for kind_id in sorted(set(removed_by.values()))}
+        for kind_id, count in sorted(counts.items()):
             done.setdefault(kind_id, []).append(tools.WordFix(str(path.relative_to(folder)), count, backup.name))
     return done

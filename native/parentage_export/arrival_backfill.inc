@@ -590,6 +590,41 @@ static int record_missing_core(
                 held = only->held;
             }
         }
+        /* LAST NAMES ARE GIVEN LATER (Villagers Have Last Names, Repair's
+           "Last names come from"): a record written before then names the
+           villager by the first name alone, with the same head and body.
+           The owner's Cheop Bahati was born "Cheop", and with no record of
+           "Cheop Bahati" a Birth record's villager was given a backfilled
+           Arrived record.  So a record whose name is this villager's first
+           word, with these looks, is theirs when exactly one record and
+           exactly one of these villagers fit it. */
+        if (on_disk + held <= taken && taken == 0) {
+            const char *space = strchr(names[i], ' ');
+            if (space != NULL && space > names[i]) {
+                size_t first = (size_t)(space - names[i]);
+                int records_fit = 0, villagers_fit = 0;
+                const struct arrival_key *only = NULL;
+                for (j = 0; j < arrival_key_count; ++j) {
+                    const struct arrival_key *k = &arrival_keys[j];
+                    if (!k->reserved && k->head == heads[i] && k->body == bodies[i]
+                        && strlen(k->name) == first && strncmp(k->name, names[i], first) == 0) {
+                        ++records_fit;
+                        only = k;
+                    }
+                }
+                for (j = 0; j < count; ++j) {
+                    if (heads[j] == heads[i] && bodies[j] == bodies[i]
+                        && strncmp(names[j], names[i], first) == 0
+                        && (names[j][first] == ' ' || names[j][first] == '\0')) {
+                        ++villagers_fit;
+                    }
+                }
+                if (records_fit == 1 && villagers_fit == 1) {
+                    on_disk = !only->held;
+                    held = only->held;
+                }
+            }
+        }
         if (on_disk > taken) {
             facts[i].outcome = VV_ARRIVAL_IN_LOG;
         } else if (on_disk + held > taken) {

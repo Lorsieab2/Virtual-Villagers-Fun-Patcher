@@ -167,7 +167,8 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
         for note in cut_notes:
             report.add(f"{LOGS} (cut names)", "NOTE", note)
     for kind in kinds:
-        if kind.id == "sex" or not (kind.decided or kind.asked):
+        # "sex" and "born_arrived" the checker itself reports (the latter as WRONG).
+        if kind.id in ("sex", "born_arrived") or not (kind.decided or kind.asked):
             continue
         asked = f", and {kind.asked} question(s) it asks you" if kind.asked else ""
         report.add(f"{LOGS} ({kind.label})", "NOTE",

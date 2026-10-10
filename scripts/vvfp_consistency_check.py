@@ -396,6 +396,8 @@ class LogRecord:
     father: Person | None = None
     babies: int = 0
     born_as: int = 0           # a Birth's "Born as:" line: 1 single, 2 twin, 3 triplet (0: none)
+    how: str = ""              # an Arrived record's "How:" ("unknown": the backfill knew nothing of it)
+    heading: str = ""          # an Arrived record's own "Arrived <n>"
 
 
 BIRTH_HEADING = re.compile(r"Birth(?: \d+)?")
@@ -489,7 +491,7 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 # An Arrived record: "  Name:", "  Head:", "  Body:" (two spaces in).
                 fields = {}
                 for line in lines[1:]:
-                    m = re.match(r"  (Name|Head|Body): (.*)$", line)
+                    m = re.match(r"  (Name|Head|Body|How): (.*)$", line)
                     if m and m.group(1) not in fields:
                         fields[m.group(1)] = m.group(2).strip()
                 try:
@@ -497,6 +499,8 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 except (KeyError, ValueError):
                     continue
                 rec.kind = "arrived"
+                rec.how = fields.get("How", "")
+                rec.heading = kind
                 records.append(rec)
                 continue
             for k, line in enumerate(lines):
@@ -624,6 +628,34 @@ def key(name: str, head, body) -> tuple:
     return (name, head, body)
 
 
+def real_arrival(r: LogRecord) -> bool:
+    """An Arrived record that says how the villager came (an event, a Custom Island Event, a barrel,
+    "Founder").  The backfill's "How: unknown" says only that the log had nothing on them when it
+    ran, and never outweighs a Birth record or the parents the VV1 parentage file holds."""
+    return r.kind == "arrived" and bool(r.how) and r.how.strip().lower() != "unknown"
+
+
+def backfilled_arrivals_of_the_born(births: list[LogRecord]) -> list[LogRecord]:
+    """The backfilled "How: unknown" Arrived records of a villager the log also has a Birth record
+    for (name, head and body): the arrival backfill wrote them when it could not see the Birth (the
+    owner's Cheop Bahati, born "Cheop" before Last Names; the Golden Child, whose Birth was added
+    later).  Wrong: the villager was born here."""
+    born = {key(r.child.name, r.child.head, r.child.body) for r in births if r.kind == "birth" and r.child}
+    return [r for r in births if r.kind == "arrived" and r.child and not real_arrival(r)
+            and key(r.child.name, r.child.head, r.child.body) in born]
+
+
+def check_backfilled_arrivals(births: list[LogRecord], rep: Report) -> None:
+    label = f"{LOGS}\\Births and Conceptions (Arrived records)"
+    wrong = backfilled_arrivals_of_the_born(births)
+    for r in wrong:
+        rep.add(label, "WRONG", f"{r.heading or 'Arrived'}: {r.child.name} (head {r.child.head}, body "
+                                f"{r.child.body}) has a Birth record, yet a backfilled \"How: unknown\" Arrived "
+                                "record says they arrived (repairable: Repair Saves & Logs removes it)")
+    if not wrong:
+        rep.add(label, "OK", "no villager with a Birth record also has a backfilled \"How: unknown\" Arrived record")
+
+
 def enc_body(p: Person | None) -> int:
     return 0 if p is None or p.body is None or not 0 <= p.body <= 253 else p.body + 1
 
@@ -706,7 +738,7 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
                 rep.add(label, "WRONG", f"{v.name}: recorded {now}; the Births log says father {want[4] or '(none)'}, "
                                         f"mother {want[5] or '(none)'} (repairable: Repair Saves & Logs, or the quit check)")
         elif (not matches and not named and has and shared == 1 and cur["mother"] and cur["mh"] and cur["mb"]
-              and not any(r.kind == "arrived" and r.child
+              and not any(r.kind == "arrived" and r.child and real_arrival(r)
                           and key(r.child.name, r.child.head, r.child.body) == key(v.name, v.head, v.body)
                           for r in births)):
             # No Birth and no Arrived record, and the table holds who delivered them: born before
@@ -2156,6 +2188,7 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
         vv1_parentage(game_dir, slot, roster, births, rep)
     else:
         vv25_parents_vs_births(roster, births, rep, game, game_dir, slot)
+    check_backfilled_arrivals(births, rep)
     global LAST_GRAVES
     LAST_GRAVES = 0
     try:

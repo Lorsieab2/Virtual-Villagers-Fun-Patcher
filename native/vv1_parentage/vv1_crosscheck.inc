@@ -117,6 +117,7 @@ typedef struct {
     int kind;                     /* 1 Birth, 2 Conception, 3 Arrived (child: who arrived) */
     int header;                   /* index into the run's header table */
     vv1_xc_person child, mother, father;
+    int known_how;                /* Arrived: a "How:" that says how they came (not "unknown") */
 } vv1_xc_record;
 
 typedef struct {
@@ -510,7 +511,11 @@ static int vv1_xc_parse(vv1_xc_log *log, char *text, int slot) {
                         rec.kind = 3;
                     }
                 } else if (rec.kind) {
-                    if (rec.kind == 3 && vv1_xc_starts(trimmed, "Name:")) {
+                    if (rec.kind == 3 && vv1_xc_starts(trimmed, "How:")) {
+                        const char *how = trimmed + 4;
+                        while (*how == ' ' || *how == '\t') ++how;
+                        rec.known_how = *how != '\0' && lstrcmpiA(how, "unknown") != 0;
+                    } else if (rec.kind == 3 && vv1_xc_starts(trimmed, "Name:")) {
                         person = &rec.child;
                         vv1_xc_person_start(person, trimmed + 5);
                     } else if (vv1_xc_starts(trimmed, "Child:")) {
@@ -718,12 +723,19 @@ static int vv1_xc_shared(const unsigned char *records, const char *name, int hea
     return shared;
 }
 
-/* Does the log record this villager -- name, head and body -- as ARRIVED? */
+/* Does the log record this villager -- name, head and body -- as a REAL
+   arrival: an Arrived record whose "How:" says how they came (an event, a
+   Custom Island Event, a barrel, "Founder")?  A backfilled "How: unknown"
+   record says only that the log had nothing on them when the backfill ran
+   (the owner's Cheop Bahati, born "Cheop" before Last Names, and the Golden
+   Child Lulu): it never outweighs the parents a Birth record or this table
+   holds. */
 static int vv1_xc_arrived(const vv1_xc_log *log, const char *name, int head, int body) {
     int k;
     for (k = 0; k < log->count; ++k) {
         const vv1_xc_record *r = &log->items[k];
-        if (r->kind == 3 && r->header == log->village_header && vv1_xc_is(&r->child, name, head, body)) {
+        if (r->kind == 3 && r->known_how && r->header == log->village_header
+            && vv1_xc_is(&r->child, name, head, body)) {
             return 1;
         }
     }

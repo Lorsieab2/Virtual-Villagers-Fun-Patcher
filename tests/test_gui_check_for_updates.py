@@ -180,8 +180,9 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_how_to_use", set()),
             # The Family Tree Maker and the Village Matchmaker.
             # The tree shows a name the Villager Details screen cut by the logs' full name.
+            # ...and A New Home's parents file under either folder name (vv_save_layout).
             ("vv_genealogy", {"vv_log_tools", "vv_last_names", "vv_log_additions", "vv_tribe_rename",
-                              "vv_cut_names"}),
+                              "vv_cut_names", "vv_save_layout"}),
             # Restoring cut names renames through Last Names.
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions"}),
             ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout"}),

@@ -242,7 +242,7 @@ static void log_conception_of(const villager *mother, const villager *father) {
    Akikai"): a grown arrival, never born here. */
 static void log_silko_arrived(void) {
     wsprintfA(logtext + lstrlenA(logtext), "Arrived 1\n  Name: %s\n  Age at arrival: 341\n  Sex: Male\n"
-              "  Head: %d\n  Body: %d\n  How: unknown\n\n", silko.name, silko.head, silko.body);
+              "  Head: %d\n  Body: %d\n  How: Custom Island Event\n\n", silko.name, silko.head, silko.body);
 }
 
 /* The owner's whole village's births, as the companion logged them, but for
@@ -506,6 +506,32 @@ static void recorded_afterwards_case(void) {
                        "file (father Ghali, mother Onawa)") != NULL,
           "the Repairs log says Penyo's Birth record is written afterwards");
     check(strstr(note, "Set to unknown: Silko -- no Birth record in the log") != NULL, "... and Silko's");
+
+    /* A BACKFILLED Arrived record ("How: unknown", the owner's Cheop and Lulu) is no arrival:
+       Penyo keeps the parents the table holds, and a Birth record still wins over one. */
+    clear_files();
+    conceptions = 0;
+    log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+    log_owner_births_but("Penyo");
+    {
+        const villager *p = find("Penyo");
+        const villager *n = find("Nishi");
+        wsprintfA(logtext + lstrlenA(logtext), "Arrived 2\n  Name: %s\n  Age at arrival: (unknown)\n  Head: %d\n"
+                  "  Body: %d\n  How: unknown\n  Note: Recorded afterwards (arrived before this log existed)\n\n",
+                  p->name, p->head, p->body);
+        wsprintfA(logtext + lstrlenA(logtext), "Arrived 3\n  Name: %s\n  Age at arrival: (unknown)\n  Head: %d\n"
+                  "  Body: %d\n  How: unknown\n  Note: Recorded afterwards (arrived before this log existed)\n\n",
+                  n->name, n->head, n->body);
+    }
+    log_save(1);
+    write_sidecar(after_load, entries);
+    asked = load_and_check(after_load, IDNO);
+    check(asked == 1 && g_plan.recorded == 1 && g_plan.cleared == 1 && g_plan.corrected == 0 && g_plan.filled == 0,
+          "a backfilled 'How: unknown' Arrived record is no arrival: Penyo is still recorded afterwards, not cleared");
+    asked = load_and_check(after_load, IDYES);
+    check(asked == 1 && g_applied == 1 && entry_matches(penyo, &entries[penyo])
+          && entry_matches(where(after_load, "Nishi"), &entries[where(after_load, "Nishi")]),
+          "... Penyo keeps the table's parents, and Nishi's Birth record wins over her backfilled Arrived");
 }
 
 static void clean_and_no_log_cases(void) {
