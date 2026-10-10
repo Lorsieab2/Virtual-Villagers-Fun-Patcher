@@ -1,0 +1,5 @@
+LIBRARY "VVFP VV1 Parentage"
+EXPORTS
+    Vv1ParentageQuery=_Vv1ParentageQuery@8
+    Vv1ParentageQueryNames=_Vv1ParentageQueryNames@16
+    Vv1ParentageQueryExpectedFather=_Vv1ParentageQueryExpectedFather@16

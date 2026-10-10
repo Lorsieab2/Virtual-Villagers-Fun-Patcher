@@ -360,7 +360,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
        written twice, which is the shape of a lazily-built singleton.
 
        VV1 copies nothing about the father onto the mother, so the father
-       block is zero here and those lines are simply absent from its roster.
+       block is zero here; its Father: lines come from the parentage
+       companion's record of the conception (write_vv1_expected_father).
        Its skill table comes from the shipped Origins Full Mastery
        walker, which sets every villager's every skill to mastered and so
        has to know exactly where they are: it compares [esi+0x3BC] through
@@ -372,7 +373,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0u, 0x3D8u, 256u,
         0x28u, 0x348u, 0x360u, 0x364u,
         0x370u, 0x1Cu,
-        0u, 0u, 0u, 0u,               /* no pregnancy-father copy in VV1 */
+        0u, 0u, 0u, 0u,               /* no pregnancy-father copy in VV1:
+                                         the sidecar supplies it */
         0u, 0u, 0u, 0u, 0u, 0u, 0u,   /* and no parents on the record at all:
                                          the sidecar supplies VV1's block */
         0x3BCu, 5u, 0,
@@ -734,6 +736,8 @@ typedef int (__stdcall *vv1_parents_names_t)(int index, char *father, char *moth
 static int vv1_parents_state;     /* 0 = not tried, 1 = resolved, -1 = unavailable */
 static vv1_parents_query_t vv1_parents_query;
 static vv1_parents_names_t vv1_parents_names;
+typedef int (__stdcall *vv1_expected_father_t)(int index, int *looks, char *name, int capacity);
+static vv1_expected_father_t vv1_expected_father;
 
 static int vv1_parents_resolve(void) {
     HMODULE companion;
@@ -747,10 +751,37 @@ static int vv1_parents_resolve(void) {
     }
     vv1_parents_query = (vv1_parents_query_t)GetProcAddress(companion, "Vv1ParentageQuery");
     vv1_parents_names = (vv1_parents_names_t)GetProcAddress(companion, "Vv1ParentageQueryNames");
+    /* Optional: a companion that predates it still supplies the parents. */
+    vv1_expected_father = (vv1_expected_father_t)GetProcAddress(companion, "Vv1ParentageQueryExpectedFather");
     if (vv1_parents_query == NULL || vv1_parents_names == NULL) {
         return 0;
     }
     vv1_parents_state = 1;
+    return 1;
+}
+
+/* A New Home's "Father:" block -- the father of the child she is CARRYING,
+   in exactly the shape the later games print from the copy on the mother.
+   A New Home copies nothing onto her, but the parentage companion keeps the
+   father it captured at conception in its pregnancy stash, and hands back
+   the very father her child will be born to (the same rule its birth
+   follows, the Births log's confirmation included).  Gated on the pregnancy
+   by the caller and again by the companion; no companion, no export, or no
+   recorded father: no block, as the later games print none for an empty
+   name.  Returns 0 only on a write failure. */
+static int write_vv1_expected_father(FILE *file, int index) {
+    int looks[2];
+    char father[MAX_NAME_BYTES];
+    if (!vv1_parents_resolve() || vv1_expected_father == NULL
+        || !vv1_expected_father(index, looks, father, (int)sizeof(father))) {
+        return 1;
+    }
+    if (father[0] == '\0' || looks[0] < 0 || looks[1] < 0) {
+        return 1;
+    }
+    if (fprintf(file, "  Father: %s\n", father) < 0) return 0;
+    if (fprintf(file, "    Head: %d\n", looks[0]) < 0) return 0;
+    if (fprintf(file, "    Body: %d\n", looks[1]) < 0) return 0;
     return 1;
 }
 
@@ -1113,7 +1144,8 @@ static int write_villager(
        So the PREGNANCY is the gate, the same test the Pregnant line above
        uses and the one the field's own comment describes: it is zero when
        she is not carrying. Every game with father fields (VV2-VV5) has it;
-       VV1 has neither and its roster is unchanged.
+       VV1 has no copy on the mother; its block follows below, from the
+       parentage companion.
 
        An all-zero name means nothing was ever copied: a real name always has
        a first byte, and zero there cannot be a name. Head and body are NOT
@@ -1135,6 +1167,14 @@ static int write_villager(
                     *(const int *)(record + g->father_body)) < 0) {
             return 0;
         }
+    }
+    /* A New Home: the same block, from the parentage companion's record of
+       the conception (write_vv1_expected_father), under the same gate. */
+    if (with_pregnancy && game_id == GAME_VV1
+            && g->age_at_conception != 0u
+            && *(const int *)(record + g->age_at_conception) != 0
+            && !write_vv1_expected_father(file, index)) {
+        return 0;
     }
 
     /* This villager's OWN parents, which VV2 to VV5 keep on the record for

@@ -191,6 +191,65 @@ int main(int argc, char **argv) {
     *(int *)(rec(1) + DUE) = 600; tick(records); *(int *)(rec(1) + DUE) = 0; born_from(21, 1, "Next"); tick(records);
     entry(21, e); CHECK(same(e, -1, -1, 4, 9), "...and the stash was spent with it: no father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
 
+    printf("== the expected father, for the Village Population log ==\n");
+    {
+        typedef int (__stdcall *expected_t)(const void *, int, int *, char *, int);
+        expected_t expected = (expected_t)GetProcAddress(dll, "Vv1ParentageProbeExpected");
+        int looks[2];
+        char who[32];
+        CHECK(expected != NULL && GetProcAddress(dll, "Vv1ParentageQueryExpectedFather") != NULL,
+              "the expected-father query and its seam resolve");
+        if (expected != NULL) {
+            /* not carrying and no stash: nobody */
+            CHECK(expected(records, 1, looks, who, 32) == 1 && who[0] == 0 && looks[0] == -1 && looks[1] == -1,
+                  "a woman who is not carrying has no expected father (%s %d/%d)", who, looks[0], looks[1]);
+            /* carrying, but no conception was captured: unknown, as the later games print nothing for an empty name */
+            *(int *)(rec(1) + DUE) = 650;
+            CHECK(expected(records, 1, looks, who, 32) == 1 && who[0] == 0 && looks[0] == -1,
+                  "a pregnancy with no recorded father names nobody (%s)", who);
+            *(int *)(rec(1) + DUE) = 0; tick(records);
+            /* a captured conception: Goro, the very man the birth will record */
+            conceived(conceive, 1, 2); *(int *)(rec(1) + DUE) = 800; tick(records);
+            CHECK(expected(records, 1, looks, who, 32) == 1 && strcmp(who, "Goro") == 0 && looks[0] == 7 && looks[1] == 2,
+                  "while she carries, the expected father is Goro 7/2 (got %s %d/%d)", who, looks[0], looks[1]);
+            CHECK(expected(records, 2, looks, who, 32) == 1 && who[0] == 0, "the father himself expects nobody");
+            *(int *)(rec(1) + DUE) = 0; born_from(200, 1, "Due"); tick(records);
+            entry(200, e); CHECK(same(e, 7, 2, 4, 9), "the child is born to that same father (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            CHECK(expected(records, 1, looks, who, 32) == 1 && who[0] == 0 && looks[0] == -1,
+                  "after the delivery she expects nobody (%s)", who);
+            /* a father whose looks are head 0 / body 0 is a real father */
+            conceived(conceive, 1, 3); *(int *)(rec(1) + DUE) = 820; tick(records);
+            CHECK(expected(records, 1, looks, who, 32) == 1 && strcmp(who, "Zero") == 0 && looks[0] == 0 && looks[1] == 0,
+                  "head 0 / body 0 is printed as a real father (got %s %d/%d)", who, looks[0], looks[1]);
+            CHECK(expected(records, 1, looks, who, 32) == 1 && expected(records, 256, looks, who, 32) == 0
+                  && expected(records, -1, looks, who, 32) == 0, "an index out of range is refused");
+            *(int *)(rec(1) + DUE) = 0; born_from(201, 1, "Nought"); tick(records);
+            memset(rec(200), 0, STRIDE); memset(rec(201), 0, STRIDE); tick(records);   /* gone again: the later sections own every other record */
+
+            printf("== the Custom Island Event changes the unborn baby's father ==\n");
+            {
+                typedef int (__stdcall *set_expected_t)(int, const char *, int, int);
+                set_expected_t set_expected = (set_expected_t)GetProcAddress(dll, "Vv1ParentageProbeSetExpected");
+                CHECK(set_expected != NULL && GetProcAddress(dll, "Vv1ParentageSetExpectedFather") != NULL,
+                      "the set-expected export and its seam resolve");
+                if (set_expected != NULL) {
+                    conceived(conceive, 1, 2); *(int *)(rec(1) + DUE) = 830; tick(records);
+                    CHECK(set_expected(1, "Kito", 5, 6) == 1, "the father is set");
+                    CHECK(expected(records, 1, looks, who, 32) == 1 && strcmp(who, "Kito") == 0 && looks[0] == 5 && looks[1] == 6,
+                          "the expected father is now Kito 5/6 (got %s %d/%d)", who, looks[0], looks[1]);
+                    CHECK(set_expected(1, "", -1, 11) == 1
+                          && expected(records, 1, looks, who, 32) == 1 && strcmp(who, "Kito") == 0 && looks[0] == 5 && looks[1] == 11,
+                          "an empty name and a look below 0 keep theirs (got %s %d/%d)", who, looks[0], looks[1]);
+                    CHECK(set_expected(1, "Big", 254, 0) == 0, "a look past the encodable range is refused");
+                    *(int *)(rec(1) + DUE) = 0; born_from(202, 1, "Changed"); tick(records);
+                    entry(202, e); CHECK(same(e, 5, 11, 4, 9), "the baby is born to the father the event set (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+                    names(202, father, mother, 32); CHECK(strcmp(father, "Kito") == 0, "...by name too (%s)", father);
+                    memset(rec(202), 0, STRIDE); tick(records);
+                }
+            }
+        }
+    }
+
     printf("== a slot freed and refilled between two frames ==\n");
     villager(12, "Stranger", 1, 2, 3); tick(records);   /* occupied in both snapshots, different name and variant */
     entry(12, e); CHECK(same(e, -1, -1, -1, -1), "the new tenant of a slot occupied in both frames starts unknown (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);

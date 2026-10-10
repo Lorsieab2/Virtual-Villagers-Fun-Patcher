@@ -679,6 +679,17 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
                 wrong += 1
                 rep.add(label, "WRONG", f"{v.name}: recorded {now}; the Births log says father {want[4] or '(none)'}, "
                                         f"mother {want[5] or '(none)'} (repairable: Repair Saves & Logs, or the quit check)")
+        elif (not matches and not named and has and shared == 1 and cur["mother"] and cur["mh"] and cur["mb"]
+              and not any(r.kind == "arrived" and r.child
+                          and key(r.child.name, r.child.head, r.child.body) == key(v.name, v.head, v.body)
+                          for r in births)):
+            # No Birth and no Arrived record, and the table holds who delivered them: born before
+            # the log existed -- the Birth record is written afterwards from the table
+            # (vv1_crosscheck.inc VV1_XC_RECORDED).
+            wrong += 1
+            rep.add(label, "WRONG", f"{v.name}: recorded {now}, but no Birth record in the Births log "
+                                    "(repairable: a Birth record is written from the parentage file, \"Recorded "
+                                    "afterwards\")")
         elif matches or not named:
             why = "the Birth records disagree" if matches else "no Birth record (a founder or a grown arrival)"
             if has:
