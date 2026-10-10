@@ -1170,8 +1170,10 @@ class ManifestTests(unittest.TestCase):
         # the Details Screen (vv2_details_full_names), the name box's limit,
         # width string and three copy-back lengths, in place; 29 with Write Island
         # Events Log to Text File (vv2_island_events), no executable byte -- its
-        # companion detours the event routines at run time.
-        self.assertEqual(len(feature_ids), 29)
+        # companion detours the event routines at run time; 30 with Dropping an
+        # Adult on a Child Tells a Story (vv2_storytelling), no executable byte
+        # -- its companion detours the drop handler at run time.
+        self.assertEqual(len(feature_ids), 30)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4047,6 +4049,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_last_names",
                 "vv2_details_full_names",
                 "vv2_island_events",
+                "vv2_storytelling",
             },
         )
         for mode in ALL_MODES:
