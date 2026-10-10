@@ -456,7 +456,7 @@ int main(void) {
         *(int *)food = 120;
         *(int *)tech = 75;
         if (weather != NULL) {
-            *(int *)weather = 2;
+            *(int *)weather = g_harness_game == 5 ? 5 : 2;   /* New Believers: the Tempest's storm */
         }
         if (puzzle != NULL) {
             unsigned char *at = puzzle->global != 0 ? g_world + puzzle->at : harness_address(puzzle->at);
@@ -481,8 +481,9 @@ int main(void) {
         /* Exactly one record per event shown: a routine that is no whole event,
            an answer whose OK follows, an event with no title -- no "Changes: none". */
         if (g_harness_game >= 3) {
-            CHECK(g_village_outs == 1 && strstr(g_village_out[0], "    Weather: clear -> rain\n") != NULL,
-                  "...and the weather, \"Weather: clear -> rain\"");
+            const char *want = g_harness_game == 5 ? "    Weather: clear -> storm\n" : "    Weather: clear -> rain\n";
+            CHECK(g_village_outs == 1 && strstr(g_village_out[0], want) != NULL, "...and the weather, \"%.*s\"",
+                  (int)strlen(want) - 5, want + 4);
         } else {
             CHECK(weather == NULL, "%s keeps no weather the events change: none is compared", GAME_NAMES[g_harness_game]);
         }

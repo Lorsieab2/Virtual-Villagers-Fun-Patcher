@@ -491,24 +491,30 @@ static const unsigned char *village_dword(const struct village_field *f, unsigne
     return at != NULL && readable(at, 4) ? at : NULL;
 }
 
-/* The weather object's type, in each game's words, from the code that sets
-   it (the setters 0x41FB40 / 0x46BC30 / 0x477060 and their callers):
-     The Secret City   0 clear, 2 rain and 3 storm (The Omen in the Clouds:
-                       dance or warn, 0x4167A8 / 0x4166B6, "a storm, violent
-                       and filled"), 4 fog (The Mysterious Fog events)
-     The Tree of Life  0 clear, 1 arc of brilliant colors (The Arc of
-                       Brilliant Colors, 0x415097), 2 rain (The Rainy Season),
-                       4 fog (The Mysterious Fog)
-     New Believers     0 clear, 2 rain, 4 fog (The Mysterious Footprints, seen
-                       live), 5 storm (the Tempest spell, case 5 of 0x422F95:
-                       "Tempest: summon a grand storm!")
-   "clear" is the owner's word (2026-10-09); any other type is "type N". */
-static const char *weather_word(int game, int value) {
+/* The weather object's type, in each game's words, only where what the
+   player sees proves it (the setters 0x41FB40 / 0x46BC30 / 0x477060, every
+   caller named by its event class and its popup text in sm.xml / the exe):
+     The Secret City   2 rain: the Omen in the Clouds' dance (0x4167A8) and
+                       the Weather Dancing puzzle; 3 storm: the Omen's two
+                       warnings (0x4166B6 / 0x4166C6), "a storm, violent and
+                       filled"; 4 fog: the four Mysterious Fog events, "A
+                       mysterious fog has swept across the village"
+     The Tree of Life  2 rain: The Rainy Season and The Monsoon (0x414B94 /
+                       0x414C14: "It's really coming down!", "a sudden, heavy
+                       rain"), the type that starts the rain (0x6C1108)
+     New Believers     5 storm: the Tempest spell, "Tempest: summon a grand
+                       storm!" (case 5 of 0x422F95, the spells' own order)
+   "clear" (0, what the setter clears to and the schedule returns to) is the
+   owner's word (2026-10-09).  Every other type is "type N": The Tree of
+   Life's 1 (The Arc of Brilliant Colors sets it; the owner: there is no
+   rainbow weather) and 4 (The Mysterious Footprints and The Cold Snap set it,
+   whose popups name no fog), New Believers' 2 and 4, and every 3 but The
+   Secret City's, wait for a live look. */static const char *weather_word(int game, int value) {
     static const char *const WORDS[GAMES + 1][6] = {
         { NULL }, { NULL }, { NULL },
         { "clear", NULL, "rain", "storm", "fog", NULL },
-        { "clear", "arc of brilliant colors", "rain", NULL, "fog", NULL },
-        { "clear", NULL, "rain", NULL, "fog", "storm" },
+        { "clear", NULL, "rain", NULL, NULL, NULL },
+        { "clear", NULL, NULL, NULL, NULL, "storm" },
     };
     return game >= 1 && game <= GAMES && value >= 0 && value <= 5 ? WORDS[game][value] : NULL;
 }
