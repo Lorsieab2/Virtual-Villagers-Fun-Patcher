@@ -529,13 +529,27 @@ class TimeSkipPopupTests(unittest.TestCase):
         into the event object's own buffer; VV3-VV5: the presenter is handed
         the custom event object whose title and body come through the game's
         own string lookup.  The trigger's count of it is taken back."""
+        for game in ALL_GAMES:
+            self._routes(game, "collection_progression", full=False)
+
+    def test_the_count_is_taken_back_with_every_public_row_in_every_mode(self):
+        """With the whole public catalog the trigger's paths that still build
+        an event still count it, so the notice's count is still taken back.
+        The Lost Children's Restore Missing Island Events rewrites the first
+        of its trigger's three paths (0x42F032..0x42F062: that path no longer
+        calls the builder 0x4348E0 at all); the other two still count and
+        build, and the notice comes through one of them -- so the counter
+        must not be given up because the rewritten path differs."""
+        for game in ALL_GAMES:
+            for mode in ("stock", "collection_progression", "immediate_fixed"):
+                self._routes(game, mode, full=True)
+
+    def _routes(self, game, mode, *, full):
         from test_story_custom_island_event import CHOOSER, HEAP as EMU_HEAP, SELECT
 
-        for game in ALL_GAMES:
-            if not have_stock(game):
-                continue
-            with self.subTest(game=game):
-                story = Story(game)
+        if have_stock(game):
+            with self.subTest(game=game, mode=mode, full=full):
+                story = Story(game, mode, full=full)
                 island_ready(story)
                 host = TimeSkipHost(story, 6)
                 p = story.proc
@@ -609,7 +623,35 @@ class StaticTimeSkipPopupTests(unittest.TestCase):
             for va, raw in sites:
                 with self.subTest(game=game, site=hex(va)):
                     listed = ", ".join(f"0x{b:02X}" for b in raw)
-                    self.assertIn(f"{{ {game[2:]}, 0x{va:06X}u, {{ {listed} }}, {len(raw)} }}", table)
+                    self.assertIn(f"{{ {game[2:]}, 0x{va:06X}u, {{ {listed} }}, {len(raw)},", table)
+
+    def test_each_count_site_names_the_builder_call_of_its_own_path(self):
+        """Every count site's `call_site` is, in the stock executable, the
+        `call <builder>` that follows that count -- the one a path that still
+        builds an event keeps (ce_event_counter)."""
+        import pefile
+
+        text = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
+        table = text[text.index("static const ce_count_site CE_COUNT_SITES[] = {"):]
+        table = table[:table.index("};")]
+        rows = re.findall(r"\{ (\d), 0x([0-9A-F]+)u, \{[^}]*\}, (\d+),\s*0x([0-9A-F]+)u, 0x([0-9A-F]+)u \}", table)
+        self.assertEqual(len(rows), sum(len(v) for v in COUNT_SITES.values()))
+        for n, site, length, call, builder in rows:
+            game = f"vv{n}"
+            path = ROOT / "inputs" / f"{game}-stock-copy"
+            exes = list(path.glob("*.exe")) if path.is_dir() else []
+            if not exes:
+                continue
+            pe = pefile.PE(str(exes[0]), fast_load=True)
+            img = pe.get_memory_mapped_image()
+            base = pe.OPTIONAL_HEADER.ImageBase
+            site, call, builder = int(site, 16), int(call, 16), int(builder, 16)
+            with self.subTest(game=game, site=hex(site)):
+                off = call - base
+                self.assertEqual(img[off], 0xE8)
+                self.assertEqual((call + 5 + struct.unpack_from("<i", img, off + 1)[0]) & 0xFFFFFFFF, builder)
+                self.assertLess(site + int(length), call)
+                self.assertLess(call - site, 0x20, "the call right after the count")
 
     def test_the_counter_is_taken_back_only_for_the_notice(self):
         text = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
