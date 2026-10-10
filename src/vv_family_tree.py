@@ -6252,6 +6252,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     text_inside = lay.opt(p, "text_inside")
     fit = 1.0
     spans: dict = {}
+    own_fit: dict = {}                      # a line kept inside the shape made smaller on its own
     slide = (text_inside and lay.opt(p, "text_align") == "centre" and not (angle and turn_words)
              and not (flip_words and (flip_h or flip_v)))
     for k, (text, bold, runs) in enumerate(lines):
@@ -6272,16 +6273,18 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         if slide:
             # Kept inside the shape: no wider than the outline across the line, a little in from it, and slid
             # sideways to stay inside it (below) -- a leaf is not as wide on one side of its middle.
-            ends = [_span_about(lay.frame_points(p.id), at_y, at_x) for at_y in (baseline - size * 0.75, baseline + size * 0.2)]
-            if all(ends):
-                span = (max(a for a, _b in ends), min(b for _a, b in ends))
-                room = min(room, max(12.0, span[1] - span[0] - 2 * TEXT_MARGIN))
+            span = _line_span(lay.frame_points(p.id), baseline - size * 0.75, baseline + size * 0.2, at_x, needed)
+            if span:
+                # Each line on its own: one line where the shape narrows (a leaf's tip) made smaller, not all.
+                inner = max(12.0, span[1] - span[0] - 2 * TEXT_MARGIN)
+                if needed > inner:
+                    own_fit[k] = inner / needed
                 spans[k] = (span, needed, at_x)
         if room > 0 and needed > room:
             fit = min(fit, room / needed)
     nudge = {}                              # how far each line kept inside the shape slides sideways
     for k, (span, needed, at_x) in spans.items():
-        w = needed * fit * own / (lay.opt(p, "text_size") / 100)
+        w = needed * min(fit, own_fit.get(k, 1.0)) * own / (lay.opt(p, "text_size") / 100)
         lo, hi = span[0] + TEXT_MARGIN, span[1] - TEXT_MARGIN - w
         left = at_x - w / 2
         nudge[k] = ((span[0] + span[1]) / 2 - at_x if hi < lo else lo - left if left < lo else hi - left if left > hi
@@ -6301,7 +6304,8 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
                 half = min(half, (within_frame(at_x, wide) - 12) / 2 / total)
     at = x + NODE_W / 2 + (-half if align == "left" else half if align == "right" else 0)
     for k, (text, bold, runs) in enumerate(lines):
-        put(Text(at + nudge.get(k, 0.0), y + text_top + k * LINE_H * own, text, (11.5 if bold else 10) * fit * own, ink,
+        put(Text(at + nudge.get(k, 0.0), y + text_top + k * LINE_H * own, text,
+                 (11.5 if bold else 10) * min(fit, own_fit.get(k, 1.0)) * own, ink,
                  bold=bold, centre=align == "centre", end=align == "right", pid=p.id,
                  role="names" if bold else "portraits", edit=f"person:{p.id}", runs=runs))
 
@@ -6479,6 +6483,28 @@ def face_anchor(kind: str, frame: tuple, points: list, bands: list, words: tuple
 
 
 TEXT_MARGIN = 4.0                       # words kept inside a shape stay this far in from its outline
+
+
+def _stretches(points: list[tuple[float, float]], y: float) -> list[tuple[float, float]]:
+    """Each stretch of the shape these corners outline at height `y`, left to right."""
+    xs = sorted(ax + (y - ay) * (bx - ax) / (by - ay)
+                for (ax, ay), (bx, by) in zip(points, points[1:] + points[:1]) if (ay > y) != (by > y))
+    return list(zip(xs[::2], xs[1::2]))
+
+
+def _line_span(points: list, top: float, foot: float, x: float, wide: float) -> tuple[float, float] | None:
+    """The stretch of a shape a line of words `wide` across, centred at `x`, is kept in, from its letters'
+    tops to below them: of the stretches inside the shape all the way down (a leaf's slit or a paw's gap
+    between them), the one that holds the most of the line, nearest `x` -- None when there is none."""
+    best = None
+    for a0, b0 in _stretches(points, top):
+        for a1, b1 in _stretches(points, foot):
+            a, b = max(a0, a1), min(b0, b1)
+            if b > a:
+                here = (min(b - a, wide + 2 * TEXT_MARGIN), -max(0.0, a - x, x - b))
+                if best is None or here > best[0]:
+                    best = (here, (a, b))
+    return best[1] if best else None
 
 
 def _span_about(points: list[tuple[float, float]], y: float, x: float) -> tuple[float, float] | None:
