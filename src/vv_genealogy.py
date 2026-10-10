@@ -725,6 +725,9 @@ class Rules:
     one_family_per_partner: bool = True   # no partner from a family they already have a child with
     prefer_previous_partners: bool = True   # established couples first (the owner, 2026-10-08)
     prefer_fresh_blood: bool = True
+    # The newest generation first (the owner, 2026-10-10: "prioritize latest generation"): only the order
+    # changes, never who may pair with whom.
+    prefer_latest_generation: bool = True
     # How the report shows ages, not a pairing rule (the owner, 2026-10-08: "a toggle to turn Age
     # Units on and off"): "1379 game units (68 years old)", or "68 years old" alone.
     show_age_units: bool = True
@@ -752,6 +755,7 @@ class Rules:
                             (self.not_expecting, "Not already expecting"),
                             (self.different_last_name, "Different last names (family)"),
                             (self.one_family_per_partner, "One Family Per Partner"),
+                            (self.prefer_latest_generation, "Latest generation first"),
                             (self.prefer_previous_partners, "Previous partners first"),
                             (self.prefer_fresh_blood, "Fresh blood first")):
             if flag:
@@ -926,7 +930,11 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     def rank(pair: Pair) -> tuple:
         gap = abs((pair.man.age or 0) - (pair.woman.age or 0))
         established = rules.prefer_previous_partners and (pair.man.id, pair.woman.id) in couples
-        return (not established, pair.related,
+        # The later generation of the two comes first, then the later of the other; the order within a
+        # generation is the rest of the key.
+        newest = ((-max(pair.man.generation, pair.woman.generation), -min(pair.man.generation, pair.woman.generation))
+                  if rules.prefer_latest_generation else (0, 0))
+        return (newest, not established, pair.related,
                 (fresh(pair.man) + fresh(pair.woman)) if rules.prefer_fresh_blood else 0,
                 pair.shared, gap, pair.woman.id, pair.man.id)
 
@@ -940,7 +948,14 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     partner: dict[int, Pair] = {}           # man -> his pair
 
     def place(woman: int, seen: set) -> bool:
-        for pair in per_woman.get(woman, []):
+        options = per_woman.get(woman, [])
+        if rules.prefer_latest_generation:
+            # A free man in her own best order before moving another woman off hers, so the newest
+            # generation's couples are not split to pair them with an older generation (stable: the
+            # order among the free and among the taken is unchanged).
+            options = ([p for p in options if p.man.id not in partner]
+                       + [p for p in options if p.man.id in partner])
+        for pair in options:
             if pair.man.id in seen:
                 continue
             seen.add(pair.man.id)
@@ -1117,8 +1132,10 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
 
     def age(p: Person) -> str:
         if rules.show_age_units or p.age is None:
-            return p.age_text()
-        return f"died at {p.years} years old" if p.gone == "died" else f"{p.years} years old"
+            text = p.age_text()
+        else:
+            text = f"died at {p.years} years old" if p.gone == "died" else f"{p.years} years old"
+        return f"{text}, Generation {roman(p.generation)}"
     lines = [f"{game_title} -- Village Matchmaker",
              f"Village: {village.tribe} (Save {village.slot})" if village.tribe else f"Save {village.slot}",
              "",
@@ -1137,7 +1154,8 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     else:
         lines.append("  No pair meets every rule.  The least related pairs available:")
         for pair in fallback:
-            lines.append(f"    {pair.man.name} and {pair.woman.name}: {pair.relation}, related {pair.percent:g}%"
+            lines.append(f"    {pair.man.name} (Generation {roman(pair.man.generation)}) and "
+                         f"{pair.woman.name} (Generation {roman(pair.woman.generation)}): {pair.relation}, related {pair.percent:g}%"
                          + (f"; {pair.together}" if pair.together else ""))
     lines.append("")
     lines.append("== Every allowed partner, per woman ==")
