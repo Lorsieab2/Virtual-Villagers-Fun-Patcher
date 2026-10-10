@@ -12,7 +12,7 @@
    same cod_log_gone the stock disappearances call):
      1. a pregnant mother with one baby, head 0 and body 0, the father known
         (A New Home: from the VV1 Parentage stash; the others: the expected
-        father the game copied onto her, head 0): the record's Pregnant line,
+        father the game copied onto her, head 0): the record's Nursing line,
         and a "Lost before birth" record naming mother, father and 1 baby;
      2. twins and triplets: "2 babies" / "3 babies";
      3. the father unknown (no name; A New Home: no stash): "(unknown)";
@@ -181,16 +181,16 @@ static void run_game(void) {
             stash_on = 1;
             mother(field_for(babies), 400, "Tamil");
             depart(path);
-            wsprintfA(want, "  Pregnant: yes, %d %s (never born: lost with their mother)\n", babies,
+            wsprintfA(want, "  Nursing: yes, %d %s (never born: lost with their mother)\n", babies,
                       babies > 1 ? "babies" : "baby");
-            CHECK(has(find(departed_kind[path]), want), "game %d %s, %d baby/babies: the Pregnant line",
+            CHECK(has(find(departed_kind[path]), want), "game %d %s, %d baby/babies: the Nursing line",
                   game, paths[path], babies);
             wsprintfA(want, "  Babies in pregnancy: %d\n", babies);
             CHECK(count(9) == 1 && has(find(9), "  Mother: Ann\n    Head: 0\n    Body: 0\n")
                   && has(find(9), "  Father: Tamil\n    Head: 0\n    Body: 7\n") && has(find(9), want),
                   "game %d %s, %d baby/babies: Lost before birth names mother, father, babies", game,
                   paths[path], babies);
-            wsprintfA(want, "  What happened: the mother %s while carrying or nursing; never born\n", how);
+            wsprintfA(want, "  What happened: the mother %s while nursing; never born\n", how);
             CHECK(has(find(9), want), "game %d %s: says how the babies were lost", game, paths[path]);
         }
         /* 3: the father unknown. */
@@ -205,19 +205,19 @@ static void run_game(void) {
         lost_tick();
         put(3, G[game].pregnant, 0);
         depart(path);
-        CHECK(has(find(departed_kind[path]), "  Pregnant: yes, 2 babies") && count(9) == 1,
+        CHECK(has(find(departed_kind[path]), "  Nursing: yes, 2 babies") && count(9) == 1,
               "game %d %s: a field cleared after the tick saw her pregnant: still lost", game, paths[path]);
         mother(field_for(2), 590, "Tamil");
         lost_tick();
         put(3, G[game].pregnant, 0);
         put(3, G[game].counter, 590 + 45);       /* past the delivery: she gave birth first */
         depart(path);
-        CHECK(!has(find(departed_kind[path]), "Pregnant") && count(9) == 0,
+        CHECK(!has(find(departed_kind[path]), "Nursing") && count(9) == 0,
               "game %d %s: delivered before the record: nothing lost", game, paths[path]);
         /* 5: not pregnant. */
         mother(0, 0, NULL);
         depart(path);
-        CHECK(find(departed_kind[path]) != NULL && !has(find(departed_kind[path]), "Pregnant")
+        CHECK(find(departed_kind[path]) != NULL && !has(find(departed_kind[path]), "Nursing")
               && count(9) == 0, "game %d %s: not pregnant: no line, no Lost record", game, paths[path]);
     }
     /* 6: New Believers' Heathen. */
@@ -225,7 +225,7 @@ static void run_game(void) {
         mother(1, 400, "Tamil");
         rec(3)[G[game].heathen] = 1;
         depart(0);
-        CHECK(has(find(2), "  Pregnant: yes, 1 baby") && count(9) == 0,
+        CHECK(has(find(2), "  Nursing: yes, 1 baby") && count(9) == 0,
               "game %d: a Heathen's record says it, no Lost record", game);
     }
 }

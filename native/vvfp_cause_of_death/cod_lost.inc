@@ -7,9 +7,9 @@
    skeletons and graves".  So when a mother dies or disappears while she
    carries babies:
 
-     - her Death or Disappeared record says so, in the Unaccounted record's
-       own words:  "  Pregnant: yes, N babies (never born: lost with their
-       mother)";
+     - her Death or Disappeared record says so, in the game's own word for
+       the state (below):  "  Nursing: yes, N babies (never born: lost with
+       their mother)";
      - the Births and Conceptions log closes her open Conception with a
        "Lost before birth" record (the mother, the expected father, the
        babies), since no Birth will ever follow it.  The babies get no Death
@@ -24,9 +24,13 @@
    counter is 40 past it (A New Home 0x42EF2E, The Lost Children 0x43BE1E,
    The Tree of Life 0x447C1D).  The baby is in her arms all that time: the
    later games' status word for the field is "Nursing" (string ePregnant),
-   A New Home and The Lost Children show "Status: Pregnant" and "Nursing
-   for:".  There is no separate nursing phase to tell apart, so one line
-   serves both.
+   and A New Home's and The Lost Children's Villager Details panel draws
+   "Nursing for:" exactly while it is set (A New Home 0x449419: string 0xE9
+   when +0x358 is not 0; The Lost Children 0x4657AC: string 0x158 when +0x540
+   is not 0).  Their "Pregnant" status string (0x228, 0x31B) is fetched by
+   no code: developer-dead.  So every game's own word is "Nursing" (the
+   owner, 2026-10-10: "Each game's own word"), and there is no separate
+   phase to tell apart.
 
    WHEN THE FIELD IS READ.  At the Death or Disappeared record: the burial,
    the removal of an unburied body, the disappearance.  No death path in A
@@ -124,7 +128,7 @@ static int lost_babies(const unsigned char *record) {
 static void lost_line(char *out, int babies) {
     out[0] = '\0';
     if (babies > 0) {
-        wsprintfA(out, "  Pregnant: yes, %d %s (never born: lost with their mother)\n", babies,
+        wsprintfA(out, "  Nursing: yes, %d %s (never born: lost with their mother)\n", babies,
                   babies > 1 ? "babies" : "baby");
     }
 }
@@ -192,7 +196,7 @@ static void lost_record(const unsigned char *record, int babies, const char *how
               "  Mother: %s\n    Head: %d\n    Body: %d\n"
               "  Father: %s\n    Head: %s\n    Body: %s\n"
               "  Babies in pregnancy: %d\n"
-              "  What happened: the mother %s while carrying or nursing; never born\n",
+              "  What happened: the mother %s while nursing; never born\n",
               mother, *(const int *)(record + r->head), *(const int *)(record + r->body),
               father, fh, fb, babies, how);
     COD_COUNT(lost);

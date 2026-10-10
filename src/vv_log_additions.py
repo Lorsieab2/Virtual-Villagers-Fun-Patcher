@@ -652,7 +652,7 @@ DELIVERY_UNITS = 40
 
 
 def _lost_line(babies: int) -> str:
-    return f"  Pregnant: yes, {babies} {'baby' if babies == 1 else 'babies'} (never born: lost with their mother)"
+    return f"  Nursing: yes, {babies} {'baby' if babies == 1 else 'babies'} (never born: lost with their mother)"
 
 
 def _lost_record(mother: tuple, father: tuple | None, babies: int, how: str) -> str:
@@ -665,7 +665,7 @@ def _lost_record(mother: tuple, father: tuple | None, babies: int, how: str) -> 
     return "\n".join(["", LOST_HEADING, f"  Mother: {name}", f"    Head: {number(head)}", f"    Body: {number(body)}",
                       f"  Father: {fname}", f"    Head: {number(fhead)}", f"    Body: {number(fbody)}",
                       f"  Babies in pregnancy: {babies}",
-                      f"  What happened: the mother {how} while carrying or nursing; never born",
+                      f"  What happened: the mother {how} while nursing; never born",
                       "  Note: Recorded afterwards (her Conception had no Birth, and her "
                       f"{'Death' if how == 'died' else 'Disappeared'} record follows it)"])
 
@@ -695,7 +695,7 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
     it leave her last Conception open for good.  Proved when her last Conception has no Birth (or Lost
     before birth) after it, she is not in the village now, exactly one Death or Disappeared record has her
     name, head and body, and its age is no earlier than the conception and short of the delivery (40 age
-    units on): then her record gets its Pregnant line and the Births and Conceptions log a "Lost before
+    units on): then her record gets its Nursing line and the Births and Conceptions log a "Lost before
     birth" record after the Conception.  When the record's age cannot settle it -- missing, or past the
     delivery (a Birth the log may have missed), two records with her looks, or a Golden Child the puzzle
     may have made of the pregnancy (A New Home) -- the player is asked."""
@@ -756,7 +756,7 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
             words = f"Yes: her {'Death' if died else 'Disappeared'} record" + (f", age {at}" if at is not None else "")
             while words in choices:
                 words += " (another)"
-            choices[words] = (record, _lost_line(babies) if record.value("Pregnant") is None else None,
+            choices[words] = (record, _lost_line(babies) if record.value("Nursing") is None and record.value("Pregnant") is None else None,
                               _lost_record(mother, father, babies, "died" if died else "disappeared"))
         only = records[0]
         at = age_of(only)
@@ -787,7 +787,7 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
 
 
 def _lost_anchor(record: Block) -> int:
-    """The line a Death record's (or a Disappeared record's) Pregnant line follows, as the companion
+    """The line a Death record's (or a Disappeared record's) Nursing line follows, as the companion
     writes it: after its Epitaph (What happened)."""
     at = record.index_of("Epitaph" if record.heading.startswith("Death") else "What happened")
     return at if at is not None else record.start + len(record.lines) - 1

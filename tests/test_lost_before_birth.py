@@ -4,8 +4,9 @@ The owner (2026-10-09): "Nursing mothers who die will only produce a grave for t
 (nursing child just disappears - child villager is never born as a full fledged villager)" and
 "Only full fledged villagers produce skeletons and graves".  So:
 
-* the mother's Death or Disappeared record says "Pregnant: yes, N babies (never born: lost with
-  their mother)", and the Births and Conceptions log closes her open Conception with a "Lost before
+* the mother's Death or Disappeared record says "Nursing: yes, N babies (never born: lost with
+  their mother)" -- the games' own word for the state (the owner, 2026-10-10: "Each game's own word";
+  every game's villager screen shows "Nursing"), and the Births and Conceptions log closes her open Conception with a "Lost before
   birth" record (native/vvfp_cause_of_death/cod_lost.inc, run by lost_birth_harness.c in every
   game's geometry; the Parentage Export side by death_log_harness.c);
 * the Family Tree and the genealogy treat that Conception as closed (src/vv_genealogy.py);
@@ -80,7 +81,7 @@ class NativeHarness(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout[-4000:] + result.stderr[-2000:])
         self.assertIn("all passed", result.stdout)
         for game in range(1, 6):
-            self.assertIn(f"game {game} death, 3 baby/babies: the Pregnant line", result.stdout)
+            self.assertIn(f"game {game} death, 3 baby/babies: the Nursing line", result.stdout)
             self.assertIn(f"game {game} disappearance: an unknown father is (unknown)", result.stdout)
 
     def test_every_death_and_departure_path_goes_through_the_two_writers(self):
@@ -107,7 +108,7 @@ class TheChecker(unittest.TestCase):
             write(folder, BIRTHS.format(g=3), "Village: Tribe (Save 1)\n" + conception(1, "Ma", 0, 0, 600, 2)
                   + "Lost before birth\n  Mother: Ma\n    Head: 0\n    Body: 0\n  Father: Pa\n    Head: 0\n"
                     "    Body: 2\n  Babies in pregnancy: 2\n"
-                    "  What happened: the mother died while carrying or nursing; never born\n\n")
+                    "  What happened: the mother died while nursing; never born\n\n")
             records, _files = checker.births_log(folder, 3, 1)
             self.assertEqual([r.kind for r in records], ["conception", "lost"])
             lost = records[1]
@@ -166,12 +167,12 @@ class Repair(unittest.TestCase):
         done = additions.apply(self.folder, [kind], {"lost"}, {})
         self.assertEqual(sorted(f.count for f in done["lost"]), [1, 1])
         dtext = deaths.read_bytes().decode("latin-1")
-        self.assertIn("  Epitaph: (none)\r\n  Pregnant: yes, 2 babies (never born: lost with their mother)\r\n"
+        self.assertIn("  Epitaph: (none)\r\n  Nursing: yes, 2 babies (never born: lost with their mother)\r\n"
                       "  Head: 0\r\n", dtext)
         btext = births.read_bytes().decode("latin-1")
         self.assertIn("  Babies in pregnancy: 2\r\n\r\nLost before birth\r\n  Mother: Ma\r\n    Head: 0\r\n"
                       "    Body: 0\r\n  Father: Pa\r\n    Head: 0\r\n    Body: 2\r\n  Babies in pregnancy: 2\r\n"
-                      "  What happened: the mother died while carrying or nursing; never born\r\n", btext)
+                      "  What happened: the mother died while nursing; never born\r\n", btext)
         self.assertLess(btext.index("Lost before birth"), btext.index("Conception 2"),
                         "right after the Conception it closes")
         again = self.kind(3)
@@ -183,7 +184,7 @@ class Repair(unittest.TestCase):
         kind = self.kind(2)
         additions.apply(self.folder, [kind], {"lost"}, {})
         self.assertIn("  What happened: Disappeared in a custom island event\r\n"
-                      "  Pregnant: yes, 2 babies (never born: lost with their mother)\r\n",
+                      "  Nursing: yes, 2 babies (never born: lost with their mother)\r\n",
                       deaths.read_bytes().decode("latin-1"))
 
     def test_nothing_when_a_birth_follows_or_she_is_alive_or_gone_before(self):
@@ -214,9 +215,9 @@ class Repair(unittest.TestCase):
         additions.apply(self.folder, [kind], {"lost"}, {late.key: late.options[0], twice.key: twice.options[1]})
         text = deaths.read_bytes().decode("latin-1")
         self.assertIn("  Age at death: 700\r\n", text)
-        self.assertEqual(text.count("Pregnant: yes"), 2)
+        self.assertEqual(text.count("Nursing: yes"), 2)
         self.assertIn("Death 3\r\n  Name: Twice\r\n  Age at death: 630\r\n  Sex: Female\r\n  Cause of death: Disease\r\n"
-                      "  Grave: Untrained\r\n  Epitaph: (none)\r\n  Pregnant: yes, 3 babies", text,
+                      "  Grave: Untrained\r\n  Epitaph: (none)\r\n  Nursing: yes, 3 babies", text,
                       "the record the player chose")
 
     def test_a_new_home_golden_child_makes_it_a_question(self):
