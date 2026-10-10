@@ -233,6 +233,8 @@ FILES = [
     "src/vv_cut_names.py",
     # Repair Saves & Logs' Fix grave information (the GUI imports it).
     "src/vv_graves.py",
+    # Repair Saves & Logs' Restore A New Home Parents (the GUI imports it).
+    "src/vv1_parents_restore.py",
     # The save folder's folder and file names, old and new: the Family Tree Maker finds its edits and
     # writes its reports through it, and Repair Saves & Logs moves older builds' folders with it.
     "src/vv_save_layout.py",

@@ -23,6 +23,7 @@ import vv_move_old_names
 import vv_last_names
 import vv_cut_names
 import vv_graves
+import vv1_parents_restore
 import vv_number_names
 import vv_save_backup
 import vv_startup_questions
@@ -3094,6 +3095,7 @@ class App(tk.Tk):
         go_button = ttk.Button(buttons, text="Repair Saves & Logs" if repair else "Check")
         go_button.pack(side="left")
         move_button = None
+        restore_button = None
         if repair:
             # The owner, 2026-10-09: "Repair logs should have the move legacy files button!" -- for
             # the chosen save folder, whichever tribe is picked (src/vv_move_old_names.py).
@@ -3103,6 +3105,14 @@ class App(tk.Tk):
                 if state["folders"] else None,
             )
             move_button.pack(side="left", padx=(8, 0))
+            # A New Home's parents lost by v1.35.66/67 (the title screen's founders): given back from the
+            # copies the patcher kept of the parentage file, for the chosen tribe (src/vv1_parents_restore.py).
+            restore_button = ttk.Button(
+                buttons, text="Restore A New Home Parents...",
+                command=lambda: self._restore_vv1_parents(dialog, state["folders"][folder_box.current()], chosen())
+                if state["folders"] and chosen() is not None and game().number == 1 else None,
+            )
+            restore_button.pack(side="left", padx=(8, 0))
             self._help_button(buttons, "repair_logs").pack(side="left", padx=(2, 0))
         ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
 
@@ -3126,6 +3136,9 @@ class App(tk.Tk):
             go_button.configure(state="normal" if problem is None else "disabled")
             if move_button is not None:
                 move_button.configure(state="normal" if state["folders"] else "disabled")
+            if restore_button is not None:
+                restore_button.configure(
+                    state="normal" if problem is None and game().number == 1 else "disabled")
 
         def load_slots(*_args) -> None:
             slot_list.delete(0, "end")
@@ -3247,6 +3260,46 @@ class App(tk.Tk):
             lines.append(f"Backup: {result.backup.backup_folder}")
         self.status_var.set(f"Move Old Files to New Names: {folder.name} done.")
         messagebox.showinfo(title, "\n".join(lines), parent=parent)
+
+    def _restore_vv1_parents(self, parent, folder: Path, info) -> None:
+        """Repair Saves & Logs' "Restore A New Home Parents..." (src/vv1_parents_restore.py): list what
+        the copies of the parentage file give back, ask, then add it with the game closed."""
+        title = "Restore A New Home Parents"
+        try:
+            work = vv1_parents_restore.plan(folder, info.slot)
+        except (vv1_parents_restore.RestoreError, OSError, ValueError) as exc:
+            messagebox.showerror(title, str(exc), parent=parent)
+            return
+        if not work.restored:
+            lines = work.lines() or ["Every villager the parentage file names already has their parents, or no "
+                                     "copy of the file has any to give back."]
+            messagebox.showinfo(title, "Nothing to restore.\n\n" + "\n".join(lines[:30]), parent=parent)
+            return
+        shown = work.lines()
+        if len(shown) > 25:
+            shown = shown[:25] + [f"... and {len(shown) - 25} more"]
+        if not messagebox.askyesno(
+                title,
+                f"{folder.name}, Save {info.slot}: the copies the patcher kept of the parentage file give back "
+                "these parents. Only villagers with no parents now get any; nothing else changes.\n\n"
+                + "\n".join(shown)
+                + "\n\nThe save folder is backed up first, and the file is copied into Copies Made Before "
+                "Repairs. Restore them now?", parent=parent):
+            return
+        try:
+            result = self._run_with_wait(
+                "Restoring the parents…\n\nThe save folder is backed up first.",
+                lambda: vv1_parents_restore.restore(folder, info.slot),
+            )
+        except (vv1_parents_restore.RestoreError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                OSError) as exc:
+            _regrab(parent)
+            messagebox.showerror(title, str(exc), parent=parent)
+            return
+        _regrab(parent)
+        self.status_var.set(f"Restore A New Home Parents: {len(result.plan.restored)} villager(s) in {folder.name}.")
+        messagebox.showinfo(title, f"{len(result.plan.restored)} villager(s) have their parents back. Each is listed "
+                            "in the Repairs Made log.", parent=parent)
 
     def _check_logs(self, parent, folder: Path, number: int, info) -> None:
         """Run the read-only checker off the main thread and show its report."""
