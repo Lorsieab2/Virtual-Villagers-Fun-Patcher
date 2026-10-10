@@ -50,7 +50,10 @@ CHECKS += 2 * 4
 CHECKS += 2 * 5
 # New Believers' converted Heathen Master: the Former Heathens file and the Arrived record's title.
 CHECKS += 2
-STOCK = ROOT / "research" / "stock-executables"
+# + 1 per game: a villager whose Birth record names him by his first name alone (born before Last
+# Names, the owner's Cheop Bahati) gets no Arrived record
+CHECKS += 5
+STOCK =ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
 TABLES = {1: "MARKERS_VV1", 2: "MARKERS_VV2", 3: "MARKERS_VV3", 4: "MARKERS_VV4", 5: "MARKERS_VV5"}

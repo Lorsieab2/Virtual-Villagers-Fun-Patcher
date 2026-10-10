@@ -44,10 +44,15 @@ CHECKED = {
     "golden": "the Golden Child's Arrived records, against the pregnancies with no Birth and the player's answers",
     "appearance": "the villagers whose look changed with no Appearance changed record, against the save, the "
                   "logs and the player's answers",
+    "born_arrived": "the backfilled \"How: unknown\" Arrived records of villagers the log also has a Birth "
+                    "record for, and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
-         "appearance": "Appearance changed record added"}
+         "appearance": "Appearance changed record added",
+         "born_arrived": "Backfilled Arrived record removed (the villager was born here)"}
+REMOVE_IT = "Remove the Arrived record (they were born here)"
+KEEP_IT = "Keep it"
 FROM_NOW = "Only from now on (add nothing)"
 
 # The order the lines take under a villager's name (as the exporters print them).
@@ -73,12 +78,24 @@ class Insert:
 
 
 @dataclass
+class Remove:
+    """A whole record to take out of a log (with the blank line after it), when the player's answer
+    to `question` is `when`."""
+    path: Path
+    start: int                              # its heading's line index
+    count: int                              # its lines, the blank line after it included
+    question: str
+    when: str
+
+
+@dataclass
 class Kind:
     id: str
     label: str                              # the checklist's words
     inserts: list[Insert] = field(default_factory=list)
     questions: dict[str, Question] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
+    removes: list[Remove] = field(default_factory=list)
 
     @property
     def decided(self) -> int:
@@ -693,6 +710,46 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
     return kind
 
 
+def is_backfilled_arrival(b: Block) -> bool:
+    """An Arrived record the arrival backfill wrote knowing nothing of how the villager came."""
+    return b.heading.startswith("Arrived") and (b.value("How") or "").strip().lower() == "unknown"
+
+
+def _birth_identity(b: Block) -> tuple | None:
+    return _sub_identity(b, "Child") if b.heading == "Birth" else None
+
+
+def plan_born_arrived(folder: Path, game: int, slot: int) -> Kind:
+    """A backfilled "How: unknown" Arrived record of a villager the log also has a Birth record for
+    (name, head and body): the arrival backfill wrote it when it could not see the Birth -- the owner's
+    Cheop Bahati, born "Cheop" before Last Names, and the Golden Child Lulu, whose Birth was added
+    later.  The villager was born here, so the Arrived record is wrong; the player is asked, and a
+    record they choose to remove is taken out (the file copied first)."""
+    kind = Kind("born_arrived", "Arrived records of villagers born here (backfilled, \"How: unknown\")")
+    checker = tools.load_checker()
+    villages = current_villages(folder, game, slot)
+    paths = checker.numbered(folder / checker.LOGS / "Births and Conceptions",
+                             f"Virtual Villagers {game} Births and Conceptions Log")
+    every: list[Block] = []
+    for path in paths:
+        every += [b for b in blocks(path) if b.of(slot, game, villages)]
+    born = {_birth_identity(b) for b in every if b.heading == "Birth"}
+    for b in every:
+        if not is_backfilled_arrival(b) or b.identity not in born or None in b.identity:
+            continue
+        name, head, body = b.identity
+        key = f"born_arrived|{b.path.name}|{b.start}"
+        kind.questions[key] = Question(
+            key, f"{b.heading}: {name} (head {head}, body {body}) has a Birth record, but a backfilled "
+                 "\"How: unknown\" Arrived record says they arrived. Remove the Arrived record?",
+            [REMOVE_IT, KEEP_IT], REMOVE_IT)
+        lines = read_lines(b.path)
+        count = len(b.lines) + (1 if b.start + len(b.lines) < len(lines)
+                                and not lines[b.start + len(b.lines)].strip() else 0)
+        kind.removes.append(Remove(b.path, b.start, count, key, REMOVE_IT))
+    return kind
+
+
 def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     """Everything older records of this slot's village lack, kind by kind.  Reads only."""
     folder = Path(folder)
@@ -706,6 +763,7 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_born_as(folder, game, slot),
         plan_golden(folder, game, slot),
         plan_appearance(folder, game, slot),
+        plan_born_arrived(folder, game, slot),
     ]
     return kinds
 
@@ -731,23 +789,92 @@ def resolve(kinds: list[Kind], chosen: set[str],
     return out
 
 
+def resolve_removes(kinds: list[Kind], chosen: set[str],
+                    answers: dict[str, str]) -> dict[Path, list[tuple[int, int, str]]]:
+    """The records to take out, per file: (start, count, kind id), for the ticked kinds and the
+    answers given (a record is removed only on the answer that says so)."""
+    out: dict[Path, list[tuple[int, int, str]]] = {}
+    for kind in kinds:
+        if kind.id not in chosen:
+            continue
+        for rem in kind.removes:
+            if answers.get(rem.question, "") == rem.when:
+                out.setdefault(rem.path, []).append((rem.start, rem.count, kind.id))
+    return out
+
+
+ARRIVED_HEADING = re.compile(r"^Arrived (\d+)\s*$")
+
+
+def _new_offset(old_lines: list[str], new_index: list[int | None], new_lines: list[str], eol: int,
+                boundary: int) -> int:
+    """Where byte `boundary` of the old text is in the new one: the same place in its line when the
+    line is kept, else the start of the next kept line (lines are latin-1, one byte a character)."""
+    at = 0
+    for k, line in enumerate(old_lines):
+        end = at + len(line) + (eol if k < len(old_lines) - 1 else 0)
+        if boundary < end or k == len(old_lines) - 1:
+            for j in range(k, len(old_lines)):
+                if new_index[j] is not None:
+                    start = sum(len(x) + eol for x in new_lines[:new_index[j]])
+                    inside = min(boundary - at, len(new_lines[new_index[j]]) + eol) if j == k else 0
+                    return start + max(inside, 0)
+            return sum(len(x) + eol for x in new_lines) - (eol if new_lines else 0)
+        at = end
+    return boundary
+
+
 def apply(folder: Path, kinds: list[Kind], chosen: set[str],
           answers: dict[str, str]) -> dict[str, list[tools.WordFix]]:
-    """Add the chosen kinds' lines, every file in one pass (the plan's line numbers are the
-    file's as read).  Each file is copied first, into Data\\Copies Made Before Repairs (never
-    replacing a copy), and
-    rewritten through a temporary file.  Returns, per kind, the files it added lines to."""
+    """Add the chosen kinds' lines and take out the records the player chose to remove, every file
+    in one pass (the plan's line numbers are the file's as read).  Each file is copied first, into
+    Data\\Copies Made Before Repairs (never replacing a copy), and rewritten through a temporary
+    file.  When a record is removed, every later "Arrived <n>" in the game's Births and Conceptions
+    files is renumbered so the running count the game continues from stays whole, and each file's
+    Like and Dislike Words boundary moves with the bytes before it.  Returns, per kind, the files it
+    changed."""
     folder = Path(folder)
     done: dict[str, list[tools.WordFix]] = {}
     written = 0
-    for path, adds in resolve(kinds, chosen, answers).items():
-        adds = sorted(set(adds), key=lambda a: (a[0], a[1]))
+    adds_by_file = resolve(kinds, chosen, answers)
+    removes_by_file = resolve_removes(kinds, chosen, answers)
+    files = list(adds_by_file) + [p for p in removes_by_file if p not in adds_by_file]
+    renumber: list[Path] = []
+    if removes_by_file:
+        checker = tools.load_checker()
+        games = {int(m.group(1)) for p in removes_by_file if (m := GAME_IN_NAME.search(p.name))}
+        for game in sorted(games):
+            renumber += checker.numbered(folder / checker.LOGS / "Births and Conceptions",
+                                         f"Virtual Villagers {game} Births and Conceptions Log")
+        files += [p for p in renumber if p not in files]
+        files = [p for p in renumber if p in files] + [p for p in files if p not in renumber]
+    arrived_count = 0
+    for path in files:
+        adds = sorted(set(adds_by_file.get(path, [])), key=lambda a: (a[0], a[1]))
+        removes = removes_by_file.get(path, [])
         raw = path.read_bytes()
         crlf = b"\r\n" in raw
-        lines = raw.decode("latin-1").replace("\r\n", "\n").split("\n")
-        # Highest line first; at one line, the highest rank first, so ranks read in order.
-        for after, _rank, line, _kind in reversed(adds):
-            lines.insert(after + 1, line)
+        old_lines = raw.decode("latin-1").replace("\r\n", "\n").split("\n")
+        gone = {k for start, count, _ in removes for k in range(start, start + count)}
+        lines: list[str] = []
+        new_index: list[int | None] = []
+        after_line: dict[int, list[tuple[int, str]]] = {}
+        for after, rank, line, _kind in adds:
+            after_line.setdefault(after, []).append((rank, line))
+        for k, line in enumerate(old_lines):
+            if k in gone:
+                new_index.append(None)
+            else:
+                m = ARRIVED_HEADING.match(line) if path in renumber else None
+                if m:
+                    arrived_count += 1
+                    line = f"Arrived {arrived_count}"
+                new_index.append(len(lines))
+                lines.append(line)
+            for _rank, added in sorted(after_line.get(k, [])):
+                lines.append(added)
+        if lines == old_lines:
+            continue                        # renumbering left this file as it was
         text = "\n".join(lines)
         if crlf:
             text = text.replace("\n", "\r\n")
@@ -766,7 +893,33 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
             raise tools.LogToolError(f"{path.name} could not be given its added lines ({exc}). "
                                      f"{written} log file(s) were given them before it.") from exc
         written += 1
+        _move_word_boundary(folder, path, old_lines, new_index, lines, 2 if crlf else 1)
         for kind_id in sorted({a[3] for a in adds}):
             count = sum(1 for a in adds if a[3] == kind_id)
             done.setdefault(kind_id, []).append(tools.WordFix(str(path.relative_to(folder)), count, backup.name))
+        for kind_id in sorted({r[2] for r in removes}):
+            count = sum(1 for r in removes if r[2] == kind_id)
+            done.setdefault(kind_id, []).append(tools.WordFix(str(path.relative_to(folder)), count, backup.name))
+        if not adds and not removes:
+            # Only renumbered: listed under the removal that caused it.
+            for kind_id in sorted({r[2] for rs in removes_by_file.values() for r in rs}):
+                done.setdefault(kind_id, []).append(tools.WordFix(str(path.relative_to(folder)), 0, backup.name))
     return done
+
+
+def _move_word_boundary(folder: Path, path: Path, old_lines: list[str], new_index: list[int | None],
+                        new_lines: list[str], eol: int) -> None:
+    """The file's Like and Dislike Words boundary (the bytes before it hold words an older patcher
+    wrote), moved to where those bytes are now.  Nothing when the file has no boundary recorded."""
+    checker = tools.load_checker()
+    game = GAME_IN_NAME.search(path.name)
+    if not game:
+        return
+    name = checker.word_key(str(path.relative_to(folder)))
+    bounds = checker.word_boundaries(folder, int(game.group(1)))
+    old = bounds.get(name.lower())
+    if old is None or old <= 0:
+        return
+    new = _new_offset(old_lines, new_index, new_lines, eol, old)
+    if new != old:
+        tools.record_word_boundary(folder, int(game.group(1)), name, new)

@@ -94,6 +94,8 @@ class Vv1CrossCheckHarnessTests(unittest.TestCase):
             "Penyo, with parents and no record in the log, is to be recorded afterwards; Silko, recorded as arrived, set to unknown",
             "on Repair Penyo keeps the parents the table holds",
             "the Repairs log says Penyo's Birth record is written afterwards",
+            "a backfilled 'How: unknown' Arrived record is no arrival: Penyo is still recorded afterwards, not cleared",
+            "... Penyo keeps the table's parents, and Nishi's Birth record wins over her backfilled Arrived",
             "... and the backup is the file as it was, byte for byte",
             "the marker records that the check ran and repaired",
             "... and lists Lisha's correction",

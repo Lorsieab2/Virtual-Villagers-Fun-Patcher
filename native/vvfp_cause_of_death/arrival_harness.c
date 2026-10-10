@@ -397,6 +397,9 @@ static void write_old_logs(void) {
         "Birth\n  Child: Hea\n    Head: 9\n    Body: 9\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Skills:\n    Breeding   0\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
+        /* Born before Last Names gave him "Bahati": the record names him by his first name. */
+        "Birth\n  Child: Cheop\n    Head: 4\n    Body: 15\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Arrived 1\n  Name: Thabo\n  Age at arrival: 980 (about; hand-written)\n  Sex: Male\n"
         "  Head: 16\n  Body: 12\n  How: Custom Island Event\n"
         "  Note: Recorded afterwards (arrived before this log existed)\n\n"
@@ -804,6 +807,7 @@ int main(int argc, char **argv) {
         villager(4, "Dup", 500, 2, 2, 0);
         villager(5, "Dup", 500, 2, 2, 0);
         villager(6, "Hea", 400, 9, 9, game != 5);
+        villager(21, "Cheop Bahati", 901, 4, 15, 0);   /* his Birth record says "Cheop" (before Last Names) */
         if (game == 5) {
             rec(6)[VV5_FACTION] = 1;
             *(int *)(rec(6) + 0x1CFC) = 14;   /* a Heathen Master Scientist: the purple mask */
@@ -878,6 +882,8 @@ int main(int argc, char **argv) {
               && strstr(text, "Arrived 10") == NULL,
               "Huata, Silko, the second Dup, Ponui and the other Thabo get Arrived 4-8, in the frozen format;"
               " Huata, in the village's first History snapshot, is a Founder, Silko (later) is not");
+        CHECK(strstr(text, "  Name: Cheop Bahati") == NULL,
+              "Cheop Bahati, whose Birth record names him 'Cheop' (before Last Names), gets no Arrived record");
         {
             const char *okwui = arrived(9, "Okwui");
             CHECK(count_of(text, "  Name: Okwui\r\n") == 1 && okwui != NULL

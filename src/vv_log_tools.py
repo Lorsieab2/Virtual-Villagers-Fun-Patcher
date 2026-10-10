@@ -167,7 +167,8 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
         for note in cut_notes:
             report.add(f"{LOGS} (cut names)", "NOTE", note)
     for kind in kinds:
-        if kind.id == "sex" or not (kind.decided or kind.asked):
+        # "sex" and "born_arrived" the checker itself reports (the latter as WRONG).
+        if kind.id in ("sex", "born_arrived") or not (kind.decided or kind.asked):
             continue
         asked = f", and {kind.asked} question(s) it asks you" if kind.asked else ""
         report.add(f"{LOGS} ({kind.label})", "NOTE",
@@ -493,6 +494,17 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
             ) from exc
         done.append(WordFix(f.name, len(f.fixes), backup.name))
     return done
+
+
+def record_word_boundary(folder: Path, game: int, name: str, offset: int) -> None:
+    """A log file's new Like and Dislike Words boundary (`name` as the file records it), after a
+    repair moved the bytes before it (src/vv_log_additions.py apply): appended, the last line naming a
+    file counting, to the new file or an older build's "Log Words" while only it exists."""
+    checker = load_checker()
+    dat = layout.writable(Path(folder), checker.LOG_WORDS.format(game=game))
+    dat.parent.mkdir(parents=True, exist_ok=True)
+    with open(dat, "ab") as boundaries:
+        boundaries.write(f"{offset}\t{name}\r\n".encode("utf-8"))
 
 
 def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[WordFix],
