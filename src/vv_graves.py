@@ -1023,7 +1023,7 @@ def fix_graves(folder: Path, game: int, slot: int, fixes: list[Fix], retro: bool
                            checked="each grave against its Death record and the patcher's grave files, "
                                    "with the player's choices (" + "; ".join(describe(f) for f in work.fixes) + ")"
                                    + ("" if retro else "; the old records were left as they were"),
-                           corrected="Grave information corrected", unit="field(s)")
+                           corrected="Grave information corrected", unit="field(s)", slot=slot)
     return Result(work.fixes, applied.files, applied.backup, len(work.decisions))
 
 

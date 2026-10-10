@@ -144,6 +144,142 @@ def find(folder: Path, relative: str) -> Path:
     return new
 
 
+# ---- One folder of logs per save slot (the owner, 2026-10-10: "separate log per slot", then "Just put
+# the logs in separate folders per slot"; native/shared/log_slot.h is the games' side) -----------------
+#
+#     <save folder>\Virtual Villagers Fun Patcher Logs\Save <S>\<the log's own folder>\<its own name>
+#
+# Every log keeps its folder and file names; only the parent folder is the slot's.  The shared
+# "...Logs\<the log's folder>\" older builds wrote (and an older build's name for it, FOLDERS above) is
+# NEVER moved, split, renamed or deleted: every reader reads it first -- each record kept only under its
+# own slot's "Village: <name> (Save <S>)" header -- and then the slot's folder, as one history.  Numbered
+# records ("Conception <n>", "Birth <n>", "Death <n>", "Arrived <n>", "Island event <n>",
+# "Unaccounted <n>", "Repair <n>") are numbered per GAME, so a new number follows the highest printed in
+# every folder of the game (log_folders with slot None).
+#
+# The Logs folder's own sub-folders (`sub` below): "Births and Conceptions", "Deaths and Disappearances",
+# "Unaccounted Villagers", "Island Events", "Tribe Population", "Tribe History", "Village Statistics",
+# "Repairs Made".
+
+SLOTS = (1, 2, 3, 4, 5)
+_SLOT_HEADER = re.compile(r" \(Save ([1-5])\)")
+
+
+def slot_folder(slot: int) -> str:
+    """"Virtual Villagers Fun Patcher Logs\\Save <slot>", relative to the save folder."""
+    return f"{LOGS}\\Save {int(slot)}"
+
+
+def slot_log_folder(folder: Path, sub: str, slot: int) -> Path:
+    """Where this build WRITES the slot's `sub` logs: "...Logs\\Save <slot>\\<sub>" (never made here)."""
+    return Path(folder) / slot_folder(slot) / sub
+
+
+def header_slot(header: str | None) -> int | None:
+    """The slot a "Village: <name> (Save <S>)" header names -- the LAST such marker, as every reader
+    takes it -- or None."""
+    found = _SLOT_HEADER.findall(header or "")
+    return int(found[-1]) if found else None
+
+
+def log_folders(folder: Path, sub: str, slot: int | None = None) -> list[Path]:
+    """Every folder that may hold `sub`'s logs, in reading order (oldest first): the shared folder under
+    an older build's name, the shared folder, then the slot folders -- only `slot`'s, or all five when
+    `slot` is None (a game-wide count).  Nothing need exist and nothing is made."""
+    folder = Path(folder)
+    shared = f"{LOGS}\\{sub}"
+    out: list[Path] = []
+    old = old_name(shared)
+    if old:
+        out.append(folder / old)
+    out.append(folder / shared)
+    out.extend(slot_log_folder(folder, sub, s) for s in SLOTS if slot is None or s == int(slot))
+    return out
+
+
+def numbered_logs(folder: Path, sub: str, stem: str, slot: int | None = None) -> list[Path]:
+    """Every existing "<stem> <n>.txt" of `sub`'s logs, folder by folder in log_folders' order and by
+    number within each: the one history a slot's (or, slot None, the game's) records are read from."""
+    files: list[Path] = []
+    pattern = re.compile(re.escape(stem) + r" (\d+)\.txt", re.I)
+    for place in log_folders(folder, sub, slot):
+        if not place.is_dir():
+            continue
+        found = []
+        for p in place.iterdir():
+            m = pattern.fullmatch(p.name)
+            if m and p.is_file():
+                found.append((int(m.group(1)), p))
+        files.extend(p for _, p in sorted(found))
+    return files
+
+
+def is_slot_folder(path: Path) -> int | None:
+    """The slot when `path` lies inside a "...Logs\\Save <S>" folder, else None."""
+    parts = [p.lower() for p in Path(path).parts]
+    for i, part in enumerate(parts[:-1]):
+        if part == LOGS.lower():
+            m = re.fullmatch(r"save ([1-5])", parts[i + 1])
+            return int(m.group(1)) if m else None
+    return None
+
+
+def slot_first_logs(folder: Path, sub: str, stem: str, slot: int) -> list[Path]:
+    """For a log the game REWRITES at each save (Tribe Population's "Village Population <n>.txt"): the
+    slot folder's numbered files when it has any, else the shared ones (an older build's, read only
+    while the slot has none of its own)."""
+    own = [p for p in numbered_logs(folder, sub, stem, slot) if is_slot_folder(p)]
+    return own or [p for p in numbered_logs(folder, sub, stem, slot) if not is_slot_folder(p)]
+
+
+def marker_numbers(path: Path, marker: str) -> tuple[int, int]:
+    """(how many lines of `path` begin with `marker` -- "Repair ", "Death " --, the highest number
+    printed straight after it; 0 when none): log_slot.h vv_log_marker_numbers_a.  (0, 0) when the
+    file is not there; OSError when it is there and cannot be read."""
+    try:
+        text = Path(path).read_bytes().decode("latin-1")
+    except FileNotFoundError:
+        return 0, 0
+    count = highest = 0
+    for line in text.split("\n"):
+        if line.startswith(marker):
+            count += 1
+            m = re.match(r"\d+", line[len(marker):])
+            if m:
+                highest = max(highest, int(m.group(0)))
+    return count, highest
+
+
+def repairs_highest(folder: Path, game: int) -> int:
+    """The highest "Repair <n>" printed in ANY of the game's Repairs files: an older build's
+    "Repairs", the shared "Repairs Made" and every slot's (repairs_log.h vv_repairs_highest)."""
+    highest = 0
+    for path in numbered_logs(folder, REPAIRS_LOGS, f"Virtual Villagers {int(game)} Repairs Log", None):
+        highest = max(highest, marker_numbers(path, "Repair ")[1])
+    return highest
+
+
+def append_target(folder: Path, sub: str, stem: str, slot: int, marker: str | None = None,
+                  per_file: int = 256, max_bytes: int = 4 * 1024 * 1024) -> Path:
+    """The file of the slot's own folder a new record of `sub` is appended to: its highest-numbered
+    "<stem> <n>.txt" while it holds fewer than `per_file` `marker` records and `max_bytes` bytes,
+    else the next number ("<stem> 1.txt" when the slot has none).  Never made here."""
+    place = slot_log_folder(folder, sub, slot)
+    files = [p for p in numbered_logs(folder, sub, stem, slot) if p.parent == place]
+    if not files:
+        return place / f"{stem} 1.txt"
+    last = files[-1]
+    number = int(re.search(r" (\d+)\.txt$", last.name).group(1))
+    try:
+        size = last.stat().st_size
+    except OSError:
+        size = 0
+    records = marker_numbers(last, marker)[0] if marker else 0
+    if size >= max_bytes or (marker and records >= per_file):
+        return place / f"{stem} {number + 1}.txt"
+    return last
+
+
 def writable(folder: Path, relative: str) -> Path:
     """Where to append to `relative` (its new name), a file or a folder read from both places when
     both exist: an older build's while only it exists, else the new one."""

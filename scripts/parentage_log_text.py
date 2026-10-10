@@ -9,9 +9,10 @@ starts its description with it. Only what genuinely differs between the games
 records -- follows in each generator.
 
 Each statement is checked against native/parentage_export/parentage_export.c:
-  * the folder: build_log_path -> vv_save_subfolder_w(
-    L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions") under
-    Documents\\LDW\\<exe basename> (native/shared/save_folder.c);
+  * the folder: build_log_path -> the slot's own "Virtual Villagers Fun Patcher
+    Logs\\Save <slot>\\Births and Conceptions" (native/shared/log_slot.h) under
+    Documents\\LDW\\<exe basename> (native/shared/save_folder.c); the shared folder
+    older builds wrote is never moved and still read;
   * the file name: "Virtual Villagers <N> Births and Conceptions Log <n>.txt";
   * the roll: RECORDS_PER_FILE = 256, counted by count_records, which matches
     only "Conception " markers, so Birth records never count toward it and a
@@ -29,8 +30,10 @@ Each statement is checked against native/parentage_export/parentage_export.c:
 PLAYER_LOG_DESCRIPTION = (
     "Keeps a plain-text log of the village's conceptions and births in "
     "'Virtual Villagers {game_number} Births and Conceptions Log <n>.txt', in "
-    "the 'Virtual Villagers Fun Patcher Logs\\Births and Conceptions' folder "
-    "beside the game's saves (Documents\\LDW\\<game executable name>\\). "
+    "the save slot's own 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Births "
+    "and Conceptions' folder beside the game's saves (Documents\\LDW\\<game "
+    "executable name>\\); a shared 'Births and Conceptions' folder an older "
+    "patcher wrote is kept as it was and still read. "
     "Each Conception record gives both parents' names, both parents' ages at "
     "conception, both head and body values, both parents' likes and dislikes, "
     "and the number of babies; the mother's age determines the child's age. "

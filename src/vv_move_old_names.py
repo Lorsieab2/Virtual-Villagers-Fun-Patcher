@@ -522,6 +522,16 @@ def _merge_log_folder(folder: Path, group: list[Item], games: set[int], lower: d
         got = _all_records(staged)
         same = not (set(expect) - set(got)) and all(got[k] >= v for k, v in _all_records(new_dir).items())
         if same and new_dir.name == layout.DEATHS_LOGS and games:
+            # Each save slot's own Deaths logs ("...Logs\Save <S>\Deaths and Disappearances") are read
+            # with the shared ones: copied into the stage (only read here, never moved or changed), so
+            # both views hold them alike.
+            for slot in layout.SLOTS:
+                own = layout.slot_log_folder(folder, layout.DEATHS_LOGS, slot)
+                if own.is_dir():
+                    copy = layout.slot_log_folder(Path(stage), layout.DEATHS_LOGS, slot)
+                    copy.mkdir(parents=True)
+                    for path in own.glob("*.txt"):
+                        shutil.copyfile(path, copy / path.name)
             same = _deaths_view(Path(stage), games) == _deaths_view(folder, games)
     if not same:
         old_dir = Path(group[0].old).parent
@@ -573,26 +583,14 @@ def _remove_empty(folder: Path, result: MoveResult) -> None:
 
 def note_move(folder: Path, game: int, result: MoveResult, now: datetime | None = None) -> None:
     """One "Repair <n>" record in the Repairs Made log, the shape src/vv_log_tools.py note_word_repair
-    and native/shared/repairs_log.h write."""
+    and native/shared/repairs_log.h write.  Moving old files is no one village's (and never touches a
+    save slot's own "...Logs\\Save <S>\\" folder), so the record goes to the shared "Repairs Made", as
+    a writer that knows no slot writes it; its number follows the highest of every Repairs file of the
+    game (src/vv_log_tools.py repair_record_start)."""
     lines = result.lines()
     if not lines:
         return
-    logs = layout.find(folder, f"{layout.LOGS}\\{layout.REPAIRS_LOGS}")
-    logs.mkdir(parents=True, exist_ok=True)
-    number = 1
-    while (logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt").exists():
-        number += 1
-    path = logs / f"Virtual Villagers {game} Repairs Log {number}.txt"
-    existing = path.read_bytes().decode("latin-1") if path.exists() else ""
-    repairs = sum(line.startswith("Repair ") for line in existing.splitlines())
-    if repairs >= 256 or len(existing) >= 4 * 1024 * 1024:
-        path = logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt"
-        existing, repairs = "", 0
-    header = "Village: (all villages in this save folder)"
-    last = [line for line in existing.splitlines() if line.startswith("Village:")]
-    when = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
-    text = "" if last and last[-1].rstrip() == header else header + "\r\n"
-    text += f"Repair {repairs + 1}\r\n  Date: {when}\r\n"
+    path, text = tools.repair_record_start(folder, game, "Village: (all villages in this save folder)", None, now)
     text += "  Checked: the patcher's files kept under older builds' names (Move Old Files to New Names)\r\n"
     for line in lines:
         text += f"  {line}\r\n"

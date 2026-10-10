@@ -355,15 +355,18 @@ class Result:
 
 
 def _village(folder: Path, slot: int) -> str | None:
-    logs = Path(folder) / layout.LOGS
-    for path in sorted(logs.rglob("Virtual Villagers 1 Births and Conceptions Log *.txt")):
+    """The slot's latest "Village:" header in A New Home's Births and Conceptions log: the shared
+    folder's files, then the slot's own folder's (src/vv_save_layout.py)."""
+    found = None
+    for path in layout.numbered_logs(Path(folder), "Births and Conceptions",
+                                     "Virtual Villagers 1 Births and Conceptions Log", slot):
         try:
             for ln in path.read_bytes().decode("latin-1").splitlines():
                 if ln.startswith("Village:") and ln.rstrip().endswith(f"(Save {slot})"):
-                    return ln.rstrip()
+                    found = ln.rstrip()
         except OSError:
             continue
-    return None
+    return found
 
 
 def restore(folder: Path, slot: int, processes: vv_save_backup.ProcessController | None = None,
@@ -398,5 +401,5 @@ def restore(folder: Path, slot: int, processes: vv_save_backup.ProcessController
     tools.note_word_repair(folder, 1, _village(folder, slot), fixes, now,
                            checked="the parents in A New Home's parentage file, against the copies the patcher "
                                    "kept of it (only villagers with no parents now; nothing else changed)",
-                           corrected="Parents restored", unit="villager(s)")
+                           corrected="Parents restored", unit="villager(s)", slot=slot)
     return Result(work, target, backup)

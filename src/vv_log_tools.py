@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import re
 import struct
 import sys
 from dataclasses import dataclass, field
@@ -425,7 +426,7 @@ def approve_repair(
     words: list[WordFix] = []
     if "words" in chosen and game in load_checker().WORD_FIXES:
         words = fix_log_words(folder, game)
-        note_word_repair(folder, game, village, words, now)
+        note_word_repair(folder, game, village, words, now, slot=slot)
     if kinds is None:
         kinds = additions.plan(folder, game, slot)
     added = additions.apply(folder, kinds, chosen, answers or {})
@@ -444,7 +445,7 @@ def approve_repair(
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,
                              checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id],
-                             unit="record(s)" if kind.id == "contradictions" else "villager(s)")
+                             unit="record(s)" if kind.id == "contradictions" else "villager(s)", slot=slot)
     # Nothing is moved or renamed: an older build's folders and files keep their names, and every
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
@@ -511,6 +512,25 @@ def move_word_boundary(folder: Path, path: Path, game: int, moved) -> None:
                 boundaries.write(f"{now}\t{recorded[1]}\r\n".encode("utf-8"))
 
 
+def new_log_words(folder: Path, path: Path) -> None:
+    """A log file this build has just made (a record appended to a save slot's own log that was not
+    there yet): every word in it is the game's own, so its boundary is 0 -- recorded, as the game
+    records one when it first writes a file (native/shared/log_words.h vv_log_words_appending), for
+    the games whose words were ever wrong.  Nothing when a boundary is already recorded."""
+    named = re.match(r"^Virtual Villagers (\d) ", Path(path).name)
+    checker = load_checker()
+    if not named or int(named.group(1)) not in checker.WORD_FIXES:
+        return
+    game = int(named.group(1))
+    key = checker.word_key(str(Path(path).relative_to(folder)))
+    if key.lower() in checker.word_boundaries(Path(folder), game):
+        return
+    dat = layout.writable(folder, checker.LOG_WORDS.format(game=game))
+    dat.parent.mkdir(parents=True, exist_ok=True)
+    with open(dat, "ab") as boundaries:
+        boundaries.write(f"0\t{key}\r\n".encode("utf-8"))
+
+
 def fix_log_words(folder: Path, game: int) -> list[WordFix]:
     """Put the game's own like and dislike words into every log an older patcher wrote with the
     wrong list (scripts/vvfp_consistency_check.py old_words), with the game closed.
@@ -555,38 +575,63 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
     return done
 
 
-def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[WordFix],
-                     now: datetime | None = None,
-                     checked: str = "the like and dislike words in the logs, against the game's own list",
-                     corrected: str = "Corrected", unit: str = "villager(s)") -> None:
-    """One "Repair <n>" record in the Repairs log (native/shared/repairs_log.h's shape).  Written in
-    "Repairs Made" (an older build's "Repairs" while only it exists); with both folders there, its
-    number continues after the older folder's file of the same number (save_layout.h
-    vv_layout_older_repairs: "Repair 1" never comes twice)."""
-    if not fixes:
-        return
-    logs = layout.find(folder, f"{layout.LOGS}\\{layout.REPAIRS_LOGS}")    # "Repairs" in older builds
+def repair_record_start(folder: Path, game: int, header: str, slot: int | None,
+                        now: datetime | None = None) -> tuple[Path, str]:
+    """Where the next "Repair <n>" record goes and its first lines (the village header when the file's
+    last one is another, "Repair <n>", "  Date: ..."), as native/shared/repairs_log.h writes them.
+
+    The file: the slot's own "...Logs\\Save <slot>\\Repairs Made" (made here), or with no slot, the
+    shared "Repairs Made" (an older build's "Repairs" while only it exists); its highest-numbered
+    file, the next one once that holds 256 records or 4 MiB.  The number: per GAME, after the highest
+    printed in ANY of the game's Repairs files (an older build's "Repairs", the shared "Repairs Made",
+    every slot's), and after the records already in the file -- in the shared "Repairs Made" with the
+    older folder's file of the same number (save_layout.h vv_layout_older_repairs) -- so no number is
+    ever used twice."""
+    stem = f"Virtual Villagers {game} Repairs Log"
+    if slot:
+        logs = layout.slot_log_folder(folder, layout.REPAIRS_LOGS, slot)
+    else:
+        logs = layout.find(folder, f"{layout.LOGS}\\{layout.REPAIRS_LOGS}")    # "Repairs" in older builds
+    highest = layout.repairs_highest(folder, game)
     logs.mkdir(parents=True, exist_ok=True)
     number = 1
-    while (logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt").exists():
+    while (logs / f"{stem} {number + 1}.txt").exists():
         number += 1
-    path = logs / f"Virtual Villagers {game} Repairs Log {number}.txt"
+    path = logs / f"{stem} {number}.txt"
     existing = path.read_bytes().decode("latin-1") if path.exists() else ""
     repairs = sum(line.startswith("Repair ") for line in existing.splitlines())
     if repairs >= 256 or len(existing) >= 4 * 1024 * 1024:
-        path = logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt"
+        path = logs / f"{stem} {number + 1}.txt"
         existing, repairs = "", 0
     older = 0
-    if logs.name == layout.REPAIRS_LOGS:
+    if logs.name == layout.REPAIRS_LOGS and not layout.is_slot_folder(logs):
         old = Path(folder) / layout.LOGS / "Repairs" / path.name
         if old.is_file():
             older = sum(1 for line in old.read_bytes().decode("latin-1").splitlines()
                         if line.startswith("Repair ") and line[7:8].isdigit())
-    header = village or "Village: (all villages in this save folder)"
     last = [line for line in existing.splitlines() if line.startswith("Village:")]
     when = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
     text = "" if last and last[-1].rstrip() == header else header + "\r\n"
-    text += f"Repair {repairs + 1 + older}\r\n  Date: {when}\r\n"
+    text += f"Repair {max(repairs + older, highest) + 1}\r\n  Date: {when}\r\n"
+    return path, text
+
+
+def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[WordFix],
+                     now: datetime | None = None,
+                     checked: str = "the like and dislike words in the logs, against the game's own list",
+                     corrected: str = "Corrected", unit: str = "villager(s)", slot: int | None = None) -> None:
+    """One "Repair <n>" record in the Repairs log (native/shared/repairs_log.h's shape).  Written in
+    the village's own save slot's folder, "...Logs\\Save <S>\\Repairs Made" (the slot its header
+    names, else `slot`); with no slot known, in the shared "Repairs Made" (an older build's "Repairs"
+    while only it exists), as the game writes it.  "Repair <n>" is numbered per GAME: after the
+    highest number printed in any of the game's Repairs files -- an older build's "Repairs", the
+    shared "Repairs Made" and every slot's -- and, in the shared "Repairs Made", after the older
+    folder's file of the same number too (save_layout.h vv_layout_older_repairs: "Repair 1" never
+    comes twice)."""
+    if not fixes:
+        return
+    header = village or "Village: (all villages in this save folder)"
+    path, text = repair_record_start(folder, game, header, layout.header_slot(village) or slot, now)
     text += f"  Checked: {checked}\r\n"
     for fix in fixes:
         if fix.count < 0:                   # a line that says it all, no count

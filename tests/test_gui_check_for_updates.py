@@ -178,8 +178,9 @@ class ReleasesLinkTests(unittest.TestCase):
                               # PATCHER_VERSION: the repair copies are named for the running build.
                               "transparency"}),
             # The player's "Retroactively edit records?" No answers (vv_log_decisions).
+            # ...and the save slot's own log folders (vv_save_layout).
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
-                                  "vv_log_contradictions"}),
+                                  "vv_log_contradictions", "vv_save_layout"}),
             ("vv_log_decisions", {"vv_save_layout"}),
             # Records that contradict each other (Check / Repair Saves & Logs).
             ("vv_log_contradictions", {"vv_log_tools", "vv_save_layout", "vv_log_additions", "vv_last_names",
