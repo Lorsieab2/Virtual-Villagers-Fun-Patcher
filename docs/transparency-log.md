@@ -869,7 +869,7 @@ Keeps a plain-text log of the village's conceptions and births in 'Virtual Villa
 - Explicit non-changes/exclusions: none declared
 - Dependencies: vv2_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits when its required base is also selected: 3; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits when its required base is also selected: 7; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Island Events Log to Text File (`vv2_island_events`)
 

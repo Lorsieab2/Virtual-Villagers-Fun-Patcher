@@ -165,6 +165,13 @@ static const struct field *field_named(const struct game_layout *layout, const c
     return NULL;
 }
 
+/* The Story companion's VvfpStoryTimeSkipNoticeShown: the game it last
+   showed the time skip's closing notice in, 0 none. */
+static int g_notice_game;
+static int __stdcall stub_notice_shown(int game) {
+    return game >= 1 && game == g_notice_game;
+}
+
 static void begin(void) {
     g_outs = 0;
     g_village_outs = 0;
@@ -298,6 +305,29 @@ int main(void) {
         CHECK(g_outs == 0 && g_village_outs == 1
               && strcmp(g_village_out[0], "  Event: A Test Event\n  Changes: none\n") == 0,
               "an event that changes nothing is one record: \"Event: A Test Event\", \"Changes: none\"");
+
+        /* 7b. Choose Time Skip Amount's closing notice is no island event:
+           nothing at all, when the Story companion says it showed it; an
+           event the player titled "Time Skip" is still logged; and so is the
+           notice's title when the Story companion says otherwise. */
+        g_notice_game = g_harness_game;
+        g_notice_shown = stub_notice_shown;
+        begin();
+        lstrcpynA(g_snaps[0].title, "Time Skip", sizeof g_snaps[0].title);
+        compare(&g_snaps[0]);
+        CHECK(g_outs == 0 && g_village_outs == 0, "the time skip's closing notice writes nothing (no event number)");
+        g_notice_game = 0;
+        begin();
+        lstrcpynA(g_snaps[0].title, "Time Skip", sizeof g_snaps[0].title);
+        compare(&g_snaps[0]);
+        CHECK(g_outs == 0 && g_village_outs == 1
+              && strcmp(g_village_out[0], "  Event: Time Skip\n  Changes: none\n") == 0,
+              "a player's own event titled \"Time Skip\" is still logged");
+        g_notice_game = g_harness_game;
+        begin();
+        compare(&g_snaps[0]);
+        CHECK(g_village_outs == 1, "another event's title is logged while the notice is the last shown");
+        g_notice_game = 0;
 
         /* 1. A newcomer's sex and age. */
         begin();

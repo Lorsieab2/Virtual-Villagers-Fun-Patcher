@@ -1240,6 +1240,12 @@ int __stdcall GateVV2BarrelSilent(void *pool) {
    0 = no village loaded yet. The sidecar is keyed on this so village 2 cannot
    display -- or overwrite -- village 1's masks. */
 #define VV2_MASK_SLOT        (*(int *)0x004B3F10)
+/* The slot the masks belong to: the game's own current slot (its save manager,
+   native/shared/game_save_slot.h), else the stub's.  The stub alone was wrong
+   after every save-all (each 600 s autosave, Change Tribe, a new tribe): it
+   keeps the backup generation, slot + 20, so the masks had no slot until the
+   next load or quit save. */
+#define VV2_MASK_SLOT_NOW    vv_current_save_slot(2, VV2_MASK_SLOT)
 
 /* The .mtab section exists ONLY in a mask-patched exe. On a build produced by the
    patcher without the mask exe-patch, 0x004B3000 is one byte past the end of the
@@ -1543,7 +1549,7 @@ static int vv2_mask_sidecar_path_slot(char *out, int slot) {
 
 /* the CURRENT village's sidecar; slot published by the exe save-path hook */
 static int vv2_mask_sidecar_path(char *out) {
-    return vv2_mask_sidecar_path_slot(out, VV2_MASK_SLOT);
+    return vv2_mask_sidecar_path_slot(out, VV2_MASK_SLOT_NOW);
 }
 
 
@@ -1829,7 +1835,7 @@ static int vv2_mask_sidecar_save(void) {
     if (!g_vv2_have_roster) return 0;          /* unknown village -> do not write */
     /* Never before this slot's load settled: a file that is present but
        could not be opened still holds the masks this empty table lacks. */
-    if (!vv_sidecar_gate_ready(&g_vv2_mask_gate, VV2_MASK_SLOT)) return 0;
+    if (!vv_sidecar_gate_ready(&g_vv2_mask_gate, VV2_MASK_SLOT_NOW)) return 0;
     if (!vv2_mask_sidecar_path(path)) return 0;
     /* ATOMIC: this used to CREATE_ALWAYS the real file -- truncating it at
        once -- and ignore every WriteFile, so a crash or a full disk left a
@@ -1876,7 +1882,7 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
         for (i = 0; i < VV2_MASK_TABLE_BYTES; ++i) VV2_MASK_TABLE[i] = 0;
     memset(g_vv2_mask_id, 0, sizeof(g_vv2_mask_id));
     g_vv2_rewrite_after_load = 0;
-    vv_sidecar_gate_bind(&g_vv2_mask_gate, VV2_MASK_SLOT);
+    vv_sidecar_gate_bind(&g_vv2_mask_gate, VV2_MASK_SLOT_NOW);
     if (vv_sidecar_gate_throttled(&g_vv2_mask_gate)) return 0; /* retry window: no I/O */
     if (!vv2_mask_sidecar_path(path)) {
         vv_sidecar_gate_block(&g_vv2_mask_gate);
@@ -1966,7 +1972,7 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
 static int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
     unsigned int cur[VV2_RECORD_COUNT];
     unsigned int cur_stable[VV2_RECORD_COUNT];
-    int slot = VV2_MASK_SLOT;   /* published by the slot stub; 0 = none yet */
+    int slot = VV2_MASK_SLOT_NOW;   /* the game's slot, else the stub's; 0 = none yet */
     int i;
     if (base == 0 || slot <= 0) {
         return 0;               /* nothing known yet -> do not touch anything */
@@ -2127,7 +2133,7 @@ static int vv2_om_scan(int slot, vv_om_list *out) {
     int i;
     out->count = 0;
     if (slot < 1 || base == 0 || !vv2_mask_table_ok() || !g_vv2_have_roster || g_vv2_slot != slot
-        || VV2_MASK_SLOT != slot || !vv_sidecar_gate_ready(&g_vv2_mask_gate, slot)
+        || VV2_MASK_SLOT_NOW != slot || !vv_sidecar_gate_ready(&g_vv2_mask_gate, slot)
         || vv2_roster_identities(base, ids) == 0) {
         return -1;
     }

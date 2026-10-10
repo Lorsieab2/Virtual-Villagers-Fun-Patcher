@@ -17,12 +17,12 @@
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "11A65E30375AD1E9A2237EA60322F2068D538FBBBF0F8E1441194BBC8551B8BE"
+      "sha256": "CA99FDA5637B7FDFCBCE0F494FC9CF613B2F479FE2AE7FFFF639F98C9B13E069"
     },
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "DBD22452C6F98C3508DC74B45F20A27584CCD8FA38E3F0318E5AFA4A1CD7111A"
+      "sha256": "33D236E259E1A015F7BB9509A7FBDDF59BC07B1A6F91813E06B0001C26CF8607"
     },
     {
       "source": "assets/origins/mask_atlas.png",

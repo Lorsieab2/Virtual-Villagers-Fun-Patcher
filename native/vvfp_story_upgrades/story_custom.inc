@@ -320,6 +320,14 @@ static int ce_plain_pending(int game) {
    (story_time_skip.inc), not a player's own Custom Island Event. */
 static int ce_armed_is_notice;
 
+/* The game whose popup the custom-event path filled last was given Choose
+   Time Skip Amount's closing notice (0: the last one filled was a player's
+   own event, or none yet).  "VVFP Island Events.dll" asks it
+   (VvfpStoryTimeSkipNoticeShown) so the notice -- not an island event -- is
+   not written to the Island Events log and takes no event number (live,
+   v1.35.66: "Island event 20 / Event: Time Skip / Changes: none"). */
+static int ce_notice_shown;
+
 /* Each game's Island Events Seen counter (its own eNumCrisis, the Village
    Statistics row) goes up by one in the island-event trigger just before it
    builds the event an armed custom event is delivered into -- every caller
@@ -1543,6 +1551,7 @@ static int ce_deliver(int game, char *text, int size) {
     notice = ce_armed_is_notice;
     ce_armed = 0;
     ce_armed_is_notice = 0;
+    ce_notice_shown = notice ? game : 0;
     ce_apply(a, &ce_armed_event, &ce_last_result);
     if (!ce_compose(a, &ce_armed_event, &ce_last_result, text, size)) {
         /* The outcome lines do not fit: the title and description were
@@ -1932,6 +1941,7 @@ static int ce_choice_begin(int game, char *text, int size) {
     }
     ce_armed = 0;
     ce_armed_is_choice = 0;
+    ce_notice_shown = 0;              /* a player's own question, never the notice */
     ce_asked = 1;
     ce_asked_store = ce_armed_store;
     ce_asked_game = game;

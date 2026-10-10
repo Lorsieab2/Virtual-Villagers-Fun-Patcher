@@ -415,10 +415,10 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # ... Larger again with the save folder's new names (native/shared/
         # save_layout.h): the Log Checks and Repairs Made folders, moved from
         # their older names, and the repairs' copies kept apart.
-        self.assertEqual(vv5_companion["size"], 1846784)
+        self.assertEqual(vv5_companion["size"], 1847296)
         self.assertEqual(
             vv5_companion["sha256"],
-            "09DDF56D5407C016819000299267E8E6F8BFEBACDBAED0EE03FE27E1EC783D93",
+            "587C1C6C5D6B0936C5AADB2A6E8DB37EEC9EFC12A8F247C67A7C8CB65850FF75",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

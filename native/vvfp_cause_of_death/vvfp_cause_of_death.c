@@ -108,6 +108,7 @@ struct vvfp_cause_stats {
     int births_backfilled;    /* Birth records written by the backfill (VV2-VV5) */
     int left_tribe;           /* New Believers: believers who became Heathens */
     int lost;                 /* "Lost before birth" records (cod_lost.inc) */
+    int creation_saves;       /* saves asked for a new village's founders (cod_creation_save.inc) */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
@@ -692,6 +693,7 @@ static void births_backfill_at_save(int slot, const void *save_buffer);
 #include "cod_backfill.inc"
 #include "cod_former.inc"
 #include "cod_arrivals.inc"
+#include "cod_creation_save.inc"   /* the logs at village creation */
 
 /* ---- Exports --------------------------------------------------------------- */
 
@@ -779,6 +781,7 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
     seen_tick();
     lost_tick();
     arrival_tick();
+    (void)creation_save_tick();
 }
 
 /* Arm the save hook alone, before the install (Codex, #512 review).

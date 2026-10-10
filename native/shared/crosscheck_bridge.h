@@ -549,11 +549,29 @@ static int vvfp_xc_repair_now(int game, int slot) {
 
 /* ---- The quit prompt ----------------------------------------------------- */
 
-/* Relabel the prompt's two buttons as it opens. */
+/* As the prompt opens: relabel a Yes/No box's two buttons, and make sure the
+   box is SEEN.  The game minimises its own window for it, and the box comes
+   from a thread of its own, which Windows' foreground lock may refuse to
+   bring forward -- a box left behind other windows, with the game's window
+   in the taskbar, is a game that seems to hang windowless at the quit (live,
+   v1.35.66, A New Home: the process stayed up with no window for over 40 s
+   after the quit save).  So the box is put on top, shown, brought forward
+   and flashed in the taskbar. */
 static LRESULT CALLBACK vvfp_xc_cbt(int code, WPARAM wparam, LPARAM lparam) {
     if (code == HCBT_ACTIVATE) {
-        SetDlgItemTextA((HWND)wparam, IDYES, vvfp_xc.yes_label != NULL ? vvfp_xc.yes_label : "Repair");
-        SetDlgItemTextA((HWND)wparam, IDNO, "Not now");
+        HWND box = (HWND)wparam;
+        FLASHWINFO flash;
+        if ((vvfp_xc.box_type & 0xFu) == MB_YESNO) {
+            SetDlgItemTextA(box, IDYES, vvfp_xc.yes_label != NULL ? vvfp_xc.yes_label : "Repair");
+            SetDlgItemTextA(box, IDNO, "Not now");
+        }
+        SetWindowPos(box, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+        SetForegroundWindow(box);
+        memset(&flash, 0, sizeof flash);
+        flash.cbSize = sizeof flash;
+        flash.hwnd = box;
+        flash.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG;
+        FlashWindowEx(&flash);
     }
     return CallNextHookEx(vvfp_xc_cbt_hook, code, wparam, lparam);
 }
@@ -572,9 +590,7 @@ static BOOL CALLBACK vvfp_xc_find_window(HWND window, LPARAM out) {
 static DWORD WINAPI vvfp_xc_box(LPVOID unused) {
     int answer;
     (void)unused;
-    if ((vvfp_xc.box_type & 0xFu) == MB_YESNO) {
-        vvfp_xc_cbt_hook = SetWindowsHookExA(WH_CBT, vvfp_xc_cbt, NULL, GetCurrentThreadId());
-    }
+    vvfp_xc_cbt_hook = SetWindowsHookExA(WH_CBT, vvfp_xc_cbt, NULL, GetCurrentThreadId());
     answer = MessageBoxA(NULL, vvfp_xc.text, "Virtual Villagers Fun Patcher",
                          vvfp_xc.box_type | MB_TOPMOST | MB_SETFOREGROUND);
     if (vvfp_xc_cbt_hook != NULL) {
@@ -597,6 +613,9 @@ static int vvfp_xc_ask(UINT type) {
     vvfp_xc.answer = 0;
     vvfp_xc.box_type = type;
     EnumWindows(vvfp_xc_find_window, (LPARAM)&game_window);
+    /* The game's thread is the foreground one now: let the box's thread take
+       the foreground from it (see vvfp_xc_cbt). */
+    AllowSetForegroundWindow(ASFW_ANY);
     if (game_window != NULL && GetWindowThreadProcessId(game_window, NULL) == GetCurrentThreadId()) {
         ShowWindow(game_window, SW_MINIMIZE);   /* out of full screen: the box is not hidden behind it */
     }

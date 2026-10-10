@@ -93,6 +93,10 @@ static DWORD vv5_mask_table_bytes(void) {
 /* Current save slot, written by the exe slot_capture detour (0 until the first
    save/load; village slots are >=1, slot 0 is the meta file). */
 #define VV5_SLOT_SCRATCH 0x007B1D7Cu
+/* The slot the masks belong to: the game's own current slot (its save manager,
+   native/shared/game_save_slot.h), else the stub's capture, which can lag behind
+   a village made or switched to in this session. */
+#define VV5_MASK_SLOT_NOW vv_current_save_slot(5, *(volatile int *)VV5_SLOT_SCRATCH)
 #define VV5_MASK_TABLE vv5_mask_table() /* nibble-packed side-table, one nibble per slot */
 
 static HINSTANCE module_instance;
@@ -239,7 +243,7 @@ static int build_mask_sidecar_path(char *out) {
     char exe[MAX_PATH];
     char *base;
     char *dot;
-    int slot = *(volatile int *)VV5_SLOT_SCRATCH;
+    int slot = VV5_MASK_SLOT_NOW;
     DWORD n;
     int docs_len, base_len;
     if (slot < 0 || slot > 5) {
@@ -576,7 +580,7 @@ static int vv5_write_mask_sidecar(const unsigned char *table) {
     /* Never before this slot's load settled: a file that is present but
        could not be opened still holds the masks this table lacks.  Checked
        before the path is built, so a blocked slot costs no file I/O. */
-    if (!vv_sidecar_gate_ready(&g_vv5_mask_gate, *(volatile int *)VV5_SLOT_SCRATCH)
+    if (!vv_sidecar_gate_ready(&g_vv5_mask_gate, VV5_MASK_SLOT_NOW)
         || !build_mask_sidecar_path(path)) {
         return 0;
     }
@@ -666,7 +670,7 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
     memset(table, 0, table_bytes);
     memset(g_vv5_mask_id, 0, sizeof(g_vv5_mask_id));
     g_vv5_rewrite_after_load = 0;
-    vv_sidecar_gate_bind(&g_vv5_mask_gate, *(volatile int *)VV5_SLOT_SCRATCH);
+    vv_sidecar_gate_bind(&g_vv5_mask_gate, VV5_MASK_SLOT_NOW);
     if (vv_sidecar_gate_throttled(&g_vv5_mask_gate)) {
         return 0;               /* blocked a moment ago: no I/O until the retry */
     }
@@ -812,7 +816,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
         return 1;                   /* checked a moment ago */
     }
     g_vv5_sync_tick = now;
-    slot = *(volatile int *)VV5_SLOT_SCRATCH;
+    slot = VV5_MASK_SLOT_NOW;
     if (slot <= 0) {
         return 0;                   /* nothing known yet -> do not touch anything */
     }
@@ -893,7 +897,7 @@ static int vv5_om_scan(int slot, vv_om_list *out) {
     const unsigned char *table = (const unsigned char *)VV5_MASK_TABLE;
     int i, slots = vv5_slots();
     out->count = 0;
-    if (slot < 1 || !g_vv5_have_roster || g_vv5_slot != slot || *(volatile int *)VV5_SLOT_SCRATCH != slot
+    if (slot < 1 || !g_vv5_have_roster || g_vv5_slot != slot || VV5_MASK_SLOT_NOW != slot
         || !vv_sidecar_gate_ready(&g_vv5_mask_gate, slot) || vv5_roster_identities(ids, stable) == 0) {
         return -1;
     }

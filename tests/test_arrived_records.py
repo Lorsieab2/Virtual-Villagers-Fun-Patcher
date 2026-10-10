@@ -59,6 +59,10 @@ CHECKS += 5
 # + 7 per game: records that keep the name and looks of their day (a last name given since, a look
 # changed since; the owner's Cheop Bahati and Hoani Chuchip), arrival_harness.c renamed_cases
 CHECKS += 7 * 5
+# The logs at village creation (arrival_harness.c creation_save_cases): 8 in The Tree of Life and
+# New Believers, 9 in A New Home (a village started long ago is a load), 2 in The Lost Children and
+# The Secret City (never asked).
+CHECKS += 8 * 2 + 9 + 2 * 2
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

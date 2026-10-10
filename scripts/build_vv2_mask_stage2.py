@@ -652,7 +652,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     """
     # The SLOT stub is laid out first, then the sweep.
     #
-    # The slot stub is a fixed 0x41 bytes; the sweep is the variable one. With
+    # The slot stub is a fixed 0x46 bytes; the sweep is the variable one. With
     # the sweep first, every byte the sweep gains pushes the slot stub toward
     # the parentage cave at 0x41A, and the pair straddled it. Emitting the
     # fixed-size stub first means growth in the sweep stays on the sweep's own
@@ -673,6 +673,16 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         mov  eax, [esp+8]                    /* +8: our push shifted esp; arg1 = slot */
         test eax, eax
         jz   slot_done                       /* slot 0 = meta file, not a village */
+        cmp  eax, 5
+        ja   slot_done                       /* 21..25 (and 41..45): the save's backup
+                                                generation of the SAME village (save-all
+                                                0x424C00 and every save, 0x4033F0, rotate N
+                                                to N + 20).  Never a village change: taking
+                                                it for one cleared a bought, not yet
+                                                delivered Barrel O' Babies at every save
+                                                and load (live finding, v1.35.66; proved by
+                                                emulation), and published 21..25 as the
+                                                masks' slot. */
         cmp  eax, [0x{SLOT_VA:X}]
         je   slot_done                       /* same village -> keep masks loaded */
         mov  [0x{SLOT_VA:X}], eax            /* new village */
