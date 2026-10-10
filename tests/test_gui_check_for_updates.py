@@ -182,7 +182,8 @@ class ReleasesLinkTests(unittest.TestCase):
                                   "vv_log_contradictions"}),
             ("vv_log_decisions", {"vv_save_layout"}),
             # Records that contradict each other (Check / Repair Saves & Logs).
-            ("vv_log_contradictions", {"vv_log_tools", "vv_save_layout", "vv_log_additions", "vv_last_names"}),
+            ("vv_log_contradictions", {"vv_log_tools", "vv_save_layout", "vv_log_additions", "vv_last_names",
+                                       "vv_log_decisions"}),   # the answers kept for the readers (audit66)
             # Giving last names re-keys the Family Tree Maker's edits (vv_family_tree.renamed_keys).
             ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree",
                                "vv_tribe_rename", "vv_genealogy", "vv_save_layout",
