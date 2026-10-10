@@ -616,6 +616,43 @@ int main(int argc, char **argv) {
         }
     }
 
+    printf("== the fallback father: a delivery with no captured father, capture installed ==\n");
+    {
+        typedef int (__stdcall *capture_on_t)(int);
+        capture_on_t capture_on = (capture_on_t)GetProcAddress(dll, "Vv1ParentageProbeCaptureOn");
+        CHECK(capture_on != NULL, "the capture seam resolves");
+        if (capture_on != NULL) {
+            memset(records, 0, sizeof records);
+            villager(1, "Aisha", 4, 9, 17); villager(2, "Goro", 7, 2, 30);
+            reset(); capture_on(1);
+            tick(records);
+            /* carrying with no captured conception (it predates the patch): the
+               owner's fallback, "Unknown" with head 0 and body 0 */
+            *(int *)(rec(1) + DUE) = 400; tick(records);
+            *(int *)(rec(1) + DUE) = 0; born_from(30, 1, "Nofa"); tick(records);
+            entry(30, e); CHECK(same(e, 0, 0, 4, 9), "an uncaptured father is Unknown 0/0, the mother is hers (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            names(30, father, mother, 32); CHECK(strcmp(father, "Unknown") == 0 && strcmp(mother, "Aisha") == 0, "...by name: %s / %s", father, mother);
+            /* a captured conception still names the real father */
+            conceived(conceive, 1, 2); *(int *)(rec(1) + DUE) = 500; tick(records);
+            *(int *)(rec(1) + DUE) = 0; born_from(31, 1, "Real"); tick(records);
+            entry(31, e); CHECK(same(e, 7, 2, 4, 9), "a captured father is never replaced by the fallback (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            /* a spawn (no delivering mother) gets no parents at all, fallback or not */
+            villager(32, "Barrel", 12, 12, 3); *(int *)(rec(32) + AGE) = 2 * 20; tick(records);
+            entry(32, e); CHECK(same(e, -1, -1, -1, -1), "a spawned child has no parents, never the fallback (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            /* the hooked birth (Vv1ParentageBorn) takes the same rule */
+            *(int *)(rec(1) + DUE) = 600; tick(records);
+            born_from(33, 1, "Hooked"); born(records, rec(33), rec(1));
+            entry(33, e); CHECK(same(e, 0, 0, 4, 9), "the hooked birth: Unknown 0/0 too (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            /* with the capture off, the manifest's "only the mother is recorded" */
+            capture_on(0);
+            *(int *)(rec(1) + DUE) = 0; tick(records);
+            *(int *)(rec(1) + DUE) = 700; tick(records);
+            *(int *)(rec(1) + DUE) = 0; born_from(34, 1, "Off"); tick(records);
+            entry(34, e); CHECK(same(e, -1, -1, 4, 9), "capture off: no father, not the fallback (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+            capture_on(-1);
+        }
+    }
+
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;
 }

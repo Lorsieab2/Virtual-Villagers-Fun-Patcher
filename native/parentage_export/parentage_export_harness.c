@@ -50,7 +50,7 @@ struct layout {
     const char *title;
 };
 static const struct layout LAYOUTS[5] = {
-    { 1, 0x3D8,  256, 0,    0x28,   0x348,  0x360,  0x364,  0x370,  0x1C, 0,      0,    0,      0,      0x35C,  0x398,  0x3A8,  4, 46, "jokes",  "Virtual Villagers 1 Births and Conceptions Log" },
+    { 1, 0x3D8,  256, 0,    0x28,   0x348,  0x360,  0x364,  0x370,  0x1C, 0,      0,    0,      0,      0x35C,  0x398,  0x3A8,  4, 46, "sleeping", "Virtual Villagers 1 Births and Conceptions Log" },
     { 2, 0xE48C, 256, 0,    0x30,   0x530,  0x548,  0x54C,  0x564,  0x18, 0x5C0,  0x18, 0x5E0,  0x5DC,  0x544,  0x5F0,  0x6E8, 62, 61, "dirt",   "Virtual Villagers 2 Births and Conceptions Log" },
     { 3, 0x1F8C, 150, 0x14, 0xF10,  0xDC4,  0xDF0,  0xDF4,  0xDD4,  0x19, 0xE48,  0x18, 0xE68,  0xE64,  0xE90,  0xFB4,  0xFC0,  3, 78, "nature", "Virtual Villagers 3 Births and Conceptions Log" },
     { 4, 0x2E3C, 150, 0x44, 0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1C10, 0x18, 0x1C30, 0x1C2C, 0x1C50, 0x1E60, 0x1E6C, 3, 78, "nature", "Virtual Villagers 4 Births and Conceptions Log" },
@@ -333,6 +333,42 @@ static void run_game(write_t write, const struct layout *layout) {
         r = conception(n_records(g));   /* the record just written */
         CHECK(r != NULL && parent_has(r, "  Father:", "Likes: ants"), "a captured record is printed whoever else shares the name");
         CHECK(r != NULL && parent_has(r, "  Father:", "Head: 1"), "...with the head the game copied for THIS conception");
+    }
+
+    /* --- the game's OWN default father: VV2's Gong "?" 0/0, VV4/VV5's "Joey" 2/2 ---
+
+       The conception caller passes a string literal, not a villager, so
+       nothing is captured and nothing may be scanned for -- not even a living
+       villager who carries the very same name.  His name, head and body are
+       the game's copies on the mother; the rest say there is nobody. */
+    if (g->game == 2 || g->game == 4 || g->game == 5) {
+        const char *dflt = g->game == 2 ? "?" : "Joey";
+        int looks = g->game == 2 ? 0 : 2;
+        char want[64];
+        villager(11, dflt, 35 * 20, looks, looks);        /* a living namesake, who must not be read */
+        like(11, 0, 0);
+        memset(rec(3) + g->father_name, 0, g->father_key_cap);
+        strncpy((char *)rec(3) + g->father_name, dflt, g->father_key_cap);
+        *(int *)(rec(3) + g->father_head_copy) = looks;
+        *(int *)(rec(3) + g->father_body_copy) = looks;
+        *(int *)(rec(3) + g->litter) = 0;
+        ok = write(g->game, records, rec(3), NULL);
+        read_log();
+        r = conception(n_records(g));
+        CHECK(r != NULL, "the default father's record is in the log");
+        if (r) {
+            _snprintf(want, sizeof want, "  Father: %s", dflt);
+            CHECK(record_has(r, want), "the game's own default father is named: %s", dflt);
+            _snprintf(want, sizeof want, "Head: %d", looks);
+            CHECK(parent_has(r, "  Father:", want), "...with the head the game wrote (%d)", looks);
+            _snprintf(want, sizeof want, "Body: %d", looks);
+            CHECK(parent_has(r, "  Father:", want), "...and the body (%d)", looks);
+            CHECK(parent_has(r, "  Father:", "Age at conception: (none: game's default father)"), "no villager: no age, and nothing failed to capture it");
+            CHECK(parent_has(r, "  Father:", "Sex: (none: game's default father)"), "...no sex");
+            CHECK(parent_has(r, "  Father:", "Likes: (none: game's default father)"), "...no likes -- never the namesake's");
+            CHECK(parent_has(r, "  Father:", "Dislikes: (none: game's default father)"), "...no dislikes");
+        }
+        rec(11)[g->active] = 0;
     }
 
     free(records);
