@@ -402,6 +402,9 @@ class Edits:
     # Pieces of line the player dragged (the owner: "move individual lines and still keep the
     # connections to portraits"): "<family key>|<piece>" -> how far it was dragged.
     line_moves: dict[str, list | float] = field(default_factory=dict)   # piece -> [right, down]
+    # Dragged pieces put down with Alt held: exactly where the player let go, never nudged off a line
+    # beside them (like the smart guides, Alt places freely).  Counted only while the piece is in line_moves.
+    free_lines: list[str] = field(default_factory=list)
     generations: dict[str, list[str]] = field(default_factory=dict)   # "2" -> the label's lines
     words: dict[str, str] = field(default_factory=dict)                # WORDS -> the player's own words
     marks: dict[str, str] = field(default_factory=dict)               # label -> "#rrggbb", in order
@@ -590,6 +593,8 @@ class Edits:
                 shift = _number(shift, -STICKER_MAX, STICKER_MAX, 0.0)
             if shift:
                 out.line_moves[str(piece)] = shift
+        out.free_lines = [str(p) for p in data.get("free_lines", []) if str(p) in out.line_moves] \
+            if isinstance(data.get("free_lines"), list) else []
         for group, size in dict(data.get("sizes", {})).items():
             if group in GROUPS and isinstance(size, list) and len(size) == 2:
                 out.sizes[group] = [_number(v, FRAME_MIN, FRAME_MAX, NODE_H) for v in size]
@@ -669,7 +674,7 @@ class Edits:
                 "family_lines": self.family_lines, "mark_style": self.mark_style, "mark_glow": self.mark_glow,
                 "mark_opacity": self.mark_opacity, "label_line_width": self.label_line_width,
                 "label_line_reach": self.label_line_reach,
-                "line_moves": self.line_moves,
+                "line_moves": self.line_moves, "free_lines": self.free_lines,
                 "generations": self.generations, "words": self.words, "marks": self.marks, "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers,
                 "group_opts": self.group_opts}
@@ -3378,12 +3383,25 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
             _move_piece(drawn, s, *shift, lay=lay)
     widths = {f.id: lay.edits.family_lines.get(families[f.id], {}).get("width", lay.edits.line_width)
               for f in lay.families}
-    if lines_behind(lay):
-        _clear_joints(drawn, lay)
+    behind = lines_behind(lay)
+    free = {(s[2], s[3]) for s in drawn if f"{families[s[2]]}|{s[3]}" in lay.edits.free_lines
+            and f"{families[s[2]]}|{s[3]}" in lay.edits.line_moves}
+    if behind:
+        _clear_joints(drawn, lay, widths, free)
     _fit(drawn)
     for _pass in range(2):              # last: never two lines on each other, whatever moved them
-        _separate(drawn, lay, widths)
+        _separate(drawn, lay, widths, free)
         _fit(drawn)
+    for _pass in range(3 if behind else 0):
+        # Lines behind: a joint the separating put behind a stranger moved off them again where the 1 px
+        # room is kept, and the room kept again after (the room is the rule; the joints the most it allows).
+        before = [list(s[1]) for s in drawn]
+        _clear_joints(drawn, lay, widths, free)
+        _fit(drawn)
+        _separate(drawn, lay, widths, free)
+        _fit(drawn)
+        if [s[1] for s in drawn] == before:
+            break
     return [(colour, points, fid, piece) for colour, points, fid, piece, _anchors, _up in drawn]
 
 
@@ -3406,7 +3424,7 @@ def _frames(lay: "Layout") -> dict:
     return out
 
 
-def _clear_joints(drawn: list, lay: "Layout") -> None:
+def _clear_joints(drawn: list, lay: "Layout", widths: dict | None = None, free: set = frozenset()) -> None:
     """Lines behind the portraits (lines_behind) pass behind anyone's portrait -- but where a family's
     lines join (a parent's or a child's line meeting the couple's or the children's line) never behind a
     portrait not of the family, where the line would look as if it came from that stranger (the owner's
@@ -3416,7 +3434,8 @@ def _clear_joints(drawn: list, lay: "Layout") -> None:
     frames = _frames(lay)
     fams = {f.id: f for f in lay.families}
     for s in drawn:
-        if s[3] not in ("couple", "lane") or len(s[1]) != 2 or s[1][0][1] != s[1][1][1]:
+        if s[3] not in ("couple", "lane") or len(s[1]) != 2 or not _same(s[1][0][1], s[1][1][1]) \
+                or (s[2], s[3]) in free:
             continue
         f = fams.get(s[2])
         if f is None:
@@ -3437,12 +3456,16 @@ def _clear_joints(drawn: list, lay: "Layout") -> None:
             elif other[1] > y + 0.5:
                 hi = min(hi, other[1] - 1)
         x0, x1 = sorted((s[1][0][0], s[1][1][0]))
-        level = [o[1][0][1] for o in drawn if o[2] != s[2] and len(o[1]) == 2 and o[1][0][1] == o[1][1][1]
-                 and min(o[1][0][0], o[1][1][0]) < x1 and max(o[1][0][0], o[1][1][0]) > x0]
+        # (Keeping LINE_GAP between its drawn edge and any level line alongside, each line's width counted.)
+        width_of = (widths or {}).get
+        level = [(o[1][0][1], (width_of(s[2], LINE_WIDTH) + width_of(o[2], LINE_WIDTH)) / 2 + LINE_GAP)
+                 for o in drawn if o is not s and (o[2] != s[2] or o[3] != s[3]) and len(o[1]) == 2
+                 and _same(o[1][0][1], o[1][1][1]) and min(o[1][0][0], o[1][1][0]) < x1 - 0.5
+                 and max(o[1][0][0], o[1][1][0]) > x0 + 0.5]
         xs = [x for x, _y in joints()]
         for d in sorted(range(-200, 201), key=abs):
             ny = y + d
-            if d and lo <= ny <= hi and all(abs(ny - v) >= 2 for v in level) \
+            if d and lo <= ny <= hi and all(abs(ny - v) >= need for v, need in level) \
                     and not any(_behind_stranger(lay, frames, members, x, ny) for x in xs):
                 _move_piece(drawn, s, 0.0, float(d), lay=lay)
                 break
@@ -3540,7 +3563,13 @@ def _follow(drawn: list, s: list, old: list, new: list, seen: set) -> None:
 LINE_GAP = 1.0                          # the least room between two lines' drawn edges (the owner)
 
 
-def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None) -> None:
+def _same(a: float, b: float) -> bool:
+    """Two places one (a run's ends worked out two ways differ in the last digits)."""
+    return abs(a - b) < 1e-6
+
+
+def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None,
+              free: set = frozenset()) -> None:
     """No two lines lie on top of each other (the owner: "lines should try not to overlap exactly ever.
     (min 1 pixel distance between them in any position)"): two straight runs side by side -- two
     families', or one family's that do not start from one point -- with less than LINE_GAP between their
@@ -3557,11 +3586,12 @@ def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None
 
     def axis_of(r) -> int | None:
         pts = r[1]
-        if len(pts) != 2 or r[3].startswith("bar "):    # (twins' bar: held by their legs, never moved)
+        # (A twins' bar is held by its legs; a piece put down with Alt stays where the player put it.)
+        if len(pts) != 2 or r[3].startswith("bar ") or (r[2], r[3]) in free:
             return None
-        if pts[0][0] == pts[1][0] and pts[0][1] != pts[1][1]:
+        if _same(pts[0][0], pts[1][0]) and not _same(pts[0][1], pts[1][1]):
             return 0                        # upright: placed across by x
-        if pts[0][1] == pts[1][1] and pts[0][0] != pts[1][0]:
+        if _same(pts[0][1], pts[1][1]) and not _same(pts[0][0], pts[1][0]):
             return 1                        # level: placed by y
         return None
 
@@ -3569,9 +3599,9 @@ def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None
         """(axis, place across, from, to) of each straight stretch of a piece (a twins' leg has three)."""
         out = []
         for a, b in zip(r[1], r[1][1:]):
-            if a[0] == b[0] and a[1] != b[1]:
+            if _same(a[0], b[0]) and not _same(a[1], b[1]):
                 out.append((0, a[0], min(a[1], b[1]), max(a[1], b[1])))
-            elif a[1] == b[1] and a[0] != b[0]:
+            elif _same(a[1], b[1]) and not _same(a[0], b[0]):
                 out.append((1, a[1], min(a[0], b[0]), max(a[0], b[0])))
         return out
 
@@ -3613,10 +3643,52 @@ def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None
         return any(_behind_stranger(lay, frames, members, x + (shift if axis == 0 else 0.0),
                                     y + (shift if axis == 1 else 0.0)) for x, y in joints)
 
+    def clashing(r, axis: int, at: float, lo: float, hi: float, index: dict) -> list:
+        """The runs r is too close to (each piece once, in the order drawn)."""
+        need, out = width_of(r) / 2 + LINE_GAP, []
+        for key in range(int(at // 8) - 2, int(at // 8) + 3):
+            for o, (_ax, oat, olo, ohi) in index.get((axis, key), ()):
+                if o is not r and not (o[2] == r[2] and o[3] == r[3]) and o not in out \
+                        and abs(oat - at) < need + width_of(o) / 2 - 1e-6 and min(hi, ohi) - max(lo, olo) > 0.5 \
+                        and not shared_start(r, o):
+                    out.append(o)
+        return out
+
+    def place(r, axis: int, index: dict) -> tuple:
+        """(how far r moves across itself to be clear of every run near it, whether that place is fine: through
+        no portrait it did not go through already, and -- lines behind -- no joint behind a stranger).  The
+        nearest fine place within 60, else the nearest clear one (not fine); (None, False) when none is."""
+        _ax, at, lo, hi = runs_of(r)[0]
+        was = through(r, axis, at, lo, hi) if not behind and frames else set()
+        best = None
+        # Where it may go: just clear of each run near it, either side (the nearest first).
+        places = set()
+        for key in range(int(at // 8) - 8, int(at // 8) + 9):
+            for o, (_a, oat, olo, ohi) in index.get((axis, key), ()):
+                if o is not r and min(hi, ohi) - max(lo, olo) > 0.5:
+                    room = width_of(r) / 2 + width_of(o) / 2 + LINE_GAP + 0.01
+                    places.update((oat - room - at, oat + room - at))
+        if behind:                          # (a joint may need a place a few pixels further on, clear of a stranger)
+            places.update(float(d) for d in range(-24, 25))
+        # (The nearest first; of two as near, right or down.)
+        for shift in sorted((d for d in places if 0 < abs(d) <= 60), key=lambda d: (abs(d), -d)):
+            if clashes(r, axis, at + shift, lo, hi, index):
+                continue
+            if best is None:
+                best = shift                    # the nearest clear place, whatever else
+            if frames and not behind and not through(r, axis, at + shift, lo, hi) <= was:
+                continue
+            if behind and stranger_joint(r, axis, shift):
+                continue
+            return shift, True
+        return best, False
+
     near = None                             # after the first round: only runs near one that moved
     for _round in range(16):
         index: dict = {}
         for r in drawn:
+            if (r[2], r[3]) in free:        # (put down with Alt: nothing moves for it, nor it for anything)
+                continue
             for run in runs_of(r):
                 index.setdefault((run[0], int(run[1] // 8)), []).append((r, run))
         before = {id(r): list(r[1]) for r in drawn}
@@ -3630,27 +3702,16 @@ def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None
             _ax, at, lo, hi = runs_of(r)[0]
             if not clashes(r, axis, at, lo, hi, index):
                 continue
-            was = through(r, axis, at, lo, hi) if not behind and frames else set()
-            joints_bad = behind and stranger_joint(r, axis, 0.0)
-            best = None
-            # Where it may go: just clear of each run near it, either side (the nearest first).
-            places = set()
-            for key in range(int(at // 8) - 8, int(at // 8) + 9):
-                for o, (_a, oat, olo, ohi) in index.get((axis, key), ()):
-                    if o is not r and min(hi, ohi) - max(lo, olo) > 0.5:
-                        room = width_of(r) / 2 + width_of(o) / 2 + LINE_GAP + 0.01
-                        places.update((oat - room - at, oat + room - at))
-            for shift in sorted((d for d in places if 0 < abs(d) <= 60), key=abs):
-                if clashes(r, axis, at + shift, lo, hi, index):
-                    continue
-                if best is None:
-                    best = shift                # the nearest clear place, whatever else
-                if frames and not behind and not through(r, axis, at + shift, lo, hi) <= was:
-                    continue
-                if behind and not joints_bad and stranger_joint(r, axis, shift):
-                    continue
-                best = shift
-                break
+            best, fine = place(r, axis, index)
+            if not fine:
+                # Nowhere near is clear of portraits (or, lines behind, of strangers' portraits for its joints):
+                # one it is too close to moves instead when that one can go somewhere fine.
+                for o in clashing(r, axis, at, lo, hi, index):
+                    if axis_of(o) == axis:
+                        other, ok = place(o, axis, index)
+                        if ok:
+                            r, best = o, other
+                            break
             if best is None:
                 continue
             _move_piece(drawn, r, best if axis == 0 else 0.0, best if axis == 1 else 0.0, lay)
@@ -3664,7 +3725,7 @@ def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None
             if r[1] != before.get(id(r)):
                 for pts in (before.get(id(r), []), r[1]):
                     for a, b in zip(pts, pts[1:]):
-                        axis = 0 if a[0] == b[0] else 1
+                        axis = 0 if _same(a[0], b[0]) else 1
                         at = a[axis]
                         near.update((axis, k) for k in range(int(at // 8) - 2, int(at // 8) + 3))
 

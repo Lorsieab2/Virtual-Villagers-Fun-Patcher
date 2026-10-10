@@ -129,9 +129,9 @@ def too_close(lay) -> list:
     runs = []
     for _c, pts, fid, piece in ft.lines(lay):
         for a, b in zip(pts, pts[1:]):
-            if a[0] == b[0] and a[1] != b[1]:
+            if abs(a[0] - b[0]) < 1e-6 and abs(a[1] - b[1]) > 1e-6:
                 runs.append((0, a[0], min(a[1], b[1]), max(a[1], b[1]), fid, piece))
-            elif a[1] == b[1] and a[0] != b[0]:
+            elif abs(a[1] - b[1]) < 1e-6 and abs(a[0] - b[0]) > 1e-6:
                 runs.append((1, a[1], min(a[0], b[0]), max(a[0], b[0]), fid, piece))
     runs.sort(key=lambda r: (r[0], r[1]))
     out = []
@@ -177,6 +177,16 @@ class LinesNeverOnEachOtherTests(unittest.TestCase):
         (a, pa), (b, pb) = list(level.items())[:2]
         fam = {f.id: f for f in lay.families}
         e.line_moves[f"{ft.family_key(v, fam[a])}|lane"] = [0.0, pb[0][1] - pa[0][1]]
+        self.assertEqual(too_close(ft.layout(v, e)), [])
+        # Let go with Alt held: it stays exactly where it was put, and so does the line under it.
+        e.free_lines = [f"{ft.family_key(v, fam[a])}|lane"]
+        e = ft.Edits.from_data(e.to_data())
+        self.assertEqual(e.free_lines, [f"{ft.family_key(v, fam[a])}|lane"])
+        now = {fid: pts for _c, pts, fid, piece in ft.lines(ft.layout(v, e)) if piece == "lane"}
+        self.assertAlmostEqual(now[a][0][1], pb[0][1])
+        self.assertAlmostEqual(now[b][0][1], pb[0][1])
+        # Its move undone (Reorganize Lines clears the moves): free no longer counts.
+        e.line_moves.clear()
         self.assertEqual(too_close(ft.layout(v, e)), [])
 
 
