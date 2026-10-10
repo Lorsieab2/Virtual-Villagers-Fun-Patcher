@@ -415,11 +415,38 @@ which 45 are `lea` sites -- counting them needs both the SIB and ModRM-only
 encodings, since assuming one form returns 1. It is the routine boundary that
 makes these seven meaningful, not the displacement.
 
-Completing these two games means hooking the zero-crossing at the three damage
-sites, with the same count-the-transition-not-the-state reasoning the later
-games needed. Counting
-burials instead is exact and already shipped, but it is a different quantity
-and should not be relabelled.
+Completing the two games is not one job, because they are not the same size.
+
+**The Lost Children is completable.** It needs the zero-crossing at its three
+damage sites (`0x43BAEB`, `0x43BB7E`, `0x43BC43`) AND the old-age store at
+`0x43BDEE`, which no decrement reaches -- hooking the damage sites alone misses
+every death by old age. The same count-the-transition-not-the-state reasoning
+the later games needed applies at each. Note `0x43BB7E` is the in-place
+`dec dword ptr [eax]` form and has no register holding the pre-value, so its
+guard must read through the pointer before the decrement; the other two can
+read the register being stored.
+
+**A New Home is a different scale and is not completable at a cost
+proportional to one row.** The same byte-search-then-classify pass over its
+health field at `+0x344` finds thirty-one `lea` sites and roughly SIXTEEN
+damage sites in at least four instruction forms, spread across three regions:
+
+| form | sites |
+|---|---|
+| `dec ecx` then store | `0x42ECBE`, `0x42ED3E`, `0x42EDAA` |
+| `sub dword ptr [reg], eax` after `call 0x402F10` | `0x43A5A8`, `0x43A787`, `0x43A8AE`, `0x43A9D5`, `0x43AADB`, `0x43AC8F`, `0x43B106` |
+| `sub dword ptr [eax], ebp` | `0x42AB17` |
+| read then `add ecx, -imm` (`-0xF`, `-0x6E`, `-0x46`, `-0x28`) | `0x42C2A6`, `0x42C698`, `0x42C76F`, `0x42C838` |
+| `add edx, -0x32` then store | `0x419DAA` |
+
+plus the old-age store at `0x42EF05`. Each needs its own guard, several have no
+register holding the pre-value, and every one would need a register contract
+through the cave-entry audit. The Lost Children having exactly three was the
+easy case, not the representative one.
+
+So this section records what completing each game would take, not a promise
+that both are one commit away. Counting burials instead is exact and already
+shipped, but it is a different quantity and should not be relabelled.
 
 **A scanning note, because two sessions reached opposite wrong answers here.**
 Ground truth for The Lost Children's health field is thirteen writers, exactly
