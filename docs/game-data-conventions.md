@@ -222,11 +222,31 @@ menus) is **UNVERIFIED**; the fix does not depend on it.
 ## A villager can be born without a father on purpose
 
 VV2's Gong ("grants life", caller `0x44EB3E`) starts a pregnancy whose father
-name is the game's own `"?"` placeholder at `0x476290` in `.rdata`. It is not
-inside any villager record, so no father record exists to report, and the log
-must say so rather than invent one. Every other VV2 caller passes the father's
-name as `father + 0x564`, a pointer inside his record, which is how the hook
-finds him (see `scripts/build_vv2_parentage_feature.py`).
+name is the game's own `"?"` placeholder at `0x476290` in `.rdata`, with head 0
+and body 0 pushed beside it. It is not inside any villager record, so no father
+record exists to report, and the log must say so rather than invent one. Every
+other VV2 caller passes the father's name as `father + 0x564`, a pointer inside
+his record, which is how the hook finds him (see
+`scripts/build_vv2_parentage_feature.py`).
+
+VV4 and VV5 have one such caller too: `sub_467B00` (VV4, call `0x467C15`) and
+`sub_471A50` (VV5, call `0x471B6D`) give babies to several women at once with
+the hardcoded father `"Joey"` (VV4 `0x4AB360`, VV5 `0x4B8E1C`), head 2 and body
+2. Each has exactly one caller, an island-event action in the game's event
+table (VV4 `0x414FC0`, listed at `0x48CB4C`; VV5 `0x4155E0`, listed at
+`0x497D1C`); the owner identifies it as the abandoned-infants event
+(2026-10-10). Its last argument is 0, so the conception hook logs these
+pregnancies. VV1 and VV3 have no default father: VV1 keeps no father at all,
+and VV3's two conception callers always pass a villager.
+
+How each is shown (the owner, 2026-09-21 and 2026-10-10; see
+`docs/known-behaviours-and-non-bugs.md`, P5): the game's own default father is
+logged exactly as the game wrote it -- `"?"` 0/0, `"Joey"` 2/2 (`"Joey Joerson"`
+with last names) -- with "(none: game's default father)" for his age, sex,
+likes and dislikes, since no villager stands behind him; a genuine birth whose
+game wrote no father at all (A New Home) gets the patcher's fallback father
+`"Unknown"` 0/0. The Family Tree shows each as the father, and neither the tree
+nor the Matchmaker counts any of them as kin.
 
 ## Shared names and shared looks are normal
 
@@ -269,11 +289,11 @@ Golden Child event) create a child directly.
 
 So a parentage hook belongs at the routine's success exit, not at a call site:
 a call-site hook logs only that caller (VV4 and VV5 missed autonomous embracing
-until v1.35.28). **Village seeding** (VV4 `0x467C15`, VV5 `0x471B6D`) calls the
-routine with its suppression argument set and a made-up father ("Joey", head 2,
-body 2); it is deliberately not logged, but the resulting births are -- which
-is why a new tribe can show a Birth with no Conception, or a pregnant villager
-whose father is "Unknown".
+until v1.35.28). **Correction (2026-10-10):** an earlier version of this page
+called VV4 `0x467C15` and VV5 `0x471B6D` "village seeding" with the suppression
+argument set. They are the island-event caller described in "A villager can be
+born without a father on purpose": their last argument is pushed as 0, so the
+hook logs them, and the owner's VV4 log holds those "Joey" 2/2 conceptions.
 
 ## No single villager field is identity over time
 
