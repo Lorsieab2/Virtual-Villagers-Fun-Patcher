@@ -435,7 +435,60 @@ def owner_like_village() -> gen.Village:
 
 MIXED_SHAPES = ({"Male": "beetle", "Female": "paw", "Upcoming": "bananas"},
                 {"Male": "feather", "Female": "bananas", "Upcoming": "coral"},
-                {"Male": "rect", "Female": "circle", "Upcoming": "butterfly"})
+                {"Male": "rect", "Female": "circle", "Upcoming": "butterfly"},
+                {"Male": "star", "Female": "heart", "Upcoming": "butterfly"})
+
+
+def drawn_overlaps(lay) -> list:
+    """Pairs where what one portrait draws -- its outline and each of its decorations (a butterfly's
+    feelers and their round tips), with its border's stroke -- runs into another's outline or that
+    outline's stroke, by real geometry (not columns), half a pixel's tolerance."""
+    def parts(q):
+        p = lay.village.people[q]
+        x0, y0, w, h, angle = lay.frame(q)
+        cx, cy = x0 + w / 2, y0 + h / 2
+        paths = []
+        for line in ft.decor(lay.shape(p)):
+            pts = [(x0 + u * w, y0 + v * h) for u, v in line]
+            if angle:
+                pts = [(cx + dx, cy + dy) for dx, dy in (ft.turn(px - cx, py - cy, angle) for px, py in pts)]
+            paths.append(pts)
+        outline = lay.frame_points(q)
+        half = ft.frame_pad(lay.edits, lay.entry(p), ft.group_of(p), w, h)
+        return outline, paths, half
+
+    def walk(path, closed):
+        pts = path + path[:1] if closed else path
+        for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+            n = max(1, int(math.hypot(bx - ax, by - ay)))
+            for i in range(n + 1):
+                yield ax + (bx - ax) * i / n, ay + (by - ay) * i / n
+
+    def near(pt, poly, room):
+        for (ax, ay), (bx, by) in zip(poly, poly[1:] + poly[:1]):
+            dx, dy = bx - ax, by - ay
+            length = dx * dx + dy * dy
+            t = 0 if length == 0 else max(0.0, min(1.0, ((pt[0] - ax) * dx + (pt[1] - ay) * dy) / length))
+            if math.hypot(pt[0] - ax - t * dx, pt[1] - ay - t * dy) < room:
+                return True
+        return False
+
+    geo = {q: parts(q) for q in lay.x}
+    out = []
+    for a in lay.x:
+        oa, la, pa = geo[a]
+        mine = [(pt) for pt in walk(oa, True)] + [pt for line in la for pt in walk(line, False)]
+        for b in lay.x:
+            if a == b:
+                continue
+            ob, _lb, pb = geo[b]
+            room = pa + pb - 0.5
+            xs, ys = [p[0] for p in ob], [p[1] for p in ob]
+            box = (min(xs) - room, min(ys) - room, max(xs) + room, max(ys) + room)
+            close = [pt for pt in mine if box[0] <= pt[0] <= box[2] and box[1] <= pt[1] <= box[3]]
+            if any(ft.inside(ob, *pt) or near(pt, ob, room) for pt in close):
+                out.append((a, b))
+    return out
 
 
 def rect_overlaps(lay) -> list:
@@ -471,6 +524,16 @@ class NoOverlapTests(unittest.TestCase):
                                 self.assertEqual(rects, [], case)
                             for a, b in rects:
                                 self.assertFalse(ft.frames_overlap(lay, a, b), (case, a, b))
+
+    def test_nothing_drawn_runs_into_another_portrait(self):
+        # The owner's sample: butterflies' feelers reached into the hearts above (packed families, 100).
+        for make in (big_village, owner_like_village):
+            for shapes in MIXED_SHAPES:
+                for positioning in ("packed_families", "packed_generations"):
+                    for packing in (80, 98, 100):
+                        e = ft.Edits(positioning=positioning, packing=packing, shapes=dict(ft.DEFAULT_SHAPES, **shapes))
+                        lay = ft.layout(make(), e)
+                        self.assertEqual(drawn_overlaps(lay), [], (make.__name__, shapes["Male"], positioning, packing))
 
     def test_still_touching_at_100(self):
         for shapes in MIXED_SHAPES:

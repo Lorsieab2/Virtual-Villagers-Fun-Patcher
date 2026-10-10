@@ -1655,6 +1655,16 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
                 top += bands[gens[k - 1]] + (1 - tight) * (
                     edits.row_gap + couples * LANE + (BAND_GAP if couples else 0)
                     + max(1, lanes.count.get(g, 0)) * LANE + LANE_BOTTOM)
+                if sub_top:
+                    # Never so near that the band's first row runs into the last row of the band above (a
+                    # butterfly's feelers reach up above its frame, a mark round it).
+                    prev = gens[k - 1]
+                    deep = len(sub_top[prev]) - 1
+                    last = [(x[q] + NODE_W / 2, outline(q)) for q in in_tree
+                            if people[q].generation == prev and sub.get(q, 0) == deep]
+                    first = [(x[q] + NODE_W / 2, outline(q)) for q in in_tree
+                             if people[q].generation == g and sub.get(q, 0) == 0]
+                    top = max(top, tops[prev] + sub_top[prev][-1] + _pitch(last, first, edits.packing >= NEST))
             tops[g] = top
         gap_tops = tops
         row_y = {pid: tops[people[pid].generation] + (sub_top[people[pid].generation][sub.get(pid, 0)]
@@ -2310,7 +2320,8 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
     # Edits.row_limit), how far sideways a row may go to fill a gap (none at 0: a tidy tree), and the
     # room kept between two families' clusters.
     packing = edits.packing / 100
-    corridor = max(gap, CORRIDOR * (2 - packing) * give)
+    # (Packed tightest, none: two families' boxes already reach as far as their frames draw.)
+    corridor = max(gap, CORRIDOR * (2 - packing)) * give
     reach = 4 * step * packing
 
     def apart(a: tuple, b: tuple) -> float:
@@ -2665,7 +2676,10 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                 hangs = [v[0] for v in rel.values()]
                 shape_lo, shape_hi = min(b[2] for b in shape), max(b[3] for b in shape)
                 best = None
-                levels = sorted({top0} | {a[1] + subgap for a in portraits if a[1] + subgap > top0})
+                # (A block may draw above its first row's top -- a butterfly's feelers, a border's stroke:
+                # its slot goes that much lower to clear what is above.)
+                reach_up = min(b[0] for b in shape)
+                levels = sorted({top0} | {a[1] + subgap - reach_up for a in portraits if a[1] + subgap - reach_up > top0})
                 for y in levels:
                     lower = ((y - top0) / rowh) ** 2 * down
                     if best is not None and lower >= best[0]:
@@ -2699,7 +2713,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                                 best = (cost, dx, y, lines, way)
                                 break
                 if best is None:            # nowhere free: under everything, straight down
-                    y = max(a[1] for a in portraits) + subgap + room[u]
+                    y = max(top0, max(a[1] for a in portraits) + subgap + room[u] - reach_up)
                     best = (0.0, 0.0, y, (y - band, y, min([stem] + [stem + h for h in hangs]) - cell / 2,
                                           max([stem] + [stem + h for h in hangs]) + cell / 2), [])
                 _cost, dx, y, lines, way = best
