@@ -59,8 +59,11 @@ class InfoTests(unittest.TestCase):
     def test_names_and_ages_bold_by_sex_and_babies_grey(self):
         v = town()
         self.assertEqual(styles(v, 1, "Ago"), {"Male"})
-        self.assertEqual(styles(v, 1, "Bela"), {"Female"})
+        # Only partner names (and the children heading) are bold (the owner, 2026-10-10).
+        self.assertEqual(styles(v, 1, "Bela"), {"Female+strong"})
         self.assertEqual(styles(v, 1, "Dan"), {"Male"})
+        self.assertIn("note+strong", {r[1] for line in vi.info_lines(v, ft.Edits(), 1) for r in line
+                                      if "Children (in order of birth)" in r[0]})
         self.assertIn("unknown", {r[1] for line in vi.info_lines(v, ft.Edits(), 1) for r in line
                                   if r[0].startswith("On the way")})
 

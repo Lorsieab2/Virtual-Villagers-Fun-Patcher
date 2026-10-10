@@ -106,7 +106,9 @@ def info_lines(village: gen.Village, edits: ft.Edits, pid: int, names: dict | No
         lines.append([("None recorded", "note", None)])
     for q in partners:
         partner = people[q]
-        lines.append([("", "plain", None)] + _person_runs(edits, names, partner))
+        runs = _person_runs(edits, names, partner)
+        runs[0] = (runs[0][0], runs[0][1] + "+strong", runs[0][2])     # the partner's name in bold
+        lines.append([("", "plain", None)] + runs)
         lines.extend(_children_lines(village, edits, names, p, partner, groups[q]))
     if None in groups:
         lines.append([])
@@ -126,7 +128,7 @@ def _children_lines(village, edits, names, p, partner, kids) -> list[list[Run]]:
     born = [k for k in kids if not k.upcoming]
     coming = [k for k in kids if k.upcoming]
     if born:
-        out.append([("    Children (in order of birth):", "note", None)])
+        out.append([("    Children (in order of birth):", "note+strong", None)])
         for k in born:
             out.append([("      ", "plain", None)] + _person_runs(edits, names, k))
     if coming:
@@ -230,6 +232,9 @@ class VillagerInfoTab:
         text.tag_configure("title", font=("Segoe UI", 14))
         text.tag_configure("heading", font=("Segoe UI", 10, "bold"), spacing1=2)
         text.tag_configure("note", foreground="#444444")
+        # Partner names and the "Children (in order of birth):" line in bold (the owner, 2026-10-10),
+        # their colour kept: created after the colours so its font wins.
+        text.tag_configure("strong", font=("Segoe UI", 10, "bold"))
         text.tag_configure("link", underline=True)
         text.tag_bind("link", "<Enter>", lambda _e: text.configure(cursor="hand2"))
         text.tag_bind("link", "<Leave>", lambda _e: text.configure(cursor="arrow"))
@@ -299,7 +304,7 @@ class VillagerInfoTab:
         text.insert("end", "\n")
         for n, line in enumerate(info_lines(ed.village, ed.edits, p.id, names)):
             for words, style, pid in line:
-                tags = [style] + (["title"] if n == 0 else [])
+                tags = style.split("+") + (["title"] if n == 0 else [])
                 if pid is not None:
                     tag = f"go{len(self.links)}"
                     self.links[tag] = pid
