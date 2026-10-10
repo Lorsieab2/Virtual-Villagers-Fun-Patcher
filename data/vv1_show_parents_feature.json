@@ -18,7 +18,7 @@
   ],
   "behavior_changes": [
     "The Details portrait of a villager under 18 with recorded parents shows two half-faded parent figures in the frame's upper corners, built from each parent's own head and body rows; hovering one shows \"Son of <name>\" / \"Daughter of <name>\" under the portrait.",
-    "Conceptions stash the father's name, head and body against the mother; at each birth the game's pregnancy tick hands the named child and its mother to the companion (the Origins row's hook right after each of its four child-creation calls), so both parents are recorded for the child -- in live play, load-time catch-up and a bought Time Warp alike -- immediately appended to the parentage log as a \"Birth\" record, then written to vv1_parents_<slot>.dat.",
+    "Conceptions stash the father's name, head and body against the mother; at each birth the game's pregnancy tick hands the named child and its mother to the companion (the Origins row's hook right after each of its four child-creation calls), so both parents are recorded for the child -- in live play, load-time catch-up and a bought Time Warp alike -- immediately appended to the parentage log as a numbered \"Birth <n>\" record, then written to vv1_parents_<slot>.dat.",
     "The stashed father is spent once the pregnancy is over: when the delivery is seen ending, or -- for a delivery the per-frame tick could not see, such as one during the load-time catch-up or right after a reload renumbered the villagers -- once the mother has been in her record, not pregnant, for 30 settled frames, or is pregnant again without a captured conception.  A stale stash is never handed to a later birth whose conception was not seen.",
     "The Village Population roster gains a \"Parents:\" block on A New Home villagers whose parents are recorded."
   ],
@@ -32,7 +32,7 @@
     {
       "source": "assets/parentage/VVFP VV1 Parentage.dll",
       "destination": "VVFP VV1 Parentage.dll",
-      "sha256": "40700F86448C6D74E7E3904706264C6A9A8C43271D96AB847A292DEE717C3E82"
+      "sha256": "3FACE5CD7858650AACD2860A434FCD6633301D36295312B13EF0896B103E21FB"
     }
   ],
   "patches": []

@@ -22,7 +22,22 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
-## What's new in v1.35.65
+## What's new in v1.35.66
+
+- **Births are numbered** ("Birth <n>"), as Conceptions are, in all five games, and a Birth number is never used twice. Repair Saves & Logs can number the Birth records an older patcher wrote as just "Birth".
+- **Babies lost before birth.** When a mother dies or disappears while nursing, her Death or Disappeared record says "Nursing: yes, N babies (never born: lost with their mother)", and the Births and Conceptions log closes her Conception with a **Lost before birth** record (mother, expected father, babies). The babies get no Death record or grave. Repair Saves & Logs adds these records for older cases, and the Family Tree Maker notes them.
+- **"Nursing", each game's own word,** replaces "Pregnant" and "Babies in pregnancy" in the logs ("Nursing: yes", "Babies nursing: 2"). Older logs that use the old words are still read.
+- **Island Events log:** every game logs a conception's expected father (name, head and body) and babies. The later games log a two-choice answer as "Choice:". Likes and dislikes are shown as whole lists, and a line whose old and new values read the same is never written. The log also records a newcomer's sex and age, a custom title, the Custom Island Event's other changes, the village's changes and the weather, in the games' own words.
+- **A New Home: the expected father** of an unborn baby appears in the Village Population log, the Family Tree Maker and the Village Matchmaker. The Custom Island Event can change him, and the first-load cross-check writes Birth records afterwards from the parents file for villagers that have none.
+- **New Believers:** Village History and Village Population records carry a **Faction** line (Believer or Heathen), and Repair Saves & Logs adds it to older records. A believer who becomes a Heathen leaves the tribe with a Disappeared record.
+- **Cause of Death:** The Tree of Life's Custom Island Event "Disappears" writes its Disappeared record, a new village's founders get their Arrived records, and a villager buried at age 0 has a grave. Head 0, body 0 and age 0 are real values everywhere.
+- **Village Statistics:** a reload that moves villagers to other records is still the same village, and only stews the game proves are counted. Food Gathered, Debris Cleared and Heathens Converted count what they say.
+- **Last names: each villager's own rule** for their children's last name (From the father, From the mother or 50:50), beside the village's rule.
+- **A New Home: Dropping an Adult on a Child Tells a Story (new patch).** The adult tells the child a story, as in the later games, instead of trying to embrace.
+- **Patch every game again** after updating: the logging companions changed.
+
+
+## What was new in v1.35.65
 
 - **Family Tree Maker: packed layouts.** Two new Positions, **Packed families** and **Packed generations**, fit the tree into far less room, with a **How tightly packed** slider (0-100): at 100 the portraits touch, rows nestle brick-wise where that saves space, and the tree's width is chosen to use the page well.
 - **Most portraits in a row** caps how many portraits sit side by side (with **Keep families together**), so a wide generation wraps onto more rows.
