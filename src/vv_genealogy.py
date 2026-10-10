@@ -703,6 +703,17 @@ def relationship(village: Village, a: int, b: int) -> str:
 # The rules and the pairs
 # ---------------------------------------------------------------------------
 
+# How the pairings can be listed: (words in the report, ascending, descending).
+LIST_BY = {
+    "default": ("Listed in the default order (least related first)", "", ""),
+    "generation": ("Listed by generation (the later generation of the pair, then the other)",
+                    "oldest generation at the top", "latest generation at the top"),
+    "age": ("Listed by age (the woman's, then the man's)", "youngest at the top", "oldest at the top"),
+    "number": ("Listed by family tree number (the woman's, then the man's)",
+               "lowest number at the top", "highest number at the top"),
+}
+
+
 @dataclass
 class Rules:
     """Every rule is the player's toggle.  The defaults are only where the window starts."""
@@ -725,9 +736,15 @@ class Rules:
     one_family_per_partner: bool = True   # no partner from a family they already have a child with
     prefer_previous_partners: bool = True   # established couples first (the owner, 2026-10-08)
     prefer_fresh_blood: bool = True
-    # The newest generation first (the owner, 2026-10-10: "prioritize latest generation"): only the order
-    # changes, never who may pair with whom.
-    prefer_latest_generation: bool = True
+    # How the pairings are LISTED (the owner, 2026-10-10: "prioritize latest generation", then "List pairings by"):
+    # only the order changes, never who may pair with whom.  The default is the newest generation first.
+    list_by: str = "generation"            # one of LIST_BY
+    list_direction: str = "descending"    # "ascending" or "descending"
+
+    @property
+    def prefer_latest_generation(self) -> bool:
+        return self.list_by == "generation" and self.list_direction == "descending"
+
     # How the report shows ages, not a pairing rule (the owner, 2026-10-08: "a toggle to turn Age
     # Units on and off"): "1379 game units (68 years old)", or "68 years old" alone.
     show_age_units: bool = True
@@ -755,12 +772,19 @@ class Rules:
                             (self.not_expecting, "Not already expecting"),
                             (self.different_last_name, "Different last names (family)"),
                             (self.one_family_per_partner, "One Family Per Partner"),
-                            (self.prefer_latest_generation, "Latest generation first"),
                             (self.prefer_previous_partners, "Previous partners first"),
                             (self.prefer_fresh_blood, "Fresh blood first")):
             if flag:
                 out.append(words)
+        out.append(self.listing())
         return out
+
+    def listing(self) -> str:
+        by = LIST_BY.get(self.list_by, LIST_BY["default"])
+        if self.list_by not in LIST_BY or self.list_by == "default":
+            return by[0]
+        down = self.list_direction != "ascending"
+        return f"{by[0]}, {by[2] if down else by[1]}"
 
 
 @dataclass
@@ -927,13 +951,24 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     couples = {(c.father, c.mother) for c in village.people.values()
                if c.father is not None and c.mother is not None}
 
+    sign = -1 if rules.list_direction != "ascending" else 1
+
+    def listkey(pair: Pair) -> tuple:
+        """The listing order the player chose, a key (all zero for the default order); ties keep the ranking."""
+        m, w = pair.man, pair.woman
+        if rules.list_by == "generation":
+            return (sign * max(m.generation, w.generation), sign * min(m.generation, w.generation))
+        if rules.list_by == "age":
+            # An age of 0 is a real age; an unknown one goes last either way.
+            return (w.age is None, sign * (w.age or 0), m.age is None, sign * (m.age or 0))
+        if rules.list_by == "number":
+            return (w.number is None, sign * (w.number or 0), m.number is None, sign * (m.number or 0))
+        return (0, 0)
+
     def rank(pair: Pair) -> tuple:
         gap = abs((pair.man.age or 0) - (pair.woman.age or 0))
         established = rules.prefer_previous_partners and (pair.man.id, pair.woman.id) in couples
-        # The later generation of the two comes first, then the later of the other; the order within a
-        # generation is the rest of the key.
-        newest = ((-max(pair.man.generation, pair.woman.generation), -min(pair.man.generation, pair.woman.generation))
-                  if rules.prefer_latest_generation else (0, 0))
+        newest = (listkey(pair) if rules.list_by == "generation" else (0, 0))
         return (newest, not established, pair.related,
                 (fresh(pair.man) + fresh(pair.woman)) if rules.prefer_fresh_blood else 0,
                 pair.shared, gap, pair.woman.id, pair.man.id)
@@ -949,7 +984,7 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
 
     def place(woman: int, seen: set) -> bool:
         options = per_woman.get(woman, [])
-        if rules.prefer_latest_generation:
+        if rules.list_by == "generation":
             # A free man in her own best order before moving another woman off hers, so the newest
             # generation's couples are not split to pair them with an older generation (stable: the
             # order among the free and among the taken is unchanged).
@@ -966,8 +1001,12 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
 
     for woman in sorted(per_woman, key=lambda w: rank(per_woman[w][0])):
         place(woman, set())
-    one_to_one = sorted(partner.values(), key=rank)
-    fallback = [] if allowed else sorted(every, key=rank)[:10]
+    one_to_one = sorted(sorted(partner.values(), key=rank), key=listkey)
+    fallback = [] if allowed else sorted(sorted(every, key=rank)[:10], key=listkey)
+    # The chosen listing order, a stable sort: the women, and each woman's partners, keep the ranking in ties.
+    for wid in per_woman:
+        per_woman[wid] = sorted(per_woman[wid], key=listkey)
+    per_woman = dict(sorted(per_woman.items(), key=lambda item: listkey(item[1][0])))
     return one_to_one, per_woman, fallback
 
 
