@@ -4046,12 +4046,48 @@ def _wrap(text: str, n: int = WRAP) -> list[str]:
     return out
 
 
+AUX_STYLE = {"bold": True, "italic": True}     # the tree's extra lines, by default (the owner, 2026-10-10)
+
+
+def is_aux_line(k: int, line: str) -> bool:
+    """Whether a portrait's line is an extra one -- "Golden Child", "Founder", "X's twin", how they
+    came, a title, "(deceased)" on its own -- rather than the main text: the name (the first line)
+    and the age."""
+    text = line.strip() if isinstance(line, str) else ""
+    return (k > 0 and bool(text) and text != "age unknown"
+            and not AGE_YEARS.fullmatch(text) and not AGE_UNITS.fullmatch(text))
+
+
+def default_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None:
+    """The patcher's own lines (default_text) formatted: every extra line (is_aux_line) bold and
+    italic (the owner, 2026-10-10: "please bold and italicize 'auxillary text' by default").  None
+    when there is none, or for an upcoming child."""
+    if p.upcoming:
+        return None
+    lines = default_text(lay, p)
+    if not any(is_aux_line(k, line) for k, line in enumerate(lines)):
+        return None
+    return [[(line, dict(AUX_STYLE) if is_aux_line(k, line) else {})] for k, line in enumerate(lines)]
+
+
+def bold_italic_aux(lines: list, runs) -> list | None:
+    """The Faces & Text button (the owner, 2026-10-10: "add a button to retroactively update that
+    text too"): a player's own lines with every extra line (is_aux_line) made bold and italic, each run
+    keeping its other formatting; the name and age lines untouched.  The runs in their saved form."""
+    have = clean_runs(runs, lines) or [[(line, {})] for line in lines]
+    out = [[(text, {**style, **AUX_STYLE}) if is_aux_line(k, line) else (text, dict(style)) for text, style in line_runs]
+           for k, (line, line_runs) in enumerate(zip(lines, have))]
+    return runs_data([merge_runs(line) for line in out])
+
+
 def node_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None:
-    """The entry's lines formatted word by word (clean_runs), or None when they are plain."""
+    """The entry's lines formatted word by word (clean_runs), or None when they are plain.  The
+    patcher's own lines have their extra lines bold and italic (default_runs); the player's own lines
+    keep exactly what the player chose."""
     entry = lay.entry(p)
     lines = entry.get("lines")
     if not lines:
-        return None
+        return default_runs(lay, p)
     lines, runs = _shown_name_in(lay, p, lines, entry.get("runs"))
     return clean_runs(runs, lines)
 
@@ -6321,7 +6357,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     points = text_room_points(lay.opt(p, "text_room"), kind, lay.frame_points(p.id), (fx, fy, fw, fh, angle))
     text_inside = lay.opt(p, "text_inside")
     fit = 1.0
-    for k, (text, bold, _r) in enumerate(lines):
+    for k, (text, bold, line_runs) in enumerate(lines):
         if not text:
             continue
         size = (11.5 if bold else 10) * scale
@@ -6332,7 +6368,9 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         # (Faces and words at one size: as wide as the frame, not half of it, so a narrow shape's words keep
         # their size too -- unless they are kept inside the shape.)
         room = max(chord - 8, 12.0) if text_inside else max(chord, fw if fixed else fw * 0.5) - 8
-        needed = len(text) * size * (0.58 if bold else 0.55)
+        # A formatted line measured run by run: its bold words -- the extra lines', by default -- wider.
+        needed = (size * sum(len(t) * (0.58 if s.get("bold", bold) else 0.55) for t, s in line_runs)
+                  if line_runs else len(text) * size * (0.58 if bold else 0.55))
         if room > 0 and needed > room:
             fit = min(fit, room / needed)
     lay.__dict__.setdefault("_word_fits", {})[p.id] = fit     # (made the same for a scope: _equal_words)

@@ -1127,6 +1127,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.founder_var = tk.BooleanVar(value=e.show_founder)          # the owner, 2026-10-09
         ttk.Checkbutton(words, text="Show \"Founder\" in the first generation", variable=self.founder_var,
                         command=lambda: self._change(show_founder=bool(self.founder_var.get()))).pack(anchor="w")
+        # The owner, 2026-10-10: "add a button to retroactively update that text too".
+        ttk.Button(words, text="Bold and italic for extra lines (Golden Child, Founder, twins...)",
+                   command=self._bold_italic_extra_lines).pack(anchor="w", pady=(4, 0))
         tab = t_colour
         ttk.Label(tab, text="Every word on the tree (a part's own colour: Fonts tab):").pack(anchor="w", pady=(0, 1))
         self.ink_field = ColourField(tab, e.ink, lambda c: self._change(ink=c))
@@ -2181,7 +2184,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         def set_person(new: str) -> None:
             # The words' formatting kept where the retyping kept them (ft.carry_styles).
             runs = ft.carry_styles(ft.node_text(lay, p), ft.node_runs(lay, p), new.split("\n"))
-            self._set_entry(p, lines=None if new == own and runs is None else new.split("\n"), runs=runs)
+            # (The patcher's own words, untouched and formatted as the tree formats them by default --
+            # ft.default_runs -- stay the patcher's.)
+            plain = new == own and runs in (None, ft.runs_data(ft.default_runs(lay, p)))
+            self._set_entry(p, lines=None if plain else new.split("\n"), runs=runs)
             self._saved()
         return "\n".join(ft.node_text(lay, p)), own, set_person
 
@@ -3703,9 +3709,39 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         p = self.village.people[self.selected[0]]
         lines, runs = self._box_text()
         default = ft.default_text(self.lay, p)
-        # Formatted words are the player's own even when they are the patcher's (they are kept).
-        self._set_entry(p, lines=None if lines == default and runs is None else lines, runs=runs)
+        # Formatted words are the player's own even when they are the patcher's (they are kept) -- unless
+        # formatted just as the tree formats its own lines by default (ft.default_runs).
+        plain = lines == default and runs in (None, ft.runs_data(ft.default_runs(self.lay, p)))
+        self._set_entry(p, lines=None if plain else lines, runs=runs)
         self._saved()
+
+    def _bold_italic_extra_lines(self, ask: bool = True) -> int:
+        """Every portrait's extra lines (ft.is_aux_line) bold and italic -- the player's own formatted
+        lines too, their other formatting kept -- for everyone, or the group picked in "Settings for:".
+        One step to undo.  The tree's own lines already are, by default (ft.default_runs).  How many
+        portraits changed."""
+        if ask and not messagebox.askyesno(
+                "Family Tree Maker", "Make the extra lines bold and italic in every portrait?  Your other "
+                "text formatting is kept.", parent=self):
+            return 0
+        group = self._scope()
+        changed = 0
+        for p in self.village.people.values():
+            if group is not None and ft.group_of(p) != group:
+                continue
+            entry = self._entry(p)
+            lines = entry.get("lines")
+            if not lines:
+                continue
+            runs = ft.bold_italic_aux(lines, entry.get("runs"))
+            if runs != entry.get("runs"):
+                self._set_entry(p, runs=runs)
+                changed += 1
+        if changed:
+            self._saved()
+        self.status.set(f"Extra lines made bold and italic in {changed} portrait(s)." if changed else
+                        "Every extra line is already bold and italic.")
+        return changed
 
     def _restore_text(self) -> None:
         for q in self.selected:
