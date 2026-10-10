@@ -309,6 +309,7 @@ class Family:
     # end at a "continued on page N" mark, lane_y where its line down ends.
     onward: list = field(default_factory=list)
     onward_page: int = 0
+    stem_x: float = 0.0                 # where its line goes down from the couple's line to those words
 
 
 # How the family lines may be coloured (vv_line_colours): the Lines tab's "Line colours" and "Order colours by".
@@ -605,7 +606,7 @@ class Edits:
         for key, lines in dict(data.get("generations", {})).items():
             out.generations[str(key)] = [str(line) for line in lines]
         for key, text in dict(data.get("words", {})).items():
-            if key in WORDS and isinstance(text, str):
+            if (key in WORDS or str(key).startswith("onward:")) and isinstance(text, str):
                 out.words[key] = text
         for label, colour in dict(data.get("marks", {})).items():
             if is_colour(colour):
@@ -863,6 +864,7 @@ ROLES = {
     "portraits": "Other words in the portraits",
     "others": "Other Members heading",
     "footer": "Footer",
+    "onward": "Continued on page words",
 }
 ALIGNS = {"left": "Left", "centre": "Centre", "right": "Right"}
 # A portrait's shape and border (the owner's lists).
@@ -898,7 +900,7 @@ BORDER_WIDTHS.update({name: 0.0 for name in SPECIAL_BORDERS})     # the rope or 
 # How see-through each part of the tree is, in percent, until the player says (pictures and text
 # boxes have their own).
 OPACITY = {"words": ("Words", 100), "plates": ("Boxes behind words", 80), "portraits": ("Portraits", 100),
-           "lines": ("Family lines", 100)}
+           "lines": ("Family lines", 100), "onward": ("Continued on page words", 100)}
 # The family lines' look (the owner: "I want to change line weights, types, absolutely everything in
 # batch!"): every line's, or one family's.
 LINE_TYPES = {"": "Solid", "dotted": "Dotted", "dashed": "Dashed", "dashdot": "Dotted and dashed"}
@@ -1965,7 +1967,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             mine = [q for q in (fam.father, fam.mother, *fam.children) if q in shifts]
             if fam.id in cl.ways and not any(shifts[q].get("dx") or shifts[q].get("dy") for q in mine):
                 fam.way = [(px + move, py) for px, py in cl.ways[fam.id]]
-    onward = _place_onward(people, onward, x, y, in_tree, families, edits)
+    onward = _place_onward(people, onward, x, y, in_tree, families, edits, village)
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
     height = max([height] + [y[q] + NODE_H + 190 for q in y] + [y[q] + reach[q][3] + FOOTER_ROOM + PAGE_MARGIN for q in y]
                  + [f.lane_y + ONWARD_TEXT + FOOTER_ROOM + PAGE_MARGIN for f in onward])
@@ -1995,23 +1997,45 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     return out
 
 
-ONWARD_SIZE = 12                # the "continued on page N" words' size
-ONWARD_ROW = 18                 # between two rows of those words, where they would run into each other
-ONWARD_TEXT = 30                # the room under a family's line for its words
-ONWARD_PAD = 5                  # from the end of a family's line to its words
+ONWARD_PIECE = "onward "        # before the name of each line piece drawn above a page break (lines())
+ONWARD_SIZE = 12              # the "continued on page N" words' size (before their role's scale)
+ONWARD_ROW = 20                 # between two rows of those words, where they would run into each other
+ONWARD_TEXT = 40                # the room under a family's line for its words
+ONWARD_GAP = 4                  # from the end of a family's line down to the top of its words
+ONWARD_CLEAR = 8                # the least room beside a family's words: other words, another family's line
 
 
-def onward_words(fam: Family) -> str:
-    return f"continued on page {fam.onward_page}"
+def onward_key(village: gen.Village, fam: Family) -> str:
+    """The name of a family's "continued on page N" words: what moves, hides and retypes those words alone."""
+    return f"onward:{family_key(village, fam)}"
+
+
+def onward_words(edits: Edits, village: gen.Village, fam: Family) -> str:
+    """The words under a family whose children are on a later page: the player's for these words, else the
+    player's for every such family's, else the tree's own -- "{page}" in them the page's number."""
+    text = edits.words.get(onward_key(village, fam)) or edits.words.get("onward") or WORDS["onward"]
+    return text.replace("{page}", str(fam.onward_page))
+
+
+def onward_width(edits: Edits, village: gen.Village, fam: Family) -> float:
+    """How wide the family's words are drawn, in their role's look."""
+    style = edits.styles.get("onward", {})
+    size = ONWARD_SIZE * style.get("scale", 100) / 100
+    text = onward_words(edits, village, fam)
+    # (Never less than the page's own reckoning of words' width, _extent, so the page is sized round them.)
+    return max(text_width(text, size, style.get("bold", False), style.get("font") or edits.font or None,
+                          style.get("italic", False)), len(text) * size * 0.55)
 
 
 def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree: set, families: list[Family],
-                  edits: Edits) -> list[Family]:
+                  edits: Edits, village: gen.Village) -> list[Family]:
     """Where the lines go for the families whose children are on a later page (_page_members), nothing else
     moved: each parent's line leaves at a point of its own along their frame's bottom (past the points their
     other families' lines take), each couple has a level of its own under the lowest row at or below the
-    parents, and from the couple's middle (a lone parent: from them) one line goes down to the words saying
-    which page the children are on, the words in rows so no two run into each other."""
+    parents, and from the couple's line (a lone parent: from them) one line goes down to the words saying
+    which page the children are on, the words centred under it.  Where along the couple's line it goes down
+    is chosen so every family's words stand under their own line in one row, side by side (the owner: no
+    "stacked cluster"); only those that cannot go a row lower, never on another's words or line."""
     fams = [f for f in onward if any(q is not None and q in x and q in in_tree for q in (f.father, f.mother))]
     if not fams:
         return []
@@ -2043,20 +2067,40 @@ def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree:
     for k, f in enumerate(couples):
         f.couple_y = base[f.id] + LANE_TOP + k * LANE
     start = max(base.values()) + LANE_TOP + len(couples) * LANE + LANE
-    # The words start just right of their line's end.  Placed right to left: a line down then never passes
-    # words above it (those all start right of it); each in the highest row where they run into no other
-    # words and no line down to words further down passes them.
+    # Each family's line down may leave its couple's line anywhere along it, 12 in from its ends (a lone
+    # parent's: where it leaves them).  Families taken by where that stretch ends, each put in the highest row
+    # and as near its stretch's middle as it can be with its words clear of the words already in that row, its
+    # line clear of the words in the rows above and its words clear of the lines going on to rows below.
+    span = {}
+    for f in fams:
+        ds = sorted(f.drops.values())
+        lo, hi = (ds[0] + 12, ds[-1] - 12) if len(ds) == 2 and ds[-1] - ds[0] > 24 else (sum(ds) / len(ds),) * 2
+        span[f.id] = (lo, hi)
+    half = {f.id: onward_width(edits, village, f) / 2 + ONWARD_CLEAR for f in fams}
     words: list[tuple[float, float, int]] = []     # (left, right, row) of the words placed
     downs: list[tuple[float, int]] = []            # (x, row) of the lines down to them
-    for f in sorted(fams, key=lambda f: (-sum(f.drops.values()) / len(f.drops), -f.id)):
-        mid = sum(f.drops.values()) / len(f.drops)
-        lo, hi = mid - 3, mid + ONWARD_PAD + text_width(onward_words(f), ONWARD_SIZE) + 6
-        row = 0
-        while (any(r == row and lo < b and a < hi for a, b, r in words)
-               or any(r > row and lo - 3 < d < hi + 3 for d, r in downs)):
-            row += 1
-        words.append((lo, hi, row))
-        downs.append((mid, row))
+    for f in sorted(fams, key=lambda f: (span[f.id][1], span[f.id][0], f.id)):
+        lo, hi = span[f.id]
+        w = half[f.id]
+        placed = None
+        for row in range(len(fams) + 1):
+            # The places along the stretch where the line down is clear of the words above, and the words
+            # clear of the words in this row and of the lines going lower: nearest the middle first.
+            blocked = [(a - 2, b + 2) for a, b, r in words if r < row] \
+                + [(a - w, b + w) for a, b, r in words if r == row] \
+                + [(d - w - ONWARD_CLEAR, d + w + ONWARD_CLEAR) for d, r in downs if r > row]
+            mid = (lo + hi) / 2
+            options = [mid] + [b for _a, b in blocked] + [a for a, _b in blocked] + [lo, hi]
+            free = [c for c in options if lo <= c <= hi and not any(a < c < b for a, b in blocked)]
+            if free:
+                placed = (min(free, key=lambda c: (abs(c - mid), c)), row)
+                break
+        if placed is None:              # (never so crowded in a tree, but always somewhere)
+            placed = ((lo + hi) / 2, len(fams) + 1)
+        at, row = placed
+        words.append((at - w + ONWARD_CLEAR, at + w - ONWARD_CLEAR, row))
+        downs.append((at, row))
+        f.stem_x = at
         f.lane_y = start + row * ONWARD_ROW
     return fams
 
@@ -3461,6 +3505,11 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
     jogs: dict = {}
 
     def add(points: list, piece: str, anchors: dict | None = None, up: dict | None = None) -> str:
+        if fam.onward:
+            # The pieces drawn above a page break are named apart from the same family's on the page its
+            # children are on, so dragging one never moves the other (the owner, 2026-10-10).
+            piece = ONWARD_PIECE + piece
+            up = {end: ONWARD_PIECE + name for end, name in (up or {}).items()}
         drawn.append([fam.colour, points, fam.id, piece, anchors or {}, up or {}])
         return piece
 
@@ -3568,17 +3617,17 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
 
         if onward:
             # The children are on a later page: the couple joined as any couple is, and from the couple's
-            # middle (a lone parent: from them) one line down to where the words say which page.
+            # line, where its words have room (_place_onward; a lone parent: from them), one line down to
+            # where the words say which page.
             if len(parents) == 2:
                 couple = fam.couple_y
                 ends = [leave(q, couple) for q in parents]
                 add([(min(ends), couple), (max(ends), couple)], "couple")
-                legs = _route(lay, sum(ends) / 2, couple, lane, jogs)
+                legs = _route(lay, min(max(fam.stem_x, min(ends)), max(ends)), couple, lane, jogs)
                 names = ["stem"] + [f"stem {k}" for k in range(1, len(legs))]
                 for k, leg in enumerate(legs):
                     add(leg, names[k], up={0: names[k - 1] if k else "couple", **({1: names[k + 1]} if k < len(legs) - 1 else {})})
             elif parents:
-                target = "onward"
                 leave(parents[0], lane)
             continue
         if len(parents) == 2:
@@ -4230,7 +4279,8 @@ def default_title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
 # Words the tree writes that the player may retype (the owner: "I wanna rename "unrelated
 # individuals" to something else").  The footer's own words are footer(lay).
 # The owner: "And default: "Other Members"" (the heading over the villagers with no recorded family).
-WORDS = {"others": "Other Members", "others_note": "no recorded parent or child", "footer": ""}
+WORDS = {"others": "Other Members", "others_note": "no recorded parent or child", "footer": "",
+         "onward": "continued on page {page}"}     # (and "onward:<family key>": one family's: onward_words)
 
 
 def words(lay: Layout, key: str) -> str:
@@ -6150,10 +6200,17 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         # A family whose children are on a later page (the page's last generation is the next one's founders):
         # beside the end of its line, which page (the owner, 2026-10-10: "these guys have children but no
         # button will make a proper family tree for them with lines!").
-        ends = [pt for s in drawn_lines if s[2] == fam.id for pt in s[1]] if fam.onward else []
+        # Centred under the end of its line; words like any others on the tree: their role's font, size, style
+        # and colour ("onward"), their own opacity, retyped, dragged and deleted each on its own (onward_key) or
+        # all together ("word:onward").
+        ends = [pt for s in drawn_lines if s[2] == fam.id for pt in s[1]] \
+            if fam.onward and "word:onward" not in lay.edits.hidden else []
         if ends:
             ex, ey = max(ends, key=lambda pt: (pt[1], pt[0]))
-            add(Text(ex + ONWARD_PAD, ey + ONWARD_SIZE * 0.35, onward_words(fam), ONWARD_SIZE, ink, role="footer"))
+            scale = lay.edits.styles.get("onward", {}).get("scale", 100) / 100
+            name = onward_key(v, fam)
+            add(Text(ex, ey + ONWARD_GAP + ONWARD_SIZE * scale * 0.8, onward_words(lay.edits, v, fam), ONWARD_SIZE,
+                     ink, centre=True, role="onward", move=name, edit=f"word:{name}"))
     for pid in lay.x:
         _node(lay, v.people[pid], present, add)
         xs, ys = zip(*lay.frame_points(pid))
@@ -6353,8 +6410,11 @@ def _apply_opacity(items: list, edits: Edits) -> None:
     nothing at all."""
     plates, portraits = see_through(edits, "plates"), see_through(edits, "portraits")
     lines_, words_ = see_through(edits, "lines"), see_through(edits, "words")
+    onward = see_through(edits, "onward")
     for item in items:
-        if isinstance(item, Shape) and item.target == ("plate",):
+        if isinstance(item, Text) and item.role == "onward":
+            item.opacity *= onward
+        elif isinstance(item, Shape) and item.target == ("plate",):
             item.opacity *= plates
         elif getattr(item, "pid", None) is not None:
             item.opacity *= portraits

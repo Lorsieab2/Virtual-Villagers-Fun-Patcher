@@ -2113,6 +2113,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             menu.add_separator()
             menu.add_command(label="Delete the whole label" if label_part else "Delete",
                              command=lambda: self._hide(f"word:{moved[0]}"))
+        if moved and moved[0].startswith("onward:") and iid is not None:
+            # A family's "continued on page N" words: these, or every family's (the owner, 2026-10-10).
+            name = moved[0]
+            menu.add_command(label="Change these words...", command=lambda: self._edit_in_place(iid, f"word:{name}"))
+            menu.add_command(label="Change the words of every \"continued on page\" label...",
+                             command=lambda: self._edit_in_place(iid, f"every_onward:{name}"))
+            menu.add_command(label="Delete every \"continued on page\" label", command=lambda: self._hide("word:onward"))
+            menu.add_command(label="Reset these words", command=lambda: self._onward_reset(name))
+            menu.add_command(label="Reset every \"continued on page\" label", command=lambda: self._onward_reset(None))
         if label_part:                          # one line, or the number or the name, of a generation's label
             g, _, part = label_part.partition("|")
             if part.startswith("custom"):
@@ -2453,6 +2462,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             k = 0 if kind == "title" else 1
             own = ft.default_title_lines(lay, self.game_title)[k]
             return getattr(e, kind) or own, own, lambda new: self._change(**{kind: "" if new == own else new})
+        if kind == "word" and name.startswith("onward:"):
+            return self._onward_words_of(name)
+        if kind == "every_onward":              # every family's "continued on page N" words at once
+            return self._onward_words_of(name, every=True)
         if kind == "word":
             own = ft.footer(lay) if name == "footer" else ft.WORDS[name]
 
@@ -2489,6 +2502,49 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self._set_entry(p, lines=None if plain else new.split("\n"), runs=runs)
             self._saved()
         return "\n".join(ft.node_text(lay, p)), own, set_person
+
+    def _onward_family(self, name: str):
+        """The family whose "continued on page N" words are `name` ("onward:<family key>"), or None."""
+        return next((f for f in self.lay.families if f.onward and ft.onward_key(self.village, f) == name), None)
+
+    def _onward_words_of(self, name: str, every: bool = False) -> tuple[str, str, object]:
+        """(the words now, the default, a function taking new words) for one family's "continued on page N"
+        words -- or, `every`, for every such family's: retyped with the page's number in them, that number
+        stays the page's (kept as "{page}")."""
+        e, fam = self.edits, self._onward_family(name)
+        page = str(fam.onward_page) if fam is not None else ""
+        if every:
+            own_template = ft.WORDS["onward"]
+            now_template = e.words.get("onward") or own_template
+        else:
+            own_template = e.words.get("onward") or ft.WORDS["onward"]
+            now_template = e.words.get(name) or own_template
+
+        def set_words(new: str) -> None:
+            template = re.sub(rf"(?<!\d){re.escape(page)}(?!\d)", "{page}", new, count=1) if page else new
+            key = "onward" if every else name
+            if new.strip() and template != own_template:
+                e.words[key] = template
+            else:
+                e.words.pop(key, None)
+            self._saved()
+        return now_template.replace("{page}", page), own_template.replace("{page}", page), set_words
+
+    def _onward_reset(self, name: str | None) -> None:
+        """One family's "continued on page N" words (or, None, every family's) back to the tree's own:
+        their words, place and deletion."""
+        e = self.edits
+        names = [name] if name else ["onward"] + [k for k in e.words if k.startswith("onward:")]
+        for k in names:
+            e.words.pop(k, None)
+        for k in [k for k in e.moved if k.startswith("onward:") and (name is None or k == name)]:
+            del e.moved[k]
+        e.hidden = [h for h in e.hidden if not (h == f"word:{name}" if name else h.startswith("word:onward"))]
+        if name is None:
+            e.styles.pop("onward", None)
+            e.opacity.pop("onward", None)
+        self._saved()
+        self._refresh_hidden()
 
     def _edit_in_place(self, iid: int, what: str) -> None:
         """A box over the words, to retype them where they are (the owner: "DIRECTLY EDIT THE TEXT OF
@@ -4459,6 +4515,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 g, _, part = name.partition(":")
                 whose = "Every generation label" if g == "*" else f"The generation {gen.roman(int(g))} label"
                 out.append((what, f"{whose}: {ft.LABEL_PARTS.get(part, part)}"))
+            elif kind == "word" and name.startswith("onward"):
+                fam = self._onward_family(name) if name != "onward" else None
+                whose = " and ".join(self.village.people[q].name for q in (fam.father, fam.mother) if q is not None) \
+                    if fam is not None else ""
+                out.append((what, f"\"Continued on page\" words of {whose}" if whose
+                            else "Every \"continued on page\" label"))
             elif kind == "word":
                 words = ft.MOVABLE.get(name) or (f"the generation {gen.roman(int(name[5:]))} label"
                                                  if name.startswith("label") and name[5:].isdigit() else name)
@@ -4472,6 +4534,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         family = next((ft.family_key(self.village, f) for f in self.lay.families
                        if name.startswith(ft.family_key(self.village, f) + "|")), "")
         piece = name[len(family) + 1:] if family else name
+        piece = piece[len(ft.ONWARD_PIECE):] if piece.startswith(ft.ONWARD_PIECE) else piece    # above a page break
         parents = " and ".join(part.split("|")[0] for part in family.split("||") if part and part != "-") or "a family"
         kind, _, rest = piece.partition(" ")
         who = rest.rsplit(" ", 1)[0].split("|")[0] if rest else ""
