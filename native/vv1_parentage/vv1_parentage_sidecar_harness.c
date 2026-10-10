@@ -77,6 +77,9 @@ static void put(unsigned char *records, int index, const char *name, int male, i
 static void fresh(void) {
     memset(g_entries, 0, sizeof(g_entries));
     memset(g_roster, 0, sizeof(g_roster));
+    memset(g_session_born, 0, sizeof(g_session_born));
+    memset(g_session_stash, 0, sizeof(g_session_stash));
+    g_other_aside = 0;
     g_loaded_slot = 0;
     g_strikes = 0;
     g_have_prev = 0;
@@ -705,6 +708,146 @@ static void follow_cases(void) {
     DeleteFileA(path);
 }
 
+/* ---- the title screen's seeded founders (the owner's v1.35.67 loss) ----
+
+   At startup A New Home reads every slot to list it (0x41D260); an empty
+   slot is reset and seeded with founders, so at the title screen the array
+   holds those founders while the save manager's slot field (v1.35.66 reads
+   it first, native/shared/game_save_slot.h) already names the slot the
+   player will load.  The companion ticks every frame.  On v1.35.67 the table
+   was committed empty against the founders, the first frame of the real
+   village read all 124 villagers as new arrivals and wiped them, and that
+   empty table was written over the file.  Here: the frames the game's
+   Vv1ParentageTick runs, at the title screen and then in the village. */
+static void game_ticks(const unsigned char *records, int frames) {
+    int f;
+    for (f = 0; f < frames; ++f) {
+        int slot = vv1_parents_sync_core(SLOT, records);
+        if (slot && vv1_frame(records, 0)) {
+            vv1_parents_save(slot, records);
+        }
+    }
+}
+
+static int file_names_alba(void) {
+    static unsigned char buf[sizeof(good) + 64];
+    DWORD size = 0;
+    int i;
+    if (!read_all(path, buf, sizeof(buf), &size) || size != 12 + sizeof(g_roster) + sizeof(g_entries)) {
+        return 0;
+    }
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const vv1_occupant *o = (const vv1_occupant *)(buf + 12 + i * sizeof(vv1_occupant));
+        const vv1_parent_entry *e = (const vv1_parent_entry *)(buf + 12 + sizeof(g_roster) + i * sizeof(vv1_parent_entry));
+        if (o->gender == 2 && lstrcmpA(o->name, "Alba") == 0) {
+            return lstrcmpA(e->father_name, "Bram") == 0 && lstrcmpA(e->mother_name, "Cora") == 0;
+        }
+    }
+    return 0;
+}
+
+/* Eda (record 4) conceives by Dax (record 3), as Vv1ParentageConceived
+   records it: stashed and saved. */
+static int vv1_parents_conceived_for_test(const unsigned char *records) {
+    int slot = vv1_parents_sync_core(SLOT, records);
+    return slot && vv1_stash(records, records + 4u * VV1_RECORD_STRIDE, records + 3u * VV1_RECORD_STRIDE) == 4
+        && vv1_parents_save(slot, records);
+}
+
+static void title_screen_cases(void) {
+    static unsigned char founders[VV1_RECORD_COUNT * VV1_RECORD_STRIDE];
+    static unsigned char grown[VV1_RECORD_COUNT * VV1_RECORD_STRIDE];
+    int i, alba_at = -1;
+    memset(founders, 0, sizeof(founders));
+    put(founders, 0, "Abebe", 0, 1);
+    put(founders, 1, "Kanoa", 1, 1);
+    put(founders, 2, "Mele", 0, 1);
+    put(founders, 3, "Tavita", 1, 1);
+    put(founders, 4, "Leilani", 0, 1);
+
+    /* 30. The owner's session: the title screen's founders for a while, then
+           the village chosen in that very slot. */
+    write_good_sidecar();
+    game_ticks(founders, 4 * VV1_NEW_VILLAGE_STRIKES);
+    check(same_as(path, good, good_size), "the title screen's founders never touch the slot's parents file");
+    game_ticks(village_a, 4 * VV1_NEW_VILLAGE_STRIKES);
+    check(loaded_alba(), "the village chosen at the title screen gets its parents from the file");
+    check(!g_session_born[5], "... and its villagers are not taken for new arrivals");
+    check(file_names_alba(), "... and the file still names Alba's parents");
+
+    /* 31. The same with a save every frame the village is known -- the most
+           any export could write -- at the title screen too. */
+    write_good_sidecar();
+    play(founders, 4 * VV1_NEW_VILLAGE_STRIKES);
+    check(same_as(path, good, good_size), "an empty table is never written over another village's file");
+    play(village_a, 4 * VV1_NEW_VILLAGE_STRIKES);
+    check(loaded_alba() && file_names_alba(), "... and the village then loaded keeps every parent");
+
+    /* 32. Another village really is played in the slot (a save copied in):
+           its first real record moves the old file aside, never over it. */
+    write_good_sidecar();
+    game_ticks(village_b, 2 * VV1_NEW_VILLAGE_STRIKES);
+    check(vv1_parents_conceived_for_test(village_b), "setup: a conception in the other village is recorded");
+    {
+        char aside[MAX_PATH];
+        WIN32_FIND_DATAA fd;
+        HANDLE h;
+        wsprintfA(aside, "%s.another-village-*", path);
+        h = FindFirstFileA(aside, &fd);
+        check(h != INVALID_HANDLE_VALUE, "the other village's file is kept aside, not replaced");
+        if (h != INVALID_HANDLE_VALUE) {
+            char full[MAX_PATH];
+            char *slash;
+            lstrcpyA(full, path);
+            slash = strrchr(full, '\\');
+            lstrcpyA(slash + 1, fd.cFileName);
+            check(same_as(full, good, good_size), "... byte for byte");
+            DeleteFileA(full);
+            FindClose(h);
+        }
+    }
+
+    /* 33. Growing up never drops the parents (the owner, 2026-10-10: "if the
+           villager is ever made younger ... the parents should reappear"):
+           Alba turns 18, then 40, then is made 10 again. */
+    write_good_sidecar();
+    memcpy(grown, village_a, sizeof(grown));
+    game_ticks(grown, 2);
+    for (i = 17; i <= 40; ++i) {
+        *(int *)(grown + 5u * VV1_RECORD_STRIDE + VV1_AGE_OFFSET) = i * VV1_UNITS_PER_YEAR;
+        game_ticks(grown, 3);
+    }
+    check(loaded_alba() && file_names_alba(), "a villager who grows up keeps her parents in the table and the file");
+    *(int *)(grown + 5u * VV1_RECORD_STRIDE + VV1_AGE_OFFSET) = 10 * VV1_UNITS_PER_YEAR;
+    game_ticks(grown, 3);
+    check(loaded_alba() && *(int *)(grown + 5u * VV1_RECORD_STRIDE + VV1_AGE_OFFSET)
+                               < VV1_PARENTS_UNTIL_YEARS * VV1_UNITS_PER_YEAR,
+          "... and made young again, her parents are there for the Details screen");
+
+    /* 34. A departed villager's entry is never dropped when someone else
+           takes her record: Alba dies, and a newcomer is put in record 5. */
+    write_good_sidecar();
+    memcpy(grown, village_a, sizeof(grown));
+    game_ticks(grown, 2);
+    memset(grown + 5u * VV1_RECORD_STRIDE, 0, VV1_RECORD_STRIDE);
+    game_ticks(grown, 3);
+    put(grown, 5, "Newcomer", 1, 99);
+    game_ticks(grown, 3);
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        if (g_roster[i].gender == 2 && lstrcmpA(g_roster[i].name, "Alba") == 0) {
+            alba_at = i;
+        }
+    }
+    check(alba_at >= 0 && alba_at != 5 && g_roster[alba_at].departed
+              && lstrcmpA(g_entries[alba_at].father_name, "Bram") == 0
+              && lstrcmpA(g_entries[alba_at].mother_name, "Cora") == 0,
+          "a dead villager's parents are kept when someone else takes her record");
+    check(g_entries[5].father_name[0] == '\0' && g_entries[5].mother_name[0] == '\0',
+          "... and the newcomer does not inherit them");
+    check(file_names_alba(), "... and the file keeps them");
+    fresh();
+}
+
 /* A New Home's villager pointer (0x0048B614) and save slot (0x004911F4),
    which Vv1ParentageSetParents reads (case 11), live on this page.  By the
    time main runs the CRT heap has usually reserved it, so the harness runs
@@ -906,17 +1049,15 @@ int main(int argc, char **argv) {
         check(known > 0 && loaded_alba(), "... and it is read on the next frame");
     }
 
-    /* 9. Another village's sound file is still superseded after the strike
-          window: Start Over keeps the slot (unchanged behaviour). */
+    /* 9. Another village's sound file: after the strike window the village on
+          screen is taken on with an empty table, but that file is NEVER
+          replaced by it (the owner's v1.35.67 loss; Start Over deletes the
+          slot's file itself, native/shared/save_reset.c).  A first real
+          record moves it aside instead (case 32). */
     write_good_sidecar();
     known = play(village_b, FRAMES);
-    {
-        static unsigned char now[sizeof(good)];
-        DWORD size = 0;
-        int ok = read_all(path, now, sizeof(now), &size) && size == good_size
-                 && memcmp(now + 12, good + 12, sizeof(g_roster)) != 0;
-        check(known > 0 && ok, "another village's sidecar is superseded after the strike window");
-    }
+    check(known > 0 && same_as(path, good, good_size),
+          "another village's sidecar is never replaced by an empty table after the strike window");
 
     /* 10. This village's own file loads at once. */
     write_good_sidecar();
@@ -981,6 +1122,7 @@ int main(int argc, char **argv) {
     }
 
     follow_cases();
+    title_screen_cases();
 
     DeleteFileA(path);
     printf("%d failure(s)\n", failures);

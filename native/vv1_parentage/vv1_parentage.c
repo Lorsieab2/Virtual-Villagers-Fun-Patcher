@@ -287,6 +287,8 @@ static int g_birth_count;
 static int g_blocked_slot;                    /* the slot whose sidecar is there but could not be read */
 static int g_blocked_wait;                    /* sync calls before that sidecar is tried again */
 static int g_may_replace;                     /* the file at the path is one this table may replace */
+static int g_other_aside;                     /* the file at the path is ANOTHER village's: kept aside, never
+                                                 replaced, before this table's first write (vv1_parents_save) */
 static int g_load_followed;                   /* the last load moved entries: the file is behind the table */
 /* What happened to each record THIS SESSION, for the first-load cross-check
    (vv1_crosscheck.inc).  The parentage log holds a session's records in
@@ -679,6 +681,34 @@ static int vv1_follow_roster(const vv1_occupant *now) {
             born[j] = stashed[j] = 0;
         }
     }
+    /* A DEPARTED VILLAGER'S ENTRY IS NEVER DROPPED (the owner, 2026-10-10:
+       the parents file only ever gains or keeps entries unless the player
+       removes one).  When someone else now holds the record a villager who is
+       not on screen any more was kept under, that entry -- parents and
+       pregnancy stash, under their identity -- moves to a record nobody holds
+       or is kept under, where it waits for them (a villager only away comes
+       back to it by identity) and keeps the dead villager's parents for the
+       logs.  Only an array with no free record at all could still drop one. */
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        const vv1_parent_entry *e = &g_entries[j];
+        int k;
+        if (!now[j].gender || !g_roster[j].gender || from[j] == j
+            || vv1_count_occupant(now, &g_roster[j], NULL) != 0
+            || !(e->father_name[0] || e->mother_name[0] || e->father_head || e->mother_head
+                 || e->stash_name[0] || e->stash_head)) {
+            continue;
+        }
+        for (k = 0; k < VV1_RECORD_COUNT; ++k) {
+            if (!now[k].gender && !kept[k].gender) {
+                kept[k] = g_roster[j];
+                kept[k].departed = 1;
+                moved[k] = *e;
+                born[k] = 0;
+                stashed[k] = g_session_stash[j];
+                break;
+            }
+        }
+    }
     memcpy(g_session_born, born, sizeof(born));
     memcpy(g_session_stash, stashed, sizeof(stashed));
     memcpy(g_entries, moved, sizeof(g_entries));
@@ -954,6 +984,8 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
    (g_may_replace).  A table started empty because there was NO file must
    not replace one that has appeared since (OneDrive restoring it, a lock
    that hid it clearing): that file is read first, on the next sync. */
+static int vv1_set_aside_as(const char *path, const char *tag);
+
 static int vv1_parents_save(int slot, const unsigned char *records) {
     char path[MAX_PATH];
     char tmp[MAX_PATH];
@@ -986,6 +1018,33 @@ static int vv1_parents_save(int slot, const unsigned char *records) {
     }
     if (lstrlenA(path) + sizeof(".tmp") > sizeof(tmp)) {
         return 0;
+    }
+    /* ANOTHER VILLAGE'S FILE IS NEVER REPLACED.  A table committed because the
+       villagers on screen shared nobody with the file's roster may be wrong
+       about whose village is on screen -- the owner's v1.35.67 session: at the
+       title screen the game's slot field already said 1 while the array still
+       held the founders its startup slot list had seeded, and the empty table
+       committed against them was written over all 124 villagers' parents the
+       moment the real village loaded.  Start Over deletes the slot's file itself
+       (native/shared/save_reset.c), so a sound file that is still there belongs
+       to a village that may come back: before this table's first write it is
+       moved aside to "<name>.another-village-<ticks>-<n>", never replacing
+       anything; if it will not move, nothing is written. */
+    if (!g_may_replace && g_other_aside) {
+        int j, anything = 0;
+        for (j = 0; j < VV1_RECORD_COUNT && !anything; ++j) {
+            const vv1_parent_entry *e = &g_entries[j];
+            anything = e->father_name[0] || e->mother_name[0] || e->stash_name[0]
+                || e->father_head || e->father_body || e->mother_head || e->mother_body
+                || e->stash_head || e->stash_body;
+        }
+        if (!anything) {
+            return 1;             /* an empty table has nothing to keep: the other village's file stays put */
+        }
+        if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES && !vv1_set_aside_as(path, "another-village")) {
+            return 0;
+        }
+        g_other_aside = 0;
     }
     lstrcpyA(tmp, path);
     lstrcatA(tmp, ".tmp");
@@ -1045,16 +1104,16 @@ static int vv1_read_exact(HANDLE file, void *out, DWORD n) {
 /* Move a file that is not a sidecar out of the way, to
    "<path>.unreadable-<ticks>-<n>", never replacing anything already there.
    1 when it was moved, 0 when it is still in place. */
-static int vv1_set_aside(const char *path) {
+static int vv1_set_aside_as(const char *path, const char *tag) {
     char aside[MAX_PATH];
     DWORD ticks = GetTickCount();
     DWORD error;
     int n;
-    if ((size_t)lstrlenA(path) + sizeof(".unreadable-4294967295-999") > sizeof(aside)) {
+    if ((size_t)lstrlenA(path) + (size_t)lstrlenA(tag) + sizeof("..-4294967295-999") > sizeof(aside)) {
         return 0;
     }
     for (n = 0; n < 1000; ++n) {
-        wsprintfA(aside, "%s.unreadable-%lu-%d", path, (unsigned long)ticks, n);
+        wsprintfA(aside, "%s.%s-%lu-%d", path, tag, (unsigned long)ticks, n);
         if (MoveFileExA(path, aside, MOVEFILE_WRITE_THROUGH)) {
             return 1;
         }
@@ -1064,6 +1123,10 @@ static int vv1_set_aside(const char *path) {
         }
     }
     return 0;
+}
+
+static int vv1_set_aside(const char *path) {
+    return vv1_set_aside_as(path, "unreadable");
 }
 
 /* Load the slot's table for the village on screen.  Returns what it found
@@ -1186,6 +1249,32 @@ static void vv1_parents_reset(void) {
     memset(g_session_stash, 0, sizeof(g_session_stash));
 }
 
+/* Commit to the village on screen as one the file does not describe
+   (`result`: VV1_LOAD_NONE, no file; VV1_LOAD_OTHER, another village's sound
+   file).  The table starts empty, and three things keep that verdict from
+   ever costing a real village its parents (the owner's v1.35.67 loss: the
+   verdict was reached at the title screen, against the founders the startup
+   slot list had seeded, while the game's own slot field already named the
+   village about to be loaded):
+
+     - the roster is bound to the villagers the verdict was reached against,
+       NOW, not at the first save: when the real village replaces them, the
+       roster shares nobody with it again, and the strike window reloads the
+       file -- which matches.  Left empty, the roster had no verdict to give
+       ("nothing recorded yet") and the real village was simply taken on;
+     - the per-frame snapshot is dropped, so the next frame's inference never
+       compares the village with the array the verdict was reached on (every
+       villager of the real village read as a new arrival and was wiped);
+     - another village's file is never replaced: it is moved aside before this
+       table's first write (vv1_parents_save). */
+static void vv1_parents_commit_new(int result, const unsigned char *records) {
+    vv1_parents_reset();
+    vv1_take_roster(records, g_roster);
+    g_have_prev = 0;
+    g_may_replace = 0;
+    g_other_aside = (result == VV1_LOAD_OTHER);
+}
+
 /* Make sure the table on hand belongs to the village on screen.  Returns
    the slot (1..5) when a village is identified, 0 when nothing is known.
    The table follows the slot; within a slot it follows the roster: while a
@@ -1256,6 +1345,7 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
             g_loaded_slot = slot;   /* the file is this village's: it is loaded */
             g_strikes = 0;
             g_may_replace = 1;
+            g_other_aside = 0;
             vv1_xc_prepare_fathers(slot, records);
             if (g_load_followed) {
                 vv1_parents_save(slot, records);   /* the followed table, written back */
@@ -1271,10 +1361,9 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
                not describe.  Commit to it with an empty table.  Another
                village's sound file is superseded (Start Over keeps the slot);
                with no file, a file that appears later is read, not replaced. */
-            vv1_parents_reset();
+            vv1_parents_commit_new(result, records);
             g_loaded_slot = slot;
             g_strikes = 0;
-            g_may_replace = (result == VV1_LOAD_OTHER);
             vv1_xc_prepare_fathers(slot, records);
             return slot;
         }
@@ -1291,24 +1380,41 @@ static int vv1_parents_sync_core(int slot, const unsigned char *records) {
     switch (vv1_roster_overlap(records, g_roster)) {
     case 0:
         g_have_prev = 0;
+        /* The file is asked at once, every frame of the window: when the
+           villagers on screen are the FILE's (the village the title screen's
+           seeded founders stood in for has loaded), it is taken now, before a
+           birth of the load's catch-up can find the village unknown.  Loading
+           is an attempt: anything but a match leaves the table as it is.  A
+           file that is there and cannot be read is asked again only a strike
+           window later, never every frame, and never committed over. */
+        if (g_blocked_wait > 0 && g_blocked_slot == slot) {
+            --g_blocked_wait;
+            return 0;
+        }
+        g_blocked_wait = 0;
+        result = vv1_parents_load(slot, records);
+        if (result == VV1_LOAD_MATCHED) {
+            g_strikes = 0;
+            g_may_replace = 1;
+            g_other_aside = 0;
+            vv1_xc_prepare_fathers(slot, records);
+            if (g_load_followed) {
+                vv1_parents_save(slot, records);
+            }
+            break;
+        }
+        if (result == VV1_LOAD_BLOCKED) {
+            /* The file cannot be read to tell whose it is: keep the table and
+               the file as they are, and ask again a strike window later. */
+            vv1_parents_blocked(slot);
+            return 0;
+        }
         if (++g_strikes < VV1_NEW_VILLAGE_STRIKES) {
             return 0;             /* unsettled: nobody touches the table */
         }
         g_strikes = 0;
-        result = vv1_parents_load(slot, records);
-        if (result == VV1_LOAD_BLOCKED) {
-            /* The file cannot be read to tell whose it is: keep the table and
-               the file as they are, and ask again a strike window later. */
-            return 0;
-        }
-        if (result != VV1_LOAD_MATCHED) {
-            vv1_parents_reset();  /* another village in this slot: start empty */
-        }
+        vv1_parents_commit_new(result, records);  /* another village in this slot: start empty */
         vv1_xc_prepare_fathers(slot, records);
-        g_may_replace = (result != VV1_LOAD_NONE);
-        if (result == VV1_LOAD_MATCHED && g_load_followed) {
-            vv1_parents_save(slot, records);
-        }
         break;
     case 1:
         g_strikes = 0;
@@ -1478,6 +1584,37 @@ static int vv1_tick_over(const unsigned char *records) {
         memset(g_idle, 0, sizeof(g_idle));   /* other villagers, or none settled yet: count afresh */
         vv1_take_baseline(records);   /* first sight: infer nothing */
         return 0;
+    }
+    /* A WHOLE OTHER ARRAY IS NOT A FRAME OF PLAY.  When not one villager of
+       the snapshot is still in their record -- same family scalar and gender,
+       and the same name or (a rename) an age that only moved on -- the game
+       has put another village in the array (a load, the title screen's
+       seeded founders replaced by the village chosen), and nothing can be
+       inferred from comparing the two: read as a frame, every villager of the
+       new array was a "new arrival" and had their parents wiped (the owner's
+       124, v1.35.67).  The snapshot is retaken and nothing changes. */
+    {
+        int had = 0, stayed = 0;
+        for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+            const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
+            int age = *(const int *)(rec + VV1_AGE_OFFSET);
+            if (!g_prev_occupied[i]) {
+                continue;
+            }
+            ++had;
+            if (rec[VV1_OCCUPIED_OFFSET]
+                && g_prev_variant[i] == *(const int *)(rec + VV1_VARIANT_OFFSET)
+                && g_prev_gender[i] == *(const int *)(rec + VV1_GENDER_OFFSET)
+                && (memcmp(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY) == 0
+                    || (age >= g_prev_age[i] && age - g_prev_age[i] <= VV1_UNITS_PER_YEAR))) {
+                ++stayed;
+            }
+        }
+        if (had > 0 && stayed == 0) {
+            memset(g_idle, 0, sizeof(g_idle));
+            vv1_take_baseline(records);
+            return 0;
+        }
     }
     /* Mothers who delivered this frame.  The signal is the due field
        (+0x358): non-zero for the whole pregnancy -- it is what the Details
