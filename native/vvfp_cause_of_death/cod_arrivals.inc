@@ -219,13 +219,21 @@ static void arrival_decide(int index) {
 static void arrival_write(int index) {
     const unsigned char *record = cod_record(index);
     char before[VV_ARRIVAL_BEFORE];
-    char after[96 + ARRIVAL_PARENTS];
+    char after[96 + 128 + ARRIVAL_PARENTS];
+    char own[128];
     if (record == NULL) {
         return;
     }
     wsprintfA(before, "  Age at arrival: %d\n  Sex: %s\n", arrivals[index].age,
               roster_sex(*(const int *)(record + REC[g_game].sex)));
-    wsprintfA(after, "  How: %s\n%s", arrivals[index].how, arrivals[index].parents);
+    /* A New Home keeps no parents on the record: the Show Parents companion's, where it knows them,
+       in the place the other games' exporter prints the record's own -- before "How:", and never
+       beside the Custom Island Event's chosen ones (cod_roster.inc vv1_parents_block). */
+    own[0] = '\0';
+    if (arrivals[index].parents[0] == '\0') {
+        vv1_parents_block(own, (int)sizeof own, index);
+    }
+    wsprintfA(after, "%s  How: %s\n%s", own, arrivals[index].how, arrivals[index].parents);
     COD_COUNT(arrivals);
     cod_write(LOG_ARRIVED, record, 1, before, after, 2);
 }

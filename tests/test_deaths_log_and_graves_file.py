@@ -114,8 +114,10 @@ class Harnesses(unittest.TestCase):
         self.assertIn("== 0 failure(s) ==", result.stdout)
         # 212, and 4 for an older build's "Deaths" beside "Deaths and Disappearances" (the owner,
         # 2026-10-09: old and new names alike): numbered after the highest in either folder; and 20 for
-        # "Lost before birth" (4 in each game).
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 236, result.stdout)
+        # "Lost before birth" (4 in each game); and 2 for two deaths in a row with both folders there (the
+        # owner's A New Home: four records all "Death 15").
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 238, result.stdout)
+        self.assertIn("  ok   numbered Death 6 and Death 7 after the older folder's Death 5, never Death 6 twice", result.stdout)
         self.assertIn("  ok   written in Deaths and Disappearances as Death 6, after the older folder's Death 5",
                       result.stdout)
         self.assertIn("  ok   the older folder's log is untouched", result.stdout)

@@ -244,6 +244,16 @@ class Vv1Fixture(unittest.TestCase):
         self.assertEqual(self.vcr1(game, v1_masked)[0][0], "UNCHECKED", "version 1 has no mask byte")
         short = good[:-1]
         self.assertEqual(self.vcr1(game, short)[0][0], "UNCHECKED")
+        # Version 3, A New Home's: each entry followed by the parents' names, 2 x char[32]
+        # (native/vvfp_cause_of_death/cod_roster.inc), so an Unaccounted record can name them.
+        named = lambda i, r, f, m: (masked(i, r, 0) + f.encode().ljust(32, b"\0") + m.encode().ljust(32, b"\0"))
+        v3 = struct.pack("<4sIIIIIII", b"VCR1", 3, 1, 2, lo, hi, 0, 0)
+        self.assertEqual(self.vcr1(game, v3 + named(0, 0, "Goro", "Aisha") + named(1, 1, "", ""))[0][0], "OK")
+        unended = masked(0, 0, 0) + b"G" * 32 + bytes(32)
+        self.assertEqual(self.vcr1(game, v3 + unended + named(1, 1, "", ""))[0][0], "UNCHECKED",
+                         "a parent's name that does not end inside its field")
+        self.assertEqual(self.vcr1(game, v3 + masked(0, 0, 0) + masked(1, 1, 0))[0][0], "UNCHECKED",
+                         "version 3 entries without the names")
 
     def test_a_statistics_roster_with_a_malformed_row_is_unchecked(self):
         game = self.build(drifted=False)

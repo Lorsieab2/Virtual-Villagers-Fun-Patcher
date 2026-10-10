@@ -33,6 +33,8 @@ SHARED = ROOT / "native" / "shared"
 # 7: Repair right after the quit save, every game; 0: the memorial at the load (VV1, VV2);
 # 8: Deaths logs in both the old and the new folder, every game (2 each).
 CHECKS = 106 + 8 * 5 + 2 + 2 * 5
+# + 1 per game: an older build's "Repairs" beside "Repairs Made" -- numbered after it (native/shared/repairs_log.h)
+CHECKS += 5
 
 
 def body(source: str, head: str) -> str:

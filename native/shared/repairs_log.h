@@ -174,7 +174,10 @@ static int vv_repairs_note(int game, const char *header, const char *checked, co
                 "%s"
                 "\r\n",
                 need_header ? header : "", need_header ? "\r\n" : "",
-                repairs + 1, now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond,
+                /* after an older build's "Repairs" folder's own file of the same number, as A New
+                   Home's parentage repair numbers it (vv1_crosscheck.inc; save_layout.h): never a
+                   second "Repair 1" beside the older folder's */
+                repairs + 1 + vv_layout_older_repairs(folder, game, number), now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond,
                 checked, body);
     file = CreateFileA(path, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file == INVALID_HANDLE_VALUE) {

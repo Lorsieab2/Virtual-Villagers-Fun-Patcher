@@ -63,6 +63,9 @@ CHECKS += 7 * 5
 # New Believers, 9 in A New Home (a village started long ago is a load), 2 in The Lost Children and
 # The Secret City (never asked).
 CHECKS += 8 * 2 + 9 + 2 * 2
+# + 3 per game: Unaccounted and Arrived records name the villager's own parents in every game -- A New
+# Home's from the Show Parents companion, kept in the roster file (arrival_harness.c parents_cases)
+CHECKS += 3 * 5
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

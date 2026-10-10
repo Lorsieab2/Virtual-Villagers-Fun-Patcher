@@ -572,6 +572,43 @@ int main(int argc, char **argv) {
         wipe(0);
     }
 
+    /* 9b: the owner's A New Home (v1.35.66): the older "Deaths" holds Death 1-5 and the new
+       folder only its header; two deaths in a row are Death 6 and Death 7 -- never two "Death 6"
+       (the count of the new folder's records, 1, is below the older folder's 5). */
+    printf("both Deaths folders, two deaths in a row\n");
+    {
+        char folder[MAX_PATH], path[MAX_PATH], body[2048];
+        const char *const names[2] = { "Deaths", "Deaths and Disappearances" };
+        int which, k, n;
+        FILE *f;
+        g = &LAYOUTS[2];
+        records = alloc_table(3);
+        villager(0, "Ana", 600, 3, 4);
+        villager(1, "Bo", 700, 5, 6);
+        load();
+        vv_village_publish(VILLAGE);
+        ensure_village(3, VILLAGE, records);
+        for (which = 0; which < 2; ++which) {
+            _snprintf(folder, MAX_PATH, "%s\\%s", logs, names[which]);
+            CreateDirectoryA(folder, NULL);
+            n = _snprintf(body, sizeof body, "Village: Harness Tribe (Save 1)\r\n");
+            for (k = 1; which == 0 && k <= 5; ++k) {
+                n += _snprintf(body + n, sizeof body - n, "Death %d\r\n  Name: Old%d\r\n\r\n", k, k);
+            }
+            _snprintf(path, MAX_PATH, "%s\\Virtual Villagers 3 Deaths Log 1.txt", folder);
+            f = fopen(path, "wb");
+            if (f != NULL) { fwrite(body, 1, strlen(body), f); fclose(f); }
+        }
+        CHECK(write_record(3, DEATH, rec(0), 1, UNBURIED, NULL, 1) == 1
+              && write_record(3, DEATH, rec(1), 1, UNBURIED, NULL, 1) == 1, "two deaths with both folders there");
+        CHECK(read_deaths(3, 1) && strstr(text, "Death 6\r\n  Name: Ana\r\n") != NULL
+              && strstr(text, "Death 7\r\n  Name: Bo\r\n") != NULL,
+              "numbered Death 6 and Death 7 after the older folder's Death 5, never Death 6 twice");
+        FreeLibrary(dll);
+        free_table(3);
+        wipe(0);
+    }
+
     /* 8: no cause-of-death companion, no Deaths or Unaccounted log. */
     printf("without VVFP Cause of Death.dll\n");
     stand_in("VVFP Cause of Death.dll", 0);

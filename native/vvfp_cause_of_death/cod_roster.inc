@@ -72,10 +72,19 @@
 #define ROSTER_MAGIC 0x31524356u          /* 'VCR1' */
 /* Version 2 keeps each villager's mask (0 none, 1..5 native/shared/mask_line.h) in the
    entry's first spare byte, so an Unaccounted record written from the snapshot names it
-   (Codex, #553); a version 1 file (those bytes 0) is still read. */
+   (Codex, #553); a version 1 file (those bytes 0) is still read.
+   Version 3, A New Home only: each entry is followed by the villager's own parents' names
+   (father char[32], mother char[32]) from the Show Parents companion's sidecar -- A New Home keeps
+   no parents on the record, so without them its Unaccounted record of a villager who left could
+   not carry the "Parents:" block The Lost Children to New Believers print from the record (the
+   owner, 2026-10-09: no game gets less information).  Versions 1 and 2 are still read (no
+   parents: none printed); the other games keep writing version 2. */
 #define ROSTER_VERSION 2u
+#define ROSTER_VERSION_VV1 3u
 #define ROSTER_HEADER 32u
 #define ROSTER_ENTRY_HEAD 16u
+#define ROSTER_PARENT_NAME 32u
+#define ROSTER_PARENTS (2u * ROSTER_PARENT_NAME)
 
 /* What the hooks reported since the last save, by record: the save slot
    the report was made in (REPORT_NONE: nothing; REPORT_EARLY: made before
@@ -134,12 +143,70 @@ static unsigned char *roster_scratch;         /* one record, rebuilt for the log
                  lo }
    Entries are in record order, one per occupied record that is a villager
    (living or a body; never a look-alike); both index and rank increase. */
+static unsigned int roster_write_version(void) {
+    return g_game == 1 ? ROSTER_VERSION_VV1 : ROSTER_VERSION;
+}
+
+/* An entry's size in a file of `version`: version 3 (A New Home) adds the parents' names. */
+static unsigned int roster_entry_size_of(unsigned int version) {
+    return ROSTER_ENTRY_HEAD + REC[g_game].snapshot_hi - REC[g_game].snapshot_lo
+         + (version >= ROSTER_VERSION_VV1 ? ROSTER_PARENTS : 0u);
+}
+
 static unsigned int roster_entry_size(void) {
-    return ROSTER_ENTRY_HEAD + REC[g_game].snapshot_hi - REC[g_game].snapshot_lo;
+    return roster_entry_size_of(roster_write_version());
 }
 
 static unsigned int roster_max_bytes(void) {
     return ROSTER_HEADER + REC[g_game].slots * roster_entry_size();
+}
+
+/* A New Home's villager's own parents, from the Show Parents companion ("VVFP VV1 Parentage.dll",
+   Vv1ParentageQueryNames, by record index): 1 when at least one is known.  Never for another game
+   (theirs are on the record), nor without the companion. */
+typedef int (__stdcall *vv1_parent_names_fn)(int index, char *father, char *mother, int capacity);
+static int vv1_parent_names(int index, char *father, char *mother, int capacity) {
+    HMODULE module;
+    vv1_parent_names_fn names;
+    father[0] = mother[0] = '\0';
+    if (g_game != 1 || index < 0 || capacity < 2) {
+        return 0;
+    }
+    module = GetModuleHandleA("VVFP VV1 Parentage.dll");
+    if (module == NULL) {
+        module = vvfp_load_patcher_dll("VVFP VV1 Parentage.dll");
+    }
+    names = module != NULL ? (vv1_parent_names_fn)GetProcAddress(module, "Vv1ParentageQueryNames") : NULL;
+    if (names == NULL || !names(index, father, mother, capacity)) {
+        father[0] = mother[0] = '\0';
+        return 0;
+    }
+    father[capacity - 1] = mother[capacity - 1] = '\0';
+    return father[0] != '\0' || mother[0] != '\0';
+}
+
+/* The "  Parents:" block exactly as the parentage exporter prints it from The Lost Children's to
+   New Believers' records (WriteVillageRecord, detail 2): names only, "(none)" for one not known;
+   empty when neither is. */
+static void roster_parents_block(char *out, int size, const char *father, const char *mother) {
+    out[0] = '\0';
+    if ((father == NULL || father[0] == '\0') && (mother == NULL || mother[0] == '\0')) {
+        return;
+    }
+    wsprintfA(out, "  Parents:\n    Father: %.31s\n    Mother: %.31s\n",
+              father != NULL && father[0] != '\0' ? father : "(none)",
+              mother != NULL && mother[0] != '\0' ? mother : "(none)");
+    (void)size;
+}
+
+/* The block for A New Home's live record `index` (empty for the other games, whose exporter prints
+   it from the record itself). */
+static void vv1_parents_block(char *out, int size, int index) {
+    char father[ROSTER_PARENT_NAME], mother[ROSTER_PARENT_NAME];
+    out[0] = '\0';
+    if (vv1_parent_names(index, father, mother, (int)ROSTER_PARENT_NAME)) {
+        roster_parents_block(out, size, father, mother);
+    }
 }
 
 static int roster_validate(const unsigned char *data, DWORD length, void *context) {
@@ -155,16 +222,22 @@ static int roster_validate(const unsigned char *data, DWORD length, void *contex
     count = *(const unsigned int *)(data + 12);
     version = *(const unsigned int *)(data + 4);
     if (*(const unsigned int *)data != ROSTER_MAGIC
-        || (version != 1u && version != ROSTER_VERSION)
+        || (version != 1u && version != ROSTER_VERSION && !(g_game == 1 && version == ROSTER_VERSION_VV1))
         || *(const unsigned int *)(data + 8) != (unsigned int)g_game
         || *(const unsigned int *)(data + 16) != REC[g_game].snapshot_lo
         || *(const unsigned int *)(data + 20) != REC[g_game].snapshot_hi
         || count > REC[g_game].slots
-        || length != ROSTER_HEADER + count * roster_entry_size()) {
+        || length != ROSTER_HEADER + count * roster_entry_size_of(version)) {
         return 0;
     }
     for (i = 0; i < count; ++i) {
-        const unsigned char *e = data + ROSTER_HEADER + i * roster_entry_size();
+        const unsigned char *e = data + ROSTER_HEADER + i * roster_entry_size_of(version);
+        if (version >= ROSTER_VERSION_VV1) {
+            const unsigned char *names = e + roster_entry_size_of(version) - ROSTER_PARENTS;
+            if (names[ROSTER_PARENT_NAME - 1] != 0 || names[ROSTER_PARENTS - 1] != 0) {
+                return 0;             /* each name ends inside its field */
+            }
+        }
         unsigned int index = (unsigned int)(e[0] | e[1] << 8);
         unsigned int rank = (unsigned int)(e[2] | e[3] << 8);
         if (index >= REC[g_game].slots || rank > index || (i > 0 && index <= previous)
@@ -238,11 +311,13 @@ static const char *roster_sex(int value) {
 
 /* "Unaccounted <n>" for a villager last seen in a save (`kept`, rebuilt into
    a scratch record) or found now (`live`). */
+/* `parents` is A New Home's "  Parents:" block (roster_parents_block), or "" -- the other games'
+   exporter prints it from the record itself. */
 static void roster_log(const unsigned char *record, int live, int index, const char *kind,
-                       const char *last_seen, const char *now, int mask) {
+                       const char *last_seen, const char *now, int mask, const char *parents) {
     char before[512];
     char masked[48];
-    char after[160];
+    char after[160 + 128];
     char extra[96];
     int pregnant = REC[g_game].pregnant != 0u && *(const int *)(record + REC[g_game].pregnant) != 0;
     extra[0] = '\0';
@@ -267,7 +342,8 @@ static void roster_log(const unsigned char *record, int live, int index, const c
     wsprintfA(before, "%s  What: %s\n  Age: %d\n  Sex: %s\n  Health: %d\n%s",
               masked, kind, rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)),
               rec_health(record), extra);
-    wsprintfA(after, "  Record: %d\n  Last seen: %s\n  Found: %s\n", index, last_seen, now);
+    wsprintfA(after, "%s  Record: %d\n  Last seen: %s\n  Found: %s\n", parents != NULL ? parents : "", index,
+              last_seen, now);
     COD_COUNT(unaccounted);
     cod_write(LOG_UNACCOUNTED, record, live, before, after, 2);
 }
@@ -301,6 +377,7 @@ static void roster_reconcile(int slot) {
     unsigned char *records = cod_records();
     const struct game_records *r = &REC[g_game];
     unsigned int size = roster_entry_size();
+    unsigned int read_version = 0;
     unsigned int span = r->snapshot_hi - r->snapshot_lo;
     DWORD length = 0;
     int result;
@@ -348,6 +425,9 @@ static void roster_reconcile(int slot) {
     memset((void *)kept, 0, sizeof kept);
     if (have_previous) {
         unsigned int n = *(const unsigned int *)(roster_buffer + 12);
+        /* The kept file's own entry size (version 3 keeps A New Home's parents). */
+        read_version = *(const unsigned int *)(roster_buffer + 4);
+        size = roster_entry_size_of(read_version);
         kept_count = n;
         int by_record = 0;
         int by_rank = 0;
@@ -408,14 +488,23 @@ static void roster_reconcile(int slot) {
                    hook saw: the load-time catch-up; cod_backfill.inc). */
                 if ((!present || !same) && !report_counts(departed[i], slot)
                     && !backfill_accounts_for(roster_scratch)) {
+                    char parents[128];
+                    parents[0] = '\0';
+                    if (read_version >= ROSTER_VERSION_VV1) {
+                        /* A New Home: the parents the snapshot kept beside the record. */
+                        const char *names = (const char *)kept[i] + size - ROSTER_PARENTS;
+                        roster_parents_block(parents, (int)sizeof parents, names, names + ROSTER_PARENT_NAME);
+                    }
                     roster_log(roster_scratch, 0, (int)i,
                                "Left the village with no Death or Disappeared record", last_seen, now,
-                               kept[i][4]);
+                               kept[i][4], parents);
                 }
             }
             if (present && (kept[i] == NULL || !same) && !report_counts(arrived[i], slot)) {
+                char parents[128];
+                vv1_parents_block(parents, (int)sizeof parents, (int)i);
                 roster_log(now_record, 1, (int)i,
-                           "Arrived with no Birth record or known arrival", "(never before)", now, 0);
+                           "Arrived with no Birth record or known arrival", "(never before)", now, 0, parents);
             }
         }
     }
@@ -432,8 +521,8 @@ static void roster_reconcile(int slot) {
         if (!roster_member(record)) {
             continue;
         }
-        e = roster_buffer + roster_max_bytes() + ROSTER_HEADER + count * size;
-        memset(e, 0, ROSTER_ENTRY_HEAD);
+        e = roster_buffer + roster_max_bytes() + ROSTER_HEADER + count * roster_entry_size();
+        memset(e, 0, roster_entry_size());
         e[0] = (unsigned char)(i & 0xFF);
         e[1] = (unsigned char)(i >> 8);
         e[2] = (unsigned char)((rank - 1) & 0xFF);
@@ -441,6 +530,11 @@ static void roster_reconcile(int slot) {
         e[4] = (unsigned char)vv_mask_value(g_game, record);
         memcpy(e + 8, stamp, sizeof stamp);
         memcpy(e + ROSTER_ENTRY_HEAD, record + r->snapshot_lo, span);
+        if (roster_write_version() >= ROSTER_VERSION_VV1) {
+            /* A New Home: the villager's own parents, for a record of them should they leave unseen. */
+            char *names = (char *)e + ROSTER_ENTRY_HEAD + span;
+            (void)vv1_parent_names((int)i, names, names + ROSTER_PARENT_NAME, (int)ROSTER_PARENT_NAME);
+        }
         ++count;
     }
     {
@@ -449,13 +543,13 @@ static void roster_reconcile(int slot) {
         DWORD sizes[1];
         memset(head, 0, ROSTER_HEADER);
         ((unsigned int *)head)[0] = ROSTER_MAGIC;
-        ((unsigned int *)head)[1] = ROSTER_VERSION;
+        ((unsigned int *)head)[1] = roster_write_version();
         ((unsigned int *)head)[2] = (unsigned int)g_game;
         ((unsigned int *)head)[3] = count;
         ((unsigned int *)head)[4] = r->snapshot_lo;
         ((unsigned int *)head)[5] = r->snapshot_hi;
         parts[0] = head;
-        sizes[0] = ROSTER_HEADER + count * size;
+        sizes[0] = ROSTER_HEADER + count * roster_entry_size();
         if (vv_sidecar_publish(&roster.gate, roster.path, parts, sizes, 1)) {
             for (i = 0; i < r->slots; ++i) {
                 if (report_counts(departed[i], slot)) {

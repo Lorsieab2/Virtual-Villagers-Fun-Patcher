@@ -1662,17 +1662,58 @@ static int highest_log_number(const wchar_t *stem,
    continues after the highest in EITHER folder rather than restarting at "Death 1" beside the
    older folder's own (the owner, 2026-10-09: "recognize old and new paths/folders/files alike").
    0 when only one folder is used.  The older folder is only read, never made or moved. */
+/* The highest "Death <n>" number printed in one folder's Deaths logs (0 when none). */
+static int deaths_highest_number(const wchar_t *folder, const wchar_t *stem) {
+    wchar_t path[MAX_LOG_PATH];
+    char line[512];
+    int ceiling, number, highest = 0;
+    ceiling = highest_log_number(stem, folder);
+    for (number = 1; number <= ceiling && number <= 4096; ++number) {
+        FILE *file;
+        if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\%ls %d.txt", folder, stem, number) < 0) {
+            continue;
+        }
+        file = _wfopen(path, L"rb");
+        if (file == NULL) {
+            continue;
+        }
+        while (fgets(line, (int)sizeof(line), file) != NULL) {
+            if (strncmp(line, "Death ", 6) == 0 && line[6] >= '0' && line[6] <= '9') {
+                long n = strtol(line + 6, NULL, 10);
+                if (n > highest && n < 0x7FFFFFFEL) {
+                    highest = (int)n;
+                }
+            }
+        }
+        fclose(file);
+    }
+    return highest;
+}
+
+/* What the next Death record's number must follow.  The record COUNT alone is not enough when an
+   older build's "Deaths" folder sits beside "Deaths and Disappearances": counting the new folder's
+   records and taking the larger of that and the older folder's count gave every record after the
+   first the same number (the owner's A New Home, v1.35.66: four records all "Death 15" after the
+   older folder's Death 1-14).  So the HIGHEST NUMBER PRINTED in either folder counts too: Death 1-5
+   in the old and 1-3 in the new still gives Death 6, and old 1-14 with new 15 gives Death 16. */
 static int older_deaths_total(const struct game_layout *g) {
     wchar_t root[MAX_PATH], folder[MAX_PATH], path[MAX_LOG_PATH];
     const wchar_t *stem = family_stem(g, LOG_DEATHS);
-    int ceiling, number, total = 0;
-    if (stem == NULL || !vv_save_folder_w(root, 64)
-        || lstrcmpiW(deaths_folder(), VV_DEATHS_LOGS_DIR) != 0) {
-        return 0;               /* writing into the older folder: its records are the ones counted */
+    int ceiling, number, total = 0, highest;
+    if (stem == NULL || !vv_save_folder_w(root, 64)) {
+        return 0;
+    }
+    /* The folder written into: its own highest number (its count is the caller's). */
+    if (_snwprintf_s(folder, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, deaths_folder()) < 0) {
+        return 0;
+    }
+    highest = deaths_highest_number(folder, stem);
+    if (lstrcmpiW(deaths_folder(), VV_DEATHS_LOGS_DIR) != 0) {
+        return highest;         /* writing into the older folder: its records are the ones counted */
     }
     if (_snwprintf_s(folder, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, VV_DEATHS_LOGS_OLD) < 0
         || vv_layout_probe_w(folder, NULL) != VV_LAYOUT_DIR) {
-        return 0;
+        return highest;
     }
     ceiling = highest_log_number(stem, folder);
     for (number = 1; number <= ceiling && number <= 4096; ++number) {
@@ -1683,7 +1724,11 @@ static int older_deaths_total(const struct game_layout *g) {
             total += count_family_records(path, LOG_DEATHS);
         }
     }
-    return total;
+    if (total > highest) {
+        highest = total;
+    }
+    number = deaths_highest_number(folder, stem);
+    return number > highest ? number : highest;
 }
 
 /* Choose the file to append to: the highest-numbered existing file that is not
@@ -2766,7 +2811,8 @@ static int append_record(
     }
     if (kind == KIND_DEATH) {
         /* With an older build's "Deaths" beside "Deaths and Disappearances", the number follows
-           the highest in EITHER folder (Death 1-5 in the old and 1-3 in the new: Death 6); the
+           the highest in EITHER folder (Death 1-5 in the old and 1-3 in the new: Death 6; old
+           1-14 and new 15: Death 16), never only the count of the folder written into; the
            record is still written where select_family_log_file chose. */
         int older = older_deaths_total(g);
         if (older > existing_records) {
