@@ -6199,7 +6199,7 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             top_y = moved(0, y + NODE_H / 2 + 4 - 12 * own)[1]
             foot_y = moved(0, y + NODE_H / 2 + 4 + (len(texts) - 1) * 15 * own + 4 * own)[1]
             block = (middle[0] - wide / 2 - TEXT_MARGIN, top_y - 2, middle[0] + wide / 2 + TEXT_MARGIN, foot_y + 2)
-            dx, dy, shrink = face_anchor(kind, (fx, fy, fw, fh, angle), lay.frame_points(p.id), [block], block)
+            dx, dy, shrink = face_anchor(kind, (fx, fy, fw, fh, angle), lay.frame_points(p.id), [block], block, keep=False)
             pivot, shift = ((block[0] + block[2]) / 2, (block[1] + block[3]) / 2), (dx, dy)
         for k, text in enumerate(texts):
             size = (12 if k == 0 else 11) * own * scale * shrink
@@ -6394,17 +6394,19 @@ def _cells_inside(grid: tuple, x0: float, y0: float, x1: float, y1: float) -> tu
 
 
 def face_anchor(kind: str, frame: tuple, points: list, bands: list, words: tuple,
-                words_need: float = 0.0) -> tuple[float, float, float]:
+                words_need: float = 0.0, keep: bool = True) -> tuple[float, float, float]:
     """How far (dx, dy) a portrait's face and words move, and how much smaller (a factor) they are made, so
     the face is inside its shape's outline and the words as much inside as can be: (0, 0, 1) when the face
     already is -- a shape whose middle holds it never moves.  `bands` are the face's visible pixels as boxes
     (face_bands) and `words` the words' box (left, top, right, bottom), as drawn; `points` the outline
-    (turned and flipped as drawn).  Worked out once for each shape, size and turn."""
+    (turned and flipped as drawn).  `words_need`: the share of the words' box that must be inside too
+    (words kept inside the shape); `keep`: a FACE_KEPT shape's face left where it is.  Worked out once for
+    each shape, size and turn."""
     x, y, w, h, angle = frame
     cx, cy = x + w / 2, y + h / 2
     bands = [(b[0] - cx, b[1] - cy, b[2] - cx, b[3] - cy) for b in bands]
     wx0, wy0, wx1, wy1 = (words[0] - cx, words[1] - cy, words[2] - cx, words[3] - cy)
-    key = (kind, round(w, 1), round(h, 1), round(angle, 1), words_need, tuple(round(v, 1) for b in bands for v in b),
+    key = (kind, round(w, 1), round(h, 1), round(angle, 1), words_need, keep, tuple(round(v, 1) for b in bands for v in b),
            round(wx0, 1), round(wy0, 1), round(wx1, 1), round(wy1, 1))
     if key in _ANCHORS:
         return _ANCHORS[key]
@@ -6417,7 +6419,7 @@ def face_anchor(kind: str, frame: tuple, points: list, bands: list, words: tuple
         x0, y0, x1, y1 = b
         return (all(inside(rel, px, py) for px in (x0 + 0.5, (x0 + x1) / 2, x1 - 0.5) for py in (y0 + 0.25, y1 - 0.25))
                 and not any(x0 + 0.5 < px < x1 - 0.5 and y0 + 0.25 < py < y1 - 0.25 for px, py in rel))
-    if base_kind(kind) in FACE_KEPT or all(held(b) for b in bands):
+    if keep and base_kind(kind) in FACE_KEPT or all(held(b) for b in bands):
         out = (0.0, 0.0, 1.0)
     else:
         cell = max(0.75, min(w, h) / 90)
@@ -6505,15 +6507,6 @@ def _line_span(points: list, top: float, foot: float, x: float, wide: float) -> 
                 if best is None or here > best[0]:
                     best = (here, (a, b))
     return best[1] if best else None
-
-
-def _span_about(points: list[tuple[float, float]], y: float, x: float) -> tuple[float, float] | None:
-    """Where the shape these corners outline begins and ends at height `y`, about `x` (None when `x` is
-    beyond it there)."""
-    xs = sorted(ax + (y - ay) * (bx - ax) / (by - ay)
-                for (ax, ay), (bx, by) in zip(points, points[1:] + points[:1]) if (ay > y) != (by > y))
-    # Its outermost edges: a leaf's slits and a paw's gaps are counted as the shape, as its width (_chord) is.
-    return (xs[0], xs[-1]) if len(xs) >= 2 and xs[0] <= x <= xs[-1] else None
 
 
 def _svg_opacity(item) -> str:

@@ -126,12 +126,12 @@ class WordWidthTests(unittest.TestCase):
                 if isinstance(item, ft.Text) and item.role in ("names", "portraits") and item.pid in lay.x and item.text:
                     w = ft.text_width(item.text, item.size, item.bold)
                     left = item.x - w / 2
+                    m = ft.TEXT_MARGIN - 1.5
                     for at_y in (item.y - item.size * 0.7, item.y):
-                        span = ft._span_about(lay.frame_points(item.pid), at_y, item.x)
+                        held = [(a, b) for a, b in ft._stretches(lay.frame_points(item.pid), at_y)
+                                if a <= left - m and left + w + m <= b]
                         with self.subTest(shape=shape, text=item.text):
-                            self.assertIsNotNone(span)
-                            self.assertGreaterEqual(left - span[0], ft.TEXT_MARGIN - 1.5)
-                            self.assertGreaterEqual(span[1] - left - w, ft.TEXT_MARGIN - 1.5)
+                            self.assertTrue(held, "the line a little inside one stretch of the shape")
 
     def test_words_never_pass_the_frame(self):
         v = owner_village()
