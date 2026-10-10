@@ -52,6 +52,11 @@
         the Birth records from the save (The Lost Children on; nothing in A
         New Home); a second call writes nothing.
 
+     6. A new village's founders seeded before the village has its slot (a
+        stale slot from the host), with and without an empty creation save
+        before them, get "How: Founder" at the first save holding them and
+        are never Unaccounted; a load over a seeding writes nothing.
+
    Usage:  arrival_harness.exe "<parentage dll>" "<cause of death test dll>" "<save reset dll>"
    Exit code 0 when every check passes. */
 #include <windows.h>
@@ -631,6 +636,74 @@ static void quit_cases(void) {
     free(buffer);
 }
 
+/* 6: a new village's founders are seeded before the game gives the village
+   its slot (live, The Lost Children with a fresh profile: the host said 5,
+   the village was saved in 1), and The Tree of Life and New Believers save
+   the new village once before its founders are chosen (an empty roster).
+   The founders still get "How: Founder" at the first save that holds them;
+   a load that replaces a seeded village (a roster with villagers) writes
+   nothing; and nobody is Unaccounted. */
+static void stale_slot_cases(void) {
+    char path[MAX_PATH], unacc[MAX_PATH];
+    unsigned char *buffer;
+    int i, empty_first;
+    for (empty_first = 0; empty_first <= 1; ++empty_first) {
+        reset(game, 1);
+        vv_reset_slot_state(game, 1, VILLAGE);
+        clean();
+        for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+        write_save_file();
+        vv_village_publish("");
+        buffer = save_buffer("Arrival Tribe");
+        births_path(1, path);
+        unaccounted_path(unacc);
+        if (empty_first) {
+            save_done(1, buffer);             /* the creation save, before the founders */
+        }
+        host_slot_value = 5;                  /* the stale slot at the seeding */
+        villager(0, "Staleone", 400, 1, 1, 0);
+        created(0, MARK[game - 1].founder);
+        villager(1, "Staletwo", 420, 2, 1, 0);
+        created(1, MARK[game - 1].founder);
+        /* The owner: 0 is a valid head, body and age in every game. */
+        villager(3, "Zerozero", 0, 0, 0, 0);
+        created(3, MARK[game - 1].founder);
+        arrival_tick();
+        host_slot_value = 1;
+        arrival_tick();
+        save_done(1, buffer);
+        read_into(path);
+        CHECK(record_has("Staleone", "  How: Founder\r\n") && record_has("Staletwo", "  How: Founder\r\n")
+              && count_of(text, "  Name: Staleone\r\n") == 1,
+              "stale slot%s: the founders seeded before the village had its slot get \"How: Founder\" at its"
+              " first save", empty_first ? ", after an empty creation save" : "");
+        CHECK(record_has("Zerozero", "  Age at arrival: 0\r\n") && record_has("Zerozero", "  Head: 0\r\n  Body: 0\r\n")
+              && record_has("Zerozero", "  How: Founder\r\n"),
+              "stale slot%s: a founder with head 0, body 0 and age 0 is a founder like any other",
+              empty_first ? ", after an empty creation save" : "");
+        read_into(unacc);
+        CHECK(strstr(text, "Stale") == NULL && strstr(text, "Zerozero") == NULL, "stale slot%s: ...and neither is Unaccounted",
+              empty_first ? ", after an empty creation save" : "");
+        /* A seeding a load then replaces, in a village saved before with
+           villagers in it: nothing. */
+        host_slot_value = 5;
+        villager(2, "Seedling", 300, 3, 1, 0);
+        created(2, MARK[game - 1].founder);
+        host_slot_value = 1;
+        villager(2, "Loadedin", 900, 3, 2, 0);   /* the load's villager in that record */
+        arrival_tick();
+        save_done(1, buffer);
+        read_into(path);
+        CHECK(strstr(text, "Seedling") == NULL && strstr(text, "  Name: Loadedin\r\n") == NULL,
+              "stale slot%s: a load over a seeding, in a village saved before, writes no Founder",
+              empty_first ? ", after an empty creation save" : "");
+        for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+        free(buffer);
+    }
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+}
+
 static void births_cases(void) {
     char path[MAX_PATH], marker[MAX_PATH], unacc[MAX_PATH], before_log[1 << 13];
     unsigned char *buffer;
@@ -1100,6 +1173,7 @@ int main(int argc, char **argv) {
 
         births_cases();
         quit_cases();
+        stale_slot_cases();
         if (game == 5) {
             /* Another village loaded (another slot): a Heathen in this
                village's record and a believer in the same record of the

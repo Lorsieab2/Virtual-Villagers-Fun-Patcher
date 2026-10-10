@@ -1037,6 +1037,14 @@ static int write_villager(
             return 0;
         }
     }
+    /* New Believers' Heathens are in the same records as the believers: the
+       faction byte +0x1CEC, worded as the Unaccounted record words it
+       (cod_roster.inc), so a blue, red or orange Heathen never reads as a
+       believer (and Repair's Village Elders backfill can leave them out). */
+    if (game_id == GAME_VV5
+        && fprintf(file, "  Faction: %s\n", record[VV5_FACTION] != 0 ? "Heathen" : "Believer") < 0) {
+        return 0;
+    }
     if (fprintf(file, "  Head: %d\n", *(const int *)(record + g->head)) < 0) {
         return 0;
     }

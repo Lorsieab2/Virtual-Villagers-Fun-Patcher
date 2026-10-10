@@ -3,7 +3,7 @@
 The owner (2026-10-06): Check Saves & Logs and Repair Saves & Logs ask the player whether to
 add, retroactively, what records written by an older patcher lack -- the Sex
 line, the Special villager title, the Custom title, the Mask, Twin / Triplet
--- and "CHECK ALL SAVES, DAT FILES AND EXES. IF EVER UNSURE, ASK THE PLAYER".
+(and, since, New Believers' Faction line) -- and "CHECK ALL SAVES, DAT FILES AND EXES. IF EVER UNSURE, ASK THE PLAYER".
 
 So every kind is planned from what the save, the patcher's own files and the
 logs themselves settle, and whatever they cannot settle becomes a Question the
@@ -44,10 +44,14 @@ CHECKED = {
     "golden": "the Golden Child's Arrived records, against the pregnancies with no Birth and the player's answers",
     "appearance": "the villagers whose look changed with no Appearance changed record, against the save, the "
                   "logs and the player's answers",
+    "faction": "New Believers' older Village History and Village Population records with no Faction line, "
+               "against each record's own title, the latest Village Population page, the conversions and "
+               "departures to the Heathens the logs record, and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
-         "appearance": "Appearance changed record added"}
+         "appearance": "Appearance changed record added",
+         "faction": "Faction added"}
 FROM_NOW = "Only from now on (add nothing)"
 
 # The order the lines take under a villager's name (as the exporters print them).
@@ -693,6 +697,115 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
     return kind
 
 
+HEATHEN_ROLES = ("Heathen Doctor", "Heathen Chief", "Heathen Master Scientist", "Heathen Master Builder",
+                 "Heathen Master Farmer", "Heathen Mommy")
+CONVERTED = "Converted from the Heathens"
+# A Birth record's heading: "Birth", or "Birth <n>" once every game numbers them (the shared
+# reader is scripts/vvfp_consistency_check.py is_birth_heading on feat/numbered-births).
+BIRTH_HEADING = re.compile(r"^Birth( \d+)?$")
+# ...and the Arrived and Disappeared records' headings, numbered or not, the same way.
+ARRIVED_HEADING = re.compile(r"^Arrived( \d+)?$")
+DISAPPEARED_HEADING = re.compile(r"^Disappeared( \d+)?$")
+LEFT_FOR_THE_HEATHENS = "Left the tribe: became a Heathen"
+
+
+def _faction_of_title(title: str | None) -> str | None:
+    """What a record's own Special villager line says of its faction then: a Heathen role title is
+    only ever a current Heathen's, a former Heathen's titles only a believer's
+    (native/shared/special_title.h)."""
+    if title in HEATHEN_ROLES:
+        return "Heathen"
+    if title and (title.startswith("Former Heathen") or title == "Retired Heathen Chief"):
+        return "Believer"
+    return None
+
+
+def _faction_events(folder: Path, game: int, slot: int) -> tuple[set, set, set]:
+    """Who the logs say converted from the Heathens (Arrived "How: Converted from the Heathens"),
+    left for the Heathens (Disappeared "Left the tribe: became a Heathen"), and came as a believer
+    (a Birth's child, any other Arrived record): sets of (name, head, body)."""
+    checker = tools.load_checker()
+    converted, left, believer = set(), set(), set()
+    villages = current_villages(folder, game, slot)
+    for path in checker.log_files(folder):
+        for b in blocks(path):
+            if not b.of(slot, game, villages):
+                continue
+            if ARRIVED_HEADING.match(b.heading):
+                (converted if b.value("How") == CONVERTED else believer).add(b.identity)
+            elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") == LEFT_FOR_THE_HEATHENS:
+                left.add(b.identity)
+            elif BIRTH_HEADING.match(b.heading):
+                child = _sub_identity(b, "Child")
+                if child:
+                    believer.add(child)
+    return converted, left, believer
+
+
+def plan_faction(folder: Path, game: int, slot: int, people: list[Block], current: dict) -> Kind:
+    """New Believers' Faction line ("Faction: Heathen" / "Faction: Believer", as
+    native/population_export/population_export.c writes it) in older Village History and Village
+    Population records.  Decided: the record's own Special villager title (a Heathen role, or a
+    former Heathen's title), and a villager whose faction the latest Village Population page gives
+    and whom no record shows changing sides (never converted, never left for the Heathens; a
+    Heathen now who never came as a believer).  Asked: everyone else -- a faction change the logs
+    cannot date, or a villager no longer in the village."""
+    kind = Kind("faction", "Faction (Heathen or Believer) in older New Believers records")
+    if game != 5:
+        return kind
+    converted, left, believer = _faction_events(folder, game, slot)
+    persons = _persons(current)
+    asked: dict[tuple, list[Block]] = {}
+    for b in people:
+        if not b.heading.startswith("Villager ") or b.value("Faction") is not None or b.value("Name") is None:
+            continue
+        own = _faction_of_title(b.value("Special villager"))
+        mine = _now_of(b, current, persons)
+        now = current.get(mine).value("Faction") if mine is not None else None
+        who = mine if mine is not None else b.identity
+        changed = who in converted or who in left or b.identity in converted or b.identity in left
+        value = own
+        if value is None and now is not None and not changed:
+            if now == "Believer" or (who not in believer and b.identity not in believer):
+                value = now
+        if value is None:
+            asked.setdefault(who, []).append(b)
+            continue
+        kind.inserts.append(Insert(b.path, _faction_after(b), RANK_FACTION, line=f"  Faction: {value}"))
+    for who, older in asked.items():
+        dates = sorted({b.date for b in older if b.date})
+        name = older[0].value("Name")
+        options = ["Believer in every one of them", "Heathen in every one of them"]
+        options += [f"Heathen from {d}, a believer before" for d in dates[1:]]
+        options += [f"Believer from {d}, a Heathen before" for d in dates[1:]]
+        options.append(DONT_KNOW)
+        key = f"faction|{who}"
+        kind.questions[key] = Question(
+            key, f"Was {name} a Heathen or a believer in the older Village History and Village Population "
+                 f"records? (No record settles it.)", options, DONT_KNOW)
+        for b in older:
+            answers = {"Believer in every one of them": "  Faction: Believer",
+                       "Heathen in every one of them": "  Faction: Heathen"}
+            for d in dates[1:]:
+                before = bool(b.date) and b.date < d
+                answers[f"Heathen from {d}, a believer before"] = f"  Faction: {'Believer' if before else 'Heathen'}"
+                answers[f"Believer from {d}, a Heathen before"] = f"  Faction: {'Heathen' if before else 'Believer'}"
+            kind.inserts.append(Insert(b.path, _faction_after(b), RANK_FACTION, question=key, by_answer=answers))
+    return kind
+
+
+# After the Sex line (and the Sex line an older record is given, rank 0, first).
+RANK_FACTION = 5
+
+
+def _faction_after(b: Block) -> int:
+    for label in ("Sex", "Age"):
+        k = b.index_of(label)
+        if k is not None:
+            return k
+    return _after_name(b, "mask")
+
+
 def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     """Everything older records of this slot's village lack, kind by kind.  Reads only."""
     folder = Path(folder)
@@ -706,6 +819,7 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_born_as(folder, game, slot),
         plan_golden(folder, game, slot),
         plan_appearance(folder, game, slot),
+        plan_faction(folder, game, slot, people, current),
     ]
     return kinds
 

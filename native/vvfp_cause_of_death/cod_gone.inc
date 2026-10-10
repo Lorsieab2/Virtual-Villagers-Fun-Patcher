@@ -174,14 +174,19 @@ static void seen_tick(void) {
 
 /* The Story / Cheat Upgrades companion's Custom Island Event: called right
    after its "Disappears" took the villager in record `index` (the record
-   still holds them; only the presence byte is cleared). */
+   still holds them; only the presence byte is cleared).  The Tree of Life's
+   "Disappears" is The Sealed Box's own (story_c4.inc c4_vanish): health 0
+   first, then the presence byte, so there the health is not asked (as the
+   Sealed Box's hook above does not ask it); the companion calls this only
+   for a villager it listed alive. */
 __declspec(dllexport) void __stdcall VvfpCauseVanished(int game, int index) {
     unsigned char *record;
     if (install_state != 1 || game != g_game) {
         return;
     }
     record = cod_record(index);
-    if (record != NULL && !rec_present(record) && rec_health(record) > 0 && cod_is_villager(record)) {
+    if (record != NULL && !rec_present(record) && (g_game == 4 || rec_health(record) > 0)
+        && cod_is_villager(record)) {
         cod_log_gone(record, "Disappeared in a custom island event");
     }
 }

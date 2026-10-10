@@ -29,10 +29,10 @@ BUILD = ROOT / "scripts" / "build_reconcile_harness.ps1"
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Statistics Export.test.dll"
 STATS = ROOT / "native" / "statistics_export"
 SHARED = ROOT / "native" / "shared"
-# 101 checks across the five games (19 to 22 each).
+# 106 checks across the five games (19 to 25 each; New Believers' elders since the History's Faction line).
 # 7: Repair right after the quit save, every game; 0: the memorial at the load (VV1, VV2);
 # 8: Deaths logs in both the old and the new folder, every game (2 each).
-CHECKS = 101 + 8 * 5 + 2 + 2 * 5
+CHECKS = 106 + 8 * 5 + 2 + 2 * 5
 
 
 def body(source: str, head: str) -> str:
@@ -84,8 +84,19 @@ class ReconcileSource(unittest.TestCase):
     def test_heathens_and_the_lost_children_are_never_given_history_elders(self):
         source = (STATS / "statistics_reconcile.inc").read_text(encoding="utf-8")
         plan = body(source, "static void rc_make_plan(")
-        self.assertIn("if (game == GAME_VV1 || game == GAME_VV3 || game == GAME_VV4) {", plan)
+        self.assertIn("if (game == GAME_VV1 || game == GAME_VV3 || game == GAME_VV4 || game == GAME_VV5) {", plan)
         self.assertIn("h.master = game == GAME_VV1 ? 90 : 88;", plan)
+        # New Believers: only a snapshot's "Faction: Believer" villager (Heathens never count).
+        counted = body(source, "static int rc_counted(")
+        self.assertIn("return skills > 0 && (h->game != GAME_VV5 || faction == 1);", counted)
+        visit = body(source, "static void rc_visit_history(")
+        self.assertIn('strcmp(line, "  Faction: Believer") == 0', visit)
+        self.assertEqual(visit.count("rc_counted(h, skills, faction)"), 2)
+        # ...the line the History and Population records carry, worded as the Unaccounted record's.
+        exporter = (ROOT / "native" / "population_export" / "population_export.c").read_text(encoding="utf-8")
+        self.assertIn('fprintf(file, "  Faction: %s\\n", record[VV5_FACTION] != 0 ? "Heathen" : "Believer")', exporter)
+        roster = (ROOT / "native" / "vvfp_cause_of_death" / "cod_roster.inc").read_text(encoding="utf-8")
+        self.assertIn('"  Faction: Heathen\\n" : "  Faction: Believer\\n"', roster)
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")

@@ -547,7 +547,7 @@ def numbered_records(game_dir: Path, folder: str, stem: str, marker: str, slot: 
 def snapshot_villagers(text: str) -> list[dict]:
     out = []
     for block in re.split(r"\n(?=Villager \d+\n)", text)[1:]:
-        v = {"name": "", "head": None, "body": None, "skills": [], "title": None}
+        v = {"name": "", "head": None, "body": None, "skills": [], "title": None, "faction": None}
         m = re.search(r"\n  Name: (.*)", block)
         if m:
             v["name"] = m.group(1).strip()
@@ -559,6 +559,9 @@ def snapshot_villagers(text: str) -> list[dict]:
         m = re.search(r"\n  Custom title: (.*)", block)
         if m:
             v["title"] = m.group(1).strip()
+        m = re.search(r"\n  Faction: (Believer|Heathen)\n", block + "\n")
+        if m:
+            v["faction"] = m.group(1)
         skills = re.search(r"\n  Skills:\n((?:    .*\n?)+)", block)
         if skills:
             v["skills"] = [int(x) for x in re.findall(r"^    \S+\s+(-?\d+)", skills.group(1), re.M)]
@@ -886,10 +889,10 @@ def check_elders(game_dir: Path, slot: int, game: int, roster: list[Villager], r
                                        "was renamed, so it is reported, not removed)")
     if game == 5:
         rep.add(label, "NOTE", "New Believers: heathens are not elders, and the save's tribe byte is not read here, "
-                               "so a heathen elder would show above as 'no open line'; its History log lists the "
-                               "Heathens too (the Heathen Chief has every skill at 100), so it cannot prove an elder: "
-                               "not repaired")
-    if game in (1, 3, 4):
+                               "so a heathen elder would show above as 'no open line'; in the History log only a "
+                               "snapshot's \"Faction: Believer\" villager counts (a snapshot written before that "
+                               "line cannot tell a Heathen apart and proves nothing)")
+    if game in (1, 3, 4, 5):
         for v in history_elders(game_dir, slot, game, roster, {r[2] for r in rows}):
             rep.add(label, "WRONG", f"{v['name']} is a Village Elder in the Village History log (Master in 3 or more "
                                     "skills), no longer alive, and on no line of the list (repairable: added as a "
@@ -928,6 +931,8 @@ def history_elders(game_dir: Path, slot: int, game: int, roster: list[Villager],
         for v in snap:
             if sum(s >= MASTER[game] for s in v["skills"]) < 3 or not v["name"]:
                 continue
+            if game == 5 and v.get("faction") != "Believer":
+                continue                         # Heathens never count (owner); no Faction line proves nothing
             if v["name"] in living or v["name"] in listed:
                 continue
             if not any(f["name"] == v["name"] and f.get("parents") == v.get("parents") for f in found):
