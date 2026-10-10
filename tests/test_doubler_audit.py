@@ -386,7 +386,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # learned the missing last names (v1.35.66).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "9A7FB35F9B39FDE325D8F37DD557D8DDAC7E7C2658E22870B3E78214353C093A",
+            "ED96BAD7D245F1E03D5380FBC54369829DB90AE00B066F6CC8BE902BA5594422",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

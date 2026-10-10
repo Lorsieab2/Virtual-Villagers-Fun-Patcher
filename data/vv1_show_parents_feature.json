@@ -32,7 +32,7 @@
     {
       "source": "assets/parentage/VVFP VV1 Parentage.dll",
       "destination": "VVFP VV1 Parentage.dll",
-      "sha256": "223256DAD9715D16C5DFCCA80326D3DDDFACCE52217B7CE7627B6A49234EA15A"
+      "sha256": "5C699A69AFBE739EBD4775E91B935A6060B66166DC303166635B6C35955FDC9E"
     }
   ],
   "patches": []
