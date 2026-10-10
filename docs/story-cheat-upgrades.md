@@ -340,10 +340,16 @@ Event on the Origins Tech menu. Its plain Windows dialogs:
   the villager changes. **Not in this game...** lists what the game does not
   offer and why.
 * **Villager changes**: the villagers in a list with standard extended
-  selection (Ctrl+click toggles one, Shift+click selects a range) and five
-  group toggles named exactly **All Adult Women**, **All Adult Men**, **All
-  Females**, **All Males**, **All Children** ("adult" is each game's own
-  boundary, 14 years). Toggles and picks combine; a villager matched more than
+  selection (Ctrl+click toggles one, Shift+click selects a range, Ctrl+A
+  selects every row -- also in the puzzle, skeleton and village-change lists)
+  and eight group toggles named exactly **All Adult Women**, **All Adult
+  Men**, **All Females**, **All Males**, **All Children**, **Everyone**, **All
+  Female Children**, **All Male Children** ("adult" is each game's own
+  boundary, 14 years; a child is anyone younger). **Everyone** is every
+  villager the list shows -- in New Believers the Heathens too, exactly as All
+  Females and All Males already include them; a change the game does not allow
+  for a Heathen (falling sick, a pregnancy) is refused for that villager and
+  counted in the popup's "changes could not be made" line. Toggles and picks combine; a villager matched more than
   once counts once; changes added for a villager twice are merged (the later
   value wins), so changes can be set per villager.
 * **New villagers**: how many, sex, age, name, head and body, likes and
