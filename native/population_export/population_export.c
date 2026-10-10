@@ -932,18 +932,12 @@ static int g_former_loaded;
    in the table until it is buried -- and is neither listed in the Population
    nor in the History; its Death record comes from the burial (Cause of
    Death).  The test is the Cause of Death companion's own: rec_present,
-   !rec_lookalike, rec_health > 0 (cod_lost.inc, cod_gone.inc).
-
-   New Believers' villager being reanimated (+0x1CE1) is still one of the
-   tribe (roster_member, cod_roster.inc) and is listed whatever its health
-   reads; the stand-in corpse Reanimate makes for it is a separate record at
-   health 0 and is left out, so the villager is listed once. */
+   !rec_lookalike, rec_health > 0 (cod_lost.inc, cod_gone.inc).  New
+   Believers' villager being reanimated (+0x1CE1) stays a look-alike here,
+   as in the game's own list and the Statistics roster. */
 static int living_villager(const struct game_layout *g, const unsigned char *record) {
     if (*(const unsigned char *)(record + g->active) != 1) {
         return 0;
-    }
-    if (g->stride == 0x2F44u && record[0x1CE1] != 0) {
-        return 1;
     }
     return !vv_lookalike(g->stride, record) && *(const int *)(record + g->health) > 0;
 }

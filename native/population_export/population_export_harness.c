@@ -22,7 +22,8 @@
      a villager with no recorded parents gets NO Parents block, rather than
        one naming "" or a pair of zeros;
      a body awaiting burial (slot live, health 0 or below) is listed in
-       neither log, while New Believers' villager being reanimated is.
+       neither log, nor is New Believers' villager being reanimated (a
+       look-alike) or Reanimate's stand-in corpse.
 
    VV1 stores no parents on the record at all; its blocks come from the
    parentage companion's sidecar, bound to a live village.  run_vv1 below
@@ -340,10 +341,9 @@ static void run_game(const struct game *g, write_population_t write) {
     put_name(rec, g->name, "Starved", g->name_cap);
     put_int(rec, g->age, 810);
 
-    /* New Believers: record 6 is a villager being reanimated (+0x1CE1) --
-       still one of the tribe (roster_member, cod_roster.inc), listed whatever
-       his health reads -- and record 7 the stand-in corpse Reanimate makes for
-       him, a health-0 record that is not. */
+    /* New Believers: record 6 is a villager being reanimated (+0x1CE1), a
+       look-alike the game's own list leaves out, and record 7 the stand-in
+       corpse Reanimate makes for him, a health-0 body: neither is listed. */
     if (g->id == 5) {
         rec = array + g->base + g->stride * 6;
         rec[g->active] = 1;
@@ -358,7 +358,7 @@ static void run_game(const struct game *g, write_population_t write) {
     }
 
     remove_log();
-    CHECK(write(g->id, image, "Village: Harness (Save 1)\n") == (g->id == 5 ? 5 : 4),
+    CHECK(write(g->id, image, "Village: Harness (Save 1)\n") == 4,
           "the export writes every living villager and no body");
     {
         enum log_kind kinds[2] = { LOG_HISTORY, LOG_ROSTER };
@@ -371,9 +371,8 @@ static void run_game(const struct game *g, write_population_t write) {
             CHECK(log != NULL && strstr(log, "Starved") == NULL,
                   "%s: a body below health 0 is not listed as living", which);
             if (g->id == 5) {
-                block = log != NULL ? villager_block(log, 5, &length) : NULL;
-                CHECK(block != NULL && block_has(block, length, "Name: Lazaro"),
-                      "%s: the villager being reanimated is still listed", which);
+                CHECK(log != NULL && strstr(log, "Lazaro") == NULL,
+                      "%s: the villager being reanimated stays a look-alike", which);
                 CHECK(log != NULL && strstr(log, "Standin") == NULL,
                       "%s: Reanimate's stand-in corpse is not", which);
             }

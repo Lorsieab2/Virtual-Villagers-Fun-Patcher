@@ -109,10 +109,13 @@ class TheLivingTest(unittest.TestCase):
         record[STATUE] = 1
         self.assertFalse(self.dll.Living(2, bytes(record)))
 
-    def test_new_believers_villager_being_reanimated_is_still_listed(self):
-        record = self._record(5, 1, 0)
-        record[REANIMATING] = 1
-        self.assertTrue(self.dll.Living(5, bytes(record)), "still one of the tribe (cod_roster.inc)")
+    def test_new_believers_villager_being_reanimated_stays_a_lookalike(self):
+        """Excluded as before, as the game's own list and the Statistics roster exclude it."""
+        for health in (0, 100):
+            with self.subTest(health=health):
+                record = self._record(5, 1, health)
+                record[REANIMATING] = 1
+                self.assertFalse(self.dll.Living(5, bytes(record)))
 
 
 class TheLoopsUseIt(unittest.TestCase):
