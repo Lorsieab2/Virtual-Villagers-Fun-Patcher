@@ -3370,11 +3370,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         vv_line_colours.apply(self.edits, result.colours)
         if json.dumps(self.edits.family_lines, sort_keys=True) != before:
             self._saved()
-        words = (f"{len(result.colours)} families' lines coloured: each at least "
-                 f"{min(result.contrast.values()):.1f}:1 against the background.")
-        if result.short:
-            words += (f"  {len(result.short)} are too see-through (Opacity > Family lines) to reach 3:1 and are "
-                      "as strong as they can be.")
+        words = f"{len(result.colours)} families' lines coloured, each its own colour."
+        if result.cased:
+            words += (f"  {len(result.cased)} would blend into the background in places, so they have a thin "
+                      "outline.")
         self.status.set(words + "  Ctrl+Z undoes it.")
 
     def _reset_line_colours(self) -> None:

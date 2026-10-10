@@ -184,7 +184,7 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_cut_names"}),
             # Restoring cut names renames through Last Names.
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions"}),
-            ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout"}),
+            ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout", "vv_line_colours"}),
             ("vv_gdiplus", {"vv_family_tree"}),
             ("vv_line_colours", {"vv_family_tree", "vv_gdiplus"}),
             ("vv_genealogy_window", {"vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy", "vv_save_backup",

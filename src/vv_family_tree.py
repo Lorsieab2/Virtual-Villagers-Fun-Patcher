@@ -5180,6 +5180,7 @@ class Line:
     opacity: float = 1.0
     dash: str = ""                      # LINE_TYPES
     pid: int | None = None              # the villager whose portrait it is part of (a border, a vine)
+    casing: bool = False                # the thin outline under a family line that would blend into the background
 
 
 @dataclass
@@ -5416,6 +5417,13 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
             add(item)
             out.stickers.append(item)
     _fit_page(out)
+    # The thin casings under family lines whose own colour would blend into the background somewhere
+    # (Auto-colour family lines; the owner, 2026-10-10), under every family line.
+    import vv_line_colours                  # here: it draws on this module
+    cased = vv_line_colours.casings(lay, out)
+    if cased:
+        at = next(k for k, i in enumerate(out.items) if isinstance(i, Line) and i.piece)
+        out.items[at:at] = cased
     return out
 
 

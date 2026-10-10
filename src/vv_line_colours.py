@@ -6,22 +6,23 @@ own colour, which its children's portraits share, is left as it was.
 
 How the colours are chosen, the same tree always giving the same colours (nothing here is random):
 
-* The candidates are a fixed grid of colours spread evenly in OKLab, the perceptual colour space (equal
-  steps look equally different), every one inside sRGB.
-* Never blending into the background: the background is drawn exactly as the PNG export draws it
-  (vv_gdiplus.backdrop_pixels: the colour, the gradient, the picture with its fit and opacity) and read
-  under and beside every few pixels of each family's lines.  A family may only have a colour whose WCAG
-  non-text contrast (at least 3:1, WCAG 2.1 SC 1.4.11) holds against the worst of those points, the line
-  drawn at its opacity (Opacity > Family lines) over each.  A transparent background is checked against
-  both white (as the editor and the PNG show it) and black (an SVG on a dark page).  A point hidden behind a
-  portrait (Lines behind portraits, or a line that meets a frame) does not count.
+* The candidates are a fixed grid spread evenly in OKLab, the perceptual colour space (equal steps look
+  equally different): every hue, lightness and strength of colour sRGB shows, bright and light ones too
+  (the owner, 2026-10-10: "Auto-color should use any color possible"), but no near-black or near-white.
 * Distinct from each other: the colours are chosen to make the closest pair of families as different
   (OKLab distance) as can be, families whose lines cross or run close together counting as closer than
   they are (their distance divided by 1 + how near their lines come, 0-1), so they end up the most
   different.  A greedy start and then rounds in which each family in turn takes the colour furthest from
-  every other's; a round never makes the closest pair closer, and it stops when nothing changes.
-* Among colours nearly as distinct as the best, the one with the stronger contrast.
-
+  every other's; a round never makes the closest pair closer, and it stops when nothing changes.  Among
+  colours nearly as distinct as the best, the one that stands out more from the background.
+* Never blending into the background: the background is drawn exactly as the PNG export draws it
+  (vv_gdiplus.backdrop_pixels: the colour, the gradient, the picture with its fit and opacity) and read
+  under and beside every few pixels of each family's lines.  Where a family's colour, drawn at the lines'
+  opacity, falls below WCAG non-text contrast (3:1, WCAG 2.1 SC 1.4.11) against any of those points, its
+  lines get a thin casing (casings(): dark or white, whichever stands out more there, CASING pixels each
+  side, under the line, at its opacity) -- in the editor, the PNG, the SVG and the preview alike, since all
+  draw the scene.  A transparent background counts as both white (the editor and the PNG) and black (an
+  SVG on a dark page); a point behind a portrait does not count.
 Nothing but the standard library (the patcher's promise); GDI+ through vv_gdiplus on Windows.
 """
 from __future__ import annotations
@@ -42,6 +43,8 @@ NEAR_SPACING = 12.0     # pixels between the points compared for nearness
 TIE = 1.0               # OKLab distance (x100) within which two colours are as distinct: the stronger contrast wins
 MAX_PIXELS = 4_000_000  # the background is read at a scale that keeps it to about this many pixels
 ROUNDS = 40
+CASING = 1.25          # pixels of casing each side of a line that would blend into the background
+CASINGS = ("#1a1a1a", "#ffffff")
 WHITE, BLACK = (255, 255, 255), (0, 0, 0)
 
 
@@ -115,12 +118,12 @@ _CANDIDATES: list[str] = []
 
 def candidates() -> list[str]:
     """Every colour the button may give a family's lines, in a fixed order: an even grid in OKLCh
-    (lightness 0.14-0.98 in steps of 0.04, colour strength 0.03-0.30 in steps of 0.03, every 10 degrees of
-    hue) inside sRGB, and the greys."""
+    (lightness 0.30-0.90 in steps of 0.04 -- no near-black or near-white line --, colour strength 0-0.30 in
+    steps of 0.03, every 10 degrees of hue): every colour the screen shows, light, dark, bright or soft."""
     if not _CANDIDATES:
         seen = set()
-        for k in range(22):
-            L = 0.14 + k * 0.04
+        for k in range(16):
+            L = 0.30 + k * 0.04
             grid = [(L, 0.0, 0.0)] + [(L, 0.03 * c, h) for c in range(1, 11) for h in range(0, 360, 10)]
             for L_, C, h in grid:
                 rgb = _from_oklch(L_, C, h)
@@ -129,9 +132,7 @@ def candidates() -> list[str]:
                     if colour not in seen:
                         seen.add(colour)
                         _CANDIDATES.append(colour)
-        for grey in ("#000000", "#ffffff"):
-            if grey not in seen:
-                _CANDIDATES.append(grey)
+
     return _CANDIDATES
 
 
@@ -244,18 +245,27 @@ def gather(pages: list, render: bool = True) -> dict[str, _Family]:
             fam = fams.setdefault(item.target[1], _Family(item.target[1], item.width, item.opacity))
             fam.width = max(fam.width, item.width)
             fam.opacity = min(fam.opacity, item.opacity)
-            reach = item.width / 2 + 2
-            for x, y in _walk(item.points, SPACING):
-                if not _hidden(frames, x, y):
-                    fam.colours.extend(bg.under(x, y, reach))
+            _read(bg, frames, item, fam)
             fam.near.extend((page, x, y) for x, y in _walk(item.points, NEAR_SPACING))
     page_colour = pages[0][1].background if pages else ft.TRANSPARENT
     for fam in fams.values():
-        if not fam.colours:             # every bit of it behind portraits: against the page's own colour
-            fam.colours = [_rgb(page_colour)] if ft._colour_ok(page_colour) else [WHITE, BLACK]
-        fam.colours = sorted({tuple(int(round(v)) for v in c) for c in fam.colours})
-        fam.lums = sorted({luminance(c) for c in fam.colours})
+        _settle(fam, page_colour)
     return fams
+
+
+def _read(bg: Background, frames: list, item, fam: _Family) -> None:
+    """The background under and beside one line, every SPACING pixels (not behind a portrait)."""
+    reach = item.width / 2 + 2
+    for x, y in _walk(item.points, SPACING):
+        if not _hidden(frames, x, y):
+            fam.colours.extend(bg.under(x, y, reach))
+
+
+def _settle(fam: _Family, page_colour: str) -> None:
+    if not fam.colours:             # every bit of it behind portraits: against the page's own colour
+        fam.colours = [_rgb(page_colour)] if ft._colour_ok(page_colour) else [WHITE, BLACK]
+    fam.colours = sorted({tuple(int(round(v)) for v in c) for c in fam.colours})
+    fam.lums = sorted({luminance(c) for c in fam.colours})
 
 
 def worst_contrast(fam: _Family, colour: str, colours: list | None = None) -> float:
@@ -311,7 +321,7 @@ class Result:
     contrast: dict[str, float]              # family key -> its worst contrast against the background
     nearest: float                          # the two most alike families' OKLab distance (x100)
     nearest_close: float                    # the same for families whose lines come within NEAR / 2
-    short: list[str]                        # families that could not reach FLOOR (a see-through line)
+    cased: list[str]                        # families whose colour is below FLOOR somewhere: drawn with a casing
 
 
 def choose(fams: dict[str, _Family]) -> Result:
@@ -322,22 +332,15 @@ def choose(fams: dict[str, _Family]) -> Result:
     n = len(group)
     pool = candidates()
     labs = [oklab(_rgb(c)) for c in pool]
-    # Each family's allowed colours (their index in pool) and how strongly they stand out.
+    # Every colour is allowed (the owner, 2026-10-10: "Auto-color should use any color possible"): one that
+    # would blend into the background under a family's lines gets a thin casing (casings()).  How strongly
+    # each stands out only settles near-ties, the clearer one winning.
     allowed: list[list[int]] = []
     strength: list[dict[int, float]] = []
-    short = []
     for fam in group:
         few = _some(fam.colours) if fam.opacity < 1 else None
-        scores = {i: worst_contrast(fam, c, few) for i, c in enumerate(pool)}
-        if few is not None:              # the ones that pass on the few, checked on every colour
-            scores = {i: (worst_contrast(fam, pool[i]) if s >= FLOOR else s) for i, s in scores.items()}
-        ok = [i for i, s in scores.items() if s >= FLOOR]
-        if not ok:                       # nothing can (a line almost see-through): the strongest there are
-            top = max(scores.values())
-            ok = [i for i, s in scores.items() if s >= top * 0.95]
-            short.append(fam.key)
-        allowed.append(ok)
-        strength.append(scores)
+        strength.append({i: worst_contrast(fam, c, few) for i, c in enumerate(pool)})
+        allowed.append(list(range(len(pool))))
     used = sorted({i for ok in allowed for i in ok})
     where = {c: k for k, c in enumerate(used)}
     used_labs = [labs[i] for i in used]
@@ -401,9 +404,10 @@ def choose(fams: dict[str, _Family]) -> Result:
             break
     colours = {keys[f]: pool[used[pick[f]]] for f in range(n)}
     pairs = [(dist[pick[f]][pick[g]], f, g) for f in range(n) for g in range(f + 1, n)]
-    return Result(colours, {keys[f]: strength[f][used[pick[f]]] for f in range(n)},
-                  min((d for d, _f, _g in pairs), default=math.inf),
-                  min((d for d, f, g in pairs if near.get((f, g), 0.0) >= 0.5), default=math.inf), short)
+    worst = {keys[f]: worst_contrast(group[f], colours[keys[f]]) for f in range(n)}
+    return Result(colours, worst, min((d for d, _f, _g in pairs), default=math.inf),
+                  min((d for d, f, g in pairs if near.get((f, g), 0.0) >= 0.5), default=math.inf),
+                  [k for k in keys if worst[k] < FLOOR])
 
 
 def auto_colours(pages: list, render: bool = True) -> Result:
@@ -430,3 +434,69 @@ def reset(edits: "ft.Edits") -> bool:
             else:
                 del edits.family_lines[key]
     return changed
+
+
+# ---- casings -------------------------------------------------------------------------------------
+
+_BACKGROUNDS: dict = {}     # the last few backgrounds read, by what they are (reading a picture takes a moment)
+_CASED: dict = {}           # (background, colour, opacity, the lines' points) -> the casing's colour or ""
+
+
+def _background(backdrop: "ft.Backdrop", width: float, height: float) -> tuple[tuple, Background]:
+    picture = backdrop.picture
+    try:
+        stamp = picture.stat().st_mtime_ns if picture is not None else 0
+    except OSError:
+        stamp = 0
+    key = (backdrop.colour, backdrop.colour2, str(picture), stamp, backdrop.fit, backdrop.soften, int(width), int(height))
+    if key not in _BACKGROUNDS:
+        while len(_BACKGROUNDS) >= 3:
+            _BACKGROUNDS.pop(next(iter(_BACKGROUNDS)))
+        _BACKGROUNDS[key] = Background(backdrop, width, height)
+    return key, _BACKGROUNDS[key]
+
+
+def casing_colour(fam: _Family, colour: str) -> str:
+    """"" when the family's lines in `colour` stand out at least FLOOR everywhere; else the casing (dark or
+    white) that stands out more against the background there."""
+    if worst_contrast(fam, colour) >= FLOOR:
+        return ""
+    return max(CASINGS, key=lambda c: (worst_contrast(fam, c), c))
+
+
+def casings(lay, sc: "ft.Scene") -> list:
+    """The casings under the lines of every family whose lines have a colour of their own (Auto-colour
+    family lines, or one picked by hand) that would blend into the background somewhere: one Line under each
+    of its lines, CASING pixels wider each side, at the line's opacity, solid.  The scene puts them under
+    every family line, so a casing never crosses another family's line."""
+    own = {k for k, s in lay.edits.family_lines.items() if s.get("colour")}
+    mine: dict[str, list] = {}
+    for item in sc.items:
+        if isinstance(item, ft.Line) and item.piece and item.target and item.target[1] in own and len(item.points) >= 2:
+            mine.setdefault(item.target[1], []).append(item)
+    if not mine:
+        return []
+    backdrop = next((i for i in sc.items if isinstance(i, ft.Backdrop)), None) or ft.Backdrop(sc.background)
+    bg_key, bg = _background(backdrop, sc.width, sc.height)
+    frames = None
+    out = []
+    for key in sorted(mine):
+        items = mine[key]
+        colour = items[0].colour
+        shape = (bg_key, colour, round(min(i.opacity for i in items), 3),
+                 tuple((round(i.width, 2), tuple((round(x, 1), round(y, 1)) for x, y in i.points)) for i in items))
+        if shape not in _CASED:
+            if frames is None:
+                frames = _portraits(lay)
+            fam = _Family(key, max(i.width for i in items), min(i.opacity for i in items))
+            for item in items:
+                _read(bg, frames, item, fam)
+            _settle(fam, sc.background)
+            if len(_CASED) > 4000:
+                _CASED.clear()
+            _CASED[shape] = casing_colour(fam, colour)
+        case = _CASED[shape]
+        if case:
+            out.extend(ft.Line(list(i.points), case, i.width + 2 * CASING, target=i.target, opacity=i.opacity,
+                               casing=True) for i in items)
+    return out
