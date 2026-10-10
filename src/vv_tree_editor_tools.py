@@ -430,7 +430,8 @@ class CanvasTools:
             return st.cx, st.cy, st.w, st.h, st.angle
         if self.obj is None and len(self.selected) == 1 and self.selected[0] in self.lay.x:
             x, y, w, h, angle = self.lay.frame(self.selected[0])
-            return x + w / 2, y + h / 2, w, h, angle
+            s = self.sc.fit[0]                  # as the page draws it (a custom canvas)
+            return (*ft.to_page(self.sc, x + w / 2, y + h / 2), w * s, h * s, angle)
         return None
 
     def _draw_handles(self) -> None:
@@ -541,6 +542,7 @@ class CanvasTools:
                 p = self.village.people[d["pid"]]
                 if d["mode"] == "size":
                     s = self.lay.shrink or 1.0            # the size before Shrink to fit (it is applied on top)
+                    s *= self.sc.fit[0]                   # and before a custom canvas shrank the tree
                     self._set_entry(p, w=round(w / s, 1), h=round(h / s, 1))
                 else:
                     self._set_entry(p, angle=round(angle, 1) % 360)

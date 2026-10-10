@@ -725,7 +725,10 @@ class StickerTests(unittest.TestCase):
             boxes = []
             for q in lay.x:
                 x, y, w, h, angle = lay.frame(q)
-                self.assertEqual((w, h, angle), (ft.natural_width(kind), ft.NODE_H, 0.0))
+                # A portrait tall -- a shape drawn turned (SHAPE_BAKES) as tall as it reached turned so.
+                self.assertEqual((w, h, angle), (ft.natural_width(kind), ft.natural_height(kind), 0.0))
+                if kind not in ft.SHAPE_BAKES:
+                    self.assertEqual(h, ft.NODE_H)
                 xs, ys = zip(*lay.frame_points(q))
                 boxes.append((min(xs), min(ys), max(xs), max(ys)))
             for i, a in enumerate(boxes):           # spaced so no two frames overlap

@@ -110,6 +110,18 @@ TEXT_ROOMS = {"auto": "Automatic", "shape": "Follow the shape", "rect": "Rectang
 TEXT_VALIGNS = {"top": "Top", "middle": "Middle", "bottom": "Bottom"}
 ROW_GAP_MIN, ROW_GAP_MAX = 0.0, 400.0   # the player's room under each generation's row (Edits.row_gap)
 FIT_MIN, FIT_MAX = 400, 100000          # the page width portraits shrink to fit
+CANVAS_MIN, CANVAS_MAX = 100, 30000     # a custom canvas's width and height (Edits.canvas_w / canvas_h)
+# The ready-made canvas sizes (the owner, 2026-10-09), width x height in pixels; print sizes at 300 dpi.
+CANVAS_SIZES = {
+    "HD (1920 x 1080)": (1920, 1080),
+    "4K (3840 x 2160)": (3840, 2160),
+    "Square (2048 x 2048)": (2048, 2048),
+    "A4 portrait (2480 x 3508, 300 dpi)": (2480, 3508),
+    "A4 landscape (3508 x 2480, 300 dpi)": (3508, 2480),
+    "US Letter portrait (2550 x 3300, 300 dpi)": (2550, 3300),
+    "US Letter landscape (3300 x 2550, 300 dpi)": (3300, 2550),
+    "Phone wallpaper (1080 x 1920)": (1080, 1920),
+}
 SHRINK_MIN = 0.2                        # never smaller than a fifth
 PAGE_GENS, PAGE_GENS_MIN, PAGE_GENS_MAX = 6, 2, 10   # generations on one page: the owner's default and limit
 TEXT_SCALE_MIN, TEXT_SCALE_MAX = 25.0, 400.0          # one villager's text size, in percent
@@ -307,6 +319,15 @@ class Edits:
     # The owner, 2026-10-09: "a toggle for the text to fit within the portrait shape's space (in things
     # like crosses and x's it runs off)": the words only as wide as the shape is where each line is.
     text_inside: bool = False
+    # Faces and words at one size whatever the portrait's shape and size (the owner, 2026-10-09: the
+    # males' turtle shells drew their faces and words a quarter smaller than the females' leaves).
+    fixed_face_size: bool = False
+    # "Same face and text size for:" (the owner, 2026-10-10: "equalizing villager icons and text = should
+    # have the exact same font size and icon dimensions regardless of other settings"): EQUAL_SCOPES ->
+    # {"face": percent, "text": percent}.  Every portrait in the scope gets one face size and one font
+    # size -- the largest that fits all of them (equal_scale, _equal_words) -- until the player changes a
+    # face or text size again.
+    equal_sizes: dict = field(default_factory=dict)
     # Whether a turned portrait's words turn with it (the owner, 2026-10-09); off, they stay upright.
     turn_words: bool = False
     # Whether a flipped portrait's words are mirrored with it (the owner, 2026-10-09: "if people want to
@@ -343,6 +364,9 @@ class Edits:
     # Family lines straight and behind the portraits (the owner, 2026-10-09: "a toggle for lines run
     # behind portraits"); None until the player says: behind only in a Packed layout packed 98 or more.
     lines_behind: bool | None = None
+    # A thin dark or white outline under family lines whose own colour would blend into the background
+    # (the owner, 2026-10-10: "make it an optional toggle default off").
+    outline_lines: bool = False
     picture_size: float = 100.0        # every portrait's face, percent (PICTURE_SCALE_MIN..MAX)
     text_size: float = 100.0           # every portrait's words, percent (TEXT_SCALE_MIN..MAX)
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
@@ -350,6 +374,10 @@ class Edits:
     row_gap: float = 30.0               # pixels under a generation's row before its children's lines (LANE_TOP)
     show_founder: bool = False          # "Founder" in each generation I portrait (the owner, 2026-10-09)
     fit_width: int = 0                  # 0, or shrink every portrait so the widest row fits this many pixels
+    # The canvas (the owner, 2026-10-09): 0 x 0 is Automatic, the page as large as the tree; else every
+    # page is this many pixels, the tree shrunk evenly to fit it or centred on it at its own size.
+    canvas_w: int = 0
+    canvas_h: int = 0
     page_generations: int = 6           # the most generations on one page (the owner: 6, up to 10)
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
@@ -386,7 +414,7 @@ class Edits:
     sizes: dict[str, list] = field(default_factory=dict)               # GROUPS -> [width, height] of the frame
     line_width: float = LINE_WIDTH      # every family line's weight
     line_dash: str = ""                 # LINE_TYPES: every family line's type
-    family_lines: dict[str, dict] = field(default_factory=dict)        # family key -> {"width", "dash"}
+    family_lines: dict[str, dict] = field(default_factory=dict)        # family key -> {"width", "dash", "colour"}
     mark_style: str = "border"          # MARK_STYLES
     mark_glow: float = 14.0             # how far a glow reaches
     mark_opacity: int = 100             # percent
@@ -399,6 +427,9 @@ class Edits:
     # Pieces of line the player dragged (the owner: "move individual lines and still keep the
     # connections to portraits"): "<family key>|<piece>" -> how far it was dragged.
     line_moves: dict[str, list | float] = field(default_factory=dict)   # piece -> [right, down]
+    # Dragged pieces put down with Alt held: exactly where the player let go, never nudged off a line
+    # beside them (like the smart guides, Alt places freely).  Counted only while the piece is in line_moves.
+    free_lines: list[str] = field(default_factory=list)
     generations: dict[str, list[str]] = field(default_factory=dict)   # "2" -> the label's lines
     words: dict[str, str] = field(default_factory=dict)                # WORDS -> the player's own words
     marks: dict[str, str] = field(default_factory=dict)               # label -> "#rrggbb", in order
@@ -411,6 +442,10 @@ class Edits:
     # realistically and logically possible should be by group with options to equalize"): GROUPS ->
     # {GROUP_FIELDS name -> value}, each over the tree's own setting for that group only (opt()).
     group_opts: dict[str, dict] = field(default_factory=dict)
+    # Saved since the Monstera leaf and the feather are drawn turned (SHAPE_BAKES); False: their portraits'
+    # turns, flips and sizes are still as they were before, and settle_shapes moves them on.
+    monstera_v2: bool = True
+    feather_v2: bool = True
 
     @staticmethod
     def path(folder: Path, game: int, slot: int) -> Path:
@@ -447,6 +482,9 @@ class Edits:
         out = cls(str(data.get("title", "")), str(data.get("subtitle", "")),
                   data.get("centre_heads", True) is not False)
         out.text_inside = data.get("text_inside") is True
+        out.monstera_v2 = data.get("monstera_v2") is True       # saved before: moved on (settle_shapes)
+        out.feather_v2 = data.get("feather_v2") is True
+        out.fixed_face_size = data.get("fixed_face_size") is True
         out.turn_words = data.get("turn_words") is True
         out.flip_words = data.get("flip_words") is True
         mode = data.get("special_mode")
@@ -488,6 +526,7 @@ class Edits:
         out.others_side = data.get("others_side") if data.get("others_side") in OTHERS_SIDES else "right"
         out.packing = int(_number(data.get("packing"), 0, 100, PACKING))
         out.lines_behind = data.get("lines_behind") if isinstance(data.get("lines_behind"), bool) else None
+        out.outline_lines = data.get("outline_lines") is True
         out.picture_size = _number(data.get("picture_size"), PICTURE_SCALE_MIN, PICTURE_SCALE_MAX, 100.0)
         out.text_size = _number(data.get("text_size"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
@@ -496,6 +535,10 @@ class Edits:
         out.page_generations = int(_number(data.get("page_generations"), PAGE_GENS_MIN, PAGE_GENS_MAX, PAGE_GENS))
         fit = data.get("fit_width")
         out.fit_width = int(_number(fit, FIT_MIN, FIT_MAX, 0)) if isinstance(fit, (int, float)) and fit else 0
+        cw, ch = data.get("canvas_w"), data.get("canvas_h")
+        if all(isinstance(v, (int, float)) and not isinstance(v, bool) and v > 0 for v in (cw, ch)):
+            out.canvas_w = int(_number(cw, CANVAS_MIN, CANVAS_MAX, 0))
+            out.canvas_h = int(_number(ch, CANVAS_MIN, CANVAS_MAX, 0))
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
         out.show_twins = data.get("show_twins", False) is True
@@ -586,6 +629,8 @@ class Edits:
                 shift = _number(shift, -STICKER_MAX, STICKER_MAX, 0.0)
             if shift:
                 out.line_moves[str(piece)] = shift
+        out.free_lines = [str(p) for p in data.get("free_lines", []) if str(p) in out.line_moves] \
+            if isinstance(data.get("free_lines"), list) else []
         for group, size in dict(data.get("sizes", {})).items():
             if group in GROUPS and isinstance(size, list) and len(size) == 2:
                 out.sizes[group] = [_number(v, FRAME_MIN, FRAME_MAX, NODE_H) for v in size]
@@ -598,6 +643,10 @@ class Edits:
                 item["width"] = _number(style["width"], *LINE_WIDTHS, LINE_WIDTH)
             if isinstance(style, dict) and style.get("dash") in LINE_TYPES:
                 item["dash"] = style["dash"]
+            # The family's lines in a colour of their own, the children's portraits keeping the family's
+            # (the owner, 2026-10-09: the Auto-colour family lines button; "lines only").
+            if isinstance(style, dict) and _colour_ok(style.get("colour")):
+                item["colour"] = style["colour"].lower()
             if item:
                 out.family_lines[str(key)] = item
         if data.get("mark_style") in MARK_STYLES:
@@ -636,6 +685,7 @@ class Edits:
             sticker = clean_sticker(raw)
             if sticker is not None:
                 out.stickers.append(sticker)
+        out.equal_sizes = clean_equal_sizes(data.get("equal_sizes"))
         out.group_opts = clean_group_opts(data.get("group_opts"))
         return out
 
@@ -648,7 +698,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
@@ -665,16 +715,17 @@ class Edits:
                 "family_lines": self.family_lines, "mark_style": self.mark_style, "mark_glow": self.mark_glow,
                 "mark_opacity": self.mark_opacity, "label_line_width": self.label_line_width,
                 "label_line_reach": self.label_line_reach,
-                "line_moves": self.line_moves,
+                "line_moves": self.line_moves, "free_lines": self.free_lines,
                 "generations": self.generations, "words": self.words, "marks": self.marks, "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers,
-                "group_opts": self.group_opts}
+                "group_opts": self.group_opts, "equal_sizes": self.equal_sizes, "monstera_v2": self.monstera_v2,
+                "feather_v2": self.feather_v2}
 
 
 # The settings a group's portraits may have of their own (Edits.group_opts): only what is drawn inside
 # one portrait.  Each is checked as the tree's own is (_group_value).
 GROUP_FIELDS = ("text_align", "text_valign", "centre_heads", "text_room", "flip_words", "turn_words",
-                "text_inside", "picture_size", "text_size", "text_wrap", "show_units", "show_years",
+                "text_inside", "fixed_face_size", "picture_size", "text_size", "text_wrap", "show_units", "show_years",
                 "show_twins", "show_founder", "detail_lines", "detail_colour", "detail_opacity",
                 "detail_width", "portrait_fill")
 
@@ -1029,13 +1080,13 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # reopen (portrait shape/any other changes)").  Never a village's own things: its title, moved
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
-    "centre_heads", "text_align", "text_inside", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
-    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "page_generations", "diagonal_lines",
+    "centre_heads", "text_align", "text_inside", "fixed_face_size", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
+    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "canvas_w", "canvas_h", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
     "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
-    "label_line_reach", "marks", "group_opts",
+    "label_line_reach", "marks", "group_opts", "equal_sizes", "monstera_v2", "feather_v2",
 )
 
 
@@ -1051,6 +1102,10 @@ def styled(style: dict | None) -> "Edits":
     base = Edits().to_data()
     if isinstance(style, dict):
         base.update({key: value for key, value in style.items() if key in STYLE_KEYS})
+        shapes = style.get("shapes") if isinstance(style.get("shapes"), dict) else {}
+        for name in SHAPE_BAKES:                # a look remembered before, with that shape: moved on
+            if f"{name}_v2" not in style and name in shapes.values():
+                base[f"{name}_v2"] = False
     try:
         return Edits.from_data(base)
     except ValueError:
@@ -1353,12 +1408,79 @@ def shape_of(edits: Edits, village: gen.Village, p: gen.Person) -> str:
     return edits.entries.get(entry_key(village, p), {}).get("shape") or edits.shapes[group_of(p)]
 
 
+def _baked_turn(name: str, angle: float, flip_h: bool, flip_v: bool) -> tuple[float, bool]:
+    """A portrait's (turn, flip across) drawing a shape drawn turned (SHAPE_BAKES) as (angle, flip_h, flip_v)
+    drew it before: composed with the undoing of the shape's own turn and mirroring.  A flip up and down
+    is a flip across turned half round."""
+    degrees, mirrored = SHAPE_BAKES[name]
+    angle += 180.0 if flip_v else 0.0
+    if (flip_h != flip_v) == mirrored:          # mirrored as often as the shape: no flip left
+        return (angle - degrees) % 360, False
+    return (angle + degrees) % 360, True
+
+
+def _baked_size(name: str, size) -> list[float]:
+    """A frame's (width, height) drawing a shape drawn turned (SHAPE_BAKES) as (width, height) drew it before."""
+    b = BAKED[name]
+    s = math.sqrt(size[0] / b["old_w"] * size[1] / b["old_h"])
+    return [max(FRAME_MIN, min(FRAME_MAX, s * b["new_w"])), max(FRAME_MIN, min(FRAME_MAX, s * b["new_h"]))]
+
+
+def settle_shapes(edits: Edits, village: gen.Village) -> None:
+    """Edits saved before a shape was drawn turned (SHAPE_BAKES; its marker, Edits.<shape>_v2, False)
+    moved on once, so every portrait looks as it did (the owner, 2026-10-10): each such portrait's turn
+    and flips composed with the shape's own (_baked_turn) -- the owner's Monstera leaves, turned 45 and
+    flipped across, now neither -- and its sizes the box the same picture now fills (_baked_size)."""
+    for name in SHAPE_BAKES:
+        if not getattr(edits, f"{name}_v2"):
+            _settle_shape(edits, village, name)
+            setattr(edits, f"{name}_v2", True)
+
+
+def _settle_shape(edits: Edits, village: gen.Village, name: str) -> None:
+    old_sizes = {g: list(v) for g, v in edits.sizes.items()}
+    edits.sizes, edits.entries = dict(edits.sizes), dict(edits.entries)    # never a dictionary shared elsewhere
+    for g, size in old_sizes.items():
+        if edits.shapes.get(g) == name:
+            edits.sizes[g] = _baked_size(name, size)
+    done = set()
+    for p in village.people.values():
+        key = entry_key(village, p)
+        if key in done:
+            continue
+        done.add(key)
+        entry = dict(edits.entries.get(key, {}))
+        this = (entry.get("shape") or edits.shapes[group_of(p)]) == name
+        group_size = old_sizes.get(group_of(p))
+        group_this = edits.shapes[group_of(p)] == name
+        if group_size and "w" not in entry and "h" not in entry and this != group_this:
+            # The group's size, which the group's change (or not) would change for this one: their own.
+            entry["w"], entry["h"] = _baked_size(name, group_size) if this else group_size
+        elif this and ("w" in entry or "h" in entry):
+            b = BAKED[name]                     # the side not their own: the group's, else the shape's as it was
+            w, h = group_size or (NODE_H * round(b["old_w"] / b["old_h"], 3), NODE_H)
+            entry["w"], entry["h"] = _baked_size(name, (entry.get("w", w), entry.get("h", h)))
+        if this:
+            angle, flip_h = _baked_turn(name, entry.get("angle", 0.0), entry.get("flip_h", False),
+                                        entry.get("flip_v", False))
+            for flip in ("angle", "flip_h", "flip_v"):
+                entry.pop(flip, None)
+            if round(angle, 6) % 360:
+                entry["angle"] = round(angle, 6) % 360
+            if flip_h:
+                entry["flip_h"] = True
+        if entry:
+            edits.entries[key] = entry
+        else:
+            edits.entries.pop(key, None)
+
 def frame_size(edits: Edits, village: gen.Village, p: gen.Person, own: bool = True,
                unscaled: bool = False, shrink: float = 1.0) -> tuple[float, float]:
     """A portrait frame's width and height: the villager's own (`own`), else their group's default
     size, else their shape's own proportions, a portrait tall -- shrunk to fit the page when the
     player asked (Edits.fit_width; `unscaled`: the sizes as the player set them)."""
-    gw, gh = edits.sizes.get(group_of(p)) or (natural_width(shape_of(edits, village, p)), NODE_H)
+    kind = shape_of(edits, village, p)
+    gw, gh = edits.sizes.get(group_of(p)) or (natural_width(kind), natural_height(kind))
     entry = edits.entries.get(entry_key(village, p), {}) if own else {}
     s = 1.0 if unscaled else shrink
     return entry.get("w", gw) * s, entry.get("h", gh) * s
@@ -1408,6 +1530,8 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     """The page laid out.  With Shrink to fit (Edits.fit_width), the portraits shrink until the whole
     page -- the generation labels, the widest row and the Other Members -- fits that width, or until
     they are as small as they go (SHRINK_MIN)."""
+    if edits is not None:
+        settle_shapes(edits, village)           # saved before a shape was drawn turned: moved on once
     lay = _layout(village, edits, page)
     e = lay.edits
     if not e.fit_width:
@@ -1463,10 +1587,20 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     # lots of portraits per page"); the gap between two portraits is the player's.
     shrink_now = 1.0
     shown = in_tree | set(others)
-    widest_frame = max([NODE_W] + [frame_size(edits, village, people[q], own=False)[0] for q in shown])
+    # A shape drawn turned (SHAPE_BAKES) spaced by its traced box, as before it was (the owner's trees keep their
+    # look); its drawing's real reach is measured as drawn (outline, drawn_reach), so none overlap.
+    widest_frame = max([NODE_W] + [own_box(shape_of(edits, village, people[q]),
+                                           *frame_size(edits, village, people[q], own=False))[0] for q in shown])
     # The Packed layouts close the player's gaps as the packing nears 100 (squeeze): touching there.
     tight = squeeze(edits)
     gap = edits.portrait_gap * (1 - tight)
+    if edits.positioning in PACKED:
+        # Never so near that two portraits' drawings overlap: their borders' strokes (and a special
+        # border's leaves, a mark) at least meet (frame_pad).
+        gap = max(gap, 2 * max([0.0] + [frame_pad(edits, edits.entries.get(entry_key(village, people[q]), {}),
+                                                  group_of(people[q]), *own_box(shape_of(edits, village, people[q]),
+                                                                                   *frame_size(edits, village, people[q])))
+                                        for q in shown]))
     subgap = SUBGAP * (1 - tight)
     widest_row_n = max([len(r) for r in rows.values()] + [1])
     if shrink is not None:
@@ -1482,12 +1616,22 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         entry = edits.entries.get(entry_key(village, p), {})
         kind = flipped_kind(shape_of(edits, village, p), entry.get("flip_h", False), entry.get("flip_v", False))
         w, h = frame_size(edits, village, p, shrink=shrink_now)
-        return _profile(kind, w, h, entry.get("angle", 0.0))
+        words = None
+        if is_fixed(edits, p) and not p.upcoming:
+            # Faces and words at one size: they may reach past a short frame -- counted as drawn.
+            top, bottom = fixed_words_reach(probe, p, w, h)
+            words = (-w / 2, w / 2, top, bottom)
+        return _profile(kind, w, h, entry.get("angle", 0.0), frame_pad(edits, entry, group_of(p), *own_box(kind, w, h)), words)
+
+    # (A layout with no places yet, for measuring portraits' words as they will be drawn.)
+    probe = Layout(village, rows, {}, {}, [], [], 0.0, 0.0, 0.0, edits=edits, shrink=shrink_now,
+                   names=gen.duplicate_names(village, edits.number_order) if edits.number_names else {})
 
     # The Packed layouts' family blocks: short rows, plain or each second row set along into the dips
     # of the one above, whichever takes less room; rows as close as the frames' outlines let them.
     block_shape = functools.partial(_arrange, step=step, offset=brick(edits) * step / 2, rowh=NODE_H + subgap,
-                                    tight=tight, outline=outline, align=edits.row_align, gap=gap)
+                                    tight=tight, outline=outline, align=edits.row_align, gap=gap,
+                                    nest=edits.packing >= NEST)
     x: dict[int, float] = {}
     sub: dict[int, int] = {q: 0 for q in in_tree}
     cl = None
@@ -1585,6 +1729,21 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
     for q, entry in shifts.items():
         x[q] = max(MARGIN, x[q] + entry.get("dx", 0.0))
     width = max([width] + [x[q] + NODE_W + 40 for q in x])
+    # The page holds all of every portrait: a frame wider than a portrait's place (a butterfly's wings),
+    # whatever it draws beside its outline, its border's stroke, a special border, a mark or a glow, and
+    # its words' place -- nowhere nearer the page's edge than PAGE_MARGIN.  A tree that would reach past
+    # the left edge moves right, its Other Members and labels with it.
+    reach = {q: drawn_reach(edits, village, people[q], outline(q)) for q in x}
+    left_most = min([x[q] + NODE_W / 2 - reach[q][0] for q in x], default=PAGE_MARGIN)
+    if left_most < PAGE_MARGIN:
+        nudge = PAGE_MARGIN - left_most
+        for q in x:
+            x[q] += nudge
+        others_left += nudge
+        if label_left or (others and edits.others_side == "left"):
+            label_left += nudge
+        move += nudge
+    width = max([width] + [x[q] + NODE_W / 2 + reach[q][1] + PAGE_MARGIN for q in x])
     # One lane per family (the owner: "spread the lines connecting parents to children a bit more
     # vertically"): every family whose children are in a row has a line of its own between that
     # row and the one above, shared only with families whose lines do not overlap it; the gap
@@ -1604,12 +1763,17 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             members = [q for q in in_tree if people[q].generation == g]
             deep = max((sub.get(q, 0) for q in members), default=0)
             tops_g = [0.0]
+            subrows = [[(x[q] + NODE_W / 2, outline(q)) for q in members if sub.get(q, 0) == k]
+                       for k in range(deep + 1)]
             for k in range(1, deep + 1):
-                above = [(x[q] + NODE_W / 2, outline(q)) for q in members if sub.get(q, 0) == k - 1]
-                here = [(x[q] + NODE_W / 2, outline(q)) for q in members if sub.get(q, 0) == k]
-                need = _pitch(above, here)
+                need = _pitch(subrows[k - 1], subrows[k], edits.packing >= NEST)
                 rowh = NODE_H + subgap
-                tops_g.append(tops_g[-1] + (need if need >= rowh else rowh - tight * (rowh - need)))
+                top_k = tops_g[-1] + (need if need >= rowh else rowh - tight * (rowh - need))
+                # Never into a row further up either (a row nestled into the dips of the one above
+                # stands under the row above that: a diamond under a diamond).
+                for j in range(k - 1):
+                    top_k = max(top_k, tops_g[j] + _pitch(subrows[j], subrows[k], edits.packing >= NEST))
+                tops_g.append(top_k)
             sub_top[g] = tops_g
             bands[g] = tops_g[-1] + NODE_H
     if columns > 1:                     # a generation's band is as tall as its Other Members' grid
@@ -1648,6 +1812,23 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
                 top += bands[gens[k - 1]] + (1 - tight) * (
                     edits.row_gap + couples * LANE + (BAND_GAP if couples else 0)
                     + max(1, lanes.count.get(g, 0)) * LANE + LANE_BOTTOM)
+                if sub_top:
+                    # Never so near that the band's first row runs into the last row of the band above (a
+                    # butterfly's feelers reach up above its frame, a mark round it).
+                    # Every row of the band above against every row of this one (not only the last and the
+                    # first: a nestled row may reach past the row before it).
+                    prev = gens[k - 1]
+
+                    def band_rows(gg):
+                        return [[(x[q] + NODE_W / 2, outline(q)) for q in in_tree
+                                 if people[q].generation == gg and sub.get(q, 0) == j]
+                                for j in range(len(sub_top[gg]))]
+                    rows_above, rows_here = band_rows(prev), band_rows(g)
+                    for j, upper in enumerate(rows_above):
+                        for i, lower in enumerate(rows_here):
+                            if upper and lower:
+                                top = max(top, tops[prev] + sub_top[prev][j] - sub_top[g][i]
+                                          + _pitch(upper, lower, edits.packing >= NEST))
             tops[g] = top
         gap_tops = tops
         row_y = {pid: tops[people[pid].generation] + (sub_top[people[pid].generation][sub.get(pid, 0)]
@@ -1669,7 +1850,9 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
                                               + (lanes.couple_count[g] - lanes.couple_index[fam.id]) * LANE - LANE / 2)
             if cl is not None and fam.id in cl.couple_y:    # Packed families: just under the parents
                 fam.couple_y = cl.couple_y[fam.id]
-    y = {pid: max(MARGIN, row_y[pid] + shifts[pid].get("dy", 0.0)) for pid in x}
+    # Dragged up, never so far that anything the portrait draws (a frame taller than its place, a special
+    # border, a mark or a glow) goes nearer the page's top than PAGE_MARGIN.
+    y = {pid: max(MARGIN, PAGE_MARGIN - reach[pid][2], row_y[pid] + shifts[pid].get("dy", 0.0)) for pid in x}
     # A family's lines go with its children when they are dragged up or down (the owner: "so they're
     # neat and not overlapping when moved to a new position").
     for fam in families:
@@ -1688,7 +1871,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             if fam.id in cl.ways and not any(shifts[q].get("dx") or shifts[q].get("dy") for q in mine):
                 fam.way = [(px + move, py) for px, py in cl.ways[fam.id]]
     height = tops[gens[-1]] + bands[gens[-1]] + 190 if gens else TOP + NODE_H + 190
-    height = max([height] + [y[q] + NODE_H + 190 for q in y])
+    height = max([height] + [y[q] + NODE_H + 190 for q in y] + [y[q] + reach[q][3] + FOOTER_ROOM + PAGE_MARGIN for q in y])
     out = Layout(village, rows, x, y, families, others, others_left, width, height, tops=tops, bands=bands, shrink=shrink_now,
                  edits=edits, page=page, pages=len(spans), label_left=label_left, row_keys=row_keys,
                  subs={q: sub.get(q, 0) for q in in_tree},
@@ -1947,28 +2130,90 @@ def lines_behind(lay: "Layout") -> bool:
 _PROFILES: dict = {}
 
 
-def _profile(kind: str, w: float, h: float, angle: float) -> tuple[int, list, list]:
-    """A frame's outline, column by column across it: (half its width in whole columns, each column's top,
-    each column's bottom), centred on 0 across and with a portrait's top at 0 down."""
-    key = (kind, round(w, 1), round(h, 1), round(angle, 1))
+def frame_pad(edits: Edits, entry: dict, group: str, w: float, h: float) -> float:
+    """How far a portrait's drawing reaches past its frame's shape: half its border's stroke; a special
+    border's leaves, flowers or rope (special_border, as measured over every shape and size: the rope up
+    to 0.9 of its size outside the outline, a vine's leaves and flowers up to 1.3); the player's mark, a
+    second border MARK_GAP outside (a glow is a soft light, and may meet another)."""
+    border = entry.get("border") or edits.borders.get(group, "thick")
+    if border in SPECIAL_BORDERS:           # (in BORDER_WIDTHS too, at 0: checked first)
+        pad = (1.0 if border == "rope" else 1.4) * max(6.0, 0.1 * min(w, h))
+    else:
+        pad = BORDER_WIDTHS.get(border, 3.0) / 2
+    if entry.get("mark") and edits.marks.get(entry["mark"]) and edits.mark_style == "border":
+        pad += MARK_GAP + 3.0
+    return pad
+
+
+PAGE_MARGIN = 10                # nothing a portrait draws comes nearer a page's edge than this (as MARGIN)
+FOOTER_ROOM = 110               # the footer's plate starts this far above the page's bottom
+
+
+def drawn_reach(edits: Edits, village, p, profile: tuple) -> tuple[float, float, float, float]:
+    """How far all a portrait draws reaches from its place's middle across (left, right) and from its top
+    down (top, bottom): its frame as drawn (_profile, _reach: outline, decorations, stroke, special
+    border, mark), a glow round it, and its place's own box, where its words go."""
+    left, right, top, bottom = _reach(profile)
+    entry = edits.entries.get(entry_key(village, p), {})
+    if entry.get("mark") and edits.marks.get(entry["mark"]) and edits.mark_style == "glow":
+        left, right, top, bottom = left + edits.mark_glow, right + edits.mark_glow, top - edits.mark_glow, bottom + edits.mark_glow
+    return max(left, NODE_W / 2), max(right, NODE_W / 2), min(top, 0.0), max(bottom, float(NODE_H))
+
+
+def _profile(kind: str, w: float, h: float, angle: float, pad: float = 0.0,
+             words: tuple | None = None) -> tuple[int, list, list]:
+    """A frame as drawn, column by column across it: (half its width in whole columns, each column's top,
+    each column's bottom), centred on 0 across and with a portrait's top at 0 down.  Everything the shape
+    draws counts, not only its outline: the parts drawn like its border beside it (decor: a paw print's
+    toes, a beetle's legs, a butterfly's feelers) -- and `pad` round it all, for its border's stroke and
+    anything else drawn outside it (a special border's leaves, a mark).  `words`: (left, right, top,
+    bottom) of a face and words drawn past the frame (fixed_face_size), counted as part of it."""
+    key = (kind, round(w, 1), round(h, 1), round(angle, 1), round(pad, 1),
+           tuple(round(v, 1) for v in words) if words else None)
     if key not in _PROFILES:
-        pts = shape_points(kind, -w / 2, (NODE_H - h) / 2, w, h, corner_radius(kind), angle)
-        xs = [p[0] for p in pts]
-        half = int(math.ceil(max(-min(xs), max(xs)))) + 1
+        x0, y0 = -w / 2, (NODE_H - h) / 2
+        outline_pts = shape_points(kind, x0, y0, w, h, corner_radius(kind), angle)
+        paths = [outline_pts + outline_pts[:1]]
+        if words:
+            wl, wr, wt, wb = words
+            paths.append([(wl, wt), (wr, wt), (wr, wb), (wl, wb), (wl, wt)])
+        for line in decor(kind):                 # in the frame's box, turned with it
+            pts = [(x0 + u * w, y0 + v * h) for u, v in line]
+            if angle:
+                pts = [turn(px, py - NODE_H / 2, angle) for px, py in pts]
+                pts = [(px, py + NODE_H / 2) for px, py in pts]
+            paths.append(pts)
+        xs = [p[0] for path in paths for p in path]
+        half = int(math.ceil(max(-min(xs), max(xs)) + pad)) + 2
         tops, bottoms = [math.inf] * (2 * half + 1), [-math.inf] * (2 * half + 1)
-        edges = list(zip(pts, pts[1:] + pts[:1]))
-        for (x0, y0), (x1, y1) in edges:
-            lo, hi = (x0, x1) if x0 < x1 else (x1, x0)
-            for c in range(int(math.floor(lo)), int(math.ceil(hi)) + 1):
-                for cx in (c - 0.5, c, c + 0.5):            # the column's edges and middle
-                    if lo <= cx <= hi:
-                        y = y0 if x1 == x0 else y0 + (y1 - y0) * (cx - x0) / (x1 - x0)
-                        k = c + half
-                        if 0 <= k < len(tops):
-                            tops[k] = min(tops[k], y)
-                            bottoms[k] = max(bottoms[k], y)
+        for path in paths:                       # every stroke walked half a pixel at a time
+            for (ax, ay), (bx, by) in zip(path, path[1:]):
+                n = max(1, int(math.ceil(math.hypot(bx - ax, by - ay) / 0.5)))
+                for i in range(n + 1):
+                    px, py = ax + (bx - ax) * i / n, ay + (by - ay) * i / n
+                    k = int(round(px)) + half
+                    if py < tops[k]:
+                        tops[k] = py
+                    if py > bottoms[k]:
+                        bottoms[k] = py
+        xs = [px for path in paths for px, _py in path]
+        exact = (-min(xs) + pad, max(xs) + pad)   # how far it reaches across, to the hundredth
+        if pad > 0:                              # grown by `pad` every way
+            r = int(math.ceil(pad))
+            grown_t, grown_b = list(tops), list(bottoms)
+            for k in range(len(tops)):
+                near = range(max(0, k - r), min(len(tops), k + r + 1))
+                t = min(tops[j] for j in near)
+                if t < math.inf:
+                    grown_t[k] = t - pad
+                    grown_b[k] = max(bottoms[j] for j in near) + pad
+            tops, bottoms = grown_t, grown_b
         _PROFILES[key] = (half, tops, bottoms)
+        _ACROSS[id(_PROFILES[key])] = exact
     return _PROFILES[key]
+
+
+_ACROSS: dict = {}                      # a profile's id -> how far it reaches left and right, exactly
 
 
 def frames_overlap(lay: "Layout", a: int, b: int, tolerance: float = 0.5) -> bool:
@@ -1998,16 +2243,27 @@ def frames_overlap(lay: "Layout", a: int, b: int, tolerance: float = 0.5) -> boo
     return False
 
 
-def _pitch(upper: list, lower: list) -> float:
+NEST = 90                       # from this packing on, a row may nestle into the dips of the one above
+
+
+def _pitch(upper: list, lower: list, nest: bool = True) -> float:
     """How far below a row of frames the next row's portraits must stand so no two frames overlap
-    (they may touch): `upper` and `lower` are (middle across, profile) each.  A frame nestles as far up
-    into the dips of the row above as its own outline lets it."""
+    (they may touch): `upper` and `lower` are (middle across, profile) each.  Nestling (`nest`), a frame
+    goes as far up into the dips of the row above as what both draw lets it; else it stays below the
+    whole of each frame above it that it stands under (their boxes never overlap)."""
     need = -math.inf
-    for ux, (uh, utop, ubottom) in upper:
-        for lx, (lh, ltop, _lbottom) in lower:
-            if abs(ux - lx) >= uh + lh:
+    for ux, uprof in upper:
+        uh, utop, ubottom = uprof
+        ul, ur, _ut, ub = _reach(uprof)
+        for lx, lprof in lower:
+            lh, ltop, _lbottom = lprof
+            ll, lr, lt, _lb = _reach(lprof)
+            if ux + ur <= lx - ll or lx + lr <= ux - ul:
+                continue                         # not one above the other
+            if not nest:
+                need = max(need, ub - lt)
                 continue
-            for c in range(max(-uh, int(lx - ux) - lh), min(uh, int(lx - ux) + lh) + 1):
+            for c in range(-uh, uh + 1):
                 k = int(round(c + ux - lx)) + lh
                 if 0 <= k < len(ltop) and ubottom[c + uh] > -math.inf and ltop[k] < math.inf:
                     need = max(need, ubottom[c + uh] - ltop[k])
@@ -2031,15 +2287,29 @@ def _page_score(width: float, height: float) -> float:
     return width * height * (1 + 2 * off)
 
 
-def _reach(profile: tuple) -> tuple[float, float]:
-    """How far a frame's outline reaches left and right of its middle."""
-    half, tops, _bottoms = profile
+_REACHES: dict = {}
+
+
+def _reach(profile: tuple) -> tuple[float, float, float, float]:
+    """How far a frame's drawing reaches left and right of its middle, and how high and low from its
+    portrait's top (a frame resized taller than a portrait reaches past it)."""
+    if id(profile) in _REACHES and _REACHES[id(profile)][0] is profile:
+        return _REACHES[id(profile)][1]
+    _REACHES[id(profile)] = (profile, _reach_of(profile))
+    return _REACHES[id(profile)][1]
+
+
+def _reach_of(profile: tuple) -> tuple[float, float, float, float]:
+    half, tops, bottoms = profile
     filled = [k for k, t in enumerate(tops) if t < math.inf]
-    return (half - filled[0], filled[-1] - half) if filled else (0.0, 0.0)
+    if not filled:
+        return 0.0, 0.0, 0.0, float(NODE_H)
+    left, right = _ACROSS.get(id(profile), (half - filled[0] + 0.5, filled[-1] - half + 0.5))
+    return left, right, min(tops[k] for k in filled), max(bottoms[k] for k in filled)
 
 
 def _arrange(rows: list[list[int]], step: float, offset: float, rowh: float, tight: float, outline,
-             align: str, gap: float = 0.0) -> dict[int, tuple[float, float, float, float]]:
+             align: str, gap: float = 0.0, nest: bool = True) -> dict[int, tuple[float, float, float, float]]:
     """A family block's portraits, each (across, down, reach left, reach right) from its first row's
     middle and top: its short rows either straight under each other or each second row set along by
     `offset` into the dips of the one above (the owner's sand grains: "packing like this"), whichever
@@ -2052,8 +2322,11 @@ def _arrange(rows: list[list[int]], step: float, offset: float, rowh: float, tig
     def spaced(row: list[int]) -> list[float]:
         xs = [0.0]
         for a, b in zip(row, row[1:]):
-            snug = reach[a][1] + reach[b][0] + gap
-            xs.append(xs[-1] + (step if snug >= step else step - tight * (step - snug)))
+            touch = reach[a][1] + reach[b][0]           # their drawings touching
+            snug = touch + gap
+            # A step apart, closing in to snug as the packing nears 100 -- never nearer than touching
+            # (a frame wider than a step stands further off).
+            xs.append(xs[-1] + max(touch, step if snug >= step else step - tight * (step - snug)))
         return xs
 
     widths = [spaced(row)[-1] for row in rows]
@@ -2061,21 +2334,25 @@ def _arrange(rows: list[list[int]], step: float, offset: float, rowh: float, tig
     for shift in ((0.0, offset) if offset and len(rows) > 1 else (0.0,)):
         pos: dict[int, tuple[float, float, float, float]] = {}
         y = 0.0
-        above = None
+        done: list[tuple[float, list]] = []      # the rows placed so far, each (its top, its frames)
         for k, row in enumerate(rows):
             spare = widest - widths[k]
             left = (0.0 if align == "left" else spare if align == "right" else spare / 2) - widest / 2
             left += shift if k % 2 else 0.0
-            here = [(m, left + dx) for m, dx in zip(row, spaced(row))]
-            if above is not None:
-                need = _pitch([(cx, outline(m)) for m, cx in above], [(cx, outline(m)) for m, cx in here])
+            here = [(cx, outline(m)) for m, cx in ((m, left + dx) for m, dx in zip(row, spaced(row)))]
+            if done:
+                need = _pitch(done[-1][1], here, nest)
                 y += need if need >= rowh else rowh - tight * (rowh - need)
-            for m, cx in here:
+                # A row nestled into the dips of the one above may stand under the row above that, set
+                # along the same way: never into it either (a diamond under a diamond two rows up).
+                for top, earlier in done[:-1]:
+                    y = max(y, top + _pitch(earlier, here, nest))
+            for m, (cx, _prof) in zip(row, here):
                 pos[m] = (cx, y, *reach[m])
-            above = here
+            done.append((y, here))
         first = [pos[m][0] for m in rows[0]]
         middle = (min(first) + max(first)) / 2
-        pos = {m: (cx - middle, cy, lo, hi) for m, (cx, cy, lo, hi) in pos.items()}
+        pos = {m: (cx - middle, cy, *rest) for m, (cx, cy, *rest) in pos.items()}
         span = max(v[0] + v[3] for v in pos.values()) - min(v[0] - v[2] for v in pos.values())
         area = span * (y + NODE_H)
         if best is None or area < best[0] - 1e-6:
@@ -2235,7 +2512,8 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
     # Edits.row_limit), how far sideways a row may go to fill a gap (none at 0: a tidy tree), and the
     # room kept between two families' clusters.
     packing = edits.packing / 100
-    corridor = max(gap, CORRIDOR * (2 - packing) * give)
+    # (Packed tightest, none: two families' boxes already reach as far as their frames draw.)
+    corridor = max(gap, CORRIDOR * (2 - packing)) * give
     reach = 4 * step * packing
 
     def apart(a: tuple, b: tuple) -> float:
@@ -2424,9 +2702,16 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
         gaps: dict[tuple, float] = {}
         portraits: list = []
         room_kept: list = []
-        top_row = side_by_side([({m: i * step for i, m in enumerate(units[u])}, {m: 0.0 for m in units[u]},
-                                 [(0.0, NODE_H, -cell / 2, (len(units[u]) - 1) * step + cell / 2, ("root", u))], {})
-                                for u in roots])
+        def root_part(u: int) -> tuple:
+            """A founding couple (or a later root) in a row as close as the packing lets them stand, boxed
+            as far as they draw (_arrange), like any family's row."""
+            laid = block_shape([units[u]])
+            box = lambda m, k: max(laid[m][k], cell / 2 - (1 - give) * (cell / 2 - laid[m][k]))  # noqa: E731
+            return ({m: laid[m][0] for m in units[u]}, {m: 0.0 for m in units[u]},
+                    [(min([0.0] + [laid[m][4] for m in units[u]]), max([NODE_H] + [laid[m][5] for m in units[u]]),
+                      min(laid[m][0] - box(m, 2) for m in units[u]), max(laid[m][0] + box(m, 3) for m in units[u]),
+                      ("root", u))], {})
+        top_row = side_by_side([root_part(u) for u in roots])
         pos.update(top_row[0])
         ys.update(top_row[1])
         portraits += top_row[2]
@@ -2468,18 +2753,28 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
             to = min(max(stem, lo), hi)
             levels = sorted({start, end} | {v for a in portraits for v in (a[0] - clear_px - 4, a[1] + clear_px + 4)
                                             if start < v < end})
-            highs = []                      # the levels the line can reach straight down from the parents
-            for h in levels:
-                if not clear(stem, stem, start, h):
-                    break
-                highs.append(h)
-            lows = []                       # the levels from which it can drop straight onto the children's line
-            for h in reversed(levels):
-                if not clear(to, to, h, end):
-                    break
-                lows.append(h)
+            # The levels the line can reach straight down from the parents: down to the first portrait in
+            # its way; and those from which it can drop straight onto the children's line: from the last
+            # portrait in that way.  (Each worked out once, not level by level: Codex-free speed.)
+            down = min([math.inf] + [a[0] - clear_px for a in portraits
+                                     if a[2] - clear_px < stem < a[3] + clear_px and start < a[1] + clear_px])
+            up = max([-math.inf] + [a[1] + clear_px for a in portraits
+                                    if a[2] - clear_px < to < a[3] + clear_px and a[0] - clear_px < end])
+            highs = [h for h in levels if h <= down]
+            lows = [h for h in reversed(levels) if h >= up]
+            check = functools.lru_cache(maxsize=None)(clear)    # the same piece is asked often
+            if start > end:                 # packed so tight the children's line is above the start:
+                highs, lows = [], []        # level by level, as the line goes up
+                for h in levels:
+                    if not clear(stem, stem, start, h):
+                        break
+                    highs.append(h)
+                for h in reversed(levels):
+                    if not clear(to, to, h, end):
+                        break
+                    lows.append(h)
             for h in highs:                 # one level, the highest that works
-                if h in lows and clear(stem, to, h, h):
+                if h in lows and check(stem, to, h, h):
                     return [(stem, start), (stem, h), (to, h), (to, end)]
             gaps = sorted({v for a in portraits if a[1] > start and a[0] < end
                            for v in (a[2] - clear_px - 4, a[3] + clear_px + 4)},
@@ -2487,10 +2782,10 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
             best = None
             for h1 in highs[-4:]:
                 for xc in gaps:
-                    if not clear(stem, xc, h1, h1):
+                    if not check(stem, xc, h1, h1):
                         continue
                     for h2 in lows[-4:]:
-                        if clear(xc, xc, h1, h2) and clear(xc, to, h2, h2):
+                        if check(xc, xc, h1, h2) and check(xc, to, h2, h2):
                             length = abs(xc - stem) + abs(to - xc) + abs(h2 - h1)
                             if best is None or length < best[0]:
                                 best = (length, [(stem, start), (stem, h1), (xc, h1), (xc, h2), (to, h2), (to, end)])
@@ -2558,17 +2853,25 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                 rel = block_shape(lines_of)
                 shape: list = []
                 for line in lines_of:
-                    # Each row a portrait's room across at each end, closing in to as far as its frames'
-                    # outlines reach as the packing nears 100.
+                    # Each row a portrait's room across at each end, closing in as the packing nears 100 --
+                    # never inside what its frames draw (_reach: their decorations, borders, a frame
+                    # resized wider or taller than a portrait).
                     top = rel[line[0]][1]
-                    shape.append((top, top + NODE_H,
-                                  min(rel[m][0] - cell / 2 + (1 - give) * (cell / 2 - rel[m][2]) for m in line),
-                                  max(rel[m][0] + cell / 2 - (1 - give) * (cell / 2 - rel[m][3]) for m in line),
+
+                    def side(m: int, k: int) -> float:
+                        return max(rel[m][k], cell / 2 - (1 - give) * (cell / 2 - rel[m][k]))
+                    shape.append((min([top] + [top + rel[m][4] for m in line]),
+                                  max([top + NODE_H] + [top + rel[m][5] for m in line]),
+                                  min(rel[m][0] - side(m, 2) for m in line),
+                                  max(rel[m][0] + side(m, 3) for m in line),
                                   ("kin", f.id)))
                 hangs = [v[0] for v in rel.values()]
                 shape_lo, shape_hi = min(b[2] for b in shape), max(b[3] for b in shape)
                 best = None
-                levels = sorted({top0} | {a[1] + subgap for a in portraits if a[1] + subgap > top0})
+                # (A block may draw above its first row's top -- a butterfly's feelers, a border's stroke:
+                # its slot goes that much lower to clear what is above.)
+                reach_up = min(b[0] for b in shape)
+                levels = sorted({top0} | {a[1] + subgap - reach_up for a in portraits if a[1] + subgap - reach_up > top0})
                 for y in levels:
                     lower = ((y - top0) / rowh) ** 2 * down
                     if best is not None and lower >= best[0]:
@@ -2602,7 +2905,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                                 best = (cost, dx, y, lines, way)
                                 break
                 if best is None:            # nowhere free: under everything, straight down
-                    y = max(a[1] for a in portraits) + subgap + room[u]
+                    y = max(top0, max(a[1] for a in portraits) + subgap + room[u] - reach_up)
                     best = (0.0, 0.0, y, (y - band, y, min([stem] + [stem + h for h in hangs]) - cell / 2,
                                           max([stem] + [stem + h for h in hangs]) + cell / 2), [])
                 _cost, dx, y, lines, way = best
@@ -2610,7 +2913,7 @@ def _clusters(people: dict, placed: set, families: list[Family], step: float, ga
                 if way:
                     ways[f.id] = way
                 gaps[("family", f.id)] = y
-                for m, (mx, my, _lo, _hi) in rel.items():
+                for m, (mx, my, *_reaches) in rel.items():
                     pos[m], ys[m] = stem + dx + mx, y + my
                 portraits.extend((b[0] + y, b[1] + y, b[2] + stem + dx, b[3] + stem + dx, b[4]) for b in shape)
                 room_kept.append(lines)
@@ -2999,8 +3302,10 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
 
     clusters = lay.edits.positioning in ("packed_families", "packed_generations")
     # (Lines behind the portraits take the straight way, never the ways kept round them.)
-    packed = lay.edits.positioning == "packed_families" and lay.edits.packing > 0 and not lines_behind(lay)
+    behind_all = lines_behind(lay)
+    packed = lay.edits.positioning == "packed_families" and lay.edits.packing > 0 and not behind_all
     rects = None
+    frames = None                       # (lines behind: every frame, for keeping joints off strangers)
     for fam in lay.families:
         kids = [c for c in fam.children if c in lay.x and c not in fam.away]
         away = [c for c in fam.away if c in lay.x]
@@ -3170,6 +3475,12 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
                     tip = own - SUBGAP + 14
             elif row > lay.tops[people[members[0]].generation]:       # babies in a lower row
                 tip = row - SUBGAP + 14
+            if behind_all:              # their point never behind a stranger (_clear_joints)
+                if frames is None:
+                    frames = _frames(lay)
+                family = {fam.father, fam.mother, *fam.children}
+                while abs(tip - lane) > 8 and _behind_stranger(lay, frames, family, apex, tip):
+                    tip += 2 if lane > tip else -2       # towards the children's line
             legs = _route(lay, apex, lane, tip, jogs, back=True)
             names = [f"to {first} {k}" for k in range(len(legs))]
             for k, leg in enumerate(legs):
@@ -3189,9 +3500,94 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
             elif not lay.edits.diagonal_lines:  # only across itself, so every line stays square
                 shift = [shift[0], 0.0] if upright else [0.0, shift[1]]
             _move_piece(drawn, s, *shift, lay=lay)
-    _separate(drawn, lay)
+    widths = {f.id: lay.edits.family_lines.get(families[f.id], {}).get("width", lay.edits.line_width)
+              for f in lay.families}
+    behind = lines_behind(lay)
+    free = {(s[2], s[3]) for s in drawn if f"{families[s[2]]}|{s[3]}" in lay.edits.free_lines
+            and f"{families[s[2]]}|{s[3]}" in lay.edits.line_moves}
+    if behind:
+        _clear_joints(drawn, lay, widths, free)
     _fit(drawn)
+    for _pass in range(2):              # last: never two lines on each other, whatever moved them
+        _separate(drawn, lay, widths, free)
+        _fit(drawn)
+    for _pass in range(3 if behind else 0):
+        # Lines behind: a joint the separating put behind a stranger moved off them again where the 1 px
+        # room is kept, and the room kept again after (the room is the rule; the joints the most it allows).
+        before = [list(s[1]) for s in drawn]
+        _clear_joints(drawn, lay, widths, free)
+        _fit(drawn)
+        _separate(drawn, lay, widths, free)
+        _fit(drawn)
+        if [s[1] for s in drawn] == before:
+            break
     return [(colour, points, fid, piece) for colour, points, fid, piece, _anchors, _up in drawn]
+
+
+def _behind_stranger(lay: "Layout", frames: dict, members: set, x: float, y: float) -> bool:
+    """Whether (x, y) -- a joint of a family's lines -- lies behind (or within 2 of) the frame of a
+    portrait not of that family (`frames`: each portrait's frame box and outline)."""
+    for q, (x0, y0, x1, y1, pts) in frames.items():
+        if q not in members and x0 - 1 <= x <= x1 + 1 and y0 - 1 <= y <= y1 + 1 and any(
+                inside(pts, x + dx, y + dy) for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1))):
+            return True
+    return False
+
+
+def _frames(lay: "Layout") -> dict:
+    out = {}
+    for q in lay.x:
+        pts = lay.frame_points(q)
+        xs, ys = [px for px, _py in pts], [py for _px, py in pts]
+        out[q] = (min(xs), min(ys), max(xs), max(ys), pts)
+    return out
+
+
+def _clear_joints(drawn: list, lay: "Layout", widths: dict | None = None, free: set = frozenset()) -> None:
+    """Lines behind the portraits (lines_behind) pass behind anyone's portrait -- but where a family's
+    lines join (a parent's or a child's line meeting the couple's or the children's line) never behind a
+    portrait not of the family, where the line would look as if it came from that stranger (the owner's
+    tree: Alawa's line seemed to come out of Layla).  Each couple's and children's line with a joint
+    behind a stranger is moved up or down -- never past what hangs from it -- to the nearest place where
+    none is, its lines kept joined (_move_piece); left as it is when nowhere near is clear."""
+    frames = _frames(lay)
+    fams = {f.id: f for f in lay.families}
+    for s in drawn:
+        if s[3] not in ("couple", "lane") or len(s[1]) != 2 or not _same(s[1][0][1], s[1][1][1]) \
+                or (s[2], s[3]) in free:
+            continue
+        f = fams.get(s[2])
+        if f is None:
+            continue
+        members = {f.father, f.mother, *f.children}
+        attached = [(o, end) for o in drawn if o is not s and o[2] == s[2] for end, name in o[5].items() if name == s[3]]
+
+        def joints() -> list:
+            return list(s[1]) + [o[1][end] for o, end in attached]
+        if not any(_behind_stranger(lay, frames, members, x, y) for x, y in joints()):
+            continue
+        y = s[1][0][1]
+        lo, hi = -math.inf, math.inf                # never past the far end of a line hanging from it
+        for o, end in attached:
+            other = o[1][1 - end] if len(o[1]) == 2 else o[1][0 if end else -1]
+            if other[1] < y - 0.5:
+                lo = max(lo, other[1] + 1)
+            elif other[1] > y + 0.5:
+                hi = min(hi, other[1] - 1)
+        x0, x1 = sorted((s[1][0][0], s[1][1][0]))
+        # (Keeping LINE_GAP between its drawn edge and any level line alongside, each line's width counted.)
+        width_of = (widths or {}).get
+        level = [(o[1][0][1], (width_of(s[2], LINE_WIDTH) + width_of(o[2], LINE_WIDTH)) / 2 + LINE_GAP)
+                 for o in drawn if o is not s and (o[2] != s[2] or o[3] != s[3]) and len(o[1]) == 2
+                 and _same(o[1][0][1], o[1][1][1]) and min(o[1][0][0], o[1][1][0]) < x1 - 0.5
+                 and max(o[1][0][0], o[1][1][0]) > x0 + 0.5]
+        xs = [x for x, _y in joints()]
+        for d in sorted(range(-200, 201), key=abs):
+            ny = y + d
+            if d and lo <= ny <= hi and all(abs(ny - v) >= need for v, need in level) \
+                    and not any(_behind_stranger(lay, frames, members, x, ny) for x in xs):
+                _move_piece(drawn, s, 0.0, float(d), lay=lay)
+                break
 
 
 def _fit(drawn: list) -> None:
@@ -3283,51 +3679,174 @@ def _follow(drawn: list, s: list, old: list, new: list, seen: set) -> None:
             _follow(drawn, other, before, points, seen)
 
 
-APART = 4                               # how far a line moves off another it would lie on
+LINE_GAP = 1.0                          # the least room between two lines' drawn edges (the owner)
 
 
-def _separate(drawn: list, lay: Layout | None = None) -> None:
-    """No two families' lines lie on top of each other (the owner: "they can be as close as
-    possible but not overlapping"): a straight run along another family's run moves the least it
-    can, APART at a time -- an upright one sideways, a level one up or down -- keeping its line
-    whole as any dragged piece does."""
-    def upright(s) -> bool:
-        pts = s[1]
-        return len(pts) == 2 and pts[0][0] == pts[1][0] and pts[0][1] != pts[1][1]
+def _same(a: float, b: float) -> bool:
+    """Two places one (a run's ends worked out two ways differ in the last digits)."""
+    return abs(a - b) < 1e-6
 
-    def level(s) -> bool:
-        pts = s[1]
-        return len(pts) == 2 and pts[0][1] == pts[1][1] and pts[0][0] != pts[1][0]
 
-    def span(pts, axis: int) -> tuple[float, float]:
-        a, b = pts[0][axis], pts[1][axis]
-        return min(a, b), max(a, b)
+def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None,
+              free: set = frozenset()) -> None:
+    """No two lines lie on top of each other (the owner: "lines should try not to overlap exactly ever.
+    (min 1 pixel distance between them in any position)"): two straight runs side by side -- two
+    families', or one family's that do not start from one point -- with less than LINE_GAP between their
+    drawn edges (each line's width counted) along any stretch they share: one moves the least it can, an
+    upright one sideways, a level one up or down, keeping its line whole as any dragged piece does
+    (_move_piece).  Lines crossing are not touched.  Where it can, a run moves where it goes through no
+    portrait it did not go through already -- and, with the lines behind the portraits, puts no joint
+    behind a stranger's portrait (_clear_joints)."""
+    widths = widths or {}
+    width_of = lambda r: widths.get(r[2], LINE_WIDTH)      # noqa: E731
+    behind = lay is not None and lines_behind(lay)
+    frames = _frames(lay) if lay is not None else {}
+    fams = {f.id: f for f in lay.families} if lay is not None else {}
 
-    def overlaps(a, b, axis: int) -> bool:
-        """Runs on one line (the other axis within a pixel) sharing more than a pixel of it."""
-        (a0, a1), (b0, b1) = span(a, 1 - axis), span(b, 1 - axis)
-        return abs(a[0][axis] - b[0][axis]) < 1 and min(a1, b1) - max(a0, b0) > 1
+    def axis_of(r) -> int | None:
+        pts = r[1]
+        # (A twins' bar is held by its legs; a piece put down with Alt stays where the player put it.)
+        if len(pts) != 2 or r[3].startswith("bar ") or (r[2], r[3]) in free:
+            return None
+        if _same(pts[0][0], pts[1][0]) and not _same(pts[0][1], pts[1][1]):
+            return 0                        # upright: placed across by x
+        if _same(pts[0][1], pts[1][1]) and not _same(pts[0][0], pts[1][0]):
+            return 1                        # level: placed by y
+        return None
 
-    for _round in range(12):
-        moved = False
-        for kind, axis in ((upright, 0), (level, 1)):
-            runs = [s for s in drawn if kind(s)]
-            for i, a in enumerate(runs):
-                # (Each run's place across checked first: most runs are nowhere near.)
-                at = a[1][0][axis]
-                if not kind(a) or not any(abs(b[1][0][axis] - at) < 1 and b[2] != a[2] and kind(b)
-                                          and overlaps(a[1], b[1], axis) for b in runs[:i]):
+    def runs_of(r) -> list:
+        """(axis, place across, from, to) of each straight stretch of a piece (a twins' leg has three)."""
+        out = []
+        for a, b in zip(r[1], r[1][1:]):
+            if _same(a[0], b[0]) and not _same(a[1], b[1]):
+                out.append((0, a[0], min(a[1], b[1]), max(a[1], b[1])))
+            elif _same(a[1], b[1]) and not _same(a[0], b[0]):
+                out.append((1, a[1], min(a[0], b[0]), max(a[0], b[0])))
+        return out
+
+    def shared_start(a, b) -> bool:
+        """One family's two pieces from one point (two children's lines from the one place on the
+        children's line, the stem and a leg): one path by design."""
+        return a[2] == b[2] and any(abs(p[0] - q[0]) < 0.5 and abs(p[1] - q[1]) < 0.5
+                                    for p in (a[1][0], a[1][-1]) for q in (b[1][0], b[1][-1]))
+
+    def clashes(r, axis: int, at: float, lo: float, hi: float, index: dict) -> bool:
+        need = width_of(r) / 2 + LINE_GAP
+        for key in range(int(at // 8) - 2, int(at // 8) + 3):
+            for o, (ax, oat, olo, ohi) in index.get((axis, key), ()):
+                if o is r or (o[2] == r[2] and o[3] == r[3]):
                     continue
-                for step in (1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6):
-                    shift = step * APART
-                    trial = [tuple(v + shift if k == axis else v for k, v in enumerate(pt)) for pt in a[1]]
-                    if not any(abs(b[1][0][axis] - at - shift) < 1 and b is not a and b[2] != a[2] and kind(b)
-                               and overlaps(trial, b[1], axis) for b in runs):
-                        break
-                _move_piece(drawn, a, shift if axis == 0 else 0.0, shift if axis == 1 else 0.0, lay)
-                moved = True
+                if abs(oat - at) < need + width_of(o) / 2 - 1e-6 and min(hi, ohi) - max(lo, olo) > 0.5 \
+                        and not shared_start(r, o):
+                    return True
+        return False
+
+    def through(r, axis: int, at: float, lo: float, hi: float) -> set:
+        """The portraits a run would go through (their frames' boxes, a little inside)."""
+        out = set()
+        for q, (x0, y0, x1, y1, _pts) in frames.items():
+            if axis == 0 and x0 + 2 < at < x1 - 2 and min(hi, y1 - 2) > max(lo, y0 + 2):
+                out.add(q)
+            elif axis == 1 and y0 + 2 < at < y1 - 2 and min(hi, x1 - 2) > max(lo, x0 + 2):
+                out.add(q)
+        return out
+
+    def stranger_joint(r, axis: int, shift: float) -> bool:
+        f = fams.get(r[2])
+        if f is None:
+            return False
+        members = {f.father, f.mother, *f.children}
+        _a, at, lo, hi = runs_of(r)[0]
+        joints = [r[1][0], r[1][-1]] + [p for o in drawn if o is not r and o[2] == r[2] for p in (o[1][0], o[1][-1])
+                                        if abs(p[axis] - at) < 0.5 and lo - 0.5 <= p[1 - axis] <= hi + 0.5]
+        return any(_behind_stranger(lay, frames, members, x + (shift if axis == 0 else 0.0),
+                                    y + (shift if axis == 1 else 0.0)) for x, y in joints)
+
+    def clashing(r, axis: int, at: float, lo: float, hi: float, index: dict) -> list:
+        """The runs r is too close to (each piece once, in the order drawn)."""
+        need, out = width_of(r) / 2 + LINE_GAP, []
+        for key in range(int(at // 8) - 2, int(at // 8) + 3):
+            for o, (_ax, oat, olo, ohi) in index.get((axis, key), ()):
+                if o is not r and not (o[2] == r[2] and o[3] == r[3]) and o not in out \
+                        and abs(oat - at) < need + width_of(o) / 2 - 1e-6 and min(hi, ohi) - max(lo, olo) > 0.5 \
+                        and not shared_start(r, o):
+                    out.append(o)
+        return out
+
+    def place(r, axis: int, index: dict) -> tuple:
+        """(how far r moves across itself to be clear of every run near it, whether that place is fine: through
+        no portrait it did not go through already, and -- lines behind -- no joint behind a stranger).  The
+        nearest fine place within 60, else the nearest clear one (not fine); (None, False) when none is."""
+        _ax, at, lo, hi = runs_of(r)[0]
+        was = through(r, axis, at, lo, hi) if not behind and frames else set()
+        best = None
+        # Where it may go: just clear of each run near it, either side (the nearest first).
+        places = set()
+        for key in range(int(at // 8) - 8, int(at // 8) + 9):
+            for o, (_a, oat, olo, ohi) in index.get((axis, key), ()):
+                if o is not r and min(hi, ohi) - max(lo, olo) > 0.5:
+                    room = width_of(r) / 2 + width_of(o) / 2 + LINE_GAP + 0.01
+                    places.update((oat - room - at, oat + room - at))
+        if behind:                          # (a joint may need a place a few pixels further on, clear of a stranger)
+            places.update(float(d) for d in range(-24, 25))
+        # (The nearest first; of two as near, right or down.)
+        for shift in sorted((d for d in places if 0 < abs(d) <= 60), key=lambda d: (abs(d), -d)):
+            if clashes(r, axis, at + shift, lo, hi, index):
+                continue
+            if best is None:
+                best = shift                    # the nearest clear place, whatever else
+            if frames and not behind and not through(r, axis, at + shift, lo, hi) <= was:
+                continue
+            if behind and stranger_joint(r, axis, shift):
+                continue
+            return shift, True
+        return best, False
+
+    near = None                             # after the first round: only runs near one that moved
+    for _round in range(16):
+        index: dict = {}
+        for r in drawn:
+            if (r[2], r[3]) in free:        # (put down with Alt: nothing moves for it, nor it for anything)
+                continue
+            for run in runs_of(r):
+                index.setdefault((run[0], int(run[1] // 8)), []).append((r, run))
+        before = {id(r): list(r[1]) for r in drawn}
+        moved = False
+        for r in drawn:
+            if near is not None and not any((run[0], int(run[1] // 8)) in near for run in runs_of(r)):
+                continue
+            axis = axis_of(r)
+            if axis is None:
+                continue
+            _ax, at, lo, hi = runs_of(r)[0]
+            if not clashes(r, axis, at, lo, hi, index):
+                continue
+            best, fine = place(r, axis, index)
+            if not fine:
+                # Nowhere near is clear of portraits (or, lines behind, of strangers' portraits for its joints):
+                # one it is too close to moves instead when that one can go somewhere fine.
+                for o in clashing(r, axis, at, lo, hi, index):
+                    if axis_of(o) == axis:
+                        other, ok = place(o, axis, index)
+                        if ok:
+                            r, best = o, other
+                            break
+            if best is None:
+                continue
+            _move_piece(drawn, r, best if axis == 0 else 0.0, best if axis == 1 else 0.0, lay)
+            moved = True
+            for run in runs_of(r):          # where it is now, for the runs still to be looked at
+                index.setdefault((run[0], int(run[1] // 8)), []).append((r, run))
         if not moved:
             break
+        near = set()
+        for r in drawn:
+            if r[1] != before.get(id(r)):
+                for pts in (before.get(id(r), []), r[1]):
+                    for a, b in zip(pts, pts[1:]):
+                        axis = 0 if _same(a[0], b[0]) else 1
+                        at = a[axis]
+                        near.update((axis, k) for k in range(int(at // 8) - 2, int(at // 8) + 3))
 
 
 # ---------------------------------------------------------------------------
@@ -3409,6 +3928,7 @@ def head_boxes(path: Path) -> dict[int, tuple[int, int, int, int]]:
                 row_alpha = alpha[r * HEAD_H + y][left:left + HEAD_W]
                 xs = [x for x, value in enumerate(row_alpha) if value > 24]
                 if xs:
+                    _SPANS.setdefault((key, r), []).append((y, xs[0], xs[-1] + 1))
                     if box is None:
                         box = [xs[0], y, xs[-1] + 1, y + 1]
                     else:
@@ -3425,6 +3945,33 @@ def face_box(present: dict, sheet: str | None, row: int | None) -> tuple[int, in
     if sheet in present and row is not None:
         return head_boxes(present[sheet]).get(row, DEFAULT_BOX)
     return DEFAULT_BOX
+
+
+_SPANS: dict = {}                       # (head sheet, row) -> each visible pixel row's (y, left, right)
+FACE_BANDS = 12                         # a face's outline, as this many bands across it, top to bottom
+
+
+def face_bands(present: dict, sheet: str | None, row: int | None) -> list[tuple[int, int, int, int]]:
+    """A face's visible pixels as bands (x0, y0, x1, y1 inside its cell), top to bottom: how wide the
+    head is at each height -- what is kept inside a portrait's shape (face_anchor), not its box's empty
+    corners."""
+    box = face_box(present, sheet, row)
+    spans = _SPANS.get((str(present[sheet]), row)) if sheet in present and row is not None else None
+    if not spans:                       # no picture: the round stand-in _node draws (26 across, scaled), as bands
+        x0, y0, x1, y1 = box
+        r, mx, my = 26 / HEAD_SCALE, (x0 + x1) / 2, (y0 + y1) / 2
+        out = []
+        for k in range(FACE_BANDS):
+            a, b = -1 + 2 * k / FACE_BANDS, -1 + 2 * (k + 1) / FACE_BANDS
+            half = math.sqrt(max(0.0, 1 - min(a * a, b * b))) * r
+            out.append((mx - half, my + a * r, mx + half, my + b * r))
+        return out
+    out = []
+    step = max(1, -(-len(spans) // FACE_BANDS))
+    for k in range(0, len(spans), step):
+        part = spans[k:k + step]
+        out.append((min(s[1] for s in part), part[0][0], max(s[2] for s in part), part[-1][0] + 1))
+    return out
 
 
 def _png_size(path: Path) -> tuple[int, int]:
@@ -3615,10 +4162,126 @@ def born_with(lay: Layout, p: gen.Person) -> list[str]:
 
 def inner_sizes(lay: Layout, p: gen.Person) -> tuple[float, float]:
     """(the face's size, the words' size) inside this villager's portrait, as factors: every portrait's
-    setting (their group's, else the tree's) times their own."""
+    setting (their group's, else the tree's) times their own -- or, made the same for their scope
+    ("Same face and text size for:", Edits.equal_sizes), the scope's one size, whatever else is set."""
+    scope = equal_scope(lay.edits, p)
+    if scope:
+        sizes = lay.edits.equal_sizes[scope]
+        return sizes["face"] / 100, sizes["text"] / 100
     entry = lay.entry(p)
     return (lay.opt(p, "picture_size") / 100 * entry.get("picture_scale", 100.0) / 100,
             lay.opt(p, "text_size") / 100 * entry.get("text_scale", 100.0) / 100)
+
+
+FACE_ROOM = 8                           # a face at one size keeps this far inside its frame (fixed_face_size)
+
+
+EQUAL_SCOPES = ("all",) + tuple(GROUPS)       # Edits.equal_sizes: everyone, or one group
+
+
+def clean_equal_sizes(raw) -> dict:
+    """Edits.equal_sizes as saved, each scope's sizes checked; a bad one is dropped."""
+    out = {}
+    if isinstance(raw, dict):
+        for scope, sizes in raw.items():
+            if scope in EQUAL_SCOPES and isinstance(sizes, dict):
+                face, text = sizes.get("face"), sizes.get("text")
+                if all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in (face, text)):
+                    out[scope] = {"face": max(PICTURE_SCALE_MIN, min(PICTURE_SCALE_MAX, float(face))),
+                                  "text": max(TEXT_SCALE_MIN, min(TEXT_SCALE_MAX, float(text)))}
+    return out
+
+
+def equal_scope(edits: "Edits", p: gen.Person) -> str | None:
+    """The "Same face and text size for:" scope this villager's portrait is in (their group's, else
+    everyone's), or None."""
+    if not edits.equal_sizes:
+        return None
+    group = group_of(p)
+    return group if group in edits.equal_sizes else "all" if "all" in edits.equal_sizes else None
+
+
+def is_fixed(edits: "Edits", p: gen.Person) -> bool:
+    """Whether this portrait's face and words keep one size (fixed_face_size, or made the same)."""
+    return bool(opt(edits, p, "fixed_face_size") or equal_scope(edits, p))
+
+
+def _own_fixed_scale(lay: Layout, p: gen.Person, fw: float, fh: float) -> float:
+    """One portrait's own scale with its face and words at one size (fixed_scale)."""
+    pic, words = inner_sizes(lay, p)
+    face = FACE_H * HEAD_SCALE * pic
+    room = min(fw, fh) - 2 * FACE_ROOM
+    scale = 1.0 if p.upcoming or face <= room else max(0.2, room / face)
+    if lay.opt(p, "text_inside") and not p.upcoming:
+        # Words kept inside the shape: the face and words together as large as the frame's height holds
+        # them (else the words, run on below a short frame, would be made all but unreadably small).
+        _left, _top, _text, lines = placement(lay, p)
+        block = face + 8 + len(lines) * LINE_H * words
+        scale = min(scale, max(0.2, (fh - 2 * FACE_ROOM) / block))
+    return scale
+
+
+def equal_scale(lay: Layout, scope: str) -> float:
+    """One scale for every portrait in a "Same face and text size" scope: the largest at which every
+    one of their faces (and, kept inside the shape, their words) fits its frame -- so none is shrunk
+    and the others not (the owner, 2026-10-10)."""
+    cache = lay.__dict__.setdefault("_equal_scales", {})
+    if scope not in cache:
+        edits, village = lay.edits, lay.village
+        scales = [_own_fixed_scale(lay, q, *frame_size(edits, village, q, shrink=lay.shrink))
+                  for q in village.people.values()
+                  if not q.upcoming and equal_scope(edits, q) == scope
+                  and not edits.entries.get(entry_key(village, q), {}).get("hidden")]
+        cache[scope] = min(scales, default=1.0)
+    return cache[scope]
+
+
+def fixed_scale(lay: Layout, p: gen.Person, fw: float, fh: float) -> float:
+    """Faces and words at one size (Edits.fixed_face_size, the owner, 2026-10-09: the males' faces and
+    words looked a quarter smaller than the females'): 1 for every portrait, whatever its shape and size --
+    unless the frame is too small for the face, which then shrinks just enough to stay inside it (the
+    face never leaves its portrait), and the words with it.  Made the same for a scope: the scope's
+    one scale (equal_scale)."""
+    scope = equal_scope(lay.edits, p)
+    if scope:
+        return equal_scale(lay, scope)
+    return _own_fixed_scale(lay, p, fw, fh)
+
+
+def face_inside(lay: Layout, p: gen.Person, present: dict, y: float, fy: float, fh: float, scale: float) -> float:
+    """How far down (or up) a portrait's face and words move so the face, at one size, is inside its
+    frame -- a frame shorter than a portrait (a turtle shell on its side, a butterfly) would otherwise
+    have the face standing out over its top.  The words keep their place under the face; where the
+    frame is too short for them they run on below it, or, kept inside the shape (Edits.text_inside),
+    are made smaller by the usual fitting."""
+    sheet = sheet_name(lay.village.game, p)
+    box = face_box(present, sheet, look_of(lay.edits, lay.village, p)[0])
+    _left, head_top, _text_top, _lines = placement(lay, p, box)
+    pic, _words = inner_sizes(lay, p)
+    middle = y + NODE_H / 2
+    top = middle + (y + head_top + box[1] * HEAD_SCALE * pic - middle) * scale
+    bottom = top + (box[3] - box[1]) * HEAD_SCALE * pic * scale
+    if top < fy + FACE_ROOM:
+        return min(fy + FACE_ROOM - top, max(0.0, fy + fh - FACE_ROOM - bottom))
+    if bottom > fy + fh - FACE_ROOM:
+        return -min(bottom - (fy + fh - FACE_ROOM), max(0.0, top - fy - FACE_ROOM))
+    return 0.0
+
+
+def fixed_words_reach(lay: Layout, p: gen.Person, fw: float, fh: float, present: dict | None = None) -> tuple[float, float]:
+    """For a portrait whose face and words keep one size (fixed_face_size): how high its face and how low
+    its words reach from its place's top -- past a frame shorter than the face and words, where the words
+    run on below it.  As _node draws them."""
+    scale = fixed_scale(lay, p, fw, fh)
+    pic, words = inner_sizes(lay, p)
+    sheet = sheet_name(lay.village.game, p)
+    box = face_box(present or {}, sheet, look_of(lay.edits, lay.village, p)[0])
+    _left, head_top, text_top, lines = placement(lay, p, box)
+    shift = face_inside(lay, p, present or {}, 0.0, (NODE_H - fh) / 2, fh, scale)
+    mid = NODE_H / 2
+    top = mid + (head_top + box[1] * HEAD_SCALE * pic - mid) * scale + shift
+    bottom = mid + (text_top + max(0, len(lines) - 1) * LINE_H * words + 4 * words - mid) * scale + shift
+    return top, bottom
 
 
 def placement(lay: Layout, p: gen.Person, box: tuple = None) -> tuple[float, float, float, list]:
@@ -3669,17 +4332,89 @@ def _wrap(text: str, n: int = WRAP) -> list[str]:
     return out
 
 
+AUX_STYLE = {"bold": True, "italic": True}     # the tree's extra lines, by default (the owner, 2026-10-10)
+
+
+def is_aux_line(k: int, line: str) -> bool:
+    """Whether a portrait's line is an extra one -- "Golden Child", "Founder", "X's twin", how they
+    came, a title, "(deceased)" on its own -- rather than the main text: the name (the first line)
+    and the age."""
+    text = line.strip() if isinstance(line, str) else ""
+    return (k > 0 and bool(text) and text != "age unknown"
+            and not AGE_YEARS.fullmatch(text) and not AGE_UNITS.fullmatch(text))
+
+
+def default_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None:
+    """The patcher's own lines (default_text) formatted: every extra line (is_aux_line) bold and
+    italic (the owner, 2026-10-10: "please bold and italicize 'auxillary text' by default").  None
+    when there is none, or for an upcoming child."""
+    if p.upcoming:
+        return None
+    lines = default_text(lay, p)
+    if not any(is_aux_line(k, line) for k, line in enumerate(lines)):
+        return None
+    return [[(line, dict(AUX_STYLE) if is_aux_line(k, line) else {})] for k, line in enumerate(lines)]
+
+
+def bold_italic_aux(lines: list, runs) -> list | None:
+    """The Faces & Text button (the owner, 2026-10-10: "add a button to retroactively update that
+    text too"): a player's own lines with every extra line (is_aux_line) made bold and italic, each run
+    keeping its other formatting; the name and age lines untouched.  The runs in their saved form."""
+    have = clean_runs(runs, lines) or [[(line, {})] for line in lines]
+    out = [[(text, {**style, **AUX_STYLE}) if is_aux_line(k, line) else (text, dict(style)) for text, style in line_runs]
+           for k, (line, line_runs) in enumerate(zip(lines, have))]
+    return runs_data([merge_runs(line) for line in out])
+
+
 def node_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None:
-    """The entry's lines formatted word by word (clean_runs), or None when they are plain."""
+    """The entry's lines formatted word by word (clean_runs), or None when they are plain.  The
+    patcher's own lines have their extra lines bold and italic (default_runs); the player's own lines
+    keep exactly what the player chose."""
     entry = lay.entry(p)
     lines = entry.get("lines")
     if not lines:
-        return None
+        return default_runs(lay, p)
     lines, runs = _shown_name_in(lay, p, lines, entry.get("runs"))
     return clean_runs(runs, lines)
 
 
 BOLD_WIDTH = 1.1                        # how much wider a bold letter is, near enough
+
+# Segoe UI's own letter widths, in thousandths of its size (Windows' font, measured): space to "~", then
+# no-break space to "ÿ".  A portrait's words are fitted by these, the same in the editor and in every
+# saved picture -- a fixed width a letter (0.55 of the size) let a bold "75. Mamba Chuchip" run 11 pixels
+# past its frame.
+_WIDTH_CHARS = "".join(map(chr, range(32, 127))) + "".join(map(chr, range(160, 256)))
+_WIDTHS = {False: dict(zip(_WIDTH_CHARS, map(int, (
+    "274 284 392 591 539 818 800 230 302 302 417 684 217 400 217 390 539 539 539 539 539 539 539 539 539 539 "
+    "217 217 684 684 684 448 955 645 573 619 701 506 488 686 710 266 357 580 471 898 748 754 560 754 598 531 "
+    "524 687 621 934 590 553 570 302 379 302 684 415 268 509 588 462 589 523 313 589 566 242 242 497 242 861 "
+    "566 586 588 589 348 424 339 566 479 723 459 484 452 302 239 302 684 274 284 539 539 556 539 239 448 414 "
+    "890 392 506 684 400 890 415 377 684 366 366 282 577 458 217 205 351 431 506 906 931 952 448 645 645 645 "
+    "645 645 645 860 619 506 506 506 506 266 266 266 266 701 748 754 754 754 754 754 684 754 687 687 687 687 "
+    "553 560 544 509 509 509 509 509 509 832 462 523 523 523 523 242 242 242 242 559 566 586 586 586 586 586 "
+    "684 586 566 566 566 566 484 588 484").split()))),
+    True: dict(zip(_WIDTH_CHARS, map(int, (
+    "276 327 493 592 575 867 850 293 369 369 455 707 271 404 271 443 575 575 575 575 575 575 575 575 575 575 "
+    "271 271 707 707 707 438 954 703 641 624 737 532 520 711 766 317 445 649 511 957 790 758 614 758 653 561 "
+    "586 723 667 1005 655 607 607 369 436 369 707 415 314 538 620 480 619 541 383 619 602 284 284 559 284 916 "
+    "605 611 620 619 398 440 389 605 542 797 552 538 479 369 326 369 707 276 327 575 575 556 575 326 485 462 "
+    "874 410 581 707 404 874 415 380 707 404 404 303 613 509 271 215 394 456 581 952 965 979 438 703 703 703 "
+    "703 703 703 935 624 532 532 532 532 317 317 317 317 737 790 758 758 758 758 758 707 758 723 723 723 723 "
+    "607 614 628 538 538 538 538 538 538 828 480 541 541 541 541 284 284 284 284 593 605 611 611 611 611 611 "
+    "707 611 605 605 605 605 538 620 538").split())))}
+WIDTH_SPARE = 1.04                      # small sizes are drawn a little wider than the font's own widths
+OTHER_FONT_SPARE = 1.15                 # a font of the player's own, measured as Segoe UI and a little more
+ITALIC_SPARE = 1.05                     # italic letters about as wide, leaning past their ends (measured)
+
+
+def text_width(text: str, size: float, bold: bool = False, font: str | None = None, italic: bool = False) -> float:
+    """How wide a line of words is drawn, in pixels, at `size` (Segoe UI's letter widths; a letter beyond
+    them -- a symbol, another alphabet -- as wide as the font's size, or the widest of them)."""
+    widths = _WIDTHS[bool(bold)]
+    em = sum(widths.get(ch, 1000 if ord(ch) >= 0x2E80 else 760) for ch in text) / 1000
+    spare = WIDTH_SPARE * (1.0 if not font or font.lower() == "segoe ui" else OTHER_FONT_SPARE)
+    return em * size * spare * (ITALIC_SPARE if italic else 1.0)
 
 
 def run_width(style: dict, base: dict) -> float:
@@ -4046,6 +4781,15 @@ def _drawn_outlines() -> dict[str, list[tuple[float, float]]]:
             "leaf": _traced(leaf, (0, 0))}
 
 
+# Shapes drawn as the owner straightened them (2026-10-10): (degrees turned, mirrored across first), as a
+# portrait so turned and flipped drew it before.  The Monstera leaf as every leaf of the owner's tree was set
+# ("treat this current monstera position as straight up and horizontal"); the feather lying across, its tip
+# to the left and its quill to the right.  Each with a marker in the edits (Edits.<shape>_v2): a tree saved
+# before is moved on once (settle_shapes).
+SHAPE_BAKES = {"monstera": (45.0, True), "feather": (270.0, False)}
+BAKED: dict = {}                        # each one's traced box's and its own box's sides, the traced height 1 (_shells)
+
+
 def _shells() -> dict[str, tuple[list, list]]:
     """The owner's shells (2026-10-09, from their pictures): a scallop -- seven rounded lobes fanned
     over a hinge, a small ear either side below -- and a snail's shell, its last whorl round a
@@ -4088,6 +4832,20 @@ def _shells() -> dict[str, tuple[list, list]]:
         decor = value[2] if len(value) > 2 else []
         xs, ys = zip(*(edge + ([q for line in decor for q in line] if name in FIT_EVERYTHING else [])))
         x0, y0, w, h = min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)
+        if name in SHAPE_BAKES:
+            # Drawn as the owner straightened it (SHAPE_BAKES): mirrored across (when it is) and turned about
+            # its box's middle, as a portrait turned and flipped so drew it, then fitted about that middle,
+            # so the face and words stay where they were on it.  BAKED keeps the boxes' sides (the old box
+            # one tall), for own_box and for moving a tree saved before (settle_shapes).
+            degrees, mirrored = SHAPE_BAKES[name]
+            cx, cy, m = x0 + w / 2, y0 + h / 2, -1 if mirrored else 1
+            moved = lambda line: [turn(m * (x - cx) / h, (y - cy) / h, degrees) for x, y in line]
+            edge = moved(edge)[::-1] if mirrored else moved(edge)    # the same way round (outline())
+            lines, decor = [moved(line) for line in lines], [moved(line) for line in decor]
+            xs, ys = zip(*(edge + ([q for line in decor for q in line] if name in FIT_EVERYTHING else [])))
+            BAKED[name] = {"old_w": w / h, "old_h": 1.0, "new_w": 2 * max(map(abs, xs)), "new_h": 2 * max(map(abs, ys))}
+            x0, y0 = -BAKED[name]["new_w"] / 2, -BAKED[name]["new_h"] / 2
+            w, h = BAKED[name]["new_w"], BAKED[name]["new_h"]
         unit = lambda p: ((p[0] - x0) / w, (p[1] - y0) / h)
         fitted[name] = ([unit(p) for p in edge], [[unit(p) for p in line] for line in lines], w / h,
                         [[unit(p) for p in line] for line in decor])
@@ -4565,6 +5323,7 @@ def _more_shapes() -> dict:
         [(405, 1338), (560, 1390), (715, 1348)], [(960, 1563), (1010, 1560), (1058, 1527)])]
     scale = lambda line: [(x / 1920, y / 1920) for x, y in line]
     # The holes are inside the leaf: light, like the veins (the owner: words may cross them, not the edge).
+    # (Drawn turned: SHAPE_BAKES.)
     out["monstera"] = (scale(mon), [scale(v) for v in veins] + [scale(h) for h in holes])
 
     return out
@@ -4812,8 +5571,24 @@ SIZE_STEPS = (8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72, 96, 
 LINE_STEPS = (0.25, 0.5, 0.75, 1, 1.5, 2.2, 2.25, 3, 4.5, 6, 8, 10, 12, 16, 20)
 
 
+def own_box(kind: str, w: float, h: float) -> tuple[float, float]:
+    """A frame's shape's own length and width: the frame's, but a shape drawn turned (SHAPE_BAKES) its
+    traced box's, as it was before, in the box it now fills -- what a special border's leaves and a words'
+    room measure, so they are as they were."""
+    b = BAKED.get(base_kind(kind))
+    if b is None:
+        return w, h
+    return w * b["old_w"] / b["new_w"], h * b["old_h"] / b["new_h"]
+
+
+def natural_height(kind: str) -> float:
+    """A portrait tall; a shape drawn turned (SHAPE_BAKES) as tall as it reached turned so from a
+    portrait's height, so it is the size it was drawn turned (the owner's Monstera leaves, 2026-10-10)."""
+    return NODE_H * BAKED[kind]["new_h"] if kind in BAKED else NODE_H
+
+
 def natural_width(kind: str) -> float:
-    return NODE_H * ASPECTS[kind] if kind in ASPECTS else NODE_W
+    return natural_height(kind) * ASPECTS[kind] if kind in ASPECTS else NODE_W
 
 
 def shape_points(kind: str, x: float, y: float, w: float, h: float, radius: float = 0.0,
@@ -4959,6 +5734,7 @@ class Line:
     opacity: float = 1.0
     dash: str = ""                      # LINE_TYPES
     pid: int | None = None              # the villager whose portrait it is part of (a border, a vine)
+    casing: bool = False                # the thin outline under a family line that would blend into the background
 
 
 @dataclass
@@ -5076,6 +5852,21 @@ class Scene:
     items: list = field(default_factory=list)
     boxes: dict = field(default_factory=dict)       # pid -> (x, y, w, h), what a click selects
     stickers: list = field(default_factory=list)    # the Sticker items, bottom one first
+    # How the tree sits on a custom canvas (Edits.canvas_w / canvas_h): (scale, left, top), a point
+    # (x, y) of the laid-out tree drawn at (x * scale + left, y * scale + top).  (1, 0, 0) on Automatic.
+    fit: tuple = (1.0, 0.0, 0.0)
+
+
+def to_page(sc: "Scene", x: float, y: float) -> tuple[float, float]:
+    """A point of the laid-out tree (Layout's x / y / frames) where the page draws it (Scene.fit)."""
+    s, ox, oy = sc.fit
+    return x * s + ox, y * s + oy
+
+
+def to_tree(sc: "Scene", x: float, y: float) -> tuple[float, float]:
+    """A point of the page back in the laid-out tree's own units (to_page undone)."""
+    s, ox, oy = sc.fit
+    return (x - ox) / s, (y - oy) / s
 
 
 def picture_path(name: str, images: Path | None, library: dict | None = None) -> Path | None:
@@ -5161,9 +5952,10 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
     turn_of = {f.id: k for k, f in enumerate(lay.families)}
     for colour, points, fid, piece in lines(lay):
         key = family_key(v, fams[fid])
-        colour = scheme_colour(lay.edits, "lines", turn_of[fid] / max(1, len(turn_of)), turn_of[fid]) or colour
+        style = lay.edits.family_lines.get(key, {})
+        colour = (style.get("colour") or scheme_colour(lay.edits, "lines", turn_of[fid] / max(1, len(turn_of)), turn_of[fid])
+                  or colour)
         if f"line:{key}|{piece}" not in lay.edits.hidden:
-            style = lay.edits.family_lines.get(key, {})
             add(Line(points, colour, style.get("width", lay.edits.line_width), target=("family", key),
                      piece=f"{key}|{piece}", dash=style.get("dash", lay.edits.line_dash)))
     for pid in lay.x:
@@ -5172,6 +5964,7 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
         x0, y0 = min(min(xs), lay.x[pid]), min(min(ys), lay.y[pid])
         x1, y1 = max(max(xs), lay.x[pid] + NODE_W), max(max(ys), lay.y[pid] + NODE_H)
         out.boxes[pid] = (x0, y0, x1 - x0, y1 - y0)
+    _equal_words(lay, out.items)
     key_text = words(lay, "footer")
     # With Shrink to fit, the footer goes onto as many lines as keep it inside that width, rather than
     # widening the page again (Codex, #575); otherwise it is the one line it always was.
@@ -5184,17 +5977,68 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
     for k, line in enumerate(footer_lines):
         add(Text(middle, lay.height - 90 + 18 * k, line, 13, ink, centre=True, role="footer", move="footer",
                  edit="word:footer"))
-    out.items[:] = [i for i in out.items if f"word:{getattr(i, 'move', '')}" not in lay.edits.hidden]
+    hidden = {h for h in lay.edits.hidden if isinstance(h, str)}
+    if hidden:                                  # (a special border's thousands of pieces never hidden this way)
+        blank = "word:" in hidden
+        out.items[:] = [i for i in out.items
+                        if type(i) is Poly and not blank or f"word:{getattr(i, 'move', '')}" not in hidden]
     _apply_styles(out.items, lay.edits)
     _apply_opacity(out.items, lay.edits)
     _apply_moves(out.items, lay.edits)
+    canvas = (lay.edits.canvas_w, lay.edits.canvas_h) if lay.edits.canvas_w and lay.edits.canvas_h else None
+    if canvas:
+        _fit_page(out)                  # the tree's own page, everything drawn on it ...
+        _to_canvas(out, *canvas)        # ... shrunk onto the canvas, or centred on it
     for k, raw in enumerate(lay.edits.stickers):
         item = sticker_item(k, raw, images, library)
         if item is not None:
             add(item)
             out.stickers.append(item)
-    _fit_page(out)
+    if not canvas:
+        _fit_page(out)
+    # The thin casings under family lines whose own colour would blend into the background somewhere
+    # (Auto-colour family lines; the owner, 2026-10-10: an option, "Outline lines that blend into the
+    # background", off unless the player ticks it), under every family line.
+    if lay.edits.outline_lines:
+        import vv_line_colours              # here: it draws on this module
+        cased = vv_line_colours.casings(lay, out)
+        if cased:
+            at = next(k for k, i in enumerate(out.items) if isinstance(i, Line) and i.piece)
+            out.items[at:at] = cased
     return out
+
+
+def _to_canvas(out: "Scene", width: int, height: int) -> None:
+    """The tree on a canvas of the player's size (the owner, 2026-10-09): larger than the canvas, every
+    part of it -- portraits, lines, words, labels, the Key, title and footer -- shrunk evenly to fit and
+    centred; smaller, centred at its own size.  The background fills the canvas; the pictures and text
+    boxes the player placed (added after) keep their own places and sizes."""
+    # The tree's page and everything drawn, even words a little wider than it (the footer centred on it):
+    # all of it on the canvas.
+    boxes = [b for b in map(_extent, out.items) if b is not None] + [(0.0, 0.0, out.width, out.height)]
+    x0, y0 = min(b[0] for b in boxes), min(b[1] for b in boxes)
+    x1, y1 = max(b[2] for b in boxes), max(b[3] for b in boxes)
+    s = min(1.0, width / max(1.0, x1 - x0), height / max(1.0, y1 - y0))
+    ox, oy = (width - (x1 - x0) * s) / 2 - x0 * s, (height - (y1 - y0) * s) / 2 - y0 * s
+
+    def at(x: float, y: float) -> tuple[float, float]:
+        return x * s + ox, y * s + oy
+
+    for item in out.items:
+        if isinstance(item, (Line, Poly)):
+            item.points = [at(px, py) for px, py in item.points]
+            item.width *= s
+        elif isinstance(item, Shape):
+            item.x, item.y = at(item.x, item.y)
+            item.w, item.h, item.width, item.radius = item.w * s, item.h * s, item.width * s, item.radius * s
+        elif isinstance(item, Text):
+            item.x, item.y = at(item.x, item.y)
+            item.size *= s
+        elif isinstance(item, Head):
+            item.x, item.y = at(item.x, item.y)
+            item.scale *= s
+    out.boxes = {q: (*at(x, y), w * s, h * s) for q, (x, y, w, h) in out.boxes.items()}
+    out.width, out.height, out.fit = float(width), float(height), (s, ox, oy)
 
 
 MOVABLE = {"title": "the title", "subtitle": "the subtitle", "key": "the Key", "others": "the Other "
@@ -5237,7 +6081,10 @@ def _apply_moves(items: list, edits: Edits) -> None:
     """The words the player dragged, where they dragged them -- never off the top or left of the
     page (the owner: the words go "ON TOP OF THE PICTURE, NOT OUTSIDE")."""
     groups: dict[str, list] = {}
+    blank = edits.moved.get("")
     for item in items:
+        if type(item) is Poly and not blank:    # no Poly is moved by name (a special border's pieces)
+            continue
         if edits.moved.get(getattr(item, "move", "")):
             groups.setdefault(item.move, []).append(item)
     for name, group in groups.items():
@@ -5256,10 +6103,26 @@ def _apply_moves(items: list, edits: Edits) -> None:
 def _fit_page(out: "Scene") -> None:
     """The page as large as everything on it (words, pictures and lines dragged right or down), so
     the background lies under all of it."""
-    boxes = [b for b in map(_extent, out.items) if b is not None]
-    if boxes:
-        out.width = max(out.width, max(b[2] for b in boxes) + 2 * MARGIN)
-        out.height = max(out.height, max(b[3] for b in boxes) + 2 * MARGIN)
+    right = bottom = None
+    blocks = set()
+    for item in out.items:
+        block = item.__dict__.get("block")
+        if block in blocks:
+            continue
+        reach = _SPECIAL_EXTENT.get(block, False) if block is not None else False
+        if reach is not False:                  # a special border: its reach worked out once
+            blocks.add(block)
+            if reach is not None:
+                right = reach[0] if right is None else max(right, reach[0])
+                bottom = reach[1] if bottom is None else max(bottom, reach[1])
+            continue
+        b = _extent(item)
+        if b is not None:
+            right = b[2] if right is None else max(right, b[2])
+            bottom = b[3] if bottom is None else max(bottom, b[3])
+    if right is not None:
+        out.width = max(out.width, right + 2 * MARGIN)
+        out.height = max(out.height, bottom + 2 * MARGIN)
 
 
 def see_through(edits: Edits, part: str) -> float:
@@ -5267,24 +6130,48 @@ def see_through(edits: Edits, part: str) -> float:
     return edits.opacity.get(part, OPACITY[part][1]) / 100
 
 
+def _equal_words(lay: Layout, items: list) -> None:
+    """Every portrait in a "Same face and text size" scope with its words at one font size: the
+    smallest that any of them was fitted to (_node's fitting into the shape), so none is made smaller
+    and the others not (the owner, 2026-10-10)."""
+    fits = lay.__dict__.get("_word_fits", {})
+    people = lay.village.people
+    scope_of = {pid: equal_scope(lay.edits, people[pid]) for pid in lay.x}
+    common: dict[str, float] = {}
+    for pid, scope in scope_of.items():
+        if scope:
+            common[scope] = min(common.get(scope, 1.0), fits.get(pid, 1.0))
+    if not common:
+        return
+    for item in items:
+        if isinstance(item, Text) and item.role in ("names", "portraits") and scope_of.get(item.pid):
+            fit = fits.get(item.pid, 1.0)
+            item.size *= common[scope_of[item.pid]] / fit
+
+
 def _apply_opacity(items: list, edits: Edits) -> None:
-    """Each item as see-through as its part of the tree: the boxes behind words, the portraits (their
-    frames, heads and words), the family lines and every other word."""
+    """Each item as see-through as its part of the tree: the boxes behind words, the portraits (everything
+    drawn for one villager -- frame, border, rope or vine with its leaves and flowers, detail lines, mark
+    or glow, face and words), the family lines and every other word (with the Key's swatches and the
+    generation labels' lines).  A portrait's own lines once went with the Words and its vines with
+    nothing at all."""
+    plates, portraits = see_through(edits, "plates"), see_through(edits, "portraits")
+    lines_, words_ = see_through(edits, "lines"), see_through(edits, "words")
     for item in items:
         if isinstance(item, Shape) and item.target == ("plate",):
-            item.opacity *= see_through(edits, "plates")
-        elif isinstance(item, (Shape, Head)) and item.pid is not None or isinstance(item, Text) and item.pid is not None:
-            item.opacity *= see_through(edits, "portraits")
+            item.opacity *= plates
+        elif getattr(item, "pid", None) is not None:
+            item.opacity *= portraits
         elif isinstance(item, Line) and item.piece:
-            item.opacity *= see_through(edits, "lines")
-        elif isinstance(item, (Text, Line)):
-            item.opacity *= see_through(edits, "words")
+            item.opacity *= lines_
+        elif isinstance(item, (Text, Line)) or isinstance(item, Shape) and item.move == "key":
+            item.opacity *= words_
 
 
 def _apply_styles(items: list, edits: Edits) -> None:
     """The player's fonts: one for every word, and each role's own font, size, style and colour."""
     for item in items:
-        if not isinstance(item, Text) or not item.role:
+        if type(item) is Poly or not isinstance(item, Text) or not item.role:
             continue
         style = edits.styles.get(item.role, {})
         item.font = style.get("font") or edits.font
@@ -5600,7 +6487,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
         return NATURAL[part]
 
     if border == "rope":
-        thick = max(5.0, 0.07 * min(w, h))
+        thick = max(5.0, 0.07 * min(own_box(kind, w, h)))
         walk = _resample(outline_points, thick / 3)
         if not walk:
             return []
@@ -5619,7 +6506,7 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
                                (x1_ + nx1 * r, y1_ + ny1 * r)], _shade(colours[k], 0.6), 1.0))
         return items + _sticking_out(border, kind, frame, outline_points, thick, colour_of, flower_look)
 
-    size = size or max(6.0, 0.1 * min(w, h))         # a leaf's length: small, outside the portrait (a toe: its pad's)
+    size = size or max(6.0, 0.1 * min(own_box(kind, w, h)))         # a leaf's length: small, outside the portrait (a toe: its pad's)
     walk = _resample(outline_points, size / 8)
     if not walk:
         return []
@@ -5703,6 +6590,51 @@ def special_border(border: str, kind: str, frame: tuple, radius: float, edits: "
     return items + _sticking_out(border, kind, frame, outline_points, size, colour_of, flower_look, e)
 
 
+_SPECIAL_CACHE: dict = {}                # special_border_items: its key -> the border's pieces
+_SPECIAL_EXTENT: dict = {}               # its key -> the farthest right and down any piece reaches
+_SPECIAL_CACHE_MAX = 4096
+
+
+def _fresh(item):
+    """A shallow copy of a drawn item (its points shared: nothing changes them in place) -- far quicker
+    than copy.copy for the tens of thousands of a special border's pieces."""
+    new = object.__new__(type(item))
+    new.__dict__.update(item.__dict__)
+    return new
+
+
+def special_border_items(border: str, kind: str, frame: tuple, radius: float, edits: "Edits | None",
+                         pid: int, see: float) -> list:
+    """A portrait's special border (special_border) as its portrait draws it -- `see` times as opaque,
+    every piece the villager's -- worked out once for each border, shape, frame, corner, colours, villager
+    and opacity (the owner's tree of vines took a second for every change: every portrait's thousands of
+    leaves and petals made again).  Fresh (shallow) copies each time: _apply_opacity fades them with the
+    portrait and _to_canvas moves and shrinks them onto a canvas of the player's size.
+    Every piece's `block` (not a field) is the same tuple, so the editor can keep the canvas items of a
+    border that has not changed, and _fit_page can take the border's extent at once."""
+    e = edits or Edits()
+    # (own_box: a shape drawn turned, SHAPE_BAKES, sizes its leaves by the box it had before -- a pure
+    # function of the shape and the frame, kept in the key all the same.)
+    key = (border, kind, tuple(frame), own_box(kind, frame[2], frame[3]), radius, e.special_mode, repr(sorted(e.special_pick.items())),
+           tuple(e.special_palette[:e.special_count]), e.special_count, e.rainbow_strength, e.hibiscus, pid, see)
+    made = _SPECIAL_CACHE.get(key)
+    if made is None:
+        made = special_border(border, kind, frame, radius, e)
+        for item in made:
+            if see < 1:
+                item.opacity = item.opacity * see
+            item.pid = pid
+            item.target = ("person", pid) if item.target is None else item.target
+            item.__dict__["block"] = key
+        extents = [b for b in map(_extent, made) if b is not None]
+        if len(_SPECIAL_CACHE) >= _SPECIAL_CACHE_MAX:
+            _SPECIAL_CACHE.clear()
+            _SPECIAL_EXTENT.clear()
+        _SPECIAL_EXTENT[key] = (max(b[2] for b in extents), max(b[3] for b in extents)) if extents else None
+        _SPECIAL_CACHE[key] = made = tuple(made)
+    return [_fresh(item) for item in made]
+
+
 def scheme_colour(e: "Edits", part: str, t: float, j: int) -> str | None:
     """The colour `part` (SCHEME_PARTS) takes at `t` (0-1 of the way round or across) or by turn `j`, or
     None when the player keeps it as set."""
@@ -5720,7 +6652,7 @@ def scheme_outline(e: "Edits", part: str, kind: str, frame: tuple, radius: float
     """An outline drawn in `part`'s colour scheme, piece by piece round it: a rainbow, or the colours by
     turns in even arcs."""
     x, y, w, h, angle = frame
-    walk = _resample(shape_points(kind, x, y, w, h, radius, angle), max(1.0, (w + h) / (pieces * 2)))
+    walk = _resample(shape_points(kind, x, y, w, h, radius, angle), max(1.0, sum(own_box(kind, w, h)) / (pieces * 2)))
     n = len(walk)
     if n < 2:
         return []
@@ -5767,11 +6699,13 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
             for line in scheme_outline(lay.edits, "marks", kind, (fx - m, fy - m, fw + 2 * m, fh + 2 * m, angle),
                                        corner_radius(kind) + m, 2 * reach / GLOW_RINGS + 0.6,
                                        opacity=see * (1 - (k - 1) / GLOW_RINGS), target=target, pieces=32):
+                line.pid = p.id                 # part of the portrait, like a one-colour glow
                 add(line)
     elif mark and marks_scheme:
         m = MARK_GAP
         for line in scheme_outline(lay.edits, "marks", kind, (fx - m, fy - m, fw + 2 * m, fh + 2 * m, angle),
                                    corner_radius(kind) + m, 4, opacity=see, target=target):
+            line.pid = p.id                     # part of the portrait, like a one-colour mark
             add(line)
     elif mark and lay.edits.mark_style == "glow":
         reach = lay.edits.mark_glow
@@ -5787,6 +6721,8 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         m = MARK_GAP
         add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, mark, width=4, fill=None,
                   radius=corner_radius(kind) + m, pid=p.id, target=target, angle=angle, opacity=see))
+    put = add                                   # as it is: a special border's pieces are already the villager's
+
     def add(item, _add=add):
         """Whatever is drawn for this portrait is theirs (Codex, #577: a leaf or a rope beyond the shape
         could not be clicked or dragged)."""
@@ -5820,13 +6756,11 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
         # A paw print's toes filled like its pad (the owner, 2026-10-09: "include the extra toes for the
         # portrait background"), under their borders.
         for line in decor(kind):
-            add(Poly(placed(line), inside_colour, opacity=see_through(e, "portraits")))
+            add(Poly(placed(line), inside_colour))      # faded with the portrait by _apply_opacity
     if border in SPECIAL_BORDERS:              # the braided rope or a vine, round any shape, in its own colours
         see = e.special_opacity / 100            # as see-through as the player says
-        for item in special_border(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind), e):
-            if see < 1:
-                item.opacity = item.opacity * see
-            add(item)
+        for item in special_border_items(border, kind, (fx, fy, fw, fh, angle), corner_radius(kind), e, p.id, see):
+            put(item)
     replaced = ({i for i, _pts, _closed in sticking_out(kind, (fx, fy, fw, fh, angle), lay.frame_points(p.id))}
                 if border in SPECIAL_BORDERS else set())
     for i, line in enumerate(decor(kind)):      # drawn like the border (a stamen, an antenna, the wave)
@@ -5844,43 +6778,95 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     # never turn (the owner: "shrink/grow with the frame, stay upright").
     # Measured against the shape's own natural size, never the group's: a villager sized on their own
     # kept a giant face when their group was made tiny (the owner, 2026-10-09: 8-pixel males, faces 4x).
-    w0, h0 = natural_width(base_kind(kind)), NODE_H
+    w0, h0 = natural_width(base_kind(kind)), natural_height(base_kind(kind))
     scale = max(0.2, min(4.0, fw / w0, fh / h0)) if (round(fw, 3), round(fh, 3)) != (round(w0, 3), round(h0, 3)) else 1.0
+    fixed = is_fixed(lay.edits, p)
+    if fixed:
+        scale = fixed_scale(lay, p, fw, fh)
     # The face and words go with the frame when the row lines portraits up by their tops or bottoms
     # (Edits.row_valign; Codex, #577: a short frame moved and left its face and words behind).
     y += (fy + fh / 2) - (y + NODE_H / 2)
+    if fixed and not p.upcoming:
+        y += face_inside(lay, p, present, y, fy, fh, scale)
     middle = (x + NODE_W / 2, y + NODE_H / 2)
+    # The face and words moved (and, where no place in the shape holds them, made smaller) about the
+    # face's middle, so the face is inside its shape (face_anchor): set below, once the face is known.
+    pivot, shift, shrink = middle, (0.0, 0.0), 1.0
+    frame_xs = [px for px, _py in lay.frame_points(p.id)]
 
     flip_h, flip_v = lay.entry(p).get("flip_h", False), lay.entry(p).get("flip_v", False)
     flip_words, turn_words = lay.opt(p, "flip_words"), lay.opt(p, "turn_words")
 
+    def moved(px: float, py: float) -> tuple[float, float]:
+        """A point of the face and words as drawn: grown or shrunk with the frame, then to its anchor."""
+        px, py = middle[0] + (px - middle[0]) * scale, middle[1] + (py - middle[1]) * scale
+        return pivot[0] + (px - pivot[0]) * shrink + shift[0], pivot[1] + (py - pivot[1]) * shrink + shift[1]
+
     def put(item) -> None:
-        if scale != 1.0:
-            item.x = middle[0] + (item.x - middle[0]) * scale
-            item.y = middle[1] + (item.y - middle[1]) * scale
+        if scale * shrink != 1.0 or shift != (0.0, 0.0):
+            item.x, item.y = moved(item.x, item.y)
             if isinstance(item, Head):
-                item.scale *= scale
+                item.scale *= scale * shrink
             elif isinstance(item, Text):
-                item.size *= scale
+                item.size *= scale * shrink
             else:
-                item.w, item.h = item.w * scale, item.h * scale
+                item.w, item.h = item.w * scale * shrink, item.h * scale * shrink
+        centre = moved(*middle)
         words = isinstance(item, Text) and item.role in ("names", "portraits")
         if words and flip_words and (flip_h or flip_v):
             # Mirrored with the flipped portrait, about its middle (the owner, 2026-10-09).
             if flip_h:
-                item.x, item.mirror_h = 2 * middle[0] - item.x, True
+                item.x, item.mirror_h = 2 * centre[0] - item.x, True
             if flip_v:
-                item.y, item.mirror_v = 2 * middle[1] - item.y + item.size * 0.7, True
+                item.y, item.mirror_v = 2 * centre[1] - item.y + item.size * 0.7, True
         if angle and turn_words and words:
             # The words turn with the portrait, about its middle (the owner, 2026-10-09); the face does not.
-            dx, dy = turn(item.x - middle[0], item.y - middle[1], angle)
-            item.x, item.y, item.angle = middle[0] + dx, middle[1] + dy, angle
+            dx, dy = turn(item.x - centre[0], item.y - centre[1], angle)
+            item.x, item.y, item.angle = centre[0] + dx, centre[1] + dy, angle
         add(item)
+
+    def drawn_width(text: str, size: float, bold: bool, runs) -> float:
+        """How wide a portrait's line is drawn: in its role's font, size, boldness and slant (Edits.styles),
+        a formatted line run by run, each in its own (a bold and italic "X's twin" wider)."""
+        style = e.styles.get("names" if bold else "portraits", {})
+        size, font = size * style.get("scale", 100) / 100, style.get("font") or e.font
+        bold, italic = style.get("bold", bold), style.get("italic", False)
+        pieces = [(t, look) for t, look in runs or [] if isinstance(look, dict)] or [(text, {})]
+        return sum(text_width(t, size * SCRIPTS.get(look.get("script"), (1.0, 0))[0], look.get("bold", bold),
+                              font, look.get("italic", italic)) for t, look in pieces)
+
+    def within_frame(at_x: float, room: float) -> float:
+        """No wider than the frame from where the line is centred (words never leave the portrait's frame)."""
+        return min(room, 2 * min(at_x - min(frame_xs), max(frame_xs) - at_x) - 4)
 
     pic, own = inner_sizes(lay, p)          # the face's and the words' sizes inside the shape
     if p.upcoming:
-        for k, text in enumerate(node_text(lay, p)):
-            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15 * own, text, (12 if k == 0 else 11) * own, ink,
+        texts = node_text(lay, p)
+        # Made the same as others' (Edits.equal_sizes): their names' and lines' font sizes too.
+        sizes = (11.5, 10) if equal_scope(lay.edits, p) else (12, 11)
+        points = text_room_points(lay.opt(p, "text_room"), kind, lay.frame_points(p.id), (fx, fy, fw, fh, angle))
+        fit = 1.0
+        if lay.opt(p, "text_inside") and texts:
+            # Kept inside the shape: the words where the outline holds them (face_anchor, the words as the
+            # face), a little in from it -- a paw's middle is the gap between its toes and its pad.
+            wide = min(fw * 0.9, max(drawn_width(t, sizes[k > 0] * own * scale, k == 0, None)
+                                     for k, t in enumerate(texts)))
+            top_y = moved(0, y + NODE_H / 2 + 4 - 12 * own)[1]
+            foot_y = moved(0, y + NODE_H / 2 + 4 + (len(texts) - 1) * 15 * own + 4 * own)[1]
+            block = (middle[0] - wide / 2 - TEXT_MARGIN, top_y - 2, middle[0] + wide / 2 + TEXT_MARGIN, foot_y + 2)
+            dx, dy, shrink = face_anchor(kind, (fx, fy, fw, fh, angle), lay.frame_points(p.id), [block], block, keep=False)
+            pivot, shift = ((block[0] + block[2]) / 2, (block[1] + block[3]) / 2), (dx, dy)
+        for k, text in enumerate(texts):
+            size = sizes[k > 0] * own * scale * shrink
+            at_x, baseline = moved(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15 * own)
+            chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
+            room = within_frame(at_x, max(chord, fw * 0.5) - 8)
+            needed = drawn_width(text, size, k == 0, None)
+            if text and room > 0 and needed > room:
+                fit = min(fit, room / needed)
+        lay.__dict__.setdefault("_word_fits", {})[p.id] = fit     # (made the same for a scope: _equal_words)
+        for k, text in enumerate(texts):
+            put(Text(x + NODE_W / 2, y + NODE_H / 2 + 4 + k * 15 * own, text, sizes[k > 0] * own * fit, ink,
                      bold=k == 0, centre=True, pid=p.id, role="names" if k == 0 else "portraits",
                      edit=f"person:{p.id}"))
         return
@@ -5888,6 +6874,24 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     head = look_of(lay.edits, lay.village, p)[0]
     box = face_box(present, sheet, head)
     head_left, head_top, text_top, lines = placement(lay, p, box)
+    k0 = HEAD_SCALE * pic
+    fa = moved(x + head_left + box[0] * k0, y + head_top + box[1] * k0)
+    fb = moved(x + head_left + box[2] * k0, y + head_top + box[3] * k0)
+    texts = [(t, b, r) for t, b, r in lines if t]
+    if texts:
+        wide = min(fw * 0.9, max(drawn_width(t, (11.5 if b else 10) * own * scale, b, r) for t, b, r in texts))
+        top_y = moved(0, y + text_top - 11 * own)[1]
+        foot_y = moved(0, y + text_top + (len(lines) - 1) * LINE_H * own + 3 * own)[1]
+        words_box = (middle[0] - wide / 2, top_y, middle[0] + wide / 2, foot_y)
+    else:
+        words_box = (*fa, *fb)
+    bands = [(*moved(x + head_left + b[0] * k0, y + head_top + b[1] * k0), *moved(x + head_left + b[2] * k0, y + head_top + b[3] * k0))
+             for b in face_bands(present, sheet, head)]
+    # Words kept inside the shape: the face and words where the words are (nearly) all inside it, made a
+    # little smaller if they must be, rather than the face alone inside and the words crushed into a point.
+    dx, dy, shrink = face_anchor(kind, (fx, fy, fw, fh, angle), lay.frame_points(p.id), bands, words_box,
+                                 WORDS_NEED if lay.opt(p, "text_inside") else 0.0)
+    pivot, shift = ((fa[0] + fb[0]) / 2, (fa[1] + fb[1]) / 2), (dx, dy)
     if sheet in present and head is not None and head >= 0:
         put(Head(x + head_left, y + head_top, sheet, head, pid=p.id, scale=pic))
     else:
@@ -5903,33 +6907,62 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     points = text_room_points(lay.opt(p, "text_room"), kind, lay.frame_points(p.id), (fx, fy, fw, fh, angle))
     text_inside = lay.opt(p, "text_inside")
     fit = 1.0
-    for k, (text, bold, _r) in enumerate(lines):
+    spans: dict = {}
+    own_fit: dict = {}                      # a line kept inside the shape made smaller on its own
+    slide = (text_inside and lay.opt(p, "text_align") == "centre" and not (angle and turn_words)
+             and not (flip_words and (flip_h or flip_v)))
+    for k, (text, bold, runs) in enumerate(lines):
         if not text:
             continue
-        size = (11.5 if bold else 10) * scale
-        baseline = middle[1] + (y + text_top + k * LINE_H * own - middle[1]) * scale
+        size = (11.5 if bold else 10) * scale * shrink
+        at_x, baseline = moved(x + NODE_W / 2, y + text_top + k * LINE_H * own)
         # The narrowest the shape is across the whole line, from the tops of its letters to below them.
         chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
         # Half the frame at least, unless the player keeps the words inside the shape (a cross's arm).
-        room = max(chord - 8, 12.0) if text_inside else max(chord, fw * 0.5) - 8
-        needed = len(text) * size * (0.58 if bold else 0.55)
+        # (Faces and words at one size: as wide as the frame, not half of it, so a narrow shape's words keep
+        # their size too -- unless they are kept inside the shape.)
+        room = max(chord - 8, 12.0) if text_inside else max(chord, fw if fixed else fw * 0.5) - 8
+        room = within_frame(at_x, room)
+        # Measured by the font's own letter widths (text_width), in the role's own font and size, at the
+        # group's (or the tree's) text size; a villager's own text size is theirs, on top.
+        needed = drawn_width(text, size * lay.opt(p, "text_size") / 100, bold, runs)
+        if slide:
+            # Kept inside the shape: no wider than the outline across the line, a little in from it, and slid
+            # sideways to stay inside it (below) -- a leaf is not as wide on one side of its middle.
+            span = _line_span(lay.frame_points(p.id), baseline - size * 0.75, baseline + size * 0.2, at_x, needed)
+            if span:
+                # Each line on its own: one line where the shape narrows (a leaf's tip) made smaller, not all.
+                inner = max(12.0, span[1] - span[0] - 2 * TEXT_MARGIN)
+                if needed > inner:
+                    own_fit[k] = inner / needed
+                spans[k] = (span, needed, at_x)
         if room > 0 and needed > room:
             fit = min(fit, room / needed)
+    lay.__dict__.setdefault("_word_fits", {})[p.id] = fit     # (made the same for a scope: _equal_words)
+    nudge = {}                              # how far each line kept inside the shape slides sideways
+    for k, (span, needed, at_x) in spans.items():
+        w = needed * min(fit, own_fit.get(k, 1.0)) * own / (lay.opt(p, "text_size") / 100)
+        lo, hi = span[0] + TEXT_MARGIN, span[1] - TEXT_MARGIN - w
+        left = at_x - w / 2
+        nudge[k] = ((span[0] + span[1]) / 2 - at_x if hi < lo else lo - left if left < lo else hi - left if left > hi
+                    else 0.0) / (scale * shrink)
     # Left or right: every line from (or to) one edge, the narrowest the shape is across the words,
     # so no line leaves a round or pointed portrait (Edits.text_align).
     align = lay.opt(p, "text_align")
-    half = fw / scale / 2 - 8           # the frame's own width (Codex, #577: not the standard portrait's)
+    total = scale * shrink
+    half = fw / total / 2 - 8           # the frame's own width (Codex, #577: not the standard portrait's)
     if align != "centre":
         for k, (text, bold, _r) in enumerate(lines):
             if text:
-                size = (11.5 if bold else 10) * scale
-                baseline = middle[1] + (y + text_top + k * LINE_H * own - middle[1]) * scale
+                size = (11.5 if bold else 10) * total
+                at_x, baseline = moved(x + NODE_W / 2, y + text_top + k * LINE_H * own)
                 chord = min(_chord(points, baseline - size * 0.75), _chord(points, baseline + size * 0.2))
-                wide = max(chord - 4, 16.0) if text_inside else max(chord, fw * 0.5)
-                half = min(half, (wide - 12) / 2 / scale)
+                wide = max(chord - 4, 16.0) if text_inside else max(chord, fw if fixed else fw * 0.5)
+                half = min(half, (within_frame(at_x, wide) - 12) / 2 / total)
     at = x + NODE_W / 2 + (-half if align == "left" else half if align == "right" else 0)
     for k, (text, bold, runs) in enumerate(lines):
-        put(Text(at, y + text_top + k * LINE_H * own, text, (11.5 if bold else 10) * fit * own, ink,
+        put(Text(at + nudge.get(k, 0.0), y + text_top + k * LINE_H * own, text,
+                 (11.5 if bold else 10) * min(fit, own_fit.get(k, 1.0)) * own, ink,
                  bold=bold, centre=align == "centre", end=align == "right", pid=p.id,
                  role="names" if bold else "portraits", edit=f"person:{p.id}", runs=runs))
 
@@ -5944,6 +6977,13 @@ def text_room_points(room: str, kind: str, outline_points: list, frame: tuple) -
         return outline_points
     x, y, w, h, angle = frame
     cx, cy = x + w / 2, y + h / 2
+    base, flip_h, flip_v = _unflipped(kind)
+    if base in SHAPE_BAKES:
+        # The shape's own length and width, turned with it (own_box): its room as it was before it was
+        # drawn turned (the owner's trees look as they did).
+        w, h = own_box(kind, w, h)
+        degrees = SHAPE_BAKES[base][0]
+        angle = angle + (-degrees if flip_h != flip_v else degrees)
     if room == "rect":
         # The words may pass the drawn outline but stay within the shape's own width and height (the
         # owner, 2026-10-09): the frame's rectangle, a little in from its sides, or the oval filling it.
@@ -5963,6 +7003,181 @@ def _chord(points: list[tuple[float, float]], y: float) -> float:
         if (ay > y) != (by > y):
             xs.append(ax + (y - ay) * (bx - ax) / (by - ay))
     return max(xs) - min(xs) if len(xs) >= 2 else 0.0
+
+
+# Where a shape's face and words go when its middle is not inside it (the owner, 2026-10-09: a paw's face
+# sat in the gap between its toes and its pad, a mermaid's tail's on its top edge, a coral's beside its
+# branches): a hint, in the frame's own 0-1 box, the face and words are kept nearest to -- the paw's pad,
+# the coral's trunk and fork, the fluke's body.  A shape not listed keeps the frame's middle as its hint.
+FACE_HINTS = {"paw": (0.5, 0.62), "coral": (0.5, 0.62), "mermaid_tail_h": (0.4, 0.5)}
+# Shapes whose faces stay just where they always were, the owner's own tree's (2026-10-09: keep them).
+FACE_KEPT = {"turtle_h", "monstera", "butterfly"}
+_ANCHORS: dict = {}
+_GRIDS: dict = {}
+WORDS_NEED = 0.9                        # words kept inside a shape: this much of their box inside, where a face moves
+WORDS_INSIDE = 20.0                     # pixels further a face moves for its words all inside, not none
+
+
+def _inside_grid(points: list, cell: float) -> tuple:
+    """The shape these corners outline as cells `cell` across: (its left, its top, the columns, the rows,
+    the running count of cells inside -- sums[r][c] the cells inside above row r and left of column c)."""
+    xs, ys = [px for px, _ in points], [py for _, py in points]
+    left, top = min(xs), min(ys)
+    cols, rows = max(1, int(math.ceil((max(xs) - left) / cell))), max(1, int(math.ceil((max(ys) - top) / cell)))
+    edges = list(zip(points, points[1:] + points[:1]))
+    sums = [[0] * (cols + 1)]
+    for r in range(rows):
+        row = [1] * cols
+        # A cell is inside when its top, middle and bottom all are (no cell half over a gap counts).
+        for y in (top + (r + 0.02) * cell, top + (r + 0.5) * cell, top + (r + 0.98) * cell):
+            cross = sorted(ax + (y - ay) * (bx - ax) / (by - ay) for (ax, ay), (bx, by) in edges if (ay > y) != (by > y))
+            here = [0] * cols
+            for a, b in zip(cross[::2], cross[1::2]):
+                c0, c1 = int(math.ceil((a - left) / cell)), int(math.floor((b - left) / cell))
+                for c in range(max(0, c0), min(cols, c1)):
+                    here[c] = 1
+            row = [u & v for u, v in zip(row, here)]
+        above, run, line = sums[-1], 0, [0]
+        for c in range(cols):
+            run += row[c]
+            line.append(above[c + 1] + run)
+        sums.append(line)
+    return left, top, cols, rows, sums, cell
+
+
+def _cells_inside(grid: tuple, x0: float, y0: float, x1: float, y1: float) -> tuple[int, int]:
+    """(how many of the cells a box touches are inside the shape, how many it touches)."""
+    left, top, cols, rows, sums, cell = grid
+    c0, c1 = int(math.floor((x0 - left) / cell)), int(math.ceil((x1 - left) / cell))
+    r0, r1 = int(math.floor((y0 - top) / cell)), int(math.ceil((y1 - top) / cell))
+    total = max(0, c1 - c0) * max(0, r1 - r0)
+    c0, c1, r0, r1 = max(0, c0), min(cols, c1), max(0, r0), min(rows, r1)
+    if c1 <= c0 or r1 <= r0:
+        return 0, total
+    return sums[r1][c1] - sums[r0][c1] - sums[r1][c0] + sums[r0][c0], total
+
+
+def face_anchor(kind: str, frame: tuple, points: list, bands: list, words: tuple,
+                words_need: float = 0.0, keep: bool = True) -> tuple[float, float, float]:
+    """How far (dx, dy) a portrait's face and words move, and how much smaller (a factor) they are made, so
+    the face is inside its shape's outline and the words as much inside as can be: (0, 0, 1) when the face
+    already is -- a shape whose middle holds it never moves.  `bands` are the face's visible pixels as boxes
+    (face_bands) and `words` the words' box (left, top, right, bottom), as drawn; `points` the outline
+    (turned and flipped as drawn).  `words_need`: the share of the words' box that must be inside too
+    (words kept inside the shape); `keep`: a FACE_KEPT shape's face left where it is.  Worked out once for
+    each shape, size and turn."""
+    x, y, w, h, angle = frame
+    cx, cy = x + w / 2, y + h / 2
+    bands = [(b[0] - cx, b[1] - cy, b[2] - cx, b[3] - cy) for b in bands]
+    wx0, wy0, wx1, wy1 = (words[0] - cx, words[1] - cy, words[2] - cx, words[3] - cy)
+    key = (kind, round(w, 1), round(h, 1), round(angle, 1), words_need, keep, tuple(round(v, 1) for b in bands for v in b),
+           round(wx0, 1), round(wy0, 1), round(wx1, 1), round(wy1, 1))
+    if key in _ANCHORS:
+        return _ANCHORS[key]
+    rel = [(px - cx, py - cy) for px, py in points]
+    fx0, fy0 = min(b[0] for b in bands), min(b[1] for b in bands)
+    fx1, fy1 = max(b[2] for b in bands), max(b[3] for b in bands)
+
+    def held(b) -> bool:
+        """A band inside the outline: its corners and middles are, and no corner of the outline pokes into it."""
+        x0, y0, x1, y1 = b
+        return (all(inside(rel, px, py) for px in (x0 + 0.5, (x0 + x1) / 2, x1 - 0.5) for py in (y0 + 0.25, y1 - 0.25))
+                and not any(x0 + 0.5 < px < x1 - 0.5 and y0 + 0.25 < py < y1 - 0.25 for px, py in rel))
+    if keep and base_kind(kind) in FACE_KEPT or all(held(b) for b in bands):
+        out = (0.0, 0.0, 1.0)
+    else:
+        cell = max(0.75, min(w, h) / 90)
+        gkey = (kind, round(w, 1), round(h, 1), round(angle, 1))
+        grid = _GRIDS.get(gkey)
+        if grid is None:
+            if len(_GRIDS) > 512:
+                _GRIDS.clear()
+            grid = _GRIDS[gkey] = _inside_grid(rel, cell)
+        if base_kind(kind) in FACE_HINTS:
+            hu, hv = FACE_HINTS[base_kind(kind)]
+            _b, flip_h, flip_v = _unflipped(kind)
+            hint = turn(((1 - hu) if flip_h else hu) * w - w / 2, ((1 - hv) if flip_v else hv) * h - h / 2, angle)
+        else:                                   # else as near where the face was as can be
+            hint = ((fx0 + fx1) / 2, (fy0 + fy1) / 2)
+        mx, my = (fx0 + fx1) / 2, (fy0 + fy1) / 2
+        top, foot = min(py for _px, py in rel), max(py for _px, py in rel)
+        out = fallback = None
+        k = 1.0
+        while out is None and k > 0.3:
+            # The face and words made smaller about the face's middle, when no place in the shape holds them.
+            def small(b, m=0.0):
+                return (mx + (b[0] - mx) * k - m, my + (b[1] - my) * k - m, mx + (b[2] - mx) * k + m, my + (b[3] - my) * k + m)
+            wd = small((wx0, wy0, wx1, wy1))
+            f = small((fx0, fy0, fx1, fy1))
+            for margin in (3.0, 0.0):
+                # The widest bands first: most places fail on them, at once.
+                bs = sorted((small(b, margin) for b in bands), key=lambda b: b[0] - b[2])
+                best = None
+                # Moves by every other cell, from none (a symmetrical shape keeps its face in its middle):
+                # near enough, and four times as fast.
+                r0, r1 = math.floor((grid[1] - f[1]) / cell / 2), math.ceil((grid[1] + grid[3] * cell - f[3]) / cell / 2)
+                c0, c1 = math.floor((grid[0] - f[0]) / cell / 2), math.ceil((grid[0] + grid[2] * cell - f[2]) / cell / 2)
+                # Each band as the cells it touches, unmoved: a move by whole cells moves those by whole cells.
+                left, gtop, cols, rows, sums, _cell = grid
+                need = [(math.floor((b[0] - left) / cell), math.ceil((b[2] - left) / cell),
+                         math.floor((b[1] - gtop) / cell), math.ceil((b[3] - gtop) / cell)) for b in bs]
+                for r in range(r0, r1 + 1):
+                    dy = 2 * r * cell
+                    for c in range(c0, c1 + 1):
+                        dx = 2 * c * cell
+                        for bc0, bc1, br0, br1 in need:
+                            a0, a1, b0, b1 = bc0 + 2 * c, bc1 + 2 * c, br0 + 2 * r, br1 + 2 * r
+                            # Every cell it touches inside the shape (none of them beyond the grid).
+                            if a0 < 0 or b0 < 0 or a1 > cols or b1 > rows or a1 <= a0 or b1 <= b0 or \
+                                    sums[b1][a1] - sums[b0][a1] - sums[b1][a0] + sums[b0][a0] < (a1 - a0) * (b1 - b0):
+                                break
+                        else:
+                            wn, wt = _cells_inside(grid, wd[0] + dx, wd[1] + dy, wd[2] + dx, wd[3] + dy)
+                            # The words never below or above the frame (else smaller), then nearest the hint,
+                            # the words a little more inside the outline worth moving a little further.
+                            framed = wd[1] + dy >= top + 1 and wd[3] + dy <= foot - 1
+                            share = wn / wt if wt else 1.0
+                            here = (framed and share >= words_need, framed,
+                                    WORDS_INSIDE * share - math.hypot(dx + mx - hint[0], dy + my - hint[1]))
+                            if best is None or here > best[0]:
+                                best = (here, dx, dy)
+                if best and best[0][0]:
+                    out = (best[1], best[2], k)
+                    break
+                if best and best[0][1] and fallback is None:
+                    fallback = (best[1], best[2], k)
+            if out is None:
+                k *= 0.9
+        out = out or fallback or (0.0, 0.0, 1.0)
+    if len(_ANCHORS) > 4096:
+        _ANCHORS.clear()
+    _ANCHORS[key] = out
+    return out
+
+
+TEXT_MARGIN = 4.0                       # words kept inside a shape stay this far in from its outline
+
+
+def _stretches(points: list[tuple[float, float]], y: float) -> list[tuple[float, float]]:
+    """Each stretch of the shape these corners outline at height `y`, left to right."""
+    xs = sorted(ax + (y - ay) * (bx - ax) / (by - ay)
+                for (ax, ay), (bx, by) in zip(points, points[1:] + points[:1]) if (ay > y) != (by > y))
+    return list(zip(xs[::2], xs[1::2]))
+
+
+def _line_span(points: list, top: float, foot: float, x: float, wide: float) -> tuple[float, float] | None:
+    """The stretch of a shape a line of words `wide` across, centred at `x`, is kept in, from its letters'
+    tops to below them: of the stretches inside the shape all the way down (a leaf's slit or a paw's gap
+    between them), the one that holds the most of the line, nearest `x` -- None when there is none."""
+    best = None
+    for a0, b0 in _stretches(points, top):
+        for a1, b1 in _stretches(points, foot):
+            a, b = max(a0, a1), min(b0, b1)
+            if b > a:
+                here = (min(b - a, wide + 2 * TEXT_MARGIN), -max(0.0, a - x, x - b))
+                if best is None or here > best[0]:
+                    best = (here, (a, b))
+    return best[1] if best else None
 
 
 def _svg_opacity(item) -> str:

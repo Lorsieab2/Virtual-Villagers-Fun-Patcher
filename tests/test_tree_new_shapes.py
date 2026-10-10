@@ -215,7 +215,7 @@ class ReviewFixTests(unittest.TestCase):
             self.assertEqual(len(texts), 1, shape)
             t = texts[0]
             room = ft._chord(lay.frame_points(p.id), t.y - t.size * 0.35)
-            self.assertLessEqual(len(t.text) * t.size * 0.55, max(room, lay.frame(p.id)[2] * 0.5) - 8 + 1e-6, shape)
+            self.assertLessEqual(ft.text_width(t.text, t.size), max(room, lay.frame(p.id)[2] * 0.5) - 8 + 1e-6, shape)
         e.entries[ft.entry_key(v, p)]["text_scale"] = 150.0
         back = ft.Edits.from_data(json.loads(json.dumps(e.to_data())))
         self.assertEqual(back.entries[ft.entry_key(v, p)]["text_scale"], 150.0)
