@@ -29,7 +29,9 @@
    The price is the Time Warp's own (all five games: 50,000; 0 while the
    upgrades are free), charged once, when the first step has been made;
    Cancel, a paused game or a village that cannot be reached charge nothing.
-   Steps pause while the game is paused and go on when it runs again.  The
+   Steps pause while the game is paused and go on when it runs again, and
+   wait while an island event's popup is open (time_skip_event_open), so the
+   Island Events log never gives an event the years a step adds.  The
    rest of a skip is dropped when the player loads another village, starts
    over or deletes the tribe (the same rule as a queued island event), or
    when the village has no one left to advance.  Nothing is written to any
@@ -138,6 +140,33 @@ static int time_skip_step(const story_host *host) {
     return years;
 }
 
+#ifdef VVFP_TEST
+static int test_island_event_open;     /* VvfpStoryProbeIslandEventOpen */
+#endif
+
+/* Whether an island event's popup is open and being logged ("VVFP Island
+   Events.dll"'s VvfpIslandEventOpen).  The Secret City, The Tree of Life and
+   New Believers show an event inside their presenter's own modal loop, where
+   the Origins companion's per-frame path -- and so this tick -- still runs;
+   a Time Warp step taken there aged every villager between the event's
+   "before" and "after", and the Island Events log gave the event those
+   years (live, The Secret City, 2026-10-10: "The Ants and the Granary /
+   Choice: Let them be / Age: 694 -> 814" on every villager, the second
+   6-year step).  Absent (its row off): never open, nothing held. */
+static int time_skip_event_open(void) {
+    typedef int (__stdcall *open_fn)(void);
+    HMODULE module;
+    open_fn open;
+#ifdef VVFP_TEST
+    if (test_island_event_open) {
+        return 1;
+    }
+#endif
+    module = GetModuleHandleA("VVFP Island Events.dll");
+    open = module != NULL ? (open_fn)GetProcAddress(module, "VvfpIslandEventOpen") : NULL;
+    return open != NULL && open() != 0;
+}
+
 /* Called every frame (VvfpStoryInstall): the next step, once the last one
    has been replayed; after the last one, the closing popup. */
 static void time_skip_tick(int game) {
@@ -153,6 +182,16 @@ static void time_skip_tick(int game) {
         time_skip.active = 0;
         time_skip.finishing = 0;
         time_skip.notice = 0;
+        return;
+    }
+    if (time_skip_event_open()) {
+        /* An island event's popup is open: nothing moves until it closes.
+           The game's villager tick does not run in its modal loop either, so
+           the replay wait starts again once it has closed -- never two steps
+           in one catch-up because the popup outlasted the lapse. */
+        if (time_skip.waiting) {
+            time_skip.step_tick = STORY_TICK();
+        }
         return;
     }
     if (time_skip.active || time_skip.finishing) {
@@ -351,6 +390,12 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeTimeSkipNotice(int *out) {
     out[1] = time_skip.finishing;
     out[2] = time_skip.notice;
     out[3] = ce_armed && ce_armed_is_notice;
+}
+
+/* An island event's popup open (1) or closed (0), as "VVFP Island
+   Events.dll" would answer (time_skip_event_open). */
+__declspec(dllexport) void __stdcall VvfpStoryProbeIslandEventOpen(int open) {
+    test_island_event_open = open;
 }
 
 /* What the upgrade costs in `game` now. */

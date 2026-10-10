@@ -153,6 +153,48 @@ class VV1TimeSkipTests(unittest.TestCase):
             self.assertEqual(story.proc.export("VvfpStoryProbeTimeSkipStart", 1, years & 0xFFFFFFFF, 0), 0)
         self.assertEqual(host.steps, [])
 
+    def test_a_step_waits_while_an_island_event_is_open(self):
+        # Live, The Secret City (2026-10-10): a step taken while The Ants and the Granary's popup
+        # was open gave every villager "Age: 694 -> 814" in that event's Island Events record.
+        story, host = self.make(step_years=6)
+        story.proc.export("VvfpStoryProbeTimeSkipStart", 1, 12, 0)
+        self.assertEqual(host.steps, [6])
+        story.proc.export("VvfpStoryProbeIslandEventOpen", 1)
+        host.settled = True
+        for at in range(100, 60000, 1000):    # far past the 20-second lapse
+            tick(story, at)
+        self.assertEqual(host.steps, [6])     # held while the popup is open
+        self.assertEqual(state(story), {"active": 1, "game": 1, "remaining": 6, "waiting": 1})
+        story.proc.export("VvfpStoryProbeIslandEventOpen", 0)
+        tick(story, 60000)
+        self.assertEqual(host.steps, [6, 6])  # closed: the step goes on
+
+    def test_a_popup_outlasting_the_lapse_never_stacks_two_steps(self):
+        # The game's villager tick does not run in the presenter's modal loop: the replay wait
+        # starts again when the popup closes, not from the step.
+        story, host = self.make(step_years=6)
+        story.proc.export("VvfpStoryProbeTimeSkipStart", 1, 12, 0)
+        story.proc.export("VvfpStoryProbeIslandEventOpen", 1)
+        tick(story, 30000)                    # open past the lapse, never settled
+        story.proc.export("VvfpStoryProbeIslandEventOpen", 0)
+        tick(story, 30100)
+        self.assertEqual(host.steps, [6])     # still waiting for the replay
+        tick(story, 50000)
+        self.assertEqual(host.steps, [6, 6])  # the lapse, counted from the close
+
+    def test_the_closing_popup_waits_while_an_island_event_is_open(self):
+        story, host = self.make(step_years=6)
+        story.proc.export("VvfpStoryProbeTimeSkipStart", 1, 6, 0)
+        story.proc.export("VvfpStoryProbeIslandEventOpen", 1)
+        host.settled = True
+        tick(story, 100)
+        story.proc.export("VvfpStoryProbeTimeSkipNotice", SCRATCH)
+        self.assertEqual(struct.unpack("<4i", story.proc.read(SCRATCH, 16))[:2], (6, 1))   # still finishing
+        story.proc.export("VvfpStoryProbeIslandEventOpen", 0)
+        tick(story, 200)
+        story.proc.export("VvfpStoryProbeTimeSkipNotice", SCRATCH)
+        self.assertEqual(struct.unpack("<4i", story.proc.read(SCRATCH, 16))[1], 0)          # finished
+
     def test_price_is_the_time_warps(self):
         story, host = self.make(tech=80000)
         self.assertEqual(story.proc.export("VvfpStoryProbeTimeSkipPrice", 1), 0)
