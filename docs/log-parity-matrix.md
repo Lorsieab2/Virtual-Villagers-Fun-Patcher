@@ -138,6 +138,30 @@ holds it; VV3-VV5 keep it on the record and in the Roster of the Dead.
 | 2. Deaths numbering beside "Deaths" | affected, fixed (death_log_harness 9b runs in VV3's geometry; the code is shared) | affected, fixed | affected, fixed | affected, fixed | affected, fixed |
 | 3. Repairs numbering beside "Repairs" | affected (statistics and mask repairs), fixed (reconcile_harness 7b) | affected, fixed (7b) | affected, fixed (7b) | affected, fixed (7b) | affected, fixed (7b) |
 
+## Confirmed in the running games (2026-10-10)
+
+Each game was built twice with the Select All patch set -- before the fixes (v1.35.67) and after
+(this branch) -- and played on a fresh test village: founders, a visitor island event picked
+through Pick Island Event, a Custom Island Event (pregnancy with a chosen father, a custom title, a
+mask), a Custom Island Event death, a Choose Time Skip of 3 or 6 years (the birth), a clean quit;
+then a second session in which the newborn was taken out of its record with no report and the game
+quit again (the Unaccounted record).
+
+| Cell | VV1 | VV2 | VV3 | VV4 | VV5 |
+|---|---|---|---|---|---|
+| Arrived (founders, the event's newcomer), Conception, Birth | live | live | live | live | live |
+| Island Events (newcomer, nursing, expected father, title, mask, health, gone) | live | live | live | live | live |
+| Population / History lines (title, mask, nursing, parents, faction) | live | live | live | live | live |
+| Unaccounted record names the parents | before: missing (live); after: present (live) | present (live) | present (live) | present (live) | present (live) |
+| Death numbering beside an older "Deaths" folder | harness | before: "Death 6" twice (live); after: Death 6, Death 7 (live) | harness | harness | harness |
+| Repairs numbering beside an older "Repairs" folder | harness | harness | harness | harness | harness |
+| Village Statistics rows | live | live | live | live | live |
+
+The after-fix build was played in A New Home and The Lost Children, the two games whose output the
+fixes change in a way a short session can show; The Secret City to New Believers print the parents
+from the record (unchanged) and their bodies were not buried within the session, so their Deaths
+numbering rests on the shared code's harness and The Lost Children's live run.
+
 ## Left for the owner
 
 - **Data file names differ between games**: "Virtual Villagers 1 Village Masks - Save S.dat" (VV1,
