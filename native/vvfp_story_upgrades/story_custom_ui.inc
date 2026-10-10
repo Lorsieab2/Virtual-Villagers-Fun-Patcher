@@ -2001,6 +2001,7 @@ static int ce_arm_with(int game, const ce_event *e, const ce_choice *c) {
     ce_armed_event.game = game;
     ce_store_choice(game, c);
     ce_armed = 1;
+    ce_armed_is_notice = 0;      /* a player's own event; the time skip marks its notice after */
     ce_armed_village = story_village_now(game);
     return 1;
 }

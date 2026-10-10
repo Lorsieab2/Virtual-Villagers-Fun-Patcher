@@ -70,6 +70,7 @@ EXPORTS
     VvfpStoryProbeDeliver=_VvfpStoryProbeDeliver@12
     VvfpStoryProbeTimeSkipStart=_VvfpStoryProbeTimeSkipStart@12
     VvfpStoryProbeTimeSkipState=_VvfpStoryProbeTimeSkipState@4
+    VvfpStoryProbeTimeSkipNotice=_VvfpStoryProbeTimeSkipNotice@4
     VvfpStoryProbeTimeSkipPrice=_VvfpStoryProbeTimeSkipPrice@4
     VvfpStoryProbeCharges=_VvfpStoryProbeCharges@8
     VvfpStoryStats DATA

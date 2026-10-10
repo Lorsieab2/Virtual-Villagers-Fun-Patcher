@@ -34,7 +34,27 @@
    over or deletes the tribe (the same rule as a queued island event), or
    when the village has no one left to advance.  Nothing is written to any
    log: the normal Time Warp writes nothing either, and the births and deaths
-   of the skipped years are logged by their own hooks as with a Time Warp. */
+   of the skipped years are logged by their own hooks as with a Time Warp.
+
+   THE CLOSING POPUP (the owner, 2026-10-10: "please put an Island-Event
+   style popup once the Timeskip has finished").  When the game has replayed
+   the LAST step, the game's own island-event popup -- its window, art and
+   sound -- says "Time Skip" / "<N> years have passed on the island.", N the
+   years the skip advanced.  It is shown exactly as a Custom Island Event is
+   (story_custom.inc): a plain event with no changes is armed and the island
+   event made due as the Island Event purchase does, and each game's own
+   delivery hook fills the popup when its trigger fires -- which it does only
+   while the game runs, so a paused game sees it when it runs again.  It
+   waits its turn behind a queued pick, custom event or island event (one at
+   a time, as always), and for what the game's trigger itself needs (a
+   living adult; in A New Home and The Lost Children the village's first
+   island event, always a visitor, must have happened).  The trigger's count
+   of it in Island Events Seen is taken back on delivery (it is not an island
+   event), and it changes nothing, so the Island Events log writes nothing
+   for it.  A skip cut short -- another village loaded, Start Over, a deleted
+   tribe, or no one left to advance -- shows no popup: a partial skip is not
+   "N years have passed", and a village with no one left has no one to show
+   an island event to. */
 
 #define TIME_SKIP_MIN_YEARS 1
 #define TIME_SKIP_MAX_YEARS 72
@@ -57,7 +77,40 @@ static struct {
     int waiting;                       /* a step is made, its replay not seen yet */
     DWORD step_tick;
     story_village village;
+    int done;                          /* years advanced so far */
+    int finishing;                     /* the last step is made, its replay not seen yet */
+    int notice;                        /* years the closing popup is to tell, 0 = none */
 } time_skip;
+
+static ce_event time_skip_notice_event;
+
+/* Arms the closing popup for `years` in `game` (see THE CLOSING POPUP).
+   1 when armed, 0 when it must wait (the slot is taken or the game's
+   trigger could not show it now). */
+static int time_skip_notice_arm(int game, int years) {
+    const ce_adapter *a = ce_adapter_for(game);
+    ce_event *e = &time_skip_notice_event;
+    if (a == NULL || !story_installed(game)) {
+        return 0;
+    }
+    drop_lapsed_pick();
+    ce_drop_lapsed();
+    if (pick_slot >= 0 || ce_armed || GAMES[game].island_pending() || a->arm_refusal() != NULL) {
+        return 0;
+    }
+    memset(e, 0, sizeof *e);
+    lstrcpynA(e->title, "Time Skip", sizeof e->title);
+    if (years == 1) {
+        lstrcpynA(e->text, "1 year has passed on the island.", sizeof e->text);
+    } else {
+        wsprintfA(e->text, "%d years have passed on the island.", years);
+    }
+    if (!ce_arm_with(game, e, NULL)) {
+        return 0;
+    }
+    ce_armed_is_notice = 1;
+    return 1;
+}
 
 /* What Choose Time Skip Amount costs in `game` now: the Time Warp's price,
    or 0 while the Origins upgrades are free. */
@@ -74,39 +127,56 @@ static int time_skip_step(const story_host *host) {
             years = time_skip.remaining;
         }
         time_skip.remaining -= years;
+        time_skip.done += years;
         time_skip.waiting = 1;
         time_skip.step_tick = STORY_TICK();
         if (time_skip.remaining <= 0) {
             time_skip.active = 0;
+            time_skip.finishing = 1;   /* the popup follows this step's replay */
         }
     }
     return years;
 }
 
 /* Called every frame (VvfpStoryInstall): the next step, once the last one
-   has been replayed. */
+   has been replayed; after the last one, the closing popup. */
 static void time_skip_tick(int game) {
     const story_host *host;
     int years;
-    if (!time_skip.active || time_skip.game != game) {
+    if (time_skip.game != game || (!time_skip.active && !time_skip.finishing && time_skip.notice == 0)) {
         return;
     }
     host = story_time_skip_host(game);
     if (host == NULL || !story_village_is(game, &time_skip.village)) {
-        time_skip.active = 0;          /* another village, or no host: dropped */
+        /* another village, Start Over, a deleted tribe, or no host: the rest
+           of the skip and its popup are dropped */
+        time_skip.active = 0;
+        time_skip.finishing = 0;
+        time_skip.notice = 0;
         return;
     }
-    if (time_skip.waiting) {
-        if (!host->time_skip_settled() && STORY_TICK() - time_skip.step_tick < TIME_SKIP_SETTLE_MS) {
+    if (time_skip.active || time_skip.finishing) {
+        if (time_skip.waiting) {
+            if (!host->time_skip_settled() && STORY_TICK() - time_skip.step_tick < TIME_SKIP_SETTLE_MS) {
+                return;
+            }
+            time_skip.waiting = 0;
+        }
+        if (time_skip.finishing) {
+            time_skip.finishing = 0;   /* the last step is replayed: the skip is done */
+            time_skip.notice = time_skip.done;
+        } else {
+            years = time_skip_step(host);
+            if (years == 0) {
+                time_skip.active = 0;  /* no one left to advance: cut short, no popup */
+            }
+            /* -1: paused -- the step is tried again next frame. */
             return;
         }
-        time_skip.waiting = 0;
     }
-    years = time_skip_step(host);
-    if (years == 0) {
-        time_skip.active = 0;          /* no one left to advance */
+    if (time_skip.notice > 0 && time_skip_notice_arm(game, time_skip.notice)) {
+        time_skip.notice = 0;          /* armed: the game's own trigger shows it */
     }
-    /* -1: paused -- the step is tried again next frame. */
 }
 
 /* Starts a skip of `years` in `game`: makes the first step now and charges
@@ -124,10 +194,14 @@ static int time_skip_start(int game, int years, int price) {
     time_skip.game = game;
     time_skip.remaining = years;
     time_skip.waiting = 0;
+    time_skip.done = 0;
+    time_skip.finishing = 0;
+    time_skip.notice = 0;
     time_skip.village = story_village_now(game);
     first = time_skip_step(host);
     if (first <= 0) {
         time_skip.active = 0;
+        time_skip.finishing = 0;
         return first;
     }
     if (price > 0) {
@@ -191,9 +265,13 @@ __declspec(dllexport) int __stdcall VvfpStoryChooseTimeSkip(int game, HWND owner
     if (!story_installed(game) || story_time_skip_host(game) == NULL || a == NULL) {
         return 0;
     }
-    if (time_skip.active && story_village_is(time_skip.game, &time_skip.village)) {
-        wsprintfA(message, "A time skip is already under way (%d more years to go). "
-                  "Keep the game running until it is done.", time_skip.remaining);
+    if ((time_skip.active || time_skip.finishing) && story_village_is(time_skip.game, &time_skip.village)) {
+        if (time_skip.active) {
+            wsprintfA(message, "A time skip is already under way (%d more years to go). "
+                      "Keep the game running until it is done.", time_skip.remaining);
+        } else {
+            lstrcpyA(message, "A time skip is just finishing. Keep the game running until it is done.");
+        }
         MessageBoxA(owner, message, "Not right now",
                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
@@ -234,12 +312,9 @@ __declspec(dllexport) int __stdcall VvfpStoryChooseTimeSkip(int game, HWND owner
                     TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    if (time_skip.active) {
-        wsprintfA(message, "Advanced %d years. The other %d follow as the game catches up; "
-                  "keep the game running until it is done.", first, years - first);
-    } else {
-        wsprintfA(message, "Advanced %d year%s.", years, years == 1 ? "" : "s");
-    }
+    /* What is happening now; the island's own popup says when it is done. */
+    wsprintfA(message, "The time skip of %d year%s has started. Keep the game running: "
+              "an island message will say when it is done.", years, years == 1 ? "" : "s");
     MessageBoxA(owner, message, TITLE, MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;
 }
@@ -267,6 +342,15 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeTimeSkipState(int *out) {
     out[1] = time_skip.game;
     out[2] = time_skip.remaining;
     out[3] = time_skip.waiting;
+}
+
+/* The closing popup's state: years advanced, finishing, years still to be
+   armed, and whether the armed custom event is the notice. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeTimeSkipNotice(int *out) {
+    out[0] = time_skip.done;
+    out[1] = time_skip.finishing;
+    out[2] = time_skip.notice;
+    out[3] = ce_armed && ce_armed_is_notice;
 }
 
 /* What the upgrade costs in `game` now. */
