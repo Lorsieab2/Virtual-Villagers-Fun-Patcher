@@ -29,3 +29,4 @@ EXPORTS
     Vv1ParentageProbeFollow=_Vv1ParentageProbeFollow@4
     Vv1ParentageProbeExpected=_Vv1ParentageProbeExpected@20
     Vv1ParentageProbeSetExpected=_Vv1ParentageProbeSetExpected@16
+    Vv1ParentageProbeCaptureOn=_Vv1ParentageProbeCaptureOn@4

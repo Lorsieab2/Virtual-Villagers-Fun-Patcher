@@ -229,7 +229,11 @@
    and body value, stored +1 like every other).  Children SPAWNED by an
    island event or a Barrel of Babies are not delivered by a mother and get
    no parents at all, so this is only ever reached for a real delivery whose
-   stash is empty. */
+   stash is empty.  (Corrected 2026-10-10: VV2 and VV3 never write "Unknown"
+   -- VV2's own default is "?" 0/0 and VV4/VV5's is "Joey" 2/2, each written by
+   the game itself; "Unknown" 0/0 is the patcher's placeholder for a birth
+   whose game provides no father at all, which is A New Home's case.) */
+#define VV1_FALLBACK_FATHER "Unknown"
 #define VV1_NEW_VILLAGE_STRIKES 30          /* frames of a roster sharing nobody with the table before it is another village's */
 #define VV1_APPEARANCE_MAX     253          /* fits in a byte once +1 is added */
 
@@ -347,12 +351,29 @@ static int vv1_expected_father(int m, const unsigned char *mother, vv1_parent_en
     return 0;
 }
 
+static int vv1_father_capture_on(void);
+
 static void vv1_set_father(int c, int m, const unsigned char *mother) {
     vv1_parent_entry father;
     if (vv1_expected_father(m, mother, &father)) {
         g_entries[c].father_head = father.stash_head;
         g_entries[c].father_body = father.stash_body;
         memcpy(g_entries[c].father_name, father.stash_name, VV1_NAME_CAPACITY);
+    } else if (vv1_father_capture_on()) {
+        /* A real delivery whose father nothing recorded: the owner's fallback
+           father (2026-09-21), "Unknown" with head 0 and body 0, stored +1
+           like every other value.  A New Home writes no father of its own
+           anywhere (the later games' "?" and "Joey" are their own defaults),
+           so this is the case the placeholder is for.  Never reached for a
+           spawn: only a delivering mother calls this.  Only while the
+           conception capture is installed (Write Births and Conceptions Log,
+           whose companion supplies the father): with it off the manifest
+           promises "only the mother is recorded", and a father that was
+           never looked for is not an unknown one. */
+        memset(g_entries[c].father_name, 0, VV1_NAME_CAPACITY);
+        memcpy(g_entries[c].father_name, VV1_FALLBACK_FATHER, sizeof VV1_FALLBACK_FATHER);
+        g_entries[c].father_head = vv1_plus_one(0);
+        g_entries[c].father_body = vv1_plus_one(0);
     }
 }
 
@@ -1351,6 +1372,22 @@ static vv1_write_birth_t vv1_log_writer(void) {
     }
     g_log_state = 1;
     return g_write_birth;
+}
+
+#ifdef VVFP_TEST
+static int g_test_capture = -1;   /* Vv1ParentageProbeCaptureOn: -1 = ask the companion */
+#endif
+
+/* Is the father captured at conception at all?  The parentage companion
+   (Write Births and Conceptions Log) is what supplies him, so its presence
+   is the answer. */
+static int vv1_father_capture_on(void) {
+#ifdef VVFP_TEST
+    if (g_test_capture >= 0) {
+        return g_test_capture;
+    }
+#endif
+    return vv1_log_writer() != NULL;
 }
 
 static int vv1_decode(unsigned char encoded) {
@@ -2397,6 +2434,14 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeConceive(const void *record
                                                               const void *father) {
     return vv1_stash((const unsigned char *)records, (const unsigned char *)mother,
                      (const unsigned char *)father);
+}
+
+/* Whether the conception capture counts as installed (1/0), or -1 to ask
+   the parentage companion as the game does: the "Unknown" 0/0 fallback
+   father applies only while it is. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeCaptureOn(int on) {
+    g_test_capture = on;
+    return 1;
 }
 
 /* What a load, a slot change or a repack does to the per-frame inference:
