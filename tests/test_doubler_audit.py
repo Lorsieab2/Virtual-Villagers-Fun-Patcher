@@ -378,7 +378,8 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # (a body is never aged), and again when the cross-check learned the
         # orphan mask entries (native/shared/orphan_masks.h, v1.35.59), and again
         # when the startup loader's companion list gained "VVFP Island Events.dll"
-        # (native/shared/startup_companions.h, v8).
+        # (native/shared/startup_companions.h, v8), and again when the quit check
+        # learned the missing last names (v1.35.66).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
             "938FAEBDCB3A6D84AF8E82745D8A948E66BFB37E06532EC7A8EA9CADA85A8EB9",

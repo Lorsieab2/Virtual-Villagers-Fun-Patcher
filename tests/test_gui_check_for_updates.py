@@ -159,7 +159,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_villager_info",
-               "vv_log_decisions", "vv_log_contradictions"}
+               "vv_log_decisions", "vv_log_contradictions",
+               "vv_startup_questions"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -182,7 +183,10 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_log_contradictions", {"vv_log_tools", "vv_save_layout", "vv_log_additions", "vv_last_names"}),
             # Giving last names re-keys the Family Tree Maker's edits (vv_family_tree.renamed_keys).
             ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree",
-                               "vv_tribe_rename", "vv_genealogy", "vv_save_layout"}),
+                               "vv_tribe_rename", "vv_genealogy", "vv_save_layout",
+                               "vv_startup_questions"}),
+            # The queue of questions the patcher asks when it opens (the owner, v1.35.66).
+            ("vv_startup_questions", set()),
             ("patcher_files", set()),
             ("vv_how_to_use", set()),
             # The Family Tree Maker and the Village Matchmaker.

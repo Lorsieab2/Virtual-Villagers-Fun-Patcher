@@ -151,6 +151,14 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
             report.add(f"{LOGS} (last names)", "NOTE",
                        f"{len(wrong)} last name(s) are not what \"{vv_last_names.INHERIT[rule]}\" gives: "
                        f"{names}{more}. Repair Saves & Logs, Give villagers last names, puts them right.")
+    # Villagers with no last name in a village that uses last names (the owner, v1.35.66).
+    try:
+        missing = vv_last_names.missing_last_names(Path(folder), game, slot)
+    except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError, struct.error) as exc:
+        report.add(f"{LOGS} (missing last names)", "UNCHECKED", f"could not be read ({exc})")
+    else:
+        if missing:
+            report.add(f"{LOGS} (missing last names)", "NOTE", vv_last_names.missing_note(game, missing))
     # Names the game's Villager Details screen cut short (the owner, 2026-10-07: "Full names will be
     # in the logs"): the full name the logs keep, src/vv_cut_names.py.
     import vv_cut_names

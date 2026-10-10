@@ -452,18 +452,76 @@ def known_names(folder: Path, game: int, slot: int, whole: set[str] | None = Non
     return set(fixed.values()) | {WHOLE + name for name in whole}
 
 
-def write_record(folder: Path, game: int, slot: int, rule: str, fixed: dict[tuple, str],
-                 whole: set[str] | None = None, own: dict[tuple, str] | None = None) -> None:
-    """The record, kept whole: `whole` and `own` (each villager's own rule) default to the record's."""
+def write_record(folder: Path, game: int, slot: int, rule: str | None, fixed: dict[tuple, str],
+                 whole: set[str] | None = None, own: dict[tuple, str] | None = None,
+                 arrivals: bool | None = None) -> None:
+    """The record, kept whole: `whole`, `own` (each villager's own rule) and `arrivals` (the arrivals
+    toggle) default to the record's."""
     whole = read_whole(folder, game, slot) if whole is None else whole
     own = read_own(folder, game, slot) if own is None else own
+    arrivals = read_arrivals(folder, game, slot) if arrivals is None else arrivals
     path = record_path(folder, game, slot)
     path.parent.mkdir(parents=True, exist_ok=True)
-    lines = [RECORD_HEADER.format(game=game), f"rule\t{rule}"]
+    lines = [RECORD_HEADER.format(game=game)] + ([f"rule\t{rule}"] if rule else [])
     lines += [f"set\t{first}\t{head}\t{body}\t{last}" for (first, head, body), last in sorted(fixed.items())]
     lines += [f"whole\t{name}" for name in sorted(whole)]
     lines += [own_line(key, r) for key, r in sorted(own.items()) if r in OWN_RULES and r]
+    if not arrivals:                            # on is the default: a line only when off
+        lines.append(f"arrivals\t{ARRIVALS_NONE}")
     _write(path, ("\n".join(lines) + "\n").encode("utf-8"))
+
+
+# ARRIVING VILLAGERS' OWN LAST NAMES (the owner, v1.35.66: "please add an optional toggle (default on)
+# for automatically assigning unique last names for arrived villagers").  A per-village choice kept in
+# the record as one line, "arrivals<TAB>unique" (on) or "arrivals<TAB>none" (off); no line is on.  An
+# earlier build's reader skips the line.  On: a villager who arrived with no last name is given one of
+# the game's own list that no living villager has (and, when the list allows, no villager the logs
+# know of), picked the same way each time (unique_last_name).  Babies follow the rules, never this.
+ARRIVALS_UNIQUE, ARRIVALS_NONE = "unique", "none"
+
+
+def read_arrivals(folder: Path, game: int, slot: int) -> bool:
+    """The arrivals toggle: True (on) unless the record says "none"."""
+    try:
+        lines = record_path(folder, game, slot).read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return True
+    if not lines or lines[0] != RECORD_HEADER.format(game=game):
+        return True
+    for line in lines[1:]:
+        parts = line.split("\t")
+        if parts[0] == "arrivals" and len(parts) == 2 and parts[1] in (ARRIVALS_UNIQUE, ARRIVALS_NONE):
+            return parts[1] == ARRIVALS_UNIQUE
+    return True
+
+
+def save_arrivals(folder: Path, game: int, slot: int, on: bool,
+                  processes: vv_save_backup.ProcessController | None = None) -> None:
+    """Keep the arrivals toggle in the record (refused while the game runs); the rest of the record as
+    it is (no rule line when there is no record yet: the patch then names babies as it always has)."""
+    controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
+    tools._refuse_if_running(Path(folder), controller)
+    rule, fixed = read_record(folder, game, slot)
+    if on == read_arrivals(folder, game, slot):
+        return
+    write_record(folder, game, slot, rule, fixed, arrivals=on)
+
+
+def unique_last_name(game: int, v: Living, living_lasts: set[str], dead_lasts: set[str],
+                     known: set[str] | frozenset = frozenset()) -> str:
+    """A last name of the game's own list for an arrival `v`: one no living villager has, and no dead
+    one either when the list still has such a name; the same one each time for the same villager (the
+    list is walked from a place their name, head and body decide).  One that fits the game's name
+    field; "" when none does."""
+    pool = list(tools.load_checker().LAST_NAMES[game])
+    start = zlib.crc32(repr(v.identity).encode("utf-8")) % len(pool)
+    order = pool[start:] + pool[:start]
+    fits = [n for n in order if len(with_last(game, v.name, n, known)) <= ROOM[game]]
+    for avoid in (living_lasts | dead_lasts, living_lasts):
+        name = next((n for n in fits if n not in avoid), "")
+        if name:
+            return name
+    return ""
 
 
 # EACH VILLAGER'S OWN RULE.  The owner, 2026-10-09: "set inheritance settings per-villager in addition
@@ -1629,6 +1687,228 @@ def wrong_last_names(folder: Path, game: int, slot: int) -> tuple[str, list[tupl
             continue
         out.append((v, now, should))
     return rule or "mother", out
+
+
+# MISSING LAST NAMES.  The owner (v1.35.66): "if repair logs detects a missing last name, please prompt
+# the player to add one if auto check is enabled" -- "like for arrivals and stuff. and direct them how to
+# add last names".  In a village that uses last names, a living villager whose name carries none (as
+# split_name reads it: one word, a numeral after one word, or words the player said are one first name)
+# -- an island event's or a Custom Island Event's newcomer, an older villager from before the patch, a
+# rename that dropped it -- is found here, with a last name suggested.  Never a current Heathen (New
+# Believers: Heathens never count).  The game's quit check (native/shared/crosscheck_bridge.h) finds the
+# same villagers and queues the player's answer in the slot's request file:
+#     VVFP MISSING LAST NAMES v1 game=N
+#     asked<TAB>remind | not now
+#     villager<TAB>name<TAB>head<TAB>body              (Latin-1, the game's own bytes)
+# "remind": the patcher asks the next time it opens; "not now": nobody asks again while every villager
+# with no last name is one it lists.  Giving them their last names removes the file.
+MISSING_HEADER = "VVFP MISSING LAST NAMES v1 game={game}"
+REMIND, NOT_NOW = "remind", "not now"
+
+
+@dataclass
+class Missing:
+    """A living villager with no last name, and the one suggested ("" none fits)."""
+    villager: Living
+    how: str = ""                   # an arrival's "How:" (the Arrived record), else ""
+    suggested: str = ""
+    why: str = ""                   # where the suggestion comes from
+    auto: bool = False              # an arrival the arrivals toggle names, without asking
+    conflict: list = field(default_factory=list)   # last names an earlier record of them gives
+
+    def describe(self) -> str:
+        v = self.villager
+        text = (f"{v.name} arrived ({self.how or 'an event'}) with no last name" if v.arrived
+                else f"{v.name} has no last name")
+        if self.conflict:
+            text += f", but an earlier record calls them {' or '.join(self.conflict)}"
+        return text
+
+
+def missing_path(folder: Path, game: int, slot: int) -> Path:
+    return Path(folder) / tools.DATA / "Last Names" / f"Virtual Villagers {game} Missing Last Names - Save {slot}.dat"
+
+
+def read_missing(folder: Path, game: int, slot: int) -> tuple[str | None, set[tuple]]:
+    """The slot's request: (REMIND or NOT_NOW, the villagers it lists by (name, head, body)); (None,
+    set()) without one."""
+    try:
+        lines = missing_path(folder, game, slot).read_bytes().decode("latin-1").splitlines()
+    except OSError:
+        return None, set()
+    if not lines or lines[0] != MISSING_HEADER.format(game=game):
+        return None, set()
+    state, listed = None, set()
+    for line in lines[1:]:
+        parts = line.split("\t")
+        if parts[0] == "asked" and len(parts) == 2 and parts[1] in (REMIND, NOT_NOW):
+            state = parts[1]
+        elif (parts[0] == "villager" and len(parts) == 4 and parts[2].lstrip("-").isdigit()
+              and parts[3].lstrip("-").isdigit()):
+            listed.add((parts[1], int(parts[2]), int(parts[3])))
+    return state, listed
+
+
+def write_missing(folder: Path, game: int, slot: int, state: str, who) -> None:
+    """Keep the player's answer (REMIND or NOT_NOW) for these villagers ((name, head, body)), written
+    through a temporary file and read back."""
+    if state not in (REMIND, NOT_NOW):
+        raise LastNamesError(f"{state!r} is not an answer.")
+    path = missing_path(folder, game, slot)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [MISSING_HEADER.format(game=game), f"asked\t{state}"]
+    lines += [f"villager\t{name}\t{head}\t{body}" for name, head, body in sorted(set(who))]
+    _write(path, ("\n".join(lines) + "\n").encode("latin-1", errors="replace"))
+
+
+def clear_missing(folder: Path, game: int, slot: int) -> None:
+    try:
+        missing_path(folder, game, slot).unlink()
+    except FileNotFoundError:
+        pass
+
+
+def uses_last_names(folder: Path, game: int, slot: int, people: list[Living] | None = None,
+                    known: set[str] | None = None) -> bool:
+    """Whether the village uses last names: it has a last-names record, or the game's quit check asked
+    about them (only a game with the Last Names row, or a record, does), or a living villager carries
+    one of the game's own last names (the Villagers Have Last Names patch gave it)."""
+    if read_record(folder, game, slot)[0] is not None or record_path(folder, game, slot).is_file():
+        return True
+    if read_missing(folder, game, slot)[0] is not None:
+        return True
+    known = known_names(folder, game, slot) if known is None else known
+    people = living(folder, game, slot) if people is None else people
+    names = set(tools.load_checker().LAST_NAMES[game])
+    return any(split_name(game, v.name, known)[1] in names for v in people)
+
+
+def missing_last_names(folder: Path, game: int, slot: int) -> list[Missing]:
+    """Every living villager with no last name, in a village that uses last names ([] in one that does
+    not), each with a last name suggested: the one the village's rule -- or the parents' own rules --
+    gives them from their family; for an arrival or anyone the rule gives none, their family's from
+    the game's list when nobody has it yet, else the first of the list nobody has.  A suggestion is
+    always one that fits the game's name field."""
+    import vv_genealogy as gen
+    folder = Path(folder)
+    known = known_names(folder, game, slot)
+    people, parents = everyone(folder, game, slot)
+    alive = [v for v in people if v.alive]
+    if not alive or not uses_last_names(folder, game, slot, alive, known):
+        return []
+    village = gen.load_village(folder, game, slot, full_names=False)
+    by_key = {p.key: p for p in village.known()}
+
+    def carried(name: str) -> str:
+        return split_name(game, name, known)[1]
+
+    found = [v for v in alive if not carried(v.name) and not getattr(by_key.get(v.identity), "heathen", False)]
+    if not found:
+        return []
+    rule, fixed = read_record(folder, game, slot)
+    pool = list(tools.load_checker().LAST_NAMES[game])
+    mine = {v.identity: fixed[key] for v in people
+            if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
+    given = inherited(people, parents, rule or "mother", pool, with_siblings(mine, parents), carried,
+                      own_rules_now(folder, game, slot, people))
+    taken = {carried(v.name) for v in alive} - {""}
+    dead = {carried(v.name) for v in people if not v.alive} - {""}
+    unique = read_arrivals(folder, game, slot)
+    out = []
+    # A contradiction is asked about, never overwritten (the owner, v1.35.66): an earlier record of the
+    # same villager -- the same first name, head and body, on a record of nobody living, dead or gone
+    # (the dead are someone else: looks and names repeat) -- that gives them a last name.
+    recorded: dict[tuple, set[str]] = {}
+    for p in village.known():
+        if p.alive or p.gone:
+            continue
+        first, last, _suffix = split_name(game, p.name, known)
+        if last and p.head is not None and p.body is not None:
+            recorded.setdefault((first, p.head, p.body), set()).add(last)
+    for v in found:
+        record = by_key.get(v.identity)
+        how = record.how if record is not None and v.arrived else ""
+        earlier = sorted(recorded.get((split_name(game, v.name, known)[0], v.head, v.body), ()))
+        if earlier:
+            last = earlier[0] if len(earlier) == 1 and len(with_last(game, v.name, earlier[0], known)) <= ROOM[game] \
+                else ""
+            out.append(Missing(v, how, last, "an earlier record of this villager gives them "
+                               + " or ".join(earlier) + ": the records disagree, so you are asked", conflict=earlier))
+            continue
+        if v.arrived and unique:            # their own new last name (the arrivals toggle)
+            last = unique_last_name(game, v, taken, dead, known)
+            if last:
+                taken.add(last)
+            out.append(Missing(v, how, last, "their own new last name (arrivals get one automatically)",
+                               auto=bool(last)))
+            continue
+        last = given.get(v.identity, "")
+        why = "the family's, by the village's rule" if last else ""
+        if last and len(with_last(game, v.name, last, known)) > ROOM[game]:
+            last = why = ""
+        if not last:
+            for name in ([v.default] if v.default else []) + pool:
+                if name and name not in taken and len(with_last(game, v.name, name, known)) <= ROOM[game]:
+                    last, why = name, "from the game's list, one nobody has yet"
+                    break
+        if last:
+            taken.add(last)
+        out.append(Missing(v, how, last, why))
+    return out
+
+
+def should_ask(folder: Path, game: int, slot: int, missing: list[Missing]) -> bool:
+    """Whether to ask about these villagers: not when the player said "Not now" to every one of them."""
+    if not missing:
+        return False
+    state, listed = read_missing(folder, game, slot)
+    return not (state == NOT_NOW and {m.villager.identity for m in missing} <= listed)
+
+
+def requests(folder: Path, game: int) -> list[int]:
+    """The slots of `folder` whose request asks the patcher to remind the player (REMIND)."""
+    out = []
+    for slot in range(1, 6):
+        if read_missing(folder, game, slot)[0] == REMIND:
+            out.append(slot)
+    return out
+
+
+def give_missing(folder: Path, game: int, slot: int, missing: list[Missing],
+                 processes: vv_save_backup.ProcessController | None = None, now: datetime | None = None) -> Result:
+    """Give each of `missing` its suggested last name, everywhere (give_last_names: refused while the
+    game runs, the save folder backed up first, every file swapped in and read back, every log
+    updated); kept as the player's own in the record when the village has a rule.  The request file
+    goes once nobody is left without one."""
+    chosen = {m.villager.identity: m.suggested for m in missing if m.suggested}
+    if not chosen:
+        raise LastNamesError("No last name could be suggested for them; choose each one instead.")
+    rule = read_record(folder, game, slot)[0]
+    result = give_last_names(folder, game, slot, chosen, processes, now, rule=rule, mine=chosen if rule else None)
+    try:
+        left = missing_last_names(folder, game, slot)
+    except (LastNamesError, OSError, ValueError):
+        left = None
+    if left is not None and not left:
+        clear_missing(folder, game, slot)
+    return result
+
+
+def _register_question() -> None:
+    """The game's reminders are one of the questions the patcher asks when it opens."""
+    import vv_startup_questions as questions
+    questions.register(questions.Source("missing last names", requests, "_ask_missing_last_names_for"))
+
+
+_register_question()
+
+
+def missing_note(game: int, missing: list[Missing], limit: int = 12) -> str:
+    """Check Saves & Logs' NOTE for them."""
+    shown = "; ".join(m.describe() for m in missing[:limit])
+    more = f"; and {len(missing) - limit} more" if len(missing) > limit else ""
+    return (f"{len(missing)} living villager(s) have no last name: {shown}{more}. Repair Saves & Logs, Give "
+            "villagers last names, gives them one (their boxes are highlighted).")
 
 
 def apply(folder: Path, work: Plan, controller: vv_save_backup.ProcessController, now: datetime | None,

@@ -511,6 +511,42 @@ __declspec(dllexport) int __stdcall VvfpCauseRepairArrivalsNow(int game, int slo
     return vv_arrival_marker_present(g_game, slot, cod_marker_village(slot));
 }
 
+/* VvfpCauseVillager(game, index, name, cap, looks): the village's villager in
+   record `index`, read only, for the cross-check's missing last names
+   (native/shared/crosscheck_bridge.h; the owner, v1.35.66: "if repair logs
+   detects a missing last name, please prompt the player to add one").
+   1: a living villager of the village -- their name in name[cap], their head
+   in looks[0] and body in looks[1] (0 is a real head and body); 0: no
+   villager there (an empty record, a body, a statue, ghost or stand-in, a
+   Heathen); -1: past the last record, or the table is not there. */
+__declspec(dllexport) int __stdcall VvfpCauseVillager(int game, int index, char *name, int cap, int *looks) {
+    const struct game_records *r;
+    const unsigned char *record;
+    unsigned char *records;
+    if (install_state == -1 || game < 1 || game > 5 || (g_game != 0 && game != g_game)
+        || name == NULL || cap < 2 || looks == NULL) {
+        return -1;
+    }
+    if (install_state == 0) {
+        g_game = game;
+        cod_locate_table();
+    }
+    r = &REC[g_game];
+    if (index < 0 || index >= RECORDS_MAX || (unsigned int)index >= r->slots
+        || (records = cod_records()) == NULL) {
+        return -1;
+    }
+    record = records + (size_t)index * r->stride;
+    if (!roster_member(record) || arrival_heathen(record) || rec_lookalike(record) || rec_health(record) <= 0
+        || record[r->name] == 0) {
+        return 0;
+    }
+    lstrcpynA(name, (const char *)(record + r->name), cap < (int)r->name_capacity + 1 ? cap : (int)r->name_capacity + 1);
+    looks[0] = *(const int *)(record + r->head);
+    looks[1] = *(const int *)(record + r->body);
+    return 1;
+}
+
 /* The Story / Cheat Upgrades companion: its Custom Island Event made the
    villager in `index` (right after the creator, in the same frame). */
 __declspec(dllexport) void __stdcall VvfpCauseArrivedBy(int game, int index, const char *how) {

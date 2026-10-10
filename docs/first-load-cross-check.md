@@ -126,6 +126,29 @@ Villagers log, so a villager whose departure or arrival only a backfilled record
 already listed there as Unaccounted (logs are never rewritten). Every companion is armed when the game
 opens (`VVFP Startup.dll`), so in practice every death and arrival is seen live and this cannot arise.
 
+### Missing last names (v1.35.66)
+
+The owner: "if repair logs detects a missing last name, please prompt the player to add one if auto check
+is enabled" -- "like for arrivals and stuff. and direct them how to add last names". With **Check logs
+automatically** on, right after the quit save (and after the repair box, if there was one) the quit check
+looks for living villagers with no last name in a village that uses last names (the Villagers Have Last
+Names row ships, or the slot has a Last Names record). It reads them through `VvfpCauseVillager` in
+`VVFP Cause of Death.dll` (never a body, a statue, a ghost, a stand-in or a Heathen) and reads a name as
+`src/vv_last_names.py` `split_name` does: one word, a numeral after one word, or words the record says are
+one first name, carry none. Last names can only be given with the game closed, so the box (**Remind me** /
+**Not now**) names them, says step by step how to give them, and queues the answer in
+
+    <save folder>\Virtual Villagers Fun Patcher Data\Last Names\
+        Virtual Villagers N Missing Last Names - Save S.dat   ("asked remind" or "asked not now", the villagers)
+
+**Remind me**: the patcher asks when it next opens ("These villagers have no last name: ... Give them one
+now?" -- **Give the suggested names**, **Choose each...** (the last-names window, their boxes highlighted,
+the suggestions filled in) or **Not now**). **Not now**: neither the game nor the patcher asks again while
+every villager with no last name is one the file lists. Repair Saves & Logs asks the same about the village
+it repairs. Check Saves & Logs lists them as a NOTE. Arrived villagers get their own new last name
+automatically at Repair while the village's **Give arriving villagers their own new last name
+automatically** box (the last-names window; `arrivals none` in the Last Names record when off) is on.
+
 ### Never hangs the exit
 
 The quit box runs on a thread of its own, owned by nothing; the game's window is minimised first, so

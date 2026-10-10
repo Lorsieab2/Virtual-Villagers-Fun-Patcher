@@ -143,6 +143,21 @@ class FirstLoadPromptHarnessTests(unittest.TestCase):
             "an older build's Cross-Check approval is used where it is, never moved",
             "... and that approval is used, like any other",
             "an approval under both Log Checks and Cross-Check is acted on under neither, and both are kept",
+            # Missing last names (v1.35.66).
+            "missing last names: nothing is asked while the village is played",
+            "missing last names: one word, a numeral after one word, and a name the record says is one first "
+            "name have none; a second word, numeral or not, is one",
+            "... the box says, step by step, how to give them last names, and how to stop the checks",
+            "... Remind me: the request is queued for the patcher, with each villager (head and body 0 kept)",
+            "... and the same villagers are not asked about again",
+            "a new villager with no last name (an arrival): asked again; Not now is kept with every one of them",
+            "... and after Not now they are not asked about again",
+            "a village that does not use last names is never asked about them",
+            "... with the Last Names row shipped it is, every game alike",
+            "the setting off: missing last names are never asked about",
+            "a last-names box that cannot be shown writes nothing",
+            "a last-names box not answered in time writes nothing",
+            "with repairs found too: the repair box, then the last-names box, each answered on its own",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
@@ -200,6 +215,8 @@ class FirstLoadPromptWiringTests(unittest.TestCase):
             text = (ROOT / "native" / "vvfp_cause_of_death" / d).read_text(encoding="utf-8")
             for name in ("VvfpCauseRepairGravesNow", "VvfpCauseRepairArrivalsNow", "VvfpCauseRepairBirthsNow"):
                 self.assertIn(f"{name}=_{name}@8", text)
+            # The villagers the missing-last-names check reads (v1.35.66).
+            self.assertIn("VvfpCauseVillager=_VvfpCauseVillager@20", text)
         for d in ("statistics_export.def", "statistics_export_test.def"):
             text = (ROOT / "native" / "statistics_export" / d).read_text(encoding="utf-8")
             self.assertIn("VvfpStatisticsRepairReconcileNow=_VvfpStatisticsRepairReconcileNow@8", text)
