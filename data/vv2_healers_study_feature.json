@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Healers Study Plants Regardless of Food",
-  "description": "Healers are more likely to keep studying plants regardless of the food supply. A villager who was studying a plant (the same four-plant roll the stock game makes) carries on studying when the village has 300 food or more, exactly as the stock game already does below 300 -- about three times in four each time the game chooses what the healer does; the rest of the time the game chooses exactly as it always has. With Builders Fix Huts When Idle also selected, the two share that one roll per choice. During catch-up -- the time that passes while the game is closed, and Time Warp -- the normal game never continues plant study at all; with this patch a villager who was studying a plant carries on there too, at any food level, about three times in four each time catch-up chooses what they do (otherwise catch-up's own choice stands). **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs unchanged.",
+  "description": "Healers are more likely to keep studying plants regardless of the food supply. A villager who was studying a plant (the same four-plant roll the stock game makes) carries on studying when the village has 300 food or more, exactly as the stock game already does below 300 -- about three times in four each time the game chooses what the healer does; the rest of the time the game chooses exactly as it always has. With Builders Fix Huts When Idle also selected, the two share that one roll per choice. During catch-up -- the time that passes while the game is closed, and Time Warp -- the normal game never continues plant study at all; with this patch a villager who was studying a plant carries on there too, at any food level, about three times in four each time catch-up chooses what they do (otherwise catch-up's own choice stands). **Only a villager studying a plant carries on (one you dropped on a plant, or a healer Easier Healing Mastery sent to study); for every healer to study whenever no one is sick, also select Easier Healing Mastery.** **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs unchanged.",
   "output_tag": "Healers Study",
   "dependencies": [
     "vv2_enable_origins_exclusive_features"
@@ -13,12 +13,12 @@
   "behavior_changes": [
     "At 300 food or more, a villager in plant-study state 9 gets the stock continue-last-activity call 0x460590(index, 40) that the stock scheduler makes only below 300; if it starts a job, the scheduler's own done epilogue runs.",
     "About three times in four, not always: when Builders Fix Huts When Idle is loaded the companion asks its roll for the decision (VvfpFixHutsRoll, one 75% roll per run of the idle scheduler, shared by every patch the run reaches); without it, this site -- reached at most once per run -- draws a 75% roll of its own. Neither touches the game's random numbers. When the roll fails the stock selection runs.",
-    "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x43B4D0) runs the task-state continuation 0x461580, whose plant-study case starts nothing, and then dispatches the picked job, whose Healing case does nothing when no one is sick. At the worker's pick dispatch (0x43B581, reached after 0x461580 as in the live scheduler), a villager in state 9 gets 0x460590(index, 40) on the same 75% roll, at any food level; if it starts a job the worker's own finish (0x43B588) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged."
+    "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x43B4D0) runs the task-state continuation 0x461580, whose plant-study case starts nothing, and then dispatches the picked job, whose Healing case does nothing when no one is sick (unless Easier Healing Mastery is selected). At the worker's pick dispatch (0x43B581, reached after 0x461580 as in the live scheduler), a villager in state 9 gets 0x460590(index, 40) on the same 75% roll, at any food level; if it starts a job the worker's own finish (0x43B588) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: the Origins companion loads the DLL, which detours the scheduler at run time only after verifying the stock bytes; a different build of the game installs nothing.",
     "Below 300 food nothing changes: the stock code has already made the call.",
-    "Only villagers already studying a plant (state 9, set when the player drops a villager on a plant) are affected; every other villager's selection is the stock one.",
+    "Only villagers already studying a plant (state 9, set when the player drops a villager on a plant, or by Easier Healing Mastery when a healer has no one to treat) are affected; every other villager's selection is the stock one.",
     "What the study does -- which plant, its animation, its Healing practice -- is the game's own.",
     "Nothing is written to a villager record, the save or any file."
   ],
@@ -26,7 +26,7 @@
     {
       "source": "assets/healers_study/VVFP Healers Study.dll",
       "destination": "VVFP Healers Study.dll",
-      "sha256": "117A442A91CF01CB54848E665FB020AAD88417C2767441E6E1423FD54907E5F8"
+      "sha256": "9F9889A301768DEC007692F22ED220AC467D629F07EB51F7508F81E2872164B7"
     }
   ],
   "patches": [],

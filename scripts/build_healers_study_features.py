@@ -38,11 +38,19 @@ ROWS = {
         "call": "0x447CD0(index, 60)",
         "catch_up": (
             "During catch-up -- the time that passes while the game is closed, "
-            "and Time Warp -- A New Home already keeps a healer's plant study "
-            "going by itself whenever it gives the healer healing work and no "
-            "one needs healing (with Builders and Healers Work First, at least "
-            "three times in four), so this patch changes nothing there."
+            "and Time Warp -- the normal game continues plant study only when it "
+            "happens to give that villager healing work while no one is sick; "
+            "with this patch a villager who was studying the cactus carries on "
+            "there too, at any food level, about three times in four each time "
+            "catch-up chooses what they do (otherwise catch-up's own choice "
+            "stands). **Only a villager you dropped on the medical cactus is "
+            "studying it; for every healer to study the cactus whenever no one "
+            "is sick, also select Easier Healing Mastery.**"
         ),
+        "catch_up_site": {"va": "0x42E817", "stock_bytes": "8B4F045056E89F8A0100",
+                          "routine": "the catch-up worker's pick dispatch (0x42E790: mov ecx, [edi+4]; push eax; push esi; call 0x4472C0)"},
+        "catch_up_behavior": "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x42E790) dispatches the picked job, and the dispatcher's Healing case continues a state-9 villager's study (0x4478EF -> 0x443270) only when the pick is Healing and no one is sick. At the worker's pick dispatch (0x42E817, which Builders and Healers Work First's catch-up site also falls through to), a villager in state 9 gets 0x447CD0(index, 60) on the same 75% roll, at any food level; if it starts a job the worker's own finish (0x42E821, its queue processor) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged.",
+        "state_note": "Only villagers already studying a plant (state 9, set only when the player drops a villager on the medical cactus; Easier Healing Mastery does not set it) are affected; every other villager's selection is the stock one.",
     },
     "vv2": {
         "threshold": 300,
@@ -56,10 +64,15 @@ ROWS = {
             "all; with this patch a villager who was studying a plant carries "
             "on there too, at any food level, about three times in four each "
             "time catch-up chooses what they do (otherwise catch-up's own choice "
-            "stands)."
+            "stands). **Only a villager studying a plant carries on (one you "
+            "dropped on a plant, or a healer Easier Healing Mastery sent to "
+            "study); for every healer to study whenever no one is sick, also "
+            "select Easier Healing Mastery.**"
         ),
         "catch_up_site": {"va": "0x43B581", "stock_bytes": "5557E868460200",
                           "routine": "the catch-up worker's pick dispatch (0x43B4D0: push ebp; push edi; call 0x45FBF0)"},
+        "catch_up_behavior": "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x43B4D0) runs the task-state continuation 0x461580, whose plant-study case starts nothing, and then dispatches the picked job, whose Healing case does nothing when no one is sick (unless Easier Healing Mastery is selected). At the worker's pick dispatch (0x43B581, reached after 0x461580 as in the live scheduler), a villager in state 9 gets 0x460590(index, 40) on the same 75% roll, at any food level; if it starts a job the worker's own finish (0x43B588) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged.",
+        "state_note": "Only villagers already studying a plant (state 9, set when the player drops a villager on a plant, or by Easier Healing Mastery when a healer has no one to treat) are affected; every other villager's selection is the stock one.",
     },
 }
 
@@ -97,7 +110,7 @@ def main() -> None:
             "explicit_non_changes": [
                 "This row changes no executable bytes: the Origins companion loads the DLL, which detours the scheduler at run time only after verifying the stock bytes; a different build of the game installs nothing.",
                 f"Below {t} food nothing changes: the stock code has already made the call.",
-                "Only villagers already studying a plant (state 9, set when the player drops a villager on a plant) are affected; every other villager's selection is the stock one.",
+                row["state_note"],
                 "What the study does -- which plant, its animation, its Healing practice -- is the game's own.",
                 "Nothing is written to a villager record, the save or any file.",
             ],
@@ -108,14 +121,9 @@ def main() -> None:
             "patches": [],
             "runtime_detours": [{**row["site"], "installed_by": "VVFP Healers Study.dll, VvfpHealersStudyInstall"}],
         }
-        if "catch_up_site" in row:
-            manifest["behavior_changes"].append(
-                "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x43B4D0) runs the task-state continuation 0x461580, whose plant-study case starts nothing, and then dispatches the picked job, whose Healing case does nothing when no one is sick. At the worker's pick dispatch (0x43B581, reached after 0x461580 as in the live scheduler), a villager in state 9 gets 0x460590(index, 40) on the same 75% roll, at any food level; if it starts a job the worker's own finish (0x43B588) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged.")
-            manifest["runtime_detours"].append(
-                {**row["catch_up_site"], "installed_by": "VVFP Healers Study.dll, VvfpHealersStudyInstall"})
-        else:
-            manifest["explicit_non_changes"].append(
-                "Catch-up is unchanged: A New Home's catch-up worker (0x42E790) dispatches the picked job, and the dispatcher's Healing case already continues plant study (activity 9 -> 0x443270, at 0x4478EF).")
+        manifest["behavior_changes"].append(row["catch_up_behavior"])
+        manifest["runtime_detours"].append(
+            {**row["catch_up_site"], "installed_by": "VVFP Healers Study.dll, VvfpHealersStudyInstall"})
         out = ROOT / "data" / f"{game}_healers_study_feature.json"
         out.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8", newline="\n")
         print("wrote", out.relative_to(ROOT), sha)

@@ -46,7 +46,8 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
    "Reenable F6 Clothing Change Cheat", "Birth Control", and/or
-   "Magic Fruit of Life Alters Mortality" and/or "Builder Action Fixes".
+   "Magic Fruit of Life Alters Mortality", "Builder Action Fixes" and/or
+   "Easier Healing Mastery".
    VV1 Origins is available through the combined "Enable Origins Tech, Details,
    and Village-Wide Upgrades" route. Its internal Origins prerequisite is
    resolved automatically, so the Tech-screen, Villager Details-screen, and
@@ -407,6 +408,17 @@ When a healer or a villager who prefers Healing has no sick villager to treat,
 the patch sends that villager into the game's existing plant-study work state.
 That persistent state is used during normal play and time catch-up. Normal
 healing, sickness, food, skill gains, and plant availability are unchanged.
+
+VV1 EASIER HEALING MASTERY
+
+When a healer or a villager who prefers Healing is given healing work and no
+villager is sick, the patch sends that villager to study the Medical Cactus,
+the game's own study (without it, only a villager you dropped on the cactus
+does that). It works in normal play and during time catch-up and Time Warp,
+so doctors keep training Healing while you are away. Nothing is written to
+the villager's record. Normal healing, sickness, food and the study's own
+skill gains are unchanged. With Builders and Healers Work First also
+selected, healers are given healing work more often, so they study more.
 
 VV1 REENABLE F6 CLOTHING CHANGE CHEAT
 
