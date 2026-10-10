@@ -307,6 +307,15 @@ class Family:
     way: list = field(default_factory=list)     # Packed families: the way kept for the line from the parents
 
 
+# How the family lines may be coloured (vv_line_colours): the Lines tab's "Line colours" and "Order colours by".
+LINE_MODES = {"default": "Default (the families' colours)", "auto": "Auto", "rainbow": "Rainbow", "gradient": "Gradient",
+              "range": "Range"}
+LINE_ORDERS = {"x": "Left to right", "x_rev": "Right to left", "y": "Top to bottom", "y_rev": "Bottom to top",
+               "row": "Per row", "generation": "Per generation"}
+RANGE_DEFAULT = ("#e63946", "#2a9d8f", "#3a86ff")        # the Range's base colours until the player picks
+RANGE_MAX = 12
+
+
 @dataclass
 class Edits:
     """The player's marks and edits for one village's tree.  Blank means the patcher's own."""
@@ -367,11 +376,21 @@ class Edits:
     # A thin dark or white outline under family lines whose own colour would blend into the background
     # (the owner, 2026-10-10: "make it an optional toggle default off").
     outline_lines: bool = False
+    # How the family lines are coloured (the owner, 2026-10-10): LINE_MODES, the order the colours run
+    # across the tree (LINE_ORDERS, backwards when line_reverse), the Gradient's two ends and the Range's
+    # base colours.  The colours themselves are in family_lines; these are what made them.
+    line_mode: str = "default"
+    line_order: str = "x"
+    line_reverse: bool = False
+    gradient_start: str = "#ff7a18"
+    gradient_end: str = "#7b2ff7"
+    range_colours: list[str] = field(default_factory=lambda: list(RANGE_DEFAULT))
     picture_size: float = 100.0        # every portrait's face, percent (PICTURE_SCALE_MIN..MAX)
     text_size: float = 100.0           # every portrait's words, percent (TEXT_SCALE_MIN..MAX)
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
     portrait_gap: float = 22.0          # pixels between two portraits side by side (the owner: batch-editable)
     row_gap: float = 30.0               # pixels under a generation's row before its children's lines (LANE_TOP)
+    show_runner: bool = False           # "Runner" for a villager who likes running (the owner, 2026-10-10)
     show_founder: bool = False          # "Founder" in each generation I portrait (the owner, 2026-10-09)
     fit_width: int = 0                  # 0, or shrink every portrait so the widest row fits this many pixels
     # The canvas (the owner, 2026-10-09): 0 x 0 is Automatic, the page as large as the tree; else every
@@ -527,11 +546,19 @@ class Edits:
         out.packing = int(_number(data.get("packing"), 0, 100, PACKING))
         out.lines_behind = data.get("lines_behind") if isinstance(data.get("lines_behind"), bool) else None
         out.outline_lines = data.get("outline_lines") is True
+        out.line_mode = data.get("line_mode") if data.get("line_mode") in LINE_MODES else "default"
+        out.line_order = data.get("line_order") if data.get("line_order") in LINE_ORDERS else "x"
+        out.line_reverse = data.get("line_reverse") is True
+        out.gradient_start = data.get("gradient_start") if _colour_ok(data.get("gradient_start")) else "#ff7a18"
+        out.gradient_end = data.get("gradient_end") if _colour_ok(data.get("gradient_end")) else "#7b2ff7"
+        picked = [c for c in data.get("range_colours", []) if _colour_ok(c)] if isinstance(data.get("range_colours"), list) else []
+        out.range_colours = picked[:RANGE_MAX] or list(RANGE_DEFAULT)
         out.picture_size = _number(data.get("picture_size"), PICTURE_SCALE_MIN, PICTURE_SCALE_MAX, 100.0)
         out.text_size = _number(data.get("text_size"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
         out.row_gap = float(_number(data.get("row_gap"), ROW_GAP_MIN, ROW_GAP_MAX, LANE_TOP))
         out.show_founder = data.get("show_founder", False) is True
+        out.show_runner = data.get("show_runner", False) is True
         out.page_generations = int(_number(data.get("page_generations"), PAGE_GENS_MIN, PAGE_GENS_MAX, PAGE_GENS))
         fit = data.get("fit_width")
         out.fit_width = int(_number(fit, FIT_MIN, FIT_MAX, 0)) if isinstance(fit, (int, float)) and fit else 0
@@ -698,8 +725,8 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
-                "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "number_names": self.number_names,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "line_mode": self.line_mode, "line_order": self.line_order, "line_reverse": self.line_reverse, "gradient_start": self.gradient_start, "gradient_end": self.gradient_end, "range_colours": self.range_colours, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "show_runner": self.show_runner, "number_names": self.number_names,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
                 "numbering": self.numbering,
@@ -726,7 +753,7 @@ class Edits:
 # one portrait.  Each is checked as the tree's own is (_group_value).
 GROUP_FIELDS = ("text_align", "text_valign", "centre_heads", "text_room", "flip_words", "turn_words",
                 "text_inside", "fixed_face_size", "picture_size", "text_size", "text_wrap", "show_units", "show_years",
-                "show_twins", "show_founder", "detail_lines", "detail_colour", "detail_opacity",
+                "show_twins", "show_founder", "show_runner", "detail_lines", "detail_colour", "detail_opacity",
                 "detail_width", "portrait_fill")
 
 
@@ -1082,7 +1109,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "fixed_face_size", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
     "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "canvas_w", "canvas_h", "page_generations", "diagonal_lines",
-    "show_units", "show_years", "show_twins", "number_names", "number_order", "sort", "positioning", "numbering",
+    "show_units", "show_years", "show_twins", "show_runner", "number_names", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
     "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
@@ -4143,7 +4170,8 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
     founder = ["Founder"] if lay.opt(p, "show_founder") and p.generation == 1 else []     # the owner, 2026-10-09
-    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + founder + born_with(lay, p) + ([extra] if extra else [])
+    runner = ["Runner"] if lay.opt(p, "show_runner") and p.runner else []        # likes running (the owner, 2026-10-10)
+    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + founder + runner + born_with(lay, p) + ([extra] if extra else [])
 
 
 def born_with(lay: Layout, p: gen.Person) -> list[str]:

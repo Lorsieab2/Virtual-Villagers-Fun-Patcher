@@ -529,7 +529,7 @@ class TheWindow(unittest.TestCase):
         self.assertNotIn('state="readonly"', box, "the player may type a last name")
         self.assertIn("vv_last_names.name_problem(number, split(v.name)[0], last)", body)
         # The wrong ones are marked and can be put right.
-        self.assertIn('ttk.Button(buttons, text="Fix wrong last names", command=by_rule)', body)
+        self.assertIn('ttk.Button(buttons, text="Fix wrong last names", command=fix_wrong)', body)
 
 
 def grave_buffer(game: int, graves: dict[int, tuple]) -> bytearray:

@@ -1689,6 +1689,141 @@ def wrong_last_names(folder: Path, game: int, slot: int) -> tuple[str, list[tupl
     return rule or "mother", out
 
 
+# RANDOM LAST NAMES.  The owner (2026-10-10): "for the repair logs, can you add an option for 'random' last
+# names everywhere".  In the last-names window, Random gives villagers last names drawn at random from the
+# game's own list, only to those with none or to everyone, each villager's own or one name a family shares
+# (the children follow the village's rule from their parents).  It only chooses the names: the window
+# shows them (changed ones in red bold), the player can edit any row, and nothing is written until OK, by
+# give_last_names like every other choice.  The same seed gives the same names; Reroll draws another.
+RANDOM_WHO = ("missing", "everyone")
+
+
+def random_seed() -> int:
+    """A fresh seed for Random last names (Reroll)."""
+    return random.SystemRandom().randrange(1, 1_000_000)
+
+
+def heathen_identities(folder: Path, game: int, slot: int) -> set[tuple]:
+    """The villagers the logs say are Heathens (New Believers): they never get a last name here."""
+    import vv_genealogy as gen
+    village = gen.load_village(Path(folder), game, slot, full_names=False)
+    return {p.key for p in village.known() if getattr(p, "heathen", False)}
+
+
+def earlier_record_names(game: int, village, known: set[str] | frozenset = frozenset()) -> dict[tuple, set[str]]:
+    """(first name, head, body) -> the last names an earlier record of that villager gives: a record of
+    nobody living, dead or gone (the dead are someone else: looks and names repeat)."""
+    recorded: dict[tuple, set[str]] = {}
+    for p in village.known():
+        if p.alive or p.gone:
+            continue
+        first, last, _suffix = split_name(game, p.name, known)
+        if last and p.head is not None and p.body is not None:
+            recorded.setdefault((first, p.head, p.body), set()).add(last)
+    return recorded
+
+
+def random_conflicts(folder: Path, game: int, slot: int, people: list[Living],
+                     known: set[str] | frozenset = frozenset()) -> dict[tuple, list[str]]:
+    """identity -> the last names an earlier record gives a living villager (the contradiction rule: the
+    player is asked, never overridden), for the villagers in `people`."""
+    import vv_genealogy as gen
+    village = gen.load_village(Path(folder), game, slot, full_names=False)
+    recorded = earlier_record_names(game, village, known)
+    out = {}
+    for v in people:
+        earlier = sorted(recorded.get((split_name(game, v.name, known)[0], v.head, v.body), ()))
+        if earlier and v.alive:
+            out[v.identity] = earlier
+    return out
+
+
+def random_last_names(game: int, people: list[Living], parents: dict[tuple, tuple], seed: int,
+                      who: str = "missing", families: bool = False, rule: str = "father",
+                      current: dict[tuple, str] | None = None, known: set[str] | frozenset = frozenset(),
+                      skip: set[tuple] | frozenset = frozenset(), pool: list[str] | None = None,
+                      room: int | None = None) -> tuple[dict[tuple, str], list[tuple]]:
+    """(the new last names, the villagers none fits): random last names from the game's list (`pool`)
+    for the villagers in `people` -- "missing": only those with no last name now (`current`: identity ->
+    the last name in their box, "" none, else the one their name carries); "everyone": all of them,
+    each given one that differs from the one they have.  Villagers in `skip` (Heathens) are left alone.
+    Only the changed names are returned, and every one fits the game's name field (`room`).  Not
+    unique by design, but a name no one else in the village has is preferred while the list has one.
+    `families`: a family shares one random name -- a villager with no recorded parent gets one, and
+    their children take their parents' by the village's rule `rule` ("father", "mother", or "random"
+    for either; any other rule gives the father's); without families every villager draws their own.
+    The same `seed` always gives the same names."""
+    room = ROOM[game] if room is None else room
+    names = [n for n in (pool if pool is not None else tools.load_checker().LAST_NAMES[game]) if n and storable(n)]
+    carried = lambda name: split_name(game, name, known)[1]  # noqa: E731
+    now = {v.identity: (current[v.identity] if current is not None and v.identity in current else carried(v.name))
+           for v in people}
+    by_id = {v.identity: v for v in people}
+    eligible = {v.identity for v in people
+                if v.identity not in skip and (who == "everyone" or not now[v.identity])}
+    used = {now[k] for k in now if k not in eligible} - {""}
+    out: dict[tuple, str] = {}
+    unfit: list[tuple] = []
+
+    def fits(v: Living, n: str) -> bool:
+        return len(with_last(game, v.name, n, known)) <= room
+
+    def draw(v: Living) -> str:
+        options = [n for n in names if fits(v, n)]
+        if not options:
+            return ""
+        options = [n for n in options if n != now[v.identity]] or options
+        rng = random.Random(f"{seed}|{v.identity!r}")
+        pick = rng.choice([n for n in options if n not in used] or options)
+        used.add(pick)
+        return pick
+
+    def parent_last(key, seen: frozenset) -> str:
+        if key is None:
+            return ""
+        if key in by_id:
+            return resolve(by_id[key], seen)
+        return carried(key[0])
+
+    def resolve(v: Living, seen: frozenset = frozenset()) -> str:
+        if v.identity not in eligible:
+            return now[v.identity]
+        if v.identity in out:
+            return out[v.identity]
+        last = ""
+        father, mother = parents.get(v.identity, (None, None))
+        if families and v.identity not in seen and (father or mother):
+            seen = seen | {v.identity}
+            dad, mum = parent_last(father, seen), parent_last(mother, seen)
+            if rule == "mother":
+                last = mum or dad
+            elif rule == "random" and dad and mum:
+                last = random.Random(f"{seed}|{v.identity!r}|parent").choice([dad, mum])
+            else:
+                last = dad or mum
+            if last and not fits(v, last):
+                last = ""
+        last = last or draw(v)
+        if last:
+            used.add(last)
+        out[v.identity] = last
+        return last
+
+    for v in people:
+        if v.identity in eligible:
+            resolve(v)
+    changed = {}
+    for v in people:
+        if v.identity not in eligible:
+            continue
+        last = out.get(v.identity, "")
+        if not last:
+            unfit.append(v.identity)
+        elif last != now[v.identity]:
+            changed[v.identity] = last
+    return changed, unfit
+
+
 # MISSING LAST NAMES.  The owner (v1.35.66): "if repair logs detects a missing last name, please prompt
 # the player to add one if auto check is enabled" -- "like for arrivals and stuff. and direct them how to
 # add last names".  In a village that uses last names, a living villager whose name carries none (as
@@ -1818,13 +1953,7 @@ def missing_last_names(folder: Path, game: int, slot: int) -> list[Missing]:
     # A contradiction is asked about, never overwritten (the owner, v1.35.66): an earlier record of the
     # same villager -- the same first name, head and body, on a record of nobody living, dead or gone
     # (the dead are someone else: looks and names repeat) -- that gives them a last name.
-    recorded: dict[tuple, set[str]] = {}
-    for p in village.known():
-        if p.alive or p.gone:
-            continue
-        first, last, _suffix = split_name(game, p.name, known)
-        if last and p.head is not None and p.body is not None:
-            recorded.setdefault((first, p.head, p.body), set()).add(last)
+    recorded = earlier_record_names(game, village, known)
     for v in found:
         record = by_key.get(v.identity)
         how = record.how if record is not None and v.arrived else ""

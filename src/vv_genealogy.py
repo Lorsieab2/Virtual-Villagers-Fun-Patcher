@@ -62,6 +62,7 @@ class GenealogyError(Exception):
 
 
 Key = tuple  # (name, head, body)
+RUNNING = 38   # the like id of "running" in all five games' preference lists (grant_running.RUNNING)
 
 
 @dataclass
@@ -80,6 +81,7 @@ class Person:
     family: int | None = None           # the save's family number (the last name's), living only
     expecting: bool = False             # a living mother-to-be
     heathen: bool = False               # New Believers: a current Heathen
+    runner: bool = False                # likes running: the living by their save, the dead by their logs
     arrived: bool = False               # an Arrived record names them
     how: str = ""                       # the Arrived record's "How" ("Founder", an event's title...)
     first_seen: str | None = None       # the earliest History snapshot (or Arrived record) naming them
@@ -158,6 +160,7 @@ class _Registry:
         self.full: dict[Key, Key] = {}                 # a name the Details screen cut -> the full name's key
         # A New Home's living villagers as its save names them: (id, name, gender, family, head, body).
         self.vv1_living: list[tuple] = []
+        self.ran: set[int] = set()                     # who a log says likes running
 
     def current(self, key: Key) -> Key:
         """The look a villager has now, following their Change Appearance records, under the full name
@@ -196,6 +199,8 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         p.sex = "Male" if _i32(data, at + f.sex) == f.male else "Female"
         p.age = _i32(data, at + age_at)
         p.family = _i32(data, at + f.family)
+        if len(data) >= at + f.likes + 4 * f.slots:
+            p.runner = RUNNING in [_i32(data, at + f.likes + 4 * k) for k in range(f.slots)]
         if game == 1:
             p.expecting = _i32(data, at - 0x370 + 0x358) != 0       # the delivery the game counts down
             # Who she is in the save's own words, for the Parents (A New Home) sidecar (_vv1_from_sidecar).
@@ -309,6 +314,8 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             reg.snapshots.setdefault(b.date, set()).add(p.id)
             if p.first_seen is None or b.date < p.first_seen:
                 p.first_seen = b.date
+        if "running" in [w.strip().lower() for w in (b.value("Likes") or "").split(",")]:
+            reg.ran.add(p.id)
         age = b.value("Age")
         if age and age.lstrip("-").isdigit() and not p.alive and p.gone != "died":
             p.age = max(p.age or 0, int(age))
@@ -409,6 +416,9 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
     _log_people(reg, folder, game, slot)
     if game == 1:
         _vv1_from_sidecar(reg, folder, slot)
+    for pid in reg.ran:                 # the dead and gone: as their logs say (the living: their save)
+        if not reg.people[pid].alive:
+            reg.people[pid].runner = True
     _unrecorded_looks(reg)
     checker = tools.load_checker()
     exact, by_name = checker.known_sexes(folder, game)
@@ -842,6 +852,17 @@ def relationship(village: Village, a: int, b: int) -> str:
 # The rules and the pairs
 # ---------------------------------------------------------------------------
 
+# How the pairings can be listed: (words in the report, ascending, descending).
+LIST_BY = {
+    "default": ("Listed in the default order (least related first)", "", ""),
+    "generation": ("Listed by generation (the later generation of the pair, then the other)",
+                    "oldest generation at the top", "latest generation at the top"),
+    "age": ("Listed by age (the woman's, then the man's)", "youngest at the top", "oldest at the top"),
+    "number": ("Listed by family tree number (the woman's, then the man's)",
+               "lowest number at the top", "highest number at the top"),
+}
+
+
 @dataclass
 class Rules:
     """Every rule is the player's toggle.  The defaults are only where the window starts."""
@@ -864,6 +885,15 @@ class Rules:
     one_family_per_partner: bool = True   # no partner from a family they already have a child with
     prefer_previous_partners: bool = True   # established couples first (the owner, 2026-10-08)
     prefer_fresh_blood: bool = True
+    # How the pairings are LISTED (the owner, 2026-10-10: "prioritize latest generation", then "List pairings by"):
+    # only the order changes, never who may pair with whom.  The default is the newest generation first.
+    list_by: str = "generation"            # one of LIST_BY
+    list_direction: str = "descending"    # "ascending" or "descending"
+
+    @property
+    def prefer_latest_generation(self) -> bool:
+        return self.list_by == "generation" and self.list_direction == "descending"
+
     # How the report shows ages, not a pairing rule (the owner, 2026-10-08: "a toggle to turn Age
     # Units on and off"): "1379 game units (68 years old)", or "68 years old" alone.
     show_age_units: bool = True
@@ -895,7 +925,15 @@ class Rules:
                             (self.prefer_fresh_blood, "Fresh blood first")):
             if flag:
                 out.append(words)
+        out.append(self.listing())
         return out
+
+    def listing(self) -> str:
+        by = LIST_BY.get(self.list_by, LIST_BY["default"])
+        if self.list_by not in LIST_BY or self.list_by == "default":
+            return by[0]
+        down = self.list_direction != "ascending"
+        return f"{by[0]}, {by[2] if down else by[1]}"
 
 
 @dataclass
@@ -1062,10 +1100,25 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     couples = {(c.father, c.mother) for c in village.people.values()
                if c.father is not None and c.mother is not None}
 
+    sign = -1 if rules.list_direction != "ascending" else 1
+
+    def listkey(pair: Pair) -> tuple:
+        """The listing order the player chose, a key (all zero for the default order); ties keep the ranking."""
+        m, w = pair.man, pair.woman
+        if rules.list_by == "generation":
+            return (sign * max(m.generation, w.generation), sign * min(m.generation, w.generation))
+        if rules.list_by == "age":
+            # An age of 0 is a real age; an unknown one goes last either way.
+            return (w.age is None, sign * (w.age or 0), m.age is None, sign * (m.age or 0))
+        if rules.list_by == "number":
+            return (w.number is None, sign * (w.number or 0), m.number is None, sign * (m.number or 0))
+        return (0, 0)
+
     def rank(pair: Pair) -> tuple:
         gap = abs((pair.man.age or 0) - (pair.woman.age or 0))
         established = rules.prefer_previous_partners and (pair.man.id, pair.woman.id) in couples
-        return (not established, pair.related,
+        newest = (listkey(pair) if rules.list_by == "generation" else (0, 0))
+        return (newest, not established, pair.related,
                 (fresh(pair.man) + fresh(pair.woman)) if rules.prefer_fresh_blood else 0,
                 pair.shared, gap, pair.woman.id, pair.man.id)
 
@@ -1079,7 +1132,14 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
     partner: dict[int, Pair] = {}           # man -> his pair
 
     def place(woman: int, seen: set) -> bool:
-        for pair in per_woman.get(woman, []):
+        options = per_woman.get(woman, [])
+        if rules.list_by == "generation":
+            # A free man in her own best order before moving another woman off hers, so the newest
+            # generation's couples are not split to pair them with an older generation (stable: the
+            # order among the free and among the taken is unchanged).
+            options = ([p for p in options if p.man.id not in partner]
+                       + [p for p in options if p.man.id in partner])
+        for pair in options:
             if pair.man.id in seen:
                 continue
             seen.add(pair.man.id)
@@ -1090,8 +1150,12 @@ def suggest(village: Village, rules: Rules) -> tuple[list[Pair], dict[int, list[
 
     for woman in sorted(per_woman, key=lambda w: rank(per_woman[w][0])):
         place(woman, set())
-    one_to_one = sorted(partner.values(), key=rank)
-    fallback = [] if allowed else sorted(every, key=rank)[:10]
+    one_to_one = sorted(sorted(partner.values(), key=rank), key=listkey)
+    fallback = [] if allowed else sorted(sorted(every, key=rank)[:10], key=listkey)
+    # The chosen listing order, a stable sort: the women, and each woman's partners, keep the ranking in ties.
+    for wid in per_woman:
+        per_woman[wid] = sorted(per_woman[wid], key=listkey)
+    per_woman = dict(sorted(per_woman.items(), key=lambda item: listkey(item[1][0])))
     return one_to_one, per_woman, fallback
 
 
@@ -1256,8 +1320,10 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
 
     def age(p: Person) -> str:
         if rules.show_age_units or p.age is None:
-            return p.age_text()
-        return f"died at {p.years} years old" if p.gone == "died" else f"{p.years} years old"
+            text = p.age_text()
+        else:
+            text = f"died at {p.years} years old" if p.gone == "died" else f"{p.years} years old"
+        return f"{text}, Generation {roman(p.generation)}"
     lines = [f"{game_title} -- Village Matchmaker",
              f"Village: {village.tribe} (Save {village.slot})" if village.tribe else f"Save {village.slot}",
              "",
@@ -1276,7 +1342,8 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     else:
         lines.append("  No pair meets every rule.  The least related pairs available:")
         for pair in fallback:
-            lines.append(f"    {pair.man.name} and {pair.woman.name}: {pair.relation}, related {pair.percent:g}%"
+            lines.append(f"    {pair.man.name} (Generation {roman(pair.man.generation)}) and "
+                         f"{pair.woman.name} (Generation {roman(pair.woman.generation)}): {pair.relation}, related {pair.percent:g}%"
                          + (f"; {pair.together}" if pair.together else ""))
     lines.append("")
     lines.append("== Every allowed partner, per woman ==")

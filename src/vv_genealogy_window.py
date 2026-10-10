@@ -433,6 +433,10 @@ class ColourField(ttk.Frame):
         self._show()
 
 
+RANGE_PRESETS = ("#e63946", "#f77f00", "#f2c200", "#3aa655", "#2a9d8f", "#1d9bf0", "#3a56d4", "#8a4fff",
+                 "#d63fa6", "#8b5a2b", "#808080", "#202020")
+
+
 def ask_colour(parent, title: str, initial: str = "") -> str | None:
     """A colour from the picker, or typed: None when cancelled."""
     chosen = colorchooser.askcolor(color=tk_colour(initial) or None, parent=parent, title=title)
@@ -1149,6 +1153,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.founder_var = tk.BooleanVar(value=e.show_founder)          # the owner, 2026-10-09
         ttk.Checkbutton(words, text="Show \"Founder\" in the first generation", variable=self.founder_var,
                         command=lambda: self._change(show_founder=bool(self.founder_var.get()))).pack(anchor="w")
+        self.runner_var = tk.BooleanVar(value=e.show_runner)             # the owner, 2026-10-10
+        ttk.Checkbutton(words, text="Show \"Runner\" for villagers who like running", variable=self.runner_var,
+                        command=lambda: self._change(show_runner=bool(self.runner_var.get()))).pack(anchor="w")
         # The owner, 2026-10-10: "add a button to retroactively update that text too".
         ttk.Button(words, text="Bold and italic for extra lines (Golden Child, Founder, twins...)",
                    command=self._bold_italic_extra_lines).pack(anchor="w", pady=(4, 0))
@@ -1360,9 +1367,43 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # children's portraits keep their family's colour.  Right-click a line to change one by hand.
         row = ttk.Frame(tab)
         row.pack(fill="x", pady=(4, 0))
-        ttk.Button(row, text="Auto-colour family lines", command=self._auto_line_colours).pack(side="left")
+        # Line colours: Default / Auto / Rainbow / Gradient / Range (the owner, 2026-10-10), the order the
+        # colours run across the tree, the Gradient's two ends and the Range's base colours.
+        ttk.Label(row, text="Line colours:").pack(side="left")
+        self.line_mode_var = tk.StringVar(value=ft.LINE_MODES[e.line_mode])
+        mode = ttk.Combobox(row, textvariable=self.line_mode_var, values=list(ft.LINE_MODES.values()),
+                            state="readonly", width=26)
+        mode.pack(side="left", padx=(4, 0))
+        mode.bind("<<ComboboxSelected>>", lambda _e: self._line_mode_picked())
         ttk.Button(row, text="Reset to family colours", command=self._reset_line_colours).pack(side="left",
                                                                                               padx=(6, 0))
+        self.line_opts = ttk.Frame(tab)
+        self.line_opts.pack(fill="x", pady=(4, 0))
+        self.line_order_row = ttk.Frame(self.line_opts)
+        ttk.Label(self.line_order_row, text="Order colours by:").pack(side="left")
+        self.line_order_var = tk.StringVar(value=ft.LINE_ORDERS[e.line_order])
+        order = ttk.Combobox(self.line_order_row, textvariable=self.line_order_var,
+                             values=list(ft.LINE_ORDERS.values()), state="readonly", width=16)
+        order.pack(side="left", padx=(4, 0))
+        order.bind("<<ComboboxSelected>>", lambda _e: self._line_option(line_order=next(
+            k for k, v in ft.LINE_ORDERS.items() if v == self.line_order_var.get())))
+        self.line_reverse_var = tk.BooleanVar(value=e.line_reverse)
+        ttk.Checkbutton(self.line_order_row, text="Reverse", variable=self.line_reverse_var,
+                        command=lambda: self._line_option(line_reverse=bool(self.line_reverse_var.get()))).pack(
+            side="left", padx=(8, 0))
+        self.gradient_row = ttk.Frame(self.line_opts)
+        ttk.Label(self.gradient_row, text="Gradient from").pack(side="left")
+        self.gradient_start_btn = tk.Button(self.gradient_row, width=4, command=lambda: self._gradient_end("start"))
+        self.gradient_start_btn.pack(side="left", padx=(4, 4))
+        ttk.Label(self.gradient_row, text="to").pack(side="left")
+        self.gradient_end_btn = tk.Button(self.gradient_row, width=4, command=lambda: self._gradient_end("end"))
+        self.gradient_end_btn.pack(side="left", padx=(4, 0))
+        self.range_row = ttk.Frame(self.line_opts)
+        ttk.Label(self.range_row, text="Base colours (click to pick or drop):").pack(anchor="w")
+        self.range_swatches = tk.Frame(self.range_row)
+        self.range_swatches.pack(anchor="w", pady=(2, 0))
+        ttk.Button(self.range_row, text="Add a colour...", command=self._range_add).pack(anchor="w", pady=(2, 0))
+        self._show_line_options()
         # A thin dark or white outline under lines whose own colour would blend into the background (the
         # owner, 2026-10-10: "make it an optional toggle default off").
         self.outline_var = tk.BooleanVar(value=e.outline_lines)
@@ -3730,25 +3771,35 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._saved()
 
     def _auto_line_colours(self) -> None:
-        """Auto-colour family lines: every family's lines a colour clearly different from every other
-        family's -- the most different where lines cross or run close -- that stands out at least 3:1
+        """Auto-colour family lines: every family's lines a vivid colour clearly different from every
+        other family's -- the most different where lines cross or run close -- that stands out at least 3:1
         against the background under them (vv_line_colours).  One step to undo."""
+        self._colour_lines("auto")
+
+    def _colour_lines(self, mode: str, **settings) -> None:
+        """The family lines in a mode (Auto, Rainbow, Gradient or Range; vv_line_colours), with these
+        settings first (the order, reverse, the gradient's ends or the range's colours).  One step to undo."""
+        before = json.dumps([self.edits.family_lines, self.edits.line_mode, self.edits.to_data()], sort_keys=True)
+        for name, value in settings.items():
+            setattr(self.edits, name, value)
         self.status.set("Choosing the family lines' colours...")
         self.configure(cursor="watch")
         self.update_idletasks()
         try:
             pages = [self._page_scene(k) for k in range(max(1, self.lay.pages))]
-            result = vv_line_colours.auto_colours(pages, outline=self.edits.outline_lines)
+            e = self.edits
+            result = vv_line_colours.mode_colours(pages, mode, e.line_order, e.line_reverse, e.gradient_start,
+                                                  e.gradient_end, e.range_colours, outline=e.outline_lines)
         finally:
             self.configure(cursor="")
         if not result.colours:
             self.status.set("There are no family lines to colour.")
             return
-        before = json.dumps(self.edits.family_lines, sort_keys=True)
+        self.edits.line_mode = mode
         vv_line_colours.apply(self.edits, result.colours)
-        if json.dumps(self.edits.family_lines, sort_keys=True) != before:
+        if json.dumps([self.edits.family_lines, self.edits.line_mode, self.edits.to_data()], sort_keys=True) != before:
             self._saved()
-        words = f"{len(result.colours)} families' lines coloured, each its own colour."
+        words = f"{len(result.colours)} families' lines coloured" + (", each its own colour." if mode == "auto" else ".")
         if result.cased and self.edits.outline_lines:
             words += (f"  {len(result.cased)} would blend into the background in places, so they have a thin "
                       "outline.")
@@ -3757,11 +3808,76 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                       "blend into the background\" to outline them.")
         self.status.set(words + "  Ctrl+Z undoes it.")
 
+    def _line_mode_picked(self) -> None:
+        """"Line colours:" changed: Default puts the families' colours back; the others colour the lines."""
+        mode = next(k for k, v in ft.LINE_MODES.items() if v == self.line_mode_var.get())
+        if mode == "default":
+            self._reset_line_colours()
+        else:
+            self._colour_lines(mode)
+        self._show_line_options()
+
+    def _line_option(self, **settings) -> None:
+        """An order, reverse, gradient or range setting changed: a mode already colouring the lines is drawn again
+        (one step to undo); otherwise only the setting is kept."""
+        if self.edits.line_mode in ("rainbow", "gradient", "range"):
+            self._colour_lines(self.edits.line_mode, **settings)
+        else:
+            self._change(**settings)
+        self._show_line_options()
+
+    def _gradient_end(self, which: str) -> None:
+        name = "gradient_" + which
+        colour = ask_colour(self, "Gradient " + ("start" if which == "start" else "end") + " colour",
+                            getattr(self.edits, name))
+        if colour and colour != getattr(self.edits, name):
+            self._line_option(**{name: colour})
+
+    def _range_add(self) -> None:
+        colour = ask_colour(self, "Add a base colour", "")
+        if colour and colour not in self.edits.range_colours and len(self.edits.range_colours) < ft.RANGE_MAX:
+            self._line_option(range_colours=self.edits.range_colours + [colour])
+
+    def _range_toggle(self, colour: str) -> None:
+        now = list(self.edits.range_colours)
+        if colour in now:
+            if len(now) > 1:                     # at least one base colour stays
+                now.remove(colour)
+        elif len(now) < ft.RANGE_MAX:
+            now.append(colour)
+        if now != self.edits.range_colours:
+            self._line_option(range_colours=now)
+
+    def _show_line_options(self) -> None:
+        """Only the settings of the mode picked: the order (Rainbow, Gradient, Range), the gradient's ends,
+        the range's base colours."""
+        e = self.edits
+        for frame in (self.line_order_row, self.gradient_row, self.range_row):
+            frame.pack_forget()
+        if e.line_mode in ("rainbow", "gradient", "range"):
+            self.line_order_row.pack(anchor="w")
+        if e.line_mode == "gradient":
+            self.gradient_row.pack(anchor="w", pady=(4, 0))
+            self.gradient_start_btn.configure(bg=e.gradient_start, activebackground=e.gradient_start)
+            self.gradient_end_btn.configure(bg=e.gradient_end, activebackground=e.gradient_end)
+        if e.line_mode == "range":
+            self.range_row.pack(anchor="w", pady=(4, 0))
+            for child in self.range_swatches.winfo_children():
+                child.destroy()
+            shown = list(RANGE_PRESETS) + [c for c in e.range_colours if c not in RANGE_PRESETS]
+            for k, colour in enumerate(shown):
+                on = colour in e.range_colours
+                tk.Button(self.range_swatches, width=2, bg=colour, activebackground=colour, text="x" if on else "",
+                          fg="white", relief="sunken" if on else "raised",
+                          command=lambda c=colour: self._range_toggle(c)).grid(row=k // 8, column=k % 8, padx=1, pady=1)
+
     def _reset_line_colours(self) -> None:
         """Every family's lines back in their family's colour.  One step to undo."""
         if vv_line_colours.reset(self.edits):
             self._saved()
             self._refresh_panels()
+            self.line_mode_var.set(ft.LINE_MODES["default"])
+            self._show_line_options()
             self.status.set("The family lines are in their families' colours again.")
         else:
             self.status.set("The family lines are already in their families' colours.")
@@ -3913,6 +4029,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._show_packing()
         self.lines_behind_var.set(ft.behind(e))
         self.outline_var.set(e.outline_lines)
+        self.line_mode_var.set(ft.LINE_MODES[e.line_mode])
+        self.line_order_var.set(ft.LINE_ORDERS[e.line_order])
+        self.line_reverse_var.set(e.line_reverse)
+        self._show_line_options()
         self.numbering_var.set(ft.NUMBERINGS[e.numbering])
         for part, scale in self.opacity_vars.items():
             scale.set(e.opacity.get(part, ft.OPACITY[part][1]))
@@ -3958,6 +4078,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.years_var.set(e.show_years)
         self.twins_var.set(e.show_twins)
         self.founder_var.set(e.show_founder)
+        self.runner_var.set(e.show_runner)
         self.number_names_var.set(e.number_names)
         self.number_order_var.set(gen.NUMBER_ORDERS[e.number_order])
         self.diagonal_var.set(e.diagonal_lines)
@@ -4882,6 +5003,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 # The Village Matchmaker
 # ---------------------------------------------------------------------------
 
+LIST_BY_CHOICES = [
+    ("generation", "Generation (the later generation of the pair first, then the other)"),
+    ("age", "Age (the woman's age, then the man's)"),
+    ("number", "Number in the family tree (the woman's number, then the man's)"),
+    ("default", "Default order (least related first)"),
+]
+LIST_DIRECTION_CHOICES = [
+    ("descending", "Descending (latest generation, oldest age or highest number at the top)"),
+    ("ascending", "Ascending (oldest generation, youngest age or lowest number at the top)"),
+]
+
 RULE_FIELDS = [
     # (attribute, words, kind) -- kind "bool", or ("int"/"float", the bool it belongs to, low, high)
     ("plan_ahead", "Any age: plan ahead (children too)", "bool"),
@@ -4904,15 +5036,25 @@ RULE_FIELDS = [
     ("prefer_previous_partners", "Prioritize previous partners (couples who already have a child together first)", "bool"),
     ("show_age_units", "Show ages in game units too (\"1379 game units (68 years old)\"; off: \"68 years old\")", "bool"),
     ("prefer_fresh_blood", "Fresh blood first (villagers with no recorded parents)", "bool"),
+    # How the pairings are listed (the order only; who may pair is never changed).
+    ("list_by", "List pairings by:", ("choice", LIST_BY_CHOICES)),
+    ("list_direction", "Direction:", ("choice", LIST_DIRECTION_CHOICES)),
 ]
 
 
 def rules_from(data: dict) -> gen.Rules:
     rules = gen.Rules()
+    # Preview 21 remembered "Prioritize latest generation" as a tick: off is the default order.
+    if data.get("prefer_latest_generation") is False and "list_by" not in data:
+        rules.list_by = "default"
     for name, _words, kind in RULE_FIELDS:
         if name in data:
             value = data[name]
             try:
+                if kind != "bool" and kind[0] == "choice":
+                    if value in [key for key, _label in kind[1]]:
+                        setattr(rules, name, value)
+                    continue
                 setattr(rules, name, bool(value) if kind == "bool" else (int(value) if kind[0] == "int" else float(value)))
             except (TypeError, ValueError):
                 pass
@@ -4946,6 +5088,15 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
             ttk.Checkbutton(frame, text=words, variable=var).grid(row=row, column=0, sticky="w", pady=1)
             variables[name] = var
             row += 1
+        elif kind[0] == "choice":
+            labels = dict(kind[1])
+            var = tk.StringVar(value=labels.get(value, kind[1][0][1]))
+            ttk.Label(frame, text=words).grid(row=row, column=0, sticky="w", pady=(6, 1))
+            box = ttk.Combobox(frame, textvariable=var, values=[label for _key, label in kind[1]], state="readonly", width=70)
+            box.grid(row=row + 1, column=0, columnspan=2, sticky="w")
+            var.choices = {label: key for key, label in kind[1]}
+            variables[name] = var
+            row += 2
         else:
             var = tk.StringVar(value=f"{value:g}" if isinstance(value, float) else str(value))
             ttk.Spinbox(frame, textvariable=var, from_=kind[2], to=kind[3], width=8,
@@ -4958,6 +5109,9 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
         data = {}
         for name, _words, kind in RULE_FIELDS:
             raw = variables[name].get()
+            if kind != "bool" and kind[0] == "choice":
+                data[name] = variables[name].choices.get(raw, kind[1][0][0])
+                continue
             try:
                 data[name] = bool(raw) if kind == "bool" else (int(raw) if kind[0] == "int" else float(raw))
             except (TypeError, ValueError):
@@ -4981,6 +5135,9 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
         defaults = gen.Rules()
         for name, _words, kind in RULE_FIELDS:
             value = getattr(defaults, name)
+            if kind != "bool" and kind[0] == "choice":
+                variables[name].set(dict(kind[1])[value])
+                continue
             variables[name].set(value if kind == "bool" else (f"{value:g}" if isinstance(value, float) else str(value)))
 
     ttk.Button(buttons, text="Suggest", command=suggest).pack(side="left")
@@ -4996,7 +5153,7 @@ MATCHMAKER_STYLE = [
     (re.compile(r"^  \d+\. (#\d+ [^,\n]+), .*?, and (#\d+ [^,\n]+),", re.M), ("man", "woman")),   # a pair
     (re.compile(rf"^  ([^\s#\d][^,\n]*?)(?=, {_AGE})", re.M), ("woman",)),          # each woman ...
     (re.compile(rf"^    ([^\s#\d][^,\n]*?)(?=, {_AGE})", re.M), ("man",)),          # ... and her partners
-    (re.compile(r"^    ([^,\n:]+?) and ([^,\n:]+?):", re.M), ("man", "woman")),     # the least related pairs
+    (re.compile(r"^    ([^,\n:(]+?)(?: \([^)\n]*\))? and ([^,\n:(]+?)(?: \([^)\n]*\))?:", re.M), ("man", "woman")),     # the least related pairs
     (re.compile(r"((?:died at )?\d+ game units \(\d+ years old\)|(?:died at )?\d+ years old|age unknown)"), ("age",)),
 ]
 

@@ -46,6 +46,10 @@ TIE_PLAIN = 3.0         # the same with no outlines (Edits.outline_lines off): s
 ENOUGH = 4.5            # contrast past which standing out more no longer counts (never only dark colours)
 MAX_PIXELS = 4_000_000  # the background is read at a scale that keeps it to about this many pixels
 ROUNDS = 40
+VIVID = 0.12            # OKLCh colour strength from which a colour is vivid (the grid goes to 0.34)
+VIVID_LIGHT = (0.42, 0.9)
+ACCENT = 9              # every 9th family may take any colour (black, white, gray, brown, very dark or pale)
+MIN_VIVID = 40          # fewer vivid colours than this stand out on the background: every colour is open
 CASING = 1.25          # pixels of casing each side of a line that would blend into the background
 CASINGS = ("#1a1a1a", "#ffffff")
 WHITE, BLACK = (255, 255, 255), (0, 0, 0)
@@ -217,6 +221,13 @@ class _Family:
     lums: list = field(default_factory=list)        # the background's luminances under it, sorted
     colours: list = field(default_factory=list)     # and its colours (for a see-through line)
     near: list = field(default_factory=list)        # (page, x, y): the points compared for nearness
+    page: int = 0                                   # the first page its lines are on
+    sx: float = 0.0                                 # sums of its lines' points: where it is on the page
+    sy: float = 0.0
+    count: int = 0
+    top: float = math.inf                           # the highest point of its lines
+    gen: int | None = None                          # its parents' generation (the tree's own number)
+    row_y: float | None = None                      # where its parents' row is
 
 
 def _portraits(lay, fit: tuple = (1.0, 0.0, 0.0)) -> list:
@@ -237,6 +248,17 @@ def _hidden(frames: list, x: float, y: float) -> bool:
     return any(x0 <= x <= x1 and y0 <= y <= y1 and ft.inside(c, x, y) for x0, y0, x1, y1, c in frames)
 
 
+def _parents(lay) -> dict:
+    """Each family's (its parents' generation, where their row is) on this page, where the layout knows."""
+    out = {}
+    village, ys = getattr(lay, "village", None), getattr(lay, "y", {})
+    for fam in getattr(lay, "families", ()):
+        pid = fam.father if fam.father is not None else fam.mother
+        if village is not None and pid in village.people and pid in ys:
+            out[ft.family_key(village, fam)] = (village.people[pid].generation, ys[pid])
+    return out
+
+
 def gather(pages: list, render: bool = True) -> dict[str, _Family]:
     """Every family with lines on the tree's pages ([(Layout, Scene)]), with the background under them."""
     fams: dict[str, _Family] = {}
@@ -244,10 +266,18 @@ def gather(pages: list, render: bool = True) -> dict[str, _Family]:
         backdrop = next((i for i in sc.items if isinstance(i, ft.Backdrop)), None) or ft.Backdrop(sc.background)
         bg = Background(backdrop, sc.width, sc.height, render)
         frames = _portraits(lay, getattr(sc, "fit", (1.0, 0.0, 0.0)))
+        meta = _parents(lay)
         for item in sc.items:
             if not isinstance(item, ft.Line) or not item.target or item.target[0] != "family" or len(item.points) < 2:
                 continue
-            fam = fams.setdefault(item.target[1], _Family(item.target[1], item.width, item.opacity))
+            fam = fams.setdefault(item.target[1], _Family(item.target[1], item.width, item.opacity, page=page))
+            if item.target[1] in meta:
+                fam.gen, fam.row_y = meta[item.target[1]]
+            for x, y in item.points:
+                fam.sx += x
+                fam.sy += y
+                fam.count += 1
+                fam.top = min(fam.top, y)
             fam.width = max(fam.width, item.width)
             fam.opacity = min(fam.opacity, item.opacity)
             _read(bg, frames, item, fam)
@@ -329,6 +359,21 @@ class Result:
     cased: list[str]                        # families whose colour is below FLOOR somewhere: drawn with a casing
 
 
+def _wheel(allowed: list[int], labs: list, bands: int = 3) -> list[int]:
+    """The vivid colours among `allowed` (indexes into the candidates), going round the whole hue wheel:
+    for every 10 degrees of hue and each of `bands` lightness bands, the strongest colour there is."""
+    best: dict[tuple, tuple] = {}
+    for i in allowed:
+        L, a, b = labs[i]
+        chroma = math.hypot(a, b)
+        if chroma < VIVID or not VIVID_LIGHT[0] <= L <= VIVID_LIGHT[1]:
+            continue
+        slot = (round(math.degrees(math.atan2(b, a)) / 10.0) % 36, min(bands - 1, int((L - VIVID_LIGHT[0]) / (VIVID_LIGHT[1] - VIVID_LIGHT[0]) * bands)))
+        if slot not in best or (chroma, -i) > best[slot][0]:
+            best[slot] = ((chroma, -i), i)
+    return sorted(i for _score, i in best.values())
+
+
 def choose(fams: dict[str, _Family], tie: float = TIE) -> Result:
     keys = sorted(fams)
     if not keys:
@@ -343,11 +388,21 @@ def choose(fams: dict[str, _Family], tie: float = TIE) -> Result:
     # and the one chosen is cased (casings()).  How strongly each stands out settles near-ties.
     allowed: list[list[int]] = []
     strength: list[dict[int, float]] = []
-    for fam in group:
+    for k, fam in enumerate(group):
         few = _some(fam.colours) if fam.opacity < 1 else None
         strength.append({i: worst_contrast(fam, c, few) for i, c in enumerate(pool)})
         ok = [i for i, s in strength[-1].items() if s >= FLOOR]
-        allowed.append(ok or list(range(len(pool))))
+        ok = ok or list(range(len(pool)))
+        # Vivid first (the owner, 2026-10-10: "very colorful and distinct across the entire RGB range"):
+        # strong colours of every hue, light and dark; a black, white, gray, brown or very dark or pale
+        # accent only as every ACCENT-th family.
+        if k % ACCENT != ACCENT - 1:
+            for bands in (3, 6, 12, 24):         # more lightness bands the more families there are
+                bright = _wheel(ok, labs, bands)
+                if len(bright) >= 1.5 * n:
+                    break
+            ok = bright if len(bright) >= MIN_VIVID else ok
+        allowed.append(ok)
     used = sorted({i for ok in allowed for i in ok})
     where = {c: k for k, c in enumerate(used)}
     used_labs = [labs[i] for i in used]
@@ -423,6 +478,172 @@ def auto_colours(pages: list, render: bool = True, outline: bool = True) -> Resu
     return choose(gather(pages, render), TIE if outline else TIE_PLAIN)
 
 
+# ---- Rainbow, Gradient and Range (the owner, 2026-10-10) ------------------------------------------
+#
+# Each family takes a place in a sequence of colours by where it is on the tree (its "slot"), the player
+# picking the order: left to right, right to left, top to bottom, bottom to top (the family lines' middle,
+# page by page), per row (every row of the tree runs the sequence again, left to right) or per generation
+# (all of a generation's families the same colour, by the tree's own generation numbers).  "Reverse" runs
+# the sequence the other way.  Whatever the mode, a colour under FLOOR contrast against the background under
+# the family's lines has its lightness moved (hue kept) until it stands out, rather than being dropped.
+
+def _rows(group: list[_Family]) -> dict[tuple, int]:
+    """Each family's row on its page (rows counted from the top; families whose parents' rows are within
+    half a portrait's height are in one)."""
+    out: dict[tuple, int] = {}
+    count = 0
+    for page in sorted({f.page for f in group}):
+        mine = sorted((f for f in group if f.page == page),
+                      key=lambda f: (f.row_y if f.row_y is not None else f.top, f.key))
+        last = None
+        for f in mine:
+            y = f.row_y if f.row_y is not None else f.top
+            if last is None or y - last > ft.NODE_H / 2:
+                count += 1
+            last = y
+            out[(page, f.key)] = count
+    return out
+
+
+def slots(fams: dict[str, _Family], order: str = "x", reverse: bool = False) -> tuple[dict[str, int], int]:
+    """Each family's place (0 up) in the colour sequence and how many places there are."""
+    group = [fams[k] for k in sorted(fams)]
+    if not group:
+        return {}, 0
+    centre = {f.key: ((f.sx / f.count, f.sy / f.count) if f.count else (0.0, 0.0)) for f in group}
+    place: dict[str, int] = {}
+    if order == "generation":
+        rows = _rows(group)
+        gens = {f.key: (f.gen if f.gen is not None else rows[(f.page, f.key)]) for f in group}
+        ranks = {g: k for k, g in enumerate(sorted(set(gens.values())))}
+        place = {k: ranks[g] for k, g in gens.items()}
+        total = len(ranks)
+    elif order == "row":
+        rows = _rows(group)
+        byrow: dict[int, list] = {}
+        for f in group:
+            byrow.setdefault(rows[(f.page, f.key)], []).append(f)
+        for members in byrow.values():
+            for k, f in enumerate(sorted(members, key=lambda f: (centre[f.key][0], f.key))):
+                place[f.key] = k
+        total = max(len(m) for m in byrow.values())
+    else:
+        axis = 1 if order in ("y", "y_rev") else 0
+        ranked = sorted(group, key=lambda f: (f.page, centre[f.key][axis], f.key))
+        place = {f.key: k for k, f in enumerate(ranked)}
+        total = len(ranked)
+        if order in ("x_rev", "y_rev"):
+            place = {k: total - 1 - v for k, v in place.items()}
+    if reverse:
+        place = {k: total - 1 - v for k, v in place.items()}
+    return place, total
+
+
+def _oklch_hex(L: float, C: float, h: float) -> str:
+    """An OKLCh colour as sRGB, its strength lowered until it fits."""
+    for _ in range(60):
+        rgb = _from_oklch(L, C, h)
+        if rgb is not None:
+            return _hex(rgb)
+        C *= 0.96
+    return _hex(_from_oklch(L, 0.0, h) or (128, 128, 128))
+
+
+def _lch(colour: str) -> tuple[float, float, float]:
+    L, a, b = oklab(_rgb(colour))
+    return L, math.hypot(a, b), math.degrees(math.atan2(b, a)) % 360
+
+
+def fit(fam: _Family, colour: str) -> str:
+    """`colour`, or where it falls under FLOOR against the background under the family's lines, the same
+    hue with the lightness moved the least that makes it stand out (its strength lowered where it must)."""
+    if worst_contrast(fam, colour) >= FLOOR:
+        return colour
+    L, C, h = _lch(colour)
+    for step in range(1, 101):
+        best = None
+        for sign in (-1, 1):
+            L2 = L + sign * step * 0.01
+            if 0.0 <= L2 <= 1.0:
+                trial = _oklch_hex(L2, C, h)
+                score = worst_contrast(fam, trial)
+                if score >= FLOOR and (best is None or score > best[0]):
+                    best = (score, trial)
+        if best:
+            return best[1]
+    return colour
+
+
+def rainbow(t: float) -> str:
+    """The rainbow from red (t 0) to violet (t 1)."""
+    import colorsys
+    r, g, b = colorsys.hsv_to_rgb(275.0 * min(1.0, max(0.0, t)) / 360.0, 1.0, 1.0)
+    return _hex((255 * r, 255 * g, 255 * b))
+
+
+def gradient(start: str, end: str, t: float) -> str:
+    """A colour t of the way from `start` to `end`, blended in OKLab (the ends themselves at 0 and 1)."""
+    if t <= 0:
+        return start.lower()
+    if t >= 1:
+        return end.lower()
+    a, b = oklab(_rgb(start)), oklab(_rgb(end))
+    L, A, B = (u + (v - u) * t for u, v in zip(a, b))
+    return _oklch_hex(L, math.hypot(A, B), math.degrees(math.atan2(B, A)) % 360)
+
+
+def range_palette(bases: list[str], count: int) -> list[str]:
+    """`count` colours that are shades of the base colours (their hue, lighter and darker, a little paler
+    or stronger, a few degrees round it; grays for a gray base): the bases first, then each the furthest
+    from those taken, then arranged base by base, dark to light."""
+    bases = [b.lower() for b in bases] or list(ft.RANGE_DEFAULT)
+    pool: list[tuple] = []          # (colour, base index, lightness)
+    for k, base in enumerate(bases):
+        L0, C0, h0 = _lch(base)
+        if C0 < 0.03:
+            options = [(L, 0.0, 0.0) for L in (0.15, 0.3, 0.42, 0.54, 0.66, 0.78, 0.9)]
+        else:
+            options = [(L, min(C0, 0.32) * f, h0 + dh) for L in (0.32, 0.45, 0.58, 0.7, 0.82)
+                       for f in (1.0, 0.65) for dh in (-12.0, 0.0, 12.0)]
+        pool.append((base, k, L0))
+        pool.extend((_oklch_hex(L, C, h), k, L) for L, C, h in options)
+    seen: dict[str, tuple] = {}
+    for item in pool:
+        seen.setdefault(item[0], item)
+    pool = list(seen.values())
+    labs = [oklab(_rgb(c)) for c, _k, _l in pool]
+    chosen = [i for i, (c, _k, _l) in enumerate(pool) if c in bases][:count]
+    while len(chosen) < min(count, len(pool)):
+        nearest = [min(math.dist(labs[i], labs[j]) for j in chosen) if chosen else math.inf for i in range(len(pool))]
+        chosen.append(max((i for i in range(len(pool)) if i not in chosen), key=lambda i: (nearest[i], -i)))
+    picked = sorted((pool[i] for i in chosen), key=lambda item: (item[1], item[2], item[0]))
+    return [picked[k % len(picked)][0] for k in range(count)]
+
+
+def mode_colours(pages: list, mode: str, order: str = "x", reverse: bool = False, start: str = "#ff7a18",
+                 end: str = "#7b2ff7", bases: list | None = None, render: bool = True,
+                 outline: bool = True) -> Result:
+    """The colours for every family's lines in a mode: "auto" (the most distinct), "rainbow", "gradient"
+    or "range"; the last three by `order`/`reverse` (see slots())."""
+    if mode == "auto":
+        return auto_colours(pages, render, outline)
+    fams = gather(pages, render)
+    place, total = slots(fams, order, reverse)
+    if not fams:
+        return Result({}, {}, math.inf, math.inf, [])
+    palette = range_palette(list(bases or ft.RANGE_DEFAULT), total) if mode == "range" else None
+    colours = {}
+    for key, fam in fams.items():
+        t = place[key] / (total - 1) if total > 1 else 0.0
+        colour = (palette[place[key]] if palette else gradient(start, end, t) if mode == "gradient"
+                  else rainbow(t))
+        colours[key] = fit(fam, colour)
+    worst = {k: worst_contrast(fams[k], c) for k, c in colours.items()}
+    values = list(colours.values())
+    nearest = min((distance(a, b) for i, a in enumerate(values) for b in values[i + 1:] if a != b), default=math.inf)
+    return Result(colours, worst, nearest, nearest, [k for k in sorted(colours) if worst[k] < FLOOR])
+
+
 def apply(edits: "ft.Edits", colours: dict[str, str]) -> None:
     """The families' lines in these colours (Edits.family_lines), their weight and type kept."""
     for key, colour in colours.items():
@@ -431,8 +652,9 @@ def apply(edits: "ft.Edits", colours: dict[str, str]) -> None:
 
 def reset(edits: "ft.Edits") -> bool:
     """Every family's lines back in the family's own colour, and no outlines; whether any changed."""
-    changed = edits.outline_lines
+    changed = edits.outline_lines or edits.line_mode != "default"
     edits.outline_lines = False
+    edits.line_mode = "default"
     for key in list(edits.family_lines):
         style = edits.family_lines[key]
         if "colour" in style:
