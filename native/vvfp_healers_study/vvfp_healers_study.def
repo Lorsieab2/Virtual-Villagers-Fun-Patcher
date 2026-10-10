@@ -1,5 +1,0 @@
-LIBRARY "VVFP Healers Study"
-EXPORTS
-    VvfpHealersStudyInstall=_VvfpHealersStudyInstall@4
-    VvfpHealersStudyProbeSite=_VvfpHealersStudyProbeSite@20
-    VvfpHealersStudyStats DATA
