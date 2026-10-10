@@ -5003,6 +5003,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 # The Village Matchmaker
 # ---------------------------------------------------------------------------
 
+LIST_BY_CHOICES = [
+    ("generation", "Generation (the later generation of the pair first, then the other)"),
+    ("age", "Age (the woman's age, then the man's)"),
+    ("number", "Number in the family tree (the woman's number, then the man's)"),
+    ("default", "Default order (least related first)"),
+]
+LIST_DIRECTION_CHOICES = [
+    ("descending", "Descending (latest generation, oldest age or highest number at the top)"),
+    ("ascending", "Ascending (oldest generation, youngest age or lowest number at the top)"),
+]
+
 RULE_FIELDS = [
     # (attribute, words, kind) -- kind "bool", or ("int"/"float", the bool it belongs to, low, high)
     ("plan_ahead", "Any age: plan ahead (children too)", "bool"),
@@ -5022,19 +5033,28 @@ RULE_FIELDS = [
     ("not_expecting", "Not already expecting", "bool"),
     ("different_last_name", "Different last names (numbers ignored: Wanjiko II is a Wanjiko)", "bool"),
     ("one_family_per_partner", "One Family Per Partner (a child with one Wanjiko: no other Wanjiko, the same partner again is fine)", "bool"),
-    ("prefer_latest_generation", "Prioritize latest generation (the newest generation first; the generation number is shown by every name)", "bool"),
     ("prefer_previous_partners", "Prioritize previous partners (couples who already have a child together first)", "bool"),
     ("show_age_units", "Show ages in game units too (\"1379 game units (68 years old)\"; off: \"68 years old\")", "bool"),
     ("prefer_fresh_blood", "Fresh blood first (villagers with no recorded parents)", "bool"),
+    # How the pairings are listed (the order only; who may pair is never changed).
+    ("list_by", "List pairings by:", ("choice", LIST_BY_CHOICES)),
+    ("list_direction", "Direction:", ("choice", LIST_DIRECTION_CHOICES)),
 ]
 
 
 def rules_from(data: dict) -> gen.Rules:
     rules = gen.Rules()
+    # Preview 21 remembered "Prioritize latest generation" as a tick: off is the default order.
+    if data.get("prefer_latest_generation") is False and "list_by" not in data:
+        rules.list_by = "default"
     for name, _words, kind in RULE_FIELDS:
         if name in data:
             value = data[name]
             try:
+                if kind != "bool" and kind[0] == "choice":
+                    if value in [key for key, _label in kind[1]]:
+                        setattr(rules, name, value)
+                    continue
                 setattr(rules, name, bool(value) if kind == "bool" else (int(value) if kind[0] == "int" else float(value)))
             except (TypeError, ValueError):
                 pass
@@ -5068,6 +5088,15 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
             ttk.Checkbutton(frame, text=words, variable=var).grid(row=row, column=0, sticky="w", pady=1)
             variables[name] = var
             row += 1
+        elif kind[0] == "choice":
+            labels = dict(kind[1])
+            var = tk.StringVar(value=labels.get(value, kind[1][0][1]))
+            ttk.Label(frame, text=words).grid(row=row, column=0, sticky="w", pady=(6, 1))
+            box = ttk.Combobox(frame, textvariable=var, values=[label for _key, label in kind[1]], state="readonly", width=70)
+            box.grid(row=row + 1, column=0, columnspan=2, sticky="w")
+            var.choices = {label: key for key, label in kind[1]}
+            variables[name] = var
+            row += 2
         else:
             var = tk.StringVar(value=f"{value:g}" if isinstance(value, float) else str(value))
             ttk.Spinbox(frame, textvariable=var, from_=kind[2], to=kind[3], width=8,
@@ -5080,6 +5109,9 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
         data = {}
         for name, _words, kind in RULE_FIELDS:
             raw = variables[name].get()
+            if kind != "bool" and kind[0] == "choice":
+                data[name] = variables[name].choices.get(raw, kind[1][0][0])
+                continue
             try:
                 data[name] = bool(raw) if kind == "bool" else (int(raw) if kind[0] == "int" else float(raw))
             except (TypeError, ValueError):
@@ -5103,6 +5135,9 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
         defaults = gen.Rules()
         for name, _words, kind in RULE_FIELDS:
             value = getattr(defaults, name)
+            if kind != "bool" and kind[0] == "choice":
+                variables[name].set(dict(kind[1])[value])
+                continue
             variables[name].set(value if kind == "bool" else (f"{value:g}" if isinstance(value, float) else str(value)))
 
     ttk.Button(buttons, text="Suggest", command=suggest).pack(side="left")
