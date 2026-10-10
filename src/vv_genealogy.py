@@ -267,9 +267,16 @@ def is_backfilled_arrival(b) -> bool:
 def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     """The dead and departed, and every parent a snapshot names."""
     import vv_log_additions as additions
+    import vv_log_decisions as decisions
+    # Backfilled Arrived records the player said to remove but chose to leave in the log
+    # ("Retroactively edit records?" No): read as if gone (src/vv_log_decisions.py).
+    voided = decisions.decided(folder, game, slot, "born_arrived", "remove",
+                               additions.current_villages(folder, game, slot))
     for b in additions.person_blocks(folder, slot, game):
         name, head, body = b.identity
         if not name or head is None or body is None:
+            continue
+        if voided and additions.is_removable_backfill(b) and b.identity in voided:
             continue
         p = reg.get(name, head, body)
         sex = b.value("Sex")

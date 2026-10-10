@@ -398,6 +398,21 @@ static const char ARRIVAL_BACKFILL_FOUNDER[] =
 static const char BIRTH_BACKFILL_NOTE[] =
     "  Note: Recorded afterwards (born before this log existed)\n";
 
+/* Whether a record's name and a villager's are two forms of one name: one
+   is the other followed by more words (a last name given later, a numeral
+   from Number Duplicate Names), or the villager's is the record's cut short
+   by the Villager Details screen (a cut name is at least 20 characters). */
+static int arrival_names_fit(const char *record, const char *villager) {
+    size_t r = strlen(record), v = strlen(villager);
+    const char *shorter = r < v ? record : villager;
+    const char *longer = r < v ? villager : record;
+    size_t n = r < v ? r : v;
+    if (n == 0 || r == v || strncmp(shorter, longer, n) != 0) {
+        return 0;
+    }
+    return longer[n] == ' ' || (shorter == villager && n >= 20);
+}
+
 static int record_missing_core(int births, int game_id, const void *save_buffer, int slot,
                                vv_arrival_fact *facts, int count, int apply,
                                const unsigned char *context);
@@ -598,31 +613,31 @@ static int record_missing_core(
            Arrived record.  So a record whose name is this villager's first
            word, with these looks, is theirs when exactly one record and
            exactly one of these villagers fit it. */
-        if (on_disk + held <= taken && taken == 0) {
-            const char *space = strchr(names[i], ' ');
-            if (space != NULL && space > names[i]) {
-                size_t first = (size_t)(space - names[i]);
-                int records_fit = 0, villagers_fit = 0;
-                const struct arrival_key *only = NULL;
-                for (j = 0; j < arrival_key_count; ++j) {
-                    const struct arrival_key *k = &arrival_keys[j];
-                    if (!k->reserved && k->head == heads[i] && k->body == bodies[i]
-                        && strlen(k->name) == first && strncmp(k->name, names[i], first) == 0) {
-                        ++records_fit;
-                        only = k;
-                    }
+        /* ...and the other way round: a record written with the full name the
+           Villager Details screen later cut, or with a last name or a numeral
+           since removed.  Either name a word-boundary prefix of the other, so a
+           villager who has ANY Birth or Arrived record of these looks under
+           an older form of the name is never given a second one. */
+        if (on_disk + held <= taken && taken == 0 && names[i][0] != '\0') {
+            int records_fit = 0, villagers_fit = 0;
+            const struct arrival_key *only = NULL;
+            for (j = 0; j < arrival_key_count; ++j) {
+                const struct arrival_key *k = &arrival_keys[j];
+                if (!k->reserved && k->head == heads[i] && k->body == bodies[i]
+                    && strcmp(k->name, names[i]) != 0 && arrival_names_fit(k->name, names[i])) {
+                    ++records_fit;
+                    only = k;
                 }
-                for (j = 0; j < count; ++j) {
-                    if (heads[j] == heads[i] && bodies[j] == bodies[i]
-                        && strncmp(names[j], names[i], first) == 0
-                        && (names[j][first] == ' ' || names[j][first] == '\0')) {
-                        ++villagers_fit;
-                    }
+            }
+            for (j = 0; j < count; ++j) {
+                if (only != NULL && heads[j] == heads[i] && bodies[j] == bodies[i]
+                    && (strcmp(only->name, names[j]) == 0 || arrival_names_fit(only->name, names[j]))) {
+                    ++villagers_fit;
                 }
-                if (records_fit == 1 && villagers_fit == 1) {
-                    on_disk = !only->held;
-                    held = only->held;
-                }
+            }
+            if (records_fit == 1 && villagers_fit == 1) {
+                on_disk = !only->held;
+                held = only->held;
             }
         }
         if (on_disk > taken) {
