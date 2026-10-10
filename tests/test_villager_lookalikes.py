@@ -84,7 +84,7 @@ class EveryListUsesIt(unittest.TestCase):
     """Every loop that lists villagers or looks one up skips them (counts per file)."""
 
     USES = {
-        "native/population_export/population_export.c": 4,   # titles, former Heathens, History, Population
+        "native/population_export/population_export.c": 3,   # titles, former Heathens, living_villager (History, Population)
         "native/parentage_export/parentage_export.c": 6,     # by id, by name, the tribe, the mother, titles
         "native/statistics_export/statistics_export.c": 1,   # the Village Roster
         "native/statistics_export/village_elders.c": 1,      # the Village Elders

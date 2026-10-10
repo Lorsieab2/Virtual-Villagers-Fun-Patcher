@@ -343,6 +343,12 @@ struct game_layout {
     unsigned int sex;
     int sex_male;
     int sex_female;
+    /* The villager's health, i32: an occupied record at 0 or below is a body
+       awaiting burial, not a living villager (the owner, 2026-10-10: a
+       starved tribe's seven skeletons were listed as living).  The Cause of
+       Death companion's table (vvfp_cause_of_death.c) and its living test,
+       rec_health(record) > 0. */
+    unsigned int health;
 };
 
 static const struct game_layout GAME_LAYOUTS[6] = {
@@ -382,7 +388,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x398u, 0x3A8u, 4u,
         PREFERENCES_47,
         "Virtual Villagers 1",
-        0x350u, 1, 2
+        0x350u, 1, 2,
+        0x344u
     },
     /* VV2 -- The Lost Children. The same singleton shape as VV1: the global
        at 0x499F24 (RVA 0x99F24), allocation 0xE57500, and the manager field
@@ -443,7 +450,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x5F0u, 0x6E8u, 62u,
         PREFERENCES_62,
         "Virtual Villagers 2",
-        0x538u, 1, 2
+        0x538u, 1, 2,
+        0x52Cu
     },
     /* VV3 -- The Secret City. Skills are INT32 here and the game's own
        predicate compares against 0x58, so the float path must not be used. */
@@ -459,7 +467,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0xFB4u, 0xFC0u, 3u,
         PREFERENCES_79_VV3,
         "Virtual Villagers 3",
-        0xDC8u, 0, 1
+        0xDC8u, 0, 1,
+        0xE78u
     },
     /* VV4 -- The Tree of Life. */
     {
@@ -474,7 +483,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1E60u, 0x1E6Cu, 3u,
         PREFERENCES_79,
         "Virtual Villagers 4",
-        0x1B90u, 0, 1
+        0x1B90u, 0, 1,
+        0x1C40u
     },
     /* VV5 -- New Believers. Six skills, one more than VV3 and VV4. */
     {
@@ -489,7 +499,8 @@ static const struct game_layout GAME_LAYOUTS[6] = {
         0x1F5Cu, 0x1F68u, 3u,
         PREFERENCES_79,
         "Virtual Villagers 5",
-        0x1B90u, 0, 1
+        0x1B90u, 0, 1,
+        0x1C40u
     }
 };
 
@@ -582,6 +593,9 @@ static int layout_is_sane(const struct game_layout *g) {
         return 0;
     }
     if (g->active + 1u > g->stride) return 0;
+    /* Every game has a health field: without one, every body would read as
+       living (living_villager). */
+    if (g->health == 0u || g->health + WORD > g->stride) return 0;
     if (g->age + WORD > g->stride) return 0;
     if (g->head + WORD > g->stride) return 0;
     if (g->body + WORD > g->stride) return 0;
@@ -912,6 +926,28 @@ static int village_save_slot(const char *village) {
 static unsigned char g_former[VV_FORMER_FILE_MAX];
 static int g_former_loaded;
 
+/* A living villager of the tribe: the slot is live, the record is not a
+   look-alike (villager_lookalike.h) and its health is above 0.  A live
+   record at health 0 or below is a body awaiting burial -- the game keeps it
+   in the table until it is buried -- and is neither listed in the Population
+   nor in the History; its Death record comes from the burial (Cause of
+   Death).  The test is the Cause of Death companion's own: rec_present,
+   !rec_lookalike, rec_health > 0 (cod_lost.inc, cod_gone.inc).
+
+   New Believers' villager being reanimated (+0x1CE1) is still one of the
+   tribe (roster_member, cod_roster.inc) and is listed whatever its health
+   reads; the stand-in corpse Reanimate makes for it is a separate record at
+   health 0 and is left out, so the villager is listed once. */
+static int living_villager(const struct game_layout *g, const unsigned char *record) {
+    if (*(const unsigned char *)(record + g->active) != 1) {
+        return 0;
+    }
+    if (g->stride == 0x2F44u && record[0x1CE1] != 0) {
+        return 1;
+    }
+    return !vv_lookalike(g->stride, record) && *(const int *)(record + g->health) > 0;
+}
+
 static const char *special_title_of(int game_id, const struct game_layout *g, const unsigned char *record) {
     int kind = -1;
     if (g_former_loaded && g->likes != 0u) {
@@ -959,6 +995,10 @@ static void load_custom_titles(int game_id, const struct game_layout *g, const c
 /* The same for New Believers' Former Heathens (Codex, #553): an identity two living villagers
    carry is nobody's, so neither is given the title.  Its entry's identity is cleared (an
    identity is never 0), so the lookup finds nothing. */
+/* Carriers are counted over every occupied record, a body awaiting burial
+   included, NOT living_villager: the Story companion (titles_live_count,
+   story_titles.inc) and the parentage exporter count them that way, and the
+   title must be dropped exactly where they show it on nobody. */
 static void drop_ambiguous_former(const struct game_layout *g, const unsigned char *villagers) {
     unsigned int count, i, index;
     if (!g_former_loaded) {
@@ -1416,7 +1456,7 @@ static int append_history(
     for (index = 0; index < g->slots; ++index) {
         const unsigned char *record =
             villagers + g->record_base + index * g->stride;
-        if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {
+        if (!living_villager(g, record)) {
             continue;
         }
         /* 0: no pregnancy lines in the history -- parents only. */
@@ -1521,7 +1561,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     for (index = 0; index < g->slots; ++index) {
         const unsigned char *record =
             villagers + g->record_base + index * g->stride;
-        if (*(const unsigned char *)(record + g->active) != 1 || vv_lookalike(g->stride, record)) {
+        if (!living_villager(g, record)) {
             continue;
         }
         if (file == NULL) {
