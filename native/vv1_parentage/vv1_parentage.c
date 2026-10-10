@@ -828,8 +828,32 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
             lstrcpyA(out, old_file);
             return 1;
         }
-        if (!vv_data_file_path(out, (int)n, VV_DATA_SUB_PARENTAGE, name, VV_DATA_RESERVE)) {
-            return 0;
+        /* A file older still -- loose in the Data folder, or "vv1_parents_S.dat" beside the saves
+           -- while the new name has none: it goes into "Parentage Records", the one folder both
+           this build and a game still patched by v1.35.63 or older read (the owner, 2026-10-09:
+           "the patcher should recognize old and new paths/folders/files alike").  Moved into
+           "Parents (A New Home)", an older patch would find no parents at all. */
+        {
+            char loose[MAX_PATH], legacy[MAX_PATH];
+            int older = 0;
+            if ((size_t)lstrlenA(out) + 1 + (size_t)lstrlenA(name) < sizeof loose
+                && (size_t)lstrlenA(docs) + (size_t)lstrlenA(base) + sizeof("\\LDW\\\\vv1_parents_0.dat")
+                       <= sizeof legacy
+                && GetFileAttributesA(new_file) == INVALID_FILE_ATTRIBUTES) {
+                wsprintfA(loose, "%s\\%s", out, name);
+                wsprintfA(legacy, "%s\\LDW\\%s\\vv1_parents_%d.dat", docs, base, slot);
+                if (GetFileAttributesA(loose) != INVALID_FILE_ATTRIBUTES
+                    || GetFileAttributesA(legacy) != INVALID_FILE_ATTRIBUTES) {
+                    older = 1;
+                }
+            }
+            if (older) {
+                if (!vv_data_file_path(out, (int)n, VV_DATA_SUB_PARENTAGE_OLD, name, VV_DATA_RESERVE)) {
+                    return 0;
+                }
+            } else if (!vv_data_file_path(out, (int)n, VV_DATA_SUB_PARENTAGE, name, VV_DATA_RESERVE)) {
+                return 0;
+            }
         }
     }
     /* A player upgrading from a build that wrote the loose name still

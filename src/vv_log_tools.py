@@ -271,8 +271,19 @@ def marker_is_valid(marker: Marker, data: bytes, game: int, slot: int) -> bool:
     return checker.backfill_marker_ok(data, magic, game, slot)
 
 
+def marker_places(folder: Path, game: int, slot: int) -> list[tuple[Marker, Path]]:
+    """Each marker of ``game`` for ``slot`` at EVERY place it is: under both names when an older and a
+    newer build both left one (src/vv_save_layout.py) -- the game reads whichever was written last,
+    so clearing only one of them would leave the other to stop the check -- else where it would be."""
+    out = []
+    for marker, path in marker_paths(folder, game, slot):
+        places = layout.places(folder, marker.path.format(game=game, slot=slot))
+        out += [(marker, place) for place in places] or [(marker, path)]
+    return out
+
+
 def present_markers(folder: Path, game: int, slot: int) -> list[tuple[Marker, Path]]:
-    return [(marker, path) for marker, path in marker_paths(folder, game, slot) if path.is_file()]
+    return [(marker, path) for marker, path in marker_places(folder, game, slot) if path.is_file()]
 
 
 @dataclass
@@ -331,7 +342,7 @@ def approve_repair(
 
     folder = Path(folder)
     chosen = {"words", "sex"} if chosen is None else set(chosen)
-    targets = marker_paths(folder, game, slot)
+    targets = marker_places(folder, game, slot)        # under both names, both cleared
     approval = approval_path(folder, game, slot)
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     _refuse_if_running(folder, controller)

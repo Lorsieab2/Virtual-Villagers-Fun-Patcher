@@ -111,6 +111,9 @@ static int writer_path(char *out, int slot) {
 #elif VV_WRITER == 6
 #include "../vv1_parentage/vv1_parentage.c"
 #define KIND VV_DATA_SUB_PARENTAGE
+/* An older file (loose, or vv1_parents_S.dat) goes into "Parentage Records", the folder both this
+   build and a game still patched by v1.35.63 read; never into the new name. */
+#define MOVED_KIND VV_DATA_SUB_PARENTAGE_OLD
 #define NAME_FMT "Virtual Villagers 1 Parentage Records - Save %d.dat"
 #define LEGACY_FMT "vv1_parents_%d.dat"
 static int writer_path(char *out, int slot) { return vv1_parents_path(out, MAX_PATH, slot); }
@@ -128,6 +131,10 @@ static int writer_path(char *out, int slot) { g_game = 4; return roster_build_pa
 #endif
 #else
 #error "VV_WRITER must be 1..8"
+#endif
+
+#ifndef MOVED_KIND
+#define MOVED_KIND KIND
 #endif
 
 static int failures;
@@ -183,9 +190,10 @@ static void remove_tree(const char *dir) {
 }
 
 static void scenario(int slot) {
-    char name[96], moved[MAX_PATH], loose[MAX_PATH], out[MAX_PATH];
+    char name[96], moved[MAX_PATH], moved_in[MAX_PATH], loose[MAX_PATH], out[MAX_PATH];
     wsprintfA(name, NAME_FMT, slot);
     wsprintfA(moved, "%s\\%s\\%s", g_data, KIND, name);
+    wsprintfA(moved_in, "%s\\%s\\%s", g_data, MOVED_KIND, name);   /* where an older file goes */
     wsprintfA(loose, "%s\\%s", g_data, name);
 
     printf("slot %d -- %s\n", slot, name);
@@ -198,8 +206,8 @@ static void scenario(int slot) {
     CreateDirectoryA(g_save, NULL);
     CreateDirectoryA(g_data, NULL);
     put(loose, "OLD-LOOSE");
-    CHECK(writer_path(out, slot) && lstrcmpiA(out, moved) == 0, "b. a loose copy: the folder's path");
-    CHECK(lstrcmpA(text_of(moved), "OLD-LOOSE") == 0 && lstrcmpA(text_of(loose), "<none>") == 0,
+    CHECK(writer_path(out, slot) && lstrcmpiA(out, moved_in) == 0, "b. a loose copy: the folder's path (%s)", MOVED_KIND);
+    CHECK(lstrcmpA(text_of(moved_in), "OLD-LOOSE") == 0 && lstrcmpA(text_of(loose), "<none>") == 0,
           "b. it was moved in whole");
 
     remove_tree(g_save);
@@ -224,7 +232,8 @@ static void scenario(int slot) {
         HANDLE hold = CreateFileA(loose, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
                                   FILE_ATTRIBUTE_NORMAL, NULL);
         CHECK(writer_path(out, slot) && lstrcmpiA(out, loose) == 0, "d. will not move: the loose path");
-        CHECK(lstrcmpA(text_of(moved), "<none>") == 0, "d. nothing appeared in the folder");
+        CHECK(lstrcmpA(text_of(moved), "<none>") == 0 && lstrcmpA(text_of(moved_in), "<none>") == 0,
+              "d. nothing appeared in the folder");
         CloseHandle(hold);
     }
     CHECK(lstrcmpA(text_of(loose), "HELD") == 0, "d. the loose copy is intact");
@@ -238,8 +247,8 @@ static void scenario(int slot) {
         wsprintfA(legacy_name, LEGACY_FMT, slot);
         wsprintfA(legacy, "%s\\%s", g_save, legacy_name);
         put(legacy, "ROOT-LEGACY");
-        CHECK(writer_path(out, slot) && lstrcmpiA(out, moved) == 0, "e. a root-level %s: the folder's path", legacy_name);
-        CHECK(lstrcmpA(text_of(moved), "ROOT-LEGACY") == 0 && lstrcmpA(text_of(legacy), "<none>") == 0,
+        CHECK(writer_path(out, slot) && lstrcmpiA(out, moved_in) == 0, "e. a root-level %s: the folder's path", legacy_name);
+        CHECK(lstrcmpA(text_of(moved_in), "ROOT-LEGACY") == 0 && lstrcmpA(text_of(legacy), "<none>") == 0,
               "e. it was moved straight into the folder");
     }
 #endif
