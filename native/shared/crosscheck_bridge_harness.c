@@ -109,7 +109,31 @@ static int __stdcall now_stats(int game, int slot) {
     return g_now_result;
 }
 
+/* The village's living villagers, as VVFP Cause of Death.dll's VvfpCauseVillager
+   reads them (the missing last names), and whether this build ships the Last
+   Names row. */
+static int g_have_villagers, g_ln_shipped, g_vcount;
+static const char *g_vnames[16];
+static int g_vlooks[16][2];
+static int __stdcall fake_villager(int game, int index, char *name, int cap, int *looks) {
+    (void)game;
+    if (index < 0 || index >= g_vcount) {
+        return -1;
+    }
+    if (g_vnames[index] == NULL) {
+        return 0;                   /* an empty record, a body, a Heathen... */
+    }
+    lstrcpynA(name, g_vnames[index], cap);
+    looks[0] = g_vlooks[index][0];
+    looks[1] = g_vlooks[index][1];
+    return 1;
+}
+
 static FARPROC harness_proc(const char *module, const char *name) {
+    if (lstrcmpA(module, "VVFP Cause of Death.dll") == 0 && g_have_villagers
+        && lstrcmpA(name, "VvfpCauseVillager") == 0) {
+        return (FARPROC)fake_villager;
+    }
     if (lstrcmpA(module, "VVFP VV1 Parentage.dll") == 0 && g_have_parentage) {
         if (lstrcmpA(name, "Vv1ParentageCrossCheckScan") == 0) return (FARPROC)fake_scan_parents;
         if (lstrcmpA(name, "Vv1ParentageCrossCheckApply") == 0) return (FARPROC)fake_apply_parents;
@@ -143,6 +167,7 @@ static int harness_folder(wchar_t *out) {
 #define VVFP_XC_LOAD(module, name) harness_proc(module, name)
 #define VVFP_XC_NOW() g_now
 #define VVFP_XC_AUTOMATIC() (g_auto != 0)
+#define VVFP_XC_LAST_NAMES_SHIPPED() (g_ln_shipped != 0)
 #define VVFP_XC_SAVE_FOLDER(out) harness_folder(out)
 #define VVFP_XC_QUIT_WAIT_MS 1500u
 #include "story_bridge.h"
@@ -238,7 +263,68 @@ static void reset(void) {
     g_mask_result = 1;
     lstrcpyA(g_stats_lines, "- Villagers Buried is 3, but the Deaths log and the graves show 5 burials. "
                             "It will be raised to 5.\r\n");
+    g_have_villagers = g_ln_shipped = g_vcount = 0;
     clear_approvals();
+}
+
+/* ---- Missing last names: the slot's Last Names files ----------------------- */
+
+static void ln_file(int game, int slot, int request, wchar_t *out) {
+    wsprintfW(out, request
+              ? L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names\\Virtual Villagers %d Missing Last Names - Save %d.dat"
+              : L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names\\Virtual Villagers %d Last Names - Save %d.dat",
+              g_folder, game, slot);
+}
+
+static void ln_write(int game, int slot, int request, const char *text) {
+    wchar_t path[MAX_PATH], sub[MAX_PATH];
+    HANDLE f;
+    DWORD put = 0;
+    wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names", g_folder);
+    CreateDirectoryW(sub, NULL);
+    ln_file(game, slot, request, path);
+    f = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    WriteFile(f, text, (DWORD)lstrlenA(text), &put, NULL);
+    CloseHandle(f);
+}
+
+/* The file's text ("" when it is not there). */
+static const char *ln_read(int game, int slot, int request) {
+    static char text[4096];
+    wchar_t path[MAX_PATH];
+    HANDLE f;
+    DWORD got = 0;
+    text[0] = '\0';
+    ln_file(game, slot, request, path);
+    f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f != INVALID_HANDLE_VALUE) {
+        ReadFile(f, text, sizeof(text) - 1, &got, NULL);
+        CloseHandle(f);
+        text[got] = '\0';
+    }
+    return text;
+}
+
+static void ln_clear(void) {
+    wchar_t path[MAX_PATH];
+    int g;
+    for (g = 1; g <= 5; ++g) {
+        ln_file(g, 1, 0, path);
+        DeleteFileW(path);
+        ln_file(g, 1, 1, path);
+        DeleteFileW(path);
+    }
+}
+
+static void villagers(const char *const *names, int count) {
+    int i;
+    g_have_villagers = 1;
+    g_vcount = count;
+    for (i = 0; i < count; ++i) {
+        g_vnames[i] = names[i];
+        g_vlooks[i][0] = i;           /* 0 is a real head and body */
+        g_vlooks[i][1] = i;
+    }
 }
 
 /* Frames of play, `ms` apart, for `total` milliseconds.  Any message box
@@ -805,6 +891,117 @@ int main(void) {
         DeleteFileW(old_file);
         DeleteFileW(new_file);
         RemoveDirectoryW(old_sub);
+    }
+
+    /* ---- Missing last names (v1.35.66): asked about after the quit save, with the setting on, only in a
+       village that uses last names; the answer is queued for the patcher, "Not now" is remembered. ---- */
+    {
+        static const char *const village[] = {
+            "Kalea", "Soda Akikai", "Soda II", NULL, "Mele Ana", "Tavi Lono II",
+        };
+        static const char *const grown[] = {
+            "Kalea", "Soda Akikai", "Soda II", NULL, "Mele Ana", "Tavi Lono II", "Noa",
+        };
+        const char *file;
+        reset();
+        ln_clear();
+        ln_write(3, 1, 0, "VVFP LAST NAMES v1 game=3\nrule\tfather\nwhole\tMele Ana\n");
+        villagers(village, 6);
+        g_answer = IDYES;
+        play(3, 1, 8000, 16);
+        check(g_boxes == 0, "missing last names: nothing is asked while the village is played");
+        vvfp_crosscheck_quit(3, 1);
+        file = ln_read(3, 1, 1);
+        check(g_boxes == 1 && strstr(g_text, "3 villagers have no last name") != NULL
+              && strstr(g_text, "Kalea, Soda II, Mele Ana") != NULL && strstr(g_text, "Akikai") == NULL
+              && strstr(g_text, "Tavi") == NULL,
+              "missing last names: one word, a numeral after one word, and a name the record says is one first "
+              "name have none; a second word, numeral or not, is one");
+        check(strstr(g_text, "Repair Saves & Logs...") != NULL
+              && strstr(g_text, "'Give villagers last names, in the game and the logs'") != NULL
+              && strstr(g_text, "\"Remind me\"") != NULL && strstr(g_text, "\"Not now\"") != NULL
+              && strstr(g_text, "untick 'Check logs automatically'") != NULL,
+              "... the box says, step by step, how to give them last names, and how to stop the checks");
+        check(strcmp(file, "VVFP MISSING LAST NAMES v1 game=3\nasked\tremind\nvillager\tKalea\t0\t0\n"
+                           "villager\tSoda II\t2\t2\nvillager\tMele Ana\t4\t4\n") == 0,
+              "... Remind me: the request is queued for the patcher, with each villager (head and body 0 kept)");
+        play(3, 1, 8000, 16);
+        vvfp_crosscheck_quit(3, 1);
+        check(g_boxes == 1, "... and the same villagers are not asked about again");
+        villagers(grown, 7);
+        g_answer = IDNO;
+        play(3, 1, 8000, 16);
+        vvfp_crosscheck_quit(3, 1);
+        file = ln_read(3, 1, 1);
+        check(g_boxes == 2 && strstr(g_text, "4 villagers have no last name") != NULL
+              && strstr(file, "asked\tnot now\n") != NULL && strstr(file, "villager\tNoa\t6\t6\n") != NULL,
+              "a new villager with no last name (an arrival): asked again; Not now is kept with every one of them");
+        play(3, 1, 8000, 16);
+        vvfp_crosscheck_quit(3, 1);
+        check(g_boxes == 2, "... and after Not now they are not asked about again");
+
+        /* A village that does not use last names: no row, no record. */
+        reset();
+        ln_clear();
+        villagers(village, 6);
+        g_answer = IDYES;
+        play(4, 1, 8000, 16);
+        vvfp_crosscheck_quit(4, 1);
+        check(g_boxes == 0 && ln_read(4, 1, 1)[0] == '\0',
+              "a village that does not use last names is never asked about them");
+        /* The row shipped, no record yet: it does. */
+        g_ln_shipped = 1;
+        play(4, 1, 8000, 16);
+        vvfp_crosscheck_quit(4, 1);
+        /* No record: "Mele Ana" is a first and a last name (no "whole" line says otherwise). */
+        check(g_boxes == 1 && strstr(g_text, "2 villagers have no last name") != NULL
+              && strstr(g_text, "Kalea, Soda II\r\n") != NULL
+              && strstr(ln_read(4, 1, 1), "asked\tremind\n") != NULL,
+              "... with the Last Names row shipped it is, every game alike");
+        /* The setting off: nothing. */
+        reset();
+        ln_clear();
+        g_ln_shipped = 1;
+        g_auto = 0;
+        villagers(village, 6);
+        play(1, 1, 8000, 16);
+        vvfp_crosscheck_quit(1, 1);
+        check(g_boxes == 0 && ln_read(1, 1, 1)[0] == '\0', "the setting off: missing last names are never asked about");
+        /* A box that cannot be shown, or is not answered: nothing is written. */
+        reset();
+        ln_clear();
+        g_ln_shipped = 1;
+        g_box_fails = 1;
+        villagers(village, 6);
+        play(2, 1, 8000, 16);
+        vvfp_crosscheck_quit(2, 1);
+        check(ln_read(2, 1, 1)[0] == '\0', "a last-names box that cannot be shown writes nothing");
+        reset();
+        ln_clear();
+        g_ln_shipped = 1;
+        g_box_delay = 2500;
+        villagers(village, 6);
+        play(5, 1, 8000, 16);
+        vvfp_crosscheck_quit(5, 1);
+        check(ln_read(5, 1, 1)[0] == '\0', "a last-names box not answered in time writes nothing");
+        Sleep(1500);
+        /* Repairs and last names: the repair box first, then the last names. */
+        reset();
+        ln_clear();
+        g_ln_shipped = 1;
+        g_graves = 1;
+        villagers(village, 6);
+        g_answer = IDNO;
+        play(5, 1, 8000, 16);
+        vvfp_crosscheck_quit(5, 1);
+        check(g_boxes == 2 && strstr(g_text, "no last name") != NULL && g_now_graves == 0,
+              "with repairs found too: the repair box, then the last-names box, each answered on its own");
+        ln_clear();
+        {
+            wchar_t sub[MAX_PATH];
+            wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names", g_folder);
+            RemoveDirectoryW(sub);
+        }
     }
 
     clear_approvals();
