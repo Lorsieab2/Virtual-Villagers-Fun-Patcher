@@ -1639,12 +1639,17 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
             members = [q for q in in_tree if people[q].generation == g]
             deep = max((sub.get(q, 0) for q in members), default=0)
             tops_g = [0.0]
+            subrows = [[(x[q] + NODE_W / 2, outline(q)) for q in members if sub.get(q, 0) == k]
+                       for k in range(deep + 1)]
             for k in range(1, deep + 1):
-                above = [(x[q] + NODE_W / 2, outline(q)) for q in members if sub.get(q, 0) == k - 1]
-                here = [(x[q] + NODE_W / 2, outline(q)) for q in members if sub.get(q, 0) == k]
-                need = _pitch(above, here, edits.packing >= NEST)
+                need = _pitch(subrows[k - 1], subrows[k], edits.packing >= NEST)
                 rowh = NODE_H + subgap
-                tops_g.append(tops_g[-1] + (need if need >= rowh else rowh - tight * (rowh - need)))
+                top_k = tops_g[-1] + (need if need >= rowh else rowh - tight * (rowh - need))
+                # Never into a row further up either (a row nestled into the dips of the one above
+                # stands under the row above that: a diamond under a diamond).
+                for j in range(k - 1):
+                    top_k = max(top_k, tops_g[j] + _pitch(subrows[j], subrows[k], edits.packing >= NEST))
+                tops_g.append(top_k)
             sub_top[g] = tops_g
             bands[g] = tops_g[-1] + NODE_H
     if columns > 1:                     # a generation's band is as tall as its Other Members' grid
@@ -1686,13 +1691,20 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
                 if sub_top:
                     # Never so near that the band's first row runs into the last row of the band above (a
                     # butterfly's feelers reach up above its frame, a mark round it).
+                    # Every row of the band above against every row of this one (not only the last and the
+                    # first: a nestled row may reach past the row before it).
                     prev = gens[k - 1]
-                    deep = len(sub_top[prev]) - 1
-                    last = [(x[q] + NODE_W / 2, outline(q)) for q in in_tree
-                            if people[q].generation == prev and sub.get(q, 0) == deep]
-                    first = [(x[q] + NODE_W / 2, outline(q)) for q in in_tree
-                             if people[q].generation == g and sub.get(q, 0) == 0]
-                    top = max(top, tops[prev] + sub_top[prev][-1] + _pitch(last, first, edits.packing >= NEST))
+
+                    def band_rows(gg):
+                        return [[(x[q] + NODE_W / 2, outline(q)) for q in in_tree
+                                 if people[q].generation == gg and sub.get(q, 0) == j]
+                                for j in range(len(sub_top[gg]))]
+                    rows_above, rows_here = band_rows(prev), band_rows(g)
+                    for j, upper in enumerate(rows_above):
+                        for i, lower in enumerate(rows_here):
+                            if upper and lower:
+                                top = max(top, tops[prev] + sub_top[prev][j] - sub_top[g][i]
+                                          + _pitch(upper, lower, edits.packing >= NEST))
             tops[g] = top
         gap_tops = tops
         row_y = {pid: tops[people[pid].generation] + (sub_top[people[pid].generation][sub.get(pid, 0)]
@@ -1714,7 +1726,9 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
                                               + (lanes.couple_count[g] - lanes.couple_index[fam.id]) * LANE - LANE / 2)
             if cl is not None and fam.id in cl.couple_y:    # Packed families: just under the parents
                 fam.couple_y = cl.couple_y[fam.id]
-    y = {pid: max(MARGIN, row_y[pid] + shifts[pid].get("dy", 0.0)) for pid in x}
+    # Dragged up, never so far that anything the portrait draws (a frame taller than its place, a special
+    # border, a mark or a glow) goes nearer the page's top than PAGE_MARGIN.
+    y = {pid: max(MARGIN, PAGE_MARGIN - reach[pid][2], row_y[pid] + shifts[pid].get("dy", 0.0)) for pid in x}
     # A family's lines go with its children when they are dragged up or down (the owner: "so they're
     # neat and not overlapping when moved to a new position").
     for fam in families:
@@ -1994,13 +2008,14 @@ _PROFILES: dict = {}
 
 def frame_pad(edits: Edits, entry: dict, group: str, w: float, h: float) -> float:
     """How far a portrait's drawing reaches past its frame's shape: half its border's stroke; a special
-    border's leaves, flowers or rope (special_border: about 1.6 of their size); the player's mark, a second
-    border MARK_GAP outside (a glow is a soft light, and may meet another)."""
+    border's leaves, flowers or rope (special_border, as measured over every shape and size: the rope up
+    to 0.9 of its size outside the outline, a vine's leaves and flowers up to 1.3); the player's mark, a
+    second border MARK_GAP outside (a glow is a soft light, and may meet another)."""
     border = entry.get("border") or edits.borders.get(group, "thick")
-    if border in BORDER_WIDTHS:
-        pad = BORDER_WIDTHS[border] / 2
+    if border in SPECIAL_BORDERS:           # (in BORDER_WIDTHS too, at 0: checked first)
+        pad = (1.0 if border == "rope" else 1.4) * max(6.0, 0.1 * min(w, h))
     else:
-        pad = 1.6 * max(6.0, 0.1 * min(w, h))
+        pad = BORDER_WIDTHS.get(border, 3.0) / 2
     if entry.get("mark") and edits.marks.get(entry["mark"]) and edits.mark_style == "border":
         pad += MARK_GAP + 3.0
     return pad
@@ -2195,18 +2210,22 @@ def _arrange(rows: list[list[int]], step: float, offset: float, rowh: float, tig
     for shift in ((0.0, offset) if offset and len(rows) > 1 else (0.0,)):
         pos: dict[int, tuple[float, float, float, float]] = {}
         y = 0.0
-        above = None
+        done: list[tuple[float, list]] = []      # the rows placed so far, each (its top, its frames)
         for k, row in enumerate(rows):
             spare = widest - widths[k]
             left = (0.0 if align == "left" else spare if align == "right" else spare / 2) - widest / 2
             left += shift if k % 2 else 0.0
-            here = [(m, left + dx) for m, dx in zip(row, spaced(row))]
-            if above is not None:
-                need = _pitch([(cx, outline(m)) for m, cx in above], [(cx, outline(m)) for m, cx in here], nest)
+            here = [(cx, outline(m)) for m, cx in ((m, left + dx) for m, dx in zip(row, spaced(row)))]
+            if done:
+                need = _pitch(done[-1][1], here, nest)
                 y += need if need >= rowh else rowh - tight * (rowh - need)
-            for m, cx in here:
+                # A row nestled into the dips of the one above may stand under the row above that, set
+                # along the same way: never into it either (a diamond under a diamond two rows up).
+                for top, earlier in done[:-1]:
+                    y = max(y, top + _pitch(earlier, here, nest))
+            for m, (cx, _prof) in zip(row, here):
                 pos[m] = (cx, y, *reach[m])
-            above = here
+            done.append((y, here))
         first = [pos[m][0] for m in rows[0]]
         middle = (min(first) + max(first)) / 2
         pos = {m: (cx - middle, cy, *rest) for m, (cx, cy, *rest) in pos.items()}
@@ -3159,8 +3178,10 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
 
     clusters = lay.edits.positioning in ("packed_families", "packed_generations")
     # (Lines behind the portraits take the straight way, never the ways kept round them.)
-    packed = lay.edits.positioning == "packed_families" and lay.edits.packing > 0 and not lines_behind(lay)
+    behind_all = lines_behind(lay)
+    packed = lay.edits.positioning == "packed_families" and lay.edits.packing > 0 and not behind_all
     rects = None
+    frames = None                       # (lines behind: every frame, for keeping joints off strangers)
     for fam in lay.families:
         kids = [c for c in fam.children if c in lay.x and c not in fam.away]
         away = [c for c in fam.away if c in lay.x]
@@ -3330,6 +3351,12 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
                     tip = own - SUBGAP + 14
             elif row > lay.tops[people[members[0]].generation]:       # babies in a lower row
                 tip = row - SUBGAP + 14
+            if behind_all:              # their point never behind a stranger (_clear_joints)
+                if frames is None:
+                    frames = _frames(lay)
+                family = {fam.father, fam.mother, *fam.children}
+                while abs(tip - lane) > 8 and _behind_stranger(lay, frames, family, apex, tip):
+                    tip += 2 if lane > tip else -2       # towards the children's line
             legs = _route(lay, apex, lane, tip, jogs, back=True)
             names = [f"to {first} {k}" for k in range(len(legs))]
             for k, leg in enumerate(legs):
@@ -3350,8 +3377,71 @@ def lines(lay: Layout) -> list[tuple[str, list[tuple[float, float]], int, str]]:
                 shift = [shift[0], 0.0] if upright else [0.0, shift[1]]
             _move_piece(drawn, s, *shift, lay=lay)
     _separate(drawn, lay)
+    if lines_behind(lay):
+        _clear_joints(drawn, lay)
     _fit(drawn)
     return [(colour, points, fid, piece) for colour, points, fid, piece, _anchors, _up in drawn]
+
+
+def _behind_stranger(lay: "Layout", frames: dict, members: set, x: float, y: float) -> bool:
+    """Whether (x, y) -- a joint of a family's lines -- lies behind (or within 2 of) the frame of a
+    portrait not of that family (`frames`: each portrait's frame box and outline)."""
+    for q, (x0, y0, x1, y1, pts) in frames.items():
+        if q not in members and x0 - 1 <= x <= x1 + 1 and y0 - 1 <= y <= y1 + 1 and any(
+                inside(pts, x + dx, y + dy) for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1))):
+            return True
+    return False
+
+
+def _frames(lay: "Layout") -> dict:
+    out = {}
+    for q in lay.x:
+        pts = lay.frame_points(q)
+        xs, ys = [px for px, _py in pts], [py for _px, py in pts]
+        out[q] = (min(xs), min(ys), max(xs), max(ys), pts)
+    return out
+
+
+def _clear_joints(drawn: list, lay: "Layout") -> None:
+    """Lines behind the portraits (lines_behind) pass behind anyone's portrait -- but where a family's
+    lines join (a parent's or a child's line meeting the couple's or the children's line) never behind a
+    portrait not of the family, where the line would look as if it came from that stranger (the owner's
+    tree: Alawa's line seemed to come out of Layla).  Each couple's and children's line with a joint
+    behind a stranger is moved up or down -- never past what hangs from it -- to the nearest place where
+    none is, its lines kept joined (_move_piece); left as it is when nowhere near is clear."""
+    frames = _frames(lay)
+    fams = {f.id: f for f in lay.families}
+    for s in drawn:
+        if s[3] not in ("couple", "lane") or len(s[1]) != 2 or s[1][0][1] != s[1][1][1]:
+            continue
+        f = fams.get(s[2])
+        if f is None:
+            continue
+        members = {f.father, f.mother, *f.children}
+        attached = [(o, end) for o in drawn if o is not s and o[2] == s[2] for end, name in o[5].items() if name == s[3]]
+
+        def joints() -> list:
+            return list(s[1]) + [o[1][end] for o, end in attached]
+        if not any(_behind_stranger(lay, frames, members, x, y) for x, y in joints()):
+            continue
+        y = s[1][0][1]
+        lo, hi = -math.inf, math.inf                # never past the far end of a line hanging from it
+        for o, end in attached:
+            other = o[1][1 - end] if len(o[1]) == 2 else o[1][0 if end else -1]
+            if other[1] < y - 0.5:
+                lo = max(lo, other[1] + 1)
+            elif other[1] > y + 0.5:
+                hi = min(hi, other[1] - 1)
+        x0, x1 = sorted((s[1][0][0], s[1][1][0]))
+        level = [o[1][0][1] for o in drawn if o[2] != s[2] and len(o[1]) == 2 and o[1][0][1] == o[1][1][1]
+                 and min(o[1][0][0], o[1][1][0]) < x1 and max(o[1][0][0], o[1][1][0]) > x0]
+        xs = [x for x, _y in joints()]
+        for d in sorted(range(-200, 201), key=abs):
+            ny = y + d
+            if d and lo <= ny <= hi and all(abs(ny - v) >= 2 for v in level) \
+                    and not any(_behind_stranger(lay, frames, members, x, ny) for x in xs):
+                _move_piece(drawn, s, 0.0, float(d), lay=lay)
+                break
 
 
 def _fit(drawn: list) -> None:
