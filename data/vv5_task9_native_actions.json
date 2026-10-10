@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "DE1D8FBEE40D2C289E8DB19AF7AE53E546827D759B4808AE860683318F62C7D4",
-      "size": 144384
+      "sha256": "FE997C2BFF8A3F3DC7E9E9E303701C1D76BDABC07BEF36A7C4CB292862B2EE03",
+      "size": 144896
     }
   ],
   "doubler_evidence": {
@@ -506,8 +506,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "76F4898D7DD3ED3305F325DCF2A59A27552A8BDC4B42C25660715DE2E8C094A7",
-  "base_file_sha256": "76F4898D7DD3ED3305F325DCF2A59A27552A8BDC4B42C25660715DE2E8C094A7",
+  "base_source_text_sha256": "ED63D7FF13056AE741FD4289BFDEBDF829B4A566BE60A8FE7867492E59FBD010",
+  "base_file_sha256": "ED63D7FF13056AE741FD4289BFDEBDF829B4A566BE60A8FE7867492E59FBD010",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -517,7 +517,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "F5F0BDF9985B10779FA5A06C790F954E5738A6625902A64689EA138BC5771685"
+      "source_text_sha256": "ADCDE9C051DE4A9877C1D85C24A4672051822CB037398012EE65CA4124495ABE"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -545,7 +545,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "76F4898D7DD3ED3305F325DCF2A59A27552A8BDC4B42C25660715DE2E8C094A7"
+      "source_text_sha256": "ED63D7FF13056AE741FD4289BFDEBDF829B4A566BE60A8FE7867492E59FBD010"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -801,5 +801,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "5AAFF260665B961F64C686BB5E14D01C947A3D362D2D145822BF4B959C8EA96F"
+  "task9_map_canonical_sha256": "2667251315935CFF9D6AC00DB2C19985B93573098EB7BB5411FF836545967FA1"
 }
