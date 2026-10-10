@@ -2431,6 +2431,19 @@ __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char
         *e = before;
         return 0;
     }
+    /* A villager the Custom Island Event has just made: the frame snapshot
+       takes this slot's occupant now, as vv1_born does for a birth, so the
+       per-frame inference does not see an unknown new occupant on the next
+       frame and clear the parents just given (seen live, 2026-10-10: the
+       entry was empty in the saved sidecar). */
+    if (g_have_prev) {
+        const unsigned char *child = records + (unsigned int)index * VV1_RECORD_STRIDE;
+        g_prev_occupied[index] = child[VV1_OCCUPIED_OFFSET];
+        g_prev_variant[index] = *(const int *)(child + VV1_VARIANT_OFFSET);
+        memcpy(g_prev_name[index], child + VV1_NAME_OFFSET, VV1_NAME_CAPACITY);
+        g_prev_gender[index] = *(const int *)(child + VV1_GENDER_OFFSET);
+        g_prev_age[index] = *(const int *)(child + VV1_AGE_OFFSET);
+    }
     return 1;
 }
 

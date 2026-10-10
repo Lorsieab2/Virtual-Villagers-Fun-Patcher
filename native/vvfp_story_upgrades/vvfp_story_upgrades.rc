@@ -184,7 +184,7 @@ BEGIN
     LTEXT       "Behaviour:", -1, 206, 258, 70, 10
     COMBOBOX    2074, 280, 256, 172, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON  "Parents...", 2080, 280, 274, 80, 14, WS_TABSTOP
-    LTEXT       "", 2081, 364, 276, 88, 12
+    LTEXT       "", 2081, 364, 272, 88, 18
     PUSHBUTTON  "Baby's father...", 2082, 280, 290, 80, 14, WS_TABSTOP
     LTEXT       "", 2083, 364, 292, 88, 12
 

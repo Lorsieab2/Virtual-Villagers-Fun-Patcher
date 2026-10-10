@@ -4234,7 +4234,11 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     }
     if (detail >= 2) {
         skill_text(g, record, skills, sizeof skills);
+        /* A caller that hands its own "Parents:" block (the Custom Island
+           Event's Arrived record: the chosen parents with their looks) has
+           the only one: never a second, names-only block above it. */
         if (g->parent_father_name != 0u
+            && (after == NULL || strstr(after, "  Parents:\n") == NULL)
             && (record[g->parent_father_name] != 0 || record[g->parent_mother_name] != 0)) {
             char pf[MAX_NAME_BYTES], pm[MAX_NAME_BYTES];
             pf[0] = pm[0] = '\0';
