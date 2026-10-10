@@ -84,6 +84,7 @@ class Villager:
     ident: int = 0             # the Origins companion's mask identity (see mask_identity)
     ident_v2: int = 0          # The Tree of Life's older one (gender and name)
     name_hash: int = 0         # the name-only identity of the older mask files
+    health: int = 1            # 0 or less: a body awaiting burial (HEALTH; VV1 +0x344)
 
 
 class CheckError(Exception):
@@ -166,7 +167,7 @@ def vv1_roster(data: bytes) -> list[Villager]:
         ident = h or 1
         out.append(Villager(rank=len(out), name=name, male=gender == 1, age=f(0x348), head=f(0x360),
                             body=f(0x364), skills=[f(0x3BC + 4 * k) for k in range(5)],
-                            scalar=f(0x36C), due=f(0x358),
+                            scalar=f(0x36C), due=f(0x358), health=f(0x344),
                             raw=raw, ident=ident))
     return out
 
@@ -374,7 +375,8 @@ def _villager(data: bytes, p: int, lay: SaveLayout, rank: int, game: int) -> Vil
                     skills=skills,
                     father=cstr(data, p + lay.father, lay.parent_cap) if lay.father is not None else "",
                     mother=cstr(data, p + lay.mother, lay.parent_cap) if lay.mother is not None else "",
-                    ident=ident, ident_v2=ident_v2, name_hash=name_hash)
+                    ident=ident, ident_v2=ident_v2, name_hash=name_hash,
+                    health=i32(data, p + HEALTH[game]))
 
 
 # ---- the logs -------------------------------------------------------------------------------
@@ -950,10 +952,18 @@ def vv25_parents_vs_births(roster: list[Villager], births: list[LogRecord], rep:
     rep.add(label, "OK", f"{checked} living villagers with one Birth record compared with the parents the save keeps")
 
 
+def living_only(roster: list[Villager]) -> list[Villager]:
+    """The save's villagers less the bodies awaiting burial (health 0 or less): the Population
+    and History logs list only the living (native/population_export, living_villager); a body
+    is neither living nor yet dead in the logs -- its Death record comes from the burial."""
+    return [v for v in roster if v.health > 0]
+
+
 def check_population(game_dir: Path, slot: int, roster: list[Villager], rep: Report) -> None:
     label = f"{LOGS}\\Tribe Population"
     rep.add(label, "NOTE", REPORT_ONLY["population"])
     pop = population_for_slot(game_dir, slot)
+    roster = living_only(roster)
     if pop is None:
         rep.add(label, "UNCHECKED", f"no Village Population log for Save {slot}")
         return
@@ -1010,6 +1020,7 @@ def check_history(game_dir: Path, slot: int, roster: list[Villager], rep: Report
         rep.add(label, "UNCHECKED", f"no Village History snapshot for Save {slot}")
         return
     stamp, snap = last
+    roster = living_only(roster)
     if sorted(v["name"] for v in snap) == sorted(v.name for v in roster):
         rep.add(label, "OK", f"the last snapshot ({stamp}) lists the save's {len(roster)} villagers")
     else:
