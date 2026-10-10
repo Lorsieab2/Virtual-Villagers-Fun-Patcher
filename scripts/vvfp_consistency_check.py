@@ -397,6 +397,7 @@ class LogRecord:
     born_as: int = 0           # a Birth's "Born as:" line: 1 single, 2 twin, 3 triplet (0: none)
     how: str = ""              # an Arrived record's "How:" ("unknown": the backfill knew nothing of it)
     heading: str = ""          # an Arrived record's own "Arrived <n>"
+    recorded_afterwards: bool = False   # an Arrived record's "Note: Recorded afterwards ..."
 
 
 def numbered(folder: Path, stem: str) -> list[Path]:
@@ -468,7 +469,7 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 # An Arrived record: "  Name:", "  Head:", "  Body:" (two spaces in).
                 fields = {}
                 for line in lines[1:]:
-                    m = re.match(r"  (Name|Head|Body|How): (.*)$", line)
+                    m = re.match(r"  (Name|Head|Body|How|Note): (.*)$", line)
                     if m and m.group(1) not in fields:
                         fields[m.group(1)] = m.group(2).strip()
                 try:
@@ -478,6 +479,7 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 rec.kind = "arrived"
                 rec.how = fields.get("How", "")
                 rec.heading = kind
+                rec.recorded_afterwards = fields.get("Note", "").startswith("Recorded afterwards")
                 records.append(rec)
                 continue
             for k, line in enumerate(lines):
@@ -606,25 +608,97 @@ def real_arrival(r: LogRecord) -> bool:
     return r.kind == "arrived" and bool(r.how) and r.how.strip().lower() != "unknown"
 
 
-def backfilled_arrivals_of_the_born(births: list[LogRecord]) -> list[LogRecord]:
-    """The backfilled "How: unknown" Arrived records of a villager the log also has a Birth record
-    for (name, head and body): the arrival backfill wrote them when it could not see the Birth (the
-    owner's Cheop Bahati, born "Cheop" before Last Names; the Golden Child, whose Birth was added
-    later).  Wrong: the villager was born here."""
-    born = {key(r.child.name, r.child.head, r.child.body) for r in births if r.kind == "birth" and r.child}
-    return [r for r in births if r.kind == "arrived" and r.child and not real_arrival(r)
-            and key(r.child.name, r.child.head, r.child.body) in born]
+def backfilled_record(r: LogRecord) -> bool:
+    """An Arrived record the arrival backfill wrote knowing nothing of how the villager came:
+    "How: unknown" and "Note: Recorded afterwards" (src/vv_log_additions.py is_removable_backfill)."""
+    return r.kind == "arrived" and not real_arrival(r) and r.recorded_afterwards
 
 
-def check_backfilled_arrivals(births: list[LogRecord], rep: Report) -> None:
+def redundant_backfilled_arrivals(births: list[LogRecord],
+                                  living: dict[tuple, int] | None = None) -> list[tuple[LogRecord, str]]:
+    """The backfilled Arrived records of a villager the log already records -- by a Birth record, or by
+    a real Arrived record (a known How) -- with what records them: the arrival backfill wrote them
+    when it could not see that record (the owner's A New Home: Cheop Bahati, born "Cheop" before Last
+    Names; the Golden Child Lulu, whose Birth was added later; Hoani Chuchip, whose Barrel of Babies
+    record named him "Hoani").  Per name, head and body, a backfilled record is redundant only while
+    the records that already account for that look number at least the villagers alive with it
+    (`living`, when known), so two look-alikes never lose the record one of them needs."""
+    by_key: dict[tuple, list[LogRecord]] = {}
+    for r in births:
+        if r.child and r.kind in ("birth", "arrived"):
+            by_key.setdefault(key(r.child.name, r.child.head, r.child.body), []).append(r)
+    out = []
+    for k, records in by_key.items():
+        firm = [r for r in records if r.kind == "birth" or real_arrival(r)]
+        filled = [r for r in records if backfilled_record(r)]
+        if not firm or not filled:
+            continue
+        needed = max(0, (living or {}).get(k, 0) - len(firm))
+        why = firm[0]
+        what = "a Birth record" if why.kind == "birth" else f"{why.heading or 'an Arrived record'} (How: {why.how})"
+        for r in filled[needed:]:
+            out.append((r, what))
+    return out
+
+
+LOG_DECISIONS = DATA + r"\Log Checks\Virtual Villagers {game} Log Decisions - Save {slot}.json"
+
+
+def log_decisions(game_dir: Path, game: int, slot: int, kind: str, verdict: str,
+                  villages: set[str] | None = None) -> set[tuple]:
+    """The player's remembered verdicts (src/vv_log_decisions.py decided, read the same way here so
+    this tool keeps to the standard library): (name, head, body) of each villager given `verdict`
+    about `kind`, for one of `villages` when given."""
+    import json
+    try:
+        data = json.loads(layout.find(game_dir, LOG_DECISIONS.format(game=game, slot=slot)).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    if not isinstance(data, dict) or data.get("version") != 1 or not isinstance(data.get("decisions"), list):
+        return set()
+    return {(d.get("name"), d.get("head"), d.get("body")) for d in data["decisions"]
+            if isinstance(d, dict) and d.get("kind") == kind and d.get("verdict") == verdict
+            and (villages is None or d.get("village") in villages)}
+
+
+def living_looks(game_dir: Path, game: int, slot: int) -> dict[tuple, int] | None:
+    """How many living villagers have each name, head and body, as check() reads the roster; None
+    when the save cannot be read."""
+    try:
+        data = (game_dir / f"{SAVE_STEMS[game]}{slot}.ldw").read_bytes()
+        pop = population_for_slot(game_dir, slot)
+        roster = vv1_roster(data) if game == 1 else vv25_roster(game, data, [v["name"] for v in pop or []])
+    except (OSError, ValueError):
+        return None
+    out: dict[tuple, int] = {}
+    for v in roster:
+        out[key(v.name, v.head, v.body)] = out.get(key(v.name, v.head, v.body), 0) + 1
+    return out
+
+
+def check_backfilled_arrivals(births: list[LogRecord], rep: Report, roster: list | None = None,
+                              decided: set[tuple] = frozenset()) -> None:
+    """`decided`: the looks the player said to remove the backfilled record of but chose to leave
+    in the log ("Retroactively edit records?" No, src/vv_log_decisions.py): noted, not wrong."""
     label = f"{LOGS}\\Births and Conceptions (Arrived records)"
-    wrong = backfilled_arrivals_of_the_born(births)
-    for r in wrong:
+    living: dict[tuple, int] = {}
+    for v in roster or []:
+        living[key(v.name, v.head, v.body)] = living.get(key(v.name, v.head, v.body), 0) + 1
+    found = redundant_backfilled_arrivals(births, living if roster is not None else None)
+    wrong = []
+    for r, what in found:
+        if key(r.child.name, r.child.head, r.child.body) in decided:
+            rep.add(label, "NOTE", f"{r.heading or 'Arrived'}: {r.child.name} -- a backfilled Arrived record you "
+                                   "decided to disregard, left in the log as you chose")
+        else:
+            wrong.append((r, what))
+    for r, what in wrong:
         rep.add(label, "WRONG", f"{r.heading or 'Arrived'}: {r.child.name} (head {r.child.head}, body "
-                                f"{r.child.body}) has a Birth record, yet a backfilled \"How: unknown\" Arrived "
-                                "record says they arrived (repairable: Repair Saves & Logs removes it)")
-    if not wrong:
-        rep.add(label, "OK", "no villager with a Birth record also has a backfilled \"How: unknown\" Arrived record")
+                                f"{r.child.body}) is already recorded by {what}, yet a backfilled \"How: unknown\" "
+                                "Arrived record says they arrived (repairable: Repair Saves & Logs removes it)")
+    if not found:
+        rep.add(label, "OK", "no villager the log already records (born, or arrived) also has a backfilled "
+                             "\"How: unknown\" Arrived record")
 
 
 def enc_body(p: Person | None) -> int:
@@ -2145,7 +2219,8 @@ def check(game_dir: Path, slot: int, game: int | None = None) -> Report:
         vv1_parentage(game_dir, slot, roster, births, rep)
     else:
         vv25_parents_vs_births(roster, births, rep, game, game_dir, slot)
-    check_backfilled_arrivals(births, rep)
+    check_backfilled_arrivals(births, rep, roster, log_decisions(
+        game_dir, game, slot, "born_arrived", "remove", {births.village} if births.village else None))
     global LAST_GRAVES
     LAST_GRAVES = 0
     try:

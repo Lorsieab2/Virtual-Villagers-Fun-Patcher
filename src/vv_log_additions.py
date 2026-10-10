@@ -44,15 +44,19 @@ CHECKED = {
     "golden": "the Golden Child's Arrived records, against the pregnancies with no Birth and the player's answers",
     "appearance": "the villagers whose look changed with no Appearance changed record, against the save, the "
                   "logs and the player's answers",
-    "born_arrived": "the backfilled \"How: unknown\" Arrived records of villagers the log also has a Birth "
-                    "record for, and the player's answers",
+    "born_arrived": "the backfilled \"How: unknown\" Arrived records of villagers the log already records "
+                    "(a Birth record, or an Arrived record that says how they came), and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
          "appearance": "Appearance changed record added",
-         "born_arrived": "Backfilled Arrived record removed (the villager was born here)"}
-REMOVE_IT = "Remove the Arrived record (they were born here)"
+         "born_arrived": "Duplicate backfilled Arrived record removed"}
+REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
+# The owner's question after every contradiction's verdict (src/vv_log_decisions.py): edit the old
+# records now, or leave the log exactly as it is and remember the decision for the readers.
+RETRO_YES = "Yes"
+RETRO_NO = "No"
 FROM_NOW = "Only from now on (add nothing)"
 
 # The order the lines take under a villager's name (as the exporters print them).
@@ -86,6 +90,8 @@ class Remove:
     count: int                              # its lines, the blank line after it included
     question: str
     when: str
+    retro: str | None = None                # "Retroactively edit records?": No keeps the record
+    decision: dict | None = None            # ...and remembers this (src/vv_log_decisions.py)
 
 
 @dataclass
@@ -711,42 +717,84 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
 
 
 def is_backfilled_arrival(b: Block) -> bool:
-    """An Arrived record the arrival backfill wrote knowing nothing of how the villager came."""
+    """An Arrived record that says nothing of how the villager came ("How: unknown")."""
     return b.heading.startswith("Arrived") and (b.value("How") or "").strip().lower() == "unknown"
 
 
-def _birth_identity(b: Block) -> tuple | None:
-    return _sub_identity(b, "Child") if b.heading == "Birth" else None
+def is_removable_backfill(b: Block) -> bool:
+    """...and that the arrival backfill wrote ("Note: Recorded afterwards ...")."""
+    return is_backfilled_arrival(b) and (b.value("Note") or "").startswith("Recorded afterwards")
 
 
 def plan_born_arrived(folder: Path, game: int, slot: int) -> Kind:
-    """A backfilled "How: unknown" Arrived record of a villager the log also has a Birth record for
-    (name, head and body): the arrival backfill wrote it when it could not see the Birth -- the owner's
-    Cheop Bahati, born "Cheop" before Last Names, and the Golden Child Lulu, whose Birth was added
-    later.  The villager was born here, so the Arrived record is wrong; the player is asked, and a
-    record they choose to remove is taken out (the file copied first)."""
-    kind = Kind("born_arrived", "Arrived records of villagers born here (backfilled, \"How: unknown\")")
+    """A backfilled "How: unknown" Arrived record of a villager the log already records -- by a Birth
+    record, or by a real Arrived record (a known How) -- of the same name, head and body: the arrival
+    backfill wrote it when it could not see that record (the owner's A New Home: Cheop Bahati, born
+    "Cheop" before Last Names; the Golden Child Lulu, whose Birth was added later; Hoani Chuchip,
+    whose Barrel of Babies record named him "Hoani").  All five games.  Per look, only the records
+    beyond what the villagers alive with it need are offered (scripts/vvfp_consistency_check.py
+    redundant_backfilled_arrivals, the same rule Check Logs reports); the player is asked about each,
+    and a record they choose to remove is taken out (the file copied first)."""
     checker = tools.load_checker()
-    villages = current_villages(folder, game, slot)
+    living = checker.living_looks(folder, game, slot)
+    if living is None:                      # who is alive cannot be read: nothing is offered
+        return Kind("born_arrived", BORN_ARRIVED_LABEL)
+    return plan_backfilled_arrivals(folder, game, slot, living, current_villages(folder, game, slot))
+
+
+BORN_ARRIVED_LABEL = ("Duplicate backfilled Arrived records (\"How: unknown\") of villagers the log already "
+                      "records")
+
+
+def plan_backfilled_arrivals(folder: Path, game: int, slot: int, living: dict[tuple, int],
+                             villages: set[str] | None) -> Kind:
+    """plan_born_arrived, given how many living villagers have each look and the village's headers."""
+    kind = Kind("born_arrived", BORN_ARRIVED_LABEL)
+    checker = tools.load_checker()
     paths = checker.numbered(folder / checker.LOGS / "Births and Conceptions",
                              f"Virtual Villagers {game} Births and Conceptions Log")
     every: list[Block] = []
     for path in paths:
         every += [b for b in blocks(path) if b.of(slot, game, villages)]
-    born = {_birth_identity(b) for b in every if b.heading == "Birth"}
+    by_key: dict[tuple, list[Block]] = {}
     for b in every:
-        if not is_backfilled_arrival(b) or b.identity not in born or None in b.identity:
+        k = _sub_identity(b, "Child") if b.heading == "Birth" else (
+            b.identity if b.heading.startswith("Arrived") else None)
+        if k and None not in k:
+            by_key.setdefault(k, []).append(b)
+    offered: list[tuple[Block, str]] = []
+    for k, records in by_key.items():
+        firm = [b for b in records if b.heading == "Birth"
+                or (b.heading.startswith("Arrived") and not is_backfilled_arrival(b) and b.value("How"))]
+        filled = [b for b in records if b.heading.startswith("Arrived") and is_removable_backfill(b)]
+        if not firm or not filled:
             continue
+        what = "a Birth record" if firm[0].heading == "Birth" else f"{firm[0].heading} (How: {firm[0].value('How')})"
+        offered += [(b, what) for b in filled[max(0, living.get(k, 0) - len(firm)):]]
+    import vv_log_decisions as decisions
+    # Already decided "remove" with the log left as it is: the readers follow that; not asked again.
+    settled = decisions.decided(folder, game, slot, kind.id, "remove", villages)
+    for b, what in sorted(offered, key=lambda o: (str(o[0].path), o[0].start)):
         name, head, body = b.identity
+        if (name, head, body) in settled:
+            continue
         key = f"born_arrived|{b.path.name}|{b.start}"
         kind.questions[key] = Question(
-            key, f"{b.heading}: {name} (head {head}, body {body}) has a Birth record, but a backfilled "
-                 "\"How: unknown\" Arrived record says they arrived. Remove the Arrived record?",
+            key, f"{b.heading}: {name} (head {head}, body {body}) is already recorded by {what}, but a "
+                 "backfilled \"How: unknown\" Arrived record says they arrived. Remove the backfilled record?",
             [REMOVE_IT, KEEP_IT], REMOVE_IT)
+        retro = key + "|retro"
+        kind.questions[retro] = Question(
+            retro, f"{b.heading}: {name} -- Retroactively edit records? (Yes: the record is taken out of the "
+                   "log. No: the log is left as it is, and your answer is remembered for the family tree, "
+                   "the Matchmaker, last names and Check Logs.)",
+            [RETRO_YES, RETRO_NO], RETRO_YES)
         lines = read_lines(b.path)
         count = len(b.lines) + (1 if b.start + len(b.lines) < len(lines)
                                 and not lines[b.start + len(b.lines)].strip() else 0)
-        kind.removes.append(Remove(b.path, b.start, count, key, REMOVE_IT))
+        kind.removes.append(Remove(b.path, b.start, count, key, REMOVE_IT, retro,
+                                   {"kind": kind.id, "village": b.village, "name": name, "head": head,
+                                    "body": body, "verdict": "remove"}))
     return kind
 
 
@@ -798,8 +846,23 @@ def resolve_removes(kinds: list[Kind], chosen: set[str],
         if kind.id not in chosen:
             continue
         for rem in kind.removes:
-            if answers.get(rem.question, "") == rem.when:
+            if answers.get(rem.question, "") == rem.when \
+                    and (rem.retro is None or answers.get(rem.retro, "") == RETRO_YES):
                 out.setdefault(rem.path, []).append((rem.start, rem.count, kind.id))
+    return out
+
+
+def resolve_decisions(kinds: list[Kind], chosen: set[str], answers: dict[str, str]) -> list[dict]:
+    """The verdicts the player gave and chose NOT to edit the old records for ("Retroactively edit
+    records?" No): remembered in src/vv_log_decisions.py's file instead."""
+    out = []
+    for kind in kinds:
+        if kind.id not in chosen:
+            continue
+        for rem in kind.removes:
+            if rem.decision is not None and answers.get(rem.question, "") == rem.when \
+                    and answers.get(rem.retro, "") == RETRO_NO:
+                out.append({**rem.decision, "edited": False})
     return out
 
 
