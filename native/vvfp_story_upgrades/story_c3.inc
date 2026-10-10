@@ -127,6 +127,12 @@ static int c3_kill(int index) {
     return 1;
 }
 
+/* Health through the same arbiter (value, cause -1: the living value, as
+   c3_revive writes it). */
+static void c3_set_health(int index, int health) {
+    TC2(0x462670u, c3_record(index) + 0xE6C, health, -1);
+}
+
 /* The Tsunami and The Low Tide (0x45D990 -> 0x45D9D1) clear the active byte;
    the selection is dropped first (0x45FCC0) when it is this villager, as the
    burial does. */
@@ -660,7 +666,9 @@ static const ce_adapter C3_ADAPTER = {
     "- Revive: buried villagers (their record is gone) and skeletons that have already "
     "crumbled away. (A dead chief comes back a chief even while another lives: you "
     "are asked to confirm, at your own risk.)\r\n"
-    "- Golden Child, faction, totems: The Secret City has none.",
+    "- Golden Child, faction, totems: The Secret City has none.\r\n"
+    "- Joey as a parent: only The Tree of Life and New Believers have him (their default "
+    "father); choose Custom to give any parent a name and looks.",
     48, 14, 30, 1,
     "Refills the fruit trees.",
     "Your village gains %d food.", "Your village has lost %d food.",
@@ -679,7 +687,7 @@ static const ce_adapter C3_ADAPTER = {
        the title stays above the result; labels of 32 characters. */
     48, 11, 48, 11, 0, 32, c3_rand_below, NULL, c3_role,
     C3_PROBE, (int)(sizeof C3_PROBE / sizeof C3_PROBE[0]),
-    NULL, NULL
+    NULL, NULL, 0, c3_set_health
 };
 
 /* ---- Delivery ----------------------------------------------------------- */

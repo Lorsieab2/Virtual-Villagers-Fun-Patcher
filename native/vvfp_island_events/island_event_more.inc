@@ -61,10 +61,17 @@ static const struct field *field_labelled(const char *label) {
     return NULL;
 }
 
-/* "  New villager: yes\n  Sex: Female\n  Age: 340 (17 years old)\n" */
+static size_t more_arrival_parents(const unsigned char *record, char *out, size_t used, size_t size);
+
+/* "  New villager: yes\n  Sex: Female\n  Age: 340 (17 years old)\n  Health: 90\n",
+   then the parents the villager came with (a Custom Island Event's chosen
+   parents, the owner 2026-10-10), each known one as "  Father: <name>",
+   "  Father's head: <n>", "  Father's body: <n>" -- the labels a parents
+   change prints -- in all five games. */
 static void more_arrival(const unsigned char *record, char *out, size_t size) {
     const struct field *sex = field_labelled("Sex");
     const struct field *age = field_labelled("Age");
+    const struct field *health = field_labelled("Health");
     size_t used;
     out[0] = '\0';
     used = (size_t)_snprintf(out, size, "  New villager: yes\n");
@@ -76,7 +83,15 @@ static void more_arrival(const unsigned char *record, char *out, size_t size) {
     if (age != NULL && used < size) {
         int units = *(const int *)(record + age->offset);
         int years = units >= 0 ? units / UNITS_PER_YEAR : 0;
-        _snprintf(out + used, size - used, "  Age: %d (%d year%s old)\n", units, years, years == 1 ? "" : "s");
+        used += (size_t)_snprintf(out + used, size - used, "  Age: %d (%d year%s old)\n", units, years,
+                                  years == 1 ? "" : "s");
+    }
+    if (health != NULL && used < size) {
+        used += (size_t)_snprintf(out + used, size - used, "  Health: %d\n",
+                                  *(const int *)(record + health->offset));
+    }
+    if (used < size) {
+        (void)more_arrival_parents(record, out, used, size);
     }
     out[size - 1] = '\0';
 }
@@ -214,6 +229,53 @@ static void more_vv1_parents(const unsigned char *r, struct more_values *out) {
             }
         }
     }
+}
+
+/* A new villager's parents (more_arrival): A New Home's from the Show
+   Parents companion, the later games' from the record's own fields.  A
+   parent is printed only when named, with the looks as they are read. */
+static size_t more_arrival_parents(const unsigned char *record, char *out, size_t used, size_t size) {
+    static const char *const WHO[2] = { "Father", "Mother" };
+    char name[MORE_TEXT], head[MORE_TEXT], body[MORE_TEXT];
+    int k;
+    struct more_values vv1;
+    if (g_game == 1) {
+        int i;
+        for (i = 0; i < MORE_VALUES; ++i) {
+            vv1.value[i][0] = '\0';
+        }
+        more_vv1_parents(record, &vv1);
+    }
+    for (k = 0; k < 2 && used < size; ++k) {
+        int n;
+        if (g_game == 1) {
+            lstrcpynA(name, vv1.value[2 + 3 * k], MORE_TEXT);
+            lstrcpynA(head, vv1.value[3 + 3 * k], MORE_TEXT);
+            lstrcpynA(body, vv1.value[4 + 3 * k], MORE_TEXT);
+        } else {
+            char label[32];
+            const struct field *f = field_labelled(WHO[k]);
+            const struct field *fh, *fb;
+            _snprintf(label, sizeof label, "%s's head", WHO[k]);
+            fh = field_labelled(label);
+            _snprintf(label, sizeof label, "%s's body", WHO[k]);
+            fb = field_labelled(label);
+            if (f == NULL || fh == NULL || fb == NULL || record[f->offset] == 0) {
+                continue;
+            }
+            field_text(f, record, name, sizeof name);
+            field_text(fh, record, head, sizeof head);
+            field_text(fb, record, body, sizeof body);
+        }
+        name[MORE_TEXT - 1] = head[MORE_TEXT - 1] = body[MORE_TEXT - 1] = '\0';
+        if (name[0] == '\0' || strcmp(name, "(none)") == 0) {
+            continue;
+        }
+        n = _snprintf(out + used, size - used, "  %s: %s\n  %s's head: %s\n  %s's body: %s\n", WHO[k], name,
+                      WHO[k], head[0] ? head : "(unknown)", WHO[k], body[0] ? body : "(unknown)");
+        used = n < 0 ? size : used + (size_t)n;
+    }
+    return used;
 }
 
 /* The labels, in each game: 0 the custom title, 1 the mask, then the

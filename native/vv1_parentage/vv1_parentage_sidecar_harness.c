@@ -951,6 +951,31 @@ int main(int argc, char **argv) {
             check(Vv1ParentageSetParents(5, "Zed", 1, 2, "Yara", 3, 4) == 1
                   && lstrcmpA(g_entries[5].father_name, "Zed") == 0,
                   "a parent change whose save succeeds is kept");
+            /* The Custom Island Event's "Unknown": a head of -2 clears that
+               parent (name and looks), the other is left as it is. */
+            check(Vv1ParentageSetParents(5, NULL, -2, -1, NULL, -1, -1) == 1
+                  && g_entries[5].father_name[0] == '\0' && g_entries[5].father_head == 0
+                  && g_entries[5].father_body == 0 && lstrcmpA(g_entries[5].mother_name, "Yara") == 0
+                  && g_entries[5].mother_head == 4 && g_entries[5].mother_body == 5,
+                  "Unknown (a head of -2) clears the father; the mother stays");
+            /* A Custom Island Event's new villager (the live A New Home pass,
+               2026-10-10): made into an empty record after the frame
+               snapshot was taken, given parents in the same frame -- the
+               next frame must not take them for an unknown new occupant and
+               clear them. */
+            vv1_frame(village_a, 0);
+            vv1_frame(village_a, 0);
+            put(village_a, 200, "Kiri", 0, 3);
+            check(Vv1ParentageSetParents(200, "Joey", 2, 2, "Mele Ana", 0, 1) == 1,
+                  "a new villager's parents are stored");
+            vv1_frame(village_a, 0);
+            tick(village_a, 3);
+            vv1_frame(village_a, 0);
+            check(lstrcmpA(g_entries[200].father_name, "Joey") == 0 && g_entries[200].father_head == 3
+                  && g_entries[200].father_body == 3 && lstrcmpA(g_entries[200].mother_name, "Mele Ana") == 0
+                  && g_entries[200].mother_head == 1 && g_entries[200].mother_body == 2,
+                  "... and the frames after keep them (never cleared as an unknown new occupant)");
+            memset(village_a + 200u * VV1_RECORD_STRIDE, 0, VV1_RECORD_STRIDE);
             *(unsigned char **)0x0048B614u = NULL;
         }
     }

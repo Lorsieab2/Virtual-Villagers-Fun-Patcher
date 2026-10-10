@@ -132,7 +132,7 @@ class ArrivedRecordSource(unittest.TestCase):
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
         self.assertIn('arrived(game, index, "Custom Island Event");', source)
         spawn = source[source.index("int index = a->spawn(s);"):]
-        self.assertLess(spawn.index("ce_tell_arrival(e->game, index);"), spawn.index("titles_set"))
+        self.assertLess(spawn.index("ce_tell_arrival(e->game, index, s);"), spawn.index("titles_set"))
 
     def test_start_over_deletes_the_marker(self):
         source = (SHARED / "save_reset.c").read_text(encoding="utf-8")
