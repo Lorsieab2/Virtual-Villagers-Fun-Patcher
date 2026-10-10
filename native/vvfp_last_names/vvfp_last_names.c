@@ -263,7 +263,22 @@ __declspec(dllexport) int __stdcall VvfpGiveLastName(char *name, unsigned int ro
    for a one-word name or one the player said is a single first name -- the
    other parent's when that one has none, and keeps the family's (above) when
    neither has one; exactly as inherited() in src/vv_last_names.py gives it.
-   Without the file, or with "list" or "each", nothing changes. */
+   Without the file, or with "list" or "each", nothing changes.
+
+   EACH VILLAGER'S OWN RULE (the owner, 2026-10-09: "so certain villagers can
+   pass their last name with different rules from the rest of the village").
+   The same file may hold, for a living villager, a line
+   "villager\t<name>\t<head>\t<body>\t<M|F>\t<rule>" (rule "father", "mother"
+   or "random"; the name in UTF-8): the rule for that villager's children.
+   The villager is the parent whose name, head, body and sex at the birth are
+   all of those -- as the child's record (or A New Home's parentage entry)
+   names the parent, so a father who died before the birth is still found.
+   Repair Saves & Logs refuses a line for two living villagers who share all
+   four.  At a birth (decide): one parent with a rule of their own -- theirs;
+   both with the same -- that one; both, disagreeing -- the village's; neither
+   -- the village's.  A parent whose looks are not known has no rule of their
+   own.  A reader that does not know these lines (an earlier build) skips
+   them. */
 #define RULE_FILE_MAX 65536
 static char g_rule_file[RULE_FILE_MAX + 1];
 
@@ -303,9 +318,10 @@ static int save_folder(char *out, size_t size) {
     return 1;
 }
 
-/* The rule ("father", "mother", "random"; "" for anything else) and the file,
-   kept in g_rule_file for the "whole" lines.  0 when there is no rule to use. */
-static int read_rule(int slot, char *rule, size_t rule_size) {
+/* The village's rule ("father", "mother", "random"; "" for none or anything
+   else) and the file, kept in g_rule_file for the "whole" and "villager"
+   lines.  0 when there is no file of this game to use. */
+static int read_record(int slot, char *rule, size_t rule_size) {
     char folder[MAX_PATH], path[MAX_PATH * 2];
     char header[48];
     char *line;
@@ -350,7 +366,119 @@ static int read_rule(int slot, char *rule, size_t rule_size) {
             }
         }
     }
-    return rule[0] != '\0';
+    return 1;
+}
+
+/* The village's rule, as above; 0 when there is none to use. */
+static int read_rule(int slot, char *rule, size_t rule_size) {
+    return read_record(slot, rule, rule_size) && rule[0] != '\0';
+}
+
+/* `n` bytes of UTF-8 (the file's) as the games' Latin-1, into out[size];
+   0 for a character Latin-1 has not, or a name too long. */
+static int latin1_of(const char *text, size_t n, char *out, size_t size) {
+    size_t i, k = 0;
+    for (i = 0; i < n; ++i) {
+        unsigned char c = (unsigned char)text[i];
+        if (k + 1 >= size) {
+            return 0;
+        }
+        if (c < 0x80) {
+            out[k++] = (char)c;
+        } else if ((c == 0xC2 || c == 0xC3) && i + 1 < n && ((unsigned char)text[i + 1] & 0xC0) == 0x80) {
+            out[k++] = (char)(((c & 0x03) << 6) | ((unsigned char)text[i + 1] & 0x3F));
+            ++i;
+        } else {
+            return 0;
+        }
+    }
+    out[k] = '\0';
+    return 1;
+}
+
+/* A whole decimal number of `n` bytes (a leading '-' allowed) into *value. */
+static int number_of(const char *text, size_t n, int *value) {
+    size_t i = 0;
+    long v = 0;
+    int minus = 0;
+    if (n > 0 && text[0] == '-') {
+        minus = 1;
+        i = 1;
+    }
+    if (i == n || n - i > 9) {
+        return 0;
+    }
+    for (; i < n; ++i) {
+        if (text[i] < '0' || text[i] > '9') {
+            return 0;
+        }
+        v = v * 10 + (text[i] - '0');
+    }
+    *value = minus ? (int)-v : (int)v;
+    return 1;
+}
+
+/* The rule of the parent `name` with these looks and sex ('M' / 'F') from
+   the record's "villager" lines: 'f', 'm' or 'r'; 0 for none -- no line, the
+   looks unknown (negative), or two lines for the same villager that
+   disagree. */
+static char own_rule(const char *name, int head, int body, char sex) {
+    const char *line;
+    char found = 0;
+    if (name == NULL || name[0] == '\0' || head < 0 || body < 0) {
+        return 0;
+    }
+    for (line = g_rule_file; line != NULL; line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        const char *field[5];
+        size_t len[5], end = strcspn(line, "\r\n");
+        const char *p = line + 9, *stop = line + end;
+        char who[LONGEST_LAST + 1];
+        int k, h, b;
+        char rule;
+        if (strncmp(line, "villager\t", 9) != 0 || end < 9) {
+            continue;
+        }
+        for (k = 0; k < 5; ++k) {           /* name, head, body, sex, rule */
+            const char *tab = (const char *)memchr(p, '\t', (size_t)(stop - p));
+            field[k] = p;
+            len[k] = (size_t)((k < 4 ? (tab ? tab : stop) : stop) - p);
+            if (k < 4) {
+                if (tab == NULL) {
+                    break;
+                }
+                p = tab + 1;
+            }
+        }
+        if (k < 5 || memchr(field[4], '\t', len[4]) != NULL
+            || !latin1_of(field[0], len[0], who, sizeof who) || strcmp(who, name) != 0
+            || !number_of(field[1], len[1], &h) || h != head || !number_of(field[2], len[2], &b) || b != body
+            || len[3] != 1 || field[3][0] != sex || len[4] != 6) {
+            continue;
+        }
+        if (strncmp(field[4], "father", 6) == 0) {
+            rule = 'f';
+        } else if (strncmp(field[4], "mother", 6) == 0) {
+            rule = 'm';
+        } else if (strncmp(field[4], "random", 6) == 0) {
+            rule = 'r';
+        } else {
+            continue;
+        }
+        if (found != 0 && found != rule) {
+            return 0;
+        }
+        found = rule;
+    }
+    return found;
+}
+
+/* The rule a birth uses (the owner, 2026-10-09): one parent's own; both
+   parents' when they agree; else the village's (0: none). */
+static char decide(char father_rule, char mother_rule, char village) {
+    if (father_rule != 0 && mother_rule != 0) {
+        return father_rule == mother_rule ? father_rule : village;
+    }
+    return father_rule != 0 ? father_rule : mother_rule != 0 ? mother_rule : village;
 }
 
 /* Each game's slot saves: "<stem><slot>.ldw" in the save folder (the checker's
@@ -493,12 +621,18 @@ static void carried_last(const char *name, char *out) {
    written: the child's name (its first name, and the family's last name this
    DLL gave it) made its first name and the last name the player's rule gives
    (above).  `father` / `mother`: the parents' names as the game holds them
-   (NULL or "" unknown).  `slot`: the village's save slot, or 0 when the caller
-   cannot know it yet (slot_of_parents).  Returns 1 when the name changed. */
-__declspec(dllexport) int __stdcall VvfpRuleLastName(char *name, unsigned int room, const char *father,
-                                                     const char *mother, int slot) {
+   (NULL or "" unknown), with each one's head and body as the child's record
+   (A New Home: the parentage entry) keeps them (negative: unknown) -- what
+   tells which villager's own rule is theirs.  `slot`: the village's save
+   slot, or 0 when the caller cannot know it yet (slot_of_parents).  Returns 1
+   when the name changed. */
+__declspec(dllexport) int __stdcall VvfpRuleLastName2(char *name, unsigned int room,
+                                                      const char *father, int father_head, int father_body,
+                                                      const char *mother, int mother_head, int mother_body,
+                                                      int slot) {
     char rule[8], dad[LONGEST_LAST + 1], mum[LONGEST_LAST + 1], first[LONGEST_LAST + 1];
     const char *last;
+    char use;
     size_t n;
     if (install_state != 1 || name == NULL || room < 2 || memchr(name, '\0', room) == NULL) {
         return 0;
@@ -506,8 +640,13 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName(char *name, unsigned int ro
     if (slot <= 0) {
         slot = slot_of_parents(father, mother);
     }
-    if (!read_rule(slot, rule, sizeof rule)) {
+    if (!read_record(slot, rule, sizeof rule)) {
         return 0;
+    }
+    use = decide(own_rule(father, father_head, father_body, 'M'),
+                 own_rule(mother, mother_head, mother_body, 'F'), rule[0]);
+    if (use == 0) {
+        return 0;                           /* no rule decides: the family's stays */
     }
     n = strcspn(name, " ");
     if (n == 0 || n > LONGEST_LAST) {
@@ -517,9 +656,9 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName(char *name, unsigned int ro
     first[n] = '\0';
     carried_last(father, dad);
     carried_last(mother, mum);
-    if (rule[0] == 'f') {
+    if (use == 'f') {
         last = dad[0] ? dad : mum;
-    } else if (rule[0] == 'm') {
+    } else if (use == 'm') {
         last = mum[0] ? mum : dad;
     } else {                                /* "random": 50:50 for each child (the owner) */
         last = dad[0] && mum[0] ? ((GetTickCount() ^ (DWORD)(uintptr_t)name) & 1 ? dad : mum)

@@ -221,7 +221,7 @@ class InheritanceTests(unittest.TestCase):
         self.assertEqual(list(ln.INHERIT), ["mother", "father", "random", "list", "each"])
         self.assertEqual(ln.CUSTOM, "(custom last name - type here...)")
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
-        self.assertIn("vv_last_names.with_siblings(fixed(), parents), carried)", gui)
+        self.assertIn("vv_last_names.with_siblings(fixed(), parents), carried, own_state)", gui)
         self.assertIn("values=[none, custom] + first", gui)
         self.assertIn('if value.get() == custom:\n                value.set("")', gui)
         # The whole new name is held to the game's room, and a box past it is marked.

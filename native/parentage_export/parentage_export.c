@@ -3574,16 +3574,19 @@ static int compose_birth(
     return 1;
 }
 
-typedef int (__stdcall *rule_last_name_t)(char *name, unsigned int room, const char *father,
-                                           const char *mother, int slot);
+typedef int (__stdcall *rule_last_name_t)(char *name, unsigned int room, const char *father, int father_head,
+                                           int father_body, const char *mother, int mother_head,
+                                           int mother_body, int slot);
 
 /* The Lost Children to New Believers, at the child's creation: its name made
    its first name and the last name the player's rule gives (Repair Saves &
-   Logs' "Last names come from"; VVFP Last Names' VvfpRuleLastName), from the
-   parents the game keeps on its record -- before the Birth record or anything
-   else names it (the owner, 2026-10-08: babies named for their mother's
-   family number, not by the rule -- "fix it").  A New Home's companion does
-   the same at its own birth hook, with the parents it recorded. */
+   Logs' "Last names come from", and a parent's own rule; VVFP Last Names'
+   VvfpRuleLastName2), from the parents the game keeps on its record -- their
+   names, heads and bodies, as the Birth record shows them -- before the Birth
+   record or anything else names it (the owner, 2026-10-08: babies named for
+   their mother's family number, not by the rule -- "fix it").  A New Home's
+   companion does the same at its own birth hook, with the parents it
+   recorded. */
 static void rule_last_name(int game_id, unsigned char *rec) {
     static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
     static rule_last_name_t rule;
@@ -3596,7 +3599,7 @@ static void rule_last_name(int game_id, unsigned char *rec) {
     }
     if (state == 0) {
         HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
-        rule = dll ? (rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName") : NULL;
+        rule = dll ? (rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName2") : NULL;
         state = rule ? 1 : -1;
     }
     g = layout_of(game_id);
@@ -3613,7 +3616,9 @@ static void rule_last_name(int game_id, unsigned char *rec) {
     }
     copy_name_field(rec + g->parent_father_name, father, sizeof father, g->name_capacity);
     copy_name_field(rec + g->parent_mother_name, mother, sizeof mother, g->name_capacity);
-    rule((char *)(rec + g->name), g->name_capacity, father, mother,
+    rule((char *)(rec + g->name), g->name_capacity,
+         father, *(const int *)(rec + g->parent_father_head), *(const int *)(rec + g->parent_father_body),
+         mother, *(const int *)(rec + g->parent_mother_head), *(const int *)(rec + g->parent_mother_body),
          at != NULL && at[7] >= '1' && at[7] <= '9' && at[8] == ')' ? at[7] - '0' : 0);
 }
 

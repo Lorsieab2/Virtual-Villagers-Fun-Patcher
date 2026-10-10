@@ -1886,11 +1886,14 @@ static void vv1_golden_last_name(unsigned char *child, const unsigned char *moth
 }
 
 typedef int (__stdcall *vv1_rule_last_name_t)(char *name, unsigned int room, const char *father,
-                                               const char *mother, int slot);
+                                               int father_head, int father_body, const char *mother,
+                                               int mother_head, int mother_body, int slot);
 
 /* The last name the player's rule gives (Repair Saves & Logs' "Last names
-   come from"; VVFP Last Names' VvfpRuleLastName), from the parents this
-   birth recorded, before anything is logged or kept under the child's name
+   come from", and a parent's own rule; VVFP Last Names' VvfpRuleLastName2),
+   from the parents this birth recorded -- names and looks, as the Birth
+   record shows them; a look not recorded (0) is unknown (-1) -- before
+   anything is logged or kept under the child's name
    (the owner, 2026-10-08: babies named for their mother's family number,
    not by the rule -- "fix it").  The name the frame watch compares against
    follows it, so the change is no rename. */
@@ -1898,17 +1901,23 @@ static void vv1_rule_last_name(unsigned char *child, int c, int slot) {
     static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
     static vv1_rule_last_name_t rule;
     char *name = (char *)(child + VV1_NAME_OFFSET);
+    vv1_parent_entry *e;
     if (state == 0) {
         HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
-        rule = dll ? (vv1_rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName") : NULL;
+        rule = dll ? (vv1_rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName2") : NULL;
         state = rule ? 1 : -1;
     }
     if (state != 1 || memchr(name, '\0', VV1_NAME_CAPACITY) == NULL) {
         return;
     }
-    g_entries[c].father_name[VV1_NAME_CAPACITY - 1] = '\0';
-    g_entries[c].mother_name[VV1_NAME_CAPACITY - 1] = '\0';
-    if (rule(name, VV1_NAME_CAPACITY, g_entries[c].father_name, g_entries[c].mother_name, slot)
+    e = &g_entries[c];
+    e->father_name[VV1_NAME_CAPACITY - 1] = '\0';
+    e->mother_name[VV1_NAME_CAPACITY - 1] = '\0';
+    if (rule(name, VV1_NAME_CAPACITY,
+             e->father_name, e->father_head && e->father_body ? e->father_head - 1 : -1,
+             e->father_head && e->father_body ? e->father_body - 1 : -1,
+             e->mother_name, e->mother_head && e->mother_body ? e->mother_head - 1 : -1,
+             e->mother_head && e->mother_body ? e->mother_body - 1 : -1, slot)
         && g_have_prev) {
         memcpy(g_prev_name[c], name, VV1_NAME_CAPACITY);
     }
