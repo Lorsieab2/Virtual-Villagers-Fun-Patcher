@@ -700,6 +700,12 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
 HEATHEN_ROLES = ("Heathen Doctor", "Heathen Chief", "Heathen Master Scientist", "Heathen Master Builder",
                  "Heathen Master Farmer", "Heathen Mommy")
 CONVERTED = "Converted from the Heathens"
+# A Birth record's heading: "Birth", or "Birth <n>" once every game numbers them (the shared
+# reader is scripts/vvfp_consistency_check.py is_birth_heading on feat/numbered-births).
+BIRTH_HEADING = re.compile(r"^Birth( \d+)?$")
+# ...and the Arrived and Disappeared records' headings, numbered or not, the same way.
+ARRIVED_HEADING = re.compile(r"^Arrived( \d+)?$")
+DISAPPEARED_HEADING = re.compile(r"^Disappeared( \d+)?$")
 LEFT_FOR_THE_HEATHENS = "Left the tribe: became a Heathen"
 
 
@@ -725,11 +731,11 @@ def _faction_events(folder: Path, game: int, slot: int) -> tuple[set, set, set]:
         for b in blocks(path):
             if not b.of(slot, game, villages):
                 continue
-            if b.heading.startswith("Arrived"):
+            if ARRIVED_HEADING.match(b.heading):
                 (converted if b.value("How") == CONVERTED else believer).add(b.identity)
-            elif b.heading.startswith("Disappeared") and b.value("What happened") == LEFT_FOR_THE_HEATHENS:
+            elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") == LEFT_FOR_THE_HEATHENS:
                 left.add(b.identity)
-            elif b.heading == "Birth":
+            elif BIRTH_HEADING.match(b.heading):
                 child = _sub_identity(b, "Child")
                 if child:
                     believer.add(child)

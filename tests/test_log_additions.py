@@ -340,6 +340,31 @@ class NewBelieversFaction(unittest.TestCase):
         kind = self.faction()
         self.assertEqual((kind.decided, kind.asked), (0, 1), "a Heathen now who came as a believer is asked")
 
+    def test_numbered_and_unnumbered_birth_records_both_count(self):
+        """"Birth" (older logs) and "Birth <n>" (feat/numbered-births) are both Birth records: a
+        Heathen now who was born a believer is asked either way."""
+        for heading in ("Birth", "Birth 12"):
+            with self.subTest(heading=heading):
+                write(self.folder, "Tribe Population/Village Population 1.txt", vv5_page(
+                    villager(1, "Kid", 5, 6).replace("  Sex: Female\n", "  Sex: Female\n  Faction: Heathen\n")))
+                write(self.folder, "Tribe History/Village History 1.txt",
+                      vv5_snapshot("2026-10-01 10:00", villager(1, "Kid", 5, 6)))
+                write(self.folder, "Births and Conceptions/Virtual Villagers 5 Births and Conceptions Log 1.txt",
+                      f"Village: Tribe (Save 1)\n{heading}\n  Child: Kid\n    Head: 5\n    Body: 6\n"
+                      "  Mother: Ma\n    Head: 1\n    Body: 1\n\n")
+                kind = self.faction()
+                self.assertEqual((kind.decided, kind.asked), (0, 1), heading)
+
+    def test_numbered_arrived_and_disappeared_records_count(self):
+        write(self.folder, "Tribe Population/Village Population 1.txt", vv5_page(
+            villager(1, "Narai", 1, 1).replace("  Sex: Female\n", "  Sex: Female\n  Faction: Heathen\n")))
+        write(self.folder, "Tribe History/Village History 1.txt",
+              vv5_snapshot("2026-10-01 10:00", villager(1, "Narai", 1, 1)))
+        write(self.folder, "Deaths and Disappearances/Virtual Villagers 5 Deaths Log 1.txt",
+              "Village: Tribe (Save 1)\nDisappeared 3\n  Name: Narai\n  Age: 440\n  Sex: Female\n"
+              "  What happened: Left the tribe: became a Heathen\n  Head: 1\n  Body: 1\n\n")
+        self.assertEqual(self.faction().asked, 1, "a numbered Disappeared record is a change of side")
+
     def test_a_villager_no_longer_in_the_village_is_asked(self):
         write(self.folder, "Tribe Population/Village Population 1.txt", vv5_page(
             villager(1, "Kaia", 1, 1).replace("  Sex: Female\n", "  Sex: Female\n  Faction: Believer\n")))
