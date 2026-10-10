@@ -26,7 +26,7 @@ SDK_VERSION = "10.0.26100.0"
 # Per game: nothing changed, the newcomer, the parents, the title set and removed, the Special
 # villager title, the whole likes list, no same-reading line, the village, the weather (or\n# none), a food store = 11; New Believers' Heathen
 # mask and The Lost Children's totem one more each.
-CHECKS = 5 * 14 + 2
+CHECKS = 5 * 14 + 2 + 3   # and the weather with no word, in the three games that have weather
 # Labels the games have no word for, approved by the owner on 2026-10-09 (the coordinator's message:
 # "The owner approved all of your proposals"); every other village label must be the exe's own words.
 APPROVED = {
@@ -141,13 +141,14 @@ class IslandEventsMoreSource(unittest.TestCase):
                     for part in parts:
                         self.assertIn(part.lower().encode(), data)
         # The weather's words: each in its own game's executable, but "clear" (the owner's, 2026-10-09).
-        words = re.findall(r'\{ ("[^"]*"|NULL), ("[^"]*"|NULL), ("[^"]*"|NULL), ("[^"]*"|NULL), ("[^"]*"|NULL), ("[^"]*"|NULL) \}',
+        words = re.findall(r'\{ ("[^"]*"|NULL|WEATHER_TYPE_4), ("[^"]*"|NULL|WEATHER_TYPE_4), ("[^"]*"|NULL|WEATHER_TYPE_4), '
+                           r'("[^"]*"|NULL|WEATHER_TYPE_4), ("[^"]*"|NULL|WEATHER_TYPE_4), ("[^"]*"|NULL|WEATHER_TYPE_4) \}',
                            self.more[self.more.index("static const char *weather_word("):])
         self.assertEqual(len(words), 3)
         for game, row in zip((3, 4, 5), words):
             data = (stock / f"Virtual Villagers - {names[game]}.exe").read_bytes().lower()
             for word in row:
-                if word not in ("NULL", '"clear"'):
+                if word not in ("NULL", '"clear"', "WEATHER_TYPE_4"):
                     with self.subTest(game=game, weather=word):
                         self.assertIn(word.strip('"').encode(), data)
         data3 = (stock / "Virtual Villagers - The Secret City.exe").read_bytes()

@@ -484,6 +484,15 @@ int main(void) {
             const char *want = g_harness_game == 5 ? "    Weather: clear -> storm\n" : "    Weather: clear -> rain\n";
             CHECK(g_village_outs == 1 && strstr(g_village_out[0], want) != NULL, "...and the weather, \"%.*s\"",
                   (int)strlen(want) - 5, want + 4);
+            /* A type with no word (The Tree of Life's 1, The Arc of Brilliant Colors: the owner,
+               "not weather"; any 1 or 3 the schedule draws): to or from it, no Weather line. */
+            begin();
+            *(int *)weather = 1;
+            *(int *)food += 1;
+            compare(&g_snaps[0]);
+            CHECK(g_village_outs == 1 && strstr(g_village_out[0], "Weather") == NULL
+                  && strstr(g_village_out[0], "type ") == NULL,
+                  "a weather type with no word, to or from: no Weather line, never \"type N\"");
         } else {
             CHECK(weather == NULL, "%s keeps no weather the events change: none is compared", GAME_NAMES[g_harness_game]);
         }

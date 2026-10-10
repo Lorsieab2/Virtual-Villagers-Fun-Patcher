@@ -505,16 +505,21 @@ static const unsigned char *village_dword(const struct village_field *f, unsigne
      New Believers     5 storm: the Tempest spell, "Tempest: summon a grand
                        storm!" (case 5 of 0x422F95, the spells' own order)
    "clear" (0, what the setter clears to and the schedule returns to) is the
-   owner's word (2026-10-09).  Every other type is "type N": The Tree of
-   Life's 1 (The Arc of Brilliant Colors sets it; the owner: there is no
-   rainbow weather) and 4 (The Mysterious Footprints and The Cold Snap set it,
-   whose popups name no fog), New Believers' 2 and 4, and every 3 but The
-   Secret City's, wait for a live look. */static const char *weather_word(int game, int value) {
+   owner's word (2026-10-09).  The Tree of Life's and New Believers' type 4
+   (The Mysterious Footprints and The Cold Snap set it; their popups name no
+   fog) waits for a live look: WEATHER_TYPE_4 is its one word to change.
+   Every other type -- The Tree of Life's 1 (The Arc of Brilliant Colors; the
+   owner: "nothing special / not weather"), the 1s and 3s the games' own
+   schedules draw (0x46BBF0: any of 0-4), New Believers' 2 -- has no word,
+   and a change to or from it writes no Weather line at all: the player
+   would see nothing to recognise in "type N". */
+#define WEATHER_TYPE_4 "type 4"           /* the owner's word once seen live: "fog" or "drizzle" */
+static const char *weather_word(int game, int value) {
     static const char *const WORDS[GAMES + 1][6] = {
         { NULL }, { NULL }, { NULL },
         { "clear", NULL, "rain", "storm", "fog", NULL },
-        { "clear", NULL, "rain", NULL, NULL, NULL },
-        { "clear", NULL, NULL, NULL, NULL, "storm" },
+        { "clear", NULL, "rain", NULL, WEATHER_TYPE_4, NULL },
+        { "clear", NULL, NULL, NULL, WEATHER_TYPE_4, "storm" },
     };
     return game >= 1 && game <= GAMES && value >= 0 && value <= 5 ? WORDS[game][value] : NULL;
 }
@@ -552,10 +557,9 @@ static void village_text(const struct village_field *f, char *out, size_t size) 
         _snprintf(out, size, "%s", value == 0 ? "Banana" : value == 1 ? "Mango" : value == 2 ? "Papaya" : "(unknown)");
         break;
     case VF_WEATHER:
+        /* No word: "", so a change to or from it is no line (weather_word). */
         if (weather_word((int)f->extra, value) != NULL) {
             _snprintf(out, size, "%s", weather_word((int)f->extra, value));
-        } else {
-            _snprintf(out, size, "type %d", value);
         }
         break;
     default:
