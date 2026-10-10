@@ -85,7 +85,6 @@ typedef struct {
     int skip_notice;                        /* years the closing popup is to tell, when no step is left */
 } sq_file;
 
-static int sq_game;                         /* the game this process runs (VvfpStoryInstall) */
 static int sq_slot;                         /* the village tracked: its slot ... */
 static unsigned int sq_generation;          /* ... its reset generation ... */
 static unsigned int sq_roster[256];         /* ... and its roster */
@@ -580,9 +579,10 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeQueueState(int *out) {
     out[8] = oc.state == OC_ARMED;
 }
 
-/* The restore made where the game asks for an armed event (sq_lazy). */
+/* The restore made where the game asks for an armed event (sq_lazy), for the
+   game VvfpStoryInstall last ran. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeQueueLazy(int game) {
-    sq_game = game;
+    (void)game;                     /* the game is the one VvfpStoryInstall named */
     return drop_lapsed_pick();
 }
 

@@ -245,6 +245,7 @@ static int last_failed_lapsed;
 
 /* A queued purchase kept across a quit is put back first (story_queue.inc). */
 static void sq_lazy(void);
+static int sq_game;
 static void sq_village_reset(int game, int slot);
 static void sq_tick(int game);
 
@@ -802,6 +803,7 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     if (!VvfpStoryArm(game)) {
         return 0;
     }
+    sq_game = game;             /* the game the selectors' restore is for, from the first call (story_queue.inc) */
     /* Choose Time Skip Amount: its next step, once the last is replayed. */
     time_skip_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
