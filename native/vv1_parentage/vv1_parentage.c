@@ -1886,29 +1886,72 @@ static void vv1_golden_last_name(unsigned char *child, const unsigned char *moth
 }
 
 typedef int (__stdcall *vv1_rule_last_name_t)(char *name, unsigned int room, const char *father,
-                                               const char *mother, int slot);
+                                               int father_head, int father_body, const char *mother,
+                                               int mother_head, int mother_body, int slot);
 
 /* The last name the player's rule gives (Repair Saves & Logs' "Last names
-   come from"; VVFP Last Names' VvfpRuleLastName), from the parents this
-   birth recorded, before anything is logged or kept under the child's name
+   come from", and a parent's own rule; VVFP Last Names' VvfpRuleLastName2),
+   from the parents this birth recorded -- names and looks, as the Birth
+   record shows them; a look not recorded (0) is unknown (-1) -- before
+   anything is logged or kept under the child's name
    (the owner, 2026-10-08: babies named for their mother's family number,
    not by the rule -- "fix it").  The name the frame watch compares against
    follows it, so the change is no rename. */
+/* A parent whose looks the entry did not record: the looks of the one living
+   villager of that name and sex, when there is exactly one (else they stay
+   unknown, -1, and the parent has no rule of their own). */
+static void vv1_only_looks(const char *parent, int male, int *head, int *body) {
+    const unsigned char *records = vv1_records();
+    int i, found = 0, h = -1, b = -1;
+    if (records == NULL || parent[0] == '\0') {
+        return;
+    }
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const unsigned char *r = records + (size_t)i * VV1_RECORD_STRIDE;
+        if (!r[VV1_OCCUPIED_OFFSET] || (*(const int *)(r + VV1_GENDER_OFFSET) == VV1_GENDER_MALE) != male
+            || strncmp((const char *)(r + VV1_NAME_OFFSET), parent, VV1_NAME_CAPACITY) != 0) {
+            continue;
+        }
+        ++found;
+        h = *(const int *)(r + VV1_HEAD_OFFSET);
+        b = *(const int *)(r + VV1_BODY_OFFSET);
+    }
+    if (found == 1 && h >= 0 && b >= 0) {
+        *head = h;
+        *body = b;
+    }
+}
+
 static void vv1_rule_last_name(unsigned char *child, int c, int slot) {
     static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
     static vv1_rule_last_name_t rule;
     char *name = (char *)(child + VV1_NAME_OFFSET);
+    vv1_parent_entry *e;
+    int fh, fb, mh, mb;
     if (state == 0) {
         HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
-        rule = dll ? (vv1_rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName") : NULL;
+        rule = dll ? (vv1_rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName2") : NULL;
         state = rule ? 1 : -1;
     }
     if (state != 1 || memchr(name, '\0', VV1_NAME_CAPACITY) == NULL) {
         return;
     }
-    g_entries[c].father_name[VV1_NAME_CAPACITY - 1] = '\0';
-    g_entries[c].mother_name[VV1_NAME_CAPACITY - 1] = '\0';
-    if (rule(name, VV1_NAME_CAPACITY, g_entries[c].father_name, g_entries[c].mother_name, slot)
+    e = &g_entries[c];
+    e->father_name[VV1_NAME_CAPACITY - 1] = '\0';
+    e->mother_name[VV1_NAME_CAPACITY - 1] = '\0';
+    /* The entry keeps each look + 1, so a real head or body 0 is 1 there and
+       0 means "not recorded" (an entry an earlier build wrote). */
+    fh = e->father_head && e->father_body ? e->father_head - 1 : -1;
+    fb = e->father_head && e->father_body ? e->father_body - 1 : -1;
+    mh = e->mother_head && e->mother_body ? e->mother_head - 1 : -1;
+    mb = e->mother_head && e->mother_body ? e->mother_body - 1 : -1;
+    if (fh < 0) {
+        vv1_only_looks(e->father_name, 1, &fh, &fb);
+    }
+    if (mh < 0) {
+        vv1_only_looks(e->mother_name, 0, &mh, &mb);
+    }
+    if (rule(name, VV1_NAME_CAPACITY, e->father_name, fh, fb, e->mother_name, mh, mb, slot)
         && g_have_prev) {
         memcpy(g_prev_name[c], name, VV1_NAME_CAPACITY);
     }
