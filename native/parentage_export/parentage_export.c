@@ -3654,47 +3654,89 @@ static int compose_birth(
     return 1;
 }
 
-typedef int (__stdcall *rule_last_name_t)(char *name, unsigned int room, const char *father,
-                                           const char *mother, int slot);
+/* The village's save slot for VVFP Last Names: the " (Save N)" the village
+   was last saved under, or 0 -- named only once it is saved; a birth in the
+   catch-up as it loads comes first, and the DLL then finds the slot from the
+   names. */
+static int last_names_slot(void) {
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    const char *at = NULL, *scan;
+    if (vv_village_recall(village, sizeof village)) {
+        for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
+            at = scan;
+        }
+    }
+    return at != NULL && at[7] >= '1' && at[7] <= '9' && at[8] == ')' ? at[7] - '0' : 0;
+}
+
+typedef int (__stdcall *rule_last_name_t)(char *name, unsigned int room, const char *father, int father_head,
+                                           int father_body, const char *mother, int mother_head,
+                                           int mother_body, int slot);
 
 /* The Lost Children to New Believers, at the child's creation: its name made
    its first name and the last name the player's rule gives (Repair Saves &
-   Logs' "Last names come from"; VVFP Last Names' VvfpRuleLastName), from the
-   parents the game keeps on its record -- before the Birth record or anything
-   else names it (the owner, 2026-10-08: babies named for their mother's
-   family number, not by the rule -- "fix it").  A New Home's companion does
-   the same at its own birth hook, with the parents it recorded. */
+   Logs' "Last names come from", and a parent's own rule; VVFP Last Names'
+   VvfpRuleLastName2), from the parents the game keeps on its record -- their
+   names, heads and bodies, as the Birth record shows them -- before the Birth
+   record or anything else names it (the owner, 2026-10-08: babies named for
+   their mother's family number, not by the rule -- "fix it").  A New Home's
+   companion does the same at its own birth hook, with the parents it
+   recorded. */
 static void rule_last_name(int game_id, unsigned char *rec) {
     static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
     static rule_last_name_t rule;
     const struct game_layout *g;
-    char village[VV_VILLAGE_NAME_MAX + 32];
     char father[MAX_NAME_BYTES], mother[MAX_NAME_BYTES];
-    const char *at = NULL, *scan;
     if (game_id < GAME_VV2 || game_id > GAME_VV5 || rec == NULL) {
         return;
     }
     if (state == 0) {
         HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
-        rule = dll ? (rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName") : NULL;
+        rule = dll ? (rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName2") : NULL;
         state = rule ? 1 : -1;
     }
     g = layout_of(game_id);
     if (state != 1 || !layout_is_usable(g) || g->parent_father_name == 0u) {
         return;
     }
-    /* The village is named only once it is saved; a birth in the catch-up as
-       it loads comes first, and the DLL finds the slot from the parents
-       (0 here). */
-    if (vv_village_recall(village, sizeof village)) {
-        for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
-            at = scan;
-        }
-    }
     copy_name_field(rec + g->parent_father_name, father, sizeof father, g->name_capacity);
     copy_name_field(rec + g->parent_mother_name, mother, sizeof mother, g->name_capacity);
-    rule((char *)(rec + g->name), g->name_capacity, father, mother,
-         at != NULL && at[7] >= '1' && at[7] <= '9' && at[8] == ')' ? at[7] - '0' : 0);
+    rule((char *)(rec + g->name), g->name_capacity,
+         father, *(const int *)(rec + g->parent_father_head), *(const int *)(rec + g->parent_father_body),
+         mother, *(const int *)(rec + g->parent_mother_head), *(const int *)(rec + g->parent_mother_body),
+         last_names_slot());
+}
+
+typedef int (__stdcall *relook_last_name_t)(const char *name, int male, int old_head, int old_body, int new_head,
+                                             int new_body, int slot);
+
+/* An "Appearance changed" record (Change Appearance, the Island Events log --
+   a Custom Island Event's change too): the villager's own last-name rule,
+   kept by name, head, body and sex, follows them to the new looks at once
+   (VVFP Last Names' VvfpRelookLastName), so the births before the next
+   Repair still find it.  `before` is the record's own "  Old head: ..\n  Old
+   body: ..\n  New head: ..\n  New body: ..\n" lines.  Nothing happens without
+   the Last Names DLL. */
+static void relook_last_name(const struct game_layout *g, const unsigned char *record, const char *before) {
+    static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
+    static relook_last_name_t relook;
+    char name[MAX_NAME_BYTES];
+    int oh, ob, nh, nb, male;
+    if (state == 0) {
+        HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
+        relook = dll ? (relook_last_name_t)GetProcAddress(dll, "VvfpRelookLastName") : NULL;
+        state = relook ? 1 : -1;
+    }
+    if (state != 1 || before == NULL
+        || sscanf_s(before, "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d", &oh, &ob, &nh, &nb) != 4) {
+        return;
+    }
+    male = strcmp(sex_text(g, record), "Male") == 0;
+    if (!male && strcmp(sex_text(g, record), "Female") != 0) {
+        return;
+    }
+    copy_villager_name(g, record, name, sizeof name);
+    (void)relook(name, male, oh, ob, nh, nb, last_names_slot());
 }
 
 /* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not
@@ -4094,6 +4136,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
         heading = "Epitaph changed\n";
     } else if (kind == KIND_APPEARANCE) {
         heading = "Appearance changed\n";
+        relook_last_name(g, record, before);
     }
     copy_villager_name(g, record, name, sizeof name);
     preference_text(g, record, g->likes, likes, sizeof likes);

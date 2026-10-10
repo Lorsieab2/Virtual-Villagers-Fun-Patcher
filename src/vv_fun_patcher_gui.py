@@ -279,6 +279,42 @@ def _documents_folder() -> Path:
     return Path.home() / "Documents"
 
 
+def last_name_row(v, parents: dict) -> str:
+    """A villager's row in the last-names windows: "Goro Wanjiko (Male) -- father Kito Wanjiko, mother
+    Chika Helaku", "Iruwa Bandele (Female) -- arrived".  Never their head or body (the owner)."""
+    father, mother = parents.get(v.identity, (None, None))
+    who = f"{v.name} ({v.sex or 'sex unknown'}{'' if v.alive else ', no longer in the village'})"
+    if father or mother:
+        who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
+    if v.arrived:
+        # The owner, 2026-10-07: "All newly-spawned villagers from events will default to
+        # no last name" -- (no last name) unless the player picks or types one; an event's
+        # copy of a villager (parents on record) too.
+        who += " -- arrived"
+    return who
+
+
+def last_name_rows(people: list, parents: dict) -> list[str]:
+    """Each villager's row (last_name_row), in their order.  Rows that would read alike are told apart
+    by age -- " -- aged N", in years as the logs word them -- and those still alike (same-named twins) by
+    " -- 1 of 2", " -- 2 of 2" in the game's own order (the owner: "no body/head value")."""
+    rows = [last_name_row(v, parents) for v in people]
+    for _round in range(2):
+        seen: dict[str, list[int]] = {}
+        for k, text in enumerate(rows):
+            seen.setdefault(text, []).append(k)
+        for same in seen.values():
+            if len(same) < 2:
+                continue
+            for n, k in enumerate(same, 1):
+                age = getattr(people[k], "age", None)
+                if _round == 0:
+                    if age is not None:
+                        rows[k] += f" -- aged {age // vv_genealogy.UNITS_PER_YEAR}"
+                else:
+                    rows[k] += f" -- {n} of {len(same)}"
+    return rows
+
 class _LastNamesKind:
     """The questions window's label for the last names' questions."""
     label = "Last names"
@@ -3335,8 +3371,18 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The cut names were not restored. {exc}", parent=parent)
+        # The village's rule and each villager's own, first: kept under the names they have now, then
+        # carried by the renames below.
+        ruled = None
+        if names is not None and names.get("rules_changed"):
+            try:
+                ruled = self._run_with_wait(
+                    "Keeping the last-name rules…",
+                    lambda: vv_last_names.save_own_rules(folder, number, info.slot, names["rule"], names["own"]))
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The last-name rules were not kept. {exc}", parent=parent)
         renamed = None
-        if names is not None:
+        if names is not None and names["chosen"]:
             try:
                 renamed = self._run_with_wait(
                     "Giving the last names…\n\nThe save folder is backed up first.",
@@ -3372,6 +3418,9 @@ class App(tk.Tk):
                          f"({', '.join(f'{old} -> {new}' for (old, _h, _b), new in restored.renamed.items())}), "
                          f"in the save and {len(restored.files) - 1} other file(s). "
                          f"Backup: {restored.backup.backup_folder}")
+        if ruled is not None:
+            lines.append(f"Last names come from: {vv_last_names.INHERIT[names['rule']]}; "
+                         f"{len(ruled)} villager(s) with a rule of their own.")
         if renamed is not None:
             lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
                          f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
@@ -3573,7 +3622,8 @@ class App(tk.Tk):
         def go() -> None:
             restore = bool(cuts) and cuts_var.get()
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
-                                 names if names_var.get() and names["chosen"] and not restore else None,
+                                 names if names_var.get() and (names["chosen"] or names.get("rules_changed"))
+                                 and not restore else None,
                                  next(k for k, v in vv_genealogy.NUMBER_ORDERS.items() if v == number_order_var.get())
                                  if number_var.get() and not restore else None,
                                  restore,
@@ -3636,6 +3686,17 @@ class App(tk.Tk):
         rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["father"]))
         ttk.Combobox(rule_row, textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
                      state="readonly", width=34).pack(side="left", padx=(6, 0))
+        # Each living villager's own rule for their children's last name (the owner, 2026-10-09), beside
+        # the village's: the record's, or what the player chose here before.
+        living_keys = {vv_last_names.own_key(v) for v in people if v.alive}
+        saved_own = {k: r for k, r in vv_last_names.own_rules_now(folder, number, info.slot, people).items()
+                     if k in living_keys}
+        # The record's lines as written: a line re-keyed above (a change of looks) is written again on Repair.
+        written_own = {k: r for k, r in vv_last_names.read_own(folder, number, info.slot).items() if k in living_keys}
+        own_state: dict = dict(names["own"]) if "own" in names else dict(saved_own)
+        ttk.Button(rule_row, text="Each villager's own rule…",
+                   command=lambda: self._own_rules_dialog(window, people, parents, own_state, lambda: by_rule())
+                   ).pack(side="left", padx=(8, 0))
         wrong_var = tk.StringVar()
         ttk.Label(window, textvariable=wrong_var, padding=(12, 4, 12, 0), foreground="#a33", wraplength=700,
                   justify="left").pack(anchor="w")
@@ -3653,16 +3714,7 @@ class App(tk.Tk):
         mine: set = set(names.get("mine", ()))
         mine |= {v.identity for v in people if (split(v.name)[0], v.head, v.body) in recorded}
         filling = [False]                       # the window itself is filling the rows in
-        for row, v in enumerate(people):
-            father, mother = parents.get(v.identity, (None, None))
-            who = f"{v.name} ({v.sex or 'sex unknown'}{'' if v.alive else ', no longer in the village'})"
-            if father or mother:
-                who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
-            if v.arrived:
-                # The owner, 2026-10-07: "All newly-spawned villagers from events will default to
-                # no last name" -- (no last name) unless the player picks or types one; an event's
-                # copy of a villager (parents on record) too.
-                who += " -- arrived"
+        for row, (v, who) in enumerate(zip(people, last_name_rows(people, parents))):
             ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
             start_value = names["chosen"].get(v.identity, now[v.identity])
             value = tk.StringVar(value=start_value or none)
@@ -3735,7 +3787,7 @@ class App(tk.Tk):
             # The rest of a family follows the name the player gives one of them: their brothers
             # and sisters, and their descendants by the rule.
             return vv_last_names.inherited(people, parents, rule_key(), pool,
-                                           vv_last_names.with_siblings(fixed(), parents), carried)
+                                           vv_last_names.with_siblings(fixed(), parents), carried, own_state)
 
         def marks() -> None:
             """A last name the rule does not give -- in the box now -- is marked."""
@@ -3796,6 +3848,8 @@ class App(tk.Tk):
             mine.update(v.identity for v, _value, _m in rows)
 
         rule_var.trace_add("write", by_rule)
+        rule_touched = [bool(names.get("rule_touched"))]
+        rule_var.trace_add("write", lambda *_a: rule_touched.__setitem__(0, True))
         if not names["chosen"] and not any(now.values()):
             by_rule()
         else:
@@ -3832,7 +3886,13 @@ class App(tk.Tk):
             names["whole"] = whole
             names["mine"] = set(mine)
             names["mine_names"] = {key: last for key, last in fixed().items()}
-            names_var.set(bool(chosen))
+            names["own"] = {key: r for key, r in own_state.items() if r and key in living_keys}
+            names["rule_touched"] = rule_touched[0]
+            # The village's rule and the villagers' own are kept even when no name changes.
+            # A village with no record yet keeps the rule shown only once the player picks one.
+            names["rules_changed"] = names["own"] != written_own or (
+                rule_key() != recorded_rule and (recorded_rule is not None or rule_touched[0]))
+            names_var.set(bool(chosen) or names["rules_changed"])
             window.destroy()
 
         ttk.Button(buttons, text="Fix wrong last names", command=by_rule).pack(side="left")
@@ -3844,6 +3904,72 @@ class App(tk.Tk):
         parent.wait_window(window)
         _regrab(parent)
 
+    def _own_rules_dialog(self, parent, people: list, parents: dict, own: dict, changed) -> None:
+        """Each living villager's own rule for their children's last name (the owner, 2026-10-09: "so
+        certain villagers can pass their last name with different rules from the rest of the
+        village"): "Use the village rule" or one of their own, kept in `own` on OK.  The rows read as
+        the last-names window's (last_name_rows), in its order.  Villagers a birth could not tell apart
+        (the same name, looks and sex) cannot have one."""
+        alike = vv_last_names.indistinguishable(people)
+        words = vv_last_names.OWN_RULES
+        shown = [v for v in people if v.alive]
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: each villager's own rule")
+        window.transient(parent)
+        window.resizable(True, True)
+        ttk.Label(window, padding=(12, 12, 12, 0), wraplength=620, justify="left",
+                  text="Where each living villager's children get their last name, if not by the village "
+                       "rule. When only one parent has a rule of their own, it is used; when both do and they "
+                       "agree, theirs; when they disagree, or neither has one, the village rule. Villagers "
+                       "who share a name, looks and sex cannot have one (number the duplicate names first). "
+                       "The game must stay closed.").pack(side="top", anchor="w")
+        buttons = ttk.Frame(window, padding=12)
+        buttons.pack(side="bottom", anchor="w")
+        body = ttk.Frame(window)
+        body.pack(side="top", fill="both", expand=True)
+        canvas = tk.Canvas(body, width=760, height=max(200, min(460, window.winfo_screenheight() - 300)),
+                           highlightthickness=0)
+        bar = ttk.Scrollbar(body, orient="vertical", command=canvas.yview)
+        inner = ttk.Frame(canvas, padding=12)
+        inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.configure(yscrollcommand=bar.set)
+        bar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+        values: dict = {}
+        for row, (v, who) in enumerate(zip(shown, last_name_rows(shown, parents))):
+            key = vv_last_names.own_key(v)
+            ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
+            if key in alike:
+                ttk.Label(inner, foreground="#a33",
+                          text="the same name, looks and sex as another villager: the village rule").grid(
+                    row=row, column=1, sticky="w", padx=(8, 0))
+            else:
+                values[key] = tk.StringVar(value=words.get(own.get(key, ""), words[""]))
+                ttk.Combobox(inner, textvariable=values[key], values=list(words.values()), state="readonly",
+                             width=22).grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
+
+        def fit_width() -> None:
+            try:
+                inner.update_idletasks()
+                canvas.configure(width=min(inner.winfo_reqwidth(), window.winfo_screenwidth() - 80))
+            except tk.TclError:
+                pass
+
+        def ok() -> None:
+            by_words = {text: rule for rule, text in words.items()}
+            own.clear()
+            own.update({key: by_words[var.get()] for key, var in values.items() if by_words[var.get()]})
+            window.destroy()
+            changed()
+
+        ttk.Button(buttons, text="OK", command=ok).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=8)
+        window.after_idle(fit_width)
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
     def _repair_questions(self, parent, questions: list, answers: dict) -> None:
         """One answer per question, from its own options; kept in `answers`."""
         window = tk.Toplevel(parent)
