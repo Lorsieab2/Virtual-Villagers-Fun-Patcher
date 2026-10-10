@@ -13,3 +13,4 @@ EXPORTS
     VvfpStoryVillageReset=_VvfpStoryVillageReset@8
     VvfpStoryPickGongOutcome=_VvfpStoryPickGongOutcome@8
     VvfpStoryCallerReturn=_VvfpStoryCallerReturn@4
+    VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16

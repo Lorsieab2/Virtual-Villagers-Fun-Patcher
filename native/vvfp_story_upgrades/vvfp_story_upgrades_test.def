@@ -68,3 +68,4 @@ EXPORTS
     VvfpStoryProbeDeliver=_VvfpStoryProbeDeliver@12
     VvfpStoryStats DATA
     VvfpStoryOutcomeStats DATA
+    VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
