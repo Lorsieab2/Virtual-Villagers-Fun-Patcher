@@ -259,7 +259,7 @@ class PawPrintTests(unittest.TestCase):
         pollen = ft.special_border("vine_flowers", "hibiscus", (0.0, 0.0, 160.0, 156.0, 0.0), 0.0, e)
         self.assertTrue(pollen, "the hibiscus's small pollen circles still take one flower each")
 
-    def test_the_face_and_words_are_centred_in_the_box_round_toes_and_pad(self):
+    def test_the_face_is_on_the_pad_and_the_toes_are_filled(self):
         v = village()
         e = ft.Edits()
         for group in ft.GROUPS:
@@ -272,8 +272,13 @@ class PawPrintTests(unittest.TestCase):
         face = next(i for i in sc.items if isinstance(i, ft.Shape) and i.pid == q and i.kind == "ellipse" and i.w < 80)
         words = [i.y for i in sc.items if isinstance(i, ft.Text) and i.pid == q and i.role in ("names", "portraits")]
         self.assertTrue(words)
-        middle = (face.y + max(words)) / 2
-        self.assertLess(abs(middle - (fy + fh / 2)), 0.15 * fh, "the face and words in the middle of the whole box")
+        # Centred in that whole box the face sat in the gap between the toes and the pad (the owner,
+        # 2026-10-09): it is on the pad (face_anchor, FACE_HINTS), the words under it inside the frame.
+        poly = lay.frame_points(q)
+        self.assertTrue(ft.inside(poly, face.x + face.w / 2, face.y + 2))
+        self.assertTrue(ft.inside(poly, face.x + face.w / 2, face.y + face.h - 2))
+        self.assertGreater(face.y, fy + 0.4 * fh, "below the toes")
+        self.assertLessEqual(max(words), fy + fh, "the words inside the frame")
         fills = [i for i in sc.items if isinstance(i, ft.Poly) and i.fill == e.portrait_fill]
         self.assertGreaterEqual(len(fills), 4, "the toes are filled like the pad")
 
