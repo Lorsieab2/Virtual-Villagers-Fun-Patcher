@@ -95,7 +95,12 @@ class ValueTests(unittest.TestCase):
         s.proc.stub(0x43AE80, lambda p: (farm[0], 4))
         return [(0, w + 0x17D58, None), (1, w + 0x17D5C, lambda: farm.__setitem__(0, 1))]
 
-    RANGES = {"vv1": [(0, 5000), (0, 800)], "vv2": [(0, 1500), (0, 2200), (0, 1000), (0, 800)],
+    # A New Home's berry bushes and The Lost Children's fish and field protection
+    # have no ceiling in the game (StoreCeilingEvidenceTests): the berries are
+    # held to what an event may add to food (1,000,000, since harvests turn
+    # them into food), the other two to the most the number box reads.
+    RANGES = {"vv1": [(0, 1_000_000), (0, 800)],
+              "vv2": [(0, 1500), (0, 1_000_000_000), (0, 1_000_000_000), (0, 800)],
               "vv3": [(0, 1000)] * 3 + [(0, 2)] * 3 + [(0, 3000)],
               "vv4": [(0, 1000), (0, 6), (0, 99)], "vv5": [(0, 1000), (0, 800)]}
 
