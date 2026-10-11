@@ -237,6 +237,7 @@ class LayoutTests(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 T_ADULT_WOMEN, T_ADULT_MEN, T_FEMALES, T_MALES, T_CHILDREN = 1, 2, 4, 8, 16
+T_EVERYONE, T_GIRLS, T_BOYS = 32, 64, 128
 
 # (record index, sex, age in years): two adults of each sex, a child of each
 # sex, one villager at exactly the adult boundary (14 years = 280 units) and
@@ -286,6 +287,9 @@ class TargetTests(unittest.TestCase):
             T_FEMALES: [0, 3, 5, 8],
             T_MALES: [1, 4, 6, 7],
             T_CHILDREN: [4, 5, 6],         # 13.95 years is still a child
+            T_EVERYONE: [0, 1, 3, 4, 5, 6, 7, 8],
+            T_GIRLS: [5],                  # All Female Children
+            T_BOYS: [4, 6],                # All Male Children (13.95 years included)
         }
         for game, story in self._each():
             for toggle, want in expected.items():
@@ -299,6 +303,12 @@ class TargetTests(unittest.TestCase):
                 self.assertEqual(_targets(story, T_ADULT_WOMEN | T_FEMALES), [0, 3, 5, 8])
                 self.assertEqual(_targets(story, T_ADULT_MEN | T_CHILDREN), [1, 4, 5, 6, 7])
                 self.assertEqual(_targets(story, 31), [0, 1, 3, 4, 5, 6, 7, 8])
+                # the two child halves make All Children; Everyone with anything is everyone
+                self.assertEqual(_targets(story, T_GIRLS | T_BOYS), _targets(story, T_CHILDREN))
+                self.assertEqual(_targets(story, T_EVERYONE | T_GIRLS, (1,)), [0, 1, 3, 4, 5, 6, 7, 8])
+                self.assertEqual(_targets(story, 0xFF), [0, 1, 3, 4, 5, 6, 7, 8])
+                # a bit no toggle owns is ignored
+                self.assertEqual(_targets(story, 0x100), [])
 
     def test_list_selection_combines_with_toggles_without_duplicates(self):
         for game, story in self._each():
@@ -2064,7 +2074,24 @@ class DialogResourceTests(unittest.TestCase):
         self.assertTrue(controls[2001][2] & LBS_EXTENDEDSEL, "Ctrl+click / Shift+click selection")
         self.assertEqual([controls[2002 + k][1] for k in range(5)],
                          ["All Adult Women", "All Adult Men", "All Females", "All Males", "All Children"])
+        # The owner (2026-10-04): Everyone, All Female Children, All Male Children.
+        self.assertEqual([controls[k][1] for k in (2008, 2084, 2085)],
+                         ["Everyone", "All Female Children", "All Male Children"])
         self.assertEqual(_dialogs(self.DLL)[302][0], "Custom Island Event")
+
+    def test_ctrl_a_selects_every_row_of_each_multiple_selection_list(self):
+        """The owner (2026-10-04): Ctrl+A selects all in every villager (and
+        other multiple-selection) list of the editor."""
+        ui = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom_ui.inc").read_text(encoding="utf-8")
+        rc = (ROOT / "native" / "vvfp_story_upgrades" / "vvfp_story_upgrades.rc").read_text(encoding="utf-8")
+        self.assertIn("Ctrl+A all", rc)
+        proc = ui[ui.index("static LRESULT CALLBACK ui_list_proc"):][:1400]
+        self.assertIn("wparam == 'A' && (GetKeyState(VK_CONTROL) & 0x8000)", proc)
+        self.assertIn("LB_SETSEL, TRUE, (LPARAM)-1", proc)
+        self.assertIn("LBN_SELCHANGE", proc, "the chosen count follows, as a click's does")
+        for lst in ("IDC_CH_LIST", "IDC_PZ_LIST", "IDC_RV_LIST", "IDC_CE_VILLAGE"):
+            with self.subTest(list=lst):
+                self.assertIn(f"ui_select_all_on(window, {lst});", ui)
 
     def test_the_tech_menu_offers_custom_island_event(self):
         bridge = (ROOT / "native" / "shared" / "story_bridge.h").read_text(encoding="utf-8")

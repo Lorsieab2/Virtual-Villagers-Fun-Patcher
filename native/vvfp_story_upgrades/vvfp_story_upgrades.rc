@@ -114,14 +114,17 @@ STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMEN
 CAPTION "Villager changes"
 FONT 9, "Segoe UI"
 BEGIN
-    LTEXT       "Villagers (Ctrl+click to add or remove one, Shift+click for a range):", -1, 8, 6, 190, 18
+    LTEXT       "Villagers (Ctrl+click adds or removes one, Shift+click a range, Ctrl+A all):", -1, 8, 6, 190, 18
     LISTBOX     2001, 8, 26, 190, 188, LBS_NOTIFY | LBS_EXTENDEDSEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
     AUTOCHECKBOX "All Adult Women", 2002, 8, 218, 95, 10, WS_TABSTOP
     AUTOCHECKBOX "All Adult Men", 2003, 104, 218, 95, 10, WS_TABSTOP
     AUTOCHECKBOX "All Females", 2004, 8, 230, 95, 10, WS_TABSTOP
     AUTOCHECKBOX "All Males", 2005, 104, 230, 95, 10, WS_TABSTOP
     AUTOCHECKBOX "All Children", 2006, 8, 242, 95, 10, WS_TABSTOP
-    LTEXT       "", 2007, 8, 256, 190, 20
+    AUTOCHECKBOX "Everyone", 2008, 104, 242, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Female Children", 2084, 8, 254, 95, 10, WS_TABSTOP
+    AUTOCHECKBOX "All Male Children", 2085, 104, 254, 95, 10, WS_TABSTOP
+    LTEXT       "", 2007, 8, 266, 190, 12
 
     LTEXT       "Fate:", -1, 206, 8, 70, 10
     COMBOBOX    2010, 280, 6, 172, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP

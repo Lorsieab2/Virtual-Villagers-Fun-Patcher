@@ -25,6 +25,7 @@ enum {
     IDC_RV_ALL = 3505,
     IDC_UB_NAME = 3601, IDC_UB_HEAD = 3602, IDC_UB_BODY = 3603, IDC_UB_RANGE = 3604,
     IDC_CH_UNBORN = 2082, IDC_CH_UNBORN_NOTE = 2083,
+    IDC_CH_EVERYONE = 2008, IDC_CH_GIRLS = 2084, IDC_CH_BOYS = 2085,
     IDC_CE_TITLE = 1101, IDC_CE_TEXT = 1102, IDC_CE_FOOD_OP = 1103, IDC_CE_FOOD = 1104,
     IDC_CE_TECH_OP = 1105, IDC_CE_TECH = 1106, IDC_CE_REFILL = 1107, IDC_CE_VILLAGE = 1108,
     IDC_CE_TEXT_NOTE = 1109, IDC_CE_NOTE = 1110, IDC_CE_SPAWNS = 1111, IDC_CE_SPAWN_ADD = 1112,
@@ -78,12 +79,65 @@ static struct {
 /* The main dialog's two uses, its DialogBoxParam argument. */
 enum { UI_MODE_EVENT = 0, UI_MODE_OUTCOME = 1 };
 
-static const char *const UI_TOGGLE_NAMES[5] = {
-    "All Adult Women", "All Adult Men", "All Females", "All Males", "All Children"
+#define UI_TOGGLES 8
+static const char *const UI_TOGGLE_NAMES[UI_TOGGLES] = {
+    "All Adult Women", "All Adult Men", "All Females", "All Males", "All Children",
+    "Everyone", "All Female Children", "All Male Children"
 };
-static const unsigned int UI_TOGGLE_BITS[5] = {
-    STORY_T_ADULT_WOMEN, STORY_T_ADULT_MEN, STORY_T_FEMALES, STORY_T_MALES, STORY_T_CHILDREN
+static const unsigned int UI_TOGGLE_BITS[UI_TOGGLES] = {
+    STORY_T_ADULT_WOMEN, STORY_T_ADULT_MEN, STORY_T_FEMALES, STORY_T_MALES, STORY_T_CHILDREN,
+    STORY_T_EVERYONE, STORY_T_GIRLS, STORY_T_BOYS
 };
+/* The toggles' check boxes (the first five were laid out together). */
+static const int UI_TOGGLE_IDS[UI_TOGGLES] = {
+    IDC_CH_TOGGLE_FIRST, IDC_CH_TOGGLE_FIRST + 1, IDC_CH_TOGGLE_FIRST + 2, IDC_CH_TOGGLE_FIRST + 3,
+    IDC_CH_TOGGLE_FIRST + 4, IDC_CH_EVERYONE, IDC_CH_GIRLS, IDC_CH_BOYS
+};
+
+static int ui_is_toggle(int id) {
+    int i;
+    for (i = 0; i < UI_TOGGLES; ++i) {
+        if (UI_TOGGLE_IDS[i] == id) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Ctrl+A in a multiple-selection list box selects every row (a list box
+   has no accelerator of its own).  The dialogs are modal, so the keystroke
+   is seen by the list's own window procedure: each multiple-selection list
+   is subclassed (ui_select_all_on) to turn Ctrl+A into "select all" and
+   tell its dialog the selection changed, as a click does. */
+#define UI_LIST_PROP "VvfpStoryListProc"
+
+static LRESULT CALLBACK ui_list_proc(HWND list, UINT message, WPARAM wparam, LPARAM lparam) {
+    WNDPROC original = (WNDPROC)GetPropA(list, UI_LIST_PROP);
+    /* The key itself selects; the character it then makes (0x01) would
+       otherwise be a type-ahead search for a row. */
+    if ((message == WM_KEYDOWN && wparam == 'A' && (GetKeyState(VK_CONTROL) & 0x8000))
+        || (message == WM_CHAR && wparam == 1)) {
+        if (message == WM_KEYDOWN) {
+            SendMessageA(list, LB_SETSEL, TRUE, (LPARAM)-1);
+            SendMessageA(GetParent(list), WM_COMMAND, MAKEWPARAM(GetDlgCtrlID(list), LBN_SELCHANGE),
+                         (LPARAM)list);
+        }
+        return 0;
+    }
+    if (message == WM_NCDESTROY) {
+        SetWindowLongPtrA(list, GWLP_WNDPROC, (LONG_PTR)original);
+        RemovePropA(list, UI_LIST_PROP);
+    }
+    return CallWindowProcA(original, list, message, wparam, lparam);
+}
+
+static void ui_select_all_on(HWND window, int id) {
+    HWND list = GetDlgItem(window, id);
+    if (list != NULL && GetPropA(list, UI_LIST_PROP) == NULL) {
+        SetPropA(list, UI_LIST_PROP, (HANDLE)GetWindowLongPtrA(list, GWLP_WNDPROC));
+        SetWindowLongPtrA(list, GWLP_WNDPROC, (LONG_PTR)ui_list_proc);
+    }
+}
 
 static void ui_message(HWND owner, const char *text) {
     MessageBoxA(owner, text, "Custom Island Event",
@@ -304,8 +358,8 @@ static INT_PTR CALLBACK ui_unborn_dialog(HWND window, UINT message, WPARAM wpara
 static unsigned int ui_toggles(HWND window) {
     unsigned int toggles = 0;
     int i;
-    for (i = 0; i < 5; ++i) {
-        if (IsDlgButtonChecked(window, IDC_CH_TOGGLE_FIRST + i) == BST_CHECKED) {
+    for (i = 0; i < UI_TOGGLES; ++i) {
+        if (IsDlgButtonChecked(window, UI_TOGGLE_IDS[i]) == BST_CHECKED) {
             toggles |= UI_TOGGLE_BITS[i];
         }
     }
@@ -552,9 +606,10 @@ static void ui_setup_changes(HWND window) {
         row = (int)SendDlgItemMessageA(window, IDC_CH_LIST, LB_ADDSTRING, 0, (LPARAM)text);
         SendDlgItemMessageA(window, IDC_CH_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
     }
-    for (i = 0; i < 5; ++i) {
-        SetDlgItemTextA(window, IDC_CH_TOGGLE_FIRST + i, UI_TOGGLE_NAMES[i]);
+    for (i = 0; i < UI_TOGGLES; ++i) {
+        SetDlgItemTextA(window, UI_TOGGLE_IDS[i], UI_TOGGLE_NAMES[i]);
     }
+    ui_select_all_on(window, IDC_CH_LIST);
     ui_combo_add(window, IDC_CH_FATE, "No change", CE_FATE_NONE);
     if (a->caps & CAP_KILL) ui_combo_add(window, IDC_CH_FATE, "Dies (leaves a skeleton)", CE_FATE_KILL);
     if (a->caps & CAP_VANISH) ui_combo_add(window, IDC_CH_FATE, "Disappears (no skeleton)", CE_FATE_VANISH);
@@ -631,7 +686,7 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
     if (message == WM_COMMAND) {
         int id = LOWORD(wparam);
         if ((id == IDC_CH_LIST && HIWORD(wparam) == LBN_SELCHANGE)
-            || (id >= IDC_CH_TOGGLE_FIRST && id < IDC_CH_TOGGLE_FIRST + 5)) {
+            || ui_is_toggle(id)) {
             ui_show_count(window);
             return TRUE;
         }
@@ -926,6 +981,7 @@ static INT_PTR CALLBACK ui_puzzles_dialog(HWND window, UINT message, WPARAM wpar
         for (i = 0; i < ui.draft.puzzle_count; ++i) {
             ui.puzzles[ui.draft.puzzles[i].which] = ui.draft.puzzles[i].solved;
         }
+        ui_select_all_on(window, IDC_PZ_LIST);
         ui_puzzles_fill(window);
         return TRUE;
     }
@@ -1017,6 +1073,7 @@ static INT_PTR CALLBACK ui_revive_dialog(HWND window, UINT message, WPARAM wpara
         char text[96];
         int i;
         int k;
+        ui_select_all_on(window, IDC_RV_LIST);
         for (i = 0; i < n; ++i) {
             const unsigned char *r = ui.a->record(skeletons[i]);
             int row;
@@ -1340,6 +1397,7 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
         if (ui.draft.food_amount > 0) SetDlgItemInt(window, IDC_CE_FOOD, (UINT)ui.draft.food_amount, FALSE);
         if (ui.draft.tech_amount > 0) SetDlgItemInt(window, IDC_CE_TECH, (UINT)ui.draft.tech_amount, FALSE);
         CheckDlgButton(window, IDC_CE_REFILL, ui.draft.refill ? BST_CHECKED : BST_UNCHECKED);
+        ui_select_all_on(window, IDC_CE_VILLAGE);
         for (i = 0; i < a->village_count; ++i) {
             SendDlgItemMessageA(window, IDC_CE_VILLAGE, LB_ADDSTRING, 0, (LPARAM)a->villages[i]);
             if (ui.draft.village & (1u << i)) {
