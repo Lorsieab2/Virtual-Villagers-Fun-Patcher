@@ -1,3 +1,0 @@
-LIBRARY "VVFP Population Export"
-EXPORTS
-    WriteVillagePopulation=_WriteVillagePopulation@12
