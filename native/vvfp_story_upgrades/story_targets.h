@@ -22,8 +22,14 @@
 #define STORY_T_FEMALES 0x04u
 #define STORY_T_MALES 0x08u
 #define STORY_T_CHILDREN 0x10u
+/* The owner (2026-10-04): "Everyone", "All Female Children" and "All Male
+   Children" too.  Everyone is every villager the list shows. */
+#define STORY_T_EVERYONE 0x20u
+#define STORY_T_GIRLS 0x40u
+#define STORY_T_BOYS 0x80u
 #define STORY_T_ALL (STORY_T_ADULT_WOMEN | STORY_T_ADULT_MEN | STORY_T_FEMALES \
-                     | STORY_T_MALES | STORY_T_CHILDREN)
+                     | STORY_T_MALES | STORY_T_CHILDREN | STORY_T_EVERYONE \
+                     | STORY_T_GIRLS | STORY_T_BOYS)
 
 #define STORY_SEX_MALE 1
 #define STORY_SEX_FEMALE 2
@@ -53,6 +59,15 @@ static int story_toggle_matches(const story_member *m, unsigned int toggles, int
         return 1;
     }
     if ((toggles & STORY_T_CHILDREN) && !adult) {
+        return 1;
+    }
+    if (toggles & STORY_T_EVERYONE) {
+        return 1;
+    }
+    if ((toggles & STORY_T_GIRLS) && !adult && m->sex == STORY_SEX_FEMALE) {
+        return 1;
+    }
+    if ((toggles & STORY_T_BOYS) && !adult && m->sex == STORY_SEX_MALE) {
         return 1;
     }
     return 0;
