@@ -1,3 +1,0 @@
-LIBRARY "VVFP Healers Study"
-EXPORTS
-    VvfpHealersStudyInstall=_VvfpHealersStudyInstall@4
