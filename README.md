@@ -36,6 +36,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 - **Log parity:** A New Home's Unaccounted and Arrived records name the villager's parents, as the other games' do; Deaths and Repairs numbers continue after an older build's folders, so no number is used twice.
 - **Full likes and dislikes everywhere.** The Village Population and Village History logs and every Birth, Arrived, Death, Disappeared, Unaccounted, Appearance changed and Island Events record now list a villager's whole likes and dislikes, not only the first one the Details screen shows, in all five games.
 - **Family Tree Maker:** generation label boxes hold every line at any font size; "1 male" / "1 female"; page names are no longer cut short.
+- **Fix Vanilla Bugs: the Details screen's Likes and Dislikes line** (download replaced on 2026-10-10, same version). In A New Home and The Lost Children the game's own line ran past the last word of its list ("sleeping" / "dirt"), so later likes vanished or garbage appeared, and The Lost Children could overflow its buffer; the line now shows every like and dislike, skips a slot outside the list, and ends in "..." when it does not fit. Every line the base game already showed correctly looks exactly the same. In all five games a negative slot is left out instead of showing "ants".
 - **Patch every game again** after updating: the logging and Origins companions changed.
 
 
