@@ -384,6 +384,7 @@ so a custom event is refused until it has happened.
 | Title and description (live word / character / panel-line counter) | yes | yes | yes | yes | yes |
 | Food / tech points | yes | yes | yes | yes | yes |
 | Refill food sources | berries; crops once the farm produces | coconut trees; crops while planted (not fish / soil: puzzle-gated) | fruit trees (0x4340A0) | berry bushes | noni bushes; crops once built |
+| Food sources set to an amount ("Food sources...") | berry bushes 0-1,000,000 (the game has no ceiling, but harvests turn berries into food, so the store keeps the event's own food headroom); crops 0-800 (cut back each tick, 0x42F2CE) | coconut trees 0-1,500 (cut back each regrowth tick, 0x43B9E2); fish and field protection 0-1,000,000,000 (no ceiling: set only for a new village, only lowered, read only as "above 0"); crops 0-800 | fruit 0-1,000 per tree; tree kind 0-2 | blackberries 0-1,000 (0x4203E1); cutting tools 0-6 (0x4369F0); soap 0-99 | noni 0-1,000 (0x425F7A); crops 0-800 |
 | New villagers | creator 0x43C350 | 0x44F580 | 0x45FF50 | 0x467D10 | believers, 0x471E20 |
 | Dies (skeleton) | health 0 | health 0 | 0x462670(0, -1) | stop + 0x46AF00(0, -1) | stop + SetHealth(0, 2) |
 | Disappears (no skeleton) | as "a closer look" (0x41979D) | as A Dangerous Mission | as the Tsunami (0x45D990) | as The Sealed Box | presence byte +0x1CD4 cleared, after the stop (0x473440) and the manager release (0x470800) |
@@ -440,11 +441,17 @@ should have a chance of multiple outcomes too."
 
 Tick **Ask a question with two choices** in the Custom Island Event dialog and
 the description becomes the **question**; **Choices...** opens a dialog with
-the two **button labels** and, for each button, a list of one to four
+the two **button labels** and, for each button, a list of one to sixteen
 **outcomes** (Add / Edit / Remove, double-click to edit) and the **chance** of
-the chosen outcome (1-100). The note under each list shows every outcome's
-share: its chance out of the button's total (chances 3 and 1 are 75% and
-25%); a button with one outcome always gets it. **Edit** opens the Custom
+the chosen outcome: any whole number from 1, while one button's chances add up
+to at most 32,767. Each row shows the outcome's share: its chance out of the
+button's total (chances 3 and 1 are 75% and 25%; a share that rounds to 0
+reads "under 1%"); a button with one outcome always gets it. The 32,767 is
+the largest bound every game's own random routine draws exactly (rand() % n
+for n up to 0x7FFF: A New Home 0x402F10, The Lost Children 0x4031A0, The
+Secret City 0x4032D0, The Tree of Life 0x4036D0, New Believers 0x403660);
+above it A New Home scales a 15-bit number and a chance of 1 could never come
+up. Sixteen outcomes are the companion's own data (no game limits them). **Edit** opens the Custom
 Island Event dialog again for that outcome: the title is the event's (greyed),
 the text box is the outcome's **Result text**, and every change the Maker
 offers -- food and tech, refill, village changes, new villagers, villager
@@ -481,8 +488,8 @@ Believers must show one (their two-button popup is not drawn without it).
 
 Every value is checked when OK is pressed and again when the event is bought:
 both labels non-empty and within the game's label width (letters, numbers,
-spaces and . , ! ? : - ' only), one to four outcomes per button, each chance
-1-100, each result text non-empty and fitting the result popup, and the usual
+spaces and . , ! ? : - ' only), one to sixteen outcomes per button, each chance
+at least 1 and the button's chances adding up to at most 32,767, each result text non-empty and fitting the result popup, and the usual
 room checks for each outcome's new villagers and babies. The engine is
 `ce_choice_*` in `native/vvfp_story_upgrades/story_custom.inc`; the data is
 `ce_choice` / `ce_outcome` in `story_custom.h`.

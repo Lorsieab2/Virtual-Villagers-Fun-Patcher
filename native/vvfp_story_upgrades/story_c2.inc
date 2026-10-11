@@ -501,10 +501,17 @@ static int c2_refill(void) {
 static const ce_value_def C2_VALUES[] = {
     { "Coconut trees", 0, 1500,
       "One store for all three trees; the game's own ceiling is 1500." },
-    { "Fish", 0, 2200,
+    /* Fish and the field's protection have no ceiling in the game: each is set
+       only when a village is made (0x425257, 0x425261, 0x42559D, 0x4255B7),
+       only ever lowered (11 a catch 0x463305, a harvest 0x463264), and every
+       reader only asks whether it is above 0 (fish 0x425B00, 0x45536B,
+       0x45E562, 0x45FDF4, 0x460970; protection 0x425AD3); a catch's food does
+       not depend on the store.  Nothing adds to them, so any amount the
+       number box takes is safe. */
+    { "Fish", 0, CE_MAX_STORE,
       "A new village has 2200, 1100 or 550 by its difficulty; at 0 fishing stops until "
       "the algae-eating fish puzzle is solved." },
-    { "Field protection from birds", 0, 1000,
+    { "Field protection from birds", 0, CE_MAX_STORE,
       "Used up by harvests; at 0 the birds take the field until the scarecrow is built. "
       "A new village has 1000." },
     { "Crops", 0, 800, "Only while the farm is planted (after The Dam). The ceiling is 800." },
