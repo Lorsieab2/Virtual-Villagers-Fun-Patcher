@@ -137,10 +137,16 @@ PERCENT_FIXES = (  # '%' in a name never a format; text boxes refuse it (#566)
     (0x0000C8BB, bytes.fromhex("8B71308814308B5130C644020100"), bytes.fromhex("83FA2574278B71306689143089F2")),
 )
 
+# The Details screen's Likes/Dislikes (tests/test_vanilla_likes_panel.py).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from test_vanilla_likes_panel import likes_fixes  # noqa: E402
+
+LIKES_FIXES = likes_fixes("vv2")
+
 
 def _allowed() -> set[int]:
     allowed = set(range(HOOK_OFFSET, HOOK_OFFSET + 5)) | set(range(SWAP_OFFSET, SWAP_OFFSET + SWAP_LENGTH))
-    for offset, before, _ in NAME_FIXES + PERCENT_FIXES:
+    for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES:
         allowed.update(range(offset, offset + len(before)))
     return allowed
 
@@ -284,9 +290,9 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("**Needs no other patch.**", raw["description"])
         offsets = [(int(p["offset"], 16), len(bytes.fromhex(p["before"]))) for p in raw["patches"]]
         self.assertEqual(offsets, [(HOOK_OFFSET, 5), (SWAP_OFFSET, SWAP_LENGTH)]
-                         + [(offset, len(before)) for offset, before, _ in NAME_FIXES + PERCENT_FIXES])
+                         + [(offset, len(before)) for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES])
         self.assertEqual([(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
-                          for p in raw["patches"][2:]], list(NAME_FIXES + PERCENT_FIXES))
+                          for p in raw["patches"][2:]], list(NAME_FIXES + PERCENT_FIXES + LIKES_FIXES))
         self.assertEqual(bytes.fromhex(raw["patches"][0]["before"]), HOOK_STOCK)
         self.assertEqual(bytes.fromhex(raw["patches"][0]["after"]), HOOK_PATCHED)
         self.assertEqual(bytes.fromhex(raw["patches"][1]["before"]), self.stock[SWAP_OFFSET:SWAP_OFFSET + SWAP_LENGTH])

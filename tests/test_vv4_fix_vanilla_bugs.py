@@ -85,7 +85,13 @@ PERCENT_FIXES = (  # '%' in a name never a format; text boxes refuse it (#566)
     (0x000402B9, bytes.fromhex("8D8E9C1B0000518D54242C52E81114030083C408"), bytes.fromhex("8D8E9C1B000051B872A84800EBE2909090909090")),
     (0x0000D813, bytes.fromhex("8B71308814308B5130C644020100"), bytes.fromhex("83FA2574108B71306689143089F2")),
 )
-FIXES = FIXES + PERCENT_FIXES
+
+# The Details screen's Likes/Dislikes (tests/test_vanilla_likes_panel.py).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from test_vanilla_likes_panel import likes_fixes  # noqa: E402
+
+LIKES_FIXES = likes_fixes("vv4")
+FIXES = FIXES + PERCENT_FIXES + LIKES_FIXES
 
 
 def _vv4():

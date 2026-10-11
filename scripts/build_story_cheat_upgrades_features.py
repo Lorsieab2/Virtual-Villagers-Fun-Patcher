@@ -164,8 +164,6 @@ CUSTOM_OMITTED = {
     "vv1": [{"option": "Golden Child", "reason": "only the game's own puzzle makes one; the creator's "
              "family 0xC7 forces sex, age and looks, and the puzzle's own state would no longer agree"},
             {"option": "puzzle solved", "reason": "no completion routine that can be called on its own"},
-            {"option": "the 47th like word (sleeping)", "reason": "the game never uses it and its "
-             "list reader can overrun on it"},
             {"option": "faction, chief, elders, totems", "reason": "A New Home has none"}],
     "vv2": [{"option": "puzzle solved", "reason": "each puzzle is tied to its objects and goal messages; "
              "no completion routine that can be called on its own"},
