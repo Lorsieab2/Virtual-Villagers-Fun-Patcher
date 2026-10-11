@@ -1,5 +1,0 @@
-LIBRARY "VVFP VV4 Full Heal Candidate"
-EXPORTS
-    ShowVV4FullHealConfirmation
-    ShowVV4FullHealResult
-    VV4FullHealContractMarker
