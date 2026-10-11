@@ -153,6 +153,14 @@ DISAPPEARANCES = {
 }
 
 
+RESPELT_TEXT = (
+    "The logs spell causes and epitaphs as New Believers does: where this game's own epitaph "
+    "is spelt differently (such as \"Child Of the Earth\"), the logs write New Believers' "
+    "\"Child of the Earth\"; the game's grave screen is unchanged, and an epitaph you type is "
+    "logged exactly as typed. "
+)
+
+
 def logs_text(n: str, game: str) -> str:
     gone = DISAPPEARANCES[game]
     gone_text = (f"a villager taken with no skeleton ({gone}, or the Custom Island Event's "
@@ -169,6 +177,7 @@ def logs_text(n: str, game: str) -> str:
         "in the game's own units (20 per year, as the Village Population log prints Age), the cause, "
         f"the grave and the epitaph. A villager brought back to life gets no Death record. {gone_text[0].upper()}{gone_text[1:]}, "
         "and editing a grave's epitaph adds an \"Epitaph changed\" record with the old and new text. "
+        + (RESPELT_TEXT if game in ("vv2", "vv3", "vv4") else "") +
         "At every save, the village is checked against the one saved before: a villager who left "
         "with no Death or Disappeared record, or arrived with no birth or known arrival, is written "
         f"with everything known about them to the Unaccounted Villagers log ('Virtual Villagers {n} "

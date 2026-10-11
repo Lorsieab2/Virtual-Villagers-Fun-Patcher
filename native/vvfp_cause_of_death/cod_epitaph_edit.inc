@@ -44,6 +44,7 @@ static void epitaph_log(const unsigned char *name, unsigned int name_capacity, i
     char before[400];
     char old_line[72];
     char new_line[72];
+    const char *old_words;
     unsigned int n = name_capacity < r->name_capacity ? name_capacity : r->name_capacity;
     if (edit_scratch == NULL) {
         edit_scratch = (unsigned char *)VirtualAlloc(NULL, r->stride, MEM_COMMIT | MEM_RESERVE,
@@ -58,8 +59,12 @@ static void epitaph_log(const unsigned char *name, unsigned int name_capacity, i
     *(int *)(edit_scratch + r->age) = age;
     cod_printable(old_line, sizeof old_line, old_text, 0x41);
     cod_printable(new_line, sizeof new_line, new_text, 0x41);
+    /* The old text in New Believers' spelling when it is one of the game's
+       own burial lines (cod_vv5_spelling); the new one is what the player
+       has just typed and is logged exactly as typed. */
+    old_words = cod_vv5_spelling(old_line);
     wsprintfA(before, "  Age at death: %d\n  Grave: %s\n  Old epitaph: %s\n  New epitaph: %s\n",
-              age, title, old_line[0] ? old_line : "(none)", new_line[0] ? new_line : "(none)");
+              age, title, old_words[0] ? old_words : "(none)", new_line[0] ? new_line : "(none)");
     cod_write(LOG_EPITAPH, edit_scratch, 0, before, NULL, 0);
 }
 

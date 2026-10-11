@@ -160,6 +160,49 @@ static const char *const EPITAPHS[EPITAPH_COUNT] = {
     "Loving and Special"
 };
 
+/* The owner: "For the Causes of Death and the Epitaphs, please use the
+   spelling/capitalization that VV5 uses."  The cause words above and the
+   EPITAPHS lines are New Believers' own (its string table, eEulogy* and
+   eStringCauseOfDeath*).  The other games' own burial lines, which they
+   write into their graves and this companion copies into the logs, spell
+   some differently; a log line that is EXACTLY one of that game's own lines
+   is written in New Believers' spelling.  The games' grave screens are
+   untouched, and only lines a game writes at a burial are listed -- any
+   other text, the player's own included, is logged as it is. */
+struct respelling {
+    int game;
+    const char *own;
+    const char *vv5;
+};
+static const struct respelling RESPELLINGS[] = {
+    /* The Lost Children's lines (string ids 0x1E4-0x1EF). */
+    { 2, "Child Of The Earth", "Child of the Earth" },
+    { 2, "Parent, Teacher, Friend ", "Parent, Teacher, Friend" },
+    { 2, "Dedicated To Children", "Dedicated to Children" },
+    { 2, "Guardian Of Health", "Guardian of Health" },
+    { 2, "Dedicated To Others", "Dedicated to Others" },
+    { 2, "Curious And Playful", "Curious and Playful" },
+    { 2, "Loving And Special", "Loving and Special" },
+    /* The Secret City and The Tree of Life (eEulogyTextFarmer1). */
+    { 3, "Child Of the Earth", "Child of the Earth" },
+    { 4, "Child Of the Earth", "Child of the Earth" },
+};
+
+/* `text` in New Believers' spelling when it is one of this game's own
+   burial lines spelt otherwise; `text` itself when not. */
+static const char *cod_vv5_spelling(const char *text) {
+    size_t i;
+    if (text == NULL) {
+        return NULL;
+    }
+    for (i = 0; i < sizeof RESPELLINGS / sizeof RESPELLINGS[0]; ++i) {
+        if (RESPELLINGS[i].game == g_game && strcmp(text, RESPELLINGS[i].own) == 0) {
+            return RESPELLINGS[i].vv5;
+        }
+    }
+    return text;
+}
+
 /* The longest epitaph the later games keep: char[0x20] in the grave. */
 #define EPITAPH_TEXT 32
 
@@ -399,6 +442,9 @@ static void cod_printable(char *out, int size, const char *text, int capacity) {
 static int cod_log_death(const unsigned char *record, int cause, const char *grave,
                          const char *epitaph) {
     char before[512];
+    /* Written at the burial, when the grave has just been made: its epitaph
+       is always the game's own line, never the player's. */
+    epitaph = cod_vv5_spelling(epitaph);
     wsprintfA(before, "  Age at death: %d\n  Cause of death: %s\n  Grave: %s\n  Epitaph: %s\n",
               rec_age(record), cod_cause_words(cause), grave,
               epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)");
