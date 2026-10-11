@@ -1536,10 +1536,6 @@
         "reason": "no completion routine that can be called on its own"
       },
       {
-        "option": "the 47th like word (sleeping)",
-        "reason": "the game never uses it and its list reader can overrun on it"
-      },
-      {
         "option": "faction, chief, elders, totems",
         "reason": "A New Home has none"
       }

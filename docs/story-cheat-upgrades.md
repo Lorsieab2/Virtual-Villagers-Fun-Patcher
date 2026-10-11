@@ -576,8 +576,9 @@ village instead of writing it back.
 
 * A New Home: the Golden Child (only its puzzle makes one; the creator's
   family 0xC7 forces sex, age and looks); puzzle completion (no callable
-  completion routine); the 47th like word (the game never uses it and its
-  list reader can overrun on it).
+  completion routine). The 47th like word ("sleeping") IS offered: the game's
+  own creator never rolls it, and the Details screen's reader that overran on
+  it is fixed by Fix Vanilla Bugs.
 * The Lost Children: puzzle states; fish and soil refills.
 * The Secret City: Tribal Chief (only the robe puzzle; a second chief is a
   known defect); the beehive refill (tied to its puzzle); puzzle states.

@@ -210,17 +210,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for Full Names on the Details Screen and Fix Vanilla Bugs' '%' fixes: putting their
     # six sites back to stock and recomputing the CheckSum gives the previous digest in all three
     # modes.
+    # Re-pinned for Fix Vanilla Bugs' Details-screen likes/dislikes (a negative slot is skipped):
+    # putting its two 4-byte sites (0x5537C, 0x547FC) back to stock and recomputing the CheckSum
+    # gives the previous digest in all three modes.
     "stock": (
-        "700AF51AC171AC5086C358C7523867135CA80AEDA1B4AA3A6F91EF9186E6E26F",
-        "1A9F0D00",
+        "F63A8869805710BAA300290EF7E6E4705A83A38053650605585D61E825E7BF72",
+        "1CAD0D00",
     ),
     "collection_progression": (
-        "8FD96766F8FDA7E660F23A8960FBE8E94051672CA27640C58BB2B28042DE911C",
-        "1AB80D00",
+        "8EF39B0CD9135A36272BCE4AB5173F6AF7F4BF4E7DF42D3836776AA812F02727",
+        "1CC60D00",
     ),
     "immediate_fixed": (
-        "1B132D9E29383E2A0B4601FC3518A994E47C38328A067AE8D8AA33D9A758710C",
-        "19FA0C00",
+        "9BBC5D50DCA0743F71B42017C2CEEE0C4F7F47CD5F6FFC326F1853F614227E28",
+        "1B080D00",
     ),
 }
 

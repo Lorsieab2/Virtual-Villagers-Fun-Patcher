@@ -417,6 +417,8 @@ FIX_WRITER, FIX_READER, FIX_CHECK = 0x660F1, 0x6613D, 0x387A0
 FIX_NAMES = {0x65DB5, 0x65DC1}
 # ... and its '%' rows (#566), in both builds.
 FIX_PERCENT = {0xD813, 0x402B9}
+# ... and its Details-screen likes/dislikes rows, in both builds.
+FIX_PERCENT |= {0x5D79C, 0x5D23C}
 BLOCK_CHECK, BLOCK_OBJECT, BLOCK_SIZE_FN = 0x4387A0, 0x4D8BF8, 0x438770
 
 

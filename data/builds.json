@@ -1951,19 +1951,21 @@
       "id": "vv1_fix_vanilla_bugs",
       "game_id": "vv1",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"sleeping\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, and a number past the end of the list showed garbage. Now the last word shows like any other, a number that is not a word is left out, and the line can never run past the space the game keeps for it. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "A Mysterious Vial (blue liquid), \"Drink the liquid\", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby.",
         "A villager's default first name is picked from the whole of the game's male or female list (101 names each): name numbers 0 to 100 instead of 1 to the base game's limit.",
-        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\"."
+        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
+        "Details screen Likes/Dislikes (0x43BA20 / 0x43BAF0, called from 0x449140): each slot's word is found in the game's own word list without copying past its end, so the last word (index 46, \"sleeping\") is shown and the slots after it still show; a negative slot or one past the end of the list is skipped; the line is written straight into the caller's 256-byte buffer, bounded at 255 characters (4 slots of the longest word never reach it)."
       ],
       "explicit_non_changes": [
         "The result text, the drinker's new age (80) and every other vial result are the base game's own.",
         "Conception, pregnancy and delivery are not changed; a villager who never drank the vial is not affected.",
-        "No save data, villager record layout or art is changed."
+        "No save data, villager record layout or art is changed.",
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way; the default names: static exact-build evidence (the naming routine's roll and comma walk)",
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes",
       "patches": [
         {
           "offset": "0x19CC1",
@@ -2048,6 +2050,18 @@
           "before": "83FA1F7E0881FAFF0000007E1784DB740A",
           "after": "83FA25744B8D72E081FEDF000000761490",
           "purpose": "Shared text-entry typing handler: refuse '%' (0x25) in every edit box; the 0x20..0xFF accept range is kept (as one unsigned compare)."
+        },
+        {
+          "offset": "0x3BA20",
+          "before": "81ECC4030000535556578BF18B8E2CE0030068D5000000C684241401000000C644241400E8277FFFFF508D84241401000050E8E6F700008B8C24E003000083C40833FF69C9D80300008DB43198030000BD04000000B32C8B0E33D233C083F9FF743285C97E0F389C0410010000750142403BD17CF18D8C04100100008A013AC3740D88443C108A410147413AC375F3885C3C104783C6044D75BD8A4C3C0F8D443C0F5F5E5D3ACB5B7503C600008B8424CC0300008D5424005250E85EF7000081C4CC030000C20800",
+          "after": "5356575589CE8B8E2CE0030068D5000000E83A7FFFFF89C38B44241469C0D80300008DB406980300008B7C24188DAFFF0000006A048B0E89D885C97C3F740F8A104084D2743680FA2C75F44975F18A1084D2742880FA2C74233B7C241C740839EF7323C6072C478A1084D2740F80FA2C740A39EF731088174740EBEB83C604FF0C2475B1EB09C745FD2E2E2E0089EF59C6070089F82B4424185D5F5E5BC20800CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "purpose": "Details screen likes builder 0x43BA20 rewritten in place (same thiscall: ECX the villager table, the villager index and the 256-byte output buffer on the stack, ret 8; EBX/ESI/EDI/EBP kept): reads the word list the game's own text lookup returns without copying it, skips a negative slot or one past the end of the list, stops each word at a comma or the list's end (so the last word shows), joins words with a comma as before, and writes at most 255 characters plus the NUL, ending a line that does not fit in \"...\"; no sprintf; the 8 nop bytes after it are unchanged"
+        },
+        {
+          "offset": "0x3BAF0",
+          "before": "81ECC4030000535556578BF18B8E2CE0030068D6000000C684241401000000C644241400E8577EFFFF508D84241401000050E816F700008B8C24E003000083C40833FF69C9D80300008DB431A8030000BD04000000B32C8B0E33D233C083F9FF743285C97E0F389C0410010000750142403BD17CF18D8C04100100008A013AC3740D88443C108A410147413AC375F3885C3C104783C6044D75BD8A4C3C0F8D443C0F5F5E5D3ACB5B7503C600008B8424CC0300008D5424005250E88EF6000081C4CC030000C20800",
+          "after": "5356575589CE8B8E2CE0030068D6000000E86A7EFFFF89C38B44241469C0D80300008DB406A80300008B7C24188DAFFF0000006A048B0E89D885C97C3F740F8A104084D2743680FA2C75F44975F18A1084D2742880FA2C74233B7C241C740839EF7323C6072C478A1084D2740F80FA2C740A39EF731088174740EBEB83C604FF0C2475B1EB09C745FD2E2E2E0089EF59C6070089F82B4424185D5F5E5BC20800CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "purpose": "Details screen dislikes builder 0x43BAF0 rewritten in place (same thiscall: ECX the villager table, the villager index and the 256-byte output buffer on the stack, ret 8; EBX/ESI/EDI/EBP kept): reads the word list the game's own text lookup returns without copying it, skips a negative slot or one past the end of the list, stops each word at a comma or the list's end (so the last word shows), joins words with a comma as before, and writes at most 255 characters plus the NUL, ending a line that does not fit in \"...\"; no sprintf; the 8 nop bytes after it are unchanged"
         }
       ]
     },
@@ -2106,20 +2120,22 @@
       "id": "vv2_fix_vanilla_bugs",
       "game_id": "vv2",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Achak and Zuri (male) and Aba and Zuna (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Achak and Zuri (male) and Aba and Zuna (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"dirt\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, a number past the end of the list showed garbage, and a villager with a great many likes or dislikes overflowed the game's 256-character line, damaging memory. Now the last word shows like any other, a number that is not a word is left out, and a line too long for its space ends in \"...\" instead of overflowing. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Crystal Ball (two-choice island event) is offered only when the base game's own condition holds (a living villager aged 14 or over) and at least two villagers are living, so the finder always has someone to trade places with.",
         "If \"Keep it\" is resolved while no other villager is living, the swap is skipped: nothing about any villager changes and the game does not read an unset list entry.",
         "With at least one other living villager, keeping the ball trades the same skills, likes, dislikes and +0x564 text with the same randomly chosen villager as the base game.",
         "A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit.",
-        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\"."
+        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
+        "Details screen Likes/Dislikes (0x44B7E0 / 0x44B8B0, called from 0x4654B0): each slot's word is found in the game's own word list without copying past its end, so the last word (index 61, \"dirt\") is shown and the slots after it still show; a negative slot or one past the end of the list is skipped; the line is written straight into the caller's 256-byte buffer, bounded at 255 characters, and a line that does not fit ends in \"...\" (the label draws a single unwrapped line, so text past 255 characters could never be seen on an 800-pixel screen anyway)."
       ],
       "explicit_non_changes": [
         "The result text, the \"give it to the children\" choice, every other island event and the event's chance of being chosen are the base game's own.",
-        "No save data, villager record layout or art is changed."
+        "No save data, villager record layout or art is changed.",
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running; the default names: static exact-build evidence (the naming routine's roll and comma walk)",
+      "evidence_status": "static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes and all 62 slots filled with the longest word",
       "patches": [
         {
           "offset": "0x1F636",
@@ -2240,6 +2256,18 @@
           "before": "8B71308814308B5130C644020100",
           "after": "83FA2574278B71306689143089F2",
           "purpose": "shared text-entry typing handler: refuse '%' (0x25) in every edit box; the accepted character and its terminating NUL are stored with one 16-bit write (DH is 0 for every accepted key), EDX ends as the buffer pointer exactly as before"
+        },
+        {
+          "offset": "0x4B7E0",
+          "before": "81ECC4030000535556578BF98B8FF074E5006844010000C684241401000000C644241400E8775EFFFF508D84241401000050E8A6CA01008B8C24E003000083C40833F669C98CE400008DBC39F0050000BD3E000000B32C8B0F33D233C083F9FF743285C97E0F389C0410010000750142403BD17CF18D8C04100100008A013AC3740D884434108A410146413AC375F3885C34104683C7044D75BD8A4C340F5F8D44340B5E5D3ACB5B7503C600008B8424CC0300008D5424005250E81ECA010081C4CC030000C20800",
+          "after": "5356575589CE8B8EF074E5006844010000E88A5EFFFF89C38B44241469C08CE400008DB406F00500008B7C24188DAFFF0000006A3E8B0E89D885C97C3F740F8A104084D2743680FA2C75F44975F18A1084D2742880FA2C74233B7C241C740839EF7323C6072C478A1084D2740F80FA2C740A39EF731088174740EBEB83C604FF0C2475B1EB09C745FD2E2E2E0089EF59C6070089F82B4424185D5F5E5BC20800CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "purpose": "Details screen likes builder 0x44B7E0 rewritten in place (same thiscall: ECX the villager table, the villager index and the 256-byte output buffer on the stack, ret 8; EBX/ESI/EDI/EBP kept): reads the word list the game's own text lookup returns without copying it, skips a negative slot or one past the end of the list, stops each word at a comma or the list's end (so the last word shows), joins words with a comma as before, and writes at most 255 characters plus the NUL, ending a line that does not fit in \"...\"; no sprintf; the 8 nop bytes after it are unchanged"
+        },
+        {
+          "offset": "0x4B8B0",
+          "before": "81ECC4030000535556578BF98B8FF074E5006845010000C684241401000000C644241400E8A75DFFFF508D84241401000050E8D6C901008B8C24E003000083C40833F669C98CE400008DBC39E8060000BD3E000000B32C8B0F33D233C083F9FF743285C97E0F389C0410010000750142403BD17CF18D8C04100100008A013AC3740D884434108A410146413AC375F3885C34104683C7044D75BD8A4C340F5F8D44340B5E5D3ACB5B7503C600008B8424CC0300008D5424005250E84EC9010081C4CC030000C20800",
+          "after": "5356575589CE8B8EF074E5006845010000E8BA5DFFFF89C38B44241469C08CE400008DB406E80600008B7C24188DAFFF0000006A3E8B0E89D885C97C3F740F8A104084D2743680FA2C75F44975F18A1084D2742880FA2C74233B7C241C740839EF7323C6072C478A1084D2740F80FA2C740A39EF731088174740EBEB83C604FF0C2475B1EB09C745FD2E2E2E0089EF59C6070089F82B4424185D5F5E5BC20800CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "purpose": "Details screen dislikes builder 0x44B8B0 rewritten in place (same thiscall: ECX the villager table, the villager index and the 256-byte output buffer on the stack, ret 8; EBX/ESI/EDI/EBP kept): reads the word list the game's own text lookup returns without copying it, skips a negative slot or one past the end of the list, stops each word at a comma or the list's end (so the last word shows), joins words with a comma as before, and writes at most 255 characters plus the NUL, ending a line that does not fit in \"...\"; no sprintf; the 8 nop bytes after it are unchanged"
         }
       ]
     },
@@ -2298,7 +2326,7 @@
       "id": "vv3_fix_vanilla_bugs",
       "game_id": "vv3",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing.",
@@ -2306,14 +2334,16 @@
         "The Mysterious Vial (quartz): the result text uses the same age test as the effect, so a villager aged exactly 14 (280 age units) is told they become an elder, which is what happens.",
         "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save; loading reads at most 150 saved villagers; a save already damaged this way (150 villagers, the next block's size 0x2AD stored as 0x200) loads with all 150.",
         "A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit.",
-        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\"."
+        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
+        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before."
       ],
       "explicit_non_changes": [
         "Every result text, every other vial result and every other island event are the base game's own.",
         "The quartz vial's effects and the Royal Jelly's Healing amount are unchanged; only which vial gets the effect and which text a 14-year-old sees change.",
-        "No villager record layout or art is changed; saves with 0 to 149 villagers are written and read exactly as before, and the save file's size and format are unchanged."
+        "No villager record layout or art is changed; saves with 0 to 149 villagers are written and read exactly as before, and the save file's size and format are unchanged.",
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk)",
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes",
       "patches": [
         {
           "offset": "0x180FB",
@@ -2380,6 +2410,18 @@
           "before": "8B71308814308B5130C644020100",
           "after": "83FA2574278B71306689143089F2",
           "purpose": "shared text-entry typing handler: refuse '%' (0x25) in every edit box; the accepted character and its terminating NUL are stored with one 16-bit write (DH is 0 for every accepted key), EDX ends as the buffer pointer exactly as before"
+        },
+        {
+          "offset": "0x5537C",
+          "before": "83FFFF74",
+          "after": "83FF007C",
+          "purpose": "Details screen dislikes builder 0x455350: 'cmp edi,-1; je skip' -> 'cmp edi,0; jl skip' (same length and target), so any negative slot is skipped instead of being shown as the list's first word"
+        },
+        {
+          "offset": "0x547FC",
+          "before": "83FFFF74",
+          "after": "83FF007C",
+          "purpose": "Details screen likes builder 0x4547D0: 'cmp edi,-1; je skip' -> 'cmp edi,0; jl skip' (same length and target), so any negative slot is skipped instead of being shown as the list's first word"
         }
       ]
     },
@@ -2431,21 +2473,23 @@
       "id": "vv4_fix_vanilla_bugs",
       "game_id": "vv4",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save, so the village loads again.",
         "Loading reads at most the 150 saved villagers, never anything after the list.",
         "A save already damaged this way (150 saved villagers and the next block's size with its low byte zeroed) is accepted and loads with all 150 villagers; the next save writes it correctly.",
         "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.",
-        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\"."
+        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
+        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before."
       ],
       "explicit_non_changes": [
         "The population cap, births, events and every population mode are unchanged; no villager is removed or added.",
         "Saves with 0 to 149 villagers are written and read exactly as before, byte for byte; the save file's size and format are unchanged.",
-        "A save whose size check fails for any other reason is still refused, as in the base game."
+        "A save whose size check fails for any other reason is still refused, as in the base game.",
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
       ],
-      "evidence_status": "static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk)",
+      "evidence_status": "static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes",
       "patches": [
         {
           "offset": "0x660F1",
@@ -2494,6 +2538,18 @@
           "before": "8B71308814308B5130C644020100",
           "after": "83FA2574108B71306689143089F2",
           "purpose": "shared text-entry typing handler: refuse '%' (0x25) in every edit box; the accepted character and its terminating NUL are stored with one 16-bit write (DH is 0 for every accepted key), EDX ends as the buffer pointer exactly as before"
+        },
+        {
+          "offset": "0x5D79C",
+          "before": "83FFFF74",
+          "after": "83FF007C",
+          "purpose": "Details screen likes builder 0x45D770: 'cmp edi,-1; je skip' -> 'cmp edi,0; jl skip' (same length and target), so any negative slot is skipped instead of being shown as the list's first word"
+        },
+        {
+          "offset": "0x5D23C",
+          "before": "83FFFF74",
+          "after": "83FF007C",
+          "purpose": "Details screen dislikes builder 0x45D210: 'cmp edi,-1; je skip' -> 'cmp edi,0; jl skip' (same length and target), so any negative slot is skipped instead of being shown as the list's first word"
         }
       ]
     },
@@ -3731,18 +3787,20 @@
       "id": "vv5_fix_vanilla_bugs",
       "game_id": "vv5",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.",
-        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\"."
+        "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
+        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before."
       ],
       "explicit_non_changes": [
         "The name lists themselves, a villager's sex, looks and family, and any name the player gives are the base game's own.",
         "Villagers already named keep their names.",
-        "No save data, villager record layout or art is changed."
+        "No save data, villager record layout or art is changed.",
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
       ],
-      "evidence_status": "static exact-build evidence: the villager naming routine's roll and the comma walk that reads the chosen name, with every list ending in a comma",
+      "evidence_status": "static exact-build evidence: the villager naming routine's roll and the comma walk that reads the chosen name, with every list ending in a comma; the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes",
       "patches": [
         {
           "offset": "0x6F695",
@@ -3767,6 +3825,18 @@
           "before": "8B71308814308B5130C644020100",
           "after": "83FA2574108B71306689143089F2",
           "purpose": "shared text-entry typing handler: refuse '%' (0x25) in every edit box; the accepted character and its terminating NUL are stored with one 16-bit write (DH is 0 for every accepted key), EDX ends as the buffer pointer exactly as before"
+        },
+        {
+          "offset": "0x64FDC",
+          "before": "83FFFF74",
+          "after": "83FF007C",
+          "purpose": "Details screen likes builder 0x464FB0: 'cmp edi,-1; je skip' -> 'cmp edi,0; jl skip' (same length and target), so any negative slot is skipped instead of being shown as the list's first word"
+        },
+        {
+          "offset": "0x64A3C",
+          "before": "83FFFF74",
+          "after": "83FF007C",
+          "purpose": "Details screen dislikes builder 0x464A10: 'cmp edi,-1; je skip' -> 'cmp edi,0; jl skip' (same length and target), so any negative slot is skipped instead of being shown as the list's first word"
         }
       ]
     },
