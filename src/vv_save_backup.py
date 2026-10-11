@@ -246,6 +246,7 @@ class CopiedFile:
     relative: Path
     size: int
     sha256: str
+    times: tuple[int, int] | None = None     # the original's (access, modification) in ns, kept on the copy
 
 
 @dataclass
@@ -362,6 +363,7 @@ def _copy_one(source: Path, destination: Path) -> CopiedFile:
     destination.parent.mkdir(parents=True, exist_ok=True)
     digest = hashlib.sha256()
     size = 0
+    original = source.stat()
     with source.open("rb") as reader, destination.open("xb") as writer:
         while True:
             chunk = reader.read(HASH_CHUNK)
@@ -382,7 +384,20 @@ def _copy_one(source: Path, destination: Path) -> CopiedFile:
     source_size, source_hash = _hash_file(source)
     if source_size != size or source_hash != expected:
         raise BackupError(f"{source.name} changed while it was being copied.")
-    return CopiedFile(Path(), size, expected)
+    times = (original.st_atime_ns, original.st_mtime_ns)
+    _keep_times(destination, times)
+    return CopiedFile(Path(), size, expected, times)
+
+
+def _keep_times(path: Path, times: tuple[int, int]) -> None:
+    """Give `path` the access and modification time of the file it is a copy of.  The companions
+    believe a queued purchase only when the slot's save was last written AFTER it (the save then
+    holds its charge): a copy or a restore that stamped "now" on an older save would make that save
+    look newer than a purchase it never paid for, and the purchase would be delivered free."""
+    try:
+        os.utime(path, ns=times)
+    except OSError:
+        pass                    # the time is a courtesy to those companions; the copy itself is whole
 
 
 def copy_save_folder(
@@ -415,6 +430,8 @@ def copy_save_folder(
                     copied.size, copied.sha256 = _hash_file(staging / copied.relative)
                     result.paused_slots.append(copied.relative.name)
                     result.paused_from[copied.relative] = speed
+                    if copied.times is not None:
+                        _keep_times(staging / copied.relative, copied.times)   # the pause rewrote it
         result.backup_folder = _finish_backup(staging, when, suffix)
     except (OSError, BackupError) as exc:
         where = _set_aside(staging, INCOMPLETE)
@@ -1246,6 +1263,8 @@ def _place(source: Path, target: Path) -> None:
                 writer.write(chunk)
         if _hash_file(temp) != expected:
             raise BackupError(f"The restored copy of {target.name} did not match the backup.")
+        kept = source.stat()
+        _keep_times(temp, (kept.st_atime_ns, kept.st_mtime_ns))   # the time the file had when it was backed up
         os.replace(temp, target)
     finally:
         if temp.exists():
@@ -1340,6 +1359,8 @@ def _roll_back(save_folder: Path, before: BackupResult | None, done: list[Path])
                 # The before-restore backup's saves are Paused; the save goes back as it was.
                 if relative in before.paused_from:
                     set_save_speed(game_number(save_folder), target, before.paused_from[relative])
+                    kept = original.stat()
+                    _keep_times(target, (kept.st_atime_ns, kept.st_mtime_ns))
             elif target.exists():
                 target.unlink()
         except (OSError, BackupError):
