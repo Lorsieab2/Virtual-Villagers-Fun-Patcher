@@ -22,7 +22,22 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
-## What's new in v1.35.68
+## What's new in v1.35.69
+
+- **A New Home: a village started through the intro's Skip button now writes its logs at once.** Before, its Births and Conceptions, Population, History and Statistics logs appeared only at the first quit (the game never sets that village's start time on that path, so its autosave skipped it). The patcher now makes the same save the quit makes, once, as soon as the village is on screen with its founders waiting.
+- **A two-choice Custom Island Event question on screen when you quit is kept** (all five games): after the next load it is asked again, answered once, and the tech points are charged once.
+- **One place for the "Retroactively edit records? No" answers.** The contradictions you chose to leave alone now share the Log Decisions file with the other answers; the older "Contradictions Left" file is still read, and never written again.
+- **Move Old Files** also leaves a short note in the Repairs Made log of every save slot whose files it moved.
+- **Reproducible companions.** Every companion DLL is now built so that the same source always gives the same bytes (so the DLLs the patcher ships match the hashes its manifests pin); no behaviour changes.
+- **Known limit (documented):** a crash between buying a Story / Cheat Upgrades item and the next save loses both the item and its charge together -- consistent, never a charge without the item.
+- **Custom Island Event: several changes to one villager now combine.** Several "Villager changes" entries for the same villager in one event all apply. Likes and dislikes are applied in the order you added them (several "Add a like" entries each add one); for every other field the later entry wins. Adding a second entry for a villager shows a warning saying so, and Edit works on a combined entry.
+- **NOTE when updating from v1.35.68:** a Custom Island Event or Pick Island Event that you bought but that has not been delivered yet is **discarded** when you update to v1.35.69 (the saved queue layout changed; the tech points stay spent). **Deliver pending purchases before updating.**
+- **Patch every game again** after updating: the Cause of Death, Story Upgrades and Origins companions changed.
+
+**Not yet seen in a running game:** the Skip-button creation save (checked by emulation and the harness only; it is item B1 of docs/LIVE-CHECKLIST.md -- it calls the game's own save routine, so watch for a freeze in the first seconds); the two-choice question coming back after a quit in each game; several changes to one villager in one Custom Island Event; Move Old Files' per-slot notes; and everything still on the list under v1.35.66, which is carried in docs/LIVE-CHECKLIST.md.
+
+
+## What was new in v1.35.68
 
 > **Warning -- A New Home players on v1.35.66 or v1.35.67:** those versions can **wipe A New Home's parents on launch** (the parents file was emptied while the game's villager list was still empty at load). Do not play A New Home with them. **To recover:**
 > 1. Patch with v1.35.68 **before** playing again.

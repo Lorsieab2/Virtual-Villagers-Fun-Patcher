@@ -27,6 +27,7 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "vvfp_storytelling.c") `
     /link `
+    /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "vvfp_storytelling.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
@@ -60,6 +61,7 @@ New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "vvfp_storytelling.c") `
     /link `
+    /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "vvfp_storytelling_test.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `

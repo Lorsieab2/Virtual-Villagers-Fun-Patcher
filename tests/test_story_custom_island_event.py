@@ -78,9 +78,10 @@ TEN_MINUTES = 10 * 60 * 1000
 
 # Fixed emulator addresses the tests use for their own data.
 EVENT_BUF = HEAP + 0x3E00000 if HAVE_EMULATOR else 0
-RESULT_BUF = EVENT_BUF + 0x10000
-TEXT_BUF = EVENT_BUF + 0x11000
-SCRATCH = EVENT_BUF + 0x14000
+# (An event is ~135 KB: the other buffers sit past its end.)
+RESULT_BUF = EVENT_BUF + 0x30000
+TEXT_BUF = EVENT_BUF + 0x31000
+SCRATCH = EVENT_BUF + 0x34000
 
 
 @functools.lru_cache(maxsize=None)
@@ -503,10 +504,10 @@ class MergeTests(unittest.TestCase):
         changes_at = 4 + 48 + 600 + 4 * 7 + 8 * Event.SPAWN_SIZE   # change_count, then the changes
         count = struct.unpack("<i", p.read(EVENT_BUF + changes_at, 4))[0]
         self.assertEqual(count, 2)
-        entry = p.read(EVENT_BUF + changes_at + 4, 192)
+        entry = p.read(EVENT_BUF + changes_at + 4, Change.SIZE)
         index, fp, fate, sick, litter, father, father_fp = struct.unpack("<iIiiiiI", entry[:28])
         head, body = struct.unpack("<2i", entry[28:36])
-        skills = struct.unpack("<6i", entry[52:76])
+        skills = struct.unpack("<6i", entry[296:320])
         self.assertEqual((index, fp, fate, sick, litter, father, father_fp),
                          (0, 0x1234, 0, 1, 2, 4, 99))
         self.assertEqual((head, body), (7, KEEP))

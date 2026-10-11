@@ -282,6 +282,7 @@ static int ce_asked_store;
 static int ce_asked_game;
 static story_village ce_asked_village;
 static char ce_asked_title[CE_TITLE_BYTES];
+static ce_event ce_asked_event;     /* the event the question belongs to (kept across a quit, story_queue.inc) */
 static int ce_last_button = -1;     /* the last resolved button and its rolled outcome */
 static int ce_last_outcome = -1;
 
@@ -725,17 +726,20 @@ static void ce_apply_fields(const ce_adapter *a, unsigned char *record, const ce
     if (a->caps & CAP_PREFS) {
         int *likes = (int *)(record + a->off_likes);
         int *dislikes = (int *)(record + a->off_dislikes);
-        if (ce_valid_pref(a, c->like_remove)) {
-            ce_pref_remove(likes, a->pref_slots, c->like_remove);
-        }
-        if (ce_valid_pref(a, c->dislike_remove)) {
-            ce_pref_remove(dislikes, a->pref_slots, c->dislike_remove);
-        }
-        if (ce_valid_pref(a, c->like_add) && !ce_pref_add(likes, a->pref_slots, c->like_add)) {
-            ce_refuse(r, CE_WHY_PREFS_FULL);
-        }
-        if (ce_valid_pref(a, c->dislike_add) && !ce_pref_add(dislikes, a->pref_slots, c->dislike_add)) {
-            ce_refuse(r, CE_WHY_PREFS_FULL);
+        /* Every like and dislike change of the villager, in the order the
+           entries were added: two entries that each add a like both add it. */
+        for (i = 0; i < c->pref_op_count && i < CE_MAX_PREF_OPS; ++i) {
+            int op = c->pref_ops[i];
+            int value = CE_PREF_VALUE(op);
+            int *list = (op & CE_PREF_DISLIKE) ? dislikes : likes;
+            if (!ce_valid_pref(a, value)) {
+                continue;
+            }
+            if (op & CE_PREF_REMOVE) {
+                ce_pref_remove(list, a->pref_slots, value);
+            } else if (!ce_pref_add(list, a->pref_slots, value)) {
+                ce_refuse(r, CE_WHY_PREFS_FULL);
+            }
         }
     }
     if (a->caps & CAP_SKILLS) {
@@ -1425,7 +1429,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             }
             continue;
         }
-        if (c->like_add >= 0 || c->like_remove >= 0 || c->dislike_add >= 0 || c->dislike_remove >= 0) {
+        if (c->pref_op_count > 0) {
             unsigned int titled_as = story_title_identity(e->game, record);
             story_preferences_changing(e->game, 0);
             ce_apply_fields(a, record, c, r);
@@ -1996,9 +2000,14 @@ static int ce_choice_begin(int game, char *text, int size) {
     ce_asked_game = game;
     ce_asked_village = ce_armed_village;
     lstrcpynA(ce_asked_title, ce_armed_event.title, sizeof ce_asked_title);
+    ce_asked_event = ce_armed_event;
     l = ce_question_layout(a);
     ce_compose_in(a, &l, ce_armed_event.title, &ce_armed_event, NULL, text, size);
     STORY_COUNT(delivered);
+    /* The question coming on screen is written to the queue file now, not at
+       the companion's next 250 ms tick: the popup may stop that path, and a
+       quit right after would leave the file as it was before the question. */
+    sq_tick(game);
     return 1;
 }
 
@@ -2039,6 +2048,9 @@ static int ce_choice_resolve(int game, int button, char *text, int size) {
         return 0;
     }
     ce_asked = 0;
+    /* Answered (or discarded): the file stops holding the question now, so a
+       quit right after never brings an answered question back. */
+    sq_tick(game);
     if (!story_village_is(game, &ce_asked_village)) {
         STORY_COUNT(discarded);
         return 0;

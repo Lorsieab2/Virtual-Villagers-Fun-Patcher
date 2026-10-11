@@ -249,6 +249,8 @@ class Change:
     like_remove: int = -1
     dislike_add: int = -1
     dislike_remove: int = -1
+    pref_ops: tuple = ()             # more like/dislike changes, after the four above:
+                                     # (dislike, remove, preference) in the order applied
     skills: tuple = (KEEP,) * 6
     title_op: int = 0
     title: str = ""
@@ -275,13 +277,24 @@ class Change:
     father_record: int = -1
     mother_record: int = -1
 
-    SIZE = 272
+    MAX_PREF_OPS = 64                # story_custom.h CE_MAX_PREF_OPS
+    SIZE = 272 - 16 + 4 + 4 * MAX_PREF_OPS
+
+    def ops(self) -> list:
+        """The like/dislike changes as story_custom.h CE_PREF_OP encodes them: the removals
+        and then the additions the four plain fields name, then `pref_ops`."""
+        ops = [(1 if d else 0, 1, v) for d, v in ((0, self.like_remove), (1, self.dislike_remove)) if v >= 0]
+        ops += [(1 if d else 0, 0, v) for d, v in ((0, self.like_add), (1, self.dislike_add)) if v >= 0]
+        ops += list(self.pref_ops)
+        return [v | (0x100 if rem else 0) | (0x200 if dis else 0) for dis, rem, v in ops]
 
     def pack(self) -> bytes:
         return (struct.pack("<iIiiiiI", self.index, self.fingerprint, self.fate, self.sick, self.litter,
                             self.father, self.father_fingerprint)
-                + struct.pack("<6i", self.head, self.body, self.like_add, self.like_remove,
-                              self.dislike_add, self.dislike_remove)
+                + struct.pack("<2i", self.head, self.body)
+                + struct.pack("<i", len(self.ops()))
+                + struct.pack("<%di" % self.MAX_PREF_OPS,
+                              *(self.ops() + [0] * (self.MAX_PREF_OPS - len(self.ops()))))
                 + struct.pack("<6i", *self.skills) + struct.pack("<i", self.title_op)
                 + _s(self.title, 32)
                 + struct.pack("<4i", self.mask, self.status, self.behaviour, self.parents_set)

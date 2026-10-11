@@ -279,7 +279,7 @@ class EditTests(unittest.TestCase):
             index, fp, fate, sick = struct.unpack("<iIii", raw[:16])
             head = struct.unpack("<i", raw[28:32])[0]
             health, father_kind = struct.unpack("<2i", raw[Change.SIZE - 20:Change.SIZE - 12])
-            father = raw[128:156].split(b"\0")[0].decode()
+            father = raw[372:400].split(b"\0")[0].decode()
             return index, fp, fate, sick, head, health, father_kind, father
         self.assertEqual(entry(0), (4, 0x22, 0, 0, KEEP, 30, JOEY, "Joey"),
                          "the villager kept, the old sick and head gone, the new health and father in")
