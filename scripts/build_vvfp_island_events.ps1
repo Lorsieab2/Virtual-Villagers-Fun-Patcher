@@ -26,6 +26,7 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "vvfp_island_events.c") `
     /link `
+    /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "vvfp_island_events.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `

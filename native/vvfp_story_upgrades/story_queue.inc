@@ -9,7 +9,9 @@
                               the game's own (saved) timer
      Custom Island Event      ce_armed_event, a question's ce_choice; the same
                               saved timer (and Choose Time Skip Amount's
-                              closing notice, armed the same way)
+                              closing notice, armed the same way); and a
+                              two-choice question already ON SCREEN, waiting
+                              for a click (SQ_ASKED, below)
      Pick Gong of Wonder      oc_gong (The Lost Children)
      Choose Time Skip Amount  the years still to go and those done (each step
                               made is in the save already)
@@ -44,6 +46,20 @@
    writing it at the save would give, without missing the quit's save (the
    process ends right after it).
 
+   A QUESTION ON SCREEN WHEN YOU QUIT.  A two-choice Custom Island Event is
+   armed, then ASKED: the game shows its popup and the event is spent (the
+   save's timer is no longer due) while the player has not yet clicked.  The
+   charge is in every later save, so a quit right there kept the points and
+   lost the question.  An asked question therefore stays in the queue --
+   SQ_CUSTOM with SQ_ASKED, the event in ce_asked_event and the choices in
+   the asked store -- until the click answers it (or its village goes).  Put
+   back, it is armed again (the same item, the same moment it was bought, so
+   the same "only what a save paid for" rule) and the island event is made
+   due as the purchase makes it (GAMES[game].arm), so the question comes up
+   again soon, not at some later random event.  A purchase armed while a
+   question is up takes the item: the question on screen is the older one and
+   the new purchase is the one the queue keeps.
+
    NO EXTRA RANDOM EVENT.  The save's timer may fire on the first frames after
    the load, before the village's first tick.  So the restore is also made
    where the game asks for an armed pick or custom event -- drop_lapsed_pick
@@ -57,6 +73,7 @@
 #define SQ_CUSTOM 2u
 #define SQ_GONG   4u
 #define SQ_SKIP   8u
+#define SQ_ASKED  16u                       /* with SQ_CUSTOM: the question is on screen, not just armed */
 #define SQ_ITEMS  4
 
 typedef struct {
@@ -290,6 +307,12 @@ static void sq_capture(int game, sq_file *f) {
         f->ce = ce_armed_event;
         f->ce_is_choice = ce_armed_is_choice;
         f->ce_is_notice = ce_armed_is_notice;
+    } else if (ce_asked && ce_asked_game == game && ce_asked_event.game == game
+               && story_village_is(game, &ce_asked_village)) {
+        f->have |= SQ_CUSTOM | SQ_ASKED;    /* the question waiting for a click */
+        f->ce = ce_asked_event;
+        f->ce_is_choice = 1;
+        f->ce_is_notice = 0;
     }
     if (game == 2 && oc_gong.state == OC_ARMED && oc_gong.game == 2 && oc_gong.save_slot == slot) {
         f->have |= SQ_GONG;
@@ -318,7 +341,8 @@ static int sq_item_differs(const sq_file *a, const sq_file *b, unsigned int bit)
             || a->pick_outcome != b->pick_outcome
             || memcmp(&a->pick_settings, &b->pick_settings, sizeof a->pick_settings) != 0;
     case SQ_CUSTOM:
-        return a->ce_is_choice != b->ce_is_choice || a->ce_is_notice != b->ce_is_notice
+        return (a->have & SQ_ASKED) != (b->have & SQ_ASKED)
+            || a->ce_is_choice != b->ce_is_choice || a->ce_is_notice != b->ce_is_notice
             || memcmp(&a->ce, &b->ce, sizeof a->ce) != 0;
     case SQ_GONG:
         return memcmp(&a->gong, &b->gong, sizeof a->gong) != 0;
@@ -334,12 +358,23 @@ static int sq_bit_index(unsigned int bit) {
 
 /* The question queued with a custom event, for the file. */
 static const ce_choice *sq_choice_now(const sq_file *f) {
-    return (f->have & SQ_CUSTOM) && f->ce_is_choice ? &ce_choice_store[ce_armed_store] : NULL;
+    if (!(f->have & SQ_CUSTOM) || !f->ce_is_choice) {
+        return NULL;
+    }
+    return &ce_choice_store[(f->have & SQ_ASKED) ? ce_asked_store : ce_armed_store];
+}
+
+/* Whether a and b hold the same custom event and differ only in whether its
+   question is on screen: the purchase is the same moment, only asked now. */
+static int sq_custom_only_asked_differs(const sq_file *a, const sq_file *b) {
+    return (a->have & SQ_CUSTOM) && (b->have & SQ_CUSTOM) && (a->have & SQ_ASKED) != (b->have & SQ_ASKED)
+        && a->ce_is_choice == b->ce_is_choice && a->ce_is_notice == b->ce_is_notice
+        && memcmp(&a->ce, &b->ce, sizeof a->ce) == 0;
 }
 
 /* Put back what the file holds and the save paid for.  Returns the items
    restored. */
-static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *choice) {
+static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *choice, int lazy) {
     unsigned __int64 saved = 0;
     unsigned int restored = 0;
     int have_save = sq_save_time(game, slot, &saved);
@@ -348,6 +383,9 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
         if ((f->have & bit) && (!have_save || f->when[sq_bit_index(bit)] > saved)) {
             f->have &= ~bit;                /* newer than the save: never paid for there */
         }
+    }
+    if (!(f->have & SQ_CUSTOM)) {
+        f->have &= ~SQ_ASKED;
     }
     if ((f->have & SQ_PICK) && pick_slot < 0 && !ce_armed
         && f->pick_index >= 0 && f->pick_index < GAMES[game].event_count
@@ -374,6 +412,16 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
         ce_armed_village = story_village_now(game);
         ce_armed = 1;
         restored |= SQ_CUSTOM;
+        if ((f->have & SQ_ASKED) && !lazy) {
+            /* The question was on screen at the quit, so the save's timer is
+               spent: make the island event due as the purchase did, once. */
+#ifndef VVFP_TEST
+            if (!GAMES[game].island_pending()) {
+                (void)GAMES[game].arm();
+            }
+#endif
+            restored |= SQ_ASKED;
+        }
     }
     if ((f->have & SQ_GONG) && game == 2 && oc_gong.state == OC_IDLE) {
         oc_arm_set(&oc_gong, 2, OC_GONG_SLOT, &f->gong);
@@ -438,7 +486,8 @@ static void sq_sync(int game, int lazy) {
             if (sq_same_village(file.roster, roster)) {
                 unsigned int had = file.have;
                 unsigned int restored = sq_restore(game, slot, &file,
-                                                   (file.have & SQ_CUSTOM) && file.ce_is_choice ? &sq_choice_buf : NULL);
+                                                   (file.have & SQ_CUSTOM) && file.ce_is_choice ? &sq_choice_buf : NULL,
+                                                   lazy);
 #ifdef VVFP_TEST
                 sq_test_restored = restored;
 #endif
@@ -462,7 +511,10 @@ static void sq_sync(int game, int lazy) {
     for (bit = SQ_PICK; bit <= SQ_SKIP; bit <<= 1) {
         int k = sq_bit_index(bit);
         if (sq_item_differs(&sq_now_state, &sq_written, bit)) {
-            sq_now_state.when[k] = now;
+            /* The question coming on screen (or being put back) is still the
+               purchase of its moment: only a save after THAT paid for it. */
+            sq_now_state.when[k] = bit == SQ_CUSTOM && sq_custom_only_asked_differs(&sq_now_state, &sq_written)
+                ? sq_written.when[k] : now;
             changed = 1;
         } else {
             sq_now_state.when[k] = sq_written.when[k];
@@ -533,6 +585,13 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeQueueFile(void *out, int size)
     return (int)sq_test_size;
 }
 
+/* The question of the asked custom event the queue holds (1 when one is on
+   screen for `game`, 0 otherwise); a restore's made-due call is not made in
+   a test build (SQ_ASKED comes back in the restored bits instead). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeQueueAsked(int game) {
+    return ce_asked && ce_asked_game == game;
+}
+
 /* A file from an earlier session (size 0 = none), the slot's save time (0 =
    no save) and whether the file cannot be read; and every queued item of this
    session forgotten -- what a new process starts with. */
@@ -549,6 +608,7 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeQueueSession(const void *file
     ce_armed = 0;
     ce_armed_is_choice = 0;
     ce_armed_is_notice = 0;
+    ce_asked = 0;                   /* a new process: no question on screen */
     oc_arm_clear(&oc);
     oc_arm_clear(&oc_gong);
     memset(&time_skip, 0, sizeof time_skip);

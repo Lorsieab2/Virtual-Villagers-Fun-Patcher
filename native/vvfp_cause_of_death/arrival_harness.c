@@ -891,8 +891,13 @@ static void creation_save_cases(void) {
           "creation: not before the village's own scene");
     *(unsigned int *)(manager + f[1]) = f[2];
     if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 0u;
-    CHECK(creation(manager, 0, 1010) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
-          "creation: not before the village has started");
+    /* Not started (start time 0): A New Home's skip button leaves it so, and
+       the game's save-all skips such a slot, so the companion makes the
+       slot save itself, once; the other games never reach here unstarted. */
+    CHECK(creation(manager, 0, 1010) == (game == 1 ? 2 : 0) && *(unsigned int *)(manager + f[3]) == 12345u,
+          "creation: a village not yet started is never asked through the autosave; A New Home's skip is saved directly");
+    CHECK(creation(manager, 0, 1011) == 0,
+          "creation: the skip path's direct save is made once while its founders wait");
     if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 1000u;
     if (game == 1) {
         CHECK(creation(manager, 1000, 1000 + 3600) == 0 && *(unsigned int *)(manager + f[3]) == 12345u,
@@ -922,6 +927,19 @@ static void creation_save_cases(void) {
     if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 2000u;
     CHECK(creation(manager, 2000, 2010) == 1, "creation: a Start Over's new village is asked for its save too");
     save_done(1, buffer);
+    if (game == 1) {
+        /* A skipped intro (start time 0) twice in a row: the first village's
+           founders are written, so the second village's are saved for too. */
+        if (f[4] != 0) *(unsigned int *)(manager + f[4]) = 0u;
+        CHECK(creation(manager, 0, 2011) == 0, "creation: the skip path, founders written -> nothing more to save");
+        reset(game, 1);
+        vv_reset_slot_state(game, 1, VILLAGE);
+        villager(3, "Fourthone", 310, 3, 1, 0);
+        created(3, MARK[game - 1].founder);
+        arrival_tick();
+        CHECK(creation(manager, 0, 2012) == 2, "creation: a second skipped village in the slot is saved directly too");
+        save_done(1, buffer);
+    }
     for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
     reset(game, 1);
     vv_reset_slot_state(game, 1, VILLAGE);

@@ -50,8 +50,8 @@
 
    Header-only and file-static; included once per Origins companion, after
    crosscheck_bridge.h (whose VVFP_XC_LOAD finds "VVFP Save Reset.dll").
-   native/shared/orphan_masks_harness.c drives every function here against
-   real files. */
+   native/shared/orphan_masks_game_harness.c (tests/test_orphan_mask_cleanup.py)
+   drives every function here against real files. */
 #ifndef VVFP_ORPHAN_MASKS_H
 #define VVFP_ORPHAN_MASKS_H
 

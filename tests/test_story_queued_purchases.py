@@ -27,7 +27,7 @@ from test_story_custom_island_event import (  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 GAMES = ("vv1", "vv2", "vv3", "vv4", "vv5")
-SQ_PICK, SQ_CUSTOM, SQ_GONG, SQ_SKIP = 1, 2, 4, 8
+SQ_PICK, SQ_CUSTOM, SQ_GONG, SQ_SKIP, SQ_ASKED = 1, 2, 4, 8, 16
 LATE = 0x7FFFFFF0                              # a save made after every item here
 OC_GONG_SLOT = 1000
 
@@ -203,6 +203,80 @@ class QueuedPurchasesSurviveAQuit(unittest.TestCase):
                         self.assertIn("It rained.", again.proc.cstring(TEXT_BUF))
                         tick(again)
                         self.assertEqual(queue_file(again), b"", "delivered: the file goes")
+
+    def question_on_screen(self, game: str):
+        """A two-choice custom event bought, delivered as a question and not
+        yet answered -- the moment a player can quit."""
+        from story_custom_fixtures import Event
+        story = fresh(game)
+        story.proc.export("VvfpStoryProbeChoiceCap", 1)
+        story.proc.write(EVENT_BUF, Event(game=story.n, title="Rain", text="It rained.").pack())
+        self.assertTrue(story.proc.export("VvfpStoryProbeSetChoice", story.n, EVENT_BUF,
+                                          self.choice(story), story.proc.tick))
+        tick(story)
+        armed_file = queue_file(story)
+        self.assertEqual(have(armed_file, story) & (SQ_CUSTOM | SQ_ASKED), SQ_CUSTOM)
+        self.assertEqual(story.proc.export("VvfpStoryProbeChoiceBegin", story.n, TEXT_BUF, 4096), 1,
+                         "the question is asked: the game's popup is up")
+        tick(story)
+        return story, armed_file, queue_file(story)
+
+    def test_a_question_on_screen_when_you_quit_comes_back(self):
+        """Bought, delivered as a question, the game quit before the click: the
+        charge is saved, the event is spent, and the question used to be gone."""
+        for game in self.games():
+            with self.subTest(game=game):
+                story, armed_file, asked_file = self.question_on_screen(game)
+                self.assertTrue(asked_file, "the file stays while the question waits for a click")
+                self.assertEqual(have(asked_file, story) & (SQ_CUSTOM | SQ_ASKED), SQ_CUSTOM | SQ_ASKED)
+                story.proc.export("VvfpStoryProbeQueueSaved")      # the quit's save
+                again = fresh(game)
+                again.proc.export("VvfpStoryProbeChoiceCap", 1)
+                session(again, asked_file, LATE)
+                tick(again)
+                s = state(again)
+                self.assertEqual((s["custom"], s["question"]), (1, 1), "armed again, as a question")
+                self.assertEqual(again.proc.export("VvfpStoryProbeQueueRestored"), SQ_CUSTOM | SQ_ASKED,
+                                 "...and the island event made due (the question comes up soon)")
+                self.assertEqual(again.proc.export("VvfpStoryProbeChoiceBegin", again.n, TEXT_BUF, 4096), 1)
+                self.assertEqual(again.proc.export("VvfpStoryProbeQueueAsked", again.n), 1)
+                tick(again)
+                self.assertEqual(have(queue_file(again), again) & (SQ_CUSTOM | SQ_ASKED), SQ_CUSTOM | SQ_ASKED)
+                self.assertEqual(again.proc.export("VvfpStoryProbeChoiceResolve", again.n, 0, TEXT_BUF, 4096), 1)
+                tick(again)
+                self.assertEqual(queue_file(again), b"", "answered: the purchase is delivered and the file goes")
+
+    def test_the_question_is_the_same_purchase_for_the_save_rule(self):
+        """The question coming on screen does not make the purchase newer: a
+        save made after the purchase and before the question (a crash lost the
+        later one) still brings it back, armed; a save older than the purchase
+        brings nothing."""
+        for game in self.games():
+            with self.subTest(game=game):
+                story, armed_file, asked_file = self.question_on_screen(game)
+                layout = struct.unpack("<7i", self._layout(story))
+                when_armed = struct.unpack_from("<Q", armed_file, layout[2])[0]
+                when_asked = struct.unpack_from("<Q", asked_file, layout[2])[0]
+                self.assertEqual(when_asked, when_armed, "the moment of the purchase, not of the question")
+                again = fresh(game)
+                again.proc.export("VvfpStoryProbeChoiceCap", 1)
+                session(again, asked_file, 1)                      # a save older than the purchase
+                tick(again)
+                self.assertEqual(state(again)["custom"], 0, "the older save never paid for it")
+                self.assertEqual(queue_file(again), b"")
+
+    def test_an_answered_question_leaves_nothing_behind(self):
+        for game in self.games():
+            with self.subTest(game=game):
+                story, _armed, asked_file = self.question_on_screen(game)
+                self.assertTrue(asked_file)
+                self.assertEqual(story.proc.export("VvfpStoryProbeChoiceResolve", story.n, 1, TEXT_BUF, 4096), 1)
+                tick(story)
+                self.assertEqual(queue_file(story), b"", "the click answers it: nothing to put back")
+
+    def _layout(self, story: Story) -> bytes:
+        story.proc.export("VvfpStoryProbeQueueLayout", SCRATCH)
+        return story.proc.read(SCRATCH, 28)
 
     def choice(self, story: Story) -> int:
         from story_custom_fixtures import Choice, Event, Outcome

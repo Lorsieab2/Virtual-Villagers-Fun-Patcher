@@ -30,8 +30,8 @@
    an in-place change here; the callers keep their own rename rule
    (mask_follow.h vv_roster_renamed).
 
-   Pure: arrays in, flags out.  tests/test_title_identity_follow.py drives it
-   through native/shared/identity_in_place_harness.c. */
+   Pure: arrays in, flags out.  tests/test_custom_titles_persistence.py drives it
+   through native/vvfp_story_upgrades/custom_titles_harness.c. */
 #ifndef VV_IDENTITY_IN_PLACE_H
 #define VV_IDENTITY_IN_PLACE_H
 

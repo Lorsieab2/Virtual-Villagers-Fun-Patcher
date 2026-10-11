@@ -33,9 +33,19 @@
    ahead of a load (the slot list, 0x41D160 / 0x41D260), so there the save
    is asked only for a village that started in the last few minutes of its
    own clock (0x402F70, seconds): a loaded village is never saved for it.
-   A village whose start time is never set (A New Home's skip path 0x41F480)
-   is left to the game's own quit save, as before.  The Lost Children and The
-   Secret City save after their seeding already (VV2 0x41AC4D, VV3 0x41BA4D). */
+   A village whose start time is never set -- A New Home's skip button
+   (0x41F480, scene 2's command 0x3FA: hide the scene, set the scene to the
+   village, never touch [manager+0x9E1C]) -- is saved by the autosave never:
+   the save-all above skips the slot while the start time is 0.  The game
+   saves such a village only in the quit routine (0x41B230), which calls the
+   save manager's own slot-save, virtual +0x38, with the slot [manager+0xABE4]
+   (0x41B245..0x41B24E).  So there the tick makes that same call, once, from
+   the game's frame hook (the thread that runs the autosave), and the save
+   writes exactly what the quit's would, the village's start time left 0 as
+   the game leaves it.  The Lost Children and The Secret City save after
+   their seeding already (VV2 0x41AC4D, VV3 0x41BA4D); The Tree of Life and
+   New Believers have one way into the village after the founders, the
+   start-game step, which sets the start time. */
 
 #define CREATION_RECENT_SECONDS 300u
 
@@ -58,6 +68,11 @@ static const struct {
 
 static int creation_saved_slot;          /* the village asked for: slot ... */
 static unsigned int creation_saved_start; /* ... and start time */
+static int creation_skip_slot;           /* A New Home: the slot saved directly (start time 0) while its founders wait */
+
+#ifdef VVFP_TEST
+static int test_creation_direct_slot;    /* the slot the direct save was made for (no manager to call) */
+#endif
 
 #ifdef VVFP_TEST
 static unsigned char *test_creation_manager;   /* a harness's stand-in manager */
@@ -98,6 +113,20 @@ static unsigned int creation_vv1_now(unsigned char *manager) {
 #endif
 }
 
+typedef int (__fastcall *creation_slot_save_fn)(void *self, void *unused_edx, int slot);
+
+/* The save manager's own slot-save, virtual +0x38: the call the quit
+   routine makes (0x41B24E) and the save-all makes for a started village. */
+static void creation_save_slot_now(unsigned char *manager, int slot) {
+#ifdef VVFP_TEST
+    test_creation_direct_slot = slot;
+    (void)manager;
+#else
+    const void *const *vtable = *(const void *const *const volatile *)manager;
+    ((creation_slot_save_fn)vtable[0x38 / 4])(manager, NULL, slot);
+#endif
+}
+
 /* Whether a founder made for a new village waits for its first save. */
 static int creation_founders_pending(int slot) {
     int i;
@@ -110,11 +139,12 @@ static int creation_founders_pending(int slot) {
     return 0;
 }
 
-/* Every frame (VvfpCauseTick).  Returns 1 when it asked for the save. */
+/* Every frame (VvfpCauseTick).  Returns 1 when it asked for the save through the autosave, 2 when it made the slot save itself (A New Home's skip). */
 static int creation_save_tick(void) {
     unsigned char *manager;
     unsigned int start;
     int slot;
+    int pending;
     if (g_game < 1 || g_game > 5 || CREATION_SAVE[g_game].manager == 0u) {
         return 0;
     }
@@ -128,8 +158,22 @@ static int creation_save_tick(void) {
         return 0;
     }
     start = creation_start(manager);
-    if (start == 0u || (slot == creation_saved_slot && start == creation_saved_start)
-        || !creation_founders_pending(slot)) {
+    pending = creation_founders_pending(slot);
+    if (!pending) {
+        creation_skip_slot = 0;
+    }
+    if (start == 0u) {
+        /* A New Home's skip button: the village is never started, so the
+           game's save-all would skip its slot.  Save it the way the quit does. */
+        if (g_game != 1 || !pending || creation_skip_slot == slot) {
+            return 0;
+        }
+        creation_skip_slot = slot;
+        creation_save_slot_now(manager, slot);
+        COD_COUNT(creation_saves);
+        return 2;
+    }
+    if ((slot == creation_saved_slot && start == creation_saved_start) || !pending) {
         return 0;
     }
     if (g_game == 1 && creation_vv1_now(manager) - start > CREATION_RECENT_SECONDS) {
