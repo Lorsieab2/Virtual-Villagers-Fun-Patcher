@@ -110,7 +110,8 @@ def list_text(game: int, values: list[int]) -> str:
     out = ""
     for v in values:
         if 0 <= v < len(words):
-            if len(out) + len(words[v]) + 3 >= LIST_ROOM:
+            # preference_list_text: a word fits when used + ", " + word + NUL <= the buffer.
+            if len(out) + (2 if out else 0) + len(words[v]) + 1 > LIST_ROOM:
                 break
             out += (", " if out else "") + words[v]
     return out or "(none)"
@@ -666,40 +667,20 @@ def restore(folder: Path, game: int, slot: int, chosen: set[str] | None = None,
     village = next((e.block.village for e in events(folder, game, slot) if e.block.village), None)
     try:
         note_restore(folder, game, village, picked, [(c.path, name) for c, name in zip(changes, copies)],
-                     backup, now)
+                     backup, now, slot)
     except OSError:
         pass                                # the restore stands; Check Saves & Logs still sees it
     return Result(picked, [c.path for c in changes], backup)
 
 
 def note_restore(folder: Path, game: int, village: str | None, restored: list[Restore], files: list[tuple],
-                 backup, now: datetime | None = None) -> None:
+                 backup, now: datetime | None = None, slot: int | None = None) -> None:
     """One "Repair <n>" record in the Repairs Made log (native/shared/repairs_log.h's shape, numbered as
     src/vv_log_tools.py note_word_repair numbers it)."""
     if not restored:
         return
-    logs = layout.find(folder, f"{layout.LOGS}\\{layout.REPAIRS_LOGS}")
-    logs.mkdir(parents=True, exist_ok=True)
-    number = 1
-    while (logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt").exists():
-        number += 1
-    path = logs / f"Virtual Villagers {game} Repairs Log {number}.txt"
-    existing = path.read_bytes().decode("latin-1") if path.exists() else ""
-    repairs = sum(line.startswith("Repair ") for line in existing.splitlines())
-    if repairs >= 256 or len(existing) >= 4 * 1024 * 1024:
-        path = logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt"
-        existing, repairs = "", 0
-    older = 0
-    if logs.name == layout.REPAIRS_LOGS:
-        old = Path(folder) / layout.LOGS / "Repairs" / path.name
-        if old.is_file():
-            older = sum(1 for line in old.read_bytes().decode("latin-1").splitlines()
-                        if line.startswith("Repair ") and line[7:8].isdigit())
     header = village or "Village: (all villages in this save folder)"
-    last = [line for line in existing.splitlines() if line.startswith("Village:")]
-    when = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
-    text = "" if last and last[-1].rstrip() == header else header + "\r\n"
-    text += f"Repair {repairs + 1 + older}\r\n  Date: {when}\r\n"
+    path, text = tools.repair_record_start(folder, game, header, layout.header_slot(village) or slot, now)
     text += ("  Checked: custom titles and former-Heathen marks a change of likes or dislikes took away, "
              "against the Island Events log\r\n")
     for r in restored:

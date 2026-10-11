@@ -148,7 +148,7 @@ class Village:
                 for k in range(count)]
 
     def repairs(self) -> str:
-        found = sorted((self.folder / LOGS / "Repairs Made").glob("*.txt"))
+        found = sorted((self.folder / LOGS).rglob("Virtual Villagers * Repairs Log *.txt"))
         return found[0].read_bytes().decode("latin-1") if found else ""
 
 
@@ -179,6 +179,25 @@ class TheWordLists(unittest.TestCase):
         self.assertEqual(lt.list_text(5, [1, -1, 9]), "crowds, the dark")
         self.assertEqual(lt.list_text(5, [-1, -1, 500]), "(none)")
         self.assertEqual(lt.list_text(5, [-1, 9, 1]), "the dark, crowds")
+
+    def test_a_long_list_stops_where_the_companions_buffer_does(self):
+        """VillagePreferenceListText into the Island Events companion's char[512]: a word is kept when
+        used + ", " + word + NUL still fits (parentage_export.c preference_list_text)."""
+        import random
+        rng = random.Random(1)
+        words = lt.PREFERENCES[2]
+
+        def c_text(values):
+            out = ""
+            for v in values:
+                if 0 <= v < len(words):
+                    if len(out) + (2 if out else 0) + len(words[v]) + 1 > 512:
+                        break
+                    out += (", " if out else "") + words[v]
+            return out or "(none)"
+        for _ in range(3000):
+            values = [rng.randrange(-1, 62) for _ in range(62)]
+            self.assertEqual(lt.list_text(2, values), c_text(values), values)
 
     def test_undo_a_change(self):
         self.assertEqual(lt.undo(5, [8, 9, -1], "bees", "bees, the dark"), [(8, -1, -1)])
@@ -232,6 +251,19 @@ class TheAlapaiCase(unittest.TestCase):
                 copy = v.folder / DATA / "Copies Made Before Repairs" / DATA / "Custom Titles" / (
                     "Custom Titles - Save 1.dat" + lt.COPY_SUFFIX)
                 self.assertEqual(copy.read_bytes(), original)
+
+    def test_the_repair_number_follows_every_repairs_file_of_the_game(self):
+        # "Repair <n>" is numbered per GAME and written in the village's own slot folder
+        # (src/vv_log_tools.py repair_record_start), as every other repair does.
+        v = Village(self, 4, [ALAPAI, KAI], alapai_events(4))
+        v.log("Save 1/Repairs Made/Virtual Villagers 4 Repairs Log 1.txt",
+              f"{VILLAGE}\nRepair 1\n  Date: x\n\nRepair 2\n  Date: x\n\nRepair 3\n  Date: x\n\n")
+        lt.restore(v.folder, 4, 1, processes=NoGame(), now=NOW)
+        written = v.folder / LOGS / "Save 1" / "Repairs Made" / "Virtual Villagers 4 Repairs Log 1.txt"
+        text = written.read_bytes().decode("latin-1")
+        self.assertIn("Repair 4\r\n  Date: 2026-10-10 12:00:00\r\n", text)
+        self.assertNotIn("Repair 1\r\n  Date: 2026-10-10", v.repairs())
+        self.assertFalse((v.folder / LOGS / "Repairs Made").exists(), "not in the shared folder")
 
     def test_refused_while_the_game_runs(self):
         v = Village(self, 4, [ALAPAI, KAI], alapai_events(4))
