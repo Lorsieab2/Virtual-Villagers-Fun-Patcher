@@ -754,6 +754,41 @@ was given.
 - **Exceptions:** Not observed in play.
 - **Status:** non-bug (stock behaviour).
 
+### G9. A crash right after a purchase loses the purchase together with its charge
+
+- **Behaviour:** A queued Story / Cheat purchase (Pick Island Event, Custom Island Event,
+  Gong of Wonder Outcome, the rest of a Choose Time Skip Amount) or a bought Barrel of
+  Babies that has not arrived yet is kept in a per-slot file in `Paid Purchases`, written as
+  soon as it is queued. After a crash (or a kill) before the next save, the next load
+  finds the slot's save **older** than the file's purchase and drops the item, deleting the
+  file. The player has neither the purchase nor the spent tech points: the village is
+  exactly as the last save left it.
+- **Game(s) / subsystem:** All five games. Story / Cheat Upgrades companion
+  (`native/vvfp_story_upgrades/story_queue.inc`) and the Barrel of Babies file
+  (`native/shared/paid_purchases.h`).
+- **Conditions:** The process ends without the game saving between the purchase and the
+  crash. A quit, and the 10-minute autosave, save the purchase's charge, so the item is then
+  put back once.
+- **Decision source:** Design, kept deliberately (2026-10-10 review of the open gaps).
+  The alternative was considered and not built: re-applying the charge at the next load,
+  or writing the file only at the save. The charge lives in the save (the village's tech
+  points); re-charging a village the game loaded from an older save would change saved
+  state the patcher cannot prove is unchanged (the player may have spent or earned tech
+  points since, and a negative balance is possible), and writing the file at the save would
+  still miss the quit's own save, which is the last thing the process does. Dropping the
+  item is the one outcome that is always consistent: nothing is delivered for nothing and
+  nothing is charged twice.
+- **Evidence:** Static analysis and the emulated tests
+  (`tests/test_story_queued_purchases.py`, `native/shared/paid_purchases_harness.c`: a save
+  older than the purchase never paid for it). Not seen in play (`docs/LIVE-CHECKLIST.md`,
+  B3).
+- **Exceptions:** A purchase that is delivered although its charge is not in the save, or a
+  charge that stays in the save with no purchase or file left, is a defect. One window is
+  accepted: a save written in the quarter second between the charge and the companion's
+  next tick (the file's moment is taken at the tick) would hold the charge and be taken for
+  older; the autosave would have to fall in exactly that window.
+- **Status:** approved behaviour (consequence of G1).
+
 ---
 
 ## Island Events

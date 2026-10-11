@@ -89,3 +89,4 @@ EXPORTS
     VvfpStoryProbeQueueLazy=_VvfpStoryProbeQueueLazy@4
     VvfpStoryProbeQueueLayout=_VvfpStoryProbeQueueLayout@4
     VvfpStoryProbeQueueRestored=_VvfpStoryProbeQueueRestored@0
+    VvfpStoryProbeQueueAsked=_VvfpStoryProbeQueueAsked@4

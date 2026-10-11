@@ -24,6 +24,7 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     (Join-Path $sharedRoot "village_identity.c") `
     (Join-Path $sharedRoot "save_folder.c") `
     /link `
+    /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "parentage_export.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `

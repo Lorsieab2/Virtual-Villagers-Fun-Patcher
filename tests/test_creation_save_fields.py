@@ -107,6 +107,57 @@ class CreationSaveFields(unittest.TestCase):
                 self.assertIn(f"0x{manager:08X}u", header)
                 self.assertIn(f"0x{slot:X}u", header)
 
+    def test_a_new_homes_skip_button_never_sets_the_start_time(self):
+        # 0x41F480 is the intro scene's command handler: command 0x3FA hides the scene and sets the
+        # village's scene without touching [manager+0x9E1C], so the village is never "started" and
+        # the save-all (0x41BF70) skips its slot -- and the creation save is made another way.
+        code = self._code(1, 0x41F480, 0x58)
+        text = " ; ".join(code)
+        self.assertIn("sub eax, 0x3fa", text)
+        self.assertRegex(text, r"mov dword ptr \[eax \+ 0xacb4\], 1", text)
+        self.assertNotIn("0x9e1c", text)
+
+    def test_the_later_games_have_one_way_in_and_it_sets_the_start_time(self):
+        # The Tree of Life and New Believers: the start-game step (VV4 0x41FEF0, VV5 0x4259D0) is
+        # called from exactly two places, the founder screen's handler and one more, and each sets
+        # the village's scene only after it: there is no way into the village that leaves the start
+        # time at 0 (A New Home's skip button has no counterpart), so they need no direct save.
+        for game, step, callers in ((4, 0x41FEF0, (0x43BD26, 0x43DBF9)), (5, 0x4259D0, (0x43E726, 0x4404D9))):
+            with self.subTest(game=game):
+                read = _image(game)
+                found = []
+                text = read(0x401000, 0x80000)
+                for i in range(len(text) - 5):
+                    if text[i] == 0xE8:
+                        rel = struct.unpack_from("<i", text, i + 1)[0]
+                        if (0x401000 + i + 5 + rel) & 0xFFFFFFFF == step:
+                            found.append(0x401000 + i)
+                self.assertEqual(tuple(found), callers)
+                start_global = FIELDS[game][7][1]
+                self.assertIn(f"dword ptr [{start_global:#x}], eax", " ; ".join(self._code(game, step, 0x80)))
+
+    def test_the_save_all_skips_a_village_that_never_started(self):
+        code = self._code(1, 0x41BF70, 0x30)
+        text = " ; ".join(code)
+        self.assertRegex(text, r"mov eax, dword ptr \[esi \+ 0x9e1c\] ; test eax, eax ; je ", text)
+
+    def test_the_quit_saves_the_slot_through_the_managers_own_virtual_save(self):
+        # The quit routine (0x41B230) pushes [manager+0xABE4] and calls virtual +0x38: the call the
+        # companion makes for a village that never started (cod_creation_save.inc).
+        code = self._code(1, 0x41B230, 0x2A)
+        text = " ; ".join(code)
+        self.assertRegex(text, r"mov edx, dword ptr \[ecx \+ 0xabe4\] ; mov eax, dword ptr \[ecx\] ; push edx ; "
+                               r"call dword ptr \[eax \+ 0x38\]", text)
+        # That virtual (the manager's vtable 0x459690, entry 0x41BF10) is a thiscall that takes the slot
+        # and pops it ("ret 4"): a slot writes the village's 0xABDC bytes, 0 the settings.
+        save = " ; ".join(self._code(1, 0x41BF10, 0x60))
+        self.assertIn("mov edi, dword ptr [esp + 0xc]", save)
+        self.assertIn("push 0xabdc", save)
+        self.assertIn("ret 4", save)
+        source = SOURCE.read_text(encoding="utf-8")
+        self.assertIn("vtable[0x38 / 4])(manager, NULL, slot)", source)
+        self.assertIn("typedef int (__fastcall *creation_slot_save_fn)(void *self, void *unused_edx, int slot);", source)
+
     def test_the_companion_uses_these_fields(self):
         text = SOURCE.read_text(encoding="utf-8")
         for game, (_r, _l, manager, slot, scene, main, field, start) in FIELDS.items():

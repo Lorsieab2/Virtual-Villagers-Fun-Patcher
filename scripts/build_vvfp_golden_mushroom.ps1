@@ -28,6 +28,7 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "vvfp_golden_mushroom.c") `
     /link `
+    /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "vvfp_golden_mushroom.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
@@ -61,6 +62,7 @@ New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
     /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
     (Join-Path $nativeRoot "vvfp_golden_mushroom.c") `
     /link `
+    /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "vvfp_golden_mushroom_test.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
