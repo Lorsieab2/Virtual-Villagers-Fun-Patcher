@@ -2129,14 +2129,14 @@
     {
       "id": "vv1_super_secret_golden_mushroom",
       "game_id": "vv1",
-      "name": "Super-Secret Golden Mushroom",
+      "name": "Super-Secret Golden Mushroom [DEBUG]",
       "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
       "output_tag": "Golden Mushroom",
       "patches": [
         {
           "offset": "0x236C7",
           "before": "6A64E842F8FDFF83C40483F8057D118B5610C782B0AC0000010000006A21EB248B46108998B0AC00006A21EB17",
-          "after": "68E8030000E83FF8FDFF5933C983F83373064185C07501418B5610898AB0AC00006A21EB1F9090909090909090",
+          "after": "68E803000031C09090905933C983F83373064185C07501418B5610898AB0AC00006A21EB1F9090909090909090",
           "purpose": "mushroom spawn: one roll picks the mushroom's kind (the red mushroom keeps its stock 5%)"
         },
         {
@@ -2168,13 +2168,48 @@
           "before": "0F8479030000",
           "after": "0F8D79030000",
           "purpose": "zoomed-out map: hide every mushroom frame, as stock hides its two"
+        },
+        {
+          "offset": "0x23521",
+          "before": "0F8ECD010000",
+          "after": "909090909090",
+          "purpose": "DEBUG: spawn a mushroom on every check while none is on the map"
+        },
+        {
+          "offset": "0x17411",
+          "before": "6A0F",
+          "after": "6A10",
+          "purpose": "DEBUG: 16-frame debug carrying.png (ground)"
+        },
+        {
+          "offset": "0x1ADA7",
+          "before": "6A0F",
+          "after": "6A10",
+          "purpose": "DEBUG: 16-frame debug carrying.png (dropped item)"
+        },
+        {
+          "offset": "0x3C265",
+          "before": "6A0F",
+          "after": "6A10",
+          "purpose": "DEBUG: 16-frame debug carrying.png (held)"
+        }
+      ],
+      "companion_files": [
+        {
+          "source": "data/debug_golden_vv1/new/Images/carrying.png",
+          "destination": "Images/carrying.png",
+          "size": 23713,
+          "sha256": "5FA16EB7D529A18628FD4B924A255E1D245F66EB70F9D2DE33901D171482AA47",
+          "preimage_sha256": "9797C22822308DE709BF57E6C0EB7CAA3C5B8F2B7D79A6A8766C5C57254F968C",
+          "restore_source": "data/debug_golden_vv1/base/Images/carrying.png",
+          "restore_sha256": "9797C22822308DE709BF57E6C0EB7CAA3C5B8F2B7D79A6A8766C5C57254F968C"
         }
       ]
     },
     {
       "id": "vv2_super_secret_golden_mushroom",
       "game_id": "vv2",
-      "name": "Super-Secret Golden Mushroom",
+      "name": "Super-Secret Golden Mushroom [DEBUG: always golden, frequent spawns]",
       "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
       "output_tag": "Golden Mushroom",
       "patches": [
@@ -2187,7 +2222,7 @@
         {
           "offset": "0x16012",
           "before": "90909090909090909090909090",
-          "after": "68E8030000E884D1FEFF59EB32",
+          "after": "68E803000031C090909059EB32",
           "purpose": "mushroom spawn: the extra roll (part one)"
         },
         {
@@ -2209,6 +2244,18 @@
           "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
         },
         {
+          "offset": "0x15FED",
+          "before": "E8AED1FEFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always a pickup spawns"
+        },
+        {
+          "offset": "0x154B8",
+          "before": "E8E3DCFEFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always the pickup is a mushroom"
+        },
+        {
           "offset": "0x633CD",
           "before": "E8DE2EFCFF",
           "after": "E8330A0100",
@@ -2219,7 +2266,7 @@
     {
       "id": "vv3_super_secret_golden_mushroom",
       "game_id": "vv3",
-      "name": "Super-Secret Golden Mushroom",
+      "name": "Super-Secret Golden Mushroom [DEBUG: always golden, frequent spawns]",
       "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
       "output_tag": "Golden Mushroom",
       "patches": [
@@ -2238,7 +2285,7 @@
         {
           "offset": "0x2FAD1",
           "before": "9090909090909090909090909090",
-          "after": "68E8030000E8F537FDFF5959EB72",
+          "after": "68E803000031C09090905959EB72",
           "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
         },
         {
@@ -2252,13 +2299,31 @@
           "before": "33C083FE640F95C0B9902458004883E0E383C023",
           "after": "0FB6860EE04200B990245800EB06062364CCCCCC",
           "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+        },
+        {
+          "offset": "0x2DD72",
+          "before": "E85955FDFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always the spawn tick fires"
+        },
+        {
+          "offset": "0x2DD8D",
+          "before": "E83E55FDFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always the second spawn tick fires"
+        },
+        {
+          "offset": "0x2D98D",
+          "before": "E83E59FDFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always the spawn is a mushroom"
         }
       ]
     },
     {
       "id": "vv4_super_secret_golden_mushroom",
       "game_id": "vv4",
-      "name": "Super-Secret Golden Mushroom",
+      "name": "Super-Secret Golden Mushroom [DEBUG: always golden, frequent spawns]",
       "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
       "output_tag": "Golden Mushroom",
       "patches": [
@@ -2277,7 +2342,7 @@
         {
           "offset": "0x89130",
           "before": "000000000000000000000000000000000000000000000000",
-          "after": "68E8030000E896A5F7FF5985C07504C6460878E94BAFF8FF",
+          "after": "68E803000031C09090905985C07504C6460878E94BAFF8FF",
           "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
         },
         {
@@ -2285,6 +2350,24 @@
           "before": "000000000000000000000000000000000000",
           "after": "83FE78BE2300000075036A645EE9ADB4F8FF",
           "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+        },
+        {
+          "offset": "0x143AD",
+          "before": "E81EF3FEFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always the spawn tick fires"
+        },
+        {
+          "offset": "0x143C7",
+          "before": "E804F3FEFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always the second spawn tick fires"
+        },
+        {
+          "offset": "0x13F35",
+          "before": "E896F7FEFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always the spawn is a mushroom"
         },
         {
           "offset": "0x1460A",
@@ -2297,7 +2380,7 @@
     {
       "id": "vv5_super_secret_golden_mushroom",
       "game_id": "vv5",
-      "name": "Super-Secret Golden Mushroom",
+      "name": "Super-Secret Golden Mushroom [DEBUG: always golden, frequent spawns]",
       "description": "Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)",
       "output_tag": "Golden Mushroom",
       "patches": [
@@ -2316,7 +2399,7 @@
         {
           "offset": "0x947A0",
           "before": "000000000000000000000000000000000000000000000000",
-          "after": "68E8030000E8B6EEF6FF5985C07504C6460882E90FFCF7FF",
+          "after": "68E803000031C09090905985C07504C6460882E90FFCF7FF",
           "purpose": "mushroom spawn: one extra roll picks the mushroom's kind (brown/red keep their stock odds)"
         },
         {
@@ -2324,6 +2407,24 @@
           "before": "000000000000000000000000000000000000000000",
           "after": "81FE82000000BE2300000075036A645EE94501F8FF",
           "purpose": "mushroom pickup: the pickup's result follows the mushroom's kind"
+        },
+        {
+          "offset": "0x1464B",
+          "before": "E810F0FEFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always the spawn tick fires"
+        },
+        {
+          "offset": "0x14665",
+          "before": "E8F6EFFEFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always the second spawn tick fires"
+        },
+        {
+          "offset": "0x1422E",
+          "before": "E82DF4FEFF",
+          "after": "31C0909090",
+          "purpose": "DEBUG: always the spawn is a mushroom"
         },
         {
           "offset": "0x14915",
