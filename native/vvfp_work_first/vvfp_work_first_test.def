@@ -1,5 +1,0 @@
-LIBRARY "VVFP Work First.test.dll"
-EXPORTS
-    VvfpWorkFirstInstall=_VvfpWorkFirstInstall@4
-    VvfpWorkFirstProbeSite=_VvfpWorkFirstProbeSite@20
-    VvfpWorkFirstStats DATA
