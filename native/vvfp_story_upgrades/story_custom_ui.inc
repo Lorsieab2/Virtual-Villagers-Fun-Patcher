@@ -630,15 +630,36 @@ static int ui_targets(HWND window, int *out) {
                                  ui.a->adult_age, out, UI_ROSTER_MAX);
 }
 
+/* The draft's entry for villager `index`, NULL when the event has none. */
+static const ce_change *ui_draft_entry(int index) {
+    int i;
+    for (i = 0; i < ui.draft.change_count; ++i) {
+        if (ui.draft.changes[i].index == index) {
+            return &ui.draft.changes[i];
+        }
+    }
+    return NULL;
+}
+
+/* Whether the entry already ends the villager: dies, disappears or health 0. */
+static int ui_entry_is_final(const ce_change *c) {
+    return c->fate != CE_FATE_NONE || c->health == 0;
+}
+
 static void ui_show_count(HWND window) {
     int targets[UI_ROSTER_MAX];
-    char text[96];
+    char text[256];
     int n = ui_targets(window, targets);
     int dead = 0;
+    int combined = 0;
+    int final = 0;
     int i;
     for (i = 0; i < n; ++i) {
         int position = ui_roster_position(targets[i]);
+        const ce_change *entry = ui_draft_entry(targets[i]);
         dead += position >= 0 && ui.roster[position].dead;
+        combined += entry != NULL;
+        final += entry != NULL && ui_entry_is_final(entry);
     }
     if (dead > 0) {
         wsprintfA(text, dead == 1 ? "%d chosen (1 skeleton will be revived first)."
@@ -646,14 +667,26 @@ static void ui_show_count(HWND window) {
     } else {
         wsprintfA(text, n == 1 ? "1 villager chosen." : "%d villagers chosen.", n);
     }
+    /* A villager who already has changes in this event: the new ones are
+       combined with them (nothing is lost). */
+    if (combined > 0 && ui.change_editing < 0) {
+        char *p = text + lstrlenA(text);
+        p += wsprintfA(p, combined == 1 ? " 1 already has changes in this event: they are combined, "
+                                          "and a later entry overrides the same field."
+                                        : " %d already have changes in this event: they are combined, "
+                                          "and a later entry overrides the same field.", combined);
+        if (final > 0) {
+            p += wsprintfA(p, final == 1 ? " 1 already dies or disappears: other changes to them are ignored."
+                                         : " %d already die or disappear: other changes to them are ignored.", final);
+        }
+    }
     SetDlgItemTextA(window, IDC_CH_COUNT, text);
 }
 
 static int ui_change_is_empty(const ce_change *c) {
     int i;
     if (c->fate != CE_FATE_NONE || c->sick || c->litter != 0 || c->unborn_set || c->head != CE_KEEP
-        || c->body != CE_KEEP || c->like_add >= 0 || c->like_remove >= 0
-        || c->dislike_add >= 0 || c->dislike_remove >= 0 || c->title_op != CE_TITLE_KEEP
+        || c->body != CE_KEEP || c->pref_op_count > 0 || c->title_op != CE_TITLE_KEEP
         || c->mask != CE_KEEP || c->status != CE_KEEP || c->behaviour != CE_KEEP
         || c->faith != CE_KEEP || c->health != CE_KEEP || c->parents_set) {
         return 0;
@@ -672,7 +705,7 @@ static void ce_change_init(ce_change *c) {
     c->index = -1;
     c->father = -1;
     c->head = c->body = CE_KEEP;
-    c->like_add = c->like_remove = c->dislike_add = c->dislike_remove = -1;
+    c->pref_op_count = 0;
     for (i = 0; i < CE_SKILLS; ++i) {
         c->skills[i] = CE_KEEP;
     }
@@ -688,10 +721,74 @@ static void ce_change_init(ce_change *c) {
 
 static void ce_merge_into(ce_change *c, const ce_change *t, unsigned int fingerprint);
 
+/* The index of the last like/dislike change in `c` of one kind (a like or
+   dislike, an add or a removal), -1 for none. */
+static int ce_pref_last(const ce_change *c, int dislike, int remove) {
+    int i;
+    for (i = c->pref_op_count - 1; i >= 0; --i) {
+        if (((c->pref_ops[i] & CE_PREF_DISLIKE) != 0) == (dislike != 0)
+            && ((c->pref_ops[i] & CE_PREF_REMOVE) != 0) == (remove != 0)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* The preference of that last change, -1 for none (the dialogs' combos). */
+static int ce_pref_last_value(const ce_change *c, int dislike, int remove) {
+    int i = ce_pref_last(c, dislike, remove);
+    return i < 0 ? -1 : CE_PREF_VALUE(c->pref_ops[i]);
+}
+
+static void ce_pref_drop(ce_change *c, int at) {
+    memmove(&c->pref_ops[at], &c->pref_ops[at + 1], (size_t)(c->pref_op_count - at - 1) * sizeof(int));
+    --c->pref_op_count;
+    c->pref_ops[c->pref_op_count] = 0;        /* (the emptied place reads as nothing) */
+}
+
+/* Append one like/dislike change.  The same list and preference changed
+   again replaces the earlier change (the later entry wins), so one villager
+   holds at most one change per preference.  0 when there is no room for
+   another (CE_MAX_PREF_OPS). */
+static int ce_pref_put(ce_change *c, int dislike, int remove, int value) {
+    int i;
+    if (value < 0) {
+        return 1;
+    }
+    for (i = c->pref_op_count - 1; i >= 0; --i) {
+        if (CE_PREF_VALUE(c->pref_ops[i]) == value
+            && ((c->pref_ops[i] & CE_PREF_DISLIKE) != 0) == (dislike != 0)) {
+            ce_pref_drop(c, i);
+        }
+    }
+    if (c->pref_op_count >= CE_MAX_PREF_OPS) {
+        return 0;
+    }
+    c->pref_ops[c->pref_op_count++] = CE_PREF_OP(dislike, remove, value);
+    return 1;
+}
+
+/* The dialog's own like/dislike choices (each combo's one preference), in
+   the order the game has always applied them: removals, then additions. */
+static int ce_pref_merge(ce_change *c, const ce_change *t) {
+    int ok = 1;
+    int i;
+    for (i = 0; i < t->pref_op_count; ++i) {
+        int op = t->pref_ops[i];
+        ok &= ce_pref_put(c, (op & CE_PREF_DISLIKE) != 0, (op & CE_PREF_REMOVE) != 0, CE_PREF_VALUE(op));
+    }
+    return ok;
+}
+
 /* Merge `t` (the dialog's changes) into the draft's entry for villager
-   `index`, creating it: every field `t` sets replaces the earlier one. */
+   `index`, creating it.  The same villager's earlier entries all stay: a
+   like or dislike is added to the ones already there, and a field `t` sets
+   replaces the earlier value of that same field (the later entry wins).
+   0 (and nothing changed) when the event or the villager has no room. */
 static int ce_merge(ce_event *e, const ce_change *t, int index, unsigned int fingerprint) {
     ce_change *c = NULL;
+    ce_change before;
+    int created = 0;
     int i;
     for (i = 0; i < e->change_count; ++i) {
         if (e->changes[i].index == index) {
@@ -706,18 +803,65 @@ static int ce_merge(ce_event *e, const ce_change *t, int index, unsigned int fin
         c = &e->changes[e->change_count++];
         ce_change_init(c);
         c->index = index;
+        created = 1;
+    }
+    before = *c;
+    if (!ce_pref_merge(c, t)) {
+        *c = before;
+        if (created) {
+            --e->change_count;
+        }
+        return 0;
     }
     ce_merge_into(c, t, fingerprint);
     return 1;
 }
 
-/* Edit: the draft's entry `position` replaced by `t` alone, in place (the
-   owner: "OK replaces the entry in place"). */
+/* Edit: the draft's entry `position` replaced by `t`, in place (the owner:
+   "OK replaces the entry in place").  The dialog shows the last like,
+   remove-a-like, dislike and remove-a-dislike change of a combined entry,
+   so those four are what t's choices replace; the entry's other like and
+   dislike changes (from earlier entries that were combined) stay. */
 static void ce_replace(ce_event *e, int position, const ce_change *t, unsigned int fingerprint) {
     ce_change *c = &e->changes[position];
+    ce_change old = *c;
     int index = c->index;
+    int dislike;
+    int remove;
     ce_change_init(c);
     c->index = index;
+    c->pref_op_count = old.pref_op_count;
+    memcpy(c->pref_ops, old.pref_ops, sizeof c->pref_ops);
+    for (dislike = 0; dislike < 2; ++dislike) {
+        for (remove = 0; remove < 2; ++remove) {
+            int shown = ce_pref_last(c, dislike, remove);
+            int chosen = ce_pref_last_value(t, dislike, remove);
+            if (shown >= 0 && chosen < 0) {
+                ce_pref_drop(c, shown);            /* cleared in the dialog */
+            } else if (shown >= 0 && CE_PREF_VALUE(c->pref_ops[shown]) != chosen) {
+                /* Changed in the dialog: in the same place, the earlier
+                   change of that preference (if any) gone. */
+                int at;
+                c->pref_ops[shown] = CE_PREF_OP(dislike, remove, chosen);
+                for (at = shown - 1; at >= 0; --at) {
+                    if (CE_PREF_VALUE(c->pref_ops[at]) == chosen
+                        && ((c->pref_ops[at] & CE_PREF_DISLIKE) != 0) == (dislike != 0)) {
+                        ce_pref_drop(c, at);
+                        --shown;
+                    }
+                }
+                for (at = c->pref_op_count - 1; at > shown; --at) {
+                    if (CE_PREF_VALUE(c->pref_ops[at]) == chosen
+                        && ((c->pref_ops[at] & CE_PREF_DISLIKE) != 0) == (dislike != 0)) {
+                        ce_pref_drop(c, shown);    /* a later change of it already wins */
+                        break;
+                    }
+                }
+            } else if (shown < 0 && chosen >= 0) {
+                (void)ce_pref_put(c, dislike, remove, chosen);   /* (room was freed above, or full) */
+            }
+        }
+    }
     ce_merge_into(c, t, fingerprint);
 }
 
@@ -739,15 +883,12 @@ static void ce_merge_into(ce_change *c, const ce_change *t, unsigned int fingerp
     }
     if (t->head != CE_KEEP) c->head = t->head;
     if (t->body != CE_KEEP) c->body = t->body;
-    if (t->like_add >= 0) c->like_add = t->like_add;
-    if (t->like_remove >= 0) c->like_remove = t->like_remove;
-    if (t->dislike_add >= 0) c->dislike_add = t->dislike_add;
-    if (t->dislike_remove >= 0) c->dislike_remove = t->dislike_remove;
     for (i = 0; i < CE_SKILLS; ++i) {
         if (t->skills[i] != CE_KEEP) c->skills[i] = t->skills[i];
     }
     if (t->title_op != CE_TITLE_KEEP) {
         c->title_op = t->title_op;
+        memset(c->title, 0, sizeof c->title);
         lstrcpynA(c->title, t->title, sizeof c->title);
     }
     if (t->mask != CE_KEEP) c->mask = t->mask;
@@ -811,10 +952,11 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
         ui_message(window, text);
         return 0;
     }
-    t->like_add = ui_combo_data(window, IDC_CH_LIKE_ADD);
-    t->like_remove = ui_combo_data(window, IDC_CH_LIKE_REMOVE);
-    t->dislike_add = ui_combo_data(window, IDC_CH_DISLIKE_ADD);
-    t->dislike_remove = ui_combo_data(window, IDC_CH_DISLIKE_REMOVE);
+    /* removals, then additions (the order the game has always applied them) */
+    (void)ce_pref_put(t, 0, 1, ui_combo_data(window, IDC_CH_LIKE_REMOVE));
+    (void)ce_pref_put(t, 1, 1, ui_combo_data(window, IDC_CH_DISLIKE_REMOVE));
+    (void)ce_pref_put(t, 0, 0, ui_combo_data(window, IDC_CH_LIKE_ADD));
+    (void)ce_pref_put(t, 1, 0, ui_combo_data(window, IDC_CH_DISLIKE_ADD));
     for (i = 0; i < ui.a->skill_count && i < CE_SKILLS; ++i) {
         t->skills[i] = ui_number(window, IDC_CH_SKILL_FIRST + i);
         if (t->skills[i] != CE_KEEP && (t->skills[i] < 0 || t->skills[i] > 100)) {
@@ -1066,10 +1208,10 @@ static void ui_prefill_changes(HWND window, const ce_change *c) {
     ui_select_data(window, IDC_CH_FATHER, c->litter > 0 ? c->father : -1);
     ui_put_number(window, IDC_CH_HEAD, c->head);
     ui_put_number(window, IDC_CH_BODY, c->body);
-    ui_select_data(window, IDC_CH_LIKE_ADD, c->like_add);
-    ui_select_data(window, IDC_CH_LIKE_REMOVE, c->like_remove);
-    ui_select_data(window, IDC_CH_DISLIKE_ADD, c->dislike_add);
-    ui_select_data(window, IDC_CH_DISLIKE_REMOVE, c->dislike_remove);
+    ui_select_data(window, IDC_CH_LIKE_ADD, ce_pref_last_value(c, 0, 0));
+    ui_select_data(window, IDC_CH_LIKE_REMOVE, ce_pref_last_value(c, 0, 1));
+    ui_select_data(window, IDC_CH_DISLIKE_ADD, ce_pref_last_value(c, 1, 0));
+    ui_select_data(window, IDC_CH_DISLIKE_REMOVE, ce_pref_last_value(c, 1, 1));
     for (i = 0; i < CE_SKILLS; ++i) {
         ui_put_number(window, IDC_CH_SKILL_FIRST + i, c->skills[i]);
     }
@@ -1220,7 +1362,8 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
                     break;
                 }
                 if (record == NULL || !ce_merge(&ui.draft, &mine, targets[i], ce_identity(ui.a, record))) {
-                    ui_message(window, "The event can hold changes for 256 villagers at most.");
+                    ui_message(window, "The event can hold changes for 256 villagers at most, and 64 likes and "
+                                    "dislikes changes for each villager.");
                     break;
                 }
             }
@@ -1841,7 +1984,7 @@ static void ui_describe_change(const ce_change *c, char *out) {
     if (c->litter == 3) p += wsprintfA(p, " triplets");
     if (c->head != CE_KEEP) p += wsprintfA(p, " head %d", c->head);
     if (c->body != CE_KEEP) p += wsprintfA(p, " body %d", c->body);
-    if (c->like_add >= 0 || c->like_remove >= 0 || c->dislike_add >= 0 || c->dislike_remove >= 0)
+    if (c->pref_op_count > 0)
         p += wsprintfA(p, " likes/dislikes");
     for (i = 0; i < CE_SKILLS; ++i) {
         if (c->skills[i] != CE_KEEP) {

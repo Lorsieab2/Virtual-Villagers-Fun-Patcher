@@ -344,8 +344,12 @@ Event on the Origins Tech menu. Its plain Windows dialogs:
   group toggles named exactly **All Adult Women**, **All Adult Men**, **All
   Females**, **All Males**, **All Children** ("adult" is each game's own
   boundary, 14 years). Toggles and picks combine; a villager matched more than
-  once counts once; changes added for a villager twice are merged (the later
-  value wins), so changes can be set per villager. New Believers adds seven
+  once counts once; changes added for a villager twice are combined into one entry:
+  every like and dislike change is kept (two entries that each add a like both add it, in order,
+  up to 64 changes per villager), any other field set twice takes the later entry's value, and
+  a villager who dies or disappears gets nothing else (the count line under the list says so as you
+  choose a villager who is already in the event). Edit shows the last like, remove-a-like, dislike and
+  remove-a-dislike change of a combined entry and keeps the entry's others. New Believers adds seven
   more toggles: **All Heathens**, **All Blue Heathens**, **All Red Heathens**,
   **All Orange Heathens**, **All Purple Heathens**, **All Chief Heathens** and
   **All Heathen Mommies** (the type the game's mask draw 0x4728C6 shows).

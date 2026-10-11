@@ -140,7 +140,7 @@ BEGIN
     AUTOCHECKBOX "All Purple Heathens", 2104, 8, 254, 95, 10, WS_TABSTOP
     AUTOCHECKBOX "All Chief Heathens", 2105, 104, 254, 95, 10, WS_TABSTOP
     AUTOCHECKBOX "All Heathen Mommies", 2106, 8, 266, 95, 10, WS_TABSTOP
-    LTEXT       "", 2007, 8, 280, 190, 20
+    LTEXT       "", 2007, 8, 280, 190, 62
 
     LTEXT       "Fate:", -1, 206, 8, 70, 10
     COMBOBOX    2010, 280, 6, 172, 80, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP

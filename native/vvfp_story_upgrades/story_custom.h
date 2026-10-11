@@ -28,6 +28,19 @@
 #define CE_MAX_CHANGES 256
 #define CE_MAX_RECORDS 256          /* the most villager records any build has */
 
+/* One like/dislike change of a villager: the preference index in the low
+   byte, CE_PREF_REMOVE for a removal (else an add), CE_PREF_DISLIKE for the
+   dislikes list (else the likes).  A villager can hold CE_MAX_PREF_OPS of
+   them in one event: the lists hold 4 (A New Home), 62 (The Secret City) or
+   3 entries and a game has 47..79 preferences, and a later change to the
+   same list and preference replaces the earlier. */
+#define CE_MAX_PREF_OPS 64
+#define CE_PREF_REMOVE  0x100
+#define CE_PREF_DISLIKE 0x200
+#define CE_PREF_VALUE(op) ((op) & 0xFF)
+#define CE_PREF_OP(dislike, remove, value) \
+    ((value) | ((remove) ? CE_PREF_REMOVE : 0) | ((dislike) ? CE_PREF_DISLIKE : 0))
+
 /* Capabilities. */
 #define CAP_FOOD        0x00000001u
 #define CAP_TECH        0x00000002u
@@ -139,10 +152,12 @@ typedef struct {
     unsigned int father_fingerprint;
     int head;                        /* CE_KEEP */
     int body;
-    int like_add;                    /* -1 = none */
-    int like_remove;
-    int dislike_add;
-    int dislike_remove;
+    /* The likes and dislikes changes, applied in this order (CE_PREF_OP).
+       Every Add of the same villager appends its own, so two likes added in
+       two entries are both added; a later op on the same list and
+       preference replaces the earlier one (the later entry wins). */
+    int pref_op_count;
+    int pref_ops[CE_MAX_PREF_OPS];
     int skills[CE_SKILLS];           /* CE_KEEP */
     int title_op;                    /* CE_TITLE_* */
     char title[32];
