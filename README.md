@@ -30,9 +30,11 @@ prerequisite are rejected before any copied game folder or EXE is written.
 - **Move Old Files** also leaves a short note in the Repairs Made log of every save slot whose files it moved.
 - **Reproducible companions.** Every companion DLL is now built so that the same source always gives the same bytes (so the DLLs the patcher ships match the hashes its manifests pin); no behaviour changes.
 - **Known limit (documented):** a crash between buying a Story / Cheat Upgrades item and the next save loses both the item and its charge together -- consistent, never a charge without the item.
+- **Custom Island Event: several changes to one villager now combine.** Several "Villager changes" entries for the same villager in one event all apply. Likes and dislikes are applied in the order you added them (several "Add a like" entries each add one); for every other field the later entry wins. Adding a second entry for a villager shows a warning saying so, and Edit works on a combined entry.
+- **NOTE when updating from v1.35.68:** a Custom Island Event or Pick Island Event that you bought but that has not been delivered yet is **discarded** when you update to v1.35.69 (the saved queue layout changed; the tech points stay spent). **Deliver pending purchases before updating.**
 - **Patch every game again** after updating: the Cause of Death, Story Upgrades and Origins companions changed.
 
-**Not yet seen in a running game:** the Skip-button creation save (checked by emulation and the harness only; it is item B1 of docs/LIVE-CHECKLIST.md -- it calls the game's own save routine, so watch for a freeze in the first seconds); the two-choice question coming back after a quit in each game; Move Old Files' per-slot notes; and everything still on the list under v1.35.66, which is carried in docs/LIVE-CHECKLIST.md.
+**Not yet seen in a running game:** the Skip-button creation save (checked by emulation and the harness only; it is item B1 of docs/LIVE-CHECKLIST.md -- it calls the game's own save routine, so watch for a freeze in the first seconds); the two-choice question coming back after a quit in each game; several changes to one villager in one Custom Island Event; Move Old Files' per-slot notes; and everything still on the list under v1.35.66, which is carried in docs/LIVE-CHECKLIST.md.
 
 
 ## What was new in v1.35.68
