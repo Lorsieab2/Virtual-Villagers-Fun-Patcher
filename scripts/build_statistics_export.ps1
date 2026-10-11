@@ -34,6 +34,7 @@ function Build-Statistics([string]$defines, [string]$def, [string]$out) {
         (Join-Path $sharedRoot "village_identity.c"),
         (Join-Path $sharedRoot "save_folder.c"),
         "/link",
+        "/Brepro",
         ("/DEF:" + (Join-Path $nativeRoot $def)),
         ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")),
         ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")),

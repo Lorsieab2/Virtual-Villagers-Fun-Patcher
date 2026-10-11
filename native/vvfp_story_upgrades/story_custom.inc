@@ -282,6 +282,7 @@ static int ce_asked_store;
 static int ce_asked_game;
 static story_village ce_asked_village;
 static char ce_asked_title[CE_TITLE_BYTES];
+static ce_event ce_asked_event;     /* the event the question belongs to (kept across a quit, story_queue.inc) */
 static int ce_last_button = -1;     /* the last resolved button and its rolled outcome */
 static int ce_last_outcome = -1;
 
@@ -1996,6 +1997,7 @@ static int ce_choice_begin(int game, char *text, int size) {
     ce_asked_game = game;
     ce_asked_village = ce_armed_village;
     lstrcpynA(ce_asked_title, ce_armed_event.title, sizeof ce_asked_title);
+    ce_asked_event = ce_armed_event;
     l = ce_question_layout(a);
     ce_compose_in(a, &l, ce_armed_event.title, &ce_armed_event, NULL, text, size);
     STORY_COUNT(delivered);

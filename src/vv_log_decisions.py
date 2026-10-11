@@ -31,6 +31,15 @@ never inherits the previous one's decisions.
 
 Readers ask `decided(folder, game, slot, kind, verdict)` for the set of (name, head, body) the player
 gave that verdict for.
+
+ONE STORE.  The contradictions Repair Saves & Logs found in the records themselves (a Death or Repair
+number used twice, a backfilled record of a villager already recorded) were remembered in a second
+file, a text file of one line each, "Virtual Villagers <game> Contradictions Left - Save <slot>.txt".
+Both answers are the same thing -- "Retroactively edit records?" No -- so they are now kept here,
+as decisions of the kind "contradiction_left" whose "field" is the contradiction's identity
+(src/vv_log_contradictions.py).  The text file is still READ (left_alone), so an answer given before
+this version still holds, and every one of its lines is copied into this file the first time a new
+answer is written; it is never deleted or rewritten, and nothing is written to it any more.
 """
 from __future__ import annotations
 
@@ -43,6 +52,9 @@ import vv_save_layout as layout
 
 VERSION = 1
 RELATIVE = layout.DATA + r"\Log Checks\Virtual Villagers {game} Log Decisions - Save {slot}.json"
+# The earlier second store (read, never written): one contradiction identity per line.
+LEGACY_LEFT = layout.DATA + r"\Log Checks\Virtual Villagers {game} Contradictions Left - Save {slot}.txt"
+LEFT_KIND = "contradiction_left"
 
 
 def path(folder: Path, game: int, slot: int) -> Path:
@@ -88,7 +100,63 @@ def record(folder: Path, game: int, slot: int, entries: list[dict], now: datetim
         entry = {**entry, "date": when}
         kept = [d for d in kept if not same(d, entry)] + [entry]
     target.parent.mkdir(parents=True, exist_ok=True)
+    _set_aside_unreadable(target)
     temporary = target.with_name(target.name + ".tmp")
     temporary.write_bytes(json.dumps({"version": VERSION, "decisions": kept}, indent=1).encode("utf-8"))
     os.replace(temporary, target)
     return target
+
+
+def _set_aside_unreadable(target: Path) -> None:
+    """A decisions file that is there and cannot be read is moved aside (".unreadable", numbered when
+    that name is taken) before a new one is written, never written over: what it held may be
+    recoverable by hand."""
+    if not target.is_file():
+        return
+    try:
+        data = json.loads(target.read_text(encoding="utf-8"))
+        if isinstance(data, dict) and data.get("version") == VERSION and isinstance(data.get("decisions"), list):
+            return
+    except (OSError, ValueError):
+        pass
+    k = 0
+    while True:
+        aside = target.with_name(target.name + (".unreadable" if k == 0 else f".unreadable{k}"))
+        if not aside.exists():
+            break
+        k += 1
+    try:
+        os.replace(target, aside)
+    except OSError:
+        pass
+
+
+def legacy_left(folder: Path, game: int, slot: int) -> set[str]:
+    """The contradictions the earlier text file says the player chose to leave (read only)."""
+    path = layout.find(Path(folder), LEGACY_LEFT.format(game=game, slot=slot))
+    try:
+        return {line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()}
+    except OSError:
+        return set()
+
+
+def left_alone(folder: Path, game: int, slot: int) -> set[str]:
+    """The contradictions the player chose to leave in the past records ("Retroactively edit
+    records?" No), from this file and from the earlier text file."""
+    return legacy_left(folder, game, slot) | {
+        str(d["field"]) for d in load(folder, game, slot)
+        if d.get("kind") == LEFT_KIND and isinstance(d.get("field"), str) and d["field"]}
+
+
+def remember_left(folder: Path, game: int, slot: int, idents: list[str], now: datetime | None = None) -> list[str]:
+    """Add contradiction identities to the decisions.  Returns those that were not known before.
+    The earlier text file's lines come along the first time something is written."""
+    known = left_alone(folder, game, slot)
+    new = [i for n, i in enumerate(idents) if i not in known and i not in idents[:n]]
+    if not new:
+        return []
+    carried = sorted(legacy_left(folder, game, slot) - {str(d.get("field")) for d in load(folder, game, slot)
+                                                       if d.get("kind") == LEFT_KIND})
+    record(folder, game, slot,
+           [{"kind": LEFT_KIND, "field": i, "verdict": "leave", "edited": False} for i in carried + new], now)
+    return new

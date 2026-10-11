@@ -1349,7 +1349,7 @@ static int living_roster(int game_id, char rows[ROSTER_MAX][ROSTER_ROW]) {
                then compares the name alone. */
             /* Empty is -1 OR an index past the end of the game's preference
                list -- both occur in real villages (population_export.c,
-               first_preference; Codex, #524): 47 entries in A New Home, 62
+               preference_name; Codex, #524): 47 entries in A New Home, 62
                in The Lost Children, 79 in the later three. */
             static const int PREFERENCES[6] = { 0, 47, 62, 79, 79, 79 };
             unsigned int h = 2166136261u;

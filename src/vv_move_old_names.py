@@ -22,7 +22,12 @@ is patched with v1.35.64 or newer (older patches look only under the old names):
        any other file: the one written last (vv_save_layout.find's choice) under the new name;
      whatever is superseded goes to "Data\\Copies Made Before Repairs\\<its own place>" -- nothing
      is deleted, but an old folder left truly empty;
-  4. what was done is listed, and written as one record in the Repairs Made log.
+  4. what was done is listed, and written as one record in the Repairs Made log -- the shared one
+     (the move is the save folder's, not one village's: the record's header says "all villages in
+     this save folder") and, for each save slot whose files were among those moved or combined
+     (a name ending "- Save <n>"), one more short record in that slot's own
+     "...Logs\\Save <n>\\Repairs Made" (the village's folder, where its other repairs are written:
+     src/vv_log_tools.py repair_record_start), naming that slot's files.
 
 Backups, Tribe History and Tribe Population, and everything outside the patcher's own folders, are
 never touched.  On an error it stops at once and says what was already moved."""
@@ -318,6 +323,7 @@ class MoveResult:
     set_aside: list[str] = field(default_factory=list)
     left: list[str] = field(default_factory=list)      # left under both names, and why
     removed: list[str] = field(default_factory=list)   # empty old folders removed
+    slot_notes: list[int] = field(default_factory=list)    # the save slots a note was written for
 
     def lines(self) -> list[str]:
         out = [f"Moved: {line}" for line in self.moved]
@@ -404,6 +410,7 @@ def move_old_files(folder: Path, processes: vv_save_backup.ProcessController | N
         raise MoveError(f"The backup failed, so nothing was moved. {exc}") from exc
     result.backup = backup
     _refuse_if_running(folder, controller)
+    slotted = slots_involved(folder, items)         # before the old names are gone
     try:
         _carry_out(folder, items, result)
         _remove_empty(folder, result)
@@ -417,7 +424,37 @@ def move_old_files(folder: Path, processes: vv_save_backup.ProcessController | N
             note_move(folder, game, result, now)
         except OSError as exc:
             result.left.append(f"the Repairs Made log could not be written ({exc})")
+        for slot, files in sorted(slotted.items()):
+            try:
+                note_move_slot(folder, game, slot, files, result, now)
+                result.slot_notes.append(slot)
+            except OSError as exc:
+                result.left.append(f"Save {slot}'s Repairs Made log could not be written ({exc})")
     return result
+
+
+_SLOT_FILE = re.compile(r" - Save ([1-5])\b")
+
+
+def slots_involved(folder: Path, items: list[Item]) -> dict[int, list[str]]:
+    """The save slots whose files the planned items move or combine (a file name ending
+    "- Save <n>"; a whole folder is looked into), each with the old places of its files, relative to
+    the save folder.  Reads only."""
+    folder = Path(folder)
+    out: dict[int, list[str]] = {}
+    for item in items:
+        if item.kind == "remove empty":
+            continue
+        old = folder / item.old
+        if item.folder:
+            paths = _files_under(old) if old.is_dir() and not _is_link(old) else []
+        else:
+            paths = [old]
+        for path in paths:
+            m = _SLOT_FILE.search(path.name)
+            if m:
+                out.setdefault(int(m.group(1)), []).append(_rel(folder, path))
+    return out
 
 
 def refusal(patched: PatchedBy) -> str:
@@ -594,6 +631,28 @@ def note_move(folder: Path, game: int, result: MoveResult, now: datetime | None 
     text += "  Checked: the patcher's files kept under older builds' names (Move Old Files to New Names)\r\n"
     for line in lines:
         text += f"  {line}\r\n"
+    if result.backup is not None:
+        text += f"  Backup: {result.backup.backup_folder.name}\r\n"
+    text += "\r\n"
+    with open(path, "ab") as log:
+        log.write(text.encode("latin-1", "replace"))
+
+
+def note_move_slot(folder: Path, game: int, slot: int, files: list[str], result: MoveResult,
+                   now: datetime | None = None) -> None:
+    """One "Repair <n>" record in the save slot's own "...Logs\\Save <S>\\Repairs Made": the files of
+    that slot the move renamed or combined (their old places), under the village's header when its
+    Births log can be read, else "Village: (Save <S>)"."""
+    try:
+        header = tools.load_checker().births_log(folder, game, slot)[0].village
+    except Exception:                       # the header is only the Repairs log's label
+        header = None
+    if not header or layout.header_slot(header) != slot:
+        header = f"Village: (Save {slot})"
+    path, text = tools.repair_record_start(folder, game, header, slot, now)
+    text += "  Checked: the patcher's files kept under older builds' names (Move Old Files to New Names)\r\n"
+    for name in files:
+        text += f"  Moved: {name} -> its new name or folder (the shared Repairs Made log lists the whole move)\r\n"
     if result.backup is not None:
         text += f"  Backup: {result.backup.backup_folder.name}\r\n"
     text += "\r\n"
