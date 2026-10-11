@@ -300,6 +300,29 @@ class QueuedPurchasesSurviveAQuit(unittest.TestCase):
                 self.assertEqual(queue_file(again), b"")
                 del host
 
+    def test_the_question_is_written_when_it_comes_up_without_a_tick(self):
+        """Codex, #583: the file followed the question only at the next 250 ms tick; a quit
+        before it left the file as it was before the question (the saved timer was spent)."""
+        from story_custom_fixtures import Event
+        for game in self.games():
+            with self.subTest(game=game):
+                story = fresh(game)
+                story.proc.export("VvfpStoryProbeChoiceCap", 1)
+                story.proc.write(EVENT_BUF, Event(game=story.n, title="Rain", text="It rained.").pack())
+                self.assertTrue(story.proc.export("VvfpStoryProbeSetChoice", story.n, EVENT_BUF,
+                                                  self.choice(story), story.proc.tick))
+                tick(story)
+                self.assertEqual(story.proc.export("VvfpStoryProbeChoiceBegin", story.n, TEXT_BUF, 4096), 1)
+                file = queue_file(story)             # no tick() after the transition
+                self.assertEqual(have(file, story) & (SQ_CUSTOM | SQ_ASKED), SQ_CUSTOM | SQ_ASKED)
+
+    def test_an_answer_removes_the_file_without_a_tick(self):
+        for game in self.games():
+            with self.subTest(game=game):
+                story, _armed, asked_file = self.question_on_screen(game)
+                self.assertTrue(asked_file)
+                self.assertEqual(story.proc.export("VvfpStoryProbeChoiceResolve", story.n, 0, TEXT_BUF, 4096), 1)
+                self.assertEqual(queue_file(story), b"", "answered, then quit: nothing to re-apply")
     def test_an_answered_question_leaves_nothing_behind(self):
         for game in self.games():
             with self.subTest(game=game):

@@ -2004,6 +2004,10 @@ static int ce_choice_begin(int game, char *text, int size) {
     l = ce_question_layout(a);
     ce_compose_in(a, &l, ce_armed_event.title, &ce_armed_event, NULL, text, size);
     STORY_COUNT(delivered);
+    /* The question coming on screen is written to the queue file now, not at
+       the companion's next 250 ms tick: the popup may stop that path, and a
+       quit right after would leave the file as it was before the question. */
+    sq_tick(game);
     return 1;
 }
 
@@ -2044,6 +2048,9 @@ static int ce_choice_resolve(int game, int button, char *text, int size) {
         return 0;
     }
     ce_asked = 0;
+    /* Answered (or discarded): the file stops holding the question now, so a
+       quit right after never brings an answered question back. */
+    sq_tick(game);
     if (!story_village_is(game, &ce_asked_village)) {
         STORY_COUNT(discarded);
         return 0;

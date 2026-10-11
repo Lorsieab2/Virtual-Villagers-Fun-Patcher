@@ -821,50 +821,67 @@ static int ce_merge(ce_event *e, const ce_change *t, int index, unsigned int fin
    "OK replaces the entry in place").  The dialog shows the last like,
    remove-a-like, dislike and remove-a-dislike change of a combined entry,
    so those four are what t's choices replace; the entry's other like and
-   dislike changes (from earlier entries that were combined) stay. */
-static void ce_replace(ce_event *e, int position, const ce_change *t, unsigned int fingerprint) {
+   dislike changes (from earlier entries that were combined) stay.  All four
+   replacements are worked out from the ORIGINAL list, then applied and
+   de-duplicated together (a later change of a preference wins), so no
+   change is lost to the order the four are visited in.  0 (the entry left
+   exactly as it was) when the result needs more than CE_MAX_PREF_OPS. */
+static int ce_replace(ce_event *e, int position, const ce_change *t, unsigned int fingerprint) {
     ce_change *c = &e->changes[position];
-    ce_change old = *c;
-    int index = c->index;
-    int dislike;
-    int remove;
-    ce_change_init(c);
-    c->index = index;
-    c->pref_op_count = old.pref_op_count;
-    memcpy(c->pref_ops, old.pref_ops, sizeof c->pref_ops);
-    for (dislike = 0; dislike < 2; ++dislike) {
-        for (remove = 0; remove < 2; ++remove) {
-            int shown = ce_pref_last(c, dislike, remove);
-            int chosen = ce_pref_last_value(t, dislike, remove);
-            if (shown >= 0 && chosen < 0) {
-                ce_pref_drop(c, shown);            /* cleared in the dialog */
-            } else if (shown >= 0 && CE_PREF_VALUE(c->pref_ops[shown]) != chosen) {
-                /* Changed in the dialog: in the same place, the earlier
-                   change of that preference (if any) gone. */
-                int at;
-                c->pref_ops[shown] = CE_PREF_OP(dislike, remove, chosen);
-                for (at = shown - 1; at >= 0; --at) {
-                    if (CE_PREF_VALUE(c->pref_ops[at]) == chosen
-                        && ((c->pref_ops[at] & CE_PREF_DISLIKE) != 0) == (dislike != 0)) {
-                        ce_pref_drop(c, at);
-                        --shown;
-                    }
-                }
-                for (at = c->pref_op_count - 1; at > shown; --at) {
-                    if (CE_PREF_VALUE(c->pref_ops[at]) == chosen
-                        && ((c->pref_ops[at] & CE_PREF_DISLIKE) != 0) == (dislike != 0)) {
-                        ce_pref_drop(c, shown);    /* a later change of it already wins */
-                        break;
-                    }
-                }
-            } else if (shown < 0 && chosen >= 0) {
-                (void)ce_pref_put(c, dislike, remove, chosen);   /* (room was freed above, or full) */
+    int ops[CE_MAX_PREF_OPS + 4];
+    int shown[4];
+    int chosen[4];
+    int count = 0;
+    int k;
+    int i;
+    int j;
+    for (k = 0; k < 4; ++k) {
+        shown[k] = ce_pref_last(c, k >> 1, k & 1);
+        chosen[k] = ce_pref_last_value(t, k >> 1, k & 1);
+    }
+    for (i = 0; i < c->pref_op_count; ++i) {
+        int op = c->pref_ops[i];
+        for (k = 0; k < 4 && shown[k] != i; ++k) {
+        }
+        if (k < 4) {
+            if (chosen[k] < 0) {
+                continue;                              /* cleared in the dialog */
             }
+            op = CE_PREF_OP(k >> 1, k & 1, chosen[k]); /* changed: in the same place */
+        }
+        ops[count++] = op;
+    }
+    for (k = 0; k < 4; ++k) {
+        if (shown[k] < 0 && chosen[k] >= 0) {
+            ops[count++] = CE_PREF_OP(k >> 1, k & 1, chosen[k]);   /* newly chosen: last */
         }
     }
+    /* One change per list and preference: the last one wins. */
+    for (i = 0; i < count; ++i) {
+        for (j = i + 1; j < count; ++j) {
+            if (((ops[i] ^ ops[j]) & (CE_PREF_DISLIKE | 0xFF)) == 0) {
+                break;
+            }
+        }
+        if (j < count) {
+            memmove(&ops[i], &ops[i + 1], (size_t)(count - i - 1) * sizeof(int));
+            --count;
+            --i;
+        }
+    }
+    if (count > CE_MAX_PREF_OPS) {
+        return 0;
+    }
+    {
+        int index = c->index;
+        ce_change_init(c);
+        c->index = index;
+    }
+    c->pref_op_count = count;
+    memcpy(c->pref_ops, ops, (size_t)count * sizeof(int));
     ce_merge_into(c, t, fingerprint);
+    return 1;
 }
-
 static void ce_merge_into(ce_change *c, const ce_change *t, unsigned int fingerprint) {
     int i;
     c->fingerprint = fingerprint;
@@ -1356,9 +1373,14 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
                 if (editing) {
                     /* In place; a villager gone since keeps the identity
                        queued (the delivery then skips them). */
-                    ce_replace(&ui.draft, ui.change_editing, &mine,
-                               record != NULL && position >= 0 ? ce_identity(ui.a, record)
-                                                               : ui.draft.changes[ui.change_editing].fingerprint);
+                    if (!ce_replace(&ui.draft, ui.change_editing, &mine,
+                                    record != NULL && position >= 0 ? ce_identity(ui.a, record)
+                                                                    : ui.draft.changes[ui.change_editing].fingerprint)) {
+                        /* The entry is left as it was and the dialog stays open. */
+                        ui_message(window, "This entry already holds 64 likes and dislikes changes, so that "
+                                           "change has no room. Clear one first, or delete the entry.");
+                        return TRUE;
+                    }
                     break;
                 }
                 if (record == NULL || !ce_merge(&ui.draft, &mine, targets[i], ce_identity(ui.a, record))) {

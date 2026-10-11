@@ -165,7 +165,7 @@ item is moved out of this file by a live pass, not by a test.
    file). Smoke test, each game: launch the patched copy, load a village, open the
    Origins menu, play two minutes, quit. Nothing should differ from v1.35.68.
 
-7. **Custom Island Event: several entries for one villager.** In any game, add 'Add a like' whale meat as one Villager changes entry and butterflies as another for the same villager (the count line should warn they are combined), queue, deliver: both likes are added and the Island Events log shows the whole "Likes: old -> old, whale meat, butterflies" line. Also: Dies in one entry and a like in another, only the death happens; Edit the combined entry and check the other like stays.
+7. **Custom Island Event: several entries for one villager.** In any game, add 'Add a like' whale meat as one Villager changes entry and butterflies as another for the same villager (the count line should warn they are combined), queue, deliver: both likes are added and the Island Events log shows the whole "Likes: old -> old, whale meat, butterflies" line. Also: Dies in one entry and a like in another, only the death happens; Edit the combined entry and check the other like stays. Also: queue a two-choice event, let the question come up and quit at once (before a quarter second passes): the question must come back next launch; answer a question and quit at once: it must not come back.
 
 ## C. Questions the live pass left open (from the v1.35.66 notes)
 
