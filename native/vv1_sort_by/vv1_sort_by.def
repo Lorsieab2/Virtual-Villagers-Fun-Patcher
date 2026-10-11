@@ -1,5 +1,0 @@
-LIBRARY "VVFP VV1 Sort By"
-EXPORTS
-    Vv1SortByStep=_Vv1SortByStep@8
-    Vv1SortByDraw=_Vv1SortByDraw@16
-    Vv1SortByMode=_Vv1SortByMode@0
