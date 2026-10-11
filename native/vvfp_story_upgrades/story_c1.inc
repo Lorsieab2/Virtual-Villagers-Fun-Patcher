@@ -536,8 +536,18 @@ static int c1_puzzle_set(int which, int solved) {
 /* ---- Food sources ------------------------------------------------------- */
 
 static const ce_value_def C1_VALUES[] = {
-    { "Berry bushes", 0, 5000,
-      "One store for every bush; a new village has 1900, and the bushes look full from 1300." },
+    /* The game itself puts no ceiling on the bushes (regrowth 0x42EC0D, North
+       Wind 0x419682 and the Honeybees 0x428409 add with no cap; 0x42F2D6 only
+       floors them at 0) and every reader copes with any size (the art
+       compares with 450..1300, 0x4165D5; the hover text prints " %i" into a
+       236-byte buffer, 0x421CE4).  But a harvest moves a 130th of them into
+       food through the uncapped adder (0x43AD68 -> 0x41D140), so a store ends
+       up as food: it is held to CE_MAX_AMOUNT, what an event may add to food
+       itself, so the food store and its lifetime count keep the headroom
+       ce_amount leaves them under the 32-bit ceiling. */
+    { "Berry bushes", 0, CE_MAX_AMOUNT,
+      "One store for every bush; a new village has 1900, and the bushes look full from 1300. "
+      "Harvests turn the berries into food." },
     { "Crops", 0, 800,
       "Only once the farm is producing (Farming level 2). The game's own ceiling is 800." },
 };
