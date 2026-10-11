@@ -14,6 +14,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
+#include "../shared/harness_redirect_documents.h"   /* never the real Documents */
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -45,6 +46,12 @@ static void villager(int i, int age, int health, int s0, int s1, int s2, int s3,
 static int same(const int *a, const int *b, int n) { int i; for (i = 0; i < n; ++i) if (a[i] != b[i]) return 0; return 1; }
 
 int main(int argc, char **argv) {
+    /* The whole process's Documents is a throwaway %TEMP% folder: no harness ever
+       writes under the real Documents\LDW (the owner's rule, 2026-10-10). */
+    if (!harness_redirect_documents_process()) {
+        fprintf(stderr, "cannot redirect Documents to a throwaway folder; not running\n");
+        return 2;
+    }
     HMODULE dll; reset_t reset; setmode_t setmode; step_t step; list_t list; hit_t hit;
     int out[COUNT];
     if (argc < 2) { printf("usage: harness <dll>\n"); return 2; }

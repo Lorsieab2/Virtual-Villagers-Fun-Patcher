@@ -246,9 +246,12 @@ class NumberTests(unittest.TestCase):
         self.assertEqual([x.kind for x in found], ["repair_number"])
         f.repair()
         self.assertIn("Repair 3\n", f.read(new))
-        # The next Repairs record numbers on after both folders' (src/vv_log_tools.py note_word_repair).
+        # The next Repairs record numbers on after both folders' (src/vv_log_tools.py note_word_repair),
+        # in the village's own slot folder (one folder of logs per save slot).
         tools.note_word_repair(f.path, 1, VILLAGE, [tools.WordFix("x.txt", 1, "x.bak")], NOW)
-        self.assertIn("Repair 4\n", f.read(new))
+        own = f.path / LOGS / "Save 1" / "Repairs Made" / "Virtual Villagers 1 Repairs Log 1.txt"
+        self.assertIn("Repair 4\n", f.read(own))
+        self.assertNotIn("Repair 4\n", f.read(new))
         self.assertEqual(contra.find(f.path, 1, 1), [])
 
     def test_note_word_repair_numbers_on_after_the_older_folder(self):
@@ -257,9 +260,14 @@ class NumberTests(unittest.TestCase):
         f.write(f"{LOGS}\\Repairs\\Virtual Villagers 3 Repairs Log 1.txt",
                 VILLAGE + "\nRepair 1\n  Date: a\n\nRepair 2\n  Date: b\n\n")
         (f.path / LOGS / "Repairs Made").mkdir(parents=True)
-        tools.note_word_repair(f.path, 3, VILLAGE, [tools.WordFix("x.txt", 1, "x.bak")], NOW)
+        # No village (so no slot) named: the shared "Repairs Made", as the game writes it.
+        tools.note_word_repair(f.path, 3, None, [tools.WordFix("x.txt", 1, "x.bak")], NOW)
         made = f.path / LOGS / "Repairs Made" / "Virtual Villagers 3 Repairs Log 1.txt"
         self.assertIn("Repair 3\n", f.read(made))
+        # A village's own: its slot's folder, numbered on after both.
+        tools.note_word_repair(f.path, 3, VILLAGE, [tools.WordFix("x.txt", 1, "x.bak")], NOW)
+        own = f.path / LOGS / "Save 1" / "Repairs Made" / "Virtual Villagers 3 Repairs Log 1.txt"
+        self.assertIn("Repair 4\n", f.read(own))
 
 
 class BoundaryTests(unittest.TestCase):

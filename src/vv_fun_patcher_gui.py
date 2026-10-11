@@ -23,6 +23,8 @@ import vv_move_old_names
 import vv_last_names
 import vv_cut_names
 import vv_graves
+import vv_lost_titles
+import vv1_parents_restore
 import vv_number_names
 import vv_save_backup
 import vv_startup_questions
@@ -2118,9 +2120,11 @@ class App(tk.Tk):
                 # folder the game itself saves into -- so pointing at
                 # modded_folder sent a player to a directory where these files
                 # are never created. Found in review.
+                # One folder of logs per save slot: "...Logs\Save N\<the log's folder>"
+                # (src/vv_save_layout.py); the shared folders older builds wrote stay as they are.
                 save_folder = (
                     _documents_folder() / "LDW" / output_exe.stem
-                    / "Virtual Villagers Fun Patcher Logs"
+                    / "Virtual Villagers Fun Patcher Logs" / "Save N"
                 )
                 if f"{build.id}_write_village_statistics" in selected:
                     artifact_lines.append(
@@ -3094,6 +3098,7 @@ class App(tk.Tk):
         go_button = ttk.Button(buttons, text="Repair Saves & Logs" if repair else "Check")
         go_button.pack(side="left")
         move_button = None
+        restore_button = None
         if repair:
             # The owner, 2026-10-09: "Repair logs should have the move legacy files button!" -- for
             # the chosen save folder, whichever tribe is picked (src/vv_move_old_names.py).
@@ -3103,6 +3108,14 @@ class App(tk.Tk):
                 if state["folders"] else None,
             )
             move_button.pack(side="left", padx=(8, 0))
+            # A New Home's parents lost by v1.35.66/67 (the title screen's founders): given back from the
+            # copies the patcher kept of the parentage file, for the chosen tribe (src/vv1_parents_restore.py).
+            restore_button = ttk.Button(
+                buttons, text="Restore A New Home Parents...",
+                command=lambda: self._restore_vv1_parents(dialog, state["folders"][folder_box.current()], chosen())
+                if state["folders"] and chosen() is not None and game().number == 1 else None,
+            )
+            restore_button.pack(side="left", padx=(8, 0))
             self._help_button(buttons, "repair_logs").pack(side="left", padx=(2, 0))
         ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
 
@@ -3126,6 +3139,9 @@ class App(tk.Tk):
             go_button.configure(state="normal" if problem is None else "disabled")
             if move_button is not None:
                 move_button.configure(state="normal" if state["folders"] else "disabled")
+            if restore_button is not None:
+                restore_button.configure(
+                    state="normal" if problem is None and game().number == 1 else "disabled")
 
         def load_slots(*_args) -> None:
             slot_list.delete(0, "end")
@@ -3248,6 +3264,46 @@ class App(tk.Tk):
         self.status_var.set(f"Move Old Files to New Names: {folder.name} done.")
         messagebox.showinfo(title, "\n".join(lines), parent=parent)
 
+    def _restore_vv1_parents(self, parent, folder: Path, info) -> None:
+        """Repair Saves & Logs' "Restore A New Home Parents..." (src/vv1_parents_restore.py): list what
+        the copies of the parentage file give back, ask, then add it with the game closed."""
+        title = "Restore A New Home Parents"
+        try:
+            work = vv1_parents_restore.plan(folder, info.slot)
+        except (vv1_parents_restore.RestoreError, OSError, ValueError) as exc:
+            messagebox.showerror(title, str(exc), parent=parent)
+            return
+        if not work.restored:
+            lines = work.lines() or ["Every villager the parentage file names already has their parents, or no "
+                                     "copy of the file has any to give back."]
+            messagebox.showinfo(title, "Nothing to restore.\n\n" + "\n".join(lines[:30]), parent=parent)
+            return
+        shown = work.lines()
+        if len(shown) > 25:
+            shown = shown[:25] + [f"... and {len(shown) - 25} more"]
+        if not messagebox.askyesno(
+                title,
+                f"{folder.name}, Save {info.slot}: the copies the patcher kept of the parentage file give back "
+                "these parents. Only villagers with no parents now get any; nothing else changes.\n\n"
+                + "\n".join(shown)
+                + "\n\nThe save folder is backed up first, and the file is copied into Copies Made Before "
+                "Repairs. Restore them now?", parent=parent):
+            return
+        try:
+            result = self._run_with_wait(
+                "Restoring the parents…\n\nThe save folder is backed up first.",
+                lambda: vv1_parents_restore.restore(folder, info.slot),
+            )
+        except (vv1_parents_restore.RestoreError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                OSError) as exc:
+            _regrab(parent)
+            messagebox.showerror(title, str(exc), parent=parent)
+            return
+        _regrab(parent)
+        self.status_var.set(f"Restore A New Home Parents: {len(result.plan.restored)} villager(s) in {folder.name}.")
+        messagebox.showinfo(title, f"{len(result.plan.restored)} villager(s) have their parents back. Each is listed "
+                            "in the Repairs Made log.", parent=parent)
+
     def _check_logs(self, parent, folder: Path, number: int, info) -> None:
         """Run the read-only checker off the main thread and show its report."""
         try:
@@ -3367,12 +3423,19 @@ class App(tk.Tk):
                 graves = vv_graves.survey(folder, number, info.slot)
             except (vv_graves.GraveError, vv_last_names.LastNamesError, ValueError, OSError, struct.error) as exc:
                 graves = f"The graves were not checked: a file could not be read ({exc})."
+            # Custom titles (and New Believers' former-Heathen marks) a change of likes or dislikes took
+            # away before v1.35.68 (src/vv_lost_titles.py), from the Island Events log.
+            try:
+                lost = vv_lost_titles.survey(folder, number, info.slot)
+            except (vv_lost_titles.LostTitlesError, vv_last_names.LastNamesError, ValueError, OSError,
+                    struct.error) as exc:
+                lost = vv_lost_titles.Survey([], [], [f"Lost titles were not checked: a file could not be read ({exc})."])
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
-                    cuts, unpaused, speed, misnumbered, graves)
+                    cuts, unpaused, speed, misnumbered, graves, lost)
 
         try:
             (checked, old_words, kinds, (cuts, cut_notes), unpaused, speed, misnumbered,
-             graves) = self._run_with_wait("Checking the logs…\n\nNothing is changed.", survey)
+             graves, lost) = self._run_with_wait("Checking the logs…\n\nNothing is changed.", survey)
             found = (
                 f"The read-only check finds {checked.wrong} confirmed wrong ({checked.summary})"
                 if checked.wrong
@@ -3401,6 +3464,8 @@ class App(tk.Tk):
         # The graves the player put right, first of the save edits: the renames below then find each grave
         # under the name its records give it.
         grave_lines = self._fix_graves(parent, folder, number, info, grave_fixes) if grave_fixes else []
+        # Lost custom titles next, before any rename: a rename then carries the restored title along.
+        grave_lines += self._restore_lost_titles(parent, folder, number, info, lost)
         # The cut names first of the renames, so last names and numbering never work from a cut name
         # (the checklist leaves those off while the cut names are restored).  After the lines above
         # are added: a renamed line changes no line count, and the like / dislike words are put right
@@ -4591,7 +4656,7 @@ class App(tk.Tk):
             ttk.Label(frame, text=vv_graves.FIELDS[key] + ":").grid(row=row, column=0, sticky="w", pady=2)
             var = tk.StringVar(value=now)
             if key == "cause":
-                ttk.Combobox(frame, textvariable=var, values=list(vv_graves.CAUSE_WORDS.values()),
+                ttk.Combobox(frame, textvariable=var, values=vv_graves.cause_words(number),
                              state="readonly", width=40).grid(row=row, column=1, sticky="w")
             elif key == "sex":
                 ttk.Combobox(frame, textvariable=var, values=["Male", "Female"], state="readonly",
@@ -4658,6 +4723,46 @@ class App(tk.Tk):
         return [f"Grave information fixed: {len(result.fixes)} field(s), in {len(result.files)} file(s)"
                 + (" (the old records were left as they were)" if not retro else "")
                 + f". Backup: {result.backup.backup_folder}"]
+
+    def _restore_lost_titles(self, parent, folder: Path, number: int, info, lost) -> list[str]:
+        """Repair Saves & Logs: the custom titles (and former-Heathen marks) a change of likes or
+        dislikes took away (src/vv_lost_titles.py).  The certain ones are listed and restored when the
+        player agrees; each one the records leave in doubt is asked about on its own, never guessed.
+        Returns the lines for Repair's summary."""
+        lines: list[str] = []
+        notes = list(lost.notes)
+        if not lost.found:
+            return ["Lost titles: " + " ".join(notes[:5])] if notes else []
+        chosen: set[str] = set()
+        if lost.certain and messagebox.askyesno(
+                "Repair Saves & Logs",
+                "A change of likes or dislikes took these away (the Island Events log says so):\n\n"
+                + "\n".join(f"• {r.describe()}" for r in lost.certain[:20])
+                + (f"\n... and {len(lost.certain) - 20} more" if len(lost.certain) > 20 else "")
+                + "\n\nGive them back? The save folder is backed up first.", parent=parent):
+            chosen.update(r.key for r in lost.certain)
+        answered: set[str] = set()
+        for question in lost.questions:
+            if question.loss in answered:
+                continue                    # the player already said who it was
+            if messagebox.askyesno("Repair Saves & Logs", question.question, parent=parent):
+                chosen.add(question.key)
+                answered.add(question.loss)
+        if not chosen:
+            return ["Lost titles: left as they were."]
+        try:
+            result = self._run_with_wait(
+                "Restoring the lost titles…\n\nThe save folder is backed up first.",
+                lambda: vv_lost_titles.restore(folder, number, info.slot, chosen))
+        except (vv_lost_titles.LostTitlesError, vv_last_names.LastNamesError, vv_log_tools.LogToolError,
+                vv_save_backup.BackupError, OSError) as exc:
+            messagebox.showerror("Repair Saves & Logs", f"The lost titles were not restored. {exc}", parent=parent)
+            return []
+        lines.append(f"Lost titles restored: {'; '.join(r.describe() for r in result.restored)}. "
+                     f"Backup: {result.backup.backup_folder}")
+        if notes:
+            lines.append("Lost titles not restored: " + " ".join(notes[:5]))
+        return lines
 
     def _close(self) -> None:
         self._save_settings()

@@ -241,10 +241,11 @@ class OwnersFolderTests(unittest.TestCase):
         self.assertEqual(find(f"{DATA}\\Village Statistics\\Villagers Counted - Save 1.dat"),
                          f / DATA / "Village Statistics" / "Village Roster - Save 1.dat")
         checker = tools.load_checker()
-        # The Deaths log under both folders: every record read, new ones written in the new folder.
+        # The Deaths log under both folders: every record read, new ones written in the slot's own folder.
         names = sorted(r.split("\n")[1] for r in checker.deaths_records(f, 1, 1))
         self.assertEqual(names, ["  Name: Ana", "  Name: Bo", "  Name: Cy"])
-        self.assertEqual(checker.DEATHS_FOLDER(f), "Deaths and Disappearances")
+        self.assertEqual(layout.append_target(f, "Deaths and Disappearances", "Virtual Villagers 1 Deaths Log", 1),
+                         f / LOGS / "Save 1" / "Deaths and Disappearances" / "Virtual Villagers 1 Deaths Log 1.txt")
         # The words: the smaller boundary (0, not the older build's 1763792).
         self.assertEqual(checker.word_boundaries(f, 1),
                          {f"{LOGS}\\Tribe History\\Village History 1.txt".lower(): 0})

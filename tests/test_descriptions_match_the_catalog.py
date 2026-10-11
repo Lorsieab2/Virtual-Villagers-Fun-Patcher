@@ -94,9 +94,13 @@ class DescriptionsMatchTheCatalogTests(unittest.TestCase):
                     description.startswith(PLAYER_LOG_DESCRIPTION.format(game_number=game)),
                     description[:200],
                 )
+                # v1.35.68: each save slot has its own log folders; the shared folder an older patcher
+                # wrote is still read (native/shared/log_slot.h).
                 self.assertIn(
-                    "Virtual Villagers Fun Patcher Logs\\Births and Conceptions", description
+                    "Virtual Villagers Fun Patcher Logs\\Save <slot>\\Births and Conceptions", description
                 )
+                self.assertIn("a shared 'Births and Conceptions' folder an older patcher wrote is kept as it was "
+                              "and still read", description)
                 self.assertIn("Each Birth record", description)
                 self.assertIn("256 Conception records", description)
                 self.assertNotIn("beside the game executable", description)

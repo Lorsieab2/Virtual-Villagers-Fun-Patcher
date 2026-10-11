@@ -536,7 +536,8 @@ class PopulationPagesAreMatchedByVillageTests(unittest.TestCase):
     def test_the_source_no_longer_addresses_the_roster_by_slot(self) -> None:
         text = self.RESET_C.read_text(encoding="utf-8")
         self.assertNotIn('Village Population %d.txt", sub_w, slot', text)
-        self.assertEqual(text.count("delete_village_population_pages(sub_w, village)"), 2)
+        # the shared folder, its pre-spell-out name, and the slot's own (native/shared/log_slot.h)
+        self.assertEqual(text.count("delete_village_population_pages(sub_w, village)"), 3)
         self.assertIn("log_line_matches(path, village, 1)", text)
 
     def test_the_harness_covers_every_case(self) -> None:

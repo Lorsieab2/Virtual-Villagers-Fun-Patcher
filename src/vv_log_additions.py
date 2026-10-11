@@ -28,6 +28,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import vv_log_tools as tools
+import vv_save_layout as layout
 
 DONT_KNOW = "Don't know (add nothing)"
 
@@ -314,9 +315,11 @@ def person_blocks(folder: Path, slot: int, game: int) -> list[Block]:
 
 
 def population_page(folder: Path, slot: int, game: int) -> tuple[Path | None, dict[tuple, Block]]:
-    """The slot's latest Village Population page: each living villager by (name, head, body)."""
+    """The slot's latest Village Population page: each living villager by (name, head, body).  The
+    slot's own "...Logs\\Save <slot>\\Tribe Population" pages, or the shared ones only while it has
+    none (scripts/vvfp_consistency_check.py population_files)."""
     checker = tools.load_checker()
-    for path in checker.numbered(folder / checker.LOGS / "Tribe Population", "Village Population"):
+    for path in checker.population_files(folder, slot):
         villages = current_villages(folder, game, slot)
         found = [b for b in blocks(path) if b.of(slot, game, villages) and b.heading.startswith("Villager ")]
         if found:
@@ -368,26 +371,24 @@ def _dated_inserts(kind: Kind, rank_name: str, label: str, value: str, key: str,
                                    question=key, by_answer=answers))
 
 
-AMBIGUOUS = object()
-
-
 def _persons(current: dict) -> dict:
-    """Each current villager by name, likes and dislikes; AMBIGUOUS when two share them."""
-    out: dict = {}
-    for identity, now in current.items():
-        key = now.person
-        if key is not None:
-            out[key] = AMBIGUOUS if key in out else identity
-    return out
+    """Each current villager's (name, likes, dislikes), by identity."""
+    return {identity: now.person for identity, now in current.items() if now.person is not None}
 
 
 def _now_of(b: Block, current: dict, persons: dict) -> tuple | None:
     """The current villager (an identity of `current`) a record is of: by identity, else by
-    name, likes and dislikes when exactly one current villager has them."""
+    name, likes and dislikes when exactly one current villager has them.  Likes and dislikes agree
+    as vv_log_tools.preferences_agree says: an older snapshot's one word (the first filled slot) is
+    the first of the full list a v1.35.68 page prints."""
     if b.identity in current:
         return b.identity
-    found = persons.get(b.person) if b.person is not None else None
-    return found if found is not None and found is not AMBIGUOUS else None
+    if b.person is None:
+        return None
+    name, likes, dislikes = b.person
+    found = [identity for identity, (n, l, d) in persons.items()
+             if n == name and tools.preferences_agree(likes, l) and tools.preferences_agree(dislikes, d)]
+    return found[0] if len(found) == 1 else None
 
 
 def plan_custom_titles(folder: Path, slot: int, people: list[Block], current: dict) -> Kind:
@@ -528,11 +529,8 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
     words = {1: "Single birth", 2: "Twin", 3: "Triplet"}
     villages = current_villages(folder, game, slot)
     # Every layout the Birth records have had (native/shared/save_reset.c): an upgrade keeps the
-    # older ones where they were until the game is next played (Codex, #553).
-    paths = [path for root in (checker.LOGS, "VVFP Logs")
-             for sub, words in (("Births and Conceptions", "Births and Conceptions Log"),
-                                ("Tribe Parental Records", "Parentage Log"))
-             for path in checker.numbered(folder / root / sub, f"Virtual Villagers {game} {words}")]
+    # older ones where they were until the game is next played (Codex, #553); then each save slot's own.
+    paths = checker.births_layout_files(folder, game)
     for path in paths:
         lines = read_lines(path)
         all_blocks = [b for b in blocks(path, lines) if b.of(slot, game, villages)]
@@ -571,7 +569,7 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
                 if expected is not None and expected == len(group) and not backfilled:
                     kind.inserts.append(Insert(path, anchor, 0, line=f"  Born as: {words[expected]}"))
                 else:
-                    key = f"born|{path.name}|{group[0].start}"
+                    key = f"born|{checker.log_label(path)}|{group[0].start}"
                     names = ", ".join(x.value("Child", "  ") or "?" for x in group)
                     kind.questions.setdefault(key, Question(
                         key, f"{mother[0] if mother else 'A mother'}'s baby/babies {names}: how many babies "
@@ -596,10 +594,7 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
         return kind
     checker = tools.load_checker()
     villages = current_villages(folder, game, slot)
-    paths = [path for root in (checker.LOGS, "VVFP Logs")
-             for sub, words in (("Births and Conceptions", "Births and Conceptions Log"),
-                                ("Tribe Parental Records", "Parentage Log"))
-             for path in checker.numbered(folder / root / sub, f"Virtual Villagers {game} {words}")]
+    paths = checker.births_layout_files(folder, game)
     every: list[Block] = []
     for path in paths:
         every += [b for b in blocks(path) if b.of(slot, game, villages)]
@@ -624,7 +619,7 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
             kind.notes.append(f"{name}, the Golden Child: no pregnancy in the logs could be theirs; nothing added.")
             continue
         choices = {f"{m[0]} and {f[0]}": (m, f) for m, f in reversed(open_)}
-        key = f"golden|{b.path.name}|{b.start}"
+        key = f"golden|{checker.log_label(b.path)}|{b.start}"
         kind.questions[key] = Question(
             key, f"{name} is the Golden Child: whose pregnancy did the puzzle end? (mother and father)",
             list(choices) + [DONT_KNOW], DONT_KNOW)
@@ -763,13 +758,8 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
     kind = Kind("lost", "Babies lost with their mother (never born)")
     villages = current_villages(folder, game, slot)
     # Every layout the Births and Conceptions log has had, the older first (as plan_appearance reads them).
-    current = checker.numbered(folder / checker.LOGS / "Births and Conceptions",
-                               f"Virtual Villagers {game} Births and Conceptions Log")
-    older = [path for root in (checker.LOGS, "VVFP Logs")
-             for sub, words in (("Births and Conceptions", "Births and Conceptions Log"),
-                                ("Tribe Parental Records", "Parentage Log"))
-             for path in checker.numbered(folder / root / sub, f"Virtual Villagers {game} {words}")
-             if path not in current]
+    current = births_files(folder, game)           # the shared folder's, then every slot's own
+    older = [path for path in checker.births_layout_files(folder, game) if path not in current]
     every: list[Block] = []
     for path in older + current:
         every += [b for b in blocks(path) if b.of(slot, game, villages)]
@@ -827,7 +817,7 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
                 kind.inserts.append(Insert(record.path, _lost_anchor(record), 4, line=line))
             kind.inserts.append(Insert(conception.path, end, 8, line=lost))
             continue
-        key = f"lost|{conception.path.name}|{conception.start}"
+        key = f"lost|{checker.log_label(conception.path)}|{conception.start}"
         why = ("more than one record with her name and looks says she died or disappeared" if len(records) > 1
                else "the Golden Child may have been born of it" if golden_unsettled
                else "her records do not say how old she was" if at is None or conceived is None
@@ -867,11 +857,9 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
     kind = Kind("appearance", "Appearance changes with no record (how each happened)")
     checker = tools.load_checker()
     villages = current_villages(folder, game, slot)
-    current = [path for path in checker.numbered(folder / checker.LOGS / "Births and Conceptions",
-                                                 f"Virtual Villagers {game} Births and Conceptions Log")]
+    current = births_files(folder, game)           # the shared folder's, then every slot's own
     # Every Births and Conceptions log the tree reads, older layouts too (Codex, #577: a record kept only in
-    # a retired folder was missed, so Repair could offer it -- and add it -- again); the current ones last,
-    # so a new record goes at the end of the current log.
+    # a retired folder was missed, so Repair could offer it -- and add it -- again); the current ones last.
     older = [path for path in checker.log_files(folder) if "Births and Conceptions" in path.name
              and path not in current and f"Virtual Villagers {game} " in path.name]
     paths = older + current
@@ -890,8 +878,13 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
         village = gen.load_village(folder, game, slot, full_names=False)
     except (gen.GenealogyError, OSError, ValueError):
         return kind
-    last = every[-1]
-    anchor = last.start + len(last.lines) - 1
+    # A new record goes at the end of the slot's OWN Births and Conceptions log ("...Logs\Save
+    # <slot>\Births and Conceptions", made when it has none), never into the shared one an older build
+    # wrote (src/vv_save_layout.py), under the village's header when that file's last record is not
+    # this village's.
+    target = layout.append_target(folder, "Births and Conceptions",
+                                  f"Virtual Villagers {game} Births and Conceptions Log", slot, "Conception ")
+    anchor, lead = _append_point(target, slot, game, villages, every[-1].village)
     for old, new in sorted(village.relooked.items(), key=lambda item: str(item)):
         if old in logged or None in old or None in new:
             continue
@@ -901,13 +894,36 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
         kind.questions[key] = Question(
             key, f"{name}'s look changed from head {old_head}, body {old_body} to head {new_head}, body "
                  f"{new_body}, and nothing recorded it. How did it change?", [*LOOK_CAUSES, DONT_KNOW], DONT_KNOW)
-        record = "\n".join(["", "Appearance changed", f"  Name: {name}", f"  Old head: {old_head}",
-                            f"  Old body: {old_body}", f"  New head: {new_head}", f"  New body: {new_body}"])
-        kind.inserts.append(Insert(last.path, anchor, len(kind.inserts), question=key, by_answer={
+        record = lead + "\n".join(["Appearance changed", f"  Name: {name}", f"  Old head: {old_head}",
+                                   f"  Old body: {old_body}", f"  New head: {new_head}", f"  New body: {new_body}"])
+        kind.inserts.append(Insert(target, anchor, len(kind.inserts), question=key, by_answer={
             cause: record + f"\n  Changed by: {cause[0].lower() + cause[1:]}"
-                            "\n  Note: Recorded afterwards (how it happened, as the player said)"
+                            "\n  Note: Recorded afterwards (how it happened, as the player said)\n"
             for cause in LOOK_CAUSES}))
     return kind
+
+
+def _append_point(target: Path, slot: int, game: int, villages: set[str] | None,
+                  header: str | None) -> tuple[int, str]:
+    """Where a record appended to `target` (a log of the slot's own folder) goes: (the line it follows,
+    what comes before its first line) -- after the blank line that ends the file's last record, as the
+    companion appends one (so every byte already there stays before it, where the file's Like and
+    Dislike Words boundary counts it), under the village's `header` when the file is new or its last
+    record is another village's.  A new file (`target` not there yet) starts with the header."""
+    head = f"{header}\n" if header else ""
+    if not target.exists():
+        return 0, head
+    lines = read_lines(target)
+    if not any(line.strip() for line in lines):
+        return 0, head                          # there, but empty: as a new file
+    found = blocks(target, lines)
+    if found and found[-1].of(slot, game, villages):
+        head = ""
+    if len(lines) >= 2 and lines[-1] == "" and lines[-2].strip() == "":
+        return len(lines) - 2, head
+    if lines[-1] == "":
+        return len(lines) - 2, "\n" + head
+    return len(lines) - 1, "\n" + head
 
 
 HEATHEN_ROLES = ("Heathen Doctor", "Heathen Chief", "Heathen Master Scientist", "Heathen Master Builder",
@@ -1078,28 +1094,17 @@ def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
     heathens = [b for b in entries if b.value("Faction") == "Heathen"]
     if not heathens:
         return kind
-    deaths = checker.numbered(folder / checker.LOGS / checker.DEATHS_FOLDER(folder),
-                              f"Virtual Villagers {game} Deaths Log")
-    if not deaths:
+    stem = f"Virtual Villagers {game} Deaths Log"
+    if not checker.game_logs(folder, layout.DEATHS_LOGS, stem, slot):
         return kind
     counts = _side_counts(folder, game, slot, villages)
-    target = deaths[-1]
-    found = blocks(target)
-    header = None
-    if not (found and found[-1].of(slot, game, villages)):
-        header = entries[0].village
-        if header is None:
-            return kind
-    # Appended after everything in the file, as the companion appends a record: after the blank
-    # line that ends the last record (so every byte an older build wrote stays before it, where
-    # the file's Like and Dislike Words boundary counts it), with the blank line of its own.
-    lines = read_lines(target)
-    if len(lines) >= 2 and lines[-1] == "" and lines[-2].strip() == "":
-        anchor, lead = len(lines) - 2, ""
-    elif lines[-1] == "":
-        anchor, lead = len(lines) - 2, "\n"
-    else:
-        anchor, lead = len(lines) - 1, "\n"
+    # Appended to the slot's OWN Deaths log ("...Logs\Save <slot>\Deaths and Disappearances", made
+    # when it has none; never the shared one an older build wrote, src/vv_save_layout.py), after
+    # everything in the file, as the companion appends a record, with the blank line of its own.
+    target = layout.append_target(folder, layout.DEATHS_LOGS, stem, slot, "Death ")
+    if entries[0].village is None:
+        return kind
+    anchor, lead = _append_point(target, slot, game, villages, entries[0].village)
     population_count: dict[tuple, int] = {}
     for b in entries:
         population_count[b.identity] = population_count.get(b.identity, 0) + 1
@@ -1110,8 +1115,7 @@ def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
             continue
         # Under the village's own header when the file's last record is another village's: each
         # record added (whichever the player's answers keep) names it.
-        text = (lead + (f"{header}\n" if header is not None else "")
-                + "\n\n".join([_left_record(person)] * missing) + "\n")
+        text = lead + "\n\n".join([_left_record(person)] * missing) + "\n"
         name, head, body = person.identity
         why = ("another villager now has the same name, head and body" if population_count.get(person.identity, 0) > 1
                else "a Death or Disappeared record has the same name, head and body (a namesake's records may be "
@@ -1145,10 +1149,11 @@ def _faction_after(b: Block) -> int:
 
 def births_files(folder: Path, game: int) -> list[Path]:
     """The game's Births and Conceptions log files, in order: the files the exporter counts when it
-    numbers a new Birth (native/parentage_export count_running_records)."""
+    numbers a new Birth (native/parentage_export count_running_records) -- the shared folder's, then
+    every save slot's own (numbered per GAME, src/vv_save_layout.py)."""
     checker = tools.load_checker()
-    return checker.numbered(Path(folder) / checker.LOGS / "Births and Conceptions",
-                            f"Virtual Villagers {game} Births and Conceptions Log")
+    return checker.game_logs(Path(folder), "Births and Conceptions",
+                             f"Virtual Villagers {game} Births and Conceptions Log")
 
 
 def plan_birth_numbers(folder: Path, game: int, slot: int) -> Kind:
@@ -1200,8 +1205,8 @@ def plan_backfilled_arrivals(folder: Path, game: int, slot: int, living: dict[tu
     """plan_born_arrived, given how many living villagers have each look and the village's headers."""
     kind = Kind("born_arrived", BORN_ARRIVED_LABEL)
     checker = tools.load_checker()
-    paths = checker.numbered(folder / checker.LOGS / "Births and Conceptions",
-                             f"Virtual Villagers {game} Births and Conceptions Log")
+    paths = checker.game_logs(folder, "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log",
+                              slot)
     every: list[Block] = []
     for path in paths:
         every += [b for b in blocks(path) if b.of(slot, game, villages)]
@@ -1228,7 +1233,7 @@ def plan_backfilled_arrivals(folder: Path, game: int, slot: int, living: dict[tu
         name, head, body = b.identity
         if (name, head, body) in settled:
             continue
-        key = f"born_arrived|{b.path.name}|{b.start}"
+        key = f"born_arrived|{checker.log_label(b.path)}|{b.start}"
         kind.questions[key] = Question(
             key, f"{b.heading}: {name} (head {head}, body {body}) is already recorded by {what}, but a "
                  "backfilled \"How: unknown\" Arrived record says they arrived. Remove the backfilled record?",
@@ -1337,8 +1342,11 @@ class _Doc:
 
     def __init__(self, path: Path):
         self.path = path
-        self.raw = path.read_bytes()
-        self.crlf = b"\r\n" in self.raw
+        # A log of a save slot's own folder that is not there yet (a record appended to the slot's
+        # own log, src/vv_save_layout.py append_target): made with the game's line endings.
+        self.new = not path.exists()
+        self.raw = b"" if self.new else path.read_bytes()
+        self.crlf = self.new or b"\r\n" in self.raw
         parts = self.raw.decode("latin-1").split("\n")
         self.lines = [p[:-1] if p.endswith("\r") else p for p in parts]
         self.ends = ["\r" if p.endswith("\r") else "" for p in parts]
@@ -1356,9 +1364,22 @@ class _Doc:
         return "".join(text.replace("\n", eol) + eol for _rank, text, _kind in items)
 
     def render(self) -> str:
+        eol = "\r\n" if self.crlf else "\n"
+        if self.new:
+            # Every record added, in order, the village header once at the top (each record names it,
+            # as one appended under another village's header would).
+            out, header = [], None
+            for _after, items in sorted(self.inserts.items()):
+                for _rank, text, _kind in sorted(items, key=lambda item: item[0]):
+                    lines = text.lstrip("\n").split("\n")
+                    if lines and lines[0].startswith("Village:"):
+                        if lines[0] == header:
+                            lines = lines[1:]
+                        header = lines[0] if lines and lines[0].startswith("Village:") else header
+                    out.append(eol.join(lines) + eol)
+            return "".join(out)
         out = []
         last = len(self.lines) - 1
-        eol = "\r\n" if self.crlf else "\n"
         for i, line in enumerate(self.lines):
             items = sorted(self.inserts.get(i, []), key=lambda item: item[0])
             if i in self.removed:
@@ -1544,7 +1565,12 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
                     docs.setdefault(rpath, _Doc(rpath)).replaced[index] = (new_text, kind.id)
     for game_number in sorted(removed_by):
         arrived = 0
+        # The shared folder's only: a save slot's own folder holds numbers the game gave after every
+        # folder's highest (src/vv_save_layout.py), so a gap there never makes the next number repeat
+        # one, and renumbering it in sequence would mix the slots' interleaved numbers.
         for path in births_files(folder, game_number):
+            if layout.is_slot_folder(path):
+                continue
             doc = docs.setdefault(path, _Doc(path))
             for i, line in enumerate(doc.lines):
                 if i in doc.removed or not ARRIVED_NUMBERED.match(line):
@@ -1567,14 +1593,20 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
         if not doc.changed:
             continue
         text = doc.render()
-        backup = tools._word_backup(folder, path)
+        backup = None if doc.new else tools._word_backup(folder, path)
         temporary = path.with_name(path.name + ".tmp")
         try:
-            with open(path, "rb") as source, open(backup, "xb") as copy:
-                copy.write(source.read())
+            if backup is None:
+                path.parent.mkdir(parents=True, exist_ok=True)
+            else:
+                with open(path, "rb") as source, open(backup, "xb") as copy:
+                    copy.write(source.read())
             temporary.write_bytes(text.encode("latin-1"))
             os.replace(temporary, path)
-            _move_boundaries(folder, doc)
+            if backup is None:
+                tools.new_log_words(folder, path)
+            else:
+                _move_boundaries(folder, doc)
         except OSError as exc:
             try:
                 temporary.unlink()
@@ -1588,5 +1620,6 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
             # Only renumbered: listed under the removal that caused it.
             counts = {kind_id: 0 for kind_id in sorted(set(removed_by.values()))}
         for kind_id, count in sorted(counts.items()):
-            done.setdefault(kind_id, []).append(tools.WordFix(str(path.relative_to(folder)), count, backup.name))
+            done.setdefault(kind_id, []).append(tools.WordFix(str(path.relative_to(folder)), count,
+                                                              backup.name if backup else "(a new file)"))
     return done

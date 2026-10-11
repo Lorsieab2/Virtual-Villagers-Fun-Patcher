@@ -78,6 +78,7 @@
 #include "../shared/harness_ldw_tree.h"
 #include "patcher_files.h"
 #include "arrival_backfill.h"
+#include "custom_titles.h"          /* vv_title_identity: the Former Heathens file's key */
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -256,26 +257,66 @@ static void write_text(const char *path, const char *text) {
 }
 
 static char text[1 << 17];
-static long read_into(const char *path) {
-    FILE *f = fopen(path, "rb");
-    long n;
-    if (f == NULL) { text[0] = 0; return -1; }
-    n = (long)fread(text, 1, sizeof text - 1, f);
-    text[n] = 0;
-    fclose(f);
-    return n;
-}
 
+/* The SHARED Births and Conceptions file an older build wrote (the harness writes the older logs
+   there), and "...Logs\Save 1\Births and Conceptions\", where this build writes the "(Save 1)"
+   village's records (native/shared/log_slot.h). */
 static void births_path(int number, char *out) {
     _snprintf(out, MAX_PATH,
               "%s\\Virtual Villagers Fun Patcher Logs\\Births and Conceptions\\Virtual Villagers %d Births and Conceptions Log %d.txt",
               root, game, number);
 }
 
+static void slot_births_path(int number, char *out) {
+    _snprintf(out, MAX_PATH,
+              "%s\\Virtual Villagers Fun Patcher Logs\\Save 1\\Births and Conceptions\\Virtual Villagers %d Births and Conceptions Log %d.txt",
+              root, game, number);
+}
+
 static void unaccounted_path(char *out) {
     _snprintf(out, MAX_PATH,
-              "%s\\Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
+              "%s\\Virtual Villagers Fun Patcher Logs\\Save 1\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
               root, game);
+}
+
+static long read_one(const char *path, long at) {
+    FILE *f = fopen(path, "rb");
+    long n;
+    if (f == NULL) { return -1; }
+    n = (long)fread(text + at, 1, sizeof text - 1 - at, f);
+    text[at + n] = 0;
+    fclose(f);
+    return n;
+}
+
+/* A file's text.  The shared Births and Conceptions file 1 reads as the "(Save 1)" village's one
+   history: that file, then its slot folder's file 1 (what this build appended).  -1 when neither
+   is there. */
+static long read_into(const char *path) {
+    char shared[MAX_PATH], slot[MAX_PATH];
+    long first, second;
+    text[0] = 0;
+    births_path(1, shared);
+    if (lstrcmpiA(path, shared) != 0) {
+        return read_one(path, 0);
+    }
+    slot_births_path(1, slot);
+    first = read_one(shared, 0);
+    second = read_one(slot, first > 0 ? first : 0);
+    if (second > 0 && first > 0) {
+        /* The slot's file made at a save holds only its "Village:" line (logs are made when a
+           village is first saved in its slot): no record, so nothing added to the history. */
+        const char *added = text + first;
+        const char *end = strchr(added, '\n');
+        if (strncmp(added, "Village: ", 9) == 0 && end != NULL && end[1] == '\0') {
+            text[first] = 0;
+            second = 0;
+        }
+    }
+    if (first < 0 && second < 0) {
+        return -1;
+    }
+    return (first > 0 ? first : 0) + (second > 0 ? second : 0);
 }
 
 static void marker_path(char *out) {
@@ -648,6 +689,81 @@ static void quit_cases(void) {
         CHECK(!file_exists(approval), "quit: Start Over deletes the slot's Repair Saves & Logs approval");
     }
     free(buffer);
+}
+
+/* 8: the villager's own parents on an Unaccounted record, in every game (the owner, 2026-10-09: no
+   game gets less information).  The Lost Children to New Believers keep them on the record, so the
+   record a villager who left unseen gets prints its "Parents:" block from the snapshot; A New Home
+   keeps none, so the Village Roster file keeps the Show Parents companion's names beside the record
+   (version 3) and the record prints them in the same place -- here from a stand-in companion
+   (native/population_export/vv1_parentage_stub.c: record 1, father Goro, mother Aisha).  A newcomer
+   nobody reported, in that record, gets the block from the companion as it is now. */
+static const char *vv1_stub_path;
+
+static void parents_cases(void) {
+    char unacc[MAX_PATH], stub[MAX_PATH];
+    unsigned char *buffer;
+    int i;
+    const char *block = game == 1 ? "  Parents:\r\n    Father: Goro\r\n    Mother: Aisha\r\n"
+                                  : "  Parents:\r\n    Father: Kito\r\n    Mother: (none)\r\n";
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    stub[0] = '\0';
+    if (game == 1) {
+        _snprintf(stub, MAX_PATH, "%s\\VVFP VV1 Parentage.dll", files_dir);
+        if (vv1_stub_path == NULL || !CopyFileA(vv1_stub_path, stub, FALSE)) {
+            CHECK(0, "parents: the stand-in Show Parents companion is in place");
+            return;
+        }
+    }
+    write_save_file();
+    vv_village_publish("");
+    buffer = save_buffer("Arrival Tribe");
+    unaccounted_path(unacc);
+    villager(0, "Parmum", 900, 4, 9, 0);
+    villager(1, "Parleft", 300, 5, 5, 1);
+    save_done(1, buffer);                     /* the roster this village is reconciled against */
+    rec(1)[g->active] = 0;                    /* gone, with no Death or Disappeared record */
+    save_done(1, buffer);
+    read_into(unacc);
+    CHECK(record_has("Parleft", "  What: Left the village with no Death or Disappeared record\r\n")
+          && record_has("Parleft", block),
+          "parents: a villager who left unseen: the Unaccounted record names their parents (%s)",
+          game == 1 ? "the Village Roster file kept the Show Parents names" : "from the record");
+    villager(1, "Parnew", 200, 6, 6, 1);      /* a newcomer nobody reported, in that record */
+    save_done(1, buffer);
+    read_into(unacc);
+    CHECK(record_has("Parnew", "  What: Arrived with no Birth record or known arrival\r\n")
+          && record_has("Parnew", block),
+          "parents: a newcomer nobody reported: the Unaccounted record names their parents too");
+    /* An island event's newcomer whose parents are known: the Arrived record names them before
+       "How:", where the other games' exporter prints the record's own. */
+    {
+        char births[MAX_PATH], want[256];
+        rec(1)[g->active] = 0;
+        save_done(1, buffer);
+        villager(1, "Pararr", 500, 7, 7, 1);
+        created(1, MARK[game - 1].event);
+        arrival_tick();
+        save_done(1, buffer);
+        births_path(1, births);
+        read_into(births);
+        _snprintf(want, sizeof want, "%s  How: %s\r\n", block, MARK[game - 1].label);
+        CHECK(record_has("Pararr", want),
+              "parents: an Arrived record names the newcomer's known parents, before \"How:\"");
+    }
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    free(buffer);
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    if (game == 1) {
+        HMODULE loaded = GetModuleHandleA("VVFP VV1 Parentage.dll");
+        while (loaded != NULL && FreeLibrary(loaded) && GetModuleHandleA("VVFP VV1 Parentage.dll") != NULL) {
+        }
+        DeleteFileA(stub);
+    }
 }
 
 /* 6: a new village's founders are seeded before the game gives the village
@@ -1041,6 +1157,7 @@ int main(int argc, char **argv) {
     if (!CopyFileA(argv[2], path, FALSE)) { printf("cannot copy %s\n", argv[2]); return 2; }
     _snprintf(path, MAX_PATH, "%s\\VVFP Save Reset.dll", files_dir);
     if (!CopyFileA(argv[3], path, FALSE)) { printf("cannot copy %s\n", argv[3]); return 2; }
+    vv1_stub_path = argc > 4 ? argv[4] : NULL;   /* the stand-in Show Parents companion (parents_cases) */
     stand_in("VVFP Statistics Export.dll", 0);
 
     for (game = 1; game <= 5; ++game) {
@@ -1294,6 +1411,20 @@ int main(int argc, char **argv) {
                     CHECK(got == 24 && memcmp(blob, "VFH1", 4) == 0 && *(unsigned int *)(blob + 12) == 1
                           && *(unsigned int *)(blob + 20) == 3,
                           "the Former Heathens file holds one entry, the purple mask (a Master)");
+                    /* v1.35.68: an island event gives Hea new likes (the entry
+                       is kept by name, likes and dislikes): the entry follows
+                       her to the new identity, so she is still a Former
+                       Heathen Master. */
+                    arrival_tick();
+                    *(int *)(rec(6) + g->likes) = 7;
+                    arrival_tick();
+                    got = 0;
+                    h = CreateFileA(former_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+                    if (h != INVALID_HANDLE_VALUE) { ReadFile(h, blob, sizeof blob, &got, NULL); CloseHandle(h); }
+                    CHECK(got == 24 && *(unsigned int *)(blob + 16)
+                                           == vv_title_identity(rec(6), 0x1B9Cu, 0x19u, 0x1F5Cu, 0x1F68u, 3u)
+                          && *(unsigned int *)(blob + 20) == 3,
+                          "A FORMER HEATHEN WHOSE LIKES AN ISLAND EVENT CHANGED KEEPS HER ENTRY (new identity)");
                 }
             }
         }
@@ -1335,7 +1466,7 @@ int main(int argc, char **argv) {
         arrival_tick();
         *(int *)(rec(0) + g->age) = 410;
         save_done(1, buffer);                 /* the new village's first save */
-        births_path(3, path);                 /* after the other village's file 2 */
+        slot_births_path(1, path);            /* the slot's own folder: its file 1 went with Start Over */
         CHECK(read_into(path) > 0 && strncmp(text, "Village: Arrival Tribe (Save 1)", 31) == 0
               && record_has("Founda", "  Age at arrival: 400\r\n") && record_has("Founda", "  How: Founder\r\n\r\n")
               && record_has("Foundb", "  How: Founder\r\n\r\n") && strstr(text, "Note:") == NULL
@@ -1363,6 +1494,7 @@ int main(int argc, char **argv) {
         stale_slot_cases();
         creation_save_cases();
         renamed_cases();
+        parents_cases();
         if (game == 5) {
             /* Another village loaded (another slot): a Heathen in this
                village's record and a believer in the same record of the

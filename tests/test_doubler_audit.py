@@ -383,10 +383,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # orphan mask entries (native/shared/orphan_masks.h, v1.35.59), and again
         # when the startup loader's companion list gained "VVFP Island Events.dll"
         # (native/shared/startup_companions.h, v8), and again when the quit check
-        # learned the missing last names (v1.35.66).
+        # learned the missing last names (v1.35.66), and again when another
+        # village's mask file was never to be replaced (native/shared/foreign_sidecar.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "A0709B879F7E63EB0D60C0009D404A1A4A5E51518E0925111A6EDE060800F64D",
+            "567FE4E876748E9F95431AD9BF58D1939B6B2E97102E1D97B254DB2FB07542C8",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

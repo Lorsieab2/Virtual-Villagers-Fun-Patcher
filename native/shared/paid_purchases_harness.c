@@ -211,6 +211,23 @@ int main(void) {
     g_token = 0;
     vv_paid_tick(2, 4, roster_a, &G);
 
+    /* 8. A quit to the menu with the barrel still in memory: the title
+          screen's seeded founders show in the records, the slot unchanged.
+          Village A's file is never rewritten for them (the owner's v1.35.67
+          parents loss, native/shared/foreign_sidecar.h). */
+    quit();
+    g_token = 2;
+    vv_paid_tick(2, 5, roster_a, &G);           /* bought in village A, slot 5 */
+    Sleep(20);
+    save_now(5);
+    vv_paid_tick(2, 5, roster_b, &G);           /* the title screen's founders, token still set */
+    quit();
+    g_token = 0;
+    CHECK(vv_paid_tick(2, 5, roster_a, &G) == 1 && g_token == 2,
+          "the title screen's founders never take village A's barrel: relaunched, A gets it back");
+    g_token = 0;
+    vv_paid_tick(2, 5, roster_a, &G);
+
     for (i = 1; i <= 5; ++i) {
         char p[MAX_PATH];
         if (vv_paid_path(2, i, p, 0)) DeleteFileA(p);

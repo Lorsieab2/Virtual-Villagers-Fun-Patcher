@@ -198,7 +198,8 @@ def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list,
     (A New Home, The Lost Children: cause and epitaph) and Graves Logged (every game: which graves
     have their Death record), so nothing drifts or is filed twice.  `bodies` maps an unburied body's
     old fingerprint to its new one: the Graves file keeps the cause of a body still lying in the
-    village (kind 1) by the name and age of its record, so a renamed body would lose its cause."""
+    village (kind 1) by the name and age of its record, so a renamed body would lose its cause -- as
+    the later three games' Custom Island Event Deaths file keeps the bodies that event's "Dies" left."""
     bodies = bodies or {}
     if not renamed and not bodies:
         return
@@ -207,11 +208,14 @@ def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list,
              for place, old, new, age in renamed}
     data_dir = Path(folder) / tools.DATA
     graves_name = f"Virtual Villagers {game} Graves - Save {slot}.dat"
+    cie_name = f"Virtual Villagers {game} Custom Island Event Deaths - Save {slot}.dat"
     for path, magic, header, size, place_kind in (
             (data_dir / "Graves" / graves_name, b"VCD1", 16, 44, True),
             (data_dir / graves_name, b"VCD1", 16, 44, True),
-            (data_dir / "Deaths" / f"Virtual Villagers {game} Graves Logged - Save {slot}.dat", b"VCG1", 16, 8, False)):
-        if not path.is_file() or (magic == b"VCD1" and game > 2):
+            (data_dir / "Deaths" / f"Virtual Villagers {game} Graves Logged - Save {slot}.dat", b"VCG1", 16, 8, False),
+            # The bodies the Custom Island Event's "Dies" left (The Secret City on), by record and print.
+            (data_dir / "Custom Island Event Deaths" / cie_name, b"VCE1", 16, 8, None)):
+        if not path.is_file() or (magic == b"VCD1" and game > 2) or (magic == b"VCE1" and game <= 2):
             continue
         original = path.read_bytes()
         if len(original) < header or original[:4] != magic or _i32(original, 8) != game:
@@ -222,6 +226,11 @@ def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list,
         data = bytearray(original)
         for k in range(count):
             e = header + size * k
+            if place_kind is None:              # VCE1: u16 record, u16 0, u32 fingerprint: a lying body
+                new = bodies.get(struct.unpack_from("<I", data, e + 4)[0])
+                if new is not None:
+                    struct.pack_into("<I", data, e + 4, new)
+                continue
             if place_kind:                      # VCD1: u16 kind (0 grave), u16 index, u32 fingerprint
                 kind, place, fp = struct.unpack_from("<HHI", data, e)
                 if kind == 1:                   # a body still lying in the village, by its record
@@ -1352,18 +1361,33 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
         original = path.read_bytes()
         if original[:4] != b"VCR1" or len(original) < 32:
             continue
+        version = struct.unpack_from("<I", original, 4)[0]
         count, lo, hi = struct.unpack_from("<III", original, 12)
         rec_name = RECORD[game]["name"]
-        if not lo <= rec_name < hi or len(original) != 32 + count * (16 + hi - lo):
+        # Version 3 (A New Home): each entry ends with the villager's parents' names, 2 x char[32]
+        # (native/vvfp_cause_of_death/cod_roster.inc).
+        tail = 64 if version == 3 and game == 1 else 0
+        if not lo <= rec_name < hi or len(original) != 32 + count * (16 + hi - lo + tail):
             result.notes.append(f"{path.name} is damaged or another build's; left as it is.")
             continue
-        size = 16 + (hi - lo)
+        size = 16 + (hi - lo) + tail
         buf = bytearray(original)
         n = 0
+        # A parent kept by name alone is renamed only when that name is one villager's.
+        by_parent_name: dict[str, set[str]] = {}
+        for (old, _head, _body), new in renames.items():
+            by_parent_name.setdefault(old, set()).add(new)
         for i in range(count):
             base = 32 + i * size + 16 - lo
             if base + hi > len(buf):
                 break
+            if tail:
+                for at in (32 + i * size + size - 64, 32 + i * size + size - 32):
+                    parent = _cstr(original, at, 32)
+                    news = by_parent_name.get(parent, set())
+                    if parent and len(news) == 1:
+                        _put_name(buf, at, 32, next(iter(news)))
+                        n += 1
             cap = FIELDS[game].name_cap
             own = (_cstr(buf, base + rec["name"], cap), _i32(buf, base + rec["head"]), _i32(buf, base + rec["body"]))
             if own in renames:

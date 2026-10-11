@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../shared/harness_redirect_documents.h"   /* never the real Documents */
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -231,6 +232,12 @@ static void run_game(void) {
 }
 
 int main(int argc, char **argv) {
+    /* The whole process's Documents is a throwaway %TEMP% folder: no harness ever
+       writes under the real Documents\LDW (the owner's rule, 2026-10-10). */
+    if (!harness_redirect_documents_process()) {
+        fprintf(stderr, "cannot redirect Documents to a throwaway folder; not running\n");
+        return 2;
+    }
     HMODULE dll;
     size_t bytes = 0x40000;
     if (argc < 2) {

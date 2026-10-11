@@ -64,7 +64,9 @@ static unsigned int vv_title_fingerprint(const unsigned char *name, unsigned int
 }
 
 /* Who a title belongs to: the name, then the likes and dislikes arrays
-   (`slots` dwords each), which the games never change on their own.  Names
+   (`slots` dwords each).  The games DO change likes and dislikes (island
+   events, the Custom Island Event, vials, upgrades): the writers carry each
+   entry to the new identity as it changes (identity_in_place.h).  Names
    come from a fixed pool, so a record reused by another villager of the same
    name must not inherit the title.  Appearance is left out: the player can
    change it (Change Appearance) without becoming someone else.  Never 0. */

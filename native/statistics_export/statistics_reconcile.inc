@@ -215,6 +215,44 @@ static int rc_each_log(const wchar_t *sub, const wchar_t *stem, rc_visit_fn visi
     return 1;
 }
 
+/* ONE FOLDER OF LOGS PER SAVE SLOT (native/shared/log_slot.h): a village's logs of `sub_name`
+   ("Tribe History") are the shared folder older builds wrote, then its slot's own
+   "...Logs\Save <slot>\<sub_name>" -- one history, oldest first; each record is still kept only
+   under this village's header by `visit`.  `old_name` is an older build's name for the shared
+   folder (read before it; NULL none).  A folder that is not there is skipped and never made; one
+   that cannot be examined decides nothing (0). */
+static int rc_each_slot_log(const wchar_t *sub_name, const wchar_t *old_name, const wchar_t *stem, int slot,
+                            rc_visit_fn visit, void *context) {
+    wchar_t root[MAX_PATH], rel[3][MAX_PATH], path[MAX_PATH];
+    int n = 0, i;
+    if (!vv_save_folder_w(root, 64)) {
+        return 0;
+    }
+    if (old_name != NULL && vv_log_rel_w(rel[n], MAX_PATH, 0, old_name)) {
+        ++n;
+    }
+    if (vv_log_rel_w(rel[n], MAX_PATH, 0, sub_name)) {
+        ++n;
+    }
+    if (slot >= 1 && slot <= VV_LOG_SLOTS && vv_log_rel_w(rel[n], MAX_PATH, slot, sub_name)) {
+        ++n;
+    }
+    for (i = 0; i < n; ++i) {
+        int kind;
+        if (_snwprintf_s(path, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, rel[i]) < 0) {
+            return 0;
+        }
+        kind = vv_layout_probe_w(path, NULL);
+        if (kind == VV_LAYOUT_UNKNOWN) {
+            return 0;
+        }
+        if (kind == VV_LAYOUT_DIR && !rc_each_log(rel[i], stem, visit, context)) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 struct rc_count {
     const char *village;          /* "Village: <name> (Save S)" */
     int game;
@@ -547,8 +585,7 @@ static void rc_make_plan(int game, int slot, const char *village, const wchar_t 
             h.taken = taken;
             h.taken_count = taken_count;
             h.plan = plan;
-            if (!rc_each_log(L"Virtual Villagers Fun Patcher Logs\\Tribe History", L"Village History",
-                             rc_visit_history, &h)) {
+            if (!rc_each_slot_log(L"Tribe History", NULL, L"Village History", slot, rc_visit_history, &h)) {
                 plan->blocked = 1;
                 plan->elders_ok = 0;
                 plan->elders_add = 0;
@@ -568,38 +605,18 @@ static void rc_make_plan(int game, int slot, const char *village, const wchar_t 
         c.game = game;
         _snwprintf_s(stem, 64, _TRUNCATE, L"Virtual Villagers %d Deaths Log", game);
         plan->counters_ok = 1;
-        {
-            /* The Deaths logs stay where they are (save_layout.h): an older
-               build's "Deaths", the new "Deaths and Disappearances", or both
-               when an older and a newer build both played the village.  Each
-               one there is read -- neither is ever made just to look in it --
-               and a record in both counts once (rc_count_grave).  A folder
-               that cannot be examined decides nothing. */
-            static const wchar_t *const folders[2] = {VV_DEATHS_LOGS_OLD, VV_DEATHS_LOGS_DIR};
-            wchar_t root[MAX_PATH], path[MAX_PATH];
-            int f, kind;
-            if (!vv_save_folder_w(root, 64)) {
-                plan->counters_ok = 0;
-            }
-            for (f = 0; f < 2 && plan->counters_ok; ++f) {
-                if (_snwprintf_s(path, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, folders[f]) < 0) {
-                    plan->counters_ok = 0;
-                    break;
-                }
-                kind = vv_layout_probe_w(path, NULL);
-                if (kind == VV_LAYOUT_UNKNOWN) {
-                    plan->counters_ok = 0;
-                } else if (kind == VV_LAYOUT_DIR) {
-                    plan->counters_ok = rc_each_log(folders[f], stem, rc_visit_deaths, &c);
-                }
-            }
-        }
+        /* The Deaths logs stay where they are (save_layout.h): an older build's "Deaths", the
+           shared "Deaths and Disappearances", or both when an older and a newer build both played
+           the village, then the slot's own folder (log_slot.h).  Each one there is read -- none is
+           ever made just to look in it -- and a record in two counts once (rc_count_grave).  A
+           folder that cannot be examined decides nothing. */
+        plan->counters_ok = rc_each_slot_log(L"Deaths and Disappearances", L"Deaths", stem, slot,
+                                             rc_visit_deaths, &c);
         free(c.seen);
         c.seen = NULL;
         _snwprintf_s(stem, 64, _TRUNCATE, L"Virtual Villagers %d Births and Conceptions Log", game);
         if (game == GAME_VV2 && plan->counters_ok) {
-            plan->counters_ok = rc_each_log(L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions", stem,
-                                            rc_visit_births, &c);
+            plan->counters_ok = rc_each_slot_log(L"Births and Conceptions", NULL, stem, slot, rc_visit_births, &c);
         }
         if (!plan->counters_ok) {
             plan->blocked = 1;

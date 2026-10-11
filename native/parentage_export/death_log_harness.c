@@ -173,11 +173,22 @@ static void wipe(int remove_dirs) {
     static const char *const FOLDERS[4] = { "Deaths and Disappearances", "Unaccounted Villagers", "Births and Conceptions",
                                              "Deaths" /* the folder's older name (save_layout.h) */ };
     char sub[MAX_PATH], parent[MAX_PATH], *cut;
-    int k;
-    for (k = 0; k < 4; ++k) {
-        _snprintf(sub, MAX_PATH, "%s\\%s", logs, FOLDERS[k]);
-        empty_folder(sub);
-        if (remove_dirs) RemoveDirectoryA(sub);
+    int k, slot;
+    /* The shared folders, then each slot's ("...Logs\Save <S>\", native/shared/log_slot.h). */
+    for (slot = 0; slot <= 5; ++slot) {
+        for (k = 0; k < 4; ++k) {
+            if (slot == 0) {
+                _snprintf(sub, MAX_PATH, "%s\\%s", logs, FOLDERS[k]);
+            } else {
+                _snprintf(sub, MAX_PATH, "%s\\Save %d\\%s", logs, slot, FOLDERS[k]);
+            }
+            empty_folder(sub);
+            if (remove_dirs) RemoveDirectoryA(sub);
+        }
+        if (remove_dirs && slot > 0) {
+            _snprintf(sub, MAX_PATH, "%s\\Save %d", logs, slot);
+            RemoveDirectoryA(sub);
+        }
     }
     if (remove_dirs) {
         RemoveDirectoryA(logs);
@@ -210,17 +221,29 @@ static void load(void) {
 }
 
 static char text[1 << 17];
-static int read_log(const char *folder, const char *stem, int game, int number) {
+/* One folder of logs per save slot (native/shared/log_slot.h): the village "(Save <S>)" is logged in
+   "...Logs\Save <S>\<folder>"; slot 0 reads the shared folder older builds wrote.  `cur_slot` is
+   the slot read_log looks in: the harness village is "(Save 1)". */
+static int cur_slot = 1;
+static int read_log_in(int slot, const char *folder, const char *stem, int game, int number) {
     char path[MAX_PATH];
     FILE *f;
     size_t n;
-    _snprintf(path, MAX_PATH, "%s\\%s\\Virtual Villagers %d %s %d.txt", logs, folder, game, stem, number);
+    if (slot == 0) {
+        _snprintf(path, MAX_PATH, "%s\\%s\\Virtual Villagers %d %s %d.txt", logs, folder, game, stem, number);
+    } else {
+        _snprintf(path, MAX_PATH, "%s\\Save %d\\%s\\Virtual Villagers %d %s %d.txt", logs, slot, folder, game, stem,
+                  number);
+    }
     f = fopen(path, "rb");
     if (f == NULL) { text[0] = 0; return 0; }
     n = fread(text, 1, sizeof text - 1, f);
     text[n] = 0;
     fclose(f);
     return 1;
+}
+static int read_log(const char *folder, const char *stem, int game, int number) {
+    return read_log_in(cur_slot, folder, stem, game, number);
 }
 static int read_deaths(int game, int number) { return read_log("Deaths and Disappearances", "Deaths Log", game, number); }
 static int read_unaccounted(int game, int number) {
@@ -231,7 +254,7 @@ static int births_mention_death(int game) {
     char path[MAX_PATH], buf[4096];
     FILE *f;
     size_t n;
-    _snprintf(path, MAX_PATH, "%s\\Births and Conceptions\\Virtual Villagers %d Births and Conceptions Log 1.txt",
+    _snprintf(path, MAX_PATH, "%s\\Save 1\\Births and Conceptions\\Virtual Villagers %d Births and Conceptions Log 1.txt",
               logs, game);
     f = fopen(path, "rb");
     if (f == NULL) return 0;
@@ -452,6 +475,57 @@ int main(int argc, char **argv) {
             rec(6)[g->active] = 0;
         }
 
+        /* 3e: every like and dislike, as the game's Details panel lists them (v1.35.68: the
+           records printed only the first filled slot).  Dado likes slots 0 and the last (an
+           empty slot between) and dislikes slots 0 and 1; Kele likes nothing and dislikes only
+           the last slot -- in every record that names a villager: Disappeared (as Death),
+           Arrived and Birth. */
+        {
+            typedef int (__stdcall *birth_t)(int, const char *, int, int, const char *, int, int,
+                                             const char *, int, int, const void *);
+            birth_t birth = (birth_t)GetProcAddress(dll, "WriteParentageBirth");
+            unsigned int slots = PREFS[game - 1].slots, s;
+            unsigned int likes = PREFS[game - 1].likes, dislikes = PREFS[game - 1].dislikes;
+            const char *at;
+            villager(8, "Dado", 700, 4, 5);
+            villager(9, "Kele", 701, 6, 7);
+            for (s = 0; s < slots; ++s) {
+                *(int *)(rec(8) + likes + 4 * s) = -1;
+                *(int *)(rec(8) + dislikes + 4 * s) = -1;
+                *(int *)(rec(9) + likes + 4 * s) = s == 1 ? 500 : -1;      /* past the end: empty */
+                *(int *)(rec(9) + dislikes + 4 * s) = -1;
+            }
+            *(int *)(rec(8) + likes) = 11;                                 /* herbs */
+            *(int *)(rec(8) + likes + 4 * (slots - 1)) = 1;                /* crowds */
+            *(int *)(rec(8) + dislikes) = 21;                              /* green */
+            *(int *)(rec(8) + dislikes + 4) = 1;                           /* crowds */
+            *(int *)(rec(9) + dislikes + 4 * (slots - 1)) = 12;            /* berries */
+            CHECK(write_record(game, DISAPPEARED, rec(8), 1, "  Age: 700\n", NULL, 1) == 1
+                  && write_record(game, DISAPPEARED, rec(9), 1, "  Age: 701\n", NULL, 1) == 1
+                  && read_deaths(game, 1)
+                  && strstr(text, "  Name: Dado\r\n  Age: 700\r\n  Head: 4\r\n  Body: 5\r\n"
+                                  "  Likes: herbs, crowds\r\n  Dislikes: green, crowds\r\n") != NULL,
+                  "Deaths log: every like and every dislike, \", \" between");
+            CHECK(strstr(text, "  Name: Kele\r\n  Age: 701\r\n  Head: 6\r\n  Body: 7\r\n"
+                               "  Likes: (none)\r\n  Dislikes: berries\r\n") != NULL,
+                  "Deaths log: none is \"(none)\"; one, in the last slot, is that word alone");
+            CHECK(write_record(game, 6, rec(8), 1, "  Age at arrival: 700\n", NULL, 2) == 1
+                  && read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+                  && (at = strstr(text, "  Name: Dado\r\n")) != NULL
+                  && strstr(at, "  Likes: herbs, crowds\r\n  Dislikes: green, crowds\r\n") != NULL,
+                  "Arrived record: every like and every dislike");
+            if (birth != NULL) {
+                birth(game, "Dado", 4, 5, "Mama", 8, 8, "Papa", 1, 1, rec(8));
+            }
+            CHECK(birth != NULL
+                  && read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+                  && (at = strstr(text, "  Child: Dado\r\n")) != NULL
+                  && strstr(at, "    Likes: herbs, crowds\r\n    Dislikes: green, crowds\r\n") != NULL,
+                  "Birth record: the child's every like and every dislike");
+            rec(8)[g->active] = 0;
+            rec(9)[g->active] = 0;
+        }
+
         /* 3d: "Lost before birth" (kind 9, "VVFP Cause of Death.dll"'s cod_lost.inc): the
            Births and Conceptions log, unnumbered, every line the caller's. */
         CHECK(write_record(game, 9, rec(1), 1,
@@ -510,16 +584,25 @@ int main(int argc, char **argv) {
         ensure_village(game, OTHER, records);
         write_record(game, DEATH, rec(1), 1, BURIED, NULL, 1);
         {
-            int other_file = game == 1 ? 3 : 2;
-            CHECK(read_deaths(game, other_file) && strstr(text, "Other Tribe") != NULL,
-                  "another village gets its own Deaths log (file %d)", other_file);
-            CHECK(read_unaccounted(game, 2) && strstr(text, "Other Tribe") != NULL,
+            /* The other village is "(Save 2)": its logs are in Save 2's own folder, numbered on
+               from the game's highest (Death 256/257 in A New Home's Save 1 file above). */
+            CHECK(read_log_in(2, "Deaths and Disappearances", "Deaths Log", game, 1)
+                  && strstr(text, "Other Tribe") != NULL,
+                  "another village gets its own Deaths log, in its own slot's folder");
+            CHECK(strstr(text, "Death ") != NULL && atoi(strstr(text, "Death ") + 6) > (game == 1 ? 257 : 1),
+                  "...numbered on from the game's highest Death in any folder");
+            CHECK(read_log_in(2, "Unaccounted Villagers", "Unaccounted Villagers Log", game, 1)
+                  && strstr(text, "Other Tribe") != NULL,
                   "and its own Unaccounted Villagers log");
+            CHECK(!read_log_in(1, "Deaths and Disappearances", "Deaths Log", game, game == 1 ? 3 : 2),
+                  "...nothing of it in Save 1's folder");
             vv_reset_slot_state(game, 1, VILLAGE);
             CHECK(!read_deaths(game, 1), "Start Over deleted the village's Deaths log");
             if (game == 1) CHECK(!read_deaths(game, 2), "...all of them");
             CHECK(!read_unaccounted(game, 1), "...and its Unaccounted Villagers log");
-            CHECK(read_deaths(game, other_file) && read_unaccounted(game, 2), "the other village's logs are kept");
+            CHECK(read_log_in(2, "Deaths and Disappearances", "Deaths Log", game, 1)
+                  && read_log_in(2, "Unaccounted Villagers", "Unaccounted Villagers Log", game, 1),
+                  "the other village's logs are kept");
         }
         FreeLibrary(dll);
         free_table(game);
@@ -563,10 +646,53 @@ int main(int argc, char **argv) {
         CHECK(write_record(3, DEATH, rec(0), 1, UNBURIED, NULL, 1) == 1, "a death with both folders there");
         CHECK(read_deaths(3, 1) && strstr(text, "Death 6\r\n  Name: Ana\r\n") != NULL
               && strstr(text, "Death 4\r\n") == NULL,
-              "written in Deaths and Disappearances as Death 6, after the older folder's Death 5");
-        CHECK(read_log("Deaths", "Deaths Log", 3, 1) && strcmp(text, old_before) == 0,
+              "written in Save 1's own Deaths and Disappearances as Death 6, after the shared folders' Death 5");
+        CHECK(read_log_in(0, "Deaths", "Deaths Log", 3, 1) && strcmp(text, old_before) == 0,
               "the older folder's log is untouched");
-        CHECK(!read_log("Deaths", "Deaths Log", 3, 2), "...and nothing new is made there");
+        CHECK(!read_log_in(0, "Deaths", "Deaths Log", 3, 2), "...and nothing new is made there");
+        CHECK(read_log_in(0, "Deaths and Disappearances", "Deaths Log", 3, 1) && strstr(text, "Name: Ana") == NULL
+              && !read_log_in(0, "Deaths and Disappearances", "Deaths Log", 3, 2),
+              "...nor in the shared Deaths and Disappearances an older build wrote");
+        FreeLibrary(dll);
+        free_table(3);
+        wipe(0);
+    }
+
+    /* 9b: the owner's A New Home (v1.35.66): the older "Deaths" holds Death 1-5 and the new
+       folder only its header; two deaths in a row are Death 6 and Death 7 -- never two "Death 6"
+       (the count of the new folder's records, 1, is below the older folder's 5). */
+    printf("both Deaths folders, two deaths in a row\n");
+    {
+        char folder[MAX_PATH], path[MAX_PATH], body[2048];
+        const char *const names[2] = { "Deaths", "Deaths and Disappearances" };
+        int which, k, n;
+        FILE *f;
+        g = &LAYOUTS[2];
+        records = alloc_table(3);
+        villager(0, "Ana", 600, 3, 4);
+        villager(1, "Bo", 700, 5, 6);
+        load();
+        vv_village_publish(VILLAGE);
+        ensure_village(3, VILLAGE, records);
+        for (which = 0; which < 2; ++which) {
+            _snprintf(folder, MAX_PATH, "%s\\%s", logs, names[which]);
+            CreateDirectoryA(folder, NULL);
+            n = _snprintf(body, sizeof body, "Village: Harness Tribe (Save 1)\r\n");
+            for (k = 1; which == 0 && k <= 5; ++k) {
+                n += _snprintf(body + n, sizeof body - n, "Death %d\r\n  Name: Old%d\r\n\r\n", k, k);
+            }
+            _snprintf(path, MAX_PATH, "%s\\Virtual Villagers 3 Deaths Log 1.txt", folder);
+            f = fopen(path, "wb");
+            if (f != NULL) { fwrite(body, 1, strlen(body), f); fclose(f); }
+        }
+        CHECK(write_record(3, DEATH, rec(0), 1, UNBURIED, NULL, 1) == 1
+              && write_record(3, DEATH, rec(1), 1, UNBURIED, NULL, 1) == 1, "two deaths with both folders there");
+        CHECK(read_deaths(3, 1) && strstr(text, "Death 6\r\n  Name: Ana\r\n") != NULL
+              && strstr(text, "Death 7\r\n  Name: Bo\r\n") != NULL,
+              "numbered Death 6 and Death 7 after the older folder's Death 5, never Death 6 twice");
+        CHECK(write_record(3, DEATH, rec(0), 1, UNBURIED, NULL, 1) == 1
+              && read_deaths(3, 1) && strstr(text, "Death 8\r\n") != NULL,
+              "the next continues at Death 8 from the slot folder's own highest");
         FreeLibrary(dll);
         free_table(3);
         wipe(0);

@@ -1205,6 +1205,22 @@ static void ce_tell_cause_of_death(int game, int index) {
     }
 }
 
+/* ...and its "Dies" (and health 0, and a new villager made with health 0):
+   the game's own death, which the logs could not tell from a stock island
+   event's ("Unknown causes"), so it is told, right after the kill (the
+   record holds the body), and the Death record says "Died in a custom island
+   event".  Never written into the game: the later games' grave keeps their
+   own words.  Absent (its row off): nothing. */
+static void ce_tell_killed(int game, int index) {
+    typedef void (__stdcall *killed_fn)(int, int);
+    HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
+    killed_fn killed = module != NULL
+        ? (killed_fn)GetProcAddress(module, "VvfpCauseKilled") : NULL;
+    if (killed != NULL) {
+        killed(game, index);
+    }
+}
+
 /* ...and its new villagers, which are not births: each gets an "Arrived"
    record, "Custom Island Event", in the Births and Conceptions log
    (cod_arrivals.inc).  Told right after the game's creator made them, in the
@@ -1398,6 +1414,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         if ((c->fate == CE_FATE_KILL || (c->fate == CE_FATE_NONE && c->health == 0)) && (a->caps & CAP_KILL)) {
             if (a->kill(c->index)) {
                 ++r->died;
+                ce_tell_killed(e->game, c->index);
             }
             continue;
         }
@@ -1553,6 +1570,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
                 if (s->health == 0 && (a->caps & CAP_KILL)) {
                     if (a->kill(index)) {
                         ++r->died;
+                        ce_tell_killed(e->game, index);
                     }
                 } else if (s->health >= 1 && s->health <= CE_HEALTH_MAX && a->set_health != NULL) {
                     a->set_health(index, s->health);

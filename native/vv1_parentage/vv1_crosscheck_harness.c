@@ -1328,8 +1328,11 @@ static void older_names_case(void) {
     RemoveDirectoryA(old_dir);
     DeleteFileA(marker);
 
-    /* Repairs Made */
-    parent_of(repairs, dir);
+    /* Repairs Made: the SHARED folder a village no slot is named for writes, beside an older build's
+       "Repairs" (the slot folders have no older name). */
+    if (vv1_xc_game_folder(dir, sizeof(dir), 80)) {
+        lstrcatA(dir, "\\Virtual Villagers Fun Patcher Logs\\Repairs Made");
+    }
     sibling_of(dir, "Repairs", old_dir);
     remove_folder(dir);
     CreateDirectoryA(old_dir, NULL);
@@ -1353,6 +1356,30 @@ static void older_names_case(void) {
     DeleteFileA(old_file);
     check(vv_layout_older_repairs(p, 1, 1) == 0, "... and nothing when the older file is not there");
     RemoveDirectoryA(old_dir);
+    /* One folder of logs per save slot (native/shared/log_slot.h): "Repair <n>" is the game's, so
+       the next follows the highest printed in ANY Repairs file -- an older build's "Repairs", the
+       shared "Repairs Made" and every slot's. */
+    {
+        char shared_file[MAX_PATH], slot_dir[MAX_PATH], slot_file[MAX_PATH];
+        wsprintfA(shared_file, "%s\\Virtual Villagers 1 Repairs Log 1.txt", dir);
+        write_text(shared_file, "Village: T (Save 2)\r\nRepair 1\r\n  Date: x\r\n\r\nRepair 2\r\n  Date: y\r\n\r\n");
+        check(vv1_xc_repairs_highest() >= 2, "the shared Repairs Made's Repair 2 counts toward the next number");
+        lstrcpyA(slot_dir, dir);
+        *strrchr(slot_dir, '\\') = 0;               /* "...Logs" */
+        lstrcatA(slot_dir, "\\Save 3");
+        CreateDirectoryA(slot_dir, NULL);
+        lstrcatA(slot_dir, "\\Repairs Made");
+        CreateDirectoryA(slot_dir, NULL);
+        wsprintfA(slot_file, "%s\\Virtual Villagers 1 Repairs Log 1.txt", slot_dir);
+        write_text(slot_file, "Village: U (Save 3)\r\nRepair 41\r\n  Date: z\r\n\r\n");
+        check(vv1_xc_repairs_highest() == 41,
+              "...and another slot's Repair 41: the next repair anywhere in the game is Repair 42");
+        DeleteFileA(slot_file);
+        RemoveDirectoryA(slot_dir);
+        *strrchr(slot_dir, '\\') = 0;
+        RemoveDirectoryA(slot_dir);
+        DeleteFileA(shared_file);
+    }
 }
 
 int main(int argc, char **argv) {
@@ -1373,7 +1400,15 @@ int main(int argc, char **argv) {
     vv1_parents_path(sidecar, sizeof(sidecar), SLOT);
     vv1_xc_marker_path(marker, sizeof(marker), SLOT);
     vv1_xc_subfolder(births_dir, sizeof(births_dir), "Virtual Villagers Fun Patcher Logs", "Births and Conceptions", 80);
-    vv1_xc_subfolder(game, sizeof(game), "Virtual Villagers Fun Patcher Logs", "Repairs Made", 80);
+    /* The village is "(Save 1)": its repairs are noted in that slot's own folder,
+       "...Logs\\Save 1\\Repairs Made" (native/shared/log_slot.h). */
+    vv1_xc_game_folder(game, sizeof(game), 80);
+    lstrcatA(game, "\\Virtual Villagers Fun Patcher Logs");
+    CreateDirectoryA(game, NULL);
+    lstrcatA(game, "\\Save 1");
+    CreateDirectoryA(game, NULL);
+    lstrcatA(game, "\\Repairs Made");
+    CreateDirectoryA(game, NULL);
     wsprintfA(repairs, "%s\\Virtual Villagers 1 Repairs Log 1.txt", game);
     /* The repair's copies are kept in "Data\Copies Made Before Repairs", at the file's own place
        (native/shared/save_layout.h) -- beside the file when that place is too long to name, as

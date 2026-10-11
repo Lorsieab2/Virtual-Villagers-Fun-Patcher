@@ -1102,6 +1102,12 @@ def file_slot(relative: Path, folder: Path) -> int | str:
         return int(match.group(1)) if match else "unknown"
     if top not in _PATCHER_FOLDERS:
         return "unknown"
+    # One folder of logs per save slot (src/vv_save_layout.py): everything in
+    # "Virtual Villagers Fun Patcher Logs\Save <S>\" is that slot's.
+    if top == _LOG_FOLDERS[0] and len(relative.parts) >= 3:
+        match = re.fullmatch(r"save ([1-5])", relative.parts[1].casefold())
+        if match:
+            return int(match.group(1))
     match = _SAVE_N.search(name)
     if match:
         return int(match.group(1))

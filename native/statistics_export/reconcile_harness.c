@@ -217,7 +217,9 @@ static int exists_rel(const char *rel) {
 #define ELDERS DATA "\\Village Elders\\Village Elders - Save 1.dat"
 #define COUNTERS DATA "\\Village Statistics\\Village Statistics - Save 1.dat"
 #define ROSTER DATA "\\Village Statistics\\Villagers Counted - Save 1.dat"   /* "Village Roster" before */
-#define REPAIRS_DIR LOGS "\\Repairs Made"
+/* The village is "(Save 1)": its repairs are in that slot's own folder (native/shared/log_slot.h). */
+#define REPAIRS_DIR LOGS "\\Save 1\\Repairs Made"
+#define SHARED_REPAIRS_DIR LOGS "\\Repairs Made"
 #define SUFFIX ".before-v1.35.58-repair"
 /* A repair's copies: "Data\Copies Made Before Repairs", at the file's own place (native/shared/save_layout.h). */
 #define ELDERS_COPY DATA "\\Copies Made Before Repairs\\" ELDERS
@@ -667,6 +669,53 @@ int main(int argc, char **argv) {
             CHECK(again == 1 && same && scan(game, 1, prompt, (int)sizeof prompt) == 0 && *rewrites == 1,
                   "...a second Repair changes nothing (no file, no second backup, not the log), and the scan finds"
                   " nothing left");
+        }
+
+        /* 7b. An older build's "Repairs" folder beside "Repairs Made": the record is written in the
+           new folder and numbered after the older folder's own file of the same number, as A New
+           Home's parentage repair numbers it (save_layout.h vv_layout_older_repairs) -- never a
+           second "Repair 1". */
+        clean();
+        write_files(1, 0, 0);
+        {
+            char old_log[MAX_PATH], repairs[MAX_PATH], made[MAX_PATH];
+            _snprintf(old_log, MAX_PATH, LOGS "\\Repairs\\Virtual Villagers %d Repairs Log 1.txt", game);
+            write_file(old_log, "Village: Recon Tribe (Save 1)\r\nRepair 1\r\n  Date: 2026-10-04 10:00:00\r\n\r\n"
+                                "Repair 2\r\n  Date: 2026-10-04 10:00:01\r\n\r\nRepair 3\r\n  Date: 2026-10-04 10:00:02\r\n\r\n");
+            _snprintf(made, MAX_PATH, "%s\\" REPAIRS_DIR, root);
+            make_dirs(made);
+            repair(game, 1, 1);
+            save(game, 1, manager);
+            _snprintf(repairs, MAX_PATH, REPAIRS_DIR "\\Virtual Villagers %d Repairs Log 1.txt", game);
+            read_rel(repairs);
+            CHECK(strstr(text, "\r\nRepair 4\r\n") != NULL && strstr(text, "Repair 1\r\n") == NULL,
+                  "an older build's Repairs folder beside Repairs Made: the repair is Repair 4, after its Repair 3");
+        }
+
+        /* 7c. One folder of logs per save slot: an older build's SHARED "Repairs Made" holds Repair
+           1-5 (this village's and another's); the repair is written in Save 1's own folder as
+           Repair 6 -- numbered per game, never a second "Repair 1" -- and the shared file is
+           never touched. */
+        clean();
+        write_files(1, 0, 0);
+        {
+            char shared_log[MAX_PATH], repairs[MAX_PATH], before[512];
+            _snprintf(shared_log, MAX_PATH, SHARED_REPAIRS_DIR "\\Virtual Villagers %d Repairs Log 1.txt", game);
+            write_file(shared_log, "Village: Recon Tribe (Save 1)\r\nRepair 1\r\n  Date: 2026-10-04 10:00:00\r\n\r\n"
+                                   "Repair 2\r\n  Date: 2026-10-04 10:00:01\r\n\r\n"
+                                   "Village: Other Tribe (Save 2)\r\nRepair 3\r\n  Date: 2026-10-04 10:00:02\r\n\r\n"
+                                   "Repair 4\r\n  Date: 2026-10-04 10:00:03\r\n\r\nRepair 5\r\n  Date: 2026-10-04 10:00:04\r\n\r\n");
+            read_rel(shared_log);
+            lstrcpynA(before, text, sizeof before);
+            repair(game, 1, 1);
+            save(game, 1, manager);
+            _snprintf(repairs, MAX_PATH, REPAIRS_DIR "\\Virtual Villagers %d Repairs Log 1.txt", game);
+            read_rel(repairs);
+            CHECK(strncmp(text, "Village: Recon Tribe (Save 1)\r\n", 31) == 0 && strstr(text, "\r\nRepair 6\r\n") != NULL
+                  && strstr(text, "Repair 1\r\n") == NULL,
+                  "a shared Repairs Made beside: the repair is in Save 1's own folder as Repair 6, after the game's Repair 5");
+            read_rel(shared_log);
+            CHECK(strcmp(text, before) == 0, "...and the shared Repairs Made file is untouched");
         }
 
         /* 8. Both "Deaths" and "Deaths and Disappearances" (Codex, #577): the

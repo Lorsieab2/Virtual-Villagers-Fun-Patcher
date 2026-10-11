@@ -23,6 +23,7 @@ int select_log_file(const struct game_layout *g, const char *village,
                     wchar_t *destination, int *existing_records, int for_birth);
 const struct game_layout *vv_parentage_layout(int game);
 int vv_parentage_log_folder(wchar_t *out);
+int vv_parentage_slot_log_folder(int slot, wchar_t *out);
 int __stdcall EnsureParentageLog(int game_id, const char *village);
 
 static int failures = 0;
@@ -59,6 +60,29 @@ static void write_log(const wchar_t *folder, const wchar_t *stem, int number,
     WriteFile(h, line, lstrlenA(line), &wrote, NULL);
     for (i = 0; i < records; ++i) {
         wsprintfA(line, "Conception %d\r\n  Mother: X\r\n\r\n", i + 1);
+        WriteFile(h, line, lstrlenA(line), &wrote, NULL);
+    }
+    CloseHandle(h);
+}
+
+/* The same, numbering its records from `first` (a game's running count goes on across files). */
+static void write_log_from(const wchar_t *folder, const wchar_t *stem, int number,
+                           const char *village, int records, int first) {
+    wchar_t path[MAX_PATH];
+    char line[512];
+    HANDLE h;
+    DWORD wrote;
+    int i;
+    wsprintfW(path, L"%ls\\%ls %d.txt", folder, stem, number);
+    h = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        printf("  (could not create %ls: %lu)\n", path, GetLastError());
+        return;
+    }
+    wsprintfA(line, "%s\r\n\r\n", village);
+    WriteFile(h, line, lstrlenA(line), &wrote, NULL);
+    for (i = 0; i < records; ++i) {
+        wsprintfA(line, "Conception %d\r\n  Mother: X\r\n\r\n", first + i);
         WriteFile(h, line, lstrlenA(line), &wrote, NULL);
     }
     CloseHandle(h);
@@ -330,8 +354,10 @@ int main(void) {
         static const char NOTE[] = "Tribe renamed from Old Name to New Name on 2026-10-04\r\n";
         static const char NOTE2[] = "Tribe renamed from New Name to Third on 2026-10-05\r\n";
         wchar_t path[MAX_PATH];
+        wchar_t folder[MAX_PATH];     /* "(Save 1)": that slot's own folder (log_slot.h) */
         HANDLE h;
         DWORD wrote;
+        vv_parentage_slot_log_folder(1, folder);
         for (i = 1; i <= 8; ++i) {
             remove_log(folder, stem, i);
         }
@@ -394,6 +420,70 @@ int main(void) {
         }
         for (i = 1; i <= 8; ++i) {
             remove_log(folder, stem, i);
+        }
+    }
+
+    /* ONE FOLDER OF LOGS PER SAVE SLOT (native/shared/log_slot.h).
+
+       A village "(Save S)" is logged in "...Logs\Save S\Births and Conceptions"; the shared
+       folder older builds wrote is only read.  Numbers are the GAME's: a record continues after
+       the highest number printed in the shared folder and in every slot's. */
+    {
+        wchar_t shared[MAX_PATH], save1[MAX_PATH], save2[MAX_PATH], save3[MAX_PATH];
+        int k;
+        lstrcpyW(shared, folder);
+        vv_parentage_slot_log_folder(1, save1);
+        vv_parentage_slot_log_folder(2, save2);
+        vv_parentage_slot_log_folder(3, save3);
+        for (k = 1; k <= 8; ++k) {
+            remove_log(shared, stem, k);
+            remove_log(save1, stem, k);
+            remove_log(save2, stem, k);
+            remove_log(save3, stem, k);
+        }
+        /* An older build's shared log: Alpha (Save 1) Conceptions 1-3 in file 1, Beta (Save 2)
+           Conceptions 4-5 in file 2. */
+        write_log_from(shared, stem, 1, "Village: Alpha (Save 1)", 3, 1);
+        write_log_from(shared, stem, 2, "Village: Beta (Save 2)", 2, 4);
+        if (select_log_file(g, "Village: Alpha (Save 1)\n", chosen, &records, 0)) {
+            wsprintfW(expect, L"%ls\\%ls 1.txt", save1, stem);
+            printf("  slot 1     -> %ls (existing=%d)\n", chosen, records);
+            check(lstrcmpiW(chosen, expect) == 0,
+                  "A SAVE 1 RECORD GOES TO SAVE 1'S OWN FOLDER, not the shared file it once used");
+            check(records == 5, "numbered after the shared folder's highest (Conception 6)");
+        } else {
+            check(0, "select_log_file returned a path for Save 1");
+        }
+        /* This build then wrote Conception 6-7 for Alpha in Save 1's folder. */
+        write_log_from(save1, stem, 1, "Village: Alpha (Save 1)", 2, 6);
+        if (select_log_file(g, "Village: Beta (Save 2)\n", chosen, &records, 0)) {
+            wsprintfW(expect, L"%ls\\%ls 1.txt", save2, stem);
+            printf("  slot 2     -> %ls (existing=%d)\n", chosen, records);
+            check(lstrcmpiW(chosen, expect) == 0, "TWO SLOTS STAY APART: Save 2 has its own folder");
+            check(records == 7, "and continues the game's numbering after Save 1's Conception 7");
+        } else {
+            check(0, "select_log_file returned a path for Save 2");
+        }
+        if (select_log_file(g, "Village: Alpha (Save 1)\n", chosen, &records, 0)) {
+            wsprintfW(expect, L"%ls\\%ls 1.txt", save1, stem);
+            check(lstrcmpiW(chosen, expect) == 0 && records == 7,
+                  "Save 1's next record stays in its file 1, numbered 8");
+        }
+        if (select_log_file(g, "Village: Alpha (Save 1)\n", chosen, &records, 1)) {
+            wsprintfW(expect, L"%ls\\%ls 1.txt", save1, stem);
+            check(lstrcmpiW(chosen, expect) == 0, "a birth goes to the slot's newest file");
+        }
+        /* The save after a new village is made creates its log in its slot's folder, headed. */
+        EnsureParentageLog(1, "Village: Gamma (Save 3)\n");
+        check(present(save3, stem, 1), "VILLAGE CREATION MAKES SAVE 3'S OWN LOG");
+        check(!present(shared, stem, 3) && !present(save1, stem, 2),
+              "...and nothing in the shared folder or another slot's");
+        check(present(shared, stem, 1) && present(shared, stem, 2), "the shared files are all still there");
+        for (k = 1; k <= 8; ++k) {
+            remove_log(shared, stem, k);
+            remove_log(save1, stem, k);
+            remove_log(save2, stem, k);
+            remove_log(save3, stem, k);
         }
     }
 

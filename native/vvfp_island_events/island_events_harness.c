@@ -117,8 +117,8 @@ static int __stdcall stub_query_expected(int index, int *out, char *name, int ca
     return 1;                             /* as the companion: 1 for a known village, the father empty when none */
 }
 
-/* A stand-in for the Parentage Export's VillagePreferenceText: the first
-   filled slot, as the logs and the Details panel show it. */
+/* A stand-in for the Parentage Export's VillagePreferenceListText, reduced to
+   what these checks compare: a word for the first filled slot. */
 static int __stdcall stub_preference(int game, const void *record, int dislikes, char *out, int size) {
     int k;
     (void)game;

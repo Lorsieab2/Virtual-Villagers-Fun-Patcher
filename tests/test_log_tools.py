@@ -822,7 +822,7 @@ class LogWordsTests(FolderTest):
         backup_copy = folder / DATA / "Copies Made Before Repairs" / (HISTORY + tools.WORD_BACKUP_SUFFIX)
         self.assertEqual(backup_copy.read_bytes(), self.OLD + self.NEW)
         self.assertFalse(path.with_name(path.name + tools.WORD_BACKUP_SUFFIX).exists())
-        repairs = (folder / f"{LOGS}/Repairs Made/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
+        repairs = (folder / f"{LOGS}/Save 1/Repairs Made/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
         self.assertIn("Corrected: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt -- 2 word(s)",
                       repairs)
         # A second repair finds nothing: the boundary is now 0.
@@ -920,7 +920,7 @@ class SexLinesTests(FolderTest):
         self.assertIn(b"  Name: Custom\r\n  Age at death: 900\r\n  Sex: Female\r\n", deaths)
         self.assertEqual(deaths.count(b"Sex: Female"), 2, "the Arrived record's own line is not doubled")
         self.assertTrue(result.sexes)
-        repairs = (folder / f"{LOGS}/Repairs Made/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
+        repairs = (folder / f"{LOGS}/Save 1/Repairs Made/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
         self.assertIn("Sex added: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", repairs)
         # Once is enough: a second repair adds nothing.
         before = self.state(folder / LOGS)

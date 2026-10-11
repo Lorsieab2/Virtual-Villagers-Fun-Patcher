@@ -63,10 +63,13 @@ class HistoryTests(unittest.TestCase):
         self.assertNotIn("DeleteFileW", self.history)
 
     def test_the_history_lives_in_its_own_folder(self):
+        # One folder of logs per save slot (native/shared/log_slot.h): "...Logs\Save <S>\Tribe
+        # History", the slot taken from the village header; the shared folder only for a migration.
         path = function(self.pop, "static int build_history_path(")
-        self.assertIn("vv_save_subfolder_w(", path)
-        self.assertIn(HISTORY_DIR, path)
-        self.assertIn('L"%ls\\\\Village History %d.txt"', path)
+        self.assertIn('vv_log_rel_w(sub, MAX_PATH, slot, L"Tribe History")', path)
+        self.assertIn("vv_save_subfolder_w(folder, sub, 64)", path)
+        self.assertIn('L"%ls\\\\Village History %d.txt", folder, number', path)
+        self.assertIn("build_history_path(vv_log_header_slot(village), path)", self.pop)
 
     def test_the_export_appends_the_history_after_publishing_the_roster(self):
         """Order matters: a history failure must never cost the player the
@@ -147,8 +150,8 @@ class HistoryTests(unittest.TestCase):
 
     def test_the_shipped_dll_carries_the_history(self):
         blob = POP_DLL.read_bytes()
-        for wide in ("Virtual Villagers Fun Patcher Logs\\Tribe History", "Village History %d.txt",
-                     "Virtual Villagers Fun Patcher Logs\\Tribe Population"):
+        for wide in ("Virtual Villagers Fun Patcher Logs\\Save %d\\%ls", "Tribe History", "Village History %d.txt",
+                     "Tribe Population"):
             self.assertIn(wide.encode("utf-16-le"), blob, wide)
 
 
@@ -167,14 +170,17 @@ class LogFolderTests(unittest.TestCase):
 
     def test_the_roster_moved(self):
         paths = function(self.pop, "static int build_log_paths(")
-        self.assertIn("vv_save_subfolder_w(", paths)
-        self.assertIn(POPULATION_DIR, paths)
+        self.assertIn("vv_save_subfolder_w(module_path, sub, 64)", paths)
+        self.assertIn('vv_log_rel_w(sub, MAX_PATH, slot, L"Tribe Population")', paths)
         self.assertNotIn("vv_save_folder_w(", paths, "the roster no longer writes to the save root")
 
     def test_the_parentage_log_moved(self):
         path = function(self.par, "static int build_log_path(")
-        self.assertIn("vv_save_subfolder_w(", path)
-        self.assertIn(PARENTAL_DIR, path)
+        self.assertIn("vv_save_subfolder_w(folder, sub, 64)", path)
+        self.assertIn("vv_log_rel_w(sub, MAX_PATH, slot, BIRTHS_SUB)", path)
+        self.assertIn('#define BIRTHS_SUB L"Births and Conceptions"', self.par)
+        # The retired folders migrate into the SHARED folder, never a slot's.
+        self.assertIn("VV_LOGS_DIR L\"\\\\\" BIRTHS_SUB", path)
         # The log it RETURNS is always built from the subfolder, never from
         # the save root: the only vv_save_folder_w here resolves the retired
         # folder to migrate out of, and its result goes to `legacy_dir`.
@@ -312,10 +318,9 @@ class LogFolderTests(unittest.TestCase):
         folder under Virtual Villagers Fun Patcher Logs, statistics included, rather than loose in the
         save folder beside the .ldw files."""
         paths = function(self.stat, "static int build_output_paths(")
-        self.assertIn("vv_save_subfolder_w(", paths)
-        lit = re.search(r'vv_save_subfolder_w\(module_path, (L"[^"]+"), 64\)',
-                        paths).group(1)
-        self.assertEqual(lit, STATISTICS_DIR)
+        self.assertIn("vv_save_subfolder_w(module_path, sub, 64)", paths)
+        self.assertIn('L"Village Statistics")', paths)
+        self.assertIn("vv_log_rel_w(sub, MAX_PATH, save_id >= 1 && save_id <= VV_LOG_SLOTS ? save_id : 0", paths)
 
     def test_the_parentage_log_is_created_when_the_village_is(self):
         """The owner asked for the logs to exist as soon as a village does,
@@ -494,9 +499,9 @@ class LogFolderTests(unittest.TestCase):
 
         Both must be addressed BY SLOT: a reset of slot 1 must not touch the
         other saves' statistics."""
-        stat_lit = re.search(r'vv_save_subfolder_w\(module_path, (L"[^"]+"), 64\)',
-                             function(self.stat, "static int build_output_paths(")).group(1)
-        self.assertIn(stat_lit, self.reset)
+        # The shared folder older builds wrote, and the slot's own (native/shared/log_slot.h).
+        self.assertIn(STATISTICS_DIR, self.reset)
+        self.assertIn('vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Village Statistics")', self.reset)
         # The pre-move location is still swept, and neither sweep walks every
         # number: each formats the slot it was given.
         # Three locations now: the current folder, the same folder under the
@@ -518,15 +523,13 @@ class LogFolderTests(unittest.TestCase):
         and reports nothing wrong."""
         self.assertIn(POPULATION_DIR, self.reset)
         self.assertIn(PARENTAL_DIR, self.reset)
-        # The exporters' literals, extracted, must be the reset's literals.
-        pop_lit = re.search(r'vv_save_subfolder_w\(module_path, (L"[^"]+"), 64\)',
-                            function(self.pop, "static int build_log_paths(")).group(1)
-        par_lit = re.search(r'vv_save_subfolder_w\(folder, (L"[^"]+"), 64\)',
-                            function(self.par, "static int build_log_path(")).group(1)
-        self.assertEqual(pop_lit, POPULATION_DIR)
-        self.assertEqual(par_lit, PARENTAL_DIR)
-        self.assertIn(pop_lit, self.reset)
-        self.assertIn(par_lit, self.reset)
+        # The exporters' folder names, extracted, must be the reset's: the slot's own folder
+        # (native/shared/log_slot.h) and the shared one older builds wrote.
+        self.assertIn('vv_log_rel_w(sub, MAX_PATH, slot, L"Tribe Population")',
+                      function(self.pop, "static int build_log_paths("))
+        self.assertIn('vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Tribe Population")', self.reset)
+        self.assertIn('L"Births and Conceptions", L"Deaths and Disappearances", L"Unaccounted Villagers", '
+                      'L"Island Events"', self.reset)
         # And the history is NOT deleted by a reset: it is the permanent log.
         self.assertNotIn(HISTORY_DIR, self.reset)
         self.assertNotIn("Village History", self.reset)

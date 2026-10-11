@@ -130,12 +130,18 @@ class SaveResetReservesCoverTheirAppendsTests(unittest.TestCase):
         widest_stem = max((len(x) for x in stems), default=0)
         self.assertGreater(widest_stem, 0, "no log stems found -- pattern moved")
 
+        # Every log folder is now probed, never made (legacy_subfolder_w; with one folder of logs per
+        # save slot no shared folder is made just to look in it), so its reserve is the one
+        # legacy_subfolder_w passes for the caller's append.
         reserves = [
             int(m) for m in re.findall(r"vv_save_subfolder_w\([^)]*?,\s*(\d+)\s*\)", text)
+        ] + [
+            int(m) for m in re.findall(r"vv_save_folder_w\(root, \(int\)wcslen\(sub\) \+ 1 \+ (\d+)\)", text)
         ]
         self.assertGreaterEqual(
-            len(reserves), 3, f"only {len(reserves)} subfolder calls found"
+            len(reserves), 1, f"only {len(reserves)} subfolder calls found"
         )
+        self.assertGreaterEqual(text.count("legacy_subfolder_w(sub_w, "), 6, "the log folders are probed")
 
         appends = re.findall(r'wsprintfW\(\s*\w+\s*,\s*L"%ls(.*?)"', text)
         self.assertGreaterEqual(

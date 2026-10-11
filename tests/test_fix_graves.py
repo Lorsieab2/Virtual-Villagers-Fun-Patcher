@@ -162,6 +162,107 @@ class WhatEachGameKeeps(unittest.TestCase):
             vg.check_value(4, "title", "Tribal Chief")      # only The Secret City's grave keeps a chief
 
 
+class CustomIslandEventDeaths(unittest.TestCase):
+    """"Died in a custom island event" (the Custom Island Event's "Dies", native/vvfp_cause_of_death/
+    cod_cie.inc): the Death record's words in every game.  A New Home's and The Lost Children's Graves
+    file keeps it (cause 5, version 2); the later three games' grave keeps the game's own -1, which is
+    no difference -- and never something to write into a save.  Old "Unknown causes" records are never
+    changed on their own."""
+
+    CIE = "Died in a custom island event"
+
+    def village(self, game, graves, deaths, **kw):
+        v = Village(game, graves, deaths, **kw)
+        self.addCleanup(v.close)
+        return v
+
+    def later_village(self, game, cause, record_cause):
+        epitaph = "Inspired Architect" if game in (4, 5) else ""
+        return self.village(game, [grave_bytes(game, "Mia", 1000, job=0, epitaph=epitaph, cause=cause)],
+                            death(1, "Mia", 1000, cause=record_cause, epitaph="Inspired Architect"),
+                            stones=[(0, "Inspired Architect")] if game == 3 else ())
+
+    def test_the_later_games_grave_keeps_minus_1_and_that_is_no_difference(self):
+        for game in (3, 4, 5):
+            with self.subTest(game=game):
+                for record_cause in (self.CIE, "Unknown causes"):
+                    v = self.later_village(game, -1, record_cause)
+                    self.assertEqual(vg.survey(v.folder, game, 1).differences, [], record_cause)
+
+    def test_the_later_games_never_take_the_events_words_into_the_save(self):
+        for game in (3, 4, 5):
+            with self.subTest(game=game):
+                with self.assertRaises(vg.GraveError):
+                    vg.check_value(game, "cause", self.CIE)
+                self.assertNotIn(self.CIE, vg.cause_words(game))
+                v = self.later_village(game, 2, self.CIE)          # a real difference: Old age in the grave
+                (diff,) = vg.survey(v.folder, game, 1).differences
+                self.assertEqual(diff.field, "cause")
+                self.assertEqual(diff.choices, ["Old age"], "only what the game's grave can keep")
+        for game in (1, 2):
+            self.assertEqual(vg.check_value(game, "cause", self.CIE), self.CIE)
+            self.assertIn(self.CIE, vg.cause_words(game))
+
+    def graves_file(self, v, game, version, cause):
+        path = vg.graves_file(v.folder, game, 1)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        data = bytearray(vcd1(game, [(0, fingerprint(game, "Mia", 1000), cause, 0, 0, "")]))
+        struct.pack_into("<I", data, 4, version)
+        path.write_bytes(bytes(data))
+        return path
+
+    def test_the_first_games_graves_file_keeps_cause_5_in_version_2(self):
+        for game in (1, 2):
+            with self.subTest(game=game):
+                v = self.village(game, [grave_bytes(game, "Mia", 1000)], death(1, "Mia", 1000, cause=self.CIE,
+                                                                               epitaph=""))
+                self.graves_file(v, game, 2, 5)
+                found = vg.survey(v.folder, game, 1)
+                self.assertEqual(found.graves[0].sidecar.get("cause"), self.CIE)
+                self.assertEqual(found.differences, [], [d.text for d in found.differences])
+                # A version 1 file with cause 5 is not one the companion reads: nothing from it.
+                self.graves_file(v, game, 1, 5)
+                self.assertNotIn("cause", vg.survey(v.folder, game, 1).graves[0].sidecar)
+
+    def test_fixing_a_grave_to_the_events_cause_writes_version_2_and_back_to_version_1(self):
+        v = self.village(1, [grave_bytes(1, "Mia", 1000)], death(1, "Mia", 1000, cause=self.CIE, epitaph=""))
+        path = self.graves_file(v, 1, 1, -1)
+        vg.fix_graves(v.folder, 1, 1, [vg.Fix(0, "cause", self.CIE)], retro=False, processes=NoGame(), now=NOW)
+        data = path.read_bytes()
+        self.assertEqual(struct.unpack_from("<4sII", data)[:2], (b"VCD1", 2))
+        self.assertEqual(struct.unpack_from("<b", data, 16 + 8)[0], 5)
+        vg.fix_graves(v.folder, 1, 1, [vg.Fix(0, "cause", "Old age")], retro=False, processes=NoGame(), now=NOW)
+        self.assertEqual(struct.unpack_from("<4sII", path.read_bytes())[1], 1)
+
+    def test_old_unknown_causes_records_are_never_rewritten_on_their_own(self):
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                if game <= 2:
+                    v = self.village(game, [grave_bytes(game, "Mia", 1000)],
+                                     death(1, "Mia", 1000, cause="Unknown causes", epitaph=""))
+                    self.graves_file(v, game, 1, -1)
+                else:
+                    v = self.later_village(game, -1, "Unknown causes")
+                before = v.deaths.read_bytes()
+                self.assertEqual(vg.survey(v.folder, game, 1).differences, [])
+                self.assertEqual(v.deaths.read_bytes(), before)
+
+    def test_a_renamed_lying_body_keeps_its_custom_island_event_death(self):
+        """The later games' Custom Island Event Deaths file knows a lying body by its record's name and
+        age, as the Graves file does in the first two: a rename re-keys it."""
+        old, new = fingerprint(4, "Mia", 1000), fingerprint(4, "Mia Kahale", 1000)
+        v = self.later_village(4, -1, self.CIE)
+        path = (v.folder / DATA / "Custom Island Event Deaths"
+                / "Virtual Villagers 4 Custom Island Event Deaths - Save 1.dat")
+        path.parent.mkdir(parents=True)
+        path.write_bytes(struct.pack("<4sIIIHHI", b"VCE1", 1, 4, 1, 3, 0, old))
+        plan = ln.Plan({})
+        ln._plan_grave_files(plan, v.folder, 4, 1, [], {old: new})
+        (change,) = plan.changes
+        self.assertEqual(change.path, path)
+        self.assertEqual(struct.unpack_from("<I", change.updated, 20)[0], new)
+
+
 class EveryGameFindsAndFixesDifferences(unittest.TestCase):
     def village(self, game, graves, deaths, **kw):
         v = Village(game, graves, deaths, **kw)
@@ -215,7 +316,7 @@ class EveryGameFindsAndFixesDifferences(unittest.TestCase):
                 copies = list((v.folder / DATA / "Copies Made Before Repairs").rglob("*.before-grave-repair"))
                 self.assertTrue(any(c.read_bytes() == before for c in copies), "a copy of the save before")
                 self.assertTrue(result.backup.backup_folder.is_dir())
-                repairs = list((v.folder / LOGS / "Repairs Made").glob("*.txt"))
+                repairs = list((v.folder / LOGS / "Save 1" / "Repairs Made").glob("*.txt"))   # the slot's own folder
                 self.assertTrue(repairs)
                 self.assertIn("Village: Tribe (Save 1)", repairs[0].read_bytes().decode("latin-1"))
                 self.assertIn("Grave information corrected", repairs[0].read_bytes().decode("latin-1"))

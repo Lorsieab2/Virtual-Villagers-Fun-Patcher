@@ -29,6 +29,9 @@ NOW = datetime(2026, 10, 10, 21, 0, 0)
 PAGE = "Tribe Population/Village Population 1.txt"
 BIRTHS = "Births and Conceptions/Virtual Villagers 5 Births and Conceptions Log 1.txt"
 DEATHS = "Deaths and Disappearances/Virtual Villagers 5 Deaths Log 1.txt"
+# Where an added record goes: the slot's own folder (one folder of logs per save slot); the shared
+# Deaths log an older build wrote is never written again.
+OWN_DEATHS = "Save 1/Deaths and Disappearances/Virtual Villagers 5 Deaths Log 1.txt"
 LEFT = "Left the tribe: became a Heathen"
 
 
@@ -110,15 +113,16 @@ class LeftTheTribe(unittest.TestCase):
         words.write_bytes(f"{len(raw)}\t{key}\r\n".encode("utf-8"))
         result = tools.approve_repair(self.folder, 5, 1, FakeProcesses(), NOW, chosen={"left_tribe"}, answers={},
                                       kinds=additions.plan(self.folder, 5, 1), rearm=False)
-        after = deaths.read_bytes()
-        self.assertEqual(after, raw + backfilled("Leaf", 3, 4).encode("latin-1") + b"\r\n",
-                         "appended after the last record's blank line, with a blank line of its own")
+        self.assertEqual(deaths.read_bytes(), raw, "the shared log an older build wrote is never written again")
+        own = self.folder / LOGS / OWN_DEATHS
+        self.assertEqual(own.read_bytes(), b"Village: Kalahuna Tribe 5 (Save 1)\r\n"
+                         + backfilled("Leaf", 3, 4).encode("latin-1") + b"\r\n",
+                         "the slot's own log, made under the village's header, with a blank line after it")
         fix = result.added["left_tribe"][0]
         self.assertEqual(fix.count, 1)
-        copy = tools.copy_before_repair(self.folder, deaths, "").with_name(fix.backup)
-        self.assertEqual(copy.read_bytes(), raw, "copied first, into Copies Made Before Repairs")
+        self.assertEqual(fix.backup, "(a new file)", "nothing was there to copy")
         self.assertEqual(checker.word_boundaries(self.folder, 5)[key.lower()], len(raw),
-                         "every byte before it is old; the added record, in the game's own words, is after it")
+                         "the shared log's boundary is left as it was")
         repairs = next((self.folder / LOGS).rglob("Virtual Villagers 5 Repairs Log 1.txt")).read_text("latin-1")
         self.assertIn("Left the tribe record added", repairs)
         again = self.kind()
@@ -132,7 +136,8 @@ class LeftTheTribe(unittest.TestCase):
         kind = self.kind()
         self.assertEqual((kind.decided, kind.asked), (1, 0), "came, left (recorded), converted, left (not)")
         additions.apply(self.folder, [kind], {"left_tribe"}, {})
-        self.assertEqual(deaths.read_bytes().count(LEFT.encode()), 2)
+        self.assertEqual(deaths.read_bytes().count(LEFT.encode()), 1)
+        self.assertEqual((self.folder / LOGS / OWN_DEATHS).read_bytes().count(LEFT.encode()), 1)
 
     def test_a_heathen_born_one_and_one_already_recorded_need_nothing(self):
         self.village(person(1, "Born", 3, 4, "Heathen") + person(2, "Done", 5, 6, "Heathen"),
@@ -160,14 +165,15 @@ class LeftTheTribe(unittest.TestCase):
         raw = deaths.read_bytes()
         self.assertEqual(additions.apply(self.folder, [kind], {"left_tribe"}, {}), {})
         self.assertEqual(deaths.read_bytes(), raw, "Don't know adds nothing")
+        self.assertFalse((self.folder / LOGS / OWN_DEATHS).exists(), "...and makes no file")
         additions.apply(self.folder, [kind], {"left_tribe"}, {texts["Many"].key: additions.LEFT_YES})
-        self.assertEqual(deaths.read_bytes().count(b"  Name: Many\r\n  Age: (unknown)"), 2)
+        self.assertEqual((self.folder / LOGS / OWN_DEATHS).read_bytes().count(b"  Name: Many\r\n  Age: (unknown)"), 2)
 
     def test_under_another_villages_last_record_it_names_its_village(self):
         write(self.folder, PAGE, "Village: Kalahuna Tribe 5 (Save 1)\n" + person(1, "Leaf", 3, 4, "Heathen"))
         write(self.folder, BIRTHS, "Village: Kalahuna Tribe 5 (Save 1)\n" + arrived(1, "Leaf", 3, 4, "Founder"))
-        deaths = write(self.folder, DEATHS, "Village: Kalahuna Tribe 5 (Save 1)\n" + death(1, "Old", 9, 9)
-                       + "Village: Other (Save 2)\n" + death(1, "Far", 8, 8))
+        deaths = write(self.folder, OWN_DEATHS, "Village: Kalahuna Tribe 5 (Save 1)\n" + death(1, "Old", 9, 9)
+                       + "Village: Other (Save 2)\n" + death(2, "Far", 8, 8))
         kind = self.kind()
         additions.apply(self.folder, [kind], {"left_tribe"}, {})
         text = deaths.read_bytes().decode("latin-1")

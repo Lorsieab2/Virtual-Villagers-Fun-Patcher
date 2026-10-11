@@ -25,6 +25,15 @@
         0 Disease          1 Starvation       2 Old age
         3 Work accident    4 Act of Nature    (4: no caller in any game)
 
+   and this companion adds one of its own, never written into a game:
+
+        5 Died in a custom island event
+
+   for a villager the Story / Cheat Upgrades Custom Island Event's "Dies"
+   (or health 0) killed, told by that companion (VvfpCauseKilled, cod_cie.inc)
+   -- as its "Disappears" is "Disappeared in a custom island event".  The
+   later three games' own grave dialog keeps the game's words for it.
+
    A New Home and The Lost Children keep no cause, so this companion records
    it the moment a villager dies, from the place that killed them, in those
    same words: the aging step's old-age store (Old age), its sickness drain
@@ -76,6 +85,7 @@
 #include "sidecar_io.h"
 #include "custom_titles.h"     /* vv_title_identity: who a former Heathen is */
 #include "former_heathens.h"
+#include "identity_in_place.h"  /* a former Heathen whose likes change stays one (cod_former.inc) */
 #include "mask_line.h"         /* the mask a roster snapshot keeps */
 #include "save_folder.h"
 #include "patcher_files.h"
@@ -145,18 +155,22 @@ static int cod_slot(void) {
 enum {
     CAUSE_UNKNOWN = -1, CAUSE_DISEASE = 0, CAUSE_STARVATION = 1, CAUSE_OLD_AGE = 2,
     CAUSE_WORK = 3, CAUSE_NATURE = 4,
+    /* The Custom Island Event's "Dies": this companion's own, never a game's
+       (cod_cie.inc). */
+    CAUSE_CUSTOM_EVENT = 5,
     /* No cause known: the villager died before this patch was installed. */
     CAUSE_NONE = 0x7F
 };
 
-static const char *const CAUSE_WORDS[6] = {
-    "Unknown causes", "Disease", "Starvation", "Old age", "Work accident", "Act of Nature"
+static const char *const CAUSE_WORDS[7] = {
+    "Unknown causes", "Disease", "Starvation", "Old age", "Work accident", "Act of Nature",
+    "Died in a custom island event"
 };
 
 static char cause_scratch[64];
 
 static const char *cod_cause_words(int cause) {
-    if (cause >= -1 && cause <= 4) {
+    if (cause >= -1 && cause <= CAUSE_CUSTOM_EVENT) {
         return CAUSE_WORDS[cause + 1];
     }
     if (cause == CAUSE_NONE) {
@@ -684,6 +698,13 @@ static void arrival_noted_birth(int index);
 static void arrival_backfill_at_save(int slot, const void *save_buffer);
 static void births_backfill_at_save(int slot, const void *save_buffer);
 
+/* cod_cie.inc: the bodies the Custom Island Event's "Dies" left (The Secret
+   City, The Tree of Life, New Believers). */
+static int cie_taken(const unsigned char *record, int game_cause);
+static void cie_tick(void);
+static void cie_saved(int slot);
+static void cie_reset(int slot);
+
 #include "cod_roster.inc"
 #include "cod_gone.inc"
 #include "cod_lost.inc"
@@ -691,6 +712,7 @@ static void births_backfill_at_save(int slot, const void *save_buffer);
 #include "cod_vv345.inc"
 #include "cod_epitaph_edit.inc"
 #include "cod_backfill.inc"
+#include "cod_cie.inc"             /* the Custom Island Event's "Dies" */
 #include "cod_former.inc"
 #include "cod_arrivals.inc"
 #include "cod_creation_save.inc"   /* the logs at village creation */
@@ -777,6 +799,8 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
     }
     if (g_game <= 2) {
         vv12_tick();
+    } else {
+        cie_tick();
     }
     seen_tick();
     lost_tick();
@@ -845,6 +869,8 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
     }
     if (g_game <= 2) {
         vv12_reset(slot);
+    } else {
+        cie_reset(slot);
     }
     if (saved_slot == slot) {
         saved_slot = 0;

@@ -159,7 +159,7 @@ static int death_reader_line(struct death_reader *r, char *line) {
 static int read_deaths_folder(const struct game_layout *g, const wchar_t *folder, const char *village,
                               int old_folder) {
     wchar_t path[MAX_LOG_PATH];
-    char line[512];
+    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     struct death_reader reader;
     const wchar_t *stem = family_stem(g, LOG_DEATHS);
     int ceiling;
@@ -212,7 +212,8 @@ static int read_deaths_folder(const struct game_layout *g, const wchar_t *folder
    log could not be read, so nothing is decided on half a log. */
 static int read_village_deaths(const struct game_layout *g, int game_id, const char *village) {
     wchar_t folder[MAX_PATH];
-    char line[512];
+    wchar_t slot_folder[MAX_PATH];
+    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     struct death_reader reader;
     int i;
 
@@ -243,10 +244,30 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
         if (state != VV_LAYOUT_DIR) {
             folder[0] = L'\0';
         }
+        /* Then the village's own slot folder (native/shared/log_slot.h), where this build writes:
+           "...Logs\Save <S>\Deaths and Disappearances". */
+        slot_folder[0] = L'\0';
+        if (vv_log_header_slot(village) != 0) {
+            wchar_t sub[MAX_PATH];
+            if (!vv_log_rel_w(sub, MAX_PATH, vv_log_header_slot(village), L"Deaths and Disappearances")
+                || _snwprintf_s(slot_folder, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, sub) < 0) {
+                return 0;
+            }
+            state = vv_layout_probe_w(slot_folder, NULL);
+            if (state == VV_LAYOUT_UNKNOWN) {
+                return 0;
+            }
+            if (state != VV_LAYOUT_DIR) {
+                slot_folder[0] = L'\0';
+            }
+        }
     }
     {
         int first_new = death_key_count, kept, j;
         if (folder[0] != L'\0' && !read_deaths_folder(g, folder, village, 0)) {
+            return 0;
+        }
+        if (slot_folder[0] != L'\0' && !read_deaths_folder(g, slot_folder, village, 0)) {
             return 0;
         }
         /* Drop each new-folder record whose very text an old-folder record
@@ -329,6 +350,10 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
    age it shows are printed with them, so a reader can see the gap. */
 
 #define IDENTITIES_PER_GRAVE 8
+/* A snapshot's "  Likes:" / "  Dislikes:" value: every filled slot since v1.35.68
+   ("herbs, crowds"), up to The Lost Children's 62 words; one word before. */
+#define HISTORY_PREFS_MAX 1024
+#define HISTORY_LINE_MAX (HISTORY_PREFS_MAX + 64)
 
 struct identity {
     int head, body;
@@ -337,8 +362,8 @@ struct identity {
     int outlived;          /* listed older than the grave's age */
     int alive;             /* in the village now */
     char sex[16];          /* "Male" / "Female", or empty from a log that has no Sex line */
-    char likes[64];
-    char dislikes[64];
+    char likes[HISTORY_PREFS_MAX];
+    char dislikes[HISTORY_PREFS_MAX];
     char when[32];
 };
 
@@ -358,8 +383,8 @@ struct history_villager {
     int age, head, body;
     int have_age, have_head, have_body;
     char sex[16];
-    char likes[64];
-    char dislikes[64];
+    char likes[HISTORY_PREFS_MAX];
+    char dislikes[HISTORY_PREFS_MAX];
 };
 
 static void history_villager_done(struct history_villager *v, struct backfill_target *targets,
@@ -517,9 +542,10 @@ static int history_aliases(const char *current, char notes[][256], int note_coun
 }
 
 static int read_history(int game_id, const char *village, struct backfill_target *targets, int count) {
-    wchar_t folder[MAX_LOG_PATH];
+    wchar_t folders[READ_FOLDERS][MAX_PATH];
+    int folder_count, f;
     wchar_t path[MAX_LOG_PATH];
-    char line[512];
+    char line[HISTORY_LINE_MAX];
     char current[256];
     char heading[32];
     char when[32];
@@ -536,23 +562,27 @@ static int read_history(int game_id, const char *village, struct backfill_target
     _snprintf_s(current, sizeof current, _TRUNCATE, "%s", village);
     trim_line(current);
     _snprintf_s(heading, sizeof heading, _TRUNCATE, "=== Virtual Villagers %d -- ", game_id);
-    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Logs\\Tribe History", 64)) {
+    /* The shared Tribe History older builds wrote (folders[0], with its retired unnumbered files),
+       then this village's slot folder (native/shared/log_slot.h): one history, oldest first. */
+    folder_count = log_read_folders(L"Tribe History", NULL, village, folders);
+    if (folder_count == 0) {
         return 0;
     }
-    ceiling = highest_log_number(L"Village History", folder);
     lstrcpynA(aliases[0], current, 256);
     /* Pass 0 gathers the rename notes, pass 1 the snapshots. */
     for (pass = 0; pass < 2; ++pass) {
     if (pass == 1) {
         alias_count = history_aliases(current, notes, note_count, aliases);
     }
-    for (number = -1; number <= ceiling; ++number) {
+    for (f = 0; f < folder_count; ++f)
+    for (ceiling = highest_log_number(L"Village History", folders[f]), number = f == 0 ? -1 : 1;
+         number <= ceiling; ++number) {
         FILE *file;
         int ours = 0;
         int expect_village = 0;
         LONGLONG old_words;                   /* likes before this offset: the old list's */
         LONGLONG at = 0;
-        if (!history_path(folder, number, path)) {
+        if (!history_path(folders[f], number, path)) {
             return 0;
         }
         if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
@@ -744,8 +774,8 @@ static const char BACKFILL_NOTE[] =
     "    this log was kept, or while the game was catching up on time away)\n";
 
 static int write_backfill(int game_id, const struct backfill_target *target) {
-    char text[RECORD_TEXT_MAX];
-    char looks[512];
+    char text[RECORD_TEXT_MAX + 2 * HISTORY_PREFS_MAX];
+    char looks[512 + 2 * HISTORY_PREFS_MAX];
     char source[256];
     const vv_grave_fact *f = target->fact;
     int written;

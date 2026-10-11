@@ -177,11 +177,22 @@ static void wipe(int remove_dirs) {
     static const char *const FOLDERS[4] = { "Deaths and Disappearances", "Unaccounted Villagers", "Births and Conceptions",
                                              "Deaths" /* the folder's older name (save_layout.h) */ };
     char sub[MAX_PATH], parent[MAX_PATH], *cut;
-    int k;
-    for (k = 0; k < 4; ++k) {
-        _snprintf(sub, MAX_PATH, "%s\\%s", logs, FOLDERS[k]);
-        empty_folder(sub);
-        if (remove_dirs) RemoveDirectoryA(sub);
+    int k, slot;
+    /* The shared folders, then each slot's (native/shared/log_slot.h: "...Logs\Save <S>\"). */
+    for (slot = 0; slot <= 5; ++slot) {
+        for (k = 0; k < 4; ++k) {
+            if (slot == 0) {
+                _snprintf(sub, MAX_PATH, "%s\\%s", logs, FOLDERS[k]);
+            } else {
+                _snprintf(sub, MAX_PATH, "%s\\Save %d\\%s", logs, slot, FOLDERS[k]);
+            }
+            empty_folder(sub);
+            if (remove_dirs) RemoveDirectoryA(sub);
+        }
+        if (remove_dirs && slot > 0) {
+            _snprintf(sub, MAX_PATH, "%s\\Save %d", logs, slot);
+            RemoveDirectoryA(sub);
+        }
     }
     if (remove_dirs) {
         RemoveDirectoryA(logs);
@@ -244,17 +255,37 @@ static void load(void) {
 
 static char text[1 << 16];
 #define STARTS(literal) (strncmp(text, literal, sizeof(literal) - 1) == 0)
+/* The log wherever it was written: a named village's slot folder ("...Logs\Save <S>\", native/
+   shared/log_slot.h), or the shared folder for a record no village was named for.  Each phase
+   wipes them all first, so at most one place holds it. */
 static int read_log(const char *folder, const char *stem, int game, int number) {
     char path[MAX_PATH];
-    FILE *f;
+    FILE *f = NULL;
     size_t n;
-    _snprintf(path, MAX_PATH, "%s\\%s\\Virtual Villagers %d %s %d.txt", logs, folder, game, stem, number);
-    f = fopen(path, "rb");
+    int slot;
+    for (slot = 1; slot <= 6 && f == NULL; ++slot) {
+        if (slot <= 5) {
+            _snprintf(path, MAX_PATH, "%s\\Save %d\\%s\\Virtual Villagers %d %s %d.txt", logs, slot, folder, game, stem, number);
+        } else {
+            _snprintf(path, MAX_PATH, "%s\\%s\\Virtual Villagers %d %s %d.txt", logs, folder, game, stem, number);
+        }
+        f = fopen(path, "rb");
+    }
     if (f == NULL) { text[0] = 0; return 0; }
     n = fread(text, 1, sizeof text - 1, f);
     text[n] = 0;
     fclose(f);
     return 1;
+}
+/* Whether "Virtual Villagers <game> <stem> 1.txt" is in slot `slot`'s folder (0: the shared one). */
+static int log_in(int slot, const char *folder, const char *stem, int game) {
+    char path[MAX_PATH];
+    if (slot == 0) {
+        _snprintf(path, MAX_PATH, "%s\\%s\\Virtual Villagers %d %s 1.txt", logs, folder, game, stem);
+    } else {
+        _snprintf(path, MAX_PATH, "%s\\Save %d\\%s\\Virtual Villagers %d %s 1.txt", logs, slot, folder, game, stem);
+    }
+    return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES;
 }
 static int read_deaths(int game) { return read_log("Deaths and Disappearances", "Deaths Log", game, 1); }
 static int read_unaccounted(int game) { return read_log("Unaccounted Villagers", "Unaccounted Villagers Log", game, 1); }
@@ -346,6 +377,13 @@ int main(int argc, char **argv) {
               && STARTS("Village: Publisher Tribe (Save 2)\r\n")
               && strstr(text, "Birth 1\r\n  Child: Cala\r\n") != NULL,
               "the Births and Conceptions log opens with the header and the held birth");
+        CHECK(log_in(2, "Births and Conceptions", "Births and Conceptions Log", game)
+              && log_in(2, "Deaths and Disappearances", "Deaths Log", game)
+              && log_in(2, "Unaccounted Villagers", "Unaccounted Villagers Log", game)
+              && !log_in(0, "Births and Conceptions", "Births and Conceptions Log", game)
+              && !log_in(0, "Deaths and Disappearances", "Deaths Log", game)
+              && !log_in(1, "Deaths and Disappearances", "Deaths Log", game),
+              "all three are in Save 2's own folder, none in the shared one or another slot's");
 
         /* 3: after the save, straight under the header. */
         CHECK(write_record(game, DEATH, rec(2), 1, DIED, NULL, 1) == 1, "a death after the save");
@@ -417,6 +455,8 @@ int main(int argc, char **argv) {
         CHECK(install != NULL && install(3, NULL) == 0, "its install is refused (no game here)");
         CHECK(read_deaths(3) && STARTS("Death 1\r\n  Name: Bonedry\r\n") && strstr(text, "Village: ") == NULL,
               "the refusal itself writes the held death, unlabelled -- no later record needed (#512)");
+        CHECK(log_in(0, "Deaths and Disappearances", "Deaths Log", 3),
+              "...in the shared folder: no village (and so no slot) was ever named");
         CHECK(write_record(3, DEATH, rec(0), 1, BURIED, NULL, 1) == 1, "the next death");
         CHECK(read_deaths(3) && STARTS("Death 1\r\n  Name: Bonedry\r\n")
               && strstr(text, "Death 2\r\n  Name: Ana\r\n") != NULL && strstr(text, "Village: ") == NULL,

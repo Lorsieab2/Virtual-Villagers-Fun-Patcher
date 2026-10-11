@@ -493,8 +493,9 @@ def _village_logs(game: GameSaves, folder: Path, slot: int) -> list[LogTarget]:
     Only the exporters' own folders and file shapes; never the Backups folder.
     """
     targets: list[LogTarget] = []
-    for root_name in (LOGS_FOLDER, LEGACY_LOGS_FOLDER):
-        root = folder / root_name
+    # The shared folders older builds wrote, then the slot's own "...Logs\Save <slot>\" folder (one
+    # folder of logs per save slot, src/vv_save_layout.py): the village's records may be in both.
+    for root in (folder / LOGS_FOLDER, folder / LEGACY_LOGS_FOLDER, folder / LOGS_FOLDER / f"Save {slot}"):
         for sub in (
             "Births and Conceptions",
             "Tribe Parental Records",
@@ -510,22 +511,25 @@ def _village_logs(game: GameSaves, folder: Path, slot: int) -> list[LogTarget]:
         for path in _files(root / "Tribe Population"):
             if _POPULATION_PAGE.match(path.name):
                 targets.append(LogTarget(path, 1))
-    statistics = folder / LOGS_FOLDER / "Village Statistics" / f"Village Statistics v2 - Save {slot}.txt"
-    if statistics.is_file():
-        targets.append(LogTarget(statistics, 2))
-    # The Village History is shared by every village of the game, one dated
-    # snapshot after another; its note goes in the newest file and names the
-    # slot, and it is written whatever the last snapshot's village was.
-    history = [
-        path
-        for path in _files(folder / LOGS_FOLDER / "Tribe History")
-        if _HISTORY_FILE.match(path.name)
-    ]
-    if history:
-        def number(path: Path) -> int:
-            match = _HISTORY_FILE.match(path.name)
-            return int(match.group(1)) if match and match.group(1) else 0
-        targets.append(LogTarget(max(history, key=number), -1, with_slot=True))
+    for logs in (folder / LOGS_FOLDER, folder / LOGS_FOLDER / f"Save {slot}"):
+        statistics = logs / "Village Statistics" / f"Village Statistics v2 - Save {slot}.txt"
+        if statistics.is_file():
+            targets.append(LogTarget(statistics, 2))
+    # The shared Village History is shared by every village of the game, one
+    # dated snapshot after another; its note goes in the newest file and names
+    # the slot, and it is written whatever the last snapshot's village was.
+    # The slot's own Tribe History folder gets the same note in its newest file.
+    for logs in (folder / LOGS_FOLDER, folder / LOGS_FOLDER / f"Save {slot}"):
+        history = [
+            path
+            for path in _files(logs / "Tribe History")
+            if _HISTORY_FILE.match(path.name)
+        ]
+        if history:
+            def number(path: Path) -> int:
+                match = _HISTORY_FILE.match(path.name)
+                return int(match.group(1)) if match and match.group(1) else 0
+            targets.append(LogTarget(max(history, key=number), -1, with_slot=True))
     return targets
 
 

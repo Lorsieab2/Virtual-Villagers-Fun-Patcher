@@ -190,9 +190,11 @@ static struct {
 } store;
 
 /* FORMAT (little-endian), exactly 16 + 44 * count bytes:
-       u32 magic 'VCD1', u32 version 1, u32 game (1 or 2), u32 count,
+       u32 magic 'VCD1', u32 version (1, or 2 when an entry's cause is 5),
+       u32 game (1 or 2), u32 count,
        count x { u16 kind (0 grave, 1 lying body), u16 index (grave 0..49,
-                 record 0..255), u32 fingerprint, i8 cause (-1..4, or 0x7F
+                 record 0..255), u32 fingerprint, i8 cause (-1..4, 5 "Died in
+                 a custom island event" in version 2 only, or 0x7F
                  none), u8 epitaph (0..13), u8 flags (1 = the text is the
                  player's own epitaph), u8 0, char text[32] (bytes 0x20-0xFF,
                  as the game's text box takes them, NUL-terminated and
@@ -202,9 +204,15 @@ static struct {
    bytes in A New Home, 0x18 in The Lost Children), a 0xFF byte, and the age
    in age units as four little-endian bytes; never 0.  It names the body and
    its grave alike, and an entry whose fingerprint no longer matches what the
-   game holds is ignored. */
+   game holds is ignored.
+
+   VERSION 2 is version 1 with cause 5 allowed, and is written only when an
+   entry holds it: a file with none stays version 1, readable by every build.
+   A build from before cause 5 sets a version 2 file aside unread
+   (sidecar_io.h) -- never misreads it, never overwrites it. */
 #define COD_MAGIC 0x31444356u
 #define COD_VERSION 1u
+#define COD_VERSION_CUSTOM 2u
 #define COD_HEADER 16u
 #define COD_ENTRY 44u
 #define COD_MAX_ENTRIES (RECORDS_MAX + GRAVES)
@@ -225,14 +233,15 @@ static int cod_text_ok(const unsigned char *text, int custom) {
     return ended;
 }
 
-static int cod_entry_ok(const unsigned char *e) {
+static int cod_entry_ok(const unsigned char *e, unsigned int version) {
     unsigned int kind = (unsigned int)(e[0] | e[1] << 8);
     unsigned int index = (unsigned int)(e[2] | e[3] << 8);
     signed char cause = (signed char)e[8];
     if (kind > 1u || index >= (kind == 0u ? (unsigned)GRAVES : (unsigned)RECORDS_MAX)) {
         return 0;
     }
-    if (!((cause >= -1 && cause <= 4) || cause == CAUSE_NONE)) {
+    if (!((cause >= -1 && cause <= 4) || cause == CAUSE_NONE
+          || (cause == CAUSE_CUSTOM_EVENT && version == COD_VERSION_CUSTOM))) {
         return 0;
     }
     if (e[9] >= EPITAPH_COUNT || e[10] > 1u || e[11] != 0 || (kind == 1u && (e[9] != 0 || e[10] != 0))) {
@@ -243,21 +252,23 @@ static int cod_entry_ok(const unsigned char *e) {
 
 static int cod_validate(const unsigned char *data, DWORD length, void *context) {
     unsigned int count;
+    unsigned int version;
     unsigned int i;
     (void)context;
     if (length < COD_HEADER) {
         return 0;
     }
     count = *(const unsigned int *)(data + 12);
+    version = *(const unsigned int *)(data + 4);
     if (*(const unsigned int *)data != COD_MAGIC
-        || *(const unsigned int *)(data + 4) != COD_VERSION
+        || (version != COD_VERSION && version != COD_VERSION_CUSTOM)
         || *(const unsigned int *)(data + 8) != (unsigned int)g_game
         || count > COD_MAX_ENTRIES
         || length != COD_HEADER + count * COD_ENTRY) {
         return 0;
     }
     for (i = 0; i < count; ++i) {
-        if (!cod_entry_ok(data + COD_HEADER + i * COD_ENTRY)) {
+        if (!cod_entry_ok(data + COD_HEADER + i * COD_ENTRY, version)) {
             return 0;
         }
     }
@@ -283,6 +294,7 @@ static void cod_parse(const unsigned char *data) {
 
 static DWORD cod_serialise(void) {
     unsigned int count = 0;
+    unsigned int version = COD_VERSION;
     int pass;
     for (pass = 0; pass < 2; ++pass) {
         int n = pass == 0 ? GRAVES : RECORDS_MAX;
@@ -300,6 +312,9 @@ static DWORD cod_serialise(void) {
             e[3] = (unsigned char)(i >> 8);
             *(unsigned int *)(e + 4) = table[i].fingerprint;
             e[8] = (unsigned char)table[i].cause;
+            if (table[i].cause == CAUSE_CUSTOM_EVENT) {
+                version = COD_VERSION_CUSTOM;
+            }
             e[9] = pass == 0 ? table[i].epitaph : 0;
             e[10] = pass == 0 ? table[i].custom : 0;
             e[11] = 0;
@@ -311,7 +326,7 @@ static DWORD cod_serialise(void) {
         }
     }
     *(unsigned int *)file_buffer = COD_MAGIC;
-    *(unsigned int *)(file_buffer + 4) = COD_VERSION;
+    *(unsigned int *)(file_buffer + 4) = version;
     *(unsigned int *)(file_buffer + 8) = (unsigned int)g_game;
     *(unsigned int *)(file_buffer + 12) = count;
     return COD_HEADER + count * COD_ENTRY;
@@ -850,9 +865,10 @@ static void vv12_tick(void) {
                 continue;             /* seen_tick keeps seen_alive for these */
             }
             /* A body.  Seen alive on an earlier frame, with no site having
-               reported it: an island event, the Gong, the Custom Island
-               Event, an edit.  A body never seen alive is one the village
-               was loaded with. */
+               reported it: an island event, the Gong, an edit.  (The Custom
+               Island Event's "Dies" is reported by its companion,
+               VvfpCauseKilled, which clears seen_alive first.)  A body never
+               seen alive is one the village was loaded with. */
             if (seen_alive[i] != 0 && seen_alive[i] == cod_name_hash(record)) {
                 COD_COUNT(unhooked);
                 cod_died(record, CAUSE_UNKNOWN);

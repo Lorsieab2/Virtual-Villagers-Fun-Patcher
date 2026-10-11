@@ -806,7 +806,7 @@ class VillagePopulationBehaviourTests(unittest.TestCase):
             "an empty village still replaces the previous snapshot",
         )
         self.assertIn(
-            "if (!build_log_paths(file_index, temporary, destination)) {",
+            "if (!build_log_paths(vv_log_header_slot(village), file_index, temporary, destination)) {",
             before_loop,
             "the pre-loop open must build its paths unconditionally",
         )
@@ -886,20 +886,24 @@ class VillagePopulationBehaviourTests(unittest.TestCase):
                     "%s should hold %d entries" % (name, count))
 
     def test_an_empty_slot_is_skipped_rather_than_printed(self) -> None:
-        """The panel shows the FIRST FILLED entry, not slot 0.
+        """The panel lists EVERY FILLED entry, skipping the empty ones, not slot 0.
 
-        Two real villagers prove this matters: one whose first dislike slot is
-        empty and whose second holds the value the game displays, and one whose
-        slots are all empty and whose panel line is blank. Reading slot 0 gets
-        both wrong.
+        Two real villagers prove skipping matters: one whose first dislike slot
+        is empty and whose second holds the value the game displays, and one
+        whose slots are all empty and whose panel line is blank. Reading slot 0
+        gets both wrong.  And the list does not stop at the first filled entry
+        (v1.35.68, live: New Believers' Dado "herbs, crowds" was printed as
+        "Dislikes: herbs").
         """
         source = self.source
-        self.assertIn("static int first_preference(", source)
-        body = source[source.index("static int first_preference("):]
+        self.assertNotIn("static int first_preference(", source)
+        body = source[source.index("static int preference_list_text("):]
         body = body[:body.index("\n}")]
         self.assertIn("for (slot = 0; slot < slots; ++slot)", body)
-        self.assertIn("if (value < 0) {", body)
+        self.assertIn("if (value < 0 || !preference_name(list, value, word, sizeof word)) {", body)
         self.assertIn("continue;", body)
+        self.assertIn("out[used++] = ',';", body)
+        self.assertIn("out[used++] = ' ';", body)
 
     def test_an_out_of_range_index_counts_as_empty(self) -> None:
         """Empty reads as -1 OR as a value past the end of the list.

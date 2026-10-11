@@ -91,6 +91,115 @@ static void former_file(const unsigned char *record, int kind) {
     (void)vv_sidecar_publish(&former.gate, former.path, parts, sizes, 1);
 }
 
+/* FORMER HEATHENS FOLLOW THEIR VILLAGER (v1.35.68).  The file keeps each
+   former Heathen by name, likes and dislikes; an island event, the Custom
+   Island Event or an upgrade that changes a villager's likes or dislikes
+   left the entry under the old identity, and the villager was no longer
+   called a Former Heathen.  So every tick looks at the roster, and when a
+   villager changed identity in place -- same record, name, sex and age, and
+   nobody moved (native/shared/identity_in_place.h) -- or was renamed (the
+   same rule as the masks' and titles': one record changed, its sex, likes
+   and dislikes unchanged), their entry is carried to the new identity.  An
+   identity two entries carry stays nobody's (vv_former_lookup): nothing is
+   guessed. */
+static unsigned int former_roster[RECORDS_MAX];
+static unsigned int former_roster_stable[RECORDS_MAX];
+static unsigned int former_roster_keep[RECORDS_MAX];
+static int former_roster_age[RECORDS_MAX];
+static int former_roster_known;
+
+static unsigned int former_identity(const unsigned char *record) {
+    return vv_title_identity(record, FORMER_NAME, FORMER_NAME_CAP, FORMER_LIKES, FORMER_DISLIKES,
+                             FORMER_SLOTS);
+}
+
+/* Bind the gate and path to `slot`; 0 when the file has no place. */
+static int former_bind(int slot) {
+    if (slot <= 0) {
+        return 0;
+    }
+    if (slot != former.slot) {
+        former.slot = slot;
+        former.path[0] = '\0';
+        vv_sidecar_gate_bind(&former.gate, 0x300 + slot);
+    }
+    return former.path[0] != '\0' || cod_data_path(former.path, "Former Heathens", "Former Heathens", slot);
+}
+
+/* Carry every entry of identity `from` to `to` in the slot's file. */
+static void former_rekey(unsigned int from, unsigned int to) {
+    int slot = cod_slot();
+    DWORD length = 0;
+    unsigned int count, i;
+    int changed = 0;
+    const void *parts[1];
+    DWORD sizes[1];
+    if (from == to || !former_bind(slot)
+        || vv_sidecar_load(&former.gate, former.path, former_buffer, sizeof former_buffer, &length,
+                           former_validate, NULL) != VV_SIDECAR_LOAD_VALID) {
+        return;
+    }
+    count = vv_former_u32(former_buffer + 12);
+    for (i = 0; i < count; ++i) {
+        unsigned char *e = former_buffer + VV_FORMER_HEADER + i * VV_FORMER_ENTRY;
+        if (vv_former_u32(e) == from) {
+            memcpy(e, &to, 4);
+            changed = 1;
+        }
+    }
+    if (changed) {
+        parts[0] = former_buffer;
+        sizes[0] = VV_FORMER_HEADER + count * VV_FORMER_ENTRY;
+        (void)vv_sidecar_publish(&former.gate, former.path, parts, sizes, 1);
+    }
+}
+
+/* What a rename leaves of the identity: the likes, dislikes and sex. */
+static unsigned int former_stable(const unsigned char *record) {
+    unsigned int h = vv_title_identity(record, FORMER_NAME, 0u, FORMER_LIKES, FORMER_DISLIKES, FORMER_SLOTS);
+    h = (h ^ (unsigned int)*(const int *)(record + REC[g_game].sex)) * 16777619u;
+    return h ? h : 1u;
+}
+
+/* Every tick (New Believers): the roster now against the last look. */
+static void former_follow(const unsigned char *records) {
+    static unsigned int now[RECORDS_MAX], now_stable[RECORDS_MAX], now_keep[RECORDS_MAX];
+    static int now_age[RECORDS_MAX];
+    static unsigned char same[RECORDS_MAX];
+    int n = (int)REC[g_game].slots < RECORDS_MAX ? (int)REC[g_game].slots : RECORDS_MAX;
+    int i, anyone = 0;
+    for (i = 0; i < n; ++i) {
+        const unsigned char *record = records + (size_t)i * REC[g_game].stride;
+        now[i] = now_stable[i] = now_keep[i] = 0;
+        now_age[i] = 0;
+        if (roster_member(record)) {
+            now[i] = former_identity(record);
+            now_stable[i] = former_stable(record);
+            now_keep[i] = vv_identity_keep(record, FORMER_NAME, FORMER_NAME_CAP, REC[g_game].sex);
+            now_age[i] = rec_age(record);
+            anyone = 1;
+        }
+    }
+    if (former_roster_known && anyone) {
+        int renamed = vv_roster_renamed(n, former_roster, former_roster_stable, now, now_stable);
+        if (renamed >= 0) {
+            former_rekey(former_roster[renamed], now[renamed]);
+        } else if (vv_roster_changed_in_place(n, former_roster, former_roster_keep, former_roster_age, now,
+                                              now_keep, now_age, same) > 0) {
+            for (i = 0; i < n; ++i) {
+                if (same[i]) {
+                    former_rekey(former_roster[i], now[i]);
+                }
+            }
+        }
+    }
+    memcpy(former_roster, now, sizeof(unsigned int) * (size_t)n);
+    memcpy(former_roster_stable, now_stable, sizeof(unsigned int) * (size_t)n);
+    memcpy(former_roster_keep, now_keep, sizeof(unsigned int) * (size_t)n);
+    memcpy(former_roster_age, now_age, sizeof(int) * (size_t)n);
+    former_roster_known = anyone;
+}
+
 /* The tick's view of record `index`: `heathen` as it is now, `was_heathen`
    as the last tick saw it (faction_seen). */
 static void former_tick(int index, const unsigned char *record, int heathen, int was_heathen) {
@@ -120,6 +229,7 @@ static void former_reset(int slot) {
         former.slot = 0;
         former.path[0] = '\0';
     }
+    former_roster_known = 0;
     if (former_ready) {
         memset(former_kind_seen, -1, sizeof former_kind_seen);
     }

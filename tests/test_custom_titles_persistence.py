@@ -93,6 +93,14 @@ class CustomTitlesFile(unittest.TestCase):
             "A RENAMED VILLAGER KEEPS THE TITLE",
             "... and the file has it under the new name",
             "a different villager in the record is not a rename: the title goes",
+            # v1.35.68: an island event changed Alapai's dislikes ("Custom title: Moon Mother -> none").
+            "THE TITLE SURVIVES A LIKES / DISLIKES CHANGE, ASKED IN THE SAME FRAME (game %d)",
+            "... and every tick after it (game %d)",
+            "... and the file has it under the new identity (game %d)",
+            "an event changing everyone's likes keeps every title (game %d)",
+            "a newborn namesake in the freed record does not get the title (game %d)",
+            "A PACKED RELOAD NEVER GIVES THE DEAD TWIN'S TITLE TO HER NAMESAKE (game %d)",
+            "A VILLAGE OF ONE KEEPS THE TITLE THROUGH A LIKES CHANGE (game %d)",
         ):
             with self.subTest(case=case):
                 self.assertIn(case, text)
@@ -105,6 +113,24 @@ class CustomTitlesFile(unittest.TestCase):
         self.assertEqual(run.returncode, 0, run.stdout[-3000:] + run.stderr[-2000:])
         self.assertIn("0 failure(s)", run.stdout)
         self.assertNotIn("[FAIL]", run.stdout)
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                self.assertIn(f"[PASS] THE TITLE SURVIVES A LIKES / DISLIKES CHANGE, ASKED IN THE SAME FRAME "
+                              f"(game {game})", run.stdout)
+
+    def test_every_store_kept_by_the_title_identity_follows_a_likes_change(self):
+        """v1.35.68: the custom titles (Story Upgrades) and New Believers' Former Heathens (Cause of
+        Death) are both kept by vv_title_identity (name, likes, dislikes); both carry their entries to
+        the new identity when an event changes a villager's likes or dislikes in place."""
+        titles = (ROOT / "native" / "vvfp_story_upgrades" / "story_titles.inc").read_text(encoding="utf-8")
+        self.assertIn("vv_roster_changed_in_place(TITLES_ROSTER", titles)
+        self.assertIn("titles_relook(game);\n        i = titles_find((unsigned int)index);", titles,
+                      "the lookup the Island Events log makes in the same frame re-looks first")
+        former = (ROOT / "native" / "vvfp_cause_of_death" / "cod_former.inc").read_text(encoding="utf-8")
+        self.assertIn("vv_roster_changed_in_place(n, former_roster", former)
+        self.assertIn("former_rekey(former_roster[renamed], now[renamed])", former)
+        arrivals = (ROOT / "native" / "vvfp_cause_of_death" / "cod_arrivals.inc").read_text(encoding="utf-8")
+        self.assertIn("former_follow(records);", arrivals)
 
 
 LOG_BUILD = ROOT / "scripts" / "build_custom_title_log_harness.ps1"

@@ -83,7 +83,9 @@ class DeathsLogSource(unittest.TestCase):
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Deaths"', source)
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Unaccounted Villagers"', source)
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Island Events"', source)
-        self.assertIn("for (pass = 0; pass < 8; ++pass) {", source)
+        # ...and the same four logs in the slot's own folder (native/shared/log_slot.h).
+        self.assertIn("for (pass = 0; pass < 12; ++pass) {", source)
+        self.assertIn('L"Births and Conceptions", L"Deaths and Disappearances", L"Unaccounted Villagers", L"Island Events"', source)
         # Each kind in its own folder (native/shared/data_subfolder.h), and
         # the loose name an older build wrote: both are the village's.
         for n in (1, 2):
@@ -114,9 +116,16 @@ class Harnesses(unittest.TestCase):
         self.assertIn("== 0 failure(s) ==", result.stdout)
         # 212, and 4 for an older build's "Deaths" beside "Deaths and Disappearances" (the owner,
         # 2026-10-09: old and new names alike): numbered after the highest in either folder; and 20 for
-        # "Lost before birth" (4 in each game).
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 236, result.stdout)
-        self.assertIn("  ok   written in Deaths and Disappearances as Death 6, after the older folder's Death 5",
+        # "Lost before birth" (4 in each game); and 2 for two deaths in a row with both folders there (the
+        # owner's A New Home: four records all "Death 15"); and 12 for one folder of logs per save slot
+        # (native/shared/log_slot.h: Save 2's own folder in each game, numbering on across folders, the
+        # shared folders untouched, Death 8 from the slot folder's own highest); and 20 for every like and
+        # dislike in the Death, Arrived and Birth records (4 in each game; v1.35.68).
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 270, result.stdout)
+        self.assertIn("  ok   another village gets its own Deaths log, in its own slot's folder", result.stdout)
+        self.assertIn("  ok   ...numbered on from the game's highest Death in any folder", result.stdout)
+        self.assertIn("  ok   numbered Death 6 and Death 7 after the older folder's Death 5, never Death 6 twice", result.stdout)
+        self.assertIn("  ok   written in Save 1's own Deaths and Disappearances as Death 6, after the shared folders' Death 5",
                       result.stdout)
         self.assertIn("  ok   the older folder's log is untouched", result.stdout)
 
@@ -126,8 +135,9 @@ class Harnesses(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("PASSED: 0 failure(s)", result.stdout)
         # 58, and 4 for the roster's older name in its folder (native/shared/save_layout.h): used under
-        # that name, loose or in its folder, never moved or renamed
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62, result.stdout)
+        # that name, loose or in its folder, never moved or renamed; and 11 for section 11, the Custom
+        # Island Event's "Dies" (v1.35.68: "Died in a custom island event")
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11, result.stdout)
         self.assertIn("  ok   the save read and wrote it under its older name, never renaming it: nobody unaccounted",
                       result.stdout)
         self.assertIn("  ok   the save used the roster where an older build left it (loose, by its older name), never moving it",

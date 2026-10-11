@@ -153,13 +153,16 @@ class ConceptionRecordPrintsLikesAndDislikesTests(unittest.TestCase):
     def test_an_empty_array_prints_none_rather_than_a_blank_line(self):
         self.assertIn('memcpy(out, "(none)", 7);', self.source)
 
-    def test_the_first_filled_slot_is_what_is_printed(self):
-        """Empty is -1 OR past the end of the list; the panel shows the first
-        filled slot, and so must the log."""
-        body = self.source[self.source.index("static int first_preference(") :]
-        body = body[: body.index("\n}\n") + 3]
-        self.assertIn("if (value < 0) {\n            continue;", body.replace("\r\n", "\n"))
-        self.assertIn("if (preference_name(list, value, out, out_size)) {\n            return 1;", body.replace("\r\n", "\n"))
+    def test_every_filled_slot_is_what_is_printed(self):
+        """Empty is -1 OR past the end of the list; the panel lists every filled
+        slot, ", " between them, and so must the log (v1.35.68: the records
+        printed only the first)."""
+        self.assertNotIn("static int first_preference(", self.source)
+        body = self.source[self.source.index("static int preference_list_text(") :]
+        body = body[: body.index("\n}\n") + 3].replace("\r\n", "\n")
+        self.assertIn("if (value < 0 || !preference_name(list, value, word, sizeof word)) {\n            continue;", body)
+        self.assertIn("out[used++] = ',';\n            out[used++] = ' ';", body)
+        self.assertIn("|| !preference_list_text(record, base, g->preference_slots,", self.source)
 
     def test_every_preference_slot_is_bounds_checked_against_the_stride(self):
         self.assertIn("if (g->likes + g->preference_slots * WORD > stride) return 0;", self.source)

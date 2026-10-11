@@ -22,7 +22,24 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
-## What's new in v1.35.67
+## What's new in v1.35.68
+
+> **Warning -- A New Home players on v1.35.66 or v1.35.67:** those versions can **wipe A New Home's parents on launch** (the parents file was emptied while the game's villager list was still empty at load). Do not play A New Home with them. **To recover:**
+> 1. Patch with v1.35.68 **before** playing again.
+> 2. Close the game.
+> 3. In the patcher, open **Repair Saves & Logs** and choose **Restore A New Home Parents...** -- it puts back, from the copies the patcher kept of the parents file, the parents of every villager the file lost (it only ever adds; it never changes a parent that is there).
+> 4. For the newest children (in the owner's village, the 19 born since), run **Repair Saves & Logs** or accept the quit check's offer: their parents are filled in from the Births log.
+
+- **A New Home's parents are never wiped again.** The real cause, found live: for about five seconds after launch the game's villager list is empty while its slot is already set, and the patcher took that for the village. Nothing is loaded, replaced or written for a village until its own villagers are on screen, and the same rule now guards every per-slot file in all five games (masks, custom titles, the Barrel and Story purchases): another village's file is never written over.
+- **Logs per save slot.** Each save slot now has its own log folders ("Logs\Save <n>\..."); everything older builds wrote to the shared folders is still read, as one history, and record numbers continue per game.
+- **Custom titles and Former Heathens follow a change of likes or dislikes** (island events, the Custom Island Event, vials and the Running upgrades change them), in all five games, and Repair Saves & Logs can give back titles older builds lost that way. A death the Custom Island Event causes is recorded as "Died in a custom island event".
+- **Log parity:** A New Home's Unaccounted and Arrived records name the villager's parents, as the other games' do; Deaths and Repairs numbers continue after an older build's folders, so no number is used twice.
+- **Full likes and dislikes everywhere.** The Village Population and Village History logs and every Birth, Arrived, Death, Disappeared, Unaccounted, Appearance changed and Island Events record now list a villager's whole likes and dislikes, not only the first one the Details screen shows, in all five games.
+- **Family Tree Maker:** generation label boxes hold every line at any font size; "1 male" / "1 female"; page names are no longer cut short.
+- **Patch every game again** after updating: the logging and Origins companions changed.
+
+
+## What was new in v1.35.67
 
 - **Story / Cheat Upgrades purchases survive a quit (all five games).** A Pick Island Event, Custom Island Event (with its question), The Lost Children's Pick Gong of Wonder Outcome, or the years still to go of a Choose Time Skip Amount, bought and not delivered yet, is now kept in the save folder's Paid Purchases folder and delivered once the village is played again -- the island event the save made due brings it, never a random one instead, and nothing is charged twice. **Limits:** a crash (or anything that keeps the game from saving) loses whatever was bought since the last save, as it loses the rest of that play; and a two-choice question already on screen when you quit is not kept. **Patch every game again** after updating: the Story / Cheat Upgrades, Origins and Save Reset companions changed.
 
@@ -66,6 +83,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 - **Lines run behind portraits** (Layout tab): ticked, family lines run straight and are drawn behind the portraits in every layout; unticked, they go round them. Left alone, they run behind only in a packed layout at 98 or more, as before.
 - **Other Members** (villagers with no family in the tree) sit in a grid of 1-6 columns, on the left or the right.
 - **5 new portrait shapes: Feather, Coral, Sea fan, Brain coral and Beetle** (54 in all).
+- **Repair Saves & Logs: Restore A New Home Parents...** gives back the parents v1.35.66 and v1.35.67 could lose from A New Home's parents file (the title screen's founders were taken for the village; fixed in this version), from the copies the patcher kept of that file. Only villagers with no parents now get any, an arrival never does, and a copy the Births log contradicts is not used; the save folder is backed up first and every villager is listed in the Repairs Made log. Patch the game with this version first.
 - **Repair Saves & Logs: Move Old Files to New Names...** moves a save folder's files from the names an older patcher used to the new ones, when you ask and only once every game playing that save is patched with v1.35.64 or newer; old and new names are otherwise read alike everywhere (an A New Home parents file older still now goes into Parentage Records, which every version reads).
 - **Deaths log numbers:** when a save has both the older Deaths folder and Deaths and Disappearances, a new death's number follows the highest in either, so two deaths never share a number. **Patch every game again** after updating: the shared logs patch and A New Home's parents patch changed.
 

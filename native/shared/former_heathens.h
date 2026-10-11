@@ -21,7 +21,8 @@
  *     The file is exactly 16 + count * 8 bytes.
  *
  * `identity` is native/shared/custom_titles.h's vv_title_identity -- the
- * name, likes and dislikes, which the games never change on their own -- so
+ * name, likes and dislikes (a change of likes, dislikes or name carries the
+ * entry to the new identity: cod_former.inc former_follow) -- so
  * a record reused by somebody else never inherits it, and an identity two
  * entries carry is nobody's.  `kind` is the mask the Heathen wore, as the
  * game's mask draw picks it (0x4728C6): VV_FORMER_BLUE, _ORANGE, _RED,

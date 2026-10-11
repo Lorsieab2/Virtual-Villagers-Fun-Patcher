@@ -56,6 +56,7 @@
 
 #include <windows.h>
 #include "save_folder.h"
+#include "log_slot.h"         /* one folder of logs per save slot */
 #include "log_words.h"
 #include "special_title.h"
 #include "patcher_files.h"
@@ -183,12 +184,15 @@ static int preference_name(
     return 1;
 }
 
-/* The first filled entry of a preference array, or 0 when every slot is empty.
+/* Every filled entry of a preference array, in slot order, ", " between them
+   -- the game's own Details panel lists them all ("green, crowds"), and so
+   does the Island Events log (VillagePreferenceListText, the same words and
+   the same separator).  0 when every slot is empty.
 
    Empty is -1 OR an index past the end of the list; both appear in real
-   villages. Scanning for the first filled slot rather than reading slot 0 is
-   what matches the game's own Details panel. */
-static int first_preference(
+   villages, and an empty slot between two filled ones is skipped, not
+   printed.  A list that would not fit `out` stops at the last whole word. */
+static int preference_list_text(
     const unsigned char *record,
     unsigned int base,
     unsigned int slots,
@@ -197,19 +201,33 @@ static int first_preference(
     size_t out_size
 ) {
     unsigned int slot;
+    size_t used = 0;
+    if (out_size == 0) {
+        return 0;
+    }
+    out[0] = '\0';
     if (base == 0u || list == NULL) {
         return 0;
     }
     for (slot = 0; slot < slots; ++slot) {
+        char word[64];
+        size_t length;
         int value = *(const int *)(record + base + slot * 4u);
-        if (value < 0) {
+        if (value < 0 || !preference_name(list, value, word, sizeof word)) {
             continue;
         }
-        if (preference_name(list, value, out, out_size)) {
-            return 1;
+        length = strlen(word);
+        if (used + (used ? 2u : 0u) + length + 1u > out_size) {
+            break;
         }
+        if (used) {
+            out[used++] = ',';
+            out[used++] = ' ';
+        }
+        memcpy(out + used, word, length + 1u);
+        used += length;
     }
-    return 0;
+    return used != 0;
 }
 
 /* Per-game record geometry.
@@ -306,11 +324,13 @@ struct game_layout {
        reads -1 or a value at or past the end of the list; both markers occur
        in real villages and mean the same thing.
 
-       The game's Details panel shows the FIRST FILLED entry of each array, so
-       that is what this reports. Two villagers made that structure visible:
-       one whose first dislike slot was empty and whose second held the value
-       the panel displayed, and one whose three dislike slots were all empty
-       and whose panel line was blank.
+       The game's Details panel lists EVERY filled entry of each array, in
+       slot order, so that is what this reports (seen live on v1.35.68: The
+       Tree of Life's Mahi Chuchip and New Believers' Dado, "herbs, crowds",
+       which the old first-entry-only line printed as "herbs").  An empty slot
+       is skipped wherever it sits: one villager's first dislike slot was
+       empty and the panel showed the second's; one with all three empty had
+       a blank panel line.
 
        Zero when the offsets are not established for a game. */
     /* Pregnancy, where the field is measured. Both are 0 for a game whose
@@ -682,11 +702,13 @@ static void copy_name_field(
    roster where they previously had a complete one. The statistics companion
    already publishes this way; this follows it. */
 static int build_log_paths(
+    int slot,
     int index,
     wchar_t *temporary,
     wchar_t *destination
 ) {
     wchar_t module_path[MAX_LONG_PATH];
+    wchar_t sub[MAX_PATH];
     /* The export belongs with the SAVE, not with the executable.
        See native/shared/save_folder.h: this used to strip to the exe's own
        directory, which put exported logs in the install folder while the
@@ -694,7 +716,11 @@ static int build_log_paths(
     /* The owner's layout: every exported log lives under
        <save folder>\Virtual Villagers Fun Patcher Logs\, one subfolder per kind. The roster is
        "Tribe Population". */
-    if (!vv_save_subfolder_w(module_path, L"Virtual Villagers Fun Patcher Logs\\Tribe Population", 64)) {
+    /* ...in the slot's own folder, "...Logs\Save <slot>\Tribe Population" (native/shared/log_slot.h:
+       the slot the village header names; none named, the shared folder as before).  A shared
+       roster an older build left is never touched again. */
+    if (!vv_log_rel_w(sub, MAX_PATH, slot, L"Tribe Population")
+        || !vv_save_subfolder_w(module_path, sub, 64)) {
         return 0;
     }
     if (_snwprintf_s(
@@ -1150,16 +1176,18 @@ static int write_villager(
        Printed only when a preference is actually present. A villager with no
        like recorded gets no Likes line at all, rather than a line saying
        "none" -- the game's own panel leaves it blank, and an empty line in a
-       roster reads as a value rather than an absence. */
+       roster reads as a value rather than an absence.  Every filled slot is
+       listed, as the panel lists them (logs older than v1.35.68 printed only
+       the first; every reader takes both). */
     if (g->likes != 0u) {
         const char *list = g->preference_list;
-        char preference[64];
-        if (first_preference(record, g->likes, g->preference_slots, list,
-                             preference, sizeof(preference))) {
+        char preference[1024];
+        if (preference_list_text(record, g->likes, g->preference_slots, list,
+                                 preference, sizeof(preference))) {
             if (fprintf(file, "  Likes: %s\n", preference) < 0) return 0;
         }
-        if (first_preference(record, g->dislikes, g->preference_slots, list,
-                             preference, sizeof(preference))) {
+        if (preference_list_text(record, g->dislikes, g->preference_slots, list,
+                                 preference, sizeof(preference))) {
             if (fprintf(file, "  Dislikes: %s\n", preference) < 0) return 0;
         }
     }
@@ -1329,11 +1357,26 @@ static long long history_file_size(const wchar_t *path) {
    a file at or over the threshold is left closed and the next number is used.
    Numbering starts at 1 and walks upward, so a player reads them in order and
    older files stay exactly as they were written. */
-static int build_history_path(wchar_t *destination) {
+static int build_history_path(int slot, wchar_t *destination) {
     wchar_t module_path[MAX_LONG_PATH];
+    wchar_t folder[MAX_LONG_PATH];
+    wchar_t sub[MAX_PATH];
     int number;
-    if (!vv_save_subfolder_w(module_path, L"Virtual Villagers Fun Patcher Logs\\Tribe History", 64)) {
+    /* ONE FOLDER PER SAVE SLOT (native/shared/log_slot.h): this save's snapshot goes into
+       "...Logs\Save <slot>\Tribe History" (the slot the village header names; none named, the
+       shared folder as before).  The shared Tribe History older builds wrote stays as it is. */
+    if (!vv_log_rel_w(sub, MAX_PATH, slot, L"Tribe History") || !vv_save_subfolder_w(folder, sub, 64)) {
         return 0;
+    }
+    /* `module_path` is the shared folder, for the migration below only -- made only when an older
+       build's file is there to move into it. */
+    {
+        wchar_t root[MAX_LONG_PATH];
+        if (!vv_save_folder_w(root, 96)
+            || _snwprintf_s(module_path, MAX_LONG_PATH, _TRUNCATE,
+                            L"%ls\\" VV_LOGS_DIR L"\\Tribe History", root) < 0) {
+            return 0;
+        }
     }
     /* MIGRATE THE UNNUMBERED HISTORY AND THE RETIRED FOLDER.
 
@@ -1395,7 +1438,9 @@ static int build_history_path(wchar_t *destination) {
                                     L"%ls\\VVFP Logs\\Tribe History\\Village History.txt",
                                     root) >= 0
                     && GetFileAttributesW(legacy) != INVALID_FILE_ATTRIBUTES) {
-                    if (!MoveFileW(legacy, first)) {
+                    wchar_t made[MAX_LONG_PATH];
+                    if (!vv_save_subfolder_w(made, VV_LOGS_DIR L"\\Tribe History", 64)
+                        || !MoveFileW(legacy, first)) {
                         stranded = 1;
                     }
                 }
@@ -1409,7 +1454,7 @@ static int build_history_path(wchar_t *destination) {
     for (number = 1; number < 100000; ++number) {
         if (_snwprintf_s(
                 destination, MAX_LONG_PATH, _TRUNCATE,
-                L"%ls\\Village History %d.txt", module_path, number) < 0) {
+                L"%ls\\Village History %d.txt", folder, number) < 0) {
             return 0;
         }
         if (history_file_size(destination) < HISTORY_BYTES_PER_FILE) {
@@ -1436,7 +1481,7 @@ static int append_history(
     unsigned int index;
     int written = 0;
     SYSTEMTIME now;
-    if (!build_history_path(path)) {
+    if (!build_history_path(vv_log_header_slot(village), path)) {
         return 0;
     }
     vv_log_words_appending(game_id, path);
@@ -1546,7 +1591,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
        place. Opening lazily meant a village that had just gone extinct kept
        displaying the villagers it had before, which is worse than saying
        nothing: the file looks current and is not. */
-    if (!build_log_paths(file_index, temporary, destination)) {
+    if (!build_log_paths(vv_log_header_slot(village), file_index, temporary, destination)) {
         return 0;
     }
     file = _wfopen(temporary, L"w");
@@ -1566,7 +1611,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
             continue;
         }
         if (file == NULL) {
-            if (!build_log_paths(file_index, temporary, destination)) {
+            if (!build_log_paths(vv_log_header_slot(village), file_index, temporary, destination)) {
                 return 0;
             }
             file = _wfopen(temporary, L"w");
@@ -1631,7 +1676,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
         while (stale <= limit) {
             wchar_t old_temporary[MAX_LONG_PATH];
             wchar_t old_destination[MAX_LONG_PATH];
-            if (!build_log_paths(stale, old_temporary, old_destination)) {
+            if (!build_log_paths(vv_log_header_slot(village), stale, old_temporary, old_destination)) {
                 break;
             }
             DeleteFileW(old_destination);

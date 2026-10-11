@@ -47,6 +47,16 @@
         between saves, a body kept across a save, a body revived, and the
         load packing the records after burials report nothing.
 
+   THE CUSTOM ISLAND EVENT'S "DIES" (VvfpCauseKilled, cod_cie.inc):
+    11. A New Home: the lying body is kept with cause 5 in a version 2
+        graves file, a new session reads it and the grave shows cause 5,
+        Start Over deletes it.  The Secret City: the save writes the bodies
+        to "Custom Island Event Deaths\Virtual Villagers 3 Custom Island
+        Event Deaths - Save S.dat" with exactly the documented bytes, a new
+        session's removal of the unburied body writes "Died in a custom
+        island event" (the game's own cause untouched), the next save drops
+        it, and Start Over deletes the file.
+
    Usage:  cause_files_harness.exe "<path to VVFP Cause of Death.test.dll>"
    Exit code 0 when every check passes. */
 #include <windows.h>
@@ -296,6 +306,16 @@ static int write_file(const char *path, const unsigned char *buf, long n) {
 
 static int unaccounted(void) { return stats[9]; }
 
+/* WriteVillageRecord's stand-in (VvfpCauseTestWriter): the last record's text. */
+static char cie_last[1024];
+
+static int __stdcall cie_writer(int game, int kind, const void *record, int check, const char *before,
+                                const char *after, int detail) {
+    (void)game; (void)kind; (void)record; (void)check; (void)after; (void)detail;
+    lstrcpynA(cie_last, before != NULL ? before : "", (int)sizeof cie_last);
+    return 1;
+}
+
 /* The game's load: the occupied records packed into 0, 1, 2, ... */
 static void game_reload(void) {
     int to = 0, from;
@@ -489,14 +509,17 @@ int main(int argc, char **argv) {
     saved(5);
     roster_of(5, path);
     n = read_file(path, buf, sizeof buf);
-    CHECK(n == 32 + 8 * (16 + STRIDE) && *(unsigned int *)buf == 0x31524356u && *(unsigned int *)(buf + 12) == 8u,
-          "the first save writes the roster: 'VCR1', 8 entries (%ld bytes)", n);
+    /* Version 3 (A New Home): each entry ends with the parents' names, 2 x char[32] (cod_roster.inc). */
+    CHECK(n == 32 + 8 * (16 + STRIDE + 64) && *(unsigned int *)buf == 0x31524356u && *(unsigned int *)(buf + 4) == 3u
+          && *(unsigned int *)(buf + 12) == 8u,
+          "the first save writes the roster: 'VCR1' version 3, 8 entries (%ld bytes)", n);
     CHECK(unaccounted() == 0, "and reports nothing");
     rec(2)[PRESENT] = 0;                /* gone, nothing reported */
     saved(5);
     CHECK(unaccounted() == 1, "a villager gone with no report: one Unaccounted record");
     n = read_file(path, buf, sizeof buf);
-    CHECK(n == 32 + 7 * (16 + STRIDE) && buf[32 + 2 * (16 + STRIDE)] == 3 && buf[32 + 2 * (16 + STRIDE) + 2] == 2,
+    CHECK(n == 32 + 7 * (16 + STRIDE + 64) && buf[32 + 2 * (16 + STRIDE + 64)] == 3
+          && buf[32 + 2 * (16 + STRIDE + 64) + 2] == 2,
           "the roster keeps record 3 at rank 2");
     unload();
     game_reload();                      /* a new session: 3..7 now in 2..6 */
@@ -685,6 +708,114 @@ int main(int argc, char **argv) {
                   "Start Over deletes the roster under both its names");
         }
     }
+
+    printf("11. the Custom Island Event's \"Dies\" (VvfpCauseKilled)\n");
+    {
+        typedef void (__stdcall *killed_t)(int, int);
+        typedef void (__stdcall *save_done_t)(int, const void *);
+        typedef void (__stdcall *writer_t)(void *);
+        killed_t killed;
+        save_done_t save_done;
+        writer_t set_writer;
+        char cie[MAX_PATH];
+        unsigned char *later;
+        static unsigned char save_block[64];
+        int k;
+
+        /* A New Home: cause 5 in a version 2 graves file, read back by a new session; a file
+           without it stays version 1. */
+        memset(array, 0, 256 * STRIDE);
+        memset(manager + GRAVES, 0, 50 * GRAVE_STRIDE);
+        current_slot = 2;
+        file_of(2, path);
+        DeleteFileA(path);
+        load();
+        killed = (killed_t)GetProcAddress(dll, "VvfpCauseKilled");
+        CHECK(killed != NULL, "the companion exports VvfpCauseKilled");
+        if (killed == NULL) {
+            unload();
+            goto cie_done;
+        }
+        tick(1);
+        villager(4, "Island", 900, 60, 0);
+        tick(1);
+        *(int *)(rec(4) + HEALTH) = 0;      /* c1_kill */
+        killed(1, 4);
+        tick(1);
+        file_of(2, path);
+        n = read_file(path, buf, sizeof buf);
+        CHECK(n == 16 + ENTRY && *(unsigned int *)(buf + 4) == 2u && buf[16] == 1 && buf[18] == 4
+              && (signed char)buf[24] == 5,
+              "the lying body is kept with cause 5 in a version 2 file");
+        unload();
+        load();
+        tick(1);
+        game_bury(4, 2);
+        buried(4, 2);
+        tick(1);
+        CHECK(grave_of(2, &cause, &epitaph) && cause == 5, "a new session reads it: the grave shows cause 5");
+        n = read_file(path, buf, sizeof buf);
+        CHECK(n == 16 + ENTRY && *(unsigned int *)(buf + 4) == 2u && buf[16] == 0 && (signed char)buf[24] == 5,
+              "the grave keeps it, version 2");
+        unload();
+        vv_reset_slot_state(1, 2, NULL);
+        CHECK(GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES, "Start Over deletes it");
+
+        /* The Secret City: the bodies in their own file, written at the save. */
+        later = (unsigned char *)VirtualAlloc(NULL, 0x14 + 256 * 0x1F8C, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        dll = LoadLibraryA(dll_path);
+        setup = (setup_t)GetProcAddress(dll, "VvfpCauseTestSetup");
+        killed = (killed_t)GetProcAddress(dll, "VvfpCauseKilled");
+        save_done = (save_done_t)GetProcAddress(dll, "VvfpCauseTestSaveDone");
+        decayed = (index_t)GetProcAddress(dll, "VvfpCauseTestDecayed");
+        set_writer = (writer_t)GetProcAddress(dll, "VvfpCauseTestWriter");
+        current_slot = 3;
+        setup(3, &host, later);
+        for (k = 0; k < 2; ++k) {
+            unsigned char *r = later + 0x14 + (size_t)(5 + k) * 0x1F8C;
+            r[0xF10] = 1;                                  /* present */
+            *(int *)(r + 0xE78) = 0;                       /* c3_kill: health 0, */
+            *(int *)(r + 0xE7C) = -1;                      /* cause -1 */
+            *(int *)(r + 0xDC4) = 700 + k;
+            strcpy((char *)r + 0xDD4, k ? "Second" : "First");
+            killed(3, 5 + k);
+        }
+        save_done(3, save_block);
+        _snprintf(cie, MAX_PATH, "%s\\Custom Island Event Deaths\\Virtual Villagers 3 Custom Island Event Deaths"
+                  " - Save 3.dat", data_dir);
+        cie[MAX_PATH - 1] = 0;
+        n = read_file(cie, buf, sizeof buf);
+        CHECK(n == 16 + 2 * 8 && *(unsigned int *)buf == 0x31454356u && *(unsigned int *)(buf + 4) == 1u
+              && *(unsigned int *)(buf + 8) == 3u && *(unsigned int *)(buf + 12) == 2u
+              && buf[16] == 5 && buf[17] == 0 && buf[24] == 6 && *(unsigned int *)(buf + 20) != 0u,
+              "the save writes 'VCE1', version 1, game 3, the two bodies by record (%ld bytes)", n);
+        _snprintf(tmp, MAX_PATH, "%s.tmp", cie);
+        CHECK(GetFileAttributesA(tmp) == INVALID_FILE_ATTRIBUTES, "no .tmp is left behind");
+        FreeLibrary(dll);
+
+        /* A new session: the removal of the unburied body reads the file. */
+        dll = LoadLibraryA(dll_path);
+        setup = (setup_t)GetProcAddress(dll, "VvfpCauseTestSetup");
+        save_done = (save_done_t)GetProcAddress(dll, "VvfpCauseTestSaveDone");
+        decayed = (index_t)GetProcAddress(dll, "VvfpCauseTestDecayed");
+        set_writer = (writer_t)GetProcAddress(dll, "VvfpCauseTestWriter");
+        setup(3, &host, later);
+        set_writer((void *)cie_writer);
+        cie_last[0] = 0;
+        decayed(5);
+        CHECK(strstr(cie_last, "Cause of death: Died in a custom island event\n") != NULL,
+              "the body's Death record says \"Died in a custom island event\"");
+        CHECK(*(int *)(later + 0x14 + 5 * 0x1F8C + 0xE7C) == -1, "the game's own cause is untouched");
+        save_done(3, save_block);
+        n = read_file(cie, buf, sizeof buf);
+        CHECK(n == 16 + 8 && buf[16] == 6, "used up: the next save keeps only the other body");
+        FreeLibrary(dll);
+        dll = NULL;
+        vv_reset_slot_state(3, 3, NULL);
+        CHECK(GetFileAttributesA(cie) == INVALID_FILE_ATTRIBUTES, "Start Over deletes the file");
+        VirtualFree(later, 0, MEM_RELEASE);
+    }
+cie_done:
 
     wipe();
     printf("%s: %d failure(s)\n", failures ? "FAILED" : "PASSED", failures);
