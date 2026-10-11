@@ -122,7 +122,14 @@ def _stock(game: str) -> bytes:
 
 def likes_fixes(game: str) -> tuple:
     """(file offset, stock bytes, patched bytes) of this fix in `game`'s
-    Fix Vanilla Bugs row, in the row's order."""
+    Fix Vanilla Bugs row, in the row's order.
+
+    Called by the other Fix Vanilla Bugs tests at import time to build their FIXES tables, so it
+    must not need the stock executable then: with none (a clean checkout, CI -- research/
+    stock-executables is not committed) it returns (), and every test that needs these bytes also
+    reads the stock executable itself and is skipped as a missing input by tests/conftest.py."""
+    if not (STOCK_DIR / EXES[game]).is_file():
+        return ()
     stock = _stock(game)
     if game in BUILDERS:
         out = []
