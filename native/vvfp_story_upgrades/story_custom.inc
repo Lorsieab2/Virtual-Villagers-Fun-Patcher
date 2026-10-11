@@ -726,17 +726,20 @@ static void ce_apply_fields(const ce_adapter *a, unsigned char *record, const ce
     if (a->caps & CAP_PREFS) {
         int *likes = (int *)(record + a->off_likes);
         int *dislikes = (int *)(record + a->off_dislikes);
-        if (ce_valid_pref(a, c->like_remove)) {
-            ce_pref_remove(likes, a->pref_slots, c->like_remove);
-        }
-        if (ce_valid_pref(a, c->dislike_remove)) {
-            ce_pref_remove(dislikes, a->pref_slots, c->dislike_remove);
-        }
-        if (ce_valid_pref(a, c->like_add) && !ce_pref_add(likes, a->pref_slots, c->like_add)) {
-            ce_refuse(r, CE_WHY_PREFS_FULL);
-        }
-        if (ce_valid_pref(a, c->dislike_add) && !ce_pref_add(dislikes, a->pref_slots, c->dislike_add)) {
-            ce_refuse(r, CE_WHY_PREFS_FULL);
+        /* Every like and dislike change of the villager, in the order the
+           entries were added: two entries that each add a like both add it. */
+        for (i = 0; i < c->pref_op_count && i < CE_MAX_PREF_OPS; ++i) {
+            int op = c->pref_ops[i];
+            int value = CE_PREF_VALUE(op);
+            int *list = (op & CE_PREF_DISLIKE) ? dislikes : likes;
+            if (!ce_valid_pref(a, value)) {
+                continue;
+            }
+            if (op & CE_PREF_REMOVE) {
+                ce_pref_remove(list, a->pref_slots, value);
+            } else if (!ce_pref_add(list, a->pref_slots, value)) {
+                ce_refuse(r, CE_WHY_PREFS_FULL);
+            }
         }
     }
     if (a->caps & CAP_SKILLS) {
@@ -1426,7 +1429,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             }
             continue;
         }
-        if (c->like_add >= 0 || c->like_remove >= 0 || c->dislike_add >= 0 || c->dislike_remove >= 0) {
+        if (c->pref_op_count > 0) {
             unsigned int titled_as = story_title_identity(e->game, record);
             story_preferences_changing(e->game, 0);
             ce_apply_fields(a, record, c, r);

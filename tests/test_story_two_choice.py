@@ -59,7 +59,7 @@ from test_story_custom_island_event import (  # noqa: E402
     have_stock,
 )
 
-CHOICE_BUF = EVENT_BUF + 0x20000
+CHOICE_BUF = EVENT_BUF + 0x40000
 COUNTS = SCRATCH + 0x800
 CAP_CHOICE = 0x04000000
 
