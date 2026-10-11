@@ -335,6 +335,45 @@ class SameVillagerEditTests(unittest.TestCase):
         self.assertEqual(_entry(story), Change(index=2, fingerprint=0x88, pref_ops=((LIKE, ADD, 2),)).pack())
 
 
+@emulated
+class EditIsTransactionalAndOrderFree(unittest.TestCase):
+    """Codex review of #583: Edit worked out its four replacements category by category."""
+
+    def replace(self, story, change, fingerprint=0x88):
+        story.proc.write(SCRATCH, change.pack())
+        return story.proc.export("VvfpStoryProbeReplace", EVENT_BUF, 0, SCRATCH, fingerprint)
+
+    def test_swapping_two_preferences_between_categories_loses_nothing(self):
+        # add A (3), remove B (5); Edit to: add B (5), remove A (3)
+        story = _first_story()
+        if story is None:
+            self.skipTest("no stock executable")
+        _merge(story, 2, _same(2, like_add=3), _same(2, like_remove=5))
+        self.assertEqual(self.replace(story, _same(2, like_add=5, like_remove=3)), 1)
+        expect = Change(index=2, fingerprint=0x88, pref_ops=((LIKE, ADD, 5), (LIKE, REMOVE, 3)))
+        self.assertEqual(_entry(story), expect.pack(), "both changes survive, the dialog's two")
+
+    def test_a_full_entry_refuses_a_new_category_and_is_left_untouched(self):
+        story = _first_story()
+        if story is None:
+            self.skipTest("no stock executable")
+        for k in range(40):
+            _merge(story, 2, _same(2, like_add=k), fresh=(k == 0))
+        for k in range(24):
+            _merge(story, 2, _same(2, dislike_add=k), fresh=False)      # 64 changes, no remove-a-like yet
+        before = _entry(story)
+        self.assertEqual(self.replace(story, _same(2, like_add=39, dislike_add=23, like_remove=41)), 0)
+        self.assertEqual(_entry(story), before, "refused: nothing changed")
+        # a change that needs no extra room still works
+        self.assertEqual(self.replace(story, _same(2, like_add=45, dislike_add=23)), 1)
+
+
+class EditRefusalIsShown(unittest.TestCase):
+    def test_the_dialog_stays_open_with_a_message_when_edit_has_no_room(self):
+        ui = (SOURCE / "story_custom_ui.inc").read_text(encoding="utf-8")
+        self.assertIn("if (!ce_replace(&ui.draft", ui)
+        self.assertIn("already holds 64 likes and dislikes changes", ui)
+
 class DialogSourceTests(unittest.TestCase):
     """The warning the player sees at Add time (static: the shipped source and resource)."""
 

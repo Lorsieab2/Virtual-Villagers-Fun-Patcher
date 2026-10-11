@@ -1272,8 +1272,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeReplace(ce_event *event, int p
     if (position < 0 || position >= event->change_count) {
         return 0;
     }
-    ce_replace(event, position, change, fingerprint);
-    return 1;
+    return ce_replace(event, position, change, fingerprint);
 }
 
 /* The "Parents:" blocks the last deliveries told the Births log's Arrived

@@ -78,15 +78,23 @@ def build_copy(script: Path, parent: Path) -> dict[Path, str]:
                 (project / icon).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(ROOT / icon, project / icon)
     (project / "data" / "candidates").mkdir(parents=True, exist_ok=True)     # where the candidates are built
+    # A script may run a helper of the scripts folder after it compiles (the VV3 companion's sync).
+    for helper in re.findall(r'Join-Path \$projectRoot "scripts\\([A-Za-z0-9_]+\.py)"', _text(script)):
+        if (SCRIPTS_DIR / helper).is_file():
+            shutil.copy2(SCRIPTS_DIR / helper, project / "scripts" / helper)
 
     def dlls() -> dict[Path, str]:
         return {p.relative_to(project): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in sorted(project.rglob("*.dll"))}
 
     given = dlls()
-    subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
-                    str(project / "scripts" / script.name)],
-                   capture_output=True, text=True, cwd=project, check=False)
+    run = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                          str(project / "scripts" / script.name)],
+                         capture_output=True, text=True, cwd=project, check=False)
+    if run.returncode != 0:
+        # A script that wrote a first DLL and failed on a later one must not pass on partial output.
+        raise RuntimeError(f"{script.name} failed (exit {run.returncode}):\n"
+                           f"--- stdout ---\n{run.stdout[-3000:]}\n--- stderr ---\n{run.stderr[-3000:]}")
     return {p: h for p, h in dlls().items() if given.get(p) != h}
 
 
@@ -106,6 +114,18 @@ class SourceTests(unittest.TestCase):
                 with self.subTest(file=path.relative_to(ROOT).as_posix()):
                     code = re.sub(r"/\*.*?\*/|//[^\n]*", "", path.read_text(encoding="utf-8"), flags=re.S)
                     self.assertIsNone(pattern.search(code))
+
+
+class BuildFailureTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which("powershell"), "needs PowerShell")
+    def test_a_script_that_fails_after_writing_a_dll_is_an_error_not_partial_output(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            script = Path(folder) / "build_fake.ps1"
+            script.write_text('Set-Content -Path (Join-Path $PSScriptRoot "..\first.dll") -Value "x"\nthrow "the second DLL failed"\n',
+                              encoding="utf-8")
+            with self.assertRaises(RuntimeError) as caught:
+                build_copy(script, Path(folder) / "out")
+            self.assertIn("the second DLL failed", str(caught.exception), "the script's output is shown")
 
 
 class BuildTwiceTests(unittest.TestCase):
