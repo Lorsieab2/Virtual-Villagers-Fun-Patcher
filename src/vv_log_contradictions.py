@@ -48,9 +48,10 @@ RENUMBER = "Give it the next free number"
 LEAVE = "Don't know / leave it (changes nothing)"
 RETRO_YES = "Yes: correct the older records to match"
 RETRO_NO = "No: leave every past record as it is (not asked again)"
-# The contradictions the player chose to leave in the past records (Retroactively edit records? No):
-# remembered per slot, so they are not asked about again until something new contradicts.
-KEPT = layout.DATA + r"\Log Checks\Virtual Villagers {game} Contradictions Left - Save {slot}.txt"
+# The contradictions the player chose to leave in the past records (Retroactively edit records? No)
+# are remembered per slot, so they are not asked about again until something new contradicts: in the
+# same decisions file as every other "No" (src/vv_log_decisions.py, which still reads the earlier
+# "Contradictions Left" text file).
 
 
 @dataclass
@@ -336,12 +337,9 @@ def _notes(folder: Path, game: int, slot: int) -> list[Found]:
 
 
 def left_alone(folder: Path, game: int, slot: int) -> set[str]:
-    """The contradictions the player chose to leave in the past records (KEPT)."""
-    path = layout.find(Path(folder), KEPT.format(game=game, slot=slot))
-    try:
-        return {line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()}
-    except OSError:
-        return set()
+    """The contradictions the player chose to leave in the past records."""
+    import vv_log_decisions
+    return vv_log_decisions.left_alone(Path(folder), game, slot)
 
 
 def find(folder: Path, game: int, slot: int) -> list[Found]:
@@ -400,8 +398,8 @@ def plan(folder: Path, game: int, slot: int):
 
 
 def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str, str]) -> list[str]:
-    """Every contradiction the player answered "Retroactively edit records?" No to, added to KEPT
-    (appended; the file is the patcher's own, kept beside the Log Checks markers).  Returns them."""
+    """Every contradiction the player answered "Retroactively edit records?" No to, added to the
+    slot's decisions (src/vv_log_decisions.py).  Returns the new ones."""
     idents = []
     for kind in kinds:
         if kind.id != "contradictions":
@@ -413,11 +411,5 @@ def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str,
                 idents.append(key[len("contradiction|"):])
     if not idents:
         return []
-    path = layout.writable(Path(folder), KEPT.format(game=game, slot=slot))
-    known = left_alone(folder, game, slot)
-    new = [i for i in idents if i not in known]
-    if new:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "a", encoding="utf-8") as kept:
-            kept.write("".join(i + "\n" for i in new))
-    return new
+    import vv_log_decisions
+    return vv_log_decisions.remember_left(Path(folder), game, slot, idents)
