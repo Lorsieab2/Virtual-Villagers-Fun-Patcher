@@ -188,6 +188,8 @@ static void titles_looks_now(int game, int r, const unsigned char *record, vv_ti
         out->age = titles.base_age[r];
         memcpy(out->skills, titles.base_skills[r], sizeof out->skills);
     }
+    /* Kept as the corrupted-skill reset leaves them (custom_titles.h). */
+    vv_title_normalise_skills(out, story_title_skills_float(game));
 }
 
 /* The custom title of the villager in `record`, or NULL. */
@@ -384,20 +386,22 @@ static int titles_candidates(int game, const vv_custom_title *e, int *where, int
    reconciliation asks the player (src/vv_reconcile.py).  NEVER A GUESS (the
    owner): an entry that two or more villagers could be at once is marked
    CONTESTED (custom_titles.h), and when the others later die or leave it is
-   NOT given to the one left -- it waits for the player.  Two cases are not
-   ambiguous: after a move within the session, an entry whose villager was
-   seen this session (`seen`) and whose name and likes nobody present carries
-   any more is a villager who died, and is dropped as the death sweep would
-   (a namesake who is not them leaves it pending instead); and an entry
-   whose fingerprint NOBODY present carries (the villager away, or gone) stays
-   on its record, shown on nobody there, for the sweep to judge -- unless
-   another entry's villager is in that record now, when it waits pending.
+   NOT given to the one left -- it waits for the player.  A LOAD IS NEVER A
+   DEATH: after a move an entry whose villager was seen this session (`seen`)
+   and whose name and likes nobody present carries any more -- renamed and
+   reloaded without a save, or gone -- waits PENDING (on the tick: a
+   lookup's first look has no roster to tell a load by, and leaves it on
+   its record); only the sweep, with
+   nothing moved, drops the title of a villager seen to die.  An entry never
+   seen this session whose fingerprint NOBODY present carries (the villager
+   away, or gone) stays on its record, shown on nobody there, for the sweep to
+   judge -- unless another entry's villager is in that record now, when it
+   waits pending.
    Returns 1 when the table changed. */
 static int titles_follow(int game, int moved, int sweep, int resolve) {
     /* The record each entry goes to (>= 0), PENDING (-1), as it is (-2), or
        as it is unless another entry goes to its record (-3). */
     static int target[VV_TITLES_MAX];
-    static unsigned char drop[VV_TITLES_MAX];
     static unsigned char clash[VV_TITLES_MAX];
     int i, j, kept;
     int changed = 0;
@@ -409,7 +413,6 @@ static int titles_follow(int game, int moved, int sweep, int resolve) {
         int carriers = 0;
         int n;
         target[i] = -2;
-        drop[i] = 0;
         clash[i] = 0;
         if (!moved && (e->index != VV_TITLE_PENDING || !resolve)) {
             continue;                         /* nothing moved: a bound entry stays, the sweep judges it */
@@ -425,9 +428,7 @@ static int titles_follow(int game, int moved, int sweep, int resolve) {
             target[i] = -1;                   /* one left of several: the player decides, never a guess */
         } else if (n == 1) {
             target[i] = where;
-        } else if (n == 0 && carriers == 0 && moved && sweep && titles.seen[i] && e->index != VV_TITLE_PENDING) {
-            drop[i] = 1;                      /* seen this session, nobody carries their name and likes now: died */
-        } else if (carriers == 0 && e->index != VV_TITLE_PENDING) {
+        } else if (carriers == 0 && e->index != VV_TITLE_PENDING && !(moved && sweep && titles.seen[i])) {
             target[i] = -3;                   /* nobody carries it: away or gone, the sweep judges */
         } else {
             target[i] = -1;                   /* two or more could be them, or none: pending */
@@ -441,7 +442,7 @@ static int titles_follow(int game, int moved, int sweep, int resolve) {
         }
         for (j = 0; j < titles.count; ++j) {
             int at = target[j] >= 0 ? target[j]
-                : (target[j] == -2 && !drop[j] && titles.entries[j].index != VV_TITLE_PENDING
+                : (target[j] == -2 && titles.entries[j].index != VV_TITLE_PENDING
                    ? (int)titles.entries[j].index : -1);
             if (j != i && at == target[i]) {
                 clash[i] = 1;
@@ -449,10 +450,6 @@ static int titles_follow(int game, int moved, int sweep, int resolve) {
         }
     }
     for (i = 0, kept = 0; i < titles.count; ++i) {
-        if (drop[i]) {
-            changed = 1;
-            continue;
-        }
         titles.entries[kept] = titles.entries[i];
         titles.seen[kept] = titles.seen[i];
         if (target[i] == -3) {

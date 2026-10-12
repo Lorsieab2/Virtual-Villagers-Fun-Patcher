@@ -108,10 +108,40 @@ static float vv_title_skill_float(unsigned int raw) {
     return value;
 }
 
+#define VV_TITLE_SKILL_MAX 100
+
+/* One skill dword as the corrupted-skill reset leaves it (native/shared/
+   skill_repair.h, src/vv_corrupt_skills.py): NaN, +-infinity or below 0 ->
+   0, above 100 -> 100, anything else as it is.  A title's skills are stored
+   and compared so, so a reset of a corrupted value never makes its villager
+   look like someone else. */
+static unsigned int vv_title_skill_normalised(unsigned int raw, int skills_float) {
+    if (skills_float) {
+        /* By the bits, so no floating-point mode can change it: an all-ones
+           exponent is NaN or infinity, the sign bit a value below 0. */
+        if ((raw & 0x7F800000u) == 0x7F800000u || (raw & 0x80000000u) != 0u) {
+            return 0u;                                        /* 0.0f */
+        }
+        return vv_title_skill_float(raw) > (float)VV_TITLE_SKILL_MAX ? 0x42C80000u : raw;   /* 100.0f */
+    }
+    if ((int)raw < 0) {
+        return 0u;
+    }
+    return (int)raw > VV_TITLE_SKILL_MAX ? (unsigned int)VV_TITLE_SKILL_MAX : raw;
+}
+
+static void vv_title_normalise_skills(vv_title_looks *looks, int skills_float) {
+    int k;
+    for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+        looks->skills[k] = vv_title_skill_normalised(looks->skills[k], skills_float);
+    }
+}
+
 /* Could the villager `now` (head, body and sex as they are; age and skills
    as first seen this session) be the one `stored` was taken from?  The same
-   head, body and sex; no younger; no skill lower.  `skills_float`: the
-   game keeps float skills.  (A NaN skill matches nothing.) */
+   head, body and sex; no younger; no skill lower -- both sides' skills taken
+   as the corrupted-skill reset leaves them, so a reset is never a lower
+   skill.  `skills_float`: the game keeps float skills. */
 static int vv_title_looks_could_be(const vv_title_looks *stored, const vv_title_looks *now, int skills_float) {
     int k;
     if (stored->head != now->head || stored->body != now->body || stored->sex != now->sex
@@ -119,8 +149,9 @@ static int vv_title_looks_could_be(const vv_title_looks *stored, const vv_title_
         return 0;
     }
     for (k = 0; k < VV_TITLE_SKILLS; ++k) {
-        if (skills_float ? !(vv_title_skill_float(now->skills[k]) >= vv_title_skill_float(stored->skills[k]))
-                         : (int)now->skills[k] < (int)stored->skills[k]) {
+        unsigned int was = vv_title_skill_normalised(stored->skills[k], skills_float);
+        unsigned int is = vv_title_skill_normalised(now->skills[k], skills_float);
+        if (skills_float ? vv_title_skill_float(is) < vv_title_skill_float(was) : (int)is < (int)was) {
             return 0;
         }
     }

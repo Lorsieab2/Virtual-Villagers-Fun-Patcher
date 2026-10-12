@@ -136,22 +136,39 @@ def serialise(game: int, entries: list[Entry], version: int = VERSION) -> bytes:
                                                                              for e in entries)
 
 
+SKILL_MAX = 100
+
+
+def skill_normalised(raw: int, floats: bool) -> int:
+    """custom_titles.h vv_title_skill_normalised: one skill dword as the corrupted-skill reset leaves it
+    (src/vv_corrupt_skills.py): NaN, +-infinity or below 0 -> 0, above 100 -> 100, else as it is."""
+    if floats:
+        if raw & 0x7F800000 == 0x7F800000 or raw & 0x80000000:
+            return 0
+        return 0x42C80000 if struct.unpack("<f", struct.pack("<I", raw))[0] > SKILL_MAX else raw
+    value = struct.unpack("<i", struct.pack("<I", raw))[0]
+    return 0 if value < 0 else (SKILL_MAX if value > SKILL_MAX else raw)
+
+
 def looks_from_save(game: int, data: bytes, at: int) -> dict:
-    """The saved villager's looks (whose name is at `at`), as an Entry keeps them."""
-    age, sex, head, body, skills, count, _floats = SAVE_LOOKS[game]
-    raw = [struct.unpack_from("<I", data, at + skills + 4 * k)[0] for k in range(count)]
+    """The saved villager's looks (whose name is at `at`), as an Entry keeps them (the skills as the
+    corrupted-skill reset leaves them, as the companion keeps them)."""
+    age, sex, head, body, skills, count, floats = SAVE_LOOKS[game]
+    raw = [skill_normalised(struct.unpack_from("<I", data, at + skills + 4 * k)[0], floats) for k in range(count)]
     return dict(age=struct.unpack_from("<i", data, at + age)[0], head=struct.unpack_from("<i", data, at + head)[0],
                 body=struct.unpack_from("<i", data, at + body)[0], sex=struct.unpack_from("<i", data, at + sex)[0],
                 skills=tuple(raw + [0] * (SKILLS - count)))
 
 
 def could_be(game: int, e: Entry, looks: dict) -> bool:
-    """custom_titles.h vv_title_looks_could_be: the same head, body and sex, no younger, no skill lower
-    (an entry whose looks are not known: anyone of its fingerprint)."""
+    """custom_titles.h vv_title_looks_could_be: the same head, body and sex, no younger, no skill lower --
+    both sides' skills as the corrupted-skill reset leaves them (an entry whose looks are not known: anyone
+    of its fingerprint)."""
     if not e.known:
         return True
     if (looks["head"], looks["body"], looks["sex"]) != (e.head, e.body, e.sex) or looks["age"] < e.age:
         return False
-    stored = e.skill_values(game)
-    now = Entry(0, 1, "x", True, skills=looks["skills"]).skill_values(game)
+    floats = SAVE_LOOKS[game][6]
+    stored = Entry(0, 1, "x", True, skills=tuple(skill_normalised(v, floats) for v in e.skills)).skill_values(game)
+    now = Entry(0, 1, "x", True, skills=tuple(skill_normalised(v, floats) for v in looks["skills"])).skill_values(game)
     return all(n >= s for n, s in zip(now, stored))

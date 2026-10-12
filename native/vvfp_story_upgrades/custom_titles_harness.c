@@ -491,6 +491,65 @@ int main(void) {
     seen = titles_lookup(3, g_records[2]);
     check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
           "A NEVER-CONTESTED PENDING TITLE BINDS AGAIN WHEN EXACTLY ONE VILLAGER HAS THE WHOLE IDENTITY");
+
+    /* A LOAD IS NEVER A DEATH: Kai is renamed in this session (the title
+       follows the new name), then the village is reloaded without a save --
+       the save still has "Kai", and the records are packed differently.
+       Nobody carries the new name now: the title waits pending, never
+       dropped as if he had died. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Hina"); villager(1, "Lani"); villager(2, "Kai"); looks(2, 1, 500, 3, 4, 20);
+    titles_tick(3);
+    check(titles_set(3, 2, "Kai Title") == 1, "setup: Kai [2] has a title");
+    titles_tick(3);
+    lstrcpynA((char *)g_records[2] + 1, "Kaimana", NAME_BYTES);  /* renamed in session */
+    titles_tick(3);
+    check(titles_lookup(3, g_records[2]) != NULL, "setup: the renamed Kaimana keeps the title");
+    memset(g_records, 0, sizeof g_records);                     /* reloaded without a save: Hina's body gone */
+    villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+    titles_tick(3);
+    titles.checked_at = GetTickCount() - 3 * TITLES_CHECK_MS;
+    titles_tick(3);
+    check(titles.count == 1 && title_index("Kai Title") == (int)VV_TITLE_PENDING,
+          "A TITLE WHOSE VILLAGER WAS RENAMED AND THEN RELOADED WITHOUT A SAVE WAITS PENDING, NEVER DROPPED");
+
+    /* A CORRUPTED SKILL RESET IS NOT A LOWER SKILL: Kai's title was set
+       while a skill held 150 (no game can hold it); the corrupted-skill
+       reset made it 100.  After a load he is still him. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 150);
+    titles_tick(3);
+    check(titles_set(3, 1, "Kai Title") == 1, "setup: Kai [1], a skill at a corrupted 150, has a title");
+    check(titles.entries[0].looks.skills[0] == 100, "THE STORED SKILL IS THE ONE THE CORRUPTED-SKILL RESET LEAVES (100)");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); looks(0, 1, 510, 3, 4, 100);           /* reset to 100, and packed to [0] */
+    villager(1, "Lani");
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[0]);
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
+          "A CORRUPTED SKILL RESET (150 -> 100) DOES NOT STOP THE TITLE FOLLOWING ITS VILLAGER");
+    /* ...and a negative corrupted skill reset to 0 likewise. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+    *(int *)(g_records[1] + 64) = -7;
+    titles_tick(3);
+    titles_set(3, 1, "Kai Title");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); looks(0, 1, 510, 3, 4, 20);
+    *(int *)(g_records[0] + 64) = 0;                            /* reset to 0 */
+    villager(1, "Lani");
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[0]);
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
+          "A CORRUPTED SKILL RESET (-7 -> 0) DOES NOT STOP THE TITLE FOLLOWING ITS VILLAGER");
     /* The titled Kai died before the reload and the namesake left is NOT
        him by the whole identity: younger, less skilled, or the other sex.
        (The old follow moved the title to the one carrier of the name and
@@ -786,8 +845,9 @@ int main(void) {
     lstrcpynA((char *)g_records[1] + 1, "Stranger", NAME_BYTES);
     g_records[1][40] = 9;
     titles_tick(3);
-    check(titles_lookup(3, g_records[1]) == NULL && titles.count == 0,
-          "a different villager in the record is not a rename: the title goes");
+    check(titles_lookup(3, g_records[1]) == NULL && titles.count == 1
+          && title_index("Renamed Hero") == (int)VV_TITLE_PENDING,
+          "a different villager in the record is not a rename: not shown on them, and -- nobody saw Kainoa die -- the title waits pending");
     DeleteFileA(path1);
     DeleteFileA(path1);
     memset(g_records, 0, sizeof g_records);
@@ -840,7 +900,8 @@ int main(void) {
         titles_tick(game);
         titles_tick(game);
         wsprintfA(what, "a newborn namesake in the freed record does not get the title (game %d)", game);
-        check(titles_lookup(game, g_records[1]) == NULL && titles.count == 1, what);
+        check(titles_lookup(game, g_records[1]) == NULL && titles.count == 2
+              && titles.entries[0].index == VV_TITLE_PENDING, what);
         /* A reload that packs a same-name, same-sex, same-age twin into her
            dead sister's record is not a likes change: the title is not
            given to the twin. */

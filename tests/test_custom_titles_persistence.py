@@ -85,6 +85,11 @@ class CustomTitlesFile(unittest.TestCase):
             "... NOR AFTER A RELOAD WITH ONE KAI LEFT: STILL PENDING AND CONTESTED",
             "THE NAMESAKE'S LIKES CHANGE: THE CONTESTED TITLE STILL WAITS, GIVEN TO NEITHER",
             "A NEVER-CONTESTED PENDING TITLE BINDS AGAIN WHEN EXACTLY ONE VILLAGER HAS THE WHOLE IDENTITY",
+            # The owner (v1.35.70): a load is never a death; a corrupted-skill reset is not a lower skill.
+            "A TITLE WHOSE VILLAGER WAS RENAMED AND THEN RELOADED WITHOUT A SAVE WAITS PENDING, NEVER DROPPED",
+            "THE STORED SKILL IS THE ONE THE CORRUPTED-SKILL RESET LEAVES (100)",
+            "A CORRUPTED SKILL RESET (150 -> 100) DOES NOT STOP THE TITLE FOLLOWING ITS VILLAGER",
+            "A CORRUPTED SKILL RESET (-7 -> 0) DOES NOT STOP THE TITLE FOLLOWING ITS VILLAGER",
             "THE TITLED KAI GONE, A YOUNGER NAMESAKE IS NOT GIVEN THE TITLE: IT STAYS PENDING",
             "... nor a namesake with a lower skill",
             "... nor a namesake of the other sex",
@@ -110,7 +115,7 @@ class CustomTitlesFile(unittest.TestCase):
             "the first lookup's follow does not sweep: the title is still there for its villager",
             "A RENAMED VILLAGER KEEPS THE TITLE",
             "... and the file has it under the new name",
-            "a different villager in the record is not a rename: the title goes",
+            "a different villager in the record is not a rename: not shown on them, and -- nobody saw Kainoa die -- the title waits pending",
             # v1.35.68: an island event changed Alapai's dislikes ("Custom title: Moon Mother -> none").
             "THE TITLE SURVIVES A LIKES / DISLIKES CHANGE, ASKED IN THE SAME FRAME (game %d)",
             "... and every tick after it (game %d)",

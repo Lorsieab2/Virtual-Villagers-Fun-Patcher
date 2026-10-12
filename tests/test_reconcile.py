@@ -804,6 +804,35 @@ class FileLevelLoss(Base):
                 self.assertIn("the game will NOT give it back by itself", asked[0].text)
                 self.assertNotIn("gives it back by itself", asked[0].text)
 
+    def test_a_corrupted_skill_reset_is_not_a_lower_skill(self):
+        """custom_titles.h vv_title_looks_could_be, mirrored: both sides' skills are taken as the
+        corrupted-skill reset leaves them (NaN, +-infinity, below 0 -> 0; above 100 -> 100), so a reset never
+        makes a titled villager look like someone else; a real lower skill still does."""
+        import vv_titles_file as tf
+
+        def f(x):
+            return struct.unpack("<I", struct.pack("<f", x))[0]
+
+        nan, inf = 0x7FC00000, 0x7F800000
+        base = dict(age=500, head=3, body=4, sex=1)
+        for game, enc in ((4, f), (5, f), (1, lambda x: int(x) & 0xFFFFFFFF), (3, lambda x: int(x) & 0xFFFFFFFF)):
+            with self.subTest(game=game):
+                def entry(v):
+                    return tf.Entry(tf.PENDING, 1, "T", True, 500, 3, 4, 1, (v,) + (enc(10),) * 5)
+
+                def live(v):
+                    return dict(base, skills=(v,) + (enc(10),) * 5)
+
+                self.assertTrue(tf.could_be(game, entry(enc(150)), live(enc(100))))
+                self.assertTrue(tf.could_be(game, entry(enc(-7)), live(enc(0))))
+                self.assertFalse(tf.could_be(game, entry(enc(50)), live(enc(40))))
+                if game in (4, 5):
+                    self.assertTrue(tf.could_be(game, entry(nan), live(enc(0))))
+                    self.assertTrue(tf.could_be(game, entry(inf), live(enc(0))))
+                    self.assertEqual(tf.skill_normalised(f(-0.5), True), 0)
+                    self.assertEqual(tf.skill_normalised(f(250.0), True), f(100.0))
+                    self.assertEqual(tf.skill_normalised(f(42.5), True), f(42.5))
+
     def test_contested_is_only_for_a_pending_title(self):
         """The file a bound entry marked contested is refused, as the companion refuses it."""
         import vv_titles_file as tf
