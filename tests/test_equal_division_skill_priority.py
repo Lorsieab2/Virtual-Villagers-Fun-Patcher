@@ -107,32 +107,60 @@ class LostChildrenWiring(unittest.TestCase):
         self.assertEqual(skill_of, {1: 0x7EC, 2: 0x7E4, 3: 0x7F0, 4: 0x7F4, 5: 0x7E8})
 
 
-class ClearAllSkillPreferences(unittest.TestCase):
+class SkillPreferenceRows(unittest.TestCase):
+    """Clear All Skill Preferences and Check Highest Skill (both variants)."""
+
     def setUp(self) -> None:
         self.c = VV1_C.read_text(encoding="utf-8")
         self.vv2 = VV2_C.read_text(encoding="utf-8")
+        self.body = self.c.split("static int vv_prefs_purchase(HWND owner, int kind) {", 1)[1].split("\n}\n", 1)[0]
 
-    def test_half_the_equal_division_price_and_free_when_free(self) -> None:
+    def test_prices_half_and_matching_and_free_when_free(self) -> None:
         self.assertIn("#define VV_CLEAR_PREFS_COST 500000", self.c)
-        self.assertIn("int price = vvfp_story_price(VV_STORY_GAME, VV_CLEAR_PREFS_COST);", self.c)
+        self.assertIn("#define VV_HIGHEST_SKILL_COST 1000000", self.c)
+        self.assertIn("int price = vvfp_story_price(VV_STORY_GAME,\n"
+                      "        kind == VV_PREFS_CLEAR ? VV_CLEAR_PREFS_COST : VV_HIGHEST_SKILL_COST);", self.body)
 
-    def test_it_clears_to_the_games_none_and_charges_only_on_a_change(self) -> None:
-        body = self.c.split("static int vv_clear_prefs_purchase(HWND owner) {", 1)[1].split("\n}\n", 1)[0]
-        self.assertIn("pref_offset = 0x3D0;", body)
-        self.assertIn("pref_offset = 0x7F8;", body)
-        self.assertIn("*(int *)(rec + pref_offset) = 0;", body)
-        self.assertLess(body.index("if (changed == 0) {"), body.index("*(int *)(world + tech_offset) -= price;"))
-        self.assertIn("is already cleared. ", body)
+    def test_clear_writes_the_games_none(self) -> None:
+        self.assertIn("pref_offset = 0x3D0;", self.body)
+        self.assertIn("pref_offset = 0x7F8;", self.body)
+        self.assertIn("target = 0;", self.body)
 
-    def test_both_dialogs_carry_the_row(self) -> None:
+    def test_highest_uses_each_games_own_codes_and_skills(self) -> None:
+        self.assertIn("static const int job_code[5] = { 1, 4, 3, 5, 2 };", self.body)
+        self.assertIn("static const int skill_offset[5] = { 0x3C4, 0x3C0, 0x3CC, 0x3C8, 0x3BC };", self.body)
+        self.assertIn("static const int job_code[5] = { 1, 5, 4, 3, 2 };", self.body)
+        self.assertIn("static const int skill_offset[5] = { 0x7EC, 0x7E8, 0x7F4, 0x7F0, 0x7E4 };", self.body)
+        # No Parenting compares only the first four (Parenting is last).
+        self.assertIn("int jobs = kind == VV_PREFS_HIGHEST_PARENTING ? 5 : 4;", self.body)
+        highest = self.c.split("static int vv_prefs_highest(", 1)[1].split("\n}\n", 1)[0]
+        self.assertIn("if (value > best_value) {", highest)   # strictly higher: ties keep the first
+        self.assertIn("int best = -1, best_value = 0, s;", highest)  # no progress: unchanged
+
+    def test_a_no_change_purchase_writes_and_charges_nothing(self) -> None:
+        # Pass 0 only counts; the no-change refusal returns before pass 1
+        # writes and before the one charge.
+        self.assertIn("} else {\n                *(int *)(rec + pref_offset) = target;", self.body)
+        self.assertIn("if (pass == 0) {\n            if (eligible == 0", self.body)
+        self.assertLess(self.body.index("if (changed == 0) {"),
+                        self.body.index("*(int *)(world + tech_offset) -= price;"))
+        self.assertIn("is already cleared. ", self.body)
+        self.assertIn("already has their highest skill checked. ", self.body)
+
+    def test_both_dialogs_carry_the_rows(self) -> None:
         rc1 = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.rc").read_text(encoding="utf-8")
         rc2 = (ROOT / "native/vv2_origins_icons/vv2_origins_icons.rc").read_text(encoding="utf-8")
-        for rc, button in ((rc1, 1012), (rc2, 1014)):
+        for rc, first in ((rc1, 1012), (rc2, 1014)):
             self.assertIn('"Clear All Skill Preferences"', rc)
-            self.assertIn('"500,000 tech points"', rc)
-            self.assertIn(f'PUSHBUTTON  "Buy", {button},', rc)
-        self.assertIn("if (command == VV1_CLEAR_PREFS_ID) {", self.c)
-        self.assertIn("if (command == ID_VV2_CLEAR_PREFS) {", self.vv2)
+            self.assertIn('"Check Highest Skill (Includes Parenting)"', rc)
+            self.assertIn('"Check Highest Skill (No Parenting)"', rc)
+            for button in (first, first + 1, first + 2):
+                self.assertIn(f'PUSHBUTTON  "Buy", {button},', rc)
+            # Placed after Equal Division, before Change Appearance for All.
+            self.assertLess(rc.index("Equal Division of Labor (No Parenting)"), rc.index("Clear All Skill Preferences"))
+            self.assertLess(rc.index("Check Highest Skill (No Parenting)"), rc.index('LTEXT       "Change Appearance for All"'))
+        self.assertIn("vv_prefs_purchase(window, vv_prefs_kind_of(command, VV1_PREFS_FIRST_ID));", self.c)
+        self.assertIn("vv_prefs_purchase(window, vv_prefs_kind_of(command, ID_VV2_CLEAR_PREFS));", self.vv2)
 
 
 if __name__ == "__main__":

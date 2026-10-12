@@ -35,7 +35,7 @@
    added).  Left column = rows 0-6, right column = rows 7-13 (X base +302).  Row
    IDs are unchanged: Buy button = 1000+row, satisfied badge = ID_CHECK_FIRST+row
    (rows 0-8 only).  vv2_upgrade_dialog / VV2_TECH_ROW_COUNT drive visibility. */
-211 DIALOGEX 0, 0, 612, 259
+211 DIALOGEX 0, 0, 612, 313
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -123,13 +123,24 @@ BEGIN
     LTEXT       "500,000 tech points", -1, 342, 182, 170, 9
     PUSHBUTTON  "Buy", 1014, 542, 171, 55, 18
 
-    ICON        106, -1, 310, 195,  24, 24
-    LTEXT       "Change Appearance for All", -1, 342, 197, 195, 10
-    LTEXT       "450,000 tech points", -1, 342, 209, 170, 9
-    PUSHBUTTON  "Buy", 1013, 542, 198, 55, 18
+    /* Check Highest Skill: also companion-only (buttons 1015 / 1016). */
+    ICON        107, -1, 310, 195,  24, 24
+    LTEXT       "Check Highest Skill (Includes Parenting)", -1, 342, 197, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 209, 170, 9
+    PUSHBUTTON  "Buy", 1015, 542, 198, 55, 18
 
-    CTEXT       "Press ESC to exit this menu.", -1, 10, 227, 592, 9
-    DEFPUSHBUTTON "Cancel", 2, 271, 239, 70, 14
+    ICON        108, -1, 310, 222,  24, 24
+    LTEXT       "Check Highest Skill (No Parenting)", -1, 342, 224, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 236, 170, 9
+    PUSHBUTTON  "Buy", 1016, 542, 225, 55, 18
+
+    ICON        106, -1, 310, 249,  24, 24
+    LTEXT       "Change Appearance for All", -1, 342, 251, 195, 10
+    LTEXT       "450,000 tech points", -1, 342, 263, 170, 9
+    PUSHBUTTON  "Buy", 1013, 542, 252, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 10, 281, 592, 9
+    DEFPUSHBUTTON "Cancel", 2, 271, 293, 70, 14
 END
 
 /* VV2 Villager Details upgrades (four per-villager rows + Change Appearance). */

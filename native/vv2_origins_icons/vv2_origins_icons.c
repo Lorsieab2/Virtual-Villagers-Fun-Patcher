@@ -69,7 +69,7 @@ void __stdcall ShowVV2UpgradeResult(
    editing the shared enum. */
 #define VV2_TECH_ROW_COUNT 14
 #define ID_VV2_BUY_LAST    1013
-#define ID_VV2_CLEAR_PREFS 1014   /* Clear All Skill Preferences: companion-only row */
+#define ID_VV2_CLEAR_PREFS 1014   /* 1014 Clear All Skill Preferences, 1015 / 1016 Check Highest Skill: companion-only rows */
 
 /* The game can run fullscreen as a topmost SDL window at a resolution smaller
    than the desktop.  Our modal dialogs use DS_CENTER so Windows centers them on
@@ -246,10 +246,11 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
             }
             return TRUE;
         }
-        if (command == ID_VV2_CLEAR_PREFS) {
-            /* Clear All Skill Preferences: the whole purchase happens in the
-               companion (vv_clear_prefs_purchase); the menu stays open. */
-            vv_clear_prefs_purchase(window);
+        if (vv_prefs_kind_of(command, ID_VV2_CLEAR_PREFS) >= 0) {
+            /* Clear All Skill Preferences / Check Highest Skill: the whole
+               purchase happens in the companion (vv_prefs_purchase); the menu
+               stays open. */
+            vv_prefs_purchase(window, vv_prefs_kind_of(command, ID_VV2_CLEAR_PREFS));
             return TRUE;
         }
         if (command >= ID_BUY_FIRST && command <= ID_VV2_BUY_LAST) {
