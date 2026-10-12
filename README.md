@@ -22,6 +22,12 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.71
+
+New in v1.35.71:
+
+- **A waiting custom title can be settled by your answer** (all five games). Check Saves & Logs' question about a custom title that is waiting ("pending") now offers, besides "Keep as is (leave it waiting)": "Give it to <villager>" for each living villager who could be them (the same name, likes, dislikes, head, body and sex, no younger and no less skilled, and holding no other title), and "Remove the title (it is nobody's now)". Repair Saves & Logs carries the answer out in the Custom Titles file with the game closed: a backup first, the file as it was kept in Copies Made Before Repairs, the new file written through a temporary file and read back, and a "Repair" record in the Repairs Made log. The answer is checked again against the file and the save as they are then; if either changed, nothing is changed and the question is asked again. Before, only giving the title again with the Custom Island Event ended the wait.
+
 ## What's new in v1.35.70
 
 New in v1.35.70:

@@ -879,6 +879,153 @@ class FileLevelLoss(Base):
         self.assertEqual([f for f in rc.reconcile(v.folder, 3, 1).questions if f.topic == "titles"], [])
 
 
+class RunningGame(FakeProcesses):
+    def find(self, exe_name):
+        return [1234]
+
+
+class PendingTitleAnswers(Base):
+    """v1.35.71: a contested pending custom title waited until the player re-gave it with the Custom
+    Island Event; the reconciliation question now takes the answer -- give it to a villager who could be
+    them, remove it, or keep it waiting -- and Repair Saves & Logs carries it out in the Custom Titles
+    file (backup, copy kept, atomic write read back, Repairs Made record).  Never a guess: only a
+    villager named in the answer, checked again against the file and the save as they are then."""
+
+    def pending(self, game: int, contested: bool = True, others: list | None = None):
+        import vv_titles_file as tf
+        v = self.village("huttest", game)
+        who = v.people(v.save_path(1).read_bytes())[0]
+        titles = v.folder / DATA / "Custom Titles"
+        titles.mkdir(parents=True)
+        entry = tf.Entry(tf.PENDING, who.title_id, "Helpful Spirit", True, **who.title_looks, contested=contested)
+        path = titles / "Custom Titles - Save 1.dat"
+        path.write_bytes(tf.serialise(game, (others or []) + [entry]))
+        return v, who, path
+
+    def question(self, v: Village, game: int):
+        kind = rc.kind(v.folder, game, 1)
+        mine = [(q, x) for q, x in kind.questions.items() if q.startswith("title-pending|")]
+        self.assertEqual(len(mine), 1, list(kind.questions))
+        return kind, mine[0][0], mine[0][1]
+
+    def settle(self, v: Village, game: int, processes=None):
+        return lambda actions: rc.settle_titles(v.folder, game, 1, actions, processes or FakeProcesses(),
+                                                v.folder.parent / "backup")
+
+    def test_give_it_to_the_one_left_binds_it_in_every_game(self):
+        import vv_titles_file as tf
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                v, who, path = self.pending(game)
+                kind, qid, question = self.question(v, game)
+                self.assertEqual(question.options[0], f"{rc.KEEP} (leave it waiting)")
+                give = [o for o in question.options if o.startswith("Give it to ")]
+                self.assertEqual(len(give), 1, question.options)
+                self.assertIn(who.name, give[0])
+                self.assertIn("Remove the title (it is nobody's now)", question.options)
+                self.assertEqual(question.default, rc.DONT_KNOW)
+                before = path.read_bytes()
+                lines, _ = rc.remember(v.folder, game, 1, [kind], {qid: give[0]}, settle=self.settle(v, game))
+                self.assertTrue(any("Gave the pending custom title \"Helpful Spirit\"" in line for line in lines))
+                _version, entries = tf.read(path.read_bytes(), game)
+                self.assertEqual(len(entries), 1)
+                e = entries[0]
+                self.assertFalse(e.pending)
+                self.assertEqual(e.index, who.record)
+                self.assertFalse(e.contested)
+                self.assertTrue(e.known)
+                self.assertEqual((e.age, e.head, e.body, e.sex), tuple(who.title_looks[k] for k in
+                                                                        ("age", "head", "body", "sex")))
+                # The file as it was is kept; the repair is recorded; the question is gone.
+                copy = v.folder / DATA / "Copies Made Before Repairs" / DATA / "Custom Titles" / \
+                    "Custom Titles - Save 1.dat.before-title-answer"
+                self.assertEqual(copy.read_bytes(), before)
+                repairs = list((v.folder / LOGS / "Save 1").rglob(f"Virtual Villagers {game} Repairs Log *.txt"))
+                self.assertEqual(len(repairs), 1)
+                text = repairs[0].read_bytes().decode("latin-1")
+                self.assertIn(f"Gave the pending custom title \"Helpful Spirit\" to {who.name}", text)
+                self.assertIn("copy kept: Custom Titles - Save 1.dat.before-title-answer", text)
+                self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "titles"])
+
+    def test_remove_the_title_takes_out_only_that_entry(self):
+        import vv_titles_file as tf
+        for game in (1, 3, 5):
+            with self.subTest(game=game):
+                v0 = self.village("huttest", game)
+                other_who = v0.people(v0.save_path(1).read_bytes())[1]
+                other = tf.Entry(other_who.record, other_who.title_id, "Chief", True, **other_who.title_looks)
+                v, who, path = self.pending(game, others=[other])
+                kind, qid, question = self.question(v, game)
+                lines, _ = rc.remember(v.folder, game, 1, [kind], {qid: "Remove the title (it is nobody's now)"},
+                                       settle=self.settle(v, game))
+                self.assertTrue(any("Removed the pending custom title" in line for line in lines))
+                self.assertEqual(path.read_bytes(), tf.serialise(game, [other]))
+                self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "titles"])
+
+    def test_keep_waiting_changes_nothing_and_dont_know_asks_again(self):
+        v, who, path = self.pending(4)
+        before = v.state()
+        titles_before = path.read_bytes()
+        kind, qid, question = self.question(v, 4)
+        self.assertEqual(rc.remember(v.folder, 4, 1, [kind], {qid: rc.DONT_KNOW}, settle=self.settle(v, 4)),
+                         ([], {}))
+        self.assertEqual(v.state(), before)
+        rc.remember(v.folder, 4, 1, [kind], {qid: question.options[0]}, settle=self.settle(v, 4))
+        self.assertEqual(path.read_bytes(), titles_before)
+        self.assertTrue(tools_decisions_kept(v))
+        self.assertFalse([f for f in rc.reconcile(v.folder, 4, 1).questions if f.topic == "titles"])
+
+    def test_a_save_changed_since_the_question_changes_nothing_and_asks_again(self):
+        for game in (2, 4):
+            with self.subTest(game=game):
+                v, who, path = self.pending(game)
+                kind, qid, question = self.question(v, game)
+                give = next(o for o in question.options if o.startswith("Give it to "))
+                original = v.save_path(1).read_bytes()
+                v.write_save(1, v.renamed(original, 0, "Zuri"))
+                before = path.read_bytes()
+                with self.assertRaises(tools.LogToolError):
+                    rc.remember(v.folder, game, 1, [kind], {qid: give}, settle=self.settle(v, game))
+                self.assertEqual(path.read_bytes(), before)
+                self.assertFalse(tools_decisions_kept(v), "no answer kept: asked again")
+
+    def test_refused_while_the_game_runs(self):
+        v, who, path = self.pending(3)
+        kind, qid, question = self.question(v, 3)
+        give = next(o for o in question.options if o.startswith("Give it to "))
+        before = v.state()
+        with self.assertRaises(tools.LogToolError):
+            rc.remember(v.folder, 3, 1, [kind], {qid: give}, settle=self.settle(v, 3, RunningGame()))
+        self.assertEqual(v.state(), before)
+
+    def test_a_villager_with_another_title_is_not_offered(self):
+        import vv_titles_file as tf
+        v0 = self.village("huttest", 5)
+        who0 = v0.people(v0.save_path(1).read_bytes())[0]
+        other = tf.Entry(who0.record, who0.title_id ^ 1, "Chief", True, **who0.title_looks)
+        v, who, path = self.pending(5, others=[other])
+        _kind, _qid, question = self.question(v, 5)
+        self.assertFalse([o for o in question.options if o.startswith("Give it to ")], question.options)
+        self.assertIn("Remove the title (it is nobody's now)", question.options)
+
+    def test_repair_saves_and_logs_carries_the_answer_out(self):
+        import vv_titles_file as tf
+        v, who, path = self.pending(2)
+        kind, qid, question = self.question(v, 2)
+        give = next(o for o in question.options if o.startswith("Give it to "))
+        result = tools.approve_repair(v.folder, 2, 1, FakeProcesses(), chosen=set(), answers={qid: give},
+                                      kinds=[kind], rearm=False)
+        self.assertTrue(any("Helpful Spirit" in line for line in result.answered))
+        e = tf.read(path.read_bytes(), 2)[1][0]
+        self.assertEqual((e.pending, e.index), (False, who.record))
+        self.assertFalse([f for f in rc.reconcile(v.folder, 2, 1).questions if f.topic == "titles"])
+
+
+def tools_decisions_kept(v: Village) -> bool:
+    import vv_log_decisions as decisions
+    return any(d.get("kind") == rc.DECISION_KIND for d in decisions.load(v.folder, v.game, 1))
+
+
 class EverywhereTheVillageIsOpened(Base):
     def test_check_saves_and_logs_shows_every_question_and_writes_nothing(self):
         v = self.village("huttest", 2)
