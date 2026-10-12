@@ -39,7 +39,8 @@ Fixes from an audit of v1.35.67 to v1.35.69:
 
 ## What was new in v1.35.69
 
-- **A New Home: a village started through the intro's Skip button now writes its logs at once.** Before, its Births and Conceptions, Population, History and Statistics logs appeared only at the first quit (the game never sets that village's start time on that path, so its autosave skipped it). The patcher now makes the same save the quit makes, once, as soon as the village is on screen with its founders waiting.
+- Download replaced on 2026-10-11: wording corrected (no Skip button: the hidden F1 key); no behaviour changed.
+- **A New Home: a village started by pressing F1 on the Start / "?" screen of a new village now writes its logs at once.** (F1 there is a hidden key, apparently a leftover developer shortcut; the game has no Skip button.) Before, its Births and Conceptions, Population, History and Statistics logs appeared only at the first quit (the game never sets that village's start time on that path, so its autosave skipped it). The patcher now makes the same save the quit makes, once, as soon as the village is on screen with its founders waiting.
 - **A two-choice Custom Island Event question on screen when you quit is kept** (all five games): after the next load it is asked again, answered once, and the tech points are charged once.
 - **One place for the "Retroactively edit records? No" answers.** The contradictions you chose to leave alone now share the Log Decisions file with the other answers; the older "Contradictions Left" file is still read, and never written again.
 - **Move Old Files** also leaves a short note in the Repairs Made log of every save slot whose files it moved.
@@ -49,7 +50,7 @@ Fixes from an audit of v1.35.67 to v1.35.69:
 - **NOTE when updating from v1.35.68:** a Custom Island Event or Pick Island Event that you bought but that has not been delivered yet is **discarded** when you update to v1.35.69 (the saved queue layout changed; the tech points stay spent). **Deliver pending purchases before updating.**
 - **Patch every game again** after updating: the Cause of Death, Story Upgrades and Origins companions changed.
 
-**Not yet seen in a running game:** the Skip-button creation save (checked by emulation and the harness only; it is item B1 of docs/LIVE-CHECKLIST.md -- it calls the game's own save routine, so watch for a freeze in the first seconds); the two-choice question coming back after a quit in each game; several changes to one villager in one Custom Island Event; Move Old Files' per-slot notes; and everything still on the list under v1.35.66, which is carried in docs/LIVE-CHECKLIST.md.
+**Not yet seen in a running game:** the creation save for a village started with the hidden F1 key on the Start / "?" screen (checked by emulation and the harness only; it is item B1 of docs/LIVE-CHECKLIST.md -- it calls the game's own save routine, so watch for a freeze in the first seconds); the two-choice question coming back after a quit in each game; several changes to one villager in one Custom Island Event; Move Old Files' per-slot notes; and everything still on the list under v1.35.66, which is carried in docs/LIVE-CHECKLIST.md.
 
 
 ## What was new in v1.35.68

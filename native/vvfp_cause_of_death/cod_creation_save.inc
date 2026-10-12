@@ -7,7 +7,7 @@
      A New Home      the creation's save-all (0x41BF70) skips the village
                      slot until the village's start time [manager+0x9E1C] is
                      set (0x41BF7D); the reset 0x41C000 zeroes it and the
-                     start-or-skip scene's button (0x41EC40) sets it.  The
+                     Start / "?" scene's Start button (0x41EC40) sets it.  The
                      first village of a fresh folder wrote no log at all
                      until the first quit.
      The Tree of Life  the name dialog (0x4193F0), a new player (0x418B80)
@@ -33,8 +33,10 @@
    ahead of a load (the slot list, 0x41D160 / 0x41D260), so there the save
    is asked only for a village that started in the last few minutes of its
    own clock (0x402F70, seconds): a loaded village is never saved for it.
-   A village whose start time is never set -- A New Home's skip button
-   (0x41F480, scene 2's command 0x3FA: hide the scene, set the scene to the
+   A village whose start time is never set -- A New Home's hidden F1 key on
+   the Start / "?" screen of a new village, apparently a leftover developer
+   shortcut; there is no Skip button (0x41F480, scene 2's command 0x3FA:
+   hide the scene, set the scene to the
    village, never touch [manager+0x9E1C]) -- is saved by the autosave never:
    the save-all above skips the slot while the start time is 0.  The game
    saves such a village only in the quit routine (0x41B230), which calls the
@@ -163,7 +165,7 @@ static int creation_save_tick(void) {
         creation_skip_slot = 0;
     }
     if (start == 0u) {
-        /* A New Home's skip button: the village is never started, so the
+        /* A New Home's hidden F1 key: the village is never started, so the
            game's save-all would skip its slot.  Save it the way the quit does. */
         if (g_game != 1 || !pending || creation_skip_slot == slot) {
             return 0;

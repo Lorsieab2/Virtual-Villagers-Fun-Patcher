@@ -789,6 +789,26 @@ was given.
   older; the autosave would have to fall in exactly that window.
 - **Status:** approved behaviour (consequence of G1).
 
+### G10. A New Home's hidden F1 key jumps into the village
+
+- **Behaviour:** Pressing F1 on the splash screen, on the help-picture screen,
+  or on the Start / "?" screen of a new village jumps straight into the
+  village. On the new-village screen it also skips setting the village's start
+  time, so the game's autosave leaves that village alone until the first quit
+  (the Cause of Death companion saves it once for its logs; see
+  `docs/LIVE-CHECKLIST.md`, B1). There is no Skip button; earlier notes
+  that named one meant this key.
+- **Game(s) / subsystem:** A New Home (VV1). Intro screens: the splash
+  (0x431700), the help picture (0x41E410) and the new-village screen
+  (0x41F480).
+- **Conditions:** F1 pressed on one of those screens.
+- **Decision source:** Owner, 2026-10-11 (there is no Skip button).
+- **Evidence:** Static analysis only (the three handlers in the game code); a
+  live check is pending. Apparently a leftover developer key.
+- **Exceptions:** A village entered by clicking Start that is not saved by the
+  autosave would be a defect.
+- **Status:** non-bug (game behaviour).
+
 ---
 
 ## Island Events
