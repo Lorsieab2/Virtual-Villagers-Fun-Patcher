@@ -13,7 +13,10 @@ Believers with 150 Heathens), before and after:
   - The Secret City's mask lookup fingerprinted every record for every
     villager drawn, masked or not (about 1.1 ms a frame).  A villager with
     no mask stored under their identity now answers at once (about 18 us a
-    frame for an unmasked village); the answer is the same.
+    frame for an unmasked village); the answer is the same.  With every
+    villager masked it still hashed every record per villager drawn (about
+    1.4 ms); v1.35.71 re-reads them and hashes only a record whose identity
+    bytes changed (about 0.43 ms), every answer the full scan's.
   - The Lost Children's route descent translated the whole 168 x 168 field
     on every waypoint (about 6 us a call); it now translates the few cells
     it reads (about 0.1 us), with every waypoint the same.
@@ -105,6 +108,14 @@ class OriginsCompanionFrameCostTests(_Work):
                 self.assertEqual(run.returncode, 0, run.stdout)
                 self.assertIn("no file is opened or probed in 200 frames without masks (0)", run.stdout)
                 self.assertIn("no file is opened or probed in 200 frames with masks (0)", run.stdout)
+                if game == 3:
+                    # v1.35.71: every villager masked was about 1.4 ms a frame.
+                    self.assertIn("ok   The Secret City, every villager masked, costs under 1 ms", run.stdout)
+                    self.assertIn("ok   a masked frame with no change hashes no record again (0)", run.stdout)
+                    self.assertIn("ok   a rename hashes that one record again (1)", run.stdout)
+                    self.assertIn("ok   every mask answer is the full scan's over births, deaths, reloads, "
+                                  "renames and twins (0 differ)", run.stdout)
+                    self.assertIn("ok   the story reaches masked villagers and twin groups", run.stdout)
 
     def test_the_secret_city_answers_an_unmasked_villager_without_the_live_scan(self):
         source = (NATIVE / "vv3_full_mastery_candidate" / "vv3_full_mastery_candidate.c").read_text(
@@ -112,7 +123,27 @@ class OriginsCompanionFrameCostTests(_Work):
         getter = source[source.index("int __stdcall VV3_GetMaskForRecord(void *record)"):]
         getter = getter[:getter.index("\n}\n")]
         self.assertLess(getter.index("vv3_mask_has_stored_fingerprint(fpv)"),
-                        getter.index("vv3_mask_unique_live_index(fpv)"))
+                        getter.index("vv3_mask_live_refresh()"))
+
+    def test_the_secret_city_masked_lookup_hashes_only_a_changed_record(self):
+        """v1.35.71: the getter's live scan no longer hashes every record per villager drawn."""
+        source = (NATIVE / "vv3_full_mastery_candidate" / "vv3_full_mastery_candidate.c").read_text(
+            encoding="utf-8", errors="replace")
+        getter = source[source.index("int __stdcall VV3_GetMaskForRecord(void *record)"):]
+        getter = getter[:getter.index("\n}\n")]
+        self.assertNotIn("vv3_mask_unique_live_index(fpv)", getter)
+        self.assertNotIn("vv3_mask_live_fingerprint_count(fpv)", getter)
+        self.assertLess(getter.index("slots = vv3_mask_live_refresh();"),
+                        getter.index("vv3_mask_unique_live_index_in(fpv, slots)"))
+        refresh = source[source.index("static int vv3_mask_live_refresh(void) {"):]
+        refresh = refresh[:refresh.index("\n}\n")]
+        # Every record, every call; every byte the fingerprint reads is compared.
+        self.assertIn("for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {", refresh)
+        self.assertIn("memcmp(c->name, rec + VV3_NAME, VV3_NAME_LEN)", refresh)
+        self.assertIn("c->gender != rec[VV3_GENDER]", refresh)
+        for k in range(6):
+            self.assertIn(f"c->prefs[{k}] != prefs[{k}]", refresh)
+        self.assertIn("if (slots != g_vv3_live_slots || base != g_vv3_live_base) {", refresh)
 
 
 class CauseTickCostTests(_Work):
