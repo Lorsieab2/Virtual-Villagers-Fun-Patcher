@@ -60,8 +60,8 @@ CHECKS += 5
 # changed since; the owner's Cheop Bahati and Hoani Chuchip), arrival_harness.c renamed_cases
 CHECKS += 7 * 5
 # The logs at village creation (arrival_harness.c creation_save_cases): 9 in The Tree of Life and
-# New Believers (8, and the skip path's direct save is never made for a started village), 12 in A
-# New Home (a village started long ago is a load; the intro's Skip button leaves the start time at 0
+# New Believers (8, and the F1 path's direct save is never made for a started village), 12 in A
+# New Home (a village started long ago is a load; the hidden F1 key on the Start / "?" screen leaves the start time at 0
 # and the slot is saved directly, once, and again for a second village in the slot), 2 in The Lost
 # Children and The Secret City (never asked).
 CHECKS += 9 * 2 + 12 + 2 * 2

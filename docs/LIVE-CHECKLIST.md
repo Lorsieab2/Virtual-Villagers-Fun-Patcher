@@ -116,19 +116,22 @@ item is moved out of this file by a live pass, not by a test.
 
 ## B. Changes made after v1.35.68 (this branch): nothing here has run live
 
-1. **A New Home: the village started through the intro's Skip button.** Before: its logs
-   appeared only at the first quit (the village's start time is never set on that path,
-   so the game's autosave skips it). Now the Cause of Death companion makes the same
-   slot save the quit makes, once, the first frame the village is on screen with its
-   founders waiting.
-   Steps (1 only; 2-5 have no such path): a **fresh save folder**, launch, click the
-   intro's **Skip** button (the one that jumps past the story and the Start / "?"
-   choice), then **do not quit**. Expect within a second or two: the Births and
-   Conceptions log with "Arrived 1..6, How: Founder", the Population, History and
-   Statistics files, all under `Logs\Save 1\`, written before any quit. Then Start Over
-   in that slot and Skip again: the new founders are written again. Then quit and relaunch:
-   no duplicate Arrived records, no "Cross-Check - Save 5.dat" for another slot.
-   Also check the Start path still works (click Start, not Skip): same logs, written
+1. **A New Home: the village started with the hidden F1 key.** There is no Skip button:
+   pressing F1 on the Start / "?" screen of a new village (a hidden key, apparently a
+   leftover developer shortcut; 0x41F480) jumps into the village without setting its
+   start time. Before: its logs appeared only at the first quit (the village's start
+   time is never set on that path, so the game's autosave skips it). Now the Cause of
+   Death companion makes the same slot save the quit makes, once, the first frame the
+   village is on screen with its founders waiting.
+   Steps (1 only; 2-5 have no such path): a **fresh save folder**, launch, go through
+   the intro to the screen with the **Start** and **"?"** buttons, and there press
+   **F1** instead of clicking a button; then **do not quit**. Expect within a second or
+   two: the Births and Conceptions log with "Arrived 1..6, How: Founder", the
+   Population, History and Statistics files, all under `Logs\Save 1\`, written before
+   any quit. Then Start Over in that slot and press F1 on that screen again: the new
+   founders are written again. Then quit and relaunch: no duplicate Arrived records,
+   no "Cross-Check - Save 5.dat" for another slot.
+   Also check the Start path still works (click Start, not F1): same logs, written
    once.
    Look for: the game freezing or crashing in the first seconds (a direct call to the
    game's save), a second set of founders, logs under the wrong "Save <n>".
