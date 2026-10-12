@@ -588,6 +588,24 @@ class FileLevelLoss(Base):
                 if len(twins) == 1:
                     self.assertTrue(any(f.topic == "rename" and "says Zuri" in f.text for f in rec.questions), texts)
 
+    def test_a_save_older_than_the_latest_snapshot_is_still_compared_with_it(self):
+        """Review of #585: a save restored with its old time, older than the latest History snapshot,
+        was never compared with it -- a villager the restore lost went unasked."""
+        for tag, game in CASES[:5]:
+            with self.subTest(game=game):
+                v = self.village(tag, game)
+                data = v.save_path(1).read_bytes()
+                people = v.people(data)
+                ghost = rc.Seen("Ghosty", 1, 2, "Male", 300, frozenset(), frozenset())
+                os.utime(v.save_path(1), (time.time() - 10 * 86400,) * 2)       # restored, old time kept
+                v.history([("2099-01-01 00:00:00", [aged(s, 5) for s in people] + [ghost])])
+                rec = rc.reconcile(v.folder, game, 1)
+                texts = [f.text for f in rec.questions]
+                self.assertTrue(any(f.topic == "lost" and "Ghosty" in f.text for f in rec.questions), texts)
+                self.assertTrue(any(f.topic == "file" and "older than the latest Village History" in f.text
+                                    for f in rec.questions), texts)
+                self.assertFalse([f for f in rec.questions if f.topic == "age"], "the restore is one file question")
+
     def test_a_log_shrunk_below_its_copy_a_missing_file_and_a_cut_record(self):
         for tag, game in CASES[:5]:
             with self.subTest(game=game):

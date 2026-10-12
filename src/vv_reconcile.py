@@ -567,7 +567,11 @@ class _Builder:
         return None
 
     # -- one roster to the next ------------------------------------------------------------------
-    def compare(self, a: Census, b: Census, bodies: list[Seen] | None = None) -> None:
+    def compare(self, a: Census, b: Census, bodies: list[Seen] | None = None, restored: bool = False) -> None:
+        """b after a.  `restored`: b is the save and OLDER than the snapshot a (a save restored from an
+        older copy, its time kept): the save going back in time is files()'s one question, so ages and
+        villagers new to the save are not looked at; everything else -- a villager gone, likes,
+        parents, looks -- is."""
         pairs, gone, new = _pair(a.people, b.people)
         game = self.game
         a_one_word, b_one_word = one_word_writer(a), one_word_writer(b)
@@ -576,8 +580,8 @@ class _Builder:
             # it and a later villager took it, or a load packed the records (the owner's village at 256).
             held = {s.rank: s.key for s in a.people if s.rank is not None}
             self.slot_reused += sum(1 for s in b.people if s.rank in held and held[s.rank] != s.key)
-        backs = [(old, now) for old, now in pairs
-                 if old.age is not None and now.age is not None and now.age < old.age]
+        backs = [] if restored else [(old, now) for old, now in pairs
+                                     if old.age is not None and now.age is not None and now.age < old.age]
         if len(backs) >= 3 and len(backs) * 2 >= len(pairs):
             # The whole village went back in time: one question, not one per villager.
             o, n = backs[0]
@@ -698,7 +702,7 @@ class _Builder:
                      f"{old.described()} is in {a.label} but not in {b.label}, and no Death, Disappeared, Left "
                      "the tribe or Unaccounted record says what became of them: possibly lost.",
                      [f"{KEEP} (they left or died without a record)"])
-        for n in unexplained_new:
+        for n in [] if restored else unexplained_new:
             if n.key in self.recorded or (b.kind == "history" and a.kind != "history"):
                 continue
             if n.age is not None and n.age < 3 * 20 and self.game == 1:
@@ -1012,8 +1016,9 @@ def reconcile(folder: Path, game: int, slot: int) -> Reconciliation:
         snap = history[-1]
         now = Census(f"the save {current_path.name} ({_when(current_path)})", _when(current_path), "save", living,
                      current_path)
-        if snap.when <= now.when:
-            b.compare(snap, now, bodies_now)
+        # A save older than the latest snapshot (restored with its time kept) is compared too (review of
+        # #585): a villager, a like, a parent or the looks the restore lost are asked about.
+        b.compare(snap, now, bodies_now, restored=snap.when > now.when)
     sources.append(f"{len(logs.births)} Birth, {len(logs.arrivals)} Arrived, {len(logs.departures)} Death / "
                    f"Disappeared / Left / Unaccounted, {len(logs.looks_changed)} Appearance changed, "
                    f"{len(logs.names_changed)} Name changed record(s); {len(logs.files)} log file(s)")

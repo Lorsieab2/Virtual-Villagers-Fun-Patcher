@@ -112,6 +112,7 @@ static sq_file sq_written;
 static int sq_written_known;
 static int sq_foreign;                      /* the file is ANOTHER village's: this array is not where the purchase was bought */
 static sq_file sq_inherited;                /* ...and what was already queued in memory when that array came on screen */
+static unsigned int sq_inherited_bits;      /* those items while they are still unchanged: never this array's */
 static ce_choice sq_choice_buf;            /* a question, read or written with the record */
 
 static const char *const SQ_SAVE_STEMS[6] = {
@@ -474,6 +475,7 @@ static void sq_sync(int game, int lazy) {
         memcpy(sq_roster, roster, sizeof roster);
         sq_blocked = 0;
         sq_foreign = 0;
+        sq_inherited_bits = 0u;
         memset(&sq_written, 0, sizeof sq_written);
         sq_written_known = 1;
         read = sq_read(game, slot, &file, &sq_choice_buf);
@@ -510,6 +512,7 @@ static void sq_sync(int game, int lazy) {
                    this array queues something of its own. */
                 sq_foreign = 1;
                 sq_capture(game, &sq_inherited);
+                sq_inherited_bits = sq_inherited.have & (SQ_PICK | SQ_CUSTOM | SQ_GONG | SQ_SKIP);
             }
         } else if (read != 0) {
             sq_remove(game, slot);          /* malformed or another layout: nothing it says can be used */
@@ -520,18 +523,31 @@ static void sq_sync(int game, int lazy) {
     }
     memcpy(sq_roster, roster, sizeof roster);
     sq_capture(game, &sq_now_state);
-    if (sq_foreign) {
-        /* Only an item this array queued itself is its own: what was in memory
-           when it came on screen is the other village's, and neither written
-           nor, when it goes, taken to have been delivered. */
-        unsigned int own = 0u;
-        for (bit = SQ_PICK; bit <= SQ_SKIP; bit <<= 1) {
-            if ((sq_now_state.have & bit) && sq_item_differs(&sq_now_state, &sq_inherited, bit)) {
-                own |= bit;
-            }
+    /* Only an item this array queued itself is its own: what was in memory
+       when it came on screen is the other village's, and is never written --
+       not while the file is still the other village's, and not once this array
+       queues something of its own and the file becomes its (review of #585:
+       the file then took both villages' items, and the first village's paid
+       purchase could be restored or delivered in the second).  An item stops
+       being inherited once it changes or goes. */
+    for (bit = SQ_PICK; bit <= SQ_SKIP; bit <<= 1) {
+        if (!(sq_inherited_bits & bit)) {
+            continue;
         }
-        if (own == 0u) {
-            return;
+        if ((sq_now_state.have & bit)
+            && (!sq_item_differs(&sq_now_state, &sq_inherited, bit)
+                || (bit == SQ_CUSTOM && sq_custom_only_asked_differs(&sq_now_state, &sq_inherited)))) {
+            sq_now_state.have &= ~bit;      /* still the other village's purchase */
+            if (bit == SQ_CUSTOM) {
+                sq_now_state.have &= ~SQ_ASKED;
+            }
+        } else {
+            sq_inherited_bits &= ~bit;
+        }
+    }
+    if (sq_foreign) {
+        if (sq_now_state.have == 0u) {
+            return;                         /* nothing of its own: the file stays the other village's */
         }
         sq_foreign = 0;                     /* it queued something: the file is its own now */
     }

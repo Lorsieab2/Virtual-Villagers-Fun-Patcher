@@ -143,14 +143,17 @@ class PurchaseTests(unittest.TestCase):
         poor = b.index('"Not enough tech points."')
         apply = b.index("vv4_skill_pref_scan(kind, 1,")
         charge = b.index("0x41E300")
+        # The tech points first (review of #585): a refused purchase changes nothing, not even a
+        # corrupted skill; then the dry run, nobody eligible, nothing to change, apply, charge.
+        self.assertLess(poor, b.index("vv4_repair_skills("))
+        self.assertLess(poor, dry)
         self.assertLess(dry, none)
         self.assertLess(none, same)
-        self.assertLess(same, poor)
-        self.assertLess(poor, apply)
+        self.assertLess(same, apply)
         self.assertLess(apply, charge)
         self.assertIn("Every villager already has their highest skill checked. "
                       "No tech points have been deducted.", re.sub(r'"\s*\n\s*"', "", b))
-        for section in (b[none:same], b[same:poor], b[poor:apply]):
+        for section in (b[poor:dry], b[none:same], b[same:apply]):
             self.assertIn("return 0;", section)
 
     def test_result_wording(self) -> None:
