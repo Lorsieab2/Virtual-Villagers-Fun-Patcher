@@ -613,6 +613,7 @@ static int vv1_follow_roster(const vv1_occupant *now) {
        another record while theirs is empty, is a move; a birth into an empty
        record, a death, or a newborn in a departed villager's record is not. */
     int repacked = 0;
+    int back = 0;                 /* a departed villager is on screen again */
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         if (!g_roster[j].gender || g_roster[j].departed) {
             continue;
@@ -634,6 +635,7 @@ static int vv1_follow_roster(const vv1_occupant *now) {
             if (at != j) {
                 repacked = 1;
             }
+            back |= g_roster[at].departed;
         }
     }
     /* Two villagers who share gender, family scalar and name -- the owner's
@@ -714,7 +716,9 @@ static int vv1_follow_roster(const vv1_occupant *now) {
     memcpy(g_session_stash, stashed, sizeof(stashed));
     memcpy(g_entries, moved, sizeof(g_entries));
     memcpy(g_roster, kept, sizeof(g_roster));
-    return repacked;
+    /* A departed villager back in the very record they were kept under is no new occupant either: the
+       caller drops the per-frame snapshot, whose empty record would read her as an arrival. */
+    return repacked || back;
 }
 
 /* Is the table in step with the villagers on screen: every occupied record
@@ -723,8 +727,8 @@ static int vv1_follow_roster(const vv1_occupant *now) {
 static int vv1_roster_in_step(const vv1_occupant *now) {
     int j;
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
-        if (now[j].gender && !vv1_same_occupant(&g_roster[j], &now[j])) {
-            return 0;
+        if (now[j].gender && (!vv1_same_occupant(&g_roster[j], &now[j]) || g_roster[j].departed)) {
+            return 0;       /* somebody new, or a departed villager back in the record they were kept under */
         }
         if (!now[j].gender && g_roster[j].gender && !g_roster[j].departed) {
             return 0;           /* a death: the roster marks the record departed */
