@@ -959,11 +959,20 @@ class _Builder:
         if others:
             whom += (" Not them (the same name and likes, another head, body or sex, or younger or less skilled): "
                      + "; ".join(v.described() for v in others) + ".")
+        if e.contested:
+            after = ("While it waited, two or more villagers could be them at once, so the game will NOT give it "
+                     "back by itself, even if only one of them is left now (the others died or left): which one "
+                     "had it can not be told, and it is never guessed. If it is theirs, give it to them again with "
+                     "the Custom Island Event's title; until then it waits.")
+            if len(could) == 1:
+                after = f"The one left who could be them: {could[0].name}. " + after
+        else:
+            after = ("The game gives it back by itself once exactly one villager has that whole identity; until "
+                     "then it waits.")
         self.ask("titles", f"title-pending|{e.identity:08X}|{e.title}",
                  f"The custom title \"{e.title}\" is PENDING in {path.name}: after a load the game could not tell "
                  f"which villager it belongs to, so it is kept, shown on nobody -- never dropped. It is kept for "
-                 f"{kept}. {whom} The game gives it back by itself once exactly one villager has that whole "
-                 "identity; until then it waits.", [f"{KEEP} (leave it waiting)"])
+                 f"{kept}. {whom} {after}", [f"{KEEP} (leave it waiting)"])
     def slot_file_of(self, path: Path) -> bool:
         """Whether a file belongs to this game and slot (or to the game's shared logs)."""
         name = path.name

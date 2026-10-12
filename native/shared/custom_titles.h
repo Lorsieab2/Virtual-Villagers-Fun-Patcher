@@ -23,6 +23,9 @@
  *         u32 flags: bit 0 VV_TITLE_KNOWN = the looks below were read from
  *             the villager (0: not yet -- an entry carried over from a
  *             version 2 file -- and the looks are all 0)
+ *             bit 1 VV_TITLE_CONTESTED = pending only: while it waited,
+ *             two or more villagers could be them at once, so the companion
+ *             never binds it again by itself (the reconciliation asks)
  *         i32 age, i32 head, i32 body, i32 sex (the record's own values)
  *         u32 skills[VV_TITLE_SKILLS] (the record's own dwords: ints in A New
  *             Home to The Secret City, floats in The Tree of Life and New
@@ -48,8 +51,12 @@
  * again once exactly one present villager has the whole stored identity --
  * the fingerprint, the same head, body and sex, and an age and every skill no
  * lower than stored (a villager only grows older and more skilled) -- and no
- * other entry claims that villager.  The read-only reconciliation asks the
- * player about every pending title (src/vv_reconcile.py).  The stored age and
+ * other entry claims that villager.  NEVER A GUESS (the owner): a pending
+ * title that two or more villagers could be at once is CONTESTED, and when
+ * the others later die or leave, the one left is not taken for them -- that
+ * would be a guess -- so a contested title waits for the player.  The
+ * read-only reconciliation asks the player about every pending title,
+ * naming who could be them (src/vv_reconcile.py).  The stored age and
  * skills are the values the companion first saw the villager with in the
  * session (the save's own, so a later save never holds less).
  *
@@ -70,6 +77,8 @@
 #define VV_TITLE_SKILLS 6               /* New Believers has six skills, the others five */
 #define VV_TITLE_PENDING 0xFFFFFFFFu
 #define VV_TITLE_KNOWN 1u
+#define VV_TITLE_CONTESTED 2u           /* pending only: two or more could be them while it waited */
+#define VV_TITLE_FLAGS (VV_TITLE_KNOWN | VV_TITLE_CONTESTED)
 #define VV_TITLES_HEADER 16u
 #define VV_TITLES_ENTRY 84u
 #define VV_TITLES_ENTRY_2 40u
@@ -225,7 +234,8 @@ static int vv_titles_validate(const unsigned char *data, DWORD len, void *ctx) {
         }
         if (version == VV_TITLES_VERSION) {
             unsigned int flags = vv_titles_u32(e + 8);
-            if ((flags & ~VV_TITLE_KNOWN) != 0) {
+            if ((flags & ~VV_TITLE_FLAGS) != 0
+                || ((flags & VV_TITLE_CONTESTED) && index != VV_TITLE_PENDING)) {
                 return 0;
             }
             if (!(flags & VV_TITLE_KNOWN)) {
@@ -280,11 +290,12 @@ static DWORD vv_titles_serialise(int game, const vv_custom_title *entries, int c
     memcpy(out, header, sizeof header);
     for (i = 0; i < count; ++i) {
         unsigned char *e = out + VV_TITLES_HEADER + (unsigned int)i * VV_TITLES_ENTRY;
-        unsigned int flags = entries[i].flags & VV_TITLE_KNOWN;
+        unsigned int flags = entries[i].flags
+            & (entries[i].index == VV_TITLE_PENDING ? VV_TITLE_FLAGS : VV_TITLE_KNOWN);
         memcpy(e, &entries[i].index, 4);
         memcpy(e + 4, &entries[i].fingerprint, 4);
         memcpy(e + 8, &flags, 4);
-        if (flags) {
+        if (flags & VV_TITLE_KNOWN) {
             memcpy(e + 12, &entries[i].looks, sizeof entries[i].looks);
         } else {
             memset(e + 12, 0, sizeof entries[i].looks);

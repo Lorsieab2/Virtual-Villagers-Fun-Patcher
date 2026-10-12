@@ -381,10 +381,14 @@ static int titles_candidates(int game, const vv_custom_title *e, int *where, int
    change in the roster, or the periodic check (`resolve`) -- only when
    exactly one present villager has its whole identity and no other entry
    claims that villager; until then it waits, and the read-only
-   reconciliation asks the player (src/vv_reconcile.py).  Two cases are not
+   reconciliation asks the player (src/vv_reconcile.py).  NEVER A GUESS (the
+   owner): an entry that two or more villagers could be at once is marked
+   CONTESTED (custom_titles.h), and when the others later die or leave it is
+   NOT given to the one left -- it waits for the player.  Two cases are not
    ambiguous: after a move within the session, an entry whose villager was
-   seen this session (`seen`) and that nobody present can be any more is a
-   villager who died, and is dropped as the death sweep would; and an entry
+   seen this session (`seen`) and whose name and likes nobody present carries
+   any more is a villager who died, and is dropped as the death sweep would
+   (a namesake who is not them leaves it pending instead); and an entry
    whose fingerprint NOBODY present carries (the villager away, or gone) stays
    on its record, shown on nobody there, for the sweep to judge -- unless
    another entry's villager is in that record now, when it waits pending.
@@ -400,7 +404,7 @@ static int titles_follow(int game, int moved, int sweep, int resolve) {
     /* First where everyone is, before anything moves: an entry's old record
        may be the new record of an entry not yet looked at. */
     for (i = 0; i < titles.count; ++i) {
-        const vv_custom_title *e = &titles.entries[i];
+        vv_custom_title *e = &titles.entries[i];
         int where = -1;
         int carriers = 0;
         int n;
@@ -411,10 +415,18 @@ static int titles_follow(int game, int moved, int sweep, int resolve) {
             continue;                         /* nothing moved: a bound entry stays, the sweep judges it */
         }
         n = titles_candidates(game, e, &where, &carriers);
-        if (n == 1) {
+        if (n >= 2 && !(e->flags & VV_TITLE_CONTESTED)) {
+            /* Two or more could be them at once: whoever is left later
+               (the others died or left) is not taken for them -- a guess. */
+            e->flags |= VV_TITLE_CONTESTED;
+            changed = 1;
+        }
+        if (n == 1 && e->index == VV_TITLE_PENDING && (e->flags & VV_TITLE_CONTESTED)) {
+            target[i] = -1;                   /* one left of several: the player decides, never a guess */
+        } else if (n == 1) {
             target[i] = where;
-        } else if (n == 0 && moved && sweep && titles.seen[i] && e->index != VV_TITLE_PENDING) {
-            drop[i] = 1;                      /* seen this session, nobody can be them now: died */
+        } else if (n == 0 && carriers == 0 && moved && sweep && titles.seen[i] && e->index != VV_TITLE_PENDING) {
+            drop[i] = 1;                      /* seen this session, nobody carries their name and likes now: died */
         } else if (carriers == 0 && e->index != VV_TITLE_PENDING) {
             target[i] = -3;                   /* nobody carries it: away or gone, the sweep judges */
         } else {

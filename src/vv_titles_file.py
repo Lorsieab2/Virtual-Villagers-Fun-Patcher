@@ -24,6 +24,7 @@ TITLE_BYTES, TITLES_MAX = 32, 256
 SKILLS = 6
 PENDING = 0xFFFFFFFF
 KNOWN = 1
+CONTESTED = 2      # pending only: two or more villagers could be them at once; the game never binds it again
 SLOTS = {1: 256, 2: 256, 3: 256, 4: 256, 5: 256}   # the most records any build of the game has
 
 # Where each game keeps the looks in a SAVED villager, relative to the name (the record's own fields:
@@ -49,6 +50,7 @@ class Entry:
     body: int = 0
     sex: int = 0
     skills: tuple = field(default=(0,) * SKILLS)   # raw dwords
+    contested: bool = False                 # pending, and two or more could be them while it waited
 
     @property
     def pending(self) -> bool:
@@ -100,11 +102,13 @@ def read(data: bytes, game: int, slots: int | None = None) -> tuple[int, list[En
         title = e[size - TITLE_BYTES:].split(b"\0", 1)[0].decode("ascii")
         if version == VERSION:
             flags = struct.unpack_from("<I", e, 8)[0]
-            if flags & ~KNOWN or (not flags & KNOWN and any(e[12:52])):
+            if flags & ~(KNOWN | CONTESTED) or (flags & CONTESTED and index != PENDING) \
+                    or (not flags & KNOWN and any(e[12:52])):
                 return None
             age, head, body, sex = struct.unpack_from("<4i", e, 12)
             skills = struct.unpack_from(f"<{SKILLS}I", e, 28)
-            out.append(Entry(index, identity, title, bool(flags & KNOWN), age, head, body, sex, tuple(skills)))
+            out.append(Entry(index, identity, title, bool(flags & KNOWN), age, head, body, sex, tuple(skills),
+                             bool(flags & CONTESTED)))
         else:
             out.append(Entry(index, identity, title))
         if index != PENDING:
@@ -120,7 +124,8 @@ def entry_bytes(e: Entry, version: int = VERSION) -> bytes:
         return struct.pack("<II", e.index, e.identity) + title
     looks = struct.pack("<4i", e.age, e.head, e.body, e.sex) + struct.pack(f"<{SKILLS}I", *e.skills) \
         if e.known else bytes(40)
-    return struct.pack("<III", e.index, e.identity, KNOWN if e.known else 0) + looks + title
+    flags = (KNOWN if e.known else 0) | (CONTESTED if e.contested and e.pending else 0)
+    return struct.pack("<III", e.index, e.identity, flags) + looks + title
 
 
 def serialise(game: int, entries: list[Entry], version: int = VERSION) -> bytes:

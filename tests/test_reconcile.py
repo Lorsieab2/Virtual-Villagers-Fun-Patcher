@@ -779,6 +779,41 @@ class FileLevelLoss(Base):
         self.assertIn("Not them (the same name and likes, another head, body or sex, or younger or less "
                       "skilled): Kai (Male, head 3, body 4, age 200).", asked[0].text)
 
+    def test_a_contested_pending_title_offers_the_one_left_and_is_never_guessed(self):
+        """v1.35.70, the owner: a pending title that two or more villagers could be at once is CONTESTED;
+        when the others die or leave, the one left is not taken for them by the game (a guess).  The
+        question names the one left as the candidate and says the game will not give it back by itself.
+        All five games."""
+        import vv_titles_file as tf
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                v = self.village("huttest", game)
+                who = v.people(v.save_path(1).read_bytes())[0]
+                titles = v.folder / DATA / "Custom Titles"
+                titles.mkdir(parents=True)
+                entry = tf.Entry(tf.PENDING, who.title_id, "Helpful Spirit", True, **who.title_looks,
+                                 contested=True)
+                data = tf.serialise(game, [entry])
+                self.assertEqual(struct.unpack_from("<I", data, 16 + 8)[0], tf.KNOWN | tf.CONTESTED)
+                self.assertTrue(tf.read(data, game)[1][0].contested)
+                (titles / "Custom Titles - Save 1.dat").write_bytes(data)
+                asked = [f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "titles"]
+                self.assertEqual(len(asked), 1, [f.text for f in asked])
+                self.assertIn('"Helpful Spirit" is PENDING', asked[0].text)
+                self.assertIn(f"The one left who could be them: {who.name}.", asked[0].text)
+                self.assertIn("the game will NOT give it back by itself", asked[0].text)
+                self.assertNotIn("gives it back by itself", asked[0].text)
+
+    def test_contested_is_only_for_a_pending_title(self):
+        """The file a bound entry marked contested is refused, as the companion refuses it."""
+        import vv_titles_file as tf
+        e = tf.Entry(3, 0x1234, "Chief", contested=True)
+        data = tf.serialise(1, [e])
+        self.assertEqual(struct.unpack_from("<I", data, 16 + 8)[0], 0)     # never written for a bound entry
+        raw = bytearray(data)
+        struct.pack_into("<I", raw, 16 + 8, tf.CONTESTED)
+        self.assertIsNone(tf.read(bytes(raw), 1))
+
     def test_an_old_version_2_titles_file_still_reads(self):
         """A version 2 file (v1.35.58-v1.35.69) is still read: its bound title is no question."""
         v = self.village("huttest", 3)

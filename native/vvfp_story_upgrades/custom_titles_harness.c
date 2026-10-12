@@ -422,14 +422,33 @@ int main(void) {
           && (titles.entries[0].flags & VV_TITLE_KNOWN) && titles.entries[0].looks.age == 500
           && titles.entries[0].looks.head == 3 && titles.entries[0].looks.skills[0] == 20,
           "THE FILE STILL HOLDS THE PENDING TITLE, WITH THE WHOLE IDENTITY IT WAS KEPT BY");
-    /* The namesake dies: only the titled Kai can be him now. */
+    check(titles.entries[0].flags & VV_TITLE_CONTESTED,
+          "TWO COULD BE HIM AT ONCE: THE PENDING TITLE IS MARKED CONTESTED IN THE FILE");
+    /* NEVER A GUESS (the owner): the namesake dies, and the one Kai left is
+       not taken for the titled one -- which of the two died can not be told.
+       The title waits for the player (the reconciliation names the Kai left
+       as the one who could be him). */
     titles_tick(3);
     g_records[3][0] = 0;
+    titles.checked_at = GetTickCount() - 3 * TITLES_CHECK_MS;
     titles_tick(3);
-    seen = titles_lookup(3, g_records[0]);
-    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && titles_lookup(3, g_records[3]) == NULL,
-          "THE NAMESAKE DIES: THE PENDING TITLE BINDS AGAIN TO THE RIGHT KAI BY THE WHOLE IDENTITY");
-    /* ...or the namesake changes (new likes): the same. */
+    titles_tick(3);
+    check(titles_lookup(3, g_records[0]) == NULL && titles.count == 1
+          && title_index("Kai Title") == (int)VV_TITLE_PENDING,
+          "THE NAMESAKE DIES: THE ONE KAI LEFT IS NOT GIVEN THE CONTESTED TITLE -- IT WAITS FOR THE PLAYER");
+    /* ...nor after the next load, with the namesake gone from the save. */
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); looks(0, 1, 540, 3, 4, 20);
+    villager(1, "Moku");
+    titles_tick(3);
+    titles.checked_at = GetTickCount() - 3 * TITLES_CHECK_MS;
+    titles_tick(3);
+    check(titles_lookup(3, g_records[0]) == NULL && titles.count == 1
+          && title_index("Kai Title") == (int)VV_TITLE_PENDING
+          && (titles.entries[0].flags & VV_TITLE_CONTESTED),
+          "... NOR AFTER A RELOAD WITH ONE KAI LEFT: STILL PENDING AND CONTESTED");
+    /* ...nor when the namesake changes (new likes) and so stops matching. */
     new_session();
     DeleteFileA(path1);
     memset(g_records, 0, sizeof g_records);
@@ -444,9 +463,34 @@ int main(void) {
     check(title_index("Kai Title") == (int)VV_TITLE_PENDING, "setup: the title is pending between two Kais");
     g_records[3][44] = 6;                                        /* the namesake's likes change */
     titles_tick(3);
-    seen = titles_lookup(3, g_records[0]);
-    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && titles_lookup(3, g_records[3]) == NULL,
-          "THE NAMESAKE'S LIKES CHANGE: THE PENDING TITLE BINDS AGAIN TO THE RIGHT KAI");
+    check(titles_lookup(3, g_records[0]) == NULL && titles_lookup(3, g_records[3]) == NULL
+          && title_index("Kai Title") == (int)VV_TITLE_PENDING,
+          "THE NAMESAKE'S LIKES CHANGE: THE CONTESTED TITLE STILL WAITS, GIVEN TO NEITHER");
+    /* A pending title that was never contested -- only a namesake who is
+       not him was there -- binds by itself once exactly one villager has his
+       whole identity. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+    titles_tick(3);
+    titles_set(3, 1, "Kai Title");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani");
+    villager(1, "Kai"); looks(1, 1, 400, 3, 4, 20);             /* younger: not him */
+    titles_tick(3);
+    titles_tick(3);
+    check(title_index("Kai Title") == (int)VV_TITLE_PENDING && !(titles.entries[0].flags & VV_TITLE_CONTESTED),
+          "setup: pending, never contested (nobody could be him)");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani");
+    villager(2, "Kai"); looks(2, 1, 530, 3, 4, 25);             /* the titled Kai is back */
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[2]);
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
+          "A NEVER-CONTESTED PENDING TITLE BINDS AGAIN WHEN EXACTLY ONE VILLAGER HAS THE WHOLE IDENTITY");
     /* The titled Kai died before the reload and the namesake left is NOT
        him by the whole identity: younger, less skilled, or the other sex.
        (The old follow moved the title to the one carrier of the name and
