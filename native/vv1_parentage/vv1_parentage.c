@@ -613,6 +613,7 @@ static int vv1_follow_roster(const vv1_occupant *now) {
        another record while theirs is empty, is a move; a birth into an empty
        record, a death, or a newborn in a departed villager's record is not. */
     int repacked = 0;
+    int back = 0;                 /* a departed villager is on screen again */
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         if (!g_roster[j].gender || g_roster[j].departed) {
             continue;
@@ -634,6 +635,7 @@ static int vv1_follow_roster(const vv1_occupant *now) {
             if (at != j) {
                 repacked = 1;
             }
+            back |= g_roster[at].departed;
         }
     }
     /* Two villagers who share gender, family scalar and name -- the owner's
@@ -714,7 +716,9 @@ static int vv1_follow_roster(const vv1_occupant *now) {
     memcpy(g_session_stash, stashed, sizeof(stashed));
     memcpy(g_entries, moved, sizeof(g_entries));
     memcpy(g_roster, kept, sizeof(g_roster));
-    return repacked;
+    /* A departed villager back in the very record they were kept under is no new occupant either: the
+       caller drops the per-frame snapshot, whose empty record would read her as an arrival. */
+    return repacked || back;
 }
 
 /* Is the table in step with the villagers on screen: every occupied record
@@ -723,8 +727,8 @@ static int vv1_follow_roster(const vv1_occupant *now) {
 static int vv1_roster_in_step(const vv1_occupant *now) {
     int j;
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
-        if (now[j].gender && !vv1_same_occupant(&g_roster[j], &now[j])) {
-            return 0;
+        if (now[j].gender && (!vv1_same_occupant(&g_roster[j], &now[j]) || g_roster[j].departed)) {
+            return 0;       /* somebody new, or a departed villager back in the record they were kept under */
         }
         if (!now[j].gender && g_roster[j].gender && !g_roster[j].departed) {
             return 0;           /* a death: the roster marks the record departed */
@@ -1500,6 +1504,41 @@ static vv1_write_birth_t vv1_log_writer(void) {
     return g_write_birth;
 }
 
+/* "Name changed" records ("VVFP Parentage Export.dll" WriteVillageRecord,
+   KIND_NAME_CHANGE): in the Births and Conceptions log, held until the next
+   save, unnumbered --
+       Name changed
+         Name: <the name now>
+         Old name: <the name before>
+         Age: <game units>
+         Head / Body / Likes / Dislikes
+   Nothing is written when the log is not part of the game. */
+#define VV1_KIND_NAME_CHANGE 10
+typedef int (__stdcall *vv1_write_record_t)(int, int, const void *, int, const char *, const char *, int);
+static int g_name_changes;        /* name changes seen this session (the harnesses count them) */
+
+static void vv1_log_name_change(const unsigned char *rec, const char *old_name) {
+    static vv1_write_record_t write_record;
+    static int looked;
+    char old[VV1_NAME_CAPACITY + 1];
+    char before[VV1_NAME_CAPACITY + 64];
+    ++g_name_changes;
+    if (!looked) {
+        HMODULE companion = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+        looked = 1;
+        if (companion != NULL) {
+            write_record = (vv1_write_record_t)GetProcAddress(companion, "WriteVillageRecord");
+        }
+    }
+    if (write_record == NULL) {
+        return;
+    }
+    memcpy(old, old_name, VV1_NAME_CAPACITY);
+    old[VV1_NAME_CAPACITY] = '\0';
+    wsprintfA(before, "  Old name: %s\n  Age: %d\n", old, *(const int *)(rec + VV1_AGE_OFFSET));
+    (void)write_record(1, VV1_KIND_NAME_CHANGE, rec, 1, before, NULL, 1);
+}
+
 #ifdef VVFP_TEST
 static int g_test_capture = -1;   /* Vv1ParentageProbeCaptureOn: -1 = ask the companion */
 #endif
@@ -1652,6 +1691,29 @@ static int vv1_tick_over(const unsigned char *records) {
         if ((g_prev_due[i] != 0 && due == 0)
             || (g_prev_litter[i] > 0 && litter >= 0 && litter < g_prev_litter[i])) {
             delivered[delivered_count++] = i;
+        }
+    }
+    /* A NAME THAT CHANGED IN PLAY IS RECORDED, NEVER HIDDEN (the owner,
+       2026-10-11: "Iruwa Okelani" became a second living "Tiki Alosaka", and
+       she never renamed anyone; the stock Villager Details screen writes its
+       name box into the villager it shows before the selection changes, so
+       two arrow clicks in one frame copy one villager's name onto another --
+       0x44A79B / 0x44A849 / 0x44A738, refilled only by 0x44A630).  The same
+       villager -- the same record, look-alike variant and gender, an age that
+       only moved on -- keeps their parents below (Codex, #516), and the change
+       is written as a "Name changed" record (held until the save, like an
+       "Appearance changed" one), so the patcher's reconciliation can ask the
+       player whether it was theirs.  The patcher's own renames (a newborn's
+       last name, vv1_give_last_name) update the snapshot first and are not
+       recorded here. */
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const unsigned char *rec = records + (unsigned int)i * VV1_RECORD_STRIDE;
+        if (rec[VV1_OCCUPIED_OFFSET] && g_prev_occupied[i]
+            && g_prev_variant[i] == *(const int *)(rec + VV1_VARIANT_OFFSET)
+            && g_prev_gender[i] == *(const int *)(rec + VV1_GENDER_OFFSET)
+            && *(const int *)(rec + VV1_AGE_OFFSET) >= g_prev_age[i]
+            && memcmp(g_prev_name[i], rec + VV1_NAME_OFFSET, VV1_NAME_CAPACITY) != 0) {
+            vv1_log_name_change(rec, g_prev_name[i]);
         }
     }
     /* Records with a NEW occupant this frame.  "Became occupied" is not
@@ -2648,6 +2710,14 @@ __declspec(dllexport) int __stdcall Vv1ParentageProbeConceive(const void *record
 __declspec(dllexport) int __stdcall Vv1ParentageProbeCaptureOn(int on) {
     g_test_capture = on;
     return 1;
+}
+
+/* How many name changes the per-frame inference has seen (and recorded as
+   "Name changed") since the last call; the count is cleared. */
+__declspec(dllexport) int __stdcall Vv1ParentageProbeNameChanges(void) {
+    int seen = g_name_changes;
+    g_name_changes = 0;
+    return seen;
 }
 
 /* What a load, a slot change or a repack does to the per-frame inference:

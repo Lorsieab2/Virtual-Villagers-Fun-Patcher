@@ -249,7 +249,7 @@ class CutNames(unittest.TestCase):
         checker = tools.load_checker()
         with mock.patch.object(checker, "check", return_value=checker.Report()), \
                 mock.patch("vv_log_additions.plan", return_value=[]), \
-                mock.patch("vv_last_names.wrong_last_names", return_value=("mother", [])):
+                mock.patch("vv_last_names.wrong_last_names_explained", return_value=("mother", [])):
             text = tools.check_logs(self.folder, 1, 3).text
         self.assertIn(f"1 name(s) the game's Villager Details screen cut short: {CUT} ({FULL}); "
                       "Repair Saves & Logs restores them.", text)

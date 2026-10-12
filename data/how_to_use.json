@@ -237,6 +237,7 @@
         "Fixes a bug in the original game: a pregnant villager who drinks the blue Mysterious Vial and turns back into a toddler no longer brings twins or triplets in her next pregnancy.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "On the Villager Details screen, a villager's name is only ever saved back to that villager, even when the arrows are clicked quickly; a name you type is still kept.",
         "Nothing to click. On by default."
       ]
     },
@@ -247,6 +248,7 @@
         "If \"Keep it\" is chosen with nobody else alive, the game carries on instead of closing.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Nothing to click. On by default."
       ]
     },
@@ -257,6 +259,7 @@
         "A village with exactly 150 villagers can be saved and loaded again; one already damaged that way is repaired when loaded.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Keep it on with 256 Villagers (Experimental). On by default."
       ]
     },
@@ -267,6 +270,7 @@
         "A village already damaged by that bug is repaired when it is loaded.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Only matters with a bigger population mode or 256 Villagers. On by default."
       ]
     },
@@ -326,11 +330,22 @@
       ]
     },
     {
+      "ids": ["vv1_game_log", "vv2_game_log", "vv3_game_log", "vv4_game_log", "vv5_game_log"],
+      "guide": [
+        "Keeps the game's own log, ldwLog.txt, in the game's save folder (Documents\\LDW\\<game executable name>\\).",
+        "Every line the game writes is added at once and kept: missing pictures and sounds, and in the later games its clock, text-file, healer and path-finding notes.",
+        "Each run starts with a \"---- Game started ----\" line.",
+        "Repeats are written once a minute with a count; at 4 MB the file becomes 'ldwLog 1.txt' (then 2, 3, ...) and a new one starts.",
+        "Nothing to click: tick it, patch, and play."
+      ]
+    },
+    {
       "ids": ["vv1_origins_village_wide_upgrades", "vv2_origins_village_wide_upgrades", "vv3_origins_village_wide_upgrades", "vv4_origins_village_wide_upgrades"],
       "guide": [
         "Adds an Upgrades button to the Tech screen (Origins Upgrades) and to the Villager Details screen (Villager Upgrades).",
         "Click it, choose an upgrade and confirm; it is paid for with tech points.",
         "Includes village-wide Running, Full Mastery and Young Adults, and the Food and Tech Point Doublers.",
+        "Equal Division of Labor gives each villager their best-progressed job where there is room; Clear All Skill Preferences and Check Highest Skill set job checkmarks.",
         "If an upgrade would change nothing, no tech points are taken.",
         "Story / Cheat Upgrades needs this patch."
       ]
@@ -341,6 +356,7 @@
         "Adds an Upgrades button to the Tech screen (Origins Upgrades) and to the Villager Details screen (Villager Upgrades).",
         "Click it, choose an upgrade and confirm; it is paid for with tech points.",
         "Includes Time Warp, Island Event, Barrel of Babies, the Doublers, Full Heal and village-wide upgrades.",
+        "Equal Division of Labor gives each villager their best-progressed job where there is room; Clear All Skill Preferences and Check Highest Skill set job checkmarks.",
         "The village-wide Running, Full Mastery and Exactly 18 upgrades skip Heathens.",
         "If an upgrade would change nothing, no tech points are taken.",
         "Story / Cheat Upgrades needs this patch."
@@ -606,6 +622,7 @@
         "Fixes a bug in the original game: every name in the male and female lists can now be given to a new villager (Ago, Yapili, Aipi and Zucca never could be).",
         "Villagers already named keep their names.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Nothing to click. On by default."
       ]
     },
@@ -851,7 +868,7 @@
       "title": "Repair Saves & Logs",
       "guide": [
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
-        "Tick or untick each line of the checklist, then click Repair; the save folder is backed up first.",
+        "Tick what to do, then click Repair (backed up first). Reset corrupted skill values: NaN, infinite, below 0, above 100.",
         "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; what the files cannot tell, you are asked.",
         "Give villagers last names (Choose...): by the village rule, their own rule, or Random; in the game and every log.",
         "Number duplicate names: Soda I, Soda II..., oldest first, in the game and every log.",

@@ -152,8 +152,13 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         # _ShowVV3TimeWarp@4 beside it. 34 since VvfpStartup, which
         # "VVFP Startup.dll" calls at game start (also through the .def). 35
         # since VvfpMaskOf, which the log exporters ask for the "Mask:" line
-        # (also through the .def).
+        # (also through the .def). 37 since ClearAllSkillPreferences and
+        # CheckHighestSkill, the Tech menu's rows 14-16 (also through the
+        # .def only). 35 since the VV1-shaped ShowOriginsUpgradeMenu (and
+        # its decorated twin), which the executable never resolved, was
+        # removed (v1.35.70).
         self.assertEqual(len(exports), 35)
+        self.assertNotIn("ShowOriginsUpgradeMenu", exports)
 
     def test_deployed_companion_carries_every_complete_result_message(self) -> None:
         """Every COMPLETE refusal message in the C source must be in the DLL.

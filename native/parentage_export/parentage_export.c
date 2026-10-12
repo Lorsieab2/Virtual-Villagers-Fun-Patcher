@@ -1295,11 +1295,20 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2, LOG_EVENTS = 3 };
                   2026-10-09: "Nursing mothers who die will only produce a
                   grave for the mother (nursing child just disappears)").
                   "VVFP Cause of Death.dll" renders every line after the
-                  heading. */
+                  heading.
+     NAME_CHANGE  births family, "Name changed", never rolls -- a villager's
+                  name changed in play (A New Home's parentage companion sees
+                  it: the same record, variant, gender and an age that only
+                  moved on), recorded so it is never hidden (the owner,
+                  2026-10-11: "Iruwa Okelani" became a second "Tiki
+                  Alosaka" and nobody renamed anyone); held until the next
+                  save like APPEARANCE, since the game keeps the new name only
+                  then.  The patcher's reconciliation asks the player about
+                  every one (src/vv_reconcile.py). */
 enum {
     KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
     KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7,
-    KIND_ISLAND_EVENT = 8, KIND_LOST_BIRTH = 9
+    KIND_ISLAND_EVENT = 8, KIND_LOST_BIRTH = 9, KIND_NAME_CHANGE = 10
 };
 
 #define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers"
@@ -1564,18 +1573,120 @@ static int roll_back_append(const wchar_t *path, LONGLONG size) {
     CloseHandle(handle);
     return restored;
 }
+/* WHAT A LOG FILE SAID, KEPT UNTIL THE FILE CHANGES (v1.35.70, the owner's
+   lag at 256 villagers).  Every record -- a Conception, a Birth, a Death --
+   used to read every file of its log, in every folder of the game, three
+   times over: to count the records of the file it goes into, to read each
+   file's village header, and to find the highest number printed anywhere.
+   A village with a long history paid that on every record, on the game's
+   own thread: measured, about 1 ms more per 256 records already logged, so
+   some 12 ms a record by 2,500 with a warm disk cache, and 2.3 MB read for a
+   record of the sixth 256-record file (log_scan_cost_harness.c).
+
+   Each scan below is the same code it always was; only its RESULT is kept,
+   per file, with the file's size, last write and creation times, and is
+   used again only while all three are still what they were.  A record
+   appended, a rename note, a repair, a roll-back, a reset deleting the file
+   -- every change to a log moves its size or its write time, so the file is
+   read again.  A file that could not be read is never remembered. */
+#define SCAN_MEMO_SLOTS 256
+#define SCAN_COUNT_FAMILY 1       /* count_family_records: arg = family */
+#define SCAN_HEADER 2             /* read_log_header: arg = the caller's buffer size */
+#define SCAN_FOLDER_NUMBERS 3     /* one file of folder_numbers: arg = family */
+#define SCAN_RUNNING 4            /* one file of count_running_records: arg = births */
+#define SCAN_HEADER_MAX 256
+
+struct scan_memo {
+    int kind;                     /* 0 = free */
+    int arg;
+    unsigned int used;            /* the last lookup that found it, for replacement */
+    wchar_t path[MAX_LOG_PATH];
+    WIN32_FILE_ATTRIBUTE_DATA stat;
+    int first;
+    int second;
+    char text[SCAN_HEADER_MAX];
+};
+static struct scan_memo scan_memos[SCAN_MEMO_SLOTS];
+static unsigned int scan_memo_clock;
+
+static int scan_stat(const wchar_t *path, WIN32_FILE_ATTRIBUTE_DATA *stat) {
+    return GetFileAttributesExW(path, GetFileExInfoStandard, stat) != 0;
+}
+
+static int scan_same_stat(const WIN32_FILE_ATTRIBUTE_DATA *a, const WIN32_FILE_ATTRIBUTE_DATA *b) {
+    return a->nFileSizeHigh == b->nFileSizeHigh && a->nFileSizeLow == b->nFileSizeLow
+        && CompareFileTime(&a->ftLastWriteTime, &b->ftLastWriteTime) == 0
+        && CompareFileTime(&a->ftCreationTime, &b->ftCreationTime) == 0
+        && a->dwFileAttributes == b->dwFileAttributes;
+}
+
+/* The kept result for `path`, when the file is still the one it was taken
+   from.  `stat` gets the file's attributes now (taken BEFORE any read, so a
+   result is never kept under attributes newer than what was read). */
+static struct scan_memo *scan_memo_find(int kind, int arg, const wchar_t *path,
+                                        WIN32_FILE_ATTRIBUTE_DATA *stat, int *have_stat) {
+    int i;
+    *have_stat = scan_stat(path, stat);
+    if (!*have_stat) {
+        return NULL;
+    }
+    for (i = 0; i < SCAN_MEMO_SLOTS; ++i) {
+        struct scan_memo *m = &scan_memos[i];
+        if (m->kind == kind && m->arg == arg && lstrcmpiW(m->path, path) == 0) {
+            if (scan_same_stat(&m->stat, stat)) {
+                m->used = ++scan_memo_clock;
+                return m;
+            }
+            m->kind = 0;          /* the file has changed since: forgotten */
+            return NULL;
+        }
+    }
+    return NULL;
+}
+
+static void scan_memo_keep(int kind, int arg, const wchar_t *path, const WIN32_FILE_ATTRIBUTE_DATA *stat,
+                           int first, int second, const char *text) {
+    struct scan_memo *slot = &scan_memos[0];
+    int i;
+    if (lstrlenW(path) >= MAX_LOG_PATH) {
+        return;
+    }
+    for (i = 0; i < SCAN_MEMO_SLOTS; ++i) {
+        if (scan_memos[i].kind == 0) {
+            slot = &scan_memos[i];
+            break;
+        }
+        if (scan_memos[i].used < slot->used) {
+            slot = &scan_memos[i];
+        }
+    }
+    slot->kind = kind;
+    slot->arg = arg;
+    slot->used = ++scan_memo_clock;
+    lstrcpyW(slot->path, path);
+    slot->stat = *stat;
+    slot->first = first;
+    slot->second = second;
+    if (text != NULL) {
+        lstrcpynA(slot->text, text, SCAN_HEADER_MAX);
+    } else {
+        slot->text[0] = '\0';
+    }
+}
+
 /* Count the records already in a file, so a roll happens at the right point
    and a restarted game continues the current file rather than overwriting it.
 
    Counts the row marker rather than newlines, because a record spans several
    lines and a partially written trailing row must not inflate the count. */
-static int count_family_records(const wchar_t *path, int family) {
+static int count_family_records_read(const wchar_t *path, int family, int *read) {
     FILE *file = _wfopen(path, L"rb");
     int count = 0;
     char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     const char *marker = family_marker(family);
     size_t marker_length = strlen(marker);
 
+    *read = 0;
     if (file == NULL) {
         return 0;
     }
@@ -1584,7 +1695,23 @@ static int count_family_records(const wchar_t *path, int family) {
             ++count;
         }
     }
+    *read = !ferror(file);
     fclose(file);
+    return count;
+}
+
+static int count_family_records(const wchar_t *path, int family) {
+    WIN32_FILE_ATTRIBUTE_DATA stat;
+    int have_stat, read;
+    int count;
+    struct scan_memo *kept = scan_memo_find(SCAN_COUNT_FAMILY, family, path, &stat, &have_stat);
+    if (kept != NULL) {
+        return kept->first;
+    }
+    count = count_family_records_read(path, family, &read);
+    if (have_stat && read) {
+        scan_memo_keep(SCAN_COUNT_FAMILY, family, path, &stat, count, 0, NULL);
+    }
     return count;
 }
 
@@ -1598,11 +1725,38 @@ static int count_family_records(const wchar_t *path, int family) {
    Returns 1 and fills `out` when the file starts with a header; returns 0 for
    a file with no header at all, which is a log written before this existed or
    one whose village could not be identified. */
+static int read_log_header_read(const wchar_t *path, char *out, size_t size, int *read);
+
 static int read_log_header(const wchar_t *path, char *out, size_t size) {
+    WIN32_FILE_ATTRIBUTE_DATA stat;
+    int have_stat, read, found;
+    struct scan_memo *kept;
+    if (out == NULL || size == 0) {
+        return 0;
+    }
+    if (size > SCAN_HEADER_MAX) {
+        return read_log_header_read(path, out, size, &read);
+    }
+    kept = scan_memo_find(SCAN_HEADER, (int)size, path, &stat, &have_stat);
+    if (kept != NULL) {
+        lstrcpynA(out, kept->text, (int)size);
+        return kept->first;
+    }
+    found = read_log_header_read(path, out, size, &read);
+    if (have_stat && read) {
+        scan_memo_keep(SCAN_HEADER, (int)size, path, &stat, found, 0, out);
+    }
+    return found;
+}
+
+/* `*read` is 1 when the file was opened and read without an error: only
+   then is the answer the file's own, to be kept. */
+static int read_log_header_read(const wchar_t *path, char *out, size_t size, int *read) {
     FILE *file;
     char line[256];
     size_t length;
 
+    *read = 0;
     if (out == NULL || size == 0) {
         return 0;
     }
@@ -1612,6 +1766,7 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
         return 0;
     }
     if (fgets(line, (int)sizeof(line), file) == NULL) {
+        *read = !ferror(file);
         fclose(file);
         return 0;
     }
@@ -1620,7 +1775,9 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
     if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0
         || strncmp(line, "Unaccounted ", 12) == 0 || strncmp(line, "Disappeared", 11) == 0
         || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0
-        || strncmp(line, "Appearance changed", 18) == 0 || vv_is_birth_heading(line)) {
+        || strncmp(line, "Appearance changed", 18) == 0 || strncmp(line, "Name changed", 12) == 0
+        || vv_is_birth_heading(line)) {
+        *read = 1;
         fclose(file);
         return 0;
     }
@@ -1631,6 +1788,7 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
         line[--length] = '\0';
     }
     if (length == 0) {
+        *read = 1;
         fclose(file);
         return 0;
     }
@@ -1658,6 +1816,7 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
             (void)vv_rename_apply(out, size, line);
         }
     }
+    *read = !ferror(file);
     fclose(file);
     return 1;
 }
@@ -1788,25 +1947,42 @@ static void folder_numbers(const wchar_t *folder, const wchar_t *stem, int famil
     ceiling = highest_log_number(stem, folder);
     for (number = 1; number <= ceiling && number <= 4096; ++number) {
         FILE *file;
+        WIN32_FILE_ATTRIBUTE_DATA stat;
+        int have_stat;
+        int file_count = 0, file_highest = 0;
+        struct scan_memo *kept;
         if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\%ls %d.txt", folder, stem, number) < 0) {
             continue;
         }
-        file = _wfopen(path, L"rb");
-        if (file == NULL) {
-            continue;
-        }
-        while (fgets(line, (int)sizeof(line), file) != NULL) {
-            if (strncmp(line, marker, marker_length) == 0) {
-                ++*count;
-                if (line[marker_length] >= '0' && line[marker_length] <= '9') {
-                    long n = strtol(line + marker_length, NULL, 10);
-                    if (n > *highest && n < 0x7FFFFFFEL) {
-                        *highest = (int)n;
+        kept = scan_memo_find(SCAN_FOLDER_NUMBERS, family, path, &stat, &have_stat);
+        if (kept != NULL) {
+            file_count = kept->first;
+            file_highest = kept->second;
+        } else {
+            file = _wfopen(path, L"rb");
+            if (file == NULL) {
+                continue;
+            }
+            while (fgets(line, (int)sizeof(line), file) != NULL) {
+                if (strncmp(line, marker, marker_length) == 0) {
+                    ++file_count;
+                    if (line[marker_length] >= '0' && line[marker_length] <= '9') {
+                        long n = strtol(line + marker_length, NULL, 10);
+                        if (n > file_highest && n < 0x7FFFFFFEL) {
+                            file_highest = (int)n;
+                        }
                     }
                 }
             }
+            if (have_stat && !ferror(file)) {
+                scan_memo_keep(SCAN_FOLDER_NUMBERS, family, path, &stat, file_count, file_highest, NULL);
+            }
+            fclose(file);
         }
-        fclose(file);
+        *count += file_count;
+        if (file_highest > *highest) {
+            *highest = file_highest;
+        }
     }
 }
 
@@ -1921,6 +2097,7 @@ static int select_family_log_file(
     int first_free = 0;
     wchar_t folder[MAX_PATH];
     wchar_t sub[MAX_PATH];
+    wchar_t walk_prefix[MAX_LOG_PATH];
     /* ONE FOLDER PER SAVE SLOT (native/shared/log_slot.h): the record goes into the folder of the
        slot its village header names, never a slot read at another moment.  No village named (no
        publisher installed): the shared folder, as before. */
@@ -1947,9 +2124,23 @@ static int select_family_log_file(
         return 0;
     }
     ceiling = highest_log_number(family_stem(g, family), folder);
+    /* Every file of the walk is "<folder>\<stem> <n>.txt" in the folder the
+       call above has just made sure of (build_family_log_path's own form), so
+       the walk only changes the number: the folder is not looked up, and its
+       components created again, once per file (v1.35.70: that alone cost
+       more per record with every file the log had rolled into).  The path is
+       refused at the same length build_family_log_path refuses it. */
+    {
+        size_t length = wcslen(destination);
+        if (length < 6 || wcscmp(destination + length - 6, L" 1.txt") != 0) {
+            return 0;               /* not the form this walk can renumber */
+        }
+        destination[length - 6] = L'\0';
+        wcsncpy_s(walk_prefix, MAX_LOG_PATH, destination, _TRUNCATE);
+    }
     for (number = 1; number <= ceiling + 1 && number <= 4096; ++number) {
         int records;
-        if (!build_family_log_path(g, family, slot, number, destination)) {
+        if (_snwprintf_s(destination, MAX_LOG_PATH, _TRUNCATE, L"%ls %d.txt", walk_prefix, number) < 0) {
             return 0;
         }
         if (GetFileAttributesW(destination) == INVALID_FILE_ATTRIBUTES) {
@@ -2897,11 +3088,24 @@ static int count_running_records(const struct game_layout *g, int births) {
         ceiling = highest_log_number(stem, folders[f]);
         for (number = 1; number <= ceiling; ++number) {
             FILE *file;
+            WIN32_FILE_ATTRIBUTE_DATA stat;
+            int have_stat;
+            int file_total = 0;
+            long file_highest = 0;
+            struct scan_memo *kept;
             if (_snwprintf_s(path, MAX_LOG_PATH, _TRUNCATE, L"%ls\\%ls %d.txt", folders[f], stem, number) < 0) {
                 return -1;
             }
-            if (GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
+            kept = scan_memo_find(SCAN_RUNNING, births, path, &stat, &have_stat);
+            if (kept != NULL) {
+                total += kept->first;
+                if (kept->second > highest) {
+                    highest = kept->second;
+                }
                 continue;
+            }
+            if (!have_stat) {
+                continue;               /* no such file (was: GetFileAttributesW) */
             }
             file = _wfopen(path, L"rb");
             if (file == NULL) {
@@ -2910,11 +3114,11 @@ static int count_running_records(const struct game_layout *g, int births) {
             while (fgets(line, (int)sizeof line, file) != NULL) {
                 if (births ? vv_is_birth_heading(line)
                            : strncmp(line, "Arrived ", 8) == 0 && line[8] >= '0' && line[8] <= '9') {
-                    ++total;
+                    ++file_total;
                     if (births ? line[5] == ' ' : 1) {
                         long value = strtol(line + (births ? 6 : 8), NULL, 10);
-                        if (value > highest) {
-                            highest = value < 0x7FFFFFFEL ? value : 0x7FFFFFFEL;
+                        if (value > file_highest) {
+                            file_highest = value < 0x7FFFFFFEL ? value : 0x7FFFFFFEL;
                         }
                     }
                 }
@@ -2924,6 +3128,11 @@ static int count_running_records(const struct game_layout *g, int births) {
                 return -1;
             }
             fclose(file);
+            scan_memo_keep(SCAN_RUNNING, births, path, &stat, file_total, (int)file_highest, NULL);
+            total += file_total;
+            if (file_highest > highest) {
+                highest = file_highest;
+            }
         }
         if (total > best) {
             best = total;
@@ -3083,7 +3292,8 @@ static void flush_pending(int game_id, const char *village, int at_save) {
         struct pending_record *entry = &pending[i];
         int release = 0;
         if (entry->game_id == game_id && !at_save
-            && (entry->kind == KIND_APPEARANCE || entry->kind == KIND_ISLAND_EVENT)) {
+            && (entry->kind == KIND_APPEARANCE || entry->kind == KIND_ISLAND_EVENT
+                || entry->kind == KIND_NAME_CHANGE)) {
             stopped = 1;
         }
         if (entry->game_id == game_id && !stopped) {
@@ -3165,7 +3375,8 @@ static int emit_record(
     if (!vv_village_recall(village, sizeof village)) {
         village[0] = '\0';
     }
-    if ((kind == KIND_APPEARANCE || kind == KIND_ISLAND_EVENT) && village_publisher_present(game_id)) {
+    if ((kind == KIND_APPEARANCE || kind == KIND_ISLAND_EVENT || kind == KIND_NAME_CHANGE)
+        && village_publisher_present(game_id)) {
         return hold_record(game_id, kind, records, text);   /* written at the next save */
     }
     if (village[0] != '\0' && saved_tribe_still_loaded(game_id)) {
@@ -4117,7 +4328,9 @@ static int record_custom_title(int game_id, const struct game_layout *g,
     identity = vv_title_identity(record, g->name, g->name_capacity, g->likes, g->dislikes,
                                  g->preference_slots);
     for (i = 0; i < count; ++i) {
-        if (titles[i].fingerprint == identity) {
+        /* A pending title (custom_titles.h) is shown on nobody until the
+           Story companion binds it to one villager again. */
+        if (titles[i].index != VV_TITLE_PENDING && titles[i].fingerprint == identity) {
             if (found >= 0) {
                 return 0;
             }
@@ -4324,7 +4537,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
-        || kind < KIND_DEATH || kind > KIND_LOST_BIRTH) {
+        || kind < KIND_DEATH || kind > KIND_NAME_CHANGE) {
         return 0;
     }
     g = layout_of(game_id);
@@ -4361,6 +4574,8 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     } else if (kind == KIND_APPEARANCE) {
         heading = "Appearance changed\n";
         relook_last_name(g, record, before);
+    } else if (kind == KIND_NAME_CHANGE) {
+        heading = "Name changed\n";
     }
     copy_villager_name(g, record, name, sizeof name);
     preference_text(g, record, g->likes, likes, sizeof likes);

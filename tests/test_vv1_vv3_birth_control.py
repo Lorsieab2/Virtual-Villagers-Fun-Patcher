@@ -92,11 +92,14 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # re-pinning: rendering with f4cb4c97 and with the branch, the only
     # differing bytes are the PE CheckSum (0x150..0x151), the puzzle splice
     # 0x242FD..0x24301 and its stub at .vv1mc 0x8E8C0..0x8E8D3. The length is
-    # unchanged.
+    # unchanged.  Re-pinned for v1.35.70: the only Origins bytes that changed
+    # are Equal Division's dispatch (the villager-array argument), the Details
+    # living gate (.shr raw 0x8BBE0) and detail_menu's call to it, plus the PE
+    # CheckSum; Birth Control's own bytes are untouched.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "CCE0A814AB23E6702D2152D3101B4B66625CD1F4F9D58BF2FAC7223822332E5A",
-        "collection_progression": "EF202F935F3A6F108F0DCCDCAF639D7DBC716689E16E060951497E2CC063793B",
-        "immediate_fixed": "EF202F935F3A6F108F0DCCDCAF639D7DBC716689E16E060951497E2CC063793B",
+        "stock": "DD828C8EF33D24BA731D34D87E75FE6A2BD44EE47FC233F9C001914915B672A0",
+        "collection_progression": "0C04B0AF9ADC5B127A4FDFE415CB439F0F167A5A04831BDF69DB4B9D100AD27F",
+        "immediate_fixed": "0C04B0AF9ADC5B127A4FDFE415CB439F0F167A5A04831BDF69DB4B9D100AD27F",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

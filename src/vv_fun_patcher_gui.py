@@ -22,10 +22,13 @@ import vv_log_additions
 import vv_move_old_names
 import vv_last_names
 import vv_cut_names
+import vv_corrupt_skills
 import vv_graves
 import vv_lost_titles
 import vv1_parents_restore
 import vv_number_names
+import vv_reconcile
+import vv_reconcile_view
 import vv_save_backup
 import vv_startup_questions
 import vv_tribe_rename
@@ -321,7 +324,8 @@ def last_name_rows(people: list, parents: dict) -> list[str]:
     return rows
 
 # A villager whose last name the window's current choice will assign or change reads in red bold (the
-# owner, 2026-10-10); the rest keep the normal font and colour.  A red that reads on a light and on a dark
+# owner, 2026-10-10), as does one whose own rule for their children's last names will change (v1.35.70,
+# in the last-names window and in the own-rules window); the rest keep the normal font and colour.  A red that reads on a light and on a dark
 # window.  The pale yellow behind a row the prompt asked about stays (only its text turns red).
 LAST_NAME_CHANGED_COLOUR = "#d62828"
 LAST_NAME_ASKED_BACKGROUND = "#fff2a8"
@@ -331,6 +335,14 @@ def last_names_changing(now: dict, shown: dict) -> set:
     """The villagers whose last name the window's boxes (`shown`: identity -> the last name in the box,
     "" none) would change from the one they have now (`now`)."""
     return {key for key, last in shown.items() if last != now.get(key, "")}
+
+
+def own_rules_changing(current: dict, pending: dict) -> set:
+    """The villagers (vv_last_names.own_key) whose own rule for their children's last names the pending
+    choices would change from the one they have now (the owner, v1.35.70: "bolds villagers who have
+    changed ... naming rules for their children").  "" or absent: the village rule.  A villager whose
+    own rule is unchanged is not in it, whatever that rule is."""
+    return {key for key in set(current) | set(pending) if (pending.get(key) or "") != (current.get(key) or "")}
 
 
 def last_name_row_style(changed: bool, asked: bool) -> dict:
@@ -2884,6 +2896,10 @@ class App(tk.Tk):
         rename_button = ttk.Button(buttons, text="Rename")
         rename_button.pack(side="left")
         ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
+        # The read-only reconciliation, run as soon as a tribe is chosen (src/vv_reconcile_view.py).
+        reconcile_var = tk.StringVar()
+        ttk.Label(frame, textvariable=reconcile_var, wraplength=560, justify="left").grid(
+            row=8, column=0, columnspan=3, sticky="w", pady=(8, 0))
 
         def game() -> vv_tribe_rename.GameSaves:
             return vv_tribe_rename.game_for_title(game_var.get())
@@ -2903,6 +2919,12 @@ class App(tk.Tk):
             )
             problem = None
             info = chosen_slot()
+            if state["folders"] and info is not None and not info.problem:
+                vv_reconcile_view.watch(dialog, reconcile_var, state["folders"][folder_box.current()],
+                                        saves.number, info.slot)
+            else:
+                vv_reconcile_view.forget(dialog)
+                reconcile_var.set("")
             if not state["folders"]:
                 problem = "No save folder was found for this game."
             elif info is None:
@@ -3093,8 +3115,12 @@ class App(tk.Tk):
             frame, textvariable=problem_var, foreground="#a01010",
             wraplength=560, justify="left",
         ).grid(row=4, column=0, columnspan=3, sticky="w", pady=(4, 0))
+        # The read-only reconciliation, run as soon as a tribe is chosen (src/vv_reconcile_view.py).
+        reconcile_var = tk.StringVar()
+        ttk.Label(frame, textvariable=reconcile_var, wraplength=560, justify="left").grid(
+            row=5, column=0, columnspan=3, sticky="w", pady=(4, 0))
         buttons = ttk.Frame(frame)
-        buttons.grid(row=5, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        buttons.grid(row=6, column=0, columnspan=3, sticky="w", pady=(12, 0))
         go_button = ttk.Button(buttons, text="Repair Saves & Logs" if repair else "Check")
         go_button.pack(side="left")
         move_button = None
@@ -3137,6 +3163,12 @@ class App(tk.Tk):
                 problem = "Choose a tribe."
             problem_var.set(problem or "")
             go_button.configure(state="normal" if problem is None else "disabled")
+            if problem is None:
+                vv_reconcile_view.watch(dialog, reconcile_var, state["folders"][folder_box.current()],
+                                        game().number, chosen().slot)
+            else:
+                vv_reconcile_view.forget(dialog)
+                reconcile_var.set("")
             if move_button is not None:
                 move_button.configure(state="normal" if state["folders"] else "disabled")
             if restore_button is not None:
@@ -3318,6 +3350,15 @@ class App(tk.Tk):
             return
         _regrab(parent)
         self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary}")
+        # The reconciliation's report beside the slot's logs (the only file Check Saves & Logs leads to
+        # writing, and only the report: src/vv_reconcile.py export).
+        if result.reconciliation is not None:
+            try:
+                written = vv_reconcile.export(result.reconciliation)
+            except OSError:
+                written = None
+            if written is not None:
+                self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary} Report: {written.name}")
         self._show_log_report(parent, folder, info, result)
 
     def _show_log_report(self, parent, folder: Path, info, result) -> None:
@@ -3337,7 +3378,9 @@ class App(tk.Tk):
             frame,
             text=(
                 "OK: agrees with the save.  WRONG: confirmed wrong (\"repairable\" "
-                "says whether Repair Saves & Logs can have the game put it right).  NOTE: a "
+                "says whether Repair Saves & Logs can have the game put it right).  ASK: a "
+                "contradiction only you can settle -- Repair Saves & Logs asks it; nothing changes "
+                "until you answer.  NOTE: a "
                 "difference that is not proof of an error.  UNCHECKED: nothing to "
                 "check it against, or it could not be read."
             ),
@@ -3352,10 +3395,11 @@ class App(tk.Tk):
         scrollbar.pack(side="right", fill="y")
         text.pack(side="left", fill="both", expand=True)
         text.tag_configure("WRONG", foreground="#a01010")
+        text.tag_configure("ASK", foreground="#8a4b00")
         text.tag_configure("file", font=("Segoe UI", 9, "bold"))
         for line in result.text.splitlines():
             verdict = line.split(None, 1)[0] if line.strip() else ""
-            tag = "file" if line.startswith("== ") else ("WRONG" if verdict == "WRONG" else ())
+            tag = "file" if line.startswith("== ") else (verdict if verdict in ("WRONG", "ASK") else ())
             text.insert("end", line + "\n", tag)
         text.insert("end", f"\n{result.summary}\n", "file")
         text.configure(state="disabled")
@@ -3386,6 +3430,7 @@ class App(tk.Tk):
         # Villagers with no last name, first (the owner, v1.35.66), so the check below reads the names
         # as they will be: arrivals get their own new last name automatically, the rest are asked about.
         named_lines = self._missing_last_names_at_repair(parent, folder, number, info)
+        skills: dict = {"found": [], "note": None, "reset": False}
 
         def survey():
             checked = vv_log_tools.check_logs(folder, info.slot, number)
@@ -3430,6 +3475,11 @@ class App(tk.Tk):
             except (vv_lost_titles.LostTitlesError, vv_last_names.LastNamesError, ValueError, OSError,
                     struct.error) as exc:
                 lost = vv_lost_titles.Survey([], [], [f"Lost titles were not checked: a file could not be read ({exc})."])
+            # Skill values no game can hold (src/vv_corrupt_skills.py), for the checklist's own row.
+            try:
+                skills["found"] = vv_corrupt_skills.survey(folder, number, info.slot)
+            except (vv_last_names.LastNamesError, ValueError, OSError, struct.error) as exc:
+                skills["note"] = f"Skills were not checked: the save could not be read ({exc})."
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
                     cuts, unpaused, speed, misnumbered, graves, lost)
 
@@ -3445,7 +3495,7 @@ class App(tk.Tk):
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
-                                        unpaused, speed, misnumbered, graves)
+                                        unpaused, speed, misnumbered, graves, skills=skills)
         if picked is None:
             return
         rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked
@@ -3466,6 +3516,10 @@ class App(tk.Tk):
         grave_lines = self._fix_graves(parent, folder, number, info, grave_fixes) if grave_fixes else []
         # Lost custom titles next, before any rename: a rename then carries the restored title along.
         grave_lines += self._restore_lost_titles(parent, folder, number, info, lost)
+        # Corrupted skill values (src/vv_corrupt_skills.py), before any rename: the record names each
+        # villager as the save names them now.
+        if skills["reset"]:
+            grave_lines += self._reset_corrupt_skills(parent, folder, number, info)
         # The cut names first of the renames, so last names and numbering never work from a cut name
         # (the checklist leaves those off while the cut names are restored).  After the lines above
         # are added: a renamed line changes no line count, and the like / dislike words are put right
@@ -3583,6 +3637,12 @@ class App(tk.Tk):
                         else f"{sum(f.count for f in fixes)} record(s) removed" if getattr(kind, "removes", None)
                         else f"{sum(f.count for f in fixes)} line(s) added")
                 lines.append(f"{kind.label}: {done} in {len(fixes)} log file(s).")
+        if getattr(result, "answered", None):
+            lines.append(f"The reconciliation's questions you answered: {len(result.answered)} (remembered, and "
+                         "listed in the Repairs log).")
+        for (old, head, body), new in getattr(result, "renamed", {}).items():
+            lines.append(f"{old} (head {head}, body {body}) has the name {new} back, in the save, the logs and the "
+                         "patcher's files.")
         if len(lines) > (1 if rearm else 0):
             lines.append("Each log was backed up beside itself; everything is listed in the Repairs log.")
         self.status_var.set(f"Repair Saves & Logs: {info.name} done.")
@@ -3796,7 +3856,8 @@ class App(tk.Tk):
 
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
-                          speed: tuple | None = None, misnumbered: dict | None = None, graves=None):
+                          speed: tuple | None = None, misnumbered: dict | None = None, graves=None,
+                          skills: dict | None = None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -3913,6 +3974,22 @@ class App(tk.Tk):
             ttk.Button(graves_row, text="Choose…",
                        command=lambda: self._graves_dialog(window, number, graves, grave_state, graves_var)
                        ).pack(side="left", padx=(8, 0))
+        # Reset corrupted skill values (src/vv_corrupt_skills.py; the owner, v1.35.70): ticked only when
+        # the save holds one -- NaN, infinite, below 0 or above 100.
+        skills = skills if skills is not None else {"found": [], "note": None, "reset": False}
+        skills_var = tk.BooleanVar(value=bool(skills["found"]))
+        skills_tick = ttk.Checkbutton(
+            frame, variable=skills_var,
+            text=f"Reset corrupted skill values: {len(skills['found'])} found (NaN, infinite, below 0 or "
+                 "above 100; each to 0, or to 100 when above it)")
+        skills_tick.pack(anchor="w", pady=(4, 0))
+        if not skills["found"]:
+            skills_tick.state(["disabled"])
+        for line in ([r.describe() for r in skills["found"][:8]]
+                     + ([f"... and {len(skills['found']) - 8} more"] if len(skills["found"]) > 8 else [])
+                     + ([skills["note"]] if skills.get("note") else [])):
+            ttk.Label(frame, text=line, wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
         # Game speed Paused in backups and in saves the player picks (the owner, 2026-10-08): a
         # restored backup must never catch up on the time since it was made.
         pause_backups_var = tk.BooleanVar(value=bool(unpaused))
@@ -3961,6 +4038,7 @@ class App(tk.Tk):
 
         def go() -> None:
             restore = bool(cuts) and cuts_var.get()
+            skills["reset"] = bool(skills["found"]) and skills_var.get()
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
                                  names if names_var.get() and (names["chosen"] or names.get("rules_changed")
                                                                or names.get("arrivals_changed"))
@@ -4021,7 +4099,8 @@ class App(tk.Tk):
                        "the rule above. A villager who arrived through an event has no last name unless you give "
                        "one (or the box below gives arrivals their own). Highlighted: no last name yet. A last name the rule does not give is marked; Fix wrong last names "
                        "puts them right. Random last names gives villagers random ones from the game's list (see them here "
-                       "first). A villager whose last name will change is shown in red bold. The game must stay closed."
+                       "first). A villager whose last name, or whose own rule for their children's last names, "
+                       "will change is shown in red bold. The game must stay closed."
                   ).pack(anchor="w")
         rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
         rule_row.pack(anchor="w")
@@ -4039,7 +4118,8 @@ class App(tk.Tk):
         written_own = {k: r for k, r in vv_last_names.read_own(folder, number, info.slot).items() if k in living_keys}
         own_state: dict = dict(names["own"]) if "own" in names else dict(saved_own)
         ttk.Button(rule_row, text="Each villager's own rule…",
-                   command=lambda: self._own_rules_dialog(window, people, parents, own_state, lambda: by_rule())
+                   command=lambda: self._own_rules_dialog(window, people, parents, own_state, lambda: by_rule(),
+                                                          current=saved_own)
                    ).pack(side="left", padx=(8, 0))
         # Arriving villagers' own new last names (the owner, v1.35.66: "an optional toggle (default on) for
         # automatically assigning unique last names for arrived villagers"), kept with the village.
@@ -4185,8 +4265,11 @@ class App(tk.Tk):
             window.after_idle(fit_width)        # as wide as the longest mark, so nothing is cut off
 
         def restyle() -> None:
-            """Red bold for each villager whose last name the boxes would change (the owner, 2026-10-10)."""
+            """Red bold for each villager whose last name the boxes would change (the owner, 2026-10-10), or
+            whose own rule for their children's last names the pending choice would change (v1.35.70)."""
             changing = last_names_changing(now, {v.identity: last_in(value) for v, value, _m in rows})
+            rules = own_rules_changing(saved_own, {k: r for k, r in own_state.items() if k in living_keys})
+            changing |= {v.identity for v in people if v.alive and vv_last_names.own_key(v) in rules}
             for key, (label, asked) in labels.items():
                 style = last_name_row_style(key in changing, asked)
                 font = bold_font if style["bold"] else normal_font
@@ -4442,14 +4525,19 @@ class App(tk.Tk):
         parent.wait_window(window)
         _regrab(parent)
 
-    def _own_rules_dialog(self, parent, people: list, parents: dict, own: dict, changed) -> None:
+    def _own_rules_dialog(self, parent, people: list, parents: dict, own: dict, changed,
+                          current: dict | None = None) -> None:
         """Each living villager's own rule for their children's last name (the owner, 2026-10-09: "so
         certain villagers can pass their last name with different rules from the rest of the
         village"): "Use the village rule" or one of their own, kept in `own` on OK.  The rows read as
         the last-names window's (last_name_rows), in its order.  Villagers a birth could not tell apart
-        (the same name, looks and sex) cannot have one."""
+        (the same name, looks and sex) cannot have one.  A villager whose rule the boxes would change
+        from the one they have now (`current`, the record's; default: `own` as it comes in) reads in
+        red bold, live, and normal again when set back (the owner, v1.35.70)."""
         alike = vv_last_names.indistinguishable(people)
         words = vv_last_names.OWN_RULES
+        by_words = {text: rule for rule, text in words.items()}
+        current = dict(own) if current is None else dict(current)
         shown = [v for v in people if v.alive]
         window = tk.Toplevel(parent)
         window.title("Repair Saves & Logs: each villager's own rule")
@@ -4460,6 +4548,7 @@ class App(tk.Tk):
                        "rule. When only one parent has a rule of their own, it is used; when both do and they "
                        "agree, theirs; when they disagree, or neither has one, the village rule. Villagers "
                        "who share a name, looks and sex cannot have one (number the duplicate names first). "
+                       "A villager whose rule will change is shown in red bold. "
                        "The game must stay closed.").pack(side="top", anchor="w")
         buttons = ttk.Frame(window, padding=12)
         buttons.pack(side="bottom", anchor="w")
@@ -4475,9 +4564,26 @@ class App(tk.Tk):
         bar.pack(side="right", fill="y")
         canvas.pack(side="left", fill="both", expand=True)
         values: dict = {}
+        labels: list = []                       # (the row's label, the villager's own_key)
+        normal_font = tkfont.nametofont("TkDefaultFont")
+        bold_font = normal_font.copy()
+        bold_font.configure(weight="bold")
+
+        def pending() -> dict:
+            return {key: by_words[var.get()] for key, var in values.items() if by_words[var.get()]}
+
+        def restyle(*_args) -> None:
+            changing = own_rules_changing(current, pending())
+            for label, key in labels:
+                style = last_name_row_style(key in changing, False)
+                label.configure(font=bold_font if style["bold"] else normal_font,
+                                foreground=style["foreground"] or "")
+
         for row, (v, who) in enumerate(zip(shown, last_name_rows(shown, parents))):
             key = vv_last_names.own_key(v)
-            ttk.Label(inner, text=who).grid(row=row, column=0, sticky="w")
+            label = ttk.Label(inner, text=who)
+            label.grid(row=row, column=0, sticky="w")
+            labels.append((label, key))
             if key in alike:
                 ttk.Label(inner, foreground="#a33",
                           text="the same name, looks and sex as another villager: the village rule").grid(
@@ -4486,6 +4592,8 @@ class App(tk.Tk):
                 values[key] = tk.StringVar(value=words.get(own.get(key, ""), words[""]))
                 ttk.Combobox(inner, textvariable=values[key], values=list(words.values()), state="readonly",
                              width=22).grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
+                values[key].trace_add("write", restyle)
+        restyle()
 
         def fit_width() -> None:
             try:
@@ -4495,9 +4603,9 @@ class App(tk.Tk):
                 pass
 
         def ok() -> None:
-            by_words = {text: rule for rule, text in words.items()}
+            chosen = pending()
             own.clear()
-            own.update({key: by_words[var.get()] for key, var in values.items() if by_words[var.get()]})
+            own.update(chosen)
             window.destroy()
             changed()
 
@@ -4723,6 +4831,20 @@ class App(tk.Tk):
         return [f"Grave information fixed: {len(result.fixes)} field(s), in {len(result.files)} file(s)"
                 + (" (the old records were left as they were)" if not retro else "")
                 + f". Backup: {result.backup.backup_folder}"]
+
+    def _reset_corrupt_skills(self, parent, folder: Path, number: int, info) -> list[str]:
+        """Repair Saves & Logs' "Reset corrupted skill values" (src/vv_corrupt_skills.py), ticked in the
+        checklist: the save is surveyed again and reset with the game closed.  Returns the summary lines."""
+        try:
+            result = self._run_with_wait(
+                "Resetting corrupted skill values…\n\nThe save folder is backed up first.",
+                lambda: vv_corrupt_skills.reset(folder, number, info.slot))
+        except (vv_corrupt_skills.SkillResetError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                OSError) as exc:
+            messagebox.showerror("Repair Saves & Logs", f"The skill values were not reset. {exc}", parent=parent)
+            return []
+        return [f"Corrupted skill values reset: {len(result.reset)} (each is listed in the Repairs Made log). "
+                f"Backup: {result.backup.backup_folder}"]
 
     def _restore_lost_titles(self, parent, folder: Path, number: int, info, lost) -> list[str]:
         """Repair Saves & Logs: the custom titles (and former-Heathen marks) a change of likes or

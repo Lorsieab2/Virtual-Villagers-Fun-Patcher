@@ -260,7 +260,7 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn("    preflight_code = assemble(", source)
         cure_preflight_source = source[
             source.index("    cure_preflight_code = assemble(") :
-            source.index("    detail_preflight_code = assemble(")
+            source.index("    appearance_helper_code = assemble(")
         ]
         for check in (
             "mov ecx, 256",
@@ -323,7 +323,7 @@ class ManifestTests(unittest.TestCase):
 
         cure_preflight = source[
             source.index("    cure_preflight_code = assemble(") : source.index(
-                "    detail_preflight_code = assemble("
+                "    appearance_helper_code = assemble("
             )
         ]
         self.assertIn("mov eax, 1\n            ret", cure_preflight)
@@ -426,8 +426,10 @@ class ManifestTests(unittest.TestCase):
             source.index("        DETAIL_NOCHANGE_VA,")
         ]
         for exact_target in (
-            "cmp dword ptr [edx + 0x7E4], 100",
-            "cmp dword ptr [edx + 0x7F4], 100",
+            "cmp dword ptr [edx + eax*4 + 0x7E4], 100",
+            "cmp eax, 5",
+            "cmp dword ptr [edx + 0x52C], 0",
+            "cmp byte ptr [edx + 0x558], 0",
             "cmp dword ptr [edx + 0x530], 360",
             "cmp dword ptr [edx + 0x530], 100",
             f"cmp dword ptr [ecx], {{RUNNING_PREFERENCE_ID}}",
@@ -1172,8 +1174,10 @@ class ManifestTests(unittest.TestCase):
         # Events Log to Text File (vv2_island_events), no executable byte -- its
         # companion detours the event routines at run time; 30 with Dropping an
         # Adult on a Child Tells a Story (vv2_storytelling), no executable byte
-        # -- its companion detours the drop handler at run time.
-        self.assertEqual(len(feature_ids), 30)
+        # -- its companion detours the drop handler at run time; 31 with Keep the Game's
+        # Own Log (vv2_game_log), no executable byte -- its companion
+        # re-enables the game's ldwLog.txt calls at run time.
+        self.assertEqual(len(feature_ids), 31)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -1357,8 +1361,9 @@ class ManifestTests(unittest.TestCase):
         ):
             self.assertIn(label, resource)
         # 3 original village-wide rows (Running/Mastery/Age) plus the 2
-        # Equal Division of Labor rows, all flat 1,000,000-point rows.
-        self.assertEqual(resource.count("1,000,000 tech points"), 5)
+        # Equal Division of Labor rows and the 2 Check Highest Skill rows
+        # (v1.35.70), all flat 1,000,000-point rows.
+        self.assertEqual(resource.count("1,000,000 tech points"), 7)
         self.assertIn('PUSHBUTTON  "Buy", 1006', resource)
         self.assertIn('PUSHBUTTON  "Buy", 1007', resource)
         self.assertIn('PUSHBUTTON  "Buy", 1008', resource)
@@ -4050,6 +4055,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_details_full_names",
                 "vv2_island_events",
                 "vv2_storytelling",
+                "vv2_game_log",
             },
         )
         for mode in ALL_MODES:

@@ -30,7 +30,7 @@
 #define WS_GROUP 0x00020000L
 #define WS_TABSTOP 0x00010000L
 
-201 DIALOGEX 0, 0, 612, 232
+201 DIALOGEX 0, 0, 612, 313
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -78,7 +78,7 @@ BEGIN
     LTEXT "1,000,000 tech points", -1, 40, 181, 195, 9
     PUSHBUTTON "Buy", 1006, 240, 170, 55, 18
 
-    /* RIGHT COLUMN: rows 7-13 (x = left + 302).  icon x=310, badge x=324,
+    /* RIGHT COLUMN: rows 7-16 (x = left + 302).  icon x=310, badge x=324,
        text x=342, Buy x=542.  Icons+badges on every row (reusing the existing
        icon resources), matching the owner's preference. */
     ICON 107, -1, 310, 6, 24, 24
@@ -117,14 +117,32 @@ BEGIN
     LTEXT "1,000,000 tech points", -1, 342, 154, 195, 9
     PUSHBUTTON "Buy", 1012, 542, 143, 55, 18
 
-    ICON 106, -1, 310, 168, 24, 24
+    ICON 108, -1, 310, 168, 24, 24
     ICON 109, 1113, 324, 176, 12, 12
-    LTEXT "Change Appearance for All", -1, 342, 169, 195, 10
-    LTEXT "450,000 tech points", -1, 342, 181, 195, 9
+    LTEXT "Clear All Skill Preferences", -1, 342, 169, 195, 10
+    LTEXT "500,000 tech points", -1, 342, 181, 195, 9
     PUSHBUTTON "Buy", 1013, 542, 170, 55, 18
 
-    CTEXT "Press ESC to exit this menu.", -1, 10, 200, 592, 9
-    DEFPUSHBUTTON "Cancel", 2, 271, 212, 70, 14
+    ICON 107, -1, 310, 195, 24, 24
+    ICON 109, 1114, 324, 203, 12, 12
+    LTEXT "Check Highest Skill (Includes Parenting)", -1, 342, 196, 195, 10
+    LTEXT "1,000,000 tech points", -1, 342, 208, 195, 9
+    PUSHBUTTON "Buy", 1014, 542, 197, 55, 18
+
+    ICON 106, -1, 310, 222, 24, 24
+    ICON 109, 1115, 324, 230, 12, 12
+    LTEXT "Check Highest Skill (No Parenting)", -1, 342, 223, 195, 10
+    LTEXT "1,000,000 tech points", -1, 342, 235, 195, 9
+    PUSHBUTTON "Buy", 1015, 542, 224, 55, 18
+
+    ICON 106, -1, 310, 249, 24, 24
+    ICON 109, 1116, 324, 257, 12, 12
+    LTEXT "Change Appearance for All", -1, 342, 250, 195, 10
+    LTEXT "450,000 tech points", -1, 342, 262, 195, 9
+    PUSHBUTTON "Buy", 1016, 542, 251, 55, 18
+
+    CTEXT "Press ESC to exit this menu.", -1, 10, 281, 592, 9
+    DEFPUSHBUTTON "Cancel", 2, 271, 293, 70, 14
 END
 
 202 DIALOGEX 0, 0, 310, 204

@@ -802,6 +802,16 @@ its own place:
     folder. Numbers such as "Birth 12" or "Death 7" carry on across both,
     counted over the whole game, so no number is used twice.
 
+The game's own log (Keep the Game's Own Log (ldwLog.txt), all five games) is
+the game's file, not the patcher's, so it sits straight in the save folder:
+
+    ldwLog.txt          the current file
+    ldwLog <n>.txt      earlier ones, each about 4 MB (1 is the oldest)
+
+Each run of the game starts with a "---- Game started ----" line. The game
+writes there only what its own code contains (missing pictures and sounds,
+and in the later games its clock, text-file, healer and path-finding notes).
+
 DELETING ANY OF THESE IS SAFE. None of them is the game's save, and none is
 required for the game to run. Every mask file is read by code that clears its
 table first and treats a missing file as "this village has no masks", so

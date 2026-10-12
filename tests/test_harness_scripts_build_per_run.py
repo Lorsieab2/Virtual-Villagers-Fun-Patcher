@@ -52,8 +52,11 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # in a village made in that session keeps its cause through the save
         # and a reload) and build_paid_purchases_harness.ps1 (a bought Barrel
         # not delivered yet survives a quit), and build_vv1_mask_title_harness.ps1
-        # (A New Home's mask file at the title screen, native/shared/foreign_sidecar.h).
-        self.assertEqual(len(SCRIPTS), 28, [path.name for path in SCRIPTS])
+        # (A New Home's mask file at the title screen, native/shared/foreign_sidecar.h),
+        # and build_cause_catchup_harness.ps1 (deaths in the load-time catch-up
+        # and the bodies a load packs keep their cause), and build_equal_division_harness.ps1
+        # (Equal Division of Labor by skill, v1.35.70).
+        self.assertEqual(len(SCRIPTS), 30, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:
@@ -78,9 +81,11 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
     def test_an_out_dir_from_the_caller_is_left_to_the_caller(self) -> None:
         takes_out_dir = [path for path in SCRIPTS if "[string]$OutDir" in path.read_text(encoding="utf-8")]
         # 10, build_arrival_harness.ps1 (the Arrived records) and
-        # build_reconcile_harness.ps1 (the Elders and Statistics reconcile) and\n        # build_lost_birth_harness.ps1 (the babies lost with their mother).
+        # build_reconcile_harness.ps1 (the Elders and Statistics reconcile) and
+        # build_lost_birth_harness.ps1 (the babies lost with their mother).
         # + build_paid_purchases_harness.ps1 (a bought Barrel survives a quit).
-        self.assertEqual(len(takes_out_dir), 14)
+        # + build_equal_division_harness.ps1 (v1.35.70).
+        self.assertEqual(len(takes_out_dir), 15)
         for path in takes_out_dir:
             text = path.read_text(encoding="utf-8")
             with self.subTest(script=path.name):

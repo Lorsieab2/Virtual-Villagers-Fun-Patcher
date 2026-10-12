@@ -18,7 +18,7 @@ identity) gives them back.  It only ever adds:
   - a pregnancy's expected father is never touched;
   - a villager the file no longer names (dead and dropped by an older build) comes back as a departed
     entry in a free record, so the logs and the family tree keep their parents;
-  - two villagers who share the identity in the file or in a copy are left alone, never guessed;
+  - a copy is a source only when it is THIS village's: a strict majority of the smaller roster is found in\n    both (an ".another-village-..." copy is often a different village that was in the slot);\n  - two villagers who share the identity in the file or in a copy are left alone, never guessed;
   - a copy whose parents disagree with the villager's own Birth record (same name and looks) is not
     used for them: that is a contradiction the player decides (Check Saves & Logs lists it).
 
@@ -260,6 +260,39 @@ def _arrived_names(folder: Path, slot: int) -> set[str]:
     return out
 
 
+def _same_village(now: dict[tuple, list[int]], old: dict[tuple, list[int]]) -> bool:
+    """Is a copy this village's?  A copy set aside as "another-village" is very often a DIFFERENT
+    village (a save copied into the slot), and names and family numbers repeat across villages, so a
+    copy is a source only when a strict majority of the smaller roster is found in both, each identity
+    once on each side (the companion's own rule, vv1_roster_overlap)."""
+    if not now or not old:
+        return False
+    found = sum(1 for ident, at in old.items() if len(at) == 1 and len(now.get(ident, [])) == 1)
+    return found >= min(len(now), len(old)) // 2 + 1
+
+
+def _by_identity(table: Table) -> dict[tuple, list[int]]:
+    out: dict[tuple, list[int]] = {}
+    for i in range(COUNT):
+        ident = table.identity(i)
+        if ident is not None:
+            out.setdefault(ident, []).append(i)
+    return out
+
+
+def _refined(table: Table, by_identity: dict[tuple, list[int]], shared: set[tuple]) -> dict[tuple, list[int]]:
+    """`by_identity` with every identity in `shared` split by the looks the roster recorded:
+    (name, gender, family, head, body).  A record with no looks recorded keeps the bare identity, so
+    two such records stay one ambiguous key."""
+    out: dict[tuple, list[int]] = {}
+    for ident, at in by_identity.items():
+        for i in at:
+            head, body = table.looks(i)
+            key = (*ident, head, body) if ident in shared and head >= 0 and body >= 0 else ident
+            out.setdefault(key, []).append(i)
+    return out
+
+
 def plan(folder: Path, slot: int) -> Plan:
     folder = Path(folder)
     path = parents_path(folder, slot)
@@ -276,22 +309,22 @@ def plan(folder: Path, slot: int) -> Plan:
         by_name.setdefault(child, set()).update(parents)
     dead = _dead_names(folder, slot)
     arrived = _arrived_names(folder, slot)
-    where: dict[tuple, list[int]] = {}
-    for i in range(COUNT):
-        ident = table.identity(i)
-        if ident is not None:
-            where.setdefault(ident, []).append(i)
     done: set[tuple] = set()
     skipped: set[tuple] = set()
     for copy in copies(folder, slot):
         old = read_table(copy, slot)
         if old is None:
             continue
-        seen: dict[tuple, list[int]] = {}
-        for i in range(COUNT):
-            ident = old.identity(i)
-            if ident is not None:
-                seen.setdefault(ident, []).append(i)
+        plain = _by_identity(table)                        # again: a departed entry may have been added
+        seen_plain = _by_identity(old)
+        # NAMESAKES (the owner's two Soda Bahatis, 2026-10-11): an identity two villagers share, in the
+        # file or the copy, is told apart by the looks both rosters recorded -- the companion's own
+        # follow (vv1_follow_roster) -- and stays ambiguous where either side recorded none.
+        shared = {ident for ident, at in list(plain.items()) + list(seen_plain.items()) if len(at) > 1}
+        where = _refined(table, plain, shared)
+        seen = _refined(old, seen_plain, shared)
+        if not _same_village(where, seen):
+            continue                                       # another village's file: not a source
         for ident, at in seen.items():
             if ident in done or ident in skipped:
                 continue

@@ -16,18 +16,52 @@
  * deleted by the Start Over reset (native/shared/save_reset.c).
  *
  * FORMAT (little-endian):
- *     u32 magic 'VCT1' (0x31544356), u32 version 2, u32 game (1..5),
- *     u32 count (0..VV_TITLES_MAX), then `count` entries:
- *         u32 record index, u32 fingerprint, char title[VV_TITLE_BYTES]
- *     The file is exactly 16 + count * 40 bytes.
+ *     u32 magic 'VCT1' (0x31544356), u32 version 3, u32 game (1..5),
+ *     u32 count (0..VV_TITLES_MAX), then `count` entries of 84 bytes:
+ *         u32 record index, or VV_TITLE_PENDING (0xFFFFFFFF)
+ *         u32 fingerprint
+ *         u32 flags: bit 0 VV_TITLE_KNOWN = the looks below were read from
+ *             the villager (0: not yet -- an entry carried over from a
+ *             version 2 file -- and the looks are all 0)
+ *             bit 1 VV_TITLE_CONTESTED = pending only: while it waited,
+ *             two or more villagers could be them at once, so the companion
+ *             never binds it again by itself (the reconciliation asks)
+ *         i32 age, i32 head, i32 body, i32 sex (the record's own values)
+ *         u32 skills[VV_TITLE_SKILLS] (the record's own dwords: ints in A New
+ *             Home to The Secret City, floats in The Tree of Life and New
+ *             Believers; 0 past the game's own skill count)
+ *         char title[VV_TITLE_BYTES]
+ *     The file is exactly 16 + count * 84 bytes.
+ *
+ *     Version 2 (v1.35.58 to v1.35.69) is still read: 40-byte entries of
+ *     u32 record index, u32 fingerprint, char title[32], each taken as a
+ *     bound entry whose looks are not known yet; the companion writes the
+ *     table back as version 3.  Version 1 hashed the name alone, and names
+ *     repeat, so a v1 file is set aside, never read.
  *
  * A title belongs to the villager in record `index` whose name, likes and
- * dislikes hash to `fingerprint` (vv_title_identity; version 1 hashed the
- * name alone, and names repeat, so a v1 file is set aside, never read).  A record index alone is not an identity -- the games reuse
- * a dead villager's record for the next birth -- so every reader checks the
- * fingerprint against the record it is about to label, and shows nothing when
- * it differs.  A title is printable ASCII (the games' fonts), at most
- * VV_TITLE_MAX characters, never empty. */
+ * dislikes hash to `fingerprint` (vv_title_identity).  A record index alone
+ * is not an identity -- the games reuse a dead villager's record for the next
+ * birth -- so every reader checks the fingerprint against the record it is
+ * about to label, and shows nothing when it differs.
+ *
+ * A PENDING title (index VV_TITLE_PENDING) is one whose villager could not be
+ * told apart after a load: two present villagers could be them, or none.  It
+ * is shown on nobody and is never dropped for that; the companion binds it
+ * again once exactly one present villager has the whole stored identity --
+ * the fingerprint, the same head, body and sex, and an age and every skill no
+ * lower than stored (a villager only grows older and more skilled) -- and no
+ * other entry claims that villager.  NEVER A GUESS (the owner): a pending
+ * title that two or more villagers could be at once is CONTESTED, and when
+ * the others later die or leave, the one left is not taken for them -- that
+ * would be a guess -- so a contested title waits for the player.  The
+ * read-only reconciliation asks the player about every pending title,
+ * naming who could be them (src/vv_reconcile.py).  The stored age and
+ * skills are the values the companion first saw the villager with in the
+ * session (the save's own, so a later save never holds less).
+ *
+ * A title is printable ASCII (the games' fonts), at most VV_TITLE_MAX
+ * characters, never empty. */
 #ifndef VV_CUSTOM_TITLES_H
 #define VV_CUSTOM_TITLES_H
 
@@ -35,20 +69,94 @@
 #include <string.h>
 
 #define VV_TITLES_MAGIC 0x31544356u     /* 'VCT1' */
-#define VV_TITLES_VERSION 2u
+#define VV_TITLES_VERSION 3u
+#define VV_TITLES_VERSION_2 2u
 #define VV_TITLES_MAX 256
 #define VV_TITLE_BYTES 32
 #define VV_TITLE_MAX (VV_TITLE_BYTES - 1)
+#define VV_TITLE_SKILLS 6               /* New Believers has six skills, the others five */
+#define VV_TITLE_PENDING 0xFFFFFFFFu
+#define VV_TITLE_KNOWN 1u
+#define VV_TITLE_CONTESTED 2u           /* pending only: two or more could be them while it waited */
+#define VV_TITLE_FLAGS (VV_TITLE_KNOWN | VV_TITLE_CONTESTED)
 #define VV_TITLES_HEADER 16u
-#define VV_TITLES_ENTRY 40u
+#define VV_TITLES_ENTRY 84u
+#define VV_TITLES_ENTRY_2 40u
 #define VV_TITLES_FILE_MAX (VV_TITLES_HEADER + VV_TITLES_MAX * VV_TITLES_ENTRY)
 #define VV_TITLES_SUBFOLDER "Virtual Villagers Fun Patcher Data\\Custom Titles"
 
+/* What a title's villager looked like besides the fingerprint. */
 typedef struct {
-    unsigned int index;
+    int age;
+    int head;
+    int body;
+    int sex;
+    unsigned int skills[VV_TITLE_SKILLS];
+} vv_title_looks;
+
+typedef struct {
+    unsigned int index;             /* the record, or VV_TITLE_PENDING */
     unsigned int fingerprint;
+    unsigned int flags;             /* VV_TITLE_KNOWN */
+    vv_title_looks looks;
     char title[VV_TITLE_BYTES];
 } vv_custom_title;
+
+static float vv_title_skill_float(unsigned int raw) {
+    float value;
+    memcpy(&value, &raw, sizeof value);
+    return value;
+}
+
+#define VV_TITLE_SKILL_MAX 100
+
+/* One skill dword as the corrupted-skill reset leaves it (native/shared/
+   skill_repair.h, src/vv_corrupt_skills.py): NaN, +-infinity or below 0 ->
+   0, above 100 -> 100, anything else as it is.  A title's skills are stored
+   and compared so, so a reset of a corrupted value never makes its villager
+   look like someone else. */
+static unsigned int vv_title_skill_normalised(unsigned int raw, int skills_float) {
+    if (skills_float) {
+        /* By the bits, so no floating-point mode can change it: an all-ones
+           exponent is NaN or infinity, the sign bit a value below 0. */
+        if ((raw & 0x7F800000u) == 0x7F800000u || (raw & 0x80000000u) != 0u) {
+            return 0u;                                        /* 0.0f */
+        }
+        return vv_title_skill_float(raw) > (float)VV_TITLE_SKILL_MAX ? 0x42C80000u : raw;   /* 100.0f */
+    }
+    if ((int)raw < 0) {
+        return 0u;
+    }
+    return (int)raw > VV_TITLE_SKILL_MAX ? (unsigned int)VV_TITLE_SKILL_MAX : raw;
+}
+
+static void vv_title_normalise_skills(vv_title_looks *looks, int skills_float) {
+    int k;
+    for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+        looks->skills[k] = vv_title_skill_normalised(looks->skills[k], skills_float);
+    }
+}
+
+/* Could the villager `now` (head, body and sex as they are; age and skills
+   as first seen this session) be the one `stored` was taken from?  The same
+   head, body and sex; no younger; no skill lower -- both sides' skills taken
+   as the corrupted-skill reset leaves them, so a reset is never a lower
+   skill.  `skills_float`: the game keeps float skills. */
+static int vv_title_looks_could_be(const vv_title_looks *stored, const vv_title_looks *now, int skills_float) {
+    int k;
+    if (stored->head != now->head || stored->body != now->body || stored->sex != now->sex
+        || now->age < stored->age) {
+        return 0;
+    }
+    for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+        unsigned int was = vv_title_skill_normalised(stored->skills[k], skills_float);
+        unsigned int is = vv_title_skill_normalised(now->skills[k], skills_float);
+        if (skills_float ? vv_title_skill_float(is) < vv_title_skill_float(was) : (int)is < (int)was) {
+            return 0;
+        }
+    }
+    return 1;
+}
 
 /* FNV-1a over the villager's own name (up to `capacity` bytes, stopping at
    the terminator), with a terminator mixed in so a short name is not a
@@ -110,35 +218,67 @@ static unsigned int vv_titles_u32(const unsigned char *p) {
 }
 
 /* Structural validation of a whole file for `game` (passed as ctx, an int*):
-   the header, the exact size, every index below `slots`, every title valid,
-   and no index listed twice. */
+   the header, the version (3, or 2 from older releases), the exact size,
+   every index below `slots` or pending, every fingerprint non-zero, every
+   flag known, the looks all 0 when not known, every title valid, and no
+   record listed twice. */
 typedef struct {
     int game;
     unsigned int slots;
 } vv_titles_check;
 
+static unsigned int vv_titles_entry_size(unsigned int version) {
+    return version == VV_TITLES_VERSION ? VV_TITLES_ENTRY : VV_TITLES_ENTRY_2;
+}
+
+/* Where an entry's title is (the last 32 bytes of either version's entry). */
+#define VV_TITLES_TITLE_AT(size) ((size) - VV_TITLE_BYTES)
+
 static int vv_titles_validate(const unsigned char *data, DWORD len, void *ctx) {
     const vv_titles_check *check = (const vv_titles_check *)ctx;
     unsigned int count;
+    unsigned int version;
+    unsigned int size;
     unsigned int i;
     unsigned int j;
     if (len < VV_TITLES_HEADER || vv_titles_u32(data) != VV_TITLES_MAGIC
-        || vv_titles_u32(data + 4) != VV_TITLES_VERSION
         || vv_titles_u32(data + 8) != (unsigned int)check->game) {
         return 0;
     }
+    version = vv_titles_u32(data + 4);
+    if (version != VV_TITLES_VERSION && version != VV_TITLES_VERSION_2) {
+        return 0;
+    }
+    size = vv_titles_entry_size(version);
     count = vv_titles_u32(data + 12);
-    if (count > VV_TITLES_MAX || len != VV_TITLES_HEADER + count * VV_TITLES_ENTRY) {
+    if (count > VV_TITLES_MAX || len != VV_TITLES_HEADER + count * size) {
         return 0;
     }
     for (i = 0; i < count; ++i) {
-        const unsigned char *e = data + VV_TITLES_HEADER + i * VV_TITLES_ENTRY;
-        if (vv_titles_u32(e) >= check->slots || vv_titles_u32(e + 4) == 0
-            || !vv_title_valid((const char *)(e + 8))) {
+        const unsigned char *e = data + VV_TITLES_HEADER + i * size;
+        unsigned int index = vv_titles_u32(e);
+        if (index == VV_TITLE_PENDING ? version != VV_TITLES_VERSION : index >= check->slots) {
             return 0;
         }
-        for (j = 0; j < i; ++j) {
-            if (vv_titles_u32(data + VV_TITLES_HEADER + j * VV_TITLES_ENTRY) == vv_titles_u32(e)) {
+        if (vv_titles_u32(e + 4) == 0 || !vv_title_valid((const char *)(e + VV_TITLES_TITLE_AT(size)))) {
+            return 0;
+        }
+        if (version == VV_TITLES_VERSION) {
+            unsigned int flags = vv_titles_u32(e + 8);
+            if ((flags & ~VV_TITLE_FLAGS) != 0
+                || ((flags & VV_TITLE_CONTESTED) && index != VV_TITLE_PENDING)) {
+                return 0;
+            }
+            if (!(flags & VV_TITLE_KNOWN)) {
+                for (j = 12; j < 12 + (unsigned int)sizeof(vv_title_looks); ++j) {
+                    if (e[j] != 0) {
+                        return 0;
+                    }
+                }
+            }
+        }
+        for (j = 0; j < i && index != VV_TITLE_PENDING; ++j) {
+            if (vv_titles_u32(data + VV_TITLES_HEADER + j * size) == index) {
                 return 0;
             }
         }
@@ -146,22 +286,30 @@ static int vv_titles_validate(const unsigned char *data, DWORD len, void *ctx) {
     return 1;
 }
 
-/* Copy the entries of a validated file into `out`; returns the count. */
+/* Copy the entries of a validated file into `out`; returns the count.  A
+   version 2 entry is bound, its looks not known yet. */
 static int vv_titles_parse(const unsigned char *data, vv_custom_title *out) {
+    unsigned int version = vv_titles_u32(data + 4);
+    unsigned int size = vv_titles_entry_size(version);
     unsigned int count = vv_titles_u32(data + 12);
     unsigned int i;
     for (i = 0; i < count; ++i) {
-        const unsigned char *e = data + VV_TITLES_HEADER + i * VV_TITLES_ENTRY;
+        const unsigned char *e = data + VV_TITLES_HEADER + i * size;
+        memset(&out[i], 0, sizeof out[i]);
         out[i].index = vv_titles_u32(e);
         out[i].fingerprint = vv_titles_u32(e + 4);
-        memcpy(out[i].title, e + 8, VV_TITLE_BYTES);
+        if (version == VV_TITLES_VERSION) {
+            out[i].flags = vv_titles_u32(e + 8);
+            memcpy(&out[i].looks, e + 12, sizeof out[i].looks);
+        }
+        memcpy(out[i].title, e + VV_TITLES_TITLE_AT(size), VV_TITLE_BYTES);
         out[i].title[VV_TITLE_MAX] = '\0';
     }
     return (int)count;
 }
 
 /* Serialise `count` entries (at most VV_TITLES_MAX) into `out`, which must
-   hold VV_TITLES_FILE_MAX bytes.  Returns the byte count. */
+   hold VV_TITLES_FILE_MAX bytes, as version 3.  Returns the byte count. */
 static DWORD vv_titles_serialise(int game, const vv_custom_title *entries, int count,
                                  unsigned char *out) {
     unsigned int header[4];
@@ -173,10 +321,18 @@ static DWORD vv_titles_serialise(int game, const vv_custom_title *entries, int c
     memcpy(out, header, sizeof header);
     for (i = 0; i < count; ++i) {
         unsigned char *e = out + VV_TITLES_HEADER + (unsigned int)i * VV_TITLES_ENTRY;
+        unsigned int flags = entries[i].flags
+            & (entries[i].index == VV_TITLE_PENDING ? VV_TITLE_FLAGS : VV_TITLE_KNOWN);
         memcpy(e, &entries[i].index, 4);
         memcpy(e + 4, &entries[i].fingerprint, 4);
-        memset(e + 8, 0, VV_TITLE_BYTES);
-        lstrcpynA((char *)(e + 8), entries[i].title, VV_TITLE_BYTES);
+        memcpy(e + 8, &flags, 4);
+        if (flags & VV_TITLE_KNOWN) {
+            memcpy(e + 12, &entries[i].looks, sizeof entries[i].looks);
+        } else {
+            memset(e + 12, 0, sizeof entries[i].looks);
+        }
+        memset(e + 52, 0, VV_TITLE_BYTES);
+        lstrcpynA((char *)(e + 52), entries[i].title, VV_TITLE_BYTES);
     }
     return VV_TITLES_HEADER + (DWORD)count * VV_TITLES_ENTRY;
 }

@@ -384,6 +384,7 @@ int main(int argc, char **argv) {
             villager(3, "Hoani", 900, 5, 6);
             *(int *)(rec(3) + PREFS[game_index].likes) = 2;
             *(int *)(rec(3) + PREFS[game_index].dislikes) = 1;
+            memset(&entry, 0, sizeof entry);
             entry.index = 3;
             entry.fingerprint = vv_title_identity(rec(3), g->name, g->name_cap, PREFS[game_index].likes,
                                                   PREFS[game_index].dislikes, PREFS[game_index].slots);
@@ -414,6 +415,17 @@ int main(int argc, char **argv) {
             CHECK(strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 901\r\n") != NULL,
                   "...without a title neither villager can be told to have");
             rec(4)[g->active] = 0;
+            /* A PENDING title (v1.35.70: kept, shown on nobody, until the
+               Story companion binds it again) prints no line either. */
+            entry.index = VV_TITLE_PENDING;
+            size = vv_titles_serialise(game, &entry, 1, blob);
+            h = CreateFileA(titles_path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+            put = 0;
+            if (h != INVALID_HANDLE_VALUE) { WriteFile(h, blob, size, &put, NULL); CloseHandle(h); }
+            CHECK(put == size && write_record(game, DISAPPEARED, rec(3), 1, "  Age: 903\n", NULL, 1) == 1
+                  && read_deaths(game, 1)
+                  && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 903\r\n") != NULL,
+                  "A PENDING CUSTOM TITLE IS PRINTED FOR NOBODY");
             DeleteFileA(titles_path);
             RemoveDirectoryA(titles_dir);
             RemoveDirectoryA(data_dir);
@@ -546,7 +558,7 @@ int main(int argc, char **argv) {
             memset(stray, 0, sizeof stray);
             CHECK(write_record(game, DEATH, stray + 0x10, 1, BURIED, NULL, 1) == 0, "a record outside the table is refused");
             CHECK(write_record(game, DEATH, rec(1) + 4, 1, BURIED, NULL, 1) == 0, "a pointer inside a record is refused");
-            CHECK(write_record(game, 10, rec(1), 1, BURIED, NULL, 1) == 0
+            CHECK(write_record(game, 11, rec(1), 1, BURIED, NULL, 1) == 0
                   && write_record(game, 1, rec(1), 1, BURIED, NULL, 1) == 0, "a kind out of range is refused");
         }
         /* "Appearance changed" (kind 7): the Births and Conceptions log, unnumbered, the name and the
@@ -564,6 +576,19 @@ int main(int argc, char **argv) {
               && strstr(text, "\r\nAppearance changed\r\n  Name: ") != NULL
               && strstr(text, "  Old head: 3\r\n  Old body: 4\r\n  New head: 7\r\n  New body: 8\r\n\r\n") != NULL,
               "Appearance changed: in the Births and Conceptions log at the save, unnumbered, both looks");
+        /* "Name changed" (kind 10): a name that changed in play, recorded so it is never hidden (the
+           owner, 2026-10-11: "Iruwa Okelani" became a second "Tiki Alosaka" with no record).  The
+           Births and Conceptions log, unnumbered, held until the next save like Appearance changed. */
+        CHECK(write_record(game, 10, rec(1), 1, "  Old name: Iruwa Okelani\n  Age: 600\n", NULL, 1) == 1,
+              "a Name changed record is accepted");
+        CHECK(!read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+              || strstr(text, "\r\nName changed\r\n") == NULL,
+              "Name changed: held, not on disk before the save");
+        CHECK(ensure_village(game, VILLAGE, records) == 1, "...the save");
+        CHECK(read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+              && strstr(text, "\r\nName changed\r\n  Name: ") != NULL
+              && strstr(text, "  Old name: Iruwa Okelani\r\n  Age: 600\r\n  Head: ") != NULL,
+              "Name changed: in the Births and Conceptions log at the save, unnumbered, the old name and the looks");
 
         /* 6: the roll (VV1 only; the code is shared). */
         if (game == 1) {

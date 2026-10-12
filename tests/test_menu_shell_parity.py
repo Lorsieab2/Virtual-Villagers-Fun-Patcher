@@ -54,7 +54,15 @@ MENU_SPECS = {
         "detail_token": "IDD_ORIGINS_VILLAGER",
         "handler": "upgrade_dialog",
         "entry": "show_upgrade_menu",
-        "tech_rows": COMMON_TECH_ROWS + COMMON_TECH_TAIL,
+        # The companion-only skill-preference rows (1012-1014) follow the two
+        # Equal Division rows; Change Appearance for All keeps control 1011.
+        "tech_rows": COMMON_TECH_ROWS + EQUAL_DIVISION_ROWS + (
+            ("Clear All Skill Preferences", "500,000 tech points"),
+            ("Check Highest Skill (Includes Parenting)", "1,000,000 tech points"),
+            ("Check Highest Skill (No Parenting)", "1,000,000 tech points"),
+            ("Change Appearance for All", "450,000 tech points"),
+        ),
+        "tech_controls": tuple(range(1000, 1011)) + (1012, 1013, 1014, 1011),
     },
     "vv2": {
         "rc": "native/vv2_origins_icons/vv2_origins_icons.rc",
@@ -65,7 +73,15 @@ MENU_SPECS = {
         "detail_token": "IDD_VV2_VILLAGER",
         "handler": "vv2_upgrade_dialog",
         "entry": "ShowVV2UpgradeMenuState",
-        "tech_rows": COMMON_TECH_ROWS + COLLECTION_ROWS + COMMON_TECH_TAIL,
+        # The companion-only skill-preference rows (1014-1016) follow the two
+        # Equal Division rows; Change Appearance for All keeps control 1013.
+        "tech_rows": COMMON_TECH_ROWS + COLLECTION_ROWS + EQUAL_DIVISION_ROWS + (
+            ("Clear All Skill Preferences", "500,000 tech points"),
+            ("Check Highest Skill (Includes Parenting)", "1,000,000 tech points"),
+            ("Check Highest Skill (No Parenting)", "1,000,000 tech points"),
+            ("Change Appearance for All", "450,000 tech points"),
+        ),
+        "tech_controls": tuple(range(1000, 1013)) + (1014, 1015, 1016, 1013),
     },
     "vv3": {
         "rc": "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.rc",
@@ -76,7 +92,16 @@ MENU_SPECS = {
         "detail_token": "IDD_ORIGINS_VILLAGER",
         "handler": "upgrade_dialog",
         "entry": "show_upgrade_menu",
-        "tech_rows": COMMON_TECH_ROWS + COLLECTION_ROWS + COMMON_TECH_TAIL,
+        # The three skill-preference rows follow the two Equal Division rows
+        # on screen; Change Appearance for All is drawn last but keeps
+        # control 1013, the row number the executable's payload routes.
+        "tech_rows": COMMON_TECH_ROWS + COLLECTION_ROWS + EQUAL_DIVISION_ROWS + (
+            ("Clear All Skill Preferences", "500,000 tech points"),
+            ("Check Highest Skill (Includes Parenting)", "1,000,000 tech points"),
+            ("Check Highest Skill (No Parenting)", "1,000,000 tech points"),
+            ("Change Appearance for All", "450,000 tech points"),
+        ),
+        "tech_controls": tuple(range(1000, 1013)) + (1014, 1015, 1016, 1013),
     },
     "vv4": {
         "rc": "native/vv4_origins_icons/vv4_origins_icons.rc",
@@ -87,7 +112,13 @@ MENU_SPECS = {
         "detail_token": "IDD_ORIGINS_VILLAGER",
         "handler": "upgrade_dialog",
         "entry": "show_upgrade_menu",
-        "tech_rows": COMMON_TECH_ROWS + COLLECTION_ROWS + COMMON_TECH_TAIL,
+        # The three skill-preference rows follow the two Equal Division rows.
+        "tech_rows": COMMON_TECH_ROWS + COLLECTION_ROWS + EQUAL_DIVISION_ROWS + (
+            ("Clear All Skill Preferences", "500,000 tech points"),
+            ("Check Highest Skill (Includes Parenting)", "1,000,000 tech points"),
+            ("Check Highest Skill (No Parenting)", "1,000,000 tech points"),
+            ("Change Appearance for All", "450,000 tech points"),
+        ),
     },
     "vv5": {
         "rc": "native/vv5_task9_origins/vv5_task9_origins.rc",
@@ -98,7 +129,13 @@ MENU_SPECS = {
         "detail_token": "IDD_ORIGINS_VILLAGER",
         "handler": "upgrade_dialog",
         "entry": "ShowOriginsUpgradeMenuState",
-        "tech_rows": COMMON_TECH_ROWS + COLLECTION_ROWS + COMMON_TECH_TAIL,
+        # The three skill-preference rows follow the two Equal Division rows.
+        "tech_rows": COMMON_TECH_ROWS + COLLECTION_ROWS + EQUAL_DIVISION_ROWS + (
+            ("Clear All Skill Preferences", "500,000 tech points"),
+            ("Check Highest Skill (Includes Parenting)", "1,000,000 tech points"),
+            ("Check Highest Skill (No Parenting)", "1,000,000 tech points"),
+            ("Change Appearance for All", "450,000 tech points"),
+        ),
     },
 }
 
@@ -178,8 +215,11 @@ class MenuShellParityTests(unittest.TestCase):
                 resource = (ROOT / spec["rc"]).read_text(encoding="utf-8")
                 tech = _dialog_block(resource, spec["tech_id"])
                 detail = _dialog_block(resource, spec["detail_id"])
+                controls = spec.get(
+                    "tech_controls", tuple(range(1000, 1000 + len(spec["tech_rows"])))
+                )
                 expected_tech = [
-                    (label, cost, 1000 + row)
+                    (label, cost, controls[row])
                     for row, (label, cost) in enumerate(spec["tech_rows"])
                 ]
                 expected_detail = [

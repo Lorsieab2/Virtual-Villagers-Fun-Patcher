@@ -110,7 +110,10 @@ static int sq_blocked;                      /* its file is there and cannot be r
 static sq_file sq_now_state;                /* the queue as captured, and as last written */
 static sq_file sq_written;
 static int sq_written_known;
-static ce_choice sq_choice_buf;             /* a question, read or written with the record */
+static int sq_foreign;                      /* the file is ANOTHER village's: this array is not where the purchase was bought */
+static sq_file sq_inherited;                /* ...and what was already queued in memory when that array came on screen */
+static unsigned int sq_inherited_bits;      /* those items while they are still unchanged: never this array's */
+static ce_choice sq_choice_buf;            /* a question, read or written with the record */
 
 static const char *const SQ_SAVE_STEMS[6] = {
     "", "Virtual Villagers", "Virtual Villagers - The Lost Children", "Virtual Villagers - The Secret City",
@@ -471,6 +474,8 @@ static void sq_sync(int game, int lazy) {
         sq_generation = story_village_generation;
         memcpy(sq_roster, roster, sizeof roster);
         sq_blocked = 0;
+        sq_foreign = 0;
+        sq_inherited_bits = 0u;
         memset(&sq_written, 0, sizeof sq_written);
         sq_written_known = 1;
         read = sq_read(game, slot, &file, &sq_choice_buf);
@@ -497,6 +502,17 @@ static void sq_sync(int game, int lazy) {
                    rewritten below without it. */
                 sq_written = file;
                 sq_written.have = had;
+            } else {
+                /* ANOTHER VILLAGE'S PURCHASE IS NEVER REPLACED (the same rule as
+                   the Barrel of Babies' file, native/shared/paid_purchases.h): a
+                   purchase still queued in memory when the records show another
+                   array with the slot unchanged -- the title screen's seeded
+                   founders after a quit to the menu -- is not that array's, and
+                   the file of the village it was bought in stays as it is until
+                   this array queues something of its own. */
+                sq_foreign = 1;
+                sq_capture(game, &sq_inherited);
+                sq_inherited_bits = sq_inherited.have & (SQ_PICK | SQ_CUSTOM | SQ_GONG | SQ_SKIP);
             }
         } else if (read != 0) {
             sq_remove(game, slot);          /* malformed or another layout: nothing it says can be used */
@@ -507,6 +523,34 @@ static void sq_sync(int game, int lazy) {
     }
     memcpy(sq_roster, roster, sizeof roster);
     sq_capture(game, &sq_now_state);
+    /* Only an item this array queued itself is its own: what was in memory
+       when it came on screen is the other village's, and is never written --
+       not while the file is still the other village's, and not once this array
+       queues something of its own and the file becomes its (review of #585:
+       the file then took both villages' items, and the first village's paid
+       purchase could be restored or delivered in the second).  An item stops
+       being inherited once it changes or goes. */
+    for (bit = SQ_PICK; bit <= SQ_SKIP; bit <<= 1) {
+        if (!(sq_inherited_bits & bit)) {
+            continue;
+        }
+        if ((sq_now_state.have & bit)
+            && (!sq_item_differs(&sq_now_state, &sq_inherited, bit)
+                || (bit == SQ_CUSTOM && sq_custom_only_asked_differs(&sq_now_state, &sq_inherited)))) {
+            sq_now_state.have &= ~bit;      /* still the other village's purchase */
+            if (bit == SQ_CUSTOM) {
+                sq_now_state.have &= ~SQ_ASKED;
+            }
+        } else {
+            sq_inherited_bits &= ~bit;
+        }
+    }
+    if (sq_foreign) {
+        if (sq_now_state.have == 0u) {
+            return;                         /* nothing of its own: the file stays the other village's */
+        }
+        sq_foreign = 0;                     /* it queued something: the file is its own now */
+    }
     now = sq_clock();
     for (bit = SQ_PICK; bit <= SQ_SKIP; bit <<= 1) {
         int k = sq_bit_index(bit);

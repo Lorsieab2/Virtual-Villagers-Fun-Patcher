@@ -56,6 +56,8 @@ CHECKED = {
                   "conversion and \"Left the tribe\" records, and the player's answers",
     "contradictions": "the records that contradict each other (one villager born and arrived, or arrived twice; "
                       "a Death or Repair number used twice), against the save, the logs and the player's answers",
+    "reconcile": "the read-only reconciliation's contradictions between the save, its older generations, the "
+                 "logs and the patcher's files, and the player's answers",
     "born_arrived": "the backfilled \"How: unknown\" Arrived records of villagers the log already records "
                     "(a Birth record, or an Arrived record that says how they came), and the player's answers",
 }
@@ -66,7 +68,8 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "lost": "Lost before birth added",
          "left_tribe": "Left the tribe record added",
          "contradictions": "Contradicting records taken out or renumbered",
-         "born_arrived": "Duplicate backfilled Arrived record removed"}
+         "born_arrived": "Duplicate backfilled Arrived record removed",
+         "reconcile": "Answered"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
 # The owner's question after every contradiction's verdict (src/vv_log_decisions.py): edit the old
@@ -1274,6 +1277,9 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     ]
     import vv_log_contradictions
     kinds.append(vv_log_contradictions.plan(folder, game, slot))
+    # The read-only reconciliation's contradictions, asked before any repair (src/vv_reconcile.py).
+    import vv_reconcile
+    kinds.append(vv_reconcile.kind(folder, game, slot))
     return kinds
 
 

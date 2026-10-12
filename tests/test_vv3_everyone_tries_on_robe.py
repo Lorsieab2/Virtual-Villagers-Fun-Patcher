@@ -213,17 +213,21 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for Fix Vanilla Bugs' Details-screen likes/dislikes (a negative slot is skipped):
     # putting its two 4-byte sites (0x5537C, 0x547FC) back to stock and recomputing the CheckSum
     # gives the previous digest in all three modes.
+    # Re-pinned for the Details rows 0-3 dead-villager refusal (payload +0x320 check, detail_menu).
+    # Re-pinned for Fix Vanilla Bugs' Details name box identity guard: putting its rows
+    # (tests/test_details_name_identity.py) back to stock and recomputing the CheckSum gives the
+    # previous digest in all three modes.
     "stock": (
-        "F63A8869805710BAA300290EF7E6E4705A83A38053650605585D61E825E7BF72",
-        "1CAD0D00",
+        "0B0FB32420F46CD9538E9CD3879159F87408EF45EF744576BF95F457B5C9660F",
+        "664B0D00",
     ),
     "collection_progression": (
-        "8EF39B0CD9135A36272BCE4AB5173F6AF7F4BF4E7DF42D3836776AA812F02727",
-        "1CC60D00",
+        "050E57506862F1956A8A25375E1B2240061989D2B3D677B973BF127BA137CE30",
+        "66640D00",
     ),
     "immediate_fixed": (
-        "9BBC5D50DCA0743F71B42017C2CEEE0C4F7F47CD5F6FFC326F1853F614227E28",
-        "1B080D00",
+        "5F0545C4800F81855E684B27DA88FD19124090BCD63E8A7EB1514356C02C5A4B",
+        "64A60D00",
     ),
 }
 

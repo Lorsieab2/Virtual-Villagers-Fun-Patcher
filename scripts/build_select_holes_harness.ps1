@@ -49,7 +49,13 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "select-holes harness failed to build" }
 
     & $out
-    if ($LASTEXITCODE -ne 0) { throw "select-holes harness reported failures" }
+    # The code itself says what happened: 1 is failed checks (listed above),
+    # 2 a refusal (reason on stderr), and anything like 0xC0000142 or
+    # 0xC0000005 a process that died before or while running its checks.
+    $code = $LASTEXITCODE
+    if ($code -ne 0) {
+        throw ("select-holes harness reported failures (exit code {0}, 0x{1:X8})" -f $code, $code)
+    }
 }
 finally {
     Remove-Item -LiteralPath $outDir -Recurse -Force -ErrorAction SilentlyContinue

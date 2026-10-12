@@ -1,0 +1,51 @@
+{
+  "id": "vv5_game_log",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Keep the Game's Own Log (ldwLog.txt)",
+  "description": "Keeps the game's own log, 'ldwLog.txt' in the game's save folder (Documents\\LDW\\<game executable name>\\). Every Virtual Villagers game has always had this log, but the base game starts the file afresh the first time it writes in each run (erasing the earlier runs' lines), holds what it writes in memory until the game closes (a crash loses it), and writes only when something goes wrong -- so most players never see the file. Now each time the game opens it adds a \"---- Game started ----\" line, and every line the game writes is added to the file at once and kept: a missing font picture, a missing picture, a missing sound, \"Seconds Timer out of bounds!\" (the computer's clock was set back, so the game's one-second timer is ahead of it), a text the game asks for that is missing from its text file (sm.xml), a text in sm.xml with no end, a villager who is stuck, a villager who cannot find a way to where it is going, a healer who could not find anyone to heal and each villager walking to the love shack door. New Believers' code contains no tip line, so tips cannot be logged. A line repeated without a break is written once a minute with how many times it repeated, at most 1,000 lines are written a minute, and when the file reaches 4 MB it is renamed 'ldwLog 1.txt' (then 2, 3, ...) and a new one is started, so no file grows without limit; nothing is ever deleted. **Needs no other patch.**",
+  "output_tag": "Game Log",
+  "behavior_changes": [
+    "The game's log writer (0x40bbb0) is replaced at run time by the companion's: the same \"<date and time>: <line>\" text with CR-LF line ends, to the same file, Documents\\LDW\\<executable name up to its first dot>\\ldwLog.txt.",
+    "The file is appended to (the base game opens it with \"wt\", which erases the earlier runs' lines), and each line is written to the file at once (the base game buffers until a clean exit).",
+    "Each run starts with one \"---- Game started ----\" line, which also creates the file.",
+    "A line that exactly repeats the one before it is written again only after a minute, preceded by \"(the line above was repeated <n> more times)\".",
+    "At most 1,000 lines are written in a minute; the next line written says how many were left out.",
+    "When ldwLog.txt would pass 4 MiB it is renamed \"ldwLog <n>.txt\" (n one more than the highest already there) and a new ldwLog.txt is started.",
+    "Call at 0x402805 writes \"Font Image not found: %s\": a font picture is missing (the game then closes).",
+    "Call at 0x40b748 writes \" Missing Graphic -> %s\": a picture file is missing.",
+    "Call at 0x40c9e8 writes \"ldwSoundFx Missing File ->%s\": a sound file is missing.",
+    "Call at 0x442879 writes \"Seconds Timer out of bounds!\": the game's one-second timer is more than 3 seconds ahead of the computer's clock, as when the clock is set back (checked every frame).",
+    "Call at 0x450bc7 writes \"String Table (sm.xml) malformed near %s\": a text id the game asks for is not in Assets\\sm.xml.",
+    "Call at 0x450c1e writes \"String Table (sm.xml) malformed looking for </Text> after %s\": a text in Assets\\sm.xml has no </Text>.",
+    "Call at 0x46930b writes \"%s is stuck!\": a villager's next step is blocked.",
+    "Call at 0x469502 writes \"%s cannot get from %d, %d (isBlocking=%s) to %d, %d (isBlocking=%s)\": a villager found no way to where it was going.",
+    "Call at 0x46e1c9 writes \"%s could not find someone to heal.\": a healer found nobody to heal.",
+    "Call at 0x474536 writes \"%s is going to the love shack door at %d, %d (isBlocking=%s)\": a villager walks to the love shack door."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion replaces the writer's first instruction at run time, only after verifying its first 16 bytes, and installs nothing on a different build.",
+    "Which lines the game writes, and when, is the game's own: every call site is unchanged, and no line the game's code does not contain is ever written (only the \"Game started\" line and the repeat and left-out counts are the companion's).",
+    "No save, village or villager data is read or written; nothing else in the game changes.",
+    "Older 'ldwLog <n>.txt' files and any other file in the folder are never changed or deleted."
+  ],
+  "evidence_status": "static exact-build verification of the writer and every call to it in each executable (tests/test_game_log.py); the companion's writer is run by native/vvfp_game_log/game_log_harness.c",
+  "companion_files": [
+    {
+      "source": "assets/game_log/VVFP Game Log.dll",
+      "destination": "VVFP Game Log.dll",
+      "sha256": "16D7CD12F53D71F8B892914AF16AA9A129E86AB0563E57C2AF8F8E54982797DF"
+    }
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x40bbb0",
+      "stock_bytes": "56578B7C240C8B37833E0075388B4608",
+      "routine": "the LDW engine's log writer (cdecl: the log object, a format and its values)",
+      "installed_by": "VVFP Game Log.dll, VvfpStartup"
+    }
+  ],
+  "patches": []
+}

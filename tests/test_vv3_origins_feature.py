@@ -591,9 +591,10 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         # #506 review: the Tech menu's legacy tail (a Cure call no row could
         # reach) is a short jump over zeroed bytes now.
+        # v1.35.70: Details rows 0-3 refuse a dead villager (detail_living_check).
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "A0AC0D837B9DFCBAAC26B266606D0955FA36BF02D43DB5C30F1AB891307DFF67",
+            "2D109805B8F9674DE3C7A478CCAD9D0F28486EA9264A2C40A8854E54BF74431A",
         )
         self.assertEqual(
             bytes.fromhex(

@@ -70,7 +70,7 @@ NAME_FIXES = (
     (0x3CA10, bytes.fromhex("40"), bytes.fromhex("90")),
 )
 PERCENT_FIXES = (  # '%' in a name never a format; text boxes refuse it (#566)
-    (0x4A66A, bytes.fromhex("E8CE0B0000"), bytes.fromhex("E8114D0000")),
+    (0x4A66A, bytes.fromhex("E8CE0B0000"), bytes.fromhex("E8F26BFBFF")),  # through the name box fill record
     (0x18760, bytes.fromhex("E8D82A0300"), bytes.fromhex("E81B6C0300")),
     (0x1FAA1, bytes.fromhex("E897B70200"), bytes.fromhex("E8DAF80200")),
     (0x27892, bytes.fromhex("E8A6390200"), bytes.fromhex("E8E97A0200")),
@@ -84,7 +84,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_vanilla_likes_panel import likes_fixes  # noqa: E402
 
 LIKES_FIXES = likes_fixes("vv1")
-FIXES = ((VIAL_OFFSET, VIAL_STOCK, VIAL_PATCHED),) + NAME_FIXES + PERCENT_FIXES + LIKES_FIXES
+from test_details_name_identity import name_identity_fixes  # noqa: E402
+# The Details screen's name box is written back only to the villager it shows
+# (tests/test_details_name_box.py).
+NAME_BOX_FIXES = (
+    (0x4A6F2, bytes.fromhex("90" * 14), bytes.fromhex("807E24007505E9E4DAFBFFC20800")),
+    (0x4A748, bytes.fromhex("E82314FCFF"), bytes.fromhex("E8A5FFFFFF")),
+    (0x4A7A4, bytes.fromhex("E8C713FCFF"), bytes.fromhex("E849FFFFFF")),
+    (0x4A859, bytes.fromhex("E81213FCFF"), bytes.fromhex("E894FEFFFF")),
+)
+FIXES = ((VIAL_OFFSET, VIAL_STOCK, VIAL_PATCHED),) + NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_BOX_FIXES
+# ...and to the villager it was filled for (tests/test_details_name_identity.py).
+FIXES = FIXES + name_identity_fixes("vv1")
 
 # Game addresses and fields.
 BLUE_VIAL = 0x419C3F           # resolve 0x419380's case for the blue vial

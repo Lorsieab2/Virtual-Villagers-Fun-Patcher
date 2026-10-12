@@ -47,13 +47,13 @@ import vv_last_names as ln
 import vv_log_tools as tools
 import vv_save_backup
 import vv_save_layout as layout
+import vv_titles_file
 
 BACKUP_LABEL = "(before restoring lost titles)"
 COPY_SUFFIX = ".before-title-restore"
 
 TITLES_FILE = layout.DATA + "\\Custom Titles\\Custom Titles - Save {slot}.dat"
-TITLES_MAGIC, TITLES_VERSION, TITLES_HEADER, TITLES_ENTRY = b"VCT1", 2, 16, 40
-TITLE_BYTES, TITLES_MAX = 32, 256
+TITLE_BYTES, TITLES_MAX = vv_titles_file.TITLE_BYTES, vv_titles_file.TITLES_MAX
 FORMER_FILE = layout.DATA + "\\Former Heathens\\Former Heathens - Save {slot}.dat"
 FORMER_MAGIC, FORMER_VERSION, FORMER_HEADER, FORMER_ENTRY = b"VFH1", 1, 16, 8
 FORMER_KINDS = {0: "blue mask", 1: "orange mask", 2: "red mask", 3: "Master (purple mask)", 4: "Chief"}
@@ -110,7 +110,8 @@ def list_text(game: int, values: list[int]) -> str:
     out = ""
     for v in values:
         if 0 <= v < len(words):
-            if len(out) + len(words[v]) + 3 >= LIST_ROOM:
+            # preference_list_text: a word fits when used + ", " + word + NUL <= the buffer.
+            if len(out) + (2 if out else 0) + len(words[v]) + 1 > LIST_ROOM:
                 break
             out += (", " if out else "") + words[v]
     return out or "(none)"
@@ -252,8 +253,13 @@ def title_valid(title: str) -> bool:
     return 0 < len(title) < TITLE_BYTES and all(0x20 <= ord(c) <= 0x7E for c in title) and title.strip() != ""
 
 
-def _title_entry(index: int, identity: int, title: str) -> bytes:
-    return struct.pack("<II", index, identity) + title.encode("ascii").ljust(TITLE_BYTES, b"\0")
+def _read_titles(path: Path, game: int) -> list[vv_titles_file.Entry] | None:
+    """The entries of the Custom Titles file (version 3, or 2), [] when it is missing, None when it is
+    there but not a file this game reads (it is then never rewritten)."""
+    if not path.is_file():
+        return []
+    got = vv_titles_file.read(path.read_bytes(), game)
+    return None if got is None else got[1]
 
 
 def _record_index(game: int, data: bytes, at: int) -> int:
@@ -358,13 +364,15 @@ def _survey_titles(folder, game, slot, data, recs, people, prefs, ids, carriers,
     if not lost:
         return
     path = layout.find(folder, TITLES_FILE.format(slot=slot))
-    entries = _read_file(path, TITLES_MAGIC, TITLES_VERSION, game, TITLES_HEADER, TITLES_ENTRY, TITLES_MAX)
+    entries = _read_titles(path, game)
     if entries is None:
         out.notes.append(f"{path.name} is not a titles file this game reads, so no lost title is restored "
                          "into it (it is left as it is).")
         return
-    held = {struct.unpack_from("<I", e, 4)[0] for e in entries}
-    at_index = {struct.unpack_from("<I", e, 0)[0]: e for e in entries}
+    # A pending title (kept for a villager who could not be told apart after a load) is held too: it
+    # is never restored a second time, and the reconciliation asks about it.
+    held = {e.identity for e in entries}
+    at_index = {e.index: e for e in entries if not e.pending}
     for e in lost:
         title = e.changes["Custom title"][0]
         what = f"{_who(e)} lost the title \"{title}\" in {e.where}"
@@ -390,8 +398,8 @@ def _survey_titles(folder, game, slot, data, recs, people, prefs, ids, carriers,
         found = []
         for v in candidates:
             if ids[v.at] in held:
-                out.notes.append(f"{what}; the titles file already gives {v.name} (head {v.head}, body {v.body}) "
-                                 "a title, which is kept.")
+                out.notes.append(f"{what}; the titles file already holds a title for {v.name} (head {v.head}, "
+                                 f"body {v.body}) -- shown, or pending until they can be told apart -- which is kept.")
                 continue
             shown = page.get(v.identity)
             other = shown.value("Custom title") if shown is not None else None
@@ -403,8 +411,8 @@ def _survey_titles(folder, game, slot, data, recs, people, prefs, ids, carriers,
             rekey = None
             there = at_index.get(index)
             if there is not None:
-                there_id = struct.unpack_from("<I", there, 4)[0]
-                there_title = there[8:].split(b"\0", 1)[0].decode("ascii", "replace")
+                there_id = there.identity
+                there_title = there.title
                 if there_title == title and there_id not in carriers:
                     rekey = there_id        # their own title, left behind under the old identity
                 else:
@@ -547,32 +555,33 @@ def _plan(folder: Path, game: int, slot: int, chosen: list[Restore]) -> list[_Ch
     if titles:
         path = layout.find(folder, TITLES_FILE.format(slot=slot))
         original = path.read_bytes() if path.is_file() else None
-        entries = _read_file(path, TITLES_MAGIC, TITLES_VERSION, game, TITLES_HEADER, TITLES_ENTRY, TITLES_MAX)
+        entries = _read_titles(path, game)
         if entries is None:
             raise LostTitlesError(f"{path.name} is not a titles file this game reads; nothing was changed.")
-        entries = [bytearray(e) for e in entries]
+        data = ln.save_path(folder, game, slot).read_bytes()
         for r in titles:
             if not title_valid(r.title):
                 raise LostTitlesError(f"\"{r.title}\" is not a title the game can show; nothing was changed.")
-            if any(struct.unpack_from("<I", e, 4)[0] == r.identity for e in entries):
+            if any(e.identity == r.identity for e in entries):
                 raise LostTitlesError(f"{r.villager.name} already has a title in {path.name}; nothing was changed.")
-            same = [e for e in entries if struct.unpack_from("<I", e, 0)[0] == r.index]
+            same = [e for e in entries if not e.pending and e.index == r.index]
+            looks = vv_titles_file.looks_from_save(game, data, r.villager.at)
             if r.rekey is not None:
-                if len(same) != 1 or struct.unpack_from("<I", same[0], 4)[0] != r.rekey:
+                if len(same) != 1 or same[0].identity != r.rekey:
                     raise LostTitlesError(f"{path.name} changed since it was read; nothing was changed.")
-                struct.pack_into("<I", same[0], 4, r.identity)
+                same[0].identity = r.identity
+                same[0].known = True
+                for key, value in looks.items():
+                    setattr(same[0], key, value)
             else:
                 if same:
                     raise LostTitlesError(f"Record {r.index} already has a title in {path.name}; nothing was changed.")
                 if len(entries) >= TITLES_MAX:
                     raise LostTitlesError(f"{path.name} is full; nothing was changed.")
-                entries.append(bytearray(_title_entry(r.index, r.identity, r.title)))
-        if original is not None:
-            head = bytearray(original[:TITLES_HEADER])
-        else:
-            head = bytearray(TITLES_MAGIC + struct.pack("<III", TITLES_VERSION, game, 0))
-        struct.pack_into("<I", head, 12, len(entries))
-        changes.append(_Change(path, original, bytes(head) + b"".join(bytes(e) for e in entries)))
+                entries.append(vv_titles_file.Entry(r.index, r.identity, r.title, True, **looks))
+        # Written in the file's own version, every other entry byte for byte (a new file: version 3).
+        version = vv_titles_file.read(original, game)[0] if original is not None else vv_titles_file.VERSION
+        changes.append(_Change(path, original, vv_titles_file.serialise(game, entries, version)))
     formers = [r for r in chosen if r.kind == "former"]
     if formers:
         path = layout.find(folder, FORMER_FILE.format(slot=slot))
@@ -666,40 +675,20 @@ def restore(folder: Path, game: int, slot: int, chosen: set[str] | None = None,
     village = next((e.block.village for e in events(folder, game, slot) if e.block.village), None)
     try:
         note_restore(folder, game, village, picked, [(c.path, name) for c, name in zip(changes, copies)],
-                     backup, now)
+                     backup, now, slot)
     except OSError:
         pass                                # the restore stands; Check Saves & Logs still sees it
     return Result(picked, [c.path for c in changes], backup)
 
 
 def note_restore(folder: Path, game: int, village: str | None, restored: list[Restore], files: list[tuple],
-                 backup, now: datetime | None = None) -> None:
+                 backup, now: datetime | None = None, slot: int | None = None) -> None:
     """One "Repair <n>" record in the Repairs Made log (native/shared/repairs_log.h's shape, numbered as
     src/vv_log_tools.py note_word_repair numbers it)."""
     if not restored:
         return
-    logs = layout.find(folder, f"{layout.LOGS}\\{layout.REPAIRS_LOGS}")
-    logs.mkdir(parents=True, exist_ok=True)
-    number = 1
-    while (logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt").exists():
-        number += 1
-    path = logs / f"Virtual Villagers {game} Repairs Log {number}.txt"
-    existing = path.read_bytes().decode("latin-1") if path.exists() else ""
-    repairs = sum(line.startswith("Repair ") for line in existing.splitlines())
-    if repairs >= 256 or len(existing) >= 4 * 1024 * 1024:
-        path = logs / f"Virtual Villagers {game} Repairs Log {number + 1}.txt"
-        existing, repairs = "", 0
-    older = 0
-    if logs.name == layout.REPAIRS_LOGS:
-        old = Path(folder) / layout.LOGS / "Repairs" / path.name
-        if old.is_file():
-            older = sum(1 for line in old.read_bytes().decode("latin-1").splitlines()
-                        if line.startswith("Repair ") and line[7:8].isdigit())
     header = village or "Village: (all villages in this save folder)"
-    last = [line for line in existing.splitlines() if line.startswith("Village:")]
-    when = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
-    text = "" if last and last[-1].rstrip() == header else header + "\r\n"
-    text += f"Repair {repairs + 1 + older}\r\n  Date: {when}\r\n"
+    path, text = tools.repair_record_start(folder, game, header, layout.header_slot(village) or slot, now)
     text += ("  Checked: custom titles and former-Heathen marks a change of likes or dislikes took away, "
              "against the Island Events log\r\n")
     for r in restored:

@@ -190,9 +190,12 @@ class CheckLogsTests(FolderTest):
         checker = tools.load_checker()
         report = checker.check(folder, 1, 3)
         result = tools.check_logs(folder, 1, 3)
-        self.assertEqual(result.text, report.render())
-        self.assertEqual(result.counts, report.counts())
-        self.assertEqual(set(result.counts), {"OK", "WRONG", "NOTE", "UNCHECKED"})
+        # The checker's report, then the read-only reconciliation's section (src/vv_reconcile.py).
+        self.assertTrue(result.text.startswith(report.render()), result.text)
+        self.assertIn("(read-only reconciliation of records, logs and files)", result.text[len(report.render()):])
+        for verdict, count in report.counts().items():
+            self.assertGreaterEqual(result.counts[verdict], count)
+        self.assertEqual(set(result.counts), {"OK", "WRONG", "ASK", "NOTE", "UNCHECKED"})
 
     def test_a_wrong_line_is_counted_and_summarised(self) -> None:
         checker = tools.load_checker()
@@ -204,7 +207,8 @@ class CheckLogsTests(FolderTest):
             folder = self.make_folder("huttest", 2, "Modded")
             result = tools.check_logs(folder, 1, 2)
         self.assertEqual(result.wrong, 1)
-        self.assertEqual(result.summary, "Save 1: 1 confirmed wrong (1 OK, 1 WRONG, 1 NOTE, 0 UNCHECKED).")
+        # ... and the read-only reconciliation's own line (src/vv_reconcile.py): nothing lost here, one OK.
+        self.assertEqual(result.summary, "Save 1: 1 confirmed wrong (2 OK, 1 WRONG, 0 ASK, 1 NOTE, 0 UNCHECKED).")
 
     def test_an_empty_slot_is_refused_with_a_message(self) -> None:
         folder = self.make_folder("huttest", 5, "Modded")
@@ -758,11 +762,12 @@ class GuiTests(unittest.TestCase):
                     imported.add(node.module.split(".")[0])
             return imported - set(sys.stdlib_module_names)
 
-        # Its one own module, the save folder's names (src/vv_save_layout.py), ships beside it and is
-        # itself stdlib-only.
-        self.assertEqual(imports(ROOT / "scripts" / "vvfp_consistency_check.py"), {"vv_save_layout"})
-        self.assertEqual(imports(ROOT / "src" / "vv_save_layout.py"), set())
-        self.assertIn('"src/vv_save_layout.py"', (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
+        # Its own modules, the save folder's names (src/vv_save_layout.py) and the Custom Titles file's
+        # reader (src/vv_titles_file.py, v1.35.70), ship beside it and are themselves stdlib-only.
+        self.assertEqual(imports(ROOT / "scripts" / "vvfp_consistency_check.py"), {"vv_save_layout", "vv_titles_file"})
+        for module in ("vv_save_layout", "vv_titles_file"):
+            self.assertEqual(imports(ROOT / "src" / f"{module}.py"), set())
+            self.assertIn(f'"src/{module}.py"', (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
 
     def test_the_module_and_checker_ship_in_the_release(self) -> None:
         build = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")

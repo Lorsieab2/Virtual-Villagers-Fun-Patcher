@@ -416,11 +416,16 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # save_layout.h): the Log Checks and Repairs Made folders, moved from
         # their older names, and the repairs' copies kept apart.  Larger again
         # when another village's mask file was never to be replaced
-        # (native/shared/foreign_sidecar.h).
-        self.assertEqual(vv5_companion["size"], 1849856)
+        # (native/shared/foreign_sidecar.h). Larger again with the three
+        # skill-preference rows (ShowVV5SkillPreferenceUpgrade: Clear All Skill
+        # Preferences and the two Check Highest Skill rows). New size and
+        # digest for the current companion source as rebuilt on the
+        # Equal Division of Labor branch. Larger again when the skill
+        # upgrades learned to reset corrupted skill values (v1.35.70).
+        self.assertEqual(vv5_companion["size"], 1856000)
         self.assertEqual(
             vv5_companion["sha256"],
-            "631F811859666C1B9C97B48EBAD2F1C2B4B8882C2BB661E6E2351DADAC23563C",
+            "B676BC54E2F53E38AFD499A2FD77C8AF889E8B29804166ABDC9968FBC1119F75",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

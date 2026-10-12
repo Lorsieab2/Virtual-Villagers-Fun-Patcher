@@ -1149,14 +1149,17 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
 
     data_dir = folder / tools.DATA
     _plan_masks(result, game, slot, data_dir, mask_map, conflicts)
+    # The Custom Titles file: version 3 (84-byte entries, v1.35.70) or 2 (40 bytes); the identity is the
+    # second dword of either (native/shared/custom_titles.h, src/vv_titles_file.py).
     _plan_u32_file(result, data_dir / "Custom Titles" / f"Custom Titles - Save {slot}.dat",
-                   b"VCT1", 2, game, 16, 40, 4, title_map, "custom titles", conflicts)
+                   b"VCT1", {3: 84, 2: 40}, game, 16, 4, title_map, "custom titles", conflicts)
     if game == 5:
         _plan_u32_file(result, data_dir / "Former Heathens" / f"Former Heathens - Save {slot}.dat",
-                       b"VFH1", 1, game, 16, 8, 0, title_map, "former Heathens", conflicts)
+                       b"VFH1", {1: 8}, game, 16, 0, title_map, "former Heathens", conflicts)
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
-    _plan_unaccounted(result, game, slot, data_dir, renames, asked)
+    _plan_unaccounted(result, game, slot, data_dir, renames, asked, by_name,
+                      _dead_names(folder, game, slot) if game == 1 else frozenset())
     renamed = {name for name, _head, _body in renames}
     _plan_statistics(result, game, slot, data_dir, by_name, renamed)
     _plan_logs(result, folder, game, slot, asked, by_name, dead, renamed)
@@ -1264,19 +1267,22 @@ def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: di
             result.changes.append(Change(path, original, bytes(buf), "the masks"))
 
 
-def _plan_u32_file(result: Plan, path: Path, magic: bytes, version: int, game: int, header: int,
-                   entry: int, field_at: int, mapping: dict[int, int], what: str,
+def _plan_u32_file(result: Plan, path: Path, magic: bytes, versions: dict[int, int], game: int, header: int,
+                   field_at: int, mapping: dict[int, int], what: str,
                    conflicts: dict[int, str]) -> None:
-    """A file of `count` fixed entries whose u32 at `field_at` is an identity.  A file that is not
-    exactly its own format of this game (magic, version, the game at offset 8, header + count *
-    entry bytes) is left as it is: games sharing a folder share these files' names (Codex, #553)."""
+    """A file of `count` fixed entries whose u32 at `field_at` is an identity; `versions` gives each
+    version's entry size.  A file that is not exactly its own format of this game (magic, a known
+    version, the game at offset 8, header + count * entry bytes) is left as it is: games sharing a
+    folder share these files' names (Codex, #553)."""
     if not path.is_file():
         return
     original = path.read_bytes()
-    if (len(original) < header or original[:4] != magic or struct.unpack_from("<I", original, 4)[0] != version
+    if (len(original) < header or original[:4] != magic
+            or struct.unpack_from("<I", original, 4)[0] not in versions
             or struct.unpack_from("<I", original, 8)[0] != game):
         result.notes.append(f"{path.name} is not a {what} file this patcher writes; left as it is.")
         return
+    entry = versions[struct.unpack_from("<I", original, 4)[0]]
     count = struct.unpack_from("<I", original, 12)[0]
     if len(original) != header + count * entry:
         result.notes.append(f"{path.name} is damaged (its length does not match its count); left as it is.")
@@ -1351,7 +1357,8 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
 
 
 def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, renames: dict[tuple, str],
-                      asked: dict[tuple, str]) -> None:
+                      asked: dict[tuple, str], by_name: dict[str, set] | None = None,
+                      dead: frozenset | set = frozenset()) -> None:
     name = f"Virtual Villagers {game} Villagers at Last Save - Save {slot}.dat"
     rec = RECORD[game]
     for path in (layout.find(data_dir.parent, f"{layout.DATA}\\Unaccounted Villagers\\{name}"),
@@ -1373,10 +1380,15 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
         size = 16 + (hi - lo) + tail
         buf = bytearray(original)
         n = 0
-        # A parent kept by name alone is renamed only when that name is one villager's.
-        by_parent_name: dict[str, set[str]] = {}
-        for (old, _head, _body), new in renames.items():
-            by_parent_name.setdefault(old, set()).add(new)
+        # A parent kept by name alone is renamed only when that name is one villager's: every living
+        # holder takes the one new name (`by_name`) and no dead villager has the name (as the parents
+        # in A New Home's Parentage Records are).
+        if by_name is not None:
+            by_parent_name = {old: news for old, news in by_name.items() if old not in dead}
+        else:
+            by_parent_name = {}
+            for (old, _head, _body), new in renames.items():
+                by_parent_name.setdefault(old, set()).add(new)
         for i in range(count):
             base = 32 + i * size + 16 - lo
             if base + hi > len(buf):
@@ -1737,22 +1749,50 @@ def wrong_last_names(folder: Path, game: int, slot: int) -> tuple[str, list[tupl
     owner: a check for "Wrong last names").  The record's rule, else "From the mother" (as the Last
     Names patch gives babies their mother's); without a record only names that carry a last name
     are checked.  A name the player gave is always right."""
+    rule, explained = wrong_last_names_explained(folder, game, slot)
+    return rule, [(v, now, should) for v, now, should, _used, _either in explained]
+
+
+def wrong_last_names_explained(folder: Path, game: int, slot: int) -> tuple[str, list[tuple]]:
+    """wrong_last_names, each with the rule that gave it -- the village's, or a parent's own (the
+    owner's Tiki Alosaka, 2026-10-11: "should be Powaka" under the village's "From the father", while
+    her father Hoto Okelani's own rule is 50:50) -- and, for 50:50, both last names the rule allows:
+    (villager, last name now, the one the rule gives, rule used, (either, or) or ())."""
     rule, fixed = read_record(folder, game, slot)
     known = known_names(folder, game, slot)
     people, parents = everyone(folder, game, slot)
     mine = {v.identity: fixed[key] for v in people
             if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
     carried = lambda name: split_name(game, name, known)[1]  # noqa: E731
+    own_rules = own_rules_now(folder, game, slot, people)
     given = inherited(people, parents, rule or "mother", list(tools.load_checker().LAST_NAMES[game]),
-                      with_siblings(mine, parents), carried, own_rules_now(folder, game, slot, people))
+                      with_siblings(mine, parents), carried, own_rules)
+    living_keys = {own_key(v) for v in people if v.alive}
+
+    def last_of(key) -> str:
+        return "" if key is None else (given.get(key) or carried(key[0]))
     out = []
     for v in people:
         now = carried(v.name)
         should = given.get(v.identity, "")
         if v.identity in mine or now == should or (rule is None and not now) or rule in ("list", *PLAYER_RULES):
             continue
-        out.append((v, now, should))
+        father, mother = parents.get(v.identity, (None, None))
+        used = decide(_parent_rule(own_rules, father, "Male", living_keys),
+                      _parent_rule(own_rules, mother, "Female", living_keys), rule or "mother")
+        either = tuple(n for n in dict.fromkeys((last_of(father), last_of(mother))) if n) \
+            if used == "random" and father is not None and mother is not None else ()
+        out.append((v, now, should, used, either if len(either) == 2 else ()))
     return rule or "mother", out
+
+
+def wrong_last_name_text(v, should: str, used: str | None, village_rule: str, either: tuple = ()) -> str:
+    """One villager of the "last names are not what the rule gives" note: "Tiki Alosaka (should be
+    Okelani or Powaka: her parent's own rule is 50:50)"."""
+    want = " or ".join(either) if either else (should or "none")
+    if used and used != village_rule:
+        return f"{v.name} (should be {want}: a parent's own rule, {OWN_RULES.get(used, used)}, applies)"
+    return f"{v.name} (should be {want})"
 
 
 # RANDOM LAST NAMES.  The owner (2026-10-10): "for the repair logs, can you add an option for 'random' last

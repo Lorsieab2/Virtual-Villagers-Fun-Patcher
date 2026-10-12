@@ -55,6 +55,10 @@ struct arrival_key {
     int held;
     int kind;                         /* ARRIVAL_READ_BIRTH or ARRIVAL_READ_ARRIVED */
     int reserved;                     /* taken by a context villager (record_missing_core) */
+    /* A Birth record's parents' names ("" for none or "(unknown)"): what tells
+       a villager RENAMED since birth by the record of their own birth. */
+    char father[ARRIVAL_KEY_NAME];
+    char mother[ARRIVAL_KEY_NAME];
 };
 
 static struct arrival_key *arrival_keys;
@@ -161,6 +165,14 @@ static int arrival_reader_line(struct arrival_reader *r, char *line) {
         } else if (r->have_name && !r->have_body && (value = arrival_value(line, "    Body: ")) != NULL) {
             r->key.body = atoi(value);
             r->have_body = 1;
+        } else if ((value = arrival_value(line, "  Mother: ")) != NULL) {
+            if (value[0] != '(') {            /* "(unknown)": no mother */
+                lstrcpynA(r->key.mother, value, (int)sizeof r->key.mother);
+            }
+        } else if ((value = arrival_value(line, "  Father: ")) != NULL) {
+            if (value[0] != '(') {
+                lstrcpynA(r->key.father, value, (int)sizeof r->key.father);
+            }
         }
     } else if (r->open == ARRIVAL_READ_ARRIVED) {
         if (!r->have_name && (value = arrival_value(line, "  Name: ")) != NULL) {
@@ -583,6 +595,8 @@ static int record_missing_core(
     char village_name[VV_VILLAGE_NAME_MAX];
     char village[VV_VILLAGE_NAME_MAX + 32];
     char (*names)[ARRIVAL_KEY_NAME];
+    char (*fathers)[ARRIVAL_KEY_NAME];
+    char (*mothers)[ARRIVAL_KEY_NAME];
     int *heads, *bodies;
     int files = 0;
     int result = 0;
@@ -615,10 +629,14 @@ static int record_missing_core(
         read_first_snapshot(village);
     }
     names = (char (*)[ARRIVAL_KEY_NAME])calloc((size_t)count, ARRIVAL_KEY_NAME);
+    fathers = (char (*)[ARRIVAL_KEY_NAME])calloc((size_t)count, ARRIVAL_KEY_NAME);
+    mothers = (char (*)[ARRIVAL_KEY_NAME])calloc((size_t)count, ARRIVAL_KEY_NAME);
     heads = (int *)calloc((size_t)count, sizeof(int));
     bodies = (int *)calloc((size_t)count, sizeof(int));
-    if (names == NULL || heads == NULL || bodies == NULL) {
+    if (names == NULL || fathers == NULL || mothers == NULL || heads == NULL || bodies == NULL) {
         free(names);
+        free(fathers);
+        free(mothers);
         free(heads);
         free(bodies);
         return -1;
@@ -638,6 +656,16 @@ static int record_missing_core(
             copy_villager_name(g, record, names[i], ARRIVAL_KEY_NAME);
             heads[i] = *(const int *)(record + g->head);
             bodies[i] = *(const int *)(record + g->body);
+            /* The parents the save keeps on the villager (The Lost Children to
+               New Believers), as a Birth record prints them; "" for none. */
+            if (g->parent_father_name != 0u && record[g->parent_father_name] != 0) {
+                copy_name_field(record + g->parent_father_name, fathers[i], ARRIVAL_KEY_NAME,
+                                g->parent_name_capacity);
+            }
+            if (g->parent_mother_name != 0u && record[g->parent_mother_name] != 0) {
+                copy_name_field(record + g->parent_mother_name, mothers[i], ARRIVAL_KEY_NAME,
+                                g->parent_name_capacity);
+            }
         }
     }
     /* A record that matches a context villager is theirs first (Codex,
@@ -783,6 +811,52 @@ static int record_missing_core(
                 taken = 0;
             }
         }
+        /* A BIRTH RECORD UNDER ANOTHER NAME -- A CONTRADICTION (the owner,
+           2026-10-11: in her A New Home "Iruwa Okelani", Birth 252, became a
+           second living "Tiki Alosaka", and she never renamed anyone).  A Birth
+           record of these looks and exactly the parents the save keeps on this
+           villager, under a name no villager of these looks carries now, and
+           no other villager of these looks and these parents: the records
+           contradict each other, and only the player can say which is right.
+           Nothing is written for this villager -- never a second Birth record
+           "recorded afterwards" -- and nothing is assumed either: the record
+           is not taken as theirs, the outcome stays UNDECIDED (so this
+           backfill's marker is not written while the contradiction stands),
+           and the patcher's reconciliation asks the player
+           (src/vv_reconcile.py; scripts/vvfp_consistency_check.py
+           missing_births and vv1_crosscheck.inc vv1_xc_born_as_another follow
+           the same rule). */
+        if (births && on_disk + held <= taken && taken == 0 && (fathers[i][0] != '\0' || mothers[i][0] != '\0')) {
+            int records_renamed = 0, siblings = 0, v;
+            for (v = 0; v < count; ++v) {
+                if (v != i && names[v][0] != '\0' && heads[v] == heads[i] && bodies[v] == bodies[i]
+                    && strcmp(fathers[v], fathers[i]) == 0 && strcmp(mothers[v], mothers[i]) == 0) {
+                    ++siblings;               /* a twin, or a look-alike sibling: never told apart */
+                }
+            }
+            for (j = 0; j < arrival_key_count && siblings == 0; ++j) {
+                struct arrival_key *k = &arrival_keys[j];
+                int owners = 0;
+                if (k->reserved || k->kind != ARRIVAL_READ_BIRTH || k->head != heads[i] || k->body != bodies[i]
+                    || strcmp(k->name, names[i]) == 0
+                    || strcmp(k->father, fathers[i]) != 0 || strcmp(k->mother, mothers[i]) != 0) {
+                    continue;
+                }
+                for (v = 0; v < count; ++v) {
+                    if (names[v][0] != '\0' && heads[v] == k->head && bodies[v] == k->body
+                        && strcmp(names[v], k->name) == 0) {
+                        ++owners;
+                    }
+                }
+                if (owners == 0) {
+                    ++records_renamed;
+                }
+            }
+            if (records_renamed > 0) {
+                facts[i].outcome = VV_ARRIVAL_UNDECIDED;     /* asked, never written, never settled */
+                continue;
+            }
+        }
         if (on_disk > taken) {
             facts[i].outcome = VV_ARRIVAL_IN_LOG;
         } else if (on_disk + held > taken) {
@@ -813,6 +887,8 @@ static int record_missing_core(
         }
     }
     free(names);
+    free(fathers);
+    free(mothers);
     free(heads);
     free(bodies);
     return result;

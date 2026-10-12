@@ -142,11 +142,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_vanilla_likes_panel import likes_fixes  # noqa: E402
 
 LIKES_FIXES = likes_fixes("vv2")
+from test_details_name_identity import name_identity_fixes  # noqa: E402
+# The Details name box is written back only to the villager it was filled for
+# (tests/test_details_name_identity.py).
+NAME_IDENTITY_FIXES = name_identity_fixes("vv2")
 
 
 def _allowed() -> set[int]:
     allowed = set(range(HOOK_OFFSET, HOOK_OFFSET + 5)) | set(range(SWAP_OFFSET, SWAP_OFFSET + SWAP_LENGTH))
-    for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES:
+    for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES:
         allowed.update(range(offset, offset + len(before)))
     return allowed
 
@@ -290,9 +294,11 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("**Needs no other patch.**", raw["description"])
         offsets = [(int(p["offset"], 16), len(bytes.fromhex(p["before"]))) for p in raw["patches"]]
         self.assertEqual(offsets, [(HOOK_OFFSET, 5), (SWAP_OFFSET, SWAP_LENGTH)]
-                         + [(offset, len(before)) for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES])
+                         + [(offset, len(before)) for offset, before, _ in
+                            NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES])
         self.assertEqual([(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
-                          for p in raw["patches"][2:]], list(NAME_FIXES + PERCENT_FIXES + LIKES_FIXES))
+                          for p in raw["patches"][2:]],
+                         list(NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES))
         self.assertEqual(bytes.fromhex(raw["patches"][0]["before"]), HOOK_STOCK)
         self.assertEqual(bytes.fromhex(raw["patches"][0]["after"]), HOOK_PATCHED)
         self.assertEqual(bytes.fromhex(raw["patches"][1]["before"]), self.stock[SWAP_OFFSET:SWAP_OFFSET + SWAP_LENGTH])

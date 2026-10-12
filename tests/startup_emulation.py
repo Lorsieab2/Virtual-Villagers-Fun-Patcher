@@ -65,7 +65,16 @@ STDCALL = {
     "DisableThreadLibraryCalls": 4, "GetFileAttributesA": 4, "GetFileAttributesW": 4,
     "InitializeCriticalSection": 4, "EnterCriticalSection": 4, "LeaveCriticalSection": 4,
     "GetLastError": 0, "SetLastError": 4,
+    # The game log companion (native/vvfp_game_log) marks the start of each run in the
+    # game's own ldwLog.txt: the local time, the Documents folder and one appended line.
+    "GetLocalTime": 4, "SHGetSpecialFolderPathW": 16, "CreateDirectoryW": 8, "CreateFileW": 28,
+    "GetFileSizeEx": 8, "WriteFile": 20, "CloseHandle": 4,
 }
+# What the emulated machine answers for the Documents folder and the local time.
+# Not under \\Users\\<name>: a tracked file never names an account (test_archive_has_no_personal_paths).
+DOCUMENTS = "D:\\Documents"
+LOCAL_TIME = (2026, 10, 0, 11, 21, 5, 9, 0)        # Sun Oct 11 21:05:09 2026
+FILE_HANDLE = 0x0000F11E
 
 
 @dataclass
@@ -108,6 +117,9 @@ class StartupMachine:
         self._next_base = MODULE_BASE
         self._next_heap = HEAP
         self.calls: list[tuple] = []
+        # Files a companion wrote: path -> bytes appended (CreateFileW / WriteFile).
+        self.files: dict[str, bytes] = {}
+        self._open_path: str | None = None
         self.accesses: list[Access] = []
         self.error: str | None = None
         self.stop_at: int | None = None
@@ -345,6 +357,39 @@ class StartupMachine:
             ret(1)
         elif name == "GetLastError":
             ret(0)
+        elif name == "GetLocalTime":
+            mu.mem_write(arg(0), struct.pack("<8H", *LOCAL_TIME))
+            self.calls.append((name,))
+        elif name == "SHGetSpecialFolderPathW":
+            mu.mem_write(arg(1), DOCUMENTS.encode("utf-16-le") + b"\0\0")
+            self.calls.append((name, arg(2)))
+            ret(1 if arg(2) == 5 else 0)
+        elif name == "CreateDirectoryW":
+            self.calls.append((name, wstr(arg(0))))
+            ret(1)
+        elif name == "CreateFileW":
+            path = wstr(arg(0))
+            self.calls.append((name, path, arg(1), arg(4)))
+            self._open_path = path
+            self.files.setdefault(path, b"")
+            ret(FILE_HANDLE)
+        elif name == "GetFileSizeEx":
+            mu.mem_write(arg(1), struct.pack("<Q", len(self.files.get(self._open_path or "", b""))))
+            ret(1 if arg(0) == FILE_HANDLE else 0)
+        elif name == "WriteFile":
+            data = bytes(mu.mem_read(arg(1), arg(2)))
+            if arg(0) != FILE_HANDLE or self._open_path is None:
+                self.error = "WriteFile to a handle no CreateFileW returned"
+                mu.emu_stop()
+                return
+            self.files[self._open_path] += data
+            if arg(3):
+                mu.mem_write(arg(3), struct.pack("<I", len(data)))
+            self.calls.append((name, self._open_path, len(data)))
+            ret(1)
+        elif name == "CloseHandle":
+            self.calls.append((name, arg(0)))
+            ret(1)
         elif name in ("GetFileAttributesA", "GetFileAttributesW"):
             text = wstr(arg(0)) if name.endswith("W") else cstr(arg(0))
             base_name = text.split("\\")[-1].lower()

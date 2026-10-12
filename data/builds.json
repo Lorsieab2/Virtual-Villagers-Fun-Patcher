@@ -1951,21 +1951,25 @@
       "id": "vv1_fix_vanilla_bugs",
       "game_id": "vv1",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"sleeping\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, and a number past the end of the list showed garbage. Now the last word shows like any other, a number that is not a word is left out, and the line can never run past the space the game keeps for it. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"sleeping\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, and a number past the end of the list showed garbage. Now the last word shows like any other, a number that is not a word is left out, and the line can never run past the space the game keeps for it. A villager's name can no longer be given to another villager on the Details screen: when the arrows or Done are used, the game saves the name box into the selected villager, but it fills the box with the next villager's name only when the screen is next drawn, so two arrow clicks (or an arrow and then Done) taken in the same moment wrote one villager's whole name onto the next villager. Now the screen remembers which villager it filled the name box for, and the box is saved only into that samevillager; otherwise the box is dropped and the right name is shown. A name you type is still saved to that villager. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "A Mysterious Vial (blue liquid), \"Drink the liquid\", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby.",
         "A villager's default first name is picked from the whole of the game's male or female list (101 names each): name numbers 0 to 100 instead of 1 to the base game's limit.",
         "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
-        "Details screen Likes/Dislikes (0x43BA20 / 0x43BAF0, called from 0x449140): each slot's word is found in the game's own word list without copying past its end, so the last word (index 46, \"sleeping\") is shown and the slots after it still show; a negative slot or one past the end of the list is skipped; the line is written straight into the caller's 256-byte buffer, bounded at 255 characters (4 slots of the longest word never reach it)."
+        "Details screen Likes/Dislikes (0x43BA20 / 0x43BAF0, called from 0x449140): each slot's word is found in the game's own word list without copying past its end, so the last word (index 46, \"sleeping\") is shown and the slots after it still show; a negative slot or one past the end of the list is skipped; the line is written straight into the caller's 256-byte buffer, bounded at 255 characters (4 slots of the longest word never reach it).",
+        "Villager Details name box (0x44A700 Done/Next/Prev, refilled by the update 0x44A630 once per frame): the box is copied into the selected villager's name (+0x370) only when the screen's reload flag +0x24 is clear, i.e. when the box has been refilled for the villager now selected; a second arrow click, or an arrow and then Done, handled in the same frame no longer writes the previous villager's name onto the next one.",
+        "Villager Details name box (A New Home): the screen remembers which villager it filled the box for -- the villager-name pointer (+0x370) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x350), kept in 8 new bytes at the end of the screen object (+0xCC) -- whenever the box is filled (the update 0x44A630's strcpy(buf, name) at 0x44A66A (Fix Vanilla Bugs' own strcpy 0x44F380)); every write-back (getText 0x40BB70 (Done 0x44A748, right arrow 0x44A7A4, left arrow 0x44A859, all through the guard at 0x44A6F2)) goes ahead only when its destination is that same name and that villager still has the same fingerprint, otherwise the box is not saved (the next fill shows the right name). This covers any way the selected record could stop holding the villager shown (two clicks in one frame, a record reused or moved while the screen is open)."
       ],
       "explicit_non_changes": [
         "The result text, the drinker's new age (80) and every other vial result are the base game's own.",
         "Conception, pregnancy and delivery are not changed; a villager who never drank the vial is not affected.",
         "No save data, villager record layout or art is changed.",
-        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes.",
+        "Renaming a villager on the Details screen works as before: a typed name is saved to the villager shown when the arrows or Done are used; which villager the arrows select (and the Sort By order) is unchanged.",
+        "Renaming on the Details screen works as before: a typed name is saved to the villager shown by Done and the arrows; which villager the arrows select, the box's length and every other Details control are unchanged."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes",
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes; the Details name box: static exact-build evidence (the three write-back sites, the reload flag's writers in the screen's code 0x4498EA/0x44A64E/0x44A751/0x44A7AC/0x44A861, and the SDL_PollEvent loop 0x403970..0x403C82 that handles every queued event in one frame) and emulation of the real Done/Next/Prev handler and update, stock and patched, in every mode; seen in the owner's village (Iruwa Okelani became a second 'Tiki Alosaka'); the Details name box identity guard: static exact-build evidence (every fill and write-back of the box, the screen's allocation, the padding used) and emulation of the real handlers, stock and patched, in every mode",
       "patches": [
         {
           "offset": "0x19CC1",
@@ -2012,8 +2016,8 @@
         {
           "offset": "0x4A66A",
           "before": "E8CE0B0000",
-          "after": "E8114D0000",
-          "purpose": "Villager Detail refresh: sprintf(buf, name) -> strcpy(buf, name). Same cdecl (dst, src), caller-cleaned stack unchanged; return value unused."
+          "after": "E8F26BFBFF",
+          "purpose": "Villager Detail refresh: sprintf(buf, name) -> the Details name box fill record at 0x401261, which remembers the villager-name pointer (+0x370) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x350) on the screen (+0xCC/+0xD0) and tail-jumps to strcpy 0x44F380 (same cdecl (dst, src), caller-cleaned; the name is copied as plain text)."
         },
         {
           "offset": "0x18760",
@@ -2062,6 +2066,84 @@
           "before": "81ECC4030000535556578BF18B8E2CE0030068D6000000C684241401000000C644241400E8577EFFFF508D84241401000050E816F700008B8C24E003000083C40833FF69C9D80300008DB431A8030000BD04000000B32C8B0E33D233C083F9FF743285C97E0F389C0410010000750142403BD17CF18D8C04100100008A013AC3740D88443C108A410147413AC375F3885C3C104783C6044D75BD8A4C3C0F8D443C0F5F5E5D3ACB5B7503C600008B8424CC0300008D5424005250E88EF6000081C4CC030000C20800",
           "after": "5356575589CE8B8E2CE0030068D6000000E86A7EFFFF89C38B44241469C0D80300008DB406A80300008B7C24188DAFFF0000006A048B0E89D885C97C3F740F8A104084D2743680FA2C75F44975F18A1084D2742880FA2C74233B7C241C740839EF7323C6072C478A1084D2740F80FA2C740A39EF731088174740EBEB83C604FF0C2475B1EB09C745FD2E2E2E0089EF59C6070089F82B4424185D5F5E5BC20800CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
           "purpose": "Details screen dislikes builder 0x43BAF0 rewritten in place (same thiscall: ECX the villager table, the villager index and the 256-byte output buffer on the stack, ret 8; EBX/ESI/EDI/EBP kept): reads the word list the game's own text lookup returns without copying it, skips a negative slot or one past the end of the list, stops each word at a comma or the list's end (so the last word shows), joins words with a comma as before, and writes at most 255 characters plus the NUL, ending a line that does not fit in \"...\"; no sprintf; the 8 nop bytes after it are unchanged"
+        },
+        {
+          "offset": "0x4A6F2",
+          "before": "9090909090909090909090909090",
+          "after": "807E24007505E9E4DAFBFFC20800",
+          "purpose": "Villager Detail name box write-back guard, in the 14-byte NOP gap after the screen's update (0x44A6F2..0x44A6FF, nothing jumps into it): Done/Next/Prev call it instead of getText 0x40BB70 (ESI = the screen). While the reload flag +0x24 is set the box has not been refilled for the villager now selected, so it returns (ret 8) without copying; otherwise it continues into the identity check at 0x4081E1, which copies (jmp 0x40BB70) only when the destination is the name the box was filled from and that villager still has the remembered fingerprint."
+        },
+        {
+          "offset": "0x4A748",
+          "before": "E82314FCFF",
+          "after": "E8A5FFFFFF",
+          "purpose": "Villager Detail Done (also reached from the screen's key handler 0x449630): copy the name box into the selected villager (+0x370) through the write-back guard at 0x44A6F2 instead of calling getText 0x40BB70 directly, so the box is only written to the villager whose name it shows (ESI = the screen at the call)."
+        },
+        {
+          "offset": "0x4A7A4",
+          "before": "E8C713FCFF",
+          "after": "E849FFFFFF",
+          "purpose": "Villager Detail right arrow (next villager): copy the name box into the selected villager (+0x370) through the write-back guard at 0x44A6F2 instead of calling getText 0x40BB70 directly, so the box is only written to the villager whose name it shows (ESI = the screen at the call)."
+        },
+        {
+          "offset": "0x4A859",
+          "before": "E81213FCFF",
+          "after": "E894FEFFFF",
+          "purpose": "Villager Detail left arrow (previous villager): copy the name box into the selected villager (+0x370) through the write-back guard at 0x44A6F2 instead of calling getText 0x40BB70 directly, so the box is only written to the villager whose name it shows (ESI = the screen at the call)."
+        },
+        {
+          "offset": "0x1B756",
+          "before": "CC000000",
+          "after": "D4000000",
+          "purpose": "Villager Details screen allocation (push at 0x41B755): 0xCC -> 0xD4 bytes, for the name box's owner -- +0xCC the name pointer the box was last filled from, +0xD0 that villager's fingerprint. Nothing else reads the new bytes."
+        },
+        {
+          "offset": "0x1261",
+          "before": "909090909090909090909090909090",
+          "after": "8B4424088986CC000000E9C1080000",
+          "purpose": "Details name box identity guard code at 0x401261, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x401261)."
+        },
+        {
+          "offset": "0x1B31",
+          "before": "90909090909090909090909090",
+          "after": "8B103350043250E0E913040000",
+          "purpose": "Details name box identity guard code at 0x401B31, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x401261)."
+        },
+        {
+          "offset": "0x1F51",
+          "before": "9090909090909090909090",
+          "after": "8996D0000000E924D40400",
+          "purpose": "Details name box identity guard code at 0x401F51, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x401261)."
+        },
+        {
+          "offset": "0x81E1",
+          "before": "909090909090909090909090909090",
+          "after": "8B4424043B86CC000000E9A1070000",
+          "purpose": "Details name box identity guard code at 0x4081E1, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x4081E1)."
+        },
+        {
+          "offset": "0x8991",
+          "before": "90909090909090909090909090",
+          "after": "0F85661D04008B10E943010000",
+          "purpose": "Details name box identity guard code at 0x408991, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x4081E1)."
+        },
+        {
+          "offset": "0x8AE1",
+          "before": "9090909090909090909090",
+          "after": "3350043250E0E9350C0000",
+          "purpose": "Details name box identity guard code at 0x408AE1, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x4081E1)."
+        },
+        {
+          "offset": "0x9721",
+          "before": "9090909090909090909090",
+          "after": "3B96D0000000E9F5080000",
+          "purpose": "Details name box identity guard code at 0x409721, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x4081E1)."
+        },
+        {
+          "offset": "0xA021",
+          "before": "9090909090909090909090",
+          "after": "0F85D6060400E9441B0000",
+          "purpose": "Details name box identity guard code at 0x40A021, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x4081E1)."
         }
       ]
     },
@@ -2120,7 +2202,7 @@
       "id": "vv2_fix_vanilla_bugs",
       "game_id": "vv2",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Achak and Zuri (male) and Aba and Zuna (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"dirt\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, a number past the end of the list showed garbage, and a villager with a great many likes or dislikes overflowed the game's 256-character line, damaging memory. Now the last word shows like any other, a number that is not a word is left out, and a line too long for its space ends in \"...\" instead of overflowing. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Achak and Zuri (male) and Aba and Zuna (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"dirt\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, a number past the end of the list showed garbage, and a villager with a great many likes or dislikes overflowed the game's 256-character line, damaging memory. Now the last word shows like any other, a number that is not a word is left out, and a line too long for its space ends in \"...\" instead of overflowing. A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Crystal Ball (two-choice island event) is offered only when the base game's own condition holds (a living villager aged 14 or over) and at least two villagers are living, so the finder always has someone to trade places with.",
@@ -2128,14 +2210,16 @@
         "With at least one other living villager, keeping the ball trades the same skills, likes, dislikes and +0x564 text with the same randomly chosen villager as the base game.",
         "A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit.",
         "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
-        "Details screen Likes/Dislikes (0x44B7E0 / 0x44B8B0, called from 0x4654B0): each slot's word is found in the game's own word list without copying past its end, so the last word (index 61, \"dirt\") is shown and the slots after it still show; a negative slot or one past the end of the list is skipped; the line is written straight into the caller's 256-byte buffer, bounded at 255 characters, and a line that does not fit ends in \"...\" (the label draws a single unwrapped line, so text past 255 characters could never be seen on an 800-pixel screen anyway)."
+        "Details screen Likes/Dislikes (0x44B7E0 / 0x44B8B0, called from 0x4654B0): each slot's word is found in the game's own word list without copying past its end, so the last word (index 61, \"dirt\") is shown and the slots after it still show; a negative slot or one past the end of the list is skipped; the line is written straight into the caller's 256-byte buffer, bounded at 255 characters, and a line that does not fit ends in \"...\" (the label draws a single unwrapped line, so text past 255 characters could never be seen on an 800-pixel screen anyway).",
+        "Villager Details name box (The Lost Children): the screen remembers which villager it filled the box for -- the villager-name pointer (+0x564) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x538), kept in 8 new bytes at the end of the screen object (+0x54C) -- whenever the box is filled (setText 0x40C510 (shown 0x4663A6, after an arrow 0x467945)); every write-back (getText 0x40C550 (Done 0x467767, right arrow 0x4677F8, left arrow 0x4678C6)) goes ahead only when its destination is that same name and that villager still has the same fingerprint, otherwise the box is not saved (the next fill shows the right name). This covers any way the selected record could stop holding the villager shown (two clicks in one frame, a record reused or moved while the screen is open)."
       ],
       "explicit_non_changes": [
         "The result text, the \"give it to the children\" choice, every other island event and the event's chance of being chosen are the base game's own.",
         "No save data, villager record layout or art is changed.",
-        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes.",
+        "Renaming on the Details screen works as before: a typed name is saved to the villager shown by Done and the arrows; which villager the arrows select, the box's length and every other Details control are unchanged."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes and all 62 slots filled with the longest word",
+      "evidence_status": "static exact-build evidence, emulation of the real resolve and chooser code, and a live test (v1.35.49 test build, 2026-10-02): with one living villager the event is not offered, with two Keep it swaps them, and Keep it with nobody else living leaves the game running; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes and all 62 slots filled with the longest word; the Details name box identity guard: static exact-build evidence (every fill and write-back of the box, the screen's allocation, the padding used) and emulation of the real handlers, stock and patched, in every mode",
       "patches": [
         {
           "offset": "0x1F636",
@@ -2268,6 +2352,90 @@
           "before": "81ECC4030000535556578BF98B8FF074E5006845010000C684241401000000C644241400E8A75DFFFF508D84241401000050E8D6C901008B8C24E003000083C40833F669C98CE400008DBC39E8060000BD3E000000B32C8B0F33D233C083F9FF743285C97E0F389C0410010000750142403BD17CF18D8C04100100008A013AC3740D884434108A410146413AC375F3885C34104683C7044D75BD8A4C340F5F8D44340B5E5D3ACB5B7503C600008B8424CC0300008D5424005250E84EC9010081C4CC030000C20800",
           "after": "5356575589CE8B8EF074E5006845010000E8BA5DFFFF89C38B44241469C08CE400008DB406E80600008B7C24188DAFFF0000006A3E8B0E89D885C97C3F740F8A104084D2743680FA2C75F44975F18A1084D2742880FA2C74233B7C241C740839EF7323C6072C478A1084D2740F80FA2C740A39EF731088174740EBEB83C604FF0C2475B1EB09C745FD2E2E2E0089EF59C6070089F82B4424185D5F5E5BC20800CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
           "purpose": "Details screen dislikes builder 0x44B8B0 rewritten in place (same thiscall: ECX the villager table, the villager index and the 256-byte output buffer on the stack, ret 8; EBX/ESI/EDI/EBP kept): reads the word list the game's own text lookup returns without copying it, skips a negative slot or one past the end of the list, stops each word at a comma or the list's end (so the last word shows), joins words with a comma as before, and writes at most 255 characters plus the NUL, ending a line that does not fit in \"...\"; no sprintf; the 8 nop bytes after it are unchanged"
+        },
+        {
+          "offset": "0x24206",
+          "before": "4C050000",
+          "after": "54050000",
+          "purpose": "Villager Details screen allocation (push at 0x424205): 0x54C -> 0x554 bytes, for the name box's owner -- +0x54C the name pointer the box was last filled from, +0x550 that villager's fingerprint. Nothing else reads the new bytes."
+        },
+        {
+          "offset": "0x1281",
+          "before": "909090909090909090909090909090",
+          "after": "8B44240489864C050000E9C1080000",
+          "purpose": "Details name box identity guard code at 0x401281, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x401281)."
+        },
+        {
+          "offset": "0x1B51",
+          "before": "90909090909090909090909090",
+          "after": "8B103350043250D4E983040000",
+          "purpose": "Details name box identity guard code at 0x401B51, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x401281)."
+        },
+        {
+          "offset": "0x1FE1",
+          "before": "9090909090909090909090",
+          "after": "899650050000E924A50000",
+          "purpose": "Details name box identity guard code at 0x401FE1, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x401281)."
+        },
+        {
+          "offset": "0x8471",
+          "before": "909090909090909090909090909090",
+          "after": "8B4424043B864C050000E911070000",
+          "purpose": "Details name box identity guard code at 0x408471, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x408471)."
+        },
+        {
+          "offset": "0x8B91",
+          "before": "90909090909090909090909090",
+          "after": "0F85B50E00008B10E943010000",
+          "purpose": "Details name box identity guard code at 0x408B91, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x408471)."
+        },
+        {
+          "offset": "0x8CE1",
+          "before": "9090909090909090909090",
+          "after": "3350043250D4E9250C0000",
+          "purpose": "Details name box identity guard code at 0x408CE1, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x408471)."
+        },
+        {
+          "offset": "0x9911",
+          "before": "9090909090909090909090",
+          "after": "3B9650050000E925010000",
+          "purpose": "Details name box identity guard code at 0x409911, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x408471)."
+        },
+        {
+          "offset": "0x9A41",
+          "before": "9090909090909090909090909090",
+          "after": "0F8505000000E9042B0000C20800",
+          "purpose": "Details name box identity guard code at 0x409A41, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x408471)."
+        },
+        {
+          "offset": "0x663A6",
+          "before": "E86561FAFF",
+          "after": "E8D6AEF9FF",
+          "purpose": "Details name box fill at 0x4663A6: call the fill record at 0x401281 instead of setText; it remembers the villager-name pointer (+0x564) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x538) on the screen (+0x54C/+0x550), then tail-jumps to setText (same thiscall, ret 4, same result)."
+        },
+        {
+          "offset": "0x67945",
+          "before": "E8C64BFAFF",
+          "after": "E83799F9FF",
+          "purpose": "Details name box fill at 0x467945: call the fill record at 0x401281 instead of setText; it remembers the villager-name pointer (+0x564) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x538) on the screen (+0x54C/+0x550), then tail-jumps to setText (same thiscall, ret 4, same result)."
+        },
+        {
+          "offset": "0x67767",
+          "before": "E8E44DFAFF",
+          "after": "E8050DFAFF",
+          "purpose": "Details name box write-back at 0x467767: call the identity check at 0x408471 instead of the original; it writes only when the destination is the name the box was last filled from and that villager still has the remembered fingerprint, otherwise it returns without writing (same thiscall, ret 8)."
+        },
+        {
+          "offset": "0x677F8",
+          "before": "E8534DFAFF",
+          "after": "E8740CFAFF",
+          "purpose": "Details name box write-back at 0x4677F8: call the identity check at 0x408471 instead of the original; it writes only when the destination is the name the box was last filled from and that villager still has the remembered fingerprint, otherwise it returns without writing (same thiscall, ret 8)."
+        },
+        {
+          "offset": "0x678C6",
+          "before": "E8854CFAFF",
+          "after": "E8A60BFAFF",
+          "purpose": "Details name box write-back at 0x4678C6: call the identity check at 0x408471 instead of the original; it writes only when the destination is the name the box was last filled from and that villager still has the remembered fingerprint, otherwise it returns without writing (same thiscall, ret 8)."
         }
       ]
     },
@@ -2326,7 +2494,7 @@
       "id": "vv3_fix_vanilla_bugs",
       "game_id": "vv3",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing.",
@@ -2335,15 +2503,17 @@
         "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save; loading reads at most 150 saved villagers; a save already damaged this way (150 villagers, the next block's size 0x2AD stored as 0x200) loads with all 150.",
         "A villager's default first name is picked from the whole of the game's male or female list (125 names each): name numbers 0 to 124 instead of 1 to the base game's limit.",
         "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
-        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before."
+        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before.",
+        "Villager Details name box (The Secret City): the screen remembers which villager it filled the box for -- the villager-name pointer (+0xDD4) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0xDC8), kept in 8 new bytes at the end of the screen object (+0x33C) -- whenever the box is filled (setText 0x40D1A0 (shown 0x46E449, after an arrow 0x46E516)); every write-back (the record lookup 0x45C840 that gives each write-back its destination (arrow 0x46E492, Done 0x46E56D)) goes ahead only when its destination is that same name and that villager still has the same fingerprint, otherwise the box is not saved (the next fill shows the right name). This covers any way the selected record could stop holding the villager shown (two clicks in one frame, a record reused or moved while the screen is open)."
       ],
       "explicit_non_changes": [
         "Every result text, every other vial result and every other island event are the base game's own.",
         "The quartz vial's effects and the Royal Jelly's Healing amount are unchanged; only which vial gets the effect and which text a 14-year-old sees change.",
         "No villager record layout or art is changed; saves with 0 to 149 villagers are written and read exactly as before, and the save file's size and format are unchanged.",
-        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes.",
+        "Renaming on the Details screen works as before: a typed name is saved to the villager shown by Done and the arrows; which villager the arrows select, the box's length and every other Details control are unchanged."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes",
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes; the Details name box identity guard: static exact-build evidence (every fill and write-back of the box, the screen's allocation, the padding used) and emulation of the real handlers, stock and patched, in every mode",
       "patches": [
         {
           "offset": "0x180FB",
@@ -2422,6 +2592,108 @@
           "before": "83FFFF74",
           "after": "83FF007C",
           "purpose": "Details screen likes builder 0x4547D0: 'cmp edi,-1; je skip' -> 'cmp edi,0; jl skip' (same length and target), so any negative slot is skipped instead of being shown as the list's first word"
+        },
+        {
+          "offset": "0x27A39",
+          "before": "3C030000",
+          "after": "64030000",
+          "purpose": "Villager Details screen allocation (push at 0x427A38): 0x33C -> 0x364 bytes, for the name box's owner -- +0x33C the name pointer the box was last filled from, +0x340 that villager's fingerprint, +0x344..+0x363 a 32-byte scratch name a refused write-back goes into. Nothing else reads the new bytes."
+        },
+        {
+          "offset": "0x20571",
+          "before": "909090909090909090909090909090",
+          "after": "8B44240489863C030000E921000000",
+          "purpose": "Details name box identity guard code at 0x420571, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x420571)."
+        },
+        {
+          "offset": "0x205A1",
+          "before": "90909090909090909090909090",
+          "after": "8B103350043250F4E923000000",
+          "purpose": "Details name box identity guard code at 0x4205A1, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x420571)."
+        },
+        {
+          "offset": "0x205D1",
+          "before": "9090909090909090909090",
+          "after": "899640030000E9C4CBFEFF",
+          "purpose": "Details name box identity guard code at 0x4205D1, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x420571)."
+        },
+        {
+          "offset": "0x12D1",
+          "before": "90909090909090909090909090",
+          "after": "85C00F846E7F0000E993080000",
+          "purpose": "Details name box identity guard code at 0x4012D1, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x420631)."
+        },
+        {
+          "offset": "0x1B71",
+          "before": "9090909090909090909090",
+          "after": "8D90D40D0000E995040000",
+          "purpose": "Details name box identity guard code at 0x401B71, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x420631)."
+        },
+        {
+          "offset": "0x2011",
+          "before": "9090909090909090909090",
+          "after": "3B963C030000E9650C0000",
+          "purpose": "Details name box identity guard code at 0x402011, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x420631)."
+        },
+        {
+          "offset": "0x2C81",
+          "before": "90909090909090909090909090",
+          "after": "0F850A6700008B0AE9C3140000",
+          "purpose": "Details name box identity guard code at 0x402C81, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x420631)."
+        },
+        {
+          "offset": "0x4151",
+          "before": "9090909090909090909090",
+          "after": "334A04324AF4E945490000",
+          "purpose": "Details name box identity guard code at 0x404151, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x420631)."
+        },
+        {
+          "offset": "0x8AA1",
+          "before": "9090909090909090909090",
+          "after": "3B8E40030000E995070000",
+          "purpose": "Details name box identity guard code at 0x408AA1, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x420631)."
+        },
+        {
+          "offset": "0x9241",
+          "before": "909090909090909090",
+          "after": "0F854A010000C20400",
+          "purpose": "Details name box identity guard code at 0x409241, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x420631)."
+        },
+        {
+          "offset": "0x9391",
+          "before": "909090909090909090",
+          "after": "8D8670F5FFFFC20400",
+          "purpose": "Details name box identity guard code at 0x409391, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x420631)."
+        },
+        {
+          "offset": "0x20631",
+          "before": "9090909090909090909090909090",
+          "after": "FF742404E806C20300E9920CFEFF",
+          "purpose": "Details name box identity guard code at 0x420631, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x420631)."
+        },
+        {
+          "offset": "0x6E449",
+          "before": "E852EDF9FF",
+          "after": "E82321FBFF",
+          "purpose": "Details name box fill at 0x46E449: call the fill record at 0x420571 instead of setText; it remembers the villager-name pointer (+0xDD4) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0xDC8) on the screen (+0x33C/+0x340), then tail-jumps to setText (same thiscall, ret 4, same result)."
+        },
+        {
+          "offset": "0x6E516",
+          "before": "E885ECF9FF",
+          "after": "E85620FBFF",
+          "purpose": "Details name box fill at 0x46E516: call the fill record at 0x420571 instead of setText; it remembers the villager-name pointer (+0xDD4) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0xDC8) on the screen (+0x33C/+0x340), then tail-jumps to setText (same thiscall, ret 4, same result)."
+        },
+        {
+          "offset": "0x6E492",
+          "before": "E8A9E3FEFF",
+          "after": "E89A21FBFF",
+          "purpose": "Details name box write-back at 0x46E492: the record lookup that gives the write-back its destination calls the identity check at 0x420631 instead; it looks the record up as before and returns it only when its name is the one the box was last filled from and that villager still has the remembered fingerprint; otherwise it returns the screen's own 32-byte scratch (+0x344) as the record, so the box is written there and no villager changes. Works the same whether the copy is the base game's (getText into a local, then a 0x18-byte copy) or Show Full Names's (getText straight into the name) (same thiscall, ret 4; a lookup that fails still returns 0)."
+        },
+        {
+          "offset": "0x6E56D",
+          "before": "E8CEE2FEFF",
+          "after": "E8BF20FBFF",
+          "purpose": "Details name box write-back at 0x46E56D: the record lookup that gives the write-back its destination calls the identity check at 0x420631 instead; it looks the record up as before and returns it only when its name is the one the box was last filled from and that villager still has the remembered fingerprint; otherwise it returns the screen's own 32-byte scratch (+0x344) as the record, so the box is written there and no villager changes. Works the same whether the copy is the base game's (getText into a local, then a 0x18-byte copy) or Show Full Names's (getText straight into the name) (same thiscall, ret 4; a lookup that fails still returns 0)."
         }
       ]
     },
@@ -2473,7 +2745,7 @@
       "id": "vv4_fix_vanilla_bugs",
       "game_id": "vv4",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save, so the village loads again.",
@@ -2481,15 +2753,17 @@
         "A save already damaged this way (150 saved villagers and the next block's size with its low byte zeroed) is accepted and loads with all 150 villagers; the next save writes it correctly.",
         "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.",
         "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
-        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before."
+        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before.",
+        "Villager Details name box (The Tree of Life): the screen remembers which villager it filled the box for -- the villager-name pointer (+0x1B9C) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x1B90), kept in 8 new bytes at the end of the screen object (+0xD8) -- whenever the box is filled (setText 0x40D3E0 (shown 0x448516, after an arrow 0x4485F3)); every write-back (the record lookup 0x466040 that gives each write-back its destination (arrow 0x44856C, Done 0x448653)) goes ahead only when its destination is that same name and that villager still has the same fingerprint, otherwise the box is not saved (the next fill shows the right name). This covers any way the selected record could stop holding the villager shown (two clicks in one frame, a record reused or moved while the screen is open)."
       ],
       "explicit_non_changes": [
         "The population cap, births, events and every population mode are unchanged; no villager is removed or added.",
         "Saves with 0 to 149 villagers are written and read exactly as before, byte for byte; the save file's size and format are unchanged.",
         "A save whose size check fails for any other reason is still refused, as in the base game.",
-        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes.",
+        "Renaming on the Details screen works as before: a typed name is saved to the villager shown by Done and the arrows; which villager the arrows select, the box's length and every other Details control are unchanged."
       ],
-      "evidence_status": "static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes",
+      "evidence_status": "static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes; the Details name box identity guard: static exact-build evidence (every fill and write-back of the box, the screen's allocation, the padding used) and emulation of the real handlers, stock and patched, in every mode",
       "patches": [
         {
           "offset": "0x660F1",
@@ -2550,6 +2824,108 @@
           "before": "83FFFF74",
           "after": "83FF007C",
           "purpose": "Details screen dislikes builder 0x45D210: 'cmp edi,-1; je skip' -> 'cmp edi,0; jl skip' (same length and target), so any negative slot is skipped instead of being shown as the list's first word"
+        },
+        {
+          "offset": "0x1EA4C",
+          "before": "D8000000",
+          "after": "00010000",
+          "purpose": "Villager Details screen allocation (push at 0x41EA4B): 0xD8 -> 0x100 bytes, for the name box's owner -- +0xD8 the name pointer the box was last filled from, +0xDC that villager's fingerprint, +0xE0..+0xFF a 32-byte scratch name a refused write-back goes into. Nothing else reads the new bytes."
+        },
+        {
+          "offset": "0x152C1",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8B4424048986D8000000E9D1000000",
+          "purpose": "Details name box identity guard code at 0x4152C1, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x4152C1)."
+        },
+        {
+          "offset": "0x153A1",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8B103350043250F4E903020000",
+          "purpose": "Details name box identity guard code at 0x4153A1, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x4152C1)."
+        },
+        {
+          "offset": "0x155B1",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8996DC000000E9247EFFFF",
+          "purpose": "Details name box identity guard code at 0x4155B1, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x4152C1)."
+        },
+        {
+          "offset": "0x15751",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "FF742404E8E6080500E9D2000000",
+          "purpose": "Details name box identity guard code at 0x415751, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415751)."
+        },
+        {
+          "offset": "0x15831",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "85C00F840E060000E993000000",
+          "purpose": "Details name box identity guard code at 0x415831, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415751)."
+        },
+        {
+          "offset": "0x158D1",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8D909C1B0000E955010000",
+          "purpose": "Details name box identity guard code at 0x4158D1, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415751)."
+        },
+        {
+          "offset": "0x15A31",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "3B96D8000000E9D5000000",
+          "purpose": "Details name box identity guard code at 0x415A31, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415751)."
+        },
+        {
+          "offset": "0x15B11",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F857A0400008B0AE9F3000000",
+          "purpose": "Details name box identity guard code at 0x415B11, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415751)."
+        },
+        {
+          "offset": "0x15C11",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "334A04324AF4E995010000",
+          "purpose": "Details name box identity guard code at 0x415C11, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415751)."
+        },
+        {
+          "offset": "0x15DB1",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "3B8EDC000000E985000000",
+          "purpose": "Details name box identity guard code at 0x415DB1, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415751)."
+        },
+        {
+          "offset": "0x15E41",
+          "before": "CCCCCCCCCCCCCCCCCC",
+          "after": "0F854A010000C20400",
+          "purpose": "Details name box identity guard code at 0x415E41, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415751)."
+        },
+        {
+          "offset": "0x15F91",
+          "before": "CCCCCCCCCCCCCCCCCC",
+          "after": "8D8644E5FFFFC20400",
+          "purpose": "Details name box identity guard code at 0x415F91, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415751)."
+        },
+        {
+          "offset": "0x48516",
+          "before": "E8C54EFCFF",
+          "after": "E8A6CDFCFF",
+          "purpose": "Details name box fill at 0x448516: call the fill record at 0x4152C1 instead of setText; it remembers the villager-name pointer (+0x1B9C) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x1B90) on the screen (+0xD8/+0xDC), then tail-jumps to setText (same thiscall, ret 4, same result)."
+        },
+        {
+          "offset": "0x485F3",
+          "before": "E8E84DFCFF",
+          "after": "E8C9CCFCFF",
+          "purpose": "Details name box fill at 0x4485F3: call the fill record at 0x4152C1 instead of setText; it remembers the villager-name pointer (+0x1B9C) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x1B90) on the screen (+0xD8/+0xDC), then tail-jumps to setText (same thiscall, ret 4, same result)."
+        },
+        {
+          "offset": "0x4856C",
+          "before": "E8CFDA0100",
+          "after": "E8E0D1FCFF",
+          "purpose": "Details name box write-back at 0x44856C: the record lookup that gives the write-back its destination calls the identity check at 0x415751 instead; it looks the record up as before and returns it only when its name is the one the box was last filled from and that villager still has the remembered fingerprint; otherwise it returns the screen's own 32-byte scratch (+0xE0) as the record, so the box is written there and no villager changes. Works the same whether the copy is the base game's (getText into a local, then a 0x18-byte copy) or Show Full Names's (getText straight into the name) (same thiscall, ret 4; a lookup that fails still returns 0)."
+        },
+        {
+          "offset": "0x48653",
+          "before": "E8E8D90100",
+          "after": "E8F9D0FCFF",
+          "purpose": "Details name box write-back at 0x448653: the record lookup that gives the write-back its destination calls the identity check at 0x415751 instead; it looks the record up as before and returns it only when its name is the one the box was last filled from and that villager still has the remembered fingerprint; otherwise it returns the screen's own 32-byte scratch (+0xE0) as the record, so the box is written there and no villager changes. Works the same whether the copy is the base game's (getText into a local, then a 0x18-byte copy) or Show Full Names's (getText straight into the name) (same thiscall, ret 4; a lookup that fails still returns 0)."
         }
       ]
     },
@@ -3787,20 +4163,26 @@
       "id": "vv5_fix_vanilla_bugs",
       "game_id": "vv5",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". The gold dust pouring sound plays: the game asked for it as \"gold_dust_pour .ogg\", with a stray space, so the sound file it ships (Sounds\\gold_dust_pour.ogg) was never found and the game wrote \"ldwSoundFx Missing File ->gold_dust_pour .ogg\" to its log each time it opened; now it asks for \"gold_dust_pour.ogg\". The game no longer writes \"String Table (sm.xml) malformed near id=\\\"eDemo\\\"\" to its log each time it opens: it looked up the demo version's population message under the name \"eDemo\", which its text file calls \"eTipDemo\"; now it uses \"eTipDemo\" (the message is for the demo version only, is never shown in the full game, and has the same words either way). A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.",
         "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
-        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before."
+        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before.",
+        "Sound table entry 0x98 (0x4CE508): its file name string at 0x49AA20 reads \"gold_dust_pour.ogg\" instead of \"gold_dust_pour .ogg\", so the sound loads from Sounds\\gold_dust_pour.ogg.",
+        "Text table entry 0x302 (0x4D7530): its id name points at a new \"eTipDemo\" string (0x4C5FF0, in the zero tail of the read-only data section's last page) instead of \"eDemo\", the name Assets\\sm.xml uses for the same message, so the string table finds it and writes nothing to the log.",
+        "Villager Details name box (New Believers): the screen remembers which villager it filled the box for -- the villager-name pointer (+0x1B9C) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x1B90), kept in 8 new bytes at the end of the screen object (+0xEC) -- whenever the box is filled (setText 0x40D8D0 (shown 0x44BB26, after an arrow 0x44BC03)); every write-back (the record lookup 0x46F950 that gives each write-back its destination (arrow 0x44BB7C, Done 0x44BC63)) goes ahead only when its destination is that same name and that villager still has the same fingerprint, otherwise the box is not saved (the next fill shows the right name). This covers any way the selected record could stop holding the villager shown (two clicks in one frame, a record reused or moved while the screen is open)."
       ],
       "explicit_non_changes": [
         "The name lists themselves, a villager's sex, looks and family, and any name the player gives are the base game's own.",
         "Villagers already named keep their names.",
         "No save data, villager record layout or art is changed.",
-        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes.",
+        "When the gold dust sound plays is the game's own; no sound file is added or changed.",
+        "The demo population message keeps its words (the built-in text and sm.xml's are the same) and is never shown in the full game; no other text id changes.",
+        "Renaming on the Details screen works as before: a typed name is saved to the villager shown by Done and the arrows; which villager the arrows select, the box's length and every other Details control are unchanged."
       ],
-      "evidence_status": "static exact-build evidence: the villager naming routine's roll and the comma walk that reads the chosen name, with every list ending in a comma; the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes",
+      "evidence_status": "static exact-build evidence: the villager naming routine's roll and the comma walk that reads the chosen name, with every list ending in a comma; the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes; the Details name box identity guard: static exact-build evidence (every fill and write-back of the box, the screen's allocation, the padding used) and emulation of the real handlers, stock and patched, in every mode",
       "patches": [
         {
           "offset": "0x6F695",
@@ -3837,6 +4219,126 @@
           "before": "83FFFF74",
           "after": "83FF007C",
           "purpose": "Details screen dislikes builder 0x464A10: 'cmp edi,-1; je skip' -> 'cmp edi,0; jl skip' (same length and target), so any negative slot is skipped instead of being shown as the list's first word"
+        },
+        {
+          "offset": "0x9AA20",
+          "before": "676F6C645F647573745F706F7572202E6F676700",
+          "after": "676F6C645F647573745F706F75722E6F67670000",
+          "purpose": "sound table entry 0x98's file name (0x49AA20): \"gold_dust_pour .ogg\" (stray space; no such file) -> \"gold_dust_pour.ogg\", the file in Sounds\\"
+        },
+        {
+          "offset": "0xC5FF0",
+          "before": "000000000000000000",
+          "after": "6554697044656D6F00",
+          "purpose": "new string \"eTipDemo\" at 0x4C5FF0, in the zero tail of .rdata's last page (VirtualSize ends 0x4C568C; the raw data, mapped with the page, runs to 0x4C6000)"
+        },
+        {
+          "offset": "0xD7534",
+          "before": "508A4A00",
+          "after": "F05F4C00",
+          "purpose": "text table entry 0x302 (0x4D7530) id name: \"eDemo\" (0x4A8A50, not in Assets\\sm.xml) -> \"eTipDemo\" (0x4C5FF0), the id sm.xml has for the same demo message"
+        },
+        {
+          "offset": "0x23EFC",
+          "before": "EC000000",
+          "after": "14010000",
+          "purpose": "Villager Details screen allocation (push at 0x423EFB): 0xEC -> 0x114 bytes, for the name box's owner -- +0xEC the name pointer the box was last filled from, +0xF0 that villager's fingerprint, +0xF4..+0x113 a 32-byte scratch name a refused write-back goes into. Nothing else reads the new bytes."
+        },
+        {
+          "offset": "0x15781",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8B4424048986EC000000E941000000",
+          "purpose": "Details name box identity guard code at 0x415781, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x415781)."
+        },
+        {
+          "offset": "0x157D1",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8B103350043250F4E9D3000000",
+          "purpose": "Details name box identity guard code at 0x4157D1, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x415781)."
+        },
+        {
+          "offset": "0x158B1",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8996F0000000E91480FFFF",
+          "purpose": "Details name box identity guard code at 0x4158B1, in unused padding between functions (no feature uses it; never a branch target): part of the fill record (entry 0x415781)."
+        },
+        {
+          "offset": "0x15AA1",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "FF742404E8A69E0500E982000000",
+          "purpose": "Details name box identity guard code at 0x415AA1, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415AA1)."
+        },
+        {
+          "offset": "0x15B31",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "85C00F84EE0A0000E983010000",
+          "purpose": "Details name box identity guard code at 0x415B31, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415AA1)."
+        },
+        {
+          "offset": "0x15CC1",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "8D909C1B0000E9A5000000",
+          "purpose": "Details name box identity guard code at 0x415CC1, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415AA1)."
+        },
+        {
+          "offset": "0x15D71",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "3B96EC000000E925010000",
+          "purpose": "Details name box identity guard code at 0x415D71, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415AA1)."
+        },
+        {
+          "offset": "0x15EA1",
+          "before": "CCCCCCCCCCCCCCCCCCCCCCCCCC",
+          "after": "0F85AA0800008B0AE963020000",
+          "purpose": "Details name box identity guard code at 0x415EA1, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415AA1)."
+        },
+        {
+          "offset": "0x16111",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "334A04324AF4E9E5010000",
+          "purpose": "Details name box identity guard code at 0x416111, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415AA1)."
+        },
+        {
+          "offset": "0x16301",
+          "before": "CCCCCCCCCCCCCCCCCCCCCC",
+          "after": "3B8EF0000000E915030000",
+          "purpose": "Details name box identity guard code at 0x416301, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415AA1)."
+        },
+        {
+          "offset": "0x16621",
+          "before": "CCCCCCCCCCCCCCCCCC",
+          "after": "0F852A010000C20400",
+          "purpose": "Details name box identity guard code at 0x416621, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415AA1)."
+        },
+        {
+          "offset": "0x16751",
+          "before": "CCCCCCCCCCCCCCCCCC",
+          "after": "8D8658E5FFFFC20400",
+          "purpose": "Details name box identity guard code at 0x416751, in unused padding between functions (no feature uses it; never a branch target): part of the write-back check (entry 0x415AA1)."
+        },
+        {
+          "offset": "0x4BB26",
+          "before": "E8A51DFCFF",
+          "after": "E8569CFCFF",
+          "purpose": "Details name box fill at 0x44BB26: call the fill record at 0x415781 instead of setText; it remembers the villager-name pointer (+0x1B9C) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x1B90) on the screen (+0xEC/+0xF0), then tail-jumps to setText (same thiscall, ret 4, same result)."
+        },
+        {
+          "offset": "0x4BC03",
+          "before": "E8C81CFCFF",
+          "after": "E8799BFCFF",
+          "purpose": "Details name box fill at 0x44BC03: call the fill record at 0x415781 instead of setText; it remembers the villager-name pointer (+0x1B9C) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x1B90) on the screen (+0xEC/+0xF0), then tail-jumps to setText (same thiscall, ret 4, same result)."
+        },
+        {
+          "offset": "0x4BB7C",
+          "before": "E8CF3D0200",
+          "after": "E8209FFCFF",
+          "purpose": "Details name box write-back at 0x44BB7C: the record lookup that gives the write-back its destination calls the identity check at 0x415AA1 instead; it looks the record up as before and returns it only when its name is the one the box was last filled from and that villager still has the remembered fingerprint; otherwise it returns the screen's own 32-byte scratch (+0xF4) as the record, so the box is written there and no villager changes. Works the same whether the copy is the base game's (getText into a local, then a 0x18-byte copy) or Show Full Names's (getText straight into the name) (same thiscall, ret 4; a lookup that fails still returns 0)."
+        },
+        {
+          "offset": "0x4BC63",
+          "before": "E8E83C0200",
+          "after": "E8399EFCFF",
+          "purpose": "Details name box write-back at 0x44BC63: the record lookup that gives the write-back its destination calls the identity check at 0x415AA1 instead; it looks the record up as before and returns it only when its name is the one the box was last filled from and that villager still has the remembered fingerprint; otherwise it returns the screen's own 32-byte scratch (+0xF4) as the record, so the box is written there and no villager changes. Works the same whether the copy is the base game's (getText into a local, then a 0x18-byte copy) or Show Full Names's (getText straight into the name) (same thiscall, ret 4; a lookup that fails still returns 0)."
         }
       ]
     },

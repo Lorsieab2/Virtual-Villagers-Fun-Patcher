@@ -64,6 +64,9 @@ FILES = [
     # Write Island Events Log: one companion for all five games, started by
     # VVFP Startup.dll; no executable bytes.
     "assets/island_events/VVFP Island Events.dll",
+    # Keep the Game's Own Log (ldwLog.txt): one companion for all five games,
+    # started by VVFP Startup.dll; no executable bytes.
+    "assets/game_log/VVFP Game Log.dll",
     # Story / Cheat Upgrades: one companion for all five games, loaded by each
     # game's Origins companion; no executable bytes.
     "assets/story_upgrades/VVFP Story Upgrades.dll",
@@ -150,6 +153,11 @@ FILES = [
     "data/vv3_island_events_feature.json",
     "data/vv4_island_events_feature.json",
     "data/vv5_island_events_feature.json",
+    "data/vv1_game_log_feature.json",
+    "data/vv2_game_log_feature.json",
+    "data/vv3_game_log_feature.json",
+    "data/vv4_game_log_feature.json",
+    "data/vv5_game_log_feature.json",
     # 256 Villagers (Experimental): The Secret City, The Tree of Life and
     # New Believers.
     "data/vv3_population_256_feature.json",
@@ -217,6 +225,9 @@ FILES = [
     "src/vv_log_decisions.py",
     "src/vv_move_old_names.py",
     "src/vv_log_contradictions.py",
+    # The always-on read-only reconciliation of records, logs and files, and the pickers' run of it.
+    "src/vv_reconcile.py",
+    "src/vv_reconcile_view.py",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).
@@ -235,6 +246,10 @@ FILES = [
     "src/vv_graves.py",
     # Repair Saves & Logs' restore of titles a likes / dislikes change took away (the GUI imports it).
     "src/vv_lost_titles.py",
+    # The Custom Titles file's reader and writer (version 3 and 2; v1.35.70).
+    "src/vv_titles_file.py",
+    # Repair Saves & Logs' Reset corrupted skill values (the GUI imports it).
+    "src/vv_corrupt_skills.py",
     # Repair Saves & Logs' Restore A New Home Parents (the GUI imports it).
     "src/vv1_parents_restore.py",
     # The save folder's folder and file names, old and new: the Family Tree Maker finds its edits and

@@ -167,10 +167,10 @@ struct cod_entry {
 static struct cod_entry bodies[RECORDS_MAX];
 static struct cod_entry graves[GRAVES];
 
-/* What the hooks did since the last tick.  Applied to the tables at once;
-   replayed onto the new village's tables when the tick finds the slot has
-   changed -- the load-time catch-up of a village runs before the first tick
-   that sees its slot. */
+/* What the hooks did since the last tick.  Applied to the tables at once --
+   bound by then to the village being played whenever the game knows its slot
+   (vv12_sync) -- and replayed onto that village's tables when they are bound
+   later: when the slot was not known yet at the hook. */
 enum { EVENT_DEATH = 1, EVENT_GRAVE = 2, EVENT_GONE = 3 };
 struct cod_event {
     int type;
@@ -370,10 +370,20 @@ static void cod_event(const struct cod_event *e) {
     }
 }
 
+static void cod_rehome_bodies(const unsigned char *records, int keep);
+static int cod_body_holds(const unsigned char *records, int i, unsigned int fingerprint, int keep);
+
 /* Bind the tables to `slot`, loading its file (again after a blocked load's
-   retry window).  The events since the last tick are replayed on top. */
+   retry window).  The events since the last tick are replayed on top -- after
+   the file's causes have been moved to the records that hold their bodies
+   now.  The file keeps each body by the record it lay in when it was saved,
+   and the game's load packs the records, while the events were reported by
+   the records the bodies are in now: replayed onto the file's places as they
+   were, a death or a removal in the load-time catch-up landed on the place of
+   another body the file kept, and that body's cause was lost. */
 static void cod_bind(int slot) {
     DWORD length = 0;
+    const unsigned char *records;
     int result;
     int i;
     if (slot != store.slot) {
@@ -402,8 +412,20 @@ static void cod_bind(int slot) {
         cod_parse(file_buffer);
     }
     store.loaded = 1;
+    records = cod_records();
+    if (records != NULL && journal_count > 0) {
+        cod_rehome_bodies(records, -1);
+    }
     for (i = 0; i < journal_count; ++i) {
-        cod_apply(&journal[i]);
+        const struct cod_event *e = &journal[i];
+        /* A removal reported at a record that holds, now, the body whose
+           cause sits there is about an earlier occupant: that body is still
+           lying. */
+        if (e->type == EVENT_GONE && records != NULL && bodies[e->index].valid
+            && cod_body_holds(records, e->index, bodies[e->index].fingerprint, -1)) {
+            continue;
+        }
+        cod_apply(e);
     }
     if (journal_count > 0) {
         store.dirty = 1;
@@ -430,12 +452,15 @@ static void cod_publish(void) {
    the burial for a death no site reported.  The record still holds the
    villager.  Only the cause is kept here; the Death record waits until the
    death is final. */
+static void vv12_sync(int keep);
+
 static void cod_died(const unsigned char *record, int cause) {
     struct cod_event e;
     int index = cod_index_of(record);
     if (index < 0) {
         return;
     }
+    vv12_sync(-1);
     memset(&e, 0, sizeof e);
     e.type = EVENT_DEATH;
     e.index = index;
@@ -529,6 +554,7 @@ static void cod_buried(int index, int found, int slot) {
         return;
     }
     COD_COUNT(burials);
+    vv12_sync(index);
     cause = cod_cause_of(record, index);
     seen_alive[index] = 0;
     memset(&e, 0, sizeof e);
@@ -589,6 +615,7 @@ static void cod_decayed(unsigned char *record) {
     if (index < 0) {
         return;
     }
+    vv12_sync(-1);
     cause = cod_cause_of(record, index);
     seen_alive[index] = 0;
     memset(&e, 0, sizeof e);
@@ -814,18 +841,25 @@ static void vv12_sites(void) {
    record holds no such body afterwards -- the body was brought back to
    life, or the record now holds someone else, or the file is a replaced
    save's -- is dropped. */
-static int cod_body_holds(const unsigned char *records, int i, unsigned int fingerprint) {
+/* Record `i` holds a body -- or is `keep`, the record a burial has just freed
+   (its presence byte is cleared before the burial hook runs, the body's bytes
+   still in it). */
+static int cod_is_body(const unsigned char *records, int i, int keep) {
     const unsigned char *record = records + (size_t)i * REC[g_game].stride;
-    return rec_present(record) && !rec_lookalike(record) && rec_health(record) <= 0
-        && cod_record_fingerprint(record) == fingerprint;
+    return (rec_present(record) || i == keep) && !rec_lookalike(record) && rec_health(record) <= 0;
 }
 
-static void cod_rehome_bodies(const unsigned char *records) {
+static int cod_body_holds(const unsigned char *records, int i, unsigned int fingerprint, int keep) {
+    return cod_is_body(records, i, keep)
+        && cod_record_fingerprint(records + (size_t)i * REC[g_game].stride) == fingerprint;
+}
+
+static void cod_rehome_bodies(const unsigned char *records, int keep) {
     int i, k;
     for (i = 0; i < (int)REC[g_game].slots; ++i) {
         const unsigned char *record = records + (size_t)i * REC[g_game].stride;
         unsigned int fingerprint;
-        if (!rec_present(record) || rec_lookalike(record) || rec_health(record) > 0) {
+        if (!cod_is_body(records, i, keep)) {
             continue;
         }
         fingerprint = cod_record_fingerprint(record);
@@ -834,7 +868,7 @@ static void cod_rehome_bodies(const unsigned char *records) {
         }
         for (k = 0; k < (int)REC[g_game].slots; ++k) {
             if (k != i && bodies[k].valid && bodies[k].fingerprint == fingerprint
-                && !cod_body_holds(records, k, fingerprint)) {
+                && !cod_body_holds(records, k, fingerprint, keep)) {
                 bodies[i] = bodies[k];
                 bodies[k].valid = 0;
                 store.dirty = 1;
@@ -843,10 +877,41 @@ static void cod_rehome_bodies(const unsigned char *records) {
         }
     }
     for (i = 0; i < (int)REC[g_game].slots; ++i) {
-        if (bodies[i].valid && !cod_body_holds(records, i, bodies[i].fingerprint)) {
+        if (bodies[i].valid && !cod_body_holds(records, i, bodies[i].fingerprint, keep)) {
             bodies[i].valid = 0;
             store.dirty = 1;
         }
+    }
+}
+
+/* Before every death, burial and removal a site reports: the tables bound to
+   the village being played -- its file read -- and each body's cause on the
+   record that holds the body now.
+
+   The per-frame tick did this alone, and the tick runs only once a village
+   frame is drawn.  Everything the game does before that -- the load-time
+   catch-up replaying the time away (A New Home 0x42E900 from the loading
+   screen 0x426100, The Lost Children 0x43B690 from 0x431D30), and the first
+   updates of the village -- found the tables of no village (a new session:
+   nothing read yet) or of the records as they were before the load packed
+   them (a village loaded again in the same session).  So a body that lay
+   across a save and was buried or removed then -- the catch-up's removal of
+   an unburied body after time away is the usual case -- had "(not recorded
+   ...)" (the owner's A New Home Death 53, 2026-10-11: Hiji Temitope, dead at
+   1682 in a Time Skip, lay through the save of 20:48:51 and was buried
+   after the village was loaded again).  The slot is the game's own
+   (game_save_slot.h), set by the slot menu before the load.  Unknown (0):
+   nothing is bound, and the events wait in the journal as before.  `keep` as
+   cod_is_body. */
+static void vv12_sync(int keep) {
+    const unsigned char *records;
+    int slot = cod_slot();
+    if (slot > 0) {
+        cod_bind(slot);
+    }
+    records = cod_records();
+    if (store.loaded && store.slot == slot && records != NULL) {
+        cod_rehome_bodies(records, keep);
     }
 }
 
@@ -857,7 +922,7 @@ static void vv12_tick(void) {
     records = cod_records();
     if (records != NULL) {
         if (store.loaded) {
-            cod_rehome_bodies(records);
+            cod_rehome_bodies(records, -1);
         }
         for (i = 0; i < (int)REC[g_game].slots; ++i) {
             unsigned char *record = records + (size_t)i * REC[g_game].stride;
@@ -897,7 +962,7 @@ static void vv12_saved(int slot) {
     }
     records = cod_records();
     if (records != NULL) {
-        cod_rehome_bodies(records);
+        cod_rehome_bodies(records, -1);
     }
     journal_count = 0;
     cod_publish();

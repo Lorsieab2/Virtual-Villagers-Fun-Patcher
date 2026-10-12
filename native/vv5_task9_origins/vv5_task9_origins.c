@@ -4,6 +4,7 @@
 #include <string.h>   /* strrchr */
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
@@ -107,7 +108,7 @@ enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1013,   /* 14 tech-menu rows: rows 0..13 -> Buy 1000..1013 (row 13 = Change Appearance for All) */
+    ID_BUY_LAST = 1016,   /* 17 tech-menu rows: rows 0..16 -> Buy 1000..1016 (13 Clear All Skill Preferences, 14/15 Check Highest Skill, 16 Change Appearance for All) */
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000,
     /* Architecture-aware state, above every dialog row/unavailable bit
@@ -133,7 +134,12 @@ enum {
     ACTION_SET_AGE_18_ALL = 22,
     ACTION_EQUAL_DIVISION_PARENTING = 23,
     ACTION_EQUAL_DIVISION_NO_PARENTING = 24,
-    ACTION_CHANGE_APPEARANCE_ALL = 25
+    ACTION_CHANGE_APPEARANCE_ALL = 25,
+    /* The skill-preference rows (Tech rows 13, 14, 15; the page passes
+       row + 13), all owned by ShowVV5SkillPreferenceUpgrade. */
+    ACTION_CLEAR_SKILL_PREFERENCES = 26,
+    ACTION_HIGHEST_SKILL_PARENTING = 27,
+    ACTION_HIGHEST_SKILL_NO_PARENTING = 28
 };
 
 enum {
@@ -146,7 +152,8 @@ enum {
     RESULT_RETAINED = 6,
     RESULT_CHARGE_UNKNOWN = 7,
     RESULT_NO_SLOT = 8,
-    RESULT_INVALID_SKILL = 9,
+    /* 9 was RESULT_INVALID_SKILL: Full Mastery now repairs a corrupted skill
+       (vv5_skill_repair_bits) instead of refusing, so nothing sends it. */
     RESULT_UNAVAILABLE = 10,
     RESULT_REMOVED = 11,
     RESULT_PURCHASED = 12,
@@ -1235,7 +1242,10 @@ enum {
     BLOCK_NO_VILLAGER_SLOTS = 2
 };
 
-#define ROW_STATE_MAX 16
+#define ROW_STATE_MAX 20
+/* Rows 0..13 own dialog-state bits (1 << row, and 1 << (8 + row) for
+   "unavailable"); later rows have none (see upgrade_dialog). */
+#define VV5_ROWS_WITH_STATE_BITS 14
 static int block_reasons[ROW_STATE_MAX];
 
 static const char *block_reason_text(int reason, int row) {
@@ -2288,7 +2298,7 @@ static INT_PTR CALLBACK upgrade_dialog(
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         int limited_capability = (lparam & STATE_LIMITED_CAPABILITY) != 0;
         int first_unsupported_row = villager_menu ? 4 : 6;
-        int row_count = villager_menu ? 5 : 14;
+        int row_count = villager_menu ? 5 : 17;
         int row;
         int blocked;
         for (row = 0; row < ROW_STATE_MAX; ++row) {
@@ -2316,8 +2326,15 @@ static INT_PTR CALLBACK upgrade_dialog(
                nothing. A false remedy is worse than a bare refusal, which is
                the opposite of what these reasons exist for. Codex found this
                on #254; the capability half alone does not cover row 2. */
+            /* The per-row bits exist only for rows 0..13: bits 8..21. Row 14
+               and up would read bit 22 (STATE_LIMITED_CAPABILITY, tested on its
+               own), bit 23 (STATE_ISLAND_PENDING) and bit 24
+               (STATE_BARREL_PENDING), so a queued island event or barrel
+               would have disabled the Check Highest Skill and Change
+               Appearance for All rows. Rows 14..16 have no per-row bits. */
             if ((limited_capability && row >= first_unsupported_row)
-                || (lparam & (1L << (8 + row))) != 0) {
+                || (row < VV5_ROWS_WITH_STATE_BITS
+                    && (lparam & (1L << (8 + row))) != 0)) {
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
                 continue;
@@ -2331,7 +2348,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
             }
-            if ((lparam & (1 << row)) != 0) {
+            if (row < VV5_ROWS_WITH_STATE_BITS && (lparam & (1 << row)) != 0) {
                 /* Only the two Doublers may ever show a green check, and only
                    while they are owned in the current save. Every other row --
                    including the Details menu's already-satisfied rows, whose
@@ -2443,6 +2460,9 @@ static const char *action_name(unsigned int action) {
     case ACTION_EQUAL_DIVISION_PARENTING: return "Equal Division of Labor (Includes Parenting)";
     case ACTION_EQUAL_DIVISION_NO_PARENTING: return "Equal Division of Labor (No Parenting)";
     case ACTION_CHANGE_APPEARANCE_ALL: return "Change Appearance for All";
+    case ACTION_CLEAR_SKILL_PREFERENCES: return "Clear All Skill Preferences";
+    case ACTION_HIGHEST_SKILL_PARENTING: return "Check Highest Skill (Includes Parenting)";
+    case ACTION_HIGHEST_SKILL_NO_PARENTING: return "Check Highest Skill (No Parenting)";
     default: return "Origins upgrade";
     }
 }
@@ -2461,6 +2481,7 @@ static const char *action_cost(unsigned int action) {
     case ACTION_TECH_DOUBLER:
     case ACTION_FOOD_DOUBLER: return "500,000";
     case ACTION_CHANGE_APPEARANCE_ALL: return "450,000";
+    case ACTION_CLEAR_SKILL_PREFERENCES: return "500,000";
     default: return "1,000,000";
     }
 }
@@ -2475,9 +2496,68 @@ static const char *vpl_uc(unsigned int n) { return n == 1 ? "Villager" : "Villag
 static const char *vpl_pos(unsigned int n) { return n == 1 ? "Villager's" : "Villagers'"; }
 
 
+/* ---- Corrupted skill values (v1.35.70) ---------------------------------------
+   The six skills are floats at +0x1C5C..+0x1C70. The stock writer 0x475730
+   (the only thing the game uses to change one) keeps them in 0..100: it stores
+   current + delta, then an ordered result above the double 100.0 at 0x4957D8
+   is replaced by the float 100.0 at 0x4980D4, and one below 0 by fldz. So a
+   NaN, an infinity, a negative value or one above 100 can only come from
+   outside the game (Cheat Engine, a damaged save). Every skill upgrade repairs
+   such a value on the Believers it acts on, after the player confirms: NaN or
+   +-infinity -> 0, below 0 -> 0, above 100 -> 100. -0.0 is a valid zero and is
+   never touched. The repair is a direct store, not the writer, which also
+   awards the skill trophies (0x413450 ids 0x20-0x27) when a value crosses 88
+   -- a repair is not progress the villager earned. The page's Full Mastery
+   routines make the same repair in assembly (build_vv5_task9_native_actions). */
+#define VV5_SKILL_MAX_BITS 0x42C80000u   /* 100.0f, the writer's clamp */
+static int vv5_skill_repair_bits(unsigned int bits, unsigned int *fixed) {
+    *fixed = bits;
+    if ((bits & 0x7FFFFFFFu) >= 0x7F800000u) {
+        *fixed = 0;                        /* NaN, +-infinity */
+        return 1;
+    }
+    if ((bits & 0x80000000u) != 0 && bits != 0x80000000u) {
+        *fixed = 0;                        /* below 0 (-0.0 is valid) */
+        return 1;
+    }
+    if (bits > VV5_SKILL_MAX_BITS && (bits & 0x80000000u) == 0) {
+        *fixed = VV5_SKILL_MAX_BITS;       /* above the game's 100 */
+        return 1;
+    }
+    return 0;
+}
+
+/* Repair one Believer's corrupted skills; returns how many were reset. */
+static int vv5_repair_skills(unsigned char *record) {
+    int s, count = 0;
+    for (s = 0; s < 6; ++s) {
+        unsigned int *slot = (unsigned int *)(record + 0x1C5C + 4 * s);
+        unsigned int fixed;
+        if (vv5_skill_repair_bits(*slot, &fixed)) {
+            *slot = fixed;
+            ++count;
+        }
+    }
+    return count;
+}
+
+/* "\r\n\r\nReset N corrupted skill value(s)." when N > 0. */
+static char *vv5_reset_line(char *p, int repaired) {
+    if (repaired > 0) {
+        p += wsprintfA(p, "\r\n\r\nReset %d corrupted skill %s.", repaired,
+                       repaired == 1 ? "value" : "values");
+    }
+    return p;
+}
+
+/* Repairs a C skill row made that its next ShowVV5Task9Result must report. */
+static int g_vv5_reset_note;
+
 /* ---- Equal Division of Labor (VV5) -------------------------------------------
-   Split every eligible Believer's job-preference checkmark round-robin so the
-   population is spread evenly across the professions. Record fields (base +
+   Split every eligible Believer's job-preference checkmark evenly across the
+   professions: the seats per profession are the per-sex round-robin's, and
+   who sits where follows skill progress (native/shared/equal_division.h --
+   most-progressed job first, random for ties and anyone left; v1.35.70). Record fields (base +
    i*STRIDE): active +0x1CD4, Heathen mask +0x1CE1 (== 0), faction +0x1CEC
    (== 0), signed health +0x1C40 (> 0), sex dword +0x1B90 (0 male / 1 female),
    preferred-skill index +0x1C74 (0 Farming, 1 Parenting, 2 Healing, 3 Research,
@@ -2499,6 +2579,7 @@ static const char *vpl_pos(unsigned int n) { return n == 1 ? "Villager's" : "Vil
 #define VV5_ED_HEALTH     0x1C40
 #define VV5_ED_SEX        0x1B90
 #define VV5_ED_PREFERENCE 0x1C74
+#define VV5_ED_SKILLS     0x1C5C   /* six floats, indexed by the preference value */
 
 __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
     unsigned char *base,
@@ -2525,7 +2606,14 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
        unchanged roster must report none. `total` still drives the per-seat
        summary, which describes the resulting division either way. */
     int changed = 0;
+    int repaired = 0;   /* corrupted skill values reset (vv5_repair_skills) */
     int i, p;
+    static unsigned char *who[VVED_MAX_VILLAGERS];
+    static int group[VVED_MAX_VILLAGERS];
+    static float skill[VVED_MAX_VILLAGERS * VVED_MAX_SEATS];
+    static int seat_of[VVED_MAX_VILLAGERS];
+    int quota[2 * VVED_MAX_SEATS];
+    unsigned int rng;
     char message[512];
     char line[128];
     unsigned char *record = base;
@@ -2533,8 +2621,7 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
     if (base == 0) {
         return 0;
     }
-    for (i = 0; i < VV5_ED_COUNT; ++i, record += VV5_ED_STRIDE) {
-        int seat;
+    for (i = 0; i < VV5_ED_COUNT && total < VVED_MAX_VILLAGERS; ++i, record += VV5_ED_STRIDE) {
         if (record[VV5_ED_ACTIVE] == 0) {
             continue;
         }
@@ -2547,20 +2634,46 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
         if (*(int *)(record + VV5_ED_HEALTH) <= 0) {
             continue;
         }
-        if (*(int *)(record + VV5_ED_SEX) == 0) {   /* male */
-            seat = male_seat % professions;
-            ++male_seat;
-            ++male_count[seat];
-        } else {                                     /* female */
-            seat = female_seat % professions;
+        /* The page calls this only after the player confirmed and the
+           balance re-check passed: repair the corrupted skills before they
+           are rated. */
+        repaired += vv5_repair_skills(record);
+        who[total] = record;
+        group[total] = *(int *)(record + VV5_ED_SEX) != 0;   /* 0 male, 1 female */
+        if (group[total]) {
             ++female_seat;
-            ++female_count[seat];
+        } else {
+            ++male_seat;
         }
-        if (*(int *)(record + VV5_ED_PREFERENCE) != pro_index[seat]) {
-            *(int *)(record + VV5_ED_PREFERENCE) = pro_index[seat];
-            ++changed;
+        /* The skill each seat rates: the float skills at +0x1C5C indexed by
+           the preference value (stock 0x46A586 `fld [eax+ebx*4+0x1C5C]`). */
+        for (p = 0; p < VVED_MAX_SEATS; ++p) {
+            skill[total * VVED_MAX_SEATS + p] = p < professions
+                ? *(const float *)(record + VV5_ED_SKILLS + 4 * pro_index[p]) : 0.0f;
         }
         ++total;
+    }
+    /* Same per-sex seat counts as the round-robin (male_seat / female_seat
+       now hold the totals); who sits where follows skill progress
+       (native/shared/equal_division.h). */
+    vved_cycle_quota(male_seat, professions, 0, quota);
+    vved_cycle_quota(female_seat, professions, 0, quota + VVED_MAX_SEATS);
+    rng = GetTickCount() ^ (unsigned int)(UINT_PTR)base ^ 0x5EED0005u;
+    vved_assign(total, professions, group, skill, quota, seat_of, &rng);
+    for (i = 0; i < total; ++i) {
+        int seat = seat_of[i];
+        if (seat < 0) {
+            continue;
+        }
+        if (group[i]) {
+            ++female_count[seat];
+        } else {
+            ++male_count[seat];
+        }
+        if (*(int *)(who[i] + VV5_ED_PREFERENCE) != pro_index[seat]) {
+            *(int *)(who[i] + VV5_ED_PREFERENCE) = pro_index[seat];
+            ++changed;
+        }
     }
     if (total == 0) {
         MessageBoxA(
@@ -2572,10 +2685,14 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
         return 0;
     }
     if (changed == 0) {
+        vv5_reset_line(
+            message + wsprintfA(message,
+                "Every villager already has this division of labor. "
+                "No tech points have been deducted."),
+            repaired);
         MessageBoxA(
             owner,
-            "Every villager already has this division of labor. "
-            "No tech points have been deducted.",
+            message,
             "Origins Upgrades",
             MB_OK | MB_ICONINFORMATION
         );
@@ -2591,6 +2708,7 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
                   (unsigned int)male_count[p], (unsigned int)female_count[p]);
         lstrcatA(message, line);
     }
+    vv5_reset_line(message + lstrlenA(message), repaired);
     MessageBoxA(
         owner, message, "Origins Upgrades",
         MB_OK | MB_ICONINFORMATION
@@ -2647,6 +2765,19 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
     HWND owner = GetOriginsOwner();
     char message[512];
     const char *name = action_name(action);
+    /* Corrupted skill values repaired by this purchase. The page's two Full
+       Mastery routines hand the count over in the amounts: Grant Full Mastery
+       to All packs it above the already-mastered count on success
+       (amount_b >> 16), otherwise both pass it as amount_a (0 on every path
+       that runs before the repair). The C skill rows set g_vv5_reset_note. */
+    unsigned int repaired = (unsigned int)g_vv5_reset_note;
+    g_vv5_reset_note = 0;
+    if (action == ACTION_GRANT_MASTERY_ALL && status == RESULT_SUCCESS) {
+        repaired += amount_b >> 16;
+        amount_b &= 0xFFFF;
+    } else if (action == ACTION_MASTERY || action == ACTION_GRANT_MASTERY_ALL) {
+        repaired += amount_a;
+    }
     if (owner == NULL) {
         return 0;
     }
@@ -2741,9 +2872,6 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
     case RESULT_NO_SLOT:
         lstrcpyA(message, "This villager already has full Likes slots. Running can not be added.");
         break;
-    case RESULT_INVALID_SKILL:
-        lstrcpyA(message, "Full Mastery cannot be applied because a skill is NaN, infinite, negative, or outside 0..100.\r\nNo tech points have been deducted.");
-        break;
     case RESULT_UNAVAILABLE:
         lstrcpyA(message, "This VV5 native action remains unavailable.\r\nNo tech points have been deducted.");
         break;
@@ -2766,6 +2894,7 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
         lstrcpyA(message, "The action stopped without a verified charge.");
         break;
     }
+    vv5_reset_line(message + lstrlenA(message), (int)repaired);
     MessageBoxA(
         owner,
         message,
@@ -2776,4 +2905,208 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
             ? MB_ICONINFORMATION : MB_ICONWARNING)
     );
     return 0;
+}
+
+/* ---- Skill-preference upgrades (VV5) -----------------------------------------
+   Clear All Skill Preferences (500,000), Check Highest Skill (Includes
+   Parenting) and Check Highest Skill (No Parenting) (1,000,000 each): Tech
+   rows 13, 14 and 15, actions 26, 27 and 28 (the page passes row + 13).
+
+   The same villagers Equal Division of Labor touches: active +0x1CD4, Heathen
+   mask +0x1CE1 == 0, faction +0x1CEC == 0, signed health +0x1C40 > 0. Masked
+   Heathens and off-faction villagers are never touched. The preference is the
+   single dword +0x1C74; -1 is the game's own "none" (villager creation writes
+   `mov dword ptr [esi+0x1c74], 0xffffffff` at 0x46886C and its readers test
+   `cmp eax,-1; je` at 0x442E96). The six skills are floats at +0x1C5C indexed
+   BY the preference index (0x46A586 `fld dword ptr [eax+ebx*4+0x1c5c]` with
+   ebx = [eax+0x1c74]): 0 Farming, 1 Parenting, 2 Healing, 3 Research,
+   4 Building, 5 Devotion.
+
+   The whole transaction lives here, priced through vvfp_story_price so the
+   Story / Cheat Upgrades row makes it free: funds -> OK/Cancel -> balance
+   re-check -> plan -> writes -> one charge through the game's own 0x4237B0 ->
+   exact read-back. Nothing is charged unless a preference actually changes.
+   The record table and slot count come from the executable
+   (native/shared/vv5_villager_table.h), so the 256 Villagers build is walked
+   to its last slot. */
+#define VV5_SP_STRIDE     0x2F44
+#define VV5_SP_ACTIVE     0x1CD4
+#define VV5_SP_MASK       0x1CE1
+#define VV5_SP_FACTION    0x1CEC
+#define VV5_SP_HEALTH     0x1C40
+#define VV5_SP_SEX        0x1B90
+#define VV5_SP_PREFERENCE 0x1C74
+#define VV5_SP_SKILLS     0x1C5C
+#define VV5_SP_NONE       (-1)
+
+static int vv5_sp_eligible(const unsigned char *record) {
+    return record[VV5_SP_ACTIVE] != 0
+        && record[VV5_SP_MASK] == 0            /* masked Heathen -- never touch */
+        && record[VV5_SP_FACTION] == 0         /* off-faction -- never touch */
+        && *(const int *)(record + VV5_SP_HEALTH) > 0;
+}
+
+/* The index of the villager's highest skill, or -1 when every considered
+   skill is 0 or unreadable (NaN, negative, infinite). Ties go to the first
+   skill in the on-screen Skills order. */
+static int vv5_sp_highest(const unsigned char *record, int parenting) {
+    static const int screen_order[6] = { 0, 4, 3, 2, 1, 5 };
+    float best = 0.0f;
+    int chosen = -1;
+    int k;
+    for (k = 0; k < 6; ++k) {
+        int index = screen_order[k];
+        float value = *(const float *)(record + VV5_SP_SKILLS + index * 4);
+        if (index == 1 && !parenting) {
+            continue;
+        }
+        if (value != value || value <= 0.0f || value > 1.0e30f) {
+            continue;                          /* NaN, nothing yet, or unreadable */
+        }
+        if (value > best) {
+            best = value;
+            chosen = index;
+        }
+    }
+    return chosen;
+}
+
+__declspec(dllexport) int __stdcall ShowVV5SkillPreferenceUpgrade(unsigned int action) {
+    /* On-screen order with the index written for each, as Equal Division
+       names them in its result. */
+    static const char *const pro_name[6] = {
+        "Farming", "Building", "Research", "Healing", "Breeding", "Devotion"
+    };
+    static const int pro_index[6] = { 0, 4, 3, 2, 1, 5 };
+    static int target[VV5_MAX_VILLAGERS];
+    HWND owner = GetOriginsOwner();
+    int clear = action == ACTION_CLEAR_SKILL_PREFERENCES;
+    int parenting = action == ACTION_HIGHEST_SKILL_PARENTING;
+    int price;
+    int before;
+    int slots = vv5_slots();
+    unsigned char *base = (unsigned char *)(UINT_PTR)vv5_rec_base();
+    unsigned char *record;
+    int eligible = 0, changed = 0, assigned = 0, skipped = 0, repaired = 0;
+    int male_count[6] = { 0, 0, 0, 0, 0, 0 };
+    int female_count[6] = { 0, 0, 0, 0, 0, 0 };
+    int i, p;
+    char message[1024];
+    char line[128];
+    if (action != ACTION_CLEAR_SKILL_PREFERENCES
+        && action != ACTION_HIGHEST_SKILL_PARENTING
+        && action != ACTION_HIGHEST_SKILL_NO_PARENTING) {
+        return 0;
+    }
+    if (slots > VV5_MAX_VILLAGERS) {
+        slots = VV5_MAX_VILLAGERS;
+    }
+    price = vvfp_story_price(5, clear ? 500000 : 1000000);
+    before = *(volatile int *)(UINT_PTR)VV5_TECH;
+    if (before < price) {
+        ShowVV5Task9Result(action, RESULT_INSUFFICIENT, 0, 0);
+        return 0;
+    }
+    if (!ConfirmVV5Task9Action(action, 0, 0)) {
+        ShowVV5Task9Result(action, RESULT_CANCELLED, 0, 0);
+        return 0;
+    }
+    if (*(volatile int *)(UINT_PTR)VV5_TECH != before) {
+        ShowVV5Task9Result(action, RESULT_RECHECK, 0, 0);
+        return 0;
+    }
+    /* Plan first, write no preference until the whole village is known. The
+       player has confirmed, so each eligible Believer's corrupted skills are
+       repaired first (vv5_repair_skills) -- not a purchase on its own; every
+       result below reports it. */
+    for (i = 0, record = base; i < slots; ++i, record += VV5_SP_STRIDE) {
+        int want;
+        target[i] = -2;                        /* untouched */
+        if (!vv5_sp_eligible(record)) {
+            continue;
+        }
+        ++eligible;
+        repaired += vv5_repair_skills(record);
+        want = clear ? VV5_SP_NONE : vv5_sp_highest(record, parenting);
+        if (!clear && want < 0) {
+            ++skipped;                         /* no skill progress yet */
+            continue;
+        }
+        target[i] = want;
+        ++assigned;
+        if (*(int *)(record + VV5_SP_PREFERENCE) != want) {
+            ++changed;
+        }
+        if (!clear) {
+            for (p = 0; p < 6; ++p) {
+                if (pro_index[p] == want) {
+                    if (*(int *)(record + VV5_SP_SEX) == 0) {
+                        ++male_count[p];
+                    } else {
+                        ++female_count[p];
+                    }
+                }
+            }
+        }
+    }
+    if (eligible == 0) {
+        MessageBoxA(owner,
+                    "No villagers were eligible. No tech points have been deducted.",
+                    "Origins Upgrades", MB_OK | MB_ICONINFORMATION);
+        return 0;
+    }
+    if (changed == 0) {
+        vv5_reset_line(
+            message + wsprintfA(message, "%s",
+                clear
+                    ? "Every villager's skill preference is already cleared. "
+                      "No tech points have been deducted."
+                    : assigned == 0
+                        ? "No villager has any skill progress yet. "
+                          "No tech points have been deducted."
+                        : "Every villager already has their highest skill checked. "
+                          "No tech points have been deducted."),
+            repaired);
+        MessageBoxA(owner, message, "Origins Upgrades", MB_OK | MB_ICONINFORMATION);
+        return 0;
+    }
+    for (i = 0, record = base; i < slots; ++i, record += VV5_SP_STRIDE) {
+        if (target[i] != -2) {
+            *(int *)(record + VV5_SP_PREFERENCE) = target[i];
+        }
+    }
+    if (price != 0) {
+        caf_charge(-price);
+        if (*(volatile int *)(UINT_PTR)VV5_TECH != before - price) {
+            g_vv5_reset_note = repaired;
+            ShowVV5Task9Result(action, RESULT_CHARGE_UNKNOWN, 0, 0);
+            return 1;
+        }
+    }
+    if (clear) {
+        wsprintfA(message, "Cleared %u %s Skill Preferences.",
+                  (unsigned int)changed, vpl_pos((unsigned int)changed));
+    } else {
+        wsprintfA(message, "Set %u %s Job Preferences.", (unsigned int)assigned,
+                  vpl_pos((unsigned int)assigned));
+        for (p = 0; p < 6; ++p) {
+            if (pro_index[p] == 1 && !parenting) {
+                continue;
+            }
+            wsprintfA(line, "\r\n\r\n%s: %u %s (%u Male, %u Female).",
+                      pro_name[p],
+                      (unsigned int)(male_count[p] + female_count[p]),
+                      vpl_uc((unsigned int)(male_count[p] + female_count[p])),
+                      (unsigned int)male_count[p], (unsigned int)female_count[p]);
+            lstrcatA(message, line);
+        }
+        if (skipped > 0) {
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: no skill progress yet.",
+                      (unsigned int)skipped, vpl_uc((unsigned int)skipped));
+            lstrcatA(message, line);
+        }
+    }
+    vv5_reset_line(message + lstrlenA(message), repaired);
+    MessageBoxA(owner, message, "Origins Upgrades", MB_OK | MB_ICONINFORMATION);
+    return 1;
 }

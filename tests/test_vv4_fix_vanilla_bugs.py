@@ -91,7 +91,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_vanilla_likes_panel import likes_fixes  # noqa: E402
 
 LIKES_FIXES = likes_fixes("vv4")
-FIXES = FIXES + PERCENT_FIXES + LIKES_FIXES
+from test_details_name_identity import name_identity_fixes  # noqa: E402
+# The Details name box is written back only to the villager it was filled for
+# (tests/test_details_name_identity.py).
+FIXES = FIXES + PERCENT_FIXES + LIKES_FIXES + name_identity_fixes("vv4")
 
 
 def _vv4():
