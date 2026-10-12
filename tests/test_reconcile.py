@@ -388,6 +388,118 @@ class Losses(Base):
         self.assertIn("went back in time", rec.questions[0].text)
 
 
+class ChangesBetweenCopies(Base):
+    """Review of #585: likes and dislikes, parents and looks between two looks at one villager."""
+
+    def with_prefs(self, v: Village, data: bytes, rank: int, likes: list[int], dislikes: list[int]) -> bytes:
+        buf = bytearray(data)
+        at = v.entries(data)[rank]
+        struct.pack_into(f"<{v.f.slots}i", buf, at + v.f.likes, *(likes + [-1] * v.f.slots)[:v.f.slots])
+        struct.pack_into(f"<{v.f.slots}i", buf, at + v.f.dislikes, *(dislikes + [-1] * v.f.slots)[:v.f.slots])
+        return bytes(buf)
+
+    def with_father(self, v: Village, data: bytes, rank: int, name: str) -> bytes:
+        buf = bytearray(data)
+        at = v.entries(data)[rank]
+        cap = v.f.parent_cap
+        buf[at + v.f.father:at + v.f.father + cap] = name.encode() + b"\0" * (cap - len(name))
+        return bytes(buf)
+
+    def two_generations(self, v: Village, older: bytes, current: bytes) -> None:
+        now = time.time()
+        v.write_save(21, older, now - 600)
+        v.write_save(1, current, now)
+
+    def test_a_like_lost_or_gained_between_save_copies_is_asked(self):
+        for tag, game in CASES[:5]:
+            with self.subTest(game=game):
+                v = self.village(tag, game)
+                data = v.save_path(1).read_bytes()
+                two = self.with_prefs(v, data, 0, [0, 1], [2])
+                one = self.with_prefs(v, data, 0, [0], [2])
+                self.two_generations(v, two, one)                  # a like lost
+                asked = [f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "likes"]
+                self.assertEqual(len(asked), 1, [f.text for f in rc.reconcile(v.folder, game, 1).questions])
+                self.two_generations(v, one, self.with_prefs(v, data, 0, [0], [2, 3]))   # a dislike gained
+                asked = [f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "dislikes"]
+                self.assertEqual(len(asked), 1)
+                self.two_generations(v, two, two)                  # unchanged: nothing
+                self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions
+                                  if f.topic in ("likes", "dislikes")])
+
+    def test_a_one_word_snapshot_is_a_note_about_the_snapshot(self):
+        """The History writer listed only the first like before 2026-10-11 20:19 (the owner's A New Home
+        village): one word then and two now is that snapshot's omission, not a change -- one note."""
+        v = self.village("huttest", 1)
+        people = v.people(v.save_path(1).read_bytes())
+        full = [rc.Seen(**{**s.__dict__, "likes": frozenset({"fish", "herbs"}),
+                           "dislikes": frozenset({"rain"})}) for s in people]
+        short = [rc.Seen(**{**s.__dict__, "likes": frozenset({"fish"}), "dislikes": frozenset({"rain"})})
+                 for s in people]
+        v.history([("2026-10-10 12:50:39", short), ("2026-10-11 20:19:48", full)])
+        # (The latest snapshot against the save is a separate comparison; only snapshot to snapshot here.)
+        rec = rc.reconcile(v.folder, 1, 1)
+        self.assertFalse([f for f in rec.questions if f.topic == "likes" and f.qid.endswith("2026-10-10 12:50:39")],
+                         [f.text for f in rec.questions])
+        notes = [f for f in rec.notes if f.topic == "one-word"]
+        self.assertEqual(len(notes), 1, "one note for the snapshot, none per villager")
+        self.assertIn("2026-10-10 12:50:39", notes[0].text)
+        # The same omission between two full-list snapshots is a lost like: asked, for every villager.
+        v.history([("2026-10-11 20:30:00", full), ("2026-10-11 21:00:00", short)])
+        lost = [f for f in rc.reconcile(v.folder, 1, 1).questions
+                if f.topic == "likes" and f.qid.endswith("2026-10-11 20:30:00")]
+        self.assertEqual(len(lost), len(people))
+
+    def test_a_known_parent_becoming_blank_or_another_is_asked(self):
+        for game in (2, 3, 4, 5):
+            with self.subTest(game=game):
+                v = self.village("huttest", game)
+                data = v.save_path(1).read_bytes()
+                known = self.with_father(v, data, 0, "Kalani")
+                self.two_generations(v, known, self.with_father(v, data, 0, ""))
+                asked = [f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "parents"]
+                self.assertEqual(len(asked), 1, [f.text for f in rc.reconcile(v.folder, game, 1).questions])
+                self.assertIn("father Kalani", asked[0].text)
+                self.assertIn("none in", asked[0].text)
+                self.two_generations(v, known, self.with_father(v, data, 0, "Makoa"))
+                asked = [f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "parents"]
+                self.assertEqual(len(asked), 1)
+                self.assertIn("Makoa", asked[0].text)
+                # A blank becoming known is a parent recorded later, not a loss.
+                self.two_generations(v, self.with_father(v, data, 0, ""), known)
+                self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "parents"])
+
+    def test_an_island_event_explains_only_the_change_it_records(self):
+        for game in (1, 4):
+            with self.subTest(game=game):
+                v = self.village("huttest", game)
+                original = v.save_path(1).read_bytes()
+                people = v.people(original)
+                x = people[0]
+                head2 = (x.head + 1) % 20
+                body2 = (x.body + 1) % 20
+                events = v.log("Island Events", f"Virtual Villagers {game} Island Events Log 1.txt",
+                               f"Island event 1\n  Name: {x.name}\n  Head: {x.head} -> {head2}\n\n")
+                # Exactly the recorded change: nothing asked.
+                now = v.relooked(original, 0, head2, x.body)
+                v.write_save(1, now)
+                v.history([("2026-10-11 20:30:00", people), ("2026-10-11 21:00:00", v.people(now))])
+                self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "looks"])
+                # The head as recorded AND a body nobody recorded: asked.
+                now = v.relooked(original, 0, head2, body2)
+                v.write_save(1, now)
+                v.history([("2026-10-11 20:30:00", people), ("2026-10-11 21:00:00", v.people(now))])
+                self.assertEqual(len([f for f in rc.reconcile(v.folder, game, 1).questions
+                                      if f.topic == "looks"]), 1)
+                # A head other than the one recorded: asked.
+                now = v.relooked(original, 0, (x.head + 2) % 20, x.body)
+                v.write_save(1, now)
+                v.history([("2026-10-11 20:30:00", people), ("2026-10-11 21:00:00", v.people(now))])
+                self.assertEqual(len([f for f in rc.reconcile(v.folder, game, 1).questions
+                                      if f.topic == "looks"]), 1)
+                events.unlink()
+
+
 class SlotReuseAtTheCap(Base):
     """Record slots are reused at max population: a death frees one, the next birth takes it, a load
     packs the records.  Never a contradiction: villagers are followed by who they are."""

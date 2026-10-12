@@ -404,9 +404,39 @@ def read_logs(folder: Path, game: int, slot: int, villages: set[str] | None) -> 
 # ---------------------------------------------------------------------------
 
 def _compatible(a: frozenset | None, b: frozenset | None) -> bool:
-    """Likes or dislikes that may be one villager's: unknown on a side, or one list within the other
-    (records written before v1.35.68 printed only the first filled slot)."""
+    """Likes or dislikes that MAY be one villager's, for telling villagers apart (never for asking about
+    a change): unknown on a side, or one list within the other (records written before v1.35.68 printed
+    only the first filled slot)."""
     return a is None or b is None or a <= b or b <= a
+
+
+# The History and Population writers listed only each villager's FIRST like and dislike until v1.35.68;
+# the owner's A New Home village's first full-list snapshot is 2026-10-11 20:19:48, its last one-word
+# snapshot 2026-10-10 12:50:39.  A roster from before this, with no villager listing two words, is read
+# as one-word: its single word may stand for a longer list (src/vv_log_tools.py preference_words).
+FULL_LISTS_FROM = "2026-10-11 20:19:00"
+
+
+def one_word_writer(census: "Census") -> bool:
+    """Whether this roster was written by a writer that listed only the first like and dislike: a History
+    snapshot or Population page dated before FULL_LISTS_FROM in which nobody lists two words.  A save
+    always keeps every slot."""
+    if census.kind == "save" or census.when >= FULL_LISTS_FROM:
+        return False
+    return not any(len(s.likes or ()) > 1 or len(s.dislikes or ()) > 1 for s in census.people)
+
+
+def _prefs_agree(x: frozenset | None, y: frozenset | None, x_one_word: bool, y_one_word: bool) -> bool:
+    """Two looks at one villager's likes (or dislikes): the same set -- a word lost or gained is a change
+    -- unless a side does not say, or a one-word roster's single word is the first of the other's."""
+    if x is None or y is None or x == y:
+        return True
+    # "(none)" was printed only when every slot was empty, so an empty one-word list is still exact.
+    if x_one_word and len(x) == 1 and x <= y:
+        return True
+    if y_one_word and len(y) == 1 and y <= x:
+        return True
+    return False
 
 
 def _same_parent(a: str | None, b: str | None) -> bool:
@@ -465,12 +495,6 @@ class _Builder:
         self.departed = {r.who.key for r in logs.departures}
         self.departed_names = {r.who.name for r in logs.departures if r.who.head is None}
         self.recorded = {r.who.key for r in logs.births + logs.arrivals + logs.new_by_event}
-        self.relooked: dict[tuple, tuple] = {}
-        for name, oh, ob, nh, nb in logs.looks_changed:
-            self.relooked[(name, oh, ob)] = (name, nh, nb)
-        for name, what, old, new in logs.event_changes:
-            if what in ("Head", "Body"):
-                self.relooked.setdefault(("event", name, what), (old, new))
         self.slot_reused = 0                # record slots holding another villager than before
         self.slot_moved = 0                 # villagers in another slot than before
 
@@ -500,16 +524,41 @@ class _Builder:
         return None
 
     def looks_recorded(self, old: Seen, new: Seen) -> bool:
-        target = self.relooked.get(old.key)
-        seen = set()
-        while target is not None and target not in seen:
-            if target == new.key:
-                return True
-            seen.add(target)
-            target = self.relooked.get(target)
-        heads = [(o, n) for (name, what, o, n) in self.logs.event_changes if name in (old.name, new.name)
-                 and what in ("Head", "Body")]
-        return bool(heads)
+        """Whether recorded changes lead from old's looks to new's, each step EXACTLY as recorded: an
+        Appearance changed record (old head and body -> new head and body), or an island event's
+        "Head: a -> b" / "Body: a -> b" for this villager, which changes that one value from a to b and
+        leaves the other.  Any other change -- another value, or the part no record names -- is asked
+        (review of #585: one recorded head change used to excuse every later difference)."""
+        names = {old.name, new.name}
+        steps = [((oh, ob), (nh, nb)) for name, oh, ob, nh, nb in self.logs.looks_changed if name in names]
+        events = [(what, _int(o), _int(n)) for name, what, o, n in self.logs.event_changes
+                  if name in names and what in ("Head", "Body")]
+        start, goal = (old.head, old.body), (new.head, new.body)
+        reached, todo = {start}, [start]
+        while todo:
+            head, body = todo.pop()
+            following = [after for before, after in steps if before == (head, body)]
+            following += [(n, body) for what, o, n in events if what == "Head" and o == head and n is not None]
+            following += [(head, n) for what, o, n in events if what == "Body" and o == body and n is not None]
+            for state in following:
+                if state not in reached:
+                    reached.add(state)
+                    todo.append(state)
+        return goal in reached
+
+    def prefs_recorded(self, name: str, what: str, old: frozenset, new: frozenset) -> bool:
+        """Whether island events recorded for this villager lead from one likes (or dislikes) list to the
+        other, each step exactly as recorded ("Likes: a, b -> a, c")."""
+        events = [(_words(o), _words(n)) for who, field_, o, n in self.logs.event_changes
+                  if who == name and field_.lower() == what]
+        reached, todo = {old}, [old]
+        while todo:
+            current = todo.pop()
+            for before, after in events:
+                if before == current and after is not None and after not in reached:
+                    reached.add(after)
+                    todo.append(after)
+        return new in reached
 
     def name_record(self, old: Seen, new: Seen) -> Record | None:
         for r in self.logs.names_changed:
@@ -521,6 +570,7 @@ class _Builder:
     def compare(self, a: Census, b: Census, bodies: list[Seen] | None = None) -> None:
         pairs, gone, new = _pair(a.people, b.people)
         game = self.game
+        a_one_word, b_one_word = one_word_writer(a), one_word_writer(b)
         if a.kind == "save" and b.kind == "save":
             # Record slots: one that holds another villager now than in the older copy -- a death freed
             # it and a later villager took it, or a load packed the records (the owner's village at 256).
@@ -546,17 +596,41 @@ class _Builder:
             if old.sex and now.sex and old.sex != now.sex:
                 self.ask("sex", f"sex|{now.key}", f"{now.name} ({now.looks()}) is {old.sex} in {a.label} but "
                          f"{now.sex} in {b.label}. Which is right?", [f"{KEEP} ({now.sex})", f"{old.sex}"])
+            # Likes and dislikes: any word lost or gained between two looks at one villager is a change
+            # (review of #585: a save that lost one like used to pass as "one list within the other").
+            # Only a roster written when the writer listed the first word alone may show one word of a
+            # longer list -- a note about that roster, never about the villager.
             for what in ("likes", "dislikes"):
                 x, y = getattr(old, what), getattr(now, what)
-                if not _compatible(x, y) and not any(n == now.name and w.lower() == what
-                                                     for n, w, _o, _n in self.logs.event_changes):
-                    self.ask(what, f"{what}|{now.key}|{a.when}",
-                             f"{now.name} ({now.looks()}) {what}: {', '.join(sorted(x)) or '(none)'} in {a.label}, "
-                             f"{', '.join(sorted(y)) or '(none)'} in {b.label}, and no island event records the "
-                             "change.", [f"{KEEP} (the change is right)"])
+                if x is None or y is None or x == y:
+                    continue
+                if _prefs_agree(x, y, a_one_word, b_one_word):
+                    short = a if a_one_word and len(x) == 1 else b
+                    self.note("one-word", f"one-word|{short.when}",
+                              f"{short.label[:1].upper()}{short.label[1:]} was written before "
+                              f"{FULL_LISTS_FROM[:16]}, when the patcher's "
+                              "History and Population pages listed only each villager's first like and first "
+                              "dislike: a single word there may stand for a longer list. Not a change.")
+                    continue
+                if self.prefs_recorded(now.name, what, x, y) or self.prefs_recorded(old.name, what, x, y):
+                    continue
+                self.ask(what, f"{what}|{now.key}|{a.when}",
+                         f"{now.name} ({now.looks()}) {what}: {', '.join(sorted(x)) or '(none)'} in {a.label}, "
+                         f"{', '.join(sorted(y)) or '(none)'} in {b.label}, and no island event records the "
+                         "change.", [f"{KEEP} (the change is right)"])
+            # Parents: a known parent becoming another, or becoming blank, between two looks at one
+            # villager (review of #585).  None means the source does not say (A New Home's save keeps no
+            # parents); "" is a source saying "none".  A blank becoming known is a parent recorded later
+            # (Restore A New Home Parents), not a loss.
             for what in ("father", "mother"):
                 x, y = getattr(old, what), getattr(now, what)
-                if x and y and x != y:
+                if not x or y is None or x == y:
+                    continue
+                if y == "":
+                    self.ask("parents", f"{what}|{now.key}|{x}|",
+                             f"{now.name} ({now.looks()}): {what} {x} in {a.label}, none in {b.label}. Was the "
+                             f"{what} lost?", [f"{KEEP} (none)", f"{x}"])
+                else:
                     self.ask("parents", f"{what}|{now.key}|{x}|{y}",
                              f"{now.name} ({now.looks()}): {what} {x} in {a.label}, {y} in {b.label}. Which is "
                              "right?", [f"{KEEP} ({y})", f"{x}"])
