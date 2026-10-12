@@ -580,7 +580,10 @@ skills no lower than stored (version 3 of the file keeps them). When two
 villagers could be them, or a namesake who is not them is all there is, the
 title is kept PENDING -- shown on nobody, never dropped (v1.35.70) -- and
 bound again as soon as exactly one villager has that identity and no other
-title claims them; Check Saves & Logs asks about every pending title. Start
+title claims them -- unless two or more could be them at once while it waited
+(CONTESTED): then the one left after the others die or leave is never taken
+for them, and it waits for the player; Check Saves & Logs asks about every
+pending title. Start
 Over deletes the slot's file, and a table that sees its file gone forgets the
 old village instead of writing it back.
 
