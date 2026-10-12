@@ -1,0 +1,4 @@
+LIBRARY "VVFP Game Log.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpGameLogProbe=_VvfpGameLogProbe@20

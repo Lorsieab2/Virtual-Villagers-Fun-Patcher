@@ -64,6 +64,9 @@ FILES = [
     # Write Island Events Log: one companion for all five games, started by
     # VVFP Startup.dll; no executable bytes.
     "assets/island_events/VVFP Island Events.dll",
+    # Keep the Game's Own Log (ldwLog.txt): one companion for all five games,
+    # started by VVFP Startup.dll; no executable bytes.
+    "assets/game_log/VVFP Game Log.dll",
     # Story / Cheat Upgrades: one companion for all five games, loaded by each
     # game's Origins companion; no executable bytes.
     "assets/story_upgrades/VVFP Story Upgrades.dll",
@@ -150,6 +153,11 @@ FILES = [
     "data/vv3_island_events_feature.json",
     "data/vv4_island_events_feature.json",
     "data/vv5_island_events_feature.json",
+    "data/vv1_game_log_feature.json",
+    "data/vv2_game_log_feature.json",
+    "data/vv3_game_log_feature.json",
+    "data/vv4_game_log_feature.json",
+    "data/vv5_game_log_feature.json",
     # 256 Villagers (Experimental): The Secret City, The Tree of Life and
     # New Believers.
     "data/vv3_population_256_feature.json",

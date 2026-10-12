@@ -32,6 +32,7 @@ REMAINING = {
     "vv2_last_names",
     "vv2_island_events",
     "vv2_storytelling",
+    "vv2_game_log",
     "vv2_birth_control",
     "vv2_easier_healing_mastery",
     "vv2_teaching_children_grants_skill",

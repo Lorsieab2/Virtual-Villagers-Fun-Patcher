@@ -24,7 +24,16 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 ## What's new in v1.35.70
 
-Fixes from an audit of v1.35.67 to v1.35.69:
+New in v1.35.70:
+
+- **Keep the Game's Own Log (ldwLog.txt)** (all five games, on by default, in Select All). Every Virtual Villagers game has always had a log of its own, 'ldwLog.txt' in the game's save folder (Documents\LDW\<game executable name>\); nothing in any game ever switched it off, but the base game starts the file afresh the first time it writes in each run, keeps what it writes in memory until the game closes, and writes only when something goes wrong, so most players never had one. Now the file is kept across runs, each line is written at once, each run starts with a "---- Game started ----" line, and every line the game's own code writes is kept: missing pictures and sounds (all five), the clock check (The Lost Children to New Believers), tutorial tips (The Lost Children), text-file problems and healers with nobody to heal (The Secret City to New Believers), and stuck villagers, villagers with no way through and trips to the love shack door (New Believers). Lines a game's code does not contain are never added. Repeats are written once a minute with a count, at most 1,000 lines a minute, and at 4 MB the file becomes 'ldwLog 1.txt' (then 2, 3, ...) and a new one starts; nothing is deleted. No executable byte changes: "VVFP Startup.dll" starts "VVFP Game Log.dll", which checks the game's own writer before replacing it.
+- **New Believers: the gold dust pouring sound plays** (Fix Vanilla Bugs). The game asked for "gold_dust_pour .ogg", with a stray space, so the sound file it ships was never found (its log said "ldwSoundFx Missing File ->gold_dust_pour .ogg"). No other game has this sound, and no other sound, picture or text name in the five games has the same kind of typo.
+- **New Believers no longer logs "String Table (sm.xml) malformed near id=\"eDemo\"" each time it opens** (Fix Vanilla Bugs): it looked up the demo version's population message under an old name; its text file calls it "eTipDemo". The message is for the demo version only and never shows in the full game.
+- **Patch every game again** after updating: the Startup and Origins companions changed (the new log companion was added to their list).
+
+**Not yet seen in a running game:** the game log and the two New Believers fixes are checked by tests, a C harness running the log writer, and an emulated game start in all five games and all three modes; none has been watched in a running game yet.
+
+Also in v1.35.70 -- Fixes from an audit of v1.35.67 to v1.35.69:
 
 - **Backups and restores keep each file's time.** Restoring an old save beside a Barrel of Babies or Story / Cheat Upgrades purchase still waiting to be delivered could deliver it with no charge in the restored save; the copies now keep their original times, so the purchase is believed only when the save really holds its charge.
 - **A queued Story / Cheat Upgrades purchase is never written over another village's file** (after a quit to the menu, the title screen's founders are not taken for the village).
@@ -266,6 +275,12 @@ Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manua
 
 - Patch ID: `vv1_birth_control`
 
+**Keep the Game's Own Log (ldwLog.txt)**
+
+Keeps the game's own log, 'ldwLog.txt' in the game's save folder (Documents\LDW\<game executable name>\). Every Virtual Villagers game has always had this log, but the base game starts the file afresh the first time it writes in each run (erasing the earlier runs' lines), holds what it writes in memory until the game closes (a crash loses it), and writes only when something goes wrong -- so most players never see the file. Now each time the game opens it adds a "---- Game started ----" line, and every line the game writes is added to the file at once and kept: a missing font picture, a missing picture and a missing sound. A New Home's code contains no other log line (no clock, text-file, healer, tip or path-finding line), so nothing else can be logged. A line repeated without a break is written once a minute with how many times it repeated, at most 1,000 lines are written a minute, and when the file reaches 4 MB it is renamed 'ldwLog 1.txt' (then 2, 3, ...) and a new one is started, so no file grows without limit; nothing is ever deleted. **Needs no other patch.**
+
+- Patch ID: `vv1_game_log`
+
 **Manual Drop-Breeding overrides Birth Control**
 
 **In A New Home this only changes anything when Birth Control is also ticked: A New Home itself never refuses a woman aged 50 or older on a manual drop. Birth Control adds that refusal, and with both ticked this patch takes it back out for manual drops only; the rest of Birth Control is unchanged.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
@@ -473,6 +488,12 @@ Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the
 
 - Patch ID: `vv2_birth_control`
 
+**Keep the Game's Own Log (ldwLog.txt)**
+
+Keeps the game's own log, 'ldwLog.txt' in the game's save folder (Documents\LDW\<game executable name>\). Every Virtual Villagers game has always had this log, but the base game starts the file afresh the first time it writes in each run (erasing the earlier runs' lines), holds what it writes in memory until the game closes (a crash loses it), and writes only when something goes wrong -- so most players never see the file. Now each time the game opens it adds a "---- Game started ----" line, and every line the game writes is added to the file at once and kept: a missing font picture, a missing picture, a missing sound, "Seconds Timer out of bounds!" (the computer's clock was set back, so the game's one-second timer is ahead of it) and each tutorial tip shown. The Lost Children's code contains no text-file, healer or path-finding line, so those cannot be logged. A line repeated without a break is written once a minute with how many times it repeated, at most 1,000 lines are written a minute, and when the file reaches 4 MB it is renamed 'ldwLog 1.txt' (then 2, 3, ...) and a new one is started, so no file grows without limit; nothing is ever deleted. **Needs no other patch.**
+
+- Patch ID: `vv2_game_log`
+
 **Manual Drop-Breeding overrides Birth Control**
 
 **Works the same with or without Birth Control: the 50-and-over refusal it lifts is The Lost Children's own, which Birth Control does not change.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
@@ -650,6 +671,12 @@ Requires BOTH parenting skill and the checked preference before a villager will 
 
 - Patch ID: `vv3_birth_control`
 
+**Keep the Game's Own Log (ldwLog.txt)**
+
+Keeps the game's own log, 'ldwLog.txt' in the game's save folder (Documents\LDW\<game executable name>\). Every Virtual Villagers game has always had this log, but the base game starts the file afresh the first time it writes in each run (erasing the earlier runs' lines), holds what it writes in memory until the game closes (a crash loses it), and writes only when something goes wrong -- so most players never see the file. Now each time the game opens it adds a "---- Game started ----" line, and every line the game writes is added to the file at once and kept: a missing font picture, a missing picture, a missing sound, a text the game asks for that is missing from its text file (sm.xml), a text in sm.xml with no end, a healer who could not find anyone to heal and "Seconds Timer out of bounds!" (the computer's clock was set back, so the game's one-second timer is ahead of it). The Secret City's code contains no tip or path-finding line, so those cannot be logged (its villagers keep a pointer to the log, but no code writes through it). A line repeated without a break is written once a minute with how many times it repeated, at most 1,000 lines are written a minute, and when the file reaches 4 MB it is renamed 'ldwLog 1.txt' (then 2, 3, ...) and a new one is started, so no file grows without limit; nothing is ever deleted. **Needs no other patch.**
+
+- Patch ID: `vv3_game_log`
+
 **Manual Drop-Breeding overrides Birth Control**
 
 **Works the same with or without Birth Control: the 50-and-over refusal it lifts is The Secret City's own, which Birth Control does not change.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
@@ -806,6 +833,12 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 - Requires: vv4_enable_origins_exclusive_features
 - Patch ID: `vv4_origins_village_wide_upgrades`
 
+**Keep the Game's Own Log (ldwLog.txt)**
+
+Keeps the game's own log, 'ldwLog.txt' in the game's save folder (Documents\LDW\<game executable name>\). Every Virtual Villagers game has always had this log, but the base game starts the file afresh the first time it writes in each run (erasing the earlier runs' lines), holds what it writes in memory until the game closes (a crash loses it), and writes only when something goes wrong -- so most players never see the file. Now each time the game opens it adds a "---- Game started ----" line, and every line the game writes is added to the file at once and kept: a missing font picture, a missing picture, a missing sound, "Seconds Timer out of bounds!" (the computer's clock was set back, so the game's one-second timer is ahead of it), a text the game asks for that is missing from its text file (sm.xml), a text in sm.xml with no end and a healer who could not find anyone to heal. The Tree of Life's code contains no tip or path-finding line, so those cannot be logged (its villagers keep a pointer to the log, but no code writes through it). A line repeated without a break is written once a minute with how many times it repeated, at most 1,000 lines are written a minute, and when the file reaches 4 MB it is renamed 'ldwLog 1.txt' (then 2, 3, ...) and a new one is started, so no file grows without limit; nothing is ever deleted. **Needs no other patch.**
+
+- Patch ID: `vv4_game_log`
+
 **Optional Text changes**
 
 Replaces some in-game text with wording consistent with the other Virtual Villagers games (for example, the "Scholar" title becomes "Esteemed Elder", and a few labels and event lines are capitalized and punctuated to match). When active, the game's Assets/sm.xml is swapped for the edited version; when the patch is not selected, the base-game text is left untouched. No executable bytes are changed.
@@ -948,6 +981,12 @@ Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen
 
 - Patch ID: `vv5_heathen_mommy_puzzle`
 
+**Keep the Game's Own Log (ldwLog.txt)**
+
+Keeps the game's own log, 'ldwLog.txt' in the game's save folder (Documents\LDW\<game executable name>\). Every Virtual Villagers game has always had this log, but the base game starts the file afresh the first time it writes in each run (erasing the earlier runs' lines), holds what it writes in memory until the game closes (a crash loses it), and writes only when something goes wrong -- so most players never see the file. Now each time the game opens it adds a "---- Game started ----" line, and every line the game writes is added to the file at once and kept: a missing font picture, a missing picture, a missing sound, "Seconds Timer out of bounds!" (the computer's clock was set back, so the game's one-second timer is ahead of it), a text the game asks for that is missing from its text file (sm.xml), a text in sm.xml with no end, a villager who is stuck, a villager who cannot find a way to where it is going, a healer who could not find anyone to heal and each villager walking to the love shack door. New Believers' code contains no tip line, so tips cannot be logged. A line repeated without a break is written once a minute with how many times it repeated, at most 1,000 lines are written a minute, and when the file reaches 4 MB it is renamed 'ldwLog 1.txt' (then 2, 3, ...) and a new one is started, so no file grows without limit; nothing is ever deleted. **Needs no other patch.**
+
+- Patch ID: `vv5_game_log`
+
 **Move the "Playing in the dirt" Spot**
 
 Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 305 by 205 with six random steps inside it. The action, its text, its sound and its length are unchanged.
@@ -1060,7 +1099,7 @@ Every death that leaves a body is written to the Deaths log ('Virtual Villagers 
 
 **Fix Vanilla Bugs**
 
-Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A "%" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed "%". A like or dislike holding a negative number other than the game's own "none" (-1) is left out of the Details screen instead of being shown as "ants". **Needs no other patch.**
+Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A "%" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed "%". A like or dislike holding a negative number other than the game's own "none" (-1) is left out of the Details screen instead of being shown as "ants". The gold dust pouring sound plays: the game asked for it as "gold_dust_pour .ogg", with a stray space, so the sound file it ships (Sounds\gold_dust_pour.ogg) was never found and the game wrote "ldwSoundFx Missing File ->gold_dust_pour .ogg" to its log each time it opened; now it asks for "gold_dust_pour.ogg". The game no longer writes "String Table (sm.xml) malformed near id=\"eDemo\"" to its log each time it opens: it looked up the demo version's population message under the name "eDemo", which its text file calls "eTipDemo"; now it uses "eTipDemo" (the message is for the demo version only, is never shown in the full game, and has the same words either way). **Needs no other patch.**
 
 - Patch ID: `vv5_fix_vanilla_bugs`
 
