@@ -147,6 +147,15 @@ class IslandEventsSource(unittest.TestCase):
         story = (ROOT / "native" / "vvfp_story_upgrades" / "story_time_skip.inc").read_text(encoding="utf-8")
         self.assertIn('GetModuleHandleA("VVFP Island Events.dll")', story)
         self.assertIn('GetProcAddress(module, "VvfpIslandEventOpen")', story)
+        # v1.35.71: asked every frame of a skip, the export is looked up once and kept -- looked for
+        # again only while it is not there (a companion is never unloaded).
+        ask = body(story, "static int time_skip_event_open(void) {")
+        self.assertLess(ask.index("if (time_skip_open_export == NULL) {"),
+                        ask.index('GetModuleHandleA("VVFP Island Events.dll")'))
+        self.assertIn("return time_skip_open_export != NULL && time_skip_open_export() != 0;", ask)
+        self.assertNotIn("FreeLibrary", "".join(p.read_text(encoding="utf-8", errors="replace")
+                                                 for p in (ROOT / "native").rglob("*")
+                                                 if p.suffix in (".c", ".h", ".inc") and "harness" not in p.name))
         tick = body(story, "static void time_skip_tick(int game) {")
         # held before anything moves: the step, the replay wait, the closing popup
         held = tick.index("if (time_skip_event_open()) {")

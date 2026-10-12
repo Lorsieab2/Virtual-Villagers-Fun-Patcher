@@ -163,19 +163,30 @@ static int test_island_event_open;     /* VvfpStoryProbeIslandEventOpen */
    "before" and "after", and the Island Events log gave the event those
    years (live, The Secret City, 2026-10-10: "The Ants and the Granary /
    Choice: Let them be / Age: 694 -> 814" on every villager, the second
-   6-year step).  Absent (its row off): never open, nothing held. */
+   6-year step).  Absent (its row off): never open, nothing held.
+
+   Asked every frame of a skip: the export is looked up once and kept (v1.35.71;
+   it was a module lookup and an export lookup a frame).  No companion is ever
+   unloaded ("VVFP Startup.dll" loads them for the life of the game and nothing
+   frees them), so the address stays good; while the DLL is not there it is
+   looked for again each time, so one loaded later is still found. */
+typedef int (__stdcall *time_skip_open_fn)(void);
+static time_skip_open_fn time_skip_open_export;
+
 static int time_skip_event_open(void) {
-    typedef int (__stdcall *open_fn)(void);
     HMODULE module;
-    open_fn open;
 #ifdef VVFP_TEST
     if (test_island_event_open) {
         return 1;
     }
 #endif
-    module = GetModuleHandleA("VVFP Island Events.dll");
-    open = module != NULL ? (open_fn)GetProcAddress(module, "VvfpIslandEventOpen") : NULL;
-    return open != NULL && open() != 0;
+    if (time_skip_open_export == NULL) {
+        module = GetModuleHandleA("VVFP Island Events.dll");
+        if (module != NULL) {
+            time_skip_open_export = (time_skip_open_fn)GetProcAddress(module, "VvfpIslandEventOpen");
+        }
+    }
+    return time_skip_open_export != NULL && time_skip_open_export() != 0;
 }
 
 /* Called every frame (VvfpStoryInstall): the next step, once the last one
