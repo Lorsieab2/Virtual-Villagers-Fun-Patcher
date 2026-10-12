@@ -21,6 +21,7 @@ import sys
 import tempfile
 import time
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -350,6 +351,27 @@ class Losses(Base):
         for g in ghosts:
             self.assertIn(g.name, rec.questions[0].text)
 
+    def test_a_death_after_a_recorded_change_is_that_villagers(self):
+        """Review of #585: the Death record names the looks and name the villager had when they died;
+        matched only on the older roster's name and looks, a recorded change before the death left them
+        asked about as possibly lost."""
+        for game in (1, 3):
+            with self.subTest(game=game):
+                v = self.village("huttest", game)
+                people = v.people(v.save_path(1).read_bytes())
+                gone = rc.Seen("Departa", 2, 1, "Female", 800, frozenset(), frozenset())
+                v.history([("2026-10-11 20:30:00", people + [gone]), ("2026-10-11 21:00:00", people)])
+                v.births("Appearance changed\n  Name: Departa\n  Old head: 2\n  Old body: 1\n"
+                         "  New head: 5\n  New body: 1\n\n"
+                         "Name changed\n  Name: Departa Kai\n  Old name: Departa\n  Age: 805\n  Head: 5\n"
+                         "  Body: 1\n  Likes: (none)\n  Dislikes: (none)\n\n")
+                v.deaths(death(1, "Departa Kai", 5, 1, "Female", 810))
+                rec = rc.reconcile(v.folder, game, 1)
+                self.assertFalse([f for f in rec.questions if f.topic == "lost"], [f.text for f in rec.questions])
+                # Without the records of the change, the same death does not explain her: asked.
+                v.births("")
+                self.assertTrue([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "lost"])
+
     def test_an_island_event_rename_is_a_note(self):
         v = self.village("huttest", 4)
         original = v.save_path(1).read_bytes()
@@ -632,12 +654,61 @@ class FileLevelLoss(Base):
         path = v.births(v.birth(1, x))
         copy = path.with_name(path.name + ".before-v1.35.69-repair")
         copy.write_bytes(path.read_bytes() + v.birth(2, x, "Dupe").replace("\n", "\r\n").encode("latin-1"))
+        made = datetime(2026, 10, 11, 20, 6, 21).timestamp()       # the copy is made with its repair
+        os.utime(copy, (made, made))
         v.log("Repairs Made", "Virtual Villagers 2 Repairs Log 1.txt",
               "Repair 1\n  Date: 2026-10-11 20:06:21\n  Duplicate backfilled Arrived record removed: "
-              f"{LOGS}\\Births and Conceptions\\{path.name} -- 1 villager(s)\n\n")
+              f"{path.relative_to(v.folder)} -- 1 villager(s)\n\n")
         rec = rc.reconcile(v.folder, 2, 1)
         self.assertFalse(any(f.topic == "file" for f in rec.questions), [f.text for f in rec.questions])
-        self.assertTrue(any("the Repairs log says repairs took 1 out" in f.text for f in rec.notes))
+        self.assertTrue(any("the Repairs log says that repair took 1 out" in f.text for f in rec.notes))
+
+    def _repair(self, v: Village, n: int, when: datetime, lines: str) -> str:
+        return f"Repair {n}\n  Date: {when:%Y-%m-%d %H:%M:%S}\n{lines}\n"
+
+    def test_each_repair_accounts_only_for_its_own_records(self):
+        """Review of #585: every past removal from a file of that name was credited to every copy, so a
+        record lost AFTER a repair hid behind that earlier repair's count."""
+        v = self.village("huttest", 2)
+        x = v.people(v.save_path(1).read_bytes())[0]
+        records = [v.birth(n, x, f"Child{n}") for n in range(1, 6)]
+        path = v.births("".join(records))                               # 5 records
+        rel = path.relative_to(v.folder)
+        mirror = v.folder / DATA / "Copies Made Before Repairs" / rel
+        mirror.parent.mkdir(parents=True, exist_ok=True)
+        t1, t2 = datetime(2026, 10, 11, 20, 0, 0), datetime(2026, 10, 11, 21, 0, 0)
+        first = mirror.with_name(path.name + ".before-first-repair")
+        first.write_bytes(path.read_bytes())                             # 5, before repair 1 (took 2)
+        os.utime(first, (t1.timestamp(),) * 2)
+        v.births("".join(records[:3]))                                   # 3 after repair 1
+        second = mirror.with_name(path.name + ".before-second-repair")
+        second.write_bytes(path.read_bytes())                            # 3, before repair 2 (took none)
+        os.utime(second, (t2.timestamp(),) * 2)
+        v.births("".join(records[:2]))                                   # 2 now: one record lost
+        repairs = (self._repair(v, 1, t1, f"  Duplicate records removed: {rel} -- 2 record(s)\n")
+                   + self._repair(v, 2, t2, "  Contradicting records taken out or renumbered: "
+                                            f"Virtual Villagers Fun Patcher Logs\\Save 2\\{rel.name} -- 4 record(s)\n"))
+        v.log("Repairs Made", "Virtual Villagers 2 Repairs Log 1.txt", repairs)
+        rec = rc.reconcile(v.folder, 2, 1)
+        asked = [f for f in rec.questions if f.topic == "file" and "may be lost" in f.text]
+        self.assertEqual(len(asked), 1, [f.text for f in rec.questions])
+        self.assertIn(second.name, asked[0].text)
+        self.assertIn("1 record(s) may be lost", asked[0].text)
+        self.assertTrue(any(f.topic == "file" and first.name in f.text and "took 2 out" in f.text
+                            for f in rec.notes), [f.text for f in rec.notes])
+
+    def test_a_file_whose_only_copy_is_in_copies_made_before_repairs_is_missing(self):
+        """Review of #585: the Copies Made Before Repairs tree was skipped when looking for kept copies."""
+        v = self.village("huttest", 3)
+        kept = v.folder / DATA / "Copies Made Before Repairs" / DATA / "Custom Titles"
+        kept.mkdir(parents=True)
+        (kept / "Custom Titles - Save 1.dat.before-titles-record-repair").write_bytes(b"VCT1")
+        texts = [f.text for f in rc.reconcile(v.folder, 3, 1).questions if f.topic == "file"]
+        self.assertTrue(any(t.startswith("Custom Titles - Save 1.dat is missing") for t in texts), texts)
+        # With the file in its place, nothing is missing.
+        (v.folder / DATA / "Custom Titles").mkdir(parents=True)
+        (v.folder / DATA / "Custom Titles" / "Custom Titles - Save 1.dat").write_bytes(b"VCT1")
+        self.assertFalse([f for f in rc.reconcile(v.folder, 3, 1).questions if "is missing" in f.text])
 
     def test_a_custom_title_the_file_no_longer_holds(self):
         v = self.village("huttest", 4)
