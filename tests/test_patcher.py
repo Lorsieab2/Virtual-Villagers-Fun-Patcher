@@ -1174,8 +1174,10 @@ class ManifestTests(unittest.TestCase):
         # Events Log to Text File (vv2_island_events), no executable byte -- its
         # companion detours the event routines at run time; 30 with Dropping an
         # Adult on a Child Tells a Story (vv2_storytelling), no executable byte
-        # -- its companion detours the drop handler at run time.
-        self.assertEqual(len(feature_ids), 30)
+        # -- its companion detours the drop handler at run time; 31 with Keep the Game's
+        # Own Log (vv2_game_log), no executable byte -- its companion
+        # re-enables the game's ldwLog.txt calls at run time.
+        self.assertEqual(len(feature_ids), 31)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4053,6 +4055,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_details_full_names",
                 "vv2_island_events",
                 "vv2_storytelling",
+                "vv2_game_log",
             },
         )
         for mode in ALL_MODES:
