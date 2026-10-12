@@ -2,6 +2,7 @@
 #include <windows.h>
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
@@ -1309,7 +1310,7 @@ enum {
     IDD_ORIGINS_APPEARANCE = 203,
     IDD_ORIGINS_FORALL = 214,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1013,          /* 14 tech rows (row 13 = Change Appearance for All) */
+    ID_BUY_LAST = 1016,          /* 17 tech rows (row 16 = Change Appearance for All) */
     ID_CHECK_FIRST = 1100,
     ID_HEAD_LABEL = 2000,
     ID_HEAD_PREV = 2001,
@@ -1533,17 +1534,21 @@ static void vv4_surface_dialog(HWND window) {
 
 /* OFFICIAL per-row purchase-confirm names + costs. Tech rows 6-8 (village-wide)
    use the payload's own OFFICIAL confirm and are skipped here. */
-static const char *const g_tech_names[14] = {
+static const char *const g_tech_names[17] = {
     "Time Warp", "Island Event", "Barrel of Babies",
     "Tech Point Doubler", "Food Point Doubler", "Full Heal / Cure All",
     "", "", "", "Complete All Collections", "Reset All Collections",
     "Equal Division of Labor (Includes Parenting)",
     "Equal Division of Labor (No Parenting)",
+    "Clear All Skill Preferences",
+    "Check Highest Skill (Includes Parenting)",
+    "Check Highest Skill (No Parenting)",
     "Change Appearance for All"
 };
-static const char *const g_tech_costs[14] = {
+static const char *const g_tech_costs[17] = {
     "50,000", "30,000", "75,000", "500,000", "500,000", "30,000", "", "", "",
-    "1,000,000", "1,000,000", "1,000,000", "1,000,000", "450,000"
+    "1,000,000", "1,000,000", "1,000,000", "1,000,000",
+    "500,000", "1,000,000", "1,000,000", "450,000"
 };
 static const char *const g_villager_names[5] = {
     "Grant Youth", "Grant Full Mastery", "Grant Running",
@@ -1617,12 +1622,109 @@ static void vv4_remove_detail_running_dislike(void) {
     }
 }
 
+/* ---- Corrupted skill values (v1.35.70) ----
+   The five skills are floats at +0x1C5C..+0x1C6C. The stock writer 0x46AD80
+   (the only thing the game uses to change one) keeps them in 0..100: it stores
+   current + delta, then an ordered result above the double 100.0 at 0x48A7C0
+   is replaced by the float 100.0 at 0x48CF04, and one below 0 by fldz. So a
+   NaN, an infinity, a negative value or one above 100 can only come from
+   outside the game (Cheat Engine, a damaged save) -- and the writer cannot
+   master it (NaN stays NaN). Every skill upgrade therefore repairs such a
+   value first, on the villagers it acts on: NaN or +-infinity -> 0, below 0
+   -> 0, above 100 -> 100. -0.0 is a valid zero and is never touched.
+
+   The repair is a direct store, NOT the writer: 0x46AD80 also awards the
+   skill-mastery trophies (0x412F90 ids 0x1B-0x22) when a value crosses 88,
+   and a repair is not progress the villager earned. Full Mastery itself still
+   goes through the writer afterwards, exactly as before. */
+#define VV4_SKILL_MAX_BITS 0x42C80000u   /* 100.0f, the writer's clamp */
+static int vv4_skill_repair_bits(unsigned int bits, unsigned int *fixed) {
+    *fixed = bits;
+    if ((bits & 0x7FFFFFFFu) >= 0x7F800000u) {
+        *fixed = 0;                        /* NaN, +-infinity */
+        return 1;
+    }
+    if ((bits & 0x80000000u) != 0 && bits != 0x80000000u) {
+        *fixed = 0;                        /* below 0 (-0.0 is valid) */
+        return 1;
+    }
+    if (bits > VV4_SKILL_MAX_BITS && (bits & 0x80000000u) == 0) {
+        *fixed = VV4_SKILL_MAX_BITS;       /* above the game's 100 */
+        return 1;
+    }
+    return 0;
+}
+
+/* Count (write = 0) or repair (write = 1) one villager's corrupted skills. */
+static int vv4_repair_skills(unsigned char *rec, int write) {
+    int s, count = 0;
+    for (s = 0; s < 5; ++s) {
+        unsigned int *slot = (unsigned int *)(rec + 0x1C5C + 4 * s);
+        unsigned int fixed;
+        if (vv4_skill_repair_bits(*slot, &fixed)) {
+            ++count;
+            if (write) {
+                *slot = fixed;
+            }
+        }
+    }
+    return count;
+}
+
+/* Is every skill exactly 100.0 once repaired? */
+static int vv4_skills_full_after_repair(const unsigned char *rec) {
+    int s;
+    for (s = 0; s < 5; ++s) {
+        unsigned int fixed;
+        vv4_skill_repair_bits(*(const unsigned int *)(rec + 0x1C5C + 4 * s), &fixed);
+        if (fixed != VV4_SKILL_MAX_BITS) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* "\r\n\r\nReset N corrupted skill value(s)." when N > 0; appended to every
+   skill upgrade's result. */
+static char *vv4_reset_line(char *p, int repaired) {
+    if (repaired > 0) {
+        p += wsprintfA(p, "\r\n\r\nReset %d corrupted skill %s.", repaired,
+                       repaired == 1 ? "value" : "values");
+    }
+    return p;
+}
+
+/* Values repaired after the player confirmed a Full Mastery purchase whose
+   result the PAYLOAD shows ("Purchased.", "Not enough tech points.", ...)
+   through ShowOriginsUpgradeMessage, or the village-wide result through
+   ShowOriginsVillageWideResult. Whichever shows next appends the Reset line
+   and consumes it; each menu opening clears it. */
+static int g_reset_note;
+
+/* A Details villager the payload will serve (it refuses health <= 0 and the
+   +0x1CC7 ghost flag before any charge, so those are never repaired). */
+static int vv4_detail_living(const unsigned char *rec) {
+    return rec != NULL && *(const int *)(rec + 0x1C40) > 0 && rec[0x1CC7] == 0;
+}
+
 /* Change Appearance for All (row 13 of the village-wide tech menu) is fully
    self-contained -- it runs its own dialog, charge and apply -- so the menu
    invokes it directly rather than returning a row for the payload to dispatch.
    Defined further down; forward-declared here. */
 static int __stdcall ShowVv4AppearanceForAll(void);
-#define ID_FORALL_ROW 13
+#define ID_FORALL_ROW 16
+
+/* The three skill-preference rows (13 Clear All Skill Preferences, 14/15
+   Check Highest Skill with/without Parenting) sit right after the two Equal
+   Division of Labor rows. Each is confirmed by the menu's standard prompt and
+   then bought entirely here (afford check, apply, charge, result) -- the
+   payload never sees these rows, so its fixed 1,000,000 charge cannot apply
+   and the price goes through vvfp_story_price (0 under Story / Cheat
+   Upgrades). Defined further down; forward-declared here. */
+#define ID_CLEAR_PREFS_ROW     13
+#define ID_HIGHEST_P_ROW       14
+#define ID_HIGHEST_NP_ROW      15
+static int vv4_skill_pref_purchase(int row);
 
 /* A pending Island Event or Barrel of Babies must not be sold again: both
    are queued by writing a value that may already be there -- the countdown
@@ -1674,7 +1776,7 @@ enum {
     BLOCK_NO_VILLAGER_SLOTS = 2
 };
 
-#define ROW_STATE_MAX 16
+#define ROW_STATE_MAX 20
 static int block_reasons[ROW_STATE_MAX];
 
 static const char *block_reason_text(int reason, int row) {
@@ -1744,21 +1846,22 @@ static INT_PTR CALLBACK upgrade_dialog(
         g_villager_menu = villager_menu;
         g_villager_mask = (int)lparam;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
-        /* Village-wide tech menu carries 14 rows: the 6 base upgrades, the 3
+        /* Village-wide tech menu carries 17 rows: the 6 base upgrades, the 3
            village-wide grants (rows 6-8), Complete/Reset All Collections
-           (rows 9-10), the two Equal Division of Labor rows (11-12), and
-           Change Appearance for All (row 13). */
+           (rows 9-10), the two Equal Division of Labor rows (11-12), Clear
+           All Skill Preferences (13), the two Check Highest Skill rows
+           (14-15), and Change Appearance for All (row 16). */
         int row_count = villager_menu
             ? 5
             : ((lparam & STATE_RUNNING_ONLY) != 0
                 ? 7
-                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 14 : 6));
+                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 17 : 6));
         int row;
         int blocked;
         for (row = 0; row < ROW_STATE_MAX; ++row) {
             block_reasons[row] = BLOCK_NONE;
         }
-        for (row = 0; row < 14; ++row) {
+        for (row = 0; row < 17; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
@@ -1771,10 +1874,15 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
             }
-            if (!villager_menu && row == ID_FORALL_ROW) {
-                /* Change Appearance for All: always purchasable in the tech
-                   menu; no availability bit and no checkmark. Its own dialog
-                   confirms and charges, so it never shows Remove/Unavailable. */
+            if (!villager_menu
+                && (row == ID_FORALL_ROW || row == ID_CLEAR_PREFS_ROW
+                    || row == ID_HIGHEST_P_ROW || row == ID_HIGHEST_NP_ROW)) {
+                /* Change Appearance for All and the three skill-preference
+                   rows: always purchasable in the tech menu; no availability
+                   bit and no checkmark (their row numbers reach the STATE_*
+                   bits, so the bit tests below must never see them). Each is
+                   bought inside this companion, so it never shows
+                   Remove/Unavailable. */
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy");
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 continue;
@@ -1874,8 +1982,30 @@ static INT_PTR CALLBACK upgrade_dialog(
                no-change line and charges nothing, using the state bits the
                payload computed for this villager at open time. Running has two
                distinct cases: already-likes (checked first) vs. no free slot. */
+            unsigned char *repair_rec = NULL;
             if (g_villager_menu) {
                 const char *nochange = NULL;
+                unsigned char *detail_rec =
+                    *(unsigned char **)(UINT_PTR)0x728D40u;
+                if (row == 1 && vv4_detail_living(detail_rec)
+                    && vv4_repair_skills(detail_rec, 0) > 0) {
+                    /* Corrupted skills (see vv4_skill_repair_bits). When the
+                       repair alone leaves every skill at 100 there is nothing
+                       to buy: repair now, free, and say so. Otherwise repair
+                       after the confirm below, before the payload masters. */
+                    if (vv4_skills_full_after_repair(detail_rec)) {
+                        char msg[256];
+                        char *p = msg + wsprintfA(msg,
+                            "This villager is already fully mastered. "
+                            "No tech points have been deducted.");
+                        vv4_reset_line(p, vv4_repair_skills(detail_rec, 1));
+                        g_villager_mask |= (1 << 1);
+                        MessageBoxA(window, msg, "Villager Upgrades",
+                                    MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+                        return TRUE; /* Stay in the menu; nothing was purchased. */
+                    }
+                    repair_rec = detail_rec;
+                }
                 if (row == 0 && (g_villager_mask & (1 << 0)) != 0) {
                     nochange = "This villager is already full of youth. "
                                "No tech points have been deducted.";
@@ -1929,6 +2059,20 @@ static INT_PTR CALLBACK upgrade_dialog(
                     return TRUE; /* Cancel: stay in the menu. */
                 }
             }
+            if (repair_rec != NULL) {
+                /* Confirmed: repair, then the payload masters through the
+                   native writer and its result carries the Reset line. */
+                g_reset_note = vv4_repair_skills(repair_rec, 1);
+            }
+            if (!g_villager_menu
+                && (row == ID_CLEAR_PREFS_ROW || row == ID_HIGHEST_P_ROW
+                    || row == ID_HIGHEST_NP_ROW)) {
+                /* Confirmed above with the standard prompt; bought here, so
+                   the payload dispatch is bypassed (return -1). */
+                vv4_skill_pref_purchase(row);
+                EndDialog(window, -1);
+                return TRUE;
+            }
             g_last_row = row;
             g_last_villager = g_villager_menu;
             EndDialog(window, (INT_PTR)row);
@@ -1947,6 +2091,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 
 static int show_upgrade_menu(int villager_menu, int dialog_state) {
     int resource = villager_menu ? IDD_ORIGINS_VILLAGER : IDD_ORIGINS_TECH;
+    g_reset_note = 0;       /* never carried into another purchase */
     vvfp_story_bridge(4);   /* before any price is shown or charged */
     vvfp_cause_bridge(4);  /* cause of death companion: once, fail-open */
     if (villager_menu) {
@@ -2580,6 +2725,7 @@ int __stdcall ShowOriginsUpgradeMessage(
     const char *text
 ) {
     char msg[192];
+    char noted[384];
     const char *out = (text != NULL) ? text : "";
     /* The payload's Barrel capacity guard uses a short string to fit the full
        payload string table; render the OFFICIAL near-max wording here where DLL
@@ -2589,6 +2735,17 @@ int __stdcall ShowOriginsUpgradeMessage(
                "The village population is already at maximum capacity.") == 0) {
         out = "Village population is close to its maximum. The Barrel of Babies "
               "needs room for 3 children. No tech points have been deducted.";
+    } else if (text != NULL && lstrcmpA(text, "Mastery not verified.") == 0) {
+        /* The Details Grant Full Mastery post-check failed after the native
+           writes began; the payload has already refunded the charge. Short
+           key for the full payload string table, expanded here. */
+        out = "Full Mastery could not be fully verified. Earlier verified "
+              "effects may remain.\r\nNo tech points have been deducted.";
+    } else if (text != NULL && lstrcmpA(text, "Not living.") == 0) {
+        /* The Details rows refused a dead (health <= 0) or ghost villager
+           before any charge. Short key, expanded here. */
+        out = "No valid living villager is selected. "
+              "No tech points have been deducted.";
     } else if (text != NULL && g_last_row >= 0) {
         /* Translate the payload's generic result strings into the OFFICIAL
            per-upgrade wording, using the row the player just clicked. (Cure and
@@ -2612,6 +2769,13 @@ int __stdcall ShowOriginsUpgradeMessage(
                 out = msg;
             }
         }
+    }
+    if (g_reset_note > 0) {
+        /* Skill values repaired after the player confirmed Full Mastery. */
+        lstrcpynA(noted, out, 300);
+        vv4_reset_line(noted + lstrlenA(noted), g_reset_note);
+        g_reset_note = 0;
+        out = noted;
     }
     MessageBoxA(
         GetForegroundWindow(),
@@ -2849,35 +3013,68 @@ static int vv_eligible(const unsigned char *r) {
 /* Dry-run counts for the current village-wide action, computed in the confirm
    and reused in the result. Valid only within one confirm->apply->result
    sequence, which is modal so village state cannot change between them. */
-static int vw_granted, vw_already, vw_full, vw_removed;
+static int vw_granted, vw_already, vw_full, vw_removed, vw_repairs;
 
 static const char *vv_villagers(int n) { return n == 1 ? "Villager" : "Villagers"; }
 
 /* ---- Equal Division of Labor ----
-   Round-robin every living villager's preferred-skill field (+0x1C70) across the
-   professions in the requested order -- Farmer, Builder, Researcher, Healer[,
-   Parenting] -- cycling males and females INDEPENDENTLY so each profession ends
-   with a balanced count and a balanced male/female split. Everyone living is
+   Split every living villager's preferred-skill field (+0x1C70) evenly across
+   the professions. Each sex is dealt round-robin over Farmer, Builder,
+   Researcher, Healer[, Parenting] (INDEPENDENT cycles) to fix how many seats
+   each profession has, so each profession keeps a balanced count and a
+   balanced male/female split; who sits where follows skill progress
+   (native/shared/equal_division.h): the most-progressed job first, random for
+   ties and anyone left (v1.35.70, the owner's "prioritize villagers' skill
+   progress, otherwise fallback to random equal division"). Everyone living is
    eligible (children of any age, nursing moms, adults); it overwrites each
    villager's current preference unconditionally, so N is simply how many were
    eligible. Preferred-skill values: 0=Farming 1=Parenting 2=Healing 3=Research
    4=Building. vw_prof_m/f are indexed by that value. */
 static int vw_prof_m[5], vw_prof_f[5];
+static int vw_ed_repaired;   /* corrupted skill values reset by the last run */
 static int vv4_apply_equal_division(int include_parenting) {
     static const int order_p[5]  = { 0, 4, 3, 2, 1 }; /* Farmer,Builder,Researcher,Healer,Parenting */
     static const int order_np[4] = { 0, 4, 3, 2 };    /* Farmer,Builder,Researcher,Healer */
     const int *order = include_parenting ? order_p : order_np;
     const int n = include_parenting ? 5 : 4;
-    int total = vv_record_total(), i, assigned = 0, male_idx = 0, female_idx = 0, p;
+    static unsigned char *who[VVED_MAX_VILLAGERS];
+    static int group[VVED_MAX_VILLAGERS];
+    static float skill[VVED_MAX_VILLAGERS * VVED_MAX_SEATS];
+    static int seat_of[VVED_MAX_VILLAGERS];
+    int quota[2 * VVED_MAX_SEATS];
+    int total = vv_record_total(), i, assigned = 0, males = 0, females = 0, p;
+    unsigned int rng;
     for (p = 0; p < 5; ++p) { vw_prof_m[p] = 0; vw_prof_f[p] = 0; }
-    for (i = 0; i < total; ++i) {
+    vw_ed_repaired = 0;
+    for (i = 0; i < total && assigned < VVED_MAX_VILLAGERS; ++i) {
         unsigned char *r = vv_record(i);
-        int val;
         if (!vv_eligible(r)) continue;
-        if (r[VV_SEX_OFFSET] != 0) { val = order[female_idx % n]; ++female_idx; ++vw_prof_f[val]; }
-        else                       { val = order[male_idx   % n]; ++male_idx;   ++vw_prof_m[val]; }
-        *(int *)(r + VV_PREF_OFFSET) = val;
+        /* Runs after the player confirmed (and the payload charged): repair
+           this villager's corrupted skills before they are rated. */
+        vw_ed_repaired += vv4_repair_skills(r, 1);
+        who[assigned] = r;
+        group[assigned] = r[VV_SEX_OFFSET] != 0;
+        if (group[assigned]) ++females; else ++males;
+        /* The skill each seat rates: the float skills at +0x1C5C indexed by
+           the preference value (stock 0x461E5B `fld [eax+ebx*4+0x1C5C]`). */
+        for (p = 0; p < VVED_MAX_SEATS; ++p) {
+            skill[assigned * VVED_MAX_SEATS + p] = p < n
+                ? *(const float *)(r + VV_SKILL0_OFFSET + 4 * order[p]) : 0.0f;
+        }
         ++assigned;
+    }
+    /* Same per-sex seat counts as the round-robin; seats by skill progress
+       (native/shared/equal_division.h). */
+    vved_cycle_quota(males, n, 0, quota);
+    vved_cycle_quota(females, n, 0, quota + VVED_MAX_SEATS);
+    rng = GetTickCount() ^ (unsigned int)total ^ 0x5EED0004u;
+    vved_assign(assigned, n, group, skill, quota, seat_of, &rng);
+    for (i = 0; i < assigned; ++i) {
+        int val;
+        if (seat_of[i] < 0) continue;
+        val = order[seat_of[i]];
+        if (group[i]) ++vw_prof_f[val]; else ++vw_prof_m[val];
+        *(int *)(who[i] + VV_PREF_OFFSET) = val;
     }
     return assigned;
 }
@@ -2906,7 +3103,8 @@ static int vv4_equal_division(int include_parenting) {
     p = vv4_ed_line(p, "Building", 4);
     p = vv4_ed_line(p, "Research", 3);
     p = vv4_ed_line(p, "Healing", 2);
-    if (include_parenting) vv4_ed_line(p, "Breeding", 1);
+    if (include_parenting) p = vv4_ed_line(p, "Breeding", 1);
+    vv4_reset_line(p, vw_ed_repaired);
     MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
                 MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     return assigned;
@@ -3201,6 +3399,161 @@ int __stdcall ApplyVV4EqualDivisionNoParenting(void) {
     return vv4_equal_division(0);
 }
 
+/* ---- Skill-preference rows: Clear All Skill Preferences (row 13) and Check
+   Highest Skill with / without Parenting (rows 14 / 15) ----
+   Same villagers as Equal Division (vv_eligible), same field (+0x1C70).
+   -1 is the game's own "no preference": villager creation writes
+   `mov dword ptr [esi+0x1c70], 0xffffffff` (0x45DA28) and the readers test
+   `cmp eax,-1; je` (0x4402F5). The five skills are floats at +0x1C5C indexed
+   BY the preference value (0x461E5B `fld dword ptr [eax+ebx*4+0x1c5c]`, ebx =
+   [eax+0x1c70]): 0 Farming, 1 Parenting, 2 Healing, 3 Research, 4 Building.
+
+   Every step is decided by a dry run first, so nothing is written or charged
+   unless at least one preference really changes and the player can pay. */
+#define VV_PREF_NONE (-1)
+enum { SP_CLEAR = 0, SP_HIGHEST_P = 1, SP_HIGHEST_NP = 2 };
+
+static int sp_prof_m[5], sp_prof_f[5];
+
+/* The preference Check Highest Skill gives this villager, or VV_PREF_NONE when
+   none of the considered skills has any progress (0, negative or NaN all
+   fail `v > 0`). Ties go to the first skill in the on-screen Skills order. */
+static int vv4_highest_skill(const unsigned char *r, int include_parenting) {
+    static const int order[5] = { 0, 4, 3, 2, 1 }; /* Farming,Building,Research,Healing,Parenting */
+    const float *skills = (const float *)(r + VV_SKILL0_OFFSET);
+    int k, best = VV_PREF_NONE;
+    float best_value = 0.0f;
+    for (k = 0; k < 5; ++k) {
+        int s = order[k];
+        float v = skills[s];
+        if (s == 1 && !include_parenting) continue;
+        if (!(v > 0.0f)) continue;                /* no progress, or unreadable */
+        if (best == VV_PREF_NONE || v > best_value) { best = s; best_value = v; }
+    }
+    return best;
+}
+
+/* Walk the village once. apply=0 only counts. Returns how many preferences
+   change; *eligible / *skipped / *assigned report the rest. */
+static int vv4_skill_pref_scan(int kind, int apply, int *eligible, int *skipped,
+                               int *assigned) {
+    int total = vv_record_total(), i, changed = 0, p;
+    *eligible = *skipped = *assigned = 0;
+    for (p = 0; p < 5; ++p) { sp_prof_m[p] = 0; sp_prof_f[p] = 0; }
+    for (i = 0; i < total; ++i) {
+        unsigned char *r = vv_record(i);
+        int *pref, target;
+        if (!vv_eligible(r)) continue;
+        ++*eligible;
+        pref = (int *)(r + VV_PREF_OFFSET);
+        if (kind == SP_CLEAR) {
+            target = VV_PREF_NONE;
+        } else {
+            target = vv4_highest_skill(r, kind == SP_HIGHEST_P);
+            if (target == VV_PREF_NONE) { ++*skipped; continue; }
+            ++*assigned;
+            if (r[VV_SEX_OFFSET] != 0) ++sp_prof_f[target]; else ++sp_prof_m[target];
+        }
+        if (*pref != target) {
+            ++changed;
+            if (apply) *pref = target;
+        }
+    }
+    return changed;
+}
+
+static char *vv4_sp_line(char *p, const char *name, int v) {
+    int m = sp_prof_m[v], f = sp_prof_f[v];
+    return p + wsprintfA(p, "\n\n%s: %d %s (%d Male, %d Female).",
+                         name, m + f, vv_villagers(m + f), m, f);
+}
+
+static char *vv4_sp_skipped(char *p, int skipped) {
+    if (skipped > 0) {
+        p += wsprintfA(p, "\n\nSkipped %d %s: no skill progress yet.",
+                       skipped, vv_villagers(skipped));
+    }
+    return p;
+}
+
+/* Row 13/14/15 after the menu's confirm: afford check, apply, charge once,
+   OFFICIAL result box. Returns 1 when applied and charged (0 charged under
+   Story / Cheat Upgrades), 0 when nothing was done or charged. */
+static int vv4_skill_pref_buy(int kind) {
+    int eligible, skipped, assigned, changed, repaired = 0, total, i;
+    int price = vvfp_story_price(4, kind == SP_CLEAR ? 500000 : 1000000);
+    char msg[640], *p = msg;
+    HWND owner = GetForegroundWindow();
+    /* The player has just confirmed: repair the corrupted skills of the
+       villagers this row acts on (vv_eligible) before anything reads them.
+       A repair is not a purchase -- the charge rules below are unchanged --
+       and every result from here on reports it. */
+    total = vv_record_total();
+    for (i = 0; i < total; ++i) {
+        unsigned char *r = vv_record(i);
+        if (vv_eligible(r)) repaired += vv4_repair_skills(r, 1);
+    }
+    changed = vv4_skill_pref_scan(kind, 0, &eligible, &skipped, &assigned);
+    if (eligible == 0) {
+        MessageBoxA(owner,
+            "No villagers were eligible. No tech points have been deducted.",
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
+    }
+    if (changed == 0) {
+        p += wsprintfA(p, "%s", kind == SP_CLEAR
+            ? "Every villager's skill preference is already cleared. "
+              "No tech points have been deducted."
+            : "Every villager already has their highest skill checked. "
+              "No tech points have been deducted.");
+        p = vv4_sp_skipped(p, skipped);
+        vv4_reset_line(p, repaired);
+        MessageBoxA(owner, msg, "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
+    }
+    if (*(volatile unsigned int *)(UINT_PTR)0x4D6F88u < (unsigned int)price) {
+        /* The payload's own wording for every other row. */
+        vv4_reset_line(p + wsprintfA(p, "Not enough tech points."), repaired);
+        MessageBoxA(owner, msg, "Origins Upgrades", MB_OK | VV_MB_FRONT);
+        return 0;
+    }
+    vv4_skill_pref_scan(kind, 1, &eligible, &skipped, &assigned);
+    if (price != 0) {
+        int delta = -price;
+        __asm {
+            push delta
+            mov  ecx, 0x4D6F88
+            mov  eax, 0x41E300
+            call eax
+        }
+    }
+    if (kind == SP_CLEAR) {
+        p += wsprintfA(msg, "Cleared %d %s Skill %s.", changed,
+                       changed == 1 ? "Villager's" : "Villagers'",
+                       changed == 1 ? "Preference" : "Preferences");
+    } else {
+        p += wsprintfA(p, "Set %d %s' Job Preferences.",
+                       assigned, assigned == 1 ? "Villager" : "Villagers");
+        p = vv4_sp_line(p, "Farming", 0);
+        p = vv4_sp_line(p, "Building", 4);
+        p = vv4_sp_line(p, "Research", 3);
+        p = vv4_sp_line(p, "Healing", 2);
+        if (kind == SP_HIGHEST_P) p = vv4_sp_line(p, "Breeding", 1);
+        p = vv4_sp_skipped(p, skipped);
+    }
+    vv4_reset_line(p, repaired);
+    MessageBoxA(owner, msg, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+    return 1;
+}
+
+static int vv4_skill_pref_purchase(int row) {
+    return vv4_skill_pref_buy(row == ID_CLEAR_PREFS_ROW ? SP_CLEAR
+                              : row == ID_HIGHEST_P_ROW ? SP_HIGHEST_P
+                              : SP_HIGHEST_NP);
+}
+
 /* Running: classify every eligible villager into granted / already-liking /
    full-slots, and count how many of the granted ones also had a Running
    dislike that will be removed. */
@@ -3240,20 +3593,19 @@ static void vv_scan_running(void) {
 }
 
 /* Mastery: eligible villagers with any skill below 100 are mastered; the rest
-   are already fully mastered. */
-static void vv_scan_mastery(void) {
+   are already fully mastered -- both judged on the skills as they will be once
+   their corrupted values are repaired (vv4_skill_repair_bits), and vw_repairs
+   counts those values. With write = 1 it also makes the repairs; the confirm
+   calls it that way only once the purchase is settled, so Cancel changes
+   nothing. */
+static void vv_scan_mastery(int write) {
     int total = vv_record_total(), i;
-    vw_granted = vw_already = 0;
+    vw_granted = vw_already = vw_repairs = 0;
     for (i = 0; i < total; ++i) {
-        const unsigned char *r = vv_record(i);
-        const int *sk;
-        int s, full = 1;
+        unsigned char *r = vv_record(i);
         if (!vv_eligible(r)) continue;
-        sk = (const int *)(r + VV_SKILL0_OFFSET);
-        for (s = 0; s < VV_SKILL_COUNT; ++s) {
-            if (sk[s] != (int)VV_MASTER_VALUE) { full = 0; break; }
-        }
-        if (full) ++vw_already; else ++vw_granted;
+        vw_repairs += vv4_repair_skills(r, write);
+        if (vv4_skills_full_after_repair(r)) ++vw_already; else ++vw_granted;
     }
 }
 
@@ -3344,19 +3696,33 @@ int __stdcall ConfirmOriginsVillageWide(int command) {
             "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
     }
     if (command == 7) {
-        vv_scan_mastery();
+        vv_scan_mastery(0);
         if (vw_granted == 0) {
-            MessageBoxA(GetForegroundWindow(),
+            /* Nothing to buy even once repaired: the repair alone is free. */
+            char msg[256];
+            char *p = msg + wsprintfA(msg,
                 "Everyone has already mastered their skills. "
-                "No tech points have been deducted.",
+                "No tech points have been deducted.");
+            vv_scan_mastery(1);
+            vv4_reset_line(p, vw_repairs);
+            MessageBoxA(GetForegroundWindow(), msg,
                 "Origins Upgrades", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
             return 0;
         }
-        return MessageBoxA(GetForegroundWindow(),
-            vvfp_story_text(4,
-                "Do you want to buy Grant Full Mastery to All Villagers for "
-                "1,000,000 tech points?\r\nPress OK to confirm, or Cancel."),
-            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
+        if (MessageBoxA(GetForegroundWindow(),
+                vvfp_story_text(4,
+                    "Do you want to buy Grant Full Mastery to All Villagers for "
+                    "1,000,000 tech points?\r\nPress OK to confirm, or Cancel."),
+                "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT)
+            != IDOK) {
+            return 0;
+        }
+        /* Confirmed: repair before the payload's native writer masters (it
+           cannot master a NaN). Whichever result follows -- the counted one
+           or the payload's "Not enough tech points." -- carries the line. */
+        vv_scan_mastery(1);
+        g_reset_note = vw_repairs;
+        return 1;
     }
     if (command == 8) {
         vv_scan_age18();
@@ -3414,6 +3780,8 @@ int __stdcall ShowOriginsVillageWideResult(
                       vw_already, vv_villagers(vw_already));
             lstrcatA(msg, line);
         }
+        vv4_reset_line(msg + lstrlenA(msg), g_reset_note);
+        g_reset_note = 0;
         MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
                     MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     } else if (command == 8) {

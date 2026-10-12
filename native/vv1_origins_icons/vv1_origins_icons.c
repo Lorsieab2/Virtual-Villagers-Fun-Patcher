@@ -6,6 +6,8 @@
 #include "vv1_head_buckets.h"     /* head-index buckets by hair colour (Heads override) */
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
+#include "../shared/skill_repair.h" /* reset obviously corrupted (out-of-range) skills */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
@@ -2221,6 +2223,270 @@ static const char *block_reason_text(int reason, int row) {
            "screen and wait for it to arrive.";
 }
 
+/* ---- Skill-preference rows (A New Home and The Lost Children) -------------
+   Three Tech-screen rows beside the two Equal Division of Labor rows.
+
+   Clear All Skill Preferences -- the owner (2026-10-11): "add an option to
+   uncheck all skill preferences too! (All games). Should cost half the equal
+   division of labor cost."  It unchecks the job-preference checkmark of every
+   villager Equal Division would set, so each villager chooses their own work
+   again as in the stock game.  Skills are not touched.  "No preference" is the
+   value the game itself gives a new villager: 0 in both games (A New Home's
+   creation 0x43C3F6 / 0x43C8D8 store 0 into +0x3D0; The Lost Children's
+   0x44C979 / 0x44CF6E / 0x44D2B5 store 0 into +0x7F8), and both choosers treat
+   0 as none (`dec eax; cmp eax,4; ja`).  500,000 tech points.
+
+   Check Highest Skill (Includes Parenting) / (No Parenting) -- the owner:
+   "automatically checks the preferences of the villager's highest skill (has
+   no Parenting and with Parenting options)".  Each villager's preference is
+   set to the job of the skill they have the most progress in; the No
+   Parenting version leaves Parenting out of the comparison.  Ties go to the
+   first job in the Skills list order (Farming, Building, Research, Healing,
+   Parenting).  A villager with no progress in any compared skill keeps their
+   preference.  The preference is one value, so setting it replaces any other
+   checkmark, exactly as Equal Division does.  1,000,000 tech points each, the
+   price of the matching Equal Division variant (the owner set no price).
+
+   Job codes and the skill each rates are the stock choosers' own (A New Home
+   0x439C53, The Lost Children 0x449DD2; see tests/
+   test_equal_division_skill_priority.py), in the Skills list order.
+
+   Every price goes through vvfp_story_price, so the Story / Cheat
+   free-upgrades mode makes it 0.  The rows are handled here, in the
+   companion, from start to finish (confirm, afford check, change, one charge,
+   result): the executables' menu caves have no room for more rows, and
+   nothing about them needs the executable, so they behave the same in every
+   population mode.  The village is reached through the same globals the
+   Story / Cheat companion uses: A New Home's world 0x48AEDC (tech points
+   +0xA2FC, the villager array +0xADE8 -- the very array Equal Division walks),
+   The Lost Children's world 0x4997BC (tech points +0x2EADC) and its
+   record-array getter 0x44F4E0 (the one Equal Division is given).
+   Eligibility is Equal Division's own: A New Home skips the Golden Child, as
+   Equal Division does; The Lost Children has none.  Nothing is charged unless
+   at least one checkmark really changes. */
+#define VV_PREFS_CLEAR 0
+#define VV_PREFS_HIGHEST_PARENTING 1
+#define VV_PREFS_HIGHEST_NO_PARENTING 2
+#define VV_CLEAR_PREFS_COST 500000
+#define VV_HIGHEST_SKILL_COST 1000000
+
+static void vv1_format_cost(int value, char *out);
+
+static const char *vv_prefs_name(int kind) {
+    switch (kind) {
+    case VV_PREFS_CLEAR: return "Clear All Skill Preferences";
+    case VV_PREFS_HIGHEST_PARENTING: return "Check Highest Skill (Includes Parenting)";
+    default: return "Check Highest Skill (No Parenting)";
+    }
+}
+
+/* The job (0..4, Skills list order) of the villager's highest compared skill,
+   or -1 when no compared skill has any progress.  Strictly-higher wins, so a
+   tie keeps the earlier job. */
+static int vv_prefs_highest(const unsigned char *rec, const int *skill_offset, int jobs) {
+    int best = -1, best_value = 0, s;
+    for (s = 0; s < jobs; ++s) {
+        int value = *(const int *)(rec + skill_offset[s]);
+        if (value > best_value) {
+            best_value = value;
+            best = s;
+        }
+    }
+    return best;
+}
+
+static int vv_prefs_purchase(HWND owner, int kind) {
+    static const char *const job_name[5] = {
+        "Farming", "Building", "Research", "Healing", "Breeding"
+    };
+    char message[768];
+    char line[192];
+    char cost_text[16];
+    unsigned char *world;
+    unsigned char *records;
+    unsigned char *rec;
+    int price = vvfp_story_price(VV_STORY_GAME,
+        kind == VV_PREFS_CLEAR ? VV_CLEAR_PREFS_COST : VV_HIGHEST_SKILL_COST);
+    int jobs = kind == VV_PREFS_HIGHEST_PARENTING ? 5 : 4;
+    int eligible = 0, changed = 0, set = 0, golden = 0, no_progress = 0, i, pass, s;
+    int repaired = 0, skill_base;
+    int male_count[5] = {0, 0, 0, 0, 0};
+    int female_count[5] = {0, 0, 0, 0, 0};
+    int pref_offset, sex_offset, male_value;
+#if VV_STORY_GAME == 1
+    static const int job_code[5] = { 1, 4, 3, 5, 2 };
+    static const int skill_offset[5] = { 0x3C4, 0x3C0, 0x3CC, 0x3C8, 0x3BC };
+    const int tech_offset = 0xA2FC, stride = VV_RECORD_STRIDE;
+    pref_offset = 0x3D0;
+    skill_base = 0x3BC;
+    sex_offset = VV_GENDER_OFFSET;
+    male_value = VV_GENDER_MALE;
+    world = *(unsigned char **)(UINT_PTR)0x0048AEDCu;
+    records = world != NULL ? *(unsigned char **)(world + 0xADE8) : NULL;
+#else
+    typedef unsigned char *(__cdecl *vv_prefs_records_fn)(void);
+    static const int job_code[5] = { 1, 5, 4, 3, 2 };
+    static const int skill_offset[5] = { 0x7EC, 0x7E8, 0x7F4, 0x7F0, 0x7E4 };
+    const int tech_offset = 0x2EADC, stride = 0xE48C;
+    pref_offset = 0x7F8;
+    skill_base = 0x7E4;
+    sex_offset = 0x538;
+    male_value = 1;
+    world = *(unsigned char **)(UINT_PTR)0x004997BCu;
+    records = world != NULL ? ((vv_prefs_records_fn)0x0044F4E0)() : NULL;
+#endif
+    vv1_format_cost(price, cost_text);
+    wsprintfA(message,
+              "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.",
+              vv_prefs_name(kind), cost_text);
+    if (MessageBoxA(owner, message, "Origins Upgrades",
+                    MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
+        return 0;
+    }
+    if (world == NULL || records == NULL) {
+        MessageBoxA(owner, "No villagers were eligible. No tech points have been deducted.",
+                    "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    if (*(int *)(world + tech_offset) < price) {
+        MessageBoxA(owner, "Not enough tech points.", "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    /* Reset obviously corrupted skills (native/shared/skill_repair.h) of
+       the villagers this purchase acts on, before anything reads them.  The
+       player has confirmed; a reset stays even if nothing else changes. */
+    for (i = 0, rec = records; i < 256; ++i, rec += stride) {
+#if VV_STORY_GAME == 1
+        if (rec[VV_OCCUPIED_OFFSET] == 0 || *(const int *)(rec + 0x344) <= 0
+            || VV_IS_GOLDEN_CHILD(rec)) {
+            continue;
+        }
+#else
+        if (rec[0x30] == 0 || *(const int *)(rec + 0x52C) <= 0) {
+            continue;
+        }
+#endif
+        repaired += vv_repair_int_skills(rec, skill_base, 5);
+    }
+    /* Pass 0 counts what would change; pass 1 writes, only if something
+       would.  A no-change purchase therefore writes nothing else and costs
+       nothing. */
+    for (pass = 0; pass < 2; ++pass) {
+        for (i = 0, rec = records; i < 256; ++i, rec += stride) {
+            int target;
+#if VV_STORY_GAME == 1
+            if (rec[VV_OCCUPIED_OFFSET] == 0 || *(const int *)(rec + 0x344) <= 0) {
+                continue;
+            }
+            if (VV_IS_GOLDEN_CHILD(rec)) {
+                golden += pass == 0;
+                continue;
+            }
+#else
+            if (rec[0x30] == 0 || *(const int *)(rec + 0x52C) <= 0) {
+                continue;
+            }
+#endif
+            if (kind == VV_PREFS_CLEAR) {
+                target = 0;
+            } else {
+                s = vv_prefs_highest(rec, skill_offset, jobs);
+                if (s < 0) {
+                    no_progress += pass == 0;
+                    continue;
+                }
+                target = job_code[s];
+                if (pass == 0) {
+                    ++set;
+                    if (*(const int *)(rec + sex_offset) == male_value) {
+                        ++male_count[s];
+                    } else {
+                        ++female_count[s];
+                    }
+                }
+            }
+            if (pass == 0) {
+                ++eligible;
+                changed += *(const int *)(rec + pref_offset) != target;
+            } else {
+                *(int *)(rec + pref_offset) = target;
+            }
+        }
+        if (pass == 0) {
+            if (eligible == 0 && (kind == VV_PREFS_CLEAR || no_progress == 0)) {
+                MessageBoxA(owner, "No villagers were eligible. No tech points have been deducted.",
+                            "Origins Upgrades",
+                            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+                return 0;
+            }
+            if (changed == 0) {
+                if (kind == VV_PREFS_CLEAR) {
+                    lstrcpyA(message, "Every villager's skill preference is already cleared. "
+                                      "No tech points have been deducted.");
+                } else {
+                    lstrcpyA(message, "Every villager already has their highest skill checked. "
+                                      "No tech points have been deducted.");
+                    if (no_progress > 0) {
+                        wsprintfA(line, "\r\n\r\nSkipped %d %s: no skill progress yet.",
+                                  no_progress, no_progress == 1 ? "Villager" : "Villagers");
+                        lstrcatA(message, line);
+                    }
+                }
+                vv_append_skill_repairs(message, repaired);
+                MessageBoxA(owner, message, "Origins Upgrades",
+                            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+                return 0;
+            }
+        }
+    }
+    *(int *)(world + tech_offset) -= price;
+    if (kind == VV_PREFS_CLEAR) {
+        wsprintfA(message, "Cleared %d %s Skill Preferences.",
+                  changed, changed == 1 ? "Villager's" : "Villagers'");
+    } else {
+        wsprintfA(message, "Set %d %s Job Preferences.",
+                  set, set == 1 ? "Villager's" : "Villagers'");
+        for (s = 0; s < jobs; ++s) {
+            int total = male_count[s] + female_count[s];
+            wsprintfA(line, "\r\n\r\n%s: %d %s (%d Male, %d Female).",
+                      job_name[s], total, total == 1 ? "Villager" : "Villagers",
+                      male_count[s], female_count[s]);
+            lstrcatA(message, line);
+        }
+        if (no_progress > 0) {
+            wsprintfA(line, "\r\n\r\nSkipped %d %s: no skill progress yet.",
+                      no_progress, no_progress == 1 ? "Villager" : "Villagers");
+            lstrcatA(message, line);
+        }
+    }
+#if VV_STORY_GAME == 1
+    wsprintfA(line, "\r\n\r\nSkipped %d %s: is Golden Child.",
+              golden, golden == 1 ? "Villager" : "Villagers");
+    lstrcatA(message, line);
+#else
+    (void)golden;
+#endif
+    vv_append_skill_repairs(message, repaired);
+    MessageBoxA(owner, message, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return 1;
+}
+
+/* The rows' Buy buttons, outside the executable's ID_BUY_FIRST..LAST range:
+   the companion handles them and the executable never sees them.  Returns
+   the row kind, or -1 for any other control. */
+static int vv_prefs_kind_of(unsigned int command, unsigned int first_id) {
+    if (command >= first_id && command <= first_id + 2) {
+        return (int)(command - first_id);
+    }
+    return -1;
+}
+
+#if VV_STORY_GAME == 1
+#define VV1_PREFS_FIRST_ID 1012   /* 1012 Clear, 1013 / 1014 Check Highest Skill */
+#endif
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -2321,6 +2587,15 @@ static INT_PTR CALLBACK upgrade_dialog(
             }
             return TRUE;
         }
+#if VV_STORY_GAME == 1
+        if (vv_prefs_kind_of(command, VV1_PREFS_FIRST_ID) >= 0) {
+            /* Clear All Skill Preferences / Check Highest Skill: the whole
+               purchase happens here; the menu stays open, as it reopens
+               after the executable's own rows. */
+            vv_prefs_purchase(window, vv_prefs_kind_of(command, VV1_PREFS_FIRST_ID));
+            return TRUE;
+        }
+#endif
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
             int clicked = (int)(command - ID_BUY_FIRST);
             if (clicked >= 0 && clicked < ROW_STATE_MAX
@@ -3396,13 +3671,85 @@ int __stdcall ShowOriginsAgeResult(
    order, not the raw 1-5 job-preference codes written to the record.
    include_parenting selects how many of the 5 entries to report (4 for
    the No-Parenting row, which never reaches the trailing Breeding
-   entry). */
+   entry).
+
+   records is the villager array the core just walked ([gamectx+0xADE8]).
+   Before reporting, the seats the core dealt round-robin are handed out
+   again by skill progress (vv1_equal_division_by_skill below): the same
+   number of each sex in each job, but each villager in the job they have
+   made the most progress in where there is room, random otherwise. */
+#if VV_STORY_GAME == 1
+/* On-screen order Farming, Building, Research, Healing, Breeding: the job
+   code the core writes to +0x3D0 (EQUAL_DIVISION_TABLE_BYTES) and the skill
+   that code rates (the stock chooser's own switch at 0x439C53: 1 -> +0x3C4,
+   2 -> +0x3BC, 3 -> +0x3CC, 4 -> +0x3C0, 5 -> +0x3C8). */
+static const int vv1_ed_code[5] = { 1, 4, 3, 5, 2 };
+static const int vv1_ed_skill[5] = { 0x3C4, 0x3C0, 0x3CC, 0x3C8, 0x3BC };
+#define VV1_ED_PREFERENCE 0x3D0
+
+static int vv1_equal_division_by_skill(
+    unsigned char *records,
+    int include_parenting,
+    const int *male_counts,
+    const int *female_counts
+) {
+    static unsigned char *who[VVED_MAX_VILLAGERS];
+    static int group[VVED_MAX_VILLAGERS];
+    static float skill[VVED_MAX_VILLAGERS * VVED_MAX_SEATS];
+    static int seat_of[VVED_MAX_VILLAGERS];
+    int quota[2 * VVED_MAX_SEATS];
+    int seats = include_parenting ? 5 : 4;
+    int count = 0, seated = 0, i, s;
+    unsigned int rng;
+    unsigned char *rec;
+    int repaired = 0;
+    if (records == NULL || male_counts == NULL || female_counts == NULL) {
+        return 0;   /* keep the core's round-robin */
+    }
+    /* The core's own eligibility, record for record: active, alive, not the
+       Golden Child. */
+    for (i = 0, rec = records; i < VV_MASK_SLOTS; ++i, rec += VV_RECORD_STRIDE) {
+        if (rec[VV_OCCUPIED_OFFSET] == 0 || *(const int *)(rec + 0x344) <= 0
+            || VV_IS_GOLDEN_CHILD(rec)) {
+            continue;
+        }
+        who[count] = rec;
+        /* Out-of-range skills are reset before they are ranked
+           (native/shared/skill_repair.h). */
+        repaired += vv_repair_int_skills(rec, 0x3BC, 5);
+        group[count] = *(const int *)(rec + VV_GENDER_OFFSET) == VV_GENDER_MALE ? 0 : 1;
+        for (s = 0; s < VVED_MAX_SEATS; ++s) {
+            skill[count * VVED_MAX_SEATS + s] = s < seats
+                ? (float)*(const int *)(rec + vv1_ed_skill[s]) : 0.0f;
+        }
+        ++count;
+    }
+    for (s = 0; s < VVED_MAX_SEATS; ++s) {
+        quota[s] = s < seats ? male_counts[s] : 0;
+        quota[VVED_MAX_SEATS + s] = s < seats ? female_counts[s] : 0;
+        seated += s < seats ? male_counts[s] + female_counts[s] : 0;
+    }
+    if (seated != count) {
+        return repaired;   /* not the array the core walked: keep its round-robin */
+    }
+    rng = GetTickCount() ^ (unsigned int)(UINT_PTR)records ^ 0x5EED0001u;
+    vved_assign(count, seats, group, skill, quota, seat_of, &rng);
+    for (i = 0; i < count; ++i) {
+        if (seat_of[i] >= 0) {
+            *(int *)(who[i] + VV1_ED_PREFERENCE) = vv1_ed_code[seat_of[i]];
+        }
+    }
+    return repaired;
+}
+#endif
+
 int __stdcall ShowOriginsEqualDivisionResult(
     int granted,
     int golden_child_skipped,
     int include_parenting,
     const int *male_counts,
-    const int *female_counts
+    const int *female_counts,
+    unsigned char *records
 ) {
     static const char *job_names[5] = {
         "Farming", "Building", "Research", "Healing", "Breeding"
@@ -3411,6 +3758,12 @@ int __stdcall ShowOriginsEqualDivisionResult(
     char line[192];
     int job_count = include_parenting ? 5 : 4;
     int i;
+    int repaired = 0;
+#if VV_STORY_GAME == 1
+    repaired = vv1_equal_division_by_skill(records, include_parenting, male_counts, female_counts);
+#else
+    (void)records;
+#endif
     wsprintfA(
         message,
         "Set %d %s' Job Preferences.",
@@ -3432,6 +3785,7 @@ int __stdcall ShowOriginsEqualDivisionResult(
         golden_child_skipped, vv1_vpl(golden_child_skipped)
     );
     lstrcatA(message, line);
+    vv_append_skill_repairs(message, repaired);
     MessageBoxA(
         GetForegroundWindow(),
         message,
@@ -3514,7 +3868,10 @@ enum {
     VV1_ROWMSG_REMOVED = 3,
     VV1_ROWMSG_POPULATION_FULL = 4,
     VV1_ROWMSG_NO_SLOT_DISLIKE_REMOVED = 5,
-    VV1_ROWMSG_IS_GOLDEN_CHILD = 6
+    VV1_ROWMSG_IS_GOLDEN_CHILD = 6,
+    /* The Details villager is a body (health <= 0): the detail_menu's
+       living gate (DETAIL_LIVING_GATE_VA) refuses rows 0-3 with this. */
+    VV1_ROWMSG_NOT_LIVING = 7
 };
 
 /* Generic result box for every Tech/Details row whose wording is either a
@@ -3854,6 +4211,10 @@ int __stdcall ShowOriginsRowMessage(
         break;
     case VV1_ROWMSG_IS_GOLDEN_CHILD:
         lstrcpyA(message, "This villager is the Golden Child. No tech points have been deducted.");
+        break;
+    case VV1_ROWMSG_NOT_LIVING:
+        /* The same wording The Lost Children and The Tree of Life use. */
+        lstrcpyA(message, "No valid living villager is selected. No tech points have been deducted.");
         break;
     default:
         wsprintfA(message, "%s completed.", name);

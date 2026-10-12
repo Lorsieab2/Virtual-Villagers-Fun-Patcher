@@ -22,6 +22,7 @@ import vv_log_additions
 import vv_move_old_names
 import vv_last_names
 import vv_cut_names
+import vv_corrupt_skills
 import vv_graves
 import vv_lost_titles
 import vv1_parents_restore
@@ -3395,6 +3396,7 @@ class App(tk.Tk):
         # Villagers with no last name, first (the owner, v1.35.66), so the check below reads the names
         # as they will be: arrivals get their own new last name automatically, the rest are asked about.
         named_lines = self._missing_last_names_at_repair(parent, folder, number, info)
+        skills: dict = {"found": [], "note": None, "reset": False}
 
         def survey():
             checked = vv_log_tools.check_logs(folder, info.slot, number)
@@ -3439,6 +3441,11 @@ class App(tk.Tk):
             except (vv_lost_titles.LostTitlesError, vv_last_names.LastNamesError, ValueError, OSError,
                     struct.error) as exc:
                 lost = vv_lost_titles.Survey([], [], [f"Lost titles were not checked: a file could not be read ({exc})."])
+            # Skill values no game can hold (src/vv_corrupt_skills.py), for the checklist's own row.
+            try:
+                skills["found"] = vv_corrupt_skills.survey(folder, number, info.slot)
+            except (vv_last_names.LastNamesError, ValueError, OSError, struct.error) as exc:
+                skills["note"] = f"Skills were not checked: the save could not be read ({exc})."
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
                     cuts, unpaused, speed, misnumbered, graves, lost)
 
@@ -3454,7 +3461,7 @@ class App(tk.Tk):
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
-                                        unpaused, speed, misnumbered, graves)
+                                        unpaused, speed, misnumbered, graves, skills=skills)
         if picked is None:
             return
         rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked
@@ -3475,6 +3482,10 @@ class App(tk.Tk):
         grave_lines = self._fix_graves(parent, folder, number, info, grave_fixes) if grave_fixes else []
         # Lost custom titles next, before any rename: a rename then carries the restored title along.
         grave_lines += self._restore_lost_titles(parent, folder, number, info, lost)
+        # Corrupted skill values (src/vv_corrupt_skills.py), before any rename: the record names each
+        # villager as the save names them now.
+        if skills["reset"]:
+            grave_lines += self._reset_corrupt_skills(parent, folder, number, info)
         # The cut names first of the renames, so last names and numbering never work from a cut name
         # (the checklist leaves those off while the cut names are restored).  After the lines above
         # are added: a renamed line changes no line count, and the like / dislike words are put right
@@ -3805,7 +3816,8 @@ class App(tk.Tk):
 
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
-                          speed: tuple | None = None, misnumbered: dict | None = None, graves=None):
+                          speed: tuple | None = None, misnumbered: dict | None = None, graves=None,
+                          skills: dict | None = None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -3922,6 +3934,22 @@ class App(tk.Tk):
             ttk.Button(graves_row, text="Choose…",
                        command=lambda: self._graves_dialog(window, number, graves, grave_state, graves_var)
                        ).pack(side="left", padx=(8, 0))
+        # Reset corrupted skill values (src/vv_corrupt_skills.py; the owner, v1.35.70): ticked only when
+        # the save holds one -- NaN, infinite, below 0 or above 100.
+        skills = skills if skills is not None else {"found": [], "note": None, "reset": False}
+        skills_var = tk.BooleanVar(value=bool(skills["found"]))
+        skills_tick = ttk.Checkbutton(
+            frame, variable=skills_var,
+            text=f"Reset corrupted skill values: {len(skills['found'])} found (NaN, infinite, below 0 or "
+                 "above 100; each to 0, or to 100 when above it)")
+        skills_tick.pack(anchor="w", pady=(4, 0))
+        if not skills["found"]:
+            skills_tick.state(["disabled"])
+        for line in ([r.describe() for r in skills["found"][:8]]
+                     + ([f"... and {len(skills['found']) - 8} more"] if len(skills["found"]) > 8 else [])
+                     + ([skills["note"]] if skills.get("note") else [])):
+            ttk.Label(frame, text=line, wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
         # Game speed Paused in backups and in saves the player picks (the owner, 2026-10-08): a
         # restored backup must never catch up on the time since it was made.
         pause_backups_var = tk.BooleanVar(value=bool(unpaused))
@@ -3970,6 +3998,7 @@ class App(tk.Tk):
 
         def go() -> None:
             restore = bool(cuts) and cuts_var.get()
+            skills["reset"] = bool(skills["found"]) and skills_var.get()
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
                                  names if names_var.get() and (names["chosen"] or names.get("rules_changed")
                                                                or names.get("arrivals_changed"))
@@ -4762,6 +4791,20 @@ class App(tk.Tk):
         return [f"Grave information fixed: {len(result.fixes)} field(s), in {len(result.files)} file(s)"
                 + (" (the old records were left as they were)" if not retro else "")
                 + f". Backup: {result.backup.backup_folder}"]
+
+    def _reset_corrupt_skills(self, parent, folder: Path, number: int, info) -> list[str]:
+        """Repair Saves & Logs' "Reset corrupted skill values" (src/vv_corrupt_skills.py), ticked in the
+        checklist: the save is surveyed again and reset with the game closed.  Returns the summary lines."""
+        try:
+            result = self._run_with_wait(
+                "Resetting corrupted skill values…\n\nThe save folder is backed up first.",
+                lambda: vv_corrupt_skills.reset(folder, number, info.slot))
+        except (vv_corrupt_skills.SkillResetError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                OSError) as exc:
+            messagebox.showerror("Repair Saves & Logs", f"The skill values were not reset. {exc}", parent=parent)
+            return []
+        return [f"Corrupted skill values reset: {len(result.reset)} (each is listed in the Repairs Made log). "
+                f"Backup: {result.backup.backup_folder}"]
 
     def _restore_lost_titles(self, parent, folder: Path, number: int, info, lost) -> list[str]:
         """Repair Saves & Logs: the custom titles (and former-Heathen marks) a change of likes or

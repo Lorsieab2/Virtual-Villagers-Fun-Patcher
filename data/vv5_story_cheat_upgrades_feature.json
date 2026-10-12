@@ -31,7 +31,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "66CC6B548A1C553E1C40307346C600C517B73DFF386FE7CC4A1524C89E16F025"
+      "sha256": "CA5C99C82D6B1B11F7131192A956F93ADA24035C509D286F156786F6EA6F098C"
     }
   ],
   "runtime_detours": [
@@ -113,28 +113,28 @@
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
-      "va": "0x7CA5D0",
+      "va": "0x7CA5F6",
       "stock_bytes": "3DA0860100",
       "written_bytes": "3D00000000",
       "routine": "an Origins charge, check or refund of 100,000 tech points",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
-      "va": "0x7CA637",
+      "va": "0x7CA65D",
       "stock_bytes": "3DA0860100",
       "written_bytes": "3D00000000",
       "routine": "an Origins charge, check or refund of 100,000 tech points",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
-      "va": "0x7CA732",
+      "va": "0x7CA778",
       "stock_bytes": "686079FEFF",
       "written_bytes": "6800000000",
       "routine": "an Origins charge, check or refund of 100,000 tech points",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
-      "va": "0x7CA744",
+      "va": "0x7CA78A",
       "stock_bytes": "2DA0860100",
       "written_bytes": "2D00000000",
       "routine": "an Origins charge, check or refund of 100,000 tech points",
@@ -358,28 +358,28 @@
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
-      "va": "0x7CE21F",
+      "va": "0x7CE226",
       "stock_bytes": "3D40420F00",
       "written_bytes": "3D00000000",
       "routine": "an Origins charge, check or refund of 1,000,000 tech points",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
-      "va": "0x7CE24C",
+      "va": "0x7CE253",
       "stock_bytes": "3D40420F00",
       "written_bytes": "3D00000000",
       "routine": "an Origins charge, check or refund of 1,000,000 tech points",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
-      "va": "0x7CE2F6",
+      "va": "0x7CE34A",
       "stock_bytes": "68C0BDF0FF",
       "written_bytes": "6800000000",
       "routine": "an Origins charge, check or refund of 1,000,000 tech points",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
-      "va": "0x7CE308",
+      "va": "0x7CE35C",
       "stock_bytes": "2D40420F00",
       "written_bytes": "2D00000000",
       "routine": "an Origins charge, check or refund of 1,000,000 tech points",

@@ -479,10 +479,10 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
         raise RuntimeError("Task9 age reserve drift")
     page_va = 0x904000
     base_page, base_map = task9.build_page(page_va)
-    if sha(base_page) != "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF":
+    if sha(base_page) != "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282":
         raise RuntimeError("Task9 Expanded baseline page drift")
     stock_page, stock_map = task9.build_page(0x7C9000)
-    if sha(stock_page) != "450F687E60F0CAD7AAD058C319505957FD2A9B743A2DC906E683197972EAED32":
+    if sha(stock_page) != "98029DA56907DBF713E1530EC27F92CD8CF0CAA701FC60E37286E2B07D856EE4":
         raise RuntimeError("Task9 stock page drift")
 
     strings_start = task9.OFF["strings"]

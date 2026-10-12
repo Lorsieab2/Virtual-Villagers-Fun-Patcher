@@ -49,10 +49,6 @@ CURE_PREFLIGHT_FILE_OFFSET = 0x9A300
 CURE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     CURE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
 )
-DETAIL_PREFLIGHT_FILE_OFFSET = 0x9A380
-DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
-    DETAIL_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
-)
 CURE_ENTRY_FILE_OFFSET = 0x9A530
 CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
 # Full Heal/Cure All. Its reserve used to open with a command dispatch -- row
@@ -204,8 +200,11 @@ RESULT_HELPER_VA = IMAGE_BASE + SHR_RVA + (
 # Per-row Detail no-change check.  Given (record, row) it decides whether the
 # purchase would change anything; if not it shows the row-specific no-change
 # message (via the result trampoline) and tells the payload to charge nothing.
-# Placed in the (now-dead) Detail preflight slot: the payload no longer calls
-# that generic preflight, so its 0x9A380..0x9A530 region hosts this helper.
+# It owns the 0x9A380..0x9A4A0 .shr slot (once a generic Detail preflight that
+# was never called; that dead block has been removed).  It also refuses a dead
+# villager (+0x52C <= 0) or an Esteemed Elder statue (+0x558 != 0) -- the same
+# eligibility the Tech-menu "to All" rows apply (vv2_record_eligible) -- since
+# the stock click picker (0x44D580) selects any record with +0x30 set.
 DETAIL_NOCHANGE_FILE_OFFSET = 0x9A380
 DETAIL_NOCHANGE_VA = IMAGE_BASE + SHR_RVA + (
     DETAIL_NOCHANGE_FILE_OFFSET - SHR_FILE_OFFSET
@@ -1512,120 +1511,6 @@ def main() -> None:
         """,
         CURE_PREFLIGHT_VA,
     )
-    detail_preflight_code = assemble(
-        f"""
-            push ecx
-            push edx
-            push edi
-            push ebp
-            cmp ebx, 0
-            je detail_preflight_youth
-            cmp ebx, 1
-            je detail_preflight_mastery
-            cmp ebx, 2
-            je detail_preflight_running
-            cmp ebx, 3
-            je detail_preflight_age
-            jmp detail_preflight_no_change
-
-        detail_preflight_youth:
-            mov ecx, dword ptr [edx + 0x530]
-            mov eax, ecx
-            sub eax, 700
-            cmp eax, 100
-            jge detail_preflight_youth_target
-            mov eax, 100
-        detail_preflight_youth_target:
-            cmp ecx, eax
-            jne detail_preflight_change
-            cmp dword ptr [edx + 0x540], 0
-            jne detail_preflight_youth_pregnant
-            cmp dword ptr [edx + 0x534], eax
-            jne detail_preflight_change
-            jmp detail_preflight_no_change
-        detail_preflight_youth_pregnant:
-            lea ecx, [eax - 1]
-            cmp dword ptr [edx + 0x534], ecx
-            jne detail_preflight_change
-            sub eax, 42
-            cmp dword ptr [edx + 0x540], eax
-            jne detail_preflight_change
-            jmp detail_preflight_no_change
-
-        detail_preflight_mastery:
-            cmp dword ptr [edx + 0x52C], 0
-            jle detail_preflight_no_change
-            cmp byte ptr [edx + 0x558], 0
-            jne detail_preflight_no_change
-            cmp dword ptr [edx + 0x7E4], 100
-            jne detail_preflight_change
-            cmp dword ptr [edx + 0x7E8], 100
-            jne detail_preflight_change
-            cmp dword ptr [edx + 0x7EC], 100
-            jne detail_preflight_change
-            cmp dword ptr [edx + 0x7F0], 100
-            jne detail_preflight_change
-            cmp dword ptr [edx + 0x7F4], 100
-            jne detail_preflight_change
-            jmp detail_preflight_no_change
-
-        detail_preflight_running:
-            xor ebp, ebp
-            lea edi, [edx + 0x5F0]
-            mov ecx, 62
-        detail_preflight_likes:
-            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
-            jne detail_preflight_like_empty
-            or ebp, 1
-        detail_preflight_like_empty:
-            cmp dword ptr [edi], -1
-            jne detail_preflight_like_next
-            or ebp, 2
-        detail_preflight_like_next:
-            add edi, 4
-            dec ecx
-            jne detail_preflight_likes
-            test ebp, 1
-            jnz detail_preflight_no_change
-            test ebp, 2
-            jz detail_preflight_no_change
-            lea edi, [edx + 0x6E8]
-            mov ecx, 62
-        detail_preflight_dislike_scan:
-            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
-            je detail_preflight_change
-            add edi, 4
-            dec ecx
-            jne detail_preflight_dislike_scan
-            jmp detail_preflight_change
-
-        detail_preflight_age:
-            cmp dword ptr [edx + 0x530], 360
-            jne detail_preflight_change
-            cmp dword ptr [edx + 0x534], 360
-            jne detail_preflight_change
-            mov eax, dword ptr [edx + 0x540]
-            test eax, eax
-            je detail_preflight_no_change
-            cmp eax, 318
-            jne detail_preflight_change
-        detail_preflight_no_change:
-            pop ebp
-            pop edi
-            pop edx
-            pop ecx
-            xor eax, eax
-            ret
-        detail_preflight_change:
-            pop ebp
-            pop edi
-            pop edx
-            pop ecx
-            mov eax, 1
-            ret
-        """,
-        DETAIL_PREFLIGHT_VA,
-    )
     # The DLL now owns the ENTIRE per-villager Change Appearance commit (chooser
     # dialog + 5,000 charge + record head/body & .mtab mask writes + sidecar
     # SAVE), so this handler is a trivial one-call bridge: resolve the villager
@@ -2088,6 +1973,14 @@ def main() -> None:
             push edi
             mov edx, dword ptr [esp + 0x10]
             mov ebx, dword ptr [esp + 0x14]
+            # Same eligibility as the Tech-menu "to All" rows
+            # (vv2_record_eligible): a dead villager or an Esteemed Elder
+            # statue is refused with the "No valid living villager" result
+            # and no charge.  The caller has already checked +0x30.
+            cmp dword ptr [edx + 0x52C], 0
+            jle dnc_invalid
+            cmp byte ptr [edx + 0x558], 0
+            jne dnc_invalid
             cmp ebx, 0
             je dnc_youth
             cmp ebx, 1
@@ -2104,16 +1997,15 @@ def main() -> None:
             mov esi, 1
             jmp dnc_show
         dnc_mastery:
-            cmp dword ptr [edx + 0x7E4], 100
+            # The five skills +0x7E4..+0x7F4, as a loop: the slot ends where
+            # the Barrel's silent gate stub begins (0x9A4A0).
+            xor eax, eax
+        dnc_mastery_scan:
+            cmp dword ptr [edx + eax*4 + 0x7E4], 100
             jne dnc_charge
-            cmp dword ptr [edx + 0x7E8], 100
-            jne dnc_charge
-            cmp dword ptr [edx + 0x7EC], 100
-            jne dnc_charge
-            cmp dword ptr [edx + 0x7F0], 100
-            jne dnc_charge
-            cmp dword ptr [edx + 0x7F4], 100
-            jne dnc_charge
+            inc eax
+            cmp eax, 5
+            jb dnc_mastery_scan
             mov esi, 1
             jmp dnc_show
         dnc_running:
@@ -2161,6 +2053,9 @@ def main() -> None:
             jmp dnc_show
         dnc_run_full:
             mov esi, 4
+            jmp dnc_show
+        dnc_invalid:
+            mov esi, 3
         dnc_show:
             push esi
             lea eax, [ebx + 100]
@@ -2178,10 +2073,17 @@ def main() -> None:
         """,
         DETAIL_NOCHANGE_VA,
     )
-    if DETAIL_NOCHANGE_FILE_OFFSET + len(detail_nochange_code) > 0x9A530:
+    # The slot ends where the Barrel's silent gate stub begins (0x9A4A0), not
+    # at the Cure entry (0x9A530): checking 0x9A530 let the helper grow over
+    # that stub unnoticed.
+    if (
+        DETAIL_NOCHANGE_FILE_OFFSET + len(detail_nochange_code)
+        > BARREL_GATE_SILENT_FILE_OFFSET
+    ):
         raise RuntimeError(
             f"detail no-change helper overruns its .shr gap: "
-            f"0x{DETAIL_NOCHANGE_FILE_OFFSET + len(detail_nochange_code):X} > 0x9A530"
+            f"0x{DETAIL_NOCHANGE_FILE_OFFSET + len(detail_nochange_code):X} > "
+            f"0x{BARREL_GATE_SILENT_FILE_OFFSET:X}"
         )
     # Barrel main-village helper: defer the queued Barrel event by counting down
     # BARREL_CUE_FRAMES ticks of the per-frame update after the Tech screen
@@ -2638,7 +2540,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x8B808", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features and Heathen Masks",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager. Equal Division of Labor (Includes Parenting / No Parenting, 1,000,000 tech points each) splits the village evenly across the jobs, with males and females balanced per job, and gives each villager the job whose skill they have made the most progress in while that job has room (then their next-best job); villagers with no progress, ties and anyone left over are placed at random in the remaining seats. Clear All Skill Preferences (500,000 tech points) unchecks every villager's skill preference (job checkmark) so each villager chooses their own work again, as in the stock game; skills are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each) sets each villager's skill preference to the skill they have the most progress in; the No Parenting version ignores Parenting, ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting), and villagers with no progress yet keep their preference. Also includes the Heathen mask mod: a cosmetic mask (Blue, Orange, Red, Purple, or Chief) can be given to any villager from the Change Appearance picker on the Villager Details screen, or to the whole village at once from the Change Appearance for All tech upgrade. Masks render on villagers in the village view and on the Details screen portrait, and persist across save and reload. The mask artwork ships inside the companion DLL and is written out automatically on first run, including migration of an exact obsolete bundled 320x440 atlas while preserving current/custom art.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {

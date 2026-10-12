@@ -785,6 +785,18 @@ def main() -> None:
     s["detail_costs"] = STRINGS_VA + len(strings)
     for value in (50000, 100000, 40000, 50000, 5000):
         strings.extend(value.to_bytes(4, "little"))
+    # Appended after both price tables so no earlier string or price moves.
+    # The Details Grant Full Mastery post-check failure refunds the charge and
+    # says so instead of "Not enough tech points.". Only 0x24 bytes remain
+    # before the native UI factory cave (0xBC4), so this is a short key that
+    # ShowOriginsUpgradeMessage expands into the full wording (VV5's
+    # RESULT_RETAINED), like the Barrel capacity string. Invalid skills are
+    # refused by the companion before the charge, so this is a
+    # defence-in-depth path only.
+    add_c_string(strings, s, "mastery_retained", "Mastery not verified.")
+    # Short key, expanded by ShowOriginsUpgradeMessage: the Details rows refuse
+    # a dead or ghost villager before any charge.
+    add_c_string(strings, s, "not_living", "Not living.")
     if len(strings) > PAYLOAD_SIZE - STRINGS_OFFSET:
         raise RuntimeError("VV4 Origins strings exceed the validated cave")
 
@@ -1183,16 +1195,17 @@ def main() -> None:
             ja youth_not_done
             or edi, 1
         youth_not_done:
-            cmp dword ptr [edx + 0x1C5C], 0x{VV4_MASTER_VALUE:X}
+            # The five skills (+0x1C5C..+0x1C6C) all exactly 100.0. A loop
+            # rather than five unrolled compares, to make room for the
+            # dead/ghost refusal below in the fixed detail-menu window.
+            lea eax, [edx + 0x1C5C]
+            mov ecx, 5
+        state_mastery_scan:
+            cmp dword ptr [eax], 0x{VV4_MASTER_VALUE:X}
             jne mastery_not_done
-            cmp dword ptr [edx + 0x1C60], 0x{VV4_MASTER_VALUE:X}
-            jne mastery_not_done
-            cmp dword ptr [edx + 0x1C64], 0x{VV4_MASTER_VALUE:X}
-            jne mastery_not_done
-            cmp dword ptr [edx + 0x1C68], 0x{VV4_MASTER_VALUE:X}
-            jne mastery_not_done
-            cmp dword ptr [edx + 0x1C6C], 0x{VV4_MASTER_VALUE:X}
-            jne mastery_not_done
+            add eax, 4
+            dec ecx
+            jne state_mastery_scan
             or edi, 2
         mastery_not_done:
             xor ebp, ebp
@@ -1257,6 +1270,15 @@ def main() -> None:
             test eax, eax
             je detail_done
             mov edx, eax
+            # A dead villager stays active and selected while its corpse lies
+            # (stock 0x466450 deselects and deactivates it only 240 time units
+            # after death), so the Details rows must refuse health <= 0, and
+            # the ghost flag +0x1CC7 that the village-wide rows exclude, before
+            # any charge.
+            cmp dword ptr [edx + 0x1C40], 0
+            jle detail_not_living
+            cmp byte ptr [edx + 0x1CC7], 0
+            jne detail_not_living
             cmp ebx, 4
             je detail_appearance
             cmp ebx, 2
@@ -1341,8 +1363,14 @@ def main() -> None:
             pop esi
             jmp detail_success
         detail_mastery_failed:
+            # Undo the exact pre-charge deduction with a raw add: a positive
+            # delta through 0x41E300 would count as earned tech and be doubled
+            # by the Tech doubler. EBX is still the row (1); the charge was
+            # taken only when the balance covered it, so no 0-clamp occurred.
             pop esi
-            mov eax, 0x{s['not_enough']:X}
+            mov eax, dword ptr [0x{s['detail_costs']:X} + ebx*4]
+            add dword ptr [0x4D6F88], eax
+            mov eax, 0x{s['mastery_retained']:X}
             jmp detail_status
         running:
             # A free Like slot was proven in the pre-charge running_preflight.
@@ -1362,6 +1390,9 @@ def main() -> None:
             add esp, 4
         detail_success:
             mov eax, 0x{s['purchased']:X}
+            jmp detail_status
+        detail_not_living:
+            mov eax, 0x{s['not_living']:X}
             jmp detail_status
         detail_insufficient:
             mov eax, 0x{s['not_enough']:X}
@@ -2466,7 +2497,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xA0CD8", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features (with Heathen Mask mod)",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, Equal Division of Labor with and without Parenting, Clear All Skill Preferences, and Check Highest Skill with and without Parenting. Clear All Skill Preferences (500,000 tech points): unchecks every villager's skill preference (job checkmark) so each villager is free to choose their own work, as in the stock game. Skills themselves are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each): sets each villager's skill preference (job checkmark) to the skill they have the most progress in; the No Parenting version ignores Parenting. Ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting). Villagers with no progress in any skill yet keep their preference. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Island Event and Barrel of Babies are queued rather than fired at once: each waits a few real seconds after the Tech screen closes, so the purchase confirmation is readable first and a natural island event falling due at the same moment cannot consume the purchased one. While either is still pending its row reads 'Why not?' instead of offering a second purchase; clicking it explains that one is already on its way and closes nothing, so it cannot be bought twice or charged for twice. The same applies when the village has no room for the children a barrel would bring, where the message says so and notes that a villager who has died still occupies a slot until buried. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. This patch also includes the Heathen Mask mod: a cosmetic head-mask overlay (Blue/Orange/Red/Purple/Chief) selectable per villager in Change Appearance and en masse via the Change Appearance for All tech upgrade, rendered over the villager's head in both the village and the Details screen.",
         "output_tag": "Origins Exclusive Features",
         "ui_contract": ui_metadata,
         "native_handlers": {

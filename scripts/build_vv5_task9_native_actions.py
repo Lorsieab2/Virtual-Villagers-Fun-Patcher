@@ -247,6 +247,7 @@ OFF = {
     "division_parenting": 0x6000,
     "division_no_parenting": 0x6200,
     "apply_division": 0x6400,
+    "skill_rows": 0x6480,
     "appearance_all": 0x6500,
     "companion_install": 0x6600,
     "mask_flip": 0x6800,
@@ -292,6 +293,7 @@ SIZES = {
     "division_parenting": 0x200,
     "division_no_parenting": 0x200,
     "apply_division": 0x80,
+    "skill_rows": 0x80,
     "appearance_all": 0x100,
     "companion_install": 0x60,
     "mask_flip": 0x200,
@@ -422,6 +424,9 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("bb_queue_unknown", b"The 75,000-point deduction was verified, but the barrel could not be queued.\0"),
         ("install_export", b"Vv5InstallCompanions\0"),
         ("logappearance_export", b"LogVV5AppearanceChange\0"),
+        # Appended last so every earlier string keeps its address (the Story /
+        # Cheat Upgrades price strings are named by address).
+        ("skill_export", b"ShowVV5SkillPreferenceUpgrade\0"),
     )
     if page_va == 0x7C9000:
         values = values + time_warp_values
@@ -675,9 +680,11 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     # disables visible rows beyond its native bindings instead of leaving them
     # enabled and allowing a close/no-op result.
     menu_state = 0x000 if native_stock else 0x700
-    # Command upper bound: 0..12 in stock (Collections rows 9/10 plus the two
-    # Equal Division of Labor rows 11/12), 0..5 in expanded (original).
-    command_bound = 13 if native_stock else 5
+    # Command upper bound: 0..16 in stock (Collections rows 9/10, the two
+    # Equal Division of Labor rows 11/12, the skill-preference rows 13..15 --
+    # Clear All Skill Preferences and the two Check Highest Skill rows -- and
+    # Change Appearance for All, row 16), 0..5 in expanded (original).
+    command_bound = 16 if native_stock else 5
     # In the stock layout the dispatch above has already sent rows 0-2 and
     # 6-13 to their own routines and the bound refused anything past 13, so
     # only rows 3, 4 and 5 arrive here: `cmp ebx, 3; jb unavailable` and,
@@ -729,7 +736,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         "        cmp ebx, 10\n        je reset_collections_row\n"
         "        cmp ebx, 11\n        je division_parenting_row\n"
         "        cmp ebx, 12\n        je division_no_parenting_row\n"
-        "        cmp ebx, 13\n        je appearance_all_row\n        "
+        "        cmp ebx, 13\n        jae tail_rows_row\n        "
         if native_stock
         else ""
     )
@@ -754,7 +761,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         "        jmp done\n        .byte 0, 0, 0\n"
         f"    division_no_parenting_row:\n        call 0x{page_va + OFF['division_no_parenting']:X}\n"
         "        jmp done\n        .byte 0, 0, 0\n"
-        f"    appearance_all_row:\n        call 0x{page_va + OFF['appearance_all']:X}\n"
+        f"    tail_rows_row:\n        call 0x{page_va + OFF['skill_rows']:X}\n"
         "        jmp done\n        .byte 0, 0, 0\n    "
         if native_stock
         else ""
@@ -1138,6 +1145,20 @@ def build_age(page: bytearray, page_va: int) -> bytes:
 
 
 def build_mastery(page: bytearray, page_va: int) -> bytes:
+    """Grant Full Mastery to the selected Believer (100,000 tech points).
+
+    The snapshot keeps each skill twice: as read ([ebp-0x40..], for the
+    post-confirm re-check) and as it will be once a corrupted value is
+    repaired ([ebp-0x58..]): NaN or +-infinity -> 0, negative (not -0.0) -> 0,
+    above 100 -> 100, the stock writer 0x475730's own 0..100 clamp
+    (vv5_skill_repair_bits in the companion). [ebp-0x24] counts the repairs.
+    If no repaired skill is below 100 there is nothing to buy: the repair is
+    stored, free, and the no-change result reports it. Otherwise the repair is
+    stored only after the confirm and the balance re-check, as plain stores
+    (the writer would award skill trophies for a value that was never
+    earned), then the writer masters what is still below 100 exactly as
+    before. Every result after a repair passes the count as amount_a for the
+    "Reset N corrupted skill values." line."""
     return put(page, page_va, "mastery", f"""
         push ebp
         mov ebp, esp
@@ -1146,6 +1167,7 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         push edi
         sub esp, 0x60
         mov dword ptr [ebp-0x20], 0
+        mov dword ptr [ebp-0x24], 0
         call 0x{page_va + OFF['resolve_current']:X}
         test eax, eax
         jz invalid
@@ -1164,14 +1186,20 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         mov edx, eax
         and edx, 0x7FFFFFFF
         cmp edx, 0x7F800000
-        jae invalid_skill
-        test edx, edx
-        jz finite
-        test eax, 0x80000000
-        jne invalid_skill
-    finite:
-        cmp edx, 0x42C80000
-        ja invalid_skill
+        jae repair_zero
+        cmp eax, 0x80000000
+        je sane
+        ja repair_zero
+        cmp eax, 0x42C80000
+        jbe sane
+        mov eax, 0x42C80000
+        jmp repaired
+    repair_zero:
+        xor eax, eax
+    repaired:
+        inc dword ptr [ebp-0x24]
+    sane:
+        mov dword ptr [ebp+edi*4-0x58], eax
         cmp eax, 0x42C80000
         je snapshot_next
         inc ebx
@@ -1180,7 +1208,18 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         cmp edi, 6
         jb snapshot
         test ebx, ebx
-        jz no_change
+        jnz needs_mastery
+        cmp dword ptr [ebp-0x24], 0
+        je no_change
+        xor edi, edi
+    free_repair:
+        mov eax, dword ptr [ebp+edi*4-0x58]
+        mov dword ptr [esi+edi*4+0x1C5C], eax
+        inc edi
+        cmp edi, 6
+        jb free_repair
+        jmp no_change
+    needs_mastery:
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x18], eax
         cmp eax, 100000
@@ -1213,6 +1252,17 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         jne recheck
         cmp eax, 100000
         jb insufficient
+        cmp dword ptr [ebp-0x24], 0
+        je repair_done
+        xor edi, edi
+    confirmed_repair:
+        mov eax, dword ptr [ebp+edi*4-0x58]
+        mov dword ptr [esi+edi*4+0x1C5C], eax
+        inc edi
+        cmp edi, 6
+        jb confirmed_repair
+        mov dword ptr [ebp-0x20], 1
+    repair_done:
         xor edi, edi
     writer_loop:
         push dword ptr [ebp-0x10]
@@ -1229,7 +1279,7 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         mov eax, dword ptr [esi+ecx*4+0x1C5C]
         cmp ecx, edi
         jb expect_mastered
-        cmp eax, dword ptr [ebp+ecx*4-0x40]
+        cmp eax, dword ptr [ebp+ecx*4-0x58]
         jne write_failure
         jmp evolving_next
     expect_mastered:
@@ -1284,7 +1334,7 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         sub eax, 100000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '1', 0)}
+        {status_call(page_va, '1', 0, 'dword ptr [ebp-0x24]')}
         jmp done
     write_failure:
         cmp dword ptr [ebp-0x20], 0
@@ -1293,11 +1343,8 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
     invalid:
         {status_call(page_va, '1', 2)}
         jmp done
-    invalid_skill:
-        {status_call(page_va, '1', 9)}
-        jmp done
     no_change:
-        {status_call(page_va, '1', 1)}
+        {status_call(page_va, '1', 1, 'dword ptr [ebp-0x24]')}
         jmp done
     insufficient:
         {status_call(page_va, '1', 3)}
@@ -1309,10 +1356,10 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         {status_call(page_va, '1', 5)}
         jmp done
     retained:
-        {status_call(page_va, '1', 6)}
+        {status_call(page_va, '1', 6, 'dword ptr [ebp-0x24]')}
         jmp done
     charge_unknown:
-        {status_call(page_va, '1', 7)}
+        {status_call(page_va, '1', 7, 'dword ptr [ebp-0x24]')}
     done:
         add esp, 0x60
         pop edi
@@ -2913,6 +2960,46 @@ def build_appearance_all(page: bytearray, page_va: int, s: dict[str, int]) -> by
     """)
 
 
+def build_skill_rows(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
+    """Tech rows 13..16, entered with the row in EBX (13 <= EBX <= 16).
+
+    Row 16 is Change Appearance for All, tail-jumped to its own routine. Rows
+    13, 14 and 15 -- Clear All Skill Preferences (500,000) and Check Highest
+    Skill (Includes Parenting) / (No Parenting) (1,000,000 each) -- are a thin
+    bridge to the companion export ShowVV5SkillPreferenceUpgrade(row + 13),
+    actions 26, 27 and 28. The companion owns the whole transaction: the funds
+    check, the OK/Cancel prompt, the balance re-check, the writes to the
+    Believers' preference +0x1C74, and the one charge through 0x4237B0 --
+    priced through vvfp_story_price, so Story / Cheat Upgrades makes it free
+    and no price immediate lives in this page. A missing companion or export
+    reports the row unavailable and charges nothing.
+
+    Routing all four through this one entry keeps the Tech menu routine the
+    same length, so every later address in it (the Story / Cheat Upgrades
+    price immediates the doublers hold among them) is unchanged."""
+    return put(page, page_va, "skill_rows", f"""
+        cmp ebx, 16
+        je 0x{page_va + OFF['appearance_all']:X}
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz unavailable
+        push 0x{s['skill_export']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz unavailable
+        lea ecx, [ebx+13]
+        push ecx
+        call eax
+        ret
+    unavailable:
+        lea eax, [ebx+13]
+        {status_call(page_va, 'eax', 10)}
+        ret
+    """)
+
+
 def build_barrel_close_arm(page: bytearray, page_va: int) -> bytes:
     """Barrel of Babies deferral (VV2 general approach). Installed only in stock
     layouts as a five-byte detour over the tech-screen close handler's
@@ -3359,15 +3446,21 @@ def build_running_all(page: bytearray, page_va: int) -> bytes:
 
 
 def build_mastery_all(page: bytearray, page_va: int) -> bytes:
-    """Grant Full Mastery to All Villagers (village-wide, 300,000 tech points).
-    Walks all 150 villager records, acts only on eligible living Believers (never
-    masked Heathens), and for each of the six skills (+0x1C5C..+0x1C70) that is a
-    finite value in [0, 100) raises it to exactly 100.0 (0x42C80000) through the
-    native skill writer 0x475730 (push 100.0 - current, push index). Skills that
-    are already >= 100, negative, infinite, or NaN are left untouched. A villager
-    with at least one raised skill counts as granted; one with none counts as
-    already fully mastered. Charges one verified 300,000 deduction after the
-    shared confirm."""
+    """Grant Full Mastery to All Villagers (village-wide, 1,000,000 tech points).
+    Walks all villager records (150, or 256 with 256 Villagers), acts only on
+    eligible living Believers (never masked Heathens), and for each of the six
+    skills (+0x1C5C..+0x1C70) that is not exactly 100.0 raises it to 100.0
+    (0x42C80000) through the native skill writer 0x475730 (push 100.0 - current,
+    push index). After the confirm, each eligible villager's corrupted skills
+    are first repaired with plain stores -- NaN or +-infinity -> 0, negative
+    (other than -0.0) -> 0, above 100 -> 100, the writer's own 0..100 clamp
+    (the Details row's rule, build_mastery) -- since the writer cannot master
+    a NaN; [ebp-0x20] counts them. A villager with at least one raised skill
+    counts as granted; one with none counts as already fully mastered (a
+    repair alone is not a grant, so it is never charged for). Charges one
+    verified 1,000,000 deduction after the shared confirm. The repaired count
+    reaches the result as amount_b >> 16 on success (amount_b & 0xFFFF is the
+    already-mastered count) and as amount_a otherwise."""
     return put(page, page_va, "mastery_all", f"""
         push ebp
         mov ebp, esp
@@ -3377,6 +3470,7 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         sub esp, 0x30
         mov dword ptr [ebp-0x10], 0
         mov dword ptr [ebp-0x14], 0
+        mov dword ptr [ebp-0x20], 0
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x18], eax
         cmp eax, 1000000
@@ -3403,14 +3497,34 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         jne mas_next
         cmp dword ptr [esi+0x1C40], 0
         jle mas_next
+        xor edi, edi
+    mas_repair:
+        mov eax, dword ptr [esi+edi*4+0x1C5C]
+        mov edx, eax
+        and edx, 0x7FFFFFFF
+        cmp edx, 0x7F800000
+        jae mas_repair_zero
+        cmp eax, 0x80000000
+        je mas_repair_next
+        ja mas_repair_zero
+        cmp eax, 0x42C80000
+        jbe mas_repair_next
+        mov eax, 0x42C80000
+        jmp mas_repair_store
+    mas_repair_zero:
+        xor eax, eax
+    mas_repair_store:
+        mov dword ptr [esi+edi*4+0x1C5C], eax
+        inc dword ptr [ebp-0x20]
+    mas_repair_next:
+        inc edi
+        cmp edi, 6
+        jb mas_repair
         mov dword ptr [ebp-0x1C], 0
         xor edi, edi
     mas_skill:
-        mov eax, dword ptr [esi+edi*4+0x1C5C]
-        test eax, eax
-        js mas_skill_next
-        cmp eax, 0x42C80000
-        jae mas_skill_next
+        cmp dword ptr [esi+edi*4+0x1C5C], 0x42C80000
+        je mas_skill_next
         mov dword ptr [ebp-0x1C], 1
         push 0x42C80000
         fld dword ptr [esp]
@@ -3445,10 +3559,13 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '21', 0, 'dword ptr [ebp-0x10]', 'dword ptr [ebp-0x14]')}
+        mov eax, dword ptr [ebp-0x20]
+        shl eax, 16
+        or eax, dword ptr [ebp-0x14]
+        {status_call(page_va, '21', 0, 'dword ptr [ebp-0x10]', 'eax')}
         jmp done
     no_change:
-        {status_call(page_va, '21', 1)}
+        {status_call(page_va, '21', 1, 'dword ptr [ebp-0x20]')}
         jmp done
     insufficient:
         {status_call(page_va, '21', 3)}
@@ -3460,7 +3577,7 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         {status_call(page_va, '21', 5)}
         jmp done
     charge_unknown:
-        {status_call(page_va, '21', 7)}
+        {status_call(page_va, '21', 7, 'dword ptr [ebp-0x20]')}
     done:
         add esp, 0x30
         pop edi
@@ -4188,6 +4305,7 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["barrel"] = build_barrel(page, page_va, strings)
         routines["appearance"] = build_appearance(page, page_va, strings)
         routines["appearance_all"] = build_appearance_all(page, page_va, strings)
+        routines["skill_rows"] = build_skill_rows(page, page_va, strings)
         routines["complete_collections"] = build_complete_collections(page, page_va)
         routines["reset_collections"] = build_reset_collections(page, page_va)
         routines["running_all"] = build_running_all(page, page_va)

@@ -416,8 +416,13 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # save_layout.h): the Log Checks and Repairs Made folders, moved from
         # their older names, and the repairs' copies kept apart.  Larger again
         # when another village's mask file was never to be replaced
-        # (native/shared/foreign_sidecar.h).
-        self.assertEqual(vv5_companion["size"], 1849856)
+        # (native/shared/foreign_sidecar.h). Larger again with the three
+        # skill-preference rows (ShowVV5SkillPreferenceUpgrade: Clear All Skill
+        # Preferences and the two Check Highest Skill rows). New size and
+        # digest for the current companion source as rebuilt on the
+        # Equal Division of Labor branch. Larger again when the skill
+        # upgrades learned to reset corrupted skill values (v1.35.70).
+        self.assertEqual(vv5_companion["size"], 1856000)
         self.assertEqual(
             vv5_companion["sha256"],
             "8B30075FD53524B1DD90930E588E71B3E6582DE0985FB7BD0E753F153378C93D",

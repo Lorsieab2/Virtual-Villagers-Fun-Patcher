@@ -865,10 +865,10 @@ VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 VV5_TASK9_SAVE_RESET_SHA256 = "CE598A41A661DC3897EB9DAF493AEA29E72B39D285AFB9129F793675B9EA384B"
 VV5_TASK9_SAVE_RESET_SIZE = 144384
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "450F687E60F0CAD7AAD058C319505957FD2A9B743A2DC906E683197972EAED32",
-    "immediate_fixed": "450F687E60F0CAD7AAD058C319505957FD2A9B743A2DC906E683197972EAED32",
-    "experimental_expanded_256": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
-    "experimental_expanded_256_progression": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
+    "collection_progression": "98029DA56907DBF713E1530EC27F92CD8CF0CAA701FC60E37286E2B07D856EE4",
+    "immediate_fixed": "98029DA56907DBF713E1530EC27F92CD8CF0CAA701FC60E37286E2B07D856EE4",
+    "experimental_expanded_256": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
+    "experimental_expanded_256_progression": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
 }
 VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "C52BAC9A1E1E323646E21F01D6AB294ADE06B8E3AB39F7764EC81C11BEDB72FD"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -3336,7 +3336,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1849856,
+        "size": 1856000,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3694,7 +3694,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1849856,
+        "size": 1856000,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",

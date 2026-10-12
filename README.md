@@ -1143,6 +1143,9 @@ wording and the same shell, so the menus read identically across all five.
 | Reset All Collections | 1,000,000 |
 | Equal Division of Labor (Includes Parenting) | 1,000,000 |
 | Equal Division of Labor (No Parenting) | 1,000,000 |
+| Clear All Skill Preferences | 500,000 |
+| Check Highest Skill (Includes Parenting) | 1,000,000 |
+| Check Highest Skill (No Parenting) | 1,000,000 |
 | Change Appearance for All | 450,000 |
 
 A New Home has no Collections rows, because it has no collections to complete
@@ -1214,6 +1217,50 @@ promise that every paid barrel always delivers three children: a separate,
 still-unexplained short-spawn has been reproduced in a village with plenty of
 free records, and `docs/duplicate-purchase-guards.md` records what is and is
 not known about it.
+
+**Equal Division of Labor** splits the village evenly across the jobs: each
+job gets the same number of villagers as before, with males and females
+balanced per job, and *(No Parenting)* leaves Parenting out. Since v1.35.70
+**who gets which job follows their skill progress**: each villager is placed
+in the job whose skill they have made the most progress in (highest skill
+value first; a mastered skill counts as the most progress); if that job is
+already full, their next-best job, and so on. Villagers with no progress yet
+(newborns, for example), ties, and anyone left over are placed at random in
+the seats that remain, so the counts per job are always equal.
+
+**Clear All Skill Preferences** (500,000, half of Equal Division) unchecks every
+villager's skill preference (the job checkmark on the Villager Details screen),
+so each villager chooses their own work again, as in the stock game. Skills
+themselves are not changed.
+
+**Check Highest Skill** sets each villager's skill preference to the skill they
+have made the most progress in. *(No Parenting)* leaves Parenting out of the
+comparison. Ties go to the first skill in the Skills list order (Farming,
+Building, Research, Healing, Parenting, and Devotion in New Believers).
+Villagers with no progress in any skill yet keep their preference. It costs
+the same as the matching Equal Division row.
+
+All five rows touch the same villagers as Equal Division of Labor: A New Home
+skips the Golden Child, The Secret City skips the Tribal Chief (who cannot hold
+a preference) and New Believers never touches Heathens. Clear All Skill
+Preferences and Check Highest Skill deduct nothing when no checkmark would
+change, and cost 0 like every other row while Story / Cheat Upgrades makes
+upgrades free.
+
+**Corrupted skill values are reset.** A skill the game itself can never
+produce -- below 0, above 100, or (The Tree of Life and New Believers) not a
+number or infinite, as a memory editor or a damaged save can leave it -- is
+reset by Grant Full Mastery (both rows), Equal Division of Labor, Clear All
+Skill Preferences and Check Highest Skill before they read the skills: below 0
+and not-a-number become 0, above 100 becomes 100. Valid values are never
+touched. The result says *Reset N corrupted skill values.*, and a reset on its
+own costs nothing. Repair Saves & Logs can do the same for a closed save.
+
+v1.35.70 also fixed The Lost Children's Equal Division of Labor, which used the
+wrong job numbers: its *Building* share was really given Parenting, its
+*Research*, *Healing* and *Breeding* shares got Healing, Research and Building,
+and *(No Parenting)* gave villagers Parenting and never Building. It now uses
+the game's own job numbers.
 
 Results that count villagers name the number and the reason, and read correctly
 at one: *"Skipped over 1 villager. Reason: already likes running."*
@@ -1539,6 +1586,8 @@ The One Game tab includes clickable **Open Vanilla EXE Folder** and **Open Modif
 **Each villager's own rule** (v1.35.66, a button beside **Last names come from**): a living villager can pass their last name to their children by a rule of their own -- **From the father**, **From the mother** or **50:50** -- instead of **Use the village rule** (the default), so one villager's name need not spread through half the village. A villager whose own rule your choices will change reads in red bold, both in this window and in the last-names window (normal again if you set it back; an own rule that is not changing is shown normally). At a birth, when only one parent has a rule of their own it is used; when both do and they agree, theirs; when they disagree, or neither has one, the village's rule. A villager is known by their whole name, head, body and sex, so two living villagers who share all four cannot have one (number the duplicate names first); renames (last names, numbering, restored names) and a recorded change of looks carry the rule along, a father who dies before his baby is born keeps his for that birth, and the dead keep none. The rules are kept with the village's rule in `Virtual Villagers Fun Patcher Data\Last Names`, even when no name changes; the game must be closed.
 
 **Number duplicate names** (the same checklist, unticked): villagers who share a name are numbered -- the first Soda to appear in the logs becomes Soda I, the next Soda II, and so on, unless you pick **Oldest first** or **Youngest first** beside it -- the dead, disappeared and departed too, so a living villager's number counts the namesakes before them. Each is renamed **in the save and in every log**, as a parent too, and in everything the patcher keeps, as **Give villagers last names** does, after any last names you are giving. The dead are renamed on their graves too -- in the save and in the patcher's grave files. Namesakes who also look the same cannot be told apart in the records, so they keep their names (and the patcher says so). The game must be closed; the save folder is backed up first (`Backups\Backup ... (before numbering names)`).
+
+**Reset corrupted skill values** (the same checklist, v1.35.70, all five games; ticked only when the save holds one): a skill value no game can hold -- NaN, infinite, below 0, or above the games' maximum of 100 (whole numbers in A New Home, The Lost Children and The Secret City; decimals in The Tree of Life and New Believers) -- is reset: NaN, infinite and below 0 to 0, above 100 to 100. Every other value, 0 and 100 included, is left exactly as it is. Every villager the save loads is looked at, a body not yet buried and New Believers' Heathens too (named as Heathens). The game must be closed; the save folder is backed up first, a copy of the save is kept in Copies Made Before Repairs, and the Repairs Made log names each villager, skill and old -> new value. Check Saves & Logs lists them as a NOTE.
 
 **Check logs automatically** (a tick box beside those links on both tabs; **on** by default, and remembered; the patch selection buttons leave it alone) is written into every game you create from then on -- a game already created keeps its own setting until you create it again. **Off**, the games never check or ask anything while you play: use **Check Saves & Logs...** and **Repair Saves & Logs...**. **On**, the game checks each village silently a few seconds after it loads and, only if something is confirmed wrong, asks **Repair** or **Not now** when you **close the game** -- after its own save, never while you play. **Repair** repairs everything found there and then (backed up first, listed in the Repairs log); **Not now** changes nothing, and you are asked again the next time you close the game after playing that village. The question is about the village you played last, and if nobody answers within five minutes the game simply closes, as with **Not now**. The question ends by saying how to stop these checks: untick **Check logs automatically** in the patcher and patch the game again. On the command line it is on by default; `--no-check-logs-automatically` turns it off. See [the cross-check](docs/first-load-cross-check.md).
 

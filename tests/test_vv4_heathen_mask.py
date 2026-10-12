@@ -611,15 +611,16 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
         self.assertIn("head_mode != FA_HEAD_OFF", self.c)
         self.assertIn("body_mode != FA_BODY_OFF", self.c)
 
-    def test_menu_row_13_is_wired_in_dll_only(self) -> None:
-        # 14th tech row present in dialog 201 (Buy id 1013) + name/cost tables.
-        self.assertIn('PUSHBUTTON  "Buy", 1013', self.rc)
+    def test_menu_row_16_is_wired_in_dll_only(self) -> None:
+        # 17th tech row present in dialog 201 (Buy id 1016) + name/cost tables.
+        # (Rows 13-15 are the skill-preference rows after Equal Division.)
+        self.assertIn('PUSHBUTTON  "Buy", 1016', self.rc)
         self.assertIn('"Change Appearance for All"', self.c)
         self.assertIn('"450,000"', self.c)
-        self.assertIn("ID_BUY_LAST = 1013", self.c)
-        # Row 13 handled inside the menu (self-contained), not via payload.
+        self.assertIn("ID_BUY_LAST = 1016", self.c)
+        # Row 16 handled inside the menu (self-contained), not via payload.
         self.assertIn("ShowVv4AppearanceForAll();", self.c)
-        self.assertIn("#define ID_FORALL_ROW 13", self.c)
+        self.assertIn("#define ID_FORALL_ROW 16", self.c)
 
     def test_apply_engine_covers_all_modes(self) -> None:
         eng = self.c.split("vv4_apply_for_all(void)", 1)[1].split("\n}", 1)[0]

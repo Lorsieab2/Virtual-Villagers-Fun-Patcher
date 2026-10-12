@@ -34,7 +34,7 @@
 #define WS_GROUP 0x00020000L
 #define SS_OWNERDRAW 0x0000000DL
 
-201 DIALOGEX 0, 0, 612, 232
+201 DIALOGEX 0, 0, 612, 313
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -82,7 +82,11 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 182, 170, 9
     PUSHBUTTON  "Buy", 1006, 240, 171, 55, 18
 
-    /* Right column (rows 7..13) */
+    /* Right column (rows 7..12, then 14..16, then 13): the two Equal Division
+       rows, Clear All Skill Preferences and the two Check Highest Skill rows,
+       with Change Appearance for All last.  Its control id stays 1013 (the
+       executable's payload routes rows by that number); the blocks are
+       listed in on-screen order so Tab follows what the player sees. */
     ICON        107, -1, 310,   6,  24, 24
     ICON        109, 1107, 324, 18, 12, 12
     LTEXT       "Grant Full Mastery to All Villagers", -1, 342, 8, 195, 10
@@ -119,14 +123,32 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 342, 155, 170, 9
     PUSHBUTTON  "Buy", 1012, 542, 144, 55, 18
 
-    ICON        106, -1, 310, 168,  24, 24
-    ICON        109, 1113, 324, 180, 12, 12
-    LTEXT       "Change Appearance for All", -1, 342, 170, 195, 10
-    LTEXT       "450,000 tech points", -1, 342, 182, 170, 9
-    PUSHBUTTON  "Buy", 1013, 542, 171, 55, 18
+    ICON        108, -1, 310, 168,  24, 24
+    ICON        109, 1114, 324, 180, 12, 12
+    LTEXT       "Clear All Skill Preferences", -1, 342, 170, 195, 10
+    LTEXT       "500,000 tech points", -1, 342, 182, 170, 9
+    PUSHBUTTON  "Buy", 1014, 542, 171, 55, 18
 
-    CTEXT       "Press ESC to exit this menu.", -1, 10, 200, 592, 9
-    DEFPUSHBUTTON "Cancel", 2, 271, 212, 70, 14
+    ICON        107, -1, 310, 195,  24, 24
+    ICON        109, 1115, 324, 207, 12, 12
+    LTEXT       "Check Highest Skill (Includes Parenting)", -1, 342, 197, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 209, 170, 9
+    PUSHBUTTON  "Buy", 1015, 542, 198, 55, 18
+
+    ICON        107, -1, 310, 222,  24, 24
+    ICON        109, 1116, 324, 234, 12, 12
+    LTEXT       "Check Highest Skill (No Parenting)", -1, 342, 224, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 236, 170, 9
+    PUSHBUTTON  "Buy", 1016, 542, 225, 55, 18
+
+    ICON        106, -1, 310, 249,  24, 24
+    ICON        109, 1113, 324, 261, 12, 12
+    LTEXT       "Change Appearance for All", -1, 342, 251, 195, 10
+    LTEXT       "450,000 tech points", -1, 342, 263, 170, 9
+    PUSHBUTTON  "Buy", 1013, 542, 252, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 10, 281, 592, 9
+    DEFPUSHBUTTON "Cancel", 2, 271, 293, 70, 14
 END
 
 202 DIALOGEX 0, 0, 310, 204

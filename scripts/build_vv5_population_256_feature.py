@@ -275,6 +275,8 @@ COMPOSITIONS: dict[str, list[dict]] = {
         {"find": "B9" + _hex32(STOCK_MANAGER), "replace": "B9" + _hex32(MANAGER), "count": 1,
          "purpose": "Origins code: the relocated villager manager (the Task9 page's selected-villager getter)"},
         {"find": "BE" + _hex32(STOCK_RECORDS) + "BB96000000",
+         # Five (v1.35.70): Grant Full Mastery to All repairs corrupted skills
+         # inside its one walk, so its separate pre-scan walk is gone.
          "replace": "BE" + _hex32(record_va(0)) + "BB" + _hex32(SLOTS), "count": 5,
          "purpose": "Origins village-wide actions: walk the 256 records of the relocated table"},
         {"find": "68" + _hex32(STOCK_RECORDS), "replace": "68" + _hex32(record_va(0)), "count": 2,

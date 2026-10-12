@@ -4,6 +4,8 @@
 #include <string.h>
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
+#include "../shared/skill_repair.h" /* reset obviously corrupted (out-of-range) skills */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
@@ -18,7 +20,7 @@ enum {
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_FULL_MASTERY = 203,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1013,
+    ID_BUY_LAST = 1016,
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
@@ -37,13 +39,28 @@ static const char *const tech_names[] = {
     "Reset All Collections",
     "Equal Division of Labor (Includes Parenting)",
     "Equal Division of Labor (No Parenting)",
-    "Change Appearance for All"
+    "Change Appearance for All",
+    "Clear All Skill Preferences",
+    "Check Highest Skill (Includes Parenting)",
+    "Check Highest Skill (No Parenting)"
 };
 static const char *const tech_costs[] = {
     "50,000", "30,000", "75,000", "500,000", "500,000", "30,000",
     "1,000,000", "1,000,000", "1,000,000", "1,000,000", "1,000,000",
-    "1,000,000", "1,000,000", "450,000"
+    "1,000,000", "1,000,000", "450,000", "500,000", "1,000,000", "1,000,000"
 };
+
+/* Clear All Skill Preferences (Tech-screen button 1014, row 14) and Check
+   Highest Skill (Includes Parenting / No Parenting; buttons 1015/1016, rows
+   15/16).  The executable's payload has no room left to route more rows, so
+   the companion runs these itself: the menu entry point catches the confirmed
+   row and calls the export, then hands the executable -1, the same "close
+   the menu" answer it gets after Equal Division of Labor. */
+#define VV3_ROW_CLEAR_PREFS         14
+#define VV3_ROW_HIGHEST_PARENTING   15
+#define VV3_ROW_HIGHEST_NO_PARENTING 16
+int __stdcall ClearAllSkillPreferences(void);
+int __stdcall CheckHighestSkill(int includeParenting);
 static const char *const detail_names[] = {
     "Grant Youth", "Grant Full Mastery", "Grant Running", "Set Age to 18",
     "Change Appearance"
@@ -721,9 +738,10 @@ static INT_PTR CALLBACK upgrade_dialog(
         int row;
         int blocked;
         /* Hide EVERY badge the dialog can carry, not just the first nine.
-           The tech menu runs to 14 rows (6 base + 3 village-wide grants +
+           The tech menu runs to 17 rows (6 base + 3 village-wide grants +
            Complete/Reset Collections + two Equal Division rows + Change
-           Appearance for All).  The resource creates those badges VISIBLE, so
+           Appearance for All + Clear All Skill Preferences + two Check
+           Highest Skill rows).  The resource creates those badges VISIBLE, so
            stopping at 9 left rows 9-13 showing a green checkmark permanently,
            whatever the player owned.  The show loop below re-shows only the
            rows whose owned bit is set, and the exe sets only bits 3 and 4 --
@@ -734,7 +752,7 @@ static INT_PTR CALLBACK upgrade_dialog(
         for (row = 0; row < VV3_ROW_STATE_MAX; ++row) {
             vv3_block_reasons[row] = VV3_BLOCK_NONE;
         }
-        for (row = 0; row < 14; ++row) {
+        for (row = 0; row < 17; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
@@ -872,6 +890,19 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
         upgrade_dialog,
         dialog_state
     );
+    /* Clear All Skill Preferences and Check Highest Skill: confirmed in the
+       dialog, run here (the payload cannot route rows past 13), and the menu
+       closes as it does after Equal Division of Labor. */
+    if (!villager_menu && resource == IDD_ORIGINS_TECH) {
+        if (result == VV3_ROW_CLEAR_PREFS) {
+            ClearAllSkillPreferences();
+            result = -1;
+        } else if (result == VV3_ROW_HIGHEST_PARENTING
+                   || result == VV3_ROW_HIGHEST_NO_PARENTING) {
+            CheckHighestSkill(result == VV3_ROW_HIGHEST_PARENTING);
+            result = -1;
+        }
+    }
     return result;
 }
 
@@ -882,58 +913,10 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
     return show_upgrade_menu(villager_menu, dialog_state);
 }
 
-__declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
-    int villager_menu,
-    int state
-) {
-    int dialog_state = 0;
-    if (villager_menu) {
-        unsigned char *villager = (unsigned char *)(UINT_PTR)(unsigned int)state;
-        int row;
-        int running_like = 0;
-        int running_dislike = 0;
-        int available_like = 0;
-        if (villager != NULL) {
-            if (*(int *)(villager + 0x348) <= 100) {
-                dialog_state |= 1 << 0;
-            }
-            if (*(int *)(villager + 0x3BC) >= 90
-                && *(int *)(villager + 0x3C0) >= 90
-                && *(int *)(villager + 0x3C4) >= 90
-                && *(int *)(villager + 0x3C8) >= 90
-                && *(int *)(villager + 0x3CC) >= 90) {
-                dialog_state |= 1 << 1;
-            }
-            for (row = 0; row < 3; ++row) {
-                int like = *(int *)(villager + 0x398 + row * 4);
-                if (like == 38) {
-                    running_like = 1;
-                } else if (like == -1) {
-                    available_like = 1;
-                }
-                if (*(int *)(villager + 0x3A8 + row * 4) == 38) {
-                    running_dislike = 1;
-                }
-            }
-            if (running_like && !running_dislike) {
-                dialog_state |= 1 << 2;
-            } else if (!running_like && !available_like) {
-                dialog_state |= 1 << (8 + 2);
-            }
-            if (*(int *)(villager + 0x348) == 360) {
-                dialog_state |= 1 << 3;
-            }
-        }
-    } else {
-        if ((state & 1) != 0) {
-            dialog_state |= 1 << 3;
-        }
-        if ((state & 2) != 0) {
-            dialog_state |= 1 << 4;
-        }
-    }
-    return show_upgrade_menu(villager_menu, dialog_state);
-}
+/* The VV1-shaped ShowOriginsUpgradeMenu export that stood here (it read
+   A New Home's skill offsets +0x3BC..+0x3CC with a >= 90 test) was removed
+   in v1.35.70: The Secret City's executable resolves only
+   ShowOriginsUpgradeMenuState, so it never ran. */
 
 /* ---- VV3 village-wide count + VV5-Task9-style result ----
    The payload's village-wide applies don't report counts, so the DLL counts
@@ -2624,6 +2607,13 @@ __declspec(dllexport) int __stdcall EqualDivisionOfLabor(int includeParenting) {
     unsigned int per_f[5] = {0, 0, 0, 0, 0};
     unsigned int total = 0, skipped = 0, eligible = 0;
     int male_ctr = 0, female_ctr = 0;
+    static unsigned char *ed_who[VVED_MAX_VILLAGERS];
+    static int ed_group[VVED_MAX_VILLAGERS];
+    static float ed_skill[VVED_MAX_VILLAGERS * VVED_MAX_SEATS];
+    static int ed_seat[VVED_MAX_VILLAGERS];
+    int ed_quota[2 * VVED_MAX_SEATS];
+    unsigned int ed_rng;
+    int repaired = 0;
     char message[512];
     char line[160];
     int i, k;
@@ -2651,17 +2641,39 @@ __declspec(dllexport) int __stdcall EqualDivisionOfLabor(int includeParenting) {
     }
     *tech -= vvfp_story_price(3, EDL_COST);
 
-    /* Second pass: assign round-robin, males and females on separate counters. */
-    for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
-        int skill, female;
+    /* Second pass: the seats per profession are the per-sex round-robin's
+       (males and females on separate counters); who sits where follows skill
+       progress (native/shared/equal_division.h -- most-progressed job first,
+       random for ties and anyone left; v1.35.70).  The skill a seat rates is
+       the int skill at +0xEAC indexed by the preference value (stock
+       0x459866 `mov esi,[ebx+edi*4+0xEAC]`, edi = [ebx+0xEC0]). */
+    for (i = 0; i < slots && total < VVED_MAX_VILLAGERS; ++i, rec += VV3_STRIDE) {
+        int female;
         if (rec[VV3_ACTIVE] == 0) continue;
         if (rec[VV3_CHIEF] != 0) { skipped++; continue; }
         female = rec[VV3_GENDER] != 0;
-        if (female) { skill = cycle[female_ctr % cyclen]; female_ctr++; }
-        else        { skill = cycle[male_ctr % cyclen];   male_ctr++;  }
-        *(int *)(rec + VV3_PREF) = skill;
-        if (female) per_f[skill]++; else per_m[skill]++;
+        if (female) female_ctr++; else male_ctr++;
+        ed_who[total] = rec;
+        /* Out-of-range skills are reset before they are ranked
+           (native/shared/skill_repair.h). */
+        repaired += vv_repair_int_skills(rec, VV3_SKILL0, 5);
+        ed_group[total] = female;
+        for (k = 0; k < VVED_MAX_SEATS; ++k) {
+            ed_skill[total * VVED_MAX_SEATS + k] = k < cyclen
+                ? (float)*(const int *)(rec + VV3_SKILL0 + 4 * cycle[k]) : 0.0f;
+        }
         total++;
+    }
+    vved_cycle_quota(male_ctr, cyclen, 0, ed_quota);
+    vved_cycle_quota(female_ctr, cyclen, 0, ed_quota + VVED_MAX_SEATS);
+    ed_rng = GetTickCount() ^ (unsigned int)slots ^ 0x5EED0003u;
+    vved_assign((int)total, cyclen, ed_group, ed_skill, ed_quota, ed_seat, &ed_rng);
+    for (i = 0; i < (int)total; ++i) {
+        int skill;
+        if (ed_seat[i] < 0) continue;
+        skill = cycle[ed_seat[i]];
+        *(int *)(ed_who[i] + VV3_PREF) = skill;
+        if (ed_group[i]) per_f[skill]++; else per_m[skill]++;
     }
 
     /* Build the OFFICIAL-sheet success message.  Professions print in the sheet's
@@ -2681,10 +2693,223 @@ __declspec(dllexport) int __stdcall EqualDivisionOfLabor(int includeParenting) {
         wsprintfA(line, "\r\n\r\nSkipped %u %s: is Tribal Chief.",
                   skipped, villagers_word(skipped));
         lstrcatA(message, line);
+        vv_append_skill_repairs(message, repaired);
     }
     MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return (int)total;
+}
+
+/* ---- Clear All Skill Preferences (Tech-screen button 1014, row 14) ----
+   The owner, 2026-10-11: "add an option to uncheck all skill preferences
+   too! ... Should cost half the equal division of labor cost."  Unchecks the
+   job-preference checkmark (record +0xEC0) of every villager Equal Division
+   of Labor would set -- every active villager but the Tribal Chief
+   (+0xE80 != 0), who cannot hold one -- by writing -1, the game's own "no
+   preference" value: villager creation stores `mov dword ptr [esi+0xEC0],
+   0xFFFFFFFF` (0x456769) and its readers test `cmp eax, -1; je` (0x468DE9).
+   The skills themselves are not touched.  The DLL owns the whole
+   transaction, as Equal Division does: nobody eligible, or nothing to clear,
+   charges nothing; otherwise it checks and deducts the price (half of Equal
+   Division's 1,000,000; 0 under Story / Cheat free upgrades) from the tech
+   pool 0x00582644 once, then reports.  Returns how many were cleared. */
+#define CSP_COST       500000
+#define VV3_PREF_NONE  (-1)
+
+static const char *villagers_possessive(unsigned int n) {
+    return n == 1 ? "Villager's" : "Villagers'";
+}
+
+/* A no-change outcome of Clear All Skill Preferences / Check Highest Skill,
+   with the "Reset N corrupted skill values." line when the purchase reset any
+   (native/shared/skill_repair.h); still nothing is charged. */
+static void vv3_skill_rows_no_change(const char *text, int repaired) {
+    char message[256];
+    lstrcpynA(message, text, 160);
+    vv_append_skill_repairs(message, repaired);
+    MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+}
+
+int __stdcall ClearAllSkillPreferences(void) {
+    unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    int *tech = (int *)(UINT_PTR)VV3_TECH_POINTS;
+    unsigned int eligible = 0, to_clear = 0, cleared = 0, skipped = 0;
+    char message[256];
+    char line[96];
+    int i;
+    unsigned char *r;
+    int repaired = 0;
+
+    if (slots <= 0 || slots > 256) {
+        slots = 0;              /* unrecognised bound: touch nothing */
+    }
+    for (i = 0, r = rec; i < slots; ++i, r += VV3_STRIDE) {
+        if (r[VV3_ACTIVE] == 0) continue;
+        if (r[VV3_CHIEF] != 0) continue;
+        eligible++;
+        /* The purchase is confirmed: reset out-of-range skills first. */
+        repaired += vv_repair_int_skills(r, VV3_SKILL0, 5);
+        if (*(int *)(r + VV3_PREF) != VV3_PREF_NONE) to_clear++;
+    }
+    if (eligible == 0) {
+        MessageBoxA(GetForegroundWindow(),
+                    "No villagers were eligible. No tech points have been deducted.",
+                    "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    if (to_clear == 0) {
+        vv3_skill_rows_no_change(
+            "Every villager's skill preference is already cleared. "
+            "No tech points have been deducted.", repaired);
+        return 0;
+    }
+    if ((unsigned int)*tech < (unsigned int)vvfp_story_price(3, CSP_COST)) {
+        MessageBoxA(GetForegroundWindow(), "Not enough tech points.",
+                    "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    *tech -= vvfp_story_price(3, CSP_COST);
+
+    for (i = 0, r = rec; i < slots; ++i, r += VV3_STRIDE) {
+        if (r[VV3_ACTIVE] == 0) continue;
+        if (r[VV3_CHIEF] != 0) { skipped++; continue; }
+        if (*(int *)(r + VV3_PREF) != VV3_PREF_NONE) {
+            *(int *)(r + VV3_PREF) = VV3_PREF_NONE;
+            cleared++;
+        }
+    }
+
+    wsprintfA(message, "Cleared %u %s Skill Preferences.",
+              cleared, villagers_possessive(cleared));
+    wsprintfA(line, "\r\n\r\nSkipped %u %s: is Tribal Chief.",
+              skipped, villagers_word(skipped));
+    lstrcatA(message, line);
+    vv_append_skill_repairs(message, repaired);
+    MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return (int)cleared;
+}
+
+/* ---- Check Highest Skill (Tech-screen buttons 1015/1016, rows 15/16) ----
+   The owner, 2026-10-11.  Sets the job-preference checkmark (+0xEC0) of
+   every villager Equal Division of Labor would set (active, not the Tribal
+   Chief) to the skill that villager has the most progress in.  The five
+   skills sit at +0xEAC indexed BY the preference value (stock 0x459866 reads
+   `mov esi, [ebx+edi*4+0xEAC]` with edi = [ebx+0xEC0]): 0 Farming,
+   1 Parenting, 2 Healing, 3 Research, 4 Building.  "(No Parenting)" never
+   considers index 1.  Ties go to the first in the Skills list's on-screen
+   order Farming, Building, Research, Healing, Parenting (0, 4, 3, 2, 1).  A
+   villager with no progress in any considered skill keeps their preference
+   and is reported as skipped.  The preference is one value, so setting it
+   replaces any other checkmark, exactly as Equal Division does.  Charged
+   (1,000,000, or 0 under Story / Cheat free upgrades) only when at least one
+   preference changes.  Returns how many villagers were set (every one given
+   their highest skill, already checked or not). */
+#define CHS_COST       1000000
+
+int __stdcall CheckHighestSkill(int includeParenting) {
+    static const int order[5] = {0, 4, 3, 2, 1};
+    static const char *const names[5] = {
+        "Farming", "Building", "Research", "Healing", "Breeding"
+    };
+    unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    int *tech = (int *)(UINT_PTR)VV3_TECH_POINTS;
+    int considered = includeParenting ? 5 : 4;   /* order[4] is Parenting */
+    unsigned int per_m[5] = {0, 0, 0, 0, 0};
+    unsigned int per_f[5] = {0, 0, 0, 0, 0};
+    unsigned int eligible = 0, changes = 0, changed = 0;
+    unsigned int chief = 0, no_progress = 0;
+    char message[768];
+    char line[160];
+    int i, k;
+    unsigned char *r;
+    int repaired = 0;
+
+    if (slots <= 0 || slots > 256) {
+        slots = 0;              /* unrecognised bound: touch nothing */
+    }
+    /* The highest skill of one record, or -1 when it has no progress. */
+#define VV3_HIGHEST_SKILL(rp, out) do {                                     \
+        int best_ = -1, best_value_ = 0, k_;                                \
+        for (k_ = 0; k_ < considered; ++k_) {                               \
+            int v_ = *(int *)((rp) + VV3_SKILL0 + order[k_] * 4);           \
+            if (v_ > best_value_) { best_value_ = v_; best_ = order[k_]; }  \
+        }                                                                   \
+        (out) = best_;                                                      \
+    } while (0)
+
+    for (i = 0, r = rec; i < slots; ++i, r += VV3_STRIDE) {
+        int best;
+        if (r[VV3_ACTIVE] == 0) continue;
+        if (r[VV3_CHIEF] != 0) continue;
+        eligible++;
+        /* The purchase is confirmed: reset out-of-range skills first. */
+        repaired += vv_repair_int_skills(r, VV3_SKILL0, 5);
+        VV3_HIGHEST_SKILL(r, best);
+        if (best >= 0 && *(int *)(r + VV3_PREF) != best) changes++;
+    }
+    if (eligible == 0) {
+        MessageBoxA(GetForegroundWindow(),
+                    "No villagers were eligible. No tech points have been deducted.",
+                    "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    if (changes == 0) {
+        vv3_skill_rows_no_change(
+            "Every villager already has their highest skill checked. "
+            "No tech points have been deducted.", repaired);
+        return 0;
+    }
+    if ((unsigned int)*tech < (unsigned int)vvfp_story_price(3, CHS_COST)) {
+        MessageBoxA(GetForegroundWindow(), "Not enough tech points.",
+                    "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    *tech -= vvfp_story_price(3, CHS_COST);
+
+    for (i = 0, r = rec; i < slots; ++i, r += VV3_STRIDE) {
+        int best;
+        if (r[VV3_ACTIVE] == 0) continue;
+        if (r[VV3_CHIEF] != 0) { chief++; continue; }
+        VV3_HIGHEST_SKILL(r, best);
+        if (best < 0) { no_progress++; continue; }
+        /* Counted whether or not the checkmark was already there, as the
+           other four games count it: the result describes the village's
+           checkmarks after the purchase. */
+        *(int *)(r + VV3_PREF) = best;
+        if (r[VV3_GENDER] != 0) per_f[best]++; else per_m[best]++;
+        changed++;
+    }
+#undef VV3_HIGHEST_SKILL
+
+    wsprintfA(message, "Set %u %s Job Preferences.",
+              changed, villagers_possessive(changed));
+    for (k = 0; k < considered; ++k) {
+        int idx = order[k];
+        unsigned int m = per_m[idx], f = per_f[idx];
+        wsprintfA(line, "\r\n\r\n%s: %u %s (%u Male, %u Female).",
+                  names[k], m + f, villagers_word(m + f), m, f);
+        lstrcatA(message, line);
+    }
+    if (no_progress > 0) {
+        wsprintfA(line, "\r\n\r\nSkipped %u %s: no skill progress yet.",
+                  no_progress, villagers_word(no_progress));
+        lstrcatA(message, line);
+    }
+    wsprintfA(line, "\r\n\r\nSkipped %u %s: is Tribal Chief.",
+              chief, villagers_word(chief));
+    lstrcatA(message, line);
+    vv_append_skill_repairs(message, repaired);
+    MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return (int)changed;
 }
 
 __declspec(dllexport) int __stdcall ShowOriginsFullMasteryResult(

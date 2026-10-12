@@ -69,7 +69,10 @@
       {"row": 10, "control_id": 1010, "action_id": "reset_all_collections", "label": "Reset All Collections", "cost": 1000000, "cost_text": "1,000,000 tech points"},
       {"row": 11, "control_id": 1011, "action_id": "equal_division_parenting", "label": "Equal Division of Labor (Includes Parenting)", "cost": 1000000, "cost_text": "1,000,000 tech points"},
       {"row": 12, "control_id": 1012, "action_id": "equal_division_no_parenting", "label": "Equal Division of Labor (No Parenting)", "cost": 1000000, "cost_text": "1,000,000 tech points"},
-      {"row": 13, "control_id": 1013, "action_id": "change_appearance_all", "label": "Change Appearance for All", "cost": 450000, "cost_text": "450,000 tech points"}
+      {"row": 13, "control_id": 1013, "action_id": "change_appearance_all", "label": "Change Appearance for All", "cost": 450000, "cost_text": "450,000 tech points"},
+      {"row": 14, "control_id": 1014, "action_id": "clear_skill_preferences", "label": "Clear All Skill Preferences", "cost": 500000, "cost_text": "500,000 tech points"},
+      {"row": 15, "control_id": 1015, "action_id": "check_highest_skill_parenting", "label": "Check Highest Skill (Includes Parenting)", "cost": 1000000, "cost_text": "1,000,000 tech points"},
+      {"row": 16, "control_id": 1016, "action_id": "check_highest_skill_no_parenting", "label": "Check Highest Skill (No Parenting)", "cost": 1000000, "cost_text": "1,000,000 tech points"}
     ],
     "details": [
       {"row": 0, "control_id": 1000, "action_id": "grant_youth", "label": "Grant Youth (-35 years, min age 5)", "cost": 50000, "cost_text": "50,000 tech points"},
@@ -85,9 +88,9 @@
       "native_source": "native/vv1_origins_icons/vv1_origins_icons.c",
       "active_dialogs": {"tech": 201, "details": 202},
       "native_dialog_symbols": {"tech": "IDD_ORIGINS_TECH", "details": "IDD_ORIGINS_VILLAGER"},
-      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "equal_division_parenting", "equal_division_no_parenting", "change_appearance_all"],
+      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "equal_division_parenting", "equal_division_no_parenting", "clear_skill_preferences", "check_highest_skill_parenting", "check_highest_skill_no_parenting", "change_appearance_all"],
       "details_action_ids": ["grant_youth", "grant_full_mastery", "grant_running", "set_age_18", "change_appearance"],
-      "control_id_overrides": {"equal_division_parenting": 1009, "equal_division_no_parenting": 1010, "change_appearance_all": 1011},
+      "control_id_overrides": {"equal_division_parenting": 1009, "equal_division_no_parenting": 1010, "clear_skill_preferences": 1012, "check_highest_skill_parenting": 1013, "check_highest_skill_no_parenting": 1014, "change_appearance_all": 1011},
       "collections": "omitted_not_applicable",
       "owner_strategy": "vv1_prep_fullscreen_then_GetForegroundWindow_modal_owner",
       "visibility_strategy": {
@@ -100,7 +103,8 @@
       "native_source": "native/vv2_origins_icons/vv2_origins_icons.c",
       "active_dialogs": {"tech": 211, "details": 212},
       "native_dialog_symbols": {"tech": "IDD_VV2_TECH", "details": "IDD_VV2_VILLAGER"},
-      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "change_appearance_all"],
+      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "clear_skill_preferences", "check_highest_skill_parenting", "check_highest_skill_no_parenting", "change_appearance_all"],
+      "control_id_overrides": {"clear_skill_preferences": 1014, "check_highest_skill_parenting": 1015, "check_highest_skill_no_parenting": 1016, "change_appearance_all": 1013},
       "details_action_ids": ["grant_youth", "grant_full_mastery", "grant_running", "set_age_18", "change_appearance"],
       "collections": "included",
       "owner_strategy": "vv2_prep_fullscreen_then_GetForegroundWindow_modal_owner",
@@ -115,7 +119,7 @@
       "active_dialogs": {"tech": 201, "details": 202},
       "native_dialog_symbols": {"tech": "IDD_ORIGINS_TECH", "details": "IDD_ORIGINS_VILLAGER"},
       "dormant_dialogs": {"tech_legacy_full_mastery_only": 203, "public_route": false},
-      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "change_appearance_all"],
+      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "clear_skill_preferences", "check_highest_skill_parenting", "check_highest_skill_no_parenting", "change_appearance_all"],
       "details_action_ids": ["grant_youth", "grant_full_mastery", "grant_running", "set_age_18", "change_appearance"],
       "collections": "included",
       "owner_strategy": "begin_modal_over_game_then_GetForegroundWindow_modal_owner",
@@ -129,12 +133,13 @@
       "native_source": "native/vv4_origins_icons/vv4_origins_icons.c",
       "active_dialogs": {"tech": 201, "details": 202},
       "native_dialog_symbols": {"tech": "IDD_ORIGINS_TECH", "details": "IDD_ORIGINS_VILLAGER"},
-      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "change_appearance_all"],
+      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "clear_skill_preferences", "check_highest_skill_parenting", "check_highest_skill_no_parenting", "change_appearance_all"],
+      "control_id_overrides": {"clear_skill_preferences": 1013, "check_highest_skill_parenting": 1014, "check_highest_skill_no_parenting": 1015, "change_appearance_all": 1016},
       "details_action_ids": ["grant_youth", "grant_full_mastery", "grant_running", "set_age_18", "change_appearance"],
       "collections": "included",
       "owner_strategy": "vv4_capture_GetForegroundWindow_then_prep_fullscreen_modal_owner",
       "visibility_strategy": {
-        "tech": "state-gated rows; village-wide state exposes all 14 Tech rows; owned rows use explicit Remove without a purchase prompt and unavailable rows are disabled",
+        "tech": "state-gated rows; village-wide state exposes all 17 Tech rows; owned rows use explicit Remove without a purchase prompt and unavailable rows are disabled",
         "details": "all five rows remain visible and clickable; checkmarks are informational and no-op outcomes remain action-specific"
       }
     },
@@ -143,12 +148,13 @@
       "native_source": "native/vv5_task9_origins/vv5_task9_origins.c",
       "active_dialogs": {"tech": 201, "details": 202},
       "native_dialog_symbols": {"tech": "IDD_ORIGINS_TECH", "details": "IDD_ORIGINS_VILLAGER"},
-      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "change_appearance_all"],
+      "tech_action_ids": ["time_warp", "island_event", "barrel_of_babies", "tech_point_doubler", "food_point_doubler", "full_heal_cure_all", "grant_running_all", "grant_full_mastery_all", "set_age_18_all", "complete_all_collections", "reset_all_collections", "equal_division_parenting", "equal_division_no_parenting", "clear_skill_preferences", "check_highest_skill_parenting", "check_highest_skill_no_parenting", "change_appearance_all"],
+      "control_id_overrides": {"clear_skill_preferences": 1013, "check_highest_skill_parenting": 1014, "check_highest_skill_no_parenting": 1015, "change_appearance_all": 1016},
       "details_action_ids": ["grant_youth", "grant_full_mastery", "grant_running", "set_age_18", "change_appearance"],
       "collections": "included",
       "owner_strategy": "BeginOriginsOwner_capture_then_GetOriginsOwner_same_process_HWND; EndOriginsOwner_after_modal_lifecycle",
       "visibility_strategy": {
-        "tech": "stock exposes all 14 Tech rows; owned rows use explicit Remove without a purchase prompt; unavailable rows are disabled",
+        "tech": "stock exposes all 17 Tech rows; owned rows use explicit Remove without a purchase prompt; unavailable rows are disabled",
         "details": "stock exposes all 5 Details rows; satisfied rows are disabled and unavailable rows are disabled"
       },
       "expanded_limited_capability": {
@@ -157,7 +163,7 @@
         "policy": "unavailable_disabled",
         "must_not_be": "enabled_no_op",
         "tech_first_unsupported_row": 6,
-        "tech_rows_unavailable": [6, 7, 8, 9, 10, 11, 12, 13],
+        "tech_rows_unavailable": [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
         "details_first_unsupported_row": 4,
         "details_rows_unavailable": [4],
         "button_text": "Unavailable",

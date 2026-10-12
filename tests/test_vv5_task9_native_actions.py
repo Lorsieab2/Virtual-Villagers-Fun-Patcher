@@ -296,10 +296,10 @@ class Task9ArtifactTests(unittest.TestCase):
         expanded_detail = expanded[builder.OFF["detail_menu"] : builder.OFF["detail_menu"] + builder.SIZES["detail_menu"]]
         expanded_show = expanded[builder.OFF["show_menu"] : builder.OFF["show_menu"] + builder.SIZES["show_menu"]]
 
-        # Stock carries no architecture flag and accepts all fourteen Tech
-        # rows plus all five Details rows.
+        # Stock carries no architecture flag and accepts all seventeen Tech
+        # rows (0..16) plus all five Details rows.
         self.assertIn(bytes.fromhex("B800000000"), stock_tech)
-        stock_tech_bound = stock_tech.find(bytes.fromhex("83FB0D"))
+        stock_tech_bound = stock_tech.find(bytes.fromhex("83FB10"))
         stock_detail_bound = stock_detail.find(bytes.fromhex("83FB04"))
         self.assertGreaterEqual(stock_tech_bound, 0)
         self.assertGreaterEqual(stock_detail_bound, 0)
@@ -468,16 +468,17 @@ class Task9ArtifactTests(unittest.TestCase):
             self.assertIn(name, stock_map["routine_length"])
             self.assertNotIn(name, expanded_map["routine_length"])
 
-    def test_dialog_resources_expose_exact_fourteen_plus_five_rows(self) -> None:
+    def test_dialog_resources_expose_exact_seventeen_plus_five_rows(self) -> None:
         resources = RC.read_text(encoding="utf-8")
         tech, detail = resources.split("202 DIALOGEX", 1)
-        # Fourteen tech rows now: Time Warp, Island Event, Barrel of Babies, Tech
+        # Seventeen tech rows now: Time Warp, Island Event, Barrel of Babies, Tech
         # Point Doubler, Food Point Doubler, Full Heal/Cure All, Grant Running to
         # All Villagers, Grant Full Mastery to All Villagers, Set all Villagers to
         # 18, Complete all Collections, Reset all Collections, the two Equal
-        # Division of Labor rows (Includes Parenting / No Parenting), and Change
+        # Division of Labor rows (Includes Parenting / No Parenting), Clear All
+        # Skill Preferences, the two Check Highest Skill rows, and Change
         # Appearance for All.
-        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 14)
+        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 17)
         # Five villager rows: Youth, Mastery, Running, Age 18, Change Appearance.
         # The picker dialog 203 uses arrow/OK/Cancel, not "Buy".
         self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 5)

@@ -330,11 +330,14 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # backup generation (slot 21..25) for a change of village (v1.35.66:
         # it cleared a bought Barrel at every save) -- the appended .vvmk
         # page only, nothing in any doubler region.
+        # Re-pinned when the Details no-change helper (.shr raw 0x9A380) began
+        # refusing a dead villager or an Esteemed Elder statue -- that one
+        # helper only, nothing in any doubler region.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "8F2ED3D0F721E36FD050229B6A2AB902E8D92DFBE179E7CB6CB92EF7846B9BBD",
+            "3BE8BE3E52831EB7E4D42CE5689FBCA84C5A591292C1B04C01146B78138C1DC0",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
@@ -384,7 +387,9 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # when the startup loader's companion list gained "VVFP Island Events.dll"
         # (native/shared/startup_companions.h, v8), and again when the quit check
         # learned the missing last names (v1.35.66), and again when another
-        # village's mask file was never to be replaced (native/shared/foreign_sidecar.h).
+        # village's mask file was never to be replaced (native/shared/foreign_sidecar.h),
+        # and again for Equal Division by skill progress and the skill-preference
+        # rows (v1.35.70), and for resetting corrupted skills.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
             "DF26B10D23E29D31685B563DF775A693563A183A2421B5C1A20B381C5F8FE8E5",

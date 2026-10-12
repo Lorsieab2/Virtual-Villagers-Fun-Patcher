@@ -243,6 +243,8 @@ FILES = [
     "src/vv_graves.py",
     # Repair Saves & Logs' restore of titles a likes / dislikes change took away (the GUI imports it).
     "src/vv_lost_titles.py",
+    # Repair Saves & Logs' Reset corrupted skill values (the GUI imports it).
+    "src/vv_corrupt_skills.py",
     # Repair Saves & Logs' Restore A New Home Parents (the GUI imports it).
     "src/vv1_parents_restore.py",
     # The save folder's folder and file names, old and new: the Family Tree Maker finds its edits and

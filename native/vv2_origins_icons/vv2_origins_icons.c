@@ -69,6 +69,7 @@ void __stdcall ShowVV2UpgradeResult(
    editing the shared enum. */
 #define VV2_TECH_ROW_COUNT 14
 #define ID_VV2_BUY_LAST    1013
+#define ID_VV2_CLEAR_PREFS 1014   /* 1014 Clear All Skill Preferences, 1015 / 1016 Check Highest Skill: companion-only rows */
 
 /* The game can run fullscreen as a topmost SDL window at a resolution smaller
    than the desktop.  Our modal dialogs use DS_CENTER so Windows centers them on
@@ -243,6 +244,13 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
                         : NULL)) {
                 EndDialog(window, -1);
             }
+            return TRUE;
+        }
+        if (vv_prefs_kind_of(command, ID_VV2_CLEAR_PREFS) >= 0) {
+            /* Clear All Skill Preferences / Check Highest Skill: the whole
+               purchase happens in the companion (vv_prefs_purchase); the menu
+               stays open. */
+            vv_prefs_purchase(window, vv_prefs_kind_of(command, ID_VV2_CLEAR_PREFS));
             return TRUE;
         }
         if (command >= ID_BUY_FIRST && command <= ID_VV2_BUY_LAST) {
@@ -553,25 +561,45 @@ int __stdcall ApplyVV2Collections(
 }
 
 /* ---- Equal Division of Labor -------------------------------------------------
-   Set every eligible villager's job-preference checkmark round-robin so the
-   population is split evenly across the professions.  Record fields: sex at
-   +0x538 (1 = male, otherwise female), job preference at +0x7F8 (0 none,
-   1 Farming, 2 Building, 3 Research, 4 Healing, 5 Parenting/Breeding).  Each sex
-   is round-robined so the male/female split stays balanced, and the female cycle
-   continues from where the male cycle ends (female seats start at the male
-   total) so that when both counts leave a remainder they don't stack onto the
-   same professions -- the overall per-profession total then differs by at most
-   one.  `parenting` picks 5 professions
-   (Farmer..Breeding) or 4 (no Breeding).  The preference is overwritten
-   unconditionally -- there is no "already correct" state -- so the count is
-   simply how many villagers were eligible.  VV2 has no Golden Child, so nothing
-   is excluded.  Eligibility here is deliberately EVERYONE alive -- children of
-   any age, nursing mothers, and adults -- so it uses only the active + positive-
-   health checks, not the special-state filter the other village-wide rows apply.
-   The per-profession, per-sex breakdown does not fit ShowVV2UpgradeResult's four
-   counts, so this composes and shows its own result. ---- */
+   Split every eligible villager's job-preference checkmark evenly across the
+   professions.  Record fields: sex at +0x538 (1 = male, otherwise female), job
+   preference at +0x7F8, five int skills at +0x7E4..+0x7F4.
+
+   The preference codes are the stock game's own, read from its five-job
+   chooser 0x449C60 (`mov eax,[edi+0x7F8]; dec eax; jmp [eax*4+0x449E60]`) and
+   its Details-screen switch 0x429BA1, both of which turn the code into the
+   skill it rates:
+       1 -> +0x7EC Farming      2 -> +0x7E4 Parenting   3 -> +0x7F0 Healing
+       4 -> +0x7F4 Research     5 -> +0x7E8 Building    (0 = none)
+   (skill names: docs/villager-record-reference.md; 2 is the Parenting
+   category the stock birth gate at 0x449E29 tests; Work First's VV2 Building
+   5 / Healing 3).  Until v1.35.70 this wrote 1..5 as if they were Farming,
+   Building, Research, Healing, Breeding, so its "Building" seat really
+   selected Parenting and "(No Parenting)" never chose Building at all.
+
+   Seats per profession: each sex is dealt round-robin in the order Farming,
+   Building, Research, Healing[, Breeding], and the female cycle continues from
+   where the male cycle ends (female seats start at the male total) so that
+   when both counts leave a remainder they don't stack onto the same
+   professions -- the overall per-profession total then differs by at most
+   one.  `parenting` picks 5 professions (Farmer..Breeding) or 4 (no Breeding).
+   Who sits in which seat follows the villagers' skill progress
+   (native/shared/equal_division.h): most-progressed job first, random for
+   ties and anyone left.  The preference is overwritten unconditionally, so
+   the count is simply how many villagers were eligible.  VV2 has no Golden
+   Child, so nothing is excluded.  Eligibility here is deliberately EVERYONE
+   alive -- children of any age, nursing mothers, and adults -- so it uses only
+   the active + positive-health checks, not the special-state filter the other
+   village-wide rows apply.  The per-profession, per-sex breakdown does not fit
+   ShowVV2UpgradeResult's four counts, so this composes and shows its own
+   result. ---- */
 #define VV2_SEX_OFFSET        0x538
 #define VV2_PREFERENCE_OFFSET 0x7F8
+
+/* Seat order Farming, Building, Research, Healing, Breeding: the code written
+   to +0x7F8 and the skill read for each seat. */
+static const int vv2_ed_code[5] = { 1, 5, 4, 3, 2 };
+static const int vv2_ed_skill[5] = { 0x7EC, 0x7E8, 0x7F4, 0x7F0, 0x7E4 };
 
 int __stdcall ApplyVV2EqualDivision(
     unsigned char *base,
@@ -580,20 +608,25 @@ int __stdcall ApplyVV2EqualDivision(
     static const char *const profession_name[5] = {
         "Farming", "Building", "Research", "Healing", "Breeding"
     };
+    static unsigned char *who[VVED_MAX_VILLAGERS];
+    static int group[VVED_MAX_VILLAGERS];
+    static float skill[VVED_MAX_VILLAGERS * VVED_MAX_SEATS];
+    static int seat_of[VVED_MAX_VILLAGERS];
+    int quota[2 * VVED_MAX_SEATS];
     int professions = parenting ? 5 : 4;
-    int male_seat = 0, female_seat, male_total = 0;
+    int male_total = 0, female_total = 0;
     int male_count[5] = {0, 0, 0, 0, 0};
     int female_count[5] = {0, 0, 0, 0, 0};
     int total = 0;
     int i, p;
+    int repaired = 0;
+    unsigned int rng;
     char message[512];
     char line[128];
     unsigned char *record = base;
     if (base == 0) {
         return 0;
     }
-    /* First pass: count eligible males so the female cycle can continue from the
-       male total, keeping the overall split even (see the header comment). */
     for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
         if (record[VV2_ACTIVE_OFFSET] == 0) {
             continue;
@@ -601,31 +634,42 @@ int __stdcall ApplyVV2EqualDivision(
         if (*(int *)(record + VV2_HEALTH_OFFSET) <= 0) {
             continue;
         }
-        if (*(int *)(record + VV2_SEX_OFFSET) == 1) {
+        if (total >= VVED_MAX_VILLAGERS) {
+            break;
+        }
+        who[total] = record;
+        /* Out-of-range skills are reset before they are ranked
+           (native/shared/skill_repair.h). */
+        repaired += vv_repair_int_skills(record, 0x7E4, 5);
+        group[total] = *(int *)(record + VV2_SEX_OFFSET) == 1 ? 0 : 1;
+        if (group[total] == 0) {
             ++male_total;
+        } else {
+            ++female_total;
         }
+        for (p = 0; p < VVED_MAX_SEATS; ++p) {
+            skill[total * VVED_MAX_SEATS + p] = p < professions
+                ? (float)*(int *)(record + vv2_ed_skill[p]) : 0.0f;
+        }
+        ++total;
     }
-    female_seat = male_total;
-    record = base;
-    for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
-        int seat;
-        if (record[VV2_ACTIVE_OFFSET] == 0) {
+    /* Same seat counts as the round-robin always produced. */
+    vved_cycle_quota(male_total, professions, 0, quota);
+    vved_cycle_quota(female_total, professions, male_total % professions,
+                     quota + VVED_MAX_SEATS);
+    rng = GetTickCount() ^ (unsigned int)(UINT_PTR)base ^ 0x5EED0002u;
+    vved_assign(total, professions, group, skill, quota, seat_of, &rng);
+    for (i = 0; i < total; ++i) {
+        int seat = seat_of[i];
+        if (seat < 0) {
             continue;
         }
-        if (*(int *)(record + VV2_HEALTH_OFFSET) <= 0) {
-            continue;
-        }
-        if (*(int *)(record + VV2_SEX_OFFSET) == 1) {   /* male */
-            seat = male_seat % professions;
-            ++male_seat;
+        if (group[i] == 0) {
             ++male_count[seat];
-        } else {                                         /* female */
-            seat = female_seat % professions;
-            ++female_seat;
+        } else {
             ++female_count[seat];
         }
-        *(int *)(record + VV2_PREFERENCE_OFFSET) = seat + 1;   /* 1..5 */
-        ++total;
+        *(int *)(who[i] + VV2_PREFERENCE_OFFSET) = vv2_ed_code[seat];
     }
     if (total == 0) {
         MessageBoxA(
@@ -646,6 +690,7 @@ int __stdcall ApplyVV2EqualDivision(
                   (unsigned int)male_count[p], (unsigned int)female_count[p]);
         lstrcatA(message, line);
     }
+    vv_append_skill_repairs(message, repaired);
     MessageBoxA(
         GetForegroundWindow(), message, "Origins Upgrades",
         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
