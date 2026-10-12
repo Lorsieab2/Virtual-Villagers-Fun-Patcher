@@ -762,11 +762,12 @@ class GuiTests(unittest.TestCase):
                     imported.add(node.module.split(".")[0])
             return imported - set(sys.stdlib_module_names)
 
-        # Its one own module, the save folder's names (src/vv_save_layout.py), ships beside it and is
-        # itself stdlib-only.
-        self.assertEqual(imports(ROOT / "scripts" / "vvfp_consistency_check.py"), {"vv_save_layout"})
-        self.assertEqual(imports(ROOT / "src" / "vv_save_layout.py"), set())
-        self.assertIn('"src/vv_save_layout.py"', (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
+        # Its own modules, the save folder's names (src/vv_save_layout.py) and the Custom Titles file's
+        # reader (src/vv_titles_file.py, v1.35.70), ship beside it and are themselves stdlib-only.
+        self.assertEqual(imports(ROOT / "scripts" / "vvfp_consistency_check.py"), {"vv_save_layout", "vv_titles_file"})
+        for module in ("vv_save_layout", "vv_titles_file"):
+            self.assertEqual(imports(ROOT / "src" / f"{module}.py"), set())
+            self.assertIn(f'"src/{module}.py"', (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
 
     def test_the_module_and_checker_ship_in_the_release(self) -> None:
         build = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")

@@ -1572,6 +1572,44 @@ class TitleSetTests(unittest.TestCase):
                 self.assertEqual(files.titles(path)[1], [(3, v.title_identity(3), "After")])
                 self.assertEqual(p.export("VvfpStoryProbeTitleCount"), 1)
 
+    def test_the_file_keeps_each_games_own_looks_with_the_title(self):
+        """v1.35.70: a title is kept with the villager's whole identity -- the age, head, body, sex and
+        skills read at each game's own record offsets (the adapter's, story_c*.inc) -- so the companion
+        can bind it again after a load made it pending.  Every game, its own layout."""
+        from story_custom_fixtures import MemoryFiles
+
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            story = Story(game)
+            p = story.proc
+            files = MemoryFiles(p)
+            path = r"C:\Save\Custom Titles - Save 1.dat"
+            p.write(SCRATCH, path.encode() + b"\0")
+            p.export("VvfpStoryProbeTitlesLoaded", story.n, 1, SCRATCH)
+            v = story.village
+            L = v.L
+            v.put(3, sex="f", years=31, name="Hina", head=7, body=9)
+            for k in range(L["skill_count"]):
+                off = L["skills"] + 4 * k
+                if L["floats"]:
+                    p.write(v.record(3) + off, struct.pack("<f", 10.5 + k))
+                else:
+                    p.put32(v.record(3) + off, 10 + k)
+            ok, r, _ = story.apply(Event(changes=[story.change(3, title_op=1, title="Weaver")]))
+            with self.subTest(game=game):
+                self.assertEqual(r["refused"], 0)
+                _game_id, entries = files.title_entries(path)
+                self.assertEqual(len(entries), 1)
+                e = entries[0]
+                self.assertEqual((e["index"], e["fp"], e["title"], e["flags"]), (3, v.title_identity(3), "Weaver", 1))
+                self.assertEqual((e["age"], e["head"], e["body"]), (v.i32(3, L["age"]), 7, 9))
+                self.assertEqual(e["sex"], v.i32(3, L["sex"][0]))
+                self.assertEqual(e["sex"], L["sex"][2])                      # female, the game's own value
+                count = L["skill_count"]
+                self.assertEqual(e["skills"][:4 * count], p.read(v.record(3) + L["skills"], 4 * count))
+                self.assertEqual(e["skills"][4 * count:], bytes(24 - 4 * count))
+
     def test_a_title_is_not_inherited_by_a_same_named_villager(self):
         """Codex, PR #495: names repeat, so the title is bound to the likes and
         dislikes as well; another Kai in the reused record shows no title."""

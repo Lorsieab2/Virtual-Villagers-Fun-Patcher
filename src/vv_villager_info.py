@@ -9,7 +9,6 @@ editor's side panel, follows the selection, and selects a partner or child click
 """
 from __future__ import annotations
 
-import struct
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
@@ -217,24 +216,18 @@ TITLES_FILE = "Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles 
 
 
 def read_titles_file(path: Path, game: int) -> list[tuple[int, int, str]]:
-    """native/shared/custom_titles.h: (record index, identity, title) for each entry of a v2 file for
-    this game; nothing for a missing, older or damaged one."""
+    """native/shared/custom_titles.h: (record index, identity, title) for each entry bound to a villager
+    in a version 3 (or 2) file for this game; nothing for a missing, older or damaged one.  A pending
+    title (its villager could not be told apart after a load) is shown on nobody, as in the game."""
+    import vv_titles_file
     try:
         data = Path(path).read_bytes()
     except OSError:
         return []
-    if len(data) < 16 or data[:4] != b"VCT1" or struct.unpack_from("<III", data, 4)[:2] != (2, game):
+    got = vv_titles_file.read(data, game)
+    if got is None:
         return []
-    count = struct.unpack_from("<I", data, 12)[0]
-    if len(data) != 16 + 40 * count:
-        return []
-    out = []
-    for k in range(count):
-        index, identity = struct.unpack_from("<II", data, 16 + 40 * k)
-        title = data[24 + 40 * k:56 + 40 * k].split(b"\0", 1)[0].decode("ascii", "replace").strip()
-        if title:
-            out.append((index, identity, title))
-    return out
+    return [(e.index, e.identity, e.title.strip()) for e in got[1] if not e.pending and e.title.strip()]
 
 
 def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:

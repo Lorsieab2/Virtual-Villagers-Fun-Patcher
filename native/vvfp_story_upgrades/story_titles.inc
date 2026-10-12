@@ -8,14 +8,17 @@
    settled).  The save slot is the one the game's Origins companion keys its
    own sidecars by (story_host.current_slot).
 
-   A title belongs to the villager in its record whose name hashes to the
-   stored fingerprint; a reused record (a birth into a dead villager's
-   record) never inherits it.  The sweep drops a title once its villager has
-   been seen in this session and its record then holds nobody or somebody
-   else -- after titles_follow has moved it to the record its villager
-   holds now, for the games renumber their villagers on every load.  Start Over deletes the file (native/shared/save_reset.c); a file
-   that was present and is now missing is that reset, so the table is
-   forgotten rather than written back. */
+   A title belongs to the villager in its record whose name, likes and
+   dislikes hash to the stored fingerprint; a reused record (a birth into a
+   dead villager's record) never inherits it.  The sweep drops a title once
+   its villager has been seen in this session and its record then holds
+   nobody or somebody else -- after titles_follow has moved it to the record
+   its villager holds now, for the games renumber their villagers on every
+   load.  A title whose villager can not be told apart after a load is kept
+   PENDING (custom_titles.h), shown on nobody, never dropped for it.  Start
+   Over deletes the file (native/shared/save_reset.c); a file that was
+   present and is now missing is that reset, so the table is forgotten
+   rather than written back. */
 
 #include "../shared/mask_follow.h"
 #include "../shared/identity_in_place.h"
@@ -46,7 +49,15 @@ static struct {
     unsigned int roster_keep[TITLES_ROSTER];
     int roster_age[TITLES_ROSTER];
     int roster_anyone;                  /* anybody was present at that look */
-    int swapped;                        /* the last look saw another array: the next village is a load */
+    /* A WHOLE OTHER ARRAY (the title screen's founders after a quit to the
+       menu): nothing is judged, moved or written until the next array
+       arrives -- a load. */
+    int frozen;
+    /* Each record's villager as first seen in it this session: the age and
+       skills a title is kept with (a later save of theirs never holds less;
+       custom_titles.h). */
+    int base_age[TITLES_ROSTER];
+    unsigned int base_skills[TITLES_ROSTER][VV_TITLE_SKILLS];
 } titles;
 
 static unsigned char titles_buffer[VV_TITLES_FILE_MAX];
@@ -62,6 +73,7 @@ static void titles_forget(void) {
     memset(titles.roster_keep, 0, sizeof titles.roster_keep);
     memset(titles.roster_age, 0, sizeof titles.roster_age);
     titles.roster_anyone = 0;
+    titles.frozen = 0;
 }
 
 static int titles_build_path(int game, int slot, char *out) {
@@ -162,9 +174,21 @@ static void titles_remove_at(int i) {
     titles.seen[titles.count] = 0;
 }
 
-static int titles_live_count(int game, unsigned int identity, int *where);
 static void titles_pass(int game, int sweep);
 static void titles_relook(int game);
+
+/* What the villager in record `r` is kept by besides the fingerprint: the
+   head, body and sex as they are now, and the age and skills they were first
+   seen with in that record this session -- when the last look saw them
+   there; before any look, or for someone new in the record, as they are. */
+static void titles_looks_now(int game, int r, const unsigned char *record, vv_title_looks *out) {
+    story_title_looks(game, record, out);
+    if (titles.roster_anyone && r >= 0 && r < TITLES_ROSTER && titles.roster[r] != 0
+        && titles.roster[r] == story_title_identity(game, record)) {
+        out->age = titles.base_age[r];
+        memcpy(out->skills, titles.base_skills[r], sizeof out->skills);
+    }
+}
 
 /* The custom title of the villager in `record`, or NULL. */
 static const char *titles_lookup(int game, const unsigned char *record) {
@@ -181,7 +205,7 @@ static const char *titles_lookup(int game, const unsigned char *record) {
     /* Never before the table has been followed against the village on
        screen: a table just read from its file still has the records of the
        last save, and after a reload one of them may hold someone else with
-       the same identity -- a twin -- until the follow drops it.  So the
+       the same identity -- a twin -- until the follow makes it pending.  So the
        first lookup of a table runs that look and follow itself -- not the
        death sweep, which stays the per-frame tick's (titles_pass). */
     if (!titles.roster_anyone) {
@@ -261,6 +285,8 @@ static int titles_set(int game, int index, const char *text) {
     }
     titles.entries[i].index = (unsigned int)index;
     titles.entries[i].fingerprint = story_title_identity(game, record);
+    titles.entries[i].flags = VV_TITLE_KNOWN;
+    titles_looks_now(game, index, record, &titles.entries[i].looks);
     memset(titles.entries[i].title, 0, sizeof titles.entries[i].title);
     lstrcpynA(titles.entries[i].title, text, VV_TITLE_BYTES);
     titles.seen[i] = 1;
@@ -294,15 +320,38 @@ static int titles_rebind(int game, int index, unsigned int before) {
     return titles_commit();
 }
 
-/* How many present records carry this identity; *where gets the last. */
-static int titles_live_count(int game, unsigned int identity, int *where) {
+/* Could the villager in record `r` be the one entry `e` belongs to?  Present,
+   the fingerprint (name, likes, dislikes), and -- once the entry's looks are
+   known -- the same head, body and sex, and no younger and no less skilled
+   than stored (custom_titles.h vv_title_looks_could_be). */
+static int titles_could_be(int game, const vv_custom_title *e, int r) {
+    const unsigned char *record = story_record(game, r);
+    vv_title_looks now;
+    if (record == NULL || !story_record_present(game, record)
+        || story_title_identity(game, record) != e->fingerprint) {
+        return 0;
+    }
+    if (!(e->flags & VV_TITLE_KNOWN)) {
+        return 1;                             /* a version 2 entry: the fingerprint is all it has */
+    }
+    titles_looks_now(game, r, record, &now);
+    return vv_title_looks_could_be(&e->looks, &now, story_title_skills_float(game));
+}
+
+/* How many present villagers could be entry `e`'s; *where gets the last.
+   *carriers gets how many carry its fingerprint at all. */
+static int titles_candidates(int game, const vv_custom_title *e, int *where, int *carriers) {
     int count = story_record_count(game);
     int n = 0;
     int r;
+    *carriers = 0;
     for (r = 0; r < count; ++r) {
         const unsigned char *record = story_record(game, r);
         if (record != NULL && story_record_present(game, record)
-            && story_title_identity(game, record) == identity) {
+            && story_title_identity(game, record) == e->fingerprint) {
+            ++*carriers;
+        }
+        if (titles_could_be(game, e, r)) {
             ++n;
             *where = r;
         }
@@ -315,71 +364,116 @@ static int titles_live_count(int game, unsigned int identity, int *where) {
    a lower record, and a title kept at its old record index then labelled
    nobody (its fingerprint no longer matched the record there) -- or, in a
    session that had already seen the villager, was swept away as if they had
-   died.  So an entry whose record no longer holds its villager moves to the
-   one record that does: the identity (name, likes, dislikes) must be held by
-   exactly ONE present villager and by no other entry, else nothing is
-   guessed.  Only when the villagers moved: with nothing moved, an entry
+   died.  So when the villagers moved (`moved`: a reload, or a table first
+   seen against a village) every entry goes to the one present villager who
+   has its WHOLE identity (titles_could_be: the fingerprint, the head, body
+   and sex, an age and skills no lower than stored) -- a record index is
+   never trusted after a move, for a namesake packed into the title's old
+   record carries the same fingerprint.  With nothing moved, a bound entry
    whose record no longer holds its villager is the sweep's to judge (a
-   namesake born elsewhere is not the titled villager).  An entry left on a record another entry has just moved into
-   belonged to nobody there, and is dropped (no index may be listed twice).
+   namesake born elsewhere is not the titled villager).
 
-   AMBIGUOUS AFTER A RELOAD IS DROPPED (Codex, #516).  When the villagers
-   moved (`moved`: a reload, or a table first seen against a village), an
-   entry whose identity two present villagers carry -- or another entry
-   carries too -- could now be on either of them.  Kept and merely hidden,
-   it came back the moment the ambiguity did not: a twin's death, or a
-   likes change, left one carrier, who might be the twin who never had the
-   title.  So it is dropped, once and for all.  With nothing moved, the
-   record it was set on still holds that villager and it is kept.
+   AMBIGUOUS IS PENDING, NEVER DROPPED (the owner, v1.35.70; replaces "dropped
+   once and for all", Codex #516).  An entry two present villagers could
+   both be, or none, or whose one villager another entry claims too, is not
+   guessed at: it is kept PENDING (index VV_TITLE_PENDING), shown on nobody,
+   and written to the file so.  A pending entry binds again -- on a move, a
+   change in the roster, or the periodic check (`resolve`) -- only when
+   exactly one present villager has its whole identity and no other entry
+   claims that villager; until then it waits, and the read-only
+   reconciliation asks the player (src/vv_reconcile.py).  NEVER A GUESS (the
+   owner): an entry that two or more villagers could be at once is marked
+   CONTESTED (custom_titles.h), and when the others later die or leave it is
+   NOT given to the one left -- it waits for the player.  Two cases are not
+   ambiguous: after a move within the session, an entry whose villager was
+   seen this session (`seen`) and whose name and likes nobody present carries
+   any more is a villager who died, and is dropped as the death sweep would
+   (a namesake who is not them leaves it pending instead); and an entry
+   whose fingerprint NOBODY present carries (the villager away, or gone) stays
+   on its record, shown on nobody there, for the sweep to judge -- unless
+   another entry's villager is in that record now, when it waits pending.
    Returns 1 when the table changed. */
-static int titles_follow(int game, int moved) {
-    static int target[VV_TITLES_MAX];         /* the record each entry's villager holds now, -1 unknown */
+static int titles_follow(int game, int moved, int sweep, int resolve) {
+    /* The record each entry goes to (>= 0), PENDING (-1), as it is (-2), or
+       as it is unless another entry goes to its record (-3). */
+    static int target[VV_TITLES_MAX];
     static unsigned char drop[VV_TITLES_MAX];
+    static unsigned char clash[VV_TITLES_MAX];
     int i, j, kept;
     int changed = 0;
     /* First where everyone is, before anything moves: an entry's old record
        may be the new record of an entry not yet looked at. */
     for (i = 0; i < titles.count; ++i) {
-        const unsigned char *record = story_record(game, (int)titles.entries[i].index);
+        vv_custom_title *e = &titles.entries[i];
         int where = -1;
-        int duplicate = 0;
-        int carriers = titles_live_count(game, titles.entries[i].fingerprint, &where);
-        target[i] = -1;
+        int carriers = 0;
+        int n;
+        target[i] = -2;
         drop[i] = 0;
-        for (j = 0; j < titles.count; ++j) {
-            duplicate |= j != i && titles.entries[j].fingerprint == titles.entries[i].fingerprint;
+        clash[i] = 0;
+        if (!moved && (e->index != VV_TITLE_PENDING || !resolve)) {
+            continue;                         /* nothing moved: a bound entry stays, the sweep judges it */
         }
-        if (moved && (carriers > 1 || (duplicate && carriers > 0))) {
-            drop[i] = 1;                      /* whose it is cannot be told any more */
-            continue;
+        n = titles_candidates(game, e, &where, &carriers);
+        if (n >= 2 && !(e->flags & VV_TITLE_CONTESTED)) {
+            /* Two or more could be them at once: whoever is left later
+               (the others died or left) is not taken for them -- a guess. */
+            e->flags |= VV_TITLE_CONTESTED;
+            changed = 1;
         }
-        /* Still where it was. */
-        if (record != NULL && story_record_present(game, record)
-            && titles.entries[i].fingerprint == story_title_identity(game, record)) {
-            target[i] = (int)titles.entries[i].index;
-            continue;
+        if (n == 1 && e->index == VV_TITLE_PENDING && (e->flags & VV_TITLE_CONTESTED)) {
+            target[i] = -1;                   /* one left of several: the player decides, never a guess */
+        } else if (n == 1) {
+            target[i] = where;
+        } else if (n == 0 && carriers == 0 && moved && sweep && titles.seen[i] && e->index != VV_TITLE_PENDING) {
+            drop[i] = 1;                      /* seen this session, nobody carries their name and likes now: died */
+        } else if (carriers == 0 && e->index != VV_TITLE_PENDING) {
+            target[i] = -3;                   /* nobody carries it: away or gone, the sweep judges */
+        } else {
+            target[i] = -1;                   /* two or more could be them, or none: pending */
         }
-        if (moved) {
-            target[i] = where;                /* its one carrier, or -1: away or gone */
-        }                                     /* nothing moved: the sweep decides */
     }
-    for (i = 0, kept = 0; i < titles.count; ++i) {
-        int taken = 0;
+    /* No villager is given two titles' entries: one that another entry goes
+       to, or that a bound entry left as it is holds, is nobody's for certain. */
+    for (i = 0; i < titles.count; ++i) {
         if (target[i] < 0) {
-            for (j = 0; j < titles.count; ++j) {
-                taken |= j != i && target[j] == (int)titles.entries[i].index;
+            continue;
+        }
+        for (j = 0; j < titles.count; ++j) {
+            int at = target[j] >= 0 ? target[j]
+                : (target[j] == -2 && !drop[j] && titles.entries[j].index != VV_TITLE_PENDING
+                   ? (int)titles.entries[j].index : -1);
+            if (j != i && at == target[i]) {
+                clash[i] = 1;
             }
         }
-        if (taken || drop[i]) {
-            changed = 1;                      /* another villager's record now, or ambiguous: dropped */
+    }
+    for (i = 0, kept = 0; i < titles.count; ++i) {
+        if (drop[i]) {
+            changed = 1;
             continue;
         }
         titles.entries[kept] = titles.entries[i];
         titles.seen[kept] = titles.seen[i];
-        if (target[i] >= 0 && (unsigned int)target[i] != titles.entries[i].index) {
-            titles.entries[kept].index = (unsigned int)target[i];
+        if (target[i] == -3) {
+            for (j = 0; j < titles.count; ++j) {
+                if (target[j] >= 0 && !clash[j] && (unsigned int)target[j] == titles.entries[i].index) {
+                    target[i] = -1;           /* another entry's villager is in its record now */
+                }
+            }
+        }
+        if (target[i] >= 0 && !clash[i]) {
+            if ((unsigned int)target[i] != titles.entries[kept].index) {
+                titles.entries[kept].index = (unsigned int)target[i];
+                changed = 1;
+            }
             titles.seen[kept] = 1;
-            changed = 1;
+        } else if (target[i] == -1 || target[i] >= 0) {
+            if (titles.entries[kept].index != VV_TITLE_PENDING) {
+                titles.entries[kept].index = VV_TITLE_PENDING;
+                changed = 1;
+            }
+            titles.seen[kept] = 0;
         }
         ++kept;
     }
@@ -387,6 +481,31 @@ static int titles_follow(int game, int moved) {
         titles.seen[i] = 0;
     }
     titles.count = kept;
+    return changed;
+}
+
+/* Keep each bound entry's looks those of its villager now (a Change
+   Appearance, an island event's new head, the age and skills of a new
+   session): the next load is matched against them.  Returns 1 when any
+   changed. */
+static int titles_refresh_looks(int game) {
+    int i;
+    int changed = 0;
+    for (i = 0; i < titles.count; ++i) {
+        vv_custom_title *e = &titles.entries[i];
+        const unsigned char *record = e->index == VV_TITLE_PENDING ? NULL : story_record(game, (int)e->index);
+        vv_title_looks now;
+        if (record == NULL || !story_record_present(game, record)
+            || story_title_identity(game, record) != e->fingerprint) {
+            continue;
+        }
+        titles_looks_now(game, (int)e->index, record, &now);
+        if (!(e->flags & VV_TITLE_KNOWN) || memcmp(&e->looks, &now, sizeof now) != 0) {
+            e->looks = now;
+            e->flags |= VV_TITLE_KNOWN;
+            changed = 1;
+        }
+    }
     return changed;
 }
 
@@ -413,8 +532,42 @@ static int titles_take_roster(int game, unsigned int *ids, unsigned int *stable,
     return n;
 }
 
-/* titles_unpublished: a change carried by titles_relook and not yet in the
-   file; the next tick publishes it. */
+/* titles_unpublished: a change carried by titles_relook, or made while the
+   village was away (titles.frozen), and not yet in the file; the next tick
+   in the village publishes it. */
+
+/* Note the age and skills each record's villager is first seen with: every
+   record on a move (a load: the save's own values), else each record whose
+   villager is new there -- not one renamed or whose likes changed in place,
+   who is the same villager -- or REBORN there (titles_reborn). */
+static int titles_reborn(int r, const unsigned int *now, const int *now_age) {
+    /* The same fingerprint in the record but younger than at the last look:
+       a newborn namesake (the same name and likes) put into the record of a
+       villager who died between two looks -- at the 256 cap every birth
+       takes a freed record.  Nobody grows younger. */
+    return titles.roster_anyone && now[r] != 0 && now[r] == titles.roster[r] && now_age[r] < titles.roster_age[r];
+}
+
+static void titles_note_bases(int game, const unsigned int *now, const int *now_age, int moved, int renamed,
+                              const unsigned char *in_place, int in_place_count) {
+    int r;
+    for (r = 0; r < TITLES_ROSTER; ++r) {
+        const unsigned char *record;
+        vv_title_looks looks;
+        if (now[r] == 0 || (!moved && !titles_reborn(r, now, now_age)
+                            && (titles.roster[r] == now[r] || r == renamed
+                                || (in_place_count > 0 && in_place[r])))) {
+            continue;
+        }
+        record = story_record(game, r);
+        if (record == NULL) {
+            continue;
+        }
+        story_title_looks(game, record, &looks);
+        titles.base_age[r] = looks.age;
+        memcpy(titles.base_skills[r], looks.skills, sizeof looks.skills);
+    }
+}
 
 /* The lookup's look between two ticks: only a likes / dislikes change in
    place (identity_in_place.h) is carried, in memory, and the roster taken
@@ -427,14 +580,15 @@ static void titles_relook(int game) {
     static unsigned int now_keep[TITLES_ROSTER];
     static int now_age[TITLES_ROSTER];
     static unsigned char in_place[TITLES_ROSTER];
-    int i, present;
-    if (!titles.loaded || !titles.roster_anyone || titles.swapped) {
+    int i, present, in_place_count;
+    if (!titles.loaded || !titles.roster_anyone || titles.frozen) {
         return;
     }
     present = titles_take_roster(game, now, now_stable, now_keep, now_age);
-    if (present == 0
-        || vv_roster_changed_in_place(TITLES_ROSTER, titles.roster, titles.roster_keep, titles.roster_age, now,
-                                      now_keep, now_age, in_place) <= 0) {
+    in_place_count = present == 0 ? 0
+        : vv_roster_changed_in_place(TITLES_ROSTER, titles.roster, titles.roster_keep, titles.roster_age, now,
+                                     now_keep, now_age, in_place);
+    if (in_place_count <= 0) {
         return;
     }
     for (i = 0; i < titles.count; ++i) {
@@ -444,6 +598,7 @@ static void titles_relook(int game) {
             titles_unpublished = 1;
         }
     }
+    titles_note_bases(game, now, now_age, 0, -1, in_place, in_place_count);
     memcpy(titles.roster, now, sizeof now);
     memcpy(titles.roster_stable, now_stable, sizeof now_stable);
     memcpy(titles.roster_keep, now_keep, sizeof now_keep);
@@ -451,20 +606,25 @@ static void titles_relook(int game) {
 }
 
 /* Once per frame (from the Origins companion's tick): bind to the slot,
-   detect a Start Over, move titles to where their villagers are now, and
-   drop the titles of villagers that are gone. */
+   detect a Start Over, move titles to where their villagers are now, bind
+   pending titles whose villager can be told again, and drop the titles of
+   villagers that are gone. */
 static void titles_pass(int game, int sweep) {
     static unsigned int now[TITLES_ROSTER];
     static unsigned int now_stable[TITLES_ROSTER];
     static unsigned int now_keep[TITLES_ROSTER];
     static int now_age[TITLES_ROSTER];
     static unsigned char in_place[TITLES_ROSTER];
+    static unsigned char reborn[TITLES_ROSTER];
     int i;
     int changed = 0;
     int present;
     int moved;
     int renamed;
     int in_place_count;
+    int foreign;
+    int roster_changed;
+    int periodic = 0;
     titles_sync(game);
     if (!titles.loaded) {
         return;
@@ -487,23 +647,14 @@ static void titles_pass(int game, int sweep) {
         ? vv_roster_changed_in_place(TITLES_ROSTER, titles.roster, titles.roster_keep, titles.roster_age,
                                      now, now_keep, now_age, in_place)
         : 0;
-    if (renamed < 0 && in_place_count == 0 && titles.roster_anyone && present > 0
-        && vv_roster_shares(TITLES_ROSTER, titles.roster, now) == 0) {
-        /* A WHOLE OTHER ARRAY IS NOT PLAY (native/shared/foreign_sidecar.h).
-           Nobody of the last look is on screen: the game has put another
-           village in the records with the slot unchanged -- the title screen
-           after a quit to the menu, whose slot list leaves seeded founders
-           there.  Swept now, every title whose villager was seen would be
-           dropped and the file written without them.  They are unseen
-           again -- the sweep drops only a title whose villager it has seen
-           -- and every look is a load until the table's villagers are back. */
-        memset(titles.seen, 0, sizeof titles.seen);
-        titles.swapped = 1;
-    } else if (renamed >= 0 || in_place_count > 0 || vv_roster_shares(TITLES_ROSTER, titles.roster, now) != 0) {
-        titles.swapped = 0;
-    }
-    moved = !titles.roster_anyone || titles.swapped || vv_roster_moved(TITLES_ROSTER, titles.roster, now);
-    if (in_place_count > 0 && !titles.swapped) {
+    /* A WHOLE OTHER ARRAY IS NOT PLAY (native/shared/foreign_sidecar.h).
+       Nobody of the last look is on screen: the game has put another village
+       in the records with the slot unchanged -- the title screen after a
+       quit to the menu, whose slot list leaves seeded founders there. */
+    foreign = renamed < 0 && in_place_count == 0 && titles.roster_anyone && present > 0
+        && vv_roster_shares(TITLES_ROSTER, titles.roster, now) == 0;
+    moved = !titles.roster_anyone || foreign || vv_roster_moved(TITLES_ROSTER, titles.roster, now);
+    if (in_place_count > 0 && !titles.frozen) {
         moved = 0;                            /* the same villagers, in the same records */
         for (i = 0; i < titles.count; ++i) {
             unsigned int r = titles.entries[i].index;
@@ -517,7 +668,7 @@ static void titles_pass(int game, int sweep) {
        a villager the player renamed no longer matched their record and the
        sweep threw it away.  One record changed, the rest of the identity
        unchanged: the same villager, and the title takes the new identity. */
-    if (renamed >= 0) {
+    if (renamed >= 0 && !titles.frozen) {
         moved = 0;                            /* one villager renamed: nobody moved */
         for (i = 0; i < titles.count; ++i) {
             if (titles.entries[i].index == (unsigned int)renamed
@@ -527,32 +678,64 @@ static void titles_pass(int game, int sweep) {
             }
         }
     }
+    titles_note_bases(game, now, now_age, moved, renamed, in_place, in_place_count);
+    for (i = 0; i < TITLES_ROSTER; ++i) {
+        reborn[i] = (unsigned char)titles_reborn(i, now, now_age);
+    }
+    roster_changed = memcmp(titles.roster, now, sizeof now) != 0;
     memcpy(titles.roster, now, sizeof now);
     memcpy(titles.roster_stable, now_stable, sizeof now_stable);
     memcpy(titles.roster_keep, now_keep, sizeof now_keep);
     memcpy(titles.roster_age, now_age, sizeof now_age);
     titles.roster_anyone = present > 0;
+    /* The village went away (the title screen): nothing is judged, moved,
+       swept or written -- the file keeps the village as it was left, and
+       nobody seen there may be taken for dead.  The next array to arrive is
+       a load, and every title is followed afresh then. */
+    if (foreign && !titles.frozen) {
+        titles.frozen = 1;
+        memset(titles.seen, 0, sizeof titles.seen);
+        return;
+    }
+    if (titles.frozen) {
+        if (!moved) {
+            return;
+        }
+        titles.frozen = 0;
+        moved = 1;
+    }
     if (titles.count == 0) {
         return;
     }
     if (GetTickCount() - titles.checked_at >= TITLES_CHECK_MS) {
         titles.checked_at = GetTickCount();
+        periodic = 1;
         if (titles_reset_detected()) {
             return;
         }
     }
-    changed |= titles_follow(game, moved);
+    changed |= titles_follow(game, moved, sweep, moved || roster_changed || periodic);
     for (i = titles.count - 1; sweep && i >= 0; --i) {
-        const unsigned char *record = story_record(game, (int)titles.entries[i].index);
-        int match = record != NULL && story_record_present(game, record)
-            && titles.entries[i].fingerprint == story_title_identity(game, record);
+        const unsigned char *record;
+        int match;
+        if (titles.entries[i].index == VV_TITLE_PENDING) {
+            continue;                         /* shown on nobody, waiting: never swept */
+        }
+        record = story_record(game, (int)titles.entries[i].index);
+        match = record != NULL && story_record_present(game, record)
+            && titles.entries[i].fingerprint == story_title_identity(game, record)
+            && !(titles.entries[i].index < TITLES_ROSTER && reborn[titles.entries[i].index]);
         if (match) {
             titles.seen[i] = 1;
         } else if (titles.seen[i]) {
             titles_remove_at(i);
             changed = 1;
+        } else if (titles.entries[i].index < TITLES_ROSTER && reborn[titles.entries[i].index]) {
+            titles.entries[i].index = VV_TITLE_PENDING;   /* not seen die: whose it is waits */
+            changed = 1;
         }
     }
+    changed |= titles_refresh_looks(game);
     if (changed || titles_unpublished) {
         titles_unpublished = 0;
         titles_publish();

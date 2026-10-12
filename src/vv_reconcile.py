@@ -115,6 +115,7 @@ class Seen:
     rank: int | None = None                 # the record slot (a save only)
     title: str | None = None                # a snapshot's "Custom title"
     title_id: int | None = None             # the save's custom-title identity (native/shared/custom_titles.h)
+    title_looks: dict | None = None         # the save's age, head, body, sex and skills (src/vv_titles_file.py)
 
     @property
     def key(self) -> tuple:
@@ -257,6 +258,7 @@ def read_save(path: Path, game: int) -> tuple[list[Seen], list[Seen]]:
     """(the living, the bodies awaiting burial) of one save file, each with what the save keeps."""
     import vv_last_names as ln
     import vv_lost_titles as lt
+    import vv_titles_file as titles_file
     checker = _checker()
     data = path.read_bytes()
     f = ln.FIELDS[game]
@@ -280,7 +282,8 @@ def read_save(path: Path, game: int) -> tuple[list[Seen], list[Seen]]:
             mother = data[at + f.mother:at + f.mother + f.parent_cap].split(b"\0", 1)[0].decode("latin-1")
         seen = Seen(data[at:at + f.name_cap].split(b"\0", 1)[0].decode("latin-1"), i32(f.head), i32(f.body),
                     "Male" if i32(f.sex) == f.male else "Female", i32(age_at), prefs["likes"], prefs["dislikes"],
-                    father, mother, rank, None, ln._title_identity(data, at, f))
+                    father, mother, rank, None, ln._title_identity(data, at, f),
+                    titles_file.looks_from_save(game, data, at))
         (alive if at in living else bodies).append(seen)
     return alive, bodies
 
@@ -888,27 +891,33 @@ class _Builder:
                          "been replaced by an older copy, or the game did not save at its last quit.",
                          [f"{KEEP} (I restored it)"])
 
-    def titles(self, living: list[Seen]) -> None:
-        """A custom title the latest History snapshot gives a villager still alive, with no entry for them in
-        the Custom Titles file: possibly lost (an entry dropped, or the file lost or replaced)."""
+    def titles(self, living: list[Seen], bodies: list[Seen] | None = None) -> None:
+        """The Custom Titles file against the save and the latest History snapshot.
+
+        A PENDING title (v1.35.70): after a load the game could not tell which villager it belongs to --
+        two could be them, or none -- so it is kept, shown on nobody, and never dropped for it.  Each one
+        is a question naming the title, the identity it is kept by and the villagers who could be them.
+
+        A custom title the latest History snapshot gives a villager still alive, with no entry for them in
+        the file (bound or pending): possibly lost (an entry dropped, or the file lost or replaced)."""
+        import vv_titles_file as titles_file
+        path = layout.find(Path(self.folder), f"{layout.DATA}\\Custom Titles\\Custom Titles - Save {self.slot}.dat")
+        try:
+            got = titles_file.read(path.read_bytes(), self.game)
+        except OSError:
+            got = None
+        file_entries = got[1] if got else []
         history = [c for c in self.logs.censuses if c.kind == "history"]
+        present = list(living) + list(bodies or [])
+        for e in file_entries:
+            if e.pending:
+                self._pending_title(path, e, present, history[-1].people if history else [])
         if not history:
             return
         titled = [s for s in history[-1].people if s.title and s.title.lower() not in ("none", "(none)")]
         if not titled:
             return
-        path = layout.find(Path(self.folder), f"{layout.DATA}\\Custom Titles\\Custom Titles - Save {self.slot}.dat")
-        entries: dict[int, str] = {}
-        try:
-            data = path.read_bytes()
-            if data[:4] == b"VCT1" and len(data) >= 16 and struct.unpack_from("<I", data, 8)[0] == self.game:
-                count = struct.unpack_from("<I", data, 12)[0]
-                for k in range(min(count, (len(data) - 16) // 40)):
-                    o = 16 + 40 * k
-                    entries[struct.unpack_from("<I", data, o + 4)[0]] = \
-                        data[o + 8:o + 40].split(b"\0", 1)[0].decode("latin-1")
-        except OSError:
-            pass
+        entries: dict[int, str] = {e.identity: e.title for e in file_entries}
         lost = []
         for s in titled:
             now = [v for v in living if v.key == s.key]
@@ -922,6 +931,48 @@ class _Builder:
                      f"title the Custom Titles file ({path.name}) no longer holds for them: {', '.join(lost)}. The "
                      "title(s) may be lost.", [f"{KEEP} (I removed the title)"])
 
+    def _pending_title(self, path: Path, e, present: list[Seen], snapshot: list[Seen]) -> None:
+        """One question for one pending title: which title, the identity it is kept by, and who could be
+        them now (the villagers the game itself would weigh: the same name and likes, then the whole
+        identity)."""
+        import vv_last_names as ln
+        import vv_titles_file as titles_file
+        carriers = [v for v in present if v.title_id == e.identity]
+        could = [v for v in carriers if v.title_looks is not None and titles_file.could_be(self.game, e, v.title_looks)]
+        named = [s.name for s in snapshot if s.title == e.title]
+        name = carriers[0].name if carriers else (named[0] if len(set(named)) == 1 else None)
+        if e.known:
+            sex = "male" if e.sex == ln.FIELDS[self.game].male else "female"
+            skills = ", ".join(f"{s:g}" for s in e.skill_values(self.game, rounded=True))
+            kept = (f"{name or 'a villager whose name the file does not keep'} (the name, likes and dislikes the "
+                    f"file's identity {e.identity:08X} holds; head {e.head}, body {e.body}, {sex}, age at least "
+                    f"{e.age} units, skills at least {skills})")
+        else:
+            kept = (f"{name or 'a villager whose name the file does not keep'} (the name, likes and dislikes the "
+                    f"file's identity {e.identity:08X} holds; an older file, so no looks are kept with it)")
+        if could:
+            who = "; ".join(f"{v.described()}{'' if v.rank is None else f', record {v.rank}'}" for v in could)
+            whom = f"{len(could)} villager(s) in the save could be them: {who}."
+        else:
+            whom = "No villager in the save has that whole identity now (they may have died, or their looks changed)."
+        others = [v for v in carriers if v not in could]
+        if others:
+            whom += (" Not them (the same name and likes, another head, body or sex, or younger or less skilled): "
+                     + "; ".join(v.described() for v in others) + ".")
+        if e.contested:
+            after = ("While it waited, two or more villagers could be them at once, so the game will NOT give it "
+                     "back by itself, even if only one of them is left now (the others died or left): which one "
+                     "had it can not be told, and it is never guessed. If it is theirs, give it to them again with "
+                     "the Custom Island Event's title; until then it waits.")
+            if len(could) == 1:
+                after = f"The one left who could be them: {could[0].name}. " + after
+        else:
+            after = ("The game gives it back by itself once exactly one villager has that whole identity; until "
+                     "then it waits.")
+        self.ask("titles", f"title-pending|{e.identity:08X}|{e.title}",
+                 f"The custom title \"{e.title}\" is PENDING in {path.name}: after a load the game could not tell "
+                 f"which villager it belongs to, so it is kept, shown on nobody -- never dropped. It is kept for "
+                 f"{kept}. {whom} {after}", [f"{KEEP} (leave it waiting)"])
     def slot_file_of(self, path: Path) -> bool:
         """Whether a file belongs to this game and slot (or to the game's shared logs)."""
         name = path.name
@@ -1108,7 +1159,7 @@ def reconcile(folder: Path, game: int, slot: int) -> Reconciliation:
             continue
         b.rename_question(old, r.who, r.heading, f"the {r.path.name}", r)
     b.files(living, saves)
-    b.titles(living)
+    b.titles(living, bodies_now)
     if b.slot_reused or b.slot_moved:
         b.note("slots", "slot-reuse", f"Record slots: {b.slot_reused} hold another villager than in an earlier "
                f"generation of the save, and {b.slot_moved} villager(s) are in another slot -- deaths free slots "

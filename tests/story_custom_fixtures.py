@@ -481,14 +481,24 @@ class MemoryFiles:
         return self.last_error, 0
 
     def titles(self, path: str):
+        """(game, [(record, fingerprint, title)]) of a version 3 Custom Titles file."""
+        got = self.title_entries(path)
+        if got is None:
+            return None
+        return got[0], [(e["index"], e["fp"], e["title"]) for e in got[1]]
+
+    def title_entries(self, path: str):
+        """(game, entries) with every field of each 84-byte version 3 entry (native/shared/custom_titles.h)."""
         raw = self.files.get(path.lower())
         if raw is None:
             return None
         magic, version, game, count = struct.unpack("<4I", raw[:16])
-        assert (magic, version) == (0x31544356, 2)
+        assert (magic, version) == (0x31544356, 3)
+        assert len(raw) == 16 + 84 * count
         out = []
         for k in range(count):
-            e = raw[16 + 40 * k:56 + 40 * k]
-            index, fp = struct.unpack("<2I", e[:8])
-            out.append((index, fp, e[8:].split(b"\0")[0].decode()))
+            e = raw[16 + 84 * k:16 + 84 * (k + 1)]
+            index, fp, flags, age, head, body, sex = struct.unpack("<3I4i", e[:28])
+            out.append(dict(index=index, fp=fp, flags=flags, age=age, head=head, body=body, sex=sex,
+                            skills=e[28:52], title=e[52:].split(b"\0")[0].decode()))
         return game, out

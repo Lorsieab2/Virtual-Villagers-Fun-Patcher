@@ -4129,7 +4129,9 @@ static int record_custom_title(int game_id, const struct game_layout *g,
     identity = vv_title_identity(record, g->name, g->name_capacity, g->likes, g->dislikes,
                                  g->preference_slots);
     for (i = 0; i < count; ++i) {
-        if (titles[i].fingerprint == identity) {
+        /* A pending title (custom_titles.h) is shown on nobody until the
+           Story companion binds it to one villager again. */
+        if (titles[i].index != VV_TITLE_PENDING && titles[i].fingerprint == identity) {
             if (found >= 0) {
                 return 0;
             }

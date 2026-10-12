@@ -104,7 +104,7 @@ int vv_save_subfolder_w(wchar_t *out, const wchar_t *sub, int reserve) {
 
 #define RECORDS 8
 #define NAME_BYTES 25
-static unsigned char g_records[RECORDS][64];   /* [0] alive, [1..25] name */
+static unsigned char g_records[RECORDS][96];   /* [0] alive, [1..25] name; looks from [48] */
 static int g_slot = 1;
 
 static int story_current_slot(int game) {
@@ -167,6 +167,38 @@ static int story_title_age(int game, const unsigned char *record) {
     return *(const int *)(record + 52);
 }
 
+/* The looks a title is kept by (story_title_looks): the sex dword [48], the
+   age [52], head [56] and body [60], and six int skills from [64]. */
+static void story_title_looks(int game, const unsigned char *record, vv_title_looks *out) {
+    int k;
+    (void)game;
+    memset(out, 0, sizeof *out);
+    out->sex = *(const int *)(record + 48);
+    out->age = *(const int *)(record + 52);
+    out->head = *(const int *)(record + 56);
+    out->body = *(const int *)(record + 60);
+    for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+        out->skills[k] = *(const unsigned int *)(record + 64 + 4 * k);
+    }
+}
+
+static int story_title_skills_float(int game) {
+    (void)game;
+    return 0;
+}
+
+/* Set a villager's looks: sex, age, head, body, and every skill to `skill`. */
+static void looks(int index, int sex, int age, int head, int body, int skill) {
+    int k;
+    *(int *)(g_records[index] + 48) = sex;
+    *(int *)(g_records[index] + 52) = age;
+    *(int *)(g_records[index] + 56) = head;
+    *(int *)(g_records[index] + 60) = body;
+    for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+        *(int *)(g_records[index] + 64 + 4 * k) = skill;
+    }
+}
+
 static void villager(int index, const char *name) {
     memset(g_records[index], 0, sizeof g_records[index]);
     g_records[index][0] = 1;
@@ -199,6 +231,17 @@ static void new_session(void) {
     memset(&titles, 0, sizeof titles);
 }
 
+/* The record of the entry with this title, VV_TITLE_PENDING (as -1), or -2: none. */
+static int title_index(const char *title) {
+    int k;
+    for (k = 0; k < titles.count; ++k) {
+        if (lstrcmpA(titles.entries[k].title, title) == 0) {
+            return (int)titles.entries[k].index;
+        }
+    }
+    return -2;
+}
+
 static void write_bytes(const char *path, const void *data, DWORD size) {
     HANDLE h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     DWORD written = 0;
@@ -213,7 +256,7 @@ int main(void) {
     char path2[MAX_PATH];
     const char *seen;
     int game;
-    unsigned char raw[64];
+    unsigned char raw[128];
     HANDLE h;
     DWORD got = 0;
 
@@ -232,13 +275,14 @@ int main(void) {
     /* -- set, publish, the documented format ---------------------------- */
     check(titles_set(3, 1, "Master Storyteller") == 1, "a title is set and published");
     check(file_exists(path1), "CUSTOM TITLES FILE PUBLISHED BESIDE THE SAVES");
-    check(file_size(path1) == 16 + 40, "the file is the header plus one 40-byte entry");
+    check(file_size(path1) == 16 + 84, "the file is the header plus one 84-byte entry");
     h = CreateFileA(path1, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
     ReadFile(h, raw, sizeof raw, &got, NULL);
     CloseHandle(h);
-    check(got == 56 && memcmp(raw, "VCT1", 4) == 0 && raw[8] == 3 && raw[12] == 1 && raw[16] == 1,
-          "magic 'VCT1', game 3, one entry, record index 1");
-    check(lstrcmpA((const char *)raw + 24, "Master Storyteller") == 0, "the title text is stored");
+    check(got == 100 && memcmp(raw, "VCT1", 4) == 0 && raw[4] == 3 && raw[8] == 3 && raw[12] == 1
+          && raw[16] == 1 && raw[24] == VV_TITLE_KNOWN,
+          "magic 'VCT1', version 3, game 3, one entry, record index 1, its looks known");
+    check(lstrcmpA((const char *)raw + 16 + 52, "Master Storyteller") == 0, "the title text is stored");
     check(!vv_title_valid("") && !vv_title_valid("   ") && vv_title_valid("Chief"),
           "an empty or all-space title is refused");
     check(titles_set(3, 2, "This title is far too long to be shown") == 0, "a title over 31 characters is refused");
@@ -305,7 +349,7 @@ int main(void) {
     check(titles_set(3, 1, NULL) == 0 && titles_lookup(3, g_records[1]) != NULL,
           "A FAILED WRITE REMOVES NO TITLE IN MEMORY");
     g_fail_writes = 0;
-    check(titles_set(3, 0, "Later") == 1 && file_size(path1) == 16 + 80,
+    check(titles_set(3, 0, "Later") == 1 && file_size(path1) == 16 + 2 * 84,
           "the next write holds only the changes that were made");
     new_session();
     seen = titles_lookup(3, g_records[1]);
@@ -332,10 +376,11 @@ int main(void) {
     seen = titles_lookup(3, g_records[2]);
     check(seen != NULL && lstrcmpA(seen, "Moku Title") == 0, "... and Moku [3 -> 2] keeps hers");
     check(titles_lookup(3, g_records[1]) == NULL, "... Lani, now in Kai's old record, is given nothing");
-    check(titles.count == 2, "... and the dead Hina's title, on the record Kai holds now, is dropped");
+    check(titles.count == 3 && title_index("Matriarch") == (int)VV_TITLE_PENDING,
+          "... and the dead Hina's title waits PENDING, shown on nobody: a load never drops a title");
     new_session();
     seen = titles_lookup(3, g_records[0]);
-    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && file_size(path1) == 16 + 80,
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && file_size(path1) == 16 + 3 * 84,
           "THE FOLLOWED TITLES ARE WRITTEN BACK: a new session reads them at their new records");
     /* The same within one session (a reload without leaving the game): the
        sweep must not take a villager who merely moved for one who died. */
@@ -344,33 +389,167 @@ int main(void) {
     villager(0, "Lani"); villager(1, "Moku"); villager(2, "Kai");
     titles_tick(3);
     seen = titles_lookup(3, g_records[2]);
-    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && titles.count == 2,
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && titles.count == 3,
           "A VILLAGER WHO MOVED IN THIS SESSION IS NOT SWEPT AWAY AS DEAD");
-    /* Two villagers of one identity: nothing is guessed. */
+
+    /* -- THE OWNER'S BUG (v1.35.70): a title dropped as ambiguous ---------
+       A titled Kai and an identical-looking namesake (the same name, likes,
+       dislikes, head, body and sex) after a reload.  Either could be him: the
+       title was dropped once and for all.  It is kept PENDING now: shown on
+       neither, still in the file, and bound again by the WHOLE identity
+       once only one villager can be him. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai");
+    looks(1, 1, 500, 3, 4, 20);
+    titles_tick(3);
+    check(titles_set(3, 1, "Kai Title") == 1, "setup: Kai [1], age 500, has a title");
     new_session();
     memset(g_records, 0, sizeof g_records);
-    villager(0, "Kai"); villager(1, "Moku"); villager(3, "Kai");
+    villager(0, "Kai"); looks(0, 1, 520, 3, 4, 20);             /* the titled Kai, a little older */
+    villager(1, "Moku");
+    villager(3, "Kai"); looks(3, 1, 600, 3, 4, 30);             /* a namesake who could be him */
+    titles_tick(3);
     titles_tick(3);
     check(titles_lookup(3, g_records[0]) == NULL && titles_lookup(3, g_records[3]) == NULL,
-          "two villagers sharing the title's identity: neither is given it");
-    {
-        int k, kai_at = -2;
-        for (k = 0; k < titles.count; ++k) {
-            if (lstrcmpA(titles.entries[k].title, "Kai Title") == 0) kai_at = (int)titles.entries[k].index;
-        }
-        check(kai_at == -2, "... and after the reload the entry is dropped, not kept for either of them");
-    }
-    seen = titles_lookup(3, g_records[1]);
-    check(seen != NULL && lstrcmpA(seen, "Moku Title") == 0, "... while Moku's still follows her");
-    /* Codex (#516, round 2): one of the two Kais dies later in the session;
-       the title must not come back on the survivor, who may never have had it. */
-    g_records[3][0] = 0;
+          "AN IDENTICAL-LOOKING NAMESAKE AFTER A RELOAD: THE TITLE IS KEPT PENDING, SHOWN ON NEITHER");
+    check(titles.count == 1 && title_index("Kai Title") == (int)VV_TITLE_PENDING,
+          "... the entry is kept, pending -- never dropped");
+    new_session();
+    titles_sync(3);                              /* the file as written */
+    check(titles.loaded && titles.count == 1 && titles.entries[0].index == VV_TITLE_PENDING
+          && (titles.entries[0].flags & VV_TITLE_KNOWN) && titles.entries[0].looks.age == 500
+          && titles.entries[0].looks.head == 3 && titles.entries[0].looks.skills[0] == 20,
+          "THE FILE STILL HOLDS THE PENDING TITLE, WITH THE WHOLE IDENTITY IT WAS KEPT BY");
+    check(titles.entries[0].flags & VV_TITLE_CONTESTED,
+          "TWO COULD BE HIM AT ONCE: THE PENDING TITLE IS MARKED CONTESTED IN THE FILE");
+    /* NEVER A GUESS (the owner): the namesake dies, and the one Kai left is
+       not taken for the titled one -- which of the two died can not be told.
+       The title waits for the player (the reconciliation names the Kai left
+       as the one who could be him). */
     titles_tick(3);
-    check(titles_lookup(3, g_records[0]) == NULL,
-          "A TITLE DROPPED AS AMBIGUOUS NEVER REAPPEARS WHEN ONE OF THE TWO DIES");
-    /* Two titled villagers of one identity, one of whom died before the
-       reload: the survivor could be either, so neither title is given --
-       and the file never lists one record twice (it would be unreadable). */
+    g_records[3][0] = 0;
+    titles.checked_at = GetTickCount() - 3 * TITLES_CHECK_MS;
+    titles_tick(3);
+    titles_tick(3);
+    check(titles_lookup(3, g_records[0]) == NULL && titles.count == 1
+          && title_index("Kai Title") == (int)VV_TITLE_PENDING,
+          "THE NAMESAKE DIES: THE ONE KAI LEFT IS NOT GIVEN THE CONTESTED TITLE -- IT WAITS FOR THE PLAYER");
+    /* ...nor after the next load, with the namesake gone from the save. */
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); looks(0, 1, 540, 3, 4, 20);
+    villager(1, "Moku");
+    titles_tick(3);
+    titles.checked_at = GetTickCount() - 3 * TITLES_CHECK_MS;
+    titles_tick(3);
+    check(titles_lookup(3, g_records[0]) == NULL && titles.count == 1
+          && title_index("Kai Title") == (int)VV_TITLE_PENDING
+          && (titles.entries[0].flags & VV_TITLE_CONTESTED),
+          "... NOR AFTER A RELOAD WITH ONE KAI LEFT: STILL PENDING AND CONTESTED");
+    /* ...nor when the namesake changes (new likes) and so stops matching. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+    titles_tick(3);
+    titles_set(3, 1, "Kai Title");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); looks(0, 1, 520, 3, 4, 20);
+    villager(3, "Kai"); looks(3, 1, 600, 3, 4, 30);
+    titles_tick(3);
+    check(title_index("Kai Title") == (int)VV_TITLE_PENDING, "setup: the title is pending between two Kais");
+    g_records[3][44] = 6;                                        /* the namesake's likes change */
+    titles_tick(3);
+    check(titles_lookup(3, g_records[0]) == NULL && titles_lookup(3, g_records[3]) == NULL
+          && title_index("Kai Title") == (int)VV_TITLE_PENDING,
+          "THE NAMESAKE'S LIKES CHANGE: THE CONTESTED TITLE STILL WAITS, GIVEN TO NEITHER");
+    /* A pending title that was never contested -- only a namesake who is
+       not him was there -- binds by itself once exactly one villager has his
+       whole identity. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+    titles_tick(3);
+    titles_set(3, 1, "Kai Title");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani");
+    villager(1, "Kai"); looks(1, 1, 400, 3, 4, 20);             /* younger: not him */
+    titles_tick(3);
+    titles_tick(3);
+    check(title_index("Kai Title") == (int)VV_TITLE_PENDING && !(titles.entries[0].flags & VV_TITLE_CONTESTED),
+          "setup: pending, never contested (nobody could be him)");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani");
+    villager(2, "Kai"); looks(2, 1, 530, 3, 4, 25);             /* the titled Kai is back */
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[2]);
+    check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
+          "A NEVER-CONTESTED PENDING TITLE BINDS AGAIN WHEN EXACTLY ONE VILLAGER HAS THE WHOLE IDENTITY");
+    /* The titled Kai died before the reload and the namesake left is NOT
+       him by the whole identity: younger, less skilled, or the other sex.
+       (The old follow moved the title to the one carrier of the name and
+       likes -- the wrong villager.) */
+    {
+        static const struct { int sex, age, skill; const char *what; } wrong[] = {
+            { 1, 400, 30, "THE TITLED KAI GONE, A YOUNGER NAMESAKE IS NOT GIVEN THE TITLE: IT STAYS PENDING" },
+            { 1, 600, 10, "... nor a namesake with a lower skill" },
+            { 2, 600, 30, "... nor a namesake of the other sex" },
+        };
+        int w;
+        for (w = 0; w < 3; ++w) {
+            new_session();
+            DeleteFileA(path1);
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+            titles_tick(3);
+            titles_set(3, 1, "Kai Title");
+            new_session();
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Lani");
+            villager(1, "Kai"); looks(1, wrong[w].sex, wrong[w].age, 3, 4, wrong[w].skill);
+            titles_tick(3);
+            titles_tick(3);
+            check(titles_lookup(3, g_records[1]) == NULL && titles.count == 1
+                  && title_index("Kai Title") == (int)VV_TITLE_PENDING, wrong[w].what);
+        }
+    }
+
+    /* Twins identical in everything: whose the title is can never be told
+       while both live -- it stays pending, and the reconciliation asks. */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani");
+    villager(5, "Kai"); looks(5, 1, 500, 3, 4, 20);
+    villager(6, "Kai"); looks(6, 1, 500, 3, 4, 20);
+    titles_tick(3);
+    check(titles_set(3, 5, "Only This Kai") == 1, "setup: one of two identical twins has a title");
+    new_session();
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani");
+    villager(4, "Kai"); looks(4, 1, 500, 3, 4, 20);
+    villager(5, "Kai"); looks(5, 1, 500, 3, 4, 20);
+    titles_tick(3);
+    titles.checked_at = GetTickCount() - 3 * TITLES_CHECK_MS;
+    titles_tick(3);
+    titles_tick(3);
+    check(titles_lookup(3, g_records[4]) == NULL && titles_lookup(3, g_records[5]) == NULL
+          && titles.count == 1 && title_index("Only This Kai") == (int)VV_TITLE_PENDING,
+          "TWINS IDENTICAL IN EVERYTHING: THE TITLE STAYS PENDING, SHOWN ON NEITHER, KEPT");
+    new_session();
+    titles_sync(3);
+    check(titles.count == 1 && titles.entries[0].index == VV_TITLE_PENDING,
+          "... and the file keeps it pending for the reconciliation to ask about");
+
+    /* Two titled villagers of one whole identity, one of whom died before
+       the reload: the survivor could be either, so neither title is given --
+       both wait, and the file never lists one record twice. */
     new_session();
     DeleteFileA(path1);
     memset(g_records, 0, sizeof g_records);
@@ -383,9 +562,10 @@ int main(void) {
     titles_tick(3);
     check(titles_lookup(3, g_records[0]) == NULL, "a surviving Kai is not given either Kai's title");
     new_session();
-    check(titles_lookup(3, g_records[1]) == NULL && titles.loaded && titles.count == 0,
-          "... both entries are dropped, and the file still loads (no record listed twice)");
-    /* A move and nothing else (no stale entry dropped) is written back too. */
+    check(titles_lookup(3, g_records[1]) == NULL && titles.loaded && titles.count == 2
+          && title_index("First Kai") == (int)VV_TITLE_PENDING && title_index("Second Kai") == (int)VV_TITLE_PENDING,
+          "... both entries wait pending, and the file still loads (no record listed twice)");
+    /* A move and nothing else is written back too. */
     new_session();
     DeleteFileA(path1);
     memset(g_records, 0, sizeof g_records);
@@ -400,25 +580,98 @@ int main(void) {
     check(titles.loaded && titles.count == 1 && titles.entries[0].index == 0,
           "A PURE MOVE IS WRITTEN BACK: the next session finds Kai's title at record 0");
 
-    /* Codex (#516): a titled Kai at record 5 and an identical untitled Kai at
-       6; a death below moves them to 4 and 5.  Record 5 still carries the
-       title's identity -- but it is the OTHER Kai now.  Neither shows it. */
+    /* Codex (#516): a titled Kai at record 5 and an untitled namesake of the
+       same looks at 6; a death below moves them to 4 and 5.  Record 5 still
+       carries the title's fingerprint -- but it is the OTHER Kai now, younger
+       and less skilled than the title's.  The title follows its own Kai. */
     new_session();
     DeleteFileA(path1);
     memset(g_records, 0, sizeof g_records);
-    villager(0, "Lani"); villager(5, "Kai"); villager(6, "Kai");
-    check(titles_set(3, 5, "Only This Kai") == 1, "setup: one of two identical villagers has a title");
+    villager(0, "Lani");
+    villager(5, "Kai"); looks(5, 1, 600, 3, 4, 30);
+    villager(6, "Kai"); looks(6, 1, 300, 3, 4, 10);
+    titles_tick(3);
+    check(titles_set(3, 5, "Only This Kai") == 1, "setup: the older of two look-alike Kais has a title");
     new_session();
     memset(g_records, 0, sizeof g_records);
-    villager(0, "Lani"); villager(4, "Kai"); villager(5, "Kai");
+    villager(0, "Lani");
+    villager(4, "Kai"); looks(4, 1, 610, 3, 4, 30);
+    villager(5, "Kai"); looks(5, 1, 310, 3, 4, 10);
     titles_tick(3);
-    check(titles_lookup(3, g_records[5]) == NULL && titles_lookup(3, g_records[4]) == NULL,
-          "AN IDENTITY TWO VILLAGERS SHARE IS NOT KEPT ON THE TITLE'S OLD RECORD: neither shows it");
-    check(titles.count == 0, "... and the title is dropped, so it cannot come back on either");
-    /* ...not even once one of them dies and the identity is unique again. */
-    g_records[5][0] = 0;
+    seen = titles_lookup(3, g_records[4]);
+    check(seen != NULL && lstrcmpA(seen, "Only This Kai") == 0 && titles_lookup(3, g_records[5]) == NULL,
+          "A YOUNGER NAMESAKE PACKED INTO THE TITLE'S OLD RECORD IS NOT GIVEN IT: THE TITLE FOLLOWS ITS VILLAGER");
+
+    /* -- the 256 cap: every record taken, deaths free records that births
+       reuse, and every load packs (the owner's A New Home village; RECORDS
+       stands for the cap here). */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    {
+        static const char *names[RECORDS] = { "Abe", "Bea", "Cai", "Hoku", "Eka", "Fai", "Ana", "Hiro" };
+        int k;
+        for (k = 0; k < RECORDS; ++k) {
+            villager(k, names[k]);
+            looks(k, 1 + k % 2, 300 + 100 * k, k, k, 10 + k);
+        }
+        titles_tick(3);
+        check(titles_set(3, 3, "Hoku Title") == 1 && titles_set(3, 6, "Ana Title") == 1,
+              "setup at the cap: Hoku [3] and Ana [6] have titles");
+        /* Hoku dies and is buried; the reload packs everyone behind him
+           down, and a newborn namesake (the same name, likes and looks)
+           takes the freed last record. */
+        new_session();
+        memset(g_records, 0, sizeof g_records);
+        for (k = 0; k < RECORDS - 1; ++k) {
+            int from = k < 3 ? k : k + 1;
+            villager(k, names[from]);
+            looks(k, 1 + from % 2, 320 + 100 * from, from, from, 10 + from);
+        }
+        villager(7, "Hoku"); looks(7, 1 + 3 % 2, 0, 3, 3, 13);
+        titles_tick(3);
+        seen = titles_lookup(3, g_records[5]);
+        check(seen != NULL && lstrcmpA(seen, "Ana Title") == 0,
+              "AT THE CAP A TITLED VILLAGER MOVED BY LOAD PACKING KEEPS HER TITLE (Ana [6 -> 5])");
+        check(titles_lookup(3, g_records[7]) == NULL && title_index("Hoku Title") == (int)VV_TITLE_PENDING,
+              "A BIRTH INTO A FREED RECORD AT THE CAP NEVER INHERITS THE TITLE (Hoku's waits, pending)");
+        /* In one session: Ana dies and, between two looks, a newborn Ana
+           (the same name and likes) is born into her very record. */
+        titles_tick(3);
+        looks(5, 1 + 6 % 2, 0, 6, 6, 16);
+        titles_tick(3);
+        check(titles_lookup(3, g_records[5]) == NULL && title_index("Ana Title") == -2,
+              "A BIRTH INTO A DEAD VILLAGER'S RECORD AT THE CAP NEVER INHERITS THE TITLE (in session: she died)");
+    }
+
+    /* -- an old (version 2) file is still read, followed, and written back
+       as version 3 ------------------------------------------------------ */
+    new_session();
+    DeleteFileA(path1);
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Lani"); villager(1, "Kai");
+    {
+        unsigned char v2[16 + 40];
+        unsigned int head[4] = { VV_TITLES_MAGIC, 2u, 3u, 1u };
+        unsigned int at = 1, fp = story_title_identity(3, g_records[1]);
+        memset(v2, 0, sizeof v2);
+        memcpy(v2, head, 16);
+        memcpy(v2 + 16, &at, 4);
+        memcpy(v2 + 20, &fp, 4);
+        lstrcpyA((char *)v2 + 24, "Old Title");
+        write_bytes(path1, v2, sizeof v2);
+    }
+    memset(g_records, 0, sizeof g_records);
+    villager(0, "Kai"); looks(0, 1, 700, 2, 2, 5);                /* a reload moved Kai down */
+    seen = titles_lookup(3, g_records[0]);
+    check(seen != NULL && lstrcmpA(seen, "Old Title") == 0, "AN OLD-FORMAT (VERSION 2) FILE STILL LOADS AND FOLLOWS");
     titles_tick(3);
-    check(titles_lookup(3, g_records[4]) == NULL, "the surviving twin is not given it later");
+    h = CreateFileA(path1, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+    got = 0;
+    ReadFile(h, raw, sizeof raw, &got, NULL);
+    CloseHandle(h);
+    check(got == 100 && raw[4] == 3 && raw[16] == 0 && raw[24] == VV_TITLE_KNOWN && *(int *)(raw + 28) == 700,
+          "... and is written back as version 3, with the villager's looks");
 
     /* With nothing moved (the same session, no reload), a title set on one
        of two identical villagers stays where it was set. */
@@ -440,23 +693,30 @@ int main(void) {
     check(titles.count == 1 && titles_lookup(3, g_records[5]) != NULL,
           "another villager's rename is not a move: the twin's title stays");
     /* A namesake born in this session is not the titled villager: a title
-       read from its file whose villager is away keeps waiting at its record;
-       with nothing moved it does not jump to a newborn of the same name. */
+       read from its file whose villager is away (nobody carries it) keeps
+       waiting at its record; it does not jump to a newborn of the same name,
+       and is shown again when she is back. */
     new_session();
     DeleteFileA(path1);
     memset(g_records, 0, sizeof g_records);
-    villager(0, "Lani"); villager(7, "Moana");
+    villager(0, "Lani"); villager(7, "Moana"); looks(7, 2, 300, 5, 5, 12);
     titles_tick(3);
     check(titles_set(3, 7, "Moana Title") == 1, "setup: Moana [7] has a title");
     new_session();
     g_records[7][0] = 0;                                          /* away */
     titles_tick(3);
     titles_tick(3);
-    villager(2, "Moana");                                         /* a namesake, born into record 2 */
+    villager(2, "Moana"); looks(2, 2, 0, 5, 5, 0);                /* a namesake, born into record 2 */
     titles_tick(3);
     check(titles_lookup(3, g_records[2]) == NULL && titles.count == 1 && titles.entries[0].index == 7,
           "a namesake born in the same session does not inherit the title");
+    g_records[7][0] = 1;                                          /* back */
+    titles_tick(3);
+    seen = titles_lookup(3, g_records[7]);
+    check(seen != NULL && lstrcmpA(seen, "Moana Title") == 0 && titles_lookup(3, g_records[2]) == NULL,
+          "... and the title is shown again when its villager is back");
     memset(g_records[2], 0, sizeof g_records[2]);
+    memset(g_records[7], 0, sizeof g_records[7]);
     villager(5, "Kai"); villager(6, "Kai");
     /* the twins' file again, for the next case */
     new_session();
@@ -464,15 +724,16 @@ int main(void) {
     titles_tick(3);
     check(titles_set(3, 5, "Set In Session") == 1, "setup: the twin's title again");
     /* A table just read from its file is followed before anything is shown:
-       its first lookup -- before any tick -- already drops the twin's title
-       as ambiguous (a reload may have moved them). */
+       its first lookup -- before any tick -- already finds the twin's title
+       ambiguous (a reload may have moved them). */
     new_session();
-    check(titles_lookup(3, g_records[5]) == NULL && titles.count == 0,
-          "a lookup before any tick follows the table first: the twin's title is dropped, not shown");
+    check(titles_lookup(3, g_records[5]) == NULL && titles.count == 1
+          && titles.entries[0].index == VV_TITLE_PENDING,
+          "a lookup before any tick follows the table first: the twin's title is kept pending, not shown");
 
     /* Another save slot is another village loaded: its file is followed
        afresh (the last look belonged to the other slot), so a twin's title
-       in it is dropped as ambiguous rather than shown on record 5. */
+       in it is pending rather than shown on record 5. */
     new_session();
     g_slot = 2;
     DeleteFileA(path2);
@@ -490,7 +751,7 @@ int main(void) {
 
     /* The first lookup's own follow does not run the death sweep: a title
        set before any tick, with another villager in its record at that
-       lookup, is not shown -- and is still there once its villager is. */
+       lookup, is not shown -- and waits for its villager. */
     new_session();
     DeleteFileA(path1);
     memset(g_records, 0, sizeof g_records);
@@ -499,6 +760,7 @@ int main(void) {
     lstrcpynA((char *)g_records[1] + 1, "Kaj", NAME_BYTES);
     check(titles_lookup(3, g_records[1]) == NULL, "another villager in the record is not shown the title");
     lstrcpynA((char *)g_records[1] + 1, "Kai", NAME_BYTES);
+    titles_tick(3);
     seen = titles_lookup(3, g_records[1]);
     check(seen != NULL && lstrcmpA(seen, "Before Any Tick") == 0,
           "the first lookup's follow does not sweep: the title is still there for its villager");
@@ -611,7 +873,7 @@ int main(void) {
         titles_tick(game);
         titles_tick(game);
         wsprintfA(what, "A VILLAGE OF ONE KEEPS THE TITLE THROUGH A LIKES CHANGE (game %d)", game);
-        check(titles_lookup(game, g_records[0]) != NULL && titles.swapped == 0, what);
+        check(titles_lookup(game, g_records[0]) != NULL && titles.frozen == 0, what);
     }
     DeleteFileA(path1);
     memset(g_records, 0, sizeof g_records);
@@ -634,7 +896,7 @@ int main(void) {
     titles_tick(3);
     titles_tick(3);
     check(titles.count == 1, "THE TITLE SCREEN'S FOUNDERS DO NOT SWEEP KAI'S TITLE AWAY");
-    check(file_size(path1) == 16 + 40, "and the file still holds it");
+    check(file_size(path1) == 16 + 84, "and the file still holds it");
     memset(g_records, 0, sizeof g_records);
     villager(0, "Kai"); villager(1, "Lani");     /* the village loaded again, Hina gone */
     titles_tick(3);
@@ -669,11 +931,11 @@ int main(void) {
         check(!file_exists(path1), "THE DELETED FILE IS NOT WRITTEN BACK");
         check(titles_lookup(game, g_records[0]) == NULL, "the new village is not shown the old title");
         /* A title set in the new village starts the file afresh. */
-        check(titles_set(game, 1, "New Village") == 1 && file_size(path1) == 16 + 40,
+        check(titles_set(game, 1, "New Village") == 1 && file_size(path1) == 16 + 84,
               "a new village's first title is the file's only entry");
         /* And a reset nobody ticked through: the write notices it too. */
         vv_reset_slot_state(game, 1, "Village: Test (Save 1)\n");
-        check(titles_set(game, 2, "Second Start") == 1 && file_size(path1) == 16 + 40,
+        check(titles_set(game, 2, "Second Start") == 1 && file_size(path1) == 16 + 84,
               "AFTER AN UNTICKED START OVER ONLY THE NEW TITLE IS WRITTEN");
     }
 

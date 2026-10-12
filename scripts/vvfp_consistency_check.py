@@ -1553,29 +1553,37 @@ def vv1_title_identity(v: Villager) -> int:
 
 
 def check_titles(game_dir: Path, slot: int, game: int, roster: list[Villager], hist, rep: Report) -> None:
+    import vv_titles_file
     label = f"{DATA}\\Custom Titles\\Custom Titles - Save {slot}.dat"
     path = game_dir / DATA / "Custom Titles" / f"Custom Titles - Save {slot}.dat"
     if not path.is_file():
         rep.add(label, "NOTE", "no custom titles")
         return
     data = path.read_bytes()
-    if len(data) < 16 or data[:4] != b"VCT1" or struct.unpack_from("<I", data, 4)[0] != 2 \
-            or struct.unpack_from("<I", data, 8)[0] != game:
-        rep.add(label, "UNCHECKED", "not a v2 Custom Titles file for this game")
+    got = vv_titles_file.read(data, game)
+    if got is None:
+        rep.add(label, "UNCHECKED", "not a version 3 (or 2) Custom Titles file this game reads")
         return
-    count = struct.unpack_from("<I", data, 12)[0]
-    if len(data) != 16 + 40 * count:
-        rep.add(label, "UNCHECKED", f"{len(data)} bytes does not hold {count} titles")
-        return
-    for k in range(count):
-        o = 16 + 40 * k
-        index, fp = struct.unpack_from("<II", data, o)
-        title = cstr(data, o + 8, 32)
-        if game == 1 and index < 256:
+    version, entries = got
+    count = len(entries)
+    fps = [e.identity for e in entries]
+    for e in entries:
+        index, fp, title = e.index, e.identity, e.title
+        if e.pending:
+            # v1.35.70: a title whose villager could not be told apart after a load is kept, shown on
+            # nobody, never dropped; the game binds it again by the whole identity, and the read-only
+            # reconciliation asks the player about it.
+            who = ""
+            if game == 1:
+                carriers = [w for w in roster if vv1_title_identity(w) == fp]
+                who = (" (could be: " + ", ".join(f"{w.name}, record {w.rank}" for w in carriers) + ")"
+                       if carriers else " (nobody in the save has its name and likes now)")
+            rep.add(label, "NOTE", f"\"{title}\" is PENDING: kept, shown on nobody until exactly one villager has "
+                                   f"its whole identity{who} -- the reconciliation asks you about it")
+        elif game == 1 and index < 256:
             v = next((w for w in roster if w.rank == index), None)
             ident = vv1_title_identity(v) if v is not None else None
             carriers = [w for w in roster if vv1_title_identity(w) == fp]
-            fps = [struct.unpack_from("<I", data, 16 + 40 * j + 4)[0] for j in range(count)]
             if ident == fp:
                 rep.add(label, "OK", f"\"{title}\" is on {v.name}, record {index}, as its identity says")
             elif len(carriers) == 1 and fps.count(fp) == 1:
@@ -1590,16 +1598,18 @@ def check_titles(game_dir: Path, slot: int, game: int, roster: list[Villager], h
                                        "game's load moves it to them)")
             else:
                 rep.add(label, "NOTE", f"\"{title}\" at record {index} does not match the villager there "
-                                       "(the game's load moves it to its villager, or shows it on nobody)")
+                                       "(the game's load moves it to its villager, or keeps it pending, shown on "
+                                       "nobody)")
         else:
             rep.add(label, "UNCHECKED", f"\"{title}\" at record {index}: this game's likes and dislikes are not read "
                                         "from the save here, so the identity is not recomputed")
+    if version == vv_titles_file.VERSION_2:
+        rep.add(label, "NOTE", "an older (version 2) file: the game reads it and writes it back as version 3")
     rep.add(label, "NOTE", REPORT_ONLY["titles"])
     if hist is not None:
         titled = [v for v in hist[1] if v.get("title")]
         rep.add(label, "OK", f"{count} titles in the file; the last History snapshot shows {len(titled)} "
                              "(a title the player removed is not an error, so a difference is not repaired)")
-
 
 def check_graves(game_dir: Path, slot: int, game: int, deaths: int, rep: Report) -> None:
     if game not in (1, 2):
