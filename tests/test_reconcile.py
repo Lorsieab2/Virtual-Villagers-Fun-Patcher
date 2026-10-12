@@ -408,6 +408,8 @@ class Losses(Base):
         rec = rc.reconcile(v.folder, 5, 1)
         self.assertEqual(self.topics(rec), ["age"], [f.text for f in rec.questions])
         self.assertIn("went back in time", rec.questions[0].text)
+        self.assertIn("Alt-F4", rec.questions[0].text)
+        self.assertIn("backup restored", rec.questions[0].text)
 
 
 class ChangesBetweenCopies(Base):
@@ -626,6 +628,11 @@ class FileLevelLoss(Base):
                 self.assertTrue(any(f.topic == "lost" and "Ghosty" in f.text for f in rec.questions), texts)
                 self.assertTrue(any(f.topic == "file" and "older than the latest Village History" in f.text
                                     for f in rec.questions), texts)
+                # The owner quits with Alt-F4 and restores backups: the likely cause is named, with Keep as is.
+                for f in rec.questions:
+                    if f.topic in ("lost", "file"):
+                        self.assertIn("Alt-F4", f.text)
+                        self.assertTrue(f.options[0].startswith(rc.KEEP), f.options)
                 self.assertFalse([f for f in rec.questions if f.topic == "age"], "the restore is one file question")
 
     def test_a_log_shrunk_below_its_copy_a_missing_file_and_a_cut_record(self):

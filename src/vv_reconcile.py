@@ -606,6 +606,10 @@ class _Builder:
         parents, looks -- is."""
         pairs, gone, new = _pair(a.people, b.people)
         game = self.game
+        # A save older than the roster it is compared with: whoever is missing from it is most likely in no
+        # save only because of a quit without saving (Alt-F4) or a restored backup -- said so.
+        restore_why = (f" -- or, as {b.label} is older than {a.label}, most likely only missing from the save "
+                       "after a quit without saving (Alt-F4) or a restored backup") if restored else ""
         a_one_word, b_one_word = one_word_writer(a), one_word_writer(b)
         if a.kind == "save" and b.kind == "save":
             # Record slots: one that holds another villager now than in the older copy -- a death freed
@@ -620,7 +624,8 @@ class _Builder:
             self.ask("age", f"restore|{a.when}|{b.when}",
                      f"{len(backs)} of the {len(pairs)} villagers in both are younger in {b.label} than in "
                      f"{a.label} (for example {n.name}, {n.looks()}: {o.age} -> {n.age} game units): the village "
-                     "went back in time -- a save restored, or replaced by an older copy?",
+                     "went back in time -- most likely a backup restored, or a quit without saving (Alt-F4: the "
+                     "game saves only on a clean quit), not a fault?",
                      [f"{KEEP} (I restored or replaced the save)"])
             backs = []
         for old, now in backs:
@@ -726,13 +731,14 @@ class _Builder:
             more = f" and {len(plain_lost) - 20} more" if len(plain_lost) > 20 else ""
             self.ask("lost", f"lost-many|{a.when}|{b.when}|{len(plain_lost)}",
                      f"{len(plain_lost)} villagers are in {a.label} but not in {b.label}, and no Death, Disappeared, "
-                     f"Left the tribe or Unaccounted record says what became of them: {names}{more}. Possibly lost.",
+                     f"Left the tribe or Unaccounted record says what became of them: {names}{more}. Possibly "
+                     f"lost{restore_why}.",
                      [f"{KEEP} (they left or died without a record)"])
             plain_lost = []
         for old in plain_lost:
             self.ask("lost", f"lost|{old.key}|{a.when}",
                      f"{old.described()} is in {a.label} but not in {b.label}, and no Death, Disappeared, Left "
-                     "the tribe or Unaccounted record says what became of them: possibly lost.",
+                     f"the tribe or Unaccounted record says what became of them: possibly lost{restore_why}.",
                      [f"{KEEP} (they left or died without a record)"])
         for n in [] if restored else unexplained_new:
             if n.key in self.recorded or (b.kind == "history" and a.kind != "history"):
@@ -877,7 +883,7 @@ class _Builder:
                 if behind:
                     self.ask("file", f"older-save|{older_path.name}",
                              f"The save {current[0].name} is older than the game's earlier copy {older_path.name}: "
-                             f"{behind} villager(s) are younger in it. It may have been replaced by an older copy.",
+                             f"{behind} villager(s) are younger in it. It may have been replaced by an older copy (a restored backup).",
                              [f"{KEEP} (I restored it)"])
         last = [c for c in self.logs.censuses if c.kind == "history"]
         if last and saves:
@@ -888,7 +894,8 @@ class _Builder:
                 self.ask("file", f"save-behind-logs|{snap.when}",
                          f"The save {current_path.name} ({_when(current_path)}) is older than the latest Village "
                          f"History snapshot ({snap.when}): {behind} villager(s) are younger in the save. It may have "
-                         "been replaced by an older copy, or the game did not save at its last quit.",
+                         "been replaced by an older copy (a restored backup), or the game did not save at its last "
+                         "quit (Alt-F4 closes it without saving).",
                          [f"{KEEP} (I restored it)"])
 
     def titles(self, living: list[Seen], bodies: list[Seen] | None = None) -> None:
