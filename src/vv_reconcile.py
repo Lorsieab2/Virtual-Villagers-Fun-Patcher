@@ -516,10 +516,39 @@ class _Builder:
             self.findings[qid] = Finding("note", topic, qid, text)
 
     # -- explanations ----------------------------------------------------------------------------
+    def identities(self, s: Seen) -> set[tuple]:
+        """Every (name, head, body) this villager had from `s` on, through what the logs record: an
+        Appearance changed record, a Name changed record, an island event's Name, Head or Body step."""
+        steps_looks = [((n, oh, ob), (n, nh, nb)) for n, oh, ob, nh, nb in self.logs.looks_changed]
+        renames = [(r.extra.get("old", ""), r.who.name, r.who.head, r.who.body) for r in self.logs.names_changed]
+        events = [(who, what, o, n) for who, what, o, n in self.logs.event_changes]
+        reached, todo = {s.key}, [s.key]
+        while todo:
+            name, head, body = todo.pop()
+            following = [after for before, after in steps_looks if before == (name, head, body)]
+            following += [(new, head, body) for old, new, h, b in renames
+                          if old == name and (h is None or (h, b) == (head, body))]
+            for who, what, o, n in events:
+                if what == "Name" and o == name:
+                    following.append((n, head, body))
+                elif what == "Head" and who == name and _int(o) == head and _int(n) is not None:
+                    following.append((name, _int(n), body))
+                elif what == "Body" and who == name and _int(o) == body and _int(n) is not None:
+                    following.append((name, head, _int(n)))
+            for state in following:
+                if state not in reached:
+                    reached.add(state)
+                    todo.append(state)
+        return reached
+
     def left(self, s: Seen) -> str | None:
-        """The record that says this villager died or went, if any."""
+        """The record that says this villager died or went, if any -- under the name and looks they had
+        then, followed through the recorded changes since `s` (review of #585: a villager whose looks
+        or name changed, recorded, before a recorded death was asked about as possibly lost)."""
+        known = self.identities(s)
+        names = {name for name, _h, _b in known}
         for r in self.logs.departures:
-            if r.who.key == s.key or (r.who.head is None and r.who.name == s.name):
+            if r.who.key in known or (r.who.head is None and r.who.name in names):
                 return r.heading
         return None
 
@@ -758,7 +787,7 @@ class _Builder:
     def files(self, living: list[Seen], saves: list[tuple[Path, list[Seen]]]) -> None:
         folder = Path(self.folder)
         copies_root = folder / layout.DATA / layout.COPIES
-        repairs_text = ""
+        repairs: list[tuple[datetime | None, list[str]]] = []
         for top in (layout.LOGS, "VVFP Logs"):
             root = folder / top
             if not root.is_dir():
@@ -766,7 +795,7 @@ class _Builder:
             for p in root.rglob("*.txt"):
                 if p.parent.name in ("Repairs", layout.REPAIRS_LOGS):
                     try:
-                        repairs_text += p.read_bytes().decode("latin-1") + "\n"
+                        repairs += _repair_entries(p.read_bytes().decode("latin-1"))
                     except OSError:
                         pass
         for path in self.logs.files:
@@ -781,27 +810,36 @@ class _Builder:
                 self.ask("file", f"cut|{_rel(folder, path)}|{len(data)}",
                          f"{_rel(folder, path)} ends in the middle of a line: it may have been cut short "
                          "(the patcher writes every record whole).", [f"{KEEP} (it is complete)"])
-            count = sum(1 for line in text.replace("\r\n", "\n").split("\n") if RECORD_HEAD.match(line))
-            for copy in _copies_of(path, copies_root, folder):
+            count = _record_count(text)
+            # REPAIR BY REPAIR (review of #585).  Each copy is the file just before one repair; the next
+            # copy (or the file now) is it after that repair and the records written since, which only
+            # ever add.  So each step may lose only what THAT repair's own Repairs-log entry took out of
+            # THIS file -- never the sum of every repair of a file of that name, which let a later loss
+            # hide behind an earlier repair's count.
+            rel = _rel(folder, path)
+            chain: list[tuple[Path | None, int, datetime]] = []
+            for copy in sorted(_copies_of(path, copies_root, folder), key=lambda p: p.stat().st_mtime):
                 try:
-                    old = copy.read_bytes().decode("latin-1")
+                    chain.append((copy, _record_count(copy.read_bytes().decode("latin-1")),
+                                  datetime.fromtimestamp(copy.stat().st_mtime)))
                 except OSError:
                     continue
-                old_count = sum(1 for line in old.replace("\r\n", "\n").split("\n") if RECORD_HEAD.match(line))
-                if old_count <= count:
+            chain.append((None, count, datetime.max))
+            for (copy, old_count, made), (later, new_count, until) in zip(chain, chain[1:]):
+                if old_count <= new_count:
                     continue
-                removed = _removed_by_repairs(repairs_text, path.name)
-                if count + removed >= old_count:
-                    self.note("file", f"shrunk-ok|{_rel(folder, path)}|{copy.name}",
-                              f"{_rel(folder, path)} holds {old_count - count} record(s) fewer than its copy "
-                              f"{copy.name}; the Repairs log says repairs took {removed} out.")
+                removed = _removed_by_repair(repairs, rel, path.name, made, until)
+                where = rel if later is None else f"the later copy {later.name}"
+                if new_count + removed >= old_count:
+                    self.note("file", f"shrunk-ok|{rel}|{copy.name}",
+                              f"{where} holds {old_count - new_count} record(s) fewer than the copy {copy.name} "
+                              f"kept before a repair; the Repairs log says that repair took {removed} out of it.")
                 else:
-                    self.ask("file", f"shrunk|{_rel(folder, path)}|{copy.name}|{count}",
-                             f"{_rel(folder, path)} holds {count} record(s), but the copy kept before a repair, "
-                             f"{copy.name}, holds {old_count}; the Repairs log accounts for {removed} taken out. "
-                             f"{old_count - count - removed} record(s) may be lost.",
+                    self.ask("file", f"shrunk|{rel}|{copy.name}|{new_count}",
+                             f"{where} holds {new_count} record(s), but the copy kept before a repair, "
+                             f"{copy.name}, holds {old_count}; the Repairs log accounts for {removed} taken out of "
+                             f"{path.name} by that repair. {old_count - new_count - removed} record(s) may be lost.",
                              [f"{KEEP} (I know why)"])
-                break
         # A file the patcher kept copies of, now missing -- anywhere under the patcher's folders (a file
         # an upgrade moved into its own subfolder is not missing, src/vv_save_layout.py).
         present: set[str] = set()
@@ -811,11 +849,14 @@ class _Builder:
             if not root.is_dir():
                 continue
             for p in root.rglob("*"):
-                if not p.is_file() or copies_root in p.parents:
+                if not p.is_file():
                     continue
                 if ".before-" in p.name:
+                    # A copy kept before a repair: beside the file (older builds) or in Copies Made Before
+                    # Repairs at the file's own place (review of #585: that tree was skipped, so a file
+                    # whose only copy is there went missing unnoticed).
                     copies.setdefault(p.name.split(".before-", 1)[0], []).append(p)
-                else:
+                elif copies_root not in p.parents:
                     present.add(p.name)
         for name, kept in sorted(copies.items()):
             original = kept[0].with_name(name)
@@ -908,12 +949,49 @@ def _copies_of(path: Path, copies_root: Path, folder: Path) -> list[Path]:
     return sorted(found, key=lambda p: p.stat().st_mtime, reverse=True)
 
 
-def _removed_by_repairs(text: str, name: str) -> int:
-    total = 0
-    for line in text.split("\n"):
-        if name in line and re.search(r"(taken out|removed|Removed)", line):
-            m = re.search(r"-- (\d+) ", line)
+def _record_count(text: str) -> int:
+    return sum(1 for line in text.replace("\r\n", "\n").split("\n") if RECORD_HEAD.match(line))
+
+
+def _repair_entries(text: str) -> list[tuple[datetime | None, list[str]]]:
+    """The Repairs log's entries: each "Repair N" with its "Date:" and its lines."""
+    out: list[tuple[datetime | None, list[str]]] = []
+    for block in re.split(r"(?m)^Repair \d+\s*$", text.replace("\r\n", "\n"))[1:]:
+        lines = block.split("\n")
+        when = None
+        for line in lines:
+            m = re.match(r"^\s*Date:\s*(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)", line)
             if m:
+                when = datetime.strptime(m.group(1), "%Y-%m-%d %H:%M:%S")
+                break
+        out.append((when, lines))
+    return out
+
+
+# A copy is made in the same moment as its repair's entry; the clocks of the two may differ a little.
+_REPAIR_SLACK_SECONDS = 120
+
+
+def _removed_by_repair(entries: list[tuple[datetime | None, list[str]]], rel: str, name: str,
+                       made: datetime, until: datetime) -> int:
+    """What the repair that made a copy (at `made`) took out of THIS file: the "-- N" of its entry's
+    "removed" / "taken out" lines naming the file -- its path, or its bare name in an entry written
+    before paths were given -- from entries dated from `made` up to the next copy (`until`)."""
+    total = 0
+    for when, lines in entries:
+        if when is None:
+            continue
+        seconds_after = (when - made).total_seconds()
+        if seconds_after < -_REPAIR_SLACK_SECONDS:
+            continue
+        if until != datetime.max and (when - until).total_seconds() >= -_REPAIR_SLACK_SECONDS:
+            continue
+        for line in lines:
+            if not re.search(r"(taken out|removed|Removed)", line):
+                continue
+            names_file = rel in line or (name in line and ("\\" + name) not in line and ("/" + name) not in line)
+            m = re.search(r"-- (\d+) ", line)
+            if names_file and m:
                 total += int(m.group(1))
     return total
 
