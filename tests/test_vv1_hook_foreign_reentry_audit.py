@@ -196,6 +196,17 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       (`mov byte [esi+0x28],1` / `mov byte [esi+0x29],bl`, BL = 0 from
 #       0x43C84F), runs the same pushad/popad-bracketed clear, and resumes at
 #       0x43C888 = splice + 7. A plain resume; no foreign re-entry.
+#   0x35AB0/0x4A700                  re-confirmed for v1.35.70.  Reached from
+#       0x35AB0, Equal Division's dispatch now also pushes `[edi+0xADE8]` (the
+#       villager array; EDI is the game context it already reads) as a sixth
+#       argument to ShowOriginsEqualDivisionResult, now stdcall @24, so the
+#       callee still pops every argument and ESP is balanced.  Reached from
+#       0x4A700, detail_menu calls DETAIL_LIVING_GATE (raw 0x8BBE0) where it
+#       called DETAIL_PREFLIGHT: the gate reads [edx+0x344] and either
+#       tail-jumps to DETAIL_PREFLIGHT with every register as before or
+#       returns status 7 in EAX (push/pop, ESP balanced), which detail_menu
+#       already treats as a ShowOriginsRowMessage status.  No callee-saved
+#       register or flag a resumed path reads is changed.
 #   No entry in this review was unsafe or unknown. The hashes below are the
 #   post-review generated cave bytes.
 CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
@@ -472,10 +483,10 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # pushes eax/ecx/edx/ebx on entry and pops all four before ret, the helper
     # clobbers only eax (already saved), and edi -- which carries the result
     # flags -- is neither read nor written by it.
-    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "B42C3CCA7D1E8BE1B11EF32F7642816EE38A14F3099BDC17F3D882FA973DAB5D",
+    ("vv1_enable_origins_exclusive_features", "0x35AB0"): "0E5A636819B1532EC078D7DD7DADAF77F85E78BDA80CD93EBC3E5709058ED99F",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
-    ("vv1_enable_origins_exclusive_features", "0x4A700"): "85981BBBF90AF4359201D349D4DE3630C9BE14F1286B400FD780588BF6476BFE",
+    ("vv1_enable_origins_exclusive_features", "0x4A700"): "7DD57F614B206C957C60D7BA3ED02B0FF2DA9DC43B2F693A4BD0A6B810EEB673",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "D44A6B9C0DB1C684604A9818144F1209EFCC19BA484337579CD40B644FB56257",
     ("vv1_enable_origins_exclusive_features", "0x913C"): "E8C3E35B56C0AD00518A27056132703EE942FDC5C6BAD9C3C1F90698AD701198",
     # The three newer detours below are part of the same integrated mask
