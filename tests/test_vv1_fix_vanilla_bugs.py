@@ -84,7 +84,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_vanilla_likes_panel import likes_fixes  # noqa: E402
 
 LIKES_FIXES = likes_fixes("vv1")
-FIXES = ((VIAL_OFFSET, VIAL_STOCK, VIAL_PATCHED),) + NAME_FIXES + PERCENT_FIXES + LIKES_FIXES
+# The Details screen's name box is written back only to the villager it shows
+# (tests/test_details_name_box.py).
+NAME_BOX_FIXES = (
+    (0x4A6F2, bytes.fromhex("90" * 13), bytes.fromhex("807E24000F847414FCFFC20800")),
+    (0x4A748, bytes.fromhex("E82314FCFF"), bytes.fromhex("E8A5FFFFFF")),
+    (0x4A7A4, bytes.fromhex("E8C713FCFF"), bytes.fromhex("E849FFFFFF")),
+    (0x4A859, bytes.fromhex("E81213FCFF"), bytes.fromhex("E894FEFFFF")),
+)
+FIXES = ((VIAL_OFFSET, VIAL_STOCK, VIAL_PATCHED),) + NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_BOX_FIXES
 
 # Game addresses and fields.
 BLUE_VIAL = 0x419C3F           # resolve 0x419380's case for the blue vial

@@ -237,6 +237,7 @@
         "Fixes a bug in the original game: a pregnant villager who drinks the blue Mysterious Vial and turns back into a toddler no longer brings twins or triplets in her next pregnancy.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "On the Villager Details screen, clicking the arrows quickly can no longer give one villager's name to the next one; a name you type is still kept.",
         "Nothing to click. On by default."
       ]
     },

@@ -1951,21 +1951,23 @@
       "id": "vv1_fix_vanilla_bugs",
       "game_id": "vv1",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"sleeping\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, and a number past the end of the list showed garbage. Now the last word shows like any other, a number that is not a word is left out, and the line can never run past the space the game keeps for it. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A Mysterious Vial (blue liquid): when a pregnant villager drinks it and turns back into a toddler, the pregnancy now ends completely, including the number of babies she was carrying; before, a villager who had been carrying twins or triplets kept that number and her next single pregnancy brought twins or triplets. Every default name can be chosen: the game numbers its 101 male and 101 female names from 0 but picks a number from 1, so Achak (male) and Aba (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"sleeping\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, and a number past the end of the list showed garbage. Now the last word shows like any other, a number that is not a word is left out, and the line can never run past the space the game keeps for it. A villager's name can no longer be given to another villager on the Details screen: when the arrows or Done are used, the game saves the name box into the selected villager, but it fills the box with the next villager's name only when the screen is next drawn, so two arrow clicks (or an arrow and then Done) taken in the same moment wrote one villager's whole name onto the next villager. Now the box is saved only into the villager whose name it shows; a name you type is still saved to that villager. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "A Mysterious Vial (blue liquid), \"Drink the liquid\", toddler result: the drinker's litter size (+0x35C) is cleared together with the pregnancy (+0x358), as the game's own delivery code does, so a later single conception brings one baby.",
         "A villager's default first name is picked from the whole of the game's male or female list (101 names each): name numbers 0 to 100 instead of 1 to the base game's limit.",
         "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
-        "Details screen Likes/Dislikes (0x43BA20 / 0x43BAF0, called from 0x449140): each slot's word is found in the game's own word list without copying past its end, so the last word (index 46, \"sleeping\") is shown and the slots after it still show; a negative slot or one past the end of the list is skipped; the line is written straight into the caller's 256-byte buffer, bounded at 255 characters (4 slots of the longest word never reach it)."
+        "Details screen Likes/Dislikes (0x43BA20 / 0x43BAF0, called from 0x449140): each slot's word is found in the game's own word list without copying past its end, so the last word (index 46, \"sleeping\") is shown and the slots after it still show; a negative slot or one past the end of the list is skipped; the line is written straight into the caller's 256-byte buffer, bounded at 255 characters (4 slots of the longest word never reach it).",
+        "Villager Details name box (0x44A700 Done/Next/Prev, refilled by the update 0x44A630 once per frame): the box is copied into the selected villager's name (+0x370) only when the screen's reload flag +0x24 is clear, i.e. when the box has been refilled for the villager now selected; a second arrow click, or an arrow and then Done, handled in the same frame no longer writes the previous villager's name onto the next one."
       ],
       "explicit_non_changes": [
         "The result text, the drinker's new age (80) and every other vial result are the base game's own.",
         "Conception, pregnancy and delivery are not changed; a villager who never drank the vial is not affected.",
         "No save data, villager record layout or art is changed.",
-        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes.",
+        "Renaming a villager on the Details screen works as before: a typed name is saved to the villager shown when the arrows or Done are used; which villager the arrows select (and the Sort By order) is unchanged."
       ],
-      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes",
+      "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test builds, 2026-10-02): without the fix the toddler result left the litter at 2, with it the litter is 0; a single pregnancy ends either way; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes; the Details name box: static exact-build evidence (the three write-back sites, the reload flag's writers in the screen's code 0x4498EA/0x44A64E/0x44A751/0x44A7AC/0x44A861, and the SDL_PollEvent loop 0x403970..0x403C82 that handles every queued event in one frame) and emulation of the real Done/Next/Prev handler and update, stock and patched, in every mode; seen in the owner's village (Iruwa Okelani became a second 'Tiki Alosaka')",
       "patches": [
         {
           "offset": "0x19CC1",
@@ -2062,6 +2064,30 @@
           "before": "81ECC4030000535556578BF18B8E2CE0030068D6000000C684241401000000C644241400E8577EFFFF508D84241401000050E816F700008B8C24E003000083C40833FF69C9D80300008DB431A8030000BD04000000B32C8B0E33D233C083F9FF743285C97E0F389C0410010000750142403BD17CF18D8C04100100008A013AC3740D88443C108A410147413AC375F3885C3C104783C6044D75BD8A4C3C0F8D443C0F5F5E5D3ACB5B7503C600008B8424CC0300008D5424005250E88EF6000081C4CC030000C20800",
           "after": "5356575589CE8B8E2CE0030068D6000000E86A7EFFFF89C38B44241469C0D80300008DB406A80300008B7C24188DAFFF0000006A048B0E89D885C97C3F740F8A104084D2743680FA2C75F44975F18A1084D2742880FA2C74233B7C241C740839EF7323C6072C478A1084D2740F80FA2C740A39EF731088174740EBEB83C604FF0C2475B1EB09C745FD2E2E2E0089EF59C6070089F82B4424185D5F5E5BC20800CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
           "purpose": "Details screen dislikes builder 0x43BAF0 rewritten in place (same thiscall: ECX the villager table, the villager index and the 256-byte output buffer on the stack, ret 8; EBX/ESI/EDI/EBP kept): reads the word list the game's own text lookup returns without copying it, skips a negative slot or one past the end of the list, stops each word at a comma or the list's end (so the last word shows), joins words with a comma as before, and writes at most 255 characters plus the NUL, ending a line that does not fit in \"...\"; no sprintf; the 8 nop bytes after it are unchanged"
+        },
+        {
+          "offset": "0x4A6F2",
+          "before": "90909090909090909090909090",
+          "after": "807E24000F847414FCFFC20800",
+          "purpose": "Villager Detail name box write-back guard, in the 14-byte NOP gap after the screen's update 0x44A630: `cmp byte [esi+0x24],0 / je 0x40BB70 / ret 8`. The screen's reload flag +0x24 is set by the constructor (0x4498EA) and by Done/Next/Prev after they change or close the selection, and is cleared only by the once-per-frame update 0x44A630 when it refills the box with the selected villager's name; while it is set the box still shows the villager selected before, so the box is not copied (getText 0x40BB70 is thiscall(dst, n), ret 8; EAX/ECX/EDX are not read after it by any caller)."
+        },
+        {
+          "offset": "0x4A748",
+          "before": "E82314FCFF",
+          "after": "E8A5FFFFFF",
+          "purpose": "Villager Detail Done (also reached from the screen's key handler 0x449630): copy the name box into the selected villager (+0x370) through the write-back guard at 0x44A6F2 instead of calling getText 0x40BB70 directly, so the box is only written to the villager whose name it shows (ESI = the screen at the call)."
+        },
+        {
+          "offset": "0x4A7A4",
+          "before": "E8C713FCFF",
+          "after": "E849FFFFFF",
+          "purpose": "Villager Detail right arrow (next villager): copy the name box into the selected villager (+0x370) through the write-back guard at 0x44A6F2 instead of calling getText 0x40BB70 directly, so the box is only written to the villager whose name it shows (ESI = the screen at the call)."
+        },
+        {
+          "offset": "0x4A859",
+          "before": "E81213FCFF",
+          "after": "E894FEFFFF",
+          "purpose": "Villager Detail left arrow (previous villager): copy the name box into the selected villager (+0x370) through the write-back guard at 0x44A6F2 instead of calling getText 0x40BB70 directly, so the box is only written to the villager whose name it shows (ESI = the screen at the call)."
         }
       ]
     },
