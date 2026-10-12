@@ -1359,8 +1359,9 @@ class ManifestTests(unittest.TestCase):
         ):
             self.assertIn(label, resource)
         # 3 original village-wide rows (Running/Mastery/Age) plus the 2
-        # Equal Division of Labor rows, all flat 1,000,000-point rows.
-        self.assertEqual(resource.count("1,000,000 tech points"), 5)
+        # Equal Division of Labor rows and the 2 Check Highest Skill rows
+        # (v1.35.70), all flat 1,000,000-point rows.
+        self.assertEqual(resource.count("1,000,000 tech points"), 7)
         self.assertIn('PUSHBUTTON  "Buy", 1006', resource)
         self.assertIn('PUSHBUTTON  "Buy", 1007', resource)
         self.assertIn('PUSHBUTTON  "Buy", 1008', resource)

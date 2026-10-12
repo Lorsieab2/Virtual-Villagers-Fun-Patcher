@@ -86,7 +86,10 @@ class DoublerCheckmarksOnlyTests(unittest.TestCase):
                 checked += 1
                 with self.subTest(source=source.relative_to(ROOT)):
                     self.assertRegex(
-                        header, r"row\s*<\s*(?:14|row_count)",
+                        # 17 where the Tech menu gained the three skill-
+                        # preference rows (v1.35.70: The Secret City, The
+                        # Tree of Life).
+                        header, r"row\s*<\s*(?:14|17|row_count)",
                         "the hide loop must cover every badge the dialog "
                         "declares, or the uncovered rows stay visible",
                     )
