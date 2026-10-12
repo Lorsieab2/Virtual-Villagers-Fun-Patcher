@@ -258,7 +258,9 @@ class EmulatedTests(unittest.TestCase):
                          "\r\n\r\nHealing: 0 Villagers (0 Male, 0 Female)."
                          "\r\n\r\nBreeding: 1 Villager (1 Male, 0 Female)."
                          "\r\n\r\nDevotion: 0 Villagers (0 Male, 0 Female)."
-                         "\r\n\r\nSkipped 2 Villagers: no skill progress yet.")
+                         "\r\n\r\nSkipped 2 Villagers: no skill progress yet."
+                         # e's NaN and -1 were reset to 0 (v1.35.70).
+                         "\r\n\r\nReset 2 corrupted skill values.")
         # Again: nothing changes, nothing is charged.
         self._row(proc, 14)
         self.assertEqual(proc.messages[-1], "Every villager already has their highest skill checked. "

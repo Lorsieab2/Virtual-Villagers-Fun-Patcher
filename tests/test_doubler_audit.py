@@ -389,10 +389,10 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # learned the missing last names (v1.35.66), and again when another
         # village's mask file was never to be replaced (native/shared/foreign_sidecar.h),
         # and again for Equal Division by skill progress and the skill-preference
-        # rows (v1.35.70).
+        # rows (v1.35.70), and for resetting corrupted skills.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "62CD2EDEC551A77B2467C25B79DE37F8CC331818608995A43D6DCB561289A341",
+            "CEE97FD5685B92C7BB663727E85FAACFA3E46CC15AFBCB3ECB3A200EED965F78",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

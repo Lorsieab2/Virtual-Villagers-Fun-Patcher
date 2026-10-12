@@ -1,11 +1,15 @@
 /* Runtime harness for native/shared/equal_division.h: Equal Division of
    Labor keeps each job's seat count per sex and gives each seat to the
-   villager with the most progress in that job, random for the rest.
+   villager with the most progress in that job, random for the rest.  Also
+   drives native/shared/skill_repair.h: out-of-range int skills are reset
+   (below 0 -> 0, above 100 -> 100) and valid ones never touched.
 
    Usage: equal_division_harness.exe   (exit 0 when every check passes) */
+#include <windows.h>
 #include <stdio.h>
 #include <string.h>
 #include "equal_division.h"
+#include "skill_repair.h"
 
 static int g_checks, g_failures;
 
@@ -191,6 +195,29 @@ int main(void) {
         ok &= seat_of[v] >= 0 && seat_of[v] < 4;
     }
     check(ok, "the No Parenting variant never seats anyone in Parenting");
+
+    /* 10. Corrupted int skills: below 0 -> 0, above 100 -> 100; 0..100 kept. */
+    {
+        int rec_skills[8] = { -5, 150, 0, 100, 57, (int)0x80000000, 0x7FFFFFFF, 42 };
+        int reset = vv_repair_int_skills((unsigned char *)rec_skills, 0, 7);
+        check(reset == 4, "four out-of-range skills are reset");
+        check(rec_skills[0] == 0 && rec_skills[1] == 100 && rec_skills[5] == 0
+              && rec_skills[6] == 100, "below 0 becomes 0 and above 100 becomes 100");
+        check(rec_skills[2] == 0 && rec_skills[3] == 100 && rec_skills[4] == 57
+              && rec_skills[7] == 42, "valid skills (0, 100, in between) are untouched");
+    }
+    {
+        char message[128] = "Done.";
+        vv_append_skill_repairs(message, 0);
+        check(strcmp(message, "Done.") == 0, "nothing reset adds no line");
+        vv_append_skill_repairs(message, 1);
+        check(strcmp(message, "Done.\r\n\r\nReset 1 corrupted skill value.") == 0,
+              "one reset reads 'value'");
+        strcpy(message, "Done.");
+        vv_append_skill_repairs(message, 3);
+        check(strcmp(message, "Done.\r\n\r\nReset 3 corrupted skill values.") == 0,
+              "several read 'values'");
+    }
 
     printf("== %d check(s), %d failure(s) ==\n", g_checks, g_failures);
     return g_failures == 0 ? 0 : 1;

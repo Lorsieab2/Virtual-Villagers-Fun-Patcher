@@ -246,6 +246,13 @@ class _Emulator:
             self._return(dst, 2)
         elif name == "lstrlenA":
             self._return(len(self.cstr(self._arg(0))), 1)
+        elif name == "lstrcpynA":
+            dst, src, count = self._arg(0), self._arg(1), self._arg(2)
+            text = self.cstr(src)[:max(count - 1, 0)]
+            self.mu.mem_write(dst, text + b"\0")
+            self._return(dst, 3)
+        elif name == "GetTickCount":
+            self._return(0x12345678, 0)        # seeds Equal Division's shuffle
         elif name in ("GetModuleFileNameW", "GetModuleFileNameA"):
             path = "C:\\Games\\Village\\Game.exe"
             wide = name.endswith("W")
@@ -449,6 +456,51 @@ class CheckHighestSkillRuns(unittest.TestCase):
         emu.village(self._village(), tech=7, bound=6)
         self.assertEqual(emu.call("CheckHighestSkill", 1), 4)
         self.assertEqual(emu.i32(TECH), 7)
+
+
+
+@unittest.skipUnless(_has_unicorn(), "unicorn/pefile or the built companion is missing")
+class CorruptedSkillsAreReset(unittest.TestCase):
+    """The owner: "Can you reset obviously-corrupted skill values?" The Secret
+    City's skill writer 0x455740 clamps to 0..100, so a value outside that
+    range can only come from outside the game. A confirmed purchase resets it
+    (below 0 -> 0, above 100 -> 100) for the villagers it acts on, before the
+    skills are read; valid values are never touched."""
+
+    def skills(self, emu, index: int) -> list[int]:
+        rec = MANAGER + 0x14 + index * STRIDE
+        return [emu.i32(rec + SKILL0 + 4 * k) for k in range(5)]
+
+    def test_check_highest_resets_then_ranks(self) -> None:
+        emu = _Emulator()
+        # Farming 150 would win as "highest" uncorrected; after the reset it
+        # is 100 and still the highest. Parenting -7 -> 0.
+        emu.village([{"skills": (150, -7, 20, 30, 40), "pref": -1},
+                     {"skills": (0, 100, 57, 0, 0), "pref": -1}], tech=2_000_000, bound=2)
+        self.assertEqual(emu.call("CheckHighestSkill", 1), 2)
+        self.assertEqual(self.skills(emu, 0), [100, 0, 20, 30, 40])
+        self.assertEqual(self.skills(emu, 1), [0, 100, 57, 0, 0], "valid values untouched")
+        self.assertIn("\r\n\r\nReset 2 corrupted skill values.", emu.messages[0])
+
+    def test_a_reset_alone_charges_nothing(self) -> None:
+        emu = _Emulator()
+        emu.village([{"skills": (-1, 0, 0, 0, 0), "pref": -1}], tech=900_000, bound=1)
+        self.assertEqual(emu.call("ClearAllSkillPreferences"), 0)
+        self.assertEqual(self.skills(emu, 0), [0, 0, 0, 0, 0])
+        self.assertEqual(emu.i32(TECH), 900_000)
+        self.assertEqual(emu.messages, [
+            "Every villager's skill preference is already cleared. "
+            "No tech points have been deducted.\r\n\r\nReset 1 corrupted skill value."
+        ])
+
+    def test_equal_division_resets_before_ranking(self) -> None:
+        emu = _Emulator()
+        emu.village([{"skills": (101, 0, 0, 0, 0)}, {"skills": (0, 0, 0, 0, -3), "female": True}],
+                    tech=2_000_000, bound=2)
+        emu.call("EqualDivisionOfLabor", 1)
+        self.assertEqual(self.skills(emu, 0)[0], 100)
+        self.assertEqual(self.skills(emu, 1)[4], 0)
+        self.assertIn("Reset 2 corrupted skill values.", emu.messages[-1])
 
 
 if __name__ == "__main__":

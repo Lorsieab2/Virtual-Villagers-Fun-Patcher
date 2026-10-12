@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "scripts/build_equal_division_harness.ps1"
 CL = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x86\cl.exe")
-CHECKS = 11
+CHECKS = 17
 STOCK = ROOT / "research" / "stock-executables"
 VV1_C = ROOT / "native/vv1_origins_icons/vv1_origins_icons.c"
 VV2_C = ROOT / "native/vv2_origins_icons/vv2_origins_icons.c"
@@ -52,7 +52,7 @@ class NewHomeWiring(unittest.TestCase):
         self.assertIn("EQUAL_DIVISION_TABLE_BYTES = bytes([1, 4, 3, 5, 2])", self.builder)
 
     def test_a_mismatched_array_keeps_the_round_robin(self) -> None:
-        body = self.c.split("static void vv1_equal_division_by_skill(", 1)[1].split("\n}\n", 1)[0]
+        body = self.c.split("static int vv1_equal_division_by_skill(", 1)[1].split("\n}\n", 1)[0]
         self.assertIn("if (seated != count) {", body)
         self.assertIn("VV_IS_GOLDEN_CHILD(rec)", body)
 
@@ -221,6 +221,50 @@ class LaterGamesEqualDivision(unittest.TestCase):
                     at = pe.get_offset_from_rva(va - base)
                     expected = bytes.fromhex(hexbytes)
                     self.assertEqual(data[at:at + len(expected)], expected)
+
+
+
+class CorruptedIntSkillsAreReset(unittest.TestCase):
+    """A New Home, The Lost Children and The Secret City: an out-of-range int
+    skill (the stock writers 0x437230 / 0x445430 / 0x455740 clamp to 0..100)
+    is reset before Equal Division, Clear All Skill Preferences and Check
+    Highest Skill read the skills (native/shared/skill_repair.h; behaviour in
+    the harness above and, for The Secret City, emulated in
+    tests/test_vv3_skill_preference_rows.py)."""
+
+    def test_the_rule_is_below_zero_to_zero_and_above_100_to_100(self) -> None:
+        header = (ROOT / "native/shared/skill_repair.h").read_text(encoding="utf-8")
+        self.assertIn("#define VV_SKILL_INT_MAX 100", header)
+        self.assertIn("if (*value < 0) {\n            *value = 0;", header)
+        self.assertIn("} else if (*value > VV_SKILL_INT_MAX) {\n            *value = VV_SKILL_INT_MAX;", header)
+
+    @unittest.skipUnless((STOCK / "Virtual Villagers - A New Home.exe").is_file(), "stock exes absent")
+    def test_the_stock_writers_clamp_to_0_100(self) -> None:
+        import pefile
+        for exe, tail in (("Virtual Villagers - A New Home.exe", 0x4372AE),
+                          ("Virtual Villagers - The Lost Children.exe", 0x4454AE),
+                          ("Virtual Villagers - The Secret City.exe", 0x455750)):
+            with self.subTest(exe=exe):
+                pe = pefile.PE(str(STOCK / exe), fast_load=True)
+                data = (STOCK / exe).read_bytes()
+                at = pe.get_offset_from_rva(tail - 0x400000)
+                self.assertEqual(data[at + 2:at + 3], b"\x64", "cmp reg, 0x64 (100)")
+
+    def test_every_skill_reading_path_resets_first(self) -> None:
+        vv1 = VV1_C.read_text(encoding="utf-8")
+        vv2 = VV2_C.read_text(encoding="utf-8")
+        vv3 = (ROOT / "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c").read_text(encoding="utf-8")
+        purchase = vv1.split("static int vv_prefs_purchase(HWND owner, int kind) {", 1)[1].split("\n}\n", 1)[0]
+        self.assertIn("repaired += vv_repair_int_skills(rec, skill_base, 5);", purchase)
+        self.assertLess(purchase.index("vv_repair_int_skills"), purchase.index("/* Pass 0 counts"))
+        self.assertIn("skill_base = 0x3BC;", purchase)
+        self.assertIn("skill_base = 0x7E4;", purchase)
+        reseat = vv1.split("static int vv1_equal_division_by_skill(", 1)[1].split("\n}\n", 1)[0]
+        self.assertIn("repaired += vv_repair_int_skills(rec, 0x3BC, 5);", reseat)
+        self.assertIn("repaired += vv_repair_int_skills(record, 0x7E4, 5);", vv2)
+        self.assertEqual(vv3.count("vv_repair_int_skills("), 3)
+        for source in (vv1, vv3):
+            self.assertIn('#include "../shared/skill_repair.h"', source)
 
 
 if __name__ == "__main__":

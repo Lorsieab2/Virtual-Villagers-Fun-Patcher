@@ -1208,6 +1208,15 @@ Preferences and Check Highest Skill deduct nothing when no checkmark would
 change, and cost 0 like every other row while Story / Cheat Upgrades makes
 upgrades free.
 
+**Corrupted skill values are reset.** A skill the game itself can never
+produce -- below 0, above 100, or (The Tree of Life and New Believers) not a
+number or infinite, as a memory editor or a damaged save can leave it -- is
+reset by Grant Full Mastery (both rows), Equal Division of Labor, Clear All
+Skill Preferences and Check Highest Skill before they read the skills: below 0
+and not-a-number become 0, above 100 becomes 100. Valid values are never
+touched. The result says *Reset N corrupted skill values.*, and a reset on its
+own costs nothing. Repair Saves & Logs can do the same for a closed save.
+
 v1.35.70 also fixed The Lost Children's Equal Division of Labor, which used the
 wrong job numbers: its *Building* share was really given Parenting, its
 *Research*, *Healing* and *Breeding* shares got Healing, Research and Building,

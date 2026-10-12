@@ -420,11 +420,12 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # skill-preference rows (ShowVV5SkillPreferenceUpgrade: Clear All Skill
         # Preferences and the two Check Highest Skill rows). New size and
         # digest for the current companion source as rebuilt on the
-        # Equal Division of Labor branch.
-        self.assertEqual(vv5_companion["size"], 1854464)
+        # Equal Division of Labor branch. Larger again when the skill
+        # upgrades learned to reset corrupted skill values (v1.35.70).
+        self.assertEqual(vv5_companion["size"], 1856000)
         self.assertEqual(
             vv5_companion["sha256"],
-            "FE8D24CFF96C079808309F7D124858CD8EED81540CCB65E14E4099BBA5148913",
+            "A187DF0DC1A80AFE2ECFB8C11BBDB185C39CA7AD4F2ADA78D0BE31B596AE0910",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

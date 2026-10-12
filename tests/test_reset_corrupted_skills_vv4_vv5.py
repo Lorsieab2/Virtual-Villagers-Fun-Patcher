@@ -278,7 +278,7 @@ class VV4SkillPreferenceRows(unittest.TestCase):
         self.assertEqual(self.body.count("vv4_reset_line("), 3)
         for marker in ("already cleared", "Not enough tech points.", "Cleared %d %s Skill %s."):
             at = self.body.index(marker)
-            self.assertIn("vv4_reset_line(", self.body[at:at + 900])
+            self.assertIn("vv4_reset_line(", self.body[at - 60:at + 900])
 
 
 # ------------------------------------------------------------------ VV5

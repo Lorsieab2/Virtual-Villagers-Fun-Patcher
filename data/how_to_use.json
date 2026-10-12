@@ -331,7 +331,7 @@
         "Adds an Upgrades button to the Tech screen (Origins Upgrades) and to the Villager Details screen (Villager Upgrades).",
         "Click it, choose an upgrade and confirm; it is paid for with tech points.",
         "Includes village-wide Running, Full Mastery and Young Adults, and the Food and Tech Point Doublers.",
-        "Equal Division of Labor shares the jobs out evenly, giving each villager the job they have made the most progress in where there is room; Clear All Skill Preferences unchecks every job checkmark; Check Highest Skill checks each villager's best skill.",
+        "Equal Division of Labor gives each villager their best-progressed job where there is room; Clear All Skill Preferences and Check Highest Skill set job checkmarks.",
         "If an upgrade would change nothing, no tech points are taken.",
         "Story / Cheat Upgrades needs this patch."
       ]
@@ -342,7 +342,7 @@
         "Adds an Upgrades button to the Tech screen (Origins Upgrades) and to the Villager Details screen (Villager Upgrades).",
         "Click it, choose an upgrade and confirm; it is paid for with tech points.",
         "Includes Time Warp, Island Event, Barrel of Babies, the Doublers, Full Heal and village-wide upgrades.",
-        "Equal Division of Labor shares the jobs out evenly, giving each villager the job they have made the most progress in where there is room; Clear All Skill Preferences unchecks every job checkmark; Check Highest Skill checks each villager's best skill.",
+        "Equal Division of Labor gives each villager their best-progressed job where there is room; Clear All Skill Preferences and Check Highest Skill set job checkmarks.",
         "The village-wide Running, Full Mastery and Exactly 18 upgrades skip Heathens.",
         "If an upgrade would change nothing, no tech points are taken.",
         "Story / Cheat Upgrades needs this patch."
@@ -853,12 +853,11 @@
       "title": "Repair Saves & Logs",
       "guide": [
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
-        "Tick or untick each line of the checklist, then click Repair; the save folder is backed up first.",
+        "Tick what to do, then click Repair (backed up first). Reset corrupted skill values: NaN, infinite, below 0, above 100.",
         "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; what the files cannot tell, you are asked.",
         "Give villagers last names (Choose...): by the village rule, their own rule, or Random; in the game and every log.",
         "Number duplicate names: Soda I, Soda II..., oldest first, in the game and every log.",
         "Fix grave information (Choose...): where a grave and its records differ, pick the right value or Don't know, or edit a grave.",
-        "Reset corrupted skill values: a skill no game can hold (NaN, infinite, below 0, above 100) goes to 0, or 100 when above it; ticked only when one is found.",
         "Let the game repair: play the tribe and quit from its menu (needs a patch that keeps logs).",
         "Move Old Files to New Names: moves files an older patcher named, after a backup. Only once every game playing the save has v1.35.64 or newer."
       ]
