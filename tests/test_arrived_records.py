@@ -104,7 +104,7 @@ class ArrivedRecordSource(unittest.TestCase):
         self.assertIn('fprintf(file, "Arrived %d\\n%s", arrived_before + 1, text)', source)
         numbered = body(source, "static int kind_is_numbered(int kind) {")
         self.assertNotIn("KIND_ARRIVED", numbered)
-        self.assertIn('strncmp(line, "Arrived ", 8) == 0', body(source, "static int read_log_header("))
+        self.assertIn('strncmp(line, "Arrived ", 8) == 0', body(source, "static int read_log_header_read(const wchar_t *path, char *out, size_t size, int *read) {"))
 
     def test_nothing_is_backfilled_without_repair(self):
         source = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
