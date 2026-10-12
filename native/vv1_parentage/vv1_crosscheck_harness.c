@@ -677,6 +677,65 @@ static void ambiguity_cases(void) {
     asked = load_and_check(village, IDYES);
     check(asked == 0 && lstrcmpA(g_entries[0].father_name, "Ghali") == 0 && marker_result() == VV1_XC_RESULT_CLEAN,
           "a villager whose looks changed since birth is left as it is, never cleared");
+
+    /* A BIRTH RECORD UNDER ANOTHER NAME (the owner, 2026-10-11: "Iruwa
+       Okelani" became a second living "Tiki Alosaka"; nobody renamed anyone).
+       The save says "Zuri", a name no Birth record has, with the looks and the
+       parents of Iruwa's Birth record: a contradiction only the player can
+       settle (the patcher's reconciliation asks).  The entry is left exactly as
+       it is: never "recorded afterwards" a second time, never set to unknown. */
+    {
+        static const villager zuri = { "Zuri", 0, 50, 4, 20, 2 };   /* Iruwa's looks and family */
+        clear_files();
+        conceptions = 0;
+        log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+        log_birth_of(find("Iruwa"), find("Onawa"), find("Ghali"));
+        log_birth_of(find("Nishi"), find("Chika"), find("Kito"));
+        log_save(1);
+        memset(village, 0, sizeof(village));
+        put(village, 0, find("Nishi"), 0);
+        put(village, 1, &zuri, 0);
+        memset(entries, 0, sizeof(entries));
+        true_entry(find("Nishi"), &entries[0]);
+        true_entry(find("Iruwa"), &entries[1]);
+        write_sidecar(village, entries);
+        asked = load_and_check(village, IDYES);
+        check(asked == 0 && lstrcmpA(g_entries[1].father_name, "Ghali") == 0
+              && lstrcmpA(g_entries[1].mother_name, "Onawa") == 0 && marker_result() == VV1_XC_RESULT_CLEAN,
+              "a villager with a Birth record under another name is left as it is for the player: never recorded twice, never cleared");
+
+        /* ... but parents the table gives that are NOT those of the Birth record with her looks are no
+           rename: she is still set to unknown as before (no Birth record of the name "Zuri"). */
+        clear_files();
+        log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+        log_birth_of(find("Iruwa"), find("Onawa"), find("Ghali"));
+        log_birth_of(find("Nishi"), find("Chika"), find("Kito"));
+        log_save(1);
+        memset(entries, 0, sizeof(entries));
+        true_entry(find("Nishi"), &entries[0]);
+        true_entry(find("Nishi"), &entries[1]);          /* Kito and Chika: not Iruwa's */
+        entries[1].mother_head = 0;                      /* no mother looks: never "recorded afterwards" */
+        write_sidecar(village, entries);
+        asked = load_and_check(village, IDNO);
+        check(asked == 1 && g_plan.cleared == 1,
+              "... while parents that are not her Birth record's are still set to unknown, as before");
+
+        /* ... and while Iruwa herself still lives under her own name, her Birth record is hers, not Zuri's. */
+        clear_files();
+        log_begin("Village: Kalahuna Tribe 1 (Save 1)");
+        log_birth_of(find("Iruwa"), find("Onawa"), find("Ghali"));
+        log_save(1);
+        memset(village, 0, sizeof(village));
+        put(village, 0, find("Iruwa"), 0);
+        put(village, 1, &zuri, 0);
+        memset(entries, 0, sizeof(entries));
+        true_entry(find("Iruwa"), &entries[0]);
+        true_entry(find("Iruwa"), &entries[1]);
+        write_sidecar(village, entries);
+        asked = load_and_check(village, IDNO);
+        check(asked == 1 && g_plan.recorded == 1 && g_plan.cleared == 0,
+              "... and a Birth record whose child still lives under that name is no contradiction of hers");
+    }
 }
 
 static void stash_cases(void) {

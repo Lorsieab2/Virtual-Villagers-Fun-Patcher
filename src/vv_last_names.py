@@ -1744,22 +1744,50 @@ def wrong_last_names(folder: Path, game: int, slot: int) -> tuple[str, list[tupl
     owner: a check for "Wrong last names").  The record's rule, else "From the mother" (as the Last
     Names patch gives babies their mother's); without a record only names that carry a last name
     are checked.  A name the player gave is always right."""
+    rule, explained = wrong_last_names_explained(folder, game, slot)
+    return rule, [(v, now, should) for v, now, should, _used, _either in explained]
+
+
+def wrong_last_names_explained(folder: Path, game: int, slot: int) -> tuple[str, list[tuple]]:
+    """wrong_last_names, each with the rule that gave it -- the village's, or a parent's own (the
+    owner's Tiki Alosaka, 2026-10-11: "should be Powaka" under the village's "From the father", while
+    her father Hoto Okelani's own rule is 50:50) -- and, for 50:50, both last names the rule allows:
+    (villager, last name now, the one the rule gives, rule used, (either, or) or ())."""
     rule, fixed = read_record(folder, game, slot)
     known = known_names(folder, game, slot)
     people, parents = everyone(folder, game, slot)
     mine = {v.identity: fixed[key] for v in people
             if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
     carried = lambda name: split_name(game, name, known)[1]  # noqa: E731
+    own_rules = own_rules_now(folder, game, slot, people)
     given = inherited(people, parents, rule or "mother", list(tools.load_checker().LAST_NAMES[game]),
-                      with_siblings(mine, parents), carried, own_rules_now(folder, game, slot, people))
+                      with_siblings(mine, parents), carried, own_rules)
+    living_keys = {own_key(v) for v in people if v.alive}
+
+    def last_of(key) -> str:
+        return "" if key is None else (given.get(key) or carried(key[0]))
     out = []
     for v in people:
         now = carried(v.name)
         should = given.get(v.identity, "")
         if v.identity in mine or now == should or (rule is None and not now) or rule in ("list", *PLAYER_RULES):
             continue
-        out.append((v, now, should))
+        father, mother = parents.get(v.identity, (None, None))
+        used = decide(_parent_rule(own_rules, father, "Male", living_keys),
+                      _parent_rule(own_rules, mother, "Female", living_keys), rule or "mother")
+        either = tuple(n for n in dict.fromkeys((last_of(father), last_of(mother))) if n) \
+            if used == "random" and father is not None and mother is not None else ()
+        out.append((v, now, should, used, either if len(either) == 2 else ()))
     return rule or "mother", out
+
+
+def wrong_last_name_text(v, should: str, used: str | None, village_rule: str, either: tuple = ()) -> str:
+    """One villager of the "last names are not what the rule gives" note: "Tiki Alosaka (should be
+    Okelani or Powaka: her parent's own rule is 50:50)"."""
+    want = " or ".join(either) if either else (should or "none")
+    if used and used != village_rule:
+        return f"{v.name} (should be {want}: a parent's own rule, {OWN_RULES.get(used, used)}, applies)"
+    return f"{v.name} (should be {want})"
 
 
 # RANDOM LAST NAMES.  The owner (2026-10-10): "for the repair logs, can you add an option for 'random' last

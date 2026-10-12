@@ -1295,11 +1295,20 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2, LOG_EVENTS = 3 };
                   2026-10-09: "Nursing mothers who die will only produce a
                   grave for the mother (nursing child just disappears)").
                   "VVFP Cause of Death.dll" renders every line after the
-                  heading. */
+                  heading.
+     NAME_CHANGE  births family, "Name changed", never rolls -- a villager's
+                  name changed in play (A New Home's parentage companion sees
+                  it: the same record, variant, gender and an age that only
+                  moved on), recorded so it is never hidden (the owner,
+                  2026-10-11: "Iruwa Okelani" became a second "Tiki
+                  Alosaka" and nobody renamed anyone); held until the next
+                  save like APPEARANCE, since the game keeps the new name only
+                  then.  The patcher's reconciliation asks the player about
+                  every one (src/vv_reconcile.py). */
 enum {
     KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
     KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7,
-    KIND_ISLAND_EVENT = 8, KIND_LOST_BIRTH = 9
+    KIND_ISLAND_EVENT = 8, KIND_LOST_BIRTH = 9, KIND_NAME_CHANGE = 10
 };
 
 #define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers"
@@ -1620,7 +1629,8 @@ static int read_log_header(const wchar_t *path, char *out, size_t size) {
     if (strncmp(line, "Conception ", 11) == 0 || strncmp(line, "Death ", 6) == 0
         || strncmp(line, "Unaccounted ", 12) == 0 || strncmp(line, "Disappeared", 11) == 0
         || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0
-        || strncmp(line, "Appearance changed", 18) == 0 || vv_is_birth_heading(line)) {
+        || strncmp(line, "Appearance changed", 18) == 0 || strncmp(line, "Name changed", 12) == 0
+        || vv_is_birth_heading(line)) {
         fclose(file);
         return 0;
     }
@@ -3083,7 +3093,8 @@ static void flush_pending(int game_id, const char *village, int at_save) {
         struct pending_record *entry = &pending[i];
         int release = 0;
         if (entry->game_id == game_id && !at_save
-            && (entry->kind == KIND_APPEARANCE || entry->kind == KIND_ISLAND_EVENT)) {
+            && (entry->kind == KIND_APPEARANCE || entry->kind == KIND_ISLAND_EVENT
+                || entry->kind == KIND_NAME_CHANGE)) {
             stopped = 1;
         }
         if (entry->game_id == game_id && !stopped) {
@@ -3165,7 +3176,8 @@ static int emit_record(
     if (!vv_village_recall(village, sizeof village)) {
         village[0] = '\0';
     }
-    if ((kind == KIND_APPEARANCE || kind == KIND_ISLAND_EVENT) && village_publisher_present(game_id)) {
+    if ((kind == KIND_APPEARANCE || kind == KIND_ISLAND_EVENT || kind == KIND_NAME_CHANGE)
+        && village_publisher_present(game_id)) {
         return hold_record(game_id, kind, records, text);   /* written at the next save */
     }
     if (village[0] != '\0' && saved_tribe_still_loaded(game_id)) {
@@ -4324,7 +4336,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
-        || kind < KIND_DEATH || kind > KIND_LOST_BIRTH) {
+        || kind < KIND_DEATH || kind > KIND_NAME_CHANGE) {
         return 0;
     }
     g = layout_of(game_id);
@@ -4361,6 +4373,8 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     } else if (kind == KIND_APPEARANCE) {
         heading = "Appearance changed\n";
         relook_last_name(g, record, before);
+    } else if (kind == KIND_NAME_CHANGE) {
+        heading = "Name changed\n";
     }
     copy_villager_name(g, record, name, sizeof name);
     preference_text(g, record, g->likes, likes, sizeof likes);

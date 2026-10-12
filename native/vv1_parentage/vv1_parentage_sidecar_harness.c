@@ -617,6 +617,7 @@ static void follow_cases(void) {
     memcpy(after_load, before_load, sizeof(after_load));
     play(after_load, 2);
     vv1_frame(after_load, 0);
+    g_name_changes = 0;
     lstrcpyA((char *)after_load + 5 * VV1_RECORD_STRIDE + VV1_NAME_OFFSET, "Renamed");
     for (i = 0; i < 2; ++i) {
         if (vv1_parents_sync_core(SLOT, after_load)) {
@@ -626,6 +627,9 @@ static void follow_cases(void) {
     check(has_parents(5, 1) && every_child_follows(after_load) && g_birth_count == 0,
           "a villager renamed during play keeps her parents, and no birth is inferred");
     check(lstrcmpA(g_roster[5].name, "Renamed") == 0, "... and the table is bound to her new name");
+    /* ...and the change is RECORDED, never hidden (the owner, 2026-10-11: "Iruwa Okelani" became a
+       second "Tiki Alosaka" with no record): exactly once, as a "Name changed" record. */
+    check(g_name_changes == 1, "... and the name change is recorded once, never hidden");
 
     /* 22. ...and after a quit and a reload she is still found under it. */
     fresh();

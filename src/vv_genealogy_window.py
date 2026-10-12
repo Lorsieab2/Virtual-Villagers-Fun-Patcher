@@ -37,6 +37,7 @@ import vv_last_names
 import vv_line_colours
 import vv_log_tools
 import vv_number_names
+import vv_reconcile_view
 import vv_save_backup
 import vv_tribe_rename
 import vv_villager_info
@@ -276,6 +277,11 @@ def pick_village(app, build, title: str, intro: str, go_text: str, on_go, ask_ga
         row += 1
     ttk.Label(frame, textvariable=problem_var, foreground="#a01010", wraplength=560,
               justify="left").grid(row=row, column=0, columnspan=3, sticky="w", pady=(4, 0))
+    # The read-only reconciliation, run as soon as a tribe is chosen (src/vv_reconcile_view.py).
+    reconcile_var = tk.StringVar()
+    ttk.Label(frame, textvariable=reconcile_var, wraplength=560, justify="left").grid(
+        row=row + 1, column=0, columnspan=3, sticky="w", pady=(4, 0))
+    row += 1
     buttons = ttk.Frame(frame)
     buttons.grid(row=row + 1, column=0, columnspan=3, sticky="w", pady=(12, 0))
     go_button = ttk.Button(buttons, text=go_text)
@@ -300,6 +306,12 @@ def pick_village(app, build, title: str, intro: str, go_text: str, on_go, ask_ga
         return path / "Images" if (path / "Images").is_dir() else (path if path.name == "Images" else None)
 
     def refresh(*_args) -> None:
+        if state["folders"] and chosen() is not None:
+            vv_reconcile_view.watch(dialog, reconcile_var, state["folders"][folder_box.current()], game().number,
+                                    chosen().slot)
+        else:
+            vv_reconcile_view.forget(dialog)
+            reconcile_var.set("")
         problem = None
         if not state["folders"]:
             problem = "No save folder was found for this game."

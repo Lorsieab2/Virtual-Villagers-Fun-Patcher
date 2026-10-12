@@ -30,3 +30,4 @@ EXPORTS
     Vv1ParentageProbeExpected=_Vv1ParentageProbeExpected@20
     Vv1ParentageProbeSetExpected=_Vv1ParentageProbeSetExpected@16
     Vv1ParentageProbeCaptureOn=_Vv1ParentageProbeCaptureOn@4
+    Vv1ParentageProbeNameChanges=_Vv1ParentageProbeNameChanges@0

@@ -761,6 +761,40 @@ static int vv1_xc_arrived(const vv1_xc_log *log, const char *name, int head, int
     return 0;
 }
 
+/* A BIRTH RECORD UNDER ANOTHER NAME -- A CONTRADICTION (the owner,
+   2026-10-11: in her village "Iruwa Okelani", Birth 252, head 12 body 18,
+   became a second living "Tiki Alosaka", and she never renamed anyone).  How
+   many Birth records are of a child with these looks and exactly the parents
+   -- names and looks -- `entry` holds, under another name no living villager
+   with these looks carries now.  Any such record means the records contradict
+   each other and only the player can say which is right: the entry is left
+   exactly as it is -- never a second Birth record written "afterwards" under
+   the save's name, never parents cleared, and never taken as settled (the
+   patcher's reconciliation, src/vv_reconcile.py, and Check Saves & Logs ask
+   the player).  scripts/vvfp_consistency_check.py's born_under_another_name is
+   the same rule. */
+static int vv1_xc_born_as_another(const unsigned char *records, const vv1_xc_log *log, const char *name,
+                                  int head, int body, const vv1_parent_entry *entry) {
+    int k, found = 0;
+    for (k = 0; k < log->count; ++k) {
+        const vv1_xc_record *r = &log->items[k];
+        vv1_parent_entry said;
+        if (r->kind != 1 || r->header != log->village_header || !r->child.present || !r->child.name[0]
+            || r->child.head != head || r->child.body != body
+            || strncmp(r->child.name, name, VV1_NAME_CAPACITY) == 0
+            || vv1_xc_shared(records, r->child.name, head, body) != 0) {
+            continue;
+        }
+        memset(&said, 0, sizeof(said));
+        vv1_xc_set(&said.father_head, &said.father_body, said.father_name, &r->father);
+        vv1_xc_set(&said.mother_head, &said.mother_body, said.mother_name, &r->mother);
+        if (vv1_xc_parents_equal(&said, entry)) {
+            ++found;
+        }
+    }
+    return found;
+}
+
 /* The Birth record of a villager the log has none for, written afterwards
    from the table ("VVFP Parentage Export.dll" WriteParentageBirthAfterwards:
    the Birth record every game writes, with "Note: Recorded afterwards (born
@@ -939,7 +973,10 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
             }
         }
         after = g_entries[j];
-        if (matches > 0 && agree && matches >= shared) {
+        if (matches == 0 && shared == 1 && vv1_xc_has_parents(&g_entries[j])
+            && vv1_xc_born_as_another(records, log, name, head, body, &g_entries[j]) > 0) {
+            /* A Birth record under another name: a contradiction for the player.  Left exactly as it is. */
+        } else if (matches > 0 && agree && matches >= shared) {
             vv1_xc_set(&after.father_head, &after.father_body, after.father_name, &first->father);
             vv1_xc_set(&after.mother_head, &after.mother_body, after.mother_name, &first->mother);
             if (!vv1_xc_parents_equal(&after, &g_entries[j])) {

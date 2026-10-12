@@ -27,6 +27,8 @@ import vv_graves
 import vv_lost_titles
 import vv1_parents_restore
 import vv_number_names
+import vv_reconcile
+import vv_reconcile_view
 import vv_save_backup
 import vv_startup_questions
 import vv_tribe_rename
@@ -2894,6 +2896,10 @@ class App(tk.Tk):
         rename_button = ttk.Button(buttons, text="Rename")
         rename_button.pack(side="left")
         ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
+        # The read-only reconciliation, run as soon as a tribe is chosen (src/vv_reconcile_view.py).
+        reconcile_var = tk.StringVar()
+        ttk.Label(frame, textvariable=reconcile_var, wraplength=560, justify="left").grid(
+            row=8, column=0, columnspan=3, sticky="w", pady=(8, 0))
 
         def game() -> vv_tribe_rename.GameSaves:
             return vv_tribe_rename.game_for_title(game_var.get())
@@ -2913,6 +2919,12 @@ class App(tk.Tk):
             )
             problem = None
             info = chosen_slot()
+            if state["folders"] and info is not None and not info.problem:
+                vv_reconcile_view.watch(dialog, reconcile_var, state["folders"][folder_box.current()],
+                                        saves.number, info.slot)
+            else:
+                vv_reconcile_view.forget(dialog)
+                reconcile_var.set("")
             if not state["folders"]:
                 problem = "No save folder was found for this game."
             elif info is None:
@@ -3103,8 +3115,12 @@ class App(tk.Tk):
             frame, textvariable=problem_var, foreground="#a01010",
             wraplength=560, justify="left",
         ).grid(row=4, column=0, columnspan=3, sticky="w", pady=(4, 0))
+        # The read-only reconciliation, run as soon as a tribe is chosen (src/vv_reconcile_view.py).
+        reconcile_var = tk.StringVar()
+        ttk.Label(frame, textvariable=reconcile_var, wraplength=560, justify="left").grid(
+            row=5, column=0, columnspan=3, sticky="w", pady=(4, 0))
         buttons = ttk.Frame(frame)
-        buttons.grid(row=5, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        buttons.grid(row=6, column=0, columnspan=3, sticky="w", pady=(12, 0))
         go_button = ttk.Button(buttons, text="Repair Saves & Logs" if repair else "Check")
         go_button.pack(side="left")
         move_button = None
@@ -3147,6 +3163,12 @@ class App(tk.Tk):
                 problem = "Choose a tribe."
             problem_var.set(problem or "")
             go_button.configure(state="normal" if problem is None else "disabled")
+            if problem is None:
+                vv_reconcile_view.watch(dialog, reconcile_var, state["folders"][folder_box.current()],
+                                        game().number, chosen().slot)
+            else:
+                vv_reconcile_view.forget(dialog)
+                reconcile_var.set("")
             if move_button is not None:
                 move_button.configure(state="normal" if state["folders"] else "disabled")
             if restore_button is not None:
@@ -3328,6 +3350,15 @@ class App(tk.Tk):
             return
         _regrab(parent)
         self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary}")
+        # The reconciliation's report beside the slot's logs (the only file Check Saves & Logs leads to
+        # writing, and only the report: src/vv_reconcile.py export).
+        if result.reconciliation is not None:
+            try:
+                written = vv_reconcile.export(result.reconciliation)
+            except OSError:
+                written = None
+            if written is not None:
+                self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary} Report: {written.name}")
         self._show_log_report(parent, folder, info, result)
 
     def _show_log_report(self, parent, folder: Path, info, result) -> None:
@@ -3347,7 +3378,9 @@ class App(tk.Tk):
             frame,
             text=(
                 "OK: agrees with the save.  WRONG: confirmed wrong (\"repairable\" "
-                "says whether Repair Saves & Logs can have the game put it right).  NOTE: a "
+                "says whether Repair Saves & Logs can have the game put it right).  ASK: a "
+                "contradiction only you can settle -- Repair Saves & Logs asks it; nothing changes "
+                "until you answer.  NOTE: a "
                 "difference that is not proof of an error.  UNCHECKED: nothing to "
                 "check it against, or it could not be read."
             ),
@@ -3362,10 +3395,11 @@ class App(tk.Tk):
         scrollbar.pack(side="right", fill="y")
         text.pack(side="left", fill="both", expand=True)
         text.tag_configure("WRONG", foreground="#a01010")
+        text.tag_configure("ASK", foreground="#8a4b00")
         text.tag_configure("file", font=("Segoe UI", 9, "bold"))
         for line in result.text.splitlines():
             verdict = line.split(None, 1)[0] if line.strip() else ""
-            tag = "file" if line.startswith("== ") else ("WRONG" if verdict == "WRONG" else ())
+            tag = "file" if line.startswith("== ") else (verdict if verdict in ("WRONG", "ASK") else ())
             text.insert("end", line + "\n", tag)
         text.insert("end", f"\n{result.summary}\n", "file")
         text.configure(state="disabled")
@@ -3603,6 +3637,12 @@ class App(tk.Tk):
                         else f"{sum(f.count for f in fixes)} record(s) removed" if getattr(kind, "removes", None)
                         else f"{sum(f.count for f in fixes)} line(s) added")
                 lines.append(f"{kind.label}: {done} in {len(fixes)} log file(s).")
+        if getattr(result, "answered", None):
+            lines.append(f"The reconciliation's questions you answered: {len(result.answered)} (remembered, and "
+                         "listed in the Repairs log).")
+        for (old, head, body), new in getattr(result, "renamed", {}).items():
+            lines.append(f"{old} (head {head}, body {body}) has the name {new} back, in the save, the logs and the "
+                         "patcher's files.")
         if len(lines) > (1 if rearm else 0):
             lines.append("Each log was backed up beside itself; everything is listed in the Repairs log.")
         self.status_var.set(f"Repair Saves & Logs: {info.name} done.")
