@@ -384,6 +384,7 @@ int main(int argc, char **argv) {
             villager(3, "Hoani", 900, 5, 6);
             *(int *)(rec(3) + PREFS[game_index].likes) = 2;
             *(int *)(rec(3) + PREFS[game_index].dislikes) = 1;
+            memset(&entry, 0, sizeof entry);
             entry.index = 3;
             entry.fingerprint = vv_title_identity(rec(3), g->name, g->name_cap, PREFS[game_index].likes,
                                                   PREFS[game_index].dislikes, PREFS[game_index].slots);
@@ -414,6 +415,17 @@ int main(int argc, char **argv) {
             CHECK(strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 901\r\n") != NULL,
                   "...without a title neither villager can be told to have");
             rec(4)[g->active] = 0;
+            /* A PENDING title (v1.35.70: kept, shown on nobody, until the
+               Story companion binds it again) prints no line either. */
+            entry.index = VV_TITLE_PENDING;
+            size = vv_titles_serialise(game, &entry, 1, blob);
+            h = CreateFileA(titles_path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+            put = 0;
+            if (h != INVALID_HANDLE_VALUE) { WriteFile(h, blob, size, &put, NULL); CloseHandle(h); }
+            CHECK(put == size && write_record(game, DISAPPEARED, rec(3), 1, "  Age: 903\n", NULL, 1) == 1
+                  && read_deaths(game, 1)
+                  && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 903\r\n") != NULL,
+                  "A PENDING CUSTOM TITLE IS PRINTED FOR NOBODY");
             DeleteFileA(titles_path);
             RemoveDirectoryA(titles_dir);
             RemoveDirectoryA(data_dir);

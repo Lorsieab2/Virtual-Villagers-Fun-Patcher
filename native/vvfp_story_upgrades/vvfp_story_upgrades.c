@@ -544,6 +544,8 @@ static unsigned int story_title_identity(int game, const unsigned char *record);
 static unsigned int story_title_stable(int game, const unsigned char *record);
 static unsigned int story_title_keep(int game, const unsigned char *record);
 static int story_title_age(int game, const unsigned char *record);
+static void story_title_looks(int game, const unsigned char *record, vv_title_looks *out);
+static int story_title_skills_float(int game);
 static const char *titles_lookup(int game, const unsigned char *record);
 static int titles_set(int game, int index, const char *text);
 static int titles_rebind(int game, int index, unsigned int before);
@@ -632,6 +634,32 @@ static unsigned int story_title_keep(int game, const unsigned char *record) {
 static int story_title_age(int game, const unsigned char *record) {
     const ce_adapter *a = ce_adapter_for(game);
     return a != NULL ? *(const int *)(record + a->off_age) : 0;
+}
+
+/* What a custom title is kept by besides its fingerprint (custom_titles.h
+   vv_title_looks): the record's own age, head, body and sex dwords and its
+   skill dwords (ints in A New Home to The Secret City, floats in The Tree of
+   Life and New Believers), at the adapter's offsets (story_c*.inc, the same
+   fields the Custom Island Event reads and writes). */
+static void story_title_looks(int game, const unsigned char *record, vv_title_looks *out) {
+    const ce_adapter *a = ce_adapter_for(game);
+    int k;
+    memset(out, 0, sizeof *out);
+    if (a == NULL) {
+        return;
+    }
+    out->age = *(const int *)(record + a->off_age);
+    out->head = *(const int *)(record + a->off_head);
+    out->body = *(const int *)(record + a->off_body);
+    out->sex = *(const int *)(record + a->off_sex);
+    for (k = 0; k < a->skill_count && k < VV_TITLE_SKILLS; ++k) {
+        out->skills[k] = *(const unsigned int *)(record + a->off_skills + 4u * (unsigned int)k);
+    }
+}
+
+static int story_title_skills_float(int game) {
+    const ce_adapter *a = ce_adapter_for(game);
+    return a != NULL && a->skills_float;
 }
 
 #include "story_titles.inc"
@@ -1311,8 +1339,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeTitleSet(int game, int index, 
     if (record == NULL || titles.count >= VV_TITLES_MAX) {
         return 0;
     }
+    memset(&titles.entries[titles.count], 0, sizeof titles.entries[titles.count]);
     titles.entries[titles.count].index = (unsigned int)index;
     titles.entries[titles.count].fingerprint = story_title_identity(game, record);
+    titles.entries[titles.count].flags = VV_TITLE_KNOWN;
+    titles_looks_now(game, index, record, &titles.entries[titles.count].looks);
     lstrcpynA(titles.entries[titles.count].title, text, VV_TITLE_BYTES);
     titles.seen[titles.count] = 0;
     ++titles.count;

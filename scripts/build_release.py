@@ -246,6 +246,8 @@ FILES = [
     "src/vv_graves.py",
     # Repair Saves & Logs' restore of titles a likes / dislikes change took away (the GUI imports it).
     "src/vv_lost_titles.py",
+    # The Custom Titles file's reader and writer (version 3 and 2; v1.35.70).
+    "src/vv_titles_file.py",
     # Repair Saves & Logs' Reset corrupted skill values (the GUI imports it).
     "src/vv_corrupt_skills.py",
     # Repair Saves & Logs' Restore A New Home Parents (the GUI imports it).

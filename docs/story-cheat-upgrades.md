@@ -571,10 +571,18 @@ numbers, spaces and . , ! ? : - '). It is kept per save slot in
 villager panel (VV1 0x41FD75, VV2 0x429DE3, VV3 0x468FC8, VV4 0x4404D9, VV5
 0x44319E) and as "Custom title:" in the Village Population roster and the
 Village History. No game's Details screen shows a title. A title belongs to
-its record only while the record holds the villager whose name it was set
-for; it is dropped when the villager dies or the record is reused. Start Over
-deletes the slot's file, and a table that sees its file gone forgets the old
-village instead of writing it back.
+its record only while the record holds the villager it was set for (the name,
+likes and dislikes, checked on every look); it is dropped when that villager
+is seen to die, and a reused record never inherits it. After a load (the
+games pack their records) every title goes to the one villager who has its
+whole identity: the name, likes, dislikes, head, body and sex, and an age and
+skills no lower than stored (version 3 of the file keeps them). When two
+villagers could be them, or a namesake who is not them is all there is, the
+title is kept PENDING -- shown on nobody, never dropped (v1.35.70) -- and
+bound again as soon as exactly one villager has that identity and no other
+title claims them; Check Saves & Logs asks about every pending title. Start
+Over deletes the slot's file, and a table that sees its file gone forgets the
+old village instead of writing it back.
 
 ### Not offered, and why
 

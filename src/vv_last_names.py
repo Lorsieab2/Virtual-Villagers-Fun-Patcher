@@ -1149,11 +1149,13 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
 
     data_dir = folder / tools.DATA
     _plan_masks(result, game, slot, data_dir, mask_map, conflicts)
+    # The Custom Titles file: version 3 (84-byte entries, v1.35.70) or 2 (40 bytes); the identity is the
+    # second dword of either (native/shared/custom_titles.h, src/vv_titles_file.py).
     _plan_u32_file(result, data_dir / "Custom Titles" / f"Custom Titles - Save {slot}.dat",
-                   b"VCT1", 2, game, 16, 40, 4, title_map, "custom titles", conflicts)
+                   b"VCT1", {3: 84, 2: 40}, game, 16, 4, title_map, "custom titles", conflicts)
     if game == 5:
         _plan_u32_file(result, data_dir / "Former Heathens" / f"Former Heathens - Save {slot}.dat",
-                       b"VFH1", 1, game, 16, 8, 0, title_map, "former Heathens", conflicts)
+                       b"VFH1", {1: 8}, game, 16, 0, title_map, "former Heathens", conflicts)
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, asked, by_name,
@@ -1265,19 +1267,22 @@ def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: di
             result.changes.append(Change(path, original, bytes(buf), "the masks"))
 
 
-def _plan_u32_file(result: Plan, path: Path, magic: bytes, version: int, game: int, header: int,
-                   entry: int, field_at: int, mapping: dict[int, int], what: str,
+def _plan_u32_file(result: Plan, path: Path, magic: bytes, versions: dict[int, int], game: int, header: int,
+                   field_at: int, mapping: dict[int, int], what: str,
                    conflicts: dict[int, str]) -> None:
-    """A file of `count` fixed entries whose u32 at `field_at` is an identity.  A file that is not
-    exactly its own format of this game (magic, version, the game at offset 8, header + count *
-    entry bytes) is left as it is: games sharing a folder share these files' names (Codex, #553)."""
+    """A file of `count` fixed entries whose u32 at `field_at` is an identity; `versions` gives each
+    version's entry size.  A file that is not exactly its own format of this game (magic, a known
+    version, the game at offset 8, header + count * entry bytes) is left as it is: games sharing a
+    folder share these files' names (Codex, #553)."""
     if not path.is_file():
         return
     original = path.read_bytes()
-    if (len(original) < header or original[:4] != magic or struct.unpack_from("<I", original, 4)[0] != version
+    if (len(original) < header or original[:4] != magic
+            or struct.unpack_from("<I", original, 4)[0] not in versions
             or struct.unpack_from("<I", original, 8)[0] != game):
         result.notes.append(f"{path.name} is not a {what} file this patcher writes; left as it is.")
         return
+    entry = versions[struct.unpack_from("<I", original, 4)[0]]
     count = struct.unpack_from("<I", original, 12)[0]
     if len(original) != header + count * entry:
         result.notes.append(f"{path.name} is damaged (its length does not match its count); left as it is.")

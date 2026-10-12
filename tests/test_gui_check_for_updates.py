@@ -161,7 +161,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_villager_info",
                "vv_log_decisions", "vv_log_contradictions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
-               "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view"}
+               "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -189,7 +189,7 @@ class ReleasesLinkTests(unittest.TestCase):
             # the pickers' background run of it.
             ("vv_reconcile", {"vv_save_layout", "vv_log_tools", "vv_last_names", "vv_lost_titles",
                               "vv_log_additions", "vv_genealogy", "vv_tribe_rename", "vv_log_decisions",
-                              "vv1_parents_restore"}),
+                              "vv1_parents_restore", "vv_titles_file"}),
             ("vv_reconcile_view", {"vv_reconcile"}),
             ("vv_log_decisions", {"vv_save_layout"}),
             # Records that contradict each other (Check / Repair Saves & Logs).
@@ -215,7 +215,9 @@ class ReleasesLinkTests(unittest.TestCase):
                            "vv_log_decisions"}),
             # Restoring titles a likes / dislikes change took away (the owner, v1.35.68).
             ("vv_lost_titles", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_save_layout",
-                                "vv_log_additions"}),
+                                "vv_log_additions", "vv_titles_file"}),
+            # The Custom Titles file, version 3 and 2 (native/shared/custom_titles.h; v1.35.70).
+            ("vv_titles_file", set()),
             # Restore A New Home Parents: the copies of the parents file, the Repairs Made note.
             ("vv1_parents_restore", {"vv_log_tools", "vv_save_backup", "vv_save_layout"}),
             # Reset corrupted skill values (the owner, v1.35.70): the save through Last Names' reader and writer.
@@ -229,7 +231,7 @@ class ReleasesLinkTests(unittest.TestCase):
                                      "vv_number_names", "vv_villager_info", "vv_reconcile_view"}),
             # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).
             ("vv_villager_info", {"vv_family_tree", "vv_genealogy", "vv_last_names",
-                                 "vv_save_layout", "vv_log_additions"}),
+                                 "vv_save_layout", "vv_log_additions", "vv_titles_file"}),
             # Number Duplicate Names renames through Last Names.
             ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup", "vv_log_additions",
                                  "vv_save_layout"}),

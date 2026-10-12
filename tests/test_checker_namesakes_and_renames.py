@@ -234,6 +234,24 @@ class StaleTitleRecords(unittest.TestCase):
         got = self.run_check([TAKA, HOTO], [(5, None, "Moon Mother")])
         self.assertTrue(any(v == "NOTE" and "does not match the villager there" in t for v, t in got), got)
 
+    def test_a_pending_title_is_named_with_who_could_be_them(self):
+        """v1.35.70: a version 3 file's pending title (its villager could not be told apart after a load)
+        is reported as waiting, with the villagers who carry its name and likes -- never as an error."""
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_titles_file as tf
+        roster = checker.vv1_roster(save([TAKA, HOTO, LIKO]))
+        game = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        (game / DATA / "Custom Titles").mkdir(parents=True)
+        (game / DATA / "Custom Titles" / "Custom Titles - Save 1.dat").write_bytes(tf.serialise(1, [
+            tf.Entry(tf.PENDING, checker.vv1_title_identity(roster[1]), "Helpful Spirit", False)]))
+        rep = checker.Report()
+        checker.check_titles(game, 1, 1, roster, None, rep)
+        got = [(v, t) for _, v, t in rep.lines]
+        self.assertIn(("NOTE", "\"Helpful Spirit\" is PENDING: kept, shown on nobody until exactly one villager has "
+                               "its whole identity (could be: Hoto Okelani, record 1) -- the reconciliation asks you "
+                               "about it"), got)
+        self.assertFalse(any(v in ("WRONG", "UNCHECKED") for v, _ in got), got)
+
 
 class LastNameNoteSaysWhichRule(unittest.TestCase):
     """The owner's Tiki Alosaka was listed "should be Powaka" under the village's "From the father",

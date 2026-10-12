@@ -1071,6 +1071,8 @@ static void drop_ambiguous_titles(const struct game_layout *g, const unsigned ch
     g_custom_title_count = kept;
 }
 
+/* A pending title (index VV_TITLE_PENDING, custom_titles.h) matches no
+   record: shown on nobody, as the villager panel shows it. */
 static const char *custom_title_of(const struct game_layout *g, const unsigned char *record, int index) {
     int i;
     for (i = 0; i < g_custom_title_count; ++i) {

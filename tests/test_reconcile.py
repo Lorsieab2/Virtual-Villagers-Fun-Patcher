@@ -727,6 +727,68 @@ class FileLevelLoss(Base):
         (titles / "Custom Titles - Save 1.dat").write_bytes(b"VCT1" + struct.pack("<III", 2, 4, 1) + entry)
         self.assertEqual(rc.reconcile(v.folder, 4, 1).questions, [])
 
+    def test_a_pending_title_is_asked_about_never_called_lost(self):
+        """v1.35.70, the owner: a title whose villager could not be told apart after a load is kept
+        PENDING (native/shared/custom_titles.h), shown on nobody, never dropped.  The reconciliation names
+        it, the identity it is kept by and who could be them -- and does not call it lost.  All five
+        games."""
+        import vv_titles_file as tf
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                v = self.village("huttest", game)
+                people = v.people(v.save_path(1).read_bytes())
+                who = people[0]
+                titled = [aged(s, 0, title="Helpful Spirit") if i == 0 else s for i, s in enumerate(people)]
+                v.history([("2026-10-11 21:00:00", titled)])
+                path = v.folder / LOGS / "Save 1" / "Tribe History" / "Village History 1.txt"
+                text = path.read_bytes().decode("latin-1").replace(
+                    f"  Name: {who.name}\r\n", f"  Name: {who.name}\r\n  Custom title: Helpful Spirit\r\n", 1)
+                path.write_bytes(text.encode("latin-1"))
+                titles = v.folder / DATA / "Custom Titles"
+                titles.mkdir(parents=True)
+                entry = tf.Entry(tf.PENDING, who.title_id, "Helpful Spirit", True, **who.title_looks)
+                (titles / "Custom Titles - Save 1.dat").write_bytes(tf.serialise(game, [entry]))
+                rec = rc.reconcile(v.folder, game, 1)
+                asked = [f for f in rec.questions if f.topic == "titles"]
+                self.assertEqual(len(asked), 1, [f.text for f in rec.questions])
+                self.assertIn('"Helpful Spirit" is PENDING', asked[0].text)
+                self.assertIn(f"head {who.head}, body {who.body}", asked[0].text)
+                self.assertIn(f"age at least {who.title_looks['age']} units", asked[0].text)
+                self.assertIn(f"1 villager(s) in the save could be them: {who.name}", asked[0].text)
+                self.assertNotIn("may be lost", asked[0].text)
+                self.assertEqual(asked[0].options[0], f"{rc.KEEP} (leave it waiting)")
+
+    def test_identical_twins_pending_title_names_both(self):
+        """Twins identical in everything: the title stays pending in the game, and the question lists
+        both twins as the villagers who could be them; a namesake who is younger is listed as not them."""
+        import vv_titles_file as tf
+        twins = [("Lani", False, 1, 1, 700), ("Kai", True, 3, 4, 500), ("Kai", True, 3, 4, 500),
+                 ("Kai", True, 3, 4, 200)]
+        v = self.village("", 1, vv1_save(twins))
+        people = v.people(v.save_path(1).read_bytes())
+        kai = people[1]
+        titles = v.folder / DATA / "Custom Titles"
+        titles.mkdir(parents=True)
+        entry = tf.Entry(tf.PENDING, kai.title_id, "Only This Kai", True, **kai.title_looks)
+        (titles / "Custom Titles - Save 1.dat").write_bytes(tf.serialise(1, [entry]))
+        asked = [f for f in rc.reconcile(v.folder, 1, 1).questions if f.topic == "titles"]
+        self.assertEqual(len(asked), 1, [f.text for f in asked])
+        self.assertIn('"Only This Kai" is PENDING', asked[0].text)
+        self.assertIn("2 villager(s) in the save could be them: Kai (Male, head 3, body 4, age 500), record 1; "
+                      "Kai (Male, head 3, body 4, age 500), record 2.", asked[0].text)
+        self.assertIn("Not them (the same name and likes, another head, body or sex, or younger or less "
+                      "skilled): Kai (Male, head 3, body 4, age 200).", asked[0].text)
+
+    def test_an_old_version_2_titles_file_still_reads(self):
+        """A version 2 file (v1.35.58-v1.35.69) is still read: its bound title is no question."""
+        v = self.village("huttest", 3)
+        people = v.people(v.save_path(1).read_bytes())
+        entry = struct.pack("<II", 0, people[0].title_id) + b"Helpful Spirit".ljust(32, b"\0")
+        titles = v.folder / DATA / "Custom Titles"
+        titles.mkdir(parents=True)
+        (titles / "Custom Titles - Save 1.dat").write_bytes(b"VCT1" + struct.pack("<III", 2, 3, 1) + entry)
+        self.assertEqual([f for f in rc.reconcile(v.folder, 3, 1).questions if f.topic == "titles"], [])
+
 
 class EverywhereTheVillageIsOpened(Base):
     def test_check_saves_and_logs_shows_every_question_and_writes_nothing(self):

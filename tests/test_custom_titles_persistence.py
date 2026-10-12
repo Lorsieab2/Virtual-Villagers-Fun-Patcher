@@ -18,6 +18,7 @@ below hold the pieces in place.
 from __future__ import annotations
 
 import re
+import struct
 import subprocess
 import unittest
 from pathlib import Path
@@ -73,20 +74,33 @@ class CustomTitlesFile(unittest.TestCase):
             "AFTER A RELOAD KAI [1 -> 0] KEEPS HIS TITLE",
             "THE FOLLOWED TITLES ARE WRITTEN BACK: a new session reads them at their new records",
             "A VILLAGER WHO MOVED IN THIS SESSION IS NOT SWEPT AWAY AS DEAD",
-            "two villagers sharing the title's identity: neither is given it",
+            "... and the dead Hina's title waits PENDING, shown on nobody: a load never drops a title",
+            # v1.35.70 (the owner): a title is never dropped because its villager is ambiguous.
+            "AN IDENTICAL-LOOKING NAMESAKE AFTER A RELOAD: THE TITLE IS KEPT PENDING, SHOWN ON NEITHER",
+            "... the entry is kept, pending -- never dropped",
+            "THE FILE STILL HOLDS THE PENDING TITLE, WITH THE WHOLE IDENTITY IT WAS KEPT BY",
+            "THE NAMESAKE DIES: THE PENDING TITLE BINDS AGAIN TO THE RIGHT KAI BY THE WHOLE IDENTITY",
+            "THE NAMESAKE'S LIKES CHANGE: THE PENDING TITLE BINDS AGAIN TO THE RIGHT KAI",
+            "THE TITLED KAI GONE, A YOUNGER NAMESAKE IS NOT GIVEN THE TITLE: IT STAYS PENDING",
+            "... nor a namesake with a lower skill",
+            "... nor a namesake of the other sex",
+            "TWINS IDENTICAL IN EVERYTHING: THE TITLE STAYS PENDING, SHOWN ON NEITHER, KEPT",
+            "... and the file keeps it pending for the reconciliation to ask about",
             "a surviving Kai is not given either Kai's title",
-            "... both entries are dropped, and the file still loads (no record listed twice)",
-            "AN IDENTITY TWO VILLAGERS SHARE IS NOT KEPT ON THE TITLE'S OLD RECORD: neither shows it",
+            "... both entries wait pending, and the file still loads (no record listed twice)",
+            "A YOUNGER NAMESAKE PACKED INTO THE TITLE'S OLD RECORD IS NOT GIVEN IT: THE TITLE FOLLOWS ITS VILLAGER",
+            "AT THE CAP A TITLED VILLAGER MOVED BY LOAD PACKING KEEPS HER TITLE (Ana [6 -> 5])",
+            "A BIRTH INTO A FREED RECORD AT THE CAP NEVER INHERITS THE TITLE (Hoku's waits, pending)",
+            "A BIRTH INTO A DEAD VILLAGER'S RECORD AT THE CAP NEVER INHERITS THE TITLE (in session: she died)",
+            "AN OLD-FORMAT (VERSION 2) FILE STILL LOADS AND FOLLOWS",
+            "... and is written back as version 3, with the villager's looks",
             "A PURE MOVE IS WRITTEN BACK: the next session finds Kai's title at record 0",
-            "... and after the reload the entry is dropped, not kept for either of them",
-            "A TITLE DROPPED AS AMBIGUOUS NEVER REAPPEARS WHEN ONE OF THE TWO DIES",
-            "... and the title is dropped, so it cannot come back on either",
-            "the surviving twin is not given it later",
             "with nothing moved, the twin's title is kept on the record it was set on",
             "... and shown there, on that twin only",
             "another villager's rename is not a move: the twin's title stays",
             "a namesake born in the same session does not inherit the title",
-            "a lookup before any tick follows the table first: the twin's title is dropped, not shown",
+            "... and the title is shown again when its villager is back",
+            "a lookup before any tick follows the table first: the twin's title is kept pending, not shown",
             "a slot switched back to is followed afresh: the twin's title is not shown on the old look",
             "another villager in the record is not shown the title",
             "the first lookup's follow does not sweep: the title is still there for its villager",
@@ -118,6 +132,17 @@ class CustomTitlesFile(unittest.TestCase):
                 self.assertIn(f"[PASS] THE TITLE SURVIVES A LIKES / DISLIKES CHANGE, ASKED IN THE SAME FRAME "
                               f"(game {game})", run.stdout)
 
+    def test_an_ambiguous_title_is_kept_pending_never_dropped(self):
+        """v1.35.70, the owner: a title is never dropped because its villager became ambiguous after
+        a reload; it is kept pending (shown on nobody) and bound again only by the whole identity."""
+        store = STORE.read_text(encoding="utf-8")
+        fmt = FORMAT.read_text(encoding="utf-8")
+        self.assertNotIn("AMBIGUOUS AFTER A RELOAD IS DROPPED", store)
+        self.assertIn("AMBIGUOUS IS PENDING, NEVER DROPPED", store)
+        self.assertIn("#define VV_TITLE_PENDING 0xFFFFFFFFu", fmt)
+        self.assertIn("#define VV_TITLES_VERSION 3u", fmt)
+        self.assertIn("vv_title_looks_could_be(&e->looks, &now, story_title_skills_float(game))", store)
+
     def test_every_store_kept_by_the_title_identity_follows_a_likes_change(self):
         """v1.35.68: the custom titles (Story Upgrades) and New Believers' Former Heathens (Cause of
         Death) are both kept by vv_title_identity (name, likes, dislikes); both carry their entries to
@@ -131,6 +156,61 @@ class CustomTitlesFile(unittest.TestCase):
         self.assertIn("former_rekey(former_roster[renamed], now[renamed])", former)
         arrivals = (ROOT / "native" / "vvfp_cause_of_death" / "cod_arrivals.inc").read_text(encoding="utf-8")
         self.assertIn("former_follow(records);", arrivals)
+
+
+class ThePatchersOwnReader(unittest.TestCase):
+    """src/vv_titles_file.py reads exactly what the companion's vv_titles_validate accepts."""
+
+    def setUp(self):
+        import sys
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_titles_file
+        self.tf = vv_titles_file
+
+    def test_version_3_round_trips_with_pending_entries(self):
+        tf = self.tf
+        entries = [tf.Entry(4, 77, "Helpful Spirit", True, 500, 3, 4, 1, (20, 21, 22, 23, 24, 0)),
+                   tf.Entry(tf.PENDING, 78, "Moon Mother", True, 300, 1, 2, 2, (5,) * 5 + (0,)),
+                   tf.Entry(tf.PENDING, 78, "Twin Title", False)]
+        data = tf.serialise(3, entries)
+        self.assertEqual(len(data), 16 + 3 * 84)
+        version, back = tf.read(data, 3)
+        self.assertEqual(version, 3)
+        self.assertEqual(back, entries)
+        self.assertEqual([e.pending for e in back], [False, True, True])
+        self.assertIsNone(tf.read(data, 2))                       # another game's file
+
+    def test_version_2_still_reads(self):
+        tf = self.tf
+        data = b"VCT1" + struct.pack("<III", 2, 1, 1) + struct.pack("<II", 4, 77) + b"Helpful Spirit".ljust(32, b"\0")
+        self.assertEqual(tf.read(data, 1), (2, [tf.Entry(4, 77, "Helpful Spirit")]))
+
+    def test_what_the_companion_sets_aside_is_not_read(self):
+        tf = self.tf
+        good = tf.serialise(1, [tf.Entry(1, 9, "A", True, 1, 1, 1, 1)])
+        bad_flags = bytearray(good)
+        bad_flags[24] = 2
+        unknown_with_looks = bytearray(tf.serialise(1, [tf.Entry(1, 9, "A")]))
+        unknown_with_looks[30] = 1
+        twice = tf.serialise(1, [tf.Entry(1, 9, "A"), tf.Entry(1, 10, "B")])
+        pending_twice = tf.serialise(1, [tf.Entry(tf.PENDING, 9, "A"), tf.Entry(tf.PENDING, 10, "B")])
+        v2_pending = b"VCT1" + struct.pack("<III", 2, 1, 1) + struct.pack("<II", tf.PENDING, 9) + b"A".ljust(32, b"\0")
+        self.assertIsNotNone(tf.read(good, 1))
+        self.assertIsNotNone(tf.read(pending_twice, 1))           # pending entries hold no record
+        for data in (bytes(bad_flags), bytes(unknown_with_looks), twice, v2_pending, good[:-1],
+                     b"VCT1" + struct.pack("<III", 1, 1, 0)):
+            self.assertIsNone(tf.read(data, 1))
+
+    def test_the_whole_identity_rule(self):
+        tf = self.tf
+        e = tf.Entry(tf.PENDING, 9, "A", True, 500, 3, 4, 1, (20,) * 5 + (0,))
+        same = dict(age=500, head=3, body=4, sex=1, skills=(20,) * 5 + (0,))
+        self.assertTrue(tf.could_be(1, e, same))
+        self.assertTrue(tf.could_be(1, e, {**same, "age": 600, "skills": (25,) * 5 + (0,)}))
+        for change in ({"age": 499}, {"head": 2}, {"body": 5}, {"sex": 2}, {"skills": (20, 20, 19, 20, 20, 0)}):
+            with self.subTest(change=change):
+                self.assertFalse(tf.could_be(1, e, {**same, **change}))
+        self.assertTrue(tf.could_be(1, tf.Entry(tf.PENDING, 9, "A"), {**same, "age": 0}))   # looks not known
 
 
 LOG_BUILD = ROOT / "scripts" / "build_custom_title_log_harness.ps1"

@@ -142,10 +142,11 @@ class Village:
         return ln._title_identity(data, ln.living(self.folder, self.game, 1)[k].at, ln.FIELDS[self.game])
 
     def entries(self) -> list[tuple]:
-        data = self.titles.read_bytes()
-        count = struct.unpack_from("<I", data, 12)[0]
-        return [(*struct.unpack_from("<II", data, 16 + 40 * k), data[24 + 40 * k:56 + 40 * k].rstrip(b"\0").decode())
-                for k in range(count)]
+        """(record, identity, title) of every entry of the file (version 3, or 2 as the tests write it)."""
+        import vv_titles_file
+        got = vv_titles_file.read(self.titles.read_bytes(), self.game)
+        assert got is not None, "the titles file is not one the game reads"
+        return [(e.index, e.identity, e.title) for e in got[1]]
 
     def repairs(self) -> str:
         found = sorted((self.folder / LOGS).rglob("Virtual Villagers * Repairs Log *.txt"))
@@ -220,7 +221,13 @@ class TheAlapaiCase(unittest.TestCase):
                 result = lt.restore(v.folder, game, 1, processes=NoGame(), now=NOW)
                 self.assertEqual(v.save.read_bytes(), save)                 # the save is never written
                 self.assertEqual(v.entries(), [(0, v.identity(0), "Moon Mother")])
-                self.assertEqual(v.titles.read_bytes()[:16], b"VCT1" + struct.pack("<III", 2, game, 1))
+                # Written as version 3 (v1.35.70), with her looks from the save: the whole identity
+                # the Story companion binds a title by.
+                self.assertEqual(v.titles.read_bytes()[:16], b"VCT1" + struct.pack("<III", 3, game, 1))
+                import vv_titles_file
+                entry = vv_titles_file.read(v.titles.read_bytes(), game)[1][0]
+                self.assertTrue(entry.known)
+                self.assertEqual((entry.head, entry.body), (3, 2))
                 # The patcher's own reader now gives it to her.
                 import vv_villager_info as info
                 self.assertEqual(info.file_titles(v.folder, game, 1)[("Alapai", 3, 2)], "Moon Mother")
