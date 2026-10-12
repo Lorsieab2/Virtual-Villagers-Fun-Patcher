@@ -143,12 +143,13 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
     import vv_genealogy
     import vv_last_names
     try:
-        rule, wrong = vv_last_names.wrong_last_names(Path(folder), game, slot)
+        rule, wrong = vv_last_names.wrong_last_names_explained(Path(folder), game, slot)
     except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, OSError, ValueError) as exc:
         report.add(f"{LOGS} (last names)", "UNCHECKED", f"could not be read ({exc})")
     else:
         if wrong:
-            names = ", ".join(f"{v.name} (should be {should or 'none'})" for v, _now, should in wrong[:12])
+            names = ", ".join(vv_last_names.wrong_last_name_text(v, should, used, rule, either)
+                              for v, _now, should, used, either in wrong[:12])
             more = f" and {len(wrong) - 12} more" if len(wrong) > 12 else ""
             report.add(f"{LOGS} (last names)", "NOTE",
                        f"{len(wrong)} last name(s) are not what \"{vv_last_names.INHERIT[rule]}\" gives: "

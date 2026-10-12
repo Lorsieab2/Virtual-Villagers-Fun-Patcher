@@ -793,6 +793,28 @@ def enc_body(p: Person | None) -> int:
     return 0 if p is None or p.body is None or not 0 <= p.body <= 253 else p.body + 1
 
 
+def renamed_birth(bs: list[LogRecord], roster: list[Villager], v: Villager, cur: dict) -> list[LogRecord]:
+    """A villager RENAMED since birth (the owner's Tiki Alosaka, 2026-10-11: born Iruwa Okelani, head 12
+    body 18, renamed in the game to her half-sister's name): the Birth records of a child with her looks
+    and the very parents -- names and looks -- the parentage file holds for her, whose child's name no
+    living villager with those looks carries now.  Exactly one is hers (twins share looks and parents,
+    so two such records are never told apart: the caller wants exactly one).  vv1_crosscheck.inc's
+    vv1_xc_renamed is the same rule."""
+    def same(p, name, head, body):
+        return (p.name if p else "") == name and (head_enc(p) if p else 0) == head \
+            and (enc_body(p) if p else 0) == body
+    return [b for b in bs if b.child and b.child.name and b.child.name != v.name
+            and (b.child.head, b.child.body) == (v.head, v.body)
+            and same(b.father, cur["father"], cur["fh"], cur["fb"])
+            and same(b.mother, cur["mother"], cur["mh"], cur["mb"])
+            and not any(key(w.name, w.head, w.body) == key(b.child.name, b.child.head, b.child.body)
+                        for w in roster)]
+
+
+def head_enc(p: Person | None) -> int:
+    return 0 if p is None or p.head is None or not 0 <= p.head <= 253 else p.head + 1
+
+
 def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: list[LogRecord], rep: Report) -> None:
     """The VV1 parentage table against the Births log -- the in-game cross-check's own rules
     (native/vv1_parentage/vv1_crosscheck.inc), so this tool predicts what it will do."""
@@ -810,9 +832,11 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
         return
     entries = 12 + 256 * 36
     rost = []
+    looks_file = []
     for i in range(256):
         o = 12 + i * 36
         rost.append((data[o], data[o + 1], i32(data, o + 4), cstr(data, o + 8, 28)))
+        looks_file.append((data[o + 2], data[o + 3]))     # head + 1, body + 1; 0 = not recorded
 
     def entry(i):
         o = entries + i * 92
@@ -823,13 +847,24 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
     # identity (gender, family scalar, name), unique on both sides -- what the game's load does.
     def ident_v(v: Villager):
         return (1 if v.male else 2, v.scalar, v.name)
+    def enc_looks(v: Villager):
+        return (v.head + 1 if 0 <= v.head <= 253 else 0, v.body + 1 if 0 <= v.body <= 253 else 0)
+
     ids_file = [(g, s, n) for g, _, s, n in rost]
     current = {}
     for v in roster:
         idv = ident_v(v)
         at = [i for i, r in enumerate(rost) if r[0] and (r[0], r[2], r[3]) == idv]
-        if len([w for w in roster if ident_v(w) == idv]) == 1 and len(at) == 1:
+        sharers = [w for w in roster if ident_v(w) == idv]
+        # Two villagers who share gender, family and name are told apart by the looks the file's roster
+        # recorded -- the companion's own follow (vv1_follow_roster's vv1_count_looks step): the one
+        # villager with those looks takes the one entry recorded with them.
+        same_looks = [i for i in at if looks_file[i][0] and looks_file[i][1] and looks_file[i] == enc_looks(v)]
+        if len(sharers) == 1 and len(at) == 1:
             current[v.rank] = entry(at[0])
+        elif (len(sharers) > 1 and len(same_looks) == 1
+              and sum(1 for w in sharers if enc_looks(w) == enc_looks(v)) == 1):
+            current[v.rank] = entry(same_looks[0])
         elif rost[v.rank][0] and (rost[v.rank][0], rost[v.rank][2], rost[v.rank][3]) == idv:
             current[v.rank] = entry(v.rank)
         else:
@@ -857,7 +892,14 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
 
         def enc(p):
             return 0 if p is None or p.head is None or not 0 <= p.head <= 253 else p.head + 1
-        if matches and agree and len(matches) >= shared:
+        born_as = [] if matches or not has or shared != 1 else renamed_birth(bs, roster, v, cur)
+        if len(born_as) == 1:
+            # RENAMED SINCE BIRTH (vv1_crosscheck.inc VV1_XC_RENAMED): left as it is -- never a second
+            # Birth record written "afterwards", never parents cleared.
+            rep.add(label, "OK", f"{v.name}: {now}, as the Birth record of {born_as[0].child.name} says -- the "
+                                 f"one child born with head {v.head} and body {v.body} to these parents, whose "
+                                 "name nobody with those looks carries now (renamed since)")
+        elif matches and agree and len(matches) >= shared:
             b = matches[0]
             f, m = b.father, b.mother
             want = (enc(f) if f else 0, (f.body + 1 if f and f.body is not None and 0 <= f.body <= 253 else 0),
@@ -890,8 +932,8 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
             else:
                 rep.add(label, "OK", f"{v.name}: no parents ({why})")
         else:
-            rep.add(label, "UNCHECKED", f"{v.name}: Birth records name {v.name}, none with head {v.head} and body "
-                                        f"{v.body} (looks changed since birth): {now} left as it is")
+            rep.add(label, "UNCHECKED", f"{v.name}: Birth records name {v.name}, none with head {v.head} and "
+                                        f"body {v.body} (looks or name changed since birth): {now} left as it is")
         if v.due:
             convs = [k for k, r in enumerate(births) if r.kind == "conception" and r.mother
                      and key(r.mother.name, r.mother.head, r.mother.body) == key(v.name, v.head, v.body)]
@@ -954,6 +996,19 @@ def missing_births(roster: list[Villager], births: list[LogRecord]) -> list[Vill
                                for w in roster)]
         if len(related) == 1:
             continue
+        # RENAMED SINCE BIRTH (arrival_backfill.inc, the same rule): one Birth record of these looks
+        # and exactly the parents the save keeps on this villager, under a name no villager of these
+        # looks carries now, and no other villager of these looks and parents it could be.
+        if not taken.get(k) and not any(w is not v and (w.head, w.body) == (v.head, v.body)
+                                        and (w.father, w.mother) == (v.father, v.mother) for w in roster):
+            renamed = [r for r in births if r.kind == "birth" and r.child and r.child.name
+                       and r.child.name != v.name and (r.child.head, r.child.body) == (v.head, v.body)
+                       and ((r.father.name if r.father else ""), (r.mother.name if r.mother else ""))
+                       == (v.father, v.mother)
+                       and not any((w.name, w.head, w.body) == (r.child.name, r.child.head, r.child.body)
+                                   for w in roster)]
+            if len(renamed) == 1:
+                continue
         out.append(v)
     return out
 
@@ -1454,6 +1509,22 @@ def check_masks(game_dir: Path, slot: int, game: int, roster: list[Villager], re
         rep.add(label, "NOTE", f"{kept} other mask entr{'y' if kept == 1 else 'ies'} kept: " + REPORT_ONLY["masks"])
 
 
+def vv1_title_identity(v: Villager) -> int:
+    """A New Home's custom-title identity (story_title_identity): FNV-1a of the name to its NUL (at
+    most 0x1C bytes), 0xFF, then the likes and dislikes (+0x398..+0x3B8); 0 becomes 1."""
+    rec = bytearray(0x3D8)
+    rec[0x33C:0x3D8] = v.raw
+    h = 2166136261
+    for c in rec[0x370:0x370 + 0x1C]:
+        if c == 0:
+            break
+        h = ((h ^ c) * 16777619) & 0xFFFFFFFF
+    h = ((h ^ 0xFF) * 16777619) & 0xFFFFFFFF
+    for c in bytes(rec[0x398:0x3A8]) + bytes(rec[0x3A8:0x3B8]):
+        h = ((h ^ c) * 16777619) & 0xFFFFFFFF
+    return h or 1
+
+
 def check_titles(game_dir: Path, slot: int, game: int, roster: list[Villager], hist, rep: Report) -> None:
     label = f"{DATA}\\Custom Titles\\Custom Titles - Save {slot}.dat"
     path = game_dir / DATA / "Custom Titles" / f"Custom Titles - Save {slot}.dat"
@@ -1475,21 +1546,18 @@ def check_titles(game_dir: Path, slot: int, game: int, roster: list[Villager], h
         title = cstr(data, o + 8, 32)
         if game == 1 and index < 256:
             v = next((w for w in roster if w.rank == index), None)
-            ident = None
-            if v is not None:
-                rec = bytearray(0x3D8)
-                rec[0x33C:0x3D8] = v.raw
-                h = 2166136261
-                for c in rec[0x370:0x370 + 0x1C]:
-                    if c == 0:
-                        break
-                    h = ((h ^ c) * 16777619) & 0xFFFFFFFF
-                h = ((h ^ 0xFF) * 16777619) & 0xFFFFFFFF
-                for c in bytes(rec[0x398:0x3A8]) + bytes(rec[0x3A8:0x3B8]):
-                    h = ((h ^ c) * 16777619) & 0xFFFFFFFF
-                ident = h or 1
+            ident = vv1_title_identity(v) if v is not None else None
+            carriers = [w for w in roster if vv1_title_identity(w) == fp]
+            fps = [struct.unpack_from("<I", data, 16 + 40 * j + 4)[0] for j in range(count)]
             if ident == fp:
                 rep.add(label, "OK", f"\"{title}\" is on {v.name}, record {index}, as its identity says")
+            elif len(carriers) == 1 and fps.count(fp) == 1:
+                # The game packs its villagers at every load, so a record index goes stale; the title
+                # follows its villager's identity (story_titles.inc titles_follow), and exactly one
+                # living villager carries it (the owner's two "Helpful Spirit" titles, 2026-10-11).
+                rep.add(label, "OK", f"\"{title}\" is {carriers[0].name}'s (record {carriers[0].rank} now; the file "
+                                     f"still says record {index}, from before a load packed the villagers -- the "
+                                     "game's load moves it to them)")
             else:
                 rep.add(label, "NOTE", f"\"{title}\" at record {index} does not match the villager there "
                                        "(the game's load moves it to its villager, or shows it on nobody)")

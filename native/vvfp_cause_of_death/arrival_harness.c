@@ -972,6 +972,7 @@ static void births_cases(void) {
     villager(7, "Sam", 700, 3, 9, 0);
     parented(10, "Look", 3, 3);           /* born, with his Birth record */
     villager(11, "Look", 700, 3, 3, 0);   /* an arrived look-alike, no record (Codex, #536) */
+    parented(13, "Zuri", 8, 8);           /* born "Iruwa" (Birth 5), renamed since: the owner's Tiki Alosaka */
     if (game == 5) {
         parented(8, "Pagan", 7, 7);
         rec(8)[VV5_FACTION] = 1;
@@ -986,6 +987,8 @@ static void births_cases(void) {
         "Birth 9\n  Child: Twin\n    Head: 6\n    Body: 6\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Birth\n  Child: Sam\n    Head: 1\n    Body: 9\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
+        "Birth 5\n  Child: Iruwa\n    Head: 8\n    Body: 8\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Birth 3\n  Child: Look\n    Head: 3\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
@@ -1056,6 +1059,9 @@ static void births_cases(void) {
           "births: none for Nishi (looks changed, the only one of the name), Huata (no parents), Arr (an Arrived"
           " record), a Heathen");
     CHECK(count_of(text, "born before this log existed") == 3, "births: exactly three written");
+    CHECK(count_of(text, "  Child: Zuri\r\n") == 0 && count_of(text, "  Child: Iruwa\r\n") == 1,
+          "births: a villager renamed since birth (the Birth record of his looks and his very parents, under a"
+          " name nobody carries now) gets no second Birth record");
     CHECK(file_exists(marker), "births: the marker is written once every record is on disk");
     read_into(unacc);
     CHECK(text[0] == 0 || (strstr(text, "  Name: Kid") == NULL && strstr(text, "  Name: Sam") == NULL),

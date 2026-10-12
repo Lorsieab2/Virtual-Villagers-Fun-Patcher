@@ -114,6 +114,10 @@ class Vv1CrossCheckHarnessTests(unittest.TestCase):
             "identical twins whose Birth records agree both get those parents",
             "two identical villagers and one Birth record: both unknown",
             "a villager whose looks changed since birth is left as it is, never cleared",
+            # renamed since birth (the owner's Tiki Alosaka, 2026-10-11)
+            "a villager renamed since birth keeps the parents of their own Birth record: never recorded twice, never cleared",
+            "... while parents that are not her Birth record's are still set to unknown, as before",
+            "... and a Birth record whose child still lives under that name is never taken for a rename",
             # the pregnancy stash
             "an expecting mother's baby gets the father of her last logged conception",
             "a pregnancy the log does not hold keeps its stash",
