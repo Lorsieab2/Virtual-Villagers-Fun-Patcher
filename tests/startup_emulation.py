@@ -71,7 +71,8 @@ STDCALL = {
     "GetFileSizeEx": 8, "WriteFile": 20, "CloseHandle": 4,
 }
 # What the emulated machine answers for the Documents folder and the local time.
-DOCUMENTS = "C:\\Users\\Player\\Documents"
+# Not under \\Users\\<name>: a tracked file never names an account (test_archive_has_no_personal_paths).
+DOCUMENTS = "D:\\Documents"
 LOCAL_TIME = (2026, 10, 0, 11, 21, 5, 9, 0)        # Sun Oct 11 21:05:09 2026
 FILE_HANDLE = 0x0000F11E
 

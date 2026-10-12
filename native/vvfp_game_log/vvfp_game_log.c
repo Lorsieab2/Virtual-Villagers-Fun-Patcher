@@ -276,6 +276,9 @@ static unsigned int highest_rolled(void) {
         const wchar_t *p = found.cFileName + 7;     /* after "ldwLog " */
         unsigned int n = 0;
         int digits = 0;
+        if (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            continue;                               /* a folder (never a backup's) is not a rolled log */
+        }
         while (*p >= L'0' && *p <= L'9' && digits < 9) {
             n = n * 10 + (unsigned int)(*p - L'0');
             ++p;

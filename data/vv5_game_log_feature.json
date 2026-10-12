@@ -36,7 +36,7 @@
     {
       "source": "assets/game_log/VVFP Game Log.dll",
       "destination": "VVFP Game Log.dll",
-      "sha256": "CE0D1204E9A2694A9514D91E4D81057001F204F147651E237E0737B38C41C609"
+      "sha256": "16D7CD12F53D71F8B892914AF16AA9A129E86AB0563E57C2AF8F8E54982797DF"
     }
   ],
   "runtime_detours": [
