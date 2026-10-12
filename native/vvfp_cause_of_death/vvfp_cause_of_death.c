@@ -766,6 +766,74 @@ __declspec(dllexport) int __stdcall VvfpCauseInstall(int game, const void *host)
    site reported. */
 static int temporary_slot = -1;  /* the village the temporary marks belong to */
 
+/* ONCE A DRAW PASS IN THE SECRET CITY AND NEW BELIEVERS (v1.35.70, the
+   owner's lag at 256 villagers).  A New Home, The Lost Children and The Tree
+   of Life call this tick once a frame.  The Secret City and New Believers
+   have no such call: their companions reach it from every villager HEAD
+   DRAW (VV3WorldMaskDrawAt, Vv5MaskSync), so it ran once per villager drawn
+   -- 256 whole passes over the records a frame, about 4.5 ms of New
+   Believers' frame with 150 Heathens (native/vvfp_cause_of_death/
+   cause_tick_cost_harness.c measures it).  The passes compare the records
+   with what they saw last, so running them again within one draw pass
+   finds nothing the first run did not, and anything that does change is
+   seen by the next pass -- as in the three games called once a frame.
+
+   So in those two games the passes run at the first head draw of each draw
+   pass -- a call that comes after a pause of COD_PASS_GAP_US with no call
+   (the rest of the frame: the update, the present) -- and again if a pass
+   lasts COD_PASS_MAX_US, never less often.  The cheap part above the passes
+   (the Reanimate stand-in's mark, the temporary records) still runs on every
+   call, exactly as before. */
+#define COD_PASS_GAP_US 1000
+#define COD_PASS_MAX_US 8000
+#ifndef COD_PACE_NOW_US
+static LONGLONG cod_now_us(void) {
+    static LARGE_INTEGER frequency;
+    LARGE_INTEGER now;
+    if (frequency.QuadPart == 0 && !QueryPerformanceFrequency(&frequency)) {
+        return 0;
+    }
+    QueryPerformanceCounter(&now);
+    return (LONGLONG)(now.QuadPart / frequency.QuadPart) * 1000000
+        + (LONGLONG)((now.QuadPart % frequency.QuadPart) * 1000000 / frequency.QuadPart);
+}
+#define COD_PACE_NOW_US() cod_now_us()
+#endif
+
+#ifdef VVFP_TEST
+/* TEST build: 0 (the default) runs every call's passes, as the harnesses
+   written before the pacing expect; 1 paces The Secret City and New
+   Believers as the shipped DLL does. */
+static int cod_test_pace;
+static int cod_test_passes;       /* how many calls ran the passes */
+#endif
+
+/* 1 when this call starts a draw pass (or is in a game called once a
+   frame): the passes run. */
+static int cod_pass_starts(int game) {
+    static int seen;
+    static LONGLONG last_call, last_pass;
+    LONGLONG now;
+    int start;
+    if (game != 3 && game != 5) {
+        return 1;
+    }
+#ifdef VVFP_TEST
+    if (!cod_test_pace) {
+        return 1;
+    }
+#endif
+    now = COD_PACE_NOW_US();
+    start = !seen || now - last_call >= COD_PASS_GAP_US || now - last_pass >= COD_PASS_MAX_US
+            || now < last_call;           /* a clock that went back: never trusted to skip */
+    seen = 1;
+    last_call = now;
+    if (start) {
+        last_pass = now;
+    }
+    return start;
+}
+
 __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
     unsigned char *records;
     int i;
@@ -800,6 +868,12 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
             cod_temporary_learn(i, record);   /* named by now (New Believers' 0x420015) */
         }
     }
+    if (!cod_pass_starts(g_game)) {
+        return;                       /* the same draw pass: the records are as the passes left them */
+    }
+#ifdef VVFP_TEST
+    ++cod_test_passes;
+#endif
     if (g_game <= 2) {
         vv12_tick();
     } else {
