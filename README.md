@@ -27,6 +27,10 @@ prerequisite are rejected before any copied game folder or EXE is written.
 New in v1.35.71:
 
 - **A waiting custom title can be settled by your answer** (all five games). Check Saves & Logs' question about a custom title that is waiting ("pending") now offers, besides "Keep as is (leave it waiting)": "Give it to <villager>" for each living villager who could be them (the same name, likes, dislikes, head, body and sex, no younger and no less skilled, and holding no other title), and "Remove the title (it is nobody's now)". Repair Saves & Logs carries the answer out in the Custom Titles file with the game closed: a backup first, the file as it was kept in Copies Made Before Repairs, the new file written through a temporary file and read back, and a "Repair" record in the Repairs Made log. The answer is checked again against the file and the save as they are then; if either changed, nothing is changed and the question is asked again. Before, only giving the title again with the Custom Island Event ended the wait.
+- **Check Saves & Logs asks in more cases where something may be lost** (all five games): a Death record of a villager of the other sex no longer explains a missing villager of the same name and looks; the Village Population page is now compared too; a villager missing from a save restored from an older copy is asked about even when a later Death record names them; two villagers who share a name and likes can each keep their own custom title without one being reported lost.
+- **Start Over always forgets the old village's custom titles** (all five games), even when the new founders appear before the game notices the deleted file.
+- **A backup whose file times cannot be kept now fails safely** instead of passing with the copy's time (an old save could then look newer than a queued purchase it never paid for).
+- **Faster with 256 villagers:** The Secret City with every villager masked costs about 0.43 ms a frame instead of 1.4 ms (same masks shown); a Time Skip no longer looks up the Island Events companion every frame.
 
 ## What's new in v1.35.70
 
