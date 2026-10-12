@@ -879,6 +879,78 @@ class FileLevelLoss(Base):
         self.assertEqual([f for f in rc.reconcile(v.folder, 3, 1).questions if f.topic == "titles"], [])
 
 
+class LaterReviewOf585(Base):
+    """Codex's last round on #585, queued for v1.35.71."""
+
+    def population(self, v: Village, people: list[rc.Seen], when: float) -> Path:
+        out = []
+        for k, s in enumerate(people, 1):
+            out.append(f"Villager {k}\n  Name: {s.name}\n  Age: {s.age}\n  Sex: {s.sex}\n  Head: {s.head}\n"
+                       f"  Body: {s.body}\n  Likes: {words(s.likes)}\n  Dislikes: {words(s.dislikes)}\n")
+        path = v.log("Tribe Population", "Village Population 1.txt", "\n".join(out))
+        os.utime(path, (when, when))
+        return path
+
+    def test_a_death_of_the_other_sex_does_not_explain_a_missing_villager(self):
+        for tag, game in CASES[:5]:
+            with self.subTest(game=game):
+                v = self.village(tag, game)
+                people = v.people(v.save_path(1).read_bytes())
+                gone = rc.Seen("Departa", 2, 1, "Female", 800, frozenset(), frozenset())
+                v.history([("2026-10-11 20:00:00", people + [gone]), ("2026-10-11 21:00:00", people)])
+                v.deaths(death(1, "Departa", 2, 1, "Male", 810))
+                lost = [f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "lost"]
+                self.assertEqual(len(lost), 1, [f.text for f in lost])
+                self.assertIn("Departa", lost[0].text)
+                # Her own death (the same sex) explains her.
+                v.deaths(death(1, "Departa", 2, 1, "Female", 810))
+                self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "lost"])
+
+    def test_the_population_page_is_compared_with_the_save(self):
+        for tag, game in CASES[:5]:
+            with self.subTest(game=game):
+                v = self.village(tag, game)
+                people = v.people(v.save_path(1).read_bytes())
+                ghost = rc.Seen("Ghosty", 1, 2, "Male", 300, frozenset(), frozenset())
+                self.population(v, people + [ghost], time.time() - 3600)      # older than the save
+                rec = rc.reconcile(v.folder, game, 1)
+                lost = [f for f in rec.questions if f.topic == "lost"]
+                self.assertEqual(len(lost), 1, [f.text for f in rec.questions])
+                self.assertIn("Ghosty", lost[0].text)
+                self.assertIn("the Village Population page", lost[0].text)
+
+    def test_a_later_death_does_not_explain_a_villager_missing_from_a_restored_save(self):
+        for tag, game in CASES[:5]:
+            with self.subTest(game=game):
+                v = self.village(tag, game)
+                people = v.people(v.save_path(1).read_bytes())
+                ghost = rc.Seen("Ghosty", 1, 2, "Male", 300, frozenset(), frozenset())
+                os.utime(v.save_path(1), (time.time() - 10 * 86400,) * 2)       # restored, old time kept
+                v.history([("2099-01-01 00:00:00", [aged(s, 5) for s in people] + [ghost])])
+                v.deaths(death(1, "Ghosty", 1, 2, "Male", 400))
+                lost = [f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "lost"]
+                self.assertTrue(any("Ghosty" in f.text for f in lost), [f.text for f in lost])
+
+    def test_two_titles_under_one_identity_are_both_kept(self):
+        import vv_titles_file as tf
+        kais = [("Lani", False, 1, 1, 700), ("Kai", True, 3, 4, 500), ("Kai", True, 5, 6, 400)]
+        v = self.village("", 1, vv1_save(kais))
+        people = v.people(v.save_path(1).read_bytes())
+        first, second = people[1], people[2]
+        self.assertEqual(first.title_id, second.title_id)
+        v.history([("2026-10-11 21:00:00", people)])
+        path = v.folder / LOGS / "Save 1" / "Tribe History" / "Village History 1.txt"
+        text = path.read_bytes().decode("latin-1").replace(
+            "  Name: Kai\r\n  Age: 500\r\n", "  Name: Kai\r\n  Custom title: Elder Kai\r\n  Age: 500\r\n", 1)
+        path.write_bytes(text.encode("latin-1"))
+        titles = v.folder / DATA / "Custom Titles"
+        titles.mkdir(parents=True)
+        (titles / "Custom Titles - Save 1.dat").write_bytes(tf.serialise(1, [
+            tf.Entry(first.record, first.title_id, "Elder Kai", True, **first.title_looks),
+            tf.Entry(second.record, second.title_id, "Young Kai", True, **second.title_looks)]))
+        self.assertFalse([f for f in rc.reconcile(v.folder, 1, 1).questions if f.topic == "titles"])
+
+
 class RunningGame(FakeProcesses):
     def find(self, exe_name):
         return [1234]

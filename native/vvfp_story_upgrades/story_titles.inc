@@ -685,6 +685,21 @@ static void titles_pass(int game, int sweep) {
     memcpy(titles.roster_keep, now_keep, sizeof now_keep);
     memcpy(titles.roster_age, now_age, sizeof now_age);
     titles.roster_anyone = present > 0;
+    /* START OVER BEFORE A FREEZE (review of #585, v1.35.71): Start Over
+       deletes the file and puts a founder roster with nobody of the last look
+       in the records -- which looks like the title screen's other array.
+       Frozen at once, the table was never checked against the deleted file
+       again, kept the erased village's titles in memory, and a founder later
+       given the same record and identity could be shown one.  So the file is
+       looked at before freezing, and every TITLES_CHECK_MS while frozen: gone,
+       and the table is forgotten (titles_reset_detected). */
+    if ((foreign && !titles.frozen)
+        || (titles.frozen && GetTickCount() - titles.checked_at >= TITLES_CHECK_MS)) {
+        titles.checked_at = GetTickCount();
+        if (titles_reset_detected()) {
+            return;
+        }
+    }
     /* The village went away (the title screen): nothing is judged, moved,
        swept or written -- the file keeps the village as it was left, and
        nobody seen there may be taken for dead.  The next array to arrive is
@@ -741,6 +756,17 @@ static void titles_pass(int game, int sweep) {
 
 static void titles_tick(int game) {
     titles_pass(game, 1);
+}
+
+/* Start Over or a deleted tribe in `slot` (VvfpStoryVillageReset): the
+   village the table describes is gone -- its file is deleted by the reset
+   (native/shared/save_reset.c) -- so its titles are forgotten at once,
+   whatever the records show next (review of #585). */
+static void titles_village_reset(int game, int slot) {
+    if (titles.game == game && titles.slot == slot && titles.slot > 0) {
+        titles_forget();
+        titles.file_present = 0;
+    }
 }
 
 /* A villager's custom title for "VVFP Island Events.dll", which logs a Custom

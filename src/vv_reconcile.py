@@ -576,12 +576,20 @@ class _Builder:
     def left(self, s: Seen) -> str | None:
         """The record that says this villager died or went, if any -- under the name and looks they had
         then, followed through the recorded changes since `s` (review of #585: a villager whose looks
-        or name changed, recorded, before a recorded death was asked about as possibly lost)."""
+        or name changed, recorded, before a recorded death was asked about as possibly lost).
+
+        The record must be able to be THEM (review of #585): names and looks come from fixed pools, so a
+        Death record of a villager of the other sex with the same name, head and body says nothing of
+        this one.  (The age is not used: after a restored backup a villager can die younger than a later
+        snapshot saw them.)"""
         known = self.identities(s)
         names = {name for name, _h, _b in known}
         for r in self.logs.departures:
-            if r.who.key in known or (r.who.head is None and r.who.name in names):
-                return r.heading
+            if not (r.who.key in known or (r.who.head is None and r.who.name in names)):
+                continue
+            if s.sex and r.who.sex and s.sex.strip().lower() != r.who.sex.strip().lower():
+                continue
+            return r.heading
         return None
 
     def looks_recorded(self, old: Seen, new: Seen) -> bool:
@@ -711,7 +719,10 @@ class _Builder:
         unexplained_new = list(new)
         plain_lost: list[Seen] = []
         for old in gone:
-            why = self.left(old)
+            # A save OLDER than the roster (restored): whoever the roster lists was alive after the save was
+            # written, so a Death or Disappeared record -- written later still -- never explains their being
+            # missing from it (review of #585).
+            why = None if restored else self.left(old)
             if why is not None:
                 continue
             if bodies is not None and any(x.key == old.key for x in bodies):
@@ -959,13 +970,15 @@ class _Builder:
         titled = [s for s in history[-1].people if s.title and s.title.lower() not in ("none", "(none)")]
         if not titled:
             return
-        entries: dict[int, str] = {e.identity: e.title for e in file_entries}
+        # Every (identity, title) the file holds: two villagers of one whole identity (twins) may each have
+        # a title of their own (review of #585: one per identity hid the earlier one as "lost").
+        entries = {(e.identity, e.title) for e in file_entries}
         lost = []
         for s in titled:
             now = [v for v in living if v.key == s.key]
             if len(now) != 1 or now[0].title_id is None:
                 continue
-            if entries.get(now[0].title_id) != s.title:
+            if (now[0].title_id, s.title) not in entries:
                 lost.append(f"{s.name} (\"{s.title}\")")
         if lost:
             self.ask("titles", f"titles|{history[-1].when}|{'|'.join(lost)}",
@@ -1219,10 +1232,14 @@ def reconcile(folder: Path, game: int, slot: int) -> Reconciliation:
     for c in logs.censuses:
         if c.kind != "history":
             sources.append(f"{c.label}: {len(c.people)} villagers")
-    for a, c in zip(history, history[1:]):
+    # The rosters in time order -- the History snapshots and the Village Population page (review of #585:
+    # the page was read and never compared, so a villager, a like, a parent or the looks only it still
+    # held could be lost from the save unasked) -- then the latest of them against the save.
+    rosters = sorted(history + [c for c in logs.censuses if c.kind == "population"], key=lambda c: c.when)
+    for a, c in zip(rosters, rosters[1:]):
         b.compare(a, c)
-    if history and living:
-        snap = history[-1]
+    if rosters and living:
+        snap = rosters[-1]
         now = Census(f"the save {current_path.name} ({_when(current_path)})", _when(current_path), "save", living,
                      current_path)
         # A save older than the latest snapshot (restored with its time kept) is compared too (review of

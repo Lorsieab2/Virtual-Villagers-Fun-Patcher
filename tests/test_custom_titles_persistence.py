@@ -49,6 +49,22 @@ class CustomTitlesFile(unittest.TestCase):
         self.assertEqual(table.count("CUSTOM_TITLES_FORMAT"), 5)
         self.assertIn("for (i = 0; i < SIDECAR_FORMAT_COUNT; ++i)", text)
 
+    def test_start_over_forgets_the_table_before_any_freeze(self):
+        """Review of #585 (v1.35.71): Start Over's founders share nobody with the last look, like the title
+        screen's other array; the table froze before noticing the deleted file and kept the erased
+        village's titles.  The file is looked at before a freeze and while frozen, and the reset's own
+        call forgets the slot's table at once (harness: START OVER TO A FOUNDER ROSTER...)."""
+        text = STORE.read_text(encoding="utf-8")
+        tick = text[text.index("static void titles_pass(int game, int sweep) {"):]
+        self.assertLess(tick.index("if (titles_reset_detected()) {\n            return;"),
+                        tick.index("if (foreign && !titles.frozen) {\n        titles.frozen = 1;"))
+        story = (ROOT / "native" / "vvfp_story_upgrades" / "vvfp_story_upgrades.c").read_text(encoding="utf-8")
+        reset = story[story.index("void __stdcall VvfpStoryVillageReset(int game, int slot) {"):]
+        self.assertIn("titles_village_reset(game, slot);", reset[:reset.index("\n}\n")])
+        harness = HARNESS.read_text(encoding="utf-8")
+        self.assertIn("START OVER TO A FOUNDER ROSTER FORGETS THE OLD TITLES (game %d)", harness)
+        self.assertIn("VvfpStoryVillageReset forgets the slot's titles at once (game %d)", harness)
+
     def test_the_store_uses_the_shared_durable_sidecar_helpers(self):
         text = STORE.read_text(encoding="utf-8")
         for needle in ("vv_sidecar_load(", "vv_sidecar_publish(", "vv_titles_validate",

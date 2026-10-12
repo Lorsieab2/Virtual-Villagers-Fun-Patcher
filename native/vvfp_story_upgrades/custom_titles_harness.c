@@ -1000,6 +1000,50 @@ int main(void) {
               "AFTER AN UNTICKED START OVER ONLY THE NEW TITLE IS WRITTEN");
     }
 
+    /* -- Start Over whose founders share nobody with the last look (review of
+       #585, v1.35.71): it looks like the title screen's other array.  The
+       table was frozen before the deleted file was noticed, kept the erased
+       village's title in memory, and gave it to a founder later put in the
+       same record with the same identity. */
+    for (game = 1; game <= 5; ++game) {
+        char what[96];
+        new_session();
+        g_slot = 1;
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Hina"); villager(1, "Kai"); villager(2, "Lani");
+        titles_tick(game);
+        check(titles_set(game, 0, "Old Village") == 1, "setup: a title in the old village");
+        titles_tick(game);
+        titles_tick(game);                       /* Hina seen alive this session */
+        vv_reset_slot_state(game, 1, "Village: Test (Save 1)\n");
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Abebe"); villager(1, "Kanoa");   /* the new founders: nobody of the last look */
+        titles_tick(game);
+        titles_tick(game);
+        wsprintfA(what, "START OVER TO A FOUNDER ROSTER FORGETS THE OLD TITLES (game %d)", game);
+        check(titles.count == 0 && titles.frozen == 0, what);
+        villager(2, "Hina");                     /* a founder with the erased villager's identity... */
+        memset(g_records[0], 0, sizeof g_records[0]);
+        villager(0, "Hina");                     /* ...in her old record */
+        titles_tick(game);
+        titles_tick(game);
+        wsprintfA(what, "a new village's Hina is never shown the erased village's title (game %d)", game);
+        check(titles_lookup(game, g_records[0]) == NULL && !file_exists(path1), what);
+        /* The reset's own call forgets the table at once, whatever the records show. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Hina"); villager(1, "Kai");
+        titles_tick(game);
+        check(titles_set(game, 0, "Old Village") == 1, "setup: a title again");
+        titles_village_reset(game, 2);           /* another slot's tribe deleted: nothing here */
+        check(titles.count == 1, "another slot's reset leaves this slot's table");
+        titles_village_reset(game, 1);
+        wsprintfA(what, "VvfpStoryVillageReset forgets the slot's titles at once (game %d)", game);
+        check(titles.count == 0 && titles.file_present == 0, what);
+    }
+
     printf("\n%d failure(s)\n", failures);
     return failures == 0 ? 0 : 1;
 }

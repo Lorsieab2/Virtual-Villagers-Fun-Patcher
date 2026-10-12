@@ -393,11 +393,18 @@ def _keep_times(path: Path, times: tuple[int, int]) -> None:
     """Give `path` the access and modification time of the file it is a copy of.  The companions
     believe a queued purchase only when the slot's save was last written AFTER it (the save then
     holds its charge): a copy or a restore that stamped "now" on an older save would make that save
-    look newer than a purchase it never paid for, and the purchase would be delivered free."""
+    look newer than a purchase it never paid for, and the purchase would be delivered free.
+
+    So the time is part of the copy (review of #585): if it cannot be set -- or does not read back
+    within the 2 seconds the coarsest Windows file system (FAT) keeps -- BackupError, and the backup
+    or the restore fails safely as any other bad copy does, instead of passing with the copy time."""
     try:
         os.utime(path, ns=times)
-    except OSError:
-        pass                    # the time is a courtesy to those companions; the copy itself is whole
+        kept = os.stat(path).st_mtime_ns
+    except OSError as exc:
+        raise BackupError(f"The time of {path.name} could not be kept ({exc}).") from exc
+    if abs(kept - times[1]) > 2_000_000_000:
+        raise BackupError(f"The time of {path.name} could not be kept (it reads back as another time).")
 
 
 def copy_save_folder(
