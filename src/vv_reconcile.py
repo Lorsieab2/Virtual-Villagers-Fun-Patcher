@@ -864,17 +864,23 @@ class _Builder:
                     # A copy kept before a repair: beside the file (older builds) or in Copies Made Before
                     # Repairs at the file's own place (review of #585: that tree was skipped, so a file
                     # whose only copy is there went missing unnoticed).
-                    copies.setdefault(p.name.split(".before-", 1)[0], []).append(p)
+                    copies.setdefault(_file_key(p, p.name.split(".before-", 1)[0]), []).append(p)
                 elif copies_root not in p.parents:
-                    present.add(p.name)
-        for name, kept in sorted(copies.items()):
+                    present.add(_file_key(p, p.name))
+        # By name AND slot (review of #585): the slot folders reuse names ("Village History 1.txt" under
+        # Save 1 and Save 2), so Save 1's file deleted while Save 2's remains is still missing.  Any other
+        # folder of the same slot counts, as an upgrade may move a data file into its own subfolder.
+        for key, kept in sorted(copies.items(), key=lambda item: (item[0][0], item[0][1] or 0)):
+            name, slot = kept[0].name.split(".before-", 1)[0], key[1]
             original = kept[0].with_name(name)
-            if name in present or not self.slot_file_of(original):
+            if key in present or not self.slot_file_of(original):
                 continue
-            self.ask("file", f"missing|{name}",
-                     f"{name} is missing from the patcher's folders, though the patcher kept {len(kept)} copy(ies) of "
-                     f"it ({', '.join(sorted(p.name for p in kept)[:3])}): it may have been deleted or moved, and "
-                     "what it held may be lost.", [f"{KEEP} (I removed it)"])
+            named = slot is not None and f"save {slot}" in name.lower()
+            where = f" (Save {slot})" if slot is not None and not named else ""
+            self.ask("file", f"missing|{name}" + (f"|Save {slot}" if where else ""),
+                     f"{name}{where} is missing from the patcher's folders, though the patcher kept {len(kept)} "
+                     f"copy(ies) of it ({', '.join(sorted(p.name for p in kept)[:3])}): it may have been deleted or "
+                     "moved, and what it held may be lost.", [f"{KEEP} (I removed it)"])
         # The save older than its own previous generation, or than the logs.
         if len(saves) >= 2:
             current = saves[-1]
@@ -983,6 +989,9 @@ class _Builder:
     def slot_file_of(self, path: Path) -> bool:
         """Whether a file belongs to this game and slot (or to the game's shared logs)."""
         name = path.name
+        folder_slot = layout.is_slot_folder(path)
+        if folder_slot is not None:
+            return folder_slot == self.slot     # the slot's own folder: every file in it is the slot's
         if f"Save {self.slot}" in name:
             return f"Virtual Villagers {self.game} " in name or "Virtual Villagers " not in name
         return name.startswith(f"Virtual Villagers {self.game} ") and layout.is_slot_folder(path) in (None, self.slot)
@@ -1005,6 +1014,16 @@ def _copies_of(path: Path, copies_root: Path, folder: Path) -> list[Path]:
     except (ValueError, OSError):
         pass
     return sorted(found, key=lambda p: p.stat().st_mtime, reverse=True)
+
+
+def _file_key(path: Path, name: str) -> tuple[str, int | None]:
+    """A patcher file by name and save slot: the slot of the "...Logs\\Save <S>" folder it is in (a copy
+    in Copies Made Before Repairs keeps that folder), else the "Save <S>" its name gives, else None."""
+    slot = layout.is_slot_folder(path)
+    if slot is None:
+        m = re.search(r"\bSave ([1-5])\b", name)
+        slot = int(m.group(1)) if m else None
+    return name.lower(), slot
 
 
 def _record_count(text: str) -> int:

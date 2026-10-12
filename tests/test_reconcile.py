@@ -704,6 +704,24 @@ class FileLevelLoss(Base):
         self.assertTrue(any(f.topic == "file" and first.name in f.text and "took 2 out" in f.text
                             for f in rec.notes), [f.text for f in rec.notes])
 
+    def test_a_missing_slot_file_is_not_hidden_by_another_slots_file_of_that_name(self):
+        """Review of #585: files were matched by name alone, and the slot folders reuse names, so Save 1's
+        Village History deleted while Save 2's remained was never reported."""
+        v = self.village("huttest", 2)
+        rel = Path(LOGS) / "Save 1" / "Tribe History" / "Village History 1.txt"
+        kept = v.folder / DATA / "Copies Made Before Repairs" / rel
+        kept.parent.mkdir(parents=True)
+        kept.with_name(rel.name + ".before-history-repair").write_bytes(b"=== x ===\r\n")
+        other = v.folder / LOGS / "Save 2" / "Tribe History" / "Village History 1.txt"
+        other.parent.mkdir(parents=True)
+        other.write_bytes(b"=== x ===\r\n")
+        texts = [f.text for f in rc.reconcile(v.folder, 2, 1).questions if f.topic == "file"]
+        self.assertTrue(any(t.startswith("Village History 1.txt (Save 1) is missing") for t in texts), texts)
+        # Save 1's own file back in place: nothing missing.
+        (v.folder / rel).parent.mkdir(parents=True, exist_ok=True)
+        (v.folder / rel).write_bytes(b"=== x ===\r\n")
+        self.assertFalse([f for f in rc.reconcile(v.folder, 2, 1).questions if "is missing" in f.text])
+
     def test_a_file_whose_only_copy_is_in_copies_made_before_repairs_is_missing(self):
         """Review of #585: the Copies Made Before Repairs tree was skipped when looking for kept copies."""
         v = self.village("huttest", 3)
