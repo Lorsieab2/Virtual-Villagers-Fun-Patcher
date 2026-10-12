@@ -52,8 +52,10 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # in a village made in that session keeps its cause through the save
         # and a reload) and build_paid_purchases_harness.ps1 (a bought Barrel
         # not delivered yet survives a quit), and build_vv1_mask_title_harness.ps1
-        # (A New Home's mask file at the title screen, native/shared/foreign_sidecar.h).
-        self.assertEqual(len(SCRIPTS), 28, [path.name for path in SCRIPTS])
+        # (A New Home's mask file at the title screen, native/shared/foreign_sidecar.h),
+        # and build_cause_catchup_harness.ps1 (deaths in the load-time catch-up
+        # and the bodies a load packs keep their cause).
+        self.assertEqual(len(SCRIPTS), 29, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:
