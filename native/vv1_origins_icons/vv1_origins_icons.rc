@@ -127,10 +127,17 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 342, 101, 170, 9
     PUSHBUTTON  "Buy", 1010, 542, 90, 55, 18
 
-    ICON        106, -1, 310, 114,  24, 24
-    LTEXT       "Change Appearance for All", -1, 342, 116, 195, 10
-    LTEXT       "450,000 tech points", -1, 342, 128, 170, 9
-    PUSHBUTTON  "Buy", 1011, 542, 117, 55, 18
+    /* Clear All Skill Preferences: handled wholly by the companion (button
+       1012 never reaches the executable's menu). */
+    ICON        109, -1, 310, 114,  24, 24
+    LTEXT       "Clear All Skill Preferences", -1, 342, 116, 195, 10
+    LTEXT       "500,000 tech points", -1, 342, 128, 170, 9
+    PUSHBUTTON  "Buy", 1012, 542, 117, 55, 18
+
+    ICON        106, -1, 310, 141,  24, 24
+    LTEXT       "Change Appearance for All", -1, 342, 143, 195, 10
+    LTEXT       "450,000 tech points", -1, 342, 155, 170, 9
+    PUSHBUTTON  "Buy", 1011, 542, 144, 55, 18
 
     CTEXT       "Press ESC to exit this menu.", -1, 10, 200, 592, 9
     DEFPUSHBUTTON "Cancel", 2, 271, 212, 70, 14

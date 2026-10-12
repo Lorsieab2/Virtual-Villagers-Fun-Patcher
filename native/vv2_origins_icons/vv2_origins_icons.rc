@@ -35,7 +35,7 @@
    added).  Left column = rows 0-6, right column = rows 7-13 (X base +302).  Row
    IDs are unchanged: Buy button = 1000+row, satisfied badge = ID_CHECK_FIRST+row
    (rows 0-8 only).  vv2_upgrade_dialog / VV2_TECH_ROW_COUNT drive visibility. */
-211 DIALOGEX 0, 0, 612, 232
+211 DIALOGEX 0, 0, 612, 259
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -116,13 +116,20 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 342, 155, 170, 9
     PUSHBUTTON  "Buy", 1012, 542, 144, 55, 18
 
-    ICON        106, -1, 310, 168,  24, 24
-    LTEXT       "Change Appearance for All", -1, 342, 170, 195, 10
-    LTEXT       "450,000 tech points", -1, 342, 182, 170, 9
-    PUSHBUTTON  "Buy", 1013, 542, 171, 55, 18
+    /* Clear All Skill Preferences: handled wholly by the companion (button
+       1014 never reaches the executable's menu). */
+    ICON        109, -1, 310, 168,  24, 24
+    LTEXT       "Clear All Skill Preferences", -1, 342, 170, 195, 10
+    LTEXT       "500,000 tech points", -1, 342, 182, 170, 9
+    PUSHBUTTON  "Buy", 1014, 542, 171, 55, 18
 
-    CTEXT       "Press ESC to exit this menu.", -1, 10, 200, 592, 9
-    DEFPUSHBUTTON "Cancel", 2, 271, 212, 70, 14
+    ICON        106, -1, 310, 195,  24, 24
+    LTEXT       "Change Appearance for All", -1, 342, 197, 195, 10
+    LTEXT       "450,000 tech points", -1, 342, 209, 170, 9
+    PUSHBUTTON  "Buy", 1013, 542, 198, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 10, 227, 592, 9
+    DEFPUSHBUTTON "Cancel", 2, 271, 239, 70, 14
 END
 
 /* VV2 Villager Details upgrades (four per-villager rows + Change Appearance). */

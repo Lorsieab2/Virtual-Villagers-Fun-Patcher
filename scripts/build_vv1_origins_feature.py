@@ -2658,6 +2658,9 @@ def main() -> None:
             call dword ptr [0x4570D4]
             test eax, eax
             je equal_division_dispatch_done
+            # The villager array the core walked: the export re-seats the
+            # same per-job counts by skill progress before reporting them.
+            push dword ptr [edi + 0xADE8]
             push 0x{EQUAL_DIVISION_FEMALE_COUNTS_VA:X}
             push 0x{EQUAL_DIVISION_MALE_COUNTS_VA:X}
             push ebp

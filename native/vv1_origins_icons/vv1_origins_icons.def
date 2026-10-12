@@ -9,7 +9,7 @@ EXPORTS
     ShowOriginsMasteryResult=_ShowOriginsMasteryResult@8
     ShowOriginsRowMessage=_ShowOriginsRowMessage@12
     ShowOriginsAgeResult=_ShowOriginsAgeResult@12
-    ShowOriginsEqualDivisionResult=_ShowOriginsEqualDivisionResult@20
+    ShowOriginsEqualDivisionResult=_ShowOriginsEqualDivisionResult@24
     Vv1MaskRestore=_Vv1MaskRestore@0
     Vv1DoublerSave=_Vv1DoublerSave@4
     Vv1DoublerRestore=_Vv1DoublerRestore@4
