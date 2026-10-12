@@ -1,0 +1,1058 @@
+"""The always-on, read-only reconciliation of a village's records, logs and files (all five games).
+
+The owner (2026-10-11), after "Iruwa Okelani" (Birth 252, head 12, body 18) became a second living
+"Tiki Alosaka" in her A New Home village with no record of it, and a checker that had been taught to
+call that "renamed since birth: OK":
+
+    "FOR ALL 5 GAMES: THE PATCHER SHOULD ALWAYS DO A READ-ONLY RECONCILIATION OF RECORDS, LOGS, AND
+    FILES TO MAKE SURE ABSOLUTELY NOTHING IS LOST. IF THERE ARE CONTRADICTIONS ASK THE PLAYER."
+    "THE PATCHER MUST BE ABLE TO TELL APART VILLAGERS."
+    "THE VILLAGE RECORDS WILL CHANGE IF PEOPLE DIE OR ARE BORN, ESPECIALLY AT MAX POPULATION --
+    ACCOUNT FOR THAT, I REACHED 256 VILLAGERS."
+
+WHAT IS READ (never written).  For one slot's village, in every game:
+
+  * the save and the game's own older generations of it (A New Home to New Believers keep the
+    slot's save as "<name><slot>.ldw" and two older ones, "<name><slot+20>.ldw" and
+    "<name><slot+40>.ldw" -- docs/start-over-reset-hook.md); one that holds another village is
+    left out.  The patcher's Backups folder is never read;
+  * every Village History snapshot and the Village Population page of this village (the shared
+    folders older builds wrote and the slot's own, under every name the village has had);
+  * the Births and Conceptions log (Birth, Arrived, Appearance changed and Name changed records),
+    the Deaths and Disappearances log (Death, Disappeared, Left the tribe), the Unaccounted log,
+    the Island Events log (new villagers, head and body changes, name changes), the Repairs log;
+  * the copies the patcher keeps of its logs and data files (".before-..." beside them, and in
+    Copies Made Before Repairs) and the data files themselves, for FILE-level loss;
+  * A New Home's Parentage Records roster, for the record slots reused since it was written.
+
+WHO IS WHO.  Villagers are followed by identity, never by a record number: record slots are reused
+at the cap (a death frees one, the next birth takes it) and every load packs the records, so a
+record number holds different villagers over time (the owner's village at 256).  Two rosters in a
+row (two History snapshots, two generations of the save, the last snapshot and the save) are
+matched on name, head, body and sex, namesakes in age order; whoever is left on either side is
+followed by what does not change -- sex, head and body, likes and dislikes, the parents the record
+keeps -- with the age only moving on, through the records that explain a change (Death,
+Disappeared, Left the tribe, Unaccounted, Appearance changed, an island event's change).
+
+WHAT IS REPORTED.  Every contradiction becomes a numbered QUESTION naming the exact villagers,
+records and files, with its choices (keep as is / which record is right / don't know); nothing is
+changed until the player answers in Repair Saves & Logs, and an answer is remembered
+(src/vv_log_decisions.py).  What the game itself explains is a NOTE: names, looks, likes and
+dislikes repeat from fixed pools, twins share everything but the name, a record slot holding a
+different villager after deaths is normal, the Villager Details screen hides 18+ parents, a
+Golden Child (A New Home only) is a birth.  Questions:
+
+  * a villager whose name changed (a Birth or Arrived record, a snapshot or an older save says one
+    name, the save another) -- recorded by a "Name changed" record or not, the player is asked
+    which is right (the Villager Details screen can copy one villager's name onto another, stock
+    0x44A79B / 0x44A849 / 0x44A738);
+  * head or body changed with no Appearance changed or island event record; sex, likes or
+    dislikes or parents changed; the age going backwards;
+  * a villager present in one roster and gone from the next with no Death, Disappeared, Left the
+    tribe or Unaccounted record: possibly lost;
+  * a file missing, cut short, smaller than the copy kept before a repair beyond what the Repairs
+    log says was taken out, or the save older than the logs (replaced by an older copy).
+
+Check Saves & Logs shows it all (verdict ASK for a question); Repair Saves & Logs asks the
+questions; the patcher's tribe pickers run it whenever a village is chosen; the report is written
+to "<Logs>\\Save <n>\\Reconciliation\\Virtual Villagers <g> Reconciliation - Save <n>.txt" -- the
+only file this module writes, and only through `export`.
+"""
+from __future__ import annotations
+
+import os
+import re
+import struct
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+
+import vv_save_layout as layout
+
+REPORT_FOLDER = "Reconciliation"
+REPORT_NAME = "Virtual Villagers {game} Reconciliation - Save {slot}.txt"
+DECISION_KIND = "reconcile"
+KEEP = "Keep as is"
+DONT_KNOW = "Don't know (leave it)"
+GAME_TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
+               5: "New Believers"}
+
+DEPARTURE = re.compile(r"^(Death \d+|Disappeared(?: \d+)?|Left the tribe|Unaccounted \d+)\s*$")
+BIRTH = re.compile(r"^Birth(?: \d+)?\s*$")
+ARRIVED = re.compile(r"^Arrived \d+\s*$")
+EVENT = re.compile(r"^Island event \d+\s*$")
+CHANGE = re.compile(r"^\s*(.*?) -> (.*?)\s*$")
+# A record's own heading counted in a log or its copy, for file-level loss.
+RECORD_HEAD = re.compile(r"^(Birth(?: \d+)?|Conception \d+|Arrived \d+|Death \d+|Disappeared(?: \d+)?|"
+                         r"Unaccounted \d+|Island event \d+|Repair \d+|Lost before birth|Left the tribe|"
+                         r"Appearance changed|Name changed|Epitaph changed|=== .* ===)\s*$")
+
+
+def _checker():
+    import vv_log_tools
+    return vv_log_tools.load_checker()
+
+
+class ReconcileError(Exception):
+    """The village could not be reconciled at all; the message says why."""
+
+
+# ---------------------------------------------------------------------------
+# What one source says about one villager
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Seen:
+    name: str
+    head: int | None
+    body: int | None
+    sex: str | None = None
+    age: int | None = None
+    likes: frozenset | None = None          # None: the source does not say
+    dislikes: frozenset | None = None
+    father: str | None = None               # None: the source does not say; "": none
+    mother: str | None = None
+    rank: int | None = None                 # the record slot (a save only)
+    title: str | None = None                # a snapshot's "Custom title"
+    title_id: int | None = None             # the save's custom-title identity (native/shared/custom_titles.h)
+
+    @property
+    def key(self) -> tuple:
+        return (self.name, self.head, self.body)
+
+    def looks(self) -> str:
+        return f"head {self.head}, body {self.body}"
+
+    def described(self) -> str:
+        age = f", age {self.age}" if self.age is not None else ""
+        return f"{self.name} ({self.sex + ', ' if self.sex else ''}{self.looks()}{age})"
+
+
+@dataclass
+class Census:
+    """Everyone one source lists at one moment: a History snapshot, the Population page, a save."""
+    label: str
+    when: str                               # "YYYY-MM-DD HH:MM:SS", sortable
+    kind: str                               # "history" | "population" | "save"
+    people: list[Seen]
+    path: Path | None = None
+
+
+@dataclass
+class Record:
+    """One record of one villager in the logs (a Birth, an Arrived record, a departure...)."""
+    heading: str
+    who: Seen
+    path: Path
+    extra: dict = field(default_factory=dict)
+
+
+@dataclass
+class Finding:
+    kind: str                               # "ask" | "note"
+    topic: str
+    qid: str
+    text: str
+    options: list[str] = field(default_factory=list)
+    rename: tuple | None = None             # ((name, head, body) now, the name the record gives)
+    answer: str | None = None               # the player's remembered answer
+
+
+@dataclass
+class Reconciliation:
+    folder: Path
+    game: int
+    slot: int
+    village: str | None
+    findings: list[Finding]
+    sources: list[str]
+    followed: int
+
+    @property
+    def questions(self) -> list[Finding]:
+        return [f for f in self.findings if f.kind == "ask"]
+
+    @property
+    def notes(self) -> list[Finding]:
+        return [f for f in self.findings if f.kind == "note"]
+
+    def lines(self) -> list[tuple[str, str]]:
+        """(verdict, text) for Check Saves & Logs: ASK for each question, numbered, then the NOTEs."""
+        out = []
+        for n, f in enumerate(self.questions, 1):
+            choices = " / ".join(f.options)
+            out.append(("ASK", f"Question {n}: {f.text} [{choices}]"))
+        for f in self.notes:
+            out.append(("NOTE", f.text))
+        if not self.questions:
+            out.append(("OK", f"{self.followed} villager(s) followed through {len(self.sources)} source(s): "
+                              "no contradiction and nothing lost"))
+        return out
+
+    def summary(self) -> str:
+        q = len(self.questions)
+        if not q:
+            return f"Reconciliation (read-only): nothing lost, no contradiction ({self.followed} villagers followed)."
+        return (f"Reconciliation (read-only): {q} question(s) only you can answer -- see Check Saves & Logs, "
+                "and answer them in Repair Saves & Logs. Nothing was changed.")
+
+    def render(self) -> str:
+        head = [f"Virtual Villagers {self.game} ({GAME_TITLES.get(self.game, '?')}) -- read-only reconciliation",
+                f"Save {self.slot}: {self.village or '(the tribe name could not be read)'}",
+                f"Written {datetime.now():%Y-%m-%d %H:%M:%S}. Nothing was changed: every question waits for your "
+                "answer in Repair Saves & Logs.", "",
+                f"Villagers followed: {self.followed}", "Sources read:"]
+        head += [f"  {s}" for s in self.sources]
+        body = ["", f"Questions ({len(self.questions)}):"]
+        for n, f in enumerate(self.questions, 1):
+            body.append(f"  {n}. {f.text}")
+            body.append(f"     Choices: {' / '.join(f.options)}")
+        if not self.questions:
+            body.append("  (none)")
+        body += ["", f"Notes ({len(self.notes)}):"]
+        body += [f"  - {f.text}" for f in self.notes] or ["  (none)"]
+        return "\n".join(head + body) + "\n"
+
+
+# ---------------------------------------------------------------------------
+# Reading
+# ---------------------------------------------------------------------------
+
+def _words(value: str | None) -> frozenset | None:
+    if value is None:
+        return None
+    value = value.strip()
+    if value in ("", "(none)", "none"):
+        return frozenset()
+    return frozenset(w.strip().lower() for w in value.split(",") if w.strip())
+
+
+def _int(value: str | None) -> int | None:
+    try:
+        return int(str(value).strip().split()[0])
+    except (ValueError, IndexError, AttributeError):
+        return None
+
+
+def _when(path: Path) -> str:
+    try:
+        return datetime.fromtimestamp(path.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S")
+    except OSError:
+        return ""
+
+
+def save_generations(folder: Path, game: int, slot: int) -> list[Path]:
+    """The slot's save and the game's own two older generations of it, oldest first (by time)."""
+    stem = _checker().SAVE_STEMS[game]
+    found = [p for p in (Path(folder) / f"{stem}{n}.ldw" for n in (slot + 40, slot + 20, slot)) if p.is_file()]
+    return sorted(found, key=lambda p: (p.stat().st_mtime, p.name != f"{stem}{slot}.ldw"))
+
+
+def read_save(path: Path, game: int) -> tuple[list[Seen], list[Seen]]:
+    """(the living, the bodies awaiting burial) of one save file, each with what the save keeps."""
+    import vv_last_names as ln
+    import vv_lost_titles as lt
+    checker = _checker()
+    data = path.read_bytes()
+    f = ln.FIELDS[game]
+    age_at = -0x28 if game == 1 else checker.LAYOUTS[game].age
+    try:
+        everyone = ln._entries(game, data, bodies=True)
+        living = set(ln._entries(game, data))
+    except (ln.LastNamesError, ValueError, IndexError, struct.error) as exc:
+        raise ReconcileError(f"{path.name}: the villagers could not be read ({exc})") from exc
+    alive, bodies = [], []
+    for rank, at in enumerate(everyone):
+        def i32(off: int) -> int:
+            return struct.unpack_from("<i", data, at + off)[0]
+        prefs = {}
+        for label, off in (("likes", f.likes), ("dislikes", f.dislikes)):
+            values = list(struct.unpack_from(f"<{f.slots}i", data, at + off))
+            prefs[label] = _words(lt.list_text(game, values))
+        father = mother = None
+        if f.father is not None:
+            father = data[at + f.father:at + f.father + f.parent_cap].split(b"\0", 1)[0].decode("latin-1")
+            mother = data[at + f.mother:at + f.mother + f.parent_cap].split(b"\0", 1)[0].decode("latin-1")
+        seen = Seen(data[at:at + f.name_cap].split(b"\0", 1)[0].decode("latin-1"), i32(f.head), i32(f.body),
+                    "Male" if i32(f.sex) == f.male else "Female", i32(age_at), prefs["likes"], prefs["dislikes"],
+                    father, mother, rank, None, ln._title_identity(data, at, f))
+        (alive if at in living else bodies).append(seen)
+    return alive, bodies
+
+
+def _sub_person(lines: list[str], label: str) -> Seen | None:
+    """A Birth record's "  Child:" / "  Mother:" / "  Father:" with the lines indented under it."""
+    for k, line in enumerate(lines):
+        if line.startswith(f"  {label}:"):
+            name = line.split(":", 1)[1].strip()
+            if not name or name.startswith("("):
+                return None
+            values: dict[str, str] = {}
+            for sub in lines[k + 1:]:
+                if not sub.startswith("    "):
+                    break
+                if ":" in sub:
+                    key, value = sub.strip().split(":", 1)
+                    values.setdefault(key, value.strip())
+            return Seen(name, _int(values.get("Head")), _int(values.get("Body")), values.get("Sex"), None,
+                        _words(values.get("Likes")), _words(values.get("Dislikes")))
+    return None
+
+
+def _snapshot_person(b) -> Seen:
+    import vv_genealogy as gen
+    parents = gen._snapshot_parents(b.lines)
+    has_parents = any(line.startswith("  Parents:") for line in b.lines)
+    return Seen(b.value("Name") or "", b.int_value("Head"), b.int_value("Body"), b.value("Sex"),
+                b.int_value("Age"), _words(b.value("Likes")), _words(b.value("Dislikes")),
+                parents["Father"][0] if "Father" in parents else ("" if has_parents else None),
+                parents["Mother"][0] if "Mother" in parents else ("" if has_parents else None),
+                title=b.value("Custom title"))
+
+
+@dataclass
+class Logs:
+    censuses: list[Census] = field(default_factory=list)
+    births: list[Record] = field(default_factory=list)
+    arrivals: list[Record] = field(default_factory=list)
+    departures: list[Record] = field(default_factory=list)
+    looks_changed: list[tuple[str, int | None, int | None, int | None, int | None]] = field(default_factory=list)
+    names_changed: list[Record] = field(default_factory=list)
+    new_by_event: list[Record] = field(default_factory=list)
+    event_changes: list[tuple[str, str, str, str]] = field(default_factory=list)   # (name, field, old, new)
+    files: list[Path] = field(default_factory=list)
+
+
+def read_logs(folder: Path, game: int, slot: int, villages: set[str] | None) -> Logs:
+    import vv_log_additions as additions
+    checker = _checker()
+    out = Logs()
+    snapshots: dict[str, Census] = {}
+    population: Census | None = None
+    for path in checker.log_files(Path(folder)):
+        try:
+            found = additions.blocks(path)
+        except OSError:
+            continue
+        mine = [b for b in found if b.of(slot, game, villages)]
+        if not mine:
+            continue
+        out.files.append(path)
+        for b in mine:
+            head = b.heading
+            if head.startswith("Villager ") and additions.is_population(path):
+                if population is None or population.path != path:
+                    population = Census(f"the Village Population page ({path.name})", _when(path), "population",
+                                        [], path)
+                population.people.append(_snapshot_person(b))
+            elif head.startswith("Villager ") and b.date:
+                census = snapshots.get(b.date)
+                if census is None:
+                    census = snapshots[b.date] = Census(f"the Village History snapshot of {b.date}", b.date,
+                                                        "history", [], path)
+                census.people.append(_snapshot_person(b))
+            elif BIRTH.match(head):
+                child = _sub_person(b.lines, "Child")
+                if child is not None:
+                    father, mother = _sub_person(b.lines, "Father"), _sub_person(b.lines, "Mother")
+                    child.father = father.name if father else ""
+                    child.mother = mother.name if mother else ""
+                    out.births.append(Record(head, child, path))
+            elif ARRIVED.match(head):
+                out.arrivals.append(Record(head, Seen(b.value("Name") or "", b.int_value("Head"),
+                                                      b.int_value("Body"), b.value("Sex"), None,
+                                                      _words(b.value("Likes")), _words(b.value("Dislikes"))),
+                                           path, {"how": b.value("How") or ""}))
+            elif DEPARTURE.match(head):
+                out.departures.append(Record(head, Seen(b.value("Name") or "", b.int_value("Head"),
+                                                        b.int_value("Body"), b.value("Sex"),
+                                                        _int(b.value("Age at death"))), path))
+            elif head == "Appearance changed":
+                out.looks_changed.append((b.value("Name") or "", _int(b.value("Old head")), _int(b.value("Old body")),
+                                          _int(b.value("New head")), _int(b.value("New body"))))
+            elif head == "Name changed":
+                out.names_changed.append(Record(head, Seen(b.value("Name") or "", b.int_value("Head"),
+                                                           b.int_value("Body"), None, _int(b.value("Age"))),
+                                                path, {"old": b.value("Old name") or ""}))
+            elif EVENT.match(head):
+                name = b.value("Name") or ""
+                changed = CHANGE.match(name)
+                if changed:
+                    out.event_changes.append((changed.group(2), "Name", changed.group(1), changed.group(2)))
+                    name = changed.group(2)
+                if (b.value("New villager") or "").lower().startswith("yes"):
+                    out.new_by_event.append(Record(head, Seen(name, b.int_value("Head"), b.int_value("Body"),
+                                                              b.value("Sex")), path))
+                for line in b.lines[1:]:
+                    m = re.match(r"^  ([^:]+): (.*?) -> (.*?)\s*$", line)
+                    if m and name:
+                        out.event_changes.append((name, m.group(1), m.group(2), m.group(3)))
+    out.censuses = sorted(snapshots.values(), key=lambda c: c.when)
+    if population is not None:
+        out.censuses.append(population)
+        out.censuses.sort(key=lambda c: c.when)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Following villagers from one roster to the next
+# ---------------------------------------------------------------------------
+
+def _compatible(a: frozenset | None, b: frozenset | None) -> bool:
+    """Likes or dislikes that may be one villager's: unknown on a side, or one list within the other
+    (records written before v1.35.68 printed only the first filled slot)."""
+    return a is None or b is None or a <= b or b <= a
+
+
+def _same_parent(a: str | None, b: str | None) -> bool:
+    return a is None or b is None or a == "" or b == "" or a == b
+
+
+def _could_be(a: Seen, b: Seen, game: int) -> bool:
+    """Whether b may be the same villager as a, a later look at them (age only moves on)."""
+    return ((a.sex is None or b.sex is None or a.sex == b.sex)
+            and _compatible(a.likes, b.likes) and _compatible(a.dislikes, b.dislikes)
+            and _same_parent(a.father, b.father) and _same_parent(a.mother, b.mother)
+            and (a.age is None or b.age is None or b.age >= a.age))
+
+
+def _pair(a: list[Seen], b: list[Seen]) -> tuple[list[tuple[Seen, Seen]], list[Seen], list[Seen]]:
+    """Exact matches on name, head and body (sex too where both say it), namesakes in age order."""
+    groups_a: dict[tuple, list[Seen]] = {}
+    groups_b: dict[tuple, list[Seen]] = {}
+    for s in a:
+        groups_a.setdefault(s.key, []).append(s)
+    for s in b:
+        groups_b.setdefault(s.key, []).append(s)
+    pairs, gone, new = [], [], []
+    for key, olds in groups_a.items():
+        news = list(groups_b.get(key, []))
+        olds = sorted(olds, key=lambda s: -(s.age or 0))
+        news = sorted(news, key=lambda s: -(s.age or 0))
+        for old in olds:
+            match = next((n for n in news if (old.sex is None or n.sex is None or old.sex == n.sex)
+                          and (old.age is None or n.age is None or n.age >= old.age)), None)
+            if match is None:
+                match = next((n for n in news if old.sex is None or n.sex is None or old.sex == n.sex), None)
+            if match is None:
+                gone.append(old)
+            else:
+                news.remove(match)
+                pairs.append((old, match))
+        groups_b[key] = news
+    for news in groups_b.values():
+        new.extend(news)
+    return pairs, gone, new
+
+
+def names_related(game: int, old: str, new: str) -> bool:
+    """A last name or a numeral given or dropped, or a name the Villager Details screen cut: what the
+    patcher's own Last Names, Number Duplicate Names and cut-name repairs do (the checker's rule)."""
+    checker = _checker()
+    return checker.names_related(game, old, new) or checker.names_related(game, new, old)
+
+
+class _Builder:
+    def __init__(self, folder: Path, game: int, slot: int, logs: Logs, answered: dict[str, str]):
+        self.folder, self.game, self.slot, self.logs = folder, game, slot, logs
+        self.answered = answered
+        self.findings: dict[str, Finding] = {}
+        self.departed = {r.who.key for r in logs.departures}
+        self.departed_names = {r.who.name for r in logs.departures if r.who.head is None}
+        self.recorded = {r.who.key for r in logs.births + logs.arrivals + logs.new_by_event}
+        self.relooked: dict[tuple, tuple] = {}
+        for name, oh, ob, nh, nb in logs.looks_changed:
+            self.relooked[(name, oh, ob)] = (name, nh, nb)
+        for name, what, old, new in logs.event_changes:
+            if what in ("Head", "Body"):
+                self.relooked.setdefault(("event", name, what), (old, new))
+        self.slot_reused = 0                # record slots holding another villager than before
+        self.slot_moved = 0                 # villagers in another slot than before
+
+    # -- findings --------------------------------------------------------------------------------
+    def ask(self, topic: str, qid: str, text: str, options: list[str], rename: tuple | None = None) -> None:
+        if qid in self.findings:
+            if text not in self.findings[qid].text:
+                self.findings[qid].text += " Also: " + text
+            return
+        answer = self.answered.get(qid)
+        if answer is not None and answer != DONT_KNOW:
+            self.findings[qid] = Finding("note", topic, qid, f"{text} You answered: \"{answer}\".", options,
+                                         rename, answer)
+        else:
+            self.findings[qid] = Finding("ask", topic, qid, text, options + [DONT_KNOW], rename)
+
+    def note(self, topic: str, qid: str, text: str) -> None:
+        if qid not in self.findings:
+            self.findings[qid] = Finding("note", topic, qid, text)
+
+    # -- explanations ----------------------------------------------------------------------------
+    def left(self, s: Seen) -> str | None:
+        """The record that says this villager died or went, if any."""
+        for r in self.logs.departures:
+            if r.who.key == s.key or (r.who.head is None and r.who.name == s.name):
+                return r.heading
+        return None
+
+    def looks_recorded(self, old: Seen, new: Seen) -> bool:
+        target = self.relooked.get(old.key)
+        seen = set()
+        while target is not None and target not in seen:
+            if target == new.key:
+                return True
+            seen.add(target)
+            target = self.relooked.get(target)
+        heads = [(o, n) for (name, what, o, n) in self.logs.event_changes if name in (old.name, new.name)
+                 and what in ("Head", "Body")]
+        return bool(heads)
+
+    def name_record(self, old: Seen, new: Seen) -> Record | None:
+        for r in self.logs.names_changed:
+            if r.extra.get("old") == old.name and r.who.name == new.name:
+                return r
+        return None
+
+    # -- one roster to the next ------------------------------------------------------------------
+    def compare(self, a: Census, b: Census, bodies: list[Seen] | None = None) -> None:
+        pairs, gone, new = _pair(a.people, b.people)
+        game = self.game
+        if a.kind == "save" and b.kind == "save":
+            # Record slots: one that holds another villager now than in the older copy -- a death freed
+            # it and a later villager took it, or a load packed the records (the owner's village at 256).
+            held = {s.rank: s.key for s in a.people if s.rank is not None}
+            self.slot_reused += sum(1 for s in b.people if s.rank in held and held[s.rank] != s.key)
+        backs = [(old, now) for old, now in pairs
+                 if old.age is not None and now.age is not None and now.age < old.age]
+        if len(backs) >= 3 and len(backs) * 2 >= len(pairs):
+            # The whole village went back in time: one question, not one per villager.
+            o, n = backs[0]
+            self.ask("age", f"restore|{a.when}|{b.when}",
+                     f"{len(backs)} of the {len(pairs)} villagers in both are younger in {b.label} than in "
+                     f"{a.label} (for example {n.name}, {n.looks()}: {o.age} -> {n.age} game units): the village "
+                     "went back in time -- a save restored, or replaced by an older copy?",
+                     [f"{KEEP} (I restored or replaced the save)"])
+            backs = []
+        for old, now in backs:
+            self.ask("age", f"age|{now.key}|{a.when}|{b.when}",
+                     f"{now.name} ({now.looks()}) is {old.age} game units old in {a.label} but {now.age} in "
+                     f"{b.label}: the age went backwards, and no record says why. Is this the same villager?",
+                     [f"{KEEP} (the same villager; the age was changed)", "Another villager (the first is lost)"])
+        for old, now in pairs:
+            if old.sex and now.sex and old.sex != now.sex:
+                self.ask("sex", f"sex|{now.key}", f"{now.name} ({now.looks()}) is {old.sex} in {a.label} but "
+                         f"{now.sex} in {b.label}. Which is right?", [f"{KEEP} ({now.sex})", f"{old.sex}"])
+            for what in ("likes", "dislikes"):
+                x, y = getattr(old, what), getattr(now, what)
+                if not _compatible(x, y) and not any(n == now.name and w.lower() == what
+                                                     for n, w, _o, _n in self.logs.event_changes):
+                    self.ask(what, f"{what}|{now.key}|{a.when}",
+                             f"{now.name} ({now.looks()}) {what}: {', '.join(sorted(x)) or '(none)'} in {a.label}, "
+                             f"{', '.join(sorted(y)) or '(none)'} in {b.label}, and no island event records the "
+                             "change.", [f"{KEEP} (the change is right)"])
+            for what in ("father", "mother"):
+                x, y = getattr(old, what), getattr(now, what)
+                if x and y and x != y:
+                    self.ask("parents", f"{what}|{now.key}|{x}|{y}",
+                             f"{now.name} ({now.looks()}): {what} {x} in {a.label}, {y} in {b.label}. Which is "
+                             "right?", [f"{KEEP} ({y})", f"{x}"])
+            if a.kind == "save" and b.kind == "save" and old.rank is not None and now.rank is not None \
+                    and old.rank != now.rank:
+                self.slot_moved += 1
+        # Who is gone from a, and who is new in b.
+        unexplained_new = list(new)
+        for old in gone:
+            why = self.left(old)
+            if why is not None:
+                continue
+            if bodies is not None and any(x.key == old.key for x in bodies):
+                continue                                    # a body awaiting burial: its Death record comes then
+            fits = [n for n in unexplained_new if _could_be(old, n, game)
+                    and ((n.head, n.body) == (old.head, old.body) or n.name == old.name)]
+            same_name = [n for n in fits if n.name == old.name]
+            same_looks = [n for n in fits if (n.head, n.body) == (old.head, old.body) and n.name != old.name]
+            if same_name and len(same_name) == 1:
+                n = same_name[0]
+                unexplained_new.remove(n)
+                if self.looks_recorded(old, n):
+                    continue
+                self.ask("looks", f"looks|{old.key}|{n.key}",
+                         f"{old.name}: {old.looks()} in {a.label}, {n.looks()} in {b.label}, and no Appearance "
+                         "changed or island event record says the looks changed. Is this the same villager?",
+                         [f"{KEEP} (the same villager; the looks changed)"])
+            elif same_looks:
+                for n in same_looks[:1] if len(same_looks) == 1 else []:
+                    unexplained_new.remove(n)
+                if len(same_looks) == 1:
+                    n = same_looks[0]
+                    if names_related(game, old.name, n.name):
+                        self.note("name", f"related|{old.key}|{n.name}",
+                                  f"{old.name} is {n.name} from {b.label} on ({old.looks()}): a last name or a "
+                                  "numeral given or dropped, or a name the Villager Details screen cut.")
+                        continue
+                    self.rename_question(old, n, a.label, b.label, self.name_record(old, n))
+                else:
+                    self.ask("lost", f"lost|{old.key}|{a.when}",
+                             f"{old.described()} is in {a.label} but not in {b.label}, with no Death, Disappeared, "
+                             f"Left the tribe or Unaccounted record; {len(same_looks)} villagers new in {b.label} have "
+                             f"the same looks ({', '.join(n.name for n in same_looks)}). Which one is {old.name}, if "
+                             "any?", [f"{KEEP} (left or died without a record)"] + [n.name for n in same_looks])
+            else:
+                self.ask("lost", f"lost|{old.key}|{a.when}",
+                         f"{old.described()} is in {a.label} but not in {b.label}, and no Death, Disappeared, Left "
+                         "the tribe or Unaccounted record says what became of them: possibly lost.",
+                         [f"{KEEP} (they left or died without a record)"])
+        for n in unexplained_new:
+            if n.key in self.recorded or (b.kind == "history" and a.kind != "history"):
+                continue
+            if n.age is not None and n.age < 3 * 20 and self.game == 1:
+                continue                                    # a child just become its own record (2 years)
+            self.note("new", f"new|{n.key}|{b.when}",
+                      f"{n.described()} appears first in {b.label} (not in {a.label}) with no Birth, Arrived or "
+                      "island event record of that name and looks.")
+
+    def rename_question(self, old: Seen, new: Seen, where_old: str, where_new: str,
+                        record: Record | None, birth: Record | None = None) -> None:
+        said = birth.heading if birth is not None else where_old
+        how = (f"A \"Name changed\" record ({record.path.name}) says the name changed in the game, from {old.name} "
+               f"to {new.name}; did you rename this villager? (The Villager Details screen can copy one villager's "
+               "name onto another.)" if record is not None else "No log records a rename.")
+        text = (f"{said} says {old.name}; {where_new} says {new.name} ({new.looks()}"
+                f"{', age ' + str(new.age) if new.age is not None else ''}). {how} Which is right?")
+        self.ask("rename", f"rename|{old.name}|{new.head}|{new.body}|{new.name}", text,
+                 [f"{KEEP}: {new.name} is right (I renamed them)", f"{old.name} is right (give the name back)"],
+                 rename=(new.key, old.name))
+
+    # -- records against the save ----------------------------------------------------------------
+    def births_against(self, living: list[Seen], label: str) -> None:
+        """A living villager with no Birth or Arrived record of their own name and looks, whose looks,
+        sex, likes, dislikes and parents are those of a Birth record under ANOTHER name that nobody
+        alive carries with those looks and no departure explains: asked (the owner's Iruwa Okelani)."""
+        alive = {s.key for s in living}
+        for v in living:
+            if v.key in self.recorded:
+                continue
+            found = []
+            for r in self.logs.births:
+                c = r.who
+                if (c.head, c.body) != (v.head, v.body) or c.name == v.name or c.key in alive \
+                        or c.key in self.departed or names_related(self.game, c.name, v.name):
+                    continue
+                if c.sex and v.sex and c.sex != v.sex:
+                    continue
+                if not (_compatible(c.likes, v.likes) and _compatible(c.dislikes, v.dislikes)):
+                    continue
+                if self.game != 1 and not (_same_parent(c.father, v.father) and _same_parent(c.mother, v.mother)):
+                    continue
+                found.append(r)
+            twins = [w for w in living if w is not v and (w.head, w.body) == (v.head, v.body)
+                     and (w.father, w.mother) == (v.father, v.mother) and w.key not in self.recorded]
+            if len(found) == 1 and not twins:
+                r = found[0]
+                self.rename_question(r.who, v, r.heading, label,
+                                     next((n for n in self.logs.names_changed
+                                           if n.extra.get("old") == r.who.name and n.who.name == v.name), None),
+                                     birth=r)
+
+    # -- files -----------------------------------------------------------------------------------
+    def files(self, living: list[Seen], saves: list[tuple[Path, list[Seen]]]) -> None:
+        folder = Path(self.folder)
+        copies_root = folder / layout.DATA / layout.COPIES
+        repairs_text = ""
+        for top in (layout.LOGS, "VVFP Logs"):
+            root = folder / top
+            if not root.is_dir():
+                continue
+            for p in root.rglob("*.txt"):
+                if p.parent.name in ("Repairs", layout.REPAIRS_LOGS):
+                    try:
+                        repairs_text += p.read_bytes().decode("latin-1") + "\n"
+                    except OSError:
+                        pass
+        for path in self.logs.files:
+            try:
+                data = path.read_bytes()
+            except OSError as exc:
+                self.ask("file", f"unreadable|{path.name}", f"{_rel(folder, path)} could not be read ({exc}).",
+                         [f"{KEEP}"])
+                continue
+            text = data.decode("latin-1")
+            if data and not text.endswith("\n"):
+                self.ask("file", f"cut|{_rel(folder, path)}|{len(data)}",
+                         f"{_rel(folder, path)} ends in the middle of a line: it may have been cut short "
+                         "(the patcher writes every record whole).", [f"{KEEP} (it is complete)"])
+            count = sum(1 for line in text.replace("\r\n", "\n").split("\n") if RECORD_HEAD.match(line))
+            for copy in _copies_of(path, copies_root, folder):
+                try:
+                    old = copy.read_bytes().decode("latin-1")
+                except OSError:
+                    continue
+                old_count = sum(1 for line in old.replace("\r\n", "\n").split("\n") if RECORD_HEAD.match(line))
+                if old_count <= count:
+                    continue
+                removed = _removed_by_repairs(repairs_text, path.name)
+                if count + removed >= old_count:
+                    self.note("file", f"shrunk-ok|{_rel(folder, path)}|{copy.name}",
+                              f"{_rel(folder, path)} holds {old_count - count} record(s) fewer than its copy "
+                              f"{copy.name}; the Repairs log says repairs took {removed} out.")
+                else:
+                    self.ask("file", f"shrunk|{_rel(folder, path)}|{copy.name}|{count}",
+                             f"{_rel(folder, path)} holds {count} record(s), but the copy kept before a repair, "
+                             f"{copy.name}, holds {old_count}; the Repairs log accounts for {removed} taken out. "
+                             f"{old_count - count - removed} record(s) may be lost.",
+                             [f"{KEEP} (I know why)"])
+                break
+        # A file the patcher kept copies of, now missing -- anywhere under the patcher's folders (a file
+        # an upgrade moved into its own subfolder is not missing, src/vv_save_layout.py).
+        present: set[str] = set()
+        copies: dict[str, list[Path]] = {}
+        for top in (layout.LOGS, layout.DATA, "VVFP Logs"):
+            root = folder / top
+            if not root.is_dir():
+                continue
+            for p in root.rglob("*"):
+                if not p.is_file() or copies_root in p.parents:
+                    continue
+                if ".before-" in p.name:
+                    copies.setdefault(p.name.split(".before-", 1)[0], []).append(p)
+                else:
+                    present.add(p.name)
+        for name, kept in sorted(copies.items()):
+            original = kept[0].with_name(name)
+            if name in present or not self.slot_file_of(original):
+                continue
+            self.ask("file", f"missing|{name}",
+                     f"{name} is missing from the patcher's folders, though the patcher kept {len(kept)} copy(ies) of "
+                     f"it ({', '.join(sorted(p.name for p in kept)[:3])}): it may have been deleted or moved, and "
+                     "what it held may be lost.", [f"{KEEP} (I removed it)"])
+        # The save older than its own previous generation, or than the logs.
+        if len(saves) >= 2:
+            current = saves[-1]
+            for older_path, older in saves[:-1]:
+                behind = _behind(older, current[1])
+                if behind:
+                    self.ask("file", f"older-save|{older_path.name}",
+                             f"The save {current[0].name} is older than the game's earlier copy {older_path.name}: "
+                             f"{behind} villager(s) are younger in it. It may have been replaced by an older copy.",
+                             [f"{KEEP} (I restored it)"])
+        last = [c for c in self.logs.censuses if c.kind == "history"]
+        if last and saves:
+            current_path, current = saves[-1]
+            snap = last[-1]
+            behind = _behind(snap.people, current)
+            if behind and snap.when > _when(current_path):
+                self.ask("file", f"save-behind-logs|{snap.when}",
+                         f"The save {current_path.name} ({_when(current_path)}) is older than the latest Village "
+                         f"History snapshot ({snap.when}): {behind} villager(s) are younger in the save. It may have "
+                         "been replaced by an older copy, or the game did not save at its last quit.",
+                         [f"{KEEP} (I restored it)"])
+
+    def titles(self, living: list[Seen]) -> None:
+        """A custom title the latest History snapshot gives a villager still alive, with no entry for them in
+        the Custom Titles file: possibly lost (an entry dropped, or the file lost or replaced)."""
+        history = [c for c in self.logs.censuses if c.kind == "history"]
+        if not history:
+            return
+        titled = [s for s in history[-1].people if s.title and s.title.lower() not in ("none", "(none)")]
+        if not titled:
+            return
+        path = layout.find(Path(self.folder), f"{layout.DATA}\\Custom Titles\\Custom Titles - Save {self.slot}.dat")
+        entries: dict[int, str] = {}
+        try:
+            data = path.read_bytes()
+            if data[:4] == b"VCT1" and len(data) >= 16 and struct.unpack_from("<I", data, 8)[0] == self.game:
+                count = struct.unpack_from("<I", data, 12)[0]
+                for k in range(min(count, (len(data) - 16) // 40)):
+                    o = 16 + 40 * k
+                    entries[struct.unpack_from("<I", data, o + 4)[0]] = \
+                        data[o + 8:o + 40].split(b"\0", 1)[0].decode("latin-1")
+        except OSError:
+            pass
+        lost = []
+        for s in titled:
+            now = [v for v in living if v.key == s.key]
+            if len(now) != 1 or now[0].title_id is None:
+                continue
+            if entries.get(now[0].title_id) != s.title:
+                lost.append(f"{s.name} (\"{s.title}\")")
+        if lost:
+            self.ask("titles", f"titles|{history[-1].when}|{'|'.join(lost)}",
+                     f"The Village History snapshot of {history[-1].when} gives {len(lost)} living villager(s) a custom "
+                     f"title the Custom Titles file ({path.name}) no longer holds for them: {', '.join(lost)}. The "
+                     "title(s) may be lost.", [f"{KEEP} (I removed the title)"])
+
+    def slot_file_of(self, path: Path) -> bool:
+        """Whether a file belongs to this game and slot (or to the game's shared logs)."""
+        name = path.name
+        if f"Save {self.slot}" in name:
+            return f"Virtual Villagers {self.game} " in name or "Virtual Villagers " not in name
+        return name.startswith(f"Virtual Villagers {self.game} ") and layout.is_slot_folder(path) in (None, self.slot)
+
+
+def _rel(folder: Path, path: Path) -> str:
+    try:
+        return str(path.relative_to(folder))
+    except ValueError:
+        return str(path)
+
+
+def _copies_of(path: Path, copies_root: Path, folder: Path) -> list[Path]:
+    """The copies kept of a log before repairs, newest first: beside it, and in Copies Made Before
+    Repairs under the same relative place."""
+    found = [p for p in path.parent.glob(path.name + ".before-*") if p.is_file()]
+    try:
+        mirror = copies_root / path.relative_to(folder)
+        found += [p for p in mirror.parent.glob(path.name + ".before-*") if p.is_file()]
+    except (ValueError, OSError):
+        pass
+    return sorted(found, key=lambda p: p.stat().st_mtime, reverse=True)
+
+
+def _removed_by_repairs(text: str, name: str) -> int:
+    total = 0
+    for line in text.split("\n"):
+        if name in line and re.search(r"(taken out|removed|Removed)", line):
+            m = re.search(r"-- (\d+) ", line)
+            if m:
+                total += int(m.group(1))
+    return total
+
+
+def _behind(older: list[Seen], newer: list[Seen]) -> int:
+    """How many villagers, matched exactly and alone on name, head and body, are younger in `newer`
+    -- counted only when they are most of those matched (one restore, not one odd record)."""
+    a = {}
+    for s in older:
+        a.setdefault(s.key, []).append(s)
+    b = {}
+    for s in newer:
+        b.setdefault(s.key, []).append(s)
+    matched = younger = 0
+    for key, xs in a.items():
+        ys = b.get(key, [])
+        if len(xs) == 1 and len(ys) == 1 and xs[0].age is not None and ys[0].age is not None:
+            matched += 1
+            younger += ys[0].age < xs[0].age
+    return younger if matched and younger * 2 > matched else 0
+
+
+# ---------------------------------------------------------------------------
+# The reconciliation
+# ---------------------------------------------------------------------------
+
+def answered(folder: Path, game: int, slot: int, villages: set[str] | None) -> dict[str, str]:
+    import vv_log_decisions as decisions
+    out = {}
+    for d in decisions.load(folder, game, slot):
+        if d.get("kind") == DECISION_KIND and isinstance(d.get("field"), str) \
+                and (villages is None or d.get("village") in villages):
+            out[d["field"]] = str(d.get("verdict", ""))
+    return out
+
+
+def reconcile(folder: Path, game: int, slot: int) -> Reconciliation:
+    """Read everything this slot's village has, follow every villager through it, and say what does
+    not agree.  Nothing is written."""
+    import vv_log_additions as additions
+    import vv_tribe_rename
+    folder = Path(folder)
+    if game not in GAME_TITLES or slot not in (1, 2, 3, 4, 5):
+        raise ReconcileError(f"There is no game {game} save slot {slot}.")
+    villages = additions.current_villages(folder, game, slot)
+    games = {g.number: g for g in vv_tribe_rename.GAMES}
+    generations = save_generations(folder, game, slot)
+    current_path = folder / f"{_checker().SAVE_STEMS[game]}{slot}.ldw"
+    if current_path not in generations:
+        raise ReconcileError(f"Save {slot} has no tribe in {folder.name} ({current_path.name} is not there).")
+    try:
+        village_name = vv_tribe_rename.save_name(games[game], current_path.read_bytes())
+    except (OSError, KeyError, ValueError):
+        village_name = None
+    logs = read_logs(folder, game, slot, villages)
+    b = _Builder(folder, game, slot, logs, answered(folder, game, slot, villages))
+    sources: list[str] = []
+    saves: list[tuple[Path, list[Seen]]] = []
+    bodies_now: list[Seen] = []
+    for path in generations:
+        try:
+            if path != current_path:
+                name = vv_tribe_rename.save_name(games[game], path.read_bytes())
+                if village_name and name and name != village_name:
+                    b.note("save", f"other-village|{path.name}",
+                           f"{path.name} (an older generation of the save) holds another village, \"{name}\": not "
+                           "compared.")
+                    continue
+            alive, bodies = read_save(path, game)
+        except (OSError, ReconcileError, KeyError, ValueError) as exc:
+            if path == current_path:
+                raise ReconcileError(str(exc)) from exc
+            b.ask("file", f"unreadable-save|{path.name}", f"{path.name} (an older generation of the save) could not "
+                  f"be read ({exc}).", [f"{KEEP}"])
+            continue
+        saves.append((path, alive))
+        sources.append(f"{path.name} ({_when(path)}): {len(alive)} living")
+        if path == current_path:
+            bodies_now = bodies
+    living = saves[-1][1] if saves and saves[-1][0] == current_path else []
+    # The records against the save first: a Birth record's own words lead a question.
+    b.births_against(living, f"the save {current_path.name}")
+    # The game's own generations of the save, oldest to newest.
+    for (pa, a), (pb, bb) in zip(saves, saves[1:]):
+        b.compare(Census(f"the save copy {pa.name} ({_when(pa)})", _when(pa), "save", a, pa),
+                  Census(f"the save {pb.name} ({_when(pb)})" if pb == current_path else
+                         f"the save copy {pb.name} ({_when(pb)})", _when(pb), "save", bb, pb),
+                  bodies_now if pb == current_path else None)
+    # The History snapshots in order, then the latest snapshot against the save.
+    history = [c for c in logs.censuses if c.kind == "history"]
+    if history:
+        sources.append(f"{len(history)} Village History snapshot(s), {history[0].when} to {history[-1].when} "
+                       f"({len(history[-1].people)} villagers in the latest)")
+    for c in logs.censuses:
+        if c.kind != "history":
+            sources.append(f"{c.label}: {len(c.people)} villagers")
+    for a, c in zip(history, history[1:]):
+        b.compare(a, c)
+    if history and living:
+        snap = history[-1]
+        now = Census(f"the save {current_path.name} ({_when(current_path)})", _when(current_path), "save", living,
+                     current_path)
+        if snap.when <= now.when:
+            b.compare(snap, now, bodies_now)
+    sources.append(f"{len(logs.births)} Birth, {len(logs.arrivals)} Arrived, {len(logs.departures)} Death / "
+                   f"Disappeared / Left / Unaccounted, {len(logs.looks_changed)} Appearance changed, "
+                   f"{len(logs.names_changed)} Name changed record(s); {len(logs.files)} log file(s)")
+    for r in logs.names_changed:
+        # Every name change the game made in play, asked about even when a roster above shows nothing
+        # (the change may predate the History log): recorded, never hidden.
+        old = Seen(r.extra.get("old", ""), r.who.head, r.who.body)
+        if any(f.rename and f.rename[1] == old.name and f.rename[0][0] == r.who.name for f in b.findings.values()):
+            continue
+        b.rename_question(old, r.who, r.heading, f"the {r.path.name}", r)
+    b.files(living, saves)
+    b.titles(living)
+    if b.slot_reused or b.slot_moved:
+        b.note("slots", "slot-reuse", f"Record slots: {b.slot_reused} hold another villager than in an earlier "
+               f"generation of the save, and {b.slot_moved} villager(s) are in another slot -- deaths free slots "
+               "that later villagers take and every load packs the records (normal, above all at the 256 cap). "
+               "Everything here follows villagers by who they are, never by the slot.")
+    _vv1_roster_reuse(b, folder, game, slot, living)
+    followed = len({s.key for c in logs.censuses for s in c.people} | {s.key for _p, a in saves for s in a})
+    return Reconciliation(folder, game, slot, village_name, list(b.findings.values()), sources, followed)
+
+
+def _vv1_roster_reuse(b: _Builder, folder: Path, game: int, slot: int, living: list[Seen]) -> None:
+    """A New Home's Parentage Records keep a roster of the villager in each record slot: the slots
+    that now hold someone else (after deaths and packing) are a NOTE -- the companion follows each
+    entry to its villager by identity."""
+    if game != 1:
+        return
+    import vv1_parents_restore as restore
+    try:
+        table = restore.read_table(restore.parents_path(folder, slot), slot)
+    except (OSError, ValueError, AttributeError, restore.RestoreError):
+        return
+    if table is None:
+        return
+    moved = 0
+    for v in living:
+        ident = table.identity(v.rank) if v.rank is not None and v.rank < restore.COUNT else None
+        if ident is not None and ident[0] != v.name:
+            moved += 1
+    if moved:
+        b.note("slots", "vv1-roster", f"Parentage Records: {moved} record slot(s) hold another villager than when "
+               "the file was last written (deaths, births into freed slots, a load that packed the records); its "
+               "entries follow each villager by identity, never by the slot.")
+
+
+# ---------------------------------------------------------------------------
+# Writing: the report, and the player's answers
+# ---------------------------------------------------------------------------
+
+def report_path(folder: Path, game: int, slot: int) -> Path:
+    return layout.slot_log_folder(Path(folder), REPORT_FOLDER, slot) / REPORT_NAME.format(game=game, slot=slot)
+
+
+def export(rec: Reconciliation) -> Path:
+    """Write the report (the only file this module writes): through a temporary file moved into place."""
+    target = report_path(rec.folder, rec.game, rec.slot)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    temporary = target.with_name(target.name + ".tmp")
+    temporary.write_bytes(rec.render().replace("\n", "\r\n").encode("latin-1", "replace"))
+    os.replace(temporary, target)
+    return target
+
+
+def kind(folder: Path, game: int, slot: int, rec: Reconciliation | None = None):
+    """The questions for Repair Saves & Logs' checklist (src/vv_log_additions.py Kind): one per
+    contradiction, "Don't know (leave it)" first, so nothing changes unless the player says so."""
+    import vv_log_additions as additions
+    out = additions.Kind("reconcile", "Contradictions the read-only reconciliation found (asked; nothing "
+                                      "changes without your answer)")
+    try:
+        rec = rec or reconcile(folder, game, slot)
+    except (ReconcileError, OSError) as exc:
+        out.notes.append(f"The reconciliation could not run: {exc}")
+        return out
+    for n, f in enumerate(rec.questions, 1):
+        out.questions[f.qid] = additions.Question(f.qid, f"{n}. {f.text}", list(f.options), DONT_KNOW)
+    out.context = {"game": game, "slot": slot, "renames": {f.qid: f.rename for f in rec.questions if f.rename}}
+    if rec.questions:
+        out.notes.append(f"{len(rec.questions)} contradiction(s) between the save, its older copies, the logs and "
+                         "the patcher's files. Answer them with the button below; \"Don't know (leave it)\" "
+                         "changes nothing and asks again next time.")
+    return out
+
+
+def give_names_back(folder: Path, game: int, slot: int, renames: dict[tuple, str], controller,
+                    now: datetime | None = None) -> dict[tuple, str]:
+    """The answer "<the record's name> is right (give the name back)": each villager ((name, head, body)
+    now) gets that name back everywhere, as Repair's other renames do (src/vv_last_names.py: the save,
+    the logs and the patcher's files; refused while the game runs; a backup first; every file put back
+    on a failure).  Returns what was renamed."""
+    import vv_last_names as ln
+    import vv_log_tools as tools
+    try:
+        work = ln.plan_renames(Path(folder), game, slot, dict(renames), None, dead=False, ask=False)
+        if not work.renames:
+            return {}
+        ln.apply(Path(folder), work, controller, now, ln.BACKUP_LABEL, "giving the names back")
+    except (ln.LastNamesError, OSError, ValueError, struct.error) as exc:
+        raise tools.LogToolError(f"The name(s) could not be given back ({exc}).") from exc
+    return dict(work.renames)
+
+
+def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str, str],
+             now: datetime | None = None) -> tuple[list[str], dict[tuple, str]]:
+    """Keep the player's answers (src/vv_log_decisions.py, kind "reconcile"); "Don't know" is not kept,
+    so it is asked again.  Returns (lines for the Repairs log, the renames the answers ask for:
+    (name, head, body) -> the name to give back)."""
+    import vv_log_additions as additions
+    import vv_log_decisions as decisions
+    rk = next((k for k in kinds if getattr(k, "id", None) == "reconcile"), None)
+    if rk is None:
+        return [], {}
+    village = None
+    villages = additions.current_villages(folder, game, slot)
+    if villages:
+        village = sorted(villages)[0]
+        try:
+            import vv_tribe_rename
+            games = {g.number: g for g in vv_tribe_rename.GAMES}
+            name = vv_tribe_rename.save_name(games[game], (Path(folder) / f"{_checker().SAVE_STEMS[game]}{slot}.ldw")
+                                             .read_bytes())
+            village = vv_tribe_rename.village_header(name, slot) if name else village
+        except (OSError, KeyError, ValueError):
+            pass
+    entries, lines, renames = [], [], {}
+    for qid, question in rk.questions.items():
+        answer = answers.get(qid)
+        if not answer or answer == DONT_KNOW:
+            continue
+        entries.append({"kind": DECISION_KIND, "village": village, "field": qid, "verdict": answer,
+                        "edited": False})
+        lines.append(f"Answered: {question.text.split('. ', 1)[-1][:160]} -- {answer}")
+        rename = rk.context.get("renames", {}).get(qid)
+        if rename and answer.endswith("(give the name back)"):
+            renames[tuple(rename[0])] = rename[1]
+    if entries:
+        decisions.record(folder, game, slot, entries, now)
+    return lines, renames

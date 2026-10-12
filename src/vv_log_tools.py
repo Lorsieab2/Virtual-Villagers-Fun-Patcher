@@ -98,6 +98,7 @@ class CheckResult:
     game: int
     text: str                                   # the checker's own report, as the CLI prints it
     counts: dict[str, int] = field(default_factory=dict)
+    reconciliation: object | None = None        # src/vv_reconcile.py Reconciliation (the window exports it)
 
     @property
     def wrong(self) -> int:
@@ -195,15 +196,29 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
         report.add(f"{LOGS} (contradictions)", "UNCHECKED", f"a log could not be read ({exc.strerror or exc})")
     for found in contradictions:
         report.add(f"{LOGS} (contradictions)", "WRONG" if found.wrong else "NOTE", found.text)
+    # The always-on read-only reconciliation of records, logs and files (src/vv_reconcile.py; the owner,
+    # 2026-10-11: "MAKE SURE ABSOLUTELY NOTHING IS LOST. IF THERE ARE CONTRADICTIONS ASK THE PLAYER"):
+    # every villager followed through every source; each contradiction an ASK line, numbered.
+    import vv_reconcile
+    label = f"{LOGS}\\Save {slot} (read-only reconciliation of records, logs and files)"
+    reconciled = None
+    try:
+        reconciled = vv_reconcile.reconcile(Path(folder), game, slot)
+    except (vv_reconcile.ReconcileError, OSError, ValueError, struct.error) as exc:
+        report.add(label, "UNCHECKED", f"the reconciliation could not run ({exc})")
+    else:
+        for verdict, text in reconciled.lines():
+            report.add(label, verdict, text)
     for kind in kinds:
-        # "sex" and "born_arrived" the checker itself reports (the latter as WRONG).
-        if kind.id in ("sex", "born_arrived", "contradictions") or not (kind.decided or kind.asked):
+        # "sex" and "born_arrived" the checker itself reports (the latter as WRONG); the reconciliation's
+        # questions are listed above.
+        if kind.id in ("sex", "born_arrived", "contradictions", "reconcile") or not (kind.decided or kind.asked):
             continue
         asked = f", and {kind.asked} question(s) it asks you" if kind.asked else ""
         report.add(f"{LOGS} ({kind.label})", "NOTE",
                    f"{kind.decided} line(s) the save, the patcher's files or the logs settle{asked}; "
                    "Repair Saves & Logs can add them")
-    return CheckResult(Path(folder), slot, game, report.render(), report.counts())
+    return CheckResult(Path(folder), slot, game, report.render(), report.counts(), reconciled)
 
 
 # ---------------------------------------------------------------------------
@@ -327,6 +342,8 @@ class ApprovalResult:
     words: list = field(default_factory=list)   # WordFix: old like / dislike words put right now
     sexes: list = field(default_factory=list)   # WordFix: Sex lines added to older records now
     added: dict = field(default_factory=dict)   # kind id -> WordFix: every line added to older records now
+    answered: list = field(default_factory=list)  # the reconciliation's questions the player answered
+    renamed: dict = field(default_factory=dict)  # (name, head, body) -> the name an answer gave back
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -449,6 +466,22 @@ def approve_repair(
     if "contradictions" in chosen:
         import vv_log_contradictions
         vv_log_contradictions.remember(folder, game, slot, kinds, answers or {})
+    # The read-only reconciliation's questions (src/vv_reconcile.py): every answer is remembered and
+    # listed in the Repairs log; "Don't know" changes nothing and is asked again.  Only the answer
+    # "<the record's name> is right (give the name back)" changes anything: that villager gets the name
+    # back everywhere (src/vv_last_names.py renames: the save, the logs, the patcher's files, a backup
+    # first).  Nothing else is ever changed on a contradiction without the player's word.
+    answered: list[str] = []
+    renamed: dict = {}
+    if any(getattr(k, "id", None) == "reconcile" for k in kinds):     # asked whatever is ticked
+        import vv_reconcile
+        answered, give_back = vv_reconcile.remember(folder, game, slot, kinds, answers or {}, now)
+        if answered:
+            note_word_repair(folder, game, village,
+                             [WordFix(line, -1, backup.backup_folder.name) for line in answered], now,
+                             checked=additions.CHECKED["reconcile"], corrected="Answered", slot=slot)
+        if give_back:
+            renamed = vv_reconcile.give_names_back(folder, game, slot, give_back, controller, now)
     for kind in kinds:
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,
@@ -458,7 +491,7 @@ def approve_repair(
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
     return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, backup, words,
-                          added.get("sex", []), added)
+                          added.get("sex", []), added, answered, renamed)
 
 
 # ---------------------------------------------------------------------------

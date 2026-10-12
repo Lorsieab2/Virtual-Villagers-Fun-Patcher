@@ -1890,6 +1890,9 @@ WORD_FIXES = {
 LOG_WORDS = DATA + r"\Like and Dislike Words\Virtual Villagers {game} Log Words.dat"   # "Log Words" before
 LOG_FOLDERS = (LOGS, "VVFP Logs")
 REPAIRS_FOLDERS = ("Repairs", layout.REPAIRS_LOGS)     # "Repairs Made"; "Repairs" in older builds
+# The patcher's own reports in the Logs folders, never a log any reader takes records from: the read-only
+# reconciliation's report (src/vv_reconcile.py), rewritten at every check.
+REPORT_FOLDERS = ("Reconciliation",)
 
 
 def not_a_log(game_dir: Path, path: Path) -> bool:
@@ -1897,7 +1900,7 @@ def not_a_log(game_dir: Path, path: Path) -> bool:
     Family Tree's reports an older build kept in "Logs\\Genealogy" -- the same reports are now in
     "Family Trees\\Reports", outside the Logs, so under either name they are treated alike
     (src/vv_save_layout.py)."""
-    if path.parent.name in REPAIRS_FOLDERS:
+    if path.parent.name in REPAIRS_FOLDERS or path.parent.name in REPORT_FOLDERS:
         return True
     try:
         parts = Path(path).relative_to(game_dir).parts

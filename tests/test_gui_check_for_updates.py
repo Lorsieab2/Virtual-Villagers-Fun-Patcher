@@ -160,7 +160,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_villager_info",
                "vv_log_decisions", "vv_log_contradictions",
-               "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore"}
+               "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
+               "vv_reconcile", "vv_reconcile_view"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -175,12 +176,19 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions",
                               "vv_log_contradictions",
+                              "vv_reconcile",          # the read-only reconciliation (2026-10-11)
                               # PATCHER_VERSION: the repair copies are named for the running build.
                               "transparency"}),
             # The player's "Retroactively edit records?" No answers (vv_log_decisions).
             # ...and the save slot's own log folders (vv_save_layout).
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
-                                  "vv_log_contradictions", "vv_save_layout"}),
+                                  "vv_log_contradictions", "vv_save_layout", "vv_reconcile"}),
+            # The always-on read-only reconciliation of records, logs and files (the owner, 2026-10-11), and
+            # the pickers' background run of it.
+            ("vv_reconcile", {"vv_save_layout", "vv_log_tools", "vv_last_names", "vv_lost_titles",
+                              "vv_log_additions", "vv_genealogy", "vv_tribe_rename", "vv_log_decisions",
+                              "vv1_parents_restore"}),
+            ("vv_reconcile_view", {"vv_reconcile"}),
             ("vv_log_decisions", {"vv_save_layout"}),
             # Records that contradict each other (Check / Repair Saves & Logs).
             ("vv_log_contradictions", {"vv_log_tools", "vv_save_layout", "vv_log_additions", "vv_last_names",
@@ -213,7 +221,7 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_line_colours", {"vv_family_tree", "vv_gdiplus"}),
             ("vv_genealogy_window", {"vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy", "vv_save_backup",
                                      "vv_tribe_rename", "vv_tree_editor_tools", "vv_last_names", "vv_log_tools",
-                                     "vv_number_names", "vv_villager_info"}),
+                                     "vv_number_names", "vv_villager_info", "vv_reconcile_view"}),
             # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).
             ("vv_villager_info", {"vv_family_tree", "vv_genealogy", "vv_last_names",
                                  "vv_save_layout", "vv_log_additions"}),
