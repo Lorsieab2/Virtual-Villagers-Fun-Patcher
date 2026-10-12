@@ -214,17 +214,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # putting its two 4-byte sites (0x5537C, 0x547FC) back to stock and recomputing the CheckSum
     # gives the previous digest in all three modes.
     # Re-pinned for the Details rows 0-3 dead-villager refusal (payload +0x320 check, detail_menu).
+    # Re-pinned for Fix Vanilla Bugs' Details name box identity guard: putting its rows
+    # (tests/test_details_name_identity.py) back to stock and recomputing the CheckSum gives the
+    # previous digest in all three modes.
     "stock": (
-        "34DAE88C16BDAFE64C826A3B0DF61766CBBBD5B406F1D65D1B831118BDA8C08B",
-        "484D0D00",
+        "0B0FB32420F46CD9538E9CD3879159F87408EF45EF744576BF95F457B5C9660F",
+        "664B0D00",
     ),
     "collection_progression": (
-        "50C6C2FC2659B90EB4AE30606C4D8871E4DBB852487998A5D84BAE1037056848",
-        "48660D00",
+        "050E57506862F1956A8A25375E1B2240061989D2B3D677B973BF127BA137CE30",
+        "66640D00",
     ),
     "immediate_fixed": (
-        "85905CB487808E673CE4FA58F016590E9C4D81B97B6DA5E00FD6566F03ECCD6F",
-        "46A80D00",
+        "5F0545C4800F81855E684B27DA88FD19124090BCD63E8A7EB1514356C02C5A4B",
+        "64A60D00",
     ),
 }
 

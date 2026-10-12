@@ -419,6 +419,10 @@ FIX_NAMES = {0x65DB5, 0x65DC1}
 FIX_PERCENT = {0xD813, 0x402B9}
 # ... and its Details-screen likes/dislikes rows, in both builds.
 FIX_PERCENT |= {0x5D79C, 0x5D23C}
+# The Details name box identity guard (tests/test_details_name_identity.py): it
+# stays with 256 Villagers too.
+from test_details_name_identity import name_identity_fixes  # noqa: E402
+FIX_PERCENT |= {off for off, _, _ in name_identity_fixes("vv4")}
 BLOCK_CHECK, BLOCK_OBJECT, BLOCK_SIZE_FN = 0x4387A0, 0x4D8BF8, 0x438770
 
 

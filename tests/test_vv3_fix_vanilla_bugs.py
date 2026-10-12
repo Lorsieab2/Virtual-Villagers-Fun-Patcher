@@ -145,7 +145,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_vanilla_likes_panel import likes_fixes  # noqa: E402
 
 LIKES_FIXES = likes_fixes("vv3")
-FIXES = FIXES + PERCENT_FIXES + LIKES_FIXES
+from test_details_name_identity import name_identity_fixes  # noqa: E402
+# The Details name box is written back only to the villager it was filled for
+# (tests/test_details_name_identity.py).
+FIXES = FIXES + PERCENT_FIXES + LIKES_FIXES + name_identity_fixes("vv3")
 TECH_REWARD = 100
 
 # Game addresses.
@@ -305,6 +308,7 @@ class ManifestTests(unittest.TestCase):
         vas = (0x4180FB, 0x417797, 0x4173E0, 0x45EFC5, 0x45C88D, 0x435710, 0x45C677, 0x45C683,
                0x468D47, 0x40D54B,                      # the '%' fixes (#566)
                0x45537C, 0x4547FC)                      # the Details screen's likes/dislikes
+        vas += tuple(0x400000 + off for off, _, _ in name_identity_fixes("vv3"))   # the name box guard
         self.assertEqual(len(vas), len(FIXES))
         for va, (offset, before, _after) in zip(vas, FIXES):
             self.assertEqual(pe.get_offset_from_rva(va - 0x400000), offset)
