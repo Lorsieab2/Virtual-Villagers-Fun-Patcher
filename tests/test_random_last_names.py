@@ -271,6 +271,7 @@ class TheWindow(Village):
     def drive(self, steps, names=None, answer_ok=True):
         import vv_fun_patcher_gui as gui
         fake = SimpleNamespace(_repair_questions=lambda *a, **k: None)
+        fake._own_rules_dialog = lambda *a, **k: gui.App._own_rules_dialog(fake, *a, **k)
         info = SimpleNamespace(slot=1, name="Tribe")
         names = names if names is not None else {"chosen": {}, "answers": {}}
         names_var = tk.BooleanVar(master=self.root)
@@ -409,6 +410,145 @@ class TheWindow(Village):
         self.assertTrue(seen["still_open"], "declining the warning keeps the choice open")
         self.assertEqual(seen["kept"], set(), "cancelled: every row normal again")
         self.assertEqual(seen["names"]["chosen"], {}, "Cancel in the window: nothing applied")
+
+    def test_a_changed_own_rule_is_red_bold_in_both_windows(self):
+        """The owner, v1.35.70: "bolds villagers who have changed their names/naming rules for their
+        children".  Ago's recorded own rule (From the mother) unchanged: normal; Aipi given one: red bold
+        in the own-rules window and, after OK, in the last-names window; Ago set to the village rule and
+        back: red, then normal."""
+        people, _parents = ln.everyone(self.folder, 3, 1)
+        key = {v.name: ln.own_key(v) for v in people if v.alive}
+        ln.write_record(self.folder, 3, 1, "father", {}, own={key["Ago Akikai"]: "mother"})
+        living = ("Ago Akikai", "Aipi", "Kid", "Kalea", "Mele Ana", "Big Bob", "Zero")
+
+        def sub_red(sub):
+            out = set()
+            for name in living:
+                lab = self.label(sub, name)
+                if self.bold(lab):
+                    self.assertEqual(str(lab.cget("foreground")), "#d62828", name)
+                    out.add(name)
+                else:
+                    self.assertNotEqual(str(lab.cget("foreground")), "#d62828", name)
+            return out
+
+        def in_sub(seen):
+            sub = self.toplevels()[-1]
+            seen["sub_start"] = sub_red(sub)
+            self.box(sub, self.label(sub, "Aipi")).set("From the mother")
+            seen["sub_aipi"] = sub_red(sub)
+            self.box(sub, self.label(sub, "Ago Akikai")).set("Use the village rule")
+            seen["sub_ago"] = sub_red(sub)
+            self.box(sub, self.label(sub, "Ago Akikai")).set("From the mother")
+            seen["sub_ago_back"] = sub_red(sub)
+            self.button(sub, "OK").invoke()
+
+        def open_rules(seen):
+            win = self.toplevels()[-1]
+            seen["start"] = self.red_rows(win)
+            self.root.after(200, lambda: in_sub(seen))
+            self.button(win, "Each villager's own rule…").invoke()
+            seen["after"] = self.red_rows(win)
+            self.box(win, self.label(win, "Mele Ana")).set("Wikimak")
+            seen["name_too"] = self.red_rows(win)
+            self.button(win, "Cancel").invoke()
+
+        seen = self.drive([open_rules])
+        self.assertEqual(seen["start"], set(), "an own rule that is not changing reads normally")
+        self.assertEqual(seen["sub_start"], set())
+        self.assertEqual(seen["sub_aipi"], {"Aipi"})
+        self.assertEqual(seen["sub_ago"], {"Aipi", "Ago Akikai"}, "a rule taken away is a change too")
+        self.assertEqual(seen["sub_ago_back"], {"Aipi"}, "set back to the rule they have: normal")
+        # The rule change re-derives the names the player has not set (Kid and Zero get one now): those
+        # are name changes, red bold too.  Ago's name and rule stay: normal.
+        self.assertIn("Aipi", seen["after"], "the last-names window shows the pending rule change")
+        self.assertNotIn("Ago Akikai", seen["after"])
+        self.assertEqual(seen["name_too"], seen["after"] | {"Mele Ana"}, "a name change is still red bold beside it")
+
+
+class OwnRulesWindowRedBold(unittest.TestCase):
+    """The own-rules window on its own, in all five games: rows whose pending rule differs from the one
+    they have are red bold, live; set back, normal; nothing else is styled."""
+
+    def setUp(self):
+        try:
+            self.root = tk.Tk()
+        except tk.TclError as exc:
+            self.skipTest(f"no display: {exc}")
+        self.root.withdraw()
+        self.addCleanup(self.root.destroy)
+
+    def labels(self, window, people):
+        out = {}
+        for w in widgets(window):
+            if w.winfo_class() not in ("Label", "TLabel"):
+                continue
+            text = str(w.cget("text"))
+            for v in people:
+                if text.startswith(v.name + " ("):
+                    out[v.name] = w
+        return out
+
+    def red(self, window, people) -> set:
+        import tkinter.font as tkfont
+        out = set()
+        for w in widgets(window):
+            if w.winfo_class() not in ("Label", "TLabel"):
+                continue
+            bold = tkfont.Font(root=self.root, font=w.cget("font")).actual()["weight"] == "bold"
+            red = str(w.cget("foreground")) == "#d62828"
+            self.assertEqual(bold, red, str(w.cget("text")))
+            if bold:
+                out.add(next(v.name for v in people if str(w.cget("text")).startswith(v.name + " (")))
+        return out
+
+    def test_every_game(self):
+        import vv_fun_patcher_gui as gui
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                people, parents, by = clan(game)
+                key = {v.name: ln.own_key(v) for v in people}
+                current = {key["Ago"]: "mother"}
+                own = {key["Ago"]: "mother", key["Bela"]: "father"}     # Bela's chosen before, not yet written
+                seen = {}
+                called = []
+
+                def box(sub, name):
+                    row = self.labels(sub, people)[name].grid_info()["row"]
+                    return next(w for w in widgets(sub) if w.winfo_class() == "TCombobox"
+                                and w.grid_info().get("row") == row)
+
+                def steps():
+                    sub = [w for w in widgets(self.root) if isinstance(w, tk.Toplevel)][-1]
+                    seen["start"] = self.red(sub, people)
+                    box(sub, "Cy").set("50:50")
+                    seen["cy"] = self.red(sub, people)
+                    box(sub, "Cy").set("Use the village rule")
+                    seen["cy_back"] = self.red(sub, people)
+                    box(sub, "Ago").set("Use the village rule")
+                    seen["ago"] = self.red(sub, people)
+                    box(sub, "Ago").set("From the mother")
+                    seen["ago_back"] = self.red(sub, people)
+                    next(w for w in widgets(sub) if w.winfo_class() == "TButton"
+                         and str(w.cget("text")) == "OK").invoke()
+
+                self.root.after(200, steps)
+                gui.App._own_rules_dialog(SimpleNamespace(), self.root, people, parents, own,
+                                          lambda: called.append(1), current=current)
+                self.assertEqual(seen["start"], {"Bela"}, "a pending change is red from the start")
+                self.assertEqual(seen["cy"], {"Bela", "Cy"})
+                self.assertEqual(seen["cy_back"], {"Bela"})
+                self.assertEqual(seen["ago"], {"Bela", "Ago"})
+                self.assertEqual(seen["ago_back"], {"Bela"}, "Ago's own rule, unchanged: normal")
+                self.assertEqual(own, {key["Ago"]: "mother", key["Bela"]: "father"})
+                self.assertEqual(called, [1])
+
+    def test_the_pure_rule(self):
+        import vv_fun_patcher_gui as gui
+        a, b, c = ("A", 1, 1, "Male"), ("B", 2, 2, "Female"), ("C", 0, 0, "Male")
+        self.assertEqual(gui.own_rules_changing({a: "mother", c: "random"}, {a: "mother", b: "father"}), {b, c})
+        self.assertEqual(gui.own_rules_changing({a: "mother"}, {a: "mother", b: ""}), set(), "'' is the village rule")
+        self.assertEqual(gui.own_rules_changing({}, {}), set())
 
 
 if __name__ == "__main__":
