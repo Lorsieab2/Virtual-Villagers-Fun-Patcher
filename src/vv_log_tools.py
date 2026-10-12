@@ -485,13 +485,15 @@ def approve_repair(
     renamed: dict = {}
     if any(getattr(k, "id", None) == "reconcile" for k in kinds):     # asked whatever is ticked
         import vv_reconcile
-        answered, give_back = vv_reconcile.remember(folder, game, slot, kinds, answers or {}, now)
+        # The names are given back BEFORE any answer is kept (vv_reconcile.remember): a failed rename
+        # keeps no answer, so every question is asked again and can be retried.
+        answered, renamed = vv_reconcile.remember(
+            folder, game, slot, kinds, answers or {}, now,
+            give_back=lambda wanted: vv_reconcile.give_names_back(folder, game, slot, wanted, controller, now))
         if answered:
             note_word_repair(folder, game, village,
                              [WordFix(line, -1, backup.backup_folder.name) for line in answered], now,
                              checked=additions.CHECKED["reconcile"], corrected="Answered", slot=slot)
-        if give_back:
-            renamed = vv_reconcile.give_names_back(folder, game, slot, give_back, controller, now)
     for kind in kinds:
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,

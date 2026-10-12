@@ -242,10 +242,15 @@ def _when(path: Path) -> str:
 
 
 def save_generations(folder: Path, game: int, slot: int) -> list[Path]:
-    """The slot's save and the game's own two older generations of it, oldest first (by time)."""
+    """The game's own two older generations of the slot's save, oldest first (by time), then the slot's
+    save itself, LAST WHATEVER ITS TIME.  Everything after this treats the last entry as the current
+    save; sorted in by time, a current save restored from an older copy with its time kept (as the
+    patcher's own backups keep it) sorted before a generation, and was then compared as an old copy --
+    the very "replaced by an older copy" case the checks exist to find went unseen."""
     stem = _checker().SAVE_STEMS[game]
-    found = [p for p in (Path(folder) / f"{stem}{n}.ldw" for n in (slot + 40, slot + 20, slot)) if p.is_file()]
-    return sorted(found, key=lambda p: (p.stat().st_mtime, p.name != f"{stem}{slot}.ldw"))
+    older = [p for p in (Path(folder) / f"{stem}{n}.ldw" for n in (slot + 40, slot + 20)) if p.is_file()]
+    current = Path(folder) / f"{stem}{slot}.ldw"
+    return sorted(older, key=lambda p: p.stat().st_mtime) + ([current] if current.is_file() else [])
 
 
 def read_save(path: Path, game: int) -> tuple[list[Seen], list[Seen]]:
@@ -1039,10 +1044,16 @@ def give_names_back(folder: Path, game: int, slot: int, renames: dict[tuple, str
 
 
 def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str, str],
-             now: datetime | None = None) -> tuple[list[str], dict[tuple, str]]:
+             now: datetime | None = None, give_back=None) -> tuple[list[str], dict[tuple, str]]:
     """Keep the player's answers (src/vv_log_decisions.py, kind "reconcile"); "Don't know" is not kept,
-    so it is asked again.  Returns (lines for the Repairs log, the renames the answers ask for:
-    (name, head, body) -> the name to give back)."""
+    so it is asked again.  Returns (lines for the Repairs log, the renames the answers asked for:
+    (name, head, body) -> the name to give back -- what `give_back` returned, when it is given).
+
+    THE RENAMES COME FIRST.  `give_back(renames)` (give_names_back) runs before any answer is kept:
+    an answer once kept turns its question into an answered note, so keeping "give the name back"
+    and then failing the rename (a file locked or changed) left the wrong name in place with no
+    question left to retry it from.  If it raises, no answer is kept and the error goes to the
+    caller; every answer is asked again."""
     import vv_log_additions as additions
     import vv_log_decisions as decisions
     rk = next((k for k in kinds if getattr(k, "id", None) == "reconcile"), None)
@@ -1071,6 +1082,8 @@ def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str,
         rename = rk.context.get("renames", {}).get(qid)
         if rename and answer.endswith("(give the name back)"):
             renames[tuple(rename[0])] = rename[1]
+    if renames and give_back is not None:
+        renames = give_back(renames)
     if entries:
         decisions.record(folder, game, slot, entries, now)
     return lines, renames

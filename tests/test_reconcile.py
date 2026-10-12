@@ -295,6 +295,33 @@ class NameChanges(Base):
                 self.assertEqual(v.people(v.save_path(1).read_bytes())[1].name, x.name)
                 self.assertEqual(rc.reconcile(v.folder, game, 1).questions, [])
 
+    def test_a_failed_give_back_keeps_no_answer_so_it_can_be_retried(self):
+        """Review (#585): the answer was kept before the rename ran, so a rename that failed (a file
+        locked or changed) left the wrong name with its question already turned into an answered note."""
+        v = self.village("huttest", 3)
+        original = v.save_path(1).read_bytes()
+        x = v.people(original)[1]
+        v.write_save(1, v.renamed(original, 1, "Zuri"))
+        v.births(v.birth(9, x))
+        kind = rc.kind(v.folder, 3, 1)
+        (qid, question), = kind.questions.items()
+        back = next(o for o in question.options if o.endswith("(give the name back)"))
+
+        def fails(wanted):
+            raise tools.LogToolError("the save is locked")
+
+        with self.assertRaises(tools.LogToolError):
+            rc.remember(v.folder, 3, 1, [kind], {qid: back}, give_back=fails)
+        self.assertEqual(len(rc.reconcile(v.folder, 3, 1).questions), 1, "still asked: it can be retried")
+        # Once the rename succeeds, the answer is kept and the question becomes a note.
+        lines, renamed = rc.remember(v.folder, 3, 1, [kind], {qid: back},
+                                     give_back=lambda wanted: rc.give_names_back(v.folder, 3, 1, wanted,
+                                                                                 FakeProcesses()))
+        self.assertEqual(renamed, {("Zuri", x.head, x.body): x.name})
+        self.assertEqual(len(lines), 1)
+        self.assertEqual(v.people(v.save_path(1).read_bytes())[1].name, x.name)
+        self.assertEqual(rc.reconcile(v.folder, 3, 1).questions, [])
+
 
 class Losses(Base):
     def test_a_villager_gone_with_no_record_is_possibly_lost(self):
@@ -422,6 +449,32 @@ class FileLevelLoss(Base):
                 rec = rc.reconcile(v.folder, game, 1)
                 self.assertTrue(any(f.topic == "file" and "older than the game's earlier copy" in f.text
                                     for f in rec.questions), [f.text for f in rec.questions])
+
+    def test_a_restored_save_with_its_old_time_is_still_the_current_save(self):
+        """Review (#585): the generations were ordered by time alone, so a save restored from an older copy
+        WITH ITS TIME KEPT (as the patcher's backups keep it) sorted before the game's newer generation,
+        was compared as an old copy, and the checks of the current save ran on no villagers."""
+        for tag, game in CASES:
+            with self.subTest(game=game, tag=tag):
+                v = self.village(tag, game)
+                data = v.save_path(1).read_bytes()
+                x = v.people(data)[1]
+                restored = v.renamed(data, 1, "Zuri")
+                now = time.time()
+                v.write_save(21, v.aged(data, 60), now)
+                v.write_save(1, restored, now - 600)
+                v.births(v.birth(9, x))
+                self.assertEqual(rc.save_generations(v.folder, game, 1)[-1], v.save_path(1))
+                rec = rc.reconcile(v.folder, game, 1)
+                texts = [f.text for f in rec.questions]
+                self.assertTrue(any(f.topic == "file" and "older than the game's earlier copy" in f.text
+                                    for f in rec.questions), texts)
+                # The Birth record is checked against the CURRENT save's villagers (none, before the fix) --
+                # where it can tell who it is: the 256 builds' fixtures hold look-alikes of one villager.
+                people = v.people(restored)
+                twins = [s for s in people if (s.head, s.body, s.father, s.mother) == (x.head, x.body, x.father, x.mother)]
+                if len(twins) == 1:
+                    self.assertTrue(any(f.topic == "rename" and "says Zuri" in f.text for f in rec.questions), texts)
 
     def test_a_log_shrunk_below_its_copy_a_missing_file_and_a_cut_record(self):
         for tag, game in CASES[:5]:
