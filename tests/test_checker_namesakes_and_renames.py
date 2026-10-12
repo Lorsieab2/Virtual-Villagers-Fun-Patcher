@@ -240,6 +240,69 @@ class LastNameNoteSaysWhichRule(unittest.TestCase):
         self.assertEqual(self.ln.wrong_last_name_text(v, "Okelani", "father", "father"), "Kin Powaka (should be Okelani)")
 
 
+class RestoreNamesakes(unittest.TestCase):
+    """Restore A New Home Parents (src/vv1_parents_restore.py) tells two namesakes apart by the looks both
+    rosters recorded, as the companion does; with no looks recorded they stay ambiguous, as before."""
+
+    def setUp(self):
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv1_parents_restore
+        self.restore = vv1_parents_restore
+        self.folder = Path(self.enterContext(tempfile.TemporaryDirectory())) / "Virtual Villagers - Test"
+        records = self.folder / DATA / "Parentage Records"
+        records.mkdir(parents=True)
+        self.path = records / vv1_parents_restore.file_name(1)
+        logs = self.folder / LOGS / "Births and Conceptions"
+        logs.mkdir(parents=True)
+        (logs / "Virtual Villagers 1 Births and Conceptions Log 1.txt").write_text("Village: T (Save 1)\n",
+                                                                                  encoding="latin-1")
+
+    def write(self, path, rows, looks=True):
+        r = self.restore
+        data = bytearray(r.SIZE)
+        data[:4] = r.MAGIC
+        struct.pack_into("<I", data, 8, 1)
+        for index, (name, gender, scalar, head, body), father, mother in rows:
+            o = r.HEADER + index * r.OCCUPANT
+            data[o:o + 4] = bytes([gender, 0, head + 1 if looks else 0, body + 1 if looks else 0])
+            struct.pack_into("<i", data, o + 4, scalar)
+            data[o + 8:o + 8 + len(name)] = name.encode()
+            e = r.HEADER + r.COUNT * r.OCCUPANT + index * r.ENTRY
+            if father:
+                data[e:e + 4] = bytes([1, 2, 3, 4])
+                data[e + 8:e + 8 + len(father)] = father.encode()
+                data[e + 36:e + 36 + len(mother)] = mother.encode()
+        path.write_bytes(bytes(data))
+
+    def rows(self, with_parents):
+        soda_a = ("Soda Bahati", 2, 35, 12, 19)
+        soda_b = ("Soda Bahati", 2, 35, 11, 6)
+        hoto = ("Hoto Okelani", 1, 42, 18, 5)
+        liko = ("Liko Tasunke", 1, 39, 4, 4)
+        iruwa = ("Iruwa Bahati II", 2, 35, 9, 0)
+        p = (lambda f, m: (f, m)) if with_parents else (lambda f, m: (None, None))
+        return [(0, hoto, None, None), (1, liko, None, None), (2, iruwa, None, None),
+                (3, soda_b, *p("Liko Tasunke", "Iruwa Bahati II")), (4, soda_a, *p("Hoto Okelani", "Iruwa Bahati II"))]
+
+    def test_namesakes_get_their_own_parents_back(self):
+        self.write(self.path, [(i if i < 3 else 7 - i, *rest) for i, *rest in self.rows(False)])
+        self.write(self.path.with_name(self.path.name + ".before-v1.35.58-repair"), self.rows(True))
+        work = self.restore.plan(self.folder, 1)
+        got = {(r.name, r.father) for r in work.restored}
+        self.assertEqual(got, {("Soda Bahati", "Hoto Okelani"), ("Soda Bahati", "Liko Tasunke")}, work.lines())
+        t = work.table
+        by_looks = {t.looks(i): t.names(i) for i in range(5) if t.identity(i) and t.identity(i)[0] == "Soda Bahati"}
+        self.assertEqual(by_looks[(12, 19)], ("Hoto Okelani", "Iruwa Bahati II"))
+        self.assertEqual(by_looks[(11, 6)], ("Liko Tasunke", "Iruwa Bahati II"))
+
+    def test_namesakes_with_no_looks_recorded_stay_ambiguous(self):
+        self.write(self.path, self.rows(False))
+        self.write(self.path.with_name(self.path.name + ".before-v1.35.58-repair"), self.rows(True), looks=False)
+        work = self.restore.plan(self.folder, 1)
+        self.assertEqual(work.restored, [])
+        self.assertIn("Soda Bahati", work.ambiguous)
+
+
 class RenamedInTheLaterGames(unittest.TestCase):
     """The Lost Children to New Believers keep parents on the villager: a villager renamed since birth
     is never counted as missing a Birth record (native/parentage_export/arrival_backfill.inc, the same

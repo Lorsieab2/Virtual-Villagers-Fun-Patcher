@@ -271,6 +271,28 @@ def _same_village(now: dict[tuple, list[int]], old: dict[tuple, list[int]]) -> b
     return found >= min(len(now), len(old)) // 2 + 1
 
 
+def _by_identity(table: Table) -> dict[tuple, list[int]]:
+    out: dict[tuple, list[int]] = {}
+    for i in range(COUNT):
+        ident = table.identity(i)
+        if ident is not None:
+            out.setdefault(ident, []).append(i)
+    return out
+
+
+def _refined(table: Table, by_identity: dict[tuple, list[int]], shared: set[tuple]) -> dict[tuple, list[int]]:
+    """`by_identity` with every identity in `shared` split by the looks the roster recorded:
+    (name, gender, family, head, body).  A record with no looks recorded keeps the bare identity, so
+    two such records stay one ambiguous key."""
+    out: dict[tuple, list[int]] = {}
+    for ident, at in by_identity.items():
+        for i in at:
+            head, body = table.looks(i)
+            key = (*ident, head, body) if ident in shared and head >= 0 and body >= 0 else ident
+            out.setdefault(key, []).append(i)
+    return out
+
+
 def plan(folder: Path, slot: int) -> Plan:
     folder = Path(folder)
     path = parents_path(folder, slot)
@@ -287,22 +309,20 @@ def plan(folder: Path, slot: int) -> Plan:
         by_name.setdefault(child, set()).update(parents)
     dead = _dead_names(folder, slot)
     arrived = _arrived_names(folder, slot)
-    where: dict[tuple, list[int]] = {}
-    for i in range(COUNT):
-        ident = table.identity(i)
-        if ident is not None:
-            where.setdefault(ident, []).append(i)
     done: set[tuple] = set()
     skipped: set[tuple] = set()
     for copy in copies(folder, slot):
         old = read_table(copy, slot)
         if old is None:
             continue
-        seen: dict[tuple, list[int]] = {}
-        for i in range(COUNT):
-            ident = old.identity(i)
-            if ident is not None:
-                seen.setdefault(ident, []).append(i)
+        plain = _by_identity(table)                        # again: a departed entry may have been added
+        seen_plain = _by_identity(old)
+        # NAMESAKES (the owner's two Soda Bahatis, 2026-10-11): an identity two villagers share, in the
+        # file or the copy, is told apart by the looks both rosters recorded -- the companion's own
+        # follow (vv1_follow_roster) -- and stays ambiguous where either side recorded none.
+        shared = {ident for ident, at in list(plain.items()) + list(seen_plain.items()) if len(at) > 1}
+        where = _refined(table, plain, shared)
+        seen = _refined(old, seen_plain, shared)
         if not _same_village(where, seen):
             continue                                       # another village's file: not a source
         for ident, at in seen.items():
