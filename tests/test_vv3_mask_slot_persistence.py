@@ -150,10 +150,22 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         self.assertIn("g_vv3_mask_fp[i] != fp", stored)
         self.assertIn("if (found >= 0) return -1;", stored)
 
+        # The render getter's live scan (v1.35.71): every record's living state
+        # and identity bytes re-read on every call, a changed one hashed again.
+        refresh = self.source.split(
+            "static int vv3_mask_live_refresh(void) {", 1
+        )[1].split("static int vv3_mask_unique_live_index_in", 1)[0]
+        self.assertIn("rec[VV3_ACTIVE] == 0", refresh)
+        self.assertIn("*(const int *)(rec + VV3_HEALTH) <= 0", refresh)
+        self.assertIn("g_vv3_live_fp[i] = vv3_mask_fingerprint(rec);", refresh)
+        live_in = self.source.split(
+            "static int vv3_mask_unique_live_index_in(unsigned int fp, int slots) {", 1
+        )[1].split("static int vv3_mask_live_fingerprint_count_in", 1)[0]
+        self.assertIn("if (found >= 0) return -1;", live_in)
+
         group = self.source.split(
-            "static int vv3_mask_stored_group_value", 1
+            "static int vv3_mask_stored_group_value_of", 1
         )[1].split("static int vv3_mask_current_slot_writable", 1)[0]
-        self.assertIn("live_count = vv3_mask_live_fingerprint_count(fp);", group)
         self.assertIn("if (live_count < 2) return 0;", group)
         self.assertIn("else if (value != g_vv3_mask[i])", group)
         self.assertIn("return stored_count == live_count ? value : 0;", group)
@@ -162,8 +174,11 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
             "__declspec(dllexport) int __stdcall VV3_GetMaskForRecord", 1
         )[1].split("/* Chooser commit:", 1)[0]
         active_gate = getter.index("rec[VV3_ACTIVE] == 0")
-        live_gate = getter.index("live_idx = vv3_mask_unique_live_index(fpv)")
-        group_gate = getter.index("group_value = vv3_mask_stored_group_value(fpv)")
+        refresh_gate = getter.index("slots = vv3_mask_live_refresh();")
+        live_gate = getter.index("live_idx = vv3_mask_unique_live_index_in(fpv, slots)")
+        group_gate = getter.index("group_value = vv3_mask_stored_group_value_of(")
+        self.assertIn("fpv, vv3_mask_live_fingerprint_count_in(fpv, slots))", getter)
+        self.assertLess(refresh_gate, live_gate)
         stored_gate = getter.index("stored_idx = vv3_mask_unique_stored_index(fpv)")
         fast_path = getter.index("if (stored_idx == idx)")
         shifted_return = getter.index("return g_vv3_mask[stored_idx];")
