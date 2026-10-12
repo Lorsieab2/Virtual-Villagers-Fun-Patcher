@@ -11,6 +11,7 @@ EXPORTS
     LogVV5AppearanceChange=_LogVV5AppearanceChange@20
     ShowVV5AppearanceForAll=_ShowVV5AppearanceForAll@0
     ApplyVV5EqualDivision=_ApplyVV5EqualDivision@8
+    ShowVV5SkillPreferenceUpgrade=_ShowVV5SkillPreferenceUpgrade@4
     WriteMaskSidecar=_WriteMaskSidecar@4
     Vv5MaskSync=_Vv5MaskSync@0
     ShowVv5TimeWarp=_ShowVv5TimeWarp@4

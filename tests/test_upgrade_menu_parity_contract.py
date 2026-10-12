@@ -86,7 +86,7 @@ class UpgradeMenuParityContractTests(unittest.TestCase):
 
         tech = contract["actions"]["tech"]
         details = contract["actions"]["details"]
-        self.assertEqual([row["row"] for row in tech], list(range(14)))
+        self.assertEqual([row["row"] for row in tech], list(range(17)))
         self.assertEqual([row["row"] for row in details], list(range(5)))
         for row in tech + details:
             self.assertEqual(row["cost_text"], f'{row["cost"]:,} tech points')
@@ -188,7 +188,7 @@ class UpgradeMenuParityContractTests(unittest.TestCase):
         self.assertEqual(limited["must_not_be"], "enabled_no_op")
         self.assertEqual(limited["state_value"], "0x400000")
         self.assertFalse(limited["button_enabled"])
-        self.assertEqual(limited["tech_rows_unavailable"], list(range(6, 14)))
+        self.assertEqual(limited["tech_rows_unavailable"], list(range(6, 17)))
         self.assertEqual(limited["details_rows_unavailable"], [4])
         source = (ROOT / games["vv5"]["native_source"]).read_text(encoding="utf-8")
         self.assertIn(limited["state_symbol"], source)

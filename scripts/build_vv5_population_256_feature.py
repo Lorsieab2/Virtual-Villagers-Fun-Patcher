@@ -275,7 +275,9 @@ COMPOSITIONS: dict[str, list[dict]] = {
         {"find": "B9" + _hex32(STOCK_MANAGER), "replace": "B9" + _hex32(MANAGER), "count": 1,
          "purpose": "Origins code: the relocated villager manager (the Task9 page's selected-villager getter)"},
         {"find": "BE" + _hex32(STOCK_RECORDS) + "BB96000000",
-         "replace": "BE" + _hex32(record_va(0)) + "BB" + _hex32(SLOTS), "count": 5,
+         # Six: Grant Full Mastery to All's invalid-skill pre-scan walks the
+         # same records before its confirm.
+         "replace": "BE" + _hex32(record_va(0)) + "BB" + _hex32(SLOTS), "count": 6,
          "purpose": "Origins village-wide actions: walk the 256 records of the relocated table"},
         {"find": "68" + _hex32(STOCK_RECORDS), "replace": "68" + _hex32(record_va(0)), "count": 2,
          "purpose": "Origins companion calls: hand over the relocated table's first record"},

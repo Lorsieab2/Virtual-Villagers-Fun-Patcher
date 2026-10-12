@@ -163,5 +163,65 @@ class SkillPreferenceRows(unittest.TestCase):
         self.assertIn("vv_prefs_purchase(window, vv_prefs_kind_of(command, ID_VV2_CLEAR_PREFS));", self.vv2)
 
 
+# The Secret City, The Tree of Life and New Believers: the preference value IS
+# the index into the skill array (no separate code table), "none" is -1.
+LATER_GAMES = {
+    "vv3": dict(exe="Virtual Villagers - The Secret City.exe",
+                src="native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
+                # 0x459860 mov edi,[ebx+0xEC0]; 0x459866 mov esi,[ebx+edi*4+0xEAC]
+                reader=(0x459860, "8BBBC00E00008BB4BBAC0E0000"),
+                # villager creation stores -1
+                none=(0x456769, "C786C00E0000FFFFFFFF"),
+                pins=("static const int cycle[5] = {0, 4, 3, 2, 1};",
+                      "(float)*(const int *)(rec + VV3_SKILL0 + 4 * cycle[k])",
+                      "vved_cycle_quota(male_ctr, cyclen, 0, ed_quota);",
+                      "vved_cycle_quota(female_ctr, cyclen, 0, ed_quota + VVED_MAX_SEATS);")),
+    "vv4": dict(exe="Virtual Villagers - The Tree of Life.exe",
+                src="native/vv4_origins_icons/vv4_origins_icons.c",
+                # 0x461E55 mov ebx,[eax+0x1C70]; 0x461E5B fld dword [eax+ebx*4+0x1C5C]
+                reader=(0x461E55, "8B98701C0000D984985C1C0000"),
+                none=(0x45DA28, "C786701C0000FFFFFFFF"),
+                pins=("static const int order_p[5]  = { 0, 4, 3, 2, 1 };",
+                      "*(const float *)(r + VV_SKILL0_OFFSET + 4 * order[p])",
+                      "vved_cycle_quota(males, n, 0, quota);",
+                      "vved_cycle_quota(females, n, 0, quota + VVED_MAX_SEATS);")),
+    "vv5": dict(exe="Virtual Villagers - New Believers.exe",
+                src="native/vv5_task9_origins/vv5_task9_origins.c",
+                # 0x46A580 mov ebx,[eax+0x1C74]; 0x46A586 fld dword [eax+ebx*4+0x1C5C]
+                reader=(0x46A580, "8B98741C0000D984985C1C0000"),
+                none=(0x46886C, "C786741C0000FFFFFFFF"),
+                pins=("static const int index_parenting[6] = { 0, 4, 3, 2, 1, 5 };",
+                      "*(const float *)(record + VV5_ED_SKILLS + 4 * pro_index[p])",
+                      "#define VV5_ED_SKILLS     0x1C5C",
+                      "vved_cycle_quota(male_seat, professions, 0, quota);")),
+}
+
+
+class LaterGamesEqualDivision(unittest.TestCase):
+    def test_equal_division_reads_the_skill_each_seat_rates(self) -> None:
+        for game, spec in LATER_GAMES.items():
+            source = (ROOT / spec["src"]).read_text(encoding="utf-8")
+            with self.subTest(game=game):
+                self.assertIn('#include "../shared/equal_division.h"', source)
+                for pin in spec["pins"]:
+                    self.assertIn(pin, source)
+                self.assertIn("vved_assign(", source)
+
+    def test_the_preference_indexes_the_skills_and_none_is_minus_one(self) -> None:
+        import pefile
+        for game, spec in LATER_GAMES.items():
+            exe = STOCK / spec["exe"]
+            if not exe.is_file():
+                self.skipTest(f"stock {spec['exe']} absent")
+            pe = pefile.PE(str(exe), fast_load=True)
+            data = exe.read_bytes()
+            base = pe.OPTIONAL_HEADER.ImageBase
+            for va, hexbytes in (spec["reader"], spec["none"]):
+                with self.subTest(game=game, va=hex(va)):
+                    at = pe.get_offset_from_rva(va - base)
+                    expected = bytes.fromhex(hexbytes)
+                    self.assertEqual(data[at:at + len(expected)], expected)
+
+
 if __name__ == "__main__":
     unittest.main()

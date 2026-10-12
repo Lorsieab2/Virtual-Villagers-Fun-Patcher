@@ -26,25 +26,25 @@
 #define BS_LEFTTEXT 0x00000020L
 #define SS_LEFT 0x00000000L
 
-201 DIALOGEX 0, 0, 612, 232
+201 DIALOGEX 0, 0, 612, 286
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
 BEGIN
-    /* Left column (rows 0-6) */
-    ICON        101, -1, 8,   6, 24, 24
+    /* Left column (rows 0-8) */
+    ICON        101, -1, 8, 6, 24, 24
     ICON        109, 1100, 22, 18, 12, 12
     LTEXT       "Time Warp - Advances the Village Clock", -1, 40, 8, 195, 10
     LTEXT       "50,000 tech points", -1, 40, 20, 170, 9
     PUSHBUTTON  "Buy", 1000, 240, 9, 55, 18
 
-    ICON        102, -1, 8,  33, 24, 24
+    ICON        102, -1, 8, 33, 24, 24
     ICON        109, 1101, 22, 45, 12, 12
     LTEXT       "Island Event", -1, 40, 35, 195, 10
     LTEXT       "30,000 tech points", -1, 40, 47, 170, 9
     PUSHBUTTON  "Buy", 1001, 240, 36, 55, 18
 
-    ICON        103, -1, 8,  60, 24, 24
+    ICON        103, -1, 8, 60, 24, 24
     ICON        109, 1102, 22, 72, 12, 12
     LTEXT       "Barrel of Babies", -1, 40, 62, 195, 10
     LTEXT       "75,000 tech points", -1, 40, 74, 170, 9
@@ -74,51 +74,70 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 182, 170, 9
     PUSHBUTTON  "Buy", 1006, 240, 171, 55, 18
 
-    /* Right column (rows 7-13) */
-    ICON        107, -1, 310,   6, 24, 24
-    ICON        109, 1107, 324, 18, 12, 12
-    LTEXT       "Grant Full Mastery to All Villagers", -1, 342, 8, 195, 10
+    ICON        107, -1, 8, 195, 24, 24
+    ICON        109, 1107, 22, 207, 12, 12
+    LTEXT       "Grant Full Mastery to All Villagers", -1, 40, 197, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 209, 170, 9
+    PUSHBUTTON  "Buy", 1007, 240, 198, 55, 18
+
+    ICON        106, -1, 8, 222, 24, 24
+    ICON        109, 1108, 22, 234, 12, 12
+    LTEXT       "All Villagers are Exactly 18", -1, 40, 224, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 236, 170, 9
+    PUSHBUTTON  "Buy", 1008, 240, 225, 55, 18
+
+    /* Right column (rows 9-16): the three skill-preference rows (13-15)
+       follow the two Equal Division of Labor rows. */
+    ICON        110, -1, 310, 6, 24, 24
+    ICON        109, 1109, 324, 18, 12, 12
+    LTEXT       "Complete All Collections", -1, 342, 8, 195, 10
     LTEXT       "1,000,000 tech points", -1, 342, 20, 170, 9
-    PUSHBUTTON  "Buy", 1007, 542, 9, 55, 18
+    PUSHBUTTON  "Buy", 1009, 542, 9, 55, 18
 
-    ICON        106, -1, 310,  33, 24, 24
-    ICON        109, 1108, 324, 45, 12, 12
-    LTEXT       "All Villagers are Exactly 18", -1, 342, 35, 195, 10
+    ICON        108, -1, 310, 33, 24, 24
+    ICON        109, 1110, 324, 45, 12, 12
+    LTEXT       "Reset All Collections", -1, 342, 35, 195, 10
     LTEXT       "1,000,000 tech points", -1, 342, 47, 170, 9
-    PUSHBUTTON  "Buy", 1008, 542, 36, 55, 18
+    PUSHBUTTON  "Buy", 1010, 542, 36, 55, 18
 
-    ICON        110, -1, 310,  60, 24, 24
-    ICON        109, 1109, 324, 72, 12, 12
-    LTEXT       "Complete All Collections", -1, 342, 62, 195, 10
+    ICON        107, -1, 310, 60, 24, 24
+    ICON        109, 1111, 324, 72, 12, 12
+    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 342, 62, 195, 10
     LTEXT       "1,000,000 tech points", -1, 342, 74, 170, 9
-    PUSHBUTTON  "Buy", 1009, 542, 63, 55, 18
+    PUSHBUTTON  "Buy", 1011, 542, 63, 55, 18
 
-    ICON        108, -1, 310,  87, 24, 24
-    ICON        109, 1110, 324, 99, 12, 12
-    LTEXT       "Reset All Collections", -1, 342, 89, 195, 10
+    ICON        106, -1, 310, 87, 24, 24
+    ICON        109, 1112, 324, 99, 12, 12
+    LTEXT       "Equal Division of Labor (No Parenting)", -1, 342, 89, 195, 10
     LTEXT       "1,000,000 tech points", -1, 342, 101, 170, 9
-    PUSHBUTTON  "Buy", 1010, 542, 90, 55, 18
+    PUSHBUTTON  "Buy", 1012, 542, 90, 55, 18
 
-    ICON        107, -1, 310, 114, 24, 24
-    ICON        109, 1111, 324, 126, 12, 12
-    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 342, 116, 195, 10
-    LTEXT       "1,000,000 tech points", -1, 342, 128, 170, 9
-    PUSHBUTTON  "Buy", 1011, 542, 117, 55, 18
+    ICON        109, -1, 310, 114, 24, 24
+    ICON        109, 1113, 324, 126, 12, 12
+    LTEXT       "Clear All Skill Preferences", -1, 342, 116, 195, 10
+    LTEXT       "500,000 tech points", -1, 342, 128, 170, 9
+    PUSHBUTTON  "Buy", 1013, 542, 117, 55, 18
 
-    ICON        106, -1, 310, 141, 24, 24
-    ICON        109, 1112, 324, 153, 12, 12
-    LTEXT       "Equal Division of Labor (No Parenting)", -1, 342, 143, 195, 10
+    ICON        107, -1, 310, 141, 24, 24
+    ICON        109, 1114, 324, 153, 12, 12
+    LTEXT       "Check Highest Skill (Includes Parenting)", -1, 342, 143, 195, 10
     LTEXT       "1,000,000 tech points", -1, 342, 155, 170, 9
-    PUSHBUTTON  "Buy", 1012, 542, 144, 55, 18
+    PUSHBUTTON  "Buy", 1014, 542, 144, 55, 18
 
     ICON        106, -1, 310, 168, 24, 24
-    ICON        109, 1113, 324, 180, 12, 12
-    LTEXT       "Change Appearance for All", -1, 342, 170, 195, 10
-    LTEXT       "450,000 tech points", -1, 342, 182, 170, 9
-    PUSHBUTTON  "Buy", 1013, 542, 171, 55, 18
+    ICON        109, 1115, 324, 180, 12, 12
+    LTEXT       "Check Highest Skill (No Parenting)", -1, 342, 170, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 342, 182, 170, 9
+    PUSHBUTTON  "Buy", 1015, 542, 171, 55, 18
 
-    CTEXT       "Press ESC to exit this menu.", -1, 10, 200, 592, 9
-    DEFPUSHBUTTON "Cancel", 2, 271, 212, 70, 14
+    ICON        106, -1, 310, 195, 24, 24
+    ICON        109, 1116, 324, 207, 12, 12
+    LTEXT       "Change Appearance for All", -1, 342, 197, 195, 10
+    LTEXT       "450,000 tech points", -1, 342, 209, 170, 9
+    PUSHBUTTON  "Buy", 1016, 542, 198, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 10, 254, 592, 9
+    DEFPUSHBUTTON "Cancel", 2, 271, 266, 70, 14
 END
 
 202 DIALOGEX 0, 0, 310, 204

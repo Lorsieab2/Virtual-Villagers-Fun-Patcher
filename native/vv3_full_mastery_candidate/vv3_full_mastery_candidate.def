@@ -1,12 +1,13 @@
 LIBRARY "VVFP Origins Icons"
 EXPORTS
-    ShowOriginsUpgradeMenu=_ShowOriginsUpgradeMenu@8
     ShowOriginsUpgradeMenuState=_ShowOriginsUpgradeMenuState@8
     ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@4
     PrepareOriginsVillageWide=_PrepareOriginsVillageWide@4
     PrepareBarrelBabies=_PrepareBarrelBabies@0
     ShowOriginsUpgradeResult=_ShowOriginsUpgradeResult@4
     EqualDivisionOfLabor=_EqualDivisionOfLabor@4
+    ClearAllSkillPreferences=_ClearAllSkillPreferences@0
+    CheckHighestSkill=_CheckHighestSkill@4
     ShowOriginsFullMasteryResult=_ShowOriginsFullMasteryResult@8
     ShowVV3AppearanceChooser=_ShowVV3AppearanceChooser@20
     ShowVV3TimeWarp=_ShowVV3TimeWarp@4

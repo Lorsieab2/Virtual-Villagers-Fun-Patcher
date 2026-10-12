@@ -484,6 +484,8 @@ def main() -> None:
     show_dialog = PAYLOAD_VA + 0x220
     show_message = PAYLOAD_VA + 0x280
     get_detail_record = PAYLOAD_VA + 0x2E0
+    # In the free run after get_detail_record's code, before tech_menu.
+    detail_living_check = PAYLOAD_VA + 0x320
     tech_menu = PAYLOAD_VA + 0x340
     detail_menu = PAYLOAD_VA + 0x650
     tech_increment = PAYLOAD_VA + 0xA20
@@ -731,6 +733,29 @@ def main() -> None:
             ret
         """,
     )
+
+    # Villager Details: ebx = row, edx = the selected record.  Returns eax =
+    # the generic "No changes were needed. No tech points have been
+    # deducted." string and flags for detail_menu's `jle detail_status`:
+    # less-or-equal only for Grant Youth / Full Mastery / Running / Set Age to
+    # 18 on a body (health +0xE78 <= 0, the test the stock tick and the
+    # stock selection restore at 0x469508 both use); Change Appearance (row
+    # 4) and every living villager come back "greater".  Touches nothing else.
+    put(
+        detail_living_check,
+        f"""
+            mov eax, 0x{s['detail_age_already']:X}
+            cmp ebx, 4
+            je living_check_row4
+            cmp dword ptr [edx + 0xE78], 0
+            ret
+        living_check_row4:
+            cmp ebx, 0
+            ret
+        """,
+    )
+    if detail_living_check + 0x20 > tech_menu:
+        raise RuntimeError("detail_living_check's slot ends past tech_menu")
 
     put(
         tech_menu,
@@ -1197,6 +1222,19 @@ def main() -> None:
             test eax, eax
             je detail_done
             mov edx, eax
+            # A body can be the Details selection: the stock click picker
+            # (0x460D20) and get_detail_record (0x45EE60) test only the active
+            # byte +0xF10, which a dead villager (health +0xE78 <= 0) keeps
+            # until the tick removes the body 240 units later (0x45F3F5..
+            # 0x45F45B).  Grant Youth / Full Mastery / Running / Set Age to 18
+            # refuse it here -- before Running's free Dislike clear and before
+            # any charge -- with the generic no-change text; the Tech "to All"
+            # rows already skip the dead.  Change Appearance (row 4) is not
+            # one of the four rows and keeps its own path.  The test lives in
+            # detail_living_check (this cave has 12 bytes to spare); it
+            # returns the message in eax and "less or equal" for a body.
+            call 0x{detail_living_check:X}
+            jle detail_status
             cmp ebx, 2
             jne detail_charge
             lea eax, [edx + 0xFB4]
@@ -2651,7 +2689,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x97488", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Clear All Skill Preferences (500,000 tech points): unchecks every villager's skill preference (job checkmark) so each villager is free to choose their own work, as in the stock game. Skills themselves are not changed. The Tribal Chief, who cannot hold a preference, is skipped. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each): sets each villager's skill preference (job checkmark) to the skill they have the most progress in; the No Parenting version ignores Parenting. Ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting). Villagers with no progress in any skill yet keep their preference. The Tribal Chief is skipped.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {

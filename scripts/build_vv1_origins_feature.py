@@ -305,6 +305,31 @@ DETAIL_PREFLIGHT_FILE_OFFSET = 0x8BC00
 DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     DETAIL_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# A dead villager can be the Villager Details selection: the stock click
+# picker (0x43CAF0) tests only the record's occupied byte (+0x28) and the hit
+# box, and a body keeps that byte set (with health +0x344 <= 0) until the
+# village tick removes it 240 units after death (0x42E96D..0x42E9C3, which is
+# also where the stock code clears the selection).  detail_menu's own check is
+# the same occupied byte, so Grant Youth / Grant Full Mastery / Grant Running /
+# Set Age to 18 charged for and wrote to a corpse, while their Tech-menu "to
+# All" rows skip the dead.  detail_menu now calls this gate in place of
+# DETAIL_PREFLIGHT_VA (DETAIL_PREFLIGHT's own 256-byte cave is full): a living
+# villager tail-jumps straight into DETAIL_PREFLIGHT_VA unchanged; a dead one
+# returns status 1 (no-change, no charge) with the row forced to 3, so
+# ShowOriginsRowMessage shows its generic "No changes were needed. No tech
+# points have been deducted." text rather than a row-specific "already ..."
+# line that would be false for a body.  detail_menu reloads ebx from the next
+# dialog pick, so the forced row never reaches anything else.  Placed in the
+# 0x25-byte run between the patcher's Start Over stub (src/vv_fun_patcher.py
+# MAIN_MENU_START_OVER_CAVE["vv1"]["origins"]: 0x8BB70 + 0x6B = 0x8BBDB, which
+# owns the gap after CONFIRM_HELPER's code) and DETAIL_PREFLIGHT_FILE_OFFSET;
+# the gate is 0x10 bytes.
+DETAIL_LIVING_GATE_FILE_OFFSET = 0x8BBE0
+START_OVER_STUB_END_FILE_OFFSET = 0x8BB70 + 0x6B
+DETAIL_LIVING_GATE_VA = IMAGE_BASE + SHR_RVA + (
+    DETAIL_LIVING_GATE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+VV1_HEALTH_OFFSET = 0x344
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
 # The stock game's own "can one more villager fit" check (decompiled in
 # full at 0x43A1A0): population < 15 always fits; 15/25/50 each need their
@@ -1635,7 +1660,7 @@ def main() -> None:
             add edx, ecx
             cmp ebx, 4
             je 0x{APPEARANCE_ROUTER_VA:X}
-            call 0x{DETAIL_PREFLIGHT_VA:X}
+            call 0x{DETAIL_LIVING_GATE_VA:X}
             cmp eax, 100
             je detail_charge
             # Anything else is already the exact ShowOriginsRowMessage
@@ -2860,6 +2885,31 @@ def main() -> None:
         b"\0" * len(detail_preflight_code),
         detail_preflight_code,
         "check whether a detail_menu row (Grant Youth, Grant Full Mastery, Grant Running, Set Age 18) would actually change the selected villager before detail_menu charges for it, returning 100=would change/proceed to charge, or a ShowOriginsRowMessage status to display directly with no charge (1=no-change, 2=blocked/Running Dislike-free case tail-jumps to RUNNING_DISLIKE_CLEAR_VA which also returns 5=blocked-but-dislike-removed)",
+    )
+    # See DETAIL_LIVING_GATE_FILE_OFFSET: a body (health <= 0) is refused
+    # before DETAIL_PREFLIGHT_VA runs, so none of the four rows -- not even
+    # Grant Running's free Running-Dislike clear -- touches it or charges.
+    detail_living_gate_code = assemble(
+        f"""
+            cmp dword ptr [edx + 0x{VV1_HEALTH_OFFSET:X}], 0
+            jg 0x{DETAIL_PREFLIGHT_VA:X}
+            # VV1_ROWMSG_NOT_LIVING: "No valid living villager is selected."
+            push 7
+            pop eax
+            ret
+        """,
+        DETAIL_LIVING_GATE_VA,
+    )
+    if (
+        DETAIL_LIVING_GATE_FILE_OFFSET < START_OVER_STUB_END_FILE_OFFSET
+        or DETAIL_LIVING_GATE_FILE_OFFSET + len(detail_living_gate_code) > DETAIL_PREFLIGHT_FILE_OFFSET
+    ):
+        raise RuntimeError("VV1 Details living-villager gate leaves its 0x8BBDB..0x8BC00 slot")
+    patch(
+        DETAIL_LIVING_GATE_FILE_OFFSET,
+        b"\0" * len(detail_living_gate_code),
+        detail_living_gate_code,
+        "Villager Details living-villager gate for Grant Youth, Grant Full Mastery, Grant Running and Set Age to 18: a selected body (health +0x344 <= 0 -- the stock click picker 0x43CAF0 tests only the occupied byte, and a body stays occupied until removed) returns ShowOriginsRowMessage status 1 with row 3's generic 'No changes were needed. No tech points have been deducted.' text and no charge or change; a living villager tail-jumps into DETAIL_PREFLIGHT_VA unchanged",
     )
     patch(
         RUNNING_DISLIKE_CLEAR_FILE_OFFSET,
@@ -4493,7 +4543,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features (includes the Heathen Mask mod)",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Equal Division of Labor (Includes Parenting / No Parenting, 1,000,000 tech points each) splits the village evenly across the jobs, with males and females balanced per job, and gives each villager the job whose skill they have made the most progress in while that job has room (then their next-best job); villagers with no progress, ties and anyone left over are placed at random in the remaining seats. Clear All Skill Preferences (500,000 tech points) unchecks every villager's skill preference (job checkmark) so each villager chooses their own work again, as in the stock game; skills are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each) sets each villager's skill preference to the skill they have the most progress in; the No Parenting version ignores Parenting, ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting), and villagers with no progress yet keep their preference. The Golden Child is skipped by all three, as by Equal Division. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {

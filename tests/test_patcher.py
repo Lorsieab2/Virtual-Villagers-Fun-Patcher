@@ -260,7 +260,7 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn("    preflight_code = assemble(", source)
         cure_preflight_source = source[
             source.index("    cure_preflight_code = assemble(") :
-            source.index("    detail_preflight_code = assemble(")
+            source.index("    appearance_helper_code = assemble(")
         ]
         for check in (
             "mov ecx, 256",
@@ -323,7 +323,7 @@ class ManifestTests(unittest.TestCase):
 
         cure_preflight = source[
             source.index("    cure_preflight_code = assemble(") : source.index(
-                "    detail_preflight_code = assemble("
+                "    appearance_helper_code = assemble("
             )
         ]
         self.assertIn("mov eax, 1\n            ret", cure_preflight)
@@ -426,8 +426,10 @@ class ManifestTests(unittest.TestCase):
             source.index("        DETAIL_NOCHANGE_VA,")
         ]
         for exact_target in (
-            "cmp dword ptr [edx + 0x7E4], 100",
-            "cmp dword ptr [edx + 0x7F4], 100",
+            "cmp dword ptr [edx + eax*4 + 0x7E4], 100",
+            "cmp eax, 5",
+            "cmp dword ptr [edx + 0x52C], 0",
+            "cmp byte ptr [edx + 0x558], 0",
             "cmp dword ptr [edx + 0x530], 360",
             "cmp dword ptr [edx + 0x530], 100",
             f"cmp dword ptr [ecx], {{RUNNING_PREFERENCE_ID}}",

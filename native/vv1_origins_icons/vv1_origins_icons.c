@@ -3839,7 +3839,10 @@ enum {
     VV1_ROWMSG_REMOVED = 3,
     VV1_ROWMSG_POPULATION_FULL = 4,
     VV1_ROWMSG_NO_SLOT_DISLIKE_REMOVED = 5,
-    VV1_ROWMSG_IS_GOLDEN_CHILD = 6
+    VV1_ROWMSG_IS_GOLDEN_CHILD = 6,
+    /* The Details villager is a body (health <= 0): the detail_menu's
+       living gate (DETAIL_LIVING_GATE_VA) refuses rows 0-3 with this. */
+    VV1_ROWMSG_NOT_LIVING = 7
 };
 
 /* Generic result box for every Tech/Details row whose wording is either a
@@ -4179,6 +4182,10 @@ int __stdcall ShowOriginsRowMessage(
         break;
     case VV1_ROWMSG_IS_GOLDEN_CHILD:
         lstrcpyA(message, "This villager is the Golden Child. No tech points have been deducted.");
+        break;
+    case VV1_ROWMSG_NOT_LIVING:
+        /* The same wording The Lost Children and The Tree of Life use. */
+        lstrcpyA(message, "No valid living villager is selected. No tech points have been deducted.");
         break;
     default:
         wsprintfA(message, "%s completed.", name);

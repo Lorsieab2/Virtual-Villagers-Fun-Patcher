@@ -1104,6 +1104,9 @@ wording and the same shell, so the menus read identically across all five.
 | Reset All Collections | 1,000,000 |
 | Equal Division of Labor (Includes Parenting) | 1,000,000 |
 | Equal Division of Labor (No Parenting) | 1,000,000 |
+| Clear All Skill Preferences | 500,000 |
+| Check Highest Skill (Includes Parenting) | 1,000,000 |
+| Check Highest Skill (No Parenting) | 1,000,000 |
 | Change Appearance for All | 450,000 |
 
 A New Home has no Collections rows, because it has no collections to complete
@@ -1175,6 +1178,41 @@ promise that every paid barrel always delivers three children: a separate,
 still-unexplained short-spawn has been reproduced in a village with plenty of
 free records, and `docs/duplicate-purchase-guards.md` records what is and is
 not known about it.
+
+**Equal Division of Labor** splits the village evenly across the jobs: each
+job gets the same number of villagers as before, with males and females
+balanced per job, and *(No Parenting)* leaves Parenting out. Since v1.35.70
+**who gets which job follows their skill progress**: each villager is placed
+in the job whose skill they have made the most progress in (highest skill
+value first; a mastered skill counts as the most progress); if that job is
+already full, their next-best job, and so on. Villagers with no progress yet
+(newborns, for example), ties, and anyone left over are placed at random in
+the seats that remain, so the counts per job are always equal.
+
+**Clear All Skill Preferences** (500,000, half of Equal Division) unchecks every
+villager's skill preference (the job checkmark on the Villager Details screen),
+so each villager chooses their own work again, as in the stock game. Skills
+themselves are not changed.
+
+**Check Highest Skill** sets each villager's skill preference to the skill they
+have made the most progress in. *(No Parenting)* leaves Parenting out of the
+comparison. Ties go to the first skill in the Skills list order (Farming,
+Building, Research, Healing, Parenting, and Devotion in New Believers).
+Villagers with no progress in any skill yet keep their preference. It costs
+the same as the matching Equal Division row.
+
+All five rows touch the same villagers as Equal Division of Labor: A New Home
+skips the Golden Child, The Secret City skips the Tribal Chief (who cannot hold
+a preference) and New Believers never touches Heathens. Clear All Skill
+Preferences and Check Highest Skill deduct nothing when no checkmark would
+change, and cost 0 like every other row while Story / Cheat Upgrades makes
+upgrades free.
+
+v1.35.70 also fixed The Lost Children's Equal Division of Labor, which used the
+wrong job numbers: its *Building* share was really given Parenting, its
+*Research*, *Healing* and *Breeding* shares got Healing, Research and Building,
+and *(No Parenting)* gave villagers Parenting and never Building. It now uses
+the game's own job numbers.
 
 Results that count villagers name the number and the reason, and read correctly
 at one: *"Skipped over 1 villager. Reason: already likes running."*

@@ -95,8 +95,11 @@ FOUNDATION_OUTPUT = (
 # missing last names question).
 # Recertified for v1.35.67 (native/shared/paid_purchases.h: the Story / Cheat
 # Upgrades queue kept beside the paid Barrel).
-SOURCE_SHA256 = "D78623BF1C53962FEFBD4324FFAF75D895ED8A3644B99D650B74044F1D3D310E"
-SOURCE_SIZE = 1976832
+# Recertified for v1.35.70 (the owner, 2026-10-11): the Tech menu's Clear All
+# Skill Preferences (500,000) and Check Highest Skill (Includes / No
+# Parenting; 1,000,000 each) rows, run by the companion itself.
+SOURCE_SHA256 = "136A53591F867A63F6BE9FCAEE888236C41E66504C12AA27FDE73519352211D0"
+SOURCE_SIZE = 1980928
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
