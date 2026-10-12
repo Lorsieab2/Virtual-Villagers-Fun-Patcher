@@ -811,17 +811,22 @@ static int record_missing_core(
                 taken = 0;
             }
         }
-        /* RENAMED SINCE BIRTH (the owner's Tiki Alosaka, 2026-10-11: born
-           Iruwa Okelani, renamed in the game to another name altogether): one
-           Birth record of these looks and exactly the parents the save keeps
-           on this villager, under a name no villager of these looks carries
-           now, and no other villager of these looks and these parents who
-           could be its child.  It is this villager's own Birth record: never
-           a second one "recorded afterwards" (scripts/vvfp_consistency_check.py
-           missing_births, and vv1_crosscheck.inc vv1_xc_renamed for A New Home,
-           follow the same rule). */
+        /* A BIRTH RECORD UNDER ANOTHER NAME -- A CONTRADICTION (the owner,
+           2026-10-11: in her A New Home "Iruwa Okelani", Birth 252, became a
+           second living "Tiki Alosaka", and she never renamed anyone).  A Birth
+           record of these looks and exactly the parents the save keeps on this
+           villager, under a name no villager of these looks carries now, and
+           no other villager of these looks and these parents: the records
+           contradict each other, and only the player can say which is right.
+           Nothing is written for this villager -- never a second Birth record
+           "recorded afterwards" -- and nothing is assumed either: the record
+           is not taken as theirs, the outcome stays UNDECIDED (so this
+           backfill's marker is not written while the contradiction stands),
+           and the patcher's reconciliation asks the player
+           (src/vv_reconcile.py; scripts/vvfp_consistency_check.py
+           missing_births and vv1_crosscheck.inc vv1_xc_born_as_another follow
+           the same rule). */
         if (births && on_disk + held <= taken && taken == 0 && (fathers[i][0] != '\0' || mothers[i][0] != '\0')) {
-            struct arrival_key *only = NULL;
             int records_renamed = 0, siblings = 0, v;
             for (v = 0; v < count; ++v) {
                 if (v != i && names[v][0] != '\0' && heads[v] == heads[i] && bodies[v] == bodies[i]
@@ -845,13 +850,11 @@ static int record_missing_core(
                 }
                 if (owners == 0) {
                     ++records_renamed;
-                    only = k;
                 }
             }
-            if (records_renamed == 1) {
-                only->reserved = 1;
-                on_disk = !only->held;
-                held = only->held;
+            if (records_renamed > 0) {
+                facts[i].outcome = VV_ARRIVAL_UNDECIDED;     /* asked, never written, never settled */
+                continue;
             }
         }
         if (on_disk > taken) {

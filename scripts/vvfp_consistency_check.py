@@ -61,7 +61,9 @@ SAVE_STEMS = {
 DATA = "Virtual Villagers Fun Patcher Data"
 LOGS = "Virtual Villagers Fun Patcher Logs"
 
-VERDICTS = ("OK", "WRONG", "NOTE", "UNCHECKED")
+# ASK: a contradiction only the player can settle (the owner, 2026-10-10/11: "IF THERE ARE CONTRADICTIONS ASK
+# THE PLAYER") -- never accepted, never repaired without their answer.
+VERDICTS = ("OK", "WRONG", "ASK", "NOTE", "UNCHECKED")
 
 # Master status, per game (the statistics exporter's own thresholds).
 MASTER = {1: 90, 3: 88, 4: 88, 5: 88}
@@ -401,6 +403,7 @@ class LogRecord:
     how: str = ""              # an Arrived record's "How:" ("unknown": the backfill knew nothing of it)
     heading: str = ""          # an Arrived record's own "Arrived <n>"
     recorded_afterwards: bool = False   # an Arrived record's "Note: Recorded afterwards ..."
+    number: str = ""           # a Birth record's own heading ("Birth 252"; an older log's plain "Birth")
 
 
 BIRTH_HEADING = re.compile(r"Birth(?: \d+)?")
@@ -560,6 +563,7 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                     continue
             if birth and rec.child:
                 rec.kind = "birth"
+                rec.number = kind
             elif kind.startswith("Conception") and rec.mother:
                 rec.kind = "conception"
             elif kind == "Lost before birth" and rec.mother and rec.mother.name:
@@ -793,13 +797,23 @@ def enc_body(p: Person | None) -> int:
     return 0 if p is None or p.body is None or not 0 <= p.body <= 253 else p.body + 1
 
 
-def renamed_birth(bs: list[LogRecord], roster: list[Villager], v: Villager, cur: dict) -> list[LogRecord]:
-    """A villager RENAMED since birth (the owner's Tiki Alosaka, 2026-10-11: born Iruwa Okelani, head 12
-    body 18, renamed in the game to her half-sister's name): the Birth records of a child with her looks
-    and the very parents -- names and looks -- the parentage file holds for her, whose child's name no
-    living villager with those looks carries now.  Exactly one is hers (twins share looks and parents,
-    so two such records are never told apart: the caller wants exactly one).  vv1_crosscheck.inc's
-    vv1_xc_renamed is the same rule."""
+def rename_question(v: Villager, records: list[LogRecord], what: str) -> str:
+    """The player's question for a living villager whose looks and parents are those of a Birth record
+    under ANOTHER name, with no record of a rename: "Birth 252 says Iruwa Okelani; the save says Tiki
+    Alosaka; no log records a rename. Which is right?" (the owner, 2026-10-11)."""
+    said = "; ".join(f"{r.number or 'a Birth record'} says {r.child.name}" for r in records)
+    return (f"{said}; the save says {v.name} (head {v.head}, body {v.body}); no log records a rename. Which is "
+            f"right? The Birth record has these looks and {what}, and nobody alive carries its name with these "
+            "looks. Nothing is changed until you answer: Repair Saves & Logs asks (keep the save's name, or the "
+            "Birth record's).")
+
+
+def born_under_another_name(bs: list[LogRecord], roster: list[Villager], v: Villager, cur: dict) -> list[LogRecord]:
+    """The Birth records of a child with this villager's looks and the very parents -- names and looks --
+    the parentage file holds for them, under ANOTHER name no living villager with those looks carries
+    now.  Any such record is a CONTRADICTION the player is asked about (the owner, 2026-10-11: in her
+    A New Home "Iruwa Okelani" (Birth 252, head 12, body 18) became a second living "Tiki Alosaka", and
+    she never renamed anyone) -- never taken as "renamed since birth", never settled by the checker."""
     def same(p, name, head, body):
         return (p.name if p else "") == name and (head_enc(p) if p else 0) == head \
             and (enc_body(p) if p else 0) == body
@@ -892,13 +906,13 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
 
         def enc(p):
             return 0 if p is None or p.head is None or not 0 <= p.head <= 253 else p.head + 1
-        born_as = [] if matches or not has or shared != 1 else renamed_birth(bs, roster, v, cur)
-        if len(born_as) == 1:
-            # RENAMED SINCE BIRTH (vv1_crosscheck.inc VV1_XC_RENAMED): left as it is -- never a second
-            # Birth record written "afterwards", never parents cleared.
-            rep.add(label, "OK", f"{v.name}: {now}, as the Birth record of {born_as[0].child.name} says -- the "
-                                 f"one child born with head {v.head} and body {v.body} to these parents, whose "
-                                 "name nobody with those looks carries now (renamed since)")
+        born_as = [] if matches or not has or shared != 1 else born_under_another_name(bs, roster, v, cur)
+        if born_as:
+            # A CONTRADICTION, NEVER A RENAME TAKEN FOR GRANTED (the owner, 2026-10-11: "Iruwa Okelani"
+            # became a second living "Tiki Alosaka" and nobody renamed anyone).  Asked, never accepted;
+            # nothing is changed (vv1_crosscheck.inc leaves the entry as it is: no second Birth record, no
+            # parents cleared) until the player answers in Repair Saves & Logs.
+            rep.add(label, "ASK", rename_question(v, born_as, f"the parents the parentage file holds ({now})"))
         elif matches and agree and len(matches) >= shared:
             b = matches[0]
             f, m = b.father, b.mother
@@ -966,11 +980,14 @@ def births_marker(game_dir: Path, game: int, slot: int) -> bool:
     return backfill_marker_ok(data, 0x31424356, game, slot)
 
 
-def missing_births(roster: list[Villager], births: list[LogRecord]) -> list[Villager]:
+def missing_births(roster: list[Villager], births: list[LogRecord],
+                   asked: list | None = None) -> list[Villager]:
     """The in-game backfill's rule (native/parentage_export/arrival_backfill.inc): the villagers
     whose save record keeps parents (born here) with neither a Birth nor an Arrived record of the
     same name, head and body -- counted, so two alike need two -- or, failing that, a record of
-    their name that only they carry (looks changed since)."""
+    their name that only they carry (looks changed since).  A villager whose looks and parents are a
+    Birth record's under another name is not missing one and is not settled either: (villager,
+    records) goes to `asked`, a question for the player."""
     keys = [key(r.child.name, r.child.head, r.child.body) for r in births
             if r.kind in ("birth", "arrived") and r.child and r.child.name]
     taken: dict[tuple, int] = {}
@@ -996,18 +1013,23 @@ def missing_births(roster: list[Villager], births: list[LogRecord]) -> list[Vill
                                for w in roster)]
         if len(related) == 1:
             continue
-        # RENAMED SINCE BIRTH (arrival_backfill.inc, the same rule): one Birth record of these looks
-        # and exactly the parents the save keeps on this villager, under a name no villager of these
-        # looks carries now, and no other villager of these looks and parents it could be.
+        # A BIRTH RECORD UNDER ANOTHER NAME (arrival_backfill.inc, the same rule): a Birth record of
+        # these looks and exactly the parents the save keeps on this villager, under a name no villager
+        # of these looks carries now, and no other villager of these looks and parents it could be.  A
+        # CONTRADICTION the player is asked about (the owner, 2026-10-11: "Iruwa Okelani" became a second
+        # "Tiki Alosaka", and nobody renamed anyone): no second Birth record is written for it, and it is
+        # never taken as settled either -- `asked` collects it with the records.
         if not taken.get(k) and not any(w is not v and (w.head, w.body) == (v.head, v.body)
                                         and (w.father, w.mother) == (v.father, v.mother) for w in roster):
-            renamed = [r for r in births if r.kind == "birth" and r.child and r.child.name
-                       and r.child.name != v.name and (r.child.head, r.child.body) == (v.head, v.body)
-                       and ((r.father.name if r.father else ""), (r.mother.name if r.mother else ""))
-                       == (v.father, v.mother)
-                       and not any((w.name, w.head, w.body) == (r.child.name, r.child.head, r.child.body)
-                                   for w in roster)]
-            if len(renamed) == 1:
+            other = [r for r in births if r.kind == "birth" and r.child and r.child.name
+                     and r.child.name != v.name and (r.child.head, r.child.body) == (v.head, v.body)
+                     and ((r.father.name if r.father else ""), (r.mother.name if r.mother else ""))
+                     == (v.father, v.mother)
+                     and not any((w.name, w.head, w.body) == (r.child.name, r.child.head, r.child.body)
+                                 for w in roster)]
+            if other:
+                if asked is not None:
+                    asked.append((v, other))
                 continue
         out.append(v)
     return out
@@ -1032,8 +1054,13 @@ def vv25_parents_vs_births(roster: list[Villager], births: list[LogRecord], rep:
                            game_dir: Path | None = None, slot: int = 0) -> None:
     label = f"{LOGS}\\Births and Conceptions (against the save's own parent fields)"
     if game_dir is not None and births.village is not None:
-        lacking = missing_births(roster, births)
+        asked: list = []
+        lacking = missing_births(roster, births, asked)
         done = births_marker(game_dir, game, slot)
+        for v, records in asked:
+            rep.add(label, "ASK", rename_question(
+                v, records, f"the parents the save keeps on {v.name} (father {v.father or '(none)'}, mother "
+                            f"{v.mother or '(none)'}); no second Birth record is written for {v.name}"))
         for v in lacking:
             heathen = " (New Believers: a Heathen is never recorded -- the save's faction byte is not read " \
                       "here)" if game == 5 else ""
@@ -1045,7 +1072,7 @@ def vv25_parents_vs_births(roster: list[Villager], births: list[LogRecord], rep:
                                         f"{v.mother or '(none)'}) but no Birth or Arrived record in the Births log "
                                         f"(repairable: a Birth record is written from the save, \"Recorded "
                                         f"afterwards\"){heathen}")
-        if not lacking:
+        if not lacking and not asked:
             rep.add(label, "OK", "every living villager the save says was born here has a Birth or Arrived record")
     bs = [r for r in births if r.kind == "birth"]
     checked = 0
@@ -1555,9 +1582,12 @@ def check_titles(game_dir: Path, slot: int, game: int, roster: list[Villager], h
                 # The game packs its villagers at every load, so a record index goes stale; the title
                 # follows its villager's identity (story_titles.inc titles_follow), and exactly one
                 # living villager carries it (the owner's two "Helpful Spirit" titles, 2026-10-11).
-                rep.add(label, "OK", f"\"{title}\" is {carriers[0].name}'s (record {carriers[0].rank} now; the file "
-                                     f"still says record {index}, from before a load packed the villagers -- the "
-                                     "game's load moves it to them)")
+                # A NOTE, not an error: record slots are reused and packed (the owner's village at the
+                # 256 cap, 2026-10-11), so the data follows the villager's identity, never the slot.
+                rep.add(label, "NOTE", f"\"{title}\" is {carriers[0].name}'s (record {carriers[0].rank} now; the file "
+                                       f"still says record {index}, from before a load packed the villagers or the "
+                                       "slot was reused -- the title follows its villager's identity, and the "
+                                       "game's load moves it to them)")
             else:
                 rep.add(label, "NOTE", f"\"{title}\" at record {index} does not match the villager there "
                                        "(the game's load moves it to its villager, or shows it on nobody)")

@@ -104,13 +104,20 @@ class CheckResult:
         return self.counts.get("WRONG", 0)
 
     @property
+    def asked(self) -> int:
+        """Contradictions only the player can settle (the read-only reconciliation, src/vv_reconcile.py)."""
+        return self.counts.get("ASK", 0)
+
+    @property
     def summary(self) -> str:
-        parts = ", ".join(f"{self.counts.get(v, 0)} {v}" for v in ("OK", "WRONG", "NOTE", "UNCHECKED"))
+        parts = ", ".join(f"{self.counts.get(v, 0)} {v}" for v in ("OK", "WRONG", "ASK", "NOTE", "UNCHECKED"))
         verdict = (
             "nothing is confirmed wrong"
             if not self.wrong
             else f"{self.wrong} confirmed wrong"
         )
+        if self.asked:
+            verdict += f"; {self.asked} contradiction(s) only you can settle"
         return f"Save {self.slot}: {verdict} ({parts})."
 
 

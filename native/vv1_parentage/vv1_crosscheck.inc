@@ -761,18 +761,20 @@ static int vv1_xc_arrived(const vv1_xc_log *log, const char *name, int head, int
     return 0;
 }
 
-/* A villager RENAMED since birth (the owner's Tiki Alosaka, 2026-10-11: born
-   Iruwa Okelani, head 12 body 18, renamed in the game).  How many Birth
-   records are of a child with these looks and exactly the parents -- names
-   and looks -- `entry` holds, under another name no living villager with
-   these looks carries now.  Exactly one is this villager's own Birth record:
-   the table agrees with it, so it is left as it is -- never a second Birth
-   record written "afterwards" under the new name, never parents cleared for
-   want of a Birth record of that name.  (Twins share looks and parents: two
-   such records are never told apart, and the caller wants exactly one.)
-   scripts/vvfp_consistency_check.py's renamed_birth is the same rule. */
-static int vv1_xc_renamed(const unsigned char *records, const vv1_xc_log *log, const char *name,
-                          int head, int body, const vv1_parent_entry *entry) {
+/* A BIRTH RECORD UNDER ANOTHER NAME -- A CONTRADICTION (the owner,
+   2026-10-11: in her village "Iruwa Okelani", Birth 252, head 12 body 18,
+   became a second living "Tiki Alosaka", and she never renamed anyone).  How
+   many Birth records are of a child with these looks and exactly the parents
+   -- names and looks -- `entry` holds, under another name no living villager
+   with these looks carries now.  Any such record means the records contradict
+   each other and only the player can say which is right: the entry is left
+   exactly as it is -- never a second Birth record written "afterwards" under
+   the save's name, never parents cleared, and never taken as settled (the
+   patcher's reconciliation, src/vv_reconcile.py, and Check Saves & Logs ask
+   the player).  scripts/vvfp_consistency_check.py's born_under_another_name is
+   the same rule. */
+static int vv1_xc_born_as_another(const unsigned char *records, const vv1_xc_log *log, const char *name,
+                                  int head, int body, const vv1_parent_entry *entry) {
     int k, found = 0;
     for (k = 0; k < log->count; ++k) {
         const vv1_xc_record *r = &log->items[k];
@@ -972,8 +974,8 @@ static void vv1_xc_plan_build(const unsigned char *records, const vv1_xc_log *lo
         }
         after = g_entries[j];
         if (matches == 0 && shared == 1 && vv1_xc_has_parents(&g_entries[j])
-            && vv1_xc_renamed(records, log, name, head, body, &g_entries[j]) == 1) {
-            /* Renamed since birth: the table agrees with their own Birth record.  Left as it is. */
+            && vv1_xc_born_as_another(records, log, name, head, body, &g_entries[j]) > 0) {
+            /* A Birth record under another name: a contradiction for the player.  Left exactly as it is. */
         } else if (matches > 0 && agree && matches >= shared) {
             vv1_xc_set(&after.father_head, &after.father_body, after.father_name, &first->father);
             vv1_xc_set(&after.mother_head, &after.mother_body, after.mother_name, &first->mother);

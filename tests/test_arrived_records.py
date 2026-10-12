@@ -71,11 +71,13 @@ CHECKS += 1
 # + 3 per game: Unaccounted and Arrived records name the villager's own parents in every game -- A New
 # Home's from the Show Parents companion, kept in the roster file (arrival_harness.c parents_cases)
 CHECKS += 3 * 5
-# + 1 per game with Birth records (The Lost Children on): a villager renamed since birth -- the Birth
-# record of his looks and his very parents, under a name nobody carries now -- gets no second Birth
-# record (the owner's Tiki Alosaka, 2026-10-11; arrival_backfill.inc)
-CHECKS += 4
-STOCK =ROOT / "research" / "stock-executables"
+# + 4 per game with Birth records (The Lost Children on): a villager with the looks and the very parents
+# of a Birth record under another name nobody carries now is a CONTRADICTION for the player -- no
+# second Birth record, and nothing taken as settled (the marker waits) -- while a villager with no
+# record still gets one (the owner, 2026-10-11; arrival_backfill.inc, arrival_harness.c
+# contradiction_cases)
+CHECKS += 4 * 4
+STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
 TABLES = {1: "MARKERS_VV1", 2: "MARKERS_VV2", 3: "MARKERS_VV3", 4: "MARKERS_VV4", 5: "MARKERS_VV5"}

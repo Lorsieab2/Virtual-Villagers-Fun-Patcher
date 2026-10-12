@@ -546,7 +546,7 @@ int main(int argc, char **argv) {
             memset(stray, 0, sizeof stray);
             CHECK(write_record(game, DEATH, stray + 0x10, 1, BURIED, NULL, 1) == 0, "a record outside the table is refused");
             CHECK(write_record(game, DEATH, rec(1) + 4, 1, BURIED, NULL, 1) == 0, "a pointer inside a record is refused");
-            CHECK(write_record(game, 10, rec(1), 1, BURIED, NULL, 1) == 0
+            CHECK(write_record(game, 11, rec(1), 1, BURIED, NULL, 1) == 0
                   && write_record(game, 1, rec(1), 1, BURIED, NULL, 1) == 0, "a kind out of range is refused");
         }
         /* "Appearance changed" (kind 7): the Births and Conceptions log, unnumbered, the name and the
@@ -564,6 +564,19 @@ int main(int argc, char **argv) {
               && strstr(text, "\r\nAppearance changed\r\n  Name: ") != NULL
               && strstr(text, "  Old head: 3\r\n  Old body: 4\r\n  New head: 7\r\n  New body: 8\r\n\r\n") != NULL,
               "Appearance changed: in the Births and Conceptions log at the save, unnumbered, both looks");
+        /* "Name changed" (kind 10): a name that changed in play, recorded so it is never hidden (the
+           owner, 2026-10-11: "Iruwa Okelani" became a second "Tiki Alosaka" with no record).  The
+           Births and Conceptions log, unnumbered, held until the next save like Appearance changed. */
+        CHECK(write_record(game, 10, rec(1), 1, "  Old name: Iruwa Okelani\n  Age: 600\n", NULL, 1) == 1,
+              "a Name changed record is accepted");
+        CHECK(!read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+              || strstr(text, "\r\nName changed\r\n") == NULL,
+              "Name changed: held, not on disk before the save");
+        CHECK(ensure_village(game, VILLAGE, records) == 1, "...the save");
+        CHECK(read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+              && strstr(text, "\r\nName changed\r\n  Name: ") != NULL
+              && strstr(text, "  Old name: Iruwa Okelani\r\n  Age: 600\r\n  Head: ") != NULL,
+              "Name changed: in the Births and Conceptions log at the save, unnumbered, the old name and the looks");
 
         /* 6: the roll (VV1 only; the code is shared). */
         if (game == 1) {

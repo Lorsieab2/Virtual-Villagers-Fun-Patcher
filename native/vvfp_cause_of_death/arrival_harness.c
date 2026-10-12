@@ -949,6 +949,73 @@ static void creation_save_cases(void) {
     creation(NULL, 0, 0);
 }
 
+/* The slot's save names "Birth Tribe" (the scan at load reads it). */
+static void write_birth_tribe_save(void) {
+    static const DWORD HEADER[5] = { 12u, 12u, 12u, 24u, 24u };
+    static const DWORD LENGTH_AT[5] = { 8u, 8u, 8u, 16u, 16u };
+    static const DWORD BUFFER[5] = { 0x0ABDCu, 0x30370u, 0x12F1Cu, 0x1710Cu, 0x17D78u };
+    DWORD total = HEADER[game - 1] + BUFFER[game - 1];
+    unsigned char *data = (unsigned char *)calloc(1, total);
+    char save[MAX_PATH];
+    FILE *f;
+    memcpy(data, "ldwg", 4);
+    memcpy(data + LENGTH_AT[game - 1], &BUFFER[game - 1], 4);
+    strcpy((char *)data + HEADER[game - 1] + vv_village_name_offset(game), "Birth Tribe");
+    data[HEADER[game - 1] + vv_village_name_offset(game) + 40] = 0x7F;
+    _snprintf(save, MAX_PATH, "%s\\Virtual Villagers1.ldw", root);
+    f = fopen(save, "wb");
+    if (f) { fwrite(data, 1, total, f); fclose(f); }
+    free(data);
+}
+
+/* A BIRTH RECORD UNDER ANOTHER NAME -- a contradiction (the owner, 2026-10-11:
+   "Iruwa Okelani", Birth 252, became a second living "Tiki Alosaka", and she
+   never renamed anyone).  Zuri has the looks and the very parents of Birth 5,
+   "Iruwa", and nobody alive is called Iruwa: the backfill writes nothing for
+   Zuri -- no second Birth record -- and takes nothing as settled either, so its
+   marker is not written while the contradiction stands (the patcher asks the
+   player); Kid, with no record at all, still gets his. */
+static void contradiction_cases(void) {
+    char path[MAX_PATH], marker[MAX_PATH], before_log[1 << 13];
+    unsigned char *buffer;
+    scan_t scan_births = (scan_t)GetProcAddress(cause, "VvfpCauseScanBirths");
+    repair_t repair_births = (repair_t)GetProcAddress(cause, "VvfpCauseRepairBirths");
+    int i;
+    if (game == 1 || scan_births == NULL || repair_births == NULL) return;
+    reset(game, 1);
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    parented(0, "Kid", 4, 4);
+    parented(1, "Zuri", 8, 8);
+    births_path(1, path);
+    write_text(path,
+        "Village: Birth Tribe (Save 1)\n"
+        "Birth 5\n  Child: Iruwa\n    Head: 8\n    Body: 8\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n");
+    write_birth_tribe_save();
+    vv_village_publish("");
+    buffer = save_buffer("Birth Tribe");
+    births_marker_path(marker);
+    CHECK(scan_births(game, 1) == 1,
+          "contradiction: the scan counts Kid only, never Zuri (the looks and parents of Birth 5, \"Iruwa\")");
+    repair_births(game, 1, 1);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(has_birth_backfill("Kid", 4, 4, 6) && count_of(text, "  Child: Zuri\r\n") == 0
+          && count_of(text, "  Child: Iruwa\r\n") == 1,
+          "contradiction: Kid's Birth record is written; no second Birth record for Zuri");
+    CHECK(!file_exists(marker),
+          "contradiction: ...and nothing is taken as settled: the marker waits for the player's answer");
+    lstrcpynA(before_log, text, sizeof before_log);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(strcmp(before_log, text) == 0, "contradiction: a later save still writes nothing for Zuri");
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, "Village: Birth Tribe (Save 1)\n");
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    free(buffer);
+}
+
 static void births_cases(void) {
     char path[MAX_PATH], marker[MAX_PATH], unacc[MAX_PATH], before_log[1 << 13];
     unsigned char *buffer;
@@ -972,7 +1039,6 @@ static void births_cases(void) {
     villager(7, "Sam", 700, 3, 9, 0);
     parented(10, "Look", 3, 3);           /* born, with his Birth record */
     villager(11, "Look", 700, 3, 3, 0);   /* an arrived look-alike, no record (Codex, #536) */
-    parented(13, "Zuri", 8, 8);           /* born "Iruwa" (Birth 5), renamed since: the owner's Tiki Alosaka */
     if (game == 5) {
         parented(8, "Pagan", 7, 7);
         rec(8)[VV5_FACTION] = 1;
@@ -988,30 +1054,11 @@ static void births_cases(void) {
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Birth\n  Child: Sam\n    Head: 1\n    Body: 9\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
-        "Birth 5\n  Child: Iruwa\n    Head: 8\n    Body: 8\n    Likes: (none)\n    Dislikes: (none)\n"
-        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Birth 3\n  Child: Look\n    Head: 3\n    Body: 3\n    Likes: (none)\n    Dislikes: (none)\n"
         "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
         "Arrived 1\n  Name: Arr\n  Age at arrival: 300\n  Sex: Male\n  Head: 5\n  Body: 5\n"
         "  Likes: (none)\n  Dislikes: (none)\n  How: unknown\n\n");
-    {
-        /* The slot's save names "Birth Tribe" (the scan at load reads it). */
-        static const DWORD HEADER[5] = { 12u, 12u, 12u, 24u, 24u };
-        static const DWORD LENGTH_AT[5] = { 8u, 8u, 8u, 16u, 16u };
-        static const DWORD BUFFER[5] = { 0x0ABDCu, 0x30370u, 0x12F1Cu, 0x1710Cu, 0x17D78u };
-        DWORD total = HEADER[game - 1] + BUFFER[game - 1];
-        unsigned char *data = (unsigned char *)calloc(1, total);
-        char save[MAX_PATH];
-        FILE *f;
-        memcpy(data, "ldwg", 4);
-        memcpy(data + LENGTH_AT[game - 1], &BUFFER[game - 1], 4);
-        strcpy((char *)data + HEADER[game - 1] + vv_village_name_offset(game), "Birth Tribe");
-        data[HEADER[game - 1] + vv_village_name_offset(game) + 40] = 0x7F;
-        _snprintf(save, MAX_PATH, "%s\\Virtual Villagers1.ldw", root);
-        f = fopen(save, "wb");
-        if (f) { fwrite(data, 1, total, f); fclose(f); }
-        free(data);
-    }
+    write_birth_tribe_save();
     vv_village_publish("");
     buffer = save_buffer("Birth Tribe");
     births_marker_path(marker);
@@ -1059,9 +1106,6 @@ static void births_cases(void) {
           "births: none for Nishi (looks changed, the only one of the name), Huata (no parents), Arr (an Arrived"
           " record), a Heathen");
     CHECK(count_of(text, "born before this log existed") == 3, "births: exactly three written");
-    CHECK(count_of(text, "  Child: Zuri\r\n") == 0 && count_of(text, "  Child: Iruwa\r\n") == 1,
-          "births: a villager renamed since birth (the Birth record of his looks and his very parents, under a"
-          " name nobody carries now) gets no second Birth record");
     CHECK(file_exists(marker), "births: the marker is written once every record is on disk");
     read_into(unacc);
     CHECK(text[0] == 0 || (strstr(text, "  Name: Kid") == NULL && strstr(text, "  Name: Sam") == NULL),
@@ -1515,6 +1559,7 @@ int main(int argc, char **argv) {
         CHECK(strcmp(first, text) == 0, "...and the next save writes nothing more");
 
         births_cases();
+        contradiction_cases();
         quit_cases();
         stale_slot_cases();
         creation_save_cases();

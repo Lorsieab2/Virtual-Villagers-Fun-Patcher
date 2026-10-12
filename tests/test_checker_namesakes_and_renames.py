@@ -138,8 +138,13 @@ class Namesakes(Fixture):
         self.assertEqual(sum(t.startswith("Soda Bahati: no entry follows") for _, t in got), 2, got)
 
 
-class Renamed(Fixture):
-    def test_the_owners_tiki_born_iruwa_okelani_is_checked_against_her_own_birth(self):
+class BirthUnderAnotherName(Fixture):
+    """The owner (2026-10-11): "Iruwa Okelani" (Birth 252, head 12, body 18) became a second living
+    "Tiki Alosaka" with no rename record, and she never renamed anyone.  A checker that took that as
+    "renamed since birth: OK" hid real corruption.  It is a contradiction: ASKED, never accepted, never
+    repaired without the player's answer."""
+
+    def test_the_owners_tiki_and_iruwa_is_a_question_for_the_player(self):
         tiki = ("Tiki Alosaka", 0, 7, 3, 8)
         born = ("Iruwa Okelani", 0, 50, 12, 18)
         renamed = ("Tiki Alosaka", 0, 50, 12, 18)
@@ -149,39 +154,45 @@ class Renamed(Fixture):
                              (renamed, HOTO, TAKA)])
         got = self.lines(game)
         self.assertIn(("OK", "Tiki Alosaka: father Hoto Okelani, mother Leia Alosaka, as the Births log says"), got)
-        self.assertTrue(any(v == "OK" and t.startswith("Tiki Alosaka: father Hoto Okelani, mother Taka Powaka, as "
-                                                       "the Birth record of Iruwa Okelani says") for v, t in got), got)
-        self.assertFalse(any(v in ("UNCHECKED", "WRONG") for v, _ in got), got)
+        asked = [t for v, t in got if v == "ASK"]
+        self.assertEqual(len(asked), 1, got)
+        self.assertTrue(asked[0].startswith("Birth says Iruwa Okelani; the save says Tiki Alosaka (head 12, body 18); "
+                                            "no log records a rename. Which is right?"), asked)
+        self.assertIn("Nothing is changed until you answer", asked[0])
+        # Never accepted: no OK line takes the Birth record of Iruwa as Tiki's.
+        self.assertFalse(any(v == "OK" and "Iruwa" in t for v, t in got), got)
 
-    def test_a_villager_renamed_to_a_name_no_birth_has_is_not_wrong(self):
+    def test_the_birth_number_is_named(self):
         born = ("Iruwa Okelani", 0, 50, 12, 18)
         renamed = ("Zuri Okelani", 0, 50, 12, 18)
         living = [HOTO, TAKA, renamed]
         game = self.village(living, [(born, HOTO, TAKA)],
                             [(HOTO, None, None), (TAKA, None, None), (renamed, HOTO, TAKA)])
+        path = game / LOGS / "Births and Conceptions" / "Virtual Villagers 1 Births and Conceptions Log 1.txt"
+        path.write_text(path.read_text(encoding="latin-1").replace("\nBirth\n", "\nBirth 252\n"), encoding="latin-1")
         got = self.lines(game)
-        self.assertFalse(any(v == "WRONG" for v, _ in got), got)
-        self.assertTrue(any(t.startswith("Zuri Okelani: father Hoto Okelani, mother Taka Powaka, as the Birth "
-                                         "record of Iruwa Okelani says") for _, t in got), got)
+        self.assertFalse(any(v in ("WRONG", "OK") and t.startswith("Zuri Okelani:") for v, t in got), got)
+        self.assertTrue(any(v == "ASK" and t.startswith("Birth 252 says Iruwa Okelani; the save says Zuri Okelani")
+                            for v, t in got), got)
 
-    def test_a_birth_whose_child_still_lives_under_that_name_is_not_taken(self):
+    def test_a_birth_whose_child_still_lives_under_that_name_is_not_asked_about(self):
         born = ("Iruwa Okelani", 0, 50, 12, 18)
         other = ("Zuri Okelani", 0, 50, 12, 18)
         living = [HOTO, TAKA, born, other]
         game = self.village(living, [(born, HOTO, TAKA)],
                             [(HOTO, None, None), (TAKA, None, None), (born, HOTO, TAKA), (other, HOTO, TAKA)])
         got = self.lines(game)
-        self.assertFalse(any(t.startswith("Zuri Okelani") and "Birth record of Iruwa" in t for _, t in got), got)
+        self.assertFalse(any(v == "ASK" for v, _ in got), got)
         self.assertTrue(any(v == "WRONG" and t.startswith("Zuri Okelani") for v, t in got), got)
 
-    def test_parents_that_are_not_her_births_are_no_rename(self):
+    def test_parents_that_are_not_her_births_are_no_such_question(self):
         born = ("Iruwa Okelani", 0, 50, 12, 18)
         renamed = ("Zuri Okelani", 0, 50, 12, 18)
         living = [HOTO, LIKO, TAKA, renamed]
         game = self.village(living, [(born, HOTO, TAKA)],
                             [(HOTO, None, None), (LIKO, None, None), (TAKA, None, None), (renamed, LIKO, TAKA)])
         got = self.lines(game)
-        self.assertFalse(any("Birth record of Iruwa" in t for _, t in got), got)
+        self.assertFalse(any("Iruwa" in t for _, t in got), got)
 
 
 class StaleTitleRecords(unittest.TestCase):
@@ -210,11 +221,14 @@ class StaleTitleRecords(unittest.TestCase):
         return [(v, t) for _, v, t in rep.lines]
 
     def test_a_title_at_a_stale_record_is_its_villagers(self):
+        # Slot reuse and packing are normal (the owner's village at the 256 cap): a NOTE, and the title
+        # follows its villager's identity -- never the record number.
         got = self.run_check([TAKA, HOTO, LIKO], [(5, 1, "Helpful Spirit"), (0, 2, "Helpful Spirit")])
-        self.assertIn(("OK", "\"Helpful Spirit\" is Hoto Okelani's (record 1 now; the file still says record 5, from "
-                             "before a load packed the villagers -- the game's load moves it to them)"), got)
-        self.assertIn(("OK", "\"Helpful Spirit\" is Liko Tasunke's (record 2 now; the file still says record 0, from "
-                             "before a load packed the villagers -- the game's load moves it to them)"), got)
+        for who, now, was in (("Hoto Okelani", 1, 5), ("Liko Tasunke", 2, 0)):
+            self.assertIn(("NOTE", f"\"Helpful Spirit\" is {who}'s (record {now} now; the file still says record "
+                                   f"{was}, from before a load packed the villagers or the slot was reused -- the "
+                                   "title follows its villager's identity, and the game's load moves it to them)"),
+                          got)
 
     def test_a_title_nobody_carries_is_still_a_note(self):
         got = self.run_check([TAKA, HOTO], [(5, None, "Moon Mother")])
@@ -303,10 +317,11 @@ class RestoreNamesakes(unittest.TestCase):
         self.assertIn("Soda Bahati", work.ambiguous)
 
 
-class RenamedInTheLaterGames(unittest.TestCase):
-    """The Lost Children to New Believers keep parents on the villager: a villager renamed since birth
-    is never counted as missing a Birth record (native/parentage_export/arrival_backfill.inc, the same
-    rule: no second Birth record "recorded afterwards")."""
+class BirthUnderAnotherNameInTheLaterGames(unittest.TestCase):
+    """The Lost Children to New Believers keep parents on the villager: a villager with the looks and the
+    very parents of a Birth record under another name is never given a second Birth record "recorded
+    afterwards" -- and is never taken as settled either: a question for the player
+    (native/parentage_export/arrival_backfill.inc, the same rule)."""
 
     def villager(self, name, head, body, father, mother):
         return checker.Villager(rank=0, name=name, male=False, age=500, head=head, body=body, skills=[0] * 5,
@@ -314,12 +329,26 @@ class RenamedInTheLaterGames(unittest.TestCase):
 
     def birth(self, child, head, body, father, mother):
         return checker.LogRecord("birth", "Village: X (Save 1)", checker.Person(child, head, body),
-                                 checker.Person(mother, 1, 1), checker.Person(father, 2, 2))
+                                 checker.Person(mother, 1, 1), checker.Person(father, 2, 2), number="Birth 252")
 
-    def test_a_renamed_villager_has_her_own_birth_record(self):
+    def test_no_second_birth_record_and_a_question(self):
         zuri = self.villager("Zuri", 12, 18, "Hoto", "Taka")
         births = [self.birth("Iruwa", 12, 18, "Hoto", "Taka")]
-        self.assertEqual(checker.missing_births([zuri], births), [])
+        asked: list = []
+        self.assertEqual(checker.missing_births([zuri], births, asked), [])
+        self.assertEqual(asked, [(zuri, births)])
+
+    def test_the_report_asks_never_says_ok(self):
+        zuri = self.villager("Zuri", 12, 18, "Hoto", "Taka")
+        births = checker.BirthsLog([self.birth("Iruwa", 12, 18, "Hoto", "Taka")])
+        births.village = "Village: X (Save 1)"
+        rep = checker.Report()
+        game = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        checker.vv25_parents_vs_births([zuri], births, rep, 3, game, 1)
+        got = [(v, t) for _, v, t in rep.lines]
+        self.assertTrue(any(v == "ASK" and t.startswith("Birth 252 says Iruwa; the save says Zuri (head 12, body 18); "
+                                                       "no log records a rename. Which is right?") for v, t in got), got)
+        self.assertFalse(any(v == "OK" and "Birth or Arrived record" in t for v, t in got), got)
 
     def test_other_parents_are_no_rename(self):
         zuri = self.villager("Zuri", 12, 18, "Liko", "Taka")

@@ -192,7 +192,7 @@ class CheckLogsTests(FolderTest):
         result = tools.check_logs(folder, 1, 3)
         self.assertEqual(result.text, report.render())
         self.assertEqual(result.counts, report.counts())
-        self.assertEqual(set(result.counts), {"OK", "WRONG", "NOTE", "UNCHECKED"})
+        self.assertEqual(set(result.counts), {"OK", "WRONG", "ASK", "NOTE", "UNCHECKED"})
 
     def test_a_wrong_line_is_counted_and_summarised(self) -> None:
         checker = tools.load_checker()
@@ -204,7 +204,7 @@ class CheckLogsTests(FolderTest):
             folder = self.make_folder("huttest", 2, "Modded")
             result = tools.check_logs(folder, 1, 2)
         self.assertEqual(result.wrong, 1)
-        self.assertEqual(result.summary, "Save 1: 1 confirmed wrong (1 OK, 1 WRONG, 1 NOTE, 0 UNCHECKED).")
+        self.assertEqual(result.summary, "Save 1: 1 confirmed wrong (1 OK, 1 WRONG, 0 ASK, 1 NOTE, 0 UNCHECKED).")
 
     def test_an_empty_slot_is_refused_with_a_message(self) -> None:
         folder = self.make_folder("huttest", 5, "Modded")
