@@ -237,7 +237,7 @@
         "Fixes a bug in the original game: a pregnant villager who drinks the blue Mysterious Vial and turns back into a toddler no longer brings twins or triplets in her next pregnancy.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
-        "On the Villager Details screen, clicking the arrows quickly can no longer give one villager's name to the next one; a name you type is still kept.",
+        "On the Villager Details screen, a villager's name is only ever saved back to that villager, even when the arrows are clicked quickly; a name you type is still kept.",
         "Nothing to click. On by default."
       ]
     },
@@ -248,6 +248,7 @@
         "If \"Keep it\" is chosen with nobody else alive, the game carries on instead of closing.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Nothing to click. On by default."
       ]
     },
@@ -258,6 +259,7 @@
         "A village with exactly 150 villagers can be saved and loaded again; one already damaged that way is repaired when loaded.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Keep it on with 256 Villagers (Experimental). On by default."
       ]
     },
@@ -268,6 +270,7 @@
         "A village already damaged by that bug is repaired when it is loaded.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Only matters with a bigger population mode or 256 Villagers. On by default."
       ]
     },
@@ -619,6 +622,7 @@
         "Fixes a bug in the original game: every name in the male and female lists can now be given to a new villager (Ago, Yapili, Aipi and Zucca never could be).",
         "Villagers already named keep their names.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
+        "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Nothing to click. On by default."
       ]
     },

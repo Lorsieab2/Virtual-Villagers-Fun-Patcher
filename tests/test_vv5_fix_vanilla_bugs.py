@@ -63,6 +63,8 @@ GOLD = (0x9AA20, b"gold_dust_pour .ogg\0", b"gold_dust_pour.ogg\0\0")
 TIP_DEMO = (0xC5FF0, b"\0" * 9, b"eTipDemo\0")
 EDEMO_ENTRY = (0xD7534, bytes.fromhex("508A4A00"), bytes.fromhex("F05F4C00"))
 NEW_FIXES = (GOLD, TIP_DEMO, EDEMO_ENTRY)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from test_details_name_identity import name_identity_fixes  # noqa: E402
 SOUND_ENTRY = 0x4CE508          # {0x98, name, file, 0}
 TEXT_ENTRY = 0x4D7530           # {0x302, name, built-in text, 0}
 TEXT_TABLE = (0x4D31F0, 1409)   # 16-byte entries, as the loader 0x450A60 walks them (0x581)
@@ -101,7 +103,9 @@ class RowTests(unittest.TestCase):
         self.assertIn(FEATURE_ID, {p.id for p in load_public_fun_patches()})
         pinned = [(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                   for p in row["patches"]]
-        self.assertEqual(pinned[-3:], list(NEW_FIXES))
+        identity = list(name_identity_fixes("vv5"))     # tests/test_details_name_identity.py
+        self.assertEqual(pinned[-len(identity):], identity)
+        self.assertEqual(pinned[-len(identity) - 3:-len(identity)], list(NEW_FIXES))
         self.assertEqual(len({off for off, _, _ in pinned}), len(pinned))
         description = row["description"]
         self.assertIn("gold_dust_pour .ogg", description)
