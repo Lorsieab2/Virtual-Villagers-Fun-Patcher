@@ -22,7 +22,22 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
-## What's new in v1.35.69
+## What's new in v1.35.70
+
+Fixes from an audit of v1.35.67 to v1.35.69:
+
+- **Backups and restores keep each file's time.** Restoring an old save beside a Barrel of Babies or Story / Cheat Upgrades purchase still waiting to be delivered could deliver it with no charge in the restored save; the copies now keep their original times, so the purchase is believed only when the save really holds its charge.
+- **A queued Story / Cheat Upgrades purchase is never written over another village's file** (after a quit to the menu, the title screen's founders are not taken for the village).
+- **A New Home: a departed villager who comes back into her own record keeps her parents.**
+- **Restore A New Home Parents** uses only the copies of the parents file that describe the same village, so another village's copy can no longer give its parents to namesakes.
+- **Restore Lost Titles** numbers its Repairs Made record per game in the slot's own folder, like every other repair (no second "Repair 1").
+- **Number Duplicate Names** no longer renames a parent who is a different villager with the same name, and the lost-titles list keeps a word that ends exactly at the companion's 512-character limit.
+- **Patch every game again** after updating: the Story Upgrades and VV1 Parentage companions changed.
+
+**Not yet seen in a running game:** these fixes are covered by tests and harnesses (including a new VV1 parentage harness case for the returning villager); none has been watched in a running game yet.
+
+
+## What was new in v1.35.69
 
 - **A New Home: a village started through the intro's Skip button now writes its logs at once.** Before, its Births and Conceptions, Population, History and Statistics logs appeared only at the first quit (the game never sets that village's start time on that path, so its autosave skipped it). The patcher now makes the same save the quit makes, once, as soon as the village is on screen with its founders waiting.
 - **A two-choice Custom Island Event question on screen when you quit is kept** (all five games): after the next load it is asked again, answered once, and the tech points are charged once.
