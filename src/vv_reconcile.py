@@ -560,6 +560,7 @@ class _Builder:
                 self.slot_moved += 1
         # Who is gone from a, and who is new in b.
         unexplained_new = list(new)
+        plain_lost: list[Seen] = []
         for old in gone:
             why = self.left(old)
             if why is not None:
@@ -589,6 +590,12 @@ class _Builder:
                                   f"{old.name} is {n.name} from {b.label} on ({old.looks()}): a last name or a "
                                   "numeral given or dropped, or a name the Villager Details screen cut.")
                         continue
+                    if any(what == "Name" and o == old.name and nn == n.name
+                           for _who, what, o, nn in self.logs.event_changes):
+                        self.note("name", f"event|{old.key}|{n.name}",
+                                  f"{old.name} is {n.name} from {b.label} on ({old.looks()}): an island event "
+                                  "renamed them (the Island Events log).")
+                        continue
                     self.rename_question(old, n, a.label, b.label, self.name_record(old, n))
                 else:
                     self.ask("lost", f"lost|{old.key}|{a.when}",
@@ -597,10 +604,21 @@ class _Builder:
                              f"the same looks ({', '.join(n.name for n in same_looks)}). Which one is {old.name}, if "
                              "any?", [f"{KEEP} (left or died without a record)"] + [n.name for n in same_looks])
             else:
-                self.ask("lost", f"lost|{old.key}|{a.when}",
-                         f"{old.described()} is in {a.label} but not in {b.label}, and no Death, Disappeared, Left "
-                         "the tribe or Unaccounted record says what became of them: possibly lost.",
-                         [f"{KEEP} (they left or died without a record)"])
+                plain_lost.append(old)
+        if len(plain_lost) >= 4:
+            # Many at once (a log begun after they went, a restored save...): one question, every name.
+            names = ", ".join(s.described() for s in plain_lost[:20])
+            more = f" and {len(plain_lost) - 20} more" if len(plain_lost) > 20 else ""
+            self.ask("lost", f"lost-many|{a.when}|{b.when}|{len(plain_lost)}",
+                     f"{len(plain_lost)} villagers are in {a.label} but not in {b.label}, and no Death, Disappeared, "
+                     f"Left the tribe or Unaccounted record says what became of them: {names}{more}. Possibly lost.",
+                     [f"{KEEP} (they left or died without a record)"])
+            plain_lost = []
+        for old in plain_lost:
+            self.ask("lost", f"lost|{old.key}|{a.when}",
+                     f"{old.described()} is in {a.label} but not in {b.label}, and no Death, Disappeared, Left "
+                     "the tribe or Unaccounted record says what became of them: possibly lost.",
+                     [f"{KEEP} (they left or died without a record)"])
         for n in unexplained_new:
             if n.key in self.recorded or (b.kind == "history" and a.kind != "history"):
                 continue

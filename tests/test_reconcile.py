@@ -313,6 +313,30 @@ class Losses(Base):
                 self.assertIn("possibly lost", lost[0].text)
                 self.assertFalse(any("Departa" in f.text for f in rec.questions))
 
+    def test_many_gone_at_once_is_one_question_naming_each(self):
+        v = self.village("huttest", 2)
+        people = v.people(v.save_path(1).read_bytes())
+        ghosts = [rc.Seen(f"Ghost{k}", k, k + 1, "Male", 300 + k, frozenset(), frozenset()) for k in range(6)]
+        v.history([("2026-10-11 20:00:00", people + ghosts), ("2026-10-11 21:00:00", people)])
+        rec = rc.reconcile(v.folder, 2, 1)
+        self.assertEqual(self.topics(rec), ["lost"], [f.text for f in rec.questions])
+        for g in ghosts:
+            self.assertIn(g.name, rec.questions[0].text)
+
+    def test_an_island_event_rename_is_a_note(self):
+        v = self.village("huttest", 4)
+        original = v.save_path(1).read_bytes()
+        people = v.people(original)
+        x = people[0]
+        now = v.renamed(original, 0, "Zuri")
+        v.write_save(1, now)
+        v.history([("2026-10-11 20:00:00", people), ("2026-10-11 21:00:00", v.people(now))])
+        v.log("Island Events", "Virtual Villagers 4 Island Events Log 1.txt",
+              f"Island event 1\n  Name: {x.name} -> Zuri\n  Event: A Custom Island Event\n\n")
+        rec = rc.reconcile(v.folder, 4, 1)
+        self.assertEqual(rec.questions, [], [f.text for f in rec.questions])
+        self.assertTrue(any("an island event renamed them" in f.text for f in rec.notes))
+
     def test_looks_changed_with_no_record_are_asked_and_a_recorded_change_is_not(self):
         for game in (1, 3):
             with self.subTest(game=game):
