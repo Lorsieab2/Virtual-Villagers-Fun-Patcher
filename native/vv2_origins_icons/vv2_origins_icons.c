@@ -619,6 +619,7 @@ int __stdcall ApplyVV2EqualDivision(
     int female_count[5] = {0, 0, 0, 0, 0};
     int total = 0;
     int i, p;
+    int repaired = 0;
     unsigned int rng;
     char message[512];
     char line[128];
@@ -637,6 +638,9 @@ int __stdcall ApplyVV2EqualDivision(
             break;
         }
         who[total] = record;
+        /* Out-of-range skills are reset before they are ranked
+           (native/shared/skill_repair.h). */
+        repaired += vv_repair_int_skills(record, 0x7E4, 5);
         group[total] = *(int *)(record + VV2_SEX_OFFSET) == 1 ? 0 : 1;
         if (group[total] == 0) {
             ++male_total;
@@ -686,6 +690,7 @@ int __stdcall ApplyVV2EqualDivision(
                   (unsigned int)male_count[p], (unsigned int)female_count[p]);
         lstrcatA(message, line);
     }
+    vv_append_skill_repairs(message, repaired);
     MessageBoxA(
         GetForegroundWindow(), message, "Origins Upgrades",
         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND

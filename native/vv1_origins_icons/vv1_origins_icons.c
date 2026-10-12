@@ -7,6 +7,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
+#include "../shared/skill_repair.h" /* reset obviously corrupted (out-of-range) skills */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
@@ -2308,6 +2309,7 @@ static int vv_prefs_purchase(HWND owner, int kind) {
         kind == VV_PREFS_CLEAR ? VV_CLEAR_PREFS_COST : VV_HIGHEST_SKILL_COST);
     int jobs = kind == VV_PREFS_HIGHEST_PARENTING ? 5 : 4;
     int eligible = 0, changed = 0, set = 0, golden = 0, no_progress = 0, i, pass, s;
+    int repaired = 0, skill_base;
     int male_count[5] = {0, 0, 0, 0, 0};
     int female_count[5] = {0, 0, 0, 0, 0};
     int pref_offset, sex_offset, male_value;
@@ -2316,6 +2318,7 @@ static int vv_prefs_purchase(HWND owner, int kind) {
     static const int skill_offset[5] = { 0x3C4, 0x3C0, 0x3CC, 0x3C8, 0x3BC };
     const int tech_offset = 0xA2FC, stride = VV_RECORD_STRIDE;
     pref_offset = 0x3D0;
+    skill_base = 0x3BC;
     sex_offset = VV_GENDER_OFFSET;
     male_value = VV_GENDER_MALE;
     world = *(unsigned char **)(UINT_PTR)0x0048AEDCu;
@@ -2326,6 +2329,7 @@ static int vv_prefs_purchase(HWND owner, int kind) {
     static const int skill_offset[5] = { 0x7EC, 0x7E8, 0x7F4, 0x7F0, 0x7E4 };
     const int tech_offset = 0x2EADC, stride = 0xE48C;
     pref_offset = 0x7F8;
+    skill_base = 0x7E4;
     sex_offset = 0x538;
     male_value = 1;
     world = *(unsigned char **)(UINT_PTR)0x004997BCu;
@@ -2349,8 +2353,24 @@ static int vv_prefs_purchase(HWND owner, int kind) {
                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
+    /* Reset obviously corrupted skills (native/shared/skill_repair.h) of
+       the villagers this purchase acts on, before anything reads them.  The
+       player has confirmed; a reset stays even if nothing else changes. */
+    for (i = 0, rec = records; i < 256; ++i, rec += stride) {
+#if VV_STORY_GAME == 1
+        if (rec[VV_OCCUPIED_OFFSET] == 0 || *(const int *)(rec + 0x344) <= 0
+            || VV_IS_GOLDEN_CHILD(rec)) {
+            continue;
+        }
+#else
+        if (rec[0x30] == 0 || *(const int *)(rec + 0x52C) <= 0) {
+            continue;
+        }
+#endif
+        repaired += vv_repair_int_skills(rec, skill_base, 5);
+    }
     /* Pass 0 counts what would change; pass 1 writes, only if something
-       would.  A no-change purchase therefore writes nothing and costs
+       would.  A no-change purchase therefore writes nothing else and costs
        nothing. */
     for (pass = 0; pass < 2; ++pass) {
         for (i = 0, rec = records; i < 256; ++i, rec += stride) {
@@ -2413,6 +2433,7 @@ static int vv_prefs_purchase(HWND owner, int kind) {
                         lstrcatA(message, line);
                     }
                 }
+                vv_append_skill_repairs(message, repaired);
                 MessageBoxA(owner, message, "Origins Upgrades",
                             MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
                 return 0;
@@ -2446,6 +2467,7 @@ static int vv_prefs_purchase(HWND owner, int kind) {
 #else
     (void)golden;
 #endif
+    vv_append_skill_repairs(message, repaired);
     MessageBoxA(owner, message, "Origins Upgrades",
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;
@@ -3665,7 +3687,7 @@ static const int vv1_ed_code[5] = { 1, 4, 3, 5, 2 };
 static const int vv1_ed_skill[5] = { 0x3C4, 0x3C0, 0x3CC, 0x3C8, 0x3BC };
 #define VV1_ED_PREFERENCE 0x3D0
 
-static void vv1_equal_division_by_skill(
+static int vv1_equal_division_by_skill(
     unsigned char *records,
     int include_parenting,
     const int *male_counts,
@@ -3680,8 +3702,9 @@ static void vv1_equal_division_by_skill(
     int count = 0, seated = 0, i, s;
     unsigned int rng;
     unsigned char *rec;
+    int repaired = 0;
     if (records == NULL || male_counts == NULL || female_counts == NULL) {
-        return;   /* keep the core's round-robin */
+        return 0;   /* keep the core's round-robin */
     }
     /* The core's own eligibility, record for record: active, alive, not the
        Golden Child. */
@@ -3691,6 +3714,9 @@ static void vv1_equal_division_by_skill(
             continue;
         }
         who[count] = rec;
+        /* Out-of-range skills are reset before they are ranked
+           (native/shared/skill_repair.h). */
+        repaired += vv_repair_int_skills(rec, 0x3BC, 5);
         group[count] = *(const int *)(rec + VV_GENDER_OFFSET) == VV_GENDER_MALE ? 0 : 1;
         for (s = 0; s < VVED_MAX_SEATS; ++s) {
             skill[count * VVED_MAX_SEATS + s] = s < seats
@@ -3704,7 +3730,7 @@ static void vv1_equal_division_by_skill(
         seated += s < seats ? male_counts[s] + female_counts[s] : 0;
     }
     if (seated != count) {
-        return;   /* not the array the core walked: keep its round-robin */
+        return repaired;   /* not the array the core walked: keep its round-robin */
     }
     rng = GetTickCount() ^ (unsigned int)(UINT_PTR)records ^ 0x5EED0001u;
     vved_assign(count, seats, group, skill, quota, seat_of, &rng);
@@ -3713,6 +3739,7 @@ static void vv1_equal_division_by_skill(
             *(int *)(who[i] + VV1_ED_PREFERENCE) = vv1_ed_code[seat_of[i]];
         }
     }
+    return repaired;
 }
 #endif
 
@@ -3731,8 +3758,9 @@ int __stdcall ShowOriginsEqualDivisionResult(
     char line[192];
     int job_count = include_parenting ? 5 : 4;
     int i;
+    int repaired = 0;
 #if VV_STORY_GAME == 1
-    vv1_equal_division_by_skill(records, include_parenting, male_counts, female_counts);
+    repaired = vv1_equal_division_by_skill(records, include_parenting, male_counts, female_counts);
 #else
     (void)records;
 #endif
@@ -3757,6 +3785,7 @@ int __stdcall ShowOriginsEqualDivisionResult(
         golden_child_skipped, vv1_vpl(golden_child_skipped)
     );
     lstrcatA(message, line);
+    vv_append_skill_repairs(message, repaired);
     MessageBoxA(
         GetForegroundWindow(),
         message,

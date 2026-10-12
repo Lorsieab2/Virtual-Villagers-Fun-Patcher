@@ -152,7 +152,8 @@ enum {
     RESULT_RETAINED = 6,
     RESULT_CHARGE_UNKNOWN = 7,
     RESULT_NO_SLOT = 8,
-    RESULT_INVALID_SKILL = 9,
+    /* 9 was RESULT_INVALID_SKILL: Full Mastery now repairs a corrupted skill
+       (vv5_skill_repair_bits) instead of refusing, so nothing sends it. */
     RESULT_UNAVAILABLE = 10,
     RESULT_REMOVED = 11,
     RESULT_PURCHASED = 12,
@@ -2495,6 +2496,63 @@ static const char *vpl_uc(unsigned int n) { return n == 1 ? "Villager" : "Villag
 static const char *vpl_pos(unsigned int n) { return n == 1 ? "Villager's" : "Villagers'"; }
 
 
+/* ---- Corrupted skill values (v1.35.70) ---------------------------------------
+   The six skills are floats at +0x1C5C..+0x1C70. The stock writer 0x475730
+   (the only thing the game uses to change one) keeps them in 0..100: it stores
+   current + delta, then an ordered result above the double 100.0 at 0x4957D8
+   is replaced by the float 100.0 at 0x4980D4, and one below 0 by fldz. So a
+   NaN, an infinity, a negative value or one above 100 can only come from
+   outside the game (Cheat Engine, a damaged save). Every skill upgrade repairs
+   such a value on the Believers it acts on, after the player confirms: NaN or
+   +-infinity -> 0, below 0 -> 0, above 100 -> 100. -0.0 is a valid zero and is
+   never touched. The repair is a direct store, not the writer, which also
+   awards the skill trophies (0x413450 ids 0x20-0x27) when a value crosses 88
+   -- a repair is not progress the villager earned. The page's Full Mastery
+   routines make the same repair in assembly (build_vv5_task9_native_actions). */
+#define VV5_SKILL_MAX_BITS 0x42C80000u   /* 100.0f, the writer's clamp */
+static int vv5_skill_repair_bits(unsigned int bits, unsigned int *fixed) {
+    *fixed = bits;
+    if ((bits & 0x7FFFFFFFu) >= 0x7F800000u) {
+        *fixed = 0;                        /* NaN, +-infinity */
+        return 1;
+    }
+    if ((bits & 0x80000000u) != 0 && bits != 0x80000000u) {
+        *fixed = 0;                        /* below 0 (-0.0 is valid) */
+        return 1;
+    }
+    if (bits > VV5_SKILL_MAX_BITS && (bits & 0x80000000u) == 0) {
+        *fixed = VV5_SKILL_MAX_BITS;       /* above the game's 100 */
+        return 1;
+    }
+    return 0;
+}
+
+/* Repair one Believer's corrupted skills; returns how many were reset. */
+static int vv5_repair_skills(unsigned char *record) {
+    int s, count = 0;
+    for (s = 0; s < 6; ++s) {
+        unsigned int *slot = (unsigned int *)(record + 0x1C5C + 4 * s);
+        unsigned int fixed;
+        if (vv5_skill_repair_bits(*slot, &fixed)) {
+            *slot = fixed;
+            ++count;
+        }
+    }
+    return count;
+}
+
+/* "\r\n\r\nReset N corrupted skill value(s)." when N > 0. */
+static char *vv5_reset_line(char *p, int repaired) {
+    if (repaired > 0) {
+        p += wsprintfA(p, "\r\n\r\nReset %d corrupted skill %s.", repaired,
+                       repaired == 1 ? "value" : "values");
+    }
+    return p;
+}
+
+/* Repairs a C skill row made that its next ShowVV5Task9Result must report. */
+static int g_vv5_reset_note;
+
 /* ---- Equal Division of Labor (VV5) -------------------------------------------
    Split every eligible Believer's job-preference checkmark evenly across the
    professions: the seats per profession are the per-sex round-robin's, and
@@ -2548,6 +2606,7 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
        unchanged roster must report none. `total` still drives the per-seat
        summary, which describes the resulting division either way. */
     int changed = 0;
+    int repaired = 0;   /* corrupted skill values reset (vv5_repair_skills) */
     int i, p;
     static unsigned char *who[VVED_MAX_VILLAGERS];
     static int group[VVED_MAX_VILLAGERS];
@@ -2575,6 +2634,10 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
         if (*(int *)(record + VV5_ED_HEALTH) <= 0) {
             continue;
         }
+        /* The page calls this only after the player confirmed and the
+           balance re-check passed: repair the corrupted skills before they
+           are rated. */
+        repaired += vv5_repair_skills(record);
         who[total] = record;
         group[total] = *(int *)(record + VV5_ED_SEX) != 0;   /* 0 male, 1 female */
         if (group[total]) {
@@ -2622,10 +2685,14 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
         return 0;
     }
     if (changed == 0) {
+        vv5_reset_line(
+            message + wsprintfA(message,
+                "Every villager already has this division of labor. "
+                "No tech points have been deducted."),
+            repaired);
         MessageBoxA(
             owner,
-            "Every villager already has this division of labor. "
-            "No tech points have been deducted.",
+            message,
             "Origins Upgrades",
             MB_OK | MB_ICONINFORMATION
         );
@@ -2641,6 +2708,7 @@ __declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
                   (unsigned int)male_count[p], (unsigned int)female_count[p]);
         lstrcatA(message, line);
     }
+    vv5_reset_line(message + lstrlenA(message), repaired);
     MessageBoxA(
         owner, message, "Origins Upgrades",
         MB_OK | MB_ICONINFORMATION
@@ -2697,6 +2765,19 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
     HWND owner = GetOriginsOwner();
     char message[512];
     const char *name = action_name(action);
+    /* Corrupted skill values repaired by this purchase. The page's two Full
+       Mastery routines hand the count over in the amounts: Grant Full Mastery
+       to All packs it above the already-mastered count on success
+       (amount_b >> 16), otherwise both pass it as amount_a (0 on every path
+       that runs before the repair). The C skill rows set g_vv5_reset_note. */
+    unsigned int repaired = (unsigned int)g_vv5_reset_note;
+    g_vv5_reset_note = 0;
+    if (action == ACTION_GRANT_MASTERY_ALL && status == RESULT_SUCCESS) {
+        repaired += amount_b >> 16;
+        amount_b &= 0xFFFF;
+    } else if (action == ACTION_MASTERY || action == ACTION_GRANT_MASTERY_ALL) {
+        repaired += amount_a;
+    }
     if (owner == NULL) {
         return 0;
     }
@@ -2791,9 +2872,6 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
     case RESULT_NO_SLOT:
         lstrcpyA(message, "This villager already has full Likes slots. Running can not be added.");
         break;
-    case RESULT_INVALID_SKILL:
-        lstrcpyA(message, "Full Mastery cannot be applied because a skill is NaN, infinite, negative, or outside 0..100.\r\nNo tech points have been deducted.");
-        break;
     case RESULT_UNAVAILABLE:
         lstrcpyA(message, "This VV5 native action remains unavailable.\r\nNo tech points have been deducted.");
         break;
@@ -2816,6 +2894,7 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
         lstrcpyA(message, "The action stopped without a verified charge.");
         break;
     }
+    vv5_reset_line(message + lstrlenA(message), (int)repaired);
     MessageBoxA(
         owner,
         message,
@@ -2908,7 +2987,7 @@ __declspec(dllexport) int __stdcall ShowVV5SkillPreferenceUpgrade(unsigned int a
     int slots = vv5_slots();
     unsigned char *base = (unsigned char *)(UINT_PTR)vv5_rec_base();
     unsigned char *record;
-    int eligible = 0, changed = 0, assigned = 0, skipped = 0;
+    int eligible = 0, changed = 0, assigned = 0, skipped = 0, repaired = 0;
     int male_count[6] = { 0, 0, 0, 0, 0, 0 };
     int female_count[6] = { 0, 0, 0, 0, 0, 0 };
     int i, p;
@@ -2936,7 +3015,10 @@ __declspec(dllexport) int __stdcall ShowVV5SkillPreferenceUpgrade(unsigned int a
         ShowVV5Task9Result(action, RESULT_RECHECK, 0, 0);
         return 0;
     }
-    /* Plan first, write nothing until the whole village is known. */
+    /* Plan first, write no preference until the whole village is known. The
+       player has confirmed, so each eligible Believer's corrupted skills are
+       repaired first (vv5_repair_skills) -- not a purchase on its own; every
+       result below reports it. */
     for (i = 0, record = base; i < slots; ++i, record += VV5_SP_STRIDE) {
         int want;
         target[i] = -2;                        /* untouched */
@@ -2944,6 +3026,7 @@ __declspec(dllexport) int __stdcall ShowVV5SkillPreferenceUpgrade(unsigned int a
             continue;
         }
         ++eligible;
+        repaired += vv5_repair_skills(record);
         want = clear ? VV5_SP_NONE : vv5_sp_highest(record, parenting);
         if (!clear && want < 0) {
             ++skipped;                         /* no skill progress yet */
@@ -2973,16 +3056,18 @@ __declspec(dllexport) int __stdcall ShowVV5SkillPreferenceUpgrade(unsigned int a
         return 0;
     }
     if (changed == 0) {
-        MessageBoxA(owner,
-                    clear
-                        ? "Every villager's skill preference is already cleared. "
+        vv5_reset_line(
+            message + wsprintfA(message, "%s",
+                clear
+                    ? "Every villager's skill preference is already cleared. "
+                      "No tech points have been deducted."
+                    : assigned == 0
+                        ? "No villager has any skill progress yet. "
                           "No tech points have been deducted."
-                        : assigned == 0
-                            ? "No villager has any skill progress yet. "
-                              "No tech points have been deducted."
-                            : "Every villager already has their highest skill checked. "
-                              "No tech points have been deducted.",
-                    "Origins Upgrades", MB_OK | MB_ICONINFORMATION);
+                        : "Every villager already has their highest skill checked. "
+                          "No tech points have been deducted."),
+            repaired);
+        MessageBoxA(owner, message, "Origins Upgrades", MB_OK | MB_ICONINFORMATION);
         return 0;
     }
     for (i = 0, record = base; i < slots; ++i, record += VV5_SP_STRIDE) {
@@ -2993,6 +3078,7 @@ __declspec(dllexport) int __stdcall ShowVV5SkillPreferenceUpgrade(unsigned int a
     if (price != 0) {
         caf_charge(-price);
         if (*(volatile int *)(UINT_PTR)VV5_TECH != before - price) {
+            g_vv5_reset_note = repaired;
             ShowVV5Task9Result(action, RESULT_CHARGE_UNKNOWN, 0, 0);
             return 1;
         }
@@ -3020,6 +3106,7 @@ __declspec(dllexport) int __stdcall ShowVV5SkillPreferenceUpgrade(unsigned int a
             lstrcatA(message, line);
         }
     }
+    vv5_reset_line(message + lstrlenA(message), repaired);
     MessageBoxA(owner, message, "Origins Upgrades", MB_OK | MB_ICONINFORMATION);
     return 1;
 }

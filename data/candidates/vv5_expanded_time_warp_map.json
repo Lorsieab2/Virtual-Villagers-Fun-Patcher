@@ -4,15 +4,15 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "D19069CE5E3F09CD7BC50AA8E47DC7262A87D400B8FEDAFCA937B683C4EDC7DF"
+      "source_text_sha256": "C884F760B79451754F0086991B409A9F15CD1A42F69C7E2D536D80C957724FD4"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "434B9E1A34C378CEEB4E97A5E4C27C93AEDBE98ED0956E387B97011C5A207D5E"
+      "source_text_sha256": "4A407C9513EEC36519EE8A59F4DC75FBA2FF5BEE3301C1923C2B831EE3751255"
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "CE676C38FAB16F21E2CA4FDFC3C206FE94540B17A2BF45D17C3AF3D98DE24710"
+      "source_text_sha256": "F1B99EF74BD4DFDDB349F02842D4B2F6031B3047AA297BE57A3254F93E6FFF94"
     },
     "task9_companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -26,17 +26,17 @@
   "companion": {
     "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "destination": "VVFP Origins Icons.dll",
-    "sha256": "FE8D24CFF96C079808309F7D124858CD8EED81540CCB65E14E4099BBA5148913",
-    "size": 1854464
+    "sha256": "A187DF0DC1A80AFE2ECFB8C11BBDB185C39CA7AD4F2ADA78D0BE31B596AE0910",
+    "size": 1856000
   },
   "dependency": "vv5_enable_origins_exclusive_features",
   "page_raw": "0xF4000",
   "page_rva": "0x504000",
   "page_va": "0x904000",
   "layout": {
-    "stock_page_sha256": "5E41FBF46D323BE473211983A0CE2FABEE4962F1E2B30866C84B1E08ABEEFC38",
-    "expanded_baseline_page_sha256": "A399C9E00B7073AC7FB96BB18D152CA903908C973563AE027319E3C84051F4AF",
-    "expanded_time_warp_page_sha256": "7999393C1E34D6903CD76937A8015AD3E2C4CBFA6FC985AC8068618F738210F9",
+    "stock_page_sha256": "98029DA56907DBF713E1530EC27F92CD8CF0CAA701FC60E37286E2B07D856EE4",
+    "expanded_baseline_page_sha256": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
+    "expanded_time_warp_page_sha256": "C7C6BA0566349BBCC6385AE788BAD0B1EE17348CE4C2F978261FDDAB1242F849",
     "age_length": 652,
     "age_sha256_stock": "0BF24696E77297502FF39BE62B4D7C8A7E8A6B6D24CE0F0962BC90F1093E8E8F",
     "age_sha256_expanded": "24DFF28FE8ED815BA8C98A3551E75312FC33F885B1E232D97823166412188A62",

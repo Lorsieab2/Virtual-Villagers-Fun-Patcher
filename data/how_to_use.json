@@ -858,6 +858,7 @@
         "Give villagers last names (Choose...): by the village rule, their own rule, or Random; in the game and every log.",
         "Number duplicate names: Soda I, Soda II..., oldest first, in the game and every log.",
         "Fix grave information (Choose...): where a grave and its records differ, pick the right value or Don't know, or edit a grave.",
+        "Reset corrupted skill values: a skill no game can hold (NaN, infinite, below 0, above 100) goes to 0, or 100 when above it; ticked only when one is found.",
         "Let the game repair: play the tribe and quit from its menu (needs a patch that keeps logs).",
         "Move Old Files to New Names: moves files an older patcher named, after a backup. Only once every game playing the save has v1.35.64 or newer."
       ]

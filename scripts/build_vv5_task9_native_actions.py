@@ -1145,6 +1145,20 @@ def build_age(page: bytearray, page_va: int) -> bytes:
 
 
 def build_mastery(page: bytearray, page_va: int) -> bytes:
+    """Grant Full Mastery to the selected Believer (100,000 tech points).
+
+    The snapshot keeps each skill twice: as read ([ebp-0x40..], for the
+    post-confirm re-check) and as it will be once a corrupted value is
+    repaired ([ebp-0x58..]): NaN or +-infinity -> 0, negative (not -0.0) -> 0,
+    above 100 -> 100, the stock writer 0x475730's own 0..100 clamp
+    (vv5_skill_repair_bits in the companion). [ebp-0x24] counts the repairs.
+    If no repaired skill is below 100 there is nothing to buy: the repair is
+    stored, free, and the no-change result reports it. Otherwise the repair is
+    stored only after the confirm and the balance re-check, as plain stores
+    (the writer would award skill trophies for a value that was never
+    earned), then the writer masters what is still below 100 exactly as
+    before. Every result after a repair passes the count as amount_a for the
+    "Reset N corrupted skill values." line."""
     return put(page, page_va, "mastery", f"""
         push ebp
         mov ebp, esp
@@ -1153,6 +1167,7 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         push edi
         sub esp, 0x60
         mov dword ptr [ebp-0x20], 0
+        mov dword ptr [ebp-0x24], 0
         call 0x{page_va + OFF['resolve_current']:X}
         test eax, eax
         jz invalid
@@ -1171,14 +1186,20 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         mov edx, eax
         and edx, 0x7FFFFFFF
         cmp edx, 0x7F800000
-        jae invalid_skill
-        test edx, edx
-        jz finite
-        test eax, 0x80000000
-        jne invalid_skill
-    finite:
-        cmp edx, 0x42C80000
-        ja invalid_skill
+        jae repair_zero
+        cmp eax, 0x80000000
+        je sane
+        ja repair_zero
+        cmp eax, 0x42C80000
+        jbe sane
+        mov eax, 0x42C80000
+        jmp repaired
+    repair_zero:
+        xor eax, eax
+    repaired:
+        inc dword ptr [ebp-0x24]
+    sane:
+        mov dword ptr [ebp+edi*4-0x58], eax
         cmp eax, 0x42C80000
         je snapshot_next
         inc ebx
@@ -1187,7 +1208,18 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         cmp edi, 6
         jb snapshot
         test ebx, ebx
-        jz no_change
+        jnz needs_mastery
+        cmp dword ptr [ebp-0x24], 0
+        je no_change
+        xor edi, edi
+    free_repair:
+        mov eax, dword ptr [ebp+edi*4-0x58]
+        mov dword ptr [esi+edi*4+0x1C5C], eax
+        inc edi
+        cmp edi, 6
+        jb free_repair
+        jmp no_change
+    needs_mastery:
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x18], eax
         cmp eax, 100000
@@ -1220,6 +1252,17 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         jne recheck
         cmp eax, 100000
         jb insufficient
+        cmp dword ptr [ebp-0x24], 0
+        je repair_done
+        xor edi, edi
+    confirmed_repair:
+        mov eax, dword ptr [ebp+edi*4-0x58]
+        mov dword ptr [esi+edi*4+0x1C5C], eax
+        inc edi
+        cmp edi, 6
+        jb confirmed_repair
+        mov dword ptr [ebp-0x20], 1
+    repair_done:
         xor edi, edi
     writer_loop:
         push dword ptr [ebp-0x10]
@@ -1236,7 +1279,7 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         mov eax, dword ptr [esi+ecx*4+0x1C5C]
         cmp ecx, edi
         jb expect_mastered
-        cmp eax, dword ptr [ebp+ecx*4-0x40]
+        cmp eax, dword ptr [ebp+ecx*4-0x58]
         jne write_failure
         jmp evolving_next
     expect_mastered:
@@ -1291,7 +1334,7 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         sub eax, 100000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '1', 0)}
+        {status_call(page_va, '1', 0, 'dword ptr [ebp-0x24]')}
         jmp done
     write_failure:
         cmp dword ptr [ebp-0x20], 0
@@ -1300,11 +1343,8 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
     invalid:
         {status_call(page_va, '1', 2)}
         jmp done
-    invalid_skill:
-        {status_call(page_va, '1', 9)}
-        jmp done
     no_change:
-        {status_call(page_va, '1', 1)}
+        {status_call(page_va, '1', 1, 'dword ptr [ebp-0x24]')}
         jmp done
     insufficient:
         {status_call(page_va, '1', 3)}
@@ -1316,10 +1356,10 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
         {status_call(page_va, '1', 5)}
         jmp done
     retained:
-        {status_call(page_va, '1', 6)}
+        {status_call(page_va, '1', 6, 'dword ptr [ebp-0x24]')}
         jmp done
     charge_unknown:
-        {status_call(page_va, '1', 7)}
+        {status_call(page_va, '1', 7, 'dword ptr [ebp-0x24]')}
     done:
         add esp, 0x60
         pop edi
@@ -3411,13 +3451,16 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
     eligible living Believers (never masked Heathens), and for each of the six
     skills (+0x1C5C..+0x1C70) that is not exactly 100.0 raises it to 100.0
     (0x42C80000) through the native skill writer 0x475730 (push 100.0 - current,
-    push index). Before the confirm, a pre-scan of the same eligible villagers
-    refuses the whole purchase with RESULT_INVALID_SKILL (no charge) when any
-    skill is NaN, infinite, negative (other than -0.0) or above 100 -- the
-    Details row's own rule (build_mastery), since the native writer cannot
-    master such a value. A villager with at least one raised skill counts as
-    granted; one with none counts as already fully mastered. Charges one
-    verified 1,000,000 deduction after the shared confirm."""
+    push index). After the confirm, each eligible villager's corrupted skills
+    are first repaired with plain stores -- NaN or +-infinity -> 0, negative
+    (other than -0.0) -> 0, above 100 -> 100, the writer's own 0..100 clamp
+    (the Details row's rule, build_mastery) -- since the writer cannot master
+    a NaN; [ebp-0x20] counts them. A villager with at least one raised skill
+    counts as granted; one with none counts as already fully mastered (a
+    repair alone is not a grant, so it is never charged for). Charges one
+    verified 1,000,000 deduction after the shared confirm. The repaired count
+    reaches the result as amount_b >> 16 on success (amount_b & 0xFFFF is the
+    already-mastered count) and as amount_a otherwise."""
     return put(page, page_va, "mastery_all", f"""
         push ebp
         mov ebp, esp
@@ -3427,36 +3470,11 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         sub esp, 0x30
         mov dword ptr [ebp-0x10], 0
         mov dword ptr [ebp-0x14], 0
+        mov dword ptr [ebp-0x20], 0
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x18], eax
         cmp eax, 1000000
         jb insufficient
-        mov esi, 0x554190
-        mov ebx, {BOUND}
-    mas_check_loop:
-        cmp byte ptr [esi+0x1CD4], 0
-        je mas_check_next
-        cmp byte ptr [esi+0x1CE1], 0
-        jne mas_check_next
-        cmp byte ptr [esi+0x1CEC], 0
-        jne mas_check_next
-        cmp dword ptr [esi+0x1C40], 0
-        jle mas_check_next
-        xor edi, edi
-    mas_check_skill:
-        mov eax, dword ptr [esi+edi*4+0x1C5C]
-        cmp eax, 0x42C80000
-        jbe mas_check_skill_next
-        cmp eax, 0x80000000
-        jne invalid_skill
-    mas_check_skill_next:
-        inc edi
-        cmp edi, 6
-        jb mas_check_skill
-    mas_check_next:
-        add esi, {STRIDE}
-        dec ebx
-        jnz mas_check_loop
         push 0
         push 0
         push 21
@@ -3479,6 +3497,29 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         jne mas_next
         cmp dword ptr [esi+0x1C40], 0
         jle mas_next
+        xor edi, edi
+    mas_repair:
+        mov eax, dword ptr [esi+edi*4+0x1C5C]
+        mov edx, eax
+        and edx, 0x7FFFFFFF
+        cmp edx, 0x7F800000
+        jae mas_repair_zero
+        cmp eax, 0x80000000
+        je mas_repair_next
+        ja mas_repair_zero
+        cmp eax, 0x42C80000
+        jbe mas_repair_next
+        mov eax, 0x42C80000
+        jmp mas_repair_store
+    mas_repair_zero:
+        xor eax, eax
+    mas_repair_store:
+        mov dword ptr [esi+edi*4+0x1C5C], eax
+        inc dword ptr [ebp-0x20]
+    mas_repair_next:
+        inc edi
+        cmp edi, 6
+        jb mas_repair
         mov dword ptr [ebp-0x1C], 0
         xor edi, edi
     mas_skill:
@@ -3518,13 +3559,13 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '21', 0, 'dword ptr [ebp-0x10]', 'dword ptr [ebp-0x14]')}
+        mov eax, dword ptr [ebp-0x20]
+        shl eax, 16
+        or eax, dword ptr [ebp-0x14]
+        {status_call(page_va, '21', 0, 'dword ptr [ebp-0x10]', 'eax')}
         jmp done
     no_change:
-        {status_call(page_va, '21', 1)}
-        jmp done
-    invalid_skill:
-        {status_call(page_va, '21', 9)}
+        {status_call(page_va, '21', 1, 'dword ptr [ebp-0x20]')}
         jmp done
     insufficient:
         {status_call(page_va, '21', 3)}
@@ -3536,7 +3577,7 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         {status_call(page_va, '21', 5)}
         jmp done
     charge_unknown:
-        {status_call(page_va, '21', 7)}
+        {status_call(page_va, '21', 7, 'dword ptr [ebp-0x20]')}
     done:
         add esp, 0x30
         pop edi

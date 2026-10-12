@@ -160,7 +160,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_villager_info",
                "vv_log_decisions", "vv_log_contradictions",
-               "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore"}
+               "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
+               "vv_corrupt_skills"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -175,6 +176,8 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions",
                               "vv_log_contradictions",
+                              # Check Saves & Logs' NOTE for corrupted skill values (v1.35.70).
+                              "vv_corrupt_skills",
                               # PATCHER_VERSION: the repair copies are named for the running build.
                               "transparency"}),
             # The player's "Retroactively edit records?" No answers (vv_log_decisions).
@@ -208,6 +211,9 @@ class ReleasesLinkTests(unittest.TestCase):
                                 "vv_log_additions"}),
             # Restore A New Home Parents: the copies of the parents file, the Repairs Made note.
             ("vv1_parents_restore", {"vv_log_tools", "vv_save_backup", "vv_save_layout"}),
+            # Reset corrupted skill values (the owner, v1.35.70): the save through Last Names' reader and writer.
+            ("vv_corrupt_skills", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_tribe_rename",
+                                   "vv_save_layout"}),
             ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout", "vv_line_colours"}),
             ("vv_gdiplus", {"vv_family_tree"}),
             ("vv_line_colours", {"vv_family_tree", "vv_gdiplus"}),

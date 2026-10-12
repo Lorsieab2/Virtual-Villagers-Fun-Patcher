@@ -5,6 +5,7 @@
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
 #include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
+#include "../shared/skill_repair.h" /* reset obviously corrupted (out-of-range) skills */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
 #include "../shared/crosscheck_bridge.h" /* the cross-check: silent at load, asked only at the quit */
@@ -2612,6 +2613,7 @@ __declspec(dllexport) int __stdcall EqualDivisionOfLabor(int includeParenting) {
     static int ed_seat[VVED_MAX_VILLAGERS];
     int ed_quota[2 * VVED_MAX_SEATS];
     unsigned int ed_rng;
+    int repaired = 0;
     char message[512];
     char line[160];
     int i, k;
@@ -2652,6 +2654,9 @@ __declspec(dllexport) int __stdcall EqualDivisionOfLabor(int includeParenting) {
         female = rec[VV3_GENDER] != 0;
         if (female) female_ctr++; else male_ctr++;
         ed_who[total] = rec;
+        /* Out-of-range skills are reset before they are ranked
+           (native/shared/skill_repair.h). */
+        repaired += vv_repair_int_skills(rec, VV3_SKILL0, 5);
         ed_group[total] = female;
         for (k = 0; k < VVED_MAX_SEATS; ++k) {
             ed_skill[total * VVED_MAX_SEATS + k] = k < cyclen
@@ -2688,6 +2693,7 @@ __declspec(dllexport) int __stdcall EqualDivisionOfLabor(int includeParenting) {
         wsprintfA(line, "\r\n\r\nSkipped %u %s: is Tribal Chief.",
                   skipped, villagers_word(skipped));
         lstrcatA(message, line);
+        vv_append_skill_repairs(message, repaired);
     }
     MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
@@ -2714,6 +2720,17 @@ static const char *villagers_possessive(unsigned int n) {
     return n == 1 ? "Villager's" : "Villagers'";
 }
 
+/* A no-change outcome of Clear All Skill Preferences / Check Highest Skill,
+   with the "Reset N corrupted skill values." line when the purchase reset any
+   (native/shared/skill_repair.h); still nothing is charged. */
+static void vv3_skill_rows_no_change(const char *text, int repaired) {
+    char message[256];
+    lstrcpynA(message, text, 160);
+    vv_append_skill_repairs(message, repaired);
+    MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+}
+
 int __stdcall ClearAllSkillPreferences(void) {
     unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
     int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
@@ -2723,6 +2740,7 @@ int __stdcall ClearAllSkillPreferences(void) {
     char line[96];
     int i;
     unsigned char *r;
+    int repaired = 0;
 
     if (slots <= 0 || slots > 256) {
         slots = 0;              /* unrecognised bound: touch nothing */
@@ -2731,6 +2749,8 @@ int __stdcall ClearAllSkillPreferences(void) {
         if (r[VV3_ACTIVE] == 0) continue;
         if (r[VV3_CHIEF] != 0) continue;
         eligible++;
+        /* The purchase is confirmed: reset out-of-range skills first. */
+        repaired += vv_repair_int_skills(r, VV3_SKILL0, 5);
         if (*(int *)(r + VV3_PREF) != VV3_PREF_NONE) to_clear++;
     }
     if (eligible == 0) {
@@ -2741,11 +2761,9 @@ int __stdcall ClearAllSkillPreferences(void) {
         return 0;
     }
     if (to_clear == 0) {
-        MessageBoxA(GetForegroundWindow(),
-                    "Every villager's skill preference is already cleared. "
-                    "No tech points have been deducted.",
-                    "Origins Upgrades",
-                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        vv3_skill_rows_no_change(
+            "Every villager's skill preference is already cleared. "
+            "No tech points have been deducted.", repaired);
         return 0;
     }
     if ((unsigned int)*tech < (unsigned int)vvfp_story_price(3, CSP_COST)) {
@@ -2770,6 +2788,7 @@ int __stdcall ClearAllSkillPreferences(void) {
     wsprintfA(line, "\r\n\r\nSkipped %u %s: is Tribal Chief.",
               skipped, villagers_word(skipped));
     lstrcatA(message, line);
+    vv_append_skill_repairs(message, repaired);
     MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return (int)cleared;
@@ -2809,6 +2828,7 @@ int __stdcall CheckHighestSkill(int includeParenting) {
     char line[160];
     int i, k;
     unsigned char *r;
+    int repaired = 0;
 
     if (slots <= 0 || slots > 256) {
         slots = 0;              /* unrecognised bound: touch nothing */
@@ -2828,6 +2848,8 @@ int __stdcall CheckHighestSkill(int includeParenting) {
         if (r[VV3_ACTIVE] == 0) continue;
         if (r[VV3_CHIEF] != 0) continue;
         eligible++;
+        /* The purchase is confirmed: reset out-of-range skills first. */
+        repaired += vv_repair_int_skills(r, VV3_SKILL0, 5);
         VV3_HIGHEST_SKILL(r, best);
         if (best >= 0 && *(int *)(r + VV3_PREF) != best) changes++;
     }
@@ -2839,11 +2861,9 @@ int __stdcall CheckHighestSkill(int includeParenting) {
         return 0;
     }
     if (changes == 0) {
-        MessageBoxA(GetForegroundWindow(),
-                    "Every villager already has their highest skill checked. "
-                    "No tech points have been deducted.",
-                    "Origins Upgrades",
-                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        vv3_skill_rows_no_change(
+            "Every villager already has their highest skill checked. "
+            "No tech points have been deducted.", repaired);
         return 0;
     }
     if ((unsigned int)*tech < (unsigned int)vvfp_story_price(3, CHS_COST)) {
@@ -2886,6 +2906,7 @@ int __stdcall CheckHighestSkill(int includeParenting) {
     wsprintfA(line, "\r\n\r\nSkipped %u %s: is Tribal Chief.",
               chief, villagers_word(chief));
     lstrcatA(message, line);
+    vv_append_skill_repairs(message, repaired);
     MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return (int)changed;

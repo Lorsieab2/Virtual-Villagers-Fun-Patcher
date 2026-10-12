@@ -4228,7 +4228,7 @@
     {
      "find": "BE90415500BB96000000",
      "replace": "BE48008000BB00010000",
-     "count": 6,
+     "count": 5,
      "purpose": "Origins village-wide actions: walk the 256 records of the relocated table"
     },
     {

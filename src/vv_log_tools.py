@@ -176,6 +176,16 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
                        "Repair Saves & Logs restores them.")
         for note in cut_notes:
             report.add(f"{LOGS} (cut names)", "NOTE", note)
+    # Skill values no game can hold (the owner, v1.35.70: "reset obviously-corrupted skill values";
+    # src/vv_corrupt_skills.py): NaN, infinite, below 0 or above 100.
+    import vv_corrupt_skills
+    try:
+        corrupt = vv_corrupt_skills.survey(Path(folder), game, slot)
+    except (vv_last_names.LastNamesError, OSError, ValueError, struct.error) as exc:
+        report.add("Save (skills)", "UNCHECKED", f"could not be read ({exc})")
+    else:
+        if corrupt:
+            report.add("Save (skills)", "NOTE", vv_corrupt_skills.note(game, corrupt))
     # Records that contradict each other (src/vv_log_contradictions.py): one villager born and
     # arrived or arrived twice, a Death or Repair number used twice -- confirmed wrong, and repaired
     # by Repair Saves & Logs; what no file can prove wrong is a note.
