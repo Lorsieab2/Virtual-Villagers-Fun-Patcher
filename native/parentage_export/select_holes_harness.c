@@ -17,6 +17,18 @@
 #include <windows.h>
 #include "../shared/harness_ldw_tree.h"
 
+/* The size, in wide characters, of the buffer select_log_file writes its path
+   into: parentage_export.c's MAX_LOG_PATH, which every shipped caller uses
+   (tests/test_tribe_rename.py checks the two agree).  The harness passed a
+   MAX_PATH (260) buffer, and _snwprintf_s(destination, MAX_LOG_PATH, ...)
+   writes the LAST element of the stated size (destination[511]), not just
+   the characters it formats: with `chosen` near the top of the main thread's
+   stack, that write landed 502 bytes past it and off the end of the stack in
+   about one run in ten (where the
+   stack lands is randomised), an access violation before the first result
+   line -- and, with stdout buffered, with no output at all. */
+#define HARNESS_LOG_PATH 512
+
 /* The unit under test, exposed for the harness. */
 struct game_layout;
 int select_log_file(const struct game_layout *g, const char *village,
@@ -102,11 +114,17 @@ static int present(const wchar_t *folder, const wchar_t *stem, int number) {
 
 int main(void) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
+    /* Unbuffered: piped stdout is otherwise fully buffered, and a run that dies
+       part-way (a crash, a killed process) lost every line it had printed --
+       the test then saw a nonzero exit and not one word of which check it
+       reached.  (harness_ldw_tree_begin prints only to stderr, which is
+       unbuffered already.) */
+    setvbuf(stdout, NULL, _IONBF, 0);
     const struct game_layout *g = vv_parentage_layout(1);
     const wchar_t *stem = L"Virtual Villagers 1 Births and Conceptions Log";
     wchar_t folder[MAX_PATH];
-    wchar_t chosen[MAX_PATH];
-    wchar_t expect[MAX_PATH];
+    wchar_t chosen[HARNESS_LOG_PATH];
+    wchar_t expect[HARNESS_LOG_PATH];
     int records = 0;
     int i;
 

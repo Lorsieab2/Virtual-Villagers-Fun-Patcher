@@ -434,12 +434,34 @@ class WindowsProcessesTests(unittest.TestCase):
         self._tmp.cleanup()
 
     def _ticks(self) -> int:
+        """The child's tick count, or -1 while it cannot be read.
+
+        The child rewrites the file with open('w'), which empties it before the
+        number goes in, so a read can land in between and see "". That is not
+        a count: it once read as 0 and failed "did not resume" on a child that
+        was running (a loaded suite run). Every count the child writes is 1 or
+        more, so an empty read is retried like a locked one."""
         for _ in range(20):
             try:
-                return int(self.ticks.read_text() or 0)
+                text = self.ticks.read_text()
+                if text:
+                    return int(text)
             except (ValueError, OSError):
-                time.sleep(0.01)
+                pass
+            time.sleep(0.01)
         return -1
+
+    def _ticks_pass(self, floor: int, seconds: float = 10.0) -> int:
+        """Wait until the count passes `floor` and return it, or the last read
+        when it never does. A running child ticks every 20 ms, but a loaded
+        machine may not schedule it for a while: waiting longer can only let a
+        running process show it runs, never make a paused one look running."""
+        deadline = time.time() + seconds
+        ticks = self._ticks()
+        while ticks <= floor and time.time() < deadline:
+            time.sleep(0.05)
+            ticks = self._ticks()
+        return ticks
 
     def test_a_process_is_really_paused_and_resumed(self) -> None:
         processes = backup.WindowsProcesses()
@@ -447,13 +469,14 @@ class WindowsProcessesTests(unittest.TestCase):
         handle = processes.suspend(self.child.pid, self.exe_name)
         try:
             time.sleep(0.2)
+            # -1 here means it was paused between emptying the file and
+            # writing it; the file then stays empty, which is just as frozen.
             frozen = self._ticks()
             time.sleep(0.5)
             self.assertEqual(self._ticks(), frozen, "the process kept running")
         finally:
             processes.resume(handle)
-        time.sleep(0.5)
-        self.assertGreater(self._ticks(), frozen, "the process did not resume")
+        self.assertGreater(self._ticks_pass(frozen), frozen, "the process did not resume")
         self.assertIsNone(self.child.poll(), "the process was not closed")
 
     def test_a_process_with_another_name_is_refused(self) -> None:
@@ -461,8 +484,8 @@ class WindowsProcessesTests(unittest.TestCase):
         with self.assertRaises(backup.PauseRefused):
             processes.suspend(self.child.pid, "Virtual Villagers - A New Home - Modded.exe")
         before = self._ticks()
-        time.sleep(0.3)
-        self.assertGreater(self._ticks(), before, "a refused process must not be paused")
+        self.assertGreater(before, 0, "the child never wrote a count")
+        self.assertGreater(self._ticks_pass(before), before, "a refused process must not be paused")
 
     def test_a_process_that_cannot_be_opened_is_refused(self) -> None:
         processes = backup.WindowsProcesses()

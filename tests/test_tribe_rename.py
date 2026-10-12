@@ -791,6 +791,16 @@ class NativeReadersFollowTheNoteTests(unittest.TestCase):
 
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
     def test_the_log_selection_harness_keeps_a_renamed_village_in_its_file(self) -> None:
+        # select_log_file writes up to MAX_LOG_PATH wide characters into the
+        # caller's buffer; a smaller harness buffer crashed about one run in ten.
+        native = ROOT / "native" / "parentage_export"
+        shipped = re.search(r"MAX_LOG_PATH = (\d+)", (native / "parentage_export.c").read_text(encoding="utf-8"))
+        harness = re.search(r"#define HARNESS_LOG_PATH (\d+)",
+                            (native / "select_holes_harness.c").read_text(encoding="utf-8"))
+        self.assertIsNotNone(shipped)
+        self.assertIsNotNone(harness)
+        self.assertGreaterEqual(int(harness.group(1)), int(shipped.group(1)),
+                                "the harness's path buffer is smaller than what select_log_file writes")
         result = subprocess.run(
             ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
              str(ROOT / "scripts" / "build_select_holes_harness.ps1")],
