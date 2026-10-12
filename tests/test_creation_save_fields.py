@@ -40,8 +40,8 @@ FIELDS = {
     4: (0x41F1A0, 0x40, 0x4CB51C, 0x17114, 0x171A8, 0, 0x171C0, ("global", 0x4D6DE0)),
     5: (0x424660, 0x40, 0x4DACE0, 0x17D80, 0x17E1C, 0, 0x17E34, ("global", 0x51D358)),
 }
-# Where the start time is set when the village begins (the start-or-skip
-# scene's button in A New Home, the start-game step in the later two).
+# Where the start time is set when the village begins (the Start / "?"
+# scene's Start button in A New Home, the start-game step in the later two).
 START_WRITERS = {1: (0x41EC40, 0x200), 4: (0x41FEF0, 0x80), 5: (0x4259D0, 0x80)}
 
 
@@ -91,7 +91,7 @@ class CreationSaveFields(unittest.TestCase):
 
     def test_the_scene_field_turns_to_the_village_after_the_founders(self):
         # The founder screen's handler (VV4 0x43BC00, VV5 0x43E600) and A New
-        # Home's start-or-skip scene (0x41F310) set the village's own scene.
+        # Home's Start / "?" scene (0x41F310) set the village's own scene.
         for game, va, at in ((4, 0x43BC00, 0x43BD2F), (5, 0x43E600, 0x43E72F), (1, 0x41F310, 0x41F455)):
             _r, _l, _m, _slot, scene, main, *_rest = FIELDS[game]
             with self.subTest(game=game):
@@ -107,8 +107,10 @@ class CreationSaveFields(unittest.TestCase):
                 self.assertIn(f"0x{manager:08X}u", header)
                 self.assertIn(f"0x{slot:X}u", header)
 
-    def test_a_new_homes_skip_button_never_sets_the_start_time(self):
-        # 0x41F480 is the intro scene's command handler: command 0x3FA hides the scene and sets the
+    def test_a_new_homes_hidden_f1_key_never_sets_the_start_time(self):
+        # 0x41F480 is the intro scene's command handler; command 0x3FA is the hidden F1 key on the
+        # Start / "?" screen of a new village (there is no Skip button; apparently a leftover
+        # developer shortcut). It hides the scene and sets the
         # village's scene without touching [manager+0x9E1C], so the village is never "started" and
         # the save-all (0x41BF70) skips its slot -- and the creation save is made another way.
         code = self._code(1, 0x41F480, 0x58)
@@ -121,7 +123,7 @@ class CreationSaveFields(unittest.TestCase):
         # The Tree of Life and New Believers: the start-game step (VV4 0x41FEF0, VV5 0x4259D0) is
         # called from exactly two places, the founder screen's handler and one more, and each sets
         # the village's scene only after it: there is no way into the village that leaves the start
-        # time at 0 (A New Home's skip button has no counterpart), so they need no direct save.
+        # time at 0 (A New Home's hidden F1 key has no counterpart), so they need no direct save.
         for game, step, callers in ((4, 0x41FEF0, (0x43BD26, 0x43DBF9)), (5, 0x4259D0, (0x43E726, 0x4404D9))):
             with self.subTest(game=game):
                 read = _image(game)
