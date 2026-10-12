@@ -3787,18 +3787,22 @@
       "id": "vv5_fix_vanilla_bugs",
       "game_id": "vv5",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". The gold dust pouring sound plays: the game asked for it as \"gold_dust_pour .ogg\", with a stray space, so the sound file it ships (Sounds\\gold_dust_pour.ogg) was never found and the game wrote \"ldwSoundFx Missing File ->gold_dust_pour .ogg\" to its log each time it opened; now it asks for \"gold_dust_pour.ogg\". The game no longer writes \"String Table (sm.xml) malformed near id=\\\"eDemo\\\"\" to its log each time it opens: it looked up the demo version's population message under the name \"eDemo\", which its text file calls \"eTipDemo\"; now it uses \"eTipDemo\" (the message is for the demo version only, is never shown in the full game, and has the same words either way). **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.",
         "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
-        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before."
+        "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before.",
+        "Sound table entry 0x98 (0x4CE508): its file name string at 0x49AA20 reads \"gold_dust_pour.ogg\" instead of \"gold_dust_pour .ogg\", so the sound loads from Sounds\\gold_dust_pour.ogg.",
+        "Text table entry 0x302 (0x4D7530): its id name points at a new \"eTipDemo\" string (0x4C5FF0, in the zero tail of the read-only data section's last page) instead of \"eDemo\", the name Assets\\sm.xml uses for the same message, so the string table finds it and writes nothing to the log."
       ],
       "explicit_non_changes": [
         "The name lists themselves, a villager's sex, looks and family, and any name the player gives are the base game's own.",
         "Villagers already named keep their names.",
         "No save data, villager record layout or art is changed.",
-        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes."
+        "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes.",
+        "When the gold dust sound plays is the game's own; no sound file is added or changed.",
+        "The demo population message keeps its words (the built-in text and sm.xml's are the same) and is never shown in the full game; no other text id changes."
       ],
       "evidence_status": "static exact-build evidence: the villager naming routine's roll and the comma walk that reads the chosen name, with every list ending in a comma; the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes",
       "patches": [
@@ -3837,6 +3841,24 @@
           "before": "83FFFF74",
           "after": "83FF007C",
           "purpose": "Details screen dislikes builder 0x464A10: 'cmp edi,-1; je skip' -> 'cmp edi,0; jl skip' (same length and target), so any negative slot is skipped instead of being shown as the list's first word"
+        },
+        {
+          "offset": "0x9AA20",
+          "before": "676F6C645F647573745F706F7572202E6F676700",
+          "after": "676F6C645F647573745F706F75722E6F67670000",
+          "purpose": "sound table entry 0x98's file name (0x49AA20): \"gold_dust_pour .ogg\" (stray space; no such file) -> \"gold_dust_pour.ogg\", the file in Sounds\\"
+        },
+        {
+          "offset": "0xC5FF0",
+          "before": "000000000000000000",
+          "after": "6554697044656D6F00",
+          "purpose": "new string \"eTipDemo\" at 0x4C5FF0, in the zero tail of .rdata's last page (VirtualSize ends 0x4C568C; the raw data, mapped with the page, runs to 0x4C6000)"
+        },
+        {
+          "offset": "0xD7534",
+          "before": "508A4A00",
+          "after": "F05F4C00",
+          "purpose": "text table entry 0x302 (0x4D7530) id name: \"eDemo\" (0x4A8A50, not in Assets\\sm.xml) -> \"eTipDemo\" (0x4C5FF0), the id sm.xml has for the same demo message"
         }
       ]
     },

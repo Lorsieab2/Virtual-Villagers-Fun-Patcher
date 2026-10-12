@@ -326,6 +326,16 @@
       ]
     },
     {
+      "ids": ["vv1_game_log", "vv2_game_log", "vv3_game_log", "vv4_game_log", "vv5_game_log"],
+      "guide": [
+        "Keeps the game's own log, ldwLog.txt, in the game's save folder (Documents\\LDW\\<game executable name>\\).",
+        "Every line the game writes is added at once and kept: missing pictures and sounds, and in the later games its clock, text-file, healer and path-finding notes.",
+        "Each run starts with a \"---- Game started ----\" line.",
+        "Repeats are written once a minute with a count; at 4 MB the file becomes 'ldwLog 1.txt' (then 2, 3, ...) and a new one starts.",
+        "Nothing to click: tick it, patch, and play."
+      ]
+    },
+    {
       "ids": ["vv1_origins_village_wide_upgrades", "vv2_origins_village_wide_upgrades", "vv3_origins_village_wide_upgrades", "vv4_origins_village_wide_upgrades"],
       "guide": [
         "Adds an Upgrades button to the Tech screen (Origins Upgrades) and to the Villager Details screen (Villager Upgrades).",
