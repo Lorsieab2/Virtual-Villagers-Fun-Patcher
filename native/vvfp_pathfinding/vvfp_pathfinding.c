@@ -488,6 +488,8 @@ static __declspec(naked) void vv1_blocked_stub(void) {
 #define VV2_FIELD_BLOCKED   0x7FFEu
 #define VV2_FIELD_UNREACHED 0x7FFFu
 
+#define VV2_DESCENT_RADIUS 3   /* how far the descent looks from an unreached cell */
+
 #define VV2_FLOOD   0x41A700u
 #define VV2_DESCENT 0x41A9B0u
 
@@ -560,7 +562,6 @@ static int *__cdecl vv2_next(const unsigned int *grid, int *out, int *field,
     const unsigned short *words = (const unsigned short *)(field + 2);
     int nx;
     int ny;
-    int i;
     out[0] = -1;
     out[1] = -1;
     if (!retry) {
@@ -570,11 +571,26 @@ static int *__cdecl vv2_next(const unsigned int *grid, int *out, int *field,
         PATHFINDING_COUNT(vv2_descent_none);
         return out;
     }
-    /* The game's words, in this file's terms, for the shared helpers. */
-    for (i = 0; i < VV2_GRID * VV2_GRID; ++i) {
-        unsigned int d = words[i];
-        g_field[i] = (unsigned short)(d == VV2_FIELD_BLOCKED ? BLOCKED
-                                      : d == VV2_FIELD_UNREACHED ? UNREACHED : d);
+    /* The game's words, in this file's terms, for the shared helpers -- only
+       the cells they read: best_step looks one cell around (cx, cy) and
+       nearest_reached VV2_DESCENT_RADIUS cells, so the square of that radius
+       is all that is translated (v1.35.70).  The whole 168 x 168 field was
+       translated on every waypoint of every walker, about 6 us a call. */
+    {
+        int x0 = cx - VV2_DESCENT_RADIUS, x1 = cx + VV2_DESCENT_RADIUS;
+        int y0 = cy - VV2_DESCENT_RADIUS, y1 = cy + VV2_DESCENT_RADIUS;
+        int wx, wy;
+        if (x0 < 0) x0 = 0;
+        if (y0 < 0) y0 = 0;
+        if (x1 > VV2_GRID - 1) x1 = VV2_GRID - 1;
+        if (y1 > VV2_GRID - 1) y1 = VV2_GRID - 1;
+        for (wy = y0; wy <= y1; ++wy) {
+            for (wx = x0; wx <= x1; ++wx) {
+                unsigned int d = words[wx + wy * VV2_GRID];
+                g_field[wx + wy * VV2_GRID] = (unsigned short)(d == VV2_FIELD_BLOCKED ? BLOCKED
+                                                               : d == VV2_FIELD_UNREACHED ? UNREACHED : d);
+            }
+        }
     }
     if (g_field[cx + cy * VV2_GRID] == 1) {
         out[0] = field[0];              /* standing on the goal cell: its exact point */
@@ -582,7 +598,7 @@ static int *__cdecl vv2_next(const unsigned int *grid, int *out, int *field,
         return out;
     }
     if (g_field[cx + cy * VV2_GRID] >= BLOCKED) {
-        if (nearest_reached(g_field, VV2_GRID, VV2_GRID, cx, cy, 3, &nx, &ny)) {
+        if (nearest_reached(g_field, VV2_GRID, VV2_GRID, cx, cy, VV2_DESCENT_RADIUS, &nx, &ny)) {
             PATHFINDING_COUNT(vv2_descent_unstuck);
             out[0] = nx * VV2_CELL + VV2_CELL / 2;
             out[1] = ny * VV2_CELL + VV2_CELL / 2;

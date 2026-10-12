@@ -117,8 +117,10 @@ class BothRecordKindsTests(unittest.TestCase):
         marker it matches rather than merely that some counting happens.
         """
         # One counter for both log families: it counts the family's marker,
-        # which for the Births and Conceptions log is "Conception ".
-        counter = function(self.source, "static int count_family_records(")
+        # which for the Births and Conceptions log is "Conception ".  (Since
+        # v1.35.70 the reading is count_family_records_read; the kept result
+        # per unchanged file is in count_family_records.)
+        counter = function(self.source, "static int count_family_records_read(")
         self.assertIn("const char *marker = family_marker(family);", counter)
         self.assertIn("strncmp(line, marker, marker_length) == 0", counter)
         self.assertNotIn("Birth", counter)

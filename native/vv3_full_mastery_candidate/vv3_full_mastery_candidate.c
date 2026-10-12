@@ -1544,6 +1544,14 @@ __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
     if (rec[VV3_ACTIVE] == 0 || *(const int *)(rec + VV3_HEALTH) <= 0)
         return 0;
     fpv = vv3_mask_fingerprint(rec);
+    /* NO MASK IS STORED UNDER THIS IDENTITY: none (v1.35.70, the owner's
+       lag at 256 villagers).  Every answer below is a stored entry with this
+       fingerprint -- the group's value, the unique stored owner's -- so
+       without one the answer is 0 whatever the live records say.  Asked
+       first, it spares the live scan (a fingerprint of every record) that
+       this getter ran for every villager drawn, masked or not: 256 x 256
+       fingerprints a frame. */
+    if (!vv3_mask_has_stored_fingerprint(fpv)) return 0;
     live_idx = vv3_mask_unique_live_index(fpv);
     if (live_idx != idx) {
         /* The only duplicate exception is the count-matched, same-value group
