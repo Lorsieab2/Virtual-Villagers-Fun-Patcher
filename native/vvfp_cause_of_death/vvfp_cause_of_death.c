@@ -174,7 +174,10 @@ static const char *cod_cause_words(int cause) {
         return CAUSE_WORDS[cause + 1];
     }
     if (cause == CAUSE_NONE) {
-        return "(not recorded: the villager died while this patch was not watching -- before it was installed, or while the village was loading)";
+        /* Deaths in the load-time catch-up and in a Time Warp or Time Skip
+           are recorded (cod_vv12.inc vv12_sync): this is only a body that
+           was already lying when this patch first saw the village. */
+        return "(not recorded: the villager died while this patch was not watching -- before it was installed, or while it was turned off)";
     }
     /* No caller in any game passes anything else; should one, the log says
        what the game stored rather than guessing at words for it. */
