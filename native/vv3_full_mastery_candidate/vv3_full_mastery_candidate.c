@@ -2745,11 +2745,20 @@ int __stdcall ClearAllSkillPreferences(void) {
     if (slots <= 0 || slots > 256) {
         slots = 0;              /* unrecognised bound: touch nothing */
     }
+    /* The tech points first, as A New Home and The Lost Children check them:
+       a refused purchase changes nothing, not even a corrupted skill (review
+       of #585: the first v1.35.70 build reset them before the refusal). */
+    if ((unsigned int)*tech < (unsigned int)vvfp_story_price(3, CSP_COST)) {
+        MessageBoxA(GetForegroundWindow(), "Not enough tech points.",
+                    "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
     for (i = 0, r = rec; i < slots; ++i, r += VV3_STRIDE) {
         if (r[VV3_ACTIVE] == 0) continue;
         if (r[VV3_CHIEF] != 0) continue;
         eligible++;
-        /* The purchase is confirmed: reset out-of-range skills first. */
+        /* Confirmed and affordable: reset out-of-range skills first. */
         repaired += vv_repair_int_skills(r, VV3_SKILL0, 5);
         if (*(int *)(r + VV3_PREF) != VV3_PREF_NONE) to_clear++;
     }
@@ -2764,12 +2773,6 @@ int __stdcall ClearAllSkillPreferences(void) {
         vv3_skill_rows_no_change(
             "Every villager's skill preference is already cleared. "
             "No tech points have been deducted.", repaired);
-        return 0;
-    }
-    if ((unsigned int)*tech < (unsigned int)vvfp_story_price(3, CSP_COST)) {
-        MessageBoxA(GetForegroundWindow(), "Not enough tech points.",
-                    "Origins Upgrades",
-                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
     *tech -= vvfp_story_price(3, CSP_COST);
@@ -2843,12 +2846,20 @@ int __stdcall CheckHighestSkill(int includeParenting) {
         (out) = best_;                                                      \
     } while (0)
 
+    /* The tech points first: a refused purchase changes nothing, not even a
+       corrupted skill (as in ClearAllSkillPreferences above). */
+    if ((unsigned int)*tech < (unsigned int)vvfp_story_price(3, CHS_COST)) {
+        MessageBoxA(GetForegroundWindow(), "Not enough tech points.",
+                    "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
     for (i = 0, r = rec; i < slots; ++i, r += VV3_STRIDE) {
         int best;
         if (r[VV3_ACTIVE] == 0) continue;
         if (r[VV3_CHIEF] != 0) continue;
         eligible++;
-        /* The purchase is confirmed: reset out-of-range skills first. */
+        /* Confirmed and affordable: reset out-of-range skills first. */
         repaired += vv_repair_int_skills(r, VV3_SKILL0, 5);
         VV3_HIGHEST_SKILL(r, best);
         if (best >= 0 && *(int *)(r + VV3_PREF) != best) changes++;
@@ -2864,12 +2875,6 @@ int __stdcall CheckHighestSkill(int includeParenting) {
         vv3_skill_rows_no_change(
             "Every villager already has their highest skill checked. "
             "No tech points have been deducted.", repaired);
-        return 0;
-    }
-    if ((unsigned int)*tech < (unsigned int)vvfp_story_price(3, CHS_COST)) {
-        MessageBoxA(GetForegroundWindow(), "Not enough tech points.",
-                    "Origins Upgrades",
-                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
     *tech -= vvfp_story_price(3, CHS_COST);

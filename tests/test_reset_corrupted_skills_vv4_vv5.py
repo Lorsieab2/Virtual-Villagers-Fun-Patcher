@@ -116,6 +116,7 @@ class RepairRule(unittest.TestCase):
 VV4_STRIDE = 0x2E3C
 VV4_ACTIVE, VV4_GHOST, VV4_HEALTH, VV4_SEX = 0x1CC4, 0x1CC7, 0x1C40, 0x1B90
 VV4_SKILLS, VV4_PREF = 0x1C5C, 0x1C70
+VV4_TECH = 0x4D6F88
 
 
 def _vv4(mode: str = "collection_progression", with_256: bool = False):
@@ -161,7 +162,8 @@ class VV4TechFullMastery(unittest.TestCase):
     B = [F100, F100, F100, F100, NEG_ZERO]          # valid: -0.0 is mastered, not reset
     C = [F100, F100, _bits(150.0), F100, F100]      # full once repaired
 
-    def _village(self, proc):
+    def _village(self, proc, tech: int = 1_000_000):
+        proc.put32(VV4_TECH, tech)
         a = _vv4_villager(proc, 0, self.A)
         b = _vv4_villager(proc, 1, self.B)
         c = _vv4_villager(proc, proc.slots - 1, self.C)
@@ -217,18 +219,29 @@ class VV4TechFullMastery(unittest.TestCase):
         self.assertEqual(proc.messages, [
             "Everyone has already mastered their skills. No tech points have been deducted."])
 
-    def test_payload_result_after_the_repair_carries_the_line_once(self) -> None:
-        # Confirmed but the payload then finds the balance short: its own
-        # "Not enough tech points." reports the repair, and only once.
+    def test_a_purchase_refused_for_tech_points_changes_nothing(self) -> None:
+        # Review of #585: confirmed, but the payload will find the balance short.
+        # Nothing is reset and its "Not enough tech points." stands alone (the
+        # first v1.35.70 build reset the skills, then refused).
+        proc = _vv4()
+        a, b, c, dead, ghost = self._village(proc, tech=999_999)
+        self.assertEqual(proc.export("ConfirmOriginsVillageWide", 7), 1)
+        self.assertEqual(_vv4_skills(proc, a), self.A)
+        self.assertEqual(_vv4_skills(proc, c), self.C)
+        title = _c_string(proc, "Origins Upgrades")
+        proc.export("ShowOriginsUpgradeMessage", title, _c_string(proc, "Not enough tech points."))
+        self.assertEqual(proc.messages[-1], "Not enough tech points.")
+
+    def test_the_reset_line_is_reported_once(self) -> None:
+        # Confirmed and affordable: the next result carries the line, once.
         proc = _vv4()
         self._village(proc)
         self.assertEqual(proc.export("ConfirmOriginsVillageWide", 7), 1)
         title = _c_string(proc, "Origins Upgrades")
-        proc.export("ShowOriginsUpgradeMessage", title, _c_string(proc, "Not enough tech points."))
-        self.assertEqual(proc.messages[-1],
-                         "Not enough tech points.\r\n\r\nReset 4 corrupted skill values.")
-        proc.export("ShowOriginsUpgradeMessage", title, _c_string(proc, "Not enough tech points."))
-        self.assertEqual(proc.messages[-1], "Not enough tech points.")
+        proc.export("ShowOriginsUpgradeMessage", title, _c_string(proc, "Purchased."))
+        self.assertEqual(proc.messages[-1], "Purchased.\r\n\r\nReset 4 corrupted skill values.")
+        proc.export("ShowOriginsUpgradeMessage", title, _c_string(proc, "Purchased."))
+        self.assertEqual(proc.messages[-1], "Purchased.")
 
 
 class VV4EqualDivision(unittest.TestCase):
@@ -274,9 +287,17 @@ class VV4SkillPreferenceRows(unittest.TestCase):
         self.assertIn("if (vv_eligible(r)) repaired += vv4_repair_skills(r, 1);", self.body)
         self.assertLess(repair, self.body.index("vv4_skill_pref_scan(kind, 0,"))
 
+    def test_the_tech_points_are_checked_before_any_repair(self) -> None:
+        # Review of #585: a purchase refused for want of points changes nothing.
+        check = self.body.index("if (!vv4_can_afford(price)) {")
+        refusal = self.body.index('"Not enough tech points."')
+        self.assertLess(check, refusal)
+        self.assertLess(refusal, self.body.index("repaired += vv4_repair_skills(r, 1);"))
+        self.assertEqual(self.body.count('"Not enough tech points."'), 1)
+
     def test_every_result_after_it_reports_it(self) -> None:
-        self.assertEqual(self.body.count("vv4_reset_line("), 3)
-        for marker in ("already cleared", "Not enough tech points.", "Cleared %d %s Skill %s."):
+        self.assertEqual(self.body.count("vv4_reset_line("), 2)
+        for marker in ("already cleared", "Cleared %d %s Skill %s."):
             at = self.body.index(marker)
             self.assertIn("vv4_reset_line(", self.body[at - 60:at + 900])
 

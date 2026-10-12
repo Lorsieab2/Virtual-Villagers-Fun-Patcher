@@ -1694,6 +1694,15 @@ static char *vv4_reset_line(char *p, int repaired) {
     return p;
 }
 
+/* Whether the tech pool (0x4D6F88) holds `price`, the payload's own test.
+   A corrupted skill is reset only by a purchase that goes through: after the
+   player confirms AND this passes; a purchase refused with "Not enough tech
+   points." changes nothing at all (review of #585: the first v1.35.70 build
+   reset them before the refusal). */
+static int vv4_can_afford(int price) {
+    return *(volatile unsigned int *)(UINT_PTR)0x4D6F88u >= (unsigned int)price;
+}
+
 /* Values repaired after the player confirmed a Full Mastery purchase whose
    result the PAYLOAD shows ("Purchased.", "Not enough tech points.", ...)
    through ShowOriginsUpgradeMessage, or the village-wide result through
@@ -2059,9 +2068,11 @@ static INT_PTR CALLBACK upgrade_dialog(
                     return TRUE; /* Cancel: stay in the menu. */
                 }
             }
-            if (repair_rec != NULL) {
-                /* Confirmed: repair, then the payload masters through the
-                   native writer and its result carries the Reset line. */
+            if (repair_rec != NULL && vv4_can_afford(vvfp_story_price(4, 100000))) {
+                /* Confirmed and affordable: repair, then the payload masters
+                   through the native writer and its result carries the Reset
+                   line.  A purchase the payload will refuse for want of tech
+                   points changes nothing (vv4_can_afford). */
                 g_reset_note = vv4_repair_skills(repair_rec, 1);
             }
             if (!g_villager_menu
@@ -3484,7 +3495,13 @@ static int vv4_skill_pref_buy(int kind) {
     int price = vvfp_story_price(4, kind == SP_CLEAR ? 500000 : 1000000);
     char msg[640], *p = msg;
     HWND owner = GetForegroundWindow();
-    /* The player has just confirmed: repair the corrupted skills of the
+    /* The tech points first, as A New Home and The Lost Children check them:
+       a refused purchase changes nothing, not even a corrupted skill. */
+    if (!vv4_can_afford(price)) {
+        MessageBoxA(owner, "Not enough tech points.", "Origins Upgrades", MB_OK | VV_MB_FRONT);
+        return 0;
+    }
+    /* The player has confirmed and can pay: repair the corrupted skills of the
        villagers this row acts on (vv_eligible) before anything reads them.
        A repair is not a purchase -- the charge rules below are unchanged --
        and every result from here on reports it. */
@@ -3510,12 +3527,6 @@ static int vv4_skill_pref_buy(int kind) {
         vv4_reset_line(p, repaired);
         MessageBoxA(owner, msg, "Origins Upgrades",
                     MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
-        return 0;
-    }
-    if (*(volatile unsigned int *)(UINT_PTR)0x4D6F88u < (unsigned int)price) {
-        /* The payload's own wording for every other row. */
-        vv4_reset_line(p + wsprintfA(p, "Not enough tech points."), repaired);
-        MessageBoxA(owner, msg, "Origins Upgrades", MB_OK | VV_MB_FRONT);
         return 0;
     }
     vv4_skill_pref_scan(kind, 1, &eligible, &skipped, &assigned);
@@ -3718,10 +3729,13 @@ int __stdcall ConfirmOriginsVillageWide(int command) {
             return 0;
         }
         /* Confirmed: repair before the payload's native writer masters (it
-           cannot master a NaN). Whichever result follows -- the counted one
-           or the payload's "Not enough tech points." -- carries the line. */
-        vv_scan_mastery(1);
-        g_reset_note = vw_repairs;
+           cannot master a NaN) -- only when the payload will not refuse the
+           purchase for want of tech points; a refused one changes nothing
+           (vv4_can_afford). The counted result carries the line. */
+        if (vv4_can_afford(vvfp_story_price(4, 1000000))) {
+            vv_scan_mastery(1);
+            g_reset_note = vw_repairs;
+        }
         return 1;
     }
     if (command == 8) {

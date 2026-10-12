@@ -554,6 +554,11 @@ class VV4CompanionRepairsCorruptedSkills(unittest.TestCase):
         self.assertIn("return 0;", mastery[ok:ok + 40])
         self.assertLess(ok, mastery.rindex("vv_scan_mastery(1);"))
         self.assertIn("g_reset_note = vw_repairs;", mastery[ok:])
+        # Review of #585: and only when the payload will not refuse it for want
+        # of tech points -- a refused purchase changes nothing.
+        afford = mastery.index("if (vv4_can_afford(vvfp_story_price(4, 1000000))) {")
+        self.assertLess(ok, afford)
+        self.assertLess(afford, mastery.rindex("vv_scan_mastery(1);"))
 
     def test_details_click_repairs_after_the_confirm(self) -> None:
         handler = _c_body(self.src, "static INT_PTR CALLBACK upgrade_dialog(")
@@ -563,6 +568,10 @@ class VV4CompanionRepairsCorruptedSkills(unittest.TestCase):
         store = handler.index("g_reset_note = vv4_repair_skills(repair_rec, 1);")
         self.assertLess(confirm, store)
         self.assertLess(store, handler.index("g_last_row = row;"), "before the payload dispatch")
+        # Review of #585: only when the payload will not refuse the purchase
+        # for want of tech points (Grant Full Mastery, 100,000).
+        self.assertIn("if (repair_rec != NULL && vv4_can_afford(vvfp_story_price(4, 100000))) {",
+                      handler[confirm:store])
         # Full once repaired: repaired free, before any confirm, and the
         # already-mastered bit is set so a second click cannot charge.
         free = handler.index("vv4_skills_full_after_repair(detail_rec)")

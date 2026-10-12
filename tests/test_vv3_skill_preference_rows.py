@@ -493,6 +493,27 @@ class CorruptedSkillsAreReset(unittest.TestCase):
             "No tech points have been deducted.\r\n\r\nReset 1 corrupted skill value."
         ])
 
+    def test_a_purchase_refused_for_tech_points_changes_nothing(self) -> None:
+        """Review of #585: a reset happens only once the purchase goes through
+        -- confirmed AND affordable. Short of points: no change at all, the
+        plain "Not enough tech points." (the first v1.35.70 build reset the
+        skills, then refused)."""
+        corrupted = [{"skills": (150, -7, 20, 30, 40), "pref": 0},
+                     {"skills": (-1, 0, 0, 0, 0), "pref": -1}]
+        for export, args, tech in (("ClearAllSkillPreferences", (), 499_999),
+                                   ("CheckHighestSkill", (1,), 999_999),
+                                   ("CheckHighestSkill", (0,), 999_999),
+                                   ("EqualDivisionOfLabor", (1,), 999_999)):
+            with self.subTest(export=export, args=args):
+                emu = _Emulator()
+                emu.village(corrupted, tech=tech, bound=2)
+                self.assertEqual(emu.call(export, *args), 0)
+                self.assertEqual(self.skills(emu, 0), [150, -7, 20, 30, 40])
+                self.assertEqual(self.skills(emu, 1), [-1, 0, 0, 0, 0])
+                self.assertEqual(emu.prefs(2), [0, -1])
+                self.assertEqual(emu.i32(TECH), tech)
+                self.assertEqual(emu.messages, ["Not enough tech points."])
+
     def test_equal_division_resets_before_ranking(self) -> None:
         emu = _Emulator()
         emu.village([{"skills": (101, 0, 0, 0, 0)}, {"skills": (0, 0, 0, 0, -3), "female": True}],
