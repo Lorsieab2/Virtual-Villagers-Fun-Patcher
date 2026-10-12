@@ -864,6 +864,18 @@ static void title_screen_cases(void) {
     check(g_entries[5].father_name[0] == '\0' && g_entries[5].mother_name[0] == '\0',
           "... and the newcomer does not inherit them");
     check(file_names_alba(), "... and the file keeps them");
+
+    /* 35. A departed villager who is back in the very record she was kept under is not a new
+           arrival (audit of v1.35.69): Alba dies and, a few frames later, is on screen again in
+           record 5. */
+    write_good_sidecar();
+    memcpy(grown, village_a, sizeof(grown));
+    game_ticks(grown, 2);
+    memset(grown + 5u * VV1_RECORD_STRIDE, 0, VV1_RECORD_STRIDE);
+    game_ticks(grown, 3);
+    put(grown, 5, "Alba", 0, 13);
+    game_ticks(grown, 3);
+    check(loaded_alba() && file_names_alba(), "a departed villager back in her own record keeps her parents");
     fresh();
 }
 

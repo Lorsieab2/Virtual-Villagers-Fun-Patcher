@@ -109,6 +109,7 @@ class Vv1ParentageSidecarHarnessTests(unittest.TestCase):
             "a villager who grows up keeps her parents in the table and the file",
             "... and made young again, her parents are there for the Details screen",
             "a dead villager's parents are kept when someone else takes her record",
+            "a departed villager back in her own record keeps her parents",
             "... and the newcomer does not inherit them",
             "a parent change whose save fails is refused",
             "... and the table keeps the parents it had",
