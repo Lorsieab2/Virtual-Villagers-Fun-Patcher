@@ -211,7 +211,11 @@ static int harness_docs_make(void) {
     char temp[MAX_PATH];
     if (!harness_docs_made) {
         if (GetTempPathA(MAX_PATH, temp) == 0) return 0;
-        _snprintf(harness_docs_a, MAX_PATH, "%svvfp_harness_docs_%lu_%lu", temp, GetCurrentProcessId(),
+        /* Short and of one fixed length ("vvhd_" + 16 hex digits): the harnesses' files sit four
+           folders below it with ANSI MAX_PATH buffers, and a decimal process id and tick count
+           grew the path past 260 characters on a machine up for a few days (the reconcile
+           harness's counters backup then read as missing). */
+        _snprintf(harness_docs_a, MAX_PATH, "%svvhd_%08lX%08lX", temp, GetCurrentProcessId(),
                   GetTickCount());
         harness_docs_a[MAX_PATH - 1] = '\0';
         if (MultiByteToWideChar(CP_ACP, 0, harness_docs_a, -1, harness_docs_w, MAX_PATH) == 0) return 0;

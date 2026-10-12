@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -104,7 +105,7 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
         if not docs.is_dir():
             docs = Path(os.path.expanduser("~")) / "Documents" / "LDW"
         before = sorted(p.name for p in docs.iterdir()) if docs.is_dir() else None   # read-only
-        tmp_before = set(Path(tempfile.gettempdir()).glob("vvfp_harness_docs_*"))
+        tmp_before = set(Path(tempfile.gettempdir()).glob("vvhd_*"))
         result = subprocess.run(
             ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(BUILD_PARENTAGE)],
             capture_output=True, text=True,
@@ -112,8 +113,20 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout[-2000:] + result.stderr[-1000:])
         after = sorted(p.name for p in docs.iterdir()) if docs.is_dir() else None
         self.assertEqual(before, after)
-        self.assertEqual(set(Path(tempfile.gettempdir()).glob("vvfp_harness_docs_*")) - tmp_before, set(),
+        self.assertEqual(set(Path(tempfile.gettempdir()).glob("vvhd_*")) - tmp_before, set(),
                          "the throwaway Documents is removed at exit")
+
+    def test_the_throwaway_documents_name_is_short_and_of_fixed_length(self) -> None:
+        """The harnesses keep their files four folders below the throwaway Documents, in ANSI
+        MAX_PATH buffers; a name built from a decimal process id and tick count grew with the
+        machine's uptime and pushed the reconcile harness's counters backup past 260 characters."""
+        header = (ROOT / "native" / "shared" / "harness_redirect_documents.h").read_text(encoding="utf-8")
+        self.assertIn('"%svvhd_%08lX%08lX", temp, GetCurrentProcessId(),', header)
+        self.assertNotIn("vvfp_harness_docs_", header)
+        longest = ("Virtual Villagers Fun Patcher Data\\Copies Made Before Repairs\\Virtual Villagers Fun "
+                   "Patcher Data\\Village Statistics\\Village Statistics - Save 1.dat.before-v1.35.58-repair")
+        docs = Path(tempfile.gettempdir()) / ("vvhd_" + "F" * 16)
+        self.assertLess(len(str(docs / "LDW" / "reconcile_harness" / longest)), 260)
 
     def test_each_ldw_harness_cleans_up_from_its_first_statement(self) -> None:
         for path in _harnesses():
@@ -198,7 +211,7 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
         if not docs.is_dir():
             docs = Path(os.path.expanduser("~")) / "Documents" / "LDW"
         before = sorted(p.name for p in docs.iterdir()) if docs.is_dir() else None   # read-only
-        tmp_before = set(Path(tempfile.gettempdir()).glob("vvfp_harness_docs_*"))
+        tmp_before = set(Path(tempfile.gettempdir()).glob("vvhd_*"))
         for script in ("build_death_log_harness.ps1", "build_vv5_mask_identity_harness.ps1"):
             with self.subTest(script=script):
                 result = subprocess.run(
@@ -209,7 +222,7 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stdout[-2000:] + result.stderr[-1000:])
         after = sorted(p.name for p in docs.iterdir()) if docs.is_dir() else None
         self.assertEqual(before, after)
-        self.assertEqual(set(Path(tempfile.gettempdir()).glob("vvfp_harness_docs_*")) - tmp_before, set(),
+        self.assertEqual(set(Path(tempfile.gettempdir()).glob("vvhd_*")) - tmp_before, set(),
                          "the throwaway Documents is removed at exit")
 
     def test_every_harness_that_can_reach_documents_is_redirected(self) -> None:
