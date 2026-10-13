@@ -235,6 +235,12 @@ class VirtualList(ttk.Frame):
     def _resized(self, event: tk.Event) -> None:
         if event.width == self._width:          # only a real width change lays out again
             return
+        if self._width >= 2:
+            # Heights were measured at the old width, so every row is drawn and measured again.
+            for index in list(self._drawn):
+                self._drawn.pop(index).destroy()
+            self._placed.clear()
+            self._heights = [None] * len(self._rows)
         self._width = event.width
         self._refresh()
 
