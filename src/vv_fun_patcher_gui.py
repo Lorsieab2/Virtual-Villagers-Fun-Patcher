@@ -200,7 +200,15 @@ class VirtualList(ttk.Frame):
     """
 
     def __init__(self, parent, rows: list, build_row) -> None:
-        super().__init__(parent, height=VIRTUAL_VIEW_PX)
+        # The sizes below are in pixels at 96 dpi and scale with the display, like the rest
+        # of the window (Tk's scaling is points-to-pixels; 96 dpi is 0.75 points per pixel).
+        scale = float(parent.tk.call("tk", "scaling")) / (96 / 72)
+        self._view = round(VIRTUAL_VIEW_PX * scale)
+        self._margin = round(VIRTUAL_MARGIN_PX * scale)
+        self._guess = round(VIRTUAL_ROW_GUESS_PX * scale)
+        self._unit = max(1, round(VIRTUAL_UNIT_PX * scale))
+        self._default_width = round(VIRTUAL_DEFAULT_WIDTH_PX * scale)
+        super().__init__(parent, height=self._view)
         self.pack_propagate(False)
         self._rows = rows
         self._build_row = build_row
@@ -224,7 +232,7 @@ class VirtualList(ttk.Frame):
         if args[0] == "moveto":
             self._offset = int(float(args[1]) * total)
         elif args[0] == "scroll":
-            step = int(VIRTUAL_VIEW_PX * 0.9) if args[2] == "pages" else VIRTUAL_UNIT_PX
+            step = int(self._view * 0.9) if args[2] == "pages" else self._unit
             self._offset += int(args[1]) * step
         self._refresh()
 
@@ -246,7 +254,7 @@ class VirtualList(ttk.Frame):
     def _layout(self) -> tuple[list[int], int]:
         """Top edge of every row, and the height of the whole list."""
         measured = [height for height in self._heights if height is not None]
-        guess = sum(measured) // len(measured) if measured else VIRTUAL_ROW_GUESS_PX
+        guess = sum(measured) // len(measured) if measured else self._guess
         tops: list[int] = []
         total = 0
         for height in self._heights:
@@ -286,16 +294,17 @@ class VirtualList(ttk.Frame):
         """One pass: draw the rows near the view, measure them, and place every drawn row."""
         # Before the list is mapped its width is 1 px, and rows drawn that
         # narrow squeeze their descriptions into a feedback loop of heights.
-        width = self._width if self._width >= 2 else VIRTUAL_DEFAULT_WIDTH_PX
+        width = self._width if self._width >= 2 else self._default_width
+        def visible(tops: list[int], total: int) -> set[int]:
+            low = self._offset - self._margin
+            high = self._offset + self._view + self._margin
+            bottoms = tops[1:] + [total]
+            return {index for index in range(len(self._rows))
+                    if tops[index] < high and bottoms[index] > low}
+
         tops, total = self._layout()
         self._clamp(total)
-        low = self._offset - VIRTUAL_MARGIN_PX
-        high = self._offset + VIRTUAL_VIEW_PX + VIRTUAL_MARGIN_PX
-        bottoms = tops[1:] + [total]
-        wanted = {
-            index for index in range(len(self._rows))
-            if tops[index] < high and bottoms[index] > low
-        }
+        wanted = visible(tops, total)
         for index in [index for index in self._drawn if index not in wanted]:
             self._undraw(index)
         fresh = [index for index in sorted(wanted) if index not in self._drawn]
@@ -319,13 +328,17 @@ class VirtualList(ttk.Frame):
                 self._heights[index] = self._drawn[index].winfo_reqheight()
             tops, total = self._layout()
             self._clamp(total)
+            # The rows were chosen with guessed heights: when the measured ones put other rows
+            # in view, another pass draws them.
+            if visible(tops, total) - set(self._drawn):
+                self._again = True
         for index, frame in self._drawn.items():
             place = (tops[index] - self._offset, width)
             if self._placed.get(index) != place:
                 frame.place(x=0, y=place[0], width=width)
                 self._placed[index] = place
         first = self._offset / total
-        last = min(1.0, (self._offset + VIRTUAL_VIEW_PX) / total)
+        last = min(1.0, (self._offset + self._view) / total)
         self.scrollbar.set(first, last)
 
     def _undraw(self, index: int) -> None:
@@ -342,7 +355,7 @@ class VirtualList(ttk.Frame):
         self._placed.pop(index, None)
 
     def _clamp(self, total: int) -> None:
-        self._offset = min(max(0, self._offset), max(0, total - VIRTUAL_VIEW_PX))
+        self._offset = min(max(0, self._offset), max(0, total - self._view))
 
 
 def owners_default_fun_patch_selection(patch_id: str) -> bool:
