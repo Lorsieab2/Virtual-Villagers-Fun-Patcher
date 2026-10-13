@@ -168,6 +168,13 @@ class CustomTitlesFile(unittest.TestCase):
         # Review of 3f176ddd: only when the event changed age or a skill; the stored values only go down;
         # a failed publish rolls the bases back; nothing before the table was followed.
         self.assertIn("ce_age_or_skills_changed(e->game, record, &looks_before)", custom)
+        # Order inside ce_apply: the title's looks are read before the first villager field write, and the
+        # rebase runs after it (it compares the looks before and after that write).
+        start = custom.index("static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {")
+        body = custom[start:custom.index("\n}\n", start)]
+        first_write = body.index("ce_apply_fields(a, record, c, r)")
+        self.assertLess(body.index("story_title_looks(e->game, record, &looks_before)"), first_write)
+        self.assertGreater(body.index("titles_rebase(e->game, c->index)"), first_write)
         self.assertIn("titles_skill_lower(", store)
         # v1.35.73: a rebase before the first follow runs the lookup's follow first.
         self.assertIn("titles.game != game || !titles.loaded || titles.slot <= 0 || record == NULL", store)
