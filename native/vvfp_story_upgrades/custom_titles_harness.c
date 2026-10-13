@@ -628,6 +628,48 @@ int main(void) {
               && titles.entries[0].looks.skills[0] == 20, "a record with no title leaves other entries alone");
     }
 
+    /* v1.35.72: A CHANGE APPEARANCE AND A LOG IN THE SAME FRAME.  The file
+       still holds the old head and body until the next tick republishes
+       them; a Death or Disappeared record written in between compares the
+       villager's new looks against those and leaves the title out.  Origins'
+       Change Appearance now tells the companion in the same call that logs
+       it, and the file is published before that call returns. */
+    {
+        int told;
+        for (told = 0; told < 2; ++told) {
+            vv_title_looks stored;
+            new_session();
+            DeleteFileA(path1);
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+            titles_tick(3);
+            titles_set(3, 1, "Kai Title");
+            titles_tick(3);
+            looks(1, 1, 500, 7, 8, 20);                          /* Change Appearance: head 3 -> 7, body 4 -> 8 */
+            if (told) {
+                check(VvfpStoryAppearanceChanged(3, g_records[1], 7, 8) == 1, "the companion is told of the new looks");
+            }
+            new_session();                                       /* what a log written now reads: the file */
+            titles_sync(3);
+            stored = titles.entries[0].looks;
+            check(told ? stored.head == 7 && stored.body == 8 && stored.age == 500 && stored.skills[0] == 20
+                       : stored.head == 3 && stored.body == 4,
+                  told ? "A CHANGE APPEARANCE IS IN THE FILE AT ONCE: A LOG IN THE SAME FRAME COMPARES THE NEW LOOKS"
+                       : "... without it the file keeps the old looks until the next tick");
+        }
+        /* A villager with no title, or another record's, leaves the file alone. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(3);
+        titles_set(3, 1, "Kai Title");
+        titles_tick(3);
+        looks(0, 1, 100, 5, 6, 1);
+        check(VvfpStoryAppearanceChanged(3, g_records[0], 5, 6) == 1 && titles.entries[0].looks.head == 3,
+              "a villager with no title leaves every entry alone");
+    }
+
     /* Twins identical in everything: whose the title is can never be told
        while both live -- it stays pending, and the reconciliation asks. */
     new_session();

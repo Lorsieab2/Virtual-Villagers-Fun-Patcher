@@ -170,6 +170,23 @@ class CustomTitlesFile(unittest.TestCase):
                      "an unannounced lowering (nobody told the companion) is shown on nobody"):
             with self.subTest(case=case):
                 self.assertIn(case, text)
+    def test_change_appearance_re_stores_the_titles_head_and_body_before_any_log_reads_them(self):
+        # v1.35.72: a log written in the same frame as a Change Appearance read the file's old head
+        # and body and left the title out until the next tick; Origins' appearance log now tells the
+        # companion first (only when it is already loaded), and the file is published at once.
+        log = (ROOT / "native" / "shared" / "appearance_log.h").read_text(encoding="utf-8")
+        self.assertIn('GetModuleHandleA("VVFP Story Upgrades.dll")', log)
+        self.assertIn('"VvfpStoryAppearanceChanged"', log)
+        self.assertLess(log.index('"VvfpStoryAppearanceChanged"'), log.index("write_record(game, VV_KIND_APPEARANCE"))
+        store = STORE.read_text(encoding="utf-8")
+        self.assertIn("static int titles_appearance_changed(int game, const unsigned char *record, int head, int body) {", store)
+        self.assertIn("VvfpStoryAppearanceChanged(int game, const void *record, int head, int body)", store)
+        for name in ("vvfp_story_upgrades.def", "vvfp_story_upgrades_test.def"):
+            with self.subTest(name):
+                self.assertIn("VvfpStoryAppearanceChanged=_VvfpStoryAppearanceChanged@16",
+                              (ROOT / "native" / "vvfp_story_upgrades" / name).read_text(encoding="utf-8"))
+        text = HARNESS.read_text(encoding="utf-8")
+        self.assertIn("A CHANGE APPEARANCE IS IN THE FILE AT ONCE: A LOG IN THE SAME FRAME COMPARES THE NEW LOOKS", text)
     def test_an_ambiguous_title_is_kept_pending_never_dropped(self):
         """v1.35.70, the owner: a title is never dropped because its villager became ambiguous after
         a reload; it is kept pending (shown on nobody) and bound again only by the whole identity."""

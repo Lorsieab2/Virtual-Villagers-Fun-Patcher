@@ -360,6 +360,41 @@ static int titles_rebase(int game, int index) {
     return titles_commit();
 }
 
+/* Origins' Change Appearance just gave the villager in `record` a new head
+   and body (native/shared/appearance_log.h tells us in the same call that
+   logs it).  The title's stored head and body follow at once, published
+   before the call returns: a log written in the same frame -- a Death, a
+   Disappeared record -- reads the file, and with the old head and body in it
+   would find nobody who "could be" the entry and leave the title out until
+   the next tick republished it (v1.35.72).  Only the entry bound to this very
+   record and identity moves, and only its head and body: the age and skills
+   stay as they were first seen.  Returns 1 when there was nothing to follow
+   or the followed table is published; 0 when it could not be (the table is
+   then left as it was). */
+static int titles_appearance_changed(int game, const unsigned char *record, int head, int body) {
+    int index = record != NULL ? story_record_index(game, record) : -1;
+    int i;
+    titles_sync(game);
+    /* Not before the table has been followed against the village on screen:
+       a table just read from its file may still hold a twin's record. */
+    if (index < 0 || !titles.loaded || titles.slot <= 0 || !titles.roster_anyone) {
+        return 1;
+    }
+    i = titles_find((unsigned int)index);
+    if (i < 0 || !(titles.entries[i].flags & VV_TITLE_KNOWN)
+        || titles.entries[i].fingerprint != story_title_identity(game, record)
+        || (titles.entries[i].looks.head == head && titles.entries[i].looks.body == body)) {
+        return 1;
+    }
+    titles_reset_detected();
+    titles_before.count = titles.count;
+    memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
+    memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
+    titles.entries[i].looks.head = head;
+    titles.entries[i].looks.body = body;
+    return titles_commit();
+}
+
 /* Could the villager in record `r` be the one entry `e` belongs to?  Present,
    the fingerprint (name, likes, dislikes), and -- once the entry's looks are
    known -- the same head, body and sex, and no younger and no less skilled
@@ -829,5 +864,17 @@ __declspec(dllexport) int __stdcall VvfpStoryCustomTitle(int game, const void *r
     if (title != NULL) {
         lstrcpynA(out, title, size);
     }
+    return 1;
+}
+
+/* Called by Origins' Change Appearance (native/shared/appearance_log.h) when
+   a villager's head and body change, only when this companion is already
+   loaded: the title's stored head and body follow at once (see
+   titles_appearance_changed).  Always 1; never changes the villager. */
+__declspec(dllexport) int __stdcall VvfpStoryAppearanceChanged(int game, const void *record, int head, int body) {
+    if (game < 1 || game > 5 || record == NULL) {
+        return 1;
+    }
+    (void)titles_appearance_changed(game, (const unsigned char *)record, head, body);
     return 1;
 }
