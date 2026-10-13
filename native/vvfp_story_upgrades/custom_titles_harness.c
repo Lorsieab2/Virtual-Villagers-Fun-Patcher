@@ -222,8 +222,8 @@ static long file_size(const char *path) {
 }
 
 static void titles_path(int slot, char *out) {
-    wsprintfA(out, "%s\\Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save %d.dat",
-              g_root, slot);
+    _snprintf_s(out, MAX_PATH, _TRUNCATE,
+                "%s\\Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save %d.dat", g_root, slot);
 }
 
 /* A new session: the table starts empty and loads from disk. */
@@ -240,6 +240,37 @@ static int title_index(const char *title) {
         }
     }
     return -2;
+}
+
+/* The longest path under the root: "\Virtual Villagers Fun Patcher Data\Custom Titles\Custom Titles -
+   Save 1.dat" and its ".unreadable-*" set-aside names, with room to spare. */
+#define HARNESS_ROOT_RESERVE 128
+
+/* The save folder root: <GetTempPath>\vvfp_titles_harness_<pid>.  A %TEMP% so long that the files under
+   it would pass MAX_PATH is tried in its short (8.3) form; if that is still too long the harness says
+   so and stops, instead of failing every check on a path that does not fit (review of 3f176ddd). */
+static int make_root(void) {
+    char temp[MAX_PATH];
+    char shorter[MAX_PATH];
+    DWORD n = GetTempPathA(MAX_PATH, temp);
+    if (n == 0 || n >= MAX_PATH) {
+        printf("%%TEMP%% is unreadable or longer than MAX_PATH: the harness cannot run\n");
+        return 0;
+    }
+    if (n + 40 + HARNESS_ROOT_RESERVE >= MAX_PATH) {
+        DWORD s = GetShortPathNameA(temp, shorter, MAX_PATH);
+        if (s > 0 && s < n) {
+            lstrcpyA(temp, shorter);
+            n = s;
+        }
+    }
+    if (n + 40 + HARNESS_ROOT_RESERVE >= MAX_PATH) {
+        printf("%%TEMP%% (%s, %lu characters) is too long for the files under it to fit MAX_PATH:"
+               " the harness cannot run\n", temp, (unsigned long)n);
+        return 0;
+    }
+    _snprintf_s(g_root, MAX_PATH, _TRUNCATE, "%svvfp_titles_harness_%lu", temp, GetCurrentProcessId());
+    return CreateDirectoryA(g_root, NULL) || GetLastError() == ERROR_ALREADY_EXISTS;
 }
 
 static void write_bytes(const char *path, const void *data, DWORD size) {
@@ -260,10 +291,10 @@ int main(void) {
     HANDLE h;
     DWORD got = 0;
 
-    wsprintfA(g_root, "%s", "");
-    GetTempPathA(MAX_PATH, g_root);
-    wsprintfA(g_root + lstrlenA(g_root), "vvfp_titles_harness_%lu", GetCurrentProcessId());
-    CreateDirectoryA(g_root, NULL);
+    if (!make_root()) {
+        printf("\n1 failure(s)\n");
+        return 2;
+    }
     printf("save folder: %s\n\n", g_root);
     titles_path(1, path1);
     titles_path(2, path2);
@@ -326,7 +357,7 @@ int main(void) {
         WIN32_FIND_DATAA found;
         char pattern[MAX_PATH];
         HANDLE f;
-        wsprintfA(pattern, "%s.unreadable-*", path1);
+        _snprintf_s(pattern, MAX_PATH, _TRUNCATE, "%s.unreadable-*", path1);
         f = FindFirstFileA(pattern, &found);
         check(f != INVALID_HANDLE_VALUE, "THE INVALID FILE IS MOVED ASIDE, NOT OVERWRITTEN");
         if (f != INVALID_HANDLE_VALUE) {
