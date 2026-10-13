@@ -234,7 +234,7 @@ def read_titles_file(path: Path, game: int) -> list:
     return [e for e in got[1] if not e.pending and e.title.strip()]
 
 
-def _file_titles(folder: Path, game: int, slot: int) -> tuple[dict[tuple, str], dict[tuple, int]] | None:
+def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:
     """Each villager the save holds with a Custom title in the titles file, by (name, head, body),
     as the game's load matches it (story_titles.inc titles_follow): an entry is the one villager the
     save holds with its identity (the name, likes and dislikes -- vv_title_identity) who could be them
@@ -267,27 +267,16 @@ def _file_titles(folder: Path, game: int, slot: int) -> tuple[dict[tuple, str], 
             chosen.setdefault(could[0].at, []).append(e.title.strip())
     # The tab finds a villager by (name, head, body).  Villagers who share all three can not be shown
     # apart by it, so a key they share is decided only when every one of them has the same title (or
-    # none); otherwise it is nobody's here and `shared` says how many share it (v1.35.72) -- the file
+    # none); otherwise it is nobody's here (village_titles says how many share it, v1.35.72) -- the file
     # still gives each their own title in the game and the logs.
     by_key: dict[tuple, list[str]] = {}
     for v in held:
         titles = chosen.get(v.at, [])
         by_key.setdefault(v.identity, []).append(titles[0] if len(titles) == 1 else "")
-    out = {}
-    shared = {}
-    for key, found in by_key.items():
-        if len(found) > 1:
-            shared[key] = len(found)
-        out[key] = found[0] if len(set(found)) == 1 else ""
+    out = {key: found[0] if len(set(found)) == 1 else "" for key, found in by_key.items()}
     # Everyone the save holds is decided by the file: no entry, no title.
-    return out, shared
+    return out
 
-
-def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:
-    """The Custom title of each villager the save holds, by (name, head, body) (see `_file_titles`),
-    or None when the file or the save cannot be read (the logs then say)."""
-    got = _file_titles(folder, game, slot)
-    return None if got is None else got[0]
 
 def log_titles(folder: Path, game: int, slot: int) -> dict[tuple, dict]:
     """Each villager's Custom title and Special villager title as their latest record says: the
@@ -339,9 +328,18 @@ def village_titles(folder: Path, game: int, slot: int) -> dict[tuple, dict]:
 
 
 def shared_looks(folder: Path, game: int, slot: int) -> dict[tuple, int] | None:
-    """How many villagers the save holds share each (name, head, body); None when it cannot be read."""
-    got = _file_titles(folder, game, slot)
-    return None if got is None else got[1]
+    """How many villagers the save holds share each (name, head, body), counted from the save alone --
+    whether or not there is a Custom Titles file (v1.35.72, review: with no file the tab used to show
+    two look-alikes the same Special title).  None when the save cannot be read."""
+    import vv_last_names as ln
+    try:
+        held = ln.living(Path(folder), game, slot, bodies=True)
+    except (OSError, ln.LastNamesError, ValueError, IndexError, struct.error):
+        return None
+    counts: dict[tuple, int] = {}
+    for v in held:
+        counts[v.identity] = counts.get(v.identity, 0) + 1
+    return {key: n for key, n in counts.items() if n > 1}
 
 
 def titles_of(village: gen.Village, titles: dict, p: gen.Person) -> dict:
