@@ -328,21 +328,25 @@ static unsigned int titles_skill_lower(unsigned int a, unsigned int b, int skill
     return (skills_float ? vv_title_skill_float(b) < vv_title_skill_float(a) : (int)b < (int)a) ? b : a;
 }
 
-/* The villager in record `index` was just given a new age and / or skills by
-   a custom event (Villager changes: Age, the skills): a REAL, KNOWN change
-   the patcher made itself.  What the title is kept by follows it DOWN only:
-   each stored age and skill (the entry's looks and the age and skills the
-   villager is first seen with) becomes the LOWER of what it was and what the
-   villager has now, and the last look's age is the new age (a younger age
-   than the last look reads as a namesake born into a freed record,
-   titles_reborn, and would take the title away).  Lower, never higher: the
-   file published here is read after an Alt-F4 or a crash, when the save still
-   holds the values from before the event, and a stored value above them would
-   leave nobody who "could be" the entry (v1.35.72).  The caller asks only when
-   the event actually changed the age or a skill.  Only an entry bound to this
-   very record and this very identity moves.  Returns 1 when there was nothing
-   to follow or the followed table is published; 0 when it could not be (the
-   table, the bases and the last look's age are then left as they were). */
+/* The villager in record `index` was just given new skills (or, defensively,
+   a new age -- the Custom Island Event's dialog has no Age control, but every
+   field the event writes is followed alike) by a custom event: a REAL, KNOWN
+   change the patcher made itself.  What a title is kept by follows it DOWN
+   only: the age and skills the villager is first seen with, the last look's
+   age (a younger age than the last look reads as a namesake born into a freed
+   record, titles_reborn, and would take a title away), and -- for a villager
+   who holds a title -- the entry's stored looks.  The bases move whether or
+   not a title is bound yet, so a title SET on this villager later, or in the
+   same event after this call, is stored with the lowered values (titles_set
+   reads the bases); and a title set first is lowered here, so the order
+   within one event does not matter.  Lower, never higher: the file published
+   here is read after an Alt-F4 or a crash, when the save still holds the
+   values from before the event, and a stored value above them would leave
+   nobody who "could be" the entry (v1.35.72).  The caller asks only when the
+   event actually changed the age or a skill, on a villager it has just checked to be the one it meant (ce_same_villager), so the bases move whatever else the same event did to them (a likes change included).  Only the villager in this very
+   record, and an entry bound to this very record and identity, move.  Returns 1 when there was nothing to follow or the
+   followed table is published; 0 when it could not be (the table, the bases
+   and the last look's age are then left as they were). */
 static int titles_rebase(int game, int index) {
     const unsigned char *record = story_record(game, index);
     vv_title_looks now;
@@ -351,24 +355,33 @@ static int titles_rebase(int game, int index) {
     unsigned int saved_base_skills[VV_TITLE_SKILLS];
     int i, k;
     /* Not before the table has been followed against the village on screen
-       (the bases and the last look exist only then). */
+       (the bases and the last look exist only then; before it, a title is
+       set from the villager as they are). */
     if (titles.game != game || !titles.loaded || titles.slot <= 0 || !titles.roster_anyone || record == NULL
         || index < 0 || index >= TITLES_ROSTER) {
         return 1;
     }
-    i = titles_find((unsigned int)index);
-    if (i < 0 || titles.entries[i].fingerprint != story_title_identity(game, record)) {
-        return 1;
-    }
     story_title_looks(game, record, &now);
     vv_title_normalise_skills(&now, floats);
+    saved_base_age = titles.base_age[index];
+    saved_roster_age = titles.roster_age[index];
+    memcpy(saved_base_skills, titles.base_skills[index], sizeof saved_base_skills);
+    if (now.age < titles.base_age[index]) {
+        titles.base_age[index] = now.age;
+    }
+    for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+        titles.base_skills[index][k] = titles_skill_lower(
+            vv_title_skill_normalised(titles.base_skills[index][k], floats), now.skills[k], floats);
+    }
+    titles.roster_age[index] = now.age;
+    i = titles_find((unsigned int)index);
+    if (i < 0 || titles.entries[i].fingerprint != story_title_identity(game, record)) {
+        return 1;                             /* no title yet: nothing to publish */
+    }
     titles_reset_detected();
     titles_before.count = titles.count;
     memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
     memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
-    saved_base_age = titles.base_age[index];
-    saved_roster_age = titles.roster_age[index];
-    memcpy(saved_base_skills, titles.base_skills[index], sizeof saved_base_skills);
     if (titles.entries[i].flags & VV_TITLE_KNOWN) {
         if (now.age < titles.entries[i].looks.age) {
             titles.entries[i].looks.age = now.age;
@@ -381,14 +394,6 @@ static int titles_rebase(int game, int index) {
         titles.entries[i].looks = now;
         titles.entries[i].flags |= VV_TITLE_KNOWN;
     }
-    if (now.age < titles.base_age[index]) {
-        titles.base_age[index] = now.age;
-    }
-    for (k = 0; k < VV_TITLE_SKILLS; ++k) {
-        titles.base_skills[index][k] = titles_skill_lower(
-            vv_title_skill_normalised(titles.base_skills[index][k], floats), now.skills[k], floats);
-    }
-    titles.roster_age[index] = now.age;
     if (!titles_commit()) {
         titles.base_age[index] = saved_base_age;
         titles.roster_age[index] = saved_roster_age;

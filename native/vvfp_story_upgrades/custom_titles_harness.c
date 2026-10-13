@@ -182,9 +182,26 @@ static void story_title_looks(int game, const unsigned char *record, vv_title_lo
     }
 }
 
+static int g_skills_float;          /* 1: the skills are floats (The Tree of Life, New Believers) */
+
 static int story_title_skills_float(int game) {
     (void)game;
-    return 0;
+    return g_skills_float;
+}
+
+/* A skill dword for the value `v`: the int itself, or the float's bits. */
+static unsigned int skill_dword(int v) {
+    float f = (float)v;
+    unsigned int bits;
+    if (!g_skills_float) {
+        return (unsigned int)v;
+    }
+    memcpy(&bits, &f, sizeof bits);
+    return bits;
+}
+
+static void set_skill(int index, int skill, int v) {
+    *(unsigned int *)(g_records[index] + 64 + 4 * skill) = skill_dword(v);
 }
 
 /* Set a villager's looks: sex, age, head, body, and every skill to `skill`. */
@@ -242,29 +259,24 @@ static int title_index(const char *title) {
     return -2;
 }
 
-/* The longest path under the root: "\Virtual Villagers Fun Patcher Data\Custom Titles\Custom Titles -
-   Save 1.dat" and its ".unreadable-*" set-aside names, with room to spare. */
-#define HARNESS_ROOT_RESERVE 128
+/* What the harness needs under %TEMP% (GetTempPath ends in a backslash): the root
+   "vvfp_titles_harness_<pid>" (20 + at most 10 characters), then the longest file under it,
+   "\Virtual Villagers Fun Patcher Data\Custom Titles\Custom Titles - Save 1.dat" (76), its
+   ".unreadable-*" set-aside pattern (13), and 16 for the temporary names the atomic publish makes. */
+#define HARNESS_PATH_NEED (20 + 10 + 76 + 13 + 16)
 
 /* The save folder root: <GetTempPath>\vvfp_titles_harness_<pid>.  A %TEMP% so long that the files under
-   it would pass MAX_PATH is tried in its short (8.3) form; if that is still too long the harness says
-   so and stops, instead of failing every check on a path that does not fit (review of 3f176ddd). */
+   it would pass MAX_PATH makes the harness say so and stop, instead of failing every check on a path
+   that does not fit (review of 3f176ddd).  It does not rely on 8.3 short names (a volume may have them
+   off): the build script keeps its own folder name short instead. */
 static int make_root(void) {
     char temp[MAX_PATH];
-    char shorter[MAX_PATH];
     DWORD n = GetTempPathA(MAX_PATH, temp);
     if (n == 0 || n >= MAX_PATH) {
         printf("%%TEMP%% is unreadable or longer than MAX_PATH: the harness cannot run\n");
         return 0;
     }
-    if (n + 40 + HARNESS_ROOT_RESERVE >= MAX_PATH) {
-        DWORD s = GetShortPathNameA(temp, shorter, MAX_PATH);
-        if (s > 0 && s < n) {
-            lstrcpyA(temp, shorter);
-            n = s;
-        }
-    }
-    if (n + 40 + HARNESS_ROOT_RESERVE >= MAX_PATH) {
+    if (n + HARNESS_PATH_NEED >= MAX_PATH) {
         printf("%%TEMP%% (%s, %lu characters) is too long for the files under it to fit MAX_PATH:"
                " the harness cannot run\n", temp, (unsigned long)n);
         return 0;
@@ -722,6 +734,60 @@ int main(void) {
         titles_sync(3);
         check(titles.loaded && !titles.roster_anyone && titles_rebase(3, 1) == 1 && titles.entries[0].looks.age == 500
               && titles.base_age[1] == 0, "a rebase before the table was followed changes nothing");
+    }
+
+    /* v1.35.72 (re-review): A TITLE SET AFTER A LOWERING.  The lowering (a Custom Island Event's skill
+       change) moves what a title is kept by even when nobody holds a title yet, so a title set on that
+       villager later in the session, or in the same event after the lowering, is stored with the
+       lowered skill -- not the higher one the villager was first seen with, which no clean save can
+       match.  Ints (A New Home to The Secret City) and floats (The Tree of Life, New Believers). */
+    {
+        int fl, same_event;
+        for (fl = 0; fl < 2; ++fl) {
+            for (same_event = 0; same_event < 2; ++same_event) {
+                char what[160];
+                g_skills_float = fl;
+                new_session();
+                DeleteFileA(path1);
+                memset(g_records, 0, sizeof g_records);
+                villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 0);
+                set_skill(1, 0, 50);
+                titles_tick(3);
+                titles_tick(3);
+                set_skill(1, 0, 10);                             /* the event lowers a skill: nobody has a title yet */
+                check(titles_rebase(3, 1) == 1, "a lowering with no title bound is followed (nothing to publish)");
+                if (!same_event) {
+                    titles_tick(3);
+                    titles_tick(3);
+                }
+                check(titles_set(3, 1, "Kai Title") == 1, "the title is set after the lowering");
+                wsprintfA(what, "THE NEW TITLE IS STORED WITH THE LOWERED SKILL (%s, %s)", fl ? "floats" : "ints",
+                          same_event ? "same event" : "later");
+                check(titles.entries[0].looks.skills[0] == skill_dword(10), what);
+                titles_tick(3);
+                titles_tick(3);
+                check(titles.entries[0].looks.skills[0] == skill_dword(10), "... and the next ticks keep it");
+                new_session();                                   /* a clean save and reload: skill 10, packed to [0] */
+                memset(g_records, 0, sizeof g_records);
+                villager(0, "Kai"); looks(0, 1, 500, 3, 4, 0); set_skill(0, 0, 10);
+                villager(1, "Lani");
+                titles_tick(3);
+                seen = titles_lookup(3, g_records[0]);
+                wsprintfA(what, "... SO A CLEAN SAVE RELOAD KEEPS THE TITLE BOUND (%s, %s)", fl ? "floats" : "ints",
+                          same_event ? "same event" : "later");
+                check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0, what);
+                new_session();                                   /* an Alt-F4: the older save, skill 50 */
+                memset(g_records, 0, sizeof g_records);
+                villager(0, "Kai"); looks(0, 1, 500, 3, 4, 0); set_skill(0, 0, 50);
+                villager(1, "Lani");
+                titles_tick(3);
+                seen = titles_lookup(3, g_records[0]);
+                wsprintfA(what, "... AND AN ALT-F4 RELOAD OF THE OLDER SAVE STILL KEEPS IT (%s, %s)",
+                          fl ? "floats" : "ints", same_event ? "same event" : "later");
+                check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0, what);
+            }
+        }
+        g_skills_float = 0;
     }
 
     /* v1.35.72: A CHANGE APPEARANCE AND A LOG IN THE SAME FRAME.  The file

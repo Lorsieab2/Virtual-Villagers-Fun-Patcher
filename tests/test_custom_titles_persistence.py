@@ -175,7 +175,11 @@ class CustomTitlesFile(unittest.TestCase):
                      "... SO AFTER AN ALT-F4 THE OLDER SAVE'S KAI STILL HAS HIS TITLE",
                      "a rebase that can not be written is refused",
                      "a rebase before the table was followed changes nothing",
-                     "an unannounced age lowering DELETES the seen title"):
+                     "an unannounced age lowering DELETES the seen title",
+                     # Re-review: a title set after a lowering (same event or later) is stored lowered.
+                     "THE NEW TITLE IS STORED WITH THE LOWERED SKILL (",
+                     "... SO A CLEAN SAVE RELOAD KEEPS THE TITLE BOUND (",
+                     "... AND AN ALT-F4 RELOAD OF THE OLDER SAVE STILL KEEPS IT ("):
             with self.subTest(case=case):
                 self.assertIn(case, HARNESS.read_text(encoding="utf-8"))
         text = HARNESS.read_text(encoding="utf-8")
@@ -374,7 +378,31 @@ class CustomTitlesInTheLogs(unittest.TestCase):
         self.assertNotIn("wsprintfA(out, ", text)
         self.assertNotIn("wsprintfA(pattern, ", text)
         self.assertIn("static int make_root(void)", text)
-        self.assertIn("GetShortPathNameA(temp, shorter, MAX_PATH)", text)
+        self.assertIn("if (n + HARNESS_PATH_NEED >= MAX_PATH) {", text)
+        self.assertNotIn("GetShortPathName", text, "the harness must not depend on 8.3 short names")
+        self.assertIn('"vvfp_ct_" + [guid]::NewGuid()', BUILD.read_text(encoding="utf-8"))
+
+    @unittest.skipUnless(CL.exists(), "the 32-bit MSVC toolchain is not installed")
+    def test_a_moderately_long_temp_folder_runs_the_titles_harness(self):
+        # The bound is exact: a %TEMP% about 60 characters deep (the build folder under it brings the
+        # root to ~100) used to be refused at 92 and now runs, with no 8.3 names involved.
+        import os
+        import shutil
+        import tempfile
+        base = Path(tempfile.mkdtemp(prefix="vvfp_mt_"))
+        try:
+            deep = base
+            while len(str(deep)) < 60:
+                deep = deep / "a_folder_name_x"
+            deep.mkdir(parents=True)
+            env = dict(os.environ, TEMP=str(deep), TMP=str(deep))
+            run = subprocess.run(
+                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(BUILD)],
+                capture_output=True, text=True, timeout=600, env=env)
+            self.assertTrue("\n0 failure(s)" in run.stdout and "[FAIL]" not in run.stdout and run.returncode == 0,
+                            run.stdout[-3000:] + run.stderr[-2000:])
+        finally:
+            shutil.rmtree("\\\\?\\" + str(base), ignore_errors=True)
 
     @unittest.skipUnless(CL.exists(), "the 32-bit MSVC toolchain is not installed")
     def test_a_long_temp_folder_runs_the_titles_harness_or_refuses_it_cleanly(self):
