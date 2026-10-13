@@ -585,32 +585,13 @@ static int titles_reborn(int r, const unsigned int *now, const int *now_age) {
 
 static void titles_note_bases(int game, const unsigned int *now, const int *now_age, int moved, int renamed,
                               const unsigned char *in_place, int in_place_count) {
-    int r, k;
+    int r;
     for (r = 0; r < TITLES_ROSTER; ++r) {
         const unsigned char *record;
         vv_title_looks looks;
         if (now[r] == 0 || (!moved && !titles_reborn(r, now, now_age)
                             && (titles.roster[r] == now[r] || r == renamed
                                 || (in_place_count > 0 && in_place[r])))) {
-            if (now[r] != 0 && !moved && titles.roster_anyone && titles.roster[r] == now[r]
-                && !titles_reborn(r, now, now_age) && (record = story_record(game, r)) != NULL) {
-                /* THE SAME VILLAGER, WATCHED, WITH A SKILL LOWER THAN BEFORE
-                   (a Cheat Engine edit, a vial): not a move, not a namesake
-                   (nobody is older-then-younger here -- titles_reborn is the
-                   age's judge) -- the stored floor follows it down, so the
-                   next load does not find nobody "no less skilled"
-                   (v1.35.72).  Never raised here: a floor only goes down. */
-                story_title_looks(game, record, &looks);
-                vv_title_normalise_skills(&looks, story_title_skills_float(game));
-                for (k = 0; k < VV_TITLE_SKILLS; ++k) {
-                    unsigned int was = vv_title_skill_normalised(titles.base_skills[r][k], story_title_skills_float(game));
-                    if (story_title_skills_float(game)
-                        ? vv_title_skill_float(looks.skills[k]) < vv_title_skill_float(was)
-                        : (int)looks.skills[k] < (int)was) {
-                        titles.base_skills[r][k] = looks.skills[k];
-                    }
-                }
-            }
             continue;
         }
         record = story_record(game, r);

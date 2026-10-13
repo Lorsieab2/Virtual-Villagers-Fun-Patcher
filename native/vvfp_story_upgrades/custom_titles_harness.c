@@ -579,6 +579,55 @@ int main(void) {
         }
     }
 
+    /* v1.35.72: A LOWERED AGE OR SKILL THE PATCHER MADE ITSELF (a Custom
+       Island Event's Villager changes).  Left as stored, the next load finds
+       nobody "no younger, no less skilled" and the title goes pending; the
+       event re-stores the title's looks (titles_rebase).  Without it (a
+       change nobody told the companion of) the title still waits pending --
+       never a guess. */
+    {
+        int told;
+        for (told = 0; told < 2; ++told) {
+            new_session();
+            DeleteFileA(path1);
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+            titles_tick(3);
+            titles_set(3, 1, "Kai Title");
+            titles_tick(3);
+            looks(1, 1, 300, 3, 4, 5);                           /* the event lowers age and skills */
+            if (told) {
+                check(titles_rebase(3, 1) == 1, "the event's lowered age and skills are re-stored and published");
+            }
+            titles_tick(3);
+            titles_tick(3);
+            check(told ? title_index("Kai Title") == 1 : 1, "... the title stays on Kai in the session");
+            new_session();
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Kai"); looks(0, 1, 300, 3, 4, 5);       /* reloaded, packed to [0] */
+            villager(1, "Lani");
+            titles_tick(3);
+            seen = titles_lookup(3, g_records[0]);
+            if (told) {
+                check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
+                      "A LOWERED AGE AND SKILL FROM A CUSTOM ISLAND EVENT: THE TITLE STILL FOLLOWS KAI AFTER A RELOAD");
+            } else {
+                check(seen == NULL, "... an unannounced lowering (nobody told the companion) is shown on nobody");
+            }
+        }
+        /* Re-storing touches only the entry bound to that very villager. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20); villager(2, "Moku");
+        looks(2, 1, 400, 2, 2, 10);
+        titles_tick(3);
+        titles_set(3, 1, "Kai Title");
+        looks(2, 1, 100, 2, 2, 1);
+        check(titles_rebase(3, 2) == 1 && titles.entries[0].looks.age == 500
+              && titles.entries[0].looks.skills[0] == 20, "a record with no title leaves other entries alone");
+    }
+
     /* Twins identical in everything: whose the title is can never be told
        while both live -- it stays pending, and the reconciliation asks. */
     new_session();

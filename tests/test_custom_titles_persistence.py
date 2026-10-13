@@ -157,6 +157,19 @@ class CustomTitlesFile(unittest.TestCase):
                 self.assertIn(f"[PASS] THE TITLE SURVIVES A LIKES / DISLIKES CHANGE, ASKED IN THE SAME FRAME "
                               f"(game {game})", run.stdout)
 
+    def test_a_custom_event_that_lowers_age_or_skills_re_stores_the_title_looks(self):
+        # v1.35.72: the Custom Island Event's own lowering of a titled villager's
+        # age / skills is a known change; the stored looks follow it, or the next
+        # load finds nobody "no younger, no less skilled" and the title goes pending.
+        store = STORE.read_text(encoding="utf-8")
+        self.assertIn("static int titles_rebase(int game, int index) {", store)
+        custom = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
+        self.assertIn("titles_rebase(e->game, c->index)", custom)
+        text = HARNESS.read_text(encoding="utf-8")
+        for case in ("A LOWERED AGE AND SKILL FROM A CUSTOM ISLAND EVENT: THE TITLE STILL FOLLOWS KAI AFTER A RELOAD",
+                     "an unannounced lowering (nobody told the companion) is shown on nobody"):
+            with self.subTest(case=case):
+                self.assertIn(case, text)
     def test_an_ambiguous_title_is_kept_pending_never_dropped(self):
         """v1.35.70, the owner: a title is never dropped because its villager became ambiguous after
         a reload; it is kept pending (shown on nobody) and bound again only by the whole identity."""
