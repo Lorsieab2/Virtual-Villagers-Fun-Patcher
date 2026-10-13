@@ -364,6 +364,43 @@ class CodexReview(GiveLastNames):
         work = ln.plan(self.folder, 3, 1, {people[0].identity: "Akikai", people[1].identity: "Alosaka"})
         self.assertEqual(sorted(work.renames.values()), ["Ago Akikai", "Ago Alosaka"])
 
+    def test_a_titles_entry_tied_to_one_of_two_look_alikes_by_its_looks_resolves_per_villager(self):
+        # v1.35.72 (was over-strict): two villagers share a title identity but get different new ones.
+        # A version 3 entry that keeps its looks can be tied to exactly one of them, as the game's own
+        # load does; it follows that villager.  An entry that keeps no looks, or is pending and
+        # contested, is still refused (never a guess).
+        import vv_titles_file as tf
+        twin = entry("Ago", 0, 2, 1, 2)                     # Ago's name and likes, other looks
+        data = self.save.read_bytes()[:TABLE + 4 * STRIDE] + twin + bytes(64)
+        self.save.write_bytes(data)
+        people = [v for v in ln.living(self.folder, 3, 1) if v.name == "Ago"]
+        first = next(v for v in people if v.identity[1] == 5)
+        other = next(v for v in people if v.identity[1] == 1)
+        renames = {first.identity: "Akikai", other.identity: "Alosaka"}
+
+        def titles_with(**kwargs):
+            base = dict(index=0, identity=self.old_fp, title="Seer", known=True, age=600, head=5, body=6, sex=0)
+            base.update(kwargs)
+            self.titles.write_bytes(tf.serialise(3, [tf.Entry(**base)]))
+
+        titles_with()
+        work = ln.plan(self.folder, 3, 1, renames)
+        change = next(c for c in work.changes if c.path == self.titles)
+        got = tf.read(change.updated, 3)[1][0]
+        self.assertEqual(got.identity, title_identity("Ago Akikai", (1, 2, 3), (4, 5, 6)))
+        self.assertEqual(got.title, "Seer")
+        titles_with(head=1, body=2)                          # the other Ago's looks
+        work = ln.plan(self.folder, 3, 1, renames)
+        got = tf.read(next(c for c in work.changes if c.path == self.titles).updated, 3)[1][0]
+        self.assertEqual(got.identity, title_identity("Ago Alosaka", (1, 2, 3), (4, 5, 6)))
+        for what, kwargs in (("no looks kept", dict(known=False)),
+                             ("looks of neither", dict(head=9)),
+                             ("pending and contested", dict(index=tf.PENDING, contested=True))):
+            with self.subTest(what):
+                titles_with(**kwargs)
+                with self.assertRaises(ln.LastNamesError) as raised:
+                    ln.plan(self.folder, 3, 1, renames)
+                self.assertIn("same last name", str(raised.exception))
     def test_a_name_alone_is_renamed_only_when_every_namesake_is(self):
         # Codex (#553): a record with only a name (no looks) follows a rename only when every
         # living villager of that name takes the same new name.

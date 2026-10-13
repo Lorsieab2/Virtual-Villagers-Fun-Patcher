@@ -1125,22 +1125,38 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     # name and parents).  Given different names, the game could no longer tell which of them a
     # title or mask was for: when such an identity is in use in a titles or mask file, that is
     # refused rather than guessed (Codex, #553).  An identity no file holds decides nothing.
+    #
+    # Custom titles are resolved PER VILLAGER (v1.35.72): two villagers who share a title identity
+    # but get different new ones are no conflict while the titles file's entry for that identity
+    # can be tied to exactly one of them by the looks it keeps (the game's own load does the same,
+    # vv_titles_file.could_be).  An entry that can not -- no looks kept, contested, or two who could
+    # both be them -- is still refused rather than guessed (Codex, #553).  Masks and the Former
+    # Heathens keep nothing to tell the two apart by, so they are refused as before.
     owner: dict[int, tuple[int, str]] = {}
     conflicts: dict[int, str] = {}
+    holders: dict[int, list[tuple]] = {}
     for v in people:
         old_title, old_masks = before_ids[v.at]
         new_title, new_masks = _title_identity(after, v.at, f), _mask_identities(game, after, v.at)
-        for old_id, new_id in ((old_title, new_title), *zip(old_masks, new_masks)):
+        if old_title and new_title:
+            holders.setdefault(old_title, []).append((v, new_title))
+        for old_id, new_id in zip(old_masks, new_masks):
             if not old_id or not new_id:
                 continue
             seen = owner.setdefault(old_id, (new_id, v.name))
             if seen[0] != new_id:
                 conflicts[old_id] = f"{seen[1]} and {v.name}"
-        if new_title != old_title:
-            title_map[old_title] = new_title
         for old_id, new_id in zip(old_masks, new_masks):
             if old_id and new_id and old_id != new_id:
                 mask_map[old_id] = new_id
+    title_split: dict[int, list[tuple]] = {}
+    title_conflicts: dict[int, str] = {}
+    for old_title, held in holders.items():
+        if len({new for _v, new in held}) > 1:
+            title_split[old_title] = held
+            title_conflicts[old_title] = f"{held[0][0].name} and {held[1][0].name}"
+        elif held[0][1] != old_title:
+            title_map[old_title] = held[0][1]
     # The graves of the dead renamed (Number Duplicate Names, last names for the gone).
     graves = _rename_graves(after, game, renames, _death_ages(folder, game, slot), result) if dead else []
     result.changes.append(Change(path, original, bytes(after), "the save"))
@@ -1152,10 +1168,11 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     # The Custom Titles file: version 3 (84-byte entries, v1.35.70) or 2 (40 bytes); the identity is the
     # second dword of either (native/shared/custom_titles.h, src/vv_titles_file.py).
     _plan_u32_file(result, data_dir / "Custom Titles" / f"Custom Titles - Save {slot}.dat",
-                   b"VCT1", {3: 84, 2: 40}, game, 16, 4, title_map, "custom titles", conflicts)
+                   b"VCT1", {3: 84, 2: 40}, game, 16, 4, title_map, "custom titles", {},
+                   _split_titles_resolver(game, original, title_split, title_conflicts))
     if game == 5:
         _plan_u32_file(result, data_dir / "Former Heathens" / f"Former Heathens - Save {slot}.dat",
-                       b"VFH1", {1: 8}, game, 16, 0, title_map, "former Heathens", conflicts)
+                       b"VFH1", {1: 8}, game, 16, 0, title_map, "former Heathens", title_conflicts)
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, asked, by_name,
@@ -1267,9 +1284,37 @@ def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: di
             result.changes.append(Change(path, original, bytes(buf), "the masks"))
 
 
+def _split_titles_resolver(game: int, save: bytes, split: dict[int, list[tuple]], names: dict[int, str]):
+    """For the titles file: the new identity of the entry number `k` whose identity `old` two or more
+    villagers share (and are given different new ones), when exactly one of them could be it by the
+    looks the entry keeps -- else the refusal."""
+    import vv_titles_file
+
+    def resolve(file_data: bytes, k: int, old: int) -> int:
+        if old not in split:
+            return old
+        version = struct.unpack_from("<I", file_data, 4)[0]
+        read = vv_titles_file.read(file_data, game)
+        refuse = LastNamesError(
+            f"{names[old]} look the same to the game's custom titles and masks; "
+            "give them the same last name (or none to both).")
+        if read is None or read[0] != version or version != vv_titles_file.VERSION:
+            raise refuse
+        e = read[1][k]
+        if not e.known or e.contested:
+            raise refuse
+        could = [new for v, new in split[old]
+                 if vv_titles_file.could_be(game, e, vv_titles_file.looks_from_save(game, save, v.at))]
+        if len(could) != 1:
+            raise refuse
+        return could[0]
+
+    return resolve
+
+
 def _plan_u32_file(result: Plan, path: Path, magic: bytes, versions: dict[int, int], game: int, header: int,
                    field_at: int, mapping: dict[int, int], what: str,
-                   conflicts: dict[int, str]) -> None:
+                   conflicts: dict[int, str], resolve=None) -> None:
     """A file of `count` fixed entries whose u32 at `field_at` is an identity; `versions` gives each
     version's entry size.  A file that is not exactly its own format of this game (magic, a known
     version, the game at offset 8, header + count * entry bytes) is left as it is: games sharing a
@@ -1288,7 +1333,16 @@ def _plan_u32_file(result: Plan, path: Path, magic: bytes, versions: dict[int, i
         result.notes.append(f"{path.name} is damaged (its length does not match its count); left as it is.")
         return
     buf = bytearray(original)
-    if _replace_u32s(buf, header + field_at, count, entry, mapping, conflicts):
+    changed = _replace_u32s(buf, header + field_at, count, entry, mapping, conflicts)
+    for k in range(count if resolve is not None else 0):
+        # Entries of an identity several villagers share, each tied to one of them.
+        at = header + field_at + k * entry
+        old = struct.unpack_from("<I", original, at)[0]
+        new = resolve(original, k, old)
+        if new != old:
+            struct.pack_into("<I", buf, at, new)
+            changed = True
+    if changed:
         result.changes.append(Change(path, original, bytes(buf), what))
 
 
