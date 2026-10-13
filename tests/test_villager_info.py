@@ -147,19 +147,20 @@ class InfoTests(unittest.TestCase):
         # v1.35.73: "shared" belongs to the villager's current key only.  An earlier look (or a cut
         # name) that was shared must not label a unique villager, and an ambiguous villager must not
         # take a title from an old-look alias once its current key says it is shared.
-        v = town()
-        v.relooked[("Ago", 9, 9)] = ("Ago", 0, 0)
-        got = vi.titles_of(v, {("Ago", 9, 9): {"shared": 2}, ("Ago", 0, 0): {"custom": "Chief Cook"}},
-                           v.people[1])
-        self.assertEqual(got, {"custom": "Chief Cook"})
-        self.assertEqual(vi.titles_of(v, {("Ago", 9, 9): {"shared": 2}}, v.people[1]), {})
-        got = vi.titles_of(v, {("Ago", 0, 0): {"shared": 2}, ("Ago", 9, 9): {"custom": "Old"}}, v.people[1])
-        self.assertEqual(got, {"shared": 2})
-        v.full_names[("Ag", 0, 0)] = "Ago"
-        got = vi.titles_of(v, {("Ago", 0, 0): {"shared": 2}, ("Ag", 0, 0): {"special": "Scholar"}}, v.people[1])
-        self.assertEqual(got, {"shared": 2})
-        got = vi.titles_of(v, {("Ag", 0, 0): {"shared": 2, "special": "Scholar"}}, v.people[1])
-        self.assertNotIn("shared", got)
+        for game in (1, 2, 3, 4, 5):
+            v = town(game)
+            v.relooked[("Ago", 9, 9)] = ("Ago", 0, 0)
+            got = vi.titles_of(v, {("Ago", 9, 9): {"shared": 2}, ("Ago", 0, 0): {"custom": "Chief Cook"}},
+                               v.people[1])
+            self.assertEqual(got, {"custom": "Chief Cook"}, game)
+            self.assertEqual(vi.titles_of(v, {("Ago", 9, 9): {"shared": 2}}, v.people[1]), {}, game)
+            got = vi.titles_of(v, {("Ago", 0, 0): {"shared": 2}, ("Ago", 9, 9): {"custom": "Old"}}, v.people[1])
+            self.assertEqual(got, {"shared": 2}, game)
+            v.full_names[("Ag", 0, 0)] = "Ago"
+            got = vi.titles_of(v, {("Ago", 0, 0): {"shared": 2}, ("Ag", 0, 0): {"special": "Scholar"}}, v.people[1])
+            self.assertEqual(got, {"shared": 2}, game)
+            got = vi.titles_of(v, {("Ag", 0, 0): {"shared": 2, "special": "Scholar"}}, v.people[1])
+            self.assertNotIn("shared", got, game)
 
     def test_the_titles_file_is_read_and_wins_over_the_logs(self):
         import struct
