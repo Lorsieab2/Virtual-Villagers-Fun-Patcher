@@ -22,6 +22,18 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.72
+
+New in v1.35.72:
+
+- **A custom title now follows a Custom Island Event that lowers its villager's age or skills** (all five games). Before, the title kept the higher age and skills it was stored with, so after the next reload nobody "could be" the villager and the title went waiting. The event now stores the villager's new age and skills with the title. A lowering the patcher did not make itself (a Cheat Engine edit) is still not guessed at: the title shows on nobody and the Check Saves & Logs question names who could be them.
+- **A log written the moment you Change Appearance now keeps the custom title** (all five games). The log compared the villager's new head and body with the old ones still stored in the Custom Titles file until the next frame, and left the title out. Change Appearance now stores the new head and body before it logs, when Story / Cheat Upgrades is installed.
+- **A Disappeared record no longer prints a custom title that could belong to two villagers** (all five games). When the Custom Titles file is an older version 2 file that keeps no looks, the villager being written counts as a possible owner of the title as well as a present villager with the same name, likes and dislikes, so the title is left off.
+- **Villager Info tab** (Family Tree Maker). Villagers who share a name, head and body can no longer be shown one another's titles: the Notes say "2 villagers share this name and looks, so a title can not be told apart here" and show no title for them unless every one of them holds the same one.
+- **Last Names: two villagers who share a title identity can now be given different last names** when the Custom Titles file's entry for that identity keeps looks that fit exactly one of them (as the game's own load tells them apart). The entry follows that villager. An entry that keeps no looks, is waiting and contested, or fits both is still refused rather than guessed.
+- **Fixed:** the Custom Title log test harness no longer overflows its path buffers when %TEMP% is a long path (test-only).
+
+
 ## What's new in v1.35.71
 
 New in v1.35.71:
