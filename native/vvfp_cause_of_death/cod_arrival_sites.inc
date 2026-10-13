@@ -28,7 +28,10 @@
    log says); MARK_FOUNDER: the new-village seeding; MARK_TEMPORARY: a record
    the game makes and takes away again; MARK_EVENT: `label` is what the
    record's "How:" line says.  A villager made on no listed path is
-   "unknown". */
+   "added outside a recorded event" (cod_arrivals.inc): the game made them
+   and the patcher cannot prove by which path.  Every direct call of a
+   creator is listed here (tests/test_spawn_how_labels.py checks it against
+   the stock executables), so only a path added later can land there. */
 
 #define MARK_BIRTH 1
 #define MARK_FOUNDER 2
@@ -230,7 +233,14 @@ static const struct arrival_marker MARKERS_VV3[] = {
                               fires this same event object;
          0x43B830 (0x43B965)  the adoption scene's stand-in father, freed at
                               0x43B9A2: temporary;
-         0x440840             the developers' F7 command: "unknown".
+         0x440840             the developers' F7 command: the key event 1024
+                              (F7; F1-F10 are 1018-1027, F6 1023 and F8 1025
+                              as the VV1 key map has them) reaches case 3 at
+                              0x44089D, which calls 0x467D10 six times
+                              (types 0, 4, 4, 3, 1, 2) from 0x4408CA, 0x4408ED,
+                              0x440910, 0x440933, 0x440956 and 0x440979:
+                              "Developer command (F7)".  The owner saw it spawn
+                              villagers (2026-10-11).
      Through 0x466370 (the init returns to 0x4663E5): the ghosts (look-alikes,
      +0x1CC7), temporary.
      Copy init through 0x466310 (its return address at +0x14): the
@@ -253,6 +263,12 @@ static const struct arrival_marker MARKERS_VV4[] = {
     { VV4_FRESH2, 0x414DC5u, VV4_VIA_467D10, MARK_EVENT, "Barrel of Babies" },
     { VV4_FRESH2, 0x414E08u, VV4_VIA_467D10, MARK_EVENT, "Barrel of Babies" },
     { VV4_FRESH2, 0x414E4Bu, VV4_VIA_467D10, MARK_EVENT, "Barrel of Babies" },
+    { VV4_FRESH2, 0x4408CAu, VV4_VIA_467D10, MARK_EVENT, "Developer command (F7)" },
+    { VV4_FRESH2, 0x4408EDu, VV4_VIA_467D10, MARK_EVENT, "Developer command (F7)" },
+    { VV4_FRESH2, 0x440910u, VV4_VIA_467D10, MARK_EVENT, "Developer command (F7)" },
+    { VV4_FRESH2, 0x440933u, VV4_VIA_467D10, MARK_EVENT, "Developer command (F7)" },
+    { VV4_FRESH2, 0x440956u, VV4_VIA_467D10, MARK_EVENT, "Developer command (F7)" },
+    { VV4_FRESH2, 0x440979u, VV4_VIA_467D10, MARK_EVENT, "Developer command (F7)" },
 };
 
 /* New Believers: fresh init 0x4681F0 (hook 0x468411: sub esp,0x144 and four

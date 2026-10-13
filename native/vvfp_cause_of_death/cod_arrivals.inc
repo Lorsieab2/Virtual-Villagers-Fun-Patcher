@@ -24,7 +24,9 @@
    "Barrel of Babies" (natural or bought: the purchase runs the game's own
    barrel); "Custom Island Event" when the Story / Cheat Upgrades companion
    says its event made them (VvfpCauseArrivedBy); "Converted from the
-   Heathens"; "unknown" on any other path.
+   Heathens"; "added outside a recorded event" on any other path (a creator's
+   villager no listed path made: never a guess, and never "unknown", which
+   the backfill keeps for the villagers it finds with no record at all).
 
    WHEN.  The arrival is decided at the first tick after the creator (the
    birth note has come by then, the event has written the villager's name,
@@ -211,7 +213,9 @@ static void arrival_decide(int index) {
     arrivals[index].state = ARRIVAL_PENDING;
     arrivals[index].age = rec_age(record);
     if (arrivals[index].how[0] == '\0') {
-        lstrcpynA(arrivals[index].how, "unknown", ARRIVAL_HOW);
+        /* A creator's villager on no listed path: the game made them, and no
+           path the patcher can prove says how (cod_arrival_sites.inc). */
+        lstrcpynA(arrivals[index].how, "added outside a recorded event", ARRIVAL_HOW);
     }
 }
 
