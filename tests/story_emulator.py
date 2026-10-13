@@ -242,6 +242,11 @@ class Process:
         self.loaded.append(self.cstring(self.arg(0)))
         return 0, 4
 
+    # The title store (v1.35.73: a rebase loads the table first) asks for the Documents folder.  The
+    # emulated machine has none, so the store keeps no file and nothing is read or written.
+    def _api_SHGetSpecialFolderPathA(self):
+        return 0, 16
+
     # The companions find the patcher's files with the wide API, by full path
     # in "Virtual Villagers Fun Patcher Files" beside the executable
     # (native/shared/patcher_files.h); by default nothing is shipped there.

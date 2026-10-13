@@ -169,12 +169,14 @@ class CustomTitlesFile(unittest.TestCase):
         # a failed publish rolls the bases back; nothing before the table was followed.
         self.assertIn("ce_age_or_skills_changed(e->game, record, &looks_before)", custom)
         self.assertIn("titles_skill_lower(", store)
-        self.assertIn("!titles.roster_anyone || record == NULL", store)
+        # v1.35.73: a rebase before the first follow runs the lookup's follow first.
+        self.assertIn("titles.game != game || !titles.loaded || titles.slot <= 0 || record == NULL", store)
+        self.assertIn("titles_pass(game, 0);", store)
         self.assertIn("titles.roster_age[index] = saved_roster_age;", store)
         for case in ("AN EVENT THAT RAISES AGE AND SKILLS NEVER LIFTS WHAT THE TITLE IS KEPT BY",
                      "... SO AFTER AN ALT-F4 THE OLDER SAVE'S KAI STILL HAS HIS TITLE",
                      "a rebase that can not be written is refused",
-                     "a rebase before the table was followed changes nothing",
+                     "A REBASE BEFORE THE FOLLOW FOLLOWS THE VILLAGE FIRST",
                      "an unannounced age lowering DELETES the seen title",
                      # Re-review: a title set after a lowering (same event or later) is stored lowered.
                      "THE NEW TITLE IS STORED WITH THE LOWERED SKILL (",
