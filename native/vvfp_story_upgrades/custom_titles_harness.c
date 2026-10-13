@@ -832,6 +832,33 @@ int main(void) {
               "a villager with no title leaves every entry alone");
     }
 
+    /* v1.35.73: an island event that changes BOTH the likes and the head before the next frame (the
+       island events DLL tells the companion of the new head, VvfpStoryAppearanceChanged, in the same
+       frame).  The likes change is carried to the new identity first, as the lookup carries it, so
+       the new head is stored at once under that identity -- in the file too -- in every game. */
+    for (game = 1; game <= 5; ++game) {
+        char what[160];
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(game);
+        check(titles_set(game, 1, "Kai Title") == 1, "setup: Kai has a title");
+        titles_tick(game);
+        g_records[1][44] = 7;                                         /* the event's new likes ... */
+        looks(1, 1, 500, 7, 8, 20);                                   /* ... and new head and body, same frame */
+        check(VvfpStoryAppearanceChanged(game, g_records[1], 7, 8) == 1, "the companion is told of the new head");
+        wsprintfA(what, "AN EVENT CHANGING LIKES AND HEAD: THE NEW HEAD IS STORED UNDER THE NEW IDENTITY (game %d)", game);
+        check(titles.count == 1 && titles.entries[0].index == 1 && titles.entries[0].looks.head == 7
+              && titles.entries[0].looks.body == 8
+              && titles.entries[0].fingerprint == story_title_identity(game, g_records[1]), what);
+        new_session();                                                /* what a log written now reads: the file */
+        titles_sync(game);
+        wsprintfA(what, "... and the file holds the new head and identity (game %d)", game);
+        check(titles.count == 1 && titles.entries[0].looks.head == 7
+              && titles.entries[0].fingerprint == story_title_identity(game, g_records[1]), what);
+    }
+
     /* Twins identical in everything: whose the title is can never be told
        while both live -- it stays pending, and the reconciliation asks. */
     new_session();

@@ -424,6 +424,14 @@ static int titles_appearance_changed(int game, const unsigned char *record, int 
         return 1;
     }
     i = titles_find((unsigned int)index);
+    /* An island event may change the likes or dislikes in the same frame as the head (v1.35.73).  The
+       title then holds the old identity, so carry it to the new one first -- in memory, the same
+       in-place look the lookup makes (titles_relook); the head is then stored under that identity, and
+       the publish below writes both. */
+    if (i >= 0 && titles.entries[i].fingerprint != story_title_identity(game, record)) {
+        titles_relook(game);
+        i = titles_find((unsigned int)index);
+    }
     if (i < 0 || !(titles.entries[i].flags & VV_TITLE_KNOWN)
         || titles.entries[i].fingerprint != story_title_identity(game, record)
         || (titles.entries[i].looks.head == head && titles.entries[i].looks.body == body)) {
