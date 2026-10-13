@@ -94,10 +94,6 @@ class AppearanceChangeLogTests(unittest.TestCase):
                 self.assertIn(b"LogVV5AppearanceChange\0", page)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class IslandEventAppearanceTellsTheStoryCompanion(unittest.TestCase):
     """Review of 3f176ddd: an island event that changes a head or body writes "Appearance changed" too,
     so it tells the Story companion first (as native/shared/appearance_log.h does), or a Death written
@@ -110,3 +106,7 @@ class IslandEventAppearanceTellsTheStoryCompanion(unittest.TestCase):
         self.assertIn('"VvfpStoryAppearanceChanged"', text)
         self.assertLess(text.index("tell_story_appearance(g_game, live, nh, nb);"),
                         text.index("g_write(g_game, KIND_APPEARANCE, live, 1, look, NULL, 0);"))
+
+
+if __name__ == "__main__":
+    unittest.main()
