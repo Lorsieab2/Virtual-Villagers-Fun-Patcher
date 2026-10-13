@@ -310,3 +310,38 @@ class CustomTitlesInTheLogs(unittest.TestCase):
         self.assertEqual(run.returncode, 0, run.stdout[-3000:] + run.stderr[-2000:])
         self.assertIn("0 failure(s)", run.stdout)
         self.assertNotIn("[FAIL]", run.stdout)
+
+    def test_the_harness_never_writes_past_its_max_path_buffers(self):
+        # v1.35.72: the harness built its root with wsprintfA into a MAX_PATH
+        # buffer, and its log paths the same way, so a long %TEMP% wrote past
+        # them.  Every path is now bounded, and a %TEMP% too long for the logs
+        # is tried in its short form or refused with a message.
+        text = LOG_HARNESS.read_text(encoding="utf-8")
+        self.assertNotIn("wsprintfA(g_root", text)
+        self.assertNotIn('wsprintfA(out, "%s\\\\Virtual Villagers', text)
+        self.assertIn("static int make_root(void)", text)
+        self.assertIn("GetShortPathNameA(temp, shorter, MAX_PATH)", text)
+
+    @unittest.skipUnless(CL.exists(), "the 32-bit MSVC toolchain is not installed")
+    def test_a_long_temp_folder_runs_or_is_refused_cleanly(self):
+        import os
+        import shutil
+        import tempfile
+        base = Path(tempfile.mkdtemp(prefix="vvfp_longtemp_"))
+        try:
+            deep = base
+            # Long enough that the logs under the harness's root pass MAX_PATH,
+            # short enough that the compiler's own objects still fit.
+            while len(str(deep)) < 120:
+                deep = deep / "a_rather_long_folder_name_x"
+            deep.mkdir(parents=True)
+            env = dict(os.environ, TEMP=str(deep), TMP=str(deep))
+            run = subprocess.run(
+                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(LOG_BUILD)],
+                capture_output=True, text=True, timeout=600, env=env)
+            out = run.stdout
+            ran = "\n0 failure(s)" in out and "[FAIL]" not in out and run.returncode == 0
+            refused = "is too long for the logs under it to fit MAX_PATH" in out and "[FAIL]" not in out
+            self.assertTrue(ran or refused, out[-3000:] + run.stderr[-2000:])
+        finally:
+            shutil.rmtree("\\\\?\\" + str(base), ignore_errors=True)
