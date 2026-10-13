@@ -317,17 +317,53 @@ def person_blocks(folder: Path, slot: int, game: int) -> list[Block]:
     return out
 
 
-def population_page(folder: Path, slot: int, game: int) -> tuple[Path | None, dict[tuple, Block]]:
-    """The slot's latest Village Population page: each living villager by (name, head, body).  The
-    slot's own "...Logs\\Save <slot>\\Tribe Population" pages, or the shared ones only while it has
-    none (scripts/vvfp_consistency_check.py population_files)."""
+class Page(dict):
+    """A Village Population page: each living villager's block by (name, head, body).  Two villagers
+    may share a name, head and body (fixed pools: heads are inherited, names repeat) -- one key, two
+    blocks; `blocks` keeps every block of each key, and `shared` names the keys two or more share,
+    whose one dict value can not be told to be either villager's (v1.35.71 v2)."""
+
+    def __init__(self, found: list[Block] | None = None):
+        super().__init__()
+        self.blocks: dict[tuple, list[Block]] = {}
+        for b in found or []:
+            self[b.identity] = b
+            self.blocks.setdefault(b.identity, []).append(b)
+
+        self.unsure: set[tuple] = set()
+
+    @property
+    def shared(self) -> set[tuple]:
+        return {key for key, found in self.blocks.items() if len(found) > 1}
+
+    def told_apart(self, labels: tuple[str, ...] = ("Custom title", "Mask", "Special villager", "Faction")) -> "Page":
+        """The page without the keys two or more villagers share whose blocks differ in any of `labels`
+        (their `unsure`): which one an older record of that key is can not be told, so no line is
+        added to it from either one's block -- never one villager's title written into another's
+        records.  A key whose villagers agree in all of them stays (either one's block says the same)."""
+        out = Page()
+        for key, found in self.blocks.items():
+            if len(found) > 1 and any(len({b.value(label) for b in found}) > 1 for label in labels):
+                out.unsure.add(key)
+                continue
+            for b in found:
+                out[key] = b
+                out.blocks.setdefault(key, []).append(b)
+        return out
+
+
+def population_page(folder: Path, slot: int, game: int) -> tuple[Path | None, Page]:
+    """The slot's latest Village Population page: each living villager by (name, head, body) (a Page:
+    a key two villagers share is in its `shared`).  The slot's own "...Logs\\Save <slot>\\Tribe
+    Population" pages, or the shared ones only while it has none (scripts/vvfp_consistency_check.py
+    population_files)."""
     checker = tools.load_checker()
     for path in checker.population_files(folder, slot):
         villages = current_villages(folder, game, slot)
         found = [b for b in blocks(path) if b.of(slot, game, villages) and b.heading.startswith("Villager ")]
         if found:
-            return path, {b.identity: b for b in found}
-    return None, {}
+            return path, Page(found)
+    return None, Page()
 
 
 def is_population(path: Path) -> bool:
@@ -386,6 +422,8 @@ def _now_of(b: Block, current: dict, persons: dict) -> tuple | None:
     the first of the full list a v1.35.68 page prints."""
     if b.identity in current:
         return b.identity
+    if b.identity in getattr(current, "unsure", ()):
+        return None                         # a name, head and body two villagers share: not told apart
     if b.person is None:
         return None
     name, likes, dislikes = b.person
@@ -394,8 +432,19 @@ def _now_of(b: Block, current: dict, persons: dict) -> tuple | None:
     return found[0] if len(found) == 1 else None
 
 
+def _note_unsure(kind: Kind, current: dict, what: str) -> None:
+    """A note for each name, head and body two villagers on the page share with different titles,
+    masks or factions (Page.told_apart): their older records are left as they are."""
+    for name, head, body in sorted(getattr(current, "unsure", ()), key=str):
+        kind.notes.append(f"Two or more villagers named {name} (head {head}, body {body}) are on the latest "
+                          f"Village Population page with different titles, masks or factions, so which one an "
+                          f"older record of that name and looks is can not be told; no {what} is added to "
+                          "those records.")
+
+
 def plan_custom_titles(folder: Path, slot: int, people: list[Block], current: dict) -> Kind:
     kind = Kind("custom", "Custom titles in older History snapshots")
+    _note_unsure(kind, current, "custom title")
     persons = _persons(current)
     for identity, now in current.items():
         title = now.value("Custom title")
@@ -409,6 +458,7 @@ def plan_custom_titles(folder: Path, slot: int, people: list[Block], current: di
 
 def plan_masks(folder: Path, slot: int, people: list[Block], current: dict, page: Path | None) -> Kind:
     kind = Kind("mask", "Masks in older History snapshots")
+    _note_unsure(kind, current, "mask")
     if not any(b.value("Mask") for b in current.values()):
         kind.notes.append("No villager wears a mask on the latest Village Population page. If some do, "
                           "play the village once with this patcher and save, then Repair Saves & Logs can add them.")
@@ -439,6 +489,7 @@ def plan_special(folder: Path, game: int, slot: int, people: list[Block], curren
     villager holds now that the records cannot date (Tribal Chief, The Lost Children's Esteemed
     Elder, New Believers' Heathen roles and former Heathens)."""
     kind = Kind("special", "Special villager titles in older records")
+    _note_unsure(kind, current, "special villager title from the page")
     asked: dict[tuple, list[Block]] = {}
     persons = _persons(current)
     for b in people:
@@ -1261,6 +1312,9 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     folder = Path(folder)
     people = person_blocks(folder, slot, game)
     page, current = population_page(folder, slot, game)
+    # Two villagers of one name, head and body whose titles, masks or factions differ: neither one's
+    # line is added to the older records of that name and looks (v1.35.71 v2).
+    current = current.told_apart()
     kinds = [
         plan_sex(folder, game),
         plan_special(folder, game, slot, people, current),

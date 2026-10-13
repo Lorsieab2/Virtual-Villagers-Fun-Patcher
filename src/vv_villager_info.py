@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import tkinter as tk
 from pathlib import Path
+import struct
 from tkinter import ttk
 
 import vv_family_tree as ft
@@ -215,10 +216,10 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person,
 TITLES_FILE = "Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save {slot}.dat"
 
 
-def read_titles_file(path: Path, game: int) -> list[tuple[int, int, str]]:
-    """native/shared/custom_titles.h: (record index, identity, title) for each entry bound to a villager
-    in a version 3 (or 2) file for this game; nothing for a missing, older or damaged one.  A pending
-    title (its villager could not be told apart after a load) is shown on nobody, as in the game."""
+def read_titles_file(path: Path, game: int) -> list:
+    """native/shared/custom_titles.h: each entry (src/vv_titles_file.py Entry) bound to a villager in a
+    version 3 (or 2) file for this game; nothing for a missing, older or damaged one.  A pending title
+    (its villager could not be told apart after a load) is shown on nobody, as in the game."""
     import vv_titles_file
     try:
         data = Path(path).read_bytes()
@@ -227,34 +228,45 @@ def read_titles_file(path: Path, game: int) -> list[tuple[int, int, str]]:
     got = vv_titles_file.read(data, game)
     if got is None:
         return []
-    return [(e.index, e.identity, e.title.strip()) for e in got[1] if not e.pending and e.title.strip()]
+    return [e for e in got[1] if not e.pending and e.title.strip()]
 
 
 def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:
-    """Each villager the save holds with a Custom title in the titles file, by (name, head, body):
-    the entry's identity (the name, likes and dislikes -- vv_title_identity) is that villager's, as
-    the game's load matches it.  An identity two villagers share is nobody's.  None when the file
+    """Each villager the save holds with a Custom title in the titles file, by (name, head, body),
+    as the game's load matches it (story_titles.inc titles_follow): an entry is the one villager the
+    save holds with its identity (the name, likes and dislikes -- vv_title_identity) who could be them
+    by the looks it keeps (vv_titles_file.could_be: the head, body and sex, no younger, no less
+    skilled; an older file's entry keeps no looks: the one carrier of its identity).  Two villagers
+    of one identity with their own looks each keep their own title (v1.35.71 v2: an identity two
+    villagers share used to be nobody's, though the game shows each twin's).  Two who could both be
+    them, or a villager two entries could both be, is nobody's -- never a guess.  None when the file
     or the save cannot be read (the logs then say)."""
     import vv_last_names as ln
     import vv_save_layout as layout
+    import vv_titles_file
     path = layout.find(Path(folder), TITLES_FILE.format(slot=slot))
     if not path.is_file():
         return None
     entries = read_titles_file(path, game)
+
     try:
         data = ln.save_path(folder, game, slot).read_bytes()
         held = ln.living(folder, game, slot, bodies=True)
-    except (OSError, ln.LastNamesError, ValueError):
+        f = ln.FIELDS[game]
+        ids = {v.at: ln._title_identity(data, v.at, f) for v in held}
+        looks = {v.at: vv_titles_file.looks_from_save(game, data, v.at) for v in held}
+    except (OSError, ln.LastNamesError, ValueError, IndexError, struct.error):
         return None
-    f = ln.FIELDS[game]
-    by_identity: dict[int, list[tuple]] = {}
-    for v in held:
-        by_identity.setdefault(ln._title_identity(data, v.at, f), []).append(v.identity)
+    chosen: dict[int, list[str]] = {}
+    for e in entries:
+        could = [v for v in held if ids[v.at] == e.identity and vv_titles_file.could_be(game, e, looks[v.at])]
+        if len(could) == 1:
+            chosen.setdefault(could[0].at, []).append(e.title.strip())
     out = {}
-    for _index, identity, title in entries:
-        owners = by_identity.get(identity, [])
-        if len(owners) == 1:
-            out[owners[0]] = title
+    for v in held:
+        titles = chosen.get(v.at, [])
+        if len(titles) == 1:
+            out[v.identity] = titles[0]
     # Everyone the save holds is decided by the file: no entry, no title.
     return {v.identity: out.get(v.identity, "") for v in held}
 

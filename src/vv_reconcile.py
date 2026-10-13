@@ -63,6 +63,8 @@ from __future__ import annotations
 import os
 import re
 import struct
+import zlib
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -154,7 +156,13 @@ class Record:
 class TitleAction:
     """What one answer to a pending-title question does to the Custom Titles file (settle_titles): bind
     the pending entry (identity, title) to the villager named -- whose name is at `at` in the save, in
-    record `record`, with the looks the reconciliation read -- or clear it."""
+    record `record`, with the looks the reconciliation read -- or clear it.
+
+    WHICH pending entry (v1.35.71 v2): two villagers of one identity may each have been given the same
+    title text, and both entries can wait at once.  Each question is about ONE entry: `entry` is its
+    place in the file when the question was asked, `raw` its bytes then and `twins` how many pending
+    entries had that identity and title then.  settle_titles changes that entry only if the file still
+    holds it there, byte for byte, with the same number of twins -- else nothing, and it is asked again."""
     kind: str                               # "bind" | "clear"
     identity: int
     title: str
@@ -162,6 +170,9 @@ class TitleAction:
     at: int | None = None
     record: int | None = None
     looks: dict | None = field(default=None, compare=False, hash=False)
+    entry: int | None = None                # the entry's place in the file when asked
+    raw: bytes | None = None                # the entry's bytes when asked (vv_titles_file.entry_bytes)
+    twins: int = 1                          # pending entries of that identity and title when asked
 
 
 @dataclass
@@ -962,24 +973,52 @@ class _Builder:
         file_entries = got[1] if got else []
         history = [c for c in self.logs.censuses if c.kind == "history"]
         present = list(living) + list(bodies or [])
-        for e in file_entries:
+        for k, e in enumerate(file_entries):
             if e.pending:
-                self._pending_title(path, e, present, history[-1].people if history else [], living, file_entries)
+                self._pending_title(path, e, present, history[-1].people if history else [], living, file_entries,
+                                    k)
         if not history:
             return
         titled = [s for s in history[-1].people if s.title and s.title.lower() not in ("none", "(none)")]
         if not titled:
             return
-        # Every (identity, title) the file holds: two villagers of one whole identity (twins) may each have
-        # a title of their own (review of #585: one per identity hid the earlier one as "lost").
-        entries = {(e.identity, e.title) for e in file_entries}
-        lost = []
-        for s in titled:
-            now = [v for v in living if v.key == s.key]
-            if len(now) != 1 or now[0].title_id is None:
+        # HOW MANY entries of each (identity, title) the file holds -- counted, never a set (v1.35.71 v2,
+        # review of #586): two villagers of one identity (twins) may each have a title of their own (review
+        # of #585), and may each have the SAME title text; a set kept one (identity, title) for both, so
+        # losing one of their two entries was never reported.
+        held = Counter((e.identity, e.title) for e in file_entries)
+        needed: Counter = Counter()
+        names: dict[tuple, list[str]] = {}
+        by_key: dict[tuple, list[Seen]] = {}
+        for s in history[-1].people:
+            by_key.setdefault(s.key, []).append(s)
+        for key, snap in by_key.items():
+            mine = [s for s in snap if any(s is t for t in titled)]
+            if not mine:
                 continue
-            if (now[0].title_id, s.title) not in entries:
-                lost.append(f"{s.name} (\"{s.title}\")")
+            now = [v for v in living if v.key == key]
+            ids = {v.title_id for v in now}
+            # Who they are now must be told apart: the snapshot's villagers of that name and looks are the
+            # save's (no newcomer among them), and all of one title identity.
+            if not now or len(now) > len(snap) or len(ids) != 1 or None in ids:
+                continue
+            identity = ids.pop()
+            gone = len(snap) - len(now)     # at most this many of them died or left since the snapshot
+            for title, count in Counter(s.title for s in mine).items():
+                # Each title the snapshot gives them, less any who may have gone; one still alive keeps
+                # theirs (as before v1.35.71 v2, when only one of that name and looks is alive).
+                need = max(count - gone, 1 if len(now) == 1 else 0)
+                if need:
+                    needed[(identity, title)] += need
+                    names.setdefault((identity, title), []).extend(s.name for s in mine if s.title == title)
+        lost = []
+        for (identity, title), need in needed.items():
+            if held[(identity, title)] < need:
+                who = ", ".join(dict.fromkeys(names[(identity, title)]))
+                short = need - held[(identity, title)]
+                lost.append(f"{who} (\"{title}\")" if need == 1 else
+                            f"{who} (\"{title}\": {need} villagers have it, the file holds {held[(identity, title)]}, "
+                            f"so {short} entr{'y is' if short == 1 else 'ies are'} missing)")
         if lost:
             self.ask("titles", f"titles|{history[-1].when}|{'|'.join(lost)}",
                      f"The Village History snapshot of {history[-1].when} gives {len(lost)} living villager(s) a custom "
@@ -987,12 +1026,19 @@ class _Builder:
                      "title(s) may be lost.", [f"{KEEP} (I removed the title)"])
 
     def _pending_title(self, path: Path, e, present: list[Seen], snapshot: list[Seen],
-                       living: list[Seen] | None = None, file_entries: list | None = None) -> None:
+                       living: list[Seen] | None = None, file_entries: list | None = None,
+                       place: int | None = None) -> None:
         """One question for one pending title: which title, the identity it is kept by, and who could be
         them now (the villagers the game itself would weigh: the same name and likes, then the whole
-        identity)."""
+        identity).  `place` is the entry's place in the file: two entries may wait with the same identity
+        and title (two villagers of one identity, each given that title), and each is its own question."""
         import vv_last_names as ln
         import vv_titles_file as titles_file
+        file_entries = list(file_entries or [e])
+        if place is None:
+            place = next(k for k, x in enumerate(file_entries) if x is e)
+        same = [x for x in file_entries if x.pending and x.identity == e.identity and x.title == e.title]
+        raw = titles_file.entry_bytes(e)
         carriers = [v for v in present if v.title_id == e.identity]
         could = [v for v in carriers if v.title_looks is not None and titles_file.could_be(self.game, e, v.title_looks)]
         named = [s.name for s in snapshot if s.title == e.title]
@@ -1029,9 +1075,10 @@ class _Builder:
         # living, in the save now, and holding no other title -- or remove it; Repair Saves & Logs then
         # changes the Custom Titles file (settle_titles).  "Keep as is" leaves it waiting.  Never a guess:
         # only a villager the player names, and only one the game itself would weigh as them.
-        claimed = {x.index for x in (file_entries or []) if not x.pending}
+        claimed = {x.index for x in file_entries if not x.pending}
         options = [f"{KEEP} (leave it waiting)"]
         actions: dict[str, TitleAction] = {}
+        which = dict(entry=place, raw=raw, twins=len(same))
         for v in could:
             if v not in (living or []) or v.record is None or v.at is None or v.record in claimed:
                 continue
@@ -1039,20 +1086,31 @@ class _Builder:
             if option in actions:
                 continue
             actions[option] = TitleAction("bind", e.identity, e.title, v.name, v.at, v.record,
-                                          dict(v.title_looks or {}))
+                                          dict(v.title_looks or {}), **which)
             options.append(option)
         clear = "Remove the title (it is nobody's now)"
-        actions[clear] = TitleAction("clear", e.identity, e.title)
+        actions[clear] = TitleAction("clear", e.identity, e.title, **which)
         options.append(clear)
         if len([a for a in actions.values() if a.kind == "bind"]) >= 2:
             after += (" If two of them still have the same name, likes, head, body and sex and neither is younger "
                       "or less skilled than the other, the game can not tell them apart after a load and the title "
                       "waits again.")
-        self.ask("titles", f"title-pending|{e.identity:08X}|{e.title}",
+        qid, one_of = f"title-pending|{e.identity:08X}|{e.title}", ""
+        if len(same) > 1:
+            # Two or more entries wait with this identity and title (v1.35.71 v2, review of #586): one
+            # question for EACH, so the player can answer for one of them.  Its id holds the entry's own
+            # bytes (a checksum) and which of the byte-identical ones it is, so a kept answer stays with it.
+            alike = [x for x in same if titles_file.entry_bytes(x) == raw]
+            n = next(k for k, x in enumerate(alike, 1) if x is e)
+            qid += f"|{zlib.crc32(raw):08X}#{n}"
+            one_of = (f" This is entry {place + 1} of the file, one of {len(same)} pending entries of that title "
+                      "kept for that identity (two villagers of one name, likes and dislikes were each given it); "
+                      "each has its own question, and an answer changes only its own entry.")
+        self.ask("titles", qid,
                  f"The custom title \"{e.title}\" is PENDING in {path.name}: after a load the game could not tell "
                  f"which villager it belongs to, so it is kept, shown on nobody -- never dropped. It is kept for "
-                 f"{kept}. {whom} {after} Your answer changes the file only in Repair Saves & Logs, with the game "
-                 "closed and a backup first.", options, title_actions=actions)
+                 f"{kept}.{one_of} {whom} {after} Your answer changes the file only in Repair Saves & Logs, with "
+                 "the game closed and a backup first.", options, title_actions=actions)
     def slot_file_of(self, path: Path) -> bool:
         """Whether a file belongs to this game and slot (or to the game's shared logs)."""
         name = path.name
@@ -1362,7 +1420,8 @@ def settle_titles(folder: Path, game: int, slot: int, actions: list[TitleAction]
 
     Nothing is guessed and nothing stale is written: refused while the game runs (its companion keeps
     the table in memory and would write over the file); every answer is checked again against the file
-    and the save as they are NOW -- the entry still pending with that identity and title, exactly once;
+    and the save as they are NOW -- the very entry the question was about (TitleAction.entry/raw/twins:
+    still pending at that place, byte for byte, with as many entries of that identity and title);
     the villager still at that place in the save, alive, with that name, identity and looks, one the
     game itself would weigh as them, and holding no other title -- else nothing is changed.  A backup
     of the save folder first (`backup_folder`, Repair's own, else one made here), the file as it was
@@ -1391,14 +1450,30 @@ def settle_titles(folder: Path, game: int, slot: int, actions: list[TitleAction]
     version, entries = got
     f = ln.FIELDS[game]
     done: list[str] = []
+    # Every answer is matched to ITS entry in the file as it is now, before anything changes (v1.35.71 v2,
+    # review of #586): two entries may wait with one identity and title, so an entry is the one at the
+    # place the question saw, still pending, byte for byte as it was, with as many such entries as then.
+    # Anything else -- the file changed since -- changes nothing, and the question is asked again.
+    resolved: list = []
     for a in actions:
         mine = [e for e in entries if e.pending and e.identity == a.identity and e.title == a.title]
-        if len(mine) != 1:
+        if a.entry is None:
+            e = mine[0] if len(mine) == 1 else None
+        else:
+            e = entries[a.entry] if 0 <= a.entry < len(entries) else None
+            if e is None or not any(e is x for x in mine) or len(mine) != a.twins \
+                    or titles_file.entry_bytes(e) != a.raw:
+                e = None
+        if e is None:
             raise tools.LogToolError(f"\"{a.title}\" is no longer waiting in {path.name} as the question saw it "
                                      "(the game or another repair changed it); nothing was changed.")
-        e = mine[0]
+        if any(e is x for _a, x in resolved):
+            raise tools.LogToolError(f"Two answers were given for one pending entry of \"{a.title}\"; nothing was "
+                                     "changed.")
+        resolved.append((a, e))
+    for a, e in resolved:
         if a.kind == "clear":
-            entries.remove(e)
+            entries[:] = [x for x in entries if x is not e]
             done.append(f"Removed the pending custom title \"{a.title}\" (identity {a.identity:08X})")
             continue
         try:

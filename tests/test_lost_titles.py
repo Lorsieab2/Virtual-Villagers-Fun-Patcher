@@ -280,6 +280,42 @@ class TheAlapaiCase(unittest.TestCase):
         self.assertFalse((v.folder / "Backups").exists())
 
 
+ALAPAI_TWIN = person("Alapai", 5, 6, ("ants",), ("bees", "the dark"))
+
+
+class TwinsOfOneIdentity(unittest.TestCase):
+    """v1.35.71 v2: two villagers of one title identity (the same name, likes and dislikes) with their
+    own heads and bodies each keep a title of their own (story_titles.inc tells them apart by the looks
+    kept with each entry).  A title held for one of them is no longer taken for the other's, so the
+    other's lost title is restored (the survey skipped it, and the restore refused it).  All five games."""
+
+    def test_the_other_twins_title_does_not_hide_hers(self):
+        import vv_titles_file
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                v = Village(self, game, [ALAPAI, ALAPAI_TWIN, KAI], alapai_events(game))
+                data = v.save.read_bytes()
+                twin = ln.living(v.folder, game, 1)[1]
+                v.titles.parent.mkdir(parents=True)
+                theirs = vv_titles_file.Entry(1, v.identity(1), "Sun Child", True,
+                                              **vv_titles_file.looks_from_save(game, data, twin.at))
+                v.titles.write_bytes(vv_titles_file.serialise(game, [theirs]))
+                found = lt.survey(v.folder, game, 1)
+                self.assertEqual([(r.title, r.villager.head) for r in found.certain], [("Moon Mother", 3)],
+                                 found.notes)
+                lt.restore(v.folder, game, 1, processes=NoGame(), now=NOW)
+                got = vv_titles_file.read(v.titles.read_bytes(), game)[1]
+                self.assertEqual(sorted((e.index, e.title, e.head, e.body) for e in got),
+                                 [(0, "Moon Mother", 3, 2), (1, "Sun Child", 5, 6)])
+                import vv_villager_info as info
+                shown = info.file_titles(v.folder, game, 1)
+                self.assertEqual((shown[("Alapai", 3, 2)], shown[("Alapai", 5, 6)]), ("Moon Mother", "Sun Child"))
+                self.assertFalse(lt.survey(v.folder, game, 1).found)
+                # An older file's entry keeps no looks: it may be hers, so it is kept and nothing restored.
+                v.titles.write_bytes(titles_file(game, [(1, v.identity(1), "Sun Child")]))
+                self.assertFalse(lt.survey(v.folder, game, 1).certain)
+
+
 class WhatIsLeftAlone(unittest.TestCase):
     def test_a_later_retitle_or_removal_is_not_undone(self):
         for later in ("  Custom title: none -> Sun Child\n", "  Custom title: Moon Mother -> none\n"):

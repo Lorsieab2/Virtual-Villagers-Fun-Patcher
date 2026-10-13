@@ -1093,6 +1093,254 @@ class PendingTitleAnswers(Base):
         self.assertFalse([f for f in rc.reconcile(v.folder, 2, 1).questions if f.topic == "titles"])
 
 
+class TwinsWithOneTitleText(Base):
+    """v1.35.71 v2, Codex's two open items on #586: two villagers of one title identity (the same name,
+    likes and dislikes) who were each given the SAME title text.  (1) The retained-title check counts the
+    entries -- losing one of the two is asked about, never hidden behind the other.  (2) Two such entries
+    waiting at once are two questions, and the player's answer for one changes that one only, checked
+    again against the file and the save as they are then.  All five games."""
+
+    TITLE = "Twin Star"
+
+    def twins(self, game: int) -> tuple[Village, list]:
+        """Villagers 0 and 1 of the game's fixture save given one name and no likes or dislikes: one
+        title identity, their own heads, bodies and ages."""
+        v = self.village("huttest", game)
+        data = v.save_path(1).read_bytes()
+        name = v.people(data)[0].name
+        data = v.renamed(data, 1, name)
+        for rank in (0, 1):
+            buf = bytearray(data)
+            at = v.entries(data)[rank]
+            struct.pack_into(f"<{v.f.slots}i", buf, at + v.f.likes, *([-1] * v.f.slots))
+            struct.pack_into(f"<{v.f.slots}i", buf, at + v.f.dislikes, *([-1] * v.f.slots))
+            data = bytes(buf)
+        v.write_save(1, data)
+        people = v.people(data)
+        self.assertEqual(people[0].title_id, people[1].title_id)
+        return v, people
+
+    def snapshot_titles(self, v: Village, people: list, titled: int = 2) -> None:
+        v.history([("2026-10-11 21:00:00", people)])
+        path = v.folder / LOGS / "Save 1" / "Tribe History" / "Village History 1.txt"
+        text = path.read_bytes().decode("latin-1")
+        line = f"  Name: {people[0].name}\r\n"
+        self.assertEqual(text.count(line), 2)
+        text = text.replace(line, line + f"  Custom title: {self.TITLE}\r\n", titled)
+        path.write_bytes(text.encode("latin-1"))
+
+    def write_titles(self, v: Village, entries: list) -> Path:
+        import vv_titles_file as tf
+        titles = v.folder / DATA / "Custom Titles"
+        titles.mkdir(parents=True, exist_ok=True)
+        path = titles / "Custom Titles - Save 1.dat"
+        path.write_bytes(tf.serialise(v.game, entries))
+        return path
+
+    def test_losing_one_of_two_identical_title_entries_is_asked(self):
+        import vv_titles_file as tf
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                v, people = self.twins(game)
+                a, b = people[0], people[1]
+                self.snapshot_titles(v, people)
+                both = [tf.Entry(a.record, a.title_id, self.TITLE, True, **a.title_looks),
+                        tf.Entry(b.record, b.title_id, self.TITLE, True, **b.title_looks)]
+                self.write_titles(v, both)
+                self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "titles"])
+                self.write_titles(v, both[:1])                      # one of the two entries lost
+                asked = [f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "titles"]
+                self.assertEqual(len(asked), 1, [f.text for f in asked])
+                self.assertIn(f'"{self.TITLE}": 2 villagers have it, the file holds 1, so 1 entry is missing',
+                              asked[0].text)
+                self.assertIn("may be lost", asked[0].text)
+
+    def test_one_twin_titled_and_one_entry_is_no_question(self):
+        """The count is what the snapshot gives: one twin titled, one entry -- nothing missing."""
+        import vv_titles_file as tf
+        for game in (1, 3, 5):
+            with self.subTest(game=game):
+                v, people = self.twins(game)
+                a = people[0]
+                self.snapshot_titles(v, people, titled=1)
+                self.write_titles(v, [tf.Entry(a.record, a.title_id, self.TITLE, True, **a.title_looks)])
+                self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "titles"])
+
+    def test_identical_twins_losing_one_entry_is_asked(self):
+        """Twins identical in name, looks and age (A New Home): one (name, head, body) for both."""
+        import vv_titles_file as tf
+        v = self.village("", 1, vv1_save([("Lani", False, 1, 1, 700), ("Kai", True, 3, 4, 500),
+                                          ("Kai", True, 3, 4, 500)]))
+        people = v.people(v.save_path(1).read_bytes())
+        kai, kai2 = people[1], people[2]
+        v.history([("2026-10-11 21:00:00", people)])
+        path = v.folder / LOGS / "Save 1" / "Tribe History" / "Village History 1.txt"
+        path.write_bytes(path.read_bytes().replace(b"  Name: Kai\r\n", b"  Name: Kai\r\n  Custom title: Twin Star\r\n"))
+        both = [tf.Entry(kai.record, kai.title_id, self.TITLE, True, **kai.title_looks),
+                tf.Entry(kai2.record, kai2.title_id, self.TITLE, True, **kai2.title_looks)]
+        self.write_titles(v, both)
+        self.assertFalse([f for f in rc.reconcile(v.folder, 1, 1).questions if f.topic == "titles"])
+        self.write_titles(v, both[1:])
+        asked = [f for f in rc.reconcile(v.folder, 1, 1).questions if f.topic == "titles"]
+        self.assertEqual(len(asked), 1, [f.text for f in asked])
+        self.assertIn("so 1 entry is missing", asked[0].text)
+
+    def test_villager_info_shows_each_twin_their_own_title(self):
+        """The Villager Info tab's Custom title (src/vv_villager_info.py file_titles), as the game's load
+        matches it: two villagers of one identity with their own looks each keep their own title; an
+        identity two could both be (identical twins), or an older file's entry with no looks kept, is
+        nobody's -- never a guess."""
+        import vv_titles_file as tf
+        import vv_villager_info as info
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                v, people = self.twins(game)
+                a, b = people[0], people[1]
+                self.write_titles(v, [tf.Entry(a.record, a.title_id, "Elder Twin", True, **a.title_looks),
+                                      tf.Entry(b.record, b.title_id, "Young Twin", True, **b.title_looks)])
+                got = info.file_titles(v.folder, game, 1)
+                self.assertEqual((got[a.key], got[b.key]), ("Elder Twin", "Young Twin"))
+                # An older file keeps no looks: two carriers, nobody's.
+                self.write_titles(v, [tf.Entry(a.record, a.title_id, "Elder Twin")])
+                got = info.file_titles(v.folder, game, 1)
+                self.assertEqual((got[a.key], got[b.key]), ("", ""))
+        v = self.village("", 1, vv1_save([("Lani", False, 1, 1, 700), ("Kai", True, 3, 4, 500),
+                                          ("Kai", True, 3, 4, 500)]))
+        kai = v.people(v.save_path(1).read_bytes())[1]
+        self.write_titles(v, [tf.Entry(kai.record, kai.title_id, "Only One", True, **kai.title_looks)])
+        self.assertEqual(info.file_titles(v.folder, 1, 1)[kai.key], "")
+
+    def pending_twins(self, game: int):
+        import vv_titles_file as tf
+        v, people = self.twins(game)
+        a, b = people[0], people[1]
+        entries = [tf.Entry(tf.PENDING, a.title_id, self.TITLE, True, **a.title_looks, contested=True),
+                   tf.Entry(tf.PENDING, b.title_id, self.TITLE, True, **b.title_looks, contested=True)]
+        return v, a, b, self.write_titles(v, entries), entries
+
+    def questions(self, v: Village, game: int):
+        kind = rc.kind(v.folder, game, 1)
+        return kind, [(q, x) for q, x in kind.questions.items() if q.startswith("title-pending|")]
+
+    def settle(self, v: Village, game: int):
+        return lambda actions: rc.settle_titles(v.folder, game, 1, actions, FakeProcesses(),
+                                                v.folder.parent / "backup")
+
+    def test_two_identical_pending_titles_are_two_questions_answered_one_at_a_time(self):
+        import vv_titles_file as tf
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                v, a, b, path, entries = self.pending_twins(game)
+                kind, mine = self.questions(v, game)
+                self.assertEqual(len(mine), 2, list(kind.questions))
+                self.assertEqual(len({q for q, _x in mine}), 2)
+                self.assertTrue(all("one of 2 pending entries" in x.text for _q, x in mine))
+                # The answer for ONE entry: give it to the first twin; the other entry still waits.
+                qid, question = next((q, x) for q, x in mine if "entry 1 of the file" in x.text)
+                give = [o for o in question.options if o.startswith(f"Give it to {a.name}") and f"age {a.age}" in o]
+                self.assertTrue(give, question.options)
+                lines, _ = rc.remember(v.folder, game, 1, [kind], {qid: give[0]}, settle=self.settle(v, game))
+                self.assertTrue(any("Gave the pending custom title" in line for line in lines), lines)
+                got = tf.read(path.read_bytes(), game)[1]
+                self.assertEqual(len(got), 2)
+                self.assertEqual((got[0].pending, got[0].index), (False, a.record))
+                self.assertEqual(tf.entry_bytes(got[1]), tf.entry_bytes(entries[1]))     # untouched
+                # The other is still asked about, on its own now.
+                kind, mine = self.questions(v, game)
+                self.assertEqual(len(mine), 1, list(kind.questions))
+                self.assertEqual(mine[0][0], f"title-pending|{b.title_id:08X}|{self.TITLE}")
+
+    def test_both_answered_at_once_each_changes_its_own_entry(self):
+        import vv_titles_file as tf
+        for game in (2, 4):
+            with self.subTest(game=game):
+                v, a, b, path, _entries = self.pending_twins(game)
+                kind, mine = self.questions(v, game)
+                answers = {}
+                for q, x in mine:
+                    first = "entry 1 of the file" in x.text
+                    who = a if first else b
+                    answers[q] = next(o for o in x.options if o.startswith(f"Give it to {who.name}")
+                                      and f"age {who.age}" in o)
+                rc.remember(v.folder, game, 1, [kind], answers, settle=self.settle(v, game))
+                got = tf.read(path.read_bytes(), game)[1]
+                self.assertEqual([(e.pending, e.index) for e in got], [(False, a.record), (False, b.record)])
+                self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "titles"])
+
+    def test_remove_one_of_two_identical_pending_titles(self):
+        import vv_titles_file as tf
+        for game in (1, 3, 5):
+            with self.subTest(game=game):
+                v, a, b, path, entries = self.pending_twins(game)
+                kind, mine = self.questions(v, game)
+                qid = next(q for q, x in mine if "entry 2 of the file" in x.text)
+                rc.remember(v.folder, game, 1, [kind], {qid: "Remove the title (it is nobody's now)"},
+                            settle=self.settle(v, game))
+                self.assertEqual(path.read_bytes(), tf.serialise(game, entries[:1]))
+
+    def test_byte_identical_pending_entries_each_have_a_question(self):
+        """Identical twins: the two entries are byte for byte the same; still two questions, and either
+        answer gives one of the two entries -- to the twin the player named."""
+        import vv_titles_file as tf
+        v = self.village("", 1, vv1_save([("Lani", False, 1, 1, 700), ("Kai", True, 3, 4, 500),
+                                          ("Kai", True, 3, 4, 500)]))
+        people = v.people(v.save_path(1).read_bytes())
+        kai, kai2 = people[1], people[2]
+        entry = tf.Entry(tf.PENDING, kai.title_id, self.TITLE, True, **kai.title_looks, contested=True)
+        twin = tf.Entry(tf.PENDING, kai.title_id, self.TITLE, True, **kai.title_looks, contested=True)
+        path = self.write_titles(v, [entry, twin])
+        kind, mine = self.questions(v, 1)
+        self.assertEqual(len(mine), 2, list(kind.questions))
+        self.assertEqual(sorted(q[-2:] for q, _x in mine), ["#1", "#2"])
+        answers = {}
+        for q, x in mine:
+            rec = kai.rank if q.endswith("#1") else kai2.rank
+            answers[q] = next(o for o in x.options if o.startswith("Give it to Kai") and f"record {rec}" in o)
+        rc.remember(v.folder, 1, 1, [kind], answers, settle=self.settle(v, 1))
+        got = tf.read(path.read_bytes(), 1)[1]
+        self.assertEqual(sorted(e.index for e in got), sorted([kai.record, kai2.record]))
+        self.assertFalse(any(e.pending for e in got))
+
+    def test_the_file_changed_since_the_question_changes_nothing(self):
+        """The other entry removed (by the game or another repair) after the question: the answer's entry
+        is no longer as the question saw it -- nothing is changed, and it is asked again."""
+        import vv_titles_file as tf
+        for game in (1, 4):
+            with self.subTest(game=game):
+                v, a, b, path, entries = self.pending_twins(game)
+                kind, mine = self.questions(v, game)
+                qid, question = next((q, x) for q, x in mine if "entry 1 of the file" in x.text)
+                give = next(o for o in question.options if o.startswith(f"Give it to {a.name}"))
+                self.write_titles(v, entries[:1])
+                before = path.read_bytes()
+                with self.assertRaises(tools.LogToolError):
+                    rc.remember(v.folder, game, 1, [kind], {qid: give}, settle=self.settle(v, game))
+                self.assertEqual(path.read_bytes(), before)
+                self.assertFalse(tools_decisions_kept(v))
+                # The entries swapped places: also not the entry the question saw.
+                self.write_titles(v, entries[::-1])
+                before = path.read_bytes()
+                with self.assertRaises(tools.LogToolError):
+                    rc.remember(v.folder, game, 1, [kind], {qid: give}, settle=self.settle(v, game))
+                self.assertEqual(path.read_bytes(), before)
+
+    def test_one_villager_named_for_both_entries_changes_nothing(self):
+        """Identical twins, the same twin named for both entries: never two titles to one villager --
+        nothing is changed."""
+        import vv_titles_file as tf
+        v = self.village("", 1, vv1_save([("Lani", False, 1, 1, 700), ("Kai", True, 3, 4, 500),
+                                          ("Kai", True, 3, 4, 500)]))
+        kai = v.people(v.save_path(1).read_bytes())[1]
+        entry = tf.Entry(tf.PENDING, kai.title_id, self.TITLE, True, **kai.title_looks, contested=True)
+        path = self.write_titles(v, [entry, tf.Entry(**{**entry.__dict__})])
+        kind, mine = self.questions(v, 1)
+        answers = {q: next(o for o in x.options if f"record {kai.rank}" in o) for q, x in mine}
+        before = path.read_bytes()
+        with self.assertRaises(tools.LogToolError):
+            rc.remember(v.folder, 1, 1, [kind], answers, settle=self.settle(v, 1))
+        self.assertEqual(path.read_bytes(), before)
+
+
 def tools_decisions_kept(v: Village) -> bool:
     import vv_log_decisions as decisions
     return any(d.get("kind") == rc.DECISION_KIND for d in decisions.load(v.folder, v.game, 1))
