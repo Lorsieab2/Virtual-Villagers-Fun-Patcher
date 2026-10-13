@@ -372,6 +372,46 @@ static void run_twins(int game) {
               game);
     twin_check(count_of(text, "  Name: Kai\n  Custom title: Skilled Kai\n") == 2 && strstr(text, "Either Kai") == NULL, what, text);
 
+    /* A Disappeared record is written after the villager's live byte is
+       cleared: record r is still a candidate AND a carrier.  A version 2
+       entry bound to the departing twin, with one present namesake, is
+       nobody's (Codex, #587) -- the rule both exporters use. */
+    {
+        vv_title_table table;
+        vv_custom_title v2;
+        table.first = twin_record(0);
+        table.stride = tg->stride;
+        table.slots = tg->slots;
+        table.active = tg->active;
+        table.name = tg->name;
+        table.name_capacity = tg->name_cap;
+        table.likes = tg->likes;
+        table.dislikes = tg->dislikes;
+        table.preference_slots = tg->pref_slots;
+        table.age = tg->age;
+        table.head = tg->head;
+        table.body = tg->body;
+        table.sex = tg->sex;
+        table.skills = tg->skills;
+        table.skill_count = tg->skill_count;
+        table.skills_float = tg->skills_float;
+        twin_villager(1, "Kai", 3, 4, 0);
+        twin_villager(2, "Kai", 5, 6, 0);
+        v2 = twin_entry(1, 0, 0, 0, 0, "Version Two");
+        twin_record(1)[tg->active] = 0;          /* taken: the Disappeared record is written now */
+        wsprintfA(what, "A VERSION 2 ENTRY ON A DEPARTING TWIN WITH ONE PRESENT NAMESAKE IS NOBODY'S (game %d)", game);
+        twin_check(!vv_title_shown_on(&v2, &table, 1), what, "(direct rule check)");
+        twin_villager(2, "Kaimana", 5, 6, 0);
+        twin_record(1)[tg->active] = 0;
+        wsprintfA(what, "...with no namesake the departing villager's version 2 title is shown (game %d)", game);
+        twin_check(vv_title_shown_on(&v2, &table, 1) != 0, what, "(direct rule check)");
+        v2 = twin_entry(1, 1, 3, 4, 0, "Known Looks");
+        twin_villager(2, "Kai", 5, 6, 0);
+        wsprintfA(what, "a known-looks entry on a departing twin with a different-looking namesake is shown (game %d)", game);
+        twin_check(vv_title_shown_on(&v2, &table, 1) != 0, what, "(direct rule check)");
+        twin_villager(1, "Kai", 3, 4, 0);
+    }
+
     /* A pending entry matches nobody. */
     entries[0] = twin_entry(VV_TITLE_PENDING, 1, 3, 4, 50, "Pending Kai");
     twin_write_titles(entries, 1);

@@ -13,8 +13,10 @@
  *   - it is bound (index != VV_TITLE_PENDING; a pending title is nobody's),
  *     its index is r, and record r has its fingerprint (vv_title_identity);
  *   - its looks are not known (a version 2 entry, flags without
- *     VV_TITLE_KNOWN): at most one present record carries the fingerprint
- *     (two carriers and nothing else to tell them apart: nobody's);
+ *     VV_TITLE_KNOWN): r is the only record that carries the fingerprint
+ *     among the present records and r itself (two carriers and nothing else
+ *     to tell them apart: nobody's -- a departing r with one present
+ *     namesake is two);
  *   - its looks are known: exactly ONE record carries the fingerprint and has
  *     looks the entry's could be (custom_titles.h vv_title_looks_could_be:
  *     the same head, body and sex, no younger and no skill lower), and that
@@ -90,9 +92,11 @@ static int vv_title_shown_on(const vv_custom_title *e, const vv_title_table *t, 
         if ((!present && i != r) || vv_title_table_identity(t, record) != e->fingerprint) {
             continue;
         }
-        if (present) {
-            ++carriers;
-        }
+        /* Every admitted record is a carrier -- record r too when its live
+           byte was just cleared (a Disappeared record): the departing
+           villager could still own the title, so one present namesake
+           makes two carriers and a version 2 entry nobody's (Codex, #587). */
+        ++carriers;
         if (e->flags & VV_TITLE_KNOWN) {
             vv_title_looks now;
             vv_title_table_looks(t, record, &now);

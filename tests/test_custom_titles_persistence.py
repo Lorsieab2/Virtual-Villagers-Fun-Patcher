@@ -268,6 +268,8 @@ class CustomTitlesInTheLogs(unittest.TestCase):
                      "IDENTICAL TWINS SHOW NO TITLE",
                      "A VERSION 2 ENTRY WITH TWO CARRIERS SHOWS NONE",
                      "THE RECORD AT THE ENTRY'S INDEX HOLDING THE OTHER TWIN (STALE FILE) SHOWS NONE",
+                     # v1.35.72 (Codex, #587): a departing record r is a carrier too.
+                     "A VERSION 2 ENTRY ON A DEPARTING TWIN WITH ONE PRESENT NAMESAKE IS NOBODY'S",
                      "for (game = 1; game <= 5; ++game) {\n            run_twins(game);"):
             with self.subTest(case=case):
                 self.assertIn(case, text.replace("\r\n", "\n"))
@@ -282,6 +284,8 @@ class CustomTitlesInTheLogs(unittest.TestCase):
         self.assertIn("vv_title_looks_could_be(&e->looks, &now, t->skills_float)", shown)
         self.assertIn("return could == 1 && where == r;", shown)
         self.assertIn("return carriers <= 1;", shown)
+        # Record r is counted as a carrier even when admitted while inactive.
+        self.assertNotIn("if (present) {\n            ++carriers;", shown.replace("\r\n", "\n"))
         self.assertIn("vv_title_normalise_skills(out, t->skills_float);", shown)
         population = EXPORTER.read_text(encoding="utf-8")
         self.assertIn("vv_title_shown_on(&g_custom_titles[i], &g_title_table, (unsigned int)index)", population)
