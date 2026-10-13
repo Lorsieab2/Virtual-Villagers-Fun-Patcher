@@ -354,12 +354,22 @@ static int titles_rebase(int game, int index) {
     int saved_base_age, saved_roster_age;
     unsigned int saved_base_skills[VV_TITLE_SKILLS];
     int i, k;
-    /* Not before the table has been followed against the village on screen
-       (the bases and the last look exist only then; before it, a title is
-       set from the villager as they are). */
-    if (titles.game != game || !titles.loaded || titles.slot <= 0 || !titles.roster_anyone || record == NULL
+    titles_sync(game);
+    if (titles.game != game || !titles.loaded || titles.slot <= 0 || record == NULL
         || index < 0 || index >= TITLES_ROSTER) {
         return 1;
+    }
+    /* Before the table has been followed against the village on screen (v1.35.73), follow it first, as
+       the lookup does (titles_lookup): the bases and the last look exist only then, and an entry must be
+       on its villager before a lowering is carried -- a stale record index could be a namesake's.  A
+       lowering seen before that first follow is then not stored: the follow runs on the stored looks,
+       and a villager lowered below them waits PENDING, never bound to someone else (a documented limit,
+       custom_titles_harness.c). */
+    if (!titles.roster_anyone) {
+        titles_pass(game, 0);
+        if (!titles.roster_anyone) {
+            return 1;
+        }
     }
     story_title_looks(game, record, &now);
     vv_title_normalise_skills(&now, floats);
