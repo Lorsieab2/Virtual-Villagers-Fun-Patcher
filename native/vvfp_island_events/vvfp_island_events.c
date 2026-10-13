@@ -37,6 +37,22 @@
 #define GAMES 5
 #define KIND_ISLAND_EVENT 8               /* parentage_export.c */
 #define KIND_APPEARANCE 7
+
+/* An island event that changes a head or body tells the Story / Cheat Upgrades companion first, as
+   Origins' Change Appearance does (native/shared/appearance_log.h): a custom title is kept by the
+   villager's looks, and a log written in this very frame (a Death) must compare against the new
+   ones, not the old ones the Custom Titles file still holds until its next tick.  Only when the
+   companion is already loaded (GetModuleHandle never loads a DLL) and only if it has the export. */
+typedef int (__stdcall *story_appearance_fn)(int, const void *, int, int);
+
+static void tell_story_appearance(int game, const void *record, int head, int body) {
+    HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
+    story_appearance_fn changed = story != NULL
+        ? (story_appearance_fn)(void *)GetProcAddress(story, "VvfpStoryAppearanceChanged") : NULL;
+    if (changed != NULL) {
+        (void)changed(game, record, head, body);
+    }
+}
 #define MAX_VILLAGERS 256
 #define TITLE_MAX 96
 #define TEXT_MAX 96                       /* the item the popup names (item_of) */
@@ -432,6 +448,7 @@ static void compare(struct snapshot *s) {
                     _snprintf(look + n, sizeof look - (size_t)n, "  Item: %s\n", s->text);   /* "a watery red vial" */
                 }
                 look[sizeof look - 1] = '\0';
+                tell_story_appearance(g_game, live, nh, nb);
                 g_write(g_game, KIND_APPEARANCE, live, 1, look, NULL, 0);
             }
         }
