@@ -1442,6 +1442,12 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         } else {
             ce_apply_fields(a, record, c, r);
         }
+        /* A lowered age or skill is a real change the patcher made: the
+           title's stored looks follow it, or the next load would find nobody
+           "no younger, no less skilled" and the title would go pending. */
+        if ((a->caps & CAP_TITLE) && !titles_rebase(e->game, c->index)) {
+            ce_refuse(r, CE_WHY_TITLE);
+        }
         if ((a->caps & CAP_PARENTS) && c->parents_set) {
             if (!a->parents_supported()) {
                 ce_refuse(r, CE_WHY_SHOW_PARENTS);

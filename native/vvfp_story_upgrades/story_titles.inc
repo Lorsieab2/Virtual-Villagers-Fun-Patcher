@@ -322,6 +322,44 @@ static int titles_rebind(int game, int index, unsigned int before) {
     return titles_commit();
 }
 
+/* The villager in record `index` was just given a new age and / or skills by
+   a custom event (Villager changes: Age, the skills): a REAL, KNOWN change
+   the patcher made itself, so what the title is kept by follows it -- the
+   stored looks, the age and skills the villager is first seen with, and the
+   last look's age (a younger age than the last look reads as a namesake born
+   into a freed record, titles_reborn, and would take the title away).  A
+   lowered age or skill left as stored would make the next load find nobody
+   "no younger, no less skilled" and the title go pending (v1.35.72).  Only
+   an entry bound to this very record and this very identity moves; nothing
+   else is touched.  Returns 1 when there was nothing to follow or the
+   followed table is published; 0 when it could not be (the table is then
+   left as it was). */
+static int titles_rebase(int game, int index) {
+    const unsigned char *record = story_record(game, index);
+    vv_title_looks now;
+    int i;
+    if (titles.game != game || !titles.loaded || titles.slot <= 0 || record == NULL
+        || index < 0 || index >= TITLES_ROSTER) {
+        return 1;
+    }
+    i = titles_find((unsigned int)index);
+    if (i < 0 || titles.entries[i].fingerprint != story_title_identity(game, record)) {
+        return 1;
+    }
+    story_title_looks(game, record, &now);
+    vv_title_normalise_skills(&now, story_title_skills_float(game));
+    titles_reset_detected();
+    titles_before.count = titles.count;
+    memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
+    memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
+    titles.entries[i].looks = now;
+    titles.entries[i].flags |= VV_TITLE_KNOWN;
+    titles.base_age[index] = now.age;
+    memcpy(titles.base_skills[index], now.skills, sizeof now.skills);
+    titles.roster_age[index] = now.age;
+    return titles_commit();
+}
+
 /* Could the villager in record `r` be the one entry `e` belongs to?  Present,
    the fingerprint (name, likes, dislikes), and -- once the entry's looks are
    known -- the same head, body and sex, and no younger and no less skilled
@@ -547,13 +585,32 @@ static int titles_reborn(int r, const unsigned int *now, const int *now_age) {
 
 static void titles_note_bases(int game, const unsigned int *now, const int *now_age, int moved, int renamed,
                               const unsigned char *in_place, int in_place_count) {
-    int r;
+    int r, k;
     for (r = 0; r < TITLES_ROSTER; ++r) {
         const unsigned char *record;
         vv_title_looks looks;
         if (now[r] == 0 || (!moved && !titles_reborn(r, now, now_age)
                             && (titles.roster[r] == now[r] || r == renamed
                                 || (in_place_count > 0 && in_place[r])))) {
+            if (now[r] != 0 && !moved && titles.roster_anyone && titles.roster[r] == now[r]
+                && !titles_reborn(r, now, now_age) && (record = story_record(game, r)) != NULL) {
+                /* THE SAME VILLAGER, WATCHED, WITH A SKILL LOWER THAN BEFORE
+                   (a Cheat Engine edit, a vial): not a move, not a namesake
+                   (nobody is older-then-younger here -- titles_reborn is the
+                   age's judge) -- the stored floor follows it down, so the
+                   next load does not find nobody "no less skilled"
+                   (v1.35.72).  Never raised here: a floor only goes down. */
+                story_title_looks(game, record, &looks);
+                vv_title_normalise_skills(&looks, story_title_skills_float(game));
+                for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+                    unsigned int was = vv_title_skill_normalised(titles.base_skills[r][k], story_title_skills_float(game));
+                    if (story_title_skills_float(game)
+                        ? vv_title_skill_float(looks.skills[k]) < vv_title_skill_float(was)
+                        : (int)looks.skills[k] < (int)was) {
+                        titles.base_skills[r][k] = looks.skills[k];
+                    }
+                }
+            }
             continue;
         }
         record = story_record(game, r);
