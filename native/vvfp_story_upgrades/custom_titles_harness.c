@@ -182,9 +182,26 @@ static void story_title_looks(int game, const unsigned char *record, vv_title_lo
     }
 }
 
+static int g_skills_float;          /* 1: the skills are floats (The Tree of Life, New Believers) */
+
 static int story_title_skills_float(int game) {
     (void)game;
-    return 0;
+    return g_skills_float;
+}
+
+/* A skill dword for the value `v`: the int itself, or the float's bits. */
+static unsigned int skill_dword(int v) {
+    float f = (float)v;
+    unsigned int bits;
+    if (!g_skills_float) {
+        return (unsigned int)v;
+    }
+    memcpy(&bits, &f, sizeof bits);
+    return bits;
+}
+
+static void set_skill(int index, int skill, int v) {
+    *(unsigned int *)(g_records[index] + 64 + 4 * skill) = skill_dword(v);
 }
 
 /* Set a villager's looks: sex, age, head, body, and every skill to `skill`. */
@@ -222,8 +239,8 @@ static long file_size(const char *path) {
 }
 
 static void titles_path(int slot, char *out) {
-    wsprintfA(out, "%s\\Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save %d.dat",
-              g_root, slot);
+    _snprintf_s(out, MAX_PATH, _TRUNCATE,
+                "%s\\Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save %d.dat", g_root, slot);
 }
 
 /* A new session: the table starts empty and loads from disk. */
@@ -240,6 +257,32 @@ static int title_index(const char *title) {
         }
     }
     return -2;
+}
+
+/* What the harness needs under %TEMP% (GetTempPath ends in a backslash): the root
+   "vvfp_titles_harness_<pid>" (20 + at most 10 characters), then the longest file under it,
+   "\Virtual Villagers Fun Patcher Data\Custom Titles\Custom Titles - Save 1.dat" (76), its
+   ".unreadable-*" set-aside pattern (13), and 16 for the temporary names the atomic publish makes. */
+#define HARNESS_PATH_NEED (20 + 10 + 76 + 13 + 16)
+
+/* The save folder root: <GetTempPath>\vvfp_titles_harness_<pid>.  A %TEMP% so long that the files under
+   it would pass MAX_PATH makes the harness say so and stop, instead of failing every check on a path
+   that does not fit (review of 3f176ddd).  It does not rely on 8.3 short names (a volume may have them
+   off): the build script keeps its own folder name short instead. */
+static int make_root(void) {
+    char temp[MAX_PATH];
+    DWORD n = GetTempPathA(MAX_PATH, temp);
+    if (n == 0 || n >= MAX_PATH) {
+        printf("%%TEMP%% is unreadable or longer than MAX_PATH: the harness cannot run\n");
+        return 0;
+    }
+    if (n + HARNESS_PATH_NEED >= MAX_PATH) {
+        printf("%%TEMP%% (%s, %lu characters) is too long for the files under it to fit MAX_PATH:"
+               " the harness cannot run\n", temp, (unsigned long)n);
+        return 0;
+    }
+    _snprintf_s(g_root, MAX_PATH, _TRUNCATE, "%svvfp_titles_harness_%lu", temp, GetCurrentProcessId());
+    return CreateDirectoryA(g_root, NULL) || GetLastError() == ERROR_ALREADY_EXISTS;
 }
 
 static void write_bytes(const char *path, const void *data, DWORD size) {
@@ -260,10 +303,10 @@ int main(void) {
     HANDLE h;
     DWORD got = 0;
 
-    wsprintfA(g_root, "%s", "");
-    GetTempPathA(MAX_PATH, g_root);
-    wsprintfA(g_root + lstrlenA(g_root), "vvfp_titles_harness_%lu", GetCurrentProcessId());
-    CreateDirectoryA(g_root, NULL);
+    if (!make_root()) {
+        printf("\n1 failure(s)\n");
+        return 2;
+    }
     printf("save folder: %s\n\n", g_root);
     titles_path(1, path1);
     titles_path(2, path2);
@@ -326,7 +369,7 @@ int main(void) {
         WIN32_FIND_DATAA found;
         char pattern[MAX_PATH];
         HANDLE f;
-        wsprintfA(pattern, "%s.unreadable-*", path1);
+        _snprintf_s(pattern, MAX_PATH, _TRUNCATE, "%s.unreadable-*", path1);
         f = FindFirstFileA(pattern, &found);
         check(f != INVALID_HANDLE_VALUE, "THE INVALID FILE IS MOVED ASIDE, NOT OVERWRITTEN");
         if (f != INVALID_HANDLE_VALUE) {
@@ -577,6 +620,216 @@ int main(void) {
             check(titles_lookup(3, g_records[1]) == NULL && titles.count == 1
                   && title_index("Kai Title") == (int)VV_TITLE_PENDING, wrong[w].what);
         }
+    }
+
+    /* v1.35.72: A LOWERED AGE OR SKILL THE PATCHER MADE ITSELF (a Custom
+       Island Event's Villager changes).  Left as stored, the next load finds
+       nobody "no younger, no less skilled" and the title goes pending; the
+       event re-stores the title's looks (titles_rebase).  Without it (a
+       change nobody told the companion of) the title still waits pending --
+       never a guess. */
+    {
+        int told;
+        for (told = 0; told < 2; ++told) {
+            new_session();
+            DeleteFileA(path1);
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+            titles_tick(3);
+            titles_set(3, 1, "Kai Title");
+            titles_tick(3);
+            looks(1, 1, 300, 3, 4, 5);                           /* the event lowers age and skills */
+            if (told) {
+                check(titles_rebase(3, 1) == 1, "the event's lowered age and skills are re-stored and published");
+            }
+            titles_tick(3);
+            titles_tick(3);
+            if (told) {
+                check(title_index("Kai Title") == 1, "... the title stays on Kai in the session");
+            } else {
+                /* The age fell: the sweep takes a younger villager in the same record for a namesake
+                   born into a freed record (titles_reborn), and a title whose villager was seen is
+                   deleted -- what an unannounced AGE lowering (Cheat Engine) does. */
+                check(titles.count == 0, "... an unannounced age lowering DELETES the seen title (reborn namesake)");
+            }
+            new_session();
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Kai"); looks(0, 1, 300, 3, 4, 5);       /* reloaded, packed to [0] */
+            villager(1, "Lani");
+            titles_tick(3);
+            seen = titles_lookup(3, g_records[0]);
+            if (told) {
+                check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
+                      "A LOWERED AGE AND SKILL FROM A CUSTOM ISLAND EVENT: THE TITLE STILL FOLLOWS KAI AFTER A RELOAD");
+            } else {
+                check(seen == NULL && titles.count == 0 && title_index("Kai Title") == -2,
+                      "... and after a reload the deleted title is on nobody and not in the file");
+            }
+        }
+        /* Re-storing touches only the entry bound to that very villager. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20); villager(2, "Moku");
+        looks(2, 1, 400, 2, 2, 10);
+        titles_tick(3);
+        titles_set(3, 1, "Kai Title");
+        looks(2, 1, 100, 2, 2, 1);
+        check(titles_rebase(3, 2) == 1 && titles.entries[0].looks.age == 500
+              && titles.entries[0].looks.skills[0] == 20, "a record with no title leaves other entries alone");
+
+        /* The stored values only ever go DOWN (v1.35.72, review): an event that raises age or skills
+           must not lift the stored looks above what the save still holds after an Alt-F4 or a crash. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(3);
+        titles_set(3, 1, "Kai Title");
+        titles_tick(3);
+        looks(1, 1, 700, 3, 4, 60);                              /* the event raises age and skills */
+        check(titles_rebase(3, 1) == 1 && titles.entries[0].looks.age == 500 && titles.entries[0].looks.skills[0] == 20
+              && titles.base_age[1] == 500 && titles.base_skills[1][0] == 20,
+              "AN EVENT THAT RAISES AGE AND SKILLS NEVER LIFTS WHAT THE TITLE IS KEPT BY");
+        titles_tick(3);
+        titles_tick(3);
+        new_session();                                           /* a crash: the save still holds the older values */
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Kai"); looks(0, 1, 500, 3, 4, 20);
+        villager(1, "Lani");
+        titles_tick(3);
+        seen = titles_lookup(3, g_records[0]);
+        check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
+              "... SO AFTER AN ALT-F4 THE OLDER SAVE'S KAI STILL HAS HIS TITLE");
+        /* Mixed: age lowered, one skill raised, another lowered -- each field its own lower value. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(3);
+        titles_set(3, 1, "Kai Title");
+        titles_tick(3);
+        looks(1, 1, 400, 3, 4, 20);
+        *(int *)(g_records[1] + 64) = 90;                        /* skill 0 raised */
+        *(int *)(g_records[1] + 68) = 5;                         /* skill 1 lowered */
+        check(titles_rebase(3, 1) == 1 && titles.entries[0].looks.age == 400 && titles.entries[0].looks.skills[0] == 20
+              && titles.entries[0].looks.skills[1] == 5, "each field follows the event down only");
+        /* A write that fails rolls back the bases and the last look's age with the table. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(3);
+        titles_set(3, 1, "Kai Title");
+        titles_tick(3);
+        looks(1, 1, 300, 3, 4, 5);
+        g_fail_writes = 1;
+        check(titles_rebase(3, 1) == 0, "a rebase that can not be written is refused");
+        g_fail_writes = 0;
+        check(titles.entries[0].looks.age == 500 && titles.entries[0].looks.skills[0] == 20
+              && titles.base_age[1] == 500 && titles.base_skills[1][0] == 20 && titles.roster_age[1] == 500,
+              "... and leaves the entry, the bases and the last look's age as they were");
+        /* Nothing is touched before the table has been followed against the village. */
+        new_session();
+        titles_sync(3);
+        check(titles.loaded && !titles.roster_anyone && titles_rebase(3, 1) == 1 && titles.entries[0].looks.age == 500
+              && titles.base_age[1] == 0, "a rebase before the table was followed changes nothing");
+    }
+
+    /* v1.35.72 (re-review): A TITLE SET AFTER A LOWERING.  The lowering (a Custom Island Event's skill
+       change) moves what a title is kept by even when nobody holds a title yet, so a title set on that
+       villager later in the session, or in the same event after the lowering, is stored with the
+       lowered skill -- not the higher one the villager was first seen with, which no clean save can
+       match.  Ints (A New Home to The Secret City) and floats (The Tree of Life, New Believers). */
+    {
+        int fl, same_event;
+        for (fl = 0; fl < 2; ++fl) {
+            for (same_event = 0; same_event < 2; ++same_event) {
+                char what[160];
+                g_skills_float = fl;
+                new_session();
+                DeleteFileA(path1);
+                memset(g_records, 0, sizeof g_records);
+                villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 0);
+                set_skill(1, 0, 50);
+                titles_tick(3);
+                titles_tick(3);
+                set_skill(1, 0, 10);                             /* the event lowers a skill: nobody has a title yet */
+                check(titles_rebase(3, 1) == 1, "a lowering with no title bound is followed (nothing to publish)");
+                if (!same_event) {
+                    titles_tick(3);
+                    titles_tick(3);
+                }
+                check(titles_set(3, 1, "Kai Title") == 1, "the title is set after the lowering");
+                wsprintfA(what, "THE NEW TITLE IS STORED WITH THE LOWERED SKILL (%s, %s)", fl ? "floats" : "ints",
+                          same_event ? "same event" : "later");
+                check(titles.entries[0].looks.skills[0] == skill_dword(10), what);
+                titles_tick(3);
+                titles_tick(3);
+                check(titles.entries[0].looks.skills[0] == skill_dword(10), "... and the next ticks keep it");
+                new_session();                                   /* a clean save and reload: skill 10, packed to [0] */
+                memset(g_records, 0, sizeof g_records);
+                villager(0, "Kai"); looks(0, 1, 500, 3, 4, 0); set_skill(0, 0, 10);
+                villager(1, "Lani");
+                titles_tick(3);
+                seen = titles_lookup(3, g_records[0]);
+                wsprintfA(what, "... SO A CLEAN SAVE RELOAD KEEPS THE TITLE BOUND (%s, %s)", fl ? "floats" : "ints",
+                          same_event ? "same event" : "later");
+                check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0, what);
+                new_session();                                   /* an Alt-F4: the older save, skill 50 */
+                memset(g_records, 0, sizeof g_records);
+                villager(0, "Kai"); looks(0, 1, 500, 3, 4, 0); set_skill(0, 0, 50);
+                villager(1, "Lani");
+                titles_tick(3);
+                seen = titles_lookup(3, g_records[0]);
+                wsprintfA(what, "... AND AN ALT-F4 RELOAD OF THE OLDER SAVE STILL KEEPS IT (%s, %s)",
+                          fl ? "floats" : "ints", same_event ? "same event" : "later");
+                check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0, what);
+            }
+        }
+        g_skills_float = 0;
+    }
+
+    /* v1.35.72: A CHANGE APPEARANCE AND A LOG IN THE SAME FRAME.  The file
+       still holds the old head and body until the next tick republishes
+       them; a Death or Disappeared record written in between compares the
+       villager's new looks against those and leaves the title out.  Origins'
+       Change Appearance now tells the companion in the same call that logs
+       it, and the file is published before that call returns. */
+    {
+        int told;
+        for (told = 0; told < 2; ++told) {
+            vv_title_looks stored;
+            new_session();
+            DeleteFileA(path1);
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+            titles_tick(3);
+            titles_set(3, 1, "Kai Title");
+            titles_tick(3);
+            looks(1, 1, 500, 7, 8, 20);                          /* Change Appearance: head 3 -> 7, body 4 -> 8 */
+            if (told) {
+                check(VvfpStoryAppearanceChanged(3, g_records[1], 7, 8) == 1, "the companion is told of the new looks");
+            }
+            new_session();                                       /* what a log written now reads: the file */
+            titles_sync(3);
+            stored = titles.entries[0].looks;
+            check(told ? stored.head == 7 && stored.body == 8 && stored.age == 500 && stored.skills[0] == 20
+                       : stored.head == 3 && stored.body == 4,
+                  told ? "A CHANGE APPEARANCE IS IN THE FILE AT ONCE: A LOG IN THE SAME FRAME COMPARES THE NEW LOOKS"
+                       : "... without it the file keeps the old looks until the next tick");
+        }
+        /* A villager with no title, or another record's, leaves the file alone. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(3);
+        titles_set(3, 1, "Kai Title");
+        titles_tick(3);
+        looks(0, 1, 100, 5, 6, 1);
+        check(VvfpStoryAppearanceChanged(3, g_records[0], 5, 6) == 1 && titles.entries[0].looks.head == 3,
+              "a villager with no title leaves every entry alone");
     }
 
     /* Twins identical in everything: whose the title is can never be told

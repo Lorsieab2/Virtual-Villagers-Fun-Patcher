@@ -81,6 +81,7 @@ EXPORTS
     VvfpStoryStats DATA
     VvfpStoryOutcomeStats DATA
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
+    VvfpStoryAppearanceChanged=_VvfpStoryAppearanceChanged@16
     VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4
     VvfpStoryProbeQueueFile=_VvfpStoryProbeQueueFile@8
     VvfpStoryProbeQueueSession=_VvfpStoryProbeQueueSession@16

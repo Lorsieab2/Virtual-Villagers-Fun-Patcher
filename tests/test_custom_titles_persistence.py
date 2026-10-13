@@ -157,6 +157,53 @@ class CustomTitlesFile(unittest.TestCase):
                 self.assertIn(f"[PASS] THE TITLE SURVIVES A LIKES / DISLIKES CHANGE, ASKED IN THE SAME FRAME "
                               f"(game {game})", run.stdout)
 
+    def test_a_custom_event_that_lowers_age_or_skills_re_stores_the_title_looks(self):
+        # v1.35.72: the Custom Island Event's own lowering of a titled villager's
+        # age / skills is a known change; the stored looks follow it, or the next
+        # load finds nobody "no younger, no less skilled" and the title goes pending.
+        store = STORE.read_text(encoding="utf-8")
+        self.assertIn("static int titles_rebase(int game, int index) {", store)
+        custom = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
+        self.assertIn("titles_rebase(e->game, c->index)", custom)
+        # Review of 3f176ddd: only when the event changed age or a skill; the stored values only go down;
+        # a failed publish rolls the bases back; nothing before the table was followed.
+        self.assertIn("ce_age_or_skills_changed(e->game, record, &looks_before)", custom)
+        self.assertIn("titles_skill_lower(", store)
+        self.assertIn("!titles.roster_anyone || record == NULL", store)
+        self.assertIn("titles.roster_age[index] = saved_roster_age;", store)
+        for case in ("AN EVENT THAT RAISES AGE AND SKILLS NEVER LIFTS WHAT THE TITLE IS KEPT BY",
+                     "... SO AFTER AN ALT-F4 THE OLDER SAVE'S KAI STILL HAS HIS TITLE",
+                     "a rebase that can not be written is refused",
+                     "a rebase before the table was followed changes nothing",
+                     "an unannounced age lowering DELETES the seen title",
+                     # Re-review: a title set after a lowering (same event or later) is stored lowered.
+                     "THE NEW TITLE IS STORED WITH THE LOWERED SKILL (",
+                     "... SO A CLEAN SAVE RELOAD KEEPS THE TITLE BOUND (",
+                     "... AND AN ALT-F4 RELOAD OF THE OLDER SAVE STILL KEEPS IT ("):
+            with self.subTest(case=case):
+                self.assertIn(case, HARNESS.read_text(encoding="utf-8"))
+        text = HARNESS.read_text(encoding="utf-8")
+        for case in ("A LOWERED AGE AND SKILL FROM A CUSTOM ISLAND EVENT: THE TITLE STILL FOLLOWS KAI AFTER A RELOAD",
+                     "... and after a reload the deleted title is on nobody and not in the file"):
+            with self.subTest(case=case):
+                self.assertIn(case, text)
+    def test_change_appearance_re_stores_the_titles_head_and_body_before_any_log_reads_them(self):
+        # v1.35.72: a log written in the same frame as a Change Appearance read the file's old head
+        # and body and left the title out until the next tick; Origins' appearance log now tells the
+        # companion first (only when it is already loaded), and the file is published at once.
+        log = (ROOT / "native" / "shared" / "appearance_log.h").read_text(encoding="utf-8")
+        self.assertIn('GetModuleHandleA("VVFP Story Upgrades.dll")', log)
+        self.assertIn('"VvfpStoryAppearanceChanged"', log)
+        self.assertLess(log.index('"VvfpStoryAppearanceChanged"'), log.index("write_record(game, VV_KIND_APPEARANCE"))
+        store = STORE.read_text(encoding="utf-8")
+        self.assertIn("static int titles_appearance_changed(int game, const unsigned char *record, int head, int body) {", store)
+        self.assertIn("VvfpStoryAppearanceChanged(int game, const void *record, int head, int body)", store)
+        for name in ("vvfp_story_upgrades.def", "vvfp_story_upgrades_test.def"):
+            with self.subTest(name):
+                self.assertIn("VvfpStoryAppearanceChanged=_VvfpStoryAppearanceChanged@16",
+                              (ROOT / "native" / "vvfp_story_upgrades" / name).read_text(encoding="utf-8"))
+        text = HARNESS.read_text(encoding="utf-8")
+        self.assertIn("A CHANGE APPEARANCE IS IN THE FILE AT ONCE: A LOG IN THE SAME FRAME COMPARES THE NEW LOOKS", text)
     def test_an_ambiguous_title_is_kept_pending_never_dropped(self):
         """v1.35.70, the owner: a title is never dropped because its villager became ambiguous after
         a reload; it is kept pending (shown on nobody) and bound again only by the whole identity."""
@@ -268,6 +315,8 @@ class CustomTitlesInTheLogs(unittest.TestCase):
                      "IDENTICAL TWINS SHOW NO TITLE",
                      "A VERSION 2 ENTRY WITH TWO CARRIERS SHOWS NONE",
                      "THE RECORD AT THE ENTRY'S INDEX HOLDING THE OTHER TWIN (STALE FILE) SHOWS NONE",
+                     # v1.35.72 (Codex, #587): a departing record r is a carrier too.
+                     "A VERSION 2 ENTRY ON A DEPARTING TWIN WITH ONE PRESENT NAMESAKE IS NOBODY'S",
                      "for (game = 1; game <= 5; ++game) {\n            run_twins(game);"):
             with self.subTest(case=case):
                 self.assertIn(case, text.replace("\r\n", "\n"))
@@ -282,6 +331,8 @@ class CustomTitlesInTheLogs(unittest.TestCase):
         self.assertIn("vv_title_looks_could_be(&e->looks, &now, t->skills_float)", shown)
         self.assertIn("return could == 1 && where == r;", shown)
         self.assertIn("return carriers <= 1;", shown)
+        # Record r is counted as a carrier even when admitted while inactive.
+        self.assertNotIn("if (present) {\n            ++carriers;", shown.replace("\r\n", "\n"))
         self.assertIn("vv_title_normalise_skills(out, t->skills_float);", shown)
         population = EXPORTER.read_text(encoding="utf-8")
         self.assertIn("vv_title_shown_on(&g_custom_titles[i], &g_title_table, (unsigned int)index)", population)
@@ -306,3 +357,95 @@ class CustomTitlesInTheLogs(unittest.TestCase):
         self.assertEqual(run.returncode, 0, run.stdout[-3000:] + run.stderr[-2000:])
         self.assertIn("0 failure(s)", run.stdout)
         self.assertNotIn("[FAIL]", run.stdout)
+
+    def test_the_harness_never_writes_past_its_max_path_buffers(self):
+        # v1.35.72: the harness built its root with wsprintfA into a MAX_PATH
+        # buffer, and its log paths the same way, so a long %TEMP% wrote past
+        # them.  Every path is now bounded, and a %TEMP% too long for the logs
+        # is tried in its short form or refused with a message.
+        text = LOG_HARNESS.read_text(encoding="utf-8")
+        self.assertNotIn("wsprintfA(g_root", text)
+        self.assertNotIn('wsprintfA(out, "%s\\\\Virtual Villagers', text)
+        self.assertIn("static int make_root(void)", text)
+        self.assertIn("GetShortPathNameA(temp, shorter, MAX_PATH)", text)
+
+    def test_the_titles_harness_never_writes_past_its_max_path_buffers(self):
+        # Review of 3f176ddd: with a long %TEMP% the titles harness failed ~150 checks (every publish
+        # failed on path length).  It now bounds its paths, tries the short form of a long %TEMP%, or
+        # stops with a message, like the log harness.
+        text = HARNESS.read_text(encoding="utf-8")
+        self.assertNotIn("wsprintfA(g_root", text)
+        self.assertNotIn("wsprintfA(out, ", text)
+        self.assertNotIn("wsprintfA(pattern, ", text)
+        self.assertIn("static int make_root(void)", text)
+        self.assertIn("if (n + HARNESS_PATH_NEED >= MAX_PATH) {", text)
+        self.assertNotIn("GetShortPathName", text, "the harness must not depend on 8.3 short names")
+        self.assertIn('"vvfp_ct_" + [guid]::NewGuid()', BUILD.read_text(encoding="utf-8"))
+
+    @unittest.skipUnless(CL.exists(), "the 32-bit MSVC toolchain is not installed")
+    def test_a_moderately_long_temp_folder_runs_the_titles_harness(self):
+        # The bound is exact: a %TEMP% about 60 characters deep (the build folder under it brings the
+        # root to ~100) used to be refused at 92 and now runs, with no 8.3 names involved.
+        import os
+        import shutil
+        import tempfile
+        base = Path(tempfile.mkdtemp(prefix="vvfp_mt_"))
+        try:
+            deep = base
+            while len(str(deep)) < 60:
+                deep = deep / "a_folder_name_x"
+            deep.mkdir(parents=True)
+            env = dict(os.environ, TEMP=str(deep), TMP=str(deep))
+            run = subprocess.run(
+                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(BUILD)],
+                capture_output=True, text=True, timeout=600, env=env)
+            self.assertTrue("\n0 failure(s)" in run.stdout and "[FAIL]" not in run.stdout and run.returncode == 0,
+                            run.stdout[-3000:] + run.stderr[-2000:])
+        finally:
+            shutil.rmtree("\\\\?\\" + str(base), ignore_errors=True)
+
+    @unittest.skipUnless(CL.exists(), "the 32-bit MSVC toolchain is not installed")
+    def test_a_long_temp_folder_runs_the_titles_harness_or_refuses_it_cleanly(self):
+        import os
+        import shutil
+        import tempfile
+        base = Path(tempfile.mkdtemp(prefix="vvfp_longtemp_"))
+        try:
+            deep = base
+            while len(str(deep)) < 120:
+                deep = deep / "a_rather_long_folder_name_x"
+            deep.mkdir(parents=True)
+            env = dict(os.environ, TEMP=str(deep), TMP=str(deep))
+            run = subprocess.run(
+                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(BUILD)],
+                capture_output=True, text=True, timeout=600, env=env)
+            out = run.stdout
+            ran = "\n0 failure(s)" in out and "[FAIL]" not in out and run.returncode == 0
+            refused = "is too long for the files under it to fit MAX_PATH" in out and "[FAIL]" not in out
+            self.assertTrue(ran or refused, out[-3000:] + run.stderr[-2000:])
+        finally:
+            shutil.rmtree("\\\\?\\" + str(base), ignore_errors=True)
+
+    @unittest.skipUnless(CL.exists(), "the 32-bit MSVC toolchain is not installed")
+    def test_a_long_temp_folder_runs_or_is_refused_cleanly(self):
+        import os
+        import shutil
+        import tempfile
+        base = Path(tempfile.mkdtemp(prefix="vvfp_longtemp_"))
+        try:
+            deep = base
+            # Long enough that the logs under the harness's root pass MAX_PATH,
+            # short enough that the compiler's own objects still fit.
+            while len(str(deep)) < 120:
+                deep = deep / "a_rather_long_folder_name_x"
+            deep.mkdir(parents=True)
+            env = dict(os.environ, TEMP=str(deep), TMP=str(deep))
+            run = subprocess.run(
+                ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(LOG_BUILD)],
+                capture_output=True, text=True, timeout=600, env=env)
+            out = run.stdout
+            ran = "\n0 failure(s)" in out and "[FAIL]" not in out and run.returncode == 0
+            refused = "is too long for the logs under it to fit MAX_PATH" in out and "[FAIL]" not in out
+            self.assertTrue(ran or refused, out[-3000:] + run.stderr[-2000:])
+        finally:
+            shutil.rmtree("\\\\?\\" + str(base), ignore_errors=True)

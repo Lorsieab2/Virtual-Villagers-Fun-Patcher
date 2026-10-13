@@ -322,6 +322,122 @@ static int titles_rebind(int game, int index, unsigned int before) {
     return titles_commit();
 }
 
+/* The lower of two skill dwords (both already normalised): floats compare as
+   floats in The Tree of Life and New Believers, ints in the other games. */
+static unsigned int titles_skill_lower(unsigned int a, unsigned int b, int skills_float) {
+    return (skills_float ? vv_title_skill_float(b) < vv_title_skill_float(a) : (int)b < (int)a) ? b : a;
+}
+
+/* The villager in record `index` was just given new skills (or, defensively,
+   a new age -- the Custom Island Event's dialog has no Age control, but every
+   field the event writes is followed alike) by a custom event: a REAL, KNOWN
+   change the patcher made itself.  What a title is kept by follows it DOWN
+   only: the age and skills the villager is first seen with, the last look's
+   age (a younger age than the last look reads as a namesake born into a freed
+   record, titles_reborn, and would take a title away), and -- for a villager
+   who holds a title -- the entry's stored looks.  The bases move whether or
+   not a title is bound yet, so a title SET on this villager later, or in the
+   same event after this call, is stored with the lowered values (titles_set
+   reads the bases); and a title set first is lowered here, so the order
+   within one event does not matter.  Lower, never higher: the file published
+   here is read after an Alt-F4 or a crash, when the save still holds the
+   values from before the event, and a stored value above them would leave
+   nobody who "could be" the entry (v1.35.72).  The caller asks only when the
+   event actually changed the age or a skill, on a villager it has just checked to be the one it meant (ce_same_villager), so the bases move whatever else the same event did to them (a likes change included).  Only the villager in this very
+   record, and an entry bound to this very record and identity, move.  Returns 1 when there was nothing to follow or the
+   followed table is published; 0 when it could not be (the table, the bases
+   and the last look's age are then left as they were). */
+static int titles_rebase(int game, int index) {
+    const unsigned char *record = story_record(game, index);
+    vv_title_looks now;
+    int floats = story_title_skills_float(game);
+    int saved_base_age, saved_roster_age;
+    unsigned int saved_base_skills[VV_TITLE_SKILLS];
+    int i, k;
+    /* Not before the table has been followed against the village on screen
+       (the bases and the last look exist only then; before it, a title is
+       set from the villager as they are). */
+    if (titles.game != game || !titles.loaded || titles.slot <= 0 || !titles.roster_anyone || record == NULL
+        || index < 0 || index >= TITLES_ROSTER) {
+        return 1;
+    }
+    story_title_looks(game, record, &now);
+    vv_title_normalise_skills(&now, floats);
+    saved_base_age = titles.base_age[index];
+    saved_roster_age = titles.roster_age[index];
+    memcpy(saved_base_skills, titles.base_skills[index], sizeof saved_base_skills);
+    if (now.age < titles.base_age[index]) {
+        titles.base_age[index] = now.age;
+    }
+    for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+        titles.base_skills[index][k] = titles_skill_lower(
+            vv_title_skill_normalised(titles.base_skills[index][k], floats), now.skills[k], floats);
+    }
+    titles.roster_age[index] = now.age;
+    i = titles_find((unsigned int)index);
+    if (i < 0 || titles.entries[i].fingerprint != story_title_identity(game, record)) {
+        return 1;                             /* no title yet: nothing to publish */
+    }
+    titles_reset_detected();
+    titles_before.count = titles.count;
+    memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
+    memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
+    if (titles.entries[i].flags & VV_TITLE_KNOWN) {
+        if (now.age < titles.entries[i].looks.age) {
+            titles.entries[i].looks.age = now.age;
+        }
+        for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+            titles.entries[i].looks.skills[k] = titles_skill_lower(
+                vv_title_skill_normalised(titles.entries[i].looks.skills[k], floats), now.skills[k], floats);
+        }
+    } else {
+        titles.entries[i].looks = now;
+        titles.entries[i].flags |= VV_TITLE_KNOWN;
+    }
+    if (!titles_commit()) {
+        titles.base_age[index] = saved_base_age;
+        titles.roster_age[index] = saved_roster_age;
+        memcpy(titles.base_skills[index], saved_base_skills, sizeof saved_base_skills);
+        return 0;
+    }
+    return 1;
+}
+
+/* Origins' Change Appearance just gave the villager in `record` a new head
+   and body (native/shared/appearance_log.h tells us in the same call that
+   logs it).  The title's stored head and body follow at once, published
+   before the call returns: a log written in the same frame -- a Death, a
+   Disappeared record -- reads the file, and with the old head and body in it
+   would find nobody who "could be" the entry and leave the title out until
+   the next tick republished it (v1.35.72).  Only the entry bound to this very
+   record and identity moves, and only its head and body: the age and skills
+   stay as they were first seen.  Returns 1 when there was nothing to follow
+   or the followed table is published; 0 when it could not be (the table is
+   then left as it was). */
+static int titles_appearance_changed(int game, const unsigned char *record, int head, int body) {
+    int index = record != NULL ? story_record_index(game, record) : -1;
+    int i;
+    titles_sync(game);
+    /* Not before the table has been followed against the village on screen:
+       a table just read from its file may still hold a twin's record. */
+    if (index < 0 || !titles.loaded || titles.slot <= 0 || !titles.roster_anyone) {
+        return 1;
+    }
+    i = titles_find((unsigned int)index);
+    if (i < 0 || !(titles.entries[i].flags & VV_TITLE_KNOWN)
+        || titles.entries[i].fingerprint != story_title_identity(game, record)
+        || (titles.entries[i].looks.head == head && titles.entries[i].looks.body == body)) {
+        return 1;
+    }
+    titles_reset_detected();
+    titles_before.count = titles.count;
+    memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
+    memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
+    titles.entries[i].looks.head = head;
+    titles.entries[i].looks.body = body;
+    return titles_commit();
+}
+
 /* Could the villager in record `r` be the one entry `e` belongs to?  Present,
    the fingerprint (name, likes, dislikes), and -- once the entry's looks are
    known -- the same head, body and sex, and no younger and no less skilled
@@ -791,5 +907,17 @@ __declspec(dllexport) int __stdcall VvfpStoryCustomTitle(int game, const void *r
     if (title != NULL) {
         lstrcpynA(out, title, size);
     }
+    return 1;
+}
+
+/* Called by Origins' Change Appearance (native/shared/appearance_log.h) when
+   a villager's head and body change, only when this companion is already
+   loaded: the title's stored head and body follow at once (see
+   titles_appearance_changed).  Always 1; never changes the villager. */
+__declspec(dllexport) int __stdcall VvfpStoryAppearanceChanged(int game, const void *record, int head, int body) {
+    if (game < 1 || game > 5 || record == NULL) {
+        return 1;
+    }
+    (void)titles_appearance_changed(game, (const unsigned char *)record, head, body);
     return 1;
 }

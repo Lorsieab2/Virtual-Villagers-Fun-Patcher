@@ -17,7 +17,7 @@ $sharedRoot = Join-Path $projectRoot "native\shared"
 $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
 $sdkVersion = "10.0.26100.0"
 $vsTools = "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231"
-$work = Join-Path $env:TEMP ("vvfp_titles_harness_build_" + [guid]::NewGuid().ToString("N"))
+$work = Join-Path $env:TEMP ("vvfp_ct_" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $work | Out-Null
 $out = Join-Path $work "vvfp_custom_titles_harness.exe"
 $savedTemp = $env:TEMP

@@ -155,8 +155,8 @@ class GuiSourceTests(unittest.TestCase):
                                  + "|" + r'\(\d+, "%s"\)' % re.escape(key))
 
     def test_every_patch_row_and_mode_gets_one(self) -> None:
-        # Both patch-row loops (per game and shared) and the mode loop.
-        self.assertEqual(self.SOURCE.count("vv_how_to_use.patch_key(patch.id)"), 2)
+        # The one patch-row loop (a tab per game, shared patches included) and the mode loop.
+        self.assertEqual(self.SOURCE.count("vv_how_to_use.patch_key(patch.id)"), 1)
         self.assertEqual(self.SOURCE.count("vv_how_to_use.mode_key(mode.id)"), 1)
 
     def test_the_button_is_a_small_question_mark(self) -> None:

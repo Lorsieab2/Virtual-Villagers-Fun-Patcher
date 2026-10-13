@@ -4,6 +4,7 @@ head and body changed.  native/parentage_export/death_log_harness.c proves the r
 from __future__ import annotations
 
 import json
+import pathlib
 import unittest
 from pathlib import Path
 
@@ -91,6 +92,20 @@ class AppearanceChangeLogTests(unittest.TestCase):
             with self.subTest(layout=name):
                 page = bytes.fromhex(layouts[name]["append_bytes"])
                 self.assertIn(b"LogVV5AppearanceChange\0", page)
+
+
+class IslandEventAppearanceTellsTheStoryCompanion(unittest.TestCase):
+    """Review of 3f176ddd: an island event that changes a head or body writes "Appearance changed" too,
+    so it tells the Story companion first (as native/shared/appearance_log.h does), or a Death written
+    in the same frame would leave a known-looks custom title out until the next tick."""
+
+    def test_the_island_events_companion_tells_story_before_it_logs(self):
+        text = (pathlib.Path(__file__).resolve().parents[1] / "native" / "vvfp_island_events"
+                / "vvfp_island_events.c").read_text(encoding="utf-8")
+        self.assertIn('GetModuleHandleA("VVFP Story Upgrades.dll")', text)
+        self.assertIn('"VvfpStoryAppearanceChanged"', text)
+        self.assertLess(text.index("tell_story_appearance(g_game, live, nh, nb);"),
+                        text.index("g_write(g_game, KIND_APPEARANCE, live, 1, look, NULL, 0);"))
 
 
 if __name__ == "__main__":

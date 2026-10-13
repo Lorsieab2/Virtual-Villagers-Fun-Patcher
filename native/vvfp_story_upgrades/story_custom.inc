@@ -1308,6 +1308,24 @@ static void ce_tell_arrival(int game, int index, const ce_spawn *s) {
     }
 }
 
+/* Did the event change this villager's age or a skill (as a custom title keeps
+   them: the skills as the corrupted-skill reset leaves them)? */
+static int ce_age_or_skills_changed(int game, const unsigned char *record, const vv_title_looks *before) {
+    vv_title_looks now;
+    int k;
+    story_title_looks(game, record, &now);
+    if (now.age != before->age) {
+        return 1;
+    }
+    for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+        if (vv_title_skill_normalised(now.skills[k], story_title_skills_float(game))
+            != vv_title_skill_normalised(before->skills[k], story_title_skills_float(game))) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     int i;
     int j;
@@ -1408,6 +1426,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
         const ce_change *c = &e->changes[i];
         unsigned char *record = same[i] ? a->record(c->index) : NULL;
+        vv_title_looks looks_before;
         if (record == NULL) {
             ++r->skipped;
             continue;
@@ -1429,6 +1448,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             }
             continue;
         }
+        story_title_looks(e->game, record, &looks_before);
         if (c->pref_op_count > 0) {
             unsigned int titled_as = story_title_identity(e->game, record);
             story_preferences_changing(e->game, 0);
@@ -1441,6 +1461,13 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             }
         } else {
             ce_apply_fields(a, record, c, r);
+        }
+        /* A lowered age or skill is a real change the patcher made: the
+           title's stored looks follow it, or the next load would find nobody
+           "no younger, no less skilled" and the title would go pending. */
+        if ((a->caps & CAP_TITLE) && ce_age_or_skills_changed(e->game, record, &looks_before)
+            && !titles_rebase(e->game, c->index)) {
+            ce_refuse(r, CE_WHY_TITLE);
         }
         if ((a->caps & CAP_PARENTS) && c->parents_set) {
             if (!a->parents_supported()) {

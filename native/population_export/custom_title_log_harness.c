@@ -135,12 +135,49 @@ static void villager(int index, const char *name) {
 /* One folder of logs per save slot (native/shared/log_slot.h): the roster or history of the
    village "(Save <slot>)" is in "...Logs\Save <slot>\<folder>"; slot 0 (no slot named) is the
    shared folder. */
+/* `out` holds MAX_PATH characters; a longer path is cut short (and then names
+   no file, so its check fails) -- never written past the buffer. */
 static void log_file(char *out, int slot, const char *folder, const char *name) {
     if (slot == 0) {
-        wsprintfA(out, "%s\\Virtual Villagers Fun Patcher Logs\\%s\\%s", g_root, folder, name);
+        _snprintf_s(out, MAX_PATH, _TRUNCATE, "%s\\Virtual Villagers Fun Patcher Logs\\%s\\%s", g_root, folder, name);
     } else {
-        wsprintfA(out, "%s\\Virtual Villagers Fun Patcher Logs\\Save %d\\%s\\%s", g_root, slot, folder, name);
+        _snprintf_s(out, MAX_PATH, _TRUNCATE, "%s\\Virtual Villagers Fun Patcher Logs\\Save %d\\%s\\%s",
+                    g_root, slot, folder, name);
     }
+}
+
+/* The longest path under the root that the harness or the exporter makes:
+   "\Virtual Villagers Fun Patcher Logs\Save 3\Tribe Population\Village
+   Population 1.txt" and the custom titles file, with room to spare. */
+#define HARNESS_ROOT_RESERVE 128
+
+/* The save folder root: <GetTempPath>\vvfp_title_log_harness_<pid>.  A %TEMP%
+   so long that the logs under it would pass MAX_PATH is tried in its short
+   (8.3) form; if that is still too long the harness says so and stops,
+   instead of overflowing its MAX_PATH buffers (or, with GetTempPathA failing,
+   making its folder in the current directory). */
+static int make_root(void) {
+    char temp[MAX_PATH];
+    char shorter[MAX_PATH];
+    DWORD n = GetTempPathA(MAX_PATH, temp);
+    if (n == 0 || n >= MAX_PATH) {
+        printf("%%TEMP%% is unreadable or longer than MAX_PATH: the harness cannot run\n");
+        return 0;
+    }
+    if (n + 40 + HARNESS_ROOT_RESERVE >= MAX_PATH) {
+        DWORD s = GetShortPathNameA(temp, shorter, MAX_PATH);
+        if (s > 0 && s < n) {
+            lstrcpyA(temp, shorter);
+            n = s;
+        }
+    }
+    if (n + 40 + HARNESS_ROOT_RESERVE >= MAX_PATH) {
+        printf("%%TEMP%% (%s, %lu characters) is too long for the logs under it to fit MAX_PATH:"
+               " the harness cannot run\n", temp, (unsigned long)n);
+        return 0;
+    }
+    _snprintf_s(g_root, MAX_PATH, _TRUNCATE, "%svvfp_title_log_harness_%lu", temp, GetCurrentProcessId());
+    return CreateDirectoryA(g_root, NULL) || GetLastError() == ERROR_ALREADY_EXISTS;
 }
 #define ROSTER(slot) log_file(roster, (slot), "Tribe Population", "Village Population 1.txt")
 
@@ -151,8 +188,10 @@ static void write_titles(int slot, const vv_custom_title *entries, int count) {
     DWORD size = vv_titles_serialise(3, entries, count, data);
     DWORD written = 0;
     HANDLE h;
-    vv_save_subfolder(folder, VV_TITLES_SUBFOLDER, 64);
-    vv_titles_file_name(path, MAX_PATH, folder, slot);
+    if (!vv_save_subfolder(folder, VV_TITLES_SUBFOLDER, 64) || !vv_titles_file_name(path, MAX_PATH, folder, slot)) {
+        check(0, "the custom titles file's path fits MAX_PATH");
+        return;
+    }
     h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
     WriteFile(h, data, size, &written, NULL);
     CloseHandle(h);
@@ -253,8 +292,10 @@ static void twin_write_titles(const vv_custom_title *entries, int count) {
     DWORD size = vv_titles_serialise(tg->game, entries, count, data);
     DWORD written = 0;
     HANDLE h;
-    vv_save_subfolder(folder, VV_TITLES_SUBFOLDER, 64);
-    vv_titles_file_name(path, MAX_PATH, folder, 3);
+    if (!vv_save_subfolder(folder, VV_TITLES_SUBFOLDER, 64) || !vv_titles_file_name(path, MAX_PATH, folder, 3)) {
+        check(0, "the custom titles file's path fits MAX_PATH");
+        return;
+    }
     h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
     WriteFile(h, data, size, &written, NULL);
     CloseHandle(h);
@@ -372,6 +413,46 @@ static void run_twins(int game) {
               game);
     twin_check(count_of(text, "  Name: Kai\n  Custom title: Skilled Kai\n") == 2 && strstr(text, "Either Kai") == NULL, what, text);
 
+    /* A Disappeared record is written after the villager's live byte is
+       cleared: record r is still a candidate AND a carrier.  A version 2
+       entry bound to the departing twin, with one present namesake, is
+       nobody's (Codex, #587) -- the rule both exporters use. */
+    {
+        vv_title_table table;
+        vv_custom_title v2;
+        table.first = twin_record(0);
+        table.stride = tg->stride;
+        table.slots = tg->slots;
+        table.active = tg->active;
+        table.name = tg->name;
+        table.name_capacity = tg->name_cap;
+        table.likes = tg->likes;
+        table.dislikes = tg->dislikes;
+        table.preference_slots = tg->pref_slots;
+        table.age = tg->age;
+        table.head = tg->head;
+        table.body = tg->body;
+        table.sex = tg->sex;
+        table.skills = tg->skills;
+        table.skill_count = tg->skill_count;
+        table.skills_float = tg->skills_float;
+        twin_villager(1, "Kai", 3, 4, 0);
+        twin_villager(2, "Kai", 5, 6, 0);
+        v2 = twin_entry(1, 0, 0, 0, 0, "Version Two");
+        twin_record(1)[tg->active] = 0;          /* taken: the Disappeared record is written now */
+        wsprintfA(what, "A VERSION 2 ENTRY ON A DEPARTING TWIN WITH ONE PRESENT NAMESAKE IS NOBODY'S (game %d)", game);
+        twin_check(!vv_title_shown_on(&v2, &table, 1), what, "(direct rule check)");
+        twin_villager(2, "Kaimana", 5, 6, 0);
+        twin_record(1)[tg->active] = 0;
+        wsprintfA(what, "...with no namesake the departing villager's version 2 title is shown (game %d)", game);
+        twin_check(vv_title_shown_on(&v2, &table, 1) != 0, what, "(direct rule check)");
+        v2 = twin_entry(1, 1, 3, 4, 0, "Known Looks");
+        twin_villager(2, "Kai", 5, 6, 0);
+        wsprintfA(what, "a known-looks entry on a departing twin with a different-looking namesake is shown (game %d)", game);
+        twin_check(vv_title_shown_on(&v2, &table, 1) != 0, what, "(direct rule check)");
+        twin_villager(1, "Kai", 3, 4, 0);
+    }
+
     /* A pending entry matches nobody. */
     entries[0] = twin_entry(VV_TITLE_PENDING, 1, 3, 4, 50, "Pending Kai");
     twin_write_titles(entries, 1);
@@ -392,9 +473,10 @@ int main(void) {
     char *text;
     char *kai;
 
-    GetTempPathA(MAX_PATH, g_root);
-    wsprintfA(g_root + lstrlenA(g_root), "vvfp_title_log_harness_%lu", GetCurrentProcessId());
-    CreateDirectoryA(g_root, NULL);
+    if (!make_root()) {
+        printf("\n1 failure(s)\n");
+        return 2;
+    }
     printf("save folder: %s\n\n", g_root);
     g_module = (unsigned char *)VirtualAlloc(NULL, V3_RVA + V3_BASE + 150 * V3_STRIDE + 0x1000,
                                             MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);

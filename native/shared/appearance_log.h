@@ -28,6 +28,8 @@
 typedef int (__stdcall *vv_write_village_record_fn)(int, int, const void *, int, const char *, const char *,
                                                     int);
 
+typedef int (__stdcall *vv_story_appearance_fn)(int, const void *, int, int);
+
 static void vv_log_appearance(int game, const void *record, int old_head, int old_body, int new_head,
                               int new_body) {
     static vv_write_village_record_fn write_record;
@@ -35,6 +37,19 @@ static void vv_log_appearance(int game, const void *record, int old_head, int ol
     char before[160];
     if (record == NULL || (old_head == new_head && old_body == new_body)) {
         return;
+    }
+    /* The Story / Cheat Upgrades companion keeps a custom title by the villager's
+       looks: told FIRST, so a log written in this very frame (a Death, a
+       Disappeared record) compares against the new head and body, not the
+       old ones the file still holds until its next tick.  Only when it is
+       already loaded (GetModuleHandle never loads a DLL). */
+    {
+        HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
+        vv_story_appearance_fn changed = story != NULL
+            ? (vv_story_appearance_fn)GetProcAddress(story, "VvfpStoryAppearanceChanged") : NULL;
+        if (changed != NULL) {
+            (void)changed(game, record, new_head, new_body);
+        }
     }
     if (!looked) {
         HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");

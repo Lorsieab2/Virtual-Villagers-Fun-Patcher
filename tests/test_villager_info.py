@@ -118,6 +118,25 @@ class InfoTests(unittest.TestCase):
         out = vi.plain_text(vi.info_lines(v1, ft.Edits(), 7, titles={("Gil", 8, 6): {"special": "Golden Child"}}))
         self.assertEqual(out.count("Golden Child"), 1)
 
+    def test_villagers_who_share_name_and_looks_are_labelled_not_given_one_title(self):
+        # v1.35.72: the tab is keyed by (name, head, body); two villagers sharing all three can not be
+        # shown apart, so the Notes say so instead of showing one of them the other's title.
+        from unittest import mock
+        v = town()
+        out = vi.plain_text(vi.info_lines(v, ft.Edits(), 1, titles={("Ago", 0, 0): {"shared": 2}}))
+        self.assertIn("2 villagers share this name and looks", out)
+        self.assertNotIn("share this name", text(v, 1))
+        with mock.patch.object(vi, "log_titles", return_value={("A", 0, 0): {"custom": "Old", "special": "Scholar"}}), \
+                mock.patch.object(vi, "file_titles", return_value={("A", 0, 0): ""}), \
+                mock.patch.object(vi, "shared_looks", return_value={("A", 0, 0): 2}):
+            got = vi.village_titles(Path("."), 1, 1)
+        self.assertEqual(got[("A", 0, 0)], {"shared": 2})
+        # ...but twins who all hold one title keep showing it.
+        with mock.patch.object(vi, "log_titles", return_value={}), \
+                mock.patch.object(vi, "file_titles", return_value={("A", 0, 0): "Same"}), \
+                mock.patch.object(vi, "shared_looks", return_value={("A", 0, 0): 2}):
+            got = vi.village_titles(Path("."), 1, 1)
+        self.assertEqual(got[("A", 0, 0)], {"custom": "Same", "shared": 2})
     def test_titles_follow_earlier_looks(self):
         v = town()
         v.relooked[("Ago", 9, 9)] = ("Ago", 0, 0)

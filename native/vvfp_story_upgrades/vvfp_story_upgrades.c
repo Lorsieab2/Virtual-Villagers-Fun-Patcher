@@ -549,6 +549,7 @@ static int story_title_skills_float(int game);
 static const char *titles_lookup(int game, const unsigned char *record);
 static int titles_set(int game, int index, const char *text);
 static int titles_rebind(int game, int index, unsigned int before);
+static int titles_rebase(int game, int index);
 
 #include "story_common.inc"
 #include "story_custom.inc"
