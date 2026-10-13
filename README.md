@@ -22,6 +22,15 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.73
+
+New in v1.35.73 (not yet seen in a running game):
+
+- **Villager Info tab: the "shares this name and looks" note no longer leaks between a villager's looks.** A villager who changed looks with Change Appearance could be labelled as sharing their look because of an old look that was shared, and a shared villager could recover a title from an old look. The shared note now belongs to the villager's current look only, and a villager who shares their current look takes no title from an old one.
+- **An island event that changes both a villager's likes and their head before the next frame keeps the custom title** (all five games). The head is stored under the new likes at once, in the Custom Titles file too, so a log written in that frame reads the new head.
+- **A Custom Island Event that changes skills before the title list has been checked against the village after a load** now makes the check first, as the lookup does, so the title is on its villager before the change is carried (all five games). Limit: when the change is the first thing the title list sees after a load, the villager is now below the stored skills, so the title waits unshown for the reconciliation to ask about, and is never given to someone else. A later change, once the list has been checked, is carried as before.
+- **Known gap (unchanged):** Change Appearance for All still publishes the Custom Titles file once for each titled villager it changes, not once for the whole change. Batching it would change the Change Appearance loops in the Origins DLLs and add a new export to the Story / Cheat Upgrades companion, which can not be checked without live games, so it is left for later.
+
 ## What's new in v1.35.72
 
 New in v1.35.72:
