@@ -115,9 +115,9 @@ class PatchRequirementTests(unittest.TestCase):
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn("patch_requirement_text,", source)
         self.assertIn('requirement_font.configure(weight="bold")', source)
-        # Both chooser loops (shared rows and per-game rows) render it.
-        self.assertEqual(source.count("text=patch_requirement_text(patch, self.fun_patches)"), 2)
-        self.assertEqual(source.count("font=requirement_font,"), 2)
+        # The one chooser loop (a tab per game, shared patches included) renders it.
+        self.assertEqual(source.count("text=patch_requirement_text(patch, self.fun_patches)"), 1)
+        self.assertEqual(source.count("font=requirement_font,"), 1)
         # ...right after each description label.
         for match in re.finditer(r"text=patch\.description, wraplength=620\)", source):
             after = source[match.end(): match.end() + 400]
