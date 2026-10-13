@@ -193,7 +193,14 @@ class LeftTheTribe(unittest.TestCase):
         additions.apply(self.folder, [self.kind()], {"left_tribe"}, {})
         after = tools.check_logs(self.folder, 1, 5).text
         self.assertNotIn("\"Left the tribe\" records", after)
-        self.assertEqual([line for line in after.splitlines() if "Left the tribe" not in line and line not in before],
+        # Since the Village Population page is reconciled too, the reconciliation asks about Leaf (on the
+        # page, in no save, no record of her going) until this record is added; the added record answers
+        # the question, so the question goes and the reconciliation's "nothing lost" summary takes its place.
+        self.assertTrue(any(line.lstrip().startswith("ASK") and "Leaf" in line for line in before.splitlines()), before)
+        self.assertFalse(any(line.lstrip().startswith("ASK") for line in after.splitlines()), after)
+        self.assertEqual([line for line in after.splitlines()
+                          if "Left the tribe" not in line and line not in before
+                          and "followed through" not in line],
                          [], "nothing new is reported about the added record")
         import vv_genealogy as gen
         village = gen.load_village(self.folder, 5, 1)
