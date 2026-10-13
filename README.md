@@ -22,6 +22,12 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.73
+
+New in v1.35.73:
+
+- **The patch list draws only what is on screen** (Patches tab, every game). Each game's list builds the patches near its visible part and draws the rest as you scroll, so the window opens with far fewer widgets. Each game's list is a fixed-height area with its own scrollbar: the mouse wheel scrolls it while the pointer is over it. Ticks, the "?" guides, the bold requirement lines, Select All and the saved selection all work as before. Not yet tried in a running game.
+
 ## What's new in v1.35.72
 
 New in v1.35.72:

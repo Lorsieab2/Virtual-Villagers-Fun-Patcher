@@ -169,6 +169,140 @@ class RichDescription(tk.Text):
             self.configure(height=count)
 
 
+# The patch list of each game is virtual: only the rows near the visible part
+# of the list exist as widgets.  VIRTUAL_VIEW_PX is how tall each game's list is
+# on screen; VIRTUAL_MARGIN_PX is how far beyond each edge rows are kept drawn;
+# VIRTUAL_ROW_GUESS_PX is the height assumed for a row that has not been drawn.
+VIRTUAL_VIEW_PX = 320
+VIRTUAL_MARGIN_PX = 80
+VIRTUAL_ROW_GUESS_PX = 100
+VIRTUAL_UNIT_PX = 40          # one mouse-wheel notch or scrollbar arrow
+# The width rows are laid out at until the list has a real width (the widest
+# row, a 620 px description, fits in it).
+VIRTUAL_DEFAULT_WIDTH_PX = 700
+
+
+class VirtualList(ttk.Frame):
+    """A scrollable list whose rows exist as widgets only while near the view.
+
+    ``build_row(frame, row)`` fills an empty frame with the widgets of one row.
+    A row keeps no state of its own: what it shows lives in the caller's
+    variables, so a row destroyed as it leaves the view and built again when it
+    returns shows the same value.  A drawn row's height is measured and kept;
+    rows never drawn count as the average of the measured ones, so the scroll
+    length is exact once every row has been seen and approximate before that.
+
+    The list is a frame of fixed height.  Rows are placed at their offset from
+    the top of the list and Tk clips the ones outside it; scrolling moves the
+    offset.  It is not a canvas: a canvas whose scroll region is reset while its
+    window items are drawn kept re-entering its own scroll handler and froze.
+    """
+
+    def __init__(self, parent, rows: list, build_row) -> None:
+        super().__init__(parent, height=VIRTUAL_VIEW_PX)
+        self.pack_propagate(False)
+        self._rows = rows
+        self._build_row = build_row
+        self._heights: list[int | None] = [None] * len(rows)
+        self._drawn: dict[int, ttk.Frame] = {}
+        self._placed: dict[int, tuple[int, int]] = {}   # index -> (y, width) last placed
+        self._offset = 0                                # px scrolled from the top
+        self._width = 0
+        self._busy = False
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.yview)
+        self.scrollbar.pack(side="right", fill="y")
+        self.bind("<Configure>", self._resized)
+        # The first rows are drawn once the window is up, not while it is still being built.
+        self.after_idle(self._refresh)
+
+    def yview(self, *args) -> None:
+        """The scrollbar's command: ``moveto <fraction>`` or ``scroll <n> units|pages``."""
+        total = self._layout()[1]
+        if args[0] == "moveto":
+            self._offset = int(float(args[1]) * total)
+        elif args[0] == "scroll":
+            step = int(VIRTUAL_VIEW_PX * 0.9) if args[2] == "pages" else VIRTUAL_UNIT_PX
+            self._offset += int(args[1]) * step
+        self._refresh()
+
+    def yview_scroll(self, number: int, what: str) -> None:
+        """The mouse wheel: the same as the scrollbar's own arrows."""
+        self.yview("scroll", number, what)
+
+    def _resized(self, event: tk.Event) -> None:
+        if event.width == self._width:          # only a real width change lays out again
+            return
+        self._width = event.width
+        self._refresh()
+
+    def _layout(self) -> tuple[list[int], int]:
+        """Top edge of every row, and the height of the whole list."""
+        measured = [height for height in self._heights if height is not None]
+        guess = sum(measured) // len(measured) if measured else VIRTUAL_ROW_GUESS_PX
+        tops: list[int] = []
+        total = 0
+        for height in self._heights:
+            tops.append(total)
+            total += guess if height is None else height
+        return tops, total
+
+    def _refresh(self) -> None:
+        """Draw the rows near the view, drop the rest, and place every drawn row."""
+        if self._busy or not self._rows:
+            return
+        self._busy = True
+        try:
+            # Before the list is mapped its width is 1 px, and rows drawn that
+            # narrow squeeze their descriptions into a feedback loop of heights.
+            width = self._width if self._width >= 2 else VIRTUAL_DEFAULT_WIDTH_PX
+            tops, total = self._layout()
+            self._clamp(total)
+            low = self._offset - VIRTUAL_MARGIN_PX
+            high = self._offset + VIRTUAL_VIEW_PX + VIRTUAL_MARGIN_PX
+            bottoms = tops[1:] + [total]
+            wanted = {
+                index for index in range(len(self._rows))
+                if tops[index] < high and bottoms[index] > low
+            }
+            for index in [index for index in self._drawn if index not in wanted]:
+                self._drawn.pop(index).destroy()
+                self._placed.pop(index, None)
+            fresh = [index for index in sorted(wanted) if index not in self._drawn]
+            for index in fresh:
+                frame = ttk.Frame(self)
+                self._build_row(frame, self._rows[index])
+                self._drawn[index] = frame
+                # Placed first, so Tk gives the row its real width: a description
+                # sized at 1 px counts hundreds of lines and gets a huge height.
+                frame.place(x=0, y=0, width=width)
+            if fresh:
+                # Tk lays the new rows out, then each description is fitted to its
+                # real width, and only then is each row measured.
+                self.update_idletasks()
+                for index in fresh:
+                    for child in self._drawn[index].winfo_children():
+                        if isinstance(child, RichDescription):
+                            child._fit()
+                self.update_idletasks()
+                for index in fresh:
+                    self._heights[index] = self._drawn[index].winfo_reqheight()
+                tops, total = self._layout()
+                self._clamp(total)
+            for index, frame in self._drawn.items():
+                place = (tops[index] - self._offset, width)
+                if self._placed.get(index) != place:
+                    frame.place(x=0, y=place[0], width=width)
+                    self._placed[index] = place
+            first = self._offset / total
+            last = min(1.0, (self._offset + VIRTUAL_VIEW_PX) / total)
+            self.scrollbar.set(first, last)
+        finally:
+            self._busy = False
+
+    def _clamp(self, total: int) -> None:
+        self._offset = min(max(0, self._offset), max(0, total - VIRTUAL_VIEW_PX))
+
+
 def owners_default_fun_patch_selection(patch_id: str) -> bool:
     """Whether the Owner's Defaults button ticks this.
 
@@ -1024,45 +1158,31 @@ class App(tk.Tk):
         # painted. Only the tallest tab counts toward the page height now.
         self.patch_pages = ttk.Notebook(mode_box)
         self.patch_pages.grid(row=fun_row + 2, column=0, columnspan=2, sticky="ew", pady=(8, 0))
+        styles = (requirement_font, description_font, description_background)
         for header, patches in group_fun_patches(self.builds, self.fun_patches):
             page = ttk.Frame(self.patch_pages, padding=(10, 6, 10, 6))
             game_name = header.removeprefix("Virtual Villagers - ")
             self.patch_pages.add(page, text=game_name)
-            page.columnconfigure(0, weight=1)
             shared = header == "Shared / All Games"
-            row = 0
             ttk.Label(
                 page,
                 text=header,
                 font=("Segoe UI", 10, "bold"),
-            ).grid(row=row, column=0, sticky="w", pady=(0, 2))
-            row += 1
+            ).pack(anchor="w", pady=(0, 2))
+            rows = []
             for patch in patches:
                 label = patch.name if shared else f"{patch.name} ({game_name})"
-                patch_row = ttk.Frame(page)
-                patch_row.grid(row=row, column=0, sticky="w", pady=3)
-                ttk.Checkbutton(
-                    patch_row,
-                    text=label,
-                    variable=self.fun_patch_vars[patch.id],
-                    command=self._fun_patch_changed,
-                ).pack(side="left")
-                self._help_button(
-                    patch_row, vv_how_to_use.patch_key(patch.id), label
-                ).pack(side="left", padx=(4, 0))
-                row += 1
-                RichDescription(page, patch.description, 620, requirement_font,
-                                description_font, description_background).grid(
-                    row=row, column=0, sticky="w", pady=(0, 3)
-                )
-                row += 1
-                ttk.Label(
-                    page,
-                    text=patch_requirement_text(patch, self.fun_patches),
-                    wraplength=620,
-                    font=requirement_font,
-                ).grid(row=row, column=0, sticky="w", pady=(0, 6))
-                row += 1
+                # Each row's "?" key is registered and its guide checked now,
+                # so a missing guide still fails while the window is built.
+                # The row's widgets are made only when it scrolls into view.
+                key = vv_how_to_use.patch_key(patch.id)
+                vv_how_to_use.guide(key, label)
+                self.help_keys.add(key)
+                rows.append((patch, label, key))
+            VirtualList(
+                page, rows,
+                lambda frame, row, styles=styles: self._build_patch_row(frame, row, styles),
+            ).pack(fill="x")
         mode_box.columnconfigure(1, weight=1)
 
         output_box = ttk.LabelFrame(patches_tab, text="Modded output location", padding=10)
@@ -1115,6 +1235,31 @@ class App(tk.Tk):
             side="right", anchor="e", padx=(0, 4), pady=(8, 0)
         )
 
+    def _build_patch_row(self, frame, row, styles) -> None:
+        """Draw one patch: its checkbox and "?", its description with **bold** dependencies, and
+        the requirement line.  The checkbox reads the patch's variable, so a row drawn later shows
+        whatever the selection is by then."""
+        patch, label, key = row
+        requirement_font, description_font, background = styles
+        frame.columnconfigure(0, weight=1)
+        patch_row = ttk.Frame(frame)
+        patch_row.grid(row=0, column=0, sticky="w", pady=3)
+        ttk.Checkbutton(
+            patch_row,
+            text=label,
+            variable=self.fun_patch_vars[patch.id],
+            command=self._fun_patch_changed,
+        ).pack(side="left")
+        self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
+        RichDescription(frame, patch.description, 620, requirement_font,
+                        description_font, background).grid(row=1, column=0, sticky="w", pady=(0, 3))
+        ttk.Label(
+            frame,
+            text=patch_requirement_text(patch, self.fun_patches),
+            wraplength=620,
+            font=requirement_font,
+        ).grid(row=2, column=0, sticky="w", pady=(0, 6))
+
     def _open_releases_page(self) -> None:
         """Open the project's GitHub page. No version check, by design.
 
@@ -1153,6 +1298,9 @@ class App(tk.Tk):
             while widget is not None and widget is not top:
                 if isinstance(widget, (tk.Listbox, tk.Text, ttk.Treeview)):
                     return "break"              # scrolls itself (its own class binding)
+                if isinstance(widget, VirtualList):
+                    widget.yview_scroll(-1 if event.delta > 0 else 1, "units")
+                    return "break"
                 if isinstance(widget, tk.Canvas) and str(widget.cget("yscrollcommand")):
                     widget.yview_scroll(-1 if event.delta > 0 else 1, "units")
                     return "break"

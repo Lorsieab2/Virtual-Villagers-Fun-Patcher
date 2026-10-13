@@ -22,6 +22,10 @@ ROOT = Path(__file__).resolve().parents[1]
 NO_TK = 3
 WINDOWS_LIMIT = 32767
 MAIN_PAGE_BUDGET = 24000
+# Widgets under one game's patch tab: a header, the list, its scrollbar and the rows on
+# screen (about four at a time, six widgets each). Before the list was virtual a tab held
+# 101 to 176 of them.
+WIDGETS_PER_TAB_BOUND = 60
 
 CHILD = r"""
 import json, os, sys, tkinter
@@ -58,8 +62,12 @@ for widget in walk(app):
 for notebook in (w for w in walk(app) if isinstance(w, ttk.Notebook)):
     for tab in notebook.tabs():
         heights[str(notebook) + ":" + notebook.tab(tab, "text")] = notebook.nametowidget(tab).winfo_reqheight()
+widgets = {}
+for tab in app.patch_pages.tabs():
+    page = app.patch_pages.nametowidget(tab)
+    widgets[app.patch_pages.tab(tab, "text")] = sum(1 for _ in walk(page))
 app.destroy()
-print(json.dumps(heights))
+print(json.dumps({"heights": heights, "widgets": widgets}))
 """
 
 
@@ -73,10 +81,27 @@ class PageHeight(unittest.TestCase):
         if done.returncode == NO_TK:
             self.skipTest("no Tk display: " + done.stderr.strip())
         self.assertEqual(done.returncode, 0, done.stderr)
-        heights = json.loads(done.stdout.strip().splitlines()[-1])
+        data = json.loads(done.stdout.strip().splitlines()[-1])
+        heights = data["heights"]
         self.assertLess(heights["main page"], MAIN_PAGE_BUDGET, heights)
         for name, height in heights.items():
             self.assertLess(height, WINDOWS_LIMIT, f"{name}: {height}")
+
+    def test_each_game_tab_creates_only_its_visible_rows(self):
+        # The patch list is virtual: a game's tab holds the widgets of the rows on screen
+        # (plus a margin), not one set per patch. Every game tab stays under the bound.
+        with tempfile.TemporaryDirectory() as folder:
+            done = subprocess.run(
+                [sys.executable, "-c", CHILD, str(ROOT / "src"), folder],
+                capture_output=True, text=True, timeout=300,
+            )
+        if done.returncode == NO_TK:
+            self.skipTest("no Tk display: " + done.stderr.strip())
+        self.assertEqual(done.returncode, 0, done.stderr)
+        widgets = json.loads(done.stdout.strip().splitlines()[-1])["widgets"]
+        self.assertEqual(len(widgets), 5, widgets)
+        for name, count in widgets.items():
+            self.assertLess(count, WIDGETS_PER_TAB_BOUND, f"{name}: {count} widgets")
 
 
 if __name__ == "__main__":

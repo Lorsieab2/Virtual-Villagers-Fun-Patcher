@@ -52,16 +52,31 @@ class WindowTests(unittest.TestCase):
                 for c in w.winfo_children():
                     yield from walk(c)
 
-            widgets = list(walk(app))
-            rich = [w for w in widgets if isinstance(w, gui.RichDescription)]
-            self.assertEqual(len(rich), len(vfp.load_public_fun_patches()), "one per patch")
-            for w in rich:
-                self.assertNotIn("**", w.get("1.0", "end"))
-            with_markers = [p for p in vfp.load_public_fun_patches() if "**" in p.description]
-            self.assertEqual(sum(1 for w in rich if w.tag_ranges("bold")), len(with_markers))
-            for w in widgets:
-                if w.winfo_class() in ("TLabel", "Label", "TCheckbutton"):
-                    self.assertNotIn("**", str(w.cget("text")), w.winfo_class())
+            # The rows exist only while their list is scrolled to them, so scroll every game's
+            # list through its whole length and look at each row as it is drawn.
+            seen = {}
+            texts = []
+            for vl in [w for w in walk(app) if isinstance(w, gui.VirtualList)]:
+                vl.yview("moveto", 0)
+                for _ in range(400):              # four wheel notches at a time, to the end
+                    app.update()
+                    for w in walk(vl):
+                        if isinstance(w, gui.RichDescription):
+                            seen[w.get("1.0", "end-1c")] = bool(w.tag_ranges("bold"))
+                        elif w.winfo_class() in ("TLabel", "Label", "TCheckbutton"):
+                            texts.append(str(w.cget("text")))
+                    if float(vl.scrollbar.get()[1]) >= 1.0:
+                        break
+                    vl.yview("scroll", 4, "units")
+            # Several games share a description word for word, so compare the set of
+            # (text, bold) pairs the window showed with the set the catalog holds.
+            expected = {}
+            for patch in vfp.load_public_fun_patches():
+                plain = "".join(segment for segment, _ in gui.split_bold(patch.description))
+                expected[plain] = "**" in patch.description
+            self.assertEqual(seen, expected)
+            for text in texts:
+                self.assertNotIn("**", text)
         finally:
             app.destroy()
 
