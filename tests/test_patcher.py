@@ -1498,7 +1498,7 @@ class GuiSourceTests(unittest.TestCase):
 
     def test_fun_patch_labels_use_game_subtitles(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
-        self.assertIn('text=f"{patch.name} ({game_name})"', source)
+        self.assertIn('label = patch.name if shared else f"{patch.name} ({game_name})"', source)
         self.assertIn('removeprefix("Virtual Villagers - ")', source)
         self.assertNotIn('text=f"{patch.name} ({patch.game_id.upper()})"', source)
 
