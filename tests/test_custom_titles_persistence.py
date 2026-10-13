@@ -165,18 +165,24 @@ class CustomTitlesFile(unittest.TestCase):
         self.assertIn("static int titles_rebase(int game, int index) {", store)
         custom = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
         self.assertIn("titles_rebase(e->game, c->index)", custom)
+        # v1.35.73 (Opus review): the table is followed on the villagers as they were BEFORE the event.
+        self.assertIn("static void titles_before_change(int game) {", store)
+        self.assertIn("titles_before_change(e->game);", custom)
         # Review of 3f176ddd: only when the event changed age or a skill; the stored values only go down;
         # a failed publish rolls the bases back; nothing before the table was followed.
         self.assertIn("ce_age_or_skills_changed(e->game, record, &looks_before)", custom)
         self.assertIn("titles_skill_lower(", store)
-        # v1.35.73: a rebase before the first follow runs the lookup's follow first.
+        # v1.35.73: the rebase and the rebind do not follow the table themselves; the event's first call does.
         self.assertIn("titles.game != game || !titles.loaded || titles.slot <= 0 || record == NULL", store)
         self.assertIn("titles_pass(game, 0);", store)
         self.assertIn("titles.roster_age[index] = saved_roster_age;", store)
         for case in ("AN EVENT THAT RAISES AGE AND SKILLS NEVER LIFTS WHAT THE TITLE IS KEPT BY",
                      "... SO AFTER AN ALT-F4 THE OLDER SAVE'S KAI STILL HAS HIS TITLE",
                      "a rebase that can not be written is refused",
-                     "A REBASE BEFORE THE FOLLOW FOLLOWS THE VILLAGE FIRST",
+                     "A CHANGE'S FIRST FOLLOW COMES BEFORE THE CHANGE: THE TITLE MOVES TO KAI",
+                     "TWINS, A CIE LOWERS KAI'S SKILL FIRST: THE TITLE IS NOT BOUND TO THE TWIN",
+                     "TWIN'S LIKES CHANGE FIRST: THE TITLE IS NOT MOVED TO RECORD 1",
+                     "NO TWIN: THE LOWERED TITLE STAYS ON KAI",
                      "an unannounced age lowering DELETES the seen title",
                      # Re-review: a title set after a lowering (same event or later) is stored lowered.
                      "THE NEW TITLE IS STORED WITH THE LOWERED SKILL (",

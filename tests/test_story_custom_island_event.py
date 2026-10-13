@@ -1626,7 +1626,9 @@ class TitleSetTests(unittest.TestCase):
             v = story.village
             v.put(3, sex="m", years=30, name="Kai")
             story.apply(Event(changes=[story.change(3, title_op=1, title="Chief Fisher")]))
-            v.put(3, sex="m", years=30, name="Kai")            # another Kai in the record
+            # Another Kai in the reused record: a newborn (age 0), as a birth into a freed record is.  Kai of
+            # the same age with changed likes is the same villager (identity_in_place.h), so that is not this case.
+            v.put(3, sex="m", years=0, name="Kai")
             p.put32(v.record(3) + v.L["likes"], 2)
             with self.subTest(game=game, case="another Kai"):
                 self.assertEqual(p.export("VvfpStoryProbeTitleOf", story.n, v.record(3)), 0)

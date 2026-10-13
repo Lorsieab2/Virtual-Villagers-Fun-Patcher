@@ -1335,6 +1335,11 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
        else to the pregnancies below. */
     unsigned char same[CE_MAX_CHANGES];
     unsigned char father_same[CE_MAX_CHANGES];
+    /* A custom title's table is followed against the village BEFORE the event
+       changes anything (v1.35.73; titles_before_change). */
+    if (a->caps & CAP_TITLE) {
+        titles_before_change(e->game);
+    }
     for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
         const ce_change *c = &e->changes[i];
         same[i] = ce_same_villager(a, c->index, c->fingerprint) != NULL;

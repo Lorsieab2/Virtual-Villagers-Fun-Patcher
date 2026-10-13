@@ -550,6 +550,7 @@ static const char *titles_lookup(int game, const unsigned char *record);
 static int titles_set(int game, int index, const char *text);
 static int titles_rebind(int game, int index, unsigned int before);
 static int titles_rebase(int game, int index);
+static void titles_before_change(int game);
 
 #include "story_common.inc"
 #include "story_custom.inc"

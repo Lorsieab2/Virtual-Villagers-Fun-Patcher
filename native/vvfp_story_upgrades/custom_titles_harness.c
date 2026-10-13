@@ -729,7 +729,7 @@ int main(void) {
         check(titles.entries[0].looks.age == 500 && titles.entries[0].looks.skills[0] == 20
               && titles.base_age[1] == 500 && titles.base_skills[1][0] == 20 && titles.roster_age[1] == 500,
               "... and leaves the entry, the bases and the last look's age as they were");
-        /* v1.35.73: a rebase before the table was followed FOLLOWS THE VILLAGE FIRST (the lookup's own
+        /* v1.35.73: a Custom Island Event's first call (titles_before_change) FOLLOWS THE VILLAGE FIRST (the lookup's own
            follow), so the title is on its villager before anything is carried.  Here the saved Kai has
            been packed to record 0 after a reload: the stored title moves there (the looks are unchanged,
            so nothing is lowered, and it binds). */
@@ -748,23 +748,118 @@ int main(void) {
             villager(1, "Lani");
             titles_sync(game);
             check(!titles.roster_anyone, "setup: the table is loaded and not yet followed");
-            wsprintfA(what, "A REBASE BEFORE THE FOLLOW FOLLOWS THE VILLAGE FIRST: THE TITLE MOVES TO KAI (game %d)", game);
+            titles_before_change(game);           /* ce_apply's first call, before the event changes anything */
+            wsprintfA(what, "A CHANGE'S FIRST FOLLOW COMES BEFORE THE CHANGE: THE TITLE MOVES TO KAI (game %d)", game);
             check(titles_rebase(game, 0) == 1 && titles.roster_anyone && titles.count == 1
                   && titles.entries[0].index == 0 && titles.entries[0].looks.age == 500, what);
-            /* The documented limit: a lowering that is the first thing the table sees after a load
-               lowers the villager below what the table keeps, so the follow can not bind the title to
-               them.  It waits PENDING (shown on nobody, kept in the file) -- never given to another
-               record, and the lowering is not stored. */
+            /* The documented limit (v1.35.73): a lowering that is the first thing the table sees after a
+               load -- no follow before the change -- is not stored (titles_rebase does not follow the
+               table itself), so the first follow finds the villager below the stored looks and the title
+               waits PENDING: shown on nobody, kept in the file, never given to another record.  It stays
+               PENDING for the session; a reload with values at least as high as stored binds it again. */
             new_session();
             memset(g_records, 0, sizeof g_records);
             villager(0, "Kai"); looks(0, 1, 500, 3, 4, 10);           /* the event lowers every skill of Kai */
             villager(1, "Lani");
             titles_sync(game);
-            check(titles_rebase(game, 0) == 1 && titles.count == 1 && titles.entries[0].index == VV_TITLE_PENDING
-                  && titles.entries[0].looks.skills[0] == skill_dword(20) && titles_lookup(game, g_records[0]) == NULL
-                  && titles_lookup(game, g_records[1]) == NULL,
-                  "... a lowering seen before the first follow waits PENDING, never bound to another villager");
+            check(titles_rebase(game, 0) == 1 && titles.count == 1 && titles.entries[0].index == 0
+                  && titles.entries[0].looks.skills[0] == skill_dword(20),
+                  "a lowering seen before any follow is not stored (titles_rebase does not follow the table itself)");
+            titles_tick(game);
+            check(titles.count == 1 && titles.entries[0].index == VV_TITLE_PENDING
+                  && titles_lookup(game, g_records[0]) == NULL && titles_lookup(game, g_records[1]) == NULL,
+                  "... the first follow leaves the title PENDING, shown on nobody, never bound to another villager");
+            new_session();                                            /* a reload with Kai at least as high as stored */
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Kai"); looks(0, 1, 500, 3, 4, 20);
+            villager(1, "Lani");
+            titles_tick(game);
+            seen = titles_lookup(game, g_records[0]);
+            check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
+                  "... PENDING lasts for the session: a reload with values at least as high as stored binds it again");
         }
+    }
+
+    /* v1.35.73 (Opus review, CRITICAL): a Custom Island Event that changes a villager BEFORE the table's first
+       follow after a load.  ce_apply follows the table first, on the villagers as they are before the event
+       (titles_before_change), so the event can not leave a look-alike twin as the only candidate.  The twins
+       are identical in name, likes, dislikes, head, body, sex, age and skills.  Each case runs in every game. */
+    for (game = 1; game <= 5; ++game) {
+        char what[160];
+        unsigned int titled_as;
+
+        /* (a) the titled Kai's skill is lowered by the event; his identical twin keeps the stored skill. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Kai"); looks(0, 1, 500, 3, 4, 20); villager(1, "Lani");
+        titles_tick(game);
+        check(titles_set(game, 0, "Kai Title") == 1, "setup: Kai alone has the title");
+        titles_tick(game);
+        new_session();                                       /* a reload: the twin is packed in beside Kai */
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Kai"); looks(0, 1, 500, 3, 4, 20);
+        villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_before_change(game);                          /* ce_apply's first call, before the event */
+        looks(0, 1, 500, 3, 4, 10);                          /* the event lowers Kai's skills */
+        check(titles_rebase(game, 0) == 1, "the event's lowering is carried");
+        titles_tick(game);
+        wsprintfA(what, "TWINS, A CIE LOWERS KAI'S SKILL FIRST: THE TITLE IS NOT BOUND TO THE TWIN (game %d)", game);
+        check(title_index("Kai Title") != 1 && titles_lookup(game, g_records[1]) == NULL, what);
+        wsprintfA(what, "... it stays CONTESTED and PENDING, shown on neither (game %d)", game);
+        check(titles.count == 1 && title_index("Kai Title") == (int)VV_TITLE_PENDING
+              && (titles.entries[0].flags & VV_TITLE_CONTESTED), what);
+
+        /* (b) the event changes only the likes of the twin in record 1, before the first follow. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(game);
+        check(titles_set(game, 1, "Kai Title") == 1, "setup: Kai in record 1 has the title");
+        titles_tick(game);
+        new_session();                                       /* a reload: a twin of Kai in record 0 */
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Kai"); looks(0, 1, 500, 3, 4, 20);
+        villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_sync(game);                                   /* the frame tick has bound the slot already */
+        titles_before_change(game);                          /* ce_apply's first call, before the event */
+        titled_as = story_title_identity(game, g_records[1]);
+        g_records[1][44] = 9;                                /* the event changes only record 1's likes */
+        check(titles_rebind(game, 1, titled_as) == 1, "the likes change is carried");
+        titles_tick(game);
+        wsprintfA(what, "TWIN'S LIKES CHANGE FIRST: THE TITLE IS NOT MOVED TO RECORD 1 (game %d)", game);
+        check(title_index("Kai Title") != 1 && titles_lookup(game, g_records[1]) == NULL, what);
+        wsprintfA(what, "... it stays CONTESTED and PENDING, as after a plain load (game %d)", game);
+        check(titles.count == 1 && title_index("Kai Title") == (int)VV_TITLE_PENDING
+              && (titles.entries[0].flags & VV_TITLE_CONTESTED), what);
+
+        /* (c) the normal case, no twin: the lowered skill is followed, and the title stays on Kai, also
+           after an Alt-F4 reload of the older save. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(game);
+        check(titles_set(game, 1, "Kai Title") == 1, "setup: Kai has the title");
+        titles_tick(game);
+        new_session();                                       /* a reload, Kai packed to record 0 */
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Kai"); looks(0, 1, 500, 3, 4, 20); villager(1, "Lani");
+        titles_before_change(game);
+        looks(0, 1, 500, 3, 4, 10);                          /* the event lowers Kai's skills */
+        check(titles_rebase(game, 0) == 1, "the normal case: the lowering is carried");
+        titles_tick(game);
+        seen = titles_lookup(game, g_records[0]);
+        wsprintfA(what, "NO TWIN: THE LOWERED TITLE STAYS ON KAI (game %d)", game);
+        check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0 && title_index("Kai Title") == 0, what);
+        new_session();                                       /* an Alt-F4: the older save, Kai at skill 20 */
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Kai"); looks(0, 1, 500, 3, 4, 20); villager(1, "Lani");
+        titles_tick(game);
+        seen = titles_lookup(game, g_records[0]);
+        wsprintfA(what, "... AND AFTER AN ALT-F4 OF THE OLDER SAVE, KAI STILL HAS IT (game %d)", game);
+        check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0, what);
     }
 
     /* v1.35.72 (re-review): A TITLE SET AFTER A LOWERING.  The lowering (a Custom Island Event's skill

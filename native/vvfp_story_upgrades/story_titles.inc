@@ -305,8 +305,11 @@ static int titles_rebind(int game, int index, unsigned int before) {
     int i;
     /* Only a table already loaded for this game can hold the title (it was
        set through titles_set, which loaded it); nothing loaded, nothing to
-       carry, and no file is touched. */
-    if (titles.game != game || !titles.loaded || titles.slot <= 0 || record == NULL) {
+       carry, and no file is touched.  Nor before the table has been followed
+       against the village (v1.35.73): the change then carries nothing, and the
+       follow judges the title on the villagers as they were before the event
+       (titles_before_change, called first by ce_apply). */
+    if (titles.game != game || !titles.loaded || titles.slot <= 0 || record == NULL || !titles.roster_anyone) {
         return 1;
     }
     i = titles_find((unsigned int)index);
@@ -359,17 +362,15 @@ static int titles_rebase(int game, int index) {
         || index < 0 || index >= TITLES_ROSTER) {
         return 1;
     }
-    /* Before the table has been followed against the village on screen (v1.35.73), follow it first, as
-       the lookup does (titles_lookup): the bases and the last look exist only then, and an entry must be
-       on its villager before a lowering is carried -- a stale record index could be a namesake's.  A
-       lowering seen before that first follow is then not stored: the follow runs on the stored looks,
-       and a villager lowered below them waits PENDING, never bound to someone else (a documented limit,
-       custom_titles_harness.c). */
+    /* Not before the table has been followed against the village (v1.35.73): the follow is ce_apply's
+       titles_before_change, run BEFORE the event changed anything, so it sees the villagers as they were.
+       A rebase here must not follow the table itself: after the event has lowered a villager, a
+       look-alike twin could be the only one left that holds the title's stored looks, and the title
+       would be bound to the twin.  A lowering seen before any follow is therefore not stored; the first
+       follow then judges the villager below the stored looks, and the title waits PENDING (a documented
+       limit, custom_titles_harness.c). */
     if (!titles.roster_anyone) {
-        titles_pass(game, 0);
-        if (!titles.roster_anyone) {
-            return 1;
-        }
+        return 1;
     }
     story_title_looks(game, record, &now);
     vv_title_normalise_skills(&now, floats);
@@ -890,6 +891,19 @@ static void titles_pass(int game, int sweep) {
 
 static void titles_tick(int game) {
     titles_pass(game, 1);
+}
+
+/* A Custom Island Event is about to change the village (ce_apply, first thing,
+   before any revive, death or field write): if the table has not been
+   followed against the village yet, follow it now, on the villagers as they
+   are BEFORE the event.  Then rebase and rebind see the normal path: a title
+   that is contested between look-alikes stays contested, and an event that
+   lowers one of them cannot hand the title to the other (v1.35.73). */
+static void titles_before_change(int game) {
+    titles_sync(game);
+    if (titles.loaded && !titles.roster_anyone) {
+        titles_pass(game, 0);
+    }
 }
 
 /* Start Over or a deleted tribe in `slot` (VvfpStoryVillageReset): the
