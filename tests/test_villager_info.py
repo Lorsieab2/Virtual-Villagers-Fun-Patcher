@@ -132,7 +132,8 @@ class InfoTests(unittest.TestCase):
             path = Path(d) / "t.dat"
             path.write_bytes(b"VCT1" + struct.pack("<III", 2, 1, 1) + struct.pack("<II", 4, 77)
                              + b"Helpful Spirit".ljust(32, b"\0"))
-            self.assertEqual(vi.read_titles_file(path, 1), [(4, 77, "Helpful Spirit")])
+            self.assertEqual([(e.index, e.identity, e.title) for e in vi.read_titles_file(path, 1)],
+                             [(4, 77, "Helpful Spirit")])
             self.assertEqual(vi.read_titles_file(path, 2), [])          # another game's file
         with mock.patch.object(vi, "log_titles", return_value={("A", 0, 0): {"custom": "Old", "special": "Scholar"},
                                                                  ("B", 1, 1): {"custom": "Gone"}}), \

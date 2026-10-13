@@ -262,6 +262,13 @@ def _read_titles(path: Path, game: int) -> list[vv_titles_file.Entry] | None:
     return None if got is None else got[1]
 
 
+def _held_for(game: int, entries: list[vv_titles_file.Entry], identity: int, looks: dict) -> bool:
+    """Whether the titles file holds a title (bound or pending) for the villager of this title identity
+    and these looks: an entry of that identity that could be them (vv_titles_file.could_be, as the
+    game's load matches it).  Two villagers of one identity with their own looks each hold their own."""
+    return any(e.identity == identity and vv_titles_file.could_be(game, e, looks) for e in entries)
+
+
 def _record_index(game: int, data: bytes, at: int) -> int:
     """The villager's record number: the games load a save packed into records 0, 1, 2 ... in the
     order it holds them (story_titles.inc titles_follow)."""
@@ -370,8 +377,14 @@ def _survey_titles(folder, game, slot, data, recs, people, prefs, ids, carriers,
                          "into it (it is left as it is).")
         return
     # A pending title (kept for a villager who could not be told apart after a load) is held too: it
-    # is never restored a second time, and the reconciliation asks about it.
-    held = {e.identity for e in entries}
+    # is never restored a second time, and the reconciliation asks about it.  Held FOR THIS VILLAGER
+    # (v1.35.71 v2): an entry of their identity that could be them by the looks it keeps, as the game's
+    # load matches it (vv_titles_file.could_be; an older file's entry keeps no looks: anyone of its
+    # identity).  Another villager of the same identity with their own looks and title (a twin) does not
+    # hold theirs -- that hid a lost title, or refused a restore every time.
+    def held(v) -> bool:
+        return _held_for(game, entries, ids[v.at], vv_titles_file.looks_from_save(game, data, v.at))
+
     at_index = {e.index: e for e in entries if not e.pending}
     for e in lost:
         title = e.changes["Custom title"][0]
@@ -397,13 +410,16 @@ def _survey_titles(folder, game, slot, data, recs, people, prefs, ids, carriers,
             continue
         found = []
         for v in candidates:
-            if ids[v.at] in held:
+            if held(v):
                 out.notes.append(f"{what}; the titles file already holds a title for {v.name} (head {v.head}, "
                                  f"body {v.body}) -- shown, or pending until they can be told apart -- which is kept.")
                 continue
-            shown = page.get(v.identity)
-            other = shown.value("Custom title") if shown is not None else None
-            if other is not None and other.strip().lower() not in ("", "none", "-", title.lower()):
+            # Every block of their name and looks on the page (two villagers may share them; Page.blocks):
+            # one showing another title may be theirs, so it is left as it is -- never a guess.
+            shown = getattr(page, "blocks", {}).get(v.identity) or ([page[v.identity]] if v.identity in page else [])
+            other = next((t for t in (b.value("Custom title") for b in shown)
+                          if t is not None and t.strip().lower() not in ("", "none", "-", title.lower())), None)
+            if other is not None:
                 out.notes.append(f"{what}; the latest Village Population page shows {v.name} as \"{other}\", "
                                  "so it is left as it is.")
                 continue
@@ -562,10 +578,10 @@ def _plan(folder: Path, game: int, slot: int, chosen: list[Restore]) -> list[_Ch
         for r in titles:
             if not title_valid(r.title):
                 raise LostTitlesError(f"\"{r.title}\" is not a title the game can show; nothing was changed.")
-            if any(e.identity == r.identity for e in entries):
+            looks = vv_titles_file.looks_from_save(game, data, r.villager.at)
+            if _held_for(game, entries, r.identity, looks):
                 raise LostTitlesError(f"{r.villager.name} already has a title in {path.name}; nothing was changed.")
             same = [e for e in entries if not e.pending and e.index == r.index]
-            looks = vv_titles_file.looks_from_save(game, data, r.villager.at)
             if r.rekey is not None:
                 if len(same) != 1 or same[0].identity != r.rekey:
                     raise LostTitlesError(f"{path.name} changed since it was read; nothing was changed.")

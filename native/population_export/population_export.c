@@ -61,6 +61,7 @@
 #include "special_title.h"
 #include "patcher_files.h"
 #include "custom_titles.h"
+#include "custom_title_shown.h"   /* which record a bound custom title is shown on */
 #include "former_heathens_read.h"
 #include "mask_line.h"
 #include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
@@ -1016,16 +1017,12 @@ static void load_custom_titles(int game_id, const struct game_layout *g, const c
     }
 }
 
-/* A title whose identity two living villagers carry cannot be placed on
-   either after a reload renumbered them (the Story companion shows it on
-   neither): leave it out of this export. */
-/* The same for New Believers' Former Heathens (Codex, #553): an identity two living villagers
-   carry is nobody's, so neither is given the title.  Its entry's identity is cleared (an
-   identity is never 0), so the lookup finds nothing. */
-/* Carriers are counted over every occupied record, a body awaiting burial
-   included, NOT living_villager: the Story companion (titles_live_count,
-   story_titles.inc) and the parentage exporter count them that way, and the
-   title must be dropped exactly where they show it on nobody. */
+/* New Believers' Former Heathens (Codex, #553): an identity two present villagers carry is
+   nobody's, so neither is given the title.  Its entry's identity is cleared (an identity is
+   never 0), so the lookup finds nothing.  (The file keeps no record index, so nothing else
+   can tell the two apart.)  Carriers are counted over every occupied record that is no
+   look-alike, a body awaiting burial included, NOT living_villager -- the parentage
+   exporter's record_special_title counts them the same way. */
 static void drop_ambiguous_former(const struct game_layout *g, const unsigned char *villagers) {
     unsigned int count, i, index;
     if (!g_former_loaded) {
@@ -1050,36 +1047,45 @@ static void drop_ambiguous_former(const struct game_layout *g, const unsigned ch
     }
 }
 
-static void drop_ambiguous_titles(const struct game_layout *g, const unsigned char *villagers) {
-    int i, kept = 0;
-    unsigned int index;
-    for (i = 0; i < g_custom_title_count; ++i) {
-        int carriers = 0;
-        for (index = 0; index < g->slots; ++index) {
-            const unsigned char *record = villagers + g->record_base + index * g->stride;
-            if (*(const unsigned char *)(record + g->active) == 1 && !vv_lookalike(g->stride, record)
-                && vv_title_identity(record, g->name, g->name_capacity, g->likes,
-                                     g->dislikes, g->preference_slots)
-                   == g_custom_titles[i].fingerprint) {
-                ++carriers;
-            }
-        }
-        if (carriers <= 1) {
-            g_custom_titles[kept++] = g_custom_titles[i];
-        }
-    }
-    g_custom_title_count = kept;
+/* The live table the custom titles are judged against (custom_title_shown.h),
+   at this game's own offsets -- the same fields the Story companion keeps a
+   title's looks by (story_title_looks at its adapters' off_age, off_head,
+   off_body, off_sex and off_skills, story_c1.inc .. story_c5.inc; every one
+   equal to this layout's). */
+static vv_title_table g_title_table;
+
+static void bind_title_table(const struct game_layout *g, const unsigned char *villagers) {
+    g_title_table.first = villagers + g->record_base;
+    g_title_table.stride = g->stride;
+    g_title_table.slots = g->slots;
+    g_title_table.active = g->active;
+    g_title_table.name = g->name;
+    g_title_table.name_capacity = g->name_capacity;
+    g_title_table.likes = g->likes;
+    g_title_table.dislikes = g->dislikes;
+    g_title_table.preference_slots = g->preference_slots;
+    g_title_table.age = g->age;
+    g_title_table.head = g->head;
+    g_title_table.body = g->body;
+    g_title_table.sex = g->sex;
+    g_title_table.skills = g->skills;
+    g_title_table.skill_count = g->skill_count;
+    g_title_table.skills_float = g->skills_are_float;
 }
 
-/* A pending title (index VV_TITLE_PENDING, custom_titles.h) matches no
-   record: shown on nobody, as the villager panel shows it. */
-static const char *custom_title_of(const struct game_layout *g, const unsigned char *record, int index) {
+/* The custom title of the villager in record `index`, or NULL: the one entry
+   bound to that record, when custom_title_shown.h's rule shows it there -- its
+   fingerprint is the record's, and either its looks are not known yet and no
+   other present villager carries the fingerprint, or its looks are known and
+   this villager is the only present one who could be it (twins with one name,
+   likes and dislikes each keep their own title; identical twins neither).  A
+   pending title (index VV_TITLE_PENDING) matches no record: shown on nobody,
+   as the villager panel shows it. */
+static const char *custom_title_of(int index) {
     int i;
     for (i = 0; i < g_custom_title_count; ++i) {
         if (g_custom_titles[i].index == (unsigned int)index) {
-            return g_custom_titles[i].fingerprint
-                    == vv_title_identity(record, g->name, g->name_capacity, g->likes,
-                                         g->dislikes, g->preference_slots)
+            return vv_title_shown_on(&g_custom_titles[i], &g_title_table, (unsigned int)index)
                 ? g_custom_titles[i].title : NULL;
         }
     }
@@ -1116,7 +1122,7 @@ static int write_villager(
     if (fprintf(file, "Villager %d\n", number) < 0) return 0;
     if (fprintf(file, "  Name: %s\n", name) < 0) return 0;
     {
-        const char *custom = custom_title_of(g, record, index);
+        const char *custom = custom_title_of(index);
         if (custom != NULL && fprintf(file, "  Custom title: %s\n", custom) < 0) return 0;
     }
     {
@@ -1582,7 +1588,7 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
             return 0;
         }
     }
-    drop_ambiguous_titles(g, villagers);
+    bind_title_table(g, villagers);
     drop_ambiguous_former(g, villagers);
 
     /* The first file is opened unconditionally, not lazily on the first live

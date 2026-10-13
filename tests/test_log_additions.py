@@ -89,6 +89,24 @@ class Planning(unittest.TestCase):
         self.assertEqual(again.options, ["From 2026-10-01 10:00", additions.FROM_NOW],
                          "only the snapshot still without it is offered")
 
+    def test_two_villagers_of_one_name_and_looks_are_never_given_each_others_title(self):
+        """v1.35.71 v2: the latest Population page was read by (name, head, body), so two villagers of
+        one name and looks (heads are inherited, names repeat) were one: the titled one's title was
+        offered for the other's older History snapshots too.  When their titles differ, neither's is
+        added; when they agree, it still is."""
+        for twin_title, offered in (("", False), ("  Custom title: Helpful Spirit\n", True)):
+            with self.subTest(both=offered):
+                write(self.folder, "Tribe Population/Village Population 1.txt",
+                      "Village: Tribe (Save 1)\n" + villager(1, "Hoani", 11, 2, twin_title)
+                      + villager(2, "Hoani", 11, 2, "  Custom title: Helpful Spirit\n"))
+                write(self.folder, "Tribe History/Village History 1.txt",
+                      snapshot("2026-10-01 10:00", villager(1, "Hoani", 11, 2), villager(2, "Hoani", 11, 2)))
+                kind = self.kinds()["custom"]
+                self.assertEqual(bool(kind.questions), offered, kind.notes)
+                if not offered:
+                    self.assertTrue(any("Two or more villagers named Hoani (head 11, body 2)" in n
+                                        for n in kind.notes), kind.notes)
+
     def test_the_lines_under_a_name_keep_the_exporters_order(self):
         write(self.folder, "Tribe Population/Village Population 1.txt",
               "Village: Tribe (Save 1)\n" + villager(1, "Mara", 3, 3, "  Custom title: Seer\n"

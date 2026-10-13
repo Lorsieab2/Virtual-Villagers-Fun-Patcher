@@ -84,6 +84,7 @@
 #include "birth_heading.h"        /* "Birth <n>", or an older log's "Birth" */
 #include "special_title.h"
 #include "custom_titles.h"
+#include "custom_title_shown.h"   /* which record a bound custom title is shown on */
 #include "former_heathens_read.h"
 #include "mask_line.h"
 #include "patcher_files.h"
@@ -4269,13 +4270,23 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
 
    The titles are kept per save slot (native/shared/custom_titles.h); the
    slot is the one the village header names ("... (Save <n>)", its LAST such
-   marker, as every reader takes it).  A title belongs to the villager whose
-   name, likes and dislikes hash to its identity: the one entry with this
-   record's identity is used -- by identity alone, since a departed
-   villager's record is a rebuilt copy with no index -- and none when two
-   entries, or two living villagers, carry that identity (the villager panel
-   shows it on neither).  No file, an unreadable file, no header or no
-   match: no line. */
+   marker, as every reader takes it).
+
+   A LIVE RECORD (one of the game's villager records, `departed` 0) is given
+   the entry bound to its own record index, by native/shared/
+   custom_title_shown.h's rule, the Story companion's own (story_titles.inc
+   titles_could_be): its fingerprint (name, likes, dislikes) is the record's,
+   and -- the entry's looks known -- this villager is the only one present
+   whose head, body and sex are the entry's and whose age and skills are no
+   lower, so twins with one name, likes and dislikes each keep their own
+   title, as the villager panel shows them; identical twins neither (never a
+   guess).  An entry whose looks are not known yet (a version 2 file) is
+   shown only while no other present villager carries its fingerprint.
+
+   A DEPARTED villager's record is a rebuilt copy with no index: the one
+   entry with its identity is used -- by identity alone -- and none when two
+   entries, or a present villager too, carry that identity.  No file, an
+   unreadable file, no header or no match: no line. */
 static int record_custom_title(int game_id, const struct game_layout *g,
                                const unsigned char *record, const unsigned char *records,
                                int departed, char *out, size_t out_size) {
@@ -4325,6 +4336,45 @@ static int record_custom_title(int game_id, const struct game_layout *g,
         return 0;
     }
     count = vv_titles_parse(data, titles);
+    if (!departed) {
+        /* A live record: by its own index (custom_title_shown.h), at this
+           game's offsets -- the same fields the Story companion keeps a
+           title's looks by (story_title_looks at its adapters' off_age,
+           off_head, off_body, off_sex and off_skills, story_c1.inc ..
+           story_c5.inc; every one equal to this layout's). */
+        vv_title_table table;
+        unsigned int r;
+        if (records == NULL || !is_record_slot(g, records, record)) {
+            return 0;
+        }
+        table.first = records + g->record_base;
+        table.stride = g->stride;
+        table.slots = (unsigned int)g->slots;
+        table.active = g->active;
+        table.name = g->name;
+        table.name_capacity = g->name_capacity;
+        table.likes = g->likes;
+        table.dislikes = g->dislikes;
+        table.preference_slots = g->preference_slots;
+        table.age = g->age;
+        table.head = g->head;
+        table.body = g->body;
+        table.sex = g->sex;
+        table.skills = g->skills;
+        table.skill_count = g->skill_count;
+        table.skills_float = g->skills_are_float;
+        r = (unsigned int)((size_t)(record - table.first) / g->stride);
+        for (i = 0; i < count; ++i) {
+            if (titles[i].index == r) {
+                if (!vv_title_shown_on(&titles[i], &table, r)) {
+                    return 0;
+                }
+                _snprintf_s(out, out_size, _TRUNCATE, "  Custom title: %s\n", titles[i].title);
+                return 1;
+            }
+        }
+        return 0;
+    }
     identity = vv_title_identity(record, g->name, g->name_capacity, g->likes, g->dislikes,
                                  g->preference_slots);
     for (i = 0; i < count; ++i) {
@@ -4340,21 +4390,20 @@ static int record_custom_title(int game_id, const struct game_layout *g,
     if (found < 0) {
         return 0;
     }
-    /* A rebuilt copy of a departed villager (`departed`) is in no live
-       record, so ANY living carrier of its identity may be the title's
-       owner (Codex, #553); a live record is one carrier itself.  With no
-       readable live table a departed copy cannot be checked: no title. */
-    if (departed && records == NULL) {
+    /* A rebuilt copy of a departed villager is in no live record, so ANY
+       present carrier of its identity may be the title's owner (Codex,
+       #553): then no title.  With no readable live table it cannot be
+       checked: no title. */
+    if (records == NULL) {
         return 0;
     }
-    if (records != NULL) {
-        int carriers = departed ? 1 : 0, index;
+    {
+        int index;
         for (index = 0; index < g->slots; ++index) {
             const unsigned char *other = records + g->record_base + (size_t)index * g->stride;
             if (*(const unsigned char *)(other + g->active) == 1 && !vv_lookalike(g->stride, other)
                 && vv_title_identity(other, g->name, g->name_capacity, g->likes, g->dislikes,
-                                     g->preference_slots) == identity
-                && ++carriers > 1) {
+                                     g->preference_slots) == identity) {
                 return 0;
             }
         }
@@ -4377,8 +4426,9 @@ static const char *record_special_title(int game_id, const struct game_layout *g
                                                   g->dislikes, g->preference_slots);
         const unsigned char *records = villager_table(game_id);
         kind = vv_former_lookup(former, identity);
-        /* An identity another living villager carries too is nobody's (Codex, #553): the
-           title is shown on neither, as a custom title is not. */
+        /* An identity another present villager carries too is nobody's (Codex, #553): the
+           title is shown on neither -- the Former Heathens file keeps no record index or
+           looks to tell them apart (a custom title does: custom_title_shown.h). */
         if (kind >= 0 && records != NULL
             && memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
             int index, carriers = 0;
