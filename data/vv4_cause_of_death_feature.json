@@ -23,7 +23,7 @@
     "The grave's Done writes an Epitaph changed record when the epitaph's text changed; spaces typed before or after the same words are not a change.",
     "Every villager the game's own creators make is noted as an arrival; after each save the village is compared with the roster kept at the save before, and any departure with no Death or Disappeared record, or arrival with no known arrival, is written to the Unaccounted Villagers log.",
     "The roster is kept in 'Virtual Villagers Fun Patcher Data\\Unaccounted Villagers\\Virtual Villagers 4 Villagers at Last Save - Save <n>.dat', or '... Village Roster ...' in a save an older version made, never renamed; under both names the one written last (written atomically; deleted by Start Over).",
-    "Arrivals: a villager a creator made that is neither a birth (the path's own return addresses, read at fixed places on the stack, or the Births and Conceptions log's note) nor a record the game takes away again is decided at the next tick, named by its path (Founder, the island event, Barrel of Babies), and gets an Arrived record at the next save of that village (at its departure if it leaves first); the Story / Cheat Upgrades DLL names the Custom Island Event's (VvfpCauseArrivedBy). A founder is written only at a save with no village saved in the slot before.",
+    "Arrivals: a villager a creator made that is neither a birth (the path's own return addresses, read at fixed places on the stack, or the Births and Conceptions log's note) nor a record the game takes away again is decided at the next tick, named by its path (Founder, the island event, Barrel of Babies, the developer F7 command in The Tree of Life), or \"added outside a recorded event\" when no listed path made it, and gets an Arrived record at the next save of that village (at its departure if it leaves first); the Story / Cheat Upgrades DLL names the Custom Island Event's (VvfpCauseArrivedBy). A founder is written only at a save with no village saved in the slot before.",
     "Arrivals before this record existed: VvfpCauseScanArrivals counts, writing nothing, the villagers (believers, with no parents on their record) the village's Births and Conceptions log has no Birth or Arrived record for (name, head and body), for the first-load check; VvfpCauseRepairArrivals records the answer. Only after Repair, at the next save, each gets an Arrived record filed by RecordArrivalsMissingFromLog in \"VVFP Parentage Export.dll\", and none is an Unaccounted record; once all are on disk 'Virtual Villagers Fun Patcher Data\\Arrivals\\Virtual Villagers 4 Arrivals Recorded - Save <n>.dat' (deleted by Start Over) ends the backfill for good.",
     "All records are written through WriteVillageRecord in \"VVFP Parentage Export.dll\"."
   ],
@@ -35,7 +35,7 @@
     {
       "source": "assets/cause_of_death/VVFP Cause of Death.dll",
       "destination": "VVFP Cause of Death.dll",
-      "sha256": "204106EA4AF4460C2F75A31A08F9321B172545A71047C23C9E8A00D785FAC63D"
+      "sha256": "CEE8719953B7E5EF08AD2E1034832297E87BCF1C594E9F56EA87FCB73BC2263A"
     }
   ],
   "patches": [],

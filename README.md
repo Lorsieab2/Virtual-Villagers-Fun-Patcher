@@ -22,6 +22,13 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.73
+
+New in v1.35.73:
+
+- **Villagers the F7 developer command spawns in The Tree of Life are now named as that command (fixed).** Before, their Arrived records said "How: unknown", because the patcher did not list F7's path. They now say "How: Developer command (F7)". The patcher checked every direct call of a villager creator in all five stock executables: F7 was the only path without a listed label, and it is the game's own debug key (F1-F10 are commands 1018-1027, so F7 is 1024). Where the patcher cannot tell which path made a villager, the record now says "How: added outside a recorded event" instead of "unknown" (all five games). A villager the backfill finds with no record at all still says "unknown", with the note that they arrived before the log existed. Not yet seen in a running game.
+
+
 ## What's new in v1.35.72
 
 New in v1.35.72:
