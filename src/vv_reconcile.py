@@ -116,6 +116,8 @@ class Seen:
     title: str | None = None                # a snapshot's "Custom title"
     title_id: int | None = None             # the save's custom-title identity (native/shared/custom_titles.h)
     title_looks: dict | None = None         # the save's age, head, body, sex and skills (src/vv_titles_file.py)
+    at: int | None = None                   # the name's offset in the save (a save only)
+    record: int | None = None               # the record the game loads them into (vv_lost_titles._record_index)
 
     @property
     def key(self) -> tuple:
@@ -148,6 +150,20 @@ class Record:
     extra: dict = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class TitleAction:
+    """What one answer to a pending-title question does to the Custom Titles file (settle_titles): bind
+    the pending entry (identity, title) to the villager named -- whose name is at `at` in the save, in
+    record `record`, with the looks the reconciliation read -- or clear it."""
+    kind: str                               # "bind" | "clear"
+    identity: int
+    title: str
+    name: str | None = None
+    at: int | None = None
+    record: int | None = None
+    looks: dict | None = field(default=None, compare=False, hash=False)
+
+
 @dataclass
 class Finding:
     kind: str                               # "ask" | "note"
@@ -157,6 +173,7 @@ class Finding:
     options: list[str] = field(default_factory=list)
     rename: tuple | None = None             # ((name, head, body) now, the name the record gives)
     answer: str | None = None               # the player's remembered answer
+    title_actions: dict | None = None       # a pending title's answers that change the file: option -> TitleAction
 
 
 @dataclass
@@ -269,6 +286,14 @@ def read_save(path: Path, game: int) -> tuple[list[Seen], list[Seen]]:
     except (ln.LastNamesError, ValueError, IndexError, struct.error) as exc:
         raise ReconcileError(f"{path.name}: the villagers could not be read ({exc})") from exc
     alive, bodies = [], []
+    if game == 1:
+        first = checker.VV1_BLOCK0 - checker.VV1_BASE + 0x370
+        records = {at: (at - first) // checker.VV1_STRIDE for at in everyone}
+    else:
+        try:
+            records = {at: k for k, at in enumerate(checker.villager_offsets(game, data, []))}
+        except ValueError:
+            records = {}
     for rank, at in enumerate(everyone):
         def i32(off: int) -> int:
             return struct.unpack_from("<i", data, at + off)[0]
@@ -283,7 +308,7 @@ def read_save(path: Path, game: int) -> tuple[list[Seen], list[Seen]]:
         seen = Seen(data[at:at + f.name_cap].split(b"\0", 1)[0].decode("latin-1"), i32(f.head), i32(f.body),
                     "Male" if i32(f.sex) == f.male else "Female", i32(age_at), prefs["likes"], prefs["dislikes"],
                     father, mother, rank, None, ln._title_identity(data, at, f),
-                    titles_file.looks_from_save(game, data, at))
+                    titles_file.looks_from_save(game, data, at), at, records.get(at))
         (alive if at in living else bodies).append(seen)
     return alive, bodies
 
@@ -502,17 +527,21 @@ class _Builder:
         self.slot_moved = 0                 # villagers in another slot than before
 
     # -- findings --------------------------------------------------------------------------------
-    def ask(self, topic: str, qid: str, text: str, options: list[str], rename: tuple | None = None) -> None:
+    def ask(self, topic: str, qid: str, text: str, options: list[str], rename: tuple | None = None,
+            title_actions: dict | None = None) -> None:
         if qid in self.findings:
             if text not in self.findings[qid].text:
                 self.findings[qid].text += " Also: " + text
             return
         answer = self.answered.get(qid)
-        if answer is not None and answer != DONT_KNOW:
+        if answer is not None and answer != DONT_KNOW and answer not in (title_actions or {}):
             self.findings[qid] = Finding("note", topic, qid, f"{text} You answered: \"{answer}\".", options,
                                          rename, answer)
         else:
-            self.findings[qid] = Finding("ask", topic, qid, text, options + [DONT_KNOW], rename)
+            # An answer that was to change the Custom Titles file and the title still waits (the file was
+            # put back, or changed again since): asked again, never taken as settled.
+            self.findings[qid] = Finding("ask", topic, qid, text, options + [DONT_KNOW], rename,
+                                         title_actions=title_actions)
 
     def note(self, topic: str, qid: str, text: str) -> None:
         if qid not in self.findings:
@@ -547,12 +576,20 @@ class _Builder:
     def left(self, s: Seen) -> str | None:
         """The record that says this villager died or went, if any -- under the name and looks they had
         then, followed through the recorded changes since `s` (review of #585: a villager whose looks
-        or name changed, recorded, before a recorded death was asked about as possibly lost)."""
+        or name changed, recorded, before a recorded death was asked about as possibly lost).
+
+        The record must be able to be THEM (review of #585): names and looks come from fixed pools, so a
+        Death record of a villager of the other sex with the same name, head and body says nothing of
+        this one.  (The age is not used: after a restored backup a villager can die younger than a later
+        snapshot saw them.)"""
         known = self.identities(s)
         names = {name for name, _h, _b in known}
         for r in self.logs.departures:
-            if r.who.key in known or (r.who.head is None and r.who.name in names):
-                return r.heading
+            if not (r.who.key in known or (r.who.head is None and r.who.name in names)):
+                continue
+            if s.sex and r.who.sex and s.sex.strip().lower() != r.who.sex.strip().lower():
+                continue
+            return r.heading
         return None
 
     def looks_recorded(self, old: Seen, new: Seen) -> bool:
@@ -682,7 +719,10 @@ class _Builder:
         unexplained_new = list(new)
         plain_lost: list[Seen] = []
         for old in gone:
-            why = self.left(old)
+            # A save OLDER than the roster (restored): whoever the roster lists was alive after the save was
+            # written, so a Death or Disappeared record -- written later still -- never explains their being
+            # missing from it (review of #585).
+            why = None if restored else self.left(old)
             if why is not None:
                 continue
             if bodies is not None and any(x.key == old.key for x in bodies):
@@ -924,19 +964,21 @@ class _Builder:
         present = list(living) + list(bodies or [])
         for e in file_entries:
             if e.pending:
-                self._pending_title(path, e, present, history[-1].people if history else [])
+                self._pending_title(path, e, present, history[-1].people if history else [], living, file_entries)
         if not history:
             return
         titled = [s for s in history[-1].people if s.title and s.title.lower() not in ("none", "(none)")]
         if not titled:
             return
-        entries: dict[int, str] = {e.identity: e.title for e in file_entries}
+        # Every (identity, title) the file holds: two villagers of one whole identity (twins) may each have
+        # a title of their own (review of #585: one per identity hid the earlier one as "lost").
+        entries = {(e.identity, e.title) for e in file_entries}
         lost = []
         for s in titled:
             now = [v for v in living if v.key == s.key]
             if len(now) != 1 or now[0].title_id is None:
                 continue
-            if entries.get(now[0].title_id) != s.title:
+            if (now[0].title_id, s.title) not in entries:
                 lost.append(f"{s.name} (\"{s.title}\")")
         if lost:
             self.ask("titles", f"titles|{history[-1].when}|{'|'.join(lost)}",
@@ -944,7 +986,8 @@ class _Builder:
                      f"title the Custom Titles file ({path.name}) no longer holds for them: {', '.join(lost)}. The "
                      "title(s) may be lost.", [f"{KEEP} (I removed the title)"])
 
-    def _pending_title(self, path: Path, e, present: list[Seen], snapshot: list[Seen]) -> None:
+    def _pending_title(self, path: Path, e, present: list[Seen], snapshot: list[Seen],
+                       living: list[Seen] | None = None, file_entries: list | None = None) -> None:
         """One question for one pending title: which title, the identity it is kept by, and who could be
         them now (the villagers the game itself would weigh: the same name and likes, then the whole
         identity)."""
@@ -975,17 +1018,41 @@ class _Builder:
         if e.contested:
             after = ("While it waited, two or more villagers could be them at once, so the game will NOT give it "
                      "back by itself, even if only one of them is left now (the others died or left): which one "
-                     "had it can not be told, and it is never guessed. If it is theirs, give it to them again with "
-                     "the Custom Island Event's title; until then it waits.")
+                     "had it can not be told, and it is never guessed. If it is theirs, say so below (or give it to "
+                     "them again with the Custom Island Event's title); until then it waits.")
             if len(could) == 1:
                 after = f"The one left who could be them: {could[0].name}. " + after
         else:
             after = ("The game gives it back by itself once exactly one villager has that whole identity; until "
                      "then it waits.")
+        # THE PLAYER'S ANSWER SETTLES IT (v1.35.71).  Give it to one of the villagers who could be them --
+        # living, in the save now, and holding no other title -- or remove it; Repair Saves & Logs then
+        # changes the Custom Titles file (settle_titles).  "Keep as is" leaves it waiting.  Never a guess:
+        # only a villager the player names, and only one the game itself would weigh as them.
+        claimed = {x.index for x in (file_entries or []) if not x.pending}
+        options = [f"{KEEP} (leave it waiting)"]
+        actions: dict[str, TitleAction] = {}
+        for v in could:
+            if v not in (living or []) or v.record is None or v.at is None or v.record in claimed:
+                continue
+            option = (f"Give it to {v.described()}{'' if v.rank is None else f', record {v.rank}'} (it is theirs)")
+            if option in actions:
+                continue
+            actions[option] = TitleAction("bind", e.identity, e.title, v.name, v.at, v.record,
+                                          dict(v.title_looks or {}))
+            options.append(option)
+        clear = "Remove the title (it is nobody's now)"
+        actions[clear] = TitleAction("clear", e.identity, e.title)
+        options.append(clear)
+        if len([a for a in actions.values() if a.kind == "bind"]) >= 2:
+            after += (" If two of them still have the same name, likes, head, body and sex and neither is younger "
+                      "or less skilled than the other, the game can not tell them apart after a load and the title "
+                      "waits again.")
         self.ask("titles", f"title-pending|{e.identity:08X}|{e.title}",
                  f"The custom title \"{e.title}\" is PENDING in {path.name}: after a load the game could not tell "
                  f"which villager it belongs to, so it is kept, shown on nobody -- never dropped. It is kept for "
-                 f"{kept}. {whom} {after}", [f"{KEEP} (leave it waiting)"])
+                 f"{kept}. {whom} {after} Your answer changes the file only in Repair Saves & Logs, with the game "
+                 "closed and a backup first.", options, title_actions=actions)
     def slot_file_of(self, path: Path) -> bool:
         """Whether a file belongs to this game and slot (or to the game's shared logs)."""
         name = path.name
@@ -1165,10 +1232,14 @@ def reconcile(folder: Path, game: int, slot: int) -> Reconciliation:
     for c in logs.censuses:
         if c.kind != "history":
             sources.append(f"{c.label}: {len(c.people)} villagers")
-    for a, c in zip(history, history[1:]):
+    # The rosters in time order -- the History snapshots and the Village Population page (review of #585:
+    # the page was read and never compared, so a villager, a like, a parent or the looks only it still
+    # held could be lost from the save unasked) -- then the latest of them against the save.
+    rosters = sorted(history + [c for c in logs.censuses if c.kind == "population"], key=lambda c: c.when)
+    for a, c in zip(rosters, rosters[1:]):
         b.compare(a, c)
-    if history and living:
-        snap = history[-1]
+    if rosters and living:
+        snap = rosters[-1]
         now = Census(f"the save {current_path.name} ({_when(current_path)})", _when(current_path), "save", living,
                      current_path)
         # A save older than the latest snapshot (restored with its time kept) is compared too (review of
@@ -1251,7 +1322,8 @@ def kind(folder: Path, game: int, slot: int, rec: Reconciliation | None = None):
         return out
     for n, f in enumerate(rec.questions, 1):
         out.questions[f.qid] = additions.Question(f.qid, f"{n}. {f.text}", list(f.options), DONT_KNOW)
-    out.context = {"game": game, "slot": slot, "renames": {f.qid: f.rename for f in rec.questions if f.rename}}
+    out.context = {"game": game, "slot": slot, "renames": {f.qid: f.rename for f in rec.questions if f.rename},
+                   "titles": {f.qid: f.title_actions for f in rec.questions if f.title_actions}}
     if rec.questions:
         out.notes.append(f"{len(rec.questions)} contradiction(s) between the save, its older copies, the logs and "
                          "the patcher's files. Answer them with the button below; \"Don't know (leave it)\" "
@@ -1277,8 +1349,137 @@ def give_names_back(folder: Path, game: int, slot: int, renames: dict[tuple, str
     return dict(work.renames)
 
 
+TITLE_COPY_SUFFIX = ".before-title-answer"
+TITLE_BACKUP_LABEL = "(before settling custom titles)"
+
+
+def settle_titles(folder: Path, game: int, slot: int, actions: list[TitleAction], controller,
+                  backup_folder: Path | None = None, now: datetime | None = None) -> list[str]:
+    """The player's answers to pending-title questions, carried out in the Custom Titles file
+    (native/shared/custom_titles.h; src/vv_titles_file.py): "Give it to <villager>" binds the PENDING
+    entry to that villager's record with their looks now (no longer contested: the player said whose it
+    is); "Remove the title" takes the entry out.  Every other entry stays as it was.
+
+    Nothing is guessed and nothing stale is written: refused while the game runs (its companion keeps
+    the table in memory and would write over the file); every answer is checked again against the file
+    and the save as they are NOW -- the entry still pending with that identity and title, exactly once;
+    the villager still at that place in the save, alive, with that name, identity and looks, one the
+    game itself would weigh as them, and holding no other title -- else nothing is changed.  A backup
+    of the save folder first (`backup_folder`, Repair's own, else one made here), the file as it was
+    kept in Copies Made Before Repairs, a write through a temporary file moved into place and read
+    back, and one "Repair <n>" record in the Repairs Made log.  Returns the lines for Repair's own
+    record.  Raises vv_log_tools.LogToolError (nothing changed) on any refusal or failure."""
+    import vv_last_names as ln
+    import vv_log_tools as tools
+    import vv_lost_titles as lt
+    import vv_save_backup
+    import vv_titles_file as titles_file
+    folder = Path(folder)
+    if not actions:
+        return []
+    tools._refuse_if_running(folder, controller)
+    path = layout.find(folder, lt.TITLES_FILE.format(slot=slot))
+    try:
+        original = path.read_bytes()
+        got = titles_file.read(original, game)
+        data = ln.save_path(folder, game, slot).read_bytes()
+        living = set(ln._entries(game, data))
+    except (OSError, ln.LastNamesError, ValueError, struct.error) as exc:
+        raise tools.LogToolError(f"The custom titles could not be read ({exc}); nothing was changed.") from exc
+    if got is None:
+        raise tools.LogToolError(f"{path.name} is not a titles file this game reads; nothing was changed.")
+    version, entries = got
+    f = ln.FIELDS[game]
+    done: list[str] = []
+    for a in actions:
+        mine = [e for e in entries if e.pending and e.identity == a.identity and e.title == a.title]
+        if len(mine) != 1:
+            raise tools.LogToolError(f"\"{a.title}\" is no longer waiting in {path.name} as the question saw it "
+                                     "(the game or another repair changed it); nothing was changed.")
+        e = mine[0]
+        if a.kind == "clear":
+            entries.remove(e)
+            done.append(f"Removed the pending custom title \"{a.title}\" (identity {a.identity:08X})")
+            continue
+        try:
+            here = a.at is not None and a.at in living \
+                and data[a.at:a.at + f.name_cap].split(b"\0", 1)[0].decode("latin-1") == a.name \
+                and ln._title_identity(data, a.at, f) == a.identity \
+                and lt._record_index(game, data, a.at) == a.record
+            looks = titles_file.looks_from_save(game, data, a.at) if here else None
+        except (ValueError, IndexError, struct.error):
+            here, looks = False, None
+        if not here or looks != a.looks:
+            raise tools.LogToolError(f"{a.name} is no longer in the save as the question saw them (the save "
+                                     f"changed since); \"{a.title}\" was not given and nothing was changed.")
+        if not titles_file.could_be(game, e, looks):
+            raise tools.LogToolError(f"{a.name} is not someone the title \"{a.title}\" could belong to (another "
+                                     "head, body or sex, or younger or less skilled); nothing was changed.")
+        if any(not x.pending and x.index == a.record for x in entries):
+            raise tools.LogToolError(f"{a.name} (record {a.record}) already has a custom title in {path.name}; "
+                                     f"\"{a.title}\" was not given and nothing was changed.")
+        e.index, e.known, e.contested = a.record, True, False
+        for key, value in looks.items():
+            setattr(e, key, value)
+        done.append(f"Gave the pending custom title \"{a.title}\" to {a.name} (record {a.record})")
+    # The file's own version, every other entry as it was; a pending entry exists only in version 3.
+    updated = titles_file.serialise(game, entries, version)
+    if titles_file.read(updated, game) is None:
+        raise tools.LogToolError(f"{path.name} would not be a file the game reads; nothing was changed.")
+    if backup_folder is None:
+        try:
+            backup_folder = vv_save_backup.copy_save_folder(folder, now or datetime.now(),
+                                                            suffix=TITLE_BACKUP_LABEL).backup_folder
+        except vv_save_backup.BackupError as exc:
+            raise tools.LogToolError(f"The backup failed, so nothing was changed. {exc}") from exc
+    tools._refuse_if_running(folder, controller)
+    for k in range(1, 1000):
+        copy = tools.copy_before_repair(folder, path, TITLE_COPY_SUFFIX + ("" if k == 1 else f"-{k}"))
+        if not copy.exists():
+            break
+    else:
+        raise tools.LogToolError(f"{path.name} has too many copies already; nothing was changed.")
+    try:
+        if path.read_bytes() != original:
+            raise tools.LogToolError(f"{path.name} changed while the answers were being carried out; nothing "
+                                     "was changed.")
+        copy.parent.mkdir(parents=True, exist_ok=True)
+        with open(copy, "xb") as handle:
+            handle.write(original)
+        ln._write(path, updated)            # a temporary file moved into place, then read back
+    except (OSError, ln.LastNamesError) as exc:
+        try:
+            if path.read_bytes() != original:
+                ln._write(path, original)
+        except (OSError, ln.LastNamesError) as undo_exc:
+            raise tools.LogToolError(f"{path.name} could not be written ({exc}) nor put back ({undo_exc}); your "
+                                     f"backup is in {backup_folder}.") from exc
+        raise tools.LogToolError(f"{path.name} could not be written ({exc}); it was put back as it was. A "
+                                 f"backup is in {backup_folder}.") from exc
+    try:
+        import vv_tribe_rename
+        games = {g.number: g for g in vv_tribe_rename.GAMES}
+        name = vv_tribe_rename.save_name(games[game], data)
+        header = vv_tribe_rename.village_header(name, slot) if name else None
+    except (KeyError, ValueError):
+        header = None
+    try:
+        record_path, text = tools.repair_record_start(folder, game, header or "Village: (all villages in this "
+                                                      "save folder)", slot, now)
+        text += "  Checked: the pending custom titles, against your answers to the reconciliation\r\n"
+        for line in done:
+            text += f"  {line}\r\n"
+        text += f"  File: {path.relative_to(folder)} -- copy kept: {copy.name}\r\n"
+        text += f"  Backup: {Path(backup_folder).name}\r\n\r\n"
+        with open(record_path, "ab") as log:
+            log.write(text.encode("latin-1", "replace"))
+    except OSError:
+        pass                                # the change stands; the reconciliation still sees it
+    return done
+
+
 def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str, str],
-             now: datetime | None = None, give_back=None) -> tuple[list[str], dict[tuple, str]]:
+             now: datetime | None = None, give_back=None, settle=None) -> tuple[list[str], dict[tuple, str]]:
     """Keep the player's answers (src/vv_log_decisions.py, kind "reconcile"); "Don't know" is not kept,
     so it is asked again.  Returns (lines for the Repairs log, the renames the answers asked for:
     (name, head, body) -> the name to give back -- what `give_back` returned, when it is given).
@@ -1305,7 +1506,7 @@ def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str,
             village = vv_tribe_rename.village_header(name, slot) if name else village
         except (OSError, KeyError, ValueError):
             pass
-    entries, lines, renames = [], [], {}
+    entries, lines, renames, settling = [], [], {}, []
     for qid, question in rk.questions.items():
         answer = answers.get(qid)
         if not answer or answer == DONT_KNOW:
@@ -1316,6 +1517,16 @@ def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str,
         rename = rk.context.get("renames", {}).get(qid)
         if rename and answer.endswith("(give the name back)"):
             renames[tuple(rename[0])] = rename[1]
+        action = (rk.context.get("titles", {}).get(qid) or {}).get(answer)
+        if action is not None:
+            settling.append(action)
+    # A pending title bound or cleared (settle_titles) BEFORE the renames: it is checked against the
+    # villager's name in the save as the question saw it, and a rename changes the identity it hashes.
+    # Like a failed rename, a failed change keeps no answer: the question is asked again.
+    if settling:
+        if settle is None:
+            raise ValueError("an answer that changes the Custom Titles file needs settle_titles")
+        lines += settle(settling)
     if renames and give_back is not None:
         renames = give_back(renames)
     if entries:

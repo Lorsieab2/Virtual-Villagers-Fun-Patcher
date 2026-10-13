@@ -97,8 +97,10 @@ FOUNDATION_OUTPUT = (
 # Upgrades queue kept beside the paid Barrel).
 # Recertified for v1.35.70 (native/shared/startup_companions.h: VVFP Game Log.dll
 # appended).
-SOURCE_SHA256 = "76B70596536236BB1CC16986D771F74B4C906A9C500211CDF35DD1FBFF941B86"
-SOURCE_SIZE = 1982464
+# Recertified for v1.35.71 (the mask getter's live table: every record re-read,
+# only a changed one hashed again).
+SOURCE_SHA256 = "4B606B95ADF943F3ABE4C0E6F97E6092198648C47EA05314CC765165BC45A17C"
+SOURCE_SIZE = 1982976
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

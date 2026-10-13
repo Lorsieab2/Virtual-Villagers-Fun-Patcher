@@ -67,6 +67,7 @@ static unsigned int g_vv3_manager_imm;
 static int g_vv3_slot_bound;
 #define VV3_MANAGER_IMM_VA ((UINT_PTR)&g_vv3_manager_imm)
 #define VV3_SLOT_BOUND_PTR ((UINT_PTR)&g_vv3_slot_bound)
+#define VV3_MASK_LIVE_COUNT     /* counts the records the live table hashes again */
 #endif
 
 #if FC_GAME == 1
@@ -189,6 +190,206 @@ static void frame(void) {
         vv3_paid_tick();
         g_seen_masks += VV3_GetMaskForRecord(g_rec + (size_t)i * STRIDE) > 0;
     }
+}
+
+/* The render getter as v1.35.70 shipped it: a fingerprint of every record
+   for every lookup.  The live table (vv3_mask_live_refresh) must give the
+   same answer as this, for every record, after every change below. */
+static int fc_vv3_reference_mask(void *record) {
+    const unsigned char *rec = (const unsigned char *)record;
+    unsigned int fpv;
+    int idx, live_idx, stored_idx, i, live_count, stored_count = 0, value = 0;
+    if (record == NULL) return 0;
+    if (!vv3_mask_prepare_slot()) return 0;
+    idx = vv3_mask_index(record);
+    if (idx < 0) return 0;
+    if (rec[VV3_ACTIVE] == 0 || *(const int *)(rec + VV3_HEALTH) <= 0) return 0;
+    fpv = vv3_mask_fingerprint(rec);
+    if (!vv3_mask_has_stored_fingerprint(fpv)) return 0;
+    live_idx = vv3_mask_unique_live_index(fpv);
+    if (live_idx != idx) {
+        live_count = vv3_mask_live_fingerprint_count(fpv);
+        if (live_count < 2) return 0;
+        for (i = 0; i < VV3_MASK_SLOTS; ++i) {
+            if (g_vv3_mask[i] == 0 || g_vv3_mask_fp[i] != fpv) continue;
+            if (value == 0) value = g_vv3_mask[i];
+            else if (value != g_vv3_mask[i]) return 0;
+            ++stored_count;
+        }
+        return stored_count == live_count ? value : 0;
+    }
+    stored_idx = vv3_mask_unique_stored_index(fpv);
+    if (stored_idx < 0) return 0;
+    if (stored_idx == idx) return g_vv3_mask[idx];
+    return g_vv3_mask[stored_idx];
+}
+
+static unsigned int fc_rand_state = 12345u;
+static unsigned int fc_rand(unsigned int n) {
+    fc_rand_state = fc_rand_state * 1103515245u + 12345u;
+    return ((fc_rand_state >> 8) & 0xFFFFFFu) % n;
+}
+
+/* A small pool of names and Likes, so namesakes and identical twins are common. */
+static void fc_vv3_identity(unsigned char *r, unsigned int pick) {
+    int k;
+    memset(r + VV3_NAME, 0, VV3_NAME_LEN);
+    _snprintf((char *)r + VV3_NAME, VV3_NAME_LEN, "Kid%u", pick % 12u);
+    r[VV3_GENDER] = (unsigned char)((pick / 12u) & 1u);
+    for (k = 0; k < 3; ++k) {
+        ((int *)(r + VV3_LIKES))[k] = (int)((pick / 24u + k) % 3u);
+        ((int *)(r + VV3_DISLIKES))[k] = -1;
+    }
+}
+
+static unsigned char *fc_vv3_base(void) { return (unsigned char *)(UINT_PTR)g_vv3_manager_imm + 0x14; }
+
+/* Compares the shipped getter with the reference for every record of the
+   array the game points at now, and of the other array; returns mismatches. */
+static int g_vv3_compared, g_vv3_nonzero, g_vv3_group_answers;
+static int fc_vv3_compare(unsigned char *other) {
+    unsigned char *arrays[2];
+    int a, i, bad = 0;
+    arrays[0] = fc_vv3_base();
+    arrays[1] = other;
+    for (a = 0; a < 2; ++a) {
+        for (i = 0; i < VILLAGERS; ++i) {
+            unsigned char *r = arrays[a] + (size_t)i * STRIDE;
+            int got = VV3_GetMaskForRecord(r), want = fc_vv3_reference_mask(r);
+            ++g_vv3_compared;
+            if (got != want) {
+                if (bad < 5) printf("  MISMATCH array %d record %d: %d, the full scan says %d\n", a, i, got, want);
+                ++bad;
+            }
+            if (want) {
+                ++g_vv3_nonzero;
+                if (a == 0 && r[VV3_ACTIVE] && *(int *)(r + VV3_HEALTH) > 0
+                    && vv3_mask_live_fingerprint_count(vv3_mask_fingerprint(r)) >= 2)
+                    ++g_vv3_group_answers;
+            }
+        }
+        if (VV3_GetMaskForRecord(arrays[a] + 1) != fc_vv3_reference_mask(arrays[a] + 1)) ++bad;
+    }
+    return bad;
+}
+
+/* Packs the living and the dead-but-active into records 0, 1, 2, ... as a
+   reload does, the rest emptied. */
+static void fc_vv3_pack(void) {
+    unsigned char *base = fc_vv3_base();
+    int i, to = 0;
+    for (i = 0; i < VILLAGERS; ++i) {
+        unsigned char *r = base + (size_t)i * STRIDE;
+        if (!r[VV3_ACTIVE]) continue;
+        if (to != i) memcpy(base + (size_t)to * STRIDE, r, STRIDE);
+        ++to;
+    }
+    for (; to < VILLAGERS; ++to) {
+        unsigned char *r = base + (size_t)to * STRIDE;
+        r[VV3_ACTIVE] = 0;
+        *(int *)(r + VV3_HEALTH) = 0;
+    }
+}
+
+/* Binds every living owner of fp to one value, as Change Appearance for All does. */
+static void fc_vv3_group_bind(unsigned int fp, unsigned char value) {
+    unsigned char *base = fc_vv3_base();
+    int i;
+    for (i = 0; i < VILLAGERS; ++i) {
+        unsigned char *r = base + (size_t)i * STRIDE;
+        if (r[VV3_ACTIVE] && *(int *)(r + VV3_HEALTH) > 0 && vv3_mask_fingerprint(r) == fp) {
+            g_vv3_mask[i] = value;
+            g_vv3_mask_fp[i] = fp;
+        }
+    }
+}
+
+static void fc_vv3_mutate(unsigned int foreign_imm, unsigned int home_imm) {
+    unsigned char *base = fc_vv3_base();
+    int i = (int)fc_rand(VILLAGERS), j = (int)fc_rand(VILLAGERS);
+    unsigned char *r = base + (size_t)i * STRIDE, *s = base + (size_t)j * STRIDE;
+    switch (fc_rand(15)) {
+    case 0:  *(int *)(r + VV3_HEALTH) = 0; break;                       /* a death */
+    case 1:  r[VV3_ACTIVE] = 0; break;                                  /* the record freed */
+    case 2:                                                             /* a birth into a freed slot */
+        if (r[VV3_ACTIVE] && *(int *)(r + VV3_HEALTH) > 0) break;
+        r[VV3_ACTIVE] = 1;
+        *(int *)(r + VV3_HEALTH) = 100;
+        fc_vv3_identity(r, fc_rand(48));
+        break;
+    case 3:                                                             /* an identical twin / namesake */
+        r[VV3_GENDER] = s[VV3_GENDER];
+        memcpy(r + VV3_NAME, s + VV3_NAME, VV3_NAME_LEN);
+        memcpy(r + VV3_LIKES, s + VV3_LIKES, 24);
+        break;
+    case 4:  fc_vv3_pack(); break;                                      /* a reload */
+    case 5:  r[VV3_NAME] = (unsigned char)('A' + fc_rand(3)); break;    /* a rename */
+    case 6:  ((int *)(r + VV3_LIKES))[fc_rand(3)] = (int)fc_rand(4); break;   /* a Likes change */
+    case 7:  r[VV3_NAME + VV3_NAME_LEN - 1] ^= 0x5A; break;              /* a byte past the terminator */
+    case 8:                                                             /* a mask chosen for a villager */
+        g_vv3_mask[i] = (unsigned char)(1 + fc_rand(5));
+        g_vv3_mask_fp[i] = vv3_mask_fingerprint(r);
+        break;
+    case 9:                                                             /* stored under another slot */
+        g_vv3_mask[j] = (unsigned char)(1 + fc_rand(5));
+        g_vv3_mask_fp[j] = vv3_mask_fingerprint(r);
+        break;
+    case 10: g_vv3_mask[i] = 0; g_vv3_mask_fp[i] = 0; break;
+    case 11:                                                            /* a whole-village group bind */
+        if (r[VV3_ACTIVE] && *(int *)(r + VV3_HEALTH) > 0)
+            fc_vv3_group_bind(vv3_mask_fingerprint(r), (unsigned char)(1 + fc_rand(5)));
+        break;
+    case 12: g_vv3_slot_bound = (int)(VILLAGERS - fc_rand(3) * 53); break;    /* another bound */
+    case 13: g_vv3_manager_imm = g_vv3_manager_imm == home_imm ? foreign_imm : home_imm; break;  /* the title screen's array */
+    default: *(int *)(r + VV3_HEALTH) = 1 + (int)fc_rand(100); break;    /* health moves, or a revival */
+    }
+}
+
+static void fc_vv3_equivalence(void) {
+    unsigned int home_imm = g_vv3_manager_imm, foreign_imm;
+    unsigned char *foreign_block, *foreign;
+    int step, bad = 0, i;
+    /* Every masked villager drawn twice with nothing changed: nobody is hashed again. */
+    frame();
+    g_vv3_live_rehashed = 0;
+    frame();
+    CHECK(g_vv3_live_rehashed == 0, "a masked frame with no change hashes no record again (%d)", g_vv3_live_rehashed);
+    g_rec[7 * STRIDE + VV3_NAME] ^= 0x01;     /* one rename */
+    frame();
+    CHECK(g_vv3_live_rehashed == 1, "a rename hashes that one record again (%d)", g_vv3_live_rehashed);
+    g_rec[7 * STRIDE + VV3_NAME] ^= 0x01;
+
+    foreign_block = (unsigned char *)VirtualAlloc(NULL, 0x14 + (SIZE_T)VILLAGERS * STRIDE, MEM_COMMIT | MEM_RESERVE,
+                                                  PAGE_READWRITE);
+    if (foreign_block == NULL) {
+        CHECK(0, "the title screen's array could not be allocated");
+        return;
+    }
+    foreign_imm = (unsigned int)(UINT_PTR)foreign_block;
+    foreign = foreign_block + 0x14;
+    for (i = 0; i < VILLAGERS; i += 3) {       /* a third of it copies of the village's records */
+        memcpy(foreign + (size_t)i * STRIDE, g_rec + (size_t)((i * 7) % VILLAGERS) * STRIDE, STRIDE);
+    }
+    /* A village full of namesakes and twins: the pool has 48 identities. */
+    for (i = 0; i < VILLAGERS; i += 2) fc_vv3_identity(g_rec + (size_t)i * STRIDE, fc_rand(48));
+    for (i = 0; i < VILLAGERS; ++i) {
+        if (fc_rand(3) == 0) fc_vv3_group_bind(vv3_mask_fingerprint(g_rec + (size_t)i * STRIDE),
+                                               (unsigned char)(1 + fc_rand(5)));
+    }
+    bad += fc_vv3_compare(foreign);
+    for (step = 0; step < 1500; ++step) {
+        fc_vv3_mutate(foreign_imm, home_imm);
+        bad += fc_vv3_compare(g_vv3_manager_imm == home_imm ? foreign : g_rec);
+    }
+    g_vv3_manager_imm = home_imm;
+    g_vv3_slot_bound = VILLAGERS;
+    bad += fc_vv3_compare(foreign);
+    printf("  live table vs full scan: %d answers compared, %d masked, %d in twin/namesake groups\n",
+           g_vv3_compared, g_vv3_nonzero, g_vv3_group_answers);
+    CHECK(bad == 0, "every mask answer is the full scan's over births, deaths, reloads, renames and twins (%d differ)", bad);
+    CHECK(g_vv3_nonzero > 10000 && g_vv3_group_answers > 1000,
+          "the story reaches masked villagers and twin groups (%d, %d)", g_vv3_nonzero, g_vv3_group_answers);
+    VirtualFree(foreign_block, 0, MEM_RELEASE);
 }
 
 #elif FC_GAME == 4
@@ -322,6 +523,12 @@ int main(int argc, char **argv) {
     CHECK(g_files == 0, "no file is opened or probed in 200 frames with masks (%d)", g_files);
     CHECK(plain < 2000.0, "a frame without masks costs under 2 ms (%.1f us)", plain);
     CHECK(masked < 4000.0, "a frame with every villager masked costs under 4 ms (%.1f us)", masked);
+#if FC_GAME == 3
+    /* v1.35.71: a fingerprint of every record per masked villager drawn was
+       about 1.4 ms; the live table re-reads them and hashes only a change. */
+    CHECK(masked < 1000.0, "The Secret City, every villager masked, costs under 1 ms (%.1f us)", masked);
+    fc_vv3_equivalence();
+#endif
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;
 }

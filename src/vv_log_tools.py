@@ -477,19 +477,25 @@ def approve_repair(
         import vv_log_contradictions
         vv_log_contradictions.remember(folder, game, slot, kinds, answers or {})
     # The read-only reconciliation's questions (src/vv_reconcile.py): every answer is remembered and
-    # listed in the Repairs log; "Don't know" changes nothing and is asked again.  Only the answer
-    # "<the record's name> is right (give the name back)" changes anything: that villager gets the name
-    # back everywhere (src/vv_last_names.py renames: the save, the logs, the patcher's files, a backup
-    # first).  Nothing else is ever changed on a contradiction without the player's word.
+    # listed in the Repairs log; "Don't know" changes nothing and is asked again.  Only two kinds of
+    # answer change anything: "<the record's name> is right (give the name back)" -- that villager gets
+    # the name back everywhere (src/vv_last_names.py renames: the save, the logs, the patcher's files, a
+    # backup first) -- and a pending custom title's "Give it to <villager>" / "Remove the title"
+    # (vv_reconcile.settle_titles).  Nothing else is ever changed on a contradiction without the
+    # player's word.
     answered: list[str] = []
     renamed: dict = {}
     if any(getattr(k, "id", None) == "reconcile" for k in kinds):     # asked whatever is ticked
         import vv_reconcile
         # The names are given back BEFORE any answer is kept (vv_reconcile.remember): a failed rename
         # keeps no answer, so every question is asked again and can be retried.
+        # A pending custom title the player gave to a villager or removed (v1.35.71) is carried out in the
+        # Custom Titles file first, checked again against the file and the save as they are now.
         answered, renamed = vv_reconcile.remember(
             folder, game, slot, kinds, answers or {}, now,
-            give_back=lambda wanted: vv_reconcile.give_names_back(folder, game, slot, wanted, controller, now))
+            give_back=lambda wanted: vv_reconcile.give_names_back(folder, game, slot, wanted, controller, now),
+            settle=lambda actions: vv_reconcile.settle_titles(folder, game, slot, actions, controller,
+                                                              backup.backup_folder, now))
         if answered:
             note_word_repair(folder, game, village,
                              [WordFix(line, -1, backup.backup_folder.name) for line in answered], now,

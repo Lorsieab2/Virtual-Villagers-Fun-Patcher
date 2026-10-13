@@ -1125,13 +1125,111 @@ static int vv3_mask_has_stored_fingerprint(unsigned int fp) {
     return 0;
 }
 
+/* ---- The live identities, re-read but not re-hashed (v1.35.71) ----------
+   With every villager masked, the render getter asked vv3_mask_unique_live_index
+   for every villager drawn: a fingerprint of every record, 256 x 256 FNV
+   hashes a frame (about 1.4 ms at 256 villagers).  The hashing, not the
+   reading, was the cost.
+
+   This table keeps each record's fingerprint beside a copy of exactly the
+   bytes it was hashed from (gender, the 3 Likes + 3 Dislikes, the 25-byte
+   name field) and the record's living state.  Every call re-reads EVERY
+   record's living state and those bytes, as the old scan did, and hashes again
+   only a record whose bytes differ from its copy.  vv3_mask_fingerprint is a
+   pure function of those bytes (it reads the name only up to its terminator,
+   inside the 25 compared), so after the refresh fp[i] is exactly
+   (living ? vv3_mask_fingerprint(record i) : 0) for every slot in the bound:
+   nothing is carried across a call unchecked -- not a birth into a freed slot,
+   a death, a reload that packs the records, a rename, a Likes change, a
+   moved bound or record base -- and namesakes and identical twins hash to
+   equal values exactly as before, so the unique-owner and group counts below
+   are the old scan's, slot for slot. */
+typedef struct {
+    unsigned int  prefs[6];        /* VV3_LIKES..VV3_DISLIKES+12, as hashed */
+    unsigned char name[VV3_NAME_LEN];
+    unsigned char gender;
+    unsigned char live;            /* active and health > 0 */
+} vv3_live_copy;
+static vv3_live_copy g_vv3_live_copy[VV3_MASK_SLOTS];
+static unsigned int  g_vv3_live_fp[VV3_MASK_SLOTS];   /* 0 = not a living villager */
+static int           g_vv3_live_slots = -1;            /* the bound the table covers */
+static UINT_PTR      g_vv3_live_base;
+#ifdef VV3_MASK_LIVE_COUNT
+static int g_vv3_live_rehashed;                        /* how many records were hashed again */
+#endif
+
+/* Brings g_vv3_live_fp up to the records as they are now; returns the bound. */
+static int vv3_mask_live_refresh(void) {
+    UINT_PTR base = (UINT_PTR)VV3_REC_BASE;
+    const unsigned char *rec = (const unsigned char *)base;
+    int i, slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    if (slots < 0) slots = 0;
+    if (slots > VV3_MASK_SLOTS) slots = VV3_MASK_SLOTS;
+    if (slots != g_vv3_live_slots || base != g_vv3_live_base) {
+        /* Another bound or record array: no copy is trusted. */
+        ZeroMemory(g_vv3_live_copy, sizeof(g_vv3_live_copy));
+        ZeroMemory(g_vv3_live_fp, sizeof(g_vv3_live_fp));
+        g_vv3_live_slots = slots;
+        g_vv3_live_base = base;
+    }
+    for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
+        vv3_live_copy *c = &g_vv3_live_copy[i];
+        const unsigned int *prefs = (const unsigned int *)(rec + VV3_LIKES);
+        unsigned int differs;
+        if (rec[VV3_ACTIVE] == 0 || *(const int *)(rec + VV3_HEALTH) <= 0) {
+            c->live = 0;
+            g_vv3_live_fp[i] = 0;
+            continue;
+        }
+        /* Every byte the fingerprint can read is compared, the whole
+           25-byte name field included. */
+        differs = !c->live
+            | (c->gender != rec[VV3_GENDER])
+            | (c->prefs[0] != prefs[0]) | (c->prefs[1] != prefs[1])
+            | (c->prefs[2] != prefs[2]) | (c->prefs[3] != prefs[3])
+            | (c->prefs[4] != prefs[4]) | (c->prefs[5] != prefs[5]);
+        if (differs || memcmp(c->name, rec + VV3_NAME, VV3_NAME_LEN) != 0) {
+            CopyMemory(c->prefs, prefs, sizeof(c->prefs));
+            CopyMemory(c->name, rec + VV3_NAME, VV3_NAME_LEN);
+            c->gender = rec[VV3_GENDER];
+            c->live = 1;
+            g_vv3_live_fp[i] = vv3_mask_fingerprint(rec);
+#ifdef VV3_MASK_LIVE_COUNT
+            ++g_vv3_live_rehashed;
+#endif
+        }
+    }
+    return slots;
+}
+
+/* vv3_mask_unique_live_index and vv3_mask_live_fingerprint_count over the
+   refreshed table (the caller refreshes first, in the same call). */
+static int vv3_mask_unique_live_index_in(unsigned int fp, int slots) {
+    int i, found = -1;
+    if (fp == 0) return -1;
+    for (i = 0; i < slots; ++i) {
+        if (g_vv3_live_fp[i] != fp) continue;
+        if (found >= 0) return -1;
+        found = i;
+    }
+    return found;
+}
+
+static int vv3_mask_live_fingerprint_count_in(unsigned int fp, int slots) {
+    int i, found = 0;
+    if (fp == 0) return 0;
+    for (i = 0; i < slots; ++i)
+        found += g_vv3_live_fp[i] == fp;
+    return found;
+}
+
 /* A batch-owned collision group is renderable only while its sidecar still has
    exactly one identical nonzero copy for every active/living owner.  This is a
-   positive group proof, not a relaxation of the ordinary uniqueness gate. */
-static int vv3_mask_stored_group_value(unsigned int fp) {
-    int i, live_count, stored_count = 0, value = 0;
+   positive group proof, not a relaxation of the ordinary uniqueness gate.
+   live_count is vv3_mask_live_fingerprint_count(fp), however it was counted. */
+static int vv3_mask_stored_group_value_of(unsigned int fp, int live_count) {
+    int i, stored_count = 0, value = 0;
     if (fp == 0) return 0;
-    live_count = vv3_mask_live_fingerprint_count(fp);
     if (live_count < 2) return 0;
     for (i = 0; i < VV3_MASK_SLOTS; ++i) {
         if (g_vv3_mask[i] == 0 || g_vv3_mask_fp[i] != fp) continue;
@@ -1143,6 +1241,7 @@ static int vv3_mask_stored_group_value(unsigned int fp) {
     }
     return stored_count == live_count ? value : 0;
 }
+
 
 /* A nonempty current slot may be reused only when it is already owned by the
    target fingerprint or when its fingerprint has no active/living owner.  A
@@ -1536,7 +1635,7 @@ __declspec(dllexport) void __stdcall VV3RunningMaskBoundary(int after) {
 __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
     const unsigned char *rec = (const unsigned char *)record;
     unsigned int fpv;
-    int idx, live_idx, stored_idx, group_value;
+    int idx, live_idx, stored_idx, group_value, slots;
     if (record == NULL) return 0;
     if (!vv3_mask_prepare_slot()) return 0;
     idx = vv3_mask_index(record);
@@ -1552,11 +1651,16 @@ __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
        this getter ran for every villager drawn, masked or not: 256 x 256
        fingerprints a frame. */
     if (!vv3_mask_has_stored_fingerprint(fpv)) return 0;
-    live_idx = vv3_mask_unique_live_index(fpv);
+    /* The live scan, over every record as it is now, hashing again only a
+       record whose identity bytes changed (vv3_mask_live_refresh, v1.35.71):
+       the same unique owner and the same owner count as hashing them all. */
+    slots = vv3_mask_live_refresh();
+    live_idx = vv3_mask_unique_live_index_in(fpv, slots);
     if (live_idx != idx) {
         /* The only duplicate exception is the count-matched, same-value group
            representation emitted atomically by Change Appearance for All. */
-        group_value = vv3_mask_stored_group_value(fpv);
+        group_value = vv3_mask_stored_group_value_of(
+            fpv, vv3_mask_live_fingerprint_count_in(fpv, slots));
         return group_value;
     }
     /* A unique live owner still requires exactly one stored owner before the

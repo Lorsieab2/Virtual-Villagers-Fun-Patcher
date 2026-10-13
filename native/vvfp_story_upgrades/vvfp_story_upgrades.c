@@ -962,6 +962,7 @@ static int arm_pick(int game, const story_event *event) {
 __declspec(dllexport) void __stdcall VvfpStoryVillageReset(int game, int slot) {
     ++story_village_generation;
     sq_village_reset(game, slot);   /* its queue's file goes with it */
+    titles_village_reset(game, slot);   /* and its custom titles (story_titles.inc) */
 }
 
 /* The Pick Island Event upgrade, called by the Origins companion when its

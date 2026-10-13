@@ -189,7 +189,8 @@ class ReleasesLinkTests(unittest.TestCase):
             # the pickers' background run of it.
             ("vv_reconcile", {"vv_save_layout", "vv_log_tools", "vv_last_names", "vv_lost_titles",
                               "vv_log_additions", "vv_genealogy", "vv_tribe_rename", "vv_log_decisions",
-                              "vv1_parents_restore", "vv_titles_file"}),
+                              "vv1_parents_restore", "vv_titles_file",
+                              "vv_save_backup"}),      # a backup first, when an answer settles a custom title (v1.35.71)
             ("vv_reconcile_view", {"vv_reconcile"}),
             ("vv_log_decisions", {"vv_save_layout"}),
             # Records that contradict each other (Check / Repair Saves & Logs).

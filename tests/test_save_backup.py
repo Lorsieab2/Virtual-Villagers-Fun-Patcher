@@ -1091,6 +1091,43 @@ class CodexFollowUpTests(RestoreBase):
                                  "Backup 2026-10-04 13-05-22 INCOMPLETE (2)"])
         self.assertEqual(backup.list_backups(folder), [])
 
+    def test_a_backup_whose_times_cannot_be_kept_fails_safely(self) -> None:
+        """Review of #585 (v1.35.71): a copy that could not be given its original's time passed as a good
+        backup with the copy time; restored, an old save looked newer than a queued purchase it never paid
+        for.  The time is part of the copy now: the backup is set aside as INCOMPLETE."""
+        folder = self.make_village()
+        with mock.patch.object(backup.os, "utime", side_effect=PermissionError("attributes denied")):
+            with self.assertRaises(backup.BackupError) as caught:
+                backup.copy_save_folder(folder, NOW)
+        self.assertIn("could not be kept", str(caught.exception))
+        self.assertIn("NOT a usable backup", str(caught.exception))
+        self.assertEqual(backup.list_backups(folder), [])
+        # A time that does not read back as it was set is refused too (a utime that does nothing).
+        for relative in backup.files_to_back_up(folder):
+            os.utime(folder / relative, (time.time() - 86400,) * 2)
+        with mock.patch.object(backup.os, "utime", side_effect=lambda *a, **k: None):
+            with self.assertRaises(backup.BackupError):
+                backup.copy_save_folder(folder, NOW)
+
+    def test_a_restore_whose_times_cannot_be_kept_puts_everything_back(self) -> None:
+        folder = self.make_village(filler=1)
+        made = backup.copy_save_folder(folder, datetime(2026, 1, 1, 9, 0, 0))
+        self.make_village(filler=7)
+        present = {str(r): (folder / r).read_bytes() for r in backup.files_to_back_up(folder)}
+        real = backup.os.utime
+
+        def fails_on_restore(path, *args, **kwargs):
+            if "vvfp-restore" in Path(path).name:
+                raise PermissionError("attributes denied")
+            return real(path, *args, **kwargs)
+
+        with mock.patch.object(backup.os, "utime", side_effect=fails_on_restore):
+            with self.assertRaises(backup.BackupError) as caught:
+                backup.restore_backup(folder, made.backup_folder, None, FakeProcesses(),
+                                      datetime(2026, 2, 1, 8, 0, 0))
+        self.assertIn("could not be kept", str(caught.exception))
+        self.assertEqual({str(r): (folder / r).read_bytes() for r in backup.files_to_back_up(folder)}, present)
+
     @unittest.skipUnless(sys.platform == "win32", "junctions are a Windows feature")
     def test_a_junction_is_recognised_without_path_is_junction(self) -> None:
         import _winapi
