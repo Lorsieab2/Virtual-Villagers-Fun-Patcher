@@ -414,9 +414,12 @@ def _survey_titles(folder, game, slot, data, recs, people, prefs, ids, carriers,
                 out.notes.append(f"{what}; the titles file already holds a title for {v.name} (head {v.head}, "
                                  f"body {v.body}) -- shown, or pending until they can be told apart -- which is kept.")
                 continue
-            shown = page.get(v.identity)
-            other = shown.value("Custom title") if shown is not None else None
-            if other is not None and other.strip().lower() not in ("", "none", "-", title.lower()):
+            # Every block of their name and looks on the page (two villagers may share them; Page.blocks):
+            # one showing another title may be theirs, so it is left as it is -- never a guess.
+            shown = getattr(page, "blocks", {}).get(v.identity) or ([page[v.identity]] if v.identity in page else [])
+            other = next((t for t in (b.value("Custom title") for b in shown)
+                          if t is not None and t.strip().lower() not in ("", "none", "-", title.lower())), None)
+            if other is not None:
                 out.notes.append(f"{what}; the latest Village Population page shows {v.name} as \"{other}\", "
                                  "so it is left as it is.")
                 continue
