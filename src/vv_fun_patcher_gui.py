@@ -177,6 +177,7 @@ VIRTUAL_VIEW_PX = 320
 VIRTUAL_MARGIN_PX = 80
 VIRTUAL_ROW_GUESS_PX = 100
 VIRTUAL_UNIT_PX = 40          # one mouse-wheel notch or scrollbar arrow
+VIRTUAL_MAX_PASSES = 3        # refresh passes run in one request, at most
 # The width rows are laid out at until the list has a real width (the widest
 # row, a 620 px description, fits in it).
 VIRTUAL_DEFAULT_WIDTH_PX = 700
@@ -209,6 +210,8 @@ class VirtualList(ttk.Frame):
         self._offset = 0                                # px scrolled from the top
         self._width = 0
         self._busy = False
+        self._again = False                             # a request came in during a pass
+        self._stale = False                             # the width changed: measure again
         self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.yview)
         self.scrollbar.pack(side="right", fill="y")
         self.bind("<Configure>", self._resized)
@@ -236,11 +239,7 @@ class VirtualList(ttk.Frame):
         if event.width == self._width:          # only a real width change lays out again
             return
         if self._width >= 2:
-            # Heights were measured at the old width, so every row is drawn and measured again.
-            for index in list(self._drawn):
-                self._drawn.pop(index).destroy()
-            self._placed.clear()
-            self._heights = [None] * len(self._rows)
+            self._stale = True          # heights were measured at the old width
         self._width = event.width
         self._refresh()
 
@@ -256,57 +255,80 @@ class VirtualList(ttk.Frame):
         return tops, total
 
     def _refresh(self) -> None:
-        """Draw the rows near the view, drop the rest, and place every drawn row."""
-        if self._busy or not self._rows:
+        """Draw the rows near the view, drop the rest, and place every drawn row.
+
+        A request that arrives while a pass is running (a Configure that the pass
+        itself causes) is not dropped: another pass runs, at most VIRTUAL_MAX_PASSES
+        in all, until the list settles.
+        """
+        if not self._rows:
+            return
+        if self._busy:
+            self._again = True
             return
         self._busy = True
         try:
-            # Before the list is mapped its width is 1 px, and rows drawn that
-            # narrow squeeze their descriptions into a feedback loop of heights.
-            width = self._width if self._width >= 2 else VIRTUAL_DEFAULT_WIDTH_PX
-            tops, total = self._layout()
-            self._clamp(total)
-            low = self._offset - VIRTUAL_MARGIN_PX
-            high = self._offset + VIRTUAL_VIEW_PX + VIRTUAL_MARGIN_PX
-            bottoms = tops[1:] + [total]
-            wanted = {
-                index for index in range(len(self._rows))
-                if tops[index] < high and bottoms[index] > low
-            }
-            for index in [index for index in self._drawn if index not in wanted]:
-                self._drawn.pop(index).destroy()
-                self._placed.pop(index, None)
-            fresh = [index for index in sorted(wanted) if index not in self._drawn]
-            for index in fresh:
-                frame = ttk.Frame(self)
-                self._build_row(frame, self._rows[index])
-                self._drawn[index] = frame
-                # Placed first, so Tk gives the row its real width: a description
-                # sized at 1 px counts hundreds of lines and gets a huge height.
-                frame.place(x=0, y=0, width=width)
-            if fresh:
-                # Tk lays the new rows out, then each description is fitted to its
-                # real width, and only then is each row measured.
-                self.update_idletasks()
-                for index in fresh:
-                    for child in self._drawn[index].winfo_children():
-                        if isinstance(child, RichDescription):
-                            child._fit()
-                self.update_idletasks()
-                for index in fresh:
-                    self._heights[index] = self._drawn[index].winfo_reqheight()
-                tops, total = self._layout()
-                self._clamp(total)
-            for index, frame in self._drawn.items():
-                place = (tops[index] - self._offset, width)
-                if self._placed.get(index) != place:
-                    frame.place(x=0, y=place[0], width=width)
-                    self._placed[index] = place
-            first = self._offset / total
-            last = min(1.0, (self._offset + VIRTUAL_VIEW_PX) / total)
-            self.scrollbar.set(first, last)
+            if self._stale:
+                # Between passes only: every row is drawn and measured again at the new width.
+                self._stale = False
+                for index in list(self._drawn):
+                    self._drawn.pop(index).destroy()
+                self._placed.clear()
+                self._heights = [None] * len(self._rows)
+            for _ in range(VIRTUAL_MAX_PASSES):
+                self._again = False
+                self._draw()
+                if not self._again:
+                    break
         finally:
             self._busy = False
+
+    def _draw(self) -> None:
+        """One pass: draw the rows near the view, measure them, and place every drawn row."""
+        # Before the list is mapped its width is 1 px, and rows drawn that
+        # narrow squeeze their descriptions into a feedback loop of heights.
+        width = self._width if self._width >= 2 else VIRTUAL_DEFAULT_WIDTH_PX
+        tops, total = self._layout()
+        self._clamp(total)
+        low = self._offset - VIRTUAL_MARGIN_PX
+        high = self._offset + VIRTUAL_VIEW_PX + VIRTUAL_MARGIN_PX
+        bottoms = tops[1:] + [total]
+        wanted = {
+            index for index in range(len(self._rows))
+            if tops[index] < high and bottoms[index] > low
+        }
+        for index in [index for index in self._drawn if index not in wanted]:
+            self._drawn.pop(index).destroy()
+            self._placed.pop(index, None)
+        fresh = [index for index in sorted(wanted) if index not in self._drawn]
+        for index in fresh:
+            frame = ttk.Frame(self)
+            self._build_row(frame, self._rows[index])
+            self._drawn[index] = frame
+            # Placed first, so Tk gives the row its real width: a description
+            # sized at 1 px counts hundreds of lines and gets a huge height.
+            frame.place(x=0, y=0, width=width)
+        if fresh:
+            # Tk lays the new rows out, then each description is fitted to its
+            # real width, and only then is each row measured.
+            self.update_idletasks()
+            for index in fresh:
+                for child in self._drawn[index].winfo_children():
+                    if isinstance(child, RichDescription):
+                        child._fit()
+            self.update_idletasks()
+            for index in fresh:
+                self._heights[index] = self._drawn[index].winfo_reqheight()
+            tops, total = self._layout()
+            self._clamp(total)
+        for index, frame in self._drawn.items():
+            place = (tops[index] - self._offset, width)
+            if self._placed.get(index) != place:
+                frame.place(x=0, y=place[0], width=width)
+                self._placed[index] = place
+        first = self._offset / total
+        last = min(1.0, (self._offset + VIRTUAL_VIEW_PX) / total)
+        self.scrollbar.set(first, last)
 
     def _clamp(self, total: int) -> None:
         self._offset = min(max(0, self._offset), max(0, total - VIRTUAL_VIEW_PX))
