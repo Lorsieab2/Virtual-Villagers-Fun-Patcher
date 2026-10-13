@@ -1018,74 +1018,50 @@ class App(tk.Tk):
         requirement_font.configure(weight="bold")
         description_font = tkfont.nametofont("TkDefaultFont")
         description_background = ttk.Style().lookup("TLabelframe", "background") or self.cget("background")
-        row = fun_row + 2
+        # One tab per game (and one for the shared patches). A single page holding every patch
+        # description grew past 32,767 px, the largest coordinate a Windows child window can
+        # have, and everything below that line (the folder choosers, the buttons) stopped being
+        # painted. Only the tallest tab counts toward the page height now.
+        self.patch_pages = ttk.Notebook(mode_box)
+        self.patch_pages.grid(row=fun_row + 2, column=0, columnspan=2, sticky="ew", pady=(8, 0))
         for header, patches in group_fun_patches(self.builds, self.fun_patches):
-            if header == "Shared / All Games":
-                ttk.Label(
-                    mode_box,
-                    text=header,
-                    font=("Segoe UI", 10, "bold"),
-                ).grid(row=row, column=1, sticky="w", pady=(8, 2))
-                row += 1
-                for patch in patches:
-                    patch_row = ttk.Frame(mode_box)
-                    patch_row.grid(row=row, column=1, sticky="w", pady=3)
-                    ttk.Checkbutton(
-                        patch_row,
-                        text=patch.name,
-                        variable=self.fun_patch_vars[patch.id],
-                        command=self._fun_patch_changed,
-                    ).pack(side="left")
-                    self._help_button(
-                        patch_row, vv_how_to_use.patch_key(patch.id), patch.name
-                    ).pack(side="left", padx=(4, 0))
-                    row += 1
-                    RichDescription(mode_box, patch.description, 620, requirement_font,
-                                    description_font, description_background).grid(
-                        row=row, column=1, sticky="w", pady=(0, 3)
-                    )
-                    row += 1
-                    ttk.Label(
-                        mode_box,
-                        text=patch_requirement_text(patch, self.fun_patches),
-                        wraplength=620,
-                        font=requirement_font,
-                    ).grid(row=row, column=1, sticky="w", pady=(0, 6))
-                    row += 1
-                continue
+            page = ttk.Frame(self.patch_pages, padding=(10, 6, 10, 6))
+            game_name = header.removeprefix("Virtual Villagers - ")
+            self.patch_pages.add(page, text=game_name)
+            page.columnconfigure(0, weight=1)
+            shared = header == "Shared / All Games"
+            row = 0
             ttk.Label(
-                mode_box,
+                page,
                 text=header,
                 font=("Segoe UI", 10, "bold"),
-            ).grid(row=row, column=1, sticky="w", pady=(8, 2))
+            ).grid(row=row, column=0, sticky="w", pady=(0, 2))
             row += 1
             for patch in patches:
-                game_name = header.removeprefix("Virtual Villagers - ")
-                patch_row = ttk.Frame(mode_box)
-                patch_row.grid(row=row, column=1, sticky="w", pady=3)
+                label = patch.name if shared else f"{patch.name} ({game_name})"
+                patch_row = ttk.Frame(page)
+                patch_row.grid(row=row, column=0, sticky="w", pady=3)
                 ttk.Checkbutton(
                     patch_row,
-                    text=f"{patch.name} ({game_name})",
+                    text=label,
                     variable=self.fun_patch_vars[patch.id],
                     command=self._fun_patch_changed,
                 ).pack(side="left")
                 self._help_button(
-                    patch_row,
-                    vv_how_to_use.patch_key(patch.id),
-                    f"{patch.name} ({game_name})",
+                    patch_row, vv_how_to_use.patch_key(patch.id), label
                 ).pack(side="left", padx=(4, 0))
                 row += 1
-                RichDescription(mode_box, patch.description, 620, requirement_font,
+                RichDescription(page, patch.description, 620, requirement_font,
                                 description_font, description_background).grid(
-                    row=row, column=1, sticky="w", pady=(0, 3)
+                    row=row, column=0, sticky="w", pady=(0, 3)
                 )
                 row += 1
                 ttk.Label(
-                    mode_box,
+                    page,
                     text=patch_requirement_text(patch, self.fun_patches),
                     wraplength=620,
                     font=requirement_font,
-                ).grid(row=row, column=1, sticky="w", pady=(0, 6))
+                ).grid(row=row, column=0, sticky="w", pady=(0, 6))
                 row += 1
         mode_box.columnconfigure(1, weight=1)
 
