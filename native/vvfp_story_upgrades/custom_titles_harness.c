@@ -601,7 +601,14 @@ int main(void) {
             }
             titles_tick(3);
             titles_tick(3);
-            check(told ? title_index("Kai Title") == 1 : 1, "... the title stays on Kai in the session");
+            if (told) {
+                check(title_index("Kai Title") == 1, "... the title stays on Kai in the session");
+            } else {
+                /* The age fell: the sweep takes a younger villager in the same record for a namesake
+                   born into a freed record (titles_reborn), and a title whose villager was seen is
+                   deleted -- what an unannounced AGE lowering (Cheat Engine) does. */
+                check(titles.count == 0, "... an unannounced age lowering DELETES the seen title (reborn namesake)");
+            }
             new_session();
             memset(g_records, 0, sizeof g_records);
             villager(0, "Kai"); looks(0, 1, 300, 3, 4, 5);       /* reloaded, packed to [0] */
@@ -612,7 +619,8 @@ int main(void) {
                 check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
                       "A LOWERED AGE AND SKILL FROM A CUSTOM ISLAND EVENT: THE TITLE STILL FOLLOWS KAI AFTER A RELOAD");
             } else {
-                check(seen == NULL, "... an unannounced lowering (nobody told the companion) is shown on nobody");
+                check(seen == NULL && titles.count == 0 && title_index("Kai Title") == -2,
+                      "... and after a reload the deleted title is on nobody and not in the file");
             }
         }
         /* Re-storing touches only the entry bound to that very villager. */
@@ -626,6 +634,63 @@ int main(void) {
         looks(2, 1, 100, 2, 2, 1);
         check(titles_rebase(3, 2) == 1 && titles.entries[0].looks.age == 500
               && titles.entries[0].looks.skills[0] == 20, "a record with no title leaves other entries alone");
+
+        /* The stored values only ever go DOWN (v1.35.72, review): an event that raises age or skills
+           must not lift the stored looks above what the save still holds after an Alt-F4 or a crash. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(3);
+        titles_set(3, 1, "Kai Title");
+        titles_tick(3);
+        looks(1, 1, 700, 3, 4, 60);                              /* the event raises age and skills */
+        check(titles_rebase(3, 1) == 1 && titles.entries[0].looks.age == 500 && titles.entries[0].looks.skills[0] == 20
+              && titles.base_age[1] == 500 && titles.base_skills[1][0] == 20,
+              "AN EVENT THAT RAISES AGE AND SKILLS NEVER LIFTS WHAT THE TITLE IS KEPT BY");
+        titles_tick(3);
+        titles_tick(3);
+        new_session();                                           /* a crash: the save still holds the older values */
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Kai"); looks(0, 1, 500, 3, 4, 20);
+        villager(1, "Lani");
+        titles_tick(3);
+        seen = titles_lookup(3, g_records[0]);
+        check(seen != NULL && lstrcmpA(seen, "Kai Title") == 0,
+              "... SO AFTER AN ALT-F4 THE OLDER SAVE'S KAI STILL HAS HIS TITLE");
+        /* Mixed: age lowered, one skill raised, another lowered -- each field its own lower value. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(3);
+        titles_set(3, 1, "Kai Title");
+        titles_tick(3);
+        looks(1, 1, 400, 3, 4, 20);
+        *(int *)(g_records[1] + 64) = 90;                        /* skill 0 raised */
+        *(int *)(g_records[1] + 68) = 5;                         /* skill 1 lowered */
+        check(titles_rebase(3, 1) == 1 && titles.entries[0].looks.age == 400 && titles.entries[0].looks.skills[0] == 20
+              && titles.entries[0].looks.skills[1] == 5, "each field follows the event down only");
+        /* A write that fails rolls back the bases and the last look's age with the table. */
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(3);
+        titles_set(3, 1, "Kai Title");
+        titles_tick(3);
+        looks(1, 1, 300, 3, 4, 5);
+        g_fail_writes = 1;
+        check(titles_rebase(3, 1) == 0, "a rebase that can not be written is refused");
+        g_fail_writes = 0;
+        check(titles.entries[0].looks.age == 500 && titles.entries[0].looks.skills[0] == 20
+              && titles.base_age[1] == 500 && titles.base_skills[1][0] == 20 && titles.roster_age[1] == 500,
+              "... and leaves the entry, the bases and the last look's age as they were");
+        /* Nothing is touched before the table has been followed against the village. */
+        new_session();
+        titles_sync(3);
+        check(titles.loaded && !titles.roster_anyone && titles_rebase(3, 1) == 1 && titles.entries[0].looks.age == 500
+              && titles.base_age[1] == 0, "a rebase before the table was followed changes nothing");
     }
 
     /* v1.35.72: A CHANGE APPEARANCE AND A LOG IN THE SAME FRAME.  The file

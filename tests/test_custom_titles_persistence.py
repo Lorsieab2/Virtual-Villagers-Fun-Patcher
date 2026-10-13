@@ -165,9 +165,22 @@ class CustomTitlesFile(unittest.TestCase):
         self.assertIn("static int titles_rebase(int game, int index) {", store)
         custom = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
         self.assertIn("titles_rebase(e->game, c->index)", custom)
+        # Review of 3f176ddd: only when the event changed age or a skill; the stored values only go down;
+        # a failed publish rolls the bases back; nothing before the table was followed.
+        self.assertIn("ce_age_or_skills_changed(e->game, record, &looks_before)", custom)
+        self.assertIn("titles_skill_lower(", store)
+        self.assertIn("!titles.roster_anyone || record == NULL", store)
+        self.assertIn("titles.roster_age[index] = saved_roster_age;", store)
+        for case in ("AN EVENT THAT RAISES AGE AND SKILLS NEVER LIFTS WHAT THE TITLE IS KEPT BY",
+                     "... SO AFTER AN ALT-F4 THE OLDER SAVE'S KAI STILL HAS HIS TITLE",
+                     "a rebase that can not be written is refused",
+                     "a rebase before the table was followed changes nothing",
+                     "an unannounced age lowering DELETES the seen title"):
+            with self.subTest(case=case):
+                self.assertIn(case, HARNESS.read_text(encoding="utf-8"))
         text = HARNESS.read_text(encoding="utf-8")
         for case in ("A LOWERED AGE AND SKILL FROM A CUSTOM ISLAND EVENT: THE TITLE STILL FOLLOWS KAI AFTER A RELOAD",
-                     "an unannounced lowering (nobody told the companion) is shown on nobody"):
+                     "... and after a reload the deleted title is on nobody and not in the file"):
             with self.subTest(case=case):
                 self.assertIn(case, text)
     def test_change_appearance_re_stores_the_titles_head_and_body_before_any_log_reads_them(self):

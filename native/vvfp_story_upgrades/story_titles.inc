@@ -322,23 +322,37 @@ static int titles_rebind(int game, int index, unsigned int before) {
     return titles_commit();
 }
 
+/* The lower of two skill dwords (both already normalised): floats compare as
+   floats in The Tree of Life and New Believers, ints in the other games. */
+static unsigned int titles_skill_lower(unsigned int a, unsigned int b, int skills_float) {
+    return (skills_float ? vv_title_skill_float(b) < vv_title_skill_float(a) : (int)b < (int)a) ? b : a;
+}
+
 /* The villager in record `index` was just given a new age and / or skills by
    a custom event (Villager changes: Age, the skills): a REAL, KNOWN change
-   the patcher made itself, so what the title is kept by follows it -- the
-   stored looks, the age and skills the villager is first seen with, and the
-   last look's age (a younger age than the last look reads as a namesake born
-   into a freed record, titles_reborn, and would take the title away).  A
-   lowered age or skill left as stored would make the next load find nobody
-   "no younger, no less skilled" and the title go pending (v1.35.72).  Only
-   an entry bound to this very record and this very identity moves; nothing
-   else is touched.  Returns 1 when there was nothing to follow or the
-   followed table is published; 0 when it could not be (the table is then
-   left as it was). */
+   the patcher made itself.  What the title is kept by follows it DOWN only:
+   each stored age and skill (the entry's looks and the age and skills the
+   villager is first seen with) becomes the LOWER of what it was and what the
+   villager has now, and the last look's age is the new age (a younger age
+   than the last look reads as a namesake born into a freed record,
+   titles_reborn, and would take the title away).  Lower, never higher: the
+   file published here is read after an Alt-F4 or a crash, when the save still
+   holds the values from before the event, and a stored value above them would
+   leave nobody who "could be" the entry (v1.35.72).  The caller asks only when
+   the event actually changed the age or a skill.  Only an entry bound to this
+   very record and this very identity moves.  Returns 1 when there was nothing
+   to follow or the followed table is published; 0 when it could not be (the
+   table, the bases and the last look's age are then left as they were). */
 static int titles_rebase(int game, int index) {
     const unsigned char *record = story_record(game, index);
     vv_title_looks now;
-    int i;
-    if (titles.game != game || !titles.loaded || titles.slot <= 0 || record == NULL
+    int floats = story_title_skills_float(game);
+    int saved_base_age, saved_roster_age;
+    unsigned int saved_base_skills[VV_TITLE_SKILLS];
+    int i, k;
+    /* Not before the table has been followed against the village on screen
+       (the bases and the last look exist only then). */
+    if (titles.game != game || !titles.loaded || titles.slot <= 0 || !titles.roster_anyone || record == NULL
         || index < 0 || index >= TITLES_ROSTER) {
         return 1;
     }
@@ -347,17 +361,41 @@ static int titles_rebase(int game, int index) {
         return 1;
     }
     story_title_looks(game, record, &now);
-    vv_title_normalise_skills(&now, story_title_skills_float(game));
+    vv_title_normalise_skills(&now, floats);
     titles_reset_detected();
     titles_before.count = titles.count;
     memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
     memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
-    titles.entries[i].looks = now;
-    titles.entries[i].flags |= VV_TITLE_KNOWN;
-    titles.base_age[index] = now.age;
-    memcpy(titles.base_skills[index], now.skills, sizeof now.skills);
+    saved_base_age = titles.base_age[index];
+    saved_roster_age = titles.roster_age[index];
+    memcpy(saved_base_skills, titles.base_skills[index], sizeof saved_base_skills);
+    if (titles.entries[i].flags & VV_TITLE_KNOWN) {
+        if (now.age < titles.entries[i].looks.age) {
+            titles.entries[i].looks.age = now.age;
+        }
+        for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+            titles.entries[i].looks.skills[k] = titles_skill_lower(
+                vv_title_skill_normalised(titles.entries[i].looks.skills[k], floats), now.skills[k], floats);
+        }
+    } else {
+        titles.entries[i].looks = now;
+        titles.entries[i].flags |= VV_TITLE_KNOWN;
+    }
+    if (now.age < titles.base_age[index]) {
+        titles.base_age[index] = now.age;
+    }
+    for (k = 0; k < VV_TITLE_SKILLS; ++k) {
+        titles.base_skills[index][k] = titles_skill_lower(
+            vv_title_skill_normalised(titles.base_skills[index][k], floats), now.skills[k], floats);
+    }
     titles.roster_age[index] = now.age;
-    return titles_commit();
+    if (!titles_commit()) {
+        titles.base_age[index] = saved_base_age;
+        titles.roster_age[index] = saved_roster_age;
+        memcpy(titles.base_skills[index], saved_base_skills, sizeof saved_base_skills);
+        return 0;
+    }
+    return 1;
 }
 
 /* Origins' Change Appearance just gave the villager in `record` a new head
