@@ -1209,6 +1209,9 @@ class TwinsWithOneTitleText(Base):
         kai = v.people(v.save_path(1).read_bytes())[1]
         self.write_titles(v, [tf.Entry(kai.record, kai.title_id, "Only One", True, **kai.title_looks)])
         self.assertEqual(info.file_titles(v.folder, 1, 1)[kai.key], "")
+        # v1.35.72: the tab can not show two villagers who share name, head and body apart: it says so.
+        self.assertEqual(info.shared_looks(v.folder, 1, 1)[kai.key], 2)
+        self.assertEqual(info.village_titles(v.folder, 1, 1)[kai.key].get("shared"), 2)
 
     def pending_twins(self, game: int):
         import vv_titles_file as tf

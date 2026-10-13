@@ -176,6 +176,9 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person,
     if p.heathen:
         note(("Heathen (not one of the tribe)", "plain", None))
     own = titles_of(village, titles or {}, p)
+    if own.get("shared"):
+        note((f"{own['shared']} villagers share this name and looks, so a title can not be told apart here",
+              "plain", None))
     if own.get("custom"):
         note((f"Custom title: {own['custom']}", "plain", None))
     special = own.get("special")
@@ -231,7 +234,7 @@ def read_titles_file(path: Path, game: int) -> list:
     return [e for e in got[1] if not e.pending and e.title.strip()]
 
 
-def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:
+def _file_titles(folder: Path, game: int, slot: int) -> tuple[dict[tuple, str], dict[tuple, int]] | None:
     """Each villager the save holds with a Custom title in the titles file, by (name, head, body),
     as the game's load matches it (story_titles.inc titles_follow): an entry is the one villager the
     save holds with its identity (the name, likes and dislikes -- vv_title_identity) who could be them
@@ -262,14 +265,29 @@ def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:
         could = [v for v in held if ids[v.at] == e.identity and vv_titles_file.could_be(game, e, looks[v.at])]
         if len(could) == 1:
             chosen.setdefault(could[0].at, []).append(e.title.strip())
-    out = {}
+    # The tab finds a villager by (name, head, body).  Villagers who share all three can not be shown
+    # apart by it, so a key they share is decided only when every one of them has the same title (or
+    # none); otherwise it is nobody's here and `shared` says how many share it (v1.35.72) -- the file
+    # still gives each their own title in the game and the logs.
+    by_key: dict[tuple, list[str]] = {}
     for v in held:
         titles = chosen.get(v.at, [])
-        if len(titles) == 1:
-            out[v.identity] = titles[0]
+        by_key.setdefault(v.identity, []).append(titles[0] if len(titles) == 1 else "")
+    out = {}
+    shared = {}
+    for key, found in by_key.items():
+        if len(found) > 1:
+            shared[key] = len(found)
+        out[key] = found[0] if len(set(found)) == 1 else ""
     # Everyone the save holds is decided by the file: no entry, no title.
-    return {v.identity: out.get(v.identity, "") for v in held}
+    return out, shared
 
+
+def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:
+    """The Custom title of each villager the save holds, by (name, head, body) (see `_file_titles`),
+    or None when the file or the save cannot be read (the logs then say)."""
+    got = _file_titles(folder, game, slot)
+    return None if got is None else got[0]
 
 def log_titles(folder: Path, game: int, slot: int) -> dict[tuple, dict]:
     """Each villager's Custom title and Special villager title as their latest record says: the
@@ -308,7 +326,22 @@ def village_titles(folder: Path, game: int, slot: int) -> dict[tuple, dict]:
     held = file_titles(folder, game, slot)
     for key, title in (held or {}).items():
         out.setdefault(key, {})["custom"] = title
+    # Villagers who share a name, head and body can not be told apart by this key: the records of one
+    # are the records of the other, so no title is shown for them -- the note says so (v1.35.72).
+    for key, count in (shared_looks(folder, game, slot) or {}).items():
+        if count > 1:
+            entry = out.setdefault(key, {})
+            entry.pop("special", None)
+            if not (held or {}).get(key):
+                entry.pop("custom", None)
+            entry["shared"] = count
     return out
+
+
+def shared_looks(folder: Path, game: int, slot: int) -> dict[tuple, int] | None:
+    """How many villagers the save holds share each (name, head, body); None when it cannot be read."""
+    got = _file_titles(folder, game, slot)
+    return None if got is None else got[1]
 
 
 def titles_of(village: gen.Village, titles: dict, p: gen.Person) -> dict:
