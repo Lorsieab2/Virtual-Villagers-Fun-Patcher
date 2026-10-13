@@ -34,6 +34,10 @@ New in v1.35.71:
 - **The Villager Info tab and Restore Lost Titles now treat each such villager on their own** (all five games). This applies to villagers who share a name, likes and dislikes but not their looks.
   - **Villager Info shows each one their own custom title,** as the game does. Before, it showed neither.
   - **Restore Lost Titles no longer mistakes one's title for the other's.** Before, that mistake skipped one villager's lost title, or refused to restore it.
+- **The logs now show each such villager's own custom title** (all five games). This covers the Village Population and Village History pages, and the Death, Disappeared, Unaccounted and Name changed records. Before, an identity two villagers shared printed no title for either of them, though the game showed each one's.
+  - **The same rule as the game:** the title belongs to the villager in its own record whose looks it could be.
+  - **Still shown on nobody:** identical twins the game can't tell apart, and an older file's entry with two possible owners.
+  - **Patch every game again** after updating: the Population Export and Parentage Export companions changed.
 - **Repair Saves & Logs no longer copies one villager's title, mask or faction into another's older records** (all five games). This applies to two villagers on the latest Village Population page who share a name, head and body but have different titles, masks or factions. Their older records are left as they are, with a note saying why.
 - **Check Saves & Logs asks in more cases where something may be lost** (all five games): a Death record of a villager of the other sex no longer explains a missing villager of the same name and looks; the Village Population page is now compared too; a villager missing from a save restored from an older copy is asked about even when a later Death record names them; two villagers who share a name and likes can each keep their own custom title without one being reported lost.
 - **Start Over always forgets the old village's custom titles** (all five games), even when the new founders appear before the game notices the deleted file.

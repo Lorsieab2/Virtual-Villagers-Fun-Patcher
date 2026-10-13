@@ -262,9 +262,41 @@ class CustomTitlesInTheLogs(unittest.TestCase):
                      "THE HISTORY PRINTS IT TOO",
                      "ANOTHER SLOT'S VILLAGE PRINTS NO TITLES",
                      "A NAME CONTAINING (Save 2) DOES NOT READ SLOT 2'S TITLES",
-                     "THE LAST (Save N) MARKER IS THE SLOT"):
+                     "THE LAST (Save N) MARKER IS THE SLOT",
+                     # Twins, in all five games (run_twins).
+                     "TWINS WITH DIFFERENT LOOKS EACH SHOW THEIR OWN BOUND TITLE, ROSTER AND HISTORY",
+                     "IDENTICAL TWINS SHOW NO TITLE",
+                     "A VERSION 2 ENTRY WITH TWO CARRIERS SHOWS NONE",
+                     "THE RECORD AT THE ENTRY'S INDEX HOLDING THE OTHER TWIN (STALE FILE) SHOWS NONE",
+                     "for (game = 1; game <= 5; ++game) {\n            run_twins(game);"):
             with self.subTest(case=case):
-                self.assertIn(case, text)
+                self.assertIn(case, text.replace("\r\n", "\n"))
+
+    def test_both_exporters_show_a_bound_title_by_the_story_companions_rule(self):
+        # v1.35.71's Story companion binds a title by record index AND fingerprint and tells
+        # twins with one fingerprint apart by the looks the entry keeps
+        # (story_titles.inc titles_could_be).  Both log exporters show a live record's
+        # title by that rule (native/shared/custom_title_shown.h) -- never "two carriers of
+        # the fingerprint: nobody's" for an entry whose looks are known.
+        shown = (ROOT / "native" / "shared" / "custom_title_shown.h").read_text(encoding="utf-8")
+        self.assertIn("vv_title_looks_could_be(&e->looks, &now, t->skills_float)", shown)
+        self.assertIn("return could == 1 && where == r;", shown)
+        self.assertIn("return carriers <= 1;", shown)
+        self.assertIn("vv_title_normalise_skills(out, t->skills_float);", shown)
+        population = EXPORTER.read_text(encoding="utf-8")
+        self.assertIn("vv_title_shown_on(&g_custom_titles[i], &g_title_table, (unsigned int)index)", population)
+        self.assertNotIn("drop_ambiguous_titles", population)
+        self.assertNotIn("titles_live_count", population)
+        parentage = (ROOT / "native" / "parentage_export" / "parentage_export.c").read_text(encoding="utf-8")
+        self.assertIn("vv_title_shown_on(&titles[i], &table, r)", parentage)
+        death = (ROOT / "native" / "parentage_export" / "death_log_harness.c").read_text(encoding="utf-8")
+        for case in ("TWINS WITH ONE FINGERPRINT AND DIFFERENT LOOKS EACH SHOW THEIR OWN BOUND TITLE",
+                     "...and VillageCustomTitle (the Island Events log) gives each twin their own",
+                     "IDENTICAL TWINS (the same looks too) SHOW NO TITLE",
+                     "THE RECORD AT THE ENTRY'S INDEX HOLDING THE OTHER TWIN (A STALE FILE) SHOWS NONE",
+                     "an entry whose looks are not known (version 2) is shown on neither of two carriers"):
+            with self.subTest(case=case):
+                self.assertIn(case, death)
 
     @unittest.skipUnless(CL.exists(), "the 32-bit MSVC toolchain is not installed")
     def test_the_exporter_writes_it_on_real_files(self):

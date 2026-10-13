@@ -11,7 +11,14 @@
  *   the titled villager's block carries "  Custom title: <text>" right after
  *     its name, in both files;
  *   a title whose record now holds somebody else is not printed;
- *   a header naming another slot prints no titles at all.
+ *   a header naming another slot prints no titles at all;
+ *   in ALL FIVE games (run_twins, each game's own geometry): twins with one
+ *     name, likes and dislikes and different looks each show their own bound
+ *     title (native/shared/custom_title_shown.h, the Story companion's rule);
+ *     identical twins show none; a version 2 entry (looks not known) with two
+ *     carriers shows none, with one it is shown; the entry's record holding
+ *     the other twin (a stale file) shows none; twins with the same looks are
+ *     told apart by a skill; a pending entry shows nowhere.
  *
  * Built and run by scripts/build_custom_title_log_harness.ps1 (32-bit).
  * Exit code 0 when every check passes. */
@@ -151,6 +158,233 @@ static void write_titles(int slot, const vv_custom_title *entries, int count) {
     CloseHandle(h);
 }
 
+/* ---- Twins, in all five games -------------------------------------------
+
+   Each game's record geometry, restated from the Story / Cheat Upgrades
+   companion's adapters (story_c1.inc .. story_c5.inc: off_name, name_bytes,
+   off_sex, off_age, off_head, off_body, off_likes, off_dislikes, off_skills,
+   pref_slots, skill_count, skills_float), with the table's place, live byte
+   and health from the exporter's own layout -- so a drift between the
+   companion that keeps a title's looks and the exporter that reads them
+   fails here. */
+static const struct twin_game {
+    int game;
+    unsigned int rva;
+    int rva_is_pointer;
+    unsigned int base, stride, slots, active, health;
+    unsigned int name, name_cap, sex, age, head, body, likes, dislikes, pref_slots;
+    unsigned int skills, skill_count;
+    int skills_float;
+} TWIN_GAMES[5] = {
+    { 1, 0x8B614u, 1, 0, 0x3D8u, 256, 0x28u, 0x344u,
+      0x370u, 0x1Cu, 0x350u, 0x348u, 0x360u, 0x364u, 0x398u, 0x3A8u, 4, 0x3BCu, 5, 0 },
+    { 2, 0x99F24u, 1, 0, 0xE48Cu, 256, 0x30u, 0x52Cu,
+      0x564u, 0x18u, 0x538u, 0x530u, 0x548u, 0x54Cu, 0x5F0u, 0x6E8u, 62, 0x7E4u, 5, 0 },
+    { 3, 0x19E110u, 0, 0x14u, 0x1F8Cu, 150, 0xF10u, 0xE78u,
+      0xDD4u, 0x19u, 0xDC8u, 0xDC4u, 0xDF0u, 0xDF4u, 0xFB4u, 0xFC0u, 3, 0xEACu, 5, 0 },
+    { 4, 0x10E568u, 0, 0x44u, 0x2E3Cu, 150, 0x1CC4u, 0x1C40u,
+      0x1B9Cu, 0x19u, 0x1B90u, 0x1B8Cu, 0x1BB8u, 0x1BBCu, 0x1E60u, 0x1E6Cu, 3, 0x1C5Cu, 5, 1 },
+    { 5, 0x154148u, 0, 0x48u, 0x2F44u, 150, 0x1CD4u, 0x1C40u,
+      0x1B9Cu, 0x19u, 0x1B90u, 0x1B8Cu, 0x1BB8u, 0x1BBCu, 0x1F5Cu, 0x1F68u, 3, 0x1C5Cu, 6, 1 },
+};
+
+static const struct twin_game *tg;
+static unsigned char *g_twin_module;
+static unsigned char *g_twin_table;
+
+static unsigned char *twin_record(int index) {
+    return g_twin_table + tg->base + (unsigned int)index * tg->stride;
+}
+
+static unsigned int twin_skill(int value) {
+    if (tg->skills_float) {
+        float f = (float)value;
+        unsigned int raw;
+        memcpy(&raw, &f, sizeof raw);
+        return raw;
+    }
+    return (unsigned int)value;
+}
+
+static void twin_villager(int index, const char *name, int head, int body, int skill) {
+    unsigned char *r = twin_record(index);
+    unsigned int k;
+    memset(r, 0, tg->stride);
+    r[tg->active] = 1;
+    *(int *)(r + tg->health) = 100;
+    lstrcpynA((char *)r + tg->name, name, (int)tg->name_cap);
+    *(int *)(r + tg->age) = 900;
+    *(int *)(r + tg->head) = head;
+    *(int *)(r + tg->body) = body;
+    *(int *)(r + tg->likes) = 2;
+    *(int *)(r + tg->dislikes) = 1;
+    for (k = 0; k < tg->skill_count; ++k) {
+        *(unsigned int *)(r + tg->skills + 4u * k) = twin_skill(skill);
+    }
+}
+
+static unsigned int twin_fingerprint(int index) {
+    return vv_title_identity(twin_record(index), tg->name, tg->name_cap, tg->likes, tg->dislikes, tg->pref_slots);
+}
+
+static vv_custom_title twin_entry(unsigned int index, int known, int head, int body, int skill, const char *title) {
+    vv_custom_title e;
+    unsigned int k;
+    memset(&e, 0, sizeof e);
+    e.index = index;
+    e.fingerprint = twin_fingerprint(1);
+    if (known) {
+        e.flags = VV_TITLE_KNOWN;
+        e.looks.age = 800;
+        e.looks.head = head;
+        e.looks.body = body;
+        for (k = 0; k < tg->skill_count; ++k) {
+            e.looks.skills[k] = twin_skill(skill);
+        }
+    }
+    lstrcpyA(e.title, title);
+    return e;
+}
+
+static void twin_write_titles(const vv_custom_title *entries, int count) {
+    char folder[MAX_PATH];
+    char path[MAX_PATH];
+    static unsigned char data[VV_TITLES_FILE_MAX];
+    DWORD size = vv_titles_serialise(tg->game, entries, count, data);
+    DWORD written = 0;
+    HANDLE h;
+    vv_save_subfolder(folder, VV_TITLES_SUBFOLDER, 64);
+    vv_titles_file_name(path, MAX_PATH, folder, 3);
+    h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+    WriteFile(h, data, size, &written, NULL);
+    CloseHandle(h);
+}
+
+/* The roster and the history of slot 3, after an export; the roster in `roster_out`. */
+static void twin_export(char *roster_out, size_t cap) {
+    char roster[MAX_PATH];
+    char history[MAX_PATH];
+    WriteVillagePopulation(tg->game, g_twin_module, "Village: Twins (Save 3)\n");
+    log_file(roster, 3, "Tribe Population", "Village Population 1.txt");
+    lstrcpynA(roster_out, read_all(roster), (int)cap);
+    log_file(history, 3, "Tribe History", "Village History 1.txt");
+    lstrcatA(roster_out, "\n--- history ---\n");
+    {
+        /* The history appends a snapshot per export: only this export's, the last. */
+        const char *all = read_all(history);
+        const char *last = all;
+        const char *at = all;
+        while ((at = strstr(at, "=== Virtual Villagers")) != NULL) {
+            last = at;
+            ++at;
+        }
+        lstrcatA(roster_out, last);
+    }
+}
+
+static int count_of(const char *text, const char *what) {
+    int n = 0;
+    const char *at = text;
+    while ((at = strstr(at, what)) != NULL) {
+        ++n;
+        ++at;
+    }
+    return n;
+}
+
+/* A failed twin check shows what the logs said. */
+static void twin_check(int condition, const char *what, const char *text) {
+    check(condition, what);
+    if (!condition) {
+        printf("----- the roster and history -----\n%.3000s\n-----\n", text);
+    }
+}
+
+static void run_twins(int game) {
+    static char text[1 << 17];
+    char what[160];
+    vv_custom_title entries[2];
+    size_t module_size;
+    tg = &TWIN_GAMES[game - 1];
+    printf("\nVirtual Villagers %d: twins\n", game);
+    module_size = tg->rva + (tg->rva_is_pointer ? 0x1000u : tg->base + tg->slots * tg->stride + 0x1000u);
+    g_twin_module = (unsigned char *)VirtualAlloc(NULL, module_size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    if (tg->rva_is_pointer) {
+        g_twin_table = (unsigned char *)VirtualAlloc(NULL, tg->base + tg->slots * tg->stride,
+                                                     MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        *(unsigned char **)(g_twin_module + tg->rva) = g_twin_table;
+    } else {
+        g_twin_table = g_twin_module + tg->rva;
+    }
+    twin_villager(0, "Hina", 1, 1, 0);
+    twin_villager(1, "Kai", 3, 4, 0);       /* twins: one name, likes and dislikes */
+    twin_villager(2, "Kai", 5, 6, 0);
+    wsprintfA(what, "setup: twin Kais [1] and [2] share one fingerprint (game %d)", game);
+    twin_check(twin_fingerprint(1) == twin_fingerprint(2), what, text);
+
+    /* Different looks: each has their own bound title (the game shows it so). */
+    entries[0] = twin_entry(1, 1, 3, 4, 0, "Kai Three Four");
+    entries[1] = twin_entry(2, 1, 5, 6, 0, "Kai Five Six");
+    twin_write_titles(entries, 2);
+    twin_export(text, sizeof text);
+    wsprintfA(what, "TWINS WITH DIFFERENT LOOKS EACH SHOW THEIR OWN BOUND TITLE, ROSTER AND HISTORY (game %d)", game);
+    twin_check(count_of(text, "  Name: Kai\n  Custom title: Kai Three Four\n") == 2
+          && count_of(text, "  Name: Kai\n  Custom title: Kai Five Six\n") == 2
+          && count_of(text, "Custom title") == 4, what, text);
+
+    /* Identical twins: both could be the entry's villager -- nobody's. */
+    twin_villager(2, "Kai", 3, 4, 0);
+    entries[0] = twin_entry(1, 1, 3, 4, 0, "Kai Three Four");
+    twin_write_titles(entries, 1);
+    twin_export(text, sizeof text);
+    wsprintfA(what, "IDENTICAL TWINS SHOW NO TITLE (game %d)", game);
+    twin_check(count_of(text, "  Name: Kai\n") == 4 && strstr(text, "Custom title") == NULL, what, text);
+
+    /* A version 2 entry (looks not known) and two carriers: nobody's. */
+    twin_villager(2, "Kai", 5, 6, 0);
+    entries[0] = twin_entry(1, 0, 0, 0, 0, "Version Two");
+    twin_write_titles(entries, 1);
+    twin_export(text, sizeof text);
+    wsprintfA(what, "A VERSION 2 ENTRY WITH TWO CARRIERS SHOWS NONE (game %d)", game);
+    twin_check(count_of(text, "  Name: Kai\n") == 4 && strstr(text, "Custom title") == NULL, what, text);
+    /* ...and with one carrier it is shown, as before. */
+    twin_villager(2, "Kaimana", 5, 6, 0);
+    twin_export(text, sizeof text);
+    wsprintfA(what, "a version 2 entry with one carrier is shown on its record (game %d)", game);
+    twin_check(count_of(text, "  Name: Kai\n  Custom title: Version Two\n") == 2, what, text);
+
+    /* A stale file: the entry's index holds the other twin, its villager is elsewhere. */
+    twin_villager(2, "Kai", 5, 6, 0);
+    entries[0] = twin_entry(1, 1, 5, 6, 0, "Stale Twin");
+    twin_write_titles(entries, 1);
+    twin_export(text, sizeof text);
+    wsprintfA(what, "THE RECORD AT THE ENTRY'S INDEX HOLDING THE OTHER TWIN (STALE FILE) SHOWS NONE (game %d)", game);
+    twin_check(count_of(text, "  Name: Kai\n") == 4 && strstr(text, "Custom title") == NULL, what, text);
+
+    /* The same looks, told apart by the skills (ints, or floats in games 4 and 5). */
+    twin_villager(1, "Kai", 3, 4, 60);
+    twin_villager(2, "Kai", 3, 4, 10);
+    entries[0] = twin_entry(1, 1, 3, 4, 50, "Skilled Kai");
+    entries[1] = twin_entry(2, 1, 3, 4, 0, "Either Kai");
+    twin_write_titles(entries, 2);
+    twin_export(text, sizeof text);
+    wsprintfA(what, "told apart by a skill: the twin who could be it has it, an entry both could be is nobody's (game %d)",
+              game);
+    twin_check(count_of(text, "  Name: Kai\n  Custom title: Skilled Kai\n") == 2 && strstr(text, "Either Kai") == NULL, what, text);
+
+    /* A pending entry matches nobody. */
+    entries[0] = twin_entry(VV_TITLE_PENDING, 1, 3, 4, 50, "Pending Kai");
+    twin_write_titles(entries, 1);
+    twin_export(text, sizeof text);
+    wsprintfA(what, "a pending entry is shown on nobody (game %d)", game);
+    twin_check(strstr(text, "Custom title") == NULL, what, text);
+
+    if (tg->rva_is_pointer) {
+        VirtualFree(g_twin_table, 0, MEM_RELEASE);
+    }
+    VirtualFree(g_twin_module, 0, MEM_RELEASE);
+}
+
 int main(void) {
     vv_custom_title entries[2];
     char roster[MAX_PATH];
@@ -227,6 +461,13 @@ int main(void) {
     text = read_all(roster);
     check(strstr(text, "  Name: Kai\n  Custom title: Keeper of Stories\n") != NULL,
           "THE LAST (Save N) MARKER IS THE SLOT");
+
+    {
+        int game;
+        for (game = 1; game <= 5; ++game) {
+            run_twins(game);
+        }
+    }
 
     printf("\n%d failure(s)\n", g_failures);
     return g_failures == 0 ? 0 : 1;

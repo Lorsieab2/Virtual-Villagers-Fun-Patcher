@@ -158,8 +158,13 @@ class TheLogsPrintIt(unittest.TestCase):
         self.assertIn("drop_ambiguous_former(g, villagers);", population)
         parentage = (ROOT / "native/parentage_export/parentage_export.c").read_text(encoding="utf-8")
         self.assertIn("if (carriers > 0) {", parentage)
-        # A rebuilt (departed) record's custom title: any living carrier is a collision.
-        self.assertIn("int carriers = departed ? 1 : 0, index;", parentage)
+        # A rebuilt (departed) record's custom title: any present carrier is a collision
+        # (a live record's goes by its own index and looks, native/shared/custom_title_shown.h).
+        flat = " ".join(parentage.split())
+        self.assertIn("so ANY present carrier of its identity may be the title's owner (Codex, #553): then no title.",
+                      flat)
+        self.assertIn("g->preference_slots) == identity) { return 0; }", flat)
+        self.assertIn("if (!vv_title_shown_on(&titles[i], &table, r)) {", parentage)
         self.assertIn("record_custom_title(game_id, g, record, live, !check, custom, sizeof custom);", parentage)
 
     def test_the_shipped_dlls_carry_it(self):

@@ -122,9 +122,15 @@ class Harnesses(unittest.TestCase):
         # shared folders untouched, Death 8 from the slot folder's own highest); and 20 for every like and
         # dislike in the Death, Arrived and Birth records (4 in each game; v1.35.68); and 20 for "Name changed"
         # (4 in each game: a name changed in play is recorded, never hidden -- the owner, 2026-10-11); and 5
-        # for a pending custom title printed for nobody (1 in each game; v1.35.70).
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 295, result.stdout)
+        # for a pending custom title printed for nobody (1 in each game; v1.35.70); and 30 for twins with
+        # one fingerprint told apart by the looks their titles keep (6 in each game:
+        # native/shared/custom_title_shown.h, the Story companion's rule).
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 325, result.stdout)
         self.assertIn("  ok   A PENDING CUSTOM TITLE IS PRINTED FOR NOBODY", result.stdout)
+        self.assertEqual(result.stdout.count(
+            "  ok   TWINS WITH ONE FINGERPRINT AND DIFFERENT LOOKS EACH SHOW THEIR OWN BOUND TITLE"), 5)
+        self.assertEqual(result.stdout.count(
+            "  ok   THE RECORD AT THE ENTRY'S INDEX HOLDING THE OTHER TWIN (A STALE FILE) SHOWS NONE"), 5)
         self.assertIn("  ok   another village gets its own Deaths log, in its own slot's folder", result.stdout)
         self.assertIn("  ok   ...numbered on from the game's highest Death in any folder", result.stdout)
         self.assertIn("  ok   numbered Death 6 and Death 7 after the older folder's Death 5, never Death 6 twice", result.stdout)

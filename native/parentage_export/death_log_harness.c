@@ -56,6 +56,15 @@ static const struct { unsigned int likes, dislikes, slots; } PREFS[5] = {
     { 0x1F5C, 0x1F68, 3 },
 };
 
+/* Each game's sex field and skills (offset, count, float), the fields a
+   custom title's looks are kept by (native/shared/custom_titles.h): the Story
+   companion's adapters' off_sex, off_skills, skill_count and skills_float
+   (story_c1.inc .. story_c5.inc), as the export DLL's layout table has them. */
+static const struct { unsigned int sex, skills, skill_count; int skills_float; } LOOKS[5] = {
+    { 0x350, 0x3BC, 5, 0 }, { 0x538, 0x7E4, 5, 0 }, { 0xDC8, 0xEAC, 5, 0 }, { 0x1B90, 0x1C5C, 5, 1 },
+    { 0x1B90, 0x1C5C, 6, 1 },
+};
+
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
                               else { printf("  FAIL " __VA_ARGS__); printf("\n"); failures++; } } while (0)
@@ -273,6 +282,47 @@ static void head_of(const char *at, char *out, int size) {
     out[n] = 0;
 }
 
+/* Replace the titles file with `count` entries; 1 when it was written whole. */
+static int put_titles(const char *path, int game, const vv_custom_title *entries, int count) {
+    static unsigned char blob[VV_TITLES_FILE_MAX];
+    DWORD size = vv_titles_serialise(game, entries, count, blob), put = 0;
+    HANDLE h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+    if (h != INVALID_HANDLE_VALUE) { WriteFile(h, blob, size, &put, NULL); CloseHandle(h); }
+    return put == size;
+}
+
+/* One skill of record `i` (or of stored looks), as the game keeps it: an int, or a float. */
+static unsigned int skill_raw(int game, int value) {
+    if (LOOKS[game - 1].skills_float) {
+        float f = (float)value;
+        unsigned int raw;
+        memcpy(&raw, &f, sizeof raw);
+        return raw;
+    }
+    return (unsigned int)value;
+}
+
+/* A bound entry for record `index` whose looks are known: the record's head,
+   body and sex now, an age and every skill no higher than `age` / `skill`. */
+static vv_custom_title known_entry(int game, unsigned int index, unsigned int fingerprint, int age,
+                                   int head, int body, int skill, const char *title) {
+    vv_custom_title e;
+    unsigned int k;
+    memset(&e, 0, sizeof e);
+    e.index = index;
+    e.fingerprint = fingerprint;
+    e.flags = VV_TITLE_KNOWN;
+    e.looks.age = age;
+    e.looks.head = head;
+    e.looks.body = body;
+    e.looks.sex = 0;
+    for (k = 0; k < LOOKS[game - 1].skill_count; ++k) {
+        e.looks.skills[k] = skill_raw(game, skill);
+    }
+    lstrcpynA(e.title, title, VV_TITLE_BYTES);
+    return e;
+}
+
 #define VILLAGE "Village: Harness Tribe (Save 1)\n"
 #define OTHER   "Village: Other Tribe (Save 2)\n"
 #define BURIED "  Age at death: 1234\n  Cause of death: Old age\n  Grave: Master Builder\n  Epitaph: Inspired Architect\n"
@@ -412,8 +462,10 @@ int main(int argc, char **argv) {
             CHECK(write_record(game, DISAPPEARED, rec(3), 1, "  Age: 901\n", NULL, 1) == 1,
                   "the record is written while two villagers share the identity");
             read_deaths(game, 1);
+            /* The entry's looks are not known (flags 0, as a version 2 file's): the
+               fingerprint is all it has, and two carry it. */
             CHECK(strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 901\r\n") != NULL,
-                  "...without a title neither villager can be told to have");
+                  "...an entry whose looks are not known (version 2) is shown on neither of two carriers");
             rec(4)[g->active] = 0;
             /* A PENDING title (v1.35.70: kept, shown on nobody, until the
                Story companion binds it again) prints no line either. */
@@ -426,6 +478,84 @@ int main(int argc, char **argv) {
                   && read_deaths(game, 1)
                   && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 903\r\n") != NULL,
                   "A PENDING CUSTOM TITLE IS PRINTED FOR NOBODY");
+
+            /* 3b2: TWINS (v1.35.71's Story companion, story_titles.inc titles_could_be):
+               two villagers with one name, likes and dislikes, told apart by the looks
+               each entry keeps -- each is shown their own title, as the game shows it. */
+            {
+                typedef int (__stdcall *custom_title_t)(int, const void *, char *, int);
+                custom_title_t custom_title = (custom_title_t)GetProcAddress(dll, "VillageCustomTitle");
+                vv_custom_title twins[2];
+                char got[64];
+                unsigned int fp = entry.fingerprint;
+                int k;
+                villager(4, "Hoani", 900, 7, 8);       /* Hoani's twin: same name, likes, dislikes */
+                *(int *)(rec(4) + PREFS[game_index].likes) = 2;
+                *(int *)(rec(4) + PREFS[game_index].dislikes) = 1;
+                CHECK(custom_title != NULL
+                      && vv_title_identity(rec(4), g->name, g->name_cap, PREFS[game_index].likes,
+                                           PREFS[game_index].dislikes, PREFS[game_index].slots) == fp,
+                      "setup: twin Hoanis [3] (5/6) and [4] (7/8) share one fingerprint");
+                twins[0] = known_entry(game, 3, fp, 800, 5, 6, 0, "Elder Twin");
+                twins[1] = known_entry(game, 4, fp, 800, 7, 8, 0, "Younger Twin");
+                CHECK(put_titles(titles_path, game, twins, 2)
+                      && write_record(game, DISAPPEARED, rec(3), 1, "  Age: 911\n", NULL, 1) == 1
+                      && write_record(game, DISAPPEARED, rec(4), 1, "  Age: 912\n", NULL, 1) == 1
+                      && read_deaths(game, 1)
+                      && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Custom title: Elder Twin\r\n  Age: 911\r\n")
+                         != NULL
+                      && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Custom title: Younger Twin\r\n  Age: 912\r\n")
+                         != NULL,
+                      "TWINS WITH ONE FINGERPRINT AND DIFFERENT LOOKS EACH SHOW THEIR OWN BOUND TITLE");
+                CHECK(custom_title != NULL
+                      && custom_title(game, rec(3), got, sizeof got) == 1 && strcmp(got, "Elder Twin") == 0
+                      && custom_title(game, rec(4), got, sizeof got) == 1 && strcmp(got, "Younger Twin") == 0,
+                      "...and VillageCustomTitle (the Island Events log) gives each twin their own");
+                /* Identical twins: both could be the entry's villager -- never a guess. */
+                *(int *)(rec(4) + g->head) = 5;
+                *(int *)(rec(4) + g->body) = 6;
+                CHECK(put_titles(titles_path, game, twins, 1)
+                      && write_record(game, DISAPPEARED, rec(3), 1, "  Age: 913\n", NULL, 1) == 1
+                      && read_deaths(game, 1)
+                      && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 913\r\n") != NULL
+                      && custom_title(game, rec(3), got, sizeof got) == 1 && got[0] == 0,
+                      "IDENTICAL TWINS (the same looks too) SHOW NO TITLE");
+                /* A stale file: the entry's index holds the other twin (whose looks are
+                   not the entry's); its villager is in another record.  Nobody. */
+                *(int *)(rec(4) + g->head) = 7;
+                *(int *)(rec(4) + g->body) = 8;
+                twins[0] = known_entry(game, 3, fp, 800, 7, 8, 0, "Stale Twin");
+                CHECK(put_titles(titles_path, game, twins, 1)
+                      && write_record(game, DISAPPEARED, rec(3), 1, "  Age: 914\n", NULL, 1) == 1
+                      && write_record(game, DISAPPEARED, rec(4), 1, "  Age: 915\n", NULL, 1) == 1
+                      && read_deaths(game, 1)
+                      && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 914\r\n") != NULL
+                      && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 915\r\n") != NULL
+                      && strstr(text, "Stale Twin") == NULL,
+                      "THE RECORD AT THE ENTRY'S INDEX HOLDING THE OTHER TWIN (A STALE FILE) SHOWS NONE");
+                /* The same looks, told apart by the skills: no skill lower than stored. */
+                *(int *)(rec(4) + g->head) = 5;
+                *(int *)(rec(4) + g->body) = 6;
+                for (k = 0; k < (int)LOOKS[game_index].skill_count; ++k) {
+                    *(unsigned int *)(rec(3) + LOOKS[game_index].skills + 4u * (unsigned int)k) = skill_raw(game, 60);
+                    *(unsigned int *)(rec(4) + LOOKS[game_index].skills + 4u * (unsigned int)k) = skill_raw(game, 10);
+                }
+                twins[0] = known_entry(game, 3, fp, 800, 5, 6, 50, "Skilled Twin");
+                twins[1] = known_entry(game, 4, fp, 800, 5, 6, 0, "Either Twin");
+                CHECK(put_titles(titles_path, game, twins, 2)
+                      && write_record(game, DISAPPEARED, rec(3), 1, "  Age: 916\n", NULL, 1) == 1
+                      && write_record(game, DISAPPEARED, rec(4), 1, "  Age: 917\n", NULL, 1) == 1
+                      && read_deaths(game, 1)
+                      && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Custom title: Skilled Twin\r\n  Age: 916\r\n")
+                         != NULL
+                      && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 917\r\n") != NULL,
+                      "the same looks told apart by a skill: the twin who could be the entry's has it; "
+                      "an entry both could be is nobody's");
+                for (k = 0; k < (int)LOOKS[game_index].skill_count; ++k) {
+                    *(unsigned int *)(rec(3) + LOOKS[game_index].skills + 4u * (unsigned int)k) = 0;
+                }
+                rec(4)[g->active] = 0;
+            }
             DeleteFileA(titles_path);
             RemoveDirectoryA(titles_dir);
             RemoveDirectoryA(data_dir);
