@@ -115,6 +115,35 @@ result["select_all_actual"] = {patch.id: app.fun_patch_vars[patch.id].get() for 
 never_drawn = sorted(set(app.fun_patch_vars) - drawn_ids())
 result["never_drawn_count"] = len(never_drawn)
 result["never_drawn_sample_ticked"] = bool(never_drawn) and app.fun_patch_vars[never_drawn[-1]].get()
+
+# The mouse wheel over a list scrolls the list; once the list is at its end it scrolls the page.
+# The pointer's position is faked: a row of this list is reported as the widget under it.
+from types import SimpleNamespace
+owner.yview("moveto", 0)
+app.update()
+def row_under_pointer(x, y):
+    # The widget under the pointer is a row that is drawn right now (a row scrolled away is gone).
+    return [w for w in walk(owner) if isinstance(w, ttk.Checkbutton)][0]
+
+
+app.winfo_containing = row_under_pointer
+canvas = app.content_canvas
+result["page_scrollable"] = canvas.bbox("all")[3] > canvas.winfo_height()
+wheel_down = SimpleNamespace(delta=-120, x_root=0, y_root=0)
+page_top = canvas.yview()[0]
+list_top = owner._offset
+result["wheel_returned"] = app._scroll_content(wheel_down)
+app.update()
+result["list_moved"] = owner._offset > list_top
+result["page_moved_while_list_moves"] = canvas.yview()[0] != page_top
+owner.yview("moveto", 1.0)
+app.update()
+list_end = owner._offset
+page_before_end = canvas.yview()[0]
+app._scroll_content(wheel_down)
+app.update()
+result["list_at_end_unchanged"] = owner._offset == list_end
+result["page_moved_at_list_end"] = canvas.yview()[0] > page_before_end
 app.destroy()
 print(json.dumps(result))
 """
@@ -146,6 +175,14 @@ class VirtualPatchList(unittest.TestCase):
         self.assertTrue(self.result["back_in_view"])
         self.assertEqual(self.result["value_after_return"], self.result["after_click"])
         self.assertEqual(self.result["checkbox_shows"], self.result["after_click"])
+
+    def test_the_wheel_scrolls_the_list_then_the_page(self) -> None:
+        self.assertTrue(self.result["page_scrollable"], "the page does not scroll: nothing proven")
+        self.assertEqual(self.result["wheel_returned"], "break")
+        self.assertTrue(self.result["list_moved"], "the wheel did not scroll the list")
+        self.assertFalse(self.result["page_moved_while_list_moves"], "the page scrolled under the list")
+        self.assertTrue(self.result["list_at_end_unchanged"])
+        self.assertTrue(self.result["page_moved_at_list_end"], "the wheel did not reach the page")
 
     def test_select_all_ticks_every_patch_including_rows_never_drawn(self) -> None:
         self.assertGreater(self.result["never_drawn_count"], 0)

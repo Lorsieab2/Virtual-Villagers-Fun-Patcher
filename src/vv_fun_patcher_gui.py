@@ -225,9 +225,12 @@ class VirtualList(ttk.Frame):
             self._offset += int(args[1]) * step
         self._refresh()
 
-    def yview_scroll(self, number: int, what: str) -> None:
-        """The mouse wheel: the same as the scrollbar's own arrows."""
+    def yview_scroll(self, number: int, what: str) -> bool:
+        """The mouse wheel: the same as the scrollbar's own arrows.  Returns False when the list
+        is already at its end in that direction, so the wheel can scroll the page instead."""
+        before = self._offset
         self.yview("scroll", number, what)
+        return self._offset != before
 
     def _resized(self, event: tk.Event) -> None:
         if event.width == self._width:          # only a real width change lays out again
@@ -1298,9 +1301,6 @@ class App(tk.Tk):
             while widget is not None and widget is not top:
                 if isinstance(widget, (tk.Listbox, tk.Text, ttk.Treeview)):
                     return "break"              # scrolls itself (its own class binding)
-                if isinstance(widget, VirtualList):
-                    widget.yview_scroll(-1 if event.delta > 0 else 1, "units")
-                    return "break"
                 if isinstance(widget, tk.Canvas) and str(widget.cget("yscrollcommand")):
                     widget.yview_scroll(-1 if event.delta > 0 else 1, "units")
                     return "break"
@@ -1311,6 +1311,15 @@ class App(tk.Tk):
                 return "break"                  # a dialog holds the main window
         except tk.TclError:
             pass
+        # Over a patch list the wheel scrolls the list while it can move in that
+        # direction; once it is at its end, the wheel falls through to the page.
+        widget = under
+        while widget is not None and widget is not self:
+            if isinstance(widget, VirtualList):
+                if widget.yview_scroll(-1 if event.delta > 0 else 1, "units"):
+                    return "break"
+                break
+            widget = widget.master
         bounds = self.content_canvas.bbox("all")
         if not bounds or bounds[3] <= self.content_canvas.winfo_height():
             return None

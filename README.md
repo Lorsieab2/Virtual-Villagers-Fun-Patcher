@@ -26,7 +26,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 New in v1.35.73:
 
-- **The patch list draws only what is on screen** (Patches tab, every game). Each game's list builds the patches near its visible part and draws the rest as you scroll, so the window opens with far fewer widgets. Each game's list is a fixed-height area with its own scrollbar: the mouse wheel scrolls it while the pointer is over it. Ticks, the "?" guides, the bold requirement lines, Select All and the saved selection all work as before. Not yet tried in a running game.
+- **The patch list draws only what is on screen** (Patches tab, every game). Each game's list builds the patches near its visible part and draws the rest as you scroll, so the window opens with far fewer widgets. Each game's list is a fixed-height area with its own scrollbar: while the pointer is over it, the mouse wheel scrolls the list, and once the list is at its end the wheel scrolls the page. Ticks, the "?" guides, the bold requirement lines, Select All and the saved selection all work as before. Not yet tried in a running game.
 
 ## What's new in v1.35.72
 
