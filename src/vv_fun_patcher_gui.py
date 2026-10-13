@@ -272,8 +272,7 @@ class VirtualList(ttk.Frame):
                 # Between passes only: every row is drawn and measured again at the new width.
                 self._stale = False
                 for index in list(self._drawn):
-                    self._drawn.pop(index).destroy()
-                self._placed.clear()
+                    self._undraw(index)
                 self._heights = [None] * len(self._rows)
             for _ in range(VIRTUAL_MAX_PASSES):
                 self._again = False
@@ -298,8 +297,7 @@ class VirtualList(ttk.Frame):
             if tops[index] < high and bottoms[index] > low
         }
         for index in [index for index in self._drawn if index not in wanted]:
-            self._drawn.pop(index).destroy()
-            self._placed.pop(index, None)
+            self._undraw(index)
         fresh = [index for index in sorted(wanted) if index not in self._drawn]
         for index in fresh:
             frame = ttk.Frame(self)
@@ -329,6 +327,19 @@ class VirtualList(ttk.Frame):
         first = self._offset / total
         last = min(1.0, (self._offset + VIRTUAL_VIEW_PX) / total)
         self.scrollbar.set(first, last)
+
+    def _undraw(self, index: int) -> None:
+        """Destroy one drawn row.  Keyboard focus that is on a widget of the row moves to the
+        list itself, so it is not lost to the window."""
+        frame = self._drawn.pop(index)
+        try:
+            focus = str(self.focus_get())
+        except (KeyError, tk.TclError):
+            focus = ""
+        if focus.startswith(str(frame) + "."):
+            self.focus_set()
+        frame.destroy()
+        self._placed.pop(index, None)
 
     def _clamp(self, total: int) -> None:
         self._offset = min(max(0, self._offset), max(0, total - VIRTUAL_VIEW_PX))

@@ -82,8 +82,15 @@ result["before"] = before
 result["after_click"] = variable.get()
 
 # Scroll the row out of view: no widget for it, and its value is unchanged.
+# Keyboard focus on the row moves to its list when the row goes.
+checkbuttons(TARGET)[0].focus_set()
+app.update()
+result["focus_on_row_before"] = str(app.focus_get()).startswith(str(checkbuttons(TARGET)[0]))
 owner.yview("moveto", 1.0)
 app.update()
+focus_now = app.focus_get()
+result["focus_after_row_gone"] = None if focus_now is None else str(focus_now)
+result["list_path"] = str(owner)
 result["gone_when_scrolled_out"] = not checkbuttons(TARGET)
 result["value_while_out_of_view"] = variable.get()
 
@@ -183,6 +190,11 @@ class VirtualPatchList(unittest.TestCase):
         self.assertFalse(self.result["page_moved_while_list_moves"], "the page scrolled under the list")
         self.assertTrue(self.result["list_at_end_unchanged"])
         self.assertTrue(self.result["page_moved_at_list_end"], "the wheel did not reach the page")
+
+    def test_focus_moves_to_the_list_when_its_row_goes(self) -> None:
+        if not self.result["focus_on_row_before"]:
+            self.skipTest("this display does not give the window keyboard focus")
+        self.assertEqual(self.result["focus_after_row_gone"], self.result["list_path"])
 
     def test_select_all_ticks_every_patch_including_rows_never_drawn(self) -> None:
         self.assertGreater(self.result["never_drawn_count"], 0)
