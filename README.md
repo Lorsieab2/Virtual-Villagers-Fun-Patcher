@@ -32,6 +32,15 @@ New in v1.35.71:
 - **A backup whose file times cannot be kept now fails safely** instead of passing with the copy's time (an old save could then look newer than a queued purchase it never paid for).
 - **Faster with 256 villagers:** The Secret City with every villager masked costs about 0.43 ms a frame instead of 1.4 ms (same masks shown); a Time Skip no longer looks up the Island Events companion every frame.
 
+
+Also in the v1.35.70 download (its notes did not list these three, so they are listed here):
+
+- **Fix Vanilla Bugs: the Villager Details name box is saved only to the villager it was filled for** (all five games). Each game's Details screen fills a name box with the selected villager's name and, on Done or an arrow, copies the box back into whichever record is selected at that moment. If the selected record no longer held that villager (two clicks in one frame, or records shifting while the box is open), the name went into the wrong villager. The screen now remembers whom it filled the box for and writes back only to that same villager.
+- **Lower frame cost at 256 villagers** (all five games, behaviour unchanged): the Cause of Death companion's per-villager pass in The Secret City and New Believers now runs once per draw pass (about 1.35 ms and 4.4 ms a frame before, about 17 and 29 microseconds after); The Secret City's mask lookup no longer fingerprints every record for every villager drawn when none is masked (1.09 ms to 18 microseconds a frame); The Lost Children's route descent no longer translates the whole field on every waypoint; and each Births, Conceptions and Deaths record no longer re-reads every log file in every folder (a record in the sixth 256-record file read 2.3 MB, now 0.21 MB).
+- **Check Saves & Logs:** every question about a save older than the logs now names a quit without saving (Alt-F4: the game saves only on a clean quit) or a restored backup as the likely cause, and offers "Keep as is" first; nothing is called corruption.
+
+**Not yet seen in a running game:** a waiting custom title settled by your answer (and the Repair that carries it out), the other Check Saves & Logs changes, the Start Over change, the backup change, the Details name-box guard and every frame-cost change are checked by tests, C harnesses and emulation (the full suite passes) but none has been watched in a running game yet.
+
 ## What's new in v1.35.70
 
 New in v1.35.70:
