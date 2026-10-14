@@ -8,7 +8,10 @@ same name: its villagers' records sit under the very same "Village: <name> (Save
 tribe being played now.  The owner: "several villagers are still present but renamed" -- so a name is
 never proof of anything.
 
-THE PROOF OF GONE.  A villager the logs name is removed only when ALL of this holds:
+THE PROOF OF GONE.  A villager the logs name is removed only when ALL of this holds.  A possible match in
+the save that is not proof (the same sex, head and body; a shared name; a link; the same sex and one of
+head or body) is NOT SURE: listed apart, kept, and removed only if the player ticks it in Repair Logs.
+Anything uncertain is the player's decision, never a silent one:
 
   * no villager in the save now is them: not by name, head and body; not by (a) identity -- the same sex,
     head, body, likes and dislikes, and not younger than any age the logs give them (a villager renamed
@@ -132,6 +135,7 @@ class Verdict:
     person: Person
     gone: bool
     reason: str
+    unsure: bool = False        # a possible match in the save: kept, unless the player ticks it to remove
 
 
 @dataclass
@@ -155,10 +159,16 @@ class Plan:
     kept: list[Verdict]
     cuts: list[Cut]
     notes: list[str] = field(default_factory=list)
+    ticked: frozenset = frozenset()     # the unsure villagers the player ticked to remove
 
     @property
     def gone_keys(self) -> set:
         return {v.person.key for v in self.gone}
+
+    @property
+    def unsure(self) -> list[Verdict]:
+        """Possible matches in the save: kept, unless the player ticks them to remove."""
+        return [v for v in self.kept if v.unsure]
 
     def files(self) -> dict[Path, list[Cut]]:
         out: dict[Path, list[Cut]] = {}
@@ -187,11 +197,17 @@ class Plan:
             out.append("Villagers removed:")
             for v in self.gone:
                 out.append(f"  - {v.person.described()}: {v.reason}")
-        if self.kept:
+        if self.unsure:
+            out.append("")
+            out.append("Not sure (kept unless you tick them to remove):")
+            for v in self.unsure:
+                out.append(f"  - {v.person.described()}: {v.reason}")
+        if [v for v in self.kept if not v.unsure]:
             out.append("")
             out.append("Kept (still in the save under another name, or unproven):")
             for v in self.kept:
-                out.append(f"  - {v.person.described()}: {v.reason}")
+                if not v.unsure:
+                    out.append(f"  - {v.person.described()}: {v.reason}")
         out += [""] + self.notes if self.notes else []
         return "\n".join(out)
 
@@ -295,9 +311,10 @@ def _current(folder: Path, game: int, slot: int):
     return living, older
 
 
-def plan(folder: Path, game: int, slot: int) -> Plan:
+def plan(folder: Path, game: int, slot: int, also_remove: frozenset = frozenset()) -> Plan:
     """Who the logs of this slot's village name that is not in the save, each kept or proven gone, and
-    the lines that would be taken out.  Reads only."""
+    the lines that would be taken out.  `also_remove`: the keys of the unsure villagers the player ticked
+    to remove.  Reads only."""
     import vv_log_additions as additions
     folder = Path(folder)
     checker = tools.load_checker()
@@ -477,20 +494,6 @@ def plan(folder: Path, game: int, slot: int) -> Plan:
         if found is not None:
             reason = found[1]
         if reason is None:
-            looks = [s for s in living if s.head == p.head and s.body == p.body and _sex_ok(p, s.sex)
-                     and _age_ok(p, s.age)]
-            if looks:
-                reason = (f"may be {looks[0].name}: the same sex, head and body (likes or dislikes may have "
-                          "changed since)")
-        if reason is None:
-            named = [s for s in living if s.name == p.name]
-            if named:
-                s = named[0]
-                reason = (f"shares the name {p.name} with a villager in the save ({s.looks()}): may be them, "
-                          "renamed in place or with a changed look")
-        if reason is None and p.name in linked:
-            reason = f"{linked[p.name]}, which may tie them to a villager in the save"
-        if reason is None:
             copies = [path.name for path, s in older
                       if (s.key == p.key or (s.head == p.head and s.body == p.body and _sex_ok(p, s.sex)))]
             if copies:
@@ -510,10 +513,37 @@ def plan(folder: Path, game: int, slot: int) -> Plan:
         if reason is not None:
             kept.append(Verdict(p, False, reason))
             continue
+        # A possible match in the save: not proven, so the player decides (kept unless ticked to remove).
+        unsure_reason = None
+        looks = [s for s in living if s.head == p.head and s.body == p.body and _sex_ok(p, s.sex)
+                 and _age_ok(p, s.age)]
+        if looks:
+            unsure_reason = (f"may be {looks[0].name}: the same sex, head and body (likes or dislikes may have "
+                             "changed since)")
+        if unsure_reason is None:
+            named = [s for s in living if s.name == p.name]
+            if named:
+                s = named[0]
+                unsure_reason = (f"shares the name {p.name} with a villager in the save ({s.looks()}): may be "
+                                 "them, renamed in place or with a changed look")
+        if unsure_reason is None and p.name in linked:
+            unsure_reason = f"{linked[p.name]}, which may tie them to a villager in the save"
+        if unsure_reason is None:
+            partly = [s for s in living if (s.head == p.head or s.body == p.body) and _sex_ok(p, s.sex)
+                      and _age_ok(p, s.age) and _prefs_ok(p, s.likes, s.dislikes)]
+            if partly:
+                unsure_reason = (f"may be {partly[0].name} with a changed head or body: the same sex, likes "
+                                 "and dislikes and one of head or body")
+        if unsure_reason is not None and p.key not in also_remove:
+            kept.append(Verdict(p, False, unsure_reason, unsure=True))
+            continue
         dates = sorted(by_id[c].when for c in p.censuses if by_id[c].when)
-        gone.append(Verdict(p, True,
-                            "listed only in " + (f"the snapshot(s) of {', '.join(dates)}" if dates else "older pages")
-                            + ", which list no villager of the save; nothing ties them to a villager in the save"))
+        if unsure_reason is not None:
+            gone.append(Verdict(p, True, f"you ticked it to remove, though {unsure_reason}"))
+        else:
+            gone.append(Verdict(p, True,
+                                "listed only in " + (f"the snapshot(s) of {', '.join(dates)}" if dates else "older pages")
+                                + ", which list no villager of the save; nothing ties them to a villager in the save"))
 
     # -- the lines that go
     gone_keys = {v.person.key for v in gone}
@@ -553,7 +583,7 @@ def plan(folder: Path, game: int, slot: int) -> Plan:
             if owners and extra not in kept_names:
                 cuts.append(Cut(path, start, count, head, owners[0]))
     cuts.sort(key=lambda c: (str(c.path), c.start))
-    return Plan(folder, game, slot, village, gone, kept, cuts, notes)
+    return Plan(folder, game, slot, village, gone, kept, cuts, notes, frozenset(also_remove))
 
 
 # ---------------------------------------------------------------------------
@@ -614,7 +644,7 @@ def revise(folder: Path, game: int, slot: int, confirmed: Plan, processes=None,
         raise HistoryRevisionError("The history revision needs your confirmation; nothing was changed.")
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     tools._refuse_if_running(folder, controller)
-    fresh = plan(folder, game, slot)
+    fresh = plan(folder, game, slot, also_remove=confirmed.ticked)
     wanted = confirmed.gone_keys & fresh.gone_keys
     removed = [v for v in fresh.gone if v.person.key in wanted]
     if not removed:

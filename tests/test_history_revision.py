@@ -134,6 +134,21 @@ class ProofOfGone(Base):
                 s.revise(plan)
                 self.assertIn("Head: 97", self.text(s.history))
 
+    def test_a_possible_match_is_not_sure_and_kept_until_the_player_ticks_it(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                s = self.scene(game)
+                key = (s.other.name, 97, 96)
+                plan = s.plan()
+                self.assertIn(key, {v.person.key for v in plan.unsure})
+                self.assertNotIn(key, plan.gone_keys)
+                self.assertIn("Not sure", plan.describe())
+                ticked = hr.plan(s.v.folder, game, 1, also_remove=frozenset({key}))
+                self.assertIn(key, ticked.gone_keys)
+                self.assertFalse(ticked.unsure)
+                s.revise(ticked)
+                self.assertNotIn("Head: 97", self.text(s.history))
+
     def test_the_owners_renamed_villagers_are_kept_and_never_removed(self):
         """Lupa Tangaroa is Coral Tangaroa now, Tamil Makawee is Mahalo Makawee (the owner's The Lost
         Children copy): kept, listed as renamed, and still in the history after the revision."""

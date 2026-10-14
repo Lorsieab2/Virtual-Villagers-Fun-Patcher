@@ -4175,10 +4175,11 @@ class App(tk.Tk):
         history_tick = ttk.Checkbutton(
             history_row, variable=history_var,
             text=f"{vv_history_revision.LABEL}: "
-                 + (f"{len(history_plan.gone)} proven gone, {len(history_plan.kept)} kept and listed"
+                 + (f"{len(history_plan.gone)} proven gone, {len(history_plan.unsure)} not sure (you decide), "
+                    f"{len(history_plan.kept) - len(history_plan.unsure)} kept and listed"
                     if history_plan is not None else "not checked"))
         history_tick.pack(side="left")
-        if history_plan is None or not history_plan.gone:
+        if history_plan is None or not (history_plan.gone or history_plan.unsure):
             history_tick.state(["disabled"])
         if history_plan is not None and (history_plan.gone or history_plan.kept):
             ttk.Button(history_row, text="Show the list…",
@@ -4236,8 +4237,18 @@ class App(tk.Tk):
         def go() -> None:
             # The history revision: the exact list, per log, and who is kept and why -- confirmed or nothing.
             history["confirmed"] = False
-            if history_var.get() and history_plan is not None and history_plan.gone:
-                if not self._history_list_dialog(window, history_plan, ask=True):
+            if history_var.get() and history_plan is not None and (history_plan.gone or history_plan.unsure):
+                ticked = self._history_list_dialog(window, history_plan, ask=True)
+                if ticked is None:
+                    history_var.set(False)
+                    return
+                # Planned again with the villagers the player ticked: the list confirmed is the list removed.
+                try:
+                    history["plan"] = vv_history_revision.plan(
+                        history_plan.folder, history_plan.game, history_plan.slot, also_remove=frozenset(ticked))
+                except (vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
+                    messagebox.showerror("Repair Saves & Logs", f"The history revision was not confirmed. {exc}",
+                                         parent=window)
                     history_var.set(False)
                     return
                 history["confirmed"] = True
@@ -4266,7 +4277,7 @@ class App(tk.Tk):
     def _history_list_dialog(self, parent, plan, ask: bool) -> bool:
         """The history revision's list (src/vv_history_revision.py Plan.describe): per log, the blocks that
         go, with a count, and every villager kept with the reason.  With `ask`, the player's confirmation:
-        True only on "Remove these villagers" (Cancel is the default)."""
+        the set of unsure villagers ticked to remove on "Remove" (Cancel is the default), None on Cancel."""
         window = tk.Toplevel(parent)
         window.title("Repair Saves & Logs: remove villagers from the history")
         window.transient(parent)
@@ -4286,16 +4297,26 @@ class App(tk.Tk):
         text.pack(side="left", fill="both", expand=True)
         text.insert("1.0", plan.describe())
         text.configure(state="disabled")
-        outcome = {"yes": False}
+        outcome: dict = {"yes": False, "ticked": set()}
+        # Not sure: a tick removes that villager too; unticked, kept (the player decides, never the program).
+        ticks: dict = {}
+        if ask and plan.unsure:
+            box = ttk.LabelFrame(frame, text="Not sure -- tick a villager to remove them too (kept if unticked)")
+            box.pack(anchor="w", fill="x", pady=(8, 0))
+            for v in plan.unsure:
+                ticks[v.person.key] = tk.BooleanVar(value=False)
+                ttk.Checkbutton(box, variable=ticks[v.person.key],
+                                text=f"{v.person.described()}: {v.reason}").pack(anchor="w")
 
         def remove() -> None:
             outcome["yes"] = True
+            outcome["ticked"] = {key for key, var in ticks.items() if var.get()}
             window.destroy()
 
         buttons = ttk.Frame(frame)
         buttons.pack(anchor="w", pady=(8, 0))
         if ask:
-            ttk.Button(buttons, text=f"Remove these {len(plan.gone)} villagers", command=remove).pack(side="left")
+            ttk.Button(buttons, text="Remove the proven gone and the ticked ones", command=remove).pack(side="left")
             cancel = ttk.Button(buttons, text="Cancel", command=window.destroy)
             cancel.pack(side="left", padx=(8, 0))
             cancel.focus_set()
@@ -4305,7 +4326,8 @@ class App(tk.Tk):
         window.grab_set()
         parent.wait_window(window)
         _regrab(parent)
-        return outcome["yes"]
+        # The villagers the player ticked to remove (an empty set when none), or None when cancelled.
+        return outcome["ticked"] if outcome["yes"] else None
 
     def _last_names_dialog(self, parent, folder: Path, number: int, info, names: dict,
                            names_var) -> None:
