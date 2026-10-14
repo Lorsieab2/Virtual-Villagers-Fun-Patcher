@@ -1,4 +1,4 @@
-"""The Family Tree Maker's family tree picture (src/vv_genealogy.py's village, drawn).
+﻿"""The Family Tree Maker's family tree picture (src/vv_genealogy.py's village, drawn).
 
 The owner (2026-10-07) showed a hand-made Secret City tree and asked for the same: one row per
 generation, each villager with "the name, age in game units and years", "as many colors as needed
@@ -310,6 +310,8 @@ class Family:
     onward: list = field(default_factory=list)
     onward_page: int = 0
     stem_x: float = 0.0                 # where its line goes down from the couple's line to those words
+    word_dx: float = 0.0                # how far its words' centre stands from the end of its line (0: centred under it;
+                                        # otherwise the words run out to one side, when crowded labels would meet)
 
 
 # How the family lines may be coloured (vv_line_colours): the Lines tab's "Line colours" and "Order colours by".
@@ -2014,6 +2016,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         if fam.onward_page not in later:
             later[fam.onward_page] = _page_colours(village, e, fam.onward_page - 1)
         fam.colour = later[fam.onward_page].get(family_key(village, fam), GREY)
+    _settle_onward(out)
     return out
 
 
@@ -2045,6 +2048,56 @@ def onward_width(edits: Edits, village: gen.Village, fam: Family) -> float:
     # (Never less than the page's own reckoning of words' width, _extent, so the page is sized round them.)
     return max(text_width(text, size, style.get("bold", False), style.get("font") or edits.font or None,
                           style.get("italic", False)), len(text) * size * 0.55)
+
+
+def _stagger_onward(fams: list[Family], span: dict, halves: dict, pitch: float, start: float, backwards: bool,
+                    prefer: tuple, last_resort: bool = False):
+    """Rows for the words of the families whose children are on a later page when they will not all stand
+    centred under their own lines: {family id: (line x, line's lowest y, words' centre less line x)}.  Each
+    family in turn (from the right or the left) takes the highest row, and a place along its stretch, where
+    its line goes down clear of the words above, its words (centred under the line, or running out to the
+    , in that order: 0, 1, -1) clear of the words in their row and of every line
+    going lower.  None if some family finds no place (last_resort: it is put in a row of its own)."""
+    out: dict = {}
+    words: list[tuple[float, float, int]] = []
+    downs: list[tuple[float, int]] = []
+    inset = 6
+    order = sorted(fams, key=lambda f: (span[f.id][1], span[f.id][0], f.id), reverse=backwards)
+    for f in order:
+        lo, hi = span[f.id]
+        tw = halves[f.id]
+        mid = (lo + hi) / 2
+        found = None
+        for row in range(len(fams) + 1):
+            above = [(a - 2, b + 2) for a, b, r in words if r < row]
+            xs = [mid] + [b for _a, b in above] + [a for a, _b in above] + [lo, hi]
+            xs = sorted({x for x in xs if lo <= x <= hi and not any(a < x < b for a, b in above)},
+                        key=lambda x: (abs(x - mid), x))
+            for x in xs:
+                for side in prefer:
+                    # (0: centred; 1, -1: running out to the right or left with the line at the words' end;
+                    # 2, -2: beside the line's end, for lines that fall at the very same place)
+                    dx = (0 if not side else (1 if side > 0 else -1) * (max(tw - inset, 0) if abs(side) == 1 else tw + 4))
+                    a, b = x + dx - tw, x + dx + tw
+                    if any(a < rb + ONWARD_CLEAR and ra - ONWARD_CLEAR < b for ra, rb, r in words if r == row):
+                        continue
+                    if any(a - 16 < d < b + 16 for d, r in downs if r > row):
+                        continue
+                    found = (x, row, dx, a, b)
+                    break
+                if found:
+                    break
+            if found:
+                break
+        if found is None:
+            if not last_resort:
+                return None
+            found = ((lo + hi) / 2, len(fams) + 1, 0.0, mid - tw, mid + tw)
+        x, row, dx, a, b = found
+        words.append((a, b, row))
+        downs.append((x, row))
+        out[f.id] = (x, start + row * pitch, dx)
+    return out
 
 
 def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree: set, families: list[Family],
@@ -2087,6 +2140,8 @@ def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree:
     for k, f in enumerate(couples):
         f.couple_y = base[f.id] + LANE_TOP + k * LANE
     start = max(base.values()) + LANE_TOP + len(couples) * LANE + LANE
+    # (Rows of words stand far enough apart for the words, at whatever size the player has given them.)
+    pitch = max(ONWARD_ROW, ONWARD_SIZE * edits.styles.get("onward", {}).get("scale", 100) / 100 * 1.5)
     # Each family's line down may leave its couple's line anywhere along it, 12 in from its ends (a lone
     # parent's: where it leaves them).  Families taken by where that stretch ends, each put in the highest row
     # and as near its stretch's middle as it can be with its words clear of the words already in that row, its
@@ -2099,6 +2154,7 @@ def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree:
     half = {f.id: onward_width(edits, village, f) / 2 + ONWARD_CLEAR for f in fams}
     words: list[tuple[float, float, int]] = []     # (left, right, row) of the words placed
     downs: list[tuple[float, int]] = []            # (x, row) of the lines down to them
+    failed = False
     for f in sorted(fams, key=lambda f: (span[f.id][1], span[f.id][0], f.id)):
         lo, hi = span[f.id]
         w = half[f.id]
@@ -2115,14 +2171,85 @@ def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree:
             if free:
                 placed = (min(free, key=lambda c: (abs(c - mid), c)), row)
                 break
-        if placed is None:              # (never so crowded in a tree, but always somewhere)
-            placed = ((lo + hi) / 2, len(fams) + 1)
+        if placed is None:              # (the words are too crowded to stand centred under their lines)
+            failed = True
+            break
         at, row = placed
         words.append((at - w + ONWARD_CLEAR, at + w - ONWARD_CLEAR, row))
         downs.append((at, row))
         f.stem_x = at
-        f.lane_y = start + row * ONWARD_ROW
+        f.lane_y = start + row * pitch
+        f.word_dx = 0.0
+    if failed:
+        # Crowded labels are laid out as portraits are, each in a place of its own: a family's words may run
+        # out to one side of its line (still under it), so a staircase of them stands side by side down the
+        # rows without one on another or a line through any.  Tried from the right and from the left, the
+        # words centred wherever they can be.
+        halves = {f.id: onward_width(edits, village, f) / 2 for f in fams}
+        for backwards, prefer in ((True, (0, 1, -1, 2, -2)), (False, (0, -1, 1, -2, 2)), (True, (0, 1)), (False, (0, -1)),
+                                  (True, (1, 2)), (False, (-1, -2)), (True, (2,)), (False, (-2,))):
+            got = _stagger_onward(fams, span, halves, pitch, start, backwards, prefer)
+            if got is not None:
+                break
+        else:
+            got = _stagger_onward(fams, span, halves, pitch, start, True, (2,), last_resort=True)
+        for f in fams:
+            f.stem_x, f.lane_y, f.word_dx = got[f.id]
     return fams
+
+
+def _onward_ends(lay: Layout) -> dict:
+    """Where each "continued on page N" family's line really ends (lines() may have turned it aside to
+    keep clear of portraits), by family id."""
+    mine = {f.id for f in lay.families if f.onward}
+    found: dict = {}
+    for _c, pts, fid, _k in lines(lay):
+        if fid in mine:
+            found.setdefault(fid, []).extend(pts)
+    return {fid: max(pts, key=lambda pt: (pt[1], pt[0])) for fid, pts in found.items()}
+
+
+def _settle_onward(lay: Layout) -> None:
+    """The words saying which page a family's children are on are laid out as portraits are: none on another.
+    Lines turn aside to keep clear of portraits, so where they really end is known only once they are
+    drawn; if the words then meet (or run into the row below), they are laid out again from those ends
+    (_stagger_onward), the words running out to one side of their lines where they must, and the lines
+    lengthened to the rows they are given."""
+    fams = [f for f in lay.families if f.onward]
+    if len(fams) < 2:
+        return
+    v, e = lay.village, lay.edits
+    halves = {f.id: onward_width(e, v, f) / 2 for f in fams}
+    pitch = max(ONWARD_ROW, ONWARD_SIZE * e.styles.get("onward", {}).get("scale", 100) / 100 * 1.5)
+
+    def meeting() -> dict | None:
+        ends = _onward_ends(lay)
+        if len(ends) < 2:
+            return None
+        boxes = [(f, ends[f.id][0] + f.word_dx - halves[f.id], ends[f.id][0] + f.word_dx + halves[f.id]) for f in fams
+                 if f.id in ends]
+        for i, (f, a, b) in enumerate(boxes):
+            for g, c, d in boxes[:i]:
+                if abs(f.lane_y - g.lane_y) < pitch - 1 and a < d + 4 and c < b + 4:
+                    return ends
+        return None
+    for _round in range(3):
+        ends = meeting()
+        if ends is None:
+            break
+        start = min(f.lane_y for f in fams)
+        span = {fid: (pt[0], pt[0]) for fid, pt in ends.items()}
+        mine = [f for f in fams if f.id in ends]
+        for backwards, prefer in ((True, (0, 1, -1, 2, -2)), (False, (0, -1, 1, -2, 2)), (True, (0, 1)), (False, (0, -1)),
+                                  (True, (1, 2)), (False, (-1, -2)), (True, (2,)), (False, (-2,))):
+            got = _stagger_onward(mine, span, halves, pitch, start, backwards, prefer)
+            if got is not None:
+                break
+        else:
+            got = _stagger_onward(mine, span, halves, pitch, start, True, (2,), last_resort=True)
+        for f in mine:
+            f.lane_y, f.word_dx = got[f.id][1], got[f.id][2]
+    lay.height = max(lay.height, max(f.lane_y for f in fams) + ONWARD_TEXT + FOOTER_ROOM + PAGE_MARGIN)
 
 
 def _wrap_rows(people: dict, rows: dict[int, list[int]], x: dict[int, float], sub: dict[int, int], limit: int,
@@ -6295,7 +6422,7 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
             ex, ey = max(ends, key=lambda pt: (pt[1], pt[0]))
             scale = lay.edits.styles.get("onward", {}).get("scale", 100) / 100
             name = onward_key(v, fam)
-            add(Text(ex, ey + ONWARD_GAP + ONWARD_SIZE * scale * 0.8, onward_words(lay.edits, v, fam), ONWARD_SIZE,
+            add(Text(ex + fam.word_dx, ey + ONWARD_GAP + ONWARD_SIZE * scale * 0.8, onward_words(lay.edits, v, fam), ONWARD_SIZE,
                      ink, centre=True, role="onward", move=name, edit=f"word:{name}"))
     for pid in lay.x:
         _node(lay, v.people[pid], present, add)
