@@ -13,8 +13,7 @@ THE PROOF OF GONE.  A villager the logs name is removed only when ALL of this ho
   * no villager in the save now is them: not by name, head and body; not by (a) identity -- the same sex,
     head, body, likes and dislikes, and not younger than any age the logs give them (a villager renamed
     since: the owner's Lupa Tangaroa is Coral Tangaroa now, Tamil Makawee is Mahalo Makawee); not by the
-    same sex, head and body alone (likes and dislikes change: island events); and not by the same sex and
-    one of head or body (a look changed as well);
+    same sex, head and body alone (likes and dislikes change: island events);
   * (b) no Name changed or Appearance changed record, and no Island Events line that changes a name, a
     head or a body, names them;
   * (c) no villager in the save has their name (renamed in place, or the looks changed);
@@ -496,12 +495,6 @@ def plan(folder: Path, game: int, slot: int) -> Plan:
                       if (s.key == p.key or (s.head == p.head and s.body == p.body and _sex_ok(p, s.sex)))]
             if copies:
                 reason = f"an older copy of the save ({copies[0]}) holds them"
-        if reason is None:
-            partly = [s for s in living if (s.head == p.head or s.body == p.body) and _sex_ok(p, s.sex)
-                      and _age_ok(p, s.age) and _prefs_ok(p, s.likes, s.dislikes)]
-            if partly:
-                reason = (f"may be {partly[0].name} with a changed head or body: the same sex, likes and "
-                          "dislikes and one of head or body")
         if reason is None and p.censuses & lineage:
             c = by_id[min(p.censuses & lineage)]
             reason = f"lived in this tribe: {c.label} also lists villagers of the save (or their family)"
