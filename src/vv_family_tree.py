@@ -40,6 +40,7 @@ import math
 import re
 import struct
 import zlib
+from copy import copy as _copy
 from dataclasses import dataclass, field, replace
 from datetime import datetime
 from pathlib import Path
@@ -1081,9 +1082,35 @@ def clean_sticker(raw) -> dict | None:
     }
 
 
-# What a page keeps of its own (Edits.page_edits).  A villager's generation and chosen look are the tree's:
-# they decide who is on which page, so they never differ between pages.
-TREE_WIDE_ENTRY_FIELDS = ("generation", "look")
+# What a page keeps of its own (Edits.page_edits).  Everything, a villager's generation (the row they sit
+# in) and chosen look too (the owner, 2026-10-13: "everything in the family tree must be per page").  The
+# tree-wide value is the default; a page's own only ever changes that page.  Which page a villager is on
+# stays the tree's generation, so a page's own generation is one within the page's own generations.
+
+
+def _clean_entry_field(name: str, value):
+    """One saved per-page entry field, or (False, None) when it is not a valid value of its kind."""
+    if value is None:
+        return True, None
+    if name == "generation":
+        return (True, value) if isinstance(value, int) and not isinstance(value, bool) and 1 <= value <= 99 \
+            else (False, None)
+    if name == "look":
+        return (True, value) if isinstance(value, list) and len(value) == 2 \
+            and all(isinstance(v, int) and not isinstance(v, bool) for v in value) else (False, None)
+    return True, value
+
+
+def _clean_line_shift(shift):
+    """A dragged line's shift as a page keeps it: [right, down], a number (across itself), or None (not
+    moved on this page whatever the tree's own says); False when it is nothing valid."""
+    if shift is None:
+        return None
+    if isinstance(shift, list) and len(shift) == 2 and all(isinstance(v, (int, float)) for v in shift):
+        return [_number(v, -STICKER_MAX, STICKER_MAX, 0.0) for v in shift]
+    if isinstance(shift, (int, float)) and not isinstance(shift, bool):
+        return _number(shift, -STICKER_MAX, STICKER_MAX, 0.0)
+    return False
 
 
 def page_key(edits: Edits, village: gen.Village, page: int) -> int:
@@ -1105,9 +1132,25 @@ def clean_page_edits(raw) -> dict[str, dict]:
         entries = {}
         for ekey, fields in (part.get("entries") or {}).items() if isinstance(part.get("entries"), dict) else []:
             if isinstance(fields, dict) and fields:
-                entries[str(ekey)] = {str(f): v for f, v in fields.items()}
+                kept = {}
+                for f, v in fields.items():
+                    ok, v = _clean_entry_field(str(f), v)
+                    if ok:
+                        kept[str(f)] = v
+                if kept:
+                    entries[str(ekey)] = kept
         if entries:
             item["entries"] = entries
+        if isinstance(part.get("line_moves"), dict):
+            shifts = {}
+            for piece, shift in part["line_moves"].items():
+                shift = _clean_line_shift(shift)
+                if shift is not False and (shift is None or any(shift if isinstance(shift, list) else [shift])):
+                    shifts[str(piece)] = shift
+            if shifts:
+                item["line_moves"] = shifts
+        if isinstance(part.get("free_lines"), list):
+            item["free_lines"] = [str(p) for p in part["free_lines"]]
         moved = {str(n): [_number(s[0], -STICKER_MAX, STICKER_MAX, 0.0), _number(s[1], -STICKER_MAX, STICKER_MAX, 0.0)]
                  for n, s in (part.get("moved") or {}).items()
                  if isinstance(s, list) and len(s) == 2} if isinstance(part.get("moved"), dict) else {}
@@ -1148,6 +1191,10 @@ def page_view(edits: Edits, village: gen.Village, page: int) -> Edits:
     view.moved = {n: s for n, s in {**edits.moved, **part.get("moved", {})}.items() if s is not None}
     if "hidden" in part:
         view.hidden = list(part["hidden"])
+    if "line_moves" in part:                    # None: not dragged on this page, whatever the tree's own says
+        view.line_moves = {p: s for p, s in {**edits.line_moves, **part["line_moves"]}.items() if s is not None}
+    if "free_lines" in part:
+        view.free_lines = list(part["free_lines"])
     for name in ("family_colours", "person_colours"):
         if name in part:
             merged = dict(getattr(edits, name))
@@ -1158,6 +1205,35 @@ def page_view(edits: Edits, village: gen.Village, page: int) -> Edits:
                     merged[k] = v
             setattr(view, name, merged)
     return view
+
+
+def page_village(edits: Edits, village: gen.Village, page: int) -> gen.Village:
+    """The village as one page shows it: a villager a page puts in another generation (a "generation" in
+    that page's own entries) sits in that row on that page alone, the rest of the tree as it was (`village`
+    itself when the page moves nobody).  Who is on which page stays the tree's: a page only moves villagers
+    between the generations it already shows, and keeps the tree's pages (span_generations)."""
+    part = edits.page_edits.get(str(page_key(edits, village, page)))
+    if not part or not any("generation" in f for f in part.get("entries", {}).values()):
+        return village
+    spans = page_spans(edits, village)
+    lo, hi = spans[max(0, min(page, len(spans) - 1))]
+    entries = page_view(edits, village, page).entries
+    changed: dict[int, int] = {}
+    for pid, p in village.people.items():
+        if not lo <= p.generation <= hi:
+            continue
+        g = entries.get(entry_key(village, p), {}).get("generation") or village.base_generation.get(pid, p.generation)
+        if g != p.generation and lo <= g <= hi:
+            changed[pid] = g
+    if not changed:
+        return village
+    out = _copy(village)
+    out.people = {pid: _copy(p) for pid, p in village.people.items()}
+    for pid, g in changed.items():
+        out.people[pid].generation = g
+    out.span_generations = sorted({p.generation for p in village.people.values()}) or [1]
+    _renumber(out, replace(edits, entries=entries))
+    return out
 
 
 def localise_stickers(edits: Edits, village: gen.Village) -> bool:
@@ -1520,6 +1596,11 @@ def arrange(village: gen.Village, edits: Edits) -> None:
     for pid, p in village.people.items():
         own = edits.entries.get(entry_key(village, p), {}).get("generation")
         p.generation = own or village.base_generation.get(pid, p.generation)
+    _renumber(village, edits)
+
+
+def _renumber(village: gen.Village, edits: Edits) -> None:
+    """The villagers' numbers, given the generations they now have (the rest of arrange)."""
     gen.number_people(village, edits.sort)
     gone = {pid for pid, p in village.people.items() if edits.entries.get(entry_key(village, p), {}).get("hidden")}
     if not edits.orders and not gone:
@@ -1681,7 +1762,8 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
     with the generation the next one starts at, and that page shows it again as its founders (the
     owner: "page 1 has generations 1-6.  The second page should have generations 6-12, with the 6th
     generation on the second page being treated as "founders" on the second page")."""
-    gens = sorted({p.generation for p in village.people.values()}) or [1]
+    # (a page laid out with generations of its own keeps the tree's pages: page_village)
+    gens = getattr(village, "span_generations", None) or sorted({p.generation for p in village.people.values()}) or [1]
     starts = [gens[0]] + sorted({g for g in edits.pages if g in gens and g > gens[0]})   # Codex, #557
     spans = [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
     # No page holds more than the player's number of generations (the owner, 2026-10-08: 6 until they
@@ -1703,6 +1785,7 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     they are as small as they go (SHRINK_MIN)."""
     if edits is not None:
         settle_shapes(edits, village)           # saved before a shape was drawn turned: moved on once
+        village = page_village(edits, village, page)    # (before the view: it names the page by the tree's)
         edits = page_view(edits, village, page)     # this page's own things laid over the tree's
     lay = _layout(village, edits, page)
     e = lay.edits
