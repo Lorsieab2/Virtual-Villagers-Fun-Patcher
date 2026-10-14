@@ -4262,8 +4262,8 @@ class App(tk.Tk):
         # Each living villager's own rule for their children's last name (the owner, 2026-10-09), beside
         # the village's: the record's, or what the player chose here before.
         living_keys = {vv_last_names.own_key(v) for v in people if v.alive}
-        saved_own = {k: r for k, r in vv_last_names.own_rules_now(folder, number, info.slot, people).items()
-                     if k in living_keys}
+        recorded_own = vv_last_names.own_rules_now(folder, number, info.slot, people)
+        saved_own = {k: r for k, r in recorded_own.items() if k in living_keys}
         # The record's lines as written: a line re-keyed above (a change of looks) is written again on Repair.
         written_own = {k: r for k, r in vv_last_names.read_own(folder, number, info.slot).items() if k in living_keys}
         own_state: dict = dict(names["own"]) if "own" in names else dict(saved_own)
@@ -4374,15 +4374,20 @@ class App(tk.Tk):
             values = {v.identity: last_in(value) for v, value, _m in rows}
             return {key: values[key] for key in mine if key in values}
 
-        def given() -> dict:
+        def expected() -> dict:
             # The rest of a family follows the name the player gives one of them: their brothers
-            # and sisters, and their descendants by the rule.
-            return vv_last_names.inherited(people, parents, rule_key(), pool,
-                                           vv_last_names.with_siblings(fixed(), parents), carried, own_state)
+            # and sisters, and their descendants by the rule.  The same reading as Check Saves & Logs'
+            # wrong last names, with the dead parents' own rules too (the owner's Akika Akikai, v1.35.73).
+            return vv_last_names.expected_last_names(
+                people, parents, rule_key(), pool, vv_last_names.with_siblings(fixed(), parents), carried,
+                vv_last_names.check_rules(recorded_own, own_state, living_keys))
+
+        def given() -> dict:
+            return {key: should for key, (should, _used, _either) in expected().items()}
 
         def marks() -> None:
             """A last name the rule does not give -- in the box now -- is marked."""
-            should = given()
+            should = expected()
             wrong = 0
             # Unrelated villagers sharing a last name (the owner: Thabo Bahati, a new arrival, beside
             # the established Bahati family) -- as the boxes stand now.
@@ -4391,12 +4396,13 @@ class App(tk.Tk):
                 people, parents, {v.identity: last_in(value) for v, value, _m in rows})
             for v, value, mark in rows:
                 have = last_in(value)
-                right = should.get(v.identity, "")
-                bad = v.identity not in mine and have != right and rule_key() not in ("list", *vv_last_names.PLAYER_RULES)
+                right, used, either = should.get(v.identity, ("", None, ()))
+                bad = (v.identity not in mine and vv_last_names.wrong_last_name(have, right, either)
+                       and rule_key() not in ("list", *vv_last_names.PLAYER_RULES))
                 if too_long(v, have):
                     mark.set(f"too long: {room} characters at most")
                 elif bad:
-                    mark.set(f"the rule gives {right or 'none'}")
+                    mark.set(vv_last_names.wrong_last_name_mark(right, used, rule_key(), either))
                 elif v.identity in shared:
                     mark.set(f"not related to the other {shared[v.identity][0]}s")
                 else:
