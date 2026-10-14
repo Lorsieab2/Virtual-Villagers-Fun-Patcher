@@ -803,12 +803,15 @@ class CanvasTools:
         else:
             fresh = ft.new_text_box(raw["cx"], raw["cy"], raw["text"], self.edits.font)
         if fresh is not None:
+            if "page" in raw:
+                fresh["page"] = raw["page"]     # still on its own page
             self.edits.stickers[self.obj] = fresh
             self._saved()
 
     def _place_new(self, raw: dict | None) -> None:
         if raw is None:
             return
+        raw["page"] = int(self._pkey())         # on this page alone
         self.edits.stickers.append(raw)
         self.obj = len(self.edits.stickers) - 1
         self.selected = []
