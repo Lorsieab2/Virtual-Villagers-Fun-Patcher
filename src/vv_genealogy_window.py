@@ -2678,10 +2678,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             own = "\n".join(ft.default_generation_label(lay, g))
 
             def set_label(new: str) -> None:
-                if new == own:
-                    e.generations.pop(str(g), None)
-                else:
-                    e.generations[str(g)] = new.split("\n")
+                self._set_generation_label(g, None if new == own else new.split("\n"))
                 self._saved()
                 self._show_generation()
             return "\n".join(ft.generation_label(lay, g)), own, set_label
@@ -4275,6 +4272,22 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _set_hidden(self, hidden: list) -> None:
         self._ov()["hidden"] = list(hidden)
 
+    def _generations_now(self) -> dict:
+        """The generation labels the player wrote, as the shown page has them."""
+        return ft.page_view(self.edits, self.village, self.page).generations
+
+    def _set_generation_label(self, g: int, lines: list | None) -> None:
+        """A generation label's lines on the shown page alone (None: the patcher's own words here)."""
+        over = self._ov().setdefault("generations", {})
+        if lines is not None:
+            over[str(g)] = list(lines)
+        elif str(g) in self.edits.generations:
+            over[str(g)] = None         # the tree's own label stays on the other pages
+        else:
+            over.pop(str(g), None)
+        if not over:
+            self._ov().pop("generations", None)
+
     def _line_moves_now(self) -> dict:
         """The family lines dragged on the shown page (the tree's own, with this page's laid over)."""
         return ft.page_view(self.edits, self.village, self.page).line_moves
@@ -4805,15 +4818,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     def _drop_label_line(self, g: int, k: int) -> None:
         """One line of a generation label the player wrote, deleted (the last one: the whole label)."""
-        lines = list(self.edits.generations.get(str(g), []))
+        lines = list(self._generations_now().get(str(g), []))
         if not 0 <= k < len(lines):
             return
         del lines[k]
         if lines:
-            self.edits.generations[str(g)] = lines
+            self._set_generation_label(g, lines)
             self._saved()
         else:
-            self.edits.generations.pop(str(g), None)
+            self._set_generation_label(g, None)
             self._hide(f"word:label{g}")
         self._show_generation()
 
@@ -4927,14 +4940,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _apply_generation(self) -> None:
         g = self._gen_number()
         lines = [line.rstrip() for line in self.gen_text.get("1.0", "end").rstrip("\n").split("\n")]
-        if lines == ft.default_generation_label(self.lay, g):
-            self.edits.generations.pop(str(g), None)
-        else:
-            self.edits.generations[str(g)] = lines
+        self._set_generation_label(g, None if lines == ft.default_generation_label(self.lay, g) else lines)
         self._saved()
 
     def _restore_generation(self) -> None:
-        self.edits.generations.pop(str(self._gen_number()), None)
+        self._set_generation_label(self._gen_number(), None)
         self._saved()
         self._show_generation()
 

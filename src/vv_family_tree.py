@@ -1165,6 +1165,12 @@ def clean_page_edits(raw) -> dict[str, dict]:
                 if isinstance(part.get(name), dict) else {}
             if colours:
                 item[name] = colours
+        if isinstance(part.get("generations"), dict):   # a generation label's lines; None: the patcher's own here
+            labels = {str(g): ([str(x) for x in lines] if isinstance(lines, list) else None)
+                      for g, lines in part["generations"].items()
+                      if str(g).isdigit() and (lines is None or isinstance(lines, list))}
+            if labels:
+                item["generations"] = labels
         if item:
             out[str(int(key))] = item
     return out
@@ -1195,6 +1201,9 @@ def page_view(edits: Edits, village: gen.Village, page: int) -> Edits:
         view.line_moves = {p: s for p, s in {**edits.line_moves, **part["line_moves"]}.items() if s is not None}
     if "free_lines" in part:
         view.free_lines = list(part["free_lines"])
+    if "generations" in part:                   # None: no label of the player's own on this page
+        view.generations = {g: list(lines) for g, lines in
+                            {**edits.generations, **part["generations"]}.items() if lines is not None}
     for name in ("family_colours", "person_colours"):
         if name in part:
             merged = dict(getattr(edits, name))
