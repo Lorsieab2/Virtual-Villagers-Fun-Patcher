@@ -229,6 +229,13 @@ class VirtualList(ttk.Frame):
         """The mouse wheel: the same as the scrollbar's own arrows."""
         self.yview("scroll", number, what)
 
+    def can_scroll(self, direction: int) -> bool:
+        """Whether the list can still move one way: -1 is up, 1 is down."""
+        total = self._layout()[1]
+        if direction < 0:
+            return self._offset > 0
+        return self._offset < total - VIRTUAL_VIEW_PX
+
     def _resized(self, event: tk.Event) -> None:
         if event.width == self._width:          # only a real width change lays out again
             return
@@ -255,6 +262,9 @@ class VirtualList(ttk.Frame):
             # Before the list is mapped its width is 1 px, and rows drawn that
             # narrow squeeze their descriptions into a feedback loop of heights.
             width = self._width if self._width >= 2 else VIRTUAL_DEFAULT_WIDTH_PX
+            # Rows stop where the scrollbar's strip starts, so the scrollbar is
+            # never covered and always receives the pointer.
+            width = max(2, width - self.scrollbar.winfo_reqwidth())
             tops, total = self._layout()
             self._clamp(total)
             low = self._offset - VIRTUAL_MARGIN_PX
@@ -293,6 +303,7 @@ class VirtualList(ttk.Frame):
                 if self._placed.get(index) != place:
                     frame.place(x=0, y=place[0], width=width)
                     self._placed[index] = place
+            self.scrollbar.lift()
             first = self._offset / total
             last = min(1.0, (self._offset + VIRTUAL_VIEW_PX) / total)
             self.scrollbar.set(first, last)
@@ -1293,14 +1304,30 @@ class App(tk.Tk):
         if under is None:
             return "break"
         top = under.winfo_toplevel()
+        direction = -1 if event.delta > 0 else 1
+        # A patch list scrolls first, in the main window too: its widgets belong
+        # to this window, so the dialog branch below never sees them.  At the end
+        # of the list the wheel falls through and the page scrolls.
+        listing = under
+        while listing is not None and not isinstance(listing, VirtualList):
+            listing = listing.master
+        if listing is not None:
+            try:
+                held = top is self and self.wm_attributes("-disabled")
+            except tk.TclError:
+                held = False
+            if held:
+                return "break"
+            if listing.can_scroll(direction):
+                listing.yview_scroll(direction, "units")
+                return "break"
+            if top is not self:
+                return "break"
         if top is not self:
             widget = under
             while widget is not None and widget is not top:
                 if isinstance(widget, (tk.Listbox, tk.Text, ttk.Treeview)):
                     return "break"              # scrolls itself (its own class binding)
-                if isinstance(widget, VirtualList):
-                    widget.yview_scroll(-1 if event.delta > 0 else 1, "units")
-                    return "break"
                 if isinstance(widget, tk.Canvas) and str(widget.cget("yscrollcommand")):
                     widget.yview_scroll(-1 if event.delta > 0 else 1, "units")
                     return "break"
@@ -1314,7 +1341,6 @@ class App(tk.Tk):
         bounds = self.content_canvas.bbox("all")
         if not bounds or bounds[3] <= self.content_canvas.winfo_height():
             return None
-        direction = -1 if event.delta > 0 else 1
         self.content_canvas.yview_scroll(direction, "units")
         return "break"
 
