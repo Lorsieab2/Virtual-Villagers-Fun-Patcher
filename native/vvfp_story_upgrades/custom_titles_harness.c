@@ -890,6 +890,35 @@ int main(void) {
               && titles.entries[0].fingerprint == story_title_identity(game, g_records[1]), what);
     }
 
+    /* v1.35.73 review: the same event, but the publish FAILS.  The carry to the new identity (the
+       in-place look) is rolled back with the head: memory keeps the old identity, exactly as the file
+       does, instead of showing a state the file does not hold. */
+    for (game = 1; game <= 5; ++game) {
+        char what[200];
+        unsigned int old_identity;
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(game);
+        check(titles_set(game, 1, "Kai Title") == 1, "setup: Kai has a title");
+        titles_tick(game);
+        old_identity = story_title_identity(game, g_records[1]);
+        g_records[1][44] = 7;                                         /* the event's new likes ... */
+        looks(1, 1, 500, 7, 8, 20);                                   /* ... and new head and body, same frame */
+        g_fail_writes = 1;
+        (void)VvfpStoryAppearanceChanged(game, g_records[1], 7, 8);   /* the publish fails */
+        g_fail_writes = 0;
+        wsprintfA(what, "A FAILED PUBLISH KEEPS THE OLD IDENTITY AND HEAD IN MEMORY, AS THE FILE HOLDS THEM (game %d)", game);
+        check(titles.count == 1 && titles.entries[0].index == 1 && titles.entries[0].fingerprint == old_identity
+              && titles.entries[0].looks.head == 3 && titles.entries[0].looks.body == 4, what);
+        new_session();                                                /* a reload reads the older file */
+        titles_sync(game);
+        wsprintfA(what, "... and the older file still binds the title to the same villager with the old identity (game %d)", game);
+        check(titles.count == 1 && titles.entries[0].index == 1 && titles.entries[0].fingerprint == old_identity
+              && titles.entries[0].looks.head == 3 && lstrcmpA(titles.entries[0].title, "Kai Title") == 0, what);
+    }
+
     /* Twins identical in everything: whose the title is can never be told
        while both live -- it stays pending, and the reconciliation asks. */
     new_session();
