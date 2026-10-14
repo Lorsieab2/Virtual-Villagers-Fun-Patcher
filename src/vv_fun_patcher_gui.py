@@ -24,6 +24,7 @@ import vv_last_names
 import vv_cut_names
 import vv_corrupt_skills
 import vv_graves
+import vv_history_revision
 import vv_lost_titles
 import vv1_parents_restore
 import vv_number_names
@@ -3581,9 +3582,17 @@ class App(tk.Tk):
         # as they will be: arrivals get their own new last name automatically, the rest are asked about.
         named_lines = self._missing_last_names_at_repair(parent, folder, number, info)
         skills: dict = {"found": [], "note": None, "reset": False}
+        # A tribe started over with the same name (src/vv_history_revision.py; the owner, v1.35.73): its
+        # villagers proven gone, and the rest kept and listed.  Never ticked until the player ticks it and
+        # confirms the list.
+        history: dict = {"plan": None, "note": None, "confirmed": False}
 
         def survey():
             checked = vv_log_tools.check_logs(folder, info.slot, number)
+            try:
+                history["plan"] = vv_history_revision.plan(folder, number, info.slot)
+            except (vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
+                history["note"] = f"The history revision was not offered: a file could not be read ({exc})."
             checker = vv_log_tools.load_checker()
             old = checker.old_words(folder, number) if number in checker.WORD_FIXES else []
             # Names the Villager Details screen cut short (src/vv_cut_names.py); one that cannot be
@@ -3645,7 +3654,7 @@ class App(tk.Tk):
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
-                                        unpaused, speed, misnumbered, graves, skills=skills)
+                                        unpaused, speed, misnumbered, graves, skills=skills, history=history)
         if picked is None:
             return
         rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked
@@ -3661,9 +3670,24 @@ class App(tk.Tk):
             self.status_var.set("Repair Saves & Logs did not finish. See the message for what changed.")
             messagebox.showerror("Repair Saves & Logs", str(exc), parent=parent)
             return
+        # The restarted tribe's villagers the player confirmed (src/vv_history_revision.py): planned again
+        # now that the lines above are in, and only a villager still proven gone is removed.
+        history_lines: list[str] = []
+        if history["confirmed"] and history["plan"] is not None:
+            try:
+                revised = self._run_with_wait(
+                    "Removing the villagers of a tribe started over…\n\nEach log is copied first.",
+                    lambda: vv_history_revision.revise(folder, number, info.slot, history["plan"], confirm=True))
+                history_lines.append(
+                    f"{vv_history_revision.LABEL}: {len(revised.removed)} villager(s) removed from "
+                    f"{len(revised.files)} log file(s) (copies in Copies Made Before Repairs; each listed in the "
+                    f"Repairs log). Kept and listed: {len(history['plan'].kept)}.")
+            except (vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The history was not revised. {exc}", parent=parent)
         # The graves the player put right, first of the save edits: the renames below then find each grave
         # under the name its records give it.
         grave_lines = self._fix_graves(parent, folder, number, info, grave_fixes) if grave_fixes else []
+        grave_lines = history_lines + grave_lines
         # Lost custom titles next, before any rename: a rename then carries the restored title along.
         grave_lines += self._restore_lost_titles(parent, folder, number, info, lost)
         # Corrupted skill values (src/vv_corrupt_skills.py), before any rename: the record names each
@@ -4007,7 +4031,7 @@ class App(tk.Tk):
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
                           speed: tuple | None = None, misnumbered: dict | None = None, graves=None,
-                          skills: dict | None = None):
+                          skills: dict | None = None, history: dict | None = None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -4140,6 +4164,29 @@ class App(tk.Tk):
                      + ([skills["note"]] if skills.get("note") else [])):
             ttk.Label(frame, text=line, wraplength=600, justify="left",
                       foreground="#555555").pack(anchor="w", padx=(20, 0))
+        # Remove a restarted tribe's villagers from the history (src/vv_history_revision.py; the owner,
+        # v1.35.73): NEVER ticked by default, and Repair asks to confirm the exact list first.
+        history = history if history is not None else {"plan": None, "note": None, "confirmed": False}
+        history["confirmed"] = False
+        history_var = tk.BooleanVar(value=vv_history_revision.DEFAULT_TICKED)
+        history_plan = history.get("plan")
+        history_row = ttk.Frame(frame)
+        history_row.pack(anchor="w", pady=(4, 0))
+        history_tick = ttk.Checkbutton(
+            history_row, variable=history_var,
+            text=f"{vv_history_revision.LABEL}: "
+                 + (f"{len(history_plan.gone)} proven gone, {len(history_plan.kept)} kept and listed"
+                    if history_plan is not None else "not checked"))
+        history_tick.pack(side="left")
+        if history_plan is None or not history_plan.gone:
+            history_tick.state(["disabled"])
+        if history_plan is not None and (history_plan.gone or history_plan.kept):
+            ttk.Button(history_row, text="Show the list…",
+                       command=lambda: self._history_list_dialog(window, history_plan, ask=False)
+                       ).pack(side="left", padx=(8, 0))
+        if history.get("note"):
+            ttk.Label(frame, text=history["note"], wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
         # Game speed Paused in backups and in saves the player picks (the owner, 2026-10-08): a
         # restored backup must never catch up on the time since it was made.
         pause_backups_var = tk.BooleanVar(value=bool(unpaused))
@@ -4187,6 +4234,13 @@ class App(tk.Tk):
         buttons.pack(anchor="w", pady=(12, 0))
 
         def go() -> None:
+            # The history revision: the exact list, per log, and who is kept and why -- confirmed or nothing.
+            history["confirmed"] = False
+            if history_var.get() and history_plan is not None and history_plan.gone:
+                if not self._history_list_dialog(window, history_plan, ask=True):
+                    history_var.set(False)
+                    return
+                history["confirmed"] = True
             restore = bool(cuts) and cuts_var.get()
             skills["reset"] = bool(skills["found"]) and skills_var.get()
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
@@ -4208,6 +4262,50 @@ class App(tk.Tk):
         parent.wait_window(window)
         _regrab(parent)
         return outcome.get("picked")
+
+    def _history_list_dialog(self, parent, plan, ask: bool) -> bool:
+        """The history revision's list (src/vv_history_revision.py Plan.describe): per log, the blocks that
+        go, with a count, and every villager kept with the reason.  With `ask`, the player's confirmation:
+        True only on "Remove these villagers" (Cancel is the default)."""
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: remove villagers from the history")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=12)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, wraplength=760, justify="left",
+                  text="A tribe started over with the same name: only the villagers PROVEN gone are removed. "
+                       "Everyone else not in the save is kept and listed with the reason. Nothing in the save "
+                       "changes; each log is copied first, and every villager removed is listed in the Repairs "
+                       "log.").pack(anchor="w", pady=(0, 8))
+        body = ttk.Frame(frame)
+        body.pack(fill="both", expand=True)
+        text = tk.Text(body, wrap="word", width=110, height=30)
+        scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
+        text.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        text.pack(side="left", fill="both", expand=True)
+        text.insert("1.0", plan.describe())
+        text.configure(state="disabled")
+        outcome = {"yes": False}
+
+        def remove() -> None:
+            outcome["yes"] = True
+            window.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(8, 0))
+        if ask:
+            ttk.Button(buttons, text=f"Remove these {len(plan.gone)} villagers", command=remove).pack(side="left")
+            cancel = ttk.Button(buttons, text="Cancel", command=window.destroy)
+            cancel.pack(side="left", padx=(8, 0))
+            cancel.focus_set()
+        else:
+            ttk.Button(buttons, text="Close", command=window.destroy).pack(side="left")
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+        return outcome["yes"]
 
     def _last_names_dialog(self, parent, folder: Path, number: int, info, names: dict,
                            names_var) -> None:
