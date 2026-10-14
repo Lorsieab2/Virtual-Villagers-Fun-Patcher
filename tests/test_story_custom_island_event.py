@@ -48,6 +48,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 
 import vv_fun_patcher as patcher  # noqa: E402
 from story_custom_fixtures import (  # noqa: E402
+    EVENT_COUNTER_GLOBAL,
     KEEP,
     LAYOUTS,
     PARENTS,
@@ -1763,6 +1764,20 @@ class TextTests(unittest.TestCase):
 # Delivery through each game's own island-event path
 # ---------------------------------------------------------------------------
 
+def events_seen_address(game: str, world: int) -> int:
+    """Island Events Seen: the counter each game's trigger increments just
+    before it builds an island event (story_custom.inc, CE_COUNT_SITES)."""
+    if game == "vv1":
+        return world + 0x9E40
+    if game == "vv2":
+        return world + 0x2E51C
+    return EVENT_COUNTER_GLOBAL[game]
+
+
+def set_events_seen(proc, game: str, world: int, count: int) -> None:
+    proc.put32(events_seen_address(game, world), count)
+
+
 def _set_custom(story, event: Event, tick=0):
     event.game = story.n
     story.proc.write(EVENT_BUF, event.pack())
@@ -2036,7 +2051,9 @@ class CustomLockTests(unittest.TestCase):
     def _world(self, proc, game):
         import test_story_cheat_upgrades as part1
 
-        return part1.LockTests._world(None, proc, game)
+        world = part1.LockTests._world(None, proc, game)
+        set_events_seen(proc, game, world, 5)    # past the two opening island events
+        return world
 
     def test_queueing_writes_exactly_what_the_island_event_purchase_writes(self):
         import test_story_cheat_upgrades as part1

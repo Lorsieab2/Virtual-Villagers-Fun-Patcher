@@ -91,8 +91,8 @@ static void *ce_build_object(unsigned int source, const int *slots, void *const 
    NULL when no custom event is armed for `game`. */
 static void *ce_deliver_object(int game, unsigned int string_table, int title_id, int body_id,
                                int replace_existing) {
-    if (!ce_plain_pending(game)) {
-        return NULL;
+    if (!ce_plain_pending(game) || ce_held(game, 1)) {
+        return NULL;                      /* none, or one of the opening events (ce_held) */
     }
     if (!ce_install_strings(string_table, title_id, body_id, replace_existing)) {
         return NULL;
@@ -219,7 +219,7 @@ static void *choice_object(int game, unsigned int string_table, int title_id, in
     const char *text;
     void *object;
     int b;
-    if (a == NULL || !ce_choice_pending(game)) {
+    if (a == NULL || !ce_choice_pending(game) || ce_held(game, 1)) {
         return NULL;
     }
     b = ce_choice_featured(game);

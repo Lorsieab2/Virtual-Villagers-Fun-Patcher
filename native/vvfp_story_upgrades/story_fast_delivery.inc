@@ -22,8 +22,10 @@
    holding it is overwritten before the event is built.
 
    THE FIX.  Each of those five calls is retargeted to the wrapper below.
-   With no Custom Island Event armed for this game it is exactly the stock
-   call.  With one armed it asks the stock picker again -- the same
+   With no Custom Island Event armed for this game -- or one held back by the
+   village's two opening island events (ce_held, story_custom.inc), whose
+   draws stay the game's own -- it is exactly the stock call.  With one due it
+   asks the stock picker again -- the same
    arguments, so every one of the game's own filters still applies -- until
    it draws a villager the trigger accepts, up to CE_FAST_TRIES times, and
    hands that one back.  The stock check itself is untouched: a village with
@@ -75,7 +77,7 @@ static int ce_index_fits(void *ctx, int drawn) {
 static int __fastcall c1_event_pick(void *self, void *unused_edx, int adults) {
     ce_index_pick p = { self, adults, 0x43BCD0u, 0x3D8u, 0x348u, 0x34Cu };
     (void)unused_edx;
-    if (!ce_pending(1)) {
+    if (!ce_due(1, 0)) {
         return TC1(0x43BCD0u, self, adults);
     }
     return ce_fast_pick(ce_index_draw, ce_index_fits, -1, &p);
@@ -84,7 +86,7 @@ static int __fastcall c1_event_pick(void *self, void *unused_edx, int adults) {
 static int __fastcall c2_event_pick(void *self, void *unused_edx, int adults) {
     ce_index_pick p = { self, adults, 0x44BAE0u, 0xE48Cu, 0x530u, 0x534u };
     (void)unused_edx;
-    if (!ce_pending(2)) {
+    if (!ce_due(2, 0)) {
         return TC1(0x44BAE0u, self, adults);
     }
     return ce_fast_pick(ce_index_draw, ce_index_fits, -1, &p);
@@ -104,7 +106,7 @@ static int ce_vv3_fits(void *ctx, int drawn) {
 static int __fastcall c3_event_pick(void *self, void *unused_edx, int adults) {
     ce_index_pick p = { self, adults, 0x45C9D0u, 0, 0, 0 };
     (void)unused_edx;
-    if (!ce_pending(3)) {
+    if (!ce_due(3, 0)) {
         return TC1(0x45C9D0u, self, adults);
     }
     return ce_fast_pick(ce_index_draw, ce_vv3_fits, -1, &p);
@@ -146,7 +148,7 @@ static int __fastcall c4_event_pick(void *self, void *unused_edx, int a, int b, 
                                     int e, int f, int g, int h, int i, int j) {
     ce_record_pick p = { self, { a, b, c, d, e, f, g, h, i, j } };
     (void)unused_edx;
-    if (!ce_pending(4)) {
+    if (!ce_due(4, 0)) {
         return ce_vv4_draw(&p);
     }
     return ce_fast_pick(ce_vv4_draw, ce_record_fits, 0, &p);
@@ -157,7 +159,7 @@ static int __fastcall c5_event_pick(void *self, void *unused_edx, int a, int b, 
                                     int m, int n) {
     ce_record_pick p = { self, { a, b, c, d, e, f, g, h, i, j, k, l, m, n } };
     (void)unused_edx;
-    if (!ce_pending(5)) {
+    if (!ce_due(5, 0)) {
         return ce_vv5_draw(&p);
     }
     return ce_fast_pick(ce_vv5_draw, ce_record_fits, 0, &p);

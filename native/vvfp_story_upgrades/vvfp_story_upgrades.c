@@ -137,6 +137,8 @@ static DWORD test_tick;
 
 /* Defined with the Custom Island Event (story_custom.inc), used earlier. */
 static int ce_pending(int game);
+static int ce_due(int game, int counted);
+static void ce_opening_tick(int game);
 /* Defined with the outcomes (story_outcomes.inc), used earlier. */
 static void oc_new_choice(int game);
 static void oc_delivered(int game, void *object);
@@ -158,6 +160,7 @@ static void *c4_choice_object(void);
 static void *c5_choice_object(void);
 /* Defined with Choose Time Skip Amount (story_time_skip.inc), used earlier. */
 static void time_skip_tick(int game);
+static int time_skip_event_open(void);
 static unsigned int choice_resolve_target(int game, unsigned int va, unsigned int ecx);
 /* ---- Memory ---------------------------------------------------------------- */
 
@@ -851,6 +854,9 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     sq_game = game;             /* the game the selectors' restore is for, from the first call (story_queue.inc) */
     /* Choose Time Skip Amount: its next step, once the last is replayed. */
     time_skip_tick(game);
+    /* A Custom Island Event held by a new village's two opening island
+       events: made due once they are over (story_custom_ui.inc). */
+    ce_opening_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
     now = GetTickCount();
@@ -1212,7 +1218,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeQueueCustom(int game, const ce
     }
     test_tick = tick;
     install_state[game] = 1;
-    return ce_arm_with(game, event, NULL);
+    return ce_arm_with(game, event, NULL, 0);
 }
 
 /* Arms `event` WITHOUT making the island event due (the delivery tests
@@ -1224,6 +1230,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetCustom(int game, const ce_e
     ce_armed_is_choice = 0;
     ce_armed_is_notice = 0;
     ce_armed = 1;
+    ce_wait_arm = 0;
     (void)tick;                       /* a custom event never lapses with time */
     ce_armed_village = story_village_now(game);
     return 1;
@@ -1231,6 +1238,12 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetCustom(int game, const ce_e
 
 __declspec(dllexport) int __stdcall VvfpStoryProbeCustomPending(int game) {
     return ce_pending(game);
+}
+
+/* 1 while the armed custom event's island event is still to be made due
+   because a new village's two opening island events held it (ce_wait_arm). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeCustomHeld(void) {
+    return ce_wait_arm;
 }
 
 __declspec(dllexport) void __stdcall VvfpStoryProbeResult(ce_result *out) {
@@ -1451,7 +1464,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeQueueChoice(int game, const ce
     }
     test_tick = tick;
     install_state[game] = 1;
-    return ce_arm_with(game, event, choice);
+    return ce_arm_with(game, event, choice, 0);
 }
 
 /* Arms the two-choice event WITHOUT making the island event due (the
@@ -1462,6 +1475,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetChoice(int game, const ce_e
     ce_armed_event.game = game;
     ce_store_choice(game, choice);
     ce_armed = 1;
+    ce_wait_arm = 0;
     test_tick = tick;
     ce_armed_village = story_village_now(game);
     return 1;

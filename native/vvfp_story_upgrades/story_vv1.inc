@@ -31,7 +31,8 @@
    with the island family; its own delivery is the island event's chooser
    call, so the case roll is never reached for it.  A Custom Island Event
    with a question answers them with the villager encounters, whose setup
-   call asks it (story_c1.inc, "Two choices"). */
+   call asks it (story_c1.inc, "Two choices").  Neither touches the rolls of
+   a new village's two opening island events (ce_held, story_custom.inc). */
 
 #define VV1_FAMILY_ISLAND 0
 #define VV1_FAMILY_ENCOUNTER 1
@@ -62,7 +63,7 @@ static int vv1_peek(void) {
 /* The family an armed pick or custom event needs, as a slot, or -1. */
 static int vv1_route(void) {
     int slot = vv1_peek();
-    if (slot < 0 && ce_pending(1)) {
+    if (slot < 0 && ce_due(1, 0)) {
         /* A question is asked by the villager encounters' two-button popup
            (story_c1.inc), a plain event by the island events' popup. */
         slot = ((ce_choice_pending(1) ? VV1_FAMILY_ENCOUNTER : VV1_FAMILY_ISLAND) << 6) | 0x3F;

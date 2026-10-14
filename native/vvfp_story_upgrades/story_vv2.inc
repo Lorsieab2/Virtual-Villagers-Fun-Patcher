@@ -28,7 +28,9 @@
    An armed Custom Island Event (story_c2.inc) answers the two family rolls
    with family C; its own delivery is family C's chooser call, so the case
    roll is never reached for it.  One with a question answers them with
-   family A, whose setup call asks it (story_c2.inc, "Two choices"). */
+   family A, whose setup call asks it (story_c2.inc, "Two choices").  Neither
+   touches the rolls of a new village's two opening island events (ce_held,
+   story_custom.inc). */
 
 #define VV2_FAMILY_C 0
 #define VV2_FAMILY_A 1
@@ -51,7 +53,7 @@ static int vv2_peek(void) {
 /* The family an armed pick or custom event needs, as a slot, or -1. */
 static int vv2_route(void) {
     int slot = vv2_peek();
-    if (slot < 0 && ce_pending(2)) {
+    if (slot < 0 && ce_due(2, 0)) {
         /* A question is asked by family A's two-button popup (story_c2.inc),
            a plain event by family C's single-result popup. */
         slot = ((ce_choice_pending(2) ? VV2_FAMILY_A : VV2_FAMILY_C) << 6) | 0x3F;
