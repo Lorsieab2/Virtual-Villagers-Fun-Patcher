@@ -36,6 +36,7 @@ import vv_genealogy as gen
 import vv_last_names
 import vv_line_colours
 import vv_log_tools
+import vv_history_revision
 import vv_number_names
 import vv_reconcile_view
 import vv_save_backup
@@ -618,6 +619,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # height boxes alike (the owner, 2026-10-09: "especially for the arrows that change portrait
         # height and width, but for everything else too"); remembered with the window.
         self.lock_shape = tk.BooleanVar(value=self.window.get("keep_aspect", True) is not False)
+        # "Hide villagers not in the current save" (the owner, v1.35.73; on by default): the villagers of a
+        # tribe started over with the same name, proven gone by src/vv_history_revision.py, are left out of
+        # the tree -- the tree only; the logs keep them until Repair Saves & Logs removes them.
+        self.full_village = village
+        self.hide_gone = tk.BooleanVar(value=self.window.get("hide_not_in_save", True) is not False)
+        self.village = self._shown_village(village)
         self.geometry(self.window.get("geometry", "1400x860"))
         self._build()
         self._follow_looks()
@@ -734,6 +741,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         size.bind("<<ComboboxSelected>>", lambda _e: self._draw_grid())
         ttk.Checkbutton(bar, text="Show grid", variable=self.show_grid, command=self._draw_grid
                         ).pack(side="left", padx=(6, 0))
+        ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
+        ttk.Checkbutton(bar, text="Hide villagers not in the current save", variable=self.hide_gone,
+                        command=self._toggle_hide_gone).pack(side="left")
         ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
         ttk.Label(bar, text="Page:").pack(side="left")
         self.page_var = tk.StringVar()
@@ -2659,6 +2669,25 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         window.protocol("WM_DELETE_WINDOW", done)
         window.grab_set()
 
+    def _shown_village(self, village: gen.Village) -> gen.Village:
+        """The village as the tree shows it: with "Hide villagers not in the current save" on, without the
+        villagers of a tribe started over that src/vv_history_revision.py proves gone."""
+        if not self.hide_gone.get():
+            return village
+        return vv_history_revision.without(village, vv_history_revision.hidden_in_tree(self.folder, self.game,
+                                                                                       self.slot))
+
+    def _toggle_hide_gone(self) -> None:
+        self.village = self._shown_village(self.full_village)
+        self.window["hide_not_in_save"] = bool(self.hide_gone.get())
+        self.selected = []
+        self._follow_looks()
+        self.redraw()
+        self._refresh_selected()
+        self._refresh_hidden()
+        self.status.set(f"{len(self.village.known())} villagers shown"
+                        + ("; villagers of a tribe started over are hidden." if self.hide_gone.get() else "."))
+
     def _update_from_game(self, _event=None, ask: bool = True) -> None:
         """The save and the patcher's logs read again (the game played on since the tree opened);
         every edit is kept, and a villager's edits follow them.  Asked first when the player chose it
@@ -2677,7 +2706,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         village = ask_renames(self, self.folder, self.game, self.slot, village, self.edits)
         before = len(self.village.known())
-        self.village = village
+        self.full_village = village
+        self.village = village = self._shown_village(village)
         self.selected = []
         self._follow_looks()
         self.redraw()
@@ -5385,7 +5415,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.window["panel_hidden"] = not shown
         self.window.update(smart=bool(self.smart_var.get()), snap=bool(self.snap_var.get()),
                            grid=int(self.grid_size.get()), show_grid=bool(self.show_grid.get()),
-                           keep_aspect=bool(self.lock_shape.get()))
+                           keep_aspect=bool(self.lock_shape.get()), hide_not_in_save=bool(self.hide_gone.get()))
         if not self.attributes("-fullscreen"):
             self.window["geometry"] = self.geometry()
         if hasattr(self.app, "_save_settings"):

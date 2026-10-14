@@ -161,7 +161,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_villager_info",
                "vv_log_decisions", "vv_log_contradictions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
-               "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file"}
+               "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -230,7 +230,10 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_line_colours", {"vv_family_tree", "vv_gdiplus"}),
             ("vv_genealogy_window", {"vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy", "vv_save_backup",
                                      "vv_tribe_rename", "vv_tree_editor_tools", "vv_last_names", "vv_log_tools",
-                                     "vv_number_names", "vv_villager_info", "vv_reconcile_view"}),
+                                     "vv_number_names", "vv_villager_info", "vv_reconcile_view",
+                                     "vv_history_revision"}),     # Hide villagers not in the current save (v1.35.73)
+            # Remove a restarted tribe's villagers from the history (the owner, v1.35.73).
+            ("vv_history_revision", {"vv_log_tools", "vv_log_additions", "vv_reconcile", "vv_save_backup"}),
             # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).
             ("vv_villager_info", {"vv_family_tree", "vv_genealogy", "vv_last_names",
                                  "vv_save_layout", "vv_log_additions", "vv_titles_file"}),
