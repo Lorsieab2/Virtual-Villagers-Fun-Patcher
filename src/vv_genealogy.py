@@ -584,7 +584,8 @@ def _merge_renamed(reg: _Registry, p: Person, q: Person) -> None:
     if p.first_seen and (q.first_seen is None or p.first_seen < q.first_seen):
         q.first_seen = p.first_seen
     q.arrived = q.arrived or p.arrived
-    q.how = q.how or p.how
+    # A renamed founder is still a founder: the newer record's "unknown" is not a way in.
+    q.how = "Founder" if p.how == "Founder" and q.how in (None, "", "unknown") else (q.how or p.how)
     q.runner = q.runner or p.runner
     q.likes_seen |= p.likes_seen
     q.former = [p.name] + [n for n in q.former if n != p.name] + [n for n in p.former if n not in q.former]
@@ -633,7 +634,7 @@ def _unrecorded_looks(reg: _Registry) -> None:
         if p.first_seen and (q.first_seen is None or p.first_seen < q.first_seen):
             q.first_seen = p.first_seen
         q.arrived = q.arrived or p.arrived
-        q.how = q.how or p.how
+        q.how = "Founder" if p.how == "Founder" and q.how in (None, "", "unknown") else (q.how or p.how)
         for r in reg.people.values():
             if r.father == p.id:
                 r.father = q.id
