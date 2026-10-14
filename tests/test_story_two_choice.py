@@ -367,8 +367,11 @@ class ChoiceRefusalTests(unittest.TestCase):
 class ChoiceArmingTests(unittest.TestCase):
     def _world(self, proc, game):
         import test_story_cheat_upgrades as part1
+        from test_story_custom_island_event import set_events_seen
 
-        return part1.LockTests._world(None, proc, game)
+        world = part1.LockTests._world(None, proc, game)
+        set_events_seen(proc, game, world, 5)    # past the two opening island events
+        return world
 
     def _queued(self, game, slot=1):
         story = _story(game, slot=slot)

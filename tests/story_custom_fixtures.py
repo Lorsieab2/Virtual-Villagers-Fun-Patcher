@@ -46,6 +46,12 @@ LAYOUTS = {
                 sick=(0x1C48, 1), heads=30, bodies=30, adult=280, carrier=280),
 }
 
+# The Secret City, The Tree of Life, New Believers: Island Events Seen, the
+# counter each trigger increments before it builds an island event (a static:
+# the statistics block's +0x24).  A New Home and The Lost Children keep theirs
+# in the world (+0x9E40 / +0x2E51C).
+EVENT_COUNTER_GLOBAL = {"vv3": 0x5824C4, "vv4": 0x4D6E04, "vv5": 0x51D37C}
+
 PARENTS = {
     "vv2": (0x57D, 0x596, 0x19, 0x5B0, 0x5B4, 0x5B8, 0x5BC),
     "vv3": (0xDF8, 0xE11, 0x19, 0xE2C, 0xE30, 0xE34, 0xE38),
@@ -103,6 +109,10 @@ class Village:
             if game == "vv5":
                 self.world = proc.alloc(0x18000)
                 proc.put32(0x4DACE0, self.world)
+            # Island events so far (the statistics block's +0x24, a static in
+            # these three games): past a new village's two opening events, as
+            # VV1 / VV2 above.  The opening-event tests set it themselves.
+            proc.put32(EVENT_COUNTER_GLOBAL[game], 5)
 
     def record(self, i: int) -> int:
         return self.base + i * self.L["stride"]

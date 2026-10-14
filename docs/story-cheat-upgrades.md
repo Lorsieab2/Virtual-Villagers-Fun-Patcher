@@ -402,6 +402,36 @@ The Origins Barrel always reaches the game's own code. A New Home's and The
 Lost Children's first island event of a village is always the other family,
 so a custom event is refused until it has happened.
 
+**A new tribe's two opening island events (v1.35.73).** The owner: "ALL VV
+GAMES WILL ALWAYS SHOW TWO ISLAND EVENTS WHEN STARTING A NEW TRIBE GAME!!!
+THIS IS BASE-GAME". Each game's village start sets the trigger's island-event
+counter (Island Events Seen) to 0 and makes the first event due 900 s later;
+the trigger makes the second one due 30 minutes after the first only while
+that counter is 0, and every later one hours apart:
+
+| Game | Counter | Village start: counter 0 / first event due | 30-minute second event |
+| --- | --- | --- | --- |
+| A New Home | world+0x9E40 | 0x41C000: 0x41C3EB (ebx 0 from 0x41C009) / 0x41C4AE | 0x423A37 |
+| The Lost Children | world+0x2E51C | 0x424C80: 0x4251D5 (ebx 0 from 0x424CA1) / 0x4252A2 | 0x42F147 |
+| The Secret City | 0x5824C4 (statistics 0x5824A0 +0x24) | 0x427F70: reset 0x426450 at 0x427FD8 / 0x4280B9 | 0x468899 |
+| The Tree of Life | 0x4D6E04 (statistics 0x4D6DE0 +0x24) | 0x41F1E0: reset 0x41D9D0 at 0x41F248 / 0x41F322 | 0x43FB9D |
+| New Believers | 0x51D37C (statistics 0x51D358 +0x24) | 0x4246A0: reset 0x41EBF0 at 0x42473D / 0x42485B | 0x442801 |
+
+(The three statistics blocks are 0x98 bytes, zeroed whole by the reset and
+copied to and from the save by 0x4264A0 / 0x426480, 0x41DA20 / 0x41DA00 and
+0x41EC40 / 0x41EC20.) While that counter says fewer than two island events
+have been made, a player's custom event is never delivered: the family rolls
+and the quicker villager draw (before the trigger counts the event) and each
+delivery point above (after it) leave the event to the game, and the custom
+event stays queued with the same lock. Bought then, the purchase does not make
+the island event due (that would bring the first opening event forward); once
+the game has made both, the companion's per-frame tick makes it due exactly as
+the Island Event upgrade does, so the custom event is the third
+(story_custom.inc `ce_held`, story_custom_ui.inc `ce_opening_tick`). Choose
+Time Skip Amount's closing notice is not an island event (its count is taken
+back) and is not held. tests/test_story_opening_events.py runs each game's
+real trigger three times in a new village.
+
 ### What each game offers
 
 | Option | A New Home | The Lost Children | The Secret City | The Tree of Life | New Believers |

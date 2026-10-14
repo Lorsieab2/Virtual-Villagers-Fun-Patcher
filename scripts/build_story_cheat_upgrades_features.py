@@ -678,6 +678,11 @@ def build() -> None:
                 "and the changes are made through the game's own routines.",
                 "New villagers and babies are made only while the game's own room predicate says "
                 "the village has room, so the population cap of the installed mode is never passed.",
+                "A new tribe's first two island events are always the game's own (each game's "
+                "village start sets its island-event counter to 0): a custom event queued before "
+                "the second of them stays queued -- the same lock, nothing charged again -- without "
+                "making the island event due, and is made due exactly as the Island Event upgrade "
+                "does once the game has made both, so it is the third.",
                 "Pick Island Event's settings: each offered event can carry its result, every "
                 "amount it rolls, who a per-villager roll hits, which villager it is about and each "
                 "baby's details (A New Home and The Lost Children: also its strength), each "

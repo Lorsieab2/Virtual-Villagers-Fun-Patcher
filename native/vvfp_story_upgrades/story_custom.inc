@@ -13,6 +13,8 @@
    game's own island-event popup is filled with the custom title and
    description (and the food / tech lines the game's own events print), and
    the game shows it, reschedules the next event and counts it as stock.
+   Never one of a new village's two opening island events: those are the
+   game's own, and the custom event comes after them (ce_held).
 
    APPLYING.  Every change goes through the adapter, which writes only what
    that game's own code was traced to write for the same effect (see each
@@ -432,6 +434,67 @@ static void ce_uncount_notice(int game) {
     if (counter != NULL && *counter > 0) {
         --*counter;
     }
+}
+
+/* ---- A new village's two opening island events --------------------------
+
+   The owner (v1.35.73): "ALL VV GAMES WILL ALWAYS SHOW TWO ISLAND EVENTS WHEN
+   STARTING A NEW TRIBE GAME!!! THIS IS BASE-GAME".  Each game's own village
+   start sets the counter above to 0 and makes the first island event due
+   900 seconds later (`clock + 0x384`):
+
+     A New Home        0x41C000  counter 0 at 0x41C3EB, countdown at 0x41C4AE
+     The Lost Children 0x424C80  counter 0 at 0x4251D5, countdown at 0x4252A2
+     The Secret City   0x427F70  statistics reset 0x426450 (0x98 bytes of 0,
+                                 the counter is +0x24), countdown at 0x4280B9
+     The Tree of Life  0x41F1E0  statistics reset 0x41D9D0, countdown 0x41F322
+     New Believers     0x4246A0  statistics reset 0x41EBF0, countdown 0x42485B
+
+   and each trigger, while its counter is still 0, makes the next one due 30
+   minutes later (`add countdown, 0x708`: 0x423A37, 0x42F147, 0x468899,
+   0x43FB9D, 0x442801) where every later one is hours apart.  (A New Home and
+   The Lost Children also make that first one a visitor: 0x42382C, 0x42EF3C.)
+
+   So a player's Custom Island Event never takes one of those two.  While the
+   counter says fewer than two island events have been made, every place that
+   would deliver it -- the family rolls and the quicker villager draw before
+   the trigger counts the event (`counted` 0), each game's delivery hook after
+   (`counted` 1) -- lets the game make its own event, and the custom event
+   stays queued: the same lock, nothing charged again, nothing lost.  Bought
+   then, the purchase does not make the island event due either (that would
+   bring the first opening event forward); once the second one has been made,
+   the island event is made due exactly as the purchase does (ce_opening_tick,
+   story_custom_ui.inc), so the custom event is the third.  The time skip's
+   closing notice is not an island event and takes its count back, so it never
+   uses one of the two up and is not held. */
+#define CE_OPENING_EVENTS 2
+
+/* 1 while the armed event's island event is still to be made due because the
+   opening events held it (ce_opening_tick makes it due once they are over). */
+static int ce_wait_arm;
+
+/* Whether the island event `game` is making is one of the village's two
+   opening events.  0 when the counter is not known (no village, or a trigger
+   this companion does not know). */
+static int ce_opening(int game, int counted) {
+    const int *counter = ce_event_counter(game);
+    return counter != NULL && *counter - counted < CE_OPENING_EVENTS;
+}
+
+/* Whether the armed event of `game` (a player's own, not the notice) waits for
+   the opening events; it is then still to be made due. */
+static int ce_held(int game, int counted) {
+    if (!ce_armed || ce_armed_is_notice || ce_armed_event.game != game || !ce_opening(game, counted)) {
+        return 0;
+    }
+    ce_wait_arm = 1;
+    return 1;
+}
+
+/* Whether the armed event of `game` is to be delivered by this island event:
+   armed for this village and not held by the opening events. */
+static int ce_due(int game, int counted) {
+    return ce_pending(game) && !ce_held(game, counted);
 }
 
 /* ---- Record helpers ------------------------------------------------------ */
@@ -1625,7 +1688,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
 static int ce_deliver(int game, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
     int notice;
-    if (a == NULL || !ce_plain_pending(game)) {
+    if (a == NULL || !ce_plain_pending(game) || ce_held(game, 1)) {
         return 0;
     }
     notice = ce_armed_is_notice;
@@ -1838,7 +1901,9 @@ static const char *ce_choice_refusal(int game, const ce_event *e, const ce_choic
     }
     /* A New Home's and The Lost Children's first island event is always
        their two-choice family, which is the one a question is shown by:
-       their arm_refusal lets a question be that event (owner, 2026-10-02). */
+       their arm_refusal lets a question be queued before it (owner,
+       2026-10-02); since v1.35.73 it is asked only after the village's two
+       opening island events (ce_held). */
     ce_refusal_for_choice = 1;
     why = a->arm_refusal();
     ce_refusal_for_choice = 0;
@@ -2016,7 +2081,7 @@ static int ce_choice_roll(const ce_adapter *a, const ce_choice *c, int button) {
 static int ce_choice_begin(int game, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
     ce_layout l;
-    if (a == NULL || !ce_choice_pending(game)) {
+    if (a == NULL || !ce_choice_pending(game) || ce_held(game, 1)) {
         return 0;
     }
     ce_armed = 0;
