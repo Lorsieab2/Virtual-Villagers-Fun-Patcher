@@ -1,4 +1,4 @@
-﻿"""The Family Tree Maker's family tree picture (src/vv_genealogy.py's village, drawn).
+"""The Family Tree Maker's family tree picture (src/vv_genealogy.py's village, drawn).
 
 The owner (2026-10-07) showed a hand-made Secret City tree and asked for the same: one row per
 generation, each villager with "the name, age in game units and years", "as many colors as needed
@@ -2288,6 +2288,25 @@ def _stagger_onward(fams: list[Family], span: dict, halves: dict, pitch: float, 
     return out
 
 
+def _spread_drops(taken: list[float], n: int, centre: float, reach: float) -> list[float]:
+    """n places along a portrait's bottom (centre +- reach), spread evenly across it and clear of the places
+    already taken by at least 3 px (down to 1.5 where it is crowded), each line leaving the portrait itself."""
+    ideals = [centre] if n == 1 else [centre - reach + 2 * reach * i / (n - 1) for i in range(n)]
+    for gap in (3.0, 2.0, 1.5):
+        steps = int(2 * reach / 0.5) + 1
+        free = [centre - reach + 0.5 * i for i in range(steps)]
+        free = [p for p in free if all(abs(p - t) >= gap for t in taken)]
+        chosen: list[float] = []
+        for want in ideals:
+            ok = [p for p in free if all(abs(p - c) >= gap for c in chosen)]
+            if not ok:
+                break
+            chosen.append(min(ok, key=lambda p: (abs(p - want), p)))
+        if len(chosen) == n:
+            return chosen
+    return [min(max(want, centre - reach), centre + reach) for want in ideals]
+
+
 def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree: set, families: list[Family],
                   edits: Edits, village: gen.Village) -> list[Family]:
     """Where the lines go for the families whose children are on a later page (_page_members), nothing else
@@ -2308,13 +2327,24 @@ def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree:
     def here(f: Family) -> list[int]:
         return [q for q in (f.father, f.mother) if q is not None and q in x and q in in_tree]
     fams.sort(key=lambda f: (sum(x[q] for q in here(f)) / len(here(f)), f.id))
+    by_parent: dict[int, list[Family]] = {}
     for f in fams:
         for q in here(f):
-            mine = taken.setdefault(q, [])
-            centre = x[q] + NODE_W / 2
-            at = centre if not mine else max(mine) + 16
-            if at > centre + NODE_W / 2 - 16:
-                at = min(mine) - 16
+            by_parent.setdefault(q, []).append(f)
+    for q, group in by_parent.items():
+        mine = taken.setdefault(q, [])
+        centre = x[q] + NODE_W / 2
+        reach = NODE_W / 2 - 16             # every line leaves from the portrait's own bottom, never past its sides
+        trial, got = list(mine), []
+        for _f in group:
+            at = centre if not trial else max(trial) + 16
+            if at > centre + reach:
+                at = min(trial) - 16
+            trial.append(at)
+            got.append(at)
+        if any(abs(at - centre) > reach + 1e-6 for at in got):
+            got = _spread_drops(mine, len(group), centre, reach)     # so many lines: set closer, all on the portrait
+        for f, at in zip(group, got):
             mine.append(at)
             f.drops[q] = at
     couples = [f for f in fams if len(here(f)) == 2]
