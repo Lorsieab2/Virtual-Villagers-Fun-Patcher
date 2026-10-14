@@ -35,6 +35,7 @@ DATA = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"
 # button gets a guide and a line here.
 CONTROLS = {
     "select_all", "default_patches", "owners_defaults", "deselect_all",
+    "patch_selection_settings", "patch_search",
     "output_location", "choose_exe", "validate", "dry_run", "create_modified_exe",
     "game_folders", "find_all_5", "validate_all_5", "dry_run_all_5", "patch_all_5",
     "open_vanilla_folder", "open_modified_folder", "open_game_folder",

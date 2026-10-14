@@ -216,6 +216,21 @@ class VirtualList(ttk.Frame):
         # The first rows are drawn once the window is up, not while it is still being built.
         self.after_idle(self._refresh)
 
+    def set_rows(self, rows: list) -> None:
+        """Show these rows instead (a search): every drawn row is dropped and the list starts
+        again at the top.  Rows keep no state, so nothing a row shows is changed by this."""
+        for frame in self._drawn.values():
+            frame.destroy()
+        self._drawn.clear()
+        self._placed.clear()
+        self._rows = rows
+        self._heights = [None] * len(rows)
+        self._offset = 0
+        if rows:
+            self._refresh()
+        else:
+            self.scrollbar.set(0.0, 1.0)
+
     def yview(self, *args) -> None:
         """The scrollbar's command: ``moveto <fraction>`` or ``scroll <n> units|pages``."""
         total = self._layout()[1]
@@ -373,6 +388,26 @@ def group_fun_patches(builds, patches):
             )
         )
     return headers
+
+
+def patch_name_matches(patch, term: str) -> bool:
+    """A game tab's search: the patch's NAME holds the typed text, any case (the owner: "name
+    only" -- never the description).  An empty box matches every patch."""
+    term = term.strip().casefold()
+    return not term or term in patch.name.casefold()
+
+
+def patches_by_name(builds, patches) -> list[tuple[str, list]]:
+    """The Patch Selection Settings list: one entry per patch name, holding every game's patch of
+    that name in the games' order.  Sorted by name."""
+    game_order = {build.id: index for index, build in enumerate(builds)}
+    named: dict[str, list] = {}
+    for patch in patches:
+        named.setdefault(patch.name, []).append(patch)
+    return [
+        (name, sorted(named[name], key=lambda patch: (game_order.get(patch.game_id, len(game_order)), patch.id)))
+        for name in sorted(named, key=lambda name: (name.casefold(), name))
+    ]
 
 
 WAIT_POLL_SECONDS = 0.03
@@ -1158,6 +1193,17 @@ class App(tk.Tk):
             command=self._deselect_all_fun_patches,
         ).pack(side="left", padx=(8, 0))
         self._help_button(fun_actions, "deselect_all").pack(side="left", padx=(2, 0))
+        # The owner: "put a button to easily tick and untick certain patches in all 5 games.
+        # like in a separate settings menu."  On a row of its own: beside the four buttons above,
+        # the row is wider than the window.
+        fun_settings = ttk.Frame(mode_box)
+        fun_settings.grid(row=fun_row + 2, column=1, sticky="w", pady=(0, 5))
+        ttk.Button(
+            fun_settings,
+            text="Patch Selection Settings...",
+            command=self._open_patch_selection_settings,
+        ).pack(side="left")
+        self._help_button(fun_settings, "patch_selection_settings").pack(side="left", padx=(2, 0))
         # The owner's rule: under every description, in bold, which other
         # patches must be on for this one (and which need this one).
         requirement_font = tkfont.nametofont("TkDefaultFont").copy()
@@ -1169,8 +1215,10 @@ class App(tk.Tk):
         # have, and everything below that line (the folder choosers, the buttons) stopped being
         # painted. Only the tallest tab counts toward the page height now.
         self.patch_pages = ttk.Notebook(mode_box)
-        self.patch_pages.grid(row=fun_row + 2, column=0, columnspan=2, sticky="ew", pady=(8, 0))
+        self.patch_pages.grid(row=fun_row + 3, column=0, columnspan=2, sticky="ew", pady=(8, 0))
         styles = (requirement_font, description_font, description_background)
+        # Each game's search box, by tab name: (its text, its list, every row of the tab).
+        self.patch_searches: dict[str, tuple[tk.StringVar, VirtualList, list]] = {}
         for header, patches in group_fun_patches(self.builds, self.fun_patches):
             page = ttk.Frame(self.patch_pages, padding=(10, 6, 10, 6))
             game_name = header.removeprefix("Virtual Villagers - ")
@@ -1191,10 +1239,23 @@ class App(tk.Tk):
                 vv_how_to_use.guide(key, label)
                 self.help_keys.add(key)
                 rows.append((patch, label, key))
-            VirtualList(
+            # The owner: "add a search bar per-game for each patch (name only)".
+            search_row = ttk.Frame(page)
+            search_row.pack(fill="x", pady=(0, 4))
+            ttk.Label(search_row, text="Search patch names:").pack(side="left")
+            search_var = tk.StringVar()
+            ttk.Entry(search_row, textvariable=search_var, width=40).pack(side="left", padx=(6, 0))
+            self._help_button(search_row, "patch_search").pack(side="left", padx=(4, 0))
+            listing = VirtualList(
                 page, rows,
                 lambda frame, row, styles=styles: self._build_patch_row(frame, row, styles),
-            ).pack(fill="x")
+            )
+            listing.pack(fill="x")
+            self.patch_searches[game_name] = (search_var, listing, rows)
+            search_var.trace_add(
+                "write",
+                lambda *_args, name=game_name: self._filter_patch_page(name),
+            )
         mode_box.columnconfigure(1, weight=1)
 
         output_box = ttk.LabelFrame(patches_tab, text="Modded output location", padding=10)
@@ -1772,6 +1833,96 @@ class App(tk.Tk):
             variable.set(False)
         self._last_fun_selection = set()
         self._fun_patch_changed()
+
+    def _set_named_fun_patches(self, names, tick: bool) -> list[str]:
+        """Tick (or untick) every game's patch with one of these names, the way the player's own
+        clicks do: the previous selection is kept, so _fun_patch_changed adds the prerequisites
+        and companion rows of a tick and clears the dependents of an untick exactly as for a
+        click on the patch's own checkbox.  Returns the ids whose box this changed directly."""
+        wanted = set(names)
+        changed = []
+        for patch in self.fun_patches:
+            variable = self.fun_patch_vars[patch.id]
+            if patch.name in wanted and variable.get() != tick:
+                variable.set(tick)
+                changed.append(patch.id)
+        self._fun_patch_changed()
+        return changed
+
+    def _filter_patch_page(self, page_name: str) -> None:
+        """A game tab's search box changed: show only the rows whose patch NAME matches.  The
+        ticks are the patches' own variables, so nothing is ticked or unticked by this."""
+        search_var, listing, rows = self.patch_searches[page_name]
+        term = search_var.get()
+        listing.set_rows([row for row in rows if patch_name_matches(row[0], term)])
+
+    def _open_patch_selection_settings(self) -> None:
+        """The owner: "a button to easily tick and untick certain patches in all 5 games. like in
+        a separate settings menu."  One row per patch name; Tick These / Untick These apply the
+        chosen names to every game that has a patch of that name."""
+        existing = getattr(self, "_patch_selection_dialog", None)
+        if existing is not None and existing.winfo_exists():
+            existing.deiconify()
+            existing.lift()
+            existing.focus_set()
+            return
+        dialog, frame = self._scrolling_dialog("Patch Selection Settings")
+        self._patch_selection_dialog = dialog
+        ttk.Label(
+            frame, text="Tick or untick patches in every game at once",
+            font=("Segoe UI", 10, "bold"),
+        ).pack(anchor="w")
+        ttk.Label(
+            frame,
+            text=(
+                "Choose patches below, then press Tick These or Untick These. Each patch is "
+                "changed in every game that has it (the games are listed beside its name). "
+                "A patch that needs another one turns it on too, just as when you tick it yourself."
+            ),
+            wraplength=560,
+            justify="left",
+        ).pack(anchor="w", pady=(4, 10))
+        short = {
+            build.id: build.title.removeprefix("Virtual Villagers - ") for build in self.builds
+        }
+        choices: list[tuple[str, tk.BooleanVar]] = []
+        for name, patches in patches_by_name(self.builds, self.fun_patches):
+            games = [short.get(patch.game_id, "All Games") for patch in patches]
+            where = "all 5 games" if len(set(games)) == len(self.builds) == 5 else ", ".join(games)
+            var = tk.BooleanVar(value=False)
+            ttk.Checkbutton(frame, text=f"{name}   ({where})", variable=var).pack(
+                anchor="w", padx=(6, 0)
+            )
+            choices.append((name, var))
+        self._patch_selection_choices = choices
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x", pady=(14, 0))
+
+        def apply(tick: bool) -> None:
+            names = [name for name, var in choices if var.get()]
+            if not names:
+                messagebox.showinfo(
+                    "Patch Selection Settings",
+                    "Tick at least one patch in the list first.",
+                    parent=dialog,
+                )
+                return
+            self._set_named_fun_patches(names, tick)
+            count = sum(
+                1 for patch in self.fun_patches
+                if patch.name in set(names) and self.fun_patch_vars[patch.id].get() == tick
+            )
+            self.status_var.set(
+                f"{'Ticked' if tick else 'Unticked'} {count} patch"
+                f"{'' if count == 1 else 'es'} across the games: {', '.join(names)}."
+            )
+
+        ttk.Button(buttons, text="Tick These", command=lambda: apply(True)).pack(side="left")
+        ttk.Button(buttons, text="Untick These", command=lambda: apply(False)).pack(
+            side="left", padx=(8, 0)
+        )
+        ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="right")
+        dialog.bind("<Escape>", lambda _event: dialog.destroy())
 
     def _load_settings(self) -> None:
         try:
