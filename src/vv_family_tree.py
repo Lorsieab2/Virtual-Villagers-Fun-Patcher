@@ -451,6 +451,9 @@ class Edits:
     # name>" and "line:<family key>|<piece>".  A villager deleted is "hidden" in their entry.
     pages: list[int] = field(default_factory=list)                     # the generations that start a new page
     hidden: list[str] = field(default_factory=list)
+    # The player's answers to "Keep <current name> or <old name>?" for a renamed-looking villager
+    # (vv_genealogy.RenameQuestion.key -> "current" or "old"); asked once, then remembered.
+    renames: dict[str, str] = field(default_factory=dict)
     # Pieces of line the player dragged (the owner: "move individual lines and still keep the
     # connections to portraits"): "<family key>|<piece>" -> how far it was dragged.
     line_moves: dict[str, list | float] = field(default_factory=dict)   # piece -> [right, down]
@@ -714,6 +717,8 @@ class Edits:
             out.pages = sorted({int(g) for g in data["pages"] if isinstance(g, int) and 2 <= g <= 99})
         if isinstance(data.get("hidden"), list):
             out.hidden = [str(h) for h in data["hidden"]]
+        if isinstance(data.get("renames"), dict):
+            out.renames = {str(k): v for k, v in data["renames"].items() if v in ("current", "old")}
         for g, keys in dict(data.get("orders", {})).items():
             if isinstance(keys, list):
                 out.orders[str(g)] = [str(k) for k in keys]
@@ -754,7 +759,7 @@ class Edits:
                 "background_opacity": self.background_opacity,
                 "ink": self.ink, "family_colours": self.family_colours,
                 "person_colours": self.person_colours, "moved": self.moved, "orders": self.orders,
-                "portrait_fill": self.portrait_fill, "plate_colour": self.plate_colour, "hidden": self.hidden,
+                "portrait_fill": self.portrait_fill, "plate_colour": self.plate_colour, "hidden": self.hidden, "renames": self.renames,
                 "pages": self.pages,
                 "shapes": self.shapes, "borders": self.borders, "opacity": self.opacity,
                 "sizes": self.sizes, "line_width": self.line_width, "line_dash": self.line_dash,
@@ -8144,9 +8149,9 @@ class Written:
 def build(folder: Path, game: int, slot: int, edits: Edits | None = None) -> tuple[gen.Village, Edits, Layout]:
     """The village, its edits (the saved ones unless given) and its tree."""
     folder = Path(folder)
-    village = gen.load_village(folder, game, slot)
     if edits is None:
         edits = Edits.load(Edits.path(folder, game, slot))
+    village = gen.load_village(folder, game, slot, rename_answers=edits.renames)
     edits = full_name_edits(edits, village)
     arrange(village, edits)
     return village, edits, layout(village, edits)
@@ -8193,8 +8198,9 @@ def write_pairs(folder: Path, game: int, slot: int, rules: gen.Rules, game_title
     folder's own Family Trees folder beside the tree files (the owner) -- or `out`.  Nothing else is
     written."""
     folder = Path(folder)
-    village = gen.load_village(folder, game, slot)
-    edits = full_name_edits(Edits.load(Edits.path(folder, game, slot)), village)
+    saved = Edits.load(Edits.path(folder, game, slot))
+    village = gen.load_village(folder, game, slot, rename_answers=saved.renames)
+    edits = full_name_edits(saved, village)
     arrange(village, edits)
     # Names as Number Duplicate Names gives them (the owner, 2026-10-08: a Roman number only for the
     # same first and last name -- "Hawa Awanata should not be called I or II unless there's literally

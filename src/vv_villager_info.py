@@ -173,6 +173,8 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person,
             note(("Founder", "plain", None))
     if village.game == 1 and (p.family == 199 or p.how == "Golden Child"):
         note(("Golden Child (5 years old for life)", "plain", None))
+    for old_name in p.former:
+        note((f"formerly {old_name}", "plain", None))
     if p.heathen:
         note(("Heathen (not one of the tribe)", "plain", None))
     own = titles_of(village, titles or {}, p)
