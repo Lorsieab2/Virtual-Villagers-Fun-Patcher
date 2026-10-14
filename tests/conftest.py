@@ -685,3 +685,12 @@ def pytest_sessionfinish(session, exitstatus):
             "Link the game files into research/stock-executables, or set "
             "VVFP_ALLOW_NO_FIXTURES=1 to accept a run that cannot check them."
         )
+
+# Each emulated process holds a unicorn engine, and its hook refers back to it, so the
+# engines are freed only by the garbage collector. Run it after every test: without this,
+# hundreds of live engines accumulate and unicorn's mem_map faults (access violation).
+@pytest.fixture(autouse=True)
+def _free_emulator_engines():
+    yield
+    import gc
+    gc.collect()
