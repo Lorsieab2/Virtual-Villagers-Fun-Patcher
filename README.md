@@ -2,7 +2,7 @@
 
 An offline Windows patcher for miscellaneous fun patches in all five classic Virtual Villagers PC games.
 
-**Supported game source:** This patcher only supports the games downloaded from the official **Last Day of Work (LDW) website** (ldw.com), where all five PC games are available for free — so there's no reason to get them from anywhere else. Every patch is pinned to the exact bytes of those free LDW builds. Other releases (for example the Steam version) are not tested and may have different bytes; if a game isn't the LDW download, the patcher rejects it rather than risk patching an unverified executable.
+**Supported game source:** This patcher only supports the games downloaded from the official **Last Day of Work (LDW) website** (ldw.com), where all five PC games are available for free â€” so there's no reason to get them from anywhere else. Every patch is pinned to the exact bytes of those free LDW builds. Other releases (for example the Steam version) are not tested and may have different bytes; if a game isn't the LDW download, the patcher rejects it rather than risk patching an unverified executable.
 
 The app uses the supplied transparent `Island.png` artwork as its title-bar icon and as small image decorations around both its name and the credit:
 
@@ -33,6 +33,7 @@ New in v1.35.73 (not yet seen in a running game):
 - **An island event that changes both a villager's likes and their head before the next frame keeps the custom title** (all five games). The head is stored under the new likes at once, in the Custom Titles file too, so a log written in that frame reads the new head.
 - **A Custom Island Event that changes skills before the title list has been checked against the village after a load** now makes the check first, as the lookup does, so the title is on its villager before the change is carried (all five games). Limit: only when the change is the first thing the title list sees after a load, before the list has been checked against the village. Then the villager is below the stored skills, so the title waits unshown (pending) for the reconciliation to ask about, the lowering is not stored, and the title is never given to someone else. In the normal path the event checks the village first, so the lowered value is stored and the title follows its villager. A change after the list has been checked is carried as before.
 - **Repair Saves & Logs can remove a restarted tribe's villagers from the history** (all five games). Started a game over with the same tribe name? The new checklist row "Remove villagers from the history that are not in this save (a restarted tribe with the same name)" is never ticked by default. It removes only the villagers proven gone (no villager in the save, no older copy of the save, no Name changed, Appearance changed or Island Events record and no shared name ties them to the tribe you play, and only snapshots older than your tribe's own list them), after you confirm the exact list, log by log. Everyone else not in the save, renamed villagers included, is kept and listed with the reason. Each log is copied to Copies Made Before Repairs first, the save is never changed, and every villager removed is listed in the Repairs log. The Family Tree Maker's new "Hide villagers not in the current save" (on by default) leaves those villagers out of the tree.
+- **Patch selection settings and search** (Patches tab, all five games). A new **Patch Selection Settings...** button opens a window that lists every patch name once, with the games it appears in; **Tick These** and **Untick These** set that patch in every game that has it, using the same dependency and companion rules as a manual click. Each game's tab has a **Search patch names** box that matches names only (case-insensitive) and changes only which rows are shown, never a tick.
 - **Anything uncertain is your decision, not the program's** (all five games). A possible match in the save that is not proof (the same sex, head and body; a shared name; a link; the same sex and one of head or body) is listed under "Not sure" in the same confirmation. It is kept unless you tick it to be removed.
 - **Undelete villagers** (Repair Saves & Logs, all five games). A new checklist row, never ticked by default, puts back what the latest history revision removed. It restores each log from the copy the revision made, after you confirm the list. Lines written since are kept; if a log was edited in place since, nothing is changed. Each log is copied first, and the Repairs log records what came back.
 - **A renamed founder is still a founder** (Family Tree Maker, all five games). A kept rename (for example Lupa Tangaroa to Coral Tangaroa) takes the Founder status of the older record, so the arrival rule no longer places the renamed villager outside Generation I.
@@ -1195,7 +1196,7 @@ Each game's **Enable Origins Tech, Details, and Village-Wide Upgrades** patch
 adds two menus reached from an **Upgrades** button. Every game uses the same
 wording and the same shell, so the menus read identically across all five.
 
-### Tech screen — `Origins Upgrades`
+### Tech screen â€” `Origins Upgrades`
 
 | Upgrade | Cost |
 |---|---:|
@@ -1339,7 +1340,7 @@ Collections, both Equal Division of Labor rows and Change Appearance for
 All. In The Tree of Life those five used to apply silently -- the purchase
 worked, but nothing confirmed it.
 
-### Villager Details screen — `Villager Upgrades`
+### Villager Details screen â€” `Villager Upgrades`
 
 | Upgrade | Cost |
 |---|---:|
