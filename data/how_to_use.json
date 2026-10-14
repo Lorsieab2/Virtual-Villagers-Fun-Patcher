@@ -726,6 +726,22 @@
         "The population mode you chose still applies."
       ]
     },
+    "patch_selection_settings": {
+      "title": "Patch Selection Settings",
+      "guide": [
+        "Opens a list of every patch by name, with the games that have it.",
+        "Tick the patches you want, then press Tick These to turn them on in every game that has them, or Untick These to turn them off.",
+        "A patch that needs another patch turns that one on too, just as when you tick it yourself."
+      ]
+    },
+    "patch_search": {
+      "title": "Search patch names",
+      "guide": [
+        "Type part of a patch's name to show only the patches in this game whose names match.",
+        "Only names are searched, not descriptions. Clear the box to show every patch again.",
+        "Searching never ticks or unticks anything."
+      ]
+    },
     "output_location": {
       "title": "Modded output location",
       "guide": [
