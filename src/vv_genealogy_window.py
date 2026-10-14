@@ -473,10 +473,46 @@ def open_family_tree(app, build) -> None:
         ask_game_folder=True)
 
 
+def _saved_renames(folder: Path, game: int, slot: int) -> dict:
+    """The renamed-villager answers the saved edits keep; none when there is no readable file."""
+    try:
+        path = ft.Edits.path(folder, game, slot)
+        return ft.Edits.load(path).renames if path.is_file() else {}
+    except ValueError:
+        return {}
+
+
+def ask_renames(parent, folder: Path, game: int, slot: int, village, edits):
+    """Ask "Keep <current name> or <old name>?" for each villager the logs name differently from the save
+    (same sex, looks and likes: the player renamed them).  Yes keeps the current name (one person, the old
+    name noted); No keeps them apart as the tree showed them; Cancel asks again next time.  An answer is
+    kept in the tree's edits, so it is not asked again, and the tree is read again with it."""
+    answered = False
+    for q in list(village.rename_questions):
+        got = messagebox.askyesnocancel(
+            "Family Tree Maker",
+            f"Keep {q.current} or {q.old}?\n\nThe save has {q.current}, the logs also name {q.old}, and "
+            "both have the same sex, looks and likes.\n\nYes: keep the current name, {0} (one person, "
+            "formerly {1}).\nNo: keep {1} as a separate villager.\nCancel: ask me later.".format(q.current, q.old),
+            parent=parent)
+        if got is None:
+            continue
+        edits.renames[q.key] = "current" if got else "old"
+        answered = True
+    if answered:
+        try:
+            edits.save(ft.Edits.path(folder, game, slot))
+            village = gen.load_village(folder, game, slot, rename_answers=edits.renames)
+        except (OSError, gen.GenealogyError):
+            pass
+    return village
+
+
 def _open_editor(app, parent, folder: Path, game: int, info, title: str, images: Path | None) -> None:
     try:
         village = app._run_with_wait("Reading the family from the save and the logs...\n\nNothing is changed.",
-                                     lambda: gen.load_village(folder, game, info.slot))
+                                     lambda: gen.load_village(folder, game, info.slot, rename_answers=_saved_renames(
+                                         folder, game, info.slot)))
     except (gen.GenealogyError, OSError) as exc:
         messagebox.showerror("Family Tree Maker", str(exc), parent=parent)
         return
@@ -489,6 +525,7 @@ def _open_editor(app, parent, folder: Path, game: int, info, title: str, images:
                                                   "kept as it is until you change something.)", parent=parent):
             return
         edits = ft.Edits()
+    village = ask_renames(parent, folder, game, info.slot, village, edits)
     TreeEditor(app, folder, game, info.slot, title, images, village, edits)
 
 
@@ -2453,10 +2490,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 parent=self):
             return
         try:
-            village = gen.load_village(self.folder, self.game, self.slot)
+            village = gen.load_village(self.folder, self.game, self.slot, rename_answers=self.edits.renames)
         except gen.GenealogyError as exc:
             messagebox.showerror("Family Tree Maker", str(exc), parent=self)
             return
+        village = ask_renames(self, self.folder, self.game, self.slot, village, self.edits)
         before = len(self.village.known())
         self.village = village
         self.selected = []
