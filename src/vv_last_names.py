@@ -1818,26 +1818,67 @@ def wrong_last_names_explained(folder: Path, game: int, slot: int) -> tuple[str,
     mine = {v.identity: fixed[key] for v in people
             if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
     carried = lambda name: split_name(game, name, known)[1]  # noqa: E731
-    own_rules = own_rules_now(folder, game, slot, people)
-    given = inherited(people, parents, rule or "mother", list(tools.load_checker().LAST_NAMES[game]),
-                      with_siblings(mine, parents), carried, own_rules)
+    want = expected_last_names(people, parents, rule or "mother", list(tools.load_checker().LAST_NAMES[game]),
+                               with_siblings(mine, parents), carried, own_rules_now(folder, game, slot, people))
+    out = []
+    for v in people:
+        now = carried(v.name)
+        should, used, either = want[v.identity]
+        if v.identity in mine or not wrong_last_name(now, should, either) or (rule is None and not now) \
+                or rule in ("list", *PLAYER_RULES):
+            continue
+        out.append((v, now, should, used, either))
+    return rule or "mother", out
+
+
+def check_rules(recorded: dict[tuple, str], pending: dict[tuple, str], living_keys: set[tuple]) -> dict[tuple, str]:
+    """The own rules a check of the village's last names uses (the owner's Akika Akikai, v1.35.73: the
+    last-names window dropped the dead fathers' own rules, so it re-derived their living children's
+    names by the village's rule and marked 23 grandchildren wrong that the check found right): each
+    living villager's own rule as the window has it now (`pending`, "" for the village's), and each dead
+    or gone villager's line as the record keeps it (`recorded`, own_rules_now) -- it was their rule at
+    their children's births."""
+    out = {key: r for key, r in recorded.items() if key not in living_keys}
+    out.update({key: r for key, r in pending.items() if r and key in living_keys})
+    return out
+
+
+def expected_last_names(people: list[Living], parents: dict[tuple, tuple], rule: str,
+                        pool: list[str] | None, fixed: dict[tuple, str], carried,
+                        own_rules: dict[tuple, str]) -> dict[tuple, tuple[str, str, tuple]]:
+    """identity -> (the last name the rules give, the rule that gave it, (either, or) or ()): the one
+    reading both the last-names window's marks and Check Saves & Logs' wrong last names use, so the two
+    never disagree.  The rule is decide()'s from the parents' own rules and the village's `rule`; under
+    50:50 both parents' last names are right."""
+    given = inherited(people, parents, rule, pool, fixed, carried, own_rules)
     living_keys = {own_key(v) for v in people if v.alive}
 
     def last_of(key) -> str:
         return "" if key is None else (given.get(key) or carried(key[0]))
-    out = []
+    out = {}
     for v in people:
-        now = carried(v.name)
-        should = given.get(v.identity, "")
-        if v.identity in mine or now == should or (rule is None and not now) or rule in ("list", *PLAYER_RULES):
-            continue
         father, mother = parents.get(v.identity, (None, None))
         used = decide(_parent_rule(own_rules, father, "Male", living_keys),
-                      _parent_rule(own_rules, mother, "Female", living_keys), rule or "mother")
+                      _parent_rule(own_rules, mother, "Female", living_keys), rule)
         either = tuple(n for n in dict.fromkeys((last_of(father), last_of(mother))) if n) \
             if used == "random" and father is not None and mother is not None else ()
-        out.append((v, now, should, used, either if len(either) == 2 else ()))
-    return rule or "mother", out
+        out[v.identity] = (given.get(v.identity, ""), used, either if len(either) == 2 else ())
+    return out
+
+
+def wrong_last_name(have: str, should: str, either: tuple = ()) -> bool:
+    """Whether a last name is not the one the rules give: under 50:50 (`either`) either parent's is right."""
+    return have != should and have not in either
+
+
+def wrong_last_name_mark(should: str, used: str | None, village_rule: str, either: tuple = ()) -> str:
+    """The last-names window's mark beside a wrong last name: "the rule gives X" only when the rule shown
+    above gave it; a parent's own rule says so ("should be Okelani or Powaka: a parent's own rule,
+    50:50, applies")."""
+    want = " or ".join(either) if either else (should or "none")
+    if used and used != village_rule:
+        return f"should be {want}: a parent's own rule, {OWN_RULES.get(used, used)}, applies"
+    return f"the rule gives {want}"
 
 
 def wrong_last_name_text(v, should: str, used: str | None, village_rule: str, either: tuple = ()) -> str:
