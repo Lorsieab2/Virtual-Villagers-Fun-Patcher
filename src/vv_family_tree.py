@@ -464,6 +464,12 @@ class Edits:
     # Stickers (the owner: "any image file on the computer where people can drag and place them
     # like a scrapbook", "resize, rotate, transform"): pictures on top of the tree, bottom one first.
     stickers: list[dict] = field(default_factory=list)
+    # What belongs to one page only (the owner, preview: "everything placed on a page belongs to that
+    # page only"), by the page's first generation ("1", "6"...): {"entries": {entry key -> {field -> value,
+    # or None: not set on this page}}, "moved": {name -> [right, down]}, "hidden": [the page's whole list of
+    # deleted things], "family_colours": {...}, "person_colours": {...} (None: the patcher's own)}.  Laid over
+    # the tree-wide ones above for that page alone (page_view).  A sticker carries its own "page".
+    page_edits: dict[str, dict] = field(default_factory=dict)
     # One group's portraits set apart from the rest (the owner, 2026-10-09: "as many options as
     # realistically and logically possible should be by group with options to equalize"): GROUPS ->
     # {GROUP_FIELDS name -> value}, each over the tree's own setting for that group only (opt()).
@@ -723,6 +729,7 @@ class Edits:
             sticker = clean_sticker(raw)
             if sticker is not None:
                 out.stickers.append(sticker)
+        out.page_edits = clean_page_edits(data.get("page_edits"))
         out.equal_sizes = clean_equal_sizes(data.get("equal_sizes"))
         out.group_opts = clean_group_opts(data.get("group_opts"))
         return out
@@ -735,7 +742,7 @@ class Edits:
         temp.replace(path)
 
     def to_data(self) -> dict:
-        return {"format": 1, "title": self.title, "subtitle": self.subtitle,
+        return {"format": 1, "page_edits": clean_page_edits(self.page_edits), "title": self.title, "subtitle": self.subtitle,
                 "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "line_mode": self.line_mode, "line_order": self.line_order, "line_reverse": self.line_reverse, "gradient_start": self.gradient_start, "gradient_end": self.gradient_end, "range_colours": self.range_colours, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "show_runner": self.show_runner, "number_names": self.number_names,
                 "number_order": self.number_order,
@@ -1059,6 +1066,8 @@ def clean_sticker(raw) -> dict | None:
         })
     else:
         out["picture"] = raw["picture"]
+    if isinstance(raw.get("page"), int) and not isinstance(raw.get("page"), bool) and 1 <= raw["page"] <= 99:
+        out["page"] = raw["page"]       # the page it is on (its first generation); none: every page, as before
     return {
         **out,
         "cx": _number(raw.get("cx"), -STICKER_MAX, STICKER_MAX, 200.0),
@@ -1070,6 +1079,101 @@ def clean_sticker(raw) -> dict | None:
         "flip_v": raw.get("flip_v") is True,
         "opacity": _number(raw.get("opacity"), 0, 100, 100.0),
     }
+
+
+# What a page keeps of its own (Edits.page_edits).  A villager's generation and chosen look are the tree's:
+# they decide who is on which page, so they never differ between pages.
+TREE_WIDE_ENTRY_FIELDS = ("generation", "look")
+
+
+def page_key(edits: Edits, village: gen.Village, page: int) -> int:
+    """A page's name in the edits: its first generation (it stays the page's name when pages before it are
+    added or joined)."""
+    spans = page_spans(edits, village)
+    return spans[max(0, min(page, len(spans) - 1))][0]
+
+
+def clean_page_edits(raw) -> dict[str, dict]:
+    """Edits.page_edits as the file keeps it, every part checked; empty pages dropped."""
+    out: dict[str, dict] = {}
+    if not isinstance(raw, dict):
+        return out
+    for key, part in raw.items():
+        if not isinstance(part, dict) or not str(key).isdigit():
+            continue
+        item: dict = {}
+        entries = {}
+        for ekey, fields in (part.get("entries") or {}).items() if isinstance(part.get("entries"), dict) else []:
+            if isinstance(fields, dict) and fields:
+                entries[str(ekey)] = {str(f): v for f, v in fields.items()}
+        if entries:
+            item["entries"] = entries
+        moved = {str(n): [_number(s[0], -STICKER_MAX, STICKER_MAX, 0.0), _number(s[1], -STICKER_MAX, STICKER_MAX, 0.0)]
+                 for n, s in (part.get("moved") or {}).items()
+                 if isinstance(s, list) and len(s) == 2} if isinstance(part.get("moved"), dict) else {}
+        if isinstance(part.get("moved"), dict):         # None: not moved on this page, whatever the tree's own says
+            moved.update({str(n): None for n, s in part["moved"].items() if s is None})
+        if moved:
+            item["moved"] = moved
+        if isinstance(part.get("hidden"), list):
+            item["hidden"] = [str(h) for h in part["hidden"]]
+        for name in ("family_colours", "person_colours"):
+            colours = {str(k): v for k, v in part[name].items() if v is None or is_colour(v)} \
+                if isinstance(part.get(name), dict) else {}
+            if colours:
+                item[name] = colours
+        if item:
+            out[str(int(key))] = item
+    return out
+
+
+def page_view(edits: Edits, village: gen.Village, page: int) -> Edits:
+    """The edits as one page shows them: the tree's own with that page's laid over them (a copy; `edits`
+    itself when the page keeps nothing of its own).  Nothing placed on one page is seen on another."""
+    part = edits.page_edits.get(str(page_key(edits, village, page)))
+    if not part:
+        return edits
+    view = replace(edits)
+    entries = {k: dict(v) for k, v in edits.entries.items()}
+    for ekey, fields in part.get("entries", {}).items():
+        merged = entries.setdefault(ekey, {})
+        for name, value in fields.items():
+            if value is None:
+                merged.pop(name, None)
+            else:
+                merged[name] = value
+        if not merged:
+            del entries[ekey]
+    view.entries = entries
+    view.moved = {n: s for n, s in {**edits.moved, **part.get("moved", {})}.items() if s is not None}
+    if "hidden" in part:
+        view.hidden = list(part["hidden"])
+    for name in ("family_colours", "person_colours"):
+        if name in part:
+            merged = dict(getattr(edits, name))
+            for k, v in part[name].items():
+                if v is None:
+                    merged.pop(k, None)
+                else:
+                    merged[k] = v
+            setattr(view, name, merged)
+    return view
+
+
+def localise_stickers(edits: Edits, village: gen.Village) -> bool:
+    """Stickers saved before pages kept their own (no "page") were drawn on every page: one copy for each
+    page now, in the same stacking, so each is moved or deleted on its own page.  True when any changed."""
+    if all("page" in s for s in edits.stickers):
+        return False
+    keys = sorted({lo for lo, _hi in page_spans(edits, village)})
+    out = []
+    for raw in edits.stickers:
+        if "page" in raw:
+            out.append(raw)
+        else:
+            out.extend({**raw, "page": k} for k in keys)
+    edits.stickers = out
+    return True
 
 
 def turn(x: float, y: float, angle: float) -> tuple[float, float]:
@@ -1599,6 +1703,7 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     they are as small as they go (SHRINK_MIN)."""
     if edits is not None:
         settle_shapes(edits, village)           # saved before a shape was drawn turned: moved on once
+        edits = page_view(edits, village, page)     # this page's own things laid over the tree's
     lay = _layout(village, edits, page)
     e = lay.edits
     if not e.fit_width:
@@ -6477,7 +6582,10 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
     if canvas:
         _fit_page(out)                  # the tree's own page, everything drawn on it ...
         _to_canvas(out, *canvas)        # ... shrunk onto the canvas, or centred on it
+    here = page_key(lay.edits, lay.village, lay.page)
     for k, raw in enumerate(lay.edits.stickers):
+        if raw.get("page", here) != here:       # on another page (none: on every page, as saved before)
+            continue
         item = sticker_item(k, raw, images, library)
         if item is not None:
             add(item)
