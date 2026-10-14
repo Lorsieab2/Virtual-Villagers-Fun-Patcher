@@ -34,6 +34,7 @@ hook has been reached.
 from __future__ import annotations
 
 import functools
+import gc
 import os
 import re
 import struct
@@ -251,7 +252,17 @@ SAVED = None
 def run_to_hook(image: Image, game: int, start: int, creator: int, hook: int, *, turn: int = 0,
                 limit: int = 3_000_000) -> list[bytes]:
     """Execute the call at `start` until it returns; the 0x400 bytes above
-    esp at each arrival at `hook`."""
+    esp at each arrival at `hook`.  Each call maps its own unicorn engine, and
+    the engine is freed only by the garbage collector: collect it when the call
+    returns, or hundreds of live engines exhaust native memory mid-test."""
+    try:
+        return _run_to_hook(image, game, start, creator, hook, turn=turn, limit=limit)
+    finally:
+        gc.collect()
+
+
+def _run_to_hook(image: Image, game: int, start: int, creator: int, hook: int, *, turn: int = 0,
+                 limit: int = 3_000_000) -> list[bytes]:
     saved_regs = (UC_X86_REG_EBX, UC_X86_REG_ESI, UC_X86_REG_EDI, UC_X86_REG_EBP)
     uc = Uc(UC_ARCH_X86, UC_MODE_32)
     uc.mem_map(image.base, image.size, UC_PROT_ALL)
