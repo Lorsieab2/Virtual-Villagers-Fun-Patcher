@@ -2362,10 +2362,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 return (f"the lines of {names}", own,
                         lambda c: self._line_colour(target[1], c))
             return (f"the lines and children of {names}", fam.colour if fam is not None else "",
-                    lambda c: self._set_colour(e.family_colours, target[1], c))
+                    lambda c: self._set_chosen_colour(e.family_colours, target[1], c))
         if kind == "mark" and target[1] in e.marks:
             return (f"the mark {target[1]}", e.marks[target[1]],
-                    lambda c: self._set_colour(e.marks, target[1], c or e.marks[target[1]]))
+                    lambda c: self._set_chosen_colour(e.marks, target[1], c or e.marks[target[1]]))
         if kind == "role":
             role = target[1]
             words = "the " + ft.ROLES[role][0].lower() + ft.ROLES[role][1:]
@@ -2390,7 +2390,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if colour:
             setter(colour)
 
-    def _set_colour(self, chosen: dict, key: str, colour: str) -> None:
+    def _set_chosen_colour(self, chosen: dict, key: str, colour: str) -> None:
         if colour:
             chosen[key] = colour
         else:
