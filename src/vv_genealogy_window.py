@@ -391,6 +391,28 @@ def _guess_game_folder(app, title: str) -> str:
 # A colour field: a swatch, the colour as text (hex or red, green, blue), and the picker
 # ---------------------------------------------------------------------------
 
+def parse_page_range(text: str, count: int) -> list[int]:
+    """Pages typed as "3", "2-5", or "1,3-4" -> their 0-based numbers, in order, no repeats.  ValueError
+    (with words for the player) when nothing sensible or a page that is not there."""
+    pages: list[int] = []
+    for part in text.replace(" ", "").split(","):
+        if not part:
+            continue
+        lo, dash, hi = part.partition("-")
+        try:
+            first, last = int(lo), int(hi) if dash else int(lo)
+        except ValueError:
+            raise ValueError(f"\"{part}\" is not a page number or a range like 2-5.") from None
+        if first > last:
+            first, last = last, first
+        if first < 1 or last > count:
+            raise ValueError(f"This tree has pages 1 to {count}." if count > 1 else "This tree has one page.")
+        pages += [k - 1 for k in range(first, last + 1) if k - 1 not in pages]
+    if not pages:
+        raise ValueError("Type a page number, or a range like 2-5.")
+    return pages
+
+
 class ColourField(ttk.Frame):
     def __init__(self, master, value: str, on_change, allow_default: bool = True, default_text="Automatic"):
         super().__init__(master)
@@ -1171,6 +1193,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # The owner, 2026-10-10: "add a button to retroactively update that text too".
         ttk.Button(words, text="Bold and italic for extra lines (Golden Child, Founder, twins...)",
                    command=self._bold_italic_extra_lines).pack(anchor="w", pady=(4, 0))
+        ttk.Button(words, text="Add status labels (Deceased, Disappeared...) to the portraits",
+                   command=self._add_status_labels).pack(anchor="w", pady=(4, 0))
         tab = t_colour
         ttk.Label(tab, text="Every word on the tree (a part's own colour: Fonts tab):").pack(anchor="w", pady=(0, 1))
         self.ink_field = ColourField(tab, e.ink, lambda c: self._change(ink=c))
@@ -2335,9 +2359,64 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             filetypes=[("PNG picture", "*.png"), ("JPG picture", "*.jpg *.jpeg")])
         if not path:
             return
-        big = messagebox.askyesno("Export as Picture", "Save it at double size (sharper when you zoom in)?",
-                                  parent=self)
-        self._save_as(Path(path), 2.0 if big else 1.0)
+        choice = self._export_options(len(ft.page_spans(self.edits, self.village)))
+        if choice is None:
+            return
+        view, pages, big = choice
+        self._save_as(Path(path), 2.0 if big else 1.0, pages=pages, view=view)
+
+    def _export_options(self, count: int) -> tuple | None:
+        """What to save (a dialog): exactly what the window shows now (its zoom and scroll position), or
+        pages -- one, a range such as 2-5, or all of them -- and at double size or not.  (view, pages
+        (0-based, or None for the view), double size); None when cancelled."""
+        win = tk.Toplevel(self)
+        win.title("Export as Picture")
+        win.transient(self)
+        frame = ttk.Frame(win, padding=10)
+        frame.pack(fill="both", expand=True)
+        what = tk.StringVar(value="view")
+        pick = tk.StringVar(value="all")
+        number = tk.StringVar(value=str(self.page + 1))
+        span = tk.StringVar(value=f"1-{count}")
+        big = tk.BooleanVar(value=False)
+        result: list = []
+        ttk.Radiobutton(frame, text=f"Exactly what the window shows now (page {self.page + 1}, at {int(self.z * 100)}%, "
+                        "where you have scrolled to)", variable=what, value="view").pack(anchor="w")
+        ttk.Radiobutton(frame, text="Whole pages:", variable=what, value="pages").pack(anchor="w", pady=(6, 0))
+        box = ttk.Frame(frame, padding=(22, 0, 0, 0))
+        box.pack(anchor="w")
+        ttk.Radiobutton(box, text=f"All {count} page(s)", variable=pick, value="all").grid(row=0, column=0, sticky="w")
+        ttk.Radiobutton(box, text="One page:", variable=pick, value="one").grid(row=1, column=0, sticky="w")
+        ttk.Entry(box, textvariable=number, width=6).grid(row=1, column=1, sticky="w", padx=4)
+        ttk.Radiobutton(box, text="Pages (for example 2-5):", variable=pick, value="range").grid(row=2, column=0, sticky="w")
+        ttk.Entry(box, textvariable=span, width=10).grid(row=2, column=1, sticky="w", padx=4)
+        ttk.Checkbutton(frame, text="Double size (sharper when you zoom in)", variable=big).pack(anchor="w", pady=(8, 0))
+        ttk.Label(frame, text="Pages after the first are saved beside it as \"<name> - Page N\".",
+                  foreground="#555555").pack(anchor="w", pady=(2, 8))
+        message = ttk.Label(frame, text="", foreground="#aa0000")
+        message.pack(anchor="w")
+
+        def ok() -> None:
+            if what.get() == "view":
+                result.append((True, None, big.get()))
+            else:
+                try:
+                    pages = parse_page_range(
+                        {"all": f"1-{count}", "one": number.get(), "range": span.get()}[pick.get()], count)
+                except ValueError as exc:
+                    message.configure(text=str(exc))
+                    return
+                result.append((False, pages, big.get()))
+            win.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="e")
+        ttk.Button(buttons, text="Save...", command=ok).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=win.destroy).pack(side="left", padx=(6, 0))
+        win.bind("<Escape>", lambda _e: win.destroy())
+        win.grab_set()
+        win.wait_window()
+        return result[0] if result else None
 
     def _delete_tree(self) -> None:
         """This tree deleted -- its tree file and its edits -- and drawn as the patcher first draws it
@@ -4237,6 +4316,35 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                         "Every extra line is already bold and italic.")
         return changed
 
+    def _add_status_labels(self, ask: bool = True) -> int:
+        """Each villager's status from the saved records -- "(deceased)", "(disappeared)", "(left the village)",
+        "Heathen" -- added as a line to the words the player has typed on their portrait (the patcher's own
+        words already say it).  For everyone, or the group picked in "Settings for:".  Only the tree's
+        displayed text changes -- never a record.  One step to undo.  How many portraits changed."""
+        if ask and not messagebox.askyesno(
+                "Family Tree Maker", "Add each villager's status (deceased, disappeared, left the village, Heathen) "
+                "to the words on their portrait?  Only the tree's words change, never the villagers' records.",
+                parent=self):
+            return 0
+        group = self._scope()
+        changed = 0
+        for p in self.village.people.values():
+            if group is not None and ft.group_of(p) != group:
+                continue
+            entry = self._entry(p)
+            lines = entry.get("lines")
+            if not lines:
+                continue
+            done = ft.with_status_label(p, lines, entry.get("runs"))
+            if done is not None:
+                self._set_entry(p, lines=done[0], runs=done[1])
+                changed += 1
+        if changed:
+            self._saved()
+        self.status.set(f"Status labels added to {changed} portrait(s).  Ctrl+Z undoes it." if changed else
+                        "Every portrait already says its villager's status.")
+        return changed
+
     def _restore_text(self) -> None:
         for q in self.selected:
             self._set_entry(self.village.people[q], lines=None, runs=None)
@@ -4876,31 +4984,50 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._refresh_panels()
         self.status.set(f"Opened {Path(path).name}.  Ctrl+S saves it as this tree.")
 
-    def _save_as(self, path: Path, scale: float) -> None:
-        """The tree as a picture: every page of it, "<name> - Page 2" and so on beside the first."""
-        count = len(ft.page_spans(self.edits, self.village))
+    def _view_crop(self) -> tuple:
+        """What the window shows of the page now, in the scene's own units: (x, y, width, height) -- its
+        scroll position and zoom -- so a picture of it is the view as it is, the page's background
+        drawn at the size it has on the window."""
+        c, z, sc = self.canvas, self.z, self.sc
+        left, top = c.canvasx(0), c.canvasy(0)
+        width = max(1.0, min(float(c.winfo_width()), sc.width * z - left))
+        height = max(1.0, min(float(c.winfo_height()), sc.height * z - top))
+        return left / z, top / z, width / z, height / z
+
+    def _save_as(self, path: Path, scale: float, pages: list | None = None, view: bool = False) -> None:
+        """The tree as a picture: the window's view as it is (`view`), or the pages asked for (0-based; every
+        page when None) -- "<name> - Page 2" and so on beside the first."""
+        total = len(ft.page_spans(self.edits, self.village))
+        crop = None
+        if view:
+            pages, crop = [self.page], self._view_crop()
+            scale *= self.z
+        elif pages is None:
+            pages = list(range(total))
         try:
-            for k in range(count):
+            for k in pages:
                 target = path if k == 0 else path.with_name(f"{path.stem} - Page {k + 1}{path.suffix}")
-                vv_gdiplus.save_scene(self._page_scene(k)[1], self.present, target, scale=scale)
+                sc = self.sc if view else self._page_scene(k)[1]
+                vv_gdiplus.save_scene(sc, self.present, target, scale=scale, crop=crop)
         except (OSError, ValueError) as exc:
             messagebox.showerror("Save Picture", f"The picture could not be saved: {exc}", parent=self)
             return
-        self.status.set(f"Saved {path}" + (f" and {count - 1} more page(s) beside it" if count > 1 else ""))
-        self._preview_picture(path)
+        self.status.set(f"Saved {path}" + (f" and {len(pages) - 1} more page(s) beside it" if len(pages) > 1 else ""))
+        self._preview_picture(path, pages[0], crop)
 
-    def _preview_picture(self, path: Path) -> None:
+    def _preview_picture(self, path: Path, page: int = 0, crop: tuple | None = None) -> None:
         """The picture just saved, shown as it is (the owner, 2026-10-08: "there should be a fucking image
         preview built in"): drawn by the same graphics as the file, fitted to the screen, over a
         checkerboard so anything see-through in the file shows as see-through, never as the window's
         white."""
-        sc = self._page_scene(0)[1]
-        fit = min(1.0, (self.winfo_screenwidth() - 120) / max(1.0, sc.width),
-                  (self.winfo_screenheight() - 220) / max(1.0, sc.height))
+        sc = self.sc if crop is not None else self._page_scene(page)[1]
+        shown_w, shown_h = (crop[2], crop[3]) if crop is not None else (sc.width, sc.height)
+        fit = min(1.0, (self.winfo_screenwidth() - 120) / max(1.0, shown_w),
+                  (self.winfo_screenheight() - 220) / max(1.0, shown_h))
         temp = Path(tempfile.gettempdir()) / f"vvfp-tree-preview-{os.getpid()}.png"
         try:
             # A PNG keeps what is see-through; a JPG has none, so it is shown on its own colour.
-            ok = vv_gdiplus.save_scene(sc, self.present, temp, scale=fit)
+            ok = vv_gdiplus.save_scene(sc, self.present, temp, scale=fit, crop=crop)
             photo = tk.PhotoImage(master=self, file=str(temp)) if ok else None
         except (OSError, tk.TclError):
             photo = None
@@ -4914,7 +5041,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         frame = ttk.Frame(window, padding=8)
         frame.pack(fill="both", expand=True)
         ttk.Label(frame, text=f"Saved {path}.  This is the picture as saved"
-                  + (" (the first page)" if len(ft.page_spans(self.edits, self.village)) > 1 else "")
+                  + (" (the view as the window showed it)" if crop is not None else
+                     f" (page {page + 1})" if len(ft.page_spans(self.edits, self.village)) > 1 else "")
                   + ".  A checkerboard shows through anything see-through.", wraplength=900).pack(anchor="w")
         if photo is not None:
             w, h = photo.width(), photo.height()
