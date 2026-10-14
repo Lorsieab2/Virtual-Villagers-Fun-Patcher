@@ -4809,6 +4809,28 @@ def bold_italic_aux(lines: list, runs) -> list | None:
     return runs_data([merge_runs(line) for line in out])
 
 
+def status_label(p: gen.Person) -> str:
+    """The saved record's status for a portrait, as default_text words it: "(deceased)", "(disappeared)",
+    "(left the village)", "Heathen" for a living Heathen, else "" (a living villager, or a baby on the way)."""
+    if p.upcoming:
+        return ""
+    if p.alive:
+        return "Heathen" if p.heathen else ""
+    return {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
+
+
+def with_status_label(p: gen.Person, lines: list, runs) -> tuple[list, list | None] | None:
+    """A player's own lines with the villager's status (status_label) added as an extra line, as the
+    tree words it (bold and italic like the other extra lines); None when there is no status to add or
+    the lines already say it.  Only the displayed words: the villager's records are never touched."""
+    label = status_label(p)
+    if not label or any(isinstance(line, str) and (STATUS_WORDS.search(line) or line.strip() == "Heathen")
+                        for line in lines):
+        return None
+    have = clean_runs(runs, lines) or [[(line, {})] for line in lines]
+    return list(lines) + [label], runs_data(have + [[(label, dict(AUX_STYLE))]])
+
+
 def node_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None:
     """The entry's lines formatted word by word (clean_runs), or None when they are plain.  The
     patcher's own lines have their extra lines bold and italic (default_runs); the player's own lines

@@ -131,17 +131,20 @@ class _Gdi:
 
 
 def save_scene(sc, present: dict, path: Path, scale: float = 1.0, quality: int = 92,
-               transparent: bool = False) -> bool:
+               transparent: bool = False, crop: tuple | None = None) -> bool:
     """Draw the scene at `scale` and save it as `path` (.png, or .jpg / .jpeg) -- on its background
-    colour, or (a PNG, `transparent`) on nothing.  False where GDI+ is not available (not Windows);
+    colour, or (a PNG, `transparent`) on nothing.  `crop` = (x, y, width, height) in the scene's own units
+    saves only that part of the scene, the whole scene still drawn (its background too) at `scale`, so a
+    picture of what a window shows is what the window shows.  False where GDI+ is not available (not Windows);
     OSError when it fails."""
     if not available():
         return False
     with _LOCK:
-        return _save_scene(sc, present, path, scale, quality, transparent)
+        return _save_scene(sc, present, path, scale, quality, transparent, crop)
 
 
-def _save_scene(sc, present: dict, path: Path, scale: float, quality: int, transparent: bool) -> bool:
+def _save_scene(sc, present: dict, path: Path, scale: float, quality: int, transparent: bool,
+                crop: tuple | None = None) -> bool:
     import vv_family_tree as ft
     path = Path(path)
     encoder = ENCODERS.get(path.suffix.lower())
@@ -153,7 +156,8 @@ def _save_scene(sc, present: dict, path: Path, scale: float, quality: int, trans
     images: dict[str, ctypes.c_void_p] = {}
     fmt = ctypes.c_void_p()
     try:
-        width, height = max(1, int(sc.width * scale)), max(1, int(sc.height * scale))
+        cx, cy, cw, ch = crop if crop is not None else (0.0, 0.0, sc.width, sc.height)
+        width, height = max(1, int(round(cw * scale))), max(1, int(round(ch * scale)))
         gdi._check(g.GdipCreateBitmapFromScan0(width, height, 0, PIXEL_FORMAT_32BPP_ARGB, None,
                                                ctypes.byref(bitmap)), f"make a {width} x {height} picture")
         gdi._check(g.GdipGetImageGraphicsContext(bitmap, ctypes.byref(graphics)), "draw")
@@ -162,6 +166,8 @@ def _save_scene(sc, present: dict, path: Path, scale: float, quality: int, trans
         g.GdipSetInterpolationMode(graphics, 5)             # nearest neighbour: the heads stay crisp
         g.GdipSetPixelOffsetMode(graphics, 4)               # half
         g.GdipScaleWorldTransform(graphics, ctypes.c_float(scale), ctypes.c_float(scale), 0)
+        if crop is not None:                                # the scene moved so the cropped part is at the corner
+            g.GdipTranslateWorldTransform(graphics, ctypes.c_float(-cx), ctypes.c_float(-cy), 0)
         clear = 0 if transparent else _argb(sc.background)
         if clear == 0 and not transparent:
             # A "transparent" background is white, as the Family Tree Maker shows it (the owner,
