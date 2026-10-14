@@ -665,8 +665,9 @@ def revise(folder: Path, game: int, slot: int, confirmed: Plan, processes=None,
                 out.write(source.read())
             if copy.read_bytes() != doc.raw:
                 raise OSError(f"the copy of {doc.path.name} did not read back")
-            _write(doc.path, doc.render().encode("latin-1"))
+            # Recorded before the write: a file that fails its read-back has already been replaced.
             done.append((doc.path, copy))
+            _write(doc.path, doc.render().encode("latin-1"))
             written.append((doc.path, copy, count))
         for doc, _count in docs:
             additions._move_boundaries(folder, doc)

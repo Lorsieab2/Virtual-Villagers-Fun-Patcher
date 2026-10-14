@@ -260,6 +260,29 @@ class Safety(Base):
                     self.assertTrue(any(c.read_bytes() == data for n, c in copies.items()
                                         if n.startswith(path.name)), path.name)
 
+    def test_a_log_replaced_before_its_read_back_fails_is_put_back_too(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                s = self.scene(game)
+                plan = s.plan()
+                before = {p: p.read_bytes() for p in (s.history, s.deaths, s.events)}
+                real = hr._write
+                calls = []
+
+                def replaced_then_failing(path, data):
+                    calls.append(path)
+                    real(path, data)
+                    if len(calls) == 2:
+                        raise OSError("read-back failed (test)")
+                hr._write = replaced_then_failing
+                try:
+                    with self.assertRaises(hr.HistoryRevisionError):
+                        s.revise(plan)
+                finally:
+                    hr._write = real
+                for path, data in before.items():
+                    self.assertEqual(path.read_bytes(), data, path.name)
+
     def test_repairs_made_lists_each_villager_removed(self):
         for game in GAMES:
             with self.subTest(game=game):
