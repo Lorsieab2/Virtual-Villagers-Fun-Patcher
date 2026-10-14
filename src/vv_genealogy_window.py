@@ -4492,8 +4492,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     def _add_status_labels(self, ask: bool = True) -> int:
         """Each villager's status from the saved records -- "(deceased)", "(disappeared)", "(left the village)",
-        "Heathen" -- added as a line to the words the player has typed on their portrait (the patcher's own
-        words already say it).  For everyone, or the group picked in "Settings for:".  Only the tree's
+        "Heathen" -- added as a last line to every portrait whose words (typed, or the patcher's own) do not
+        already say it -- see ft.status_for_portrait.  For everyone, or the group picked in "Settings for:".  Only the tree's
         displayed text changes -- never a record.  One step to undo.  How many portraits changed."""
         if ask and not messagebox.askyesno(
                 "Family Tree Maker", "Add each villager's status (deceased, disappeared, left the village, Heathen) "
@@ -4505,11 +4505,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         for p in self.village.people.values():
             if group is not None and ft.group_of(p) != group:
                 continue
-            entry = self._entry(p)
-            lines = entry.get("lines")
-            if not lines:
-                continue
-            done = ft.with_status_label(p, lines, entry.get("runs"))
+            done = ft.status_for_portrait(self.lay, p)
             if done is not None:
                 self._set_entry(p, lines=done[0], runs=done[1])
                 changed += 1

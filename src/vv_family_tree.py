@@ -4924,16 +4924,36 @@ def status_label(p: gen.Person) -> str:
     return {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
 
 
-def with_status_label(p: gen.Person, lines: list, runs) -> tuple[list, list | None] | None:
-    """A player's own lines with the villager's status (status_label) added as an extra line, as the
+def shows_status(lines: list) -> bool:
+    """Whether portrait lines (as drawn) already say a status: a "(deceased)" / "(disappeared)" / "(left the
+    village)" anywhere in a line, or a line that is "Heathen" alone."""
+    return any(isinstance(line, str) and (STATUS_WORDS.search(line) or line.strip() == "Heathen") for line in lines)
+
+
+def with_status_label(p: gen.Person, lines: list, runs, shown: list | None = None) -> tuple[list, list | None] | None:
+    """A portrait's lines with the villager's status (status_label) added as an extra line, as the
     tree words it (bold and italic like the other extra lines); None when there is no status to add or
-    the lines already say it.  Only the displayed words: the villager's records are never touched."""
+    the portrait already says it (`shown`, the lines as drawn -- else `lines`).  Only the displayed words:
+    the villager's records are never touched."""
     label = status_label(p)
-    if not label or any(isinstance(line, str) and (STATUS_WORDS.search(line) or line.strip() == "Heathen")
-                        for line in lines):
+    if not label or shows_status(lines if shown is None else shown):
         return None
     have = clean_runs(runs, lines) or [[(line, {})] for line in lines]
     return list(lines) + [label], runs_data(have + [[(label, dict(AUX_STYLE))]])
+
+
+def status_for_portrait(lay: Layout, p: gen.Person) -> tuple[list, list | None] | None:
+    """What the Faces & Text "Add status labels" button saves for one portrait, or None when it changes
+    nothing.  The portrait is judged by the words it shows now (node_text): the player's own lines, or --
+    with none typed -- the patcher's (default_text, which already ends with the status of the dead and of a
+    Heathen, so such a portrait is left alone).  If the shown words lack the status it is added as a bold
+    italic last line, to the player's lines or to the patcher's own lines and their default formatting."""
+    entry = lay.entry(p)
+    typed = entry.get("lines")
+    shown = node_text(lay, p)
+    if typed:
+        return with_status_label(p, typed, entry.get("runs"), shown)
+    return with_status_label(p, shown, runs_data(default_runs(lay, p)), shown)
 
 
 def node_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None:
