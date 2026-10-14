@@ -107,6 +107,37 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(by("zzz"), [])
         self.assertEqual(by(""), [])
 
+    def _with_preferences(self):
+        v, edits = two_pages()
+        v.people[9].likes, v.people[9].dislikes = ["running", "doing laundry"], ["snakes"]
+        v.people[10].likes, v.people[10].dislikes = ["flowers"], ["the dark", "crowds"]
+        v.people[11].likes, v.people[11].dislikes = [], []             # known, and has none
+        for pid in set(v.people) - {9, 10, 11}:
+            v.people[pid].likes = v.people[pid].dislikes = None        # not in the save or the logs
+        return v, edits, (lambda q: gw.find_villagers(v, edits, q))
+
+    def test_a_like_finds_the_villager(self) -> None:
+        v, edits, by = self._with_preferences()
+        self.assertEqual(by("running"), [9])
+        self.assertEqual(by("LAUNDRY"), [9])                        # any case, any word of the name
+        self.assertEqual(by("flowers"), [10])
+
+    def test_a_dislike_finds_the_villager(self) -> None:
+        v, edits, by = self._with_preferences()
+        self.assertEqual(by("snakes"), [9])
+        self.assertEqual(by("the dark"), [10])
+        self.assertEqual(by("dark crowds"), [10])                   # every typed word must match
+        self.assertEqual(by("snakes flowers"), [])                  # one on each villager: nobody has both
+
+    def test_a_villager_without_data_is_not_matched_by_a_random_word(self) -> None:
+        v, edits, by = self._with_preferences()
+        self.assertEqual(by("snakes crowds"), [])
+        self.assertEqual(by("butterflies"), [])
+        unknown = gw.unknown_preferences(v)
+        self.assertNotIn(9, unknown)
+        self.assertNotIn(11, unknown)                               # no likes is known, not unknown
+        self.assertTrue(unknown and all(v.people[q].likes is None for q in unknown))
+
 
 if __name__ == "__main__":
     unittest.main()

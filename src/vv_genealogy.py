@@ -96,6 +96,8 @@ class Person:
     expecting: bool = False             # a living mother-to-be
     heathen: bool = False               # New Believers: a current Heathen
     runner: bool = False                # likes running: the living by their save, the dead by their logs
+    likes: list[str] | None = None      # the words they like (the living by their save, the dead by their logs); None = not known
+    dislikes: list[str] | None = None   # the words they dislike; None = not known (never guessed)
     arrived: bool = False               # an Arrived record names them
     how: str = ""                       # the Arrived record's "How" ("Founder", an event's title...)
     first_seen: str | None = None       # the earliest History snapshot (or Arrived record) naming them
@@ -216,6 +218,11 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         p.family = _i32(data, at + f.family)
         if len(data) >= at + f.likes + 4 * f.slots:
             p.runner = RUNNING in [_i32(data, at + f.likes + 4 * k) for k in range(f.slots)]
+        if len(data) >= at + max(f.likes, f.dislikes) + 4 * f.slots:
+            import vv_lost_titles as lt         # the games' own like and dislike words, and the save's slots
+            prefs = lt._prefs(data, at, game)
+            p.likes, p.dislikes = ([w for w in lt.list_text(game, prefs[label]).split(", ") if w != "(none)"]
+                                   for label in ("Likes", "Dislikes"))
         if game == 1:
             p.expecting = ln.carrying(game, data, at)       # the delivery the game counts down
             # Who she is in the save's own words, for the Parents (A New Home) sidecar (_vv1_from_sidecar).
@@ -333,6 +340,11 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                 p.first_seen = b.date
         if "running" in [w.strip().lower() for w in (b.value("Likes") or "").split(",")]:
             reg.ran.add(p.id)
+        if not p.alive and p.likes is None and b.value("Likes") is not None and b.value("Dislikes") is not None \
+                and "->" not in (b.value("Likes") + b.value("Dislikes")):
+            # The dead (and the gone) by their logs' words; the living keep their save's.
+            p.likes, p.dislikes = ([w.strip() for w in (b.value(label) or "").split(",")
+                                    if w.strip() and w.strip() != "(none)"] for label in ("Likes", "Dislikes"))
         age = b.value("Age")
         if age and age.lstrip("-").isdigit() and not p.alive and p.gone != "died":
             p.age = max(p.age or 0, int(age))
