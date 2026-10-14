@@ -3585,7 +3585,9 @@ class App(tk.Tk):
         # A tribe started over with the same name (src/vv_history_revision.py; the owner, v1.35.73): its
         # villagers proven gone, and the rest kept and listed.  Never ticked until the player ticks it and
         # confirms the list.
-        history: dict = {"plan": None, "note": None, "confirmed": False}
+        # Undelete villagers (the owner, v1.35.73): the latest history revision's lines put back from the
+        # copies it made; offered only when one has something to put back, never ticked by default.
+        history: dict = {"plan": None, "note": None, "confirmed": False, "undo": None, "undo_confirmed": False}
 
         def survey():
             checked = vv_log_tools.check_logs(folder, info.slot, number)
@@ -3593,6 +3595,11 @@ class App(tk.Tk):
                 history["plan"] = vv_history_revision.plan(folder, number, info.slot)
             except (vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
                 history["note"] = f"The history revision was not offered: a file could not be read ({exc})."
+            try:
+                history["undo"] = vv_history_revision.undo_plan(folder, number, info.slot)
+            except (vv_log_tools.LogToolError, ValueError, OSError) as exc:
+                history["note"] = ((history["note"] + " ") if history["note"] else "") + (
+                    f"Undelete villagers was not offered: a file could not be read ({exc}).")
             checker = vv_log_tools.load_checker()
             old = checker.old_words(folder, number) if number in checker.WORD_FIXES else []
             # Names the Villager Details screen cut short (src/vv_cut_names.py); one that cannot be
@@ -3684,6 +3691,17 @@ class App(tk.Tk):
                     f"Repairs log). Kept and listed: {len(history['plan'].kept)}.")
             except (vv_log_tools.LogToolError, OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The history was not revised. {exc}", parent=parent)
+        # Undelete villagers (src/vv_history_revision.py undo): after the lines above are in, so they are kept.
+        if history.get("undo_confirmed"):
+            try:
+                undone = self._run_with_wait(
+                    "Putting back the villagers the history revision removed…\n\nEach log is copied first.",
+                    lambda: vv_history_revision.undo(folder, number, info.slot, confirm=True))
+                history_lines.append(
+                    f"Undelete villagers: {len(undone.villagers)} villager(s) put back into {len(undone.files)} "
+                    "log file(s) (copies in Copies Made Before Repairs; listed in the Repairs log).")
+            except (vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"No villager was put back. {exc}", parent=parent)
         # The graves the player put right, first of the save edits: the renames below then find each grave
         # under the name its records give it.
         grave_lines = self._fix_graves(parent, folder, number, info, grave_fixes) if grave_fixes else []
@@ -4185,6 +4203,19 @@ class App(tk.Tk):
             ttk.Button(history_row, text="Show the list…",
                        command=lambda: self._history_list_dialog(window, history_plan, ask=False)
                        ).pack(side="left", padx=(8, 0))
+        # Undelete villagers (the owner, v1.35.73: "add an option to undelete villagers"): never ticked by
+        # default, offered only when the latest history revision has something to put back.
+        history["undo_confirmed"] = False
+        undo_plan = history.get("undo")
+        undo_var = tk.BooleanVar(value=vv_history_revision.UNDO_DEFAULT_TICKED)
+        undo_tick = ttk.Checkbutton(
+            frame, variable=undo_var,
+            text=f"{vv_history_revision.UNDO_LABEL}: "
+                 + (f"{len(undo_plan.villagers)} villager(s) from the revision of {undo_plan.date}, "
+                    f"{len(undo_plan.files)} log file(s)" if undo_plan is not None else "none to put back"))
+        undo_tick.pack(anchor="w", pady=(4, 0))
+        if undo_plan is None or not undo_plan.files:
+            undo_tick.state(["disabled"])
         if history.get("note"):
             ttk.Label(frame, text=history["note"], wraplength=600, justify="left",
                       foreground="#555555").pack(anchor="w", padx=(20, 0))
@@ -4235,6 +4266,18 @@ class App(tk.Tk):
         buttons.pack(anchor="w", pady=(12, 0))
 
         def go() -> None:
+            # Undelete villagers: the logs and the copies each comes from -- confirmed, or nothing.
+            history["undo_confirmed"] = False
+            if undo_var.get() and undo_plan is not None and undo_plan.files:
+                if history_var.get():
+                    messagebox.showerror(
+                        "Repair Saves & Logs", "Undelete villagers and the history revision undo each other: "
+                        "tick only one of them.", parent=window)
+                    return
+                if not self._undo_history_dialog(window, undo_plan):
+                    undo_var.set(False)
+                    return
+                history["undo_confirmed"] = True
             # The history revision: the exact list, per log, and who is kept and why -- confirmed or nothing.
             history["confirmed"] = False
             if history_var.get() and history_plan is not None and (history_plan.gone or history_plan.unsure):
@@ -4328,6 +4371,49 @@ class App(tk.Tk):
         _regrab(parent)
         # The villagers the player ticked to remove (an empty set when none), or None when cancelled.
         return outcome["ticked"] if outcome["yes"] else None
+
+    def _undo_history_dialog(self, parent, plan) -> bool:
+        """Undelete villagers' confirmation (src/vv_history_revision.py UndoPlan.describe): the villagers put
+        back, each log restored and the copy it comes from.  True only on "Restore"; Cancel is the default."""
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: undelete villagers")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=12)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, wraplength=760, justify="left",
+                  text="Every line the latest history revision took out of these logs is put back from the copy "
+                       "it made first. Nothing in the save changes; each log is copied as it is now first, and "
+                       "the Repairs log lists the villagers put back.").pack(anchor="w", pady=(0, 8))
+        body = ttk.Frame(frame)
+        body.pack(fill="both", expand=True)
+        text = tk.Text(body, wrap="word", width=110, height=24)
+        scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
+        text.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        text.pack(side="left", fill="both", expand=True)
+        text.insert("1.0", plan.describe())
+        text.configure(state="disabled")
+        outcome = {"yes": False}
+
+        def restore() -> None:
+            outcome["yes"] = True
+            window.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(8, 0))
+        restore_button = ttk.Button(buttons, text="Restore", command=restore)
+        restore_button.pack(side="left")
+        if plan.refused:
+            restore_button.state(["disabled"])
+        cancel = ttk.Button(buttons, text="Cancel", command=window.destroy, default="active")
+        cancel.pack(side="left", padx=(8, 0))
+        cancel.focus_set()
+        window.bind("<Return>", lambda _e: window.destroy())
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+        return outcome["yes"]
 
     def _last_names_dialog(self, parent, folder: Path, number: int, info, names: dict,
                            names_var) -> None:

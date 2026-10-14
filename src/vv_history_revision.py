@@ -50,6 +50,7 @@ head, body, the logs and the snapshot dates).
 """
 from __future__ import annotations
 
+import glob
 import os
 import re
 import shutil
@@ -596,9 +597,9 @@ class Result:
     files: list[tuple[Path, Path, int]]          # (log, its copy, blocks removed)
 
 
-def _copy_path(folder: Path, path: Path) -> Path:
+def _copy_path(folder: Path, path: Path, suffix: str = BACKUP_SUFFIX) -> Path:
     for k in range(1, 1000):
-        candidate = tools.copy_before_repair(folder, path, BACKUP_SUFFIX + ("" if k == 1 else f"-{k}"))
+        candidate = tools.copy_before_repair(folder, path, suffix + ("" if k == 1 else f"-{k}"))
         if not candidate.exists():
             candidate.parent.mkdir(parents=True, exist_ok=True)
             return candidate
@@ -716,6 +717,291 @@ def revise(folder: Path, game: int, slot: int, confirmed: Plan, processes=None,
         village = confirmed.village
     tools.note_word_repair(folder, game, village, fixes, now, checked=CHECKED, corrected=CORRECTED, slot=slot)
     return Result(removed, written)
+
+
+# ---------------------------------------------------------------------------
+# Undelete villagers: the logs put back as they were before the latest history revision
+# ---------------------------------------------------------------------------
+#
+# The owner (v1.35.73): "add an option to undelete villagers".  The latest history revision of this
+# slot is the newest Repairs Made record it wrote ("Checked: " CHECKED); its "Backup:" line names the
+# copies it made of each log it changed, and its "Removed:" lines the villagers it removed.  Each of
+# those logs gets back every line the revision took out; anything written to the log since (a later
+# record, a later repair's lines) is kept.  A log changed since in a way that cannot be told apart
+# from the revision's removals is refused, never guessed: nothing is changed.
+
+UNDO_LABEL = "Undelete villagers: put back the villagers the latest history revision removed from the logs"
+UNDO_DEFAULT_TICKED = False
+UNDO_SUFFIX = ".before-undelete"
+UNDO_CORRECTED = "Restored"
+
+
+@dataclass
+class UndoFile:
+    log: Path
+    copy: Path                  # the revision's copy of it, made before it was changed
+    restored: bytes             # the log with the revision's lines put back
+    moved: object               # offset in the log now -> offset in `restored` (the word boundaries)
+    since: int                  # lines written to the log since the revision, kept
+
+
+@dataclass
+class UndoPlan:
+    folder: Path
+    game: int
+    slot: int
+    date: str                   # the revision's Repairs record date
+    villagers: list[str]        # as that record lists them ("Name (sex, head h, body b)")
+    files: list[UndoFile]       # the logs with something to put back
+    refused: list[str] = field(default_factory=list)    # logs that cannot be put back: nothing is done
+    notes: list[str] = field(default_factory=list)
+
+    def describe(self) -> str:
+        rel = lambda p: _rel(self.folder, p)                    # noqa: E731
+        out = [f"The history revision of {self.date} removed {len(self.villagers)} villager(s) from the logs. "
+               f"Undelete puts every line it took out back into {len(self.files)} log file(s); anything "
+               "written to them since is kept. A copy of each log as it is now is made first."]
+        if self.villagers:
+            out += ["", "Villagers put back:"] + [f"  - {v}" for v in self.villagers]
+        if self.files:
+            out += ["", "Logs restored (each from the copy the revision made before changing it):"]
+            for f in self.files:
+                since = f" ({f.since} line(s) written since are kept)" if f.since else ""
+                out.append(f"  {rel(f.log)}  <-  {rel(f.copy)}{since}")
+        if self.refused:
+            out += ["", "Cannot be put back (nothing will be changed):"] + [f"  - {r}" for r in self.refused]
+        out += [""] + self.notes if self.notes else []
+        return "\n".join(out)
+
+
+def _repairs_records(folder: Path, game: int, slot: int) -> list[dict]:
+    """Every history revision record in the game's Repairs Made logs (the slot's own, and the shared one an
+    older layout wrote), oldest first: {"date", "villagers", "backups"}."""
+    layout = tools.layout
+    places = [layout.slot_log_folder(folder, layout.REPAIRS_LOGS, slot),
+              layout.find(folder, f"{layout.LOGS}\\{layout.REPAIRS_LOGS}")]
+    found, order = [], 0
+    for place in dict.fromkeys(places):
+        if not place.is_dir():
+            continue
+        files = sorted(place.glob(f"Virtual Villagers {game} Repairs Log *.txt"),
+                       key=lambda p: int(m.group(1)) if (m := re.search(r" (\d+)\.txt$", p.name)) else 0)
+        for path in files:
+            record = None
+            for line in path.read_bytes().decode("latin-1").splitlines() + [""]:
+                if re.match(r"^Repair \d+\s*$", line) or not line.strip():
+                    if record and record["checked"] == CHECKED and record["backups"]:
+                        order += 1
+                        found.append({**record, "order": order})
+                    record = {"date": "", "checked": None, "villagers": [], "backups": []} \
+                        if line.strip() else None
+                elif record is not None:
+                    key, _, value = line.strip().partition(": ")
+                    if key == "Date":
+                        record["date"] = value.strip()
+                    elif key == "Checked":
+                        record["checked"] = value.strip()
+                    elif key == CORRECTED:
+                        record["villagers"].append(value.split(" -- from ", 1)[0].strip())
+                    elif key == "Backup":
+                        record["backups"] = [b.strip() for b in value.split(", ") if b.strip()]
+    found.sort(key=lambda r: (r["date"], r["order"]))
+    return found
+
+
+def _merge(current: bytes, copy: bytes) -> tuple[bytes, object, int]:
+    """The log with every line the revision took out put back: (bytes, moved, lines written since).
+    Raises ValueError when the log was changed since in a way that is not only lines added."""
+    import difflib
+    cur = current.splitlines(keepends=True)
+    old = copy.splitlines(keepends=True)
+    starts: list[int] = []              # where each line of the log now starts in the result
+    out: list[bytes] = []
+    size = 0
+
+    def emit(line: bytes, mine: bool) -> None:
+        nonlocal size
+        if mine:
+            starts.append(size)
+        out.append(line)
+        size += len(line)
+
+    # The log only lost lines (nothing written since): its copy, exactly.
+    j, matched = 0, []
+    for line in cur:
+        while j < len(old) and old[j] != line:
+            j += 1
+        if j == len(old):
+            matched = None
+            break
+        matched.append(j)
+        j += 1
+    since = 0
+    if matched is not None:
+        offsets = [0]
+        for line in old:
+            offsets.append(offsets[-1] + len(line))
+        starts = [offsets[k] for k in matched]
+        out, size = [copy], len(copy)
+    else:
+        for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, cur, old, autojunk=False).get_opcodes():
+            if tag == "insert":                     # lines the revision took out
+                for line in old[j1:j2]:
+                    emit(line, False)
+            elif tag in ("equal", "delete"):        # the log's lines; "delete": written since
+                since += (i2 - i1) if tag == "delete" else 0
+                for line in cur[i1:i2]:
+                    emit(line, True)
+            elif i2 == len(cur) and j2 == len(old):
+                # The revision's last lines taken out, then what was written after it.
+                for line in old[j1:j2]:
+                    emit(line, False)
+                for line in cur[i1:i2]:
+                    emit(line, True)
+                since += i2 - i1
+            else:
+                raise ValueError(f"lines {i1 + 1}-{i2} differ from the copy (changed since the revision)")
+    restored = b"".join(out)
+    ends = [0]
+    for line in cur:
+        ends.append(ends[-1] + len(line))
+    end = (starts[-1] + len(cur[-1])) if cur else 0
+
+    def moved(boundary: int) -> int:
+        for k in range(len(cur)):
+            if ends[k] <= boundary < ends[k + 1]:
+                return starts[k] + boundary - ends[k]
+        return end if boundary >= ends[-1] else boundary
+
+    return restored, moved, since
+
+
+def undo_plan(folder: Path, game: int, slot: int) -> UndoPlan | None:
+    """What Undelete would put back: the latest history revision of this slot, each log it changed with the
+    copy it made first.  None when no history revision of this slot has its copies.  Reads only."""
+    folder = Path(folder)
+    records = _repairs_records(folder, game, slot)
+    if not records:
+        return None
+    latest = records[-1]
+    wanted = set(latest["backups"])
+    checker = tools.load_checker()
+    files: list[UndoFile] = []
+    refused: list[str] = []
+    seen: set[str] = set()
+    # The Repairs record names each copy by its file name only: another slot's logs are never this slot's,
+    # and a name two logs' copies share is taken only from the copies made at the record's time (within ten
+    # minutes before it); none so made: refused, never guessed.
+    found: dict[str, list[tuple[Path, Path]]] = {}
+    for log in checker.log_files(folder):
+        own = tools.layout.is_slot_folder(log)
+        if own is not None and own != slot:
+            continue
+        probe = tools.copy_before_repair(folder, log, BACKUP_SUFFIX)
+        if not probe.parent.is_dir():
+            continue
+        for c in probe.parent.glob(glob.escape(probe.name) + "*"):
+            if c.name in wanted and re.fullmatch(re.escape(probe.name) + r"(-\d+)?", c.name):
+                found.setdefault(c.name, []).append((log, c))
+    try:
+        when = datetime.strptime(latest["date"], "%Y-%m-%d %H:%M:%S").timestamp()
+    except ValueError:
+        when = None
+    pairs: list[tuple[Path, Path]] = []
+    for name, matches in found.items():
+        if len(matches) > 1:
+            matches = [(log, c) for log, c in matches
+                       if when is not None and when - 600 <= c.stat().st_mtime <= when + 60]
+        if not matches:
+            refused.append(f"{name}: more than one log has a copy of this name, and which one the revision of "
+                           f"{latest['date']} made cannot be told")
+            seen.add(name)
+            continue
+        pairs += matches
+    for log, copy in pairs:
+        seen.add(copy.name)
+        try:
+            restored, moved, since = _merge(log.read_bytes(), copy.read_bytes())
+        except ValueError as exc:
+            refused.append(f"{_rel(folder, log)}: {exc}")
+            continue
+        except OSError as exc:
+            refused.append(f"{_rel(folder, log)}: could not be read ({exc})")
+            continue
+        if restored != log.read_bytes():
+            files.append(UndoFile(log, copy, restored, moved, since))
+    notes = [f"{name}: its log is not there any more, so it is not put back (the copy stays in Copies Made "
+             "Before Repairs)." for name in sorted(wanted - seen)]
+    if not files and not refused:
+        return None                     # already put back, or nothing left to put back
+    return UndoPlan(folder, game, slot, latest["date"], latest["villagers"], files, refused, notes)
+
+
+def undo(folder: Path, game: int, slot: int, processes=None, now: datetime | None = None, *,
+         confirm: bool = False) -> UndoPlan:
+    """Undelete villagers: put back every line the latest history revision of this slot took out of the
+    logs, from the copies it made first.  `confirm` must be True (the player's own confirmation).  Each log
+    is copied first (UNDO_SUFFIX, never replacing a copy), rewritten through a temporary file and read
+    back; on any failure every file already rewritten is put back from its copy."""
+    import vv_log_additions as additions
+    folder = Path(folder)
+    if not confirm:
+        raise HistoryRevisionError("Undelete villagers needs your confirmation; nothing was changed.")
+    controller = processes if processes is not None else _processes()
+    tools._refuse_if_running(folder, controller)
+    p = undo_plan(folder, game, slot)
+    if p is None or not p.files:
+        raise HistoryRevisionError("No history revision of this save has anything to put back; nothing was changed.")
+    if p.refused:
+        raise HistoryRevisionError("Undelete villagers was refused, so nothing was changed: "
+                                   + "; ".join(p.refused))
+    checker = tools.load_checker()
+    boundaries = [dat for dat in tools.layout.places(folder, checker.LOG_WORDS.format(game=game)) if dat.is_file()]
+    done: list[tuple[Path, Path]] = []
+    copies: dict[Path, Path] = {}
+    made: list[Path] = []
+    try:
+        for dat in boundaries:
+            copy = _copy_path(folder, dat, UNDO_SUFFIX)
+            shutil.copyfile(dat, copy)
+            copies[dat] = copy
+        for f in p.files:
+            copy = _copy_path(folder, f.log, UNDO_SUFFIX)
+            current = f.log.read_bytes()
+            with open(copy, "xb") as out:
+                out.write(current)
+            if copy.read_bytes() != current:
+                raise OSError(f"the copy of {f.log.name} did not read back")
+            done.append((f.log, copy))
+            made.append(copy)
+            _write(f.log, f.restored)
+        for f in p.files:
+            named = additions.GAME_IN_NAME.search(f.log.name)
+            if named:
+                tools.move_word_boundary(folder, f.log, int(named.group(1)), f.moved)
+    except OSError as exc:
+        failed = _restore(done + list(copies.items())) if done or copies else []
+        where = f" These could not be put back: {', '.join(failed)}." if failed else ""
+        raise HistoryRevisionError(
+            f"Undelete villagers failed ({exc}); every log it had changed was put back from its copy in "
+            f"Copies Made Before Repairs.{where}") from exc
+    backup = ", ".join(c.name for c in made)
+    fixes = [tools.WordFix(v, -1, backup) for v in p.villagers]
+    fixes += [tools.WordFix(f"{_rel(folder, f.log)} from {f.copy.name}", -1, backup) for f in p.files]
+    try:
+        village = checker.births_log(folder, game, slot)[0].village
+    except Exception:
+        village = None
+    tools.note_word_repair(folder, game, village, fixes, now,
+                           checked=f"the logs the history revision of {p.date} changed, against the copies it "
+                                   "made of them first (every line it took out put back; lines written since kept)",
+                           corrected=UNDO_CORRECTED, slot=slot)
+    return p
+
+
+def _processes():
+    import vv_save_backup
+    return vv_save_backup.WindowsProcesses()
 
 
 def hidden_in_tree(folder: Path, game: int, slot: int) -> set[tuple]:
