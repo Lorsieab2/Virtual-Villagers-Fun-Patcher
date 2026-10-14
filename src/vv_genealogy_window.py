@@ -516,8 +516,9 @@ def _open_editor(app, parent, folder: Path, game: int, info, title: str, images:
 
 def find_villagers(village: gen.Village, edits: ft.Edits, query: str) -> list[int]:
     """The villagers matching what was typed, best first: every word typed must be somewhere in the villager's
-    name, "head N" / "body N", sex, age, generation, parents' names, mark or status.  Names that start with
-    the first word come before names that only contain it."""
+    name, "head N" / "body N", sex, age, generation, parents' names, mark, status, or a like or dislike by its
+    name ("running", "laundry", "snakes"; only where the save or the logs give them -- never guessed, see
+    unknown_preferences).  Names that start with the first word come before names that only contain it."""
     words = [w for w in query.lower().split() if w]
     if not words:
         return []
@@ -535,11 +536,18 @@ def find_villagers(village: gen.Village, edits: ft.Edits, query: str) -> list[in
         text = " ".join([p.name, f"head {p.head}", f"body {p.body}", f"head{p.head} body{p.body}", p.sex or "",
                          f"{p.age} units" if p.age is not None else "", f"{p.years} years" if p.years is not None else "",
                          f"generation {p.generation} gen {p.generation} {gen.roman(p.generation)}", parents,
-                         mark, " ".join(status)]).lower()
+                         mark, " ".join(status), ", ".join(p.likes or []), ", ".join(p.dislikes or [])]).lower()
         if all(w in text for w in words):
             name = p.name.lower()
             hits.append((0 if name.startswith(words[0]) else 1 if words[0] in name else 2, p.generation, name, pid))
     return [pid for *_rank, pid in sorted(hits)]
+
+
+def unknown_preferences(village: gen.Village) -> list[int]:
+    """The villagers whose likes and dislikes neither the save nor the logs give, so a search by them cannot
+    find (or rule out) these."""
+    return [pid for pid, p in village.people.items()
+            if not p.placeholder and (p.likes is None or p.dislikes is None)]
 
 
 class TreeEditor(CanvasTools, tk.Toplevel):
@@ -610,8 +618,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.find_box = ttk.Combobox(row, state="readonly", width=46, values=[])
         self.find_box.pack(side="left", padx=(4, 0))
         ttk.Button(row, text="Find", command=self._find_next).pack(side="left", padx=(4, 0))
-        ttk.Label(row, text="Name, head or body number, parent, generation, mark or status (died, left, expecting, "
-                            "runner...).  Enter: the first match, again: the next.").pack(side="left", padx=(8, 0))
+        ttk.Label(row, text="Name, head or body number, parent, generation, mark, like or dislike, or status (died, left, "
+                            "expecting, runner...).  Enter: the first match, again: the next.").pack(side="left", padx=(8, 0))
         self.find_hits: list[int] = []
         self.find_at = -1
         self.find_entry.bind("<Return>", lambda _e: self._find_next())
@@ -634,7 +642,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     def _find_words(self, pid: int) -> str:
         p = self.village.people[pid]
-        return f"{p.name} - generation {gen.roman(p.generation)}" + ("" if p.alive or p.upcoming else f" ({p.gone or 'gone'})")
+        return (f"{p.name} - generation {gen.roman(p.generation)}" + ("" if p.alive or p.upcoming else f" ({p.gone or 'gone'})")
+                + ("" if p.likes is not None and p.dislikes is not None else " [likes and dislikes not known]"))
 
     def _find_next(self) -> None:
         if not self.find_var.get().strip():
@@ -644,7 +653,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if self.find_at < 0 or not self.find_hits:
             self._find_refresh()
         if not self.find_hits:
-            self.status.set(f"No villager matches \"{self.find_var.get().strip()}\".")
+            unknown = len(unknown_preferences(self.village))
+            self.status.set(f"No villager matches \"{self.find_var.get().strip()}\"." + (
+                f"  {unknown} villager{'s' if unknown != 1 else ''} have no likes and dislikes in the save or the logs, "
+                "so a like or dislike could not be searched for in them." if unknown else ""))
             return
         self.find_at = (self.find_at + 1) % len(self.find_hits)
         self._find_go(self.find_hits[self.find_at], f"{self.find_at + 1} of {len(self.find_hits)}")
