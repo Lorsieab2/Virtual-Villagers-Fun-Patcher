@@ -491,29 +491,17 @@ static void c2_change_tech(int op, int amount) {
     }
 }
 
-/* The fish a village of this difficulty starts with ([world+0x2EAEC] 0, 1,
-   2: 2200, 1100, 550; 0x42524D / 0x42558C). */
-static int c2_fish_start(void) {
-    int difficulty = *(int *)(VV2_WORLD() + 0x2EAEC);
-    return difficulty == 0 ? 2200 : difficulty == 2 ? 550 : 1100;
-}
-
-/* The coconut trees (+0x2EACC, the game's own ceiling 1500), the fish
-   (+0x2EAD0, the village's starting stock), the field's protection from
-   birds (+0x2EAD4, a new village's 1000) and, while the farm is planted
-   (the Dam, +0x2E798), the crops (+0x2EAD8, ceiling 800).  Read and written
-   directly: the game's field test 0x425AC0 also queues "Birds found your
-   field" while its message gate is armed.  The puzzles' own flags (the
-   algae fish, the scarecrow) are never touched -- they make the stores
-   matter no more, and nothing in the game ever raises them. */
+/* The coconut trees (+0x2EACC, the game's own ceiling 1500), the field's
+   protection from birds (+0x2EAD4, a new village's 1000) and, while the farm
+   is planted (the Dam, +0x2E798), the crops (+0x2EAD8, ceiling 800).  Read and
+   written directly: the game's field test 0x425AC0 also queues "Birds found
+   your field" while its message gate is armed.  The fish are not refilled
+   (the owner, 2026-10-14).  The puzzles' own flags (the algae fish, the
+   scarecrow) are never touched -- nothing in the game ever raises them. */
 static int c2_refill(void) {
     unsigned char *world = VV2_WORLD();
-    int fish = c2_fish_start();
     if (*(int *)(world + 0x2EACC) < 1500) {
         *(int *)(world + 0x2EACC) = 1500;
-    }
-    if (*(int *)(world + 0x2EAD0) < fish) {
-        *(int *)(world + 0x2EAD0) = fish;
     }
     if (*(int *)(world + 0x2EAD4) < 1000) {
         *(int *)(world + 0x2EAD4) = 1000;
@@ -807,8 +795,8 @@ static const ce_adapter C2_ADAPTER = {
     "- Joey as a parent: only The Tree of Life and New Believers have him (their default "
     "father); choose Custom to give any parent a name and looks.",
     46, 20, 46, 0,
-    "Refills the coconut trees, the fish (to the village's starting stock), the field's "
-    "protection from birds and, while the farm is planted, the crops.",
+    "Refills the coconut trees, the field's protection from birds and, while the farm is "
+    "planted, the crops.",
     "Your villagers gain %d food.", "Your villagers lose %d food.",
     "Your villagers gain %d tech points.", "Your villagers lose %d tech points.",
     c2_record, c2_listed, c2_arm_refusal, c2_room, c2_spawn, c2_kill, c2_vanish, c2_sicken,
