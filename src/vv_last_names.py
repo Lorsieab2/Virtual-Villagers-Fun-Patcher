@@ -389,6 +389,10 @@ INHERIT = {
 # The rules where the player gives each villager's last name: a villager keeps the one they carry
 # until the player changes it, so choosing the rule never wipes a name.
 PLAYER_RULES = ("each",)
+# The rule of a village with no rule recorded: "From the father" -- the one the last-names window
+# shows, and the one VVFP Last Names.dll (DEFAULT_RULE) gives its babies (the owner, 2026-10-14:
+# "vv3-5 and the other games still have the last-names bug when new children are born").
+DEFAULT_RULE = "father"
 # The entry in each villager's own list for typing a last name of the player's own (the owner,
 # 2026-10-07: "IN THE LIST THERE SHOULD BE A (CUSTOM LAST NAME - TYPE HERE...) ENTRY").
 CUSTOM = "(custom last name - type here...)"
@@ -1805,9 +1809,9 @@ def with_siblings(fixed: dict[tuple, str], parents: dict[tuple, tuple]) -> dict[
 def wrong_last_names(folder: Path, game: int, slot: int) -> tuple[str, list[tuple[Living, str, str]]]:
     """(rule, [(villager, last name now, the one the rule gives)]): every villager -- living or
     gone -- whose last name is not the one the village's rule gives them from their parents (the
-    owner: a check for "Wrong last names").  The record's rule, else "From the mother" (as the Last
-    Names patch gives babies their mother's); without a record only names that carry a last name
-    are checked.  A name the player gave is always right."""
+    owner: a check for "Wrong last names").  The record's rule, else DEFAULT_RULE (as the Last Names
+    patch gives babies by it); without a record only names that carry a last name are checked.  A
+    name the player gave is always right."""
     rule, explained = wrong_last_names_explained(folder, game, slot)
     return rule, [(v, now, should) for v, now, should, _used, _either in explained]
 
@@ -1823,7 +1827,7 @@ def wrong_last_names_explained(folder: Path, game: int, slot: int) -> tuple[str,
     mine = {v.identity: fixed[key] for v in people
             if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
     carried = lambda name: split_name(game, name, known)[1]  # noqa: E731
-    want = expected_last_names(people, parents, rule or "mother", list(tools.load_checker().LAST_NAMES[game]),
+    want = expected_last_names(people, parents, rule or DEFAULT_RULE, list(tools.load_checker().LAST_NAMES[game]),
                                with_siblings(mine, parents), carried, own_rules_now(folder, game, slot, people))
     out = []
     for v in people:
@@ -1833,7 +1837,7 @@ def wrong_last_names_explained(folder: Path, game: int, slot: int) -> tuple[str,
                 or rule in ("list", *PLAYER_RULES):
             continue
         out.append((v, now, should, used, either))
-    return rule or "mother", out
+    return rule or DEFAULT_RULE, out
 
 
 def check_rules(recorded: dict[tuple, str], pending: dict[tuple, str], living_keys: set[tuple]) -> dict[tuple, str]:
@@ -2150,7 +2154,7 @@ def missing_last_names(folder: Path, game: int, slot: int) -> list[Missing]:
     pool = list(tools.load_checker().LAST_NAMES[game])
     mine = {v.identity: fixed[key] for v in people
             if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
-    given = inherited(people, parents, rule or "mother", pool, with_siblings(mine, parents), carried,
+    given = inherited(people, parents, rule or DEFAULT_RULE, pool, with_siblings(mine, parents), carried,
                       own_rules_now(folder, game, slot, people))
     taken = {carried(v.name) for v in alive} - {""}
     dead = {carried(v.name) for v in people if not v.alive} - {""}
