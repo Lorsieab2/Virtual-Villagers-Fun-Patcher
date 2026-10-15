@@ -26,6 +26,9 @@
         with slot 0 the slot is the save that holds the name.
      7. "From the father" / "From the mother" give that parent's last name
         only: none when that known parent has none, never the other's.
+     8. A village with no rule recorded (no file, or no rule line) -- or a
+        birth whose village cannot be told -- uses "From the father", in
+        every game; "list" and "each" still change nothing.
 
    Exit code 0 when every check passes. */
 #define _CRT_SECURE_NO_WARNINGS
@@ -121,6 +124,9 @@ int main(int argc, char **argv) {
                 record(VILLAGE[v], lines);
                 decided = OWN[f] && OWN[m] ? (strcmp(OWN[f], OWN[m]) == 0 ? OWN[f] : VILLAGE[v])
                           : OWN[f] ? OWN[f] : OWN[m] ? OWN[m] : VILLAGE[v];
+                if (decided == NULL) {
+                    decided = "father";             /* no village rule: DEFAULT_RULE */
+                }
                 _snprintf(what, sizeof what, "father %-6s mother %-6s village %-6s -> %s",
                           OWN[f] ? OWN[f] : "-", OWN[m] ? OWN[m] : "-", VILLAGE[v] ? VILLAGE[v] : "-",
                           decided ? decided : "-");
@@ -172,7 +178,7 @@ int main(int argc, char **argv) {
     record("mother", "whole\tBig Bob\n");
     check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0, "the village's rule");
     DeleteFileA(g_path);
-    check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Akikai") == 0, "no record: unchanged");
+    check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Bahati") == 0, "no record: the father's");
 
     printf("5. Head 0 and body 0 are real looks\n");
     record("father", "villager\tAgo Bahati\t0\t0\tM\tmother\nvillager\tAipi Wanjiko\t0\t0\tF\tmother\n");
@@ -246,6 +252,46 @@ int main(int argc, char **argv) {
             record("random", "");
             check(strcmp(born("Ago", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
                   "50:50 with one parent's last name: that one");
+        }
+        g_game = 3;
+    }
+
+    printf("8. A village with no rule recorded: \"From the father\" (the owner, 2026-10-14), in every game\n");
+    {
+        int g;
+        for (g = 1; g <= 5; ++g) {
+            g_game = g;
+            _snprintf(g_path, sizeof g_path, "%s\\Virtual Villagers %d Last Names - Save 1.dat", folder, g);
+            printf("  game %d\n", g);
+            DeleteFileA(g_path);
+            check(strcmp(born("Keiau Chinaka", 9, 8, "Zucca Wanjiko", 13, 25), "Kid Chinaka") == 0,
+                  "no record: Watu is his father Keiau Chinaka's, not his mother's family's");
+            {
+                static char name[24];
+                strcpy(name, "Kid Akikai");
+                VvfpRuleLastName2(name, sizeof name, "Keiau Chinaka", 9, 8, "Zucca Wanjiko", 13, 25, 0);
+                check(strcmp(name, "Kid Chinaka") == 0, "no slot and no save names the parents: the father's");
+            }
+            check(strcmp(born("Ago", 5, 6, "Aipi Wanjiko", 7, 8), "Kid") == 0,
+                  "no record, the father with no last name: none, never the mother's");
+            check(strcmp(born(NULL, -1, -1, "Aipi Wanjiko", 7, 8), "Kid Akikai") == 0,
+                  "no record, the father unknown: the family's stays");
+            record(NULL, "whole\tBig Bob\n");
+            check(strcmp(born("Keiau Chinaka", 9, 8, "Zucca Wanjiko", 13, 25), "Kid Chinaka") == 0,
+                  "a record with no rule line: the father's");
+            record(NULL, "villager\tZucca Wanjiko\t13\t25\tF\tmother\n");
+            check(strcmp(born("Keiau Chinaka", 9, 8, "Zucca Wanjiko", 13, 25), "Kid Wanjiko") == 0,
+                  "no rule line, the mother's own rule: hers");
+            record("each", "");
+            check(strcmp(born("Keiau Chinaka", 9, 8, "Zucca Wanjiko", 13, 25), "Kid Akikai") == 0,
+                  "Choose from list: unchanged");
+            record("list", "");
+            check(strcmp(born("Keiau Chinaka", 9, 8, "Zucca Wanjiko", 13, 25), "Kid Akikai") == 0,
+                  "Random from list: unchanged");
+            record("mother", "");
+            check(strcmp(born("Keiau Chinaka", 9, 8, "Zucca Wanjiko", 13, 25), "Kid Wanjiko") == 0,
+                  "From the mother recorded: the mother's");
+            DeleteFileA(g_path);
         }
         g_game = 3;
     }

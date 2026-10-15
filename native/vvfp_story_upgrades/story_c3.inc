@@ -455,6 +455,10 @@ static int c3_refill(void) {
     for (i = 0; i < count && i < 3; ++i) {
         TC1(0x4340A0u, trees, i);
     }
+    /* The beehive: its honey store is the game's own 0..3000 (the owner, 2026-10-14). */
+    if (*(int *)(uintptr_t)0x5945E0u < 3000) {
+        *(int *)(uintptr_t)0x5945E0u = 3000;
+    }
     return 1;
 }
 
@@ -670,7 +674,7 @@ static const ce_adapter C3_ADAPTER = {
     "- Joey as a parent: only The Tree of Life and New Believers have him (their default "
     "father); choose Custom to give any parent a name and looks.",
     48, 14, 30, 1,
-    "Refills the fruit trees.",
+    "Refills the beehive (its honey) and the three fruit trees.",
     "Your village gains %d food.", "Your village has lost %d food.",
     "Your village has gained %d tech points.", "Your village has lost %d tech points.",
     c3_record, c3_listed, c3_arm_refusal, c3_room, c3_spawn, c3_kill, c3_vanish, c3_sicken,

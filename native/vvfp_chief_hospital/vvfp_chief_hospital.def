@@ -1,0 +1,3 @@
+LIBRARY "VVFP VV3 Chief Hospital"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8

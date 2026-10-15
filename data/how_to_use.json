@@ -517,6 +517,14 @@
       ]
     },
     {
+      "ids": ["vv3_chief_hospital_supervision"],
+      "guide": [
+        "Drop the Tribal Chief on the Hospital to have the chief supervise the hospital.",
+        "A healer whose cure roll fails gets a second chance from the chief (about 25% per Leadership level), so a supervising chief helps cures.",
+        "Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv1_healers_study_regardless_of_food"],
       "guide": [
         "Drop a villager on the medical cactus to start them studying.",

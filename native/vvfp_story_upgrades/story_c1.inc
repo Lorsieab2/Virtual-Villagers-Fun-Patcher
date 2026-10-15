@@ -629,14 +629,14 @@ static void c1_change_tech(int op, int amount) {
     }
 }
 
-/* The berry bushes ([world+0xA2F4], a new village starts at 1900) and, once
+/* The berry bushes ([world+0xA2F4], the game's own ceiling 5000, refilled to it) and, once
    the farm is producing (stage [world+0xA2E4] >= 2), the crops (+0xA2F8, the
    game's own ceiling 800): the stores North Wind (0x428388) and the
    Honeybees (0x4283DF) add to. */
 static int c1_refill(void) {
     unsigned char *world = VV1_WORLD();
-    if (*(int *)(world + 0xA2F4) < 1900) {
-        *(int *)(world + 0xA2F4) = 1900;
+    if (*(int *)(world + 0xA2F4) < 5000) {
+        *(int *)(world + 0xA2F4) = 5000;
     }
     if (*(int *)(world + 0xA2E4) >= 2) {
         *(int *)(world + 0xA2F8) = 800;
