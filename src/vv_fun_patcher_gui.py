@@ -35,6 +35,7 @@ import vv_startup_questions
 import vv_tribe_rename
 import vv_genealogy
 import vv_genealogy_window
+from vv_tree_editor_tools import scrollable_frame
 
 # Link colours: the resting blue and the hover red.
 LINK_COLOR = "#0645ad"
@@ -2516,8 +2517,7 @@ class App(tk.Tk):
         window.title(f"How to use: {guide.title}")
         window.transient(self)
         window.resizable(False, False)
-        frame = ttk.Frame(window, padding=16)
-        frame.pack(fill="both", expand=True)
+        frame = scrollable_frame(window, padding=16)
         ttk.Label(
             frame, text=guide.title, font=("Segoe UI", 11, "bold"),
             wraplength=480, justify="left",
@@ -2714,29 +2714,7 @@ class App(tk.Tk):
         dialog = tk.Toplevel(self)
         dialog.title(title)
         dialog.transient(self)
-        canvas = tk.Canvas(dialog, borderwidth=0, highlightthickness=0)
-        scrollbar = ttk.Scrollbar(dialog, orient="vertical", command=canvas.yview)
-        canvas.configure(yscrollcommand=scrollbar.set)
-        scrollbar.pack(side="right", fill="y")
-        canvas.pack(side="left", fill="both", expand=True)
-        frame = ttk.Frame(canvas, padding=16)
-        window = canvas.create_window((0, 0), window=frame, anchor="nw")
-
-        def fit(_event=None) -> None:
-            canvas.configure(scrollregion=canvas.bbox("all"))
-            height = min(frame.winfo_reqheight(), dialog.winfo_screenheight() - 160)
-            canvas.configure(width=frame.winfo_reqwidth(), height=height)
-
-        frame.bind("<Configure>", fit)
-        canvas.bind(
-            "<Configure>", lambda event: canvas.itemconfigure(window, width=event.width)
-        )
-        dialog.bind(
-            "<MouseWheel>",
-            # "break": the window's own scroll only, never the patcher's page as well
-            lambda event: (canvas.yview_scroll(-1 if event.delta > 0 else 1, "units"), "break")[1],
-        )
-        return dialog, frame
+        return dialog, scrollable_frame(dialog, padding=16)
 
     def _show_backup_chooser(self, found) -> None:
         dialog, frame = self._scrolling_dialog("Back Up Saves")
@@ -2912,8 +2890,7 @@ class App(tk.Tk):
         dialog = tk.Toplevel(self)
         dialog.title(f"Restore Saves - {build.title.removeprefix('Virtual Villagers - ')}")
         dialog.transient(self)
-        frame = ttk.Frame(dialog, padding=16)
-        frame.pack(fill="both", expand=True)
+        frame = scrollable_frame(dialog, padding=16)
         ttk.Label(
             frame, text="Choose a backup to restore:", font=("Segoe UI", 10, "bold")
         ).pack(anchor="w")
@@ -3147,8 +3124,7 @@ class App(tk.Tk):
         dialog = tk.Toplevel(self)
         dialog.title("Rename Tribe")
         dialog.transient(self)
-        frame = ttk.Frame(dialog, padding=16)
-        frame.pack(fill="both", expand=True)
+        frame = scrollable_frame(dialog, padding=16)
         ttk.Label(
             frame,
             text=(
@@ -3378,8 +3354,7 @@ class App(tk.Tk):
         dialog = tk.Toplevel(self)
         dialog.title(title)
         dialog.transient(self)
-        frame = ttk.Frame(dialog, padding=16)
-        frame.pack(fill="both", expand=True)
+        frame = scrollable_frame(dialog, padding=16)
         if repair:
             intro = (
                 "Has the game repair this village's logs the next time you play it, "
@@ -4054,8 +4029,7 @@ class App(tk.Tk):
         window = tk.Toplevel(parent)
         window.title("Villagers with no last name")
         window.transient(parent)
-        frame = ttk.Frame(window, padding=16)
-        frame.pack(fill="both", expand=True)
+        frame = scrollable_frame(window, padding=16)
         lines = [f"• {m.describe()}" + (f" -- suggested: {m.suggested}" if m.suggested else "")
                  for m in missing[:20]]
         if len(missing) > 20:
@@ -4211,8 +4185,7 @@ class App(tk.Tk):
         window = tk.Toplevel(parent)
         window.title("Repair Saves & Logs")
         window.transient(parent)
-        frame = ttk.Frame(window, padding=16)
-        frame.pack(fill="both", expand=True)
+        frame = scrollable_frame(window, padding=16)
         ttk.Label(frame, text=f"{found}\n\nChoose what to do for {info.name}. The game must stay "
                               "closed; the save folder is backed up first.",
                   wraplength=600, justify="left").pack(anchor="w", pady=(0, 10))
@@ -4597,7 +4570,8 @@ class App(tk.Tk):
         window = tk.Toplevel(parent)
         window.title("Repair Saves & Logs: last names")
         window.transient(parent)
-        ttk.Label(window, padding=(12, 12, 12, 0), wraplength=700, justify="left",
+        frame = scrollable_frame(window)
+        ttk.Label(frame, padding=(12, 12, 12, 0), wraplength=700, justify="left",
                   text="Every villager gets the last name you choose: the living in the save and every log, "
                        "the dead and gone in every log. Choose where last names come from, then change any "
                        "one: pick from its list (the father's and the mother's come first), pick (custom last "
@@ -4609,7 +4583,7 @@ class App(tk.Tk):
                        "first). A villager whose last name, or whose own rule for their children's last names, "
                        "will change is shown in red bold. The game must stay closed."
                   ).pack(anchor="w")
-        rule_row = ttk.Frame(window, padding=(12, 8, 12, 0))
+        rule_row = ttk.Frame(frame, padding=(12, 8, 12, 0))
         rule_row.pack(anchor="w")
         ttk.Label(rule_row, text="Last names come from:").pack(side="left")
         saved_rule = names.get("rule") or recorded_rule or "father"   # the owner's: the father's name
@@ -4632,14 +4606,14 @@ class App(tk.Tk):
         # automatically assigning unique last names for arrived villagers"), kept with the village.
         recorded_arrivals = vv_last_names.read_arrivals(folder, number, info.slot)
         arrivals_var = tk.BooleanVar(value=names.get("arrivals", recorded_arrivals))
-        ttk.Checkbutton(window, variable=arrivals_var, padding=(12, 4, 12, 0),
+        ttk.Checkbutton(frame, variable=arrivals_var, padding=(12, 4, 12, 0),
                         text="Give arriving villagers their own new last name automatically (one no living "
                              "villager has, from the game's list)").pack(anchor="w")
         wrong_var = tk.StringVar()
-        ttk.Label(window, textvariable=wrong_var, padding=(12, 4, 12, 0), foreground="#a33", wraplength=700,
+        ttk.Label(frame, textvariable=wrong_var, padding=(12, 4, 12, 0), foreground="#a33", wraplength=700,
                   justify="left").pack(anchor="w")
-        canvas = tk.Canvas(window, width=720, height=420, highlightthickness=0)
-        bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
+        canvas = tk.Canvas(frame, width=720, height=420, highlightthickness=0)
+        bar = ttk.Scrollbar(frame, orient="vertical", command=canvas.yview)
         inner = ttk.Frame(canvas, padding=12)
         inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=inner, anchor="nw")
@@ -4687,7 +4661,7 @@ class App(tk.Tk):
                                 ).grid(row=row, column=3, sticky="w", padx=(8, 0))
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
-        buttons = ttk.Frame(window, padding=12)
+        buttons = ttk.Frame(frame, padding=12)
         buttons.pack(side="bottom", anchor="w")
 
         def fit_width() -> None:
@@ -4844,31 +4818,32 @@ class App(tk.Tk):
             sub = tk.Toplevel(window)
             sub.title("Random last names")
             sub.transient(window)
+            sub_frame = scrollable_frame(sub)
             who_var = tk.StringVar(value=state["who"])
             families_var = tk.StringVar(value="family" if state["families"] else "each")
             seed_var = tk.StringVar(value=str(state["seed"]))
             summary = tk.StringVar()
-            ttk.Label(sub, padding=(12, 12, 12, 0), wraplength=520, justify="left",
+            ttk.Label(sub_frame, padding=(12, 12, 12, 0), wraplength=520, justify="left",
                       text="Random last names, drawn from this game's own list. The names show in the list "
                            "behind this window in red bold; change any of them, or press Reroll for others. "
                            "Nothing is written until you press OK in the last-names window.").pack(anchor="w")
-            who_box = ttk.LabelFrame(sub, text="Who", padding=8)
+            who_box = ttk.LabelFrame(sub_frame, text="Who", padding=8)
             who_box.pack(fill="x", padx=12, pady=(8, 0))
             ttk.Radiobutton(who_box, text="Only villagers who have no last name", variable=who_var,
                             value="missing").pack(anchor="w")
             ttk.Radiobutton(who_box, text="Everyone (replaces the last names they have now)", variable=who_var,
                             value="everyone").pack(anchor="w")
-            family_box = ttk.LabelFrame(sub, text="Families", padding=8)
+            family_box = ttk.LabelFrame(sub_frame, text="Families", padding=8)
             family_box.pack(fill="x", padx=12, pady=(8, 0))
             ttk.Radiobutton(family_box, text="Fully random per villager", variable=families_var,
                             value="each").pack(anchor="w")
             ttk.Radiobutton(family_box, text="Each family shares one random name (children follow their "
                             "parents by the village's rule)", variable=families_var, value="family").pack(anchor="w")
-            seed_row = ttk.Frame(sub, padding=(12, 8, 12, 0))
+            seed_row = ttk.Frame(sub_frame, padding=(12, 8, 12, 0))
             seed_row.pack(anchor="w")
             ttk.Label(seed_row, text="Seed:").pack(side="left")
             ttk.Entry(seed_row, textvariable=seed_var, width=10).pack(side="left", padx=(6, 0))
-            ttk.Label(sub, textvariable=summary, padding=(12, 8, 12, 0), wraplength=520, justify="left").pack(anchor="w")
+            ttk.Label(sub_frame, textvariable=summary, padding=(12, 8, 12, 0), wraplength=520, justify="left").pack(anchor="w")
 
             def restore() -> None:
                 filling[0] = True
@@ -4967,7 +4942,7 @@ class App(tk.Tk):
 
             for variable in (who_var, families_var, seed_var):
                 variable.trace_add("write", preview)
-            buttons_row = ttk.Frame(sub, padding=12)
+            buttons_row = ttk.Frame(sub_frame, padding=12)
             buttons_row.pack(anchor="w")
             ttk.Button(buttons_row, text="Reroll", command=reroll).pack(side="left")
             ttk.Button(buttons_row, text="Use these", command=apply_it).pack(side="left", padx=(16, 0))
@@ -5260,8 +5235,7 @@ class App(tk.Tk):
         window = tk.Toplevel(parent)
         window.title(f"Edit the grave of {grave.name}")
         window.transient(parent)
-        frame = ttk.Frame(window, padding=12)
-        frame.pack(fill="both", expand=True)
+        frame = scrollable_frame(window, padding=12)
         record = grave.record
         boxes: dict[str, tk.StringVar] = {}
         start: dict[str, str] = {}
