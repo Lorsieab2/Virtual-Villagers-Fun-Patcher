@@ -96,6 +96,8 @@ class Person:
     expecting: bool = False             # a living mother-to-be
     heathen: bool = False               # New Believers: a current Heathen
     runner: bool = False                # likes running: the living by their save, the dead by their logs
+    likes: list[str] | None = None      # the words they like (the living by their save, the dead by their logs); None = not known
+    dislikes: list[str] | None = None   # the words they dislike; None = not known (never guessed)
     arrived: bool = False               # an Arrived record names them
     how: str = ""                       # the Arrived record's "How" ("Founder", an event's title...)
     first_seen: str | None = None       # the earliest History snapshot (or Arrived record) naming them
@@ -105,6 +107,9 @@ class Person:
     number: int | None = None           # its place in the whole tree, oldest first (number_people)
     old_looks: list[tuple[int, int]] = field(default_factory=list)   # (head, body) before Change Appearance
     placeholder: bool = False           # a default father, not a villager (is_placeholder_father)
+    likes: frozenset | None = None      # the living villager's likes as words (the save's)
+    likes_seen: set = field(default_factory=set)     # every likes list a log record gives them (frozensets of words)
+    former: list[str] = field(default_factory=list)  # names they had before the player renamed them (RenameQuestion)
 
     @property
     def key(self) -> Key:
@@ -138,6 +143,7 @@ class Village:
     base_generation: dict[int, int] = field(default_factory=dict)   # each one's, as the records say
     relooked: dict[Key, Key] = field(default_factory=dict)     # an old look's key -> the villager's key now
     full_names: dict[Key, str] = field(default_factory=dict)  # a cut name's key -> the full name shown
+    rename_questions: list = field(default_factory=list)       # RenameQuestion: pairs the player has not answered yet
 
     def living(self) -> list[Person]:
         return [p for p in self.people.values() if p.alive]
@@ -160,6 +166,37 @@ def _i32(data: bytes, at: int) -> int:
 
 def _cstr(data: bytes, at: int, cap: int) -> str:
     return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode("latin-1")
+
+
+def _like_words(text: str | None) -> frozenset | None:
+    """A log's "Likes:" value as a set of lower-case words (empty for "(none)"); None when the record
+    has no such line."""
+    if text is None:
+        return None
+    if not text.strip() or text.strip() == "(none)":
+        return frozenset()
+    return frozenset(w.strip().lower() for w in text.split(",") if w.strip())
+
+
+@dataclass
+class RenameQuestion:
+    """A logged name no living villager has, whose sex, head, body and likes are exactly one living
+    villager's (and who is no younger than the record): the player renamed them.  The Family Tree Maker asks
+    "Keep <current> or <old>?"; `key` is where the answer is kept (Edits.renames)."""
+    old: str
+    current: str
+    head: int
+    body: int
+    old_id: int
+    current_id: int
+
+    @property
+    def key(self) -> str:
+        return rename_key(self.old, self.head, self.body)
+
+
+def rename_key(old: str, head: int, body: int) -> str:
+    return f"{old}|{head}|{body}"
 
 
 class _Registry:
@@ -216,6 +253,11 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         p.family = _i32(data, at + f.family)
         if len(data) >= at + f.likes + 4 * f.slots:
             p.runner = RUNNING in [_i32(data, at + f.likes + 4 * k) for k in range(f.slots)]
+        if len(data) >= at + max(f.likes, f.dislikes) + 4 * f.slots:
+            import vv_lost_titles as lt         # the games' own like and dislike words, and the save's slots
+            prefs = lt._prefs(data, at, game)
+            p.likes, p.dislikes = ([w for w in lt.list_text(game, prefs[label]).split(", ") if w != "(none)"]
+                                   for label in ("Likes", "Dislikes"))
         if game == 1:
             p.expecting = ln.carrying(game, data, at)       # the delivery the game counts down
             # Who she is in the save's own words, for the Parents (A New Home) sidecar (_vv1_from_sidecar).
@@ -333,6 +375,16 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                 p.first_seen = b.date
         if "running" in [w.strip().lower() for w in (b.value("Likes") or "").split(",")]:
             reg.ran.add(p.id)
+        if not p.alive and p.likes is None and b.value("Likes") is not None and b.value("Dislikes") is not None \
+                and "->" not in (b.value("Likes") + b.value("Dislikes")):
+            # The dead (and the gone) by their logs' words; the living keep their save's.
+            p.likes, p.dislikes = ([w.strip() for w in (b.value(label) or "").split(",")
+                                    if w.strip() and w.strip() != "(none)"] for label in ("Likes", "Dislikes"))
+        seen_likes = _like_words(b.value("Likes"))
+        if seen_likes is None and b.heading.startswith("Villager "):
+            seen_likes = frozenset()         # a snapshot leaves the line out for a villager who likes nothing
+        if seen_likes is not None:
+            p.likes_seen.add(seen_likes)
         age = b.value("Age")
         if age and age.lstrip("-").isdigit() and not p.alive and p.gone != "died":
             p.age = max(p.age or 0, int(age))
@@ -402,14 +454,18 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             p.litter = None
 
 
-def load_village(folder: Path, game: int, slot: int, full_names: bool = True) -> Village:
+def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
+                 rename_answers: dict | None = None) -> Village:
     """The slot's village, its living villagers and every relative the save and logs know.
 
     With `full_names` (the Family Tree Maker and the Village Matchmaker), a living villager whose name
     the Villager Details screen cut is the same villager as the logs' record of their full name, and
     is shown by it (the owner, 2026-10-07: "Family trees will use the full names from the logs, then
     the save data").  Without (Last Names, Number Duplicate Names: they rename the save and the logs,
-    so they work from the names as written), everyone keeps the name the records carry."""
+    so they work from the names as written), everyone keeps the name the records carry.
+
+    `rename_answers` (Edits.renames) are the player's answers to the renamed-villager questions: see
+    _renamed_villagers.  Without an answer a question is only asked (Village.rename_questions)."""
     import vv_log_additions as additions
     import vv_tribe_rename
     folder = Path(folder)
@@ -443,6 +499,7 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
         if p.sex is None:
             p.sex, _source = checker.sex_for(game, {"name": p.name, "head": p.head, "body": p.body},
                                              exact, by_name)
+    questions = _renamed_villagers(reg, rename_answers or {}, notes)
     import vv_last_names as ln
     tribe = ""
     try:
@@ -456,6 +513,7 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
                      "disappeared while carrying or nursing, and "
                      f"{'it was' if babies == 1 else 'they were'} never born.")
     village = Village(game, slot, tribe, reg.people, notes, sorted(reg.snapshots))
+    village.rename_questions = questions
     village.relooked = {old: reg.current(old) for old in reg.relooked if reg.current(old) != old}
     village.full_names = {cut: full[0] for cut, full in reg.full.items()}
     for old, now in village.relooked.items():
@@ -469,6 +527,80 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True) ->
         notes.append("The save's tribe name could not be read, so records of every village this "
                      "slot has held were read.")
     return village
+
+
+def _renamed_villagers(reg: _Registry, answers: dict, notes: list[str]) -> list[RenameQuestion]:
+    """A logged villager no living villager is called, recorded neither dead nor gone, with the sex, head,
+    body and likes of exactly one living villager who is no younger than the record, is probably that
+    villager after the player renamed them (the owner, 2026-10-13: Lupa Tangaroa is now Coral Tangaroa).
+    Never decided by the name, and never when two records or two villagers fit: those are listed in the
+    notes and left apart.  The player is asked "Keep <current> or <old>?"; answered "current" the two are
+    ONE person under the current name with the old name in `former`; answered "old" they stay apart (the
+    tree as it always showed them); unanswered, nothing changes and the question is returned."""
+    together: dict[int, set[int]] = {}
+    for ids in reg.snapshots.values():
+        for pid in ids:
+            together.setdefault(pid, set()).update(ids)
+    living = [q for q in reg.people.values() if q.alive and not q.upcoming]
+    living_names = {q.name for q in living}
+    pairs: list[tuple[Person, Person]] = []
+    for o in list(reg.people.values()):
+        if o.alive or o.gone or o.upcoming or o.placeholder or o.head is None or o.body is None \
+                or o.sex is None or not o.likes_seen or o.name in living_names:
+            continue
+        fits = [q for q in living
+                if q.name != o.name and q.sex == o.sex and q.head == o.head and q.body == o.body
+                and q.likes is not None and frozenset(w.lower() for w in q.likes) in o.likes_seen
+                and (o.age is None or q.age is None or q.age >= o.age)
+                and not (o.birth_record is not None and q.birth_record is not None)
+                and q.id not in together.get(o.id, ())]
+        if len(fits) == 1:
+            pairs.append((o, fits[0]))
+        elif len(fits) > 1:
+            notes.append(f"{o.name} (head {o.head}, body {o.body}) is in the logs but not in the save; "
+                         f"{', '.join(q.name for q in fits)} all have the same sex, looks and likes, so "
+                         "they were not joined.")
+    questions: list[RenameQuestion] = []
+    for o, q in pairs:
+        rivals = [x.name for x, y in pairs if y.id == q.id]
+        if len(rivals) > 1:
+            notes.append(f"{q.name} could be {' or '.join(rivals)} (the same sex, looks and likes), so they "
+                         "were not joined.")
+            continue
+        ask = RenameQuestion(o.name, q.name, o.head, o.body, o.id, q.id)
+        if answers.get(ask.key) == "current":
+            _merge_renamed(reg, o, q)
+        elif answers.get(ask.key) != "old":
+            questions.append(ask)
+    return questions
+
+
+def _merge_renamed(reg: _Registry, p: Person, q: Person) -> None:
+    """The logged record `p` is the living villager `q` under an older name: `q` keeps every fact the
+    records give either and notes the old name."""
+    for attr in ("father", "mother", "birth_record", "litter", "sex"):
+        if getattr(q, attr) is None:
+            setattr(q, attr, getattr(p, attr))
+    if p.first_seen and (q.first_seen is None or p.first_seen < q.first_seen):
+        q.first_seen = p.first_seen
+    q.arrived = q.arrived or p.arrived
+    # A renamed founder is still a founder: the newer record's "unknown" is not a way in.
+    q.how = "Founder" if p.how == "Founder" and q.how in (None, "", "unknown") else (q.how or p.how)
+    q.runner = q.runner or p.runner
+    q.likes_seen |= p.likes_seen
+    q.former = [p.name] + [n for n in q.former if n != p.name] + [n for n in p.former if n not in q.former]
+    for r in reg.people.values():
+        if r.father == p.id:
+            r.father = q.id
+        if r.mother == p.id:
+            r.mother = q.id
+    for ids in reg.snapshots.values():
+        if p.id in ids:
+            ids.discard(p.id)
+            ids.add(q.id)
+    reg.ran.discard(p.id)
+    del reg.people[p.id]
+    reg.by_key[p.key] = q.id
 
 
 def _unrecorded_looks(reg: _Registry) -> None:
@@ -502,7 +634,7 @@ def _unrecorded_looks(reg: _Registry) -> None:
         if p.first_seen and (q.first_seen is None or p.first_seen < q.first_seen):
             q.first_seen = p.first_seen
         q.arrived = q.arrived or p.arrived
-        q.how = q.how or p.how
+        q.how = "Founder" if p.how == "Founder" and q.how in (None, "", "unknown") else (q.how or p.how)
         for r in reg.people.values():
             if r.father == p.id:
                 r.father = q.id

@@ -250,6 +250,9 @@ FILES = [
     "src/vv_titles_file.py",
     # Repair Saves & Logs' Reset corrupted skill values (the GUI imports it).
     "src/vv_corrupt_skills.py",
+    # Repair Saves & Logs' removal of a restarted tribe's villagers from the history, and the Family Tree
+    # Maker's "Hide villagers not in the current save" (v1.35.73; the GUI and the tree import it).
+    "src/vv_history_revision.py",
     # Repair Saves & Logs' Restore A New Home Parents (the GUI imports it).
     "src/vv1_parents_restore.py",
     # The save folder's folder and file names, old and new: the Family Tree Maker finds its edits and

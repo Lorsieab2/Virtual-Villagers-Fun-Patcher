@@ -2711,18 +2711,50 @@ static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wpar
 
 /* Arm `e` for `game`: make the island event due exactly as the Island Event
    purchase does and remember the event -- with its two choices when `c` is
-   an enabled choice (NULL or not enabled: a plain event).  1 on success. */
-static int ce_arm_with(int game, const ce_event *e, const ce_choice *c) {
-    if (!GAMES[game].arm()) {
+   an enabled choice (NULL or not enabled: a plain event).  `notice` 1 for
+   Choose Time Skip Amount's closing notice.  A player's own event bought
+   before a new village has had its two opening island events is remembered
+   without making the island event due (ce_held, story_custom.inc):
+   ce_opening_tick does that once they are over.  1 on success. */
+static int ce_arm_with(int game, const ce_event *e, const ce_choice *c, int notice) {
+    int hold = !notice && ce_opening(game, 0);
+    if (!hold && !GAMES[game].arm()) {
         return 0;
     }
     ce_armed_event = *e;
     ce_armed_event.game = game;
     ce_store_choice(game, c);
     ce_armed = 1;
-    ce_armed_is_notice = 0;      /* a player's own event; the time skip marks its notice after */
+    ce_armed_is_notice = notice;
+    ce_wait_arm = hold;
     ce_armed_village = story_village_now(game);
     return 1;
+}
+
+/* Every frame (VvfpStoryInstall): a player's own event held by a new
+   village's two opening island events is made due, exactly as the purchase
+   does, once the game has made both -- not while an island event's popup is
+   open, and not when one is already on its way (the game's own then carries
+   it). */
+static void ce_opening_tick(int game) {
+    if (!ce_armed) {
+        ce_wait_arm = 0;
+        return;
+    }
+    if (ce_armed_event.game != game || ce_armed_is_notice || !ce_pending(game)) {
+        return;
+    }
+    if (ce_opening(game, 0)) {
+        ce_wait_arm = 1;             /* e.g. put back from the queue file in a new village */
+        return;
+    }
+    if (!ce_wait_arm || time_skip_event_open()) {
+        return;
+    }
+    ce_wait_arm = 0;
+    if (!GAMES[game].island_pending()) {
+        (void)GAMES[game].arm();
+    }
 }
 
 /* The Custom Island Event upgrade, called by the Origins companion when its
@@ -2783,13 +2815,16 @@ static int story_custom_island_event(int game, HWND owner) {
     if (refusal == NULL && GAMES[game].island_pending()) {
         refusal = "An island event is already queued and on its way.";
     }
-    if (refusal != NULL || !ce_arm_with(game, &ui.draft, &ui.choice)) {
+    if (refusal != NULL || !ce_arm_with(game, &ui.draft, &ui.choice, 0)) {
         ui_message(owner, refusal != NULL ? refusal
                                           : "The event can not happen right now. No tech points have been deducted.");
         return 0;
     }
     memset(&ui.draft, 0, sizeof ui.draft);     /* queued: start the next one fresh */
     memset(&ui.choice, 0, sizeof ui.choice);
-    ui_message(owner, "Your custom island event is on its way.");
+    ui_message(owner, ce_wait_arm
+                          ? "Your custom island event is on its way. A new village always has its "
+                            "first two island events first, so it arrives right after them."
+                          : "Your custom island event is on its way.");
     return 1;
 }

@@ -2,7 +2,7 @@
 
 An offline Windows patcher for miscellaneous fun patches in all five classic Virtual Villagers PC games.
 
-**Supported game source:** This patcher only supports the games downloaded from the official **Last Day of Work (LDW) website** (ldw.com), where all five PC games are available for free — so there's no reason to get them from anywhere else. Every patch is pinned to the exact bytes of those free LDW builds. Other releases (for example the Steam version) are not tested and may have different bytes; if a game isn't the LDW download, the patcher rejects it rather than risk patching an unverified executable.
+**Supported game source:** This patcher only supports the games downloaded from the official **Last Day of Work (LDW) website** (ldw.com), where all five PC games are available for free â€” so there's no reason to get them from anywhere else. Every patch is pinned to the exact bytes of those free LDW builds. Other releases (for example the Steam version) are not tested and may have different bytes; if a game isn't the LDW download, the patcher rejects it rather than risk patching an unverified executable.
 
 The app uses the supplied transparent `Island.png` artwork as its title-bar icon and as small image decorations around both its name and the credit:
 
@@ -20,6 +20,26 @@ prerequisite selects that prerequisite automatically; clearing a prerequisite
 clears its dependents. The saved settings and patch logs record the resolved,
 dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
+
+
+## What's new in v1.35.73
+
+New in v1.35.73 (not yet seen in a running game):
+
+- **The patch list draws only what is on screen** (Patches tab, every game). Each game's list builds the patches near its visible part and draws the rest as you scroll, so the window opens with far fewer widgets. Each game's list is a fixed-height area with its own scrollbar: the mouse wheel scrolls it while the pointer is over it, and scrolls the page once the list is at its end. Ticks, the "?" guides, the bold requirement lines, Select All and the saved selection all work as before. Not yet tried in a running game.
+
+- **Family Tree Maker: the "continued on page N" labels no longer pile on top of one another.** On a page where many families have their children on the next page, the labels (and their long lines) could be drawn on top of each other along the bottom edge. They are now laid out like portraits, each sized to its words and given a place of its own, standing in rows and running out to one side of its line where they must; none touches another label or a portrait, every line still ends at its label, and the words, clicking, dragging and saved positions are unchanged.
+- **Villager Info tab: the "shares this name and looks" note no longer leaks between a villager's looks.** A villager who changed looks with Change Appearance could be labelled as sharing their look because of an old look that was shared, and a shared villager could recover a title from an old look. The shared note now belongs to the villager's current look only, and a villager who shares their current look takes no title from an old one.
+- **An island event that changes both a villager's likes and their head before the next frame keeps the custom title** (all five games). The head is stored under the new likes at once, in the Custom Titles file too, so a log written in that frame reads the new head.
+- **A Custom Island Event that changes skills before the title list has been checked against the village after a load** now makes the check first, as the lookup does, so the title is on its villager before the change is carried (all five games). Limit: only when the change is the first thing the title list sees after a load, before the list has been checked against the village. Then the villager is below the stored skills, so the title waits unshown (pending) for the reconciliation to ask about, the lowering is not stored, and the title is never given to someone else. In the normal path the event checks the village first, so the lowered value is stored and the title follows its villager. A change after the list has been checked is carried as before.
+- **Repair Saves & Logs can remove a restarted tribe's villagers from the history** (all five games). Started a game over with the same tribe name? The new checklist row "Remove villagers from the history that are not in this save (a restarted tribe with the same name)" is never ticked by default. It removes only the villagers proven gone (no villager in the save, no older copy of the save, no Name changed, Appearance changed or Island Events record and no shared name ties them to the tribe you play, and only snapshots older than your tribe's own list them), after you confirm the exact list, log by log. Everyone else not in the save, renamed villagers included, is kept and listed with the reason. Each log is copied to Copies Made Before Repairs first, the save is never changed, and every villager removed is listed in the Repairs log. The Family Tree Maker's new "Hide villagers not in the current save" (on by default) leaves those villagers out of the tree.
+- **Patch selection settings and search** (Patches tab, all five games). A new **Patch Selection Settings...** button opens a window that lists every patch name once, with the games it appears in; **Tick These** and **Untick These** set that patch in every game that has it, using the same dependency and companion rules as a manual click. Each game's tab has a **Search patch names** box that matches names only (case-insensitive) and changes only which rows are shown, never a tick.
+- **Anything uncertain is your decision, not the program's** (all five games). A possible match in the save that is not proof (the same sex, head and body; a shared name; a link; the same sex and one of head or body) is listed under "Not sure" in the same confirmation. It is kept unless you tick it to be removed.
+- **Undelete villagers** (Repair Saves & Logs, all five games). A new checklist row, never ticked by default, puts back what the latest history revision removed. It restores each log from the copy the revision made, after you confirm the list. Lines written since are kept; if a log was edited in place since, nothing is changed. Each log is copied first, and the Repairs log records what came back.
+- **A renamed founder is still a founder** (Family Tree Maker, all five games). A kept rename (for example Lupa Tangaroa to Coral Tangaroa) takes the Founder status of the older record, so the arrival rule no longer places the renamed villager outside Generation I.
+- **Known gap (unchanged):** Change Appearance for All still publishes the Custom Titles file once for each titled villager it changes, not once for the whole change. Batching it would change the Change Appearance loops in the Origins DLLs and add a new export to the Story / Cheat Upgrades companion, which can not be checked without live games, so it is left for later.
+
+- **Villagers the F7 developer command spawns in The Tree of Life are now named as that command (fixed).** Before, their Arrived records said "How: unknown", because the patcher did not list F7's path. They now say "How: Developer command (F7)". The patcher checked every direct call of a villager creator in all five stock executables: F7 was the only path without a listed label, and it is the game's own debug key (F1-F10 are commands 1018-1027, so F7 is 1024). Where the patcher cannot tell which path made a villager, the record now says "How: added outside a recorded event" instead of "unknown" (all five games). A villager the backfill finds with no record at all still says "unknown", with the note that they arrived before the log existed. Not yet seen in a running game.
 
 
 ## What's new in v1.35.72
@@ -1176,7 +1196,7 @@ Each game's **Enable Origins Tech, Details, and Village-Wide Upgrades** patch
 adds two menus reached from an **Upgrades** button. Every game uses the same
 wording and the same shell, so the menus read identically across all five.
 
-### Tech screen — `Origins Upgrades`
+### Tech screen â€” `Origins Upgrades`
 
 | Upgrade | Cost |
 |---|---:|
@@ -1320,7 +1340,7 @@ Collections, both Equal Division of Labor rows and Change Appearance for
 All. In The Tree of Life those five used to apply silently -- the purchase
 worked, but nothing confirmed it.
 
-### Villager Details screen — `Villager Upgrades`
+### Villager Details screen â€” `Villager Upgrades`
 
 | Upgrade | Cost |
 |---|---:|

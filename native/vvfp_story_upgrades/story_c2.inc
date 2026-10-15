@@ -51,7 +51,9 @@ static const char *c2_arm_refusal(void) {
         return "There is no village to have an island event.";
     }
     /* The first event is always family A: a question (shown by family A's
-       own popup) may be it, a plain event may not. */
+       own popup) may be queued before it, a plain event may not.  Either is
+       delivered only after the village's two opening island events, which
+       stay the game's own (ce_held, story_custom.inc). */
     if (*(int *)(world + VV2_EVENT_COUNT_FIELD) == 0 && !ce_refusal_for_choice) {
         return "A village's first island event is always one with a choice. A custom island "
                "event can be queued once it has happened.";

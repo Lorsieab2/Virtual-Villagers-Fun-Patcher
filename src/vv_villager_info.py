@@ -173,6 +173,8 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person,
             note(("Founder", "plain", None))
     if village.game == 1 and (p.family == 199 or p.how == "Golden Child"):
         note(("Golden Child (5 years old for life)", "plain", None))
+    for old_name in p.former:
+        note((f"formerly {old_name}", "plain", None))
     if p.heathen:
         note(("Heathen (not one of the tribe)", "plain", None))
     own = titles_of(village, titles or {}, p)
@@ -344,15 +346,21 @@ def shared_looks(folder: Path, game: int, slot: int) -> dict[tuple, int] | None:
 
 def titles_of(village: gen.Village, titles: dict, p: gen.Person) -> dict:
     """One villager's titles, found by their key now, the keys of their earlier looks (Change
-    Appearance) or of the cut name the records give (village.full_names)."""
+    Appearance) or of the cut name the records give (village.full_names).  "shared" is the current
+    key's own state only (v1.35.73): an alias's shared marker never labels this villager, and a
+    villager whose current key is shared takes no title from an alias (it can not be told apart)."""
     if p.upcoming or not titles:
         return {}
-    keys = [p.key] + [old for old, now in village.relooked.items() if now == p.key] \
+    own = dict(titles.get(p.key, {}))
+    if own.get("shared"):
+        return own
+    keys = [old for old, now in village.relooked.items() if now == p.key] \
         + [cut for cut, full in village.full_names.items() if (full, cut[1], cut[2]) == p.key]
-    out: dict = {}
+    out: dict = dict(own)
     for key in keys:
         for k, v in titles.get(key, {}).items():
-            out.setdefault(k, v)
+            if k != "shared":
+                out.setdefault(k, v)
     return out
 
 

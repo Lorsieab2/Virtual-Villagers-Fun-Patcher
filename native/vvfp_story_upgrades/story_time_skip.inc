@@ -117,10 +117,9 @@ static int time_skip_notice_arm(int game, int years) {
     } else {
         wsprintfA(e->text, "%d years have passed on the island.", years);
     }
-    if (!ce_arm_with(game, e, NULL)) {
+    if (!ce_arm_with(game, e, NULL, 1)) {
         return 0;
     }
-    ce_armed_is_notice = 1;
     return 1;
 }
 

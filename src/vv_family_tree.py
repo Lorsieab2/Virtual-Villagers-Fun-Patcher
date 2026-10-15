@@ -40,6 +40,7 @@ import math
 import re
 import struct
 import zlib
+from copy import copy as _copy
 from dataclasses import dataclass, field, replace
 from datetime import datetime
 from pathlib import Path
@@ -310,6 +311,8 @@ class Family:
     onward: list = field(default_factory=list)
     onward_page: int = 0
     stem_x: float = 0.0                 # where its line goes down from the couple's line to those words
+    word_dx: float = 0.0                # how far its words' centre stands from the end of its line (0: centred under it;
+                                        # otherwise the words run out to one side, when crowded labels would meet)
 
 
 # How the family lines may be coloured (vv_line_colours): the Lines tab's "Line colours" and "Order colours by".
@@ -448,6 +451,9 @@ class Edits:
     # name>" and "line:<family key>|<piece>".  A villager deleted is "hidden" in their entry.
     pages: list[int] = field(default_factory=list)                     # the generations that start a new page
     hidden: list[str] = field(default_factory=list)
+    # The player's answers to "Keep <current name> or <old name>?" for a renamed-looking villager
+    # (vv_genealogy.RenameQuestion.key -> "current" or "old"); asked once, then remembered.
+    renames: dict[str, str] = field(default_factory=dict)
     # Pieces of line the player dragged (the owner: "move individual lines and still keep the
     # connections to portraits"): "<family key>|<piece>" -> how far it was dragged.
     line_moves: dict[str, list | float] = field(default_factory=dict)   # piece -> [right, down]
@@ -462,6 +468,12 @@ class Edits:
     # Stickers (the owner: "any image file on the computer where people can drag and place them
     # like a scrapbook", "resize, rotate, transform"): pictures on top of the tree, bottom one first.
     stickers: list[dict] = field(default_factory=list)
+    # What belongs to one page only (the owner, preview: "everything placed on a page belongs to that
+    # page only"), by the page's first generation ("1", "6"...): {"entries": {entry key -> {field -> value,
+    # or None: not set on this page}}, "moved": {name -> [right, down]}, "hidden": [the page's whole list of
+    # deleted things], "family_colours": {...}, "person_colours": {...} (None: the patcher's own)}.  Laid over
+    # the tree-wide ones above for that page alone (page_view).  A sticker carries its own "page".
+    page_edits: dict[str, dict] = field(default_factory=dict)
     # One group's portraits set apart from the rest (the owner, 2026-10-09: "as many options as
     # realistically and logically possible should be by group with options to equalize"): GROUPS ->
     # {GROUP_FIELDS name -> value}, each over the tree's own setting for that group only (opt()).
@@ -705,6 +717,8 @@ class Edits:
             out.pages = sorted({int(g) for g in data["pages"] if isinstance(g, int) and 2 <= g <= 99})
         if isinstance(data.get("hidden"), list):
             out.hidden = [str(h) for h in data["hidden"]]
+        if isinstance(data.get("renames"), dict):
+            out.renames = {str(k): v for k, v in data["renames"].items() if v in ("current", "old")}
         for g, keys in dict(data.get("orders", {})).items():
             if isinstance(keys, list):
                 out.orders[str(g)] = [str(k) for k in keys]
@@ -721,6 +735,7 @@ class Edits:
             sticker = clean_sticker(raw)
             if sticker is not None:
                 out.stickers.append(sticker)
+        out.page_edits = clean_page_edits(data.get("page_edits"))
         out.equal_sizes = clean_equal_sizes(data.get("equal_sizes"))
         out.group_opts = clean_group_opts(data.get("group_opts"))
         return out
@@ -733,7 +748,7 @@ class Edits:
         temp.replace(path)
 
     def to_data(self) -> dict:
-        return {"format": 1, "title": self.title, "subtitle": self.subtitle,
+        return {"format": 1, "page_edits": clean_page_edits(self.page_edits), "title": self.title, "subtitle": self.subtitle,
                 "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "line_mode": self.line_mode, "line_order": self.line_order, "line_reverse": self.line_reverse, "gradient_start": self.gradient_start, "gradient_end": self.gradient_end, "range_colours": self.range_colours, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "show_runner": self.show_runner, "number_names": self.number_names,
                 "number_order": self.number_order,
@@ -744,7 +759,7 @@ class Edits:
                 "background_opacity": self.background_opacity,
                 "ink": self.ink, "family_colours": self.family_colours,
                 "person_colours": self.person_colours, "moved": self.moved, "orders": self.orders,
-                "portrait_fill": self.portrait_fill, "plate_colour": self.plate_colour, "hidden": self.hidden,
+                "portrait_fill": self.portrait_fill, "plate_colour": self.plate_colour, "hidden": self.hidden, "renames": self.renames,
                 "pages": self.pages,
                 "shapes": self.shapes, "borders": self.borders, "opacity": self.opacity,
                 "sizes": self.sizes, "line_width": self.line_width, "line_dash": self.line_dash,
@@ -1057,6 +1072,8 @@ def clean_sticker(raw) -> dict | None:
         })
     else:
         out["picture"] = raw["picture"]
+    if isinstance(raw.get("page"), int) and not isinstance(raw.get("page"), bool) and 1 <= raw["page"] <= 99:
+        out["page"] = raw["page"]       # the page it is on (its first generation); none: every page, as before
     return {
         **out,
         "cx": _number(raw.get("cx"), -STICKER_MAX, STICKER_MAX, 200.0),
@@ -1068,6 +1085,185 @@ def clean_sticker(raw) -> dict | None:
         "flip_v": raw.get("flip_v") is True,
         "opacity": _number(raw.get("opacity"), 0, 100, 100.0),
     }
+
+
+# What a page keeps of its own (Edits.page_edits).  Everything, a villager's generation (the row they sit
+# in) and chosen look too (the owner, 2026-10-13: "everything in the family tree must be per page").  The
+# tree-wide value is the default; a page's own only ever changes that page.  Which page a villager is on
+# stays the tree's generation, so a page's own generation is one within the page's own generations.
+
+
+def _clean_entry_field(name: str, value):
+    """One saved per-page entry field, or (False, None) when it is not a valid value of its kind."""
+    if value is None:
+        return True, None
+    if name == "generation":
+        return (True, value) if isinstance(value, int) and not isinstance(value, bool) and 1 <= value <= 99 \
+            else (False, None)
+    if name == "look":
+        return (True, value) if isinstance(value, list) and len(value) == 2 \
+            and all(isinstance(v, int) and not isinstance(v, bool) for v in value) else (False, None)
+    return True, value
+
+
+def _clean_line_shift(shift):
+    """A dragged line's shift as a page keeps it: [right, down], a number (across itself), or None (not
+    moved on this page whatever the tree's own says); False when it is nothing valid."""
+    if shift is None:
+        return None
+    if isinstance(shift, list) and len(shift) == 2 and all(isinstance(v, (int, float)) for v in shift):
+        return [_number(v, -STICKER_MAX, STICKER_MAX, 0.0) for v in shift]
+    if isinstance(shift, (int, float)) and not isinstance(shift, bool):
+        return _number(shift, -STICKER_MAX, STICKER_MAX, 0.0)
+    return False
+
+
+def page_key(edits: Edits, village: gen.Village, page: int) -> int:
+    """A page's name in the edits: its first generation (it stays the page's name when pages before it are
+    added or joined)."""
+    spans = page_spans(edits, village)
+    return spans[max(0, min(page, len(spans) - 1))][0]
+
+
+def clean_page_edits(raw) -> dict[str, dict]:
+    """Edits.page_edits as the file keeps it, every part checked; empty pages dropped."""
+    out: dict[str, dict] = {}
+    if not isinstance(raw, dict):
+        return out
+    for key, part in raw.items():
+        if not isinstance(part, dict) or not str(key).isdigit():
+            continue
+        item: dict = {}
+        entries = {}
+        for ekey, fields in (part.get("entries") or {}).items() if isinstance(part.get("entries"), dict) else []:
+            if isinstance(fields, dict) and fields:
+                kept = {}
+                for f, v in fields.items():
+                    ok, v = _clean_entry_field(str(f), v)
+                    if ok:
+                        kept[str(f)] = v
+                if kept:
+                    entries[str(ekey)] = kept
+        if entries:
+            item["entries"] = entries
+        if isinstance(part.get("line_moves"), dict):
+            shifts = {}
+            for piece, shift in part["line_moves"].items():
+                shift = _clean_line_shift(shift)
+                if shift is not False and (shift is None or any(shift if isinstance(shift, list) else [shift])):
+                    shifts[str(piece)] = shift
+            if shifts:
+                item["line_moves"] = shifts
+        if isinstance(part.get("free_lines"), list):
+            item["free_lines"] = [str(p) for p in part["free_lines"]]
+        moved = {str(n): [_number(s[0], -STICKER_MAX, STICKER_MAX, 0.0), _number(s[1], -STICKER_MAX, STICKER_MAX, 0.0)]
+                 for n, s in (part.get("moved") or {}).items()
+                 if isinstance(s, list) and len(s) == 2} if isinstance(part.get("moved"), dict) else {}
+        if isinstance(part.get("moved"), dict):         # None: not moved on this page, whatever the tree's own says
+            moved.update({str(n): None for n, s in part["moved"].items() if s is None})
+        if moved:
+            item["moved"] = moved
+        if isinstance(part.get("hidden"), list):
+            item["hidden"] = [str(h) for h in part["hidden"]]
+        for name in ("family_colours", "person_colours"):
+            colours = {str(k): v for k, v in part[name].items() if v is None or is_colour(v)} \
+                if isinstance(part.get(name), dict) else {}
+            if colours:
+                item[name] = colours
+        if isinstance(part.get("generations"), dict):   # a generation label's lines; None: the patcher's own here
+            labels = {str(g): ([str(x) for x in lines] if isinstance(lines, list) else None)
+                      for g, lines in part["generations"].items()
+                      if str(g).isdigit() and (lines is None or isinstance(lines, list))}
+            if labels:
+                item["generations"] = labels
+        if item:
+            out[str(int(key))] = item
+    return out
+
+
+def page_view(edits: Edits, village: gen.Village, page: int) -> Edits:
+    """The edits as one page shows them: the tree's own with that page's laid over them (a copy; `edits`
+    itself when the page keeps nothing of its own).  Nothing placed on one page is seen on another."""
+    part = edits.page_edits.get(str(page_key(edits, village, page)))
+    if not part:
+        return edits
+    view = replace(edits)
+    entries = {k: dict(v) for k, v in edits.entries.items()}
+    for ekey, fields in part.get("entries", {}).items():
+        merged = entries.setdefault(ekey, {})
+        for name, value in fields.items():
+            if value is None:
+                merged.pop(name, None)
+            else:
+                merged[name] = value
+        if not merged:
+            del entries[ekey]
+    view.entries = entries
+    view.moved = {n: s for n, s in {**edits.moved, **part.get("moved", {})}.items() if s is not None}
+    if "hidden" in part:
+        view.hidden = list(part["hidden"])
+    if "line_moves" in part:                    # None: not dragged on this page, whatever the tree's own says
+        view.line_moves = {p: s for p, s in {**edits.line_moves, **part["line_moves"]}.items() if s is not None}
+    if "free_lines" in part:
+        view.free_lines = list(part["free_lines"])
+    if "generations" in part:                   # None: no label of the player's own on this page
+        view.generations = {g: list(lines) for g, lines in
+                            {**edits.generations, **part["generations"]}.items() if lines is not None}
+    for name in ("family_colours", "person_colours"):
+        if name in part:
+            merged = dict(getattr(edits, name))
+            for k, v in part[name].items():
+                if v is None:
+                    merged.pop(k, None)
+                else:
+                    merged[k] = v
+            setattr(view, name, merged)
+    return view
+
+
+def page_village(edits: Edits, village: gen.Village, page: int) -> gen.Village:
+    """The village as one page shows it: a villager a page puts in another generation (a "generation" in
+    that page's own entries) sits in that row on that page alone, the rest of the tree as it was (`village`
+    itself when the page moves nobody).  Who is on which page stays the tree's: a page only moves villagers
+    between the generations it already shows, and keeps the tree's pages (span_generations)."""
+    part = edits.page_edits.get(str(page_key(edits, village, page)))
+    if not part or not any("generation" in f for f in part.get("entries", {}).values()):
+        return village
+    spans = page_spans(edits, village)
+    lo, hi = spans[max(0, min(page, len(spans) - 1))]
+    entries = page_view(edits, village, page).entries
+    changed: dict[int, int] = {}
+    for pid, p in village.people.items():
+        if not lo <= p.generation <= hi:
+            continue
+        g = entries.get(entry_key(village, p), {}).get("generation") or village.base_generation.get(pid, p.generation)
+        if g != p.generation and lo <= g <= hi:
+            changed[pid] = g
+    if not changed:
+        return village
+    out = _copy(village)
+    out.people = {pid: _copy(p) for pid, p in village.people.items()}
+    for pid, g in changed.items():
+        out.people[pid].generation = g
+    out.span_generations = sorted({p.generation for p in village.people.values()}) or [1]
+    _renumber(out, replace(edits, entries=entries))
+    return out
+
+
+def localise_stickers(edits: Edits, village: gen.Village) -> bool:
+    """Stickers saved before pages kept their own (no "page") were drawn on every page: one copy for each
+    page now, in the same stacking, so each is moved or deleted on its own page.  True when any changed."""
+    if all("page" in s for s in edits.stickers):
+        return False
+    keys = sorted({lo for lo, _hi in page_spans(edits, village)})
+    out = []
+    for raw in edits.stickers:
+        if "page" in raw:
+            out.append(raw)
+        else:
+            out.extend({**raw, "page": k} for k in keys)
+    edits.stickers = out
+    return True
 
 
 def turn(x: float, y: float, angle: float) -> tuple[float, float]:
@@ -1414,6 +1610,11 @@ def arrange(village: gen.Village, edits: Edits) -> None:
     for pid, p in village.people.items():
         own = edits.entries.get(entry_key(village, p), {}).get("generation")
         p.generation = own or village.base_generation.get(pid, p.generation)
+    _renumber(village, edits)
+
+
+def _renumber(village: gen.Village, edits: Edits) -> None:
+    """The villagers' numbers, given the generations they now have (the rest of arrange)."""
     gen.number_people(village, edits.sort)
     gone = {pid for pid, p in village.people.items() if edits.entries.get(entry_key(village, p), {}).get("hidden")}
     if not edits.orders and not gone:
@@ -1575,7 +1776,8 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
     with the generation the next one starts at, and that page shows it again as its founders (the
     owner: "page 1 has generations 1-6.  The second page should have generations 6-12, with the 6th
     generation on the second page being treated as "founders" on the second page")."""
-    gens = sorted({p.generation for p in village.people.values()}) or [1]
+    # (a page laid out with generations of its own keeps the tree's pages: page_village)
+    gens = getattr(village, "span_generations", None) or sorted({p.generation for p in village.people.values()}) or [1]
     starts = [gens[0]] + sorted({g for g in edits.pages if g in gens and g > gens[0]})   # Codex, #557
     spans = [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
     # No page holds more than the player's number of generations (the owner, 2026-10-08: 6 until they
@@ -1597,6 +1799,8 @@ def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> L
     they are as small as they go (SHRINK_MIN)."""
     if edits is not None:
         settle_shapes(edits, village)           # saved before a shape was drawn turned: moved on once
+        village = page_village(edits, village, page)    # (before the view: it names the page by the tree's)
+        edits = page_view(edits, village, page)     # this page's own things laid over the tree's
     lay = _layout(village, edits, page)
     e = lay.edits
     if not e.fit_width:
@@ -2014,6 +2218,7 @@ def _layout(village: gen.Village, edits: Edits | None = None, page: int = 0,
         if fam.onward_page not in later:
             later[fam.onward_page] = _page_colours(village, e, fam.onward_page - 1)
         fam.colour = later[fam.onward_page].get(family_key(village, fam), GREY)
+    _settle_onward(out)
     return out
 
 
@@ -2047,6 +2252,75 @@ def onward_width(edits: Edits, village: gen.Village, fam: Family) -> float:
                           style.get("italic", False)), len(text) * size * 0.55)
 
 
+def _stagger_onward(fams: list[Family], span: dict, halves: dict, pitch: float, start: float, backwards: bool,
+                    prefer: tuple, last_resort: bool = False):
+    """Rows for the words of the families whose children are on a later page when they will not all stand
+    centred under their own lines: {family id: (line x, line's lowest y, words' centre less line x)}.  Each
+    family in turn (from the right or the left) takes the highest row, and a place along its stretch, where
+    its line goes down clear of the words above, its words (centred under the line, or running out to the
+    , in that order: 0, 1, -1) clear of the words in their row and of every line
+    going lower.  None if some family finds no place (last_resort: it is put in a row of its own)."""
+    out: dict = {}
+    words: list[tuple[float, float, int]] = []
+    downs: list[tuple[float, int]] = []
+    inset = 6
+    order = sorted(fams, key=lambda f: (span[f.id][1], span[f.id][0], f.id), reverse=backwards)
+    for f in order:
+        lo, hi = span[f.id]
+        tw = halves[f.id]
+        mid = (lo + hi) / 2
+        found = None
+        for row in range(len(fams) + 1):
+            above = [(a - 2, b + 2) for a, b, r in words if r < row]
+            xs = [mid] + [b for _a, b in above] + [a for a, _b in above] + [lo, hi]
+            xs = sorted({x for x in xs if lo <= x <= hi and not any(a < x < b for a, b in above)},
+                        key=lambda x: (abs(x - mid), x))
+            for x in xs:
+                for side in prefer:
+                    # (0: centred; 1, -1: running out to the right or left with the line at the words' end;
+                    # 2, -2: beside the line's end, for lines that fall at the very same place)
+                    dx = (0 if not side else (1 if side > 0 else -1) * (max(tw - inset, 0) if abs(side) == 1 else tw + 4))
+                    a, b = x + dx - tw, x + dx + tw
+                    if any(a < rb + ONWARD_CLEAR and ra - ONWARD_CLEAR < b for ra, rb, r in words if r == row):
+                        continue
+                    if any(a - 16 < d < b + 16 for d, r in downs if r > row):
+                        continue
+                    found = (x, row, dx, a, b)
+                    break
+                if found:
+                    break
+            if found:
+                break
+        if found is None:
+            if not last_resort:
+                return None
+            found = ((lo + hi) / 2, len(fams) + 1, 0.0, mid - tw, mid + tw)
+        x, row, dx, a, b = found
+        words.append((a, b, row))
+        downs.append((x, row))
+        out[f.id] = (x, start + row * pitch, dx)
+    return out
+
+
+def _spread_drops(taken: list[float], n: int, centre: float, reach: float) -> list[float]:
+    """n places along a portrait's bottom (centre +- reach), spread evenly across it and clear of the places
+    already taken by at least 3 px (down to 1.5 where it is crowded), each line leaving the portrait itself."""
+    ideals = [centre] if n == 1 else [centre - reach + 2 * reach * i / (n - 1) for i in range(n)]
+    for gap in (3.0, 2.0, 1.5):
+        steps = int(2 * reach / 0.5) + 1
+        free = [centre - reach + 0.5 * i for i in range(steps)]
+        free = [p for p in free if all(abs(p - t) >= gap for t in taken)]
+        chosen: list[float] = []
+        for want in ideals:
+            ok = [p for p in free if all(abs(p - c) >= gap for c in chosen)]
+            if not ok:
+                break
+            chosen.append(min(ok, key=lambda p: (abs(p - want), p)))
+        if len(chosen) == n:
+            return chosen
+    return [min(max(want, centre - reach), centre + reach) for want in ideals]
+
+
 def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree: set, families: list[Family],
                   edits: Edits, village: gen.Village) -> list[Family]:
     """Where the lines go for the families whose children are on a later page (_page_members), nothing else
@@ -2067,13 +2341,24 @@ def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree:
     def here(f: Family) -> list[int]:
         return [q for q in (f.father, f.mother) if q is not None and q in x and q in in_tree]
     fams.sort(key=lambda f: (sum(x[q] for q in here(f)) / len(here(f)), f.id))
+    by_parent: dict[int, list[Family]] = {}
     for f in fams:
         for q in here(f):
-            mine = taken.setdefault(q, [])
-            centre = x[q] + NODE_W / 2
-            at = centre if not mine else max(mine) + 16
-            if at > centre + NODE_W / 2 - 16:
-                at = min(mine) - 16
+            by_parent.setdefault(q, []).append(f)
+    for q, group in by_parent.items():
+        mine = taken.setdefault(q, [])
+        centre = x[q] + NODE_W / 2
+        reach = NODE_W / 2 - 16             # every line leaves from the portrait's own bottom, never past its sides
+        trial, got = list(mine), []
+        for _f in group:
+            at = centre if not trial else max(trial) + 16
+            if at > centre + reach:
+                at = min(trial) - 16
+            trial.append(at)
+            got.append(at)
+        if any(abs(at - centre) > reach + 1e-6 for at in got):
+            got = _spread_drops(mine, len(group), centre, reach)     # so many lines: set closer, all on the portrait
+        for f, at in zip(group, got):
             mine.append(at)
             f.drops[q] = at
     couples = [f for f in fams if len(here(f)) == 2]
@@ -2087,6 +2372,8 @@ def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree:
     for k, f in enumerate(couples):
         f.couple_y = base[f.id] + LANE_TOP + k * LANE
     start = max(base.values()) + LANE_TOP + len(couples) * LANE + LANE
+    # (Rows of words stand far enough apart for the words, at whatever size the player has given them.)
+    pitch = max(ONWARD_ROW, ONWARD_SIZE * edits.styles.get("onward", {}).get("scale", 100) / 100 * 1.5)
     # Each family's line down may leave its couple's line anywhere along it, 12 in from its ends (a lone
     # parent's: where it leaves them).  Families taken by where that stretch ends, each put in the highest row
     # and as near its stretch's middle as it can be with its words clear of the words already in that row, its
@@ -2099,6 +2386,7 @@ def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree:
     half = {f.id: onward_width(edits, village, f) / 2 + ONWARD_CLEAR for f in fams}
     words: list[tuple[float, float, int]] = []     # (left, right, row) of the words placed
     downs: list[tuple[float, int]] = []            # (x, row) of the lines down to them
+    failed = False
     for f in sorted(fams, key=lambda f: (span[f.id][1], span[f.id][0], f.id)):
         lo, hi = span[f.id]
         w = half[f.id]
@@ -2115,14 +2403,85 @@ def _place_onward(people: dict, onward: list[Family], x: dict, y: dict, in_tree:
             if free:
                 placed = (min(free, key=lambda c: (abs(c - mid), c)), row)
                 break
-        if placed is None:              # (never so crowded in a tree, but always somewhere)
-            placed = ((lo + hi) / 2, len(fams) + 1)
+        if placed is None:              # (the words are too crowded to stand centred under their lines)
+            failed = True
+            break
         at, row = placed
         words.append((at - w + ONWARD_CLEAR, at + w - ONWARD_CLEAR, row))
         downs.append((at, row))
         f.stem_x = at
-        f.lane_y = start + row * ONWARD_ROW
+        f.lane_y = start + row * pitch
+        f.word_dx = 0.0
+    if failed:
+        # Crowded labels are laid out as portraits are, each in a place of its own: a family's words may run
+        # out to one side of its line (still under it), so a staircase of them stands side by side down the
+        # rows without one on another or a line through any.  Tried from the right and from the left, the
+        # words centred wherever they can be.
+        halves = {f.id: onward_width(edits, village, f) / 2 for f in fams}
+        for backwards, prefer in ((True, (0, 1, -1, 2, -2)), (False, (0, -1, 1, -2, 2)), (True, (0, 1)), (False, (0, -1)),
+                                  (True, (1, 2)), (False, (-1, -2)), (True, (2,)), (False, (-2,))):
+            got = _stagger_onward(fams, span, halves, pitch, start, backwards, prefer)
+            if got is not None:
+                break
+        else:
+            got = _stagger_onward(fams, span, halves, pitch, start, True, (2,), last_resort=True)
+        for f in fams:
+            f.stem_x, f.lane_y, f.word_dx = got[f.id]
     return fams
+
+
+def _onward_ends(lay: Layout) -> dict:
+    """Where each "continued on page N" family's line really ends (lines() may have turned it aside to
+    keep clear of portraits), by family id."""
+    mine = {f.id for f in lay.families if f.onward}
+    found: dict = {}
+    for _c, pts, fid, _k in lines(lay):
+        if fid in mine:
+            found.setdefault(fid, []).extend(pts)
+    return {fid: max(pts, key=lambda pt: (pt[1], pt[0])) for fid, pts in found.items()}
+
+
+def _settle_onward(lay: Layout) -> None:
+    """The words saying which page a family's children are on are laid out as portraits are: none on another.
+    Lines turn aside to keep clear of portraits, so where they really end is known only once they are
+    drawn; if the words then meet (or run into the row below), they are laid out again from those ends
+    (_stagger_onward), the words running out to one side of their lines where they must, and the lines
+    lengthened to the rows they are given."""
+    fams = [f for f in lay.families if f.onward]
+    if len(fams) < 2:
+        return
+    v, e = lay.village, lay.edits
+    halves = {f.id: onward_width(e, v, f) / 2 for f in fams}
+    pitch = max(ONWARD_ROW, ONWARD_SIZE * e.styles.get("onward", {}).get("scale", 100) / 100 * 1.5)
+
+    def meeting() -> dict | None:
+        ends = _onward_ends(lay)
+        if len(ends) < 2:
+            return None
+        boxes = [(f, ends[f.id][0] + f.word_dx - halves[f.id], ends[f.id][0] + f.word_dx + halves[f.id]) for f in fams
+                 if f.id in ends]
+        for i, (f, a, b) in enumerate(boxes):
+            for g, c, d in boxes[:i]:
+                if abs(f.lane_y - g.lane_y) < pitch - 1 and a < d + 4 and c < b + 4:
+                    return ends
+        return None
+    for _round in range(3):
+        ends = meeting()
+        if ends is None:
+            break
+        start = min(f.lane_y for f in fams)
+        span = {fid: (pt[0], pt[0]) for fid, pt in ends.items()}
+        mine = [f for f in fams if f.id in ends]
+        for backwards, prefer in ((True, (0, 1, -1, 2, -2)), (False, (0, -1, 1, -2, 2)), (True, (0, 1)), (False, (0, -1)),
+                                  (True, (1, 2)), (False, (-1, -2)), (True, (2,)), (False, (-2,))):
+            got = _stagger_onward(mine, span, halves, pitch, start, backwards, prefer)
+            if got is not None:
+                break
+        else:
+            got = _stagger_onward(mine, span, halves, pitch, start, True, (2,), last_resort=True)
+        for f in mine:
+            f.lane_y, f.word_dx = got[f.id][1], got[f.id][2]
+    lay.height = max(lay.height, max(f.lane_y for f in fams) + ONWARD_TEXT + FOOTER_ROOM + PAGE_MARGIN)
 
 
 def _wrap_rows(people: dict, rows: dict[int, list[int]], x: dict[int, float], sub: dict[int, int], limit: int,
@@ -4682,6 +5041,48 @@ def bold_italic_aux(lines: list, runs) -> list | None:
     return runs_data([merge_runs(line) for line in out])
 
 
+def status_label(p: gen.Person) -> str:
+    """The saved record's status for a portrait, as default_text words it: "(deceased)", "(disappeared)",
+    "(left the village)", "Heathen" for a living Heathen, else "" (a living villager, or a baby on the way)."""
+    if p.upcoming:
+        return ""
+    if p.alive:
+        return "Heathen" if p.heathen else ""
+    return {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
+
+
+def shows_status(lines: list) -> bool:
+    """Whether portrait lines (as drawn) already say a status: a "(deceased)" / "(disappeared)" / "(left the
+    village)" anywhere in a line, or a line that is "Heathen" alone."""
+    return any(isinstance(line, str) and (STATUS_WORDS.search(line) or line.strip() == "Heathen") for line in lines)
+
+
+def with_status_label(p: gen.Person, lines: list, runs, shown: list | None = None) -> tuple[list, list | None] | None:
+    """A portrait's lines with the villager's status (status_label) added as an extra line, as the
+    tree words it (bold and italic like the other extra lines); None when there is no status to add or
+    the portrait already says it (`shown`, the lines as drawn -- else `lines`).  Only the displayed words:
+    the villager's records are never touched."""
+    label = status_label(p)
+    if not label or shows_status(lines if shown is None else shown):
+        return None
+    have = clean_runs(runs, lines) or [[(line, {})] for line in lines]
+    return list(lines) + [label], runs_data(have + [[(label, dict(AUX_STYLE))]])
+
+
+def status_for_portrait(lay: Layout, p: gen.Person) -> tuple[list, list | None] | None:
+    """What the Faces & Text "Add status labels" button saves for one portrait, or None when it changes
+    nothing.  The portrait is judged by the words it shows now (node_text): the player's own lines, or --
+    with none typed -- the patcher's (default_text, which already ends with the status of the dead and of a
+    Heathen, so such a portrait is left alone).  If the shown words lack the status it is added as a bold
+    italic last line, to the player's lines or to the patcher's own lines and their default formatting."""
+    entry = lay.entry(p)
+    typed = entry.get("lines")
+    shown = node_text(lay, p)
+    if typed:
+        return with_status_label(p, typed, entry.get("runs"), shown)
+    return with_status_label(p, shown, runs_data(default_runs(lay, p)), shown)
+
+
 def node_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None:
     """The entry's lines formatted word by word (clean_runs), or None when they are plain.  The
     patcher's own lines have their extra lines bold and italic (default_runs); the player's own lines
@@ -6295,7 +6696,7 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
             ex, ey = max(ends, key=lambda pt: (pt[1], pt[0]))
             scale = lay.edits.styles.get("onward", {}).get("scale", 100) / 100
             name = onward_key(v, fam)
-            add(Text(ex, ey + ONWARD_GAP + ONWARD_SIZE * scale * 0.8, onward_words(lay.edits, v, fam), ONWARD_SIZE,
+            add(Text(ex + fam.word_dx, ey + ONWARD_GAP + ONWARD_SIZE * scale * 0.8, onward_words(lay.edits, v, fam), ONWARD_SIZE,
                      ink, centre=True, role="onward", move=name, edit=f"word:{name}"))
     for pid in lay.x:
         _node(lay, v.people[pid], present, add)
@@ -6328,7 +6729,10 @@ def scene(lay: Layout, game_title: str, present: dict, images: Path | None = Non
     if canvas:
         _fit_page(out)                  # the tree's own page, everything drawn on it ...
         _to_canvas(out, *canvas)        # ... shrunk onto the canvas, or centred on it
+    here = page_key(lay.edits, lay.village, lay.page)
     for k, raw in enumerate(lay.edits.stickers):
+        if raw.get("page", here) != here:       # on another page (none: on every page, as saved before)
+            continue
         item = sticker_item(k, raw, images, library)
         if item is not None:
             add(item)
@@ -7745,9 +8149,9 @@ class Written:
 def build(folder: Path, game: int, slot: int, edits: Edits | None = None) -> tuple[gen.Village, Edits, Layout]:
     """The village, its edits (the saved ones unless given) and its tree."""
     folder = Path(folder)
-    village = gen.load_village(folder, game, slot)
     if edits is None:
         edits = Edits.load(Edits.path(folder, game, slot))
+    village = gen.load_village(folder, game, slot, rename_answers=edits.renames)
     edits = full_name_edits(edits, village)
     arrange(village, edits)
     return village, edits, layout(village, edits)
@@ -7794,8 +8198,9 @@ def write_pairs(folder: Path, game: int, slot: int, rules: gen.Rules, game_title
     folder's own Family Trees folder beside the tree files (the owner) -- or `out`.  Nothing else is
     written."""
     folder = Path(folder)
-    village = gen.load_village(folder, game, slot)
-    edits = full_name_edits(Edits.load(Edits.path(folder, game, slot)), village)
+    saved = Edits.load(Edits.path(folder, game, slot))
+    village = gen.load_village(folder, game, slot, rename_answers=saved.renames)
+    edits = full_name_edits(saved, village)
     arrange(village, edits)
     # Names as Number Duplicate Names gives them (the owner, 2026-10-08: a Roman number only for the
     # same first and last name -- "Hawa Awanata should not be called I or II unless there's literally

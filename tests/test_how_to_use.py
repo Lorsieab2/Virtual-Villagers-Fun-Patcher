@@ -35,6 +35,7 @@ DATA = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"
 # button gets a guide and a line here.
 CONTROLS = {
     "select_all", "default_patches", "owners_defaults", "deselect_all",
+    "patch_selection_settings", "patch_search",
     "output_location", "choose_exe", "validate", "dry_run", "create_modified_exe",
     "game_folders", "find_all_5", "validate_all_5", "dry_run_all_5", "patch_all_5",
     "open_vanilla_folder", "open_modified_folder", "open_game_folder",
@@ -191,27 +192,36 @@ def walk(w):
         yield from walk(c)
 
 result = {"keys": sorted(app.help_keys)}
-# Every patch checkbox has a "?" beside it, in the same row.
+# The patch rows are drawn only while their list is scrolled to them, so every list is
+# scrolled through its length. Every patch checkbox has a "?" beside it, in the same row;
+# the cause-of-death "?" is clicked (invoke) the first time its row is drawn.
 patch_vars = {str(var): patch_id for patch_id, var in app.fun_patch_vars.items()}
 beside = {}
-for w in walk(app):
-    if isinstance(w, ttk.Checkbutton) and str(w.cget("variable")) in patch_vars:
-        siblings = [s for s in w.master.winfo_children()
-                    if isinstance(s, ttk.Button) and s.cget("text") == "?"]
-        beside[patch_vars[str(w.cget("variable"))]] = len(siblings)
+clicked = False
+for vl in [w for w in walk(app) if isinstance(w, gui.VirtualList)]:
+    vl.yview("moveto", 0)
+    for _ in range(400):
+        app.update()
+        for w in walk(vl):
+            if isinstance(w, ttk.Checkbutton) and str(w.cget("variable")) in patch_vars:
+                patch_id = patch_vars[str(w.cget("variable"))]
+                siblings = [s for s in w.master.winfo_children()
+                            if isinstance(s, ttk.Button) and s.cget("text") == "?"]
+                beside[patch_id] = len(siblings)
+                if not clicked and patch_id == "vv1_cause_of_death":
+                    siblings[0].invoke()
+                    clicked = True
+                    app.update()
+        if float(vl.scrollbar.get()[1]) >= 1.0:
+            break
+        vl.yview("scroll", 4, "units")
 result["beside"] = beside
-result["question_marks"] = sum(
-    1 for w in walk(app) if isinstance(w, ttk.Button) and w.cget("text") == "?")
+result["clicked"] = clicked
 
 def labels(window):
     return [w.cget("text") for w in walk(window) if isinstance(w, ttk.Label)]
 
 windows = {}
-# Clicking the "?" (invoke) opens the guide.
-button = next(w for w in walk(app) if isinstance(w, ttk.Button) and w.cget("text") == "?"
-              and isinstance(w.master.winfo_children()[0], ttk.Checkbutton)
-              and str(w.master.winfo_children()[0].cget("variable")) == str(app.fun_patch_vars["vv1_cause_of_death"]))
-button.invoke()
 app.update()
 window = app._help_windows[how.patch_key("vv1_cause_of_death")]
 windows["patch"] = {"title": window.title(), "labels": labels(window)}

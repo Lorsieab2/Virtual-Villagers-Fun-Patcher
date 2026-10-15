@@ -354,12 +354,22 @@ static int titles_rebase(int game, int index) {
     int saved_base_age, saved_roster_age;
     unsigned int saved_base_skills[VV_TITLE_SKILLS];
     int i, k;
-    /* Not before the table has been followed against the village on screen
-       (the bases and the last look exist only then; before it, a title is
-       set from the villager as they are). */
-    if (titles.game != game || !titles.loaded || titles.slot <= 0 || !titles.roster_anyone || record == NULL
+    titles_sync(game);
+    if (titles.game != game || !titles.loaded || titles.slot <= 0 || record == NULL
         || index < 0 || index >= TITLES_ROSTER) {
         return 1;
+    }
+    /* Before the table has been followed against the village on screen (v1.35.73), follow it first, as
+       the lookup does (titles_lookup): the bases and the last look exist only then, and an entry must be
+       on its villager before a lowering is carried -- a stale record index could be a namesake's.  A
+       lowering seen before that first follow is then not stored: the follow runs on the stored looks,
+       and a villager lowered below them waits PENDING, never bound to someone else (a documented limit,
+       custom_titles_harness.c). */
+    if (!titles.roster_anyone) {
+        titles_pass(game, 0);
+        if (!titles.roster_anyone) {
+            return 1;
+        }
     }
     story_title_looks(game, record, &now);
     vv_title_normalise_skills(&now, floats);
@@ -414,28 +424,90 @@ static int titles_rebase(int game, int index) {
    stay as they were first seen.  Returns 1 when there was nothing to follow
    or the followed table is published; 0 when it could not be (the table is
    then left as it was). */
+static struct {
+    int count;
+    vv_custom_title entries[VV_TITLES_MAX];
+    unsigned char seen[VV_TITLES_MAX];
+    unsigned int roster[TITLES_ROSTER];
+    unsigned int roster_stable[TITLES_ROSTER];
+    unsigned int roster_keep[TITLES_ROSTER];
+    int roster_age[TITLES_ROSTER];
+    int base_age[TITLES_ROSTER];
+    unsigned int base_skills[TITLES_ROSTER][VV_TITLE_SKILLS];
+    int unpublished;
+} titles_relook_saved;
+
+/* Everything titles_relook can change, kept before it runs. */
+static void titles_relook_save(void) {
+    titles_relook_saved.count = titles.count;
+    memcpy(titles_relook_saved.entries, titles.entries, sizeof titles.entries);
+    memcpy(titles_relook_saved.seen, titles.seen, sizeof titles.seen);
+    memcpy(titles_relook_saved.roster, titles.roster, sizeof titles.roster);
+    memcpy(titles_relook_saved.roster_stable, titles.roster_stable, sizeof titles.roster_stable);
+    memcpy(titles_relook_saved.roster_keep, titles.roster_keep, sizeof titles.roster_keep);
+    memcpy(titles_relook_saved.roster_age, titles.roster_age, sizeof titles.roster_age);
+    memcpy(titles_relook_saved.base_age, titles.base_age, sizeof titles.base_age);
+    memcpy(titles_relook_saved.base_skills, titles.base_skills, sizeof titles.base_skills);
+    titles_relook_saved.unpublished = titles_unpublished;
+}
+
+static void titles_relook_restore(void) {
+    memcpy(titles.roster, titles_relook_saved.roster, sizeof titles.roster);
+    memcpy(titles.roster_stable, titles_relook_saved.roster_stable, sizeof titles.roster_stable);
+    memcpy(titles.roster_keep, titles_relook_saved.roster_keep, sizeof titles.roster_keep);
+    memcpy(titles.roster_age, titles_relook_saved.roster_age, sizeof titles.roster_age);
+    memcpy(titles.base_age, titles_relook_saved.base_age, sizeof titles.base_age);
+    memcpy(titles.base_skills, titles_relook_saved.base_skills, sizeof titles.base_skills);
+    titles_unpublished = titles_relook_saved.unpublished;
+}
+
 static int titles_appearance_changed(int game, const unsigned char *record, int head, int body) {
     int index = record != NULL ? story_record_index(game, record) : -1;
     int i;
+    int relooked = 0;
     titles_sync(game);
     /* Not before the table has been followed against the village on screen:
        a table just read from its file may still hold a twin's record. */
     if (index < 0 || !titles.loaded || titles.slot <= 0 || !titles.roster_anyone) {
         return 1;
     }
+    titles_reset_detected();
     i = titles_find((unsigned int)index);
+    /* An island event may change the likes or dislikes in the same frame as the head (v1.35.73).  The
+       title then holds the old identity, so carry it to the new one first -- in memory, the same
+       in-place look the lookup makes (titles_relook); the head is then stored under that identity, and
+       the publish below writes both.  What the look changes is saved BEFORE it runs, so a publish that
+       fails puts back every bit of it (the entry's identity, the last look, the bases): memory never
+       says what the file does not. */
+    if (i >= 0 && titles.entries[i].fingerprint != story_title_identity(game, record)) {
+        titles_relook_save();
+        relooked = 1;
+        titles_relook(game);
+        i = titles_find((unsigned int)index);
+    }
     if (i < 0 || !(titles.entries[i].flags & VV_TITLE_KNOWN)
         || titles.entries[i].fingerprint != story_title_identity(game, record)
         || (titles.entries[i].looks.head == head && titles.entries[i].looks.body == body)) {
         return 1;
     }
-    titles_reset_detected();
-    titles_before.count = titles.count;
-    memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
-    memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
+    if (relooked) {
+        titles_before.count = titles_relook_saved.count;
+        memcpy(titles_before.entries, titles_relook_saved.entries, sizeof titles.entries);
+        memcpy(titles_before.seen, titles_relook_saved.seen, sizeof titles.seen);
+    } else {
+        titles_before.count = titles.count;
+        memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
+        memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
+    }
     titles.entries[i].looks.head = head;
     titles.entries[i].looks.body = body;
-    return titles_commit();
+    if (!titles_commit()) {
+        if (relooked) {
+            titles_relook_restore();
+        }
+        return 0;
+    }
+    return 1;
 }
 
 /* Could the villager in record `r` be the one entry `e` belongs to?  Present,

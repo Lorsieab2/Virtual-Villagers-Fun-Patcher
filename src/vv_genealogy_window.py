@@ -36,6 +36,7 @@ import vv_genealogy as gen
 import vv_last_names
 import vv_line_colours
 import vv_log_tools
+import vv_history_revision
 import vv_number_names
 import vv_reconcile_view
 import vv_save_backup
@@ -391,6 +392,28 @@ def _guess_game_folder(app, title: str) -> str:
 # A colour field: a swatch, the colour as text (hex or red, green, blue), and the picker
 # ---------------------------------------------------------------------------
 
+def parse_page_range(text: str, count: int) -> list[int]:
+    """Pages typed as "3", "2-5", or "1,3-4" -> their 0-based numbers, in order, no repeats.  ValueError
+    (with words for the player) when nothing sensible or a page that is not there."""
+    pages: list[int] = []
+    for part in text.replace(" ", "").split(","):
+        if not part:
+            continue
+        lo, dash, hi = part.partition("-")
+        try:
+            first, last = int(lo), int(hi) if dash else int(lo)
+        except ValueError:
+            raise ValueError(f"\"{part}\" is not a page number or a range like 2-5.") from None
+        if first > last:
+            first, last = last, first
+        if first < 1 or last > count:
+            raise ValueError(f"This tree has pages 1 to {count}." if count > 1 else "This tree has one page.")
+        pages += [k - 1 for k in range(first, last + 1) if k - 1 not in pages]
+    if not pages:
+        raise ValueError("Type a page number, or a range like 2-5.")
+    return pages
+
+
 class ColourField(ttk.Frame):
     def __init__(self, master, value: str, on_change, allow_default: bool = True, default_text="Automatic"):
         super().__init__(master)
@@ -473,10 +496,46 @@ def open_family_tree(app, build) -> None:
         ask_game_folder=True)
 
 
+def _saved_renames(folder: Path, game: int, slot: int) -> dict:
+    """The renamed-villager answers the saved edits keep; none when there is no readable file."""
+    try:
+        path = ft.Edits.path(folder, game, slot)
+        return ft.Edits.load(path).renames if path.is_file() else {}
+    except ValueError:
+        return {}
+
+
+def ask_renames(parent, folder: Path, game: int, slot: int, village, edits):
+    """Ask "Keep <current name> or <old name>?" for each villager the logs name differently from the save
+    (same sex, looks and likes: the player renamed them).  Yes keeps the current name (one person, the old
+    name noted); No keeps them apart as the tree showed them; Cancel asks again next time.  An answer is
+    kept in the tree's edits, so it is not asked again, and the tree is read again with it."""
+    answered = False
+    for q in list(village.rename_questions):
+        got = messagebox.askyesnocancel(
+            "Family Tree Maker",
+            f"Keep {q.current} or {q.old}?\n\nThe save has {q.current}, the logs also name {q.old}, and "
+            "both have the same sex, looks and likes.\n\nYes: keep the current name, {0} (one person, "
+            "formerly {1}).\nNo: keep {1} as a separate villager.\nCancel: ask me later.".format(q.current, q.old),
+            parent=parent)
+        if got is None:
+            continue
+        edits.renames[q.key] = "current" if got else "old"
+        answered = True
+    if answered:
+        try:
+            edits.save(ft.Edits.path(folder, game, slot))
+            village = gen.load_village(folder, game, slot, rename_answers=edits.renames)
+        except (OSError, gen.GenealogyError):
+            pass
+    return village
+
+
 def _open_editor(app, parent, folder: Path, game: int, info, title: str, images: Path | None) -> None:
     try:
         village = app._run_with_wait("Reading the family from the save and the logs...\n\nNothing is changed.",
-                                     lambda: gen.load_village(folder, game, info.slot))
+                                     lambda: gen.load_village(folder, game, info.slot, rename_answers=_saved_renames(
+                                         folder, game, info.slot)))
     except (gen.GenealogyError, OSError) as exc:
         messagebox.showerror("Family Tree Maker", str(exc), parent=parent)
         return
@@ -489,7 +548,44 @@ def _open_editor(app, parent, folder: Path, game: int, info, title: str, images:
                                                   "kept as it is until you change something.)", parent=parent):
             return
         edits = ft.Edits()
+    village = ask_renames(parent, folder, game, info.slot, village, edits)
     TreeEditor(app, folder, game, info.slot, title, images, village, edits)
+
+
+def find_villagers(village: gen.Village, edits: ft.Edits, query: str) -> list[int]:
+    """The villagers matching what was typed, best first: every word typed must be somewhere in the villager's
+    name, "head N" / "body N", sex, age, generation, parents' names, mark, status, or a like or dislike by its
+    name ("running", "laundry", "snakes"; only where the save or the logs give them -- never guessed, see
+    unknown_preferences).  Names that start with the first word come before names that only contain it."""
+    words = [w for w in query.lower().split() if w]
+    if not words:
+        return []
+    people = village.people
+    hits = []
+    for pid, p in people.items():
+        if p.placeholder:
+            continue
+        status = ["alive" if p.alive else "", "baby on the way upcoming" if p.upcoming else "",
+                  {"died": "died dead deceased", "disappeared": "disappeared gone", "left": "left gone"}.get(p.gone, p.gone),
+                  "expecting pregnant" if p.expecting else "", "heathen" if p.heathen else "",
+                  "runner running" if p.runner else "", "golden" if getattr(p, "golden", False) else ""]
+        parents = " ".join(people[q].name for q in (p.father, p.mother) if q in people)
+        mark = edits.entries.get(ft.entry_key(village, p), {}).get("mark", "")
+        text = " ".join([p.name, f"head {p.head}", f"body {p.body}", f"head{p.head} body{p.body}", p.sex or "",
+                         f"{p.age} units" if p.age is not None else "", f"{p.years} years" if p.years is not None else "",
+                         f"generation {p.generation} gen {p.generation} {gen.roman(p.generation)}", parents,
+                         mark, " ".join(status), ", ".join(p.likes or []), ", ".join(p.dislikes or [])]).lower()
+        if all(w in text for w in words):
+            name = p.name.lower()
+            hits.append((0 if name.startswith(words[0]) else 1 if words[0] in name else 2, p.generation, name, pid))
+    return [pid for *_rank, pid in sorted(hits)]
+
+
+def unknown_preferences(village: gen.Village) -> list[int]:
+    """The villagers whose likes and dislikes neither the save nor the logs give, so a search by them cannot
+    find (or rule out) these."""
+    return [pid for pid, p in village.people.items()
+            if not p.placeholder and (p.likes is None or p.dislikes is None)]
 
 
 class TreeEditor(CanvasTools, tk.Toplevel):
@@ -523,6 +619,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # height boxes alike (the owner, 2026-10-09: "especially for the arrows that change portrait
         # height and width, but for everything else too"); remembered with the window.
         self.lock_shape = tk.BooleanVar(value=self.window.get("keep_aspect", True) is not False)
+        # "Hide villagers not in the current save" (the owner, v1.35.73; on by default): the villagers of a
+        # tribe started over with the same name, proven gone by src/vv_history_revision.py, are left out of
+        # the tree -- the tree only; the logs keep them until Repair Saves & Logs removes them.
+        self.full_village = village
+        self.hide_gone = tk.BooleanVar(value=self.window.get("hide_not_in_save", True) is not False)
+        self.village = self._shown_village(village)
         self.geometry(self.window.get("geometry", "1400x860"))
         self._build()
         self._follow_looks()
@@ -548,6 +650,72 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         super().destroy()
 
     # ---- the window -------------------------------------------------------
+    # ---- finding a villager ---------------------------------------------------------------
+    def _build_find(self, bar) -> None:
+        """A search row under the toolbar: type, press Enter (again for the next one) or pick from the list."""
+        row = ttk.Frame(self, padding=(6, 0, 6, 3))
+        row.pack(side="top", fill="x", after=bar)
+        ttk.Label(row, text="Find a villager:").pack(side="left")
+        self.find_var = tk.StringVar()
+        self.find_entry = ttk.Entry(row, textvariable=self.find_var, width=30)
+        self.find_entry.pack(side="left", padx=(4, 0))
+        self.find_box = ttk.Combobox(row, state="readonly", width=46, values=[])
+        self.find_box.pack(side="left", padx=(4, 0))
+        ttk.Button(row, text="Find", command=self._find_next).pack(side="left", padx=(4, 0))
+        ttk.Label(row, text="Name, head or body number, parent, generation, mark, like or dislike, or status (died, left, "
+                            "expecting, runner...).  Enter: the first match, again: the next.").pack(side="left", padx=(8, 0))
+        self.find_hits: list[int] = []
+        self.find_at = -1
+        self.find_entry.bind("<Return>", lambda _e: self._find_next())
+        self.find_entry.bind("<KeyRelease>", self._find_typed)
+        self.find_box.bind("<<ComboboxSelected>>", lambda _e: self._find_picked())
+        self.bind("<Control-f>", lambda _e: (self.find_entry.focus_set(), self.find_entry.select_range(0, "end"), "break")[-1])
+
+    def _find_typed(self, event) -> None:
+        if event.keysym in ("Return", "Tab", "Shift_L", "Shift_R", "Control_L", "Control_R"):
+            return
+        self._find_refresh()
+
+    def _find_refresh(self) -> list[int]:
+        """The matches for what is typed, shown in the list; the next Enter starts at the first."""
+        self.find_hits = find_villagers(self.village, self.edits, self.find_var.get())
+        self.find_at = -1
+        self.find_box.configure(values=[self._find_words(q) for q in self.find_hits[:60]])
+        self.find_box.set("")
+        return self.find_hits
+
+    def _find_words(self, pid: int) -> str:
+        p = self.village.people[pid]
+        return (f"{p.name} - generation {gen.roman(p.generation)}" + ("" if p.alive or p.upcoming else f" ({p.gone or 'gone'})")
+                + ("" if p.likes is not None and p.dislikes is not None else " [likes and dislikes not known]"))
+
+    def _find_next(self) -> None:
+        if not self.find_var.get().strip():
+            self.status.set("Type a name (or a head or body number, a parent, a mark, died, left, expecting, runner...) "
+                            "to find a villager.")
+            return
+        if self.find_at < 0 or not self.find_hits:
+            self._find_refresh()
+        if not self.find_hits:
+            unknown = len(unknown_preferences(self.village))
+            self.status.set(f"No villager matches \"{self.find_var.get().strip()}\"." + (
+                f"  {unknown} villager{'s' if unknown != 1 else ''} have no likes and dislikes in the save or the logs, "
+                "so a like or dislike could not be searched for in them." if unknown else ""))
+            return
+        self.find_at = (self.find_at + 1) % len(self.find_hits)
+        self._find_go(self.find_hits[self.find_at], f"{self.find_at + 1} of {len(self.find_hits)}")
+
+    def _find_picked(self) -> None:
+        k = self.find_box.current()
+        if 0 <= k < len(self.find_hits):
+            self.find_at = k
+            self._find_go(self.find_hits[k], f"{k + 1} of {len(self.find_hits)}")
+
+    def _find_go(self, pid: int, which: str) -> None:
+        """The tree on the villager's page, they selected."""
+        if vv_villager_info.go_to(self, pid):
+            self.status.set(f"{self.village.people[pid].name} (match {which}) is selected on page {self.page + 1}.")
+
     def _build(self) -> None:
         bar = ttk.Frame(self, padding=(6, 4))
         bar.pack(side="top", fill="x")
@@ -574,6 +742,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Checkbutton(bar, text="Show grid", variable=self.show_grid, command=self._draw_grid
                         ).pack(side="left", padx=(6, 0))
         ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
+        ttk.Checkbutton(bar, text="Hide villagers not in the current save", variable=self.hide_gone,
+                        command=self._toggle_hide_gone).pack(side="left")
+        ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
         ttk.Label(bar, text="Page:").pack(side="left")
         self.page_var = tk.StringVar()
         self.page_box = ttk.Combobox(bar, textvariable=self.page_var, state="readonly", width=22)
@@ -595,6 +766,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 menu.add_command(label=words, command=lambda h=how: self._align(h))
         align["menu"] = menu
         align.pack(side="left", padx=(6, 0))
+        self._build_find(bar)
         self.panel_button = ttk.Button(bar, text="Hide panel (F4)", command=self._toggle_panel)
         self.panel_button.pack(side="right")
         ttk.Button(bar, text="Full screen (F11)", command=self._toggle_full).pack(side="right", padx=(0, 6))
@@ -869,7 +1041,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             row=3, column=0, columnspan=3, sticky="w", pady=(4, 0))
         # The owner, 2026-10-08: "please allow me to delete the key for marks" (right-click it >
         # Delete does the same; Deleted items on the Layout tab brings it back).
-        self.key_var = tk.BooleanVar(value="word:key" not in self.edits.hidden)
+        self.key_var = tk.BooleanVar(value="word:key" not in self._hidden_now())
         ttk.Checkbutton(box, text="Show the Key (each mark's name and colour, under the title)",
                         variable=self.key_var, command=self._show_key).grid(
             row=4, column=0, columnspan=3, sticky="w", pady=(4, 0))
@@ -1171,6 +1343,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # The owner, 2026-10-10: "add a button to retroactively update that text too".
         ttk.Button(words, text="Bold and italic for extra lines (Golden Child, Founder, twins...)",
                    command=self._bold_italic_extra_lines).pack(anchor="w", pady=(4, 0))
+        ttk.Button(words, text="Add status labels (Deceased, Disappeared...) to the portraits",
+                   command=self._add_status_labels).pack(anchor="w", pady=(4, 0))
         tab = t_colour
         ttk.Label(tab, text="Every word on the tree (a part's own colour: Fonts tab):").pack(anchor="w", pady=(0, 1))
         self.ink_field = ColourField(tab, e.ink, lambda c: self._change(ink=c))
@@ -1616,6 +1790,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _page_scene(self, page: int) -> tuple[ft.Layout, ft.Scene]:
         """One page of the tree, as drawn and saved."""
         ft.arrange(self.village, self.edits)
+        ft.localise_stickers(self.edits, self.village)
         lay = ft.layout(self.village, self.edits, page)
         return lay, ft.scene(lay, self.game_title, self.present, self.images, self.library)
 
@@ -2120,7 +2295,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             piece = self.pieces[iid]
             menu.add_separator()
             menu.add_command(label="Delete this line", command=lambda: self._hide(f"line:{piece}"))
-            if piece in self.edits.line_moves:
+            if piece in self._line_moves_now():
                 menu.add_command(label="Reset this line", command=lambda: self._unmove_line(piece))
         label_part = next((tag[3:] for tag in tags if tag.startswith("lp_")), "")
         if moved and not people:
@@ -2187,10 +2362,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 return (f"the lines of {names}", own,
                         lambda c: self._line_colour(target[1], c))
             return (f"the lines and children of {names}", fam.colour if fam is not None else "",
-                    lambda c: self._set_colour(e.family_colours, target[1], c))
+                    lambda c: self._set_chosen_colour(e.family_colours, target[1], c))
         if kind == "mark" and target[1] in e.marks:
             return (f"the mark {target[1]}", e.marks[target[1]],
-                    lambda c: self._set_colour(e.marks, target[1], c or e.marks[target[1]]))
+                    lambda c: self._set_chosen_colour(e.marks, target[1], c or e.marks[target[1]]))
         if kind == "role":
             role = target[1]
             words = "the " + ft.ROLES[role][0].lower() + ft.ROLES[role][1:]
@@ -2215,7 +2390,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if colour:
             setter(colour)
 
-    def _set_colour(self, chosen: dict, key: str, colour: str) -> None:
+    def _set_chosen_colour(self, chosen: dict, key: str, colour: str) -> None:
         if colour:
             chosen[key] = colour
         else:
@@ -2271,13 +2446,13 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     # ---- dragging anything -------------------------------------------------------
     def _unmove(self, name: str | None, pids: list) -> None:
         if name:
-            self.edits.moved.pop(name, None)
+            self._move_to(name, None)
         for q in pids:
             self._set_entry(self.village.people[q], dx=None, dy=None)
         self._saved()
 
     def _unmove_line(self, piece: str) -> None:
-        self.edits.line_moves.pop(piece, None)
+        self._set_line_move(piece, None)
         self._saved()
 
     def _menus(self) -> None:
@@ -2335,9 +2510,58 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             filetypes=[("PNG picture", "*.png"), ("JPG picture", "*.jpg *.jpeg")])
         if not path:
             return
-        big = messagebox.askyesno("Export as Picture", "Save it at double size (sharper when you zoom in)?",
-                                  parent=self)
-        self._save_as(Path(path), 2.0 if big else 1.0)
+        choice = self._export_options(len(ft.page_spans(self.edits, self.village)))
+        if choice is None:
+            return
+        pages, big = choice
+        self._save_as(Path(path), 2.0 if big else 1.0, pages=pages)
+
+    def _export_options(self, count: int) -> tuple | None:
+        """What to save (a dialog): whole pages -- one, a range such as 2-5, or all of them -- and at
+        double size or not.  A picture is always whole pages, never the part the window shows.  (pages
+        (0-based), double size); None when cancelled."""
+        win = tk.Toplevel(self)
+        win.title("Export as Picture")
+        win.transient(self)
+        frame = ttk.Frame(win, padding=10)
+        frame.pack(fill="both", expand=True)
+        pick = tk.StringVar(value="all")
+        number = tk.StringVar(value=str(self.page + 1))
+        span = tk.StringVar(value=f"1-{count}")
+        big = tk.BooleanVar(value=False)
+        result: list = []
+        ttk.Label(frame, text="Whole pages:").pack(anchor="w")
+        box = ttk.Frame(frame, padding=(22, 0, 0, 0))
+        box.pack(anchor="w")
+        ttk.Radiobutton(box, text=f"All {count} page(s)", variable=pick, value="all").grid(row=0, column=0, sticky="w")
+        ttk.Radiobutton(box, text="One page:", variable=pick, value="one").grid(row=1, column=0, sticky="w")
+        ttk.Entry(box, textvariable=number, width=6).grid(row=1, column=1, sticky="w", padx=4)
+        ttk.Radiobutton(box, text="Pages (for example 2-5):", variable=pick, value="range").grid(row=2, column=0, sticky="w")
+        ttk.Entry(box, textvariable=span, width=10).grid(row=2, column=1, sticky="w", padx=4)
+        ttk.Checkbutton(frame, text="Double size (sharper when you zoom in)", variable=big).pack(anchor="w", pady=(8, 0))
+        ttk.Label(frame, text="Pages after the first are saved beside it as \"<name> - Page N\".",
+                  foreground="#555555").pack(anchor="w", pady=(2, 8))
+        message = ttk.Label(frame, text="", foreground="#aa0000")
+        message.pack(anchor="w")
+
+        def ok() -> None:
+            try:
+                pages = parse_page_range(
+                    {"all": f"1-{count}", "one": number.get(), "range": span.get()}[pick.get()], count)
+            except ValueError as exc:
+                message.configure(text=str(exc))
+                return
+            result.append((pages, big.get()))
+            win.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="e")
+        ttk.Button(buttons, text="Save...", command=ok).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=win.destroy).pack(side="left", padx=(6, 0))
+        win.bind("<Escape>", lambda _e: win.destroy())
+        win.grab_set()
+        win.wait_window()
+        return result[0] if result else None
 
     def _delete_tree(self) -> None:
         """This tree deleted -- its tree file and its edits -- and drawn as the patcher first draws it
@@ -2370,6 +2594,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if self.village.relooked:
             for name, head, body in self.village.relooked:   # changed again since the player chose
                 self.edits.entries.get(f"{name}|{head}|{body}", {}).pop("look", None)
+                for part in self.edits.page_edits.values():     # a page's own choice too
+                    part.get("entries", {}).get(f"{name}|{head}|{body}", {}).pop("look", None)
             text = json.dumps(self.edits.to_data())
             moved = ft.relooked_keys(text, self.village.relooked)
             if moved != text:
@@ -2430,7 +2656,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         def done() -> None:
             for pid, (var, old) in choices.items():
                 p = self.village.people[pid]
-                self._set_entry(p, look=list(old) if var.get() == "old" else [p.head, p.body])
+                # (the villager's look on the whole tree: every page, as it was before pages kept their own)
+                look = list(old) if var.get() == "old" else [p.head, p.body]
+                self.edits.entries.setdefault(ft.entry_key(self.village, p), {})["look"] = look
             window.destroy()
             self._saved()
 
@@ -2440,6 +2668,25 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(frame, text="OK", command=done).pack(anchor="e", pady=(10, 0))
         window.protocol("WM_DELETE_WINDOW", done)
         window.grab_set()
+
+    def _shown_village(self, village: gen.Village) -> gen.Village:
+        """The village as the tree shows it: with "Hide villagers not in the current save" on, without the
+        villagers of a tribe started over that src/vv_history_revision.py proves gone."""
+        if not self.hide_gone.get():
+            return village
+        return vv_history_revision.without(village, vv_history_revision.hidden_in_tree(self.folder, self.game,
+                                                                                       self.slot))
+
+    def _toggle_hide_gone(self) -> None:
+        self.village = self._shown_village(self.full_village)
+        self.window["hide_not_in_save"] = bool(self.hide_gone.get())
+        self.selected = []
+        self._follow_looks()
+        self.redraw()
+        self._refresh_selected()
+        self._refresh_hidden()
+        self.status.set(f"{len(self.village.known())} villagers shown"
+                        + ("; villagers of a tribe started over are hidden." if self.hide_gone.get() else "."))
 
     def _update_from_game(self, _event=None, ask: bool = True) -> None:
         """The save and the patcher's logs read again (the game played on since the tree opened);
@@ -2453,12 +2700,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 parent=self):
             return
         try:
-            village = gen.load_village(self.folder, self.game, self.slot)
+            village = gen.load_village(self.folder, self.game, self.slot, rename_answers=self.edits.renames)
         except gen.GenealogyError as exc:
             messagebox.showerror("Family Tree Maker", str(exc), parent=self)
             return
+        village = ask_renames(self, self.folder, self.game, self.slot, village, self.edits)
         before = len(self.village.known())
-        self.village = village
+        self.full_village = village
+        self.village = village = self._shown_village(village)
         self.selected = []
         self._follow_looks()
         self.redraw()
@@ -2497,10 +2746,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             own = "\n".join(ft.default_generation_label(lay, g))
 
             def set_label(new: str) -> None:
-                if new == own:
-                    e.generations.pop(str(g), None)
-                else:
-                    e.generations[str(g)] = new.split("\n")
+                self._set_generation_label(g, None if new == own else new.split("\n"))
                 self._saved()
                 self._show_generation()
             return "\n".join(ft.generation_label(lay, g)), own, set_label
@@ -2612,7 +2858,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             # its own generation and order.
             for q in lay.x:
                 self._set_entry(v.people[q], dx=None, dy=None)
-            self.edits.line_moves.clear()
+            self._clear_line_moves()
             self._saved()
             self.status.set("Every portrait is back in its family's cluster.  Ctrl+Z undoes it.")
             return
@@ -2626,7 +2872,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             g, p = gen_of[q], v.people[q]
             self._set_entry(p, dx=None, dy=None, generation=None if g == v.base_generation.get(q, p.generation) else g)
         self.edits.orders.update(orders)
-        self.edits.line_moves.clear()
+        self._clear_line_moves()
         self._saved()
         self.status.set("Every portrait is back in a neat row, in the order and generation you left it.  "
                         "Ctrl+Z undoes it.")
@@ -2653,15 +2899,15 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                     self._set_entry(people[q], dy=entry.get("dy", 0.0) + needed - top[q])
                     top[q] = needed
                     moved += 1
-        self.edits.line_moves.clear()
+        self._clear_line_moves()
         self._saved()
         self.status.set("Every line is drawn afresh" + (f"; {moved} portrait(s) moved down to make room for them"
                                                        if moved else ", with no portrait moved") + ".  Ctrl+Z undoes it.")
 
     def _reorganize_labels(self) -> None:
         """Each generation's label back beside its generation's portraits."""
-        for name in [n for n in self.edits.moved if n.startswith("label")]:
-            del self.edits.moved[name]
+        for name in [n for n in self._moved_now() if n.startswith("label")]:
+            self._move_to(name, None)
         self._saved()
         self.status.set("Each generation's label is beside its portraits.  Ctrl+Z undoes it.")
 
@@ -2685,7 +2931,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         """Every line where the tree draws it."""
         if not self._sure("Put every line back where the tree draws it?"):
             return
-        self.edits.line_moves.clear()
+        self._clear_line_moves()
         self._saved()
         self.status.set("Every line is back where the tree draws it.  Ctrl+Z undoes it.")
 
@@ -2713,8 +2959,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.status.set("The tree is back to its default settings.  Ctrl+Z undoes it.")
 
     def _unmove_all(self) -> None:
-        self.edits.moved.clear()
-        self.edits.line_moves.clear()
+        for name in list(self._moved_now()):
+            self._move_to(name, None)
+        self._clear_line_moves()
         for q in self.village.people:
             self._set_entry(self.village.people[q], dx=None, dy=None)
         self._saved()
@@ -2775,23 +3022,18 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         k = self.sc.fit[0]                      # page distances back in the tree's own (a shrunk canvas)
         m["dx"], m["dy"] = m["dx"] / k, m["dy"] / k
         if "piece" in m:
-            old = self.edits.line_moves.get(m["piece"], [0.0, 0.0])
+            old = self._line_moves_now().get(m["piece"], [0.0, 0.0])
             if not isinstance(old, list):       # saved before lines moved both ways: across itself
                 x0, y0, x1, y1 = self.canvas.coords(m["iid"])[:4]
                 old = [old, 0.0] if x0 == x1 and y0 != y1 else [0.0, old]
             shift = [old[0] + m["dx"], old[1] + m["dy"]]
-            if any(shift):
-                self.edits.line_moves[m["piece"]] = shift
-            else:
-                self.edits.line_moves.pop(m["piece"], None)
-            # Put down with Alt: exactly there (ft.Edits.free_lines); else nudged off any line it would lie on.
-            free = [p for p in self.edits.free_lines if p != m["piece"]]
-            if event is not None and event.state & ALT and m["piece"] in self.edits.line_moves:
-                free.append(m["piece"])
-            self.edits.free_lines = free
+            # On the shown page alone.  Put down with Alt: exactly there (ft.Edits.free_lines); else nudged off
+            # any line it would lie on.
+            self._set_line_move(m["piece"], shift if any(shift) else None,
+                                free=event is not None and bool(event.state & ALT))
         elif "name" in m:
-            old = self.edits.moved.get(m["name"], [0.0, 0.0])
-            self.edits.moved[m["name"]] = [old[0] + m["dx"], old[1] + m["dy"]]
+            old = self._moved_now().get(m["name"], [0.0, 0.0])
+            self._move_to(m["name"], [old[0] + m["dx"], old[1] + m["dy"]])
         else:
             for q in m["pids"]:
                 p = self.village.people[q]
@@ -3198,8 +3440,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.mark_var.set(current.pop() if len(current) == 1 else "")
         gens = {p.generation for p in people}
         self.gen_choice.set(str(gens.pop()) if len(gens) == 1 else "")
-        colours = {self.edits.family_colours.get(self._family(p), "") if self._family(p) is not None
-                   else self.edits.person_colours.get(ft.entry_key(self.village, p), "") for p in people}
+        colours = {self._colours_now("family_colours").get(self._family(p), "") if self._family(p) is not None
+                   else self._colours_now("person_colours").get(ft.entry_key(self.village, p), "") for p in people}
         self.family_field.set_quietly(colours.pop() if len(colours) == 1 else "")
         for attr, choices in (("shape", ft.PORTRAIT_SHAPES), ("border", ft.BORDERS)):
             if hasattr(self, "lay"):
@@ -3213,9 +3455,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             var.set(f"{values.pop():g}" if len(values) == 1 else "")      # blank where they differ
         dashes = {s.get("dash", self.edits.line_dash) for s in styles}
         self.own_line_dash.set(ft.LINE_TYPES[dashes.pop()] if len(dashes) == 1 else "")
-        texts = {self.edits.entries.get(ft.entry_key(self.village, p), {}).get("text_scale", 100.0) for p in people}
+        texts = {self._entry(p).get("text_scale", 100.0) for p in people}
         self.own_text.set(f"{texts.pop():g}" if len(texts) == 1 else "")
-        pictures = {self.edits.entries.get(ft.entry_key(self.village, p), {}).get("picture_scale", 100.0)
+        pictures = {self._entry(p).get("picture_scale", 100.0)
                     for p in people}
         self.own_picture.set(f"{pictures.pop():g}" if len(pictures) == 1 else "")
         for flip, var in self.own_flips.items():         # ticked when every one selected is flipped
@@ -3652,7 +3894,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         for p in self.village.people.values():
             if ft.group_of(p) != group:
                 continue
-            entry = self.edits.entries.get(ft.entry_key(self.village, p), {})
+            entry = self._entry(p)
             if "shape" in entry or "border" in entry:
                 self._set_entry(p, shape="", border="")     # a copy: the undo steps keep the old one
                 changed += 1
@@ -3749,7 +3991,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         changed = False
         for q in self.selected:
             p = self.village.people[q]
-            if self.edits.entries.get(ft.entry_key(self.village, p), {}).get("text_scale", 100.0) != percent:
+            if self._entry(p).get("text_scale", 100.0) != percent:
                 self._set_entry(p, text_scale=percent if percent != 100.0 else None)
                 changed = True
         if changed:
@@ -4050,8 +4292,122 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self._set_entry(p, **{attr: value})
         self._saved()
 
+    # ---- what belongs to the page shown alone (ft.Edits.page_edits) ------------------------------
+    def _pkey(self) -> str:
+        """The shown page's name in the edits (its first generation)."""
+        return str(ft.page_key(self.edits, self.village, self.page))
+
+    def _ov(self) -> dict:
+        """The shown page's own edits, made if it has none yet."""
+        return self.edits.page_edits.setdefault(self._pkey(), {})
+
     def _entry(self, p: gen.Person) -> dict:
-        return self.edits.entries.get(ft.entry_key(self.village, p), {})
+        """A villager's edits as the shown page has them: the tree's, with this page's laid over."""
+        return self._entry_by_key(ft.entry_key(self.village, p))
+
+    def _entry_by_key(self, key: str) -> dict:
+        base = self.edits.entries.get(key, {})
+        over =self.edits.page_edits.get(self._pkey(), {}).get("entries", {}).get(key)
+        if not over:
+            return base
+        merged = dict(base)
+        for name, value in over.items():
+            if value is None:
+                merged.pop(name, None)
+            else:
+                merged[name] = value
+        return merged
+
+    def _moved_now(self) -> dict:
+        return {**self.edits.moved, **{n: s for n, s in self.edits.page_edits.get(self._pkey(), {}).get("moved", {}).items()
+                                       if s is not None}} if self.edits.page_edits.get(self._pkey()) else self.edits.moved
+
+    def _move_to(self, name: str, shift: list | None) -> None:
+        """Words or a group moved on the shown page alone (None: back where the tree puts them)."""
+        moved = self._ov().setdefault("moved", {})
+        if shift is not None:
+            moved[name] = shift
+        elif name in self.edits.moved:
+            moved[name] = None          # the tree's own move stays on the other pages
+        else:
+            moved.pop(name, None)
+
+    def _hidden_now(self) -> list:
+        """What is deleted on the shown page."""
+        part = self.edits.page_edits.get(self._pkey(), {})
+        return part["hidden"] if "hidden" in part else self.edits.hidden
+
+    def _set_hidden(self, hidden: list) -> None:
+        self._ov()["hidden"] = list(hidden)
+
+    def _generations_now(self) -> dict:
+        """The generation labels the player wrote, as the shown page has them."""
+        return ft.page_view(self.edits, self.village, self.page).generations
+
+    def _set_generation_label(self, g: int, lines: list | None) -> None:
+        """A generation label's lines on the shown page alone (None: the patcher's own words here)."""
+        over = self._ov().setdefault("generations", {})
+        if lines is not None:
+            over[str(g)] = list(lines)
+        elif str(g) in self.edits.generations:
+            over[str(g)] = None         # the tree's own label stays on the other pages
+        else:
+            over.pop(str(g), None)
+        if not over:
+            self._ov().pop("generations", None)
+
+    def _line_moves_now(self) -> dict:
+        """The family lines dragged on the shown page (the tree's own, with this page's laid over)."""
+        return ft.page_view(self.edits, self.village, self.page).line_moves
+
+    def _set_line_move(self, piece: str, shift, free: bool = False) -> None:
+        """A line dragged on the shown page alone (shift None: back where the tree puts it; free: put down
+        with Alt, exactly there)."""
+        moves = self._ov().setdefault("line_moves", {})
+        if shift and self.edits.line_moves.get(piece) != shift:
+            moves[piece] = shift
+        elif shift:                         # the tree's own drag: nothing of this page's
+            moves.pop(piece, None)
+        elif piece in self.edits.line_moves:
+            moves[piece] = None             # the tree's own drag stays on the other pages
+        else:
+            moves.pop(piece, None)
+        part = self._ov()
+        if not moves:
+            part.pop("line_moves", None)
+        kept = [p for p in ft.page_view(self.edits, self.village, self.page).free_lines if p != piece]
+        if free and shift:
+            kept.append(piece)
+        if kept != self.edits.free_lines or "free_lines" in part:
+            part["free_lines"] = kept
+        if part.get("free_lines") == self.edits.free_lines:
+            part.pop("free_lines", None)
+
+    def _clear_line_moves(self) -> None:
+        """Every line put back where the tree draws it, on the shown page alone."""
+        part = self._ov()
+        if self.edits.line_moves:
+            part["line_moves"] = {p: None for p in self.edits.line_moves}
+        else:
+            part.pop("line_moves", None)
+        if self.edits.free_lines:
+            part["free_lines"] = []
+        else:
+            part.pop("free_lines", None)
+
+    def _colours_now(self, name: str) -> dict:
+        """family_colours or person_colours as the shown page has them."""
+        return getattr(ft.page_view(self.edits, self.village, self.page), name)
+
+    def _set_colour(self, name: str, key: str, colour: str) -> None:
+        """A family's or villager's own colour on the shown page alone ("": the patcher's)."""
+        over = self._ov().setdefault(name, {})
+        if colour:
+            over[key] = colour
+        elif key in getattr(self.edits, name):
+            over[key] = None
+        else:
+            over.pop(key, None)
 
     def _family(self, p: gen.Person) -> str | None:
         if p.father is None and p.mother is None:
@@ -4060,20 +4416,30 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         return ft.family_key(self.village, fam)
 
     def _set_entry(self, p: gen.Person, **values) -> None:
-        key = ft.entry_key(self.village, p)
-        entry = dict(self.edits.entries.get(key, {}))
+        self._set_entry_key(ft.entry_key(self.village, p), self._entry(p), **values)
+
+    def _set_entry_key(self, key: str, current: dict, **values) -> None:
+        """Changes to one villager's edits, kept for the shown page alone: what differs from the tree's own
+        (None: not set on this page).  Their generation and chosen look too."""
+        entry = dict(current)
         for name, value in values.items():
             if value:
                 entry[name] = value
             else:
                 entry.pop(name, None)
-        if entry:
-            self.edits.entries[key] = entry
+        base = dict(self.edits.entries.get(key, {}))
+        over = {n: v for n, v in entry.items() if base.get(n) != v}
+        over.update({n: None for n in base if n not in entry})
+        part = self.edits.page_edits.setdefault(self._pkey(), {})
+        entries = part.setdefault("entries", {})
+        if over:
+            entries[key] = over
         else:
-            self.edits.entries.pop(key, None)
+            entries.pop(key, None)
 
     def _saved(self) -> None:
         """Every change: a step to undo, the tree drawn again, and a change to save."""
+        self.edits.page_edits = ft.clean_page_edits(self.edits.page_edits)    # a page that keeps nothing is dropped
         self._record()
         self.dirty = True
         self.redraw()
@@ -4235,6 +4601,31 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self._saved()
         self.status.set(f"Extra lines made bold and italic in {changed} portrait(s)." if changed else
                         "Every extra line is already bold and italic.")
+        return changed
+
+    def _add_status_labels(self, ask: bool = True) -> int:
+        """Each villager's status from the saved records -- "(deceased)", "(disappeared)", "(left the village)",
+        "Heathen" -- added as a last line to every portrait whose words (typed, or the patcher's own) do not
+        already say it -- see ft.status_for_portrait.  For everyone, or the group picked in "Settings for:".  Only the tree's
+        displayed text changes -- never a record.  One step to undo.  How many portraits changed."""
+        if ask and not messagebox.askyesno(
+                "Family Tree Maker", "Add each villager's status (deceased, disappeared, left the village, Heathen) "
+                "to the words on their portrait?  Only the tree's words change, never the villagers' records.",
+                parent=self):
+            return 0
+        group = self._scope()
+        changed = 0
+        for p in self.village.people.values():
+            if group is not None and ft.group_of(p) != group:
+                continue
+            done = ft.status_for_portrait(self.lay, p)
+            if done is not None:
+                self._set_entry(p, lines=done[0], runs=done[1])
+                changed += 1
+        if changed:
+            self._saved()
+        self.status.set(f"Status labels added to {changed} portrait(s).  Ctrl+Z undoes it." if changed else
+                        "Every portrait already says its villager's status.")
         return changed
 
     def _restore_text(self) -> None:
@@ -4421,12 +4812,13 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     def _row_keys(self, g: int) -> list[str]:
         """Generation g's villagers, left to right as the tree numbers them."""
-        row = sorted((p for p in self.village.known() if p.generation == g), key=lambda p: p.number)
+        shown = self.lay.village                # the generations as the shown page has them
+        row = sorted((p for p in shown.known() if p.generation == g), key=lambda p: p.number or 0)
         return [ft.entry_key(self.village, p) for p in row]
 
     def _shift_place(self, step: int) -> None:
         """The selected villagers one place left or right in their generation."""
-        chosen = [self.village.people[q] for q in self.selected if not self.village.people[q].upcoming]
+        chosen = [self.lay.village.people[q] for q in self.selected if not self.village.people[q].upcoming]
         if not chosen:
             return
         for g in sorted({p.generation for p in chosen}):
@@ -4441,7 +4833,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._saved()
 
     def _reset_order(self) -> None:
-        for g in {str(self.village.people[q].generation) for q in self.selected} or set(self.edits.orders):
+        for g in {str(self.lay.village.people[q].generation) for q in self.selected} or set(self.edits.orders):
             self.edits.orders.pop(g, None)
         self._saved()
 
@@ -4451,12 +4843,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         for q in self.selected if pids is None else pids:
             p = self.village.people[q]
             fam = self._family(p)
-            chosen, key = ((self.edits.family_colours, fam) if fam is not None
-                           else (self.edits.person_colours, ft.entry_key(self.village, p)))
-            if colour:
-                chosen[key] = colour
-            else:
-                chosen.pop(key, None)
+            name, key = (("family_colours", fam) if fam is not None
+                         else ("person_colours", ft.entry_key(self.village, p)))
+            self._set_colour(name, key, colour)
         self._saved()
 
     def _add_here(self, what: str, at: tuple) -> None:
@@ -4480,31 +4869,32 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     def _show_key(self) -> None:
         """The marks' Key shown or deleted (a new list: the undo steps keep the old one)."""
-        hidden = [h for h in self.edits.hidden if h != "word:key"]
+        hidden = [h for h in self._hidden_now() if h != "word:key"]
         if not self.key_var.get():
             hidden.append("word:key")
-        self._change(hidden=hidden)
+        self._set_hidden(hidden)
+        self._saved()
         self._refresh_hidden()
 
     def _hide(self, what: str) -> None:
         """A line piece or words deleted from the tree (brought back from the Layout tab)."""
-        if what not in self.edits.hidden:
-            self.edits.hidden.append(what)
+        if what not in self._hidden_now():
+            self._set_hidden(list(self._hidden_now()) + [what])
         self._saved()
         self._refresh_hidden()
         self.status.set("Deleted.  Ctrl+Z, or Deleted items on the Layout tab, brings it back.")
 
     def _drop_label_line(self, g: int, k: int) -> None:
         """One line of a generation label the player wrote, deleted (the last one: the whole label)."""
-        lines = list(self.edits.generations.get(str(g), []))
+        lines = list(self._generations_now().get(str(g), []))
         if not 0 <= k < len(lines):
             return
         del lines[k]
         if lines:
-            self.edits.generations[str(g)] = lines
+            self._set_generation_label(g, lines)
             self._saved()
         else:
-            self.edits.generations.pop(str(g), None)
+            self._set_generation_label(g, None)
             self._hide(f"word:label{g}")
         self._show_generation()
 
@@ -4523,7 +4913,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         """(what it is, its words) for everything deleted from the tree."""
         out = [(f"villager:{ft.entry_key(self.village, p)}", f"Villager: {p.name}")
                for p in self.village.people.values() if self._entry(p).get("hidden")]
-        for what in self.edits.hidden:
+        for what in self._hidden_now():
             kind, _, name = what.partition(":")
             if kind == "label":
                 g, _, part = name.partition(":")
@@ -4562,7 +4952,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
 
     def _refresh_hidden(self) -> None:
         if hasattr(self, "key_var"):            # the Key's tick box follows a right-click Delete and undo
-            self.key_var.set("word:key" not in self.edits.hidden)
+            self.key_var.set("word:key" not in self._hidden_now())
         if not hasattr(self, "hidden_list"):
             return
         self.hidden_list.delete(0, "end")
@@ -4577,14 +4967,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             what = self.hidden_keys[k]
             if what.startswith("villager:"):
                 key = what.partition(":")[2]
-                entry = dict(self.edits.entries.get(key, {}))
-                entry.pop("hidden", None)
-                if entry:
-                    self.edits.entries[key] = entry
-                else:
-                    self.edits.entries.pop(key, None)
-            elif what in self.edits.hidden:
-                self.edits.hidden.remove(what)
+                self._set_entry_key(key, self._entry_by_key(key), hidden=None)
+            elif what in self._hidden_now():
+                self._set_hidden([h for h in self._hidden_now() if h != what])
         self._saved()
         self._refresh_hidden()
 
@@ -4592,7 +4977,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         """Everything the player changed for these villagers undone (one Ctrl+Z brings it back)."""
         targets = list(self.selected) if pids and pids[0] in self.selected else pids
         for q in targets:
-            self.edits.entries.pop(ft.entry_key(self.village, self.village.people[q]), None)
+            key = ft.entry_key(self.village, self.village.people[q])
+            # this page's own undone; the tree's own generation and chosen look (Change Appearance) stay
+            self._set_entry_key(key, {n: v for n, v in self.edits.entries.get(key, {}).items()
+                                      if n in ("generation", "look")}, **{})
         self._saved()
 
     def _clear_selected(self) -> None:
@@ -4620,14 +5008,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _apply_generation(self) -> None:
         g = self._gen_number()
         lines = [line.rstrip() for line in self.gen_text.get("1.0", "end").rstrip("\n").split("\n")]
-        if lines == ft.default_generation_label(self.lay, g):
-            self.edits.generations.pop(str(g), None)
-        else:
-            self.edits.generations[str(g)] = lines
+        self._set_generation_label(g, None if lines == ft.default_generation_label(self.lay, g) else lines)
         self._saved()
 
     def _restore_generation(self) -> None:
-        self.edits.generations.pop(str(self._gen_number()), None)
+        self._set_generation_label(self._gen_number(), None)
         self._saved()
         self._show_generation()
 
@@ -4876,25 +5261,27 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._refresh_panels()
         self.status.set(f"Opened {Path(path).name}.  Ctrl+S saves it as this tree.")
 
-    def _save_as(self, path: Path, scale: float) -> None:
-        """The tree as a picture: every page of it, "<name> - Page 2" and so on beside the first."""
-        count = len(ft.page_spans(self.edits, self.village))
+    def _save_as(self, path: Path, scale: float, pages: list | None = None) -> None:
+        """The tree as a picture: the pages asked for (0-based; every page when None), each the whole page
+        -- "<name> - Page 2" and so on beside the first.  Never the part of it the window shows."""
+        if pages is None:
+            pages = list(range(len(ft.page_spans(self.edits, self.village))))
         try:
-            for k in range(count):
+            for k in pages:
                 target = path if k == 0 else path.with_name(f"{path.stem} - Page {k + 1}{path.suffix}")
                 vv_gdiplus.save_scene(self._page_scene(k)[1], self.present, target, scale=scale)
         except (OSError, ValueError) as exc:
             messagebox.showerror("Save Picture", f"The picture could not be saved: {exc}", parent=self)
             return
-        self.status.set(f"Saved {path}" + (f" and {count - 1} more page(s) beside it" if count > 1 else ""))
-        self._preview_picture(path)
+        self.status.set(f"Saved {path}" + (f" and {len(pages) - 1} more page(s) beside it" if len(pages) > 1 else ""))
+        self._preview_picture(path, pages[0])
 
-    def _preview_picture(self, path: Path) -> None:
+    def _preview_picture(self, path: Path, page: int = 0) -> None:
         """The picture just saved, shown as it is (the owner, 2026-10-08: "there should be a fucking image
         preview built in"): drawn by the same graphics as the file, fitted to the screen, over a
         checkerboard so anything see-through in the file shows as see-through, never as the window's
         white."""
-        sc = self._page_scene(0)[1]
+        sc = self._page_scene(page)[1]
         fit = min(1.0, (self.winfo_screenwidth() - 120) / max(1.0, sc.width),
                   (self.winfo_screenheight() - 220) / max(1.0, sc.height))
         temp = Path(tempfile.gettempdir()) / f"vvfp-tree-preview-{os.getpid()}.png"
@@ -4914,7 +5301,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         frame = ttk.Frame(window, padding=8)
         frame.pack(fill="both", expand=True)
         ttk.Label(frame, text=f"Saved {path}.  This is the picture as saved"
-                  + (" (the first page)" if len(ft.page_spans(self.edits, self.village)) > 1 else "")
+                  + (f" (page {page + 1})" if len(ft.page_spans(self.edits, self.village)) > 1 else "")
                   + ".  A checkerboard shows through anything see-through.", wraplength=900).pack(anchor="w")
         if photo is not None:
             w, h = photo.width(), photo.height()
@@ -5028,7 +5415,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.window["panel_hidden"] = not shown
         self.window.update(smart=bool(self.smart_var.get()), snap=bool(self.snap_var.get()),
                            grid=int(self.grid_size.get()), show_grid=bool(self.show_grid.get()),
-                           keep_aspect=bool(self.lock_shape.get()))
+                           keep_aspect=bool(self.lock_shape.get()), hide_not_in_save=bool(self.hide_gone.get()))
         if not self.attributes("-fullscreen"):
             self.window["geometry"] = self.geometry()
         if hasattr(self.app, "_save_settings"):

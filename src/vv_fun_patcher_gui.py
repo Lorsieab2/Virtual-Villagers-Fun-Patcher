@@ -24,6 +24,7 @@ import vv_last_names
 import vv_cut_names
 import vv_corrupt_skills
 import vv_graves
+import vv_history_revision
 import vv_lost_titles
 import vv1_parents_restore
 import vv_number_names
@@ -169,6 +170,166 @@ class RichDescription(tk.Text):
             self.configure(height=count)
 
 
+# The patch list of each game is virtual: only the rows near the visible part
+# of the list exist as widgets.  VIRTUAL_VIEW_PX is how tall each game's list is
+# on screen; VIRTUAL_MARGIN_PX is how far beyond each edge rows are kept drawn;
+# VIRTUAL_ROW_GUESS_PX is the height assumed for a row that has not been drawn.
+VIRTUAL_VIEW_PX = 320
+VIRTUAL_MARGIN_PX = 80
+VIRTUAL_ROW_GUESS_PX = 100
+VIRTUAL_UNIT_PX = 40          # one mouse-wheel notch or scrollbar arrow
+# The width rows are laid out at until the list has a real width (the widest
+# row, a 620 px description, fits in it).
+VIRTUAL_DEFAULT_WIDTH_PX = 700
+
+
+class VirtualList(ttk.Frame):
+    """A scrollable list whose rows exist as widgets only while near the view.
+
+    ``build_row(frame, row)`` fills an empty frame with the widgets of one row.
+    A row keeps no state of its own: what it shows lives in the caller's
+    variables, so a row destroyed as it leaves the view and built again when it
+    returns shows the same value.  A drawn row's height is measured and kept;
+    rows never drawn count as the average of the measured ones, so the scroll
+    length is exact once every row has been seen and approximate before that.
+
+    The list is a frame of fixed height.  Rows are placed at their offset from
+    the top of the list and Tk clips the ones outside it; scrolling moves the
+    offset.  It is not a canvas: a canvas whose scroll region is reset while its
+    window items are drawn kept re-entering its own scroll handler and froze.
+    """
+
+    def __init__(self, parent, rows: list, build_row) -> None:
+        super().__init__(parent, height=VIRTUAL_VIEW_PX)
+        self.pack_propagate(False)
+        self._rows = rows
+        self._build_row = build_row
+        self._heights: list[int | None] = [None] * len(rows)
+        self._drawn: dict[int, ttk.Frame] = {}
+        self._placed: dict[int, tuple[int, int]] = {}   # index -> (y, width) last placed
+        self._offset = 0                                # px scrolled from the top
+        self._width = 0
+        self._busy = False
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.yview)
+        self.scrollbar.pack(side="right", fill="y")
+        self.bind("<Configure>", self._resized)
+        # The first rows are drawn once the window is up, not while it is still being built.
+        self.after_idle(self._refresh)
+
+    def set_rows(self, rows: list) -> None:
+        """Show these rows instead (a search): every drawn row is dropped and the list starts
+        again at the top.  Rows keep no state, so nothing a row shows is changed by this."""
+        for frame in self._drawn.values():
+            frame.destroy()
+        self._drawn.clear()
+        self._placed.clear()
+        self._rows = rows
+        self._heights = [None] * len(rows)
+        self._offset = 0
+        if rows:
+            self._refresh()
+        else:
+            self.scrollbar.set(0.0, 1.0)
+
+    def yview(self, *args) -> None:
+        """The scrollbar's command: ``moveto <fraction>`` or ``scroll <n> units|pages``."""
+        total = self._layout()[1]
+        if args[0] == "moveto":
+            self._offset = int(float(args[1]) * total)
+        elif args[0] == "scroll":
+            step = int(VIRTUAL_VIEW_PX * 0.9) if args[2] == "pages" else VIRTUAL_UNIT_PX
+            self._offset += int(args[1]) * step
+        self._refresh()
+
+    def yview_scroll(self, number: int, what: str) -> None:
+        """The mouse wheel: the same as the scrollbar's own arrows."""
+        self.yview("scroll", number, what)
+
+    def can_scroll(self, direction: int) -> bool:
+        """Whether the list can still move one way: -1 is up, 1 is down."""
+        total = self._layout()[1]
+        if direction < 0:
+            return self._offset > 0
+        return self._offset < total - VIRTUAL_VIEW_PX
+
+    def _resized(self, event: tk.Event) -> None:
+        if event.width == self._width:          # only a real width change lays out again
+            return
+        self._width = event.width
+        self._refresh()
+
+    def _layout(self) -> tuple[list[int], int]:
+        """Top edge of every row, and the height of the whole list."""
+        measured = [height for height in self._heights if height is not None]
+        guess = sum(measured) // len(measured) if measured else VIRTUAL_ROW_GUESS_PX
+        tops: list[int] = []
+        total = 0
+        for height in self._heights:
+            tops.append(total)
+            total += guess if height is None else height
+        return tops, total
+
+    def _refresh(self) -> None:
+        """Draw the rows near the view, drop the rest, and place every drawn row."""
+        if self._busy or not self._rows:
+            return
+        self._busy = True
+        try:
+            # Before the list is mapped its width is 1 px, and rows drawn that
+            # narrow squeeze their descriptions into a feedback loop of heights.
+            width = self._width if self._width >= 2 else VIRTUAL_DEFAULT_WIDTH_PX
+            # Rows stop where the scrollbar's strip starts, so the scrollbar is
+            # never covered and always receives the pointer.
+            width = max(2, width - self.scrollbar.winfo_reqwidth())
+            tops, total = self._layout()
+            self._clamp(total)
+            low = self._offset - VIRTUAL_MARGIN_PX
+            high = self._offset + VIRTUAL_VIEW_PX + VIRTUAL_MARGIN_PX
+            bottoms = tops[1:] + [total]
+            wanted = {
+                index for index in range(len(self._rows))
+                if tops[index] < high and bottoms[index] > low
+            }
+            for index in [index for index in self._drawn if index not in wanted]:
+                self._drawn.pop(index).destroy()
+                self._placed.pop(index, None)
+            fresh = [index for index in sorted(wanted) if index not in self._drawn]
+            for index in fresh:
+                frame = ttk.Frame(self)
+                self._build_row(frame, self._rows[index])
+                self._drawn[index] = frame
+                # Placed first, so Tk gives the row its real width: a description
+                # sized at 1 px counts hundreds of lines and gets a huge height.
+                frame.place(x=0, y=0, width=width)
+            if fresh:
+                # Tk lays the new rows out, then each description is fitted to its
+                # real width, and only then is each row measured.
+                self.update_idletasks()
+                for index in fresh:
+                    for child in self._drawn[index].winfo_children():
+                        if isinstance(child, RichDescription):
+                            child._fit()
+                self.update_idletasks()
+                for index in fresh:
+                    self._heights[index] = self._drawn[index].winfo_reqheight()
+                tops, total = self._layout()
+                self._clamp(total)
+            for index, frame in self._drawn.items():
+                place = (tops[index] - self._offset, width)
+                if self._placed.get(index) != place:
+                    frame.place(x=0, y=place[0], width=width)
+                    self._placed[index] = place
+            self.scrollbar.lift()
+            first = self._offset / total
+            last = min(1.0, (self._offset + VIRTUAL_VIEW_PX) / total)
+            self.scrollbar.set(first, last)
+        finally:
+            self._busy = False
+
+    def _clamp(self, total: int) -> None:
+        self._offset = min(max(0, self._offset), max(0, total - VIRTUAL_VIEW_PX))
+
+
 def owners_default_fun_patch_selection(patch_id: str) -> bool:
     """Whether the Owner's Defaults button ticks this.
 
@@ -227,6 +388,26 @@ def group_fun_patches(builds, patches):
             )
         )
     return headers
+
+
+def patch_name_matches(patch, term: str) -> bool:
+    """A game tab's search: the patch's NAME holds the typed text, any case (the owner: "name
+    only" -- never the description).  An empty box matches every patch."""
+    term = term.strip().casefold()
+    return not term or term in patch.name.casefold()
+
+
+def patches_by_name(builds, patches) -> list[tuple[str, list]]:
+    """The Patch Selection Settings list: one entry per patch name, holding every game's patch of
+    that name in the games' order.  Sorted by name."""
+    game_order = {build.id: index for index, build in enumerate(builds)}
+    named: dict[str, list] = {}
+    for patch in patches:
+        named.setdefault(patch.name, []).append(patch)
+    return [
+        (name, sorted(named[name], key=lambda patch: (game_order.get(patch.game_id, len(game_order)), patch.id)))
+        for name in sorted(named, key=lambda name: (name.casefold(), name))
+    ]
 
 
 WAIT_POLL_SECONDS = 0.03
@@ -1012,6 +1193,17 @@ class App(tk.Tk):
             command=self._deselect_all_fun_patches,
         ).pack(side="left", padx=(8, 0))
         self._help_button(fun_actions, "deselect_all").pack(side="left", padx=(2, 0))
+        # The owner: "put a button to easily tick and untick certain patches in all 5 games.
+        # like in a separate settings menu."  On a row of its own: beside the four buttons above,
+        # the row is wider than the window.
+        fun_settings = ttk.Frame(mode_box)
+        fun_settings.grid(row=fun_row + 2, column=1, sticky="w", pady=(0, 5))
+        ttk.Button(
+            fun_settings,
+            text="Patch Selection Settings...",
+            command=self._open_patch_selection_settings,
+        ).pack(side="left")
+        self._help_button(fun_settings, "patch_selection_settings").pack(side="left", padx=(2, 0))
         # The owner's rule: under every description, in bold, which other
         # patches must be on for this one (and which need this one).
         requirement_font = tkfont.nametofont("TkDefaultFont").copy()
@@ -1023,46 +1215,47 @@ class App(tk.Tk):
         # have, and everything below that line (the folder choosers, the buttons) stopped being
         # painted. Only the tallest tab counts toward the page height now.
         self.patch_pages = ttk.Notebook(mode_box)
-        self.patch_pages.grid(row=fun_row + 2, column=0, columnspan=2, sticky="ew", pady=(8, 0))
+        self.patch_pages.grid(row=fun_row + 3, column=0, columnspan=2, sticky="ew", pady=(8, 0))
+        styles = (requirement_font, description_font, description_background)
+        # Each game's search box, by tab name: (its text, its list, every row of the tab).
+        self.patch_searches: dict[str, tuple[tk.StringVar, VirtualList, list]] = {}
         for header, patches in group_fun_patches(self.builds, self.fun_patches):
             page = ttk.Frame(self.patch_pages, padding=(10, 6, 10, 6))
             game_name = header.removeprefix("Virtual Villagers - ")
             self.patch_pages.add(page, text=game_name)
-            page.columnconfigure(0, weight=1)
             shared = header == "Shared / All Games"
-            row = 0
             ttk.Label(
                 page,
                 text=header,
                 font=("Segoe UI", 10, "bold"),
-            ).grid(row=row, column=0, sticky="w", pady=(0, 2))
-            row += 1
+            ).pack(anchor="w", pady=(0, 2))
+            rows = []
             for patch in patches:
                 label = patch.name if shared else f"{patch.name} ({game_name})"
-                patch_row = ttk.Frame(page)
-                patch_row.grid(row=row, column=0, sticky="w", pady=3)
-                ttk.Checkbutton(
-                    patch_row,
-                    text=label,
-                    variable=self.fun_patch_vars[patch.id],
-                    command=self._fun_patch_changed,
-                ).pack(side="left")
-                self._help_button(
-                    patch_row, vv_how_to_use.patch_key(patch.id), label
-                ).pack(side="left", padx=(4, 0))
-                row += 1
-                RichDescription(page, patch.description, 620, requirement_font,
-                                description_font, description_background).grid(
-                    row=row, column=0, sticky="w", pady=(0, 3)
-                )
-                row += 1
-                ttk.Label(
-                    page,
-                    text=patch_requirement_text(patch, self.fun_patches),
-                    wraplength=620,
-                    font=requirement_font,
-                ).grid(row=row, column=0, sticky="w", pady=(0, 6))
-                row += 1
+                # Each row's "?" key is registered and its guide checked now,
+                # so a missing guide still fails while the window is built.
+                # The row's widgets are made only when it scrolls into view.
+                key = vv_how_to_use.patch_key(patch.id)
+                vv_how_to_use.guide(key, label)
+                self.help_keys.add(key)
+                rows.append((patch, label, key))
+            # The owner: "add a search bar per-game for each patch (name only)".
+            search_row = ttk.Frame(page)
+            search_row.pack(fill="x", pady=(0, 4))
+            ttk.Label(search_row, text="Search patch names:").pack(side="left")
+            search_var = tk.StringVar()
+            ttk.Entry(search_row, textvariable=search_var, width=40).pack(side="left", padx=(6, 0))
+            self._help_button(search_row, "patch_search").pack(side="left", padx=(4, 0))
+            listing = VirtualList(
+                page, rows,
+                lambda frame, row, styles=styles: self._build_patch_row(frame, row, styles),
+            )
+            listing.pack(fill="x")
+            self.patch_searches[game_name] = (search_var, listing, rows)
+            search_var.trace_add(
+                "write",
+                lambda *_args, name=game_name: self._filter_patch_page(name),
+            )
         mode_box.columnconfigure(1, weight=1)
 
         output_box = ttk.LabelFrame(patches_tab, text="Modded output location", padding=10)
@@ -1115,6 +1308,31 @@ class App(tk.Tk):
             side="right", anchor="e", padx=(0, 4), pady=(8, 0)
         )
 
+    def _build_patch_row(self, frame, row, styles) -> None:
+        """Draw one patch: its checkbox and "?", its description with **bold** dependencies, and
+        the requirement line.  The checkbox reads the patch's variable, so a row drawn later shows
+        whatever the selection is by then."""
+        patch, label, key = row
+        requirement_font, description_font, background = styles
+        frame.columnconfigure(0, weight=1)
+        patch_row = ttk.Frame(frame)
+        patch_row.grid(row=0, column=0, sticky="w", pady=3)
+        ttk.Checkbutton(
+            patch_row,
+            text=label,
+            variable=self.fun_patch_vars[patch.id],
+            command=self._fun_patch_changed,
+        ).pack(side="left")
+        self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
+        RichDescription(frame, patch.description, 620, requirement_font,
+                        description_font, background).grid(row=1, column=0, sticky="w", pady=(0, 3))
+        ttk.Label(
+            frame,
+            text=patch_requirement_text(patch, self.fun_patches),
+            wraplength=620,
+            font=requirement_font,
+        ).grid(row=2, column=0, sticky="w", pady=(0, 6))
+
     def _open_releases_page(self) -> None:
         """Open the project's GitHub page. No version check, by design.
 
@@ -1148,6 +1366,25 @@ class App(tk.Tk):
         if under is None:
             return "break"
         top = under.winfo_toplevel()
+        direction = -1 if event.delta > 0 else 1
+        # A patch list scrolls first, in the main window too: its widgets belong
+        # to this window, so the dialog branch below never sees them.  At the end
+        # of the list the wheel falls through and the page scrolls.
+        listing = under
+        while listing is not None and not isinstance(listing, VirtualList):
+            listing = listing.master
+        if listing is not None:
+            try:
+                held = top is self and self.wm_attributes("-disabled")
+            except tk.TclError:
+                held = False
+            if held:
+                return "break"
+            if listing.can_scroll(direction):
+                listing.yview_scroll(direction, "units")
+                return "break"
+            if top is not self:
+                return "break"
         if top is not self:
             widget = under
             while widget is not None and widget is not top:
@@ -1166,7 +1403,6 @@ class App(tk.Tk):
         bounds = self.content_canvas.bbox("all")
         if not bounds or bounds[3] <= self.content_canvas.winfo_height():
             return None
-        direction = -1 if event.delta > 0 else 1
         self.content_canvas.yview_scroll(direction, "units")
         return "break"
 
@@ -1597,6 +1833,96 @@ class App(tk.Tk):
             variable.set(False)
         self._last_fun_selection = set()
         self._fun_patch_changed()
+
+    def _set_named_fun_patches(self, names, tick: bool) -> list[str]:
+        """Tick (or untick) every game's patch with one of these names, the way the player's own
+        clicks do: the previous selection is kept, so _fun_patch_changed adds the prerequisites
+        and companion rows of a tick and clears the dependents of an untick exactly as for a
+        click on the patch's own checkbox.  Returns the ids whose box this changed directly."""
+        wanted = set(names)
+        changed = []
+        for patch in self.fun_patches:
+            variable = self.fun_patch_vars[patch.id]
+            if patch.name in wanted and variable.get() != tick:
+                variable.set(tick)
+                changed.append(patch.id)
+        self._fun_patch_changed()
+        return changed
+
+    def _filter_patch_page(self, page_name: str) -> None:
+        """A game tab's search box changed: show only the rows whose patch NAME matches.  The
+        ticks are the patches' own variables, so nothing is ticked or unticked by this."""
+        search_var, listing, rows = self.patch_searches[page_name]
+        term = search_var.get()
+        listing.set_rows([row for row in rows if patch_name_matches(row[0], term)])
+
+    def _open_patch_selection_settings(self) -> None:
+        """The owner: "a button to easily tick and untick certain patches in all 5 games. like in
+        a separate settings menu."  One row per patch name; Tick These / Untick These apply the
+        chosen names to every game that has a patch of that name."""
+        existing = getattr(self, "_patch_selection_dialog", None)
+        if existing is not None and existing.winfo_exists():
+            existing.deiconify()
+            existing.lift()
+            existing.focus_set()
+            return
+        dialog, frame = self._scrolling_dialog("Patch Selection Settings")
+        self._patch_selection_dialog = dialog
+        ttk.Label(
+            frame, text="Tick or untick patches in every game at once",
+            font=("Segoe UI", 10, "bold"),
+        ).pack(anchor="w")
+        ttk.Label(
+            frame,
+            text=(
+                "Choose patches below, then press Tick These or Untick These. Each patch is "
+                "changed in every game that has it (the games are listed beside its name). "
+                "A patch that needs another one turns it on too, just as when you tick it yourself."
+            ),
+            wraplength=560,
+            justify="left",
+        ).pack(anchor="w", pady=(4, 10))
+        short = {
+            build.id: build.title.removeprefix("Virtual Villagers - ") for build in self.builds
+        }
+        choices: list[tuple[str, tk.BooleanVar]] = []
+        for name, patches in patches_by_name(self.builds, self.fun_patches):
+            games = [short.get(patch.game_id, "All Games") for patch in patches]
+            where = "all 5 games" if len(set(games)) == len(self.builds) == 5 else ", ".join(games)
+            var = tk.BooleanVar(value=False)
+            ttk.Checkbutton(frame, text=f"{name}   ({where})", variable=var).pack(
+                anchor="w", padx=(6, 0)
+            )
+            choices.append((name, var))
+        self._patch_selection_choices = choices
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x", pady=(14, 0))
+
+        def apply(tick: bool) -> None:
+            names = [name for name, var in choices if var.get()]
+            if not names:
+                messagebox.showinfo(
+                    "Patch Selection Settings",
+                    "Tick at least one patch in the list first.",
+                    parent=dialog,
+                )
+                return
+            self._set_named_fun_patches(names, tick)
+            count = sum(
+                1 for patch in self.fun_patches
+                if patch.name in set(names) and self.fun_patch_vars[patch.id].get() == tick
+            )
+            self.status_var.set(
+                f"{'Ticked' if tick else 'Unticked'} {count} patch"
+                f"{'' if count == 1 else 'es'} across the games: {', '.join(names)}."
+            )
+
+        ttk.Button(buttons, text="Tick These", command=lambda: apply(True)).pack(side="left")
+        ttk.Button(buttons, text="Untick These", command=lambda: apply(False)).pack(
+            side="left", padx=(8, 0)
+        )
+        ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="right")
+        dialog.bind("<Escape>", lambda _event: dialog.destroy())
 
     def _load_settings(self) -> None:
         try:
@@ -3407,9 +3733,24 @@ class App(tk.Tk):
         # as they will be: arrivals get their own new last name automatically, the rest are asked about.
         named_lines = self._missing_last_names_at_repair(parent, folder, number, info)
         skills: dict = {"found": [], "note": None, "reset": False}
+        # A tribe started over with the same name (src/vv_history_revision.py; the owner, v1.35.73): its
+        # villagers proven gone, and the rest kept and listed.  Never ticked until the player ticks it and
+        # confirms the list.
+        # Undelete villagers (the owner, v1.35.73): the latest history revision's lines put back from the
+        # copies it made; offered only when one has something to put back, never ticked by default.
+        history: dict = {"plan": None, "note": None, "confirmed": False, "undo": None, "undo_confirmed": False}
 
         def survey():
             checked = vv_log_tools.check_logs(folder, info.slot, number)
+            try:
+                history["plan"] = vv_history_revision.plan(folder, number, info.slot)
+            except (vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
+                history["note"] = f"The history revision was not offered: a file could not be read ({exc})."
+            try:
+                history["undo"] = vv_history_revision.undo_plan(folder, number, info.slot)
+            except (vv_log_tools.LogToolError, ValueError, OSError) as exc:
+                history["note"] = ((history["note"] + " ") if history["note"] else "") + (
+                    f"Undelete villagers was not offered: a file could not be read ({exc}).")
             checker = vv_log_tools.load_checker()
             old = checker.old_words(folder, number) if number in checker.WORD_FIXES else []
             # Names the Villager Details screen cut short (src/vv_cut_names.py); one that cannot be
@@ -3471,7 +3812,7 @@ class App(tk.Tk):
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
-                                        unpaused, speed, misnumbered, graves, skills=skills)
+                                        unpaused, speed, misnumbered, graves, skills=skills, history=history)
         if picked is None:
             return
         rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked
@@ -3487,9 +3828,35 @@ class App(tk.Tk):
             self.status_var.set("Repair Saves & Logs did not finish. See the message for what changed.")
             messagebox.showerror("Repair Saves & Logs", str(exc), parent=parent)
             return
+        # The restarted tribe's villagers the player confirmed (src/vv_history_revision.py): planned again
+        # now that the lines above are in, and only a villager still proven gone is removed.
+        history_lines: list[str] = []
+        if history["confirmed"] and history["plan"] is not None:
+            try:
+                revised = self._run_with_wait(
+                    "Removing the villagers of a tribe started over…\n\nEach log is copied first.",
+                    lambda: vv_history_revision.revise(folder, number, info.slot, history["plan"], confirm=True))
+                history_lines.append(
+                    f"{vv_history_revision.LABEL}: {len(revised.removed)} villager(s) removed from "
+                    f"{len(revised.files)} log file(s) (copies in Copies Made Before Repairs; each listed in the "
+                    f"Repairs log). Kept and listed: {len(history['plan'].kept)}.")
+            except (vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The history was not revised. {exc}", parent=parent)
+        # Undelete villagers (src/vv_history_revision.py undo): after the lines above are in, so they are kept.
+        if history.get("undo_confirmed"):
+            try:
+                undone = self._run_with_wait(
+                    "Putting back the villagers the history revision removed…\n\nEach log is copied first.",
+                    lambda: vv_history_revision.undo(folder, number, info.slot, confirm=True))
+                history_lines.append(
+                    f"Undelete villagers: {len(undone.villagers)} villager(s) put back into {len(undone.files)} "
+                    "log file(s) (copies in Copies Made Before Repairs; listed in the Repairs log).")
+            except (vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"No villager was put back. {exc}", parent=parent)
         # The graves the player put right, first of the save edits: the renames below then find each grave
         # under the name its records give it.
         grave_lines = self._fix_graves(parent, folder, number, info, grave_fixes) if grave_fixes else []
+        grave_lines = history_lines + grave_lines
         # Lost custom titles next, before any rename: a rename then carries the restored title along.
         grave_lines += self._restore_lost_titles(parent, folder, number, info, lost)
         # Corrupted skill values (src/vv_corrupt_skills.py), before any rename: the record names each
@@ -3833,7 +4200,7 @@ class App(tk.Tk):
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
                           speed: tuple | None = None, misnumbered: dict | None = None, graves=None,
-                          skills: dict | None = None):
+                          skills: dict | None = None, history: dict | None = None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -3966,6 +4333,43 @@ class App(tk.Tk):
                      + ([skills["note"]] if skills.get("note") else [])):
             ttk.Label(frame, text=line, wraplength=600, justify="left",
                       foreground="#555555").pack(anchor="w", padx=(20, 0))
+        # Remove a restarted tribe's villagers from the history (src/vv_history_revision.py; the owner,
+        # v1.35.73): NEVER ticked by default, and Repair asks to confirm the exact list first.
+        history = history if history is not None else {"plan": None, "note": None, "confirmed": False}
+        history["confirmed"] = False
+        history_var = tk.BooleanVar(value=vv_history_revision.DEFAULT_TICKED)
+        history_plan = history.get("plan")
+        history_row = ttk.Frame(frame)
+        history_row.pack(anchor="w", pady=(4, 0))
+        history_tick = ttk.Checkbutton(
+            history_row, variable=history_var,
+            text=f"{vv_history_revision.LABEL}: "
+                 + (f"{len(history_plan.gone)} proven gone, {len(history_plan.unsure)} not sure (you decide), "
+                    f"{len(history_plan.kept) - len(history_plan.unsure)} kept and listed"
+                    if history_plan is not None else "not checked"))
+        history_tick.pack(side="left")
+        if history_plan is None or not (history_plan.gone or history_plan.unsure):
+            history_tick.state(["disabled"])
+        if history_plan is not None and (history_plan.gone or history_plan.kept):
+            ttk.Button(history_row, text="Show the list…",
+                       command=lambda: self._history_list_dialog(window, history_plan, ask=False)
+                       ).pack(side="left", padx=(8, 0))
+        # Undelete villagers (the owner, v1.35.73: "add an option to undelete villagers"): never ticked by
+        # default, offered only when the latest history revision has something to put back.
+        history["undo_confirmed"] = False
+        undo_plan = history.get("undo")
+        undo_var = tk.BooleanVar(value=vv_history_revision.UNDO_DEFAULT_TICKED)
+        undo_tick = ttk.Checkbutton(
+            frame, variable=undo_var,
+            text=f"{vv_history_revision.UNDO_LABEL}: "
+                 + (f"{len(undo_plan.villagers)} villager(s) from the revision of {undo_plan.date}, "
+                    f"{len(undo_plan.files)} log file(s)" if undo_plan is not None else "none to put back"))
+        undo_tick.pack(anchor="w", pady=(4, 0))
+        if undo_plan is None or not undo_plan.files:
+            undo_tick.state(["disabled"])
+        if history.get("note"):
+            ttk.Label(frame, text=history["note"], wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
         # Game speed Paused in backups and in saves the player picks (the owner, 2026-10-08): a
         # restored backup must never catch up on the time since it was made.
         pause_backups_var = tk.BooleanVar(value=bool(unpaused))
@@ -4013,6 +4417,35 @@ class App(tk.Tk):
         buttons.pack(anchor="w", pady=(12, 0))
 
         def go() -> None:
+            # Undelete villagers: the logs and the copies each comes from -- confirmed, or nothing.
+            history["undo_confirmed"] = False
+            if undo_var.get() and undo_plan is not None and undo_plan.files:
+                if history_var.get():
+                    messagebox.showerror(
+                        "Repair Saves & Logs", "Undelete villagers and the history revision undo each other: "
+                        "tick only one of them.", parent=window)
+                    return
+                if not self._undo_history_dialog(window, undo_plan):
+                    undo_var.set(False)
+                    return
+                history["undo_confirmed"] = True
+            # The history revision: the exact list, per log, and who is kept and why -- confirmed or nothing.
+            history["confirmed"] = False
+            if history_var.get() and history_plan is not None and (history_plan.gone or history_plan.unsure):
+                ticked = self._history_list_dialog(window, history_plan, ask=True)
+                if ticked is None:
+                    history_var.set(False)
+                    return
+                # Planned again with the villagers the player ticked: the list confirmed is the list removed.
+                try:
+                    history["plan"] = vv_history_revision.plan(
+                        history_plan.folder, history_plan.game, history_plan.slot, also_remove=frozenset(ticked))
+                except (vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
+                    messagebox.showerror("Repair Saves & Logs", f"The history revision was not confirmed. {exc}",
+                                         parent=window)
+                    history_var.set(False)
+                    return
+                history["confirmed"] = True
             restore = bool(cuts) and cuts_var.get()
             skills["reset"] = bool(skills["found"]) and skills_var.get()
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
@@ -4034,6 +4467,104 @@ class App(tk.Tk):
         parent.wait_window(window)
         _regrab(parent)
         return outcome.get("picked")
+
+    def _history_list_dialog(self, parent, plan, ask: bool) -> bool:
+        """The history revision's list (src/vv_history_revision.py Plan.describe): per log, the blocks that
+        go, with a count, and every villager kept with the reason.  With `ask`, the player's confirmation:
+        the set of unsure villagers ticked to remove on "Remove" (Cancel is the default), None on Cancel."""
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: remove villagers from the history")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=12)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, wraplength=760, justify="left",
+                  text="A tribe started over with the same name: only the villagers PROVEN gone are removed. "
+                       "Everyone else not in the save is kept and listed with the reason. Nothing in the save "
+                       "changes; each log is copied first, and every villager removed is listed in the Repairs "
+                       "log.").pack(anchor="w", pady=(0, 8))
+        body = ttk.Frame(frame)
+        body.pack(fill="both", expand=True)
+        text = tk.Text(body, wrap="word", width=110, height=30)
+        scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
+        text.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        text.pack(side="left", fill="both", expand=True)
+        text.insert("1.0", plan.describe())
+        text.configure(state="disabled")
+        outcome: dict = {"yes": False, "ticked": set()}
+        # Not sure: a tick removes that villager too; unticked, kept (the player decides, never the program).
+        ticks: dict = {}
+        if ask and plan.unsure:
+            box = ttk.LabelFrame(frame, text="Not sure -- tick a villager to remove them too (kept if unticked)")
+            box.pack(anchor="w", fill="x", pady=(8, 0))
+            for v in plan.unsure:
+                ticks[v.person.key] = tk.BooleanVar(value=False)
+                ttk.Checkbutton(box, variable=ticks[v.person.key],
+                                text=f"{v.person.described()}: {v.reason}").pack(anchor="w")
+
+        def remove() -> None:
+            outcome["yes"] = True
+            outcome["ticked"] = {key for key, var in ticks.items() if var.get()}
+            window.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(8, 0))
+        if ask:
+            ttk.Button(buttons, text="Remove the proven gone and the ticked ones", command=remove).pack(side="left")
+            cancel = ttk.Button(buttons, text="Cancel", command=window.destroy)
+            cancel.pack(side="left", padx=(8, 0))
+            cancel.focus_set()
+        else:
+            ttk.Button(buttons, text="Close", command=window.destroy).pack(side="left")
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+        # The villagers the player ticked to remove (an empty set when none), or None when cancelled.
+        return outcome["ticked"] if outcome["yes"] else None
+
+    def _undo_history_dialog(self, parent, plan) -> bool:
+        """Undelete villagers' confirmation (src/vv_history_revision.py UndoPlan.describe): the villagers put
+        back, each log restored and the copy it comes from.  True only on "Restore"; Cancel is the default."""
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: undelete villagers")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=12)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, wraplength=760, justify="left",
+                  text="Every line the latest history revision took out of these logs is put back from the copy "
+                       "it made first. Nothing in the save changes; each log is copied as it is now first, and "
+                       "the Repairs log lists the villagers put back.").pack(anchor="w", pady=(0, 8))
+        body = ttk.Frame(frame)
+        body.pack(fill="both", expand=True)
+        text = tk.Text(body, wrap="word", width=110, height=24)
+        scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
+        text.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        text.pack(side="left", fill="both", expand=True)
+        text.insert("1.0", plan.describe())
+        text.configure(state="disabled")
+        outcome = {"yes": False}
+
+        def restore() -> None:
+            outcome["yes"] = True
+            window.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(8, 0))
+        restore_button = ttk.Button(buttons, text="Restore", command=restore)
+        restore_button.pack(side="left")
+        if plan.refused:
+            restore_button.state(["disabled"])
+        cancel = ttk.Button(buttons, text="Cancel", command=window.destroy, default="active")
+        cancel.pack(side="left", padx=(8, 0))
+        cancel.focus_set()
+        window.bind("<Return>", lambda _e: window.destroy())
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+        return outcome["yes"]
 
     def _last_names_dialog(self, parent, folder: Path, number: int, info, names: dict,
                            names_var) -> None:
@@ -4088,8 +4619,8 @@ class App(tk.Tk):
         # Each living villager's own rule for their children's last name (the owner, 2026-10-09), beside
         # the village's: the record's, or what the player chose here before.
         living_keys = {vv_last_names.own_key(v) for v in people if v.alive}
-        saved_own = {k: r for k, r in vv_last_names.own_rules_now(folder, number, info.slot, people).items()
-                     if k in living_keys}
+        recorded_own = vv_last_names.own_rules_now(folder, number, info.slot, people)
+        saved_own = {k: r for k, r in recorded_own.items() if k in living_keys}
         # The record's lines as written: a line re-keyed above (a change of looks) is written again on Repair.
         written_own = {k: r for k, r in vv_last_names.read_own(folder, number, info.slot).items() if k in living_keys}
         own_state: dict = dict(names["own"]) if "own" in names else dict(saved_own)
@@ -4200,15 +4731,20 @@ class App(tk.Tk):
             values = {v.identity: last_in(value) for v, value, _m in rows}
             return {key: values[key] for key in mine if key in values}
 
-        def given() -> dict:
+        def expected() -> dict:
             # The rest of a family follows the name the player gives one of them: their brothers
-            # and sisters, and their descendants by the rule.
-            return vv_last_names.inherited(people, parents, rule_key(), pool,
-                                           vv_last_names.with_siblings(fixed(), parents), carried, own_state)
+            # and sisters, and their descendants by the rule.  The same reading as Check Saves & Logs'
+            # wrong last names, with the dead parents' own rules too (the owner's Akika Akikai, v1.35.73).
+            return vv_last_names.expected_last_names(
+                people, parents, rule_key(), pool, vv_last_names.with_siblings(fixed(), parents), carried,
+                vv_last_names.check_rules(recorded_own, own_state, living_keys))
+
+        def given() -> dict:
+            return {key: should for key, (should, _used, _either) in expected().items()}
 
         def marks() -> None:
             """A last name the rule does not give -- in the box now -- is marked."""
-            should = given()
+            should = expected()
             wrong = 0
             # Unrelated villagers sharing a last name (the owner: Thabo Bahati, a new arrival, beside
             # the established Bahati family) -- as the boxes stand now.
@@ -4217,12 +4753,13 @@ class App(tk.Tk):
                 people, parents, {v.identity: last_in(value) for v, value, _m in rows})
             for v, value, mark in rows:
                 have = last_in(value)
-                right = should.get(v.identity, "")
-                bad = v.identity not in mine and have != right and rule_key() not in ("list", *vv_last_names.PLAYER_RULES)
+                right, used, either = should.get(v.identity, ("", None, ()))
+                bad = (v.identity not in mine and vv_last_names.wrong_last_name(have, right, either)
+                       and rule_key() not in ("list", *vv_last_names.PLAYER_RULES))
                 if too_long(v, have):
                     mark.set(f"too long: {room} characters at most")
                 elif bad:
-                    mark.set(f"the rule gives {right or 'none'}")
+                    mark.set(vv_last_names.wrong_last_name_mark(right, used, rule_key(), either))
                 elif v.identity in shared:
                     mark.set(f"not related to the other {shared[v.identity][0]}s")
                 else:

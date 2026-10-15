@@ -729,11 +729,42 @@ int main(void) {
         check(titles.entries[0].looks.age == 500 && titles.entries[0].looks.skills[0] == 20
               && titles.base_age[1] == 500 && titles.base_skills[1][0] == 20 && titles.roster_age[1] == 500,
               "... and leaves the entry, the bases and the last look's age as they were");
-        /* Nothing is touched before the table has been followed against the village. */
-        new_session();
-        titles_sync(3);
-        check(titles.loaded && !titles.roster_anyone && titles_rebase(3, 1) == 1 && titles.entries[0].looks.age == 500
-              && titles.base_age[1] == 0, "a rebase before the table was followed changes nothing");
+        /* v1.35.73: a rebase before the table was followed FOLLOWS THE VILLAGE FIRST (the lookup's own
+           follow), so the title is on its villager before anything is carried.  Here the saved Kai has
+           been packed to record 0 after a reload: the stored title moves there (the looks are unchanged,
+           so nothing is lowered, and it binds). */
+        for (game = 1; game <= 5; ++game) {
+            char what[160];
+            new_session();
+            DeleteFileA(path1);
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+            titles_tick(game);
+            check(titles_set(game, 1, "Kai Title") == 1, "setup: Kai has a title");
+            titles_tick(game);
+            new_session();
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Kai"); looks(0, 1, 500, 3, 4, 20);           /* reloaded, packed to [0] */
+            villager(1, "Lani");
+            titles_sync(game);
+            check(!titles.roster_anyone, "setup: the table is loaded and not yet followed");
+            wsprintfA(what, "A REBASE BEFORE THE FOLLOW FOLLOWS THE VILLAGE FIRST: THE TITLE MOVES TO KAI (game %d)", game);
+            check(titles_rebase(game, 0) == 1 && titles.roster_anyone && titles.count == 1
+                  && titles.entries[0].index == 0 && titles.entries[0].looks.age == 500, what);
+            /* The documented limit: a lowering that is the first thing the table sees after a load
+               lowers the villager below what the table keeps, so the follow can not bind the title to
+               them.  It waits PENDING (shown on nobody, kept in the file) -- never given to another
+               record, and the lowering is not stored. */
+            new_session();
+            memset(g_records, 0, sizeof g_records);
+            villager(0, "Kai"); looks(0, 1, 500, 3, 4, 10);           /* the event lowers every skill of Kai */
+            villager(1, "Lani");
+            titles_sync(game);
+            check(titles_rebase(game, 0) == 1 && titles.count == 1 && titles.entries[0].index == VV_TITLE_PENDING
+                  && titles.entries[0].looks.skills[0] == skill_dword(20) && titles_lookup(game, g_records[0]) == NULL
+                  && titles_lookup(game, g_records[1]) == NULL,
+                  "... a lowering seen before the first follow waits PENDING, never bound to another villager");
+        }
     }
 
     /* v1.35.72 (re-review): A TITLE SET AFTER A LOWERING.  The lowering (a Custom Island Event's skill
@@ -830,6 +861,62 @@ int main(void) {
         looks(0, 1, 100, 5, 6, 1);
         check(VvfpStoryAppearanceChanged(3, g_records[0], 5, 6) == 1 && titles.entries[0].looks.head == 3,
               "a villager with no title leaves every entry alone");
+    }
+
+    /* v1.35.73: an island event that changes BOTH the likes and the head before the next frame (the
+       island events DLL tells the companion of the new head, VvfpStoryAppearanceChanged, in the same
+       frame).  The likes change is carried to the new identity first, as the lookup carries it, so
+       the new head is stored at once under that identity -- in the file too -- in every game. */
+    for (game = 1; game <= 5; ++game) {
+        char what[160];
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(game);
+        check(titles_set(game, 1, "Kai Title") == 1, "setup: Kai has a title");
+        titles_tick(game);
+        g_records[1][44] = 7;                                         /* the event's new likes ... */
+        looks(1, 1, 500, 7, 8, 20);                                   /* ... and new head and body, same frame */
+        check(VvfpStoryAppearanceChanged(game, g_records[1], 7, 8) == 1, "the companion is told of the new head");
+        wsprintfA(what, "AN EVENT CHANGING LIKES AND HEAD: THE NEW HEAD IS STORED UNDER THE NEW IDENTITY (game %d)", game);
+        check(titles.count == 1 && titles.entries[0].index == 1 && titles.entries[0].looks.head == 7
+              && titles.entries[0].looks.body == 8
+              && titles.entries[0].fingerprint == story_title_identity(game, g_records[1]), what);
+        new_session();                                                /* what a log written now reads: the file */
+        titles_sync(game);
+        wsprintfA(what, "... and the file holds the new head and identity (game %d)", game);
+        check(titles.count == 1 && titles.entries[0].looks.head == 7
+              && titles.entries[0].fingerprint == story_title_identity(game, g_records[1]), what);
+    }
+
+    /* v1.35.73 review: the same event, but the publish FAILS.  The carry to the new identity (the
+       in-place look) is rolled back with the head: memory keeps the old identity, exactly as the file
+       does, instead of showing a state the file does not hold. */
+    for (game = 1; game <= 5; ++game) {
+        char what[200];
+        unsigned int old_identity;
+        new_session();
+        DeleteFileA(path1);
+        memset(g_records, 0, sizeof g_records);
+        villager(0, "Lani"); villager(1, "Kai"); looks(1, 1, 500, 3, 4, 20);
+        titles_tick(game);
+        check(titles_set(game, 1, "Kai Title") == 1, "setup: Kai has a title");
+        titles_tick(game);
+        old_identity = story_title_identity(game, g_records[1]);
+        g_records[1][44] = 7;                                         /* the event's new likes ... */
+        looks(1, 1, 500, 7, 8, 20);                                   /* ... and new head and body, same frame */
+        g_fail_writes = 1;
+        (void)VvfpStoryAppearanceChanged(game, g_records[1], 7, 8);   /* the publish fails */
+        g_fail_writes = 0;
+        wsprintfA(what, "A FAILED PUBLISH KEEPS THE OLD IDENTITY AND HEAD IN MEMORY, AS THE FILE HOLDS THEM (game %d)", game);
+        check(titles.count == 1 && titles.entries[0].index == 1 && titles.entries[0].fingerprint == old_identity
+              && titles.entries[0].looks.head == 3 && titles.entries[0].looks.body == 4, what);
+        new_session();                                                /* a reload reads the older file */
+        titles_sync(game);
+        wsprintfA(what, "... and the older file still binds the title to the same villager with the old identity (game %d)", game);
+        check(titles.count == 1 && titles.entries[0].index == 1 && titles.entries[0].fingerprint == old_identity
+              && titles.entries[0].looks.head == 3 && lstrcmpA(titles.entries[0].title, "Kai Title") == 0, what);
     }
 
     /* Twins identical in everything: whose the title is can never be told

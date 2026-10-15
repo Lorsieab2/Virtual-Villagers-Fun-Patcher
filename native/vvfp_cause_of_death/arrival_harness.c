@@ -31,8 +31,8 @@
         "Recorded afterwards" note; Thabo is not recorded again; Ponui is NOT
         an Unaccounted record; the marker is written.
      2. A second save and a new session write nothing; the scan says 0.
-     3. Seen live: a newcomer from an island event ("How: unknown", the age
-        when it arrived), the Custom Island Event's new villager ("How:
+     3. Seen live: a newcomer from an unlisted path ("How: added outside a
+        recorded event", the age when it arrived), the Custom Island Event's new villager ("How:
         Custom Island Event"), one who arrives and is buried before the save
         (recorded at the departure); a birth is never an arrival (the Births
         log's note; A New Home's child-creation call even without it); a
@@ -1434,8 +1434,8 @@ int main(int argc, char **argv) {
             const char *c = strstr(text, "  Name: Cie\r\n");
             const char *gone = strstr(text, "  Name: Gone\r\n");
             CHECK(n != NULL && strncmp(n, "  Name: Newcomer\r\n  Age at arrival: 700\r\n  Sex: ", 46) == 0
-                  && record_has("Newcomer", "  How: unknown\r\n\r\n"),
-                  "an island event's newcomer: the age it arrived at, how unknown");
+                  && record_has("Newcomer", "  How: added outside a recorded event\r\n\r\n"),
+                  "an unlisted path's newcomer: the age it arrived at, added outside a recorded event");
             CHECK(c != NULL && record_has("Cie", "  How: Custom Island Event\r\n  Parents:\r\n    Father: Joey\r\n"
                                                  "      Head: 2\r\n      Body: 2\r\n    Mother: Ana\r\n"
                                                  "      Head: 0\r\n      Body: 0\r\n\r\n"),

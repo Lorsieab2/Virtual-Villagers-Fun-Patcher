@@ -414,6 +414,7 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
         }
         ce_armed_village = story_village_now(game);
         ce_armed = 1;
+        ce_wait_arm = 0;                /* held again by ce_opening_tick if the village is that new */
         restored |= SQ_CUSTOM;
         if ((f->have & SQ_ASKED) && !lazy) {
             /* The question was on screen at the quit, so the save's timer is
