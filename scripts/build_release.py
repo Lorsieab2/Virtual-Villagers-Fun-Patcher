@@ -132,6 +132,7 @@ FILES = [
     "data/vv1_story_cheat_upgrades_feature.json",
     "data/vv2_story_cheat_upgrades_feature.json",
     "data/vv3_story_cheat_upgrades_feature.json",
+    "data/vv3_chief_hospital_feature.json",
     "data/vv4_story_cheat_upgrades_feature.json",
     "data/vv5_story_cheat_upgrades_feature.json",
     "data/vv1_story_cheat_upgrades_cost_tech_points_feature.json",
