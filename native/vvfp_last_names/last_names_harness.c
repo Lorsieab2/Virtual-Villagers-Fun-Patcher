@@ -24,6 +24,8 @@
         line (name, sex, old looks) to the new looks right after it (the old
         line stays for a child already conceived), through a temporary file;
         with slot 0 the slot is the save that holds the name.
+     7. "From the father" / "From the mother" give that parent's last name
+        only: none when that known parent has none, never the other's.
 
    Exit code 0 when every check passes. */
 #define _CRT_SECURE_NO_WARNINGS
@@ -223,6 +225,21 @@ int main(int argc, char **argv) {
         check(VvfpRelookLastName("Ago Bahati", 1, 1, 1, 4, 4, 0) == 1, "slot 0: found from the save");
         DeleteFileA(save);
     }
+
+    printf("7. The rule's parent only, never the other (the owner, 2026-10-14)\n");
+    record("father", "");
+    check(strcmp(born("Hokou Helaku", 0, 15, "Alana Tawonga", 29, 15), "Kid Helaku") == 0,
+          "From the father: Hokou Helaku's, not Alana Tawonga's");
+    check(strcmp(born("Ago", 5, 6, "Aipi Wanjiko", 7, 8), "Kid") == 0,
+          "From the father, the father with no last name: none, never the mother's or the family's");
+    check(strcmp(born(NULL, -1, -1, "Aipi Wanjiko", 7, 8), "Kid Akikai") == 0,
+          "From the father, the father unknown: the family's stays");
+    record("mother", "");
+    check(strcmp(born("Ago Bahati", 5, 6, "Aipi", 7, 8), "Kid") == 0,
+          "From the mother, the mother with no last name: none, never the father's");
+    record("random", "");
+    check(strcmp(born("Ago", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
+          "50:50 with one parent's last name: that one");
 
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);
     return failures ? 1 : 0;

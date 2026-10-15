@@ -4979,8 +4979,6 @@ class App(tk.Tk):
             _regrab(window)
 
         rule_var.trace_add("write", by_rule)
-        rule_touched = [bool(names.get("rule_touched"))]
-        rule_var.trace_add("write", lambda *_a: rule_touched.__setitem__(0, True))
         if not names["chosen"] and not any(now.values()):
             by_rule()
         else:
@@ -5018,11 +5016,12 @@ class App(tk.Tk):
             names["mine"] = set(mine)
             names["mine_names"] = {key: last for key, last in fixed().items()}
             names["own"] = {key: r for key, r in own_state.items() if r and key in living_keys}
-            names["rule_touched"] = rule_touched[0]
             # The village's rule and the villagers' own are kept even when no name changes.
-            # A village with no record yet keeps the rule shown only once the player picks one.
-            names["rules_changed"] = names["own"] != written_own or (
-                rule_key() != recorded_rule and (recorded_rule is not None or rule_touched[0]))
+            # A village with no record yet keeps the rule shown ("From the father" unless the player
+            # picks another): the births follow only a kept rule, so a rule shown but not kept gave a
+            # new child her mother's family name under "From the father" (the owner, 2026-10-14:
+            # Tatoa Tawonga, daughter of Hokou Helaku).
+            names["rules_changed"] = names["own"] != written_own or rule_key() != recorded_rule
             names["arrivals"] = arrivals_var.get()
             names["arrivals_changed"] = arrivals_var.get() != recorded_arrivals
             names_var.set(bool(chosen) or names["rules_changed"] or names["arrivals_changed"])

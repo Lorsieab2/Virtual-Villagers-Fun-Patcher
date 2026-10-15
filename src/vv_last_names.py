@@ -859,8 +859,11 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
     """Each living villager's last name by `rule` ("" for none): the father's, the mother's,
     either parent's at random, or one at random from the game's list -- a parent's being the one
     their name carries, else (a living parent being given one now) the one this rule gives them,
-    parents before children.  Without the parent the rule names, the other parent's; without
-    either, their own (separate) or the family's -- or, for an arrival, none (ARRIVALS).  The
+    parents before children.  A child whose rule names a recorded parent takes that parent's last
+    name only -- none when that parent has none: never the other parent's, nor the family's (a child's
+    family is the mother's; the owner, 2026-10-14: "From the father" must give the father's).  Without
+    that parent on record, or under "random" with neither parent's, their own (separate) or the
+    family's -- or, for an arrival, none (ARRIVALS).  The
     random pick is the same each time for the same villager.  "each" leaves every one to the player: a villager keeps the last name they carry until the player gives another.  `parents` maps a villager (name, head, body) to (father, mother).  With
     the game's list of last names (`pool`), a villager with no recorded parent has one of their own
     (separate).  `fixed`: the last names the player gave villagers themselves ("" none) -- theirs,
@@ -921,10 +924,12 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
             return out[v.identity]
         seen = seen | {v.identity}
         dad, mum = last_of(father, seen), last_of(mother, seen)
-        if r == "father":
-            result = dad or mum
-        elif r == "mother":
-            result = mum or dad
+        if r in ("father", "mother"):           # the rule names one parent: never the other's name
+            named = father if r == "father" else mother
+            result = dad if r == "father" else mum
+            if named is not None:               # nor the family's: a child's family is the mother's
+                out[v.identity] = result
+                return result
         elif dad and mum and carried(v.name) in (dad, mum):
             # "random": a child carrying either parent's last name already had its 50:50 -- the
             # game's own at the birth (VVFP Last Names' VvfpRuleLastName2, the owner, 2026-10-08).
