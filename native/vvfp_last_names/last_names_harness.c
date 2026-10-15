@@ -58,7 +58,7 @@ static void record(const char *rule, const char *lines) {
         printf("  FAIL cannot write %s\n", g_path);
         exit(2);
     }
-    fprintf(f, "VVFP LAST NAMES v1 game=3\n");
+    fprintf(f, "VVFP LAST NAMES v1 game=%d\n", g_game);
     if (rule != NULL) {
         fprintf(f, "rule\t%s\n", rule);
     }
@@ -226,20 +226,29 @@ int main(int argc, char **argv) {
         DeleteFileA(save);
     }
 
-    printf("7. The rule's parent only, never the other (the owner, 2026-10-14)\n");
-    record("father", "");
-    check(strcmp(born("Hokou Helaku", 0, 15, "Alana Tawonga", 29, 15), "Kid Helaku") == 0,
-          "From the father: Hokou Helaku's, not Alana Tawonga's");
-    check(strcmp(born("Ago", 5, 6, "Aipi Wanjiko", 7, 8), "Kid") == 0,
-          "From the father, the father with no last name: none, never the mother's or the family's");
-    check(strcmp(born(NULL, -1, -1, "Aipi Wanjiko", 7, 8), "Kid Akikai") == 0,
-          "From the father, the father unknown: the family's stays");
-    record("mother", "");
-    check(strcmp(born("Ago Bahati", 5, 6, "Aipi", 7, 8), "Kid") == 0,
-          "From the mother, the mother with no last name: none, never the father's");
-    record("random", "");
-    check(strcmp(born("Ago", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
-          "50:50 with one parent's last name: that one");
+    printf("7. The rule's parent only, never the other (the owner, 2026-10-14), in every game\n");
+    {
+        int g;
+        for (g = 1; g <= 5; ++g) {
+            g_game = g;
+            _snprintf(g_path, sizeof g_path, "%s\\Virtual Villagers %d Last Names - Save 1.dat", folder, g);
+            printf("  game %d\n", g);
+            record("father", "");
+            check(strcmp(born("Hokou Helaku", 0, 15, "Alana Tawonga", 29, 15), "Kid Helaku") == 0,
+                  "From the father: Hokou Helaku's, not Alana Tawonga's");
+            check(strcmp(born("Ago", 5, 6, "Aipi Wanjiko", 7, 8), "Kid") == 0,
+                  "From the father, the father with no last name: none, never the mother's or the family's");
+            check(strcmp(born(NULL, -1, -1, "Aipi Wanjiko", 7, 8), "Kid Akikai") == 0,
+                  "From the father, the father unknown: the family's stays");
+            record("mother", "");
+            check(strcmp(born("Ago Bahati", 5, 6, "Aipi", 7, 8), "Kid") == 0,
+                  "From the mother, the mother with no last name: none, never the father's");
+            record("random", "");
+            check(strcmp(born("Ago", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
+                  "50:50 with one parent's last name: that one");
+        }
+        g_game = 3;
+    }
 
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);
     return failures ? 1 : 0;
