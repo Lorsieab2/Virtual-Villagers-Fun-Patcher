@@ -266,7 +266,15 @@ __declspec(dllexport) int __stdcall VvfpGiveLastName(char *name, unsigned int ro
    (the family's is the mother's).  "random" gives the other parent's when one
    has none.  Otherwise, with no name to give, the family's (above) stays;
    exactly as inherited() in src/vv_last_names.py gives it.
-   Without the file, or with "list" or "each", nothing changes.
+   With "list" or "each", nothing changes.  Without the file, or without a
+   rule in it, the rule is "father" (DEFAULT_RULE), the one Repair Saves &
+   Logs shows for such a village (src/vv_last_names.py DEFAULT_RULE): the
+   owner, 2026-10-14, "vv3-5 and the other games still have the last-names bug
+   when new children are born" -- their test villages had no file, so every
+   baby kept its mother's family's name (Watu Wanjiko, son of Keiau Chinaka;
+   Tufi Sirikit, whose parents are Chinaka and Awanata).  The same holds for a
+   birth whose village cannot be told yet (the game's own simulation of a new
+   village before its first save: slot_of_parents finds no save).
 
    EACH VILLAGER'S OWN RULE (the owner, 2026-10-09: "so certain villagers can
    pass their last name with different rules from the rest of the village").
@@ -283,6 +291,7 @@ __declspec(dllexport) int __stdcall VvfpGiveLastName(char *name, unsigned int ro
    own.  A reader that does not know these lines (an earlier build) skips
    them. */
 #define RULE_FILE_MAX 65536
+#define DEFAULT_RULE 'f'
 static char g_rule_file[RULE_FILE_MAX + 1];
 
 static int is_numeral(const char *word, size_t n) {
@@ -385,6 +394,22 @@ static int read_record(int slot, char *rule, size_t rule_size) {
         }
     }
     return 1;
+}
+
+/* Whether the record read last keeps "Random from list" or "Choose from list"
+   ("rule\tlist", "rule\teach"): the rules where a baby's last name is not a
+   parent's, so nothing changes.  Without those or a parent's rule, a birth
+   uses DEFAULT_RULE. */
+static int names_a_rule(void) {
+    const char *line;
+    for (line = g_rule_file; line != NULL && *line != '\0';
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        if (strncmp(line, "rule\t", 5) == 0 && strcspn(line + 5, "\r\n") == 4
+            && (strncmp(line + 5, "list", 4) == 0 || strncmp(line + 5, "each", 4) == 0)) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 /* The village's rule, as above; 0 when there is none to use. */
@@ -679,7 +704,11 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName2(char *name, unsigned int r
         slot = slot_of_parents(father, mother);
     }
     if (!read_record(slot, rule, sizeof rule)) {
-        return 0;
+        rule[0] = '\0';                     /* no record of this village (yet): no lines of it either */
+        g_rule_file[0] = '\0';
+    }
+    if (rule[0] == '\0' && !names_a_rule()) {
+        rule[0] = DEFAULT_RULE;             /* no rule chosen: the one Repair shows (the owner, 2026-10-14) */
     }
     use = decide(own_rule(father, father_head, father_body, 'M'),
                  own_rule(mother, mother_head, mother_body, 'F'), rule[0]);
