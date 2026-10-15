@@ -260,9 +260,12 @@ __declspec(dllexport) int __stdcall VvfpGiveLastName(char *name, unsigned int ro
    and "whole\t<name>" lines among others.  With "father", "mother" or
    "random" the child takes that parent's last name as the name carries it --
    its last word after the first, a trailing Roman numeral passed over, none
-   for a one-word name or one the player said is a single first name -- the
-   other parent's when that one has none, and keeps the family's (above) when
-   neither has one; exactly as inherited() in src/vv_last_names.py gives it.
+   for a one-word name or one the player said is a single first name.  "father"
+   and "mother" never give the other parent's (the owner, 2026-10-14): when the
+   parent the rule names is known but has no last name, the child has none
+   (the family's is the mother's).  "random" gives the other parent's when one
+   has none.  Otherwise, with no name to give, the family's (above) stays;
+   exactly as inherited() in src/vv_last_names.py gives it.
    Without the file, or with "list" or "each", nothing changes.
 
    EACH VILLAGER'S OWN RULE (the owner, 2026-10-09: "so certain villagers can
@@ -691,13 +694,22 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName2(char *name, unsigned int r
     first[n] = '\0';
     carried_last(father, dad);
     carried_last(mother, mum);
-    if (use == 'f') {
-        last = dad[0] ? dad : mum;
-    } else if (use == 'm') {
-        last = mum[0] ? mum : dad;
+    if (use == 'f') {                       /* the father's only, never the mother's (the owner, 2026-10-14) */
+        last = dad;
+    } else if (use == 'm') {                /* the mother's only, never the father's */
+        last = mum;
     } else {                                /* "random": 50:50 for each child (the owner) */
         last = dad[0] && mum[0] ? ((GetTickCount() ^ (DWORD)(uintptr_t)name) & 1 ? dad : mum)
                                 : (dad[0] ? dad : mum);
+    }
+    if (last[0] == '\0' && ((use == 'f' && father != NULL && father[0] != '\0')
+                            || (use == 'm' && mother != NULL && mother[0] != '\0'))) {
+        if (name[n] == '\0') {
+            return 0;                       /* already none */
+        }
+        name[n] = '\0';                     /* the rule's parent has none: none, not the family's
+                                               (a child's family is the mother's) */
+        return 1;
     }
     if (last[0] == '\0' || n + 1 + strlen(last) + 1 > room) {
         return 0;                           /* none to give, or too long: the family's stays */

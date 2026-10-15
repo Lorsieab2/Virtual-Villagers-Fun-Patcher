@@ -34,7 +34,7 @@ VS_TOOLS = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools
 CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
-HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10
+HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5
 NOW = datetime(2026, 10, 9, 12, 0, 0)
 RULES = (None, "father", "mother", "random")
 

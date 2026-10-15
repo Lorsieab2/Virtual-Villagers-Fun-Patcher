@@ -454,6 +454,17 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             p.litter = None
 
 
+def _saved_rename_answers(folder: Path, game: int, slot: int) -> dict:
+    """The renamed-villager answers the Family Tree Maker's saved edits keep; none when there is no
+    readable file (a damaged file is the tree's to report, not this loader's)."""
+    import vv_family_tree as ft
+    try:
+        path = ft.Edits.path(folder, game, slot)
+        return dict(ft.Edits.load(path).renames) if path.is_file() else {}
+    except (OSError, ValueError):
+        return {}
+
+
 def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
                  rename_answers: dict | None = None) -> Village:
     """The slot's village, its living villagers and every relative the save and logs know.
@@ -469,6 +480,10 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
     import vv_log_additions as additions
     import vv_tribe_rename
     folder = Path(folder)
+    if rename_answers is None:
+        # Every caller sees the same people: a renamed villager the player kept (Edits.renames "current")
+        # is one person, whichever window or dialog loads the village.
+        rename_answers = _saved_rename_answers(folder, game, slot)
     reg = _Registry()
     notes: list[str] = []
     if full_names:
