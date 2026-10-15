@@ -42,7 +42,7 @@ import vv_reconcile_view
 import vv_save_backup
 import vv_tribe_rename
 import vv_villager_info
-from vv_tree_editor_tools import BOLD_ROLES, CanvasTools, ScrollingTab, picture_scene, panel_colour
+from vv_tree_editor_tools import BOLD_ROLES, CanvasTools, ScrollingTab, picture_scene, panel_colour, scrollable_frame
 
 SELECT = "#1f6fd1"
 OUTSIDE = "#9a9a9a"                     # the canvas around the page
@@ -244,8 +244,7 @@ def pick_village(app, build, title: str, intro: str, go_text: str, on_go, ask_ga
     dialog = tk.Toplevel(app)
     dialog.title(title)
     dialog.transient(app)
-    frame = ttk.Frame(dialog, padding=16)
-    frame.pack(fill="both", expand=True)
+    frame = scrollable_frame(dialog, padding=16)
     ttk.Label(frame, text=intro, wraplength=560, justify="left").grid(row=0, column=0, columnspan=3,
                                                                        sticky="w", pady=(0, 10))
     game_var = tk.StringVar(value=build.title if build is not None else titles[0])
@@ -2523,8 +2522,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         win = tk.Toplevel(self)
         win.title("Export as Picture")
         win.transient(self)
-        frame = ttk.Frame(win, padding=10)
-        frame.pack(fill="both", expand=True)
+        frame = scrollable_frame(win, padding=10)
         pick = tk.StringVar(value="all")
         number = tk.StringVar(value=str(self.page + 1))
         span = tk.StringVar(value=f"1-{count}")
@@ -5298,8 +5296,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 pass
         window = tk.Toplevel(self)
         window.title(f"Preview - {path.name}")
-        frame = ttk.Frame(window, padding=8)
-        frame.pack(fill="both", expand=True)
+        frame = scrollable_frame(window, padding=8)
         ttk.Label(frame, text=f"Saved {path}.  This is the picture as saved"
                   + (f" (page {page + 1})" if len(ft.page_spans(self.edits, self.village)) > 1 else "")
                   + ".  A checkerboard shows through anything see-through.", wraplength=900).pack(anchor="w")
@@ -5431,11 +5428,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         window = tk.Toplevel(self)
         window.title("Family Tree Maker: the controls")
         window.transient(self)
-        box = tk.Text(window, width=96, height=44, wrap="none", font=("Consolas", 10))
+        frame = scrollable_frame(window, padding=8)
+        box = tk.Text(frame, width=96, height=44, wrap="none", font=("Consolas", 10))
         box.insert("1.0", CONTROLS)
         box.configure(state="disabled")
         box.pack(fill="both", expand=True, padx=8, pady=8)
-        ttk.Button(window, text="Close", command=window.destroy).pack(pady=(0, 8))
+        ttk.Button(frame, text="Close", command=window.destroy).pack(pady=(0, 8))
 
     def _close(self) -> None:
         """Closing: "Save changes to the tree before exiting?" when there are any (the owner)."""
@@ -5540,8 +5538,7 @@ def _pair_rules(app, parent, folder: Path, game: int, info, title: str) -> None:
     window = tk.Toplevel(parent)
     window.title(f"Village Matchmaker - {info.name} (Save {info.slot})")
     window.transient(parent)
-    frame = ttk.Frame(window, padding=12)
-    frame.pack(fill="both", expand=True)
+    frame = scrollable_frame(window, padding=12)
     rules = rules_from(getattr(app, "pair_rules", {}) or {})
     variables: dict[str, tk.Variable] = {}
     row = 0

@@ -154,6 +154,37 @@ class ScrollingTab(ttk.Frame):
         canvas.bind("<Leave>", leave)
 
 
+def scrollable_frame(window: tk.Toplevel, padding: int = 0) -> ttk.Frame:
+    """The frame a window's controls go in. The content scrolls with a vertical scroll bar once it is
+    taller than the screen allows; the wheel scrolls it while the pointer is over the window. The
+    window's own size is the content's requested size, as before, capped at the screen."""
+    canvas = tk.Canvas(window, highlightthickness=0, borderwidth=0,
+                       background=ttk.Style(window).lookup("TFrame", "background"))
+    bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
+    canvas.configure(yscrollcommand=bar.set)
+    bar.pack(side="right", fill="y")
+    canvas.pack(side="left", fill="both", expand=True)
+    frame = ttk.Frame(canvas, padding=padding)
+    item = canvas.create_window((0, 0), window=frame, anchor="nw")
+
+    def fit(_event=None) -> None:
+        canvas.configure(scrollregion=canvas.bbox("all"))
+        height = min(frame.winfo_reqheight(), window.winfo_screenheight() - 160)
+        canvas.configure(width=frame.winfo_reqwidth(), height=height)
+
+    def wheel(event) -> str:
+        # Text, Listbox and Canvas scroll themselves (their class binding has run already); the
+        # window's own wheel then stops here, so the patcher's page behind it does not scroll too.
+        if not isinstance(getattr(event, "widget", None), (tk.Text, tk.Listbox, tk.Canvas)):
+            canvas.yview_scroll(-1 if event.delta > 0 else 1, "units")
+        return "break"
+
+    frame.bind("<Configure>", fit)
+    canvas.bind("<Configure>", lambda e: canvas.itemconfigure(item, width=e.width))
+    window.bind("<MouseWheel>", wheel)
+    return frame
+
+
 def _font_shown(name: str) -> str:
     """The font a font's name is written in: its own (the patcher's for "its own" choices)."""
     return vv_gdiplus.FONT if name in (OWN_FONT, SAME_FONT, "") else name
