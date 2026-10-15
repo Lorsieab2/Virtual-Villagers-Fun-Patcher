@@ -1236,7 +1236,7 @@ class RestoreGuiTests(unittest.TestCase):
             body = ast.get_source_segment(self.source, self.method(name))
             self.assertIn("self._scrolling_dialog(", body, name)
         helper = ast.get_source_segment(self.source, self.method("_scrolling_dialog"))
-        self.assertIn("ttk.Scrollbar", helper)
+        self.assertIn("scrollable_frame(", helper)  # the shared helper carries the scroll bar
 
     def test_a_resume_problem_is_shown(self) -> None:
         results = ast.get_source_segment(self.source, self.method("_show_backup_results"))
