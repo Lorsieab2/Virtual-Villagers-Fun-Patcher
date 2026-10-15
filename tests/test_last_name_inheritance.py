@@ -98,7 +98,7 @@ class InheritanceTests(unittest.TestCase):
         given = ln.inherited(PEOPLE, PARENTS, "mother", fixed={HUATA.identity: "Chapstick"})
         self.assertEqual(given[HUATA.identity], "Chapstick")
         self.assertEqual(given[GORO.identity], "Chapstick")      # her son
-        self.assertEqual(given[SEKAI.identity], "Moa")           # Goro's daughter: her mother Chika's
+        self.assertEqual(given[SEKAI.identity], "Mele")          # Goro's daughter: her mother Chika's (Chika has no known mother, so the family's name stays; never her father's "Moa")
         father_rule = ln.inherited(PEOPLE, PARENTS, "father", fixed={GORO.identity: "Chapstick"})
         self.assertEqual(father_rule[SEKAI.identity], "Chapstick")   # her father Goro's
         kept = ln.inherited(PEOPLE, PARENTS, "father", fixed={GORO.identity: "Chapstick",
@@ -107,11 +107,11 @@ class InheritanceTests(unittest.TestCase):
         self.assertEqual(ln.inherited(PEOPLE, PARENTS, "each", fixed={GORO.identity: "Chapstick"}),
                          {HUATA.identity: "", GORO.identity: "Chapstick", CHIKA.identity: "", SEKAI.identity: ""})
 
-    def test_mothers_names_and_the_fallback_to_the_father(self) -> None:
+    def test_mothers_names_and_no_fallback_to_the_father(self) -> None:
         given = ln.inherited(PEOPLE, PARENTS, "mother")
         self.assertEqual(given[GORO.identity], "Ruku")          # Huata's, given her now
-        self.assertEqual(given[CHIKA.identity], "Moa")          # no mother: the father's
-        self.assertEqual(given[SEKAI.identity], "Moa")          # Chika's
+        self.assertEqual(given[CHIKA.identity], "Mele")          # no mother: the family's, never the father's "Moa"
+        self.assertEqual(given[SEKAI.identity], "Mele")          # Chika's
 
     def test_random_picks_a_parent_and_the_same_one_every_time(self) -> None:
         first = ln.inherited(PEOPLE, PARENTS, "random")
@@ -180,7 +180,8 @@ class InheritanceTests(unittest.TestCase):
                 self.assertEqual(given[founder.identity], "Ruku")
                 self.assertEqual(given[newcomer.identity], "", "no family name of their own")
                 self.assertEqual(given[named.identity], "Moa")
-                self.assertEqual(given[kid.identity], "Mele", "the arrival's child: the other parent's")
+                self.assertEqual(given[kid.identity], "" if rule == "father" else "Mele",
+                                 "the named father has no name: the family's, never the mother's; the mother's rules give hers")
         self.assertNotIn(newcomer.identity, ln.separate(people, parents, pool))
         self.assertEqual(ln.separate(people, parents, pool)[wife.identity], "Mele")
         self.assertEqual(ln.inherited(people, parents, "list", pool)[newcomer.identity], "")
