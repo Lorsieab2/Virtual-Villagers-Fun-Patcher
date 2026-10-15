@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.74
+
+- **Scroll bars in the patcher's windows.** A window whose content is taller than the window (for example the Repair Saves & Logs window, whose list ran off the bottom with no way to reach the buttons below it) now has a vertical scroll bar, and the mouse wheel scrolls it. Windows that already scrolled in their own text or canvas are unchanged. Not yet seen in a running window.
+
 ## What's new in v1.35.73
 
 New in v1.35.73 (not yet seen in a running game):
