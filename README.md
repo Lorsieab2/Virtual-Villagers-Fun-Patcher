@@ -815,6 +815,12 @@ The Tribal Chief's lessons stop at 50. Each child who finishes a lesson still ga
 
 - Patch ID: `vv3_chief_lessons_cap_50`
 
+**Tribal Chief Supervises the Hospital**
+
+Dropping the Tribal Chief on the Hospital hotspot makes the chief supervise the hospital. A healer whose cure roll fails then gets a second chance: the chief's supervision roll, which passes about 25% of the time per Leadership level, lets the cure go ahead as if the healer had passed. Otherwise the cure is exactly the stock one. The stock game already gives the chief this bonus for fishing, fruit, honey, huts, research and puzzles, but never for a cure. The companion is "VVFP VV3 Chief Hospital.dll", started by VVFP Startup.dll, and needs no other row. On by default; **the in-game effect is not yet verified by a live test.**
+
+- Patch ID: `vv3_chief_hospital_supervision`
+
 **VV1 Mushroom/Collectible Duplication Cheat**
 
 Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.

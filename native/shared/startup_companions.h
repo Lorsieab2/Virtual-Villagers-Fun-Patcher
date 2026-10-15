@@ -43,6 +43,7 @@ static const char *const VVFP_STARTUP_COMPANIONS[] = {
     "VVFP Island Events.dll",
     "VVFP Storytelling.dll",
     "VVFP Game Log.dll",
+    "VVFP VV3 Chief Hospital.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT \
