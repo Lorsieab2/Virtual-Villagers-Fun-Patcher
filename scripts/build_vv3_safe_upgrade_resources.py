@@ -99,7 +99,9 @@ FOUNDATION_OUTPUT = (
 # appended).
 # Recertified for v1.35.71 (the mask getter's live table: every record re-read,
 # only a changed one hashed again).
-SOURCE_SHA256 = "A1E557621C07DF403BFFB4DFC6362D9EF35188BEC77098AC58F0C65F002369AD"
+# Recertified for v1.35.76 (native/shared/startup_companions.h: VVFP VV3 Chief
+# Hospital.dll appended; MSVC 19.51.36260).
+SOURCE_SHA256 = "72E03950E4CC67B5E9D73B05EE7F788FA98A52EEB2D41C9AF4800DBB4D708FE5"
 SOURCE_SIZE = 1982976
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
