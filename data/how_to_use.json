@@ -519,7 +519,8 @@
     {
       "ids": ["vv3_chief_hospital_supervision"],
       "guide": [
-        "Drop the Tribal Chief on the Hospital to have the chief supervise the hospital.",
+        "Drop the Tribal Chief on the Hospital (Medicine level 2 or more): he walks to where he stands when he is concerned about the sick and directs work there.",
+        "While he directs work, healers who finish studying medicine at the hospital gain twice the usual Medicine skill points.",
         "A healer whose cure roll fails gets a second chance from the chief (about 25% per Leadership level), so a supervising chief helps cures.",
         "Not yet tested in play."
       ]

@@ -1323,6 +1323,16 @@ game.
 
 ## Directing Work at the Hospital (The Secret City)
 
+**Correction (2026-10-16).** The record layout below is read off by one. The
+game's own fill (`0x42F4F0`) indexes `{id, enum_ptr, display_ptr, override}`
+from `0x4AB990`, so the id comes *before* the strings: `0x219` is
+`eSayDirectWork` and `0x21A` is `eSayRefusing`. The `push 0x27` at the say
+sites is the 39-byte length of the status copy `0x46F780`, not an action.
+"Directing work" is action `0x81` (handler `0x44B5F0`, say at `0x44B5F9`),
+given to the chief by his site switch `0x458C70`; "Concerned about the sick"
+is action `0x8A` (handler `0x452540`, say `0x1E4`). See
+`native/vvfp_chief_hospital/vvfp_chief_hospital.c` for the proven chain.
+
 The requested feature is a Tribal Chief Direct Work action dropped on the
 Hospital once Level 2 Medicine is bought, working like the existing
 researching and farming Direct Work actions. The mechanism is table-driven,
