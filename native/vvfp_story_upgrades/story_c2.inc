@@ -306,9 +306,9 @@ static int c2_set_status(int index, int status) {
    stock code calls. */
 static const ce_action C2_BEHAVIOURS[] = {
     { "Stops what they are doing", ACT_STOP, 0x4492A0u, 0 },
-    { "Cools off with a swim", ACT_CALL, 0x451690u, 0 },
-    { "Celebrates", ACT_CALL, 0x452920u, 0 },
-    { "Visits the graves", ACT_CALL, 0x454890u, 0 },
+    { "Enjoys the pond (Heat Wave swim)", ACT_CALL, 0x451690u, 0 },
+    { "Relaxes at the beach (Blessings Day)", ACT_CALL, 0x452920u, 0 },
+    { "Honors the dead (Day of Honor)", ACT_CALL, 0x454890u, 0 },
     { "Sneezes", ACT_EFFECT, 0x44AF20u, 0 },
     { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0 },
     { "Does something of their own choosing", ACT_CALL, 0x461850u, 0 },

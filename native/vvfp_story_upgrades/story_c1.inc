@@ -203,7 +203,7 @@ static int c1_conceive(int index, int litter, int father, ce_result *result) {
    pickups, embracing, or a starter no stock code calls. */
 static const ce_action C1_BEHAVIOURS[] = {
     { "Stops what they are doing", ACT_STOP, 0x439470u, 0 },
-    { "Dances (Blessings Day)", ACT_CALL_ARG, 0x443FA0u, 9 },
+    { "Celebrates (Blessings Day dance)", ACT_CALL_ARG, 0x443FA0u, 9 },
     { "Goes swimming", ACT_CALL_ARG, 0x444990u, 1 },
     { "Relaxes", ACT_CALL, 0x4410C0u, 0 },
     { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0 },
