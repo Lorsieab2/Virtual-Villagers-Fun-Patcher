@@ -687,10 +687,91 @@ def pytest_sessionfinish(session, exitstatus):
         )
 
 # Each emulated process holds a unicorn engine, and its hook refers back to it, so the
-# engines are freed only by the garbage collector. Run it after every test: without this,
-# hundreds of live engines accumulate and unicorn's mem_map faults (access violation).
+# engines are freed only by the garbage collector. Run it after every test: an engine
+# shaped like tests/story_emulator.py commits about 73 MB (image, 64 MB heap, stack,
+# JIT buffer), so engines left to the collector's own schedule pile up native memory.
 @pytest.fixture(autouse=True)
 def _free_emulator_engines():
     yield
     import gc
     gc.collect()
+
+
+# --- unicorn's handled access violations -------------------------------------
+#
+# unicorn 2.1 on Windows reserves its JIT code buffer without committing it and
+# registers its own vectored exception handler (uc_open -> AddVectoredExceptionHandler,
+# last in the chain).  The first write into each uncommitted 4 MB of that buffer --
+# the TCG prologue that the first mem_map of every engine emits, and later
+# translation -- raises a first-chance EXCEPTION_ACCESS_VIOLATION; unicorn's
+# handler commits the 4 MB at the fault address (VirtualAlloc MEM_COMMIT) and
+# execution continues.  That is unicorn's design, not a crash.
+#
+# pytest enables faulthandler, whose own vectored handler is first in the chain:
+# it prints "Windows fatal exception: access violation" and a full traceback for
+# every one of these handled faults before unicorn's handler resolves it (743 dumps
+# for tests/test_arrival_paths_emulated.py alone, about 15,900 in one run of the 81
+# emulator files), and the run then carries on.  The dumps buried real output and
+# read as a fatal crash.
+#
+# So the first unicorn engine a test creates switches faulthandler off (Uc.__init__
+# is wrapped below, which also covers harnesses a test imports inside a function),
+# and it is switched back on, with the file pytest gave it, when that test ends --
+# or when collection ends, for an engine made while a module was imported.  Tests
+# that make no engine keep it on.  Nothing is lost: a fault unicorn does not handle
+# inside a unicorn call is turned into OSError by ctypes, which the test reports,
+# and a process crash is still recorded by Windows.
+# tests/test_unicorn_faults_are_handled.py checks both halves.
+
+_faulthandler_paused = False
+
+
+def _pause_faulthandler() -> None:
+    global _faulthandler_paused
+    import faulthandler
+
+    if faulthandler.is_enabled():
+        faulthandler.disable()
+        _faulthandler_paused = True
+
+
+def _resume_faulthandler(config) -> None:
+    global _faulthandler_paused
+    import faulthandler
+
+    if not _faulthandler_paused:
+        return
+    _faulthandler_paused = False
+    try:
+        from _pytest.faulthandler import fault_handler_stderr_fd_key
+        fd = config.stash[fault_handler_stderr_fd_key]
+    except (ImportError, KeyError):
+        fd = sys.__stderr__.fileno()
+    faulthandler.enable(file=fd)
+
+
+try:
+    import unicorn as _unicorn
+except ImportError:  # the emulator tests cannot run without it anyway
+    _unicorn = None
+if _unicorn is not None and not getattr(_unicorn.Uc.__init__, "_vvfp_pauses_faulthandler", False):
+    _uc_init = _unicorn.Uc.__init__
+
+    def _uc_init_pausing_faulthandler(self, *args, **kwargs):
+        _pause_faulthandler()
+        _uc_init(self, *args, **kwargs)
+
+    _uc_init_pausing_faulthandler._vvfp_pauses_faulthandler = True
+    _unicorn.Uc.__init__ = _uc_init_pausing_faulthandler
+
+
+def pytest_collection_finish(session):
+    _resume_faulthandler(session.config)
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_protocol(item, nextitem):
+    try:
+        yield
+    finally:
+        _resume_faulthandler(item.config)
