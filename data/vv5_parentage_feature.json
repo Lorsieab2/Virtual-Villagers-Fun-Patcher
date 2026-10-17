@@ -1,16 +1,16 @@
 {
-  "companion_sha256": "FEFEEDE833A265FA652B314042E93841D85045F122BAB0DDB5FA57F2231D4224",
+  "companion_sha256": "ADDFA94E0A3D1E2CB21663F82CA62D7FB3F1FBA0EB53A586222E1B44B756AA45",
   "features": [
     {
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "FEFEEDE833A265FA652B314042E93841D85045F122BAB0DDB5FA57F2231D4224",
+          "sha256": "ADDFA94E0A3D1E2CB21663F82CA62D7FB3F1FBA0EB53A586222E1B44B756AA45",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         },
         {
           "destination": "VVFP Save Reset.dll",
-          "sha256": "CE598A41A661DC3897EB9DAF493AEA29E72B39D285AFB9129F793675B9EA384B",
+          "sha256": "F7B8D5F12A04698C11D548D3C0C7B81FE486B836927CAD63CB4353478BDB20B7",
           "source": "assets/save_reset/VVFP Save Reset.dll"
         }
       ],
