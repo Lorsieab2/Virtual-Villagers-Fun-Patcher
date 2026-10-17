@@ -451,7 +451,7 @@ real trigger three times in a new village.
 | Custom title | yes | yes | yes | yes | yes |
 | Mask | yes | yes | yes | yes | yes |
 | Faction / status | -- | Esteemed Elder (0x44D190, with its totem); totem art 1-8 | -- (Tribal Chief omitted) | -- | believer / Heathen (the game's conversions, not counted; puzzle Heathens refused) |
-| Behaviours | stop, dance, swim, relax, recover | stop, swim, celebrate, visit graves, sneeze, recover | stop, recover | stop, recover | stop, recover |
+| Behaviours | stop, dance, swim, relax, recover | stop, enjoy the pond, relax at the beach, honor the dead, sneeze, recover | stop, recover | stop, recover | stop, recover |
 | Village / puzzle | Isola Day, Blessings Day, the dirty beach (as The Big Wave) | -- | -- | rain, clear weather | -- |
 
 The editor counts as you type: the title's characters against the one line the panel
