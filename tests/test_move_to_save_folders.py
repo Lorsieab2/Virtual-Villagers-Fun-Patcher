@@ -207,6 +207,42 @@ class MoveToSaveFoldersTest(unittest.TestCase):
                     self.assertIn("Patch the game again with this patcher first", str(caught.exception))
                     self.assertEqual((tree(s.folder), folders(s.folder)), (before, dirs))
 
+    def test_refused_when_a_later_installation_of_the_same_game_is_older(self) -> None:
+        s = self.scene(1)
+        with tempfile.TemporaryDirectory() as other_root:
+            other = Path(other_root) / s.install.name
+            write(other / f"{s.folder.name}.exe", b"MZ")
+            write(other / mv.PATCH_FILES / "vvfp_logs.dll", OLD_DLL % 1)
+            check = mv.check_install(s.folder, [s.install, other])
+            self.assertTrue(check.refused)
+            self.assertEqual(check.game_folder, s.install)
+            self.assertEqual([p.parent.parent for p in check.older], [other])
+
+    def test_a_change_after_the_copy_keeps_the_original(self) -> None:
+        with tempfile.TemporaryDirectory() as t:
+            folder = Path(t)
+            old, new, copy = folder / "a.txt", folder / "b.txt", folder / "copy.bak"
+            copy.write_bytes(b"first")
+            new.write_bytes(b"first")
+            old.write_bytes(b"changed after the copy")
+            state = mv._State(copies={old: copy})
+            with self.assertRaises(OSError):
+                mv._remove_original(folder, mv.Move(slot=1, old="a.txt", new="b.txt"), state)
+            self.assertEqual(old.read_bytes(), b"changed after the copy")
+            self.assertEqual(state.removed, [])
+
+    def test_an_unchanged_original_is_removed(self) -> None:
+        with tempfile.TemporaryDirectory() as t:
+            folder = Path(t)
+            old, new, copy = folder / "a.txt", folder / "b.txt", folder / "copy.bak"
+            copy.write_bytes(b"same")
+            new.write_bytes(b"same")
+            old.write_bytes(b"same")
+            state = mv._State(copies={old: copy})
+            mv._remove_original(folder, mv.Move(slot=1, old="a.txt", new="b.txt"), state)
+            self.assertFalse(old.exists())
+            self.assertEqual(state.removed, [old])
+
     def test_a_patch_with_the_marker_is_accepted_in_either_encoding(self) -> None:
         for utf16 in (False, True):
             s = self.scene(1, utf16=utf16)

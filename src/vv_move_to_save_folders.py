@@ -108,7 +108,7 @@ class InstallCheck:
                     f"\"{name}.exe\", beside the original game or in the patcher's output folder), so the "
                     "patcher cannot check that its patch reads the save folders. Choose the game in the "
                     "patcher (or patch it again with this patcher) first. Nothing was changed.")
-        dlls = ", ".join(str(p.relative_to(self.game_folder)) for p in self.older)
+        dlls = ", ".join(str(p) for p in self.older)
         return (f"{name} was patched by an older patcher: {dlls} look only in the older folders "
                 f"(\"{layout.LOGS}\" and \"{layout.DATA}\"), so after the move the game would find its "
                 "logs and records missing. Patch the game again with this patcher first, then move the "
@@ -116,17 +116,20 @@ class InstallCheck:
 
 
 def check_install(save_folder: Path, game_folders: list[Path]) -> InstallCheck:
-    """The first of `game_folders` that is the game saving into `save_folder` (a folder of the save
-    folder's name holding "<name>.exe", as vv_move_old_names.patched_by finds it), and every .dll in it
-    or in its "Virtual Villagers Fun Patcher Files" folder that names the older folders but not
-    `Virtual Villagers Fun Patcher\\Save ` (ASCII or UTF-16-LE).  Reads only."""
+    """Every one of `game_folders` that is a game saving into `save_folder` (a folder of the save
+    folder's name holding "<name>.exe", as vv_move_old_names.patched_by finds it), and every .dll in
+    each or in its "Virtual Villagers Fun Patcher Files" folder that names the older folders but not
+    `Virtual Villagers Fun Patcher\\Save ` (ASCII or UTF-16-LE).  The first match is `game_folder`.
+    Reads only."""
     save_folder = Path(save_folder)
     name = save_folder.name
+    first = None
+    older = []
     for folder in game_folders:
         folder = Path(folder)
         if folder.name.casefold() != name.casefold() or not (folder / f"{name}.exe").is_file():
             continue
-        older = []
+        first = folder if first is None else first
         for library in sorted(folder.glob("*.dll")) + sorted((folder / PATCH_FILES).glob("*.dll")):
             try:
                 data = library.read_bytes()
@@ -134,8 +137,7 @@ def check_install(save_folder: Path, game_folders: list[Path]) -> InstallCheck:
                 continue
             if any(_bytes_hold(data, n) for n in OLD_LAYOUT_NAMES) and not _bytes_hold(data, NEW_LAYOUT_MARKER):
                 older.append(library)
-        return InstallCheck(save_folder, folder, older)
-    return InstallCheck(save_folder, None)
+    return InstallCheck(save_folder, first, older)
 
 
 # ---------------------------------------------------------------------------
@@ -464,10 +466,13 @@ def _copy_words(folder: Path, game: int, moves: list[Move], state: _State) -> li
 
 
 def _remove_original(folder: Path, move: Move, state: _State) -> None:
-    """Step 5: the original removed, once its new copy still matches the copy made first."""
+    """Step 5: the original removed, once its new copy and the original itself still match the copy
+    made first (the original is read again here, so a change made after the copy is never deleted)."""
     old, new = folder / move.old, folder / move.new
     if new.read_bytes() != state.copies[old].read_bytes():
         raise OSError(f"the new copy of {old.name} no longer matches the copy made first")
+    if old.read_bytes() != state.copies[old].read_bytes():
+        raise OSError(f"{old.name} changed after the copy was made, so it is kept")
     old.unlink()
     state.removed.append(old)
 
