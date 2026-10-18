@@ -309,6 +309,89 @@ class MoveToSaveFoldersTest(unittest.TestCase):
                 # Moving again finds nothing more to move.
                 self.assertEqual(mv.plan(f).moves, [])
 
+    def test_an_emptied_top_logs_folder_and_data_folders_are_removed(self) -> None:
+        for game in GAMES:
+            with self.subTest(game=game):
+                s = self.scene(game)
+                f = s.folder
+                (f / s.shared).unlink()                 # nothing of the older Logs folder but the saves' own
+                (f / s.shared).parent.rmdir()
+                result = s.move()
+                self.assertFalse((f / LOGS).exists())
+                self.assertIn(LOGS, result.removed_folders)
+                self.assertFalse((f / DATA / "Graves").exists())       # emptied by the move
+                self.assertIn(f"{DATA}\\Graves", result.removed_folders)
+                self.assertTrue((f / s.taken).is_file())               # Custom Titles still holds Save 3's
+                self.assertTrue((f / DATA).is_dir())                    # the copies made first are in it
+                record = "".join(p.read_bytes().decode("latin-1") for p in
+                                 (f / SAVES / "Save 2" / "Logs" / layout.REPAIRS_LOGS).glob("*.txt"))
+                self.assertIn(f"Empty folder removed: {LOGS}\r\n", record)
+                self.assertIn(f"Empty folder removed: {DATA}\\Graves\r\n", record)
+
+    def test_a_top_logs_folder_with_anything_left_stays(self) -> None:
+        for game in GAMES:
+            with self.subTest(game=game):
+                s = self.scene(game)
+                result = s.move()
+                self.assertTrue((s.folder / s.shared).is_file())
+                self.assertNotIn(LOGS, result.removed_folders)
+                self.assertNotIn(DATA, result.removed_folders)
+
+    # -- what follows a save to its own folder -------------------------------------------------------
+
+    def test_the_reconciliation_report_is_written_in_the_saves_own_folder(self) -> None:
+        import vv_reconcile as rc
+        for game in GAMES:
+            with self.subTest(game=game):
+                s = self.scene(game)
+                # The older Save 1 folder still holds logs (the game keeps adding to them there) and an
+                # older report; the report is written whole into the save's own folder all the same.
+                write(s.folder / LOGS / "Save 1" / rc.REPORT_FOLDER / f"Virtual Villagers {game} Reconciliation - Save 1.txt",
+                      "an older report")
+                self.assertEqual(rc.report_path(s.folder, game, 1),
+                                 s.folder / SAVES / "Save 1" / "Logs" / rc.REPORT_FOLDER
+                                 / f"Virtual Villagers {game} Reconciliation - Save 1.txt")
+                self.assertEqual(layout.route(s.folder, s.births), s.folder / s.births)   # logs: unchanged
+
+    def test_a_remembered_file_answer_holds_after_the_move(self) -> None:
+        import vv_reconcile as rc
+        for game in GAMES:
+            with self.subTest(game=game):
+                s = self.scene(game)
+                f = s.folder
+                old = str(Path(s.births))
+                new = str(Path(s.new(s.births)))
+                # Before the move: the older file is named by where the move will put it.
+                self.assertEqual(rc._answer_place(f, old), new)
+                # An answer kept by an earlier build under the older place, and one kept under the new.
+                for kept in (f"cut|{old}|40", f"cut|{new}|40", f"shrunk|{old}|a copy.txt|3"):
+                    self.assertTrue(rc._answer_id(f, kept).startswith(kept.split("|")[0] + f"|{new}|"))
+                s.move()
+                self.assertEqual(rc._answer_place(f, new), new)
+                self.assertEqual(rc._answer_id(f, f"cut|{old}|40"), f"cut|{new}|40")
+                self.assertEqual(rc._answer_id(f, f"missing|{old}"), f"missing|{old}")   # by name: unchanged
+
+    def test_a_file_answer_is_never_given_to_the_other_file_of_both_places(self) -> None:
+        import vv_reconcile as rc
+        s = self.scene(2)
+        f = s.folder
+        old, new = str(Path(s.births)), str(Path(s.new(s.births)))
+        write(f / new, "another log of the same name")
+        self.assertEqual(rc._answer_place(f, old), old)
+        self.assertEqual(rc._answer_place(f, new), new)
+        self.assertEqual(rc._answer_id(f, f"cut|{old}|40"), f"cut|{old}|40")
+
+    def test_the_reconciliation_reads_the_answers_through_the_new_place(self) -> None:
+        import vv_log_decisions as decisions
+        import vv_reconcile as rc
+        s = self.scene(3)
+        f = s.folder
+        old, new = str(Path(s.births)), str(Path(s.new(s.births)))
+        decisions.record(f, 3, 1, [{"kind": rc.DECISION_KIND, "village": "Village: Ann (Save 1)",
+                                    "field": f"cut|{old}|40", "verdict": "Keep as is", "edited": False}], NOW)
+        s.move()
+        self.assertEqual(rc.answered(f, 3, 1, None), {f"cut|{new}|40": "Keep as is"})
+
     # -- failures ------------------------------------------------------------------------------------
 
     def _fail_second(self, name: str):

@@ -507,6 +507,7 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
     for pid in reg.ran:                 # the dead and gone: as their logs say (the living: their save)
         if not reg.people[pid].alive:
             reg.people[pid].runner = True
+    _logged_renames(reg, folder, game, slot)
     _unrecorded_looks(reg)
     checker = tools.load_checker()
     exact, by_name = checker.known_sexes(folder, game)
@@ -662,6 +663,35 @@ def _unrecorded_looks(reg: _Registry) -> None:
         del reg.people[p.id]
         reg.by_key[p.key] = q.id
         reg.relooked[p.key] = q.key
+
+
+def _logged_renames(reg: _Registry, folder: Path, game: int, slot: int) -> None:
+    """The "Name changed" records (the Births and Conceptions log): the record under the old name and
+    the one under the new name, with the same looks, are ONE villager under the new name (the owner,
+    2026-10-18: Mahalo Makawee was the founder Tamil Makawee, renamed; the arrival backfill had written
+    a second "How: unknown" Arrived record under the new name, so the founder showed as an arrival).
+    In log order, so a chain of renames ends on the last name.  Never when the old name and looks are a
+    living villager's (a child given the old name), when the old name's record is dead or gone, or when
+    both have a Birth record of their own: those stay apart, and the reconciliation asks the player."""
+    import vv_log_additions as additions
+    checker = tools.load_checker()
+    villages = additions.current_villages(folder, game, slot)
+    births = [path for path in checker.log_files(folder) if "Births and Conceptions" in path.name]
+    for path in sorted(births, key=lambda q: [int(s) if s.isdigit() else s for s in re.split(r"(\d+)", q.name)]):
+        for b in additions.blocks(path):
+            if b.heading != "Name changed" or not b.of(slot, game, villages):
+                continue
+            new, head, body = b.identity
+            old = b.value("Old name")
+            if not new or not old or old == new or head is None or body is None:
+                continue
+            old_key, new_key = reg.current((old, head, body)), reg.current((new, head, body))
+            if old_key not in reg.by_key or new_key not in reg.by_key:
+                continue
+            p, q = reg.people[reg.by_key[old_key]], reg.people[reg.by_key[new_key]]
+            if p.id == q.id or p.alive or p.gone or (p.birth_record is not None and q.birth_record is not None):
+                continue
+            _merge_renamed(reg, p, q)
 
 
 def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> None:

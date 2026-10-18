@@ -55,7 +55,8 @@ Golden Child (A New Home only) is a birth.  Questions:
 
 Check Saves & Logs shows it all (verdict ASK for a question); Repair Saves & Logs asks the
 questions; the patcher's tribe pickers run it whenever a village is chosen; the report is written
-to "<Logs>\\Save <n>\\Reconciliation\\Virtual Villagers <g> Reconciliation - Save <n>.txt" -- the
+to "Virtual Villagers Fun Patcher\\Save <n>\\Logs\\Reconciliation\\Virtual Villagers <g> Reconciliation -
+Save <n>.txt" (the save's own folder) -- the
 only file this module writes, and only through `export`.
 """
 from __future__ import annotations
@@ -867,7 +868,7 @@ class _Builder:
                 continue
             text = data.decode("latin-1")
             if data and not text.endswith("\n"):
-                self.ask("file", f"cut|{_rel(folder, path)}|{len(data)}",
+                self.ask("file", f"cut|{_answer_place(folder, _rel(folder, path))}|{len(data)}",
                          f"{_rel(folder, path)} ends in the middle of a line: it may have been cut short "
                          "(the patcher writes every record whole).", [f"{KEEP} (it is complete)"])
             count = _record_count(text)
@@ -877,6 +878,7 @@ class _Builder:
             # THIS file -- never the sum of every repair of a file of that name, which let a later loss
             # hide behind an earlier repair's count.
             rel = _rel(folder, path)
+            place = _answer_place(folder, rel)
             chain: list[tuple[Path | None, int, datetime]] = []
             for copy in sorted(_copies_of(path, copies_root, folder), key=lambda p: p.stat().st_mtime):
                 try:
@@ -891,11 +893,11 @@ class _Builder:
                 removed = _removed_by_repair(repairs, rel, path.name, made, until)
                 where = rel if later is None else f"the later copy {later.name}"
                 if new_count + removed >= old_count:
-                    self.note("file", f"shrunk-ok|{rel}|{copy.name}",
+                    self.note("file", f"shrunk-ok|{place}|{copy.name}",
                               f"{where} holds {old_count - new_count} record(s) fewer than the copy {copy.name} "
                               f"kept before a repair; the Repairs log says that repair took {removed} out of it.")
                 else:
-                    self.ask("file", f"shrunk|{rel}|{copy.name}|{new_count}",
+                    self.ask("file", f"shrunk|{place}|{copy.name}|{new_count}",
                              f"{where} holds {new_count} record(s), but the copy kept before a repair, "
                              f"{copy.name}, holds {old_count}; the Repairs log accounts for {removed} taken out of "
                              f"{path.name} by that repair. {old_count - new_count - removed} record(s) may be lost.",
@@ -1132,6 +1134,34 @@ def _rel(folder: Path, path: Path) -> str:
         return str(path)
 
 
+FILE_QUESTIONS = ("cut", "shrunk", "shrunk-ok")       # the file questions whose id holds the file's place
+
+
+def _answer_place(folder: Path, rel: str) -> str:
+    """The place a file question's id names a file by (relative to the save folder), the same before
+    and after Move Files to Save Folders: a file of a save still in the older folders by its place in
+    the save's own folder ("Virtual Villagers Fun Patcher\\Save <n>\\..."), where the move puts it.  Not
+    when both places hold a file (the move leaves both, and each is its own file): then each is named
+    by where it is, so an answer about one is never applied to the other."""
+    place = layout.per_save_place(rel)
+    if place is None:
+        return rel
+    new = place[1].replace("\\", os.sep)
+    if not (Path(folder) / rel).exists() or not (Path(folder) / new).exists():
+        return new
+    return rel
+
+
+def _answer_id(folder: Path, qid: str) -> str:
+    """A remembered file question's id with its file named as _answer_place names it now (an answer
+    given before the move, or before this build keyed it so, still holds after it)."""
+    topic, bar, rest = qid.partition("|")
+    if topic not in FILE_QUESTIONS or not bar:
+        return qid
+    rel, bar, tail = rest.partition("|")
+    return f"{topic}|{_answer_place(folder, rel)}{bar}{tail}"
+
+
 def _copies_of(path: Path, copies_root: Path, folder: Path) -> list[Path]:
     """The copies kept of a log before repairs, newest first: beside it, and in Copies Made Before
     Repairs under the same relative place."""
@@ -1249,7 +1279,7 @@ def answered(folder: Path, game: int, slot: int, villages: set[str] | None) -> d
     for d in decisions.load(folder, game, slot):
         if d.get("kind") == DECISION_KIND and isinstance(d.get("field"), str) \
                 and (villages is None or d.get("village") in villages):
-            out[d["field"]] = str(d.get("verdict", ""))
+            out[_answer_id(folder, d["field"])] = str(d.get("verdict", ""))
     return out
 
 
@@ -1377,7 +1407,10 @@ def _vv1_roster_reuse(b: _Builder, folder: Path, game: int, slot: int, living: l
 # ---------------------------------------------------------------------------
 
 def report_path(folder: Path, game: int, slot: int) -> Path:
-    return layout.slot_log_folder(Path(folder), REPORT_FOLDER, slot) / REPORT_NAME.format(game=game, slot=slot)
+    """The save's own "Virtual Villagers Fun Patcher\\Save <n>\\Logs\\Reconciliation" folder, always: the
+    report is written whole each time (no history to keep together), so an older report left in
+    "...Logs\\Save <n>\\Reconciliation" is never added to and never kept in use."""
+    return layout.own_slot_log_folder(Path(folder), REPORT_FOLDER, slot) / REPORT_NAME.format(game=game, slot=slot)
 
 
 def export(rec: Reconciliation) -> Path:

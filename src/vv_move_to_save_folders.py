@@ -24,7 +24,8 @@ installed patch reads the save folders (every patch DLL that knows the older fol
      under its new name, into the save's own words file (the shared file is never split or changed);
   5. with the game still closed, each original is removed once its new copy still matches the copy
      made first;
-  6. the older log folders the move left truly empty are removed (os.rmdir; nothing else);
+  6. the older log and data folders the move left truly empty are removed, up to the top "Virtual
+     Villagers Fun Patcher Logs" / "... Data" folder itself (os.rmdir; nothing else);
   7. one record per save slot moved is written in that save's Repairs Made log.
 
 When anything in 2-6 fails, everything is put back: every removed original restored from its copy (and
@@ -478,17 +479,19 @@ def _remove_original(folder: Path, move: Move, state: _State) -> None:
 
 
 def _remove_empty(folder: Path, moves: list[Move], state: _State) -> list[str]:
-    """Step 6: the older log folders under "...Logs\\Save <S>\\" that held moved files and are now truly
-    empty, deepest first (os.rmdir refuses one that is not)."""
+    """Step 6: every older folder that held a moved file and is now truly empty, deepest first, up to
+    and including the top "Virtual Villagers Fun Patcher Logs" or "Virtual Villagers Fun Patcher Data"
+    folder itself (os.rmdir refuses one that is not empty; a folder with anything left in it stays)."""
     roots = {}
     for move in moves:
-        if not move.old.lower().startswith(layout.LOGS.lower() + "\\"):
+        top = next((folder / name for name in OLD_LAYOUT_NAMES
+                    if move.old.lower().startswith(name.lower() + "\\")), None)
+        if top is None:
             continue
-        root = folder / layout.slot_folder(move.slot)
         d = (folder / move.old).parent
         while True:
             roots[d] = True
-            if d == root or root not in d.parents:
+            if d == top or top not in d.parents:
                 break
             d = d.parent
     removed = []
@@ -628,7 +631,9 @@ def note_move_slot(folder: Path, game: int, slot: int, result: MoveResult, now: 
         if item.slot == slot:
             text += f"  Not moved: {item.what} ({item.reason})\r\n"
     for name in result.removed_folders:
-        if layout.is_slot_folder(folder / name / "x") == slot:
+        # A save's own older folder in its record; a folder of no one save (the top Logs or Data folder,
+        # a Data kind's folder) in the record of every save moved.
+        if layout.is_slot_folder(folder / name / "x") in (slot, None):
             text += f"  Empty folder removed: {name}\r\n"
     mine = [copy for old, copy in result.copies.items() if any(m.old == old and m.slot == slot for m in result.moved)]
     if mine:
