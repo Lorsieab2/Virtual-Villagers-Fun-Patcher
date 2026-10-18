@@ -158,7 +158,7 @@ class ReleasesLinkTests(unittest.TestCase):
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
-               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_villager_info",
+               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info",
                "vv_log_decisions", "vv_log_contradictions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision"}

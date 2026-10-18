@@ -743,7 +743,7 @@ def log_decisions(game_dir: Path, game: int, slot: int, kind: str, verdict: str,
     about `kind`, for one of `villages` when given."""
     import json
     try:
-        data = json.loads(layout.find(game_dir, LOG_DECISIONS.format(game=game, slot=slot)).read_text(encoding="utf-8"))
+        data = json.loads(layout.route(game_dir, LOG_DECISIONS.format(game=game, slot=slot)).read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return set()
     if not isinstance(data, dict) or data.get("version") != 1 or not isinstance(data.get("decisions"), list):
@@ -833,7 +833,7 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
     """The VV1 parentage table against the Births log -- the in-game cross-check's own rules
     (native/vv1_parentage/vv1_crosscheck.inc), so this tool predicts what it will do."""
     name = f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"
-    candidates = [layout.find(game_dir, f"{DATA}\\{layout.PARENTS_VV1}\\{name}"), game_dir / DATA / name]
+    candidates = [layout.route(game_dir, f"{DATA}\\{layout.PARENTS_VV1}\\{name}"), game_dir / DATA / name]
     path = next((p for p in candidates if p.is_file()), None)
     label = f"{DATA}\\{name}"
     if path is None:
@@ -973,7 +973,7 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
 
 
 def births_marker(game_dir: Path, game: int, slot: int) -> bool:
-    p = game_dir / DATA / "Births" / f"Virtual Villagers {game} Births Recorded - Save {slot}.dat"
+    p = layout.route(game_dir, f"{DATA}\\Births\\Virtual Villagers {game} Births Recorded - Save {slot}.dat")
     if not p.is_file():
         return False
     data = p.read_bytes()
@@ -1174,7 +1174,7 @@ def is_elder(game: int, v: Villager) -> bool:
 
 def check_elders(game_dir: Path, slot: int, game: int, roster: list[Villager], rep: Report) -> int | None:
     label = f"{DATA}\\Village Elders\\Village Elders - Save {slot}.dat"
-    path = game_dir / DATA / "Village Elders" / f"Village Elders - Save {slot}.dat"
+    path = layout.route(game_dir, f"{DATA}\\Village Elders\\Village Elders - Save {slot}.dat")
     if game == 2:
         return None                              # The Lost Children keeps its own elder counter
     if not path.is_file():
@@ -1261,8 +1261,14 @@ def history_elders(game_dir: Path, slot: int, game: int, roster: list[Villager],
 
 def stats_file(game_dir: Path, slot: int) -> Path | None:
     """The slot's Village Statistics log: the slot folder's ("...Logs\\Save <slot>\\Village Statistics"),
-    or, only while it has none, the shared folder's an older build wrote."""
-    for place in (layout.slot_log_folder(game_dir, "Village Statistics", slot), game_dir / LOGS / "Village Statistics"):
+    or, only while it has none, the shared folder's an older build wrote.  The slot's folder is the one
+    the game writes (the save's own "Virtual Villagers Fun Patcher\\Save <slot>\\Logs" or the older
+    "...Logs\\Save <slot>", src/vv_save_layout.py route), then the other of the two."""
+    places = [layout.slot_log_folder(game_dir, "Village Statistics", slot),
+              layout.own_slot_log_folder(game_dir, "Village Statistics", slot),
+              layout.older_slot_log_folder(game_dir, "Village Statistics", slot),
+              game_dir / LOGS / "Village Statistics"]
+    for place in dict.fromkeys(places):
         for name in (f"Village Statistics v2 - Save {slot}.txt", f"Village Statistics - Save {slot}.txt"):
             if (place / name).is_file():
                 return place / name
@@ -1322,7 +1328,7 @@ def check_statistics(game_dir: Path, slot: int, game: int, roster: list[Villager
 
 
 def read_counters(game_dir: Path, slot: int, game: int) -> dict[str, int] | None:
-    p = game_dir / DATA / "Village Statistics" / f"Village Statistics - Save {slot}.dat"
+    p = layout.route(game_dir, f"{DATA}\\Village Statistics\\Village Statistics - Save {slot}.dat")
     if not p.is_file():
         return None
     lines = p.read_text(encoding="latin-1").replace("\r\n", "\n").split("\n")
@@ -1475,7 +1481,7 @@ def check_masks(game_dir: Path, slot: int, game: int, roster: list[Villager], re
     (native/shared/orphan_masks.h).  The loaded village is the save's: it loads packed, villager
     after villager into records 0, 1, 2, ..."""
     name = VV_MASK_FILES.get(game, "Village Masks - Save {slot}.dat").format(slot=slot)
-    candidates = [game_dir / DATA / "Village Masks" / name, game_dir / DATA / name]
+    candidates = [layout.route(game_dir, f"{DATA}\\Village Masks\\{name}"), game_dir / DATA / name]
     path = next((p for p in candidates if p.is_file()), None)
     label = f"{DATA}\\Village Masks\\{name}"
     if path is None:
@@ -1555,7 +1561,7 @@ def vv1_title_identity(v: Villager) -> int:
 def check_titles(game_dir: Path, slot: int, game: int, roster: list[Villager], hist, rep: Report) -> None:
     import vv_titles_file
     label = f"{DATA}\\Custom Titles\\Custom Titles - Save {slot}.dat"
-    path = game_dir / DATA / "Custom Titles" / f"Custom Titles - Save {slot}.dat"
+    path = layout.route(game_dir, f"{DATA}\\Custom Titles\\Custom Titles - Save {slot}.dat")
     if not path.is_file():
         rep.add(label, "NOTE", "no custom titles")
         return
@@ -1615,7 +1621,7 @@ def check_graves(game_dir: Path, slot: int, game: int, deaths: int, rep: Report)
     if game not in (1, 2):
         return
     name = f"Virtual Villagers {game} Graves - Save {slot}.dat"
-    candidates = [game_dir / DATA / "Graves" / name, game_dir / DATA / name]
+    candidates = [layout.route(game_dir, f"{DATA}\\Graves\\{name}"), game_dir / DATA / name]
     path = next((p for p in candidates if p.is_file()), None)
     label = f"{DATA}\\{name}"
     if path is None:
@@ -1666,7 +1672,7 @@ def vcr1_problem(data: bytes, game: int) -> str | None:
 def check_rosters(game_dir: Path, slot: int, game: int, roster: list[Villager], rep: Report) -> None:
     name = f"Virtual Villagers {game} Villagers at Last Save - Save {slot}.dat"
     old = f"Virtual Villagers {game} Village Roster - Save {slot}.dat"      # older builds' name
-    candidates = [layout.find(game_dir, f"{DATA}\\Unaccounted Villagers\\{name}"), game_dir / DATA / old]
+    candidates = [layout.route(game_dir, f"{DATA}\\Unaccounted Villagers\\{name}"), game_dir / DATA / old]
     path = next((p for p in candidates if p.is_file()), None)
     label = f"{DATA}\\{name}"
     if path is not None:
@@ -1679,7 +1685,7 @@ def check_rosters(game_dir: Path, slot: int, game: int, roster: list[Villager], 
         else:
             rep.add(label, "UNCHECKED", f"not a roster the game would read: {problem}")
     rep.add(f"{DATA}\\Village Rosters", "NOTE", REPORT_ONLY["rosters"])
-    stats_roster = layout.find(game_dir, f"{DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat")
+    stats_roster = layout.route(game_dir, f"{DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat")
     label = f"{DATA}\\Village Statistics\\{stats_roster.name}"
     if stats_roster.is_file():
         lines = stats_roster.read_text(encoding="latin-1").splitlines()
@@ -1695,7 +1701,8 @@ def check_rosters(game_dir: Path, slot: int, game: int, roster: list[Villager], 
                                                               "the game at every save)"))
         else:
             rep.add(label, "UNCHECKED", "not a v1 Village Roster")
-    aside = sorted((game_dir / DATA).rglob(f"*Save {slot}.dat.previous-village-*"))
+    aside = sorted(p for root in (game_dir / DATA, game_dir / layout.save_root(slot) / layout.SAVE_DATA)
+                   for p in root.rglob(f"*Save {slot}.dat.previous-village-*"))
     for p in aside:
         rep.add(f"{DATA}\\{p.parent.name}", "NOTE",
                 f"{p.name}: set aside as another village's by the old roster match (it may have been this "
@@ -1703,7 +1710,7 @@ def check_rosters(game_dir: Path, slot: int, game: int, roster: list[Villager], 
 
 
 def check_stews(game_dir: Path, slot: int, game: int, rep: Report) -> None:
-    path = game_dir / DATA / "Stew Discoveries" / f"Stew Discoveries - Save {slot}.dat"
+    path = layout.route(game_dir, f"{DATA}\\Stew Discoveries\\Stew Discoveries - Save {slot}.dat")
     label = f"{DATA}\\Stew Discoveries\\Stew Discoveries - Save {slot}.dat"
     if not path.is_file():
         return
@@ -1745,7 +1752,7 @@ def village_id(header: str) -> int:
 
 
 def check_marker(game_dir: Path, slot: int, game: int, rep: Report, village: str | None = None) -> None:
-    path = layout.find(game_dir, f"{DATA}\\{layout.LOG_CHECKS}\\Virtual Villagers {game} Cross-Check - Save {slot}.dat")
+    path = layout.route(game_dir, f"{DATA}\\{layout.LOG_CHECKS}\\Virtual Villagers {game} Cross-Check - Save {slot}.dat")
     label = str(path.parent.relative_to(game_dir))
     if game != 1:
         return
@@ -1775,11 +1782,11 @@ BIRTHS_MARKER_MAGIC = 0x31424356           # 'VCB1'
 
 
 def graves_logged_path(game_dir: Path, game: int, slot: int) -> Path:
-    return game_dir / DATA / "Deaths" / f"Virtual Villagers {game} Graves Logged - Save {slot}.dat"
+    return layout.route(game_dir, f"{DATA}\\Deaths\\Virtual Villagers {game} Graves Logged - Save {slot}.dat")
 
 
 def arrivals_marker_path(game_dir: Path, game: int, slot: int) -> Path:
-    return game_dir / DATA / "Arrivals" / f"Virtual Villagers {game} Arrivals Recorded - Save {slot}.dat"
+    return layout.route(game_dir, f"{DATA}\\Arrivals\\Virtual Villagers {game} Arrivals Recorded - Save {slot}.dat")
 
 
 def graves_logged_problem(data: bytes, game: int) -> str | None:
@@ -1848,7 +1855,7 @@ def check_approval(game_dir: Path, slot: int, game: int, rep: Report) -> None:
                 "a Repair Saves & Logs approval is under both \"Log Checks\" and an older build's \"Cross-Check\": "
                 "the game acts on neither (run Repair Saves & Logs again to approve)")
         return
-    path = layout.find(game_dir, relative)
+    path = layout.route(game_dir, relative)
     if not path.is_file():
         return
     label = str(path.parent.relative_to(game_dir))
@@ -1903,6 +1910,14 @@ REPAIRS_FOLDERS = ("Repairs", layout.REPAIRS_LOGS)     # "Repairs Made"; "Repair
 # The patcher's own reports in the Logs folders, never a log any reader takes records from: the read-only
 # reconciliation's report (src/vv_reconcile.py), rewritten at every check.
 REPORT_FOLDERS = ("Reconciliation",)
+
+
+def log_roots(game_dir: Path) -> list[Path]:
+    """Every folder whose tree holds logs: the older layout's Logs folders (LOG_FOLDERS), then each
+    save's own "Virtual Villagers Fun Patcher\\Save <S>\\Logs" (src/vv_save_layout.py)."""
+    game_dir = Path(game_dir)
+    return ([game_dir / top for top in LOG_FOLDERS]
+            + [game_dir / layout.save_root(s) / layout.SAVE_LOGS for s in layout.SLOTS])
 
 
 def not_a_log(game_dir: Path, path: Path) -> bool:
@@ -1964,7 +1979,7 @@ def word_boundaries(game_dir: Path, game: int) -> dict[str, int]:
     file is taken (native/shared/log_words.h: a larger one would turn correct words into wrong
     ones)."""
     out: dict[str, int] = {}
-    for path in layout.places(game_dir, LOG_WORDS.format(game=game)):
+    for path in layout.words_files(game_dir, game):          # the shared file(s), then each save's own
         try:
             text = path.read_bytes().decode("utf-8", "replace")
         except FileNotFoundError:
@@ -1998,8 +2013,7 @@ def old_words(game_dir: Path, game: int) -> list[OldWords]:
         return []
     bounds = word_boundaries(game_dir, game)
     found = []
-    for top in LOG_FOLDERS:
-        root = game_dir / top
+    for root in log_roots(game_dir):
         if not root.is_dir():
             continue
         for path in sorted(root.rglob("*.txt")):
@@ -2317,8 +2331,7 @@ def log_files(game_dir: Path) -> list[Path]:
     """Every log file, as one history: the shared folders older builds wrote first, then each save
     slot's own "...Logs\\Save <S>\\" folder, Save 1 to Save 5 (src/vv_save_layout.py)."""
     shared, slots = [], []
-    for top in LOG_FOLDERS:
-        root = game_dir / top
+    for root in log_roots(game_dir):
         if root.is_dir():
             for p in sorted(root.rglob("*.txt")):
                 if not not_a_log(game_dir, p):

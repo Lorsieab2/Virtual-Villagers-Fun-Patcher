@@ -370,7 +370,7 @@ def _survey_titles(folder, game, slot, data, recs, people, prefs, ids, carriers,
             and not e.gone and "Name" not in e.changes]
     if not lost:
         return
-    path = layout.find(folder, TITLES_FILE.format(slot=slot))
+    path = layout.route(folder, TITLES_FILE.format(slot=slot))
     entries = _read_titles(path, game)
     if entries is None:
         out.notes.append(f"{path.name} is not a titles file this game reads, so no lost title is restored "
@@ -466,7 +466,7 @@ def _survey_titles(folder, game, slot, data, recs, people, prefs, ids, carriers,
 
 def _survey_former(folder, slot, data, recs, people, prefs, ids, carriers, out: Survey) -> None:
     game = 5
-    path = layout.find(folder, FORMER_FILE.format(slot=slot))
+    path = layout.route(folder, FORMER_FILE.format(slot=slot))
     entries = _read_file(path, FORMER_MAGIC, FORMER_VERSION, game, FORMER_HEADER, FORMER_ENTRY, 1024)
     if not entries:
         if entries is None:
@@ -569,7 +569,7 @@ def _plan(folder: Path, game: int, slot: int, chosen: list[Restore]) -> list[_Ch
     changes = []
     titles = [r for r in chosen if r.kind == "title"]
     if titles:
-        path = layout.find(folder, TITLES_FILE.format(slot=slot))
+        path = layout.route(folder, TITLES_FILE.format(slot=slot))
         original = path.read_bytes() if path.is_file() else None
         entries = _read_titles(path, game)
         if entries is None:
@@ -600,7 +600,7 @@ def _plan(folder: Path, game: int, slot: int, chosen: list[Restore]) -> list[_Ch
         changes.append(_Change(path, original, vv_titles_file.serialise(game, entries, version)))
     formers = [r for r in chosen if r.kind == "former"]
     if formers:
-        path = layout.find(folder, FORMER_FILE.format(slot=slot))
+        path = layout.route(folder, FORMER_FILE.format(slot=slot))
         original = path.read_bytes()
         entries = _read_file(path, FORMER_MAGIC, FORMER_VERSION, game, FORMER_HEADER, FORMER_ENTRY, 1024)
         if not entries:

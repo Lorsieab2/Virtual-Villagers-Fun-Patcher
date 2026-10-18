@@ -204,7 +204,7 @@ class AnNewHomeVillageTests(unittest.TestCase):
                          "the boundary moved back with the bytes before it")
         tools.note_word_repair(game, 1, VILLAGE, done["born_arrived"],
                                checked=additions.CHECKED["born_arrived"], corrected=additions.ADDED["born_arrived"])
-        repairs = next((game / LOGS).rglob("Virtual Villagers 1 Repairs Log 1.txt")).read_text(encoding="latin-1")
+        repairs = (tools.layout.slot_log_folder(game, "Repairs Made", 1) / "Virtual Villagers 1 Repairs Log 1.txt").read_text(encoding="latin-1")
         self.assertIn("Duplicate backfilled Arrived record removed", repairs)
         self.assertFalse(next(k for k in additions.plan(game, 1, 1) if k.id == "born_arrived").questions)
         self.assertIn("no villager the log already records", tools.check_logs(game, 1, 1).text)
@@ -257,7 +257,7 @@ class RepairSavesAndLogsTests(AnNewHomeVillageTests):
         game = self.run_repair(additions.RETRO_YES)
         self.assertNotIn(b"Name: Cheop Bahati", self.log.read_bytes())
         self.assertFalse(decisions.path(game, 1, 1).exists(), "nothing to remember: the records were edited")
-        repairs = next((game / LOGS).rglob("Virtual Villagers 1 Repairs Log 1.txt")).read_text(encoding="latin-1")
+        repairs = (tools.layout.slot_log_folder(game, "Repairs Made", 1) / "Virtual Villagers 1 Repairs Log 1.txt").read_text(encoding="latin-1")
         self.assertIn("Duplicate backfilled Arrived record removed", repairs)
 
     def test_no_through_the_repair(self):

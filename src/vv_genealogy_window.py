@@ -487,7 +487,8 @@ def open_family_tree(app, build) -> None:
         "Draws the chosen village's family tree from its save and the patcher's logs, and lets you "
         "mark and edit it.  Nothing in the save or the logs is changed unless you ask Number duplicate "
         "names to number them there too (it asks first, and backs the save folder up): your marks and edits are kept "
-        "in the save folder's Virtual Villagers Fun Patcher Data\\Family Tree Edits, and the tree, its picture "
+        "in the save's own Virtual Villagers Fun Patcher\\Save <S>\\Data\\Family Tree Edits (for an older save, "
+        "Virtual Villagers Fun Patcher Data\\Family Tree Edits), and the tree, its picture "
         "and the genealogy report are written to Virtual Villagers Fun Patcher Family Trees\\Reports.  A save "
         "that already keeps them under the older names, Genealogy or Logs\\Genealogy, goes on using those.",
         "Open Family Tree Maker", lambda dialog, folder, game, info, title, images:

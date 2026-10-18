@@ -97,7 +97,10 @@ class SaveLayoutTests(unittest.TestCase):
             folder = Path(tmp)
             old = folder / layout.DATA / "Genealogy" / "Virtual Villagers 1 Genealogy Edits - Save 1.json"
             new = folder / layout.DATA / "Family Tree Edits" / "Virtual Villagers 1 Family Tree Edits - Save 1.json"
-            self.assertEqual(ft.Edits.path(folder, 1, 1), new)
+            # A fresh save: the save's own folder (one folder per save, src/vv_save_layout.py route).
+            own = (folder / layout.SAVES / "Save 1" / "Data" / "Family Tree Edits"
+                   / "Virtual Villagers 1 Family Tree Edits - Save 1.json")
+            self.assertEqual(ft.Edits.path(folder, 1, 1), own)
             old.parent.mkdir(parents=True)
             old.write_text("{}")
             self.assertEqual(ft.Edits.path(folder, 1, 1), old)

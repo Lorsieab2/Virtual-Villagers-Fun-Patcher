@@ -180,7 +180,7 @@ def test_a_repair_note_lands_in_the_slots_repairs_made(folder, game):
     write(g, f"Save 2/Repairs Made/{stem} 1.txt", "Village: Bea (Save 2)\nRepair 7\n  Date: c\n\n")
     before = shared.read_bytes()
     tools.note_word_repair(g, game, "Village: Ann (Save 1)", [tools.WordFix("x.txt", 1, "x.bak")], NOW)
-    own = g / LOGS / "Save 1" / "Repairs Made" / f"{stem} 1.txt"
+    own = layout.own_slot_log_folder(g, "Repairs Made", 1) / f"{stem} 1.txt"     # one folder per save (fresh)
     text = own.read_bytes().decode("latin-1")
     assert text.startswith("Village: Ann (Save 1)\r\nRepair 8\r\n"), "after the highest in every folder"
     assert shared.read_bytes() == before, "the shared Repairs Made is never written again"
@@ -198,7 +198,7 @@ def test_an_appended_record_goes_to_the_slots_own_log(folder, game):
     stem = f"Virtual Villagers {game} Deaths Log"
     write(g, f"Deaths and Disappearances/{stem} 1.txt", "Village: Ann (Save 1)\n" + death(1, "A1"))
     target = layout.append_target(g, "Deaths and Disappearances", stem, 1, "Death ")
-    assert target == g / LOGS / "Save 1" / "Deaths and Disappearances" / f"{stem} 1.txt"
+    assert target == layout.own_slot_log_folder(g, "Deaths and Disappearances", 1) / f"{stem} 1.txt"
     assert not target.exists(), "never made by looking"
     write(g, f"Save 1/Deaths and Disappearances/{stem} 1.txt",
           "Village: Ann (Save 1)\n" + "".join(death(k, f"D{k}") for k in range(2, 258)))

@@ -98,10 +98,10 @@ def evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set[
     nameless = {b.identity[0] for b in blocks
                 if b.identity[0] and (b.identity[1] is None or b.identity[2] is None)}
     taken = set()
-    data_dir = Path(folder) / ln.tools.DATA
-    for path, columns in ((layout.find(folder, f"{layout.DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat"),
+    for path, columns in ((layout.route(folder, f"{layout.DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat"),
                            (1,)),
-                          (data_dir / "Village Elders" / f"Village Elders - Save {slot}.dat", (2, 3, 4))):
+                          (layout.route(folder, f"{layout.DATA}\\Village Elders\\Village Elders - Save {slot}.dat"),
+                           (2, 3, 4))):
         try:
             lines = path.read_bytes().decode("latin-1").split("\n")
         except OSError:

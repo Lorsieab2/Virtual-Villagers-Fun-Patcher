@@ -64,6 +64,7 @@
 
 #include "statistics_store.h"
 #include "save_folder.h"
+#include "per_save_data.h"       /* one folder per save */
 #include "vv3_villager_table.h"
 
 enum {
@@ -1024,30 +1025,25 @@ int vvs_probe_file(const wchar_t *path, int game_id, int stews) {
 }
 
 int vvs_build_paths(int game_id, int save_id, wchar_t *counters, wchar_t *stews) {
-    wchar_t folder[MAX_PATH];
+    wchar_t name[64];
     const game_layout *g = layout_for(game_id);
     if (g == NULL || save_id < 1 || save_id > 5 || counters == NULL || stews == NULL) {
         return 0;
     }
     counters[0] = L'\0';
     stews[0] = L'\0';
-    /* 64 covers the longest tail appended below and by the helpers:
-       "\\Village Statistics - Save 5.dat" + ".unreadable-99" + ".tmp". */
-    if (!vv_save_subfolder_w(folder,
-            L"Virtual Villagers Fun Patcher Data\\Village Statistics", 64)) {
-        return 0;
-    }
-    if (_snwprintf_s(counters, MAX_PATH, _TRUNCATE,
-                     L"%ls\\Village Statistics - Save %d.dat", folder, save_id) < 0) {
+    /* 32 covers the longest tail the helpers append: ".unreadable-99" + ".tmp".  Each file is in the
+       save's own "Virtual Villagers Fun Patcher\Save <S>\Data\<kind>\" now, unless still in the older
+       layout's folder (native/shared/per_save_data.h). */
+    if (_snwprintf_s(name, 64, _TRUNCATE, L"Village Statistics - Save %d.dat", save_id) < 0
+        || !vv_ps_data_file_w(counters, L"Village Statistics", name, 32)) {
+        counters[0] = L'\0';
         return 0;
     }
     if (g->stew_herbs != 0) {
-        if (!vv_save_subfolder_w(folder,
-                L"Virtual Villagers Fun Patcher Data\\Stew Discoveries", 64)) {
-            return 0;
-        }
-        if (_snwprintf_s(stews, MAX_PATH, _TRUNCATE,
-                         L"%ls\\Stew Discoveries - Save %d.dat", folder, save_id) < 0) {
+        if (_snwprintf_s(name, 64, _TRUNCATE, L"Stew Discoveries - Save %d.dat", save_id) < 0
+            || !vv_ps_data_file_w(stews, L"Stew Discoveries", name, 32)) {
+            stews[0] = L'\0';
             return 0;
         }
     }

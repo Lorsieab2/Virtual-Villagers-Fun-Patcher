@@ -54,8 +54,9 @@ class SlotNoteTests(unittest.TestCase):
                 result = mv.move_old_files(f, Processes(), NOW)
                 self.assertEqual(result.slot_notes, [1, 3])
                 stem = f"Virtual Villagers {game} Repairs Log 1.txt"
-                one = (f / LOGS / "Save 1" / "Repairs Made" / stem).read_bytes().decode("latin-1")
-                three = (f / LOGS / "Save 3" / "Repairs Made" / stem).read_bytes().decode("latin-1")
+                # Each slot's own Repairs Made: the save's own folder for a fresh save (src/vv_save_layout.py).
+                one = (layout.slot_log_folder(f, "Repairs Made", 1) / stem).read_bytes().decode("latin-1")
+                three = (layout.slot_log_folder(f, "Repairs Made", 3) / stem).read_bytes().decode("latin-1")
                 self.assertIn("Cross-Check - Save 1.dat", one)
                 self.assertNotIn("Save 3.dat", one, "a slot's note names only its own files")
                 self.assertIn("Cross-Check - Save 3.dat", three)
@@ -63,6 +64,7 @@ class SlotNoteTests(unittest.TestCase):
                 self.assertIn("Village: Hut (Save 1)\r\nRepair ", one, "the village's own header when its log is there")
                 self.assertIn("Village: (Save 3)\r\nRepair ", three, "else the slot's")
                 self.assertFalse((f / LOGS / "Save 2").exists(), "a slot with none of its files moved gets nothing")
+                self.assertFalse((f / layout.SAVES / "Save 2").exists())
                 shared = (f / LOGS / "Repairs Made" / stem).read_bytes().decode("latin-1")
                 self.assertIn("Village: (all villages in this save folder)\r\nRepair ", shared,
                               "the whole move is still in the shared log")
@@ -77,6 +79,7 @@ class SlotNoteTests(unittest.TestCase):
             result = mv.move_old_files(f, Processes(), NOW)
             self.assertEqual(result.slot_notes, [])
             self.assertFalse(any((f / LOGS).glob("Save */Repairs Made/*")))
+            self.assertFalse(any((f / layout.SAVES).glob("Save */Logs/Repairs Made/*")))
             self.assertTrue((f / LOGS / "Repairs Made" / "Virtual Villagers 1 Repairs Log 1.txt").is_file())
 
     def test_slots_involved_reads_only(self) -> None:

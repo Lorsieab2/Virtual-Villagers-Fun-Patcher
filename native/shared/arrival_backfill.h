@@ -77,6 +77,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include "save_folder.h"
+#include "per_save_data.h"
 
 #define VV_ARRIVAL_BEFORE 160
 #define VV_ARRIVAL_MARKER_MAGIC 0x31414356u     /* 'VCA1' */
@@ -137,18 +138,15 @@ typedef int (__stdcall *vv_record_births_fn)(int game, const void *save_buffer, 
 
 /* The marker's path; 0 when the save folder is unknown. */
 static int vv_backfill_marker_path(char *out, int which, int game, int slot) {
-    char folder[MAX_PATH];
-    const char *sub = which == VV_BACKFILL_BIRTHS ? "Virtual Villagers Fun Patcher Data\\Births"
-                                                  : "Virtual Villagers Fun Patcher Data\\Arrivals";
+    char name[64];
     const char *what = which == VV_BACKFILL_BIRTHS ? "Births" : "Arrivals";
-    if (game < 1 || game > 5 || slot < 1 || slot > 5
-        || !vv_save_subfolder(folder, sub,
-                              (int)sizeof("\\Virtual Villagers 1 Arrivals Recorded - Save 1.dat"))) {
+    if (game < 1 || game > 5 || slot < 1 || slot > 5) {
         return 0;
     }
-    _snprintf_s(out, MAX_PATH, _TRUNCATE, "%s\\Virtual Villagers %d %s Recorded - Save %d.dat",
-                folder, game, what, slot);
-    return 1;
+    /* "Virtual Villagers Fun Patcher Data\<Births or Arrivals>\...", in the save's own folder
+       (per_save_data.h). */
+    _snprintf_s(name, sizeof name, _TRUNCATE, "Virtual Villagers %d %s Recorded - Save %d.dat", game, what, slot);
+    return vv_ps_data_file_a(out, what, name, VV_PS_RESERVE);
 }
 
 static unsigned int vv_backfill_marker_magic(int which) {

@@ -1012,7 +1012,8 @@ class PendingTitleAnswers(Base):
                 copy = v.folder / DATA / "Copies Made Before Repairs" / DATA / "Custom Titles" / \
                     "Custom Titles - Save 1.dat.before-title-answer"
                 self.assertEqual(copy.read_bytes(), before)
-                repairs = list((v.folder / LOGS / "Save 1").rglob(f"Virtual Villagers {game} Repairs Log *.txt"))
+                repairs = list(tools.layout.slot_log_folder(v.folder, "Repairs Made", 1).glob(
+                    f"Virtual Villagers {game} Repairs Log *.txt"))
                 self.assertEqual(len(repairs), 1)
                 text = repairs[0].read_bytes().decode("latin-1")
                 self.assertIn(f"Gave the pending custom title \"Helpful Spirit\" to {who.name}", text)
@@ -1371,7 +1372,8 @@ class EverywhereTheVillageIsOpened(Base):
         self.assertIn("ASK       Question 1: Birth 4 says", result.text)
         self.assertIn("contradiction(s) only you can settle", result.summary)
         path = rc.export(result.reconciliation)
-        self.assertEqual(path, v.folder / LOGS / "Save 1" / "Reconciliation" / "Virtual Villagers 2 Reconciliation - Save 1.txt")
+        self.assertEqual(path, tools.layout.own_slot_log_folder(v.folder, "Reconciliation", 1)       # the save's own
+                         / "Virtual Villagers 2 Reconciliation - Save 1.txt")
         self.assertIn("1. Birth 4 says", path.read_text(encoding="latin-1"))
         # The report is never read as a log.
         self.assertTrue(tools.load_checker().not_a_log(v.folder, path))

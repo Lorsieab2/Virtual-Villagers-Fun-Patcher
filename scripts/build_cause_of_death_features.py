@@ -173,7 +173,7 @@ def logs_text(n: str, game: str) -> str:
                       "never a villager; converted back, they get an \"Arrived\" record again)")
     return (
         f"Every death that leaves a body is written to the Deaths log ('Virtual Villagers {n} "
-        "Deaths Log <n>.txt' in the save slot's own 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Deaths and Disappearances' folder beside the "
+        "Deaths Log <n>.txt' in the save slot's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Deaths and Disappearances' folder beside the "
         "game's saves, or 'Deaths' in a save an older version made: nothing is moved) when it is final: when the body is buried, with the skill line and epitaph "
         "the grave was given, or when the game removes a body nobody buried (\"no grave\"). Each "
         "Death record gives the villager's name, head, body, likes and dislikes, their age at death "
@@ -189,7 +189,7 @@ def logs_text(n: str, game: str) -> str:
         "patch knows it) with the head, body, likes and dislikes of the villager's last Village "
         "History snapshot (\"(unknown)\" when that does not settle who it was), and marked "
         "\"Recorded from the grave\". Which graves have their record is kept in 'Virtual Villagers "
-        f"Fun Patcher Data\\Deaths\\Virtual Villagers {n} Graves Logged - Save <n>.dat', so no grave is recorded twice; "
+        f"Fun Patcher\\Save <n>\\Data\\Deaths\\Virtual Villagers {n} Graves Logged - Save <n>.dat', so no grave is recorded twice; "
         "Start Over deletes it. "
         "Every villager who joins the village without being born into it -- a new village's "
         "founders, an island event's newcomer, the Barrel of Babies, the Custom Island Event's new villagers" + (
@@ -221,16 +221,16 @@ def logs_text(n: str, game: str) -> str:
            "or Arrived record -- born before the log existed -- gets, the same way and only when the "
            "player says so, a Birth record written from the save, with their parents as the "
            "save keeps them, marked \"Recorded afterwards (born before this log existed)\" -- exactly "
-           f"once: 'Virtual Villagers Fun Patcher Data\\Births\\Virtual Villagers {n} Births Recorded - "
+           f"once: 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Births\\Virtual Villagers {n} Births Recorded - "
            "Save <n>.dat' then says it is done; Start Over deletes it. ") +
         "At every save, the village is checked against the one saved before: a villager who left "
         "with no Death or Disappeared record, or arrived with no birth or known arrival, is written "
         f"with everything known about them to the Unaccounted Villagers log ('Virtual Villagers {n} "
-        "Unaccounted Villagers Log <n>.txt' in 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Unaccounted "
+        "Unaccounted Villagers Log <n>.txt' in 'Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Unaccounted "
         "Villagers'). Both logs are headed with the village and its save slot, are created when a "
         "village is started and again after Start Over (which deletes them with the village), only "
         "ever grow, and start a new numbered file after every 256 records. The village as it was at "
-        f"each save is kept in 'Virtual Villagers Fun Patcher Data\\Unaccounted Villagers\\Virtual "
+        f"each save is kept in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Unaccounted Villagers\\Virtual "
         f"Villagers {n} Villagers at Last Save - Save <n>.dat' ('... Village Roster ...' in a save an older version made); "
         "Start Over deletes it."
     )
@@ -277,7 +277,7 @@ def description(game: str) -> str:
             "villager with no skill is a \"Respected Citizen\". Those games' Chief, Esteemed Elder "
             "and Scholar epitaphs have no counterpart here and are not used. A New Home keeps "
             "neither, so both are kept for each save slot in a file beside the saves ('Virtual "
-            "Villagers Fun Patcher Data\\Graves\\Virtual Villagers 1 Graves - Save <n>.dat'); Start Over "
+            "Villagers Fun Patcher\\Save <n>\\Data\\Graves\\Virtual Villagers 1 Graves - Save <n>.dat'); Start Over "
             f"deletes it. {APPRENTICE} **Graves dug before this patch was installed get an epitaph the first "
             "time they are opened, but no cause: how they died was never recorded.** "
             f"{logs_text(n, game)} {tail}"
@@ -290,7 +290,7 @@ def description(game: str) -> str:
             "them -- old age, sickness, hunger or an empty food bin, an injury at work -- and "
             "\"Unknown causes\" for an island event and anything else, which is how those games "
             "word an island-event death; a Custom Island Event's \"dies\" is \"Died in a custom island event\". The Lost Children keeps no cause, so it is kept for each "
-            "save slot in a file beside the saves ('Virtual Villagers Fun Patcher Data\\Graves\\"
+            "save slot in a file beside the saves ('Virtual Villagers Fun Patcher\\Save <n>\\Data\\Graves\\"
             "Virtual Villagers 2 Graves - Save <n>.dat'); Start Over deletes it. The game's own epitaphs "
             f"are unchanged. {APPRENTICE} **Graves dug before this patch was installed, and bodies that were "
             "already lying when it was, show no cause: how they died was never recorded.** "
@@ -313,7 +313,7 @@ def manifest(game: str, sha: str) -> dict:
             "A child's grave (the age at death the grave keeps under 280 age units, 14 years) whose best skill is 20 or more shows \"Apprentice <job>\": right after the popup prints the rank into its skill line, the game's own \"Apprentice \" string ("
             + ("0x56" if game == "vv1" else "0x83")
             + ", the one its villager panel gives a working child) is put in the line instead, and the game appends the job as before. The Death, Epitaph changed and Recorded from the grave records' Grave line says \"Apprentice <job>\" for the same graves.",
-            f"Kept per save slot in 'Virtual Villagers Fun Patcher Data\\Graves\\Virtual Villagers {n} Graves - Save <n>.dat' (written atomically; an unreadable file is set aside, never overwritten; deleted by Start Over).",
+            f"Kept per save slot in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Graves\\Virtual Villagers {n} Graves - Save <n>.dat' (written atomically; an unreadable file is set aside, never overwritten; deleted by Start Over).",
         ]
     else:
         changes += [
@@ -321,12 +321,12 @@ def manifest(game: str, sha: str) -> dict:
         ]
     changes += [
         "The listed removals of a living villager write a Disappeared record before the game takes them; the Custom Island Event's \"Disappears\" is reported by the Story / Cheat Upgrades DLL.",
-        f"Graves with no Death record: VvfpCauseScanGraves counts, writing nothing, the graves the village's Deaths log has no record for (the first-load check lists them for the player); VvfpCauseRepairGraves records the player's answer. Only after Repair, at each save of that village in the session, each such grave gets a Death record from the grave, filed by RecordGravesMissingFromLog in \"VVFP Parentage Export.dll\" (which counts the log's own and held records first, and takes the head, body, likes and dislikes from the Village History log); a villager the previous save held who was buried unseen is then not an Unaccounted record. The graves whose record is in the log are kept in 'Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers {n} Graves Logged - Save <n>.dat' (written atomically; deleted by Start Over).",
+        f"Graves with no Death record: VvfpCauseScanGraves counts, writing nothing, the graves the village's Deaths log has no record for (the first-load check lists them for the player); VvfpCauseRepairGraves records the player's answer. Only after Repair, at each save of that village in the session, each such grave gets a Death record from the grave, filed by RecordGravesMissingFromLog in \"VVFP Parentage Export.dll\" (which counts the log's own and held records first, and takes the head, body, likes and dislikes from the Village History log); a villager the previous save held who was buried unseen is then not an Unaccounted record. The graves whose record is in the log are kept in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Deaths\\Virtual Villagers {n} Graves Logged - Save <n>.dat' (written atomically; deleted by Start Over).",
         "The grave's Done writes an Epitaph changed record when the epitaph's text changed; spaces typed before or after the same words are not a change.",
         "Every villager the game's own creators make is noted as an arrival; after each save the village is compared with the roster kept at the save before, and any departure with no Death or Disappeared record, or arrival with no known arrival, is written to the Unaccounted Villagers log.",
-        f"The roster is kept in 'Virtual Villagers Fun Patcher Data\\Unaccounted Villagers\\Virtual Villagers {n} Villagers at Last Save - Save <n>.dat', or '... Village Roster ...' in a save an older version made, never renamed; under both names the one written last (written atomically; deleted by Start Over).",
+        f"The roster is kept in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Unaccounted Villagers\\Virtual Villagers {n} Villagers at Last Save - Save <n>.dat', or '... Village Roster ...' in a save an older version made, never renamed; under both names the one written last (written atomically; deleted by Start Over).",
         "Arrivals: a villager a creator made that is neither a birth (the path's own return addresses, read at fixed places on the stack, or the Births and Conceptions log's note) nor a record the game takes away again is decided at the next tick, named by its path (Founder, the island event, Barrel of Babies, the developer F7 command in The Tree of Life), or \"added outside a recorded event\" when no listed path made it, and gets an Arrived record at the next save of that village (at its departure if it leaves first); the Story / Cheat Upgrades DLL names the Custom Island Event's (VvfpCauseArrivedBy)" + ("; a Heathen made by a creator is not one, and a Heathen whose faction byte +0x1CEC the tick sees cleared is (\"Converted from the Heathens\")" if game == "vv5" else "") + ". A founder is written only at a save with no village saved in the slot before." + (" A believer made a Heathen leaves the tribe, seen at the faction setter's entry (0x466880, called to set +0x1CEC from the conversion 0x4669E0 -- faith 0 or below, live or in the catch-up -- The Spa or The Cracked Mask), or else by the tick seeing the byte set: a Disappeared record (\"Left the tribe: became a Heathen\") written then, with no departure reported to the roster, which keeps Heathens, so never an Unaccounted record; an Arrived record not yet written is written first." if game == "vv5" else ""),
-        f"Arrivals before this record existed: VvfpCauseScanArrivals counts, writing nothing, the villagers (believers{', with no parents on their record' if game != 'vv1' else ''}) the village's Births and Conceptions log has no Birth or Arrived record for (name, head and body), for the first-load check; VvfpCauseRepairArrivals records the answer. Only after Repair, at the next save, each gets an Arrived record filed by RecordArrivalsMissingFromLog in \"VVFP Parentage Export.dll\", and none is an Unaccounted record; once all are on disk 'Virtual Villagers Fun Patcher Data\\Arrivals\\Virtual Villagers {n} Arrivals Recorded - Save <n>.dat' (deleted by Start Over) ends the backfill for good.",
+        f"Arrivals before this record existed: VvfpCauseScanArrivals counts, writing nothing, the villagers (believers{', with no parents on their record' if game != 'vv1' else ''}) the village's Births and Conceptions log has no Birth or Arrived record for (name, head and body), for the first-load check; VvfpCauseRepairArrivals records the answer. Only after Repair, at the next save, each gets an Arrived record filed by RecordArrivalsMissingFromLog in \"VVFP Parentage Export.dll\", and none is an Unaccounted record; once all are on disk 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Arrivals\\Virtual Villagers {n} Arrivals Recorded - Save <n>.dat' (deleted by Start Over) ends the backfill for good.",
         "All records are written through WriteVillageRecord in \"VVFP Parentage Export.dll\".",
     ]
     non_changes = [

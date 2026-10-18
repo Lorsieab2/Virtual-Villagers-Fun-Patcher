@@ -309,6 +309,20 @@ VV_RESET_STATIC int legacy_subfolder_w(wchar_t *out, const wchar_t *sub) {
     return GetFileAttributesW(out) != INVALID_FILE_ATTRIBUTES;
 }
 
+/* The save's own folder (per_save.h) for the older-layout slot folder `slot_sub` ("Virtual Villagers
+   Fun Patcher Logs\Save <S>\<sub>"), only when it is there; never created. */
+static int own_subfolder_w(wchar_t *out, const wchar_t *slot_sub) {
+    wchar_t root[MAX_PATH], old[MAX_PATH];
+    if (out == NULL || slot_sub == NULL || !vv_save_folder_w(root, (int)wcslen(slot_sub) + 1 + 64 + 16)) {
+        return 0;
+    }
+    /* (vv_save_folder_w has refused a root that leaves no room for the tail and 64 more.) */
+    lstrcpyW(old, root);
+    lstrcatW(old, L"\\");
+    lstrcatW(old, slot_sub);
+    return vv_ps_new_path_w(old, out, MAX_PATH) && GetFileAttributesW(out) != INVALID_FILE_ATTRIBUTES;
+}
+
 VV_RESET_STATIC int delete_if_present_w(const wchar_t *path) {
     if (path == NULL || path[0] == L'\0') {
         ++vv_reset_refused_paths;
@@ -444,6 +458,14 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
         }
         wsprintfA(path, fmt, folder, slot);
         removed += delete_if_present(path);
+        {
+            /* ...and the same file in the save's own folder (per_save.h). */
+            wchar_t wide[MAX_PATH], own[MAX_PATH];
+            if (MultiByteToWideChar(CP_ACP, 0, path, -1, wide, MAX_PATH) > 0
+                && vv_ps_new_path_w(wide, own, MAX_PATH)) {
+                removed += delete_if_present_w(own);
+            }
+        }
     }
 
     if (!vv_save_folder_w(folder_w, 64)) {
@@ -482,6 +504,11 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
             wsprintfW(path_w, L"%ls\\Village Statistics v2 - Save %d.txt", sub_w, slot);
             removed += delete_if_present_w(path_w);
         }
+        /* ...and in the save's own folder (per_save.h). */
+        if (vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Village Statistics") && own_subfolder_w(sub_w, slot_sub)) {
+            wsprintfW(path_w, L"%ls\\Village Statistics v2 - Save %d.txt", sub_w, slot);
+            removed += delete_if_present_w(path_w);
+        }
     }
     /* THE STATISTICS COMPANION'S PER-SLOT DATA. Village Statistics holds the
        patch's own lifetime counters, Stew Discoveries the unique stews (The
@@ -511,6 +538,31 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
         for (data = 0; data < 3; ++data) {
             if (data == 1 && (game < 2 || game > 4)) {
                 continue;   /* only three games make stews */
+            }
+            {
+                /* The same two files in the save's own folder (per_save.h), probed by name. */
+                static const wchar_t *const TAILS[2] = { L".dat", L".dat.tmp" };
+                wchar_t old[MAX_PATH], own[MAX_PATH];
+                int t;
+                for (t = 0; t < 2; ++t) {
+                    if ((int)wcslen(folder_w) + 1 + (int)wcslen(DATA_FOLDERS[data]) + 1
+                            + (int)wcslen(DATA_STEMS[data]) + 16 < MAX_PATH) {
+                        wchar_t digit[2];
+                        digit[0] = (wchar_t)(L'0' + slot);
+                        digit[1] = L'\0';
+                        lstrcpyW(old, folder_w);
+                        lstrcatW(old, L"\\");
+                        lstrcatW(old, DATA_FOLDERS[data]);
+                        lstrcatW(old, L"\\");
+                        lstrcatW(old, DATA_STEMS[data]);
+                        lstrcatW(old, L" ");
+                        lstrcatW(old, digit);
+                        lstrcatW(old, TAILS[t]);
+                        if (vv_ps_new_path_w(old, own, MAX_PATH)) {
+                            removed += delete_if_present_w(own);
+                        }
+                    }
+                }
             }
             if (!legacy_subfolder_w(sub_w, DATA_FOLDERS[data])) {
                 continue;
@@ -545,6 +597,9 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
         /* The slot's own roster folder (log_slot.h), matched by header like the shared one. */
         wchar_t slot_sub[MAX_PATH];
         if (vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Tribe Population") && legacy_subfolder_w(sub_w, slot_sub)) {
+            removed += delete_village_population_pages(sub_w, village);
+        }
+        if (vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Tribe Population") && own_subfolder_w(sub_w, slot_sub)) {
             removed += delete_village_population_pages(sub_w, village);
         }
     }
@@ -636,20 +691,24 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
             L"Virtual Villagers 5 Parentage Log"
         };
         int pass;
-        for (pass = 0; pass < 12; ++pass) {
+        /* Passes 12 to 15 are passes 8 to 11's logs in the save's own folder (per_save.h), probed
+           and matched by header the same way. */
+        for (pass = 0; pass < 16; ++pass) {
             /* The old FILE name went with the old FOLDER name, so the
                stem follows the folder rather than the pass number. */
-            const wchar_t *stem = pass >= 8
-                ? (pass == 8 ? PARENTAGE_LOG[game - 1] : pass == 9 ? DEATH_LOG[game - 1]
-                   : pass == 10 ? UNACCOUNTED_LOG[game - 1] : EVENTS_LOG[game - 1])
+            const int own_pass = pass >= 12;
+            const int slot_pass = own_pass ? pass - 4 : pass;
+            const wchar_t *stem = slot_pass >= 8
+                ? (slot_pass == 8 ? PARENTAGE_LOG[game - 1] : slot_pass == 9 ? DEATH_LOG[game - 1]
+                   : slot_pass == 10 ? UNACCOUNTED_LOG[game - 1] : EVENTS_LOG[game - 1])
                 : pass == 6 ? EVENTS_LOG[game - 1]
                 : pass == 5 ? UNACCOUNTED_LOG[game - 1]
                 : pass == 4 || pass == 7 ? DEATH_LOG[game - 1]
                 : (pass % 2 == 0) ? PARENTAGE_LOG[game - 1] : LEGACY_LOG[game - 1];
-            if (pass >= 8) {
+            if (slot_pass >= 8) {
                 wchar_t slot_sub[MAX_PATH];
-                if (!vv_log_rel_w(slot_sub, MAX_PATH, slot, SLOT_SUBS[pass - 8])
-                    || !legacy_subfolder_w(sub_w, slot_sub)) {
+                if (!vv_log_rel_w(slot_sub, MAX_PATH, slot, SLOT_SUBS[slot_pass - 8])
+                    || !(own_pass ? own_subfolder_w(sub_w, slot_sub) : legacy_subfolder_w(sub_w, slot_sub))) {
                     continue;
                 }
             } else if (!legacy_subfolder_w(sub_w, FOLDERS[pass])) {

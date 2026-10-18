@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "companion_sha256": "20E363A0D28D7FC1CA077A5011F60F577F77521CE44CD13D43BD57BA367E0CC0",
+  "companion_sha256": "C4D7A02B3F66EAB9A49B4941FDC32B8221C7C3C176BB81F19C636BE67D2F77C3",
   "features": [
     {
       "id": "vv1_write_village_statistics",
       "game_id": "vv1",
       "name": "Write Village Statistics to Text File",
-      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the save slot's own 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. These files are checked against what the save and the patcher's own logs prove -- Village Elders the Village History log shows with Master in three or more skills who are missing from the list, Villagers Buried below the Deaths log's burials or the graves -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if something is wrong); nothing is ever asked while the village is played. Each file is backed up first (a copy '<file>.before-v1.35.58-repair' in 'Virtual Villagers Fun Patcher Data\\Copies Made Before Repairs', at the file's own place), every change is listed in the Repairs log ('Virtual Villagers Fun Patcher Logs\\Save <slot>\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a count is only ever raised and an elder never removed. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
+      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the save slot's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in each save's own 'Virtual Villagers Fun Patcher\\Save N\\Data' folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. These files are checked against what the save and the patcher's own logs prove -- Village Elders the Village History log shows with Master in three or more skills who are missing from the list, Villagers Buried below the Deaths log's burials or the graves -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if something is wrong); nothing is ever asked while the village is played. Each file is backed up first (a copy '<file>.before-v1.35.58-repair' in the save's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Data\\Copies Made Before Repairs', at the file's own place), every change is listed in the Repairs log ('Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a count is only ever raised and an elder never removed. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
       "output_tag": "Village Statistics Text Export",
       "needs_on": [
         {
@@ -18,12 +18,12 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "20E363A0D28D7FC1CA077A5011F60F577F77521CE44CD13D43BD57BA367E0CC0"
+          "sha256": "C4D7A02B3F66EAB9A49B4941FDC32B8221C7C3C176BB81F19C636BE67D2F77C3"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
           "destination": "VVFP Population Export.dll",
-          "sha256": "3D06559AF996E529EC0AA122A8B2C664FA79F9904DCF1C52D766B35034AB8B33"
+          "sha256": "E40DA19F6B928E20FED51773F4C6520F39357D68F019D2F51CEBDA8CB9C7850D"
         }
       ],
       "patches": [
@@ -52,19 +52,19 @@
       "id": "vv2_write_village_statistics",
       "game_id": "vv2",
       "name": "Write Village Statistics to Text File",
-      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the save slot's own 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. These files are checked against what the save and the patcher's own logs prove -- Villagers Buried below the Deaths log's burials or the graves, Twins Birthed below the Births log's twin pregnancies -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if something is wrong); nothing is ever asked while the village is played. Each file is backed up first (a copy '<file>.before-v1.35.58-repair' in 'Virtual Villagers Fun Patcher Data\\Copies Made Before Repairs', at the file's own place), every change is listed in the Repairs log ('Virtual Villagers Fun Patcher Logs\\Save <slot>\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a count is only ever raised and an elder never removed. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
+      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the save slot's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in each save's own 'Virtual Villagers Fun Patcher\\Save N\\Data' folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. These files are checked against what the save and the patcher's own logs prove -- Villagers Buried below the Deaths log's burials or the graves, Twins Birthed below the Births log's twin pregnancies -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if something is wrong); nothing is ever asked while the village is played. Each file is backed up first (a copy '<file>.before-v1.35.58-repair' in the save's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Data\\Copies Made Before Repairs', at the file's own place), every change is listed in the Repairs log ('Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a count is only ever raised and an elder never removed. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
       "output_tag": "Village Statistics Text Export",
       "needs_on": [],
       "companion_files": [
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "20E363A0D28D7FC1CA077A5011F60F577F77521CE44CD13D43BD57BA367E0CC0"
+          "sha256": "C4D7A02B3F66EAB9A49B4941FDC32B8221C7C3C176BB81F19C636BE67D2F77C3"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
           "destination": "VVFP Population Export.dll",
-          "sha256": "3D06559AF996E529EC0AA122A8B2C664FA79F9904DCF1C52D766B35034AB8B33"
+          "sha256": "E40DA19F6B928E20FED51773F4C6520F39357D68F019D2F51CEBDA8CB9C7850D"
         }
       ],
       "patches": [
@@ -201,19 +201,19 @@
       "id": "vv3_write_village_statistics",
       "game_id": "vv3",
       "name": "Write Village Statistics to Text File",
-      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the save slot's own 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. These files are checked against what the save and the patcher's own logs prove -- Village Elders the Village History log shows with Master in three or more skills who are missing from the list, Villagers Buried below the Deaths log's burials or the graves, Chiefs Robed at 0 while a robed Tribal Chief lives -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if something is wrong); nothing is ever asked while the village is played. Each file is backed up first (a copy '<file>.before-v1.35.58-repair' in 'Virtual Villagers Fun Patcher Data\\Copies Made Before Repairs', at the file's own place), every change is listed in the Repairs log ('Virtual Villagers Fun Patcher Logs\\Save <slot>\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a count is only ever raised and an elder never removed. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
+      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the save slot's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in each save's own 'Virtual Villagers Fun Patcher\\Save N\\Data' folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. These files are checked against what the save and the patcher's own logs prove -- Village Elders the Village History log shows with Master in three or more skills who are missing from the list, Villagers Buried below the Deaths log's burials or the graves, Chiefs Robed at 0 while a robed Tribal Chief lives -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if something is wrong); nothing is ever asked while the village is played. Each file is backed up first (a copy '<file>.before-v1.35.58-repair' in the save's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Data\\Copies Made Before Repairs', at the file's own place), every change is listed in the Repairs log ('Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a count is only ever raised and an elder never removed. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
       "output_tag": "Village Statistics Text Export",
       "needs_on": [],
       "companion_files": [
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "20E363A0D28D7FC1CA077A5011F60F577F77521CE44CD13D43BD57BA367E0CC0"
+          "sha256": "C4D7A02B3F66EAB9A49B4941FDC32B8221C7C3C176BB81F19C636BE67D2F77C3"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
           "destination": "VVFP Population Export.dll",
-          "sha256": "3D06559AF996E529EC0AA122A8B2C664FA79F9904DCF1C52D766B35034AB8B33"
+          "sha256": "E40DA19F6B928E20FED51773F4C6520F39357D68F019D2F51CEBDA8CB9C7850D"
         }
       ],
       "patches": [
@@ -272,19 +272,19 @@
       "id": "vv4_write_village_statistics",
       "game_id": "vv4",
       "name": "Write Village Statistics to Text File",
-      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the save slot's own 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. These files are checked against what the save and the patcher's own logs prove -- Village Elders the Village History log shows with Master in three or more skills who are missing from the list, Villagers Buried below the Deaths log's burials or the graves -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if something is wrong); nothing is ever asked while the village is played. Each file is backed up first (a copy '<file>.before-v1.35.58-repair' in 'Virtual Villagers Fun Patcher Data\\Copies Made Before Repairs', at the file's own place), every change is listed in the Repairs log ('Virtual Villagers Fun Patcher Logs\\Save <slot>\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a count is only ever raised and an elder never removed. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
+      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the save slot's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in each save's own 'Virtual Villagers Fun Patcher\\Save N\\Data' folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. These files are checked against what the save and the patcher's own logs prove -- Village Elders the Village History log shows with Master in three or more skills who are missing from the list, Villagers Buried below the Deaths log's burials or the graves -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if something is wrong); nothing is ever asked while the village is played. Each file is backed up first (a copy '<file>.before-v1.35.58-repair' in the save's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Data\\Copies Made Before Repairs', at the file's own place), every change is listed in the Repairs log ('Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a count is only ever raised and an elder never removed. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
       "output_tag": "Village Statistics Text Export",
       "needs_on": [],
       "companion_files": [
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "20E363A0D28D7FC1CA077A5011F60F577F77521CE44CD13D43BD57BA367E0CC0"
+          "sha256": "C4D7A02B3F66EAB9A49B4941FDC32B8221C7C3C176BB81F19C636BE67D2F77C3"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
           "destination": "VVFP Population Export.dll",
-          "sha256": "3D06559AF996E529EC0AA122A8B2C664FA79F9904DCF1C52D766B35034AB8B33"
+          "sha256": "E40DA19F6B928E20FED51773F4C6520F39357D68F019D2F51CEBDA8CB9C7850D"
         }
       ],
       "patches": [
@@ -349,19 +349,19 @@
       "id": "vv5_write_village_statistics",
       "game_id": "vv5",
       "name": "Write Village Statistics to Text File",
-      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the save slot's own 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in 'Virtual Villagers Fun Patcher Data'. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. These files are checked against what the save and the patcher's own logs prove -- Villagers Buried below the Deaths log's burials or the graves -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if something is wrong); nothing is ever asked while the village is played. Each file is backed up first (a copy '<file>.before-v1.35.58-repair' in 'Virtual Villagers Fun Patcher Data\\Copies Made Before Repairs', at the file's own place), every change is listed in the Repairs log ('Virtual Villagers Fun Patcher Logs\\Save <slot>\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a count is only ever raised and an elder never removed. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
+      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics v2 - Save N.txt' in the save slot's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Village Statistics' folder beside the game's saves (an earlier 'Village Statistics - Save N.txt' is kept unchanged). Counts the game does not keep are stored in per-save .dat files in each save's own 'Virtual Villagers Fun Patcher\\Save N\\Data' folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. These files are checked against what the save and the patcher's own logs prove -- Villagers Buried below the Deaths log's burials or the graves -- and are changed only when the player says so -- Repair Saves & Logs in the patcher window, or Repair when the game asks as it closes (with \"Check logs automatically\" on, and only if something is wrong); nothing is ever asked while the village is played. Each file is backed up first (a copy '<file>.before-v1.35.58-repair' in the save's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Data\\Copies Made Before Repairs', at the file's own place), every change is listed in the Repairs log ('Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a count is only ever raised and an elder never removed. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
       "output_tag": "Village Statistics Text Export",
       "needs_on": [],
       "companion_files": [
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "20E363A0D28D7FC1CA077A5011F60F577F77521CE44CD13D43BD57BA367E0CC0"
+          "sha256": "C4D7A02B3F66EAB9A49B4941FDC32B8221C7C3C176BB81F19C636BE67D2F77C3"
         },
         {
           "source": "assets/population/VVFP Population Export.dll",
           "destination": "VVFP Population Export.dll",
-          "sha256": "3D06559AF996E529EC0AA122A8B2C664FA79F9904DCF1C52D766B35034AB8B33"
+          "sha256": "E40DA19F6B928E20FED51773F4C6520F39357D68F019D2F51CEBDA8CB9C7850D"
         }
       ],
       "patches": [

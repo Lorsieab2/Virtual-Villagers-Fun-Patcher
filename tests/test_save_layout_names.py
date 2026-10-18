@@ -245,7 +245,8 @@ class OwnersFolderTests(unittest.TestCase):
         names = sorted(r.split("\n")[1] for r in checker.deaths_records(f, 1, 1))
         self.assertEqual(names, ["  Name: Ana", "  Name: Bo", "  Name: Cy"])
         self.assertEqual(layout.append_target(f, "Deaths and Disappearances", "Virtual Villagers 1 Deaths Log", 1),
-                         f / LOGS / "Save 1" / "Deaths and Disappearances" / "Virtual Villagers 1 Deaths Log 1.txt")
+                         f / layout.SAVES / "Save 1" / "Logs" / "Deaths and Disappearances"     # the save's own folder
+                         / "Virtual Villagers 1 Deaths Log 1.txt")
         # The words: the smaller boundary (0, not the older build's 1763792).
         self.assertEqual(checker.word_boundaries(f, 1),
                          {f"{LOGS}\\Tribe History\\Village History 1.txt".lower(): 0})
@@ -309,6 +310,40 @@ class NativeHarnessTests(unittest.TestCase):
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, self.result.stdout)
+
+    def test_one_folder_per_save_in_all_five_games(self):
+        """per_save.h's routing, run against real folders for every game and slot."""
+        out = self.result.stdout
+        for case in (
+            "the save's own place: ...\\Save <S>\\Data\\<kind>\\<name> and ...\\Save <S>\\Logs\\<folder>\\<name>",
+            "fresh: a data file and a log go to the save's own folder, nothing made to look",
+            "a writer's route makes the save's own folders, never the file",
+            "... and nothing of the older layout's",
+            "a data file in the older layout: read and written where it is, its .tmp beside it",
+            "both data files: the older layout's when it was written last",
+            "... the save's own when it was written last, the other left as it is",
+            "... and a tie: the save's own",
+            "only the save's own: that one",
+            "a log folder of the older layout holding anything: every file of it written where it is",
+            "... while another log of that slot, with no folder of its own there, goes to the save's own",
+            "an empty log folder of the older layout: the save's own",
+            "the save's own log folder there (even empty): new records go to it, the older kept",
+            "vv_ps_route_a: the same answer",
+            "a save's own path too long for the caller's room: the older layout's, every time, nothing made",
+        ):
+            for game in range(1, 6):
+                with self.subTest(case=case, game=game):
+                    self.assertIn(f"PASS {case} (VV{game}, Save {game})", out)
+        for case in (
+            "never routed: older names, loose Data files, Copies Made Before Repairs of the older layout, "
+            "shared logs and words, no slot 1-5",
+            "a repair's copy of a file in the save's own folder: ...\\Save <S>\\Data\\Copies Made Before Repairs\\<its place>",
+            "... and of an older-layout file: the older layout's Copies Made Before Repairs, as before",
+            "the words of a log in the save's own folder: ...\\Save <S>\\Data\\Like and Dislike Words",
+            "... its boundary is recorded and read there, nothing in the shared words",
+        ):
+            with self.subTest(case=case):
+                self.assertIn("PASS " + case, out)
 
 
 if __name__ == "__main__":

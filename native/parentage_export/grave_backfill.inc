@@ -213,6 +213,7 @@ static int read_deaths_folder(const struct game_layout *g, const wchar_t *folder
 static int read_village_deaths(const struct game_layout *g, int game_id, const char *village) {
     wchar_t folder[MAX_PATH];
     wchar_t slot_folder[MAX_PATH];
+    wchar_t own_folder[MAX_PATH];      /* the save's own folder of the same log (per_save.h) */
     char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
     struct death_reader reader;
     int i;
@@ -247,11 +248,23 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
         /* Then the village's own slot folder (native/shared/log_slot.h), where this build writes:
            "...Logs\Save <S>\Deaths and Disappearances". */
         slot_folder[0] = L'\0';
+        own_folder[0] = L'\0';
         if (vv_log_header_slot(village) != 0) {
             wchar_t sub[MAX_PATH];
             if (!vv_log_rel_w(sub, MAX_PATH, vv_log_header_slot(village), L"Deaths and Disappearances")
                 || _snwprintf_s(slot_folder, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, sub) < 0) {
                 return 0;
+            }
+            /* ...then the save's own "Virtual Villagers Fun Patcher\Save <S>\Logs\Deaths and
+               Disappearances" (per_save.h), read after it as log_slot.h orders them. */
+            if (vv_ps_new_folder_w(slot_folder, own_folder, MAX_PATH)) {
+                state = vv_layout_probe_w(own_folder, NULL);
+                if (state == VV_LAYOUT_UNKNOWN) {
+                    return 0;
+                }
+                if (state != VV_LAYOUT_DIR) {
+                    own_folder[0] = L'\0';
+                }
             }
             state = vv_layout_probe_w(slot_folder, NULL);
             if (state == VV_LAYOUT_UNKNOWN) {
@@ -268,6 +281,9 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
             return 0;
         }
         if (slot_folder[0] != L'\0' && !read_deaths_folder(g, slot_folder, village, 0)) {
+            return 0;
+        }
+        if (own_folder[0] != L'\0' && !read_deaths_folder(g, own_folder, village, 0)) {
             return 0;
         }
         /* Drop each new-folder record whose very text an old-folder record

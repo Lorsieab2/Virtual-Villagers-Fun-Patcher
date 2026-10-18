@@ -33,8 +33,12 @@ SHARED = ROOT / "native" / "shared"
 # 7: Repair right after the quit save, every game; 0: the memorial at the load (VV1, VV2);
 # 8: Deaths logs in both the old and the new folder, every game (2 each);
 # 7c: one folder of logs per save slot -- the repair in Save 1's own folder after the shared file's
-# numbers, the shared file untouched (2 each).
-CHECKS = 106 + 8 * 5 + 2 + 2 * 5 + 2 * 5
+# numbers, the shared file untouched (2 each);
+# 7b: an older build's "Repairs" folder beside "Repairs Made" (1 each);
+# 9: one folder per save (native/shared/per_save.h) -- the elders, counters and roster files in the
+# save's own folder are read and repaired there, nothing made in the older layout (3 each, and 1 for
+# the elders file in the four games whose elders the reconcile adds).
+CHECKS = 106 + 8 * 5 + 2 + 2 * 5 + 2 * 5 + 3 * 5 + 4    # 7b's five: the line below
 # + 1 per game: an older build's "Repairs" beside "Repairs Made" -- numbered after it (native/shared/repairs_log.h)
 CHECKS += 5
 
@@ -79,6 +83,16 @@ class ReconcileSource(unittest.TestCase):
         log = (SHARED / "repairs_log.h").read_text(encoding="utf-8")
         self.assertIn("CopyFileW(path, backup, TRUE)", log)
         self.assertIn('L".before-v1.35.58-repair"', log)
+
+    def test_the_reconcile_reads_the_elders_file_the_save_writes(self):
+        # One folder per save (native/shared/per_save_data.h): the reconcile's elders file is routed
+        # exactly as village_elders.c's own, never the older layout's alone.
+        source = (STATS / "statistics_reconcile.inc").read_text(encoding="utf-8")
+        path = body(source, "static int rc_elders_path(")
+        self.assertIn('vv_ps_data_file_w(path, L"Village Elders", name, 64)', path)
+        self.assertNotIn("vv_save_subfolder_w", path)
+        elders = (STATS / "village_elders.c").read_text(encoding="utf-8")
+        self.assertIn('vv_ps_data_file_w(path, L"Village Elders", name, 64)', elders)
 
     def test_a_counter_is_never_lowered(self):
         store = (STATS / "statistics_store.c").read_text(encoding="utf-8")

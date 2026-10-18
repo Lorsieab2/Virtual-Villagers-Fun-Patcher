@@ -1002,6 +1002,7 @@ static void load_custom_titles(int game_id, const struct game_layout *g, const c
     if (!vv_titles_file_name(path, MAX_PATH, folder, slot)) {
         return;
     }
+    (void)vv_ps_route_a(path, MAX_PATH, 0);     /* the save's own folder, or the older layout's (per_save.h) */
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
         return;

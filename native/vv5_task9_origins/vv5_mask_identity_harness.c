@@ -7,9 +7,9 @@
    them: Vv5MaskSync on draws and WriteMaskSidecar on chooser OK.
 
    The DLL writes Documents\LDW\<this harness's basename>\Virtual Villagers
-   Fun Patcher Data\Village Masks - Save 1.dat (vv5_task9_origins.c,
-   build_mask_sidecar_path). The harness removes that file and, if it is then
-   empty, that folder.
+   Fun Patcher\Save 1\Data\Village Masks\Village Masks - Save 1.dat
+   (vv5_task9_origins.c, build_mask_sidecar_path; native/shared/per_save.h).
+   The harness removes that file and, if they are then empty, its folders.
 
    Usage:  vv5_mask_identity_harness.exe "<path to VVFP VV5 Task9 Origins Icons.dll>"
    Exit code 0 when every check passes. */
@@ -99,9 +99,10 @@ int main(int argc, char **argv) {
             return 2;
         }
         base = strrchr(exe, '\\'); base = base ? base + 1 : exe; dot = strrchr(base, '.'); if (dot) *dot = 0;
-        /* The masks have their own folder (native/shared/data_subfolder.h). */
-        a = _snprintf(folder, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Village Masks",
-                      docs, base);
+        /* The masks have their own folder (native/shared/data_subfolder.h), in the save's own
+           folder for a fresh village (native/shared/per_save.h). */
+        a = _snprintf(folder, MAX_PATH,
+                      "%s\\LDW\\%s\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Village Masks", docs, base);
         b = a < 0 || a >= MAX_PATH ? -1 : _snprintf(file, MAX_PATH, "%s\\Village Masks - Save 1.dat", folder);
         if (b < 0 || b >= MAX_PATH) {
             printf("the sidecar path does not fit in MAX_PATH; not running\n");
@@ -230,9 +231,13 @@ int main(int argc, char **argv) {
     }
     RemoveDirectoryA(folder);   /* only succeeds if empty: never removes anything else */
     {
-        /* ...and the Data folder above it, on the same terms. */
-        char *slash = strrchr(folder, '\\');
-        if (slash != NULL) {
+        /* ...and "Data", "Save 1" and "Virtual Villagers Fun Patcher" above it, on the same terms. */
+        int up;
+        for (up = 0; up < 3; ++up) {
+            char *slash = strrchr(folder, '\\');
+            if (slash == NULL) {
+                break;
+            }
             *slash = 0;
             RemoveDirectoryA(folder);
         }

@@ -150,7 +150,8 @@ class DatFilesInSubfolders(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("all checks passed", result.stdout)
         self.assertNotIn("FAIL", result.stdout)
-        self.assertEqual(result.stdout.count("  ok   "), 39)
+        # 39, and 7 for the save's own folder (native/shared/per_save.h)
+        self.assertEqual(result.stdout.count("  ok   "), 46)
 
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
     def test_every_writers_real_path_builder(self) -> None:
@@ -159,7 +160,12 @@ class DatFilesInSubfolders(unittest.TestCase):
         self.assertNotIn("FAIL", result.stdout)
         self.assertEqual(result.stdout.count("all checks passed"), 8)
         for macro, name in FOLDER_NAMES.items():
-            self.assertIn(f"<Data>\\{name}\\<name>", result.stdout)
+            # a fresh file: the kind's folder in the save's own folder (native/shared/per_save.h)
+            self.assertIn(f"Virtual Villagers Fun Patcher\\Save 1\\Data\\{name}\\<name>", result.stdout)
+        # ...and a file already in the older layout is used where it is, by every writer
+        self.assertEqual(
+            result.stdout.count("ok   a2. a file in the older layout: its own path, never moved"), 16
+        )
         # A New Home's parents in a file older still (loose, or vv1_parents_S.dat) go into "Parentage
         # Records", which a game still patched by v1.35.63 reads too -- never into the new name (the
         # owner, 2026-10-09: "recognize old and new paths/folders/files alike").

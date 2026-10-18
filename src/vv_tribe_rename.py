@@ -81,6 +81,8 @@ SLOTS = (1, 2, 3, 4, 5)
 GENERATIONS = ("2", "4")
 LOGS_FOLDER = "Virtual Villagers Fun Patcher Logs"
 LEGACY_LOGS_FOLDER = "VVFP Logs"
+# Everything of one save in one folder: "Virtual Villagers Fun Patcher\Save <S>\Logs" (src/vv_save_layout.py).
+SAVES_FOLDER = "Virtual Villagers Fun Patcher"
 RENAME_PREFIX = "Tribe renamed from "
 
 
@@ -495,7 +497,8 @@ def _village_logs(game: GameSaves, folder: Path, slot: int) -> list[LogTarget]:
     targets: list[LogTarget] = []
     # The shared folders older builds wrote, then the slot's own "...Logs\Save <slot>\" folder (one
     # folder of logs per save slot, src/vv_save_layout.py): the village's records may be in both.
-    for root in (folder / LOGS_FOLDER, folder / LEGACY_LOGS_FOLDER, folder / LOGS_FOLDER / f"Save {slot}"):
+    for root in (folder / LOGS_FOLDER, folder / LEGACY_LOGS_FOLDER, folder / LOGS_FOLDER / f"Save {slot}",
+                 folder / SAVES_FOLDER / f"Save {slot}" / "Logs"):
         for sub in (
             "Births and Conceptions",
             "Tribe Parental Records",
@@ -511,7 +514,7 @@ def _village_logs(game: GameSaves, folder: Path, slot: int) -> list[LogTarget]:
         for path in _files(root / "Tribe Population"):
             if _POPULATION_PAGE.match(path.name):
                 targets.append(LogTarget(path, 1))
-    for logs in (folder / LOGS_FOLDER, folder / LOGS_FOLDER / f"Save {slot}"):
+    for logs in (folder / LOGS_FOLDER, folder / LOGS_FOLDER / f"Save {slot}", folder / SAVES_FOLDER / f"Save {slot}" / "Logs"):
         statistics = logs / "Village Statistics" / f"Village Statistics v2 - Save {slot}.txt"
         if statistics.is_file():
             targets.append(LogTarget(statistics, 2))
@@ -519,7 +522,7 @@ def _village_logs(game: GameSaves, folder: Path, slot: int) -> list[LogTarget]:
     # dated snapshot after another; its note goes in the newest file and names
     # the slot, and it is written whatever the last snapshot's village was.
     # The slot's own Tribe History folder gets the same note in its newest file.
-    for logs in (folder / LOGS_FOLDER, folder / LOGS_FOLDER / f"Save {slot}"):
+    for logs in (folder / LOGS_FOLDER, folder / LOGS_FOLDER / f"Save {slot}", folder / SAVES_FOLDER / f"Save {slot}" / "Logs"):
         history = [
             path
             for path in _files(logs / "Tribe History")

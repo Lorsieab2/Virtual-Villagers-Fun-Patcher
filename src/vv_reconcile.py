@@ -55,7 +55,8 @@ Golden Child (A New Home only) is a birth.  Questions:
 
 Check Saves & Logs shows it all (verdict ASK for a question); Repair Saves & Logs asks the
 questions; the patcher's tribe pickers run it whenever a village is chosen; the report is written
-to "<Logs>\\Save <n>\\Reconciliation\\Virtual Villagers <g> Reconciliation - Save <n>.txt" -- the
+to "Virtual Villagers Fun Patcher\\Save <n>\\Logs\\Reconciliation\\Virtual Villagers <g> Reconciliation -
+Save <n>.txt" (the save's own folder) -- the
 only file this module writes, and only through `export`.
 """
 from __future__ import annotations
@@ -848,8 +849,8 @@ class _Builder:
         folder = Path(self.folder)
         copies_root = folder / layout.DATA / layout.COPIES
         repairs: list[tuple[datetime | None, list[str]]] = []
-        for top in (layout.LOGS, "VVFP Logs"):
-            root = folder / top
+        for root in [folder / layout.LOGS, folder / "VVFP Logs"] + [
+                folder / layout.save_root(s) / layout.SAVE_LOGS for s in layout.SLOTS]:
             if not root.is_dir():
                 continue
             for p in root.rglob("*.txt"):
@@ -867,7 +868,7 @@ class _Builder:
                 continue
             text = data.decode("latin-1")
             if data and not text.endswith("\n"):
-                self.ask("file", f"cut|{_rel(folder, path)}|{len(data)}",
+                self.ask("file", f"cut|{_answer_place(folder, _rel(folder, path))}|{len(data)}",
                          f"{_rel(folder, path)} ends in the middle of a line: it may have been cut short "
                          "(the patcher writes every record whole).", [f"{KEEP} (it is complete)"])
             count = _record_count(text)
@@ -877,6 +878,7 @@ class _Builder:
             # THIS file -- never the sum of every repair of a file of that name, which let a later loss
             # hide behind an earlier repair's count.
             rel = _rel(folder, path)
+            place = _answer_place(folder, rel)
             chain: list[tuple[Path | None, int, datetime]] = []
             for copy in sorted(_copies_of(path, copies_root, folder), key=lambda p: p.stat().st_mtime):
                 try:
@@ -891,11 +893,11 @@ class _Builder:
                 removed = _removed_by_repair(repairs, rel, path.name, made, until)
                 where = rel if later is None else f"the later copy {later.name}"
                 if new_count + removed >= old_count:
-                    self.note("file", f"shrunk-ok|{rel}|{copy.name}",
+                    self.note("file", f"shrunk-ok|{place}|{copy.name}",
                               f"{where} holds {old_count - new_count} record(s) fewer than the copy {copy.name} "
                               f"kept before a repair; the Repairs log says that repair took {removed} out of it.")
                 else:
-                    self.ask("file", f"shrunk|{rel}|{copy.name}|{new_count}",
+                    self.ask("file", f"shrunk|{place}|{copy.name}|{new_count}",
                              f"{where} holds {new_count} record(s), but the copy kept before a repair, "
                              f"{copy.name}, holds {old_count}; the Repairs log accounts for {removed} taken out of "
                              f"{path.name} by that repair. {old_count - new_count - removed} record(s) may be lost.",
@@ -904,7 +906,10 @@ class _Builder:
         # an upgrade moved into its own subfolder is not missing, src/vv_save_layout.py).
         present: set[str] = set()
         copies: dict[str, list[Path]] = {}
-        for top in (layout.LOGS, layout.DATA, "VVFP Logs"):
+        # The older layout's folders, then the saves' own "Virtual Villagers Fun Patcher\Save <S>" (its Logs,
+        # its Data and its own Copies Made Before Repairs).
+        own_copies = {folder / layout.save_root(s) / layout.SAVE_DATA / layout.COPIES for s in layout.SLOTS}
+        for top in (layout.LOGS, layout.DATA, "VVFP Logs", layout.SAVES):
             root = folder / top
             if not root.is_dir():
                 continue
@@ -916,7 +921,7 @@ class _Builder:
                     # Repairs at the file's own place (review of #585: that tree was skipped, so a file
                     # whose only copy is there went missing unnoticed).
                     copies.setdefault(_file_key(p, p.name.split(".before-", 1)[0]), []).append(p)
-                elif copies_root not in p.parents:
+                elif copies_root not in p.parents and not own_copies.intersection(p.parents):
                     present.add(_file_key(p, p.name))
         # By name AND slot (review of #585): the slot folders reuse names ("Village History 1.txt" under
         # Save 1 and Save 2), so Save 1's file deleted while Save 2's remains is still missing.  Any other
@@ -965,7 +970,7 @@ class _Builder:
         A custom title the latest History snapshot gives a villager still alive, with no entry for them in
         the file (bound or pending): possibly lost (an entry dropped, or the file lost or replaced)."""
         import vv_titles_file as titles_file
-        path = layout.find(Path(self.folder), f"{layout.DATA}\\Custom Titles\\Custom Titles - Save {self.slot}.dat")
+        path = layout.route(Path(self.folder), f"{layout.DATA}\\Custom Titles\\Custom Titles - Save {self.slot}.dat")
         try:
             got = titles_file.read(path.read_bytes(), self.game)
         except OSError:
@@ -1129,13 +1134,52 @@ def _rel(folder: Path, path: Path) -> str:
         return str(path)
 
 
+FILE_QUESTIONS = ("cut", "shrunk", "shrunk-ok")       # the file questions whose id holds the file's place
+
+
+def _answer_place(folder: Path, rel: str) -> str:
+    """The place a file question's id names a file by (relative to the save folder), the same before
+    and after Move Files to Save Folders: a file of a save still in the older folders by its place in
+    the save's own folder ("Virtual Villagers Fun Patcher\\Save <n>\\..."), where the move puts it.  Not
+    when both places hold a file (the move leaves both, and each is its own file): then each is named
+    by where it is, so an answer about one is never applied to the other."""
+    place = layout.per_save_place(rel)
+    if place is None:
+        return rel
+    new = place[1].replace("\\", os.sep)
+    if not (Path(folder) / rel).exists() or not (Path(folder) / new).exists():
+        return new
+    return rel
+
+
+def _answer_id(folder: Path, qid: str) -> str:
+    """A remembered file question's id with its file named as _answer_place names it now (an answer
+    given before the move, or before this build keyed it so, still holds after it)."""
+    topic, bar, rest = qid.partition("|")
+    if topic not in FILE_QUESTIONS or not bar:
+        return qid
+    rel, bar, tail = rest.partition("|")
+    return f"{topic}|{_answer_place(folder, rel)}{bar}{tail}"
+
+
 def _copies_of(path: Path, copies_root: Path, folder: Path) -> list[Path]:
     """The copies kept of a log before repairs, newest first: beside it, and in Copies Made Before
     Repairs under the same relative place."""
     found = [p for p in path.parent.glob(path.name + ".before-*") if p.is_file()]
     try:
-        mirror = copies_root / path.relative_to(folder)
-        found += [p for p in mirror.parent.glob(path.name + ".before-*") if p.is_file()]
+        relative = path.relative_to(folder)
+        older = layout.older_layout(folder, path)
+        if older is not None:
+            # A file of a save's own folder: its copies are in that save's own Copies Made Before
+            # Repairs, at its place inside "Save <S>" (vv_log_tools.copy_before_repair), and the ones
+            # made before "Move Files to Save Folders..." moved it stay at its older-layout place.
+            mirrors = [folder / relative.parts[0] / relative.parts[1] / layout.SAVE_DATA / layout.COPIES
+                       / Path(*relative.parts[2:]),
+                       copies_root / Path(*older.split("\\"))]
+        else:
+            mirrors = [copies_root / relative]
+        for mirror in mirrors:
+            found += [p for p in mirror.parent.glob(path.name + ".before-*") if p.is_file()]
     except (ValueError, OSError):
         pass
     return sorted(found, key=lambda p: p.stat().st_mtime, reverse=True)
@@ -1143,8 +1187,17 @@ def _copies_of(path: Path, copies_root: Path, folder: Path) -> list[Path]:
 
 def _file_key(path: Path, name: str) -> tuple[str, int | None]:
     """A patcher file by name and save slot: the slot of the "...Logs\\Save <S>" folder it is in (a copy
-    in Copies Made Before Repairs keeps that folder), else the "Save <S>" its name gives, else None."""
+    in Copies Made Before Repairs keeps that folder), or of the save's own "Virtual Villagers Fun
+    Patcher\\Save <S>" folder it is in (its Logs, its Data, its own copies), else the "Save <S>" its name
+    gives, else None."""
     slot = layout.is_slot_folder(path)
+    if slot is None:
+        parts = [p.lower() for p in Path(path).parts]
+        for i, part in enumerate(parts[:-2]):
+            m = re.fullmatch(r"save ([1-5])", parts[i + 1]) if part == layout.SAVES.lower() else None
+            if m:
+                slot = int(m.group(1))
+                break
     if slot is None:
         m = re.search(r"\bSave ([1-5])\b", name)
         slot = int(m.group(1)) if m else None
@@ -1226,7 +1279,7 @@ def answered(folder: Path, game: int, slot: int, villages: set[str] | None) -> d
     for d in decisions.load(folder, game, slot):
         if d.get("kind") == DECISION_KIND and isinstance(d.get("field"), str) \
                 and (villages is None or d.get("village") in villages):
-            out[d["field"]] = str(d.get("verdict", ""))
+            out[_answer_id(folder, d["field"])] = str(d.get("verdict", ""))
     return out
 
 
@@ -1354,7 +1407,10 @@ def _vv1_roster_reuse(b: _Builder, folder: Path, game: int, slot: int, living: l
 # ---------------------------------------------------------------------------
 
 def report_path(folder: Path, game: int, slot: int) -> Path:
-    return layout.slot_log_folder(Path(folder), REPORT_FOLDER, slot) / REPORT_NAME.format(game=game, slot=slot)
+    """The save's own "Virtual Villagers Fun Patcher\\Save <n>\\Logs\\Reconciliation" folder, always: the
+    report is written whole each time (no history to keep together), so an older report left in
+    "...Logs\\Save <n>\\Reconciliation" is never added to and never kept in use."""
+    return layout.own_slot_log_folder(Path(folder), REPORT_FOLDER, slot) / REPORT_NAME.format(game=game, slot=slot)
 
 
 def export(rec: Reconciliation) -> Path:
@@ -1437,7 +1493,7 @@ def settle_titles(folder: Path, game: int, slot: int, actions: list[TitleAction]
     if not actions:
         return []
     tools._refuse_if_running(folder, controller)
-    path = layout.find(folder, lt.TITLES_FILE.format(slot=slot))
+    path = layout.route(folder, lt.TITLES_FILE.format(slot=slot))
     try:
         original = path.read_bytes()
         got = titles_file.read(original, game)

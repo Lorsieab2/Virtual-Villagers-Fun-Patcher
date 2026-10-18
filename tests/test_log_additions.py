@@ -250,7 +250,7 @@ class Planning(unittest.TestCase):
         self.assertEqual(result.cleared, [])
         self.assertFalse(tools.approval_path(game_folder, 3, 1).exists(), "not re-armed: no approval")
         self.assertIn("Special villager: Esteemed Elder", history.read_bytes().decode())
-        repairs = next((game_folder / LOGS / "Save 1" / "Repairs Made").glob("*.txt")).read_bytes().decode()
+        repairs = next(tools.layout.slot_log_folder(game_folder, "Repairs Made", 1).glob("*.txt")).read_bytes().decode()
         self.assertIn("Special villager added: " + LOGS + "\\Tribe History", repairs)
 
 

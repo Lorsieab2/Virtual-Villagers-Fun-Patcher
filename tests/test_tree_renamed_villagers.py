@@ -150,6 +150,81 @@ class Village(unittest.TestCase):
                 self.assertEqual(self.names(v), ["Coral Tangaroa", "Lapu Tangaroa", "Lupa Tangaroa"])
 
 
+def arrived(name, head, body, how, sex="Male", n=1):
+    values = {"Name": name, "Sex": sex, "How": how, "Likes": "(none)", "Dislikes": "(none)"}
+    return SimpleNamespace(identity=(name, head, body), heading=f"Arrived {n}", date=None, lines=[], path=Path("x"),
+                           value=lambda key: values.get(key))
+
+
+class LoggedRename(unittest.TestCase):
+    """The owner's VV2 save (2026-10-18): the founder Tamil Makawee (Arrived, How: Founder) was renamed Mahalo
+    Makawee ("Name changed" record), the arrival backfill then wrote "Arrived / Mahalo Makawee / How: unknown",
+    and a son was later named Tamil Makawee -- so the rename was never asked (the old name is a living
+    villager's) and the last-names window labelled the founder "-- arrived".  The logged rename makes them one
+    person under the new name, still a founder."""
+
+    MAH = ("Mahalo Makawee", "Male", 23, 16, "ants", 400)
+    SON = ("Tamil Makawee", "Male", 24, 4, "ants", 60)
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.folder = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def write_rename(self, game, old="Tamil Makawee", new="Mahalo Makawee", head=23, body=16):
+        logs = self.folder / "Virtual Villagers Fun Patcher Logs" / "Save 1" / "Births and Conceptions"
+        logs.mkdir(parents=True, exist_ok=True)
+        (logs / f"Virtual Villagers {game} Births and Conceptions Log 1.txt").write_bytes(
+            (f"Village: Kalahuna (Save 1)\r\nName changed\r\n  Name: {new}\r\n  Old name: {old}\r\n  Age: 278\r\n"
+             f"  Head: {head}\r\n  Body: {body}\r\n  Likes:\r\n  Dislikes:\r\n\r\n").encode("latin-1"))
+
+    def run_both(self, game, logged):
+        data, offsets = build_save(game, [self.MAH, self.SON])
+        ln.save_path(self.folder, game, 1).write_bytes(data)
+        with mock.patch("vv_last_names._entries", return_value=offsets), \
+                mock.patch("vv_cut_names.find_cut", return_value=([], [])), \
+                mock.patch("vv_log_additions.current_villages", return_value=None), \
+                mock.patch("vv_log_additions.person_blocks", return_value=logged):
+            return gen.load_village(self.folder, game, 1, full_names=False), ln.everyone(self.folder, game, 1)
+
+    def test_a_renamed_founder_is_one_person_and_no_arrival(self):
+        logged = [arrived("Tamil Makawee", 23, 16, "Founder", n=4),
+                  arrived("Mahalo Makawee", 23, 16, "unknown", n=9)]
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.write_rename(game)
+                village, (people, _parents) = self.run_both(game, logged)
+                mahalo = [p for p in village.known() if p.key == ("Mahalo Makawee", 23, 16)]
+                self.assertEqual(len(mahalo), 1)
+                self.assertEqual(mahalo[0].how, "Founder")
+                self.assertEqual(mahalo[0].former, ["Tamil Makawee"])
+                self.assertNotIn(("Tamil Makawee", 23, 16), {p.key for p in village.known()})
+                self.assertIn(("Tamil Makawee", 24, 4), {p.key for p in village.known()})   # the son stays
+                self.assertEqual({v.name: v.arrived for v in people},
+                                 {"Mahalo Makawee": False, "Tamil Makawee": False})
+
+    def test_without_the_rename_record_the_backfill_is_still_an_arrival(self):
+        logged = [arrived("Tamil Makawee", 23, 16, "Founder", n=4),
+                  arrived("Mahalo Makawee", 23, 16, "unknown", n=9)]
+        for game in GAMES:
+            with self.subTest(game=game):
+                _village, (people, _parents) = self.run_both(game, logged)
+                self.assertTrue(next(v for v in people if v.name == "Mahalo Makawee").arrived)
+
+    def test_a_dead_old_name_is_never_joined(self):
+        logged = [arrived("Tamil Makawee", 23, 16, "Founder", n=4),
+                  SimpleNamespace(identity=("Tamil Makawee", 23, 16), heading="Death 1", date=None, lines=[],
+                                  path=Path("x"), value=lambda key: {"Name": "Tamil Makawee"}.get(key)),
+                  arrived("Mahalo Makawee", 23, 16, "unknown", n=9)]
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.write_rename(game)
+                village, _everyone = self.run_both(game, logged)
+                self.assertIn(("Tamil Makawee", 23, 16), {p.key for p in village.known()})
+
+
 class Remembered(unittest.TestCase):
     def test_the_answer_is_kept_in_the_edits_file(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -7,6 +7,7 @@
 #include "save_folder.h"
 #include "save_layout.h"
 #include "log_slot.h"             /* one folder of logs per save slot */
+#include "per_save_data.h"        /* one folder per save */
 #include "patcher_files.h"
 #include "village_elders.h"
 #include "roster_match.h"
@@ -1410,16 +1411,29 @@ static int g_roster_was_count;        /* rows of g_roster_was read by this save'
 /* "Villagers Counted - Save N.dat" -- "Village Roster - Save N.dat" in older builds, read and
    written under that name, never renamed; under both names, the one written last
    (native/shared/save_layout.h).  The temporary file is in the same folder either way. */
+/* ONE FOLDER PER SAVE (native/shared/per_save_data.h): "Villagers Counted" is in the save's own
+   "Virtual Villagers Fun Patcher\Save <S>\Data\Village Statistics\" now, unless still in the older
+   layout's folder; the older name "Village Roster" only ever is in the older layout's.  The temporary
+   file is beside whichever is written. */
 static int roster_paths(int save_id, wchar_t *roster, wchar_t *temporary) {
-    wchar_t folder[MAX_PATH], old[MAX_PATH];
-    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Statistics", 64)
-        || _snwprintf_s(roster, MAX_PATH, _TRUNCATE, L"%ls\\Villagers Counted - Save %d.dat", folder, save_id) <= 0
-        || _snwprintf_s(temporary, MAX_PATH, _TRUNCATE, L"%ls\\Villagers Counted - Save %d.tmp", folder, save_id) <= 0
-        || _snwprintf_s(old, MAX_PATH, _TRUNCATE, L"%ls\\Village Roster - Save %d.dat", folder, save_id) <= 0) {
+    wchar_t folder[MAX_PATH], old[MAX_PATH], name[64];
+    wchar_t *cut;
+    if (_snwprintf_s(name, 64, _TRUNCATE, L"Villagers Counted - Save %d.dat", save_id) <= 0
+        || !vv_ps_data_file_w(roster, L"Village Statistics", name, 64)
+        || !vv_save_folder_w(folder, 96)
+        || _snwprintf_s(old, MAX_PATH, _TRUNCATE,
+                        L"%ls\\Virtual Villagers Fun Patcher Data\\Village Statistics\\Village Roster - Save %d.dat",
+                        folder, save_id) <= 0) {
         return 0;
     }
     if (vv_layout_pick_file_w(old, roster)) {
         lstrcpyW(roster, old);
+    }
+    lstrcpyW(temporary, roster);
+    cut = wcsrchr(temporary, L'\\');
+    if (cut == NULL || _snwprintf_s(cut, MAX_PATH - (size_t)(cut - temporary), _TRUNCATE,
+                                    L"\\Villagers Counted - Save %d.tmp", save_id) <= 0) {
+        return 0;
     }
     return 1;
 }
@@ -1529,9 +1543,8 @@ static int commit_roster(int save_id, int changed, int damaged) {
         unsigned long long stamp = (unsigned long long)GetTickCount64();
         ok = move_aside(g_store_counters, stamp);
         ok = move_aside(g_store_stews, stamp) && ok;
-        if (vv_save_subfolder_w(elders_folder, L"Virtual Villagers Fun Patcher Data\\Village Elders", 64)
-            && _snwprintf_s(elders, MAX_PATH, _TRUNCATE, L"%ls\\Village Elders - Save %d.dat",
-                            elders_folder, save_id) > 0) {
+        if (_snwprintf_s(elders_folder, MAX_PATH, _TRUNCATE, L"Village Elders - Save %d.dat", save_id) > 0
+            && vv_ps_data_file_w(elders, L"Village Elders", elders_folder, 64)) {
             ok = move_aside(elders, stamp) && ok;
         } else {
             ok = 0;

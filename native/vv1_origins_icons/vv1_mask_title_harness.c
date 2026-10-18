@@ -132,7 +132,8 @@ int main(int argc, char **argv) {
     base = base ? base + 1 : exe;
     dot = strrchr(base, '.');
     if (dot) *dot = 0;
-    _snprintf(file, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Village Masks\\"
+    /* A fresh village's file goes in the save's own folder (native/shared/per_save.h). */
+    _snprintf(file, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Village Masks\\"
               "Virtual Villagers 1 Village Masks - Save 1.dat", harness_redirect_documents_path(), base);
 
     printf("== village A, slot 1: two masks chosen and saved ==\n");

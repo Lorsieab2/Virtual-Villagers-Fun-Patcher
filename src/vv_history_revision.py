@@ -666,7 +666,7 @@ def revise(folder: Path, game: int, slot: int, confirmed: Plan, processes=None,
             keep.append(cut)
         by_file[path] = keep
     checker = tools.load_checker()
-    boundaries = [dat for dat in tools.layout.places(folder, checker.LOG_WORDS.format(game=game)) if dat.is_file()]
+    boundaries = [dat for dat in tools.layout.words_files(folder, game) if dat.is_file()]
     docs = []
     for path, cuts in by_file.items():
         doc = additions._Doc(path)
@@ -778,7 +778,8 @@ def _repairs_records(folder: Path, game: int, slot: int) -> list[dict]:
     """Every history revision record in the game's Repairs Made logs (the slot's own, and the shared one an
     older layout wrote), oldest first: {"date", "villagers", "backups"}."""
     layout = tools.layout
-    places = [layout.slot_log_folder(folder, layout.REPAIRS_LOGS, slot),
+    places = [layout.older_slot_log_folder(folder, layout.REPAIRS_LOGS, slot),
+              layout.own_slot_log_folder(folder, layout.REPAIRS_LOGS, slot),
               layout.find(folder, f"{layout.LOGS}\\{layout.REPAIRS_LOGS}")]
     found, order = [], 0
     for place in dict.fromkeys(places):
@@ -897,12 +898,14 @@ def undo_plan(folder: Path, game: int, slot: int) -> UndoPlan | None:
         own = tools.layout.is_slot_folder(log)
         if own is not None and own != slot:
             continue
-        probe = tools.copy_before_repair(folder, log, BACKUP_SUFFIX)
-        if not probe.parent.is_dir():
-            continue
-        for c in probe.parent.glob(glob.escape(probe.name) + "*"):
-            if c.name in wanted and re.fullmatch(re.escape(probe.name) + r"(-\d+)?", c.name):
-                found.setdefault(c.name, []).append((log, c))
+        # The save's own copies, and for a log moved into its save's own folder also the copies made
+        # before the move, at its older-layout place (vv_log_tools.copy_places).
+        for probe in tools.copy_places(folder, log, BACKUP_SUFFIX):
+            if not probe.parent.is_dir():
+                continue
+            for c in probe.parent.glob(glob.escape(probe.name) + "*"):
+                if c.name in wanted and re.fullmatch(re.escape(probe.name) + r"(-\d+)?", c.name):
+                    found.setdefault(c.name, []).append((log, c))
     try:
         when = datetime.strptime(latest["date"], "%Y-%m-%d %H:%M:%S").timestamp()
     except ValueError:
@@ -956,7 +959,7 @@ def undo(folder: Path, game: int, slot: int, processes=None, now: datetime | Non
         raise HistoryRevisionError("Undelete villagers was refused, so nothing was changed: "
                                    + "; ".join(p.refused))
     checker = tools.load_checker()
-    boundaries = [dat for dat in tools.layout.places(folder, checker.LOG_WORDS.format(game=game)) if dat.is_file()]
+    boundaries = [dat for dat in tools.layout.words_files(folder, game) if dat.is_file()]
     done: list[tuple[Path, Path]] = []
     copies: dict[Path, Path] = {}
     made: list[Path] = []

@@ -104,6 +104,17 @@ int main(void) {
     g_token = 1;                                /* bought; the Tech screen open */
     vv_paid_tick(2, 1, roster_a, &G);
     CHECK(file_exists(1), "bought: the slot's file is written");
+    {
+        /* ...in the save's own folder (native/shared/per_save.h), nothing in the older layout's. */
+        char own[MAX_PATH], old_dir[MAX_PATH];
+        wsprintfA(own, "%s\\Virtual Villagers Fun Patcher\\Save 1\\Data\\" VV_PAID_SUB
+                       "\\Virtual Villagers 2 Paid Purchases - Save 1.dat", g_folder);
+        wsprintfA(old_dir, "%s\\" VV_PAID_FOLDER, g_folder);
+        CHECK(vv_paid_path(2, 1, path, 0) && lstrcmpiA(path, own) == 0
+              && GetFileAttributesA(own) != INVALID_FILE_ATTRIBUTES
+              && GetFileAttributesA(old_dir) == INVALID_FILE_ATTRIBUTES,
+              "...in the save's own folder, nothing made in the older layout's");
+    }
     g_token = 3;
     vv_paid_tick(2, 1, roster_a, &G);
     g_token = 0;                                /* delivered */
@@ -228,6 +239,36 @@ int main(void) {
     g_token = 0;
     vv_paid_tick(2, 5, roster_a, &G);
 
+    /* 9. A file of the older layout (a barrel bought before the save folders): read, re-armed and
+          deleted where it is, nothing made in the save's own folder (per_save.h). */
+    quit();
+    {
+        char old_file[MAX_PATH], own_file[MAX_PATH];
+        wsprintfA(path, "%s\\" VV_PAID_FOLDER, g_folder);
+        CreateDirectoryA(path, NULL);
+        wsprintfA(path, "%s\\" VV_PAID_FOLDER "\\" VV_PAID_SUB, g_folder);
+        CreateDirectoryA(path, NULL);
+        wsprintfA(old_file, "%s\\Virtual Villagers 2 Paid Purchases - Save 2.dat", path);
+        wsprintfA(own_file, "%s\\Virtual Villagers Fun Patcher\\Save 2\\Data\\" VV_PAID_SUB
+                            "\\Virtual Villagers 2 Paid Purchases - Save 2.dat", g_folder);
+        g_token = 2;
+        vv_paid_tick(2, 2, roster_a, &G);       /* written fresh: the save's own folder */
+        CHECK(GetFileAttributesA(own_file) != INVALID_FILE_ATTRIBUTES, "slot 2's barrel is written in the save's own folder");
+        MoveFileA(own_file, old_file);          /* ...as an older build would have left it */
+        Sleep(20);
+        save_now(2);
+        quit();
+        CHECK(vv_paid_tick(2, 2, roster_a, &G) == 1 && g_token == 2
+              && vv_paid_path(2, 2, path, 0) && lstrcmpiA(path, old_file) == 0
+              && GetFileAttributesA(own_file) == INVALID_FILE_ATTRIBUTES,
+              "an older-layout barrel file is read and re-armed where it is, never moved");
+        g_token = 0;
+        vv_paid_tick(2, 2, roster_a, &G);
+        CHECK(GetFileAttributesA(old_file) == INVALID_FILE_ATTRIBUTES
+              && GetFileAttributesA(own_file) == INVALID_FILE_ATTRIBUTES,
+              "...and delivered, it is deleted there");
+    }
+
     for (i = 1; i <= 5; ++i) {
         char p[MAX_PATH];
         if (vv_paid_path(2, i, p, 0)) DeleteFileA(p);
@@ -237,6 +278,17 @@ int main(void) {
     wsprintfA(path, "%s\\" VV_PAID_FOLDER "\\" VV_PAID_SUB, g_folder);
     RemoveDirectoryA(path);
     wsprintfA(path, "%s\\" VV_PAID_FOLDER, g_folder);
+    RemoveDirectoryA(path);
+    for (i = 1; i <= 5; ++i) {
+        /* The save's own folders, if empty. */
+        wsprintfA(path, "%s\\Virtual Villagers Fun Patcher\\Save %d\\Data\\" VV_PAID_SUB, g_folder, i);
+        RemoveDirectoryA(path);
+        wsprintfA(path, "%s\\Virtual Villagers Fun Patcher\\Save %d\\Data", g_folder, i);
+        RemoveDirectoryA(path);
+        wsprintfA(path, "%s\\Virtual Villagers Fun Patcher\\Save %d", g_folder, i);
+        RemoveDirectoryA(path);
+    }
+    wsprintfA(path, "%s\\Virtual Villagers Fun Patcher", g_folder);
     RemoveDirectoryA(path);
     RemoveDirectoryA(g_folder);
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);

@@ -190,7 +190,7 @@ class Repair(unittest.TestCase):
         # Recorded in the Repairs Made log as Repair Saves & Logs records every addition.
         tools.note_word_repair(self.folder, 2, "Village: Tribe (Save 1)", done["birth_numbers"],
                                checked=additions.CHECKED["birth_numbers"], corrected=additions.ADDED["birth_numbers"])
-        [repairs] = (self.folder / LOGS).rglob("Virtual Villagers 2 Repairs Log 1.txt")
+        [repairs] = (p for root in (self.folder / LOGS, self.folder / "Virtual Villagers Fun Patcher") for p in root.rglob("Virtual Villagers 2 Repairs Log 1.txt"))
         text = repairs.read_bytes().decode("latin-1")
         self.assertIn("Repair 1\r\n", text)
         self.assertIn(f"  Birth number added: {fix.name} -- 3 villager(s)\r\n", text)

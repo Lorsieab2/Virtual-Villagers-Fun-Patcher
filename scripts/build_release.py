@@ -226,6 +226,7 @@ FILES = [
     "src/vv_log_additions.py",
     "src/vv_log_decisions.py",
     "src/vv_move_old_names.py",
+    "src/vv_move_to_save_folders.py",
     "src/vv_log_contradictions.py",
     # The always-on read-only reconciliation of records, logs and files, and the pickers' run of it.
     "src/vv_reconcile.py",

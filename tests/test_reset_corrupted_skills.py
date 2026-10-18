@@ -118,7 +118,7 @@ class Village:
         self.save.write_bytes(save_for(game, people))
 
     def repairs(self) -> str:
-        found = sorted((self.folder / LOGS).rglob("Virtual Villagers * Repairs Log *.txt"))
+        found = sorted((p for root in (self.folder / LOGS, self.folder / "Virtual Villagers Fun Patcher") for p in root.rglob("Virtual Villagers * Repairs Log *.txt")))
         return found[0].read_bytes().decode("latin-1") if found else ""
 
     def backups(self) -> list[Path]:
@@ -282,7 +282,7 @@ class TheReset(unittest.TestCase):
                 self.assertIn(f"  Backup: {backup.name}\r\n", text)
                 self.assertEqual(text.count("Repair "), 1)
                 # In the slot's own Repairs Made folder.
-                logged = sorted((v.folder / LOGS).rglob("Virtual Villagers * Repairs Log *.txt"))
+                logged = sorted((p for root in (v.folder / LOGS, v.folder / "Virtual Villagers Fun Patcher") for p in root.rglob("Virtual Villagers * Repairs Log *.txt")))
                 self.assertIn("Save 1", str(logged[0]))
 
     def test_the_record_wording_for_an_int_game(self):

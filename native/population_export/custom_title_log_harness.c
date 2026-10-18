@@ -24,6 +24,7 @@
  * Exit code 0 when every check passes. */
 #include <stdio.h>
 #include <windows.h>
+#include "per_save.h"   /* the stand-in save folder routes a slot's logs as save_folder.c does */
 
 static char g_root[MAX_PATH];
 
@@ -47,10 +48,21 @@ int vv_save_folder_w(wchar_t *out, int reserve) {
 
 int vv_save_subfolder(char *out, const char *sub, int reserve) {
     char built[MAX_PATH];
+    char full[MAX_PATH];
     int n;
     const char *p;
     if (!vv_save_folder(built, lstrlenA(sub) + 1 + reserve)) {
         return 0;
+    }
+    /* One folder per save, as save_folder.c routes it (native/shared/per_save.h): a slot's log
+       folder of the older layout goes to the save's own "Virtual Villagers Fun Patcher\Save <S>\Logs\"
+       unless the older one already holds that log. */
+    n = lstrlenA(built);
+    if (n + 1 + lstrlenA(sub) + 1 <= MAX_PATH) {
+        _snprintf_s(full, MAX_PATH, _TRUNCATE, "%s\\%s", built, sub);
+        if (vv_ps_route_a(full, MAX_PATH - reserve, 0) && lstrlenA(full) > n + 1) {
+            sub = full + n + 1;
+        }
     }
     lstrcatA(built, "\\");
     for (p = sub; *p; ++p) {
@@ -132,22 +144,22 @@ static void villager(int index, const char *name) {
     *(int *)(r + 0xE78) = 100;
 }
 
-/* One folder of logs per save slot (native/shared/log_slot.h): the roster or history of the
-   village "(Save <slot>)" is in "...Logs\Save <slot>\<folder>"; slot 0 (no slot named) is the
-   shared folder. */
+/* One folder per save (native/shared/per_save.h): the roster or history of the village
+   "(Save <slot>)" is in the save's own "...\Virtual Villagers Fun Patcher\Save <slot>\Logs\<folder>";
+   slot 0 (no slot named) is the shared folder. */
 /* `out` holds MAX_PATH characters; a longer path is cut short (and then names
    no file, so its check fails) -- never written past the buffer. */
 static void log_file(char *out, int slot, const char *folder, const char *name) {
     if (slot == 0) {
         _snprintf_s(out, MAX_PATH, _TRUNCATE, "%s\\Virtual Villagers Fun Patcher Logs\\%s\\%s", g_root, folder, name);
     } else {
-        _snprintf_s(out, MAX_PATH, _TRUNCATE, "%s\\Virtual Villagers Fun Patcher Logs\\Save %d\\%s\\%s",
+        _snprintf_s(out, MAX_PATH, _TRUNCATE, "%s\\Virtual Villagers Fun Patcher\\Save %d\\Logs\\%s\\%s",
                     g_root, slot, folder, name);
     }
 }
 
 /* The longest path under the root that the harness or the exporter makes:
-   "\Virtual Villagers Fun Patcher Logs\Save 3\Tribe Population\Village
+   "\Virtual Villagers Fun Patcher\Save 3\Logs\Tribe Population\Village
    Population 1.txt" and the custom titles file, with room to spare. */
 #define HARNESS_ROOT_RESERVE 128
 
@@ -543,6 +555,25 @@ int main(void) {
     text = read_all(roster);
     check(strstr(text, "  Name: Kai\n  Custom title: Keeper of Stories\n") != NULL,
           "THE LAST (Save N) MARKER IS THE SLOT");
+
+    /* One folder per save (native/shared/per_save.h): the titles file in the save's own
+       "...\Virtual Villagers Fun Patcher\Save 2\Data\Custom Titles\" is read the same way. */
+    {
+        char old_file[MAX_PATH], own_dir[MAX_PATH], own_file[MAX_PATH];
+        _snprintf_s(old_file, MAX_PATH, _TRUNCATE, "%s\\" VV_TITLES_SUBFOLDER "\\Custom Titles - Save 2.dat", g_root);
+        _snprintf_s(own_dir, MAX_PATH, _TRUNCATE, "%s\\Virtual Villagers Fun Patcher\\Save 2\\Data", g_root);
+        CreateDirectoryA(own_dir, NULL);
+        lstrcatA(own_dir, "\\Custom Titles");
+        CreateDirectoryA(own_dir, NULL);
+        _snprintf_s(own_file, MAX_PATH, _TRUNCATE, "%s\\Custom Titles - Save 2.dat", own_dir);
+        check(MoveFileA(old_file, own_file) != 0, "setup: slot 2's titles file moved to the save's own folder");
+        WriteVillagePopulation(3, g_module, "Village: Test (Save 2)\n");
+        ROSTER(2);
+        text = read_all(roster);
+        check(strstr(text, "  Name: Kai\n  Custom title: Keeper of Stories\n") != NULL,
+              "A TITLES FILE IN THE SAVE'S OWN FOLDER IS PRINTED TOO");
+        DeleteFileA(own_file);   /* the twins below write the older layout's file again */
+    }
 
     {
         int game;

@@ -103,7 +103,10 @@ class GraveBackfillSource(unittest.TestCase):
         source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")
         self.assertIn('wsprintfA(stem, "Virtual Villagers %d Graves Logged", g_game);', source)
         self.assertIn('cod_data_path(logged.path, "Deaths", stem, slot)', source)
-        self.assertEqual(source.count("vv_save_subfolder("), 1)
+        # One path helper, routed to the save's own folder (native/shared/per_save_data.h).
+        self.assertEqual(source.count("vv_ps_data_file_a("), 1)
+        self.assertIn("return vv_ps_data_file_a(out, folder_name, name, VV_PS_RESERVE);", source)
+        self.assertNotIn("vv_save_subfolder(", source)
 
     def test_start_over_forgets_the_slot(self):
         source = (COD / "vvfp_cause_of_death.c").read_text(encoding="utf-8")

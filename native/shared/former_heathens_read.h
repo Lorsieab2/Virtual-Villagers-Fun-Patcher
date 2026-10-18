@@ -10,6 +10,7 @@
 
 #include <windows.h>
 #include "former_heathens.h"
+#include "per_save.h"
 
 /* Read the slot's file into `buffer` (VV_FORMER_FILE_MAX bytes).  1 when it
    was there and valid. */
@@ -26,6 +27,7 @@ static int vv_former_load(int slot, unsigned char *buffer) {
     if (!vv_former_file_name(path, MAX_PATH, folder, slot)) {
         return 0;
     }
+    (void)vv_ps_route_a(path, MAX_PATH, 0);     /* the save's own folder, or the older layout's (per_save.h) */
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {

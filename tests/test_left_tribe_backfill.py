@@ -40,6 +40,13 @@ class FakeProcesses:
         return []
 
 
+def own_deaths(folder: Path) -> Path:
+    """The slot's own Deaths log the repair appends to: the save's own folder for a fresh save, the older
+    "...Logs\\Save 1" while it holds the slot's logs (src/vv_save_layout.py slot_log_folder)."""
+    import vv_save_layout
+    return vv_save_layout.slot_log_folder(folder, "Deaths and Disappearances", 1) / Path(OWN_DEATHS).name
+
+
 def write(folder: Path, relative: str, text: str) -> Path:
     path = folder / LOGS / relative
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -114,7 +121,7 @@ class LeftTheTribe(unittest.TestCase):
         result = tools.approve_repair(self.folder, 5, 1, FakeProcesses(), NOW, chosen={"left_tribe"}, answers={},
                                       kinds=additions.plan(self.folder, 5, 1), rearm=False)
         self.assertEqual(deaths.read_bytes(), raw, "the shared log an older build wrote is never written again")
-        own = self.folder / LOGS / OWN_DEATHS
+        own = own_deaths(self.folder)
         self.assertEqual(own.read_bytes(), b"Village: Kalahuna Tribe 5 (Save 1)\r\n"
                          + backfilled("Leaf", 3, 4).encode("latin-1") + b"\r\n",
                          "the slot's own log, made under the village's header, with a blank line after it")
@@ -123,7 +130,7 @@ class LeftTheTribe(unittest.TestCase):
         self.assertEqual(fix.backup, "(a new file)", "nothing was there to copy")
         self.assertEqual(checker.word_boundaries(self.folder, 5)[key.lower()], len(raw),
                          "the shared log's boundary is left as it was")
-        repairs = next((self.folder / LOGS).rglob("Virtual Villagers 5 Repairs Log 1.txt")).read_text("latin-1")
+        repairs = next((p for root in (self.folder / LOGS, self.folder / "Virtual Villagers Fun Patcher") for p in root.rglob("Virtual Villagers 5 Repairs Log 1.txt"))).read_text("latin-1")
         self.assertIn("Left the tribe record added", repairs)
         again = self.kind()
         self.assertEqual((again.decided, again.asked), (0, 0), "done once")
@@ -137,7 +144,7 @@ class LeftTheTribe(unittest.TestCase):
         self.assertEqual((kind.decided, kind.asked), (1, 0), "came, left (recorded), converted, left (not)")
         additions.apply(self.folder, [kind], {"left_tribe"}, {})
         self.assertEqual(deaths.read_bytes().count(LEFT.encode()), 1)
-        self.assertEqual((self.folder / LOGS / OWN_DEATHS).read_bytes().count(LEFT.encode()), 1)
+        self.assertEqual((own_deaths(self.folder)).read_bytes().count(LEFT.encode()), 1)
 
     def test_a_heathen_born_one_and_one_already_recorded_need_nothing(self):
         self.village(person(1, "Born", 3, 4, "Heathen") + person(2, "Done", 5, 6, "Heathen"),
@@ -165,9 +172,9 @@ class LeftTheTribe(unittest.TestCase):
         raw = deaths.read_bytes()
         self.assertEqual(additions.apply(self.folder, [kind], {"left_tribe"}, {}), {})
         self.assertEqual(deaths.read_bytes(), raw, "Don't know adds nothing")
-        self.assertFalse((self.folder / LOGS / OWN_DEATHS).exists(), "...and makes no file")
+        self.assertFalse((own_deaths(self.folder)).exists(), "...and makes no file")
         additions.apply(self.folder, [kind], {"left_tribe"}, {texts["Many"].key: additions.LEFT_YES})
-        self.assertEqual((self.folder / LOGS / OWN_DEATHS).read_bytes().count(b"  Name: Many\r\n  Age: (unknown)"), 2)
+        self.assertEqual((own_deaths(self.folder)).read_bytes().count(b"  Name: Many\r\n  Age: (unknown)"), 2)
 
     def test_under_another_villages_last_record_it_names_its_village(self):
         write(self.folder, PAGE, "Village: Kalahuna Tribe 5 (Save 1)\n" + person(1, "Leaf", 3, 4, "Heathen"))

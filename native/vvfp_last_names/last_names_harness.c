@@ -296,6 +296,27 @@ int main(int argc, char **argv) {
         g_game = 3;
     }
 
+    printf("9. One folder per save: the record in the save's own folder (native/shared/per_save.h)\n");
+    {
+        char own[MAX_PATH * 2], older[MAX_PATH * 2];
+        _snprintf(older, sizeof older, "%s\\Virtual Villagers 3 Last Names - Save 1.dat", folder);
+        DeleteFileA(older);
+        _snprintf(own, sizeof own, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Last Names", g_docs, base);
+        SHCreateDirectoryExA(NULL, own, NULL);
+        lstrcatA(own, "\\Virtual Villagers 3 Last Names - Save 1.dat");
+        g_game = 3;
+        lstrcpynA(g_path, own, sizeof g_path);
+        record("mother", "villager\tAgo Bahati\t5\t6\tM\tmother\n");
+        check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
+              "the village's rule is read from the save's own folder");
+        check(VvfpRelookLastName("Ago Bahati", 1, 5, 6, 2, 2, 1) == 1
+              && GetFileAttributesA(older) == INVALID_FILE_ATTRIBUTES,
+              "a change of looks is written there, nothing in the older layout's folder");
+        check(strcmp(born("Ago Bahati", 2, 2, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
+              "...and the next birth finds him by his new looks there");
+        DeleteFileA(own);
+    }
+
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);
     return failures ? 1 : 0;
 }

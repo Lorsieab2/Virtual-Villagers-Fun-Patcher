@@ -66,6 +66,7 @@
 #include "../shared/identity_in_place.h"   /* a likes / dislikes change keeps the title */
 #include "../shared/sidecar_io.h"
 #include "../shared/save_folder.h"
+#include "../shared/per_save_data.h"       /* one folder per save */
 #include "../shared/patcher_files.h"
 #include "story_targets.h"
 #include "story_custom.h"

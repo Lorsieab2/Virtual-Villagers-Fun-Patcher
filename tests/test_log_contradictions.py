@@ -249,7 +249,7 @@ class NumberTests(unittest.TestCase):
         # The next Repairs record numbers on after both folders' (src/vv_log_tools.py note_word_repair),
         # in the village's own slot folder (one folder of logs per save slot).
         tools.note_word_repair(f.path, 1, VILLAGE, [tools.WordFix("x.txt", 1, "x.bak")], NOW)
-        own = f.path / LOGS / "Save 1" / "Repairs Made" / "Virtual Villagers 1 Repairs Log 1.txt"
+        own = tools.layout.slot_log_folder(f.path, "Repairs Made", 1) / "Virtual Villagers 1 Repairs Log 1.txt"
         self.assertIn("Repair 4\n", f.read(own))
         self.assertNotIn("Repair 4\n", f.read(new))
         self.assertEqual(contra.find(f.path, 1, 1), [])
@@ -266,7 +266,7 @@ class NumberTests(unittest.TestCase):
         self.assertIn("Repair 3\n", f.read(made))
         # A village's own: its slot's folder, numbered on after both.
         tools.note_word_repair(f.path, 3, VILLAGE, [tools.WordFix("x.txt", 1, "x.bak")], NOW)
-        own = f.path / LOGS / "Save 1" / "Repairs Made" / "Virtual Villagers 3 Repairs Log 1.txt"
+        own = tools.layout.slot_log_folder(f.path, "Repairs Made", 1) / "Virtual Villagers 3 Repairs Log 1.txt"
         self.assertIn("Repair 4\n", f.read(own))
 
 

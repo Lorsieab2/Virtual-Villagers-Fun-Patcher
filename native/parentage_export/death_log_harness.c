@@ -138,7 +138,8 @@ static void villager(int i, const char *name, int age, int head, int body) {
     strncpy((char *)rec(i) + g->name, name, g->name_cap - 1);
 }
 
-static char logs[MAX_PATH];
+static char logs[MAX_PATH];   /* the older layout's "...\Virtual Villagers Fun Patcher Logs" */
+static char own[MAX_PATH];    /* "...\Virtual Villagers Fun Patcher", each save's own folder */
 static char exe_dir[MAX_PATH];
 /* "<exe_dir>\Virtual Villagers Fun Patcher Files": where the companions are
    looked for, as in a patched game (native/shared/patcher_files.h). */
@@ -162,7 +163,21 @@ static int locate(void) {
     if (dot) *dot = 0;
     _snprintf(logs, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Logs", docs, base);
     logs[MAX_PATH - 1] = 0;
+    _snprintf(own, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher", docs, base);
+    own[MAX_PATH - 1] = 0;
     return 1;
+}
+
+/* A slot's log folder: the save's own "...\Virtual Villagers Fun Patcher\Save <S>\Logs\<folder>"
+   (native/shared/per_save.h) -- where a fresh village's logs are written.  Slot 0 is the shared
+   folder older builds wrote ("...Logs\<folder>"). */
+static void slot_folder(char *out, int slot, const char *folder) {
+    if (slot == 0) {
+        _snprintf(out, MAX_PATH, "%s\\%s", logs, folder);
+    } else {
+        _snprintf(out, MAX_PATH, "%s\\Save %d\\Logs\\%s", own, slot, folder);
+    }
+    out[MAX_PATH - 1] = 0;
 }
 
 static void empty_folder(const char *folder) {
@@ -183,7 +198,8 @@ static void wipe(int remove_dirs) {
                                              "Deaths" /* the folder's older name (save_layout.h) */ };
     char sub[MAX_PATH], parent[MAX_PATH], *cut;
     int k, slot;
-    /* The shared folders, then each slot's ("...Logs\Save <S>\", native/shared/log_slot.h). */
+    /* The shared folders, then each slot's in the older layout ("...Logs\Save <S>\",
+       native/shared/log_slot.h) and in the save's own folder ("...\Save <S>\Logs\", per_save.h). */
     for (slot = 0; slot <= 5; ++slot) {
         for (k = 0; k < 4; ++k) {
             if (slot == 0) {
@@ -193,13 +209,23 @@ static void wipe(int remove_dirs) {
             }
             empty_folder(sub);
             if (remove_dirs) RemoveDirectoryA(sub);
+            if (slot > 0) {
+                slot_folder(sub, slot, FOLDERS[k]);
+                empty_folder(sub);
+                if (remove_dirs) RemoveDirectoryA(sub);
+            }
         }
         if (remove_dirs && slot > 0) {
             _snprintf(sub, MAX_PATH, "%s\\Save %d", logs, slot);
             RemoveDirectoryA(sub);
+            _snprintf(sub, MAX_PATH, "%s\\Save %d\\Logs", own, slot);
+            RemoveDirectoryA(sub);
+            _snprintf(sub, MAX_PATH, "%s\\Save %d", own, slot);
+            RemoveDirectoryA(sub);   /* only when empty: its Data folder is the companions' */
         }
     }
     if (remove_dirs) {
+        RemoveDirectoryA(own);
         RemoveDirectoryA(logs);
         lstrcpyA(parent, logs);
         cut = strrchr(parent, '\\');
@@ -230,20 +256,17 @@ static void load(void) {
 }
 
 static char text[1 << 17];
-/* One folder of logs per save slot (native/shared/log_slot.h): the village "(Save <S>)" is logged in
-   "...Logs\Save <S>\<folder>"; slot 0 reads the shared folder older builds wrote.  `cur_slot` is
-   the slot read_log looks in: the harness village is "(Save 1)". */
+/* One folder per save slot (native/shared/per_save.h): the village "(Save <S>)" is logged in
+   "...\Virtual Villagers Fun Patcher\Save <S>\Logs\<folder>"; slot 0 reads the shared folder older
+   builds wrote.  `cur_slot` is the slot read_log looks in: the harness village is "(Save 1)". */
 static int cur_slot = 1;
 static int read_log_in(int slot, const char *folder, const char *stem, int game, int number) {
-    char path[MAX_PATH];
+    char path[MAX_PATH], dir[MAX_PATH];
     FILE *f;
     size_t n;
-    if (slot == 0) {
-        _snprintf(path, MAX_PATH, "%s\\%s\\Virtual Villagers %d %s %d.txt", logs, folder, game, stem, number);
-    } else {
-        _snprintf(path, MAX_PATH, "%s\\Save %d\\%s\\Virtual Villagers %d %s %d.txt", logs, slot, folder, game, stem,
-                  number);
-    }
+    slot_folder(dir, slot, folder);
+    _snprintf(path, MAX_PATH, "%s\\Virtual Villagers %d %s %d.txt", dir, game, stem, number);
+    path[MAX_PATH - 1] = 0;
     f = fopen(path, "rb");
     if (f == NULL) { text[0] = 0; return 0; }
     n = fread(text, 1, sizeof text - 1, f);
@@ -260,11 +283,11 @@ static int read_unaccounted(int game, int number) {
 }
 
 static int births_mention_death(int game) {
-    char path[MAX_PATH], buf[4096];
+    char path[MAX_PATH], dir[MAX_PATH], buf[4096];
     FILE *f;
     size_t n;
-    _snprintf(path, MAX_PATH, "%s\\Save 1\\Births and Conceptions\\Virtual Villagers %d Births and Conceptions Log 1.txt",
-              logs, game);
+    slot_folder(dir, 1, "Births and Conceptions");
+    _snprintf(path, MAX_PATH, "%s\\Virtual Villagers %d Births and Conceptions Log 1.txt", dir, game);
     f = fopen(path, "rb");
     if (f == NULL) return 0;
     n = fread(buf, 1, sizeof buf - 1, f);
@@ -563,6 +586,28 @@ int main(int argc, char **argv) {
                   && read_deaths(game, 1)
                   && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Age: 902\r\n") != NULL,
                   "no titles file: no line");
+            /* The titles file in the save's own folder ("...\Save 1\Data\Custom Titles\", per_save.h)
+               is read the same way. */
+            {
+                char own_dir[MAX_PATH];
+                entry.index = 3;
+                _snprintf(own_dir, MAX_PATH, "%s\\Save 1", own);
+                CreateDirectoryA(own, NULL);
+                CreateDirectoryA(own_dir, NULL);
+                lstrcatA(own_dir, "\\Data");
+                CreateDirectoryA(own_dir, NULL);
+                lstrcatA(own_dir, "\\Custom Titles");
+                CreateDirectoryA(own_dir, NULL);
+                vv_titles_file_name(titles_path, MAX_PATH, own_dir, 1);
+                CHECK(put_titles(titles_path, game, &entry, 1)
+                      && write_record(game, DISAPPEARED, rec(3), 1, "  Age: 904\n", NULL, 1) == 1
+                      && read_deaths(game, 1)
+                      && strstr(text, "\r\nDisappeared\r\n  Name: Hoani\r\n  Custom title: Helpful Spirit\r\n  Age: 904\r\n")
+                         != NULL,
+                      "a titles file in the save's own folder is read");
+                DeleteFileA(titles_path);
+                RemoveDirectoryA(own_dir);
+            }
             rec(3)[g->active] = 0;
         }
 
@@ -787,6 +832,7 @@ int main(int argc, char **argv) {
         ensure_village(3, VILLAGE, records);
         for (which = 0; which < 2; ++which) {
             _snprintf(folder, MAX_PATH, "%s\\%s", logs, names[which]);
+            CreateDirectoryA(logs, NULL);   /* the older layout: a fresh save no longer makes it */
             CreateDirectoryA(folder, NULL);
             n = _snprintf(body, sizeof body, "Village: Harness Tribe (Save 1)\r\n");
             for (k = 1; k <= counts[which]; ++k) {
@@ -831,6 +877,7 @@ int main(int argc, char **argv) {
         ensure_village(3, VILLAGE, records);
         for (which = 0; which < 2; ++which) {
             _snprintf(folder, MAX_PATH, "%s\\%s", logs, names[which]);
+            CreateDirectoryA(logs, NULL);   /* the older layout: a fresh save no longer makes it */
             CreateDirectoryA(folder, NULL);
             n = _snprintf(body, sizeof body, "Village: Harness Tribe (Save 1)\r\n");
             for (k = 1; which == 0 && k <= 5; ++k) {
@@ -851,6 +898,42 @@ int main(int argc, char **argv) {
         FreeLibrary(dll);
         free_table(3);
         wipe(0);
+    }
+
+    /* 9c: the OLDER layout's slot folder ("...Logs\Save 1\Deaths and Disappearances") holding a log
+       and no save's own folder for it: the record is appended there, numbered on, and the save's own
+       folder is not made (native/shared/per_save.h: a log's unit is the slot's log folder). */
+    printf("an older slot folder still in use\n");
+    {
+        char folder[MAX_PATH], path[MAX_PATH], body[512];
+        FILE *f;
+        g = &LAYOUTS[2];
+        records = alloc_table(3);
+        villager(0, "Ana", 600, 3, 4);
+        load();
+        vv_village_publish(VILLAGE);
+        ensure_village(3, VILLAGE, records);
+        wipe(1);   /* every log and folder made by the save: only the seeded one below exists */
+        _snprintf(folder, MAX_PATH, "%s\\Save 1", logs);
+        CreateDirectoryA(logs, NULL);
+        CreateDirectoryA(folder, NULL);
+        lstrcatA(folder, "\\Deaths and Disappearances");
+        CreateDirectoryA(folder, NULL);
+        _snprintf(body, sizeof body, "Village: Harness Tribe (Save 1)\r\nDeath 1\r\n  Name: Old1\r\n\r\n"
+                                     "Death 2\r\n  Name: Old2\r\n\r\n");
+        _snprintf(path, MAX_PATH, "%s\\Virtual Villagers 3 Deaths Log 1.txt", folder);
+        f = fopen(path, "wb");
+        if (f != NULL) { fwrite(body, 1, strlen(body), f); fclose(f); }
+        CHECK(write_record(3, DEATH, rec(0), 1, UNBURIED, NULL, 1) == 1, "a death with the older slot folder there");
+        f = fopen(path, "rb");
+        text[0] = 0;
+        if (f != NULL) { size_t n = fread(text, 1, sizeof text - 1, f); text[n] = 0; fclose(f); }
+        CHECK(strncmp(text, body, strlen(body)) == 0 && strstr(text, "Death 3\r\n  Name: Ana\r\n") != NULL,
+              "appended to the older slot folder's log as Death 3");
+        CHECK(!read_deaths(3, 1), "...and nothing written in the save's own folder");
+        FreeLibrary(dll);
+        free_table(3);
+        wipe(1);
     }
 
     /* 8: no cause-of-death companion, no Deaths or Unaccounted log. */

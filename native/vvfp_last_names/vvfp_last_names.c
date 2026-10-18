@@ -137,6 +137,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include "../shared/per_save.h"          /* one folder per save */
 
 #define GAMES 5
 #define FAMILIES 50
@@ -347,6 +348,9 @@ static int record_path(int slot, char *path, size_t size) {
         return 0;
     }
     path[size - 1] = '\0';
+    /* In the save's own "Virtual Villagers Fun Patcher\Save <slot>\Data\Last Names\" now, unless the
+       record is still in the older layout's folder (native/shared/per_save.h). */
+    (void)vv_ps_route_a(path, (size < MAX_PATH ? (int)size : MAX_PATH) - 16, 0);
     return 1;
 }
 

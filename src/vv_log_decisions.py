@@ -59,7 +59,7 @@ LEFT_KIND = "contradiction_left"
 
 def path(folder: Path, game: int, slot: int) -> Path:
     """Where the slot's decisions are: an older build's "Cross-Check" folder while only it exists."""
-    return layout.find(Path(folder), RELATIVE.format(game=game, slot=slot))
+    return layout.route(Path(folder), RELATIVE.format(game=game, slot=slot))
 
 
 def load(folder: Path, game: int, slot: int) -> list[dict]:
@@ -133,7 +133,7 @@ def _set_aside_unreadable(target: Path) -> None:
 
 def legacy_left(folder: Path, game: int, slot: int) -> set[str]:
     """The contradictions the earlier text file says the player chose to leave (read only)."""
-    path = layout.find(Path(folder), LEGACY_LEFT.format(game=game, slot=slot))
+    path = layout.route(Path(folder), LEGACY_LEFT.format(game=game, slot=slot))
     try:
         return {line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()}
     except OSError:

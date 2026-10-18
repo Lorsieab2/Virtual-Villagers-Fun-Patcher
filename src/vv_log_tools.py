@@ -294,7 +294,8 @@ def approval_path(folder: Path, game: int, slot: int) -> Path:
     """Where the approval for ``game``'s ``slot`` is (present or not)."""
     if game not in (1, 2, 3, 4, 5) or slot not in (1, 2, 3, 4, 5):
         raise LogToolError(f"There is no game {game} save slot {slot}.")
-    return layout.find(folder, APPROVAL.format(game=game, slot=slot))   # "Cross-Check" in older builds
+    # The save's own folder, or the older layout ("Cross-Check" in older builds): src/vv_save_layout.py
+    return layout.route(folder, APPROVAL.format(game=game, slot=slot))
 
 
 def approval_bytes(game: int, slot: int) -> bytes:
@@ -306,7 +307,7 @@ def marker_paths(folder: Path, game: int, slot: int) -> list[tuple[Marker, Path]
     if game not in (1, 2, 3, 4, 5) or slot not in (1, 2, 3, 4, 5):
         raise LogToolError(f"There is no game {game} save slot {slot}.")
     return [
-        (marker, layout.find(folder, marker.path.format(game=game, slot=slot)))
+        (marker, layout.route(folder, marker.path.format(game=game, slot=slot)))
         for marker in REARM_MARKERS
         if game in marker.games
     ]
@@ -328,11 +329,12 @@ def marker_is_valid(marker: Marker, data: bytes, game: int, slot: int) -> bool:
 
 def marker_places(folder: Path, game: int, slot: int) -> list[tuple[Marker, Path]]:
     """Each marker of ``game`` for ``slot`` at EVERY place it is: under both names when an older and a
-    newer build both left one (src/vv_save_layout.py) -- the game reads whichever was written last,
-    so clearing only one of them would leave the other to stop the check -- else where it would be."""
+    newer build both left one, or in both the older layout and the save's own folder
+    (src/vv_save_layout.py) -- the game reads whichever was written last, so clearing only one of
+    them would leave the other to stop the check -- else where it would be."""
     out = []
     for marker, path in marker_paths(folder, game, slot):
-        places = layout.places(folder, marker.path.format(game=game, slot=slot))
+        places = layout.both_places(folder, marker.path.format(game=game, slot=slot))
         out += [(marker, place) for place in places] or [(marker, path)]
     return out
 
@@ -447,7 +449,7 @@ def approve_repair(
         # The game acts on an approval kept under both names under neither (src/vv_save_layout.py,
         # native/shared/crosscheck_bridge.h): this same approval left under the other name by an
         # earlier Repair is cleared, as the game clears one it has used.
-        for other in layout.places(folder, APPROVAL.format(game=game, slot=slot)):
+        for other in layout.both_places(folder, APPROVAL.format(game=game, slot=slot)):
             if other != approval:
                 try:
                     if other.read_bytes() == approval_bytes(game, slot):
@@ -560,10 +562,30 @@ class WordFix:
 def copy_before_repair(folder: Path, path: Path, suffix: str) -> Path:
     """Where the copy of `path` (in the save folder) kept before a repair goes: "Data\\Copies Made
     Before Repairs", at the file's own place, "<name><suffix>" (the owner, 2026-10-09: no longer
-    beside the file; native/shared/save_layout.h vv_layout_copy_path)."""
+    beside the file; native/shared/save_layout.h vv_layout_copy_path).  A file in a save's own folder
+    ("Virtual Villagers Fun Patcher\\Save <S>\\...") has its copy in that save's own "Data\\Copies Made
+    Before Repairs", at its place inside "Save <S>", so deleting the save's folder takes it too
+    (native/shared/per_save.h)."""
     relative = Path(path).resolve().relative_to(Path(folder).resolve())
-    target = Path(folder) / layout.DATA / layout.COPIES / relative
+    if layout.older_layout(folder, path) is not None:
+        root = Path(folder) / relative.parts[0] / relative.parts[1]
+        target = root / layout.SAVE_DATA / layout.COPIES / Path(*relative.parts[2:])
+    else:
+        target = Path(folder) / layout.DATA / layout.COPIES / relative
     return target.with_name(target.name + suffix)
+
+
+def copy_places(folder: Path, path: Path, suffix: str) -> list[Path]:
+    """Every place a copy of `path` kept before a repair may be, for READING (a new copy is always
+    made at copy_before_repair's place): that place, and for a file in a save's own folder also the
+    older layout's "Data\\Copies Made Before Repairs\\<its older-layout place>", where its copies made
+    before Repair Saves & Logs' "Move Files to Save Folders..." stay (src/vv_move_to_save_folders.py)."""
+    out = [copy_before_repair(folder, path, suffix)]
+    older = layout.older_layout(folder, path)
+    if older is not None:
+        target = Path(folder) / layout.DATA / layout.COPIES / Path(*older.split("\\"))
+        out.append(target.with_name(target.name + suffix))
+    return out
 
 
 def _word_backup(folder: Path, path: Path) -> Path:
@@ -580,10 +602,15 @@ def move_word_boundary(folder: Path, path: Path, game: int, moved) -> None:
     its Like and Dislike Words boundary moved with them: `moved(offset)` is where the byte at
     `offset` of the file as it was is now.  In every boundary file that records one (both are read
     and the smaller taken: native/shared/log_words.h), a new last line.  None recorded, or 0, needs
-    nothing (the whole file old, or all of it the game's own words)."""
+    nothing (the whole file old, or all of it the game's own words).  The log's own boundary file
+    (its save's own when the log is in a save's own folder: vv_save_layout.words_file_for) gets the
+    new line too, so the smallest boundary read from every file is the moved one."""
     checker = load_checker()
     key = checker.word_key(str(Path(path).relative_to(folder))).lower()
-    for dat in layout.places(folder, checker.LOG_WORDS.format(game=game)):
+    own = layout.words_file_for(folder, game, key)
+    moved_to: int | None = None
+    recorded_name: str | None = None
+    for dat in layout.words_files(folder, game):
         recorded = None
         for line in dat.read_bytes().decode("utf-8", "replace").splitlines():
             offset, tab, name = line.partition("\t")
@@ -592,12 +619,22 @@ def move_word_boundary(folder: Path, path: Path, game: int, moved) -> None:
                     recorded = (int(offset), name)
                 except ValueError:
                     continue
+        if recorded is not None and dat == own:
+            own = None                           # it keeps its own boundary, moved below if need be
         if recorded is None or recorded[0] <= 0:
             continue
         now = moved(recorded[0])
         if now != recorded[0]:
             with open(dat, "ab") as boundaries:
                 boundaries.write(f"{now}\t{recorded[1]}\r\n".encode("utf-8"))
+            if moved_to is None or now < moved_to:
+                moved_to, recorded_name = now, recorded[1]
+    if own is not None and moved_to is not None and own.is_file():
+        # Only into a file already there: a caller copies every existing boundary file first to put
+        # it back on a failure (src/vv_history_revision.py), and the files that recorded the boundary
+        # were moved above, so the smallest boundary is right without a new file.
+        with open(own, "ab") as boundaries:
+            boundaries.write(f"{moved_to}\t{recorded_name}\r\n".encode("utf-8"))
 
 
 def new_log_words(folder: Path, path: Path) -> None:
@@ -613,7 +650,7 @@ def new_log_words(folder: Path, path: Path) -> None:
     key = checker.word_key(str(Path(path).relative_to(folder)))
     if key.lower() in checker.word_boundaries(Path(folder), game):
         return
-    dat = layout.writable(folder, checker.LOG_WORDS.format(game=game))
+    dat = layout.words_file_for(folder, game, key)       # the save's own for a log in its own folder
     dat.parent.mkdir(parents=True, exist_ok=True)
     with open(dat, "ab") as boundaries:
         boundaries.write(f"0\t{key}\r\n".encode("utf-8"))
@@ -630,9 +667,10 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
     folder = Path(folder)
     done: list[WordFix] = []
     # Appended to the new file, or an older build's "Log Words" while only it exists; the boundaries
-    # are read from both (scripts/vvfp_consistency_check.py word_boundaries).
-    dat = layout.writable(folder, checker.LOG_WORDS.format(game=game))
+    # are read from both (scripts/vvfp_consistency_check.py word_boundaries).  A log in a save's own
+    # folder has its boundary in that save's own file (vv_save_layout.words_file_for).
     for f in checker.old_words(folder, game):
+        dat = layout.words_file_for(folder, game, f.name)
         data = f.path.read_bytes()
         out, at = [], 0
         for start, end, _old, new in f.fixes:

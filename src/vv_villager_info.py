@@ -249,7 +249,7 @@ def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:
     import vv_last_names as ln
     import vv_save_layout as layout
     import vv_titles_file
-    path = layout.find(Path(folder), TITLES_FILE.format(slot=slot))
+    path = layout.route(Path(folder), TITLES_FILE.format(slot=slot))
     if not path.is_file():
         return None
     entries = read_titles_file(path, game)

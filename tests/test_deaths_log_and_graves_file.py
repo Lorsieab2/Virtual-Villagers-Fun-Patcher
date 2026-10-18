@@ -84,7 +84,10 @@ class DeathsLogSource(unittest.TestCase):
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Unaccounted Villagers"', source)
         self.assertIn('L"Virtual Villagers Fun Patcher Logs\\\\Island Events"', source)
         # ...and the same four logs in the slot's own folder (native/shared/log_slot.h).
-        self.assertIn("for (pass = 0; pass < 12; ++pass) {", source)
+        # ...and those four again in the save's own folder (native/shared/per_save.h): passes 12 to 15.
+        self.assertIn("for (pass = 0; pass < 16; ++pass) {", source)
+        self.assertIn("const int own_pass = pass >= 12;", source)
+        self.assertIn("(own_pass ? own_subfolder_w(sub_w, slot_sub) : legacy_subfolder_w(sub_w, slot_sub))", source)
         self.assertIn('L"Births and Conceptions", L"Deaths and Disappearances", L"Unaccounted Villagers", L"Island Events"', source)
         # Each kind in its own folder (native/shared/data_subfolder.h), and
         # the loose name an older build wrote: both are the village's.
@@ -124,8 +127,13 @@ class Harnesses(unittest.TestCase):
         # (4 in each game: a name changed in play is recorded, never hidden -- the owner, 2026-10-11); and 5
         # for a pending custom title printed for nobody (1 in each game; v1.35.70); and 30 for twins with
         # one fingerprint told apart by the looks their titles keep (6 in each game:
-        # native/shared/custom_title_shown.h, the Story companion's rule).
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 325, result.stdout)
+        # native/shared/custom_title_shown.h, the Story companion's rule); and 8 for one folder per save
+        # (native/shared/per_save.h: a titles file in the save's own folder read, 1 in each game; an older
+        # layout's slot folder that holds a log still appended to, numbered on, and no new folder made: 3).
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 333, result.stdout)
+        self.assertEqual(result.stdout.count("  ok   a titles file in the save's own folder is read"), 5)
+        self.assertIn("  ok   appended to the older slot folder's log as Death 3", result.stdout)
+        self.assertIn("  ok   ...and nothing written in the save's own folder", result.stdout)
         self.assertIn("  ok   A PENDING CUSTOM TITLE IS PRINTED FOR NOBODY", result.stdout)
         self.assertEqual(result.stdout.count(
             "  ok   TWINS WITH ONE FINGERPRINT AND DIFFERENT LOOKS EACH SHOW THEIR OWN BOUND TITLE"), 5)
@@ -145,8 +153,13 @@ class Harnesses(unittest.TestCase):
         self.assertIn("PASSED: 0 failure(s)", result.stdout)
         # 58, and 4 for the roster's older name in its folder (native/shared/save_layout.h): used under
         # that name, loose or in its folder, never moved or renamed; and 11 for section 11, the Custom
-        # Island Event's "Dies" (v1.35.68: "Died in a custom island event")
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11, result.stdout)
+        # Island Event's "Dies" (v1.35.68: "Died in a custom island event"); and 6 for one folder per save
+        # (native/shared/per_save.h): the bad file set up in the save's own folder (1), and a graves file
+        # still in the older layout's Graves\ read and written there, Start Over clearing both places (5).
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11 + 6, result.stdout)
+        self.assertIn("  ok   a new grave is written there too, nothing in the save's own folder", result.stdout)
+        self.assertIn("  ok   Start Over deletes the graves file in the older layout's Graves\\ and in the save's own",
+                      result.stdout)
         self.assertIn("  ok   the save read and wrote it under its older name, never renaming it: nobody unaccounted",
                       result.stdout)
         self.assertIn("  ok   the save used the roster where an older build left it (loose, by its older name), never moving it",

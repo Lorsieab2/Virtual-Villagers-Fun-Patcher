@@ -66,6 +66,13 @@ class LastNamesError(Exception):
     """Nothing was changed (or everything was put back); the message says why."""
 
 
+def _data_file(folder: Path, kind: str, name: str) -> Path:
+    """The one place a save's data file `name` of the Data folder's `kind` is read and written: the
+    save's own "Virtual Villagers Fun Patcher\\Save <S>\\Data\\<kind>" or the older layout's
+    "Virtual Villagers Fun Patcher Data\\<kind>" (src/vv_save_layout.py route)."""
+    return layout.route(Path(folder), f"{layout.DATA}\\{kind}\\{name}")
+
+
 @dataclass(frozen=True)
 class Fields:
     """Offsets relative to the villager's name inside a saved entry."""
@@ -210,11 +217,12 @@ def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list,
     graves_name = f"Virtual Villagers {game} Graves - Save {slot}.dat"
     cie_name = f"Virtual Villagers {game} Custom Island Event Deaths - Save {slot}.dat"
     for path, magic, header, size, place_kind in (
-            (data_dir / "Graves" / graves_name, b"VCD1", 16, 44, True),
+            (_data_file(folder, "Graves", graves_name), b"VCD1", 16, 44, True),
             (data_dir / graves_name, b"VCD1", 16, 44, True),
-            (data_dir / "Deaths" / f"Virtual Villagers {game} Graves Logged - Save {slot}.dat", b"VCG1", 16, 8, False),
+            (_data_file(folder, "Deaths", f"Virtual Villagers {game} Graves Logged - Save {slot}.dat"),
+             b"VCG1", 16, 8, False),
             # The bodies the Custom Island Event's "Dies" left (The Secret City on), by record and print.
-            (data_dir / "Custom Island Event Deaths" / cie_name, b"VCE1", 16, 8, None)):
+            (_data_file(folder, "Custom Island Event Deaths", cie_name), b"VCE1", 16, 8, None)):
         if not path.is_file() or (magic == b"VCD1" and game > 2) or (magic == b"VCE1" and game <= 2):
             continue
         original = path.read_bytes()
@@ -459,7 +467,7 @@ def with_last(game: int, name: str, last: str, known: set[str] | frozenset = fro
 
 
 def record_path(folder: Path, game: int, slot: int) -> Path:
-    return Path(folder) / tools.DATA / "Last Names" / f"Virtual Villagers {game} Last Names - Save {slot}.dat"
+    return _data_file(folder, "Last Names", f"Virtual Villagers {game} Last Names - Save {slot}.dat")
 
 
 RECORD_HEADER = "VVFP LAST NAMES v1 game={game}"
@@ -716,7 +724,7 @@ def _expected_fathers(folder: Path, game: int, slot: int) -> set[str]:
     try:
         if game == 1:
             data_dir = Path(folder) / tools.DATA
-            for path in (layout.find(Path(folder), f"{layout.DATA}\\{layout.PARENTS_VV1}\\"
+            for path in (layout.route(Path(folder), f"{layout.DATA}\\{layout.PARENTS_VV1}\\"
                                                    f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"),
                          data_dir / f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"):
                 if path.is_file():
@@ -1176,11 +1184,11 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     _plan_masks(result, game, slot, data_dir, mask_map, conflicts)
     # The Custom Titles file: version 3 (84-byte entries, v1.35.70) or 2 (40 bytes); the identity is the
     # second dword of either (native/shared/custom_titles.h, src/vv_titles_file.py).
-    _plan_u32_file(result, data_dir / "Custom Titles" / f"Custom Titles - Save {slot}.dat",
+    _plan_u32_file(result, _data_file(folder, "Custom Titles", f"Custom Titles - Save {slot}.dat"),
                    b"VCT1", {3: 84, 2: 40}, game, 16, 4, title_map, "custom titles", {},
                    _split_titles_resolver(game, original, title_split, title_conflicts))
     if game == 5:
-        _plan_u32_file(result, data_dir / "Former Heathens" / f"Former Heathens - Save {slot}.dat",
+        _plan_u32_file(result, _data_file(folder, "Former Heathens", f"Former Heathens - Save {slot}.dat"),
                        b"VFH1", {1: 8}, game, 16, 0, title_map, "former Heathens", title_conflicts)
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
@@ -1262,7 +1270,7 @@ def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: di
                 conflicts: dict[int, str]) -> None:
     checker = tools.load_checker()
     name = checker.VV_MASK_FILES.get(game, "Village Masks - Save {slot}.dat").format(slot=slot)
-    for path in (data_dir / "Village Masks" / name, data_dir / name):
+    for path in (_data_file(data_dir.parent, "Village Masks", name), data_dir / name):
         if not path.is_file():
             continue
         original = path.read_bytes()
@@ -1377,7 +1385,7 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
         by_scalar.setdefault((v.name, 1 if v.sex == "Male" else 2, v.family), set()).add(
             renames.get(v.identity, v.name))
     dead = _dead_names(folder, 1, slot)
-    for path in (layout.find(data_dir.parent, f"{layout.DATA}\\{layout.PARENTS_VV1}\\"
+    for path in (layout.route(data_dir.parent, f"{layout.DATA}\\{layout.PARENTS_VV1}\\"
                                               f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"),
                  data_dir / f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"):
         if not path.is_file():
@@ -1424,7 +1432,7 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
                       dead: frozenset | set = frozenset()) -> None:
     name = f"Virtual Villagers {game} Villagers at Last Save - Save {slot}.dat"
     rec = RECORD[game]
-    for path in (layout.find(data_dir.parent, f"{layout.DATA}\\Unaccounted Villagers\\{name}"),
+    for path in (layout.route(data_dir.parent, f"{layout.DATA}\\Unaccounted Villagers\\{name}"),
                  data_dir / f"Virtual Villagers {game} Village Roster - Save {slot}.dat"):
         if not path.is_file():
             continue
@@ -1534,9 +1542,8 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
     (which does not) is this game's only when the slot's "Village Statistics - Save N.dat" says so.
     A name these files hold for more than one new name stays, and is reported (Codex, #557)."""
     unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1}
-    folder = data_dir / "Village Statistics"
-    roster = layout.find(data_dir.parent, f"{layout.DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat")
-    statistics = _first_line(folder / f"Village Statistics - Save {slot}.dat")
+    roster = layout.route(data_dir.parent, f"{layout.DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat")
+    statistics = _first_line(_data_file(data_dir.parent, "Village Statistics", f"Village Statistics - Save {slot}.dat"))
     if roster.is_file() and statistics != f"VVFP VILLAGE STATISTICS v1 game={game}":
         result.notes.append(f"{roster.name} may be another game's (its Village Statistics file does not "
                             "name this game); left as it is.")
@@ -1557,7 +1564,7 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
         if changed:
             result.changes.append(Change(roster, original, "\n".join(lines).encode("latin-1"),
                                         "the statistics roster"))
-    elders = data_dir / "Village Elders" / f"Village Elders - Save {slot}.dat"
+    elders = _data_file(data_dir.parent, "Village Elders", f"Village Elders - Save {slot}.dat")
     if elders.is_file() and _first_line(elders) != f"VVFP VILLAGE ELDERS v2 game={game}":
         result.notes.append(f"{elders.name} is not this game's version 2 Village Elders file; left as it is.")
     elif elders.is_file():
@@ -1669,8 +1676,7 @@ def _plan_repairs_logs(result: Plan, folder: Path, game: int, slot: int, by_name
     # never touches "Kaula Bahati" (review, 2026-10-07).
     pattern = re.compile(r"(?:^|(?<=[\s:]))(" + "|".join(re.escape(n) for n in sorted(unique, key=len, reverse=True))
                          + r")(?=\s--|\s\(|[,);]|\scleared\b|\s*$)")
-    for top in checker.LOG_FOLDERS:
-        root = Path(folder) / top
+    for root in checker.log_roots(Path(folder)):        # the older layout's, then each save's own
         if not root.is_dir():
             continue
         for path in sorted(root.rglob("*.txt")):
@@ -2071,7 +2077,7 @@ class Missing:
 
 
 def missing_path(folder: Path, game: int, slot: int) -> Path:
-    return Path(folder) / tools.DATA / "Last Names" / f"Virtual Villagers {game} Missing Last Names - Save {slot}.dat"
+    return _data_file(folder, "Last Names", f"Virtual Villagers {game} Missing Last Names - Save {slot}.dat")
 
 
 def read_missing(folder: Path, game: int, slot: int) -> tuple[str | None, set[tuple]]:

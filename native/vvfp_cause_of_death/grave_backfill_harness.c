@@ -315,8 +315,8 @@ static void write_text(const char *path, const char *text) {
 static char text[1 << 17];
 
 /* The SHARED Deaths and Disappearances file an older build wrote (the harness writes the older logs
-   there), and "...Logs\Save 1\Deaths and Disappearances\", where this build writes the "(Save 1)"
-   village's records (native/shared/log_slot.h). */
+   there), and the save's own "...\Virtual Villagers Fun Patcher\Save 1\Logs\Deaths and
+   Disappearances\", where this build writes the "(Save 1)" village's records (native/shared/per_save.h). */
 static void deaths_path(int number, char *out) {
     _snprintf(out, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Logs\\Deaths and Disappearances\\Virtual Villagers %d Deaths Log %d.txt",
               root, game, number);
@@ -324,7 +324,7 @@ static void deaths_path(int number, char *out) {
 
 static void slot_deaths_path(int number, char *out) {
     _snprintf(out, MAX_PATH,
-              "%s\\Virtual Villagers Fun Patcher Logs\\Save 1\\Deaths and Disappearances\\Virtual Villagers %d Deaths Log %d.txt",
+              "%s\\Virtual Villagers Fun Patcher\\Save 1\\Logs\\Deaths and Disappearances\\Virtual Villagers %d Deaths Log %d.txt",
               root, game, number);
 }
 
@@ -376,8 +376,10 @@ static void delete_village_deaths(void) {
     DeleteFileA(path);
 }
 
+/* The grave backfill's own data file, fresh: in the save's own folder (native/shared/per_save.h). */
 static void logged_path(char *out) {
-    _snprintf(out, MAX_PATH, "%s\\Virtual Villagers Fun Patcher Data\\Deaths\\Virtual Villagers %d Graves Logged - Save 1.dat",
+    _snprintf(out, MAX_PATH,
+              "%s\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Deaths\\Virtual Villagers %d Graves Logged - Save 1.dat",
               root, game);
 }
 
@@ -617,12 +619,13 @@ static void write_save_file(void) {
     free(data);
 }
 
-static const char *ROOT_SUBS[2] = { "Virtual Villagers Fun Patcher Logs", "Virtual Villagers Fun Patcher Data" };
+static const char *ROOT_SUBS[3] = { "Virtual Villagers Fun Patcher Logs", "Virtual Villagers Fun Patcher Data",
+                                     "Virtual Villagers Fun Patcher" /* each save's own folder */ };
 
 static void clean(void) {
     char sub[MAX_PATH];
     int k;
-    for (k = 0; k < 2; ++k) {
+    for (k = 0; k < 3; ++k) {
         _snprintf(sub, MAX_PATH, "%s\\%s", root, ROOT_SUBS[k]);
         remove_tree(sub);
         RemoveDirectoryA(sub);
@@ -924,7 +927,7 @@ int main(int argc, char **argv) {
         CHECK(count_of(text, "\r\n  Name: Bolo\r\n") == 1 && count_of(text, "\r\n  Name: Rua\r\n") == 1,
               "Bolo's and Rua's graves are recorded from");
         _snprintf(line, sizeof line,
-                  "%s\\Virtual Villagers Fun Patcher Logs\\Save 1\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
+                  "%s\\Virtual Villagers Fun Patcher\\Save 1\\Logs\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
                   root, game);
         read_into(line);
         CHECK(strstr(text, "Bolo") == NULL, "...Bolo, whose History looks are his, is not Unaccounted");

@@ -76,13 +76,16 @@ static void titles_forget(void) {
     titles.frozen = 0;
 }
 
+/* The slot's file: the save's own "Virtual Villagers Fun Patcher\Save <S>\Data\Custom Titles\
+   Custom Titles - Save <S>.dat", or the older layout's while the file is still there
+   (native/shared/per_save_data.h). */
 static int titles_build_path(int game, int slot, char *out) {
-    char folder[MAX_PATH];
+    char name[MAX_PATH];
     (void)game;
-    if (!vv_save_subfolder(folder, VV_TITLES_SUBFOLDER, (int)sizeof("\\Custom Titles - Save 0.dat"))) {
+    if (!vv_titles_file_name(name, MAX_PATH, "", slot)) {
         return 0;
     }
-    return vv_titles_file_name(out, MAX_PATH, folder, slot);
+    return vv_ps_data_file_a(out, "Custom Titles", name + 1, VV_PS_RESERVE);   /* past the "\" */
 }
 
 /* Bind the table to the game's current save slot, loading that slot's file

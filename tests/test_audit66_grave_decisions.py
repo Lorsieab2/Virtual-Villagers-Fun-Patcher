@@ -52,8 +52,7 @@ class ANewHomeGraveKeepsItsEpitaph(unittest.TestCase):
         return v
 
     def entry(self, v):
-        data = (v.folder / "Virtual Villagers Fun Patcher Data" / "Graves"
-                / "Virtual Villagers 1 Graves - Save 1.dat").read_bytes()
+        data = vg.graves_file(v.folder, 1, 1).read_bytes()     # the save's own folder, or the older one
         return data[16:60]
 
     def test_a_listed_epitaph_from_the_death_record(self):

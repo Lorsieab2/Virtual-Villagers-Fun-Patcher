@@ -15,7 +15,8 @@ Where the saves are
 
 What is copied
     Everything in the save folder -- the game's .ldw saves, the patcher's
-    "Virtual Villagers Fun Patcher Logs" and "Virtual Villagers Fun Patcher
+    "Virtual Villagers Fun Patcher" folder (each save's own Logs and Data), the
+    older "Virtual Villagers Fun Patcher Logs" and "Virtual Villagers Fun Patcher
     Data" folders with all their subfolders, and any other file the patcher
     keeps beside the saves -- except the "Backups" folder itself. The copy goes
     into a new "Backups\\Backup YYYY-MM-DD HH-MM-SS" folder inside that same
@@ -721,7 +722,11 @@ _PATCHER_FOLDERS = (
     # slot under either name alike.
     "virtual villagers fun patcher family trees",
     "vvfp logs",
+    # Everything of one save in one folder, "Virtual Villagers Fun Patcher\Save <S>\" (its Logs and its
+    # Data, src/vv_save_layout.py): every file in it is that slot's.
+    "virtual villagers fun patcher",
 )
+_SAVES_FOLDER = "virtual villagers fun patcher"
 _LOG_FOLDERS = ("virtual villagers fun patcher logs", "vvfp logs")
 # Village-headed logs (births, deaths, unaccounted, population pages) are
 # numbered by roll-over, not by slot; their header names the slot instead.
@@ -1128,7 +1133,8 @@ def file_slot(relative: Path, folder: Path) -> int | str:
         return "unknown"
     # One folder of logs per save slot (src/vv_save_layout.py): everything in
     # "Virtual Villagers Fun Patcher Logs\Save <S>\" is that slot's.
-    if top == _LOG_FOLDERS[0] and len(relative.parts) >= 3:
+    # The same for the save's own "Virtual Villagers Fun Patcher\Save <S>\" (its Logs, its Data).
+    if top in (_LOG_FOLDERS[0], _SAVES_FOLDER) and len(relative.parts) >= 3:
         match = re.fullmatch(r"save ([1-5])", relative.parts[1].casefold())
         if match:
             return int(match.group(1))

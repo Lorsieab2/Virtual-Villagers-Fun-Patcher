@@ -303,8 +303,8 @@ class Safety(Base):
             with self.subTest(game=game):
                 s = self.scene(game)
                 s.revise()
-                repairs = list((s.v.folder / "Virtual Villagers Fun Patcher Logs").rglob(
-                    f"Virtual Villagers {game} Repairs Log *.txt"))
+                repairs = [p for root in ("Virtual Villagers Fun Patcher Logs", "Virtual Villagers Fun Patcher")
+                           for p in (s.v.folder / root).rglob(f"Virtual Villagers {game} Repairs Log *.txt")]
                 self.assertEqual(len(repairs), 1)
                 text = self.text(repairs[0])
                 self.assertIn("Removed: Gonea Testa (Female, head 99, body 98) -- from ", text)

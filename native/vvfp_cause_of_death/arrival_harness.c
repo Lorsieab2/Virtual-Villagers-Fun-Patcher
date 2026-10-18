@@ -259,8 +259,9 @@ static void write_text(const char *path, const char *text) {
 static char text[1 << 17];
 
 /* The SHARED Births and Conceptions file an older build wrote (the harness writes the older logs
-   there), and "...Logs\Save 1\Births and Conceptions\", where this build writes the "(Save 1)"
-   village's records (native/shared/log_slot.h). */
+   there), and the save's own "...\Virtual Villagers Fun Patcher\Save 1\Logs\Births and Conceptions\",
+   where this build writes the "(Save 1)" village's records (native/shared/per_save.h); the data files
+   below are fresh too, so in "...\Save 1\Data\". */
 static void births_path(int number, char *out) {
     _snprintf(out, MAX_PATH,
               "%s\\Virtual Villagers Fun Patcher Logs\\Births and Conceptions\\Virtual Villagers %d Births and Conceptions Log %d.txt",
@@ -269,13 +270,13 @@ static void births_path(int number, char *out) {
 
 static void slot_births_path(int number, char *out) {
     _snprintf(out, MAX_PATH,
-              "%s\\Virtual Villagers Fun Patcher Logs\\Save 1\\Births and Conceptions\\Virtual Villagers %d Births and Conceptions Log %d.txt",
+              "%s\\Virtual Villagers Fun Patcher\\Save 1\\Logs\\Births and Conceptions\\Virtual Villagers %d Births and Conceptions Log %d.txt",
               root, game, number);
 }
 
 static void unaccounted_path(char *out) {
     _snprintf(out, MAX_PATH,
-              "%s\\Virtual Villagers Fun Patcher Logs\\Save 1\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
+              "%s\\Virtual Villagers Fun Patcher\\Save 1\\Logs\\Unaccounted Villagers\\Virtual Villagers %d Unaccounted Villagers Log 1.txt",
               root, game);
 }
 
@@ -321,7 +322,7 @@ static long read_into(const char *path) {
 
 static void marker_path(char *out) {
     _snprintf(out, MAX_PATH,
-              "%s\\Virtual Villagers Fun Patcher Data\\Arrivals\\Virtual Villagers %d Arrivals Recorded - Save 1.dat",
+              "%s\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Arrivals\\Virtual Villagers %d Arrivals Recorded - Save 1.dat",
               root, game);
 }
 
@@ -495,12 +496,13 @@ static void write_save_named(const char *village) {
     free(data);
 }
 
-static const char *ROOT_SUBS[2] = { "Virtual Villagers Fun Patcher Logs", "Virtual Villagers Fun Patcher Data" };
+static const char *ROOT_SUBS[3] = { "Virtual Villagers Fun Patcher Logs", "Virtual Villagers Fun Patcher Data",
+                                     "Virtual Villagers Fun Patcher" /* each save's own folder */ };
 
 static void clean(void) {
     char sub[MAX_PATH];
     int k;
-    for (k = 0; k < 2; ++k) {
+    for (k = 0; k < 3; ++k) {
         _snprintf(sub, MAX_PATH, "%s\\%s", root, ROOT_SUBS[k]);
         remove_tree(sub);
         RemoveDirectoryA(sub);
@@ -567,7 +569,7 @@ static void write_history(void) {
    written there. */
 static void births_marker_path(char *out) {
     _snprintf(out, MAX_PATH,
-              "%s\\Virtual Villagers Fun Patcher Data\\Births\\Virtual Villagers %d Births Recorded - Save 1.dat",
+              "%s\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Births\\Virtual Villagers %d Births Recorded - Save 1.dat",
               root, game);
 }
 
@@ -682,11 +684,18 @@ static void quit_cases(void) {
         _snprintf(approval, MAX_PATH,
                   "%s\\Virtual Villagers Fun Patcher Data\\Log Checks\\Virtual Villagers %d Repair Approved - Save 1.dat",
                   root, game);
+        char own_approval[MAX_PATH];
+        /* ...in the older layout's Log Checks and in the save's own (native/shared/per_save.h). */
+        _snprintf(own_approval, MAX_PATH,
+                  "%s\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Log Checks\\Virtual Villagers %d Repair Approved - Save 1.dat",
+                  root, game);
         write_text(approval, "VRA1");
-        CHECK(file_exists(approval), "quit: (an approval for the slot is there)");
+        write_text(own_approval, "VRA1");
+        CHECK(file_exists(approval) && file_exists(own_approval), "quit: (an approval for the slot is there, in both places)");
         reset(game, 1);
         vv_reset_slot_state(game, 1, "Village: Arrival Tribe (Save 1)\n");
-        CHECK(!file_exists(approval), "quit: Start Over deletes the slot's Repair Saves & Logs approval");
+        CHECK(!file_exists(approval) && !file_exists(own_approval),
+              "quit: Start Over deletes the slot's Repair Saves & Logs approval");
     }
     free(buffer);
 }
@@ -1473,7 +1482,7 @@ int main(int argc, char **argv) {
                     DWORD got = 0;
                     HANDLE h;
                     _snprintf(former_path, MAX_PATH,
-                              "%s\\Virtual Villagers Fun Patcher Data\\Former Heathens\\Former Heathens - Save 1.dat",
+                              "%s\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Former Heathens\\Former Heathens - Save 1.dat",
                               root);
                     h = CreateFileA(former_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
                     if (h != INVALID_HANDLE_VALUE) { ReadFile(h, blob, sizeof blob, &got, NULL); CloseHandle(h); }

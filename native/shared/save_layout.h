@@ -245,7 +245,23 @@ static int vv_layout_copy_path(const wchar_t *file, const wchar_t *suffix, wchar
     const wchar_t *logs = wcsstr(file, L"\\" VV_LOGS_DIR L"\\");
     const wchar_t *data = wcsstr(file, L"\\" VV_DATA_DIR L"\\");
     const wchar_t *at = logs != NULL && (data == NULL || logs < data) ? logs : data;
+    const wchar_t *own = wcsstr(file, L"\\Virtual Villagers Fun Patcher\\Save ");
     int written;
+    /* A file in a save's own folder (per_save.h) keeps its copy in that folder too:
+       "...\Virtual Villagers Fun Patcher\Save <S>\Data\Copies Made Before Repairs\<its place inside
+       Save <S>>", so deleting the save's folder deletes them with it. */
+    if (own != NULL && (at == NULL || own < at)) {
+        const wchar_t *slot = own + lstrlenW(L"\\Virtual Villagers Fun Patcher\\Save ");
+        if (slot[0] >= L'1' && slot[0] <= L'5' && slot[1] == L'\\') {
+            written = _snwprintf_s(out, n, _TRUNCATE, L"%.*ls\\Data\\Copies Made Before Repairs%ls%ls",
+                                   (int)(slot + 1 - file), file, slot + 1, suffix != NULL ? suffix : L"");
+            if (written < 0) {
+                return 0;
+            }
+            vv_layout_make_parents(out);
+            return 1;
+        }
+    }
     if (at == NULL) {
         return 0;
     }

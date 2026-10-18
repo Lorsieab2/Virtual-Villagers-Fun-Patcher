@@ -158,8 +158,9 @@ static char *rc_line(char **cursor) {
    (nothing may then be decided). */
 typedef void (*rc_visit_fn)(char *text, void *context);
 
-static int rc_each_log(const wchar_t *sub, const wchar_t *stem, rc_visit_fn visit, void *context) {
-    wchar_t folder[MAX_PATH];
+/* `folder` is absolute and is only read (never made: a reader names each place itself, and
+   vv_save_subfolder_w would route a slot's older folder to the save's own -- per_save.h). */
+static int rc_each_log(const wchar_t *folder, const wchar_t *stem, rc_visit_fn visit, void *context) {
     wchar_t pattern[MAX_PATH];
     wchar_t path[MAX_PATH];
     WIN32_FIND_DATAW found;
@@ -168,8 +169,7 @@ static int rc_each_log(const wchar_t *sub, const wchar_t *stem, rc_visit_fn visi
     int count = 0;
     int i, j;
     size_t stem_len = wcslen(stem);
-    if (!vv_save_subfolder_w(folder, sub, 64)
-        || _snwprintf_s(pattern, MAX_PATH, _TRUNCATE, L"%ls\\%ls *.txt", folder, stem) < 0) {
+    if (_snwprintf_s(pattern, MAX_PATH, _TRUNCATE, L"%ls\\%ls *.txt", folder, stem) < 0) {
         return 0;
     }
     find = FindFirstFileW(pattern, &found);
@@ -223,30 +223,24 @@ static int rc_each_log(const wchar_t *sub, const wchar_t *stem, rc_visit_fn visi
    that cannot be examined decides nothing (0). */
 static int rc_each_slot_log(const wchar_t *sub_name, const wchar_t *old_name, const wchar_t *stem, int slot,
                             rc_visit_fn visit, void *context) {
-    wchar_t root[MAX_PATH], rel[3][MAX_PATH], path[MAX_PATH];
-    int n = 0, i;
+    /* ...and after the slot's older folder, the save's own "Virtual Villagers Fun Patcher\Save <slot>\
+       Logs\<sub_name>" (per_save.h): log_slot.h's reading order. */
+    wchar_t root[MAX_PATH], folders[VV_LOG_READ_MAX][MAX_PATH];
+    int n, i;
+    int valid = slot >= 1 && slot <= VV_LOG_SLOTS;
     if (!vv_save_folder_w(root, 64)) {
         return 0;
     }
-    if (old_name != NULL && vv_log_rel_w(rel[n], MAX_PATH, 0, old_name)) {
-        ++n;
-    }
-    if (vv_log_rel_w(rel[n], MAX_PATH, 0, sub_name)) {
-        ++n;
-    }
-    if (slot >= 1 && slot <= VV_LOG_SLOTS && vv_log_rel_w(rel[n], MAX_PATH, slot, sub_name)) {
-        ++n;
+    n = vv_log_read_folders_w(root, sub_name, old_name, valid ? slot : 1, folders, VV_LOG_READ_MAX);
+    if (!valid && n > (old_name != NULL ? 2 : 1)) {
+        n = old_name != NULL ? 2 : 1;            /* no slot: the shared folders only, as before */
     }
     for (i = 0; i < n; ++i) {
-        int kind;
-        if (_snwprintf_s(path, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, rel[i]) < 0) {
-            return 0;
-        }
-        kind = vv_layout_probe_w(path, NULL);
+        int kind = vv_layout_probe_w(folders[i], NULL);
         if (kind == VV_LAYOUT_UNKNOWN) {
             return 0;
         }
-        if (kind == VV_LAYOUT_DIR && !rc_each_log(rel[i], stem, visit, context)) {
+        if (kind == VV_LAYOUT_DIR && !rc_each_log(folders[i], stem, visit, context)) {
             return 0;
         }
     }
@@ -492,10 +486,13 @@ static void rc_visit_history(char *text, void *context) {
 
 /* ---- the plan -------------------------------------------------------------- */
 
+/* The elders file the save itself reads and writes (village_elders.c path_for): the save's own
+   "Virtual Villagers Fun Patcher\Save <S>\Data\Village Elders\", unless the file is still in the older
+   layout's folder (native/shared/per_save_data.h). */
 static int rc_elders_path(int slot, wchar_t *path) {
-    wchar_t folder[MAX_PATH];
-    return vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Elders", 64)
-        && _snwprintf_s(path, MAX_PATH, _TRUNCATE, L"%ls\\Village Elders - Save %d.dat", folder, slot) > 0;
+    wchar_t name[64];
+    return _snwprintf_s(name, 64, _TRUNCATE, L"Village Elders - Save %d.dat", slot) > 0
+        && vv_ps_data_file_w(path, L"Village Elders", name, 64);
 }
 
 /* The names on the elders list (field 3 of every line), into `taken`;
