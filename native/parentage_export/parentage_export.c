@@ -1400,7 +1400,7 @@ static const wchar_t *family_folder_in(int family, int slot, wchar_t *buffer) {
     return family_folder(family);
 }
 
-#define READ_FOLDERS (2 + VV_LOG_SLOTS)
+#define READ_FOLDERS VV_LOG_READ_MAX
 
 /* Every folder a village's logs of `sub` are READ from, oldest first, as one history: the shared
    folder older builds wrote (and `old_sub`, an older build's name for it), then the slot folder of
@@ -2003,7 +2003,7 @@ static void folder_numbers(const wchar_t *folder, const wchar_t *stem, int famil
    count alone, as it always was. */
 static int family_number_floor(const struct game_layout *g, int family, int slot, int walked) {
     wchar_t root[MAX_PATH];
-    wchar_t folders[2 + VV_LOG_SLOTS][MAX_PATH];
+    wchar_t folders[VV_LOG_READ_MAX][MAX_PATH];
     wchar_t written[MAX_PATH];
     wchar_t sub[MAX_PATH];
     const wchar_t *stem = family_stem(g, family);
@@ -2012,8 +2012,9 @@ static int family_number_floor(const struct game_layout *g, int family, int slot
         || _snwprintf_s(written, MAX_PATH, _TRUNCATE, L"%ls\\%ls", root, family_folder_in(family, slot, sub)) < 0) {
         return walked;
     }
+    (void)vv_ps_route_w(written, MAX_PATH - 64, 0);   /* the folder vv_save_subfolder_w writes (per_save.h) */
     n = vv_log_read_folders_w(root, family_sub(family), family == LOG_DEATHS ? L"Deaths" : NULL, 0,
-                              folders, 2 + VV_LOG_SLOTS);
+                              folders, VV_LOG_READ_MAX);
     for (i = 0; i < n; ++i) {
         int count, highest;
         folder_numbers(folders[i], stem, family, &count, &highest);
@@ -3071,7 +3072,7 @@ static int saved_tribe_still_loaded(int game_id) {
    their count in each folder, and the highest "Arrived <n>" printed. */
 static int count_running_records(const struct game_layout *g, int births) {
     wchar_t root[MAX_PATH];
-    wchar_t folders[2 + VV_LOG_SLOTS][MAX_PATH];
+    wchar_t folders[VV_LOG_READ_MAX][MAX_PATH];
     wchar_t path[MAX_LOG_PATH];
     const wchar_t *stem = family_stem(g, LOG_BIRTHS);
     char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
@@ -3082,7 +3083,7 @@ static int count_running_records(const struct game_layout *g, int births) {
     if (stem == NULL || !vv_save_folder_w(root, 96)) {
         return -1;
     }
-    n = vv_log_read_folders_w(root, BIRTHS_SUB, NULL, 0, folders, 2 + VV_LOG_SLOTS);
+    n = vv_log_read_folders_w(root, BIRTHS_SUB, NULL, 0, folders, VV_LOG_READ_MAX);
     for (f = 0; f < n; ++f) {
         int total = 0;
         long highest = 0;
@@ -4321,6 +4322,7 @@ static int record_custom_title(int game_id, const struct game_layout *g,
     if (!vv_titles_file_name(path, MAX_PATH, folder, slot)) {
         return 0;
     }
+    (void)vv_ps_route_a(path, MAX_PATH, 0);     /* the save's own folder, or the older layout's (per_save.h) */
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {

@@ -882,9 +882,12 @@ class StoreSourceTests(unittest.TestCase):
         text = STORE.read_text(encoding="utf-8")
         for needle in ('"VVFP STEW DISCOVERIES v1 game=%d"', '"VVFP VILLAGE STATISTICS v1 game=%d\\n"',
                        '"stew=%d herbs=%02X,%02X,%02X water=%s"', '"stew=%d herbs=%02X,%02X,%02X"',
-                       'L"Virtual Villagers Fun Patcher Data\\\\Stew Discoveries"',
-                       'L"%ls\\\\Stew Discoveries - Save %d.dat"',
-                       'L"%ls\\\\Village Statistics - Save %d.dat"',
+                       # One folder per save (native/shared/per_save_data.h): each file's name, routed
+                       # to the save's own "...\Save <S>\Data\<kind>\" or the older layout's folder.
+                       'L"Stew Discoveries - Save %d.dat"',
+                       'vv_ps_data_file_w(stews, L"Stew Discoveries", name, 32)',
+                       'L"Village Statistics - Save %d.dat"',
+                       'vv_ps_data_file_w(counters, L"Village Statistics", name, 32)',
                        "MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, text)

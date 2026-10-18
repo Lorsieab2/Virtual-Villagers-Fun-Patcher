@@ -1,5 +1,6 @@
 /* See save_folder.h for why this exists and what it guarantees. */
 #include "save_folder.h"
+#include "per_save.h"
 
 #include <shlobj.h>
 #include <stdio.h>
@@ -100,10 +101,31 @@ int vv_save_folder_w(wchar_t *out, int reserve) {
     return 1;
 }
 
+/* ONE FOLDER PER SAVE (per_save.h): a slot's log folder of the older layout ("Virtual Villagers Fun
+   Patcher Logs\Save <S>\<sub>") is routed to the save's own "Virtual Villagers Fun Patcher\Save <S>\
+   Logs\<sub>" unless the older one already holds that log (it is written where it is until the player
+   moves it).  `routed` receives the tail to create, relative to the save folder. */
+static const wchar_t *route_sub_w(const wchar_t *folder, const wchar_t *sub, int reserve, wchar_t *routed) {
+    wchar_t full[MAX_PATH];
+    int folder_len = (int)wcslen(folder);
+    if (folder_len + 1 + (int)wcslen(sub) + 1 > MAX_PATH) {
+        return sub;
+    }
+    _snwprintf(full, MAX_PATH, L"%ls\\%ls", folder, sub);
+    full[MAX_PATH - 1] = 0;
+    if (!vv_ps_route_w(full, MAX_PATH - reserve, 0) || (int)wcslen(full) <= folder_len + 1) {
+        return sub;
+    }
+    _snwprintf(routed, MAX_PATH, L"%ls", full + folder_len + 1);
+    routed[MAX_PATH - 1] = 0;
+    return routed;
+}
+
 /* Create "<save folder>\<sub>" one component at a time. */
 int vv_save_subfolder_w(wchar_t *out, const wchar_t *sub, int reserve) {
     wchar_t folder[MAX_PATH];
     wchar_t built[MAX_PATH];
+    wchar_t routed[MAX_PATH];
     const wchar_t *p;
     int len;
     if (out == NULL || sub == NULL || sub[0] == L'\0' || reserve < 0) {
@@ -113,6 +135,7 @@ int vv_save_subfolder_w(wchar_t *out, const wchar_t *sub, int reserve) {
     if (!vv_save_folder_w(folder, (int)wcslen(sub) + 1 + reserve)) {
         return 0;
     }
+    sub = route_sub_w(folder, sub, reserve, routed);
     /* Walk `sub`, creating each component as its trailing backslash (or the
        end) is reached. CreateDirectoryW on an existing directory fails with
        ERROR_ALREADY_EXISTS, which is not an error for us. */
@@ -142,9 +165,26 @@ int vv_save_subfolder_w(wchar_t *out, const wchar_t *sub, int reserve) {
     return 1;
 }
 
+static const char *route_sub_a(const char *folder, const char *sub, int reserve, char *routed) {
+    char full[MAX_PATH];
+    int folder_len = (int)strlen(folder);
+    if (folder_len + 1 + (int)strlen(sub) + 1 > MAX_PATH) {
+        return sub;
+    }
+    _snprintf(full, MAX_PATH, "%s\\%s", folder, sub);
+    full[MAX_PATH - 1] = 0;
+    if (!vv_ps_route_a(full, MAX_PATH - reserve, 0) || (int)strlen(full) <= folder_len + 1) {
+        return sub;
+    }
+    _snprintf(routed, MAX_PATH, "%s", full + folder_len + 1);
+    routed[MAX_PATH - 1] = 0;
+    return routed;
+}
+
 int vv_save_subfolder(char *out, const char *sub, int reserve) {
     char folder[MAX_PATH];
     char built[MAX_PATH];
+    char routed[MAX_PATH];
     const char *p;
     int len;
     if (out == NULL || sub == NULL || sub[0] == '\0' || reserve < 0) {
@@ -153,6 +193,7 @@ int vv_save_subfolder(char *out, const char *sub, int reserve) {
     if (!vv_save_folder(folder, (int)strlen(sub) + 1 + reserve)) {
         return 0;
     }
+    sub = route_sub_a(folder, sub, reserve, routed);
     /* Seeded with the separator, as in the wide form. */
     _snprintf(built, MAX_PATH, "%s\\", folder);
     built[MAX_PATH - 1] = 0;

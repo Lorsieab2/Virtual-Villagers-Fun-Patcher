@@ -132,7 +132,8 @@ static void villager(int i, const char *name, int age, int head, int body) {
     strncpy((char *)rec(i) + g->name, name, g->name_cap - 1);
 }
 
-static char logs[MAX_PATH];
+static char logs[MAX_PATH];   /* the older layout's "...\Virtual Villagers Fun Patcher Logs" */
+static char own[MAX_PATH];    /* "...\Virtual Villagers Fun Patcher", each save's own folder */
 static char exe_dir[MAX_PATH];
 /* "<exe_dir>\Virtual Villagers Fun Patcher Files": where the companions are,
    as in a patched game (native/shared/patcher_files.h). */
@@ -157,7 +158,21 @@ static int locate(void) {
     if (dot) *dot = 0;
     _snprintf(logs, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Logs", docs, base);
     logs[MAX_PATH - 1] = 0;
+    _snprintf(own, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher", docs, base);
+    own[MAX_PATH - 1] = 0;
     return 1;
+}
+
+/* A slot's log folder: the save's own "...\Virtual Villagers Fun Patcher\Save <S>\Logs\<folder>"
+   (native/shared/per_save.h), where a fresh village's logs are written; slot 0 is the shared folder
+   older builds wrote. */
+static void slot_folder(char *out, int slot, const char *folder) {
+    if (slot == 0) {
+        _snprintf(out, MAX_PATH, "%s\\%s", logs, folder);
+    } else {
+        _snprintf(out, MAX_PATH, "%s\\Save %d\\Logs\\%s", own, slot, folder);
+    }
+    out[MAX_PATH - 1] = 0;
 }
 
 static void empty_folder(const char *folder) {
@@ -178,7 +193,8 @@ static void wipe(int remove_dirs) {
                                              "Deaths" /* the folder's older name (save_layout.h) */ };
     char sub[MAX_PATH], parent[MAX_PATH], *cut;
     int k, slot;
-    /* The shared folders, then each slot's (native/shared/log_slot.h: "...Logs\Save <S>\"). */
+    /* The shared folders, then each slot's in the older layout (native/shared/log_slot.h:
+       "...Logs\Save <S>\") and in the save's own folder (per_save.h: "...\Save <S>\Logs\"). */
     for (slot = 0; slot <= 5; ++slot) {
         for (k = 0; k < 4; ++k) {
             if (slot == 0) {
@@ -188,13 +204,23 @@ static void wipe(int remove_dirs) {
             }
             empty_folder(sub);
             if (remove_dirs) RemoveDirectoryA(sub);
+            if (slot > 0) {
+                slot_folder(sub, slot, FOLDERS[k]);
+                empty_folder(sub);
+                if (remove_dirs) RemoveDirectoryA(sub);
+            }
         }
         if (remove_dirs && slot > 0) {
             _snprintf(sub, MAX_PATH, "%s\\Save %d", logs, slot);
             RemoveDirectoryA(sub);
+            _snprintf(sub, MAX_PATH, "%s\\Save %d\\Logs", own, slot);
+            RemoveDirectoryA(sub);
+            _snprintf(sub, MAX_PATH, "%s\\Save %d", own, slot);
+            RemoveDirectoryA(sub);   /* only when empty */
         }
     }
     if (remove_dirs) {
+        RemoveDirectoryA(own);
         RemoveDirectoryA(logs);
         lstrcpyA(parent, logs);
         cut = strrchr(parent, '\\');
@@ -255,20 +281,18 @@ static void load(void) {
 
 static char text[1 << 16];
 #define STARTS(literal) (strncmp(text, literal, sizeof(literal) - 1) == 0)
-/* The log wherever it was written: a named village's slot folder ("...Logs\Save <S>\", native/
-   shared/log_slot.h), or the shared folder for a record no village was named for.  Each phase
-   wipes them all first, so at most one place holds it. */
+/* The log wherever it was written: a named village's own folder ("...\Virtual Villagers Fun
+   Patcher\Save <S>\Logs\", native/shared/per_save.h), or the shared folder for a record no village
+   was named for.  Each phase wipes them all first, so at most one place holds it. */
 static int read_log(const char *folder, const char *stem, int game, int number) {
-    char path[MAX_PATH];
+    char path[MAX_PATH], dir[MAX_PATH];
     FILE *f = NULL;
     size_t n;
     int slot;
     for (slot = 1; slot <= 6 && f == NULL; ++slot) {
-        if (slot <= 5) {
-            _snprintf(path, MAX_PATH, "%s\\Save %d\\%s\\Virtual Villagers %d %s %d.txt", logs, slot, folder, game, stem, number);
-        } else {
-            _snprintf(path, MAX_PATH, "%s\\%s\\Virtual Villagers %d %s %d.txt", logs, folder, game, stem, number);
-        }
+        slot_folder(dir, slot <= 5 ? slot : 0, folder);
+        _snprintf(path, MAX_PATH, "%s\\Virtual Villagers %d %s %d.txt", dir, game, stem, number);
+        path[MAX_PATH - 1] = 0;
         f = fopen(path, "rb");
     }
     if (f == NULL) { text[0] = 0; return 0; }
@@ -279,12 +303,10 @@ static int read_log(const char *folder, const char *stem, int game, int number) 
 }
 /* Whether "Virtual Villagers <game> <stem> 1.txt" is in slot `slot`'s folder (0: the shared one). */
 static int log_in(int slot, const char *folder, const char *stem, int game) {
-    char path[MAX_PATH];
-    if (slot == 0) {
-        _snprintf(path, MAX_PATH, "%s\\%s\\Virtual Villagers %d %s 1.txt", logs, folder, game, stem);
-    } else {
-        _snprintf(path, MAX_PATH, "%s\\Save %d\\%s\\Virtual Villagers %d %s 1.txt", logs, slot, folder, game, stem);
-    }
+    char path[MAX_PATH], dir[MAX_PATH];
+    slot_folder(dir, slot, folder);
+    _snprintf(path, MAX_PATH, "%s\\Virtual Villagers %d %s 1.txt", dir, game, stem);
+    path[MAX_PATH - 1] = 0;
     return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES;
 }
 static int read_deaths(int game) { return read_log("Deaths and Disappearances", "Deaths Log", game, 1); }

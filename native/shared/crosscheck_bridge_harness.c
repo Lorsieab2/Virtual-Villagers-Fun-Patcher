@@ -269,11 +269,22 @@ static void reset(void) {
 
 /* ---- Missing last names: the slot's Last Names files ----------------------- */
 
-static void ln_file(int game, int slot, int request, wchar_t *out) {
+/* The rule file is seeded in the OLDER layout (an existing village's, read where it is); the request
+   file is written fresh by the bridge, so it lands in the save's own folder (per_save.h). */
+static void ln_old_file(int game, int slot, int request, wchar_t *out) {
     wsprintfW(out, request
               ? L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names\\Virtual Villagers %d Missing Last Names - Save %d.dat"
               : L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names\\Virtual Villagers %d Last Names - Save %d.dat",
               g_folder, game, slot);
+}
+
+static void ln_file(int game, int slot, int request, wchar_t *out) {
+    if (request) {
+        wsprintfW(out, L"%ls\\Virtual Villagers Fun Patcher\\Save %d\\Data\\Last Names\\"
+                       L"Virtual Villagers %d Missing Last Names - Save %d.dat", g_folder, slot, game, slot);
+    } else {
+        ln_old_file(game, slot, request, out);
+    }
 }
 
 static void ln_write(int game, int slot, int request, const char *text) {
@@ -295,6 +306,14 @@ static const char *ln_read(int game, int slot, int request) {
     HANDLE f;
     DWORD got = 0;
     text[0] = '\0';
+    if (request) {
+        /* A fresh request never lands in the older layout: one there spoils every check on the text. */
+        ln_old_file(game, slot, request, path);
+        if (GetFileAttributesW(path) != INVALID_FILE_ATTRIBUTES) {
+            lstrcpyA(text, "<a request file in the older layout>");
+            return text;
+        }
+    }
     ln_file(game, slot, request, path);
     f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f != INVALID_HANDLE_VALUE) {
@@ -312,6 +331,8 @@ static void ln_clear(void) {
         ln_file(g, 1, 0, path);
         DeleteFileW(path);
         ln_file(g, 1, 1, path);
+        DeleteFileW(path);
+        ln_old_file(g, 1, 1, path);
         DeleteFileW(path);
     }
 }
@@ -1018,8 +1039,19 @@ int main(void) {
         ln_clear();
         {
             wchar_t sub[MAX_PATH];
+            static const wchar_t *const own[] = {
+                L"Virtual Villagers Fun Patcher\\Save 1\\Data\\Last Names",
+                L"Virtual Villagers Fun Patcher\\Save 1\\Data",
+                L"Virtual Villagers Fun Patcher\\Save 1",
+                L"Virtual Villagers Fun Patcher",
+            };
+            int k;
             wsprintfW(sub, L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names", g_folder);
             RemoveDirectoryW(sub);
+            for (k = 0; k < 4; ++k) {
+                wsprintfW(sub, L"%ls\\%ls", g_folder, own[k]);
+                RemoveDirectoryW(sub);
+            }
         }
     }
 

@@ -316,7 +316,7 @@ class EveryGameFindsAndFixesDifferences(unittest.TestCase):
                 copies = list((v.folder / DATA / "Copies Made Before Repairs").rglob("*.before-grave-repair"))
                 self.assertTrue(any(c.read_bytes() == before for c in copies), "a copy of the save before")
                 self.assertTrue(result.backup.backup_folder.is_dir())
-                repairs = list((v.folder / LOGS / "Save 1" / "Repairs Made").glob("*.txt"))   # the slot's own folder
+                repairs = list(tools.layout.slot_log_folder(v.folder, "Repairs Made", 1).glob("*.txt"))   # the save's own folder
                 self.assertTrue(repairs)
                 self.assertIn("Village: Tribe (Save 1)", repairs[0].read_bytes().decode("latin-1"))
                 self.assertIn("Grave information corrected", repairs[0].read_bytes().decode("latin-1"))
@@ -402,7 +402,7 @@ class ModAddedData(unittest.TestCase):
     def test_a_grave_with_no_graves_file_entry_gets_one(self):
         v = self.village(2, [grave_bytes(2, "Mia", 1000)], death(1, "Mia", 1000, epitaph=""))
         vg.fix_graves(v.folder, 2, 1, [vg.Fix(0, "cause", "Starvation")], retro=False, processes=NoGame(), now=NOW)
-        graves = v.folder / DATA / "Graves" / "Virtual Villagers 2 Graves - Save 1.dat"
+        graves = vg.graves_file(v.folder, 2, 1)             # a fresh save: the save's own folder
         data = graves.read_bytes()
         self.assertEqual(struct.unpack_from("<4sIII", data, 0), (b"VCD1", 1, 2, 1))
         self.assertEqual(struct.unpack_from("<HHIb", data, 16), (0, 0, fingerprint(2, "Mia", 1000), 1))

@@ -705,7 +705,7 @@ def _vv1_sidecar(folder: Path, slot: int) -> list[_Vv1Entry]:
     the file is missing, unreadable or not a VP02 file of this length written for this slot."""
     import vv_save_layout as layout
     name = f"Virtual Villagers 1 Parentage Records - Save {slot}.dat"
-    path = layout.find(Path(folder), f"{layout.DATA}\\{layout.PARENTS_VV1}\\{name}")
+    path = layout.route(Path(folder), f"{layout.DATA}\\{layout.PARENTS_VV1}\\{name}")
     try:
         data = path.read_bytes()
     except OSError:

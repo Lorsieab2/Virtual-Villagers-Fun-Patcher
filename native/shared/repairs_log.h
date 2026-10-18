@@ -95,14 +95,14 @@ static int vv_repairs_starts(const char *line, const char *word) {
    that is there cannot be read (nothing is then numbered blind). */
 static long vv_repairs_highest(int game) {
     char root[MAX_PATH];
-    char folders[2 + VV_LOG_SLOTS][MAX_PATH];
+    char folders[VV_LOG_READ_MAX][MAX_PATH];
     char pattern[MAX_PATH], path[MAX_PATH];
     long highest = 0;
     int n, f;
     if (!vv_save_folder(root, 64)) {
         return -1;
     }
-    n = vv_log_read_folders_a(root, "Repairs Made", "Repairs", 0, folders, 2 + VV_LOG_SLOTS);
+    n = vv_log_read_folders_a(root, "Repairs Made", "Repairs", 0, folders, VV_LOG_READ_MAX);
     for (f = 0; f < n; ++f) {
         WIN32_FIND_DATAA found;
         HANDLE find;

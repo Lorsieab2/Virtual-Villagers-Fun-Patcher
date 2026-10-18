@@ -1,47 +1,74 @@
-# Per-save folders: inventory and proposal (NOT BUILT YET)
+# One folder per save
 
 The owner, 2026-10-17: "FOR ANYTHING IN THE SAVES FOLDER, PLEASE MAKE SEPARATE FOLDERS TO PUT ALL THE
 LOGS AND DATA FOR EACH SAVE IN ALL 5 GAMES" and "ADD A BUTTON TO MOVE EXISTING FILES TO ITS SAVE FOLDER".
-Nothing below has been built; this page waits for the owner's approval of the layout.
+Approved the same day.
 
-`<save>` is the game's LDW save folder; `N` the save slot; `G` the game (1-5).
+`<save>` is the game's LDW save folder, `N` the save slot (1-5), `G` the game (1-5).
 
-## Where the patcher writes today
+## The layout
 
-| What | Path under `<save>` | Written by | Scope |
-|---|---|---|---|
-| 8 log kinds (Births and Conceptions, Deaths and Disappearances, Unaccounted Villagers, Island Events, Tribe Population, Tribe History, Village Statistics, Repairs Made) | `Virtual Villagers Fun Patcher Logs\Save N\<kind>\` | native companions (native/shared/log_slot.h); src/vv_save_layout.py:173 | per save |
-| Older shared logs (before per-slot logs) | `...Logs\<kind>\`, `...Logs\Deaths`, `...Logs\Repairs`, `VVFP Logs\` | older builds; read by vv_save_layout.log_folders (:185) | mixed saves |
-| Custom Titles | `...Data\Custom Titles\Custom Titles - Save N.dat` | native/shared/custom_titles.h:86 | per save |
-| Graves, Village Roster / Villagers at Last Save | `...Data\Graves\`, `...Data\Unaccounted Villagers\` (+ loose older names) | native/shared/save_reset.c:40-43, data_subfolder.h | per save |
-| Arrivals, Births recorded | `...Data\Arrivals\`, `...Data\Births\` | native/shared/arrival_backfill.h:141-142 | per save |
-| Graves Logged | `...Data\Deaths\` | native/vvfp_cause_of_death/cod_backfill.inc | per save |
-| Log Checks: Repair Approved, Cross-Check, Log Decisions | `...Data\Log Checks\` (older `Cross-Check\`) | src/vv_log_tools.py:257,288; src/vv_log_decisions.py:54 | per save |
-| Former Heathens (VV5) | `...Data\Former Heathens\` | native/shared/former_heathens.h:44 | per save |
-| Paid / Story Purchases | `...Data\Paid Purchases\` | native/shared/save_reset.c:80-83 | per save |
-| Custom Island Event Deaths (VV3-5) | `...Data\Custom Island Event Deaths\` | native/vvfp_cause_of_death/cod_cie.inc | per save |
-| Village Masks, Origins Doublers, Parents (A New Home) | `...Data\Village Masks\`, `...Data\Parents (A New Home)\` (+ loose older names) | native/shared/save_reset.c:91-131 | per save |
-| Last Names, Missing Last Names | `...Data\Last Names\` | src/vv_last_names.py:462,2074 | per save |
-| Family Tree Edits | `...Data\Family Tree Edits\` | src/vv_family_tree.py:494 | per save |
-| Village Statistics, Stew Discoveries, Village Elders .dat | `...Data\<kind>\<kind> - Save N.dat` | native/statistics_export/statistics_store.c:1037-1046, village_elders.c:129 | per save |
-| Loose pre-folder files (`vv1_masks_N.dat`, `vvfp_masks_N.dat`, ...) | `<save>\` | older builds; save_reset.c:97-127 | per save |
-| Copies Made Before Repairs | `...Data\Copies Made Before Repairs\<file's place>` | native/shared/save_layout.h:244 | per file |
-| Like and Dislike Words | `...Data\Like and Dislike Words\Virtual Villagers G Log Words.dat` | src/vv_log_tools.py:599; native/shared/log_words.h | one file per game |
-| Family Trees (.vvtree, pictures, Reports) | `Virtual Villagers Fun Patcher Family Trees\` | src/vv_family_tree.py:1306 | player-named |
-| Backups | `Backups\Backup <date>\` | src/vv_save_backup.py:63 | whole folder |
-| The game's .ldw saves | `<save>\` | the game | never touched |
+    <save>\Virtual Villagers Fun Patcher\Save N\Logs\<log folder>\<log file>
+    <save>\Virtual Villagers Fun Patcher\Save N\Data\<kind folder>\<name> - Save N.<ext>
+    <save>\Virtual Villagers Fun Patcher\Save N\Data\Like and Dislike Words\Virtual Villagers G Log Words.dat
+    <save>\Virtual Villagers Fun Patcher\Save N\Data\Copies Made Before Repairs\<place inside Save N>
 
-## Proposed layout
+Deleting `Virtual Villagers Fun Patcher\Save N` deletes everything the patcher keeps for that save once its
+older files have been moved (below).
 
-| Old | New | Kind |
+## Where each file goes (routing)
+
+Every reader and writer still names the older layout's path and routes it (native/shared/per_save.h
+`vv_ps_route_*`, src/vv_save_layout.py `route`); the answer depends only on what is on disk, so the games
+and the patcher always agree:
+
+| Kind | Unit | Rule |
 |---|---|---|
-| `...Logs\Save N\<kind>\` | `Virtual Villagers Fun Patcher\Save N\Logs\<kind>\` | per save |
-| `...Data\<kind>\... - Save N.*` and loose `..._N.dat` | `Virtual Villagers Fun Patcher\Save N\Data\<kind>\` | per save |
-| `Copies Made Before Repairs` of a save's files | `Virtual Villagers Fun Patcher\Save N\Data\Copies Made Before Repairs\` | per save (new copies) |
-| Like and Dislike Words (one per game) | new boundaries: `Save N\Data\Like and Dislike Words\`; old file read, never split | shared, cannot move |
-| Older shared logs (`...Logs\<kind>\`) | stay; still read | cannot move: records of several saves in one file; splitting rewrites history |
-| Family Trees saved by the player | new saves for a slot: `Save N\Family Trees\`; old ones stay | player-named, no slot in the name |
-| Backups | stay | cannot move: whole-folder copies of all saves |
-| .ldw saves | stay | game's own, read-only |
+| A log (`...Logs\Save N\<log folder>\...`) | the slot's log folder | the save's own folder once it exists; else the older one while it holds anything; else the save's own. Readers read both, older first. |
+| A data file (`...Data\<kind>\... - Save N.<ext>`) | the file (with its `.tmp` and set-aside copies) | wherever it is; both: the one written last; neither: the save's own. |
 
-Every reader keeps reading every old place (as vv_save_layout.find/places/log_folders do now).
+Nothing is ever moved automatically. A save that already has a log or data file in the older folders keeps
+adding to it there until the player moves it.
+
+## Inventory
+
+| What | Older place | Per save? | Code |
+|---|---|---|---|
+| Births and Conceptions, Deaths and Disappearances, Unaccounted Villagers, Island Events logs | `...Logs\Save N\<log>` | per save | native/parentage_export/parentage_export.c (build_log_path, build_family_log_path) |
+| Tribe Population, Tribe History logs | `...Logs\Save N\<log>` | per save | native/population_export/population_export.c |
+| Village Statistics log | `...Logs\Save N\Village Statistics` | per save | native/statistics_export/statistics_export.c |
+| Repairs Made log | `...Logs\Save N\Repairs Made` | per save | native/shared/repairs_log.h, native/vv1_parentage/vv1_crosscheck.inc, src/vv_log_tools.py repair_record_start |
+| Village Masks, Graves, Parents (A New Home), Villagers at Last Save | `...Data\<kind>` | per save | native/shared/data_subfolder.h vv_data_file_path |
+| Arrivals / Births Recorded | `...Data\Arrivals`, `...Data\Births` | per save | native/shared/arrival_backfill.h |
+| Graves Logged, Custom Island Event Deaths, Former Heathens | `...Data\Deaths`, `...\Custom Island Event Deaths`, `...\Former Heathens` | per save | native/vvfp_cause_of_death/cod_backfill.inc cod_data_path |
+| Custom Titles | `...Data\Custom Titles` | per save | native/vvfp_story_upgrades/story_titles.inc; readers in parentage/population exporters |
+| Paid / Story Purchases | `...Data\Paid Purchases` | per save | native/shared/paid_purchases.h |
+| Log Checks (Repair Approved, Cross-Check marker, Log Decisions) | `...Data\Log Checks` | per save | native/shared/crosscheck_bridge.h, native/vv1_parentage/vv1_crosscheck.inc, src/vv_log_tools.py, src/vv_log_decisions.py |
+| Last Names, Missing Last Names | `...Data\Last Names` | per save | native/vvfp_last_names/vvfp_last_names.c, native/shared/crosscheck_bridge.h, src/vv_last_names.py |
+| Village Statistics, Villagers Counted, Stew Discoveries, Village Elders | `...Data\<kind>` | per save | native/statistics_export/statistics_store.c, statistics_export.c, village_elders.c |
+| Family Tree Edits | `...Data\Family Tree Edits` | per save | src/vv_family_tree.py |
+| Like and Dislike Words | `...Data\Like and Dislike Words` (one per game) | shared file; a moved or new log's boundaries go in its save's own file | native/shared/log_words.h, src/vv_save_layout.py words_file_for |
+| Copies Made Before Repairs | `...Data\Copies Made Before Repairs` | a save's own file keeps its copies in its save's folder; older copies stay | native/shared/save_layout.h vv_layout_copy_path, src/vv_log_tools.py copy_before_repair |
+
+## Not per save (never moved)
+
+| What | Why |
+|---|---|
+| Older shared logs `...Logs\<log>\` (no slot), `VVFP Logs\` | one file holds records of several saves; splitting would rewrite history |
+| Files under an older build's name (Cross-Check, Parentage Records, Log Words, Genealogy, "Village Roster") | an older patch reads only those; use Move Old Files to New Names first |
+| Loose files in the Data folder or beside the saves | an older build's; the games move them into their folder themselves |
+| Copies Made Before Repairs of older-layout files, Backups | backups are never moved |
+| Virtual Villagers Fun Patcher Family Trees | named by the player, not by save |
+| The game's .ldw saves | the game's own, read only |
+
+## Move Files to Save Folders (Repair Saves & Logs)
+
+src/vv_move_to_save_folders.py. Only when the player presses it; refused while the game runs, when the
+game's install is not found, or when any patch DLL of the game names the older folders but not
+`Virtual Villagers Fun Patcher\Save `. The confirmation lists every file, from where to where, per save,
+and everything not moved with its reason; Cancel is the default. Each file is copied to Copies Made Before
+Repairs and read back, copied to its new place (never replacing anything) and read back, its Like and
+Dislike Words boundary copied to its save's own file, and only then is the original removed. Any failure
+puts everything back. One Repairs Made record per save lists every file moved and not moved.
+
+Start Over (native/shared/save_reset.c) clears the erased village's files in both places.

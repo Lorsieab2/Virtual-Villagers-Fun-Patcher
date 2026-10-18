@@ -273,12 +273,19 @@ class CheckerRefactorTests(FolderTest):
 
 
 def approval_of(number: int, slot: int) -> str:
-    return f"{DATA}/Log Checks/Virtual Villagers {number} Repair Approved - Save {slot}.dat"
+    """Where a new approval goes: the save's own folder (one folder per save, src/vv_save_layout.py)."""
+    return f"Virtual Villagers Fun Patcher/Save {slot}/Data/Log Checks/Virtual Villagers {number} Repair Approved - Save {slot}.dat"
+
+
+def own_markers_of(game: int, slot: int) -> list[str]:
+    """markers_of in the save's own folder (where a fresh save keeps them)."""
+    return [name.replace(f"{DATA}/", f"Virtual Villagers Fun Patcher/Save {slot}/Data/", 1)
+            for name in markers_of(game, slot)]
 
 
 def approval_pending(folder: Path, number: int, slot: int) -> bool:
     """Whether the slot's approval is there, exactly as the game reads it."""
-    path = folder / approval_of(number, slot)
+    path = tools.approval_path(folder, number, slot)
     return path.is_file() and path.read_bytes() == tools.approval_bytes(number, slot)
 
 
@@ -344,8 +351,9 @@ class ApprovalTests(FolderTest):
             self.assertTrue((folder / old).is_dir(), old)
         for new in (f"{LOGS}/Deaths and Disappearances", f"{LOGS}/Repairs Made", f"{DATA}/Parents (A New Home)"):
             self.assertFalse((folder / new).exists(), new)
+        approval = approval_of(1, 1)
         self.assertEqual({k for k in after if k not in before and not k.startswith(new_backup)},
-                         {f"{DATA}/Log Checks", approval_of(1, 1)})
+                         {approval.rsplit("/", n)[0] for n in range(1, 5)} | {approval})
         import vv_save_layout as layout
         self.assertEqual(layout.find(folder, f"{DATA}\\Parents (A New Home)\\{parents.name}"), parents)
         self.assertEqual(layout.find(folder, f"{LOGS}\\Deaths and Disappearances"), folder / LOGS / "Deaths")
@@ -360,10 +368,11 @@ class ApprovalTests(FolderTest):
         old = folder / DATA / "Cross-Check" / "Virtual Villagers 1 Repair Approved - Save 1.dat"
         old.parent.mkdir(parents=True, exist_ok=True)
         old.write_bytes(tools.approval_bytes(1, 1))
-        (folder / approval_of(1, 1)).write_bytes(tools.approval_bytes(1, 1))
+        older_new_name = folder / DATA / "Log Checks" / "Virtual Villagers 1 Repair Approved - Save 1.dat"
+        older_new_name.write_bytes(tools.approval_bytes(1, 1))
         self.assertIn("the game acts on neither", tools.load_checker().check(folder, 1).render())
         tools.approve_repair(folder, 1, 1, FakeProcesses(), NOW)
-        self.assertEqual(len([p for p in (old, folder / approval_of(1, 1)) if p.exists()]), 1)
+        self.assertEqual(len([p for p in (old, older_new_name, folder / approval_of(1, 1)) if p.exists()]), 1)
 
     def test_the_owners_save_folder_with_both_names(self) -> None:
         # The owner's A New Home - Modded folder on 2026-10-09: an empty "Parentage Records" beside
@@ -444,7 +453,7 @@ class ApprovalTests(FolderTest):
             self.assertEqual(
                 sorted(p.relative_to(Path("F")).as_posix().replace("\\", "/")
                        for _m, p in tools.marker_paths(Path("F"), number, 3)),
-                sorted(markers_of(number, 3)),
+                sorted(own_markers_of(number, 3)),               # a fresh save: its own folder
             )
 
     def test_the_folder_is_backed_up_first_with_the_markers_in_it(self) -> None:
@@ -498,7 +507,7 @@ class ApprovalTests(FolderTest):
         folder = self.make_folder("huttest", 4, "Modded")
         tools.approve_repair(folder, 4, 2, FakeProcesses(), NOW)
         tools.approve_repair(folder, 4, 2, FakeProcesses(), NOW)
-        cross = folder / DATA / "Log Checks"
+        cross = tools.approval_path(folder, 4, 2).parent
         self.assertEqual(sorted(p.name for p in cross.iterdir() if "Approved" in p.name),
                          ["Virtual Villagers 4 Repair Approved - Save 2.dat"])
 
@@ -827,7 +836,7 @@ class LogWordsTests(FolderTest):
         backup_copy = folder / DATA / "Copies Made Before Repairs" / (HISTORY + tools.WORD_BACKUP_SUFFIX)
         self.assertEqual(backup_copy.read_bytes(), self.OLD + self.NEW)
         self.assertFalse(path.with_name(path.name + tools.WORD_BACKUP_SUFFIX).exists())
-        repairs = (folder / f"{LOGS}/Save 1/Repairs Made/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
+        repairs = (tools.layout.slot_log_folder(folder, "Repairs Made", 1) / "Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
         self.assertIn("Corrected: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt -- 2 word(s)",
                       repairs)
         # A second repair finds nothing: the boundary is now 0.
@@ -925,7 +934,7 @@ class SexLinesTests(FolderTest):
         self.assertIn(b"  Name: Custom\r\n  Age at death: 900\r\n  Sex: Female\r\n", deaths)
         self.assertEqual(deaths.count(b"Sex: Female"), 2, "the Arrived record's own line is not doubled")
         self.assertTrue(result.sexes)
-        repairs = (folder / f"{LOGS}/Save 1/Repairs Made/Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
+        repairs = (tools.layout.slot_log_folder(folder, "Repairs Made", 1) / "Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")
         self.assertIn("Sex added: Virtual Villagers Fun Patcher Logs\\Tribe History\\Village History.txt", repairs)
         # Once is enough: a second repair adds nothing.
         before = self.state(folder / LOGS)

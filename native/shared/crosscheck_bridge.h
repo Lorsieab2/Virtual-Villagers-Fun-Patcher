@@ -139,6 +139,7 @@
 #include <string.h>
 #include "patcher_files.h"
 #include "save_layout.h"
+#include "per_save.h"
 
 #define VVFP_XC_PARENTAGE_DLL "VVFP VV1 Parentage.dll"
 #define VVFP_XC_CAUSE_DLL     "VVFP Cause of Death.dll"
@@ -389,6 +390,9 @@ static int vvfp_xc_approval_path(int game, int slot, wchar_t *path) {
                   folder, game, slot);
         wsprintfW(old_path, L"%ls\\Virtual Villagers Fun Patcher Data\\Cross-Check\\Virtual Villagers %d Repair Approved - Save %d.dat",
                   folder, game, slot);
+        /* "Log Checks" is in the save's own folder now, unless still in the older layout's
+           (per_save.h); "Cross-Check" only ever was in the older layout. */
+        (void)vv_ps_route_w(path, MAX_PATH, 0);
         in_new = vv_layout_probe_w(path, NULL) != VV_LAYOUT_ABSENT;
         in_old = vv_layout_probe_w(old_path, NULL) != VV_LAYOUT_ABSENT;
         if (in_new && in_old) {
@@ -765,6 +769,7 @@ static int vvfp_xc_ln_path(int game, int slot, int request, wchar_t *path) {
               ? L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names\\Virtual Villagers %d Missing Last Names - Save %d.dat"
               : L"%ls\\Virtual Villagers Fun Patcher Data\\Last Names\\Virtual Villagers %d Last Names - Save %d.dat",
               folder, game, slot);
+    (void)vv_ps_route_w(path, MAX_PATH - 8, 0);   /* the save's own folder, or the older layout's (per_save.h) */
     return 1;
 }
 
@@ -992,10 +997,14 @@ static int vvfp_xc_last_names_answer(int game, int slot, const char *state) {
         || lstrlenW(folder) + 60 > MAX_PATH) {
         return 0;
     }
-    lstrcatW(folder, L"\\Virtual Villagers Fun Patcher Data");
-    CreateDirectoryW(folder, NULL);
-    lstrcatW(folder, L"\\Last Names");
-    CreateDirectoryW(folder, NULL);
+    if (wcsstr(path, vv_ps_new_stem) != NULL) {
+        vv_ps_make_parents_w(path);                 /* the save's own folder (per_save.h) */
+    } else {
+        lstrcatW(folder, L"\\Virtual Villagers Fun Patcher Data");
+        CreateDirectoryW(folder, NULL);
+        lstrcatW(folder, L"\\Last Names");
+        CreateDirectoryW(folder, NULL);
+    }
     wsprintfW(temporary, L"%ls.tmp", path);
     f = CreateFileW(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) {

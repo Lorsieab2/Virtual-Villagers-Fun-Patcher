@@ -293,9 +293,13 @@ def _repair_numbers(folder: Path, game: int) -> list[Found]:
 
 
 def _where(path: Path) -> str:
-    """A log file in a report: "<folder>\\<name>", "Save <S>\\<folder>\\<name>" for a slot's own."""
+    """A log file in a report: "<folder>\\<name>", "Save <S>\\<folder>\\<name>" for a slot's own in the
+    older layout, "Save <S>\\Logs\\<folder>\\<name>" for one in the save's own folder."""
     slot = layout.is_slot_folder(path)
-    return (f"Save {slot}\\" if slot else "") + f"{path.parent.name}\\{path.name}"
+    own = slot and len(path.parents) > 3 and path.parents[1].name.lower() == layout.SAVE_LOGS.lower() \
+        and path.parents[2].name.lower() == f"save {slot}" and path.parents[3].name.lower() == layout.SAVES.lower()
+    return (f"Save {slot}\\" if slot else "") + (f"{layout.SAVE_LOGS}\\" if own else "") \
+        + f"{path.parent.name}\\{path.name}"
 
 
 def _notes(folder: Path, game: int, slot: int) -> list[Found]:

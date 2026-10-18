@@ -1332,12 +1332,18 @@ static void remove_folder(const char *dir) {
 }
 
 static void older_names_case(void) {
-    char dir[MAX_PATH], old_dir[MAX_PATH], old_file[MAX_PATH], p[MAX_PATH];
+    char dir[MAX_PATH], old_dir[MAX_PATH], old_file[MAX_PATH], p[MAX_PATH], data_root[MAX_PATH];
     const char *name;
+
+    /* An older build's names were only ever in the older layout's Data folder (per_save.h never
+       routes them): "<game>\Virtual Villagers Fun Patcher Data\<older name>". */
+    vv1_xc_game_folder(data_root, sizeof(data_root), 80);
+    lstrcatA(data_root, "\\Virtual Villagers Fun Patcher Data");
+    CreateDirectoryA(data_root, NULL);
 
     /* Parents (A New Home) */
     parent_of(sidecar, dir);
-    sibling_of(dir, "Parentage Records", old_dir);
+    wsprintfA(old_dir, "%s\\Parentage Records", data_root);
     name = strrchr(sidecar, '\\') + 1;
     wsprintfA(old_file, "%s\\%s", old_dir, name);
     DeleteFileA(sidecar);
@@ -1365,10 +1371,28 @@ static void older_names_case(void) {
     RemoveDirectoryA(dir);
     check(vv1_parents_path(p, sizeof(p), SLOT) && lstrcmpA(p, sidecar) == 0 && !exists(old_dir),
           "neither: the new name, and no older folder made");
+    {
+        /* The new name in the OLDER LAYOUT (a village from before the save folders): read and written
+           where it is, nothing made in the save's own folder (per_save.h). */
+        char older_layout_dir[MAX_PATH], older_layout_file[MAX_PATH];
+        wsprintfA(older_layout_dir, "%s\\Parents (A New Home)", data_root);
+        wsprintfA(older_layout_file, "%s\\%s", older_layout_dir, name);
+        DeleteFileA(sidecar);
+        RemoveDirectoryA(dir);
+        CreateDirectoryA(older_layout_dir, NULL);
+        write_text(older_layout_file, "records of the older layout");
+        check(vv1_parents_path(p, sizeof(p), SLOT) && lstrcmpA(p, older_layout_file) == 0 && !exists(sidecar)
+              && lstrcmpA(slurp(older_layout_file), "records of the older layout") == 0,
+              "the parent records of the older layout are read and written where they are, never moved");
+        DeleteFileA(older_layout_file);
+        RemoveDirectoryA(older_layout_dir);
+        check(vv1_parents_path(p, sizeof(p), SLOT) && lstrcmpA(p, sidecar) == 0,
+              "... and with none there, the save's own folder again");
+    }
 
     /* Log Checks */
     parent_of(marker, dir);
-    sibling_of(dir, "Cross-Check", old_dir);
+    wsprintfA(old_dir, "%s\\Cross-Check", data_root);
     name = strrchr(marker, '\\') + 1;
     wsprintfA(old_file, "%s\\%s", old_dir, name);
     DeleteFileA(marker);
@@ -1459,16 +1483,22 @@ int main(int argc, char **argv) {
     vv1_parents_path(sidecar, sizeof(sidecar), SLOT);
     vv1_xc_marker_path(marker, sizeof(marker), SLOT);
     vv1_xc_subfolder(births_dir, sizeof(births_dir), "Virtual Villagers Fun Patcher Logs", "Births and Conceptions", 80);
-    /* The village is "(Save 1)": its repairs are noted in that slot's own folder,
-       "...Logs\\Save 1\\Repairs Made" (native/shared/log_slot.h). */
+    /* The village is "(Save 1)": its repairs are noted in that slot's own folder, in the save's own
+       folder for a fresh village: "...\\Virtual Villagers Fun Patcher\\Save 1\\Logs\\Repairs Made"
+       (native/shared/log_slot.h, per_save.h).  Nothing of the older layout's is made for it. */
     vv1_xc_game_folder(game, sizeof(game), 80);
-    lstrcatA(game, "\\Virtual Villagers Fun Patcher Logs");
+    lstrcatA(game, "\\Virtual Villagers Fun Patcher");
     CreateDirectoryA(game, NULL);
     lstrcatA(game, "\\Save 1");
+    CreateDirectoryA(game, NULL);
+    lstrcatA(game, "\\Logs");
     CreateDirectoryA(game, NULL);
     lstrcatA(game, "\\Repairs Made");
     CreateDirectoryA(game, NULL);
     wsprintfA(repairs, "%s\\Virtual Villagers 1 Repairs Log 1.txt", game);
+    check(strstr(sidecar, "\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Parents (A New Home)\\") != NULL
+          && strstr(marker, "\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Log Checks\\") != NULL,
+          "a fresh village's parent records and marker are in the save's own folder");
     /* The repair's copies are kept in "Data\Copies Made Before Repairs", at the file's own place
        (native/shared/save_layout.h) -- beside the file when that place is too long to name, as
        vv1_xc_backup does. */

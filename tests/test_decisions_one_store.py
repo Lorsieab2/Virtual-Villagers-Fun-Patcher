@@ -33,7 +33,7 @@ def txt(game: int, slot: int = 1) -> str:
 
 
 def store(f: Folder, game: int, slot: int = 1) -> Path:
-    return f.path / CHECKS / f"Virtual Villagers {game} Log Decisions - Save {slot}.json"
+    return decisions.path(f.path, game, slot)          # the save's own folder for a fresh save (src/vv_save_layout.py)
 
 
 def two_contradictions(game: int) -> Folder:

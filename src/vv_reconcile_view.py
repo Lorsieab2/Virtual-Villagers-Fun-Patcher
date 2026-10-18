@@ -2,8 +2,9 @@
 
 Every tribe picker (Check Saves & Logs, Repair Saves & Logs, Rename Tribe, the Family Tree Maker and
 the other village windows) calls `watch` when a tribe is chosen: the reconciliation runs off the
-window's thread, its one-line summary appears in the picker, and its report is written to the slot's
-"Logs\\Save <n>\\Reconciliation" folder.  It never changes the save, a log or a data file.
+window's thread, its one-line summary appears in the picker, and its report is written to the save's
+own "Virtual Villagers Fun Patcher\\Save <n>\\Logs\\Reconciliation" folder (an older save's
+"...Logs\\Save <n>\\Reconciliation" while it is written there).  It never changes the save, a log or a data file.
 """
 from __future__ import annotations
 
@@ -58,7 +59,11 @@ def watch(widget, var, folder: Path, game: int, slot: int, on_done=None) -> None
         rec = box["result"]
         text = rec.summary()
         if "path" in box:
-            text += f" Report: Logs\\Save {slot}\\{vv_reconcile.REPORT_FOLDER}\\{box['path'].name}."
+            try:                                # the save's own folder, or an older save's "...Logs\Save <n>"
+                where = Path(box["path"]).relative_to(Path(folder))
+            except ValueError:
+                where = Path(box["path"]).name
+            text += f" Report: {where}."
         elif "export_error" in box:
             text += f" (The report could not be written: {box['export_error']}.)"
         try:

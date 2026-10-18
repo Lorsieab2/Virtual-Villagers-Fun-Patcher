@@ -252,10 +252,13 @@ def graves_file(folder: Path, game: int, slot: int) -> Path | None:
         return None
     name = f"Virtual Villagers {game} Graves - Save {slot}.dat"
     data_dir = Path(folder) / tools.DATA
-    for path in (data_dir / "Graves" / name, data_dir / name):
+    # The save's own "Virtual Villagers Fun Patcher\Save <slot>\Data\Graves" or the older layout's
+    # (src/vv_save_layout.py route), else an older build's loose one.
+    routed = tools.layout.route(Path(folder), f"{tools.DATA}\\Graves\\{name}")
+    for path in (routed, data_dir / name):
         if path.is_file():
             return path
-    return data_dir / "Graves" / name
+    return routed
 
 
 def _vcd1_entries(data: bytes, game: int) -> list[bytearray] | None:
@@ -804,7 +807,7 @@ def _plan_sidecar(folder: Path, game: int, slot: int, by_place: dict, rekey: dic
             updated = _vcd1_bytes(game, entries)
             if updated != original:
                 changes.append(ln.Change(path, original, updated, "the Graves file"))
-    logged = Path(folder) / tools.DATA / "Deaths" / f"Virtual Villagers {game} Graves Logged - Save {slot}.dat"
+    logged = tools.layout.route(Path(folder), f"{tools.DATA}\\Deaths\\Virtual Villagers {game} Graves Logged - Save {slot}.dat")
     if rekey and logged.is_file():
         original = logged.read_bytes()
         checker = tools.load_checker()

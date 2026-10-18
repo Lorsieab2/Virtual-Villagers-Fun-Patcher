@@ -135,6 +135,9 @@ static int writer_path(char *out, int slot) { g_game = 4; return roster_build_pa
 
 #ifndef MOVED_KIND
 #define MOVED_KIND KIND
+/* A root-level file older than the Data folder is the save's now: it moves straight into the save's
+   own folder (native/shared/per_save.h), as a fresh file would be written there. */
+#define LEGACY_TO_OWN_FOLDER 1
 #endif
 
 static int failures;
@@ -190,17 +193,40 @@ static void remove_tree(const char *dir) {
 }
 
 static void scenario(int slot) {
-    char name[96], moved[MAX_PATH], moved_in[MAX_PATH], loose[MAX_PATH], out[MAX_PATH];
+    char name[96], moved[MAX_PATH], moved_in[MAX_PATH], loose[MAX_PATH], out[MAX_PATH], own[MAX_PATH];
     wsprintfA(name, NAME_FMT, slot);
     wsprintfA(moved, "%s\\%s\\%s", g_data, KIND, name);
     wsprintfA(moved_in, "%s\\%s\\%s", g_data, MOVED_KIND, name);   /* where an older file goes */
     wsprintfA(loose, "%s\\%s", g_data, name);
+    /* The save's own folder (native/shared/per_save.h): where a fresh file goes. */
+    wsprintfA(own, "%s\\Virtual Villagers Fun Patcher\\Save %d\\Data\\%s\\%s", g_save, slot, KIND, name);
 
     printf("slot %d -- %s\n", slot, name);
     remove_tree(g_save);
-    CHECK(writer_path(out, slot) && lstrcmpiA(out, moved) == 0,
-          "a. nothing on disk: <Data>\\%s\\<name> (got %s)", KIND, out);
-    CHECK(text_of(moved)[0] == '<', "a. no file was made by asking");
+    CHECK(writer_path(out, slot) && lstrcmpiA(out, own) == 0,
+          "a. nothing on disk: <save>\\Virtual Villagers Fun Patcher\\Save %d\\Data\\%s\\<name> (got %s)",
+          slot, KIND, out);
+    CHECK(text_of(own)[0] == '<' && text_of(moved)[0] == '<', "a. no file was made by asking");
+    {
+        char sub[MAX_PATH];
+        wsprintfA(sub, "%s\\%s", g_data, KIND);
+        CHECK(GetFileAttributesA(sub) == INVALID_FILE_ATTRIBUTES,
+              "a. nothing is made in the older layout's kind folder");
+    }
+
+    /* A file already in the older layout's kind folder is read and written where it is. */
+    remove_tree(g_save);
+    CreateDirectoryA(g_save, NULL);
+    CreateDirectoryA(g_data, NULL);
+    {
+        char sub[MAX_PATH];
+        wsprintfA(sub, "%s\\%s", g_data, KIND);
+        CreateDirectoryA(sub, NULL);
+    }
+    put(moved, "OLDER-LAYOUT");
+    CHECK(writer_path(out, slot) && lstrcmpiA(out, moved) == 0 && lstrcmpA(text_of(moved), "OLDER-LAYOUT") == 0
+          && GetFileAttributesA(own) == INVALID_FILE_ATTRIBUTES,
+          "a2. a file in the older layout: its own path, never moved");
 
     remove_tree(g_save);
     CreateDirectoryA(g_save, NULL);
@@ -247,6 +273,9 @@ static void scenario(int slot) {
         wsprintfA(legacy_name, LEGACY_FMT, slot);
         wsprintfA(legacy, "%s\\%s", g_save, legacy_name);
         put(legacy, "ROOT-LEGACY");
+#ifdef LEGACY_TO_OWN_FOLDER
+        lstrcpyA(moved_in, own);
+#endif
         CHECK(writer_path(out, slot) && lstrcmpiA(out, moved_in) == 0, "e. a root-level %s: the folder's path", legacy_name);
         CHECK(lstrcmpA(text_of(moved_in), "ROOT-LEGACY") == 0 && lstrcmpA(text_of(legacy), "<none>") == 0,
               "e. it was moved straight into the folder");

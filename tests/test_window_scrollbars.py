@@ -36,6 +36,8 @@ EXEMPT = {
         "its plan is a Text box with its own scroll bar; the window is sized above the buttons",
     "vv_fun_patcher_gui.py::App._undo_history_dialog":
         "its plan is a Text box with its own scroll bar; the window is sized above the buttons",
+    "vv_fun_patcher_gui.py::App._move_to_save_folders_dialog":
+        "its list is a Text box with its own scroll bar; the window is sized above the buttons",
     "vv_fun_patcher_gui.py::App._own_rules_dialog":
         "the villagers' rows already scroll in their own canvas; the buttons stay under it",
     "vv_fun_patcher_gui.py::App._repair_questions":

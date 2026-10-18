@@ -95,9 +95,10 @@ class DescriptionsMatchTheCatalogTests(unittest.TestCase):
                     description[:200],
                 )
                 # v1.35.68: each save slot has its own log folders; the shared folder an older patcher
-                # wrote is still read (native/shared/log_slot.h).
+                # wrote is still read (native/shared/log_slot.h).  One folder per save (2026-10-17,
+                # native/shared/per_save.h): the slot's logs are in its own save folder.
                 self.assertIn(
-                    "Virtual Villagers Fun Patcher Logs\\Save <slot>\\Births and Conceptions", description
+                    "Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Births and Conceptions", description
                 )
                 self.assertIn("a shared 'Births and Conceptions' folder an older patcher wrote is kept as it was "
                               "and still read", description)
@@ -141,7 +142,7 @@ class DescriptionsMatchTheCatalogTests(unittest.TestCase):
         self.assertIn('#define VV_PARENTS_VV1_DIR VV_DATA_DIR L"\\\\Parents (A New Home)"', layout)
         self.assertIn(
             "'Virtual Villagers 1 Parentage Records - Save <slot>.dat' in the "
-            "'Virtual Villagers Fun Patcher Data\\Parents (A New Home)' folder",
+            "'Virtual Villagers Fun Patcher\\Save <slot>\\Data\\Parents (A New Home)' folder",
             manifest["description"],
         )
         self.assertNotIn("vv1_parents_", manifest["description"])

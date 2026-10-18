@@ -26,6 +26,7 @@
 #include <wchar.h>
 #include <string.h>
 #include "save_layout.h"
+#include "per_save.h"
 
 #define VV_LOG_SLOTS 5
 
@@ -73,9 +74,12 @@ static int vv_log_rel_a(char *out, size_t n, int slot, const char *sub) {
 }
 
 /* Every folder (absolute, under `save`) that may hold `sub`'s logs, in reading order: the shared
-   folder under an older build's name `old_sub` (NULL: none), the shared folder, then the slot
-   folders -- only `slot`'s, or all five when `slot` is 0 (a game-wide count).  Nothing is created
-   and nothing need exist.  The number of folders written to `out` (room for `max`). */
+   folder under an older build's name `old_sub` (NULL: none), the shared folder, then for each slot --
+   only `slot`'s, or all five when `slot` is 0 (a game-wide count) -- its older "...Logs\Save <S>\<sub>"
+   and then the save's own "Virtual Villagers Fun Patcher\Save <S>\Logs\<sub>" (per_save.h).  Nothing
+   is created and nothing need exist.  The number of folders written to `out` (room for `max`; every
+   caller gives VV_LOG_READ_MAX). */
+#define VV_LOG_READ_MAX (2 + 2 * VV_LOG_SLOTS)
 static int vv_log_read_folders_w(const wchar_t *save, const wchar_t *sub, const wchar_t *old_sub, int slot,
                                  wchar_t (*out)[MAX_PATH], int max) {
     int count = 0;
@@ -96,6 +100,9 @@ static int vv_log_read_folders_w(const wchar_t *save, const wchar_t *sub, const 
         }
         if (_snwprintf_s(out[count], MAX_PATH, _TRUNCATE, L"%ls\\" VV_LOGS_DIR L"\\Save %d\\%ls", save, k, sub) > 0) {
             ++count;
+            if (count < max && vv_ps_new_folder_w(out[count - 1], out[count], MAX_PATH)) {
+                ++count;
+            }
         }
     }
     return count;
@@ -121,6 +128,9 @@ static int vv_log_read_folders_a(const char *save, const char *sub, const char *
         }
         if (_snprintf_s(out[count], MAX_PATH, _TRUNCATE, "%s\\" VV_LOGS_DIR_A "\\Save %d\\%s", save, k, sub) > 0) {
             ++count;
+            if (count < max && vv_ps_new_folder_a(out[count - 1], out[count], MAX_PATH)) {
+                ++count;
+            }
         }
     }
     return count;

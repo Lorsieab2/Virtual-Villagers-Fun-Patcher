@@ -217,8 +217,16 @@ static int exists_rel(const char *rel) {
 #define ELDERS DATA "\\Village Elders\\Village Elders - Save 1.dat"
 #define COUNTERS DATA "\\Village Statistics\\Village Statistics - Save 1.dat"
 #define ROSTER DATA "\\Village Statistics\\Villagers Counted - Save 1.dat"   /* "Village Roster" before */
-/* The village is "(Save 1)": its repairs are in that slot's own folder (native/shared/log_slot.h). */
-#define REPAIRS_DIR LOGS "\\Save 1\\Repairs Made"
+/* Each save's own folder (native/shared/per_save.h). */
+#define OWN "Virtual Villagers Fun Patcher"
+/* The village is "(Save 1)": its repairs are in that save's own folder, written fresh there. */
+#define REPAIRS_DIR OWN "\\Save 1\\Logs\\Repairs Made"
+/* The same data files in the save's own folder (the harness seeds them in the older layout's, where
+   they are read and written while they are there). */
+#define OWN_DATA OWN "\\Save 1\\Data"
+#define OWN_ELDERS OWN_DATA "\\Village Elders\\Village Elders - Save 1.dat"
+#define OWN_COUNTERS OWN_DATA "\\Village Statistics\\Village Statistics - Save 1.dat"
+#define OWN_ROSTER OWN_DATA "\\Village Statistics\\Villagers Counted - Save 1.dat"
 #define SHARED_REPAIRS_DIR LOGS "\\Repairs Made"
 #define SUFFIX ".before-v1.35.58-repair"
 /* A repair's copies: "Data\Copies Made Before Repairs", at the file's own place (native/shared/save_layout.h). */
@@ -371,6 +379,20 @@ static void clean(void) {
     _snprintf(sub, MAX_PATH, "%s\\" DATA, root);
     remove_tree(sub);
     RemoveDirectoryA(sub);
+    _snprintf(sub, MAX_PATH, "%s\\" OWN, root);
+    remove_tree(sub);
+    RemoveDirectoryA(sub);
+}
+
+/* A file the harness wrote at `from` moved to `to` (both under the save folder). */
+static int move_rel(const char *from, const char *to) {
+    char a[MAX_PATH], b[MAX_PATH], dir[MAX_PATH], *slash;
+    _snprintf(a, MAX_PATH, "%s\\%s", root, from);
+    _snprintf(b, MAX_PATH, "%s\\%s", root, to);
+    lstrcpynA(dir, b, MAX_PATH);
+    slash = strrchr(dir, '\\');
+    if (slash) { *slash = 0; make_dirs(dir); }
+    return MoveFileA(a, b) != 0;
 }
 
 /* A snapshot of every file the reconcile may touch. */
@@ -540,7 +562,9 @@ int main(int argc, char **argv) {
             CHECK(no_lines && strcmp(before_counters, text) == 0
                   && !exists_rel(ELDERS_COPY SUFFIX) && !exists_rel(COUNTERS_COPY SUFFIX) && !exists_rel(REPAIRS_DIR),
                   "a save with no answer makes none of the reconcile's changes");
-        }
+            if (strcmp(before_counters, text) != 0) {
+                printf("--- counters before:\n%s\n--- after:\n%s\n", before_counters, text);
+            }        }
         snapshot();
         repair(game, 1, 0);
         save(game, 1, manager);
@@ -744,6 +768,26 @@ int main(int argc, char **argv) {
                   && exists_rel(LOGS "\\Deaths") && exists_rel(LOGS "\\Deaths and Disappearances"),
                   "both folders: Mia, Rex and Kai are 3 burials -- the old folder's records are read, Mia's twice-kept"
                   " record counts once");
+        }
+
+        /* 9. One folder per save: the same files in the save's own folder are read and repaired
+           there, and nothing is made in the older layout's Data folder. */
+        clean();
+        write_files(1, 0, 0);
+        CHECK(move_rel(ELDERS, OWN_ELDERS) && move_rel(COUNTERS, OWN_COUNTERS) && move_rel(ROSTER, OWN_ROSTER),
+              "set up: the elders, counters and roster files in the save's own folder");
+        found = scan(game, 1, prompt, (int)sizeof prompt);
+        CHECK(found == expect, "the save's own files: the scan finds %d change(s) (got %d)", expect, found);
+        if (found != expect) printf("%s", prompt);
+        repair(game, 1, 1);
+        save(game, 1, manager);
+        read_rel(OWN_COUNTERS);
+        CHECK(strstr(text, "\nvillagers_buried=2") != NULL && !exists_rel(COUNTERS) && !exists_rel(ELDERS),
+              "...Repair raises Villagers Buried in the save's own counters file, none made in the older layout");
+        if (elders_expected) {
+            read_rel(OWN_ELDERS);
+            CHECK(strstr(text, "\tGhost\t") != NULL && strstr(text, "E\t-1\tEdge\t\t\t0\t0\r\n") != NULL,
+                  "...and the save's own elders file gains Ghost and Edge");
         }
 
         unplace_game();

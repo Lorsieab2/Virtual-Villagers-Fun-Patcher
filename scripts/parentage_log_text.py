@@ -30,7 +30,7 @@ Each statement is checked against native/parentage_export/parentage_export.c:
 PLAYER_LOG_DESCRIPTION = (
     "Keeps a plain-text log of the village's conceptions and births in "
     "'Virtual Villagers {game_number} Births and Conceptions Log <n>.txt', in "
-    "the save slot's own 'Virtual Villagers Fun Patcher Logs\\Save <slot>\\Births "
+    "the save slot's own 'Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Births "
     "and Conceptions' folder beside the game's saves (Documents\\LDW\\<game "
     "executable name>\\); a shared 'Births and Conceptions' folder an older "
     "patcher wrote is kept as it was and still read. "

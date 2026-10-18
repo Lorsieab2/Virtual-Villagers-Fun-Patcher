@@ -43,6 +43,7 @@ of use:
 Nothing here creates a folder.  The Backups folder is never touched."""
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
@@ -171,8 +172,21 @@ def slot_folder(slot: int) -> str:
 
 
 def slot_log_folder(folder: Path, sub: str, slot: int) -> Path:
-    """Where this build WRITES the slot's `sub` logs: "...Logs\\Save <slot>\\<sub>" (never made here)."""
+    """Where this build WRITES the slot's `sub` logs: the save's own "Virtual Villagers Fun
+    Patcher\\Save <slot>\\Logs\\<sub>", or the older "...Logs\\Save <slot>\\<sub>" while it holds the
+    slot's logs and the new one is not there (`route`).  Never made here."""
+    return route(folder, f"{slot_folder(slot)}\\{sub}")
+
+
+def older_slot_log_folder(folder: Path, sub: str, slot: int) -> Path:
+    """The slot's `sub` logs in the older layout, "...Logs\\Save <slot>\\<sub>" (only read)."""
     return Path(folder) / slot_folder(slot) / sub
+
+
+def own_slot_log_folder(folder: Path, sub: str, slot: int) -> Path:
+    """The slot's `sub` logs in the save's own folder, "Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\
+    <sub>" (whether it is there or not)."""
+    return Path(folder) / save_root(slot) / SAVE_LOGS / sub
 
 
 def header_slot(header: str | None) -> int | None:
@@ -184,8 +198,9 @@ def header_slot(header: str | None) -> int | None:
 
 def log_folders(folder: Path, sub: str, slot: int | None = None) -> list[Path]:
     """Every folder that may hold `sub`'s logs, in reading order (oldest first): the shared folder under
-    an older build's name, the shared folder, then the slot folders -- only `slot`'s, or all five when
-    `slot` is None (a game-wide count).  Nothing need exist and nothing is made."""
+    an older build's name, the shared folder, then for each slot -- only `slot`'s, or all five when
+    `slot` is None (a game-wide count) -- its older "...Logs\\Save <S>\\<sub>" and then the save's own
+    "Virtual Villagers Fun Patcher\\Save <S>\\Logs\\<sub>".  Nothing need exist and nothing is made."""
     folder = Path(folder)
     shared = f"{LOGS}\\{sub}"
     out: list[Path] = []
@@ -193,7 +208,9 @@ def log_folders(folder: Path, sub: str, slot: int | None = None) -> list[Path]:
     if old:
         out.append(folder / old)
     out.append(folder / shared)
-    out.extend(slot_log_folder(folder, sub, s) for s in SLOTS if slot is None or s == int(slot))
+    for s in SLOTS:
+        if slot is None or s == int(slot):
+            out += [older_slot_log_folder(folder, sub, s), own_slot_log_folder(folder, sub, s)]
     return out
 
 
@@ -215,10 +232,14 @@ def numbered_logs(folder: Path, sub: str, stem: str, slot: int | None = None) ->
 
 
 def is_slot_folder(path: Path) -> int | None:
-    """The slot when `path` lies inside a "...Logs\\Save <S>" folder, else None."""
+    """The slot when `path` lies inside a "...Logs\\Save <S>" folder or a save's own "Virtual Villagers
+    Fun Patcher\\Save <S>\\Logs" folder, else None."""
     parts = [p.lower() for p in Path(path).parts]
     for i, part in enumerate(parts[:-1]):
         if part == LOGS.lower():
+            m = re.fullmatch(r"save ([1-5])", parts[i + 1])
+            return int(m.group(1)) if m else None
+        if part == SAVES.lower() and i + 2 < len(parts) and parts[i + 2] == SAVE_LOGS.lower():
             m = re.fullmatch(r"save ([1-5])", parts[i + 1])
             return int(m.group(1)) if m else None
     return None
@@ -278,6 +299,201 @@ def append_target(folder: Path, sub: str, stem: str, slot: int, marker: str | No
     if size >= max_bytes or (marker and records >= per_file):
         return place / f"{stem} {number + 1}.txt"
     return last
+
+
+# ---- One folder per save slot for everything the patcher keeps about it (the owner, 2026-10-17: "FOR
+# ANYTHING IN THE SAVES FOLDER, PLEASE MAKE SEPARATE FOLDERS TO PUT ALL THE LOGS AND DATA FOR EACH SAVE
+# IN ALL 5 GAMES ... I JUST WANNA DELETE EVERYTHING IN ONE FILE"; native/shared/per_save.h is the games'
+# side and keeps the same rules) ------------------------------------------------------------------------
+#
+#     <save folder>\Virtual Villagers Fun Patcher\Save <S>\Logs\<the log's own folder>\<its own name>
+#     <save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\<the kind's folder>\<... - Save <S>.dat>
+#
+# A path of the older layout ("...Logs\Save <S>\<sub>\..." or "...Data\<kind>\<name> - Save <S>.<ext>")
+# is ROUTED (`route`) to one place, decided by what is already there -- never by a clock, never by a
+# guess -- so a writer and every reader always agree and no history is ever split:
+#
+#   a log: its unit is the slot's folder of that log ("Logs\Save <S>\Deaths and Disappearances").  The
+#     new folder once it exists; else the older one while it holds anything (it is written where it is
+#     until the player moves it with Repair Saves & Logs' "Move Files to Save Folders..."); else the new.
+#     Readers read both (`log_folders`), older first.
+#   a data file: its unit is the file.  Only one place has it: that one; both (an older patch wrote
+#     after a newer one): the one written last (a tie: the new); neither: the new.
+#
+# Nothing is ever moved, renamed or deleted here.  NOT per save, and never routed: the older shared
+# logs ("...Logs\<sub>\", no slot), the Like and Dislike Words of the older layout, a loose file in the
+# Data folder itself (an older build's; the games move it into its folder when they read it), the
+# Copies Made Before Repairs of an older-layout file, Backups, the Family Trees folder and the game's
+# own saves.
+
+SAVES = "Virtual Villagers Fun Patcher"
+SAVE_LOGS = "Logs"
+SAVE_DATA = "Data"
+MAX_PATH = 260                     # the games' path limit: a new place that would not fit is never used
+_DATA_SLOT = re.compile(r" - Save ([1-5])(?=\.|$)(\.[^.\\]*)?", re.I)   # per_save.h vv_ps_classify
+_OLDER_DATA_FOLDERS = ("cross-check", "parentage records", "log words", "genealogy")
+_OLDER_DATA_FILE = re.compile(r"(^| )Village Roster - Save | Genealogy Edits - Save ", re.I)
+
+
+def save_root(slot: int) -> str:
+    """"Virtual Villagers Fun Patcher\\Save <slot>", relative to the save folder: everything of that
+    save, in one folder."""
+    return f"{SAVES}\\Save {int(slot)}"
+
+
+def per_save_place(relative: str) -> tuple[int, str, str] | None:
+    """(slot, the place in the save's own folder, "folder" or "file") for an older-layout path of a
+    save's log or data file (relative to the save folder), or None when it is not one save's (see
+    above).  Names only; nothing is looked at."""
+    rel = str(relative).replace("/", "\\").strip("\\")
+    low = rel.lower()
+    logs = f"{LOGS}\\save ".lower()
+    if low.startswith(logs) and len(rel) > len(logs) and rel[len(logs)] in "12345" \
+            and (len(rel) == len(logs) + 1 or rel[len(logs) + 1] == "\\"):
+        slot = int(rel[len(logs)])
+        rest = rel[len(logs) + 2:]
+        return slot, f"{save_root(slot)}\\{SAVE_LOGS}" + (f"\\{rest}" if rest else ""), "folder"
+    data = f"{DATA}\\".lower()
+    if not low.startswith(data):
+        return None
+    rest = rel[len(data):]
+    head, _, name = rest.rpartition("\\")
+    if not head or head.lower().split("\\")[0] == COPIES.lower():
+        return None
+    # A file under an OLDER BUILD'S NAME stays where it is: the save's own folder holds only the newest
+    # names, and an older patch reads only the older place (per_save.h vv_ps_classify).
+    if head.lower().split("\\")[0] in _OLDER_DATA_FOLDERS or _OLDER_DATA_FILE.search(name):
+        return None
+    found = list(_DATA_SLOT.finditer(name))
+    if not found:
+        return None
+    return int(found[-1].group(1)), f"{save_root(int(found[-1].group(1)))}\\{SAVE_DATA}\\{rest}", "file"
+
+
+def _there(path: Path) -> bool | None:
+    """True a file or folder, False certainly absent, None there but not examinable (counted as there,
+    as native/shared/save_layout.h vv_layout_probe_w does)."""
+    try:
+        os.stat(path)
+        return True
+    except (FileNotFoundError, NotADirectoryError):
+        return False
+    except OSError:
+        return None
+
+
+def _holds_anything(path: Path) -> bool:
+    try:
+        with os.scandir(path) as entries:
+            return any(True for _ in entries)
+    except (FileNotFoundError, NotADirectoryError):
+        return False
+    except OSError:
+        return True
+
+
+def _file_unit(path: Path) -> Path:
+    """The data file a helper file belongs to ("x - Save 1.dat.tmp" -> "x - Save 1.dat")."""
+    found = list(_DATA_SLOT.finditer(path.name))
+    return path.with_name(path.name[:found[-1].end()]) if found else path
+
+
+def _fits(path: Path) -> bool:
+    return len(str(path)) + 32 < MAX_PATH
+
+
+def route(folder: Path, relative: str) -> Path:
+    """The one place to read AND write `relative` (an older-layout path under its newest name, relative
+    to the save folder): the save's own folder or the older layout, by the rules above.  Not one save's:
+    `find`'s answer, as before."""
+    folder = Path(folder)
+    rel = str(relative).replace("/", "\\")
+    old = find(folder, rel)
+    place = per_save_place(rel)
+    if place is None:
+        return old
+    slot, new_rel, unit = place
+    new = folder / new_rel
+    if not _fits(new):
+        return old
+    if unit == "folder":
+        tail = new_rel.split("\\")[3:4]               # the log's own folder under "Save <S>\Logs"
+        old_unit = folder / slot_folder(slot) / tail[0] if tail else folder / slot_folder(slot)
+        new_unit = folder / save_root(slot) / SAVE_LOGS / tail[0] if tail else folder / save_root(slot) / SAVE_LOGS
+        if new_unit.is_dir() or not _holds_anything(old_unit):
+            return new
+        return old
+    old_unit, new_unit = _file_unit(old), _file_unit(new)
+    old_there, new_there = _there(old_unit), _there(new_unit)
+    if old_there is False:
+        return new
+    if new_there is False:
+        return old
+    if old_unit.is_file() and new_unit.is_file() and _written(old_unit) > _written(new_unit):
+        return old
+    return new
+
+
+def both_places(folder: Path, relative: str) -> list[Path]:
+    """Every place an older-layout path (its newest name) is: the older layout's first, then the save's
+    own folder -- both when both exist, none when neither does."""
+    folder = Path(folder)
+    out = places(folder, relative)
+    place = per_save_place(relative)
+    if place is not None and (folder / place[1]).exists():
+        out.append(folder / place[1])
+    return out
+
+
+def older_layout(folder: Path, path: Path) -> str | None:
+    """Where in the older layout a file of the save's own folder was kept (relative to the save
+    folder), or None when `path` is not in a save's own folder."""
+    try:
+        parts = Path(path).resolve().relative_to(Path(folder).resolve()).parts
+    except ValueError:
+        return None
+    if len(parts) < 3 or parts[0].lower() != SAVES.lower() or not re.fullmatch(r"(?i)save [1-5]", parts[1]):
+        return None
+    slot = int(parts[1][-1])
+    rest = "\\".join(parts[3:])
+    if parts[2].lower() == SAVE_LOGS.lower():
+        return f"{slot_folder(slot)}" + (f"\\{rest}" if rest else "")
+    if parts[2].lower() == SAVE_DATA.lower():
+        return f"{DATA}" + (f"\\{rest}" if rest else "")
+    return None
+
+
+# The Like and Dislike Words boundaries (native/shared/log_words.h) are keyed by each log file's path
+# inside the save folder.  A log in a save's own folder has its boundaries in that save's own
+# "Virtual Villagers Fun Patcher\Save <S>\Data\Like and Dislike Words\Virtual Villagers <G> Log Words.dat",
+# so deleting the save's folder takes them with it (a boundary left behind would apply to a new log of
+# the same name and turn its correct words into wrong ones).  Every other log's stay in the shared file.
+
+def words_key_slot(key: str) -> int | None:
+    """The save whose own folder the log `key` (its path inside the save folder) is in, or None."""
+    m = re.match(re.escape(SAVES) + r"\\Save ([1-5])\\", str(key).replace("/", "\\"), re.I)
+    return int(m.group(1)) if m else None
+
+
+def save_words_file(folder: Path, game: int, slot: int) -> Path:
+    """The save's own Like and Dislike Words file (whether it is there or not)."""
+    return Path(folder) / save_root(slot) / SAVE_DATA / LOG_WORDS / f"Virtual Villagers {int(game)} Log Words.dat"
+
+
+def words_files(folder: Path, game: int) -> list[Path]:
+    """Every Like and Dislike Words file of the game that exists: the shared one(s) (an older build's
+    "Log Words" first), then each save's own.  Read them all; a log's boundary is the smallest."""
+    out = places(folder, f"{DATA}\\{LOG_WORDS}\\Virtual Villagers {int(game)} Log Words.dat")
+    return out + [p for p in (save_words_file(folder, game, s) for s in SLOTS) if p.exists()]
+
+
+def words_file_for(folder: Path, game: int, key: str) -> Path:
+    """The Like and Dislike Words file a boundary for the log `key` is appended to: its save's own when
+    the log is in a save's own folder, else the shared one (an older build's while only it exists)."""
+    slot = words_key_slot(key)
+    if slot is not None:
+        return save_words_file(folder, game, slot)
+    return writable(folder, f"{DATA}\\{LOG_WORDS}\\Virtual Villagers {int(game)} Log Words.dat")
 
 
 def writable(folder: Path, relative: str) -> Path:

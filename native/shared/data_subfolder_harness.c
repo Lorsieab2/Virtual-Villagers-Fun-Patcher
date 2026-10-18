@@ -66,6 +66,9 @@ static char g_data[MAX_PATH];     /* <scratch>\Virtual Villagers Fun Patcher Dat
 static char g_sub[MAX_PATH];      /* ...\Village Masks */
 static char g_loose[MAX_PATH];    /* ...\Data\<name> */
 static char g_moved[MAX_PATH];    /* ...\Data\Village Masks\<name> */
+static char g_own_root[MAX_PATH]; /* <scratch>\Virtual Villagers Fun Patcher (native/shared/per_save.h) */
+static char g_own_sub[MAX_PATH];  /* ...\Save 1\Data\Village Masks */
+static char g_own[MAX_PATH];      /* ...\Save 1\Data\Village Masks\<name>: where a fresh file goes */
 #define NAME "Village Masks - Save 1.dat"
 
 static int write_bytes(const char *path, const char *text) {
@@ -102,6 +105,7 @@ static void wipe(void) {
     char tmp[MAX_PATH];
     DeleteFileA(g_loose);
     DeleteFileA(g_moved);
+    DeleteFileA(g_own);
     wsprintfA(tmp, "%s.tmp", g_moved);
     DeleteFileA(tmp);
     wsprintfA(tmp, "%s.tmp", g_loose);
@@ -139,14 +143,35 @@ int main(int argc, char **argv) {
     wsprintfA(g_sub, "%s\\%s", g_data, VV_DATA_SUB_MASKS);
     wsprintfA(g_loose, "%s\\%s", g_data, NAME);
     wsprintfA(g_moved, "%s\\%s\\%s", g_data, VV_DATA_SUB_MASKS, NAME);
+    wsprintfA(g_own_root, "%s\\Virtual Villagers Fun Patcher", argv[1]);
+    wsprintfA(g_own_sub, "%s\\Save 1\\Data\\%s", g_own_root, VV_DATA_SUB_MASKS);
+    wsprintfA(g_own, "%s\\%s", g_own_sub, NAME);
 
-    printf("1. nothing on disk: the file goes in its folder\n");
+    printf("1. nothing on disk: the file goes in its folder, in the save's own folder (per_save.h)\n");
     wipe();
     r = resolve(out);
-    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_moved) == 0, "the path is <Data>\\Village Masks\\<name>");
-    CHECK(GetFileAttributesA(g_sub) != INVALID_FILE_ATTRIBUTES
-          && (GetFileAttributesA(g_sub) & FILE_ATTRIBUTE_DIRECTORY), "the folder was made");
-    CHECK(!exists(g_moved) && !exists(g_loose) && g_moves == 0, "no file was made and nothing moved");
+    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_own) == 0,
+          "the path is <save>\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Village Masks\\<name> (got %s)", out);
+    CHECK(GetFileAttributesA(g_own_sub) != INVALID_FILE_ATTRIBUTES
+          && (GetFileAttributesA(g_own_sub) & FILE_ATTRIBUTE_DIRECTORY), "the folder was made");
+    CHECK(!exists(g_own) && !exists(g_moved) && !exists(g_loose) && g_moves == 0, "no file was made and nothing moved");
+    CHECK(!exists(g_sub), "nothing was made in the older layout's kind folder");
+    r = resolve(out);
+    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_own) == 0 && write_bytes(g_own, "OWN")
+          && resolve(out) == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_own) == 0 && lstrcmpA(read_text(g_own), "OWN") == 0,
+          "a file in the save's own folder is that file, every time");
+    write_bytes(g_loose, "LOOSE-BESIDE");
+    r = resolve(out);
+    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_own) == 0 && lstrcmpA(read_text(g_loose), "LOOSE-BESIDE") == 0
+          && g_moves == 0, "... even with a loose copy beside the older layout's: nothing moved, nothing touched");
+
+    printf("1b. a file in the older layout's kind folder: read and written where it is\n");
+    wipe();
+    CreateDirectoryA(g_sub, NULL);
+    write_bytes(g_moved, "OLDER-LAYOUT");
+    r = resolve(out);
+    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_moved) == 0 && !exists(g_own)
+          && lstrcmpA(read_text(g_moved), "OLDER-LAYOUT") == 0, "the path is the older layout's file, never moved");
 
     printf("2. only the loose copy: it is moved in, whole\n");
     wipe();
@@ -245,7 +270,23 @@ int main(int argc, char **argv) {
     wipe();
     write_bytes(g_sub, "NOT A FOLDER");
     r = resolve(out);
-    CHECK(r == VV_DATA_PATH_LOOSE && lstrcmpiA(out, g_loose) == 0, "nothing loose: the loose path, so the data is still kept");
+    /* Nothing anywhere: a fresh file, so the save's own folder, which can be made. */
+    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_own) == 0,
+          "nothing loose: the save's own folder's path, so the data is still kept");
+    {
+        /* ...and when the save's own kind folder cannot be made either, the loose path. */
+        char own_data[MAX_PATH];
+        RemoveDirectoryA(g_own_sub);
+        wsprintfA(own_data, "%s\\Save 1\\Data", g_own_root);
+        RemoveDirectoryA(own_data);
+        write_bytes(own_data, "NOT A FOLDER EITHER");
+        vv_data_kept_count = 0;
+        r = resolve(out);
+        CHECK(r == VV_DATA_PATH_LOOSE && lstrcmpiA(out, g_loose) == 0,
+              "neither folder can be made: the loose path, so the data is still kept");
+        DeleteFileA(own_data);
+        vv_data_kept_count = 0;
+    }
     write_bytes(g_loose, "LOOSE");
     r = resolve(out);
     CHECK(r == VV_DATA_PATH_LOOSE && lstrcmpiA(out, g_loose) == 0 && g_moves == 0, "loose present: used in place, no move tried");
@@ -256,7 +297,8 @@ int main(int argc, char **argv) {
     wipe();
     CreateDirectoryA(g_loose, NULL);
     r = resolve(out);
-    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_moved) == 0 && g_moves == 0, "the folder's path; nothing moved");
+    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_own) == 0 && g_moves == 0,
+          "the folder's path (the save's own); nothing moved");
     RemoveDirectoryA(g_loose);
 
     printf("10. lengths: room for the longest set-aside name, else the loose file, else nothing\n");
@@ -291,7 +333,28 @@ int main(int argc, char **argv) {
     CHECK(r == VV_DATA_PATH_FAILED && lstrcmpA(out, g_data) == 0 && !exists(g_loose),
           "...and if not even its .tmp fits: refused, no loose file started beside it");
 
+    printf("11. the save's own folder too long for the caller's room: the older layout, every time\n");
     wipe();
+    vv_data_kept_count = 0;
+    lstrcpyA(out, g_data);
+    r = vv_data_file_path(out, lstrlenA(g_moved) + VV_DATA_RESERVE, VV_DATA_SUB_MASKS, NAME, VV_DATA_RESERVE);
+    CHECK(lstrlenA(g_own) > lstrlenA(g_moved) && r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_moved) == 0
+          && !exists(g_own), "nothing on disk: the older layout's kind folder, nothing in the save's own");
+    lstrcpyA(out, g_data);
+    r = vv_data_file_path(out, lstrlenA(g_moved) + VV_DATA_RESERVE, VV_DATA_SUB_MASKS, NAME, VV_DATA_RESERVE);
+    CHECK(r == VV_DATA_PATH_FOLDER && lstrcmpiA(out, g_moved) == 0, "... the same answer again");
+
+    wipe();
+    {
+        /* The save's own folders this run made, if empty. */
+        char up[MAX_PATH];
+        RemoveDirectoryA(g_own_sub);
+        wsprintfA(up, "%s\\Save 1\\Data", g_own_root);
+        RemoveDirectoryA(up);
+        wsprintfA(up, "%s\\Save 1", g_own_root);
+        RemoveDirectoryA(up);
+        RemoveDirectoryA(g_own_root);
+    }
     RemoveDirectoryA(g_data);
     RemoveDirectoryA(argv[1]);
     printf(failures ? "FAILURES: %d\n" : "all checks passed\n", failures);

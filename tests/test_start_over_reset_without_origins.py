@@ -536,8 +536,13 @@ class PopulationPagesAreMatchedByVillageTests(unittest.TestCase):
     def test_the_source_no_longer_addresses_the_roster_by_slot(self) -> None:
         text = self.RESET_C.read_text(encoding="utf-8")
         self.assertNotIn('Village Population %d.txt", sub_w, slot', text)
-        # the shared folder, its pre-spell-out name, and the slot's own (native/shared/log_slot.h)
-        self.assertEqual(text.count("delete_village_population_pages(sub_w, village)"), 3)
+        # the shared folder, its pre-spell-out name, the slot's older-layout folder
+        # (native/shared/log_slot.h) and the slot's folder in the save's own folder (per_save.h)
+        self.assertEqual(text.count("delete_village_population_pages(sub_w, village)"), 4)
+        self.assertIn(
+            'own_subfolder_w(sub_w, slot_sub)) {\n            removed += delete_village_population_pages(sub_w, village);',
+            text,
+        )
         self.assertIn("log_line_matches(path, village, 1)", text)
 
     def test_the_harness_covers_every_case(self) -> None:
@@ -595,6 +600,13 @@ class SaveResetHarnessRunsTests(unittest.TestCase):
             "[PASS] survivor: VV1 slot-2 sidecar present after all five refusals",
             "[PASS] survivor: the game's own .ldw present after all five refusals",
             "[PASS] survivor: VV2 slot-1 sidecar present after all five refusals",
+            # one folder per save (native/shared/per_save.h): Start Over clears both places
+            "[PASS] the slot folders above are in the save's own folder",
+            "[PASS] START OVER CLEARS THE VILLAGE'S LOG IN BOTH PLACES: the older layout's and the save's own",
+            "[PASS] ...and the slot's Village Statistics in the save's own folder",
+            "[PASS] ...and the slot's data file in both places",
+            "[PASS] another village's log in the save's own folder is kept",
+            "[PASS] another slot's data files are kept, in both places",
         ):
             with self.subTest(case=case):
                 self.assertIn(case, result.stdout)

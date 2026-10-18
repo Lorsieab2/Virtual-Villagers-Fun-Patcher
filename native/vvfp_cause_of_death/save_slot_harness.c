@@ -136,9 +136,10 @@ static void graves_path(int slot, char *out) {
     base = strrchr(exe, '\\') + 1;
     dot = strrchr(base, '.');
     if (dot) *dot = 0;
+    /* A fresh file: in the save's own folder (native/shared/per_save.h). */
     _snprintf(out, MAX_PATH,
-              "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data\\Graves\\Virtual Villagers %d Graves - Save %d.dat",
-              g_docs, base, game, slot);
+              "%s\\LDW\\%s\\Virtual Villagers Fun Patcher\\Save %d\\Data\\Graves\\Virtual Villagers %d Graves - Save %d.dat",
+              g_docs, base, slot, game, slot);
     out[MAX_PATH - 1] = 0;
 }
 

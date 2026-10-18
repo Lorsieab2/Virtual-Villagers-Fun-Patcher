@@ -127,8 +127,16 @@ class Village:
         self.save.write_bytes(save_for(game, people))
         self.events = self.log(f"Island Events/Virtual Villagers {game} Island Events Log 1.txt",
                                f"{VILLAGE}\n" + events)
-        self.titles = self.folder / DATA / "Custom Titles" / "Custom Titles - Save 1.dat"
-        self.former = self.folder / DATA / "Former Heathens" / "Former Heathens - Save 1.dat"
+
+    # Where the game reads and writes them: the save's own folder for a fresh save, the older layout's
+    # while it holds the file (src/vv_save_layout.py route).
+    @property
+    def titles(self) -> Path:
+        return tools.layout.route(self.folder, f"{DATA}\\Custom Titles\\Custom Titles - Save 1.dat")
+
+    @property
+    def former(self) -> Path:
+        return tools.layout.route(self.folder, f"{DATA}\\Former Heathens\\Former Heathens - Save 1.dat")
 
     def log(self, relative: str, text: str) -> Path:
         path = self.folder / LOGS / relative
@@ -149,7 +157,8 @@ class Village:
         return [(e.index, e.identity, e.title) for e in got[1]]
 
     def repairs(self) -> str:
-        found = sorted((self.folder / LOGS).rglob("Virtual Villagers * Repairs Log *.txt"))
+        found = sorted(p for root in (self.folder / LOGS, self.folder / tools.layout.SAVES)
+                       for p in root.rglob("Virtual Villagers * Repairs Log *.txt"))
         return found[0].read_bytes().decode("latin-1") if found else ""
 
 
@@ -255,8 +264,7 @@ class TheAlapaiCase(unittest.TestCase):
                 data = v.titles.read_bytes()
                 self.assertEqual(data[16:56], original[16:56])
                 self.assertEqual(v.entries()[1], (0, v.identity(0), "Moon Mother"))
-                copy = v.folder / DATA / "Copies Made Before Repairs" / DATA / "Custom Titles" / (
-                    "Custom Titles - Save 1.dat" + lt.COPY_SUFFIX)
+                copy = tools.copy_before_repair(v.folder, v.titles, lt.COPY_SUFFIX)
                 self.assertEqual(copy.read_bytes(), original)
 
     def test_the_repair_number_follows_every_repairs_file_of_the_game(self):
@@ -266,7 +274,7 @@ class TheAlapaiCase(unittest.TestCase):
         v.log("Save 1/Repairs Made/Virtual Villagers 4 Repairs Log 1.txt",
               f"{VILLAGE}\nRepair 1\n  Date: x\n\nRepair 2\n  Date: x\n\nRepair 3\n  Date: x\n\n")
         lt.restore(v.folder, 4, 1, processes=NoGame(), now=NOW)
-        written = v.folder / LOGS / "Save 1" / "Repairs Made" / "Virtual Villagers 4 Repairs Log 1.txt"
+        written = tools.layout.slot_log_folder(v.folder, "Repairs Made", 1) / "Virtual Villagers 4 Repairs Log 1.txt"
         text = written.read_bytes().decode("latin-1")
         self.assertIn("Repair 4\r\n  Date: 2026-10-10 12:00:00\r\n", text)
         self.assertNotIn("Repair 1\r\n  Date: 2026-10-10", v.repairs())

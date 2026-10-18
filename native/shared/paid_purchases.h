@@ -42,6 +42,7 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <string.h>
+#include "per_save.h"
 
 #define VV_PAID_MAGIC    0x31505056u          /* 'V' 'P' 'P' '1' */
 #define VV_PAID_VERSION  1u
@@ -122,6 +123,13 @@ static int vv_paid_named_path(int game, int slot, const char *what, char *out, i
     if (game < 1 || game > 5 || slot < 1 || slot > 5 || what == NULL || !VV_PAID_SAVE_FOLDER(folder)
         || lstrlenA(folder) + lstrlenA(what) + 140 >= MAX_PATH) {
         return 0;
+    }
+    /* ONE FOLDER PER SAVE (per_save.h): the save's own "Virtual Villagers Fun Patcher\Save <S>\Data\
+       Paid Purchases\..." unless the file is still in the older layout's folder. */
+    wsprintfA(out, "%s\\" VV_PAID_FOLDER "\\" VV_PAID_SUB "\\Virtual Villagers %d %s - Save %d.dat",
+              folder, game, what, slot);
+    if (vv_ps_route_a(out, MAX_PATH - 32, make)) {
+        return 1;
     }
     if (make) {
         CreateDirectoryA(folder, NULL);

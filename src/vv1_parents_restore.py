@@ -59,7 +59,7 @@ def parents_path(folder: Path, slot: int) -> Path:
     """The file the companion reads and writes (native vv1_parents_path): "Parents (A New Home)" or
     an older build's "Parentage Records", whichever holds it; else the loose name in the Data folder."""
     folder = Path(folder)
-    found = layout.find(folder, f"{layout.DATA}\\{layout.PARENTS_VV1}\\{file_name(slot)}")
+    found = layout.route(folder, f"{layout.DATA}\\{layout.PARENTS_VV1}\\{file_name(slot)}")
     if found.is_file():
         return found
     loose = folder / layout.DATA / file_name(slot)
@@ -128,8 +128,11 @@ def copies(folder: Path, slot: int) -> list[Path]:
     folder = Path(folder)
     stem = file_name(slot) + "."
     out = []
-    data = folder / layout.DATA
-    if data.is_dir():
+    # The older layout's Data folder, and the save's own "Virtual Villagers Fun Patcher\Save <slot>\Data"
+    # (src/vv_save_layout.py).
+    for data in (folder / layout.DATA, folder / layout.save_root(slot) / layout.SAVE_DATA):
+        if not data.is_dir():
+            continue
         for path in data.rglob(file_name(slot) + ".*"):
             if path.is_file() and path.name.startswith(stem) and not path.name.endswith(".tmp"):
                 out.append(path)
@@ -167,12 +170,19 @@ class Plan:
         return out
 
 
+def _log_files(folder: Path, pattern: str) -> list[Path]:
+    """Every file matching `pattern` under the older layout's Logs folder, then under each save's own
+    "Virtual Villagers Fun Patcher\\Save <S>\\Logs" (src/vv_save_layout.py)."""
+    roots = [Path(folder) / layout.LOGS] + [Path(folder) / layout.save_root(s) / layout.SAVE_LOGS
+                                             for s in layout.SLOTS]
+    return [path for root in roots if root.is_dir() for path in sorted(root.rglob(pattern))]
+
+
 def _births_log_parents(folder: Path, slot: int) -> dict[tuple[str, int, int], set[tuple[str, str]]]:
     """(child name, head, body) -> the (father, mother) names its Birth records give, for this slot's
     village (every numbered file of A New Home's Births and Conceptions log)."""
     out: dict[tuple[str, int, int], set[tuple[str, str]]] = {}
-    logs = Path(folder) / layout.LOGS
-    for path in sorted(logs.rglob("Virtual Villagers 1 Births and Conceptions Log *.txt")):
+    for path in _log_files(folder, "Virtual Villagers 1 Births and Conceptions Log *.txt"):
         if not path.is_file() or not re.search(r"Log \d+\.txt$", path.name):
             continue
         try:
@@ -214,8 +224,7 @@ def _births_log_parents(folder: Path, slot: int) -> dict[tuple[str, int, int], s
 
 def _slot_blocks(folder: Path, slot: int, pattern: str):
     """Every record block of this slot's village in A New Home's logs matching the file `pattern`."""
-    logs = Path(folder) / layout.LOGS
-    for path in sorted(logs.rglob(pattern)):
+    for path in _log_files(folder, pattern):
         if not path.is_file() or not re.search(r" \d+\.txt$", path.name):
             continue
         try:

@@ -99,6 +99,7 @@ int vv_save_subfolder_w(wchar_t *out, const wchar_t *sub, int reserve) {
 }
 
 #include "identity_in_place.h"
+#include "../shared/per_save_data.h"   /* one folder per save: story_titles.inc routes its file */
 
 /* ---- the game: a slot and a village of named records -------------------- */
 
@@ -238,7 +239,15 @@ static long file_size(const char *path) {
     return (long)info.nFileSizeLow;
 }
 
+/* Where a fresh file is published: the save's own folder (native/shared/per_save.h). */
 static void titles_path(int slot, char *out) {
+    _snprintf_s(out, MAX_PATH, _TRUNCATE,
+                "%s\\Virtual Villagers Fun Patcher\\Save %d\\Data\\Custom Titles\\Custom Titles - Save %d.dat", g_root,
+                slot, slot);
+}
+
+/* ...and the older layout's place, read and written while the file is still there. */
+static void old_titles_path(int slot, char *out) {
     _snprintf_s(out, MAX_PATH, _TRUNCATE,
                 "%s\\Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save %d.dat", g_root, slot);
 }
@@ -261,9 +270,10 @@ static int title_index(const char *title) {
 
 /* What the harness needs under %TEMP% (GetTempPath ends in a backslash): the root
    "vvfp_titles_harness_<pid>" (20 + at most 10 characters), then the longest file under it,
-   "\Virtual Villagers Fun Patcher Data\Custom Titles\Custom Titles - Save 1.dat" (76), its
-   ".unreadable-*" set-aside pattern (13), and 16 for the temporary names the atomic publish makes. */
-#define HARNESS_PATH_NEED (20 + 10 + 76 + 13 + 16)
+   "\Virtual Villagers Fun Patcher\Save 1\Data\Custom Titles\Custom Titles - Save 1.dat" (83, the save's
+   own folder: native/shared/per_save.h), its ".unreadable-*" set-aside pattern (13), and 16 for the
+   temporary names the atomic publish makes. */
+#define HARNESS_PATH_NEED (20 + 10 + 83 + 13 + 16)
 
 /* The save folder root: <GetTempPath>\vvfp_titles_harness_<pid>.  A %TEMP% so long that the files under
    it would pass MAX_PATH makes the harness say so and stop, instead of failing every check on a path
@@ -375,6 +385,31 @@ int main(void) {
         if (f != INVALID_HANDLE_VALUE) {
             FindClose(f);
         }
+    }
+
+    /* -- one folder per save: a file still in the older layout's folder ---
+       is read there, and written there, and the save's own folder gets none
+       of it (native/shared/per_save.h: a data file's unit is the file). */
+    {
+        char old1[MAX_PATH], old_dir[MAX_PATH];
+        new_session();
+        g_slot = 1;
+        DeleteFileA(path1);
+        check(titles_set(3, 1, "Older Place") == 1 && file_exists(path1), "setup: a file in the save's own folder");
+        old_titles_path(1, old1);
+        _snprintf_s(old_dir, MAX_PATH, _TRUNCATE, "%s\\Virtual Villagers Fun Patcher Data", g_root);
+        CreateDirectoryA(old_dir, NULL);
+        lstrcatA(old_dir, "\\Custom Titles");
+        CreateDirectoryA(old_dir, NULL);
+        check(MoveFileA(path1, old1) != 0, "setup: ...moved to the older layout's Custom Titles folder");
+        new_session();
+        seen = titles_lookup(3, g_records[1]);
+        check(seen != NULL && lstrcmpA(seen, "Older Place") == 0, "AN OLDER LAYOUT'S FILE IS READ WHERE IT IS");
+        check(titles_set(3, 0, "Also Older") == 1 && file_size(old1) == 16 + 2 * 84 && !file_exists(path1),
+              "...AND WRITTEN THERE, NOTHING IN THE SAVE'S OWN FOLDER");
+        DeleteFileA(old1);
+        RemoveDirectoryA(old_dir);
+        new_session();
     }
 
     /* -- a write that fails leaves the table as it was ------------------- */

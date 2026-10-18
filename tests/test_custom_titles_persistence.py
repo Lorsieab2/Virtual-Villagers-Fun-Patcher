@@ -152,6 +152,11 @@ class CustomTitlesFile(unittest.TestCase):
         self.assertEqual(run.returncode, 0, run.stdout[-3000:] + run.stderr[-2000:])
         self.assertIn("0 failure(s)", run.stdout)
         self.assertNotIn("[FAIL]", run.stdout)
+        # One folder per save (native/shared/per_save.h): a fresh file is published in the save's own
+        # folder; a file still in the older layout's is read and written where it is.
+        self.assertIn("[PASS] CUSTOM TITLES FILE PUBLISHED BESIDE THE SAVES", run.stdout)
+        self.assertIn("[PASS] AN OLDER LAYOUT'S FILE IS READ WHERE IT IS", run.stdout)
+        self.assertIn("[PASS] ...AND WRITTEN THERE, NOTHING IN THE SAVE'S OWN FOLDER", run.stdout)
         for game in range(1, 6):
             with self.subTest(game=game):
                 self.assertIn(f"[PASS] THE TITLE SURVIVES A LIKES / DISLIKES CHANGE, ASKED IN THE SAME FRAME "
@@ -319,6 +324,12 @@ class CustomTitlesInTheLogs(unittest.TestCase):
                      "ANOTHER SLOT'S VILLAGE PRINTS NO TITLES",
                      "A NAME CONTAINING (Save 2) DOES NOT READ SLOT 2'S TITLES",
                      "THE LAST (Save N) MARKER IS THE SLOT",
+                     # One folder per save (native/shared/per_save.h): the logs are looked for in the
+                     # save's own folder, where the stand-in save folder routes them as save_folder.c
+                     # does, and a titles file there is read.
+                     '"%s\\\\Virtual Villagers Fun Patcher\\\\Save %d\\\\Logs\\\\%s\\\\%s"',
+                     "vv_ps_route_a(full, MAX_PATH - reserve, 0)",
+                     "A TITLES FILE IN THE SAVE'S OWN FOLDER IS PRINTED TOO",
                      # Twins, in all five games (run_twins).
                      "TWINS WITH DIFFERENT LOOKS EACH SHOW THEIR OWN BOUND TITLE, ROSTER AND HISTORY",
                      "IDENTICAL TWINS SHOW NO TITLE",

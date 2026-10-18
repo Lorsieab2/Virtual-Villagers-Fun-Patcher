@@ -22,9 +22,9 @@ diamond portrait that says Upcoming child".
   matching key", "make all the fields editable in case there are errors or the player wants to
   type something in a portrait"): every entry's lines, the title and the generation labels may be
   replaced, and any villager may carry a mark of the player's own -- a label and a colour -- drawn
-  as a second border, every mark listed in the Key.  They are kept in the save folder's
-  Virtual Villagers Fun Patcher Data\\Family Tree Edits, by villager (name, head and body), so a new tree
-  keeps them.
+  as a second border, every mark listed in the Key.  They are kept in the save's own
+  Virtual Villagers Fun Patcher\\Save <S>\\Data\\Family Tree Edits (for an older save, Virtual Villagers
+  Fun Patcher Data\\Family Tree Edits), by villager (name, head and body), so a new tree keeps them.
 
 The page is HTML with the tree in SVG; the picture (PNG or JPG) is drawn with Windows' own GDI+
 (src/vv_gdiplus.py): nothing to install.
@@ -488,10 +488,11 @@ class Edits:
 
     @staticmethod
     def path(folder: Path, game: int, slot: int) -> Path:
-        # "Data\Family Tree Edits\... Family Tree Edits - Save N.json"; "Genealogy" / "Genealogy Edits"
-        # in older builds, used there until the save folder's files take their new names.
+        # The save's own "Virtual Villagers Fun Patcher\Save N\Data\Family Tree Edits\... Family Tree Edits -
+        # Save N.json", or the older layout's "...Data\Family Tree Edits" ("Genealogy" / "Genealogy Edits" in
+        # older builds) while it holds the file (src/vv_save_layout.py route).  The caller makes the folder.
         import vv_save_layout as save_layout
-        return save_layout.find(folder, f"{save_layout.DATA}\\{save_layout.TREE_EDITS}\\"
+        return save_layout.route(folder, f"{save_layout.DATA}\\{save_layout.TREE_EDITS}\\"
                                         f"Virtual Villagers {game} Family Tree Edits - Save {slot}.json")
 
     @classmethod

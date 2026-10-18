@@ -698,7 +698,7 @@ def build() -> None:
                 "work are offered as never happening in the original game.",
                 "A custom title replaces a villager's title in the villager panel and is printed in "
                 "the Village Population and Village History logs; it is kept per save slot in "
-                "Virtual Villagers Fun Patcher Data\\Custom Titles\\Custom Titles - Save N.dat and "
+                "Virtual Villagers Fun Patcher\\Save N\\Data\\Custom Titles\\Custom Titles - Save N.dat and "
                 "deleted by Start Over.",
             ],
             "explicit_non_changes": [

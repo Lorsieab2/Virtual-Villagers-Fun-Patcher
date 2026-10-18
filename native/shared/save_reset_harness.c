@@ -688,11 +688,87 @@ int main(void) {
         check(exists(file[7]), "...nor its Repairs log (never deleted by Start Over)");
         check(exists(other), "another village's log in the same slot's folder is kept");
         check(exists(slot2), "another slot's folder is untouched");
+        /* A fresh slot's log folders are in the save's own folder (save_folder.c routes them; per_save.h). */
+        check(strstr(file[0], "\\Virtual Villagers Fun Patcher\\Save 1\\Logs\\Births and Conceptions\\") != NULL
+              && strstr(slot2, "\\Virtual Villagers Fun Patcher\\Save 2\\Logs\\Births and Conceptions\\") != NULL,
+              "the slot folders above are in the save's own folder (...\\Virtual Villagers Fun Patcher\\Save <S>\\Logs)");
         for (k = 0; k < 8; ++k) {
             DeleteFileA(file[k]);
         }
         DeleteFileA(other);
         DeleteFileA(slot2);
+    }
+
+    /* ONE FOLDER PER SAVE (per_save.h): Start Over clears BOTH places -- the older layout's
+       ("...Logs\Save <S>\...", "...Data\<kind>\...") and the save's own ("...Fun Patcher\Save <S>\...")
+       -- and still nothing of another slot's in either. */
+    {
+        char old_dir[MAX_PATH], own_dir[MAX_PATH], p[MAX_PATH];
+        char old_log[MAX_PATH], own_log[MAX_PATH], old_mask[MAX_PATH], own_mask[MAX_PATH];
+        char old_mask2[MAX_PATH], own_mask2[MAX_PATH], own_stats[MAX_PATH], own_log2[MAX_PATH];
+        static const char *const OLD_PARTS[] = {
+            "Virtual Villagers Fun Patcher Logs", "Save 1", "Births and Conceptions", NULL
+        };
+        static const char *const OWN_PARTS[] = {
+            "Virtual Villagers Fun Patcher", "Save 1", "Logs", "Births and Conceptions", NULL
+        };
+        int k;
+        /* Made directly, not through the routing: both layouts at once, as a player's folder can be. */
+        lstrcpyA(old_dir, folder);
+        for (k = 0; OLD_PARTS[k] != NULL; ++k) {
+            lstrcatA(old_dir, "\\");
+            lstrcatA(old_dir, OLD_PARTS[k]);
+            CreateDirectoryA(old_dir, NULL);
+        }
+        lstrcpyA(own_dir, folder);
+        for (k = 0; OWN_PARTS[k] != NULL; ++k) {
+            lstrcatA(own_dir, "\\");
+            lstrcatA(own_dir, OWN_PARTS[k]);
+            CreateDirectoryA(own_dir, NULL);
+        }
+        wsprintfA(old_log, "%s\\Virtual Villagers 1 Births and Conceptions Log 1.txt", old_dir);
+        wsprintfA(own_log, "%s\\Virtual Villagers 1 Births and Conceptions Log 1.txt", own_dir);
+        wsprintfA(own_log2, "%s\\Virtual Villagers 1 Births and Conceptions Log 2.txt", own_dir);
+        write_text(old_log, VILLAGE);
+        write_text(own_log, VILLAGE);
+        write_text(own_log2, "Village: Someone Else (Save 1)\n");
+        wsprintfA(p, "%s\\Virtual Villagers Fun Patcher\\Save 1\\Logs\\Village Statistics", folder);
+        CreateDirectoryA(p, NULL);
+        wsprintfA(own_stats, "%s\\Village Statistics v2 - Save 1.txt", p);
+        touch(own_stats);
+        wsprintfA(p, "%s\\Virtual Villagers Fun Patcher Data", folder);
+        CreateDirectoryA(p, NULL);
+        lstrcatA(p, "\\Village Masks");
+        CreateDirectoryA(p, NULL);
+        wsprintfA(old_mask, "%s\\Virtual Villagers 1 Village Masks - Save 1.dat", p);
+        wsprintfA(old_mask2, "%s\\Virtual Villagers 1 Village Masks - Save 2.dat", p);
+        wsprintfA(p, "%s\\Virtual Villagers Fun Patcher\\Save 1\\Data", folder);
+        CreateDirectoryA(p, NULL);
+        lstrcatA(p, "\\Village Masks");
+        CreateDirectoryA(p, NULL);
+        wsprintfA(own_mask, "%s\\Virtual Villagers 1 Village Masks - Save 1.dat", p);
+        wsprintfA(p, "%s\\Virtual Villagers Fun Patcher\\Save 2", folder);
+        CreateDirectoryA(p, NULL);
+        lstrcatA(p, "\\Data");
+        CreateDirectoryA(p, NULL);
+        lstrcatA(p, "\\Village Masks");
+        CreateDirectoryA(p, NULL);
+        wsprintfA(own_mask2, "%s\\Virtual Villagers 1 Village Masks - Save 2.dat", p);
+        touch(old_mask); touch(own_mask); touch(old_mask2); touch(own_mask2);
+        check(exists(old_log) && exists(own_log) && exists(own_log2) && exists(own_stats) && exists(old_mask)
+              && exists(own_mask) && exists(old_mask2) && exists(own_mask2),
+              "both layouts' fixtures created (nonzero denominator)");
+
+        vv_reset_slot_state(1, 1, VILLAGE);
+        check(!exists(old_log) && !exists(own_log),
+              "START OVER CLEARS THE VILLAGE'S LOG IN BOTH PLACES: the older layout's and the save's own");
+        check(!exists(own_stats), "...and the slot's Village Statistics in the save's own folder");
+        check(!exists(old_mask) && !exists(own_mask), "...and the slot's data file in both places");
+        check(exists(own_log2), "another village's log in the save's own folder is kept");
+        check(exists(old_mask2) && exists(own_mask2), "another slot's data files are kept, in both places");
+        DeleteFileA(own_log2);
+        DeleteFileA(old_mask2);
+        DeleteFileA(own_mask2);
     }
 
     /* Clean up what the harness made. */

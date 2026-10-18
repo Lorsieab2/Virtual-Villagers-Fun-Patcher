@@ -255,11 +255,11 @@ static int log_path(wchar_t *path, enum log_kind kind) {
     { wchar_t *dot = wcsrchr(slash, L'.'); if (dot) { *dot = L'\0'; } }
     if (kind == LOG_HISTORY) {
         _snwprintf(path, MAX_PATH,
-                   L"%ls\\LDW\\%ls\\Virtual Villagers Fun Patcher Logs\\Save 1\\Tribe History\\Village History 1.txt",
+                   L"%ls\\LDW\\%ls\\Virtual Villagers Fun Patcher\\Save 1\\Logs\\Tribe History\\Village History 1.txt",
                    folder, slash);
     } else {
         _snwprintf(path, MAX_PATH,
-                   L"%ls\\LDW\\%ls\\Virtual Villagers Fun Patcher Logs\\Save 1\\Tribe Population\\Village Population 1.txt",
+                   L"%ls\\LDW\\%ls\\Virtual Villagers Fun Patcher\\Save 1\\Logs\\Tribe Population\\Village Population 1.txt",
                    folder, slash);
     }
     path[MAX_PATH - 1] = L'\0';

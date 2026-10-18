@@ -921,6 +921,9 @@ static int vv1_parents_path(char *out, size_t n, int slot) {
         }
         wsprintfA(old_file, "%s\\" VV_DATA_SUB_PARENTAGE_OLD "\\%s", out, name);
         wsprintfA(new_file, "%s\\" VV_DATA_SUB_PARENTAGE "\\%s", out, name);
+        /* "Parents (A New Home)" is in the save's own folder now, unless still in the older layout's
+           (per_save.h): the one of the two to weigh against "Parentage Records". */
+        (void)vv_ps_route_a(new_file, (int)sizeof new_file - VV_DATA_RESERVE + 1, 0);
         if (vv_layout_pick_file_a(old_file, new_file)) {
             if ((size_t)lstrlenA(old_file) + VV_DATA_RESERVE > n) {
                 return 0;

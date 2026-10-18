@@ -20,6 +20,7 @@ import vv_how_to_use
 import vv_log_tools
 import vv_log_additions
 import vv_move_old_names
+import vv_move_to_save_folders
 import vv_last_names
 import vv_cut_names
 import vv_corrupt_skills
@@ -2435,11 +2436,23 @@ class App(tk.Tk):
                 # folder the game itself saves into -- so pointing at
                 # modded_folder sent a player to a directory where these files
                 # are never created. Found in review.
-                # One folder of logs per save slot: "...Logs\Save N\<the log's folder>"
-                # (src/vv_save_layout.py); the shared folders older builds wrote stay as they are.
-                save_folder = (
+                # One folder per save slot for everything the patcher keeps about it:
+                # "Virtual Villagers Fun Patcher\Save N\Logs\<the log's folder>" and "...\Save N\Data\"
+                # (src/vv_save_layout.py). An older save's files stay in "Virtual Villagers Fun Patcher
+                # Logs\Save N" and "Virtual Villagers Fun Patcher Data" (still read) until the player moves
+                # them with Repair Saves & Logs' "Move Files to Save Folders..."
+                # (src/vv_move_to_save_folders.py); the shared folders older builds wrote stay as they are.
+                save_root = (
                     _documents_folder() / "LDW" / output_exe.stem
-                    / "Virtual Villagers Fun Patcher Logs" / "Save N"
+                    / "Virtual Villagers Fun Patcher" / "Save N"
+                )
+                save_folder = save_root / "Logs"
+                artifact_lines.append(
+                    f"Save N's logs and data: {save_root} — everything the patcher keeps about save slot N, "
+                    "in one folder (Logs and Data). An older save's files stay where an earlier patcher put "
+                    "them (\"Virtual Villagers Fun Patcher Logs\\Save N\" and \"Virtual Villagers Fun Patcher "
+                    "Data\") and are still read, until you move them with Repair Saves & Logs > Move Files to "
+                    "Save Folders..."
                 )
                 if f"{build.id}_write_village_statistics" in selected:
                     artifact_lines.append(
@@ -3401,6 +3414,7 @@ class App(tk.Tk):
         go_button = ttk.Button(buttons, text="Repair Saves & Logs" if repair else "Check")
         go_button.pack(side="left")
         move_button = None
+        save_folders_button = None
         restore_button = None
         if repair:
             # The owner, 2026-10-09: "Repair logs should have the move legacy files button!" -- for
@@ -3411,6 +3425,14 @@ class App(tk.Tk):
                 if state["folders"] else None,
             )
             move_button.pack(side="left", padx=(8, 0))
+            # The owner, 2026-10-17: "ADD A BUTTON TO MOVE EXISTING FILES TO ITS SAVE FOLDER" -- every save
+            # slot of the chosen save folder, only when pressed (src/vv_move_to_save_folders.py).
+            save_folders_button = ttk.Button(
+                buttons, text="Move Files to Save Folders...",
+                command=lambda: self._move_to_save_folders(dialog, state["folders"][folder_box.current()])
+                if state["folders"] else None,
+            )
+            save_folders_button.pack(side="left", padx=(8, 0))
             # A New Home's parents lost by v1.35.66/67 (the title screen's founders): given back from the
             # copies the patcher kept of the parentage file, for the chosen tribe (src/vv1_parents_restore.py).
             restore_button = ttk.Button(
@@ -3448,6 +3470,8 @@ class App(tk.Tk):
                 reconcile_var.set("")
             if move_button is not None:
                 move_button.configure(state="normal" if state["folders"] else "disabled")
+            if save_folders_button is not None:
+                save_folders_button.configure(state="normal" if state["folders"] else "disabled")
             if restore_button is not None:
                 restore_button.configure(
                     state="normal" if problem is None and game().number == 1 else "disabled")
@@ -3572,6 +3596,96 @@ class App(tk.Tk):
             lines.append(f"Backup: {result.backup.backup_folder}")
         self.status_var.set(f"Move Old Files to New Names: {folder.name} done.")
         messagebox.showinfo(title, "\n".join(lines), parent=parent)
+
+    def _move_to_save_folders(self, parent, folder: Path) -> None:
+        """Repair Saves & Logs' "Move Files to Save Folders..." (src/vv_move_to_save_folders.py): list
+        every file of a save still in the older folders and where it goes, and what is not moved and why;
+        ask (Cancel is the default); then move them with the game closed."""
+        title = vv_move_to_save_folders.TITLE
+        try:
+            work = vv_move_to_save_folders.plan(folder)
+        except OSError as exc:
+            messagebox.showerror(title, f"The save folder could not be read ({exc}). Nothing was changed.",
+                                 parent=parent)
+            return
+        if not work.moves:
+            messagebox.showinfo(title, f"No save's files in {folder.name} are left in the older folders. "
+                                "Nothing to move.", parent=parent)
+            return
+        exe = vv_save_backup.game_exe_name(folder)
+        if vv_save_backup.running_game_count(folder):
+            messagebox.showerror(
+                title, f"{exe} is running.\n\nQuit the game first (from its own menu), then try again. "
+                "Moving files never pauses or closes a game. Nothing was changed.", parent=parent)
+            return
+        game_folders = self._game_folders_for(folder)
+        check = vv_move_to_save_folders.check_install(folder, game_folders)
+        if check.refused:
+            messagebox.showerror(title, check.message(), parent=parent)
+            return
+        if not self._move_to_save_folders_dialog(parent, work.describe()):
+            return
+        try:
+            result = self._run_with_wait(
+                "Moving the files to the save folders…\n\nEach file is copied first.",
+                lambda: vv_move_to_save_folders.move_to_save_folders(folder, game_folders, confirmed=work),
+            )
+        except (vv_log_tools.LogToolError, OSError) as exc:
+            _regrab(parent)
+            self.status_var.set("Move Files to Save Folders did not finish; everything was put back.")
+            messagebox.showerror(title, str(exc), parent=parent)
+            return
+        _regrab(parent)
+        lines = [f"Moved: {m.old} -> {m.new}" for m in result.moved] or ["Nothing needed moving."]
+        lines += result.notes
+        if len(lines) > 30:
+            lines = lines[:30] + [f"... and {len(lines) - 30} more (all of it is in each save's Repairs Made log)"]
+        if result.copies:
+            lines.append(f"Copies made first: {vv_move_to_save_folders.copies_folder(result.copies.values())}")
+        self.status_var.set(f"Move Files to Save Folders: {folder.name} done.")
+        messagebox.showinfo(title, "\n".join(lines), parent=parent)
+
+    def _move_to_save_folders_dialog(self, parent, description: str) -> bool:
+        """Move Files to Save Folders' confirmation: every file to move, from where to where, per save, and
+        what is not moved and why.  True only on "Move"; Cancel is the default (focused; Return and Escape
+        cancel)."""
+        window = tk.Toplevel(parent)
+        window.title(vv_move_to_save_folders.TITLE)
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=12)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, wraplength=760, justify="left",
+                  text="These files of the older folders move into each save's own folder. Do this only once "
+                       "every game that plays this save is patched with this patcher. Nothing is deleted "
+                       "until its new copy is checked.").pack(anchor="w", pady=(0, 8))
+        body = ttk.Frame(frame)
+        body.pack(fill="both", expand=True)
+        text = tk.Text(body, wrap="word", width=110, height=24)
+        scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
+        text.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        text.pack(side="left", fill="both", expand=True)
+        text.insert("1.0", description)
+        text.configure(state="disabled")
+        outcome = {"yes": False}
+
+        def move() -> None:
+            outcome["yes"] = True
+            window.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(8, 0))
+        ttk.Button(buttons, text="Move", command=move).pack(side="left")
+        cancel = ttk.Button(buttons, text="Cancel", command=window.destroy, default="active")
+        cancel.pack(side="left", padx=(8, 0))
+        cancel.focus_set()
+        window.bind("<Return>", lambda _e: window.destroy())
+        window.bind("<Escape>", lambda _e: window.destroy())
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+        return outcome["yes"]
 
     def _restore_vv1_parents(self, parent, folder: Path, info) -> None:
         """Repair Saves & Logs' "Restore A New Home Parents..." (src/vv1_parents_restore.py): list what

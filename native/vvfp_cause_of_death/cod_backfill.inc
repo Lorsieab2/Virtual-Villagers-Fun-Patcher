@@ -53,17 +53,16 @@
 /* The patcher's own data file for one kind of record, in that kind's own
    folder:  "<save folder>\Virtual Villagers Fun Patcher Data\<folder>\
    <stem> - Save <slot>.dat".  One helper, so a later move of the data
-   files changes one place. */
+   files changes one place: it is in the save's own "Virtual Villagers Fun Patcher\Save <slot>\Data\
+   <folder>\" now, unless the file is still in the older layout's folder
+   (native/shared/per_save_data.h). */
 static int cod_data_path(char *out, const char *folder_name, const char *stem, int slot) {
-    char folder[MAX_PATH];
-    char sub[96];
-    wsprintfA(sub, "Virtual Villagers Fun Patcher Data\\%s", folder_name);
-    if (lstrlenA(stem) > 48
-        || !vv_save_subfolder(folder, sub, lstrlenA(stem) + (int)sizeof("\\ - Save 0.dat"))) {
+    char name[96];
+    if (lstrlenA(stem) > 48 || slot < 0 || slot > 99) {
         return 0;
     }
-    wsprintfA(out, "%s\\%s - Save %d.dat", folder, stem, slot);
-    return 1;
+    wsprintfA(name, "%s - Save %d.dat", stem, slot);
+    return vv_ps_data_file_a(out, folder_name, name, VV_PS_RESERVE);
 }
 
 /* The graves covered, by place: the fingerprint of the grave covered there,

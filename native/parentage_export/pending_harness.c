@@ -106,7 +106,8 @@ static void conceive(int mother, int father) {
 }
 
 static char folder[MAX_PATH];       /* the Births and Conceptions folder being looked at */
-static char logs_root[MAX_PATH];    /* "...\Virtual Villagers Fun Patcher Logs" */
+static char logs_root[MAX_PATH];    /* "...\Virtual Villagers Fun Patcher Logs" (the older layout) */
+static char own_root[MAX_PATH];     /* "...\Virtual Villagers Fun Patcher" (each save's own folder) */
 static char marker[MAX_PATH];
 /* "<this exe's folder>\Virtual Villagers Fun Patcher Files": where the
    companions are looked for, as in a patched game
@@ -128,24 +129,30 @@ static int locate(void) {
     if (dot) *dot = 0;
     _snprintf(logs_root, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Logs", docs, base);
     logs_root[MAX_PATH - 1] = '\0';
-    _snprintf(folder, MAX_PATH, "%s\\Save 1\\Births and Conceptions", logs_root);
+    _snprintf(own_root, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher", docs, base);
+    own_root[MAX_PATH - 1] = '\0';
+    _snprintf(folder, MAX_PATH, "%s\\Save 1\\Logs\\Births and Conceptions", own_root);
     folder[MAX_PATH - 1] = '\0';
     return 1;
 }
 
-/* One folder of logs per save slot (native/shared/log_slot.h): the village "(Save <slot>)" is
-   logged in "...Logs\Save <slot>\Births and Conceptions".  Points `folder` there. */
+/* One folder per save (native/shared/per_save.h): the village "(Save <slot>)" is logged in the save's
+   own "...\Virtual Villagers Fun Patcher\Save <slot>\Logs\Births and Conceptions".  Points `folder`
+   there. */
 static void use_slot(int slot) {
-    _snprintf(folder, MAX_PATH, "%s\\Save %d\\Births and Conceptions", logs_root, slot);
+    _snprintf(folder, MAX_PATH, "%s\\Save %d\\Logs\\Births and Conceptions", own_root, slot);
     folder[MAX_PATH - 1] = '\0';
 }
 
-/* The shared folder (k 0) and each slot's (k 1..5). */
+/* The shared folder (k 0), each slot's in the older layout (k 1..5) and each save's own (k 6..10). */
+#define PLACES 10
 static void place(int k, char *out) {
     if (k == 0) {
         _snprintf(out, MAX_PATH, "%s\\Births and Conceptions", logs_root);
-    } else {
+    } else if (k <= 5) {
         _snprintf(out, MAX_PATH, "%s\\Save %d\\Births and Conceptions", logs_root, k);
+    } else {
+        _snprintf(out, MAX_PATH, "%s\\Save %d\\Logs\\Births and Conceptions", own_root, k - 5);
     }
     out[MAX_PATH - 1] = '\0';
 }
@@ -155,7 +162,7 @@ static void remove_logs(void) {
     WIN32_FIND_DATAA f;
     HANDLE h;
     int k;
-    for (k = 0; k <= 5; ++k) {
+    for (k = 0; k <= PLACES; ++k) {
         place(k, dir);
         _snprintf(pattern, MAX_PATH, "%s\\*.txt", dir);
         h = FindFirstFileA(pattern, &f);
@@ -169,10 +176,15 @@ static void remove_logs(void) {
             char *cut = strrchr(dir, '\\');
             if (cut != NULL) {
                 *cut = 0;
-                RemoveDirectoryA(dir);   /* "Save <k>", only when empty */
+                RemoveDirectoryA(dir);   /* "Save <k>" (or "Save <k>\Logs"), only when empty */
+            }
+            if (k > 5 && (cut = strrchr(dir, '\\')) != NULL) {
+                *cut = 0;
+                RemoveDirectoryA(dir);   /* the save's own "Save <k>", only when empty */
             }
         }
     }
+    RemoveDirectoryA(own_root);          /* only when empty */
     /* And the two folders above them that the DLL created for this harness --
        "Virtual Villagers Fun Patcher Logs" and Documents\LDW\<harness name>.
        Left behind, they piled up in the owner's real LDW save folder after
@@ -197,7 +209,7 @@ static int log_files(void) {
     WIN32_FIND_DATAA f;
     HANDLE h;
     int n = 0, k;
-    for (k = 0; k <= 5; ++k) {
+    for (k = 0; k <= PLACES; ++k) {
         place(k, dir);
         _snprintf(pattern, MAX_PATH, "%s\\*.txt", dir);
         h = FindFirstFileA(pattern, &f);

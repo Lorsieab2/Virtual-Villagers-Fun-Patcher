@@ -562,13 +562,16 @@ def _merge_log_folder(folder: Path, group: list[Item], games: set[int], lower: d
             # Each save slot's own Deaths logs ("...Logs\Save <S>\Deaths and Disappearances") are read
             # with the shared ones: copied into the stage (only read here, never moved or changed), so
             # both views hold them alike.
+            # Both places a slot's own logs may be: the older "...Logs\Save <S>" and the save's own
+            # "Virtual Villagers Fun Patcher\Save <S>\Logs" (src/vv_save_layout.py), each at its own place.
             for slot in layout.SLOTS:
-                own = layout.slot_log_folder(folder, layout.DEATHS_LOGS, slot)
-                if own.is_dir():
-                    copy = layout.slot_log_folder(Path(stage), layout.DEATHS_LOGS, slot)
-                    copy.mkdir(parents=True)
-                    for path in own.glob("*.txt"):
-                        shutil.copyfile(path, copy / path.name)
+                for place in (layout.older_slot_log_folder, layout.own_slot_log_folder):
+                    own = place(folder, layout.DEATHS_LOGS, slot)
+                    if own.is_dir():
+                        copy = place(Path(stage), layout.DEATHS_LOGS, slot)
+                        copy.mkdir(parents=True)
+                        for path in own.glob("*.txt"):
+                            shutil.copyfile(path, copy / path.name)
             same = _deaths_view(Path(stage), games) == _deaths_view(folder, games)
     if not same:
         old_dir = Path(group[0].old).parent

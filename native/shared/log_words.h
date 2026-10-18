@@ -44,6 +44,7 @@
 #include <string.h>
 #include "save_folder.h"
 #include "save_layout.h"
+#include "per_save.h"
 
 /* The words the old lists printed, by index, and the game's own. */
 static const char *const VV_LOG_WORDS_VV1_OLD[47] = {
@@ -99,6 +100,30 @@ static int vv_log_words_paths(int game, char *new_dat, char *old_dat, size_t siz
                           folder, game) > 0
            && _snprintf_s(old_dat, size, _TRUNCATE, "%s\\" VV_LOG_WORDS_OLD_A "\\Virtual Villagers %d Log Words.dat",
                           folder, game) > 0;
+}
+
+/* ONE FOLDER PER SAVE (per_save.h): a log in a save's own folder ("Virtual Villagers Fun Patcher\
+   Save <S>\Logs\...") has its boundaries in that save's own
+       Virtual Villagers Fun Patcher\Save <S>\Data\Like and Dislike Words\Virtual Villagers N Log Words.dat
+   so deleting the save's folder takes them with it: a boundary left behind would apply to a new log
+   of the same name and turn its correct words into wrong ones.  The save a log's name (its path inside
+   the save folder) puts it in, or 0. */
+static int vv_log_words_name_slot(const char *name) {
+    static const char own[] = VV_SAVES_DIR_A "\\Save ";
+    int n = (int)sizeof own - 1;
+    if (name == NULL || CompareStringA(LOCALE_INVARIANT, NORM_IGNORECASE, name, lstrlenA(name) < n ? lstrlenA(name) : n,
+                                       own, n) != CSTR_EQUAL
+        || name[n] < '1' || name[n] > '5' || name[n + 1] != '\\') {
+        return 0;
+    }
+    return name[n] - '0';
+}
+
+static int vv_log_words_save_path(int game, int slot, char *out, size_t size) {
+    char folder[MAX_PATH];
+    return vv_save_folder(folder, 160)
+           && _snprintf_s(out, size, _TRUNCATE, "%s\\" VV_SAVES_DIR_A "\\Save %d\\Data\\Like and Dislike Words\\"
+                          "Virtual Villagers %d Log Words.dat", folder, slot, game) > 0;
 }
 
 /* The boundary file to append to: the new one, or an older build's while only it exists -- it is
@@ -179,11 +204,41 @@ static int vv_log_words_recorded(int game, const char *name, LONGLONG *offset) {
     }
     in_new = vv_log_words_recorded_in(new_dat, name, &from_new);
     in_old = vv_log_words_recorded_in(old_dat, name, &from_old);
+    {
+        /* ...and a log in a save's own folder: that save's own file too (src/vv_save_layout.py
+           words_files: every file is read, the smallest taken). */
+        char save_dat[MAX_PATH];
+        LONGLONG from_save = 0;
+        int slot = vv_log_words_name_slot(name);
+        if (slot != 0 && vv_log_words_save_path(game, slot, save_dat, sizeof save_dat)
+            && vv_log_words_recorded_in(save_dat, name, &from_save)) {
+            if (!in_new || from_save < from_new) {
+                from_new = from_save;
+            }
+            in_new = 1;
+        }
+    }
     if (!in_new && !in_old) {
         return 0;
     }
     *offset = !in_old ? from_new : !in_new ? from_old : (from_new < from_old ? from_new : from_old);
     return 1;
+}
+
+/* The boundary file a boundary for the log called `name` is appended to: its save's own (folders
+   made) when the log is in a save's own folder, else vv_log_words_path's. */
+static int vv_log_words_path_for(int game, const char *name, char *out, size_t size) {
+    int slot = vv_log_words_name_slot(name);
+    if (slot != 0) {
+        wchar_t wide[MAX_PATH];
+        if (!vv_log_words_save_path(game, slot, out, size)
+            || MultiByteToWideChar(CP_ACP, 0, out, -1, wide, MAX_PATH) <= 0) {
+            return 0;
+        }
+        vv_ps_make_parents_w(wide);
+        return 1;
+    }
+    return vv_log_words_path(game, out, size);
 }
 
 static void vv_log_words_note(const char *dat, LONGLONG offset, const char *name) {
@@ -255,7 +310,7 @@ static void vv_log_words_appending(int game, const wchar_t *path) {
     WIN32_FILE_ATTRIBUTE_DATA info;
     LONGLONG size = 0;
     if (!vv_log_words_tracked(game) || path == NULL || !vv_log_words_name(path, name, sizeof name)
-        || vv_log_words_recorded(game, name, &recorded) || !vv_log_words_path(game, dat, sizeof dat)) {
+        || vv_log_words_recorded(game, name, &recorded) || !vv_log_words_path_for(game, name, dat, sizeof dat)) {
         return;
     }
     if (GetFileAttributesExW(path, GetFileExInfoStandard, &info)) {
@@ -274,7 +329,7 @@ static void vv_log_words_rewritten(int game, const wchar_t *path) {
         return;
     }
     if ((!vv_log_words_recorded(game, name, &recorded) || recorded != 0)
-        && vv_log_words_path(game, dat, sizeof dat)) {
+        && vv_log_words_path_for(game, name, dat, sizeof dat)) {
         vv_log_words_note(dat, 0, name);
     }
 }

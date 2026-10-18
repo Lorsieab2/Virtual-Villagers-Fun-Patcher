@@ -99,8 +99,11 @@ FOUNDATION_OUTPUT = (
 # appended).
 # Recertified for v1.35.71 (the mask getter's live table: every record re-read,
 # only a changed one hashed again).
-SOURCE_SHA256 = "A1E557621C07DF403BFFB4DFC6362D9EF35188BEC77098AC58F0C65F002369AD"
-SOURCE_SIZE = 1982976
+# Recertified for one folder per save (native/shared/per_save.h, the owner, 2026-10-17): the mask
+# file, the Log Checks approval, the Last Names files and the Repairs Made log go in the save's own
+# "Virtual Villagers Fun Patcher\Save <S>\" unless still in the older layout's folders.
+SOURCE_SHA256 = "AD9C5B6095D73D115C607D9F3CC8B3B57270176EDCA707066C8D1EC1CD45AE9A"
+SOURCE_SIZE = 1991168
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

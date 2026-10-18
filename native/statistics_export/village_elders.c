@@ -67,6 +67,7 @@
 #include <wchar.h>
 
 #include "save_folder.h"
+#include "per_save_data.h"       /* one folder per save */
 #include "village_elders.h"
 #include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 
@@ -124,13 +125,18 @@ static int mastered_skills(const unsigned char *record, const struct elders_layo
     return mastered;
 }
 
+/* "Village Elders - Save <S><suffix>" beside the slot's ".dat": in the save's own "Virtual Villagers
+   Fun Patcher\Save <S>\Data\Village Elders\" now, unless the file is still in the older layout's
+   folder (native/shared/per_save_data.h) -- the ".tmp" always beside the ".dat" it replaces. */
 static int path_for(int save_id, wchar_t *path, const wchar_t *suffix) {
-    wchar_t folder[MAX_PATH];
-    if (!vv_save_subfolder_w(folder, L"Virtual Villagers Fun Patcher Data\\Village Elders", 64)) {
+    wchar_t name[64];
+    size_t length;
+    if (_snwprintf_s(name, 64, _TRUNCATE, L"Village Elders - Save %d.dat", save_id) <= 0
+        || !vv_ps_data_file_w(path, L"Village Elders", name, 64)) {
         return 0;
     }
-    return _snwprintf_s(path, MAX_PATH, _TRUNCATE, L"%ls\\Village Elders - Save %d%ls",
-                        folder, save_id, suffix) > 0;
+    length = wcslen(path);
+    return length > 4 && _snwprintf_s(path + length - 4, MAX_PATH - (length - 4), _TRUNCATE, L"%ls", suffix) > 0;
 }
 
 /* 1 = loaded (or absent: empty history), 0 = unreadable (moved aside),

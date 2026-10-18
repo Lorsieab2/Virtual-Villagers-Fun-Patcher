@@ -186,7 +186,8 @@ static void unload(void) {
     dll = NULL;
 }
 
-static char data_dir[MAX_PATH];
+static char data_dir[MAX_PATH];   /* the older layout's "...\Virtual Villagers Fun Patcher Data" */
+static char own_dir[MAX_PATH];    /* "...\Virtual Villagers Fun Patcher": each save's own folder */
 
 static int locate(void) {
     char docs[MAX_PATH], exe[MAX_PATH], *base, *dot;
@@ -199,15 +200,50 @@ static int locate(void) {
     if (dot) *dot = 0;
     _snprintf(data_dir, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher Data", docs, base);
     data_dir[MAX_PATH - 1] = 0;
+    _snprintf(own_dir, MAX_PATH, "%s\\LDW\\%s\\Virtual Villagers Fun Patcher", docs, base);
+    own_dir[MAX_PATH - 1] = 0;
     return 1;
 }
 
+/* A slot's data file of `kind` in the save's own folder (native/shared/per_save.h):
+   "...\Virtual Villagers Fun Patcher\Save <S>\Data\<kind>\<name>" -- where a fresh one is written. */
+static void own_file(char *out, int slot, const char *kind, const char *name) {
+    _snprintf(out, MAX_PATH, "%s\\Save %d\\Data\\%s\\%s", own_dir, slot, kind, name);
+    out[MAX_PATH - 1] = 0;
+}
+
+/* ...and its folders, made (for a file the harness puts there itself). */
+static void make_own_folder(int slot, const char *kind) {
+    char path[MAX_PATH];
+    CreateDirectoryA(own_dir, NULL);
+    _snprintf(path, MAX_PATH, "%s\\Save %d", own_dir, slot);
+    CreateDirectoryA(path, NULL);
+    lstrcatA(path, "\\Data");
+    CreateDirectoryA(path, NULL);
+    lstrcatA(path, "\\");
+    lstrcatA(path, kind);
+    CreateDirectoryA(path, NULL);
+}
+
 static void file_of(int slot, char *out) {
+    char name[96];
+    _snprintf(name, sizeof name, "Virtual Villagers 1 Graves - Save %d.dat", slot);
+    own_file(out, slot, "Graves", name);
+}
+
+static void roster_of(int slot, char *out) {
+    char name[96];
+    _snprintf(name, sizeof name, "Virtual Villagers 1 Villagers at Last Save - Save %d.dat", slot);
+    own_file(out, slot, "Unaccounted Villagers", name);
+}
+
+/* The same two in the older layout's kind folders, where a loose file is moved (data_subfolder.h). */
+static void old_file_of(int slot, char *out) {
     _snprintf(out, MAX_PATH, "%s\\Graves\\Virtual Villagers 1 Graves - Save %d.dat", data_dir, slot);
     out[MAX_PATH - 1] = 0;
 }
 
-static void roster_of(int slot, char *out) {
+static void old_folder_roster_of(int slot, char *out) {
     _snprintf(out, MAX_PATH, "%s\\Unaccounted Villagers\\Virtual Villagers 1 Villagers at Last Save - Save %d.dat",
               data_dir, slot);
     out[MAX_PATH - 1] = 0;
@@ -262,6 +298,28 @@ static void wipe_files(const char *dir) {
     RemoveDirectoryA(dir);
 }
 
+/* Everything under `dir` (made by this run, under the harness's own LDW folder), then `dir`. */
+static void wipe_tree(const char *dir) {
+    char pattern[MAX_PATH], path[MAX_PATH];
+    WIN32_FIND_DATAA f;
+    HANDLE h;
+    _snprintf(pattern, MAX_PATH, "%s\\*", dir);
+    pattern[MAX_PATH - 1] = 0;
+    h = FindFirstFileA(pattern, &f);
+    if (h != INVALID_HANDLE_VALUE) {
+        do {
+            if (strcmp(f.cFileName, ".") == 0 || strcmp(f.cFileName, "..") == 0) continue;
+            _snprintf(path, MAX_PATH, "%s\\%s", dir, f.cFileName);
+            path[MAX_PATH - 1] = 0;
+            if (f.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) continue;   /* never entered */
+            if (f.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) wipe_tree(path);
+            else DeleteFileA(path);
+        } while (FindNextFileA(h, &f));
+        FindClose(h);
+    }
+    RemoveDirectoryA(dir);
+}
+
 static void wipe(void) {
     char parent[MAX_PATH], sub[MAX_PATH], *slash;
     int k;
@@ -270,26 +328,37 @@ static void wipe(void) {
         sub[MAX_PATH - 1] = 0;
         wipe_files(sub);
     }
+    _snprintf(sub, MAX_PATH, "%s\\Custom Island Event Deaths", data_dir);
+    sub[MAX_PATH - 1] = 0;
+    wipe_files(sub);
     wipe_files(data_dir);
+    wipe_tree(own_dir);
     lstrcpyA(parent, data_dir);
     slash = strrchr(parent, '\\');
     if (slash) { *slash = 0; RemoveDirectoryA(parent); }
 }
 
-/* Set-aside files, beside the file they were: in the kind's folder. */
+/* Set-aside files, beside the file they were: in the kind's folder -- the older layout's, or a
+   save's own. */
 static int count_unreadable(void) {
     char pattern[MAX_PATH];
     WIN32_FIND_DATAA f;
     HANDLE h;
     int n = 0;
-    int k;
-    for (k = 0; k < 2; ++k) {
-        _snprintf(pattern, MAX_PATH, "%s\\%s\\*.unreadable-*", data_dir, KIND_FOLDERS[k]);
-        pattern[MAX_PATH - 1] = 0;
-        h = FindFirstFileA(pattern, &f);
-        if (h != INVALID_HANDLE_VALUE) {
-            do { ++n; } while (FindNextFileA(h, &f));
-            FindClose(h);
+    int k, slot;
+    for (slot = 0; slot <= 5; ++slot) {
+        for (k = 0; k < 2; ++k) {
+            if (slot == 0) {
+                _snprintf(pattern, MAX_PATH, "%s\\%s\\*.unreadable-*", data_dir, KIND_FOLDERS[k]);
+            } else {
+                _snprintf(pattern, MAX_PATH, "%s\\Save %d\\Data\\%s\\*.unreadable-*", own_dir, slot, KIND_FOLDERS[k]);
+            }
+            pattern[MAX_PATH - 1] = 0;
+            h = FindFirstFileA(pattern, &f);
+            if (h != INVALID_HANDLE_VALUE) {
+                do { ++n; } while (FindNextFileA(h, &f));
+                FindClose(h);
+            }
         }
     }
     return n;
@@ -417,11 +486,9 @@ int main(int argc, char **argv) {
 
     printf("5. an unreadable file is set aside, never overwritten\n");
     file_of(4, path);
-    {
-        FILE *f = fopen(path, "wb");
-        fwrite("garbage that is not a graves file", 1, 34, f);
-        fclose(f);
-    }
+    make_own_folder(4, "Graves");
+    CHECK(write_file(path, (const unsigned char *)"garbage that is not a graves file", 34),
+          "set up: a bad graves file in the save's own folder");
     current_slot = 4;
     load();
     tick(1);
@@ -628,11 +695,11 @@ int main(int argc, char **argv) {
 
     printf("10. files an older build left loose in the Data folder\n");
     {
-        char loose[MAX_PATH], moved[MAX_PATH], rloose[MAX_PATH], rmoved[MAX_PATH];
+        char loose[MAX_PATH], moved[MAX_PATH], rloose[MAX_PATH], rmoved[MAX_PATH], fresh[MAX_PATH], rfresh[MAX_PATH];
         unsigned char graves[16 + 2 * ENTRY], roster[0x40000], other[16 + 2 * ENTRY];
         long graves_n, roster_n, other_n;
-        /* A real graves file and a real roster, as this build writes them,
-           then put where an older build kept them. */
+        /* A real graves file and a real roster, as this build writes them (in the save's own
+           folder), then put where an older build kept them. */
         memset(manager + GRAVES, 0, 50 * GRAVE_STRIDE);
         current_slot = 1;
         load();
@@ -644,24 +711,29 @@ int main(int argc, char **argv) {
         tick(1);
         saved(1);
         unload();
-        file_of(1, moved);
-        roster_of(1, rmoved);
+        file_of(1, fresh);
+        roster_of(1, rfresh);
+        old_file_of(1, moved);              /* a loose file is moved into the OLDER layout's folder */
+        old_folder_roster_of(1, rmoved);
         loose_file_of(1, loose);
         loose_roster_of(1, rloose);
-        graves_n = read_file(moved, graves, sizeof graves);
-        roster_n = read_file(rmoved, roster, sizeof roster);
-        CHECK(graves_n == 16 + ENTRY && roster_n > 32, "set up: a graves file and a roster (nonzero denominator)");
-        CHECK(MoveFileA(moved, loose) && MoveFileA(rmoved, rloose), "both moved back to the loose names");
+        graves_n = read_file(fresh, graves, sizeof graves);
+        roster_n = read_file(rfresh, roster, sizeof roster);
+        CHECK(graves_n == 16 + ENTRY && roster_n > 32,
+              "set up: a graves file and a roster, written in the save's own folder (nonzero denominator)");
+        CreateDirectoryA(data_dir, NULL);
+        CHECK(MoveFileA(fresh, loose) && MoveFileA(rfresh, rloose), "both moved back to the loose names");
 
         load();
         tick(1);
         CHECK(GetFileAttributesA(loose) == INVALID_FILE_ATTRIBUTES && read_file(moved, buf, sizeof buf) == graves_n
-              && memcmp(buf, graves, (size_t)graves_n) == 0,
+              && memcmp(buf, graves, (size_t)graves_n) == 0 && GetFileAttributesA(fresh) == INVALID_FILE_ATTRIBUTES,
               "the first load moved the graves file into Graves\\, byte for byte");
         CHECK(grave_of(8, &cause, &epitaph) && cause == 3, "and the grave still shows its cause (Work accident)");
         before = unaccounted();
         saved(1);
-        CHECK(GetFileAttributesA(rloose) != INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES,
+        CHECK(GetFileAttributesA(rloose) != INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES
+              && GetFileAttributesA(rfresh) == INVALID_FILE_ATTRIBUTES,
               "the save used the roster where an older build left it (loose, by its older name), never moving it");
         CHECK(unaccounted() == before, "and reconciled against it: nobody unaccounted");
         unload();
@@ -689,23 +761,55 @@ int main(int argc, char **argv) {
               "Start Over deletes the roster in Unaccounted Villagers\\ and the loose one");
 
         /* The roster's older name in its folder, "... Village Roster - Save S.dat" (the owner, 2026-10-09:
-           "Villagers at Last Save"; native/shared/save_layout.h): used under that name, never renamed. */
+           "Villagers at Last Save"; native/shared/save_layout.h): used under that name, never renamed,
+           and never routed to the save's own folder (per_save.h: older names stay where they are). */
         {
-            char rold[MAX_PATH];
+            char rold[MAX_PATH], sub[MAX_PATH];
             old_roster_of(1, rold);
+            _snprintf(sub, MAX_PATH, "%s\\Unaccounted Villagers", data_dir);
+            sub[MAX_PATH - 1] = 0;
+            CreateDirectoryA(data_dir, NULL);
+            CreateDirectoryA(sub, NULL);
             CHECK(write_file(rold, roster, roster_n), "set up: a roster under its older name in Unaccounted Villagers\\");
             load();
             tick(1);
             before = unaccounted();
             saved(1);
             CHECK(GetFileAttributesA(rold) != INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES
-                  && unaccounted() == before,
+                  && GetFileAttributesA(rfresh) == INVALID_FILE_ATTRIBUTES && unaccounted() == before,
                   "the save read and wrote it under its older name, never renaming it: nobody unaccounted");
             unload();
             CHECK(write_file(rold, roster, roster_n), "set up: a roster under its older name beside the new one");
             vv_reset_slot_state(1, 1, NULL);
             CHECK(GetFileAttributesA(rmoved) == INVALID_FILE_ATTRIBUTES && GetFileAttributesA(rold) == INVALID_FILE_ATTRIBUTES,
                   "Start Over deletes the roster under both its names");
+        }
+
+        /* One folder per save: the older layout's kind folder still holding the file is read and
+           written there (a data file's unit is the file, per_save.h); Start Over deletes it in both. */
+        {
+            char sub[MAX_PATH];
+            _snprintf(sub, MAX_PATH, "%s\\Graves", data_dir);
+            sub[MAX_PATH - 1] = 0;
+            CreateDirectoryA(sub, NULL);
+            CHECK(write_file(moved, graves, graves_n) && write_file(fresh, graves, graves_n) == 1,
+                  "set up: the graves file in the older layout's Graves\\ and in the save's own");
+            vv_reset_slot_state(1, 1, NULL);
+            CHECK(GetFileAttributesA(moved) == INVALID_FILE_ATTRIBUTES && GetFileAttributesA(fresh) == INVALID_FILE_ATTRIBUTES,
+                  "Start Over deletes the graves file in the older layout's Graves\\ and in the save's own");
+            CHECK(write_file(moved, graves, graves_n), "set up: the graves file only in the older layout's Graves\\");
+            load();
+            tick(1);
+            CHECK(grave_of(8, &cause, &epitaph) && cause == 3, "it is read there: the grave shows its cause");
+            villager(21, "Newer", 1300, 30, 0);
+            died(21, 2);
+            game_bury(21, 9);
+            buried(21, 9);
+            tick(1);
+            CHECK(read_file(moved, buf, sizeof buf) == 16 + 2 * ENTRY && GetFileAttributesA(fresh) == INVALID_FILE_ATTRIBUTES,
+                  "a new grave is written there too, nothing in the save's own folder");
+            unload();
+            vv_reset_slot_state(1, 1, NULL);
         }
     }
 
@@ -781,9 +885,7 @@ int main(int argc, char **argv) {
             killed(3, 5 + k);
         }
         save_done(3, save_block);
-        _snprintf(cie, MAX_PATH, "%s\\Custom Island Event Deaths\\Virtual Villagers 3 Custom Island Event Deaths"
-                  " - Save 3.dat", data_dir);
-        cie[MAX_PATH - 1] = 0;
+        own_file(cie, 3, "Custom Island Event Deaths", "Virtual Villagers 3 Custom Island Event Deaths - Save 3.dat");
         n = read_file(cie, buf, sizeof buf);
         CHECK(n == 16 + 2 * 8 && *(unsigned int *)buf == 0x31454356u && *(unsigned int *)(buf + 4) == 1u
               && *(unsigned int *)(buf + 8) == 3u && *(unsigned int *)(buf + 12) == 2u

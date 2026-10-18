@@ -212,6 +212,20 @@ static int vv1_xc_marker_path(char *out, size_t n, int slot) {
         }
         wsprintfA(old_marker, "%s\\" VV_LOG_CHECKS_OLD_A "\\Virtual Villagers 1 Cross-Check - Save %d.dat", out, slot);
         wsprintfA(new_marker, "%s\\" VV_LOG_CHECKS_DIR_A "\\Virtual Villagers 1 Cross-Check - Save %d.dat", out, slot);
+        /* "Log Checks" is in the save's own folder now, unless still in the older layout's
+           (per_save.h). */
+        if (vv_ps_route_a(new_marker, (int)sizeof new_marker - 8, 0)) {
+            if (vv_layout_pick_file_a(old_marker, new_marker)) {
+                lstrcpyA(out, old_marker);
+                return 1;
+            }
+            if ((size_t)lstrlenA(new_marker) + 8 > n) {
+                return 0;
+            }
+            vv_ps_make_parents_a(new_marker);                                   /* its folders made */
+            lstrcpyA(out, new_marker);
+            return 1;
+        }
         if (vv_layout_pick_file_a(old_marker, new_marker)) {
             lstrcpyA(out, old_marker);
             return 1;
@@ -565,8 +579,10 @@ static int vv1_xc_read_log(vv1_xc_log *log, int slot) {
     HANDLE find;
     memset(log, 0, sizeof(*log));
     log->village_header = -1;
-    for (place = 0; place < 2; ++place) {
-    if (place == 1 && (slot < 1 || slot > 5)) {
+    /* place 2: the save's own "Virtual Villagers Fun Patcher\Save <slot>\Logs\Births and Conceptions"
+       (per_save.h), after the older one. */
+    for (place = 0; place < 3; ++place) {
+    if (place >= 1 && (slot < 1 || slot > 5)) {
         break;
     }
     if (!vv1_xc_game_folder(folder, sizeof(folder),
@@ -579,6 +595,13 @@ static int vv1_xc_read_log(vv1_xc_log *log, int slot) {
         lstrcatA(folder, "\\" VV_LOGS_DIR_A "\\Births and Conceptions");
     } else {
         wsprintfA(folder + lstrlenA(folder), "\\" VV_LOGS_DIR_A "\\Save %d\\Births and Conceptions", slot);
+        if (place == 2) {
+            char own[MAX_PATH];
+            if (!vv_ps_new_folder_a(folder, own, MAX_PATH)) {
+                continue;
+            }
+            lstrcpyA(folder, own);
+        }
     }
     count = 0;
     wsprintfA(pattern, "%s\\Virtual Villagers 1 Births and Conceptions Log *.txt", folder);
@@ -1158,14 +1181,14 @@ static int vv1_xc_append(const char *path, const char *text) {
    is never used twice.  0 none; -1 a file there that cannot be read. */
 static long vv1_xc_repairs_highest(void) {
     char root[MAX_PATH];
-    char folders[2 + VV_LOG_SLOTS][MAX_PATH];
+    char folders[VV_LOG_READ_MAX][MAX_PATH];
     char pattern[MAX_PATH], path[MAX_PATH];
     long highest = 0;
     int n, f;
     if (!vv1_xc_game_folder(root, sizeof(root), 64)) {
         return -1;
     }
-    n = vv_log_read_folders_a(root, "Repairs Made", "Repairs", 0, folders, 2 + VV_LOG_SLOTS);
+    n = vv_log_read_folders_a(root, "Repairs Made", "Repairs", 0, folders, VV_LOG_READ_MAX);
     for (f = 0; f < n; ++f) {
         WIN32_FIND_DATAA found;
         HANDLE find;
@@ -1218,12 +1241,22 @@ static int vv1_xc_note(const vv1_xc_log *log, const vv1_xc_plan *plan, const uns
                                 + sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
             return 0;
         }
-        lstrcatA(folder, "\\" VV_LOGS_DIR_A);
-        CreateDirectoryA(folder, NULL);
-        wsprintfA(folder + lstrlenA(folder), "\\Save %d", slot);
-        CreateDirectoryA(folder, NULL);
-        lstrcatA(folder, "\\Repairs Made");
-        CreateDirectoryA(folder, NULL);
+        wsprintfA(folder + lstrlenA(folder), "\\" VV_LOGS_DIR_A "\\Save %d\\Repairs Made", slot);
+        /* ...in the save's own "Virtual Villagers Fun Patcher\Save <slot>\Logs\Repairs Made" unless the
+           older one already holds its Repairs logs (per_save.h); the folders made either way. */
+        if (vv_ps_route_a(folder, (int)sizeof folder - (int)sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"), 0)) {
+            lstrcatA(folder, "\\x");
+            vv_ps_make_parents_a(folder);
+            folder[lstrlenA(folder) - 2] = '\0';
+        } else {
+            char *cut = folder + lstrlenA(folder) - lstrlenA("\\Save 0\\Repairs Made");
+            *cut = '\0';
+            CreateDirectoryA(folder, NULL);
+            wsprintfA(cut, "\\Save %d", slot);
+            CreateDirectoryA(folder, NULL);
+            lstrcatA(folder, "\\Repairs Made");
+            CreateDirectoryA(folder, NULL);
+        }
     } else if (!vv1_xc_subfolder(folder, sizeof(folder), "Virtual Villagers Fun Patcher Logs", "Repairs Made",
                                  sizeof("\\Virtual Villagers 1 Repairs Log 99999.txt"))) {
         return 0;

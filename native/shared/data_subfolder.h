@@ -82,6 +82,8 @@
    VV_DATA_SUBFOLDER_NAMES_ONLY, so it carries no unused static code. */
 #ifndef VV_DATA_SUBFOLDER_NAMES_ONLY
 
+#include "per_save.h"
+
 /* What vv_data_file_path chose. Tests read it; companions only need "not 0". */
 #define VV_DATA_PATH_FAILED   0
 #define VV_DATA_PATH_FOLDER   1   /* the file in its kind's folder (rules 1, 2, 5) */
@@ -221,6 +223,50 @@ static int vv_data_file_path(char *out, int cap, const char *sub,
     }
     wsprintfA(folder, "%s\\%s", dir, sub);
     wsprintfA(moved, "%s\\%s\\%s", dir, sub, name);
+
+    /* Rule 0, one folder per save (per_save.h): a file the save's own folder already holds, or one
+       that is nowhere yet -- in the kind's folder of the older layout or loose -- is the save's own
+       "Virtual Villagers Fun Patcher\Save <S>\Data\<kind>\<name>".  A file still in the older
+       layout's folder, or loose, is used and moved as the rules below always did. */
+    {
+        char routed[MAX_PATH];
+        lstrcpyA(routed, moved);
+        if (vv_ps_route_a(routed, limit - reserve + 1, 0)) {
+            int routed_state = vv_data_probe(routed);
+            loose_state = vv_data_probe(loose);
+            if (routed_state != VV_DATA_ABSENT
+                || loose_state == VV_DATA_ABSENT || loose_state == VV_DATA_DIRECTORY) {
+                wchar_t wide[MAX_PATH];
+                int usable = 1;
+                if (routed_state == VV_DATA_ABSENT) {
+                    /* Rule 5 holds here too: the save's own kind folder is the answer only when it
+                       exists or could be made; otherwise the rules below (the older layout's folder,
+                       else the loose path), so the data is still kept. */
+                    char parent[MAX_PATH];
+                    char *slash;
+                    if (MultiByteToWideChar(CP_ACP, 0, routed, -1, wide, MAX_PATH) > 0) {
+                        vv_ps_make_parents_w(wide);
+                    }
+                    lstrcpyA(parent, routed);
+                    slash = parent;
+                    {
+                        char *p;
+                        for (p = parent; *p != '\0'; ++p) {
+                            if (*p == '\\') {
+                                slash = p;
+                            }
+                        }
+                    }
+                    *slash = '\0';
+                    usable = vv_data_probe(parent) == VV_DATA_DIRECTORY;
+                }
+                if (usable) {
+                    lstrcpyA(out, routed);
+                    return VV_DATA_PATH_FOLDER;
+                }
+            }
+        }
+    }
 
     /* Rule 1: already in the folder. Anything that is not "absent" counts --
        a file present but locked is still the one to use, and the sidecar
