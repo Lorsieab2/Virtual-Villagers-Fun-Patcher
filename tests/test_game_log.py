@@ -219,9 +219,12 @@ class SourceAndRows(unittest.TestCase):
 
     def test_started_by_the_startup_loader(self):
         self.assertIn("VVFP Game Log.dll", patcher.STARTUP_LOADER_COMPANIONS)
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS[-1], "VVFP Game Log.dll")
+        # The list is append-only, so Game Log keeps its place right after Storytelling; later
+        # companions (VV3 Chief Hospital, v1.35.75) are appended after it.
+        companions = patcher.STARTUP_LOADER_COMPANIONS
+        self.assertEqual(companions.index("VVFP Game Log.dll"), companions.index("VVFP Storytelling.dll") + 1)
         header = (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
-        self.assertIn('    "VVFP Storytelling.dll",\n    "VVFP Game Log.dll",\n    /* APPEND ONLY', header)
+        self.assertIn('    "VVFP Storytelling.dll",\n    "VVFP Game Log.dll",\n', header)
         self.assertIn("void __stdcall VvfpStartup(int game, unsigned int shipped)",
                       SOURCE.read_text(encoding="utf-8"))
         self.assertIn(b"VVFP Game Log.dll", (ROOT / "assets" / "startup" / "VVFP Startup.dll").read_bytes())
