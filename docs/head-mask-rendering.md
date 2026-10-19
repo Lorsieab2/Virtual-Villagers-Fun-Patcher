@@ -250,10 +250,12 @@ stored on the record; the head sprite frame may get an age/variant offset on top
   `0x44C25D`. Head cell 40×65. Villager index table `0xE57090`.
 - **Mask emitted *inside* the head draw** (replays the head's stack args, atlas swapped)
   → facing + scale come free on both village and portrait. Caller-range gate covers
-  **all** head-draw sites `0x445540..0x449060` (68 head-atlas call sites total; the
-  **pose renderers** — swim/sit/lie/bend — are a contiguous band ABOVE the walk loop,
-  `0x447ADD..0x449049`; miss them and the mask vanishes the moment a villager leaves
-  the walking pose).
+  **all** head-draw sites `0x445540..0x449060` (68 head-atlas call sites total). The
+  band `0x447A37..0x449049` is NOT pose rendering inside the village compositor (which
+  ends at `0x4478DE`): it is the separate **Map overview** function `0x4478E0..0x4490BF`,
+  whose villager loop index is in **EBP** (EDI is scratch there). The child stub reads
+  the index from EDI in the compositor and from EBP for callers `>= 0x4478E0`; reading
+  EDI there crashed the game when the player clicked Map.
 - **Adult stub record deref:** `esi + [esi+edi*4+0xE57090]*0xE48C` (valid only where
   `edi` is the loop index).
 - **Packaging:** atlas embedded as **RCDATA in the DLL** + self-extracted at startup
