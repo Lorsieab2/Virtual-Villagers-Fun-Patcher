@@ -1007,7 +1007,9 @@ class FromTheRealCallerTests(unittest.TestCase):
         for game, world, kw, sites in cases:
             with self.subTest(game=game, fix_huts=True):
                 m = world(rows=ROWS[game], force=FORCE_PASS, **kw)
-                self.assertEqual((m.draws("fix_huts"), m.draws("healers")), (1, 0), "the shared roll")
+                # The shared 75% roll passed, so the companion draws its own
+                # two-in-three (3/4 x 2/3 = 50%).
+                self.assertEqual((m.draws("fix_huts"), m.draws("healers")), (1, 1), "the shared roll, then its own")
             alone = (f"{game}_enable_origins_exclusive_features", f"{game}_healers_study_regardless_of_food")
             stock = world(rows=(), runtime=False, **kw)
             for force, want in ((FORCE_PASS, [("continue",)]), (FORCE_FAIL, OUTCOME[game](stock))):

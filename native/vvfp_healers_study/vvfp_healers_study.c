@@ -31,8 +31,13 @@
    or above the threshold gets the same continuation call the stock game makes
    below it; if that starts a job, the scheduler's own "done" epilogue runs
    (VV1 0x44843D, VV2 0x461AF0).  Below the threshold (the stock code already
-   made the call), for every other state, and when the continuation starts
-   nothing, the displaced instructions run and the stock selection continues.
+   made the call), for every other state, when the roll fails and when the
+   continuation starts nothing, the displaced instructions run and the stock
+   selection continues.  That stock selection is left exactly as it is: when
+   its pick starts nothing and the villager's best skill is under 50 and the
+   five skills total under 70 it makes the continuation call itself (VV1
+   0x4483AB 0x447CD0(index, 100), VV2 0x461A5E 0x460590(index, 100)), so a
+   low-skill villager in state 9 may still study there, as in the stock game.
 
    CATCH-UP.  The scheduler is never run for time that passed while the game
    was closed, or for Time Warp.  Neither game's catch-up continues a
@@ -63,10 +68,12 @@ __declspec(dllexport) struct vvfp_healers_stats VvfpHealersStudyStats = { 0 };
 #define HEALERS_COUNT_CHECK ((void)0)
 #endif
 
-/* ---- About three times in four ------------------------------------------------ */
+/* ---- Half the time ------------------------------------------------------------ */
 /* The owner: the behaviour patches "should increase the LIKELIHOOD of
-   villagers doing that action, not 100% replace them" -- 75%, one roll per
-   decision shared by every patch in it.  A decision is one run of the idle
+   villagers doing that action, not 100% replace them" -- one roll per
+   decision shared by every patch in it.  For this patch the owner chose a
+   50% chance (2026-10-18): a studying healer keeps studying half the time at
+   every site, the scheduler's and catch-up's.  A decision is one run of the idle
    scheduler (A New Home 0x448220, The Lost Children 0x461850) or, in
    catch-up, of the catch-up worker (The Lost Children 0x43B4D0), both of
    which "VVFP Fix Huts.dll" (Builders Fix Huts When Idle) wraps -- so the
@@ -75,8 +82,12 @@ __declspec(dllexport) struct vvfp_healers_stats VvfpHealersStudyStats = { 0 };
    this companion asks its VvfpFixHutsRoll, so a healer's decision that also
    meets Builders and Healers Work First rolls once.  Without it (this row
    ticked alone) there is nothing else in the decision to share with, and
-   this site is reached at most once per scheduler run: it draws a 75% roll
-   of its own each time it would act.  Neither roll touches the game's RNG. */
+   this site is reached at most once per scheduler run: it draws a 50% roll
+   of its own each time it would act.  The shared roll passes three times in
+   four (75%), so when it passes this companion draws one more roll of its
+   own that passes two times in three: 3/4 x 2/3 = 1/2, and a decision whose
+   shared roll fails is still the stock one for every patch in it.  Neither
+   roll touches the game's RNG. */
 static int (__cdecl *shared_roll)(void);
 static unsigned int own_roll_state;
 
@@ -87,7 +98,9 @@ struct vvfp_own_roll_test { int force; int draws; };
 __declspec(dllexport) struct vvfp_own_roll_test VvfpHealersStudyRollTest = { 0, 0 };
 #endif
 
-static int own_roll(void) {
+/* One draw of this companion's own generator: 1 when it lands in the first
+   `pass` of `out_of` equal parts. */
+static int own_roll(unsigned int pass, unsigned int out_of) {
     unsigned int x = own_roll_state;
     if (x == 0) {
         x = (unsigned int)__rdtsc() ^ 0x1B873593u;
@@ -102,7 +115,7 @@ static int own_roll(void) {
     if (VvfpHealersStudyRollTest.force == 1) return 1;
     if (VvfpHealersStudyRollTest.force == 2) return 0;
 #endif
-    return x % 100u < 75u;
+    return x % out_of < pass;
 }
 
 static int decision_roll(void) {
@@ -114,7 +127,11 @@ static int decision_roll(void) {
             shared_roll = (int (__cdecl *)(void))GetProcAddress(fix_huts, "VvfpFixHutsRoll");
         }
     }
-    return shared_roll != NULL ? shared_roll() : own_roll();
+    if (shared_roll != NULL) {
+        /* 75% shared, then 2 in 3 of our own: 50%. */
+        return shared_roll() && own_roll(2u, 3u);
+    }
+    return own_roll(1u, 2u);                      /* 50% */
 }
 
 /* ---- VV1 --------------------------------------------------------------- */
