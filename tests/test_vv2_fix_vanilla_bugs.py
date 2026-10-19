@@ -147,10 +147,27 @@ from test_details_name_identity import name_identity_fixes  # noqa: E402
 # (tests/test_details_name_identity.py).
 NAME_IDENTITY_FIXES = name_identity_fixes("vv2")
 
+# Villagers never turn into totems (the owner, 2026-10-19: "a vanilla bug that happens rarely").  The
+# burial 0x464FFF (case 23 of the villager tick 0x464CD0) frees the record it was sent to when that record
+# is in use with health 0 or less, without checking it is still the body it was sent to; an Esteemed
+# Elder's totem (health 0) made there in between was freed with its mark +0x558 kept, and the copy
+# creator 0x44CEC0 (twins, triplets, the Silver Mirror) never clears +0x558, so the next copy made there
+# was a living, immortal totem.  The burial now passes a totem over as it passes over a record that is no
+# longer a body (0x4653A8), and the copy creator clears the mark as the fresh creator does (0x44C84F).
+# Their code sits in this row's own int3 padding after the Crystal Ball's swap.
+BURIAL_CAVE = 0x421610
+COPY_CAVE = 0x421630
+TOTEM_FIXES = (
+    (0x65016, bytes.fromhex("8B882C050000"), bytes.fromhex("E9F5C5FBFF90")),     # jmp 0x421610; nop
+    (0x4CF41, bytes.fromhex("894E0889460C"), bytes.fromhex("E9EA46FDFF90")),     # jmp 0x421630; nop
+)
+BURIAL_PASSED_OVER = 0x4653A8
+BURIAL_FREES = 0x46503B
+
 
 def _allowed() -> set[int]:
     allowed = set(range(HOOK_OFFSET, HOOK_OFFSET + 5)) | set(range(SWAP_OFFSET, SWAP_OFFSET + SWAP_LENGTH))
-    for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES:
+    for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES:
         allowed.update(range(offset, offset + len(before)))
     return allowed
 
@@ -295,10 +312,13 @@ class ManifestTests(unittest.TestCase):
         offsets = [(int(p["offset"], 16), len(bytes.fromhex(p["before"]))) for p in raw["patches"]]
         self.assertEqual(offsets, [(HOOK_OFFSET, 5), (SWAP_OFFSET, SWAP_LENGTH)]
                          + [(offset, len(before)) for offset, before, _ in
-                            NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES])
+                            NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES])
         self.assertEqual([(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                           for p in raw["patches"][2:]],
-                         list(NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES))
+                         list(NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES))
+        for offset, before, _ in TOTEM_FIXES:
+            self.assertEqual(self.stock[offset:offset + len(before)], before)
+        self.assertIn("Villagers never turn into totems", raw["description"])
         self.assertEqual(bytes.fromhex(raw["patches"][0]["before"]), HOOK_STOCK)
         self.assertEqual(bytes.fromhex(raw["patches"][0]["after"]), HOOK_PATCHED)
         self.assertEqual(bytes.fromhex(raw["patches"][1]["before"]), self.stock[SWAP_OFFSET:SWAP_OFFSET + SWAP_LENGTH])
@@ -324,7 +344,8 @@ class ManifestTests(unittest.TestCase):
         text = next(s for s in pe.sections if s.Name.startswith(b".text"))
         md = Cs(CS_ARCH_X86, CS_MODE_32)
         md.skipdata = True
-        regions = ((0x41F636, 0x41F63B), (0x421480, 0x421480 + SWAP_LENGTH))
+        regions = ((0x41F636, 0x41F63B), (0x421480, 0x421480 + SWAP_LENGTH),
+                   (0x465016, 0x46501C), (0x44CF41, 0x44CF47))
         incoming = []
         for ins in md.disasm(text.get_data(), 0x400000 + text.VirtualAddress):
             if not (ins.mnemonic.startswith("j") or ins.mnemonic == "call"):
@@ -376,8 +397,20 @@ class ManifestTests(unittest.TestCase):
                 ("cmp", "eax, 2"), ("setge", "bl"), ("jmp", hex(CHOOSER_DONE)),
             ],
         )
-        tail = region[0x421610 - 0x421480:]
+        # The totem fixes' code, then int3 to the end.
+        burial = [(i.mnemonic, i.op_str) for i in md.disasm(region[BURIAL_CAVE - 0x421480:COPY_CAVE - 0x421480], BURIAL_CAVE)]
+        self.assertEqual(burial[:4], [("cmp", "byte ptr [eax + 0x558], 0"), ("jne", hex(BURIAL_PASSED_OVER)),
+                                      ("mov", "ecx, dword ptr [eax + 0x52c]"), ("jmp", "0x46501c")])
+        copy = [(i.mnemonic, i.op_str) for i in md.disasm(region[COPY_CAVE - 0x421480:COPY_CAVE - 0x421480 + 18], COPY_CAVE)]
+        self.assertEqual(copy, [("mov", "dword ptr [esi + 8], ecx"), ("mov", "dword ptr [esi + 0xc], eax"),
+                                ("mov", "byte ptr [esi + 0x558], 0"), ("jmp", "0x44cf47")])
+        self.assertEqual(region[0x421628 - 0x421480:COPY_CAVE - 0x421480], b"\xCC" * 8)
+        tail = region[COPY_CAVE + 18 - 0x421480:]
         self.assertEqual(tail, b"\xCC" * len(tail))
+        for offset, _before, after in TOTEM_FIXES:
+            site = next(md.disasm(after, 0x400000 + offset))
+            self.assertEqual((site.mnemonic, site.op_str),
+                             ("jmp", hex(BURIAL_CAVE if offset == 0x65016 else COPY_CAVE)))
 
     def test_render_alone_in_every_mode(self) -> None:
         allowed = _allowed()
@@ -507,6 +540,94 @@ class CrystalBallKeepTests(unittest.TestCase, _Builds):
                     self.assertEqual(after, before)
                     self.assertEqual(village.rand_bounds, [0])
                     self.assertEqual(village.texts_copied, 0)
+
+
+class _Snippet:
+    """The rendered image in unicorn with a small pool, run from one address to the first stop."""
+
+    def __init__(self, exe: bytes) -> None:
+        pe = pefile.PE(data=exe)
+        image = pe.get_memory_mapped_image()
+        self.mu = mu = Uc(UC_ARCH_X86, UC_MODE_32)
+        mu.mem_map(0x400000, (len(image) + 0xFFFF) & ~0xFFFF)
+        mu.mem_write(0x400000, image)
+        mu.mem_map(STACK - 0x20000, 0x30000)
+        mu.mem_map(POOL, (8 * STRIDE + 0xFFFF) & ~0xFFF)
+        self.stops: dict[int, str] = {}
+        self.where = None
+        mu.hook_add(UC_HOOK_CODE, self._on_code)
+
+    def _on_code(self, mu, address, size, user_data) -> None:
+        if address in self.stops:
+            self.where = self.stops[address]
+            mu.emu_stop()
+
+    def rec(self, index: int) -> int:
+        return POOL + index * STRIDE
+
+    def run(self, start: int, stops: dict[int, str], **regs) -> str:
+        self.stops = stops
+        self.where = None
+        self.mu.reg_write(UC_X86_REG_ESP, STACK - 0x100)
+        names = {"eax": UC_X86_REG_EAX, "ebx": UC_X86_REG_EBX, "ecx": UC_X86_REG_ECX, "esi": UC_X86_REG_ESI,
+                 "edi": UC_X86_REG_EDI, "ebp": UC_X86_REG_EBP}
+        for name, value in regs.items():
+            self.mu.reg_write(names[name], value)
+        self.mu.emu_start(start, 0xFFFFFFF0, count=10_000)
+        assert self.where is not None, hex(self.mu.reg_read(UC_X86_REG_EIP))
+        return self.where
+
+
+class TotemFixTests(unittest.TestCase, _Builds):
+    def _burial(self, exe: bytes, active: int, health: int, totem: int) -> tuple[str, int]:
+        """Case 23 of the villager tick (0x464FFF): villager 1 finishes burying record 4."""
+        s = _Snippet(exe)
+        burier, target = s.rec(1), s.rec(4)
+        s.mu.mem_write(burier + 0x60, struct.pack("<I", 4))
+        s.mu.mem_write(target + 0x30, bytes([active, 0]))            # in use; not the selected villager
+        s.mu.mem_write(target + 0x52C, struct.pack("<i", health))
+        s.mu.mem_write(target + 0x558, bytes([totem]))
+        # Stopped at the store that frees the record (0x46503B, which Village Statistics hooks), or at the
+        # path that passes the record over.
+        where = s.run(0x464FFF, {BURIAL_FREES: "frees", BURIAL_PASSED_OVER: "passed over"}, esi=POOL, edi=burier)
+        return where, 0 if where == "frees" else s.mu.mem_read(target + 0x30, 1)[0]
+
+    def test_emulated_a_totem_is_never_buried(self):
+        for mode in MODES:
+            for label in ("stock", "patched", "patched_with_all"):
+                exe = self.builds()[(mode, label)]
+                with self.subTest(mode=mode, build=label):
+                    # A body is buried and its record freed, in every build.
+                    self.assertEqual(self._burial(exe, 1, 0, 0), ("frees", 0))
+                    self.assertEqual(self._burial(exe, 1, -3, 0), ("frees", 0))
+                    # A living villager and a freed record are passed over, in every build.
+                    self.assertEqual(self._burial(exe, 1, 50, 0)[0], "passed over")
+                    self.assertEqual(self._burial(exe, 0, 0, 0)[0], "passed over")
+                    # A totem: the base game frees it with its mark kept; the fix passes it over.
+                    where, active = self._burial(exe, 1, 0, 1)
+                    if label == "stock":
+                        self.assertEqual((where, active), ("frees", 0))
+                    else:
+                        self.assertEqual((where, active), ("passed over", 1))
+
+    def _copy(self, exe: bytes) -> tuple[bytes, int, int]:
+        """The copy creator's position stores (0x44CF41..0x44CF46) on a record left marked as a totem."""
+        s = _Snippet(exe)
+        rec = s.rec(5)
+        s.mu.mem_write(rec + 0x558, b"\x01")
+        where = s.run(0x44CF41, {0x44CF47: "on"}, esi=rec, ecx=0x3E8, eax=0x7D, ebx=0)
+        self.assertEqual(where, "on")
+        x, y = struct.unpack("<II", s.mu.mem_read(rec + 8, 8))
+        return bytes(s.mu.mem_read(rec + 0x558, 1)), x, y
+
+    def test_emulated_a_copy_never_inherits_the_totem_mark(self):
+        for mode in MODES:
+            for label in ("stock", "patched", "patched_with_all"):
+                exe = self.builds()[(mode, label)]
+                with self.subTest(mode=mode, build=label):
+                    mark, x, y = self._copy(exe)
+                    self.assertEqual((x, y), (0x3E8, 0x7D), "the stock stores are kept")
+                    self.assertEqual(mark, b"\x01" if label == "stock" else b"\x00")
 
 
 if __name__ == "__main__":
