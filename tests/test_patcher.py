@@ -1025,7 +1025,7 @@ class ManifestTests(unittest.TestCase):
             # build_slot_guards.py, scripts/build_record_guards_vv345.py).
             expected_safety_counts = {
                 "vv1": 24,
-                "vv2": 27,   # + the babies still owed (Codex, #543)
+                "vv2": 29,   # + the babies still owed (Codex, #543); + the Esteemed Elder totem guard (v1.35.77)
                 "vv3": 22,
                 "vv4": 18,
                 "vv5": 21,
@@ -1193,6 +1193,7 @@ class ManifestTests(unittest.TestCase):
             # v1.35.58 record guards (scripts/build_slot_guards.py)
             0x217DF, 0x1F604, 0x1F6D4, 0x73F64, 0x73F84,
             0x73F9C,   # the babies still owed (Codex, #543)
+            0x4D547, 0x73F53,   # an Esteemed Elder and totem only with a free record (v1.35.77)
             0x34102,
             0x341A2,
             0x341C3,

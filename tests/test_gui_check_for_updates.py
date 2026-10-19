@@ -210,7 +210,10 @@ class ReleasesLinkTests(unittest.TestCase):
             # The tree shows a name the Villager Details screen cut by the logs' full name.
             # ...and A New Home's parents file under either folder name (vv_save_layout).
             ("vv_genealogy", {"vv_log_tools", "vv_last_names", "vv_log_additions", "vv_tribe_rename",
-                              "vv_cut_names", "vv_save_layout", "vv_log_decisions", "vv_lost_titles", "vv_family_tree"}),
+                              "vv_cut_names", "vv_save_layout", "vv_log_decisions", "vv_lost_titles", "vv_family_tree",
+                              # An answered "I renamed them" joins the two records (v1.35.77); a
+                              # function-level import, as vv_reconcile imports vv_genealogy.
+                              "vv_reconcile"}),
             # Restoring cut names renames through Last Names; likes compare as vv_log_tools says (v1.35.68).
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions", "vv_log_tools"}),
             # Fix grave information: the graves' fingerprints and writes through Last Names.

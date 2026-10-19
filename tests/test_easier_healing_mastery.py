@@ -289,8 +289,9 @@ class WithEveryHealerPatch(unittest.TestCase):
 class NewHomeHealersStudyCatchUp(unittest.TestCase):
     """Healers Study Plants Regardless of Food's new A New Home catch-up site
     (0x42E817): a villager in plant-study state 9 continues studying whatever
-    catch-up picks, on the decision's 75% roll -- as The Lost Children's
-    (0x43B581) always has.  Without Easier Healing Mastery."""
+    catch-up picks, with a 50% chance per check (the shared 75% decision roll,
+    then the companion's own two-in-three) -- as The Lost Children's
+    (0x43B581) does.  Without Easier Healing Mastery."""
 
     def rows(self):
         return tuple(ROWS["vv1"])
@@ -331,7 +332,7 @@ class NewHomeHealersStudyCatchUp(unittest.TestCase):
                 self.assertEqual(names(m), names(stock))
                 self.assertEqual([c for c in m.calls if c[0] == "continue"], [])
 
-    def test_the_share_is_about_three_in_four(self):
+    def test_the_share_is_about_one_in_two(self):
         m = machine("vv1", rows=self.rows(), runtime=True, force=FORCE_REAL, pick=OTHER, selected=OTHER,
                     task=9, cont=1)
         m.seed(0x9E3779B9)
@@ -343,8 +344,8 @@ class NewHomeHealersStudyCatchUp(unittest.TestCase):
             hits += any(c[0] == "continue" for c in m.calls)
         share = hits / n
         print(f"catch-up share vv1 plant study: {share:.3f}")
-        self.assertGreater(share, 0.70)
-        self.assertLess(share, 0.80)
+        self.assertGreater(share, 0.45)
+        self.assertLess(share, 0.55)
 
     def test_every_population_mode(self):
         for mode in MODES:
