@@ -233,7 +233,10 @@ class ReleasesLinkTests(unittest.TestCase):
             # Names' reader and writer, the Deaths log's elders, the village header as Reset corrupted
             # skill values reads it.
             ("vv_vv2_totems", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_log_additions",
-                               "vv_corrupt_skills", "vv_save_layout"}),
+                               "vv_corrupt_skills", "vv_save_layout",
+                               # Its renamed-answer check reads the reconciliation answers, as a
+                               # function-level import (the same as vv_genealogy's).
+                               "vv_reconcile"}),
             ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout", "vv_line_colours"}),
             ("vv_gdiplus", {"vv_family_tree"}),
             ("vv_line_colours", {"vv_family_tree", "vv_gdiplus"}),
