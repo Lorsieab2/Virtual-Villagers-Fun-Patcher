@@ -146,7 +146,16 @@ CATCHUP = (
 def describe(game: str) -> str:
     return (DESCRIPTION.replace("{huts}", HUTS.get(game, ""))
             .replace("{catchup}", CATCHUP.format(huts=", and so does the new-hut rule" if game in HUTS else ""))
-            .replace("{share}", SHARE[game] + " so one choice is either all patched or all stock."))
+            .replace("{share}", SHARE[game] + " so one choice is either all patched or all stock."
+                     + HEALERS_EXTRA_ROLL.get(game, "")))
+
+
+# Healers Study Plants Regardless of Food passes the shared roll and then makes its own
+# two-in-three roll, so a studying healer continues half the time (the owner, v1.35.77).
+HEALERS_EXTRA_ROLL = {
+    "vv1": " Healers Study Plants Regardless of Food then adds its own two-in-three roll, so a studying healer carries on half the time.",
+    "vv2": " Healers Study Plants Regardless of Food then adds its own two-in-three roll, so a studying healer carries on half the time.",
+}
 
 
 # The Building-level gates before the hut (A New Home, The Lost Children):
@@ -236,7 +245,7 @@ CU_ROLL_BEHAVIOR = (
     "Catch-up -- time that passed while the game was closed, and Time Warp -- never runs the idle "
     "scheduler; its worker ({worker}) makes the choice instead, and one run of it is one decision "
     "too: the patches it reaches (this one's sites in the Building dispatcher, Builders and Healers "
-    "Work First{healers}) share one 75% roll, never one each."
+    "Work First{healers}) share one 75% roll, never one each.{healers_extra}"
 )
 CU_WORKER = {"vv1": "0x42E790", "vv2": "0x43B4D0", "vv3": "0x45BF00", "vv4": "0x465750", "vv5": "0x46E8E0"}
 FOOD_BEHAVIOR = (
@@ -1077,7 +1086,11 @@ def main() -> None:
                       if game in HUT_GATE_BEHAVIOR else "")]
               + [CU_ROLL_BEHAVIOR.format(worker=CU_WORKER[game],
                                          healers=(" and Healers Study Plants Regardless of Food"
-                                                  if game in ("vv1", "vv2") else ""))],
+                                                  if game in ("vv1", "vv2") else ""),
+                                         healers_extra=(" Healers Study Plants Regardless of Food then adds its "
+                                                        "own two-in-three roll, so a studying healer carries on "
+                                                        "half the time."
+                                                        if game in ("vv1", "vv2") else ""))],
             "explicit_non_changes": list(common_non_changes),
             "companion_files": [
                 {"source": "assets/fix_huts/VVFP Fix Huts.dll",
