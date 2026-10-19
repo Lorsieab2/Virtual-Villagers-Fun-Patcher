@@ -238,7 +238,7 @@ class HealersStudyTests(unittest.TestCase):
                     self.assertEqual([c[0] for c in r.calls].count("cont"), 1 if expect_cont else 0)
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
-    def test_about_three_in_four_the_roll_decides(self):
+    def test_half_the_time_the_roll_decides(self):
         # The owner: more likely, not always.  A studying healer at high food
         # continues the study only when the decision's roll passes; when it
         # fails, the stock selection runs, exactly as below.
@@ -257,16 +257,37 @@ class HealersStudyTests(unittest.TestCase):
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_with_fix_huts_loaded_its_roll_is_shared(self):
-        # One decision, one roll: with "VVFP Fix Huts.dll" loaded (Builders Fix
-        # Huts When Idle selected), its VvfpFixHutsRoll decides -- the roll of
-        # the scheduler run it already wraps -- and this companion draws none.
+        # With "VVFP Fix Huts.dll" loaded (Builders Fix Huts When Idle
+        # selected), its VvfpFixHutsRoll (75%, the roll of the scheduler run it
+        # already wraps) must pass first: a decision it leaves to the stock
+        # game is the stock game's here too, and this companion draws nothing.
+        # Only when it passes does this companion draw its own two-in-three
+        # roll, so the healer continues 3/4 x 2/3 = 50% of the time.
         for game, g in G.items():
-            for answer, exit_key in ((1, "done"), (0, "resume")):
-                with self.subTest(game=game, answer=answer):
-                    r = Run(game, food=g["threshold"] + 1000, state9=9, cont_result=1, fix_huts=answer, own=1)
+            for answer, own, exit_key, own_draws in ((1, 1, "done", 1), (1, 2, "resume", 1),
+                                                     (0, 1, "resume", 0)):
+                with self.subTest(game=game, answer=answer, own=own):
+                    r = Run(game, food=g["threshold"] + 1000, state9=9, cont_result=1, fix_huts=answer, own=own)
                     self.assertEqual(r.exit, g[exit_key])
-                    self.assertEqual((r.shared_rolls(), r.own_rolls()), (1, 0))
+                    self.assertEqual((r.shared_rolls(), r.own_rolls()), (1, own_draws))
                     self.assertEqual(r.looked_up[:2], ["VVFP Fix Huts.dll", "VvfpFixHutsRoll"])
+                    if exit_key == "resume":
+                        self.assertEqual(r.calls, [("picker", INDEX, 0, VILLAGE)], "no continuation: the stock pick")
+
+    def test_the_chance_is_one_in_two(self):
+        # The owner (2026-10-18): a 50% chance per check at every site.  Alone,
+        # one draw of half; with the shared 75% roll, two in three of the rest.
+        source = (ROOT / "native" / "vvfp_healers_study" / "vvfp_healers_study.c").read_text(encoding="utf-8")
+        self.assertIn("return shared_roll() && own_roll(2u, 3u);", source)
+        self.assertIn("return own_roll(1u, 2u);", source)
+        self.assertIn("return x % out_of < pass;", source)
+        self.assertNotIn("x % 100u < 75u", source)
+        for game in G:
+            m = json.loads((ROOT / "data" / f"{game}_healers_study_feature.json").read_text(encoding="utf-8"))
+            self.assertIn("a 50% chance", m["description"])
+            self.assertNotIn("three times in four", m["description"])
+            self.assertIn("A 50% chance per check", " ".join(m["behavior_changes"]))
+            self.assertIn("on the same 50% roll", " ".join(m["behavior_changes"]))
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_no_roll_where_the_patch_would_not_act(self):

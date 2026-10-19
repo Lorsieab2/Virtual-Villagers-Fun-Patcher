@@ -334,6 +334,46 @@ class Process:
     def _api_lstrlenA(self):
         return len(self.cstring(self.arg(0))), 4
 
+    # The wide folder helpers (native/shared, e.g. the save-folder length checks) measure a path.
+    def _api_lstrlenW(self):
+        return (len(self.wstring(self.arg(0))) if self.arg(0) else 0), 4
+
+    # The wide copies native/shared/per_save.h and per_save_data.h build paths with.
+    def _api_lstrcpyW(self):
+        self.write(self.arg(0), self.wstring(self.arg(1)).encode("utf-16-le") + b"\0\0")
+        return self.arg(0), 8
+
+    def _api_lstrcatW(self):
+        joined = self.wstring(self.arg(0)) + self.wstring(self.arg(1))
+        self.write(self.arg(0), joined.encode("utf-16-le") + b"\0\0")
+        return self.arg(0), 8
+
+    def _api_lstrcpynW(self):
+        out, source, size = self.arg(0), self.arg(1), self.arg(2)
+        if size > 0:
+            text = self.wstring(source)[: size - 1]
+            self.write(out, text.encode("utf-16-le") + b"\0\0")
+        return out, 12
+
+    # native/shared/per_save.h compares path prefixes: CompareStringW(locale, flags, s1, n1, s2, n2),
+    # a count of -1 meaning up to the NUL; CSTR_LESS_THAN 1, CSTR_EQUAL 2, CSTR_GREATER_THAN 3.
+    def _api_CompareStringW(self):
+        flags = self.arg(1)
+
+        def text(va, n):
+            whole = self.wstring(va)
+            return whole if n == 0xFFFFFFFF else whole[:n]
+
+        a, b = text(self.arg(2), self.arg(3)), text(self.arg(4), self.arg(5))
+        if flags & 1:                   # NORM_IGNORECASE
+            a, b = a.lower(), b.lower()
+        return (2 if a == b else (1 if a < b else 3)), 24
+
+    # The wide Documents lookup (native/shared/save_folder.c): as with the ANSI one, the emulated
+    # machine has no Documents folder, so nothing is read or written there.
+    def _api_SHGetSpecialFolderPathW(self):
+        return 0, 16
+
     def _api_lstrcmpiA(self):
         a, b = self.cstring(self.arg(0)).lower(), self.cstring(self.arg(1)).lower()
         return (0 if a == b else (1 if a > b else 0xFFFFFFFF)), 8

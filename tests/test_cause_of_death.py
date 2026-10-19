@@ -118,7 +118,10 @@ class Game:
         for name in ("SHGetSpecialFolderPathA", "CreateDirectoryA", "CreateFileA", "ReadFile", "WriteFile",
                      "FlushFileBuffers", "CloseHandle", "MoveFileExA", "DeleteFileA", "GetLastError",
                      "GetFileAttributesA", "MultiByteToWideChar", "GetFileAttributesW", "MoveFileW",
-                     "GetLocalTime", "SystemTimeToFileTime", "FileTimeToSystemTime"):
+                     "GetLocalTime", "SystemTimeToFileTime", "FileTimeToSystemTime",
+                     # One folder per save (native/shared/per_save.h, save_folder.c): the wide API.
+                     "SHGetSpecialFolderPathW", "CreateDirectoryW", "GetFileAttributesExW", "FindFirstFileW",
+                     "FindNextFileW", "FindClose", "WideCharToMultiByte", "CompareFileTime", "CreateFileW"):
             p.api_handlers[name] = getattr(self, "_" + name)
         p.stub(WRITE_RECORD, self._write_record)
         p.stub(SLOT_FN, lambda proc: (self.slot, 0))
@@ -188,6 +191,99 @@ class Game:
         self.files[new] = self.files.pop(old)
         return 1, 8
 
+    # One folder per save (native/shared/per_save.h): the same file system through the wide API.
+    def _SHGetSpecialFolderPathW(self, proc):
+        proc.write(proc.arg(1), "C:\\Docs\0".encode("utf-16-le"))
+        return 1, 16
+
+    def _CreateDirectoryW(self, proc):
+        self.dirs.add(proc.wstring(proc.arg(0)).lower())
+        return 1, 8
+
+    def _GetFileAttributesExW(self, proc):
+        path = proc.wstring(proc.arg(0))
+        if path in self.files:
+            attributes, size = 0x80, len(self.files[path])
+        elif path.lower() in self.dirs:
+            attributes, size = 0x10, 0
+        else:
+            self.last_error = 2
+            return 0, 12
+        # WIN32_FILE_ATTRIBUTE_DATA: every time 0, so neither copy of a data file is the newer.
+        proc.write(proc.arg(2), struct.pack("<I6III", attributes, 0, 0, 0, 0, 0, 0, 0, size))
+        return 1, 12
+
+    def _entries(self, folder: str) -> list[tuple[str, int]]:
+        folder = folder.lower()
+        found = {}
+        for path in self.files:
+            parent, _, name = path.rpartition("\\")
+            if parent.lower() == folder:
+                found[name.lower()] = (name, 0x80)
+        for path in self.dirs:
+            parent, _, name = path.rpartition("\\")
+            if parent == folder:
+                found.setdefault(name, (name, 0x10))
+        return sorted(found.values())
+
+    def _find_fill(self, proc, at: int, entry: tuple[str, int]) -> None:
+        name, attributes = entry
+        proc.write(at, struct.pack("<I6IIIII", attributes, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+        proc.write(at + 44, name.encode("utf-16-le") + b"\0\0")
+
+    def _FindFirstFileW(self, proc):
+        pattern = proc.wstring(proc.arg(0))
+        if not pattern.endswith("\\*"):
+            self.last_error = 2
+            return 0xFFFFFFFF, 8
+        entries = self._entries(pattern[:-2])
+        if not entries:
+            self.last_error = 2
+            return 0xFFFFFFFF, 8
+        handle = 0x8000 + 4 * len(self.handles)
+        self.handles[handle] = ["find", entries, 1]
+        self._find_fill(proc, proc.arg(1), entries[0])
+        return handle, 8
+
+    def _FindNextFileW(self, proc):
+        _, entries, at = self.handles[proc.arg(0)]
+        if at >= len(entries):
+            self.last_error = 18                # ERROR_NO_MORE_FILES
+            return 0, 8
+        self.handles[proc.arg(0)][2] = at + 1
+        self._find_fill(proc, proc.arg(1), entries[at])
+        return 1, 8
+
+    def _FindClose(self, proc):
+        self.handles.pop(proc.arg(0), None)
+        return 1, 4
+
+    def _WideCharToMultiByte(self, proc):
+        source, count = proc.arg(2), proc.arg(3)
+        text = proc.wstring(source)
+        text = text + "\0" if count == 0xFFFFFFFF else text[:count]
+        raw = text.encode("latin-1", errors="replace")
+        if proc.arg(5):
+            proc.write(proc.arg(4), raw[: proc.arg(5)])
+        if proc.arg(7):
+            proc.put32(proc.arg(7), 0)
+        return len(raw), 32
+
+    def _CompareFileTime(self, proc):
+        a, b = struct.unpack("<Q", proc.read(proc.arg(0), 8))[0], struct.unpack("<Q", proc.read(proc.arg(1), 8))[0]
+        return (0 if a == b else (1 if a > b else 0xFFFFFFFF)), 8
+
+    def _CreateFileW(self, proc):
+        path, disposition = proc.wstring(proc.arg(0)), proc.arg(4)
+        if disposition == 3 and path not in self.files:        # OPEN_EXISTING
+            self.last_error = 2
+            return 0xFFFFFFFF, 28
+        if disposition != 3:
+            self.files[path] = bytearray()
+        handle = 0x100 + 4 * len(self.handles)
+        self.handles[handle] = [path, 0]
+        return handle, 28
+
     def _CreateFileA(self, proc):
         path, disposition = proc.cstring(proc.arg(0)), proc.arg(4)
         if disposition == 3 and path not in self.files:        # OPEN_EXISTING
@@ -243,10 +339,12 @@ class Game:
         return 1, 8
 
     def roster(self, slot: int) -> bytes | None:
-        name = (f"C:\\Docs\\LDW\\Game\\Virtual Villagers Fun Patcher Data\\Unaccounted Villagers\\"
+        # In the save's own folder ("Virtual Villagers Fun Patcher\Save S\Data\...", per_save.h) or the
+        # older layout's ("Virtual Villagers Fun Patcher Data\..."), wherever the companion put it.
+        tail = (f"\\Unaccounted Villagers\\"
                 f"Virtual Villagers {self.no} Villagers at Last Save - Save {slot}.dat")
-        data = self.files.get(name)
-        return bytes(data) if data is not None else None
+        names = [n for n in self.files if n.startswith("C:\\Docs\\LDW\\Game\\") and n.endswith(tail)]
+        return bytes(self.files[names[0]]) if names else None
 
     def _write_record(self, proc):
         before = proc.cstring(proc.arg(4)) if proc.arg(4) else ""

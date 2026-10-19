@@ -508,6 +508,7 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
         if not reg.people[pid].alive:
             reg.people[pid].runner = True
     _logged_renames(reg, folder, game, slot)
+    _answered_renames(reg, folder, game, slot, rename_answers or {}, notes)
     _unrecorded_looks(reg)
     checker = tools.load_checker()
     exact, by_name = checker.known_sexes(folder, game)
@@ -692,6 +693,50 @@ def _logged_renames(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             if p.id == q.id or p.alive or p.gone or (p.birth_record is not None and q.birth_record is not None):
                 continue
             _merge_renamed(reg, p, q)
+
+
+def _answered_renames(reg: _Registry, folder: Path, game: int, slot: int, tree_answers: dict,
+                      notes: list[str]) -> None:
+    """The renames the player answered in Check / Repair Saves & Logs (the Log Decisions file, kind
+    "reconcile"): a "rename|OLD|head|body|NEW" question answered "Keep as is: NEW is right (I renamed
+    them)" joins the record under the old name to the one under the new name as ONE villager, as a "Name
+    changed" record does (_logged_renames).  The owner, 2026-10-18: Waiata Wambui was renamed City Wambui
+    with no "Name changed" record, and the tree showed Waiata Wambui as "(left the village)".  The same in
+    all five games: the question, its key and its answer are the reconciliation's, which reads every game
+    alike.  Read only.  The same limits: never when the old name and looks are a living villager's, when
+    the old name's record is dead or gone, or when both have a Birth record of their own.  A Family Tree
+    answer that keeps the two apart ("old") contradicts it: they stay apart and the notes say so."""
+    import vv_log_additions as additions
+    import vv_reconcile as reconcile
+    try:
+        answers = reconcile.answered(folder, game, slot, additions.current_villages(folder, game, slot))
+    except (OSError, ValueError):
+        return
+    for field in sorted(answers):
+        parts = field.split("|")
+        if len(parts) != 5 or parts[0] != "rename":
+            continue
+        _topic, old, head_text, body_text, new = parts
+        if answers[field] != f"{reconcile.KEEP}: {new} is right (I renamed them)":
+            continue
+        try:
+            head, body = int(head_text), int(body_text)
+        except ValueError:
+            continue
+        if not old or not new or old == new:
+            continue
+        old_key, new_key = reg.current((old, head, body)), reg.current((new, head, body))
+        if old_key not in reg.by_key or new_key not in reg.by_key:
+            continue
+        p, q = reg.people[reg.by_key[old_key]], reg.people[reg.by_key[new_key]]
+        if p.id == q.id or p.alive or p.gone or (p.birth_record is not None and q.birth_record is not None):
+            continue
+        if tree_answers.get(rename_key(old, head, body)) == "old":
+            notes.append(f"{old} and {new} (head {head}, body {body}): Check Saves & Logs was answered \"{new} "
+                         f"is right (I renamed them)\", but the Family Tree Maker was answered \"keep {old} as a "
+                         "separate villager\", so they were not joined. Change one answer to settle it.")
+            continue
+        _merge_renamed(reg, p, q)
 
 
 def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> None:

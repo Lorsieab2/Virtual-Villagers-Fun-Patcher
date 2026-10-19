@@ -161,7 +161,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info",
                "vv_log_decisions", "vv_log_contradictions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
-               "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision"}
+               "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
+               "vv_vv2_totems"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -209,7 +210,10 @@ class ReleasesLinkTests(unittest.TestCase):
             # The tree shows a name the Villager Details screen cut by the logs' full name.
             # ...and A New Home's parents file under either folder name (vv_save_layout).
             ("vv_genealogy", {"vv_log_tools", "vv_last_names", "vv_log_additions", "vv_tribe_rename",
-                              "vv_cut_names", "vv_save_layout", "vv_log_decisions", "vv_lost_titles", "vv_family_tree"}),
+                              "vv_cut_names", "vv_save_layout", "vv_log_decisions", "vv_lost_titles", "vv_family_tree",
+                              # An answered "I renamed them" joins the two records (v1.35.77); a
+                              # function-level import, as vv_reconcile imports vv_genealogy.
+                              "vv_reconcile"}),
             # Restoring cut names renames through Last Names; likes compare as vv_log_tools says (v1.35.68).
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions", "vv_log_tools"}),
             # Fix grave information: the graves' fingerprints and writes through Last Names.
@@ -225,6 +229,14 @@ class ReleasesLinkTests(unittest.TestCase):
             # Reset corrupted skill values (the owner, v1.35.70): the save through Last Names' reader and writer.
             ("vv_corrupt_skills", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_tribe_rename",
                                    "vv_save_layout"}),
+            # The Lost Children's Esteemed Elders' totems (the owner, 2026-10-19): the save through Last
+            # Names' reader and writer, the Deaths log's elders, the village header as Reset corrupted
+            # skill values reads it.
+            ("vv_vv2_totems", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_log_additions",
+                               "vv_corrupt_skills", "vv_save_layout",
+                               # Its renamed-answer check reads the reconciliation answers, as a
+                               # function-level import (the same as vv_genealogy's).
+                               "vv_reconcile"}),
             ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout", "vv_line_colours"}),
             ("vv_gdiplus", {"vv_family_tree"}),
             ("vv_line_colours", {"vv_family_tree", "vv_gdiplus"}),

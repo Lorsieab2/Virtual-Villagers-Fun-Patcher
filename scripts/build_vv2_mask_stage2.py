@@ -50,19 +50,20 @@ CALLER_LO, CALLER_HI = 0x445B50, 0x4478DF
 # that is exactly why the mask never appeared on the Details screen.  The child stub gates only
 # on the atlas being a head atlas (no record deref), so it is safe across both functions.
 #
-# UPPER BOUND raised 0x4478DF -> 0x449060 (2026-08-26).  A full audit of every call site of the
-# two head-draw thunks found 68 sites that push a HEAD atlas, spanning 0x44564B..0x449049 — but
-# the old 0x4478DF ceiling excluded 25 of them (0x447ADD..0x449049).  Those are the ALTERNATE
-# POSE renderers (swimming / sitting / lying down / bending), so a masked villager lost the mask
-# the moment they left the walking pose.  Owner PSA: "the masks should follow the head at all
-# times ... when villagers jump or bend down ... when swimming and any other edge cases."
-# Safety checked before widening: those functions use the SAME conventions as the already-gated
-# region — esi = gameCtx (they read [esi+0xE574A8] / [esi+0xE574D0]) and they reference the
-# villager index table 0xE57090 34 times — so the stub's `[esi+edi*4+0xE57090]` record lookup is
-# valid there too.  No non-head draw sites exist above the last head site, so nothing else is
-# swept in.  The ADULT gate is deliberately NOT widened: all 29 of its sites were already inside,
-# and its record deref is only valid where edi is the loop index.
+# UPPER BOUND raised 0x4478DF -> 0x449060 (2026-08-26) so masks follow the head everywhere.
+# The sites above 0x4478DF (0x447A37..0x449049) are NOT more of the village compositor: the
+# compositor ends with `ret` at 0x4478DE, and 0x4478E0..0x4490BF is a SEPARATE function, the
+# MAP overview (called from the Map screen at 0x436C82 / 0x436CAB).  It draws every villager's
+# head at quarter size (x/4+0xAF, y/4+0x29, scale 0x19), keeps its villager LOOP INDEX in EBP
+# (xor ebp,ebp at 0x4478E6, inc ebp / cmp ebp,0x100 at 0x4490AE), and uses EDI as scratch
+# (EDI = [record+0x530] at every head-draw site).  Reading `[esi+edi*4+0xE57090]` there
+# crashed the game when the player clicked Map (owner's crash dump, 2026-10-18: return
+# 0x44904E, EDI=0x445, EBP=6, read of 0x0EC731C4).  So the child stub picks the index
+# register by caller: EDI in the compositor, EBP from MAP_CALLER_LO up.  ESI = gameCtx in
+# both.  The ADULT gate is deliberately NOT widened: all 29 of its sites are inside the
+# compositor, and its record deref is only valid where edi is the loop index.
 CHILD_CALLER_LO, CHILD_CALLER_HI = 0x445540, 0x449060
+MAP_CALLER_LO = 0x4478E0          # first byte of the Map overview renderer (index in EBP)
 DRAWOBJ_PTR = 0xE574D0
 HEAD_ATLASES = (0xE574A0, 0xE574A8, 0xE574AC, 0xE574B0, 0xE574B4)
 MASK_BYTE_OFF = 0x480             # unused per-villager record byte = mask choice (0=none, 1..5)
@@ -295,9 +296,15 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
                  f"        cmp  eax, {MASK_ROW_COUNT}\n"
                  "        jae  adone\n"
                  "        dec  eax")
+        # Village: the loop index is EDI in the compositor, EBP in the Map renderer.
         C_GATE = (f"cmp  dword ptr [esp+4], 0x{CALLER_LO:X}\n"
                   "        jb   cg_prt\n"
-                  "        mov  eax, [esi+edi*4+0xe57090]\n"
+                  "        mov  eax, ebp\n"
+                  f"        cmp  dword ptr [esp+4], 0x{MAP_CALLER_LO:X}\n"
+                  "        jae  cg_idx\n"
+                  "        mov  eax, edi\n"
+                  "    cg_idx:\n"
+                  "        mov  eax, [esi+eax*4+0xe57090]\n"
                   "        jmp  cg_have\n"
                   "    cg_prt:\n"
                   "        mov  eax, edi\n        sub  eax, esi\n"
@@ -311,7 +318,12 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
                   "        test eax, eax\n        jz   corig")
         C_ROW = (f"cmp  dword ptr [esp], 0x{CALLER_LO:X}\n"
                  "        jb   cr_prt\n"
-                 "        mov  eax, [esi+edi*4+0xe57090]\n"
+                 "        mov  eax, ebp\n"
+                 f"        cmp  dword ptr [esp], 0x{MAP_CALLER_LO:X}\n"
+                 "        jae  cr_idx\n"
+                 "        mov  eax, edi\n"
+                 "    cr_idx:\n"
+                 "        mov  eax, [esi+eax*4+0xe57090]\n"
                  "        jmp  cr_have\n"
                  "    cr_prt:\n"
                  "        mov  eax, edi\n        sub  eax, esi\n"
@@ -434,8 +446,9 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         mov  ecx, [ecx]
         jmp  0x{CHILD_REAL_DRAW:X}
     c_have:
-        /* record base: village (caller>=0x445b50) = esi+[esi+edi*4+0xe57090]*0xe48c with
-           edi=villager index; portrait (caller<0x445b50) = edi (holds the record base). */
+        /* record index: village (caller>=0x445b50) = [esi+idx*4+0xe57090] with idx = edi
+           in the compositor, ebp in the Map renderer (caller>=0x4478e0); portrait
+           (caller<0x445b50) = (edi - esi)/0xe48c (edi holds the record base). */
         {C_GATE}
     cmask:
         pop  eax                              /* [esp]=ret, [+4..+1c]=atlas,x,y,headIdx,3,scaledRow,1 */

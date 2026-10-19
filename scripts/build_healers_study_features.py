@@ -36,12 +36,13 @@ ROWS = {
         "site": {"va": "0x44836F", "stock_bytes": "6A00578BCEE86717FFFF",
                  "routine": "the idle scheduler's general selection (0x448220), the target of its 400-food jump"},
         "call": "0x447CD0(index, 60)",
+        "stock_cont": "0x4483AB: 0x447CD0(index, 100)",
         "catch_up": (
             "During catch-up -- the time that passes while the game is closed, "
             "and Time Warp -- the normal game continues plant study only when it "
             "happens to give that villager healing work while no one is sick; "
             "with this patch a villager who was studying the cactus carries on "
-            "there too, at any food level, about three times in four each time "
+            "there too, at any food level, half the time (a 50% chance) each time "
             "catch-up chooses what they do (otherwise catch-up's own choice "
             "stands). **Only a villager you dropped on the medical cactus is "
             "studying it; for every healer to study the cactus whenever no one "
@@ -49,7 +50,7 @@ ROWS = {
         ),
         "catch_up_site": {"va": "0x42E817", "stock_bytes": "8B4F045056E89F8A0100",
                           "routine": "the catch-up worker's pick dispatch (0x42E790: mov ecx, [edi+4]; push eax; push esi; call 0x4472C0)"},
-        "catch_up_behavior": "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x42E790) dispatches the picked job, and the dispatcher's Healing case continues a state-9 villager's study (0x4478EF -> 0x443270) only when the pick is Healing and no one is sick. At the worker's pick dispatch (0x42E817, which Builders and Healers Work First's catch-up site also falls through to), a villager in state 9 gets 0x447CD0(index, 60) on the same 75% roll, at any food level; if it starts a job the worker's own finish (0x42E821, its queue processor) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged.",
+        "catch_up_behavior": "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x42E790) dispatches the picked job, and the dispatcher's Healing case continues a state-9 villager's study (0x4478EF -> 0x443270) only when the pick is Healing and no one is sick. At the worker's pick dispatch (0x42E817, which Builders and Healers Work First's catch-up site also falls through to), a villager in state 9 gets 0x447CD0(index, 60) on the same 50% roll, at any food level; if it starts a job the worker's own finish (0x42E821, its queue processor) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged.",
         "state_note": "Only villagers already studying a plant (state 9, set only when the player drops a villager on the medical cactus; Easier Healing Mastery does not set it) are affected; every other villager's selection is the stock one.",
     },
     "vv2": {
@@ -58,11 +59,12 @@ ROWS = {
         "site": {"va": "0x461A22", "stock_bytes": "6A00578BCEE83482FEFF",
                  "routine": "the idle scheduler's general selection (0x461850), the target of its 300-food jump"},
         "call": "0x460590(index, 40)",
+        "stock_cont": "0x461A5E: 0x460590(index, 100)",
         "catch_up": (
             "During catch-up -- the time that passes while the game is closed, "
             "and Time Warp -- the normal game never continues plant study at "
             "all; with this patch a villager who was studying a plant carries "
-            "on there too, at any food level, about three times in four each "
+            "on there too, at any food level, half the time (a 50% chance) each "
             "time catch-up chooses what they do (otherwise catch-up's own choice "
             "stands). **Only a villager studying a plant carries on (one you "
             "dropped on a plant, or a healer Easier Healing Mastery sent to "
@@ -71,7 +73,7 @@ ROWS = {
         ),
         "catch_up_site": {"va": "0x43B581", "stock_bytes": "5557E868460200",
                           "routine": "the catch-up worker's pick dispatch (0x43B4D0: push ebp; push edi; call 0x45FBF0)"},
-        "catch_up_behavior": "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x43B4D0) runs the task-state continuation 0x461580, whose plant-study case starts nothing, and then dispatches the picked job, whose Healing case does nothing when no one is sick (unless Easier Healing Mastery is selected). At the worker's pick dispatch (0x43B581, reached after 0x461580 as in the live scheduler), a villager in state 9 gets 0x460590(index, 40) on the same 75% roll, at any food level; if it starts a job the worker's own finish (0x43B588) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged.",
+        "catch_up_behavior": "Catch-up (time passed while the game was closed, and Time Warp) never runs the idle scheduler: the catch-up worker (0x43B4D0) runs the task-state continuation 0x461580, whose plant-study case starts nothing, and then dispatches the picked job, whose Healing case does nothing when no one is sick (unless Easier Healing Mastery is selected). At the worker's pick dispatch (0x43B581, reached after 0x461580 as in the live scheduler), a villager in state 9 gets 0x460590(index, 40) on the same 50% roll, at any food level; if it starts a job the worker's own finish (0x43B588) runs, otherwise the pick is dispatched exactly as the stock call would, with the stock return address, so Builders and Healers Work First still recognises it. The worker's research pick (job 2) never reaches this point and is unchanged.",
         "state_note": "Only villagers already studying a plant (state 9, set when the player drops a villager on a plant, or by Easier Healing Mastery when a healer has no one to treat) are affected; every other villager's selection is the stock one.",
     },
 }
@@ -85,10 +87,11 @@ def main() -> None:
             f"Healers are more likely to keep studying plants regardless of the food "
             f"supply. A villager who was studying {row['plant']} carries on studying "
             f"when the village has {t} food or more, exactly as the stock game already "
-            f"does below {t} -- about three times in four each time the game chooses "
-            f"what the healer does; the rest of the time the game chooses exactly as "
-            f"it always has. With Builders Fix Huts When Idle also selected, the two "
-            f"share that one roll per choice. {row['catch_up']} "
+            f"does below {t} -- half the time (a 50% chance) each time the game "
+            f"chooses what the healer does; the rest of the time the game chooses "
+            f"exactly as it always has. Below {t} food nothing changes. With Builders "
+            f"Fix Huts When Idle also selected, a choice that its roll leaves to the "
+            f"stock game is the stock game's for this patch too. {row['catch_up']} "
             f"{ORIGINS_BASE_SENTENCE} That base's companion loads "
             f"this patch's DLL; if the DLL cannot be loaded, the stock scheduler runs "
             f"unchanged."
@@ -105,11 +108,12 @@ def main() -> None:
             "dependencies": [f"{game}_enable_origins_exclusive_features"],
             "behavior_changes": [
                 f"At {t} food or more, a villager in plant-study state 9 gets the stock continue-last-activity call {row['call']} that the stock scheduler makes only below {t}; if it starts a job, the scheduler's own done epilogue runs.",
-                "About three times in four, not always: when Builders Fix Huts When Idle is loaded the companion asks its roll for the decision (VvfpFixHutsRoll, one 75% roll per run of the idle scheduler, shared by every patch the run reaches); without it, this site -- reached at most once per run -- draws a 75% roll of its own. Neither touches the game's random numbers. When the roll fails the stock selection runs.",
+                "A 50% chance per check, not always: without Builders Fix Huts When Idle this site -- reached at most once per run -- draws a 50% roll of its own; when that DLL is loaded the companion first asks its roll for the decision (VvfpFixHutsRoll, one 75% roll per run of the idle scheduler, shared by every patch the run reaches) and, only when that passes, draws a two-in-three roll of its own (3/4 x 2/3 = 1/2). Neither touches the game's random numbers. When the roll fails the continuation call is not made and the stock selection runs.",
             ],
             "explicit_non_changes": [
                 "This row changes no executable bytes: the Origins companion loads the DLL, which detours the scheduler at run time only after verifying the stock bytes; a different build of the game installs nothing.",
                 f"Below {t} food nothing changes: the stock code has already made the call.",
+                f"The stock selection the failed roll runs is left as it is: when its pick starts nothing and the villager's best skill is under 50 and the five skills total under 70, it makes the continuation call itself ({row['stock_cont']}), so a low-skill villager in state 9 may still study there, as in the stock game.",
                 row["state_note"],
                 "What the study does -- which plant, its animation, its Healing practice -- is the game's own.",
                 "Nothing is written to a villager record, the save or any file.",

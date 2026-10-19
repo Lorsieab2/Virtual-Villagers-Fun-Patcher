@@ -3,11 +3,12 @@ FOLDERS TO PUT ALL THE LOGS AND DATA FOR EACH SAVE IN ALL 5 GAMES"): src/vv_save
 every game's real per-save data files and every log folder, and the Python readers and writers built on
 it (Like and Dislike Words, copies made before repairs, the Backups slot attribution).
 
-Every save folder is built under pytest's tmp_path; no game is run and nothing outside it is touched."""
+Every save folder is built in a short temporary folder; no game is run and nothing outside it is touched."""
 from __future__ import annotations
 
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -82,10 +83,14 @@ def own(folder: Path, slot: int, kind_name: str) -> Path:
 
 
 @pytest.fixture
-def folder(tmp_path: Path) -> Path:
-    path = tmp_path / "f"
-    path.mkdir()
-    return path
+def folder():
+    # A short base folder, not pytest's tmp_path: on the CI runner that path alone is about 105
+    # characters, and with the longest kind ("Custom Island Event Deaths") the save's own folder no
+    # longer fits the games' 260-character limit, so `route` rightly keeps the older place (#596).
+    with tempfile.TemporaryDirectory(prefix="vvps") as base:
+        path = Path(base) / "f"
+        path.mkdir()
+        yield path
 
 
 # ---- data files ------------------------------------------------------------------------------------
