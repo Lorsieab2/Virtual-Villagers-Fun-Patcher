@@ -5544,8 +5544,9 @@ class App(tk.Tk):
             except errors as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The elders' totems were not checked. {exc}", parent=parent)
                 return lines
-            kept = {q.key for q in found.elder_questions
-                    if messagebox.askyesno("Repair Saves & Logs", q.question(), parent=parent)}
+            # One to one: a statue accepted for one elder is not asked about for any other.
+            kept = vv_vv2_totems.ask(found, lambda q: messagebox.askyesno("Repair Saves & Logs", q.question(),
+                                                                          parent=parent))
             go, left = vv_vv2_totems.plan_give(found, kept)
             if not go and not left:
                 return lines + [f"{vv_vv2_totems.LABEL_GIVE}: every Esteemed Elder has a totem."]

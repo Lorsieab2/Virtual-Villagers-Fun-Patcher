@@ -187,6 +187,82 @@ class TheSurvey(unittest.TestCase):
         go, _ = vt.plan_give(s)
         self.assertEqual([x.name for x in go], ["Kaki Jumapili"])
 
+    def test_a_fully_renamed_elder_is_asked_by_looks_never_duplicated_or_cleared(self):
+        # Codex, #596: the totem kept the old name; the elder's first name changed too.  A renamed
+        # villager is the same person, so the statue (same head, body, sex and family line) is asked.
+        e, t = elder_and_totem("Kaki", head=12, body=19, sex=2, lineage=5)
+        e["name"] = "Zola Jumapili"
+        v = Village(self, crowd(3) + [e, t])
+        before = v.save.read_bytes()
+        s = vt.survey(v.folder, 1)
+        self.assertEqual(s.missing, [])
+        self.assertEqual([(q.elder.name, q.totem.name) for q in s.elder_questions], [("Zola Jumapili", "Kaki")])
+        self.assertIn("the same head, body, sex and family line", s.elder_questions[0].question())
+        # Never offered as a villager turned into a totem: the mark is never taken off.
+        self.assertEqual(s.villagers, [])
+        with self.assertRaises(vt.TotemError):
+            vt.fix_totem_villagers(v.folder, 1, processes=NoGame(), now=NOW)
+        self.assertEqual(v.save.read_bytes(), before)
+        # A yes keeps it and gives nothing new; nothing is given without the player's answer.
+        self.assertEqual(vt.plan_give(s, kept={s.elder_questions[0].key}), ([], []))
+        with self.assertRaises(vt.TotemError):
+            vt.give_totems(v.folder, 1, kept={s.elder_questions[0].key}, processes=NoGame(), now=NOW)
+        self.assertEqual(v.save.read_bytes(), before)
+
+    def test_another_family_line_is_not_a_candidate(self):
+        e, t = elder_and_totem("Kaki", head=12, body=19, sex=2, lineage=5)
+        e.update(name="Zola Jumapili", lineage=6)
+        s = vt.survey(Village(self, crowd(3) + [e, t]).folder, 1)
+        self.assertEqual([x.name for x in s.missing], ["Zola Jumapili"])
+        self.assertEqual([x.totem.name for x in s.asked_villagers], ["Kaki"])
+
+    def test_a_recorded_rename_is_certain(self):
+        e, t = elder_and_totem("Kaki", head=12, body=19, sex=2, lineage=5)
+        e["name"] = "Zola Jumapili"
+        v = Village(self, crowd(3) + [e, t])
+        path = v.folder / LOGS / "Births and Conceptions" / "Virtual Villagers 2 Births and Conceptions Log 1.txt"
+        path.parent.mkdir(parents=True)
+        path.write_bytes("Village: Tribe (Save 1)\nName changed\n  Name: Zola Jumapili\n  Old name: Kaki\n"
+                         "  Age: 900\n  Head: 12\n  Body: 19\n\n".replace("\n", "\r\n").encode("latin-1"))
+        s = vt.survey(v.folder, 1)
+        self.assertEqual((s.missing, s.elder_questions, s.villagers), ([], [], []))
+
+    def test_one_statue_is_never_accepted_for_two_elders(self):
+        # Codex, #596: two elders of the same name and family, one statue matching both exactly.
+        e1, t = elder_and_totem("Kaki Jumapili", head=3, body=4)
+        e2 = dict(e1, head=8, body=9)
+        v = Village(self, crowd(3) + [e1, e2, t])
+        s = vt.survey(v.folder, 1)
+        self.assertEqual([q.elder.head for q in s.elder_questions], [3, 8])
+        self.assertEqual({q.totem.record for q in s.elder_questions}, {5})
+        self.assertIn("could also be Kaki Jumapili's", s.elder_questions[0].question())
+        asked = []
+        kept = vt.ask(s, lambda q: asked.append(q.elder.head) or True)
+        self.assertEqual(asked, [3])                 # accepted for the first: never asked for the second
+        go, left = vt.plan_give(s, kept)
+        self.assertEqual(([x.head for x in go], left), ([8], []))
+        # Even with a yes for both, the statue stands for one elder only.
+        both = {q.key for q in s.elder_questions}
+        go, _ = vt.plan_give(s, both)
+        self.assertEqual([x.head for x in go], [8])
+        result = vt.give_totems(v.folder, 1, kept=both, processes=NoGame(), now=NOW, rng=random.Random(1))
+        self.assertEqual([g.elder.head for g in result.given], [8])
+        # A no for the first asks the second.
+        asked.clear()
+        vt.ask(s, lambda q: asked.append(q.elder.head) or q.elder.head == 8)
+        self.assertEqual(asked, [3, 8])
+
+    def test_a_first_name_statue_two_elders_could_own_is_asked_once(self):
+        e1 = person("Kaki Jumapili", elder=True, head=3, body=4)
+        e2 = person("Kaki Wambui", elder=True, head=5, body=6)
+        t = person("Kaki", totem=True, health=0, head=1, body=1)
+        s = vt.survey(Village(self, crowd(3) + [e1, e2, t]).folder, 1)
+        self.assertEqual([q.elder.name for q in s.elder_questions], ["Kaki Jumapili", "Kaki Wambui"])
+        asked = []
+        kept = vt.ask(s, lambda q: asked.append(q.elder.name) or True)
+        self.assertEqual(asked, ["Kaki Jumapili"])
+        self.assertEqual([x.name for x in vt.plan_give(s, kept)[0]], ["Kaki Wambui"])
+
     def test_babies_owed_take_records_first(self):
         mothers = [person(f"Mother{chr(65 + k)}", sex=2, carrying=500, litter=lit) for k, lit in enumerate((0, 2, 3))]
         e = person("Azizi Kalama", elder=True)

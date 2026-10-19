@@ -40,9 +40,14 @@ WHAT IS CERTAIN AND WHAT IS ASKED:
     yes clears +0x558; the save holds health 0 for it, so it is that villager's unburied body.
   * An Esteemed Elder (a living record with +0x7FC set, or a Death record "Special villager: Esteemed
     Elder") is matched to a totem by what 0x44D190 copies: the name, sex, lineage and both parents'
-    names (a dead elder: the name, sex, head and body the Death record keeps).  No totem even of the
-    same first name: certainly missing.  Only a near match (same first name, something else differs,
-    for instance after a rename): asked.
+    names (a dead elder: the name, sex, head and body the Death record keeps), or by a rename the
+    records hold (a "Name changed" record or an answered rename, with the same looks and sex).  A
+    renamed villager is the same person, so a near match is asked: the same first name, or the same
+    head, body, sex and (a living elder) family line under another name.  No totem matching even so:
+    certainly missing.  A totem that is or may be an elder's is never asked about as a villager.
+  * The answers are one to one (`ask`, `allocate`): a statue accepted for one elder is not asked about
+    for any other, and the other elders it could have been are given a new totem.  A statue is never
+    removed or duplicated on a guess.
   * A new totem is written as 0x44D190 writes one, from the elder's own saved entry (a dead elder:
     from the Death record's name, sex, head, body and age at death; skills, likes and parents unknown,
     left empty).  +0x550 is random (1..123, the game's range), so its colour (frame +0x550 mod 8) is
@@ -184,7 +189,8 @@ class Elder:
 
     @property
     def key(self) -> str:
-        return f"{'L' if self.living else 'D'}|{self.name}|{self.sex}|{self.head}|{self.body}|{self.record}"
+        return (f"{'L' if self.living else 'D'}|{self.name}|{self.sex}|{self.head}|{self.body}|{self.record}"
+                f"|{self.age}")
 
     def label(self) -> str:
         what = "a living Esteemed Elder" if self.living else "an Esteemed Elder who has died"
@@ -193,19 +199,27 @@ class Elder:
 
 @dataclass
 class ElderQuestion:
+    """One elder and one statue that may be theirs.  Answers are one to one (`allocate`): a statue is
+    accepted for one elder at most, and an elder keeps one statue at most."""
     elder: Elder
-    totems: list[Totem]
+    totem: Totem
+    why: str
+    others: list[Elder] = field(default_factory=list)   # the other elders this statue could belong to
 
     @property
     def key(self) -> str:
-        return self.elder.key
+        return f"{self.elder.key}#{self.totem.record}"
 
     def question(self) -> str:
-        shown = "\n".join(f"  - {t.label()}" for t in self.totems)
-        return (f"{self.elder.label()} has no totem with exactly their name, sex and family, but this "
-                f"totem could be theirs (a rename, for instance):\n{shown}\n\n"
-                f"Is one of these {self.elder.name}'s totem?\n\nYes: they keep it and get no new one.\n"
-                f"No: they are given a new totem.")
+        also = ""
+        if self.others:
+            also = (f"\n\nThis statue could also be {', '.join(o.name for o in self.others)}'s. A totem is one "
+                    f"elder's only: if it is {self.elder.name}'s, it is not asked about for anyone else.")
+        return (f"{self.elder.label()} has no totem that is certainly theirs, but this totem could be "
+                f"theirs ({self.why}):\n  - {self.totem.label()}{also}\n\n"
+                f"Is this {self.elder.name}'s totem?\n\nYes: it is theirs alone; they keep it and get no new one.\n"
+                f"No: it is not theirs. Any other totem that could be theirs is asked about next; with none, "
+                f"they are given a new totem.")
 
 
 @dataclass
@@ -312,12 +326,108 @@ def _exact(e: Elder, t: Totem) -> bool:
     return (t.name, t.head, t.body) == (e.name, e.head, e.body) and (not e.sex or t.sex == e.sex)
 
 
-def _near(e: Elder, t: Totem) -> bool:
-    return _first(t.name) == _first(e.name) and (not e.sex or t.sex == e.sex)
+def _renames(folder: Path, slot: int) -> set[tuple[str, str, int, int]]:
+    """Every rename the records hold for this slot's village, as (old name, new name, head, body): the
+    "Name changed" records of the Births and Conceptions log, and the renames the player answered in
+    Check / Repair Saves & Logs ("Keep as is: NEW is right (I renamed them)") -- the same two sources the
+    Family Tree joins a renamed villager by (vv_genealogy._logged_renames, _answered_renames).  Read only;
+    a log that cannot be read adds nothing (the elder is then asked, never guessed)."""
+    import vv_log_additions as additions
+    out: set[tuple[str, str, int, int]] = set()
+    try:
+        checker = tools.load_checker()
+        villages = additions.current_villages(folder, GAME, slot)
+        for path in checker.log_files(folder):
+            if "Births and Conceptions" not in path.name:
+                continue
+            for b in additions.blocks(path):
+                if b.heading != "Name changed" or not b.of(slot, GAME, villages):
+                    continue
+                new, head, body = b.identity
+                old = b.value("Old name")
+                if new and old and old != new and head is not None and body is not None:
+                    out.add((old, new, head, body))
+    except (OSError, ValueError):
+        pass
+    try:
+        import vv_reconcile as reconcile
+        answers = reconcile.answered(folder, GAME, slot, additions.current_villages(folder, GAME, slot))
+    except (OSError, ValueError):
+        answers = {}
+    for key, answer in answers.items():
+        parts = key.split("|")
+        if len(parts) != 5 or parts[0] != "rename":
+            continue
+        _topic, old, head, body, new = parts
+        if answer != f"{reconcile.KEEP}: {new} is right (I renamed them)" or not old or not new or old == new:
+            continue
+        if head.lstrip("-").isdigit() and body.lstrip("-").isdigit():
+            out.add((old, new, int(head), int(body)))
+    return out
+
+
+def _renamed(e: Elder, t: Totem, renames: set[tuple[str, str, int, int]]) -> bool:
+    """The records say the statue's name became the elder's (a chain of renames, with the looks the
+    statue copied and the elder still has, and the same sex)."""
+    if (t.head, t.body) != (e.head, e.body) or (e.sex and t.sex != e.sex) or t.name == e.name:
+        return False
+    seen, todo = {t.name}, [t.name]
+    while todo:
+        name = todo.pop()
+        for old, new, head, body in renames:
+            if old == name and (head, body) == (t.head, t.body) and new not in seen:
+                if new == e.name:
+                    return True
+                seen.add(new)
+                todo.append(new)
+    return False
+
+
+def _maybe(e: Elder, t: Totem) -> str | None:
+    """Why the statue could be the elder's although nothing certain says so; None when nothing does.
+    The first name (a last name given or changed), or what 0x44D190 copies that a rename leaves alone:
+    the head, the body, the sex and (a living elder) the family line."""
+    if e.sex and t.sex != e.sex:
+        return None
+    if _first(t.name) == _first(e.name):
+        return "the same first name"
+    if (t.head, t.body) == (e.head, e.body) and t.sex in (MALE, FEMALE) and (not e.living or t.lineage == e.lineage):
+        return ("the same head, body, sex and family line, under another name" if e.living
+                else "the same head, body and sex, under another name")
+    return None
+
+
+def allocate(s: "Survey", kept: set[str] | frozenset) -> set[str]:
+    """The elders (their keys) who keep a statue, from the answered questions' keys `kept`: one to one,
+    in the survey's order -- a statue accepted for one elder is no one else's, and an elder keeps one."""
+    elders: set[str] = set()
+    taken: set[int] = set()
+    for q in s.elder_questions:
+        if q.key in kept and q.elder.key not in elders and q.totem.record not in taken:
+            elders.add(q.elder.key)
+            taken.add(q.totem.record)
+    return elders
+
+
+def ask(s: "Survey", answer) -> set[str]:
+    """Ask the player each question in turn (`answer(question) -> bool`), one to one: once a statue is
+    accepted for an elder, it is not asked about for any other elder, and that elder is asked no more.
+    Returns the accepted questions' keys (for plan_give / give_totems)."""
+    kept: set[str] = set()
+    elders: set[str] = set()
+    taken: set[int] = set()
+    for q in s.elder_questions:
+        if q.elder.key in elders or q.totem.record in taken:
+            continue
+        if answer(q):
+            kept.add(q.key)
+            elders.add(q.elder.key)
+            taken.add(q.totem.record)
+    return kept
 
 
 def survey_bytes(data: bytes, dead: list[Elder] | None = None, folder: Path | None = None,
-                 slot: int | None = None) -> Survey:
+                 slot: int | None = None, renames: set[tuple[str, str, int, int]] | None = None) -> Survey:
     offsets = _offsets(data)
     s = Survey(entries=len(offsets), owed=_owed(data, offsets))
     living: list[Elder] = []
@@ -342,8 +452,10 @@ def survey_bytes(data: bytes, dead: list[Elder] | None = None, folder: Path | No
                  if data[at + IS_TOTEM] == 0 and _i32(data, at + HEALTH) > 0}
         dead = _dead_elders(folder, slot, alive) if folder is not None else []
     s.elders = living + dead
-    # Each elder against the statues.
-    exact = {id(e): [t for t in statues if _exact(e, t)] for e in s.elders}
+    if renames is None:
+        renames = _renames(folder, slot) if folder is not None else set()
+    # Each elder against the statues: certain by the copied fields, or by a recorded rename.
+    exact = {id(e): [t for t in statues if _exact(e, t) or _renamed(e, t, renames)] for e in s.elders}
     claimed: dict[int, list[Elder]] = {}
     for e in s.elders:
         for t in exact[id(e)]:
@@ -352,21 +464,31 @@ def survey_bytes(data: bytes, dead: list[Elder] | None = None, folder: Path | No
         mine = exact[id(e)]
         if mine:
             # A statue two elders share exactly (the same name, sex and family): enough statues for
-            # all of them, or each is asked.
+            # all of them, or each pair is asked (one to one: `ask` / `allocate`).
             sharers = {id(x) for t in mine for x in claimed[id(t)]}
             if len(sharers) > 1 and len({id(t) for x in s.elders if id(x) in sharers for t in exact[id(x)]}) < len(sharers):
-                s.elder_questions.append(ElderQuestion(e, mine))
+                s.elder_questions += [ElderQuestion(e, t, "the same name, sex and family as another elder's")
+                                      for t in mine]
             continue
-        near = [t for t in statues if _near(e, t) and not any(x is not e for x in claimed.get(id(t), []))]
-        if near:
-            s.elder_questions.append(ElderQuestion(e, near))
-        else:
+        found = False
+        for t in statues:
+            # A statue certainly another elder's is never offered.
+            why = None if any(x is not e for x in claimed.get(id(t), [])) else _maybe(e, t)
+            if why:
+                s.elder_questions.append(ElderQuestion(e, t, why))
+                found = True
+        if not found:
             s.missing.append(e)
-    # A statue no elder matches, even by first name: asked.
+    # Each question names the other elders the same statue could belong to.
+    for q in s.elder_questions:
+        q.others = [x.elder for x in s.elder_questions if x.totem is q.totem and x.elder is not q.elder]
+    # A statue that is (or may be) an elder's is never offered as a villager; one no elder matches, by
+    # name, rename or looks, is asked.
+    spoken = {id(t) for ts in exact.values() for t in ts} | {id(q.totem) for q in s.elder_questions}
     for t in statues:
-        if not any(_exact(e, t) or _near(e, t) for e in s.elders):
+        if id(t) not in spoken:
             s.villagers.append(TotemVillager(t, False, "no Esteemed Elder in the save or the Deaths log has "
-                                                       "this name"))
+                                                       "this name or these looks"))
     # Two statues of one elder: said, never changed.
     for e in s.elders:
         if len(exact[id(e)]) > 1:
@@ -505,10 +627,14 @@ class GiveResult:
 
 
 def plan_give(s: Survey, kept: set[str] | frozenset = frozenset()) -> tuple[list[Elder], list[tuple[Elder, str]]]:
-    """The elders to give a totem (certainly missing, and every asked one the player said has none --
-    `kept` are the keys of those the player said already have one), and the ones that cannot be given
-    one with the reason."""
-    wanted = list(s.missing) + [q.elder for q in s.elder_questions if q.key not in kept]
+    """The elders to give a totem (certainly missing, and every asked one not given a statue -- `kept`
+    are the keys of the questions the player answered yes, taken one to one by `allocate`, so one statue
+    never stands for two elders), and the ones that cannot be given one with the reason."""
+    keeping = allocate(s, kept)
+    wanted = list(s.missing)
+    for q in s.elder_questions:
+        if q.elder.key not in keeping and all(q.elder is not e for e in wanted):
+            wanted.append(q.elder)
     room = s.free
     statues = len(s.totems)                 # 0x4259B0 counts every record marked as a totem
     go, left = [], []
