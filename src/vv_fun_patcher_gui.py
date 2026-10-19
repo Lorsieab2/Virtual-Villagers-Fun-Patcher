@@ -34,6 +34,7 @@ import vv_reconcile_view
 import vv_save_backup
 import vv_startup_questions
 import vv_tribe_rename
+import vv_vv2_totems
 import vv_genealogy
 import vv_genealogy_window
 from vv_tree_editor_tools import scrollable_frame
@@ -3822,6 +3823,9 @@ class App(tk.Tk):
         # as they will be: arrivals get their own new last name automatically, the rest are asked about.
         named_lines = self._missing_last_names_at_repair(parent, folder, number, info)
         skills: dict = {"found": [], "note": None, "reset": False}
+        # The Lost Children's totems (src/vv_vv2_totems.py; the owner, 2026-10-19): the two rows' survey
+        # and what the player ticked.
+        totems: dict = {"survey": None, "note": None, "give": False, "fix": False}
         # A tribe started over with the same name (src/vv_history_revision.py; the owner, v1.35.73): its
         # villagers proven gone, and the rest kept and listed.  Never ticked until the player ticks it and
         # confirms the list.
@@ -3886,6 +3890,13 @@ class App(tk.Tk):
                 skills["found"] = vv_corrupt_skills.survey(folder, number, info.slot)
             except (vv_last_names.LastNamesError, ValueError, OSError, struct.error) as exc:
                 skills["note"] = f"Skills were not checked: the save could not be read ({exc})."
+            # The Lost Children's Esteemed Elders' totems (src/vv_vv2_totems.py), for the checklist's rows.
+            if number == vv_vv2_totems.GAME:
+                try:
+                    totems["survey"] = vv_vv2_totems.survey(folder, info.slot)
+                except (vv_vv2_totems.TotemError, vv_last_names.LastNamesError, vv_log_tools.LogToolError,
+                        ValueError, OSError, struct.error) as exc:
+                    totems["note"] = f"Totems were not checked: the save could not be read ({exc})."
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
                     cuts, unpaused, speed, misnumbered, graves, lost)
 
@@ -3901,7 +3912,8 @@ class App(tk.Tk):
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
-                                        unpaused, speed, misnumbered, graves, skills=skills, history=history)
+                                        unpaused, speed, misnumbered, graves, skills=skills, history=history,
+                                        totems=totems)
         if picked is None:
             return
         rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked
@@ -3952,6 +3964,10 @@ class App(tk.Tk):
         # villager as the save names them now.
         if skills["reset"]:
             grave_lines += self._reset_corrupt_skills(parent, folder, number, info)
+        # The Lost Children's totems (src/vv_vv2_totems.py), before any rename: the villagers turned into
+        # totems first, so a reverted record is never counted as an elder's totem.
+        if totems["fix"] or totems["give"]:
+            grave_lines += self._vv2_totems(parent, folder, number, info, totems)
         # The cut names first of the renames, so last names and numbering never work from a cut name
         # (the checklist leaves those off while the cut names are restored).  After the lines above
         # are added: a renamed line changes no line count, and the like / dislike words are put right
@@ -4288,7 +4304,7 @@ class App(tk.Tk):
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
                           speed: tuple | None = None, misnumbered: dict | None = None, graves=None,
-                          skills: dict | None = None, history: dict | None = None):
+                          skills: dict | None = None, history: dict | None = None, totems: dict | None = None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -4420,6 +4436,45 @@ class App(tk.Tk):
                      + ([skills["note"]] if skills.get("note") else [])):
             ttk.Label(frame, text=line, wraplength=600, justify="left",
                       foreground="#555555").pack(anchor="w", padx=(20, 0))
+        # The Lost Children's Esteemed Elders' totems (src/vv_vv2_totems.py; the owner, 2026-10-19): each
+        # row ticked only when the save has something for it; what is unsure is asked after Repair.
+        totems = totems if totems is not None else {"survey": None, "note": None, "give": False, "fix": False}
+        totem_survey = totems.get("survey")
+        give_var = tk.BooleanVar(value=False)
+        fix_var = tk.BooleanVar(value=False)
+        if totem_survey is not None:
+            wanting = len(totem_survey.missing) + len(totem_survey.elder_questions)
+            give_var.set(bool(wanting))
+            give_tick = ttk.Checkbutton(
+                frame, variable=give_var,
+                text=f"{vv_vv2_totems.LABEL_GIVE}: {len(totem_survey.missing)} Esteemed Elder(s) without a totem"
+                     + (f", {len(totem_survey.elder_questions)} to ask about" if totem_survey.elder_questions else "")
+                     + f" ({totem_survey.free} free villager record(s); each new totem takes one, of a random colour)")
+            give_tick.pack(anchor="w", pady=(4, 0))
+            if not wanting:
+                give_tick.state(["disabled"])
+            for e in totem_survey.missing[:8]:
+                ttk.Label(frame, text=e.label(), wraplength=600, justify="left",
+                          foreground="#555555").pack(anchor="w", padx=(20, 0))
+            if wanting and totem_survey.free < wanting:
+                ttk.Label(frame, text=f"The village has room for {totem_survey.free} of them: no villager is ever "
+                                      "deleted or overwritten; the rest are listed, with the reason.",
+                          wraplength=600, justify="left", foreground="#8a4b00").pack(anchor="w", padx=(20, 0))
+            fix_var.set(bool(totem_survey.villagers))
+            fix_tick = ttk.Checkbutton(
+                frame, variable=fix_var,
+                text=f"{vv_vv2_totems.LABEL_FIX}: {len(totem_survey.certain_villagers)} found"
+                     + (f", {len(totem_survey.asked_villagers)} to ask about" if totem_survey.asked_villagers else "")
+                     + " (only the totem mark is taken off)")
+            fix_tick.pack(anchor="w", pady=(4, 0))
+            if not totem_survey.villagers:
+                fix_tick.state(["disabled"])
+            for v in totem_survey.certain_villagers[:8]:
+                ttk.Label(frame, text=v.describe(), wraplength=600, justify="left",
+                          foreground="#555555").pack(anchor="w", padx=(20, 0))
+        if totems.get("note"):
+            ttk.Label(frame, text=totems["note"], wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
         # Remove a restarted tribe's villagers from the history (src/vv_history_revision.py; the owner,
         # v1.35.73): NEVER ticked by default, and Repair asks to confirm the exact list first.
         history = history if history is not None else {"plan": None, "note": None, "confirmed": False}
@@ -4535,6 +4590,8 @@ class App(tk.Tk):
                 history["confirmed"] = True
             restore = bool(cuts) and cuts_var.get()
             skills["reset"] = bool(skills["found"]) and skills_var.get()
+            totems["give"] = totem_survey is not None and give_var.get()
+            totems["fix"] = totem_survey is not None and fix_var.get()
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
                                  names if names_var.get() and (names["chosen"] or names.get("rules_changed")
                                                                or names.get("arrivals_changed"))
@@ -5445,6 +5502,75 @@ class App(tk.Tk):
             return []
         return [f"Corrupted skill values reset: {len(result.reset)} (each is listed in the Repairs Made log). "
                 f"Backup: {result.backup.backup_folder}"]
+
+    def _vv2_totems(self, parent, folder: Path, number: int, info, totems: dict) -> list[str]:
+        """Repair Saves & Logs' two The Lost Children totem rows (src/vv_vv2_totems.py), ticked in the
+        checklist: the villagers turned into totems first, then the elders' totems.  The certain ones are
+        listed and done when the player confirms; every unsure one is asked on its own, never guessed.
+        Returns the lines for Repair's summary."""
+        lines: list[str] = []
+        errors = (vv_vv2_totems.TotemError, vv_last_names.LastNamesError, vv_log_tools.LogToolError,
+                  vv_save_backup.BackupError, OSError)
+        if totems.get("fix"):
+            try:
+                found = vv_vv2_totems.survey(folder, info.slot)
+            except errors as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The totem villagers were not checked. {exc}", parent=parent)
+                found = None
+            if found is not None and found.villagers:
+                confirmed = {v.key for v in found.asked_villagers
+                             if messagebox.askyesno("Repair Saves & Logs", v.question(), parent=parent)}
+                chosen = found.certain_villagers + [v for v in found.asked_villagers if v.key in confirmed]
+                if chosen and messagebox.askyesno(
+                        "Repair Saves & Logs",
+                        f"{vv_vv2_totems.LABEL_FIX}:\n\n" + "\n".join(f"• {v.describe()}" for v in chosen[:20])
+                        + (f"\n... and {len(chosen) - 20} more" if len(chosen) > 20 else "")
+                        + "\n\nTake the totem mark off them? Only that mark changes; every other detail stays as "
+                          "the save holds it. The save folder is backed up first.", parent=parent):
+                    try:
+                        fixed = self._run_with_wait(
+                            "Turning totems back into villagers…\n\nThe save folder is backed up first.",
+                            lambda: vv_vv2_totems.fix_totem_villagers(folder, info.slot, confirmed))
+                        lines.append(f"{vv_vv2_totems.LABEL_FIX}: {len(fixed.fixed)} villager(s) reverted (each is "
+                                     f"listed in the Repairs Made log). Backup: {fixed.backup.backup_folder}")
+                    except errors as exc:
+                        messagebox.showerror("Repair Saves & Logs", f"No totem villager was reverted. {exc}",
+                                             parent=parent)
+                else:
+                    lines.append(f"{vv_vv2_totems.LABEL_FIX}: left as they were.")
+        if totems.get("give"):
+            try:
+                found = vv_vv2_totems.survey(folder, info.slot)
+            except errors as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The elders' totems were not checked. {exc}", parent=parent)
+                return lines
+            kept = {q.key for q in found.elder_questions
+                    if messagebox.askyesno("Repair Saves & Logs", q.question(), parent=parent)}
+            go, left = vv_vv2_totems.plan_give(found, kept)
+            if not go and not left:
+                return lines + [f"{vv_vv2_totems.LABEL_GIVE}: every Esteemed Elder has a totem."]
+            text = f"{vv_vv2_totems.LABEL_GIVE}:\n\n"
+            if go:
+                text += "Given a new totem of a random colour, beside the campfire:\n" + "\n".join(
+                    f"• {e.label()}" for e in go[:20]) + (f"\n... and {len(go) - 20} more" if len(go) > 20 else "")
+            if left:
+                text += ("\n\n" if go else "") + "Cannot be given one now:\n" + "\n".join(
+                    f"• {e.label()}: {why}" for e, why in left[:20])
+            text += ("\n\nGo ahead? The save folder is backed up first; the Repairs Made log lists each one."
+                     if go else "\n\nNothing can be changed now. Write this in the Repairs Made log?")
+            if not messagebox.askyesno("Repair Saves & Logs", text, parent=parent):
+                return lines + [f"{vv_vv2_totems.LABEL_GIVE}: left as it was."]
+            try:
+                given = self._run_with_wait(
+                    "Giving Esteemed Elders their totems…\n\nThe save folder is backed up first.",
+                    lambda: vv_vv2_totems.give_totems(folder, info.slot, kept))
+            except errors as exc:
+                messagebox.showerror("Repair Saves & Logs", f"No totem was given. {exc}", parent=parent)
+                return lines
+            lines.append(f"{vv_vv2_totems.LABEL_GIVE}: {len(given.given)} totem(s) given, {len(given.not_given)} "
+                         "elder(s) could not be given one (each is listed in the Repairs Made log)."
+                         + (f" Backup: {given.backup.backup_folder}" if given.backup is not None else ""))
+        return lines
 
     def _restore_lost_titles(self, parent, folder: Path, number: int, info, lost) -> list[str]:
         """Repair Saves & Logs: the custom titles (and former-Heathen marks) a change of likes or

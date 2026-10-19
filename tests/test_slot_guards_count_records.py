@@ -366,6 +366,43 @@ class VV2Guards(unittest.TestCase):
                 self.assertEqual(m.reg(UC_X86_REG_EAX) & 0xFF, expect, (occupied, room))
                 self.assertEqual(m.reg(UC_X86_REG_ECX), ARRAY)
 
+    TOTEM_MAKER = 0x44D190         # the elder-and-totem routine: thiscall (array), the elder's index
+
+    def elder_pass(self, mode, occupied, totems=0):
+        """The Esteemed Elder pass 0x44D4C0, run for real over a village whose record 0 has just
+        mastered three skills: it reaches the totem maker (with the stock return address and the
+        elder's index) or it returns having made nobody an elder."""
+        m = Machine("vv2", mode, occupied, corpses=20)
+        elder = ARRAY                                   # record 0: living, occupied first
+        m.uc.mem_write(elder + 0x7E4, struct.pack("<5i", 88, 95, 100, 3, 0))
+        # `totems` of the corpses are statues (+0x558): the game makes no elder with 50 standing.
+        statues = [i for i in range(1, 256, 2)][:totems]
+        for i in statues:
+            rec = ARRAY + i * 0xE48C
+            m.uc.mem_write(rec + 0x30, b"\x01")
+            m.uc.mem_write(rec + 0x558, b"\x01")
+        where = m.run(0x44D4C0, {self.TOTEM_MAKER: "made"}, {UC_X86_REG_ECX: ARRAY}, stack=(SENTINEL,))
+        if where == "made":
+            self.assertEqual(m.dword(m.reg(UC_X86_REG_ESP)), 0x44D559, "the stock return address")
+            self.assertEqual(m.dword(m.reg(UC_X86_REG_ESP) + 4), 0, "the elder's index")
+            self.assertEqual(m.reg(UC_X86_REG_ECX), ARRAY)
+        else:
+            self.assertEqual(m.reg(UC_X86_REG_ESP), m.esp0 + 4, "stack balanced")
+            self.assertEqual(m.uc.mem_read(elder + 0x7FC, 1), b"\x00", "not made an elder")
+            self.assertEqual(m.dword(WORLD + 0x2E514), 0, "Village Elders not counted")
+        return where
+
+    def test_an_elder_and_the_totem_wait_for_a_free_record(self):
+        # With every record in use the totem maker's scan (bounded at record 255 by the safety patch at
+        # 0x473D60) handed the totem record 255 -- a villager.  The pass now waits for a free record.
+        for mode in self.each_mode():
+            self.assertEqual(self.elder_pass(mode, 200), "made")
+            self.assertEqual(self.elder_pass(mode, 255), "made")
+            self.assertEqual(self.elder_pass(mode, 256), "returned")
+            # the game's own limit is kept: no elder with 50 totems standing, one with 49
+            self.assertEqual(self.elder_pass(mode, 200, totems=49), "made")
+            self.assertEqual(self.elder_pass(mode, 200, totems=50), "returned")
+
 
 @needs_stock
 class BabiesStillOwedTakeRecords(unittest.TestCase):

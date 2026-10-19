@@ -241,6 +241,8 @@ V2_COUNT = 0x473C40           # the record count (new): ecx = world, preserved
 V2_LITTER = 0x473C70
 V2_EVENT = 0x473D00
 V2_DELIVERY = 0x473F20
+V2_TOTEM = 0x473F53           # the elder-and-totem pass's totem count, or 256 with no record free (new)
+V2_TOTEM_COUNT = 0x4259B0     # the game's totem count: thiscall (world), eax
 V2_ROOM_AND_RECORD = 0x473F64
 V2_STRANGER = 0x473F84
 V2_OWED = 0x473F9C            # the occupied records plus every baby still owed (new; a free run every render leaves, 0x473F99-0x473FED)
@@ -342,6 +344,20 @@ VV2_CODE = {
         add esp, 0x2C
         jmp 0x43BF8C
     """,
+    # The Esteemed Elder pass 0x44D4C0 makes an elder and the elder's totem (0x44D190, a NEW record:
+    # the first one not in use) when fewer than 50 totems stand: `call 0x4259B0; cmp eax, 0x32; jge
+    # next villager` at 0x44D547.  With every record in use the stock scan walked off the table and the
+    # safety patch's bound (0x473D60) hands the totem record 255 -- a villager, overwritten with the
+    # elder's statue -- while the elder is made and counted.  Here, with all 256 records in use, the
+    # count answers 256 (eax = 0x100 >= 50): the villager is not made an elder yet, nothing is spent,
+    # and the next pass (every tick, and the catch-up) makes the elder and the totem as soon as a record
+    # is free.  ecx = the world, as 0x4259B0 and V2_COUNT both take it.
+    V2_TOTEM: f"""
+        call {V2_COUNT:#x}
+        test ah, ah
+        je {V2_TOTEM_COUNT:#x}
+        ret
+    """,
     V2_ROOM_AND_RECORD: f"""
         push ecx
         call {V2_ROOM:#x}
@@ -377,9 +393,12 @@ VV2_CAVE_PURPOSE = {
     V2_OWED: (68, "the records taken or owed: the occupied records (corpses included) plus, for every "
                   "living villager carrying, her litter (one baby at least) -- the newcomers' and the "
                   "litters' own check (Codex, #543)"),
-    V2_DELIVERY: (68, "a delivery only when its child and the litter's extra babies (+0x544) fit in the "
+    V2_DELIVERY: (51, "a delivery only when its child and the litter's extra babies (+0x544) fit in the "
                       "records, else it waits with the pregnancy kept (the twin and triplet copies then "
                       "always find their record)"),
+    V2_TOTEM: (17, "an Esteemed Elder and the elder's totem only with a record free for the totem: the "
+                   "totem count, or 256 when every record is in use, so the elder pass waits for a free "
+                   "record instead of handing the totem record 255 (a villager)"),
     V2_ROOM_AND_RECORD: (32, "the game's room predicate, and a free record (The Silver Mirror's copy, The "
                              "Savage Child's newcomer)"),
     V2_STRANGER: (24, "The Strange Request is offered only with a free record for its stranger (stock: "
@@ -402,6 +421,9 @@ VV2_SITES = [
      "(0x4209A4; its answer pays 500 food first)"),
     (0x1F6D4, "94F64100", None,
      "The Strange Request (event 3), always offered in the stock game, through the free-record check"),
+    (0x4D547, "E86484FDFF", f"call {V2_TOTEM:#x}",
+     "an Esteemed Elder (0x44D4C0) is made, with the totem 0x44D190 puts in a NEW record, only while a "
+     "record is free: with all 256 in use the pass waits, and no villager is ever overwritten by a totem"),
 ]
 VV2_TABLE_ENTRY = {0x1F6D4: V2_STRANGER}
 
@@ -449,7 +471,7 @@ OWNED = {
     "vv1": {0x2EF5F, 0x2EFD0, 0x3BC4E, 0x3BC8C, 0x56580, 0x565B0, 0x565E0, 0x56680, 0x56840,
             0x2427B, 0x2F020, 0x2F06C, 0x19700, 0x56838, 0x5684B, 0x5684F, 0x56860},
     "vv2": {0x3BE8E, 0x73F20, 0x4BA82, 0x73C40, 0x4BAB6, 0x73C70, 0x73D00, 0x3BEDE, 0x3BF2A, 0x217DF,
-            0x73F44, 0x73F64, 0x1F604, 0x1F6D4, 0x73F84, 0x73F9C},
+            0x73F44, 0x73F64, 0x1F604, 0x1F6D4, 0x73F84, 0x73F9C, 0x4D547, 0x73F53},
 }
 
 
