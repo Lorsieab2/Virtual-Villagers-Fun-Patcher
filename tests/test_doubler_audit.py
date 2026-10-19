@@ -333,11 +333,16 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Re-pinned when the Details no-change helper (.shr raw 0x9A380) began
         # refusing a dead villager or an Esteemed Elder statue -- that one
         # helper only, nothing in any doubler region.
+        # Re-pinned when the mask child stub learned that the Map renderer
+        # (0x4478E0) keeps its villager index in EBP, not EDI (the Map-click
+        # crash): the stub grew 27 bytes, so the slot (0x3160), compositor
+        # (0x45B50) and init (0x4C5E6) detours' rel32 follow it in the
+        # appended page -- nothing in any doubler region.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "3BE8BE3E52831EB7E4D42CE5689FBCA84C5A591292C1B04C01146B78138C1DC0",
+            "F02756411C8456C54E9384A2060DEB852284B7480382400C10C4A24898CCD55E",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
