@@ -482,8 +482,11 @@ class OneRollPerCatchUpDecision(unittest.TestCase):
         def intervened(m):
             studied = any(c[0] == "continue" for c in m.calls)
             first = jobs(m)[:1] == [G["vv2"]["healing"]]
-            self.assertEqual(studied, first, "plant study and Work First disagree on the roll")
-            return studied or first
+            # The study needs the shared roll AND its own two-in-three (50%);
+            # Work First needs only the shared roll, so a study implies it.
+            if studied:
+                self.assertTrue(first, "plant study without the shared roll")
+            return first
         share = self._measure(m, intervened)
         print(f"catch-up combined vv2 studying healer: {share:.3f}")
         self.assertGreater(share, 0.70)
@@ -662,7 +665,7 @@ class LostChildrenHealersStudyInCatchUp(unittest.TestCase):
                 self.assertEqual(effects(m), effects(stock))
                 self.assertEqual(self._continues(m), [])
 
-    def test_the_share_is_about_three_in_four(self):
+    def test_the_share_is_about_one_in_two(self):
         m = world("vv2", selected=1, pick=1, task=9, cont=1, force=FORCE_REAL)
         m.seed(SEED)
         n, hits = 1000, 0
@@ -671,8 +674,8 @@ class LostChildrenHealersStudyInCatchUp(unittest.TestCase):
             hits += bool(self._continues(m))
         share = hits / n
         print(f"catch-up share vv2 plant study: {share:.3f}")
-        self.assertGreater(share, 0.70)
-        self.assertLess(share, 0.80)
+        self.assertGreater(share, 0.45)
+        self.assertLess(share, 0.55)
 
     def test_a_new_home_has_the_same_site(self):
         # A New Home's dispatcher continues plant study (0x4478EF, activity 9
