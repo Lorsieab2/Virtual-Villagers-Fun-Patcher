@@ -225,6 +225,138 @@ class LoggedRename(unittest.TestCase):
                 self.assertIn(("Tamil Makawee", 23, 16), {p.key for p in village.known()})
 
 
+def died(name, head, body):
+    return SimpleNamespace(identity=(name, head, body), heading="Death 1", date=None, lines=[], path=Path("x"),
+                           value=lambda key: {"Name": name}.get(key))
+
+
+class AnsweredRename(unittest.TestCase):
+    """The owner's VV2 Save 1 (2026-10-18): Waiata Wambui was renamed City Wambui in the game, with no "Name
+    changed" record; Check Saves & Logs asked, and the owner answered "Keep as is: City Wambui is right (I
+    renamed them)" (the Log Decisions file).  The tree still showed Waiata Wambui "(left the village)".  The
+    answer joins them as ONE villager, as a "Name changed" record does, in all five games, with the same limits."""
+
+    CITY = ("City Wambui", "Female", 1, 11, "running", 361)
+    FIELD = "rename|Waiata Wambui|1|11|City Wambui"
+    VERDICT = "Keep as is: City Wambui is right (I renamed them)"
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.folder = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def answer(self, game, verdict=None, field=None):
+        import vv_log_decisions as decisions
+        decisions.record(self.folder, game, 1, [{"kind": "reconcile", "village": None, "field": field or self.FIELD,
+                                                  "verdict": verdict or self.VERDICT, "edited": False}])
+
+    def write_births(self, game, *children):
+        logs = self.folder / "Virtual Villagers Fun Patcher Logs" / "Save 1" / "Births and Conceptions"
+        logs.mkdir(parents=True, exist_ok=True)
+        text = "Village: Kalahuna (Save 1)\r\n\r\n" + "".join(
+            f"Birth\r\n  Child: {name}\r\n    Head: 1\r\n    Body: 11\r\n  Mother: Ana Wambui\r\n    Head: 3\r\n"
+            f"    Body: 3\r\n  Father: Ike Wambui\r\n    Head: 4\r\n    Body: 4\r\n\r\n" for name in children)
+        (logs / f"Virtual Villagers {game} Births and Conceptions Log 1.txt").write_bytes(text.encode("latin-1"))
+
+    def load(self, game, living, logged, **kw):
+        data, offsets = build_save(game, living)
+        ln.save_path(self.folder, game, 1).write_bytes(data)
+        with mock.patch("vv_last_names._entries", return_value=offsets), \
+                mock.patch("vv_cut_names.find_cut", return_value=([], [])), \
+                mock.patch("vv_log_additions.current_villages", return_value=None), \
+                mock.patch("vv_log_additions.person_blocks", return_value=logged):
+            return gen.load_village(self.folder, game, 1, **kw)
+
+    # Other likes than City's, so the tree's own "same likes" question never pairs them (the owner's case).
+    def waiata(self):
+        return block("Waiata Wambui", 1, 11, "ants", age="300")
+
+    def test_an_answered_rename_is_one_villager(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.answer(game)
+                v = self.load(game, [self.CITY], [self.waiata()])
+                self.assertNotIn("Waiata Wambui", self.names(v))
+                city = [p for p in v.known() if p.name == "City Wambui"]
+                self.assertEqual(len(city), 1)
+                self.assertEqual(city[0].former, ["Waiata Wambui"])
+                self.assertTrue(city[0].alive)
+                self.assertEqual(ft.status_label(city[0]), "")
+
+    def test_unanswered_or_give_back_stays_apart(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                v = self.load(game, [self.CITY], [self.waiata()])
+                self.assertIn("Waiata Wambui", self.names(v))
+                self.answer(game, verdict="Waiata Wambui is right (give the name back)")
+                v = self.load(game, [self.CITY], [self.waiata()])
+                self.assertIn("Waiata Wambui", self.names(v))
+                self.assertEqual([p.former for p in v.known() if p.former], [])
+
+    def test_never_when_the_old_name_and_looks_are_living(self):
+        child = ("Waiata Wambui", "Female", 1, 11, "ants", 40)
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.answer(game)
+                v = self.load(game, [self.CITY, child], [self.waiata()])
+                self.assertEqual(self.names(v), ["City Wambui", "Waiata Wambui"])
+                self.assertTrue(all(p.alive for p in v.known()))
+                self.assertEqual([p.former for p in v.known() if p.former], [])
+
+    def test_never_when_the_old_name_is_dead(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.answer(game)
+                v = self.load(game, [self.CITY], [self.waiata(), died("Waiata Wambui", 1, 11)])
+                waiata = [p for p in v.known() if p.name == "Waiata Wambui"]
+                self.assertEqual(len(waiata), 1)
+                self.assertEqual(ft.status_label(waiata[0]), "(deceased)")
+
+    def test_never_when_both_have_a_birth_record(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.answer(game)
+                self.write_births(game, "Waiata Wambui", "City Wambui")
+                v = self.load(game, [self.CITY], [self.waiata()])
+                self.assertIn("Waiata Wambui", self.names(v))
+                self.assertEqual([p.former for p in v.known() if p.former], [])
+
+    def test_one_birth_record_is_carried_over(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.answer(game)
+                self.write_births(game, "Waiata Wambui")
+                v = self.load(game, [self.CITY], [self.waiata()])
+                self.assertNotIn("Waiata Wambui", self.names(v))
+                city = next(p for p in v.known() if p.name == "City Wambui")
+                self.assertIsNotNone(city.birth_record)
+                self.assertIsNotNone(city.mother)
+
+    def test_a_dead_new_name_is_deceased_and_the_old_name_is_not_left(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.answer(game)
+                v = self.load(game, [], [self.waiata(), block("City Wambui", 1, 11, "running", age="361"),
+                                         died("City Wambui", 1, 11)])
+                self.assertEqual(self.names(v), ["City Wambui"])
+                city = v.known()[0]
+                self.assertEqual(ft.status_label(city), "(deceased)")
+                self.assertEqual(city.former, ["Waiata Wambui"])
+
+    def test_a_tree_answer_keeping_them_apart_is_a_contradiction_not_a_join(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.answer(game)
+                v = self.load(game, [self.CITY], [self.waiata()],
+                              rename_answers={gen.rename_key("Waiata Wambui", 1, 11): "old"})
+                self.assertIn("Waiata Wambui", self.names(v))
+                self.assertTrue(any("Waiata Wambui" in n and "not joined" in n for n in v.notes))
+
+    names = Village.names
+
+
 class Remembered(unittest.TestCase):
     def test_the_answer_is_kept_in_the_edits_file(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -267,7 +399,8 @@ class OwnerCopyTests(unittest.TestCase):
         copy = os.environ.get("VVFP_OWNER_VV2_COPY")
         if not copy or not Path(copy).is_dir():
             self.skipTest("VVFP_OWNER_VV2_COPY names no copy of the owner's VV2 folder")
-        with tempfile.TemporaryDirectory() as tmp:
+        # The tree's own question, apart from the Check Saves & Logs answers the copy holds (AnsweredRename).
+        with tempfile.TemporaryDirectory() as tmp, mock.patch("vv_reconcile.answered", return_value={}):
             work = Path(tmp) / "vv2"
             shutil.copytree(copy, work, ignore=shutil.ignore_patterns("Backups"))
             v = gen.load_village(work, 2, 1)
