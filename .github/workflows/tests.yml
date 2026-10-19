@@ -24,12 +24,10 @@ jobs:
     # defects -- the suite is correctly refusing to certify behaviour on a
     # platform the tool does not support.
     runs-on: windows-latest
-    # Raised from 20 on 2026-10-04: the suite had grown to ~20 minutes on
-    # windows-latest, so runs were cancelled mid-suite (2856c2ee, #525) with
-    # no failure, only a timeout. Raised again from 45 on 2026-10-19: the
-    # v1.35.77 suite reached 97% at 45 minutes on windows-latest and was
-    # cancelled the same way (#596).
-    timeout-minutes: 75
+    # No timeout-minutes, at the owner's instruction (2026-10-19): the suite
+    # runs until it finishes. Limits of 20 and then 45 minutes each cancelled
+    # whole runs mid-suite with no failing test (2856c2ee, #525, #596). The
+    # only limit left is GitHub's own maximum for a hosted job, 6 hours.
     steps:
       - uses: actions/checkout@v4
 
