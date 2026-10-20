@@ -240,7 +240,10 @@ class ReleasesLinkTests(unittest.TestCase):
                                # ElderTotems.dat, when the save keeps its totems there (function-level).
                                "vv_vv2_totem_store"}),
             ("vv_vv2_totem_store", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_save_layout",
-                                    "vv_vv2_totems"}),
+                                    "vv_vv2_totems",
+                                    # the tribe's name binds a file of a village with no villager left
+                                    # (function-level, as vv_corrupt_skills's)
+                                    "vv_tribe_rename"}),
             ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout", "vv_line_colours"}),
             ("vv_gdiplus", {"vv_family_tree"}),
             ("vv_line_colours", {"vv_family_tree", "vv_gdiplus"}),

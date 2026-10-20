@@ -451,6 +451,29 @@ class LoadAndSaveTests(unittest.TestCase):
         self.assertNotIn(store_file(1).lower(), w.fs.files)
         self.assertTrue(any(".another-village-" in k for k in w.fs.files))
 
+    def test_a_village_with_only_its_statues_left_keeps_them(self):
+        """Codex #598: with no villager left the roster is empty; the file is still this village's."""
+        v = Village()
+        v.p.write(v.game + 0x10, b"Kalahuna\0")                    # the tribe's name, as the game keeps it
+        v.villager(1, "Statue A", health=0, totem=1, x=700, y=800)
+        v.load(1)
+        self.assertEqual(v.count(), 1)
+        for _round in range(2):                                     # save -> load -> save -> load
+            self.assertEqual(v.save(1), 1)
+            w = Village()
+            w.fs.files = dict(v.fs.files)
+            w.p.write(w.game + 0x10, b"Kalahuna\0")
+            w.load(1)
+            self.assertEqual(w.count(), 1)
+            self.assertFalse(any(".another-village-" in k for k in w.fs.files))
+            v = w
+        other = Village()                                           # another tribe with no villager: not its
+        other.fs.files = dict(v.fs.files)
+        other.p.write(other.game + 0x10, b"Elsewhere\0")
+        other.load(1)
+        self.assertEqual(other.count(), 0)
+        self.assertTrue(any(".another-village-" in k for k in other.fs.files))
+
     def test_a_locked_file_leaves_the_session_stock(self):
         v = Village()
         v.fs.files[store_file(1).lower()] = b"x"
@@ -684,7 +707,7 @@ class GivenAutomaticallyTests(unittest.TestCase):
         v.load(1)
         self.assertEqual(v.count(), 1)
 
-    def test_a_pending_elder_who_passed_away_gets_a_totem_and_leaves_the_list(self):
+    def test_a_pending_elder_who_passed_away_gets_a_totem_and_leaves_the_list_after_the_save(self):
         v = Village()
         settings(v, True)
         v.villager(0, "Alive", health=50)
@@ -692,11 +715,20 @@ class GivenAutomaticallyTests(unittest.TestCase):
         v.villager(7, "Unsure Twin", health=0, totem=1, head=3, body=3, sex=1)
         v.load(1)
         self.assertEqual(v.count(), 2)                              # the statue, and Nina's new totem
-        _slot, _roster, left, _renames = store_mod.parse_pending(v.fs.files[key])
-        self.assertEqual([row[0] for row in left], ["Unsure"])    # the unsure one stays for Repair
+        listed = lambda files: [row[0] for row in store_mod.parse_pending(files[key])[2]]  # noqa: E731
+        # Codex #598: until ElderTotems.dat is written, Nina stays listed -- a crash now loses nothing.
+        self.assertEqual(listed(v.fs.files), ["Nina Jumapili", "Unsure"])
+        crashed = Village()                                         # the game closed with no save
+        crashed.fs.files = dict(v.fs.files)
+        settings(crashed, True)
+        crashed.villager(0, "Alive", health=50)
+        crashed.villager(7, "Unsure Twin", health=0, totem=1, head=3, body=3, sex=1)
+        crashed.load(1)
+        self.assertEqual(crashed.count(), 2)                        # given again, once
         v.save(1)
+        self.assertEqual(listed(v.fs.files), ["Unsure"])           # the unsure one stays for Repair
         names = [t.name for t in store_mod.parse(v.fs.files[store_file(1).lower()]).totems]
-        self.assertIn("Nina Jumapili", names)
+        self.assertEqual(names.count("Nina Jumapili"), 1)
         w = Village()                                               # the next load: nothing twice
         w.fs.files = dict(v.fs.files)
         w.villager(0, "Alive", health=50)
