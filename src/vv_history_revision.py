@@ -627,7 +627,11 @@ def _restore(done: list[tuple[Path, Path]]) -> list[str]:
     failed = []
     for path, copy in reversed(done):
         try:
-            _write(path, copy.read_bytes())
+            if tools.layout.is_words_file(path):
+                with tools.layout.words_lock_for(path):   # the game's Start Over rewrites these files
+                    _write(path, copy.read_bytes())
+            else:
+                _write(path, copy.read_bytes())
         except OSError:
             failed.append(str(path))
     return failed

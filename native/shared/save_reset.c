@@ -5,6 +5,7 @@
 #include "data_subfolder.h"
 #include "village_rename.h"
 #include "log_slot.h"       /* one folder of logs per save slot */
+#include "log_words.h"      /* the Like and Dislike Words boundaries a deleted log leaves behind */
 
 #include <windows.h>
 
@@ -334,6 +335,160 @@ VV_RESET_STATIC int delete_if_present_w(const wchar_t *path) {
     return 0;
 }
 
+/* START OVER CLEARS A DELETED LOG'S LIKE AND DISLIKE WORDS BOUNDARIES.
+
+   The boundary files (log_words.h) hold "<offset>\t<key>\r\n" lines keyed by
+   each log's path inside the save folder, and the last line naming a log is
+   the one that counts.  A log deleted here and later made again under the
+   same name (the next village's "... Log 1.txt") would otherwise inherit the
+   erased village's boundary: the exporter records a new boundary only when
+   none is recorded, so the stale one stayed and turned the new log's correct
+   words into "old" ones (the owner's report, 2026-10-19).
+
+   So every line naming the deleted log is removed -- from the save's own
+   boundary file first, then from the shared one and an older build's "Log
+   Words" one -- and every other line is kept byte for byte: other saves'
+   logs, and this save's logs Start Over keeps (its permanent history log).  A file
+   holding no such line is not rewritten.  The rewrite goes through a
+   ".tmp" beside it and replaces the file in one move, so a failure leaves the
+   old file whole.  Keys compare without case, as the file system does.
+
+   The whole read-modify-replace of every file is done holding the game's
+   boundary lock (log_words.h vv_log_words_lock), which every other writer
+   holds to append, so no line written meanwhile can be lost (Codex, #597).
+   The wait is bounded: when the lock cannot be had in time nothing is
+   rewritten and the refusal is counted (vv_reset_words_refusals).  The
+   ".tmp" name is unique to the process and the operation, so two resets never
+   share one. */
+int vv_reset_words_refusals = 0;
+static LONG vv_reset_tmp_counter = 0;
+
+#ifdef VV_RESET_TESTABLE
+/* Called after a file was read and before it is replaced, so the harness can
+   try to append right then (save_reset_words_harness.c). */
+void (*vv_reset_words_test_hook)(const char *dat) = NULL;
+#endif
+static int words_line_names(const char *line, size_t length, const char *key) {
+    const char *tab = (const char *)memchr(line, '\t', length);
+    size_t key_length = strlen(key);
+    size_t rest;
+    if (tab == NULL) {
+        return 0;
+    }
+    rest = length - (size_t)(tab + 1 - line);
+    while (rest > 0 && (tab[rest] == '\r' || tab[rest] == '\n')) {
+        --rest;
+    }
+    return rest == key_length && _strnicmp(tab + 1, key, key_length) == 0;
+}
+
+VV_RESET_STATIC int forget_words_in(const char *dat, const char *key) {
+    HANDLE file;
+    DWORD size, got = 0, wrote = 0;
+    char *text, *kept, *p, *end;
+    size_t kept_length = 0;
+    int dropped = 0;
+    char tmp[MAX_PATH];
+    if (dat == NULL || dat[0] == '\0' || key == NULL || key[0] == '\0'
+        || lstrlenA(dat) + 32 >= MAX_PATH) {
+        return 0;
+    }
+    file = CreateFileA(dat, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    size = GetFileSize(file, NULL);
+    if (size == INVALID_FILE_SIZE || size == 0 || size > 16u * 1024u * 1024u) {
+        CloseHandle(file);
+        return 0;
+    }
+    text = (char *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)size);
+    kept = (char *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)size);
+    if (text == NULL || kept == NULL || !(ReadFile(file, text, size, &got, NULL) && got == size)) {
+        CloseHandle(file);
+        if (text != NULL) HeapFree(GetProcessHeap(), 0, text);
+        if (kept != NULL) HeapFree(GetProcessHeap(), 0, kept);
+        return 0;
+    }
+    CloseHandle(file);
+    for (p = text; p < text + size; p = end) {
+        end = (char *)memchr(p, '\n', (size_t)(text + size - p));
+        end = end == NULL ? text + size : end + 1;
+        if (words_line_names(p, (size_t)(end - p), key)) {
+            ++dropped;
+        } else {
+            memcpy(kept + kept_length, p, (size_t)(end - p));
+            kept_length += (size_t)(end - p);
+        }
+    }
+    HeapFree(GetProcessHeap(), 0, text);
+#ifdef VV_RESET_TESTABLE
+    if (vv_reset_words_test_hook != NULL) {
+        vv_reset_words_test_hook(dat);
+    }
+#endif
+    if (dropped > 0) {
+        wsprintfA(tmp, "%s.%lu-%ld.tmp", dat, GetCurrentProcessId(),
+                  InterlockedIncrement(&vv_reset_tmp_counter));
+        file = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (file == INVALID_HANDLE_VALUE) {
+            dropped = 0;
+        } else {
+            BOOL ok = kept_length == 0
+                      || (WriteFile(file, kept, (DWORD)kept_length, &wrote, NULL) && wrote == kept_length);
+            ok = FlushFileBuffers(file) && ok;
+            CloseHandle(file);
+            if (!ok || !MoveFileExA(tmp, dat, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+                DeleteFileA(tmp);   /* the old file is left whole */
+                dropped = 0;
+            }
+        }
+    }
+    HeapFree(GetProcessHeap(), 0, kept);
+    return dropped;
+}
+
+/* Every boundary line of the log at `path` (already deleted), in each boundary file of `game`:
+   the save's own (`slot`'s, and the save the key itself names if that differs), then the shared
+   one and an older build's.  Returns the lines removed. */
+VV_RESET_STATIC int forget_log_words(int game, int slot, const wchar_t *path) {
+    char key[MAX_PATH], save_dat[MAX_PATH], new_dat[MAX_PATH], old_dat[MAX_PATH];
+    int forgotten = 0;
+    int key_slot;
+    HANDLE lock;
+    if (path == NULL || !vv_log_words_name(path, key, sizeof key)) {
+        return 0;
+    }
+    lock = vv_log_words_lock(game);   /* held across every file's read-modify-replace */
+    if (lock == NULL) {
+        ++vv_reset_words_refusals;    /* every file left as it was */
+        return 0;
+    }
+    key_slot = vv_log_words_name_slot(key);
+    if (vv_log_words_save_path(game, slot, save_dat, sizeof save_dat)) {
+        forgotten += forget_words_in(save_dat, key);
+    }
+    if (key_slot != 0 && key_slot != slot && vv_log_words_save_path(game, key_slot, save_dat, sizeof save_dat)) {
+        forgotten += forget_words_in(save_dat, key);
+    }
+    if (vv_log_words_paths(game, new_dat, old_dat, sizeof new_dat)) {
+        forgotten += forget_words_in(new_dat, key);
+        forgotten += forget_words_in(old_dat, key);
+    }
+    vv_log_words_unlock(lock);
+    return forgotten;
+}
+
+/* Delete one of the village's logs and, when it went, its boundary lines. */
+static int delete_log_w(int game, int slot, const wchar_t *path) {
+    if (!delete_if_present_w(path)) {
+        return 0;
+    }
+    (void)forget_log_words(game, slot, path);
+    return 1;
+}
+
 /* Delete every "Village Population <n>.txt" page in DIR that belongs to
    VILLAGE, by the header on its second line.
 
@@ -344,7 +499,7 @@ VV_RESET_STATIC int delete_if_present_w(const wchar_t *path) {
    says whose a page is, is its header. Deleting "page <slot>" instead erased
    page 1 of whatever village saved last on a slot-1 Start Over, and a page of
    some other village, or nothing, on slots 2..5. */
-static int delete_village_population_pages(const wchar_t *dir,
+static int delete_village_population_pages(int game, int slot, const wchar_t *dir,
                                            const char *village) {
     static const wchar_t STEM[] = L"Village Population ";
     WIN32_FIND_DATAW found;
@@ -395,7 +550,7 @@ static int delete_village_population_pages(const wchar_t *dir,
         }
         wsprintfW(path, L"%ls\\%ls", dir, found.cFileName);
         if (log_line_matches(path, village, 1)) {
-            removed += delete_if_present_w(path);
+            removed += delete_log_w(game, slot, path);
         }
     } while (FindNextFileW(search, &found));
     FindClose(search);
@@ -492,22 +647,22 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
        slot's own "...Logs\Save <slot>\Village Statistics" -- each probed, never created. */
     if (legacy_subfolder_w(sub_w, L"Virtual Villagers Fun Patcher Logs\\Village Statistics")) {
         wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", sub_w, slot);
-        removed += delete_if_present_w(path_w);
+        removed += delete_log_w(game, slot, path_w);
         /* The current log, which replaced the file above. */
         wsprintfW(path_w, L"%ls\\Village Statistics v2 - Save %d.txt", sub_w, slot);
-        removed += delete_if_present_w(path_w);
+        removed += delete_log_w(game, slot, path_w);
     }
     {
         wchar_t slot_sub[MAX_PATH];
         if (vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Village Statistics") && legacy_subfolder_w(sub_w, slot_sub)) {
             /* The same file the shared folder's sweep removes, no more. */
             wsprintfW(path_w, L"%ls\\Village Statistics v2 - Save %d.txt", sub_w, slot);
-            removed += delete_if_present_w(path_w);
+            removed += delete_log_w(game, slot, path_w);
         }
         /* ...and in the save's own folder (per_save.h). */
         if (vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Village Statistics") && own_subfolder_w(sub_w, slot_sub)) {
             wsprintfW(path_w, L"%ls\\Village Statistics v2 - Save %d.txt", sub_w, slot);
-            removed += delete_if_present_w(path_w);
+            removed += delete_log_w(game, slot, path_w);
         }
     }
     /* THE STATISTICS COMPANION'S PER-SLOT DATA. Village Statistics holds the
@@ -579,11 +734,11 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
        survive a reset that was meant to clear it. */
     if (legacy_subfolder_w(sub_w, L"VVFP Logs\\Village Statistics")) {
         wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", sub_w, slot);
-        removed += delete_if_present_w(path_w);
+        removed += delete_log_w(game, slot, path_w);
     }
     /* The pre-move location, probed and cleared but never recreated. */
     wsprintfW(path_w, L"%ls\\Village Statistics - Save %d.txt", folder_w, slot);
-    removed += delete_if_present_w(path_w);
+    removed += delete_log_w(game, slot, path_w);
     /* THE ROSTER IS NUMBERED BY PAGE, NOT BY SLOT, so it is matched by the
        village header on each page's second line -- every page of the erased
        village, in the current folder and the retired one, and nothing else.
@@ -591,20 +746,20 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
        vv_save_subfolder_w creates the folder if absent, which is harmless
        here -- an empty folder is not a stale roster. */
     if (legacy_subfolder_w(sub_w, L"Virtual Villagers Fun Patcher Logs\\Tribe Population")) {
-        removed += delete_village_population_pages(sub_w, village);
+        removed += delete_village_population_pages(game, slot, sub_w, village);
     }
     {
         /* The slot's own roster folder (log_slot.h), matched by header like the shared one. */
         wchar_t slot_sub[MAX_PATH];
         if (vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Tribe Population") && legacy_subfolder_w(sub_w, slot_sub)) {
-            removed += delete_village_population_pages(sub_w, village);
+            removed += delete_village_population_pages(game, slot, sub_w, village);
         }
         if (vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Tribe Population") && own_subfolder_w(sub_w, slot_sub)) {
-            removed += delete_village_population_pages(sub_w, village);
+            removed += delete_village_population_pages(game, slot, sub_w, village);
         }
     }
     if (legacy_subfolder_w(sub_w, L"VVFP Logs\\Tribe Population")) {
-        removed += delete_village_population_pages(sub_w, village);
+        removed += delete_village_population_pages(game, slot, sub_w, village);
     }
 
     /* PARENTAGE IS VILLAGE-SCOPED, SO IT IS MATCHED BY HEADER.
@@ -785,7 +940,7 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
                         }
                         wsprintfW(path_w, L"%ls\\%ls", sub_w, found.cFileName);
                         if (log_header_matches(path_w, village)) {
-                            removed += delete_if_present_w(path_w);
+                            removed += delete_log_w(game, slot, path_w);
                         }
                     } while (FindNextFileW(search, &found));
                     FindClose(search);

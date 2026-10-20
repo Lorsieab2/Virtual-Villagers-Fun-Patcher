@@ -241,6 +241,54 @@ static int vv_log_words_path_for(int game, const char *name, char *out, size_t s
     return vv_log_words_path(game, out, size);
 }
 
+/* ONE WRITER AT A TIME. Start Over removes a deleted log's lines by reading a boundary file and
+   replacing it (save_reset.c forget_words_in); a line appended between that read and the replace
+   would be lost. So every writer of a game's boundary files -- the exporters' appends here, Start
+   Over's rewrite, and the patcher's own appends and restores (src/vv_save_layout.py words_lock) --
+   holds this named mutex across its whole read-check-write.  One per game (covering all of that
+   game's boundary files in every save folder): coarser than one per file, and so never weaker.
+
+   The wait is bounded: a holder only reads or writes a small text file, so it is held for
+   milliseconds; after VV_LOG_WORDS_LOCK_MS the writer gives up, leaves the file as it was and
+   counts the refusal (vv_log_words_lock_timeouts), rather than stalling the game. The name is
+   repeated in src/vv_save_layout.py; tests/test_start_over_clears_like_dislike_words.py keeps the
+   two the same. */
+#define VV_LOG_WORDS_LOCK_MS 2000
+#define VV_LOG_WORDS_LOCK_NAME L"Local\\VVFP Like and Dislike Words - Virtual Villagers %d"
+
+static LONG vv_log_words_lock_timeouts = 0;
+
+/* The game's lock, held: its handle, or NULL when it could not be had in time (nothing may be
+   written then). */
+static HANDLE vv_log_words_lock(int game) {
+    wchar_t name[96];
+    HANDLE mutex;
+    DWORD waited;
+    if (_snwprintf_s(name, 96, _TRUNCATE, VV_LOG_WORDS_LOCK_NAME, game) <= 0) {
+        return NULL;
+    }
+    mutex = CreateMutexW(NULL, FALSE, name);
+    if (mutex == NULL) {
+        InterlockedIncrement(&vv_log_words_lock_timeouts);
+        return NULL;
+    }
+    waited = WaitForSingleObject(mutex, VV_LOG_WORDS_LOCK_MS);
+    if (waited != WAIT_OBJECT_0 && waited != WAIT_ABANDONED) {
+        CloseHandle(mutex);
+        InterlockedIncrement(&vv_log_words_lock_timeouts);
+        return NULL;
+    }
+    return mutex;
+}
+
+static void vv_log_words_unlock(HANDLE mutex) {
+    if (mutex != NULL) {
+        ReleaseMutex(mutex);
+        CloseHandle(mutex);
+    }
+}
+
+/* Appends one line; the caller holds vv_log_words_lock. */
 static void vv_log_words_note(const char *dat, LONGLONG offset, const char *name) {
     char line[MAX_PATH + 32];
     HANDLE file;
@@ -309,29 +357,45 @@ static void vv_log_words_appending(int game, const wchar_t *path) {
     LONGLONG recorded;
     WIN32_FILE_ATTRIBUTE_DATA info;
     LONGLONG size = 0;
-    if (!vv_log_words_tracked(game) || path == NULL || !vv_log_words_name(path, name, sizeof name)
-        || vv_log_words_recorded(game, name, &recorded) || !vv_log_words_path_for(game, name, dat, sizeof dat)) {
+    HANDLE lock;
+    if (!vv_log_words_tracked(game) || path == NULL || !vv_log_words_name(path, name, sizeof name)) {
+        return;
+    }
+    lock = vv_log_words_lock(game);   /* across the check and the append */
+    if (lock == NULL) {
+        return;
+    }
+    if (vv_log_words_recorded(game, name, &recorded) || !vv_log_words_path_for(game, name, dat, sizeof dat)) {
+        vv_log_words_unlock(lock);
         return;
     }
     if (GetFileAttributesExW(path, GetFileExInfoStandard, &info)) {
         size = ((LONGLONG)info.nFileSizeHigh << 32) | info.nFileSizeLow;
     } else if (GetLastError() != ERROR_FILE_NOT_FOUND && GetLastError() != ERROR_PATH_NOT_FOUND) {
+        vv_log_words_unlock(lock);
         return;                       /* there but unreadable: nothing is claimed */
     }
     vv_log_words_note(dat, size, name);
+    vv_log_words_unlock(lock);
 }
 
 /* `path` was just written whole by this build: all of it is correct. */
 static void vv_log_words_rewritten(int game, const wchar_t *path) {
     char dat[MAX_PATH], name[MAX_PATH];
     LONGLONG recorded = -1;
+    HANDLE lock;
     if (!vv_log_words_tracked(game) || path == NULL || !vv_log_words_name(path, name, sizeof name)) {
+        return;
+    }
+    lock = vv_log_words_lock(game);   /* across the check and the append */
+    if (lock == NULL) {
         return;
     }
     if ((!vv_log_words_recorded(game, name, &recorded) || recorded != 0)
         && vv_log_words_path_for(game, name, dat, sizeof dat)) {
         vv_log_words_note(dat, 0, name);
     }
+    vv_log_words_unlock(lock);
 }
 
 #endif
