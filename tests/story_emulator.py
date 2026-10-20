@@ -275,6 +275,27 @@ class Process:
     def _api_GetLastError(self):
         return 2, 0                     # ERROR_FILE_NOT_FOUND
 
+    # MultiByteToWideChar(code page, flags, source, source bytes, out, out chars):
+    # the companions widen a narrow path or name.  CP_UTF8 (65001) decodes as
+    # UTF-8, any other page (CP_ACP, a Western machine) as Windows-1252.  A
+    # source length of -1 means NUL-terminated, the NUL counted; an out size of
+    # 0 asks for the size; too small an out buffer fails (0), as Windows does.
+    def _api_MultiByteToWideChar(self):
+        page, source, count, out, room = self.arg(0), self.arg(2), self.arg(3), self.arg(4), self.arg(5)
+        if count == 0xFFFFFFFF:
+            raw = self.cstring(source).encode("latin-1") + b"\0"
+        else:
+            raw = self.read(source, count)
+        text = raw.decode("utf-8" if page == 65001 else "cp1252", errors="replace")
+        wide = text.encode("utf-16-le")
+        chars = len(wide) // 2
+        if room == 0:
+            return chars, 24
+        if chars > room:
+            return 0, 24
+        self.write(out, wide)
+        return chars, 24
+
     # The user32/kernel32 string helpers the companion formats text with.
     def _api_wsprintfA(self):
         out, fmt = self.arg(0), self.cstring(self.arg(1))

@@ -159,8 +159,12 @@ What can be set, where the event's own code rolls for it:
   O` Babies (one, two or three babies; the count still stops at the village's
   room).
 
-A setting whose condition fails right now (a newcomer or a copy needs room; the
-Gong's rarer results need its tiers open) says so and can not be bought.
+A setting whose condition fails right now (a newcomer or a copy needs room) says
+so and can not be bought. Twins and triplets the game rolls only once the village
+has mastered them (The Lost Children's [world+0x2EA8C] == 3, The Tree of Life's
+Parenting mastery 3) can be chosen before that: the gate is lifted for the chosen
+conception call only (the dword set to 3 and put back when the call returns; the
+mastery call 0x41E1C0 answered 3 inside the event's apply).
 
 ### How a roll is answered
 
@@ -237,17 +241,50 @@ floors: in a very small village their sweep can, as in stock, take every village
 
 A separate upgrade in The Lost Children's Tech menu (0 tech points; not an island
 event, so not under the Island Event lock). The player picks what the **next**
-ring of the Gong of Wonder does: any of its 23 results (tier A and B results only
-once a tier-C result has opened them, as in the game), the amounts of tech and
-food, who falls sick, which skill "grants wisdom" raises, and one baby, twins or
-triplets for "grants life" (twins and triplets need breeding mastered, as in the
-game). A gong use is the call 0x461B8E into its outcome routine 0x44E8A0 (its
-only caller); the settings are answered only inside it and end when it returns,
-so they are used for one ring. An armed choice also ends after ten minutes
-without a ring and when the save slot changes. The Gong rests about a day after
-each ring; a choice waits for the next real ring. It works with the Gong of Wonder
-Coconuts Fix ticked or not (none of its sites overlap the fix's bytes; with the
-fix, the coconut results add 30 instead of setting 30).
+ring of the Gong of Wonder does: any of its 23 results, the amounts of tech and
+food, who falls sick, which skill "grants wisdom" raises, one baby, twins or
+triplets for "grants life" (also before breeding is mastered), and the villager
+the ringer's results act on. A gong use is the call
+0x461B8E into its outcome routine 0x44E8A0 (its only caller); the settings are
+answered only inside it and end when it returns, so they are used for one ring.
+An armed choice also ends after ten minutes without a ring and when the save
+slot changes. It works with the Gong of Wonder Coconuts Fix ticked or not (none
+of its sites overlap the fix's bytes; with the fix, the coconut results add 30
+instead of setting 30).
+
+Every outcome (the owner, 2026-10-20: "I want ALL of them"):
+
+* Tier A and B results. The game gives them only once a tier-C result has set
+  village byte +0x2E910 (0x44EFDB), so a village's first ring is always tier C.
+  A chosen tier A or B result sets that byte to 1 (the game's own value) for its
+  ring only when it is 0, and 0 is put back when the routine returns.
+* The villager who rang it. "Takes life", the loss of 90 health and "Grants
+  wisdom" act on the record the game's search 0x44B440 answers (the first adult
+  whose task is ringing the Gong). Its four calls whose answer is used
+  (0x44EB9E, 0x44EE06, 0x44F34C, 0x44F3BD) are scope calls: the game's search
+  runs, then the chosen villager's index replaces its answer -- only while the
+  Gong's use runs, and only when that record is still the villager chosen (its
+  identity taken at the purchase) and passes the search's own test (present,
+  living, adult, not a totem statue). Otherwise the game's answer stands.
+* "Takes youth" / "Grants youth" call the same search (0x44EF36, 0x44EFA9) only
+  to see that a ringer exists, then write the age of the FIXED records 6 and 15
+  through ESI (stock defect). With a villager chosen (valid as above and not
+  carrying a baby) the search answers that villager and ESI is moved by the
+  distance from the fixed record to the chosen one, so the game's own stores
+  write the chosen villager; ESI is popped right after. Random, or a chosen
+  villager no longer valid: records 6 and 15, as the game does.
+* Who falls sick: a "choose who" whose villagers are all gone at the ring goes
+  back to the game's own rolls for that ring.
+* Not offered, with the reason (also in `docs/story-island-outcomes.md`): which
+  women "Grants life" makes pregnant (no roll: every eligible woman), and the
+  "Grants life" rand(50) stored at +0x5EC (nothing reads it).
+
+Buying it makes the Gong ready to ring at once (the owner, 2026-10-20). The Gong
+rests about a day after each ring (0x461B5D: +0x2EAC8 = the clock + 86400); the
+game marks it ready by writing 1 there when its fourth piece completes
+(0x4639F6). The purchase writes that same 1 when the Gong is whole and resting;
+while the Gong is not whole (+0x2E7F0) it is refused and nothing is written or
+spent. The ring afterwards rests the Gong again as the game does.
 
 ## Stock behaviour found in passing (reported, not changed)
 

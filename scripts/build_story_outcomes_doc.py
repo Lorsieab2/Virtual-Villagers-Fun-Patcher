@@ -20,7 +20,8 @@ from story_outcome_tables import plain  # noqa: E402
 OUT = ROOT / "docs" / "story-island-outcomes.md"
 NAMES = {"vv1": "A New Home", "vv2": "The Lost Children", "vv3": "The Secret City",
          "vv4": "The Tree of Life", "vv5": "New Believers"}
-KIND = {"enum": "result", "amount": "amount", "loop": "each villager", "victim": "which villager"}
+KIND = {"enum": "result", "amount": "amount", "loop": "each villager", "victim": "which villager",
+        "ringer": "which villager"}
 
 
 def _event_label(e: dict) -> str:
@@ -42,6 +43,9 @@ def _control_line(c: dict) -> str:
         values = ", ".join(choices)
         if c.get("warn_everyone"):
             values += " (everyone: a warning first)"
+    elif c["kind"] == "ringer":
+        values = (f"any of {plain(c.get('filter'))} (one who has died, gone or changed by the ring: "
+                  "the game's own choice)")
     else:
         values = "a villager the game itself could pick"
     return f"| {label} | {KIND[c['kind']]} | {values} |"
@@ -118,6 +122,8 @@ def build() -> str:
     lines += ["## The Lost Children: Pick Gong of Wonder Outcome", "",
               "| Setting | Kind | Choices besides Random |", "| --- | --- | --- |"]
     lines += [_control_line(c) for c in data.GONG_CONTROLS["vv2"]]
+    lines += ["", "### Looked at and not offered (the Gong of Wonder)", ""]
+    lines += [f"* {plain(item) or item}" for item in data.GONG_OMITTED["vv2"]]
     lines.append("")
     return "\n".join(lines) + "\n"
 

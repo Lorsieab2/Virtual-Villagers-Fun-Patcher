@@ -52,6 +52,8 @@ EXPORTS
     VvfpStoryProbeOutcomeForce=_VvfpStoryProbeOutcomeForce@16
     VvfpStoryProbeOutcomeScope=_VvfpStoryProbeOutcomeScope@12
     VvfpStoryProbeGongForce=_VvfpStoryProbeGongForce@8
+    VvfpStoryProbeGongState=_VvfpStoryProbeGongState@4
+    VvfpStoryProbeGongBuy=_VvfpStoryProbeGongBuy@8
     VvfpStoryProbeChooserOpen=_VvfpStoryProbeChooserOpen@8
     VvfpStoryProbeChooserSet=_VvfpStoryProbeChooserSet@20
     VvfpStoryProbeChooserText=_VvfpStoryProbeChooserText@16

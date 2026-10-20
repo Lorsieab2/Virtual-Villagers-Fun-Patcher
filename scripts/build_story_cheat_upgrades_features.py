@@ -93,9 +93,12 @@ DESCRIPTION = (
 # The Lost Children's separate Gong of Wonder upgrade.
 VV2_GONG_NOTE = (
     " Also adds Pick Gong of Wonder Outcome (0 Tech Points): the player picks what the next ring "
-    "of the Gong of Wonder does -- any result the Gong can give, with its amounts and who falls "
-    "sick -- defaulting to \"Random (original game)\"; the choice is used for one ring, in "
-    "this save slot, within ten minutes."
+    "of the Gong of Wonder does -- any of the 23 results the Gong can give (also the ones the game "
+    "keeps for after a village's first ring), with its amounts, who falls sick, the skill, the "
+    "babies and the villager the ringer's results act on -- each defaulting to \"Random "
+    "(original game)\". Buying it makes a whole Gong ready to ring at once (refused, and nothing "
+    "spent, while the Gong is not whole); the choice is used for one ring, in this save slot, "
+    "within ten minutes."
 )
 # Choose Time Skip Amount (the owner, 2026-10-10): "add a cheat upgrade: Choose
 # Time Skip Amount (costs same as the normal upgrade). Choose a number of years
@@ -710,7 +713,17 @@ def build() -> None:
                 "event changes only what the player chose, through the game's own routines and "
                 "fields, and the game saves the village as usual.",
                 "No custom title is written into a villager record.",
-            ],
+            ] + ([
+                "Pick Gong of Wonder Outcome writes one value at the purchase: the Gong's rest "
+                "(village +0x2EAC8) is set to 1, the value the game itself writes when the Gong "
+                "becomes whole, only when the Gong is whole and resting.  A chosen result the "
+                "game keeps for after a village's first ring sets the Gong's tier byte (village "
+                "+0x2E910) to 1, the game's own value, for that ring only, and puts 0 back when "
+                "the ring's outcome routine returns.  'Takes youth' / 'Grants youth' write the "
+                "fixed records 6 and 15 in the game; with a villager chosen they write that "
+                "villager's age instead, through the game's own stores (Random keeps records 6 "
+                "and 15).",
+            ] if game == "vv2" else []),
             "evidence_status": (
                 "static exact-build verification and emulation of the rendered executables and the "
                 "companion; runtime/player confirmation pending"
@@ -767,7 +780,9 @@ def cost_record(game: str) -> dict:
             "normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island "
             "Event" + gong + " each cost what the Island Event upgrade costs: "
             f"{ISLAND_EVENT_PRICE:,} tech points, paid when the event is queued. With too few tech "
-            "points you are told, and nothing is queued or spent." + skip + " Untick it to keep "
+            "points you are told, and nothing is queued or spent."
+            + (" Pick Gong of Wonder Outcome is refused, and nothing spent, while the Gong is not "
+               "whole." if game == "vv2" else "") + skip + " Untick it to keep "
             "every upgrade free. Ticking Story / Cheat Upgrades ticks this too."
         ),
         "output_tag": "Story Cheat Costs",

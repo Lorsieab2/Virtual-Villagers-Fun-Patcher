@@ -1426,7 +1426,7 @@ CONTROLS = {
             'phase': 'apply',
             'scope_call': 0x422006,
             'kind': 'enum',
-            'condition': 'only when [world+0x2EA8C] == 3 (0x44BA6A); otherwise there is no roll (stock litter field left as it was).  What world+0x2EA8C means is not established.',
+            'condition': "only when [world+0x2EA8C] == 3 (0x44BA6A); otherwise there is no roll (stock litter field left as it was); chosen here, the companion sets [v+0x2EA8C] to 3 (the game's own mastered value) around this woman's call to 0x44B980 only and puts the old value back when it returns.  What world+0x2EA8C means is not established.",
             'options': [
                 {
                     'label': 'One baby',
