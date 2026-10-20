@@ -530,9 +530,28 @@ class LogFolderTests(unittest.TestCase):
         self.assertIn('vv_log_rel_w(slot_sub, MAX_PATH, slot, L"Tribe Population")', self.reset)
         self.assertIn('L"Births and Conceptions", L"Deaths and Disappearances", L"Unaccounted Villagers", '
                       'L"Island Events"', self.reset)
-        # And the history is NOT deleted by a reset: it is the permanent log.
-        self.assertNotIn(HISTORY_DIR, self.reset)
-        self.assertNotIn("Village History", self.reset)
+        # START OVER WIPES THE WHOLE SAVE (the owner, v1.35.79): the slot's Village History goes
+        # with everything else in the slot's folders -- the save's own "...\Save N" and the older
+        # "...Logs\Save N" are emptied whole, never named file by file -- and another slot's stays.
+        wipe = function(self.reset, "static int wipe_slot(")
+        self.assertIn('wipe_folder(&w, root, L"Virtual Villagers Fun Patcher", top)', wipe)
+        self.assertIn('wipe_folder(&w, root, L"Virtual Villagers Fun Patcher Logs", top)', wipe)
+        self.assertEqual(2, wipe.count("wipe_walk(&w, dir, WIPE_ALL, 0);"))
+        self.assertIn("removed += wipe_slot(game, slot, village);", self.reset)
+        # Proven on disk by the harness, in all five games: the slot's history deleted in both
+        # layouts, another slot's kept.
+        self.assertIn('PUTF(OWN1 "\\\\Logs\\\\Tribe History\\\\Village History 1.txt"', self.harness)
+        self.assertIn('PUTF(OWN2 "\\\\Logs\\\\Tribe History\\\\Village History 1.txt"', self.harness)
+        self.assertIn("for (game = 1; game <= 5; ++game) {", self.harness)
+        self.assertIn('check(!THERE(OWN1 "\\\\Logs\\\\Tribe History\\\\Village History 1.txt"), '
+                      'SAY("...the slot\'s Village History with it"));', self.harness)
+        self.assertIn('SAY("SAVE 2\'S OWN FOLDER IS UNTOUCHED (its Village History and ElderTotems.dat)")',
+                      self.harness)
+        self.assertIn('check(emptied(folder, OLD1), SAY("the older layout\'s', self.harness)
+        self.assertIn('check(THERE(OLD2 "\\\\Tribe History\\\\Village History 1.txt"), SAY("...and '
+                      '\\"...Logs\\\\Save 2\\" is kept"));', self.harness)
+        self.assertIn('check(!exists(file[6]), "THE SLOT FOLDER\'S VILLAGE HISTORY IS DELETED BY START OVER',
+                      self.harness)
 
     def test_the_reset_harness_creates_its_fixtures_where_the_exporters_write(self):
         narrow_pop = '"Virtual Villagers Fun Patcher Logs\\\\Tribe Population"'

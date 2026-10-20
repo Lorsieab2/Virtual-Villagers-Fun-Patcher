@@ -866,7 +866,10 @@
         "Copies a game's save folders (your saves and the patcher's logs) into a dated Backups folder inside each one.",
         "Click Back Up Saves, tick the save folders you want, then Back Up Selected.",
         "The game can stay open: it is paused for the copy, but the backup holds the village as of its last save.",
-        "Old backups are never replaced or deleted."
+        "Old backups are never replaced or deleted.",
+        "Back up before Start Over: Start Over wipes everything the Fun Patcher kept for that save: all its logs (the Village History too),",
+        "all its data (the Elder Totems too) and its family tree files. It keeps Backups, Copies Made Before Repairs and tree pictures.",
+        "Other saves are not touched."
       ]
     },
     "restore_saves": {

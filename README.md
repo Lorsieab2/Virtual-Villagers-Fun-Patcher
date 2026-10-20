@@ -22,6 +22,13 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.79
+
+- **Start Over wipes the whole save** (all five games). Start Over wipes everything the Fun Patcher kept for that save: all its logs (the Village History too), all its data (ElderTotems.dat too) and its family tree files. It keeps Backups, Copies Made Before Repairs and exported family tree pictures. Other saves are not touched.
+  - Deleted for save N: every file in the `Virtual Villagers Fun Patcher\Save N` folder (its empty folders stay, so the game can write the new tribe's files at once); the older places of the same files (`Virtual Villagers Fun Patcher Logs\Save N`, and every `... - Save N` file in `Virtual Villagers Fun Patcher Data`); in `Virtual Villagers Fun Patcher Family Trees` (and its `Reports`), that save's tree file (`.vvtree`, by the save it records), its Village Matchmaker text and its Genealogy report (`.txt`, `.html`). Deleting a tribe from the save-slot menu does the same.
+  - Kept: every picture (`.png`, `.jpg`, `.jpeg`, `.bmp`, `.gif`) of any save, the game's own saves, and every other save's files. A file whose save cannot be told for sure, anything behind a link or junction, and a file in use are kept and listed in `Virtual Villagers Fun Patcher\Start Over Report - Save N.txt`.
+  - **Patch every game again** after updating: the Save Reset companion changed. Not yet seen in a running game (checked by the C harnesses and tests).
+
 ## What's new in v1.35.74
 
 - **Scroll bars in the patcher's windows.** A window whose content is taller than the window (for example the Repair Saves & Logs window, whose list ran off the bottom with no way to reach the buttons below it) now has a vertical scroll bar, and the mouse wheel scrolls it. Windows that already scrolled in their own text or canvas are unchanged. Not yet seen in a running window.

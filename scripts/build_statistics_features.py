@@ -1407,7 +1407,9 @@ def build_game(
         "change is listed in the Repairs log ('Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Repairs Made'; the shared 'Repairs Made' or 'Repairs' folder an older version made is kept as it was: nothing is moved), and a "
         "count is only ever raised and an elder never removed. "
         "The original save result is preserved, and text-export failure does not turn a "
-        "successful game save into a failure."
+        "successful game save into a failure. "
+        # The owner, v1.35.79: Start Over is the one exception to "nothing is ever deleted".
+        "Start Over wipes everything the Fun Patcher kept for that save: all its logs (the Village History too), all its data (ElderTotems.dat too) and its family tree files. It keeps Backups, Copies Made Before Repairs and exported family tree pictures. Other saves are not touched."
     )
     return {
         "id": f"{game_id}_write_village_statistics",

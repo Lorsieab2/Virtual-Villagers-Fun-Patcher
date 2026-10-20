@@ -125,6 +125,30 @@ PATCH ONE GAME
 4. Use "Open Vanilla EXE Folder" or "Open Modified EXE Folder" to open the
    selected game's folder in File Explorer.
 
+START OVER
+
+Start Over wipes everything the Fun Patcher kept for that save: all its logs
+(the Village History too), all its data (ElderTotems.dat too) and its family
+tree files. It keeps Backups, Copies Made Before Repairs and exported family
+tree pictures. Other saves are not touched.
+
+This is the one time the Fun Patcher deletes its own records: Start Over makes
+a new tribe, so nothing of the old one is left behind (all five games, with any
+patch that keeps logs or data). Deleting a tribe from the save-slot menu does
+the same. In the save folder it deletes:
+  - "Virtual Villagers Fun Patcher\Save <N>", everything in it;
+  - "Virtual Villagers Fun Patcher Logs\Save <N>" and every file named
+    "... - Save <N>" in "Virtual Villagers Fun Patcher Data" (older versions'
+    places for the same files);
+  - that save's family tree files in "Virtual Villagers Fun Patcher Family
+    Trees" and its Reports folder: the saved tree (.vvtree), the Village
+    Matchmaker text and the Genealogy report (.txt and .html).
+Every picture (.png, .jpg, .jpeg, .bmp, .gif) is kept, whichever save it is
+of. A file whose save cannot be told for sure is kept, never guessed, and so is
+anything behind a link or junction and any file that is in use; each is listed
+in "Virtual Villagers Fun Patcher\Start Over Report - Save <N>.txt". Back up
+first (BACK UP SAVES, below) if you may want the old tribe's logs again.
+
 BACK UP SAVES
 
 The patcher can copy your modded games' saves for you, in all five games.

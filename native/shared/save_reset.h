@@ -9,9 +9,15 @@
  * WHAT IS DELETED, AND NOTHING ELSE.
  *
  * Only files this patcher created, only for the slot being erased, only inside
- * the folder resolved by vv_save_folder(). Each name is built explicitly. There
- * is no wildcard, no directory walk and no recursive delete anywhere in this
- * file, because a reset that guessed could take a player's saves with it.
+ * the folder resolved by vv_save_folder(). START OVER WIPES THE WHOLE SAVE (the
+ * owner, v1.35.79): the save's own "Virtual Villagers Fun Patcher\Save <N>"
+ * folder and the older layout's "...Logs\Save <N>" are emptied (the Village
+ * History and ElderTotems.dat included), the older Data folder's " - Save <N>"
+ * files and the slot's family tree files go too. Backups, Copies Made Before
+ * Repairs, every picture, the game's own saves and every other slot's files are
+ * kept; a file whose slot cannot be told is kept and listed in
+ * "Virtual Villagers Fun Patcher\Start Over Report - Save <N>.txt"; a link or
+ * junction is never followed. See wipe_slot in save_reset.c.
  *
  * The game's own files are never touched. The .ldw is the game's to delete and
  * it has already done so by the time this runs.

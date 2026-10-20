@@ -191,3 +191,18 @@ the same `vv_save_folder` used to write them (see
 `native/shared/save_folder.h`). A failed path resolution must abort rather than
 fall back to any other directory: the reset deletes, and a wrong folder is a
 wrong deletion target.
+
+### Since v1.35.79: Start Over wipes the whole save
+
+The owner's rule: Start Over is the one exception to "nothing is ever deleted" -- it
+makes a new tribe, so every remnant of the old one goes. After the named files above,
+`wipe_slot` in `native/shared/save_reset.c` empties `Virtual Villagers Fun Patcher\Save N`
+and the older `Virtual Villagers Fun Patcher Logs\Save N`, deletes every `... - Save N`
+file under `Virtual Villagers Fun Patcher Data`, and the slot's family tree files (its
+`.vvtree` by the save it records, its Village Matchmaker text and its Genealogy
+reports) in `Virtual Villagers Fun Patcher Family Trees` and the older
+`Virtual Villagers Fun Patcher Logs\Genealogy`. Backups, Copies Made Before Repairs, every
+picture and every other slot's files are kept; a file whose slot cannot be told, a link
+or junction (never followed) and a file that cannot be deleted are listed in
+`Virtual Villagers Fun Patcher\Start Over Report - Save N.txt`. Proven on disk by
+`native/shared/save_reset_harness.c` (all five games) under a throwaway Documents.
