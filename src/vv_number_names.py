@@ -117,9 +117,10 @@ def evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set[
 
 def number_names(folder: Path, game: int, slot: int, order: str = "appearance",
                  processes: vv_save_backup.ProcessController | None = None,
-                 now: datetime | None = None) -> tuple[ln.Result, Numbering]:
+                 now: datetime | None = None, automatic: bool = False) -> tuple[ln.Result, Numbering]:
     """Number every duplicate name in the save, the logs and the patcher's files.  Refused (nothing
-    changed) while the game runs or when no name is shared."""
+    changed) while the game runs or when no name is shared.  One "Repair <n>" record in the Repairs
+    Made log lists every rename and what was left as it was (`automatic`: the village's setting did it)."""
     folder = Path(folder)
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     ln.tools._refuse_if_running(folder, controller)
@@ -135,4 +136,93 @@ def number_names(folder: Path, game: int, slot: int, order: str = "appearance",
         raise ln.LastNamesError(f"A file could not be read ({exc}); nothing was changed.") from exc
     if not work.renames:
         raise ln.LastNamesError(" ".join(wanted.notes) or "No two villagers share a name.")
-    return ln.apply(folder, work, controller, now, BACKUP_LABEL, "numbering the names"), wanted
+    result = ln.apply(folder, work, controller, now, BACKUP_LABEL, "numbering the names")
+    try:
+        note_numbering(folder, game, slot, result, wanted, now, automatic)
+    except OSError:
+        pass                                    # the renames stand; the save and the logs show them
+    return result, wanted
+
+
+# NUMBERED AUTOMATICALLY (the owner, 2026-10-20: numbering villagers who share a full name "must be ON BY
+# DEFAULT" -- done without the player pressing the button, in the game and in every log, as a per-village
+# setting).  Kept in the save's own Data folder:
+#     <save folder>\Virtual Villagers Fun Patcher\Save <slot>\Data\Number Names\
+#         Virtual Villagers <game> Number Names - Save <slot>.dat
+# a "VVFP NUMBER NAMES v1 game=<game>" line, then "auto<TAB>on" or "auto<TAB>off".  No file, or no such
+# line, is ON.  Repair Saves & Logs keeps the choice ("Number villagers who share a name automatically");
+# with it on, every Repair numbers what Number Duplicate Names would (backup first, a Repairs Made record),
+# and "VVFP Number Names.dll" numbers a baby born with a living villager's full name at its birth.
+SETTING_HEADER = "VVFP NUMBER NAMES v1 game={game}"
+AUTO_ON, AUTO_OFF = "on", "off"
+
+
+def setting_path(folder: Path, game: int, slot: int) -> Path:
+    return layout.route(Path(folder), f"{layout.DATA}\\Number Names\\"
+                                      f"Virtual Villagers {game} Number Names - Save {slot}.dat")
+
+
+def read_auto(folder: Path, game: int, slot: int) -> bool:
+    """The village's setting: True (on) unless its file says "auto<TAB>off"."""
+    try:
+        lines = setting_path(folder, game, slot).read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return True
+    if not lines or lines[0] != SETTING_HEADER.format(game=game):
+        return True
+    for line in lines[1:]:
+        parts = line.split("\t")
+        if parts[0] == "auto" and len(parts) == 2 and parts[1] in (AUTO_ON, AUTO_OFF):
+            return parts[1] == AUTO_ON
+    return True
+
+
+def save_auto(folder: Path, game: int, slot: int, on: bool,
+              processes: vv_save_backup.ProcessController | None = None) -> bool:
+    """Keep the village's setting (refused while the game runs: the companion reads it at each birth).
+    True when it changed."""
+    controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
+    ln.tools._refuse_if_running(Path(folder), controller)
+    if on == read_auto(folder, game, slot):
+        return False
+    path = setting_path(folder, game, slot)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ln._write(path, (SETTING_HEADER.format(game=game) + f"\nauto\t{AUTO_ON if on else AUTO_OFF}\n").encode("utf-8"))
+    return True
+
+
+def pending(folder: Path, game: int, slot: int, order: str = "appearance") -> Numbering:
+    """What numbering would do now (read only): the renames, and the notes on who would be left as they
+    are and why -- the cases the player decides, never guessed."""
+    return numbering(gen.load_village(folder, game, slot, full_names=False), *evidence(folder, game, slot), order=order)
+
+
+def _village_header(folder: Path, game: int, slot: int) -> str | None:
+    import vv_tribe_rename
+    try:
+        named = {g.number: g for g in vv_tribe_rename.GAMES}[game]
+        name = vv_tribe_rename.save_name(named, ln.save_path(folder, game, slot).read_bytes())
+    except (KeyError, ValueError, struct.error, OSError):
+        return None
+    return vv_tribe_rename.village_header(name, slot) if name else None
+
+
+def note_numbering(folder: Path, game: int, slot: int, result: ln.Result, wanted: Numbering,
+                   now: datetime | None = None, automatic: bool = False) -> None:
+    """One "Repair <n>" record in the Repairs Made log (native/shared/repairs_log.h's shape, numbered as
+    src/vv_log_tools.py repair_record_start numbers it): every villager renamed, old -> new, and every
+    villager left as they were and why."""
+    folder = Path(folder)
+    header = _village_header(folder, game, slot) or "Village: (all villages in this save folder)"
+    path, text = ln.tools.repair_record_start(folder, game, header, layout.header_slot(header) or slot, now)
+    text += ("  Checked: villagers who share a full name, numbered oldest first (Number villagers who share a "
+             "name automatically)\r\n" if automatic else
+             "  Checked: villagers who share a full name (Number Duplicate Names)\r\n")
+    for (old, head, body), new in sorted(result.renamed.items(), key=lambda item: (item[1], item[0])):
+        text += f"  Renamed: {old} (head {head}, body {body}) -> {new}\r\n"
+    for note in wanted.notes:
+        text += f"  Left as it was: {note}\r\n"
+    text += f"  Files changed: {len(result.files)}\r\n"
+    text += f"  Backup: {Path(result.backup.backup_folder).name}\r\n\r\n"
+    with open(path, "ab") as log:
+        log.write(text.encode("latin-1", "replace"))

@@ -410,7 +410,11 @@ class Edits:
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
     show_twins: bool = False            # "<name>'s twin" / "<name> and <name>'s triplet" after the age
-    number_names: bool = False          # villagers who share a name numbered: "Soda I", "Soda II"...
+    # Villagers who share a name numbered: "Soda I", "Soda II"... -- on by default (the owner, 2026-10-20:
+    # numbering "must be ON BY DEFAULT").  number_names_v2 marks a value saved since then: every earlier
+    # build wrote number_names (False) whether or not the player ever changed it, so an earlier file's
+    # False cannot be told from "never set" and reads as the new default; a value saved now is kept.
+    number_names: bool = True
     number_order: str = "appearance"    # vv_genealogy.NUMBER_ORDERS: who is "I" (the owner's default)
     sort: str = "appearance"            # vv_genealogy.SORTS
     positioning: str = "dynamic"        # POSITIONING
@@ -591,7 +595,7 @@ class Edits:
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
         out.show_twins = data.get("show_twins", False) is True
-        out.number_names = data.get("number_names") is True
+        out.number_names = data.get("number_names") is not False if data.get("number_names_v2") is True else True
         if data.get("number_order") in gen.NUMBER_ORDERS:
             out.number_order = data["number_order"]
         if data.get("sort") in gen.SORTS:
@@ -752,6 +756,7 @@ class Edits:
         return {"format": 1, "page_edits": clean_page_edits(self.page_edits), "title": self.title, "subtitle": self.subtitle,
                 "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "line_mode": self.line_mode, "line_order": self.line_order, "line_reverse": self.line_reverse, "gradient_start": self.gradient_start, "gradient_end": self.gradient_end, "range_colours": self.range_colours, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "show_runner": self.show_runner, "number_names": self.number_names,
+                "number_names_v2": True,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
                 "numbering": self.numbering,
@@ -1316,7 +1321,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "fixed_face_size", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
     "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "canvas_w", "canvas_h", "page_generations", "diagonal_lines",
-    "show_units", "show_years", "show_twins", "show_runner", "number_names", "number_order", "sort", "positioning", "numbering",
+    "show_units", "show_years", "show_twins", "show_runner", "number_names", "number_names_v2", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
     "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
@@ -1336,6 +1341,8 @@ def styled(style: dict | None) -> "Edits":
     base = Edits().to_data()
     if isinstance(style, dict):
         base.update({key: value for key, value in style.items() if key in STYLE_KEYS})
+        if style.get("number_names_v2") is not True:   # a look an earlier build kept: numbering's new default
+            base["number_names"] = True
         shapes = style.get("shapes") if isinstance(style.get("shapes"), dict) else {}
         for name in SHAPE_BAKES:                # a look remembered before, with that shape: moved on
             if f"{name}_v2" not in style and name in shapes.values():

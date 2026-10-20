@@ -256,9 +256,10 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).
             ("vv_villager_info", {"vv_family_tree", "vv_genealogy", "vv_last_names",
                                  "vv_save_layout", "vv_log_additions", "vv_titles_file"}),
-            # Number Duplicate Names renames through Last Names.
+            # Number Duplicate Names renames through Last Names; its Repairs Made record names the tribe
+            # as the save does (vv_tribe_rename).
             ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup", "vv_log_additions",
-                                 "vv_save_layout"}),
+                                 "vv_save_layout", "vv_tribe_rename"}),
             ("vv_tree_editor_tools", {"vv_family_tree", "vv_gdiplus"}),
             # The save folder's folder and file names, old and new (the owner, 2026-10-09).
             ("vv_save_layout", set()),

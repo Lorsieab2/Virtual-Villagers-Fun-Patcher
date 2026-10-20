@@ -30,6 +30,7 @@ from pathlib import Path
 import sys  # noqa: E402
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
+from parentage_log_text import NUMBERED_AT_BIRTH  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 DLL = ROOT / "assets" / "parentage" / "VVFP VV1 Parentage.dll"
@@ -65,7 +66,8 @@ def main() -> None:
             + " That base's companion loads this patch's DLL. **Needs Write Births "
             "and Conceptions Log to Text File on for the father**, which its "
             "conception hook supplies: with that patch off only the mother is "
-            "recorded."
+            "recorded. "
+            + NUMBERED_AT_BIRTH.rstrip()
         ),
         "output_tag": "Show Parents",
         "dependencies": [
@@ -97,7 +99,15 @@ def main() -> None:
                 "source": "assets/parentage/VVFP VV1 Parentage.dll",
                 "destination": "VVFP VV1 Parentage.dll",
                 "sha256": digest,
-            }
+            },
+            {
+                # A newborn namesake numbered at its birth (native/vvfp_number_names): loaded and called
+                # by VVFP VV1 Parentage.dll; ships with it.
+                "source": "assets/number_names/VVFP Number Names.dll",
+                "destination": "VVFP Number Names.dll",
+                "sha256": hashlib.sha256((ROOT / "assets" / "number_names" / "VVFP Number Names.dll")
+                                         .read_bytes()).hexdigest().upper(),
+            },
         ],
         "patches": [],
     }

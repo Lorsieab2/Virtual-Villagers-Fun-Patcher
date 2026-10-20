@@ -1,0 +1,3 @@
+LIBRARY "VVFP Number Names"
+EXPORTS
+    VvfpNumberNewName=_VvfpNumberNewName@36
