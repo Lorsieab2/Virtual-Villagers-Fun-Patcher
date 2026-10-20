@@ -183,13 +183,14 @@ class ChiefHospitalChainInTheStockExecutable(unittest.TestCase):
         self.assertTrue(DLL.is_file())
         self.assertEqual(hashlib.sha256(DLL.read_bytes()).hexdigest().upper(), item["sha256"])
 
-    def test_the_loader_knows_the_companion_as_its_last_entry(self):
+    def test_the_loader_knows_the_companion_in_its_appended_place(self):
         import vv_fun_patcher as vfp
-        self.assertEqual(vfp.STARTUP_LOADER_COMPANIONS[-1], DLL_LEAF)
+        # Entry 21 (bit 21): the list is append-only, so later companions follow it.
+        self.assertEqual(vfp.STARTUP_LOADER_COMPANIONS[20], DLL_LEAF)
         header = (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
         body = header[header.index("VVFP_STARTUP_COMPANIONS[] = {"):]
         body = body[:body.index("};")]
-        self.assertEqual(re.findall(r'"([^"]+)"', body)[-1], DLL_LEAF)
+        self.assertEqual(re.findall(r'"([^"]+)"', body)[20], DLL_LEAF)
         self.assertLess(len(vfp.STARTUP_LOADER_COMPANIONS), 30)
 
     def test_the_dll_exports_only_vvfpstartup_and_contains_the_stub_constants(self):

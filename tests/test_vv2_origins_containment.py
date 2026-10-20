@@ -30,6 +30,8 @@ PUBLIC = {
 }
 REMAINING = {
     "vv2_last_names",
+    # companion only: detours at run time, owns no executable bytes
+    "vv2_totems_out_of_entries",
     "vv2_island_events",
     "vv2_storytelling",
     "vv2_game_log",

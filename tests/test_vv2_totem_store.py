@@ -222,6 +222,25 @@ class RemovalWarning(unittest.TestCase):
             self.assertIsNone(ts.removal_warning([ts.DLL], [ts.FEATURE_ID], folder))
             self.assertIsNone(ts.removal_warning(["VVFP Startup.dll"], [], folder))
 
+    def test_the_patcher_asks_before_building_over_a_copy_with_the_patch(self):
+        from unittest import mock
+
+        import patcher_files
+        import vv_fun_patcher_gui as gui
+        with tempfile.TemporaryDirectory() as tmp:
+            copy = Path(tmp) / "Copy"
+            (copy / patcher_files.PATCHER_FILES_FOLDER).mkdir(parents=True)
+            (copy / patcher_files.PATCHER_FILES_FOLDER / ts.DLL).write_bytes(b"MZ")
+            outputs = [(copy, copy / "Virtual Villagers - The Lost Children.exe")]
+            with mock.patch.object(ts, "save_folder_of", return_value=None), \
+                    mock.patch.object(gui.messagebox, "askyesno", return_value=False) as asked:
+                self.assertFalse(gui.App._confirm_totems_kept(None, outputs, ["vv2_last_names"]))
+                self.assertIn(ts.LABEL_PUT_BACK, asked.call_args.args[1])
+            with mock.patch.object(ts, "save_folder_of", return_value=None), \
+                    mock.patch.object(gui.messagebox, "askyesno", return_value=False) as asked:
+                self.assertTrue(gui.App._confirm_totems_kept(None, outputs, [ts.FEATURE_ID]))
+                asked.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

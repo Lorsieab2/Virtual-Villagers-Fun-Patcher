@@ -630,6 +630,16 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(files["VVFP VV2 Totems.dll"], hashlib.sha256(DLL.read_bytes()).hexdigest().upper())
         self.assertEqual(row["patches"], [])
 
+    def test_the_startup_loader_starts_the_companion(self):
+        import re
+
+        import vv_fun_patcher as vfp
+        self.assertEqual(vfp.STARTUP_LOADER_COMPANIONS[21], "VVFP VV2 Totems.dll")
+        header = (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
+        body = header[header.index("VVFP_STARTUP_COMPANIONS[] = {"):]
+        body = body[:body.index("};")]
+        self.assertEqual(re.findall(r'"([^"]+)"', body), list(vfp.STARTUP_LOADER_COMPANIONS))
+
 
 if __name__ == "__main__":
     unittest.main()
