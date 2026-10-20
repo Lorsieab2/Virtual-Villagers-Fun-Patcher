@@ -32,7 +32,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "6C34F497473CD01DA48FE0635E6B01446DAFADBB4ED76847298BDE6351B5ED88"
+      "sha256": "EA8DAA8A84EF7BF18628FC6DF5514E84492A9595C3CC98064D6A6A5B7C56603D"
     }
   ],
   "runtime_detours": [
@@ -505,6 +505,18 @@
       "va": "0x416B0B",
       "stock_bytes": "E8A00E0500",
       "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x45E887",
+      "stock_bytes": "E834F9FBFF",
+      "routine": "a mastery check before a twins / triplets roll (Pick Island Event outcomes)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x45E8A7",
+      "stock_bytes": "E814F9FBFF",
+      "routine": "a mastery check before a twins / triplets roll (Pick Island Event outcomes)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     }
   ],

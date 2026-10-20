@@ -1446,7 +1446,7 @@ is about (one the game would not pick leaves the choice to the game).
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |
-| What the Gong does | result | Grants vision; Grants food: +1000 food, plant store = 800, coconut trees = 30 (+30 with Coconuts Fix); Grants technology: +20000..59999 tech (see 'Technology gained (big)'); Takes food: food, plant store and coconut trees all set to 0; Grants life: every woman aged 18-49, not pregnant, gets full health, is cured and becomes pregnant (population cap permitting); Takes life: the villager who rang it dies (health 0); Takes health: each villager may fall sick (30%, see 'Who falls sick'); Grants luck; Grants technology: +10000..29999 tech (see 'Technology gained (medium)'); Grants food: +1000..2999 food (see 'Food gained (big)'); Takes health: the villager who rang it loses 90 health (to 0 at most); Takes food: the plant store set to 0; Takes food: coconut trees set to 0; Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer); Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer); Grants health: every villager healed to 100 and cured; Grants food: +200..999 food (see 'Food gained (small)'); Grants food: plant store set to 800; Grants food: coconut trees set to 30 (+30 with Coconuts Fix); Grants technology: +3000..12999 tech (see 'Technology gained (small)'); Takes technology: -3000..12999 tech (see 'Technology lost'); Takes health: each villager may fall sick (15%, see 'Who falls sick'); Grants wisdom: one skill of the villager who rang it set to 100 (see 'Skill') |
+| What the Gong does | result | Grants vision; Grants food: +1000 food, plant store = 800, coconut trees = 30 (+30 with Coconuts Fix); Grants technology: +20000..59999 tech (see 'Technology gained (big)'); Takes food: food, plant store and coconut trees all set to 0; Grants life: every woman aged 18-49, not pregnant, gets full health, is cured and becomes pregnant (population cap permitting); Takes life: the villager who rang it dies (health 0); Takes health: each villager may fall sick (30%, see 'Who falls sick'); Grants luck; Grants technology: +10000..29999 tech (see 'Technology gained (medium)'); Grants food: +1000..2999 food (see 'Food gained (big)'); Takes health: the villager who rang it loses 90 health (to 0 at most); Takes food: the plant store set to 0; Takes food: coconut trees set to 0; Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer; or the villager chosen in 'The villager who rang it'); Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer; or the villager chosen in 'The villager who rang it'); Grants health: every villager healed to 100 and cured; Grants food: +200..999 food (see 'Food gained (small)'); Grants food: plant store set to 800; Grants food: coconut trees set to 30 (+30 with Coconuts Fix); Grants technology: +3000..12999 tech (see 'Technology gained (small)'); Takes technology: -3000..12999 tech (see 'Technology lost'); Takes health: each villager may fall sick (15%, see 'Who falls sick'); Grants wisdom: one skill of the villager who rang it set to 100 (see 'Skill') |
 | Technology gained (big, 'Grants technology' tier A) | amount | any of 20000 to 59999 tech |
 | Technology gained (medium, tier B) | amount | any of 10000 to 29999 tech |
 | Technology gained (small, tier C) | amount | any of 3000 to 12999 tech |
@@ -1457,4 +1457,26 @@ is about (one the game would not pick leaves the choice to the game).
 | Who falls sick ('Takes health', 15%, tier C) | each villager | nobody, everyone, the villagers chosen |
 | Skill raised to 100 ('Grants wisdom') | result | Parenting; Building; Healing; Research; Farming |
 | Babies per pregnancy ('Grants life') | result | One baby; Twins; Triplets |
+| The villager who rang it | which villager | any of the living adults (one who has died, gone or changed by the ring: the game's own choice) |
+
+### Looked at and not offered (the Gong of Wonder)
+
+* 0x44EB32 rand(50) in 'Grants life': passed as arg2 of 0x44B980 and stored at the mother's +0x5EC (0x44BA1A); no code reads +0x5EC by displacement (only writes at 0x424FD8, 0x44BA1A, 0x44C992, 0x44CF86, 0x44D2CD), so no traced effect -> not offered (uncertain: could be read through a whole-record copy).
+* Jump-table default branches are dead: rand(6)/rand(9)/rand(5) can never exceed the bound.
+* Tier-C entries 7 and 8 are byte-identical 'Grants wisdom' paths -> one option.
+* No other developer-dead outcomes: every table entry of all three tiers is reachable in stock (A/B after the first tier-C ring).
+* 'Grants life': which women become pregnant is not a roll -- every woman aged 18-49, alive and not pregnant, in index order, while the population cap allows -- so it is not offered.
+* 'Grants health' and the sickness rolls' filters: no roll decides who is healed (every living villager), so nothing to offer beyond 'Who falls sick'.
+
+## The Secret City: Recharge Chief Powers
+
+No settings: the purchase makes every resting Tribal Chief power ready to use at once, priced as Pick Gong of Wonder Outcome (the Island Event upgrade's price: 0, or 30,000 with Story / Cheat Upgrades cost Tech Points).
+
+| Power | Next use (world) | Used at | Rests after a use |
+| --- | --- | --- | --- |
+| Granting food | +0x12F00 | 0x421A30 (hotspot 15) | clock + 0x14370 (23 h) |
+| Educating the children (Leadership 2) | +0x12EFC | 0x466828 | clock + 0x14370 (23 h) |
+| Pointing out a rare collectible (Leadership 3) | +0x12EF8 | 0x421BE0 (hotspot 0x25) | clock + 0x14370 (23 h) |
+
+A power rests while its next-use time is ahead of the game's clock (0x403330). The purchase writes 0 -- what the robe's success (0x431FE0) writes to all three when a villager becomes the chief -- to each resting one. Refused, with nothing written or charged: no living chief (0x45FC00), Leadership level 0, or every power ready already.
 

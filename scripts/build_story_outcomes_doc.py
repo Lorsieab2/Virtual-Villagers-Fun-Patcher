@@ -20,7 +20,8 @@ from story_outcome_tables import plain  # noqa: E402
 OUT = ROOT / "docs" / "story-island-outcomes.md"
 NAMES = {"vv1": "A New Home", "vv2": "The Lost Children", "vv3": "The Secret City",
          "vv4": "The Tree of Life", "vv5": "New Believers"}
-KIND = {"enum": "result", "amount": "amount", "loop": "each villager", "victim": "which villager"}
+KIND = {"enum": "result", "amount": "amount", "loop": "each villager", "victim": "which villager",
+        "ringer": "which villager"}
 
 
 def _event_label(e: dict) -> str:
@@ -42,6 +43,9 @@ def _control_line(c: dict) -> str:
         values = ", ".join(choices)
         if c.get("warn_everyone"):
             values += " (everyone: a warning first)"
+    elif c["kind"] == "ringer":
+        values = (f"any of {plain(c.get('filter'))} (one who has died, gone or changed by the ring: "
+                  "the game's own choice)")
     else:
         values = "a villager the game itself could pick"
     return f"| {label} | {KIND[c['kind']]} | {values} |"
@@ -118,8 +122,35 @@ def build() -> str:
     lines += ["## The Lost Children: Pick Gong of Wonder Outcome", "",
               "| Setting | Kind | Choices besides Random |", "| --- | --- | --- |"]
     lines += [_control_line(c) for c in data.GONG_CONTROLS["vv2"]]
+    lines += ["", "### Looked at and not offered (the Gong of Wonder)", ""]
+    lines += [f"* {plain(item) or item}" for item in data.GONG_OMITTED["vv2"]]
     lines.append("")
+    lines += VV3_RECHARGE_SECTION
     return "\n".join(lines) + "\n"
+
+
+# The Secret City's Recharge Chief Powers (native/vvfp_story_upgrades/story_c3.inc): no
+# settings, only the chief's three rest times, written to the robe's own ready value.
+VV3_RECHARGE_SECTION = [
+    "## The Secret City: Recharge Chief Powers",
+    "",
+    "No settings: the purchase makes every resting Tribal Chief power ready to use at once, "
+    "priced as Pick Gong of Wonder Outcome (the Island Event upgrade's price: 0, or 30,000 with "
+    "Story / Cheat Upgrades cost Tech Points).",
+    "",
+    "| Power | Next use (world) | Used at | Rests after a use |",
+    "| --- | --- | --- | --- |",
+    "| Granting food | +0x12F00 | 0x421A30 (hotspot 15) | clock + 0x14370 (23 h) |",
+    "| Educating the children (Leadership 2) | +0x12EFC | 0x466828 | clock + 0x14370 (23 h) |",
+    "| Pointing out a rare collectible (Leadership 3) | +0x12EF8 | 0x421BE0 (hotspot 0x25) | "
+    "clock + 0x14370 (23 h) |",
+    "",
+    "A power rests while its next-use time is ahead of the game's clock (0x403330). The purchase "
+    "writes 0 -- what the robe's success (0x431FE0) writes to all three when a villager becomes "
+    "the chief -- to each resting one. Refused, with nothing written or charged: no living chief "
+    "(0x45FC00), Leadership level 0, or every power ready already.",
+    "",
+]
 
 
 if __name__ == "__main__":

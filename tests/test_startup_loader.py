@@ -29,7 +29,9 @@ that ships a DLL, alone with its prerequisites; every public patch; every
 public patch with 256 Villagers (Experimental)):
 
 * WinMain is entered with the C runtime's stack, arguments and registers;
-* every shipped DLL is loaded, each by its full path in the game folder;
+* every shipped DLL is loaded, each by its full path in the game folder --
+  but a DLL another companion loads only when it needs it
+  (vfp.STARTUP_LOADER_ON_DEMAND), which is in the folder and never started;
 * every runtime detour each selected row declares (`runtime_detours`) is
   written before WinMain -- and, the mutation, none is when the loader is
   left out (the old late install points);
@@ -164,6 +166,12 @@ def published(game: str, mode: str, selection: tuple[str, ...], loader: bool = T
     return bytes(data), shipped, tuple(f.id for f in features)
 
 
+def started(shipped) -> set[str]:
+    """The shipped DLLs the loader starts: all but those another companion
+    loads by itself when it needs them (vfp.STARTUP_LOADER_ON_DEMAND)."""
+    return {n for n in shipped if n not in vfp.STARTUP_LOADER_ON_DEMAND}
+
+
 def declared_detours(feature_ids) -> list[tuple[int, bytes, str]]:
     out = []
     features = set(feature_ids)
@@ -248,7 +256,7 @@ class StartupLoaderPlacement(unittest.TestCase):
                     build_of(game), [i for i in public_ids(game) if i not in POPULATION_256]))
                 mask = vfp._startup_loader_mask(game, features)
                 # all but the loader; bit 30 is the tech-point setting, not a companion
-                self.assertEqual(bin(mask & ~vfp.STARTUP_LOADER_STORY_CHARGES).count("1"), len(shipped) - 1)
+                self.assertEqual(bin(mask & ~vfp.STARTUP_LOADER_STORY_CHARGES).count("1"), len(started(shipped)) - 1)
                 # Check logs automatically is on by default: bit 31 rides with the companion bits.
                 block = vfp._startup_loader_block(va, int(game[2]), mask | vfp.STARTUP_LOADER_CHECK_LOGS,
                                                   slots[b"GetModuleHandleA"], slots[b"GetProcAddress"],
@@ -317,7 +325,17 @@ class StartupLoaderPlacement(unittest.TestCase):
         shipped = {str(item["destination"]) for p in vfp.load_fun_patches()
                    for item in p.raw.get("companion_files", [])
                    if str(item.get("destination", "")).lower().endswith(".dll")}
-        self.assertEqual(shipped - named, set())
+        on_demand = set(vfp.STARTUP_LOADER_ON_DEMAND)
+        self.assertEqual(shipped - named - on_demand, set())
+        # An on-demand DLL is never a startup companion, and every row that
+        # ships one ships the companion that loads it.
+        self.assertEqual(on_demand & set(vfp.STARTUP_LOADER_COMPANIONS), set())
+        loaders = {"VVFP Parentage Export.dll", "VVFP VV1 Parentage.dll"}
+        for p in vfp.load_fun_patches():
+            dlls = {str(item["destination"]) for item in p.raw.get("companion_files", [])}
+            if dlls & on_demand:
+                with self.subTest(row=p.id):
+                    self.assertTrue(dlls & loaders, f"{p.id} ships {dlls & on_demand} without its loader")
 
     def test_the_loader_and_the_patcher_number_the_companions_alike(self):
         header = (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
@@ -360,7 +378,7 @@ class EveryCompanionArmsBeforeWinMain(unittest.TestCase):
         self.assertEqual(set(machine.load_flags), {(0, 8)})     # no file handle; altered search path
         self.assertNotIn("GetModuleFileNameA", [c[0] for c in machine.calls])
         self.assertEqual({m.name.lower() for m in machine.modules.values()},
-                         {n.lower() for n in shipped})
+                         {n.lower() for n in started(shipped)})
         armed = 0
         for va, stock, what in declared_detours(features):
             if before[va] != stock:
@@ -453,7 +471,7 @@ class AMissingCompanionNeverStopsTheGame(unittest.TestCase):
                     if missing == vfp.STARTUP_LOADER_DLL:
                         self.assertEqual(loaded, set())
                     else:
-                        self.assertEqual(loaded, set(present))
+                        self.assertEqual(loaded, started(present))
 
 
 STALE = {
@@ -499,7 +517,7 @@ class OnlyThisBuildsCompanions(unittest.TestCase):
             with self.subTest(game=game):
                 stale = dict(STALE, **{vfp.STARTUP_LOADER_ORIGINS[game]: ORIGINS_SOURCE[game]})
                 machine, shipped = self.run_with_stale(game, (f"{game}_write_village_statistics",), stale)
-                self.assertEqual({m.name for m in machine.modules.values()}, set(shipped))
+                self.assertEqual({m.name for m in machine.modules.values()}, started(shipped))
                 self.assertNotIn("VirtualProtect", [c[0] for c in machine.calls])
 
     def test_with_origins_its_bridges_load_only_this_builds_companions(self):
@@ -511,7 +529,7 @@ class OnlyThisBuildsCompanions(unittest.TestCase):
                 selection = (f"{game}_enable_origins_exclusive_features", f"{game}_write_village_statistics")
                 stale = {n: s for n, s in STALE.items()}
                 machine, shipped = self.run_with_stale(game, selection, stale)
-                self.assertEqual({m.name for m in machine.modules.values()}, set(shipped))
+                self.assertEqual({m.name for m in machine.modules.values()}, started(shipped))
                 # The only code written is the Origins companion's own quit
                 # hook: its five bytes (made writable, then restored) and its stub's page.
                 pages = [c[1] for c in machine.calls if c[0] == "VirtualAlloc"]
@@ -746,7 +764,7 @@ class DeepInstallFolders(unittest.TestCase):
                 result = machine.run_to_winmain(call_va, winmain)
                 self.assertEqual(result["registers_at_winmain"], result["registers_before"])
                 self.assertEqual(result["esp_at_winmain"], result["esp_before_call"] - 4)
-                self.assertEqual({m.name for m in machine.modules.values()} == set(shipped), starts)
+                self.assertEqual({m.name for m in machine.modules.values()} == started(shipped), starts)
                 if not starts:
                     self.assertEqual(machine.modules, {})
 
@@ -789,7 +807,7 @@ class AUnicodeGameFolder(unittest.TestCase):
                     before = {va: machine.code(va, len(stock)) for va, stock, _ in declared_detours(features)}
                     result = machine.run_to_winmain(call_va, winmain)
                     self.assertEqual(result["registers_at_winmain"], result["registers_before"])
-                    self.assertEqual({m.name for m in machine.modules.values()}, set(shipped))
+                    self.assertEqual({m.name for m in machine.modules.values()}, started(shipped))
                     for module in machine.modules.values():
                         self.assertEqual(module.path, UNICODE_FOLDER + FILES + "\\" + module.name)
                     for va, stock, what in declared_detours(features):

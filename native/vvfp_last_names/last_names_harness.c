@@ -29,6 +29,14 @@
      8. A village with no rule recorded (no file, or no rule line) -- or a
         birth whose village cannot be told -- uses "From the father", in
         every game; "list" and "each" still change nothing.
+     9. The record in the save's own folder.
+    10. A parent's own "Random last name from the list": every child a name
+        of the list, all 50 reachable and evenly drawn (chi-square), twins
+        each their own draw; disagreeing parents use the village's rule; an
+        unknown rule code is no rule.
+    11. 50:50 is a fair draw for each child, twins born in the same tick too.
+    12. "From the mother" is the mother's: triplets, a renamed or numbered
+        mother, a mother with no last name, an unknown mother, own rules.
 
    Exit code 0 when every check passes. */
 #define _CRT_SECURE_NO_WARNINGS
@@ -315,6 +323,143 @@ int main(int argc, char **argv) {
         check(strcmp(born("Ago Bahati", 2, 2, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
               "...and the next birth finds him by his new looks there");
         DeleteFileA(own);
+    }
+
+    /* The list the game's own would be (VvfpStartup reads it from the executable; the emulator test in
+       tests/test_last_names_random_rule.py runs the shipped DLL over each game's real list). */
+    for (k = 0; k < FAMILIES; ++k) {
+        _snprintf(g_last[k], sizeof g_last[k], "Ln%c%c", 'a' + k / 26, 'a' + k % 26);
+    }
+
+    printf("10. \"Random last name from the list\", a parent's own rule (the owner, v1.35.79), in every game\n");
+    {
+        int g;
+        for (g = 1; g <= 5; ++g) {
+            int counts[FAMILIES], all_listed = 1, reached = 0, same = 0, i;
+            double chi = 0.0;
+            const int draws = 2500;
+            g_game = g;
+            _snprintf(g_path, sizeof g_path, "%s\\Virtual Villagers %d Last Names - Save 1.dat", folder, g);
+            printf("  game %d\n", g);
+            memset(counts, 0, sizeof counts);
+            record("father", "villager\tAgo Bahati\t5\t6\tM\tlist\n");
+            for (i = 0; i < draws; ++i) {
+                const char *got = born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8);
+                int found = -1, j;
+                for (j = 0; j < FAMILIES; ++j) {
+                    if (strncmp(got, "Kid ", 4) == 0 && strcmp(got + 4, g_last[j]) == 0) {
+                        found = j;
+                    }
+                }
+                if (found < 0) {
+                    all_listed = 0;
+                } else {
+                    ++counts[found];
+                }
+            }
+            for (i = 0; i < FAMILIES; ++i) {
+                double e = (double)draws / FAMILIES;
+                reached += counts[i] > 0;
+                chi += (counts[i] - e) * (counts[i] - e) / e;
+            }
+            check(all_listed, "the father's own rule: every child's last name is one of the list's");
+            check(reached == FAMILIES, "every one of the 50 names is drawn, the first and the last too");
+            check(chi < 90.0, "evenly: chi-square over 50 names below 90 (49 degrees of freedom, p < 0.001)");
+            for (i = 0; i < 1000; ++i) {     /* twins: two births in a row, in the same tick */
+                char first[24];
+                strcpy(first, born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8));
+                same += strcmp(first, born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8)) == 0;
+            }
+            check(same < 60, "twins born together each get their own draw (about 1 pair in 50 alike)");
+            record("father", "villager\tAipi Wanjiko\t7\t8\tF\tlist\n");
+            memset(counts, 0, sizeof counts);
+            reached = 0;
+            for (i = 0; i < 500; ++i) {
+                const char *got = born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8);
+                int j;
+                for (j = 0; j < FAMILIES; ++j) {
+                    if (strcmp(got + 4, g_last[j]) == 0) {
+                        ++counts[j];
+                    }
+                }
+            }
+            for (i = 0; i < FAMILIES; ++i) {
+                reached += counts[i] > 0;
+            }
+            check(reached >= 45, "the mother's own rule: drawn from the list too");
+            record("father", "villager\tAgo Bahati\t5\t6\tM\tlist\nvillager\tAipi Wanjiko\t7\t8\tF\tmother\n");
+            check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Bahati") == 0,
+                  "parents' own rules disagree: the village's, never a draw");
+            record("list", "villager\tAgo Bahati\t5\t6\tM\tlist\nvillager\tAipi Wanjiko\t7\t8\tF\tlist\n");
+            check(strncmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Ln", 6) == 0,
+                  "both parents' own: a draw (under the village's Random from list too)");
+            record("father", "villager\tAgo Bahati\t5\t6\tM\tlisx\nvillager\tAgo Bahati\t5\t6\tM\tlist2\n");
+            check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Bahati") == 0,
+                  "an unknown rule code is no rule: the village's");
+            {
+                static char name[8];
+                strcpy(name, "Kid");       /* room 8: "Kid Lnaa" needs 9 bytes: none fits */
+                VvfpRuleLastName2(name, sizeof name, "Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8, 1);
+                check(strcmp(name, "Kid") == 0, "no list name fits the field: the name is left as it is");
+            }
+            DeleteFileA(g_path);
+        }
+        g_game = 3;
+    }
+
+    printf("11. 50:50 is a fair draw for each child, twins too\n");
+    {
+        int g, i;
+        for (g = 1; g <= 5; ++g) {
+            int dad = 0, differ = 0;
+            g_game = g;
+            _snprintf(g_path, sizeof g_path, "%s\\Virtual Villagers %d Last Names - Save 1.dat", folder, g);
+            printf("  game %d\n", g);
+            record("random", "");
+            for (i = 0; i < 1000; ++i) {     /* no Sleep: births in the same tick */
+                char first[24];
+                strcpy(first, born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8));
+                dad += strcmp(first, "Kid Bahati") == 0;
+                differ += strcmp(first, born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8)) != 0;
+            }
+            check(dad > 420 && dad < 580, "the father's in about half of 1000 births");
+            check(differ > 420 && differ < 580, "twins born together differ about half the time");
+            DeleteFileA(g_path);
+        }
+        g_game = 3;
+    }
+
+    printf("12. From the mother is the mother's (the owner, v1.35.79), in every game\n");
+    {
+        int g;
+        for (g = 1; g <= 5; ++g) {
+            g_game = g;
+            _snprintf(g_path, sizeof g_path, "%s\\Virtual Villagers %d Last Names - Save 1.dat", folder, g);
+            printf("  game %d\n", g);
+            record("mother", "");
+            check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0
+                  && strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0
+                  && strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
+                  "triplets: each the mother's, never the father's");
+            check(strcmp(born("Ago Bahati", 5, 6, "Aipi Okelani", 7, 8), "Kid Okelani") == 0,
+                  "a mother renamed before the birth: the name she has at the birth");
+            check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko II", 7, 8), "Kid Wanjiko") == 0,
+                  "a numbered mother: her last name, not her numeral");
+            check(strcmp(born("Ago Bahati", 5, 6, "Aipi", 7, 8), "Kid") == 0,
+                  "a mother with no last name: none, never the father's or the family's");
+            check(strcmp(born("Ago", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
+                  "a father with no last name changes nothing");
+            check(strcmp(born("Ago Bahati", 5, 6, NULL, -1, -1), "Kid Akikai") == 0,
+                  "the mother unknown: the family's stays, never the father's");
+            record("father", "villager\tAipi Wanjiko\t7\t8\tF\tmother\n");
+            check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
+                  "her own From the mother under the village's From the father");
+            record("father", "villager\tAgo Bahati\t5\t6\tM\tmother\n");
+            check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
+                  "his own From the mother: the mother's, not his");
+            DeleteFileA(g_path);
+        }
+        g_game = 3;
     }
 
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);

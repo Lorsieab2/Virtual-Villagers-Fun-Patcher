@@ -65,6 +65,9 @@ FILES = [
     # Villagers Have Last Names: one companion for all five games, started by
     # VVFP Startup.dll; no executable bytes.
     "assets/last_names/VVFP Last Names.dll",
+    # Number villagers who share a name automatically: a newborn namesake numbered at its birth, one
+    # companion for all five games, loaded by the parentage companions; shipped with the parentage rows.
+    "assets/number_names/VVFP Number Names.dll",
     # Write Island Events Log: one companion for all five games, started by
     # VVFP Startup.dll; no executable bytes.
     "assets/island_events/VVFP Island Events.dll",

@@ -315,7 +315,7 @@
       "ids": ["vv1_last_names", "vv2_last_names", "vv3_last_names", "vv4_last_names", "vv5_last_names"],
       "guide": [
         "New villagers get a last name after their first name.",
-        "A baby takes its father's or mother's last name, by the rule you chose in Repair Saves & Logs (Last names come from).",
+        "A baby takes its father's or mother's last name by the rule chosen in Repair Saves & Logs; a parent's own rule can instead give each child a random one from the list.",
         "Without a rule, its family's name, from a list of 50 the game has always had but never used.",
         "Villagers who already have names keep them. Nothing to click: tick it, patch, and play."
       ]
@@ -568,7 +568,7 @@
       ]
     },
     {
-      "ids": ["vv1_story_cheat_upgrades", "vv3_story_cheat_upgrades", "vv4_story_cheat_upgrades", "vv5_story_cheat_upgrades"],
+      "ids": ["vv1_story_cheat_upgrades", "vv4_story_cheat_upgrades", "vv5_story_cheat_upgrades"],
       "guide": [
         "For stories and cheats: every Origins Upgrade costs 0 tech points.",
         "Adds Pick Island Event: choose an island event from a list, and how it turns out if you like.",
@@ -581,19 +581,33 @@
       ]
     },
     {
-      "ids": ["vv2_story_cheat_upgrades"],
+      "ids": ["vv3_story_cheat_upgrades"],
       "guide": [
         "For stories and cheats: every Origins Upgrade costs 0 tech points.",
         "Adds Pick Island Event (choose an event and how it turns out) and Custom Island Event (write your own).",
-        "Its villager list shows each Esteemed Elder and the totem they have.",
-        "Adds Pick Gong of Wonder Outcome: choose what the next ring of the Gong does.",
+        "Its villager list shows who your Tribal Chief is.",
+        "Adds Recharge Chief Powers: your chief's once-a-day powers are ready to use again at once.",
         "Find them in the Origins Upgrades menus.",
         "Watch out: it skips the game's normal progress. Off by default.",
         "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
       ]
     },
-    {"ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv3_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.", "You pay when the event is queued; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
-    {"ids": ["vv2_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost 30,000 tech points.", "You pay when it is queued; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {
+      "ids": ["vv2_story_cheat_upgrades"],
+      "guide": [
+        "For stories and cheats: every Origins Upgrade costs 0 tech points.",
+        "Adds Pick Island Event (choose an event and how it turns out) and Custom Island Event (write your own).",
+        "Its villager list shows each Esteemed Elder and the totem they have.",
+        "Adds Pick Gong of Wonder Outcome: choose what the next ring of the Gong does -- any of its 23 results, and which villager it acts on.",
+        "Buying it makes the Gong ready to ring at once. Ring it within ten minutes. It needs the Gong whole.",
+        "Find them in the Origins Upgrades menus.",
+        "Watch out: it skips the game's normal progress. Off by default.",
+        "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
+      ]
+    },
+    {"ids": ["vv3_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Recharge Chief Powers each cost 30,000 tech points.", "You pay when you buy it; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {"ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.", "You pay when the event is queued; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {"ids": ["vv2_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost 30,000 tech points.", "You pay when it is queued; with too few tech points, or no whole Gong, nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
     {
       "ids": ["vv1_cause_of_death"],
       "guide": [

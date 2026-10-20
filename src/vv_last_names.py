@@ -571,17 +571,17 @@ def save_arrivals(folder: Path, game: int, slot: int, on: bool,
 def unique_last_name(game: int, v: Living, living_lasts: set[str], dead_lasts: set[str],
                      known: set[str] | frozenset = frozenset()) -> str:
     """A last name of the game's own list for an arrival `v`: one no living villager has, and no dead
-    one either when the list still has such a name; the same one each time for the same villager (the
-    list is walked from a place their name, head and body decide).  One that fits the game's name
-    field; "" when none does."""
+    one either when the list still has such a name; the same one each time for the same villager (their
+    name, head and body seed the draw).  Every name still free is equally likely: before v1.35.79 the
+    list was walked from a place the villager decided and the first free name taken, so a free name
+    right after a run of taken ones was picked far more often than the rest (the owner: "make sure
+    random last names are truly random").  One that fits the game's name field; "" when none does."""
     pool = list(tools.load_checker().LAST_NAMES[game])
-    start = zlib.crc32(repr(v.identity).encode("utf-8")) % len(pool)
-    order = pool[start:] + pool[:start]
-    fits = [n for n in order if len(with_last(game, v.name, n, known)) <= ROOM[game]]
+    fits = [n for n in pool if len(with_last(game, v.name, n, known)) <= ROOM[game]]
     for avoid in (living_lasts | dead_lasts, living_lasts):
-        name = next((n for n in fits if n not in avoid), "")
-        if name:
-            return name
+        free = [n for n in fits if n not in avoid]
+        if free:
+            return random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(free)
     return ""
 
 
@@ -591,19 +591,28 @@ def unique_last_name(game: int, v: Living, living_lasts: set[str], dead_lasts: s
 # name)".  A living villager may have a rule of their own for their children's last name; at a birth
 # (decide) one parent's own rule is used, both parents' when they agree, and the village's when they
 # disagree or neither has one.  Kept in the same record, a line per villager:
-#     villager<TAB>name<TAB>head<TAB>body<TAB>M|F<TAB>father|mother|random
+#     villager<TAB>name<TAB>head<TAB>body<TAB>M|F<TAB>father|mother|random|list
 # A villager is their whole name, head, body and sex: what a child's record (A New Home: its parentage
 # entry) keeps of each parent, so VVFP Last Names.dll (VvfpRuleLastName2) finds the same villager at
 # the birth -- a father who died before it too.  Two living villagers who share all four cannot have a
 # rule of their own (indistinguishable); a rename (Give last names, Number Duplicate Names, restoring cut
 # names) carries the line along (_plan_own_rules), and so does a change of looks the logs record.
 # An earlier build's reader skips these lines.
+# "list" (the owner, v1.35.79: "Random last name from the list"): each child of that villager gets a last
+# name drawn at random from the game's own list -- in the game, a fresh draw for each child at its birth
+# (VvfpRuleLastName2), twins and triplets each their own.  Repair keeps the one a child carries when it is
+# one of the list's (the draw the game made), and gives one with none a draw of their own (inherited).
+# An earlier build's reader -- this file's (OWN_RULES had no "list") and the DLL's (it wants six letters)
+# -- skips such a line, so there the village's rule applies to that villager's children.
 OWN_RULES = {
     "": "Use the village rule",
     "father": "From the father",
     "mother": "From the mother",
     "random": "50:50",
+    "list": "Random last name from the list",
 }
+# The own rule whose children's last names are drawn from the game's list, not taken from a parent.
+OWN_LIST = "list"
 _SEX_LETTER = {"Male": "M", "Female": "F"}
 
 
@@ -884,7 +893,8 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
     last name a name already has: a villager listed here with a recorded parent takes the rule's
     name, not the one carried (a change of rule re-derives the family); one without keeps theirs.
     `own_rules`: each villager's own rule, (name, head, body, sex) -> rule: a child's rule is the one
-    decide() gives from their father's, their mother's and `rule`."""
+    decide() gives from their father's, their mother's and `rule`; a parent's own "list" (Random last
+    name from the list) keeps the list's name a child carries and draws one for a child with none."""
     fixed = fixed or {}
     own_rules = own_rules or {}
     living_keys = {own_key(v) for v in people if v.alive}
@@ -893,6 +903,23 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
         father, mother = parents.get(v.identity, (None, None))
         return decide(_parent_rule(own_rules, father, "Male", living_keys),
                       _parent_rule(own_rules, mother, "Female", living_keys), rule)
+
+    def drawn_by_own_rule(v: Living) -> bool:
+        """Whether a parent's own rule -- not the village's -- is "Random last name from the list"."""
+        father, mother = parents.get(v.identity, (None, None))
+        return decide(_parent_rule(own_rules, father, "Male", living_keys),
+                      _parent_rule(own_rules, mother, "Female", living_keys), None) == OWN_LIST
+
+    listed = set(pool or ())
+
+    def drawn(v: Living) -> str:
+        """OWN_LIST: the list's name a child carries is the game's draw at the birth and stays; a child
+        with none (or another) gets one of the whole list, every name equally likely, the same each
+        time for the same villager.  An arrival: none by default (ARRIVALS)."""
+        have = carried(v.name)
+        if v.arrived or (have and (have in listed or not pool)):
+            return have
+        return random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(pool) if pool else v.default
 
     def chosen_or_listed(v: Living, r: str) -> str:
         if v.identity in fixed:
@@ -922,6 +949,9 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
             out[v.identity] = fixed[v.identity]
             return out[v.identity]
         r = rule_of(v)
+        if r == OWN_LIST and drawn_by_own_rule(v):
+            out[v.identity] = drawn(v)
+            return out[v.identity]
         if r in (*PLAYER_RULES, "list"):
             out[v.identity] = chosen_or_listed(v, r)
             return out[v.identity]

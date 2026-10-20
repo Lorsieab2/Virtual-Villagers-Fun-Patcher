@@ -718,6 +718,67 @@ static int vv3_row_purchase_pending(int villager_menu, int row) {
     "for the full three."
 
 
+/* Story / Cheat Upgrades, The Secret City only: the Recharge Chief Powers
+   button, above the Pick Island Event button, while the row is active, as
+   The Lost Children's companion adds Pick Gong of Wonder Outcome.  It calls
+   "VVFP Story Upgrades.dll"'s VvfpStoryRechargeChiefPowers (already loaded by
+   vvfp_story_bridge, by full path), which refuses, charges and recharges; an
+   older story companion without that export gets no button.  Not an island
+   event, so not under the Island Event row's lock. */
+#define VV3_STORY_RECHARGE_ID 4094
+
+typedef int (__stdcall *vv3_story_recharge_fn)(int game, HWND owner);
+
+static vv3_story_recharge_fn vv3_story_recharge(void) {
+    HMODULE module;
+    if (!vvfp_story_offered(3)) {
+        return NULL;
+    }
+    module = GetModuleHandleA(VVFP_STORY_DLL);
+    return module != NULL
+        ? (vv3_story_recharge_fn)GetProcAddress(module, "VvfpStoryRechargeChiefPowers")
+        : NULL;
+}
+
+static void vv3_story_add_recharge_button(HWND dialog) {
+    static const int column[] = { VVFP_STORY_CUSTOM_ID, VVFP_STORY_TIME_SKIP_ID };
+    HWND pick = GetDlgItem(dialog, VVFP_STORY_PICK_ID);
+    RECT rc;
+    RECT unit = { 0, 0, 4, 4 };
+    int height;
+    int i;
+    char label[96];
+    if (pick == NULL || vv3_story_recharge() == NULL
+        || GetDlgItem(dialog, VV3_STORY_RECHARGE_ID) != NULL) {
+        return;
+    }
+    vvfp_story_label(3, "Recharge Chief Powers", label, sizeof label);
+    GetWindowRect(pick, &rc);
+    MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
+    MapDialogRect(dialog, &unit);
+    height = rc.bottom - rc.top;
+    /* Above whichever story button is highest in Pick Island Event's column. */
+    for (i = 0; i < (int)(sizeof column / sizeof column[0]); ++i) {
+        HWND other = GetDlgItem(dialog, column[i]);
+        RECT cr;
+        if (other != NULL) {
+            GetWindowRect(other, &cr);
+            MapWindowPoints(NULL, dialog, (POINT *)&cr, 2);
+            if (cr.left == rc.left && cr.top < rc.top) {
+                rc.top = cr.top;
+            }
+        }
+    }
+    vvfp_story_button(dialog, label, VV3_STORY_RECHARGE_ID,
+                      rc.left, rc.top - height - unit.bottom, rc.right - rc.left, height);
+}
+
+static int vv3_story_recharge_clicked(HWND dialog) {
+    vv3_story_recharge_fn fn = vv3_story_recharge();
+    return fn != NULL && fn(3, dialog) == 1;
+}
+
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -791,11 +852,19 @@ static INT_PTR CALLBACK upgrade_dialog(
         vvfp_story_relabel(3, window);
         if (!villager_menu) {
             vvfp_story_add_pick_button(3, window);
+            vv3_story_add_recharge_button(window);
         }
         center_topmost_on_owner(window);
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (command == VV3_STORY_RECHARGE_ID) {
+            /* Recharge Chief Powers: not an island event, no lock. */
+            if (vv3_story_recharge_clicked(window)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
         if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
             || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island

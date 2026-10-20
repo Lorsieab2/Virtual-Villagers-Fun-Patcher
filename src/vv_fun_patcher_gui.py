@@ -148,6 +148,19 @@ def default_fun_patch_selection(patch_id: str) -> bool:
     return patch_id not in DEFAULT_OFF_FUN_PATCH_IDS
 
 
+def auto_number_tick(auto: bool, misnumbered: bool, ticked: bool, forced: bool) -> tuple[bool, bool]:
+    """Repair Saves & Logs' "Number duplicate names" row under "Number villagers who share a name
+    automatically": (ticked, forced) after the setting or the names change.  With the setting on and
+    names to number, the row is ticked, and remembered as ticked by the setting unless the player
+    had ticked it already; with the setting off, a tick the setting made is taken back and a tick
+    the player made stays (Codex, #599)."""
+    if auto and misnumbered:
+        return True, forced or not ticked
+    if forced:
+        return False, False
+    return ticked, False
+
+
 def split_bold(text: str) -> list[tuple[str, bool]]:
     """Split a description at its **bold** markers: [(segment, is_bold), ...].
 
@@ -3766,6 +3779,8 @@ class App(tk.Tk):
                 "Checking the logs…\n\nNothing is changed.",
                 lambda: vv_log_tools.check_logs(folder, info.slot, number),
             )
+            numbering_lines = self._run_with_wait("Checking the names…\n\nNothing is changed.",
+                                                  lambda: self._numbering_report(folder, number, info.slot))
         except (vv_log_tools.LogToolError, OSError) as exc:
             _regrab(parent)
             self.status_var.set("Check Saves & Logs: the logs could not be checked.")
@@ -3790,9 +3805,29 @@ class App(tk.Tk):
                 written = None
             if written is not None:
                 self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary} Report: {written.name}")
-        self._show_log_report(parent, folder, info, result)
+        self._show_log_report(parent, folder, info, result, numbering_lines)
 
-    def _show_log_report(self, parent, folder: Path, info, result) -> None:
+    @staticmethod
+    def _numbering_report(folder: Path, number: int, slot: int) -> list[str]:
+        """Check Saves & Logs' lines on villagers who share a full name (read only; src/vv_number_names.py):
+        what numbering would rename -- at the next Repair Saves & Logs when the village's "Number villagers
+        who share a name automatically" is on -- and what it leaves for the player to decide."""
+        try:
+            wanted = vv_number_names.pending(folder, number, slot)
+            auto = vv_number_names.read_auto(folder, number, slot)
+        except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError, struct.error):
+            return []
+        if not wanted.renames and not wanted.notes:
+            return []
+        lines = ["== Villagers who share a name (Number villagers who share a name automatically: "
+                 + ("on" if auto else "off") + ")"]
+        for (old, _head, _body), new in sorted(wanted.renames.items(), key=lambda item: item[1]):
+            lines.append(f"NOTE  {old} -> {new}: "
+                         + ("numbered at the next Repair Saves & Logs." if auto else "not numbered (the setting is off)."))
+        lines += [f"ASK   {note}" for note in wanted.notes]
+        return lines
+
+    def _show_log_report(self, parent, folder: Path, info, result, extra: list[str] = ()) -> None:
         """The checker's report, in a scrollable read-only window."""
         window = tk.Toplevel(parent)
         window.title(f"Check Saves & Logs - {info.name} (Save {info.slot})")
@@ -3828,7 +3863,7 @@ class App(tk.Tk):
         text.tag_configure("WRONG", foreground="#a01010")
         text.tag_configure("ASK", foreground="#8a4b00")
         text.tag_configure("file", font=("Segoe UI", 9, "bold"))
-        for line in result.text.splitlines():
+        for line in result.text.splitlines() + list(extra):
             verdict = line.split(None, 1)[0] if line.strip() else ""
             tag = "file" if line.startswith("== ") else (verdict if verdict in ("WRONG", "ASK") else ())
             text.insert("end", line + "\n", tag)
@@ -3872,6 +3907,9 @@ class App(tk.Tk):
         # Undelete villagers (the owner, v1.35.73): the latest history revision's lines put back from the
         # copies it made; offered only when one has something to put back, never ticked by default.
         history: dict = {"plan": None, "note": None, "confirmed": False, "undo": None, "undo_confirmed": False}
+        # Number villagers who share a name automatically (src/vv_number_names.py): the village's setting,
+        # what the player ticks, and the namesakes numbering leaves as they are (and why).
+        numbers: dict = {"auto": True, "notes": [], "changed": False}
 
         def survey():
             checked = vv_log_tools.check_logs(folder, info.slot, number)
@@ -3907,12 +3945,14 @@ class App(tk.Tk):
             # Names the numbering rule now gives otherwise (the owner, 2026-10-08: a number only for
             # the same first AND last name; "Hawa Awanata II" with no other is "Hawa Awanata").
             try:
-                misnumbered = vv_number_names.numbering(
-                    vv_genealogy.load_village(folder, number, info.slot, full_names=False),
-                    *vv_number_names.evidence(folder, number, info.slot)).renames
+                wanted = vv_number_names.pending(folder, number, info.slot)
+                misnumbered = wanted.renames
+                numbers["notes"] = wanted.notes     # left as they are: the player decides, never guessed
             except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError,
                     struct.error):
                 misnumbered = {}
+            # Number villagers who share a name automatically (the owner, 2026-10-20: on by default).
+            numbers["auto"] = vv_number_names.read_auto(folder, number, info.slot)
             # Each grave against its records (src/vv_graves.py); one that cannot be read is said so.
             try:
                 graves = vv_graves.survey(folder, number, info.slot)
@@ -3967,7 +4007,7 @@ class App(tk.Tk):
             return
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
                                         unpaused, speed, misnumbered, graves, skills=skills, history=history,
-                                        totems=totems)
+                                        totems=totems, numbers=numbers)
         if picked is None:
             return
         rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked
@@ -4064,7 +4104,8 @@ class App(tk.Tk):
             try:
                 numbered = self._run_with_wait(
                     "Numbering the duplicate names…\n\nThe save folder is backed up first.",
-                    lambda: vv_number_names.number_names(folder, number, info.slot, numbering),
+                    lambda: vv_number_names.number_names(folder, number, info.slot, numbering,
+                                                         automatic=numbers["auto"]),
                 )
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
@@ -4102,6 +4143,16 @@ class App(tk.Tk):
             lines.append(" ".join([f"Duplicate names numbered: {len(done.renamed)} villager(s), in the save and "
                                    f"{len(done.files) - 1} other file(s)."] + wanted.notes
                                   + [f"Backup: {done.backup.backup_folder}"]))
+        elif numbers["auto"] and numbers["notes"]:
+            lines.append("Villagers who share a name, left as they are for you to decide (nothing was guessed): "
+                         + " ".join(numbers["notes"]))
+        if numbers["changed"]:
+            try:
+                vv_number_names.save_auto(folder, number, info.slot, numbers["auto"])
+                lines.append("Number villagers who share a name automatically: "
+                             + ("on." if numbers["auto"] else "off."))
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The numbering setting was not kept. {exc}", parent=parent)
         # Last, after every repair that rewrites the save: its game speed.
         # Unpausing a closed game's save is allowed, but the game will then catch up the real time
         # since the save was made (the owner, 2026-10-08: "that's intentional"): say so first.
@@ -4358,7 +4409,8 @@ class App(tk.Tk):
     def _repair_checklist(self, parent, folder: Path, number: int, info, found: str, old_words: int,
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
                           speed: tuple | None = None, misnumbered: dict | None = None, graves=None,
-                          skills: dict | None = None, history: dict | None = None, totems: dict | None = None):
+                          skills: dict | None = None, history: dict | None = None, totems: dict | None = None,
+                          numbers: dict | None = None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -4422,9 +4474,22 @@ class App(tk.Tk):
                                   command=lambda: self._last_names_dialog(window, folder, number, info, names,
                                                                           names_var))
         names_choose.pack(side="left", padx=(8, 0))
+        # Number villagers who share a name automatically (src/vv_number_names.py; the owner, 2026-10-20:
+        # on by default): the village's setting.  On, every Repair numbers them (the row below ticked and
+        # held) and VVFP Number Names.dll numbers a newborn namesake at its birth; off, nothing is
+        # numbered unless the row below is ticked (or the Family Tree Maker's button is used).
+        numbers = numbers if numbers is not None else {"auto": True, "notes": [], "changed": False}
+        number_auto_var = tk.BooleanVar(value=bool(numbers["auto"]))
+        number_auto_tick = ttk.Checkbutton(
+            frame, variable=number_auto_var,
+            text="Number villagers who share a name automatically (Soda I, Soda II...), in the game and the logs")
+        number_auto_tick.pack(anchor="w", pady=(4, 0))
         # Ticked when names do not follow the numbering rule (the owner, 2026-10-08: "update the
         # repair logs and save data and everything").
-        number_var = tk.BooleanVar(value=bool(misnumbered))
+        # With automatic numbering on, the row is ticked by the setting (cut_first below), not by the
+        # player, so unticking the setting unticks it again; a tick the player made stays (Codex, #599).
+        number_var = tk.BooleanVar(value=bool(misnumbered) and not number_auto_var.get())
+        number_forced = {"by_auto": False}
         number_row = ttk.Frame(frame)
         number_row.pack(anchor="w", pady=(4, 0))
         number_tick = ttk.Checkbutton(number_row, variable=number_var,
@@ -4440,6 +4505,12 @@ class App(tk.Tk):
                            "same first and last name): " + ", ".join(
                                f"{old} -> {new}" for (old, _h, _b), new in sorted(misnumbered.items())) + "."
                       ).pack(anchor="w", padx=(20, 0))
+        if numbers["notes"]:
+            # What numbering cannot decide (look-alikes, a name with no room, a record without looks):
+            # left as it is and shown, never guessed.
+            ttk.Label(frame, wraplength=600, justify="left", foreground="#8a4b00",
+                      text="Left as they are for you to decide: " + " ".join(numbers["notes"])
+                      ).pack(anchor="w", padx=(20, 0))
         # While cut names are to be restored, last names and numbering would work from the cut names:
         # they wait for the next Repair Saves & Logs, after the full names are back.
         wait_note = ttk.Label(frame, foreground="#555555",
@@ -4448,8 +4519,15 @@ class App(tk.Tk):
 
         def cut_first(*_args) -> None:
             waiting = bool(cuts) and cuts_var.get()
-            for widget in (names_tick, names_choose, number_tick):
+            for widget in (names_tick, names_choose):
                 widget.state(["disabled"] if waiting else ["!disabled"])
+            # Automatic: numbered at every Repair while there is something to number (held ticked).
+            ticked, number_forced["by_auto"] = auto_number_tick(
+                number_auto_var.get(), bool(misnumbered), number_var.get(), number_forced["by_auto"])
+            if ticked != number_var.get():
+                number_var.set(ticked)
+            held = waiting or (number_auto_var.get() and bool(misnumbered))
+            number_tick.state(["disabled"] if held else ["!disabled"])
             number_order.state(["disabled"] if waiting else ["!disabled", "readonly"])
             if waiting:
                 wait_note.pack(anchor="w", after=number_row)
@@ -4457,6 +4535,7 @@ class App(tk.Tk):
                 wait_note.pack_forget()
 
         cuts_var.trace_add("write", cut_first)
+        number_auto_var.trace_add("write", cut_first)
         cut_first()
         # Fix grave information (src/vv_graves.py): never ticked until the player answers something.
         graves_var = tk.BooleanVar(value=False)
@@ -4674,6 +4753,8 @@ class App(tk.Tk):
                     return
                 history["confirmed"] = True
             restore = bool(cuts) and cuts_var.get()
+            numbers["changed"] = number_auto_var.get() != bool(numbers["auto"])
+            numbers["auto"] = number_auto_var.get()
             skills["reset"] = bool(skills["found"]) and skills_var.get()
             totems["give"] = totem_survey is not None and give_var.get()
             totems["fix"] = totem_survey is not None and fix_var.get()
@@ -5298,7 +5379,8 @@ class App(tk.Tk):
         window.resizable(True, True)
         ttk.Label(window, padding=(12, 12, 12, 0), wraplength=620, justify="left",
                   text="Where each living villager's children get their last name, if not by the village "
-                       "rule. When only one parent has a rule of their own, it is used; when both do and they "
+                       "rule. Random last name from the list gives each child, twins and triplets too, a last "
+                       "name of its own drawn at random from the game's own list. When only one parent has a rule of their own, it is used; when both do and they "
                        "agree, theirs; when they disagree, or neither has one, the village rule. Villagers "
                        "who share a name, looks and sex cannot have one (number the duplicate names first). "
                        "A villager whose rule will change is shown in red bold. "
@@ -5344,7 +5426,7 @@ class App(tk.Tk):
             else:
                 values[key] = tk.StringVar(value=words.get(own.get(key, ""), words[""]))
                 ttk.Combobox(inner, textvariable=values[key], values=list(words.values()), state="readonly",
-                             width=22).grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
+                             width=max(len(text) for text in words.values()) + 2).grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
                 values[key].trace_add("write", restyle)
         restyle()
 

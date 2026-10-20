@@ -280,8 +280,15 @@ __declspec(dllexport) int __stdcall VvfpGiveLastName(char *name, unsigned int ro
    EACH VILLAGER'S OWN RULE (the owner, 2026-10-09: "so certain villagers can
    pass their last name with different rules from the rest of the village").
    The same file may hold, for a living villager, a line
-   "villager\t<name>\t<head>\t<body>\t<M|F>\t<rule>" (rule "father", "mother"
-   or "random"; the name in UTF-8): the rule for that villager's children.
+   "villager\t<name>\t<head>\t<body>\t<M|F>\t<rule>" (rule "father", "mother",
+   "random" or "list"; the name in UTF-8): the rule for that villager's
+   children.  "list" (the owner, v1.35.79: "Random last name from the list")
+   gives the child a last name drawn at random from the game's own list of
+   50 (g_last, the list the family names come from): every one of the 50
+   equally likely, one fresh draw for each child -- a twin's and a triplet's
+   too (random_below) -- among the names that fit the name field.  An
+   earlier build's reader takes "list" for no rule of the parent's (its
+   own_line_of wants six letters), so the village's rule applies there.
    The villager is the parent whose name, head, body and sex at the birth are
    all of those -- as the child's record (or A New Home's parentage entry)
    names the parent, so a father who died before the birth is still found.
@@ -466,7 +473,7 @@ static int number_of(const char *text, size_t n, int *value) {
 }
 
 /* One "villager" line (from `line` to its end): its name, head, body, sex
-   ('M' / 'F') and rule ('f', 'm', 'r'), and where the head and body are, for
+   ('M' / 'F') and rule ('f', 'm', 'r', 'l'), and where the head and body are, for
    a re-key.  0 for any other line, or a malformed one. */
 struct own_line {
     char name[LONGEST_LAST + 1];
@@ -498,10 +505,15 @@ static int own_line_of(const char *line, struct own_line *o) {
     if (k < 5 || memchr(field[4], '\t', len[4]) != NULL
         || !latin1_of(field[0], len[0], o->name, sizeof o->name)
         || !number_of(field[1], len[1], &o->head) || !number_of(field[2], len[2], &o->body)
-        || len[3] != 1 || (field[3][0] != 'M' && field[3][0] != 'F') || len[4] != 6) {
+        || len[3] != 1 || (field[3][0] != 'M' && field[3][0] != 'F') || (len[4] != 6 && len[4] != 4)) {
         return 0;
     }
-    if (strncmp(field[4], "father", 6) == 0) {
+    if (len[4] == 4) {
+        if (strncmp(field[4], "list", 4) != 0) {
+            return 0;
+        }
+        o->rule = 'l';
+    } else if (strncmp(field[4], "father", 6) == 0) {
         o->rule = 'f';
     } else if (strncmp(field[4], "mother", 6) == 0) {
         o->rule = 'm';
@@ -517,7 +529,7 @@ static int own_line_of(const char *line, struct own_line *o) {
 }
 
 /* The rule of the parent `name` with these looks and sex ('M' / 'F') from
-   the record's "villager" lines: 'f', 'm' or 'r'; 0 for none -- no line, the
+   the record's "villager" lines: 'f', 'm', 'r' or 'l'; 0 for none -- no line, the
    looks unknown (negative; a head or body 0 is a real look), or two lines for
    the same villager that disagree. */
 static char own_rule(const char *name, int head, int body, char sex) {
@@ -539,6 +551,63 @@ static char own_rule(const char *name, int head, int body, char sex) {
     }
     return found;
 }
+/* RANDOM DRAWS (the owner, v1.35.79: "make sure random last names are truly
+   random").  One generator for the whole game session: SplitMix64, seeded
+   once from the performance counter, the tick count, the process and thread
+   ids and a stack address, then stepped on every draw -- never re-seeded, so
+   two children born in the same tick (twins, triplets) each get a draw of
+   their own.  random_below(n) is uniform over 0 .. n-1 with no modulo bias
+   (draws in the uneven top of the 32-bit range are thrown back).  Before
+   v1.35.79 the 50:50 rule took (GetTickCount() ^ the name's address) & 1:
+   the name's address is always even in every game (the records are aligned
+   and the name's offset in them is even), so it was the tick count's parity
+   alone, the same for every child of one delivery. */
+static uint64_t g_random;
+static int g_random_seeded;
+
+static uint32_t next_random(void) {
+    uint64_t z;
+    if (!g_random_seeded) {
+        LARGE_INTEGER counter;
+        counter.QuadPart = 0;
+        (void)QueryPerformanceCounter(&counter);
+        g_random = (uint64_t)counter.QuadPart ^ ((uint64_t)GetTickCount() << 32)
+                   ^ ((uint64_t)GetCurrentProcessId() << 16) ^ ((uint64_t)GetCurrentThreadId() << 40)
+                   ^ (uint64_t)(uintptr_t)&counter;
+        g_random_seeded = 1;
+    }
+    g_random += 0x9E3779B97F4A7C15ull;
+    z = g_random;
+    z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
+    z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
+    return (uint32_t)((z ^ (z >> 31)) >> 32);
+}
+
+static unsigned int random_below(unsigned int n) {
+    uint32_t limit, r;
+    if (n <= 1) {
+        return 0;
+    }
+    limit = 0xFFFFFFFFu - (0xFFFFFFFFu % n);     /* a whole number of n's below it */
+    do {
+        r = next_random();
+    } while (r >= limit);
+    return r % n;
+}
+
+/* "list": a last name of the game's own list, drawn at random among the ones
+   whose "<first> <last>" fits `room` (every one does in the stock games); ""
+   when none does. */
+static const char *drawn_last_name(size_t first_len, unsigned int room) {
+    int fits[FAMILIES], count = 0, i;
+    for (i = 0; i < FAMILIES; ++i) {
+        if (g_last[i][0] != '\0' && first_len + 1 + strlen(g_last[i]) + 1 <= room) {
+            fits[count++] = i;
+        }
+    }
+    return count == 0 ? "" : g_last[fits[random_below((unsigned int)count)]];
+}
+
 /* The rule a birth uses (the owner, 2026-10-09): one parent's own; both
    parents' when they agree; else the village's (0: none). */
 static char decide(char father_rule, char mother_rule, char village) {
@@ -731,9 +800,10 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName2(char *name, unsigned int r
         last = dad;
     } else if (use == 'm') {                /* the mother's only, never the father's */
         last = mum;
+    } else if (use == 'l') {                /* "Random last name from the list": a fresh draw */
+        last = drawn_last_name(n, room);
     } else {                                /* "random": 50:50 for each child (the owner) */
-        last = dad[0] && mum[0] ? ((GetTickCount() ^ (DWORD)(uintptr_t)name) & 1 ? dad : mum)
-                                : (dad[0] ? dad : mum);
+        last = dad[0] && mum[0] ? (random_below(2) ? dad : mum) : (dad[0] ? dad : mum);
     }
     if (last[0] == '\0' && ((use == 'f' && father != NULL && father[0] != '\0')
                             || (use == 'm' && mother != NULL && mother[0] != '\0'))) {

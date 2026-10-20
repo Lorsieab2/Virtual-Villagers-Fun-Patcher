@@ -56,3 +56,15 @@ PLAYER_LOG_DESCRIPTION = (
     "the village is loaded. **The Arrived records are found by the Cause of Death patch "
     "(\"Log Every Death ...\"): with it off, none is written.** "
 )
+
+# The companion that numbers a newborn namesake (native/vvfp_number_names; the owner, 2026-10-20:
+# numbering villagers who share a name is on by default and automatic).  It ships with the row that
+# writes the Birth record: The Lost Children to New Believers' log row, A New Home's Show Parents row.
+NUMBERED_AT_BIRTH = (
+    "A baby born with the full name of a living villager is numbered at its birth, before its Birth "
+    "record is written (\"Chip Kenobi\" is born \"Chip Kenobi II\"), while the village's \"Number "
+    "villagers who share a name automatically\" is on (Repair Saves & Logs; on by default); the "
+    "villager who already had the name becomes \"I\" -- with the dead, in the save and every log -- at "
+    "the next Repair Saves & Logs, and a numbered name that would not fit the game's name limit is left "
+    "for Repair Saves & Logs to show you. "
+)

@@ -82,7 +82,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from parentage_log_text import PLAYER_LOG_DESCRIPTION  # noqa: E402
+from parentage_log_text import NUMBERED_AT_BIRTH, PLAYER_LOG_DESCRIPTION  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "research" / "stock-executables" / (
@@ -283,6 +283,18 @@ def _companion() -> dict[str, str]:
         "destination": "VVFP Parentage Export.dll",
         "sha256": hashlib.sha256(payload).hexdigest(),
         "source": COMPANION_SOURCE,
+    }
+
+
+def _number_names_companion() -> dict:
+    """VVFP Number Names.dll (native/vvfp_number_names): a newborn namesake numbered at its birth, loaded
+    and called by the parentage companion; with its digest read from the file."""
+    import hashlib
+    payload = (ROOT / "assets" / "number_names" / "VVFP Number Names.dll").read_bytes()
+    return {
+        "destination": "VVFP Number Names.dll",
+        "sha256": hashlib.sha256(payload).hexdigest().upper(),
+        "source": "assets/number_names/VVFP Number Names.dll",
     }
 
 
@@ -617,6 +629,7 @@ def build() -> dict:
                 "output_tag": "parentage",
                 "description": (
                     PLAYER_LOG_DESCRIPTION.format(game_number=2)
+                    + NUMBERED_AT_BIRTH
                     + "The game keeps both parents on the child's own record, "
                     "and each Birth record reads them from there. VV2 keeps the "
                     "father's name on the mother's "
@@ -651,7 +664,7 @@ def build() -> dict:
                     },
                 ],
                 "dependencies": ["vv2_enable_origins_exclusive_features"],
-                "companion_files": [_companion(), _reset_companion()],
+                "companion_files": [_companion(), _reset_companion(), _number_names_companion()],
                 # No standalone `patches` list. VV1's tracker has both a cave
                 # variant and an overlay; VV2 can only have the overlay, because
                 # the built output leaves at most 0x2D contiguous free bytes in

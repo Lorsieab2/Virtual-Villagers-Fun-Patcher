@@ -8,7 +8,10 @@ whole catalog) and writes the C tables "VVFP Story Upgrades.dll" reads
 (story_outcomes.inc has the run-time side).
 
 Every SITE is a 5-byte `E8 rel32` call to the game's rand(bound); every SCOPE
-is a 5-byte `E8 rel32` call in the event's own code.  Both must hold exactly
+is a 5-byte `E8 rel32` call in the event's own code (kind 1 an event's
+resolve, 2 the Gong of Wonder's use, 3 the Gong's search for the villager who
+rang it, whose answer a "ringer" setting replaces; 0 a call a shared
+routine's roll is answered under).  Both must hold exactly
 the stock bytes in every render, and no two of them -- nor any other site the
 companion writes -- may overlap.
 """
@@ -20,7 +23,7 @@ import struct
 
 import story_island_outcomes as data
 
-KINDS = {"enum": 1, "amount": 2, "loop": 3, "victim": 4}
+KINDS = {"enum": 1, "amount": 2, "loop": 3, "victim": 4, "ringer": 5}
 PHASES = {"select": 1, "build": 2, "apply": 3}
 REGS = {"eax": 0, "ecx": 1, "edx": 2, "ebx": 3, "esi": 4, "edi": 5, "ebp": 6, "esp": 7}
 ELEMS = {"ptr": 1, "index": 2}
@@ -118,12 +121,19 @@ def collect(game: str) -> dict:
                         sites.add(va)
                         if value < 0:
                             raise SystemExit(f"{game} slot {slot} {c['id']}: negative value")
+            elif c["kind"] == "ringer":
+                for va in c["calls"]:
+                    scopes[va] = (3, -1, 0, 0, -1)
             else:
                 sites.add(c["site"])
                 sites.update(c.get("sites", []))
             for key in ("scope_call", "scope_call_alt"):
                 if c.get(key) is not None and c[key] not in scopes:
                     scopes[c[key]] = (0, -1, 0, 0, -1)
+    for va, lift in data.LIFT_SCOPES.get(game, {}).items():
+        # 4: a mastery call answered 3 for the roll at `lift`; 5: a
+        # conception call around which the breeding level is lifted
+        scopes[va] = (5, -1, 0, 0, -1) if lift == "breeding" else (4, -1, 0, lift, -1)
     if len(scopes) > MAX_SCOPES:
         raise SystemExit(f"{game}: {len(scopes)} scopes > {MAX_SCOPES}")
     return {"sites": sorted(sites), "scopes": sorted(scopes.items()), "controls": controls}
@@ -206,7 +216,7 @@ def emit(game: str, info: dict, found: dict, events_order: list[int]) -> list[st
                     options.append(f"    {{ {_c(plain(o['label']) or o['label'])}, "
                                    f"{_c(plain(o.get('condition')) or ('its condition' if o.get('cond') else None))}, {ff}, "
                                    f"{len(o['force'])}, {cond} }},")
-            site = site_index[c["site"]] if c["kind"] != "enum" else -1
+            site = site_index[c["site"]] if c["kind"] not in ("enum", "ringer") else -1
             xfirst = len(forces)
             extra = [va for va in c.get("sites", []) if va != c.get("site")]
             for va in extra:
@@ -226,6 +236,8 @@ def emit(game: str, info: dict, found: dict, events_order: list[int]) -> list[st
                 text = plain(c.get("what"))
             elif c["kind"] == "enum":
                 text = None
+            elif c["kind"] == "ringer":
+                text = plain(c.get("filter"))
             else:
                 text = plain(c.get("filter")) or data.PICKER_FILTERS.get((game, c["site"]),
                                                                           data.PICKER_FALLBACK)
@@ -269,7 +281,13 @@ def manifest_rows(game: str, info: dict, found: dict, dll_name: str) -> list[dic
     for va, (kind, _, _, _, _) in info["scopes"]:
         rows.append({"va": f"0x{va:X}", "stock_bytes": found[va].hex().upper(),
                      "routine": {1: "an island event's resolve call (Pick Island Event outcomes)",
-                                 2: "the Gong of Wonder's use (Pick Gong of Wonder Outcome)"}.get(
+                                 2: "the Gong of Wonder's use (Pick Gong of Wonder Outcome)",
+                                 3: "the Gong of Wonder's search for the villager who rang it "
+                                    "(Pick Gong of Wonder Outcome)",
+                                 4: "a mastery check before a twins / triplets roll (Pick Island Event "
+                                    "outcomes)",
+                                 5: "a conception call whose twins / triplets rolls need the breeding "
+                                    "level (Pick Island Event / Gong of Wonder outcomes)"}.get(
                          kind, "a call in an island event's own code (Pick Island Event outcomes)"),
                      "installed_by": f"{dll_name}, VvfpStoryInstall"})
     return rows

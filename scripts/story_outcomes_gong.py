@@ -9,10 +9,42 @@ has set village byte +0x2E910 -- else C) and an entry of that tier's
 table, then any amount, victim or sickness rolls.  Traced in the stock
 executable; each control cites the code in its "evidence".  GENERATED from
 the research table and reviewed.
+
+Every outcome the routine can produce is offered (the owner, 2026-10-20: "I
+want ALL of them"): the 23 table entries of the three tiers (tier C's
+entries 7 and 8 are byte-identical, one option), every amount, who falls
+sick, the skill, the babies per pregnancy -- and the villager the ringer
+results act on ("ringer", below).  What is looked at and not offered is in
+OMITTED with the reason.
+
+Probabilities in the stock game (0x44E8A4..0x44EFF5): with the tiers open,
+tier A 5% (each of its 6 entries 1/6), tier B 95% x 25% = 23.75% (each of 9
+entries 1/9), tier C 71.25% (each of 9 entries 1/9, 'Grants wisdom' twice);
+with the tiers closed (before the village's first tier-C result) tier C
+100%.
 """
 # flake8: noqa
 
 USE_CALLS = [0x461B8E]
+
+# A tier A or B option's condition.  The companion lifts the lock for the
+# ring it is used on (story_outcomes.inc oc_gong_ring_begin / _end).
+TIERS = ("a tier A or B result: in the original game the Gong gives these only once one of its "
+         "tier-C results has set village byte [[this+0xE574D4]+0x2E910] (0x44EFDB; read at "
+         "0x44E8C1 / 0x44EBD7; never cleared), so a village's first ring is always tier C.  Chosen "
+         "here, the companion sets that byte to 1 -- the value the game itself writes -- for this "
+         "ring only when it is 0, and puts 0 back when the outcome routine returns")
+
+# The calls of the ringer search 0x44B440 in the routine: four whose answer
+# it uses as a record index -- 'Takes life' (0x44EB9E), the ringer's -90
+# health (0x44EE06), the two 'Grants wisdom' entries (0x44F34C, 0x44F3BD) --
+# and the two youth entries' (0x44EF36, 0x44EFA9), which only test that a
+# ringer exists and then write the fixed records YOUTH_RECORDS names through
+# ESI (this + record * 0xE48C + 0x530 / 0x534).  For those the companion
+# moves ESI to the chosen villager's record when the search returns, so the
+# game's own stores write that villager (story_outcomes.inc).
+RINGER_CALLS = [0x44EB9E, 0x44EE06, 0x44EF36, 0x44EFA9, 0x44F34C, 0x44F3BD]
+YOUTH_RECORDS = {0x44EF36: 6, 0x44EFA9: 15}
 
 CONTROLS = [
     {
@@ -22,6 +54,10 @@ CONTROLS = [
         'phase': 'apply',
         'scope_call': 0x461B8E,
         'kind': 'enum',
+        'note': ("Every result the Gong can give. In the original game a village's first ring always "
+                 "gives one of the last nine; the others come only after that. Picked here, any of "
+                 "them comes on this ring. Results that act on the villager who rang it need an adult "
+                 "ringer, or the villager chosen in 'The villager who rang it'."),
         'options': [
             {
                 'label': "Grants vision (string 0x114; 'vision' timer = now+30 s)",
@@ -29,8 +65,7 @@ CONTROLS = [
                     [0x44E8A8, 0],
                     [0x44E8CF, 0],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
                 'label': 'Grants food: +1000 food, plant store = 800, coconut trees = 30 (+30 with Coconuts Fix)',
@@ -38,8 +73,7 @@ CONTROLS = [
                     [0x44E8A8, 0],
                     [0x44E8CF, 1],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
                 'label': "Grants technology: +20000..59999 tech (see 'Technology gained (big)')",
@@ -47,8 +81,7 @@ CONTROLS = [
                     [0x44E8A8, 0],
                     [0x44E8CF, 2],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
                 'label': 'Takes food: food, plant store and coconut trees all set to 0',
@@ -56,8 +89,7 @@ CONTROLS = [
                     [0x44E8A8, 0],
                     [0x44E8CF, 3],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
                 'label': 'Grants life: every woman aged 18-49, not pregnant, gets full health, is cured and becomes pregnant (population cap permitting)',
@@ -65,8 +97,7 @@ CONTROLS = [
                     [0x44E8A8, 0],
                     [0x44E8CF, 4],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
                 'label': 'Takes life: the villager who rang it dies (health 0)',
@@ -74,8 +105,7 @@ CONTROLS = [
                     [0x44E8A8, 0],
                     [0x44E8CF, 5],
                 ],
-                'condition': "needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.; and the villager who rang the gong = 0x44B440: first record (index order) that is active, health > 0, age +0x530 > 0x118 (adult) and whose task text +0x4FC equals string 0x10C 'Ringing the Gong of Wonder'; if none (e.g. a child rang it) the message still shows but nothing else happens (cmp eax,-1 -> 0x44F448)",
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS + "; and the villager who rang the gong = 0x44B440: first record (index order) that is active, health > 0, age +0x530 > 0x118 (adult) and whose task text +0x4FC equals string 0x10C 'Ringing the Gong of Wonder'; if none (e.g. a child rang it) the message still shows but nothing else happens (cmp eax,-1 -> 0x44F448)",
             },
             {
                 'label': "Takes health: each villager may fall sick (30%, see 'Who falls sick')",
@@ -84,8 +114,7 @@ CONTROLS = [
                     [0x44EBC0, 0],
                     [0x44EBE5, 0],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
                 'label': 'Grants luck (string 0x116; luck timer = now+60 s)',
@@ -94,8 +123,7 @@ CONTROLS = [
                     [0x44EBC0, 0],
                     [0x44EBE5, 1],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
                 'label': "Grants technology: +10000..29999 tech (see 'Technology gained (medium)')",
@@ -104,8 +132,7 @@ CONTROLS = [
                     [0x44EBC0, 0],
                     [0x44EBE5, 2],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
                 'label': "Grants food: +1000..2999 food (see 'Food gained (big)')",
@@ -114,8 +141,7 @@ CONTROLS = [
                     [0x44EBC0, 0],
                     [0x44EBE5, 3],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
                 'label': 'Takes health: the villager who rang it loses 90 health (to 0 at most)',
@@ -124,8 +150,7 @@ CONTROLS = [
                     [0x44EBC0, 0],
                     [0x44EBE5, 4],
                 ],
-                'condition': "needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.; and the villager who rang the gong = 0x44B440: first record (index order) that is active, health > 0, age +0x530 > 0x118 (adult) and whose task text +0x4FC equals string 0x10C 'Ringing the Gong of Wonder'; if none (e.g. a child rang it) the message still shows but nothing else happens (cmp eax,-1 -> 0x44F448)",
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS + "; and the villager who rang the gong = 0x44B440: first record (index order) that is active, health > 0, age +0x530 > 0x118 (adult) and whose task text +0x4FC equals string 0x10C 'Ringing the Gong of Wonder'; if none (e.g. a child rang it) the message still shows but nothing else happens (cmp eax,-1 -> 0x44F448)",
             },
             {
                 'label': 'Takes food: the plant store (village +0x2EAD8) set to 0',
@@ -134,8 +159,7 @@ CONTROLS = [
                     [0x44EBC0, 0],
                     [0x44EBE5, 5],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
                 'label': 'Takes food: coconut trees set to 0',
@@ -144,28 +168,25 @@ CONTROLS = [
                     [0x44EBC0, 0],
                     [0x44EBE5, 6],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS,
             },
             {
-                'label': 'Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer)',
+                'label': "Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer; or the villager chosen in 'The villager who rang it')",
                 'force': [
                     [0x44E8A8, 0x63],
                     [0x44EBC0, 0],
                     [0x44EBE5, 7],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.; and a ringer must exist (0x44EF36-0x44EF3E)',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS + '; and a ringer must exist (0x44EF36-0x44EF3E)',
             },
             {
-                'label': 'Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer)',
+                'label': "Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer; or the villager chosen in 'The villager who rang it')",
                 'force': [
                     [0x44E8A8, 0x63],
                     [0x44EBC0, 0],
                     [0x44EBE5, 8],
                 ],
-                'condition': 'needs the tiers unlocked: village byte [[this+0xE574D4]+0x2E910] != 0 (checked at 0x44E8C1 / 0x44EBD7).  Only a tier-C result sets it (0x44EFDB) and nothing clears it, so the first gong use (with the flag 0) is always tier C.  No save/load code references the byte by displacement; if it is not saved it is 0 again after each launch.  Read it live before offering this option.; and a ringer must exist (0x44EFA9-0x44EFB1)',
-                'cond': 'vv2_gong_tiers',
+                'condition': TIERS + '; and a ringer must exist (0x44EFA9-0x44EFB1)',
             },
             {
                 'label': 'Grants health: every villager healed to 100 and cured',
@@ -431,7 +452,7 @@ CONTROLS = [
         'phase': 'apply',
         'scope_call': 0x44EB3E,
         'kind': 'enum',
-        'condition': "only with result 'Grants life'; twins/triplets rolls run only when the village breeding level [v+0x2EA8C] == 3 (0x44BA6A / 0x44BA9E); forced for every woman made pregnant in this use",
+        'condition': "only with result 'Grants life'; twins/triplets rolls run only when the village breeding level [v+0x2EA8C] == 3 (0x44BA6A / 0x44BA9E); chosen here, the companion sets [v+0x2EA8C] to 3 (the game's own mastered value) around this woman's call to 0x44B980 only and puts the old value back when it returns; forced for every woman made pregnant in this use",
         'options': [
             {
                 'label': 'One baby',
@@ -446,8 +467,7 @@ CONTROLS = [
                     [0x44BA75, 0],
                     [0x44BAA9, 0x63],
                 ],
-                'condition': '[v+0x2EA8C] == 3',
-                'cond': 'vv2_breeding_mastered',
+                'condition': None,
             },
             {
                 'label': 'Triplets',
@@ -455,24 +475,47 @@ CONTROLS = [
                     [0x44BA75, 0],
                     [0x44BAA9, 0],
                 ],
-                'condition': '[v+0x2EA8C] == 3',
-                'cond': 'vv2_breeding_mastered',
+                'condition': None,
             },
         ],
         'evidence': '0x44EB3E E8 -> 0x44B980 (shared pregnancy routine; other callers 0x422006, 0x44F8F0, 0x44F930, 0x464A38, 0x464C4D -> must be scoped to 0x44EB3E).  0x44B980: cap check 0x44B310 (no rand), +0x44 = 0x1A, babies +0x540; push 0x64 / E8 0x44BA75, cmp 7 jge -> single; else +0x544 = 2, then push 0x64 / E8 0x44BAA9, cmp 0x19 jge -> twins; else +0x544 = 3 (triplets).',
     },
+    {
+        'id': 'ringer',
+        'label': 'The villager who rang it',
+        'branch': None,
+        'phase': 'apply',
+        'scope_call': 0x461B8E,
+        'kind': 'ringer',
+        'calls': RINGER_CALLS,
+        'filter': 'the living adults',
+        'note': ("'Takes life', the loss of 90 health and 'Grants wisdom' act on the villager who rang "
+                 "the Gong; 'Takes youth' and 'Grants youth' act on two fixed villager slots. Choose who "
+                 "all five act on: any living adult (for the two youth results, one not carrying a "
+                 "baby). If that villager has died, gone or changed by the time the Gong rings, the "
+                 "game's own choice is used."),
+        'evidence': ("0x44B440 (thiscall, no arguments, ret): the first record in index order with +0x30 "
+                     "!= 0, health +0x52C > 0, age +0x530 > 0x118 and task text +0x4FC equal to string "
+                     "0x10C; -1 when none.  Its index is used at 0x44EBAC (imul 0xE48C; +0x52C = 0), "
+                     "0x44EE14 (+0x52C -= 0x5A, clamp 0) and, as EDI, at 0x44F3DF..0x44F437 (skill = 100) "
+                     "after 0x44F34C / 0x44F3BD.  The companion runs the game's own search, then answers "
+                     "the chosen record's index when it is still that villager (story_title_keep) and "
+                     "passes the game's own ringer test (present, living, adult; never a totem statue, "
+                     "+0x558).  Otherwise the game's answer stands."),
+    },
 ]
 
-CONDITIONS = "A gong use = a villager completing action 66 'Ringing the Gong of Wonder' (player drop or own choice; both end in the action-completion dispatcher 0x461B10, case 0x461B32) while the cooldown has expired.  Tier A/B results need village byte +0x2E910 != 0 (set only by a tier-C result, so never on the first use).  Ringer-based results (takes life, ringer -90 health, wisdom, and the two youth writes) need an adult (age > 0x118) whose task text is still 'Ringing the Gong of Wonder' (0x44B440); otherwise only the message shows.  'Grants life' affects only women aged 0x168..0x3E7 (18-49), alive, not already pregnant, and stops making them pregnant once the population cap (0x44B310) is reached.  The sickness loops and 'grants health' skip records with byte +0x558 set."
+CONDITIONS = "A gong use = a villager completing action 66 'Ringing the Gong of Wonder' (player drop or own choice; both end in the action-completion dispatcher 0x461B10, case 0x461B32) while the cooldown has expired.  Tier A/B results need village byte +0x2E910 != 0 (set only by a tier-C result, so never on the first use); a chosen tier A/B result lifts that for its ring only.  Ringer-based results (takes life, ringer -90 health, wisdom, and the two youth writes) need an adult (age > 0x118) whose task text is still 'Ringing the Gong of Wonder' (0x44B440), or for the first three the villager chosen in 'The villager who rang it'; otherwise only the message shows.  'Grants life' affects only women aged 0x168..0x3E7 (18-49), alive, not already pregnant, and stops making them pregnant once the population cap (0x44B310) is reached.  The sickness loops and 'grants health' skip records with byte +0x558 set."
 
-COOLDOWN = "village dword +0x2EAC8 = next allowed time.  0x461B3A-0x461B45: if [v+0x2EAC8] >= now (0x403200) the ring does nothing (0x44E8A0 not called).  Otherwise 0x461B5D sets it to now + 86400 s ('about a full day', string 0x1C0, shown once via byte +0x1F1).  Reset to 0 elsewhere at 0x4251FE (init) and 0x4639F6, 0x463BC7, 0x463D43, 0x463EF4.  An armed pick therefore waits for the next real use; disarm on return from 0x461B8E."
+COOLDOWN = "village dword +0x2EAC8 = next allowed time.  0x461B3A-0x461B45: if [v+0x2EAC8] >= now (0x403200) the ring does nothing (0x44E8A0 not called).  Otherwise 0x461B5D sets it to now + 86400 s ('about a full day', string 0x1C0, shown once via byte +0x1F1).  Reset to 0 at 0x4251FE (init); set to 1 (EBX = 1 from 0x46393B) at 0x4639F6, 0x463BC7, 0x463D43, 0x463EF4 when the fourth Gong piece completes and the Gong is whole (+0x2E7F0 = 1) -- the game's own 'ready'.  Buying Pick Gong of Wonder Outcome writes that same 1 when the Gong is whole and resting, so it can be rung at once; the armed pick is used by the next ring and ends on return from 0x461B8E."
 
 OMITTED = [
     "0x44EB32 rand(50) in 'Grants life': passed as arg2 of 0x44B980 and stored at the mother's +0x5EC (0x44BA1A); no code reads +0x5EC by displacement (only writes at 0x424FD8, 0x44BA1A, 0x44C992, 0x44CF86, 0x44D2CD), so no traced effect -> not offered (uncertain: could be read through a whole-record copy).",
     'Jump-table default branches (ja 0x44F448 after cmp 5 / cmp 8 / cmp 4) are dead: rand(6)/rand(9)/rand(5) can never exceed the bound.',
     "Tier-C entries 7 and 8 (0x44F305 / 0x44F376) are byte-identical 'Grants wisdom' paths -> one option.",
     'No other developer-dead outcomes: every table entry of all three tiers is reachable in stock (A/B after the first tier-C ring).',
-    "Stock defect, offered as-is (it is what stock produces): 'Takes youth' / 'Grants youth' write fixed records 6 and 15 instead of the ringer (0x44EF44-0x44EF50, 0x44EFB7-0x44EFC3).",
+    "'Grants life': which women become pregnant is not a roll -- every woman aged 18-49, alive and not pregnant, in index order, while the population cap allows (0x44EAF5-0x44EB50) -- so it is not offered.",
+    "'Grants health' and the sickness rolls' filters: no roll decides who is healed (every living villager), so nothing to offer beyond 'Who falls sick'.",
 ]
 
 COSMETIC = [

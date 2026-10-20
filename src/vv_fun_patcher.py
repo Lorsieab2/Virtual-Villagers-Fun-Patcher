@@ -12076,6 +12076,14 @@ STARTUP_LOADER_COMPANIONS = (
     "VVFP VV1 Easier Healing.dll",
     "VVFP VV1 Research At Max.dll",
 )
+# Companions the loader never starts: another shipped companion loads each by
+# its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
+# it needs it, and fails open without it.  "VVFP Number Names.dll" is loaded by
+# VVFP Parentage Export.dll and VVFP VV1 Parentage.dll at a birth; it installs
+# nothing at startup and ships only with the rows that ship those two.
+STARTUP_LOADER_ON_DEMAND = (
+    "VVFP Number Names.dll",
+)
 # Bit 31 of the same word is not a companion: the "Check logs automatically"
 # setting (the patcher window, beside Check Saves & Logs / Repair Saves & Logs; ON by
 # default), a per-install choice made when the build is created.  The Origins
