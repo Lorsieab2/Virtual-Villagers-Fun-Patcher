@@ -666,16 +666,20 @@ class LostChildrenHealersStudyInCatchUp(unittest.TestCase):
                 self.assertEqual(self._continues(m), [])
 
     def test_the_share_is_about_one_in_two(self):
-        m = world("vv2", selected=1, pick=1, task=9, cont=1, force=FORCE_REAL)
-        m.seed(SEED)
-        n, hits = 1000, 0
-        for _ in range(n):
-            decide(m)
-            hits += bool(self._continues(m))
-        share = hits / n
-        print(f"catch-up share vv2 plant study: {share:.3f}")
-        self.assertGreater(share, 0.45)
-        self.assertLess(share, 0.55)
+        # A villager checked on Healing: half the time.  Anyone else (here
+        # checked on Farming): 14% of that (the owner, 2026-10-20).
+        for selected, low, high in ((G["vv2"]["healing"], 0.45, 0.55), (1, 0.045, 0.10)):
+            with self.subTest(selected=selected):
+                m = world("vv2", selected=selected, pick=1, task=9, cont=1, force=FORCE_REAL)
+                m.seed(SEED)
+                n, hits = 1500, 0
+                for _ in range(n):
+                    decide(m)
+                    hits += bool(self._continues(m))
+                share = hits / n
+                print(f"catch-up share vv2 plant study, checkmark {selected}: {share:.3f}")
+                self.assertGreater(share, low)
+                self.assertLess(share, high)
 
     def test_a_new_home_has_the_same_site(self):
         # A New Home's dispatcher continues plant study (0x4478EF, activity 9

@@ -1,0 +1,3 @@
+LIBRARY "VVFP VV1 Research At Max"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8

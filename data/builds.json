@@ -1365,7 +1365,7 @@
       "id": "vv2_easier_healing_mastery",
       "game_id": "vv2",
       "name": "Easier Healing Mastery",
-      "description": "Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.",
+      "description": "Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up. A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do.",
       "output_tag": "Easier Healing",
       "patches": [
         {
@@ -1376,9 +1376,15 @@
         },
         {
           "offset": "0x73CA0",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8BC569C08CE40000C78430E0070000090000006A64558BCEE8D3C8FEFF5F5D5B5EC20800",
-          "purpose": "set plant-study state 9 and reuse the stock live and catch-up work dispatcher"
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "69FD8CE4000001F76A6483BFF8070000037409E8E8F4F8FF3C0E73356A098F87E00700005589F1E8C4C8FEFFEB26",
+          "purpose": "for a villager checked on Healing (job preference +0x7F8 = 3), set plant-study state 9 and reuse the stock live and catch-up work dispatcher; for any other villager only when the game's rand(100) is below 14, else the stock no-patient exit"
+        },
+        {
+          "offset": "0x73CF1",
+          "before": "00000000000000000000",
+          "after": "5930C05F5D5B5EC20800",
+          "purpose": "the not-checked-on-Healing roll's failure: drop its argument and take the stock no-patient exit (al = 0); and the shared epilogue"
         }
       ]
     },
@@ -1492,7 +1498,7 @@
       "id": "vv1_easier_healing_mastery",
       "game_id": "vv1",
       "name": "Easier Healing Mastery",
-      "description": "Healers and villagers who prefer Healing study the Medical Cactus whenever the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). Without this patch only a villager you dropped on the cactus does that. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.**",
+      "description": "Healers and villagers who prefer Healing study the Medical Cactus whenever the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do. Without this patch only a villager you dropped on the cactus does that, and such a villager always studies. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.** The 14% roll lives in \"VVFP VV1 Easier Healing.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, every villager studies as before.",
       "output_tag": "Easier Healing",
       "patches": [
         {
@@ -1500,6 +1506,21 @@
           "before": "8BC569C0D803000083BC30B8030000097508558BCEE86FB9FFFF",
           "after": "558BCEE881B9FFFF5F5D5BB0015EC20800909090909090909090",
           "purpose": "at the Healing case's no-patient exit, start the stock Medical Cactus study (0x443270) for any villager, not only one in plant-study state 9, and report it started; no record field is written"
+        }
+      ],
+      "companion_files": [
+        {
+          "source": "assets/easier_healing/VVFP VV1 Easier Healing.dll",
+          "destination": "VVFP VV1 Easier Healing.dll",
+          "sha256": "954F0BED57C9CB95D43CEFF09CE415066023E2D4C484DDD04D8D605E5BE2D35F"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x4478E7",
+          "stock_bytes": "558BCEE881B9FFFF5F5D5BB0015EC20800909090909090909090",
+          "routine": "this row's no-patient exit of the work dispatcher's Healing case (0x4472C0 case 5): a villager checked on Healing (+0x3D0 = 5) or in plant-study state 9 (the player's drop) studies as the row does; anyone else only when the companion's own roll passes 14 times in 100, else the stock exit 0x447901",
+          "installed_by": "VVFP VV1 Easier Healing.dll, VvfpStartup"
         }
       ]
     },
@@ -1540,7 +1561,7 @@
       "id": "vv1_continue_research_at_max_technologies",
       "game_id": "vv1",
       "name": "Continue Research at Max Technologies",
-      "description": "Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.",
+      "description": "Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3. A villager not checked on Research (any other job, or none) does so only 14% of the times the game gives them research work; otherwise the game goes on to its own next choice. The 14% roll lives in \"VVFP VV1 Research At Max.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, every researcher continues as before.",
       "output_tag": "Continue Max-Tech Research",
       "patches": [
         {
@@ -1548,6 +1569,21 @@
           "before": "12",
           "after": "13",
           "purpose": "keep the stock research action eligible when the six technology levels sum to the legitimate maximum of 18"
+        }
+      ],
+      "companion_files": [
+        {
+          "source": "assets/research_at_max/VVFP VV1 Research At Max.dll",
+          "destination": "VVFP VV1 Research At Max.dll",
+          "sha256": "866F60DBC3F26A752EBC334BF9A14B6F45424D4D13AC46BD5704D5AAEF65B9D6"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x447486",
+          "stock_bytes": "83F8130F8D72040000",
+          "routine": "the work dispatcher's Research case (0x4472C0 case 3), this row's technology-level test: below 18 the stock research; at 18 a villager checked on Research (+0x3D0 = 3) researches, anyone else only when the companion's own roll passes 14 times in 100, else the stock 'nothing started' 0x447901",
+          "installed_by": "VVFP VV1 Research At Max.dll, VvfpStartup"
         }
       ]
     },
@@ -1837,7 +1873,7 @@
       "id": "vv5_easier_devotee_training",
       "game_id": "vv5",
       "name": "Easier Devotee Training",
-      "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor. This acts only while you play: time that passes while the game is closed, and Time Warp, run the game's own catch-up, which this patch does not change (Builders and Healers Work First gives devotees their own catch-up boost).",
+      "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action. A villager not checked on Devotion (any other job, or none) does so only 14% of the times this patch would otherwise let them; villagers checked on Devotion are unchanged. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor. This acts only while you play: time that passes while the game is closed, and Time Warp, run the game's own catch-up, which this patch does not change (Builders and Healers Work First gives devotees their own catch-up boost).",
       "output_tag": "Easier Devotee",
       "patches": [
         {
@@ -1849,14 +1885,20 @@
         {
           "offset": "0x94400",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0AE9E0040000E9C1ADFDFFE910AEFDFF",
-          "purpose": "leave Retired Chiefs on the original stock branch while requiring positive Devotion skill ([villager+0x1C70] > 0; the selected preferred job is not checked) before routing an ordinary villager to the added Honoring branch"
+          "after": "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0AE9E0080000E9C1ADFDFFE910AEFDFF",
+          "purpose": "leave Retired Chiefs on the original stock branch while requiring positive Devotion skill ([villager+0x1C70] > 0) before routing an ordinary villager to the added Honoring branch, through the not-checked-on-Devotion gate at 0x94D00"
         },
         {
           "offset": "0x94900",
           "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "6A64E859EDF6FF83C40483F8327D1E8B8E881B0000885C240F8D54240F5268A0000000E8580CFDFFE9F0A8FDFFE908A9FDFF",
           "purpose": "apply the stock 50-percent timing chance and assign only Honoring to an eligible ordinary devotee without intercepting any Retired Chief behavior; relocated outside the expanded VV5 save-loader cave"
+        },
+        {
+          "offset": "0x94D00",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "83B9741C0000050F84F3FBFFFF6A64E84CE9F6FF5983F80E0F82E2FBFFFFE917A5FDFF",
+          "purpose": "a villager checked on Devotion (job preference +0x1C74 = 5) goes on to the Honoring branch as before; any other villager only when the game's rand(100) is below 14, else the stock branch 0x46F23A"
         }
       ]
     },
@@ -1864,7 +1906,7 @@
       "id": "vv5_statue_polishing_or_honoring",
       "game_id": "vv5",
       "name": "Statue Drops: Normal Action or Honoring",
-      "description": "Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.",
+      "description": "Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. When a villager later carries that statue job on by themselves (the game's own choice), the 50/50 pick is kept only for a villager checked on its skill -- Honoring on Devotion, Polishing on Building -- and for anyone else 14% of the time; otherwise they do neither and the game gives them something else to do. Your own drop is never restricted. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.",
       "output_tag": "Random Statue Training",
       "patches": [
         {
@@ -1888,8 +1930,14 @@
         {
           "offset": "0x94840",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "516A02E818EEF6FF83C4045985C07407B89D000000EB05B8A00000005A5052C390909090909090909090909090909090909090909090909090909090909090909090",
-          "purpose": "choose Polishing the Statue or Honoring 50/50 on a completed statue, with no skill or villager-pointer reads"
+          "after": "E9EB04000090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090",
+          "purpose": "jump to the Polishing-or-Honoring selector at 0x94D30"
+        },
+        {
+          "offset": "0x94D30",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "516A02E828E9F6FF5959813C249FBF4600753185C0750B83B9741C0000057428EB0B83B9741C0000047424B00150516A64E8FAE8F6FF595983F80E58731A84C0750DEB0485C07507B8A0000000EB05B89D0000005A5052C383C4085F5B5E30C05D83C42CC3",
+          "purpose": "choose Polishing the Statue or Honoring 50/50 on a completed statue; at the task continuation's call (return 0x46BF9F, ecx = the villager's record: the game's own choice) gate the pick by its own job checkmark (+0x1C74): Honoring by Devotion (5), Polishing by Building (4); a villager not checked on it only when rand(100) is below 14, else neither: the continuation returns nothing started (al = 0) so the scheduler goes on to its own next choice; the player's own drop (return 0x4796F0) is the plain 50/50"
         }
       ]
     },

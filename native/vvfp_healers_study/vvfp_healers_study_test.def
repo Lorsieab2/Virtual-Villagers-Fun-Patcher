@@ -5,3 +5,4 @@ EXPORTS
     VvfpHealersStudyProbeCatchUpSite=_VvfpHealersStudyProbeCatchUpSite@20
     VvfpHealersStudyStats DATA
     VvfpHealersStudyRollTest DATA
+    VvfpHealersStudyPreferenceRollTest DATA
