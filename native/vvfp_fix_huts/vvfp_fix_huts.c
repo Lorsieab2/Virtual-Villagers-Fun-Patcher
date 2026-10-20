@@ -51,7 +51,9 @@
    one roll per decision of the idle scheduler, shared with Builders and
    Healers Work First, Healers Study and Builder Action Fixes (see "About
    three times in four" below); when it fails, every site runs the stock
-   code.  One change is not a choice and holds on every decision: in A New
+   code.  For a villager whose job checkmark is not Building (or, for the
+   low-food healer bypass, not Healing) a second roll lets it act only 14
+   times in 100 of those ("Not checked on the job" below).  One change is not a choice and holds on every decision: in A New
    Home (at or below its population numbers) and The Lost Children the second
    and third population hut count as construction only once the player has
    worked on them, and then until they
@@ -183,6 +185,7 @@ struct decision {
     unsigned int counter;      /* the caller's retry counter at the call */
     unsigned int key;          /* the villager: index, record or object */
     int roll;                  /* -1 not drawn yet, 0 stock, 1 the patches act */
+    int preference_roll;       /* -1 not drawn yet; see "Not checked on the job" */
 };
 #define DECISION_DEPTH 8
 static struct decision decisions[DECISION_DEPTH];
@@ -199,10 +202,12 @@ static void __cdecl decision_enter(int game, unsigned int ret, unsigned int coun
     d.counter = counter;
     d.key = key;
     d.roll = -1;
+    d.preference_roll = -1;
     if (game >= 1 && game <= 5 && LOOP_RETURN[game] != 0 && ret == LOOP_RETURN[game]
         && last_valid && last_decision.ret == ret && last_decision.key == key
         && counter != 0 && counter == last_decision.counter + 1) {
         d.roll = last_decision.roll;        /* the same loop's next attempt */
+        d.preference_roll = last_decision.preference_roll;
     }
     if (decision_depth >= 0 && decision_depth < DECISION_DEPTH) {
         decisions[decision_depth] = d;
@@ -238,6 +243,108 @@ static int __cdecl decision_roll(void) {
    Study.dll"), so a decision they share with this one rolls once. */
 __declspec(dllexport) int __cdecl VvfpFixHutsRoll(void) {
     return decision_roll();
+}
+
+/* ---- Not checked on the job: 14% of that --------------------------------- */
+/* The owner (2026-10-20): "Applies to patch behaviors only: ALL villagers NOT
+   checked on X skill perform actions that train that skill 14% of the time."
+   Everything this companion makes a villager do trains Building (construction
+   first, the hut fix) -- or, at low food in The Secret City, The Tree of Life
+   and New Believers, sends a healer straight to Healing.  The stock dispatcher
+   it acts in is reached for anyone the game gives that job, checked on it or
+   not.  So for a villager whose job checkmark (the skill preference on the
+   Villager Details screen) is not the job this companion acts for -- another
+   job, or none -- it acts only on 14 of every 100 of the decisions where it
+   would otherwise act: one more roll, after the decision's roll, drawn once
+   per decision like it.  A failed roll is the stock game's choice, exactly as
+   a failed decision roll is.  A villager checked on that job is unchanged,
+   and the stock game's own choices are never touched.  14% is the later
+   games' own figure: their job chooser (The Secret City 0x459730, The Tree of
+   Life 0x461CC0, New Believers 0x46A3C0, and The Lost Children 0x449C60)
+   overrides a villager's skill-based pick with the checked job 86 times in
+   100, so another job gets its chance only the other 14.
+
+     game               preference field                 Building  Healing
+     A New Home         village + index*0x3D8 + 0x3D0     4         5
+     The Lost Children  village + index*0xE48C + 0x7F8    5         3
+     The Secret City    record + 0xEC0                    4         2
+     The Tree of Life   [object + 0x1B88] + 0x1C70        4         2
+     New Believers      [object + 0x1B88] + 0x1C74        4         2
+
+   (0 in A New Home and The Lost Children, -1 in the later games: no
+   checkmark.) */
+#define NOT_PREFERRED_PERCENT 14u
+
+static unsigned int preference_state;
+
+#ifdef VVFP_TEST
+/* force: 0 = the real roll, 1 = always pass, 2 = always fail.  draws: rolls
+   drawn.  TEST build only. */
+__declspec(dllexport) struct vvfp_fix_huts_roll VvfpFixHutsPreferenceRollTest = { 0, 0 };
+#endif
+
+static int draw_preference_roll(void) {
+    unsigned int x = preference_state;
+    if (x == 0) {
+        x = (unsigned int)__rdtsc() ^ 0x85EBCA6Bu;
+        if (x == 0) {
+            x = 0x85EBCA6Bu;
+        }
+    }
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    preference_state = x;
+#ifdef VVFP_TEST
+    ++VvfpFixHutsPreferenceRollTest.draws;
+    if (VvfpFixHutsPreferenceRollTest.force == 1) return 1;
+    if (VvfpFixHutsPreferenceRollTest.force == 2) return 0;
+#endif
+    return x % 100u < NOT_PREFERRED_PERCENT;
+}
+
+static int preference_roll(void) {
+    if (decision_depth > 0 && decision_depth <= DECISION_DEPTH) {
+        struct decision *d = &decisions[decision_depth - 1];
+        if (d->preference_roll < 0) {
+            d->preference_roll = draw_preference_roll();
+        }
+        return d->preference_roll;
+    }
+    return draw_preference_roll();
+}
+
+/* 1: this companion acts for the villager in this decision -- the decision's
+   roll, then, for a villager not checked on the job, the 14% roll. */
+static int acts_for(int checked_on_the_job) {
+    if (!decision_roll()) {
+        return 0;
+    }
+    return checked_on_the_job || preference_roll();
+}
+
+/* The villager the current decision is for (its key: VV1/VV2 the index, VV3
+   the record, VV4/VV5 the villager object), or 0 outside a decision. */
+static unsigned int decision_key(void) {
+    if (decision_depth > 0 && decision_depth <= DECISION_DEPTH) {
+        return decisions[decision_depth - 1].key;
+    }
+    return 0;
+}
+
+#define VV1_PREFERENCE 0x3D0u
+#define VV1_BUILDING 4
+#define VV2_PREFERENCE 0x7F8u
+#define VV2_BUILDING 5
+#define LATER_BUILDING 4
+#define LATER_HEALING 2
+
+static int __cdecl vv1_building_acts(const unsigned char *village, unsigned int index) {
+    return acts_for(*(const int *)(village + index * 0x3D8u + VV1_PREFERENCE) == VV1_BUILDING);
+}
+
+static int __cdecl vv2_building_acts(const unsigned char *village, unsigned int index) {
+    return acts_for(*(const int *)(village + index * 0xE48Cu + VV2_PREFERENCE) == VV2_BUILDING);
 }
 
 /* ---- VV1 --------------------------------------------------------------- */
@@ -442,12 +549,16 @@ static unsigned int __cdecl vv1_construction(const unsigned char *village) {
     return 0;
 }
 
-/* The decision's roll first: when it fails (a quarter of the decisions) the
-   displaced skip roll runs and the stock branch carries on unchanged. */
+/* The decision's roll first (and, for a villager not checked on Building,
+   the 14% roll): when it fails the displaced skip roll runs and the stock
+   branch carries on unchanged. */
 static __declspec(naked) void vv1_stub(void) {
     __asm {
         pushad
-        call decision_roll
+        push ebp                       ; the villager's index
+        push esi
+        call vv1_building_acts
+        add esp, 8
         test eax, eax
         popad
         jz stock_decides
@@ -523,7 +634,10 @@ static __declspec(naked) void vv1_level_stub(void) {
         jmp dword ptr [vv1_level_resume]
     below:
         pushad
-        call decision_roll
+        push ebp                       ; the villager's index
+        push esi
+        call vv1_building_acts
+        add esp, 8
         test eax, eax
         popad
         jnz below_patched
@@ -674,7 +788,10 @@ static const unsigned int vv2_examine = VV2_EXAMINE, vv2_started = VV2_STARTED;
 static __declspec(naked) void vv2_stub(void) {
     __asm {
         pushad
-        call decision_roll
+        push edi                       ; the villager's index
+        push esi
+        call vv2_building_acts
+        add esp, 8
         test eax, eax
         popad
         jz stock
@@ -741,7 +858,10 @@ static __declspec(naked) void vv2_level_stub(void) {
         jmp dword ptr [vv2_level_resume]
     below:
         pushad
-        call decision_roll
+        push edi                       ; the villager's index
+        push esi
+        call vv2_building_acts
+        add esp, 8
         test eax, eax
         popad
         jz nothing                     ; the roll failed: the stock jl's "nothing"
@@ -804,6 +924,7 @@ struct later_game {
     int job;
     int villager_is_field;         /* 0: villager = esi; else [esi + this] */
     unsigned int started;          /* the epilogue after a start */
+    int preference;                /* the job checkmark in the villager's record */
 };
 
 #define VV3_SITE    0x45B39Eu
@@ -823,16 +944,34 @@ static const unsigned char VV4_STOCK[8] = { 0x3B, 0xFB, 0x0F, 0x84, 0x69, 0x01, 
 static const unsigned char VV5_STOCK[8] = { 0x3B, 0xFB, 0x0F, 0x84, 0x15, 0x03, 0x00, 0x00 };
 static const struct later_game VV3 = {
     VV3_SITE, { 0x3B, 0xFB, 0x0F, 0x84, 0x9C, 0x03, 0x00, 0x00 }, VV3_NOTHING, VV3_RESUME,
-    0x4321F0u, 0x594620u, 0, 0x455570u, 86, 0, VV3_STARTED
+    0x4321F0u, 0x594620u, 0, 0x455570u, 86, 0, VV3_STARTED, 0xEC0
 };
 static const struct later_game VV4 = {
     VV4_SITE, { 0x3B, 0xFB, 0x0F, 0x84, 0x69, 0x01, 0x00, 0x00 }, VV4_NOTHING, VV4_RESUME,
-    0x438960u, 0x4D8BF8u, 19, 0x45DEC0u, 46, 0x1B88, VV4_STARTED
+    0x438960u, 0x4D8BF8u, 19, 0x45DEC0u, 46, 0x1B88, VV4_STARTED, 0x1C70
 };
 static const struct later_game VV5 = {
     VV5_SITE, { 0x3B, 0xFB, 0x0F, 0x84, 0x15, 0x03, 0x00, 0x00 }, VV5_NOTHING, VV5_RESUME,
-    0x43AE80u, 0x51E008u, 19, 0x465580u, 53, 0x1B88, VV5_STARTED
+    0x43AE80u, 0x51E008u, 19, 0x465580u, 53, 0x1B88, VV5_STARTED, 0x1C74
 };
+
+/* Whether the villager -- the dispatcher's esi, or a decision's key, which is
+   the same thing: VV3 the record, VV4/VV5 the villager object, whose record
+   is [object + 0x1B88] -- is checked on `job`.  0 (no villager): treated as
+   checked, so nothing changes where the villager cannot be told. */
+static int later_checked_on(const struct later_game *g, unsigned int villager, int job) {
+    const unsigned char *record;
+    if (villager == 0) {
+        return 1;
+    }
+    record = g->villager_is_field
+        ? *(const unsigned char *const *)(uintptr_t)(villager + g->villager_is_field)
+        : (const unsigned char *)(uintptr_t)villager;
+    if (record == NULL) {
+        return 1;
+    }
+    return *(const int *)(record + g->preference) == job;
+}
 
 typedef unsigned char (__stdcall *complete_t)(int);
 
@@ -931,8 +1070,9 @@ static void later_start(const struct later_game *g, unsigned int esi, int hut) {
    a hut fixed: the stock option 9 when every hut is built, or this
    companion's pick among the built huts when some are not.  The Secret City
    has no such rolls, so there the filter only drops option 9 from a mixed
-   list.  When the roll fails, the list is left exactly as the stock code
-   built it. */
+   list.  When the roll fails -- and, for a villager not checked on Building,
+   when the 14% roll fails ("Not checked on the job") -- the list is left
+   exactly as the stock code built it. */
 #define FIX_A_HUT_OPTION 9
 
 /* thiscall(arg) -> eax, and thiscall() -> eax, on a game object. */
@@ -1020,7 +1160,7 @@ static int later_filter(const struct later_game *g, int (*rolled)(int *), unsign
     }
     if (count - (fix_at >= 0 ? 1 : 0) > 0) {
         /* Construction in the list: only a stock option 9 beside it changes. */
-        if (fix_at < 0 || !decision_roll()) {
+        if (fix_at < 0 || !acts_for(later_checked_on(g, esi, LATER_BUILDING))) {
             return count;
         }
         for (i = fix_at; i + 1 < count; ++i) {
@@ -1034,7 +1174,7 @@ static int later_filter(const struct later_game *g, int (*rolled)(int *), unsign
         int n = rolled(taken);
         if (n > 0) {
             /* The dislike rolls took every construction option away. */
-            if (!decision_roll()) {
+            if (!acts_for(later_checked_on(g, esi, LATER_BUILDING))) {
                 return count;
             }
             for (i = 0; i < n; ++i) {
@@ -1051,7 +1191,7 @@ static int later_filter(const struct later_game *g, int (*rolled)(int *), unsign
     }
     {
         int hut = later_choose(g);
-        if (hut < 0 || !decision_roll()) {
+        if (hut < 0 || !acts_for(later_checked_on(g, esi, LATER_BUILDING))) {
             return 0;
         }
         later_start(g, esi, hut);
@@ -1227,11 +1367,12 @@ static int __cdecl later_builder_first(const struct later_game *g, int pick) {
        owner wants it done "at all food levels" (Codex on #464).  A healer:
        whenever the addendum is shipped -- "Healers should not be gated by
        huts at all". */
-    (void)g;
-    if (pick != 4 && !(pick == 2 && work_first_present())) {
+    if (pick != LATER_BUILDING && !(pick == LATER_HEALING && work_first_present())) {
         return 0;
     }
-    if (!decision_roll()) {
+    /* The villager is the decision's (the scheduler wrapper's key); not
+       checked on the picked job: 14% of the decisions. */
+    if (!acts_for(later_checked_on(g, decision_key(), pick))) {
         return 0;
     }
     FIX_HUTS_COUNT_BYPASS;

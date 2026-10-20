@@ -49,7 +49,10 @@ DESCRIPTION = (
     "This makes builders more likely to do their building work, not certain: "
     "each time the game chooses what a builder does, the patch steps in about "
     "three times in four, and the rest of the time the game chooses exactly as "
-    "it always has. When it steps in, construction always comes first -- a "
+    "it always has. A villager whose job checkmark on the Villager Details "
+    "screen is not Building (any other job, or none) but whom the game gives "
+    "building work anyway gets all of this only on 14% of those choices; "
+    "otherwise the game chooses exactly as it always has. When it steps in, construction always comes first -- a "
     "builder goes straight into a new hut or building project the game would "
     "let it build, even when the game's own random roll would have skipped it "
     "this time, and never fixes a hut while there is one. When no building "
@@ -141,6 +144,36 @@ CATCHUP = (
     "closed, and Time Warp) each villager does the job the stock game picks, and when that job is "
     "building, the same build-first and hut-fixing rules apply{huts}."
 )
+
+
+# Not checked on the job (the owner, 2026-10-20): "ALL villagers NOT checked on X
+# skill perform actions that train that skill 14% of the time" -- patch
+# behaviours only; see "Not checked on the job" in native/vvfp_fix_huts.
+PREFERENCE_FIELD = {
+    "vv1": "village + index*0x3D8 + 0x3D0, Building 4",
+    "vv2": "village + index*0xE48C + 0x7F8, Building 5",
+    "vv3": "record + 0xEC0, Building 4, Healing 2",
+    "vv4": "[object + 0x1B88] + 0x1C70, Building 4, Healing 2",
+    "vv5": "[object + 0x1B88] + 0x1C74, Building 4, Healing 2",
+}
+PREFERENCE_BEHAVIOR = (
+    "Not checked on the job: everything this companion makes a villager do trains Building -- construction "
+    "first and the hut fix inside the Building dispatcher{healer} -- and the dispatcher is reached for anyone "
+    "the game gives that job. For a villager whose job preference ({field}; 0 or -1 is no checkmark) is not "
+    "that job, the companion acts only when, after the decision's roll passes, one more roll of its own "
+    "passes 14 times in 100 (NOT_PREFERRED_PERCENT, drawn once per decision like the decision's roll): about "
+    "10.5% of such decisions instead of 75%. A failed roll is the stock game's choice. A villager checked on "
+    "the job is unchanged. 14 is the later games' own figure: their job chooser keeps a villager's checked "
+    "job 86 times in 100."
+)
+PREFERENCE_HEALER = {
+    "vv3": "; and the low-food bypass, which sends a builder or (with Builders and Healers Work First) a healer "
+           "straight to their pick, asks the same of the picked job, Building or Healing",
+    "vv4": "; and the low-food bypass, which sends a builder or (with Builders and Healers Work First) a healer "
+           "straight to their pick, asks the same of the picked job, Building or Healing",
+    "vv5": "; and the low-food bypass, which sends a builder or (with Builders and Healers Work First) a healer "
+           "straight to their pick, asks the same of the picked job, Building or Healing",
+}
 
 
 def describe(game: str) -> str:
@@ -1090,7 +1123,8 @@ def main() -> None:
                                          healers_extra=(" Healers Study Plants Regardless of Food then adds its "
                                                         "own two-in-three roll, so a studying healer carries on "
                                                         "half the time."
-                                                        if game in ("vv1", "vv2") else ""))],
+                                                        if game in ("vv1", "vv2") else ""))]
+              + [PREFERENCE_BEHAVIOR.format(field=PREFERENCE_FIELD[game], healer=PREFERENCE_HEALER.get(game, ""))],
             "explicit_non_changes": list(common_non_changes),
             "companion_files": [
                 {"source": "assets/fix_huts/VVFP Fix Huts.dll",

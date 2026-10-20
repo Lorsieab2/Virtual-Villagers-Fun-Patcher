@@ -365,11 +365,26 @@ class Machine:
     # in fix-huts, the own-roll fallbacks in the other two.
     ROLL_RECORDS = {"fix_huts": "VvfpFixHutsRollTest", "work_first": "VvfpWorkFirstRollTest",
                     "healers": "VvfpHealersStudyRollTest"}
+    # The not-checked-on-the-job 14% rolls (the owner, 2026-10-20).  roll_force
+    # forces them with the decision's roll, so a forced pass is "the patch
+    # acts" and a forced fail "the stock game" whatever the villager's
+    # checkmark; preference_force sets them on their own.
+    PREFERENCE_RECORDS = {"fix_huts": "VvfpFixHutsPreferenceRollTest",
+                          "healers": "VvfpHealersStudyPreferenceRollTest"}
 
     def roll_force(self, force: int) -> None:
         for module, name in self.ROLL_RECORDS.items():
             if module in self.exports:
                 self.mu.mem_write(self.exports[module][name], struct.pack("<ii", force, 0))
+        self.preference_force(force)
+
+    def preference_force(self, force: int) -> None:
+        for module, name in self.PREFERENCE_RECORDS.items():
+            if module in self.exports:
+                self.mu.mem_write(self.exports[module][name], struct.pack("<ii", force, 0))
+
+    def preference_draws(self, module: str = "fix_huts") -> int:
+        return struct.unpack("<ii", self.mu.mem_read(self.exports[module][self.PREFERENCE_RECORDS[module]], 8))[1]
 
     def draws(self, module: str = "fix_huts") -> int:
         return struct.unpack("<ii", self.mu.mem_read(self.exports[module][self.ROLL_RECORDS[module]], 8))[1]
@@ -1036,6 +1051,74 @@ class FromTheRealCallerTests(unittest.TestCase):
                 self.assertEqual(m.draws(), n, "exactly one roll per decision")
                 sd = (n * 0.75 * 0.25) ** 0.5
                 self.assertLess(abs(patched - 0.75 * n), 4 * sd, f"{patched}/{n} patched")
+
+
+NOT_A_BUILDER = {"vv1": 1, "vv2": 1, "vv3": 3, "vv4": 3, "vv5": 3}      # checked on another job
+BUILDING_PICK = {"vv1": dict(preferred_pick=4), "vv2": dict(preferred_pick=5), "vv3": {}, "vv4": {}, "vv5": {}}
+
+
+def _not_a_builder(game: str) -> dict:
+    """The "idle hut fix" scenario for a villager NOT checked on Building to
+    whom the game gives Building anyway (the chooser's own skill pick)."""
+    kw = _kw(SCENARIOS[game][0][1]) | BUILDING_PICK[game]
+    kw["pref"] = NOT_A_BUILDER[game]
+    return kw
+
+
+@unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class NotCheckedOnBuildingTests(unittest.TestCase):
+    """The owner (2026-10-20): "ALL villagers NOT checked on X skill perform
+    actions that train that skill 14% of the time" -- patch behaviours only.
+    Everything Builders Fix Huts When Idle makes a villager do trains
+    Building, so for one whose checkmark is not Building it acts on 14% of the
+    decisions it would otherwise act on; a failed roll is the stock game."""
+
+    def test_the_14_percent_roll_decides_for_a_villager_not_checked_on_building(self):
+        for game in GAMES:
+            expected = SCENARIOS[game][0][2]
+            kw = _not_a_builder(game)
+            stock = WORLD[game](rows=(), runtime=False, **kw)
+            with self.subTest(game=game, roll="passes"):
+                m = WORLD[game](rows=ROWS[game], force=FORCE_PASS, **kw)
+                self.assertEqual(OUTCOME[game](m), expected)
+                self.assertEqual((m.draws(), m.preference_draws()), (1, 1), "once per decision each")
+            with self.subTest(game=game, roll="fails"):
+                m = WORLD[game](rows=ROWS[game], force=FORCE_PASS, **kw)
+                m.preference_force(FORCE_FAIL)
+                m.decide()
+                self.assertEqual(effects(m), effects(stock), "a failed 14% roll is the stock decision")
+                self.assertEqual(OUTCOME[game](m), OUTCOME[game](stock))
+                self.assertNotEqual(OUTCOME[game](m), expected)
+
+    def test_a_builder_never_meets_the_14_percent_roll(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                m = WORLD[game](rows=ROWS[game], force=FORCE_PASS, **_kw(SCENARIOS[game][0][1]))
+                m.preference_force(FORCE_FAIL)
+                m.decide()
+                self.assertEqual(OUTCOME[game](m), SCENARIOS[game][0][2])
+                self.assertEqual(m.preference_draws(), 0)
+
+    def test_measured_shares(self):
+        # Real generators, one running process.  Checked on Building: the
+        # decision's 75%.  Anyone else: 14% of that, 10.5%.
+        n = 1200
+        for game in GAMES:
+            expected = SCENARIOS[game][0][2]
+            for who, kw, share_expected in (("builder", _kw(SCENARIOS[game][0][1]), 0.75),
+                                            ("not a builder", _not_a_builder(game), 0.75 * 0.14)):
+                with self.subTest(game=game, who=who):
+                    m = WORLD[game](rows=ROWS[game], force=FORCE_REAL, **kw)
+                    patched = int(OUTCOME[game](m) == expected)
+                    for _ in range(n - 1):
+                        patched += OUTCOME[game](m.decide()) == expected
+                    sd = (n * share_expected * (1 - share_expected)) ** 0.5
+                    print(f"{game} {who}: patched {patched / n:.3f} of {n} decisions")
+                    self.assertLess(abs(patched - share_expected * n), 4 * sd, f"{patched}/{n} patched")
+                    if who == "not a builder":
+                        given = patched / m.preference_draws()
+                        self.assertTrue(0.10 <= given <= 0.18, f"the 14% roll passed {given:.3f}")
 
 
 class FixHutsDll:

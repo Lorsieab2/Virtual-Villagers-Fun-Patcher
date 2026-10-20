@@ -123,10 +123,10 @@ def machine(game, *, rows, runtime=False, force=FORCE_PASS, pick=None, selected=
             m.leaves[va] = Leaf(1, lambda m, a, c, r: 1, name=name)
         if cont is None:
             m.real.add(0x460590)
-            m.real_ranges.append((0x473CA0, 0x473CC4))   # Easier Healing Mastery's cave
+            m.real_ranges += [(0x473CA0, 0x473CCE), (0x473CF1, 0x473CFB)]   # Easier Healing Mastery's caves
         else:
             m.leaves[0x460590] = Leaf(2, lambda m, a, c, r: cont, name="continue")
-            m.real_ranges.append((0x473CA0, 0x473CC4))
+            m.real_ranges += [(0x473CA0, 0x473CCE), (0x473CF1, 0x473CFB)]
     m.w32(rec + STATE_FIELD[game], task)
     m.plan(WORKER[game], HALT, {UC_X86_REG_ECX: obj}, stack=(HALT, INDEX))
     if runtime:
@@ -238,6 +238,65 @@ class EasierHealingMasteryAlone(unittest.TestCase):
         self.assertIn("idle", names(m))
 
 
+def _roll100(value: int) -> Rolls:
+    """rand(100) answers `value`; every other rand(n) 0 (the plant pick)."""
+    return Rolls(default=lambda n: value if n == 100 else 0)
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class LostChildrenNotCheckedOnHealing(unittest.TestCase):
+    """The owner (2026-10-20): villagers NOT checked on a skill do a patch's
+    actions that train it only 14% of the time.  The Lost Children's row sends
+    whoever the game gives healing work with no patient to plant study; for a
+    villager whose job checkmark (+0x7F8) is not Healing (3) it now does so
+    only when the game's rand(100) is below 14, and otherwise takes the stock
+    no-patient exit -- the normal game's "nothing to do"."""
+
+    def test_the_roll_decides_and_a_failed_roll_is_the_stock_game(self):
+        for selected in (0, 1, 2, 4, 5):
+            for mode in MODES:
+                with self.subTest(selected=selected, mode=mode, roll=13):
+                    rolls = _roll100(13)
+                    m = machine("vv2", rows=(EHM["vv2"],), mode=mode, selected=selected, rolls=rolls).decide()
+                    self.assertEqual(len(studies(m)), 1, names(m))
+                    self.assertEqual(state(m, "vv2"), 9)
+                    self.assertIn((0x473CB8, 100, 13), rolls.seen, "rand(100) from the cave")
+                with self.subTest(selected=selected, mode=mode, roll=14):
+                    kw = dict(selected=selected, rolls=_roll100(14))
+                    m = machine("vv2", rows=(EHM["vv2"],), mode=mode, **kw).decide()
+                    stock = machine("vv2", rows=(), mode=mode, **kw).decide()
+                    self.assertEqual(studies(m), [])
+                    self.assertEqual(state(m, "vv2"), 0, "no record field written")
+                    self.assertEqual([c for c in names(m) if c != "rand"], [c for c in names(stock) if c != "rand"])
+
+    def test_live_play_reports_nothing_started_when_the_roll_fails(self):
+        for ret in LIVE_RETS["vv2"]:
+            for roll, studied, al in ((13, 1, 1), (14, 0, 0)):
+                with self.subTest(ret=hex(ret), roll=roll):
+                    m = machine("vv2", rows=(EHM["vv2"],), selected=1, rolls=_roll100(roll))
+                    self.assertEqual(live(m, "vv2", ret), al)
+                    self.assertEqual(len(studies(m)), studied)
+
+    def test_a_healer_never_meets_the_roll(self):
+        rolls = _roll100(99)
+        m = machine("vv2", rows=(EHM["vv2"],), rolls=rolls).decide()
+        self.assertEqual(len(studies(m)), 1)
+        self.assertNotIn(0x473CB8, [s[0] for s in rolls.seen])
+
+    def test_measured_share(self):
+        import random
+        rng = random.Random(20261020)
+        n, hits = 1500, 0
+        m = machine("vv2", rows=(EHM["vv2"],), selected=1, rolls=Rolls(default=lambda n: rng.randrange(n)))
+        for _ in range(n):
+            m.w32(VILLAGE + INDEX * STRIDE["vv2"] + STATE_FIELD["vv2"], 0)
+            m.decide()
+            hits += bool(studies(m))
+        share = hits / n
+        print(f"vv2 Easier Healing Mastery, not checked on Healing: studies {share:.3f}")
+        self.assertTrue(0.11 <= share <= 0.17, share)
+
+
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
 @unittest.skipUnless(TEST_BUILDS_PRESENT, TEST_BUILD_ABSENT)
 class WithEveryHealerPatch(unittest.TestCase):
@@ -333,19 +392,23 @@ class NewHomeHealersStudyCatchUp(unittest.TestCase):
                 self.assertEqual([c for c in m.calls if c[0] == "continue"], [])
 
     def test_the_share_is_about_one_in_two(self):
-        m = machine("vv1", rows=self.rows(), runtime=True, force=FORCE_REAL, pick=OTHER, selected=OTHER,
-                    task=9, cont=1)
-        m.seed(0x9E3779B9)
-        n, hits = 1000, 0
-        for _ in range(n):
-            draws = m.draws("fix_huts")
-            m.decide()
-            self.assertEqual(m.draws("fix_huts") - draws, 1, "one roll per decision")
-            hits += any(c[0] == "continue" for c in m.calls)
-        share = hits / n
-        print(f"catch-up share vv1 plant study: {share:.3f}")
-        self.assertGreater(share, 0.45)
-        self.assertLess(share, 0.55)
+        # Checked on Healing: half the time.  Anyone else: 14% of that (the
+        # owner, 2026-10-20).
+        for selected, low, high in ((HEALING["vv1"], 0.45, 0.55), (OTHER, 0.045, 0.10)):
+            with self.subTest(selected=selected):
+                m = machine("vv1", rows=self.rows(), runtime=True, force=FORCE_REAL, pick=OTHER,
+                            selected=selected, task=9, cont=1)
+                m.seed(0x9E3779B9)
+                n, hits = 1500, 0
+                for _ in range(n):
+                    draws = m.draws("fix_huts")
+                    m.decide()
+                    self.assertEqual(m.draws("fix_huts") - draws, 1, "one roll per decision")
+                    hits += any(c[0] == "continue" for c in m.calls)
+                share = hits / n
+                print(f"catch-up share vv1 plant study, checkmark {selected}: {share:.3f}")
+                self.assertGreater(share, low)
+                self.assertLess(share, high)
 
     def test_every_population_mode(self):
         for mode in MODES:

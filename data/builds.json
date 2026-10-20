@@ -1365,7 +1365,7 @@
       "id": "vv2_easier_healing_mastery",
       "game_id": "vv2",
       "name": "Easier Healing Mastery",
-      "description": "Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.",
+      "description": "Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up. A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do.",
       "output_tag": "Easier Healing",
       "patches": [
         {
@@ -1376,9 +1376,15 @@
         },
         {
           "offset": "0x73CA0",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8BC569C08CE40000C78430E0070000090000006A64558BCEE8D3C8FEFF5F5D5B5EC20800",
-          "purpose": "set plant-study state 9 and reuse the stock live and catch-up work dispatcher"
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "69FD8CE4000001F76A6483BFF8070000037409E8E8F4F8FF3C0E73356A098F87E00700005589F1E8C4C8FEFFEB26",
+          "purpose": "for a villager checked on Healing (job preference +0x7F8 = 3), set plant-study state 9 and reuse the stock live and catch-up work dispatcher; for any other villager only when the game's rand(100) is below 14, else the stock no-patient exit"
+        },
+        {
+          "offset": "0x73CF1",
+          "before": "00000000000000000000",
+          "after": "5930C05F5D5B5EC20800",
+          "purpose": "the not-checked-on-Healing roll's failure: drop its argument and take the stock no-patient exit (al = 0); and the shared epilogue"
         }
       ]
     },
@@ -1837,7 +1843,7 @@
       "id": "vv5_easier_devotee_training",
       "game_id": "vv5",
       "name": "Easier Devotee Training",
-      "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor. This acts only while you play: time that passes while the game is closed, and Time Warp, run the game's own catch-up, which this patch does not change (Builders and Healers Work First gives devotees their own catch-up boost).",
+      "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action. A villager not checked on Devotion (any other job, or none) does so only 14% of the times this patch would otherwise let them; villagers checked on Devotion are unchanged. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor. This acts only while you play: time that passes while the game is closed, and Time Warp, run the game's own catch-up, which this patch does not change (Builders and Healers Work First gives devotees their own catch-up boost).",
       "output_tag": "Easier Devotee",
       "patches": [
         {
@@ -1849,14 +1855,20 @@
         {
           "offset": "0x94400",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0AE9E0040000E9C1ADFDFFE910AEFDFF",
-          "purpose": "leave Retired Chiefs on the original stock branch while requiring positive Devotion skill ([villager+0x1C70] > 0; the selected preferred job is not checked) before routing an ordinary villager to the added Honoring branch"
+          "after": "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0AE9E0080000E9C1ADFDFFE910AEFDFF",
+          "purpose": "leave Retired Chiefs on the original stock branch while requiring positive Devotion skill ([villager+0x1C70] > 0) before routing an ordinary villager to the added Honoring branch, through the not-checked-on-Devotion gate at 0x94D00"
         },
         {
           "offset": "0x94900",
           "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "6A64E859EDF6FF83C40483F8327D1E8B8E881B0000885C240F8D54240F5268A0000000E8580CFDFFE9F0A8FDFFE908A9FDFF",
           "purpose": "apply the stock 50-percent timing chance and assign only Honoring to an eligible ordinary devotee without intercepting any Retired Chief behavior; relocated outside the expanded VV5 save-loader cave"
+        },
+        {
+          "offset": "0x94D00",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "83B9741C0000050F84F3FBFFFF6A64E84CE9F6FF5983F80E0F82E2FBFFFFE917A5FDFF",
+          "purpose": "a villager checked on Devotion (job preference +0x1C74 = 5) goes on to the Honoring branch as before; any other villager only when the game's rand(100) is below 14, else the stock branch 0x46F23A"
         }
       ]
     },
@@ -1864,7 +1876,7 @@
       "id": "vv5_statue_polishing_or_honoring",
       "game_id": "vv5",
       "name": "Statue Drops: Normal Action or Honoring",
-      "description": "Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.",
+      "description": "Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. When a villager later carries that statue job on by themselves, one not checked on Devotion (any other job, or none) gets Honoring only 14% of the times the 50/50 would give it, and polishes otherwise; your own drop is never restricted. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour.",
       "output_tag": "Random Statue Training",
       "patches": [
         {
@@ -1888,8 +1900,8 @@
         {
           "offset": "0x94840",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "516A02E818EEF6FF83C4045985C07407B89D000000EB05B8A00000005A5052C390909090909090909090909090909090909090909090909090909090909090909090",
-          "purpose": "choose Polishing the Statue or Honoring 50/50 on a completed statue, with no skill or villager-pointer reads"
+          "after": "516A02E818EEF6FF595985C07521813C249FBF4600751F83B9741C0000057416516A64E8F8EDF6FF595983F80E7207B89D000000EB05B8A00000005A5052C3909090",
+          "purpose": "choose Polishing the Statue or Honoring 50/50 on a completed statue; when the task continuation (return 0x46BF9F, ecx = the villager's record) would give Honoring to a villager not checked on Devotion (job preference +0x1C74 != 5), keep it only when a second rand(100) is below 14, else Polishing; the player's own drop is never restricted"
         }
       ]
     },

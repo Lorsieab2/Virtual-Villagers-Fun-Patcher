@@ -32,6 +32,8 @@ DLL = ROOT / "assets" / "healers_study" / "VVFP Healers Study.dll"
 ROWS = {
     "vv1": {
         "threshold": 400,
+        "preference": "record +0x3D0",
+        "healing": 5,
         "plant": "the plant it was dropped on (the medical cactus)",
         "site": {"va": "0x44836F", "stock_bytes": "6A00578BCEE86717FFFF",
                  "routine": "the idle scheduler's general selection (0x448220), the target of its 400-food jump"},
@@ -55,6 +57,8 @@ ROWS = {
     },
     "vv2": {
         "threshold": 300,
+        "preference": "record +0x7F8",
+        "healing": 3,
         "plant": "a plant (the same four-plant roll the stock game makes)",
         "site": {"va": "0x461A22", "stock_bytes": "6A00578BCEE83482FEFF",
                  "routine": "the idle scheduler's general selection (0x461850), the target of its 300-food jump"},
@@ -89,7 +93,11 @@ def main() -> None:
             f"when the village has {t} food or more, exactly as the stock game already "
             f"does below {t} -- half the time (a 50% chance) each time the game "
             f"chooses what the healer does; the rest of the time the game chooses "
-            f"exactly as it always has. Below {t} food nothing changes. With Builders "
+            f"exactly as it always has. A villager whose job checkmark on the Villager "
+            f"Details screen is not Healing (any other job, or none) carries on only on "
+            f"14% of those checks, here and in catch-up, so farmers and other "
+            f"non-healers study noticeably less; when that roll fails the game chooses "
+            f"their work exactly as it always has. Below {t} food nothing changes. With Builders "
             f"Fix Huts When Idle also selected, a choice that its roll leaves to the "
             f"stock game is the stock game's for this patch too. {row['catch_up']} "
             f"{ORIGINS_BASE_SENTENCE} That base's companion loads "
@@ -109,6 +117,7 @@ def main() -> None:
             "behavior_changes": [
                 f"At {t} food or more, a villager in plant-study state 9 gets the stock continue-last-activity call {row['call']} that the stock scheduler makes only below {t}; if it starts a job, the scheduler's own done epilogue runs.",
                 "A 50% chance per check, not always: without Builders Fix Huts When Idle this site -- reached at most once per run -- draws a 50% roll of its own; when that DLL is loaded the companion first asks its roll for the decision (VvfpFixHutsRoll, one 75% roll per run of the idle scheduler, shared by every patch the run reaches) and, only when that passes, draws a two-in-three roll of its own (3/4 x 2/3 = 1/2). Neither touches the game's random numbers. When the roll fails the continuation call is not made and the stock selection runs.",
+                f"Not checked on Healing: a villager whose job preference ({row['preference']}) is anything but Healing ({row['healing']}; 0 is no checkmark) needs one more roll of the companion's own, 14 in 100 (NOT_PREFERRED_PERCENT), drawn only after the 50% chance passes, at both sites -- so such a villager continues on 7% of checks, a villager checked on Healing on 50%. A failed roll is the stock selection: the picker, i.e. the villager's own work, never plant study from this patch. The owner (2026-10-20): villagers not checked on a skill do a patch's actions that train it 14% of the time; 14 is the later games' own figure (their job chooser keeps a villager's checked job 86 times in 100).",
             ],
             "explicit_non_changes": [
                 "This row changes no executable bytes: the Origins companion loads the DLL, which detours the scheduler at run time only after verifying the stock bytes; a different build of the game installs nothing.",

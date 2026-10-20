@@ -118,6 +118,70 @@ static int own_roll(unsigned int pass, unsigned int out_of) {
     return x % out_of < pass;
 }
 
+/* ---- Not checked on Healing: 14% of that ---------------------------------- */
+/* The owner (2026-10-20): "Applies to patch behaviors only: ALL villagers NOT
+   checked on X skill perform actions that train that skill 14% of the time."
+   Plant study trains Healing, so for a villager whose job checkmark (the
+   skill preference on the Villager Details screen) is not Healing -- another
+   job, or none -- this patch's continuation happens only on 14 of every 100
+   of the checks where it would otherwise happen: one more roll, of its own,
+   after the half-the-time roll above.  A failed roll leaves the choice to the
+   stock selection, exactly as a failed half-the-time roll does.  A villager
+   checked on Healing is unchanged.  14% is the later games' own figure: The
+   Secret City, The Tree of Life and New Believers (and The Lost Children's
+   own chooser, 0x449DC3) override a villager's skill-based pick with their
+   checked job 86 times in 100, so a job they are not checked on gets its
+   chance only the other 14.
+
+     preference field             Healing   (0 = no checkmark)
+     A New Home        record + 0x3D0     5
+     The Lost Children record + 0x7F8     3
+
+   The stock game's own plant study (the scheduler's continuation below its
+   food threshold, its fallback continuation, a player's drop) is never
+   touched: this roll is asked only where this patch would act. */
+#define NOT_PREFERRED_PERCENT 14u
+#define VV1_PREFERENCE 0x3D0u
+#define VV1_HEALING 5
+#define VV2_PREFERENCE 0x7F8u
+#define VV2_HEALING 3
+
+static unsigned int preference_roll_state;
+static int decision_roll(void);
+
+#ifdef VVFP_TEST
+/* force: 0 = the real roll, 1 = pass, 2 = fail; draws: rolls drawn.  TEST
+   build only. */
+__declspec(dllexport) struct vvfp_own_roll_test VvfpHealersStudyPreferenceRollTest = { 0, 0 };
+#endif
+
+static int preference_roll(void) {
+    unsigned int x = preference_roll_state;
+    if (x == 0) {
+        x = (unsigned int)__rdtsc() ^ 0x5BD1E995u;
+        if (x == 0) x = 0x5BD1E995u;
+    }
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    preference_roll_state = x;
+#ifdef VVFP_TEST
+    ++VvfpHealersStudyPreferenceRollTest.draws;
+    if (VvfpHealersStudyPreferenceRollTest.force == 1) return 1;
+    if (VvfpHealersStudyPreferenceRollTest.force == 2) return 0;
+#endif
+    return x % 100u < NOT_PREFERRED_PERCENT;
+}
+
+/* 1 when this patch acts for the villager on this check: the decision's
+   roll, then -- not checked on Healing -- the 14% roll. */
+static int acts_for(int checked_on_healing) {
+    if (!decision_roll()) {
+        return 0;
+    }
+    return checked_on_healing || preference_roll();
+}
+
 static int decision_roll(void) {
     if (shared_roll == NULL) {
         /* Looked up each time until found: the fix-huts DLL may be loaded
@@ -150,7 +214,7 @@ static int __cdecl vv1_studying(const unsigned char *state, const unsigned char 
     if (*(const int *)(village + index * 0x3D8u + 0x3B8u) != 9) {
         return 0;
     }
-    if (!decision_roll()) {
+    if (!acts_for(*(const int *)(village + index * 0x3D8u + VV1_PREFERENCE) == VV1_HEALING)) {
         return 0;                                  /* the stock selection this decision */
     }
     HEALERS_COUNT_CHECK;
@@ -218,7 +282,7 @@ static int __cdecl vv1_catch_up_studying(const unsigned char *village, unsigned 
     if (*(const int *)(village + index * 0x3D8u + 0x3B8u) != 9) {
         return 0;
     }
-    if (!decision_roll()) {
+    if (!acts_for(*(const int *)(village + index * 0x3D8u + VV1_PREFERENCE) == VV1_HEALING)) {
         return 0;                                  /* the stock pick this decision */
     }
     HEALERS_COUNT_CHECK;
@@ -275,7 +339,7 @@ static int __cdecl vv2_studying(const unsigned char *village, const unsigned cha
     if (*(const int *)(record + 0x7E0u) != 9) {
         return 0;
     }
-    if (!decision_roll()) {
+    if (!acts_for(*(const int *)(record + VV2_PREFERENCE) == VV2_HEALING)) {
         return 0;                                  /* the stock selection this decision */
     }
     HEALERS_COUNT_CHECK;
@@ -346,7 +410,7 @@ static int __cdecl vv2_catch_up_studying(const unsigned char *village, unsigned 
     if (*(const int *)(village + index * 0xE48Cu + 0x7E0u) != 9) {
         return 0;
     }
-    if (!decision_roll()) {
+    if (!acts_for(*(const int *)(village + index * 0xE48Cu + VV2_PREFERENCE) == VV2_HEALING)) {
         return 0;                                  /* the stock pick this decision */
     }
     HEALERS_COUNT_CHECK;
