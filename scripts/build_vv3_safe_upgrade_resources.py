@@ -102,8 +102,11 @@ FOUNDATION_OUTPUT = (
 # Recertified for one folder per save (native/shared/per_save.h, the owner, 2026-10-17): the mask
 # file, the Log Checks approval, the Last Names files and the Repairs Made log go in the save's own
 # "Virtual Villagers Fun Patcher\Save <S>\" unless still in the older layout's folders.
-SOURCE_SHA256 = "48A468914D4772F265A5A07701557716BAF7BC4A6758624507837B431FED4329"
-SOURCE_SIZE = 1991168
+# Recertified for Recharge Chief Powers (the owner, 2026-10-20): the Story / Cheat Upgrades Tech
+# menu's VV3-only button, which calls "VVFP Story Upgrades.dll"'s VvfpStoryRechargeChiefPowers.
+# Without the row (or with an older Story DLL lacking that export) nothing changes.
+SOURCE_SHA256 = "88BA262CD3B4B18DA02927F29CC8E62C8F4B0DEAA6373C706477A117CB31B531"
+SOURCE_SIZE = 1991680
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
