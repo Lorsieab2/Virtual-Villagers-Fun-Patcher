@@ -3763,6 +3763,14 @@ class App(tk.Tk):
             return
         _regrab(parent)
         self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary}")
+        # The Lost Children: the passed-away Esteemed Elders the totems companion gives a totem at the next
+        # load, when the village's setting is on (src/vv_vv2_totem_store.py write_pending; its own file only).
+        if number == vv_vv2_totem_store.GAME:
+            try:
+                vv_vv2_totem_store.write_pending(folder, info.slot)
+            except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
+                    vv_log_tools.LogToolError, ValueError, OSError):
+                pass                    # the next Check or Repair tries again; nothing else depends on it
         # The reconciliation's report beside the slot's logs (the only file Check Saves & Logs leads to
         # writing, and only the report: src/vv_reconcile.py export).
         if result.reconciliation is not None:
@@ -3927,6 +3935,8 @@ class App(tk.Tk):
                     stored = vv_vv2_totem_store.read(folder, info.slot)
                     totems["in_file"] = len(stored.totems) if stored is not None else 0
                     totems["auto"] = vv_vv2_totem_store.auto_give(folder, info.slot)
+                    # The passed-away elders the companion gives a totem at the next load (its own list).
+                    vv_vv2_totem_store.write_pending(folder, info.slot)
                 except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
                         vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
                     totems["note"] = ((totems["note"] + " ") if totems["note"] else "") + (
@@ -4530,8 +4540,8 @@ class App(tk.Tk):
             ttk.Checkbutton(
                 frame, variable=auto_var,
                 text=f"{vv_vv2_totem_store.LABEL_AUTO} (this village): every Esteemed Elder without a totem, living "
-                     "or passed away, is given one each time Repair Saves & Logs runs; one that may already "
-                     "have a totem is still asked about first").pack(anchor="w", pady=(4, 0))
+                     "or passed away, is given one automatically, during play (when the village loads and after "
+                     "the game's elder checks); one that may already have a totem is asked about here instead").pack(anchor="w", pady=(4, 0))
             ttk.Button(frame, text=f"{vv_vv2_totem_store.LABEL_COLOUR}\u2026",
                        command=lambda: self._totem_colour(window, folder, info)).pack(anchor="w", padx=(20, 0),
                                                                                      pady=(2, 0))
@@ -4663,7 +4673,9 @@ class App(tk.Tk):
                 try:
                     vv_vv2_totem_store.set_auto_give(folder, info.slot, auto_var.get())
                     totems["auto"] = auto_var.get()
-                except (vv_vv2_totem_store.StoreError, OSError) as exc:
+                    vv_vv2_totem_store.write_pending(folder, info.slot)
+                except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
+                        vv_log_tools.LogToolError, OSError) as exc:
                     messagebox.showerror("Repair Saves & Logs", f"The setting was not saved ({exc}).", parent=window)
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
                                  names if names_var.get() and (names["chosen"] or names.get("rules_changed")

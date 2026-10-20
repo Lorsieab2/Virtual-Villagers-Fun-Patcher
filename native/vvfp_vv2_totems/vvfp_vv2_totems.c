@@ -88,6 +88,23 @@
    cannot be opened leaves this session stock (nothing moved, nothing
    written).
 
+   GIVEN AUTOMATICALLY, DURING PLAY (the owner, 2026-10-20: "the player should
+   not have to manually repair the save/log to have them appear").  With the
+   village's "Give Esteemed Elders their totems automatically" setting on
+   ("Elder Totem Settings.dat" beside ElderTotems.dat: a first line
+   "VVFP VV2 ELDER TOTEM SETTINGS v1", then "auto_give\t1"):
+     - every Esteemed Elder record (+0x7FC set; living, or a body not yet
+       buried) with no totem is given one as 0x44D190 makes it, after a load
+       and after every elder pass (0x44D4C0, detoured at its entry);
+     - every elder the patcher listed in "PendingElderTotems.dat" (the Deaths
+       log's Esteemed Elders without a totem, which this companion cannot
+       read; src/vv_vv2_totem_store.py) is given one at the next load, beside
+       the campfire, and taken off the list.
+   A totem "exists" for an elder when one has the same name, sex, head and body,
+   or a name the list's recorded renames lead to with the same looks; one that
+   shares only the first name, or only the looks and sex, makes it UNSURE:
+   nothing is made (Repair Saves & Logs asks).  Never during a save.
+
    EXPORTS for the Story / Cheat Upgrades and Island Events companions:
    VvfpTotemsActive, VvfpTotemCount, VvfpTotemFaceOf(elder record) and
    VvfpTotemSetFace(elder record, face). */
@@ -187,6 +204,7 @@ typedef int (__fastcall *create_fn)(void *world, int, int elder);
 typedef unsigned char (__fastcall *slot_fn)(void *manager, int, int slot);
 typedef int (__fastcall *reset_fn)(void *manager, int, int arg);
 typedef unsigned char (__fastcall *input_fn)(void *ui, int, int event, int x, int y);
+typedef void (__fastcall *pass_fn)(void *world, int);
 
 #define DRAW_SHADOW ((draw3_fn)0x4095A0u)
 #define DRAW_FRAME ((draw4_fn)0x4095C0u)
@@ -277,8 +295,11 @@ static void forget_pick(void) {
     g_dragging = 0;
 }
 
+static int g_auto;               /* the village's give-automatically setting (read at each load) */
+
 static void clear_store(void) {
     g_n = 0;
+    g_auto = 0;
     forget_pick();
 }
 
@@ -564,6 +585,8 @@ static int migrate(unsigned char *world) {
 }
 
 /* ---- the hooks: load, save, reset ----------------------------------------- */
+static void after_load(int slot, unsigned char *world);
+static void give_living(unsigned char *world);
 static slot_fn g_load_original;
 static slot_fn g_save_original;
 static reset_fn g_reset_original;
@@ -595,6 +618,7 @@ static unsigned char __fastcall wrap_load(void *manager, int edx, int slot) {
         g_active = read_store(s, world);
         if (g_active) {
             (void)migrate(world);
+            after_load(s, world);
         } else {
             clear_store();
         }
@@ -681,6 +705,361 @@ static int __fastcall my_create(void *world_ptr, int edx, int elder_index) {
     ++g_n;
     elder[R_ELDER] = 1;                                  /* 0x44D4A2 */
     return -1;
+}
+
+/* ---- given automatically ------------------------------------------------- */
+#define PENDING_MAGIC "VVFP VV2 PENDING"     /* 16 bytes, no NUL */
+#define PENDING_ROW 40u                     /* name[24], sex, head, body, age */
+#define RENAME_ROW 56u                      /* old[24], new[24], head, body */
+#define PENDING_HEADER 44u
+
+typedef struct {
+    char name[NAME_CAP + 1];
+    int sex, head, body, age;
+} pending_t;
+
+typedef struct {
+    char old_name[NAME_CAP + 1], new_name[NAME_CAP + 1];
+    int head, body;
+} rename_t;
+
+static rename_t *g_renames;
+static int g_rename_n;
+static pass_fn g_pass_original;
+
+static int folder_file(int slot, const char *leaf, char *out) {
+    char store[MAX_PATH];
+    char *cut;
+    if (!store_path(slot, store)) {
+        return 0;
+    }
+    cut = strrchr(store, '\\');
+    if (cut == NULL || (int)(cut - store) + 1 + lstrlenA(leaf) + VV_PS_RESERVE_TOTEMS >= MAX_PATH) {
+        return 0;
+    }
+    cut[1] = '\0';
+    lstrcpyA(out, store);
+    lstrcatA(out, leaf);
+    return 1;
+}
+
+/* The whole file into a heap buffer (*n bytes); NULL when it is not there or
+   is unreasonably large. */
+static unsigned char *read_whole(const char *path, DWORD *n, DWORD most) {
+    HANDLE h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    unsigned char *buf;
+    DWORD size, got = 0;
+    *n = 0;
+    if (h == INVALID_HANDLE_VALUE) {
+        return NULL;
+    }
+    size = GetFileSize(h, NULL);
+    if (size == INVALID_FILE_SIZE || size > most) {
+        CloseHandle(h);
+        return NULL;
+    }
+    buf = (unsigned char *)HeapAlloc(GetProcessHeap(), 0, size + 1);
+    if (buf == NULL || (size && (!ReadFile(h, buf, size, &got, NULL) || got != size))) {
+        CloseHandle(h);
+        if (buf != NULL) {
+            HeapFree(GetProcessHeap(), 0, buf);
+        }
+        return NULL;
+    }
+    CloseHandle(h);
+    buf[size] = 0;
+    *n = size;
+    return buf;
+}
+
+static int read_setting(int slot) {
+    static const char HEAD[] = "VVFP VV2 ELDER TOTEM SETTINGS v1";
+    char path[MAX_PATH];
+    DWORD n;
+    unsigned char *text;
+    const char *line;
+    int on = 0;
+    if (!folder_file(slot, "Elder Totem Settings.dat", path) || (text = read_whole(path, &n, 4096)) == NULL) {
+        return 0;
+    }
+    if (strncmp((const char *)text, HEAD, sizeof HEAD - 1) == 0
+        && (text[sizeof HEAD - 1] == '\r' || text[sizeof HEAD - 1] == '\n')) {
+        for (line = (const char *)text; line != NULL; line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+            if (strncmp(line, "auto_give\t", 10) == 0) {
+                on = line[10] == '1';
+            }
+        }
+    }
+    HeapFree(GetProcessHeap(), 0, text);
+    return on;
+}
+
+/* Whether name, with these looks, is where the recorded renames lead from
+   `from` (a chain of renames, each with the same looks). */
+static int renamed_to(const char *from, const char *to, int head, int body) {
+    char seen[16][NAME_CAP + 1];
+    int count = 1, k, step;
+    lstrcpynA(seen[0], from, NAME_CAP + 1);
+    for (step = 0; step < count && step < 16; ++step) {
+        for (k = 0; k < g_rename_n; ++k) {
+            const rename_t *r = &g_renames[k];
+            int s, known = 0;
+            if (r->head != head || r->body != body || strncmp(r->old_name, seen[step], NAME_CAP) != 0) {
+                continue;
+            }
+            if (strncmp(r->new_name, to, NAME_CAP) == 0) {
+                return 1;
+            }
+            for (s = 0; s < count; ++s) {
+                known |= strncmp(seen[s], r->new_name, NAME_CAP) == 0;
+            }
+            if (!known && count < 16) {
+                lstrcpynA(seen[count++], r->new_name, NAME_CAP + 1);
+            }
+        }
+    }
+    return 0;
+}
+
+static size_t first_word(const char *name) {
+    return strcspn(name, " ");
+}
+
+/* 0 no totem, 1 a totem certainly theirs, 2 unsure (a near match). */
+#define TOTEM_NONE 0
+#define TOTEM_THEIRS 1
+#define TOTEM_UNSURE 2
+static int totem_for(const char *name, int sex, int head, int body) {
+    int k, unsure = 0;
+    for (k = 0; k < g_n; ++k) {
+        const unsigned char *e = g_t[k].e;
+        const char *tn = (const char *)e + E_NAME;
+        int same_looks = i32(e, E_HEAD) == head && i32(e, E_BODY) == body && i32(e, E_SEX) == sex;
+        if (same_looks && (strncmp(tn, name, NAME_CAP) == 0 || renamed_to(tn, name, head, body))) {
+            return TOTEM_THEIRS;
+        }
+        if (same_looks || (i32(e, E_SEX) == sex && first_word(tn) == first_word(name)
+                           && strncmp(tn, name, first_word(name)) == 0)) {
+            unsure = 1;
+        }
+    }
+    return unsure ? TOTEM_UNSURE : TOTEM_NONE;
+}
+
+static void give_living(unsigned char *world) {
+    unsigned char *game;
+    int i;
+    if (!g_auto || !g_active || world == NULL || (game = game_of(world)) == NULL) {
+        return;
+    }
+    for (i = 0; i < RECORDS; ++i) {
+        unsigned char *r = record(world, i);
+        if (r[R_IN_USE] == 0 || r[R_ELDER] == 0 || r[R_IS_TOTEM] != 0) {
+            continue;
+        }
+        if (totem_for((const char *)r + 0x564, i32(r, 0x538), i32(r, 0x548), i32(r, 0x54C)) != TOTEM_NONE
+            || !reserve(g_n + 1)) {
+            continue;
+        }
+        make_entry(r, g_t[g_n].e, GAME_CLOCK(game, 0));
+        ++g_n;
+    }
+}
+
+/* The elder pass, then the elders it left without a totem. */
+static void __fastcall wrap_pass(void *world, int edx) {
+    g_pass_original(world, edx);
+    __try {
+        give_living((unsigned char *)world);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+/* Beside the campfire, in rows, clear (30) of every totem (src/vv_vv2_totems.py _place). */
+static void campfire_place(int *px, int *py) {
+    int row, k, n;
+    for (row = 0; row < 12; ++row) {
+        int y = 860 + ((row + 1) / 2) * 110 * (row % 2 ? 1 : -1);
+        for (k = 0; k < 40; ++k) {
+            int x = 750 + ((k + 1) / 2) * 45 * (k % 2 ? 1 : -1), clear = 1;
+            if (x < 60 || x > 1640 || y < 120 || y > 1560) {
+                continue;
+            }
+            for (n = 0; n < g_n && clear; ++n) {
+                clear = abs(x - i32(g_t[n].e, E_X)) >= 30 || abs(y - i32(g_t[n].e, E_Y)) >= 30;
+            }
+            if (clear) {
+                *px = x;
+                *py = y;
+                return;
+            }
+        }
+    }
+    *px = 750;
+    *py = 860;
+}
+
+static int pending_valid(const unsigned char *d, DWORD n) {
+    unsigned int roster, pend, ren, hash;
+    if (n < PENDING_HEADER + 4 || memcmp(d, PENDING_MAGIC, 16) != 0 || i32(d, 16) != 1 || i32(d, 20) != GAME) {
+        return 0;
+    }
+    roster = (unsigned int)i32(d, 28);
+    pend = (unsigned int)i32(d, 32);
+    ren = (unsigned int)i32(d, 36);
+    if (roster > RECORDS || pend > 4096 || ren > 4096
+        || PENDING_HEADER + roster * ROSTER_ROW + pend * PENDING_ROW + ren * RENAME_ROW + 4 != n) {
+        return 0;
+    }
+    memcpy(&hash, d + n - 4, 4);
+    return hash == fnv1a(d, n - 4);
+}
+
+/* Write `d` (with its pending rows replaced by `keep`) back through a temporary file. */
+static void rewrite_pending(const char *path, const unsigned char *d, const pending_t *keep, int kept) {
+    unsigned int roster = (unsigned int)i32(d, 28), ren = (unsigned int)i32(d, 36), hash;
+    DWORD size = PENDING_HEADER + roster * ROSTER_ROW + (DWORD)kept * PENDING_ROW + ren * RENAME_ROW + 4, at, wrote = 0;
+    unsigned char *out = (unsigned char *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
+    char temporary[MAX_PATH + 8];
+    HANDLE h;
+    int k;
+    if (out == NULL) {
+        return;
+    }
+    memcpy(out, d, PENDING_HEADER + roster * ROSTER_ROW);
+    put32(out, 32, kept);
+    at = PENDING_HEADER + roster * ROSTER_ROW;
+    for (k = 0; k < kept; ++k, at += PENDING_ROW) {
+        memcpy(out + at, keep[k].name, NAME_CAP);
+        put32(out, at + 24, keep[k].sex);
+        put32(out, at + 28, keep[k].head);
+        put32(out, at + 32, keep[k].body);
+        put32(out, at + 36, keep[k].age);
+    }
+    memcpy(out + at, d + PENDING_HEADER + roster * ROSTER_ROW + (unsigned int)i32(d, 32) * PENDING_ROW, ren * RENAME_ROW);
+    hash = fnv1a(out, size - 4);
+    memcpy(out + size - 4, &hash, 4);
+    wsprintfA(temporary, "%s.tmp", path);
+    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h != INVALID_HANDLE_VALUE) {
+        BOOL ok = WriteFile(h, out, size, &wrote, NULL) && wrote == size && FlushFileBuffers(h);
+        CloseHandle(h);
+        if (!ok || !MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+            DeleteFileA(temporary);
+        }
+    }
+    HeapFree(GetProcessHeap(), 0, out);
+}
+
+/* The pending list: its renames (for every match) and, with the setting on,
+   its elders given their totems; the list keeps only the unsure ones. */
+static void take_pending(int slot, unsigned char *world) {
+    char path[MAX_PATH];
+    DWORD n;
+    unsigned char *d, *game = game_of(world);
+    unsigned int roster, pend, ren, k;
+    pending_t *keep;
+    int kept = 0, changed = 0;
+    if (!folder_file(slot, "PendingElderTotems.dat", path)
+        || (d = read_whole(path, &n, 1u << 20)) == NULL) {
+        return;
+    }
+    if (!pending_valid(d, n) || i32(d, 24) != slot) {
+        HeapFree(GetProcessHeap(), 0, d);
+        return;
+    }
+    roster = (unsigned int)i32(d, 28);
+    pend = (unsigned int)i32(d, 32);
+    ren = (unsigned int)i32(d, 36);
+    {
+        /* Bound to this village as the store is: more than half of its roster here. */
+        unsigned int found = 0, r;
+        int i;
+        for (r = 0; r < roster; ++r) {
+            const unsigned char *row = d + PENDING_HEADER + r * ROSTER_ROW;
+            for (i = 0; i < RECORDS; ++i) {
+                const unsigned char *rec = record(world, i);
+                if (rec[R_IN_USE] != 0 && strncmp((const char *)row, (const char *)rec + 0x564, NAME_CAP) == 0
+                    && i32(row, 24) == i32(rec, 0x548) && i32(row, 28) == i32(rec, 0x54C)
+                    && i32(row, 32) == i32(rec, 0x538)) {
+                    ++found;
+                    break;
+                }
+            }
+        }
+        if (roster == 0 || found * 2 <= roster) {
+            HeapFree(GetProcessHeap(), 0, d);
+            return;
+        }
+    }
+    g_renames = (rename_t *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (ren ? ren : 1) * sizeof(rename_t));
+    keep = (pending_t *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (pend ? pend : 1) * sizeof(pending_t));
+    if (g_renames == NULL || keep == NULL) {
+        HeapFree(GetProcessHeap(), 0, d);
+        return;
+    }
+    for (k = 0; k < ren; ++k) {
+        const unsigned char *row = d + PENDING_HEADER + roster * ROSTER_ROW + pend * PENDING_ROW + k * RENAME_ROW;
+        memcpy(g_renames[k].old_name, row, NAME_CAP);
+        memcpy(g_renames[k].new_name, row + 24, NAME_CAP);
+        g_renames[k].head = i32(row, 48);
+        g_renames[k].body = i32(row, 52);
+    }
+    g_rename_n = (int)ren;
+    for (k = 0; k < pend; ++k) {
+        const unsigned char *row = d + PENDING_HEADER + roster * ROSTER_ROW + k * PENDING_ROW;
+        pending_t p;
+        int state;
+        memset(&p, 0, sizeof p);
+        memcpy(p.name, row, NAME_CAP);
+        p.sex = i32(row, 24);
+        p.head = i32(row, 28);
+        p.body = i32(row, 32);
+        p.age = i32(row, 36);
+        state = totem_for(p.name, p.sex, p.head, p.body);
+        if (state == TOTEM_THEIRS) {
+            changed = 1;                        /* already has one: off the list */
+            continue;
+        }
+        if (state == TOTEM_NONE && g_auto && reserve(g_n + 1)) {
+            unsigned char *e = g_t[g_n].e;
+            int x, y;
+            campfire_place(&x, &y);
+            memset(e, 0, ENTRY);
+            put32(e, E_TIME, (int)GAME_CLOCK(game, 0));
+            put32(e, E_AGE, p.age);
+            put32(e, E_AGE2, p.age);
+            put32(e, E_SEX, p.sex);
+            put32(e, E_HEAD, p.head);
+            put32(e, E_BODY, p.body);
+            put32(e, E_TYPE, RAND(123) + 1);    /* the game's 1..123: a random colour */
+            e[E_IS_TOTEM] = 1;
+            put32(e, E_X, x);
+            put32(e, E_Y, y);
+            memcpy(e + E_NAME, p.name, NAME_CAP);
+            e[E_FLAG] = 1;
+            ++g_n;
+            changed = 1;
+            continue;
+        }
+        keep[kept++] = p;                       /* unsure, or the setting is off: left for Repair */
+    }
+    if (changed) {
+        rewrite_pending(path, d, keep, kept);
+    }
+    HeapFree(GetProcessHeap(), 0, keep);
+    HeapFree(GetProcessHeap(), 0, d);
+}
+
+static void after_load(int slot, unsigned char *world) {
+    if (g_renames != NULL) {
+        HeapFree(GetProcessHeap(), 0, g_renames);
+        g_renames = NULL;
+    }
+    g_rename_n = 0;
+    g_auto = read_setting(slot);
+    take_pending(slot, world);
+    give_living(world);
 }
 
 /* ---- drawing -------------------------------------------------------------- */
@@ -1105,7 +1484,7 @@ typedef struct {
 
 enum {
     S_LOAD, S_SAVE, S_RESET, S_CREATE, S_CAP1, S_CAP2, S_DRAW_HEAD, S_DRAW_TAIL, S_MAP,
-    S_HIT, S_HIT_AFTER, S_INPUT, S_LABEL, S_COUNT
+    S_HIT, S_HIT_AFTER, S_INPUT, S_LABEL, S_PASS, S_COUNT
 };
 
 static const site_t SITES[S_COUNT] = {
@@ -1122,6 +1501,7 @@ static const site_t SITES[S_COUNT] = {
     { 0x431076u, { 0x8B, 0x4E, 0x10, 0x89, 0x81, 0xF0, 0x04, 0x03, 0x00 }, 9 },
     { 0x4308D0u, { 0x8B, 0x44, 0x24, 0x04, 0x83, 0xEC, 0x08 }, 7 },
     { 0x429A83u, { 0x68, 0x3C, 0x44, 0x47, 0x00 }, 5 },
+    { 0x44D4C0u, { 0x55, 0x8B, 0xE9, 0x8B, 0x8D, 0xD4, 0x74, 0xE5, 0x00 }, 9 },
 };
 
 static int readable(const void *at, size_t size) {
@@ -1192,6 +1572,7 @@ static int install(void) {
     g_reset_original = (reset_fn)tramp(2, &SITES[S_RESET]);
     g_create_original = (create_fn)tramp(3, &SITES[S_CREATE]);
     g_input_original = (input_fn)tramp(4, &SITES[S_INPUT]);
+    g_pass_original = (pass_fn)tramp(5, &SITES[S_PASS]);
     if (!VirtualProtect(g_tramps, 4096, PAGE_EXECUTE_READ, &old)) {
         VirtualFree(g_tramps, 0, MEM_RELEASE);
         g_tramps = NULL;
@@ -1223,6 +1604,7 @@ static int install(void) {
         case S_MAP: to = (const void *)stub_map; break;
         case S_HIT: to = (const void *)my_hit; op = 0xE8; break;
         case S_HIT_AFTER: to = (const void *)stub_hit_after; break;
+        case S_PASS: to = (const void *)wrap_pass; break;
         case S_INPUT: to = (const void *)wrap_input; break;
         default: to = (const void *)stub_label; break;
         }

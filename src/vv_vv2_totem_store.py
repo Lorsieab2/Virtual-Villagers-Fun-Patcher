@@ -658,6 +658,89 @@ def store_totem_count(folder: Path) -> dict[int, int]:
     return out
 
 
+# ---------------------------------------------------------------------------
+# The elders the companion gives totems to automatically, during play
+# ---------------------------------------------------------------------------
+#
+# The companion cannot read the logs, so the Deaths log's Esteemed Elders without a totem are handed to it
+# in "PendingElderTotems.dat" beside ElderTotems.dat (native/vvfp_vv2_totems take_pending): "VVFP VV2 PENDING"
+# (16 bytes), version 1, game 2, slot, roster count R, pending count P, rename count Q, 0 (little-endian
+# 32-bit), R roster rows (as ElderTotems.dat's, binding the list to the village), P rows (the name in 24
+# bytes, sex, head, body, age), Q renames (old name and new name in 24 bytes each, head, body) -- the
+# "Name changed" records and the answered renames, so a renamed elder's totem is found -- then the FNV-1a
+# hash of all of it.  With the village's setting on, the companion gives each listed elder a totem at the
+# next load and takes them off the list; one it is unsure of stays for Repair Saves & Logs to ask about.
+
+PENDING_NAME = "PendingElderTotems.dat"
+PENDING_MAGIC = b"VVFP VV2 PENDING"
+PENDING_HEADER = 44
+
+
+def pending_path(folder: Path, slot: int) -> Path:
+    return store_path(folder, slot).with_name(PENDING_NAME)
+
+
+def _name24(name: str) -> bytes:
+    raw = name.encode("latin-1", "replace")[:NAME_CAP - 1]
+    return raw + bytes(24 - len(raw))
+
+
+def serialize_pending(slot: int, roster: list[tuple[str, int, int, int]],
+                      pending: list[tuple[str, int, int, int, int]],
+                      renames: list[tuple[str, str, int, int]]) -> bytes:
+    body = bytearray(PENDING_MAGIC)
+    body += struct.pack("<7I", 1, GAME, slot, len(roster), len(pending), len(renames), 0)
+    for name, head, body_no, sex in roster:
+        body += _name24(name) + struct.pack("<iii", head, body_no, sex)
+    for name, sex, head, body_no, age in pending:
+        body += _name24(name) + struct.pack("<iiii", sex, head, body_no, age)
+    for old, new, head, body_no in renames:
+        body += _name24(old) + _name24(new) + struct.pack("<ii", head, body_no)
+    body += struct.pack("<I", _fnv1a(bytes(body)))
+    return bytes(body)
+
+
+def parse_pending(data: bytes) -> tuple[int, list, list, list]:
+    """(slot, roster, pending, renames) of a PendingElderTotems.dat."""
+    if len(data) < PENDING_HEADER + 4 or data[:16] != PENDING_MAGIC:
+        raise StoreError("not a PendingElderTotems.dat file")
+    version, game, slot, rows, count, renames = struct.unpack_from("<6I", data, 16)
+    if (version, game) != (1, GAME) or PENDING_HEADER + rows * ROSTER_ROW + count * 40 + renames * 56 + 4 != len(data):
+        raise StoreError("PendingElderTotems.dat is not whole")
+    if struct.unpack_from("<I", data, len(data) - 4)[0] != _fnv1a(data[:-4]):
+        raise StoreError("PendingElderTotems.dat does not match its own check")
+    at = PENDING_HEADER
+    roster, pending, names = [], [], []
+    for _ in range(rows):
+        roster.append((_text(data, at, NAME_CAP),) + struct.unpack_from("<iii", data, at + 24))
+        at += ROSTER_ROW
+    for _ in range(count):
+        pending.append((_text(data, at, NAME_CAP),) + struct.unpack_from("<iiii", data, at + 24))
+        at += 40
+    for _ in range(renames):
+        names.append((_text(data, at, NAME_CAP), _text(data, at + 24, NAME_CAP)) + struct.unpack_from("<ii", data, at + 48))
+        at += 56
+    return slot, roster, pending, names
+
+
+def write_pending(folder: Path, slot: int) -> list[tuple[str, int, int, int, int]]:
+    """With the village's setting on: the Esteemed Elders who have passed away (the Deaths log) and are
+    CERTAINLY without a totem, for the companion to give one at the next load; and every recorded rename.
+    An elder that may already have a totem is not listed (Repair Saves & Logs asks).  Returns the list
+    written; nothing is written with the setting off.  Only this file changes."""
+    if not auto_give(folder, slot):
+        return []
+    s = totems.survey(folder, slot)
+    data = ln.save_path(folder, GAME, slot).read_bytes()
+    # Only a known sex: the companion's match needs it, and an unknown one could never match.
+    pending = [(e.name, e.sex, e.head, e.body, e.age) for e in s.missing
+               if not e.living and e.sex in (totems.MALE, totems.FEMALE)]
+    renames = sorted(totems._renames(Path(folder), slot))
+    _atomic_write(pending_path(folder, slot),
+                  serialize_pending(int(slot), roster_of(data, _offsets(data)), pending, renames))
+    return pending
+
+
 def find_totems_png(places: list[Path]) -> Path | None:
     """The game's own Images\\totems.png (eight 40 x 100 faces in one strip) in the first of these game
     folders that has it."""

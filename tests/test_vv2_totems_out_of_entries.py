@@ -60,8 +60,11 @@ class FakeFiles:
                      "GetFileAttributesA", "GetFileAttributesExA", "CreateFileA", "ReadFile", "WriteFile",
                      "FlushFileBuffers", "CloseHandle", "MoveFileExA", "DeleteFileA", "GetLastError",
                      "GetProcessHeap", "HeapAlloc", "HeapReAlloc", "HeapFree", "lstrcpynA", "GetTickCount",
-                     "VirtualAlloc", "VirtualFree", "MultiByteToWideChar"):
+                     "VirtualAlloc", "VirtualFree", "MultiByteToWideChar", "GetFileSize"):
             proc.api_handlers[name] = getattr(self, name)
+
+    def GetFileSize(self, p):
+        return len(self.files[self.handles[p.arg(0)][0]]), 8
 
     def MultiByteToWideChar(self, p):
         text = p.cstring(p.arg(2)) if p.arg(3) == 0xFFFFFFFF else p.read(p.arg(2), p.arg(3)).decode("latin-1")
@@ -305,7 +308,7 @@ class Village:
 @emulated
 class InstallTests(unittest.TestCase):
     SITES = (0x4249A0, 0x424BA0, 0x424C80, 0x44D190, 0x44D4D1, 0x44D54C, 0x445C1C, 0x4478CD, 0x4490BB,
-             0x431071, 0x431076, 0x4308D0, 0x429A83)
+             0x431071, 0x431076, 0x4308D0, 0x429A83, 0x44D4C0)
 
     def test_every_site_is_rewritten_and_nothing_else(self):
         stock = Process(STOCK.read_bytes(), DLL)
@@ -314,7 +317,7 @@ class InstallTests(unittest.TestCase):
         after = v.p.read(0x401000, 0x70000)
         changed = {0x401000 + i for i in range(len(before)) if before[i] != after[i]}
         allowed = set()
-        lengths = (5, 6, 7, 5, 9, 5, 9, 13, 5, 5, 9, 7, 5)
+        lengths = (5, 6, 7, 5, 9, 5, 9, 13, 5, 5, 9, 7, 5, 9)
         for va, n in zip(self.SITES, lengths, strict=True):
             allowed |= set(range(va, va + n))
             self.assertIn(v.p.read(va, 1)[0], (0xE8, 0xE9), hex(va))
@@ -606,6 +609,121 @@ class ClickAndDragTests(unittest.TestCase):
     def _saved(self) -> bytes:
         self.v.save(1)
         return self.v.fs.files[store_file(1).lower()]
+
+
+def folder_file(slot: int, leaf: str) -> str:
+    return store_file(slot).rsplit("\\", 1)[0] + "\\" + leaf
+
+
+def settings(v: "Village", on: bool, slot: int = 1) -> None:
+    v.fs.files[folder_file(slot, "Elder Totem Settings.dat").lower()] = (
+        f"VVFP VV2 ELDER TOTEM SETTINGS v1\nauto_give\t{1 if on else 0}\n").encode()
+
+
+def pending(v: "Village", rows, renames=(), roster=(("Alive", 3, 4, 1),), slot: int = 1) -> str:
+    key = folder_file(slot, "PendingElderTotems.dat").lower()
+    v.fs.files[key] = store_mod.serialize_pending(slot, list(roster), list(rows), list(renames))
+    return key
+
+
+@emulated
+class GivenAutomaticallyTests(unittest.TestCase):
+    """The owner (2026-10-20): missing elder totems appear in the running game, without a repair."""
+
+    def elder(self, v, i, name, **kw):
+        v.villager(i, name, elder=1, **kw)
+
+    def test_a_living_elder_without_a_totem_gets_one_at_load(self):
+        v = Village()
+        settings(v, True)
+        v.villager(0, "Alive", health=50)
+        self.elder(v, 3, "Old Kona", head=9, body=9, ttype=21, x=500, y=600)
+        v.load(1)
+        self.assertEqual(v.count(), 1)
+        self.assertEqual(v.p.export("VvfpTotemFaceOf", v.rec(3)), 21 % 8)
+        self.assertEqual([i for i in range(256) if v.byte(i, 0x30)], [0, 3])     # no record used
+
+    def test_after_the_elder_pass_and_never_twice(self):
+        v = Village()
+        settings(v, True)
+        v.villager(0, "Alive", health=50)
+        v.load(1)
+        self.assertEqual(v.count(), 0)
+        self.elder(v, 5, "Late Elder", head=2, body=7)             # an elder without a totem, in play
+        v.elder_pass()
+        self.assertEqual(v.count(), 1)
+        v.elder_pass()
+        self.assertEqual(v.count(), 1)
+
+    def test_an_elder_who_has_a_totem_gets_no_second(self):
+        v = Village()
+        settings(v, True)
+        v.villager(0, "Alive", health=50)
+        self.elder(v, 2, "Hoto", head=4, body=5)
+        v.villager(6, "Hoto", health=0, totem=1, head=4, body=5)   # the statue, moved in at load
+        v.load(1)
+        self.assertEqual(v.count(), 1)
+
+    def test_a_renamed_elder_is_matched_by_the_recorded_rename(self):
+        v = Village()
+        settings(v, True)
+        v.villager(0, "Alive", health=50)
+        self.elder(v, 2, "Hoto Kenobi", head=4, body=5)
+        v.villager(6, "Hoto", health=0, totem=1, head=4, body=5)
+        pending(v, [], renames=[("Hoto", "Hoto Kenobi", 4, 5)],
+                roster=[("Alive", 3, 4, 1), ("Hoto Kenobi", 4, 5, 1)])
+        v.load(1)
+        self.assertEqual(v.count(), 1)
+
+    def test_an_unsure_match_makes_nothing(self):
+        v = Village()
+        settings(v, True)
+        v.villager(0, "Alive", health=50)
+        self.elder(v, 2, "Hoto Kenobi", head=4, body=5)
+        v.villager(6, "Hoto", health=0, totem=1, head=4, body=5)   # same looks, another name, no rename
+        v.load(1)
+        self.assertEqual(v.count(), 1)
+
+    def test_a_pending_elder_who_passed_away_gets_a_totem_and_leaves_the_list(self):
+        v = Village()
+        settings(v, True)
+        v.villager(0, "Alive", health=50)
+        key = pending(v, [("Nina Jumapili", 2, 10, 21, 1400), ("Unsure", 1, 3, 3, 900)])
+        v.villager(7, "Unsure Twin", health=0, totem=1, head=3, body=3, sex=1)
+        v.load(1)
+        self.assertEqual(v.count(), 2)                              # the statue, and Nina's new totem
+        _slot, _roster, left, _renames = store_mod.parse_pending(v.fs.files[key])
+        self.assertEqual([row[0] for row in left], ["Unsure"])    # the unsure one stays for Repair
+        v.save(1)
+        names = [t.name for t in store_mod.parse(v.fs.files[store_file(1).lower()]).totems]
+        self.assertIn("Nina Jumapili", names)
+        w = Village()                                               # the next load: nothing twice
+        w.fs.files = dict(v.fs.files)
+        w.villager(0, "Alive", health=50)
+        w.load(1)
+        self.assertEqual(w.count(), 2)
+
+    def test_nothing_with_the_setting_off(self):
+        v = Village()
+        settings(v, False)
+        v.villager(0, "Alive", health=50)
+        self.elder(v, 3, "Old Kona")
+        key = pending(v, [("Nina Jumapili", 2, 10, 21, 1400)])
+        before = v.fs.files[key]
+        v.load(1)
+        v.elder_pass()
+        self.assertEqual(v.count(), 0)
+        self.assertEqual(v.fs.files[key], before)
+
+    def test_nothing_during_a_save(self):
+        v = Village()
+        settings(v, True)
+        v.villager(0, "Alive", health=50)
+        v.load(1)
+        self.elder(v, 4, "Saved Elder")
+        v.save(1)
+        self.assertEqual(v.count(), 0)
+        self.assertEqual(store_mod.parse(v.fs.files[store_file(1).lower()]).totems, [])
 
 
 @emulated

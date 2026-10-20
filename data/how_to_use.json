@@ -522,7 +522,8 @@
         "Esteemed Elders' totems no longer take a villager record: they are kept in a file of each save's own, so babies waiting for a record are born sooner.",
         "The totems look, sort, show their label and can be dragged exactly as before; there is no longer a limit of 50 Esteemed Elders.",
         "Before removing this patch, use Repair Saves & Logs > Put Totems Back Into the Save, or the game without it shows no totems.",
-        "Repair Saves & Logs can also move totems out of the save, change a totem's colour and give elders their totems.",
+        "Repair Saves & Logs can also move totems out of the save and change a totem's colour.",
+        "Tick Give Esteemed Elders their totems automatically in Repair Saves & Logs: elders without one then get it automatically, during play.",
         "Not yet tested in play."
       ]
     },

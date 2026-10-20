@@ -208,6 +208,31 @@ class Settings(unittest.TestCase):
             self.assertFalse(ts.auto_give(folder, 2))
 
 
+class PendingForTheCompanion(unittest.TestCase):
+    def test_passed_away_elders_without_a_totem_are_listed_only_with_the_setting_on(self):
+        e1, t1 = elder_and_totem("Hoto Kenobi", head=14, body=5)
+        v = Village(self, crowd(4) + [e1, t1], deaths=death(1, "Nina Jumapili", 10, 21)
+                    + death(2, "Hoto Kenobi", 14, 5, sex="Male"))
+        self.assertEqual(ts.write_pending(v.folder, 1), [])
+        self.assertFalse(ts.pending_path(v.folder, 1).exists())
+        ts.set_auto_give(v.folder, 1, True)
+        listed = ts.write_pending(v.folder, 1)
+        self.assertEqual(listed, [("Nina Jumapili", vt.FEMALE, 10, 21, 1400)])   # Hoto's statue stands
+        slot, roster, pending, renames = ts.parse_pending(ts.pending_path(v.folder, 1).read_bytes())
+        self.assertEqual((slot, pending), (1, listed))
+        self.assertEqual(len(roster), 5)
+        self.assertEqual(ts.pending_path(v.folder, 1).name, "PendingElderTotems.dat")
+        self.assertEqual(ts.pending_path(v.folder, 1).parent, ts.store_path(v.folder, 1).parent)
+
+    def test_the_format_matches_the_companions_reader(self):
+        source = (ROOT / "native" / "vvfp_vv2_totems" / "vvfp_vv2_totems.c").read_text(encoding="utf-8")
+        self.assertIn('#define PENDING_MAGIC "VVFP VV2 PENDING"', source)
+        self.assertIn("#define PENDING_HEADER 44u", source)
+        data = ts.serialize_pending(2, [("A", 1, 2, 1)], [("B", 2, 3, 4, 5)], [("Old", "New", 6, 7)])
+        self.assertEqual(len(data), ts.PENDING_HEADER + 36 + 40 + 56 + 4)
+        self.assertEqual(ts.parse_pending(data), (2, [("A", 1, 2, 1)], [("B", 2, 3, 4, 5)], [("Old", "New", 6, 7)]))
+
+
 class RemovalWarning(unittest.TestCase):
     def test_warned_only_when_the_patch_is_being_left_out(self):
         with tempfile.TemporaryDirectory() as tmp:

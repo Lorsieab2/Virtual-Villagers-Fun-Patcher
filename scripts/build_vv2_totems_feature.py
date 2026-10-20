@@ -39,6 +39,8 @@ SITES = (
     (0x431076, 9, "after the hit test: a picked store totem ends the click (no camera drag, no other action)"),
     (0x4308D0, 7, "the village mouse handler: a picked store totem is dragged and placed as a totem record is"),
     (0x429A83, 5, "the name panel with no record selected: \"<name>`s totem\" for a picked store totem"),
+    (0x44D4C0, 9, "the Esteemed Elder pass's entry: after it runs, with the village's give-automatically setting "
+                  "on, every Esteemed Elder record still without a totem is given one in the store"),
 )
 
 
@@ -70,8 +72,12 @@ def row(sha: str) -> dict:
             "of 50 Esteemed Elders. **The stock game never reads ElderTotems.dat: before removing this patch, "
             "use Repair Saves & Logs > \"Put Totems Back Into the Save\" (with the game closed), or the "
             "village shows no totems (nothing else changes).** Repair Saves & Logs can also move totems out "
-            "with the game closed (\"Move Totems Out of the Save\"), change an elder's totem colour, and give "
-            "Esteemed Elders who have none their totem. **Unverified in play: this has not been tested in the "
+            "with the game closed (\"Move Totems Out of the Save\") and change an elder's totem colour. With "
+            "the village's \"Give Esteemed Elders their totems automatically\" setting on (Repair Saves & Logs), "
+            "an Esteemed Elder without a totem is given one automatically, during play -- when the village loads "
+            "and after every elder check the game makes -- and so is an elder who has passed away without one "
+            "(listed by Check or Repair Saves & Logs, given at the next load); an elder who may already have a "
+            "totem (the same looks, or the same first name) is left for Repair Saves & Logs to ask about. **Unverified in play: this has not been tested in the "
             "running game yet.** **Needs no other patch.**"
         ),
         "output_tag": "Totems Out of Records",
@@ -89,6 +95,11 @@ def row(sha: str) -> dict:
             "unfit ground and the stored home x/y are as the game does them for a totem record.",
             "ElderTotems.dat is written before each save of the slot and read after each load; one bound to "
             "another village is moved aside, never used or overwritten.",
+            "With the village's give-automatically setting on (Elder Totem Settings.dat), after each load and "
+            "each elder pass (0x44D4C0, detoured at its entry) every Esteemed Elder record (+0x7FC) with no "
+            "totem of the same name and looks, or of a recorded rename, is given one as 0x44D190 makes it; the "
+            "passed-away elders the patcher lists in PendingElderTotems.dat are given one at the next load and "
+            "taken off the list. A near match (the same looks, or the same first name) makes nothing.",
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion verifies every site's stock bytes and installs all "
