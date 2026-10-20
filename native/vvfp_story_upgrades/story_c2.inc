@@ -258,6 +258,31 @@ static unsigned char *c2_totem_of(const unsigned char *r) {
     return found;
 }
 
+/* "Esteemed Elders' Totems Use No Villager Records" (native/vvfp_vv2_totems):
+   while that companion's store works, a totem is not a record -- 0x44D190
+   puts it in the store, no record need be free and there is no limit of 50 --
+   and the elder's totem is found and recoloured through its exports. */
+typedef int (__stdcall *c2_store_count_fn)(void);
+typedef int (__stdcall *c2_store_face_fn)(const unsigned char *elder);
+typedef int (__stdcall *c2_store_set_fn)(const unsigned char *elder, int face);
+
+static FARPROC c2_store_export(const char *name) {
+    HMODULE module = GetModuleHandleA("VVFP VV2 Totems.dll");
+    return module != NULL ? GetProcAddress(module, name) : NULL;
+}
+
+static int c2_store_active(void) {
+    c2_store_count_fn active = (c2_store_count_fn)c2_store_export("VvfpTotemsActive");
+    return active != NULL && active() != 0;
+}
+
+/* The face (0..7) of the elder's totem in the store; -1 none or not one. */
+static int c2_store_face(const unsigned char *r) {
+    c2_store_face_fn face = (c2_store_face_fn)c2_store_export("VvfpTotemFaceOf");
+    int value = face != NULL ? face(r) : -1;
+    return value >= 0 && value <= 7 ? value : -1;
+}
+
 /* 0: the game's own elder-and-totem routine 0x44D190 (thiscall on the pool,
    the elder's index, ret 4), which 0x44D4C0 calls when a villager has
    mastered three skills, with that caller's own guards: fewer than 50
@@ -271,11 +296,15 @@ static int c2_set_status(int index, int status) {
         return 0;
     }
     if (r[0x7FC] == 0) {
-        if (c2_totems() >= 50 || c2_free_record() < 0) {
+        if (!c2_store_active() && (c2_totems() >= 50 || c2_free_record() < 0)) {
             return ce_because(CE_WHY_TOTEMS);
         }
         TC1(0x44D190u, VV2_POOL(), index);
         ++*(int *)(VV2_WORLD() + 0x2E514);
+    }
+    if (status >= 1 && c2_store_active()) {
+        c2_store_set_fn set_face = (c2_store_set_fn)c2_store_export("VvfpTotemSetFace");
+        return set_face != NULL && set_face(r, status - 1) != 0;
     }
     if (status >= 1) {
         unsigned char *totem = c2_totem_of(r);
@@ -743,6 +772,11 @@ static int c2_role(const unsigned char *r, const char **words) {
     const unsigned char *totem;
     if (r[0x7FC] == 0) {
         return STORY_KIND_NONE;
+    }
+    if (c2_store_active()) {
+        int face = c2_store_face(r);
+        *words = face >= 0 ? ELDER[face] : "Esteemed Elder";
+        return STORY_KIND_ESTEEMED_ELDER;
     }
     totem = c2_totem_of(r);
     *words = totem != NULL ? ELDER[(*(const int *)(totem + 0x550) % 8 + 8) % 8] : "Esteemed Elder";

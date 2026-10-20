@@ -728,6 +728,24 @@ int vv_reset_slot_state(int game, int slot, const char *village) {
             removed += delete_if_present_w(path_w);
         }
     }
+    /* THE LOST CHILDREN'S ELDER TOTEMS (native/vvfp_vv2_totems): the slot's
+       totems and its give-automatically setting belong to the village being
+       erased.  A new file of the save's own folder only (never in the older
+       layout): "<save>\Virtual Villagers Fun Patcher\Save <S>\Data\Elder
+       Totems\ElderTotems.dat", its ".tmp", and "Elder Totem Settings.dat". */
+    if (game == 2) {
+        static const wchar_t *const TOTEM_FILES[3] = {
+            L"ElderTotems.dat", L"ElderTotems.dat.tmp", L"Elder Totem Settings.dat"
+        };
+        int t;
+        for (t = 0; t < 3; ++t) {
+            if ((int)wcslen(folder_w) + 80 + (int)wcslen(TOTEM_FILES[t]) < MAX_PATH) {
+                wsprintfW(path_w, L"%ls\\Virtual Villagers Fun Patcher\\Save %d\\Data\\Elder Totems\\%ls",
+                          folder_w, slot, TOTEM_FILES[t]);
+                removed += delete_if_present_w(path_w);
+            }
+        }
+    }
     /* The folder name before it was spelled out, probed but never
        recreated: a player who upgrades keeps whatever the previous build
        wrote, and a file left in a folder nothing writes to any more would

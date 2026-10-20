@@ -47,6 +47,7 @@ adding to it there until the player moves it.
 | Last Names, Missing Last Names | `...Data\Last Names` | per save | native/vvfp_last_names/vvfp_last_names.c, native/shared/crosscheck_bridge.h, src/vv_last_names.py |
 | Village Statistics, Villagers Counted, Stew Discoveries, Village Elders | `...Data\<kind>` | per save | native/statistics_export/statistics_store.c, statistics_export.c, village_elders.c |
 | Family Tree Edits | `...Data\Family Tree Edits` | per save | src/vv_family_tree.py |
+| Elder Totems (`ElderTotems.dat`, `Elder Totem Settings.dat`) | `...Data\Elder Totems` | per save; new in this layout only (never in the older layout) | native/vvfp_vv2_totems/vvfp_vv2_totems.c, src/vv_vv2_totem_store.py |
 | Like and Dislike Words | `...Data\Like and Dislike Words` (one per game) | shared file; a moved or new log's boundaries go in its save's own file | native/shared/log_words.h, src/vv_save_layout.py words_file_for |
 | Copies Made Before Repairs | `...Data\Copies Made Before Repairs` | a save's own file keeps its copies in its save's folder; older copies stay | native/shared/save_layout.h vv_layout_copy_path, src/vv_log_tools.py copy_before_repair |
 

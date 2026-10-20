@@ -517,6 +517,16 @@
       ]
     },
     {
+      "ids": ["vv2_totems_out_of_entries"],
+      "guide": [
+        "Esteemed Elders' totems no longer take a villager record: they are kept in each save's ElderTotems.dat, so babies waiting for a record are born sooner.",
+        "The totems look, sort, show their label and can be dragged exactly as before; there is no longer a limit of 50 Esteemed Elders.",
+        "Before removing this patch, use Repair Saves & Logs > Put Totems Back Into the Save, or the game without it shows no totems.",
+        "Repair Saves & Logs can also move totems out of the save, change a totem's colour and give elders their totems.",
+        "Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv3_chief_hospital_supervision"],
       "guide": [
         "Drop the Tribal Chief on the Hospital (Medicine level 2 or more): he walks to where he stands when he is concerned about the sick and directs work there.",
