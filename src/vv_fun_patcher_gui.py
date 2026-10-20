@@ -5699,8 +5699,9 @@ class App(tk.Tk):
         return vv_vv2_totem_store.find_totems_png(places)
 
     def _totem_colour(self, parent, folder: Path, info) -> None:
-        """Change Totem Colour: pick an elder's totem, then one of the eight faces of the game's own
-        totems.png.  Done at once, with the game closed: backed up first, listed in the Repairs Made log."""
+        """Change Totem Colour: tick one totem or several (Select All, Select None), then one of the eight
+        faces of the game's own totems.png -- every ticked totem takes it, in one go.  Done at once, with
+        the game closed: backed up first, one Repairs Made record listing each totem's old and new colour."""
         try:
             found = vv_vv2_totem_store.list_totems(folder, info.slot)
         except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
@@ -5713,15 +5714,19 @@ class App(tk.Tk):
         window = tk.Toplevel(parent)
         window.title(vv_vv2_totem_store.LABEL_COLOUR)
         window.transient(parent)
-        ttk.Label(window, text="Whose totem?").pack(anchor="w", padx=10, pady=(10, 2))
-        names = tk.Listbox(window, height=min(12, len(found)), width=60, exportselection=False)
-        for t in found:
-            names.insert("end", t.label())
-        names.pack(fill="x", padx=10)
-        names.selection_set(0)
-        ttk.Label(window, text="Its colour (the game's own totems):").pack(anchor="w", padx=10, pady=(8, 2))
-        faces = ttk.Frame(window)
-        faces.pack(padx=10, pady=(0, 10))
+        frame = scrollable_frame(window, padding=12)
+        ttk.Label(frame, text="Tick the totems to recolour (one, several or all):").pack(anchor="w")
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(4, 4))
+        ticks = [tk.BooleanVar(value=len(found) == 1) for _t in found]
+        ttk.Button(buttons, text="Select All", command=lambda: [v.set(True) for v in ticks]).pack(side="left")
+        ttk.Button(buttons, text="Select None",
+                   command=lambda: [v.set(False) for v in ticks]).pack(side="left", padx=(6, 0))
+        for t, var in zip(found, ticks, strict=True):
+            ttk.Checkbutton(frame, variable=var, text=t.label()).pack(anchor="w")
+        ttk.Label(frame, text="Their colour (the game's own totems):").pack(anchor="w", pady=(8, 2))
+        faces = ttk.Frame(frame)
+        faces.pack(anchor="w")
         png = self._totems_png()
         sheet = None
         if png is not None:
@@ -5732,20 +5737,22 @@ class App(tk.Tk):
         window._totem_faces = []
 
         def pick(face: int) -> None:
-            chosen = names.curselection()
-            if not chosen:
+            keys = [t.key for t, var in zip(found, ticks, strict=True) if var.get()]
+            if not keys:
+                messagebox.showinfo(vv_vv2_totem_store.LABEL_COLOUR, "No totem is ticked, so nothing was changed.",
+                                    parent=window)
                 return
-            totem = found[chosen[0]]
             try:
                 result = self._run_with_wait(
-                    "Changing the totem's colour…\n\nThe save folder is backed up first.",
-                    lambda: vv_vv2_totem_store.change_colour(folder, info.slot, totem.key, face))
+                    "Changing the totems' colour…\n\nThe save folder is backed up first.",
+                    lambda: vv_vv2_totem_store.change_colours(folder, info.slot, keys, face))
             except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
                     vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
                 messagebox.showerror(vv_vv2_totem_store.LABEL_COLOUR, str(exc), parent=window)
                 return
             messagebox.showinfo(vv_vv2_totem_store.LABEL_COLOUR,
-                                f"{result.totem.name}'s totem is now {vv_vv2_totems.face(face)}.", parent=window)
+                                f"{len(result.changed)} totem(s) now {vv_vv2_totems.face(face)} (each is listed in "
+                                "the Repairs Made log).", parent=window)
             window.destroy()
 
         for face in range(8):
@@ -5758,9 +5765,9 @@ class App(tk.Tk):
                 ttk.Button(faces, text=vv_vv2_totems.FACES[face], width=14,
                            command=lambda f=face: pick(f)).grid(row=face // 4, column=face % 4, padx=2, pady=2)
         if sheet is None:
-            ttk.Label(window, text="The game's totems.png was not found (choose The Lost Children's original folder "
-                                   "in the patcher to see the totems themselves).", wraplength=420,
-                      foreground="#555555").pack(anchor="w", padx=10, pady=(0, 10))
+            ttk.Label(frame, text="The game's totems.png was not found (choose The Lost Children's original folder "
+                                  "in the patcher to see the totems themselves).", wraplength=420,
+                      foreground="#555555").pack(anchor="w", pady=(6, 0))
 
     def _restore_lost_titles(self, parent, folder: Path, number: int, info, lost) -> list[str]:
         """Repair Saves & Logs: the custom titles (and former-Heathen marks) a change of likes or

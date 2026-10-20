@@ -176,6 +176,58 @@ class Colour(unittest.TestCase):
         self.assertEqual(struct.unpack_from("<i", data, ts.statues_in_save(data)[0][1] + vt.TYPE)[0] % 8, 3)
 
 
+class SeveralColours(unittest.TestCase):
+    """Change Totem Colour with several totems ticked: one colour for every ticked totem, in one go."""
+
+    def village(self):
+        pairs = [elder_and_totem(f"Elder{chr(65 + k)}", head=k, body=k, kind=9 + k) for k in range(3)]
+        v = Village(self, crowd(3) + [e for e, _t in pairs] + [t for _e, t in pairs])
+        ts.move_out(v.folder, 1, processes=NoGame(), now=NOW)
+        return v
+
+    def faces(self, v):
+        return {t.name: t.face for t in ts.read(v.folder, 1).totems}
+
+    def test_select_all_applies_to_every_totem(self):
+        v = self.village()
+        keys = [t.key for t in ts.list_totems(v.folder, 1)]
+        result = ts.change_colours(v.folder, 1, keys, 4, processes=NoGame(), now=NOW)
+        self.assertEqual(len(result.changed), 3)
+        self.assertEqual(self.faces(v), {"ElderA": 4, "ElderB": 4, "ElderC": 4})
+        log = v.repairs()
+        for name, old in (("ElderA", 9 % 8), ("ElderB", 10 % 8), ("ElderC", 11 % 8)):
+            self.assertIn(f"{name}'s totem from {vt.face(old)} to {vt.face(4)}", log)
+        self.assertEqual(len([b for b in v.backups() if "colour" in b.name]), 1)   # one backup for all
+
+    def test_a_subset_changes_only_the_ticked_ones(self):
+        v = self.village()
+        found = {t.name: t.key for t in ts.list_totems(v.folder, 1)}
+        ts.change_colours(v.folder, 1, [found["ElderA"], found["ElderC"]], 7, processes=NoGame(), now=NOW)
+        self.assertEqual(self.faces(v), {"ElderA": 7, "ElderB": 10 % 8, "ElderC": 7})
+
+    def test_none_ticked_changes_nothing_and_says_so(self):
+        v = self.village()
+        path = ts.store_path(v.folder, 1)
+        before = path.read_bytes()
+        with self.assertRaisesRegex(ts.StoreError, "No totem was ticked"):
+            ts.change_colours(v.folder, 1, [], 2, processes=NoGame(), now=NOW)
+        self.assertEqual(path.read_bytes(), before)
+        self.assertFalse([b for b in v.backups() if "colour" in b.name])
+
+    def test_a_totem_in_the_file_and_one_in_the_save_together(self):
+        e1, t1 = elder_and_totem("Hoto Kenobi", head=14, body=5, kind=10)
+        e2, t2 = elder_and_totem("Topaz Kenobi", head=2, body=8, kind=11)
+        v = Village(self, crowd(3) + [e1, t1])
+        ts.move_out(v.folder, 1, processes=NoGame(), now=NOW)
+        data = __import__("test_vv2_totem_repairs").save_for(crowd(3) + [e1, e2, t2])  # one statue still saved
+        v.save.write_bytes(data)
+        keys = [t.key for t in ts.list_totems(v.folder, 1)]
+        self.assertEqual(len(keys), 2)
+        result = ts.change_colours(v.folder, 1, keys, 1, processes=NoGame(), now=NOW)
+        self.assertEqual(len(result.files), 2)
+        self.assertEqual([t.face for t in ts.list_totems(v.folder, 1)], [1, 1])
+
+
 class GiveIntoTheFile(unittest.TestCase):
     def test_a_missing_elders_totem_goes_into_the_file_even_when_the_village_is_full(self):
         e1, t1 = elder_and_totem("Hoto Kenobi", head=14, body=5)

@@ -546,6 +546,14 @@ class ColourResult:
     backup: object
 
 
+@dataclass
+class ColoursResult:
+    changed: list[tuple[Totem, int]]          # each totem as it is now, with its face before
+    new_face: int
+    files: list[Path]
+    backup: object
+
+
 def new_type(old: int, face: int) -> int:
     """A Totem Type with this face (type % 8), kept in the game's 1..123 (story_c2.inc c2_set_status)."""
     if not 0 <= face <= 7:
@@ -571,57 +579,95 @@ def list_totems(folder: Path, slot: int) -> list[Totem]:
     return out
 
 
-def change_colour(folder: Path, slot: int, key: str, face: int,
-                  processes: vv_save_backup.ProcessController | None = None,
-                  now: datetime | None = None) -> ColourResult:
-    """Give the totem `key` (Totem.key) the face 0..7 of totems.png.  The totem is changed where it is:
-    in ElderTotems.dat, or (the patch not in use yet) in the save.  Refused while the game runs; a key two
-    totems share is refused, never guessed."""
+def change_colours(folder: Path, slot: int, keys: list[str], face: int,
+                   processes: vv_save_backup.ProcessController | None = None,
+                   now: datetime | None = None) -> ColoursResult:
+    """Give every totem in `keys` (Totem.key) the face 0..7 of totems.png, in one go (decorating the village).
+    Each is changed where it is: in ElderTotems.dat, or (the patch not in use yet) in the save.  Refused while
+    the game runs; with nothing chosen, or a key not found exactly once (two totems sharing it, or one that
+    changed), nothing at all is changed.  One backup, and one Repairs Made record naming every totem with
+    its old and new colour."""
     folder = Path(folder)
+    keys = list(dict.fromkeys(keys))
+    if not keys:
+        raise StoreError("No totem was ticked, so no colour was changed.")
+    new_type(1, face)                                   # a face 0..7, or refused before anything
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     tools._refuse_if_running(folder, controller)
     save = ln.save_path(folder, GAME, slot)
     data = save.read_bytes()
     store = read(folder, slot)
-    in_file = [k for k, t in enumerate(store.totems) if t.key == key] if store is not None and bound(store, data) else []
-    in_save = [at for _k, at in statues_in_save(data) if Totem(_entry_at(data, at)).key == key]
-    if len(in_file) + len(in_save) != 1:
-        raise StoreError("That totem was not found exactly once (it may have changed); nothing was changed.")
+    store_totems = store.totems if store is not None and bound(store, data) else []
+    statues = [at for _k, at in statues_in_save(data)]
+    places: dict[str, tuple[str, int]] = {}
+    for key in keys:
+        in_file = [k for k, t in enumerate(store_totems) if t.key == key]
+        in_save = [at for at in statues if Totem(_entry_at(data, at)).key == key]
+        if len(in_file) + len(in_save) != 1:
+            raise StoreError("A ticked totem was not found exactly once (it may have changed); nothing was changed.")
+        places[key] = ("file", in_file[0]) if in_file else ("save", in_save[0])
     try:
         backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix=BACKUP_COLOUR)
     except vv_save_backup.BackupError as exc:
         raise StoreError(f"The backup failed, so nothing was changed. {exc}") from exc
     tools._refuse_if_running(folder, controller)
-    if in_file:
+    changed: list[tuple[Totem, int]] = []
+    before: list[tuple[Totem, int]] = []
+    files: list[Path] = []
+    lines: list[str] = []
+    in_file_keys = [k for k in keys if places[k][0] == "file"]
+    in_save_keys = [k for k in keys if places[k][0] == "save"]
+    if in_file_keys:
         path = store_path(folder, slot)
         old = path.read_bytes()
-        t = store.totems[in_file[0]]
-        entry = bytearray(t.entry)
-        old_face = t.face
-        struct.pack_into("<i", entry, E_TYPE, new_type(t.type, face))
-        store.totems[in_file[0]] = Totem(bytes(entry))
+        for key in in_file_keys:
+            k = places[key][1]
+            t = store.totems[k]
+            entry = bytearray(t.entry)
+            struct.pack_into("<i", entry, E_TYPE, new_type(t.type, face))
+            store.totems[k] = Totem(bytes(entry))
+            before.append((t, k))
         copy = _keep_copy(folder, path, old, ".before-totem-colour")
         try:
             _atomic_write(path, serialize(store))
         except (OSError, StoreError) as exc:
             _atomic_write(path, old)
-            raise StoreError(f"The colour was not changed ({exc}); {FILE_NAME} was put back.") from exc
-        changed = store.totems[in_file[0]]
-    else:
-        path = save
-        at = in_save[0]
-        t = Totem(_entry_at(data, at))
-        old_face = t.face
+            raise StoreError(f"No colour was changed ({exc}); {FILE_NAME} was put back.") from exc
+        for t, k in before:
+            changed.append((store.totems[k], t.face))
+            lines.append(f"{LABEL_COLOUR}: {t.name}'s totem from {totems.face(t.face)} to {totems.face(face)} "
+                         f"(Totem Type {t.type} to {store.totems[k].type}, in {FILE_NAME})")
+        files.append(path)
+        lines.append(f"File: {path.relative_to(folder)} -- copy kept: {copy}")
+    if in_save_keys:
         updated = bytearray(data)
-        struct.pack_into("<i", updated, at + totems.TYPE, new_type(t.type, face))
+        olds = []
+        for key in in_save_keys:
+            at = places[key][1]
+            t = Totem(_entry_at(data, at))
+            struct.pack_into("<i", updated, at + totems.TYPE, new_type(t.type, face))
+            olds.append((t, at))
         copy = _keep_copy(folder, save, data, ".before-totem-colour")
         ln._write(save, bytes(updated))
-        changed = Totem(_entry_at(bytes(updated), at))
-    _record(folder, data, slot, now, [
-        f"{LABEL_COLOUR}: {changed.name}'s totem from {totems.face(old_face)} to {totems.face(face)} "
-        f"(Totem Type {t.type} to {changed.type})",
-        f"File: {path.relative_to(folder)} -- copy kept: {copy}", f"Backup: {Path(backup.backup_folder).name}"])
-    return ColourResult(changed, old_face, face, path, backup)
+        for t, at in olds:
+            now_totem = Totem(_entry_at(bytes(updated), at))
+            changed.append((now_totem, t.face))
+            lines.append(f"{LABEL_COLOUR}: {t.name}'s totem from {totems.face(t.face)} to {totems.face(face)} "
+                         f"(Totem Type {t.type} to {now_totem.type}, in the save)")
+        files.append(save)
+        lines.append(f"File: {save.relative_to(folder)} -- copy kept: {copy}")
+    lines.append(f"Backup: {Path(backup.backup_folder).name}")
+    _record(folder, data, slot, now, lines)
+    return ColoursResult(changed, face, files, backup)
+
+
+def change_colour(folder: Path, slot: int, key: str, face: int,
+                  processes: vv_save_backup.ProcessController | None = None,
+                  now: datetime | None = None) -> ColourResult:
+    """One totem's colour (change_colours with one)."""
+    result = change_colours(folder, slot, [key], face, processes=processes, now=now)
+    totem, old_face = result.changed[0]
+    return ColourResult(totem, old_face, face, result.files[0], result.backup)
 
 
 # ---------------------------------------------------------------------------
