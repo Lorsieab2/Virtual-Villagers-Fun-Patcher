@@ -112,13 +112,9 @@ static int oc_condition_holds(int game, int cond) {
         return 1;
     case 1:
         return a != NULL && a->room();
-    case 2:   /* The Lost Children: the Gong's tiers A and B (village byte +0x2E910) */
     case 3: { /* The Lost Children: breeding mastered (village +0x2EA8C == 3) */
         unsigned char *world = game == 2 ? *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL : NULL;
-        if (world == NULL) {
-            return 0;
-        }
-        return cond == 2 ? world[0x2E910] != 0 : *(int *)(world + 0x2EA8C) == 3;
+        return world != NULL && *(int *)(world + 0x2EA8C) == 3;
     }
     default:
         return 0;
@@ -186,6 +182,7 @@ static void oc_value_text(const oc_control *c, int ci, const oc_settings *s, cha
         }
         return;
     case OC_VICTIM:
+    case OC_RINGER:
         lstrcpynA(out, oc_name_of(choice), size);
         return;
     default:
@@ -336,8 +333,19 @@ static void chooser_fill_editor(HWND window) {
                 who = choice == OC_LOOP_CHOOSE;
             }
             if (c->text != NULL) {
-                wsprintfA(text, "Each villager the game checks: %s.", c->text);
+                wsprintfA(text, chooser.gong ? "Each villager the game checks: %s. If none of the chosen "
+                                               "villagers is still in the village when the Gong rings, "
+                                               "the game decides as usual."
+                                             : "Each villager the game checks: %s.", c->text);
                 SetDlgItemTextA(window, IDC_PICK_NOTE, text);
+            }
+            break;
+        case OC_RINGER:
+            /* the living adults: the ones the game's own search could answer */
+            for (i = 0; i < chooser.roster_count; ++i) {
+                if (chooser.roster[i].age > OC_RINGER_ADULT) {
+                    chooser_combo_add(window, chooser.names[i], chooser.roster[i].index);
+                }
             }
             break;
         case OC_VICTIM:
@@ -353,7 +361,7 @@ static void chooser_fill_editor(HWND window) {
         default:
             break;
         }
-        if (c->note != NULL && (c->kind == OC_ENUM || c->kind == OC_AMOUNT)) {
+        if (c->note != NULL && (c->kind == OC_ENUM || c->kind == OC_AMOUNT || c->kind == OC_RINGER)) {
             lstrcpynA(text, c->note, sizeof text);
             SetDlgItemTextA(window, IDC_PICK_NOTE, text);
         }
@@ -754,13 +762,22 @@ static int chooser_run(int game, const story_game *g, HWND owner) {
    inside the gong's own use (the call at 0x461B8E that runs its outcome
    routine 0x44E8A0) and ended when that use returns -- one use.  An armed
    choice also ends after ten minutes without a ring and when the village's
-   save slot changes; the next opening says so. */
+   save slot changes; the next opening says so.
+
+   The owner (2026-10-20): buying it makes the Gong ready to ring at once.
+   The Gong rests after each ring (0x461B5D: village +0x2EAC8 = the clock +
+   86400); the game marks it ready by writing 1 there when its fourth piece
+   completes (0x4639F6, EBX = 1).  The purchase writes that same 1 when the
+   Gong is resting, and is refused -- nothing written, nothing charged --
+   while the Gong is not whole (+0x2E7F0, which the game's own ring test
+   0x42F69B / 0x42FE12 reads first). */
 
 static const story_event OC_GONG_EVENTS[1] = {
     { OC_GONG_SLOT, "The Gong of Wonder", "",
       "The next time a villager rings the Gong of Wonder, it does what you set here; "
-      "anything left Random is the game's own choice. The Gong rests about a day after each "
-      "ring; your choice waits for the next ring for ten minutes, in this save slot.", "" },
+      "anything left Random is the game's own choice. Buying this makes the Gong ready to "
+      "ring at once (it otherwise rests about a day after each ring). Ring it within ten "
+      "minutes, in this save slot, or the choice is cancelled.", "" },
 };
 
 static int oc_gong_possible(const story_event *event) {
@@ -799,6 +816,29 @@ static int oc_gong_resting(void) {
            >= (unsigned int)((clock_fn)(uintptr_t)VV2_CLOCK)(world, NULL);
 }
 
+/* Whether this village's Gong of Wonder is whole (its four pieces in). */
+static int oc_gong_whole(void) {
+    unsigned char *world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
+    return world != NULL && world[0x2E7F0] != 0;
+}
+
+/* The purchase of `s`: arms it for the next ring in this save slot and
+   makes the Gong ready to ring now.  0, with nothing written, while the
+   Gong is not whole or nothing is set. */
+static int oc_gong_buy(oc_settings *s) {
+    unsigned char *world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
+    if (!oc_gong_whole() || !oc_settings_any(oc_find_event(2, OC_GONG_SLOT), s)) {
+        return 0;
+    }
+    oc_gong_bind(s);
+    oc_arm_set(&oc_gong, 2, OC_GONG_SLOT, s);
+    oc_gong.save_slot = story_current_slot(2);
+    if (oc_gong_resting()) {
+        *(unsigned int *)(world + 0x2EAC8) = 1;       /* the game's own "ready" */
+    }
+    return 1;
+}
+
 static int story_pick_gong_outcome(int game, HWND owner);
 
 __declspec(dllexport) int __stdcall VvfpStoryPickGongOutcome(int game, HWND owner) {
@@ -806,10 +846,17 @@ __declspec(dllexport) int __stdcall VvfpStoryPickGongOutcome(int game, HWND owne
 }
 
 static int story_pick_gong_outcome(int game, HWND owner) {
-    const oc_settings *settings;
+    oc_settings *settings;
     char summary[1200];
     char message[1600];
     if (game != 2 || !story_installed(2)) {
+        return 0;
+    }
+    if (!oc_gong_whole()) {
+        MessageBoxA(owner,
+                    "The Gong of Wonder is not whole in this village yet: its four pieces must be "
+                    "restored before it can be rung. Nothing was bought.",
+                    "Pick Gong of Wonder Outcome", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
     oc_gong_check();
@@ -853,14 +900,12 @@ static int story_pick_gong_outcome(int game, HWND owner) {
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;
     }
-    oc_arm_set(&oc_gong, 2, OC_GONG_SLOT, settings);
-    oc_gong.save_slot = story_current_slot(2);
+    if (!oc_gong_buy(settings)) {
+        return 0;
+    }
     MessageBoxA(owner,
-                oc_gong_resting()
-                    ? "Picked. The Gong of Wonder is resting now; the next time a villager rings "
-                      "it after it is ready (within ten minutes), it does what you picked."
-                    : "Picked. The next time a villager rings the Gong of Wonder (within ten "
-                      "minutes), it does what you picked.",
+                "Picked. The Gong of Wonder is ready to ring now: the next time a villager rings it "
+                "(within ten minutes, in this save slot), it does what you picked.",
                 "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;
 }
@@ -877,6 +922,18 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeChooserOpen(int game, int gong
     chooser.gong = gong;
     chooser_prepare(game, gong ? &OC_GONG_GAME : &GAMES[game]);
     return chooser.game->event_count;
+}
+
+/* The Gong of Wonder purchase once the player has confirmed it: `count`
+   control choices (OC_RANDOM = -1); returns what oc_gong_buy returns. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGongBuy(const int *choices, int count) {
+    oc_settings s;
+    int i;
+    memset(&s, 0, sizeof s);
+    for (i = 0; i < OC_MAX_CONTROLS; ++i) {
+        s.choice[i] = i < count ? choices[i] : OC_RANDOM;
+    }
+    return oc_gong_buy(&s);
 }
 
 /* Sets event `index`'s control `ci` (ci = -1: the strength) to `value`, and

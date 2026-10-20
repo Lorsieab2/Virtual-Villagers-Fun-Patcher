@@ -47,18 +47,22 @@
 #define OC_MAX_SITES 640
 #define OC_WHO_BYTES 32               /* 256 records */
 
-enum { OC_ENUM = 1, OC_AMOUNT = 2, OC_LOOP = 3, OC_VICTIM = 4 };
+enum { OC_ENUM = 1, OC_AMOUNT = 2, OC_LOOP = 3, OC_VICTIM = 4, OC_RINGER = 5 };
 enum { OC_SELECT = 1, OC_BUILD = 2, OC_APPLY = 3 };
 enum { OC_LOOP_NOBODY = 0, OC_LOOP_EVERYONE = 1, OC_LOOP_CHOOSE = 2 };
 enum { OC_IDLE = 0, OC_ARMED = 1, OC_DELIVERED = 2 };
 enum { OC_ELEM_PTR = 1, OC_ELEM_INDEX = 2 };
-enum { OC_SCOPE_PLAIN = 0, OC_SCOPE_APPLY = 1, OC_SCOPE_GONG = 2 };
+enum { OC_SCOPE_PLAIN = 0, OC_SCOPE_APPLY = 1, OC_SCOPE_GONG = 2, OC_SCOPE_RINGER = 3 };
 #define OC_GONG_SLOT 1000                /* The Lost Children's Gong of Wonder */
+#define OC_RINGER_ADULT 0x118            /* the ringer search's age test (0x44B45F: age > 0x118) */
 
 /* The player's settings for one pick: per control, OC_RANDOM or the choice
    (an option index, an amount value, an OC_LOOP_* or a record index), the
    chosen villagers of each "choose who" control, and the strength (0 = from
-   the population). */
+   the population).  A "ringer" control (the Gong's villager who rang it)
+   has no villager list: its first four `who` bytes hold the chosen
+   villager's identity (story_title_keep, never 0) taken at the purchase, so
+   a record that holds someone else at the ring is never taken for them. */
 typedef struct {
     int choice[OC_MAX_CONTROLS];
     unsigned char who[OC_MAX_CONTROLS][OC_WHO_BYTES];
@@ -108,6 +112,7 @@ typedef struct {
     DWORD tick;                       /* when it was armed (the gong's lapse) */
     unsigned char calls[OC_MAX_SITES];  /* each site's calls during this apply */
     int save_slot;                    /* the save slot it was armed in (the gong) */
+    int tiers_lifted;                 /* the gong: its tier lock lifted for this ring */
 } oc_arm_state;
 
 static oc_arm_state oc;
@@ -586,6 +591,173 @@ __declspec(naked) static void oc_rand_stub(void) {
     }
 }
 
+/* ---- The Gong of Wonder's ring ---------------------------------------------
+
+   The owner (2026-10-20): every outcome the Gong can give, and for each one
+   that acts on a villager, which villager.
+
+   THE TIERS.  The routine 0x44E8A0 gives a tier A or B result only once a
+   tier-C result has set village byte +0x2E910 (0x44EFDB; read at 0x44E8C1 /
+   0x44EBD7; never cleared), so a village's first ring is always tier C.  A
+   chosen tier A or B result sets that byte to 1 -- the value the game itself
+   writes -- for its ring only, when it is 0, and 0 is put back when the
+   routine returns, so the village is left as the game had it.
+
+   THE VILLAGER WHO RANG IT.  'Takes life', the loss of 90 health and 'Grants
+   wisdom' act on the record the game's search 0x44B440 answers: the first
+   record (index order) present, living, older than 0x118 and whose task is
+   ringing the Gong (-1: none; only the message shows).  Its four calls whose
+   answer is used as an index are scope calls (OC_SCOPE_RINGER): the game's
+   own search runs, and when it returns, a chosen villager's index replaces
+   its answer -- only while the gong's use is running, and only when the
+   record is still that villager (its identity taken at the purchase) and
+   passes the search's own test (present, living, adult; c2_listed also
+   refuses a totem statue).  Otherwise the game's answer stands and the miss
+   is recorded (the picker says the game then chooses).  The two youth
+   results' calls only test that a ringer exists and write fixed records;
+   they are not taken.
+
+   WHO FALLS SICK.  A "choose who" setting whose villagers are all gone at the
+   ring (none still present and living) goes back to the game's own rolls for
+   that ring, and the miss is recorded. */
+
+static unsigned int oc_who_identity(const unsigned char *who) {
+    unsigned int identity;
+    memcpy(&identity, who, sizeof identity);
+    return identity;
+}
+
+/* Whether record `index` of The Lost Children is one the ringer search
+   could answer, and is still the villager `identity` names. */
+static int oc_ringer_valid(int index, unsigned int identity) {
+    const ce_adapter *a = ce_adapter_for(2);
+    const unsigned char *r;
+    if (a == NULL || identity == 0 || index < 0 || index >= a->record_count) {
+        return 0;
+    }
+    r = a->record(index);
+    return r != NULL && a->listed(r) && *(const int *)(r + 0x530) > OC_RINGER_ADULT
+           && story_title_keep(2, r) == identity;
+}
+
+/* At the purchase: each ringer setting takes its villager's identity. */
+static void oc_gong_bind(oc_settings *s) {
+    const oc_event *e = oc_find_event(2, OC_GONG_SLOT);
+    const ce_adapter *a = ce_adapter_for(2);
+    int i;
+    if (e == NULL) {
+        return;
+    }
+    for (i = 0; i < e->control_count && i < OC_MAX_CONTROLS; ++i) {
+        const oc_control *c = &OC_GAMES[2].controls[e->control_first + i];
+        unsigned int identity = 0;
+        if (c->kind != OC_RINGER) {
+            continue;
+        }
+        if (a != NULL && s->choice[i] >= 0 && s->choice[i] < a->record_count) {
+            const unsigned char *r = a->record(s->choice[i]);
+            if (r != NULL && a->listed(r)) {
+                identity = story_title_keep(2, r);
+            }
+        }
+        memset(s->who[i], 0, OC_WHO_BYTES);
+        memcpy(s->who[i], &identity, sizeof identity);
+    }
+}
+
+/* The search 0x44B440 returned `found` inside the gong's use: the index the
+   routine is to use. */
+static unsigned int oc_ringer_answer(unsigned int found) {
+    const oc_event *e = oc_gong.event;
+    int i;
+    if (oc_gong.state != OC_DELIVERED || !oc_gong.in_apply || oc_gong.game != 2 || e == NULL) {
+        return found;
+    }
+    for (i = 0; i < e->control_count && i < OC_MAX_CONTROLS; ++i) {
+        const oc_control *c = &OC_GAMES[2].controls[e->control_first + i];
+        int choice = oc_gong.set.choice[i];
+        if (c->kind != OC_RINGER || choice == OC_RANDOM) {
+            continue;
+        }
+        if (oc_ringer_valid(choice, oc_who_identity(oc_gong.set.who[i]))) {
+            OC_COUNT(forced);
+            return (unsigned int)choice;
+        }
+        oc_gong.victim_missed = 1;
+        OC_COUNT(victim_missed);
+    }
+    return found;
+}
+
+/* Whether the chosen result is of tier A or B: it answers a tier gate
+   (0x44E8A8: < 5 is tier A; 0x44EBC0: < 0x19 is tier B) below its bar. */
+static int oc_gong_wants_tiers(void) {
+    const oc_game *g = &OC_GAMES[2];
+    const oc_event *e = oc_gong.event;
+    int i;
+    int k;
+    for (i = 0; e != NULL && i < e->control_count && i < OC_MAX_CONTROLS; ++i) {
+        const oc_control *c = &g->controls[e->control_first + i];
+        int choice = oc_gong.set.choice[i];
+        const oc_option *o;
+        if (c->kind != OC_ENUM || choice < 0 || choice >= c->option_count) {
+            continue;
+        }
+        o = &g->options[c->option_first + choice];
+        for (k = 0; k < o->force_count; ++k) {
+            const oc_force *f = &g->forces[o->force_first + k];
+            unsigned int va = g->sites[f->site].va;
+            if ((va == 0x44E8A8u && f->value < 5) || (va == 0x44EBC0u && f->value < 0x19)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+/* The gong's use opens (oc_scope_enter). */
+static void oc_gong_ring_begin(void) {
+    const ce_adapter *a = ce_adapter_for(2);
+    const oc_event *e = oc_gong.event;
+    unsigned char *world = VV2_WORLD();
+    int i;
+    int k;
+    for (i = 0; a != NULL && e != NULL && i < e->control_count && i < OC_MAX_CONTROLS; ++i) {
+        const oc_control *c = &OC_GAMES[2].controls[e->control_first + i];
+        int still = 0;
+        if (c->kind != OC_LOOP || oc_gong.set.choice[i] != OC_LOOP_CHOOSE) {
+            continue;
+        }
+        for (k = 0; k < a->record_count && k < OC_WHO_BYTES * 8 && !still; ++k) {
+            const unsigned char *r;
+            if (!oc_who_has(oc_gong.set.who[i], k)) {
+                continue;
+            }
+            r = a->record(k);
+            still = r != NULL && a->listed(r);
+        }
+        if (!still) {
+            oc_gong.set.choice[i] = OC_RANDOM;
+            oc_gong.victim_missed = 1;
+            OC_COUNT(victim_missed);
+        }
+    }
+    oc_gong.tiers_lifted = 0;
+    if (world != NULL && world[0x2E910] == 0 && oc_gong_wants_tiers()) {
+        world[0x2E910] = 1;
+        oc_gong.tiers_lifted = 1;
+    }
+}
+
+/* The gong's use returns (oc_scope_leave): the tier lock as it was. */
+static void oc_gong_ring_end(void) {
+    unsigned char *world = VV2_WORLD();
+    if (oc_gong.tiers_lifted && world != NULL) {
+        world[0x2E910] = 0;
+    }
+    oc_gong.tiers_lifted = 0;
+}
+
 /* ---- Scope calls ----------------------------------------------------------- */
 
 /* A listed call in the event's own code runs bracketed: entering it raises
@@ -660,6 +832,7 @@ static unsigned int oc_scope_enter(const unsigned int *regs) {
                 && story_current_slot(game) == oc_gong.save_slot) {
                 oc_gong.state = OC_DELIVERED;
                 oc_apply_open(&oc_gong);
+                oc_gong_ring_begin();
             }
             return oc_scope_target(s);
         }
@@ -667,7 +840,8 @@ static unsigned int oc_scope_enter(const unsigned int *regs) {
     return 0;
 }
 
-static unsigned int oc_scope_leave(void) {
+/* `regs` is the pushad image at the return (regs[7] the callee's EAX). */
+static unsigned int oc_scope_leave(unsigned int *regs) {
     unsigned int ret;
     int code;
     int game;
@@ -690,7 +864,11 @@ static unsigned int oc_scope_leave(void) {
             oc_disarm();
         }
         if (kind == OC_SCOPE_GONG && oc_gong.game == game && oc_gong.in_apply) {
+            oc_gong_ring_end();
             oc_arm_clear(&oc_gong);     /* one use */
+        }
+        if (kind == OC_SCOPE_RINGER && game == 2) {
+            regs[7] = oc_ringer_answer(regs[7]);
         }
     }
     return ret;
@@ -700,8 +878,8 @@ static unsigned int __cdecl oc_scope_enter_cdecl(const unsigned int *regs) {
     return oc_scope_enter(regs);
 }
 
-static unsigned int __cdecl oc_scope_leave_cdecl(void) {
-    return oc_scope_leave();
+static unsigned int __cdecl oc_scope_leave_cdecl(unsigned int *regs) {
+    return oc_scope_leave(regs);
 }
 
 __declspec(naked) static void oc_scope_back(void) {
@@ -709,7 +887,10 @@ __declspec(naked) static void oc_scope_back(void) {
         push eax                      /* the slot for the original return address */
         pushad
         pushfd
+        lea eax, [esp + 4]            /* the pushad image: the callee's EAX at +28 */
+        push eax
         call oc_scope_leave_cdecl
+        add esp, 4
         mov dword ptr [esp + 36], eax
         popfd
         popad
@@ -1019,6 +1200,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeOutcomeArm(int game, int slot,
     s.strength = strength;
     s.unlocked = unlocked;
     if (slot == OC_GONG_SLOT) {
+        oc_gong_bind(&s);           /* as the purchase does */
         oc_arm_set(&oc_gong, game, slot, &s);
         oc_gong.save_slot = story_current_slot(game);
         return oc_gong.state;
@@ -1069,6 +1251,15 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGongForce(int state, int in_a
     oc_gong.state = state;
     oc_gong.in_apply = in_apply;
     memset(oc_gong.calls, 0, sizeof oc_gong.calls);
+}
+
+/* The Gong of Wonder's armed outcome: state, in_apply, victim_missed (a
+   chosen villager was not used), tiers_lifted. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGongState(int *out) {
+    out[0] = oc_gong.state;
+    out[1] = oc_gong.in_apply;
+    out[2] = oc_gong.victim_missed;
+    out[3] = oc_gong.tiers_lifted;
 }
 
 /* Sets the depth of the scope call at `va` of `game`; returns its index or -1. */

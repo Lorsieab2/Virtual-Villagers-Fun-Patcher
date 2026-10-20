@@ -14,7 +14,11 @@ A control is one row of the Pick Island Event dialog's settings:
 * "loop": a roll the game makes for each villager in turn -- nobody,
   everyone, or the villagers the player chooses;
 * "victim": which villager the event is about, when the game picks one with
-  a roll among candidates.
+  a roll among candidates;
+* "ringer": the villager The Lost Children's Gong of Wonder acts on, which
+  the game finds with a search, not a roll ("calls": the search's calls whose
+  answer is replaced by the chosen villager when that one passes the game's
+  own test; story_outcomes.inc).
 
 Each roll is a SITE: the VA of a `call rand` (E8 rel32) in the game.
 "branch" is the choice of a two-choice event the control belongs to (0 = the
@@ -55,7 +59,7 @@ PICKER_FALLBACK = "the villagers this event's own condition allows"
 
 # Conditions an option can need, checked when the dialog opens and again when
 # the pick is bought (story_outcomes_ui.inc oc_condition_holds).
-CONDITION_IDS = {None: 0, "room": 1, "vv2_gong_tiers": 2, "vv2_breeding_mastered": 3}
+CONDITION_IDS = {None: 0, "room": 1, "vv2_breeding_mastered": 3}
 
 # Options whose condition is checked (game, slot, control id, option label
 # prefix) -> condition.  Every other condition in the tables depends on the
@@ -230,6 +234,7 @@ STRENGTH: dict[str, dict[int, str]] = {
 GONG_USE_CALLS: dict[str, list[int]] = {"vv2": list(story_outcomes_gong.USE_CALLS)}
 GONG_CONTROLS: dict[str, list[dict]] = {
     "vv2": [_normalise("vv2", 1000, c) for c in story_outcomes_gong.CONTROLS]}
+GONG_OMITTED: dict[str, list[str]] = {"vv2": list(story_outcomes_gong.OMITTED)}
 
 # Events whose own condition a pick may pass because it is a timing or story
 # condition the event's code does not need -- each proven by running the

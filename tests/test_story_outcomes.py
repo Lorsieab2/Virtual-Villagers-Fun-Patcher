@@ -57,7 +57,7 @@ TEST_DLL = Path(os.environ.get(
     "VVFP_STORY_TEST_DLL", ROOT / "tests" / "test_dlls" / "VVFP Story Upgrades.test.dll"))
 TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 RAND = {"vv1": 0x402F10, "vv2": 0x4031A0, "vv3": 0x4032D0, "vv4": 0x4036D0, "vv5": 0x403660}
-KINDS = {"enum": 1, "amount": 2, "loop": 3, "victim": 4}
+KINDS = {"enum": 1, "amount": 2, "loop": 3, "victim": 4, "ringer": 5}
 PHASES = {"select": 1, "build": 2, "apply": 3}
 IDLE, ARMED, DELIVERED = 0, 1, 2
 GONG_SLOT = 1000
@@ -110,6 +110,8 @@ def events_of(game: str):
 
 
 def control_sites(c: dict) -> list[int]:
+    if c["kind"] == "ringer":
+        return []                     # no roll: the search's calls are scope calls
     if c["kind"] == "enum":
         return sorted({va for o in c["options"] for va, _ in o["force"]})
     return sorted({c["site"], *c.get("sites", [])})
@@ -250,6 +252,8 @@ class TableTests(unittest.TestCase):
                                 self.assertEqual(out[18 + 3 * k], len(o["force"]))
                                 self.assertEqual((out[19 + 3 * k], out[20 + 3 * k]),
                                                  tuple(o["force"][0]), (c["id"], o["label"]))
+                        elif c["kind"] == "ringer":
+                            self.assertEqual((out[4], out[5]), (0, 0), c["id"])
                         else:
                             self.assertEqual(out[4], c["site"], c["id"])
                             bound = c.get("bound")
@@ -429,8 +433,8 @@ class GateTests(unittest.TestCase):
                     elif c["kind"] == "loop":
                         choice = EVERYONE if c["everyone"] is not None else NOBODY
                         va, value = c["site"], c["everyone"] if c["everyone"] is not None else c["nobody"]
-                    elif c["kind"] == "victim":
-                        continue                      # needs its candidates (SettingTests)
+                    elif c["kind"] in ("victim", "ringer"):
+                        continue                      # needs its candidates / its search (SettingTests, GongRingTests)
                     else:
                         choice, va, value = c["bound"] - 1, c["site"], c["bound"] - 1
                     bound = _bound_for(c, value)
@@ -1023,6 +1027,341 @@ class GongTests(unittest.TestCase):
         self.assertEqual(g.forced_roll(va, 10), (stock_value(10), False), "not inside the gong's use")
 
 
+# The Gong of Wonder's routine 0x44E8A0: each tier's jump table (entries) and
+# the call whose roll picks the entry.
+GONG_TIER_TABLES = {0x44E8CF: (0x44F450, 6), 0x44EBE5: (0x44F468, 9), 0x44EFE4: (0x44F48C, 9)}
+GONG_SKILL_OFFSETS = (0x7E4, 0x7E8, 0x7F0, 0x7F4, 0x7EC)    # the order of the skill tables 0x44F4B0 / 0x44F4C4
+GONG_NOW = 50000
+RINGING = b"Ringing the Gong\0"
+
+
+class _Ring:
+    """The Lost Children with a village of six adults (V0-V5); V3's task is
+    ringing the Gong.  The routine's helpers that draw, show text, keep the
+    clock and add food / tech are stubbed and recorded; everything else --
+    the tier gates, the jump tables, the ringer search 0x44B440, the records
+    written -- is the game's own code."""
+
+    def __init__(self, mode: str = "collection_progression", tiers: int = 0, ringer: int | None = 3):
+        from unicorn import UC_HOOK_CODE
+        g = self.g = Game("vv2", mode)
+        p = g.proc
+        self.w = g.village.world
+        p.write(self.w + 0x2E910, bytes([tiers]))
+        p.write(self.w + 0x2E7F0, b"\1")                      # the Gong is whole
+        text = p.alloc(0x40)
+        p.write(text, RINGING)
+        p.stub(0x441680, lambda q: (text, 4))                 # the string table: id 0x10C
+        if ringer is not None:
+            p.write(g.village.record(ringer) + 0x4FC, RINGING)
+        self.messages, self.food, self.tech, self.rests = [], [], [], []
+        p.stub(0x4239D0, lambda q: (0, 0x1C))                 # sparkles
+        p.stub(0x44B2A0, lambda q: (self.messages.append(q.arg(0)) or 0, 4))
+        p.stub(0x4257A0, lambda q: (0, 8))                    # "rests about a full day"
+        p.stub(0x403200, lambda q: (GONG_NOW, 0))             # the game's clock
+        p.stub(0x4262B0, lambda q: (self.food.append(q.arg(0)) or 0, 4))
+        p.stub(0x426290, lambda q: (self.tech.append(q.arg(0)) or 0, 4))
+        self.entries = {}
+        for site, (table, count) in GONG_TIER_TABLES.items():
+            for k in range(count):
+                self.entries[p.u32(table + 4 * k)] = (site, k)
+        self.hit = []
+        for va in self.entries:
+            p.mu.hook_add(UC_HOOK_CODE, lambda mu, a, s, u: self.hit.append(self.entries[a]), begin=va, end=va)
+        p.export("VvfpStoryProbeSetTick", 0)
+
+    def arm(self, choices: dict[str, int], who: dict[str, list[int]] | None = None) -> int:
+        ids = {c["id"]: i for i, c in enumerate(controls_of("vv2", GONG_SLOT))}
+        return self.g.arm(GONG_SLOT, {ids[k]: v for k, v in choices.items()},
+                          who={ids[k]: v for k, v in (who or {}).items()})
+
+    def ring(self) -> list:
+        """One use: the call 0x461B8E, as the action's completion makes it."""
+        self.hit.clear()
+        p = self.g.proc
+        p.set_reg("ecx", self.g.village.base)
+        p.set_reg("esp", STACK)
+        p.run(0x461B8E, 0x461B93)
+        return list(self.hit)
+
+    def strike(self, until: int = 0x461B93) -> list:
+        """The action's completion from its case 0x461B32: the rest test, the
+        rest, then the use."""
+        self.hit.clear()
+        p = self.g.proc
+        for reg, value in (("esi", self.g.village.base), ("ebx", 0), ("esp", STACK)):
+            p.set_reg(reg, value)
+        p.run(0x461B32, until)
+        return list(self.hit)
+
+    def gong(self) -> tuple:
+        self.g.proc.export("VvfpStoryProbeGongState", SCRATCH + 0x2800)
+        return struct.unpack("<4i", self.g.proc.read(SCRATCH + 0x2800, 16))
+
+    def tiers(self) -> int:
+        return self.g.proc.read(self.w + 0x2E910, 1)[0]
+
+    def rest(self) -> int:
+        return self.g.proc.u32(self.w + 0x2EAC8)
+
+
+def _option(label_part: str) -> int:
+    _, c = _control("vv2", GONG_SLOT, "result")
+    found = [k for k, o in enumerate(c["options"]) if label_part in o["label"]]
+    assert len(found) == 1, (label_part, found)
+    return found[0]
+
+
+def _entry(k: int) -> tuple[int, int]:
+    """The tier call and jump-table entry result option k forces."""
+    _, c = _control("vv2", GONG_SLOT, "result")
+    return [(va, v) for va, v in c["options"][k]["force"] if va in GONG_TIER_TABLES][0]
+
+
+@emulated
+class GongRingTests(unittest.TestCase):
+    """The owner (2026-10-20): "there are way more Gong of Wonder options ...
+    I want ALL of them."  The Gong's routine 0x44E8A0 run for real: each of
+    its 23 results, chosen, is the jump-table entry the routine takes -- also
+    the tier A and B ones on a village whose tier lock is still closed, which
+    is put back afterwards -- each amount and skill reaches the game's own
+    code, and Random is the game's own roll."""
+
+    def setUp(self):
+        if not have_stock("vv2"):
+            self.skipTest("stock executables not present")
+
+    def test_every_result_takes_its_own_branch_before_and_after_the_first_ring(self):
+        _, c = _control("vv2", GONG_SLOT, "result")
+        for tiers in (0, 1):
+            for k, o in enumerate(c["options"]):
+                with self.subTest(tiers=tiers, option=o["label"]):
+                    r = _Ring(tiers=tiers)
+                    self.assertEqual(r.arm({"result": k}), ARMED)
+                    self.assertEqual(r.ring(), [_entry(k)])
+                    tier_c = _entry(k)[0] == 0x44EFE4
+                    # tier C results open the lock themselves (0x44EFDB, stock); A and B leave it as it was
+                    self.assertEqual(r.tiers(), 1 if tier_c else tiers)
+                    self.assertEqual(r.gong()[0], IDLE, "one use")
+                    self.assertEqual(r.gong()[3], 0)
+
+    def test_random_is_the_games_own_roll(self):
+        for tiers in (0, 1):
+            with self.subTest(tiers=tiers):
+                r = _Ring(tiers=tiers)
+                # the stubbed rand: 63 of 100 (not tier A), 63 of 100 (not tier B), 5 of 9 (C entry 5)
+                self.assertEqual(r.ring(), [(0x44EFE4, stock_value(9))])
+                self.assertEqual(r.tiers(), 1)
+                self.assertEqual(r.g.rand_calls[:3], [100, 100, 9])
+
+    def test_a_chosen_result_with_random_amount_and_after_it_the_game_again(self):
+        r = _Ring()
+        r.arm({"result": _option("Grants luck")})
+        self.assertEqual(r.ring(), [(0x44EBE5, 1)])
+        self.assertEqual(r.g.proc.u32(r.w + 0x2EAE0), GONG_NOW + 60, "the luck timer, as the game sets it")
+        self.assertEqual(r.tiers(), 0, "the lock is closed again")
+        self.assertEqual(r.ring(), [(0x44EFE4, stock_value(9))], "the next ring is the game's own")
+
+    def test_every_amount_reaches_the_games_own_code(self):
+        cases = (("tech_big", "+20000..59999", "tech"), ("tech_medium", "+10000..29999", "tech"),
+                 ("tech_small", "+3000..12999", "tech"), ("food_big", "+1000..2999", "food"),
+                 ("food_small", "+200..999", "food"), ("tech_lost", "Takes technology", "lost"))
+        for cid, label, where in cases:
+            _, c = _control("vv2", GONG_SLOT, cid)
+            for value in sorted({0, c["bound"] // 2, c["bound"] - 1}):
+                with self.subTest(control=cid, value=value):
+                    r = _Ring()
+                    r.g.proc.put32(r.w + 0x2EADC, 100000)
+                    r.arm({"result": _option(label), cid: value})
+                    r.ring()
+                    amount = c["base"] + c["step"] * value
+                    if where == "lost":
+                        self.assertEqual(r.g.proc.u32(r.w + 0x2EADC), 100000 - amount)
+                    else:
+                        self.assertEqual(getattr(r, where), [amount])
+
+    def test_every_skill_of_grants_wisdom(self):
+        _, c = _control("vv2", GONG_SLOT, "skill")
+        for k, o in enumerate(c["options"]):
+            with self.subTest(skill=o["label"]):
+                r = _Ring()
+                r.arm({"result": _option("Grants wisdom"), "skill": k})
+                r.ring()
+                for j, off in enumerate(GONG_SKILL_OFFSETS):
+                    self.assertEqual(r.g.village.i32(3, off) == 100, j == k, (o["label"], hex(off)))
+
+
+@emulated
+class GongRingerTests(unittest.TestCase):
+    """The owner (2026-10-20): for a Gong outcome that acts on a villager,
+    the player chooses which villager; one no longer valid at the ring falls
+    back to the game's own choice (and the picker says so)."""
+
+    def setUp(self):
+        if not have_stock("vv2"):
+            self.skipTest("stock executables not present")
+
+    RESULTS = (("Takes life", 0x52C, lambda before: 0),
+               ("loses 90 health", 0x52C, lambda before: max(before - 90, 0)),
+               ("Grants wisdom", 0x7EC, lambda before: 100))
+
+    def _ring(self, label, ringer=3, chosen=None, spoil=None, mode="collection_progression"):
+        r = _Ring(mode=mode, ringer=ringer)
+        for i in range(6):
+            r.g.proc.put32(r.g.village.record(i) + 0x52C, 95)
+        choices = {"result": _option(label)}
+        if label == "Grants wisdom":
+            choices["skill"] = 4                                 # Farming (+0x7EC)
+        if chosen is not None:
+            choices["ringer"] = chosen
+        r.arm(choices)
+        if spoil is not None:
+            spoil(r)
+        r.ring()
+        return r
+
+    def _changed(self, r, off):
+        base = 95 if off == 0x52C else 0
+        return [i for i in range(6) if r.g.village.i32(i, off) != base]
+
+    def test_the_chosen_villager_is_the_one_acted_on(self):
+        for label, off, want in self.RESULTS:
+            with self.subTest(result=label):
+                r = self._ring(label, chosen=4)
+                self.assertEqual(self._changed(r, off), [4])
+                self.assertEqual(r.g.village.i32(4, off), want(95))
+                self.assertEqual(r.gong()[2], 0, "the chosen villager was used")
+
+    def test_random_is_the_villager_who_rang_it(self):
+        for label, off, want in self.RESULTS:
+            with self.subTest(result=label):
+                r = self._ring(label)
+                self.assertEqual(self._changed(r, off), [3])
+                self.assertEqual(r.g.village.i32(3, off), want(95))
+
+    def test_a_chosen_villager_acts_when_a_child_or_nobody_rang_it(self):
+        for label, off, _ in self.RESULTS:
+            with self.subTest(result=label):
+                self.assertEqual(self._changed(self._ring(label, ringer=None), off), [], "stock: nothing")
+                self.assertEqual(self._changed(self._ring(label, ringer=None, chosen=1), off), [1])
+
+    def test_a_chosen_villager_no_longer_valid_falls_back_to_the_games_choice(self):
+        def died(r):
+            r.g.proc.put32(r.g.village.record(4) + 0x52C, 0)
+
+        def gone(r):
+            r.g.proc.write(r.g.village.record(4) + 0x30, b"\0")
+
+        def someone_else(r):                                      # the record now holds another villager
+            r.g.village.put(4, sex="f", years=30, name="Newcomer", health=95)
+
+        def a_child_again(r):
+            r.g.proc.put32(r.g.village.record(4) + 0x530, 0x118)
+
+        def a_totem(r):
+            r.g.proc.write(r.g.village.record(4) + 0x558, b"\1")
+
+        for spoil in (died, gone, someone_else, a_child_again, a_totem):
+            for label, off, want in self.RESULTS:
+                with self.subTest(case=spoil.__name__, result=label):
+                    r = self._ring(label, chosen=4, spoil=spoil)
+                    self.assertIn(3, self._changed(r, off))
+                    self.assertEqual(r.g.village.i32(3, off), want(95), "the game's own ringer")
+                    self.assertEqual(r.gong()[2], 1, "the miss is recorded")
+
+    def test_the_youth_results_keep_the_games_records(self):
+        """'Takes youth' / 'Grants youth' only test that a ringer exists, then
+        write records 6 and 15 (stock): a chosen villager changes nothing."""
+        for label, record, value in (("Takes youth", 6, 0x3E9), ("Grants youth", 15, 0x64)):
+            with self.subTest(result=label):
+                r = self._ring(label, chosen=4)
+                self.assertEqual(r.g.village.i32(record, 0x530), value)
+                self.assertEqual(r.g.village.i32(4, 0x530), 24 * 20)
+
+    def test_every_mode(self):
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                r = self._ring("Takes life", chosen=2, mode=mode)
+                self.assertEqual(self._changed(r, 0x52C), [2])
+                r = _Ring(mode=mode)
+                r.arm({"result": _option("Grants vision")})
+                self.assertEqual(r.ring(), [(0x44E8CF, 0)])
+                self.assertEqual(r.tiers(), 0)
+
+    def test_who_falls_sick_falls_back_when_every_chosen_villager_is_gone(self):
+        for spoiled in (False, True):
+            with self.subTest(spoiled=spoiled):
+                r = _Ring()
+                r.arm({"result": _option("may fall sick (15%"), "sick_c": CHOOSE}, who={"sick_c": [4]})
+                if spoiled:
+                    r.g.proc.put32(r.g.village.record(4) + 0x52C, 0)
+                r.g.rand_calls.clear()
+                r.ring()
+                sick = [r.g.village.i32(i, 0x53C) for i in range(6)]
+                if spoiled:
+                    self.assertEqual(r.g.rand_calls.count(100), 5, "the game's own roll for each living villager")
+                    self.assertEqual(r.gong()[2], 1)
+                else:
+                    self.assertEqual(r.g.rand_calls.count(100), 0, "every roll answered")
+                    self.assertEqual(sick, [0, 0, 0, 0, 1, 0])
+                    self.assertEqual(r.gong()[2], 0)
+
+
+@emulated
+class GongPurchaseTests(unittest.TestCase):
+    """The owner (2026-10-20): buying the pick makes the Gong ready to ring at
+    once -- the game's own "ready" (village +0x2EAC8 = 1, as its restoration
+    writes it) -- only when the Gong is whole; otherwise nothing is written or
+    spent.  A ring afterwards rests the Gong as the game does."""
+
+    def setUp(self):
+        if not have_stock("vv2"):
+            self.skipTest("stock executables not present")
+
+    def test_buying_makes_a_resting_gong_ready_and_the_ring_rests_it_again(self):
+        r = _Ring()
+        r.g.proc.put32(r.w + 0x2EAC8, GONG_NOW + 40000)          # rung a few hours ago
+        r.g.proc.write(SCRATCH + 0x5000, struct.pack("<i", _option("Grants luck")))
+        self.assertEqual(r.g.proc.export("VvfpStoryProbeGongBuy", SCRATCH + 0x5000, 1), 1)
+        self.assertEqual(r.rest(), 1)
+        self.assertEqual(r.gong()[0], ARMED)
+        self.assertEqual(r.strike(), [(0x44EBE5, 1)], "the ring is not refused, and gives the pick")
+        self.assertEqual(r.rest(), GONG_NOW + 86400, "the game's own rest after the ring")
+        self.assertEqual(r.gong()[0], IDLE)
+        r.strike(until=0x4642E9)                                   # straight away again: resting, no use
+        self.assertEqual(r.hit, [])
+
+    def test_a_ready_gong_is_left_as_it_is(self):
+        r = _Ring()
+        r.g.proc.put32(r.w + 0x2EAC8, GONG_NOW - 5)
+        r.g.proc.write(SCRATCH + 0x5000, struct.pack("<i", 0))
+        self.assertEqual(r.g.proc.export("VvfpStoryProbeGongBuy", SCRATCH + 0x5000, 1), 1)
+        self.assertEqual(r.rest(), GONG_NOW - 5)
+
+    def test_no_whole_gong_writes_nothing(self):
+        r = _Ring()
+        r.g.proc.write(r.w + 0x2E7F0, b"\0")
+        r.g.proc.put32(r.w + 0x2EAC8, GONG_NOW + 40000)
+        before = r.g.proc.read(r.w, 0x31000)
+        r.g.proc.write(SCRATCH + 0x5000, struct.pack("<i", 0))
+        self.assertEqual(r.g.proc.export("VvfpStoryProbeGongBuy", SCRATCH + 0x5000, 1), 0)
+        self.assertEqual(r.g.proc.read(r.w, 0x31000), before)
+        self.assertEqual(r.gong()[0], IDLE)
+
+    def test_the_purchase_is_refused_and_nothing_charged_without_a_whole_gong(self):
+        proc = Process(render("vv2", "collection_progression"), TEST_DLL)
+        proc.export("VvfpStoryCharge", 2)
+        self.assertEqual(proc.export("VvfpStoryInstall", 2), 1)
+        village = Village(proc, "vv2")
+        village.put(0, sex="f", years=20, name="V0")
+        proc.put32(village.world + 0x2EADC, 100000)
+        self.assertEqual(proc.export("VvfpStoryEventPrice", 2), 30000)
+        self.assertEqual(proc.export("VvfpStoryPickGongOutcome", 2, 0), 0)
+        self.assertEqual(proc.u32(village.world + 0x2EADC), 100000, "nothing spent")
+        self.assertIn("not whole", proc.messages[-1])
+        self.assertNotIn("DialogBoxParamA", proc.api_calls, "the picker is not opened")
+
+
 def _script(values):
     values = list(values)
 
@@ -1243,14 +1582,29 @@ class ChooserTests(unittest.TestCase):
         self.assertEqual(self._text(g, _position("vv3", 47), 0)[0], 0, "a chief is needed: locked")
         self.assertEqual(self._text(g, _position("vv3", 2), 0)[0], 1)
 
-    def test_the_gongs_tiers_need_the_tiers_open(self):
+    def test_every_gong_result_can_be_bought_before_the_first_ring(self):
+        """The owner (2026-10-20): every outcome.  The results the game keeps
+        for after a village's first ring (its tier lock, village +0x2E910 = 0)
+        are offered and bought like the others."""
         g, n = self._open("vv2", gong=True)
         self.assertEqual(n, 1)
+        self.assertEqual(g.proc.read(g.village.world + 0x2E910, 1), b"\0")
         ci, c = _control("vv2", GONG_SLOT, "result")
-        k = [i for i, o in enumerate(c["options"]) if o.get("cond") == "vv2_gong_tiers"][0]
-        self._set(g, 0, ci, k)
-        self.assertIn("not possible right now", self._text(g, 0, 2)[1])
-        g.proc.write(g.village.world + 0x2E910, b"\1")
+        self.assertEqual(len(c["options"]), 23)
+        for k, o in enumerate(c["options"]):
+            with self.subTest(option=o["label"]):
+                self.assertNotIn("cond", o)
+                self._set(g, 0, ci, k)
+                self.assertEqual(self._text(g, 0, 2)[1], "")
+                self.assertIn(o["label"].split(" (")[0], self._text(g, 0, 4 + ci)[1])
+
+    def test_the_ringer_row_names_the_chosen_villager(self):
+        g, _ = self._open("vv2", gong=True)
+        ci, c = _control("vv2", GONG_SLOT, "ringer")
+        self.assertEqual(self._text(g, 0, 4 + ci)[1], "The villager who rang it: Random (original game)")
+        self._set(g, 0, ci, 4)
+        self.assertEqual(self._text(g, 0, 4 + ci)[1], "The villager who rang it: V4")
+        self.assertIn("The villager who rang it: V4", self._text(g, 0, 1)[1])
         self.assertEqual(self._text(g, 0, 2)[1], "")
 
 

@@ -1457,4 +1457,15 @@ is about (one the game would not pick leaves the choice to the game).
 | Who falls sick ('Takes health', 15%, tier C) | each villager | nobody, everyone, the villagers chosen |
 | Skill raised to 100 ('Grants wisdom') | result | Parenting; Building; Healing; Research; Farming |
 | Babies per pregnancy ('Grants life') | result | One baby; Twins; Triplets |
+| The villager who rang it | which villager | any of the living adults (one who has died, gone or changed by the ring: the game's own choice) |
+
+### Looked at and not offered (the Gong of Wonder)
+
+* 0x44EB32 rand(50) in 'Grants life': passed as arg2 of 0x44B980 and stored at the mother's +0x5EC (0x44BA1A); no code reads +0x5EC by displacement (only writes at 0x424FD8, 0x44BA1A, 0x44C992, 0x44CF86, 0x44D2CD), so no traced effect -> not offered (uncertain: could be read through a whole-record copy).
+* Jump-table default branches are dead: rand(6)/rand(9)/rand(5) can never exceed the bound.
+* Tier-C entries 7 and 8 are byte-identical 'Grants wisdom' paths -> one option.
+* No other developer-dead outcomes: every table entry of all three tiers is reachable in stock (A/B after the first tier-C ring).
+* Stock defect, offered as-is (it is what stock produces): 'Takes youth' / 'Grants youth' write fixed records 6 and 15 instead of the ringer. Which villager they act on is therefore not offered: the routine never writes the ringer's (or any chosen villager's) age, and making it would mean writing a field this code never writes.
+* 'Grants life': which women become pregnant is not a roll -- every woman aged 18-49, alive and not pregnant, in index order, while the population cap allows -- so it is not offered.
+* 'Grants health' and the sickness rolls' filters: no roll decides who is healed (every living villager), so nothing to offer beyond 'Who falls sick'.
 
