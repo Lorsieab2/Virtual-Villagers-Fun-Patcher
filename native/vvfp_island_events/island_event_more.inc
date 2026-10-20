@@ -157,6 +157,24 @@ static void more_vv2_totem(const unsigned char *r, char *out, size_t size) {
         _snprintf(out, size, "none");
         return;
     }
+    {
+        /* "Esteemed Elders' Totems Use No Villager Records" (native/vvfp_vv2_totems):
+           while its store works the statue is there, not in a record. */
+        typedef int (__stdcall *store_fn)(void);
+        typedef int (__stdcall *face_fn)(const unsigned char *);
+        HMODULE store = GetModuleHandleA("VVFP VV2 Totems.dll");
+        store_fn active = store != NULL ? (store_fn)GetProcAddress(store, "VvfpTotemsActive") : NULL;
+        face_fn face_of = store != NULL ? (face_fn)GetProcAddress(store, "VvfpTotemFaceOf") : NULL;
+        if (active != NULL && face_of != NULL && active() != 0) {
+            int face = face_of(r);
+            if (face == -2) {
+                out[0] = '\0';          /* two statues agree: nobody can say which */
+            } else {
+                _snprintf(out, size, "%s", face >= 0 && face <= 7 ? TOTEMS[face] : "none");
+            }
+            return;
+        }
+    }
     if (records == NULL || !readable(records, (size_t)256 * 0xE48C)) {
         out[0] = '\0';
         return;

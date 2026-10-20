@@ -265,6 +265,32 @@ int main(void) {
         DeleteFileA(t2);
     }
 
+    /* THE LOST CHILDREN'S ELDER TOTEMS (native/vvfp_vv2_totems): ElderTotems.dat and the village's
+       give-automatically setting, in the save's own "...\Save <N>\Data\Elder Totems" folder, follow
+       Start Over: slot 1's go, slot 2's stay, and no other game's reset touches them. */
+    {
+        char dir1[MAX_PATH], dir2[MAX_PATH], e1[MAX_PATH], s1[MAX_PATH], e2[MAX_PATH];
+        if (!vv_save_subfolder(dir1, "Virtual Villagers Fun Patcher\\Save 1\\Data\\Elder Totems", 64)
+            || !vv_save_subfolder(dir2, "Virtual Villagers Fun Patcher\\Save 2\\Data\\Elder Totems", 64)) {
+            printf("could not resolve the elder totems folders\n");
+            return 2;
+        }
+        wsprintfA(e1, "%s\\ElderTotems.dat", dir1);
+        wsprintfA(s1, "%s\\Elder Totem Settings.dat", dir1);
+        wsprintfA(e2, "%s\\ElderTotems.dat", dir2);
+        touch(e1);
+        touch(s1);
+        touch(e2);
+        check(exists(e1) && exists(s1) && exists(e2), "elder totems files exist before the reset (nonzero denominator)");
+        vv_reset_slot_state(3, 1, VILLAGE);
+        check(exists(e1) && exists(s1), "a Secret City reset leaves The Lost Children's ElderTotems.dat alone");
+        vv_reset_slot_state(2, 1, VILLAGE);
+        check(!exists(e1), "ELDERTOTEMS.DAT OF SLOT 1 DELETED BY START OVER (The Lost Children)");
+        check(!exists(s1), "slot 1's Elder Totem Settings.dat deleted by Start Over");
+        check(exists(e2), "slot 2's ElderTotems.dat survives a slot-1 reset");
+        DeleteFileA(e2);
+    }
+
     /* EACH KIND IN ITS OWN FOLDER (native/shared/data_subfolder.h). The
        masks, the graves, A New Home's parentage records and the Unaccounted
        Villagers roster moved out of the Data folder's root into a folder

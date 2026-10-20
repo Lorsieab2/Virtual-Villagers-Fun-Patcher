@@ -1,0 +1,7 @@
+LIBRARY "VVFP VV2 Totems"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpTotemsActive=_VvfpTotemsActive@0
+    VvfpTotemCount=_VvfpTotemCount@0
+    VvfpTotemFaceOf=_VvfpTotemFaceOf@4
+    VvfpTotemSetFace=_VvfpTotemSetFace@8

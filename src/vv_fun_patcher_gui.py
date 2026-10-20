@@ -34,6 +34,7 @@ import vv_reconcile_view
 import vv_save_backup
 import vv_startup_questions
 import vv_tribe_rename
+import vv_vv2_totem_store
 import vv_vv2_totems
 import vv_genealogy
 import vv_genealogy_window
@@ -2218,6 +2219,21 @@ class App(tk.Tk):
             return True
         return messagebox.askyesno("A patch this one works with is off", body)
 
+    def _confirm_totems_kept(self, outputs: list[tuple[Path, Path]], fun_patch_ids: list[str]) -> bool:
+        """Before a build replaces a copy of The Lost Children that has "Esteemed Elders' Totems Use No Villager
+        Records" with one without it: the totems live in each save's ElderTotems.dat, which the game without
+        the patch never reads.  Returns True to go ahead."""
+        for folder, exe in outputs:
+            shipped = folder / patcher_files.PATCHER_FILES_FOLDER
+            try:
+                installed = [p.name for p in shipped.iterdir()] if shipped.is_dir() else []
+            except OSError:
+                installed = []
+            text = vv_vv2_totem_store.removal_warning(installed, fun_patch_ids, vv_vv2_totem_store.save_folder_of(exe))
+            if text and not messagebox.askyesno("Esteemed Elders' totems", text, icon="warning"):
+                return False
+        return True
+
     def _apply(self) -> None:
         try:
             _validate_public_patch_mode(self._mode())
@@ -2239,6 +2255,8 @@ class App(tk.Tk):
             )
             output_folder = Path(preview["output_folder"])
             overwrite = False
+            if not self._confirm_totems_kept([(output_folder, Path(preview["output_path"]))], fun_patch_ids):
+                return
             if output_folder.exists():
                 overwrite = messagebox.askyesno(
                     "Replace existing copied game folder?",
@@ -2300,6 +2318,9 @@ class App(tk.Tk):
                 output_folder = Path(preview["output_folder"])
                 if output_folder.exists():
                     existing.append(output_folder)
+            if not self._confirm_totems_kept(
+                    [(Path(p["output_folder"]), Path(p["output_path"])) for p in previews], fun_patch_ids):
+                return
             overwrite = False
             if existing:
                 overwrite = messagebox.askyesno(
@@ -3742,6 +3763,14 @@ class App(tk.Tk):
             return
         _regrab(parent)
         self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary}")
+        # The Lost Children: the passed-away Esteemed Elders the totems companion gives a totem at the next
+        # load, when the village's setting is on (src/vv_vv2_totem_store.py write_pending; its own file only).
+        if number == vv_vv2_totem_store.GAME:
+            try:
+                vv_vv2_totem_store.write_pending(folder, info.slot)
+            except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
+                    vv_log_tools.LogToolError, ValueError, OSError):
+                pass                    # the next Check or Repair tries again; nothing else depends on it
         # The reconciliation's report beside the slot's logs (the only file Check Saves & Logs leads to
         # writing, and only the report: src/vv_reconcile.py export).
         if result.reconciliation is not None:
@@ -3825,7 +3854,8 @@ class App(tk.Tk):
         skills: dict = {"found": [], "note": None, "reset": False}
         # The Lost Children's totems (src/vv_vv2_totems.py; the owner, 2026-10-19): the two rows' survey
         # and what the player ticked.
-        totems: dict = {"survey": None, "note": None, "give": False, "fix": False}
+        totems: dict = {"survey": None, "note": None, "give": False, "fix": False, "move": False,
+                        "put_back": False, "auto": False, "in_save": 0, "in_file": 0}
         # A tribe started over with the same name (src/vv_history_revision.py; the owner, v1.35.73): its
         # villagers proven gone, and the rest kept and listed.  Never ticked until the player ticks it and
         # confirms the list.
@@ -3897,6 +3927,20 @@ class App(tk.Tk):
                 except (vv_vv2_totems.TotemError, vv_last_names.LastNamesError, vv_log_tools.LogToolError,
                         ValueError, OSError, struct.error) as exc:
                     totems["note"] = f"Totems were not checked: the save could not be read ({exc})."
+                # ElderTotems.dat (src/vv_vv2_totem_store.py): the statues still in the save, the totems in the
+                # file, and the village's give-automatically setting.
+                try:
+                    totems["in_save"] = len(vv_vv2_totem_store.statues_in_save(
+                        vv_last_names.save_path(folder, number, info.slot).read_bytes()))
+                    stored = vv_vv2_totem_store.read(folder, info.slot)
+                    totems["in_file"] = len(stored.totems) if stored is not None else 0
+                    totems["auto"] = vv_vv2_totem_store.auto_give(folder, info.slot)
+                    # The passed-away elders the companion gives a totem at the next load (its own list).
+                    vv_vv2_totem_store.write_pending(folder, info.slot)
+                except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
+                        vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
+                    totems["note"] = ((totems["note"] + " ") if totems["note"] else "") + (
+                        f"{vv_vv2_totem_store.FILE_NAME} was not checked: a file could not be read ({exc}).")
             return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
                     cuts, unpaused, speed, misnumbered, graves, lost)
 
@@ -3966,7 +4010,7 @@ class App(tk.Tk):
             grave_lines += self._reset_corrupt_skills(parent, folder, number, info)
         # The Lost Children's totems (src/vv_vv2_totems.py), before any rename: the villagers turned into
         # totems first, so a reverted record is never counted as an elder's totem.
-        if totems["fix"] or totems["give"]:
+        if totems["fix"] or totems["give"] or totems.get("move") or totems.get("put_back"):
             grave_lines += self._vv2_totems(parent, folder, number, info, totems)
         # The cut names first of the renames, so last names and numbering never work from a cut name
         # (the checklist leaves those off while the cut names are restored).  After the lines above
@@ -4472,6 +4516,37 @@ class App(tk.Tk):
             for v in totem_survey.certain_villagers[:8]:
                 ttk.Label(frame, text=v.describe(), wraplength=600, justify="left",
                           foreground="#555555").pack(anchor="w", padx=(20, 0))
+        # Esteemed Elders' Totems Use No Villager Records (src/vv_vv2_totem_store.py; the owner, 2026-10-19).
+        move_var = tk.BooleanVar(value=False)
+        put_back_var = tk.BooleanVar(value=False)
+        auto_var = tk.BooleanVar(value=bool(totems.get("auto")))
+        if number == vv_vv2_totems.GAME and totem_survey is not None:
+            move_tick = ttk.Checkbutton(
+                frame, variable=move_var,
+                text=f"{vv_vv2_totem_store.LABEL_MOVE}: {totems.get('in_save', 0)} totem(s) in the save, moved into "
+                     f"{vv_vv2_totem_store.FILE_NAME} so they take no villager record (for a game with "
+                     "\"Esteemed Elders' Totems Use No Villager Records\"; the game without it does not show them)")
+            move_tick.pack(anchor="w", pady=(4, 0))
+            if not totems.get("in_save"):
+                move_tick.state(["disabled"])
+            put_back_tick = ttk.Checkbutton(
+                frame, variable=put_back_var,
+                text=f"{vv_vv2_totem_store.LABEL_PUT_BACK}: {totems.get('in_file', 0)} totem(s) in "
+                     f"{vv_vv2_totem_store.FILE_NAME}, written back into the save as the game keeps a totem, as many "
+                     "as the free villager records allow (do this before removing the patch)")
+            put_back_tick.pack(anchor="w", pady=(4, 0))
+            if not totems.get("in_file"):
+                put_back_tick.state(["disabled"])
+            ttk.Checkbutton(
+                frame, variable=auto_var,
+                text=f"{vv_vv2_totem_store.LABEL_AUTO} (this village): every Esteemed Elder without a totem, living "
+                     "or passed away, is given one automatically, during play (when the village loads and after "
+                     "the game's elder checks); one that may already have a totem is asked about here instead").pack(anchor="w", pady=(4, 0))
+            ttk.Button(frame, text=f"{vv_vv2_totem_store.LABEL_COLOUR}\u2026",
+                       command=lambda: self._totem_colour(window, folder, info)).pack(anchor="w", padx=(20, 0),
+                                                                                     pady=(2, 0))
+            if totems.get("auto"):
+                give_var.set(bool(totem_survey.missing or totem_survey.elder_questions))
         if totems.get("note"):
             ttk.Label(frame, text=totems["note"], wraplength=600, justify="left",
                       foreground="#555555").pack(anchor="w", padx=(20, 0))
@@ -4592,6 +4667,16 @@ class App(tk.Tk):
             skills["reset"] = bool(skills["found"]) and skills_var.get()
             totems["give"] = totem_survey is not None and give_var.get()
             totems["fix"] = totem_survey is not None and fix_var.get()
+            totems["move"] = totem_survey is not None and move_var.get()
+            totems["put_back"] = totem_survey is not None and put_back_var.get()
+            if totem_survey is not None and auto_var.get() != bool(totems.get("auto")):
+                try:
+                    vv_vv2_totem_store.set_auto_give(folder, info.slot, auto_var.get())
+                    totems["auto"] = auto_var.get()
+                    vv_vv2_totem_store.write_pending(folder, info.slot)
+                except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
+                        vv_log_tools.LogToolError, OSError) as exc:
+                    messagebox.showerror("Repair Saves & Logs", f"The setting was not saved ({exc}).", parent=window)
             outcome["picked"] = (rearm_var.get(), {k for k, v in ticks.items() if v.get()}, dict(answers),
                                  names if names_var.get() and (names["chosen"] or names.get("rules_changed")
                                                                or names.get("arrivals_changed"))
@@ -5509,8 +5594,33 @@ class App(tk.Tk):
         listed and done when the player confirms; every unsure one is asked on its own, never guessed.
         Returns the lines for Repair's summary."""
         lines: list[str] = []
-        errors = (vv_vv2_totems.TotemError, vv_last_names.LastNamesError, vv_log_tools.LogToolError,
-                  vv_save_backup.BackupError, OSError)
+        errors = (vv_vv2_totems.TotemError, vv_vv2_totem_store.StoreError, vv_last_names.LastNamesError,
+                  vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError)
+        if totems.get("move") and totems.get("put_back"):
+            messagebox.showerror("Repair Saves & Logs", f"\"{vv_vv2_totem_store.LABEL_MOVE}\" and "
+                                 f"\"{vv_vv2_totem_store.LABEL_PUT_BACK}\" undo each other: neither was done.",
+                                 parent=parent)
+        elif totems.get("move"):
+            try:
+                moved = self._run_with_wait(
+                    "Moving the totems out of the save…\n\nThe save folder is backed up first.",
+                    lambda: vv_vv2_totem_store.move_out(folder, info.slot))
+                lines.append(f"{vv_vv2_totem_store.LABEL_MOVE}: {len(moved.moved)} totem(s) moved into "
+                             f"{vv_vv2_totem_store.FILE_NAME}" + (f", {len(moved.already)} already there" if moved.already
+                                                               else "") + f". Backup: {moved.backup.backup_folder}")
+            except errors as exc:
+                messagebox.showerror("Repair Saves & Logs", f"No totem was moved. {exc}", parent=parent)
+        elif totems.get("put_back"):
+            try:
+                back = self._run_with_wait(
+                    "Putting the totems back into the save…\n\nThe save folder is backed up first.",
+                    lambda: vv_vv2_totem_store.put_back(folder, info.slot))
+                lines.append(f"{vv_vv2_totem_store.LABEL_PUT_BACK}: {back.summary()} Backup: {back.backup.backup_folder}")
+                if back.left:
+                    messagebox.showwarning("Repair Saves & Logs", f"{vv_vv2_totem_store.LABEL_PUT_BACK}: "
+                                           f"{back.summary()}", parent=parent)
+            except errors as exc:
+                messagebox.showerror("Repair Saves & Logs", f"No totem was put back. {exc}", parent=parent)
         if totems.get("fix"):
             try:
                 found = vv_vv2_totems.survey(folder, info.slot)
@@ -5559,7 +5669,8 @@ class App(tk.Tk):
                     f"• {e.label()}: {why}" for e, why in left[:20])
             text += ("\n\nGo ahead? The save folder is backed up first; the Repairs Made log lists each one."
                      if go else "\n\nNothing can be changed now. Write this in the Repairs Made log?")
-            if not messagebox.askyesno("Repair Saves & Logs", text, parent=parent):
+            # With the village's give-automatically setting on, the certain ones go ahead without this question.
+            if not (totems.get("auto") and go) and not messagebox.askyesno("Repair Saves & Logs", text, parent=parent):
                 return lines + [f"{vv_vv2_totems.LABEL_GIVE}: left as it was."]
             try:
                 given = self._run_with_wait(
@@ -5572,6 +5683,91 @@ class App(tk.Tk):
                          "elder(s) could not be given one (each is listed in the Repairs Made log)."
                          + (f" Backup: {given.backup.backup_folder}" if given.backup is not None else ""))
         return lines
+
+    def _totems_png(self) -> Path | None:
+        """The game's own totems.png (eight 40 x 100 faces): from The Lost Children's original folder, the
+        executable chosen, or the last copy made."""
+        places = []
+        var = getattr(self, "all_folder_vars", {}).get("vv2")
+        if var is not None and var.get().strip():
+            places.append(Path(var.get().strip()))
+        exe = self.exe_var.get().strip() if hasattr(self, "exe_var") else ""
+        if exe:
+            places.append(Path(exe).parent)
+        if self.last_modified_paths.get("vv2"):
+            places.append(Path(self.last_modified_paths["vv2"]).parent)
+        return vv_vv2_totem_store.find_totems_png(places)
+
+    def _totem_colour(self, parent, folder: Path, info) -> None:
+        """Change Totem Colour: tick one totem or several (Select All, Select None), then one of the eight
+        faces of the game's own totems.png -- every ticked totem takes it, in one go.  Done at once, with
+        the game closed: backed up first, one Repairs Made record listing each totem's old and new colour."""
+        try:
+            found = vv_vv2_totem_store.list_totems(folder, info.slot)
+        except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
+                vv_log_tools.LogToolError, OSError) as exc:
+            messagebox.showerror(vv_vv2_totem_store.LABEL_COLOUR, f"The totems could not be read ({exc}).", parent=parent)
+            return
+        if not found:
+            messagebox.showinfo(vv_vv2_totem_store.LABEL_COLOUR, "This save has no Esteemed Elder's totem.", parent=parent)
+            return
+        window = tk.Toplevel(parent)
+        window.title(vv_vv2_totem_store.LABEL_COLOUR)
+        window.transient(parent)
+        frame = scrollable_frame(window, padding=12)
+        ttk.Label(frame, text="Tick the totems to recolour (one, several or all):").pack(anchor="w")
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(4, 4))
+        ticks = [tk.BooleanVar(value=len(found) == 1) for _t in found]
+        ttk.Button(buttons, text="Select All", command=lambda: [v.set(True) for v in ticks]).pack(side="left")
+        ttk.Button(buttons, text="Select None",
+                   command=lambda: [v.set(False) for v in ticks]).pack(side="left", padx=(6, 0))
+        for t, var in zip(found, ticks, strict=True):
+            ttk.Checkbutton(frame, variable=var, text=t.label()).pack(anchor="w")
+        ttk.Label(frame, text="Their colour (the game's own totems):").pack(anchor="w", pady=(8, 2))
+        faces = ttk.Frame(frame)
+        faces.pack(anchor="w")
+        png = self._totems_png()
+        sheet = None
+        if png is not None:
+            try:
+                sheet = tk.PhotoImage(file=str(png))
+            except tk.TclError:
+                sheet = None
+        window._totem_faces = []
+
+        def pick(face: int) -> None:
+            keys = [t.key for t, var in zip(found, ticks, strict=True) if var.get()]
+            if not keys:
+                messagebox.showinfo(vv_vv2_totem_store.LABEL_COLOUR, "No totem is ticked, so nothing was changed.",
+                                    parent=window)
+                return
+            try:
+                result = self._run_with_wait(
+                    "Changing the totems' colour…\n\nThe save folder is backed up first.",
+                    lambda: vv_vv2_totem_store.change_colours(folder, info.slot, keys, face))
+            except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
+                    vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
+                messagebox.showerror(vv_vv2_totem_store.LABEL_COLOUR, str(exc), parent=window)
+                return
+            messagebox.showinfo(vv_vv2_totem_store.LABEL_COLOUR,
+                                f"{len(result.changed)} totem(s) now {vv_vv2_totems.face(face)} (each is listed in "
+                                "the Repairs Made log).", parent=window)
+            window.destroy()
+
+        for face in range(8):
+            if sheet is not None:
+                image = tk.PhotoImage(width=40, height=100)
+                image.tk.call(image, "copy", sheet, "-from", face * 40, 0, face * 40 + 40, 100)
+                window._totem_faces.append(image)
+                ttk.Button(faces, image=image, command=lambda f=face: pick(f)).grid(row=0, column=face, padx=2)
+            else:
+                ttk.Button(faces, text=vv_vv2_totems.FACES[face], width=14,
+                           command=lambda f=face: pick(f)).grid(row=face // 4, column=face % 4, padx=2, pady=2)
+        if sheet is None:
+            ttk.Label(frame, text="The game's totems.png was not found (choose The Lost Children's original folder "
+                                  "in the patcher to see the totems themselves).", wraplength=420,
+                      foreground="#555555").pack(anchor="w", pady=(6, 0))
 
     def _restore_lost_titles(self, parent, folder: Path, number: int, info, lost) -> list[str]:
         """Repair Saves & Logs: the custom titles (and former-Heathen marks) a change of likes or
