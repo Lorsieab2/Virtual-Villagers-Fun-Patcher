@@ -126,6 +126,13 @@ VV2_CONSTRUCTION = {0x45FF0B, 0x45FF38, 0x45FF65, 0x4600A7, 0x460171, 0x4601A9, 
                     0x45FEF2, 0x45FF1F, 0x45FF4C, 0x45FF79, 0x45FFA6, 0x460036, 0x45FECD, 0x45FFD3, 0x45FFF4,
                     0x460015}
 ROLL_PASS, ROLL_FAIL = 1, 2
+# The villager's job checkmark (the skill preference on the Details screen):
+# its field and the Building value (vvfp_fix_huts.c, "Not checked on the job").
+# Every case here is a builder CHECKED on Building unless it says otherwise:
+# for one not checked on it, the companion acts only on 14 in 100 of its
+# decisions (NotCheckedOnBuildingTests below).
+PREFERENCE = {"vv1": (0x3D8, 0x3D0, 4), "vv2": (0xE48C, 0x7F8, 5)}
+NO_CHECKMARK = 0
 
 
 class Run:
@@ -134,12 +141,18 @@ class Run:
 
     def __init__(self, game: str, stub: int, level: int, huts: tuple[int, int, int], roll: int = 50,
                  population: int = 10, projects: dict[int, tuple[int, int]] | None = None,
-                 hut_call: bytes | None = None, force: int = ROLL_PASS):
+                 hut_call: bytes | None = None, force: int = ROLL_PASS, checked: bool = True,
+                 preference_force: int = 0):
         g = G[game]
         mu, ex = _emulator()
         # The decision's roll (VvfpFixHutsRollTest: force, draws), forced.
         mu.mem_write(ex["VvfpFixHutsRollTest"], struct.pack("<ii", force, 0))
         self.draws_at = ex["VvfpFixHutsRollTest"] + 4
+        # The 14% roll for a villager not checked on Building (0: the real roll).
+        mu.mem_write(ex["VvfpFixHutsPreferenceRollTest"], struct.pack("<ii", preference_force, 0))
+        self.preference_draws_at = ex["VvfpFixHutsPreferenceRollTest"] + 4
+        stride, field, building = PREFERENCE[game]
+        mu.mem_write(VILLAGE + INDEX * stride + field, struct.pack("<i", building if checked else NO_CHECKMARK))
         mu.mem_write(VILLAGE + g["state_ptr"], struct.pack("<I", STATE))
         mu.mem_write(STATE + g["level"], struct.pack("<i", level))
         for off, done in zip(g["huts"], huts):
@@ -231,6 +244,9 @@ class Run:
 
     def draws(self) -> int:
         return struct.unpack("<i", self.mu.mem_read(self.draws_at, 4))[0]
+
+    def preference_draws(self) -> int:
+        return struct.unpack("<i", self.mu.mem_read(self.preference_draws_at, 4))[0]
 
 
 class LevelGateTests(unittest.TestCase):
@@ -486,6 +502,57 @@ class NewHomeNothingTests(unittest.TestCase):
         self.assertEqual(r.rolled, [100])
         r = Run("vv1", self.stub, level=3, huts=(1, 1, 1), roll=21)
         self.assertEqual(r.exit, G["vv1"]["hut_pick"], "the stock rand(3) hut pick")
+
+
+class NotCheckedOnBuildingTests(unittest.TestCase):
+    """The owner (2026-10-20): a villager not checked on Building does what
+    this companion makes builders do only 14 times in 100.  Checked: no extra
+    roll, the behaviour above.  Not checked: one more roll after the
+    decision's; when it fails each stub runs exactly the stock code, when it
+    passes the villager is treated as a checked builder."""
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_a_checked_builder_draws_no_preference_roll(self):
+        for game, g in G.items():
+            stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
+            with self.subTest(game=game):
+                r = Run(game, stub, level=2, huts=(1, 0, 0))
+                self.assertEqual(r.preference_draws(), 0)
+                self.assertEqual(r.exit, g["started"])
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_not_checked_and_the_14_percent_roll_fails_the_level_gate_is_stock(self):
+        for game, g in G.items():
+            stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
+            for huts in ((1, 0, 0), (1, 1, 1), (0, 1, 0)):
+                with self.subTest(game=game, huts=huts):
+                    r = Run(game, stub, level=2, huts=huts, population=30, checked=False, preference_force=ROLL_FAIL)
+                    self.assertIsNone(r.examined)
+                    self.assertEqual(r.rolled, [])
+                    self.assertEqual(r.preference_draws(), 1)
+                    self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before)
+                    self.assertEqual(r.exit, g["level_stock"] if game == "vv1" else g["nothing"])
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_not_checked_and_the_14_percent_roll_fails_the_hut_site_is_stock(self):
+        for game, g in G.items():
+            stub = _probe("VvfpFixHutsProbeSite", g["no"])[4]
+            with self.subTest(game=game):
+                r = Run(game, stub, level=3, huts=(1, 0, 0), roll=37, checked=False, preference_force=ROLL_FAIL)
+                self.assertEqual(r.rolled, [100], "the displaced skip roll")
+                self.assertEqual(r.exit, g["hut_resume"])
+                self.assertEqual(r.reg(UC_X86_REG_ESP), r.esp_before)
+                self.assertIsNone(r.examined)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_not_checked_and_the_14_percent_roll_passes_acts_as_a_checked_builder(self):
+        for game, g in G.items():
+            stub = _probe("VvfpFixHutsProbeLevelSite", g["no"])[4]
+            with self.subTest(game=game):
+                r = Run(game, stub, level=2, huts=(1, 0, 0), checked=False, preference_force=ROLL_PASS)
+                self.assertEqual(r.examined, (INDEX, g["first_hut"]))
+                self.assertEqual(r.exit, g["started"])
+                self.assertEqual(r.preference_draws(), 1)
 
 
 class RollFailedTests(unittest.TestCase):

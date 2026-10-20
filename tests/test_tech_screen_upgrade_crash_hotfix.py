@@ -239,11 +239,16 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                     offsets,
                     f"{site} is decided by statue state in stock and must stay unhooked",
                 )
+        # The selector's body grew with the owner's 14% rule (2026-10-20: the
+        # task continuation's pick is gated by the villager's own checkmark),
+        # so 0x94840 is now only a jump to its body in the free code at
+        # 0x94D30 -- the same selector, at a new address, not a new hook of
+        # any game site.
         self.assertEqual(
             offsets,
-            {"0x6BF9A", "0x796EB", "0x94460", "0x94840"},
+            {"0x6BF9A", "0x796EB", "0x94460", "0x94840", "0x94D30"},
             "only the two completed-statue dispatches, the trampoline and the "
-            "selector may be patched",
+            "selector (entry and body) may be patched",
         )
         adapter = bytes.fromhex("8B8E881B0000")
         for item in feature["patches"]:
@@ -286,24 +291,45 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
         selector = next(
             item for item in feature["patches"] if item["offset"] == "0x94840"
         )
-        body = bytes.fromhex(selector["after"])
-        call = body.index(0xE8)
-        self.assertIn(
-            0x51,
-            body[:call],
-            "ECX must be pushed before the random call",
-        )
-        after_call = body[call + 5 :]
-        self.assertIn(
-            0x59,
-            after_call[: after_call.index(0x85)],
-            "ECX must be popped after the random call, before the result test",
-        )
         self.assertEqual(
             len(selector["after"]),
             len(selector["before"]),
             "the selector must not change the patch length",
         )
+        # The selector's entry is a jump to its body (the 14% rule made the
+        # body too long for 0x94840; see the test above).  Follow it: the
+        # guarantee is about the code that runs, wherever it sits.
+        import capstone
+
+        cs = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        patches = {int(item["offset"], 16): bytes.fromhex(item["after"]) for item in feature["patches"]}
+        entry = next(cs.disasm(patches[0x94840], 0x494840))
+        self.assertEqual(entry.mnemonic, "jmp", "the selector's entry jumps to its body")
+        target = int(entry.op_str, 16)
+        self.assertIn(target - 0x400000, patches, "the body is one of this feature's own patches")
+        code = list(cs.disasm(patches[target - 0x400000], target))
+        randoms = [k for k, ins in enumerate(code) if ins.mnemonic == "call" and ins.op_str == "0x403660"]
+        self.assertTrue(randoms, "the selector still draws its pick from the game's random function")
+        for k in randoms:
+            with self.subTest(call=hex(code[k].address)):
+                # push ecx; push <n>; call rand; pop ecx (the argument); pop ecx (restored)
+                self.assertEqual((code[k - 2].mnemonic, code[k - 2].op_str), ("push", "ecx"),
+                                 "ECX must be pushed before the random call")
+                self.assertEqual((code[k + 1].mnemonic, code[k + 1].op_str), ("pop", "ecx"))
+                self.assertEqual((code[k + 2].mnemonic, code[k + 2].op_str), ("pop", "ecx"),
+                                 "ECX must be popped right after the random call")
+        pops = {k + 1 for k in randoms} | {k + 2 for k in randoms}
+        for k, ins in enumerate(code):
+            if k in pops:
+                continue
+            with self.subTest(instruction=f"{ins.address:#x} {ins.mnemonic} {ins.op_str}"):
+                # Nothing else in the body may write ECX: the caller's ECX
+                # (0x796EB writes through it next) reaches it unchanged.
+                self.assertFalse(
+                    ins.mnemonic in ("mov", "lea", "pop", "xor", "add", "sub", "imul", "xchg", "movzx", "inc", "dec")
+                    and ins.op_str.split(",")[0].strip() in ("ecx", "cx", "cl", "ch"),
+                    "only the saved ECX may be written back",
+                )
 
 
 if __name__ == "__main__":
