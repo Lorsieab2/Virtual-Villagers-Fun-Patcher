@@ -55,6 +55,8 @@ FILES = [
     "assets/fix_huts/VVFP Fix Huts.dll",
     "assets/lesson_cap/VVFP Lesson Cap.dll",
     "assets/chief_hospital/VVFP VV3 Chief Hospital.dll",
+    "assets/easier_healing/VVFP VV1 Easier Healing.dll",
+    "assets/research_at_max/VVFP VV1 Research At Max.dll",
     "assets/healers_study/VVFP Healers Study.dll",
     "assets/work_first/VVFP Work First.dll",
     "assets/golden_mushroom/VVFP Golden Mushroom.dll",

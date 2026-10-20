@@ -3771,7 +3771,10 @@ class StockIntegrationTests(unittest.TestCase):
             bytes(rendered[0x94460:0x944C0]),
             "no call site needs a villager pointer once the skill reads are gone",
         )
-        selector = bytes(rendered[0x94840 : 0x94840 + 66])
+        # 0x94840 now only jumps to the full selector at 0x94D30.
+        self.assertEqual(bytes(rendered[0x94840 : 0x94840 + 66]),
+                         bytes.fromhex("E9EB040000") + b"\x90" * 61)
+        selector = bytes(rendered[0x94D30 : 0x94D30 + 101])
         for field in (0x1C70, 0x1C54):
             with self.subTest(field=hex(field)):
                 self.assertNotIn(
@@ -3781,14 +3784,17 @@ class StockIntegrationTests(unittest.TestCase):
                 )
         # It reads one villager field, the job checkmark (+0x1C74), and only
         # for the task continuation's call (return 0x46BF9F), where ecx is the
-        # villager's record: a villager not checked on Devotion keeps Honoring
-        # only when a second rand(100) is below 14 (the owner, 2026-10-20).
+        # villager's record: the 50/50 pick is kept for a villager checked on
+        # its skill (Honoring: Devotion 5, Polishing: Building 4), for anyone
+        # else only when a second rand(100) is below 14, else neither
+        # (0x46BCF0 returns al = 0) -- the owner, 2026-10-20.
         self.assertEqual(
             selector,
             bytes.fromhex(
-                "516A02E818EEF6FF595985C07521813C249FBF4600751F83B9741C000005"
-                "7416516A64E8F8EDF6FF595983F80E7207B89D000000EB05B8A00000005A"
-                "5052C3909090"
+                "516A02E828E9F6FF5959813C249FBF4600753185C0750B83B9741C000005"
+                "7428EB0B83B9741C0000047424B00150516A64E8FAE8F6FF595983F80E58"
+                "731A84C0750DEB0485C07507B8A0000000EB05B89D0000005A5052C383C4"
+                "085F5B5E30C05D83C42CC3"
             ),
         )
         # Both outcomes must be reachable. An earlier draft had the equal
@@ -3893,7 +3899,10 @@ class StockIntegrationTests(unittest.TestCase):
             bytes(rendered[0x94460:0x944C0]),
             "no call site needs a villager pointer once the skill reads are gone",
         )
-        selector = bytes(rendered[0x94840 : 0x94840 + 66])
+        # 0x94840 now only jumps to the full selector at 0x94D30.
+        self.assertEqual(bytes(rendered[0x94840 : 0x94840 + 66]),
+                         bytes.fromhex("E9EB040000") + b"\x90" * 61)
+        selector = bytes(rendered[0x94D30 : 0x94D30 + 101])
         for field in (0x1C70, 0x1C54):
             with self.subTest(field=hex(field)):
                 self.assertNotIn(
@@ -3903,14 +3912,17 @@ class StockIntegrationTests(unittest.TestCase):
                 )
         # It reads one villager field, the job checkmark (+0x1C74), and only
         # for the task continuation's call (return 0x46BF9F), where ecx is the
-        # villager's record: a villager not checked on Devotion keeps Honoring
-        # only when a second rand(100) is below 14 (the owner, 2026-10-20).
+        # villager's record: the 50/50 pick is kept for a villager checked on
+        # its skill (Honoring: Devotion 5, Polishing: Building 4), for anyone
+        # else only when a second rand(100) is below 14, else neither
+        # (0x46BCF0 returns al = 0) -- the owner, 2026-10-20.
         self.assertEqual(
             selector,
             bytes.fromhex(
-                "516A02E818EEF6FF595985C07521813C249FBF4600751F83B9741C000005"
-                "7416516A64E8F8EDF6FF595983F80E7207B89D000000EB05B8A00000005A"
-                "5052C3909090"
+                "516A02E828E9F6FF5959813C249FBF4600753185C0750B83B9741C000005"
+                "7428EB0B83B9741C0000047424B00150516A64E8FAE8F6FF595983F80E58"
+                "731A84C0750DEB0485C07507B8A0000000EB05B89D0000005A5052C383C4"
+                "085F5B5E30C05D83C42CC3"
             ),
         )
         # Both outcomes must be reachable. An earlier draft had the equal

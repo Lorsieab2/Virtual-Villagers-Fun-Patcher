@@ -1,0 +1,5 @@
+LIBRARY "VVFP VV1 Research At Max.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpVv1ResearchAtMaxProbe=_VvfpVv1ResearchAtMaxProbe@16
+    VvfpVv1ResearchAtMaxRollTest DATA

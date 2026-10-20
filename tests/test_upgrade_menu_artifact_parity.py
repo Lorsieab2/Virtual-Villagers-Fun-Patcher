@@ -422,10 +422,10 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # digest for the current companion source as rebuilt on the
         # Equal Division of Labor branch. Larger again when the skill
         # upgrades learned to reset corrupted skill values (v1.35.70).
-        self.assertEqual(vv5_companion["size"], 1863168)
+        self.assertEqual(vv5_companion["size"], 1863680)
         self.assertEqual(
             vv5_companion["sha256"],
-            "09BB249B17D8EB4487160EBFBC7ACC8733D6496C071914D0FEE28989339B70CE",
+            "8FB39CFD70529670F56194761BE7F993DF4B1E7EDB320243F0AB56D105510F52",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

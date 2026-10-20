@@ -34,6 +34,8 @@
    the stock game. */
 #include <windows.h>
 #include <string.h>
+#include <stdint.h>
+#include <intrin.h>
 
 #define SITE_VA          0x43B1E6u
 #define SITE_LENGTH      12
@@ -94,6 +96,149 @@ static __declspec(naked) void watering_stub(void) {
     }
 }
 
+/* ---- Not checked on Building: 14% of the waterings --------------------------
+   The owner (2026-10-20): with this patch, watering the field trains
+   Building, so a villager whose job checkmark (the skill preference on the
+   Villager Details screen, record +0x3D0) is not Building (4) -- another job,
+   or none (0) -- waters the field only on 14 of every 100 of the times the
+   game would send them to it; a villager checked on Building waters exactly
+   as before.  A player's own drop on the field is never restricted.
+
+   The game sends a villager to water the field from one place: the Building
+   dispatcher's (0x4472C0, case 4) garden block 0x447635, reached in live play
+   and in catch-up alike (and by Builders Fix Huts When Idle's build-first
+   jump, which enters the same block):
+
+       0x447635  mov eax, [esi+0x3E010]; cmp [eax+0x9FC0], bl; je 0x44765E
+                 (garden restored); mov ecx, [eax+0x9FBC]; test; jle 0x44765E
+                 (no progress yet); push ebp; mov ecx, esi; call 0x43FC20
+                 ("Watering the field").
+
+   The two other callers of 0x43FC20 (0x4244A0, 0x424BAE) are the player's
+   drops and are left alone.  The gate replaces the block's first twelve
+   bytes: the same two tests, then, for a villager not checked on Building,
+   one roll of this companion's own (never the game's random numbers) that
+   passes 14 times in 100.  A failed roll continues exactly where the stock
+   block goes when the garden is not available, 0x44765E -- the Building
+   branch's next choice, with watering excluded -- so the villager is given
+   whatever else the game would give them.  esi = the villager array, ebp =
+   the villager's index, bl = 1. */
+#define NOT_PREFERRED_PERCENT 14u
+#define GATE_VA          0x447635u
+#define GATE_LENGTH      12
+#define WATER_VA         0x44764Du     /* push ebp; mov ecx, esi; call 0x43FC20 */
+#define NEXT_VA          0x44765Eu     /* the branch's next choice */
+#define PREFERENCE       0x3D0u
+#define BUILDING         4
+
+static const unsigned char GATE_STOCK[GATE_LENGTH] = {
+    0x8B, 0x86, 0x10, 0xE0, 0x03, 0x00,        /* mov eax, [esi+0x3E010] */
+    0x38, 0x98, 0xC0, 0x9F, 0x00, 0x00          /* cmp [eax+0x9FC0], bl */
+};
+
+static unsigned int roll_state;
+
+#ifdef VVFP_TEST
+/* force: 0 = the real roll, 1 = pass, 2 = fail; draws: rolls drawn. */
+struct vv1_watering_roll_test { int force; int draws; };
+__declspec(dllexport) struct vv1_watering_roll_test VvfpVv1WateringRollTest = { 0, 0 };
+#endif
+
+static int preference_roll(void) {
+    unsigned int x = roll_state;
+    if (x == 0) {
+        x = (unsigned int)__rdtsc() ^ 0xC2B2AE35u;
+        if (x == 0) x = 0xC2B2AE35u;
+    }
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    roll_state = x;
+#ifdef VVFP_TEST
+    ++VvfpVv1WateringRollTest.draws;
+    if (VvfpVv1WateringRollTest.force == 1) return 1;
+    if (VvfpVv1WateringRollTest.force == 2) return 0;
+#endif
+    return x % 100u < NOT_PREFERRED_PERCENT;
+}
+
+static int __cdecl watering_allowed(const unsigned char *village, unsigned int index) {
+    if (*(const int *)(village + index * 0x3D8u + PREFERENCE) == BUILDING) {
+        return 1;
+    }
+    return preference_roll();
+}
+
+static const unsigned int water_va = WATER_VA, next_va = NEXT_VA;
+static __declspec(naked) void gate_stub(void) {
+    __asm {
+        mov eax, dword ptr [esi + 0x3E010]      ; the stock tests
+        cmp byte ptr [eax + 0x9FC0], bl
+        je next
+        mov ecx, dword ptr [eax + 0x9FBC]
+        test ecx, ecx
+        jle next
+        pushad
+        push ebp                                ; the villager's index
+        push esi
+        call watering_allowed
+        add esp, 8
+        mov dword ptr [esp + 0x1C], eax         ; pushad's eax slot
+        popad
+        test eax, eax
+        mov eax, dword ptr [esi + 0x3E010]      ; eax as the stock block leaves it
+        jz next
+        jmp dword ptr [water_va]
+    next:
+        jmp dword ptr [next_va]
+    }
+}
+
+static int code_is(unsigned int va, const unsigned char *bytes, int length) {
+    MEMORY_BASIC_INFORMATION info;
+    const void *at = (const void *)(uintptr_t)va;
+    if (VirtualQuery(at, &info, sizeof(info)) != sizeof(info)
+        || info.State != MEM_COMMIT
+        || !(info.Protect & (PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY))) {
+        return 0;
+    }
+    return memcmp(at, bytes, (size_t)length) == 0;
+}
+
+static void gate_bytes(unsigned char *out) {
+    unsigned int rel = (unsigned int)((const unsigned char *)gate_stub
+                                      - ((const unsigned char *)(uintptr_t)GATE_VA + 5));
+    int i;
+    out[0] = 0xE9;
+    memcpy(out + 1, &rel, 4);
+    for (i = 5; i < GATE_LENGTH; ++i) {
+        out[i] = 0x90;
+    }
+}
+
+static int gate_state;   /* 0 untried, 1 installed, -1 refused */
+
+static void install_gate(void) {
+    unsigned char bytes[GATE_LENGTH];
+    unsigned char *at = (unsigned char *)(uintptr_t)GATE_VA;
+    DWORD old;
+    if (gate_state != 0) {
+        return;
+    }
+    gate_state = -1;
+    if (!code_is(GATE_VA, GATE_STOCK, GATE_LENGTH)) {
+        return;
+    }
+    gate_bytes(bytes);
+    if (!VirtualProtect(at, GATE_LENGTH, PAGE_EXECUTE_READWRITE, &old)) {
+        return;
+    }
+    memcpy(at, bytes, GATE_LENGTH);
+    VirtualProtect(at, GATE_LENGTH, old, &old);
+    FlushInstructionCache(GetCurrentProcess(), at, GATE_LENGTH);
+    gate_state = 1;
+}
+
 static int site_is_stock(void) {
     MEMORY_BASIC_INFORMATION info;
     const void *site = (const void *)(uintptr_t)SITE_VA;
@@ -125,6 +270,7 @@ __declspec(dllexport) int __stdcall VvfpVv1WateringBuildsInstall(void) {
     unsigned char bytes[SITE_LENGTH];
     unsigned char *site = (unsigned char *)(uintptr_t)SITE_VA;
     DWORD old;
+    install_gate();                     /* its own state; independent of the site */
     if (install_state != 0) {
         return install_state == 1;
     }
@@ -155,6 +301,18 @@ __declspec(dllexport) int __stdcall VvfpVv1WateringBuildsProbe(unsigned int *sit
     site_bytes(patched);
     *stub_va = (unsigned int)(uintptr_t)watering_stub;
     return SITE_LENGTH;
+}
+
+/* For the test build only: the not-checked-on-Building gate, the same way. */
+__declspec(dllexport) int __stdcall VvfpVv1WateringGateProbe(unsigned int *site_va,
+                                                              unsigned char *stock,
+                                                              unsigned char *patched,
+                                                              unsigned int *stub_va) {
+    *site_va = GATE_VA;
+    memcpy(stock, GATE_STOCK, GATE_LENGTH);
+    gate_bytes(patched);
+    *stub_va = (unsigned int)(uintptr_t)gate_stub;
+    return GATE_LENGTH;
 }
 #endif /* VVFP_TEST */
 

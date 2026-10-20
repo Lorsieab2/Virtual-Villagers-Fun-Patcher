@@ -102,7 +102,7 @@ FOUNDATION_OUTPUT = (
 # Recertified for one folder per save (native/shared/per_save.h, the owner, 2026-10-17): the mask
 # file, the Log Checks approval, the Last Names files and the Repairs Made log go in the save's own
 # "Virtual Villagers Fun Patcher\Save <S>\" unless still in the older layout's folders.
-SOURCE_SHA256 = "AD9C5B6095D73D115C607D9F3CC8B3B57270176EDCA707066C8D1EC1CD45AE9A"
+SOURCE_SHA256 = "0282F9368CC3B4585B3022BF8FE552327391B07F56629CBD8203B042862E4CE8"
 SOURCE_SIZE = 1991168
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

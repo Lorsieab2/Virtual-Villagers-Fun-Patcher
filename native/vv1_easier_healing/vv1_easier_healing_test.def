@@ -1,0 +1,5 @@
+LIBRARY "VVFP VV1 Easier Healing.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpVv1EasierHealingProbe=_VvfpVv1EasierHealingProbe@16
+    VvfpVv1EasierHealingRollTest DATA

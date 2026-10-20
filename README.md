@@ -369,7 +369,7 @@ Villagers whose selected job is Building are more likely to try the stock constr
 
 **Continue Research at Max Technologies**
 
-Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.
+Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3. A villager not checked on Research (any other job, or none) does so only 14% of the times the game gives them research work; otherwise the game goes on to its own next choice. The 14% roll lives in "VVFP VV1 Research At Max.dll", started by VVFP Startup.dll; if it cannot be loaded, every researcher continues as before.
 
 - Patch ID: `vv1_continue_research_at_max_technologies`
 
@@ -406,7 +406,7 @@ Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck
 
 **Watering the Field Trains Building**
 
-"Watering the field" now gives Building skill, but only when it makes progress towards the garden puzzle (after the lagoon puzzle is complete). Each watering that advances the garden ends with one ordinary Building practice roll, exactly like every other Building job; once the garden is restored, watering gives nothing extra. "Watering crops" and "Trying to water strange patch" are unchanged. No executable bytes change: the Origins companion loads "VVFP VV1 Watering Builds.dll", which installs its hook only after verifying the stock bytes. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock game runs unchanged.
+"Watering the field" now gives Building skill, but only when it makes progress towards the garden puzzle (after the lagoon puzzle is complete). Each watering that advances the garden ends with one ordinary Building practice roll, exactly like every other Building job; once the garden is restored, watering gives nothing extra. Because watering now trains Building, a villager whose job checkmark is not Building (any other job, or none) waters the field only 14% of the times the game would send them to it; otherwise the game gives them its next choice of work instead. Villagers checked on Building water exactly as before, and your own drop on the field is never restricted. "Watering crops" and "Trying to water strange patch" are unchanged. No executable bytes change: the Origins companion loads "VVFP VV1 Watering Builds.dll", which installs its hook only after verifying the stock bytes. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock game runs unchanged.
 
 - Patch ID: `vv1_watering_trains_building`
 
@@ -448,7 +448,7 @@ Each child who finishes the Going to school activity still gains 7 to 9 points i
 
 **Easier Healing Mastery**
 
-Healers and villagers who prefer Healing study the Medical Cactus whenever the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). Without this patch only a villager you dropped on the cactus does that. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.**
+Healers and villagers who prefer Healing study the Medical Cactus whenever the game gives them healing work and no sick villager needs treatment, including during catch-up (the time that passes while the game is closed, and Time Warp). A villager not checked on Healing (any other job, or none) studies there only 14% of the time; otherwise, as in the normal game, there is nothing to do. Without this patch only a villager you dropped on the cactus does that, and such a villager always studies. The study and its Healing practice are the game's own. **Needs no other patch. With Builders and Healers Work First also selected, healers are given healing work more often, so they study more.** The 14% roll lives in "VVFP VV1 Easier Healing.dll", started by VVFP Startup.dll; if it cannot be loaded, every villager studies as before.
 
 - Patch ID: `vv1_easier_healing_mastery`
 
@@ -1081,7 +1081,7 @@ When a Devotee dies and is buried, the epitaph New Believers writes on the grave
 
 **Statue Drops: Normal Action or Honoring**
 
-Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour. When a villager later carries that statue job on by themselves, one not checked on Devotion (any other job, or none) gets Honoring only 14% of the times the 50/50 would give it, and polishes otherwise; your own drop is never restricted.
+Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour. When a villager later carries that statue job on by themselves (the game's own choice), the 50/50 pick is kept only for a villager checked on its skill -- Honoring on Devotion, Polishing on Building -- and for anyone else 14% of the time; otherwise they do neither and the game gives them something else to do. Your own drop is never restricted.
 
 - Patch ID: `vv5_statue_polishing_or_honoring`
 
