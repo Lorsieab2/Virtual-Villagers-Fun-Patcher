@@ -605,7 +605,8 @@ class VillageOptionTests(unittest.TestCase):
                     p.put32(w + 0xA2F4, 10)
                     p.put32(w + 0xA2F8, 5)
                     story.apply(Event(refill=1))
-                    self.assertEqual(p.u32(w + 0xA2F4), 1900)
+                    # The game's own ceiling, 5000 -- not a new village's 1900 (the owner, 2026-10-14).
+                    self.assertEqual(p.u32(w + 0xA2F4), 5000)
                     self.assertEqual(p.u32(w + 0xA2F8), 5, "no crops before the farm produces")
                     p.put32(w + 0xA2E4, 2)
                     story.apply(Event(refill=1))
@@ -625,7 +626,7 @@ class VillageOptionTests(unittest.TestCase):
                         p.write(w + 0x2E7E8 - 8, b"\0" * 16)
                         story.apply(Event(refill=1))
                         self.assertEqual(p.u32(w + 0x2EACC), 1500)
-                        self.assertEqual(p.u32(w + 0x2EAD0), start, "the fish: the difficulty's start")
+                        self.assertEqual(p.u32(w + 0x2EAD0), 3, "the fish are not refilled (the owner, 2026-10-14)")
                         self.assertEqual(p.u32(w + 0x2EAD4), 1000)
                         self.assertEqual(p.u32(w + 0x2EAD8), 7, "no crops while the farm is not planted")
                         p.write(w + 0x2E798, b"\1")
