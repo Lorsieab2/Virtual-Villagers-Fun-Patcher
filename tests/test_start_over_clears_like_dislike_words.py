@@ -41,12 +41,16 @@ CL = pathlib.Path(
 EVERY_GAME = (
     "A DELETED LOG'S BOUNDARY IS GONE (save's own file and the older shared one)",
     "a deleted shared log's boundary is gone from both shared files",
-    "the save's own file keeps its kept Village History line, byte for byte",
+    # Start Over wipes the whole save (the owner, v1.35.79): the Village History and the save's own
+    # words file go too.
+    "THE VILLAGE HISTORY IS DELETED TOO (v1.35.79)",
+    "...and save 2's and another village's logs are kept",
+    "the save's own words file goes with the save's folder",
+    "the deleted Village History's boundary is gone, from the shared file too",
     "ANOTHER SAVE'S BOUNDARY STAYS, byte for byte",
     "another save's boundary file is not rewritten at all",
     "the shared file keeps another village's line, byte for byte",
     "the older Log Words file keeps another village's line, byte for byte",
-    "the kept Village History's boundary still counts",
     "no .tmp is left beside the rewritten file",
     "A NEW LOG REUSING THE NAME DOES NOT INHERIT THE OLD BOUNDARY (boundary 0)",
     # one writer at a time (Codex, #597): an append made during the reset waits and is kept
@@ -56,7 +60,7 @@ EVERY_GAME = (
     # ...and the wait is bounded: the file is left as it was
     "with the lock held elsewhere the log is still deleted",
     "A LOCK NOT HAD IN TIME LEAVES THE BOUNDARY FILE UNTOUCHED",
-    "...and the refusal is counted",
+    "...and the refusals are counted",
     "the reset waited the bounded time, no longer",
 )
 # A New Home and The Secret City are the two games whose words are tracked (log_words.h).

@@ -234,6 +234,9 @@ def run_vv2(seed, level=3, huts=((24, 1), (0, 0), (0, 0)), projects=None, popula
     def setup(mu):
         mu.mem_write(VILLAGE + 0xE574D4, struct.pack("<I", STATE))
         mu.mem_write(VILLAGE + INDEX * 0xE48C + 0x7E0, struct.pack("<i", task))
+        # A builder checked on Building ([record+0x7F8] = 5): the owner's 14%
+        # rule (2026-10-20) leaves such a villager's decisions unchanged.
+        mu.mem_write(VILLAGE + INDEX * 0xE48C + 0x7F8, struct.pack("<i", 5))
         for pid in range(1, 32):
             prog, done = projects.get(pid, (0, 1))
             if pid in (24, 25, 26):
@@ -481,7 +484,9 @@ V3 = dict(state=0x432210, done=0x4321F0, pstate=0x4358F0, pdone=0x4358D0, rand=0
 
 def run_vv3(seed, huts_built=(0,), huts_open=(), projects_open=(), companion_missing=False, roll=1):
     def setup(mu):
-        pass
+        # A builder checked on Building ([record+0xEC0] = 4): the owner's 14%
+        # rule (2026-10-20) leaves such a villager's decisions unchanged.
+        mu.mem_write(VILLAGE + 0xEC0, struct.pack("<i", 4))
 
     leaves = {
         V3["state"]: Leaf(1, lambda mu, a, c: 2 if a[0] in huts_open else 0),

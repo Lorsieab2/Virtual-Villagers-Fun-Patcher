@@ -56,6 +56,318 @@ static int exists(const char *path) {
     return GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES;
 }
 
+/* ---- START OVER WIPES THE WHOLE SAVE (the owner, v1.35.79) -------------------------------------- */
+extern int vv_reset_wipe_kept_unclear;
+extern int vv_reset_wipe_not_deleted;
+extern int vv_reset_wipe_links;
+
+/* `folder`\`rel`, its folders made, holding `text`. */
+static void put(const char *folder, const char *rel, const char *text) {
+    char path[MAX_PATH];
+    char *p;
+    wsprintfA(path, "%s\\%s", folder, rel);
+    for (p = path + 3; *p != '\0'; ++p) {
+        if (*p == '\\') {
+            *p = '\0';
+            CreateDirectoryA(path, NULL);
+            *p = '\\';
+        }
+    }
+    write_text(path, text);
+}
+
+static int there(const char *folder, const char *rel) {
+    char path[MAX_PATH];
+    wsprintfA(path, "%s\\%s", folder, rel);
+    return exists(path);
+}
+
+/* The whole of `folder`\`rel` removed (the harness's own fixtures; no junction is entered). */
+static void clear(const char *folder, const char *rel) {
+    char path[MAX_PATH];
+    wchar_t wide[MAX_PATH];
+    wsprintfA(path, "%s\\%s", folder, rel);
+    if (MultiByteToWideChar(CP_ACP, 0, path, -1, wide, MAX_PATH) > 0) {
+        harness_docs_remove(wide);
+    }
+}
+
+/* Does the file `folder`\`rel` contain `needle`? */
+static int holds(const char *folder, const char *rel, const char *needle) {
+    char path[MAX_PATH];
+    static char text[65536 + 1024];
+    DWORD got = 0;
+    HANDLE h;
+    wsprintfA(path, "%s\\%s", folder, rel);
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    ReadFile(h, text, (DWORD)sizeof text - 1, &got, NULL);
+    CloseHandle(h);
+    text[got] = '\0';
+    return strstr(text, needle) != NULL;
+}
+
+/* The files under `dir` (no junction is entered). */
+static int files_in(const char *dir) {
+    char filter[MAX_PATH], path[MAX_PATH];
+    WIN32_FIND_DATAA found;
+    HANDLE search;
+    int count = 0;
+    wsprintfA(filter, "%s\\*", dir);
+    search = FindFirstFileA(filter, &found);
+    if (search == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    do {
+        if (lstrcmpA(found.cFileName, ".") == 0 || lstrcmpA(found.cFileName, "..") == 0) {
+            continue;
+        }
+        wsprintfA(path, "%s\\%s", dir, found.cFileName);
+        if (found.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) {
+            ++count;
+        } else if (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            count += files_in(path);
+        } else {
+            ++count;
+        }
+    } while (FindNextFileA(search, &found));
+    FindClose(search);
+    return count;
+}
+
+/* `folder`\`rel` is there, as a folder holding no file at all. */
+static int emptied(const char *folder, const char *rel) {
+    char path[MAX_PATH];
+    DWORD attributes;
+    wsprintfA(path, "%s\\%s", folder, rel);
+    attributes = GetFileAttributesA(path);
+    return attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) && files_in(path) == 0;
+}
+
+static void clear_all(const char *folder) {
+    clear(folder, "Virtual Villagers Fun Patcher");
+    clear(folder, "Virtual Villagers Fun Patcher Logs");
+    clear(folder, "Virtual Villagers Fun Patcher Data");
+    clear(folder, "Virtual Villagers Fun Patcher Family Trees");
+    clear(folder, "Backups");
+}
+
+#define OWN1 "Virtual Villagers Fun Patcher\\Save 1"
+#define OWN2 "Virtual Villagers Fun Patcher\\Save 2"
+#define OLD1 "Virtual Villagers Fun Patcher Logs\\Save 1"
+#define OLD2 "Virtual Villagers Fun Patcher Logs\\Save 2"
+#define DATA "Virtual Villagers Fun Patcher Data"
+#define TREES "Virtual Villagers Fun Patcher Family Trees"
+#define REPORT "Virtual Villagers Fun Patcher\\Start Over Report - Save 1.txt"
+
+static void full_wipe_cases(const char *folder) {
+    int game;
+    clear_all(folder);
+    for (game = 1; game <= 5; ++game) {
+        char rel[MAX_PATH], text[256], what[256];
+        const int other = game == 1 ? 2 : 1;
+        int unclear_before = vv_reset_wipe_kept_unclear;
+#define PUTF(fmt, txt) do { wsprintfA(rel, fmt, game); put(folder, rel, txt); } while (0)
+#define THERE(fmt) (wsprintfA(rel, fmt, game), there(folder, rel))
+#define SAY(msg) (wsprintfA(what, "game %d: " msg, game), what)
+        /* The save's own folder, both slots. */
+        PUTF(OWN1 "\\Logs\\Tribe History\\Village History 1.txt", "=== history ===\nVillage: Kalahuna (Save 1)\n");
+        PUTF(OWN1 "\\Logs\\Repairs Made\\Virtual Villagers %d Repairs Log 1.txt", "Village: Kalahuna (Save 1)\n");
+        PUTF(OWN1 "\\Data\\Elder Totems\\ElderTotems.dat", "totems");
+        PUTF(OWN1 "\\Data\\Elder Totems\\Elder Totem Settings.dat", "settings");
+        PUTF(OWN1 "\\Data\\Like and Dislike Words\\Virtual Villagers %d Log Words.dat", "0\tx\r\n");
+        PUTF(OWN1 "\\Data\\A Kind Not Made Yet\\Anything At All.bin", "x");
+        PUTF(OWN2 "\\Logs\\Tribe History\\Village History 1.txt", "=== history ===\nVillage: Elsewhere (Save 2)\n");
+        PUTF(OWN2 "\\Data\\Elder Totems\\ElderTotems.dat", "totems");
+        /* The older layout. */
+        PUTF(OLD1 "\\Tribe History\\Village History 1.txt", "=== history ===\nVillage: Kalahuna (Save 1)\n");
+        PUTF(OLD1 "\\Repairs Made\\Virtual Villagers %d Repairs Log 1.txt", "Village: Kalahuna (Save 1)\n");
+        PUTF(OLD2 "\\Tribe History\\Village History 1.txt", "=== history ===\nVillage: Elsewhere (Save 2)\n");
+        PUTF(DATA "\\Graves\\Virtual Villagers %d Graves - Save 1.dat", "g");
+        PUTF(DATA "\\Graves\\Virtual Villagers %d Graves - Save 2.dat", "g");
+        PUTF(DATA "\\A Kind Not Made Yet\\Something - Save 1.json", "{}");
+        PUTF(DATA "\\Like and Dislike Words\\Virtual Villagers %d Log Words.dat", "0\tx\r\n");
+        PUTF(DATA "\\Copies Made Before Repairs\\" DATA "\\Graves\\Virtual Villagers %d Graves - Save 1.dat.before-v1.35.58-repair", "c");
+        /* A repair's copy under its own name (the statistics reconcile keeps its copies so). */
+        put(folder, DATA "\\Copies Made Before Repairs\\" DATA "\\Village Elders\\Village Elders - Save 1.dat", "c");
+        /* The family trees. */
+        wsprintfA(text, "{\n \"format\": \"vvtree-1\",\n \"game\": %d,\n \"slot\": 1,\n \"tribe\": \"Kalahuna\",\n"
+                        " \"edits\": {\"slot\": 2, \"x\": \"} \\\" {\"}\n}", game);
+        put(folder, TREES "\\Kalahuna (Save 1) Family Tree.vvtree", text);
+        wsprintfA(text, "{\"format\": \"vvtree-1\", \"game\": %d, \"slot\": 2, \"edits\": {\"slot\": 1}}", game);
+        put(folder, TREES "\\Other (Save 2) Family Tree.vvtree", text);
+        wsprintfA(text, "{\"format\": \"vvtree-1\", \"game\": %d, \"slot\": 1}", game);
+        put(folder, TREES "\\Renamed by the player.vvtree", text);
+        put(folder, TREES "\\Mixed (Save 2) Family Tree.vvtree", text);
+        put(folder, TREES "\\Broken (Save 1) Family Tree.vvtree", "not a tree file");
+        wsprintfA(text, "{\"format\": \"vvtree-1\", \"game\": %d, \"slot\": 1}", other);
+        put(folder, TREES "\\Another Game (Save 1) Family Tree.vvtree", text);
+        PUTF(TREES "\\Virtual Villagers %d Village Matchmaker - Save 1.txt", "pairs");
+        PUTF(TREES "\\Virtual Villagers %d Village Matchmaker - Save 2.txt", "pairs");
+        wsprintfA(rel, TREES "\\Virtual Villagers %d Village Matchmaker - Save 1.txt", other);
+        put(folder, rel, "pairs");
+        PUTF(TREES "\\Reports\\Virtual Villagers %d Genealogy - Save 1.txt", "report");
+        PUTF(TREES "\\Reports\\Virtual Villagers %d Genealogy - Save 1.html", "<html>");
+        PUTF(TREES "\\Reports\\Virtual Villagers %d Genealogy - Save 1.png", "png");
+        PUTF(TREES "\\Reports\\Virtual Villagers %d Genealogy - Save 1 - Page 2.png", "png");
+        PUTF(TREES "\\Reports\\Virtual Villagers %d Genealogy - Save 2.html", "<html>");
+        put(folder, TREES "\\Kalahuna (Save 1) family tree 2026-10-20 10-00-00.jpg", "jpg");
+        put(folder, TREES "\\notes.txt", "the player's own notes");
+        PUTF("Virtual Villagers Fun Patcher Logs\\Genealogy\\Virtual Villagers %d Genealogy - Save 1.txt", "report");
+        PUTF("Virtual Villagers Fun Patcher Logs\\Genealogy\\Virtual Villagers %d Genealogy - Save 1.png", "png");
+        /* What is never the wipe's: the Backups and the game's own save. */
+        put(folder, "Backups\\Backup 2026-10-20 10-00-00\\" OWN1 "\\Logs\\Tribe History\\Village History 1.txt", "b");
+        put(folder, "Village Save1.ldw", "the game's");
+        check(THERE(OWN1 "\\Data\\Elder Totems\\ElderTotems.dat") && THERE(TREES "\\notes.txt")
+              && THERE(OLD1 "\\Tribe History\\Village History 1.txt"),
+              SAY("full-wipe fixtures created (nonzero denominator)"));
+
+        vv_reset_slot_state(game, 1, "Village: Kalahuna (Save 1)\n");
+
+        /* Every file goes; the folders stay, empty, for the game's companions to write the new
+           tribe's files into (they keep the paths they write to). */
+        check(emptied(folder, OWN1) && emptied(folder, OWN1 "\\Data\\Elder Totems"),
+              SAY("START OVER DELETES EVERYTHING IN \"Virtual Villagers Fun Patcher\\Save 1\" (its folders stay, empty)"));
+        check(!THERE(OWN1 "\\Logs\\Tribe History\\Village History 1.txt"), SAY("...the slot's Village History with it"));
+        check(!THERE(OWN1 "\\Data\\Elder Totems\\ElderTotems.dat"), SAY("...and its ElderTotems.dat"));
+        check(THERE(OWN2 "\\Logs\\Tribe History\\Village History 1.txt") && THERE(OWN2 "\\Data\\Elder Totems\\ElderTotems.dat"),
+              SAY("SAVE 2'S OWN FOLDER IS UNTOUCHED (its Village History and ElderTotems.dat)"));
+        check(emptied(folder, OLD1), SAY("the older layout's \"...Logs\\Save 1\" folder is emptied, its Village History too"));
+        check(THERE(OLD2 "\\Tribe History\\Village History 1.txt"), SAY("...and \"...Logs\\Save 2\" is kept"));
+        check(!THERE(DATA "\\Graves\\Virtual Villagers %d Graves - Save 1.dat")
+              && !THERE(DATA "\\A Kind Not Made Yet\\Something - Save 1.json"),
+              SAY("the older Data folder's \" - Save 1\" files are deleted"));
+        check(THERE(DATA "\\Graves\\Virtual Villagers %d Graves - Save 2.dat"), SAY("...its \" - Save 2\" files kept"));
+        check(THERE(DATA "\\Like and Dislike Words\\Virtual Villagers %d Log Words.dat"),
+              SAY("...and a shared file that names no save is kept"));
+        check(THERE(DATA "\\Copies Made Before Repairs\\" DATA "\\Graves\\Virtual Villagers %d Graves - Save 1.dat.before-v1.35.58-repair"),
+              SAY("COPIES MADE BEFORE REPAIRS ARE KEPT"));
+        check(there(folder, DATA "\\Copies Made Before Repairs\\" DATA "\\Village Elders\\Village Elders - Save 1.dat"),
+              SAY("...a copy under its own name too (the folder is never entered)"));
+        check(!there(folder, TREES "\\Kalahuna (Save 1) Family Tree.vvtree"), SAY("SLOT 1'S .vvtree IS DELETED"));
+        check(!there(folder, TREES "\\Renamed by the player.vvtree"),
+              SAY("a .vvtree renamed by the player is deleted by the save it records"));
+        check(there(folder, TREES "\\Other (Save 2) Family Tree.vvtree"),
+              SAY("slot 2's .vvtree is kept (a \"slot\" nested in its edits is not its save)"));
+        check(there(folder, TREES "\\Mixed (Save 2) Family Tree.vvtree"),
+              SAY("a .vvtree whose name and contents name different saves is KEPT (never guessed)"));
+        check(there(folder, TREES "\\Broken (Save 1) Family Tree.vvtree"),
+              SAY("a .vvtree that records no save is KEPT (never guessed by its name)"));
+        check(there(folder, TREES "\\Another Game (Save 1) Family Tree.vvtree"), SAY("another game's .vvtree is kept"));
+        check(!THERE(TREES "\\Virtual Villagers %d Village Matchmaker - Save 1.txt"), SAY("SLOT 1'S VILLAGE MATCHMAKER IS DELETED"));
+        check(THERE(TREES "\\Virtual Villagers %d Village Matchmaker - Save 2.txt"), SAY("...slot 2's is kept"));
+        wsprintfA(rel, TREES "\\Virtual Villagers %d Village Matchmaker - Save 1.txt", other);
+        check(there(folder, rel), SAY("...and another game's slot-1 matchmaker is kept"));
+        check(!THERE(TREES "\\Reports\\Virtual Villagers %d Genealogy - Save 1.txt")
+              && !THERE(TREES "\\Reports\\Virtual Villagers %d Genealogy - Save 1.html"),
+              SAY("SLOT 1'S GENEALOGY REPORT (.txt, .html) IS DELETED"));
+        check(THERE(TREES "\\Reports\\Virtual Villagers %d Genealogy - Save 1.png")
+              && THERE(TREES "\\Reports\\Virtual Villagers %d Genealogy - Save 1 - Page 2.png")
+              && there(folder, TREES "\\Kalahuna (Save 1) family tree 2026-10-20 10-00-00.jpg"),
+              SAY("EVERY PICTURE IS KEPT, slot 1's too"));
+        check(THERE(TREES "\\Reports\\Virtual Villagers %d Genealogy - Save 2.html"), SAY("slot 2's report is kept"));
+        check(there(folder, TREES "\\notes.txt"), SAY("a file that names no save is KEPT"));
+        check(!THERE("Virtual Villagers Fun Patcher Logs\\Genealogy\\Virtual Villagers %d Genealogy - Save 1.txt")
+              && THERE("Virtual Villagers Fun Patcher Logs\\Genealogy\\Virtual Villagers %d Genealogy - Save 1.png"),
+              SAY("the older Reports folder (Logs\\Genealogy): the report goes, the picture stays"));
+        check(there(folder, "Backups\\Backup 2026-10-20 10-00-00\\" OWN1 "\\Logs\\Tribe History\\Village History 1.txt"),
+              SAY("THE BACKUPS ARE KEPT"));
+        check(there(folder, "Village Save1.ldw"), SAY("the game's own save is kept"));
+        check(vv_reset_wipe_kept_unclear - unclear_before == 3,
+              SAY("exactly three files were kept because their save could not be told"));
+        check(holds(folder, REPORT, "Mixed (Save 2) Family Tree.vvtree") && holds(folder, REPORT, "Broken (Save 1)")
+              && holds(folder, REPORT, "notes.txt") && holds(folder, REPORT, "Village: Kalahuna (Save 1)"),
+              SAY("the kept files are listed in \"Start Over Report - Save 1.txt\""));
+        check(!holds(folder, REPORT, "Other (Save 2)"), SAY("...and a file of another save is not listed"));
+        /* A companion that kept its file's path from before Start Over can still write it: its
+           folder is there (no folder is made here). */
+        wsprintfA(rel, "%s\\" OWN1 "\\Data\\Elder Totems\\ElderTotems.dat", folder);
+        write_text(rel, "the new tribe's");
+        check(exists(rel), SAY("A FILE PATH KEPT FROM BEFORE START OVER CAN STILL BE WRITTEN (its folder stays)"));
+        clear_all(folder);
+        {
+            char ldw[MAX_PATH];
+            wsprintfA(ldw, "%s\\Village Save1.ldw", folder);
+            DeleteFileA(ldw);
+        }
+#undef PUTF
+#undef THERE
+#undef SAY
+    }
+
+    /* What stays inside the slot's own folder: the Copies Made Before Repairs, a repair copy beside
+       its file and a picture; a file in use is listed, not retried; a junction is never followed. */
+    {
+        char target[MAX_PATH], link[MAX_PATH], kept_outside[MAX_PATH], locked_path[MAX_PATH];
+        char command[MAX_PATH * 3];
+        HANDLE locked;
+        STARTUPINFOA si;
+        PROCESS_INFORMATION pi;
+        int not_deleted_before = vv_reset_wipe_not_deleted;
+        int links_before = vv_reset_wipe_links;
+        put(folder, OWN1 "\\Data\\Copies Made Before Repairs\\Logs\\Tribe History\\Village History 1.txt.before-v1.35.58-repair", "c");
+        put(folder, OWN1 "\\Logs\\Tribe History\\Village History 1.txt.before-repair", "c");
+        put(folder, OWN1 "\\Data\\Copies Made Before Repairs\\Data\\Village Elders\\Village Elders - Save 1.dat", "c");
+        put(folder, OWN1 "\\Logs\\A picture.png", "png");
+        put(folder, OWN1 "\\Logs\\Tribe History\\Village History 1.txt", "h");
+        put(folder, OWN1 "\\Logs\\Deaths and Disappearances\\Virtual Villagers 3 Deaths Log 1.txt", "Village: Kalahuna (Save 1)\n");
+        put(folder, OWN1 "\\Data\\Elder Totems\\ElderTotems.dat", "t");
+        /* Outside the save folder, reached only through a junction inside the slot's folder. */
+        wsprintfA(target, "%s\\..\\..\\outside the save folder", folder);
+        CreateDirectoryA(target, NULL);
+        wsprintfA(kept_outside, "%s\\must survive.dat", target);
+        write_text(kept_outside, "x");
+        wsprintfA(link, "%s\\" OWN1 "\\Data\\Linked Folder", folder);
+        wsprintfA(command, "cmd.exe /c mklink /J \"%s\" \"%s\" >nul", link, target);
+        ZeroMemory(&si, sizeof si);
+        si.cb = sizeof si;
+        ZeroMemory(&pi, sizeof pi);
+        if (CreateProcessA(NULL, command, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+            WaitForSingleObject(pi.hProcess, 30000);
+            CloseHandle(pi.hThread);
+            CloseHandle(pi.hProcess);
+        }
+        wsprintfA(locked_path, "%s\\" OWN1 "\\Logs\\Deaths and Disappearances\\Virtual Villagers 3 Deaths Log 1.txt", folder);
+        locked = CreateFileA(locked_path, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        check(locked != INVALID_HANDLE_VALUE && exists(kept_outside)
+              && (GetFileAttributesA(link) & FILE_ATTRIBUTE_REPARSE_POINT) && GetFileAttributesA(link) != INVALID_FILE_ATTRIBUTES,
+              "keep fixtures created: a junction out of the save folder and a file held open (nonzero denominator)");
+
+        vv_reset_slot_state(3, 1, "Village: Kalahuna (Save 1)\n");
+
+        check(there(folder, OWN1 "\\Data\\Copies Made Before Repairs\\Logs\\Tribe History\\Village History 1.txt.before-v1.35.58-repair"),
+              "the slot's own Copies Made Before Repairs are kept");
+        check(there(folder, OWN1 "\\Data\\Copies Made Before Repairs\\Data\\Village Elders\\Village Elders - Save 1.dat"),
+              "...a copy under its own name too (the folder is never entered)");
+        check(there(folder, OWN1 "\\Logs\\Tribe History\\Village History 1.txt.before-repair"),
+              "a repair copy kept beside its file is kept");
+        check(there(folder, OWN1 "\\Logs\\A picture.png"), "a picture in the slot's own folder is kept");
+        check(!there(folder, OWN1 "\\Logs\\Tribe History\\Village History 1.txt")
+              && emptied(folder, OWN1 "\\Data\\Elder Totems"), "...while everything else of the slot goes");
+        check(exists(locked_path) && vv_reset_wipe_not_deleted - not_deleted_before == 1,
+              "A FILE IN USE IS LEFT, COUNTED ONCE (not retried) AND THE RESET RETURNS");
+        check(holds(folder, REPORT, "Virtual Villagers 3 Deaths Log 1.txt"), "...and it is listed in the report");
+        check(exists(kept_outside), "A JUNCTION OUT OF THE SAVE FOLDER IS NEVER FOLLOWED: the file behind it survives");
+        check(GetFileAttributesA(link) != INVALID_FILE_ATTRIBUTES && vv_reset_wipe_links - links_before == 1,
+              "...the junction itself is left, and counted");
+        check(holds(folder, REPORT, "Linked Folder"), "...and listed in the report");
+        if (locked != INVALID_HANDLE_VALUE) {
+            CloseHandle(locked);
+        }
+        RemoveDirectoryA(link);                  /* the junction only, never its target */
+        check(exists(kept_outside), "the junction's target is untouched by removing the junction");
+        DeleteFileA(kept_outside);
+        RemoveDirectoryA(target);
+
+        /* Nothing to list: the next Start Over of the save removes the last one's report. */
+        vv_reset_slot_state(3, 1, "Village: Kalahuna (Save 1)\n");
+        check(!there(folder, REPORT), "a Start Over with nothing to list leaves no report (the last one is removed)");
+        clear_all(folder);
+    }
+}
+
 int main(void) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     char folder[MAX_PATH];
@@ -76,6 +388,21 @@ int main(void) {
         return 2;
     }
     printf("save folder: %s\n\n", folder);
+    /* NEVER THE PLAYER'S SAVES. harness_ldw_tree_begin pointed this whole process's Documents at a
+       throwaway folder under %TEMP% (harness_redirect_documents.h); the folder the reset resolves must
+       be inside it, or nothing below runs. */
+    {
+        char temp[MAX_PATH];
+        const char *docs = harness_redirect_documents_path();
+        DWORD n = GetTempPathA(MAX_PATH, temp);
+        if (n == 0 || n >= MAX_PATH || docs[0] == '\0'
+            || _strnicmp(folder, temp, n) != 0 || _strnicmp(folder, docs, strlen(docs)) != 0
+            || folder[strlen(docs)] != '\\') {
+            printf("the save folder is not under the throwaway Documents (%s); not running\n", docs);
+            return 2;
+        }
+        printf("documents redirected to: %s\n\n", docs);
+    }
     if (!vv_save_folder_w(folder_w_probe, 64)) {
         printf("could not resolve the wide save folder\n");
         return 2;
@@ -265,6 +592,30 @@ int main(void) {
         DeleteFileA(t2);
     }
 
+    /* THE LOST CHILDREN'S ELDER TOTEMS (native/vvfp_vv2_totems): ElderTotems.dat and the village's
+       give-automatically setting, in the save's own "...\Save <N>\Data\Elder Totems" folder, follow
+       Start Over: slot 1's go, slot 2's stay, and no other game's reset touches them. */
+    {
+        char dir1[MAX_PATH], dir2[MAX_PATH], e1[MAX_PATH], s1[MAX_PATH], e2[MAX_PATH];
+        if (!vv_save_subfolder(dir1, "Virtual Villagers Fun Patcher\\Save 1\\Data\\Elder Totems", 64)
+            || !vv_save_subfolder(dir2, "Virtual Villagers Fun Patcher\\Save 2\\Data\\Elder Totems", 64)) {
+            printf("could not resolve the elder totems folders\n");
+            return 2;
+        }
+        wsprintfA(e1, "%s\\ElderTotems.dat", dir1);
+        wsprintfA(s1, "%s\\Elder Totem Settings.dat", dir1);
+        wsprintfA(e2, "%s\\ElderTotems.dat", dir2);
+        touch(e1);
+        touch(s1);
+        touch(e2);
+        check(exists(e1) && exists(s1) && exists(e2), "elder totems files exist before the reset (nonzero denominator)");
+        vv_reset_slot_state(2, 1, VILLAGE);
+        check(!exists(e1), "ELDERTOTEMS.DAT OF SLOT 1 DELETED BY START OVER (The Lost Children)");
+        check(!exists(s1), "slot 1's Elder Totem Settings.dat deleted by Start Over");
+        check(exists(e2), "slot 2's ElderTotems.dat survives a slot-1 reset");
+        DeleteFileA(e2);
+    }
+
     /* EACH KIND IN ITS OWN FOLDER (native/shared/data_subfolder.h). The
        masks, the graves, A New Home's parentage records and the Unaccounted
        Villagers roster moved out of the Data folder's root into a folder
@@ -327,11 +678,15 @@ int main(void) {
                share a folder, and only the running game's own files go.
                A New Home is the other game for every kind but its own, and
                The Secret City is the other game for A New Home's. */
+            /* Only a name that says its game ("Virtual Villagers <G> ...") can be told apart: Start
+               Over wipes every " - Save 1" data file of the save folder, which is the game's own. */
             other = KINDS[k].game == 1 ? 3 : 1;
-            vv_reset_slot_state(other, 1, VILLAGE);
-            wsprintfA(what, "game %d %s: a reset of game %d leaves both copies of slot 1",
-                      KINDS[k].game, KINDS[k].sub, other);
-            check(exists(new1) && exists(old1), what);
+            if (strncmp(KINDS[k].stem, "Virtual Villagers ", 18) == 0) {
+                vv_reset_slot_state(other, 1, VILLAGE);
+                wsprintfA(what, "game %d %s: a reset of game %d leaves both copies of slot 1",
+                          KINDS[k].game, KINDS[k].sub, other);
+                check(exists(new1) && exists(old1), what);
+            }
             vv_reset_slot_state(KINDS[k].game, 1, VILLAGE);
             wsprintfA(what, "game %d %s: START OVER DELETES SLOT 1 IN ITS FOLDER", KINDS[k].game, KINDS[k].sub);
             check(!exists(new1), what);
@@ -339,9 +694,12 @@ int main(void) {
             check(!exists(old1), what);
             wsprintfA(what, "game %d %s: slot 2 survives at both places", KINDS[k].game, KINDS[k].sub);
             check(exists(new2) && exists(old2), what);
-            wsprintfA(what, "game %d %s: a hand-made backup and a set-aside copy are not touched",
+            wsprintfA(what, "game %d %s: a repair's copy beside the file is not touched",
                       KINDS[k].game, KINDS[k].sub);
-            check(exists(backup1) && exists(aside1), what);
+            check(exists(backup1), what);
+            wsprintfA(what, "game %d %s: START OVER DELETES SLOT 1'S SET-ASIDE COPY TOO (v1.35.79 full wipe)",
+                      KINDS[k].game, KINDS[k].sub);
+            check(!exists(aside1), what);
             DeleteFileA(new2); DeleteFileA(old2); DeleteFileA(backup1); DeleteFileA(aside1);
             RemoveDirectoryA(sub_dir);
         }
@@ -390,10 +748,12 @@ int main(void) {
         check(!exists(v2log1), "slot 1 Village Statistics v2 log deleted");
         check(exists(s2) && exists(st2) && exists(e2) && exists(v2log2),
               "SLOT 2 statistics data SURVIVES");
-        check(exists(aside1), "a file set aside as unreadable is left alone");
+        check(!exists(aside1), "slot 1's file set aside as unreadable is deleted too (v1.35.79 full wipe)");
         touch(st1);
+        touch(st2);
         vv_reset_slot_state(1, 1, VILLAGE);
-        check(exists(st1), "A New Home, which makes no stews, leaves a stew file alone");
+        check(!exists(st1), "every \" - Save 1\" data file of the save folder goes, whichever game resets it");
+        check(exists(st2), "...and slot 2's stays");
         DeleteFileA(s2); DeleteFileA(st1); DeleteFileA(st2); DeleteFileA(aside1);
         DeleteFileA(e2); DeleteFileA(v2log2);
     }
@@ -640,8 +1000,8 @@ int main(void) {
        slot's own folder, exactly what it always removed in the shared one -- the erased village's
        Births and Conceptions, Deaths and Disappearances, Unaccounted Villagers and Island Events
        files (matched by header), its Population pages (by header) and the slot's Village
-       Statistics -- and nothing more: never the Village History, never the Repairs log, never
-       another village's file, never another slot's. */
+       Statistics -- and, since v1.35.79, everything else in that folder too (the Village History,
+       the Repairs log, another village's file), but never another slot's. */
     {
         static const char *const SUBS[8] = {
             "Births and Conceptions", "Deaths and Disappearances", "Unaccounted Villagers", "Island Events",
@@ -684,9 +1044,11 @@ int main(void) {
               "START OVER REMOVES THE SLOT FOLDER'S BIRTHS, DEATHS, UNACCOUNTED AND ISLAND EVENTS LOGS OF THE VILLAGE");
         check(!exists(file[4]) && !exists(file[5]),
               "...and its Population page and the slot's Village Statistics, as in the shared folder");
-        check(exists(file[6]), "THE SLOT FOLDER'S VILLAGE HISTORY IS NEVER DELETED");
-        check(exists(file[7]), "...nor its Repairs log (never deleted by Start Over)");
-        check(exists(other), "another village's log in the same slot's folder is kept");
+        /* START OVER WIPES THE WHOLE SAVE (the owner, v1.35.79): the Village History, the Repairs log
+           and a log of another village made in the same slot are the slot's too. */
+        check(!exists(file[6]), "THE SLOT FOLDER'S VILLAGE HISTORY IS DELETED BY START OVER (v1.35.79)");
+        check(!exists(file[7]), "...and its Repairs log");
+        check(!exists(other), "...and every other log in the slot's folder");
         check(exists(slot2), "another slot's folder is untouched");
         /* A fresh slot's log folders are in the save's own folder (save_folder.c routes them; per_save.h). */
         check(strstr(file[0], "\\Virtual Villagers Fun Patcher\\Save 1\\Logs\\Births and Conceptions\\") != NULL
@@ -764,12 +1126,14 @@ int main(void) {
               "START OVER CLEARS THE VILLAGE'S LOG IN BOTH PLACES: the older layout's and the save's own");
         check(!exists(own_stats), "...and the slot's Village Statistics in the save's own folder");
         check(!exists(old_mask) && !exists(own_mask), "...and the slot's data file in both places");
-        check(exists(own_log2), "another village's log in the save's own folder is kept");
+        check(!exists(own_log2), "every log in the save's own folder goes, another village's too (v1.35.79)");
         check(exists(old_mask2) && exists(own_mask2), "another slot's data files are kept, in both places");
         DeleteFileA(own_log2);
         DeleteFileA(old_mask2);
         DeleteFileA(own_mask2);
     }
+
+    full_wipe_cases(folder);
 
     /* Clean up what the harness made. */
     DeleteFileA(mask2); DeleteFileA(save1); DeleteFileA(other_game);

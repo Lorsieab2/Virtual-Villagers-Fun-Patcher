@@ -55,6 +55,9 @@ FILES = [
     "assets/fix_huts/VVFP Fix Huts.dll",
     "assets/lesson_cap/VVFP Lesson Cap.dll",
     "assets/chief_hospital/VVFP VV3 Chief Hospital.dll",
+    "assets/vv2_totems/VVFP VV2 Totems.dll",
+    "assets/easier_healing/VVFP VV1 Easier Healing.dll",
+    "assets/research_at_max/VVFP VV1 Research At Max.dll",
     "assets/healers_study/VVFP Healers Study.dll",
     "assets/work_first/VVFP Work First.dll",
     "assets/golden_mushroom/VVFP Golden Mushroom.dll",
@@ -133,6 +136,7 @@ FILES = [
     "data/vv2_story_cheat_upgrades_feature.json",
     "data/vv3_story_cheat_upgrades_feature.json",
     "data/vv3_chief_hospital_feature.json",
+    "data/vv2_totems_out_of_entries_feature.json",
     "data/vv4_story_cheat_upgrades_feature.json",
     "data/vv5_story_cheat_upgrades_feature.json",
     "data/vv1_story_cheat_upgrades_cost_tech_points_feature.json",
@@ -256,6 +260,7 @@ FILES = [
     # Repair Saves & Logs' The Lost Children totem rows: Give Esteemed Elders Totems Retroactively and Fix
     # Rare Villager Turning Into Totem (the GUI imports it).
     "src/vv_vv2_totems.py",
+    "src/vv_vv2_totem_store.py",
     # Repair Saves & Logs' removal of a restarted tribe's villagers from the history, and the Family Tree
     # Maker's "Hide villagers not in the current save" (v1.35.73; the GUI and the tree import it).
     "src/vv_history_revision.py",

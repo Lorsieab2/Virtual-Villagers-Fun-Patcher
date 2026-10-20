@@ -67,6 +67,8 @@ class HarnessesLeaveLdwAsFound(unittest.TestCase):
                 "native/parentage_export/village_publisher_harness.c",
                 "native/population_export/population_export_harness.c",
                 "native/shared/save_reset_harness.c",
+                # resolves the save folder itself to refuse to run outside the throwaway Documents
+                "native/shared/save_reset_words_harness.c",
                 "native/vv5_task9_origins/vv5_mask_identity_harness.c",
                 "native/vvfp_cause_of_death/cause_files_harness.c",
                 "native/vvfp_cause_of_death/grave_backfill_harness.c",

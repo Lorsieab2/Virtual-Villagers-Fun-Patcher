@@ -517,6 +517,17 @@
       ]
     },
     {
+      "ids": ["vv2_totems_out_of_entries"],
+      "guide": [
+        "Esteemed Elders' totems no longer take a villager record: they are kept in a file of each save's own, so babies waiting for a record are born sooner.",
+        "The totems look, sort, show their label and can be dragged exactly as before; there is no longer a limit of 50 Esteemed Elders.",
+        "Before removing this patch, use Repair Saves & Logs > Put Totems Back Into the Save, or the game without it shows no totems.",
+        "Repair Saves & Logs can also move totems out of the save and change a totem's colour.",
+        "Tick Give Esteemed Elders their totems automatically in Repair Saves & Logs: elders without one then get it automatically, during play.",
+        "Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv3_chief_hospital_supervision"],
       "guide": [
         "Drop the Tribal Chief on the Hospital (Medicine level 2 or more): he walks to where he stands when he is concerned about the sick and directs work there.",
@@ -855,7 +866,10 @@
         "Copies a game's save folders (your saves and the patcher's logs) into a dated Backups folder inside each one.",
         "Click Back Up Saves, tick the save folders you want, then Back Up Selected.",
         "The game can stay open: it is paused for the copy, but the backup holds the village as of its last save.",
-        "Old backups are never replaced or deleted."
+        "Old backups are never replaced or deleted.",
+        "Back up before Start Over: Start Over wipes everything the Fun Patcher kept for that save: all its logs (the Village History too),",
+        "all its data (the Elder Totems too) and its family tree files. It keeps Backups, Copies Made Before Repairs and tree pictures.",
+        "Other saves are not touched."
       ]
     },
     "restore_saves": {

@@ -1,0 +1,120 @@
+{
+  "id": "vv2_totems_out_of_entries",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Esteemed Elders' Totems Use No Villager Records",
+  "description": "In the stock game every Esteemed Elder's totem statue takes one of the village's 256 villager records for good, so in a big village the statues crowd out babies waiting to be born. With this patch the totems are kept apart, in a file beside each save ('Virtual Villagers Fun Patcher\\Save <n>\\Data\\Elder Totems\\ElderTotems.dat'), and take no villager record: when a village loads, every totem in it moves into that file and its record is free for a villager. The totems look, sort, show their \"<name>`s totem\" label and can be dragged and placed exactly as before, on the village and on the Map. There is no longer a limit of 50 Esteemed Elders. **The stock game never reads ElderTotems.dat: before removing this patch, use Repair Saves & Logs > \"Put Totems Back Into the Save\" (with the game closed), or the village shows no totems (nothing else changes).** Repair Saves & Logs can also move totems out with the game closed (\"Move Totems Out of the Save\") and change an elder's totem colour. With the village's \"Give Esteemed Elders their totems automatically\" setting on (Repair Saves & Logs), an Esteemed Elder without a totem is given one automatically, during play -- when the village loads and after every elder check the game makes -- and so is an elder who has passed away without one (listed by Check or Repair Saves & Logs, given at the next load); an elder who may already have a totem (the same looks, or the same first name) is left for Repair Saves & Logs to ask about. **Unverified in play: this has not been tested in the running game yet.** **Needs no other patch.**",
+  "output_tag": "Totems Out of Records",
+  "dependencies": [],
+  "behavior_changes": [
+    "A totem statue record in a loaded village (Is Totem +0x558 set and health 0 or less) is moved into ElderTotems.dat and its record freed; a villager with the mark but health above 0 is never moved.",
+    "A new Esteemed Elder's totem (0x44D190) is kept in ElderTotems.dat with everything the game copies onto it; the elder is marked and counted by the game's own pass, as before.",
+    "No limit of 50 totems: the elder pass's two checks (0x44D4D1, 0x44D54C) never wait while the store works; the full-village guard's wait no longer applies to totems, which need no record.",
+    "Store totems are drawn with the game's own calls in the game's own y order, on the village and on the Map; a click picks one in front of the villager the game found; the name panel shows \"<name>`s totem\"; dragging, the dust, the totem puzzle spot (terrain 0x42), the nudge off unfit ground and the stored home x/y are as the game does them for a totem record.",
+    "ElderTotems.dat is written before each save of the slot and read after each load; one bound to another village is moved aside, never used or overwritten.",
+    "With the village's give-automatically setting on (Elder Totem Settings.dat), after each load and each elder pass (0x44D4C0, detoured at its entry) every Esteemed Elder record (+0x7FC) with no totem of the same name and looks, or of a recorded rename, is given one as 0x44D190 makes it; the passed-away elders the patcher lists in PendingElderTotems.dat are given one at the next load and taken off the list. A near match (the same looks, or the same first name) makes nothing."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion verifies every site's stock bytes and installs all of them or none; a different build of the game installs nothing.",
+    "The .ldw save stays the stock game's own format: it simply holds no totem records.",
+    "If ElderTotems.dat exists but cannot be opened, that session runs as the stock game (nothing is moved, and the game's own 50-totem limit stands).",
+    "Village Statistics, the logs and the family tree never counted totems as villagers and still do not."
+  ],
+  "evidence_status": "static exact-build verification of every site and emulator tests of each hook against the stock executable; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/vv2_totems/VVFP VV2 Totems.dll",
+      "destination": "VVFP VV2 Totems.dll",
+      "sha256": "69032C026CF8EBD607FE25BF9EA79B5101A7ACC2263C8D093E153F4D2FC644F7"
+    }
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x4249A0",
+      "stock_bytes": "B834040300",
+      "routine": "the slot load (thiscall manager, slot): after a village loads, ElderTotems.dat is read and every totem statue record (Is Totem +0x558 set, health 0 or less) is moved into the store and its record freed as the burial frees one (0x46503B)",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x424BA0",
+      "stock_bytes": "56578B7C240C",
+      "routine": "the slot save (thiscall manager, slot): before a village slot is written, the store is written to ElderTotems.dat (a temporary file, then a move); a save that could not write it is refused",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x424C80",
+      "stock_bytes": "51535556578BE9",
+      "routine": "the world reset (new tribe, Start Over, the startup's seeding): the store is emptied",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x44D190",
+      "stock_bytes": "5153558BE9",
+      "routine": "the Esteemed Elder's totem maker: the statue goes into the store, never into a record",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x44D4D1",
+      "stock_bytes": "83F8320F8DA2000000",
+      "routine": "the elder pass's first 'fewer than 50 totems' check: no limit while the store works",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x44D54C",
+      "stock_bytes": "83F8327D14",
+      "routine": "the elder pass's second 'fewer than 50 totems' check (after the full-village guard's count): no limit while the store works",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x445C1C",
+      "stock_bytes": "33FF8B8CBE9070E500",
+      "routine": "the village draw loop's start: store totems drawn in the game's y order among the records",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x4478CD",
+      "stock_bytes": "4781FF000100000F8C44E3FFFF",
+      "routine": "the village draw loop's end: the rest, and a totem being dragged last",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x4490BB",
+      "stock_bytes": "5F5E5D5BC3",
+      "routine": "the Map's end: store totems drawn as the Map draws a totem",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x431071",
+      "stock_bytes": "E80AC50100",
+      "routine": "the click's hit test (0x44D580): a store totem in front of the record found is picked",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x431076",
+      "stock_bytes": "8B4E108981F0040300",
+      "routine": "after the hit test: a picked store totem ends the click (no camera drag, no other action)",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x4308D0",
+      "stock_bytes": "8B44240483EC08",
+      "routine": "the village mouse handler: a picked store totem is dragged and placed as a totem record is",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x429A83",
+      "stock_bytes": "683C444700",
+      "routine": "the name panel with no record selected: \"<name>`s totem\" for a picked store totem",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    },
+    {
+      "va": "0x44D4C0",
+      "stock_bytes": "558BE98B8DD474E500",
+      "routine": "the Esteemed Elder pass's entry: after it runs, with the village's give-automatically setting on, every Esteemed Elder record still without a totem is given one in the store",
+      "installed_by": "VVFP VV2 Totems.dll, VvfpStartup"
+    }
+  ],
+  "patches": []
+}

@@ -168,9 +168,11 @@ class Totem:
     type: int
     x: int
     y: int
+    in_store: bool = False          # kept in ElderTotems.dat (src/vv_vv2_totem_store.py), not in the save
 
     def label(self) -> str:
-        return f"{self.name}'s totem (record {self.record + 1}, head {self.head}, body {self.body})"
+        where = "in ElderTotems.dat" if self.in_store else f"record {self.record + 1}"
+        return f"{self.name}'s totem ({where}, head {self.head}, body {self.body})"
 
 
 @dataclass
@@ -247,6 +249,7 @@ class TotemVillager:
 class Survey:
     entries: int = 0
     owed: int = 0
+    in_store: bool = False          # the save's ElderTotems.dat is in use: new totems go there, need no record
     totems: list[Totem] = field(default_factory=list)
     elders: list[Elder] = field(default_factory=list)
     missing: list[Elder] = field(default_factory=list)          # certainly without a totem
@@ -256,7 +259,10 @@ class Survey:
 
     @property
     def free(self) -> int:
-        """Records a new totem may take: the unused ones less every baby still owed."""
+        """Records a new totem may take: the unused ones less every baby still owed.  With the save's
+        ElderTotems.dat in use a totem takes no record, so there is always room."""
+        if self.in_store:
+            return 1 << 30
         return max(0, RECORDS - self.entries - self.owed)
 
     @property
@@ -426,10 +432,28 @@ def ask(s: "Survey", answer) -> set[str]:
     return kept
 
 
+def _stored(folder: Path, slot: int, data: bytes) -> list[Totem] | None:
+    """The totems in the save's ElderTotems.dat (src/vv_vv2_totem_store.py), when it is there and belongs to
+    this save; None when the file is not in use.  A file of another village or one that cannot be read is
+    refused, never guessed at."""
+    import vv_vv2_totem_store as store_mod
+    try:
+        store = store_mod.read(folder, slot)
+    except store_mod.StoreError as exc:
+        raise TotemError(f"The save's {store_mod.FILE_NAME} could not be read ({exc}); nothing was changed.") from exc
+    if store is None:
+        return None
+    if not store_mod.bound(store, data):
+        raise TotemError(f"The save's {store_mod.FILE_NAME} belongs to another village; nothing was changed.")
+    return [Totem(-1, 100000 + k, t.name, t.sex, t.head, t.body, t.lineage, t.father, t.mother,
+                  _i32(t.entry, 0x08), t.type, t.x, t.y, True) for k, t in enumerate(store.totems)]
+
+
 def survey_bytes(data: bytes, dead: list[Elder] | None = None, folder: Path | None = None,
-                 slot: int | None = None, renames: set[tuple[str, str, int, int]] | None = None) -> Survey:
+                 slot: int | None = None, renames: set[tuple[str, str, int, int]] | None = None,
+                 stored: list[Totem] | None = None) -> Survey:
     offsets = _offsets(data)
-    s = Survey(entries=len(offsets), owed=_owed(data, offsets))
+    s = Survey(entries=len(offsets), owed=_owed(data, offsets), in_store=stored is not None)
     living: list[Elder] = []
     for k, at in enumerate(offsets):
         if data[at + IS_TOTEM] != 0:
@@ -447,6 +471,9 @@ def survey_bytes(data: bytes, dead: list[Elder] | None = None, folder: Path | No
                                                       "only ever makes a totem with health 0"))
         else:
             statues.append(t)
+    # The totems kept in ElderTotems.dat are statues too (an elder who has one there has a totem).
+    s.totems += stored or []
+    statues += stored or []
     if dead is None:
         alive = {(_text(data, at, NAME_CAP), _i32(data, at + HEAD), _i32(data, at + BODY)) for at in offsets
                  if data[at + IS_TOTEM] == 0 and _i32(data, at + HEALTH) > 0}
@@ -486,15 +513,18 @@ def survey_bytes(data: bytes, dead: list[Elder] | None = None, folder: Path | No
     # name, rename or looks, is asked.
     spoken = {id(t) for ts in exact.values() for t in ts} | {id(q.totem) for q in s.elder_questions}
     for t in statues:
-        if id(t) not in spoken:
+        if id(t) not in spoken and not t.in_store:
             s.villagers.append(TotemVillager(t, False, "no Esteemed Elder in the save or the Deaths log has "
                                                        "this name or these looks"))
+        elif id(t) not in spoken:
+            s.notes.append(f"{t.label()}: no Esteemed Elder in the save or the Deaths log has this name or "
+                           "these looks; it is left as it is.")
     # Two statues of one elder: said, never changed.
     for e in s.elders:
         if len(exact[id(e)]) > 1:
             s.notes.append(f"{e.name} has {len(exact[id(e)])} totems (records "
                            f"{', '.join(str(t.record + 1) for t in exact[id(e)])}); they are left as they are.")
-    if len(statues) >= MAX_TOTEMS:
+    if len(statues) >= MAX_TOTEMS and not s.in_store:
         s.notes.append(f"The village already has {len(statues)} totems; the game itself makes no new elder "
                        f"with {MAX_TOTEMS} standing.")
     return s
@@ -506,7 +536,7 @@ def survey(folder: Path, slot: int) -> Survey:
         data = ln.save_path(folder, GAME, slot).read_bytes()
     except OSError as exc:
         raise TotemError(f"The save could not be read ({exc}).") from exc
-    return survey_bytes(data, folder=Path(folder), slot=slot)
+    return survey_bytes(data, folder=Path(folder), slot=slot, stored=_stored(Path(folder), slot, data))
 
 
 # ---------------------------------------------------------------------------
@@ -614,8 +644,8 @@ class Given:
     y: int
 
     def describe(self) -> str:
-        return (f"{self.elder.label()}: a totem ({face(self.type)}, type {self.type}) at ({self.x}, {self.y}), "
-                f"record {self.record + 1}")
+        where = "in ElderTotems.dat" if self.record < 0 else f"record {self.record + 1}"
+        return f"{self.elder.label()}: a totem ({face(self.type)}, type {self.type}) at ({self.x}, {self.y}), {where}"
 
 
 @dataclass
@@ -639,7 +669,7 @@ def plan_give(s: Survey, kept: set[str] | frozenset = frozenset()) -> tuple[list
     statues = len(s.totems)                 # 0x4259B0 counts every record marked as a totem
     go, left = [], []
     for e in wanted:
-        if statues + len(go) >= MAX_TOTEMS:
+        if not s.in_store and statues + len(go) >= MAX_TOTEMS:
             left.append((e, f"the village already has {MAX_TOTEMS} totems, the most the game keeps"))
         elif len(go) >= room:
             used = s.entries
@@ -665,12 +695,14 @@ def give_totems(folder: Path, slot: int, kept: set[str] | frozenset = frozenset(
     save = ln.save_path(folder, GAME, slot)
     try:
         original = save.read_bytes()
-        s = survey_bytes(original, folder=folder, slot=slot)
+        s = survey_bytes(original, folder=folder, slot=slot, stored=_stored(folder, slot, original))
     except (struct.error, OSError, ln.LastNamesError) as exc:
         raise TotemError(f"The save could not be read ({exc}); nothing was changed.") from exc
     go, left = plan_give(s, kept)
     if not go and not left:
         raise TotemError("Every Esteemed Elder already has a totem; nothing was changed.")
+    if s.in_store and go:
+        return _give_into_store(folder, slot, original, s, go, left, controller, now, rng)
     offsets = _offsets(original)
     first = offsets[0] if offsets else None
     village = _village(original, slot)
@@ -719,6 +751,55 @@ def give_totems(folder: Path, slot: int, kept: set[str] | frozenset = frozenset(
     except OSError:
         pass                                    # the totems stand; the save shows them
     return GiveResult(given, left, save, backup)
+
+
+def _give_into_store(folder: Path, slot: int, original: bytes, s: Survey, go: list[Elder],
+                     left: list[tuple[Elder, str]], controller, now: datetime | None,
+                     rng: random.Random) -> GiveResult:
+    """The new totems go into the save's ElderTotems.dat (they take no villager record); the save itself is
+    not changed.  Backed up first; the file is written through a temporary file and read back."""
+    import vv_vv2_totem_store as store_mod
+    store = store_mod.read(folder, slot)
+    offsets = _offsets(original)
+    clock = max((_i32(original, at + TIME) for at in offsets), default=0)
+    taken = [(t.x, t.y) for t in s.totems]
+    given: list[Given] = []
+    for e in go:
+        x, y = _place(taken)
+        taken.append((x, y))
+        kind = rng.randint(*TYPE_RANGE)
+        store.totems.append(store_mod.Totem(_new_entry(original, e, kind, x, y, clock)))
+        store.village = store.village or store_mod.village_of(original)
+        given.append(Given(e, -1, kind, x, y))
+    path = store_mod.store_path(folder, slot)
+    old = path.read_bytes()
+    try:
+        backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix=BACKUP_GIVE)
+    except vv_save_backup.BackupError as exc:
+        raise TotemError(f"The backup failed, so nothing was changed. {exc}") from exc
+    tools._refuse_if_running(folder, controller)
+    copy = store_mod._keep_copy(folder, path, old, COPY_GIVE)
+    try:
+        store_mod._atomic_write(path, store_mod.serialize(store))
+        if len(store_mod.parse(path.read_bytes()).totems) != len(store.totems):
+            raise TotemError("the totems did not read back from ElderTotems.dat")
+    except (OSError, store_mod.StoreError, TotemError) as exc:
+        try:
+            store_mod._atomic_write(path, old)
+        except (OSError, store_mod.StoreError):
+            pass
+        raise TotemError(f"The repair failed ({exc}); ElderTotems.dat was put back. "
+                         f"A backup is in {backup.backup_folder}.") from exc
+    lines = ["Checked: every Esteemed Elder in the save and the Deaths log, for a totem of their own"]
+    lines += [f"Totem given (in ElderTotems.dat): {g.elder.label()}: a totem ({face(g.type)}, type {g.type}) at "
+              f"({g.x}, {g.y})" for g in given]
+    lines += [f"Not given: {e.label()} -- {why}" for e, why in left]
+    lines += [f"File: {path.relative_to(folder)} -- copy kept: {copy}", f"Backup: {Path(backup.backup_folder).name}"]
+    try:
+        _record(folder, _village(original, slot), slot, now, lines)
+    except OSError:
+        pass
+    return GiveResult(given, left, path, backup)
 
 
 @dataclass

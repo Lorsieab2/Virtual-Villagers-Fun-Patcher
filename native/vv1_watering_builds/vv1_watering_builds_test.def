@@ -3,3 +3,5 @@ EXPORTS
     VvfpVv1WateringBuildsInstall=_VvfpVv1WateringBuildsInstall@0
     VvfpVv1WateringBuildsProbe=_VvfpVv1WateringBuildsProbe@16
     VvfpVv1WateringStats DATA
+    VvfpVv1WateringGateProbe=_VvfpVv1WateringGateProbe@16
+    VvfpVv1WateringRollTest DATA

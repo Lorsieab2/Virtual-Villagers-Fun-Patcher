@@ -128,8 +128,15 @@ class VV5OriginsCarriesNoUnreachableCode(unittest.TestCase):
                 # layers (the safety layer's record guards use part of this
                 # tail since v1.35.58, scripts/build_record_guards_vv345.py).
                 # (With 256 Villagers in the selection, its rescaled rows.)
-                table = ["vv5_population_256"] if scope == "full" and any(
-                    p.id == "vv5_population_256" for p in vfp.load_public_fun_patches()) else []
+                # (And, since the owner's 14% rule, Easier Devotee Training's
+                # gate at 0x494D00 and Statue Drops' selector body at 0x494D30:
+                # live code of those features in the freed village-wide
+                # extension, not Origins'.  test_every_origins_byte_is_reached
+                # still requires every byte there to be reached.)
+                public_ids = {p.id for p in vfp.load_public_fun_patches()}
+                table = [t for t in ("vv5_population_256", "vv5_easier_devotee_training",
+                                     "vv5_statue_polishing_or_honoring")
+                         if scope == "full" and t in public_ids]
                 stock, _ = vfp.render_patched_bytes(STOCK, build, mode, table)
                 for lo, hi, what in (
                     (0x94B32, 0x94BB0, "Cure stub and village-wide preflight"),

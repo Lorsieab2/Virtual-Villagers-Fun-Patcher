@@ -162,7 +162,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_log_decisions", "vv_log_contradictions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
-               "vv_vv2_totems"}
+               "vv_vv2_totems", "vv_vv2_totem_store"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -236,7 +236,14 @@ class ReleasesLinkTests(unittest.TestCase):
                                "vv_corrupt_skills", "vv_save_layout",
                                # Its renamed-answer check reads the reconciliation answers, as a
                                # function-level import (the same as vv_genealogy's).
-                               "vv_reconcile"}),
+                               "vv_reconcile",
+                               # ElderTotems.dat, when the save keeps its totems there (function-level).
+                               "vv_vv2_totem_store"}),
+            ("vv_vv2_totem_store", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_save_layout",
+                                    "vv_vv2_totems",
+                                    # the tribe's name binds a file of a village with no villager left
+                                    # (function-level, as vv_corrupt_skills's)
+                                    "vv_tribe_rename"}),
             ("vv_family_tree", {"vv_genealogy", "vv_log_tools", "vv_gdiplus", "vv_save_layout", "vv_line_colours"}),
             ("vv_gdiplus", {"vv_family_tree"}),
             ("vv_line_colours", {"vv_family_tree", "vv_gdiplus"}),

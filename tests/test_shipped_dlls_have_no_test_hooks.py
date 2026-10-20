@@ -59,6 +59,9 @@ TEST_BUILDS = {
     "assets/story_upgrades/VVFP Story Upgrades.dll": ("VVFP Story Upgrades.test.dll", "vvfp_story_upgrades"),
     "assets/cause_of_death/VVFP Cause of Death.dll": ("VVFP Cause of Death.test.dll", "vvfp_cause_of_death"),
     "assets/statistics/VVFP Statistics Export.dll": ("VVFP Statistics Export.test.dll", "statistics_export"),
+    "assets/easier_healing/VVFP VV1 Easier Healing.dll": ("VVFP VV1 Easier Healing.test.dll", "vv1_easier_healing"),
+    "assets/research_at_max/VVFP VV1 Research At Max.dll": ("VVFP VV1 Research At Max.test.dll",
+                                                            "vv1_research_at_max"),
 }
 
 VV3_COMPANION = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"

@@ -52,6 +52,8 @@ STATE = 0x30000000
 RECORD = 0x38000000
 INDEX = 7
 PICK = 4
+HEALING = {"vv1": 5, "vv2": 3}        # the job checkmark codes (0: none)
+NOT_HEALING = {"vv1": (0, 1, 2, 3, 4), "vv2": (0, 1, 2, 4, 5)}
 G = {
     "vv1": dict(no=1, site=0x44836F, resume=0x448379, done=0x44843D, picker=0x439AE0,
                 cont=0x447CD0, cont_arg=0x3C, threshold=400, stride=0x3D8),
@@ -113,9 +115,12 @@ def _probe(game_no: int):
 class Run:
     """fix_huts: None -- "VVFP Fix Huts.dll" is not loaded, so the companion
     draws its own roll (forced by `own`: 1 pass, 2 fail); else the answer of
-    the loaded companion's VvfpFixHutsRoll (scripted, counted)."""
+    the loaded companion's VvfpFixHutsRoll (scripted, counted).
+    preference: the villager's job checkmark (default: Healing); preference_roll
+    forces the not-checked-on-Healing 14% roll (0 real, 1 pass, 2 fail)."""
 
-    def __init__(self, game: str, food: int, state9: int, cont_result: int, fix_huts=None, own: int = 1):
+    def __init__(self, game: str, food: int, state9: int, cont_result: int, fix_huts=None, own: int = 1,
+                 preference=None, preference_roll: int = 0):
         g = G[game]
         stub = _probe(g["no"])[4]
         mu, ex = _emulator()
@@ -123,6 +128,13 @@ class Run:
         self.fix_huts, self.looked_up = fix_huts, []
         mu.mem_write(ex["VvfpHealersStudyRollTest"], struct.pack("<ii", own, 0))
         self.own_at = ex["VvfpHealersStudyRollTest"] + 4
+        mu.mem_write(ex["VvfpHealersStudyPreferenceRollTest"], struct.pack("<ii", preference_roll, 0))
+        self.preference_at = ex["VvfpHealersStudyPreferenceRollTest"] + 4
+        preference = HEALING[game] if preference is None else preference
+        if game == "vv1":
+            mu.mem_write(VILLAGE + INDEX * g["stride"] + 0x3D0, struct.pack("<i", preference))
+        else:
+            mu.mem_write(RECORD + 0x7F8, struct.pack("<i", preference))
         mu.mem_map(ROLL_FN, 0x1000)
         mu.mem_write(ROLL_FN, b"\xFF\x05" + struct.pack("<I", ROLL_COUNT) + b"\xB8"
                      + struct.pack("<I", fix_huts or 0) + b"\xC3")
@@ -139,15 +151,26 @@ class Run:
             except Exception:
                 pass
             mu.mem_write(va, b"\xC3")
+        self.g, self.cont_result, self.stub, self.mu = g, cont_result, stub, mu
+        mu.hook_add(UC_HOOK_CODE, self._hook)
+        self.again()
+
+    def again(self):
+        """Run the stub once more in the same emulator: the companion's own
+        generators carry on from where the last run left them."""
+        mu, game = self.mu, "vv1" if self.g is G["vv1"] else "vv2"
         esp = STACK - 0x400
         mu.reg_write(UC_X86_REG_ESP, esp)
         mu.reg_write(UC_X86_REG_ESI, VILLAGE)
         mu.reg_write(UC_X86_REG_EDI, INDEX)
         mu.reg_write(UC_X86_REG_EBP, STATE if game == "vv1" else RECORD)
-        self.g, self.cont_result, self.calls, self.exit = g, cont_result, [], None
-        mu.hook_add(UC_HOOK_CODE, self._hook)
-        mu.emu_start(stub, 0, count=100000)
-        self.mu, self.esp_before = mu, esp
+        self.calls, self.exit = [], None
+        mu.emu_start(self.stub, 0, count=100000)
+        self.esp_before = esp
+        return self
+
+    def preference_rolls(self) -> int:
+        return struct.unpack("<i", self.mu.mem_read(self.preference_at, 4))[0]
 
     def _hook(self, mu, address, size, user_data):
         g = self.g
@@ -256,6 +279,58 @@ class HealersStudyTests(unittest.TestCase):
                 self.assertEqual(r.own_rolls(), 1)
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_a_villager_not_checked_on_healing_needs_the_14_percent_roll(self):
+        # The owner (2026-10-20): villagers not checked on a skill do this
+        # patch's actions that train it 14% of the time.  A failed roll is
+        # the stock selection -- the picker, i.e. the villager's own job --
+        # never plant study.
+        for game, g in G.items():
+            for preference in NOT_HEALING[game]:
+                with self.subTest(game=game, preference=preference, roll="fails"):
+                    r = Run(game, food=g["threshold"] + 1000, state9=9, cont_result=1,
+                            preference=preference, preference_roll=2)
+                    self.assertEqual(r.exit, g["resume"])
+                    self.assertEqual(r.calls, [("picker", INDEX, 0, VILLAGE)], "the stock pick, no study")
+                    self.assertEqual(r.mu.reg_read(UC_X86_REG_EAX), PICK, "the pick reaches push eax")
+                    self.assertEqual(r.mu.reg_read(UC_X86_REG_ESP), r.esp_before)
+                    self.assertEqual((r.own_rolls(), r.preference_rolls()), (1, 1))
+                with self.subTest(game=game, preference=preference, roll="passes"):
+                    r = Run(game, food=g["threshold"] + 1000, state9=9, cont_result=1,
+                            preference=preference, preference_roll=1)
+                    self.assertEqual(r.exit, g["done"])
+                    self.assertEqual(r.calls, [("cont", INDEX, g["cont_arg"], VILLAGE)])
+                with self.subTest(game=game, preference=preference, decision="fails"):
+                    r = Run(game, food=g["threshold"] + 1000, state9=9, cont_result=1, own=2,
+                            preference=preference, preference_roll=1)
+                    self.assertEqual(r.exit, g["resume"])
+                    self.assertEqual(r.preference_rolls(), 0, "drawn only once the decision's roll passes")
+            with self.subTest(game=game, preference="Healing"):
+                r = Run(game, food=g["threshold"] + 1000, state9=9, cont_result=1, preference_roll=2)
+                self.assertEqual(r.exit, g["done"], "a healer never meets the 14% roll")
+                self.assertEqual(r.preference_rolls(), 0)
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
+    def test_measured_shares_healer_one_half_not_healer_14_percent_of_that(self):
+        # Real rolls, many checks in one emulator.  A healer continues half the
+        # time; a villager not checked on Healing on 14% of those checks.
+        n = 3000
+        for game, g in G.items():
+            for preference, low, high in ((HEALING[game], 0.46, 0.54), (0, 0.05, 0.09),
+                                          (NOT_HEALING[game][1], 0.05, 0.09)):
+                with self.subTest(game=game, preference=preference):
+                    r = Run(game, food=g["threshold"] + 1000, state9=9, cont_result=1, own=0,
+                            preference=preference)
+                    done = int(r.exit == g["done"])
+                    for _ in range(n - 1):
+                        done += r.again().exit == g["done"]
+                    share = done / n
+                    self.assertTrue(low <= share <= high, f"{game} preference {preference}: {share:.3f}")
+                    if preference != HEALING[game]:
+                        given = done / r.preference_rolls()
+                        self.assertTrue(0.11 <= given <= 0.17, f"{game}: 14% roll passed {given:.3f}")
+                    print(f"{game} preference {preference}: continued {share:.3f} of {n} checks")
+
+    @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_with_fix_huts_loaded_its_roll_is_shared(self):
         # With "VVFP Fix Huts.dll" loaded (Builders Fix Huts When Idle
         # selected), its VvfpFixHutsRoll (75%, the roll of the scheduler run it
@@ -282,6 +357,9 @@ class HealersStudyTests(unittest.TestCase):
         self.assertIn("return own_roll(1u, 2u);", source)
         self.assertIn("return x % out_of < pass;", source)
         self.assertNotIn("x % 100u < 75u", source)
+        # Not checked on Healing: 14 in 100 of those, one named constant.
+        self.assertIn("#define NOT_PREFERRED_PERCENT 14u", source)
+        self.assertIn("return x % 100u < NOT_PREFERRED_PERCENT;", source)
         for game in G:
             m = json.loads((ROOT / "data" / f"{game}_healers_study_feature.json").read_text(encoding="utf-8"))
             self.assertIn("a 50% chance", m["description"])
