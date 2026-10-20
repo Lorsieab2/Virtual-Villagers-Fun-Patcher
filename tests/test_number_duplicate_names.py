@@ -292,7 +292,8 @@ class Automatically(InTheSaveAndTheLogs):
                       'and the logs")', checklist)
         cut_first = checklist[checklist.index("        def cut_first("):checklist.index("        cuts_var.trace_add(")]
         # Off: nothing automatic -- the row is the player's to tick, as before.
-        self.assertIn("if number_auto_var.get() and misnumbered:\n                number_var.set(True)", cut_first)
+        # On: ticked by the setting, and unticked again when the setting is (Codex, #599).
+        self.assertIn("auto_number_tick(\n                number_auto_var.get(), bool(misnumbered),", cut_first)
         repair = gui[gui.index("    def _repair_logs("):gui.index("    def _repair_checklist(")]
         self.assertIn('numbers["auto"] = vv_number_names.read_auto(folder, number, info.slot)', repair)
         self.assertIn('vv_number_names.save_auto(folder, number, info.slot, numbers["auto"])', repair)
@@ -334,7 +335,8 @@ class TheWindows(unittest.TestCase):
         checklist = gui[gui.index("    def _repair_checklist("):gui.index("    def _repair_questions(")]
         # Ticked only when the save's names do not follow the numbering rule (the owner, 2026-10-08:
         # "update ... the repair logs and save data and everything").
-        self.assertIn("number_var = tk.BooleanVar(value=bool(misnumbered))", checklist)
+        # (With automatic numbering on, the setting ticks it instead -- see cut_first.)
+        self.assertIn("number_var = tk.BooleanVar(value=bool(misnumbered) and not number_auto_var.get())", checklist)
         repair = gui[gui.index("    def _repair_logs("):gui.index("    def _repair_checklist(")]
         self.assertIn("lambda: vv_number_names.number_names(folder, number, info.slot, numbering,", repair)
         self.assertIn('number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["appearance"])', checklist)

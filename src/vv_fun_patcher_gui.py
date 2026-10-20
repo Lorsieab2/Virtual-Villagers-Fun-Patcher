@@ -148,6 +148,19 @@ def default_fun_patch_selection(patch_id: str) -> bool:
     return patch_id not in DEFAULT_OFF_FUN_PATCH_IDS
 
 
+def auto_number_tick(auto: bool, misnumbered: bool, ticked: bool, forced: bool) -> tuple[bool, bool]:
+    """Repair Saves & Logs' "Number duplicate names" row under "Number villagers who share a name
+    automatically": (ticked, forced) after the setting or the names change.  With the setting on and
+    names to number, the row is ticked, and remembered as ticked by the setting unless the player
+    had ticked it already; with the setting off, a tick the setting made is taken back and a tick
+    the player made stays (Codex, #599)."""
+    if auto and misnumbered:
+        return True, forced or not ticked
+    if forced:
+        return False, False
+    return ticked, False
+
+
 def split_bold(text: str) -> list[tuple[str, bool]]:
     """Split a description at its **bold** markers: [(segment, is_bold), ...].
 
@@ -4473,7 +4486,10 @@ class App(tk.Tk):
         number_auto_tick.pack(anchor="w", pady=(4, 0))
         # Ticked when names do not follow the numbering rule (the owner, 2026-10-08: "update the
         # repair logs and save data and everything").
-        number_var = tk.BooleanVar(value=bool(misnumbered))
+        # With automatic numbering on, the row is ticked by the setting (cut_first below), not by the
+        # player, so unticking the setting unticks it again; a tick the player made stays (Codex, #599).
+        number_var = tk.BooleanVar(value=bool(misnumbered) and not number_auto_var.get())
+        number_forced = {"by_auto": False}
         number_row = ttk.Frame(frame)
         number_row.pack(anchor="w", pady=(4, 0))
         number_tick = ttk.Checkbutton(number_row, variable=number_var,
@@ -4506,8 +4522,10 @@ class App(tk.Tk):
             for widget in (names_tick, names_choose):
                 widget.state(["disabled"] if waiting else ["!disabled"])
             # Automatic: numbered at every Repair while there is something to number (held ticked).
-            if number_auto_var.get() and misnumbered:
-                number_var.set(True)
+            ticked, number_forced["by_auto"] = auto_number_tick(
+                number_auto_var.get(), bool(misnumbered), number_var.get(), number_forced["by_auto"])
+            if ticked != number_var.get():
+                number_var.set(ticked)
             held = waiting or (number_auto_var.get() and bool(misnumbered))
             number_tick.state(["disabled"] if held else ["!disabled"])
             number_order.state(["disabled"] if waiting else ["!disabled", "readonly"])

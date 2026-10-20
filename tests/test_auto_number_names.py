@@ -138,5 +138,64 @@ class NumberedAtBirth(unittest.TestCase):
             self.assertEqual(hashlib.sha256(dll.read_bytes()).hexdigest(), hashlib.sha256(DLL.read_bytes()).hexdigest())
 
 
+class TheAutomaticSettingOnlyTakesBackItsOwnTick(unittest.TestCase):
+    """Codex (#599): Repair Saves & Logs' "Number duplicate names" row is ticked by "Number villagers
+    who share a name automatically" while there are names to number; unticking the setting must
+    untick it again, or Repair renames villagers after the player turned numbering off -- but a tick
+    the player made on their own stays."""
+
+    def setUp(self):
+        import vv_fun_patcher_gui as gui
+        self.tick = gui.auto_number_tick
+
+    def dialog(self, auto: bool, misnumbered: bool):
+        # The dialog's start: the row is ticked by default only when the setting is off.
+        state = {"ticked": misnumbered and not auto, "forced": False}
+
+        def setting(on: bool):
+            state["ticked"], state["forced"] = self.tick(on, misnumbered, state["ticked"], state["forced"])
+            return state["ticked"]
+        return state, setting
+
+    def test_auto_on_forces_the_tick(self):
+        state, setting = self.dialog(auto=True, misnumbered=True)
+        self.assertTrue(setting(True))
+        self.assertTrue(state["forced"])
+
+    def test_auto_off_takes_the_forced_tick_back(self):
+        state, setting = self.dialog(auto=True, misnumbered=True)
+        setting(True)
+        self.assertFalse(setting(False))
+        self.assertFalse(state["forced"])
+        self.assertTrue(setting(True), "on again: ticked again")
+        self.assertFalse(setting(False))
+
+    def test_a_manual_tick_stays_when_auto_goes_off(self):
+        state, setting = self.dialog(auto=False, misnumbered=True)
+        state["ticked"] = False
+        self.assertFalse(setting(False))
+        state["ticked"] = True                 # the player ticks the row
+        self.assertTrue(setting(True))
+        self.assertFalse(state["forced"], "the player's tick is not the setting's")
+        self.assertTrue(setting(False), "the player's tick stays")
+        # The row ticked by default (the setting off at the start) is not the setting's either.
+        state, setting = self.dialog(auto=False, misnumbered=True)
+        self.assertTrue(setting(True))
+        self.assertTrue(setting(False))
+
+    def test_nothing_to_number_is_never_ticked_by_the_setting(self):
+        state, setting = self.dialog(auto=True, misnumbered=False)
+        self.assertFalse(setting(True))
+        self.assertFalse(setting(False))
+
+    def test_the_dialog_uses_it(self):
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertIn("number_var = tk.BooleanVar(value=bool(misnumbered) and not number_auto_var.get())", source)
+        self.assertIn("auto_number_tick(\n                number_auto_var.get(), bool(misnumbered), number_var.get(),"
+                      " number_forced[\"by_auto\"])", source)
+        self.assertNotIn("            if number_auto_var.get() and misnumbered:\n                number_var.set(True)",
+                         source)
+
+
 if __name__ == "__main__":
     unittest.main()
