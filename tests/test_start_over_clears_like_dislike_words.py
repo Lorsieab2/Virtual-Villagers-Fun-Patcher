@@ -20,6 +20,10 @@ from __future__ import annotations
 
 import pathlib
 import subprocess
+import sys
+import tempfile
+import threading
+import time
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -44,6 +48,15 @@ EVERY_GAME = (
     "the kept Village History's boundary still counts",
     "no .tmp is left beside the rewritten file",
     "A NEW LOG REUSING THE NAME DOES NOT INHERIT THE OLD BOUNDARY (boundary 0)",
+    # one writer at a time (Codex, #597): an append made during the reset waits and is kept
+    "a writer appended while the reset was replacing the file",
+    "THE WRITER WAITED FOR THE RESET'S LOCK",
+    "AN APPEND MADE DURING THE RESET IS KEPT, and the deleted log's line is still gone",
+    # ...and the wait is bounded: the file is left as it was
+    "with the lock held elsewhere the log is still deleted",
+    "A LOCK NOT HAD IN TIME LEAVES THE BOUNDARY FILE UNTOUCHED",
+    "...and the refusal is counted",
+    "the reset waited the bounded time, no longer",
 )
 # A New Home and The Secret City are the two games whose words are tracked (log_words.h).
 TRACKED_ONLY = ("the new log's boundary 0 is recorded in the save's own file",)
@@ -72,8 +85,99 @@ class StartOverWordsSourceTests(unittest.TestCase):
                 self.assertIn(case, text)
 
     def test_the_shipped_dll_is_the_fixed_build(self) -> None:
-        # The rewrite's temporary name is only in the fixed build.
-        self.assertIn(b"%s.tmp", DLL_PATH.read_bytes())
+        blob = DLL_PATH.read_bytes()
+        # the rewrite's per-process, per-operation temporary name, and the boundary lock
+        self.assertIn(b"%s.%lu-%ld.tmp", blob)
+        self.assertNotIn(b"%s.tmp\x00", blob)
+        self.assertIn("Local\\VVFP Like and Dislike Words - Virtual Villagers %d".encode("utf-16-le"), blob)
+
+    def test_the_rewrite_holds_the_lock_around_every_file(self) -> None:
+        text = RESET_C.read_text(encoding="utf-8")
+        body = text[text.index("VV_RESET_STATIC int forget_log_words"):]
+        body = body[: body.index("\n}\n")]
+        lock, unlock = body.index("vv_log_words_lock(game)"), body.index("vv_log_words_unlock(lock)")
+        for call in ("forget_words_in(save_dat, key)", "forget_words_in(new_dat, key)", "forget_words_in(old_dat, key)"):
+            with self.subTest(call=call):
+                self.assertTrue(lock < body.index(call) < unlock)
+
+
+class WordsLockTests(unittest.TestCase):
+    """The patcher's own writers hold the same lock as the game's (src/vv_save_layout.py words_lock)."""
+
+    LOG_WORDS_H = ROOT / "native" / "shared" / "log_words.h"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_save_layout
+
+        cls.layout = vv_save_layout
+
+    def test_the_name_and_the_wait_are_the_game_companions_own(self) -> None:
+        header = self.LOG_WORDS_H.read_text(encoding="utf-8")
+        c_name = self.layout.WORDS_LOCK_NAME.replace("\\", "\\\\").replace("{game}", "%d")
+        self.assertIn(f'#define VV_LOG_WORDS_LOCK_NAME L"{c_name}"', header)
+        self.assertIn(f"#define VV_LOG_WORDS_LOCK_MS {self.layout.WORDS_LOCK_MS}", header)
+
+    def _hold(self, game: int, seconds: float) -> tuple[threading.Thread, threading.Event]:
+        taken = threading.Event()
+
+        def holder() -> None:
+            with self.layout.words_lock(game):
+                taken.set()
+                time.sleep(seconds)
+
+        thread = threading.Thread(target=holder)
+        thread.start()
+        self.assertTrue(taken.wait(5))
+        return thread, taken
+
+    def test_a_held_lock_refuses_after_the_bounded_wait(self) -> None:
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                thread, _ = self._hold(game, 1.0)
+                started = time.monotonic()
+                with self.assertRaises(self.layout.WordsLockTimeout):
+                    with self.layout.words_lock(game, timeout_ms=200):
+                        pass
+                self.assertLess(time.monotonic() - started, 0.9)
+                thread.join()
+                with self.layout.words_lock(game, timeout_ms=200):
+                    pass                                   # free again once released
+
+    def test_the_patchers_append_waits_for_the_lock_and_is_written(self) -> None:
+        import vv_log_tools as tools
+
+        for game in (1, 3):                                # the games whose words are tracked
+            with self.subTest(game=game), tempfile.TemporaryDirectory() as tmp:
+                folder = pathlib.Path(tmp)
+                log = (folder / "Virtual Villagers Fun Patcher Logs" / "Births and Conceptions"
+                       / f"Virtual Villagers {game} Births and Conceptions Log 1.txt")
+                log.parent.mkdir(parents=True)
+                log.write_bytes(b"Village: Kalahuna (Save 1)\r\n")
+                thread, _ = self._hold(game, 0.5)
+                started = time.monotonic()
+                tools.new_log_words(folder, log)
+                waited = time.monotonic() - started
+                thread.join()
+                self.assertGreater(waited, 0.3, "the append did not wait for the held lock")
+                key = str(log.relative_to(folder))
+                dat = self.layout.words_file_for(folder, game, key)
+                self.assertEqual(dat.read_bytes(), f"0\t{key}\r\n".encode("utf-8"))
+
+    def test_every_patcher_writer_takes_the_lock(self) -> None:
+        src = ROOT / "src"
+        for module, needle in (
+            ("vv_log_tools.py", "with layout.words_lock(game):\n        _move_word_boundary("),
+            ("vv_log_tools.py", "with layout.words_lock(game):                         # across the check"),
+            ("vv_log_tools.py", "with layout.words_lock(game), open(dat, \"ab\") as boundaries:"),
+            ("vv_move_to_save_folders.py", "with layout.words_lock_for(path):            # the game's Start Over"),
+            ("vv_move_to_save_folders.py", "            with layout.words_lock_for(path):\n                if before is None:"),
+            ("vv_move_old_names.py", "with layout.words_lock(game):    # the game's Start Over rewrites this file"),
+            ("vv_history_revision.py", "with tools.layout.words_lock_for(path):"),
+        ):
+            with self.subTest(module=module, needle=needle):
+                self.assertIn(needle, (src / module).read_text(encoding="utf-8"))
 
 
 class StartOverWordsHarnessRunsTests(unittest.TestCase):

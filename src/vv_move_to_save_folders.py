@@ -441,13 +441,14 @@ def _boundary(folder: Path, game: int, key: str) -> int | None:
 
 def _append_words(path: Path, line: bytes, state: _State) -> None:
     """Step 4: one boundary line appended to a words file (its first state remembered)."""
-    if path not in state.words:
-        state.words[path] = path.read_bytes() if path.exists() else None
-        _make_dirs(path.parent, state)
-    with open(path, "ab") as out:
-        out.write(line)
-        out.flush()
-        os.fsync(out.fileno())
+    with layout.words_lock_for(path):            # the game's Start Over rewrites these files
+        if path not in state.words:
+            state.words[path] = path.read_bytes() if path.exists() else None
+            _make_dirs(path.parent, state)
+        with open(path, "ab") as out:
+            out.write(line)
+            out.flush()
+            os.fsync(out.fileno())
 
 
 def _copy_words(folder: Path, game: int, moves: list[Move], state: _State) -> list[tuple[Path, bytes]]:
@@ -536,13 +537,14 @@ def _put_back(state: _State) -> list[str]:
             failed.append(f"{new} ({exc})")
     for path, before in state.words.items():
         try:
-            if before is None:
-                path.unlink()
-            else:
-                with open(path, "r+b") as out:
-                    out.truncate(len(before))
-                if path.read_bytes() != before:
-                    path.write_bytes(before)
+            with layout.words_lock_for(path):
+                if before is None:
+                    path.unlink()
+                else:
+                    with open(path, "r+b") as out:
+                        out.truncate(len(before))
+                    if path.read_bytes() != before:
+                        path.write_bytes(before)
         except FileNotFoundError:
             pass
         except OSError as exc:

@@ -598,6 +598,13 @@ def _word_backup(folder: Path, path: Path) -> Path:
 
 
 def move_word_boundary(folder: Path, path: Path, game: int, moved) -> None:
+    """_move_word_boundary, holding the game's Like and Dislike Words lock across its reads and
+    appends (vv_save_layout.words_lock: Start Over rewrites these files in the game)."""
+    with layout.words_lock(game):
+        _move_word_boundary(folder, path, game, moved)
+
+
+def _move_word_boundary(folder: Path, path: Path, game: int, moved) -> None:
     """After a log file was rewritten in place with bytes added or taken (src/vv_log_additions.py),
     its Like and Dislike Words boundary moved with them: `moved(offset)` is where the byte at
     `offset` of the file as it was is now.  In every boundary file that records one (both are read
@@ -648,12 +655,13 @@ def new_log_words(folder: Path, path: Path) -> None:
         return
     game = int(named.group(1))
     key = checker.word_key(str(Path(path).relative_to(folder)))
-    if key.lower() in checker.word_boundaries(Path(folder), game):
-        return
-    dat = layout.words_file_for(folder, game, key)       # the save's own for a log in its own folder
-    dat.parent.mkdir(parents=True, exist_ok=True)
-    with open(dat, "ab") as boundaries:
-        boundaries.write(f"0\t{key}\r\n".encode("utf-8"))
+    with layout.words_lock(game):                         # across the check and the append
+        if key.lower() in checker.word_boundaries(Path(folder), game):
+            return
+        dat = layout.words_file_for(folder, game, key)   # the save's own for a log in its own folder
+        dat.parent.mkdir(parents=True, exist_ok=True)
+        with open(dat, "ab") as boundaries:
+            boundaries.write(f"0\t{key}\r\n".encode("utf-8"))
 
 
 def fix_log_words(folder: Path, game: int) -> list[WordFix]:
@@ -686,7 +694,7 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
             temporary.write_bytes(b"".join(out))
             os.replace(temporary, f.path)
             dat.parent.mkdir(parents=True, exist_ok=True)
-            with open(dat, "ab") as boundaries:
+            with layout.words_lock(game), open(dat, "ab") as boundaries:
                 boundaries.write(f"0\t{f.name}\r\n".encode("utf-8"))
         except OSError as exc:
             try:

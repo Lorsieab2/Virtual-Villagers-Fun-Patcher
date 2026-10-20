@@ -24,7 +24,80 @@
 #include "harness_ldw_tree.h"
 #include "log_words.h"
 
+/* The reset's test hook and refusal count (VV_RESET_TESTABLE, save_reset.c). */
+extern void (*vv_reset_words_test_hook)(const char *dat);
+extern int vv_reset_words_refusals;
+
 static int failures = 0;
+
+/* AN APPEND MADE DURING THE RESET. The hook runs after the reset has read the save's own boundary
+   file and before it replaces it; it starts a writer that appends a boundary for another log the
+   way an exporter does, and checks the writer is held back until the reset is done. */
+static int race_game;
+static char race_dat[MAX_PATH];
+static char race_key[MAX_PATH];
+static wchar_t race_log_w[MAX_PATH];
+static HANDLE race_thread;
+static int race_blocked;
+
+static DWORD WINAPI race_writer(LPVOID unused) {
+    (void)unused;
+    if (vv_log_words_tracked(race_game)) {
+        vv_log_words_appending(race_game, race_log_w);     /* the exporters' own path */
+    } else {
+        HANDLE lock = vv_log_words_lock(race_game);         /* what it does, for every game */
+        if (lock != NULL) {
+            vv_log_words_note(race_dat, 0, race_key);
+            vv_log_words_unlock(lock);
+        }
+    }
+    return 0;
+}
+
+static void race_hook(const char *dat) {
+    if (race_thread != NULL || lstrcmpiA(dat, race_dat) != 0) {
+        return;
+    }
+    race_thread = CreateThread(NULL, 0, race_writer, NULL, 0, NULL);
+    race_blocked = race_thread != NULL && WaitForSingleObject(race_thread, 300) == WAIT_TIMEOUT;
+}
+
+/* A holder that keeps the game's lock longer than any writer waits. */
+static HANDLE hold_taken, hold_release;
+static int hold_game;
+
+static DWORD WINAPI lock_holder(LPVOID unused) {
+    HANDLE lock;
+    (void)unused;
+    lock = vv_log_words_lock(hold_game);
+    SetEvent(hold_taken);
+    WaitForSingleObject(hold_release, 15000);
+    vv_log_words_unlock(lock);
+    return 0;
+}
+
+/* Any "<boundary file>.*" temporary left beside it. */
+static int temporaries_beside(const char *dat) {
+    char filter[MAX_PATH];
+    WIN32_FIND_DATAA found;
+    HANDLE search;
+    const char *base = strrchr(dat, '\\');
+    int any = 0;
+    base = base != NULL ? base + 1 : dat;
+    wsprintfA(filter, "%s.*", dat);
+    search = FindFirstFileA(filter, &found);
+    if (search == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    do {
+        /* "<name>.*" also matches "<name>" itself: only a longer name is a temporary. */
+        if (lstrlenA(found.cFileName) > lstrlenA(base)) {
+            any = 1;
+        }
+    } while (FindNextFileA(search, &found));
+    FindClose(search);
+    return any;
+}
 
 static void check(int game, int condition, const char *what) {
     printf("  [%s] game %d: %s\n", condition ? "PASS" : "FAIL", game, what);
@@ -91,7 +164,7 @@ int main(void) {
         char log1[MAX_PATH], deaths1[MAX_PATH], hist1[MAX_PATH], slot2[MAX_PATH], other[MAX_PATH];
         wchar_t log1_w[MAX_PATH], deaths1_w[MAX_PATH], hist1_w[MAX_PATH], slot2_w[MAX_PATH], other_w[MAX_PATH];
         char k_log1[MAX_PATH], k_deaths1[MAX_PATH], k_hist1[MAX_PATH], k_slot2[MAX_PATH], k_other[MAX_PATH];
-        char save1_dat[MAX_PATH], save2_dat[MAX_PATH], new_dat[MAX_PATH], old_dat[MAX_PATH], tmp[MAX_PATH];
+        char save1_dat[MAX_PATH], save2_dat[MAX_PATH], new_dat[MAX_PATH], old_dat[MAX_PATH];
         char name[MAX_PATH], text[8192], want[8192], buf[8192];
         FILETIME save2_before, save2_after;
         LONGLONG offset = -1;
@@ -166,8 +239,8 @@ int main(void) {
               "the older Log Words file keeps another village's line, byte for byte");
         check(game, vv_log_words_recorded(game, k_hist1, &offset) && offset == 777,
               "the kept Village History's boundary still counts");
-        wsprintfA(tmp, "%s.tmp", save1_dat);
-        check(game, !exists(tmp), "no .tmp is left beside the rewritten file");
+        check(game, !temporaries_beside(save1_dat) && !temporaries_beside(new_dat) && !temporaries_beside(old_dat),
+              "no .tmp is left beside the rewritten file");
 
         /* The next village starts a log of the same name, as an exporter does. */
         write_text(log1, "");
@@ -178,6 +251,67 @@ int main(void) {
             wsprintfA(want, "777\t%s\r\n0\t%s\r\n", k_hist1, k_log1);
             check(game, strcmp(read_text(save1_dat, buf, sizeof buf), want) == 0,
                   "the new log's boundary 0 is recorded in the save's own file");
+        }
+
+        /* AN APPEND MADE DURING THE RESET IS KEPT (Codex, #597): it waits for the reset's lock and
+           lands after the replace, never into the file the replace then overwrites. */
+        {
+            char island[MAX_PATH];
+            wsprintfA(name, "Virtual Villagers %d Island Events Log 1.txt", game);
+            if (!place(island, race_log_w, "Virtual Villagers Fun Patcher Logs\\Save 1\\Island Events", name)
+                || !vv_log_words_name(race_log_w, race_key, MAX_PATH)) {
+                check(game, 0, "the racing log's path resolves");
+            } else {
+                DeleteFileA(island);              /* a new log: its boundary is 0 */
+                race_game = game;
+                lstrcpyA(race_dat, save1_dat);
+                race_thread = NULL;
+                race_blocked = 0;
+                write_text(log1, VILLAGE);
+                wsprintfA(text, "5000\t%s\r\n777\t%s\r\n", k_log1, k_hist1);
+                write_text(save1_dat, text);
+                vv_reset_words_test_hook = race_hook;
+                vv_reset_slot_state(game, 1, VILLAGE);
+                vv_reset_words_test_hook = NULL;
+                check(game, race_thread != NULL, "a writer appended while the reset was replacing the file");
+                if (race_thread != NULL) {
+                    check(game, WaitForSingleObject(race_thread, 10000) == WAIT_OBJECT_0, "...and finished");
+                    CloseHandle(race_thread);
+                    race_thread = NULL;
+                }
+                check(game, race_blocked, "THE WRITER WAITED FOR THE RESET'S LOCK");
+                wsprintfA(want, "777\t%s\r\n0\t%s\r\n", k_hist1, race_key);
+                check(game, strcmp(read_text(save1_dat, buf, sizeof buf), want) == 0,
+                      "AN APPEND MADE DURING THE RESET IS KEPT, and the deleted log's line is still gone");
+            }
+        }
+
+        /* A LOCK HELD TOO LONG: the reset waits a bounded time, leaves every boundary file as it
+           was, counts the refusal, and still deletes the log. */
+        {
+            DWORD started, took;
+            int refusals = vv_reset_words_refusals;
+            HANDLE holder;
+            write_text(log1, VILLAGE);
+            wsprintfA(text, "5000\t%s\r\n777\t%s\r\n", k_log1, k_hist1);
+            write_text(save1_dat, text);
+            hold_game = game;
+            hold_taken = CreateEventA(NULL, TRUE, FALSE, NULL);
+            hold_release = CreateEventA(NULL, TRUE, FALSE, NULL);
+            holder = CreateThread(NULL, 0, lock_holder, NULL, 0, NULL);
+            WaitForSingleObject(hold_taken, 5000);
+            started = GetTickCount();
+            vv_reset_slot_state(game, 1, VILLAGE);
+            took = GetTickCount() - started;
+            SetEvent(hold_release);
+            WaitForSingleObject(holder, 10000);
+            CloseHandle(holder); CloseHandle(hold_taken); CloseHandle(hold_release);
+            check(game, !exists(log1), "with the lock held elsewhere the log is still deleted");
+            check(game, strcmp(read_text(save1_dat, buf, sizeof buf), text) == 0,
+                  "A LOCK NOT HAD IN TIME LEAVES THE BOUNDARY FILE UNTOUCHED");
+            check(game, vv_reset_words_refusals == refusals + 1, "...and the refusal is counted");
+            check(game, took >= VV_LOG_WORDS_LOCK_MS - 100 && took < VV_LOG_WORDS_LOCK_MS + 3000,
+                  "the reset waited the bounded time, no longer");
         }
 
         DeleteFileA(log1); DeleteFileA(hist1); DeleteFileA(slot2); DeleteFileA(other);

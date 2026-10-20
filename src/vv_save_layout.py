@@ -469,6 +469,74 @@ def older_layout(folder: Path, path: Path) -> str | None:
 # so deleting the save's folder takes them with it (a boundary left behind would apply to a new log of
 # the same name and turn its correct words into wrong ones).  Every other log's stay in the shared file.
 
+# ONE WRITER AT A TIME (native/shared/log_words.h vv_log_words_lock).  Start Over removes a deleted
+# log's lines by reading a words file and replacing it; a line appended in between would be lost.  So
+# every writer of a game's words files -- the game's companions, Start Over, and the patcher here --
+# holds the same named mutex, one per game, across its whole read-check-write.  The wait is bounded:
+# after WORDS_LOCK_MS nothing is written and WordsLockTimeout (an OSError) says so.
+WORDS_LOCK_NAME = "Local\\VVFP Like and Dislike Words - Virtual Villagers {game}"
+WORDS_LOCK_MS = 2000
+_WORDS_FILE_GAME = re.compile(r"^Virtual Villagers ([1-5]) Log Words\.dat$", re.I)
+
+
+class WordsLockTimeout(OSError):
+    """The game's Like and Dislike Words files were in use for too long; nothing was written."""
+
+
+class words_lock:
+    """`with words_lock(game):` holds the game's Like and Dislike Words lock (no-op off Windows)."""
+
+    def __init__(self, game: int, timeout_ms: int = WORDS_LOCK_MS) -> None:
+        self.game = int(game)
+        self.timeout_ms = int(timeout_ms)
+        self._handle = None
+
+    def __enter__(self) -> "words_lock":
+        if os.name != "nt":
+            return self
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.CreateMutexW.restype = wintypes.HANDLE
+        kernel32.CreateMutexW.argtypes = (wintypes.LPVOID, wintypes.BOOL, wintypes.LPCWSTR)
+        kernel32.WaitForSingleObject.restype = wintypes.DWORD
+        kernel32.WaitForSingleObject.argtypes = (wintypes.HANDLE, wintypes.DWORD)
+        kernel32.CloseHandle.argtypes = (wintypes.HANDLE,)
+        kernel32.ReleaseMutex.argtypes = (wintypes.HANDLE,)
+        self._kernel32 = kernel32
+        handle = kernel32.CreateMutexW(None, False, WORDS_LOCK_NAME.format(game=self.game))
+        if not handle:
+            raise WordsLockTimeout(f"the Like and Dislike Words lock of game {self.game} could not be made; "
+                                   "nothing was written")
+        waited = kernel32.WaitForSingleObject(handle, self.timeout_ms)
+        if waited not in (0, 0x80):          # WAIT_OBJECT_0, WAIT_ABANDONED
+            kernel32.CloseHandle(handle)
+            raise WordsLockTimeout(f"the Like and Dislike Words files of game {self.game} stayed in use "
+                                   "(is the game running?); nothing was written")
+        self._handle = handle
+        return self
+
+    def __exit__(self, *exc) -> None:
+        if self._handle is not None:
+            self._kernel32.ReleaseMutex(self._handle)
+            self._kernel32.CloseHandle(self._handle)
+            self._handle = None
+
+
+def is_words_file(path: Path) -> bool:
+    """Is `path` a Like and Dislike Words file ("Virtual Villagers <G> Log Words.dat")?"""
+    return bool(_WORDS_FILE_GAME.match(Path(path).name))
+
+
+def words_lock_for(path: Path) -> words_lock:
+    """The lock of the game whose words file `path` is ("Virtual Villagers <G> Log Words.dat")."""
+    m = _WORDS_FILE_GAME.match(Path(path).name)
+    if not m:
+        raise ValueError(f"{Path(path).name} is not a Like and Dislike Words file")
+    return words_lock(int(m.group(1)))
+
+
 def words_key_slot(key: str) -> int | None:
     """The save whose own folder the log `key` (its path inside the save folder) is in, or None."""
     m = re.match(re.escape(SAVES) + r"\\Save ([1-5])\\", str(key).replace("/", "\\"), re.I)

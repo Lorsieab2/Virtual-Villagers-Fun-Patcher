@@ -351,7 +351,23 @@ VV_RESET_STATIC int delete_if_present_w(const wchar_t *path) {
    logs, and this save's logs Start Over keeps (the Village History).  A file
    holding no such line is not rewritten.  The rewrite goes through a
    ".tmp" beside it and replaces the file in one move, so a failure leaves the
-   old file whole.  Keys compare without case, as the file system does. */
+   old file whole.  Keys compare without case, as the file system does.
+
+   The whole read-modify-replace of every file is done holding the game's
+   boundary lock (log_words.h vv_log_words_lock), which every other writer
+   holds to append, so no line written meanwhile can be lost (Codex, #597).
+   The wait is bounded: when the lock cannot be had in time nothing is
+   rewritten and the refusal is counted (vv_reset_words_refusals).  The
+   ".tmp" name is unique to the process and the operation, so two resets never
+   share one. */
+int vv_reset_words_refusals = 0;
+static LONG vv_reset_tmp_counter = 0;
+
+#ifdef VV_RESET_TESTABLE
+/* Called after a file was read and before it is replaced, so the harness can
+   try to append right then (save_reset_words_harness.c). */
+void (*vv_reset_words_test_hook)(const char *dat) = NULL;
+#endif
 static int words_line_names(const char *line, size_t length, const char *key) {
     const char *tab = (const char *)memchr(line, '\t', length);
     size_t key_length = strlen(key);
@@ -374,7 +390,7 @@ VV_RESET_STATIC int forget_words_in(const char *dat, const char *key) {
     int dropped = 0;
     char tmp[MAX_PATH];
     if (dat == NULL || dat[0] == '\0' || key == NULL || key[0] == '\0'
-        || lstrlenA(dat) + 5 >= MAX_PATH) {
+        || lstrlenA(dat) + 32 >= MAX_PATH) {
         return 0;
     }
     file = CreateFileA(dat, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
@@ -407,8 +423,14 @@ VV_RESET_STATIC int forget_words_in(const char *dat, const char *key) {
         }
     }
     HeapFree(GetProcessHeap(), 0, text);
+#ifdef VV_RESET_TESTABLE
+    if (vv_reset_words_test_hook != NULL) {
+        vv_reset_words_test_hook(dat);
+    }
+#endif
     if (dropped > 0) {
-        wsprintfA(tmp, "%s.tmp", dat);
+        wsprintfA(tmp, "%s.%lu-%ld.tmp", dat, GetCurrentProcessId(),
+                  InterlockedIncrement(&vv_reset_tmp_counter));
         file = CreateFileA(tmp, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
         if (file == INVALID_HANDLE_VALUE) {
             dropped = 0;
@@ -434,7 +456,13 @@ VV_RESET_STATIC int forget_log_words(int game, int slot, const wchar_t *path) {
     char key[MAX_PATH], save_dat[MAX_PATH], new_dat[MAX_PATH], old_dat[MAX_PATH];
     int forgotten = 0;
     int key_slot;
+    HANDLE lock;
     if (path == NULL || !vv_log_words_name(path, key, sizeof key)) {
+        return 0;
+    }
+    lock = vv_log_words_lock(game);   /* held across every file's read-modify-replace */
+    if (lock == NULL) {
+        ++vv_reset_words_refusals;    /* every file left as it was */
         return 0;
     }
     key_slot = vv_log_words_name_slot(key);
@@ -448,6 +476,7 @@ VV_RESET_STATIC int forget_log_words(int game, int slot, const wchar_t *path) {
         forgotten += forget_words_in(new_dat, key);
         forgotten += forget_words_in(old_dat, key);
     }
+    vv_log_words_unlock(lock);
     return forgotten;
 }
 

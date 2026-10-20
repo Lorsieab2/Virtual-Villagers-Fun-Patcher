@@ -504,10 +504,11 @@ def _carry_out(folder: Path, items: list[Item], result: MoveResult) -> None:
         for game in sorted(games):
             words = layout.find(folder, tools.load_checker().LOG_WORDS.format(game=game))
             if words.is_file():
-                data = combined_words(words, None, lower)
-                if data != words.read_bytes():
-                    _set_aside(folder, words, result, copy=True)
-                    _write_atomic(words, data)
+                with layout.words_lock(game):    # the game's Start Over rewrites this file
+                    data = combined_words(words, None, lower)
+                    if data != words.read_bytes():
+                        _set_aside(folder, words, result, copy=True)
+                        _write_atomic(words, data)
                     result.combined.append(f"{_rel(folder, words)} (a Deaths log's boundary lowered to the "
                                            "end of its own records)")
 
