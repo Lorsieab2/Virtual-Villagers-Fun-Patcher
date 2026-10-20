@@ -228,6 +228,45 @@ class SeveralColours(unittest.TestCase):
         self.assertEqual([t.face for t in ts.list_totems(v.folder, 1)], [1, 1])
 
 
+class MixedRecolourIsOneOperation(unittest.TestCase):
+    def test_a_failed_save_write_puts_the_file_back_and_records_nothing(self):
+        """Codex #598: a totem in ElderTotems.dat and one in the save; the save write fails."""
+        from unittest import mock
+
+        import vv_last_names as ln
+        e1, t1 = elder_and_totem("Hoto Kenobi", head=14, body=5, kind=10)
+        e2, t2 = elder_and_totem("Topaz Kenobi", head=2, body=8, kind=11)
+        v = Village(self, crowd(3) + [e1, t1])
+        ts.move_out(v.folder, 1, processes=NoGame(), now=NOW)
+        v.save.write_bytes(__import__("test_vv2_totem_repairs").save_for(crowd(3) + [e1, e2, t2]))
+        file_before = ts.store_path(v.folder, 1).read_bytes()
+        save_before = v.save.read_bytes()
+        log_before = v.repairs()
+        keys = [t.key for t in ts.list_totems(v.folder, 1)]
+        with mock.patch.object(ln, "_write", side_effect=OSError("disk full")):
+            with self.assertRaisesRegex(ts.StoreError, "No colour was changed"):
+                ts.change_colours(v.folder, 1, keys, 3, processes=NoGame(), now=NOW)
+        self.assertEqual(ts.store_path(v.folder, 1).read_bytes(), file_before)
+        self.assertEqual(v.save.read_bytes(), save_before)
+        self.assertEqual(v.repairs(), log_before)
+
+
+class EmptyVillageBinding(unittest.TestCase):
+    def test_an_empty_roster_binds_by_the_village_name(self):
+        entry = bytes(ts.ENTRY)
+        e1, t1 = elder_and_totem("Hoto Kenobi", head=14, body=5)
+        v = Village(self, [t1])                                    # only a statue in the save
+        name = ts.village_of(v.save.read_bytes())
+        mine = ts.Store(1, [], [ts.Totem(entry)], name)
+        self.assertEqual(ts.parse(ts.serialize(mine)).village, name)
+        if name:
+            self.assertTrue(ts.bound(mine, v.save.read_bytes()))
+        self.assertFalse(ts.bound(ts.Store(1, [], [ts.Totem(entry)], "Another Tribe"), v.save.read_bytes()))
+        w = Village(self, crowd(3) + [t1])                          # villagers in the save: not an empty village
+        self.assertFalse(ts.bound(ts.Store(1, [], [ts.Totem(entry)], ts.village_of(w.save.read_bytes()) or "x"),
+                                  w.save.read_bytes()))
+
+
 class GiveIntoTheFile(unittest.TestCase):
     def test_a_missing_elders_totem_goes_into_the_file_even_when_the_village_is_full(self):
         e1, t1 = elder_and_totem("Hoto Kenobi", head=14, body=5)

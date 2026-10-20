@@ -17,10 +17,12 @@ the same file for Repair Saves & Logs:
   * the village's "give Esteemed Elders their totems automatically" setting.
 
 THE FILE (native/vvfp_vv2_totems/vvfp_vv2_totems.c writes the same): "VVFP VV2 TOTEMS\\0", then
-version 1, game 2, slot, entry size 0x2E0, roster count R and totem count T (little-endian 32-bit),
-R roster rows (the name in 24 bytes, head, body, sex) -- the village the file belongs to -- then T
-totems, each exactly the 0x2E0-byte entry the game saves for a totem record, then the FNV-1a hash of
-all of it.  The file belongs to a save when more than half of its roster stands in that save.
+version 2, game 2, slot, entry size 0x2E0, roster count R and totem count T (little-endian 32-bit),
+the village's name (32 bytes), R roster rows (the name in 24 bytes, head, body, sex) -- the village the
+file belongs to -- then T totems, each exactly the 0x2E0-byte entry the game saves for a totem record,
+then the FNV-1a hash of all of it (version 1 had no name).  The file belongs to a save when more than
+half of its roster stands in that save -- or, its roster empty (no villager left, only statues), when
+the save has no villager either and the village's name is the same.
 
 Safety, as every Repair Saves & Logs write: refused while the game runs; the save folder is backed up
 first; a copy of every file changed is kept in Copies Made Before Repairs; every file is written
@@ -45,9 +47,11 @@ import vv_vv2_totems as totems
 
 GAME = 2
 MAGIC = b"VVFP VV2 TOTEMS\0"
-VERSION = 1
+VERSION = 2
 ENTRY = 0x2E0
-HEADER = 40
+HEADER_V1 = 40
+HEADER = 72                          # version 2: the village's name (32 bytes) after the counts
+VILLAGE_CAP = 32
 ROSTER_ROW = 36
 MAX_TOTEMS = 100000
 KIND = "Elder Totems"
@@ -176,23 +180,26 @@ class Store:
     slot: int
     roster: list[tuple[str, int, int, int]] = field(default_factory=list)   # name, head, body, sex
     totems: list[Totem] = field(default_factory=list)
+    village: str = ""                                                        # the tribe's name (version 2)
 
     def has(self, entry: bytes) -> bool:
         return any(same_statue(t.entry, entry) for t in self.totems)
 
 
 def parse(data: bytes) -> Store:
-    if len(data) < HEADER + 4 or data[:16] != MAGIC:
+    if len(data) < HEADER_V1 + 4 or data[:16] != MAGIC:
         raise StoreError("not an ElderTotems.dat file")
     version, game, slot, size, rows, count = struct.unpack_from("<6I", data, 16)
-    if version != VERSION or game != GAME or size != ENTRY:
+    if version not in (1, 2) or game != GAME or size != ENTRY:
         raise StoreError(f"an ElderTotems.dat this patcher does not know (version {version}, game {game})")
-    if rows > 256 or count > MAX_TOTEMS or HEADER + rows * ROSTER_ROW + count * ENTRY + 4 != len(data):
+    header = HEADER_V1 if version == 1 else HEADER
+    if rows > 256 or count > MAX_TOTEMS or header + rows * ROSTER_ROW + count * ENTRY + 4 != len(data):
         raise StoreError("ElderTotems.dat is not whole")
     if struct.unpack_from("<I", data, len(data) - 4)[0] != _fnv1a(data[:-4]):
         raise StoreError("ElderTotems.dat does not match its own check")
+    village = _text(data, HEADER_V1, VILLAGE_CAP) if version == 2 else ""
     roster = []
-    at = HEADER
+    at = header
     for _ in range(rows):
         roster.append((_text(data, at, NAME_CAP), _i32(data, at + 24), _i32(data, at + 28), _i32(data, at + 32)))
         at += ROSTER_ROW
@@ -200,12 +207,14 @@ def parse(data: bytes) -> Store:
     for _ in range(count):
         out.append(Totem(bytes(data[at:at + ENTRY])))
         at += ENTRY
-    return Store(slot, roster, out)
+    return Store(slot, roster, out, village)
 
 
 def serialize(store: Store) -> bytes:
     body = bytearray(MAGIC)
     body += struct.pack("<6I", VERSION, GAME, store.slot, ENTRY, len(store.roster), len(store.totems))
+    name = store.village.encode("latin-1", "replace")[:VILLAGE_CAP - 1]
+    body += name + bytes(VILLAGE_CAP - len(name))
     for name, head, body_no, sex in store.roster:
         raw = name.encode("latin-1", "replace")[:NAME_CAP - 1]
         body += raw + bytes(24 - len(raw)) + struct.pack("<iii", head, body_no, sex)
@@ -263,10 +272,24 @@ def roster_of(data: bytes, offsets: list[int]) -> list[tuple[str, int, int, int]
              _i32(data, at + totems.SEX)) for at in offsets if data[at + totems.IS_TOTEM] == 0]
 
 
+def village_of(data: bytes) -> str:
+    """The tribe's name the save keeps (the one the companion reads from the game), or ""."""
+    import vv_tribe_rename
+    try:
+        game = {g.number: g for g in vv_tribe_rename.GAMES}[GAME]
+        return vv_tribe_rename.save_name(game, data) or ""
+    except (KeyError, ValueError, struct.error):
+        return ""
+
+
 def bound(store: Store, data: bytes) -> bool:
-    """More than half of the file's roster stands in the save (the companion's bound_to)."""
+    """The file belongs to the save (the companion's bound_to): more than half of its roster stands in
+    the save; or, its roster empty, the save has no villager either and the village's name is the same."""
     if not store.roster:
-        return not store.totems
+        if not store.totems:
+            return True
+        name = village_of(data)
+        return bool(store.village) and store.village == name and not roster_of(data, _offsets(data))
     living = set(roster_of(data, _offsets(data)))
     return sum(1 for row in store.roster if row in living) * 2 > len(store.roster)
 
@@ -342,7 +365,7 @@ def _store_for(folder: Path, slot: int, data: bytes) -> Store:
     village is never added to or replaced: the repair is refused and the player told."""
     store = read(folder, slot)
     if store is None:
-        return Store(int(slot), roster_of(data, _offsets(data)), [])
+        return Store(int(slot), roster_of(data, _offsets(data)), [], village_of(data))
     if not bound(store, data):
         raise StoreError(f"{FILE_NAME} for Save {slot} belongs to another village (fewer than half of the "
                          "villagers it names are in this save), so it was not changed. Nothing was changed.")
@@ -390,6 +413,7 @@ def move_out(folder: Path, slot: int, processes: vv_save_backup.ProcessControlle
             moved.append(Totem(entry))
     updated = _without(original, offsets, {k for k, _at in statues})
     store.roster = roster_of(updated, _offsets(updated))
+    store.village = village_of(updated)
     path = store_path(folder, slot)
     try:
         backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix=BACKUP_MOVE)
@@ -495,7 +519,7 @@ def put_back(folder: Path, slot: int, processes: vv_save_backup.ProcessControlle
     updated = _with(original, offsets, entries)
     path = store_path(folder, slot)
     old_file = path.read_bytes()
-    remaining = Store(store.slot, roster_of(updated, _offsets(updated)), left)
+    remaining = Store(store.slot, roster_of(updated, _offsets(updated)), left, village_of(updated))
     try:
         backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix=BACKUP_PUT_BACK)
     except vv_save_backup.BackupError as exc:
@@ -615,6 +639,7 @@ def change_colours(folder: Path, slot: int, keys: list[str], face: int,
     before: list[tuple[Totem, int]] = []
     files: list[Path] = []
     lines: list[str] = []
+    undo_file: tuple[Path, bytes] | None = None
     in_file_keys = [k for k in keys if places[k][0] == "file"]
     in_save_keys = [k for k in keys if places[k][0] == "save"]
     if in_file_keys:
@@ -633,6 +658,7 @@ def change_colours(folder: Path, slot: int, keys: list[str], face: int,
         except (OSError, StoreError) as exc:
             _atomic_write(path, old)
             raise StoreError(f"No colour was changed ({exc}); {FILE_NAME} was put back.") from exc
+        undo_file = (path, old)
         for t, k in before:
             changed.append((store.totems[k], t.face))
             lines.append(f"{LABEL_COLOUR}: {t.name}'s totem from {totems.face(t.face)} to {totems.face(face)} "
@@ -647,8 +673,26 @@ def change_colours(folder: Path, slot: int, keys: list[str], face: int,
             t = Totem(_entry_at(data, at))
             struct.pack_into("<i", updated, at + totems.TYPE, new_type(t.type, face))
             olds.append((t, at))
-        copy = _keep_copy(folder, save, data, ".before-totem-colour")
-        ln._write(save, bytes(updated))
+        try:
+            copy = _keep_copy(folder, save, data, ".before-totem-colour")
+            ln._write(save, bytes(updated))
+        except (OSError, StoreError, ln.LastNamesError) as exc:
+            # One operation: the totems already recoloured in ElderTotems.dat are put back too, and the save
+            # as it was (Codex #598); nothing is recorded in Repairs Made.
+            problems = []
+            try:
+                if save.read_bytes() != data:
+                    ln._write(save, data)
+            except (OSError, ln.LastNamesError) as undo:
+                problems.append(f"the save could not be put back ({undo})")
+            if undo_file is not None:
+                try:
+                    _atomic_write(*undo_file)
+                except (OSError, StoreError) as undo:
+                    problems.append(f"{FILE_NAME} could not be put back ({undo})")
+            raise StoreError(f"No colour was changed ({exc}); "
+                             + ("; ".join(problems) if problems else "every file was put back as it was")
+                             + f". A backup is in {backup.backup_folder}.") from exc
         for t, at in olds:
             now_totem = Totem(_entry_at(bytes(updated), at))
             changed.append((now_totem, t.face))

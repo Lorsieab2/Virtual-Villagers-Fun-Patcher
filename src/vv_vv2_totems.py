@@ -769,6 +769,7 @@ def _give_into_store(folder: Path, slot: int, original: bytes, s: Survey, go: li
         taken.append((x, y))
         kind = rng.randint(*TYPE_RANGE)
         store.totems.append(store_mod.Totem(_new_entry(original, e, kind, x, y, clock)))
+        store.village = store.village or store_mod.village_of(original)
         given.append(Given(e, -1, kind, x, y))
     path = store_mod.store_path(folder, slot)
     old = path.read_bytes()

@@ -75,14 +75,19 @@
               puzzle's spot (terrain 0x42, 0x430382), nudged off ground it
               cannot stand on (0x42D140), and its home x/y stored (0x449260).
 
-   THE FILE (version 1, little-endian; src/vv_vv2_totem_store.py writes the
+   THE FILE (version 2, little-endian; src/vv_vv2_totem_store.py writes the
    same):
-       "VVFP VV2 TOTEMS\0", version 1, game 2, slot, entry size 0x2E0,
-       roster count R, totem count T, R roster rows (name[24], head, body,
+       "VVFP VV2 TOTEMS\0", version 2, game 2, slot, entry size 0x2E0,
+       roster count R, totem count T, the village's name (32 bytes, as the game
+       keeps it at the save buffer + 8), R roster rows (name[24], head, body,
        sex), T totems each exactly as the game saves a record (0x2E0 bytes),
-       then the FNV-1a hash of everything before it.
-   A file bound to another village (fewer than half its roster in the loaded
-   save) is moved aside as "ElderTotems.dat.another-village-<ticks>-<n>",
+       then the FNV-1a hash of everything before it.  (Version 1 had no name.)
+   The file belongs to the loaded save when more than half of its roster
+   stands in it -- or, for a village with no villager left but its statues
+   (an empty roster), when the save has no villager either and the village's
+   name is the same (Codex #598: such a file was taken for another village's).
+   A file bound to another village is moved aside as
+   "ElderTotems.dat.another-village-<ticks>-<n>",
    never overwritten; a file that cannot be read is moved aside as
    ".unreadable-..." (native/shared/sidecar_io.h); a file that exists but
    cannot be opened leaves this session stock (nothing moved, nothing
@@ -323,8 +328,25 @@ static void pack(const unsigned char *r, unsigned char *e) {
 
 /* ---- the file ------------------------------------------------------------- */
 static const char MAGIC[16] = "VVFP VV2 TOTEMS";
-#define HEADER 40u
+#define HEADER_V1 40u
+#define HEADER 72u                  /* version 2: the village's name after the counts */
+#define VILLAGE_AT 40u
+#define VILLAGE_CAP 32u
+#define G_VILLAGE 0x10u             /* the name: the save buffer (game object + 8) + 8 */
 #define ROSTER_ROW 36u
+
+static unsigned int header_of(const unsigned char *d) {
+    return i32(d, 16) == 1 ? HEADER_V1 : HEADER;
+}
+
+/* The village's name as the game keeps it (NUL-ended within VILLAGE_CAP), or "". */
+static void village_name(unsigned char *world, char *out) {
+    const unsigned char *game = world != NULL ? game_of(world) : NULL;
+    out[0] = '\0';
+    if (game != NULL && memchr(game + G_VILLAGE, '\0', VILLAGE_CAP) != NULL) {
+        lstrcpynA(out, (const char *)game + G_VILLAGE, VILLAGE_CAP);
+    }
+}
 
 static unsigned int fnv1a(const unsigned char *p, DWORD n) {
     unsigned int h = 2166136261u;
@@ -353,14 +375,14 @@ static int store_path(int slot, char *out) {
 static int valid_file(const unsigned char *d, DWORD n, void *ctx) {
     unsigned int roster, totems, hash;
     (void)ctx;
-    if (n < HEADER + 4 || memcmp(d, MAGIC, 16) != 0 || i32(d, 16) != 1 || i32(d, 20) != GAME
-        || (unsigned int)i32(d, 28) != ENTRY) {
+    if (n < HEADER_V1 + 4 || memcmp(d, MAGIC, 16) != 0 || (i32(d, 16) != 1 && i32(d, 16) != 2)
+        || i32(d, 20) != GAME || (unsigned int)i32(d, 28) != ENTRY || n < header_of(d) + 4) {
         return 0;
     }
     roster = (unsigned int)i32(d, 32);
     totems = (unsigned int)i32(d, 36);
     if (roster > RECORDS || totems > MAX_TOTEMS
-        || (unsigned long long)HEADER + (unsigned long long)roster * ROSTER_ROW
+        || (unsigned long long)header_of(d) + (unsigned long long)roster * ROSTER_ROW
                + (unsigned long long)totems * ENTRY + 4 != n) {
         return 0;
     }
@@ -368,15 +390,29 @@ static int valid_file(const unsigned char *d, DWORD n, void *ctx) {
     return hash == fnv1a(d, n - 4);
 }
 
-/* Whether more than half of the file's roster stands in the loaded records. */
+/* Whether the file belongs to the loaded save: more than half of its roster
+   stands in the loaded records; or, its roster empty, the save has no villager
+   either and the village's name is the file's (version 2). */
 static int bound_to(const unsigned char *d, unsigned char *world) {
     unsigned int roster = (unsigned int)i32(d, 32), k, found = 0;
     int i;
     if (roster == 0) {
-        return i32(d, 36) == 0;
+        char here[VILLAGE_CAP];
+        int villagers = 0;
+        if (i32(d, 36) == 0) {
+            return 1;
+        }
+        for (i = 0; i < RECORDS; ++i) {
+            const unsigned char *r = record(world, i);
+            villagers += r[R_IN_USE] != 0 && r[R_IS_TOTEM] == 0;
+        }
+        village_name(world, here);
+        return i32(d, 16) == 2 && villagers == 0 && here[0] != '\0'
+            && memchr(d + VILLAGE_AT, '\0', VILLAGE_CAP) != NULL
+            && strncmp((const char *)d + VILLAGE_AT, here, VILLAGE_CAP) == 0;
     }
     for (k = 0; k < roster; ++k) {
-        const unsigned char *row = d + HEADER + k * ROSTER_ROW;
+        const unsigned char *row = d + header_of(d) + k * ROSTER_ROW;
         for (i = 0; i < RECORDS; ++i) {
             const unsigned char *r = record(world, i);
             if (r[R_IN_USE] != 0 && r[R_IS_TOTEM] == 0
@@ -457,7 +493,7 @@ static int read_store(int slot, unsigned char *world) {
                 HeapFree(GetProcessHeap(), 0, buf);
                 return 0;
             }
-            memcpy(g_t, buf + HEADER + (unsigned int)i32(buf, 32) * ROSTER_ROW, (size_t)t * ENTRY);
+            memcpy(g_t, buf + header_of(buf) + (unsigned int)i32(buf, 32) * ROSTER_ROW, (size_t)t * ENTRY);
             g_n = t;
         }
     }
@@ -507,7 +543,8 @@ static int write_store(int slot, unsigned char *world) {
     }
     memset(header, 0, sizeof header);
     memcpy(header, MAGIC, 16);
-    put32(header, 16, 1);
+    put32(header, 16, 2);
+    village_name(world, (char *)header + VILLAGE_AT);
     put32(header, 20, GAME);
     put32(header, 24, slot);
     put32(header, 28, (int)ENTRY);
@@ -586,6 +623,7 @@ static int migrate(unsigned char *world) {
 
 /* ---- the hooks: load, save, reset ----------------------------------------- */
 static void after_load(int slot, unsigned char *world);
+static void settle_pending(int slot, unsigned char *world);
 static void give_living(unsigned char *world);
 static slot_fn g_load_original;
 static slot_fn g_save_original;
@@ -636,6 +674,9 @@ static unsigned char __fastcall wrap_save(void *manager, int edx, int slot) {
         if (world != NULL) {
             __try {
                 written = write_store(slot, world);
+                if (written) {
+                    settle_pending(slot, world);
+                }
             } __except (EXCEPTION_EXECUTE_HANDLER) {
                 written = 0;
             }
@@ -915,6 +956,25 @@ static int pending_valid(const unsigned char *d, DWORD n) {
     return hash == fnv1a(d, n - 4);
 }
 
+/* The list belongs to this village as the store does: more than half of its roster here. */
+static int pending_bound(const unsigned char *d, unsigned char *world) {
+    unsigned int roster = (unsigned int)i32(d, 28), found = 0, r;
+    int i;
+    for (r = 0; r < roster; ++r) {
+        const unsigned char *row = d + PENDING_HEADER + r * ROSTER_ROW;
+        for (i = 0; i < RECORDS; ++i) {
+            const unsigned char *rec = record(world, i);
+            if (rec[R_IN_USE] != 0 && strncmp((const char *)row, (const char *)rec + 0x564, NAME_CAP) == 0
+                && i32(row, 24) == i32(rec, 0x548) && i32(row, 28) == i32(rec, 0x54C)
+                && i32(row, 32) == i32(rec, 0x538)) {
+                ++found;
+                break;
+            }
+        }
+    }
+    return roster != 0 && found * 2 > roster;
+}
+
 /* Write `d` (with its pending rows replaced by `keep`) back through a temporary file. */
 static void rewrite_pending(const char *path, const unsigned char *d, const pending_t *keep, int kept) {
     unsigned int roster = (unsigned int)i32(d, 28), ren = (unsigned int)i32(d, 36), hash;
@@ -971,26 +1031,9 @@ static void take_pending(int slot, unsigned char *world) {
     roster = (unsigned int)i32(d, 28);
     pend = (unsigned int)i32(d, 32);
     ren = (unsigned int)i32(d, 36);
-    {
-        /* Bound to this village as the store is: more than half of its roster here. */
-        unsigned int found = 0, r;
-        int i;
-        for (r = 0; r < roster; ++r) {
-            const unsigned char *row = d + PENDING_HEADER + r * ROSTER_ROW;
-            for (i = 0; i < RECORDS; ++i) {
-                const unsigned char *rec = record(world, i);
-                if (rec[R_IN_USE] != 0 && strncmp((const char *)row, (const char *)rec + 0x564, NAME_CAP) == 0
-                    && i32(row, 24) == i32(rec, 0x548) && i32(row, 28) == i32(rec, 0x54C)
-                    && i32(row, 32) == i32(rec, 0x538)) {
-                    ++found;
-                    break;
-                }
-            }
-        }
-        if (roster == 0 || found * 2 <= roster) {
-            HeapFree(GetProcessHeap(), 0, d);
-            return;
-        }
+    if (!pending_bound(d, world)) {
+        HeapFree(GetProcessHeap(), 0, d);
+        return;
     }
     g_renames = (rename_t *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (ren ? ren : 1) * sizeof(rename_t));
     keep = (pending_t *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (pend ? pend : 1) * sizeof(pending_t));
@@ -1044,7 +1087,53 @@ static void take_pending(int slot, unsigned char *world) {
         }
         keep[kept++] = p;                       /* unsure, or the setting is off: left for Repair */
     }
-    if (changed) {
+    /* The list is NOT rewritten here: a totem made now is only in memory until
+       the next save writes ElderTotems.dat, and a crash before it must leave
+       the elder listed (Codex #598).  settle_pending, after that write, takes
+       off every row whose totem the store now holds. */
+    (void)changed;
+    (void)kept;
+    HeapFree(GetProcessHeap(), 0, keep);
+    HeapFree(GetProcessHeap(), 0, d);
+}
+
+/* After ElderTotems.dat was written: the pending rows the store now certainly
+   holds a totem for are taken off the list (one still unsure stays). */
+static void settle_pending(int slot, unsigned char *world) {
+    char path[MAX_PATH];
+    DWORD n;
+    unsigned char *d;
+    unsigned int roster, pend, k;
+    pending_t *keep;
+    int kept = 0;
+    if (!folder_file(slot, "PendingElderTotems.dat", path) || (d = read_whole(path, &n, 1u << 20)) == NULL) {
+        return;
+    }
+    if (!pending_valid(d, n) || i32(d, 24) != slot || !pending_bound(d, world)) {
+        HeapFree(GetProcessHeap(), 0, d);
+        return;
+    }
+    roster = (unsigned int)i32(d, 28);
+    pend = (unsigned int)i32(d, 32);
+    keep = (pending_t *)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (pend ? pend : 1) * sizeof(pending_t));
+    if (keep == NULL) {
+        HeapFree(GetProcessHeap(), 0, d);
+        return;
+    }
+    for (k = 0; k < pend; ++k) {
+        const unsigned char *row = d + PENDING_HEADER + roster * ROSTER_ROW + k * PENDING_ROW;
+        pending_t p;
+        memset(&p, 0, sizeof p);
+        memcpy(p.name, row, NAME_CAP);
+        p.sex = i32(row, 24);
+        p.head = i32(row, 28);
+        p.body = i32(row, 32);
+        p.age = i32(row, 36);
+        if (totem_for(p.name, p.sex, p.head, p.body) != TOTEM_THEIRS) {
+            keep[kept++] = p;
+        }
+    }
+    if ((unsigned int)kept != pend) {
         rewrite_pending(path, d, keep, kept);
     }
     HeapFree(GetProcessHeap(), 0, keep);
