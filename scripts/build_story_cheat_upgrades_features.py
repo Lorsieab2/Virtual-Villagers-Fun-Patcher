@@ -719,8 +719,10 @@ def build() -> None:
                 "becomes whole, only when the Gong is whole and resting.  A chosen result the "
                 "game keeps for after a village's first ring sets the Gong's tier byte (village "
                 "+0x2E910) to 1, the game's own value, for that ring only, and puts 0 back when "
-                "the ring's outcome routine returns.  'Takes youth' / 'Grants youth' still act on "
-                "the fixed records the game writes; no villager choice is offered for them.",
+                "the ring's outcome routine returns.  'Takes youth' / 'Grants youth' write the "
+                "fixed records 6 and 15 in the game; with a villager chosen they write that "
+                "villager's age instead, through the game's own stores (Random keeps records 6 "
+                "and 15).",
             ] if game == "vv2" else []),
             "evidence_status": (
                 "static exact-build verification and emulation of the rendered executables and the "

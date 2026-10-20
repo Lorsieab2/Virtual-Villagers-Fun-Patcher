@@ -699,7 +699,7 @@ CONTROLS = {
             'what': 'carries twins or triplets instead of one baby',
             'warn_everyone': None,
             'evidence': "apply 0x414FC0 calls 0x467B00(-1,6,1,-1,0,0) at 0x414FD1: women passing alive/present/health>0, age >= 0x168 (0x467B42), not carrying ([rec+0x1C4C]==0, 0x467B49), female (0x467B5F); sick allowed (a3=1, 0x467B68). For the first min(count,6) (0x467BF0) it calls 0x45E7B0(1,0,0,0x4AB360,2,2,0) with ECX = record 0x50E568+0x44+idx*0x2E3C (0x467C0B/0x467C15). 0x45E7B0: arg7=0 -> needs room 0x468350 (0x45E7C1) or the woman is skipped; esi = record (0x45E7B8); [rec+0x1C50]=1 baby (0x45E87D); if mastery 1 (Parenting) == 3 (0x41E1C0 at 0x45E887): push 0x64, E8 at 0x45E893, r < 7 -> multiple (0x45E89B); mastery still 3 (0x45E8A7): push 0x64, E8 at 0x45E8B3, r < 25 -> triplets ([+0x1C50]=3, counter 0x4D6E0C++, 0x45E8C0) else twins (=2, 0x4D6E08++, 0x45E8D3); total 0x4D6DE8 += babies (0x45E91C). Mastery 3 is reachable in stock (0x41E1D0 raises a level up to 3, 0x41E1DC; e.g. slot 49 choice 0). Record = esi + 0. pct = 7 (< 100, so 'nobody' = 99 is a stock result).",
-            'condition': 'Parenting mastery at level 3 (0x41E1C0(1)==3 at 0x45E887/0x45E8A7); otherwise every mother has one baby',
+            'condition': 'Parenting mastery at level 3 (0x41E1C0(1)==3 at 0x45E887/0x45E8A7); otherwise every mother has one baby.  With this setting at everyone or chosen villagers the companion answers those two calls with 3 (the mastered level the game itself uses) inside the apply of this event only, so the chosen mothers can have them',
         },
         {
             'id': 'triplets',
@@ -719,7 +719,7 @@ CONTROLS = {
             'what': 'carries triplets instead of twins (only reached for mothers already having more than one)',
             'warn_everyone': None,
             'evidence': "apply 0x414FC0 calls 0x467B00(-1,6,1,-1,0,0) at 0x414FD1: women passing alive/present/health>0, age >= 0x168 (0x467B42), not carrying ([rec+0x1C4C]==0, 0x467B49), female (0x467B5F); sick allowed (a3=1, 0x467B68). For the first min(count,6) (0x467BF0) it calls 0x45E7B0(1,0,0,0x4AB360,2,2,0) with ECX = record 0x50E568+0x44+idx*0x2E3C (0x467C0B/0x467C15). 0x45E7B0: arg7=0 -> needs room 0x468350 (0x45E7C1) or the woman is skipped; esi = record (0x45E7B8); [rec+0x1C50]=1 baby (0x45E87D); if mastery 1 (Parenting) == 3 (0x41E1C0 at 0x45E887): push 0x64, E8 at 0x45E893, r < 7 -> multiple (0x45E89B); mastery still 3 (0x45E8A7): push 0x64, E8 at 0x45E8B3, r < 25 -> triplets ([+0x1C50]=3, counter 0x4D6E0C++, 0x45E8C0) else twins (=2, 0x4D6E08++, 0x45E8D3); total 0x4D6DE8 += babies (0x45E91C). Mastery 3 is reachable in stock (0x41E1D0 raises a level up to 3, 0x41E1DC; e.g. slot 49 choice 0). Record = esi + 0. pct = 25 (< 100, so 'nobody' = 99 is a stock result).",
-            'condition': 'Parenting mastery at level 3 (0x41E1C0(1)==3 at 0x45E887/0x45E8A7); otherwise every mother has one baby',
+            'condition': 'Parenting mastery at level 3 (0x41E1C0(1)==3 at 0x45E887/0x45E8A7); otherwise every mother has one baby.  With this setting at everyone or chosen villagers the companion answers those two calls with 3 (the mastered level the game itself uses) inside the apply of this event only, so the chosen mothers can have them',
         },
     ],
     29: [

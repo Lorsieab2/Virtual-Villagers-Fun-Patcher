@@ -130,6 +130,10 @@ def collect(game: str) -> dict:
             for key in ("scope_call", "scope_call_alt"):
                 if c.get(key) is not None and c[key] not in scopes:
                     scopes[c[key]] = (0, -1, 0, 0, -1)
+    for va, lift in data.LIFT_SCOPES.get(game, {}).items():
+        # 4: a mastery call answered 3 for the roll at `lift`; 5: a
+        # conception call around which the breeding level is lifted
+        scopes[va] = (5, -1, 0, 0, -1) if lift == "breeding" else (4, -1, 0, lift, -1)
     if len(scopes) > MAX_SCOPES:
         raise SystemExit(f"{game}: {len(scopes)} scopes > {MAX_SCOPES}")
     return {"sites": sorted(sites), "scopes": sorted(scopes.items()), "controls": controls}
@@ -279,7 +283,11 @@ def manifest_rows(game: str, info: dict, found: dict, dll_name: str) -> list[dic
                      "routine": {1: "an island event's resolve call (Pick Island Event outcomes)",
                                  2: "the Gong of Wonder's use (Pick Gong of Wonder Outcome)",
                                  3: "the Gong of Wonder's search for the villager who rang it "
-                                    "(Pick Gong of Wonder Outcome)"}.get(
+                                    "(Pick Gong of Wonder Outcome)",
+                                 4: "a mastery check before a twins / triplets roll (Pick Island Event "
+                                    "outcomes)",
+                                 5: "a conception call whose twins / triplets rolls need the breeding "
+                                    "level (Pick Island Event / Gong of Wonder outcomes)"}.get(
                          kind, "a call in an island event's own code (Pick Island Event outcomes)"),
                      "installed_by": f"{dll_name}, VvfpStoryInstall"})
     return rows

@@ -26,14 +26,14 @@
     "No stock event is emulated: a picked event is created, shown and resolved by the game's own code; a custom event is shown by the game's own island-event popup.",
     "Pick Island Event adds no tech points and writes nothing to the save; a custom event changes only what the player chose, through the game's own routines and fields, and the game saves the village as usual.",
     "No custom title is written into a villager record.",
-    "Pick Gong of Wonder Outcome writes one value at the purchase: the Gong's rest (village +0x2EAC8) is set to 1, the value the game itself writes when the Gong becomes whole, only when the Gong is whole and resting.  A chosen result the game keeps for after a village's first ring sets the Gong's tier byte (village +0x2E910) to 1, the game's own value, for that ring only, and puts 0 back when the ring's outcome routine returns.  'Takes youth' / 'Grants youth' still act on the fixed records the game writes; no villager choice is offered for them."
+    "Pick Gong of Wonder Outcome writes one value at the purchase: the Gong's rest (village +0x2EAC8) is set to 1, the value the game itself writes when the Gong becomes whole, only when the Gong is whole and resting.  A chosen result the game keeps for after a village's first ring sets the Gong's tier byte (village +0x2E910) to 1, the game's own value, for that ring only, and puts 0 back when the ring's outcome routine returns.  'Takes youth' / 'Grants youth' write the fixed records 6 and 15 in the game; with a villager chosen they write that villager's age instead, through the game's own stores (Random keeps records 6 and 15)."
   ],
   "evidence_status": "static exact-build verification and emulation of the rendered executables and the companion; runtime/player confirmation pending",
   "companion_files": [
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "C31D99B435D4D2F6B1A5C7FAAD9BD01DFAD4ECE071AC04B8A62A3319F6FEB603"
+      "sha256": "1C5D8555185DD9CCC00A2E466C76C6B7B535A031CE1EFC9996F2FB51CE99018E"
     }
   ],
   "runtime_detours": [
@@ -639,7 +639,7 @@
     {
       "va": "0x422006",
       "stock_bytes": "E875990200",
-      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "routine": "a conception call whose twins / triplets rolls need the breeding level (Pick Island Event / Gong of Wonder outcomes)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
@@ -711,7 +711,7 @@
     {
       "va": "0x44EB3E",
       "stock_bytes": "E83DCEFFFF",
-      "routine": "a call in an island event's own code (Pick Island Event outcomes)",
+      "routine": "a conception call whose twins / triplets rolls need the breeding level (Pick Island Event / Gong of Wonder outcomes)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
     {
@@ -723,6 +723,18 @@
     {
       "va": "0x44EE06",
       "stock_bytes": "E835C6FFFF",
+      "routine": "the Gong of Wonder's search for the villager who rang it (Pick Gong of Wonder Outcome)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44EF36",
+      "stock_bytes": "E805C5FFFF",
+      "routine": "the Gong of Wonder's search for the villager who rang it (Pick Gong of Wonder Outcome)",
+      "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
+    },
+    {
+      "va": "0x44EFA9",
+      "stock_bytes": "E892C4FFFF",
       "routine": "the Gong of Wonder's search for the villager who rang it (Pick Gong of Wonder Outcome)",
       "installed_by": "VVFP Story Upgrades.dll, VvfpStoryInstall"
     },
@@ -1753,8 +1765,8 @@
           "Takes health: the villager who rang it loses 90 health (to 0 at most)",
           "Takes food: the plant store set to 0",
           "Takes food: coconut trees set to 0",
-          "Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer)",
-          "Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer)",
+          "Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer; or the villager chosen in 'The villager who rang it')",
+          "Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer; or the villager chosen in 'The villager who rang it')",
           "Grants health: every villager healed to 100 and cured",
           "Grants food: +200..999 food (see 'Food gained (small)')",
           "Grants food: plant store set to 800",

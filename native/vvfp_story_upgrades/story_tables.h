@@ -750,6 +750,8 @@ static const unsigned char VV2_OCC_439DB4[5] = { 0xE8, 0xA7, 0xE3, 0xFF, 0xFF };
 static const unsigned char VV2_OCC_44EB3E[5] = { 0xE8, 0x3D, 0xCE, 0xFF, 0xFF };
 static const unsigned char VV2_OCC_44EB9E[5] = { 0xE8, 0x9D, 0xC8, 0xFF, 0xFF };
 static const unsigned char VV2_OCC_44EE06[5] = { 0xE8, 0x35, 0xC6, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_44EF36[5] = { 0xE8, 0x05, 0xC5, 0xFF, 0xFF };
+static const unsigned char VV2_OCC_44EFA9[5] = { 0xE8, 0x92, 0xC4, 0xFF, 0xFF };
 static const unsigned char VV2_OCC_44F34C[5] = { 0xE8, 0xEF, 0xC0, 0xFF, 0xFF };
 static const unsigned char VV2_OCC_44F3BD[5] = { 0xE8, 0x7E, 0xC0, 0xFF, 0xFF };
 static const unsigned char VV2_OCC_461B8E[5] = { 0xE8, 0x0D, 0xCD, 0xFE, 0xFF };
@@ -840,7 +842,7 @@ static const oc_scope VV2_OC_SCOPES[] = {
     { 0x421349u, VV2_OCC_421349, 0, -1, 0, 0, -1 },
     { 0x421CADu, VV2_OCC_421CAD, 0, -1, 0, 0, -1 },
     { 0x421F1Bu, VV2_OCC_421F1B, 0, -1, 0, 0, -1 },
-    { 0x422006u, VV2_OCC_422006, 0, -1, 0, 0, -1 },
+    { 0x422006u, VV2_OCC_422006, 5, -1, 0, 0, -1 },
     { 0x422364u, VV2_OCC_422364, 1, -2, -1, 20644, -1 },
     { 0x433D17u, VV2_OCC_433D17, 0, -1, 0, 0, -1 },
     { 0x433DFBu, VV2_OCC_433DFB, 0, -1, 0, 0, -1 },
@@ -852,14 +854,16 @@ static const oc_scope VV2_OC_SCOPES[] = {
     { 0x437F39u, VV2_OCC_437F39, 0, -1, 0, 0, -1 },
     { 0x437FE4u, VV2_OCC_437FE4, 0, -1, 0, 0, -1 },
     { 0x439DB4u, VV2_OCC_439DB4, 1, -2, -1, 20636, -1 },
-    { 0x44EB3Eu, VV2_OCC_44EB3E, 0, -1, 0, 0, -1 },
+    { 0x44EB3Eu, VV2_OCC_44EB3E, 5, -1, 0, 0, -1 },
     { 0x44EB9Eu, VV2_OCC_44EB9E, 3, -1, 0, 0, -1 },
     { 0x44EE06u, VV2_OCC_44EE06, 3, -1, 0, 0, -1 },
+    { 0x44EF36u, VV2_OCC_44EF36, 3, -1, 0, 0, -1 },
+    { 0x44EFA9u, VV2_OCC_44EFA9, 3, -1, 0, 0, -1 },
     { 0x44F34Cu, VV2_OCC_44F34C, 3, -1, 0, 0, -1 },
     { 0x44F3BDu, VV2_OCC_44F3BD, 3, -1, 0, 0, -1 },
     { 0x461B8Eu, VV2_OCC_461B8E, 2, -1, 0, 0, -1 },
 };
-#define VV2_OC_SCOPE_COUNT 35
+#define VV2_OC_SCOPE_COUNT 37
 static const oc_force VV2_OC_FORCES[] = {
     { 24, 0 },
     { 26, 0 },
@@ -1233,8 +1237,8 @@ static const oc_option VV2_OC_OPTIONS[] = {
     { "Takes health: the villager who rang it loses 90 health (to 0 at most)", NULL, 211, 3, 0 },
     { "Takes food: the plant store set to 0", NULL, 214, 3, 0 },
     { "Takes food: coconut trees set to 0", NULL, 217, 3, 0 },
-    { "Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer)", NULL, 220, 3, 0 },
-    { "Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer)", NULL, 223, 3, 0 },
+    { "Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer; or the villager chosen in 'The villager who rang it')", NULL, 220, 3, 0 },
+    { "Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer; or the villager chosen in 'The villager who rang it')", NULL, 223, 3, 0 },
     { "Grants health: every villager healed to 100 and cured", NULL, 226, 3, 0 },
     { "Grants food: +200..999 food (see 'Food gained (small)')", NULL, 229, 3, 0 },
     { "Grants food: plant store set to 800", NULL, 232, 3, 0 },
@@ -1249,8 +1253,8 @@ static const oc_option VV2_OC_OPTIONS[] = {
     { "Research", NULL, 256, 2, 0 },
     { "Farming", NULL, 258, 2, 0 },
     { "One baby", NULL, 260, 1, 0 },
-    { "Twins", "its condition", 261, 2, 3 },
-    { "Triplets", "its condition", 263, 2, 3 },
+    { "Twins", NULL, 261, 2, 0 },
+    { "Triplets", NULL, 263, 2, 0 },
 };
 static const oc_control VV2_OC_CONTROLS[] = {
     { "Who falls sick", "falls sick", NULL, -1, 3, 3, 20, -1, 20, 0, 0, 100, 0, 0, 0, 99, 0, 0, 0, 0, 0, 4, 0, 0, NULL, 0, 0, 0 },
@@ -1332,18 +1336,18 @@ static const oc_control VV2_OC_CONTROLS[] = {
     { "Who finds the vial (if they drink it: a skill improves)", "any living villager (record present, health > 0), any age or sex", NULL, -1, 4, 2, 26, -1, 44, 89, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 184, 0, 0 },
     { "If you open it: what is inside", NULL, NULL, 0, 1, 1, -1, -1, -1, 89, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 187, 0, 0 },
     { "Who finds the vial (if they drink it: every skill drops)", "any living villager (record present, health > 0), any age or sex", NULL, -1, 4, 2, 27, -1, 44, 92, 0, 0, 0, 0, -1, -1, 7, 0, 0, 4, 2, 4, 0, 0, NULL, 187, 0, 0 },
-    { "What the Gong does", NULL, NULL, -1, 1, 3, 34, -1, -1, 92, 23, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Every result the Gong can give. In the original game a village's first ring always gives one of the last nine; the others come only after that. Picked here, any of them comes on this ring. Results that act on the villager who rang it need an adult ringer, or the villager chosen in 'The villager who rang it'.", 250, 0, 0 },
-    { "Technology gained (big, 'Grants technology' tier A)", "tech", NULL, -1, 2, 3, 34, -1, 53, 115, 0, 40000, 20000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants technology: +20000..59999'", 250, 0, 0 },
-    { "Technology gained (medium, tier B)", "tech", NULL, -1, 2, 3, 34, -1, 57, 115, 0, 20000, 10000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants technology: +10000..29999'", 250, 0, 0 },
-    { "Technology gained (small, tier C)", "tech", NULL, -1, 2, 3, 34, -1, 61, 115, 0, 10000, 3000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants technology: +3000..12999'", 250, 0, 0 },
-    { "Technology lost (tier C)", "tech lost", NULL, -1, 2, 3, 34, -1, 62, 115, 0, 10000, 3000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Takes technology'", 250, 0, 0 },
-    { "Food gained (big, tier B)", "food", NULL, -1, 2, 3, 34, -1, 58, 115, 0, 2000, 1000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants food: +1000..2999'", 250, 0, 0 },
-    { "Food gained (small, tier C)", "food", NULL, -1, 2, 3, 34, -1, 60, 115, 0, 800, 200, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants food: +200..999'", 250, 0, 0 },
-    { "Who falls sick ('Takes health', 30%, tier B)", "falls sick", NULL, -1, 3, 3, 34, -1, 56, 115, 0, 100, 0, 0, 0, 99, 4, 0, 0, -1324, 0, 4, 0, 0, "only with result 'Takes health: each villager may fall sick (30%)'", 250, 0, 0 },
-    { "Who falls sick ('Takes health', 15%, tier C)", "falls sick", NULL, -1, 3, 3, 34, -1, 63, 115, 0, 100, 0, 0, 0, 99, 4, 0, 0, -1324, 0, 4, 0, 0, "only with result 'Takes health: each villager may fall sick (15%)'", 250, 0, 0 },
-    { "Skill raised to 100 ('Grants wisdom')", NULL, NULL, -1, 1, 3, 34, -1, -1, 115, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 260, 0, 0 },
+    { "What the Gong does", NULL, NULL, -1, 1, 3, 36, -1, -1, 92, 23, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "Every result the Gong can give. In the original game a village's first ring always gives one of the last nine; the others come only after that. Picked here, any of them comes on this ring. Results that act on the villager who rang it need an adult ringer, or the villager chosen in 'The villager who rang it'.", 250, 0, 0 },
+    { "Technology gained (big, 'Grants technology' tier A)", "tech", NULL, -1, 2, 3, 36, -1, 53, 115, 0, 40000, 20000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants technology: +20000..59999'", 250, 0, 0 },
+    { "Technology gained (medium, tier B)", "tech", NULL, -1, 2, 3, 36, -1, 57, 115, 0, 20000, 10000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants technology: +10000..29999'", 250, 0, 0 },
+    { "Technology gained (small, tier C)", "tech", NULL, -1, 2, 3, 36, -1, 61, 115, 0, 10000, 3000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants technology: +3000..12999'", 250, 0, 0 },
+    { "Technology lost (tier C)", "tech lost", NULL, -1, 2, 3, 36, -1, 62, 115, 0, 10000, 3000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Takes technology'", 250, 0, 0 },
+    { "Food gained (big, tier B)", "food", NULL, -1, 2, 3, 36, -1, 58, 115, 0, 2000, 1000, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants food: +1000..2999'", 250, 0, 0 },
+    { "Food gained (small, tier C)", "food", NULL, -1, 2, 3, 36, -1, 60, 115, 0, 800, 200, 1, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "only with result 'Grants food: +200..999'", 250, 0, 0 },
+    { "Who falls sick ('Takes health', 30%, tier B)", "falls sick", NULL, -1, 3, 3, 36, -1, 56, 115, 0, 100, 0, 0, 0, 99, 4, 0, 0, -1324, 0, 4, 0, 0, "only with result 'Takes health: each villager may fall sick (30%)'", 250, 0, 0 },
+    { "Who falls sick ('Takes health', 15%, tier C)", "falls sick", NULL, -1, 3, 3, 36, -1, 63, 115, 0, 100, 0, 0, 0, 99, 4, 0, 0, -1324, 0, 4, 0, 0, "only with result 'Takes health: each villager may fall sick (15%)'", 250, 0, 0 },
+    { "Skill raised to 100 ('Grants wisdom')", NULL, NULL, -1, 1, 3, 36, -1, -1, 115, 5, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 260, 0, 0 },
     { "Babies per pregnancy ('Grants life')", NULL, NULL, -1, 1, 3, 29, -1, -1, 120, 3, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, NULL, 265, 0, 0 },
-    { "The villager who rang it", "the living adults", NULL, -1, 5, 3, 34, -1, -1, 123, 0, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "'Takes life', the loss of 90 health and 'Grants wisdom' act on the villager who rang the Gong. Choose who they act on: any living adult. If that villager has died, gone or changed by the time the Gong rings, the game's own choice is used.", 265, 0, 0 },
+    { "The villager who rang it", "the living adults", NULL, -1, 5, 3, 36, -1, -1, 123, 0, 0, 0, 0, -1, -1, -1, 0, 0, 0, 0, 4, 0, 0, "'Takes life', the loss of 90 health and 'Grants wisdom' act on the villager who rang the Gong; 'Takes youth' and 'Grants youth' act on two fixed villager slots. Choose who all five act on: any living adult (for the two youth results, one not carrying a baby). If that villager has died, gone or changed by the time the Gong rings, the game's own choice is used.", 265, 0, 0 },
 };
 static const oc_event VV2_OC_EVENTS[] = {
     { 5, 0, 0, 1, 0, 0, NULL },
@@ -2210,6 +2214,8 @@ static const unsigned char VV4_OCC_4168D4[5] = { 0xE8, 0xD7, 0x10, 0x05, 0x00 };
 static const unsigned char VV4_OCC_4169EF[5] = { 0xE8, 0xBC, 0x0F, 0x05, 0x00 };
 static const unsigned char VV4_OCC_416A13[5] = { 0xE8, 0x98, 0x0F, 0x05, 0x00 };
 static const unsigned char VV4_OCC_416B0B[5] = { 0xE8, 0xA0, 0x0E, 0x05, 0x00 };
+static const unsigned char VV4_OCC_45E887[5] = { 0xE8, 0x34, 0xF9, 0xFB, 0xFF };
+static const unsigned char VV4_OCC_45E8A7[5] = { 0xE8, 0x14, 0xF9, 0xFB, 0xFF };
 static const oc_site VV4_OC_SITES[] = {
     { 0x414D97u, VV4_OCS_414D97 },
     { 0x414DA2u, VV4_OCS_414DA2 },
@@ -2277,8 +2283,10 @@ static const oc_scope VV4_OC_SCOPES[] = {
     { 0x4169EFu, VV4_OCC_4169EF, 0, -1, 0, 0, -1 },
     { 0x416A13u, VV4_OCC_416A13, 0, -1, 0, 0, -1 },
     { 0x416B0Bu, VV4_OCC_416B0B, 0, -1, 0, 0, -1 },
+    { 0x45E887u, VV4_OCC_45E887, 4, -1, 0, 4581523, -1 },
+    { 0x45E8A7u, VV4_OCC_45E8A7, 4, -1, 0, 4581555, -1 },
 };
-#define VV4_OC_SCOPE_COUNT 26
+#define VV4_OC_SCOPE_COUNT 28
 static const oc_force VV4_OC_FORCES[] = {
     { 9, 0 },
     { 9, 1 },

@@ -52,7 +52,13 @@ enum { OC_SELECT = 1, OC_BUILD = 2, OC_APPLY = 3 };
 enum { OC_LOOP_NOBODY = 0, OC_LOOP_EVERYONE = 1, OC_LOOP_CHOOSE = 2 };
 enum { OC_IDLE = 0, OC_ARMED = 1, OC_DELIVERED = 2 };
 enum { OC_ELEM_PTR = 1, OC_ELEM_INDEX = 2 };
-enum { OC_SCOPE_PLAIN = 0, OC_SCOPE_APPLY = 1, OC_SCOPE_GONG = 2, OC_SCOPE_RINGER = 3 };
+/* Scope kinds: PLAIN brackets a shared routine's rolls; APPLY an event's
+   resolve; GONG the Gong of Wonder's use; RINGER the Gong's ringer search;
+   MASTERY a mastery check before a twins / triplets roll (its choice_off is
+   that roll's VA); BREED a conception call whose twins / triplets rolls need
+   the breeding level (scripts/story_island_outcomes.py LIFT_SCOPES). */
+enum { OC_SCOPE_PLAIN = 0, OC_SCOPE_APPLY = 1, OC_SCOPE_GONG = 2, OC_SCOPE_RINGER = 3,
+       OC_SCOPE_MASTERY = 4, OC_SCOPE_BREED = 5 };
 #define OC_GONG_SLOT 1000                /* The Lost Children's Gong of Wonder */
 #define OC_RINGER_ADULT 0x118            /* the ringer search's age test (0x44B45F: age > 0x118) */
 
@@ -613,13 +619,28 @@ __declspec(naked) static void oc_rand_stub(void) {
    record is still that villager (its identity taken at the purchase) and
    passes the search's own test (present, living, adult; c2_listed also
    refuses a totem statue).  Otherwise the game's answer stands and the miss
-   is recorded (the picker says the game then chooses).  The two youth
-   results' calls only test that a ringer exists and write fixed records;
-   they are not taken.
+   is recorded (the picker says the game then chooses).
+
+   'Takes youth' / 'Grants youth' call the search only to see that a ringer
+   exists (0x44EF36 / 0x44EFA9), then the game's own stores write the age and
+   its processed copy of a FIXED record through ESI: [esi+0x56078] = record
+   6, [esi+0xD6964] = record 15 (+0x530 / +0x534; ESI = the records' base).
+   With a villager chosen, valid as above and not carrying a baby, the search
+   answers that villager and ESI is moved to its record by the same distance
+   the fixed record lies from it, so those stores write the chosen villager;
+   ESI is the routine's own saved register, popped right after (0x44EF56 /
+   0x44EFC9).  Random, or a chosen villager no longer valid: the stock record.
 
    WHO FALLS SICK.  A "choose who" setting whose villagers are all gone at the
    ring (none still present and living) goes back to the game's own rolls for
    that ring, and the miss is recorded. */
+
+/* The youth results' search calls and the fixed record each one's stores
+   write (scripts/story_outcomes_gong.py YOUTH_RECORDS). */
+static const struct { unsigned int va; int record; } OC_YOUTH_CALLS[] = {
+    { 0x44EF36u, 6 }, { 0x44EFA9u, 15 },
+};
+#define OC_YOUTH_STRIDE 0xE48C          /* The Lost Children's record size */
 
 static unsigned int oc_who_identity(const unsigned char *who) {
     unsigned int identity;
@@ -628,8 +649,9 @@ static unsigned int oc_who_identity(const unsigned char *who) {
 }
 
 /* Whether record `index` of The Lost Children is one the ringer search
-   could answer, and is still the villager `identity` names. */
-static int oc_ringer_valid(int index, unsigned int identity) {
+   could answer, and is still the villager `identity` names; for a youth
+   result also not carrying a baby (+0x540). */
+static int oc_ringer_valid(int index, unsigned int identity, int youth) {
     const ce_adapter *a = ce_adapter_for(2);
     const unsigned char *r;
     if (a == NULL || identity == 0 || index < 0 || index >= a->record_count) {
@@ -637,7 +659,7 @@ static int oc_ringer_valid(int index, unsigned int identity) {
     }
     r = a->record(index);
     return r != NULL && a->listed(r) && *(const int *)(r + 0x530) > OC_RINGER_ADULT
-           && story_title_keep(2, r) == identity;
+           && story_title_keep(2, r) == identity && (!youth || *(const int *)(r + 0x540) == 0);
 }
 
 /* At the purchase: each ringer setting takes its villager's identity. */
@@ -665,13 +687,13 @@ static void oc_gong_bind(oc_settings *s) {
     }
 }
 
-/* The search 0x44B440 returned `found` inside the gong's use: the index the
-   routine is to use. */
-static unsigned int oc_ringer_answer(unsigned int found) {
+/* The chosen villager the search is to answer inside the gong's use, or -1
+   (Random, or the chosen villager no longer valid: the miss is recorded). */
+static int oc_ringer_choice(int youth) {
     const oc_event *e = oc_gong.event;
     int i;
     if (oc_gong.state != OC_DELIVERED || !oc_gong.in_apply || oc_gong.game != 2 || e == NULL) {
-        return found;
+        return -1;
     }
     for (i = 0; i < e->control_count && i < OC_MAX_CONTROLS; ++i) {
         const oc_control *c = &OC_GAMES[2].controls[e->control_first + i];
@@ -679,14 +701,37 @@ static unsigned int oc_ringer_answer(unsigned int found) {
         if (c->kind != OC_RINGER || choice == OC_RANDOM) {
             continue;
         }
-        if (oc_ringer_valid(choice, oc_who_identity(oc_gong.set.who[i]))) {
+        if (oc_ringer_valid(choice, oc_who_identity(oc_gong.set.who[i]), youth)) {
             OC_COUNT(forced);
-            return (unsigned int)choice;
+            return choice;
         }
         oc_gong.victim_missed = 1;
         OC_COUNT(victim_missed);
     }
-    return found;
+    return -1;
+}
+
+/* The search 0x44B440 returned at scope call `va` (`regs`: its pushad
+   image, regs[7] EAX the answer, regs[1] ESI): a chosen villager replaces
+   the answer, and at a youth call ESI is moved so the game's stores of the
+   fixed record write the chosen villager's. */
+static void oc_ringer_return(unsigned int va, unsigned int *regs) {
+    int fixed = -1;
+    int chosen;
+    int k;
+    for (k = 0; k < (int)(sizeof OC_YOUTH_CALLS / sizeof OC_YOUTH_CALLS[0]); ++k) {
+        if (OC_YOUTH_CALLS[k].va == va) {
+            fixed = OC_YOUTH_CALLS[k].record;
+        }
+    }
+    chosen = oc_ringer_choice(fixed >= 0);
+    if (chosen < 0) {
+        return;
+    }
+    regs[7] = (unsigned int)chosen;
+    if (fixed >= 0) {
+        regs[1] += (unsigned int)((chosen - fixed) * OC_YOUTH_STRIDE);
+    }
 }
 
 /* Whether the chosen result is of tier A or B: it answers a tier gate
@@ -756,6 +801,87 @@ static void oc_gong_ring_end(void) {
         world[0x2E910] = 0;
     }
     oc_gong.tiers_lifted = 0;
+}
+
+/* ---- Twins and triplets before the village has mastered them ---------------
+
+   The owner (2026-10-20): every outcome, not only after a stock unlock.
+   The Lost Children's conception routine 0x44B980 rolls twins / triplets only
+   when [world+0x2EA8C] == 3 (0x44BA6A / 0x44BA9E); The Tree of Life's only
+   when its mastery call 0x41E1C0(1) answers 3 (0x45E887 / 0x45E8A7).  A
+   chosen twins or triplets outcome lifts that gate for the chosen call only:
+   the dword is 3 -- the value the game itself uses -- while the conception
+   call runs and its old value is put back when it returns; the mastery call
+   answers 3 inside the event's apply.  Nothing else reads them meanwhile. */
+
+static int oc_breed_lifted;
+static int oc_breed_saved;
+
+/* Whether a live setting of `a` under scope `scope` is twins or triplets
+   (forces the twins roll 0x44BA75 below its bar, 7). */
+static int oc_breed_wanted(const oc_arm_state *a, int scope) {
+    const oc_game *g = &OC_GAMES[2];
+    int i;
+    int k;
+    if (a->state != OC_DELIVERED || !a->in_apply || a->game != 2 || a->event == NULL) {
+        return 0;
+    }
+    for (i = 0; i < a->event->control_count && i < OC_MAX_CONTROLS; ++i) {
+        const oc_control *c = &g->controls[a->event->control_first + i];
+        int choice = a->set.choice[i];
+        const oc_option *o;
+        if (c->kind != OC_ENUM || c->scope != scope || choice < 0 || choice >= c->option_count
+            || !oc_control_live(a, c)) {
+            continue;
+        }
+        o = &g->options[c->option_first + choice];
+        for (k = 0; k < o->force_count; ++k) {
+            const oc_force *f = &g->forces[o->force_first + k];
+            if (g->sites[f->site].va == 0x44BA75u && f->value < 7) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+static void oc_breed_enter(int scope) {
+    unsigned char *world = VV2_WORLD();
+    if (oc_breed_lifted || world == NULL || !(oc_breed_wanted(&oc, scope) || oc_breed_wanted(&oc_gong, scope))) {
+        return;
+    }
+    oc_breed_saved = *(int *)(world + 0x2EA8C);
+    if (oc_breed_saved != 3) {
+        *(int *)(world + 0x2EA8C) = 3;
+        oc_breed_lifted = 1;
+    }
+}
+
+static void oc_breed_leave(void) {
+    unsigned char *world = VV2_WORLD();
+    if (oc_breed_lifted && world != NULL) {
+        *(int *)(world + 0x2EA8C) = oc_breed_saved;
+    }
+    oc_breed_lifted = 0;
+}
+
+/* The mastery call before the roll at `roll` returned: 3 when a live loop
+   setting of the delivered pick at that roll is everyone or chosen. */
+static int oc_mastery_wanted(int game, unsigned int roll) {
+    const oc_game *g = &OC_GAMES[game];
+    int i;
+    if (oc.state != OC_DELIVERED || !oc.in_apply || oc.game != game || oc.event == NULL) {
+        return 0;
+    }
+    for (i = 0; i < oc.event->control_count && i < OC_MAX_CONTROLS; ++i) {
+        const oc_control *c = &g->controls[oc.event->control_first + i];
+        int choice = oc.set.choice[i];
+        if (c->kind == OC_LOOP && c->site >= 0 && g->sites[c->site].va == roll
+            && (choice == OC_LOOP_EVERYONE || choice == OC_LOOP_CHOOSE) && oc_control_live(&oc, c)) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 /* ---- Scope calls ----------------------------------------------------------- */
@@ -834,6 +960,9 @@ static unsigned int oc_scope_enter(const unsigned int *regs) {
                 oc_apply_open(&oc_gong);
                 oc_gong_ring_begin();
             }
+            if (s->kind == OC_SCOPE_BREED && game == 2) {
+                oc_breed_enter(i);
+            }
             return oc_scope_target(s);
         }
     }
@@ -868,7 +997,13 @@ static unsigned int oc_scope_leave(unsigned int *regs) {
             oc_arm_clear(&oc_gong);     /* one use */
         }
         if (kind == OC_SCOPE_RINGER && game == 2) {
-            regs[7] = oc_ringer_answer(regs[7]);
+            oc_ringer_return(OC_GAMES[game].scopes[i].va, regs);
+        }
+        if (kind == OC_SCOPE_BREED && game == 2) {
+            oc_breed_leave();
+        }
+        if (kind == OC_SCOPE_MASTERY && oc_mastery_wanted(game, (unsigned int)OC_GAMES[game].scopes[i].choice_off)) {
+            regs[7] = 3;                /* the mastered level the game itself compares with */
         }
     }
     return ret;

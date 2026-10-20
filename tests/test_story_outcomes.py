@@ -1042,9 +1042,10 @@ class _Ring:
     the tier gates, the jump tables, the ringer search 0x44B440, the records
     written -- is the game's own code."""
 
-    def __init__(self, mode: str = "collection_progression", tiers: int = 0, ringer: int | None = 3):
+    def __init__(self, mode: str = "collection_progression", tiers: int = 0, ringer: int | None = 3,
+                 extra: tuple[str, ...] = ()):
         from unicorn import UC_HOOK_CODE
-        g = self.g = Game("vv2", mode)
+        g = self.g = Game("vv2", mode, extra)
         p = g.proc
         self.w = g.village.world
         p.write(self.w + 0x2E910, bytes([tiers]))
@@ -1080,8 +1081,11 @@ class _Ring:
         self.hit.clear()
         p = self.g.proc
         p.set_reg("ecx", self.g.village.base)
+        p.set_reg("esi", self.g.village.base)
         p.set_reg("esp", STACK)
         p.run(0x461B8E, 0x461B93)
+        assert p.reg("esi") == self.g.village.base, "the caller's ESI comes back as it was"
+        assert p.reg("esp") == STACK, "the stack comes back balanced"
         return list(self.hit)
 
     def strike(self, until: int = 0x461B93) -> list:
@@ -1269,14 +1273,57 @@ class GongRingerTests(unittest.TestCase):
                     self.assertEqual(r.g.village.i32(3, off), want(95), "the game's own ringer")
                     self.assertEqual(r.gong()[2], 1, "the miss is recorded")
 
-    def test_the_youth_results_keep_the_games_records(self):
-        """'Takes youth' / 'Grants youth' only test that a ringer exists, then
-        write records 6 and 15 (stock): a chosen villager changes nothing."""
-        for label, record, value in (("Takes youth", 6, 0x3E9), ("Grants youth", 15, 0x64)):
-            with self.subTest(result=label):
-                r = self._ring(label, chosen=4)
-                self.assertEqual(r.g.village.i32(record, 0x530), value)
-                self.assertEqual(r.g.village.i32(4, 0x530), 24 * 20)
+    YOUTH = (("Takes youth", 6, 0x3E9), ("Grants youth", 15, 0x64))
+
+    def _ages(self, r):
+        return {i: (r.g.village.i32(i, 0x530), r.g.village.i32(i, 0x534)) for i in (0, 1, 2, 3, 4, 5, 6, 15)}
+
+    def _youth_writes(self, r, before):
+        after = self._ages(r)
+        return {i: after[i] for i in after if after[i] != before[i]}
+
+    def test_the_youth_results_write_the_chosen_villager(self):
+        """'Takes youth' / 'Grants youth' test that a ringer exists, then the
+        game's own stores write the age (+0x530) and its processed copy
+        (+0x534) of the fixed record 6 / 15 (stock).  A chosen villager gets
+        them instead; Random is records 6 and 15."""
+        for label, record, value in self.YOUTH:
+            for chosen, ringer in ((4, 3), (1, None), (None, 3)):
+                with self.subTest(result=label, chosen=chosen, ringer=ringer):
+                    r = _Ring(ringer=ringer)
+                    before = self._ages(r)
+                    choices = {"result": _option(label)}
+                    if chosen is not None:
+                        choices["ringer"] = chosen
+                    r.arm(choices)
+                    r.ring()
+                    target = record if chosen is None else chosen
+                    self.assertEqual(self._youth_writes(r, before), {target: (value, value)})
+                    self.assertEqual(r.gong()[2], 0)
+
+    def test_the_youth_results_fall_back_to_the_games_records(self):
+        def died(r):
+            r.g.proc.put32(r.g.village.record(4) + 0x52C, 0)
+
+        def a_totem(r):
+            r.g.proc.write(r.g.village.record(4) + 0x558, b"\1")
+
+        def carrying_a_baby(r):
+            r.g.proc.put32(r.g.village.record(4) + 0x540, 1)
+
+        def someone_else(r):
+            r.g.village.put(4, sex="f", years=30, name="Newcomer", health=95)
+
+        for spoil in (died, a_totem, carrying_a_baby, someone_else):
+            for label, record, value in self.YOUTH:
+                with self.subTest(case=spoil.__name__, result=label):
+                    r = _Ring()
+                    r.arm({"result": _option(label), "ringer": 4})
+                    spoil(r)
+                    before = self._ages(r)
+                    r.ring()
+                    self.assertEqual(self._youth_writes(r, before), {record: (value, value)})
+                    self.assertEqual(r.gong()[2], 1, "the miss is recorded")
 
     def test_every_mode(self):
         for mode in MODES:
@@ -1360,6 +1407,119 @@ class GongPurchaseTests(unittest.TestCase):
         self.assertEqual(proc.u32(village.world + 0x2EADC), 100000, "nothing spent")
         self.assertIn("not whole", proc.messages[-1])
         self.assertNotIn("DialogBoxParamA", proc.api_calls, "the picker is not opened")
+
+
+@emulated
+class BirthGateTests(unittest.TestCase):
+    """The owner (2026-10-20): every outcome, not only after a stock unlock.
+    Twins and triplets the game rolls only once the village has mastered them
+    -- The Lost Children: [world+0x2EA8C] == 3 in the conception routine
+    0x44B980 (the Gong's 'Grants life' and the poet's note); The Tree of
+    Life: Parenting mastery 0x41E1C0(1) == 3 (The Abandoned Infants) -- come
+    when chosen, and the gate is as it was afterwards."""
+
+    def _gong_life(self, babies, level):
+        r = _Ring()
+        p = r.g.proc
+        p.put32(r.w + 0x2EA8C, level)
+        p.stub(0x44B310, lambda q: (1, 0))                     # room in the village
+        p.stub(0x4682BD, lambda q: (0, 0))                     # the father's name copy
+        choices = {"result": _option("Grants life")}
+        if babies is not None:
+            _, c = _control("vv2", GONG_SLOT, "babies")
+            choices["babies"] = [k for k, o in enumerate(c["options"]) if o["label"] == babies][0]
+        r.arm(choices)
+        r.ring()
+        women = [0, 2, 4]                                      # V0, V2, V4 (18-49, not carrying)
+        return [r.g.village.i32(i, 0x544) for i in women], p.u32(r.w + 0x2EA8C), r
+
+    def test_the_gongs_twins_and_triplets_before_breeding_is_mastered(self):
+        for level in (0, 1, 3):
+            for babies, want in (("Twins", 2), ("Triplets", 3), ("One baby", 0), (None, 0)):
+                with self.subTest(level=level, babies=babies):
+                    litters, after, r = self._gong_life(babies, level)
+                    if babies is None and level == 3:
+                        want = 0                               # the stub's 63 of 100: no twins (stock)
+                    self.assertEqual(litters, [want] * 3)
+                    self.assertEqual(after, level, "the breeding level is put back")
+                    if babies is None and level != 3:
+                        self.assertNotIn(100, r.g.rand_calls[3:], "Random: no twins roll, as the game")
+
+    def test_the_poets_note_twins_before_breeding_is_mastered(self):
+        """The Lost Children's poet (slot 83, 'hide to catch the poet'): its
+        conception call 0x422006, run as the event's resolve runs it."""
+        ci, c = _control("vv2", 83, "litter")
+        for level in (0, 3):
+            for k, o in enumerate(c["options"]):
+                with self.subTest(level=level, litter=o["label"]):
+                    g = Game("vv2")
+                    p = g.proc
+                    p.put32(g.village.world + 0x2EA8C, level)
+                    p.stub(0x44B310, lambda q: (1, 0))
+                    p.stub(0x4682BD, lambda q: (0, 0))
+                    g.arm(83, {ci: k})
+                    g.force(DELIVERED, 1, in_apply=1)
+                    self.assertGreaterEqual(g.scope(0x422006, 0), 0)
+                    for n, value in enumerate([2, 7, 0, 0, 0, 0, 0]):   # mother V2, then the father's details
+                        p.put32(STACK + 4 * n, value)
+                    p.set_reg("ecx", g.village.base)
+                    p.set_reg("esp", STACK)
+                    p.run(0x422006, 0x42200B)
+                    want = {"One baby": 0, "Twins": 2, "Triplets": 3}[o["label"]]
+                    self.assertEqual(g.village.i32(2, 0x544), want)
+                    self.assertEqual(p.u32(g.village.world + 0x2EA8C), level)
+                    g.force(IDLE)
+
+    def test_the_abandoned_infants_twins_before_parenting_is_mastered(self):
+        """The Tree of Life's Abandoned Infants (slot 28): with Parenting not
+        mastered (0x41E1C0 answers 0) every mother has one baby; with
+        'Which mothers have more than one baby' at everyone they have twins
+        (+0x1C50 = 2), or triplets (3) with the triplets setting too."""
+        if not have_stock("vv4"):
+            self.skipTest("stock executables not present")
+        cases = ((None, None, 1), (EVERYONE, None, 2), (EVERYONE, EVERYONE, 3), (NOBODY, None, 1))
+        for multiple, triplets, want in cases:
+            with self.subTest(multiple=multiple, triplets=triplets):
+                g = Game("vv4")
+                stubs = {0x41E1C0: (0, 4), 0x468350: (1, 0), 0x412F90: (0, 8), 0x4724E0: (0, 0),
+                         0x468C60: (0, 0)}
+                for va, (value, pop) in stubs.items():
+                    g.proc.stub(va, lambda q, value=value, pop=pop: (value, pop))
+                choices = {}
+                if multiple is not None:
+                    choices[_control("vv4", 28, "multiple")[0]] = multiple
+                if triplets is not None:
+                    choices[_control("vv4", 28, "triplets")[0]] = triplets
+                g.arm(28, choices)
+                _ready(g, _control("vv4", 28, "multiple")[1])
+                g.proc.call(0x467B00, [0xFFFFFFFF, 6, 1, 0xFFFFFFFF, 0, 0], ecx=0x50E568)
+                mothers = [i for i in range(6) if g.village.i32(i, 0x1C4C) != 0]
+                self.assertTrue(mothers, "the event's own conceptions ran")
+                self.assertEqual({g.village.i32(i, 0x1C50) for i in mothers}, {want})
+
+
+@emulated
+class GongCoconutsFixTests(unittest.TestCase):
+    """The patch "Gong of Wonder Coconuts Fix" (vv2_gong_of_wonder_coconuts_fix)
+    turns the two coconut stores 0x44E9A9 / 0x44F18C from = 30 into += 30.  A
+    picked coconut outcome runs those very instructions of the executable,
+    so it follows the fix exactly when the fix is in the game."""
+
+    def setUp(self):
+        if not have_stock("vv2"):
+            self.skipTest("stock executables not present")
+
+    def test_both_coconut_outcomes_with_and_without_the_fix(self):
+        stock = Game("vv2").proc.read(0x44E9A9, 10)
+        for extra, want in (((), 30), (("vv2_gong_of_wonder_coconuts_fix",), 42)):
+            for label in ("plant store = 800, coconut trees = 30", "Grants food: coconut trees set to 30"):
+                with self.subTest(fix=bool(extra), outcome=label):
+                    r = _Ring(extra=extra)
+                    self.assertEqual(r.g.proc.read(0x44E9A9, 10) != stock, bool(extra), "the fix is in the executable")
+                    r.g.proc.put32(r.w + 0x2EACC, 12)
+                    r.arm({"result": _option(label)})
+                    self.assertEqual(len(r.ring()), 1)
+                    self.assertEqual(r.g.proc.u32(r.w + 0x2EACC), want)
 
 
 def _script(values):

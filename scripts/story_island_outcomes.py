@@ -59,7 +59,7 @@ PICKER_FALLBACK = "the villagers this event's own condition allows"
 
 # Conditions an option can need, checked when the dialog opens and again when
 # the pick is bought (story_outcomes_ui.inc oc_condition_holds).
-CONDITION_IDS = {None: 0, "room": 1, "vv2_breeding_mastered": 3}
+CONDITION_IDS = {None: 0, "room": 1}
 
 # Options whose condition is checked (game, slot, control id, option label
 # prefix) -> condition.  Every other condition in the tables depends on the
@@ -235,6 +235,23 @@ GONG_USE_CALLS: dict[str, list[int]] = {"vv2": list(story_outcomes_gong.USE_CALL
 GONG_CONTROLS: dict[str, list[dict]] = {
     "vv2": [_normalise("vv2", 1000, c) for c in story_outcomes_gong.CONTROLS]}
 GONG_OMITTED: dict[str, list[str]] = {"vv2": list(story_outcomes_gong.OMITTED)}
+
+# Outcomes the game rolls only once the village has mastered something
+# (the owner, 2026-10-20: every outcome, not only after a stock unlock).
+# The scope calls around which the companion lifts that gate for a chosen
+# outcome (story_outcomes.inc):
+# * "breeding" (The Lost Children): the conception routine 0x44B980 rolls
+#   twins / triplets only when [world+0x2EA8C] == 3 (0x44BA6A / 0x44BA9E).
+#   Around a call whose babies setting is twins or triplets the dword is set
+#   to 3 -- the value the game itself uses -- and put back when it returns.
+# * a rand site (The Tree of Life): the mastery call 0x41E1C0(1) whose answer
+#   must be 3 for the roll at that site (0x45E893 twins, 0x45E8B3 triplets) to
+#   run; inside the event's apply, with that roll's setting at everyone or
+#   chosen villagers, the call is answered 3.
+LIFT_SCOPES: dict[str, dict[int, object]] = {
+    "vv2": {0x44EB3E: "breeding", 0x422006: "breeding"},
+    "vv4": {0x45E887: 0x45E893, 0x45E8A7: 0x45E8B3},
+}
 
 # Events whose own condition a pick may pass because it is a timing or story
 # condition the event's code does not need -- each proven by running the

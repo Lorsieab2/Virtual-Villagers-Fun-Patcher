@@ -112,10 +112,6 @@ static int oc_condition_holds(int game, int cond) {
         return 1;
     case 1:
         return a != NULL && a->room();
-    case 3: { /* The Lost Children: breeding mastered (village +0x2EA8C == 3) */
-        unsigned char *world = game == 2 ? *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL : NULL;
-        return world != NULL && *(int *)(world + 0x2EA8C) == 3;
-    }
     default:
         return 0;
     }

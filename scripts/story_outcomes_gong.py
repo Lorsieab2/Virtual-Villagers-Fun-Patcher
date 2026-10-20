@@ -35,12 +35,16 @@ TIERS = ("a tier A or B result: in the original game the Gong gives these only o
          "here, the companion sets that byte to 1 -- the value the game itself writes -- for this "
          "ring only when it is 0, and puts 0 back when the outcome routine returns")
 
-# The four calls of the ringer search 0x44B440 whose answer the routine uses
-# as a record index: 'Takes life' (0x44EB9E), the ringer's -90 health
-# (0x44EE06) and the two 'Grants wisdom' entries (0x44F34C, 0x44F3BD).  The
-# youth entries' calls (0x44EF36, 0x44EFA9) only test that a ringer exists
-# and write fixed records, so they are not taken.
-RINGER_CALLS = [0x44EB9E, 0x44EE06, 0x44F34C, 0x44F3BD]
+# The calls of the ringer search 0x44B440 in the routine: four whose answer
+# it uses as a record index -- 'Takes life' (0x44EB9E), the ringer's -90
+# health (0x44EE06), the two 'Grants wisdom' entries (0x44F34C, 0x44F3BD) --
+# and the two youth entries' (0x44EF36, 0x44EFA9), which only test that a
+# ringer exists and then write the fixed records YOUTH_RECORDS names through
+# ESI (this + record * 0xE48C + 0x530 / 0x534).  For those the companion
+# moves ESI to the chosen villager's record when the search returns, so the
+# game's own stores write that villager (story_outcomes.inc).
+RINGER_CALLS = [0x44EB9E, 0x44EE06, 0x44EF36, 0x44EFA9, 0x44F34C, 0x44F3BD]
+YOUTH_RECORDS = {0x44EF36: 6, 0x44EFA9: 15}
 
 CONTROLS = [
     {
@@ -167,7 +171,7 @@ CONTROLS = [
                 'condition': TIERS,
             },
             {
-                'label': 'Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer)',
+                'label': "Takes youth: villager slot 6 gets age value 1001 (stock writes record 6, NOT the ringer; or the villager chosen in 'The villager who rang it')",
                 'force': [
                     [0x44E8A8, 0x63],
                     [0x44EBC0, 0],
@@ -176,7 +180,7 @@ CONTROLS = [
                 'condition': TIERS + '; and a ringer must exist (0x44EF36-0x44EF3E)',
             },
             {
-                'label': 'Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer)',
+                'label': "Grants youth: villager slot 15 gets age value 100 (stock writes record 15, NOT the ringer; or the villager chosen in 'The villager who rang it')",
                 'force': [
                     [0x44E8A8, 0x63],
                     [0x44EBC0, 0],
@@ -448,7 +452,7 @@ CONTROLS = [
         'phase': 'apply',
         'scope_call': 0x44EB3E,
         'kind': 'enum',
-        'condition': "only with result 'Grants life'; twins/triplets rolls run only when the village breeding level [v+0x2EA8C] == 3 (0x44BA6A / 0x44BA9E); forced for every woman made pregnant in this use",
+        'condition': "only with result 'Grants life'; twins/triplets rolls run only when the village breeding level [v+0x2EA8C] == 3 (0x44BA6A / 0x44BA9E); chosen here, the companion sets [v+0x2EA8C] to 3 (the game's own mastered value) around this woman's call to 0x44B980 only and puts the old value back when it returns; forced for every woman made pregnant in this use",
         'options': [
             {
                 'label': 'One baby',
@@ -463,8 +467,7 @@ CONTROLS = [
                     [0x44BA75, 0],
                     [0x44BAA9, 0x63],
                 ],
-                'condition': '[v+0x2EA8C] == 3',
-                'cond': 'vv2_breeding_mastered',
+                'condition': None,
             },
             {
                 'label': 'Triplets',
@@ -472,8 +475,7 @@ CONTROLS = [
                     [0x44BA75, 0],
                     [0x44BAA9, 0],
                 ],
-                'condition': '[v+0x2EA8C] == 3',
-                'cond': 'vv2_breeding_mastered',
+                'condition': None,
             },
         ],
         'evidence': '0x44EB3E E8 -> 0x44B980 (shared pregnancy routine; other callers 0x422006, 0x44F8F0, 0x44F930, 0x464A38, 0x464C4D -> must be scoped to 0x44EB3E).  0x44B980: cap check 0x44B310 (no rand), +0x44 = 0x1A, babies +0x540; push 0x64 / E8 0x44BA75, cmp 7 jge -> single; else +0x544 = 2, then push 0x64 / E8 0x44BAA9, cmp 0x19 jge -> twins; else +0x544 = 3 (triplets).',
@@ -488,8 +490,10 @@ CONTROLS = [
         'calls': RINGER_CALLS,
         'filter': 'the living adults',
         'note': ("'Takes life', the loss of 90 health and 'Grants wisdom' act on the villager who rang "
-                 "the Gong. Choose who they act on: any living adult. If that villager has died, gone "
-                 "or changed by the time the Gong rings, the game's own choice is used."),
+                 "the Gong; 'Takes youth' and 'Grants youth' act on two fixed villager slots. Choose who "
+                 "all five act on: any living adult (for the two youth results, one not carrying a "
+                 "baby). If that villager has died, gone or changed by the time the Gong rings, the "
+                 "game's own choice is used."),
         'evidence': ("0x44B440 (thiscall, no arguments, ret): the first record in index order with +0x30 "
                      "!= 0, health +0x52C > 0, age +0x530 > 0x118 and task text +0x4FC equal to string "
                      "0x10C; -1 when none.  Its index is used at 0x44EBAC (imul 0xE48C; +0x52C = 0), "
@@ -510,7 +514,6 @@ OMITTED = [
     'Jump-table default branches (ja 0x44F448 after cmp 5 / cmp 8 / cmp 4) are dead: rand(6)/rand(9)/rand(5) can never exceed the bound.',
     "Tier-C entries 7 and 8 (0x44F305 / 0x44F376) are byte-identical 'Grants wisdom' paths -> one option.",
     'No other developer-dead outcomes: every table entry of all three tiers is reachable in stock (A/B after the first tier-C ring).',
-    "Stock defect, offered as-is (it is what stock produces): 'Takes youth' / 'Grants youth' write fixed records 6 and 15 instead of the ringer (0x44EF44-0x44EF50, 0x44EFB7-0x44EFC3).  Which villager they act on is therefore not offered: the routine never writes the ringer's (or any chosen villager's) age, and making it would mean writing a field this code never writes.",
     "'Grants life': which women become pregnant is not a roll -- every woman aged 18-49, alive and not pregnant, in index order, while the population cap allows (0x44EAF5-0x44EB50) -- so it is not offered.",
     "'Grants health' and the sickness rolls' filters: no roll decides who is healed (every living villager), so nothing to offer beyond 'Who falls sick'.",
 ]
