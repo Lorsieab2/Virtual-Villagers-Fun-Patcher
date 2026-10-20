@@ -605,7 +605,12 @@ class SaveResetHarnessRunsTests(unittest.TestCase):
             "[PASS] START OVER CLEARS THE VILLAGE'S LOG IN BOTH PLACES: the older layout's and the save's own",
             "[PASS] ...and the slot's Village Statistics in the save's own folder",
             "[PASS] ...and the slot's data file in both places",
-            "[PASS] another village's log in the save's own folder is kept",
+            # Start Over wipes the whole save (the owner, v1.35.79)
+            "[PASS] every log in the save's own folder goes, another village's too (v1.35.79)",
+            "[PASS] THE SLOT FOLDER'S VILLAGE HISTORY IS DELETED BY START OVER (v1.35.79)",
+            "[PASS] game 5: START OVER DELETES EVERYTHING IN",
+            "[PASS] game 1: SAVE 2'S OWN FOLDER IS UNTOUCHED",
+            "[PASS] A JUNCTION OUT OF THE SAVE FOLDER IS NEVER FOLLOWED",
             "[PASS] another slot's data files are kept, in both places",
         ):
             with self.subTest(case=case):

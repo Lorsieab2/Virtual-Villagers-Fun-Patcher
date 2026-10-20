@@ -160,6 +160,21 @@ int main(void) {
     static const char VILLAGE2[] = "Village: Elsewhere (Save 2)\n";
     int game;
 
+    /* NEVER THE PLAYER'S SAVES: the folder the reset resolves must be inside the throwaway
+       Documents harness_ldw_tree_begin made under %TEMP%, or nothing below runs. */
+    {
+        char folder[MAX_PATH], temp[MAX_PATH];
+        const char *docs = harness_redirect_documents_path();
+        DWORD n = GetTempPathA(MAX_PATH, temp);
+        if (!vv_save_folder(folder, 64) || n == 0 || n >= MAX_PATH || docs[0] == '\0'
+            || _strnicmp(folder, temp, n) != 0 || _strnicmp(folder, docs, strlen(docs)) != 0
+            || folder[strlen(docs)] != '\\') {
+            printf("the save folder is not under the throwaway Documents (%s); not running\n", docs);
+            return 2;
+        }
+        printf("save folder: %s\n", folder);
+    }
+
     for (game = 1; game <= 5; ++game) {
         char log1[MAX_PATH], deaths1[MAX_PATH], hist1[MAX_PATH], slot2[MAX_PATH], other[MAX_PATH];
         wchar_t log1_w[MAX_PATH], deaths1_w[MAX_PATH], hist1_w[MAX_PATH], slot2_w[MAX_PATH], other_w[MAX_PATH];
@@ -206,7 +221,7 @@ int main(void) {
         write_text(save1_dat, text);
         wsprintfA(text, "4000\t%s\r\n", k_slot2);
         write_text(save2_dat, text);
-        wsprintfA(text, "3000\t%s\r\n2500\t%s\r\n", k_deaths1, k_other);
+        wsprintfA(text, "3000\t%s\r\n888\t%s\r\n2500\t%s\r\n", k_deaths1, k_hist1, k_other);
         write_text(new_dat, text);
         wsprintfA(text, "1234\t%s\r\n6000\t%s\r\n2600\t%s\r\n", k_deaths1, k_log1, k_other);
         write_text(old_dat, text);
@@ -218,14 +233,17 @@ int main(void) {
         vv_reset_slot_state(game, 1, VILLAGE);
 
         check(game, !exists(log1) && !exists(deaths1), "Start Over deleted the erased village's logs");
-        check(game, exists(hist1) && exists(slot2) && exists(other), "...and kept the history, save 2's and another village's logs");
+        /* START OVER WIPES THE WHOLE SAVE (the owner, v1.35.79): the Village History goes too, and
+           the save's own words file with the save's folder. */
+        check(game, !exists(hist1), "THE VILLAGE HISTORY IS DELETED TOO (v1.35.79)");
+        check(game, exists(slot2) && exists(other), "...and save 2's and another village's logs are kept");
+        check(game, !exists(save1_dat), "the save's own words file goes with the save's folder");
         check(game, !vv_log_words_recorded(game, k_log1, &offset),
               "A DELETED LOG'S BOUNDARY IS GONE (save's own file and the older shared one)");
         check(game, !vv_log_words_recorded(game, k_deaths1, &offset),
               "a deleted shared log's boundary is gone from both shared files");
-        wsprintfA(want, "777\t%s\r\n", k_hist1);
-        check(game, strcmp(read_text(save1_dat, buf, sizeof buf), want) == 0,
-              "the save's own file keeps its kept Village History line, byte for byte");
+        check(game, !vv_log_words_recorded(game, k_hist1, &offset),
+              "the deleted Village History's boundary is gone, from the shared file too");
         wsprintfA(want, "4000\t%s\r\n", k_slot2);
         check(game, strcmp(read_text(save2_dat, buf, sizeof buf), want) == 0,
               "ANOTHER SAVE'S BOUNDARY STAYS, byte for byte");
@@ -237,8 +255,6 @@ int main(void) {
         wsprintfA(want, "2600\t%s\r\n", k_other);
         check(game, strcmp(read_text(old_dat, buf, sizeof buf), want) == 0,
               "the older Log Words file keeps another village's line, byte for byte");
-        check(game, vv_log_words_recorded(game, k_hist1, &offset) && offset == 777,
-              "the kept Village History's boundary still counts");
         check(game, !temporaries_beside(save1_dat) && !temporaries_beside(new_dat) && !temporaries_beside(old_dat),
               "no .tmp is left beside the rewritten file");
 
@@ -248,28 +264,30 @@ int main(void) {
         check(game, vv_log_words_boundary(game, log1_w) == 0,
               "A NEW LOG REUSING THE NAME DOES NOT INHERIT THE OLD BOUNDARY (boundary 0)");
         if (vv_log_words_tracked(game)) {
-            wsprintfA(want, "777\t%s\r\n0\t%s\r\n", k_hist1, k_log1);
+            wsprintfA(want, "0\t%s\r\n", k_log1);
             check(game, strcmp(read_text(save1_dat, buf, sizeof buf), want) == 0,
                   "the new log's boundary 0 is recorded in the save's own file");
         }
 
         /* AN APPEND MADE DURING THE RESET IS KEPT (Codex, #597): it waits for the reset's lock and
-           lands after the replace, never into the file the replace then overwrites. */
+           lands after the replace, never into the file the replace then overwrites.  Raced on the
+           shared file: the save's own one goes with the save's folder (v1.35.79). */
         {
             char island[MAX_PATH];
             wsprintfA(name, "Virtual Villagers %d Island Events Log 1.txt", game);
-            if (!place(island, race_log_w, "Virtual Villagers Fun Patcher Logs\\Save 1\\Island Events", name)
+            if (!place(island, race_log_w, "Virtual Villagers Fun Patcher Logs\\Island Events", name)
                 || !vv_log_words_name(race_log_w, race_key, MAX_PATH)) {
                 check(game, 0, "the racing log's path resolves");
             } else {
                 DeleteFileA(island);              /* a new log: its boundary is 0 */
                 race_game = game;
-                lstrcpyA(race_dat, save1_dat);
+                lstrcpyA(race_dat, new_dat);
                 race_thread = NULL;
                 race_blocked = 0;
                 write_text(log1, VILLAGE);
-                wsprintfA(text, "5000\t%s\r\n777\t%s\r\n", k_log1, k_hist1);
-                write_text(save1_dat, text);
+                write_text(deaths1, VILLAGE);
+                wsprintfA(text, "3000\t%s\r\n2500\t%s\r\n", k_deaths1, k_other);
+                write_text(new_dat, text);
                 vv_reset_words_test_hook = race_hook;
                 vv_reset_slot_state(game, 1, VILLAGE);
                 vv_reset_words_test_hook = NULL;
@@ -280,9 +298,10 @@ int main(void) {
                     race_thread = NULL;
                 }
                 check(game, race_blocked, "THE WRITER WAITED FOR THE RESET'S LOCK");
-                wsprintfA(want, "777\t%s\r\n0\t%s\r\n", k_hist1, race_key);
-                check(game, strcmp(read_text(save1_dat, buf, sizeof buf), want) == 0,
+                wsprintfA(want, "2500\t%s\r\n0\t%s\r\n", k_other, race_key);
+                check(game, strcmp(read_text(new_dat, buf, sizeof buf), want) == 0,
                       "AN APPEND MADE DURING THE RESET IS KEPT, and the deleted log's line is still gone");
+                DeleteFileA(island);
             }
         }
 
@@ -293,8 +312,8 @@ int main(void) {
             int refusals = vv_reset_words_refusals;
             HANDLE holder;
             write_text(log1, VILLAGE);
-            wsprintfA(text, "5000\t%s\r\n777\t%s\r\n", k_log1, k_hist1);
-            write_text(save1_dat, text);
+            wsprintfA(text, "6000\t%s\r\n2500\t%s\r\n", k_log1, k_other);
+            write_text(new_dat, text);
             hold_game = game;
             hold_taken = CreateEventA(NULL, TRUE, FALSE, NULL);
             hold_release = CreateEventA(NULL, TRUE, FALSE, NULL);
@@ -307,10 +326,12 @@ int main(void) {
             WaitForSingleObject(holder, 10000);
             CloseHandle(holder); CloseHandle(hold_taken); CloseHandle(hold_release);
             check(game, !exists(log1), "with the lock held elsewhere the log is still deleted");
-            check(game, strcmp(read_text(save1_dat, buf, sizeof buf), text) == 0,
+            check(game, strcmp(read_text(new_dat, buf, sizeof buf), text) == 0,
                   "A LOCK NOT HAD IN TIME LEAVES THE BOUNDARY FILE UNTOUCHED");
-            check(game, vv_reset_words_refusals == refusals + 1, "...and the refusal is counted");
-            check(game, took >= VV_LOG_WORDS_LOCK_MS - 100 && took < VV_LOG_WORDS_LOCK_MS + 3000,
+            /* Once for the log the named passes deleted, once for the whole wipe (v1.35.79): never
+               once per file the wipe deletes. */
+            check(game, vv_reset_words_refusals == refusals + 2, "...and the refusals are counted");
+            check(game, took >= 2 * VV_LOG_WORDS_LOCK_MS - 100 && took < 2 * VV_LOG_WORDS_LOCK_MS + 3000,
                   "the reset waited the bounded time, no longer");
         }
 

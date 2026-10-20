@@ -75,6 +75,13 @@ CHECK_LOGS_LABEL = (
     "silently and, only if something is wrong, ask Repair / Not now when you "
     "close the game)"
 )
+# The owner's Start Over disclaimer (v1.35.79), shown under each game's per-save folders line: Start
+# Over is the one exception to "nothing is ever deleted" (native/shared/save_reset.c wipe_slot).
+START_OVER_DISCLAIMER = (
+    "Start Over wipes everything the Fun Patcher kept for that save: all its logs (the Village History "
+    "too), all its data (ElderTotems.dat too) and its family tree files. It keeps Backups, Copies Made "
+    "Before Repairs and exported family tree pictures. Other saves are not touched."
+)
 
 # Patches the default selection leaves OFF.
 #
@@ -2476,6 +2483,9 @@ class App(tk.Tk):
                     "Data\") and are still read, until you move them with Repair Saves & Logs > Move Files to "
                     "Save Folders..."
                 )
+                # The owner, v1.35.79: Start Over is the one exception to "nothing is ever deleted"
+                # (native/shared/save_reset.c wipe_slot).
+                artifact_lines.append(START_OVER_DISCLAIMER)
                 if f"{build.id}_write_village_statistics" in selected:
                     artifact_lines.append(
                         f"Village Statistics v2 - Save N.txt: {save_folder / 'Village Statistics'} — refreshed after each successful save; contains that save's lifetime statistics (the earlier 'Village Statistics - Save N.txt' is kept as it was)."
