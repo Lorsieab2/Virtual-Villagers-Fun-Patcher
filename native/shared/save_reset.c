@@ -348,7 +348,7 @@ VV_RESET_STATIC int delete_if_present_w(const wchar_t *path) {
    So every line naming the deleted log is removed -- from the save's own
    boundary file first, then from the shared one and an older build's "Log
    Words" one -- and every other line is kept byte for byte: other saves'
-   logs, and this save's logs Start Over keeps (the Village History).  A file
+   logs, and this save's logs Start Over keeps (its permanent history log).  A file
    holding no such line is not rewritten.  The rewrite goes through a
    ".tmp" beside it and replaces the file in one move, so a failure leaves the
    old file whole.  Keys compare without case, as the file system does.
