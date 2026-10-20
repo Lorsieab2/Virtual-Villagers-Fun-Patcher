@@ -286,6 +286,43 @@ game marks it ready by writing 1 there when its fourth piece completes
 while the Gong is not whole (+0x2E7F0) it is refused and nothing is written or
 spent. The ring afterwards rests the Gong again as the game does.
 
+## Recharge Chief Powers (The Secret City)
+
+The owner (2026-10-20): "add an equivalent 'Recharge Chief Powers' in the
+Upgrades menu that makes the chief's powers available immediately after
+purchase, with the same tech point cost." The equivalent is Pick Gong of Wonder
+Outcome, which makes the Gong ready to ring at once: a separate button in the
+Tech menu, not an island event (no Island Event lock), charged through the same
+path at the same price -- the Island Event upgrade's, so 0, or 30,000 with
+Story / Cheat Upgrades cost Tech Points, taken only when the powers are
+recharged.
+
+The Tribal Chief's three once-a-day powers each keep the clock time they can
+next be used in the world object (0x428B60()), on the game's clock 0x403330:
+
+| Power | Next use | Use | Leadership |
+| --- | --- | --- | --- |
+| Granting food | +0x12F00 | 0x421A30, hotspot 15: action 0x87 | 1 (the tech text) |
+| Educating the children | +0x12EFC | 0x466828, the chief dropped on a child: 0x45D460, action 0x39 | 2 |
+| Pointing out a rare collectible | +0x12EF8 | 0x421BE0, hotspot 0x25: action 0x89 | 3 |
+
+Each use tests `stamp > clock` (then the chief says "The chief can only do this
+once every 24 hours", say 0x2A through action 0x72, and nothing else happens);
+otherwise the power runs and the stamp becomes clock + 0x14370 (23 hours). A new
+village sets all three to its clock (0x4280C6-0x4280E0); the robe's success
+0x431FE0 writes 0 to all three when a villager becomes the chief (0x432013,
+0x432022, 0x432038). The purchase writes that same 0 to each stamp still ahead
+of the clock and nothing else, so the next use rests the power again exactly
+as the game does.
+
+Refused with a message, nothing written and nothing charged: no living chief
+(the game's own chief test 0x45FC00, as the Custom Island Event's Tribal Chief
+status uses it); Leadership level 0 ([0x582618 + 4*4] through 0x426FC0(4): the
+first power comes at level 1); every power ready already. Emulated in all three
+population modes (tests/test_vv3_recharge_chief_powers.py), including the
+game's own food, lesson and collectible routines afterwards; not yet run in the
+game.
+
 ## Stock behaviour found in passing (reported, not changed)
 
 The owner's rule: no original-game behaviour is changed without being reported

@@ -1468,3 +1468,15 @@ is about (one the game would not pick leaves the choice to the game).
 * 'Grants life': which women become pregnant is not a roll -- every woman aged 18-49, alive and not pregnant, in index order, while the population cap allows -- so it is not offered.
 * 'Grants health' and the sickness rolls' filters: no roll decides who is healed (every living villager), so nothing to offer beyond 'Who falls sick'.
 
+## The Secret City: Recharge Chief Powers
+
+No settings: the purchase makes every resting Tribal Chief power ready to use at once, priced as Pick Gong of Wonder Outcome (the Island Event upgrade's price: 0, or 30,000 with Story / Cheat Upgrades cost Tech Points).
+
+| Power | Next use (world) | Used at | Rests after a use |
+| --- | --- | --- | --- |
+| Granting food | +0x12F00 | 0x421A30 (hotspot 15) | clock + 0x14370 (23 h) |
+| Educating the children (Leadership 2) | +0x12EFC | 0x466828 | clock + 0x14370 (23 h) |
+| Pointing out a rare collectible (Leadership 3) | +0x12EF8 | 0x421BE0 (hotspot 0x25) | clock + 0x14370 (23 h) |
+
+A power rests while its next-use time is ahead of the game's clock (0x403330). The purchase writes 0 -- what the robe's success (0x431FE0) writes to all three when a villager becomes the chief -- to each resting one. Refused, with nothing written or charged: no living chief (0x45FC00), Leadership level 0, or every power ready already.
+

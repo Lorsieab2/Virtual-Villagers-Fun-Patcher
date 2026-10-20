@@ -341,6 +341,147 @@ static int c3_set_status(int index, int status) {
     return 1;
 }
 
+/* ---- Recharge Chief Powers ----------------------------------------------
+
+   The owner (2026-10-20): an Upgrades-menu purchase that makes the Tribal
+   Chief's powers available at once, at the same price as Pick Gong of Wonder
+   Outcome (which makes The Lost Children's Gong ready to ring at once): the
+   Island Event upgrade's, 0 unless the upgrades cost tech points.
+
+   The chief's three once-a-day powers each keep the clock time they can next
+   be used in the world object (0x428B60()), on the game's clock 0x403330:
+     +0x12F00  granting food (the food store hotspot 15, 0x421A30);
+     +0x12EFC  educating the children (chief dropped on a child with
+               Leadership 2, 0x466828);
+     +0x12EF8  pointing out a rare collectible (hotspot 0x25, Leadership 3,
+               0x421BE0).
+   A use tests `stamp > clock` (resting: "The chief can only do this once
+   every 24 hours", say 0x2A through action 0x72); otherwise the power runs
+   and the stamp becomes the clock + 0x14370 (23 hours).  The game's own
+   ready value is 0: the robe's success 0x431FE0 writes 0 to all three when a
+   villager becomes the chief (0x432013 / 0x432022 / 0x432038).  The purchase
+   writes that same 0 to each resting stamp and nothing else; the next use
+   sets the stamp again as the game always does.
+
+   Refused, nothing written and nothing charged: no living chief (the game's
+   own chief test 0x45FC00); no powers yet (Leadership level 0: the
+   technology [0x582618 + 4*4], read by 0x426FC0(4), gives the first power
+   at level 1); or every power already ready. */
+#define C3_CHIEF_POWERS 3
+#define C3_RECHARGE_NO_CHIEF (-1)
+#define C3_RECHARGE_NO_POWERS (-2)
+#define C3_RECHARGE_READY (-3)
+
+static const unsigned int C3_CHIEF_POWER_STAMPS[C3_CHIEF_POWERS] = { 0x12F00u, 0x12EFCu, 0x12EF8u };
+
+static unsigned char *c3_world(void) {
+    return (unsigned char *)((getter_fn)(uintptr_t)0x428B60u)();
+}
+
+/* Whether power `k` is resting now, as each use tests it (`cmp [stamp],
+   clock; jbe ready`). */
+static int c3_chief_power_resting(const unsigned char *world, int k) {
+    return *(const unsigned int *)(world + C3_CHIEF_POWER_STAMPS[k])
+           > (unsigned int)TC0(0x403330u, world);
+}
+
+/* Why the powers can not be recharged now (a C3_RECHARGE_* code), or 0. */
+static int c3_recharge_refusal(void) {
+    unsigned char *world;
+    int k;
+    if ((TC0(0x45FC00u, C3_VILLAGE) & 0xFF) == 0) {
+        return C3_RECHARGE_NO_CHIEF;
+    }
+    if (TC1(0x426FC0u, 0x582618u, 4) < 1) {
+        return C3_RECHARGE_NO_POWERS;
+    }
+    world = c3_world();
+    if (world == NULL) {
+        return C3_RECHARGE_NO_CHIEF;
+    }
+    for (k = 0; k < C3_CHIEF_POWERS; ++k) {
+        if (c3_chief_power_resting(world, k)) {
+            return 0;
+        }
+    }
+    return C3_RECHARGE_READY;
+}
+
+/* The purchase itself: every resting power's stamp to the game's own ready
+   0.  1, or the refusal (nothing written). */
+static int c3_recharge_chief_powers(void) {
+    unsigned char *world;
+    int why = c3_recharge_refusal();
+    int k;
+    if (why != 0) {
+        return why;
+    }
+    world = c3_world();
+    for (k = 0; k < C3_CHIEF_POWERS; ++k) {
+        if (c3_chief_power_resting(world, k)) {
+            *(unsigned int *)(world + C3_CHIEF_POWER_STAMPS[k]) = 0;
+        }
+    }
+    return 1;
+}
+
+static const char *c3_recharge_refusal_text(int why) {
+    switch (why) {
+    case C3_RECHARGE_NO_CHIEF:
+        return "Your village has no Tribal Chief, so there are no chief powers to recharge. "
+               "Nothing was bought.";
+    case C3_RECHARGE_NO_POWERS:
+        return "Your chief has no powers yet: the first comes with Leadership level 1. "
+               "Nothing was bought.";
+    default:
+        return "Your chief's powers are all ready to use already. Nothing was bought.";
+    }
+}
+
+/* Defined in vvfp_story_upgrades.c, after this file. */
+static int story_installed(int game);
+static const char *story_price_text(int game);
+static int story_charged(int game, HWND owner, int (*command)(int game, HWND owner));
+
+static int story_recharge_chief_powers(int game, HWND owner) {
+    char message[400];
+    int why;
+    if (game != 3 || !story_installed(3)) {
+        return 0;
+    }
+    why = c3_recharge_refusal();
+    if (why != 0) {
+        MessageBoxA(owner, c3_recharge_refusal_text(why), "Recharge Chief Powers",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    wsprintfA(message,
+              "Do you want to buy Recharge Chief Powers for %s tech points?\r\n"
+              "Your chief's powers become ready to use now.\r\n\r\n"
+              "Press OK to confirm, or Cancel.", story_price_text(game));
+    if (MessageBoxA(owner, message, "Origins Upgrades",
+                    MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
+        return 0;
+    }
+    /* The village may have moved on while the box was open. */
+    why = c3_recharge_chief_powers();
+    if (why != 1) {
+        MessageBoxA(owner, c3_recharge_refusal_text(why), "Recharge Chief Powers",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    MessageBoxA(owner, "Your chief's powers are ready to use now.", "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return 1;
+}
+
+/* The Recharge Chief Powers button of The Secret City's Upgrades menu
+   (native/vv3_full_mastery_candidate): charged as Pick Gong of Wonder
+   Outcome is.  1 when the powers were recharged. */
+__declspec(dllexport) int __stdcall VvfpStoryRechargeChiefPowers(int game, HWND owner) {
+    return story_charged(game, owner, story_recharge_chief_powers);
+}
+
 /* ---- Pregnancy: none, a different number of babies, the father --------- */
 
 /* "0 babies": the pregnancy +0xE8C and its litter +0xE90 cleared, then the

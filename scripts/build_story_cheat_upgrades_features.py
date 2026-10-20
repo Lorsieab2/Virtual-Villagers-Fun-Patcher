@@ -643,7 +643,8 @@ def build() -> None:
             "name": NAME,
             "description": DESCRIPTION + (VV1_PARENTS_NOTE if game == "vv1" else "")
             + (VV2_GONG_NOTE if game == "vv2" else "")
-            + (TIME_SKIP_NOTE if game in TIME_SKIP_GAMES else ""),
+            + (TIME_SKIP_NOTE if game in TIME_SKIP_GAMES else "")
+            + (VV3_RECHARGE_NOTE if game == "vv3" else ""),
             "output_tag": "Story Cheat Upgrades",
             "dependencies": [f"{game}_origins_village_wide_upgrades"],
             "behavior_changes": [
@@ -703,7 +704,7 @@ def build() -> None:
                 "the Village Population and Village History logs; it is kept per save slot in "
                 "Virtual Villagers Fun Patcher\\Save N\\Data\\Custom Titles\\Custom Titles - Save N.dat and "
                 "deleted by Start Over.",
-            ],
+            ] + ([VV3_RECHARGE_CHANGE] if game == "vv3" else []),
             "explicit_non_changes": [
                 "No executable byte is patched; the companion writes the listed sites at run time "
                 "after verifying every one of them, and writes nothing if any differs.",
@@ -764,6 +765,33 @@ def build() -> None:
 COST_NAME = "Story / Cheat Upgrades cost Tech Points"
 ISLAND_EVENT_PRICE = 30000           # the Origins Island Event upgrade, all five games
 
+# The Secret City's Recharge Chief Powers (the owner, 2026-10-20): "add an equivalent 'Recharge
+# Chief Powers' in the Upgrades menu that makes the chief's powers available immediately after
+# purchase, with the same tech point cost" -- the equivalent being The Lost Children's Pick Gong of
+# Wonder Outcome, which makes the Gong ready to ring at once and costs the Island Event upgrade's
+# price (0, or 30,000 with the cost row).  native/vvfp_story_upgrades/story_c3.inc.
+VV3_RECHARGE_NOTE = (
+    " Also adds Recharge Chief Powers (0 Tech Points, the same as Pick Island Event): the Tribal "
+    "Chief's once-a-day powers (granting food, educating the children, pointing out a rare "
+    "collectible) are ready to use at once, exactly as when a villager first becomes the chief; "
+    "the next use rests the power for a day as usual. Refused, with nothing spent, when the village "
+    "has no chief, the chief has no powers yet (Leadership level 0), or every power is ready "
+    "already."
+)
+VV3_RECHARGE_CHANGE = (
+    "Adds a Recharge Chief Powers upgrade (the Island Event upgrade's price: 0 tech points, or "
+    f"{ISLAND_EVENT_PRICE:,} with Story / Cheat Upgrades cost Tech Points) to the Origins Tech "
+    "menu: each of the Tribal Chief's three once-a-day powers whose next-use time (world +0x12F00 "
+    "food, +0x12EFC lessons, +0x12EF8 rare collectible) is still ahead of the game's clock gets the "
+    "game's own ready value 0, which the robe's success writes when a villager becomes the chief.  "
+    "Refused with nothing written or charged when there is no living chief (the game's own chief "
+    "test 0x45FC00), at Leadership level 0, or when every power is ready already."
+)
+VV3_RECHARGE_COST = (
+    f" Recharge Chief Powers costs the same {ISLAND_EVENT_PRICE:,} tech points, paid when the "
+    "powers are recharged."
+)
+
 
 def cost_record(game: str) -> dict:
     gong = (" and Pick Gong of Wonder Outcome" if game == "vv2" else "")
@@ -782,7 +810,8 @@ def cost_record(game: str) -> dict:
             f"{ISLAND_EVENT_PRICE:,} tech points, paid when the event is queued. With too few tech "
             "points you are told, and nothing is queued or spent."
             + (" Pick Gong of Wonder Outcome is refused, and nothing spent, while the Gong is not "
-               "whole." if game == "vv2" else "") + skip + " Untick it to keep "
+               "whole." if game == "vv2" else "") + skip
+            + (VV3_RECHARGE_COST if game == "vv3" else "") + " Untick it to keep "
             "every upgrade free. Ticking Story / Cheat Upgrades ticks this too."
         ),
         "output_tag": "Story Cheat Costs",
@@ -793,7 +822,10 @@ def cost_record(game: str) -> dict:
             "Pick Island Event, Custom Island Event" + gong + " cost "
             f"{ISLAND_EVENT_PRICE:,} tech points each, taken from the village's tech points when "
             "the event is queued; with fewer, a message says so and nothing is queued.",
-        ],
+        ] + ([
+            f"Recharge Chief Powers costs {ISLAND_EVENT_PRICE:,} tech points, taken only when the "
+            "powers are recharged; with fewer, or when it is refused, nothing is taken.",
+        ] if game == "vv3" else []),
         "explicit_non_changes": [
             "No byte of the executable is changed by this row: the patcher sets bit 30 of the "
             "startup loader's word (the companions' list stays within bits 1-29).",

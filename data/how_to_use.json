@@ -568,7 +568,7 @@
       ]
     },
     {
-      "ids": ["vv1_story_cheat_upgrades", "vv3_story_cheat_upgrades", "vv4_story_cheat_upgrades", "vv5_story_cheat_upgrades"],
+      "ids": ["vv1_story_cheat_upgrades", "vv4_story_cheat_upgrades", "vv5_story_cheat_upgrades"],
       "guide": [
         "For stories and cheats: every Origins Upgrade costs 0 tech points.",
         "Adds Pick Island Event: choose an island event from a list, and how it turns out if you like.",
@@ -576,6 +576,18 @@
         "Its villager list shows each villager's special role: the Golden Child, the Tribal Chief, or Believer and Heathen type.",
         "In New Believers it also has All Heathens and one button for each Heathen type: blue, red, orange, purple, Chief and Heathen Mommy.",
         "Find both in the Origins Upgrades menus.",
+        "Watch out: it skips the game's normal progress. Off by default.",
+        "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
+      ]
+    },
+    {
+      "ids": ["vv3_story_cheat_upgrades"],
+      "guide": [
+        "For stories and cheats: every Origins Upgrade costs 0 tech points.",
+        "Adds Pick Island Event (choose an event and how it turns out) and Custom Island Event (write your own).",
+        "Its villager list shows who your Tribal Chief is.",
+        "Adds Recharge Chief Powers: your chief's once-a-day powers are ready to use again at once.",
+        "Find them in the Origins Upgrades menus.",
         "Watch out: it skips the game's normal progress. Off by default.",
         "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
       ]
@@ -593,7 +605,8 @@
         "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
       ]
     },
-    {"ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv3_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.", "You pay when the event is queued; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {"ids": ["vv3_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Recharge Chief Powers each cost 30,000 tech points.", "You pay when you buy it; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {"ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.", "You pay when the event is queued; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
     {"ids": ["vv2_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost 30,000 tech points.", "You pay when it is queued; with too few tech points, or no whole Gong, nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
     {
       "ids": ["vv1_cause_of_death"],

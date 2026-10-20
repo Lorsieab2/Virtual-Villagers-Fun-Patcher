@@ -610,6 +610,17 @@ Mastery record or duplicate Origins-exclusive record is exposed. Existing save
 fields are changed only when the selected in-game upgrade runs. Runtime/player
 confirmation remains pending.
 
+RECHARGE CHIEF POWERS (THE SECRET CITY)
+
+With Story / Cheat Upgrades ticked, The Secret City's Origins Upgrades menu also
+offers Recharge Chief Powers. It makes the Tribal Chief's once-a-day powers
+(granting food, educating the children, pointing out a rare collectible) ready
+to use at once, exactly as they are when a villager first becomes the chief;
+the next use rests that power for a day as usual. It costs what Pick Island
+Event costs: 0 tech points, or 30,000 with Story / Cheat Upgrades cost Tech
+Points. With no living chief, a chief with no powers yet (Leadership level 0),
+or every power already ready, it says so and nothing is spent.
+
 NUMERIC KEYS ZIP AROUND THE ISLAND (A NEW HOME)
 
 The later games let the number keys jump the view to one of nine sections of
