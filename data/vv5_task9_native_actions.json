@@ -26,8 +26,8 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "3E1BC06420E5D17D045F50BFB24AAACD598F9C11066C7B3522B238B6CF8D0AA8",
-      "size": 147968
+      "sha256": "ABFAA19F111CC943BAAD7D04E8C6697CBC502D03F0B545C96D6ECF7CF0EDA2B7",
+      "size": 154112
     }
   ],
   "doubler_evidence": {
@@ -506,8 +506,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "EF6779CB2E263460AC7CFFFBBC37EE422C7DE19FE366BDA614AAA919CD283628",
-  "base_file_sha256": "EF6779CB2E263460AC7CFFFBBC37EE422C7DE19FE366BDA614AAA919CD283628",
+  "base_source_text_sha256": "5D883FDDC25724C6DA2B4990D4CD6460E807BBBCBD4121BA87655B669FA48C66",
+  "base_file_sha256": "5D883FDDC25724C6DA2B4990D4CD6460E807BBBCBD4121BA87655B669FA48C66",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -517,7 +517,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "EC27CF7ED23CDA3F0EF93ED62F982F2A70613FEBC8773B43EE5362A80748EF96"
+      "source_text_sha256": "7ADF7C563E2AD383204B2A4B5D28150CAF81BB640B8FAB9DF9A818A148490999"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -545,7 +545,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "EF6779CB2E263460AC7CFFFBBC37EE422C7DE19FE366BDA614AAA919CD283628"
+      "source_text_sha256": "5D883FDDC25724C6DA2B4990D4CD6460E807BBBCBD4121BA87655B669FA48C66"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",

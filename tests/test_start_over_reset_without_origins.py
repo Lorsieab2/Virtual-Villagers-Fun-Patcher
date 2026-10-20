@@ -538,9 +538,9 @@ class PopulationPagesAreMatchedByVillageTests(unittest.TestCase):
         self.assertNotIn('Village Population %d.txt", sub_w, slot', text)
         # the shared folder, its pre-spell-out name, the slot's older-layout folder
         # (native/shared/log_slot.h) and the slot's folder in the save's own folder (per_save.h)
-        self.assertEqual(text.count("delete_village_population_pages(sub_w, village)"), 4)
+        self.assertEqual(text.count("delete_village_population_pages(game, slot, sub_w, village)"), 4)
         self.assertIn(
-            'own_subfolder_w(sub_w, slot_sub)) {\n            removed += delete_village_population_pages(sub_w, village);',
+            'own_subfolder_w(sub_w, slot_sub)) {\n            removed += delete_village_population_pages(game, slot, sub_w, village);',
             text,
         )
         self.assertIn("log_line_matches(path, village, 1)", text)
