@@ -35,8 +35,9 @@ CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
 # ...and 3 for section 9: the record in the save's own folder (native/shared/per_save.h) is read and
-# written there.
-HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5 + 5 * 9 + 3
+# written there; 9 a game for section 10 (Random last name from the list), 2 a game for section 11 (50:50
+# for twins) and 8 a game for section 12 (From the mother is the mother's).
+HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5 + 5 * 9 + 3 + 5 * 9 + 5 * 2 + 5 * 8
 NOW = datetime(2026, 10, 9, 12, 0, 0)
 RULES = (None, "father", "mother", "random")
 
@@ -134,7 +135,7 @@ class TheRecordFile(unittest.TestCase):
             path.write_text("VVFP LAST NAMES v1 game=3\nrule\tfather\n"
                             "villager\tAgo\t5\t6\tM\tmother\nvillager\tAgo\t5\t6\tM\tfather\n"
                             "villager\tKito\tx\t6\tM\tmother\nvillager\tKito\t1\t6\tQ\tmother\n"
-                            "villager\tKito\t1\t6\tM\tlist\nvillager\tAipi\t7\t8\tF\tmother\n", encoding="utf-8")
+                            "villager\tKito\t1\t6\tM\teach\nvillager\tKito\t1\t6\tM\tlisx\nvillager\tAipi\t7\t8\tF\tmother\n", encoding="utf-8")
             self.assertEqual(ln.read_own(folder, 3, 1), {("Aipi", 7, 8, "Female"): "mother"})
             path.write_text("VVFP LAST NAMES v1 game=2\nvillager\tAipi\t7\t8\tF\tmother\n", encoding="utf-8")
             self.assertEqual(ln.read_own(folder, 3, 1), {}, "another game's record")

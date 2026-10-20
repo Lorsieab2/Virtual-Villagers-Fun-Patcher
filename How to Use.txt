@@ -268,6 +268,18 @@ first and listed in the Repairs log), and the go-ahead is then used up.
    asked: A New Home's parents are repaired as soon as the village has
    settled, everything else at the game's save when you close it.
 
+LAST NAMES: EACH VILLAGER'S OWN RULE
+
+In Repair Saves & Logs, "Give villagers last names" > Choose... > "Each
+villager's own rule..." sets, for any living villager, where their children's
+last names come from: Use the village rule, From the father, From the mother,
+50:50, or Random last name from the list. With "Random last name from the
+list", each child of that villager is given a last name drawn at random from
+the game's own list of 50 when it is born (every name equally likely; twins
+and triplets each get their own draw). When both parents have own rules that
+disagree, the village rule is used. The game must be closed. An older patcher
+build ignores this choice and uses the village rule.
+
 CHECK SAVES & LOGS AUTOMATICALLY
 
 The "Check logs automatically" box sits beside Check Saves & Logs / Repair Saves & Logs on

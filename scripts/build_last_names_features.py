@@ -66,7 +66,10 @@ def row(game: str, sha: str) -> dict:
         "carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. "
         "A baby takes its father's or its mother's last name by the rule chosen in Repair Saves & Logs (Last "
         "names come from: from the father, from the mother, or 50:50); without a rule recorded, a baby takes its "
-        "father's last name (the village's default is from the father). "
+        "father's last name (the village's default is from the father). A villager can also have a rule of "
+        "their own for their children (Each villager's own rule): from the father, from the mother, 50:50, or "
+        "a random last name from the list, which gives each child -- twins and triplets too -- its own random "
+        "draw from the game's list, every name equally likely. "
         "Villagers who arrive "
         "through an island event get no last name, because theirs would not be their family's. Only "
         "villagers named from now on get one: villagers who already have names keep them. The last "
@@ -93,6 +96,10 @@ def row(game: str, sha: str) -> dict:
             "page -- keeps the game's own first name only: the companion tells a birth or a founder by the "
             "callers' return addresses on the stack, at fixed places.",
             "A villager whose family is outside 1-50 gets no last name.",
+            "At a birth, the rule recorded by Repair Saves & Logs decides the last name (VvfpRuleLastName2): the "
+            "father's, the mother's, either at random (50:50), or -- a parent's own rule \"Random last name from "
+            "the list\" -- a name drawn at random from the game's list; every random draw is a fresh, unbiased "
+            "one for each child.",
             f"The whole name always fits the game's own name field: the longest pairing is far below its {ROOM[game]} "
             "characters.",
         ],
