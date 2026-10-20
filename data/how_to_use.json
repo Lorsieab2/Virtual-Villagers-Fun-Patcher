@@ -315,7 +315,7 @@
       "ids": ["vv1_last_names", "vv2_last_names", "vv3_last_names", "vv4_last_names", "vv5_last_names"],
       "guide": [
         "New villagers get a last name after their first name.",
-        "A baby takes its father's or mother's last name, by the rule you chose in Repair Saves & Logs (Last names come from).",
+        "A baby takes its father's or mother's last name by the rule chosen in Repair Saves & Logs; a parent's own rule can instead give each child a random one from the list.",
         "Without a rule, its family's name, from a list of 50 the game has always had but never used.",
         "Villagers who already have names keep them. Nothing to click: tick it, patch, and play."
       ]

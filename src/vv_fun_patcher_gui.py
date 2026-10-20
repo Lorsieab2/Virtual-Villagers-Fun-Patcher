@@ -5298,7 +5298,8 @@ class App(tk.Tk):
         window.resizable(True, True)
         ttk.Label(window, padding=(12, 12, 12, 0), wraplength=620, justify="left",
                   text="Where each living villager's children get their last name, if not by the village "
-                       "rule. When only one parent has a rule of their own, it is used; when both do and they "
+                       "rule. Random last name from the list gives each child, twins and triplets too, a last "
+                       "name of its own drawn at random from the game's own list. When only one parent has a rule of their own, it is used; when both do and they "
                        "agree, theirs; when they disagree, or neither has one, the village rule. Villagers "
                        "who share a name, looks and sex cannot have one (number the duplicate names first). "
                        "A villager whose rule will change is shown in red bold. "
@@ -5344,7 +5345,7 @@ class App(tk.Tk):
             else:
                 values[key] = tk.StringVar(value=words.get(own.get(key, ""), words[""]))
                 ttk.Combobox(inner, textvariable=values[key], values=list(words.values()), state="readonly",
-                             width=22).grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
+                             width=max(len(text) for text in words.values()) + 2).grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
                 values[key].trace_add("write", restyle)
         restyle()
 
