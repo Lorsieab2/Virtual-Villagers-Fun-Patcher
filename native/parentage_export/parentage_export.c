@@ -4162,6 +4162,39 @@ static void rule_last_name(int game_id, unsigned char *rec) {
          last_names_slot());
 }
 
+typedef int (__stdcall *number_new_name_t)(int game, unsigned char *child, const unsigned char *first,
+                                           unsigned int stride, int slots, unsigned int active,
+                                           unsigned int name, unsigned int capacity, int slot);
+
+/* The Lost Children to New Believers, at the child's creation, after its last
+   name: a child whose full name a living villager already has is numbered at
+   once ("VVFP Number Names.dll" VvfpNumberNewName, the village's "Number
+   villagers who share a name automatically", on by default; the owner,
+   2026-10-20), before the Birth record or anything else names it.  The
+   companion is loaded by its full path from the patcher's folder (shipped with
+   this log); without it nothing changes. */
+static void number_new_name(int game_id, unsigned char *rec) {
+    static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
+    static number_new_name_t number;
+    const struct game_layout *g;
+    const unsigned char *records;
+    if (game_id < GAME_VV2 || game_id > GAME_VV5 || rec == NULL) {
+        return;
+    }
+    if (state == 0) {
+        HMODULE dll = vvfp_load_patcher_dll("VVFP Number Names.dll");
+        number = dll ? (number_new_name_t)GetProcAddress(dll, "VvfpNumberNewName") : NULL;
+        state = number ? 1 : -1;
+    }
+    g = layout_of(game_id);
+    records = villager_table(game_id);
+    if (state != 1 || !layout_is_usable(g) || records == NULL || !is_record_slot(g, records, rec)) {
+        return;
+    }
+    (void)number(game_id, rec, records + g->record_base, g->stride, g->slots, g->active, g->name,
+                 g->name_capacity, last_names_slot());
+}
+
 typedef int (__stdcall *relook_last_name_t)(const char *name, int male, int old_head, int old_body, int new_head,
                                              int new_body, int slot);
 
@@ -4207,6 +4240,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
     char text[RECORD_TEXT_MAX];
     if (child_name == NULL || child_name[0] == '\0') {   /* the record is the name: the exe's splices */
         rule_last_name(game_id, (unsigned char *)child_record);
+        number_new_name(game_id, (unsigned char *)child_record);
     }
     if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
                        mother_body, father_name, father_head, father_body, child_record, NULL,

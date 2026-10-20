@@ -120,22 +120,39 @@ class TheNumbers(unittest.TestCase):
 
 
 class TheTree(unittest.TestCase):
-    def test_the_tree_shows_them_numbered_only_when_asked_and_remembers_it(self):
+    def test_the_tree_shows_them_numbered_by_default_and_remembers_it(self):
+        # The owner, 2026-10-20: numbering villagers who share a name is ON BY DEFAULT.
         v = village(gen.Person(1, "Soda", 1, 1, sex="Male", age=900, alive=True, birth_record=1),
                     gen.Person(2, "Soda", 2, 2, sex="Male", age=300, alive=True, birth_record=2))
         gen.number_people(v)
-        plain = ft.layout(v, ft.Edits())
-        self.assertEqual(ft.default_text(plain, v.people[2])[0], "2. Soda")
-        edits = ft.Edits(number_names=True)
-        numbered = ft.layout(v, edits)
+        numbered = ft.layout(v, ft.Edits())
         self.assertEqual(ft.default_text(numbered, v.people[1])[0], "1. Soda I")
         self.assertEqual(ft.default_text(numbered, v.people[2])[0], "2. Soda II")
+        plain = ft.layout(v, ft.Edits(number_names=False))
+        self.assertEqual(ft.default_text(plain, v.people[2])[0], "2. Soda")
+        edits = ft.Edits(number_names=True)
         self.assertTrue(ft.Edits.from_data(edits.to_data()).number_names)
-        self.assertFalse(ft.Edits.from_data({}).number_names)
+        self.assertTrue(ft.Edits.from_data({}).number_names, "a tree that never set it: on")
         youngest = ft.Edits(number_names=True, number_order="youngest")
         self.assertEqual(ft.default_text(ft.layout(v, youngest), v.people[2])[0], "2. Soda I")
         self.assertEqual(ft.Edits.from_data(youngest.to_data()).number_order, "youngest")
         self.assertEqual(ft.Edits.from_data({"number_order": "nonsense"}).number_order, "appearance")
+
+    def test_an_explicit_off_is_kept_and_an_older_files_false_reads_as_never_set(self):
+        off = ft.Edits(number_names=False)
+        data = off.to_data()
+        self.assertIs(data["number_names_v2"], True)
+        self.assertFalse(ft.Edits.from_data(data).number_names, "the player's off is kept")
+        self.assertFalse(ft.Edits.from_data(ft.Edits.from_data(data).to_data()).number_names)
+        # Every earlier build wrote number_names False whether or not the player changed it.
+        older = dict(data)
+        del older["number_names_v2"]
+        self.assertTrue(ft.Edits.from_data(older).number_names)
+        self.assertTrue(ft.Edits.from_data({**older, "number_names": True}).number_names)
+        # The look remembered for a new tree: an earlier build's False is the new default; a kept off stays.
+        self.assertTrue(ft.styled({k: v for k, v in ft.style_of(off).items() if k != "number_names_v2"}).number_names)
+        self.assertFalse(ft.styled(ft.style_of(off)).number_names)
+        self.assertTrue(ft.styled(None).number_names)
 
 
 class InTheSaveAndTheLogs(unittest.TestCase):
@@ -221,6 +238,70 @@ class InTheSaveAndTheLogs(unittest.TestCase):
             nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW)
 
 
+class Automatically(InTheSaveAndTheLogs):
+    """Number villagers who share a name automatically (the owner, 2026-10-20: on by default)."""
+
+    def repairs(self) -> str:
+        import vv_save_layout as layout
+        folder = layout.slot_log_folder(self.folder, layout.REPAIRS_LOGS, 1)
+        return "".join(p.read_bytes().decode("latin-1") for p in sorted(folder.glob("*.txt")))
+
+    def test_the_setting_is_on_until_the_player_turns_it_off(self):
+        self.assertTrue(nn.read_auto(self.folder, 3, 1))
+        self.assertFalse(nn.setting_path(self.folder, 3, 1).exists(), "on needs no file")
+        with self.assertRaises(Exception):
+            nn.save_auto(self.folder, 3, 1, False, processes=Running())
+        self.assertTrue(nn.read_auto(self.folder, 3, 1))
+        self.assertTrue(nn.save_auto(self.folder, 3, 1, False, processes=NoGame()))
+        self.assertFalse(nn.read_auto(self.folder, 3, 1))
+        self.assertIn("Save 1", str(nn.setting_path(self.folder, 3, 1)))
+        self.assertEqual(nn.setting_path(self.folder, 3, 1).read_text(encoding="utf-8"),
+                         "VVFP NUMBER NAMES v1 game=3\nauto\toff\n")
+        self.assertTrue(nn.read_auto(self.folder, 3, 2), "another village keeps its own")
+        self.assertFalse(nn.save_auto(self.folder, 3, 1, False, processes=NoGame()))
+        self.assertTrue(nn.save_auto(self.folder, 3, 1, True, processes=NoGame()))
+        self.assertTrue(nn.read_auto(self.folder, 3, 1))
+
+    def test_the_pass_numbers_oldest_first_with_a_backup_and_a_repairs_record(self):
+        want = nn.pending(self.folder, 3, 1)
+        self.assertEqual(sorted(want.renames.values()), ["Soda I", "Soda II"])
+        result, wanted = nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW, automatic=True)
+        self.assertTrue(Path(result.backup.backup_folder).is_dir())
+        self.assertIn("before numbering names", str(result.backup.backup_folder))
+        record = self.repairs()
+        self.assertIn("Repair 1\r\n", record)
+        self.assertIn("Number villagers who share a name automatically", record)
+        for (old, head, body), new in result.renamed.items():
+            self.assertIn(f"  Renamed: {old} (head {head}, body {body}) -> {new}\r\n", record)
+        self.assertIn(f"  Backup: {Path(result.backup.backup_folder).name}\r\n", record)
+        self.assertEqual(nn.pending(self.folder, 3, 1).renames, {}, "nothing left to number")
+
+    def test_what_it_cannot_tell_is_left_and_written_down_never_guessed(self):
+        people = [entry("Soda", 0, 1, 5, 6), entry("Soda", 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8),
+                  entry("Aipi", 1, 50, 2, 2)]
+        self.save.write_bytes(b"ldwg" + bytes(TABLE - 4) + b"".join(people) + bytes(64))
+        self.assertTrue(any("2 living villagers are called Soda" in n for n in nn.pending(self.folder, 3, 1).notes))
+        nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW, automatic=True)
+        self.assertEqual(sorted(v.name for v in ln.living(self.folder, 3, 1)), ["Aipi I", "Aipi II", "Soda", "Soda"])
+        self.assertIn("  Left as it was: 2 living villagers are called Soda", self.repairs())
+
+    def test_repair_saves_and_logs_numbers_them_while_the_setting_is_on(self):
+        gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        checklist = gui[gui.index("    def _repair_checklist("):gui.index("    def _repair_questions(")]
+        self.assertIn('text="Number villagers who share a name automatically (Soda I, Soda II...), in the game '
+                      'and the logs")', checklist)
+        cut_first = checklist[checklist.index("        def cut_first("):checklist.index("        cuts_var.trace_add(")]
+        # Off: nothing automatic -- the row is the player's to tick, as before.
+        self.assertIn("if number_auto_var.get() and misnumbered:\n                number_var.set(True)", cut_first)
+        repair = gui[gui.index("    def _repair_logs("):gui.index("    def _repair_checklist(")]
+        self.assertIn('numbers["auto"] = vv_number_names.read_auto(folder, number, info.slot)', repair)
+        self.assertIn('vv_number_names.save_auto(folder, number, info.slot, numbers["auto"])', repair)
+        # Check Saves & Logs only reports it (read only, as the owner ruled for Check).
+        check = gui[gui.index("    def _numbering_report("):gui.index("    def _show_log_report(")]
+        self.assertNotIn("number_names(", check)
+        self.assertIn("vv_number_names.pending(folder, number, slot)", check)
+
+
 class TheWindows(unittest.TestCase):
     def test_a_page_starts_only_at_a_generation_the_tree_has(self):
         # Codex, #557: with generations 1 and 3 and nobody in 2, a break at 2 is no page.
@@ -255,7 +336,7 @@ class TheWindows(unittest.TestCase):
         # "update ... the repair logs and save data and everything").
         self.assertIn("number_var = tk.BooleanVar(value=bool(misnumbered))", checklist)
         repair = gui[gui.index("    def _repair_logs("):gui.index("    def _repair_checklist(")]
-        self.assertIn("lambda: vv_number_names.number_names(folder, number, info.slot, numbering)", repair)
+        self.assertIn("lambda: vv_number_names.number_names(folder, number, info.slot, numbering,", repair)
         self.assertIn('number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["appearance"])', checklist)
         self.assertIn("self.edits.number_order))", offer)
         self.assertLess(repair.index("vv_last_names.give_last_names("), repair.index("vv_number_names.number_names("),

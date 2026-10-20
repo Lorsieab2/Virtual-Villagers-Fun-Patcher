@@ -57,8 +57,8 @@ class ManifestAndDllTests(unittest.TestCase):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         digest = hashlib.sha256(DLL.read_bytes()).hexdigest().upper()
         files = manifest["companion_files"]
-        self.assertEqual(len(files), 1)
-        self.assertEqual(files[0]["destination"], "VVFP VV1 Parentage.dll")
+        # The companion, and VVFP Number Names.dll, which it calls at each birth (tests/test_auto_number_names.py).
+        self.assertEqual([f["destination"] for f in files], ["VVFP VV1 Parentage.dll", "VVFP Number Names.dll"])
         self.assertEqual(files[0]["sha256"].upper(), digest)
         self.assertEqual(manifest["patches"], [], "the row changes no executable bytes")
         self.assertEqual(manifest["dependencies"], ["vv1_enable_origins_exclusive_features"])

@@ -89,7 +89,7 @@ from pathlib import Path
 import keystone
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from parentage_log_text import PLAYER_LOG_DESCRIPTION  # noqa: E402
+from parentage_log_text import NUMBERED_AT_BIRTH, PLAYER_LOG_DESCRIPTION  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 STOCK = ROOT / "inputs" / "vv4-stock-copy"
@@ -640,6 +640,7 @@ def build() -> dict:
                 "output_tag": "Births and Conceptions Log Text Export",
                 "description": (
                     PLAYER_LOG_DESCRIPTION.format(game_number=4)
+                    + NUMBERED_AT_BIRTH
                     + "The game keeps both parents on the child's own record, "
                     "and each Birth record reads them from there. Village "
                     "seeding is excluded, so a new village does not write a "
@@ -674,6 +675,14 @@ def build() -> dict:
                         "source": "assets/save_reset/VVFP Save Reset.dll",
                         "destination": "VVFP Save Reset.dll",
                         "sha256": reset_hash,
+                    },
+                    {
+                        # A newborn namesake numbered at its birth (native/vvfp_number_names): loaded and
+                        # called by the parentage companion; ships with it.
+                        "source": "assets/number_names/VVFP Number Names.dll",
+                        "destination": "VVFP Number Names.dll",
+                        "sha256": hashlib.sha256((ROOT / "assets" / "number_names" / "VVFP Number Names.dll")
+                                                 .read_bytes()).hexdigest().upper(),
                     },
                 ],
                 "pe_append_transaction": {

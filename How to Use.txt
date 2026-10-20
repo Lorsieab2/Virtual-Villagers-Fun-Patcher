@@ -280,6 +280,38 @@ and triplets each get their own draw). When both parents have own rules that
 disagree, the village rule is used. The game must be closed. An older patcher
 build ignores this choice and uses the village rule.
 
+VILLAGERS WHO SHARE A NAME ARE NUMBERED AUTOMATICALLY (all five games)
+
+Two villagers with the same first AND last name are numbered "Chip Kenobi I",
+"Chip Kenobi II", ... -- the oldest (the first to appear in the records) is I;
+the dead are numbered too; a name nobody else has keeps no number. This is ON
+for every village. To turn it off for one village, untick "Number villagers who
+share a name automatically" in Repair Saves & Logs (it is kept per save slot,
+in Number Names\, see THE PATCHER'S OWN FILES).
+
+- In the game (with Write Births and Conceptions Log on; in A New Home, Show
+  Parents in Details Screen): a baby born with the full name of a living
+  villager is given the next number at once, before its Birth record is
+  written -- a living "Chip Kenobi" makes the baby "Chip Kenobi II". The
+  villager who already had the name is not renamed while you play.
+- In Repair Saves & Logs: whenever names need numbering, they are numbered
+  (the living in the save, everyone in every log and the patcher's files):
+  the villager who already had the name becomes "I". The save folder is backed
+  up first ("(before numbering names)"), and a Repairs Made record lists every
+  rename, old name -> new name.
+- What it cannot tell for sure is never guessed: two living villagers with the
+  same name AND the same looks, a record that does not say how its villager
+  looks, or a numbered name too long for the game (27 characters in A New
+  Home, 23 in the other games) are left as they are and shown to you in the
+  Repair Saves & Logs window, in its result and in the Repairs Made record.
+- Check Saves & Logs only reports what would be numbered; it changes nothing.
+- Off: nothing is numbered by itself. "Number duplicate names" in Repair Saves &
+  Logs and the Family Tree Maker's "Number Duplicate Names..." still work.
+- The Family Tree Maker shows duplicate names numbered by default too ("Show
+  duplicate names numbered (Soda I, Soda II...)", beside its "Number duplicate
+  names" button); a tree you
+  turn it off for keeps it off.
+
 CHECK SAVES & LOGS AUTOMATICALLY
 
 The "Check logs automatically" box sits beside Check Saves & Logs / Repair Saves & Logs on
@@ -805,6 +837,12 @@ Fun Patcher Data", one file per save slot:
       the rest of a Choose Time Skip Amount bought and not delivered yet, kept
       the same way: it is delivered once the village is played again (the
       island event the save made due brings it, never a random one instead).
+
+    Number Names\                                  (Repair Saves & Logs: "Number
+        Virtual Villagers <N> Number Names          villagers who share a name
+          - Save <slot>.dat                         automatically", all five games)
+      Written only when you change the setting; no file is ON. Read by the
+      patcher and, at each birth, by VVFP Number Names.dll.
 
 (The Unaccounted Villagers roster is not the "Village Roster - Save <slot>.dat"
 in Village Statistics\: that one is the statistics' own, and a different file.)
