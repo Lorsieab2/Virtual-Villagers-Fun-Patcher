@@ -124,6 +124,7 @@ static signed char arrived[RECORDS_MAX];
 struct report_who {
     unsigned char known;
     int sex, head, body;
+    int age;                          /* at the last look: an in-place change keeps the villager's age */
     unsigned int name, prefs;
 };
 static struct report_who report_who[RECORDS_MAX];

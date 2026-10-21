@@ -441,6 +441,22 @@ def _record_fits(r, names: set, sex: str | None, head, body) -> bool:
     return not (sex and their_sex) or sex.strip().lower() == their_sex.strip().lower()
 
 
+def _arrival_age(r) -> int | None:
+    """How old the villager a Birth or Arrived record is about was when it happened: a Birth's "Age at
+    birth" (0 when the record gives none: a child is born at 0), an Arrived record's "Age at arrival", or
+    a backfilled one's "Age when recorded" (no younger than the arrival).  None when it cannot be told."""
+    import vv_log_additions as additions
+    if additions.is_birth(r.heading):
+        text = r.value("Age at birth")
+        m = re.match(r"-?\d+", text or "")
+        return int(m.group(0)) if m else 0
+    for label in ("Age at arrival", "Age when recorded"):
+        m = re.match(r"-?\d+", (r.value(label) or "").strip())
+        if m:
+            return int(m.group(0))
+    return None
+
+
 def false_unaccounted(folder: Path, game: int, slot: int) -> list[UnaccountedVerdict]:
     """Every Unaccounted record of this slot's village, judged by identity (above).  Reads only."""
     import vv_log_additions as additions
@@ -607,13 +623,27 @@ def false_unaccounted(folder: Path, game: int, slot: int) -> list[UnaccountedVer
                                                               f"{here.int_value('Age')})"))
                 continue
             # A Birth or Arrived record of this villager: the same name (a rename followed), head, body and
-            # sex -- one record only; two that fit settle nothing (Codex, #600).
+            # sex -- one record only; two that fit settle nothing (Codex, #600).  And its age must fit
+            # (Codex, #601): she arrived, or was born, no older than she is now, the record saying how
+            # old; and no other villager of that name and look -- one who died or disappeared, or one a
+            # snapshot before the check shows older than she is now -- could be the one it is about.
             fitting = [r for r in births_records if id(r) not in used and _record_fits(r, names_of(name, head, body),
                                                                                        sex, head, body)]
             if len(fitting) == 1:
-                used.add(id(fitting[0]))
-                out.append(UnaccountedVerdict(b, False, True, f"has a {fitting[0].heading} record "
-                                                              f"({fitting[0].path.name})"))
+                came = _arrival_age(fitting[0])
+                namesake = (any(same(d, name, sex, head, body) for d in deaths)
+                            or any(same(v, name, sex, head, body) and v.int_value("Age") is not None
+                                   and v.int_value("Age") > age for d in dates if d < found for v in snapshots[d]))
+                if came is not None and came <= age and not namesake:
+                    used.add(id(fitting[0]))
+                    out.append(UnaccountedVerdict(b, False, True, f"has a {fitting[0].heading} record "
+                                                                  f"({fitting[0].path.name})"))
+                    continue
+                why = ("its record does not say how old they were" if came is None
+                       else f"it says age {came}, older than they are ({age})" if came > age
+                       else "another villager of that name and look could be the one it is about")
+                out.append(UnaccountedVerdict(b, False, False, f"{fitting[0].heading} has their name and look, but "
+                                                               f"{why}: whose it is can not be told"))
                 continue
             if len(fitting) > 1:
                 out.append(UnaccountedVerdict(b, False, False, f"{len(fitting)} Birth / Arrived records fit: which "

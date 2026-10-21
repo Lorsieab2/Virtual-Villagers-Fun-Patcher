@@ -93,6 +93,11 @@ CHECKS += 4 * 5
 # + 3 in New Believers (case 7): a former Heathen renamed while the file was held, or in the frame of a
 # birth and a death, keeps her entry; a renamed namesake never takes it (cod_former.inc)
 CHECKS += 3
+# + 3 per game (Codex, #601): the saved occupant replacing the newcomer in his record with only his name
+# and age different is not him (2), and a newcomer renamed in place keeps his arrival (1)
+CHECKS += 3 * 5
+# + 1 in New Believers (Codex, #601): 70 changes while the Former Heathens file is held, none dropped
+CHECKS += 1
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

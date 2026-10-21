@@ -43,26 +43,61 @@ static int former_validate(const unsigned char *data, DWORD length, void *contex
    called a Former Heathen.  So each change is queued, in order, and applied once the file can be
    read and written; a queued change is dropped only by Start Over (former_reset). */
 enum { FORMER_OP_FILE = 1, FORMER_OP_REKEY = 2, FORMER_OP_UNSURE = 3 };
-#define FORMER_PENDING 64
-static struct {
+struct former_op {
     int slot;
     int op;
     unsigned int a, b;          /* FILE: identity, kind; REKEY / UNSURE: from, to */
-} former_pending[FORMER_PENDING];
+};
+/* NOTHING QUEUED IS EVER DROPPED (Codex, #601): the queue grows for as long as the file stays locked
+   -- every change waits, in order, for the file to take it.  It starts in this companion's own memory
+   and moves to the process heap past that. */
+#define FORMER_PENDING_START 64
+static struct former_op former_pending_first[FORMER_PENDING_START];
+static struct former_op *former_pending = former_pending_first;
+static int former_pending_capacity = FORMER_PENDING_START;
 static int former_pending_count;
 
 static int former_bind(int slot);
+
+/* Room for one more queued change: 1, or 0 only when the process has no memory left to give. */
+static int former_pending_room(void) {
+    struct former_op *grown;
+    int capacity;
+    if (former_pending_count < former_pending_capacity) {
+        return 1;
+    }
+    capacity = former_pending_capacity * 2;
+    grown = (struct former_op *)HeapAlloc(GetProcessHeap(), 0, sizeof(struct former_op) * (size_t)capacity);
+    if (grown == NULL) {
+        return 0;
+    }
+    memcpy(grown, former_pending, sizeof(struct former_op) * (size_t)former_pending_count);
+    if (former_pending != former_pending_first) {
+        HeapFree(GetProcessHeap(), 0, former_pending);
+    }
+    former_pending = grown;
+    former_pending_capacity = capacity;
+    return 1;
+}
 
 static void former_queue(int op, unsigned int a, unsigned int b) {
     int slot = cod_slot();
     if (slot <= 0) {
         return;
     }
-    if (former_pending_count == FORMER_PENDING) {
-        /* Never more than a handful between two frames; should it ever fill, the oldest change
-           is the one the file cannot take. */
-        memmove(&former_pending[0], &former_pending[1], sizeof former_pending[0] * (FORMER_PENDING - 1));
-        --former_pending_count;
+    if (!former_pending_room()) {
+        /* No memory left in the process (never seen): two renames of one villager in a row are one
+           rename -- from her first name to her last -- so the chain is shortened rather than any
+           change lost. */
+        int k;
+        for (k = former_pending_count - 1; k >= 0; --k) {
+            if (former_pending[k].slot == slot && former_pending[k].op == FORMER_OP_REKEY && op == FORMER_OP_REKEY
+                && former_pending[k].b == a) {
+                former_pending[k].b = b;
+                return;
+            }
+        }
+        return;                       /* the process is out of memory: nothing more can be kept */
     }
     former_pending[former_pending_count].slot = slot;
     former_pending[former_pending_count].op = op;

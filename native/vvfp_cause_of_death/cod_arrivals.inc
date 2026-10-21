@@ -347,6 +347,7 @@ static void who_take(struct report_who *w, const unsigned char *record) {
     w->sex = *(const int *)(record + r->sex);
     w->head = *(const int *)(record + r->head);
     w->body = *(const int *)(record + r->body);
+    w->age = rec_age(record);
     w->name = who_hash(record + r->name, r->name_capacity, 1);
     w->prefs = PREFS[g_game][2] != 0u
         ? who_hash(record + PREFS[g_game][0], 4u * PREFS[g_game][2], 0)
@@ -354,8 +355,11 @@ static void who_take(struct report_who *w, const unsigned char *record) {
         : 0u;
 }
 
-/* Whether `record` is still the villager `w` was taken from: the same sex, and at most one of name,
-   looks, likes-and-dislikes changed. */
+/* Whether `record` is still the villager `w` was taken from: the same sex, and nothing of name, looks,
+   likes-and-dislikes changed -- or exactly one of them, changed IN PLACE: her age the same as at the
+   last look or one unit on (Codex, #601).  A load with no save between can put the saved occupant
+   straight into the newcomer's record, sharing two of those with her; that is another villager, of
+   her own age, and the report is never carried to her. */
 static int who_still(const struct report_who *w, const unsigned char *record) {
     struct report_who now;
     int changed;
@@ -364,7 +368,10 @@ static int who_still(const struct report_who *w, const unsigned char *record) {
         return 0;
     }
     changed = (now.name != w->name) + (now.head != w->head || now.body != w->body) + (now.prefs != w->prefs);
-    return changed <= 1;
+    if (changed == 0) {
+        return 1;
+    }
+    return changed == 1 && now.age - w->age >= 0 && now.age - w->age <= 1;
 }
 
 static void report_follow(void) {

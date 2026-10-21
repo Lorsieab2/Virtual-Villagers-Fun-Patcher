@@ -1383,7 +1383,11 @@ static void reload_cases(void) {
     int variant, i;
     saved = (unsigned char *)malloc((size_t)g->stride * 40);
     if (saved == NULL) return;
-    for (variant = 0; variant < 2; ++variant) {
+    static const char *const LABEL[4] = { "Newc in Dee's record", "Newc in a record of his own",
+                                          "Newc in Dee's record, sharing her sex, looks and likes",
+                                          "no reload: Newc renamed in place" };
+    for (variant = 0; variant < 4; ++variant) {
+        int at = variant == 1 || variant == 3 ? 6 : 3;
         reset(game, 1);
         vv_reset_slot_state(game, 1, VILLAGE);
         clean();
@@ -1401,11 +1405,31 @@ static void reload_cases(void) {
         departed(3);                              /* Dee buried: her Death record */
         rec(3)[g->active] = 0;
         arrival_tick();
-        villager(variant == 0 ? 3 : 6, "Newc", 640, 7, 7, 0);   /* a newcomer the game's creator made */
-        created(variant == 0 ? 3 : 6, 0);
+        if (variant == 2) {
+            /* Codex, #601: the newcomer has Dee's sex, head, body, likes and dislikes -- only the name
+               and the age differ -- so the saved Dee replacing him changes one facet. */
+            villager(at, "Newc", 640, 3, 13, 0);
+            *(int *)(rec(at) + g->sex) = 1;
+        } else {
+            villager(at, "Newc", 640, 7, 7, 0);   /* a newcomer the game's creator made */
+        }
+        created(at, 0);
         arrival_tick();
         unacc_age_all(5);
         arrival_tick();
+        if (variant == 3) {
+            /* No reload: Last Names gives him a last name in place (his age carries on). */
+            strcpy((char *)rec(at) + g->name, "Newc Bahati");
+            arrival_tick();
+            save_done(1, buffer);
+            slot_births_path(1, path);
+            read_into(path);
+            CHECK(strstr(text, "  Name: Newc Bahati\r\n") != NULL && unacc_count("Unaccounted ") == 0,
+                  "A NEWCOMER RENAMED IN PLACE KEEPS HIS ARRIVAL: his Arrived record, nothing Unaccounted");
+            for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
+            free(buffer);
+            continue;
+        }
         /* No save: the same village loaded again, as its save holds it, a little older. */
         memcpy(rec(0), saved, (size_t)g->stride * 40);
         unacc_age_all(2);
@@ -1417,7 +1441,7 @@ static void reload_cases(void) {
         CHECK(strstr(text, "  Name: Dee\r\n") == NULL && strstr(text, "  Name: Newc\r\n") == NULL
               && strstr(text, "Arrived 1\r\n") == NULL,
               "RELOADED WITH NO SAVE (%s): no Arrived record for Dee or for the newcomer the save never held",
-              variant == 0 ? "Newc in Dee's record" : "Newc in a record of his own");
+              LABEL[variant]);
         if (strstr(text, "Arrived ") != NULL) {
             printf("--- births log:\n%.800s\n", strstr(text, "Arrived "));
         }
@@ -1429,7 +1453,7 @@ static void reload_cases(void) {
               && strstr(text, "  What: Back in the village after a Death or Disappeared record") != NULL
               && strstr(text, "  Last seen: (in the village at the last save)\r\n") != NULL,
               "RELOADED WITH NO SAVE (%s): one Unaccounted record, Dee back after her Death record (no false"
-              " Arrived)", variant == 0 ? "Newc in Dee's record" : "Newc in a record of his own");
+              " Arrived)", LABEL[variant]);
         if (unacc_count("Unaccounted ") != 1) {
             printf("--- unaccounted:\n%.900s\n", text);
         }
@@ -1761,6 +1785,33 @@ int main(int argc, char **argv) {
                               "A FORMER HEATHEN RENAMED IN THE FRAME OF A BIRTH AND A DEATH KEEPS HER ENTRY");
                         rec(8)[g->active] = 0;
                         arrival_tick();
+                        /* Codex, #601: more than 64 changes while the file is held -- 70 renames, one
+                           a frame -- are all kept, in order: once the file can be written, the entry
+                           is under her last name. */
+                        {
+                            HANDLE held = CreateFileA(former_path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+                            int r;
+                            char nm[32];
+                            unsigned int last_id = 0;
+                            arrival_tick();
+                            for (r = 0; r < 70; ++r) {
+                                _snprintf(nm, sizeof nm, "Hea %d", r);
+                                strcpy((char *)rec(6) + g->name, nm);
+                                arrival_tick();
+                            }
+                            last_id = vv_title_identity(rec(6), 0x1B9Cu, 0x19u, 0x1F5Cu, 0x1F68u, 3u);
+                            if (held != INVALID_HANDLE_VALUE) CloseHandle(held);
+                            Sleep(2100);
+                            arrival_tick();
+                            got = 0;
+                            h = CreateFileA(former_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+                            if (h != INVALID_HANDLE_VALUE) { ReadFile(h, blob, sizeof blob, &got, NULL); CloseHandle(h); }
+                            CHECK(held != INVALID_HANDLE_VALUE && got == 24 && *(unsigned int *)(blob + 16) == last_id
+                                  && *(unsigned int *)(blob + 20) == 3,
+                                  "70 RENAMES WHILE THE FILE IS HELD: NONE DROPPED, THE ENTRY IS UNDER HER LAST NAME");
+                            strcpy((char *)rec(6) + g->name, "Hea Three");
+                            arrival_tick();
+                        }
                         /* ...and two villagers of one name, likes and dislikes (the file cannot tell
                            them apart: neither is called a Former Heathen): the other one renamed
                            never takes her entry. */

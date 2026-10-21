@@ -200,6 +200,32 @@ class FalseUnaccountedEveryGame(unittest.TestCase):
                 self.assertFalse(v["Unaccounted 2"].false, "two Births fit: neither is taken")
                 self.assertIn("2 Birth / Arrived records fit", v["Unaccounted 2"].reason)
 
+    def test_an_older_namesakes_arrival_never_makes_a_younger_ones_record_false(self):
+        # Codex, #601: an Arrived record of the same name, sex and looks settles an Unaccounted arrival only
+        # when its age fits -- she arrived no older than she is now -- and no other villager of that name and
+        # look (dead, or older in a snapshot before the check) could be the one it is about.
+        arrived = ("Arrived {n}\n  Name: {name}\n  Age at arrival: {age}\n  Sex: Female\n  Head: {h}\n  Body: {h}\n"
+                   "  Likes: (none)\n  Dislikes: (none)\n  How: Old Friends\n\n")
+        births = (VILLAGE + "\n" + arrived.format(n=1, name="Kiri", age=900, h=6)      # an older Kiri, long ago
+                  + arrived.format(n=2, name="Mele", age=200, h=7)                     # a dead Mele's arrival
+                  + arrived.format(n=3, name="Ana", age=250, h=8))                     # Ana's own arrival
+        log = (VILLAGE + "\n" + unacc(1, "Kiri", "Arrived", 300, "Female", 6, 6)
+               + unacc(2, "Mele", "Arrived", 300, "Female", 7, 7)
+               + unacc(3, "Ana", "Arrived", 300, "Female", 8, 8))
+        deaths_dir = "Deaths and Disappearances/Virtual Villagers {g} Deaths Log 1.txt"
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                folder = Path(self.enterContext(tempfile.TemporaryDirectory(prefix="vvf")))
+                make(folder, game, unaccounted=log, history="", births=births)
+                (folder / LOGS / deaths_dir.format(g=game)).write_bytes(
+                    (VILLAGE + "\nDeath 1\n  Name: Mele\n  Age at death: 280\n  Sex: Female\n  Head: 7\n  Body: 7\n\n")
+                    .replace("\n", "\r\n").encode("latin-1"))
+                v = {x.block.heading: x for x in contradictions.false_unaccounted(folder, game, 1)}
+                self.assertFalse(v["Unaccounted 1"].false, "an arrival at 900 is not a villager of 300's")
+                self.assertIn("older than they are", v["Unaccounted 1"].reason)
+                self.assertFalse(v["Unaccounted 2"].false, "a dead Mele could be the one the arrival is about")
+                self.assertTrue(v["Unaccounted 3"].false, "her own arrival, at an age that fits, still settles it")
+
     def test_age_0_is_an_age(self):
         # Codex, #600 (the owner: 0 is a valid age): a newborn "Left" at age 0, in the next snapshot at 0.
         log = VILLAGE + "\n" + unacc(1, "Baby", "Left", 0, "Male", 0, 0)
