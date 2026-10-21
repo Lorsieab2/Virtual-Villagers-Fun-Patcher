@@ -492,9 +492,12 @@ def parse_person(lines: list[str], start: int, label: str) -> Person:
 class BirthsLog(list):
     """The village's records, plus `village` (its latest "Village:" line for the slot, or None)
     and `damaged` (one of its records was cut short: the in-game check reads such a log as
-    unreadable and changes nothing)."""
+    unreadable and changes nothing), and `renames`: each "Name changed" record (a villager renamed
+    in the game) as (old name, new name, head, body), in log order -- kept beside the records, never
+    among them."""
     village: str | None = None
     damaged: bool = False
+    renames: list = []
 
 
 def whole(p: Person | None) -> bool:
@@ -510,6 +513,7 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
     (the Family Tree Maker: a renamed village's records before its rename, Codex, #555)."""
     files = game_logs(game_dir, "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log", slot)
     records: list[LogRecord] = []
+    renames: list[tuple[str, tuple]] = []        # (village header, (old, new, head, body))
     latest = None
     damaged_in: set[str] = set()
     for path in files:
@@ -527,6 +531,19 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 continue
             kind = lines[0].strip()
             rec = LogRecord(kind="", village=header)
+            if kind == "Name changed":
+                # A villager renamed in the game: "  Name:" (now), "  Old name:", "  Head:", "  Body:".
+                fields = {}
+                for line in lines[1:]:
+                    m = re.match(r"  (Name|Old name|Head|Body): (.*)$", line)
+                    if m and m.group(1) not in fields:
+                        fields[m.group(1)] = m.group(2).strip()
+                try:
+                    renames.append((header, (fields["Old name"], fields["Name"], int(fields["Head"]),
+                                             int(fields["Body"]))))
+                except (KeyError, ValueError):
+                    pass
+                continue
             if re.fullmatch(r"Arrived \d+", kind):
                 # An Arrived record: "  Name:", "  Head:", "  Body:" (two spaces in).
                 fields = {}
@@ -580,6 +597,8 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                                            headers == "every" or r.village in headers))
     out.village = latest
     out.damaged = latest in damaged_in
+    out.renames = [r for village, r in renames if (village == latest if headers is None else
+                                                    headers == "every" or village in headers)]
     return out, files
 
 
@@ -724,10 +743,27 @@ def redundant_backfilled_arrivals(births: list[LogRecord],
     for r in births:
         if r.child and r.kind in ("birth", "arrived"):
             by_key.setdefault(key(r.child.name, r.child.head, r.child.body), []).append(r)
+    # A villager renamed in the game since their record (a "Name changed" record: the owner's Coral
+    # Tangaroa, "Arrived 3 / Lupa Tangaroa", and Mahalo Makawee I): the record of the old name is theirs
+    # too -- the rule Repair Saves & Logs follows (src/vv_log_additions.py plan_backfilled_arrivals), so
+    # Check reports what Repair offers.
+    older: dict[tuple, list[tuple]] = {}
+    for old, new, head, body in getattr(births, "renames", []):
+        older.setdefault(key(new, head, body), []).append(key(old, head, body))
+
+    def earlier(k: tuple) -> list[tuple]:
+        found, todo = [], list(older.get(k, []))
+        while todo and len(found) < 64:
+            o = todo.pop()
+            if o not in found and o != k:
+                found.append(o)
+                todo += older.get(o, [])
+        return found
     out = []
-    for k, records in by_key.items():
+    for k, own in by_key.items():
+        records = own + [r for o in earlier(k) for r in by_key.get(o, [])]
         firm = [r for r in records if r.kind == "birth" or real_arrival(r)]
-        filled = [r for r in records if backfilled_record(r)]
+        filled = [r for r in own if backfilled_record(r)]
         if not firm or not filled:
             continue
         needed = max(0, (living or {}).get(k, 0) - len(firm))

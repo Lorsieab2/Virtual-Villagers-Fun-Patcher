@@ -165,6 +165,10 @@ class Vv1ParentageSidecarHarnessTests(unittest.TestCase):
             "a repack of nothing but identical twins leaves both unknown (record 1 is not kept for the other twin)",
             "one coincidental identity elsewhere is not the same village: the new Penyo gets no parents",
             "a survivor at her packed record (her rank) is this village even without a majority",
+            # The identity audit, case 3: one of two villagers of one name, gender and scalar dies in play.
+            "ONE OF TWO SUKIS (THE SAME LOOKS) DIES IN PLAY: the survivor keeps her own parents, the dead one's are kept",
+            "ONE OF TWO SUKIS (DIFFERENT LOOKS) DIES IN PLAY: the survivor keeps her own parents, the dead one's are kept",
+            "... AND AFTER THE NEXT LOAD PACKS HER INTO THE DEAD SUKI'S RECORD, HER LOOKS STILL TELL HER APART",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

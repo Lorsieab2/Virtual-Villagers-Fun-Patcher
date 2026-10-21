@@ -267,6 +267,32 @@ class Repair(unittest.TestCase):
         kind = self.kind(1)
         self.assertEqual((kind.decided, kind.asked), (0, 1))
 
+    def test_a_namesakes_birth_does_not_settle_the_golden_child(self):
+        # The identity audit, case 6: another child named Lulu (head 3, body 3, an ordinary birth) is
+        # not the Golden Child Lulu (head 1, body 1).  Her Birth settled the Golden Child by the
+        # name alone: Ma's pregnancy was closed as lost without asking, and Repair never offered
+        # the Golden Child's Birth.
+        write(self.folder, BIRTHS.format(g=1), "Village: Tribe (Save 1)\n" + conception(1, "Ma", 0, 0, 600, 1)
+              + conception(2, "Other", 5, 5, 590, 1) + birth("Lulu", "Other", 5, 5)
+              + "Arrived 1\n  Name: Lulu\n  Special villager: Golden Child\n  Head: 1\n  Body: 1\n\n")
+        write(self.folder, DEATHS.format(g=1), "Village: Tribe (Save 1)\n" + death(1, "Ma", 0, 0, 610))
+        kind = self.kind(1)
+        self.assertEqual((kind.decided, kind.asked), (0, 1), "Ma's pregnancy is a question, never decided")
+        [question] = kind.questions.values()
+        self.assertIn("the Golden Child may have been born of it", question.text)
+        golden = {k.id: k for k in additions.plan(self.folder, 1, 1)}["golden"]
+        self.assertEqual(len(golden.questions), 1, "Repair still offers the Golden Child's own Birth")
+
+    def test_the_golden_childs_own_birth_settles_it(self):
+        # ...while a Birth that IS the Golden Child's (her name and looks, born as the Golden Child)
+        # settles it: nothing is asked or offered again.
+        write(self.folder, BIRTHS.format(g=1), "Village: Tribe (Save 1)\n" + conception(1, "Ma", 0, 0, 600, 1)
+              + "Birth\n  Child: Lulu\n    Head: 1\n    Body: 1\n  Mother: Ma\n    Head: 0\n    Body: 0\n"
+                "  Father: Pa\n    Head: 0\n    Body: 2\n  Born as: Golden Child\n\n"
+              + "Arrived 1\n  Name: Lulu\n  Special villager: Golden Child\n  Head: 1\n  Body: 1\n\n")
+        golden = {k.id: k for k in additions.plan(self.folder, 1, 1)}["golden"]
+        self.assertEqual(len(golden.questions), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

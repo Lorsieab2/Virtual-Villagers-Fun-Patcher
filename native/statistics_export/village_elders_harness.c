@@ -332,6 +332,50 @@ int wmain(int argc, wchar_t **argv) {
               && file_contains(dat, "E\t2\tBo\t\t\t0\t1") && file_contains(dat, "E\t3\tAna\t\t\t0\t1"),
               "with no reload, an elder whose record is another line's reload record keeps his own line");
         DeleteFileW(dat);
+
+        /* THE IDENTITY AUDIT, CASE 5: two elders named Gata, [3] and [4]; record 2 was empty at the
+           quit save.  After the reload the first Gata is at 2, renamed "Gata Bahati" (Last Names),
+           and the second at 3 -- the first Gata's old record.  Taken by the first line that fits,
+           the first Gata's line took the second Gata's villager, the renamed Gata was added as a
+           third elder and the second Gata's line was closed.  Each line follows its own villager:
+           by the roster's fingerprint (likes, dislikes, parents) where the games have one, and
+           otherwise because a record nobody held at the quit save holds a villager a reload put
+           there. */
+        {
+            static unsigned int fp_was[SLOTS], fp_now[SLOTS];
+            int with_fp;
+            for (with_fp = 1; with_fp >= 0; --with_fp) {
+                DeleteFileW(dat);
+                memset(villagers, 0, sizeof(villagers));
+                l.rank_of_slot = NULL; l.rank_slots = 0;
+                l.fp_was = NULL; l.fp_now = NULL;
+                set_villager(0, "Kai", "", "", 1, 300);
+                set_villager(1, "Xan", "", "", 0, 300);
+                set_villager(3, "Gata", "", "", 3, 600);
+                set_villager(4, "Gata", "", "", 4, 700);
+                check(vv_village_elders_file(4, dat, tmp, &l) == 2, "setup: two elders named Gata, [3] and [4]");
+                for (s = 0; s < (int)SLOTS; ++s) { ranks[s] = -1; fp_was[s] = 0; fp_now[s] = 0; }
+                ranks[0] = 0; ranks[1] = 1; ranks[3] = 2; ranks[4] = 3;
+                fp_was[3] = 0xA1u; fp_was[4] = 0xB2u;
+                memset(villagers, 0, sizeof(villagers));
+                set_villager(0, "Kai", "", "", 1, 300);
+                set_villager(1, "Xan", "", "", 0, 300);
+                set_villager(2, "Gata Bahati", "", "", 3, 600);
+                set_villager(3, "Gata", "", "", 4, 700);
+                fp_now[2] = 0xA1u; fp_now[3] = 0xB2u;
+                l.rank_of_slot = ranks; l.rank_slots = SLOTS;
+                if (with_fp) {
+                    l.fp_was = fp_was; l.fp_now = fp_now; l.fp_slots = SLOTS;
+                }
+                n = vv_village_elders_file(4, dat, tmp, &l);
+                check(n == 2 && file_contains(dat, "E\t2\tGata Bahati\t\t\t0\t1") && file_contains(dat, "E\t3\tGata\t\t\t0\t1")
+                      && !file_contains(dat, "\t0\t0\r\n"),
+                      with_fp ? "AN ELDER RENAMED AND MOVED BY A RELOAD INTO HER NAMESAKE'S OLD RECORD: each line follows its own elder (fingerprint)"
+                              : "AN ELDER RENAMED AND MOVED BY A RELOAD INTO HER NAMESAKE'S OLD RECORD: each line follows its own elder (no fingerprint)");
+                l.fp_was = NULL; l.fp_now = NULL; l.fp_slots = 0;
+            }
+        }
+        DeleteFileW(dat);
     }
 
     printf("%d failure(s)\n", failures);
