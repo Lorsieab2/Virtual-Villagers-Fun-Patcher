@@ -722,6 +722,12 @@ Nothing is written into a villager record or the save.
 
 An entry is never erased. Death leaves it; growing up hides the figures but
 keeps the record, so a villager made young again shows their parents again.
+A villager who passed away keeps their entry in their old place while
+nobody else has it; once a new villager takes that place (in a village of
+256 that is the next birth), their parents go to a list at the end of the
+same file, which has room for every villager who ever lived. Nothing on the
+list is ever changed or removed, and a file with nobody on it is the same
+as an older version's.
 Each entry belongs to its villager, not to a record slot: when the game
 loads a save it renumbers the villagers (everyone after a villager who died
 moves down), and the entries move with them, matched by name, gender and

@@ -206,8 +206,9 @@ class NumberedSinceTheCopy(unittest.TestCase):
             self.assertEqual(parents(path.read_bytes(), name)[:2], ("Tadao Awanata", "Lisha Akikai I"))
         self.assertEqual(restore.plan(folder, SLOT).restored, [], "a second run changes nothing")
 
-    def test_a_full_file_says_so(self):
-        # Every record in use, and the three passed away (not in the file now): no room, and said so.
+    def test_a_full_file_keeps_them_on_the_departed_list(self):
+        # Every record in use (a village at the 256 cap), and the three passed away (not in the file now):
+        # the owner, 2026-10-20, "make room for their parents" -- the departed list has room for them.
         rows = [(k, f"Filler {k}", 1, k, 1, 1, 0, None, None, None) for k in range(restore.COUNT)]
         folder, path = self.build(rows, first=restore.COUNT - 3, others=rows[:restore.COUNT - 3])
         deaths = (folder / "Virtual Villagers Fun Patcher Logs" / "Deaths and Disappearances"
@@ -216,15 +217,28 @@ class NumberedSinceTheCopy(unittest.TestCase):
         deaths.write_text(LOG_HEADER + "".join(f"Death {k + 1}\n  Name: {name}\n  Age at death: 1600\n\n"
                                                for k, name in enumerate(AWANATA)), encoding="latin-1")
         before = path.read_bytes()
+        self.assertEqual(len(before), restore.SIZE, "setup: an earlier build's file, with no departed list")
         work = restore.plan(folder, SLOT)
-        self.assertEqual(work.restored, [])
+        self.assertEqual(sorted(r.name for r in work.restored), sorted(AWANATA))
+        self.assertTrue(all(r.departed for r in work.restored))
         self.assertEqual(work.conflicts, [])
-        self.assertEqual(sorted(work.no_room), sorted(AWANATA))
-        lines = "\n".join(work.lines())
-        self.assertIn("no room", lines)
-        self.assertNotIn("Check Saves & Logs asks", lines, "no question is asked anywhere: never say one is")
+        self.assertEqual(work.no_room, [])
+        self.assertNotIn("no room", "\n".join(work.lines()))
         restore.restore(folder, SLOT, processes=Idle())
-        self.assertEqual(path.read_bytes(), before)
+        after = path.read_bytes()
+        self.assertEqual(after[:restore.SIZE], before, "the 256 records are left exactly as they were")
+        listed = restore.departed_list(after)
+        self.assertEqual(len(listed), 3)
+        table_after = restore.read_table(path, SLOT)
+        named = {table_after.identity(i)[0]: table_after.names(i)
+                 for i in range(restore.COUNT, table_after.size())}
+        for name in AWANATA:
+            self.assertEqual(named[name], ("Tadao Awanata", "Lisha Akikai I"))
+        self.assertTrue(all(table_after.occupant(i)[1] == 1 for i in range(restore.COUNT, table_after.size())),
+                        "each is marked departed")
+        self.assertEqual(restore.plan(folder, SLOT).restored, [], "a second run changes nothing")
+        restore.restore(folder, SLOT, processes=Idle())
+        self.assertEqual(path.read_bytes(), after, "... and never adds them twice")
 
     def test_a_real_disagreement_is_still_refused(self):
         folder, path = self.build([(k, name, 2, 20 + k, 4 + k, 5 + k, 0, None, None, None)

@@ -131,8 +131,10 @@
    bytes, then the father's, the mother's and the stashed father's names
    (28 bytes each, NUL-terminated).  A 12-byte header -- magic 'VP02', a
    reserved zero, and the slot the file was written for -- is followed by
-   the roster (256 occupants of 32 bytes: name, gender, family scalar) and
-   then the 256 entries of 92 bytes.  'VP01' files, bound to the clock, are
+   the roster (256 occupants of 36 bytes: gender, departed, head+1, body+1,
+   family scalar, name) and then the 256 entries of 92 bytes; when anybody is
+   on the departed list (see g_departed), 'VPD1', its count and its 128-byte
+   entries follow.  'VP01' files, bound to the clock, are
    not read: nothing in them ever survived a session.
 
    Everything fails closed.  No village on screen, no slot captured, a file
@@ -269,6 +271,34 @@ typedef struct {
 
 static vv1_parent_entry g_entries[VV1_RECORD_COUNT];
 static vv1_occupant g_roster[VV1_RECORD_COUNT];   /* who held each slot when the table was last written or loaded */
+
+/* ROOM FOR EVERY VILLAGER WHO EVER LIVED (the owner, 2026-10-20: "make room
+   for their parents").  A departed villager's entry waits in a record nobody
+   holds (vv1_follow_roster), but a village at the 256 cap has no such record:
+   every death there is followed by a birth into the freed record, and the
+   entry had nowhere to go -- the owner's Kalahuna Tribe 1 lost the parents of
+   45 villagers who passed away, Etini, Fatai and Ginger Awanata among them.
+   Such an entry now goes to the DEPARTED LIST, which grows with the village
+   and is kept after the 256 entries in the same file:
+
+       'VPD1', a count, then that many 128-byte entries -- the departed
+       villager as the roster named them (36 bytes, departed = 1) and their
+       entry (92 bytes), exactly as they stood in the table.
+
+   An entry is only ever added (once: an identical one is never added twice),
+   never changed and never removed; a file with nobody on the list is written
+   exactly as before, so every earlier build still reads it.  The list is for
+   the records: the logs, the family tree and Restore A New Home Parents read
+   it; no villager on screen ever takes an entry from it. */
+#define VV1_DEPARTED_MAGIC     0x31445056u  /* 'V' 'P' 'D' '1' */
+#define VV1_DEPARTED_MAX       1000000      /* a bound for a sound file, far beyond any village */
+typedef struct {
+    vv1_occupant who;
+    vv1_parent_entry entry;
+} vv1_departed;                               /* 128 bytes */
+static vv1_departed *g_departed;
+static int g_departed_count;
+static int g_departed_room;
 static int g_loaded_slot;                     /* 0 = nothing loaded */
 static int g_strikes;                         /* consecutive frames the live roster shared nobody with g_roster */
 static unsigned char g_prev_occupied[VV1_RECORD_COUNT];
@@ -564,6 +594,56 @@ static int vv1_roster_overlap(const unsigned char *records, const vv1_occupant *
     }
 }
 
+/* ---- the departed list ------------------------------------------------- */
+
+/* Does an entry name anything at all: a parent, or a pregnancy's father? */
+static int vv1_entry_known(const vv1_parent_entry *e) {
+    return e->father_name[0] || e->mother_name[0] || e->stash_name[0]
+        || e->father_head || e->father_body || e->mother_head || e->mother_body
+        || e->stash_head || e->stash_body;
+}
+
+/* Put a departed villager's entry on the list, once.  1 when it is there
+   (added now or already), 0 when it names nothing or no memory was left. */
+static int vv1_departed_add(const vv1_occupant *who, const vv1_parent_entry *e) {
+    vv1_departed item;
+    int i;
+    if (who == NULL || e == NULL || !who->gender || !vv1_entry_known(e)) {
+        return 0;
+    }
+    memset(&item, 0, sizeof(item));
+    item.who = *who;
+    item.who.departed = 1;
+    item.who.name[VV1_NAME_CAPACITY - 1] = '\0';
+    item.entry = *e;
+    for (i = 0; i < g_departed_count; ++i) {
+        if (memcmp(&g_departed[i], &item, sizeof(item)) == 0) {
+            return 1;             /* the same villager with the same entry: never twice */
+        }
+    }
+    if (g_departed_count >= VV1_DEPARTED_MAX) {
+        return 0;
+    }
+    if (g_departed_count == g_departed_room) {
+        int room = g_departed_room ? g_departed_room * 2 : 64;
+        void *grown = g_departed
+            ? HeapReAlloc(GetProcessHeap(), 0, g_departed, (SIZE_T)room * sizeof(vv1_departed))
+            : HeapAlloc(GetProcessHeap(), 0, (SIZE_T)room * sizeof(vv1_departed));
+        if (grown == NULL) {
+            return 0;
+        }
+        g_departed = (vv1_departed *)grown;
+        g_departed_room = room;
+    }
+    g_departed[g_departed_count++] = item;
+    return 1;
+}
+
+/* Another village's table, or none: the list goes with it. */
+static void vv1_departed_clear(void) {
+    g_departed_count = 0;
+}
+
 /* MAKE THE TABLE FOLLOW THE VILLAGERS.
 
    The table is kept per record index, and the roster beside it says who
@@ -604,6 +684,7 @@ static int vv1_follow_roster(const vv1_occupant *now) {
     static vv1_parent_entry moved[VV1_RECORD_COUNT];
     static vv1_occupant kept[VV1_RECORD_COUNT];
     unsigned char born[VV1_RECORD_COUNT], stashed[VV1_RECORD_COUNT];
+    unsigned char placed[VV1_RECORD_COUNT];   /* the entry recorded at this index went somewhere */
     int from[VV1_RECORD_COUNT];
     int j;
     /* Did anyone move?  Decided over the WHOLE roster (Codex, #516), not from
@@ -660,10 +741,12 @@ static int vv1_follow_roster(const vv1_occupant *now) {
             from[j] = j;          /* an ambiguous identity, where nothing moved: its own index */
         }
     }
+    memset(placed, 0, sizeof(placed));
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         if (now[j].gender) {
             kept[j] = now[j];
             if (from[j] >= 0) {
+                placed[from[j]] = 1;
                 moved[j] = g_entries[from[j]];
                 born[j] = g_session_born[from[j]];
                 stashed[j] = g_session_stash[from[j]];
@@ -675,6 +758,7 @@ static int vv1_follow_roster(const vv1_occupant *now) {
         } else if (g_roster[j].gender && vv1_count_occupant(now, &g_roster[j], NULL) == 0) {
             kept[j] = g_roster[j];          /* away or dead, and nobody holds the record: kept */
             kept[j].departed = 1;
+            placed[j] = 1;
             moved[j] = g_entries[j];
             born[j] = g_session_born[j];
             stashed[j] = g_session_stash[j];
@@ -691,7 +775,8 @@ static int vv1_follow_roster(const vv1_occupant *now) {
        pregnancy stash, under their identity -- moves to a record nobody holds
        or is kept under, where it waits for them (a villager only away comes
        back to it by identity) and keeps the dead villager's parents for the
-       logs.  Only an array with no free record at all could still drop one. */
+       logs.  An array with no free record at all -- a village at the 256 cap
+       -- puts it on the departed list instead (vv1_departed_add). */
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         const vv1_parent_entry *e = &g_entries[j];
         int k;
@@ -708,8 +793,21 @@ static int vv1_follow_roster(const vv1_occupant *now) {
                 moved[k] = *e;
                 born[k] = 0;
                 stashed[k] = g_session_stash[j];
+                placed[j] = 1;
                 break;
             }
+        }
+    }
+    /* Whatever entry of a villager who is not on screen found no record --
+       no free one, or a departed villager whose name, sex and family a
+       villager on screen now shares, so the record was given up -- goes on
+       the departed list: a departed villager's parents are never dropped.
+       (A living villager left unknown because two share an identity is not
+       departed: their entry is not guessed onto the list either.) */
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        if (!placed[j] && g_roster[j].gender && vv1_entry_known(&g_entries[j])
+            && (g_roster[j].departed || vv1_count_occupant(now, &g_roster[j], NULL) == 0)) {
+            (void)vv1_departed_add(&g_roster[j], &g_entries[j]);
         }
     }
     memcpy(g_session_born, born, sizeof(born));
@@ -1039,7 +1137,7 @@ static int vv1_parents_save(int slot, const unsigned char *records) {
        moved aside to "<name>.another-village-<ticks>-<n>", never replacing
        anything; if it will not move, nothing is written. */
     if (!g_may_replace && g_other_aside) {
-        int j, anything = 0;
+        int j, anything = g_departed_count > 0;
         for (j = 0; j < VV1_RECORD_COUNT && !anything; ++j) {
             const vv1_parent_entry *e = &g_entries[j];
             anything = e->father_name[0] || e->mother_name[0] || e->stash_name[0]
@@ -1071,6 +1169,18 @@ static int vv1_parents_save(int slot, const unsigned char *records) {
     }
     if (ok && (!WriteFile(file, g_entries, sizeof(g_entries), &wrote, NULL) || wrote != sizeof(g_entries))) {
         ok = FALSE;
+    }
+    /* The departed list, when anybody is on it (a file with nobody on it is
+       the earlier builds' file, byte for byte). */
+    if (ok && g_departed_count > 0) {
+        unsigned int tail[2];
+        DWORD bytes = (DWORD)g_departed_count * (DWORD)sizeof(vv1_departed);
+        tail[0] = VV1_DEPARTED_MAGIC;
+        tail[1] = (unsigned int)g_departed_count;
+        if (!WriteFile(file, tail, sizeof(tail), &wrote, NULL) || wrote != sizeof(tail)
+            || !WriteFile(file, g_departed, bytes, &wrote, NULL) || wrote != bytes) {
+            ok = FALSE;
+        }
     }
     if (ok && !FlushFileBuffers(file)) {
         ok = FALSE;
@@ -1151,6 +1261,8 @@ static int vv1_parents_load(int slot, const unsigned char *records) {
     unsigned int header[3];
     static vv1_occupant roster[VV1_RECORD_COUNT];
     static vv1_parent_entry buf[VV1_RECORD_COUNT];
+    vv1_departed *departed;
+    int departed_count;
     int i;
     int sound;
     /* Nothing is cleared here.  This function is an ATTEMPT: the slot-change
@@ -1188,7 +1300,43 @@ static int vv1_parents_load(int slot, const unsigned char *records) {
     if (sound == 1) {
         sound = vv1_read_exact(file, buf, sizeof(buf));
     }
+    /* The departed list after the 256 entries: none at all (every earlier
+       build's file), or 'VPD1', its count and exactly that many entries to
+       the end of the file.  Anything else there is not a file this build
+       wrote: set aside like any other. */
+    departed = NULL;
+    departed_count = 0;
+    if (sound == 1) {
+        unsigned int tail[2];
+        DWORD got = 0;
+        if (!ReadFile(file, tail, sizeof(tail), &got, NULL)) {
+            sound = -1;
+        } else if (got != 0) {
+            if (got != sizeof(tail) || tail[0] != VV1_DEPARTED_MAGIC || tail[1] == 0u
+                || tail[1] > (unsigned int)VV1_DEPARTED_MAX) {
+                sound = 0;
+            } else {
+                DWORD bytes = (DWORD)tail[1] * (DWORD)sizeof(vv1_departed);
+                char extra;
+                departed = (vv1_departed *)HeapAlloc(GetProcessHeap(), 0, bytes);
+                if (departed == NULL) {
+                    sound = -1;       /* no memory: not "not a sidecar" -- try again later */
+                } else {
+                    sound = vv1_read_exact(file, departed, bytes);
+                    if (sound == 1 && (!ReadFile(file, &extra, 1, &got, NULL) || got != 0)) {
+                        sound = 0;    /* more after the list */
+                    }
+                    departed_count = (int)tail[1];
+                }
+            }
+        }
+    }
     CloseHandle(file);
+    if (sound != 1 && departed != NULL) {
+        HeapFree(GetProcessHeap(), 0, departed);
+        departed = NULL;
+        departed_count = 0;
+    }
     if (sound < 0) {
         return VV1_LOAD_BLOCKED;
     }
@@ -1202,11 +1350,27 @@ static int vv1_parents_load(int slot, const unsigned char *records) {
         roster[i].name[VV1_NAME_CAPACITY - 1] = '\0';
     }
     if (vv1_roster_overlap(records, roster) == 0) {
+        if (departed != NULL) {
+            HeapFree(GetProcessHeap(), 0, departed);
+        }
         return VV1_LOAD_OTHER;
     }
     memset(g_entries, 0, sizeof(g_entries));
     memcpy(g_roster, roster, sizeof(g_roster));
     memcpy(g_entries, buf, sizeof(buf));
+    /* The file's departed list replaces the one on hand (the same village's,
+       as the file is). */
+    if (g_departed != NULL) {
+        HeapFree(GetProcessHeap(), 0, g_departed);
+    }
+    g_departed = departed;
+    g_departed_count = g_departed_room = departed_count;
+    for (i = 0; i < g_departed_count; ++i) {
+        g_departed[i].who.name[VV1_NAME_CAPACITY - 1] = '\0';
+        g_departed[i].entry.father_name[VV1_NAME_CAPACITY - 1] = '\0';
+        g_departed[i].entry.mother_name[VV1_NAME_CAPACITY - 1] = '\0';
+        g_departed[i].entry.stash_name[VV1_NAME_CAPACITY - 1] = '\0';
+    }
     /* Names are printed and drawn: whatever the file holds, every
        name ends inside its own buffer. */
     for (i = 0; i < VV1_RECORD_COUNT; ++i) {
@@ -1253,6 +1417,7 @@ static void vv1_parents_blocked(int slot) {
 static void vv1_parents_reset(void) {
     memset(g_entries, 0, sizeof(g_entries));
     memset(g_roster, 0, sizeof(g_roster));
+    vv1_departed_clear();
     memset(g_session_born, 0, sizeof(g_session_born));
     memset(g_session_stash, 0, sizeof(g_session_stash));
 }
@@ -2727,6 +2892,7 @@ __declspec(dllexport) int __stdcall Vv1ParentageSetParents(int index, const char
 
 __declspec(dllexport) int __stdcall Vv1ParentageProbeReset(void) {
     memset(g_entries, 0, sizeof(g_entries));
+    vv1_departed_clear();
     g_have_prev = 0;
     g_birth_count = 0;
     return 1;

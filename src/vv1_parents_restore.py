@@ -17,7 +17,9 @@ identity) gives them back.  It only ever adds:
   - an entry that has any parent now is never changed (a newer real change wins);
   - a pregnancy's expected father is never touched;
   - a villager the file no longer names (dead and dropped by an older build) comes back as a departed
-    entry in a free record, so the logs and the family tree keep their parents;
+    entry in a free record, or -- every record in use, a village at the 256 cap -- on the file's
+    departed list, which has room for every villager who ever lived, so the logs and the family tree
+    keep their parents;
   - a copy is a source only when it is THIS village's: a strict majority of the smaller roster is found in\n    both (an ".another-village-..." copy is often a different village that was in the slot);\n  - two villagers who share the identity in the file or in a copy are left alone, never guessed;
   - a copy whose parents disagree with the villager's own Birth record (same name and looks) is not
     used for them: that is a contradiction the player decides (Check Saves & Logs lists it).
@@ -45,6 +47,27 @@ COUNT = 256
 SIZE = HEADER + COUNT * OCCUPANT + COUNT * ENTRY
 NAME = 28
 COPY_SUFFIX = ".before-parents-restore"
+# The departed list after the 256 entries (native/vv1_parentage/vv1_parentage.c g_departed): 'VPD1', a
+# count, then that many entries of the departed villager as the roster named them (36 bytes) and their
+# entry (92 bytes) -- the room every villager who ever lived has, a village at the 256 cap included.  A
+# file with nobody on it has no list at all (the earlier builds' file, byte for byte).
+DEPARTED_MAGIC = b"VPD1"
+DEPARTED = OCCUPANT + ENTRY
+DEPARTED_MAX = 1_000_000
+
+
+def departed_list(data: bytes) -> list[bytes] | None:
+    """The departed list of a parentage file's bytes: its 128-byte entries ([] when the file has none),
+    or None when what follows the 256 entries is not a list the companion wrote."""
+    tail = bytes(data[SIZE:])
+    if not tail:
+        return []
+    if len(tail) < 8 or tail[:4] != DEPARTED_MAGIC:
+        return None
+    count = struct.unpack_from("<I", tail, 4)[0]
+    if not 0 < count <= DEPARTED_MAX or len(tail) != 8 + count * DEPARTED:
+        return None
+    return [tail[8 + k * DEPARTED:8 + (k + 1) * DEPARTED] for k in range(count)]
 
 
 class RestoreError(Exception):
@@ -72,11 +95,22 @@ def _cstr(buf: bytes, at: int) -> str:
 
 @dataclass
 class Table:
+    """The file: its 256 records (indices 0..255) and its departed list (indices 256 on)."""
     data: bytearray
+    departed: list[bytes] = field(default_factory=list)
+
+    def size(self) -> int:
+        return COUNT + len(self.departed)
+
+    def _occ(self, i: int) -> tuple[bytes | bytearray, int]:
+        return (self.data, HEADER + i * OCCUPANT) if i < COUNT else (self.departed[i - COUNT], 0)
+
+    def _ent(self, i: int) -> tuple[bytes | bytearray, int]:
+        return (self.data, HEADER + COUNT * OCCUPANT + i * ENTRY) if i < COUNT else (self.departed[i - COUNT],
+                                                                                        OCCUPANT)
 
     def occupant(self, i: int) -> tuple[int, int, int, int, int, str]:
-        o = HEADER + i * OCCUPANT
-        d = self.data
+        d, o = self._occ(i)
         return d[o], d[o + 1], d[o + 2], d[o + 3], struct.unpack_from("<i", d, o + 4)[0], _cstr(d, o + 8)
 
     def identity(self, i: int) -> tuple[str, int, int] | None:
@@ -88,21 +122,23 @@ class Table:
 
     def parents(self, i: int) -> bytes:
         """The father and mother: looks bytes 0..3 and the two names; never the stash."""
-        e = self.entry_at(i)
-        return bytes(self.data[e:e + 4]) + bytes(self.data[e + 8:e + 8 + 2 * NAME])
+        d, e = self._ent(i)
+        return bytes(d[e:e + 4]) + bytes(d[e + 8:e + 8 + 2 * NAME])
 
     def has_parents(self, i: int) -> bool:
         return any(self.parents(i))
 
     def names(self, i: int) -> tuple[str, str]:
-        e = self.entry_at(i)
-        return _cstr(self.data, e + 8), _cstr(self.data, e + 8 + NAME)
+        d, e = self._ent(i)
+        return _cstr(d, e + 8), _cstr(d, e + 8 + NAME)
 
     def looks(self, i: int) -> tuple[int, int]:
         _g, _d, h, b, _s, _n = self.occupant(i)
         return h - 1, b - 1                                # stored + 1; 0 (-1 here) = not recorded
 
     def put_parents(self, i: int, parents: bytes) -> None:
+        if i >= COUNT:
+            raise ValueError("an entry of the departed list is never changed")
         e = self.entry_at(i)
         self.data[e:e + 4] = parents[:4]
         self.data[e + 8:e + 8 + 2 * NAME] = parents[4:]
@@ -112,15 +148,43 @@ class Table:
         o = HEADER + i * OCCUPANT
         return not any(self.data[o:o + OCCUPANT]) and not any(self.data[e:e + ENTRY])
 
+    def add_departed(self, occupant: bytes, parents: bytes) -> int:
+        """A departed villager's parents on the departed list, as the companion puts them there
+        (vv1_departed_add): the roster's 36 bytes with departed set, and an entry naming the father
+        and the mother.  Never twice: an identical entry already there is the one returned."""
+        item = bytearray(DEPARTED)
+        item[:OCCUPANT] = occupant[:OCCUPANT]
+        item[1] = 1                                        # departed
+        item[OCCUPANT:OCCUPANT + 4] = parents[:4]
+        item[OCCUPANT + 8:OCCUPANT + 8 + 2 * NAME] = parents[4:4 + 2 * NAME]
+        for k, have in enumerate(self.departed):
+            if bytes(have) == bytes(item):
+                return COUNT + k
+        self.departed.append(bytes(item))
+        return COUNT + len(self.departed) - 1
 
-def read_table(path: Path, slot: int) -> Table | None:
+    def to_bytes(self) -> bytes:
+        out = bytes(self.data[:SIZE])
+        if self.departed:
+            out += DEPARTED_MAGIC + struct.pack("<I", len(self.departed)) + b"".join(self.departed)
+        return out
+
+
+def read_table(path: Path, slot: int, strict: bool = True) -> Table | None:
+    """The slot's parentage file, or None when it is not one.  `strict` False (a copy read only as a
+    source): a departed list that is not the companion's is left out and the 256 records still read."""
     try:
         data = Path(path).read_bytes()
     except OSError:
         return None
-    if len(data) != SIZE or data[:4] != MAGIC or struct.unpack_from("<I", data, 8)[0] != slot:
+    if len(data) < SIZE or data[:4] != MAGIC or struct.unpack_from("<I", data, 8)[0] != slot:
         return None
-    return Table(bytearray(data))
+    departed = departed_list(data)
+    if departed is None:
+        if strict:
+            return None
+        departed = []
+    return Table(bytearray(data[:SIZE]), departed)
 
 
 def copies(folder: Path, slot: int) -> list[Path]:
@@ -283,9 +347,11 @@ def _same_village(now: dict[tuple, list[int]], old: dict[tuple, list[int]]) -> b
     return found >= min(len(now), len(old)) // 2 + 1
 
 
-def _by_identity(table: Table) -> dict[tuple, list[int]]:
+def _by_identity(table: Table, records_only: bool = False) -> dict[tuple, list[int]]:
+    """Identity -> where the file names it: its 256 records, then (unless `records_only`) its
+    departed list."""
     out: dict[tuple, list[int]] = {}
-    for i in range(COUNT):
+    for i in range(COUNT if records_only else table.size()):
         ident = table.identity(i)
         if ident is not None:
             out.setdefault(ident, []).append(i)
@@ -349,7 +415,7 @@ def plan(folder: Path, slot: int) -> Plan:
     done: set[tuple] = set()
     skipped: set[tuple] = set()
     for copy in copies(folder, slot):
-        old = read_table(copy, slot)
+        old = read_table(copy, slot, strict=False)
         if old is None:
             continue
         plain = _by_identity(table)                        # again: a departed entry may have been added
@@ -360,7 +426,13 @@ def plan(folder: Path, slot: int) -> Plan:
         shared = {ident for ident, at in list(plain.items()) + list(seen_plain.items()) if len(at) > 1}
         where = _refined(table, plain, shared)
         seen = _refined(old, seen_plain, shared)
-        if not _same_village(where, seen):
+        # Whose village a copy is, by the 256 records alone, as the companion decides it: the departed
+        # list is the village's history, not its roster.
+        plain_records, seen_records = _by_identity(table, True), _by_identity(old, True)
+        shared_records = {ident for ident, at in list(plain_records.items()) + list(seen_records.items())
+                          if len(at) > 1}
+        if not _same_village(_refined(table, plain_records, shared_records),
+                             _refined(old, seen_records, shared_records)):
             continue                                       # another village's file: not a source
         for ident, at in seen.items():
             if ident in done or ident in skipped:
@@ -381,6 +453,9 @@ def plan(folder: Path, slot: int) -> Plan:
             if now_at and table.has_parents(now_at[0]):
                 done.add(ident)                            # a parent is there now: never changed
                 continue
+            if now_at and now_at[0] >= COUNT:
+                now_at = []                                # on the departed list with no parents: never
+                                                           # changed there, a new entry is added instead
             father, mother = old.names(i)
             if ident[0] in arrived:
                 continue                                   # an arrival has no parents: never given any
@@ -412,18 +487,18 @@ def plan(folder: Path, slot: int) -> Plan:
                 table.put_parents(now_at[0], parents)
                 result.restored.append(Restored(ident[0], father, mother, copy.name))
             else:
+                d, src = old._occ(i)
+                occupant = bytes(d[src:src + OCCUPANT])
                 free = next((k for k in range(COUNT) if table.empty_record(k)), None)
-                if free is None:
-                    # Every record of the file is in use: said so, never silently left out.
-                    if ident[0] not in result.no_room:
-                        result.no_room.append(ident[0])
-                    skipped.add(ident)
-                    continue
-                o = HEADER + free * OCCUPANT
-                src = HEADER + i * OCCUPANT
-                table.data[o:o + OCCUPANT] = old.data[src:src + OCCUPANT]
-                table.data[o + 1] = 1                      # departed
-                table.put_parents(free, parents)
+                if free is not None:
+                    o = HEADER + free * OCCUPANT
+                    table.data[o:o + OCCUPANT] = occupant
+                    table.data[o + 1] = 1                  # departed
+                    table.put_parents(free, parents)
+                else:
+                    # Every record of the file is in use (a village at the 256 cap): the departed list,
+                    # which has room for every villager who ever lived (the owner, 2026-10-20).
+                    free = table.add_departed(occupant, parents)
                 where[ident] = [free]
                 result.restored.append(Restored(ident[0], father, mother, copy.name, departed=True))
             done.add(ident)
@@ -476,7 +551,7 @@ def restore(folder: Path, slot: int, processes: vv_save_backup.ProcessController
     if work.path.read_bytes() != work.original:
         raise RestoreError(f"{work.path.name} changed while it was being read; nothing was changed.")
     temporary = work.path.with_name(work.path.name + ".restore.tmp")
-    temporary.write_bytes(bytes(work.table.data))
+    temporary.write_bytes(work.table.to_bytes())
     os.replace(temporary, work.path)
     fixes = [tools.WordFix(r.name + (" (departed)" if r.departed else "")
                            + f": father {r.father or '(unknown)'}, mother {r.mother or '(unknown)'} from {r.source}",

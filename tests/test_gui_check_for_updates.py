@@ -201,7 +201,8 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree",
                                "vv_tribe_rename", "vv_genealogy", "vv_save_layout",
                                "vv_startup_questions",
-                               "vv_titles_file"}),     # two villagers of one title identity, told apart by the looks it keeps (v1.35.72)
+                               "vv_titles_file",       # two villagers of one title identity, told apart by the looks it keeps (v1.35.72)
+                               "vv1_parents_restore"}),  # A New Home's parents file's departed list (v1.35.79)
             # The queue of questions the patcher asks when it opens (the owner, v1.35.66).
             ("vv_startup_questions", set()),
             ("patcher_files", set()),
@@ -213,7 +214,9 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions", "vv_lost_titles", "vv_family_tree",
                               # An answered "I renamed them" joins the two records (v1.35.77); a
                               # function-level import, as vv_reconcile imports vv_genealogy.
-                              "vv_reconcile"}),
+                              "vv_reconcile",
+                              # A New Home's parents file's departed list, read as Restore reads it (v1.35.79).
+                              "vv1_parents_restore"}),
             # Restoring cut names renames through Last Names; likes compare as vv_log_tools says (v1.35.68).
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions", "vv_log_tools"}),
             # Fix grave information: the graves' fingerprints and writes through Last Names.

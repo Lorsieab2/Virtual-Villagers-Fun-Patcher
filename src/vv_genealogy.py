@@ -49,7 +49,8 @@ LITTER_FROM_NAME = {1: -0x14, 2: -0x20, 3: 0xBC, 4: 0xB4, 5: 0xB4}
 # (native/vv1_parentage/vv1_parentage.c): a 12-byte 'VP02' header, 256 roster occupants of 36 bytes
 # (gender 1/2, departed, head+1, body+1, family scalar, name[28]) and 256 entries of 92 bytes (father
 # head+1/body+1, mother head+1/body+1, the pregnancy stash's father head+1/body+1, 2 spare, then the
-# father's, the mother's and the stashed father's names, 28 bytes each).
+# father's, the mother's and the stashed father's names, 28 bytes each); then, when anybody is on it,
+# the departed list (src/vv1_parents_restore.py departed_list).
 VV1_SIDECAR_MAGIC = b"VP02"
 VV1_SIDECAR_NAME = 28
 VV1_SIDECAR_OCCUPANT = 36
@@ -785,25 +786,36 @@ def _vv1_sidecar(folder: Path, slot: int) -> list[_Vv1Entry]:
         data = path.read_bytes()
     except OSError:
         return []
-    if len(data) != VV1_SIDECAR_SIZE or data[:4] != VV1_SIDECAR_MAGIC or _i32(data, 8) != slot:
+    if len(data) < VV1_SIDECAR_SIZE or data[:4] != VV1_SIDECAR_MAGIC or _i32(data, 8) != slot:
+        return []
+    import vv1_parents_restore as parents_file
+    # The departed list after the 256 entries: room for every villager who ever lived, a village at the
+    # 256 cap included (native/vv1_parentage g_departed).  A file whose list is not the companion's is
+    # one the companion itself sets aside: nothing is read from it.
+    departed_list = parents_file.departed_list(data)
+    if departed_list is None:
         return []
     cut = VV1_SIDECAR_NAME - 1
 
-    def person(e: int, looks: int, at: int) -> Key | None:
+    def person(buf: bytes, e: int, looks: int, at: int) -> Key | None:
         # Every value is stored +1: 0 is "not recorded", and head 0 / body 0 are real looks.
-        name, head, body = _cstr(data, e + at, VV1_SIDECAR_NAME)[:cut], data[e + looks], data[e + looks + 1]
+        name, head, body = _cstr(buf, e + at, VV1_SIDECAR_NAME)[:cut], buf[e + looks], buf[e + looks + 1]
         return (name, head - 1, body - 1) if name and head and body else None
 
+    places = [(data, 12 + i * VV1_SIDECAR_OCCUPANT, 12 + 256 * VV1_SIDECAR_OCCUPANT + i * VV1_SIDECAR_ENTRY)
+              for i in range(256)]
+    places += [(item, 0, VV1_SIDECAR_OCCUPANT) for item in departed_list]
     out = []
-    for i in range(256):
-        occ = 12 + i * VV1_SIDECAR_OCCUPANT
-        e = 12 + 256 * VV1_SIDECAR_OCCUPANT + i * VV1_SIDECAR_ENTRY
-        gender, departed, head, body = data[occ], data[occ + 1], data[occ + 2], data[occ + 3]
+    for buf, occ, e in places:
+        gender, departed, head, body = buf[occ], buf[occ + 1], buf[occ + 2], buf[occ + 3]
         if gender not in (1, 2):
             continue
-        who = (_cstr(data, occ + 8, VV1_SIDECAR_NAME)[:cut], gender, _i32(data, occ + 4),
+        who = (_cstr(buf, occ + 8, VV1_SIDECAR_NAME)[:cut], gender, _i32(buf, occ + 4),
                head - 1 if head and body else None, body - 1 if head and body else None)
-        out.append(_Vv1Entry(who, bool(departed), person(e, 0, 8), person(e, 2, 36), person(e, 4, 64)))
+        entry = _Vv1Entry(who, bool(departed) or buf is not data, person(buf, e, 0, 8), person(buf, e, 2, 36),
+                          person(buf, e, 4, 64))
+        if entry not in out:                # the same villager with the same entry: one entry
+            out.append(entry)
     return out
 
 

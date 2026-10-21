@@ -1444,8 +1444,17 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
             if new:
                 _put_name(buf, occ + 8, 28, new)
                 n += 1
-        for i in range(256):
-            e = 12 + 256 * 36 + i * 92
+        # The departed list after the 256 entries (src/vv1_parents_restore.py departed_list): its parents'
+        # names follow a renamed parent the same way; its villagers themselves have passed away.
+        listed = 0
+        if len(buf) > 12 + 256 * 36 + 256 * 92:
+            import vv1_parents_restore as parents_file
+            found = parents_file.departed_list(bytes(buf))
+            if found is None:
+                continue                                    # not the companion's list: left as it is
+            listed = len(found)
+        for e in ([12 + 256 * 36 + i * 92 for i in range(256)]
+                  + [12 + 256 * 36 + 256 * 92 + 8 + k * 128 + 36 for k in range(listed)]):
             for looks, at in ((0, 8), (2, 36), (4, 64)):
                 name = _cstr(buf, e + at, 28)
                 if not name:
