@@ -54,6 +54,13 @@ dword is the game's clock base.
 | Village Statistics v2 - Save n | slot | note appended; new header at the next save |
 | Village History | shared, one dated snapshot per save | one note naming the slot; later snapshots carry the new name |
 | Statistics, Stew Discoveries, Village Elders, Roster, Graves, Parentage Records, Custom Titles .dat | slot, and the roster of villagers | untouched: no .dat holds the name |
+| Log Decisions - Save n.json (answered questions, reconciliation answers, graves, renamed villagers, records left alone) | each decision's `village`, `Village: <name> (Save <n>)` | moved to the new header (every header the village has had, read before the rename). Before v1.35.80's fix a slot with no log under the old header got no note, so every answered question was asked again |
+| ElderTotems.dat (The Lost Children) | more than half of its roster in the save; with an empty roster, the village's name | the name is changed when it is the old one, so a statues-only file is not set aside as another village's |
+| PendingElderTotems.dat, Elder Totem Settings.dat | roster / slot | untouched: no name |
+| Family Tree Maker saved trees (.vvtree) | `game`, `slot` and `tribe` (Last Names re-keys only the trees of the save's tribe) | `tribe` set to the new name; the file keeps its name |
+
+Those data files are written as the saves are (temporary file, read back, every file put back on any
+failure), after the same backup.
 
 The note parser (`native/shared/village_rename.h`, mirrored in Python) only
 accepts `Tribe renamed from <current name> to <new> on YYYY-MM-DD` at the

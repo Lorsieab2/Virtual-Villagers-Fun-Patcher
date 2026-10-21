@@ -173,7 +173,9 @@ class ReleasesLinkTests(unittest.TestCase):
                 self.assertIn(f'"src/{module}.py"', release)
         for module, may_import in (
             ("vv_save_backup", set()),
-            ("vv_tribe_rename", {"vv_save_backup"}),
+            # The patcher's data that names the village moves with a rename (function-level imports):
+            # the answered questions' decisions, and The Lost Children's ElderTotems.dat.
+            ("vv_tribe_rename", {"vv_save_backup", "vv_log_additions", "vv_log_decisions", "vv_vv2_totem_store"}),
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions",
                               "vv_log_contradictions",
