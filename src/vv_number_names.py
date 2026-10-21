@@ -34,33 +34,78 @@ import vv_save_layout as layout
 BACKUP_LABEL = "(before numbering names)"
 
 
+class NothingToNumber(ln.LastNamesError):
+    """Nothing was renamed, which is no error: no name is shared, or every one left is the player's to
+    decide (`notes`, shown as information, never as a failure; the owner, 2026-10-20)."""
+
+    def __init__(self, notes: list[str]):
+        self.notes = list(notes)
+        super().__init__(" ".join(self.notes) or "No two villagers share a name.")
+
+
 @dataclass
 class Numbering:
     renames: dict[tuple, str] = field(default_factory=dict)    # (name, head, body) -> numbered name
     notes: list[str] = field(default_factory=list)              # who is left as they are, and why
+    # NAMESAKES WITH THE SAME LOOKS (the owner, 2026-10-20: "fix this too!!!" -- villagers of the same
+    # name, head and body were left unnumbered with a red error).  (name, head, body) -> the numbered
+    # names, one for each holder in
+    # the save, the OLDEST first (the owner's oldest-first rule); villagers of the same age as well
+    # (identical twins) in the order the game keeps them (the save's record order, the Births log's
+    # order of the delivery).  vv_last_names.plan_renames(ordered=...) ties each record to one of them.
+    ordered: dict[tuple, list[str]] = field(default_factory=dict)
+    # What renaming them did: (name, head, body, age) -> new name, one for each villager renamed.
+    numbered: list[tuple[tuple, str]] = field(default_factory=list)
+
+
+def orderable(folder: Path, game: int, slot: int, alike: dict[tuple, int]) -> set[tuple]:
+    """The look-alike (name, head, body) whose every holder is a villager in the save (living or a
+    body there): those can be told apart by age and by the game's own order, and are numbered.  One
+    also named by a Death or Disappeared record -- a holder the save no longer holds -- is not."""
+    held = Counter(v.identity for v in ln.living(folder, game, slot, bodies=True))
+    return {key for key, count in alike.items() if held.get(key, 0) == count}
 
 
 def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
               nameless: set[str] = frozenset(), bodies: set[tuple] = frozenset(),
-              taken: set[str] = frozenset(), order: str = "appearance") -> Numbering:
+              taken: set[str] = frozenset(), order: str = "appearance",
+              orderable: set[tuple] = frozenset()) -> Numbering:
     """The numbered name of each villager the save and the logs can tell apart.  `alike`: each
     (name, head, body) the save holds more than once, and how many times; `nameless`: the names of
     records that do not say how their villager looks; `bodies`: the (name, head, body) of the dead
-    lying in the save; `taken`: names the patcher's own files hold (never given again)."""
+    lying in the save; `taken`: names the patcher's own files hold (never given again);
+    `orderable`: the `alike` ones whose holders are all in the save (orderable()): numbered each, in
+    Numbering.ordered."""
     out = Numbering()
     alike = alike or {}
     for (name, _head, _body), count in sorted(alike.items()):
-        out.notes.append(f"{count} living villagers are called {name} and look the same, so the records cannot "
-                         "tell them apart: they keep their name.")
+        if (name, _head, _body) in orderable:
+            continue
+        out.notes.append(f"{count} villagers are called {name} and look the same (head {_head}, body {_body}), "
+                         "and not all of them are in the save (a Death or Disappeared record names one), so "
+                         "the records cannot tell which is which: they keep their name.")
     # A namesake known only from records -- neither in the save nor recorded as dead or gone -- may be
     # a living namesake before Change Appearance (Codex, #557): that record keeps its name and is not
     # counted, so the villagers the save holds are numbered among themselves.
     living_names = {p.name for p in village.known() if p.alive}
     unsure = {p.id for p in village.known() if p.name in living_names and not p.alive and not p.gone
               and p.head is not None and p.body is not None and p.key not in bodies}
+    # A record left under the old name when namesakes of the same looks were numbered one by one (one that
+    # could not be tied to which of them, Plan.untied) is one of them, not another villager: it is neither
+    # numbered nor counted, so a second Repair changes nothing.
+    numbered_looks = {(gen.unnumbered(p.name), p.head, p.body) for p in village.known()
+                      if p.alive and gen.unnumbered(p.name) != p.name}
+    unsure |= {p.id for p in village.known() if not p.alive and not p.gone and p.key not in bodies
+               and p.key in numbered_looks}
+    # A record that does not say how its villager looks is never numbered and never counted among the
+    # namesakes -- only its name is taken (the owner, 2026-10-20: a Repair audit found every Repair
+    # renaming Gata Sirikit II to III and back, because such a record took a number each time).
+    lookless = {p.id for p in village.known() if p.head is None or p.body is None}
     weight = {p.id: alike[p.key] for p in village.known() if p.key in alike}
-    numbered = gen.duplicate_names(village, order, reserved=set(nameless) | set(taken), leave=unsure,
-                                   weight=weight)
+    blocks: dict[int, list[str]] = {}
+    numbered = gen.duplicate_names(village, order,
+                                   reserved=set(nameless) | set(taken) | {village.people[q].name for q in lookless},
+                                   leave=unsure | lookless, weight=weight, blocks=blocks)
     for name in sorted(nameless & {p.name for p in village.known()}):
         out.notes.append(f"Older records name a {name} without saying how they look, so those records keep "
                          f"the name {name}.")
@@ -72,6 +117,14 @@ def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
     for pid, new in sorted(numbered.items(), key=lambda item: item[1]):
         name, head, body = village.people[pid].key
         if (name, head, body) in alike:
+            names = blocks.get(pid, [])
+            if (name, head, body) not in orderable or len(names) != alike[(name, head, body)]:
+                continue
+            if any(len(n) > ln.ROOM[village.game] for n in names):
+                out.notes.append(f"{names[-1]} is longer than the game's {ln.ROOM[village.game]} characters, so "
+                                 f"the {len(names)} villagers called {name} keep their name.")
+            else:
+                out.ordered[(name, head, body)] = names
             continue
         if head is None or body is None:
             out.notes.append(f"{new}'s records do not say how they look, so they keep the name {name}.")
@@ -129,13 +182,25 @@ def number_names(folder: Path, game: int, slot: int, order: str = "appearance",
         raise ln.LastNamesError("The save's tribe name could not be read, so this village's records cannot be "
                                 "told from an earlier village's; nothing was changed.")
     try:
-        wanted = numbering(gen.load_village(folder, game, slot, full_names=False), *evidence(folder, game, slot), order=order)
-        work = ln.plan_renames(folder, game, slot, wanted.renames, dead=True)
+        wanted = pending(folder, game, slot, order)
+        try:
+            work = ln.plan_renames(folder, game, slot, wanted.renames, dead=True, ordered=wanted.ordered)
+        except ln.LastNamesError as exc:
+            if not wanted.ordered:
+                raise
+            # Namesakes with the same looks the patcher's titles or masks cannot tell apart (vv_last_names
+            # refuses rather than guesses): they keep their names, and everyone else is numbered.
+            wanted.notes.append(f"The villagers called {', '.join(sorted({k[0] for k in wanted.ordered}))} "
+                                f"keep their names: {exc}")
+            wanted.ordered = {}
+            work = ln.plan_renames(folder, game, slot, wanted.renames, dead=True)
         wanted.notes += work.notes
+        wanted.numbered = list(work.numbered)
     except (gen.GenealogyError, struct.error, ValueError, OSError) as exc:
         raise ln.LastNamesError(f"A file could not be read ({exc}); nothing was changed.") from exc
-    if not work.renames:
-        raise ln.LastNamesError(" ".join(wanted.notes) or "No two villagers share a name.")
+    if not work.renames and not work.numbered:
+        # Not an error (the owner, 2026-10-20): nothing to number, or only what is left for the player.
+        raise NothingToNumber(wanted.notes)
     result = ln.apply(folder, work, controller, now, BACKUP_LABEL, "numbering the names")
     try:
         note_numbering(folder, game, slot, result, wanted, now, automatic)
@@ -194,7 +259,9 @@ def save_auto(folder: Path, game: int, slot: int, on: bool,
 def pending(folder: Path, game: int, slot: int, order: str = "appearance") -> Numbering:
     """What numbering would do now (read only): the renames, and the notes on who would be left as they
     are and why -- the cases the player decides, never guessed."""
-    return numbering(gen.load_village(folder, game, slot, full_names=False), *evidence(folder, game, slot), order=order)
+    found = evidence(folder, game, slot)
+    return numbering(gen.load_village(folder, game, slot, full_names=False), *found, order=order,
+                     orderable=orderable(folder, game, slot, found[0]))
 
 
 def _village_header(folder: Path, game: int, slot: int) -> str | None:
@@ -205,6 +272,20 @@ def _village_header(folder: Path, game: int, slot: int) -> str | None:
     except (KeyError, ValueError, struct.error, OSError):
         return None
     return vv_tribe_rename.village_header(name, slot) if name else None
+
+
+def wanted_names(wanted: Numbering) -> dict[tuple, str]:
+    """Every rename a numbering would make, for showing: (name, head, body) -> the new name, or for
+    namesakes with the same looks numbered one by one, their new names oldest first ("Goby Kalama I /
+    Goby Kalama II")."""
+    out = dict(wanted.renames)
+    out.update({key: " / ".join(names) for key, names in wanted.ordered.items()})
+    return out
+
+
+def renamed_count(result: ln.Result, wanted: Numbering) -> int:
+    """How many villagers a numbering renamed: by name, head and body, and one by one."""
+    return len(result.renamed) + len(wanted.numbered)
 
 
 def note_numbering(folder: Path, game: int, slot: int, result: ln.Result, wanted: Numbering,
@@ -220,6 +301,9 @@ def note_numbering(folder: Path, game: int, slot: int, result: ln.Result, wanted
              "  Checked: villagers who share a full name (Number Duplicate Names)\r\n")
     for (old, head, body), new in sorted(result.renamed.items(), key=lambda item: (item[1], item[0])):
         text += f"  Renamed: {old} (head {head}, body {body}) -> {new}\r\n"
+    for (old, head, body, age), new in wanted.numbered:
+        text += (f"  Renamed: {old} (head {head}, body {body}" + (f", age {age}" if age is not None else "")
+                 + f") -> {new}\r\n")
     for note in wanted.notes:
         text += f"  Left as it was: {note}\r\n"
     text += f"  Files changed: {len(result.files)}\r\n"

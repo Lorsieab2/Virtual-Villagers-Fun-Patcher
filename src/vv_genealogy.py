@@ -1443,7 +1443,8 @@ NUMBER_ORDERS = {
 
 
 def duplicate_names(village: Village, order: str = "appearance", reserved: set[str] = frozenset(),
-                    leave: set[int] = frozenset(), weight: dict[int, int] | None = None) -> dict[int, str]:
+                    leave: set[int] = frozenset(), weight: dict[int, int] | None = None,
+                    blocks: dict[int, list[str]] | None = None) -> dict[int, str]:
     """Each villager who shares a name with another, numbered (the owner, 2026-10-07: "If there are
     duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc."), the dead
     too, in the NUMBER_ORDERS order: by age (the age now, or at death; an unknown age last), or as
@@ -1490,7 +1491,17 @@ def duplicate_names(village: Village, order: str = "appearance", reserved: set[s
                 n += 1
             out[p.id] = f"{name} {roman(n)}"
             taken.add(out[p.id])
-            n += (weight or {}).get(p.id, 1) - 1
+            # One Person standing for several villagers (namesakes with the same looks): each of them
+            # gets a number of their own, the next free ones (`blocks`, first to last).
+            given = [out[p.id]]
+            for _ in range((weight or {}).get(p.id, 1) - 1):
+                n += 1
+                while f"{name} {roman(n)}" in taken:
+                    n += 1
+                given.append(f"{name} {roman(n)}")
+                taken.add(given[-1])
+            if blocks is not None and len(given) > 1:
+                blocks[p.id] = given
     return out
 
 

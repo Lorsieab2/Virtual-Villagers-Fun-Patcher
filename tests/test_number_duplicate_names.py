@@ -83,10 +83,12 @@ class TheNumbers(unittest.TestCase):
         out = nn.numbering(v, alike={("Twin", 5, 5): 2}, nameless={"Soda", "Nobody", "Twin I"})
         # "Twin I" is a name-only record's: never given again, and the two Twins who look alike count as
         # two, II and III (Codex, #557).
-        self.assertEqual(out.renames, {("Twin", 9, 9): "Twin IV", ("Ghost", 6, 6): "Ghost II",
-                                       (long, 7, 7): f"{long} I"})
-        self.assertEqual(len(out.notes), 4)
-        self.assertTrue(any("2 living villagers are called Twin" in n for n in out.notes))
+        # The Ghost whose records say nothing of its looks is not numbered or counted (the owner, 2026-10-20:
+        # it took a number at each Repair, so Gata Sirikit went II -> III -> II); its name is taken, so the
+        # living Ghost keeps "Ghost".
+        self.assertEqual(out.renames, {("Twin", 9, 9): "Twin IV", (long, 7, 7): f"{long} I"})
+        self.assertEqual(len(out.notes), 3)
+        self.assertTrue(any("2 villagers are called Twin and look the same" in n for n in out.notes))
         self.assertTrue(any("Older records name a Soda without saying how they look" in n for n in out.notes))
 
     def test_a_record_with_other_looks_may_be_an_earlier_look(self):
@@ -196,8 +198,10 @@ class InTheSaveAndTheLogs(unittest.TestCase):
         self._log("Births and Conceptions/Virtual Villagers 3 Births and Conceptions Log 2.txt",
                   "Village: Tribe (Save 1)\nBirth\n  Child: Lani\n    Head: 4\n    Body: 4\n  Mother: Aipi\n\n")
         result, wanted = nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW)
-        self.assertEqual(sorted(v.name for v in ln.living(self.folder, 3, 1)), ["Aipi I", "Aipi II", "Soda", "Soda"])
-        self.assertTrue(any("2 living villagers are called Soda" in n for n in wanted.notes))
+        # Two Sodas of the same looks are numbered too, the oldest first, else in the save's order (the owner,
+        # 2026-10-20: tests/test_number_identical_namesakes.py); the dead Soda of the logs (other looks) is I.
+        self.assertEqual(sorted(v.name for v in ln.living(self.folder, 3, 1)), ["Aipi I", "Aipi II", "Soda II", "Soda III"])
+        self.assertFalse(any("look the same" in n for n in wanted.notes))
         self.assertTrue(any("Log 2.txt names Aipi without saying which villager" in n for n in wanted.notes))
 
     def test_it_is_refused_when_the_village_cannot_be_told_apart(self):
@@ -280,10 +284,13 @@ class Automatically(InTheSaveAndTheLogs):
         people = [entry("Soda", 0, 1, 5, 6), entry("Soda", 0, 1, 5, 6), entry("Aipi", 1, 50, 7, 8),
                   entry("Aipi", 1, 50, 2, 2)]
         self.save.write_bytes(b"ldwg" + bytes(TABLE - 4) + b"".join(people) + bytes(64))
-        self.assertTrue(any("2 living villagers are called Soda" in n for n in nn.pending(self.folder, 3, 1).notes))
+        # A Death record of the same name and looks: which Soda died cannot be told, so they are left.
+        self._log("Deaths/Virtual Villagers 3 Deaths Log 2.txt",
+                  "Village: Tribe (Save 1)\nDeath 2\n  Name: Soda\n  Age at death: 1400\n  Head: 5\n  Body: 6\n\n")
+        self.assertTrue(any("villagers are called Soda and look the same" in n for n in nn.pending(self.folder, 3, 1).notes))
         nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW, automatic=True)
         self.assertEqual(sorted(v.name for v in ln.living(self.folder, 3, 1)), ["Aipi I", "Aipi II", "Soda", "Soda"])
-        self.assertIn("  Left as it was: 2 living villagers are called Soda", self.repairs())
+        self.assertIn("  Left as it was: 3 villagers are called Soda and look the same", self.repairs())
 
     def test_repair_saves_and_logs_numbers_them_while_the_setting_is_on(self):
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")

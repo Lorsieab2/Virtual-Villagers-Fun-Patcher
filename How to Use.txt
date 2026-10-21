@@ -299,11 +299,21 @@ in Number Names\, see THE PATCHER'S OWN FILES).
   the villager who already had the name becomes "I". The save folder is backed
   up first ("(before numbering names)"), and a Repairs Made record lists every
   rename, old name -> new name.
-- What it cannot tell for sure is never guessed: two living villagers with the
-  same name AND the same looks, a record that does not say how its villager
-  looks, or a numbered name too long for the game (27 characters in A New
-  Home, 23 in the other games) are left as they are and shown to you in the
-  Repair Saves & Logs window, in its result and in the Repairs Made record.
+- Villagers with the same name AND the same looks are numbered too: the
+  oldest is I; two of the same age (identical twins) go in the game's own
+  order -- the save's order, and the order of their Birth records (the
+  delivery's first child is I). Each record of theirs is renamed where it can
+  be tied to one of them: in a History snapshot, among the Birth records, in
+  a roster, when it lists all of them. A record that names only one of them,
+  or names one as a parent, cannot be tied: it keeps the name, and the Repairs
+  Made record says which.
+- What it cannot tell for sure is never guessed: namesakes of the same looks
+  when a Death or Disappeared record names one of them too, a pair the
+  patcher's custom titles or masks cannot tell apart, a record that does not
+  say how its villager looks, or a numbered name too long for the game (27
+  characters in A New Home, 23 in the other games) are left as they are and
+  shown to you in the Repair Saves & Logs result (as information, never as an
+  error: everything else is still numbered) and in the Repairs Made record.
 - Check Saves & Logs only reports what would be numbered; it changes nothing.
 - Off: nothing is numbered by itself. "Number duplicate names" in Repair Saves &
   Logs and the Family Tree Maker's "Number Duplicate Names..." still work.
