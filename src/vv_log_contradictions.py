@@ -61,6 +61,11 @@ class Found:
     edits: list = field(default_factory=list)   # vv_log_additions.Edit
     question: object | None = None     # vv_log_additions.Question, for a record taken out
     ident: str = ""                    # the same contradiction, told apart from every other one
+    # ...and the same contradiction wherever its record is written and however it is numbered (src/
+    # vv_answered_questions.py): what the record says, and the villager it is of.
+    fact: str = ""
+    who: tuple = ()
+    held: bool = False                 # answered (a note now): its questions held back with the answer
 
     @property
     def wrong(self) -> bool:
@@ -143,6 +148,7 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
     offered_elsewhere = {(r.path, r.start) for r in additions.plan_born_arrived(folder, game, slot).removes}
     # ...and one it already asked about, answered "remove" with "Retroactively edit records?" No: the
     # player's answer is remembered (src/vv_log_decisions.py) and is never asked again here either.
+    import vv_answered_questions as answered
     import vv_log_decisions
     settled = vv_log_decisions.decided(folder, game, slot, "born_arrived", "remove", villages)
     by_key: dict[tuple, list] = {}
@@ -177,21 +183,25 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
                 continue
             ident = f"born_and_arrived|{b.heading}|{key[0]}|{key[1]}|{key[2]}"
             key_q = f"contradiction|{ident}"
+            # Its fact: the backfilled record itself -- never its "Arrived <n>", renumbered when an Arrived
+            # record before it is taken out.
+            fact = f"born_and_arrived|{answered.fingerprint(b.lines)}"
             question = additions.Question(
                 key_q, f"{key[0]} (head {key[1]}, body {key[2]}) has {len(recs)} Birth / Arrived records "
                        f"({what}, and {b.heading}) but {max(1, owners)} villager(s) to own them. "
                        f"{b.heading} was backfilled later. Take it out?",
-                [TAKE_OUT, KEEP, additions.DONT_KNOW], TAKE_OUT)
+                [TAKE_OUT, KEEP, additions.DONT_KNOW], TAKE_OUT, fact, (tuple(key),))
             edit = ("remove", b.path, b.start, _end_with_blank(texts[b.path], b) - b.start + 1)
             out.append(Found("born_and_arrived",
                              f"{key[0]} (head {key[1]}, body {key[2]}) has both {what} and a backfilled "
                              f"{b.heading} in {b.path.name} (line {b.start + 1}): one villager recorded twice "
                              "(repairable: Repair Saves & Logs takes the backfilled record out)",
-                             [edit], question, ident))
+                             [edit], question, ident, fact, (tuple(key),)))
     return out
 
 
 def _death_numbers(folder: Path, game: int, slot: int) -> list[Found]:
+    import vv_answered_questions as answered
     import vv_log_additions as additions
     checker = tools.load_checker()
     villages = additions.current_villages(folder, game, slot)
@@ -231,7 +241,9 @@ def _death_numbers(folder: Path, game: int, slot: int) -> list[Found]:
                          f"{_where(b.path)} (line {b.start + 1}) (repairable: Repair Saves & Logs "
                          f"numbers it Death {highest})",
                          [("replace", b.path, b.start, f"Death {highest}")],
-                         ident=f"death_number|{n}|{b.value('Name')}|{b.value('Age at death')}"))
+                         ident=f"death_number|{n}|{b.value('Name')}|{b.value('Age at death')}",
+                         fact=f"death_number|{n}|{answered.fingerprint(b.lines)}",
+                         who=(b.identity,) if None not in b.identity else ()))
     return out
 
 
@@ -265,13 +277,16 @@ def _repair_numbers(folder: Path, game: int) -> list[Found]:
                                  f"\"Repair {m.group(1)}\" in {layout.REPAIRS_LOGS}\\{path.name} repeats a number of "
                                  f"Repairs\\{old.name} (repairable: Repair Saves & Logs numbers it Repair {want})",
                                  [("replace", path, i, f"Repair {want}")],
-                                 ident=f"repair_number|{path.name}|{i}"))
+                                 ident=f"repair_number|{path.name}|{i}",
+                                 fact=f"repair_number|{m.group(1)}|{_repair_fact(lines, i)}"))
                 numbers.append((want, path, i))
             else:
                 numbers.append((int(m.group(1)), path, i))
     slots = [path for path in checker.game_logs(folder, layout.REPAIRS_LOGS, stem) if layout.is_slot_folder(path)]
+    texts: dict[Path, list[str]] = {}
     for path in slots:
-        for i, line in enumerate(additions.read_lines(path)):
+        texts[path] = additions.read_lines(path)
+        for i, line in enumerate(texts[path]):
             m = re.match(r"^Repair (\d+)\s*$", line)
             if m:
                 numbers.append((int(m.group(1)), path, i))
@@ -288,8 +303,19 @@ def _repair_numbers(folder: Path, game: int) -> list[Found]:
                          f"\"Repair {n}\" in {_where(path)} (line {i + 1}) repeats a number used before it "
                          f"(repairable: Repair Saves & Logs numbers it Repair {highest})",
                          [("replace", path, i, f"Repair {highest}")],
-                         ident=f"repair_number|{_where(path)}|{i}"))
+                         ident=f"repair_number|{_where(path)}|{i}",
+                         fact=f"repair_number|{n}|{_repair_fact(texts[path], i)}"))
     return out
+
+
+def _repair_fact(lines: list[str], at: int) -> str:
+    """A "Repair <n>" record's own words (its date, what it checked and did), the same wherever its file is
+    and on whatever line it starts (src/vv_answered_questions.py)."""
+    import vv_answered_questions as answered
+    end = at + 1
+    while end < len(lines) and lines[end].strip():
+        end += 1
+    return answered.fingerprint(lines[at:end])
 
 
 def _where(path: Path) -> str:
@@ -353,8 +379,21 @@ def find(folder: Path, game: int, slot: int) -> list[Found]:
     found = (_born_and_arrived(folder, game, slot) + _death_numbers(folder, game, slot)
              + _repair_numbers(folder, game) + _notes(folder, game, slot))
     kept = left_alone(folder, game, slot)
+    # ...also when the answer was kept by what the record says (src/vv_answered_questions.py), so a record
+    # renumbered, moved or renamed since is still the one the player answered about.
+    import vv_answered_questions as answered
+    said = answered.kept_lookup(folder, game, slot)
     for f in found:
-        if f.wrong and f.ident in kept:
+        if not f.wrong:
+            continue
+        main = said("contradictions", f.fact, f.who) if f.fact else None
+        retro = said("contradictions", f.fact + "|retro", f.who) if f.fact else None
+        answered = main == KEEP or retro == RETRO_NO
+        # An answer kept by its fact (src/vv_answered_questions.py) holds -- and its questions stay in the
+        # plan, held back with the answer, so Answered questions can change or clear it; an identity kept
+        # only by an older build ("Contradictions Left") holds while no answer of its fact is kept.
+        if answered or (main is None and retro is None and f.ident in kept):
+            f.held = answered
             f.kind = "note"
             f.text += " -- left in the past records, as you chose"
             f.text = f.text.replace(" (repairable: ", " (was repairable: ")
@@ -377,18 +416,19 @@ def plan(folder: Path, game: int, slot: int):
     for found in find(folder, game, slot):
         if not found.wrong:
             kind.notes.append(found.text)
-            continue
+            if not getattr(found, "held", False):
+                continue                            # answered: its questions are held back (hold_back)
         question = found.question
         if question is None:                       # a number used twice
             question = additions.Question(
                 f"contradiction|{found.ident}", f"{found.text.split(' (repairable')[0]}. What should be done?",
-                [RENUMBER, LEAVE], RENUMBER)
+                [RENUMBER, LEAVE], RENUMBER, found.fact, found.who)
         else:
             question.options = [o for o in question.options if o != additions.DONT_KNOW] + [LEAVE]
         resolution = question.options[0]
         retro = additions.Question(
             retro_key(found), f"{found.text.split(' (repairable')[0]}: retroactively edit records?",
-            [RETRO_YES, RETRO_NO], RETRO_YES)
+            [RETRO_YES, RETRO_NO], RETRO_YES, found.fact + "|retro" if found.fact else "", found.who)
         kind.questions[question.key] = question
         kind.questions[retro.key] = retro
         for edit in found.edits:

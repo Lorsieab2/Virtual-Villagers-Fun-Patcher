@@ -1229,7 +1229,46 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     _plan_logs(result, folder, game, slot, asked, by_name, dead, renamed)
     _plan_family_trees(result, folder, game, slot, asked)
     _plan_own_rules(result, folder, game, slot, asked)
+    try:
+        import vv_tribe_rename
+        tribe = vv_tribe_rename.save_name({g.number: g for g in vv_tribe_rename.GAMES}[game], original)
+        village = vv_tribe_rename.village_header(tribe, slot) if tribe else None
+    except (KeyError, ValueError):
+        village = None
+    _plan_answers(result, folder, game, slot, asked, village)
     return result
+
+
+def _plan_answers(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str],
+                  village: str | None = None) -> None:
+    """The patcher's own renames, kept in the slot's Log Decisions file (vv_log_decisions ALIAS_KIND):
+    the player's remembered answers follow the renamed villagers (src/vv_answered_questions.py), and the
+    read-only reconciliation reads the rename as the patcher's own -- a name, or a parent's name, that a
+    rename explains is never a question (src/vv_reconcile.py).  Only added to; made when it is not there;
+    one that cannot be read is left as it is."""
+    import json
+    import vv_log_decisions as decisions
+    path = decisions.path(folder, game, slot)
+    original: bytes | None = None
+    kept: list[dict] = []
+    if path.exists():
+        try:
+            original = path.read_bytes()
+            data = json.loads(original.decode("utf-8"))
+        except (OSError, ValueError, UnicodeError):
+            return
+        if not isinstance(data, dict) or data.get("version") != decisions.VERSION \
+                or not isinstance(data.get("decisions"), list):
+            return
+        kept = [d for d in data["decisions"] if isinstance(d, dict)]
+    known = decisions.aliases(kept)
+    when = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    added = [{"kind": decisions.ALIAS_KIND, "village": village, "name": name, "head": head, "body": body,
+              "field": new, "verdict": "renamed", "edited": False, "date": when}
+             for (name, head, body), new in sorted(renames.items(), key=lambda kv: (str(kv[0]), kv[1]))
+             if new and new != name and known.get((name, head, body)) != (new, head, body)]
+    if added:
+        result.changes.append(Change(path, original, decisions.encode(kept + added), "the answered questions"))
 
 
 def _look_alike_questions(folder: Path, game: int, slot: int, people: list[Living],
@@ -2298,15 +2337,22 @@ def apply(folder: Path, work: Plan, controller: vv_save_backup.ProcessController
     done: list[Change] = []
     try:
         for change in work.changes:
-            if change.path.read_bytes() != change.original:
+            # original None: a file made by this change (the renames kept for the answers, _plan_answers).
+            current = change.path.read_bytes() if change.original is not None or change.path.exists() else None
+            if current != change.original:
                 raise LastNamesError(f"{change.path.name} changed while {doing}.")
             done.append(change)
+            if change.original is None:
+                change.path.parent.mkdir(parents=True, exist_ok=True)
             _write(change.path, change.updated)
     except (OSError, LastNamesError) as exc:
         problems = []
         for change in reversed(done):
             try:
-                if change.path.read_bytes() != change.original:
+                if change.original is None:
+                    if change.path.exists():
+                        change.path.unlink()
+                elif change.path.read_bytes() != change.original:
                     _write(change.path, change.original)
             except (OSError, LastNamesError) as undo:
                 problems.append(f"{change.path.name}: {undo}")

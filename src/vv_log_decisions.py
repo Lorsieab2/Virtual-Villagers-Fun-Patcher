@@ -40,6 +40,12 @@ as decisions of the kind "contradiction_left" whose "field" is the contradiction
 (src/vv_log_contradictions.py).  The text file is still READ (left_alone), so an answer given before
 this version still holds, and every one of its lines is copied into this file the first time a new
 answer is written; it is never deleted or rewritten, and nothing is written to it any more.
+
+ANSWERED QUESTIONS (v1.35.80).  Every real answer to Repair Saves & Logs' questions is kept here too, as
+the kind "answered" (src/vv_answered_questions.py), and every rename the patcher makes as the kind
+"answered_alias" (ALIAS_KIND, src/vv_last_names.py), so each decision and answer follows its villager.
+Only the player's change or clear in Answered questions, and Repair moving a reconciliation answer from
+its pre-v1.35.80 id to its new one (the same answer and date), rewrite the file (`rewrite`).
 """
 from __future__ import annotations
 
@@ -77,11 +83,44 @@ def decided(folder: Path, game: int, slot: int, kind: str, verdict: str,
     """(name, head, body) of every villager the player gave `verdict` about `kind` -- for one of
     `villages` (the headers the slot's current village has had), when given."""
     out = set()
-    for d in load(folder, game, slot):
+    found = load(folder, game, slot)
+    renamed = aliases(found)
+    for d in found:
         if d.get("kind") == kind and d.get("verdict") == verdict \
                 and (villages is None or d.get("village") in villages):
-            out.add((d.get("name"), d.get("head"), d.get("body")))
+            who = (d.get("name"), d.get("head"), d.get("body"))
+            out.add(who)
+            # ...and the villager under every name the patcher has given them since (Last Names, Number
+            # Duplicate Names, cut names restored): the decision follows the villager.
+            out.add(forward(who, renamed))
     return out
+
+
+# The renames the patcher made (src/vv_last_names.py plan_renames), kept so that every decision and
+# answer follows its villager: {"kind": "answered_alias", "name": <old>, "head": h, "body": b,
+# "field": <new name>, "verdict": "renamed", "date": ...}.  Only ever added.
+ALIAS_KIND = "answered_alias"
+
+
+def aliases(decisions: list[dict]) -> dict[tuple, tuple]:
+    """(old name, head, body) -> (new name, head, body), from the renames kept in `decisions`."""
+    out = {}
+    for d in decisions:
+        if d.get("kind") == ALIAS_KIND and isinstance(d.get("name"), str) and isinstance(d.get("field"), str):
+            out[(d["name"], d.get("head"), d.get("body"))] = (d["field"], d.get("head"), d.get("body"))
+    return out
+
+
+def forward(who: tuple, renamed: dict[tuple, tuple]) -> tuple:
+    """`who` under the latest name the patcher's renames gave them (a chain of renames followed; a
+    loop stops where it began)."""
+    seen = {who}
+    while who in renamed:
+        who = renamed[who]
+        if who in seen:
+            break
+        seen.add(who)
+    return who
 
 
 def record(folder: Path, game: int, slot: int, entries: list[dict], now: datetime | None = None) -> Path:
@@ -105,6 +144,32 @@ def record(folder: Path, game: int, slot: int, entries: list[dict], now: datetim
     temporary.write_bytes(json.dumps({"version": VERSION, "decisions": kept}, indent=1).encode("utf-8"))
     os.replace(temporary, target)
     return target
+
+
+def rewrite(folder: Path, game: int, slot: int, change) -> Path | None:
+    """Replace the decisions with `change(decisions)` (a new list), through a temporary file moved into
+    place.  Used only when the player changes or clears an answer in Repair Saves & Logs' Answered
+    questions (src/vv_answered_questions.py).  A file that is there and cannot be read is never
+    rewritten: None, nothing changed."""
+    target = path(folder, game, slot)
+    if target.is_file():
+        try:
+            data = json.loads(target.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+        if not isinstance(data, dict) or data.get("version") != VERSION or not isinstance(data.get("decisions"), list):
+            return None
+    kept = change(load(folder, game, slot))
+    target.parent.mkdir(parents=True, exist_ok=True)
+    temporary = target.with_name(target.name + ".tmp")
+    temporary.write_bytes(json.dumps({"version": VERSION, "decisions": kept}, indent=1).encode("utf-8"))
+    os.replace(temporary, target)
+    return target
+
+
+def encode(decisions: list[dict]) -> bytes:
+    """The file's bytes for `decisions` (as `record` writes them)."""
+    return json.dumps({"version": VERSION, "decisions": decisions}, indent=1).encode("utf-8")
 
 
 def _set_aside_unreadable(target: Path) -> None:

@@ -22,6 +22,14 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.80
+
+- **An answered question is never asked again** (Repair Saves & Logs, all five games). Every answer except "Don't know" is kept for the record or villager it is about, not for the line or file it is written in. It still holds after records are renumbered, after a log rolls into a new numbered file, after Move Files to Save Folders, after the game saves again, and after the patcher renames the villager. Before, "Only from now on", "Keep it" and "Keep both" were asked again at every Repair, and many questions came back whenever their record moved.
+  - **Answered questions (N)...** in Repair Saves & Logs lists every answer of the save with its date. Change an answer (applied as a first answer is, when you click Repair: backup first, listed in the Repairs Made log) or clear it (asked again). An answer that no longer matches a question is listed too, never dropped.
+  - Answers kept by earlier versions keep working, and are moved to the new form at the next Repair.
+  - The lost-titles and The Lost Children's totem yes/no questions are asked once too.
+- **The patcher's own renames are no longer questions** (Check Saves & Logs, all five games). After Number Duplicate Names or Give villagers last names, the next Check asked about villagers whose name, or mother's or father's name, the rename had changed ("mother Java in the save copy, Java I in the save", "possibly lost"). The patcher now keeps each rename it makes, reads the numbering listed in the Repairs Made log, and follows the villager to the new name.
+
 ## What's new in v1.35.79
 
 - **Villagers who share a name are numbered automatically, ON by default** (all five games). Two villagers with the same first and last name become "Chip Kenobi I", "Chip Kenobi II", ... (the oldest is I; the dead are numbered too; a name nobody else has gets no number).

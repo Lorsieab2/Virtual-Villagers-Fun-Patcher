@@ -256,7 +256,10 @@ class RepairSavesAndLogsTests(AnNewHomeVillageTests):
     def test_yes_through_the_repair(self):
         game = self.run_repair(additions.RETRO_YES)
         self.assertNotIn(b"Name: Cheop Bahati", self.log.read_bytes())
-        self.assertFalse(decisions.path(game, 1, 1).exists(), "nothing to remember: the records were edited")
+        # No "Retroactively edit records? No" decision for the readers: the records were edited.  (The
+        # answers themselves are kept, so they are not asked again: src/vv_answered_questions.py, v1.35.80.)
+        self.assertEqual([d for d in decisions.load(game, 1, 1) if d.get("kind") != "answered"], [],
+                         "nothing to remember for the readers: the records were edited")
         repairs = (tools.layout.slot_log_folder(game, "Repairs Made", 1) / "Virtual Villagers 1 Repairs Log 1.txt").read_text(encoding="latin-1")
         self.assertIn("Duplicate backfilled Arrived record removed", repairs)
 

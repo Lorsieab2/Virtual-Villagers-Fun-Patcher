@@ -356,6 +356,7 @@ class ApprovalResult:
     added: dict = field(default_factory=dict)   # kind id -> WordFix: every line added to older records now
     answered: list = field(default_factory=list)  # the reconciliation's questions the player answered
     renamed: dict = field(default_factory=dict)  # (name, head, body) -> the name an answer gave back
+    kept_answers: list = field(default_factory=list)  # answers kept, changed or cleared (vv_answered_questions)
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -384,6 +385,7 @@ def approve_repair(
     answers: dict[str, str] | None = None,
     kinds: list | None = None,
     rearm: bool = True,
+    answered_changes: dict | None = None,
 ) -> ApprovalResult:
     """Repair Saves & Logs with the game closed: what the player ticked.
 
@@ -466,6 +468,20 @@ def approve_repair(
         note_word_repair(folder, game, village, words, now, slot=slot)
     if kinds is None:
         kinds = additions.plan(folder, game, slot)
+    # The questions answered before (src/vv_answered_questions.py hold_back) are not asked: their kept
+    # answers are applied as given, unless the player gave another one now.
+    import vv_answered_questions
+    answers = {**vv_answered_questions.remembered_answers(kinds), **(answers or {})}
+    # Answers changed or cleared in the Answered questions section, that no question is asked about now
+    # (the ones held back are asked again in this Repair, so their new answer is kept below).
+    answer_lines: list[str] = []
+    if answered_changes:
+        try:
+            answer_lines += vv_answered_questions.change(folder, game, slot, dict(answered_changes.get("changed") or {}),
+                                                         set(answered_changes.get("cleared") or ()), now)
+        except OSError as exc:
+            raise LogToolError(f"Your changed answers were not kept ({exc}); the backup is in "
+                               f"{backup.backup_folder}.") from exc
     added = additions.apply(folder, kinds, chosen, answers or {})
     # "Retroactively edit records?" No: the log stays as it is and the verdict is remembered for the
     # readers (src/vv_log_decisions.py).
@@ -502,6 +518,12 @@ def approve_repair(
             note_word_repair(folder, game, village,
                              [WordFix(line, -1, backup.backup_folder.name) for line in answered], now,
                              checked=additions.CHECKED["reconcile"], corrected="Answered", slot=slot)
+    # Every real answer to the ticked kinds' questions is kept, so it is never asked again
+    # (src/vv_answered_questions.py); "Don't know" is not kept and is asked again.
+    answer_lines += vv_answered_questions.record(folder, game, slot, kinds, chosen, answers or {}, now)
+    if answer_lines:
+        note_word_repair(folder, game, village, [WordFix(line, -1, backup.backup_folder.name) for line in answer_lines],
+                         now, checked=additions.CHECKED["answered"], corrected="Kept", slot=slot)
     for kind in kinds:
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,
@@ -511,7 +533,7 @@ def approve_repair(
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
     return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, backup, words,
-                          added.get("sex", []), added, answered, renamed)
+                          added.get("sex", []), added, answered, renamed, answer_lines)
 
 
 # ---------------------------------------------------------------------------

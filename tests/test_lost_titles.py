@@ -468,7 +468,9 @@ class TheRepairWindow(unittest.TestCase):
 
     def test_each_doubt_is_asked_and_the_certain_ones_listed_first(self):
         method = self.body("    def _restore_lost_titles(", "    def _close(")
-        self.assertIn("messagebox.askyesno(\"Repair Saves & Logs\", question.question, parent=parent)", method)
+        # Each asked on its own, once: a kept answer is not asked again (src/vv_answered_questions.py).
+        self.assertIn("self._ask_kept(parent, folder, number, info.slot, \"lost_titles\"", method)
+        self.assertIn("question.question):", method)
         self.assertLess(method.index("lost.certain"), method.index("for question in lost.questions"))
         self.assertIn("vv_lost_titles.restore(folder, number, info.slot, chosen)", method)
 
