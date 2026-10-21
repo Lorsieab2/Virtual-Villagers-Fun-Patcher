@@ -334,8 +334,11 @@ was given.
   reader.
 - **Conditions:** Left over from deaths, departures or a village restarted in
   the same slot. The game loads villagers in order and stops at the first
-  record whose present flag is not 1. VV2 zeroes everything after its last
-  villager instead.
+  record whose present flag is not 1. VV2's flag is the byte at record +0x800
+  (saved entry +0x2DC); VV2 does not zero the entries after its last villager
+  (v1.35.80: the owner's Kalahuna Tribe 2 kept frozen copies of four living
+  children in entries 252-255, the first flagged 0, each with an older write
+  stamp at record +0x528 than the save's clock).
 - **Decision source:** Live measurement, 2026-10-06 (project memory note
   "saves-hold-stale-villager-records").
 - **Evidence:** Loading copies of the owner's saves in v1.35.61 and counting the

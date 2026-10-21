@@ -382,11 +382,32 @@ static void rc_copy(char *out, const char *in) {
     out[i] = '\0';
 }
 
+/* 1 when `shorter` is `longer` up to a word boundary: "Cheop" and "Cheop Bahati", "Kaula Bahati" and
+   "Kaula Bahati I" -- one villager given a last name or a number since the older snapshot. */
+static int rc_name_grew(const char *shorter, const char *longer) {
+    size_t n = strlen(shorter);
+    return n >= 2 && strncmp(shorter, longer, n) == 0 && longer[n] == ' ';
+}
+
+/* A snapshot's name that is a taken villager's under an older or newer name (a last name or a number
+   added or dropped since): that villager, never a departed elder of their own (v1.35.80: an elder
+   renamed by Last Names was appended again under the older snapshots' name).  Unsure is never added. */
+static int rc_name_related_in(char (*names)[RC_NAME], int count, const char *name) {
+    int i;
+    for (i = 0; i < count; ++i) {
+        if (rc_name_grew(name, names[i]) || rc_name_grew(names[i], name)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* One villager of a snapshot of this village, finished: an elder? */
 static void rc_history_villager(struct rc_history *h, const struct rc_elder *v, int mastered, int whole) {
     struct rc_plan *p = h->plan;
     int i;
-    if (!whole || mastered < 3 || v->name[0] == '\0' || rc_name_in(h->taken, h->taken_count, v->name)) {
+    if (!whole || mastered < 3 || v->name[0] == '\0' || rc_name_in(h->taken, h->taken_count, v->name)
+        || rc_name_related_in(h->taken, h->taken_count, v->name)) {
         return;
     }
     for (i = 0; i < p->elders_add; ++i) {

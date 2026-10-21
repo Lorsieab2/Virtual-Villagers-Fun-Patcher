@@ -310,12 +310,19 @@ def _notes(folder: Path, game: int, slot: int) -> list[Found]:
     for b in people:
         if re.fullmatch(r"Death \d+", b.heading):
             deaths.setdefault(b.identity, []).append(b)
+    # The Unaccounted records Remove false Unaccounted records takes out (v1.35.80): the note says so.
+    try:
+        removable = {(str(v.block.path), v.block.start) for v in false_unaccounted(folder, game, slot) if v.false}
+    except (OSError, ValueError):
+        removable = set()
     for b in people:
         if b.heading.startswith("Disappeared") and b.identity in deaths:
             out.append(Found("note", f"{b.identity[0]} has both a Death and a Disappeared record"))
         if b.heading.startswith("Unaccounted") and (b.value("What") or "").startswith("Left") \
                 and b.identity in deaths:
-            out.append(Found("note", f"{b.identity[0]} is Unaccounted (left the village) and has a Death record"))
+            fix = (" (false: Repair Saves & Logs, Remove false Unaccounted records, takes it out)"
+                   if (str(b.path), b.start) in removable else "")
+            out.append(Found("note", f"{b.identity[0]} is Unaccounted (left the village) and has a Death record{fix}"))
     import vv_last_names as ln
     try:
         alive = ln.living(folder, game, slot)
@@ -338,6 +345,222 @@ def _notes(folder: Path, game: int, slot: int) -> list[Found]:
                                          "age or older (brought back, or a namesake with the same looks)"))
                 break
     return out
+
+
+# ---------------------------------------------------------------------------
+# False Unaccounted records (v1.35.80)
+# ---------------------------------------------------------------------------
+#
+# The owner's Kalahuna Tribe 2 (The Lost Children, Save 1): at 2026-10-20 09:22:01, the first load with
+# the Elder Totems companion, the Unaccounted Villagers reconciliation (native/vvfp_cause_of_death/
+# cod_roster.inc) matched the villagers of the last save by record number -- the totems had moved out of
+# the table and every later villager loaded into another record -- and wrote 112 "Arrived" and 108 "Left"
+# records of villagers who had only moved.  It now follows villagers by identity; the records already
+# written are put right here, only on the player's word (Repair Saves & Logs, game closed, backup first,
+# the Repairs log lists them), and only when the logs and the save CONTRADICT them by identity -- the
+# name, sex, head and body (a "Name changed" record followed), with an age that fits:
+#   LEFT   the same villager "Arrived" in the same reconciliation (one villager moved records); or in the
+#          Village History snapshot of that save or the first after it; or a Death / Disappeared record;
+#   ARRIVED  the same villager "Left" in the same reconciliation; or in the Village History snapshot
+#          of the save before (the last one before it was found); or a Birth / Arrived record.
+# Every other record -- nothing settles it, or two villagers could own the evidence -- is kept and listed
+# with why.  Evidence is spent one to one: one villager settles one record.
+
+UNACCOUNTED_HEAD = re.compile(r"^Unaccounted \d+\s*$")
+FALSE_LABEL = "False Unaccounted records"
+FALSE_REMOVE = "Remove them (each is listed with why it is false)"
+FALSE_KEEP = "Keep them (changes nothing)"
+
+
+@dataclass
+class UnaccountedVerdict:
+    block: object                      # vv_log_additions.Block
+    left: bool                         # "Left the village" (else "Arrived")
+    false: bool                        # contradicted: offered for removal
+    reason: str
+
+
+def _key(name: str | None, sex: str | None, head, body) -> tuple:
+    return (name, (sex or "").strip().lower() or None, head, body)
+
+
+def _int_or_none(v):
+    try:
+        return int(v) if v is not None else None
+    except ValueError:
+        return None
+
+
+def false_unaccounted(folder: Path, game: int, slot: int) -> list[UnaccountedVerdict]:
+    """Every Unaccounted record of this slot's village, judged by identity (above).  Reads only."""
+    import vv_log_additions as additions
+    folder = Path(folder)
+    people = additions.person_blocks(folder, slot, game)
+    unacc = [b for b in people if UNACCOUNTED_HEAD.match(b.heading)]
+    if not unacc:
+        return []
+    # "Name changed": old (name, head, body) -> new name, and back.
+    checker = tools.load_checker()
+    villages = additions.current_villages(folder, game, slot)
+    renamed: dict[tuple, str] = {}
+    births_records: list = []
+    for path in _births_paths(folder, game):
+        for b in additions.blocks(path):
+            if not b.of(slot, game, villages):
+                continue
+            if b.heading == "Name changed":
+                head, body = b.int_value("Head"), b.int_value("Body")
+                if b.value("Old name") and b.value("Name"):
+                    renamed[(b.value("Old name"), head, body)] = b.value("Name")
+            elif additions.is_birth(b.heading) or re.fullmatch(r"Arrived \d+", b.heading):
+                births_records.append(b)
+
+    def names_of(name: str | None, head, body) -> set:
+        out, seen = {name}, set()
+        while (name, head, body) in renamed and (name, head, body) not in seen:
+            seen.add((name, head, body))
+            name = renamed[(name, head, body)]
+            out.add(name)
+        return out
+
+    def same(b, name, sex, head, body) -> bool:
+        if b.int_value("Head") != head or b.int_value("Body") != body:
+            return False
+        if b.value("Sex") and sex and b.value("Sex").strip().lower() != sex.strip().lower():
+            return False
+        return b.value("Name") in names_of(name, head, body) or name in names_of(b.value("Name"), head, body)
+
+    # The Village History snapshots of this village, by date.
+    snapshots: dict[str, list] = {}
+    for b in people:
+        if b.heading.startswith("Villager ") and b.date and "History" in b.path.parent.name:
+            snapshots.setdefault(b.date, []).append(b)
+    dates = sorted(snapshots)
+    deaths = [b for b in people if re.fullmatch(r"Death \d+", b.heading) or b.heading.startswith("Disappeared")]
+    used: set[int] = set()               # id() of every piece of evidence spent
+
+    def take(candidates) -> object | None:
+        for c in candidates:
+            if id(c) not in used:
+                used.add(id(c))
+                return c
+        return None
+
+    out: list[UnaccountedVerdict] = []
+    verdict: dict[int, UnaccountedVerdict] = {}
+
+    def info(b):
+        return (b.value("Name"), b.value("Sex"), b.int_value("Head"), b.int_value("Body"),
+                b.int_value("Age"), b.value("Found") or "", (b.value("What") or "").startswith("Left"))
+
+    rows = [(b, *info(b)) for b in unacc]
+    # 1. One villager both "Left" and "Arrived" in one reconciliation: moved to another record.
+    for b, name, sex, head, body, age, found, left in rows:
+        if not left or id(b) in verdict or None in (head, body, age):
+            continue
+        for a, aname, asex, ahead, abody, aage, afound, aleft in rows:
+            if aleft or id(a) in verdict or afound != found or aage is None or aage < age:
+                continue
+            if same(a, name, sex, head, body) and (a.value("Likes"), a.value("Dislikes")) == (
+                    b.value("Likes"), b.value("Dislikes")):
+                why = f"the same villager \"Arrived\" in the same check ({a.heading}): moved to another record"
+                verdict[id(b)] = UnaccountedVerdict(b, True, True, why)
+                verdict[id(a)] = UnaccountedVerdict(a, False, True,
+                                                    f"the same villager \"Left\" in the same check ({b.heading}): "
+                                                    "moved to another record")
+                break
+    # ...the same, the likes or dislikes changed since: still the same name, sex and looks.
+    for b, name, sex, head, body, age, found, left in rows:
+        if not left or id(b) in verdict or None in (head, body, age):
+            continue
+        matches = [a for a, _n, _s, _h, _b, aage, afound, aleft in rows
+                   if not aleft and id(a) not in verdict and afound == found and aage is not None and aage >= age
+                   and same(a, name, sex, head, body)]
+        if len(matches) == 1:
+            a = matches[0]
+            verdict[id(b)] = UnaccountedVerdict(b, True, True, f"the same villager \"Arrived\" in the same check "
+                                                               f"({a.heading}): moved to another record")
+            verdict[id(a)] = UnaccountedVerdict(a, False, True, f"the same villager \"Left\" in the same check "
+                                                                f"({b.heading}): moved to another record")
+    # 2. The rest, one by one.
+    for b, name, sex, head, body, age, found, left in rows:
+        if id(b) in verdict:
+            out.append(verdict[id(b)])
+            continue
+        if None in (head, body) or not name or age is None or not found:
+            out.append(UnaccountedVerdict(b, left, False, "the record does not name the villager fully"))
+            continue
+        if left:
+            after = [d for d in dates if d >= found][:1]
+            here = take(v for d in after for v in snapshots[d]
+                        if same(v, name, sex, head, body) and (v.int_value("Age") or -1) >= age)
+            if here is not None:
+                out.append(UnaccountedVerdict(b, True, True, f"still in the village in the Village History "
+                                                             f"snapshot of {after[0]} ({here.heading}, age "
+                                                             f"{here.int_value('Age')})"))
+                continue
+            gone = take(d for d in deaths if same(d, name, sex, head, body)
+                        and (d.int_value("Age at death") is None or d.int_value("Age at death") >= age))
+            if gone is not None:
+                out.append(UnaccountedVerdict(b, True, True, f"has a {gone.heading.split(' ')[0]} record "
+                                                             f"({gone.heading}, {gone.path.name})"))
+                continue
+            out.append(UnaccountedVerdict(b, True, False, "nothing in the logs or the save says where they went"))
+        else:
+            before = [d for d in dates if d < found][-1:]
+            here = take(v for d in before for v in snapshots[d]
+                        if same(v, name, sex, head, body) and (v.int_value("Age") or 0) <= age)
+            if here is not None:
+                out.append(UnaccountedVerdict(b, False, True, f"already in the village in the Village History "
+                                                              f"snapshot of {before[0]} ({here.heading}, age "
+                                                              f"{here.int_value('Age')})"))
+                continue
+            record = take(r for r in births_records
+                          if (_child(r) if additions.is_birth(r.heading) else r.identity)[0] in names_of(name, head, body)
+                          and (_child(r) if additions.is_birth(r.heading) else r.identity)[1:] == (head, body))
+            if record is not None:
+                out.append(UnaccountedVerdict(b, False, True, f"has a {record.heading} record "
+                                                              f"({record.path.name})"))
+                continue
+            out.append(UnaccountedVerdict(b, False, False, "nothing in the logs says how they came"))
+    return out
+
+
+def plan_false_unaccounted(folder: Path, game: int, slot: int):
+    """Repair Saves & Logs' "Remove false Unaccounted records": every record false_unaccounted finds
+    contradicted, listed with why, under one question per check that wrote them (the player may keep
+    them all); the others kept and listed as notes."""
+    import vv_log_additions as additions
+    kind = additions.Kind("false_unaccounted", FALSE_LABEL)
+    try:
+        verdicts = false_unaccounted(folder, game, slot)
+    except (OSError, ValueError) as exc:
+        kind.notes.append(f"could not be read ({exc})")
+        return kind
+    groups: dict[str, list[UnaccountedVerdict]] = {}
+    texts: dict[Path, list[str]] = {}
+    for v in verdicts:
+        b = v.block
+        if not v.false:
+            kind.notes.append(f"{b.heading} ({b.value('Name')}, {'Left' if v.left else 'Arrived'}, found "
+                              f"{b.value('Found')}) is kept: {v.reason}")
+            continue
+        groups.setdefault(b.value("Found") or "", []).append(v)
+    for found, items in sorted(groups.items()):
+        key = f"false_unaccounted|{found}"
+        listed = "; ".join(f"{v.block.heading} {v.block.value('Name')} ({'Left' if v.left else 'Arrived'}): "
+                           f"{v.reason}" for v in items)
+        kind.questions[key] = additions.Question(
+            key, f"{len(items)} Unaccounted record(s) written at {found} are contradicted by who is in the "
+                 f"village, the Village History and the Deaths and Births logs: {listed}. Remove them?",
+            [FALSE_REMOVE, FALSE_KEEP], FALSE_REMOVE)
+        for v in items:
+            b = v.block
+            if b.path not in texts:
+                texts[b.path] = additions.read_lines(b.path)
+            kind.removes.append(additions.Remove(b.path, b.start, _end_with_blank(texts[b.path], b) - b.start + 1,
+                                                 key, FALSE_REMOVE))
+    return kind
 
 
 def left_alone(folder: Path, game: int, slot: int) -> set[str]:

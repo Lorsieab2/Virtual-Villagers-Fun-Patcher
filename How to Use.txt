@@ -268,6 +268,31 @@ first and listed in the Repairs log), and the go-ahead is then used up.
    asked: A New Home's parents are repaired as soon as the village has
    settled, everything else at the game's save when you close it.
 
+FALSE UNACCOUNTED RECORDS (all five games)
+
+The Unaccounted Villagers log lists a villager who left with no Death or
+Disappeared record, or arrived with no Birth or known arrival. It now follows
+each villager by who they are (name, sex, looks, likes and dislikes, and an age
+that fits), never by record number: a villager who only moved to another
+record -- every load packs the records, a full village reuses them, and The
+Lost Children's Elder Totems move the totems out -- is neither Left nor
+Arrived, and one with a Death or Disappeared record is never Left.
+
+An older version matched by record number and could write false records (the
+owner's Lost Children village: 220 at its first load with the Elder Totems).
+Check Saves & Logs reports them as WRONG. In Repair Saves & Logs, "Remove false
+Unaccounted records" lists each one with why it is false -- the same villager
+Left and Arrived in one check, is still in the village in the Village History,
+was already there before, or has a Death, Disappeared, Birth or Arrived record
+-- and asks you once per check that wrote them. The game must be closed; the
+save folder is backed up first, each log is copied into Copies Made Before
+Repairs, and the Repairs Made log lists what was taken out. A record nothing
+contradicts is kept and shown to you; it is never removed.
+
+The same repair's "Duplicate backfilled Arrived records" now also offers a
+"How: unknown" Arrived record of a villager renamed in the game (a "Name
+changed" record) whose record under the old name is already in the log.
+
 LAST NAMES: EACH VILLAGER'S OWN RULE
 
 In Repair Saves & Logs, "Give villagers last names" > Choose... > "Each
