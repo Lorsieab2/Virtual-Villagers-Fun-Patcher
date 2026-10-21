@@ -34,35 +34,51 @@
    this companion was installed, for the village then loading), and is
    spent by the save that accounts for it.
 
-   WHICH RECORD IS WHOSE AFTER A LOAD.  Every game saves only its occupied
-   records, packed in record order, and its load unpacks them into records
-   0, 1, 2, ... (seen live in A New Home: a villager in record 15 at the
-   save, with record 14 freed by a burial, is in record 14 after the load).
-   So each roster entry keeps both its record and its rank among the
-   occupied records, and the reconciliation reads the kept roster by rank
-   when the village has been loaded since (the usual case: the games save
-   on quitting) and by record when it has not.  Which one is decided by the
-   data: the reading under which more kept villagers are still in their
-   place under the same name (a tie reads by rank).  When nothing was freed
-   before the save the two readings are the same.
+   VILLAGERS ARE FOLLOWED BY WHO THEY ARE, NEVER BY THEIR RECORD (the owner,
+   2026-10-20).  A record number holds different villagers over time: every
+   load packs the occupied records into 0, 1, 2, ...; a full village reuses
+   a dead villager's record for the next birth; and The Lost Children's
+   Elder Totems companion moves the totems out of the villager table, so
+   every later villager loads into another record.  The first load with that
+   companion wrote 112 "Arrived" and 108 "Left" records for villagers who
+   had only moved (the owner's Kalahuna Tribe 2, 2026-10-20 09:22:01): this
+   matched the kept roster by record or rank, and took a villager of the
+   same sex in that place for the same villager.  Now each villager kept at
+   the last save is matched to a villager in the village now by identity
+   (roster_match), one to one:
+     1. the name, sex, head, body, likes and dislikes, with the age gone on
+        by the time every matched villager aged (the same for all of them);
+     2. the name, sex, head and body, the age gone on by any amount
+        (likes or dislikes changed; a villager who died and lies unburied
+        keeps the age at death);
+     3. the name, sex, likes and dislikes, aged on -- only when exactly one
+        villager on each side is such (an island event changed the head);
+     4. the sex, head, body, likes and dislikes, aged on -- only when
+        exactly one on each side is such (a rename: Last Names, Rename);
+     5. everything but the age, exactly one on each side (rejuvenated).
+   First, a departure the game reported since -- the departing villager's
+   own name, sex, head and body, kept at the departure (roster_departed),
+   at an age at least the kept one -- accounts for the kept villager it
+   names, who is then never matched to anybody now (one written back alive
+   unreported, or a newcomer in their record, has arrived unaccounted for).
+   A record the game's creator filled since (an arrival reported) is
+   accounted for and is matched only when no unreported villager is such.
+   A kept villager matched by nobody whose grave was just recorded from
+   (cod_backfill.inc) is accounted for; one who is not is "Left the
+   village"; a villager now matched by nobody and not reported "Arrived".  A Death or Disappeared
+   record is never followed by "Left" for the same villager, and a villager
+   who only moved to another record is neither.  When more departures were
+   reported than can be kept (RECORDS_MAX between two saves), nothing is
+   written as "Left" at that save: unsure, never guessed.
 
-   A roster none of whose villagers is still in its place under the same
-   name, with nothing reported for that slot since, is not this village's
-   (its save was replaced outside the game): a new roster is started and
-   nothing is logged against the old one.
+   A roster none of whose villagers is matched, with nothing reported for
+   that slot since, is not this village's (its save was replaced outside
+   the game): a new roster is started and nothing is logged against the old
+   one.
 
    Every departure is reported where the game frees the record (a burial,
    a body's removal, a disappearance), never at a death, so a body that is
-   revived keeps its record and reports nothing.  A record whose departure
-   was reported since the last save holds somebody else now, if anybody:
-   never the villager kept there, whatever the name and sex, so a newcomer
-   in it is accounted for only by an arrival reported after that departure
-   (a departure cancels any arrival reported into the record before it).
-
-   Otherwise a villager in the same record at both saves is the same
-   villager unless both the name and the sex changed with neither a
-   departure nor an arrival reported -- then one left and another arrived
-   unseen.
+   revived keeps its record and reports nothing.
 
    KEPT.  <save folder>\Virtual Villagers Fun Patcher Data\Unaccounted Villagers\
               Virtual Villagers N Village Roster - Save S.dat
@@ -106,12 +122,52 @@ static int report_counts(signed char tag, int slot) {
 /* A departure frees the record: an arrival reported into it before
    accounted for the villager who has now left, never for whoever the
    record holds next. */
+/* Who each reported departure was (the record as the game frees it): the
+   reconciliation accounts for a kept villager by this, never by the record
+   number, which the next load gives to somebody else. */
+#define GONE_NAME 32
+struct roster_gone {
+    signed char tag;                  /* report_tag(); REPORT_NONE: free */
+    int age, sex, head, body;
+    char name[GONE_NAME];
+};
+static struct roster_gone gone[RECORDS_MAX];
+static signed char gone_overflow[2 + 5];   /* [tag + 1]: more departures than gone[] holds */
+static unsigned char gone_spent[RECORDS_MAX];   /* matched to a kept villager at this reconciliation */
+
+static void roster_gone_note(const unsigned char *record) {
+    const struct game_records *r = &REC[g_game];
+    signed char tag = report_tag();
+    int i;
+    unsigned int n;
+    if (record == NULL) {
+        return;
+    }
+    for (i = 0; i < RECORDS_MAX; ++i) {
+        if (gone[i].tag == REPORT_NONE) {
+            gone[i].tag = tag;
+            gone[i].age = rec_age(record);
+            gone[i].sex = *(const int *)(record + r->sex);
+            gone[i].head = *(const int *)(record + r->head);
+            gone[i].body = *(const int *)(record + r->body);
+            for (n = 0; n + 1 < GONE_NAME && n < r->name_capacity && record[r->name + n] != 0; ++n) {
+                gone[i].name[n] = (char)record[r->name + n];
+            }
+            gone[i].name[n] = '\0';
+            return;
+        }
+    }
+    if (tag + 1 >= 0 && tag + 1 < (int)sizeof gone_overflow) {
+        gone_overflow[tag + 1] = 1;
+    }
+}
+
 static void roster_departed(int index, const unsigned char *record) {
-    (void)record;
     arrival_departed(index);          /* an arrival not yet written: now */
     if (index >= 0 && index < RECORDS_MAX) {
         departed[index] = report_tag();
         arrived[index] = REPORT_NONE;
+        roster_gone_note(record);
         COD_COUNT(departed);
     }
 }
@@ -359,18 +415,239 @@ static int roster_member(const unsigned char *record) {
     return g_game == 5 || !rec_lookalike(record);
 }
 
-/* The same name in the same place. */
-static int roster_same_name(const unsigned char *kept, const unsigned char *now) {
-    const struct game_records *r = &REC[g_game];
-    return memcmp(kept + r->name, now + r->name, r->name_capacity) == 0;
+/* ---- Who is who between two saves (roster_match) ---------------------------- */
+
+/* Likes and dislikes on a villager record, every game: (likes, dislikes,
+   dwords each); both lie inside the bytes the roster keeps. */
+static const unsigned int PREFS[6][3] = {
+    { 0, 0, 0 }, { 0x398u, 0x3A8u, 4u }, { 0x5F0u, 0x6E8u, 62u }, { 0xFB4u, 0xFC0u, 3u },
+    { 0x1E60u, 0x1E6Cu, 3u }, { 0x1F5Cu, 0x1F68u, 3u },
+};
+
+/* A field of a villager: `p` is a live record, or (kept) a roster entry,
+   whose bytes start at the record's snapshot_lo. */
+static const unsigned char *id_field(const unsigned char *p, int kept, unsigned int offset) {
+    return kept ? p + ROSTER_ENTRY_HEAD + (offset - REC[g_game].snapshot_lo) : p + offset;
 }
 
-/* Same villager in the same place: the name or the sex still matches (a
-   name can be changed by the player; the sex never is). */
-static int roster_same(const unsigned char *kept, const unsigned char *now) {
+static int id_int(const unsigned char *p, int kept, unsigned int offset) {
+    return *(const int *)id_field(p, kept, offset);
+}
+
+/* The name, to its terminator. */
+static int id_same_name(const unsigned char *a, int a_kept, const unsigned char *b, int b_kept) {
+    const unsigned char *x = id_field(a, a_kept, REC[g_game].name);
+    const unsigned char *y = id_field(b, b_kept, REC[g_game].name);
+    unsigned int n;
+    for (n = 0; n < REC[g_game].name_capacity; ++n) {
+        if (x[n] != y[n]) {
+            return 0;
+        }
+        if (x[n] == 0) {
+            break;
+        }
+    }
+    return 1;
+}
+
+#define ID_NAME 1u
+#define ID_SEX 2u
+#define ID_LOOKS 4u        /* head and body */
+#define ID_PREFS 8u        /* likes and dislikes */
+#define ID_FULL (ID_NAME | ID_SEX | ID_LOOKS | ID_PREFS)
+
+static int id_same(const unsigned char *kept, const unsigned char *now, unsigned int what) {
     const struct game_records *r = &REC[g_game];
-    return memcmp(kept + r->name, now + r->name, r->name_capacity) == 0
-        || *(const int *)(kept + r->sex) == *(const int *)(now + r->sex);
+    if ((what & ID_NAME) && !id_same_name(kept, 1, now, 0)) {
+        return 0;
+    }
+    if ((what & ID_SEX) && id_int(kept, 1, r->sex) != id_int(now, 0, r->sex)) {
+        return 0;
+    }
+    if ((what & ID_LOOKS) && (id_int(kept, 1, r->head) != id_int(now, 0, r->head)
+                              || id_int(kept, 1, r->body) != id_int(now, 0, r->body))) {
+        return 0;
+    }
+    if ((what & ID_PREFS) && PREFS[g_game][2] != 0u) {
+        unsigned int bytes = 4u * PREFS[g_game][2];
+        if (memcmp(id_field(kept, 1, PREFS[g_game][0]), now + PREFS[g_game][0], bytes) != 0
+            || memcmp(id_field(kept, 1, PREFS[g_game][1]), now + PREFS[g_game][1], bytes) != 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* Whether live[l] is a villager whose arrival was reported since the last save. */
+static unsigned char live_reported[RECORDS_MAX];
+
+/* How the age may have gone on between the two saves. */
+enum { AGE_ELAPSED, AGE_ON, AGE_ANY };
+
+static int id_age_ok(int kept_age, int now_age, int mode, int elapsed) {
+    int step = now_age - kept_age;
+    if (mode == AGE_ANY) {
+        return 1;
+    }
+    if (mode == AGE_ELAPSED && elapsed >= 0) {
+        return step == elapsed;
+    }
+    return step >= 0;
+}
+
+/* One pass: each kept villager not yet matched to one now, by `what` and
+   the age rule; `unique`: only when exactly one on each side is such,
+   otherwise the closest age step to the elapsed time. */
+static void roster_match_pass(const unsigned char *const *kept, int nk, unsigned char *records,
+                              const int *live, int nl, int *km, int *lm, unsigned int what, int mode,
+                              int unique, int elapsed) {
+    const struct game_records *r = &REC[g_game];
+    int k, l;
+    for (k = 0; k < nk; ++k) {
+        int best = -1, best_cost = 0, count = 0;
+        int kept_age;
+        if (km[k] != -1) {
+            continue;                 /* matched, or accounted for by a reported departure */
+        }
+        kept_age = id_int(kept[k], 1, r->age);
+        for (l = 0; l < nl; ++l) {
+            const unsigned char *now;
+            int cost;
+            if (lm[l] >= 0) {
+                continue;
+            }
+            now = records + (size_t)live[l] * r->stride;
+            if (!id_same(kept[k], now, what) || !id_age_ok(kept_age, rec_age(now), mode, elapsed)) {
+                continue;
+            }
+            ++count;
+            cost = rec_age(now) - kept_age - (elapsed >= 0 ? elapsed : 0);
+            cost = cost < 0 ? -cost : cost;
+            if (live_reported[l]) {
+                cost += 0x40000000;   /* a reported arrival only when nobody else is such */
+            }
+            if (best < 0 || cost < best_cost) {
+                best = l;
+                best_cost = cost;
+            }
+        }
+        if (best < 0 || (unique && count != 1)) {
+            continue;
+        }
+        if (unique) {
+            /* ...and that villager is such for no other kept villager. */
+            int others = 0;
+            const unsigned char *now = records + (size_t)live[best] * r->stride;
+            int j;
+            for (j = 0; j < nk; ++j) {
+                if (j != k && km[j] == -1 && id_same(kept[j], now, what)
+                    && id_age_ok(id_int(kept[j], 1, r->age), rec_age(now), mode, elapsed)) {
+                    ++others;
+                }
+            }
+            if (others != 0) {
+                continue;
+            }
+        }
+        km[k] = best;
+        lm[best] = k;
+    }
+}
+
+/* The time every villager aged between the two saves: the age step most of
+   the villagers matched beyond doubt (the full identity, one on each side)
+   share; -1 when none is. */
+static int roster_elapsed(const unsigned char *const *kept, int nk, unsigned char *records,
+                          const int *live, int nl) {
+    const struct game_records *r = &REC[g_game];
+    static int steps[RECORDS_MAX];
+    int n = 0, k, l, best = -1, best_count = 0;
+    for (k = 0; k < nk; ++k) {
+        int found = -1, count = 0;
+        for (l = 0; l < nl; ++l) {
+            if (id_same(kept[k], records + (size_t)live[l] * r->stride, ID_FULL)) {
+                found = l;
+                ++count;
+            }
+        }
+        if (count == 1) {
+            int j, twins = 0;
+            for (j = 0; j < nk; ++j) {
+                twins += id_same(kept[j], records + (size_t)live[found] * r->stride, ID_FULL);
+            }
+            if (twins == 1) {
+                int step = rec_age(records + (size_t)live[found] * r->stride) - id_int(kept[k], 1, r->age);
+                if (step >= 0) {
+                    steps[n++] = step;
+                }
+            }
+        }
+    }
+    for (k = 0; k < n; ++k) {
+        int count = 0;
+        for (l = 0; l < n; ++l) {
+            count += steps[l] == steps[k];
+        }
+        if (count > best_count) {
+            best = steps[k];
+            best_count = count;
+        }
+    }
+    return best;
+}
+
+/* Every kept villager matched to one now (km[k] = index into live; -1 none;
+   -2, set by the caller, accounted for by a reported departure and never
+   matched), by identity, one to one (the passes in this file's header).
+   Returns how many were matched. */
+static int roster_match(const unsigned char *const *kept, int nk, unsigned char *records, const int *live,
+                        int nl, int *km, int *lm) {
+    int elapsed, k, matched = 0;
+    for (k = 0; k < nl; ++k) {
+        lm[k] = -1;
+    }
+    elapsed = roster_elapsed(kept, nk, records, live, nl);
+    roster_match_pass(kept, nk, records, live, nl, km, lm, ID_FULL, AGE_ELAPSED, 0, elapsed);
+    roster_match_pass(kept, nk, records, live, nl, km, lm, ID_NAME | ID_SEX | ID_LOOKS, AGE_ON, 0, elapsed);
+    roster_match_pass(kept, nk, records, live, nl, km, lm, ID_NAME | ID_SEX | ID_PREFS, AGE_ON, 1, elapsed);
+    roster_match_pass(kept, nk, records, live, nl, km, lm, ID_SEX | ID_LOOKS | ID_PREFS, AGE_ON, 1, elapsed);
+    roster_match_pass(kept, nk, records, live, nl, km, lm, ID_FULL, AGE_ANY, 1, elapsed);
+    for (k = 0; k < nk; ++k) {
+        matched += km[k] >= 0;
+    }
+    return matched;
+}
+
+/* A kept villager no one now is: a departure reported since the last save,
+   of the same name, sex, head and body, at an age at least the kept one,
+   accounts for them (one departure, one villager). */
+static int roster_gone_accounts(const unsigned char *kept, int slot) {
+    const struct game_records *r = &REC[g_game];
+    const unsigned char *name = id_field(kept, 1, r->name);
+    int i;
+    for (i = 0; i < RECORDS_MAX; ++i) {
+        unsigned int n;
+        int same = 1;
+        if (gone[i].tag == REPORT_NONE || !report_counts(gone[i].tag, slot) || gone_spent[i]
+            || gone[i].age < id_int(kept, 1, r->age) || gone[i].sex != id_int(kept, 1, r->sex)
+            || gone[i].head != id_int(kept, 1, r->head) || gone[i].body != id_int(kept, 1, r->body)) {
+            continue;
+        }
+        for (n = 0; n < GONE_NAME && n < r->name_capacity; ++n) {
+            if ((unsigned char)gone[i].name[n] != name[n]) {
+                same = 0;
+                break;
+            }
+            if (name[n] == 0) {
+                break;
+            }
+        }
+        if (same) {
+            gone_spent[i] = 1;        /* spent on this villager (at this reconciliation) */
+            return 1;
+        }
+    }
+    return 0;
 }
 
 static void roster_reconcile(int slot) {
@@ -391,6 +668,9 @@ static void roster_reconcile(int slot) {
     SYSTEMTIME st;
     FILETIME ft;
     const unsigned char *kept[RECORDS_MAX];
+    static int live[RECORDS_MAX], kept_match[RECORDS_MAX], live_match[RECORDS_MAX];
+    int live_count = 0;
+    int matched = 0;
 
     if (records == NULL || slot <= 0) {
         return;
@@ -423,42 +703,40 @@ static void roster_reconcile(int slot) {
     }
     have_previous = result == VV_SIDECAR_LOAD_VALID;
     memset((void *)kept, 0, sizeof kept);
+    memset(gone_spent, 0, sizeof gone_spent);
     if (have_previous) {
         unsigned int n = *(const unsigned int *)(roster_buffer + 12);
+        int reported = 0;
         /* The kept file's own entry size (version 3 keeps A New Home's parents). */
         read_version = *(const unsigned int *)(roster_buffer + 4);
         size = roster_entry_size_of(read_version);
         kept_count = n;
-        int by_record = 0;
-        int by_rank = 0;
-        int reported = 0;
-        int read_by_rank;
         for (i = 0; i < n; ++i) {
-            const unsigned char *e = roster_buffer + ROSTER_HEADER + i * size;
-            unsigned int index = (unsigned int)(e[0] | e[1] << 8);
-            unsigned int place = (unsigned int)(e[2] | e[3] << 8);
-            memset(roster_scratch, 0, r->stride);
-            memcpy(roster_scratch + r->snapshot_lo, e + ROSTER_ENTRY_HEAD, span);
-            if (roster_member(records + (size_t)index * r->stride)
-                && roster_same_name(roster_scratch, records + (size_t)index * r->stride)) {
-                ++by_record;
-            }
-            if (roster_member(records + (size_t)place * r->stride)
-                && roster_same_name(roster_scratch, records + (size_t)place * r->stride)) {
-                ++by_rank;
+            kept[i] = roster_buffer + ROSTER_HEADER + i * size;
+        }
+        /* The villagers now.  One whose arrival was reported (the game's creator made them, or the
+           Births log recorded their birth) is accounted for and never written as arriving; they are
+           matched to a kept villager only when no villager unreported is such (live_reported). */
+        for (i = 0; i < r->slots; ++i) {
+            if (roster_member(records + (size_t)i * r->stride)) {
+                live_reported[live_count] = (unsigned char)report_counts(arrived[i], slot);
+                live[live_count++] = (int)i;
             }
         }
-        read_by_rank = by_rank >= by_record;
+        /* A departure the game reported since (a burial, a body's removal, a disappearance: its
+           Death or Disappeared record) accounts for the kept villager it names first: whoever is
+           in the village now is never taken for them -- one written back alive unreported, or a
+           newcomer in their record, has arrived unaccounted for. */
         for (i = 0; i < n; ++i) {
-            const unsigned char *e = roster_buffer + ROSTER_HEADER + i * size;
-            kept[read_by_rank ? (e[2] | e[3] << 8) : (e[0] | e[1] << 8)] = e;
+            kept_match[i] = roster_gone_accounts(kept[i], slot) ? -2 : -1;
         }
+        matched = roster_match(kept, (int)n, records, live, live_count, kept_match, live_match);
         for (i = 0; i < r->slots; ++i) {
             if (report_counts(departed[i], slot) || report_counts(arrived[i], slot)) {
                 ++reported;
             }
         }
-        if (n > 0 && (read_by_rank ? by_rank : by_record) == 0 && reported == 0) {
+        if (n > 0 && matched == 0 && reported == 0) {
             have_previous = 0;        /* another village's roster */
         }
     }
@@ -471,41 +749,45 @@ static void roster_reconcile(int slot) {
        found that roster and wrote none of them. */
     arrival_save(slot, have_previous && kept_count > 0);
     if (have_previous) {
-        for (i = 0; i < r->slots; ++i) {
-            unsigned char *now_record = records + (size_t)i * r->stride;
-            int present = roster_member(now_record);
-            int same = 0;
+        signed char early_tag = REPORT_EARLY;
+        /* More departures than could be kept: who left is not known for
+           sure, so nobody is written as having left (unsure, never guessed). */
+        int unsure = gone_overflow[slot + 1] || gone_overflow[early_tag + 1];
+        for (i = 0; i < kept_count; ++i) {
+            const unsigned char *e = kept[i];
             char last_seen[32];
-            if (kept[i] != NULL) {
-                memset(roster_scratch, 0, r->stride);
-                memcpy(roster_scratch + r->snapshot_lo, kept[i] + ROSTER_ENTRY_HEAD, span);
-                roster_when(last_seen, kept[i] + 8);
-                /* A recorded departure freed this record: whoever is in it
-                   now is somebody else, whatever their name or sex. */
-                same = present && !report_counts(departed[i], slot)
-                    && roster_same(roster_scratch, now_record);
-                /* ...unless their grave was just recorded from (a burial no
-                   hook saw: the load-time catch-up; cod_backfill.inc). */
-                if ((!present || !same) && !report_counts(departed[i], slot)
-                    && !backfill_accounts_for(roster_scratch)) {
-                    char parents[128];
-                    parents[0] = '\0';
-                    if (read_version >= ROSTER_VERSION_VV1) {
-                        /* A New Home: the parents the snapshot kept beside the record. */
-                        const char *names = (const char *)kept[i] + size - ROSTER_PARENTS;
-                        roster_parents_block(parents, (int)sizeof parents, names, names + ROSTER_PARENT_NAME);
-                    }
-                    roster_log(roster_scratch, 0, (int)i,
-                               "Left the village with no Death or Disappeared record", last_seen, now,
-                               kept[i][4], parents);
-                }
+            char parents[128];
+            if (kept_match[i] != -1) {
+                continue;             /* still here, in whatever record, or a reported departure */
             }
-            if (present && (kept[i] == NULL || !same) && !report_counts(arrived[i], slot)) {
-                char parents[128];
-                vv1_parents_block(parents, (int)sizeof parents, (int)i);
-                roster_log(now_record, 1, (int)i,
-                           "Arrived with no Birth record or known arrival", "(never before)", now, 0, parents);
+            memset(roster_scratch, 0, r->stride);
+            memcpy(roster_scratch + r->snapshot_lo, e + ROSTER_ENTRY_HEAD, span);
+            /* A departure reported since (a burial, a body's removal, a
+               disappearance: its Death or Disappeared record), or a grave
+               just recorded from (a burial no hook saw: the load-time
+               catch-up; cod_backfill.inc). */
+            if (backfill_accounts_for(roster_scratch) || unsure) {
+                continue;
             }
+            roster_when(last_seen, e + 8);
+            parents[0] = '\0';
+            if (read_version >= ROSTER_VERSION_VV1) {
+                /* A New Home: the parents the snapshot kept beside the record. */
+                const char *names = (const char *)e + size - ROSTER_PARENTS;
+                roster_parents_block(parents, (int)sizeof parents, names, names + ROSTER_PARENT_NAME);
+            }
+            roster_log(roster_scratch, 0, (int)(e[0] | e[1] << 8),
+                       "Left the village with no Death or Disappeared record", last_seen, now, e[4], parents);
+        }
+        for (i = 0; i < (unsigned int)live_count; ++i) {
+            char parents[128];
+            unsigned char *now_record = records + (size_t)live[i] * r->stride;
+            if (live_match[i] >= 0 || live_reported[i]) {
+                continue;         /* the same villager as at the last save, or an arrival reported */
+            }
+            vv1_parents_block(parents, (int)sizeof parents, live[i]);
+            roster_log(now_record, 1, live[i],
+                       "Arrived with no Birth record or known arrival", "(never before)", now, 0, parents);
         }
     }
     /* The roster for the next save: this one, in record order, each with
@@ -559,6 +841,13 @@ static void roster_reconcile(int slot) {
                     arrived[i] = REPORT_NONE;
                 }
             }
+            for (i = 0; i < RECORDS_MAX; ++i) {
+                if (gone[i].tag != REPORT_NONE && report_counts(gone[i].tag, slot)) {
+                    gone[i].tag = REPORT_NONE;
+                }
+            }
+            gone_overflow[slot + 1] = 0;
+            gone_overflow[0] = 0;
         }
     }
 }
@@ -577,6 +866,12 @@ static void roster_reset(int slot) {
         if (arrived[i] == slot) {
             arrived[i] = REPORT_NONE;
         }
+        if (gone[i].tag == slot) {
+            gone[i].tag = REPORT_NONE;
+        }
+    }
+    if (slot >= 1 && slot <= 5) {
+        gone_overflow[slot + 1] = 0;
     }
 }
 

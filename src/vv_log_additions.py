@@ -62,6 +62,10 @@ CHECKED = {
                     "(a Birth record, or an Arrived record that says how they came), and the player's answers",
     "answered": "the player's answers to Repair Saves & Logs' questions, kept so they are not asked again "
                 "(Answered questions: changed or cleared there)",
+    "false_unaccounted": "the Unaccounted records the logs and the save contradict by who the villager is (the "
+                         "same villager Left and Arrived in one check, still in the village in the Village History, "
+                         "already there before, or a Death, Disappeared, Birth or Arrived record), and the "
+                         "player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
@@ -71,6 +75,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "left_tribe": "Left the tribe record added",
          "contradictions": "Contradicting records taken out or renumbered",
          "born_arrived": "Duplicate backfilled Arrived record removed",
+         "false_unaccounted": "False Unaccounted record removed",
          "reconcile": "Answered"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
@@ -1293,11 +1298,30 @@ def plan_backfilled_arrivals(folder: Path, game: int, slot: int, living: dict[tu
             b.identity if b.heading.startswith("Arrived") else None)
         if k and None not in k:
             by_key.setdefault(k, []).append(b)
+    # A villager renamed in the game since their record (a "Name changed" record: the owner's Coral Tangaroa,
+    # "Arrived 3 / Lupa Tangaroa", and Mahalo Makawee I, "Arrived 4 / Tamil Makawee", v1.35.80): the record
+    # of the old name is theirs too.
+    older: dict[tuple, list[tuple]] = {}
+    for blk in every:
+        if blk.heading == "Name changed" and blk.value("Name") and blk.value("Old name"):
+            head, body = blk.int_value("Head"), blk.int_value("Body")
+            older.setdefault((blk.value("Name"), head, body), []).append((blk.value("Old name"), head, body))
+
+    def earlier(k: tuple) -> list[tuple]:
+        out, todo = [], list(older.get(k, []))
+        while todo and len(out) < 64:
+            o = todo.pop()
+            if o not in out and o != k:
+                out.append(o)
+                todo += older.get(o, [])
+        return out
     offered: list[tuple[Block, str]] = []
     for k, records in by_key.items():
+        records = records + [b for o in earlier(k) for b in by_key.get(o, [])]
         firm = [b for b in records if is_birth(b.heading)
                 or (b.heading.startswith("Arrived") and not is_backfilled_arrival(b) and b.value("How"))]
-        filled = [b for b in records if b.heading.startswith("Arrived") and is_removable_backfill(b)]
+        filled = [b for b in records if b.heading.startswith("Arrived") and is_removable_backfill(b)
+                  and b.identity == k]
         if not firm or not filled:
             continue
         what = ("a Birth record" if is_birth(firm[0].heading)
@@ -1355,6 +1379,8 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     ]
     import vv_log_contradictions
     kinds.append(vv_log_contradictions.plan(folder, game, slot))
+    # Unaccounted records an older build wrote by record number, contradicted by identity (v1.35.80).
+    kinds.append(vv_log_contradictions.plan_false_unaccounted(folder, game, slot))
     # The read-only reconciliation's contradictions, asked before any repair (src/vv_reconcile.py).
     import vv_reconcile
     kinds.append(vv_reconcile.kind(folder, game, slot))
@@ -1642,7 +1668,9 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
         for start, count, kind_id in removes:
             doc.removes.append((start, count, kind_id))
             doc.removed.update(range(start, start + count))
-            if (m := GAME_IN_NAME.search(path.name)):
+            # An Unaccounted record's number is not the Arrived records' running count: taking one out
+            # renumbers nothing (the exporter numbers on above the highest, native/parentage_export).
+            if kind_id != "false_unaccounted" and (m := GAME_IN_NAME.search(path.name)):
                 removed_by[int(m.group(1))] = kind_id
     # Lines put right where they are (a repeated "Death <n>" or "Repair <n>" heading): decided, or only
     # on the answers they name (a contradiction's resolution and "Yes").

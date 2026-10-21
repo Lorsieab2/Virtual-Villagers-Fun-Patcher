@@ -304,6 +304,9 @@ static void write_files(int buried, int twins, int chiefs) {
     history_villager(h, sizeof h, 4, "Near", 100, 2, 0);
     history_villager(h, sizeof h, 5, "Edge", master, 3, 0);
     history_villager(h, sizeof h, 6, "Edge2", master - 1, 4, 0);
+    /* v1.35.80: "Old" on the elders list, under the name a newer snapshot gave him (a last name added
+       since, or dropped): the same villager, never a second elder. */
+    history_villager(h, sizeof h, 9, "Old Kenobi", 100, 4, 0);
     /* New Believers: a dead Heathen with every skill mastered, and a villager
        from a snapshot written before the Faction line -- neither proves an
        elder (Heathens never count); elsewhere both are ordinary elders'
@@ -582,6 +585,8 @@ int main(int argc, char **argv) {
         read_rel(ELDERS);
         if (elders_expected) {
             char ghost[96];
+            CHECK(strstr(text, "\tOld Kenobi\t") == NULL,
+                  "no line for Old Kenobi: Old, on the list, under a name with a last name added (v1.35.80)");
             _snprintf(ghost, sizeof ghost, "E\t-1\tGhost\t%s\t%s\t0\t0\r\n", g->father ? "Pa" : "", g->father ? "Ma" : "");
             CHECK(strstr(text, ghost) != NULL && strstr(text, "E\t-1\tEdge\t\t\t0\t0\r\n") != NULL,
                   "the elders file gains Ghost%s and Edge, as closed lines", g->father ? " (Pa, Ma)" : "");

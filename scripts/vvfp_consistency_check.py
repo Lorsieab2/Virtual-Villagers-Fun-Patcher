@@ -284,9 +284,14 @@ def table_start(data: bytes, lay: SaveLayout, hint_names: list[str]) -> int | No
 # after that flag are stale -- left by deaths, departures, or a village restarted in the slot
 # -- and the game never loads them, even those still flagged 1 (live, 2026-10-06: the owner's
 # saves held 100 / 115 / 106 entries where The Secret City, The Tree of Life and New Believers
-# loaded 86 / 5 / 90).  The Lost Children has no flag: its writer zeroes every entry after the
-# last villager, so the plausible run ends there (live: 126 read, 126 loaded).
-PRESENT = {3: (-0x14, 4), 4: (-0x14, 4), 5: (-0x20, 1)}
+# loaded 86 / 5 / 90).  The Lost Children's flag is the byte at entry +0x2DC (record +0x800, name
+# +0x29C).  Its writer does NOT zero the entries after the last villager: after deaths at a full table the
+# game closes its list up and leaves frozen copies in the tail, the first of them flagged 0 (the owner's
+# Kalahuna Tribe 2, 2026-10-20: entries 252-255 Goby, Malo, Tomil and Hoya Kalama, copies of living
+# children -- each entry's write stamp, record +0x528, is the save's clock in every loaded entry and an older one in
+# those; 447 saves and backups of the owner's checked, flag and stamp agree in every one with a clock).  An older
+# reading took them for villagers (two records of each child).
+PRESENT = {2: (0x29C, 1), 3: (-0x14, 4), 4: (-0x14, 4), 5: (-0x20, 1)}
 
 # The stock save's length (header included) of each game that can have 256 Villagers
 # (Experimental): such a build writes the stock bytes unchanged and then villagers 150..255
@@ -1743,7 +1748,8 @@ def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
         m = re.search(r"Name: (.*)", u)
         if m and "Left the village" in u and m.group(1).strip() in dead:
             rep.add(label, "NOTE", f"{m.group(1).strip()} is both unaccounted for and in the Deaths log "
-                                   "(a grave recorded afterwards; the Unaccounted record stays: logs are never rewritten)")
+                                   "(a grave recorded afterwards, or the record is false -- Repair Saves & Logs, Remove false "
+                                   "Unaccounted records, takes a false one out, asking first)")
     return len(deaths)
 
 

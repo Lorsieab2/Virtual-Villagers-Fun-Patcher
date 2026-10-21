@@ -220,6 +220,17 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
         for verdict, text in reconciled.lines():
             report.add(label, verdict, text)
     for kind in kinds:
+        if kind.id == "false_unaccounted":
+            # Unaccounted records contradicted by identity (src/vv_log_contradictions.py, v1.35.80).
+            if kind.removes:
+                report.add(f"{LOGS} (false Unaccounted records)", "WRONG",
+                           f"{len(kind.removes)} Unaccounted record(s) are contradicted by who the villager is (the "
+                           "same villager Left and Arrived in one check, still in the village, already there, or a "
+                           "Death, Birth or Arrived record): Repair Saves & Logs, Remove false Unaccounted records, "
+                           "takes them out (it lists each with why, and asks first)")
+            for note in kind.notes:
+                report.add(f"{LOGS} (false Unaccounted records)", "NOTE", note)
+            continue
         # "sex" and "born_arrived" the checker itself reports (the latter as WRONG); the reconciliation's
         # questions are listed above.
         if kind.id in ("sex", "born_arrived", "contradictions", "reconcile") or not (kind.decided or kind.asked):
@@ -533,7 +544,8 @@ def approve_repair(
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,
                              checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id],
-                             unit="record(s)" if kind.id == "contradictions" else "villager(s)", slot=slot)
+                             unit="record(s)" if kind.id in ("contradictions", "false_unaccounted") else "villager(s)",
+                             slot=slot)
     # Nothing is moved or renamed: an older build's folders and files keep their names, and every
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)

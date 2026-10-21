@@ -77,6 +77,14 @@ CHECKS += 3 * 5
 # record still gets one (the owner, 2026-10-11; arrival_backfill.inc, arrival_harness.c
 # contradiction_cases)
 CHECKS += 4 * 4
+# + 6 per game (v1.35.80): the Unaccounted Villagers log follows villagers by identity, never by record
+# -- packed at a load (The Lost Children to The Tree of Life: the statue taken out, the owner's Elder
+# Totems migration), renamed, a real departure and arrival, a death, somebody else in a record
+# (arrival_harness.c identity_cases)
+CHECKS += 6 * 5
+# + 1 per game (v1.35.80): a villager renamed in the game is followed through the "Name changed" record by
+# the Arrived records' backfill (arrival_harness.c renamed_cases; the owner's Coral Tangaroa, Mahalo Makawee I)
+CHECKS += 5
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

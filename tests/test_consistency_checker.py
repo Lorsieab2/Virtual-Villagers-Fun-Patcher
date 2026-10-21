@@ -435,16 +435,25 @@ class StaleRecords(unittest.TestCase):
             data[p:p + len(name)] = name.encode()
             struct.pack_into("<i", data, p + lay.age, 300)
             data[p - 0x0C] = 1 if name == "Statue" else 0
+            data[p + 0x29C] = 1                     # the entry's in-use flag (entry +0x2DC)
         roster = checker.vv25_roster(2, bytes(data), [])
         self.assertEqual([(v.rank, v.name) for v in roster], [(0, "Vil0"), (2, "Vil2")])
 
-    def test_the_lost_children_has_no_flag_and_ends_at_its_zeroed_tail(self):
+    def test_the_lost_children_stops_at_its_end_of_list_flag(self):
+        # v1.35.80: The Lost Children's writer does NOT zero the entries after its last villager (the
+        # owner's Save 1 kept frozen copies of four living children in entries 252-255); the first
+        # of them is flagged 0 at entry +0x2DC, and the game loads nothing from there on.
         lay = checker.LAYOUTS[2]
-        data = bytearray(0x400 + 4 * lay.stride)
-        for i in range(2):
+        data = bytearray(0x400 + 6 * lay.stride)
+        for i, flag in enumerate((1, 1, 0, 1)):
             p = 0x400 + i * lay.stride
             data[p:p + 4] = f"Vil{i}".encode()
             struct.pack_into("<i", data, p + lay.age, 300)
+            data[p + 0x29C] = flag
+        self.assertEqual([v.name for v in checker.vv25_roster(2, bytes(data), [])], ["Vil0", "Vil1"])
+        # ...and where nothing follows, a zeroed tail still ends it.
+        data = bytearray(data)
+        data[0x400 + 2 * lay.stride:] = bytes(len(data) - (0x400 + 2 * lay.stride))
         self.assertEqual([v.name for v in checker.vv25_roster(2, bytes(data), [])], ["Vil0", "Vil1"])
 
 
