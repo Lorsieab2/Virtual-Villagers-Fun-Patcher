@@ -6024,7 +6024,8 @@ class App(tk.Tk):
                    command=lambda: [v.set(False) for v in ticks]).pack(side="left", padx=(6, 0))
         for t, var in zip(found, ticks, strict=True):
             ttk.Checkbutton(frame, variable=var, text=t.label()).pack(anchor="w")
-        ttk.Label(frame, text="Their colour (the game's own totems):").pack(anchor="w", pady=(8, 2))
+        ttk.Label(frame, text="Their colour (the game's own totems, numbered 1 to 8 from the left):").pack(
+            anchor="w", pady=(8, 2))
         faces = ttk.Frame(frame)
         faces.pack(anchor="w")
         png = self._totems_png()
@@ -6060,9 +6061,11 @@ class App(tk.Tk):
                 image = tk.PhotoImage(width=40, height=100)
                 image.tk.call(image, "copy", sheet, "-from", face * 40, 0, face * 40 + 40, 100)
                 window._totem_faces.append(image)
-                ttk.Button(faces, image=image, command=lambda f=face: pick(f)).grid(row=0, column=face, padx=2)
+                # Its number under the picture: colour 1 is the leftmost, 8 the rightmost (the owner, v1.35.80).
+                ttk.Button(faces, image=image, text=str(face + 1), compound="top",
+                           command=lambda f=face: pick(f)).grid(row=0, column=face, padx=2)
             else:
-                ttk.Button(faces, text=vv_vv2_totems.FACES[face], width=14,
+                ttk.Button(faces, text=vv_vv2_totems.FACES[face].capitalize(), width=10,
                            command=lambda f=face: pick(f)).grid(row=face // 4, column=face % 4, padx=2, pady=2)
         if sheet is None:
             ttk.Label(frame, text="The game's totems.png was not found (choose The Lost Children's original folder "

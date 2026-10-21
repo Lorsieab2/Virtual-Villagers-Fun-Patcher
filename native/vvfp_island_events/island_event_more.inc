@@ -147,8 +147,8 @@ static unsigned char *(*g_more_vv1_records)(void) = more_vv1_records_real;
    drawn with art frame +0x550 modulo 8 (the words story_c2.inc gives them). */
 static void more_vv2_totem(const unsigned char *r, char *out, size_t size) {
     static const char *const TOTEMS[8] = {
-        "brown face, blue mouth", "green figure", "teal, red crest", "yellow and purple",
-        "red headdress", "dark navy face", "tall carved wood", "green grinning face",
+        "colour 1", "colour 2", "colour 3", "colour 4",
+        "colour 5", "colour 6", "colour 7", "colour 8",
     };
     unsigned char *records = g_more_vv2_records();
     const unsigned char *found = NULL;

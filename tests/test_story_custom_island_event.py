@@ -427,7 +427,7 @@ class RoleTests(unittest.TestCase):
         p.write(v.record(20), p.read(v.record(7), v.L["stride"]))
         p.put32(v.record(20) + 0x558, 1)
         p.put32(v.record(20) + 0x550, 9)
-        self.assertEqual(_role(story, 7)[1], "Esteemed Elder, totem: green figure")
+        self.assertEqual(_role(story, 7)[1], "Esteemed Elder, totem: colour 2")
         self.assertEqual(_role(story, 0), (0, ""))
 
     def test_the_tree_of_life_has_no_role(self):

@@ -218,9 +218,9 @@ static int c2_conceive(int index, int litter, int father, ce_result *result) {
 
 static const char *const C2_STATUSES[] = {
     "Becomes an Esteemed Elder (with a totem)",
-    "Totem: brown face, blue mouth", "Totem: green figure", "Totem: teal, red crest",
-    "Totem: yellow and purple", "Totem: red headdress", "Totem: dark navy face",
-    "Totem: tall carved wood", "Totem: green grinning face",
+    "Totem: colour 1", "Totem: colour 2", "Totem: colour 3",
+    "Totem: colour 4", "Totem: colour 5", "Totem: colour 6",
+    "Totem: colour 7", "Totem: colour 8",
 };
 
 static int c2_totems(void) {
@@ -764,10 +764,10 @@ static void c2_apply_spawn_fields(unsigned char *r, const ce_spawn *s) {
    (their statue's +0x550 modulo 8, as c2_set_status reads it). */
 static int c2_role(const unsigned char *r, const char **words) {
     static const char *const ELDER[] = {
-        "Esteemed Elder, totem: brown face, blue mouth", "Esteemed Elder, totem: green figure",
-        "Esteemed Elder, totem: teal, red crest", "Esteemed Elder, totem: yellow and purple",
-        "Esteemed Elder, totem: red headdress", "Esteemed Elder, totem: dark navy face",
-        "Esteemed Elder, totem: tall carved wood", "Esteemed Elder, totem: green grinning face",
+        "Esteemed Elder, totem: colour 1", "Esteemed Elder, totem: colour 2",
+        "Esteemed Elder, totem: colour 3", "Esteemed Elder, totem: colour 4",
+        "Esteemed Elder, totem: colour 5", "Esteemed Elder, totem: colour 6",
+        "Esteemed Elder, totem: colour 7", "Esteemed Elder, totem: colour 8",
     };
     const unsigned char *totem;
     if (r[0x7FC] == 0) {

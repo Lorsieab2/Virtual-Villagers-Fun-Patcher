@@ -128,9 +128,11 @@ ELDER = _r(0x7FC)
 FLAG = _r(0x524) + 0x2DC            # the entry's "in use" byte (0 after the last entry)
 
 MALE, FEMALE = 1, 2
-# The eight totem faces (totems.png frames 0..7; the Story companion's own words, story_c2.inc).
-FACES = ("brown face, blue mouth", "green figure", "teal, red crest", "yellow and purple",
-         "red headdress", "dark navy face", "tall carved wood", "green grinning face")
+# The eight totem colours, numbered 1 to 8 as the Change Totem Colour window shows the game's own totems
+# from left to right (totems.png frames 0..7) -- never described by how they look (the owner, v1.35.80).
+# The same numbers everywhere: the Story companion (story_c2.inc) and the Island Events log
+# (island_event_more.inc) use them too.
+FACES = tuple(f"colour {n}" for n in range(1, 9))
 
 
 class TotemError(Exception):

@@ -481,14 +481,14 @@ int main(void) {
             statue[0x30] = 1;
             statue[0x558] = 1;                    /* a statue: a look-alike, never a villager */
             memcpy(statue + 0x564, slot(1) + 0x564, 0x18);
-            *(int *)(statue + 0x550) = 9;         /* frame 1: green figure */
+            *(int *)(statue + 0x550) = 9;         /* frame 1: colour 2 */
             begin();
-            *(int *)(statue + 0x550) = 12;        /* frame 4: red headdress */
+            *(int *)(statue + 0x550) = 12;        /* frame 4: colour 5 */
             compare(&g_snaps[0]);
             CHECK(record_of(slot(1)) != NULL
-                  && strcmp(record_of(slot(1))->changes, "  Totem: green figure -> red headdress\n") == 0
+                  && strcmp(record_of(slot(1))->changes, "  Totem: colour 2 -> colour 5\n") == 0
                   && record_of(statue) == NULL,
-                  "an Esteemed Elder's totem changed is \"Totem: green figure -> red headdress\" (the statue is no villager)");
+                  "an Esteemed Elder's totem changed is \"Totem: colour 2 -> colour 5\" (the statue is no villager)");
         }
 
         /* 8. A like added in a later slot: the whole lists, never "w3 -> w3";
