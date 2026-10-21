@@ -535,7 +535,7 @@ static int titles_could_be(int game, const vv_custom_title *e, int r) {
    *carriers gets how many carry its fingerprint at all. */
 static int titles_candidates(int game, const vv_custom_title *e, int *where, int *carriers) {
     int count = story_record_count(game);
-    int n = 0;
+    int n = 0, same = 0, where_same = -1;
     int r;
     *carriers = 0;
     for (r = 0; r < count; ++r) {
@@ -545,9 +545,20 @@ static int titles_candidates(int game, const vv_custom_title *e, int *where, int
             ++*carriers;
         }
         if (titles_could_be(game, e, r)) {
+            vv_title_looks now;
             ++n;
             *where = r;
+            titles_looks_now(game, r, record, &now);
+            if ((e->flags & VV_TITLE_KNOWN) && vv_title_looks_same(&e->looks, &now)) {
+                ++same;
+                where_same = r;
+            }
         }
+    }
+    /* The head and body only break a tie (custom_titles.h vv_title_looks_could_be). */
+    if (n > 1 && same == 1) {
+        *where = where_same;
+        return 1;
     }
     return n;
 }

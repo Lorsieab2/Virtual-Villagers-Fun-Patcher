@@ -1387,6 +1387,24 @@ static void identity_cases(void) {
     save_done(1, buffer);
     CHECK(unacc_count(UNACC_LEFT) == left && unacc_count(UNACC_ARRIVED) == arrived_n,
           "identity: looks changed, then buried: her Death record accounts for her (no Left)");
+
+    /* h. A newcomer the game made takes the chief's robe in the same session: the body and a dislike
+       change in one frame, the name the same -- the arrival report follows her (cod_arrivals.inc
+       who_still), so she is never "Arrived with no Birth record". */
+    for (i = 39; i >= 0 && rec(i)[g->active]; --i) {
+    }
+    CHECK(i >= 0, "identity: a free record for a newcomer");
+    villager(i, "Robe", 620, 6, 6, 0);
+    created(i, 0);
+    arrival_tick();
+    *(int *)(rec(i) + g->body) = 29;
+    *(int *)(rec(i) + g->dislikes) = 3;
+    arrival_tick();
+    unacc_age_all(1);
+    arrival_tick();
+    save_done(1, buffer);
+    CHECK(unacc_count(UNACC_LEFT) == left && unacc_count(UNACC_ARRIVED) == arrived_n,
+          "identity: a reported newcomer robed in the same session keeps her arrival (no Unaccounted Arrived)");
     for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
     free(buffer);
     reset(game, 1);

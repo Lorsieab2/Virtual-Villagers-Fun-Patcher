@@ -234,6 +234,43 @@ class NumbersALooksChangeGave(Changed):
         self.assertEqual(nn.misnumbered_by_looks(v.folder, 3, 1), [])
 
 
+class CodexReview602(Changed):
+    def test_a_same_answer_settles_which_of_two_candidates_it_is(self):
+        """Codex, #602: two new villagers of the name could be the one gone; the player's Same for one of them
+        settles it (the other unanswered) -- never "lost", never tied to the other."""
+        v, old, now, x, new_body = self.setup_game("huttest", 3)
+        import dataclasses
+        later = v.people(now)
+        mine = next(s for s in later if s.name == x.name)
+        twin = dataclasses.replace(mine, head=(x.head + 5) % 20, body=(x.body + 9) % 20)
+        history_text(v, [(T1, v.people(old)), (T2, later + [twin])])
+        aq.keep_identity(v.folder, 3, 1, (x.name, x.head, x.body), (x.name, x.head, new_body), aq.SAME, "?")
+        rec = rc.reconcile(v.folder, 3, 1)
+        old_key = str((x.name, x.head, x.body))
+        self.assertFalse([f for f in rec.questions if old_key in f.qid], [f.text for f in rec.questions])
+        looks = [f for f in rec.notes if f.topic == "looks" and old_key in f.qid]
+        self.assertEqual(len(looks), 1)
+        self.assertIn(f"body {new_body}", looks[0].text)
+
+    def test_an_expecting_mothers_conception_follows_her_change_of_looks(self):
+        """Codex, #602: joining an older look moves what is kept under it -- her Conception (the father, the
+        babies) -- so her baby on the way keeps its father."""
+        reg = gen._Registry()
+        older = reg.get("Mama", 22, 13)
+        now = reg.get("Mama", 22, 29)
+        now.alive = True
+        reg.conceptions[older.key] = (("Taro", 18, 12), 2)
+        reg.lost.append((older.key, 1))
+        gen._merge_into(reg, older, now)
+        self.assertEqual(reg.conceptions.get(now.key), (("Taro", 18, 12), 2))
+        self.assertNotIn(older.key, reg.conceptions)
+        self.assertEqual(reg.lost, [(now.key, 1)])
+        now.expecting = True
+        gen._upcoming(reg)
+        babies = [p for p in reg.people.values() if p.upcoming]
+        self.assertEqual(len(babies), 2)
+        self.assertTrue(all(reg.people[b.father].name == "Taro" and b.mother == now.id for b in babies))
+
 class GenuineNamesakesAreStillNumbered(Changed):
     def test_two_living_villagers_of_one_name_are_still_numbered_in_every_game(self):
         for tag, game in CASES[:5]:

@@ -296,9 +296,19 @@ class ThePatchersOwnReader(unittest.TestCase):
         same = dict(age=500, head=3, body=4, sex=1, skills=(20,) * 5 + (0,))
         self.assertTrue(tf.could_be(1, e, same))
         self.assertTrue(tf.could_be(1, e, {**same, "age": 600, "skills": (25,) * 5 + (0,)}))
-        for change in ({"age": 499}, {"head": 2}, {"body": 5}, {"sex": 2}, {"skills": (20, 20, 19, 20, 20, 0)}):
+        for change in ({"age": 499}, {"sex": 2}, {"skills": (20, 20, 19, 20, 20, 0)}):
             with self.subTest(change=change):
                 self.assertFalse(tf.could_be(1, e, {**same, **change}))
+        # The head and body only break ties (the owner, v1.35.80 update: "A change in body, head and mask does
+        # not mean they disappeared"): a new head or body could still be them; of two who could, the one with
+        # the entry's head and body is it, and two alike are nobody's.
+        for change in ({"head": 2}, {"body": 5}):
+            with self.subTest(change=change):
+                self.assertTrue(tf.could_be(1, e, {**same, **change}))
+        robed, twin = {**same, "body": 29}, {**same, "head": 2}
+        self.assertEqual(tf.narrow(e, ["robed", "same"], {"robed": robed, "same": same}.get), ["same"])
+        self.assertEqual(tf.narrow(e, ["robed", "twin"], {"robed": robed, "twin": twin}.get), ["robed", "twin"])
+        self.assertEqual(tf.narrow(e, ["robed"], {"robed": robed}.get), ["robed"])
         self.assertTrue(tf.could_be(1, tf.Entry(tf.PENDING, 9, "A"), {**same, "age": 0}))   # looks not known
 
 
@@ -352,7 +362,7 @@ class CustomTitlesInTheLogs(unittest.TestCase):
         # the fingerprint: nobody's" for an entry whose looks are known.
         shown = (ROOT / "native" / "shared" / "custom_title_shown.h").read_text(encoding="utf-8")
         self.assertIn("vv_title_looks_could_be(&e->looks, &now, t->skills_float)", shown)
-        self.assertIn("return could == 1 && where == r;", shown)
+        self.assertIn("return (could == 1 && where == r) || (could > 1 && same == 1 && where_same == r);", shown)
         self.assertIn("return carriers <= 1;", shown)
         # Record r is counted as a carrier even when admitted while inactive.
         self.assertNotIn("if (present) {\n            ++carriers;", shown.replace("\r\n", "\n"))

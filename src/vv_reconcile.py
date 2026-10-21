@@ -900,8 +900,12 @@ class _Builder:
                     and ((n.head, n.body) == (old.head, old.body) or n.name == old.name)]
             # The player's "Different villagers" in the Family Tree Maker keeps two apart here too.
             fits = [n for n in fits if self.identity(old.key, n.key) != "different"]
+            # ...and their "Same villager" settles which one it is (Codex, #602), before any count.
+            said_same = [n for n in fits if self.identity(old.key, n.key) == "same"]
             same_name = [n for n in fits if n.name == old.name]
             same_looks = [n for n in fits if (n.head, n.body) == (old.head, old.body) and n.name != old.name]
+            if len(said_same) == 1:
+                same_name, same_looks = said_same, []
             if same_name and len(same_name) == 1:
                 n = same_name[0]
                 unexplained_new.remove(n)
@@ -1218,6 +1222,7 @@ class _Builder:
         raw = titles_file.entry_bytes(e)
         carriers = [v for v in present if v.title_id == e.identity]
         could = [v for v in carriers if v.title_looks is not None and titles_file.could_be(self.game, e, v.title_looks)]
+        could = titles_file.narrow(e, could, lambda v: v.title_looks)   # the looks only break a tie
         named = [s.name for s in snapshot if s.title == e.title]
         name = carriers[0].name if carriers else (named[0] if len(set(named)) == 1 else None)
         if e.known:

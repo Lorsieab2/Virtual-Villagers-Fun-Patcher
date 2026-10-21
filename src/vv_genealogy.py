@@ -837,6 +837,26 @@ def _person_text(reg: _Registry, p: Person, seen_on: dict) -> str:
     return "; ".join(bits)
 
 
+def _move_state(reg: _Registry, p: Person, q: Person) -> None:
+    """Everything the registry keeps under the older record `p` -- by its key or its id -- now `q`'s (Codex,
+    #602: an expecting mother whose looks changed lost her Conception, so her baby on the way lost its father
+    and the babies she carries)."""
+    if p.key in reg.conceptions and q.key not in reg.conceptions:
+        reg.conceptions[q.key] = reg.conceptions[p.key]
+    reg.conceptions.pop(p.key, None)
+    reg.lost = [(q.key if mother == p.key else mother, babies) for mother, babies in reg.lost]
+    for table in (reg.expected, reg.due, reg.birth_of, reg.save_parents):
+        if p.id in table and q.id not in table:
+            table[q.id] = table[p.id]
+        table.pop(p.id, None)
+    for key, pids in reg.namesakes.items():
+        reg.namesakes[key] = list(dict.fromkeys(q.id if pid == p.id else pid for pid in pids))
+    reg.birth_of = {pid: ((index, q.id if f == p.id else f, q.id if m == p.id else m))
+                    for pid, (index, f, m) in reg.birth_of.items()}
+    reg.save_parents = {pid: tuple(q.id if x == p.id else x for x in parents)
+                        for pid, parents in reg.save_parents.items()}
+
+
 def _merge_into(reg: _Registry, p: Person, q: Person) -> None:
     """The older record `p` is the villager `q` before their looks (or title) changed: one villager, `q`,
     who keeps every fact the records give either; p's look is remembered as one of q's (relooked)."""
@@ -861,6 +881,7 @@ def _merge_into(reg: _Registry, p: Person, q: Person) -> None:
     if p.id in reg.ran:
         reg.ran.discard(p.id)
         reg.ran.add(q.id)
+    _move_state(reg, p, q)
     del reg.people[p.id]
     reg.by_key[p.key] = q.id
     reg.relooked[p.key] = q.key

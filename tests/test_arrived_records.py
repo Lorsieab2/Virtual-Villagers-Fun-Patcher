@@ -102,6 +102,9 @@ CHECKS += 1
 # Arrived, and a villager whose looks changed before they were buried is accounted for by their Death record
 # (arrival_harness.c identity_cases f and g; cod_roster.inc roster_match, roster_gone_accounts_changed)
 CHECKS += 4 * 5
+# + 2 per game: a newcomer the game made, robed in the same session, keeps her arrival report (case h,
+# cod_arrivals.inc who_still)
+CHECKS += 2 * 5
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

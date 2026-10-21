@@ -160,13 +160,23 @@ def looks_from_save(game: int, data: bytes, at: int) -> dict:
                 skills=tuple(raw + [0] * (SKILLS - count)))
 
 
+def narrow(e: Entry, could: list, looks_of) -> list:
+    """Of the villagers who could all be the entry's (could_be), the one whose head and body are the
+    entry's when exactly one is (custom_title_shown.h, story_titles.inc titles_candidates); else all."""
+    if len(could) < 2 or not e.known:
+        return could
+    same = [v for v in could if (looks_of(v)["head"], looks_of(v)["body"]) == (e.head, e.body)]
+    return same if len(same) == 1 else could
+
+
 def could_be(game: int, e: Entry, looks: dict) -> bool:
-    """custom_titles.h vv_title_looks_could_be: the same head, body and sex, no younger, no skill lower --
-    both sides' skills as the corrupted-skill reset leaves them (an entry whose looks are not known: anyone
-    of its fingerprint)."""
+    """custom_titles.h vv_title_looks_could_be: the same sex, no younger, no skill lower -- both sides'
+    skills as the corrupted-skill reset leaves them (an entry whose looks are not known: anyone of its
+    fingerprint).  The head and body only break ties (`narrow`; the owner, v1.35.80 update: "A change in
+    body, head and mask does not mean they disappeared")."""
     if not e.known:
         return True
-    if (looks["head"], looks["body"], looks["sex"]) != (e.head, e.body, e.sex) or looks["age"] < e.age:
+    if looks["sex"] != e.sex or looks["age"] < e.age:
         return False
     floats = SAVE_LOOKS[game][6]
     stored = Entry(0, 1, "x", True, skills=tuple(skill_normalised(v, floats) for v in e.skills)).skill_values(game)

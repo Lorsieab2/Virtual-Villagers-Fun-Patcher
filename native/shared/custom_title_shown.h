@@ -81,7 +81,9 @@ static int vv_title_shown_on(const vv_custom_title *e, const vv_title_table *t, 
     unsigned int i;
     int carriers = 0;
     int could = 0;
+    int same = 0;                   /* ...of those, with the entry's own head and body (a tie-break) */
     unsigned int where = 0;
+    unsigned int where_same = 0;
     if (e->index == VV_TITLE_PENDING || e->index != r || r >= t->slots
         || vv_title_table_identity(t, vv_title_table_record(t, r)) != e->fingerprint) {
         return 0;
@@ -103,13 +105,19 @@ static int vv_title_shown_on(const vv_custom_title *e, const vv_title_table *t, 
             if (vv_title_looks_could_be(&e->looks, &now, t->skills_float)) {
                 ++could;
                 where = i;
+                if (vv_title_looks_same(&e->looks, &now)) {
+                    ++same;
+                    where_same = i;
+                }
             }
         }
     }
     if (!(e->flags & VV_TITLE_KNOWN)) {
         return carriers <= 1;
     }
-    return could == 1 && where == r;
+    /* The looks only break a tie (custom_titles.h): one who could be them, or of several exactly one
+       with the entry's head and body. */
+    return (could == 1 && where == r) || (could > 1 && same == 1 && where_same == r);
 }
 
 #endif /* VV_CUSTOM_TITLE_SHOWN_H */

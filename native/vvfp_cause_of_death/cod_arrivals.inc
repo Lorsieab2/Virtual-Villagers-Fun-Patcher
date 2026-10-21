@@ -371,6 +371,12 @@ static int who_still(const struct report_who *w, const unsigned char *record) {
     if (changed == 0) {
         return 1;
     }
+    /* ...or, the NAME the same, the looks AND the likes-and-dislikes changed in place together: The
+       Secret City's new Tribal Chief takes the robe's body and loses a dislike of dancing in one moment
+       (the owner, v1.35.80 update: a change of looks or title never means a villager left). */
+    if (changed == 2 && now.name == w->name) {
+        changed = 1;
+    }
     return changed == 1 && now.age - w->age >= 0 && now.age - w->age <= 1;
 }
 

@@ -265,6 +265,7 @@ def file_titles(folder: Path, game: int, slot: int) -> dict[tuple, str] | None:
     chosen: dict[int, list[str]] = {}
     for e in entries:
         could = [v for v in held if ids[v.at] == e.identity and vv_titles_file.could_be(game, e, looks[v.at])]
+        could = vv_titles_file.narrow(e, could, lambda v: looks[v.at])   # the looks only break a tie
         if len(could) == 1:
             chosen.setdefault(could[0].at, []).append(e.title.strip())
     # The tab finds a villager by (name, head, body).  Villagers who share all three can not be shown

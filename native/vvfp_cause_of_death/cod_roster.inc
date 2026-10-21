@@ -894,6 +894,35 @@ static void roster_reconcile(int slot) {
         /* More departures than could be kept: who left is not known for
            sure, so nobody is written as having left (unsure, never guessed). */
         int unsure = gone_overflow[slot + 1] || gone_overflow[early_tag + 1];
+        int pass;
+        /* A grave just recorded from (a burial no hook saw: the load-time catch-up; cod_backfill.inc):
+           first by the name, head and body for everyone, then -- the looks changed since the save (the
+           owner, v1.35.80 update) -- by the name alone, for a name no other kept villager still
+           unaccounted has.  Accounted for: -3. */
+        for (pass = 1; pass >= 0; --pass) {
+            for (i = 0; i < kept_count; ++i) {
+                unsigned int j;
+                int namesake = 0;
+                if (kept_match[i] != -1) {
+                    continue;
+                }
+                if (!pass) {
+                    for (j = 0; j < kept_count; ++j) {
+                        if (j != i && kept_match[j] == -1 && id_same_name(kept[i], 1, kept[j], 1)) {
+                            namesake = 1;
+                        }
+                    }
+                    if (namesake) {
+                        continue;
+                    }
+                }
+                memset(roster_scratch, 0, r->stride);
+                memcpy(roster_scratch + r->snapshot_lo, kept[i] + ROSTER_ENTRY_HEAD, span);
+                if (backfill_accounts_for_mode(roster_scratch, pass)) {
+                    kept_match[i] = -3;
+                }
+            }
+        }
         for (i = 0; i < kept_count; ++i) {
             const unsigned char *e = kept[i];
             char last_seen[32];
@@ -904,10 +933,9 @@ static void roster_reconcile(int slot) {
             memset(roster_scratch, 0, r->stride);
             memcpy(roster_scratch + r->snapshot_lo, e + ROSTER_ENTRY_HEAD, span);
             /* A departure reported since (a burial, a body's removal, a
-               disappearance: its Death or Disappeared record), or a grave
-               just recorded from (a burial no hook saw: the load-time
-               catch-up; cod_backfill.inc). */
-            if (backfill_accounts_for(roster_scratch) || unsure) {
+               disappearance: its Death or Disappeared record) or a grave just
+               recorded from (above: -2, -3) is never here. */
+            if (unsure) {
                 continue;
             }
             roster_when(last_seen, e + 8);
