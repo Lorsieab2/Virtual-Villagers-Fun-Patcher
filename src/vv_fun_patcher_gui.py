@@ -4114,6 +4114,14 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The duplicate names were not numbered. {exc}", parent=parent)
+        else:
+            # Every number in use kept for VVFP Number Names.dll, so a birth never gets a number a dead or
+            # gone namesake had (the owner, 2026-10-20); number_names keeps them itself when it runs.
+            try:
+                vv_number_names.record_used(folder, number, info.slot)
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, vv_log_tools.LogToolError,
+                    ValueError, OSError, struct.error):
+                pass
         lines = list(named_lines) + grave_lines
         if names is not None and names.get("arrivals") is not None \
                 and names["arrivals"] != vv_last_names.read_arrivals(folder, number, info.slot):

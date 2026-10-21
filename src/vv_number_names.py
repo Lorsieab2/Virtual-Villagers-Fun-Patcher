@@ -117,14 +117,6 @@ def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
     for pid, new in sorted(numbered.items(), key=lambda item: item[1]):
         name, head, body = village.people[pid].key
         if (name, head, body) in alike:
-            names = blocks.get(pid, [])
-            if (name, head, body) not in orderable or len(names) != alike[(name, head, body)]:
-                continue
-            if any(len(n) > ln.ROOM[village.game] for n in names):
-                out.notes.append(f"{names[-1]} is longer than the game's {ln.ROOM[village.game]} characters, so "
-                                 f"the {len(names)} villagers called {name} keep their name.")
-            else:
-                out.ordered[(name, head, body)] = names
             continue
         if head is None or body is None:
             out.notes.append(f"{new}'s records do not say how they look, so they keep the name {name}.")
@@ -133,6 +125,15 @@ def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
                              f"{name} keeps their name.")
         else:
             out.renames[(name, head, body)] = new
+    for pid, names in sorted(blocks.items(), key=lambda item: item[1]):
+        key = village.people[pid].key
+        if key not in alike or key not in orderable or len(names) != alike[key]:
+            continue
+        if any(len(n) > ln.ROOM[village.game] for n in names):
+            out.notes.append(f"{names[-1]} is longer than the game's {ln.ROOM[village.game]} characters, so "
+                             f"the {len(names)} villagers called {key[0]} keep their name.")
+        else:
+            out.ordered[key] = names
     return out
 
 
@@ -199,6 +200,7 @@ def number_names(folder: Path, game: int, slot: int, order: str = "appearance",
     except (gen.GenealogyError, struct.error, ValueError, OSError) as exc:
         raise ln.LastNamesError(f"A file could not be read ({exc}); nothing was changed.") from exc
     if not work.renames and not work.numbered:
+        _record_used_quietly(folder, game, slot, controller)
         # Not an error (the owner, 2026-10-20): nothing to number, or only what is left for the player.
         raise NothingToNumber(wanted.notes)
     result = ln.apply(folder, work, controller, now, BACKUP_LABEL, "numbering the names")
@@ -206,7 +208,16 @@ def number_names(folder: Path, game: int, slot: int, order: str = "appearance",
         note_numbering(folder, game, slot, result, wanted, now, automatic)
     except OSError:
         pass                                    # the renames stand; the save and the logs show them
+    _record_used_quietly(folder, game, slot, controller)
     return result, wanted
+
+
+def _record_used_quietly(folder: Path, game: int, slot: int, controller) -> None:
+    """record_used, where a failure changes nothing else (the next Repair keeps them again)."""
+    try:
+        record_used(folder, game, slot, controller)
+    except (ln.LastNamesError, gen.GenealogyError, struct.error, ValueError, OSError):
+        pass
 
 
 # NUMBERED AUTOMATICALLY (the owner, 2026-10-20: numbering villagers who share a full name "must be ON BY
@@ -242,26 +253,82 @@ def read_auto(folder: Path, game: int, slot: int) -> bool:
     return True
 
 
+def _write_setting(folder: Path, game: int, slot: int, on: bool, used: dict[str, set[int]]) -> None:
+    path = setting_path(folder, game, slot)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [SETTING_HEADER.format(game=game), f"auto\t{AUTO_ON if on else AUTO_OFF}"]
+    lines += [f"used\t{base}\t{n}" for base in sorted(used) for n in sorted(used[base])]
+    ln._write(path, ("\n".join(lines) + "\n").encode("utf-8"))
+
+
 def save_auto(folder: Path, game: int, slot: int, on: bool,
               processes: vv_save_backup.ProcessController | None = None) -> bool:
     """Keep the village's setting (refused while the game runs: the companion reads it at each birth).
-    True when it changed."""
+    True when it changed.  The numbers already used (read_used) are kept with it."""
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     ln.tools._refuse_if_running(Path(folder), controller)
     if on == read_auto(folder, game, slot):
         return False
-    path = setting_path(folder, game, slot)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    ln._write(path, (SETTING_HEADER.format(game=game) + f"\nauto\t{AUTO_ON if on else AUTO_OFF}\n").encode("utf-8"))
+    _write_setting(folder, game, slot, on, read_used(folder, game, slot))
+    return True
+
+
+# NUMBERS ARE NEVER GIVEN TWICE (the owner, 2026-10-20): "a new namesake gets the next free number after the
+# highest ever used for that name (including dead/gone holders in the logs)".  The same file keeps every
+# number used for each name, a line "used<TAB><name without its number><TAB><n>" (the name in UTF-8):
+# the patcher writes the numbers the save and the logs know (record_used), and VVFP Number Names.dll adds
+# each one it gives at a birth -- so the companion, which sees only the living, never gives a number a dead
+# or gone villager had, and the patcher never gives one the companion gave.
+def read_used(folder: Path, game: int, slot: int) -> dict[str, set[int]]:
+    try:
+        lines = setting_path(folder, game, slot).read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return {}
+    if not lines or lines[0] != SETTING_HEADER.format(game=game):
+        return {}
+    out: dict[str, set[int]] = {}
+    for line in lines[1:]:
+        parts = line.split("\t")
+        if parts[0] == "used" and len(parts) == 3 and parts[1] and parts[2].isdigit() and 0 < int(parts[2]) < 4000:
+            out.setdefault(parts[1], set()).add(int(parts[2]))
+    return out
+
+
+def _known_numbers(folder: Path, game: int, slot: int) -> dict[str, set[int]]:
+    """Every number the save, the logs and the patcher's files show in use, by the name it numbers."""
+    out: dict[str, set[int]] = {}
+    village = gen.load_village(folder, game, slot, full_names=False)
+    _alike, nameless, _bodies, taken = evidence(folder, game, slot)
+    for name in [p.name for p in village.known()] + sorted(nameless) + sorted(taken):
+        base, value = gen.unnumbered(name), gen.roman_value(name.rsplit(" ", 1)[-1])
+        if base != name and value:
+            out.setdefault(base, set()).add(value)
+    return out
+
+
+def record_used(folder: Path, game: int, slot: int,
+                processes: vv_save_backup.ProcessController | None = None) -> bool:
+    """Keep in the village's file every number now in use (with those it already keeps); refused while the
+    game runs.  True when the file changed."""
+    controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
+    ln.tools._refuse_if_running(Path(folder), controller)
+    used = read_used(folder, game, slot)
+    merged = {base: set(ns) for base, ns in used.items()}
+    for base, ns in _known_numbers(folder, game, slot).items():
+        merged.setdefault(base, set()).update(ns)
+    if merged == used:
+        return False
+    _write_setting(folder, game, slot, read_auto(folder, game, slot), merged)
     return True
 
 
 def pending(folder: Path, game: int, slot: int, order: str = "appearance") -> Numbering:
     """What numbering would do now (read only): the renames, and the notes on who would be left as they
     are and why -- the cases the player decides, never guessed."""
-    found = evidence(folder, game, slot)
-    return numbering(gen.load_village(folder, game, slot, full_names=False), *found, order=order,
-                     orderable=orderable(folder, game, slot, found[0]))
+    alike, nameless, bodies, taken = evidence(folder, game, slot)
+    taken = set(taken) | {f"{base} {gen.roman(n)}" for base, ns in read_used(folder, game, slot).items() for n in ns}
+    return numbering(gen.load_village(folder, game, slot, full_names=False), alike, nameless, bodies, taken,
+                     order=order, orderable=orderable(folder, game, slot, alike))
 
 
 def _village_header(folder: Path, game: int, slot: int) -> str | None:

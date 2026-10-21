@@ -168,6 +168,38 @@ class InTheSaveAndTheLogs(unittest.TestCase):
         self.assertEqual(once, twice, "a second Repair changes nothing")
         self.assertEqual(nn.pending(self.folder, 3, 1).renames, {})
 
+    def test_a_number_is_kept_for_life_and_never_given_twice(self):
+        # The owner, 2026-10-20: "a villager who has a number KEEPS it, even after their namesake dies or
+        # leaves"; "a new namesake gets the next free number after the highest ever used for that name".
+        self.write(entry("Gata Sirikit II", 1, 9, 11, 20), entry("Aipi", 1, 50, 7, 8))
+        self._log("Deaths/Virtual Villagers 3 Deaths Log 1.txt",
+                  "Village: Tribe (Save 1)\nDeath 1\n  Name: Gata Sirikit I\n  Age at death: 1400\n"
+                  "  Head: 3\n  Body: 3\n\n")
+        with self.assertRaises(nn.NothingToNumber):     # the survivor keeps II
+            nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW)
+        self.assertEqual([n for n, _a in self.names_in_save()], ["Gata Sirikit II", "Aipi"])
+        # The numbers in use are kept for VVFP Number Names.dll (the dead's I too).
+        self.assertEqual(nn.read_used(self.folder, 3, 1), {"Gata Sirikit": {1, 2}})
+        self.assertTrue(nn.read_auto(self.folder, 3, 1), "the setting stays on")
+        # Even when the living one is alone: no number is removed or lowered.
+        self.write(entry("Gata Sirikit II", 1, 9, 11, 20))
+        self.assertEqual(nn.pending(self.folder, 3, 1).renames, {})
+        # A newborn of the name (the companion not installed): III, never a second I or II.
+        self.write(entry("Gata Sirikit II", 1, 9, 11, 20), entry("Gata Sirikit", 1, 9, 4, 4))
+        result, wanted = nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW)
+        self.assertEqual([n for n, _a in self.names_in_save()], ["Gata Sirikit II", "Gata Sirikit III"])
+        self.assertEqual(nn.read_used(self.folder, 3, 1), {"Gata Sirikit": {1, 2, 3}})
+        # A number the companion gave at a birth (kept in the file) is never given again either.
+        path = nn.setting_path(self.folder, 3, 1)
+        path.write_text(path.read_text(encoding="utf-8") + "used\tGata Sirikit\t4\n", encoding="utf-8")
+        self.write(entry("Gata Sirikit II", 1, 9, 11, 20), entry("Gata Sirikit III", 1, 9, 4, 4),
+                   entry("Gata Sirikit", 1, 9, 5, 5))
+        nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW)
+        self.assertEqual([n for n, _a in self.names_in_save()][2], "Gata Sirikit V")
+        # Turning the setting off keeps the numbers used.
+        self.assertTrue(nn.save_auto(self.folder, 3, 1, False, processes=NoGame()))
+        self.assertEqual(nn.read_used(self.folder, 3, 1), {"Gata Sirikit": {1, 2, 3, 4, 5}})
+
     def test_the_repair_window_shows_it_as_information(self):
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         repair = gui[gui.index("    def _repair_logs("):gui.index("    def _repair_checklist(")]
@@ -248,6 +280,16 @@ class EveryGame(unittest.TestCase):
                     second = nn.numbering(v, nameless=nameless, bodies=set())
                     self.assertEqual(second.renames, {}, (first.renames, first.ordered))
                     self.assertEqual(second.ordered, {})
+
+    def test_a_number_alone_is_kept_in_every_game(self):
+        # The owner, 2026-10-20: the audit copy's "Gata Sirikit II" must not become plain "Gata Sirikit".
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                v = gen.Village(game, 1, "Tribe", {
+                    1: gen.Person(1, "Gata Sirikit II", 11, 20, alive=True, birth_record=5),
+                    2: gen.Person(2, "Hawa Awanata II", 4, 4, alive=True, birth_record=6)})
+                self.assertEqual(nn.numbering(v).renames, {})
+                self.assertEqual(gen.duplicate_names(v), {})
 
     def test_the_numbers_skip_one_in_use(self):
         v = gen.Village(2, 1, "Tribe", {1: gen.Person(1, "Goby Kalama", 5, 6, alive=True, birth_record=1)})

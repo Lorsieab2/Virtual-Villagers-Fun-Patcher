@@ -299,6 +299,12 @@ in Number Names\, see THE PATCHER'S OWN FILES).
   the villager who already had the name becomes "I". The save folder is backed
   up first ("(before numbering names)"), and a Repairs Made record lists every
   rename, old name -> new name.
+- A number is kept for life: when a namesake dies or leaves, the other keeps
+  their number ("Gata Sirikit II" stays II), and a number is never lowered,
+  removed or given twice -- a new namesake gets the next number after the
+  highest any villager of that name has had, the dead and gone included (a
+  baby named like a dead Gata Sirikit II is Gata Sirikit III). The numbers
+  used are kept in Number Names\ for the game to read at each birth.
 - Villagers with the same name AND the same looks are numbered too: the
   oldest is I; two of the same age (identical twins) go in the game's own
   order -- the save's order, and the order of their Birth records (the
@@ -851,8 +857,9 @@ Fun Patcher Data", one file per save slot:
     Number Names\                                  (Repair Saves & Logs: "Number
         Virtual Villagers <N> Number Names          villagers who share a name
           - Save <slot>.dat                         automatically", all five games)
-      Written only when you change the setting; no file is ON. Read by the
-      patcher and, at each birth, by VVFP Number Names.dll.
+      The setting (no file is ON) and every number used for each name, so
+      none is given twice. Written by Repair Saves & Logs, and at a birth by
+      VVFP Number Names.dll when it numbers the baby; read by both.
 
 (The Unaccounted Villagers roster is not the "Village Roster - Save <slot>.dat"
 in Village Statistics\: that one is the statistics' own, and a different file.)

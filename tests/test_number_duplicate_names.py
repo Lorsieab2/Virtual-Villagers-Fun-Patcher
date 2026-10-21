@@ -48,7 +48,7 @@ class TheNumbers(unittest.TestCase):
         self.assertEqual(gen.duplicate_names(v, "youngest"), {1: "Soda I", 3: "Soda II", 2: "Soda III", 7: "Soda IV"})
         self.assertEqual(gen.duplicate_names(v, "appearance"), {7: "Soda I", 1: "Soda II", 3: "Soda III", 2: "Soda IV"})
 
-    def test_namesakes_are_the_same_first_and_last_name_and_old_numbers_go(self):
+    def test_namesakes_are_the_same_first_and_last_name_and_numbers_are_kept(self):
         # The owner, 2026-10-08: "roman numerals should be given for people who have both the same first
         # and last name (Suki Wikimak I, Suki Wikimak II)"; "hawa bahati and hawa awanata are different
         # people ... Hawa awanata should not be called I or II unless there's literally a second hawa
@@ -63,12 +63,13 @@ class TheNumbers(unittest.TestCase):
                     gen.Person(8, "Meka", 8, 8, alive=True, birth_record=7),
                     gen.Person(9, "Tomi Akikai II", 9, 9, alive=True, birth_record=8),
                     gen.Person(10, "Tomi Akikai", 10, 10, alive=True, birth_record=9))
+        # The owner, 2026-10-20: a number is kept for life and never lowered -- Suki Alosaka I, Suki
+        # Wanjiko II, Hawa Bahati I and Hawa Awanata II keep theirs with no namesake; the Tomi Akikai who
+        # comes after Tomi Akikai II gets III.
         self.assertEqual(gen.duplicate_names(v), {
-            1: "Suki Alosaka", 2: "Suki Wanjiko",               # no second Suki Alosaka or Suki Wanjiko
-            3: "Hawa Bahati", 4: "Hawa Awanata",
             5: "Kaula Akikai I", 6: "Kaula Akikai II",          # the same first and last name
             7: "Meka I", 8: "Meka II",                           # first names only
-            10: "Tomi Akikai I"})                                # Tomi Akikai II keeps his number
+            10: "Tomi Akikai III"})                              # Tomi Akikai II keeps his number
         self.assertEqual(gen.unnumbered("Soda II"), "Soda")
         self.assertEqual(gen.unnumbered("Ivi"), "Ivi")
         self.assertEqual(gen.unnumbered("Suki Wanjiko"), "Suki Wanjiko")
