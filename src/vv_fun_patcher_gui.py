@@ -3379,12 +3379,14 @@ class App(tk.Tk):
             self.status_var.set(
                 f"Rename Tribe: {result.old_name} is now {result.new_name}."
             )
+            moved = (f"; {len(result.data)} patcher data file(s) moved to the new name"
+                     if result.data else "")
             messagebox.showinfo(
                 "Rename Tribe",
                 f"\"{result.old_name}\" is now \"{result.new_name}\" "
                 f"(Save {result.slot}, {folder.name}).\n\n"
                 f"{len(result.changed)} save file(s) changed and read back; "
-                f"{len(result.notes)} log(s) noted the rename.\n\n"
+                f"{len(result.notes)} log(s) noted the rename{moved}.\n\n"
                 f"Backup: {result.backup.backup_folder}",
                 parent=dialog,
             )
