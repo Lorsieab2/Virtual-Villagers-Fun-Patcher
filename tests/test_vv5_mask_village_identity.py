@@ -184,7 +184,7 @@ class Vv5RosterIdentityTest(unittest.TestCase):
         self.assertNotIn("header[1] != tag", load)
         # A reload packs the records: every restored mask is moved to its
         # villager by the identity the file holds (name-only files: down only)
-        self.assertIn("vv5_mask_follow_table(table, filesnap, against, weak)", load)
+        self.assertIn("vv5_mask_follow_table(table, filesnap, against, weak, 0)", load)
         self.assertIn("weak = magic == VV5_MASK_SIDECAR_MAGIC || magic == VV5_MASK_SIDECAR_MAGIC_256;", load)
         overlap = self._function("static int vv5_roster_overlap(")
         self.assertIn("if (a[i] == b[i] || a[i] == b[rank]) {", overlap)
@@ -197,7 +197,7 @@ class Vv5RosterIdentityTest(unittest.TestCase):
         # a birth or death under the same village re-persists the snapshot
         changed = sync.split("if (!vv5_roster_equal(g_vv5_roster, cur)) {", 1)[1].split("return 1;", 1)[0]
         # each mask follows its villager first (a reused record drops it)
-        self.assertLess(changed.index("vv5_mask_follow_table(table, g_vv5_roster, cur, 0);"),
+        self.assertLess(changed.index("vv5_mask_follow_table(table, g_vv5_roster, cur, 0, 1);"),
                         changed.index("memcpy(g_vv5_roster, cur, sizeof(cur));"))
         self.assertLess(changed.index("memcpy(g_vv5_roster, cur, sizeof(cur));"),
                         changed.index("WriteMaskSidecar(table);"))
@@ -258,7 +258,7 @@ class Vv5RenameTest(unittest.TestCase):
                   / "vv5_task9_origins.c").read_text(encoding="utf-8")
         sync = source[source.index("__declspec(dllexport) int __stdcall Vv5MaskSync("):]
         sync = sync[:sync.index("\n}\n") + 3]
-        renamed = sync.index("int renamed = vv_roster_renamed(VV5_RECORD_COUNT, g_vv5_roster, g_vv5_stable, cur, cur_stable);")
+        renamed = sync.index("int renamed = vv_roster_renamed_in_play(VV5_RECORD_COUNT, g_vv5_roster, g_vv5_stable, cur, cur_stable);")
         self.assertLess(renamed, sync.index("vv5_roster_same(g_vv5_roster, cur)"))
         block = sync[renamed:sync.index("return 1;", renamed)]
         self.assertIn("g_vv5_roster[renamed] = cur[renamed];", block)

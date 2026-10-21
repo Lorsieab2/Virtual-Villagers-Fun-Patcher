@@ -44,6 +44,9 @@ CHECKS += 5
 # + 1 per game with elders lines (v1.35.80): an elder on the list, under a name a last name was added to or
 # dropped from since, is never appended again (reconcile_harness.c "Old Kenobi")
 CHECKS += 4
+# + 1 per game with elders lines (the identity audit): a dead elder whose namesake lives -- the same name, or
+# one a last name grew into -- is counted, once, by her own Death record (reconcile_harness.c Ann, Ana)
+CHECKS += 4
 
 
 def body(source: str, head: str) -> str:

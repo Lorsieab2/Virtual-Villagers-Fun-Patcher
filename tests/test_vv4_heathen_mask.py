@@ -282,8 +282,11 @@ class DllStorageContractTests(unittest.TestCase):
         self.assertIn("return 0;", mismatch)
         follow = self.c.split("static int vv_mask_follow_table(void) {", 1)[1].split("\n}", 1)[0]
         self.assertIn("if (!g_slot_identity_ready[idx]) {", follow)
-        self.assertIn("vv_mask_follow(slots, g_mask_by_index, g_mask_fp,\n"
-                      "                             g_mask_roster_known ? g_mask_roster : NULL, live, 0, moved_mask, moved_fp);",
+        self.assertIn(": vv_mask_follow(slots, g_mask_by_index, g_mask_fp,\n"
+                      "                         g_mask_roster_known ? g_mask_roster : NULL, live, 0, moved_mask, moved_fp);",
+                      follow)
+        # ...and between two looks in play (identity audit: one of two twins dying is no repack).
+        self.assertIn("? vv_mask_follow_in_play(slots, g_mask_by_index, g_mask_fp, g_mask_roster, live, 0, moved_mask, moved_fp)",
                       follow)
         sweep_body = self.c.split("static int vv_mask_sweep(void) {", 1)[1].split("\n}", 1)[0]
         self.assertIn("changed |= vv_mask_follow_table();", sweep_body)
@@ -750,9 +753,9 @@ class Vv4RenameAndRosterTests(unittest.TestCase):
         cls.follow = cls.c.split("static int vv_mask_follow_table(void) {", 1)[1].split("\n}", 1)[0]
 
     def test_a_rename_is_carried_before_the_follow(self) -> None:
-        renamed = self.follow.index("int renamed = vv_roster_renamed(slots, g_mask_roster, g_mask_stable, live, live_stable);")
-        self.assertLess(renamed, self.follow.index("changed = vv_mask_follow("))
-        block = self.follow[renamed:self.follow.index("changed = vv_mask_follow(")]
+        renamed = self.follow.index("int renamed = vv_roster_renamed_in_play(slots, g_mask_roster, g_mask_stable, live, live_stable);")
+        self.assertLess(renamed, self.follow.index("changed = g_mask_roster_known && g_mask_stable_known"))
+        block = self.follow[renamed:self.follow.index("changed = g_mask_roster_known && g_mask_stable_known")]
         self.assertIn("g_mask_fp[renamed] = live[renamed];", block)
         self.assertIn("g_mask_roster[renamed] = live[renamed];", block)
         self.assertIn("roster_delta = 1;", block)

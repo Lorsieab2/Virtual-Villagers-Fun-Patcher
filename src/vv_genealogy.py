@@ -213,6 +213,13 @@ class _Registry:
         # A New Home's living villagers as its save names them: (id, name, gender, family, head, body).
         self.vv1_living: list[tuple] = []
         self.ran: set[int] = set()                     # who a log says likes running
+        # NAMESAKES BY THEIR OWN BIRTH (the identity audit): two Birth records of one name and look are
+        # two villagers.  key -> every person born with it, the registry's own first; and each person's
+        # Birth (record index, father id, mother id), and the parents the save keeps on a living
+        # villager's record (The Lost Children on).
+        self.namesakes: dict[Key, list[int]] = {}
+        self.birth_of: dict[int, tuple] = {}
+        self.save_parents: dict[int, tuple] = {}
 
     def current(self, key: Key) -> Key:
         """The look a villager has now, following their Change Appearance records, under the full name
@@ -288,6 +295,7 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                         p.father = parent.id
                     else:
                         p.mother = parent.id
+            reg.save_parents[p.id] = (p.father, p.mother)
 
 
 PARENT_LINE = re.compile(r"^\s+(Father|Mother): (.*)$")
@@ -343,6 +351,8 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         if voided and additions.is_removable_backfill(b) and b.identity in voided:
             continue
         p = reg.get(name, head, body)
+        if b.heading.startswith(("Death", "Disappeared")):
+            p = _namesake_for(reg, p, b)     # a living villager's dead namesake (the identity audit)
         sex = b.value("Sex")
         if sex in ("Male", "Female") and p.sex is None:
             p.sex = sex
@@ -424,14 +434,27 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         reg.conceptions.pop(reg.current((rec.mother.name, rec.mother.head, rec.mother.body)) if rec.mother else None,
                             None)
         child = reg.get(rec.child.name, rec.child.head, rec.child.body)
-        if child.birth_record is None:
-            child.birth_record = index
+        if child.birth_record is not None:
+            # A second Birth record of this name and look is another villager (a Birth is written once
+            # per child): never the first one's (the identity audit; _namesakes_by_birth decides who
+            # of them the living villager is).
+            key = (child.name, child.head, child.body)
+            pid = max(reg.people, default=0) + 1
+            reg.people[pid] = Person(pid, *key)
+            reg.namesakes.setdefault(key, [child.id]).append(pid)
+            child = reg.people[pid]
+        child.birth_record = index
+        ids = []
         for person, attr, sex in ((rec.father, "father", "Male"), (rec.mother, "mother", "Female")):
+            parent_id = None
             if person is not None and person.name:
                 parent = reg.get(person.name, person.head, person.body)
                 parent.sex = parent.sex or sex
+                parent_id = parent.id
                 if getattr(child, attr) is None:
                     setattr(child, attr, parent.id)
+            ids.append(parent_id)
+        reg.birth_of[child.id] = (index, ids[0], ids[1])
         mother = rec.mother and (rec.mother.name, rec.mother.head, rec.mother.body)
         # A delivery's Birth records are written one after another, its Conception before them;
         # three babies at most.  A "Born as:" line, where Repair Saves & Logs wrote one, says how many came
@@ -452,6 +475,55 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     for p in reg.people.values():
         if p.litter is not None and sizes[p.litter] < 2:
             p.litter = None
+
+
+def _namesakes_by_birth(reg: _Registry, notes: list[str]) -> None:
+    """Who of the villagers born with one name and look the living one is (the identity audit): the
+    one whose Birth names the parents the save keeps on her record (The Lost Children on) -- never the
+    name and look alone.  The registry's own person for the key is the living one (the save is read
+    first); she takes that Birth and its litter, and the Birth she was given in log order goes to the
+    namesake instead, with its own parents.  When no Birth -- or more than one -- names her record's
+    parents (A New Home keeps none on the record), no Birth is hers: the one she was given becomes a
+    villager of its own, her record keeps its own parents, and the notes say so."""
+    for key, pids in reg.namesakes.items():
+        living = reg.people[pids[0]]
+        if not living.alive or living.id not in reg.birth_of:
+            continue
+        mine = reg.save_parents.get(living.id)
+        matches = [pid for pid in pids if mine and None not in mine
+                   and reg.birth_of.get(pid, (None, None, None))[1:] == mine]
+        given = reg.birth_of[living.id]
+        if len(matches) == 1 and matches[0] == living.id:
+            continue                                   # the Birth she was given is hers
+        if len(matches) == 1:
+            other = reg.people[matches[0]]
+            # Swap the Births: hers to her, the one she was given to the namesake, with its parents.
+            living.birth_record, other.birth_record = other.birth_record, living.birth_record
+            living.litter, other.litter = other.litter, living.litter
+            reg.birth_of[living.id], reg.birth_of[other.id] = reg.birth_of[other.id], given
+            other.father, other.mother = given[1], given[2]
+            continue
+        # Not told apart: one of the Births is hers and the rest are the namesakes', but which is not
+        # known -- so no Birth (and no Birth's parents) is given to any of them; she keeps her record's
+        # own parents, and the namesakes keep none.
+        for pid in pids:
+            person = reg.people[pid]
+            person.birth_record, person.litter = None, None
+            person.father, person.mother = (mine if mine else (None, None)) if pid == living.id else (None, None)
+            reg.birth_of.pop(pid, None)
+        notes.append(f"{key[0]} (head {key[1]}, body {key[2]}): {len(pids)} Birth records name a child with this name "
+                     "and look; which of them is the living villager's could not be told (her record's parents "
+                     "name none of them, or more than one), so no Birth record or parents are given to any of them.")
+
+
+def _namesake_for(reg: _Registry, p: Person, b) -> Person:
+    """The villager a Death or Disappeared record of `p`'s name and look is about: `p`, or -- `p`
+    alive -- the one namesake born with that look who is not alive and has no such record yet."""
+    if not p.alive:
+        return p
+    others = [reg.people[q] for q in reg.namesakes.get((p.name, p.head, p.body), [])
+              if not reg.people[q].alive and not reg.people[q].gone]
+    return others[0] if len(others) == 1 else p
 
 
 def _saved_rename_answers(folder: Path, game: int, slot: int) -> dict:
@@ -501,6 +573,7 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
     _appearance_changes(reg, folder, game, slot)
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
+    _namesakes_by_birth(reg, notes)
     _log_people(reg, folder, game, slot)
     if game == 1:
         _vv1_from_sidecar(reg, folder, slot)

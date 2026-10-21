@@ -79,12 +79,56 @@ static int vv_roster_moved(int n, const unsigned int *roster, const unsigned int
     return 0;
 }
 
+/* The same, between two looks DURING PLAY (the identity audit): the game never moves a villager
+   to another record while a village is played -- only a load packs them.  So a record that empties
+   while its villager's identity is still on screen is a move only when that identity is in a
+   record that did not hold it at the last look: one of two villagers of one identity who died in
+   play leaves the other in her own record, and that is no move (the old rule called it a repack,
+   and the surviving twin lost her mask).  Never for the first look after a load: the caller says
+   which it is. */
+static int vv_roster_moved_in_play(int n, const unsigned int *roster, const unsigned int *live) {
+    int i, k;
+    if (roster == 0) {
+        return 1;
+    }
+    for (i = 0; i < n; ++i) {
+        if (roster[i] != 0 && live[i] != 0 && roster[i] != live[i]) {
+            return 1;
+        }
+        if (roster[i] != 0 && live[i] == 0) {
+            for (k = 0; k < n; ++k) {
+                if (k != i && live[k] == roster[i] && roster[k] != roster[i]) {
+                    return 1;         /* the identity came into a record that did not hold it */
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+static int vv_mask_follow_ex(int n, const unsigned char *value, const unsigned int *stored,
+                             const unsigned int *roster, const unsigned int *live, int down_only, int in_play,
+                             unsigned char *new_value, unsigned int *new_stored);
+
 static int vv_mask_follow(int n, const unsigned char *value, const unsigned int *stored,
                           const unsigned int *roster, const unsigned int *live, int down_only,
                           unsigned char *new_value, unsigned int *new_stored) {
+    return vv_mask_follow_ex(n, value, stored, roster, live, down_only, 0, new_value, new_stored);
+}
+
+/* vv_mask_follow between two looks during play (vv_roster_moved_in_play): never after a load. */
+static int vv_mask_follow_in_play(int n, const unsigned char *value, const unsigned int *stored,
+                                  const unsigned int *roster, const unsigned int *live, int down_only,
+                                  unsigned char *new_value, unsigned int *new_stored) {
+    return vv_mask_follow_ex(n, value, stored, roster, live, down_only, 1, new_value, new_stored);
+}
+
+static int vv_mask_follow_ex(int n, const unsigned char *value, const unsigned int *stored,
+                             const unsigned int *roster, const unsigned int *live, int down_only, int in_play,
+                             unsigned char *new_value, unsigned int *new_stored) {
     int target[VV_MASK_FOLLOW_MAX];
     int i;
-    int repacked = vv_roster_moved(n, roster, live);
+    int repacked = in_play ? vv_roster_moved_in_play(n, roster, live) : vv_roster_moved(n, roster, live);
     int changed = 0;
     for (i = 0; i < n; ++i) {
         int where = -1;
@@ -151,6 +195,28 @@ static int vv_roster_renamed(int n, const unsigned int *was, const unsigned int 
         if (was[i] != now[i]) {
             if (at >= 0) {
                 return -1;            /* more than one record changed */
+            }
+            at = i;
+        }
+    }
+    if (at < 0 || was_stable[at] == 0 || was_stable[at] != now_stable[at]) {
+        return -1;
+    }
+    return at;
+}
+
+/* The same DURING PLAY (the identity audit, as cod_former.inc former_renamed): one record holds a
+   villager at both looks and changed identity, keeping the stable part; every other change is a
+   record emptied (a death) or filled (a birth) -- in play nobody moves, so a rename in the same
+   frame as a birth or a death is still the rename it is.  Two records holding somebody else is
+   never one. */
+static int vv_roster_renamed_in_play(int n, const unsigned int *was, const unsigned int *was_stable,
+                                     const unsigned int *now, const unsigned int *now_stable) {
+    int i, at = -1;
+    for (i = 0; i < n; ++i) {
+        if (was[i] != now[i] && was[i] != 0 && now[i] != 0) {
+            if (at >= 0) {
+                return -1;
             }
             at = i;
         }

@@ -424,7 +424,7 @@ static int vv_mask_follow_table(void) {
        record changed since the last look, its gender and parents unchanged:
        the same villager -- the mask stays and takes the new identity. */
     if (g_mask_roster_known && g_mask_stable_known) {
-        int renamed = vv_roster_renamed(slots, g_mask_roster, g_mask_stable, live, live_stable);
+        int renamed = vv_roster_renamed_in_play(slots, g_mask_roster, g_mask_stable, live, live_stable);
         if (renamed >= 0) {
             if (g_mask_by_index[renamed] != 0 && g_mask_fp[renamed] == g_mask_roster[renamed]) {
                 g_mask_fp[renamed] = live[renamed];
@@ -433,8 +433,13 @@ static int vv_mask_follow_table(void) {
             roster_delta = 1;
         }
     }
-    changed = vv_mask_follow(slots, g_mask_by_index, g_mask_fp,
-                             g_mask_roster_known ? g_mask_roster : NULL, live, 0, moved_mask, moved_fp);
+    /* IN PLAY (the identity audit): the last look was taken in this village, with no load since
+       (a load, a slot change or the village coming back from the menus clears g_mask_stable_known):
+       nobody moves in play, so one of two villagers of one identity dying is no repack. */
+    changed = g_mask_roster_known && g_mask_stable_known
+        ? vv_mask_follow_in_play(slots, g_mask_by_index, g_mask_fp, g_mask_roster, live, 0, moved_mask, moved_fp)
+        : vv_mask_follow(slots, g_mask_by_index, g_mask_fp,
+                         g_mask_roster_known ? g_mask_roster : NULL, live, 0, moved_mask, moved_fp);
     if (g_fp_version == 2u) {
         for (idx = 0; idx < slots; idx++) {
             if (moved_mask[idx] != 0) {
