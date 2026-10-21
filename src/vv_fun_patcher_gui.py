@@ -551,6 +551,47 @@ def own_rules_changing(current: dict, pending: dict) -> set:
     return {key for key in set(current) | set(pending) if (pending.get(key) or "") != (current.get(key) or "")}
 
 
+# "Sort by:" in the last-names window and the own-rules window (the owner, v1.35.80).  "As in the save" is the
+# order both windows always used (the living as the save keeps them, then the dead and gone as the logs
+# know them), and the default; the choice is remembered for the rest of the session.
+SORT_AS_SAVED = "As in the save"
+SORT_ALPHABETICAL = "Alphabetical (first name, then last name)"
+SORT_ARRIVED = "Arrived at top"
+SORT_AGE = "Age (oldest to youngest)"
+LAST_NAMES_SORTS = (SORT_AS_SAVED, SORT_ALPHABETICAL, SORT_ARRIVED, SORT_AGE)
+
+
+def _alphabetical_key(name: str) -> tuple:
+    """First name, then the rest, case-insensitive; a Roman number by its value (Kalama I, II, ... X)."""
+    words = name.split()
+    number = 0
+    if len(words) > 1 and vv_genealogy.roman_value(words[-1]):
+        number = vv_genealogy.roman_value(words[-1])
+        words = words[:-1]
+    first = words[0].casefold() if words else ""
+    return first, " ".join(words[1:]).casefold(), number
+
+
+def last_names_order(people: list, sort: str, current: list[int] | None = None) -> list[int]:
+    """The rows' order (indexes into `people`) for a "Sort by" choice.  Alphabetical: first name, then last
+    name, numbered namesakes in numeral order.  Arrived at top: the villagers who arrived through an event
+    first, each group in `current` (the order shown now).  Age: the save's own age, oldest first -- the dead
+    and gone by their age at death or when last seen; one with no known age last; ties by name.  Anything
+    else: as in the save."""
+    every = list(range(len(people)))
+    if sort == SORT_ALPHABETICAL:
+        return sorted(every, key=lambda k: (_alphabetical_key(people[k].name), k))
+    if sort == SORT_ARRIVED:
+        base = list(current) if current is not None and sorted(current) == every else every
+        return sorted(base, key=lambda k: not getattr(people[k], "arrived", False))
+    if sort == SORT_AGE:
+        def age_key(k: int) -> tuple:
+            age = getattr(people[k], "age", None)
+            return (age is None, -(age or 0), _alphabetical_key(people[k].name), k)
+        return sorted(every, key=age_key)
+    return every
+
+
 def last_name_row_style(changed: bool, asked: bool) -> dict:
     """How a villager's row reads: red bold when its last name will change, else the normal font and
     colour; `asked` rows (the prompt's) keep their pale background, black text unless changed."""
@@ -5020,6 +5061,13 @@ class App(tk.Tk):
                    command=lambda: self._own_rules_dialog(window, people, parents, own_state, lambda: by_rule(),
                                                           current=saved_own)
                    ).pack(side="left", padx=(8, 0))
+        # Sort by (the owner, v1.35.80): the rows move, every box keeps what is in it; nothing is written.
+        sort_row = ttk.Frame(frame, padding=(12, 4, 12, 0))
+        sort_row.pack(anchor="w")
+        ttk.Label(sort_row, text="Sort by:").pack(side="left")
+        sort_var = tk.StringVar(value=getattr(self, "_last_names_sort", SORT_AS_SAVED))
+        ttk.Combobox(sort_row, textvariable=sort_var, values=list(LAST_NAMES_SORTS), state="readonly",
+                     width=max(len(s) for s in LAST_NAMES_SORTS) + 2).pack(side="left", padx=(6, 0))
         # Arriving villagers' own new last names (the owner, v1.35.66: "an optional toggle (default on) for
         # automatically assigning unique last names for arrived villagers"), kept with the village.
         recorded_arrivals = vv_last_names.read_arrivals(folder, number, info.slot)
@@ -5050,6 +5098,7 @@ class App(tk.Tk):
         bold_font = normal_font.copy()
         bold_font.configure(weight="bold")
         labels: dict = {}                       # identity -> (the row's label, whether the prompt asked about it)
+        row_widgets: list[list] = []            # each villager's row of widgets, moved together by Sort by
         for row, (v, who) in enumerate(zip(people, last_name_rows(people, parents))):
             asked = v.identity in highlight
             label = (tk.Label(inner, text=who, background=LAST_NAME_ASKED_BACKGROUND, foreground="#000000")
@@ -5077,6 +5126,18 @@ class App(tk.Tk):
                 ttk.Checkbutton(inner, text=f"'{guessed}' is a last name", variable=is_last,
                                 command=lambda v=v, base=f"{own} {guessed}", var=is_last: one_name(v, base, var)
                                 ).grid(row=row, column=3, sticky="w", padx=(8, 0))
+            row_widgets.append(inner.grid_slaves(row=row))
+        shown_order = list(range(len(people)))
+
+        def resort(*_args) -> None:
+            """Move the rows to the chosen order; their boxes, marks and ticks go with them."""
+            self._last_names_sort = sort_var.get()
+            shown_order[:] = last_names_order(people, sort_var.get(), shown_order)
+            for place, k in enumerate(shown_order):
+                for widget in row_widgets[k]:
+                    widget.grid_configure(row=place)
+        sort_var.trace_add("write", resort)
+        resort()
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
         buttons = ttk.Frame(frame, padding=12)
@@ -5456,6 +5517,12 @@ class App(tk.Tk):
                        "who share a name, looks and sex cannot have one (number the duplicate names first). "
                        "A villager whose rule will change is shown in red bold. "
                        "The game must stay closed.").pack(side="top", anchor="w")
+        sort_row = ttk.Frame(window, padding=(12, 8, 12, 0))
+        sort_row.pack(side="top", anchor="w")
+        ttk.Label(sort_row, text="Sort by:").pack(side="left")
+        sort_var = tk.StringVar(value=getattr(self, "_last_names_sort", SORT_AS_SAVED))
+        ttk.Combobox(sort_row, textvariable=sort_var, values=list(LAST_NAMES_SORTS), state="readonly",
+                     width=max(len(s) for s in LAST_NAMES_SORTS) + 2).pack(side="left", padx=(6, 0))
         buttons = ttk.Frame(window, padding=12)
         buttons.pack(side="bottom", anchor="w")
         body = ttk.Frame(window)
@@ -5471,6 +5538,7 @@ class App(tk.Tk):
         canvas.pack(side="left", fill="both", expand=True)
         values: dict = {}
         labels: list = []                       # (the row's label, the villager's own_key)
+        row_widgets: list[list] = []            # each villager's row of widgets, moved together by Sort by
         normal_font = tkfont.nametofont("TkDefaultFont")
         bold_font = normal_font.copy()
         bold_font.configure(weight="bold")
@@ -5499,6 +5567,18 @@ class App(tk.Tk):
                 ttk.Combobox(inner, textvariable=values[key], values=list(words.values()), state="readonly",
                              width=max(len(text) for text in words.values()) + 2).grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
                 values[key].trace_add("write", restyle)
+            row_widgets.append(inner.grid_slaves(row=row))
+        shown_order = list(range(len(shown)))
+
+        def resort(*_args) -> None:
+            """Sort by (the owner, v1.35.80): the rows move with the rule chosen in each."""
+            self._last_names_sort = sort_var.get()
+            shown_order[:] = last_names_order(shown, sort_var.get(), shown_order)
+            for place, k in enumerate(shown_order):
+                for widget in row_widgets[k]:
+                    widget.grid_configure(row=place)
+        sort_var.trace_add("write", resort)
+        resort()
         restyle()
 
         def fit_width() -> None:
