@@ -5047,7 +5047,8 @@ class App(tk.Tk):
         ttk.Label(rule_row, text="Last names come from:").pack(side="left")
         saved_rule = names.get("rule") or recorded_rule or "father"   # the owner's: the father's name
         rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["father"]))
-        ttk.Combobox(rule_row, textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
+        # Named, so the rule's box is told from the Sort by box by what it is, never by its place.
+        ttk.Combobox(rule_row, name="last_names_rule", textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
                      state="readonly", width=34).pack(side="left", padx=(6, 0))
         # Each living villager's own rule for their children's last name (the owner, 2026-10-09), beside
         # the village's: the record's, or what the player chose here before.
@@ -5066,7 +5067,7 @@ class App(tk.Tk):
         sort_row.pack(anchor="w")
         ttk.Label(sort_row, text="Sort by:").pack(side="left")
         sort_var = tk.StringVar(value=getattr(self, "_last_names_sort", SORT_AS_SAVED))
-        ttk.Combobox(sort_row, textvariable=sort_var, values=list(LAST_NAMES_SORTS), state="readonly",
+        ttk.Combobox(sort_row, name="last_names_sort", textvariable=sort_var, values=list(LAST_NAMES_SORTS), state="readonly",
                      width=max(len(s) for s in LAST_NAMES_SORTS) + 2).pack(side="left", padx=(6, 0))
         # Arriving villagers' own new last names (the owner, v1.35.66: "an optional toggle (default on) for
         # automatically assigning unique last names for arrived villagers"), kept with the village.
@@ -5521,7 +5522,7 @@ class App(tk.Tk):
         sort_row.pack(side="top", anchor="w")
         ttk.Label(sort_row, text="Sort by:").pack(side="left")
         sort_var = tk.StringVar(value=getattr(self, "_last_names_sort", SORT_AS_SAVED))
-        ttk.Combobox(sort_row, textvariable=sort_var, values=list(LAST_NAMES_SORTS), state="readonly",
+        ttk.Combobox(sort_row, name="last_names_sort", textvariable=sort_var, values=list(LAST_NAMES_SORTS), state="readonly",
                      width=max(len(s) for s in LAST_NAMES_SORTS) + 2).pack(side="left", padx=(6, 0))
         buttons = ttk.Frame(window, padding=12)
         buttons.pack(side="bottom", anchor="w")

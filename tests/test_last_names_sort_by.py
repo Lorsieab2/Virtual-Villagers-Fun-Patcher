@@ -73,37 +73,35 @@ class TheWindows(unittest.TestCase):
             self.assertIn("self._last_names_sort = sort_var.get()", method)
             # Re-sorting only moves the rows' widgets: their boxes keep what is in them.
             self.assertIn("widget.grid_configure(row=place)", method)
+            self.assertIn('name="last_names_sort"', method)
+        # The rule's box is named, and comes before Sort by in the window.
+        window = self._method("_last_names_dialog", "_own_rules_dialog")
+        self.assertLess(window.index('name="last_names_rule"'), window.index('name="last_names_sort"'))
 
     def test_edits_survive_a_re_sort(self):
-        try:
-            import tkinter as tk
-            from tkinter import ttk
-            root = tk.Tk()
-        except Exception as exc:                 # no display
-            self.skipTest(f"Tk is not available: {exc}")
-        self.addCleanup(root.destroy)
-        root.withdraw()
-        frame = ttk.Frame(root)
-        rows, values = [], []
-        for k, v in enumerate(PEOPLE):
-            var = tk.StringVar(value=f"last{k}")
-            ttk.Label(frame, text=v.name).grid(row=k, column=0)
-            ttk.Combobox(frame, textvariable=var).grid(row=k, column=1)
-            rows.append(frame.grid_slaves(row=k))
-            values.append(var)
-        values[3].set("typed by the player")
+        """The windows' resort(): each row's widgets are moved with grid_configure(row=...), and each box's
+        value lives in its own variable -- so whatever the player chose or typed goes with the row."""
+        class Widget:
+            def __init__(self, text):
+                self.text, self.row = text, None
+
+            def grid_configure(self, row):
+                self.row = row
+
+        rows = [[Widget(v.name), Widget(f"last{k}")] for k, v in enumerate(PEOPLE)]
+        rows[3][1].text = "typed by the player"
         shown = list(range(len(PEOPLE)))
-        for sort in (gui.SORT_ALPHABETICAL, gui.SORT_AGE, gui.SORT_ARRIVED, gui.SORT_AS_SAVED):
+        for sort in (gui.SORT_ALPHABETICAL, gui.SORT_AGE, gui.SORT_ARRIVED, gui.SORT_AS_SAVED, gui.SORT_AGE):
             shown[:] = gui.last_names_order(PEOPLE, sort, shown)
             for place, k in enumerate(shown):
                 for widget in rows[k]:
                     widget.grid_configure(row=place)
-            for place, k in enumerate(shown):
-                label = next(w for w in frame.grid_slaves(row=place) if isinstance(w, ttk.Label))
-                self.assertEqual(label.cget("text"), PEOPLE[k].name)
-        self.assertEqual([v.get() for v in values][3], "typed by the player")
-        self.assertEqual([v.get() for k, v in enumerate(values) if k != 3], [f"last{k}" for k in range(7) if k != 3])
-
+            at = {w.row: pair for pair in rows for w in pair[:1]}
+            self.assertEqual([at[r][0].text for r in range(len(PEOPLE))], [PEOPLE[k].name for k in shown])
+            self.assertTrue(all(label.row == box.row for label, box in rows))
+        self.assertEqual(rows[3][1].text, "typed by the player")
+        self.assertEqual([box.text for k, (_l, box) in enumerate(rows) if k != 3],
+                         [f"last{k}" for k in range(len(PEOPLE)) if k != 3])
 
 if __name__ == "__main__":
     unittest.main()
