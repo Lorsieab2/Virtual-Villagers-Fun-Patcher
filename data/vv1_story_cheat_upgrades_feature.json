@@ -33,7 +33,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "9B58535F42C91EA1DA906FC5A543EEA4A5169853393CB7EDC32A2754F3C6FF99"
+      "sha256": "56303D556A6308711F82553E04C9892BB4EBF685276E769B3EFC6B5A1CE2250A"
     }
   ],
   "runtime_detours": [
@@ -1525,7 +1525,7 @@
       "parents (with Show Parents in Details Screen)",
       "custom title",
       "mask",
-      "behaviours: every action the game's own code can start for one villager (94, 16 of them Celebrating), listed by group and labelled with the text the Details screen then shows; the 29 that may harm the game or the save end \"(Unsafe)\" and say why, with the advice to back up the save, before they are confirmed",
+      "behaviours: every action the game's own code can start for one villager (116, 30 of them Celebrating), listed by group and labelled with the text the Details screen then shows; the 51 that may harm the game or the save end \"(Unsafe)\" and say why, with the advice to back up the save, before they are confirmed",
       "village: Isola Day celebration, Blessings Day celebration, the beach dirty again (as The Big Wave leaves it)"
     ],
     "omitted": [
@@ -1542,8 +1542,8 @@
         "reason": "A New Home has none"
       },
       {
-        "option": "behaviours: burial, strolling, going to the village center, meditating",
-        "reason": "burial needs the body as its argument; the others are inline branches of the job dispatcher and idle chooser with no starter of their own (\"Nothing\" runs that chooser)"
+        "option": "behaviours: the talk row's separate texts",
+        "reason": "Telling a joke, Arguing and the rest are the talk row's own random texts, not actions of their own (the talk row is offered)"
       }
     ]
   },

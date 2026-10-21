@@ -213,10 +213,24 @@ static int c3_conceive(int index, int litter, int father, ce_result *result) {
    action is offered, labelled with the text the Details screen then shows;
    one that may harm the game or the save ends " (Unsafe)" with its reason
    (shown before it is confirmed).  "Celebrating" is action 82 (its default
-   spot: the village centre).  Not offered: the shared default handler, id 7
-   (shows the caller's text), text-less walk steps, burial (the body the game
-   last marked) and the pickups 47, 48 and 115 (they take the object the
-   game passes). */
+   spot: the village centre).  What an action needs that the game passes (the body to bury, ...) is found
+   when the event happens, the way the game finds it; with none there the
+   change is refused.  Nothing is left out (the owner, 2026-10-21). */
+
+
+/* ---- generated: what some actions are started with ---- */
+static const int C3_ARGS_189[8] = { 305, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_190[8] = { 307, 0, 0, 0, 0, 0, 0, 0 };
+static const ce_supply C3_SUPPLY_197 = { CE_SUPPLY_CALL, 0, 0x45C950u, 0x59E110u, CE_REFUSE_MINUS1, -2, 0x596FC0u };
+static const int C3_ARGS_198[8] = { 31, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_199[8] = { 32, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_200[8] = { 33, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_201[8] = { 34, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_202[8] = { 35, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_203[8] = { 36, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_204[8] = { 37, 0, 0, 0, 0, 0, 0, 0 };
+/* ---- end of generated ---- */
+
 static const ce_action C3_BEHAVIOURS[] = {
     { "Stops what they are doing", ACT_STOP, 0, 0, CE_GROUP_GENERAL, NULL },
     { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0, CE_GROUP_GENERAL, NULL },
@@ -373,7 +387,7 @@ static const ce_action C3_BEHAVIOURS[] = {
     { "Chatting / Arguing / Complaining / Teaching / Telling a story / Praising / Jumpy! (Unsafe)", ACT_DO, 0, 0x35, CE_GROUP_MOOD, "picks another villager and stops what they are doing to talk" },
     { "Attending lecture (Unsafe)", ACT_DO, 0, 0x37, CE_GROUP_CHILDREN, "the Tribal Chief's lesson: raises one skill by 7 to 9 points" },
     { "Getting new clothes! (Unsafe)", ACT_DO, 0, 0x62, CE_GROUP_STORY, "takes the new-clothes cost (5000) from the village and changes their clothes" },
-    { "Repairing the lift (Unsafe)", ACT_DO, 0, 0x6C, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (the lift)" },
+    { "Repairing the lift (or Confused, when it can not be repaired yet) (Unsafe)", ACT_DO, 0, 0x6C, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (the lift)" },
     { "Standing on the lift (Unsafe)", ACT_DO, 0, 0x6D, CE_GROUP_STORY, "part of the lift puzzle; before the lift is repaired they stand where it would be" },
     { "Repairing the bath (Unsafe)", ACT_DO, 0, 0x6E, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (the bath)" },
     { "Doing alchemy (Unsafe)", ACT_DO, 0, 0x6F, CE_GROUP_STORY, "an alchemy-room puzzle action; the puzzle may count it" },
@@ -402,21 +416,55 @@ static const ce_action C3_BEHAVIOURS[] = {
     { "Planting tree (Unsafe)", ACT_DO, 0, 0x7C, CE_GROUP_STORY, "walks to the map corner (the game passes the spot) and counts toward the orchard puzzle" },
     { "Harvesting fruit (Farming practice) (Unsafe)", ACT_DO, 0, 0x7D, CE_GROUP_STORY, "uses the first tree's place and counts toward the orchard puzzle" },
     { "Hay fever (animation only, no Details text) [The Allergy Season]", ACT_DO, 0, 0x65, CE_GROUP_HEALTH, NULL },
+    { "Action 14 (no Details text: the game's empty default) (Unsafe)", ACT_DO, 0, 0xE, CE_GROUP_GENERAL, "Does nothing: the game's empty default handler (a bare ret); the villager just stops" },
+    { "Action 83 (no Details text: the game's empty default) (Unsafe)", ACT_DO, 0, 0x53, CE_GROUP_GENERAL, "Does nothing: the game's empty default handler (a bare ret); the villager just stops" },
+    { "Action 88 (no Details text: the game's empty default) (Unsafe)", ACT_DO, 0, 0x58, CE_GROUP_GENERAL, "Does nothing: the game's empty default handler (a bare ret); the villager just stops" },
+    { "Action 91 (no Details text: the game's empty default) (Unsafe)", ACT_DO, 0, 0x5B, CE_GROUP_GENERAL, "Does nothing: the game's empty default handler (a bare ret); the villager just stops" },
+    { "Action 100 (no Details text: the game's empty default) (Unsafe)", ACT_DO, 0, 0x64, CE_GROUP_GENERAL, "Does nothing: the game's empty default handler (a bare ret); the villager just stops" },
+    { "Running away (startled) (Unsafe)", ACT_DO, 0, 7, CE_GROUP_MOOD, "A reaction the game starts from other code with this text; shows it and wanders off, then ends", C3_ARGS_189, NULL },
+    { "Sharks! Eek! (Unsafe)", ACT_DO, 0, 7, CE_GROUP_MOOD, "A reaction the game starts while swimming near sharks; shows it and wanders off, then ends", C3_ARGS_190, NULL },
+    { "Walking (no Details text; steps of another action) (Unsafe)", ACT_DO, 0, 2, CE_GROUP_MOOD, "Part of another action: queues walking steps without the game's start call, so the villager may stand idle until it picks something else" },
+    { "Wandering nearby (no Details text; steps of another action) (Unsafe)", ACT_DO, 0, 0x59, CE_GROUP_MOOD, "Part of another action: queues walking steps without the game's start call, so the villager may stand idle until it picks something else" },
+    { "Walking to a spot (no Details text; steps of another action) (Unsafe)", ACT_DO, 0, 0x5A, CE_GROUP_MOOD, "Part of another action: queues walking steps without the game's start call, so the villager may stand idle until it picks something else" },
+    { "Walking to a spot and waiting (no Details text) (Unsafe)", ACT_DO, 0, 0x63, CE_GROUP_MOOD, "No Details text of its own: the screen keeps the previous text while it walks and waits" },
+    { "Walking a long route (no Details text) (Unsafe)", ACT_DO, 0, 0x95, CE_GROUP_MOOD, "No Details text of its own: the screen keeps the previous text while it walks" },
+    { "Spring cleaning (Unsafe)", ACT_DO, 0, 0xAC, CE_GROUP_WORK, "Walks to one of nine village objects picked at random; no stock code of this game starts it" },
+    { "Burying the dead (Unsafe)", ACT_DO, 0, 0x51, CE_GROUP_DEVOTION, "Buries the first body awaiting burial, found as the game finds it; refused when there is none", NULL, &C3_SUPPLY_197 },
+    { "Gathering herbs (herb object 31) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_198, NULL },
+    { "Gathering herbs (herb object 32) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_199, NULL },
+    { "Gathering herbs (herb object 33) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_200, NULL },
+    { "Gathering herbs (herb object 34) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_201, NULL },
+    { "Gathering herbs (herb object 35) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_202, NULL },
+    { "Gathering herbs (herb object 36) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_203, NULL },
+    { "Gathering herbs (herb object 37) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_204, NULL },
+    { "Picking a mushroom / Collecting a new item! (what lies where they stand) (Unsafe)", ACT_DROP, 0x42D2E0u, 0x58EDB8, CE_GROUP_STORY, "As if the player dropped them where they stand: picks up the object there (adds to the collections); refused when nothing is there or they are expecting" },
 };
 
 /* The stop routine 0x460F70 (thiscall on the record, the record; 137
    callers, e.g. The Low Tide 0x415EAF), then the action; the Origins Full
    Heal's cure: sick 0 and 0x462670(100, -1). */
+static int c3_skeleton(const unsigned char *r);
+
 static int c3_behave(int index, int behaviour) {
-    static const int no_arguments[8];
     unsigned char *r = c3_record(index);
     const ce_action *act;
+    int block[8];
+    int value = 0;
     if (behaviour < 0 || behaviour >= (int)(sizeof C3_BEHAVIOURS / sizeof C3_BEHAVIOURS[0])) {
         return 0;
     }
     act = &C3_BEHAVIOURS[behaviour];
-    if (!ce_action_ready(act)) {
+    if (!ce_supply_value(act, index, c3_record, c3_listed, c3_skeleton, &value)) {
         return 0;
+    }
+    if (act->kind == ACT_DROP) {
+        /* As the game's own drop: never for an expecting villager; 0 =
+           nothing lies where they stand. */
+        if (*(const int *)(r + 0xE8C) != 0) {
+            return 0;
+        }
+        TC1(0x460F70u, r, (int)(uintptr_t)r);
+        return (TC1(act->routine, act->arg, (int)(uintptr_t)r) & 0xFF) != 0;
     }
     if (act->kind == ACT_RECOVER) {
         r[0xE89] = 0;
@@ -424,7 +472,8 @@ static int c3_behave(int index, int behaviour) {
     }
     TC1(0x460F70u, r, (int)(uintptr_t)r);
     if (act->kind == ACT_DO) {
-        TC2(0x455570u, r, act->arg, (int)(uintptr_t)no_arguments);
+        ce_argument_block(act, value, block);
+        TC2(0x455570u, r, act->arg, (int)(uintptr_t)block);
     }
     return 1;
 }
@@ -936,8 +985,7 @@ static const ce_adapter C3_ADAPTER = {
     "number with no check and would crash.\r\n"
     "- The unborn baby's starting skill: what the baby does with it at birth was not "
     "traced to the end, so only the father's name and looks are offered.\r\n"
-    "- Actions that solve or advance a puzzle, burying, picking things up, new clothes, "
-    "the chief's own powers, and lessons or games that stop other villagers.\r\n"
+    "- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n"
     "- Revive: buried villagers (their record is gone) and skeletons that have already "
     "crumbled away. (A dead chief comes back a chief even while another lives: you "
     "are asked to confirm, at your own risk.)\r\n"

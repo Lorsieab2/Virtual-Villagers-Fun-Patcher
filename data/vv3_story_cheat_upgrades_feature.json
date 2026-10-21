@@ -34,7 +34,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "9B58535F42C91EA1DA906FC5A543EEA4A5169853393CB7EDC32A2754F3C6FF99"
+      "sha256": "56303D556A6308711F82553E04C9892BB4EBF685276E769B3EFC6B5A1CE2250A"
     }
   ],
   "runtime_detours": [
@@ -1989,7 +1989,7 @@
       "parents",
       "custom title",
       "mask",
-      "behaviours: every action the game's own code can start for one villager (184, 2 of them Celebrating), listed by group and labelled with the text the Details screen then shows; the 35 that may harm the game or the save end \"(Unsafe)\" and say why, with the advice to back up the save, before they are confirmed"
+      "behaviours: every action the game's own code can start for one villager (206, 2 of them Celebrating), listed by group and labelled with the text the Details screen then shows; the 57 that may harm the game or the save end \"(Unsafe)\" and say why, with the advice to back up the save, before they are confirmed"
     ],
     "omitted": [
       {
@@ -2007,10 +2007,6 @@
       {
         "option": "refill the beehive",
         "reason": "its refill is tied to its puzzle"
-      },
-      {
-        "option": "behaviours: burial, picking a mushroom, collecting an item, gathering herbs, and the caller's-text action",
-        "reason": "each takes the body, object, item or text the game passes; started alone it would act on the wrong one or show a blank"
       }
     ]
   },

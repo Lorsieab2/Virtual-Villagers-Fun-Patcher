@@ -335,9 +335,17 @@ static int c2_set_status(int index, int status) {
    the save ends " (Unsafe)" with its reason (shown before it is confirmed).
    "Celebrating" is 0x459B60(index, place, 0): the village celebration
    0x45D7D0's places (Blessings Day's 0x452920 is "Relaxing at the beach").
-   Not offered (no single-villager starter): burial (needs the body),
-   greeting the guiding hand (moves the whole village), the choosers, the
-   action runner. */
+   What an action needs that the game passes (the body to bury, ...) is found
+   when the event happens, the way the game finds it; with none there the
+   change is refused.  Nothing is left out (the owner, 2026-10-21). */
+
+
+/* ---- generated: what some actions are started with ---- */
+static const ce_supply C2_SUPPLY_133 = { CE_SUPPLY_BODY, 0, 0x0u, 0x0u, CE_REFUSE_MINUS1, -1, 0x0u };
+static const int C2_ARGS_134[8] = { 1, 0, 0, 0, 0, 0, 0, 0 };
+static const int C2_ARGS_137[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+/* ---- end of generated ---- */
+
 static const ce_action C2_BEHAVIOURS[] = {
     { "Stops what they are doing", ACT_STOP, 0x4492A0u, 0, CE_GROUP_GENERAL, NULL },
     { "Enjoying the pond (Heat Wave swim)", ACT_CALL, 0x451690u, 0, CE_GROUP_LEISURE, NULL },
@@ -472,21 +480,54 @@ static const ce_action C2_BEHAVIOURS[] = {
     { "Fixing hut (the hospital) (Unsafe)", ACT_CALL_ARG, 0x4575B0u, 5, CE_GROUP_WORK, "The place may be empty or unbuilt; works on that building" },
     { "Fixing hut (the sewing hut) (Unsafe)", ACT_CALL_ARG, 0x4575B0u, 7, CE_GROUP_WORK, "The place may be empty or unbuilt; works on that building" },
     { "Enjoying the pond (another way) [The Heat Wave, Isola Day Celebration]", ACT_CALL_ARG, 0x45CB40u, 1, CE_GROUP_LEISURE, NULL },
+    { "Burying the dead (the first body awaiting burial) (Unsafe)", ACT_CALL_ARG, 0x459290u, 0, CE_GROUP_DEVOTION, "Buries the first body awaiting burial (a grave and the body removed); refused when there is none", NULL, &C2_SUPPLY_133 },
+    { "Greeting the guiding hand [Blessings Day Celebration] (Unsafe)", ACT_CALL_RAW, 0x454350u, 1, CE_GROUP_DEVOTION, "Moves the whole village: every living villager stops and walks to greet the guiding hand", C2_ARGS_134, NULL },
+    { "Strolling (or their job) [job dispatcher] (Unsafe)", ACT_CALL_ARG, 0x460590u, 100, CE_GROUP_MOOD, "The job dispatcher: does the villager's assigned job (puzzle jobs and hut building included) or strolls" },
+    { "Nothing (the game's reset) (Unsafe)", ACT_CALL, 0x449380u, 0, CE_GROUP_GENERAL, "The game's own reset of the villager's action state: their step queue and pose are set afresh" },
+    { "One tick of the action runner (no Details text: advances every villager's step) (Unsafe)", ACT_CALL_RAW, 0x464CD0u, 0, CE_GROUP_GENERAL, "Runs one extra tick of the whole village's action runner: every villager's step moves on, bodies decompose", C2_ARGS_137, NULL },
+    { "0x45F1B0 (no own Details text: picks an idle action - honoring, a dance) (Unsafe)", ACT_CALL, 0x45F1B0u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x45F310 (no own Details text: picks A little bit lonely or Rain dancing) (Unsafe)", ACT_CALL, 0x45F310u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x45F370 (no own Details text: picks Eating or Not feeling well) (Unsafe)", ACT_CALL_ARG, 0x45F370u, 100, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x45FBF0 (no own Details text: picks a farming job - fishing, crops) (Unsafe)", ACT_CALL_ARG, 0x45FBF0u, 1, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x460B20 (no own Details text: picks a daily action - eating, stew, a drink) (Unsafe)", ACT_CALL, 0x460B20u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x460C80 (no own Details text: picks a leisure action - swimming, a talk) (Unsafe)", ACT_CALL, 0x460C80u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x460E70 (no own Details text: picks a curiosity - bushes, gong, ruins, vines) (Unsafe)", ACT_CALL, 0x460E70u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x461580 (no own Details text: picks a building job - huts, puzzle jobs) (Unsafe)", ACT_CALL, 0x461580u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "Going swimming (job variant, argument 1) (Unsafe)", ACT_CALL_ARG, 0x45C1B0u, 1, CE_GROUP_LEISURE, "The leisure chooser's variant of the swim (argument 1); what the argument changes is not proven" },
+    { "Enjoying the pond (drop variant, argument 0) (Unsafe)", ACT_CALL_ARG, 0x45CB40u, 0, CE_GROUP_LEISURE, "The drop handler's pond swim (argument 0); what the argument changes is not proven" },
+    { "Researching (job variant, argument 1) (Unsafe)", ACT_CALL_ARG, 0x457CC0u, 1, CE_GROUP_WORK, "The job dispatcher's variant of research (argument 1); what the argument changes is not proven" },
+    { "Removing the vines (argument 0) (Unsafe)", ACT_CALL_ARG, 0x453630u, 0, CE_GROUP_WORK, "Counts toward The Vine Wall puzzle (it can complete it); the 0x461B10 caller's variant" },
+    { "Cutting away briar thorns (argument 0) (Unsafe)", ACT_CALL_ARG, 0x45B0E0u, 0, CE_GROUP_WORK, "Counts toward The Overgrown Gong Piece puzzle (it can complete it); the 0x461B10 caller's variant" },
+    { "Adding an herb to the stew (herb 2) (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 34, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Adding an herb to the stew (herb 3) (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 35, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Adding an herb to the stew (herb 4) (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 36, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Adding an herb to the stew (herb 5) (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 37, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Adding an herb to the stew (herb 6) (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 38, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Celebrating (place 15, no place of its own) (Unsafe)", ACT_CALL_ARG2, 0x459B60u, 15, CE_GROUP_CELEBRATION, "No stock caller passes this place: it falls to the routine's default spot" },
+    { "Celebrating (place 20, no place of its own) (Unsafe)", ACT_CALL_ARG2, 0x459B60u, 20, CE_GROUP_CELEBRATION, "No stock caller passes this place: it falls to the routine's default spot" },
+    { "Celebrating (place 21, no place of its own) (Unsafe)", ACT_CALL_ARG2, 0x459B60u, 21, CE_GROUP_CELEBRATION, "No stock caller passes this place: it falls to the routine's default spot" },
+    { "Celebrating (place 22, no place of its own) (Unsafe)", ACT_CALL_ARG2, 0x459B60u, 22, CE_GROUP_CELEBRATION, "No stock caller passes this place: it falls to the routine's default spot" },
+    { "Celebrating (place 23, no place of its own) (Unsafe)", ACT_CALL_ARG2, 0x459B60u, 23, CE_GROUP_CELEBRATION, "No stock caller passes this place: it falls to the routine's default spot" },
 };
 
 /* The stop 0x4492A0 first, as the drop handler and the stock events do
    (a sneeze is an effect, not an activity, and is not stopped for). */
+static int c2_skeleton(const unsigned char *r);
+
 static int c2_behave(int index, int behaviour) {
     unsigned char *pool = VV2_POOL();
     unsigned char *r = c2_record(index);
     const ce_action *act;
+    int value = 0;
+    int argument;
     if (behaviour < 0 || behaviour >= (int)(sizeof C2_BEHAVIOURS / sizeof C2_BEHAVIOURS[0])) {
         return 0;
     }
     act = &C2_BEHAVIOURS[behaviour];
-    if (!ce_action_ready(act)) {
+    if (!ce_supply_value(act, index, c2_record, c2_listed, c2_skeleton, &value)) {
         return 0;
     }
+    argument = act->supply != NULL && act->supply->slot == -1 ? value : act->arg;
     if (act->kind == ACT_EFFECT) {
         TC1(act->routine, pool, index);
         return 1;
@@ -499,9 +540,17 @@ static int c2_behave(int index, int behaviour) {
     if (act->kind == ACT_CALL) {
         TC1(act->routine, pool, index);
     } else if (act->kind == ACT_CALL_ARG) {
-        TC2(act->routine, pool, index, act->arg);
+        TC2(act->routine, pool, index, argument);
     } else if (act->kind == ACT_CALL_ARG2) {
-        TC3(act->routine, pool, index, act->arg, 0);
+        TC3(act->routine, pool, index, argument, 0);
+    } else if (act->kind == ACT_CALL_RAW) {
+        if (act->arg == 0) {
+            TC0(act->routine, pool);
+        } else if (act->arg == 1) {
+            TC1(act->routine, pool, act->args[0]);
+        } else {
+            TC2(act->routine, pool, act->args[0], act->args[1]);
+        }
     }
     return 1;
 }
@@ -916,8 +965,7 @@ static const ce_adapter C2_ADAPTER = {
     "- The unborn baby's starting skill: what the baby does with it at birth was not "
     "traced to the end, so only the father's name and looks are offered.\r\n"
     "- Golden Child, chief, faction: The Lost Children has none.\r\n"
-    "- Actions that solve or advance a puzzle, burying, picking things up, new clothes, "
-    "embracing, and lessons or games that stop other villagers.\r\n"
+    "- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n"
     "- Revive: totems, buried villagers (their record is gone) and skeletons that have "
     "already crumbled away.\r\n"
     "- Joey as a parent: only The Tree of Life and New Believers have him (their default "

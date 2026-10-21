@@ -27,11 +27,25 @@ def _start(game: int, row: dict) -> str:
         return "the game's stop routine"
     if kind == "ACT_RECOVER":
         return "cured, full health"
+    supply = row.get("supply")
+    needs = ""
+    if supply:
+        found = {"BODY": "the first body awaiting burial", "OTHER": "another living villager",
+                 "GLOBAL": f"the dword at 0x{supply['va']:X}",
+                 "CALL": f"the game's finder 0x{supply['va']:X}"}[supply["what"]]
+        needs = f"; with {found}" + (f", kept at 0x{supply['store']:X}" if supply["store"] else "")
+    if kind == "ACT_DROP":
+        return f"the drop 0x{row['routine']:X} on 0x{row['arg']:X}"
     if kind == "ACT_DO":
-        return f"action {row['arg']}"
-    args = {"ACT_CALL": "", "ACT_EFFECT": "", "ACT_CALL_ARG": f", {row['arg']}",
-            "ACT_CALL_ARG2": f", {row['arg']}, 0"}[kind]
-    return f"0x{row['routine']:X}(villager{args})"
+        args = row.get("args")
+        shown = f" (arguments {', '.join(str(v) for v in args[:2])})" if args else ""
+        return f"action {row['arg']}{shown}{needs}"
+    if kind == "ACT_CALL_RAW":
+        return f"0x{row['routine']:X}(the village{''.join(', ' + str(v) for v in row['args'][:row['arg']])})"
+    arg = "the body" if supply and supply["slot"] == -1 else str(row["arg"])
+    args = {"ACT_CALL": "", "ACT_EFFECT": "", "ACT_CALL_ARG": f", {arg}",
+            "ACT_CALL_ARG2": f", {arg}, 0"}[kind]
+    return f"0x{row['routine']:X}(villager{args}){needs}"
 
 
 def _cell(text: str) -> str:
@@ -51,7 +65,7 @@ def render() -> str:
         "Golden Child behaviors, Heathen behaviors, Chief behaviors -- literally anything villagers can do, "
         "on everyone regardless!!!\"",
         "",
-        "Each game's list holds every action the game's own code can start for one villager -- its jobs "
+        "Each game's list holds every action the game's own code can start for a villager -- its jobs "
         "and idle actions, the island events', the puzzles', the Golden Child's, the Tribal Chief's and "
         "the Heathens' -- offered for any villager.  Each label is the text the Details screen shows once "
         "the villager does it (an action that can show more than one text names them; a note in brackets "
@@ -80,8 +94,6 @@ def render() -> str:
                 "| Group | Label | Started as | Why (Unsafe) |", "|---|---|---|---|"]
         for r in sorted(rows, key=lambda r: (ORDER.index(r["group"]), r["label"].lower())):
             why = r["unsafe"] or ""
-            if r.get("guard"):
-                why += f" (refused while the dword at 0x{r['guard']['va']:X} is 0)"
             out.append(f"| {GROUPS[r['group']]} | {_cell(r['label'])} | {_start(game, r)} | {_cell(why)} |")
         events = data.get(f"{game}_island_events") or []
         if events:
@@ -90,7 +102,7 @@ def render() -> str:
                 out.append(f"- {_cell(e['event'])}: {', '.join(e['actions']) or '(an idle state the game acts on)'}")
         left = data.get(f"{game}_left_out") or []
         if left:
-            out += ["", "Not offered (no way to start them for one chosen villager):", ""]
+            out += ["", "Not offered (no action of its own to start):", ""]
             for e in left:
                 out.append(f"- {_cell(e['what'])}: {_cell(e['reason'])}")
         out.append("")

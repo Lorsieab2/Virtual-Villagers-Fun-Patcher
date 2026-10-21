@@ -203,26 +203,14 @@ CUSTOM_OMITTED = {
             {"option": "puzzle solved", "reason": "the completion routine needs world state that is "
              "not proven"}],
 }
-# Villager actions that no Villager Changes row starts (the owner, 2026-10-21:
-# everything else is offered, an unsafe one marked "(Unsafe)").
-CUSTOM_OMITTED["vv1"].append({"option": "behaviours: burial, strolling, going to the village center, "
-                              "meditating", "reason": "burial needs the body as its argument; the others are "
-                              "inline branches of the job dispatcher and idle chooser with no starter of "
-                              "their own (\"Nothing\" runs that chooser)"})
-CUSTOM_OMITTED["vv2"].append({"option": "behaviours: burial, greeting the guiding hand",
-                              "reason": "burial needs the body as its argument; the greeting stops and moves "
-                              "the whole village at once"})
-CUSTOM_OMITTED["vv3"].append({"option": "behaviours: burial, picking a mushroom, collecting an item, "
-                              "gathering herbs, and the caller's-text action",
-                              "reason": "each takes the body, object, item or text the game passes; started "
-                              "alone it would act on the wrong one or show a blank"})
-CUSTOM_OMITTED["vv4"].append({"option": "behaviours: picking up a collectible, and the caller's-text "
-                              "action", "reason": "each takes the collectible or text the game passes; started "
-                              "alone it would read outside the collectibles or show a blank"})
-CUSTOM_OMITTED["vv5"].append({"option": "behaviours: burial, building, comforting, picking up a "
-                              "collectible, and the caller's-text action",
-                              "reason": "each takes the body, building spot, villager, collectible or text the "
-                              "game passes; started alone it would act on the wrong one or the map's corner"})
+# The owner (2026-10-21): every villager action is offered.  What is left is no
+# action of its own.
+CUSTOM_OMITTED["vv1"].append({"option": "behaviours: the talk row's separate texts",
+                              "reason": "Telling a joke, Arguing and the rest are the talk row's own random "
+                              "texts, not actions of their own (the talk row is offered)"})
+CUSTOM_OMITTED["vv2"].append({"option": "behaviours: the Gong's ringer lookup, the villager initialiser, texts "
+                              "no code shows", "reason": "a lookup and the record initialiser are not actions; "
+                              "the texts left over from A New Home are shown by no code"})
 
 # Every price the Origins rows charge, in any game.
 PRICES = (5000, 30000, 40000, 50000, 75000, 100000, 450000, 500000, 1000000)

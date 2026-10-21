@@ -228,9 +228,15 @@ static int c4_conceive(int index, int litter, int father, ce_result *result) {
    labelled with the text the Details screen then shows; one that may harm
    the game or the save ends " (Unsafe)" with its reason (shown before it is
    confirmed).  "Celebrating" is action 42, as the village celebration
-   0x466BF0 starts it (its default spot: the village centre).  Not offered:
-   id 6 (shows the caller's text), the collectible pickup 31, the empty
-   handlers 43 and 56, and the text-less steps 57 and 107. */
+   0x466BF0 starts it (its default spot: the village centre).  What an action needs that the game passes (the body to bury, ...) is found
+   when the event happens, the way the game finds it; with none there the
+   change is refused.  Nothing is left out (the owner, 2026-10-21). */
+
+
+/* ---- generated: what some actions are started with ---- */
+static const int C4_ARGS_196[8] = { 410, 0, 0, 0, 0, 0, 0, 0 };
+/* ---- end of generated ---- */
+
 static const ce_action C4_BEHAVIOURS[] = {
     { "Stops what they are doing", ACT_STOP, 0, 0, CE_GROUP_GENERAL, NULL },
     { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0, CE_GROUP_GENERAL, NULL },
@@ -379,8 +385,8 @@ static const ce_action C4_BEHAVIOURS[] = {
     { "Stomping on fruit (step 2) (Unsafe)", ACT_DO, 0, 0x10, CE_GROUP_STORY, "A puzzle step; may change the puzzle's progress or items" },
     { "Stomping on fruit (step 3) (Unsafe)", ACT_DO, 0, 0x11, CE_GROUP_STORY, "A puzzle step; may change the puzzle's progress or items" },
     { "Stomping on fruit (step 4) (Unsafe)", ACT_DO, 0, 0x12, CE_GROUP_STORY, "A puzzle step; may change the puzzle's progress or items" },
-    { "Attempting to retrieve fruit (Unsafe)", ACT_DO, 0, 0x64, CE_GROUP_STORY, "A puzzle step; may change the puzzle's progress or items" },
-    { "Attempting to retrieve fruit (another way) (Unsafe)", ACT_DO, 0, 0x8E, CE_GROUP_STORY, "A puzzle step; may change the puzzle's progress or items" },
+    { "Attempting to retrieve fruit (or Confused, when it can not yet) (Unsafe)", ACT_DO, 0, 0x64, CE_GROUP_STORY, "A puzzle step; may change the puzzle's progress or items" },
+    { "Attempting to retrieve fruit (another way; or Confused, when it can not yet) (Unsafe)", ACT_DO, 0, 0x8E, CE_GROUP_STORY, "A puzzle step; may change the puzzle's progress or items" },
     { "Shaking down some fruit! (Unsafe)", ACT_DO, 0, 0x6A, CE_GROUP_STORY, "A puzzle step; may change the puzzle's progress or items" },
     { "Attempting to heat rocks (Unsafe)", ACT_DO, 0, 0x6D, CE_GROUP_STORY, "A puzzle step; may change the puzzle's progress or items" },
     { "Covering the hot rocks (Unsafe)", ACT_DO, 0, 0x6E, CE_GROUP_STORY, "A puzzle step; may change the puzzle's progress or items" },
@@ -428,20 +434,37 @@ static const ce_action C4_BEHAVIOURS[] = {
     { "Wiping sticky gunk off on tree (another way)", ACT_DO, 0, 0xBD, CE_GROUP_STORY, NULL },
     { "Burying the dead (Unsafe)", ACT_DO, 0, 0x29, CE_GROUP_DEVOTION, "Buries a skeleton if there is one (changes the village)" },
     { "Hay fever (animation only, no Details text) [The Allergy Season]", ACT_DO, 0, 0x39, CE_GROUP_HEALTH, NULL },
+    { "Running away (action 6, with the text the game passes) (Unsafe)", ACT_DO, 0, 6, CE_GROUP_MOOD, "Shows the text a stock caller passes (Running away); may walk off in a random direction", C4_ARGS_196, NULL },
+    { "Action 43 (no Details text: an empty handler) (Unsafe)", ACT_DO, 0, 0x2B, CE_GROUP_GENERAL, "Does nothing; the villager just stops" },
+    { "Action 56 (no Details text: an empty handler) (Unsafe)", ACT_DO, 0, 0x38, CE_GROUP_GENERAL, "Does nothing; the villager just stops" },
+    { "Clearing rubble / Confused (action 107: the rubble puzzle's chooser) (Unsafe)", ACT_DO, 0, 0x6B, CE_GROUP_STORY, "Starts the rubble puzzle step Clearing rubble, or Confused with a game tip, as the puzzle stands" },
+    { "Picking up what lies where they stand (a collectible or a mushroom) (Unsafe)", ACT_DROP, 0x4131A0u, 0x4CC0A0, CE_GROUP_STORY, "As if the player dropped them where they stand: picks up the object there (adds to the collections); refused when nothing is there or they are expecting" },
 };
 
 /* The stop routine 0x468C60 (thiscall on the record), then the action; the
    Origins Full Heal's cure: sick 0 and 0x46AF00(100, -1). */
+static int c4_skeleton(const unsigned char *r);
+
 static int c4_behave(int index, int behaviour) {
-    static const int no_parameter[8];
     unsigned char *r = c4_record(index);
     const ce_action *act;
+    int block[8];
+    int value = 0;
     if (behaviour < 0 || behaviour >= (int)(sizeof C4_BEHAVIOURS / sizeof C4_BEHAVIOURS[0])) {
         return 0;
     }
     act = &C4_BEHAVIOURS[behaviour];
-    if (!ce_action_ready(act)) {
+    if (!ce_supply_value(act, index, c4_record, c4_listed, c4_skeleton, &value)) {
         return 0;
+    }
+    if (act->kind == ACT_DROP) {
+        /* As the game's own drop: never for an expecting villager; 0 =
+           nothing lies where they stand. */
+        if (*(const int *)(r + 0x1C4C) != 0) {
+            return 0;
+        }
+        TC0(0x468C60u, r);
+        return (TC1(act->routine, act->arg, (int)(uintptr_t)r) & 0xFF) != 0;
     }
     if (act->kind == ACT_RECOVER) {
         r[0x1C48] = 0;
@@ -449,7 +472,8 @@ static int c4_behave(int index, int behaviour) {
     }
     TC0(0x468C60u, r);
     if (act->kind == ACT_DO) {
-        TC2(0x45DEC0u, r, act->arg, (int)(uintptr_t)no_parameter);
+        ce_argument_block(act, value, block);
+        TC2(0x45DEC0u, r, act->arg, (int)(uintptr_t)block);
     }
     return 1;
 }
@@ -779,8 +803,7 @@ static const ce_adapter C4_ADAPTER = {
     "and the huts as puzzles (they are not puzzles).\r\n"
     "- The unborn baby's starting skill: what the baby does with it at birth was not "
     "traced to the end, so only the father's name and looks are offered.\r\n"
-    "- Actions that solve or advance a puzzle, burying, picking things up, new clothes, "
-    "cooking, building and games that stop other villagers.\r\n"
+    "- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n"
     "- Revive: the mausoleum's ghosts, buried villagers (their record is gone) and "
     "skeletons that have already crumbled away.\r\n"
     "- Weather other than rain and clear: the other types are not identified.\r\n"

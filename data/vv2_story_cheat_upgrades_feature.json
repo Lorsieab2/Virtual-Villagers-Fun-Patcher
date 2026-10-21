@@ -34,7 +34,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "9B58535F42C91EA1DA906FC5A543EEA4A5169853393CB7EDC32A2754F3C6FF99"
+      "sha256": "56303D556A6308711F82553E04C9892BB4EBF685276E769B3EFC6B5A1CE2250A"
     }
   ],
   "runtime_detours": [
@@ -1854,7 +1854,7 @@
       "mask",
       "becomes an Esteemed Elder (with a totem)",
       "Esteemed Elder's totem type (eight carvings)",
-      "behaviours: every action the game's own code can start for one villager (133, 21 of them Celebrating), listed by group and labelled with the text the Details screen then shows; the 56 that may harm the game or the save end \"(Unsafe)\" and say why, with the advice to back up the save, before they are confirmed"
+      "behaviours: every action the game's own code can start for one villager (161, 26 of them Celebrating), listed by group and labelled with the text the Details screen then shows; the 84 that may harm the game or the save end \"(Unsafe)\" and say why, with the advice to back up the save, before they are confirmed"
     ],
     "omitted": [
       {
@@ -1870,8 +1870,8 @@
         "reason": "The Lost Children has none"
       },
       {
-        "option": "behaviours: burial, greeting the guiding hand",
-        "reason": "burial needs the body as its argument; the greeting stops and moves the whole village at once"
+        "option": "behaviours: the Gong's ringer lookup, the villager initialiser, texts no code shows",
+        "reason": "a lookup and the record initialiser are not actions; the texts left over from A New Home are shown by no code"
       }
     ]
   },
