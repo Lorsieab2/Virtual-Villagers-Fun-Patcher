@@ -248,6 +248,8 @@ class ReleasesLinkTests(unittest.TestCase):
                                # Its renamed-answer check reads the reconciliation answers, as a
                                # function-level import (the same as vv_genealogy's).
                                "vv_reconcile",
+                               # the patcher's own renames kept in the Log Decisions file (v1.35.80)
+                               "vv_log_decisions",
                                # ElderTotems.dat, when the save keeps its totems there (function-level).
                                "vv_vv2_totem_store"}),
             ("vv_vv2_totem_store", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_save_layout",
