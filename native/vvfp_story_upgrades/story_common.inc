@@ -6,6 +6,9 @@
 typedef int (__fastcall *tc0_fn)(void *self, void *unused_edx);
 typedef int (__fastcall *tc1_fn)(void *self, void *unused_edx, int a);
 typedef int (__fastcall *tc2_fn)(void *self, void *unused_edx, int a, int b);
+typedef int (__fastcall *tc3_fn)(void *self, void *unused_edx, int a, int b, int c);
+#define TC3(va, self, a, b, c) \
+    ((tc3_fn)(uintptr_t)(va))((void *)(self), NULL, (int)(a), (int)(b), (int)(c))
 typedef int (__fastcall *tc5_fn)(void *self, void *unused_edx, int a, int b, int c, int d, int e);
 typedef int (__fastcall *tc7_fn)(void *self, void *unused_edx, int a, int b, int c, int d, int e,
                                  int f, int g);
@@ -36,16 +39,55 @@ enum {
     ACT_CALL,        /* VV1 / VV2: routine(villager index) on the array / pool */
     ACT_CALL_ARG,    /* VV1 / VV2: routine(villager index, arg) */
     ACT_DO,          /* VV3-VV5: the game's do-action routine with action id `arg` */
-    ACT_EFFECT       /* VV1 / VV2: routine(villager index) WITHOUT a stop (an effect
+    ACT_EFFECT,      /* VV1 / VV2: routine(villager index) WITHOUT a stop (an effect
                         such as a sneeze, not an activity) */
+    ACT_CALL_ARG2    /* VV1 / VV2: routine(villager index, arg, 0) -- three stack
+                        arguments, as the celebration and hut-building starters
+                        take them (the place, then the stock callers' 0) */
 };
 
+/* The Villager Changes list shows every action under its group, sorted by
+   group then label (the table's own order never moves: a queued purchase
+   stores the row's index). */
+enum {
+    CE_GROUP_GENERAL, CE_GROUP_WORK, CE_GROUP_LEISURE, CE_GROUP_CELEBRATION, CE_GROUP_DEVOTION,
+    CE_GROUP_FAMILY, CE_GROUP_CHILDREN, CE_GROUP_HEALTH, CE_GROUP_CURIOSITY, CE_GROUP_MOOD,
+    CE_GROUP_STORY, CE_GROUPS
+};
+static const char *const CE_GROUP_NAMES[CE_GROUPS] = {
+    "General", "Work", "Leisure", "Celebration and dance", "Devotion", "Family", "Children",
+    "Health, food and drink", "Curiosity", "Moods and idle", "Puzzles and story",
+};
+
+/* A guard checked at the moment of use: an action whose stock code would
+   dereference a missing object is refused (the villager could not do that
+   now) instead of crashing the game. */
+enum {
+    CE_GUARD_NONE,
+    CE_GUARD_DWORD   /* refused while the dword at guard_va is 0 */
+};
+
+/* The owner (2026-10-21): every villager action is offered; one that may
+   harm the game or the save ends its label with " (Unsafe)" and carries
+   `unsafe`, the plain reason the dialog shows before it is confirmed. */
 typedef struct {
     const char *label;
     int kind;
     unsigned int routine;
     int arg;
+    int group;
+    const char *unsafe;
+    int guard;
+    unsigned int guard_va;
 } ce_action;
+
+/* 1 when the action may be started now (its guard, if any, holds). */
+static int ce_action_ready(const ce_action *act) {
+    if (act->guard == CE_GUARD_DWORD) {
+        return *(const int *)(uintptr_t)act->guard_va != 0;
+    }
+    return 1;
+}
 
 /* ---- The host (the game's Origins companion) ----------------------------- */
 

@@ -15,6 +15,7 @@
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
     "Offers 40 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children, plus in New Believers All Heathens and one toggle for each Heathen type; each villager's row names the role the game keeps for them, such as the Golden Child or the Tribal Chief).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
+    "Villager Changes offers every villager action the game's own code can start for one villager, Celebrating included, grouped (work, leisure, celebration and dance, devotion, family, children, health, curiosity, moods, puzzles and story) and sorted, each labelled with the text the Details screen then shows; the villager is stopped first and the game's own starter runs.  An action that may harm the game or the save ends \"(Unsafe)\": choosing it shows the reason and advises backing up the save (OK / Cancel), and one that would need a missing object is refused when the event happens instead of crashing.",
     "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
     "A new tribe's first two island events are always the game's own (each game's village start sets its island-event counter to 0): a custom event queued before the second of them stays queued -- the same lock, nothing charged again -- without making the island event due, and is made due exactly as the Island Event upgrade does once the game has made both, so it is the third.",
     "Pick Island Event's settings: each offered event can carry its result, every amount it rolls, who a per-villager roll hits, which villager it is about and each baby's details (A New Home and The Lost Children: also its strength), each defaulting to Random (original game).  The companion points the event's own rand() calls at a stub that answers the chosen value only in that roll's phase (before the popup, the popup, or the event's apply), for the clicked choice, and -- in a routine other code shares -- only inside the event's own call to it; the outcome ends when the event's apply returns, on refusal and on lapse, so no chosen value reaches a natural event.",
@@ -32,7 +33,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "F26BCC9670C570BD114C4E7217A80303C79C7D7C816CAEFF48FCDE32AA4F6ED1"
+      "sha256": "99FB8F4DFA0137DE370C3B57BD1B324E30513109F5C8F34154F1711BF87DE95F"
     }
   ],
   "runtime_detours": [
@@ -1524,7 +1525,7 @@
       "parents (with Show Parents in Details Screen)",
       "custom title",
       "mask",
-      "behaviours: stops what they are doing, dances, goes swimming, relaxes, recovers fully",
+      "behaviours: every action the game's own code can start for one villager (94, 16 of them Celebrating), listed by group and labelled with the text the Details screen then shows; the 29 that may harm the game or the save end \"(Unsafe)\" and say why, with the advice to back up the save, before they are confirmed",
       "village: Isola Day celebration, Blessings Day celebration, the beach dirty again (as The Big Wave leaves it)"
     ],
     "omitted": [
@@ -1539,6 +1540,10 @@
       {
         "option": "faction, chief, elders, totems",
         "reason": "A New Home has none"
+      },
+      {
+        "option": "behaviours: burial, strolling, going to the village center, meditating",
+        "reason": "burial needs the body as its argument; the others are inline branches of the job dispatcher and idle chooser with no starter of their own (\"Nothing\" runs that chooser)"
       }
     ]
   },

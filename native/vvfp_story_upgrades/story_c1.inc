@@ -196,51 +196,110 @@ static int c1_conceive(int index, int litter, int father, ce_result *result) {
 }
 
 /* Every action starter is a thiscall on the villager array taking the
-   villager's index (and, for a few, one more argument), called by the game's
-   own idle pickers, job dispatcher, drop handler or events.  Offered: the
-   ones that only look (walk, animate) or end by themselves; the jobs that
-   give food or skill practice say so.  Never: puzzle actions, burial,
-   pickups, embracing, or a starter no stock code calls. */
+   villager's index (and, for a few, one or two more arguments), called by
+   the game's own idle pickers, job dispatcher, drop handler or events.  The
+   owner (2026-10-21): every action is offered, labelled with the text the
+   Details screen then shows; the jobs that give food or skill practice say
+   so, and one that may harm the game or the save ends " (Unsafe)" with its
+   reason (shown before it is confirmed).  "Celebrating" is 0x443FA0(index,
+   place): the village celebration 0x4457D0's places.  Not offered (no
+   single-villager starter): burial (needs the body), the job dispatcher's
+   and idle chooser's inline branches, the action runner. */
 static const ce_action C1_BEHAVIOURS[] = {
-    { "Stops what they are doing", ACT_STOP, 0x439470u, 0 },
-    { "Celebrates (Blessings Day dance)", ACT_CALL_ARG, 0x443FA0u, 9 },
-    { "Goes swimming", ACT_CALL_ARG, 0x444990u, 1 },
-    { "Relaxes", ACT_CALL, 0x4410C0u, 0 },
-    { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0 },
-    { "Dances", ACT_CALL, 0x43F200u, 0 },
-    { "Rain dancing", ACT_CALL, 0x4419A0u, 0 },
-    { "Makes a party", ACT_CALL, 0x440590u, 0 },
-    { "Exercises", ACT_CALL, 0x4411D0u, 0 },
-    { "Does the laundry", ACT_CALL, 0x441A50u, 0 },
-    { "Observes", ACT_CALL, 0x4408A0u, 0 },
-    { "Unsure what to do (wanders)", ACT_CALL, 0x445AD0u, 0 },
-    { "Goes indoors", ACT_CALL, 0x439DE0u, 0 },
-    { "Runs away", ACT_CALL, 0x439EF0u, 0 },
-    { "Shakes their head", ACT_CALL, 0x43A040u, 0 },
-    { "Not feeling well (only looks it)", ACT_CALL, 0x441CC0u, 0 },
-    { "Honors the dead", ACT_CALL, 0x4401E0u, 0 },
-    { "Honors the Idol (once it is carved)", ACT_CALL, 0x442810u, 0 },
-    { "Honors the temple (once it is restored)", ACT_CALL, 0x443D50u, 0 },
-    { "Sees something unusual", ACT_CALL, 0x441750u, 0 },
-    { "Curious about the rock", ACT_CALL, 0x43ED50u, 0 },
-    { "Curious about the ruins", ACT_CALL, 0x43EF10u, 0 },
-    { "Curious about the creek", ACT_CALL, 0x441620u, 0 },
-    { "Curious about the field", ACT_CALL, 0x442E80u, 0 },
-    { "Curious about the cactus", ACT_CALL, 0x445670u, 0 },
-    { "Tries to push the boulder (no progress)", ACT_CALL, 0x440FA0u, 0 },
-    { "Enjoys the lagoon", ACT_CALL, 0x43FF80u, 0 },
-    { "Enjoys the garden (once it is grown)", ACT_CALL, 0x442DB0u, 0 },
-    { "Admires the treasure (once it is found)", ACT_CALL, 0x4404B0u, 0 },
-    { "Chases butterflies", ACT_CALL, 0x445840u, 0 },
-    { "Drinks well water", ACT_CALL, 0x444B40u, 0 },
-    { "Forages (Farming practice, food)", ACT_CALL, 0x441E10u, 0 },
-    { "Plants or harvests crops (Farming practice)", ACT_CALL, 0x4439F0u, 0 },
-    { "Waters the crops (Farming practice)", ACT_CALL, 0x445020u, 0 },
-    { "Fishes (Farming practice, food; stock needs fishing)", ACT_CALL, 0x43F450u, 0 },
-    { "Eats (uses food, restores health)", ACT_CALL, 0x43FAD0u, 0 },
-    { "Fixes a hut (Building practice)", ACT_CALL, 0x440AD0u, 0 },
-    { "Heals someone (Healing practice, cures nobody)", ACT_CALL, 0x445580u, 0 },
-    { "Goes to school (children; stock needs the school)", ACT_CALL, 0x444AA0u, 0 },
+    { "Stops what they are doing", ACT_STOP, 0x439470u, 0, CE_GROUP_GENERAL, NULL },
+    { "Celebrating", ACT_CALL_ARG, 0x443FA0u, 9, CE_GROUP_CELEBRATION, NULL },
+    { "Going swimming", ACT_CALL_ARG, 0x444990u, 1, CE_GROUP_LEISURE, NULL },
+    { "Relaxing", ACT_CALL, 0x4410C0u, 0, CE_GROUP_LEISURE, NULL },
+    { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0, CE_GROUP_GENERAL, NULL },
+    { "Dancing", ACT_CALL, 0x43F200u, 0, CE_GROUP_CELEBRATION, NULL },
+    { "Rain dancing", ACT_CALL, 0x4419A0u, 0, CE_GROUP_CELEBRATION, NULL },
+    { "Making a party", ACT_CALL, 0x440590u, 0, CE_GROUP_CELEBRATION, NULL },
+    { "Exercising", ACT_CALL, 0x4411D0u, 0, CE_GROUP_LEISURE, NULL },
+    { "Laundry", ACT_CALL, 0x441A50u, 0, CE_GROUP_WORK, NULL },
+    { "Observing", ACT_CALL, 0x4408A0u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Unsure what to do (or Worried about food) (wanders)", ACT_CALL, 0x445AD0u, 0, CE_GROUP_MOOD, NULL },
+    { "Going indoors", ACT_CALL, 0x439DE0u, 0, CE_GROUP_MOOD, NULL },
+    { "Running away", ACT_CALL, 0x439EF0u, 0, CE_GROUP_MOOD, NULL },
+    { "Shaking head", ACT_CALL, 0x43A040u, 0, CE_GROUP_MOOD, NULL },
+    { "Not feeling well (only looks it)", ACT_CALL, 0x441CC0u, 0, CE_GROUP_HEALTH, NULL },
+    { "Honoring the Dead", ACT_CALL, 0x4401E0u, 0, CE_GROUP_DEVOTION, NULL },
+    { "Honoring the Idol (once it is carved)", ACT_CALL, 0x442810u, 0, CE_GROUP_DEVOTION, NULL },
+    { "Honoring the temple (once it is restored)", ACT_CALL, 0x443D50u, 0, CE_GROUP_DEVOTION, NULL },
+    { "Sees something unusual...", ACT_CALL, 0x441750u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the rock", ACT_CALL, 0x43ED50u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the ruins", ACT_CALL, 0x43EF10u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the creek", ACT_CALL, 0x441620u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the field", ACT_CALL, 0x442E80u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the cactus", ACT_CALL, 0x445670u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Trying to push the boulder (no progress)", ACT_CALL, 0x440FA0u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Enjoying the lagoon", ACT_CALL, 0x43FF80u, 0, CE_GROUP_LEISURE, NULL },
+    { "Enjoying the garden (once it is grown)", ACT_CALL, 0x442DB0u, 0, CE_GROUP_LEISURE, NULL },
+    { "Admiring the treasure (once it is found)", ACT_CALL, 0x4404B0u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Chasing butterflies", ACT_CALL, 0x445840u, 0, CE_GROUP_LEISURE, NULL },
+    { "Drinking well water (or Frustrated by the dirty well)", ACT_CALL, 0x444B40u, 0, CE_GROUP_HEALTH, NULL },
+    { "Foraging (Farming practice, food)", ACT_CALL, 0x441E10u, 0, CE_GROUP_WORK, NULL },
+    { "Planting crops / Harvesting crops (Farming practice)", ACT_CALL, 0x4439F0u, 0, CE_GROUP_WORK, NULL },
+    { "Watering crops (Farming practice)", ACT_CALL, 0x445020u, 0, CE_GROUP_WORK, NULL },
+    { "Fishing (Farming practice, food; stock needs fishing)", ACT_CALL, 0x43F450u, 0, CE_GROUP_WORK, NULL },
+    { "Eating (uses food, restores health)", ACT_CALL, 0x43FAD0u, 0, CE_GROUP_HEALTH, NULL },
+    { "Fixing hut (Building practice)", ACT_CALL, 0x440AD0u, 0, CE_GROUP_WORK, NULL },
+    { "Healing someone (Healing practice, cures nobody)", ACT_CALL, 0x445580u, 0, CE_GROUP_WORK, NULL },
+    { "Going to school (children; stock needs the school)", ACT_CALL, 0x444AA0u, 0, CE_GROUP_CHILDREN, NULL },
+    { "Nothing (then does something of their own choosing)", ACT_CALL, 0x448220u, 0, CE_GROUP_GENERAL, NULL },
+    { "Sitting", ACT_CALL_ARG, 0x439D80u, 15, CE_GROUP_LEISURE, NULL },
+    { "Thinking (or Worried about food or housing; Caring for baby if pregnant)", ACT_CALL, 0x43E740u, 0, CE_GROUP_MOOD, NULL },
+    { "Bored (or Worried about food or housing; Caring for baby if pregnant)", ACT_CALL, 0x43EA50u, 0, CE_GROUP_MOOD, NULL },
+    { "Leaving the water", ACT_CALL, 0x43F9B0u, 0, CE_GROUP_LEISURE, NULL },
+    { "Dancing (another dance)", ACT_CALL, 0x4407D0u, 0, CE_GROUP_CELEBRATION, NULL },
+    { "Studying fruitless plant", ACT_CALL, 0x443030u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Enjoying magic fruit", ACT_CALL, 0x443150u, 0, CE_GROUP_LEISURE, NULL },
+    { "Trying to water strange patch (or Frustrated by the dirty well)", ACT_CALL, 0x4452A0u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Waiting for someone", ACT_CALL, 0x4454B0u, 0, CE_GROUP_MOOD, NULL },
+    { "Researching (Research practice, tech points)", ACT_CALL_ARG, 0x442C10u, 0, CE_GROUP_WORK, NULL },
+    { "Calling Butterflies! (Unsafe)", ACT_CALL, 0x43F380u, 0, CE_GROUP_STORY, "Completes The Butterflies puzzle at once (meant for the Golden Child)" },
+    { "Watering the field (Unsafe)", ACT_CALL, 0x43FC20u, 0, CE_GROUP_WORK, "Counts toward The Garden puzzle (it can complete it)" },
+    { "Clearing blockage (Unsafe)", ACT_CALL, 0x43FDA0u, 0, CE_GROUP_WORK, "Counts toward The Lagoon puzzle (it can complete it)" },
+    { "Confused (Unsafe)", ACT_CALL, 0x440040u, 0, CE_GROUP_MOOD, "Uses up the game's one-time tip about confused villagers" },
+    { "Digging (Unsafe)", ACT_CALL, 0x440940u, 0, CE_GROUP_WORK, "Counts toward The Treasure puzzle (it can complete it)" },
+    { "Founding a school (Unsafe)", ACT_CALL, 0x440E50u, 0, CE_GROUP_STORY, "Founds the school: completes The School puzzle" },
+    { "Studying medical cactus (Unsafe)", ACT_CALL, 0x443270u, 0, CE_GROUP_STORY, "Counts toward the Herb Mastery puzzle (it can complete it)" },
+    { "Studying strange lily (Unsafe)", ACT_CALL, 0x443440u, 0, CE_GROUP_STORY, "Counts toward the Herb Mastery puzzle (it can complete it)" },
+    { "Studying rare rose (Unsafe)", ACT_CALL, 0x4435B0u, 0, CE_GROUP_STORY, "Counts toward the Herb Mastery puzzle (it can complete it)" },
+    { "Studying strange plant (Unsafe)", ACT_CALL, 0x443720u, 0, CE_GROUP_STORY, "Counts toward the Herb Mastery puzzle (it can complete it)" },
+    { "Restoring the ruins (Unsafe)", ACT_CALL, 0x444380u, 0, CE_GROUP_WORK, "Counts toward The Temple puzzle (it can complete it)" },
+    { "Picking a mushroom (Unsafe)", ACT_CALL, 0x444500u, 0, CE_GROUP_STORY, "Picks the wild mushroom: changes the mushroom and food state" },
+    { "Cleaning up the beach (Unsafe)", ACT_CALL, 0x444690u, 0, CE_GROUP_WORK, "Counts toward The Beach puzzle (it can complete it)" },
+    { "Hunting a strange fish! (Unsafe)", ACT_CALL, 0x444C80u, 0, CE_GROUP_STORY, "Completes The Magic Fish of Fertility puzzle at once" },
+    { "Uncovering the well (Unsafe)", ACT_CALL, 0x444EC0u, 0, CE_GROUP_STORY, "Uncovers the well: completes The Well puzzle" },
+    { "Unblocking the Cave (Unsafe)", ACT_CALL, 0x445910u, 0, CE_GROUP_STORY, "Completes The Cave puzzle at once (meant for the Golden Child)" },
+    { "Chiseling (Unsafe)", ACT_CALL_ARG, 0x442A60u, 0, CE_GROUP_WORK, "Counts toward The Idol puzzle (it can complete it)" },
+    { "Embracing (Unsafe)", ACT_CALL, 0x445510u, 0, CE_GROUP_FAMILY, "Half of the game's pairing: done alone it may look odd" },
+    { "Chatting / Telling a joke / Arguing / Complaining / Praising / Teaching / Telling a story (Unsafe)", ACT_CALL, 0x446480u, 0, CE_GROUP_MOOD, "Stops another villager nearby to talk with them" },
+    { "Examining hut (hut place 1) (Unsafe)", ACT_CALL_ARG, 0x446600u, 9, CE_GROUP_WORK, "The hut place may be empty; it may also start fixing that hut" },
+    { "Examining hut (hut place 2) (Unsafe)", ACT_CALL_ARG, 0x446600u, 10, CE_GROUP_WORK, "The hut place may be empty; it may also start fixing that hut" },
+    { "Examining hut (hut place 3) (Unsafe)", ACT_CALL_ARG, 0x446600u, 11, CE_GROUP_WORK, "The hut place may be empty; it may also start fixing that hut" },
+    { "Fixing hut (hut place 1) (Unsafe)", ACT_CALL_ARG, 0x4423E0u, 9, CE_GROUP_WORK, "The hut place may be empty; works on that hut" },
+    { "Fixing hut (hut place 2) (Unsafe)", ACT_CALL_ARG, 0x4423E0u, 10, CE_GROUP_WORK, "The hut place may be empty; works on that hut" },
+    { "Fixing hut (hut place 3) (Unsafe)", ACT_CALL_ARG, 0x4423E0u, 11, CE_GROUP_WORK, "The hut place may be empty; works on that hut" },
+    { "Celebrating (at the cave)", ACT_CALL_ARG, 0x443FA0u, 1, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (at the lagoon)", ACT_CALL_ARG, 0x443FA0u, 2, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (Isola Day, at the beach) [Isola Day Celebration, The Black Pearl]", ACT_CALL_ARG, 0x443FA0u, 3, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (at the garden)", ACT_CALL_ARG, 0x443FA0u, 4, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (at the treasure)", ACT_CALL_ARG, 0x443FA0u, 5, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (at the Idol)", ACT_CALL_ARG, 0x443FA0u, 7, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (at the temple)", ACT_CALL_ARG, 0x443FA0u, 8, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (hut place 2)", ACT_CALL_ARG, 0x443FA0u, 10, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (hut place 3)", ACT_CALL_ARG, 0x443FA0u, 11, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (at the cemetery)", ACT_CALL_ARG, 0x443FA0u, 12, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (at the school)", ACT_CALL_ARG, 0x443FA0u, 22, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (at the well)", ACT_CALL_ARG, 0x443FA0u, 23, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (Herb Mastery)", ACT_CALL_ARG, 0x443FA0u, 28, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (Magic Fish)", ACT_CALL_ARG, 0x443FA0u, 30, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (Magic Plant)", ACT_CALL_ARG, 0x443FA0u, 31, CE_GROUP_CELEBRATION, NULL },
+    { "Honoring (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 13, CE_GROUP_DEVOTION, "The game itself never starts this honoring" },
+    { "Building small hut (hut place 1) (Unsafe)", ACT_CALL_ARG2, 0x442090u, 9, CE_GROUP_WORK, "Builds at that hut place, even before the game allows it: adds building progress" },
+    { "Building small hut (hut place 2) (Unsafe)", ACT_CALL_ARG2, 0x442090u, 10, CE_GROUP_WORK, "Builds at that hut place, even before the game allows it: adds building progress" },
+    { "Building small hut (hut place 3) (Unsafe)", ACT_CALL_ARG2, 0x442090u, 11, CE_GROUP_WORK, "Builds at that hut place, even before the game allows it: adds building progress" },
 };
 
 /* The stop routine 0x439470 first (a starter appends to the step queue;
@@ -255,6 +314,9 @@ static int c1_behave(int index, int behaviour) {
         return 0;
     }
     act = &C1_BEHAVIOURS[behaviour];
+    if (!ce_action_ready(act)) {
+        return 0;
+    }
     if (act->kind == ACT_RECOVER) {
         *(int *)(r + 0x354) = 0;
         *(int *)(r + 0x344) = 100;
@@ -264,6 +326,8 @@ static int c1_behave(int index, int behaviour) {
         TC1(act->routine, array, index);
     } else if (act->kind == ACT_CALL_ARG) {
         TC2(act->routine, array, index, act->arg);
+    } else if (act->kind == ACT_CALL_ARG2) {
+        TC3(act->routine, array, index, act->arg, 0);
     }
     return 1;
 }
