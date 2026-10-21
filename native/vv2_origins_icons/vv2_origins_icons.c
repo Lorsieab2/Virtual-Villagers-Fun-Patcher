@@ -166,6 +166,10 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
@@ -1416,6 +1420,10 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     (void)lparam;
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(2, window);   /* "OK deducts 0 tech points" */
@@ -2771,6 +2779,10 @@ static void caf_set_body_mode(HWND w, int sel) {
 }
 
 static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(w, msg, wp, lp, &vk_handled)) {
+        return vk_handled;
+    }
     (void)lp;
     if (msg == WM_INITDIALOG) {
         vvfp_story_relabel(2, w);     /* "OK deducts 0 tech points" */

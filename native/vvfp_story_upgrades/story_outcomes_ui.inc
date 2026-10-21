@@ -11,7 +11,22 @@
    event's description, its settings (one row per setting, "label: value"),
    and the editor of the selected row -- a dropdown, a number box for an
    amount with a wide range, and a villager list (Ctrl / Shift extended
-   selection) for "Choose who". */
+   selection) for "Choose who".
+
+   Pick Gong of Wonder Outcome uses the same dialog in the same way (the
+   owner, v1.35.80: "I like the format of the 'Pick Island Events' better"):
+   the list on the left holds what the Gong does -- "Random (original game)"
+   first, then all 23 results under their tiers A, B and C in the game's own
+   words -- and choosing one shows, on the right, the settings that result
+   has (its amount, who falls sick, the skill, the babies, the villager who
+   rang it).  Random shows every setting, and while it is chosen with any
+   setting made the window says plainly that the effect itself is still
+   random.
+
+   Every list's entries wrap (nothing is cut off), the window is resizable
+   (native/shared/vvfp_dialog_kit.h), and a villager list or drop-down has a
+   sort selector: the game's own order, age or name, kept per game for the
+   session. */
 
 enum {
     IDC_PICK_SETTINGS = 3003,
@@ -20,8 +35,38 @@ enum {
     IDC_PICK_RANGE = 3006,
     IDC_PICK_WHO = 3007,
     IDC_PICK_NOTE = 3009,
-    IDC_PICK_HEADING = 3010
+    IDC_PICK_HEADING = 3010,
+    IDC_PICK_WARN = 3012,
+    IDC_PICK_SORT = 3013,
+    IDC_PICK_SORT_LABEL = 3014
 };
+
+/* The villager sort order chosen in each game this session (the owner:
+   "remember the player's choice for the session (per game)"). */
+static int story_sort_mode[6];
+
+/* ---- The Gong of Wonder's results: tiers and the settings of each ---------
+
+   The 23 results of "What the Gong does" (control 0 of the Gong's settings)
+   in the order of scripts/story_outcomes_gong.py: tier A (6), tier B (9),
+   tier C (8).  Its other settings, by control: 1-3 the technology gained
+   (tiers A, B, C), 4 the technology lost, 5-6 the food gained (B, C), 7-8
+   who falls sick (B 30%, C 15%), 9 the skill, 10 the babies, 11 the villager
+   who rang it.  OC_GONG_ROWS names the settings each result has. */
+#define OC_GONG_RESULTS 23
+#define OC_GONG_CONTROLS 12
+static const struct { int first; int count; const char *heading; } OC_GONG_TIERS[3] = {
+    { 0, 6, "Tier A - the rarest: 1 ring in 20 once the Gong has given a tier C result" },
+    { 6, 9, "Tier B - about 1 ring in 4 once the Gong has given a tier C result" },
+    { 15, 8, "Tier C - every other ring, and always a village's first ring" },
+};
+static const signed char OC_GONG_ROWS[OC_GONG_RESULTS][3] = {
+    { -1 }, { -1 }, { 1, -1 }, { -1 }, { 10, -1 }, { 11, -1 },
+    { 7, -1 }, { -1 }, { 2, -1 }, { 5, -1 }, { 11, -1 }, { -1 }, { -1 }, { 11, -1 }, { 11, -1 },
+    { -1 }, { 6, -1 }, { -1 }, { -1 }, { 3, -1 }, { 4, -1 }, { 8, -1 }, { 9, 11, -1 },
+};
+
+#define OC_GONG_WARNING "The effect itself is still random - pick it in 'What the Gong does' (the list on the left)."
 
 #define OC_AMOUNT_TYPED (-2)        /* "Type a number": the edit box holds it */
 #define OC_AMOUNT_INVALID (-3)      /* the typed text is not a valid number */
@@ -39,6 +84,8 @@ static struct {
     int row;                            /* the settings row being edited, or -1 */
     int filling;                        /* the editor is being filled (ignore its notifications) */
     int gong;                           /* the dialog picks the Gong of Wonder's outcome */
+    int shown[OC_MAX_CONTROLS + 1];     /* the settings list's rows: shown[list index] = row */
+    int shown_count;
     oc_settings settings[STORY_MAX_EVENTS];
     story_member roster[OC_ROSTER_MAX];
     char names[OC_ROSTER_MAX][CE_NAME_BYTES];
@@ -102,6 +149,205 @@ static int chooser_rows(const oc_event *e) {
 
 static int chooser_is_strength_row(const oc_event *e, int row) {
     return e != NULL && e->strength && row == e->control_count;
+}
+
+/* Whether the Gong's settings are the ones OC_GONG_ROWS describes. */
+static int chooser_gong_known(const oc_event *e) {
+    const oc_game *g = &OC_GAMES[2];
+    return e != NULL && e->control_count == OC_GONG_CONTROLS
+           && g->controls[e->control_first].kind == OC_ENUM
+           && g->controls[e->control_first].option_count == OC_GONG_RESULTS
+           && g->controls[e->control_first + OC_GONG_CONTROLS - 1].kind == OC_RINGER;
+}
+
+/* Whether settings row `row` is listed on the right: every row, but for the
+   Gong the result (row 0) is the list on the left and, once a result is
+   chosen, only that result's own settings are listed. */
+static int chooser_row_listed(const oc_event *e, int row) {
+    int result;
+    int k;
+    if (!chooser.gong || e == NULL) {
+        return 1;
+    }
+    if (row == 0) {
+        return 0;
+    }
+    result = chooser.settings[0].choice[0];
+    if (!chooser_gong_known(e) || result < 0 || result >= OC_GONG_RESULTS) {
+        return 1;
+    }
+    for (k = 0; k < 3 && OC_GONG_ROWS[result][k] >= 0; ++k) {
+        if (OC_GONG_ROWS[result][k] == row) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* chooser.shown: the rows listed, in order. */
+static void chooser_list_rows(const oc_event *e) {
+    int i;
+    chooser.shown_count = 0;
+    for (i = 0; i < chooser_rows(e) && chooser.shown_count <= OC_MAX_CONTROLS; ++i) {
+        if (chooser_row_listed(e, i)) {
+            chooser.shown[chooser.shown_count++] = i;
+        }
+    }
+}
+
+static int chooser_list_index_of(int row) {
+    int i;
+    for (i = 0; i < chooser.shown_count; ++i) {
+        if (chooser.shown[i] == row) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* The Gong with its result left Random while another setting is made: the
+   effect itself is still the game's own roll (the owner, v1.35.80). */
+static int chooser_gong_still_random(void) {
+    const oc_event *e;
+    int i;
+    if (!chooser.gong || chooser.current != 0) {
+        return 0;
+    }
+    e = chooser_oc(0);
+    if (e == NULL || chooser.settings[0].choice[0] != OC_RANDOM) {
+        return 0;
+    }
+    for (i = 1; i < e->control_count && i < OC_MAX_CONTROLS; ++i) {
+        if (chooser.settings[0].choice[i] != OC_RANDOM) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void chooser_show_warning(HWND window) {
+    int on = chooser_gong_still_random();
+    SetDlgItemTextA(window, IDC_PICK_WARN, on ? OC_GONG_WARNING : "");
+    ShowWindow(GetDlgItem(window, IDC_PICK_WARN), on ? SW_SHOW : SW_HIDE);
+}
+
+/* The Gong's settings a chosen result does not have go back to Random, so
+   only what that result uses is bought (and listed when buying). */
+static void chooser_gong_drop_unlisted(void) {
+    const oc_event *e = chooser_oc(0);
+    int i;
+    if (!chooser.gong || e == NULL || chooser.settings[0].choice[0] == OC_RANDOM) {
+        return;
+    }
+    for (i = 1; i < e->control_count && i < OC_MAX_CONTROLS; ++i) {
+        if (!chooser_row_listed(e, i)) {
+            chooser.settings[0].choice[i] = OC_RANDOM;
+            memset(chooser.settings[0].who[i], 0, OC_WHO_BYTES);
+        }
+    }
+}
+
+/* Entry `k` of the Gong's left list: Random, then each tier's heading and
+   its results in the game's own words.  0 past the end. */
+static int chooser_gong_entry(int k, const char **text, int *data) {
+    const oc_event *e = chooser_oc(0);
+    const oc_game *g = &OC_GAMES[2];
+    int t;
+    if (k == 0) {
+        *text = "Random (original game)";
+        *data = OC_RANDOM;
+        return 1;
+    }
+    --k;
+    if (e == NULL) {
+        return 0;
+    }
+    if (!chooser_gong_known(e)) {     /* never: the tables are the ones described */
+        if (k >= g->controls[e->control_first].option_count) {
+            return 0;
+        }
+        *text = g->options[g->controls[e->control_first].option_first + k].label;
+        *data = k;
+        return 1;
+    }
+    for (t = 0; t < 3; ++t) {
+        if (k == 0) {
+            *text = OC_GONG_TIERS[t].heading;
+            *data = VK_LB_HEADER;
+            return 1;
+        }
+        --k;
+        if (k < OC_GONG_TIERS[t].count) {
+            *data = OC_GONG_TIERS[t].first + k;
+            *text = g->options[g->controls[e->control_first].option_first + *data].label;
+            return 1;
+        }
+        k -= OC_GONG_TIERS[t].count;
+    }
+    return 0;
+}
+
+/* The Gong's left list. */
+static void chooser_fill_gong_results(HWND window) {
+    const char *text;
+    int data;
+    int k;
+    SendDlgItemMessageA(window, IDC_PICK_LIST, LB_RESETCONTENT, 0, 0);
+    for (k = 0; chooser_gong_entry(k, &text, &data); ++k) {
+        int at = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)text);
+        SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)at, (LPARAM)data);
+    }
+}
+
+/* Selects the Gong's chosen result in the left list. */
+static void chooser_select_gong_result(HWND window) {
+    int n = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETCOUNT, 0, 0);
+    int i;
+    for (i = 0; i < n; ++i) {
+        if ((int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETITEMDATA, (WPARAM)i, 0)
+            == chooser.settings[0].choice[0]) {
+            SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETCURSEL, (WPARAM)i, 0);
+            return;
+        }
+    }
+}
+
+/* ---- Villager sorting ------------------------------------------------------ */
+
+static int chooser_villager_about(void *context, LPARAM data, vk_villager *out) {
+    int i;
+    (void)context;
+    for (i = 0; i < chooser.roster_count; ++i) {
+        if ((LPARAM)chooser.roster[i].index == data) {
+            out->name = chooser.names[i];
+            out->age = chooser.roster[i].age;
+            out->rank = i;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The sort selector shown (and the order applied) while the editor is a
+   villager list or a villager drop-down. */
+static void chooser_sort_villagers(HWND window, int villager_combo, int villager_list) {
+    int show = villager_combo || villager_list;
+    int mode = story_sort_mode[chooser.gid];
+    ShowWindow(GetDlgItem(window, IDC_PICK_SORT), show ? SW_SHOW : SW_HIDE);
+    ShowWindow(GetDlgItem(window, IDC_PICK_SORT_LABEL), show ? SW_SHOW : SW_HIDE);
+    if (!show) {
+        return;
+    }
+    vk_fill_sort_selector(GetDlgItem(window, IDC_PICK_SORT), 1, mode);
+    if (mode == VK_SORT_GAME) {
+        return;                         /* filled in the game's own order */
+    }
+    if (villager_combo) {
+        vk_sort_control(GetDlgItem(window, IDC_PICK_VALUE), 1, mode, chooser_villager_about, NULL);
+    }
+    if (villager_list) {
+        vk_sort_control(GetDlgItem(window, IDC_PICK_WHO), 0, mode, chooser_villager_about, NULL);
+    }
 }
 
 /* Whether a condition an option needs holds now. */
@@ -222,6 +468,19 @@ static void chooser_show_editor(HWND window, int value, int amount, int who) {
     ShowWindow(GetDlgItem(window, IDC_PICK_WHO), who ? SW_SHOW : SW_HIDE);
 }
 
+/* The sort selector for the editor now shown, its order applied. */
+static void chooser_editor_sort(HWND window) {
+    const oc_event *e = chooser_oc(chooser.current);
+    int combo = 0;
+    int list = (GetWindowLongA(GetDlgItem(window, IDC_PICK_WHO), GWL_STYLE) & WS_VISIBLE) != 0;
+    if (e != NULL && chooser.row >= 0 && chooser.row < e->control_count) {
+        int kind = chooser_control(e, chooser.row)->kind;
+        combo = kind == OC_VICTIM || kind == OC_RINGER;
+    }
+    chooser_sort_villagers(window, combo, list);
+    vk_fit_dropped_width(GetDlgItem(window, IDC_PICK_VALUE));
+}
+
 /* Fills the villager list for loop row `row` and selects its villagers. */
 static void chooser_fill_who(HWND window, int row) {
     const unsigned char *who = chooser.settings[chooser.current].who[row];
@@ -241,6 +500,58 @@ static void chooser_fill_who(HWND window, int row) {
     }
 }
 
+/* The note under the settings for row `row` of event `e` (row -1: none
+   chosen; for the Gong, what its results are). */
+static void chooser_note(const oc_event *e, int row, char *out, int size) {
+    const oc_control *c;
+    out[0] = '\0';
+    if (e == NULL) {
+        return;
+    }
+    if (row < 0 || row >= chooser_rows(e)) {
+        if (chooser.gong && e->control_count > 0 && chooser_control(e, 0)->note != NULL) {
+            lstrcpynA(out, chooser_control(e, 0)->note, size);
+        }
+        return;
+    }
+    if (chooser_is_strength_row(e, row)) {
+        lstrcpynA(out, "The strength the game normally takes from the population (a third of it, 1 to 10).", size);
+        return;
+    }
+    c = chooser_control(e, row);
+    if (c->note != NULL && (c->kind == OC_ENUM || c->kind == OC_AMOUNT || c->kind == OC_RINGER)) {
+        lstrcpynA(out, c->note, size);
+    } else if (c->kind == OC_LOOP && c->text != NULL && size >= 1100) {
+        wsprintfA(out, chooser.gong ? "Each villager the game checks: %s. If none of the chosen "
+                                      "villagers is still in the village when the Gong rings, "
+                                      "the game decides as usual."
+                                    : "Each villager the game checks: %s.", c->text);
+    } else if (c->kind == OC_VICTIM && c->text != NULL && size >= 1100) {
+        wsprintfA(out, "The game picks among: %s. A villager it would not pick leaves the "
+                       "choice to the game.", c->text);
+    }
+}
+
+/* The description of event `index` as the picker shows it. */
+static void chooser_description(int index, char *out, int size) {
+    const story_event *ev = &chooser.game->events[index];
+    if (chooser.gong) {
+        lstrcpynA(out, ev->description, size);
+    } else if (chooser.possible[index] == OC_POSSIBLE_YES) {
+        lstrcpynA(out, ev->description, size);
+    } else if (chooser.possible[index] == OC_POSSIBLE_UNLOCK) {
+        const oc_event *e = chooser_oc(index);
+        if (size >= 1100) {
+            wsprintfA(out, "%s\r\n\r\n%s", ev->description,
+                      e != NULL && e->dead_note != NULL
+                          ? e->dead_note
+                          : "Normally not possible right now; picking it makes it happen anyway.");
+        }
+    } else if (size >= 1100) {
+        wsprintfA(out, "%s\r\n\r\nNot possible right now: %s", ev->description, ev->requires);
+    }
+}
+
 /* The editor of the selected row. */
 static void chooser_fill_editor(HWND window) {
     const oc_event *e = chooser_oc(chooser.current);
@@ -249,9 +560,11 @@ static void chooser_fill_editor(HWND window) {
     int row = chooser.row;
     chooser.filling = 1;
     SendDlgItemMessageA(window, IDC_PICK_VALUE, CB_RESETCONTENT, 0, 0);
-    SetDlgItemTextA(window, IDC_PICK_NOTE, "");
+    chooser_note(e, row, text, sizeof text);
+    SetDlgItemTextA(window, IDC_PICK_NOTE, text);
     if (e == NULL || row < 0 || row >= chooser_rows(e)) {
         chooser_show_editor(window, 0, 0, 0);
+        chooser_editor_sort(window);
         chooser.filling = 0;
         return;
     }
@@ -269,8 +582,6 @@ static void chooser_fill_editor(HWND window) {
                 chooser_combo_add(window, text, v);
             }
         }
-        SetDlgItemTextA(window, IDC_PICK_NOTE,
-                        "The strength the game normally takes from the population (a third of it, 1 to 10).");
         chooser_select_data(window, s->strength);
         chooser_show_editor(window, 1, 0, 0);
     } else {
@@ -328,13 +639,6 @@ static void chooser_fill_editor(HWND window) {
                 chooser_combo_add(window, "Choose who", OC_LOOP_CHOOSE);
                 who = choice == OC_LOOP_CHOOSE;
             }
-            if (c->text != NULL) {
-                wsprintfA(text, chooser.gong ? "Each villager the game checks: %s. If none of the chosen "
-                                               "villagers is still in the village when the Gong rings, "
-                                               "the game decides as usual."
-                                             : "Each villager the game checks: %s.", c->text);
-                SetDlgItemTextA(window, IDC_PICK_NOTE, text);
-            }
             break;
         case OC_RINGER:
             /* the living adults: the ones the game's own search could answer */
@@ -348,18 +652,9 @@ static void chooser_fill_editor(HWND window) {
             for (i = 0; i < chooser.roster_count; ++i) {
                 chooser_combo_add(window, chooser.names[i], chooser.roster[i].index);
             }
-            if (c->text != NULL) {
-                wsprintfA(text, "The game picks among: %s. A villager it would not pick leaves the "
-                                "choice to the game.", c->text);
-                SetDlgItemTextA(window, IDC_PICK_NOTE, text);
-            }
             break;
         default:
             break;
-        }
-        if (c->note != NULL && (c->kind == OC_ENUM || c->kind == OC_AMOUNT || c->kind == OC_RINGER)) {
-            lstrcpynA(text, c->note, sizeof text);
-            SetDlgItemTextA(window, IDC_PICK_NOTE, text);
         }
         if (c->kind == OC_AMOUNT && c->bound > OC_LIST_LIMIT) {
             chooser_select_data(window, typed ? OC_AMOUNT_TYPED : OC_RANDOM);
@@ -371,6 +666,7 @@ static void chooser_fill_editor(HWND window) {
         }
         chooser_show_editor(window, 1, c->kind == OC_AMOUNT && typed, who);
     }
+    chooser_editor_sort(window);
     chooser.filling = 0;
 }
 
@@ -379,33 +675,38 @@ static void chooser_fill_rows(HWND window) {
     int i;
     char text[1100];
     SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_RESETCONTENT, 0, 0);
-    for (i = 0; i < chooser_rows(e); ++i) {
-        chooser_row_text(e, i, text);
+    chooser_list_rows(e);
+    for (i = 0; i < chooser.shown_count; ++i) {
+        chooser_row_text(e, chooser.shown[i], text);
         SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_ADDSTRING, 0, (LPARAM)text);
     }
-    if (chooser_rows(e) == 0) {
+    if (chooser.shown_count == 0) {
         SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_ADDSTRING, 0,
-                            (LPARAM)"(nothing to set: the game decides this event the same way every time)");
+                            (LPARAM)(chooser.gong ? "(nothing more to set: this result is always the same)"
+                                                  : "(nothing to set: the game decides this event the same way every time)"));
         chooser.row = -1;
     } else {
-        if (chooser.row < 0 || chooser.row >= chooser_rows(e)) {
-            chooser.row = 0;
+        if (chooser_list_index_of(chooser.row) < 0) {
+            chooser.row = chooser.shown[0];
         }
-        SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_SETCURSEL, (WPARAM)chooser.row, 0);
+        SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_SETCURSEL, (WPARAM)chooser_list_index_of(chooser.row), 0);
     }
     chooser_fill_editor(window);
+    chooser_show_warning(window);
 }
 
 static void chooser_refresh_row(HWND window) {
     const oc_event *e = chooser_oc(chooser.current);
     char text[1100];
-    if (e == NULL || chooser.row < 0) {
+    int at = chooser_list_index_of(chooser.row);
+    if (e == NULL || chooser.row < 0 || at < 0) {
         return;
     }
     chooser_row_text(e, chooser.row, text);
-    SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_DELETESTRING, (WPARAM)chooser.row, 0);
-    SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_INSERTSTRING, (WPARAM)chooser.row, (LPARAM)text);
-    SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_SETCURSEL, (WPARAM)chooser.row, 0);
+    SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_DELETESTRING, (WPARAM)at, 0);
+    SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_INSERTSTRING, (WPARAM)at, (LPARAM)text);
+    SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_SETCURSEL, (WPARAM)at, 0);
+    chooser_show_warning(window);
 }
 
 /* The typed amount of the current row: its roll value, or OC_AMOUNT_INVALID. */
@@ -469,6 +770,11 @@ static void chooser_value_changed(HWND window) {
                 chooser_fill_who(window, chooser.row);
             }
         }
+        if (c->kind == OC_LOOP) {
+            chooser.filling = 1;
+            chooser_editor_sort(window);
+            chooser.filling = 0;
+        }
     }
     chooser_refresh_row(window);
 }
@@ -493,10 +799,33 @@ static void chooser_who_changed(HWND window) {
     chooser_refresh_row(window);
 }
 
+/* The Gong: the result chosen in the left list (a tier heading is never
+   chosen: the choice stays where it was). */
+static void chooser_show_gong(HWND window) {
+    int sel = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETCURSEL, 0, 0);
+    int data = sel < 0 ? OC_RANDOM : (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETITEMDATA, (WPARAM)sel, 0);
+    if (data == VK_LB_HEADER) {
+        chooser_select_gong_result(window);
+    } else {
+        chooser.settings[0].choice[0] = data;
+    }
+    if (chooser.current != 0) {
+        chooser.current = 0;
+        chooser.row = -1;
+    }
+    SetDlgItemTextA(window, IDC_PICK_DESC, chooser.game->events[0].description);
+    EnableWindow(GetDlgItem(window, IDOK), TRUE);
+    chooser_fill_rows(window);
+}
+
 static void chooser_show(HWND window) {
     int sel = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETCURSEL, 0, 0);
     int index;
-    char text[640];
+    char text[1100];
+    if (chooser.gong) {
+        chooser_show_gong(window);
+        return;
+    }
     if (sel < 0) {
         SetDlgItemTextA(window, IDC_PICK_DESC, "");
         EnableWindow(GetDlgItem(window, IDOK), FALSE);
@@ -509,19 +838,7 @@ static void chooser_show(HWND window) {
         chooser.current = index;
         chooser.row = 0;
     }
-    if (chooser.possible[index] == OC_POSSIBLE_YES) {
-        lstrcpynA(text, chooser.game->events[index].description, sizeof text);
-    } else if (chooser.possible[index] == OC_POSSIBLE_UNLOCK) {
-        const oc_event *e = chooser_oc(index);
-        wsprintfA(text, "%s\r\n\r\n%s", chooser.game->events[index].description,
-                  e != NULL && e->dead_note != NULL
-                      ? e->dead_note
-                      : "Normally not possible right now; picking it makes it happen anyway.");
-    } else {
-        wsprintfA(text, "%s\r\n\r\nNot possible right now: %s",
-                  chooser.game->events[index].description,
-                  chooser.game->events[index].requires);
-    }
+    chooser_description(index, text, sizeof text);
     SetDlgItemTextA(window, IDC_PICK_DESC, text);
     EnableWindow(GetDlgItem(window, IDOK), chooser.possible[index] != OC_POSSIBLE_NO);
     chooser_fill_rows(window);
@@ -611,7 +928,23 @@ static void chooser_summary(int index, char *out, int size) {
 }
 
 static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
-    (void)lparam;
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
+    if (message == WM_INITDIALOG && chooser.gong) {
+        SetWindowTextA(window, "Pick Gong of Wonder Outcome");
+        SetDlgItemTextA(window, IDC_PICK_HEADING,
+                        "What the Gong does the next time it is rung (Random is the original game's own choice):");
+        SetDlgItemTextA(window, IDC_PICK_SORT_LABEL, "Villagers sorted by:");
+        SendDlgItemMessageA(window, IDC_PICK_AMOUNT, EM_LIMITTEXT, 12, 0);
+        chooser_fill_gong_results(window);
+        chooser_select_gong_result(window);
+        chooser.current = -1;
+        chooser.row = -1;
+        chooser_show(window);
+        return TRUE;
+    }
     if (message == WM_INITDIALOG) {
         int i;
         char label[200];
@@ -629,11 +962,6 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
             SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
         }
         SendDlgItemMessageA(window, IDC_PICK_AMOUNT, EM_LIMITTEXT, 12, 0);
-        if (chooser.gong) {
-            SetWindowTextA(window, "Pick Gong of Wonder Outcome");
-            SetDlgItemTextA(window, IDC_PICK_HEADING, "What the Gong of Wonder does the next time it is rung:");
-            SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETCURSEL, 0, 0);
-        }
         chooser.current = -1;
         chooser.row = -1;
         chooser_show(window);
@@ -647,7 +975,10 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
             return TRUE;
         }
         if (id == IDC_PICK_LIST && code == LBN_DBLCLK) {
-            if (IsWindowEnabled(GetDlgItem(window, IDOK))) {
+            int sel = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETCURSEL, 0, 0);
+            if (IsWindowEnabled(GetDlgItem(window, IDOK))
+                && !(chooser.gong && sel >= 0
+                     && (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETITEMDATA, (WPARAM)sel, 0) == VK_LB_HEADER)) {
                 PostMessageA(window, WM_COMMAND, IDOK, 0);
             }
             return TRUE;
@@ -655,8 +986,13 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
         if (id == IDC_PICK_SETTINGS && code == LBN_SELCHANGE) {
             const oc_event *e = chooser_oc(chooser.current);
             int sel = (int)SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_GETCURSEL, 0, 0);
-            chooser.row = (e != NULL && sel >= 0 && sel < chooser_rows(e)) ? sel : -1;
+            chooser.row = (e != NULL && sel >= 0 && sel < chooser.shown_count) ? chooser.shown[sel] : -1;
             chooser_fill_editor(window);
+            return TRUE;
+        }
+        if (id == IDC_PICK_SORT && code == CBN_SELCHANGE) {
+            story_sort_mode[chooser.gid] = vk_sort_selected(GetDlgItem(window, IDC_PICK_SORT));
+            chooser_fill_editor(window);      /* refilled in the game's order, then sorted */
             return TRUE;
         }
         if (id == IDC_PICK_VALUE && code == CBN_SELCHANGE && !chooser.filling) {
@@ -683,16 +1019,21 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
             int index;
             char why[400];
             const char *refusal;
-            if (sel < 0) {
+            if (chooser.gong) {
+                index = 0;
+                chooser_gong_drop_unlisted();
+            } else if (sel < 0) {
                 return TRUE;
+            } else {
+                index = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETITEMDATA, (WPARAM)sel, 0);
             }
-            index = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETITEMDATA, (WPARAM)sel, 0);
             if (chooser.possible[index] == OC_POSSIBLE_NO) {
                 return TRUE;
             }
             refusal = chooser_refusal(index, why);
             if (refusal != NULL) {
-                MessageBoxA(window, refusal, "Pick Island Event", MB_OK | MB_ICONINFORMATION);
+                MessageBoxA(window, refusal, chooser.gong ? "Pick Gong of Wonder Outcome" : "Pick Island Event",
+                            MB_OK | MB_ICONINFORMATION);
                 return TRUE;
             }
             chooser.chosen = index;
@@ -890,8 +1231,9 @@ static int story_pick_gong_outcome(int game, HWND owner) {
     }
     chooser_summary(0, summary, sizeof summary);
     wsprintfA(message,
-              "Do you want to buy Pick Gong of Wonder Outcome for %s tech points?\r\n%s\r\n\r\n"
-              "Press OK to confirm, or Cancel.", story_price_text(game), summary);
+              "Do you want to buy Pick Gong of Wonder Outcome for %s tech points?\r\n%s%s\r\n\r\n"
+              "Press OK to confirm, or Cancel.", story_price_text(game), summary,
+              settings->choice[0] == OC_RANDOM ? "\r\n\r\n" OC_GONG_WARNING : "");
     if (MessageBoxA(owner, message, "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;
@@ -981,5 +1323,83 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeChooserText(int index, int wha
         lstrcpynA(out, text, size);
     }
     return 1;
+}
+
+/* Where the picker keeps the Gong's choices and its answer, so a test's
+   stand-in for the dialog can choose as the player does: out[0] =
+   &settings[0].choice[0], out[1] = &chosen, out[2] = &settings[0].who[0][0],
+   out[3] = OC_WHO_BYTES. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeChooserFields(unsigned int *out) {
+    out[0] = (unsigned int)(uintptr_t)&chooser.settings[0].choice[0];
+    out[1] = (unsigned int)(uintptr_t)&chooser.chosen;
+    out[2] = (unsigned int)(uintptr_t)&chooser.settings[0].who[0][0];
+    out[3] = OC_WHO_BYTES;
+}
+
+/* Entry `k` of the Gong's left list ("text" into out, its data returned
+   through *data); 0 past the end.  Open the chooser first. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGongEntry(int k, char *out, int size, int *data) {
+    const char *text;
+    out[0] = '\0';
+    if (!chooser_gong_entry(k, &text, data)) {
+        return 0;
+    }
+    lstrcpynA(out, text, size);
+    return 1;
+}
+
+/* With the Gong's result `result` chosen: the rows the right-hand list
+   shows (into rows), and their count. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGongRows(int result, int *rows) {
+    int i;
+    chooser.current = 0;
+    chooser.settings[0].choice[0] = result;
+    chooser_list_rows(chooser_oc(0));
+    for (i = 0; i < chooser.shown_count; ++i) {
+        rows[i] = chooser.shown[i];
+    }
+    return chooser.shown_count;
+}
+
+/* Whether the picker now says the Gong's effect is still random; then, when
+   `ok`, what OK keeps (unlisted settings back to Random). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGongWarning(int ok) {
+    int warned;
+    chooser.current = 0;
+    warned = chooser_gong_still_random();
+    if (ok) {
+        chooser_gong_drop_unlisted();
+    }
+    return warned;
+}
+
+/* The villager sort orders: names `names` (count n), ages `ages`; order
+   receives the sorted positions. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeSortOrder(int mode, int n, const char *const *names,
+                                                            const int *ages, int *order) {
+    vk_villager v[64];
+    int i;
+    for (i = 0; i < n && i < 64; ++i) {
+        v[i].name = names[i];
+        v[i].age = ages[i];
+        v[i].rank = i;
+    }
+    vk_sort_order(mode, v, n < 64 ? n : 64, order);
+}
+
+/* The texts the picker shows for event `index`: what = 0 its description,
+   1 the note of settings row `row` (-1: none chosen).  `size` >= 1100. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeChooserWords(int index, int what, int row, char *out, int size) {
+    chooser.current = index;
+    out[0] = '\0';
+    if (what == 0) {
+        chooser_description(index, out, size);
+    } else {
+        chooser_note(chooser_oc(index), row, out, size);
+    }
+}
+
+__declspec(dllexport) int __stdcall VvfpStoryProbeNameCompare(const char *a, const char *b) {
+    return vk_name_compare(a, b);
 }
 #endif

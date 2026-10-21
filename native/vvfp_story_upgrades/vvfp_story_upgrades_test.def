@@ -95,3 +95,10 @@ EXPORTS
     VvfpStoryProbeQueueLayout=_VvfpStoryProbeQueueLayout@4
     VvfpStoryProbeQueueRestored=_VvfpStoryProbeQueueRestored@0
     VvfpStoryProbeQueueAsked=_VvfpStoryProbeQueueAsked@4
+    VvfpStoryProbeChooserFields=_VvfpStoryProbeChooserFields@4
+    VvfpStoryProbeGongEntry=_VvfpStoryProbeGongEntry@16
+    VvfpStoryProbeGongRows=_VvfpStoryProbeGongRows@8
+    VvfpStoryProbeGongWarning=_VvfpStoryProbeGongWarning@4
+    VvfpStoryProbeSortOrder=_VvfpStoryProbeSortOrder@20
+    VvfpStoryProbeNameCompare=_VvfpStoryProbeNameCompare@8
+    VvfpStoryProbeChooserWords=_VvfpStoryProbeChooserWords@20
