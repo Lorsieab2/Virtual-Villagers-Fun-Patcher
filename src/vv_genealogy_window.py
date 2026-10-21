@@ -4257,6 +4257,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             result, wanted = self.app._run_with_wait(
                 "Numbering the names...\n\nThe save folder is backed up first.",
                 lambda: vv_number_names.number_names(self.folder, self.game, self.slot, self.edits.number_order))
+        except vv_number_names.NothingToNumber as exc:   # no error (the owner, 2026-10-20): said as information
+            messagebox.showinfo("Number Duplicate Names", "\n\n".join(
+                ["Nothing in the save needed numbering."] + exc.notes), parent=self)
+            return
         except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                 OSError) as exc:                # the game running, or its check failing (Codex, #557)
             messagebox.showerror("Number Duplicate Names", f"The names were not numbered. {exc}", parent=self)
@@ -4272,7 +4276,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._update_from_game(ask=False)       # the player already said yes to the numbering
         self.dirty = False
         messagebox.showinfo("Number Duplicate Names", "\n\n".join(
-            [f"{len(result.renamed)} villager(s) numbered in the save and {len(result.files) - 1} other "
+            [f"{vv_number_names.renamed_count(result, wanted)} villager(s) numbered in the save and {len(result.files) - 1} other "
              f"file(s).", *wanted.notes, f"Backup: {result.backup.backup_folder}"]), parent=self)
 
     def _reset_frames(self) -> None:

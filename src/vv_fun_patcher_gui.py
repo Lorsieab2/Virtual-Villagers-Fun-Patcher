@@ -3817,11 +3817,11 @@ class App(tk.Tk):
             auto = vv_number_names.read_auto(folder, number, slot)
         except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError, struct.error):
             return []
-        if not wanted.renames and not wanted.notes:
+        if not wanted.renames and not wanted.ordered and not wanted.notes:
             return []
         lines = ["== Villagers who share a name (Number villagers who share a name automatically: "
                  + ("on" if auto else "off") + ")"]
-        for (old, _head, _body), new in sorted(wanted.renames.items(), key=lambda item: item[1]):
+        for (old, _head, _body), new in sorted(vv_number_names.wanted_names(wanted).items(), key=lambda item: item[1]):
             lines.append(f"NOTE  {old} -> {new}: "
                          + ("numbered at the next Repair Saves & Logs." if auto else "not numbered (the setting is off)."))
         lines += [f"ASK   {note}" for note in wanted.notes]
@@ -3946,7 +3946,7 @@ class App(tk.Tk):
             # the same first AND last name; "Hawa Awanata II" with no other is "Hawa Awanata").
             try:
                 wanted = vv_number_names.pending(folder, number, info.slot)
-                misnumbered = wanted.renames
+                misnumbered = vv_number_names.wanted_names(wanted)
                 numbers["notes"] = wanted.notes     # left as they are: the player decides, never guessed
             except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError,
                     struct.error):
@@ -4100,6 +4100,7 @@ class App(tk.Tk):
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The last names were not given. {exc}", parent=parent)
         numbered = None
+        nothing_numbered: list[str] | None = None
         if numbering:
             try:
                 numbered = self._run_with_wait(
@@ -4107,9 +4108,20 @@ class App(tk.Tk):
                     lambda: vv_number_names.number_names(folder, number, info.slot, numbering,
                                                          automatic=numbers["auto"]),
                 )
+            except vv_number_names.NothingToNumber as exc:
+                # Not an error (the owner, 2026-10-20): what is left is shown in the result, never in red.
+                nothing_numbered = exc.notes
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The duplicate names were not numbered. {exc}", parent=parent)
+        else:
+            # Every number in use kept for VVFP Number Names.dll, so a birth never gets a number a dead or
+            # gone namesake had (the owner, 2026-10-20); number_names keeps them itself when it runs.
+            try:
+                vv_number_names.record_used(folder, number, info.slot)
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, vv_log_tools.LogToolError,
+                    ValueError, OSError, struct.error):
+                pass
         lines = list(named_lines) + grave_lines
         if names is not None and names.get("arrivals") is not None \
                 and names["arrivals"] != vv_last_names.read_arrivals(folder, number, info.slot):
@@ -4140,9 +4152,13 @@ class App(tk.Tk):
                          f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
         if numbered is not None:
             done, wanted = numbered
-            lines.append(" ".join([f"Duplicate names numbered: {len(done.renamed)} villager(s), in the save and "
-                                   f"{len(done.files) - 1} other file(s)."] + wanted.notes
-                                  + [f"Backup: {done.backup.backup_folder}"]))
+            lines.append(" ".join([f"Duplicate names numbered: {vv_number_names.renamed_count(done, wanted)} "
+                                   f"villager(s), in the save and {len(done.files) - 1} other file(s)."]
+                                  + wanted.notes + [f"Backup: {done.backup.backup_folder}"]))
+        elif nothing_numbered is not None:
+            lines.append("Duplicate names: nothing needed numbering."
+                         + (" Left as they are for you to decide (nothing was guessed): " + " ".join(nothing_numbered)
+                            if nothing_numbered else ""))
         elif numbers["auto"] and numbers["notes"]:
             lines.append("Villagers who share a name, left as they are for you to decide (nothing was guessed): "
                          + " ".join(numbers["notes"]))

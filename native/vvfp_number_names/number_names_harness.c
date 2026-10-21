@@ -29,6 +29,11 @@
         slot's off does not; with the village not known yet (slot 0), any
         save's off leaves it, none numbers it.
      8. A pointer that is not one of the table's records changes nothing.
+     9. Numbers are never given twice: a number the village's file keeps for
+        the name (a dead or gone namesake's) counts like a living one's, the
+        number given is added to the file (made, setting on, when there is
+        none; a file that is not this patcher's is never replaced), and a
+        village not known yet adds nothing.
 
    Exit code 0 when every check passes. */
 #define _CRT_SECURE_NO_WARNINGS
@@ -74,8 +79,58 @@ static const struct layout *g;
 static unsigned char *table;
 static unsigned char *rec(int i) { return table + g->base + (size_t)i * g->stride; }
 
+static void setting_file(int slot, char *path, size_t size) {
+    char folder[MAX_PATH];
+    save_folder(folder, sizeof folder);
+    _snprintf(path, size, "%s\\Virtual Villagers Fun Patcher Data\\Number Names\\"
+              "Virtual Villagers %d Number Names - Save %d.dat", folder, g->game, slot);
+    path[size - 1] = '\0';
+    (void)vv_ps_route_a(path, MAX_PATH - 16, 1);
+}
+
+/* A new table and no setting files: every check starts from nothing. */
 static void clear(void) {
+    char path[MAX_PATH * 2];
+    int s;
     memset(table, 0, g->base + (size_t)g->slots * g->stride);
+    for (s = 1; s <= 5; ++s) {
+        setting_file(s, path, sizeof path);
+        DeleteFileA(path);
+    }
+}
+
+/* The setting file's whole text ("" when there is none). */
+static const char *file_text(int slot) {
+    static char text[8192];
+    char path[MAX_PATH * 2];
+    FILE *f;
+    size_t got;
+    setting_file(slot, path, sizeof path);
+    text[0] = '\0';
+    f = fopen(path, "rb");
+    if (f != NULL) {
+        got = fread(text, 1, sizeof text - 1, f);
+        text[got] = '\0';
+        fclose(f);
+    }
+    return text;
+}
+
+/* Write a setting file of these lines after its header (raw: no header when `raw`). */
+static void setting_lines(int slot, const char *lines, int raw) {
+    char path[MAX_PATH * 2];
+    FILE *f;
+    setting_file(slot, path, sizeof path);
+    f = fopen(path, "wb");
+    if (f == NULL) {
+        printf("  FAIL cannot write %s\n", path);
+        exit(2);
+    }
+    if (!raw) {
+        fprintf(f, "VVFP NUMBER NAMES v1 game=%d\n", g->game);
+    }
+    fputs(lines, f);
+    fclose(f);
 }
 
 static void villager(int i, const char *name) {
@@ -94,27 +149,6 @@ static const char *name_of_record(int i) {
     memset(out, 0, sizeof out);
     memcpy(out, rec(i) + g->name, g->capacity);
     return out;
-}
-
-static void setting(int slot, const char *value) {
-    char folder[MAX_PATH], path[MAX_PATH * 2];
-    FILE *f;
-    save_folder(folder, sizeof folder);
-    _snprintf(path, sizeof path, "%s\\Virtual Villagers Fun Patcher Data\\Number Names\\"
-              "Virtual Villagers %d Number Names - Save %d.dat", folder, g->game, slot);
-    path[sizeof path - 1] = '\0';
-    (void)vv_ps_route_a(path, MAX_PATH - 16, 1);
-    if (value == NULL) {
-        DeleteFileA(path);
-        return;
-    }
-    f = fopen(path, "wb");
-    if (f == NULL) {
-        printf("  FAIL cannot write %s\n", path);
-        exit(2);
-    }
-    fprintf(f, "VVFP NUMBER NAMES v1 game=%d\nauto\t%s\n", g->game, value);
-    fclose(f);
 }
 
 static void one_game(const struct layout *layout) {
@@ -199,8 +233,8 @@ static void one_game(const struct layout *layout) {
           "VV%d: a name already numbered is left as it is", g->game);
 
     /* 7. the village's setting */
-    setting(1, "off");
     clear();
+    setting_lines(1, "auto\toff\n", 0);
     villager(0, "Chip Kenobi");
     villager(5, "Chip Kenobi");
     CHECK(number(5, 1) == 0 && strcmp(name_of_record(5), "Chip Kenobi") == 0,
@@ -208,17 +242,50 @@ static void one_game(const struct layout *layout) {
     CHECK(number(5, 2) == 1 && strcmp(name_of_record(5), "Chip Kenobi II") == 0,
           "VV%d: another village's off is not this one's", g->game);
     clear();
+    setting_lines(1, "auto\toff\n", 0);
     villager(0, "Chip Kenobi");
     villager(5, "Chip Kenobi");
     CHECK(number(5, 0) == 0, "VV%d: a village not known yet, with a save's setting off: left as it is", g->game);
-    setting(1, "on");
-    CHECK(number(5, 0) == 1 && strcmp(name_of_record(5), "Chip Kenobi II") == 0,
-          "VV%d: a village not known yet, every setting on: numbered", g->game);
-    setting(1, NULL);
+    setting_lines(1, "auto\ton\n", 0);
+    CHECK(number(5, 0) == 1 && strcmp(name_of_record(5), "Chip Kenobi II") == 0 && strstr(file_text(1), "used") == NULL,
+          "VV%d: a village not known yet, every setting on: numbered by the living only, nothing kept", g->game);
     clear();
     villager(0, "Chip Kenobi");
     villager(5, "Chip Kenobi");
     CHECK(number(5, 3) == 1, "VV%d: no setting file is on", g->game);
+
+    /* 9. numbers are never given twice (the owner, 2026-10-20) */
+    clear();
+    villager(5, "Gata Sirikit");
+    CHECK(number(5, 1) == 0, "VV%d: no namesake, living or kept: no number", g->game);
+    clear();
+    setting_lines(1, "auto\ton\nused\tGata Sirikit\t1\nused\tGata Sirikit\t2\n", 0);
+    villager(5, "Gata Sirikit");            /* Gata Sirikit I and II are dead or gone */
+    CHECK(number(5, 1) == 1 && strcmp(name_of_record(5), "Gata Sirikit III") == 0,
+          "VV%d: the dead's numbers are never given again: the baby is III (%s)", g->game, name_of_record(5));
+    CHECK(strstr(file_text(1), "used\tGata Sirikit\t3\n") != NULL && strstr(file_text(1), "auto\ton\n") != NULL,
+          "VV%d: the number given is kept in the file, the rest of it as it was", g->game);
+    villager(6, "Gata Sirikit");            /* the next one, with III living */
+    CHECK(number(6, 1) == 1 && strcmp(name_of_record(6), "Gata Sirikit IV") == 0,
+          "VV%d: the next baby of the name is IV", g->game);
+    clear();
+    setting_lines(1, "auto\ton\nused\tChip Kenobi\t3\n", 0);
+    villager(0, "Chip Kenobi II");          /* II living, III dead */
+    villager(5, "Chip Kenobi");
+    CHECK(number(5, 1) == 1 && strcmp(name_of_record(5), "Chip Kenobi IV") == 0,
+          "VV%d: after a living II and a dead III, IV", g->game);
+    clear();
+    villager(0, "Chip Kenobi");
+    villager(5, "Chip Kenobi");
+    CHECK(number(5, 1) == 1 && strstr(file_text(1), "VVFP NUMBER NAMES v1 game=") == file_text(1)
+          && strstr(file_text(1), "\nauto\ton\nused\tChip Kenobi\t2\n") != NULL,
+          "VV%d: with no file yet, one is made with the setting on and the number", g->game);
+    clear();
+    setting_lines(1, "something else\n", 1);
+    villager(0, "Chip Kenobi");
+    villager(5, "Chip Kenobi");
+    CHECK(number(5, 1) == 1 && strcmp(file_text(1), "something else\n") == 0,
+          "VV%d: a file that is not this patcher's is never replaced", g->game);
 
     /* 8. not a record of the table */
     clear();

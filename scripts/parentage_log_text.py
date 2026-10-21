@@ -62,7 +62,8 @@ PLAYER_LOG_DESCRIPTION = (
 # writes the Birth record: The Lost Children to New Believers' log row, A New Home's Show Parents row.
 NUMBERED_AT_BIRTH = (
     "A baby born with the full name of a living villager is numbered at its birth, before its Birth "
-    "record is written (\"Chip Kenobi\" is born \"Chip Kenobi II\"), while the village's \"Number "
+    "record is written (\"Chip Kenobi\" is born \"Chip Kenobi II\"; a number a dead or gone namesake had is "
+    "never given again), while the village's \"Number "
     "villagers who share a name automatically\" is on (Repair Saves & Logs; on by default); the "
     "villager who already had the name becomes \"I\" -- with the dead, in the save and every log -- at "
     "the next Repair Saves & Logs, and a numbered name that would not fit the game's name limit is left "

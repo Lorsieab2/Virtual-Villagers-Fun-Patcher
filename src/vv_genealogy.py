@@ -1443,7 +1443,8 @@ NUMBER_ORDERS = {
 
 
 def duplicate_names(village: Village, order: str = "appearance", reserved: set[str] = frozenset(),
-                    leave: set[int] = frozenset(), weight: dict[int, int] | None = None) -> dict[int, str]:
+                    leave: set[int] = frozenset(), weight: dict[int, int] | None = None,
+                    blocks: dict[int, list[str]] | None = None) -> dict[int, str]:
     """Each villager who shares a name with another, numbered (the owner, 2026-10-07: "If there are
     duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc."), the dead
     too, in the NUMBER_ORDERS order: by age (the age now, or at death; an unknown age last), or as
@@ -1461,37 +1462,64 @@ def duplicate_names(village: Village, order: str = "appearance", reserved: set[s
     # Namesakes are told by the WHOLE name, first and last, a number they already carry set aside (the
     # owner, 2026-10-08: "roman numerals should be given for people who have both the same first and
     # last name (Suki Wikimak I, Suki Wikimak II)"): two Sukis numbered before they had last names,
-    # "Suki Alosaka I" and "Suki Wanjiko II", are no namesakes now and lose their numbers.
+    # "Suki Alosaka I" and "Suki Wanjiko II", are no namesakes now -- and keep their numbers (below).
     holders: dict[str, list[Person]] = {}
     for p in sorted(village.known(), key=keys[order]):
         if p.id not in leave:
             holders.setdefault(unnumbered(p.name), []).append(p)
-    taken = set(reserved)
+    # A NUMBER IS KEPT FOR LIFE (the owner, 2026-10-20): "a villager who has a number KEEPS it, even after
+    # their namesake dies or leaves"; numbering only ever ADDS numbers -- it never removes or lowers one
+    # -- and a new namesake gets the next free number after the highest used before them, the dead and
+    # gone included, so no number is ever given twice.  Every number any record of the name carries
+    # (`reserved` and the villagers left out too) counts as used.
+    used: dict[str, set[int]] = {}
+    for p in village.known():
+        base, value = unnumbered(p.name), roman_value(p.name.rsplit(" ", 1)[-1])
+        if base != p.name and value:
+            used.setdefault(base, set()).add(value)
+    for taken_name in reserved:
+        base, value = unnumbered(taken_name), roman_value(taken_name.rsplit(" ", 1)[-1])
+        if base != taken_name and value:
+            used.setdefault(base, set()).add(value)
     out = {}
     for name, ps in holders.items():
         if sum((weight or {}).get(p.id, 1) for p in ps) < 2:
-            p = ps[0]
-            if p.name != name and name not in taken:
-                out[p.id] = name                # no namesake now: the old number goes
-            continue
-        # A number one of them already carries, alone among them, stays theirs (Codex, #557: a village
-        # with a "Soda I" numbers its two other Sodas II and III); the rest are numbered around them.
-        counts: dict[str, int] = {}
+            continue                            # no namesake: the name stays as it is, number and all
+        numbers = used.setdefault(name, set())
+        seen: set[str] = set()
+        before = 0                              # the highest number of the namesakes before this one
         for p in ps:
-            counts[p.name] = counts.get(p.name, 0) + 1
-        kept = {p.id for p in ps if p.name != name and counts[p.name] == 1}
-        taken |= {village.people[q].name for q in kept}
-        n = 0
-        for p in ps:
-            if p.id in kept:
-                continue
-            n += 1
-            while f"{name} {roman(n)}" in taken:
-                n += 1
-            out[p.id] = f"{name} {roman(n)}"
-            taken.add(out[p.id])
-            n += (weight or {}).get(p.id, 1) - 1
+            value = roman_value(p.name.rsplit(" ", 1)[-1]) if p.name != name else 0
+            given = []
+            if value and p.name not in seen:
+                seen.add(p.name)                # a number of their own: kept (never lowered or removed)
+                before = max(before, value)
+                given.append(p.name)
+            # Not numbered yet (or a number another namesake before them has): the lowest number never
+            # used that comes after every namesake before them.  One Person standing for several
+            # villagers (namesakes with the same looks) gets one for each (`blocks`, first to last).
+            for _ in range((weight or {}).get(p.id, 1) - len(given)):
+                n = before + 1
+                while n in numbers:
+                    n += 1
+                numbers.add(n)
+                before = n
+                given.append(f"{name} {roman(n)}")
+            if given[0] != p.name:
+                out[p.id] = given[0]
+            if blocks is not None and len(given) > 1:
+                blocks[p.id] = given
     return out
+
+
+_ROMAN_VALUES: dict[str, int] = {}
+
+
+def roman_value(word: str) -> int:
+    """The number a Roman numeral as roman() writes it stands for; 0 for any other word."""
+    if not _ROMAN_VALUES:
+        _ROMAN_VALUES.update({roman(n): n for n in range(1, 4000)})
+    return _ROMAN_VALUES.get(word, 0)
 
 
 def unnumbered(name: str) -> str:

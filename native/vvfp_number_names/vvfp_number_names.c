@@ -55,6 +55,21 @@
    known yet (slot 0: the catch-up as a village loads, before its first save
    names it) is numbered only when no save of this game has the setting off.
 
+   NUMBERS ARE NEVER GIVEN TWICE (the owner, 2026-10-20: a number is kept
+   for life, and "a new namesake gets the next free number after the
+   highest ever used for that name (including dead/gone holders in the
+   logs)").  The same file keeps every number used for each name, lines
+   "used\t<name without its number>\t<n>" (UTF-8): Repair Saves & Logs
+   writes the ones the save and the logs know (src/vv_number_names.py
+   record_used), and each number given here is added at once.  So the
+   number given is one past the highest of the living namesakes AND of
+   every number the file keeps for the name -- a baby named like a dead
+   "Gata Sirikit II" is "Gata Sirikit III", never a second II -- and a name
+   the file keeps a number for is numbered even with no living namesake.
+   A birth whose village is not known yet (slot 0) has no file to read or
+   add to: only the living count, and the next Repair puts right anything
+   that clashes.
+
    Nothing in a save changes shape: the number is part of the name the game
    itself stores.  Every failure leaves the name as the game gave it. */
 #define _CRT_SECURE_NO_WARNINGS
@@ -67,7 +82,7 @@
 
 #define GAMES 5
 #define NAME_MAX_BYTES 64
-#define SETTING_MAX 4096
+#define SETTING_MAX 262144
 #define SLOTS_KNOWN 5
 
 /* The longest name each game's records keep whole (src/vv_last_names.py ROOM). */
@@ -96,37 +111,68 @@ static int save_folder(char *out, size_t size) {
     return 1;
 }
 
-/* The setting of `slot`: 1 on, 0 off.  No file, a file of another kind or
-   without an "auto" line: on. */
-static int slot_is_on(int game, int slot) {
-    char folder[MAX_PATH], path[MAX_PATH * 2], text[SETTING_MAX + 1], header[48];
-    const char *line;
+static char g_text[SETTING_MAX + 1];      /* the setting file read last */
+static DWORD g_size;
+static int g_present;                    /* the file read last is there (ours or not) */
+
+/* The village's file: "<save folder>\Virtual Villagers Fun Patcher Data\Number
+   Names\Virtual Villagers <game> Number Names - Save <slot>.dat", routed to
+   the save's own folder (native/shared/per_save.h). */
+static int setting_path(int game, int slot, char *path, size_t size, int make) {
+    char folder[MAX_PATH];
+    if (slot < 1 || slot > 9 || !save_folder(folder, sizeof folder)
+        || _snprintf(path, size, "%s\\Virtual Villagers Fun Patcher Data\\Number Names\\"
+                     "Virtual Villagers %d Number Names - Save %d.dat", folder, game, slot) <= 0) {
+        return 0;
+    }
+    path[size - 1] = '\0';
+    (void)vv_ps_route_a(path, MAX_PATH - 16, make);
+    return 1;
+}
+
+/* The file of `slot` into g_text; 1 when it is there, of this game, and
+   whole (one too big to read whole is not used). */
+static int read_setting(int game, int slot) {
+    char path[MAX_PATH * 2], header[48];
     HANDLE h;
     DWORD got = 0;
-    if (!save_folder(folder, sizeof folder)
-        || _snprintf(path, sizeof path, "%s\\Virtual Villagers Fun Patcher Data\\Number Names\\"
-                     "Virtual Villagers %d Number Names - Save %d.dat", folder, game, slot) <= 0) {
-        return 1;
+    g_text[0] = '\0';
+    g_size = 0;
+    g_present = 0;
+    if (!setting_path(game, slot, path, sizeof path, 0)) {
+        return 0;
     }
-    path[sizeof path - 1] = '\0';
-    (void)vv_ps_route_a(path, MAX_PATH - 16, 0);
     h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, NULL);
     if (h == INVALID_HANDLE_VALUE) {
-        return 1;
+        return 0;
     }
-    if (!ReadFile(h, text, SETTING_MAX, &got, NULL)) {
+    g_present = 1;
+    if (!ReadFile(h, g_text, SETTING_MAX, &got, NULL) || got >= SETTING_MAX) {
         got = 0;
     }
     CloseHandle(h);
-    text[got] = '\0';
+    g_text[got] = '\0';
+    g_size = got;
     _snprintf(header, sizeof header, "VVFP NUMBER NAMES v1 game=%d", game);
     header[sizeof header - 1] = '\0';
-    if (strncmp(text, header, strlen(header)) != 0
-        || (text[strlen(header)] != '\n' && text[strlen(header)] != '\r')) {
+    if (got == 0 || strncmp(g_text, header, strlen(header)) != 0
+        || (g_text[strlen(header)] != '\n' && g_text[strlen(header)] != '\r')) {
+        g_text[0] = '\0';
+        g_size = 0;
+        return 0;
+    }
+    return 1;
+}
+
+/* The setting of `slot`: 1 on, 0 off.  No file, a file of another kind or
+   without an "auto" line: on. */
+static int slot_is_on(int game, int slot) {
+    const char *line;
+    if (!read_setting(game, slot)) {
         return 1;
     }
-    for (line = text; line != NULL; line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+    for (line = g_text; line != NULL; line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
         size_t n = strcspn(line, "\r\n");
         if (n == 8 && strncmp(line, "auto\toff", 8) == 0) {
             return 0;
@@ -229,6 +275,90 @@ static void name_of(const unsigned char *record, unsigned int at, unsigned int c
     out[k] = '\0';
 }
 
+/* `text` (the game's Latin-1) as UTF-8, the file's; 0 when it does not fit. */
+static int utf8_of(const char *text, char *out, size_t size) {
+    size_t k = 0;
+    const unsigned char *p;
+    for (p = (const unsigned char *)text; *p != 0; ++p) {
+        if (k + 3 > size) {
+            return 0;
+        }
+        if (*p < 0x80) {
+            out[k++] = (char)*p;
+        } else {
+            out[k++] = (char)(0xC0 | (*p >> 6));
+            out[k++] = (char)(0x80 | (*p & 0x3F));
+        }
+    }
+    out[k] = '\0';
+    return 1;
+}
+
+/* The highest number g_text keeps used for the name `key` (UTF-8, without
+   its number): its "used\t<key>\t<n>" lines; 0 for none. */
+static int recorded_highest(const char *key) {
+    const char *line;
+    size_t n = strlen(key);
+    int highest = 0;
+    for (line = g_text; line != NULL && *line != '\0'; line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        if (strncmp(line, "used\t", 5) == 0 && strncmp(line + 5, key, n) == 0 && line[5 + n] == '\t') {
+            const char *v = line + 6 + n;
+            int value = 0, digits = 0;
+            while (*v >= '0' && *v <= '9' && digits < 5) {
+                value = value * 10 + (*v - '0');
+                ++v;
+                ++digits;
+            }
+            if (digits > 0 && (*v == '\r' || *v == '\n' || *v == '\0') && value < 4000 && value > highest) {
+                highest = value;
+            }
+        }
+    }
+    return highest;
+}
+
+/* Add "used\t<key>\t<n>" to the village's file (g_text, as read; a new file
+   with the setting on when there is none), through a temporary file swapped
+   in whole.  1 when written. */
+static int add_used(int game, int slot, const char *key, int value) {
+    static char out[SETTING_MAX + 256];
+    char path[MAX_PATH * 2], temporary[MAX_PATH * 2 + 16];
+    int used;
+    HANDLE h;
+    DWORD wrote = 0;
+    if ((g_size == 0 && g_present) || !setting_path(game, slot, path, sizeof path, 1)) {
+        return 0;                               /* a file not ours (or unreadable) is never replaced */
+    }
+    if (g_size > 0) {
+        used = _snprintf(out, sizeof out, "%s%sused\t%s\t%d\n", g_text,
+                         g_text[g_size - 1] == '\n' ? "" : "\n", key, value);
+    } else {
+        used = _snprintf(out, sizeof out, "VVFP NUMBER NAMES v1 game=%d\nauto\ton\nused\t%s\t%d\n", game, key, value);
+    }
+    if (used <= 0 || (size_t)used >= sizeof out || (DWORD)used > SETTING_MAX - 1
+        || _snprintf(temporary, sizeof temporary, "%s.used-tmp", path) <= 0) {
+        return 0;
+    }
+    temporary[sizeof temporary - 1] = '\0';
+    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!WriteFile(h, out, (DWORD)used, &wrote, NULL) || wrote != (DWORD)used || !FlushFileBuffers(h)) {
+        CloseHandle(h);
+        DeleteFileA(temporary);
+        return 0;
+    }
+    CloseHandle(h);
+    if (!MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(temporary);
+        return 0;
+    }
+    memcpy(g_text, out, (size_t)used + 1);
+    g_size = (DWORD)used;
+    return 1;
+}
+
 static int readable(const void *at, size_t size) {
     MEMORY_BASIC_INFORMATION info;
     if (VirtualQuery(at, &info, sizeof(info)) != sizeof(info) || info.State != MEM_COMMIT
@@ -247,8 +377,8 @@ __declspec(dllexport) int __stdcall VvfpNumberNewName(int game, unsigned char *c
                                                       unsigned int stride, int slots, unsigned int active,
                                                       unsigned int name, unsigned int capacity, int slot) {
     char mine[NAME_MAX_BYTES], other[NAME_MAX_BYTES], base[NAME_MAX_BYTES], numeral[32];
-    char numbered[NAME_MAX_BYTES + 32];
-    int i, highest = 0;
+    char numbered[NAME_MAX_BYTES + 32], key[NAME_MAX_BYTES * 2];
+    int i, highest = 0, known;
     size_t span;
     if (game < 1 || game > GAMES || child == NULL || first == NULL || stride == 0 || slots <= 0 || slots > 4096
         || capacity == 0 || capacity >= NAME_MAX_BYTES || name + capacity > stride || active >= stride
@@ -278,8 +408,18 @@ __declspec(dllexport) int __stdcall VvfpNumberNewName(int game, unsigned char *c
             highest = value ? value : 1;
         }
     }
-    if (highest == 0 || highest >= 3999 || !numbering_is_on(game, slot)) {
-        return 0;                               /* no living namesake, or the village's setting is off */
+    if (!numbering_is_on(game, slot)) {
+        return 0;                               /* the village's setting is off */
+    }
+    known = slot >= 1 && slot <= 9 && g_size > 0 && utf8_of(mine, key, sizeof key);
+    if (known) {                                /* g_text: this village's file (numbering_is_on read it) */
+        int recorded = recorded_highest(key);
+        if (recorded > highest) {
+            highest = recorded;                 /* a dead or gone namesake's number: never given again */
+        }
+    }
+    if (highest == 0 || highest >= 3999) {
+        return 0;                               /* no namesake, living or recorded */
     }
     roman(highest + 1, numeral);
     if (_snprintf(numbered, sizeof numbered, "%s %s", mine, numeral) <= 0
@@ -288,6 +428,9 @@ __declspec(dllexport) int __stdcall VvfpNumberNewName(int game, unsigned char *c
     }
     memset(child + name, 0, capacity);
     memcpy(child + name, numbered, strlen(numbered));
+    if (slot >= 1 && slot <= 9 && utf8_of(mine, key, sizeof key)) {
+        (void)add_used(game, slot, key, highest + 1);
+    }
     return 1;
 }
 

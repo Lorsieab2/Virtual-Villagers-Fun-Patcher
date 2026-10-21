@@ -28,9 +28,9 @@ CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
 # Per game: II, the namesake kept, IV, III, no namesake, inactive, no room, exactly the limit, already
-# numbered, the setting (5), a pointer between records -- and a look-alike in The Lost Children to
+# numbered, the setting (5), a pointer between records, numbers never given twice (7) -- and a look-alike in The Lost Children to
 # New Believers.
-HARNESS_CHECKS = 5 * 15 + 4
+HARNESS_CHECKS = 5 * 22 + 4
 
 
 def manifest_files(name: str) -> list[dict]:
