@@ -461,6 +461,14 @@ Event on the Origins Tech menu. Its plain Windows dialogs:
   list opens: Golden Child (A New Home), Esteemed Elder and their totem (The
   Lost Children), Tribal Chief (The Secret City), Believer, Retired Chief or
   Heathen type (New Believers). The Tree of Life keeps no such role.
+  The **action** list offers every action the game's own code can start for
+  one villager (island events', puzzles', the Golden Child's, the Tribal
+  Chief's and the Heathens' included), for any villager, labelled with the
+  text the Details screen then shows, grouped and sorted; an action that may
+  harm the game or the save ends "(Unsafe)" and its reason is shown, with the
+  advice to back up the save, before it is confirmed. The full list per game
+  is `docs/custom-island-event-villager-actions.md`
+  (scripts/build_cie_actions_doc.py).
 * **New villagers**: how many, sex, age, name, head and body, likes and
   dislikes, skills, custom title, mask.
 * **Parents**: the parentage data of the chosen villagers.

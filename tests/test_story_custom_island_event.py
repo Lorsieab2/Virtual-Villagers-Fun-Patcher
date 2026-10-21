@@ -1396,9 +1396,21 @@ def behaviour_table(game: str):
     source = ADAPTER_SOURCES[game].read_text(encoding="utf-8")
     body = source[source.index(f"static const ce_action C{game[2]}_BEHAVIOURS[] = {{"):]
     body = body[:body.index("};")]
-    rows = re.findall(r'\{ "((?:[^"\\]|\\.)*)", (ACT_[A-Z_]+), (0x[0-9A-Fa-f]+u?|0), (0x[0-9A-Fa-f]+|\d+) \}', body)
+    rows = re.findall(r'\{ "((?:[^"\\]|\\.)*)", (ACT_[A-Z_0-9]+), (0x[0-9A-Fa-f]+u?|0), (0x[0-9A-Fa-f]+|\d+), '
+                      r'CE_GROUP_[A-Z]+, (?:NULL|"(?:[^"\\]|\\.)*")(?:, CE_GUARD_[A-Z]+, 0x[0-9A-Fa-f]+u)? \}', body)
+    assert len(rows) == body.count('\n    { "'), game
     return [(label, kind, int(routine.rstrip("u"), 16) if routine != "0" else 0, int(arg, 0))
             for label, kind, routine, arg in rows]
+
+
+def behaviour_guards(game: str):
+    """{row index: guard address} for the rows refused while their object is missing."""
+    source = ADAPTER_SOURCES[game].read_text(encoding="utf-8")
+    body = source[source.index(f"static const ce_action C{game[2]}_BEHAVIOURS[] = {{"):]
+    body = body[:body.index("};")]
+    rows = [line for line in body.splitlines() if line.startswith('    { "')]
+    return {k: int(m.group(1), 16) for k, line in enumerate(rows)
+            if (m := re.search(r"CE_GUARD_DWORD, (0x[0-9A-Fa-f]+)u", line))}
 
 
 def stock_callers(game: str, target: int) -> int:
@@ -1446,7 +1458,10 @@ class BehaviourTests(unittest.TestCase):
                 if game in DO_ACTION:
                     story.proc.stub(DO_ACTION[game], recorder(DO_ACTION[game], 8))
                 elif routine:
-                    story.proc.stub(routine, recorder(routine, 8 if kind == "ACT_CALL_ARG" else 4))
+                    story.proc.stub(routine, recorder(routine, {"ACT_CALL_ARG": 8, "ACT_CALL_ARG2": 12}.get(kind, 4)))
+                guard = behaviour_guards(game).get(k)
+                if guard is not None:
+                    story.proc.put32(guard, 1)          # the object the action needs is there
                 if game in ("vv3", "vv4", "vv5"):
                     health = {"vv3": 0x462670, "vv4": 0x46AF00, "vv5": 0x4758B0}[game]
                     story.proc.stub(health, recorder(health, 8))
@@ -1470,8 +1485,34 @@ class BehaviourTests(unittest.TestCase):
                         self.assertEqual(story.proc.read(calls[1][3], 32), bytes(32),
                                          "an argument block of zeros")
                     else:
-                        want = [routine, v.base, 2] + ([arg] if kind == "ACT_CALL_ARG" else [])
+                        want = [routine, v.base, 2] + ([arg] if kind == "ACT_CALL_ARG" else
+                                                       [arg, 0] if kind == "ACT_CALL_ARG2" else [])
                         self.assertEqual(calls[1:], [want])
+
+    def test_a_guarded_action_is_refused_while_its_object_is_missing(self):
+        """The owner (2026-10-21): an action that would crash on a missing object is refused at
+        the moment of use (the villager could not do that now) instead."""
+        seen = 0
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            for k, guard in behaviour_guards(game).items():
+                seen += 1
+                story = Story(game)
+                v = story.village
+                v.put(2, sex="f", years=30, name="Actor")
+                story.proc.put32(guard, 0)
+                story.record_call(STOPS[game][0], STOPS[game][1])
+                if game in DO_ACTION:
+                    story.record_call(DO_ACTION[game], 8)
+                ok, r, _ = story.apply(Event(changes=[story.change(2, behaviour=k)]))
+                with self.subTest(game=game, row=k):
+                    self.assertEqual(r["refused"], 1)
+                    self.assertEqual(story.calls.get(STOPS[game][0], []), [], "nothing is started")
+                    if game in DO_ACTION:
+                        self.assertEqual(story.calls.get(DO_ACTION[game], []), [])
+        if have_stock("vv5"):
+            self.assertGreater(seen, 0, "New Believers' first-hut actions carry a guard")
 
     def test_the_first_offered_actions_keep_their_places(self):
         """Behaviours queued before this release keep meaning the same."""
@@ -1499,13 +1540,22 @@ class BehaviourTests(unittest.TestCase):
                 with self.subTest(game=game, behaviour=label):
                     self.assertGreater(stock_callers(game, routine), 0)
 
-    def test_no_action_of_the_excluded_kinds_is_offered(self):
-        banned = ("bury", "burying", "puzzle", "embrac", "clothes", "picking", "looking for", "teach",
-                  "tag", "chief", "convert", "seeing the light", "guard")
+    def test_the_once_excluded_kinds_are_offered_marked_unsafe(self):
+        """The owner (2026-10-21): every action is offered, a risky one ending " (Unsafe)" -- the
+        kinds earlier releases left out (puzzle steps, burial, embracing, new clothes, pickups,
+        games that stop other villagers) included."""
+        risky = ("bury", "burying", "embrac", "new clothes", "picking a mushroom", "playing tag",
+                 "pushing statue", "building small hut", "ringing the gong")
+        offered = set()
         for game in GAMES:
             for label, *_ in behaviour_table(game):
-                with self.subTest(game=game, behaviour=label):
-                    self.assertFalse(any(word in label.lower() for word in banned), label)
+                for word in risky:
+                    if word in label.lower():
+                        offered.add(word)
+                        with self.subTest(game=game, behaviour=label):
+                            self.assertTrue(label.endswith(" (Unsafe)"), label)
+        self.assertGreaterEqual(offered, {"embrac", "new clothes", "playing tag", "pushing statue",
+                                          "building small hut", "ringing the gong"})
 
     def test_recovers_fully(self):
         for game in GAMES:

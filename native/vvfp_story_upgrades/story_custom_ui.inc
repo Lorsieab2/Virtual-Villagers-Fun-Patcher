@@ -255,6 +255,48 @@ static void ui_fill_choices(HWND window, int id, const char *const *names, int c
     SendDlgItemMessageA(window, id, CB_SETCURSEL, 0, 0);
 }
 
+/* Villager Changes' actions: "No change", then every action as "Group:
+   label", sorted by group and then label (each row's data stays its table
+   index, which a queued purchase stores).  The dropped list is as wide as
+   its longest row and scrolls. */
+static void ui_fill_behaviours(HWND window, const ce_adapter *a) {
+    static int order[512];
+    char text[192];
+    int count = a->behaviour_count < 512 ? a->behaviour_count : 512;
+    int widest = 0;
+    int i, j;
+    RECT extent;
+    for (i = 0; i < count; ++i) {
+        order[i] = i;
+    }
+    for (i = 1; i < count; ++i) {
+        int k = order[i];
+        const ce_action *x = &a->behaviours[k];
+        for (j = i; j > 0; --j) {
+            const ce_action *y = &a->behaviours[order[j - 1]];
+            if (y->group < x->group || (y->group == x->group && lstrcmpiA(y->label, x->label) <= 0)) {
+                break;
+            }
+            order[j] = order[j - 1];
+        }
+        order[j] = k;
+    }
+    ui_combo_add(window, IDC_CH_BEHAVIOUR, "No change", CE_KEEP);
+    for (i = 0; i < count; ++i) {
+        const ce_action *x = &a->behaviours[order[i]];
+        int group = x->group >= 0 && x->group < CE_GROUPS ? x->group : CE_GROUP_GENERAL;
+        wsprintfA(text, "%s: %s", CE_GROUP_NAMES[group], x->label);
+        ui_combo_add(window, IDC_CH_BEHAVIOUR, text, order[i]);
+        if (lstrlenA(text) > widest) {
+            widest = lstrlenA(text);
+        }
+    }
+    SetRect(&extent, 0, 0, widest * 4 + 16, 0);
+    MapDialogRect(window, &extent);
+    SendDlgItemMessageA(window, IDC_CH_BEHAVIOUR, CB_SETDROPPEDWIDTH, (WPARAM)extent.right, 0);
+    SendDlgItemMessageA(window, IDC_CH_BEHAVIOUR, CB_SETCURSEL, 0, 0);
+}
+
 static void ui_fill_masks(HWND window, int id, const char *keep) {
     int i;
     int count = story_mask_count(ui.game);
@@ -1145,6 +1187,20 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
     }
     t->behaviour = ui_combo_data(window, IDC_CH_BEHAVIOUR);
     if (!(ui.a->caps & CAP_BEHAVIOUR)) t->behaviour = CE_KEEP;
+    if (t->behaviour >= 0 && t->behaviour < ui.a->behaviour_count
+        && ui.a->behaviours[t->behaviour].unsafe != NULL) {
+        /* The owner (2026-10-21): an (Unsafe) action is offered with its
+           reason and the advice to back up the save first. */
+        static char reason[512];
+        const ce_action *act = &ui.a->behaviours[t->behaviour];
+        wsprintfA(reason, "\"%s\": %s.%s\r\n\r\nBack up the save first (Back Up Saves in the patcher).",
+                  act->label, act->unsafe,
+                  act->guard != CE_GUARD_NONE ? " If what it needs is missing when the event happens, the "
+                                                "villager is not changed instead of the game crashing." : "");
+        if (!ui_risk(window, reason)) {
+            return 0;
+        }
+    }
     if (ui.unborn_chosen && ui.unborn.unborn_set && (ui.a->caps & CAP_UNBORN)) {
         t->unborn_set = 1;
         lstrcpynA(t->unborn_name, ui.unborn.unborn_name, CE_NAME_BYTES);
@@ -1280,11 +1336,7 @@ static void ui_setup_changes(HWND window) {
         ui_fill_masks(window, IDC_CH_MASK, "No change");
     }
     ui_fill_choices(window, IDC_CH_STATUS, a->statuses, a->status_count);
-    ui_combo_add(window, IDC_CH_BEHAVIOUR, "No change", CE_KEEP);
-    for (i = 0; i < a->behaviour_count; ++i) {
-        ui_combo_add(window, IDC_CH_BEHAVIOUR, a->behaviours[i].label, i);
-    }
-    SendDlgItemMessageA(window, IDC_CH_BEHAVIOUR, CB_SETCURSEL, 0, 0);
+    ui_fill_behaviours(window, a);
 
     ui_enable(window, IDC_CH_FATE, (a->caps & (CAP_KILL | CAP_VANISH)) != 0);
     ui_enable(window, IDC_CH_SICK, (a->caps & CAP_SICK) != 0);
