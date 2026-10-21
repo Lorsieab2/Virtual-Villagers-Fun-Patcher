@@ -427,7 +427,10 @@ static int rc_same_parents(const struct rc_history *h, const char *father, const
 }
 
 /* The same villager of two snapshots: name and parents -- and, where the game keeps no parents (A New
-   Home), the looks too, so two namesakes are never one. */
+   Home), the looks too, so two namesakes are never one.  A New Home's villager whose looks changed
+   between two snapshots (an island event's head, Change Appearance) is then seen twice: a History elder
+   is only ever counted again when no line of the list and no living villager is theirs (rc_history_villager),
+   so the change never adds a second elder for one villager who is still listed or alive. */
 static int rc_same_history_villager(const struct rc_history *h, const struct rc_elder *a, const struct rc_elder *b) {
     if (strcmp(a->name, b->name) != 0 || strcmp(a->father, b->father) != 0 || strcmp(a->mother, b->mother) != 0) {
         return 0;
@@ -435,19 +438,37 @@ static int rc_same_history_villager(const struct rc_history *h, const struct rc_
     return h->game != GAME_VV1 || (a->head == b->head && a->body == b->body);
 }
 
-/* A Death or Disappeared record of this villager's own name, head and body. */
+/* A Death or Disappeared record of this villager: their own name, head and body -- or, their looks
+   having changed since the snapshot (a new chief's robe, an island event, Change Appearance; the owner,
+   v1.35.80 update: a change of looks or title never means a villager left), the ONE departure of their
+   name when nobody alive carries that name.  Looks only break ties: a living namesake, or two departures
+   of the name with other looks, decides nothing. */
 static int rc_has_departure(const struct rc_history *h, const struct rc_elder *v) {
-    int i;
+    int i, named = 0;
     if (v->head < 0 || v->body < 0) {
         return 0;
     }
     for (i = 0; i < h->departed_count; ++i) {
-        if (h->departed[i].head == v->head && h->departed[i].body == v->body
-            && strcmp(h->departed[i].name, v->name) == 0) {
+        if (strcmp(h->departed[i].name, v->name) != 0) {
+            continue;
+        }
+        if (h->departed[i].head == v->head && h->departed[i].body == v->body) {
             return 1;
         }
+        ++named;
     }
-    return 0;
+    /* A New Home keeps no parents, so its snapshots tell villagers apart by the looks
+       (rc_same_history_villager): there the villager's later snapshots, under the new looks, carry the
+       departure, and taking an older look for it too would count one elder twice. */
+    if (named != 1 || h->game == GAME_VV1) {
+        return 0;
+    }
+    for (i = 0; i < h->known_count; ++i) {
+        if (!h->known[i].list && strcmp(h->known[i].name, v->name) == 0) {
+            return 0;                 /* a living villager of the name: which one went is not certain */
+        }
+    }
+    return 1;
 }
 
 /* One villager of a snapshot of this village, finished: an elder to add?  (The rules are above

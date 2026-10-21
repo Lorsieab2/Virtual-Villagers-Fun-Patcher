@@ -262,12 +262,25 @@ def _read_titles(path: Path, game: int) -> list[vv_titles_file.Entry] | None:
     return None if got is None else got[1]
 
 
-def _held_for(game: int, entries: list[vv_titles_file.Entry], identity: int, looks: dict) -> bool:
+def _held_for(game: int, entries: list[vv_titles_file.Entry], identity: int, looks: dict,
+              data: bytes | None = None, at: int | None = None) -> bool:
     """Whether the titles file holds a title (bound or pending) for the villager of this title identity
     and these looks: an entry of that identity that could be them (vv_titles_file.could_be, as the
-    game's load matches it).  Two villagers of one identity with their own looks each hold their own."""
-    return any(e.identity == identity and vv_titles_file.could_be(game, e, looks) for e in entries)
-
+    game's load matches it).  Two villagers of one identity with their own looks each hold their own.
+    The head and body only break ties (the owner, v1.35.80 update: a change of looks never makes a
+    villager someone else): an entry kept under other looks is theirs unless another villager of the
+    identity in the save (`data`, theirs at `at`) has exactly the entry's looks."""
+    could = [e for e in entries if e.identity == identity and vv_titles_file.could_be(game, e, looks)]
+    if not could:
+        return False
+    if any(not e.known or (e.head, e.body) == (looks["head"], looks["body"]) for e in could):
+        return True
+    if data is None:
+        return True
+    f = ln.FIELDS[game]
+    others = [vv_titles_file.looks_from_save(game, data, a) for a in ln._entries(game, data)
+              if a != at and ln._title_identity(data, a, f) == identity]
+    return any(not any((o["head"], o["body"]) == (e.head, e.body) for o in others) for e in could)
 
 def _record_index(game: int, data: bytes, at: int) -> int:
     """The villager's record number: the games load a save packed into records 0, 1, 2 ... in the
@@ -383,7 +396,7 @@ def _survey_titles(folder, game, slot, data, recs, people, prefs, ids, carriers,
     # identity).  Another villager of the same identity with their own looks and title (a twin) does not
     # hold theirs -- that hid a lost title, or refused a restore every time.
     def held(v) -> bool:
-        return _held_for(game, entries, ids[v.at], vv_titles_file.looks_from_save(game, data, v.at))
+        return _held_for(game, entries, ids[v.at], vv_titles_file.looks_from_save(game, data, v.at), data, v.at)
 
     at_index = {e.index: e for e in entries if not e.pending}
     for e in lost:
@@ -579,7 +592,7 @@ def _plan(folder: Path, game: int, slot: int, chosen: list[Restore]) -> list[_Ch
             if not title_valid(r.title):
                 raise LostTitlesError(f"\"{r.title}\" is not a title the game can show; nothing was changed.")
             looks = vv_titles_file.looks_from_save(game, data, r.villager.at)
-            if _held_for(game, entries, r.identity, looks):
+            if _held_for(game, entries, r.identity, looks, data, r.villager.at):
                 raise LostTitlesError(f"{r.villager.name} already has a title in {path.name}; nothing was changed.")
             same = [e for e in entries if not e.pending and e.index == r.index]
             if r.rekey is not None:

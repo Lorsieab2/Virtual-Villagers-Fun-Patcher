@@ -1457,8 +1457,10 @@ def _split_titles_resolver(game: int, save: bytes, split: dict[int, list[tuple]]
         e = read[1][k]
         if not e.known or e.contested:
             raise refuse
-        could = [new for v, new in split[old]
+        could = [(v, new) for v, new in split[old]
                  if vv_titles_file.could_be(game, e, vv_titles_file.looks_from_save(game, save, v.at))]
+        could = [new for _v, new in vv_titles_file.narrow(
+            e, could, lambda item: vv_titles_file.looks_from_save(game, save, item[0].at))]   # looks break a tie
         if len(could) != 1:
             raise refuse
         return could[0]

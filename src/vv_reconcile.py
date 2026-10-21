@@ -621,6 +621,19 @@ class _Builder:
             self.findings[qid] = Finding("ask", topic, qid, text, options + [DONT_KNOW], rename,
                                          title_actions=title_actions)
 
+    def identity(self, older: tuple, newer: tuple) -> str | None:
+        """The player's answer in the Family Tree Maker to "is <older> the same villager as <newer>?":
+        "same", "different", or None (src/vv_answered_questions.py identity_answers)."""
+        if not hasattr(self, "_identity"):
+            import vv_answered_questions as aq
+            try:
+                self._identity = aq.identity_answers(Path(self.folder), self.game, self.slot)
+            except (OSError, ValueError):
+                self._identity = {}
+        import vv_answered_questions as aq
+        said = aq.identity_said(self._identity, tuple(older), tuple(newer))
+        return {aq.SAME: "same", aq.DIFFERENT: "different"}.get(said)
+
     def note(self, topic: str, qid: str, text: str) -> None:
         if qid not in self.findings:
             self.findings[qid] = Finding("note", topic, qid, text)
@@ -885,17 +898,31 @@ class _Builder:
                 continue                                    # a body awaiting burial: its Death record comes then
             fits = [n for n in unexplained_new if _could_be(old, n, game, self.same_parent)
                     and ((n.head, n.body) == (old.head, old.body) or n.name == old.name)]
+            # The player's "Different villagers" in the Family Tree Maker keeps two apart here too.
+            fits = [n for n in fits if self.identity(old.key, n.key) != "different"]
+            # ...and their "Same villager" settles which one it is (Codex, #602), before any count.
+            said_same = [n for n in fits if self.identity(old.key, n.key) == "same"]
             same_name = [n for n in fits if n.name == old.name]
             same_looks = [n for n in fits if (n.head, n.body) == (old.head, old.body) and n.name != old.name]
+            if len(said_same) == 1:
+                same_name, same_looks = said_same, []
             if same_name and len(same_name) == 1:
                 n = same_name[0]
                 unexplained_new.remove(n)
                 if self.looks_recorded(old, n):
                     continue
-                self.ask("looks", f"looks|{old.key}|{n.key}",
-                         f"{old.name}: {old.looks()} in {a.label}, {n.looks()} in {b.label}, and no Appearance "
-                         "changed or island event record says the looks changed. Is this the same villager?",
-                         [f"{KEEP} (the same villager; the looks changed)"])
+                # A CHANGE OF LOOKS NEVER MEANS A VILLAGER LEFT (the owner, v1.35.80 update: "A change in body,
+                # head and mask does not mean they disappeared.  A change in title or special villager status
+                # does not mean they disappeared.").  One villager of the name gone and one new, in two rosters
+                # in a row, whose sex, age, parents and likes fit: the same villager, whose looks changed -- The
+                # Secret City's new Tribal Chief takes the chief's robe (a new body) with no record of it.  A
+                # note, never a question.
+                robe = " (The Secret City's new Tribal Chief is given the chief's robe, a new body, by the game.)" \
+                    if game == 3 and old.head == n.head and old.body != n.body else ""
+                self.note("looks", f"looks|{old.key}|{n.key}",
+                          f"{old.name}: {old.looks()} in {a.label}, {n.looks()} in {b.label}: the same villager, "
+                          f"whose looks changed with no Appearance changed or island event record (a change of "
+                          f"looks or title never means a villager left).{robe}")
             elif same_looks:
                 for n in same_looks[:1] if len(same_looks) == 1 else []:
                     unexplained_new.remove(n)
@@ -1195,6 +1222,7 @@ class _Builder:
         raw = titles_file.entry_bytes(e)
         carriers = [v for v in present if v.title_id == e.identity]
         could = [v for v in carriers if v.title_looks is not None and titles_file.could_be(self.game, e, v.title_looks)]
+        could = titles_file.narrow(e, could, lambda v: v.title_looks)   # the looks only break a tie
         named = [s.name for s in snapshot if s.title == e.title]
         name = carriers[0].name if carriers else (named[0] if len(set(named)) == 1 else None)
         if e.known:

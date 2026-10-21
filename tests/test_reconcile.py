@@ -386,7 +386,10 @@ class Losses(Base):
         self.assertEqual(rec.questions, [], [f.text for f in rec.questions])
         self.assertTrue(any("an island event renamed them" in f.text for f in rec.notes))
 
-    def test_looks_changed_with_no_record_are_asked_and_a_recorded_change_is_not(self):
+    def test_looks_changed_with_no_record_are_a_note_never_a_question(self):
+        """The owner, v1.35.80 update: "A change in body, head and mask does not mean they disappeared."  A
+        villager whose looks changed with no record is the same villager: a note, never a question (it was
+        asked before); a recorded change is neither."""
         for game in (1, 3):
             with self.subTest(game=game):
                 v = self.village("huttest", game)
@@ -396,10 +399,16 @@ class Losses(Base):
                 now = v.relooked(original, 0, (x.head + 1) % 20, x.body)
                 v.write_save(1, now)
                 v.history([("2026-10-11 20:00:00", people), ("2026-10-11 21:00:00", v.people(now))])
-                self.assertEqual([f.topic for f in rc.reconcile(v.folder, game, 1).questions], ["looks"])
+                rec = rc.reconcile(v.folder, game, 1)
+                self.assertEqual(rec.questions, [], [f.text for f in rec.questions])
+                looks = [f for f in rec.notes if f.topic == "looks"]
+                self.assertEqual(len(looks), 1)
+                self.assertIn("never means a villager left", looks[0].text)
                 v.births(f"Appearance changed\n  Name: {x.name}\n  Old head: {x.head}\n  Old body: {x.body}\n"
                          f"  New head: {(x.head + 1) % 20}\n  New body: {x.body}\n\n")
-                self.assertEqual(rc.reconcile(v.folder, game, 1).questions, [])
+                rec = rc.reconcile(v.folder, game, 1)
+                self.assertEqual(rec.questions, [])
+                self.assertFalse([f for f in rec.notes if f.topic == "looks"])
 
     def test_a_village_gone_back_in_time_is_one_question(self):
         v = self.village("huttest", 5)
@@ -509,18 +518,21 @@ class ChangesBetweenCopies(Base):
                 v.write_save(1, now)
                 v.history([("2026-10-11 20:30:00", people), ("2026-10-11 21:00:00", v.people(now))])
                 self.assertFalse([f for f in rc.reconcile(v.folder, game, 1).questions if f.topic == "looks"])
-                # The head as recorded AND a body nobody recorded: asked.
+                # The head as recorded AND a body nobody recorded: the same villager -- a note, never a
+                # question (a change of looks never means a villager left: the owner, v1.35.80 update).
                 now = v.relooked(original, 0, head2, body2)
                 v.write_save(1, now)
                 v.history([("2026-10-11 20:30:00", people), ("2026-10-11 21:00:00", v.people(now))])
-                self.assertEqual(len([f for f in rc.reconcile(v.folder, game, 1).questions
-                                      if f.topic == "looks"]), 1)
-                # A head other than the one recorded: asked.
+                rec = rc.reconcile(v.folder, game, 1)
+                self.assertFalse([f for f in rec.questions if f.topic == "looks"])
+                self.assertEqual(len([f for f in rec.notes if f.topic == "looks"]), 1)
+                # A head other than the one recorded: a note too.
                 now = v.relooked(original, 0, (x.head + 2) % 20, x.body)
                 v.write_save(1, now)
                 v.history([("2026-10-11 20:30:00", people), ("2026-10-11 21:00:00", v.people(now))])
-                self.assertEqual(len([f for f in rc.reconcile(v.folder, game, 1).questions
-                                      if f.topic == "looks"]), 1)
+                rec = rc.reconcile(v.folder, game, 1)
+                self.assertFalse([f for f in rec.questions if f.topic == "looks"])
+                self.assertEqual(len([f for f in rec.notes if f.topic == "looks"]), 1)
                 events.unlink()
 
 

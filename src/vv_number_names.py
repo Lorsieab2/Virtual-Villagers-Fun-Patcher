@@ -331,6 +331,156 @@ def pending(folder: Path, game: int, slot: int, order: str = "appearance") -> Nu
                      order=order, orderable=orderable(folder, game, slot, alike))
 
 
+# A NUMBER A LOOKS OR TITLE CHANGE GAVE (the owner, v1.35.80 update: "A change in body, head and mask does not
+# mean they disappeared.  A change in title or special villager status does not mean they disappeared.").
+# Before this update the Family Tree reader took a villager's record under older looks -- The Secret City's
+# new Tribal Chief in the chief's robe, an island event's new head -- for a second villager of the same name,
+# and numbering (the automatic numbering at every Repair included) then numbered the villager as that
+# "namesake's" successor.  Such a number was never legitimately given, so -- unlike every real number, which
+# is kept for life (numbered-names-keep-their-number) -- Repair Saves & Logs offers to take it off again,
+# villager by villager, with the evidence, only when the villager has no other holder of the name at all
+# (living, dead, gone or in any record) once their older looks are known to be theirs.
+UNNUMBER_KIND = "looks_numbers"
+UNNUMBER_LABEL = "Numbers given because a villager's looks or title changed"
+TAKE_OFF = "Take the number off"
+KEEP_NUMBER = "Keep the number"
+
+
+@dataclass
+class Misnumbered:
+    """A living villager whose number only a change of their own looks or title explains."""
+    name: str                       # as the save has it now ("Mama Peponi II")
+    base: str                       # without the number ("Mama Peponi")
+    head: int
+    body: int
+    age: int | None
+    older_looks: list[tuple[int, int]]          # the looks the older records give them
+    renamed_lines: list[str] = field(default_factory=list)   # the Repairs Made lines that numbered them
+
+    @property
+    def key(self) -> str:
+        return f"unnumber|{self.name}|{self.head}|{self.body}"
+
+    def evidence(self) -> str:
+        looks = "; ".join(f"head {h}, body {b}" for h, b in self.older_looks)
+        made = (" " + " ".join(self.renamed_lines)) if self.renamed_lines else ""
+        return (f"{self.name} (head {self.head}, body {self.body}{', age ' + str(self.age) if self.age is not None else ''}) "
+                f"has no other villager called {self.base} -- living, dead, gone or in any record. The only other "
+                f"\"{self.base}\" the records name is this villager under their older looks ({looks}), before a "
+                f"change of looks or title (The Secret City's Tribal Chief's robe, an island event, Change Appearance), "
+                f"which never means a villager left.{made}")
+
+
+def _numbering_lines(folder: Path, game: int, slot: int) -> list[str]:
+    """Every "Renamed: <old> (head h, body b...) -> <new>" line in the slot's Repairs Made logs."""
+    out = []
+    checker = ln.tools.load_checker()
+    for path in checker.game_logs(Path(folder), layout.REPAIRS_LOGS, f"Virtual Villagers {game} Repairs Log"):
+        try:
+            text = path.read_bytes().decode("latin-1")
+        except OSError:
+            continue
+        out += [line.strip() for line in text.splitlines() if line.strip().startswith("Renamed: ")]
+    return out
+
+
+def misnumbered_by_looks(folder: Path, game: int, slot: int,
+                         village: gen.Village | None = None) -> list[Misnumbered]:
+    """The living villagers numbered only because a change of their own looks or title split them in two
+    (read only): a number in their name, no other holder of the name once their older looks are joined to
+    them, and an older record of the name without the number, under other looks, that is theirs."""
+    folder = Path(folder)
+    village = village if village is not None else gen.load_village(folder, game, slot, full_names=False)
+    _alike, nameless, _bodies, _taken = evidence(folder, game, slot)
+    lines = _numbering_lines(folder, game, slot)
+    out = []
+    for p in village.living():
+        base = gen.unnumbered(p.name)
+        if base == p.name or not gen.roman_value(p.name.rsplit(" ", 1)[-1]) or p.head is None or p.body is None:
+            continue
+        if any(q.id != p.id and gen.unnumbered(q.name) == base for q in village.known()):
+            continue                            # a real namesake: the number stays, for life
+        if any(gen.unnumbered(n) == base for n in nameless):
+            continue                            # a record without looks may be another of the name
+        older = [(h, b) for (name, h, b), now in village.relooked.items()
+                 if now == p.key and name == base and (h, b) != (p.head, p.body)]
+        if not older:
+            continue                            # nothing says a looks change made the number
+        made = [line for line in lines if line.startswith(f"Renamed: {base} (") and line.endswith(f"-> {p.name}")]
+        out.append(Misnumbered(p.name, base, p.head, p.body, p.age, sorted(set(older)), made))
+    return out
+
+
+def take_numbers_off(folder: Path, game: int, slot: int, cases: list[Misnumbered],
+                     processes: vv_save_backup.ProcessController | None = None,
+                     now: datetime | None = None) -> ln.Result | None:
+    """Take off the numbers a looks or title change gave (the player answered "Take the number off"):
+    the save, the logs and the patcher's files renamed back (vv_last_names' renaming: refused while the game
+    runs, the save folder backed up first, every file read back, every one put back on a failure); the
+    number taken out of the village's used numbers (it was never given); one Repairs Made record listing each
+    with its evidence.  Each case is checked again first: one that no longer holds is left as it is."""
+    folder = Path(folder)
+    controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
+    ln.tools._refuse_if_running(folder, controller)
+    still = {c.key: c for c in misnumbered_by_looks(folder, game, slot)}
+    todo = [still[c.key] for c in cases if c.key in still]
+    if not todo:
+        return None
+    work = ln.plan_renames(folder, game, slot, {(c.name, c.head, c.body): c.base for c in todo}, dead=True)
+    if not work.changes:
+        return None
+    result = ln.apply(folder, work, controller, now, "(before taking off numbers)",
+                      "taking off the numbers a looks change gave")
+    used = read_used(folder, game, slot)
+    changed = False
+    for c in todo:
+        value = gen.roman_value(c.name.rsplit(" ", 1)[-1])
+        if value in used.get(c.base, set()):
+            used[c.base].discard(value)
+            changed = True
+    if changed:
+        try:
+            _write_setting(folder, game, slot, read_auto(folder, game, slot),
+                           {b: ns for b, ns in used.items() if ns})
+        except OSError:
+            pass                                # the names are right; the next Repair writes the file again
+    try:
+        header = _village_header(folder, game, slot) or "Village: (all villages in this save folder)"
+        path, text = ln.tools.repair_record_start(folder, game, header, layout.header_slot(header) or slot, now)
+        text += ("  Checked: villagers numbered only because their own looks or title changed (an owner-approved "
+                 "correction: the number was never legitimately given)\r\n")
+        for c in todo:
+            text += f"  Number taken off: {c.name} (head {c.head}, body {c.body}) -> {c.base}\r\n"
+            text += f"    Evidence: {c.evidence()}\r\n"
+        text += f"  Files changed: {len(result.files)}\r\n"
+        text += f"  Backup: {Path(result.backup.backup_folder).name}\r\n\r\n"
+        with open(path, "ab") as log:
+            log.write(text.encode("latin-1", "replace"))
+    except OSError:
+        pass                                    # the renames stand; the save and the logs show them
+    return result
+
+
+def plan_unnumber(folder: Path, game: int, slot: int):
+    """Repair Saves & Logs' row for the numbers a looks or title change gave: one question per villager, with
+    the evidence (never ticked or answered for the player: "Keep the number" is where each starts)."""
+    import vv_log_additions as additions
+    kind = additions.Kind(UNNUMBER_KIND, UNNUMBER_LABEL)
+    try:
+        cases = misnumbered_by_looks(folder, game, slot)
+    except (gen.GenealogyError, ln.LastNamesError, struct.error, ValueError, OSError) as exc:
+        kind.notes.append(f"Numbers given by a looks change were not checked: a file could not be read ({exc}).")
+        return kind
+    for c in cases:
+        kind.questions[c.key] = additions.Question(
+            c.key, f"{c.evidence()} Take the number off ({c.name} -> {c.base})?",
+            [TAKE_OFF, KEEP_NUMBER, additions.DONT_KNOW], KEEP_NUMBER, "number-from-looks",
+            ((c.name, c.head, c.body),))
+    kind.context["cases"] = {c.key: c for c in cases}
+    kind.context["game"], kind.context["slot"] = game, slot
+    return kind
+
+
 def _village_header(folder: Path, game: int, slot: int) -> str | None:
     import vv_tribe_rename
     try:

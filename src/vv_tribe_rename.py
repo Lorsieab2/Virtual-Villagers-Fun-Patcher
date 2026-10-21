@@ -58,6 +58,24 @@ The patcher's logs
     elders, roster and graves .dat files are addressed by slot and by roster,
     never by name, so a rename leaves them exactly as they are.
 
+The patcher's data that names the village (`plan_data_changes`)
+    * The slot's Log Decisions file (src/vv_log_decisions.py: answered
+      questions, the reconciliation's answers, graves, renamed villagers...)
+      keeps each decision under "Village: <name> (Save <n>)". A slot with no
+      log under the old header gets no rename note, so nothing tied those
+      decisions to the new name and every answered question was asked again.
+      Each decision under one of the village's names (vv_log_additions.
+      current_villages, read before the rename) is moved to the new header,
+      written the same way and with the same safety as the saves.
+    * The Lost Children's ElderTotems.dat keeps the village's name and, when
+      its roster is empty (only statues left), binds by that name: the
+      companion set such a file aside as another village's. Its name is
+      changed too when it is the old one. PendingElderTotems.dat and Elder
+      Totem Settings.dat hold no tribe name.
+    * The Family Tree Maker's saved trees (.vvtree) name their tribe, and
+      Last Names re-keys only the trees of the save's tribe; a tree of the
+      old name gets the new one (the file keeps its name).
+
 Nothing here touches Tk; the GUI runs it on a worker thread, and the tests
 drive it against a throwaway Documents folder and a fake process list.
 """
@@ -65,6 +83,7 @@ from __future__ import annotations
 
 import os
 import re
+import struct
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -592,6 +611,7 @@ class RenameResult:
     backup: vv_save_backup.BackupResult
     changed: list[Path] = field(default_factory=list)
     notes: list[Path] = field(default_factory=list)
+    data: list[Path] = field(default_factory=list)   # the patcher's data files moved to the new name
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -665,6 +685,97 @@ def plan_save_changes(
     return old, changes
 
 
+def _village_names(game: GameSaves, folder: Path, slot: int, old: str) -> set[str]:
+    """Every header the slot's village has had, read before the rename (always its own)."""
+    names = {village_header(old, slot)}
+    try:
+        import vv_log_additions
+        found = vv_log_additions.current_villages(folder, game.number, slot)
+    except Exception:      # a reader that cannot run: the old header alone is still moved
+        found = None
+    return names | set(found or ())
+
+
+def plan_data_changes(
+    game: GameSaves, folder: Path, slot: int, old: str, new: str
+) -> list[FileChange]:
+    """The patcher's data files that name the village, with the new name (see the module's notes).
+
+    A file that is not there, or that cannot be read as its own format, is left as it is."""
+    import json
+
+    import vv_log_decisions as decisions
+
+    out: list[FileChange] = []
+    path = decisions.path(folder, game.number, slot)
+    try:
+        original = path.read_bytes()
+        data = json.loads(original.decode("utf-8"))
+    except (OSError, ValueError):
+        data = None
+    if (isinstance(data, dict) and data.get("version") == decisions.VERSION
+            and isinstance(data.get("decisions"), list)):
+        names = _village_names(game, folder, slot, old)
+        header = village_header(new, slot)
+        kept: list = []
+        moved: set[int] = set()
+        for d in data["decisions"]:
+            if isinstance(d, dict) and d.get("village") in names and d.get("village") != header:
+                d = {**d, "village": header}
+                moved.add(len(kept))
+            kept.append(d)
+        if moved:
+            # A decision moved onto one already kept under the new name (a tribe renamed back): only
+            # the latest of the two stays, as vv_log_decisions.record keeps one per decision.
+            def ident(d) -> tuple | None:
+                if not isinstance(d, dict):
+                    return None
+                return tuple(json.dumps(d.get(k), sort_keys=True)
+                             for k in ("kind", "village", "name", "head", "body", "field"))
+            groups: dict[tuple, list[int]] = {}
+            for n, d in enumerate(kept):
+                key = ident(d)
+                if key is not None:
+                    groups.setdefault(key, []).append(n)
+            drop: set[int] = set()
+            for members in groups.values():
+                if len(members) > 1 and moved & set(members):
+                    keep = max(members, key=lambda n: (str(kept[n].get("date", "")), n))
+                    drop |= set(members) - {keep}
+            kept = [d for n, d in enumerate(kept) if n not in drop]
+            updated = json.dumps({**data, "decisions": kept}, indent=1).encode("utf-8")
+            out.append(FileChange(path, original, updated))
+    # The Family Tree Maker's saved trees name their tribe ("tribe"), and Last Names re-keys only the
+    # trees of the save's tribe (vv_last_names._plan_family_trees): a tree of the old name would stop
+    # following its villagers' renames.  The file keeps its name; only "tribe" changes.
+    trees = folder / "Virtual Villagers Fun Patcher Family Trees"
+    try:
+        tree_files = sorted(p for p in trees.glob("*.vvtree") if p.is_file())
+    except OSError:
+        tree_files = []
+    for path in tree_files:
+        try:
+            original = path.read_bytes()
+            tree = json.loads(original.decode("utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(tree, dict) and (tree.get("game"), tree.get("slot"), tree.get("tribe")) == (
+                game.number, slot, old):
+            out.append(FileChange(path, original, json.dumps({**tree, "tribe": new}, indent=1).encode("utf-8")))
+    if game.number == 2:
+        import vv_vv2_totem_store as store
+        path = store.store_path(folder, slot)
+        try:
+            original = path.read_bytes()
+            totems = store.parse(original)
+        except (OSError, store.StoreError, struct.error):
+            totems = None
+        if totems is not None and totems.village == old:
+            totems.village = new
+            out.append(FileChange(path, original, store.serialize(totems)))
+    return out
+
+
 def _restore(changes: list[FileChange], notes: list[LogNote]) -> list[str]:
     """Put every changed file back; the reasons any could not be."""
     problems: list[str] = []
@@ -709,6 +820,7 @@ def rename_tribe(
     _refuse_if_running(folder, controller)
     old, changes = plan_save_changes(game, folder, slot, new_name)
     notes = plan_log_notes(game, folder, slot, old, new_name, when)
+    data_changes = plan_data_changes(game, folder, slot, old, new_name)
     try:
         backup = vv_save_backup.copy_save_folder(folder, when, suffix=BACKUP_LABEL)
     except vv_save_backup.BackupError as exc:
@@ -719,6 +831,11 @@ def rename_tribe(
     appended: list[LogNote] = []
     try:
         for change in changes:
+            if change.path.read_bytes() != change.original:
+                raise RenameError(f"{change.path.name} changed while it was being renamed.")
+            done.append(change)
+            _write_atomically(change.path, change.updated)
+        for change in data_changes:
             if change.path.read_bytes() != change.original:
                 raise RenameError(f"{change.path.name} changed while it was being renamed.")
             done.append(change)
@@ -764,6 +881,7 @@ def rename_tribe(
         backup,
         [change.path for change in changes],
         [note.path for note in notes],
+        [change.path for change in data_changes],
     )
 
 

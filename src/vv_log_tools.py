@@ -534,6 +534,21 @@ def approve_repair(
             note_word_repair(folder, game, village,
                              [WordFix(line, -1, backup.backup_folder.name) for line in answered], now,
                              checked=additions.CHECKED["reconcile"], corrected="Answered", slot=slot)
+    # Numbers a change of a villager's own looks or title gave (src/vv_number_names.py, v1.35.80 update): taken
+    # off only where the player answered "Take the number off" (the save folder backed up first, a Repairs
+    # Made record with the evidence).
+    import vv_number_names
+    unnumber = next((k for k in kinds if getattr(k, "id", None) == vv_number_names.UNNUMBER_KIND), None)
+    if unnumber is not None and unnumber.id in chosen:
+        cases = unnumber.context.get("cases", {})
+        wanted = [cases[key] for key in cases if (answers or {}).get(key) == vv_number_names.TAKE_OFF]
+        if wanted:
+            import vv_last_names
+            try:
+                vv_number_names.take_numbers_off(folder, game, slot, wanted, controller, now)
+            except (vv_last_names.LastNamesError, vv_save_backup.BackupError, OSError) as exc:
+                raise LogToolError(f"The numbers were not taken off ({exc}); the backup is in "
+                                   f"{backup.backup_folder}.") from exc
     # Every real answer to the ticked kinds' questions is kept, so it is never asked again
     # (src/vv_answered_questions.py); "Don't know" is not kept and is asked again.
     answer_lines += vv_answered_questions.record(folder, game, slot, kinds, chosen, answers or {}, now)

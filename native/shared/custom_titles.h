@@ -139,13 +139,24 @@ static void vv_title_normalise_skills(vv_title_looks *looks, int skills_float) {
 
 /* Could the villager `now` (head, body and sex as they are; age and skills
    as first seen this session) be the one `stored` was taken from?  The same
-   head, body and sex; no younger; no skill lower -- both sides' skills taken
-   as the corrupted-skill reset leaves them, so a reset is never a lower
-   skill.  `skills_float`: the game keeps float skills. */
+   sex; no younger; no skill lower -- both sides' skills taken as the
+   corrupted-skill reset leaves them, so a reset is never a lower skill.
+   `skills_float`: the game keeps float skills.
+
+   THE HEAD AND BODY ONLY BREAK TIES (the owner, v1.35.80 update: "A change in
+   body, head and mask does not mean they disappeared."  The Secret City's new
+   Tribal Chief takes the chief's robe, a new body, with no record of it, and a
+   title whose villager's looks changed while the companion was not watching
+   -- the load-time catch-up -- was taken for nobody's).  Where two villagers
+   could both be the entry's, the one whose head and body are the entry's
+   (vv_title_looks_same) is it; still two, nobody's. */
+static int vv_title_looks_same(const vv_title_looks *stored, const vv_title_looks *now) {
+    return stored->head == now->head && stored->body == now->body;
+}
+
 static int vv_title_looks_could_be(const vv_title_looks *stored, const vv_title_looks *now, int skills_float) {
     int k;
-    if (stored->head != now->head || stored->body != now->body || stored->sex != now->sex
-        || now->age < stored->age) {
+    if (stored->sex != now->sex || now->age < stored->age) {
         return 0;
     }
     for (k = 0; k < VV_TITLE_SKILLS; ++k) {

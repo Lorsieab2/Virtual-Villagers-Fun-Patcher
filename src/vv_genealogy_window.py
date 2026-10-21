@@ -531,6 +531,96 @@ def ask_renames(parent, folder: Path, game: int, slot: int, village, edits):
     return village
 
 
+IDENTITY_DONT_KNOW = "Don't know"
+
+
+def _identity_face(editor, master, p: gen.Person):
+    """The face a villager's head shows (the game's own art), or None: as the Villager Info tab draws it."""
+    try:
+        sheet = ft.sheet_name(editor.game, p)
+        path = (getattr(editor, "present", None) or {}).get(sheet) if sheet else None
+        row = ft.look_of(editor.edits, editor.village, p)[0]
+        if path is None or row is None or row < 0:
+            return None
+        source = tk.PhotoImage(master=master, file=str(path))
+        if (row + 1) * ft.HEAD_H > source.height():
+            return None
+        cell = tk.PhotoImage(master=master)
+        x0, y0 = ft.HEAD_FRAME * ft.HEAD_W, row * ft.HEAD_H
+        bx0, by0, bx1, by1 = ft.head_boxes(path).get(row, ft.DEFAULT_BOX)
+        cell.tk.call(cell, "copy", source, "-from", x0 + bx0, y0 + by0, x0 + bx1, y0 + by1, "-zoom", 2)
+        return cell
+    except (tk.TclError, OSError, AttributeError, KeyError, TypeError, ValueError):
+        return None
+
+
+def ask_identities(editor, questions: list | None = None):
+    """THE SAME VILLAGER, OR TWO? (the owner, v1.35.80 update: "Please add prompts in the Family Tree Maker to ask
+    if a villager that's changed is the same or different.")  Every pair the records cannot settle
+    (vv_genealogy.IdentityQuestion: an older look or title and a villager of that name now) in ONE window, a
+    row each, oldest first: both entries with their faces, looks, ages, dates and parents, and Same / Different
+    / Don't know.  Never modal: the tree is open and usable behind it.  Save keeps each answer in Answered
+    questions (vv_answered_questions.keep_identity; "Don't know" keeps none, so it is asked again) and reads
+    the tree again with them.  Returns the window, or None when there is nothing to ask."""
+    questions = list(questions if questions is not None else getattr(editor.village, "identity_questions", []))
+    if not questions:
+        return None
+    import vv_answered_questions as aq
+    window = tk.Toplevel(editor)
+    window.title("Family Tree Maker: the same villager?")
+    window.transient(editor)
+    window.geometry("820x560")
+    window.minsize(480, 300)
+    ttk.Label(window, wraplength=780, justify="left", padding=(12, 10, 12, 4),
+              text=f"{len(questions)} villager(s) changed in a way the records cannot settle for certain: an older "
+                   "record under other looks (or another title) and a villager of that name now. A change of "
+                   "looks or title never means a villager left. Is each the same villager? Same joins them in the "
+                   "tree, the reconciliation, numbering and the records; Different keeps them apart; Don't know "
+                   "asks again next time. Your answers are kept in Repair Saves & Logs' Answered questions, where "
+                   "you can change them.").pack(fill="x")
+    frame = scrollable_frame(window, padding=8)
+    people = {p.key: p for p in getattr(editor, "full_village", editor.village).people.values()}
+    choices: list[tuple] = []
+    window._faces = []                              # the images live as long as the window
+    for n, q in enumerate(questions):
+        row = ttk.LabelFrame(frame, text=f"{n + 1}. {q.newer[0]}", padding=6)
+        row.pack(fill="x", anchor="w", pady=(0, 6))
+        for side, key, words in (("Older record", q.older, q.older_text), ("Now", q.newer, q.newer_text)):
+            line = ttk.Frame(row)
+            line.pack(fill="x", anchor="w")
+            face = _identity_face(editor, line, people[key]) if key in people else None
+            if face is not None:
+                window._faces.append(face)
+                ttk.Label(line, image=face).pack(side="left", padx=(0, 8))
+            ttk.Label(line, wraplength=640, justify="left",
+                      text=f"{side}: {key[0]} -- {words}").pack(side="left", anchor="w")
+        ttk.Label(row, wraplength=760, justify="left", foreground="#555555", text=q.why).pack(anchor="w", pady=(2, 2))
+        var = tk.StringVar(value=IDENTITY_DONT_KNOW)
+        buttons = ttk.Frame(row)
+        buttons.pack(anchor="w")
+        for value in (aq.SAME, aq.DIFFERENT, IDENTITY_DONT_KNOW):
+            ttk.Radiobutton(buttons, text=value, value=value, variable=var).pack(side="left", padx=(0, 12))
+        choices.append((q, var))
+
+    def save() -> None:
+        given = [(q, var.get()) for q, var in choices if var.get() != IDENTITY_DONT_KNOW]
+        try:
+            for q, answer in given:
+                aq.keep_identity(editor.folder, editor.game, editor.slot, q.older, q.newer, answer, q.text)
+        except OSError as exc:
+            messagebox.showerror("Family Tree Maker", f"Your answers were not kept ({exc}).", parent=window)
+            return
+        window.destroy()
+        if given:
+            editor._update_from_game(ask=False)
+
+    bar = ttk.Frame(window, padding=(12, 6))
+    bar.pack(fill="x", side="bottom")
+    ttk.Button(bar, text="Save answers", command=save).pack(side="right")
+    ttk.Button(bar, text="Ask me later", command=window.destroy).pack(side="right", padx=(0, 8))
+    return window
+
+
 def _open_editor(app, parent, folder: Path, game: int, info, title: str, images: Path | None) -> None:
     try:
         village = app._run_with_wait("Reading the family from the save and the logs...\n\nNothing is changed.",
@@ -549,7 +639,10 @@ def _open_editor(app, parent, folder: Path, game: int, info, title: str, images:
             return
         edits = ft.Edits()
     village = ask_renames(parent, folder, game, info.slot, village, edits)
-    TreeEditor(app, folder, game, info.slot, title, images, village, edits)
+    editor = TreeEditor(app, folder, game, info.slot, title, images, village, edits)
+    # The same villager, or two? Asked once the tree is open, in one window beside it (never blocking it).
+    if getattr(village, "identity_questions", None):
+        editor.after(200, lambda: ask_identities(editor, village.identity_questions))
 
 
 def find_villagers(village: gen.Village, edits: ft.Edits, query: str) -> list[int]:
@@ -2714,6 +2807,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self._refresh_hidden()
         self.status.set(f"Updated from the save and the logs: {len(village.known())} villagers known "
                         f"({len(village.known()) - before:+d}).")
+        if ask and getattr(self.full_village, "identity_questions", None):
+            ask_identities(self, self.full_village.identity_questions)    # the same villager, or two?
 
     def _words_of(self, what: str) -> tuple[str, str, object]:
         """(the words as they are now, as the tree writes them, a function taking the new words) for

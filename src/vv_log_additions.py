@@ -66,6 +66,8 @@ CHECKED = {
                          "same villager Left and Arrived in one check, still in the village in the Village History, "
                          "already there before, or a Death, Disappeared, Birth or Arrived record), and the "
                          "player's answers",
+    "looks_numbers": "the villagers numbered only because their own looks or title changed (no other villager of "
+                     "the name, living, dead, gone or in any record), and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
@@ -76,6 +78,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "contradictions": "Contradicting records taken out or renumbered",
          "born_arrived": "Duplicate backfilled Arrived record removed",
          "false_unaccounted": "False Unaccounted record removed",
+         "looks_numbers": "Number taken off",
          "reconcile": "Answered"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
@@ -947,6 +950,13 @@ def _lost_anchor(record: Block) -> int:
 
 
 LOOK_CAUSES = ("An island event", "A Custom Island Event", "The Change Appearance upgrade")
+# The Secret City: the game gives a new Tribal Chief the chief's robe (a new body) with no record of it (the owner,
+# v1.35.80 update: a change of looks or title never means a villager left -- recorded as what it is).
+CHIEF_ROBE = "Becoming the Tribal Chief (the chief's robe)"
+
+
+def look_causes(game: int) -> tuple:
+    return (CHIEF_ROBE, *LOOK_CAUSES) if game == 3 else LOOK_CAUSES
 
 
 def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
@@ -996,14 +1006,14 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
         key = f"look|{name}|{old_head}|{old_body}|{new_head}|{new_body}"
         kind.questions[key] = Question(
             key, f"{name}'s look changed from head {old_head}, body {old_body} to head {new_head}, body "
-                 f"{new_body}, and nothing recorded it. How did it change?", [*LOOK_CAUSES, DONT_KNOW], DONT_KNOW,
+                 f"{new_body}, and nothing recorded it. How did it change?", [*look_causes(game), DONT_KNOW], DONT_KNOW,
             f"{old_head},{old_body}->{new_head},{new_body}", ((name, old_head, old_body),))
         record = lead + "\n".join(["Appearance changed", f"  Name: {name}", f"  Old head: {old_head}",
                                    f"  Old body: {old_body}", f"  New head: {new_head}", f"  New body: {new_body}"])
         kind.inserts.append(Insert(target, anchor, len(kind.inserts), question=key, by_answer={
             cause: record + f"\n  Changed by: {cause[0].lower() + cause[1:]}"
                             "\n  Note: Recorded afterwards (how it happened, as the player said)\n"
-            for cause in LOOK_CAUSES}))
+            for cause in look_causes(game)}))
     return kind
 
 
@@ -1406,6 +1416,9 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     kinds.append(vv_log_contradictions.plan(folder, game, slot))
     # Unaccounted records an older build wrote by record number, contradicted by identity (v1.35.80).
     kinds.append(vv_log_contradictions.plan_false_unaccounted(folder, game, slot))
+    # Numbers a change of a villager's own looks or title gave (src/vv_number_names.py, v1.35.80 update).
+    import vv_number_names
+    kinds.append(vv_number_names.plan_unnumber(folder, game, slot))
     # The read-only reconciliation's contradictions, asked before any repair (src/vv_reconcile.py).
     import vv_reconcile
     kinds.append(vv_reconcile.kind(folder, game, slot))

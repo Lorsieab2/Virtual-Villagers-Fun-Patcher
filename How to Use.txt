@@ -227,6 +227,9 @@ The patcher can change a tribe's name inside its save, in all five games.
 6. The patcher's logs carry on for the same village. Nothing already in them
    is changed; each gets one line, "Tribe renamed from <old> to <new> on
    <date>", and new records keep going into the same logs under the new name.
+7. The patcher's own data follows the village too: your answered questions
+   are not asked again, The Lost Children's Elder Totems stay with the
+   village, and saved family trees keep following renamed villagers.
 
 CHECK SAVES & LOGS AND REPAIR SAVES & LOGS
 

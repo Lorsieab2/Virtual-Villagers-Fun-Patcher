@@ -515,7 +515,11 @@ static const unsigned int LOOKS[6][2] = {
    Village History log gave the grave's villager, which are theirs.  One
    grave for one villager, and only when exactly one such grave is left;
    otherwise they stay unaccounted. */
-static int backfill_accounts_for(const unsigned char *kept) {
+/* `exact` 0: THE LOOKS CHANGED SINCE THE SAVE (the owner, v1.35.80 update: a change of looks or title
+   never means a villager left -- a new chief's robe, an island event's head): the one grave left of the
+   villager's NAME, at an age at least theirs, is theirs.  Run only after every kept villager has had
+   the exact rule (cod_roster.inc), and only for a name no other kept villager still unaccounted has. */
+static int backfill_accounts_for_mode(const unsigned char *kept, int exact) {
     const struct game_records *r = &REC[g_game];
     int found = -1;
     int i;
@@ -524,8 +528,8 @@ static int backfill_accounts_for(const unsigned char *kept) {
         unsigned int n;
         int same = 1;
         if (recorded_used[i] || f->age < rec_age(kept) || !f->identified
-            || f->head != *(const int *)(kept + LOOKS[g_game][0])
-            || f->body != *(const int *)(kept + LOOKS[g_game][1])) {
+            || (exact && (f->head != *(const int *)(kept + LOOKS[g_game][0])
+                          || f->body != *(const int *)(kept + LOOKS[g_game][1])))) {
             continue;
         }
         for (n = 0; n < r->name_capacity && n < VV_GRAVE_NAME; ++n) {

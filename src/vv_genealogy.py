@@ -145,6 +145,9 @@ class Village:
     relooked: dict[Key, Key] = field(default_factory=dict)     # an old look's key -> the villager's key now
     full_names: dict[Key, str] = field(default_factory=dict)  # a cut name's key -> the full name shown
     rename_questions: list = field(default_factory=list)       # RenameQuestion: pairs the player has not answered yet
+    # IdentityQuestion: an older record and a villager the records cannot say are one villager or two
+    # (their looks or title changed, and nothing certain ties them): the Family Tree Maker asks.
+    identity_questions: list = field(default_factory=list)
 
     def living(self) -> list[Person]:
         return [p for p in self.people.values() if p.alive]
@@ -200,6 +203,27 @@ def rename_key(old: str, head: int, body: int) -> str:
     return f"{old}|{head}|{body}"
 
 
+@dataclass
+class IdentityQuestion:
+    """An older record (`older`: a look or title the records name, no villager now has, recorded neither
+    dead nor gone) and a villager (`newer`) of the same name the records cannot say are one villager or two:
+    nothing proves them two (never listed together, the sex, parents, age and likes fit) and nothing certain
+    ties them (no recorded change, no unbroken History, no shared parent).  The Family Tree Maker asks "Is
+    <older> the same villager as <newer>?" (Same / Different / Don't know); the answer is kept in Answered
+    questions (vv_answered_questions.keep_identity) and every reader honours it."""
+    older: Key
+    newer: Key
+    older_text: str             # what the records say of each: looks, sex, age, where and when seen, parents
+    newer_text: str
+    why: str                    # what changed, and why it is not certain
+    age: int | None = None      # the newer one's age (the list is sorted by it, oldest first)
+
+    @property
+    def text(self) -> str:
+        return (f"Is {self.older[0]} ({self.older_text}) the same villager as {self.newer[0]} ({self.newer_text})? "
+                f"{self.why}")
+
+
 class _Registry:
     def __init__(self) -> None:
         self.people: dict[int, Person] = {}
@@ -221,6 +245,7 @@ class _Registry:
         self.namesakes: dict[Key, list[int]] = {}
         self.birth_of: dict[int, tuple] = {}
         self.save_parents: dict[int, tuple] = {}
+        self.bodies: set[Key] = set()                  # the dead lying unburied in the save (name, head, body)
 
     def current(self, key: Key) -> Key:
         """The look a villager has now, following their Change Appearance records, under the full name
@@ -253,6 +278,13 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         raise GenealogyError(f"The save {path.name} could not be read: {exc}") from exc
     f = ln.FIELDS[game]
     age_at = -0x28 if game == 1 else checker.LAYOUTS[game].age
+    # The dead lying unburied in the save: each is a villager of their own, never an older look of a living one.
+    living_at = set(ln._entries(game, data))
+    try:
+        reg.bodies = {(_cstr(data, at, f.name_cap), _i32(data, at + f.head), _i32(data, at + f.body))
+                      for at in ln._entries(game, data, True) if at not in living_at}
+    except (TypeError, ValueError, IndexError):
+        reg.bodies = set()
     for at in ln._entries(game, data):
         p = reg.get(_cstr(data, at, f.name_cap), _i32(data, at + f.head), _i32(data, at + f.body))
         p.alive = True
@@ -538,8 +570,35 @@ def _saved_rename_answers(folder: Path, game: int, slot: int) -> dict:
         return {}
 
 
+def _identity_answers(folder: Path, game: int, slot: int) -> dict:
+    """The player's answers to "the same villager?": the Family Tree Maker's (Answered questions) and the
+    reconciliation's "looks" questions answered "Keep as is (the same villager; the looks changed)"
+    (src/vv_reconcile.py) -- {(older key, newer key): vv_answered_questions.SAME or DIFFERENT}."""
+    import ast
+    import vv_answered_questions as aq
+    out: dict = {}
+    try:
+        import vv_log_additions as additions
+        import vv_reconcile as reconcile
+        for field_, answer in reconcile.answered(folder, game, slot,
+                                                 additions.current_villages(folder, game, slot)).items():
+            parts = field_.split("|")
+            if len(parts) != 3 or parts[0] != "looks" or not answer.startswith(reconcile.KEEP):
+                continue
+            try:
+                old, new = ast.literal_eval(parts[1]), ast.literal_eval(parts[2])
+            except (ValueError, SyntaxError):
+                continue
+            if isinstance(old, tuple) and isinstance(new, tuple) and len(old) == len(new) == 3:
+                out[(old, new)] = aq.SAME
+    except (OSError, ValueError):
+        pass
+    out.update(aq.identity_answers(folder, game, slot))      # the tree's own answer wins
+    return out
+
+
 def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
-                 rename_answers: dict | None = None) -> Village:
+                 rename_answers: dict | None = None, identity_answers: dict | None = None) -> Village:
     """The slot's village, its living villagers and every relative the save and logs know.
 
     With `full_names` (the Family Tree Maker and the Village Matchmaker), a living villager whose name
@@ -583,7 +642,9 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
             reg.people[pid].runner = True
     _logged_renames(reg, folder, game, slot)
     _answered_renames(reg, folder, game, slot, rename_answers or {}, notes)
-    _unrecorded_looks(reg)
+    if identity_answers is None:
+        identity_answers = _identity_answers(folder, game, slot)
+    identity_questions = _unrecorded_looks(reg, identity_answers)
     checker = tools.load_checker()
     exact, by_name = checker.known_sexes(folder, game)
     for p in reg.people.values():
@@ -605,6 +666,9 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
                      f"{'it was' if babies == 1 else 'they were'} never born.")
     village = Village(game, slot, tribe, reg.people, notes, sorted(reg.snapshots))
     village.rename_questions = questions
+    village.identity_questions = [q for q in identity_questions
+                                  if q.older in reg.by_key and q.newer in reg.by_key
+                                  and reg.by_key[q.older] != reg.by_key[q.newer]]
     village.relooked = {old: reg.current(old) for old in reg.relooked if reg.current(old) != old}
     village.full_names = {cut: full[0] for cut, full in reg.full.items()}
     for old, now in village.relooked.items():
@@ -694,50 +758,226 @@ def _merge_renamed(reg: _Registry, p: Person, q: Person) -> None:
     reg.by_key[p.key] = q.id
 
 
-def _unrecorded_looks(reg: _Registry) -> None:
-    """A record of a villager with looks no living villager has, who is not recorded dead or gone,
-    is the living villager of that name, sex and recorded parents when exactly one fits: their looks changed
-    with no "Appearance changed" record (Cheat Engine, or before the patcher logged it).  The owner,
-    2026-10-08: the tree said Papu Tamikai, born with his twin Paco's head 16 and now head 5, "left
-    the village".  Never two villagers one History snapshot lists together, and never a living one
-    with a Birth record of their own when the record is a Birth."""
-    together: dict[int, set[int]] = {}
+def _likes_fit(p: Person, q: Person) -> bool | None:
+    """Whether q's likes are one of the lists the records give p, give or take a like gained or lost in
+    between (the patcher's running grant adds one); None when either side does not say."""
+    if not p.likes_seen or q.likes is None:
+        return None
+    mine = frozenset(w.lower() for w in q.likes)
+    return any(mine == seen or mine <= seen or seen <= mine for seen in p.likes_seen)
+
+
+def _same_name(older: str, newer: str) -> bool:
+    """The same name -- or the newer one is the older with a number Number Duplicate Names (or VVFP Number
+    Names.dll) added since ("Mama Peponi" -> "Mama Peponi II"): a record of the older look keeps the name it
+    had, because numbering renames each villager by their name AND looks."""
+    return older == newer or (older == unnumbered(older) and unnumbered(newer) == older)
+
+
+def _could_be_same(reg: _Registry, p: Person, q: Person, together: dict, seen_on: dict) -> bool:
+    """Whether nothing proves the older record `p` and the villager `q` two villagers: the same name; never
+    listed together in one History snapshot; the sex, the parents named on both and the age fit (p never
+    older than q -- now, or at death); not both with a Birth record of their own; p's History snapshots
+    all before q's; and q older than every living child the records give p."""
+    if q.id == p.id or q.upcoming or q.placeholder or not _same_name(p.name, q.name) or not (q.alive or q.gone):
+        return False
+    if p.sex is not None and q.sex is not None and p.sex != q.sex:
+        return False
+    if q.id in together.get(p.id, ()):
+        return False
+    if p.birth_record is not None and q.birth_record is not None:
+        return False
+    if not all(a is None or b is None or a == b for a, b in ((p.father, q.father), (p.mother, q.mother))):
+        return False
+    if p.age is not None and q.age is not None and p.age > q.age:
+        return False
+    mine, theirs = seen_on.get(p.id, []), seen_on.get(q.id, [])
+    if mine and theirs and max(mine) >= min(theirs):
+        return False
+    if q.alive and q.age is not None:
+        for c in reg.people.values():
+            if p.id in (c.father, c.mother) and c.alive and c.age is not None and c.age >= q.age:
+                return False
+    return True
+
+
+def _certain(reg: _Registry, p: Person, q: Person, seen_on: dict, dates: list[str]) -> str | None:
+    """What ties the older record `p` to the villager `q` beyond doubt, in words, or None:
+    * a parent named on both (the same mother or father: the games' name pools repeat a first name, a
+      family does not);
+    * an unbroken History: p is in every snapshot up to one, and q from the very next one on, the age only
+      moving on and the likes the same."""
+    if any(a is not None and a == b for a, b in ((p.father, q.father), (p.mother, q.mother))):
+        return "the same parents"
+    mine, theirs = seen_on.get(p.id, []), seen_on.get(q.id, [])
+    if mine and theirs and _likes_fit(p, q) is not False:
+        last, first = max(mine), min(theirs)
+        if last in dates and first in dates and dates.index(first) == dates.index(last) + 1:
+            return f"in the Village History up to {last[:16]} and from {first[:16]} on, never both"
+    return None
+
+
+def _person_text(reg: _Registry, p: Person, seen_on: dict) -> str:
+    bits = [f"head {p.head}, body {p.body}", p.sex or "sex unknown"]
+    if p.age is not None:
+        bits.append(f"{'died at ' if p.gone == 'died' else ''}{p.age} game units")
+    bits.append("in the save now" if p.alive else {"died": "dead", "disappeared": "disappeared",
+                                                   "left": "left"}.get(p.gone, "in older records only"))
+    dates = seen_on.get(p.id, [])
+    if dates:
+        bits.append(f"in the Village History {dates[0][:16]}" + (f" to {dates[-1][:16]}" if len(dates) > 1 else ""))
+    parents = [f"{w} {reg.people[x].name}" for w, x in (("father", p.father), ("mother", p.mother))
+               if x is not None and x in reg.people]
+    if parents:
+        bits.append(", ".join(parents))
+    if p.birth_record is not None:
+        bits.append("has a Birth record")
+    elif p.arrived:
+        bits.append(f"arrived ({p.how})" if p.how else "has an Arrived record")
+    return "; ".join(bits)
+
+
+def _move_state(reg: _Registry, p: Person, q: Person) -> None:
+    """Everything the registry keeps under the older record `p` -- by its key or its id -- now `q`'s (Codex,
+    #602: an expecting mother whose looks changed lost her Conception, so her baby on the way lost its father
+    and the babies she carries)."""
+    if p.key in reg.conceptions and q.key not in reg.conceptions:
+        reg.conceptions[q.key] = reg.conceptions[p.key]
+    reg.conceptions.pop(p.key, None)
+    reg.lost = [(q.key if mother == p.key else mother, babies) for mother, babies in reg.lost]
+    for table in (reg.expected, reg.due, reg.birth_of, reg.save_parents):
+        if p.id in table and q.id not in table:
+            table[q.id] = table[p.id]
+        table.pop(p.id, None)
+    for key, pids in reg.namesakes.items():
+        reg.namesakes[key] = list(dict.fromkeys(q.id if pid == p.id else pid for pid in pids))
+    reg.birth_of = {pid: ((index, q.id if f == p.id else f, q.id if m == p.id else m))
+                    for pid, (index, f, m) in reg.birth_of.items()}
+    reg.save_parents = {pid: tuple(q.id if x == p.id else x for x in parents)
+                        for pid, parents in reg.save_parents.items()}
+
+
+def _merge_into(reg: _Registry, p: Person, q: Person) -> None:
+    """The older record `p` is the villager `q` before their looks (or title) changed: one villager, `q`,
+    who keeps every fact the records give either; p's look is remembered as one of q's (relooked)."""
+    for attr in ("father", "mother", "birth_record", "litter", "sex"):
+        if getattr(q, attr) is None:
+            setattr(q, attr, getattr(p, attr))
+    if p.first_seen and (q.first_seen is None or p.first_seen < q.first_seen):
+        q.first_seen = p.first_seen
+    q.arrived = q.arrived or p.arrived
+    q.how = "Founder" if p.how == "Founder" and q.how in (None, "", "unknown") else (q.how or p.how)
+    q.runner = q.runner or p.runner
+    q.likes_seen |= p.likes_seen
+    for r in reg.people.values():
+        if r.father == p.id:
+            r.father = q.id
+        if r.mother == p.id:
+            r.mother = q.id
     for ids in reg.snapshots.values():
-        for pid in ids:
-            together.setdefault(pid, set()).update(ids)
-    for p in list(reg.people.values()):
-        if p.alive or p.gone or p.head is None or p.body is None:
-            continue
-        fits = [q for q in reg.people.values()
-                if q.alive and q.name == p.name and q.id != p.id
-                and (p.sex is None or q.sex is None or p.sex == q.sex)
-                # The same parents, named on both (the games' name pools repeat a first name often).
-                and any(a is not None and a == b for a, b in ((p.father, q.father), (p.mother, q.mother)))
-                and all(a is None or b is None or a == b for a, b in ((p.father, q.father), (p.mother, q.mother)))
-                and not (p.birth_record is not None and q.birth_record is not None)
-                and q.id not in together.get(p.id, ())]
-        if len(fits) != 1:
-            continue
-        q = fits[0]
-        for attr in ("father", "mother", "birth_record", "litter", "sex"):
-            if getattr(q, attr) is None:
-                setattr(q, attr, getattr(p, attr))
-        if p.first_seen and (q.first_seen is None or p.first_seen < q.first_seen):
-            q.first_seen = p.first_seen
-        q.arrived = q.arrived or p.arrived
-        q.how = "Founder" if p.how == "Founder" and q.how in (None, "", "unknown") else (q.how or p.how)
-        for r in reg.people.values():
-            if r.father == p.id:
-                r.father = q.id
-            if r.mother == p.id:
-                r.mother = q.id
-        for ids in reg.snapshots.values():
-            if p.id in ids:
-                ids.discard(p.id)
-                ids.add(q.id)
-        del reg.people[p.id]
-        reg.by_key[p.key] = q.id
-        reg.relooked[p.key] = q.key
+        if p.id in ids:
+            ids.discard(p.id)
+            ids.add(q.id)
+    if p.id in reg.ran:
+        reg.ran.discard(p.id)
+        reg.ran.add(q.id)
+    _move_state(reg, p, q)
+    del reg.people[p.id]
+    reg.by_key[p.key] = q.id
+    reg.relooked[p.key] = q.key
+
+
+def _unrecorded_looks(reg: _Registry, answers: dict | None = None) -> list[IdentityQuestion]:
+    """IDENTITY SURVIVES ANY CHANGE OF LOOKS OR TITLE (the owner, v1.35.80 update, all five games: "A change in
+    body, head and mask does not mean they disappeared.  A change in title or special villager status does
+    not mean they disappeared.").  A record of a villager with looks no villager has now, who is not recorded
+    dead or gone (the tree would say "left the village"), is the villager of that name whose stable facts fit
+    -- the sex, the parents, the age only moving on, the likes, never listed together -- and the looks only
+    break ties, never split one villager into two.  The Secret City's Tribal Chief is given the chief's robe
+    (a new body) by the game itself with no record of it: the owner's chiefs were shown "left the village"
+    and again under a numeral.  Earlier (2026-10-08): Papu Tamikai, born with his twin Paco's head 16 and now
+    head 5, after an island event.
+
+    Joined when exactly one villager fits and something ties them beyond doubt (_certain: the same parents,
+    or an unbroken History), or the player said they are the same (`answers`: the Family Tree Maker's
+    question, or the reconciliation's "looks" question answered "the same villager").  "Different" keeps
+    them apart.  Anything else that fits is returned as an IdentityQuestion for the Family Tree Maker to ask;
+    nothing is joined on a guess."""
+    import vv_answered_questions as aq
+    answers = answers or {}
+    dates = sorted(reg.snapshots)
+
+    def views():
+        together: dict[int, set[int]] = {}
+        seen_on: dict[int, list[str]] = {}
+        for date in dates:
+            ids = reg.snapshots[date]
+            for pid in ids:
+                together.setdefault(pid, set()).update(ids)
+                seen_on.setdefault(pid, []).append(date)
+        return together, seen_on
+
+    def said(p: Person, q: Person) -> str | None:
+        return aq.identity_said(answers, p.key, q.key)
+
+    def older_records() -> list[Person]:
+        return [p for p in reg.people.values()
+                if not (p.alive or p.gone or p.upcoming or p.head is None or p.body is None or p.key in reg.bodies)]
+
+    changed = True
+    while changed:
+        changed = False
+        together, seen_on = views()
+        by_name: dict[str, list[Person]] = {}
+        for q in reg.people.values():
+            by_name.setdefault(unnumbered(q.name), []).append(q)
+        for p in older_records():
+            fits = [q for q in by_name.get(unnumbered(p.name), []) if _could_be_same(reg, p, q, together, seen_on)
+                    and said(p, q) != aq.DIFFERENT]
+            same = [q for q in fits if said(p, q) == aq.SAME]
+            if len(same) == 1:
+                target = same[0]
+            elif len(fits) == 1 and _certain(reg, p, fits[0], seen_on, dates):
+                target = fits[0]
+                # ...and no other older record is tied to them the same way (two gone, one new: not certain).
+                rivals = [o for o in older_records() if o.id != p.id
+                          and _could_be_same(reg, o, target, together, seen_on) and said(o, target) != aq.DIFFERENT
+                          and _certain(reg, o, target, seen_on, dates) and o.id not in together.get(p.id, ())]
+                if rivals:
+                    continue
+            else:
+                continue
+            _merge_into(reg, p, target)
+            changed = True
+            break
+    together, seen_on = views()
+    questions: list[IdentityQuestion] = []
+    for p in older_records():
+        fits = [q for q in reg.people.values() if _could_be_same(reg, p, q, together, seen_on)
+                and said(p, q) is None]
+        if len(fits) > 3:
+            continue                                # a name many villagers had: nothing to go on
+        for q in fits:
+            what = []
+            if p.head != q.head:
+                what.append(f"head {p.head} -> {q.head}")
+            if p.body != q.body:
+                what.append(f"body {p.body} -> {q.body}")
+            why = (f"The looks changed ({', '.join(what)}) and no record says so" if what else "")
+            unsure = []
+            if len(fits) > 1:
+                unsure.append(f"{len(fits)} villagers called {q.name} could be them")
+            elif _likes_fit(p, q) is False:
+                unsure.append("their likes differ")
+            else:
+                unsure.append("nothing in the records ties them for certain (no unbroken Village History, no "
+                              "parent named on both)")
+            questions.append(IdentityQuestion(
+                p.key, q.key, _person_text(reg, p, seen_on), _person_text(reg, q, seen_on),
+                (why + "; " if why else "") + "; ".join(unsure) + ". A change of looks or title never means a "
+                "villager left: Same joins them; Different keeps them apart.", q.age))
+    questions.sort(key=lambda q: (q.age is None, -(q.age or 0), q.newer))
+    return questions
 
 
 def _logged_renames(reg: _Registry, folder: Path, game: int, slot: int) -> None:
@@ -1550,6 +1790,10 @@ def duplicate_names(village: Village, order: str = "appearance", reserved: set[s
     # owner, 2026-10-08: "roman numerals should be given for people who have both the same first and
     # last name (Suki Wikimak I, Suki Wikimak II)"): two Sukis numbered before they had last names,
     # "Suki Alosaka I" and "Suki Wanjiko II", are no namesakes now -- and keep their numbers (below).
+    # An older record the Family Tree Maker still asks about ("the same villager?", IdentityQuestion) is
+    # never a namesake until the player says Different: a change of looks or title gives no number.
+    asked = {q.older for q in getattr(village, "identity_questions", [])}
+    leave = set(leave) | {p.id for p in village.known() if p.key in asked and not p.alive}
     holders: dict[str, list[Person]] = {}
     for p in sorted(village.known(), key=keys[order]):
         if p.id not in leave:

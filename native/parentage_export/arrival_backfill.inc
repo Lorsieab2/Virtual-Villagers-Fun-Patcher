@@ -782,17 +782,39 @@ static int record_missing_core(
            exactly one record and exactly one of these villagers carry it --
            as for a founder in the first History snapshot.  A name repeated
            on either side decides nothing. */
+        /* ...counting only the records of the name no OTHER villager of it has by name, head and body,
+           and only the villagers of the name with no such record of their own (the owner, v1.35.80 update:
+           a change of looks never means a villager is someone else -- a namesake with their own record
+           no longer hides the one record left for the villager whose looks changed).  The looks only
+           break the tie. */
         if (on_disk + held <= taken) {
             int records_named = 0, villagers_named = 0;
             const struct arrival_key *only = NULL;
+            int m;
             for (j = 0; j < arrival_key_count; ++j) {
-                if (strcmp(arrival_keys[j].name, names[i]) == 0) {
+                int claimed = 0;
+                if (strcmp(arrival_keys[j].name, names[i]) != 0) {
+                    continue;
+                }
+                for (m = 0; m < count && !claimed; ++m) {
+                    claimed = m != i && strcmp(names[m], names[i]) == 0
+                        && heads[m] == arrival_keys[j].head && bodies[m] == arrival_keys[j].body;
+                }
+                if (!claimed) {
                     ++records_named;
                     only = &arrival_keys[j];
                 }
             }
             for (j = 0; j < count; ++j) {
-                if (strcmp(names[j], names[i]) == 0) {
+                int own = 0;
+                if (strcmp(names[j], names[i]) != 0) {
+                    continue;
+                }
+                for (m = 0; m < arrival_key_count && !own && j != i; ++m) {
+                    own = strcmp(arrival_keys[m].name, names[j]) == 0 && arrival_keys[m].head == heads[j]
+                        && arrival_keys[m].body == bodies[j];
+                }
+                if (!own) {
                     ++villagers_named;
                 }
             }

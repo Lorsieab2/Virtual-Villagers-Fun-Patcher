@@ -291,6 +291,70 @@ def keep_yes_no(folder: Path, game: int, slot: int, source: str, label: str, fac
 
 
 # ---------------------------------------------------------------------------
+# The same villager, or two? (the Family Tree Maker, all five games)
+# ---------------------------------------------------------------------------
+# The owner (v1.35.80 update): "A change in body, head and mask does not mean they disappeared.  A change in
+# title or special villager status does not mean they disappeared." and "Please add prompts in the Family
+# Tree Maker to ask if a villager that's changed is the same or different."  When the records cannot settle
+# whether an older record (an older look, an older title) and a villager now are one villager, the Family
+# Tree Maker asks; the answer is kept here, under both identities (followed through every rename the patcher
+# makes), listed in Answered questions (to change or clear: cleared, it is asked again), and every reader
+# honours it: the tree and the Matchmaker (vv_genealogy), the reconciliation, numbering, the records.
+IDENTITY_SOURCE = "identity"
+IDENTITY_FACT = "same-villager"
+SAME, DIFFERENT = "Same villager", "Different villagers"
+IDENTITY_OPTIONS = [SAME, DIFFERENT]
+IDENTITY_LABEL = "Family Tree Maker: the same villager?"
+
+
+def identity_answers(folder: Path, game: int, slot: int) -> dict[tuple, str]:
+    """{(older (name, head, body), newer (name, head, body)): SAME or DIFFERENT}, the latest answer of each
+    pair, both identities under their latest names.  Reads only; nothing when the file cannot be read."""
+    try:
+        entries, renamed = _entries(folder, game, slot, _villages(folder, game, slot))
+    except (OSError, ValueError):
+        return {}
+    out: dict[tuple, str] = {}
+    for d in sorted(entries, key=lambda d: str(d.get("date", ""))):
+        if d.get("source") != IDENTITY_SOURCE or d.get("verdict") not in IDENTITY_OPTIONS:
+            continue
+        who = _canon(d.get("who"), renamed)
+        if len(who) == 2:
+            out[(who[0], who[1])] = str(d["verdict"])
+    return out
+
+
+def identity_said(answers: dict[tuple, str], a: tuple, b: tuple) -> str | None:
+    """The answer kept for the pair, whichever way round it was asked."""
+    return answers.get((a, b)) or answers.get((b, a))
+
+
+def keep_identity(folder: Path, game: int, slot: int, older: tuple, newer: tuple, verdict: str | None,
+                  text: str, now: datetime | None = None) -> None:
+    """Keep the player's answer to "is <older> the same villager as <newer>?"; "Don't know" (or None) takes
+    a kept answer out, so the question is asked again."""
+    entries, renamed = _entries(folder, game, slot, None)
+    who = (tuple(older), tuple(newer))
+    field_ = base_of(IDENTITY_SOURCE, IDENTITY_FACT, who, renamed)
+    swapped = base_of(IDENTITY_SOURCE, IDENTITY_FACT, (who[1], who[0]), renamed)
+    if verdict not in IDENTITY_OPTIONS:
+        if any(str(d.get("field")) in (field_, swapped) for d in entries):
+            decisions.rewrite(Path(folder), game, slot,
+                              lambda found: [d for d in found if not (d.get("kind") == KIND
+                                                                      and str(d.get("field")) in (field_, swapped))])
+        return
+    if any(str(d.get("field")) == swapped for d in entries):
+        decisions.rewrite(Path(folder), game, slot,
+                          lambda found: [d for d in found if not (d.get("kind") == KIND
+                                                                  and str(d.get("field")) == swapped)])
+    decisions.record(Path(folder), game, slot, [{
+        "kind": KIND, "village": village_header(folder, game, slot), "field": field_, "source": IDENTITY_SOURCE,
+        "fact": IDENTITY_FACT, "who": [list(w) for w in who], "ordinal": 1, "of": 1, "question": text,
+        "options": list(IDENTITY_OPTIONS), "verdict": verdict, "label": IDENTITY_LABEL, "edited": False,
+        "alone": True}], now)
+
+
+# ---------------------------------------------------------------------------
 # The section: every answer kept, changed or cleared
 # ---------------------------------------------------------------------------
 
@@ -308,6 +372,9 @@ class Row:
     @property
     def status(self) -> str:
         if self.matches is None:
+            if self.group == IDENTITY_LABEL:
+                return ("Asked by the Family Tree Maker: your answer is used by the tree, the reconciliation, "
+                        "numbering and the records, and it is not asked again (cleared, it is asked again).")
             return "Asked on its own when Repair runs: your answer is used each time, and it is not asked."
         return ("Matches a question now: your answer is used, and the question is not asked."
                 if self.matches else "No longer matches any question now (your answer was carried out, or the "
@@ -360,7 +427,9 @@ def listing(folder: Path, game: int, slot: int, kinds: list) -> list[Row]:
         date = str(d.get("date", ""))
         if kind == KIND:
             live = held.get(ident)
-            rows.append(Row(ident, f"{LISTED[kind]}: {d.get('label') or d.get('source')}",
+            where = (IDENTITY_LABEL if d.get("source") == IDENTITY_SOURCE
+                     else f"{LISTED[kind]}: {d.get('label') or d.get('source')}")
+            rows.append(Row(ident, where,
                             str(d.get("question") or d.get("field")), answer, date,
                             None if d.get("alone") else live is not None,
                             [o for o in d.get("options") or [] if isinstance(o, str)], live))

@@ -689,7 +689,7 @@ static void vv12_saved(int slot);
 
 /* cod_backfill.inc: the graves no hook saw, at each save. */
 static void backfill_at_save(int slot, const void *save_buffer);
-static int backfill_accounts_for(const unsigned char *kept);
+static int backfill_accounts_for_mode(const unsigned char *kept, int exact);
 static void backfill_reset(int slot);
 
 /* cod_arrivals.inc: the Arrived records. */
