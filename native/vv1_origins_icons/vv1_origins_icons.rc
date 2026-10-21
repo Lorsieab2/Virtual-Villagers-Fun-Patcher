@@ -39,6 +39,15 @@
 #define WS_POPUP 0x80000000L
 #define WS_CAPTION 0x00C00000L
 #define WS_SYSMENU 0x00080000L
+#ifndef WS_THICKFRAME
+#define WS_THICKFRAME 0x00040000L
+#endif
+#ifndef WS_MINIMIZEBOX
+#define WS_MINIMIZEBOX 0x00020000L
+#endif
+#ifndef WS_MAXIMIZEBOX
+#define WS_MAXIMIZEBOX 0x00010000L
+#endif
 #define WS_CHILD 0x40000000L
 #define WS_VISIBLE 0x10000000L
 #define SS_CENTER 0x00000001L
@@ -57,7 +66,7 @@
    old single-column layout (Buy = 1000+row, status badge icon 109 = 1100+row),
    so the DLL's WM_INITDIALOG/WM_COMMAND logic is untouched by the reflow. */
 201 DIALOGEX 0, 0, 612, 259
-STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
 BEGIN
@@ -155,7 +164,7 @@ BEGIN
 END
 
 202 DIALOGEX 0, 0, 310, 204
-STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
 CAPTION "Villager Upgrades"
 FONT 9, "Segoe UI"
 BEGIN
@@ -208,7 +217,7 @@ END
    head/body ("changed" + the charge stay the caller's job). Its name shows on
    its own line under the Mask column; control IDs stay in VV1's 20xx block. */
 203 DIALOGEX 0, 0, 364, 196
-STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
 BEGIN
@@ -246,7 +255,7 @@ END
    is mutually exclusive; any non-Off override grays + overrides the matching
    per-sex selectors. Per-sex boxes 50x74, arrows 12x20 (for-All canonical). */
 204 DIALOGEX 0, 0, 620, 340
-STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
 CAPTION "Change Appearance for All"
 FONT 9, "Segoe UI"
 BEGIN

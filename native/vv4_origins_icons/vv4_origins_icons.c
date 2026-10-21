@@ -2,6 +2,7 @@
 #include <windows.h>
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/vvfp_dialog_kit.h" /* resizable dialogs (min / max), v1.35.80 */
 #include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
@@ -1850,6 +1851,10 @@ static INT_PTR CALLBACK upgrade_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         g_villager_menu = villager_menu;
@@ -2140,6 +2145,10 @@ static INT_PTR CALLBACK appearance_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(4, window);   /* "OK deducts 0 tech points" */
         /* appearance_state was already populated by ShowOriginsAppearancePicker
@@ -2539,6 +2548,10 @@ static void fa_sync_enable(HWND window) {
 
 static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
                                       WPARAM wparam, LPARAM lparam) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     (void)lparam;
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(4, window);   /* "OK deducts 0 tech points" */

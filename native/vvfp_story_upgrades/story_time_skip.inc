@@ -280,6 +280,10 @@ static int time_skip_start(int game, int years, int price) {
 /* ---- The dialog ------------------------------------------------------------ */
 
 static INT_PTR CALLBACK time_skip_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
     if (message == WM_INITDIALOG) {
         SendDlgItemMessageA(window, IDC_TS_YEARS, EM_LIMITTEXT, 2, 0);
         SetDlgItemInt(window, IDC_TS_YEARS, (UINT)lparam, FALSE);

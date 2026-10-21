@@ -295,6 +295,92 @@ static const char *ui_name_of(int index) {
     return position < 0 ? "(gone)" : ui.names[position];
 }
 
+/* ---- Villager sorting (the owner, v1.35.80) -------------------------------
+
+   Every villager list and drop-down of these dialogs has a sort selector
+   above or beside it (IDC_UI_SORT): the game's own order, "Age (oldest at
+   top)" or "Alphabetical (first name, then last name)", one choice per game
+   for the session (story_sort_mode, shared with the Pick Island Event and
+   Gong pickers).  Each list says what its item data is. */
+#define IDC_UI_SORT 3990
+
+enum {
+    UI_SORT_POSITION = 0,        /* a place in ui.roster */
+    UI_SORT_RECORD = 1,          /* a record index; negative: not a villager */
+    UI_SORT_RECORD_PLUS_ONE = 2, /* a record index + 1; 0: not a villager */
+    UI_SORT_PARENT = 3           /* UI_PARENT_RECORD + a record index; less: not a villager */
+};
+
+static char ui_sort_names[VK_SORT_MAX][CE_NAME_BYTES];
+static int ui_sort_used;
+
+static int ui_villager_about(void *context, LPARAM data, vk_villager *out) {
+    int kind = *(const int *)context;
+    int index;
+    int position;
+    const unsigned char *record;
+    if (kind == UI_SORT_POSITION) {
+        position = (int)data;
+        if (position < 0 || position >= ui.roster_count) {
+            return 0;
+        }
+        index = ui.roster[position].index;
+    } else {
+        index = kind == UI_SORT_RECORD_PLUS_ONE ? (int)data - 1
+                : kind == UI_SORT_PARENT ? ((int)data >= UI_PARENT_RECORD ? (int)data - UI_PARENT_RECORD : -1)
+                : (int)data;
+        if (index < 0) {
+            return 0;
+        }
+        position = ui_roster_position(index);
+    }
+    if (position >= 0) {
+        out->name = ui.names[position];
+        out->age = ui.roster[position].age;
+        out->rank = position;
+        return 1;
+    }
+    /* not in the roster (a body the list was made from itself): its record */
+    if (index >= ui.a->record_count || ui_sort_used >= VK_SORT_MAX) {
+        return 0;
+    }
+    record = ui.a->record(index);
+    if (record == NULL) {
+        return 0;
+    }
+    ce_copy_name(ui_sort_names[ui_sort_used], CE_NAME_BYTES, record + ui.a->off_name, ui.a->name_bytes);
+    out->name = ui_sort_names[ui_sort_used++];
+    out->age = ce_age(ui.a, record);
+    out->rank = UI_ROSTER_MAX + index;
+    return 1;
+}
+
+/* The order of this game's selector (`with_game` 0: a list made oldest
+   first, which has no other "own" order). */
+static int ui_sort_mode(int with_game) {
+    int mode = story_sort_mode[ui.game];
+    return !with_game && mode == VK_SORT_GAME ? VK_SORT_AGE : mode;
+}
+
+/* List `id` (`combo`: a drop-down) of item kind `kind` in the chosen order. */
+static void ui_sort_list(HWND window, int id, int combo, int kind, int with_game) {
+    ui_sort_used = 0;
+    vk_sort_control(GetDlgItem(window, id), combo, ui_sort_mode(with_game), ui_villager_about, &kind);
+}
+
+static void ui_fill_sort(HWND window, int with_game) {
+    vk_fill_sort_selector(GetDlgItem(window, IDC_UI_SORT), with_game, ui_sort_mode(with_game));
+}
+
+/* The selector changed: kept for this game; nonzero when it was it. */
+static int ui_sort_changed(WPARAM wparam, HWND window) {
+    if (LOWORD(wparam) != IDC_UI_SORT || HIWORD(wparam) != CBN_SELCHANGE) {
+        return 0;
+    }
+    story_sort_mode[ui.game] = vk_sort_selected(GetDlgItem(window, IDC_UI_SORT));
+    return 1;
+}
+
 /* ---- The parents dialog ------------------------------------------------ */
 
 static void ui_select_data(HWND window, int id, int data);
@@ -453,6 +539,10 @@ static int ui_read_parent(HWND window, const char *who, int from, int first_id, 
 }
 
 static INT_PTR CALLBACK ui_parents_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
     char text[200];
     ce_change *p = &ui.parents;
     (void)lparam;
@@ -489,12 +579,22 @@ static INT_PTR CALLBACK ui_parents_dialog(HWND window, UINT message, WPARAM wpar
                         IDC_PA_FATHER_BODY);
         ui_parent_boxes(window, IDC_PA_MOTHER_FROM, IDC_PA_MOTHER, IDC_PA_MOTHER_LAST, IDC_PA_MOTHER_HEAD,
                         IDC_PA_MOTHER_BODY);
+        ui_fill_sort(window, 1);
+        ui_sort_list(window, IDC_PA_FATHER_FROM, 1, UI_SORT_PARENT, 1);
+        ui_sort_list(window, IDC_PA_MOTHER_FROM, 1, UI_SORT_PARENT, 1);
+        vk_fit_dropped_width(GetDlgItem(window, IDC_PA_FATHER_FROM));
+        vk_fit_dropped_width(GetDlgItem(window, IDC_PA_MOTHER_FROM));
         SetDlgItemTextA(window, IDC_PA_NOTE,
                         ui.parents_for_spawn
                             ? "Recorded as a birth records its parents: in the logs, the Family Tree and the "
                               "Matchmaker. A buried villager: choose Custom and type their name and looks."
                             : "Custom: a blank box is no change. Unknown clears that parent. A buried "
                               "villager: choose Custom and type their name and looks.");
+        return TRUE;
+    }
+    if (message == WM_COMMAND && ui_sort_changed(wparam, window)) {
+        ui_sort_list(window, IDC_PA_FATHER_FROM, 1, UI_SORT_PARENT, 1);
+        ui_sort_list(window, IDC_PA_MOTHER_FROM, 1, UI_SORT_PARENT, 1);
         return TRUE;
     }
     if (message == WM_COMMAND && HIWORD(wparam) == CBN_SELCHANGE
@@ -559,6 +659,10 @@ static void ui_parents_words(const ce_change *p, char *out) {
 /* ---- The unborn baby's father dialog ------------------------------------ */
 
 static INT_PTR CALLBACK ui_unborn_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
     char text[96];
     (void)lparam;
     if (message == WM_INITDIALOG) {
@@ -1258,8 +1362,15 @@ static void ui_prefill_changes(HWND window, const ce_change *c) {
 }
 
 static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
     if (message == WM_INITDIALOG) {
         ui_setup_changes(window);
+        ui_fill_sort(window, 1);
+        ui_sort_list(window, IDC_CH_LIST, 0, UI_SORT_POSITION, 1);
+        ui_sort_list(window, IDC_CH_FATHER, 1, UI_SORT_RECORD, 1);
         if (lparam != 0 && ui.change_editing >= 0 && ui.change_editing < ui.draft.change_count) {
             /* Edit: the entry's own villager, fixed (one entry is one
                villager), and every change it holds. */
@@ -1282,6 +1393,11 @@ static INT_PTR CALLBACK ui_changes_dialog(HWND window, UINT message, WPARAM wpar
             SetDlgItemTextA(window, IDOK, "OK");
             ui_show_count(window);
         }
+        return TRUE;
+    }
+    if (message == WM_COMMAND && ui_sort_changed(wparam, window)) {
+        ui_sort_list(window, IDC_CH_LIST, 0, UI_SORT_POSITION, 1);
+        ui_sort_list(window, IDC_CH_FATHER, 1, UI_SORT_RECORD, 1);
         return TRUE;
     }
     if (message == WM_COMMAND) {
@@ -1427,6 +1543,10 @@ static int ui_spawn_room(int heathen) {
 }
 
 static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
     const ce_adapter *a = ui.a;
     char text[128];
     int i;
@@ -1684,6 +1804,10 @@ static void ui_values_fill(HWND window) {
 }
 
 static INT_PTR CALLBACK ui_values_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
     int i;
     (void)lparam;
     if (message == WM_INITDIALOG) {
@@ -1783,6 +1907,10 @@ static void ui_puzzles_fill(HWND window) {
 }
 
 static INT_PTR CALLBACK ui_puzzles_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
     int i;
     int count = ui.a->puzzle_count < CE_MAX_PUZZLES ? ui.a->puzzle_count : CE_MAX_PUZZLES;
     (void)lparam;
@@ -1882,6 +2010,10 @@ static int ui_skeletons(int *out, int cap) {
 }
 
 static INT_PTR CALLBACK ui_revive_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
     (void)lparam;
     if (message == WM_INITDIALOG) {
         int skeletons[UI_ROSTER_MAX];
@@ -1910,6 +2042,9 @@ static INT_PTR CALLBACK ui_revive_dialog(HWND window, UINT message, WPARAM wpara
             ui_enable(window, IDC_RV_LIST, 0);
             ui_enable(window, IDC_RV_ALL, 0);
         }
+        ui_load_roster();
+        ui_fill_sort(window, 0);             /* made oldest first: no other own order */
+        ui_sort_list(window, IDC_RV_LIST, 0, UI_SORT_RECORD, 0);
         SetDlgItemInt(window, IDC_RV_HEALTH, (UINT)(ui.draft.revive_count > 0 ? ui.draft.revives[0].health : 100),
                       FALSE);
         CheckDlgButton(window, IDC_RV_CURE,
@@ -1918,6 +2053,10 @@ static INT_PTR CALLBACK ui_revive_dialog(HWND window, UINT message, WPARAM wpara
                         "Only a villager who is still a skeleton can come back (a buried one is gone). "
                         "No room is needed: a skeleton keeps their own place in the village. Without the "
                         "cure a sick or very old villager can die again within moments.");
+        return TRUE;
+    }
+    if (message == WM_COMMAND && ui_sort_changed(wparam, window)) {
+        ui_sort_list(window, IDC_RV_LIST, 0, UI_SORT_RECORD, 0);
         return TRUE;
     }
     if (message == WM_COMMAND) {
@@ -2236,6 +2375,10 @@ static void ui_apply_mode(HWND window) {
 static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
 
 static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
     const ce_adapter *a = ui.a;
     if (message == WM_INITDIALOG) {
         int i;
@@ -2607,6 +2750,9 @@ static void ui_choice_fill_featured(HWND window) {
     }
     SendDlgItemMessageA(window, IDC_CC_FEATURED, CB_SETCURSEL, 0, 0);
     ui_select_data(window, IDC_CC_FEATURED, ui.choice.featured_record);
+    ui_fill_sort(window, 1);
+    ui_sort_list(window, IDC_CC_FEATURED, 1, UI_SORT_RECORD_PLUS_ONE, 1);
+    vk_fit_dropped_width(GetDlgItem(window, IDC_CC_FEATURED));
     SetDlgItemTextA(window, IDC_CC_FEATURED_NOTE,
                     ui.a->featurable != NULL
                         ? "Shown in the question's picture (believers only); if they are gone, a "
@@ -2616,6 +2762,10 @@ static void ui_choice_fill_featured(HWND window) {
 }
 
 static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
+    INT_PTR handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
+        return handled;
+    }
     int b;
     (void)lparam;
     if (message == WM_INITDIALOG) {
@@ -2634,6 +2784,10 @@ static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wpar
                         "share is its chance out of the button's total.", width, ui.a->game_name);
         SetDlgItemTextA(window, IDC_CC_LIMIT, text);
         ui_choice_fill_featured(window);
+        return TRUE;
+    }
+    if (message == WM_COMMAND && ui_sort_changed(wparam, window)) {
+        ui_sort_list(window, IDC_CC_FEATURED, 1, UI_SORT_RECORD_PLUS_ONE, 1);
         return TRUE;
     }
     if (message == WM_COMMAND) {
