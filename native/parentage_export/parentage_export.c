@@ -4572,6 +4572,97 @@ __declspec(dllexport) int __stdcall WriteVillageEventRecord(int game_id, const c
     return emit_record(game_id, KIND_ISLAND_EVENT, villager_table(game_id), record);
 }
 
+/* A VILLAGER WHO PASSES AWAY OR DISAPPEARS KEEPS THEIR PARENTS IN THE LOGS
+   (the owner, 2026-10-20: "make room for their parents in all 5 games").
+   The Lost Children to New Believers keep a villager's parents on their own
+   record, and the game frees that record at the death and gives it to the
+   next villager; A New Home keeps them only in the Show Parents companion's
+   file.  So the Death and Disappeared records carry the villager's own
+   parents, read once, from the record the game still holds at that moment,
+   in exactly the block the Village Population and Village History logs print
+   for the living (native/population_export: write_vv1_own_parents and the
+   VV2-VV5 block) -- each parent's name, head and body, a parent the game
+   never recorded left out, and nothing at all for a villager with none (a
+   founder, an arrival).  The family tree and Villager Info read it as they
+   read those logs (src/vv_genealogy.py _snapshot_parents). */
+typedef int (__stdcall *vv1_parents_query_t)(int index, int *out);
+typedef int (__stdcall *vv1_parents_names_t)(int index, char *father, char *mother, int capacity);
+
+static void gone_parents_block(int game_id, const struct game_layout *g, const unsigned char *records,
+                               const unsigned char *record, char *out, size_t size) {
+    size_t used = 0;
+    out[0] = '\0';
+    if (g == NULL || record == NULL) {
+        return;
+    }
+    if (g->parent_father_name != 0u) {
+        char pf[MAX_NAME_BYTES], pm[MAX_NAME_BYTES];
+        pf[0] = pm[0] = '\0';
+        if (record[g->parent_father_name] != 0) {
+            copy_name_field(record + g->parent_father_name, pf, sizeof pf, g->parent_name_capacity);
+        }
+        if (record[g->parent_mother_name] != 0) {
+            copy_name_field(record + g->parent_mother_name, pm, sizeof pm, g->parent_name_capacity);
+        }
+        if (pf[0] == '\0' && pm[0] == '\0') {
+            return;
+        }
+        _snprintf_s(out, size, _TRUNCATE, "  Parents:\n");
+        used = strlen(out);
+        if (pf[0] != '\0') {
+            _snprintf_s(out + used, size - used, _TRUNCATE, "    Father: %s\n      Head: %d\n      Body: %d\n",
+                        pf, *(const int *)(record + g->parent_father_head),
+                        *(const int *)(record + g->parent_father_body));
+            used = strlen(out);
+        }
+        if (pm[0] != '\0') {
+            _snprintf_s(out + used, size - used, _TRUNCATE, "    Mother: %s\n      Head: %d\n      Body: %d\n",
+                        pm, *(const int *)(record + g->parent_mother_head),
+                        *(const int *)(record + g->parent_mother_body));
+        }
+        return;
+    }
+    if (game_id == GAME_VV1 && records != NULL && is_record_slot(g, records, record)) {
+        static int state;                 /* 0 not tried, 1 resolved, -1 unavailable */
+        static vv1_parents_query_t query;
+        static vv1_parents_names_t names;
+        int index = (int)((size_t)(record - records - g->record_base) / g->stride);
+        int looks[4];
+        char father[MAX_NAME_BYTES], mother[MAX_NAME_BYTES];
+        int father_known, mother_known;
+        if (state == 0) {
+            HMODULE companion = GetModuleHandleA("VVFP VV1 Parentage.dll");
+            if (companion == NULL) {
+                companion = vvfp_load_patcher_dll("VVFP VV1 Parentage.dll");
+            }
+            query = companion ? (vv1_parents_query_t)GetProcAddress(companion, "Vv1ParentageQuery") : NULL;
+            names = companion ? (vv1_parents_names_t)GetProcAddress(companion, "Vv1ParentageQueryNames") : NULL;
+            state = query != NULL && names != NULL ? 1 : -1;
+        }
+        father[0] = mother[0] = '\0';
+        if (state != 1 || !query(index, looks) || !names(index, father, mother, (int)sizeof father)) {
+            return;
+        }
+        father[sizeof father - 1] = mother[sizeof mother - 1] = '\0';
+        father_known = looks[0] >= 0 && looks[1] >= 0;
+        mother_known = looks[2] >= 0 && looks[3] >= 0;
+        if (!father_known && !mother_known) {
+            return;
+        }
+        _snprintf_s(out, size, _TRUNCATE, "  Parents:\n");
+        used = strlen(out);
+        if (father_known) {
+            _snprintf_s(out + used, size - used, _TRUNCATE, "    Father: %s\n      Head: %d\n      Body: %d\n",
+                        father[0] ? father : "(unnamed)", looks[0], looks[1]);
+            used = strlen(out);
+        }
+        if (mother_known) {
+            _snprintf_s(out + used, size - used, _TRUNCATE, "    Mother: %s\n      Head: %d\n      Body: %d\n",
+                        mother[0] ? mother : "(unnamed)", looks[2], looks[3]);
+        }
+    }
+}
+
 /* The Deaths and Unaccounted Villagers records, filed for "VVFP Cause of
    Death.dll", which sees the deaths, burials, removals and arrivals and
    decides what each record says.  One format in all five games:
@@ -4715,6 +4806,9 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
                         "  Parents:\n    Father: %s\n    Mother: %s\n",
                         pf[0] ? pf : "(none)", pm[0] ? pm : "(none)");
         }
+    } else if (detail >= 1 && (kind == KIND_DEATH || kind == KIND_DISAPPEARED)
+               && (after == NULL || strstr(after, "  Parents:\n") == NULL)) {
+        gone_parents_block(game_id, g, check ? records : NULL, record, parents, sizeof parents);
     }
     if (detail <= 0) {
         written = _snprintf(text, sizeof(text), "%s  Name: %s\n%s%s\n",

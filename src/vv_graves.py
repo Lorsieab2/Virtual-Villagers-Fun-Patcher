@@ -394,6 +394,15 @@ def _choices(game: int, key: str, options: dict, seen: dict) -> list:
     return out
 
 
+def _same_value(a, b) -> bool:
+    """Whether a grave's value and a record's agree.  A log line's value is read with its spaces at the
+    ends taken off, so a grave's text that only differs by them (an epitaph typed "Parent, Teacher,
+    Friend ") agrees: the difference could not be shown, and setting the record could never keep it."""
+    if isinstance(a, str) and isinstance(b, str):
+        return a.strip() == b.strip()
+    return a == b
+
+
 def _show(value) -> str:
     if value == "" or value is None:
         return "(none)"
@@ -532,7 +541,7 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
                 if r is None or s is None or s == r:
                     continue
                 options = {"the Death record": r, "their last snapshot before they died": s}
-            elif gv is None or r is None or gv == r:
+            elif gv is None or r is None or _same_value(gv, r):
                 continue
             elif key == "cause" and isinstance(r, str) and r.startswith(NOT_RECORDED):
                 continue                        # the record says the death was not seen: nothing to choose

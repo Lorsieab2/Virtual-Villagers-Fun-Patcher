@@ -350,7 +350,7 @@ class ApprovalResult:
     game: int
     cleared: list[Path]
     approval: Path | None
-    backup: vv_save_backup.BackupResult
+    backup: vv_save_backup.BackupResult | None      # None: nothing was changed, so no backup was kept
     words: list = field(default_factory=list)   # WordFix: old like / dislike words put right now
     sexes: list = field(default_factory=list)   # WordFix: Sex lines added to older records now
     added: dict = field(default_factory=dict)   # kind id -> WordFix: every line added to older records now
@@ -431,7 +431,11 @@ def approve_repair(
     left = [path for path in cleared if path.exists()]
     if left:
         raise LogToolError(f"{left[0].name} is still there after clearing it. Nothing was approved.")
-    if rearm:
+    try:
+        already = approval.is_file() and approval.read_bytes() == approval_bytes(game, slot)
+    except OSError:
+        already = False
+    if rearm and not already:                   # the same approval already there is left as it is
         temporary = approval.with_name(approval.name + ".tmp")
         try:
             approval.parent.mkdir(parents=True, exist_ok=True)
@@ -446,6 +450,7 @@ def approve_repair(
                 f"The approval could not be written ({exc}). The game will not repair "
                 f"anything; the backup is in {backup.backup_folder}."
             ) from exc
+    if rearm:
         # The game acts on an approval kept under both names under neither (src/vv_save_layout.py,
         # native/shared/crosscheck_bridge.h): this same approval left under the other name by an
         # earlier Repair is cleared, as the game clears one it has used.
@@ -510,7 +515,17 @@ def approve_repair(
     # Nothing is moved or renamed: an older build's folders and files keep their names, and every
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
-    return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, backup, words,
+    # No backup is kept for a Repair that changed nothing (audit, 2026-10-20): the backup is still made
+    # BEFORE anything could be written, and taken away only when not one file of the save folder was
+    # written after it (vv_save_backup.unchanged_since).
+    kept_backup: vv_save_backup.BackupResult | None = backup
+    if vv_save_backup.unchanged_since(backup):
+        try:
+            vv_save_backup.delete_backup(folder, backup.backup_folder)
+            kept_backup = None
+        except (vv_save_backup.BackupError, OSError):
+            kept_backup = backup                # kept: an unneeded backup is never a fault
+    return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, kept_backup, words,
                           added.get("sex", []), added, answered, renamed)
 
 

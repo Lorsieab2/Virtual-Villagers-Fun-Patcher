@@ -840,7 +840,14 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
         rep.add(label, "NOTE", "no parentage file (nothing recorded yet, or the patch is off)")
         return
     data = path.read_bytes()
-    if len(data) != 12 + 256 * (36 + 92) or struct.unpack_from("<I", data, 0)[0] != 0x32305056 \
+    base = 12 + 256 * (36 + 92)
+    # After the 256 entries, the departed list when anybody is on it ('VPD1', a count, that many 128-byte
+    # entries: native/vv1_parentage g_departed); the living are checked, so only its shape is.
+    tail = data[base:]
+    tail_ok = not tail or (len(tail) >= 8 and tail[:4] == b"VPD1"
+                           and 0 < struct.unpack_from("<I", tail, 4)[0] <= 1_000_000
+                           and len(tail) == 8 + struct.unpack_from("<I", tail, 4)[0] * 128)
+    if len(data) < base or not tail_ok or struct.unpack_from("<I", data, 0)[0] != 0x32305056 \
             or struct.unpack_from("<I", data, 8)[0] != slot:
         rep.add(label, "UNCHECKED", f"not a VP02 parentage file for Save {slot} ({len(data)} bytes)")
         return

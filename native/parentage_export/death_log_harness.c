@@ -445,6 +445,63 @@ int main(int argc, char **argv) {
               && strstr(text, "  Skills:\r\n") != NULL && strstr(text, "  Record: 4\r\n\r\n") != NULL,
               "Unaccounted 1 in its own log, with the skills block and the caller's lines");
 
+        /* 3a: a villager who passes away or disappears keeps their parents in the record (the owner,
+               2026-10-20: "make room for their parents in all 5 games"): The Lost Children to New
+               Believers read them from the record the game frees afterwards, name, head and body, as
+               the Village History prints them for the living.  A New Home's come from the Show Parents
+               companion, which this harness does not load: nothing is made up without it. */
+        {
+            static const unsigned int PARENT[5][6] = {
+                { 0, 0, 0, 0, 0, 0 },
+                { 0x57D, 0x596, 0x5B0, 0x5B4, 0x5B8, 0x5BC },
+                { 0xDF8, 0xE11, 0xE2C, 0xE30, 0xE34, 0xE38 },
+                { 0x1BC0, 0x1BD9, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00 },
+                { 0x1BC0, 0x1BD9, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00 },
+            };
+            const unsigned int *p = PARENT[game - 1];
+            villager(4, "Pita", 200, 5, 6);
+            if (game >= 2) {
+                strcpy((char *)rec(4) + p[0], "Tane");
+                strcpy((char *)rec(4) + p[1], "Rua");
+                *(int *)(rec(4) + p[2]) = 11;
+                *(int *)(rec(4) + p[3]) = 0;
+                *(int *)(rec(4) + p[4]) = 13;
+                *(int *)(rec(4) + p[5]) = 14;
+            }
+            CHECK(write_record(game, DISAPPEARED, rec(4), 1, "  Age: 200\n", NULL, 1) == 1,
+                  "a Disappeared record of a villager with parents is written");
+            read_deaths(game, 1);
+            if (game >= 2) {
+                CHECK(strstr(text, "\r\nDisappeared\r\n  Name: Pita\r\n") != NULL
+                      && strstr(text, "  Parents:\r\n    Father: Tane\r\n      Head: 11\r\n      Body: 0\r\n"
+                                      "    Mother: Rua\r\n      Head: 13\r\n      Body: 14\r\n\r\n") != NULL,
+                      "...with the parents the game kept on the record, their heads and bodies");
+                memset(rec(4) + p[1], 0, 8);
+                villager(5, "Ruru", 220, 5, 6);
+                strcpy((char *)rec(5) + p[0], "Tane");
+                *(int *)(rec(5) + p[2]) = 11;
+                *(int *)(rec(5) + p[3]) = 0;
+                CHECK(write_record(game, DISAPPEARED, rec(5), 1, "  Age: 220\n", NULL, 1) == 1
+                      && read_deaths(game, 1)
+                      && strstr(text, "\r\nDisappeared\r\n  Name: Ruru\r\n") != NULL
+                      && strstr(strstr(text, "  Name: Ruru\r\n"),
+                                "  Parents:\r\n    Father: Tane\r\n      Head: 11\r\n      Body: 0\r\n\r\n") != NULL,
+                      "...a parent the game never recorded is left out, never made up");
+            } else {
+                CHECK(strstr(strstr(text, "  Name: Pita\r\n") ? strstr(text, "  Name: Pita\r\n") : text,
+                             "  Parents:") == NULL,
+                      "...and A New Home without its Show Parents companion names none");
+            }
+            villager(6, "Founder", 900, 5, 6);
+            CHECK(write_record(game, DISAPPEARED, rec(6), 1, "  Age: 900\n", NULL, 1) == 1
+                  && read_deaths(game, 1) && strstr(text, "  Name: Founder\r\n") != NULL
+                  && strstr(strstr(text, "  Name: Founder\r\n"), "  Parents:") == NULL,
+                  "a villager with no recorded parents (a founder) gets no Parents block");
+            memset(rec(4), 0, g->stride);
+            memset(rec(5), 0, g->stride);
+            memset(rec(6), 0, g->stride);
+        }
+
         /* 3b: a custom title (Custom Titles - Save 1.dat, the village's slot)
            is printed under the name, for the one villager it belongs to. */
         {

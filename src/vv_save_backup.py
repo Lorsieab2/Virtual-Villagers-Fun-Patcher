@@ -269,6 +269,31 @@ class BackupResult:
         return sum(item.size for item in self.files)
 
 
+def unchanged_since(backup: BackupResult) -> bool:
+    """Whether the save folder is still exactly as `backup` copied it: the same files, each the same size
+    and modification time.  A file written again, even with the same bytes, counts as changed, so a
+    backup is only ever found unneeded when nothing at all was written after it."""
+    folder = Path(backup.save_folder)
+    try:
+        now = files_to_back_up(folder)
+    except OSError:
+        return False
+    copied = {Path(f.relative): f for f in backup.files}
+    if set(now) != set(copied):
+        return False
+    for relative in now:
+        f = copied[relative]
+        if f.times is None:
+            return False
+        try:
+            st = (folder / relative).stat()
+        except OSError:
+            return False
+        if st.st_size != f.size or st.st_mtime_ns != f.times[1]:
+            return False
+    return True
+
+
 def backup_folder_name(now: datetime) -> str:
     return f"{BACKUP_PREFIX}{now.strftime('%Y-%m-%d %H-%M-%S')}"
 

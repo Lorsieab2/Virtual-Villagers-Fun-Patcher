@@ -3419,7 +3419,12 @@ class App(tk.Tk):
                 "without asking: everything confirmed wrong is put right, backed up "
                 "and listed in the Repairs log. Nothing is repaired now. The game "
                 "must be closed. The save folder is backed up first, into <save "
-                "folder>\\Backups\\Backup <date and time> (before repair re-arm)."
+                "folder>\\Backups\\Backup <date and time> (before repair re-arm). "
+                "One thing is done before the checklist opens, and stays done if you "
+                "then cancel: when the village gives arriving villagers their own new "
+                "last name automatically (the last-names setting, on by default), each "
+                "arrived villager with no last name gets one first (backed up first, "
+                "and listed in the checklist and the Repairs log)."
             )
         else:
             intro = (
@@ -3508,8 +3513,9 @@ class App(tk.Tk):
             problem_var.set(problem or "")
             go_button.configure(state="normal" if problem is None else "disabled")
             if problem is None:
+                # Only read here, for Check and Repair alike: Repair writes the report when Repair is pressed.
                 vv_reconcile_view.watch(dialog, reconcile_var, state["folders"][folder_box.current()],
-                                        game().number, chosen().slot)
+                                        game().number, chosen().slot, export=False)
             else:
                 vv_reconcile_view.forget(dialog)
                 reconcile_var.set("")
@@ -3788,23 +3794,9 @@ class App(tk.Tk):
             return
         _regrab(parent)
         self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary}")
-        # The Lost Children: the passed-away Esteemed Elders the totems companion gives a totem at the next
-        # load, when the village's setting is on (src/vv_vv2_totem_store.py write_pending; its own file only).
-        if number == vv_vv2_totem_store.GAME:
-            try:
-                vv_vv2_totem_store.write_pending(folder, info.slot)
-            except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
-                    vv_log_tools.LogToolError, ValueError, OSError):
-                pass                    # the next Check or Repair tries again; nothing else depends on it
-        # The reconciliation's report beside the slot's logs (the only file Check Saves & Logs leads to
-        # writing, and only the report: src/vv_reconcile.py export).
-        if result.reconciliation is not None:
-            try:
-                written = vv_reconcile.export(result.reconciliation)
-            except OSError:
-                written = None
-            if written is not None:
-                self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary} Report: {written.name}")
+        # Check Saves & Logs only reads (audit, 2026-10-20): it writes neither the reconciliation's report
+        # nor The Lost Children's PendingElderTotems.dat -- Repair Saves & Logs writes them, once the player
+        # presses Repair.  The report is the window below.
         self._show_log_report(parent, folder, info, result, numbering_lines)
 
     @staticmethod
@@ -3985,8 +3977,8 @@ class App(tk.Tk):
                     stored = vv_vv2_totem_store.read(folder, info.slot)
                     totems["in_file"] = len(stored.totems) if stored is not None else 0
                     totems["auto"] = vv_vv2_totem_store.auto_give(folder, info.slot)
-                    # The passed-away elders the companion gives a totem at the next load (its own list).
-                    vv_vv2_totem_store.write_pending(folder, info.slot)
+                    # PendingElderTotems.dat is written only once Repair is pressed (audit, 2026-10-20):
+                    # Cancel leaves nothing written.
                 except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
                         vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
                     totems["note"] = ((totems["note"] + " ") if totems["note"] else "") + (
@@ -4002,6 +3994,11 @@ class App(tk.Tk):
                 if checked.wrong
                 else f"The read-only check finds nothing confirmed wrong in {info.name}'s logs."
             )
+            if named_lines:
+                # Done already, before this checklist (the owner's design, v1.35.66): said here, so Cancel
+                # is never thought to undo it.
+                found += ("\n\nAlready done, before this checklist (Cancel does not undo it):\n"
+                          + "\n".join(named_lines))
         except (vv_log_tools.LogToolError, OSError) as exc:
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
@@ -4023,6 +4020,13 @@ class App(tk.Tk):
             self.status_var.set("Repair Saves & Logs did not finish. See the message for what changed.")
             messagebox.showerror("Repair Saves & Logs", str(exc), parent=parent)
             return
+        # Written only now that the player pressed Repair (audit, 2026-10-20: Check and Cancel write
+        # nothing): the reconciliation's report beside the slot's logs (src/vv_reconcile.py export).
+        if checked.reconciliation is not None:
+            try:
+                vv_reconcile.export(checked.reconciliation)
+            except OSError:
+                pass                    # only the report; the next Repair writes it again
         # The restarted tribe's villagers the player confirmed (src/vv_history_revision.py): planned again
         # now that the lines above are in, and only a villager still proven gone is removed.
         history_lines: list[str] = []
@@ -4062,6 +4066,14 @@ class App(tk.Tk):
         # totems first, so a reverted record is never counted as an elder's totem.
         if totems["fix"] or totems["give"] or totems.get("move") or totems.get("put_back"):
             grave_lines += self._vv2_totems(parent, folder, number, info, totems)
+        # The passed-away Esteemed Elders the totems companion gives a totem at the next load
+        # (PendingElderTotems.dat, its own file only): written once Repair is pressed, after the totem rows.
+        if number == vv_vv2_totem_store.GAME and totems.get("survey") is not None:
+            try:
+                vv_vv2_totem_store.write_pending(folder, info.slot)
+            except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
+                    vv_log_tools.LogToolError, ValueError, OSError):
+                pass                    # the next Repair tries again; nothing else depends on it
         # The cut names first of the renames, so last names and numbering never work from a cut name
         # (the checklist leaves those off while the cut names are restored).  After the lines above
         # are added: a renamed line changes no line count, and the like / dislike words are put right
@@ -4087,6 +4099,7 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The last-name rules were not kept. {exc}", parent=parent)
         renamed = None
+        nothing_to_name = None
         if names is not None and names["chosen"]:
             try:
                 renamed = self._run_with_wait(
@@ -4096,6 +4109,8 @@ class App(tk.Tk):
                                                           mine=names.get("mine_names"),
                                                           whole=names.get("whole")),
                 )
+            except vv_last_names.NothingToDo as exc:
+                nothing_to_name = f"Give villagers last names: {exc}"     # information, not an error
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The last names were not given. {exc}", parent=parent)
@@ -4150,6 +4165,8 @@ class App(tk.Tk):
         if renamed is not None:
             lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
                          f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
+        elif nothing_to_name:
+            lines.append(nothing_to_name)
         if numbered is not None:
             done, wanted = numbered
             lines.append(" ".join([f"Duplicate names numbered: {vv_number_names.renamed_count(done, wanted)} "
@@ -4213,11 +4230,13 @@ class App(tk.Tk):
             lines.append(f"{old} (head {head}, body {body}) has the name {new} back, in the save, the logs and the "
                          "patcher's files.")
         if len(lines) > (1 if rearm else 0):
-            lines.append("Each log was backed up beside itself; everything is listed in the Repairs log.")
+            lines.append("A copy of each file changed was kept first, in Copies Made Before Repairs; everything is "
+                         "listed in the Repairs log.")
         self.status_var.set(f"Repair Saves & Logs: {info.name} done.")
         messagebox.showinfo(
             "Repair Saves & Logs",
-            "\n\n".join(lines + [f"Backup: {result.backup.backup_folder}"]),
+            "\n\n".join(lines + ([f"Backup: {result.backup.backup_folder}"] if result.backup is not None else [])
+                        or ["Nothing needed changing, so nothing was changed and no backup was made."]),
             parent=parent,
         )
 
@@ -4417,6 +4436,8 @@ class App(tk.Tk):
                                                           mine=names.get("mine_names"), whole=names.get("whole")))
                 lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
                              f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
+            except vv_last_names.NothingToDo as exc:
+                lines.append(f"Give villagers last names: {exc}")         # information, not an error
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Last names", f"The last names were not given. {exc}", parent=parent)
@@ -4513,7 +4534,7 @@ class App(tk.Tk):
         number_tick.pack(side="left")
         number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["appearance"])   # the owner's default
         number_order = ttk.Combobox(number_row, textvariable=number_order_var,
-                                    values=list(vv_genealogy.NUMBER_ORDERS.values()), state="readonly", width=22)
+                                    values=list(vv_genealogy.NUMBER_ORDERS.values()), state="readonly", width=34)
         number_order.pack(side="left", padx=(8, 0))
         if misnumbered:
             ttk.Label(frame, wraplength=600, justify="left", foreground="#555555",

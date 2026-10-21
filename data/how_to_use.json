@@ -921,10 +921,10 @@
       "title": "Repair Saves & Logs",
       "guide": [
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
-        "Tick what to do, then click Repair (backed up first). Reset corrupted skill values: NaN, infinite, below 0, above 100.",
+        "Tick what to do, then Repair (backed up first). Reset corrupted skill values: NaN, infinite, below 0, above 100.",
         "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; what the files cannot tell, you are asked.",
         "Give villagers last names (Choose...): by the village rule, their own rule, or Random; in the game and every log.",
-        "Number duplicate names: Soda I, Soda II..., oldest first, in the game and every log.",
+        "Number duplicate names: Soda I, Soda II..., oldest first (order of appearance), in game and logs.",
         "Fix grave information (Choose...): where a grave and its records differ, pick the right value or Don't know, or edit a grave.",
         "Let the game repair: play the tribe and quit from its menu (needs a patch that keeps logs).",
         "Move Old Files to New Names / Move Files to Save Folders: rename older files, or move each save's into its own folder; repatch first."
