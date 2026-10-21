@@ -1087,11 +1087,11 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
         && ui.a->behaviours[t->behaviour].unsafe != NULL) {
         /* The owner (2026-10-21): an (Unsafe) action is offered with its
            reason and the advice to back up the save first. */
-        static char reason[512];
+        static char reason[768];
         const ce_action *act = &ui.a->behaviours[t->behaviour];
         wsprintfA(reason, "\"%s\": %s.%s\r\n\r\nBack up the save first (Back Up Saves in the patcher).",
                   act->label, act->unsafe,
-                  act->guard != CE_GUARD_NONE ? " If what it needs is missing when the event happens, the "
+                  act->supply != NULL || act->kind == ACT_DROP ? " If what it needs is not there when the event happens, the "
                                                 "villager is not changed instead of the game crashing." : "");
         if (!ui_risk(window, reason)) {
             return 0;

@@ -347,12 +347,30 @@ static void c5_set_faith(int index, int faith) {
    the text the Details screen then shows; one that may harm the game or the
    save (puzzle steps, conversions, the Heathens' camp life, the guards, a
    spot only the game can pass) ends " (Unsafe)" with its reason (shown
-   before it is confirmed), and the first hut's actions are refused while
-   there is no hut (0x4CBDC0).  "Celebrating" is behaviour 49, the village
-   celebration's own (place 0), and 179 (the build-off's).  Not offered:
-   burial (needs the body), hut building (would build at the map's corner),
-   comforting (would comfort villager 0), the caller's-text action, a
-   pickup, the no-op handlers and an animation-only step. */
+   before it is confirmed), "Celebrating" is behaviour 49, the village
+   celebration's own (place 0), and 179 (the build-off's).  What an action needs that the game passes (the body to bury, ...) is found
+   when the event happens, the way the game finds it; with none there the
+   change is refused.  Nothing is left out (the owner, 2026-10-21). */
+
+
+/* ---- generated: what some actions are started with ---- */
+static const int C5_ARGS_223[8] = { 360, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_224[8] = { 361, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_225[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static const ce_supply C5_SUPPLY_230 = { CE_SUPPLY_CALL, 0, 0x470940u, 0x554148u, CE_REFUSE_MINUS1, -2, 0x547D54u };
+static const int C5_ARGS_231[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_232[8] = { 1, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_233[8] = { 2, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_234[8] = { 3, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_235[8] = { 4, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_236[8] = { 5, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_237[8] = { 12, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_238[8] = { 14, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_239[8] = { 15, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_240[8] = { 16, 0, 0, 0, 0, 0, 0, 0 };
+static const int C5_ARGS_241[8] = { 17, 0, 0, 0, 0, 0, 0, 0 };
+/* ---- end of generated ---- */
+
 static const ce_action C5_BEHAVIOURS[] = {
     { "Stops what they are doing", ACT_STOP, 0, 0, CE_GROUP_GENERAL, NULL },
     { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0, CE_GROUP_GENERAL, NULL },
@@ -574,24 +592,56 @@ static const ce_action C5_BEHAVIOURS[] = {
     { "Picking a mushroom (children only: an adult just stops) (Unsafe)", ACT_DO, 0, 0x23, CE_GROUP_STORY, "Needs the mushroom the game passes: walks to the corner and may change the mushrooms" },
     { "Gathering herbs (Unsafe)", ACT_DO, 0, 0x46, CE_GROUP_WORK, "Walks to the map's top-left corner: the game passes the herb spot" },
     { "Fixing the hut (Unsafe)", ACT_DO, 0, 0xDD, CE_GROUP_WORK, "Walks to the map's top-left corner: the game passes the hut's spot" },
-    { "Fixing the hut (the first hut) (Unsafe)", ACT_DO, 0, 0x36, CE_GROUP_WORK, "Works on the first hut: refused when there is no hut, may change that hut", CE_GUARD_DWORD, 0x4CBDC0u },
-    { "Examining the hut (the first hut) (Unsafe)", ACT_DO, 0, 0x35, CE_GROUP_WORK, "Examines the first hut: refused when there is no hut, may start fixing it", CE_GUARD_DWORD, 0x4CBDC0u },
+    { "Fixing the hut (the first hut) (Unsafe)", ACT_DO, 0, 0x36, CE_GROUP_WORK, "Works on the game's first building, built or not: may change that building" },
+    { "Examining the hut (the first hut) (Unsafe)", ACT_DO, 0, 0x35, CE_GROUP_WORK, "Examines the game's first building, built or not, and may start fixing it" },
     { "Hay fever (animation only, no Details text) [The Allergy Season]", ACT_DO, 0, 0x40, CE_GROUP_HEALTH, NULL },
+    { "Running away (action 8, with the text the game passes) (Unsafe)", ACT_DO, 0, 8, CE_GROUP_MOOD, "Shows the text a stock caller passes (Running away); the game's own wording for a scare", C5_ARGS_223, NULL },
+    { "Tired of listening! (action 8) (Unsafe)", ACT_DO, 0, 8, CE_GROUP_MOOD, "Shows the text a stock caller passes (Tired of listening!) and walks off", C5_ARGS_224, NULL },
+    { "Action 8 with no text [The Stinging Wasps] (Unsafe)", ACT_DO, 0, 8, CE_GROUP_MOOD, "Shows a blank Details text, as The Stinging Wasps starts it (the game passes no text)", C5_ARGS_225, NULL },
+    { "Action 50 (no Details text: an empty handler) (Unsafe)", ACT_DO, 0, 0x32, CE_GROUP_GENERAL, "Does nothing; the villager just stops" },
+    { "Action 63 (no Details text: an empty handler) (Unsafe)", ACT_DO, 0, 0x3F, CE_GROUP_GENERAL, "Does nothing; the villager just stops" },
+    { "Curious about the herbs (id 123) (Unsafe)", ACT_DO, 0, 0x7B, CE_GROUP_CURIOSITY, "The same handler as Curious about the herbs (id 122); offered for completeness, nothing else differs" },
+    { "Curious about the herbs (id 124) (Unsafe)", ACT_DO, 0, 0x7C, CE_GROUP_CURIOSITY, "The same handler as Curious about the herbs (id 122); offered for completeness, nothing else differs" },
+    { "Burying the dead (Unsafe)", ACT_DO, 0, 0x30, CE_GROUP_DEVOTION, "Buries the body the game would pick next (refused when there is none): that body goes", NULL, &C5_SUPPLY_230 },
+    { "Building a small hut (the first hut site) (Unsafe)", ACT_DO, 0, 0x10, CE_GROUP_WORK, "Builds at the first hut site even before the game allows it: adds building progress", C5_ARGS_231, NULL },
+    { "Building a small hut (the second hut site) (Unsafe)", ACT_DO, 0, 0x10, CE_GROUP_WORK, "Builds at the second hut site even before the game allows it: adds building progress", C5_ARGS_232, NULL },
+    { "Building a small hut (the third hut site) (Unsafe)", ACT_DO, 0, 0x10, CE_GROUP_WORK, "Builds at the third hut site even before the game allows it: adds building progress", C5_ARGS_233, NULL },
+    { "Building a small hut (the clothing hut site; the game's own text) (Unsafe)", ACT_DO, 0, 0x10, CE_GROUP_WORK, "Builds at the clothing hut site even before the game allows it: adds building progress", C5_ARGS_234, NULL },
+    { "Building a love shack (Unsafe)", ACT_DO, 0, 0x10, CE_GROUP_WORK, "Builds at the love shack site even before the game allows it: adds building progress", C5_ARGS_235, NULL },
+    { "Building a small hut (the nursery site; the game's own text) (Unsafe)", ACT_DO, 0, 0x10, CE_GROUP_WORK, "Builds at the nursery site even before the game allows it: adds building progress", C5_ARGS_236, NULL },
+    { "Comforting (the Heathen numbered 12) (Unsafe)", ACT_DO, 0, 0xED, CE_GROUP_STORY, "Comforts the Heathen the game numbers 12 (a Heathen puzzle step); with no such Heathen they just stop", C5_ARGS_237, NULL },
+    { "Comforting (the Heathen numbered 14) (Unsafe)", ACT_DO, 0, 0xED, CE_GROUP_STORY, "Comforts the Heathen the game numbers 14 (a Heathen puzzle step); with no such Heathen they just stop", C5_ARGS_238, NULL },
+    { "Comforting (the Heathen numbered 15) (Unsafe)", ACT_DO, 0, 0xED, CE_GROUP_STORY, "Comforts the Heathen the game numbers 15 (a Heathen puzzle step); with no such Heathen they just stop", C5_ARGS_239, NULL },
+    { "Comforting (the Heathen numbered 16) (Unsafe)", ACT_DO, 0, 0xED, CE_GROUP_STORY, "Comforts the Heathen the game numbers 16 (a Heathen puzzle step); with no such Heathen they just stop", C5_ARGS_240, NULL },
+    { "Comforting (the Heathen numbered 17) (Unsafe)", ACT_DO, 0, 0xED, CE_GROUP_STORY, "Comforts the Heathen the game numbers 17 (a Heathen puzzle step); with no such Heathen they just stop", C5_ARGS_241, NULL },
+    { "Picking up what lies where they stand (a collectible or a mushroom) (Unsafe)", ACT_DROP, 0x413660u, 0x4DB790, CE_GROUP_STORY, "As if the player dropped them where they stand: picks up the object there (adds to the collections); refused when nothing is there or they are expecting" },
 };
 
 /* The stop routine 0x473440 (thiscall on the record, used by many events),
    then the behaviour; the cure (sick 0) with SetHealth(100, -1) as
    0x472F77 heals. */
+static int c5_skeleton(const unsigned char *r);
+
 static int c5_behave(int index, int behaviour) {
-    static const int no_argument[8];
     unsigned char *r = c5_record(index);
     const ce_action *act;
+    int block[8];
+    int value = 0;
     if (behaviour < 0 || behaviour >= (int)(sizeof C5_BEHAVIOURS / sizeof C5_BEHAVIOURS[0])) {
         return 0;
     }
     act = &C5_BEHAVIOURS[behaviour];
-    if (!ce_action_ready(act)) {
+    if (!ce_supply_value(act, index, c5_record, c5_listed, c5_skeleton, &value)) {
         return 0;
+    }
+    if (act->kind == ACT_DROP) {
+        /* As the game's own drop: never for an expecting villager; 0 =
+           nothing lies where they stand. */
+        if (*(const int *)(r + 0x1C4C) != 0) {
+            return 0;
+        }
+        TC0(0x473440u, r);
+        return (TC1(act->routine, act->arg, (int)(uintptr_t)r) & 0xFF) != 0;
     }
     if (act->kind == ACT_RECOVER) {
         r[0x1C48] = 0;
@@ -599,7 +649,8 @@ static int c5_behave(int index, int behaviour) {
     }
     TC0(0x473440u, r);
     if (act->kind == ACT_DO) {
-        TC2(0x465580u, r, act->arg, (int)(uintptr_t)no_argument);
+        ce_argument_block(act, value, block);
+        TC2(0x465580u, r, act->arg, (int)(uintptr_t)block);
     }
     return 1;
 }
@@ -992,8 +1043,7 @@ static const ce_adapter C5_ADAPTER = {
     "- Heathens can not be made sick (the game cures them every moment).\r\n"
     "- The unborn baby's starting skill: what the baby does with it at birth was not "
     "traced to the end, so only the father's name and looks are offered.\r\n"
-    "- Actions that solve or advance a puzzle, conversions, the Heathens' own camp life, "
-    "burying, picking things up, new clothes and games that stop other villagers.\r\n"
+    "- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n"
     "- Revive: nothing while the game's own Reanimate is under way; buried villagers "
     "(their record is gone) and skeletons that have already crumbled away.\r\n"
     "- Esteemed Elder and Retired Chief are worked out from skills and the chief puzzle.\r\n"

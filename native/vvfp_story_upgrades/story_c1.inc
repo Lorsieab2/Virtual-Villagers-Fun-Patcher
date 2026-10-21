@@ -202,9 +202,16 @@ static int c1_conceive(int index, int litter, int father, ce_result *result) {
    Details screen then shows; the jobs that give food or skill practice say
    so, and one that may harm the game or the save ends " (Unsafe)" with its
    reason (shown before it is confirmed).  "Celebrating" is 0x443FA0(index,
-   place): the village celebration 0x4457D0's places.  Not offered (no
-   single-villager starter): burial (needs the body), the job dispatcher's
-   and idle chooser's inline branches, the action runner. */
+   place): the village celebration 0x4457D0's places.  What an action needs that the game passes (the body to bury, ...) is found
+   when the event happens, the way the game finds it; with none there the
+   change is refused.  Nothing is left out (the owner, 2026-10-21). */
+
+
+/* ---- generated: what some actions are started with ---- */
+static const ce_supply C1_SUPPLY_94 = { CE_SUPPLY_BODY, 0, 0x0u, 0x0u, CE_REFUSE_MINUS1, -1, 0x0u };
+static const int C1_ARGS_97[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+/* ---- end of generated ---- */
+
 static const ce_action C1_BEHAVIOURS[] = {
     { "Stops what they are doing", ACT_STOP, 0x439470u, 0, CE_GROUP_GENERAL, NULL },
     { "Celebrating", ACT_CALL_ARG, 0x443FA0u, 9, CE_GROUP_CELEBRATION, NULL },
@@ -300,23 +307,50 @@ static const ce_action C1_BEHAVIOURS[] = {
     { "Building small hut (hut place 1) (Unsafe)", ACT_CALL_ARG2, 0x442090u, 9, CE_GROUP_WORK, "Builds at that hut place, even before the game allows it: adds building progress" },
     { "Building small hut (hut place 2) (Unsafe)", ACT_CALL_ARG2, 0x442090u, 10, CE_GROUP_WORK, "Builds at that hut place, even before the game allows it: adds building progress" },
     { "Building small hut (hut place 3) (Unsafe)", ACT_CALL_ARG2, 0x442090u, 11, CE_GROUP_WORK, "Builds at that hut place, even before the game allows it: adds building progress" },
+    { "Burying the dead (the first body awaiting burial) (Unsafe)", ACT_CALL_ARG, 0x443890u, 0, CE_GROUP_DEVOTION, "Buries the first body awaiting burial (a grave and the body removed); refused when there is none", NULL, &C1_SUPPLY_94 },
+    { "Strolling (or their job) [job dispatcher] (Unsafe)", ACT_CALL_ARG, 0x447CD0u, 100, CE_GROUP_MOOD, "The job dispatcher: does the villager's assigned job (puzzle jobs and hut building included) or strolls" },
+    { "Going to village center / Meditating / Nature is calling! [idle chooser] (Unsafe)", ACT_CALL, 0x4479B0u, 0, CE_GROUP_MOOD, "The game's own random idle pick; it can also start Unblocking the Cave (the Cave puzzle)" },
+    { "One tick of the action runner (no Details text: advances every villager's step) (Unsafe)", ACT_CALL_RAW, 0x448600u, 0, CE_GROUP_GENERAL, "Runs one extra tick of the whole village's action runner: every villager's step moves on, bodies decompose", C1_ARGS_97, NULL },
+    { "0x4394C0 (no Details text: may change the villager's idle pose) (Unsafe)", ACT_CALL_ARG, 0x4394C0u, 5, CE_GROUP_MOOD, "Only rolls the villager's idle pose (a 5 percent chance); the game does it between steps" },
+    { "Going swimming (drop variant, argument 0) (Unsafe)", ACT_CALL_ARG, 0x444990u, 0, CE_GROUP_LEISURE, "The drop handler's variant of the swim (argument 0); what the argument changes is not proven" },
+    { "Chiseling (job variant, argument 1) (Unsafe)", ACT_CALL_ARG, 0x442A60u, 1, CE_GROUP_WORK, "Counts toward The Idol puzzle (it can complete it); the job dispatcher's variant" },
+    { "Researching (job variant, argument 1) (Unsafe)", ACT_CALL_ARG, 0x442C10u, 1, CE_GROUP_WORK, "The job dispatcher's variant of research (argument 1); what the argument changes is not proven" },
+    { "Celebrating (place 6, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 6, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 14, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 14, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 15, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 15, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 16, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 16, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 17, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 17, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 18, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 18, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 19, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 19, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 20, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 20, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 21, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 21, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 24, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 24, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 25, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 25, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 26, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 26, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 27, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 27, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
+    { "Celebrating (place 29, no place of its own) (Unsafe)", ACT_CALL_ARG, 0x443FA0u, 29, CE_GROUP_CELEBRATION, "No stock caller passes this place: the villager walks to leftover coordinates" },
 };
 
 /* The stop routine 0x439470 first (a starter appends to the step queue;
    live, without the stop the villager first finishes what it was doing),
    then the starter; the healer's cure (sick 0) with full health (100, the
    game's own ceiling, 0x42EE4D). */
+static int c1_skeleton(const unsigned char *r);
+
 static int c1_behave(int index, int behaviour) {
     unsigned char *array = VV1_ARRAY();
     unsigned char *r = c1_record(index);
     const ce_action *act;
+    int value = 0;
+    int argument;
     if (behaviour < 0 || behaviour >= (int)(sizeof C1_BEHAVIOURS / sizeof C1_BEHAVIOURS[0])) {
         return 0;
     }
     act = &C1_BEHAVIOURS[behaviour];
-    if (!ce_action_ready(act)) {
+    if (!ce_supply_value(act, index, c1_record, c1_listed, c1_skeleton, &value)) {
         return 0;
     }
+    argument = act->supply != NULL && act->supply->slot == -1 ? value : act->arg;
     if (act->kind == ACT_RECOVER) {
         *(int *)(r + 0x354) = 0;
         *(int *)(r + 0x344) = 100;
@@ -325,9 +359,17 @@ static int c1_behave(int index, int behaviour) {
     if (act->kind == ACT_CALL) {
         TC1(act->routine, array, index);
     } else if (act->kind == ACT_CALL_ARG) {
-        TC2(act->routine, array, index, act->arg);
+        TC2(act->routine, array, index, argument);
     } else if (act->kind == ACT_CALL_ARG2) {
-        TC3(act->routine, array, index, act->arg, 0);
+        TC3(act->routine, array, index, argument, 0);
+    } else if (act->kind == ACT_CALL_RAW) {
+        if (act->arg == 0) {
+            TC0(act->routine, array);
+        } else if (act->arg == 1) {
+            TC1(act->routine, array, act->args[0]);
+        } else {
+            TC2(act->routine, array, act->args[0], act->args[1]);
+        }
     }
     return 1;
 }
@@ -863,7 +905,7 @@ static const ce_adapter C1_ADAPTER = {
     "- The Golden Child puzzle: marked alone it leaves no Golden Child, so the Cave and "
     "The Butterflies could never be solved; a new Golden Child solves it.\r\n"
     "- Faction, Tribal Chief, Esteemed Elder, totems: A New Home has none.\r\n"
-    "- Actions that solve or advance a puzzle, burying, picking things up and embracing.\r\n"
+    "- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n"
     "- Revive: buried villagers (their record is gone) and skeletons that have already "
     "crumbled away.\r\n"
     "- The grave screen keeps the job a villager had when buried.\r\n"

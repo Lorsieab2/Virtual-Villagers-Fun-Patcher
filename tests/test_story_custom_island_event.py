@@ -1396,21 +1396,12 @@ def behaviour_table(game: str):
     source = ADAPTER_SOURCES[game].read_text(encoding="utf-8")
     body = source[source.index(f"static const ce_action C{game[2]}_BEHAVIOURS[] = {{"):]
     body = body[:body.index("};")]
-    rows = re.findall(r'\{ "((?:[^"\\]|\\.)*)", (ACT_[A-Z_0-9]+), (0x[0-9A-Fa-f]+u?|0), (0x[0-9A-Fa-f]+|\d+), '
-                      r'CE_GROUP_[A-Z]+, (?:NULL|"(?:[^"\\]|\\.)*")(?:, CE_GUARD_[A-Z]+, 0x[0-9A-Fa-f]+u)? \}', body)
+    rows = re.findall(r'\{ "((?:[^"\\]|\\.)*)", (ACT_[A-Z_0-9]+), (0x[0-9A-Fa-f]+u?|0), (0x[0-9A-Fa-f]+|-?\d+), '
+                      r'CE_GROUP_[A-Z]+, (?:NULL|"(?:[^"\\]|\\.)*")(?:, (?:NULL|C\d_ARGS_\d+), '
+                      r'(?:NULL|&C\d_SUPPLY_\d+))? \}', body)
     assert len(rows) == body.count('\n    { "'), game
-    return [(label, kind, int(routine.rstrip("u"), 16) if routine != "0" else 0, int(arg, 0))
+    return [(label.replace('\\"', '"'), kind, int(routine.rstrip("u"), 16) if routine != "0" else 0, int(arg, 0))
             for label, kind, routine, arg in rows]
-
-
-def behaviour_guards(game: str):
-    """{row index: guard address} for the rows refused while their object is missing."""
-    source = ADAPTER_SOURCES[game].read_text(encoding="utf-8")
-    body = source[source.index(f"static const ce_action C{game[2]}_BEHAVIOURS[] = {{"):]
-    body = body[:body.index("};")]
-    rows = [line for line in body.splitlines() if line.startswith('    { "')]
-    return {k: int(m.group(1), 16) for k, line in enumerate(rows)
-            if (m := re.search(r"CE_GUARD_DWORD, (0x[0-9A-Fa-f]+)u", line))}
 
 
 def stock_callers(game: str, target: int) -> int:
@@ -1436,83 +1427,112 @@ def stock_callers(game: str, target: int) -> int:
 
 @emulated
 class BehaviourTests(unittest.TestCase):
+    def _start_row(self, game, k, row, *, missing=False):
+        """Apply row `k` to villager 2 with the game routines recorded: (result, calls, village)."""
+        story = Story(game)
+        v = story.village
+        v.put(2, sex="f", years=30, name="Actor")
+        supply = row["supply"]
+        if supply and supply["what"] == "BODY" and not missing:
+            v.put(6, sex="m", years=50, name="Body", health=0)     # a body awaiting burial
+        order = []
+
+        def recorder(va, pop, value=0):
+            def fn(p):
+                order.append([va, p.reg("ecx")] + [p.arg(i) for i in range(pop // 4)])
+                return value, pop
+            return fn
+        stop_va, stop_pop, _ = STOPS[game]
+        story.proc.stub(stop_va, recorder(stop_va, stop_pop))
+        kind, routine, arg = row["kind"], row["routine"], row["arg"]
+        if kind == "ACT_DROP":
+            story.proc.stub(routine, recorder(routine, 4, 0 if missing else 1))
+        elif game in DO_ACTION:
+            story.proc.stub(DO_ACTION[game], recorder(DO_ACTION[game], 8))
+        elif routine:
+            pop = {"ACT_CALL_ARG": 8, "ACT_CALL_ARG2": 12}.get(kind, 4)
+            if kind == "ACT_CALL_RAW":
+                pop = 4 * arg
+            story.proc.stub(routine, recorder(routine, pop))
+        if supply and supply["what"] == "CALL":
+            story.proc.stub(supply["va"], lambda p: (-1 if missing else 6, 0))
+        if game in ("vv3", "vv4", "vv5"):
+            health = {"vv3": 0x462670, "vv4": 0x46AF00, "vv5": 0x4758B0}[game]
+            story.proc.stub(health, recorder(health, 8))
+        ok, r, _ = story.apply(Event(changes=[story.change(2, behaviour=k)]))
+        calls = [c for c in order if c[0] != {"vv3": 0x462670, "vv4": 0x46AF00, "vv5": 0x4758B0}.get(game)]
+        return r, calls, story
+
     def test_every_offered_action_stops_first_then_starts_the_games_own_routine(self):
+        from test_cie_behaviour_labels import CATALOG
+
         for game in GAMES:
             if not have_stock(game):
                 continue
             table = behaviour_table(game)
-            self.assertGreater(len(table), 1, game)
+            rows = CATALOG[game[2]]
+            self.assertEqual([t[0] for t in table], [r["label"] for r in rows])
             stop_va, stop_pop, stop_this = STOPS[game]
-            for k, (label, kind, routine, arg) in enumerate(table):
-                story = Story(game)
+            for k, row in enumerate(rows):
+                label, kind, routine, arg = table[k]
+                r, calls, story = self._start_row(game, k, row)
                 v = story.village
-                v.put(2, sex="f", years=30, name="Actor")
-                order = []
-
-                def recorder(va, pop):
-                    def fn(p):
-                        order.append([va, p.reg("ecx")] + [p.arg(i) for i in range(pop // 4)])
-                        return 0, pop
-                    return fn
-                story.proc.stub(stop_va, recorder(stop_va, stop_pop))
-                if game in DO_ACTION:
-                    story.proc.stub(DO_ACTION[game], recorder(DO_ACTION[game], 8))
-                elif routine:
-                    story.proc.stub(routine, recorder(routine, {"ACT_CALL_ARG": 8, "ACT_CALL_ARG2": 12}.get(kind, 4)))
-                guard = behaviour_guards(game).get(k)
-                if guard is not None:
-                    story.proc.put32(guard, 1)          # the object the action needs is there
-                if game in ("vv3", "vv4", "vv5"):
-                    health = {"vv3": 0x462670, "vv4": 0x46AF00, "vv5": 0x4758B0}[game]
-                    story.proc.stub(health, recorder(health, 8))
-                ok, r, _ = story.apply(Event(changes=[story.change(2, behaviour=k)]))
                 this = v.base if stop_this == "array" else v.record(2)
                 stop = [stop_va, this] + ([2] if stop_this == "array" else
                                           [v.record(2)] if game == "vv3" else [])
+                supply = row["supply"]
+                value = 6 if supply else None
                 with self.subTest(game=game, behaviour=label):
                     self.assertEqual(r["refused"], 0)
-                    calls = [c for c in order if c[0] != {"vv3": 0x462670, "vv4": 0x46AF00,
-                                                          "vv5": 0x4758B0}.get(game)]
+                    if supply and supply["store"]:
+                        self.assertEqual(story.proc.u32(supply["store"]), value, "kept where the game keeps it")
                     if kind == "ACT_EFFECT":
                         self.assertEqual(calls, [[routine, this, 2]], "an effect is not stopped for")
                         continue
                     self.assertEqual(calls[0], stop, "the stop comes first")
                     if kind in ("ACT_STOP", "ACT_RECOVER"):
                         self.assertEqual(len(calls), 1)
+                    elif kind == "ACT_DROP":
+                        self.assertEqual(calls[1:], [[routine, arg, v.record(2)]], "the game's own drop")
                     elif kind == "ACT_DO":
+                        block = list(row["args"] or [0] * 8)
+                        if supply and supply["slot"] >= 0:
+                            block[supply["slot"]] = value
                         self.assertEqual(len(calls), 2)
                         self.assertEqual(calls[1][:3], [DO_ACTION[game], v.record(2), arg])
-                        self.assertEqual(story.proc.read(calls[1][3], 32), bytes(32),
-                                         "an argument block of zeros")
+                        self.assertEqual(story.proc.read(calls[1][3], 32), struct.pack("<8i", *block),
+                                         "the argument block a stock caller passes")
+                    elif kind == "ACT_CALL_RAW":
+                        self.assertEqual(calls[1:], [[routine, v.base] + row["args"][:arg]])
                     else:
-                        want = [routine, v.base, 2] + ([arg] if kind == "ACT_CALL_ARG" else
-                                                       [arg, 0] if kind == "ACT_CALL_ARG2" else [])
+                        given = value if supply and supply["slot"] == -1 else arg
+                        want = [routine, v.base, 2] + ([given] if kind == "ACT_CALL_ARG" else
+                                                       [given, 0] if kind == "ACT_CALL_ARG2" else [])
                         self.assertEqual(calls[1:], [want])
 
-    def test_a_guarded_action_is_refused_while_its_object_is_missing(self):
-        """The owner (2026-10-21): an action that would crash on a missing object is refused at
-        the moment of use (the villager could not do that now) instead."""
+    def test_an_action_whose_need_is_missing_is_refused_not_started(self):
+        """The owner (2026-10-21): an action that needs a body or an object is given the one the
+        game would use; with none there it is refused (the villager could not do that now)."""
+        from test_cie_behaviour_labels import CATALOG
+
         seen = 0
         for game in GAMES:
             if not have_stock(game):
                 continue
-            for k, guard in behaviour_guards(game).items():
+            for k, row in enumerate(CATALOG[game[2]]):
+                if not row["supply"] and row["kind"] != "ACT_DROP":
+                    continue
                 seen += 1
-                story = Story(game)
-                v = story.village
-                v.put(2, sex="f", years=30, name="Actor")
-                story.proc.put32(guard, 0)
-                story.record_call(STOPS[game][0], STOPS[game][1])
-                if game in DO_ACTION:
-                    story.record_call(DO_ACTION[game], 8)
-                ok, r, _ = story.apply(Event(changes=[story.change(2, behaviour=k)]))
-                with self.subTest(game=game, row=k):
+                r, calls, story = self._start_row(game, k, row, missing=True)
+                with self.subTest(game=game, behaviour=row["label"]):
                     self.assertEqual(r["refused"], 1)
-                    self.assertEqual(story.calls.get(STOPS[game][0], []), [], "nothing is started")
-                    if game in DO_ACTION:
-                        self.assertEqual(story.calls.get(DO_ACTION[game], []), [])
-        if have_stock("vv5"):
-            self.assertGreater(seen, 0, "New Believers' first-hut actions carry a guard")
+                    if row["kind"] == "ACT_DROP":
+                        # The game's own drop found nothing: stopped, nothing started.
+                        self.assertEqual([c[0] for c in calls], [STOPS[game][0], row["routine"]])
+                    else:
+                        self.assertEqual(calls, [], "nothing is stopped or started")
+        if have_stock("vv1"):
+            self.assertGreater(seen, 0)
 
     def test_the_first_offered_actions_keep_their_places(self):
         """Behaviours queued before this release keep meaning the same."""

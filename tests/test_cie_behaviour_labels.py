@@ -330,21 +330,33 @@ RETIRED = {
     (3, "Celebrates Isola Day"), (4, "Celebrates Isola Day"), (5, "Celebrates Isola Day"),
 }
 
-ROW = re.compile(r'\{ "((?:[^"\\]|\\.)*)", (ACT_[A-Z_0-9]+), (0x[0-9A-Fa-f]+u?|0), (0x[0-9A-Fa-f]+|\d+), '
-                 r'CE_GROUP_([A-Z]+), (NULL|"(?:[^"\\]|\\.)*")(?:, (CE_GUARD_[A-Z]+), (0x[0-9A-Fa-f]+)u)? \}')
+ROW = re.compile(r'\{ "((?:[^"\\]|\\.)*)", (ACT_[A-Z_0-9]+), (0x[0-9A-Fa-f]+u?|0), (0x[0-9A-Fa-f]+|-?\d+), '
+                 r'CE_GROUP_([A-Z]+), (NULL|"(?:[^"\\]|\\.)*")(?:, (NULL|C\d_ARGS_\d+), (NULL|&C\d_SUPPLY_\d+))? \}')
+ARGS = re.compile(r"static const int (C\d_ARGS_\d+)\[8\] = \{ ([-\d, ]+) \};")
+SUPPLY = re.compile(r"static const ce_supply (C\d_SUPPLY_\d+) = \{ (CE_SUPPLY_[A-Z]+), (\d), (0x[0-9A-F]+)u, "
+                    r"(0x[0-9A-F]+)u, (CE_REFUSE_[A-Z0-9]+), (-?\d+), (0x[0-9A-F]+)u \};")
+SUPPLY_WHAT = {"CE_SUPPLY_BODY": "BODY", "CE_SUPPLY_OTHER": "OTHER", "CE_SUPPLY_GLOBAL": "GLOBAL",
+               "CE_SUPPLY_CALL": "CALL"}
+REFUSE = {"CE_REFUSE_ZERO": "zero", "CE_REFUSE_MINUS1": "minus1", "CE_REFUSE_BOTH": "zero_or_minus1"}
 
 
 def adapter_table(game: int):
-    """(label, kind, routine, arg, group, unsafe, guard, guard_va) as the adapter declares them."""
+    """(label, kind, routine, arg, group, unsafe, args, supply) as the adapter declares them."""
     source = (SOURCE / f"story_c{game}.inc").read_text(encoding="utf-8")
+    args = {name: [int(v) for v in values.split(",")] for name, values in ARGS.findall(source)}
+    supplies = {name: {"what": SUPPLY_WHAT[what], "as": "record" if as_record == "1" else "index",
+                       "va": int(va, 16), "this": int(this, 16), "refuse": REFUSE[refuse], "slot": int(slot),
+                       "store": int(store, 16)}
+                for name, what, as_record, va, this, refuse, slot, store in SUPPLY.findall(source)}
     body = source[source.index(f"static const ce_action C{game}_BEHAVIOURS[] = {{"):]
     body = body[:body.index("};")]
     assert len(ROW.findall(body)) == body.count('\n    { "'), f"VV{game}: a row the pattern does not read"
     out = []
-    for label, kind, routine, arg, group, unsafe, guard, guard_va in ROW.findall(body):
+    for label, kind, routine, arg, group, unsafe, a, s in ROW.findall(body):
         out.append((label.replace('\\"', '"'), kind, int(routine.rstrip("u"), 16), int(arg, 0), group,
                     None if unsafe == "NULL" else unsafe[1:-1].replace('\\"', '"'),
-                    guard or None, int(guard_va, 16) if guard_va else None))
+                    args[a] if a and a != "NULL" else None,
+                    supplies[s[1:]] if s and s != "NULL" else None))
     return out
 
 
@@ -362,10 +374,11 @@ def test_every_offered_behaviour_is_pinned_with_its_real_action(game):
         norm = lambda rows: [(l, k, key if k == "ACT_DO" else 0) for l, k, key in rows]
     assert norm(got) == norm(want), f"VV{game}: the offered behaviours differ from the audited table"
     # ...with the same arguments, groups, reasons and guards.
-    full = [(r["label"], r["kind"], r["routine"] if game <= 2 else 0, r["arg"], r["group"], r["unsafe"],
-             "CE_GUARD_DWORD" if r["guard"] else None, r["guard"]["va"] if r["guard"] else None)
+    full = [(r["label"], r["kind"], r["routine"] if game <= 2 or r["kind"] == "ACT_DROP" else 0, r["arg"], r["group"],
+             r["unsafe"], r["args"], r["supply"])
             for r in CATALOG[str(game)]]
-    mine = [(l, k, rt if game <= 2 else 0, a, g, u, gd, gv) for l, k, rt, a, g, u, gd, gv in adapter_table(game)]
+    mine = [(l, k, rt if game <= 2 or k == "ACT_DROP" else 0, a, g, u, ar, s)
+            for l, k, rt, a, g, u, ar, s in adapter_table(game)]
     if game <= 2:
         full = [row if row[1] != "ACT_RECOVER" else row[:2] + (0,) + row[3:] for row in full]
     assert mine == full
@@ -402,7 +415,7 @@ def test_no_two_labels_in_a_game_are_the_same(game):
 def test_every_label_starts_with_the_text_the_game_shows(game):
     """The owner's rule: the label is what the villager then does -- the game's own words."""
     for label, kind, _key, mode, _sid, text in EXPECTED[game]:
-        if mode in ("direct", "literal"):
+        if mode in ("direct", "literal", "argtext") and text:
             assert label.startswith(text), (label, text)
         elif mode == "indirect":
             assert text in label, (label, text)
@@ -411,21 +424,22 @@ def test_every_label_starts_with_the_text_the_game_shows(game):
 @pytest.mark.parametrize("game", [1, 2, 3, 4, 5])
 def test_unsafe_actions_say_so_and_why(game):
     """The owner (2026-10-21): nothing left out for being risky; marked " (Unsafe)" with a reason."""
-    for label, _kind, _routine, _arg, group, unsafe, guard, guard_va in adapter_table(game):
+    for label, kind, _routine, _arg, group, unsafe, args, supply in adapter_table(game):
         assert group in GROUPS
         assert label.endswith(" (Unsafe)") == (unsafe is not None), label
         assert label.count("(Unsafe)") <= 1
         if unsafe is not None:
-            assert 10 <= len(unsafe) <= 140 and not unsafe.endswith("."), (label, unsafe)
-        if guard is not None:
+            assert 10 <= len(unsafe) <= 200 and not unsafe.endswith("."), (label, unsafe)
+        if supply is not None or kind == "ACT_DROP":
+            # Whatever it needs is found when the event happens, or the change is refused.
             assert unsafe is not None and "refused" in unsafe, (label, unsafe)
-            assert guard == "CE_GUARD_DWORD" and 0x400000 < guard_va < 0x1000000
 
 
 @pytest.mark.parametrize("game", [1, 2, 3, 4, 5])
 def test_every_action_left_out_has_its_reason(game):
+    # The owner (2026-10-21): nothing is left out; what remains here is no action at all (a text
+    # no code shows, a lookup, the record initialiser), each with the reason.
     left = CATALOG[f"{game}_left_out"]
-    assert left, f"VV{game}: the audit lists what is not offered"
     for row in left:
         assert row["what"] and len(row["reason"]) > 20, row
 
@@ -543,6 +557,8 @@ def test_vv1_vv2_routines_show_the_pinned_text(game):
     for label, kind, routine, mode, sid, text in EXPECTED[game]:
         if mode == "none":
             continue
+        if mode in ("effect", "chooser"):
+            continue    # no text of its own / another action's (the emulated run checks it)
         ins = _func(pe, base, capstone, routine)
         found = _pushes_before_calls(ins, getters, 2)
         if mode == "direct":
@@ -648,7 +664,11 @@ def test_do_action_handlers_show_the_pinned_text(game):
     plain, with_args = REGISTRARS[game]
     assert len(_later_games_tables.candidates[plain]) > 150 and _later_games_tables.candidates[with_args]
     for label, kind, aid, mode, sid, text in EXPECTED[game]:
-        if mode == "none":
+        if mode in ("none", "drop", "chooser"):
+            continue
+        if mode == "argtext":
+            # The handler shows the text whose id the argument block carries (as a stock caller passes it).
+            assert aid in handlers and (not sid or texts[sid][1] == text), label
             continue
         assert aid in handlers, f"VV{game} {label!r}: action {aid} has no registered handler"
         ins = _func(pe, base, capstone, handlers[aid])

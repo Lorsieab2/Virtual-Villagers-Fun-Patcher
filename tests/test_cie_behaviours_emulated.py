@@ -108,7 +108,9 @@ class Game:
                 self.proc.write(HANDLER_TABLE[game] + aid * 8 + 4, bytes([takes_arguments]))
         self.dummy = self.proc.alloc(0x4000)       # what a skipped helper "returns"
         self.zeros = self.proc.alloc(0x40)
-        self.allowed = set(LOOKUPS[game]) | {STRING_COPY[game]} | set(INDIRECT_TEXT.get(game, ()))
+        # ...and the do-action itself: a chooser starts the action it picks through it.
+        self.allowed = (set(LOOKUPS[game]) | {STRING_COPY[game]} | set(INDIRECT_TEXT.get(game, ()))
+                        | ({DO_ACTION[game]} if game in DO_ACTION else set()))
 
         self.bodies = {}        # starter -> {call site: (next instruction, target or None, pop)}
         self.active = {}
@@ -129,6 +131,9 @@ class Game:
         if game == 5:
             self.subjects["heathen"] = self.village.put(4, sex="m", years=30, name="Heathen", faction=1)
         self.index = {"adult": 2, "child": 3, "heathen": 4}
+        # A body awaiting burial, for the actions that need one.
+        self.body = 6
+        self.village.put(6, sex="m", years=50, name="Body", health=0)
 
     # ---- the starter's own code ---------------------------------------------------------------
     def _pop(self, target):
@@ -215,21 +220,39 @@ class Game:
         self.proc.write(record + TEXT[self.game], MARK)
         if self.game in CODE:
             self.proc.put32(record + CODE[self.game], NO_CODE)
-        self.proc.write(self.zeros, bytes(0x40))
+        # The argument block (VV3-VV5) or the starter's argument (VV1 / VV2) as the adapter sends
+        # them: the row's own, with what it needs found in the village (the body awaiting burial).
+        block = list(row["args"] or [0] * 8)
+        argument = row["arg"]
+        supply = row["supply"]
+        if supply:
+            value = self.body if supply["what"] == "BODY" else self.body
+            if supply["slot"] == -1:
+                argument = value
+            elif supply["slot"] >= 0:
+                block[supply["slot"]] = value
+            if supply["store"]:
+                self.proc.put32(supply["store"], value)
+        self.proc.write(self.zeros, struct.pack("<8i", *block))
         self.proc.write(self.dummy, bytes(0x4000))
         self.looked_up = []
         kind = row["kind"]
-        if self.game <= 2:
+        if kind == "ACT_DROP" or self.game <= 2:
             starter = row["routine"]
         else:
             starter = self.handlers[row["arg"]][0]
         self.starters = {starter}
         self.active = {starter: self._body(starter)}
+        self.result = None
         try:
-            if self.game <= 2:
+            if kind == "ACT_DROP":
+                self.result = self.proc.call(starter, [record], ecx=row["arg"], limit=200_000) & 0xFF
+            elif kind == "ACT_CALL_RAW":
+                self.proc.call(starter, row["args"][:row["arg"]], ecx=self.village.base, limit=200_000)
+            elif self.game <= 2:
                 index = self.index[who]
-                args = [index] + ([row["arg"]] if kind == "ACT_CALL_ARG" else
-                                  [row["arg"], 0] if kind == "ACT_CALL_ARG2" else [])
+                args = [index] + ([argument] if kind == "ACT_CALL_ARG" else
+                                  [argument, 0] if kind == "ACT_CALL_ARG2" else [])
                 self.proc.call(starter, args, ecx=self.village.base, limit=200_000)
             else:
                 self.proc.call(DO_ACTION[self.game], [row["arg"], self.zeros], ecx=record, limit=200_000)
@@ -259,7 +282,6 @@ NEEDS_THE_WORLD = {
     (2, "Playing tag (Unsafe)"): "other idle children to play with",
     (2, "Going to village center (then picks something to do there) (Unsafe)"): "a free spot and a roll",
     (2, "Starting to prepare a stew (Unsafe)"): "food in the stores and the cauldron",
-    (3, "Repairing the lift (Unsafe)"): "the lift puzzle's state (who else repairs it)",
     (4, "Curious about the hole in the ground"): "the hole, uncovered in the world",
 }
 
@@ -281,7 +303,23 @@ def test_every_action_shows_the_text_its_label_names_for_anyone(game):
         for who in g.subjects:
             text, code = g.start(row, who)
             label = row["label"]
-            if (game, label) in NEEDS_THE_WORLD and text == MARK.rstrip(b"\0").decode():
+            before = MARK.rstrip(b"\0").decode()
+            if (game, label) in NEEDS_THE_WORLD and text == before:
+                continue
+            if row["kind"] == "ACT_DROP":
+                # Nothing lies where they stand in the emulated village: the game's own drop finds
+                # nothing and starts nothing -- the change is refused, the villager untouched.
+                if g.result != 0 or text != before:
+                    problems.append(f"{label} [{who}]: the drop on nothing gave {g.result}, shows {text!r}")
+                continue
+            if row["mode"] == "chooser":
+                if text != before and text not in label and not _names_alternatives(label):
+                    problems.append(f"{label} [{who}]: picked {text!r}, which the label does not name")
+                continue
+            if row["mode"] == "argtext":
+                want = row["text"] or ""
+                if text != want or (code is not None and code != row["arg"]):
+                    problems.append(f"{label} [{who}]: shows {text!r} / {code}, not {want!r}")
                 continue
             if "an adult just stops" in label and who != "child":
                 if text != MARK.rstrip(b"\0").decode():

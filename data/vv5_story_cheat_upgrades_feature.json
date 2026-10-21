@@ -33,7 +33,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "99FB8F4DFA0137DE370C3B57BD1B324E30513109F5C8F34154F1711BF87DE95F"
+      "sha256": "2CDBBFDD6A49AC251225F246814BBD6FD5926FFB118BF7B520912CAC9022DC5C"
     }
   ],
   "runtime_detours": [
@@ -1828,7 +1828,7 @@
       "custom title",
       "mask",
       "becomes a believer / becomes a Heathen",
-      "behaviours: every action the game's own code can start for one villager (223, 6 of them Celebrating), listed by group and labelled with the text the Details screen then shows; the 80 that may harm the game or the save end \"(Unsafe)\" and say why, with the advice to back up the save, before they are confirmed"
+      "behaviours: every action the game's own code can start for one villager (243, 6 of them Celebrating), listed by group and labelled with the text the Details screen then shows; the 100 that may harm the game or the save end \"(Unsafe)\" and say why, with the advice to back up the save, before they are confirmed"
     ],
     "omitted": [
       {
@@ -1846,10 +1846,6 @@
       {
         "option": "puzzle solved",
         "reason": "the completion routine needs world state that is not proven"
-      },
-      {
-        "option": "behaviours: burial, building, comforting, picking up a collectible, and the caller's-text action",
-        "reason": "each takes the body, building spot, villager, collectible or text the game passes; started alone it would act on the wrong one or the map's corner"
       }
     ]
   },
