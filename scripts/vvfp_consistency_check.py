@@ -284,9 +284,14 @@ def table_start(data: bytes, lay: SaveLayout, hint_names: list[str]) -> int | No
 # after that flag are stale -- left by deaths, departures, or a village restarted in the slot
 # -- and the game never loads them, even those still flagged 1 (live, 2026-10-06: the owner's
 # saves held 100 / 115 / 106 entries where The Secret City, The Tree of Life and New Believers
-# loaded 86 / 5 / 90).  The Lost Children has no flag: its writer zeroes every entry after the
-# last villager, so the plausible run ends there (live: 126 read, 126 loaded).
-PRESENT = {3: (-0x14, 4), 4: (-0x14, 4), 5: (-0x20, 1)}
+# loaded 86 / 5 / 90).  The Lost Children's flag is the byte at entry +0x2DC (record +0x800, name
+# +0x29C).  Its writer does NOT zero the entries after the last villager: after deaths at a full table the
+# game closes its list up and leaves frozen copies in the tail, the first of them flagged 0 (the owner's
+# Kalahuna Tribe 2, 2026-10-20: entries 252-255 Goby, Malo, Tomil and Hoya Kalama, copies of living
+# children -- each entry's write stamp, record +0x528, is the save's clock in every loaded entry and an older one in
+# those; 447 saves and backups of the owner's checked, flag and stamp agree in every one with a clock).  An older
+# reading took them for villagers (two records of each child).
+PRESENT = {2: (0x29C, 1), 3: (-0x14, 4), 4: (-0x14, 4), 5: (-0x20, 1)}
 
 # The stock save's length (header included) of each game that can have 256 Villagers
 # (Experimental): such a build writes the stock bytes unchanged and then villagers 150..255
@@ -487,9 +492,12 @@ def parse_person(lines: list[str], start: int, label: str) -> Person:
 class BirthsLog(list):
     """The village's records, plus `village` (its latest "Village:" line for the slot, or None)
     and `damaged` (one of its records was cut short: the in-game check reads such a log as
-    unreadable and changes nothing)."""
+    unreadable and changes nothing), and `renames`: each "Name changed" record (a villager renamed
+    in the game) as (old name, new name, head, body), in log order -- kept beside the records, never
+    among them."""
     village: str | None = None
     damaged: bool = False
+    renames: list = []
 
 
 def whole(p: Person | None) -> bool:
@@ -505,6 +513,7 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
     (the Family Tree Maker: a renamed village's records before its rename, Codex, #555)."""
     files = game_logs(game_dir, "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log", slot)
     records: list[LogRecord] = []
+    renames: list[tuple[str, tuple]] = []        # (village header, (old, new, head, body))
     latest = None
     damaged_in: set[str] = set()
     for path in files:
@@ -522,6 +531,19 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 continue
             kind = lines[0].strip()
             rec = LogRecord(kind="", village=header)
+            if kind == "Name changed":
+                # A villager renamed in the game: "  Name:" (now), "  Old name:", "  Head:", "  Body:".
+                fields = {}
+                for line in lines[1:]:
+                    m = re.match(r"  (Name|Old name|Head|Body): (.*)$", line)
+                    if m and m.group(1) not in fields:
+                        fields[m.group(1)] = m.group(2).strip()
+                try:
+                    renames.append((header, (fields["Old name"], fields["Name"], int(fields["Head"]),
+                                             int(fields["Body"]))))
+                except (KeyError, ValueError):
+                    pass
+                continue
             if re.fullmatch(r"Arrived \d+", kind):
                 # An Arrived record: "  Name:", "  Head:", "  Body:" (two spaces in).
                 fields = {}
@@ -575,6 +597,8 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                                            headers == "every" or r.village in headers))
     out.village = latest
     out.damaged = latest in damaged_in
+    out.renames = [r for village, r in renames if (village == latest if headers is None else
+                                                    headers == "every" or village in headers)]
     return out, files
 
 
@@ -719,10 +743,27 @@ def redundant_backfilled_arrivals(births: list[LogRecord],
     for r in births:
         if r.child and r.kind in ("birth", "arrived"):
             by_key.setdefault(key(r.child.name, r.child.head, r.child.body), []).append(r)
+    # A villager renamed in the game since their record (a "Name changed" record: the owner's Coral
+    # Tangaroa, "Arrived 3 / Lupa Tangaroa", and Mahalo Makawee I): the record of the old name is theirs
+    # too -- the rule Repair Saves & Logs follows (src/vv_log_additions.py plan_backfilled_arrivals), so
+    # Check reports what Repair offers.
+    older: dict[tuple, list[tuple]] = {}
+    for old, new, head, body in getattr(births, "renames", []):
+        older.setdefault(key(new, head, body), []).append(key(old, head, body))
+
+    def earlier(k: tuple) -> list[tuple]:
+        found, todo = [], list(older.get(k, []))
+        while todo and len(found) < 64:
+            o = todo.pop()
+            if o not in found and o != k:
+                found.append(o)
+                todo += older.get(o, [])
+        return found
     out = []
-    for k, records in by_key.items():
+    for k, own in by_key.items():
+        records = own + [r for o in earlier(k) for r in by_key.get(o, [])]
         firm = [r for r in records if r.kind == "birth" or real_arrival(r)]
-        filled = [r for r in records if backfilled_record(r)]
+        filled = [r for r in own if backfilled_record(r)]
         if not firm or not filled:
             continue
         needed = max(0, (living or {}).get(k, 0) - len(firm))
@@ -840,7 +881,14 @@ def vv1_parentage(game_dir: Path, slot: int, roster: list[Villager], births: lis
         rep.add(label, "NOTE", "no parentage file (nothing recorded yet, or the patch is off)")
         return
     data = path.read_bytes()
-    if len(data) != 12 + 256 * (36 + 92) or struct.unpack_from("<I", data, 0)[0] != 0x32305056 \
+    base = 12 + 256 * (36 + 92)
+    # After the 256 entries, the departed list when anybody is on it ('VPD1', a count, that many 128-byte
+    # entries: native/vv1_parentage g_departed); the living are checked, so only its shape is.
+    tail = data[base:]
+    tail_ok = not tail or (len(tail) >= 8 and tail[:4] == b"VPD1"
+                           and 0 < struct.unpack_from("<I", tail, 4)[0] <= 1_000_000
+                           and len(tail) == 8 + struct.unpack_from("<I", tail, 4)[0] * 128)
+    if len(data) < base or not tail_ok or struct.unpack_from("<I", data, 0)[0] != 0x32305056 \
             or struct.unpack_from("<I", data, 8)[0] != slot:
         rep.add(label, "UNCHECKED", f"not a VP02 parentage file for Save {slot} ({len(data)} bytes)")
         return
@@ -1736,7 +1784,8 @@ def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
         m = re.search(r"Name: (.*)", u)
         if m and "Left the village" in u and m.group(1).strip() in dead:
             rep.add(label, "NOTE", f"{m.group(1).strip()} is both unaccounted for and in the Deaths log "
-                                   "(a grave recorded afterwards; the Unaccounted record stays: logs are never rewritten)")
+                                   "(a grave recorded afterwards, or the record is false -- Repair Saves & Logs, Remove false "
+                                   "Unaccounted records, takes a false one out, asking first)")
     return len(deaths)
 
 

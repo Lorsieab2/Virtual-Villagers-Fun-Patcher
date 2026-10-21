@@ -77,6 +77,27 @@ CHECKS += 3 * 5
 # record still gets one (the owner, 2026-10-11; arrival_backfill.inc, arrival_harness.c
 # contradiction_cases)
 CHECKS += 4 * 4
+# + 6 per game (v1.35.80): the Unaccounted Villagers log follows villagers by identity, never by record
+# -- packed at a load (The Lost Children to The Tree of Life: the statue taken out, the owner's Elder
+# Totems migration), renamed, a real departure and arrival, a death, somebody else in a record
+# (arrival_harness.c identity_cases)
+CHECKS += 6 * 5
+# + 1 per game (v1.35.80): a villager renamed in the game is followed through the "Name changed" record by
+# the Arrived records' backfill (arrival_harness.c renamed_cases; the owner's Coral Tangaroa, Mahalo Makawee I)
+CHECKS += 5
+# + 4 per game (the identity audit, case 4): the same village loaded again with no save between -- a
+# report kept by record follows its villager, so no Arrived record for whoever the reload put in the
+# record, and the villager back after her own Death record is said to be exactly that, never "Arrived
+# with no Birth record" (arrival_harness.c reload_cases)
+CHECKS += 4 * 5
+# + 3 in New Believers (case 7): a former Heathen renamed while the file was held, or in the frame of a
+# birth and a death, keeps her entry; a renamed namesake never takes it (cod_former.inc)
+CHECKS += 3
+# + 3 per game (Codex, #601): the saved occupant replacing the newcomer in his record with only his name
+# and age different is not him (2), and a newcomer renamed in place keeps his arrival (1)
+CHECKS += 3 * 5
+# + 1 in New Believers (Codex, #601): 70 changes while the Former Heathens file is held, none dropped
+CHECKS += 1
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

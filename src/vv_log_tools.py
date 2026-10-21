@@ -220,6 +220,17 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
         for verdict, text in reconciled.lines():
             report.add(label, verdict, text)
     for kind in kinds:
+        if kind.id == "false_unaccounted":
+            # Unaccounted records contradicted by identity (src/vv_log_contradictions.py, v1.35.80).
+            if kind.removes:
+                report.add(f"{LOGS} (false Unaccounted records)", "WRONG",
+                           f"{len(kind.removes)} Unaccounted record(s) are contradicted by who the villager is (the "
+                           "same villager Left and Arrived in one check, still in the village, already there, or a "
+                           "Death, Birth or Arrived record): Repair Saves & Logs, Remove false Unaccounted records, "
+                           "takes them out (it lists each with why, and asks first)")
+            for note in kind.notes:
+                report.add(f"{LOGS} (false Unaccounted records)", "NOTE", note)
+            continue
         # "sex" and "born_arrived" the checker itself reports (the latter as WRONG); the reconciliation's
         # questions are listed above.
         if kind.id in ("sex", "born_arrived", "contradictions", "reconcile") or not (kind.decided or kind.asked):
@@ -350,12 +361,13 @@ class ApprovalResult:
     game: int
     cleared: list[Path]
     approval: Path | None
-    backup: vv_save_backup.BackupResult
+    backup: vv_save_backup.BackupResult | None      # None: nothing was changed, so no backup was kept
     words: list = field(default_factory=list)   # WordFix: old like / dislike words put right now
     sexes: list = field(default_factory=list)   # WordFix: Sex lines added to older records now
     added: dict = field(default_factory=dict)   # kind id -> WordFix: every line added to older records now
     answered: list = field(default_factory=list)  # the reconciliation's questions the player answered
     renamed: dict = field(default_factory=dict)  # (name, head, body) -> the name an answer gave back
+    kept_answers: list = field(default_factory=list)  # answers kept, changed or cleared (vv_answered_questions)
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -384,6 +396,7 @@ def approve_repair(
     answers: dict[str, str] | None = None,
     kinds: list | None = None,
     rearm: bool = True,
+    answered_changes: dict | None = None,
 ) -> ApprovalResult:
     """Repair Saves & Logs with the game closed: what the player ticked.
 
@@ -431,7 +444,11 @@ def approve_repair(
     left = [path for path in cleared if path.exists()]
     if left:
         raise LogToolError(f"{left[0].name} is still there after clearing it. Nothing was approved.")
-    if rearm:
+    try:
+        already = approval.is_file() and approval.read_bytes() == approval_bytes(game, slot)
+    except OSError:
+        already = False
+    if rearm and not already:                   # the same approval already there is left as it is
         temporary = approval.with_name(approval.name + ".tmp")
         try:
             approval.parent.mkdir(parents=True, exist_ok=True)
@@ -446,6 +463,7 @@ def approve_repair(
                 f"The approval could not be written ({exc}). The game will not repair "
                 f"anything; the backup is in {backup.backup_folder}."
             ) from exc
+    if rearm:
         # The game acts on an approval kept under both names under neither (src/vv_save_layout.py,
         # native/shared/crosscheck_bridge.h): this same approval left under the other name by an
         # earlier Repair is cleared, as the game clears one it has used.
@@ -466,6 +484,20 @@ def approve_repair(
         note_word_repair(folder, game, village, words, now, slot=slot)
     if kinds is None:
         kinds = additions.plan(folder, game, slot)
+    # The questions answered before (src/vv_answered_questions.py hold_back) are not asked: their kept
+    # answers are applied as given, unless the player gave another one now.
+    import vv_answered_questions
+    answers = {**vv_answered_questions.remembered_answers(kinds), **(answers or {})}
+    # Answers changed or cleared in the Answered questions section, that no question is asked about now
+    # (the ones held back are asked again in this Repair, so their new answer is kept below).
+    answer_lines: list[str] = []
+    if answered_changes:
+        try:
+            answer_lines += vv_answered_questions.change(folder, game, slot, dict(answered_changes.get("changed") or {}),
+                                                         set(answered_changes.get("cleared") or ()), now)
+        except OSError as exc:
+            raise LogToolError(f"Your changed answers were not kept ({exc}); the backup is in "
+                               f"{backup.backup_folder}.") from exc
     added = additions.apply(folder, kinds, chosen, answers or {})
     # "Retroactively edit records?" No: the log stays as it is and the verdict is remembered for the
     # readers (src/vv_log_decisions.py).
@@ -502,16 +534,33 @@ def approve_repair(
             note_word_repair(folder, game, village,
                              [WordFix(line, -1, backup.backup_folder.name) for line in answered], now,
                              checked=additions.CHECKED["reconcile"], corrected="Answered", slot=slot)
+    # Every real answer to the ticked kinds' questions is kept, so it is never asked again
+    # (src/vv_answered_questions.py); "Don't know" is not kept and is asked again.
+    answer_lines += vv_answered_questions.record(folder, game, slot, kinds, chosen, answers or {}, now)
+    if answer_lines:
+        note_word_repair(folder, game, village, [WordFix(line, -1, backup.backup_folder.name) for line in answer_lines],
+                         now, checked=additions.CHECKED["answered"], corrected="Kept", slot=slot)
     for kind in kinds:
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,
                              checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id],
-                             unit="record(s)" if kind.id == "contradictions" else "villager(s)", slot=slot)
+                             unit="record(s)" if kind.id in ("contradictions", "false_unaccounted") else "villager(s)",
+                             slot=slot)
     # Nothing is moved or renamed: an older build's folders and files keep their names, and every
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
-    return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, backup, words,
-                          added.get("sex", []), added, answered, renamed)
+    # No backup is kept for a Repair that changed nothing (audit, 2026-10-20): the backup is still made
+    # BEFORE anything could be written, and taken away only when not one file of the save folder was
+    # written after it (vv_save_backup.unchanged_since).
+    kept_backup: vv_save_backup.BackupResult | None = backup
+    if vv_save_backup.unchanged_since(backup):
+        try:
+            vv_save_backup.delete_backup(folder, backup.backup_folder)
+            kept_backup = None
+        except (vv_save_backup.BackupError, OSError):
+            kept_backup = backup                # kept: an unneeded backup is never a fault
+    return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, kept_backup, words,
+                          added.get("sex", []), added, answered, renamed, answer_lines)
 
 
 # ---------------------------------------------------------------------------

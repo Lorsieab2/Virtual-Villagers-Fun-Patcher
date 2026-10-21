@@ -159,7 +159,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info",
-               "vv_log_decisions", "vv_log_contradictions",
+               "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_vv2_totems", "vv_vv2_totem_store"}
@@ -180,12 +180,14 @@ class ReleasesLinkTests(unittest.TestCase):
                               # Check Saves & Logs' NOTE for corrupted skill values (v1.35.70).
                               "vv_corrupt_skills",
                               "vv_reconcile",          # the read-only reconciliation (2026-10-11)
+                              "vv_answered_questions",  # a real answer is never asked again (v1.35.80)
                               # PATCHER_VERSION: the repair copies are named for the running build.
                               "transparency"}),
             # The player's "Retroactively edit records?" No answers (vv_log_decisions).
             # ...and the save slot's own log folders (vv_save_layout).
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
-                                  "vv_log_contradictions", "vv_save_layout", "vv_reconcile"}),
+                                  "vv_log_contradictions", "vv_save_layout", "vv_reconcile",
+                                  "vv_answered_questions"}),   # answered questions held back (v1.35.80)
             # The always-on read-only reconciliation of records, logs and files (the owner, 2026-10-11), and
             # the pickers' background run of it.
             ("vv_reconcile", {"vv_save_layout", "vv_log_tools", "vv_last_names", "vv_lost_titles",
@@ -194,14 +196,21 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_save_backup"}),      # a backup first, when an answer settles a custom title (v1.35.71)
             ("vv_reconcile_view", {"vv_reconcile"}),
             ("vv_log_decisions", {"vv_save_layout"}),
+            # Answered questions (the owner, v1.35.80): kept in the Log Decisions file; the village header
+            # and the questions they are matched with (function-level imports).
+            ("vv_answered_questions", {"vv_log_decisions", "vv_log_additions", "vv_log_tools", "vv_tribe_rename",
+                                       "vv_reconcile"}),
             # Records that contradict each other (Check / Repair Saves & Logs).
             ("vv_log_contradictions", {"vv_log_tools", "vv_save_layout", "vv_log_additions", "vv_last_names",
-                                       "vv_log_decisions"}),   # the answers kept for the readers (audit66)
+                                       "vv_log_decisions",     # the answers kept for the readers (audit66)
+                                       "vv_answered_questions"}),   # ...and kept by their fact (v1.35.80)
             # Giving last names re-keys the Family Tree Maker's edits (vv_family_tree.renamed_keys).
             ("vv_last_names", {"vv_log_tools", "vv_save_backup", "vv_log_additions", "vv_family_tree",
                                "vv_tribe_rename", "vv_genealogy", "vv_save_layout",
                                "vv_startup_questions",
-                               "vv_titles_file"}),     # two villagers of one title identity, told apart by the looks it keeps (v1.35.72)
+                               "vv_log_decisions",     # its renames kept for the answers (v1.35.80)
+                               "vv_titles_file",       # two villagers of one title identity, told apart by the looks it keeps (v1.35.72)
+                               "vv1_parents_restore"}),  # A New Home's parents file's departed list (v1.35.79)
             # The queue of questions the patcher asks when it opens (the owner, v1.35.66).
             ("vv_startup_questions", set()),
             ("patcher_files", set()),
@@ -213,7 +222,9 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions", "vv_lost_titles", "vv_family_tree",
                               # An answered "I renamed them" joins the two records (v1.35.77); a
                               # function-level import, as vv_reconcile imports vv_genealogy.
-                              "vv_reconcile"}),
+                              "vv_reconcile",
+                              # A New Home's parents file's departed list, read as Restore reads it (v1.35.79).
+                              "vv1_parents_restore"}),
             # Restoring cut names renames through Last Names; likes compare as vv_log_tools says (v1.35.68).
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions", "vv_log_tools"}),
             # Fix grave information: the graves' fingerprints and writes through Last Names.
@@ -237,6 +248,8 @@ class ReleasesLinkTests(unittest.TestCase):
                                # Its renamed-answer check reads the reconciliation answers, as a
                                # function-level import (the same as vv_genealogy's).
                                "vv_reconcile",
+                               # the patcher's own renames kept in the Log Decisions file (v1.35.80)
+                               "vv_log_decisions",
                                # ElderTotems.dat, when the save keeps its totems there (function-level).
                                "vv_vv2_totem_store"}),
             ("vv_vv2_totem_store", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_save_layout",

@@ -129,8 +129,17 @@ class Harnesses(unittest.TestCase):
         # one fingerprint told apart by the looks their titles keep (6 in each game:
         # native/shared/custom_title_shown.h, the Story companion's rule); and 8 for one folder per save
         # (native/shared/per_save.h: a titles file in the save's own folder read, 1 in each game; an older
-        # layout's slot folder that holds a log still appended to, numbered on, and no new folder made: 3).
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 333, result.stdout)
+        # layout's slot folder that holds a log still appended to, numbered on, and no new folder made: 3);
+        # and 19 for the parents a villager who disappears or passes away keeps in the record (the owner,
+        # 2026-10-20: "make room for their parents in all 5 games"): 4 in each of The Lost Children to New
+        # Believers, 3 in A New Home, whose come only from its Show Parents companion.
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 352, result.stdout)
+        self.assertEqual(result.stdout.count("  ok   ...with the parents the game kept on the record, their heads "
+                                             "and bodies"), 4)
+        self.assertEqual(result.stdout.count("  ok   ...a parent the game never recorded is left out, never made up"), 4)
+        self.assertEqual(result.stdout.count("  ok   a villager with no recorded parents (a founder) gets no Parents "
+                                             "block"), 5)
+        self.assertIn("  ok   ...and A New Home without its Show Parents companion names none", result.stdout)
         self.assertEqual(result.stdout.count("  ok   a titles file in the save's own folder is read"), 5)
         self.assertIn("  ok   appended to the older slot folder's log as Death 3", result.stdout)
         self.assertIn("  ok   ...and nothing written in the save's own folder", result.stdout)

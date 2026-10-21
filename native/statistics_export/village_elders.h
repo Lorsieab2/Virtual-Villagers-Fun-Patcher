@@ -41,6 +41,14 @@ struct elders_layout {
        rank_slots 0) when the previous roster is not known. */
     const int *rank_of_slot;
     unsigned int rank_slots;
+    /* Who each villager is, by what a rename does not change (the Village Statistics roster's
+       fingerprint: likes, dislikes and the parents' names): fp_was[s] for the villager the
+       previous save found at record s, fp_now[s] for the one at record s now; 0 = none (nothing
+       to fingerprint, or nobody there).  NULL (or fp_slots 0) when not known.  A line follows
+       the elder with its fingerprint before anything else (the identity audit, case 5). */
+    const unsigned int *fp_was;
+    const unsigned int *fp_now;
+    unsigned int fp_slots;
 };
 
 /* Update the save's Village Elders .dat and return the number of elders,

@@ -79,7 +79,32 @@ struct rc_elder {
     char name[RC_NAME];
     char father[RC_NAME];
     char mother[RC_NAME];
+    int head, body;                /* as the History snapshot says (-1: not said); never written */
 };
+
+/* EVERY ELDER EXACTLY ONCE, BY WHO THEY ARE (the identity audit).  A History snapshot's elder used
+   to be left out when anybody on the elders list or alive now had the same name, or a name it
+   "grew" into ("Gata" -> "Gata Bahati"): a dead elder whose namesake lives was never counted.  Now:
+     - a line of the elders list counts one History elder of its name and parents (A New Home keeps
+       no parents), each line once -- a line still open is a living elder, never a dead one's;
+     - a History elder with a Death or Disappeared record of her own name, head and body is a
+       departed villager: counted unless a closed line already counts her;
+     - only one with no such record may be a listed or living villager under a newer or older name
+       (a last name or a number added or dropped, the same parents), and is then not added. */
+struct rc_known {
+    char name[RC_NAME];
+    char father[RC_NAME];
+    char mother[RC_NAME];
+    unsigned char list;            /* 1 a line of the elders list, 0 a living villager */
+    unsigned char open;            /* a list line still open: a living elder */
+    unsigned char used;            /* this line already counts a History elder */
+};
+
+struct rc_departed {
+    char name[RC_NAME];
+    int head, body;
+};
+#define RC_DEPARTED_MAX 4096
 
 struct rc_plan {
     int elders_ok;                 /* the elders file was read (or is not there yet) */
@@ -358,21 +383,16 @@ struct rc_history {
     const char *village;
     int game;
     int master;
-    /* Excluded: on a line of the elders list, or alive now. */
-    char (*taken)[RC_NAME];
-    int taken_count;
+    /* The elders list's lines and the living (rc_known), and the departed by their own records. */
+    struct rc_known *known;
+    int known_count;
+    const struct rc_departed *departed;
+    int departed_count;
+    /* Every History elder already decided (one villager is in many snapshots). */
+    struct rc_elder *seen;
+    int seen_count;
     struct rc_plan *plan;
 };
-
-static int rc_name_in(char (*names)[RC_NAME], int count, const char *name) {
-    int i;
-    for (i = 0; i < count; ++i) {
-        if (strcmp(names[i], name) == 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
 
 static void rc_copy(char *out, const char *in) {
     int i;
@@ -382,18 +402,90 @@ static void rc_copy(char *out, const char *in) {
     out[i] = '\0';
 }
 
-/* One villager of a snapshot of this village, finished: an elder? */
+/* rc_copy from a record's field of `capacity` bytes (which may lack a terminator). */
+static void rc_bounded_copy(char *out, const unsigned char *in, unsigned int capacity) {
+    char buffer[RC_NAME];
+    unsigned int i;
+    for (i = 0; i < capacity && i < RC_NAME - 1 && in[i] != 0; ++i) {
+        buffer[i] = (char)in[i];
+    }
+    buffer[i] = '\0';
+    rc_copy(out, buffer);
+}
+
+/* 1 when `shorter` is `longer` up to a word boundary: "Cheop" and "Cheop Bahati", "Kaula Bahati" and
+   "Kaula Bahati I" -- one villager given a last name or a number since the older snapshot. */
+static int rc_name_grew(const char *shorter, const char *longer) {
+    size_t n = strlen(shorter);
+    return n >= 2 && strncmp(shorter, longer, n) == 0 && longer[n] == ' ';
+}
+
+/* The same parents, where the game keeps them (A New Home keeps none: always the same). */
+static int rc_same_parents(const struct rc_history *h, const char *father, const char *mother,
+                           const struct rc_elder *v) {
+    return h->game == GAME_VV1 || (strcmp(father, v->father) == 0 && strcmp(mother, v->mother) == 0);
+}
+
+/* The same villager of two snapshots: name and parents -- and, where the game keeps no parents (A New
+   Home), the looks too, so two namesakes are never one. */
+static int rc_same_history_villager(const struct rc_history *h, const struct rc_elder *a, const struct rc_elder *b) {
+    if (strcmp(a->name, b->name) != 0 || strcmp(a->father, b->father) != 0 || strcmp(a->mother, b->mother) != 0) {
+        return 0;
+    }
+    return h->game != GAME_VV1 || (a->head == b->head && a->body == b->body);
+}
+
+/* A Death or Disappeared record of this villager's own name, head and body. */
+static int rc_has_departure(const struct rc_history *h, const struct rc_elder *v) {
+    int i;
+    if (v->head < 0 || v->body < 0) {
+        return 0;
+    }
+    for (i = 0; i < h->departed_count; ++i) {
+        if (h->departed[i].head == v->head && h->departed[i].body == v->body
+            && strcmp(h->departed[i].name, v->name) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* One villager of a snapshot of this village, finished: an elder to add?  (The rules are above
+   struct rc_known.) */
 static void rc_history_villager(struct rc_history *h, const struct rc_elder *v, int mastered, int whole) {
     struct rc_plan *p = h->plan;
-    int i;
-    if (!whole || mastered < 3 || v->name[0] == '\0' || rc_name_in(h->taken, h->taken_count, v->name)) {
+    int i, departed;
+    if (!whole || mastered < 3 || v->name[0] == '\0') {
         return;
     }
-    for (i = 0; i < p->elders_add; ++i) {
-        const struct rc_elder *e = &p->elders[i];
-        if (strcmp(e->name, v->name) == 0 && strcmp(e->father, v->father) == 0
-            && strcmp(e->mother, v->mother) == 0) {
-            return;                   /* the same villager, in another snapshot */
+    for (i = 0; i < h->seen_count; ++i) {
+        if (rc_same_history_villager(h, &h->seen[i], v)) {
+            return;                   /* the same villager, in another snapshot: decided once */
+        }
+    }
+    if (h->seen_count < RC_ELDERS_MAX * 4) {
+        h->seen[h->seen_count++] = *v;
+    }
+    departed = rc_has_departure(h, v);
+    /* A line of the list that counts her: her name and parents, not yet counting another -- and never
+       a line still open (a living elder) for one who departed. */
+    for (i = 0; i < h->known_count; ++i) {
+        struct rc_known *k = &h->known[i];
+        if (k->list && !k->used && !(departed && k->open) && strcmp(k->name, v->name) == 0
+            && rc_same_parents(h, k->father, k->mother, v)) {
+            k->used = 1;
+            return;
+        }
+    }
+    if (!departed) {
+        /* No record says she departed: one listed or living under her own name, or a name a last name
+           or number grew from or into (the same parents), is her (v1.35.80, Cheop -> Cheop Bahati). */
+        for (i = 0; i < h->known_count; ++i) {
+            const struct rc_known *k = &h->known[i];
+            if ((strcmp(k->name, v->name) == 0 || rc_name_grew(v->name, k->name) || rc_name_grew(k->name, v->name))
+                && rc_same_parents(h, k->father, k->mother, v)) {
+                return;
+            }
         }
     }
     if (p->elders_add < RC_ELDERS_MAX) {
@@ -441,6 +533,7 @@ static void rc_visit_history(char *text, void *context) {
                 open = 1;
                 mastered = skills = faction = 0;
                 memset(&v, 0, sizeof v);
+                v.head = v.body = -1;
             }
             continue;
         }
@@ -451,6 +544,10 @@ static void rc_visit_history(char *text, void *context) {
             section = 0;
             if (strncmp(line, "  Name: ", 8) == 0) {
                 rc_copy(v.name, line + 8);
+            } else if (strncmp(line, "  Head: ", 8) == 0) {
+                v.head = atoi(line + 8);
+            } else if (strncmp(line, "  Body: ", 8) == 0) {
+                v.body = atoi(line + 8);
             } else if (strcmp(line, "  Parents:") == 0) {
                 section = 1;
             } else if (strcmp(line, "  Skills:") == 0) {
@@ -495,9 +592,9 @@ static int rc_elders_path(int slot, wchar_t *path) {
         && vv_ps_data_file_w(path, L"Village Elders", name, 64);
 }
 
-/* The names on the elders list (field 3 of every line), into `taken`;
+/* Every line of the elders list -- its name, parents and whether it is still open -- into `known`;
    1 read (or no file yet), 0 not a list this companion would read. */
-static int rc_elder_names(int game, int slot, char (*taken)[RC_NAME], int *count, int capacity) {
+static int rc_elder_names(int game, int slot, struct rc_known *known, int *count, int capacity) {
     wchar_t path[MAX_PATH];
     char header[64];
     char *text, *cursor, *line;
@@ -542,11 +639,104 @@ static int rc_elder_names(int game, int slot, char (*taken)[RC_NAME], int *count
             return 0;
         }
         if (*count < capacity) {
-            rc_copy(taken[(*count)++], fields[2]);
+            struct rc_known *k = &known[(*count)++];
+            memset(k, 0, sizeof *k);
+            rc_copy(k->name, fields[2]);
+            rc_copy(k->father, fields[3]);
+            rc_copy(k->mother, fields[4]);
+            k->list = 1;
+            k->open = fields[0][0] == 'E' && strcmp(fields[6], "1") == 0;
         }
     }
     free(text);
     return 1;
+}
+
+/* The Deaths and Disappearances log: this village's "Death <n>" and "Disappeared ..." records, by
+   their own name, head and body. */
+struct rc_departures {
+    const char *village;
+    struct rc_departed *out;
+    int count;
+};
+
+static void rc_visit_departures(char *text, void *context) {
+    struct rc_departures *d = (struct rc_departures *)context;
+    char *cursor = text;
+    char *line;
+    int ours = 0, open = 0;
+    struct rc_departed cur;
+    memset(&cur, 0, sizeof cur);
+    while ((line = rc_line(&cursor)) != NULL) {
+        int top = strncmp(line, "Village:", 8) == 0 || line[0] != ' ';
+        if (top && open && cur.name[0] != '\0' && cur.head >= 0 && cur.body >= 0 && d->count < RC_DEPARTED_MAX) {
+            d->out[d->count++] = cur;
+        }
+        if (strncmp(line, "Village:", 8) == 0) {
+            ours = strcmp(line, d->village) == 0;
+            open = 0;
+            continue;
+        }
+        if (line[0] != ' ') {
+            open = ours && line[0] != '\0'
+                && ((strncmp(line, "Death ", 6) == 0 && line[6] >= '0' && line[6] <= '9')
+                    || strncmp(line, "Disappeared", 11) == 0);
+            memset(&cur, 0, sizeof cur);
+            cur.head = cur.body = -1;
+            continue;
+        }
+        if (!open) {
+            continue;
+        }
+        if (strncmp(line, "  Name: ", 8) == 0) {
+            rc_copy(cur.name, line + 8);
+        } else if (strncmp(line, "  Head: ", 8) == 0) {
+            cur.head = atoi(line + 8);
+        } else if (strncmp(line, "  Body: ", 8) == 0) {
+            cur.body = atoi(line + 8);
+        }
+    }
+    if (open && cur.name[0] != '\0' && cur.head >= 0 && cur.body >= 0 && d->count < RC_DEPARTED_MAX) {
+        d->out[d->count++] = cur;
+    }
+}
+
+/* The living villagers -- name and the parents their record keeps -- into `known`, read from the
+   game's table as living_roster reads it. */
+static void rc_living_known(int game_id, struct rc_known *known, int *count, int capacity) {
+    struct roster_layout layout = ROSTER_LAYOUTS[game_id];
+    const struct roster_layout *r = &layout;
+    unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+    const unsigned char *villagers;
+    unsigned int slot;
+    if (module == NULL) {
+        return;
+    }
+    if (game_id == GAME_VV3) {
+        vv3_villager_table(module, &layout.villagers_rva, &layout.slots);
+    } else if (game_id == GAME_VV4) {
+        vv4_villager_table(module, &layout.villagers_rva, &layout.slots);
+    } else if (game_id == GAME_VV5) {
+        vv5_villager_table(module, &layout.villagers_rva, &layout.slots);
+    }
+    villagers = r->rva_is_pointer ? *(unsigned char *const *)(module + r->villagers_rva) : module + r->villagers_rva;
+    if (villagers == NULL) {
+        return;
+    }
+    for (slot = 0; slot < r->slots && *count < capacity; ++slot) {
+        const unsigned char *record = villagers + r->record_base + slot * r->stride;
+        struct rc_known *k;
+        if (record[r->active] != 1 || vv_lookalike(r->stride, record)) {
+            continue;
+        }
+        k = &known[(*count)++];
+        memset(k, 0, sizeof *k);
+        rc_bounded_copy(k->name, record + r->name, r->name_capacity);
+        if (r->father_name != 0u) {
+            rc_bounded_copy(k->father, record + r->father_name, r->parent_name_capacity);
+            rc_bounded_copy(k->mother, record + r->mother_name, r->parent_name_capacity);
+        }
+    }
 }
 
 /* What the files and the save prove for `slot`'s village `village` (its
@@ -554,35 +744,43 @@ static int rc_elder_names(int game, int slot, char (*taken)[RC_NAME], int *count
    `context` reaches the game (the memorial; The Secret City's chief). */
 static void rc_make_plan(int game, int slot, const char *village, const wchar_t *counters,
                          const vvs_context *context, struct rc_plan *plan) {
-    static char taken[RC_ELDERS_MAX * 4 + ROSTER_MAX][RC_NAME];
-    int taken_count = 0;
-    int i;
+    static struct rc_known known[VV_ELDERS_FILE_MAX + ROSTER_MAX];
+    static struct rc_departed departed[RC_DEPARTED_MAX];
+    static struct rc_elder seen[RC_ELDERS_MAX * 4];
+    int known_count = 0;
     memset(plan, 0, sizeof *plan);
     plan->buried_was = plan->twins_was = plan->chiefs_was = -1;
 
     /* Village Elders, from the Village History log. */
     if (game == GAME_VV1 || game == GAME_VV3 || game == GAME_VV4 || game == GAME_VV5) {
-        plan->elders_ok = rc_elder_names(game, slot, taken, &taken_count, RC_ELDERS_MAX * 4);
+        plan->elders_ok = rc_elder_names(game, slot, known, &known_count, VV_ELDERS_FILE_MAX);
         if (plan->elders_ok) {
             struct rc_history h;
-            /* The living (the save adds their lines itself). */
-            for (i = 0; i < g_roster_now_count && taken_count < RC_ELDERS_MAX * 4 + ROSTER_MAX; ++i) {
-                const char *a = strchr(g_roster_now[i], '\t');
-                const char *b = a != NULL ? strchr(a + 1, '\t') : NULL;
-                if (b != NULL && b - a - 1 < RC_NAME) {
-                    memcpy(taken[taken_count], a + 1, (size_t)(b - a - 1));
-                    taken[taken_count][b - a - 1] = '\0';
-                    ++taken_count;
-                }
+            struct rc_departures d;
+            wchar_t deaths_stem[64];
+            /* The living (the save adds their lines itself), with the parents their records keep. */
+            rc_living_known(game, known, &known_count, VV_ELDERS_FILE_MAX + ROSTER_MAX);
+            /* The departed, by their own Death and Disappeared records. */
+            memset(&d, 0, sizeof d);
+            d.village = village;
+            d.out = departed;
+            _snwprintf_s(deaths_stem, 64, _TRUNCATE, L"Virtual Villagers %d Deaths Log", game);
+            if (!rc_each_slot_log(L"Deaths and Disappearances", L"Deaths", deaths_stem, slot, rc_visit_departures, &d)) {
+                plan->blocked = 1;
+                plan->elders_ok = 0;
             }
             memset(&h, 0, sizeof h);
             h.village = village;
             h.game = game;
             h.master = game == GAME_VV1 ? 90 : 88;
-            h.taken = taken;
-            h.taken_count = taken_count;
+            h.known = known;
+            h.known_count = known_count;
+            h.departed = departed;
+            h.departed_count = d.count;
+            h.seen = seen;
             h.plan = plan;
-            if (!rc_each_slot_log(L"Tribe History", NULL, L"Village History", slot, rc_visit_history, &h)) {
+            if (!plan->elders_ok
+                || !rc_each_slot_log(L"Tribe History", NULL, L"Village History", slot, rc_visit_history, &h)) {
                 plan->blocked = 1;
                 plan->elders_ok = 0;
                 plan->elders_add = 0;

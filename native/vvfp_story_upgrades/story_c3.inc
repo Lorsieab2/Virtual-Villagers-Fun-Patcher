@@ -208,93 +208,272 @@ static int c3_conceive(int index, int litter, int father, ce_result *result) {
 /* Every action is started by the game's do-action 0x455570 (thiscall on
    the record: action id, a pointer to eight argument dwords; ret 8), after
    the stop 0x460F70, as every stock caller does; these ignore the
-   arguments.  Offered: the ones that only look or end by themselves (the
-   island events', the idle choosers', the potions' looks); the jobs that
-   give food, tech or skill practice say so.  Never: puzzle actions, burial,
-   pickups, new clothes, lessons and games that stop other villagers, the
-   chief's own powers, or an action no stock code starts. */
+   arguments (an argument block of zeros: an action that takes a place or
+   spot takes its own default).  The owner (2026-10-21): every registered
+   action is offered, labelled with the text the Details screen then shows;
+   one that may harm the game or the save ends " (Unsafe)" with its reason
+   (shown before it is confirmed).  "Celebrating" is action 82 (its default
+   spot: the village centre).  What an action needs that the game passes (the body to bury, ...) is found
+   when the event happens, the way the game finds it; with none there the
+   change is refused.  Nothing is left out (the owner, 2026-10-21). */
+
+
+/* ---- generated: what some actions are started with ---- */
+static const int C3_ARGS_189[8] = { 305, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_190[8] = { 307, 0, 0, 0, 0, 0, 0, 0 };
+static const ce_supply C3_SUPPLY_197 = { CE_SUPPLY_CALL, 0, 0x45C950u, 0x59E110u, CE_REFUSE_MINUS1, -2, 0x596FC0u };
+static const int C3_ARGS_198[8] = { 31, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_199[8] = { 32, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_200[8] = { 33, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_201[8] = { 34, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_202[8] = { 35, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_203[8] = { 36, 0, 0, 0, 0, 0, 0, 0 };
+static const int C3_ARGS_204[8] = { 37, 0, 0, 0, 0, 0, 0, 0 };
+/* ---- end of generated ---- */
+
 static const ce_action C3_BEHAVIOURS[] = {
-    { "Stops what they are doing", ACT_STOP, 0, 0 },
-    { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0 },
-    { "Dances", ACT_DO, 0, 8 },
-    { "Dances (another dance)", ACT_DO, 0, 85 },
-    { "Secretly practices a dance", ACT_DO, 0, 181 },
-    { "Performs the ceremonial dance", ACT_DO, 0, 67 },
-    { "Rain dancing", ACT_DO, 0, 12 },
-    { "Celebrates Isola Day", ACT_DO, 0, 66 },
-    { "Relaxes", ACT_DO, 0, 13 },
-    { "Relaxes at the beach", ACT_DO, 0, 21 },
-    { "Reflects", ACT_DO, 0, 22 },
-    { "Watches the clouds", ACT_DO, 0, 18 },
-    { "Goes swimming", ACT_DO, 0, 1 },
-    { "Enjoys the bath", ACT_DO, 0, 23 },
-    { "Bathes", ACT_DO, 0, 143 },
-    { "Cools their feet in the stream", ACT_DO, 0, 19 },
-    { "Washes their face", ACT_DO, 0, 140 },
-    { "Washes their hands", ACT_DO, 0, 141 },
-    { "Gets a drink", ACT_DO, 0, 144 },
-    { "Drinks the rain", ACT_DO, 0, 60 },
-    { "Gets out of the rain", ACT_DO, 0, 142 },
-    { "Cleans up after the rain", ACT_DO, 0, 196 },
-    { "Washes the laundry", ACT_DO, 0, 61 },
-    { "Looks at the fishies", ACT_DO, 0, 146 },
-    { "Looks at the fire", ACT_DO, 0, 34 },
-    { "Honors the dead", ACT_DO, 0, 10 },
-    { "Stomps ants", ACT_DO, 0, 68 },
-    { "Hides in a hut", ACT_DO, 0, 69 },
-    { "Acts sinister", ACT_DO, 0, 62 },
-    { "Jumpy!", ACT_DO, 0, 93 },
-    { "Nature is calling!", ACT_DO, 0, 94 },
-    { "A little bit lonely", ACT_DO, 0, 102 },
-    { "Unsure what to do (wanders)", ACT_DO, 0, 123 },
-    { "Sits", ACT_DO, 0, 52 },
-    { "Shakes their head", ACT_DO, 0, 49 },
-    { "Not feeling well (only looks it)", ACT_DO, 0, 45 },
-    { "Recovers at the hospital", ACT_DO, 0, 97 },
-    { "Feels faint (only looks it)", ACT_DO, 0, 152 },
-    { "Tries to get warm", ACT_DO, 0, 153 },
-    { "Tries to cool off", ACT_DO, 0, 154 },
-    { "Itchy", ACT_DO, 0, 155 },
-    { "Needs to lie down", ACT_DO, 0, 158 },
-    { "Needs to sit down", ACT_DO, 0, 159 },
-    { "Has an epiphany", ACT_DO, 0, 160 },
-    { "In a trance", ACT_DO, 0, 161 },
-    { "Stinky breath!", ACT_DO, 0, 182 },
-    { "Hic!", ACT_DO, 0, 184 },
-    { "Blannesamagawa loomajoobamooga!!", ACT_DO, 0, 191 },
-    { "Who turned out the lights?!", ACT_DO, 0, 192 },
-    { "Something smells YUMMY!", ACT_DO, 0, 193 },
-    { "Listens to a story (children)", ACT_DO, 0, 96 },
-    { "Watches people work (children)", ACT_DO, 0, 106 },
-    { "Runs around (children)", ACT_DO, 0, 148 },
-    { "Plays (children)", ACT_DO, 0, 151 },
-    { "Plays in puddles (children)", ACT_DO, 0, 180 },
-    { "Plays in the dirt (children)", ACT_DO, 0, 190 },
-    { "Makes sandcastles (children)", ACT_DO, 0, 195 },
-    { "Fishes (Farming practice, food)", ACT_DO, 0, 11 },
-    { "Researches (Research practice, tech points)", ACT_DO, 0, 3 },
-    { "Does exercise (Building practice)", ACT_DO, 0, 150 },
-    { "Eats (uses food, heals a little)", ACT_DO, 0, 84 },
+    { "Stops what they are doing", ACT_STOP, 0, 0, CE_GROUP_GENERAL, NULL },
+    { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0, CE_GROUP_GENERAL, NULL },
+    { "Dancing", ACT_DO, 0, 8, CE_GROUP_CELEBRATION, NULL },
+    { "Dancing (another dance)", ACT_DO, 0, 0x55, CE_GROUP_CELEBRATION, NULL },
+    { "Secretly practicing a dance", ACT_DO, 0, 0xB5, CE_GROUP_CELEBRATION, NULL },
+    { "Performing ceremonial dance", ACT_DO, 0, 0x43, CE_GROUP_DEVOTION, NULL },
+    { "Rain dancing", ACT_DO, 0, 0xC, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating Isola Day", ACT_DO, 0, 0x42, CE_GROUP_CELEBRATION, NULL },
+    { "Relaxing", ACT_DO, 0, 0xD, CE_GROUP_LEISURE, NULL },
+    { "Relaxing at the beach", ACT_DO, 0, 0x15, CE_GROUP_LEISURE, NULL },
+    { "Reflecting", ACT_DO, 0, 0x16, CE_GROUP_LEISURE, NULL },
+    { "Watching the clouds", ACT_DO, 0, 0x12, CE_GROUP_LEISURE, NULL },
+    { "Going swimming", ACT_DO, 0, 1, CE_GROUP_LEISURE, NULL },
+    { "Enjoying the bath", ACT_DO, 0, 0x17, CE_GROUP_LEISURE, NULL },
+    { "Bathing", ACT_DO, 0, 0x8F, CE_GROUP_LEISURE, NULL },
+    { "Cooling feet in stream", ACT_DO, 0, 0x13, CE_GROUP_LEISURE, NULL },
+    { "Washing face", ACT_DO, 0, 0x8C, CE_GROUP_LEISURE, NULL },
+    { "Washing hands", ACT_DO, 0, 0x8D, CE_GROUP_LEISURE, NULL },
+    { "Getting a drink", ACT_DO, 0, 0x90, CE_GROUP_HEALTH, NULL },
+    { "Drinking rain", ACT_DO, 0, 0x3C, CE_GROUP_HEALTH, NULL },
+    { "Getting out of the rain", ACT_DO, 0, 0x8E, CE_GROUP_MOOD, NULL },
+    { "Cleaning up after the rain", ACT_DO, 0, 0xC4, CE_GROUP_WORK, NULL },
+    { "Washing the laundry", ACT_DO, 0, 0x3D, CE_GROUP_WORK, NULL },
+    { "Looking at fishies", ACT_DO, 0, 0x92, CE_GROUP_CURIOSITY, NULL },
+    { "Looking at the fire", ACT_DO, 0, 0x22, CE_GROUP_CURIOSITY, NULL },
+    { "Honoring the Dead", ACT_DO, 0, 0xA, CE_GROUP_DEVOTION, NULL },
+    { "Stomping ants", ACT_DO, 0, 0x44, CE_GROUP_MOOD, NULL },
+    { "Hiding in hut", ACT_DO, 0, 0x45, CE_GROUP_MOOD, NULL },
+    { "Acting sinister", ACT_DO, 0, 0x3E, CE_GROUP_MOOD, NULL },
+    { "Jumpy!", ACT_DO, 0, 0x5D, CE_GROUP_MOOD, NULL },
+    { "Nature is calling!", ACT_DO, 0, 0x5E, CE_GROUP_MOOD, NULL },
+    { "A little bit lonely", ACT_DO, 0, 0x66, CE_GROUP_MOOD, NULL },
+    { "Unsure what to do (wanders)", ACT_DO, 0, 0x7B, CE_GROUP_MOOD, NULL },
+    { "Sitting", ACT_DO, 0, 0x34, CE_GROUP_LEISURE, NULL },
+    { "Shaking head", ACT_DO, 0, 0x31, CE_GROUP_MOOD, NULL },
+    { "Not feeling well (only looks it)", ACT_DO, 0, 0x2D, CE_GROUP_HEALTH, NULL },
+    { "Recovering at the hospital", ACT_DO, 0, 0x61, CE_GROUP_HEALTH, NULL },
+    { "Feeling faint (only looks it)", ACT_DO, 0, 0x98, CE_GROUP_HEALTH, NULL },
+    { "Trying to get warm", ACT_DO, 0, 0x99, CE_GROUP_HEALTH, NULL },
+    { "Trying to cool off", ACT_DO, 0, 0x9A, CE_GROUP_HEALTH, NULL },
+    { "Itchy", ACT_DO, 0, 0x9B, CE_GROUP_HEALTH, NULL },
+    { "Needs to lie down", ACT_DO, 0, 0x9E, CE_GROUP_HEALTH, NULL },
+    { "Needs to sit down", ACT_DO, 0, 0x9F, CE_GROUP_HEALTH, NULL },
+    { "Having an epiphany", ACT_DO, 0, 0xA0, CE_GROUP_DEVOTION, NULL },
+    { "In a trance", ACT_DO, 0, 0xA1, CE_GROUP_DEVOTION, NULL },
+    { "Stinky breath!", ACT_DO, 0, 0xB6, CE_GROUP_MOOD, NULL },
+    { "Hic!", ACT_DO, 0, 0xB8, CE_GROUP_MOOD, NULL },
+    { "Blannesamagawa loomajoobamooga!!", ACT_DO, 0, 0xBF, CE_GROUP_MOOD, NULL },
+    { "Who turned out the lights?!", ACT_DO, 0, 0xC0, CE_GROUP_MOOD, NULL },
+    { "Something smells YUMMY!", ACT_DO, 0, 0xC1, CE_GROUP_MOOD, NULL },
+    { "Listening to a story (children)", ACT_DO, 0, 0x60, CE_GROUP_CHILDREN, NULL },
+    { "Watching people work (children)", ACT_DO, 0, 0x6A, CE_GROUP_CHILDREN, NULL },
+    { "Running around (children)", ACT_DO, 0, 0x94, CE_GROUP_CHILDREN, NULL },
+    { "Playing (children)", ACT_DO, 0, 0x97, CE_GROUP_CHILDREN, NULL },
+    { "Playing in puddles (children)", ACT_DO, 0, 0xB4, CE_GROUP_CHILDREN, NULL },
+    { "Playing in the dirt (children)", ACT_DO, 0, 0xBE, CE_GROUP_CHILDREN, NULL },
+    { "Making sandcastles (children)", ACT_DO, 0, 0xC3, CE_GROUP_CHILDREN, NULL },
+    { "Fishing (Farming practice, food)", ACT_DO, 0, 0xB, CE_GROUP_WORK, NULL },
+    { "Researching (Research practice, tech points)", ACT_DO, 0, 3, CE_GROUP_WORK, NULL },
+    { "Doing exercise (Building practice)", ACT_DO, 0, 0x96, CE_GROUP_WORK, NULL },
+    { "Eating (uses food, heals a little)", ACT_DO, 0, 0x54, CE_GROUP_HEALTH, NULL },
+    { "Celebrating", ACT_DO, 0, 0x52, CE_GROUP_CELEBRATION, NULL },
+    { "Caring for baby (while expecting) / Unsure what to do", ACT_DO, 0, 0, CE_GROUP_FAMILY, NULL },
+    { "Going indoors", ACT_DO, 0, 6, CE_GROUP_MOOD, NULL },
+    { "Gathering dry grass", ACT_DO, 0, 0xF, CE_GROUP_WORK, NULL },
+    { "Gathering firewood", ACT_DO, 0, 0x10, CE_GROUP_WORK, NULL },
+    { "Relaxing at the beach (another spot)", ACT_DO, 0, 0x18, CE_GROUP_LEISURE, NULL },
+    { "Curious about the robe", ACT_DO, 0, 0x19, CE_GROUP_CURIOSITY, NULL },
+    { "Amazed at the statue / Curious about the statue", ACT_DO, 0, 0x1A, CE_GROUP_CURIOSITY, NULL },
+    { "Admiring the hidden room / Curious about the door", ACT_DO, 0, 0x1B, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the giant clam", ACT_DO, 0, 0x1C, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the bee hive", ACT_DO, 0, 0x1D, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the machine", ACT_DO, 0, 0x1E, CE_GROUP_CURIOSITY, NULL },
+    { "Interested in the ruins / Curious about the rubble", ACT_DO, 0, 0x1F, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the bath", ACT_DO, 0, 0x20, CE_GROUP_CURIOSITY, NULL },
+    { "Snooping around the alchemy room / Curious about this room", ACT_DO, 0, 0x21, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the thing up there", ACT_DO, 0, 0x23, CE_GROUP_CURIOSITY, NULL },
+    { "Enjoying the orchard / Curious about the dark soil", ACT_DO, 0, 0x24, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the Tiger Lily", ACT_DO, 0, 0x25, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the Cactus", ACT_DO, 0, 0x26, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the Lotus", ACT_DO, 0, 0x27, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the Black Orchid", ACT_DO, 0, 0x28, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the Rose", ACT_DO, 0, 0x29, CE_GROUP_CURIOSITY, NULL },
+    { "Looking at the dry grass", ACT_DO, 0, 0x2A, CE_GROUP_CURIOSITY, NULL },
+    { "Looking at the bush / Looking at the Roster of the Dead", ACT_DO, 0, 0x2B, CE_GROUP_CURIOSITY, NULL },
+    { "Enjoying the bath (another spot)", ACT_DO, 0, 0x2E, CE_GROUP_LEISURE, NULL },
+    { "Caring for baby / Worried about food / Worried about housing (or Bored)", ACT_DO, 0, 0x32, CE_GROUP_MOOD, NULL },
+    { "Healing someone (cures nobody)", ACT_DO, 0, 0x33, CE_GROUP_WORK, NULL },
+    { "Worried about food / Worried about housing (or Thinking)", ACT_DO, 0, 0x36, CE_GROUP_MOOD, NULL },
+    { "Attending lecture (no lesson) [The Chief's Address]", ACT_DO, 0, 0x38, CE_GROUP_CHILDREN, NULL },
+    { "Lecturing", ACT_DO, 0, 0x39, CE_GROUP_WORK, NULL },
+    { "Working 'til he drops! / Working 'til she drops!", ACT_DO, 0, 0x3A, CE_GROUP_MOOD, NULL },
+    { "Playing in the lab", ACT_DO, 0, 0x3B, CE_GROUP_CHILDREN, NULL },
+    { "Honoring the dead (another way)", ACT_DO, 0, 0x3F, CE_GROUP_DEVOTION, NULL },
+    { "Honoring the guiding hand", ACT_DO, 0, 0x40, CE_GROUP_DEVOTION, NULL },
+    { "Honoring the dead (another place)", ACT_DO, 0, 0x41, CE_GROUP_DEVOTION, NULL },
+    { "Bringing back a prize [The Mango and the Papaya, The Mysterious Crate]", ACT_DO, 0, 0x46, CE_GROUP_STORY, NULL },
+    { "Bringing back a prize (another way) [The Mysterious Crate]", ACT_DO, 0, 0x47, CE_GROUP_STORY, NULL },
+    { "Running to the rescue", ACT_DO, 0, 0x48, CE_GROUP_STORY, NULL },
+    { "Studying strange plant (Healing practice, place 1)", ACT_DO, 0, 0x49, CE_GROUP_WORK, NULL },
+    { "Studying strange plant (Healing practice, place 2)", ACT_DO, 0, 0x4A, CE_GROUP_WORK, NULL },
+    { "Studying strange plant (Healing practice, place 3)", ACT_DO, 0, 0x4B, CE_GROUP_WORK, NULL },
+    { "Studying strange plant (Healing practice, place 4)", ACT_DO, 0, 0x4C, CE_GROUP_WORK, NULL },
+    { "Studying strange plant (Healing practice, place 5)", ACT_DO, 0, 0x4D, CE_GROUP_WORK, NULL },
+    { "Studying strange plant (Healing practice, place 6)", ACT_DO, 0, 0x4E, CE_GROUP_WORK, NULL },
+    { "Leaving the water", ACT_DO, 0, 0x4F, CE_GROUP_LEISURE, NULL },
+    { "Enjoying the bath (a third spot)", ACT_DO, 0, 0x50, CE_GROUP_LEISURE, NULL },
+    { "Playing seesaw (children)", ACT_DO, 0, 0x5C, CE_GROUP_CHILDREN, NULL },
+    { "Telling a story (Parenting practice)", ACT_DO, 0, 0x5F, CE_GROUP_FAMILY, NULL },
+    { "Washing baby", ACT_DO, 0, 0x67, CE_GROUP_FAMILY, NULL },
+    { "Changing baby", ACT_DO, 0, 0x68, CE_GROUP_FAMILY, NULL },
+    { "Showing baby the reef", ACT_DO, 0, 0x69, CE_GROUP_FAMILY, NULL },
+    { "Harvesting honey (Farming practice)", ACT_DO, 0, 0x6B, CE_GROUP_WORK, NULL },
+    { "Worried about food (another way)", ACT_DO, 0, 0x76, CE_GROUP_MOOD, NULL },
+    { "Worried about food (briefly)", ACT_DO, 0, 0x77, CE_GROUP_MOOD, NULL },
+    { "Trying on the robe (another way)", ACT_DO, 0, 0x79, CE_GROUP_CURIOSITY, NULL },
+    { "Enjoying the bath (a fourth spot)", ACT_DO, 0, 0x7A, CE_GROUP_LEISURE, NULL },
+    { "Trying an idea...", ACT_DO, 0, 0x7E, CE_GROUP_MOOD, NULL },
+    { "Directing work", ACT_DO, 0, 0x81, CE_GROUP_WORK, NULL },
+    { "Inspecting the food", ACT_DO, 0, 0x82, CE_GROUP_WORK, NULL },
+    { "Inspecting the food (briefly)", ACT_DO, 0, 0x83, CE_GROUP_WORK, NULL },
+    { "Proud of the tribe / Contemplating the tribe", ACT_DO, 0, 0x85, CE_GROUP_MOOD, NULL },
+    { "Inspecting the labs", ACT_DO, 0, 0x86, CE_GROUP_WORK, NULL },
+    { "Curing the tribe! (only the look; nobody is cured)", ACT_DO, 0, 0x88, CE_GROUP_HEALTH, NULL },
+    { "Concerned about the sick", ACT_DO, 0, 0x8A, CE_GROUP_HEALTH, NULL },
+    { "Thinking", ACT_DO, 0, 0x8B, CE_GROUP_MOOD, NULL },
+    { "Looking for mushrooms / Looking for collectibles (children)", ACT_DO, 0, 0x91, CE_GROUP_CHILDREN, NULL },
+    { "Paralyzed (only looks it)", ACT_DO, 0, 0x9C, CE_GROUP_HEALTH, NULL },
+    { "Stung by jellyfish (only looks it)", ACT_DO, 0, 0xA2, CE_GROUP_HEALTH, NULL },
+    { "Looking for mommy / Looking for daddy", ACT_DO, 0, 0xA4, CE_GROUP_CHILDREN, NULL },
+    { "Looking for mommy (another way)", ACT_DO, 0, 0xA5, CE_GROUP_CHILDREN, NULL },
+    { "Trying to get warm (briefly) [The Cold Snap]", ACT_DO, 0, 0xA6, CE_GROUP_HEALTH, NULL },
+    { "Showing baby the bees", ACT_DO, 0, 0xA8, CE_GROUP_FAMILY, NULL },
+    { "Showing baby the herbs", ACT_DO, 0, 0xA9, CE_GROUP_FAMILY, NULL },
+    { "Inspecting hut", ACT_DO, 0, 0xAA, CE_GROUP_WORK, NULL },
+    { "Hiding something", ACT_DO, 0, 0xAB, CE_GROUP_MOOD, NULL },
+    { "Showing baby the orchard", ACT_DO, 0, 0xAD, CE_GROUP_FAMILY, NULL },
+    { "Depositing food (only the look; adds no food)", ACT_DO, 0, 0xB1, CE_GROUP_WORK, NULL },
+    { "Showing baby the amphitheater", ACT_DO, 0, 0xB2, CE_GROUP_FAMILY, NULL },
+    { "Enjoying the beach with baby", ACT_DO, 0, 0xB3, CE_GROUP_FAMILY, NULL },
+    { "That tasted soapy", ACT_DO, 0, 0xB7, CE_GROUP_MOOD, NULL },
+    { "Hic! (briefly)", ACT_DO, 0, 0xB9, CE_GROUP_MOOD, NULL },
+    { "Stinky breath! (briefly)", ACT_DO, 0, 0xBA, CE_GROUP_MOOD, NULL },
+    { "That tasted soapy (briefly)", ACT_DO, 0, 0xBB, CE_GROUP_MOOD, NULL },
+    { "Leading a dance poorly / Dancing poorly", ACT_DO, 0, 0xBC, CE_GROUP_CELEBRATION, NULL },
+    { "Studying medicine (Healing practice)", ACT_DO, 0, 0xBD, CE_GROUP_WORK, NULL },
+    { "Teaching baby words", ACT_DO, 0, 0xC2, CE_GROUP_FAMILY, NULL },
+    { "Putting water on the firepit", ACT_DO, 0, 0xC5, CE_GROUP_WORK, NULL },
+    { "Embracing (Unsafe)", ACT_DO, 0, 4, CE_GROUP_FAMILY, "the game pairs two villagers for this; alone they embrace nobody until it times out (no baby)" },
+    { "Waiting for someone (Unsafe)", ACT_DO, 0, 5, CE_GROUP_FAMILY, "waits for a partner who never comes until it times out" },
+    { "Starting a fire (Unsafe)", ACT_DO, 0, 0x11, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (the fire)" },
+    { "Confused (Unsafe)", ACT_DO, 0, 0x2C, CE_GROUP_MOOD, "may pop up the game's hint 0 while this villager is selected (the game passes the hint)" },
+    { "Chatting / Arguing / Complaining / Teaching / Telling a story / Praising / Jumpy! (Unsafe)", ACT_DO, 0, 0x35, CE_GROUP_MOOD, "picks another villager and stops what they are doing to talk" },
+    { "Attending lecture (Unsafe)", ACT_DO, 0, 0x37, CE_GROUP_CHILDREN, "the Tribal Chief's lesson: raises one skill by 7 to 9 points" },
+    { "Getting new clothes! (Unsafe)", ACT_DO, 0, 0x62, CE_GROUP_STORY, "takes the new-clothes cost (5000) from the village and changes their clothes" },
+    { "Repairing the lift (or Confused, when it can not be repaired yet) (Unsafe)", ACT_DO, 0, 0x6C, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (the lift)" },
+    { "Standing on the lift (Unsafe)", ACT_DO, 0, 0x6D, CE_GROUP_STORY, "part of the lift puzzle; before the lift is repaired they stand where it would be" },
+    { "Repairing the bath (Unsafe)", ACT_DO, 0, 0x6E, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (the bath)" },
+    { "Doing alchemy (Unsafe)", ACT_DO, 0, 0x6F, CE_GROUP_STORY, "an alchemy-room puzzle action; the puzzle may count it" },
+    { "Emptying the pot (Unsafe)", ACT_DO, 0, 0x70, CE_GROUP_STORY, "empties the alchemy pot, which is puzzle state" },
+    { "Using potion (Unsafe)", ACT_DO, 0, 0x71, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (a potion)" },
+    { "Building scaffolding (Unsafe)", ACT_DO, 0, 0x74, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (the statue)" },
+    { "Pushing statue (Unsafe)", ACT_DO, 0, 0x75, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (the statue)" },
+    { "Trying on the robe (Unsafe)", ACT_DO, 0, 0x78, CE_GROUP_STORY, "the robe puzzle's step: may make this villager the Tribal Chief" },
+    { "Clearing rubble (Building practice) (Unsafe)", ACT_DO, 0, 0x7F, CE_GROUP_STORY, "a puzzle job; the puzzle may count it" },
+    { "Clearing leaves (Building practice) (Unsafe)", ACT_DO, 0, 0x80, CE_GROUP_STORY, "a puzzle job; the puzzle may count it" },
+    { "Doing a weather dance (Unsafe)", ACT_DO, 0, 0x84, CE_GROUP_STORY, "the Tribal Chief's power: a puzzle step: tells the puzzle manager it happened, which may change puzzle progress" },
+    { "Creating magic food! (Unsafe)", ACT_DO, 0, 0x87, CE_GROUP_STORY, "the Tribal Chief's power: adds food to the stores" },
+    { "Pointing out a rare collectible (Unsafe)", ACT_DO, 0, 0x89, CE_GROUP_STORY, "the Tribal Chief's power: makes a rare collectible appear" },
+    { "Trying to reach the key (Unsafe)", ACT_DO, 0, 0x93, CE_GROUP_STORY, "part of the key puzzle; the puzzle may count it" },
+    { "Carrying vial to ocean (Unsafe)", ACT_DO, 0, 0xA3, CE_GROUP_STORY, "picks up the vial (a puzzle object) if it is lying around" },
+    { "Drawing plans (Unsafe)", ACT_DO, 0, 0xA7, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress" },
+    { "Doing aromatherapy (Unsafe)", ACT_DO, 0, 0xAE, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (the burners)" },
+    { "Lighting burners (Unsafe)", ACT_DO, 0, 0xAF, CE_GROUP_STORY, "a puzzle step: tells the puzzle manager it happened, which may change puzzle progress (the burners)" },
+    { "Swapping the pearl (Unsafe)", ACT_DO, 0, 0xB0, CE_GROUP_STORY, "a pearl puzzle action; the puzzle may count it" },
+    { "Shaping an irregular pearl (Unsafe)", ACT_DO, 0, 0xC6, CE_GROUP_STORY, "a pearl puzzle action; the puzzle may count it" },
+    { "Polishing a rough pearl (Unsafe)", ACT_DO, 0, 0xC7, CE_GROUP_STORY, "a pearl puzzle action; the puzzle may count it" },
+    { "Building small hut (Building practice) (Unsafe)", ACT_DO, 0, 9, CE_GROUP_STORY, "builds toward a hut at the first hut place (the game passes which), a puzzle step" },
+    { "Examining hut (Unsafe)", ACT_DO, 0, 0x56, CE_GROUP_WORK, "examines the first hut place (the game passes which) and may go on to fix it" },
+    { "Fixing hut (Building practice) (Unsafe)", ACT_DO, 0, 0x57, CE_GROUP_WORK, "works on the first hut place (the game passes which hut)" },
+    { "Refusing (Unsafe)", ACT_DO, 0, 0x72, CE_GROUP_MOOD, "may show a blank game message while this villager is selected (the game passes the message)" },
+    { "Planting tree (Unsafe)", ACT_DO, 0, 0x7C, CE_GROUP_STORY, "walks to the map corner (the game passes the spot) and counts toward the orchard puzzle" },
+    { "Harvesting fruit (Farming practice) (Unsafe)", ACT_DO, 0, 0x7D, CE_GROUP_STORY, "uses the first tree's place and counts toward the orchard puzzle" },
+    { "Hay fever (animation only, no Details text) [The Allergy Season]", ACT_DO, 0, 0x65, CE_GROUP_HEALTH, NULL },
+    { "Action 14 (no Details text: the game's empty default) (Unsafe)", ACT_DO, 0, 0xE, CE_GROUP_GENERAL, "Does nothing: the game's empty default handler (a bare ret); the villager just stops" },
+    { "Action 83 (no Details text: the game's empty default) (Unsafe)", ACT_DO, 0, 0x53, CE_GROUP_GENERAL, "Does nothing: the game's empty default handler (a bare ret); the villager just stops" },
+    { "Action 88 (no Details text: the game's empty default) (Unsafe)", ACT_DO, 0, 0x58, CE_GROUP_GENERAL, "Does nothing: the game's empty default handler (a bare ret); the villager just stops" },
+    { "Action 91 (no Details text: the game's empty default) (Unsafe)", ACT_DO, 0, 0x5B, CE_GROUP_GENERAL, "Does nothing: the game's empty default handler (a bare ret); the villager just stops" },
+    { "Action 100 (no Details text: the game's empty default) (Unsafe)", ACT_DO, 0, 0x64, CE_GROUP_GENERAL, "Does nothing: the game's empty default handler (a bare ret); the villager just stops" },
+    { "Running away (startled) (Unsafe)", ACT_DO, 0, 7, CE_GROUP_MOOD, "A reaction the game starts from other code with this text; shows it and wanders off, then ends", C3_ARGS_189, NULL },
+    { "Sharks! Eek! (Unsafe)", ACT_DO, 0, 7, CE_GROUP_MOOD, "A reaction the game starts while swimming near sharks; shows it and wanders off, then ends", C3_ARGS_190, NULL },
+    { "Walking (no Details text; steps of another action) (Unsafe)", ACT_DO, 0, 2, CE_GROUP_MOOD, "Part of another action: queues walking steps without the game's start call, so the villager may stand idle until it picks something else" },
+    { "Wandering nearby (no Details text; steps of another action) (Unsafe)", ACT_DO, 0, 0x59, CE_GROUP_MOOD, "Part of another action: queues walking steps without the game's start call, so the villager may stand idle until it picks something else" },
+    { "Walking to a spot (no Details text; steps of another action) (Unsafe)", ACT_DO, 0, 0x5A, CE_GROUP_MOOD, "Part of another action: queues walking steps without the game's start call, so the villager may stand idle until it picks something else" },
+    { "Walking to a spot and waiting (no Details text) (Unsafe)", ACT_DO, 0, 0x63, CE_GROUP_MOOD, "No Details text of its own: the screen keeps the previous text while it walks and waits" },
+    { "Walking a long route (no Details text) (Unsafe)", ACT_DO, 0, 0x95, CE_GROUP_MOOD, "No Details text of its own: the screen keeps the previous text while it walks" },
+    { "Spring cleaning (Unsafe)", ACT_DO, 0, 0xAC, CE_GROUP_WORK, "Walks to one of nine village objects picked at random; no stock code of this game starts it" },
+    { "Burying the dead (Unsafe)", ACT_DO, 0, 0x51, CE_GROUP_DEVOTION, "Buries the first body awaiting burial, found as the game finds it; refused when there is none", NULL, &C3_SUPPLY_197 },
+    { "Gathering herbs (herb object 31) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_198, NULL },
+    { "Gathering herbs (herb object 32) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_199, NULL },
+    { "Gathering herbs (herb object 33) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_200, NULL },
+    { "Gathering herbs (herb object 34) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_201, NULL },
+    { "Gathering herbs (herb object 35) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_202, NULL },
+    { "Gathering herbs (herb object 36) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_203, NULL },
+    { "Gathering herbs (herb object 37) (Unsafe)", ACT_DO, 0, 0x73, CE_GROUP_STORY, "Takes a herb for the alchemy pot (puzzle state); the game says Refusing once the pot holds 3 herbs, this does not; the herb may not have grown", C3_ARGS_204, NULL },
+    { "Picking a mushroom / Collecting a new item! (what lies where they stand) (Unsafe)", ACT_DROP, 0x42D2E0u, 0x58EDB8, CE_GROUP_STORY, "As if the player dropped them where they stand: picks up the object there (adds to the collections); refused when nothing is there or they are expecting" },
 };
 
 /* The stop routine 0x460F70 (thiscall on the record, the record; 137
    callers, e.g. The Low Tide 0x415EAF), then the action; the Origins Full
    Heal's cure: sick 0 and 0x462670(100, -1). */
+static int c3_skeleton(const unsigned char *r);
+
 static int c3_behave(int index, int behaviour) {
-    static const int no_arguments[8];
     unsigned char *r = c3_record(index);
     const ce_action *act;
+    int block[8];
+    int value = 0;
     if (behaviour < 0 || behaviour >= (int)(sizeof C3_BEHAVIOURS / sizeof C3_BEHAVIOURS[0])) {
         return 0;
     }
     act = &C3_BEHAVIOURS[behaviour];
+    if (!ce_supply_value(act, index, c3_record, c3_listed, c3_skeleton, &value)) {
+        return 0;
+    }
+    if (act->kind == ACT_DROP) {
+        /* As the game's own drop: never for an expecting villager; 0 =
+           nothing lies where they stand. */
+        if (*(const int *)(r + 0xE8C) != 0) {
+            return 0;
+        }
+        TC1(0x460F70u, r, (int)(uintptr_t)r);
+        return (TC1(act->routine, act->arg, (int)(uintptr_t)r) & 0xFF) != 0;
+    }
     if (act->kind == ACT_RECOVER) {
         r[0xE89] = 0;
         TC2(0x462670u, r + 0xE6C, 100, -1);
     }
     TC1(0x460F70u, r, (int)(uintptr_t)r);
     if (act->kind == ACT_DO) {
-        TC2(0x455570u, r, act->arg, (int)(uintptr_t)no_arguments);
+        ce_argument_block(act, value, block);
+        TC2(0x455570u, r, act->arg, (int)(uintptr_t)block);
     }
     return 1;
 }
@@ -806,8 +985,7 @@ static const ce_adapter C3_ADAPTER = {
     "number with no check and would crash.\r\n"
     "- The unborn baby's starting skill: what the baby does with it at birth was not "
     "traced to the end, so only the father's name and looks are offered.\r\n"
-    "- Actions that solve or advance a puzzle, burying, picking things up, new clothes, "
-    "the chief's own powers, and lessons or games that stop other villagers.\r\n"
+    "- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n"
     "- Revive: buried villagers (their record is gone) and skeletons that have already "
     "crumbled away. (A dead chief comes back a chief even while another lives: you "
     "are asked to confirm, at your own risk.)\r\n"

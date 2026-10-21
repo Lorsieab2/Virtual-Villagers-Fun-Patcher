@@ -166,5 +166,90 @@ class RestoreTests(unittest.TestCase):
         self.assertEqual(self.path.read_bytes(), before)
 
 
+AWANATA = ("Etini Awanata", "Fatai Awanata", "Ginger Awanata")
+
+
+class NumberedSinceTheCopy(unittest.TestCase):
+    """The owner's A New Home village (audit, 2026-10-20): the copy names Etini, Fatai and Ginger Awanata's
+    mother "Lisha Akikai"; Number Duplicate Names made her "Lisha Akikai I" since, and the Births log says so.
+    The same mother: given back under the Births log's name, never refused as a disagreement."""
+
+    def build(self, rows_now: list[tuple], first: int = 0, others: list[tuple] = ()) -> tuple[Path, Path]:
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root, True)
+        folder = root / "Virtual Villagers - Test"
+        records = folder / "Virtual Villagers Fun Patcher Data" / "Parentage Records"
+        records.mkdir(parents=True)
+        path = records / restore.file_name(SLOT)
+        path.write_bytes(table(rows_now))
+        copy = path.with_name(path.name + ".before-v1.35.58-repair")
+        copy.write_bytes(table(list(others) + [(first + k, name, 2, 20 + k, 4 + k, 5 + k, 0, "Tadao Awanata",
+                                                "Lisha Akikai", None) for k, name in enumerate(AWANATA)]))
+        births = (folder / "Virtual Villagers Fun Patcher Logs" / "Births and Conceptions"
+                  / "Virtual Villagers 1 Births and Conceptions Log 1.txt")
+        births.parent.mkdir(parents=True)
+        births.write_text(LOG_HEADER + "".join(
+            f"Birth {k + 1}\n  Child: {name}\n    Sex: Female\n    Head: {4 + k}\n    Body: {5 + k}\n  Skills:\n"
+            "    Farming 1\n  Mother: Lisha Akikai I\n    Head: 1\n    Body: 1\n  Father: Tadao Awanata\n"
+            "    Head: 2\n    Body: 2\n  Born as: Single birth\n\n" for k, name in enumerate(AWANATA)),
+            encoding="latin-1")
+        return folder, path
+
+    def test_given_back_under_the_births_logs_name(self):
+        folder, path = self.build([(k, name, 2, 20 + k, 4 + k, 5 + k, 0, None, None, None)
+                                   for k, name in enumerate(AWANATA)])
+        work = restore.plan(folder, SLOT)
+        self.assertEqual(work.conflicts, [], "a parent numbered since the copy is the same parent")
+        self.assertEqual(sorted(r.name for r in work.restored), sorted(AWANATA))
+        restore.restore(folder, SLOT, processes=Idle())
+        for name in AWANATA:
+            self.assertEqual(parents(path.read_bytes(), name)[:2], ("Tadao Awanata", "Lisha Akikai I"))
+        self.assertEqual(restore.plan(folder, SLOT).restored, [], "a second run changes nothing")
+
+    def test_a_full_file_keeps_them_on_the_departed_list(self):
+        # Every record in use (a village at the 256 cap), and the three passed away (not in the file now):
+        # the owner, 2026-10-20, "make room for their parents" -- the departed list has room for them.
+        rows = [(k, f"Filler {k}", 1, k, 1, 1, 0, None, None, None) for k in range(restore.COUNT)]
+        folder, path = self.build(rows, first=restore.COUNT - 3, others=rows[:restore.COUNT - 3])
+        deaths = (folder / "Virtual Villagers Fun Patcher Logs" / "Deaths and Disappearances"
+                  / "Virtual Villagers 1 Deaths Log 1.txt")
+        deaths.parent.mkdir(parents=True)
+        deaths.write_text(LOG_HEADER + "".join(f"Death {k + 1}\n  Name: {name}\n  Age at death: 1600\n\n"
+                                               for k, name in enumerate(AWANATA)), encoding="latin-1")
+        before = path.read_bytes()
+        self.assertEqual(len(before), restore.SIZE, "setup: an earlier build's file, with no departed list")
+        work = restore.plan(folder, SLOT)
+        self.assertEqual(sorted(r.name for r in work.restored), sorted(AWANATA))
+        self.assertTrue(all(r.departed for r in work.restored))
+        self.assertEqual(work.conflicts, [])
+        self.assertEqual(work.no_room, [])
+        self.assertNotIn("no room", "\n".join(work.lines()))
+        restore.restore(folder, SLOT, processes=Idle())
+        after = path.read_bytes()
+        self.assertEqual(after[:restore.SIZE], before, "the 256 records are left exactly as they were")
+        listed = restore.departed_list(after)
+        self.assertEqual(len(listed), 3)
+        table_after = restore.read_table(path, SLOT)
+        named = {table_after.identity(i)[0]: table_after.names(i)
+                 for i in range(restore.COUNT, table_after.size())}
+        for name in AWANATA:
+            self.assertEqual(named[name], ("Tadao Awanata", "Lisha Akikai I"))
+        self.assertTrue(all(table_after.occupant(i)[1] == 1 for i in range(restore.COUNT, table_after.size())),
+                        "each is marked departed")
+        self.assertEqual(restore.plan(folder, SLOT).restored, [], "a second run changes nothing")
+        restore.restore(folder, SLOT, processes=Idle())
+        self.assertEqual(path.read_bytes(), after, "... and never adds them twice")
+
+    def test_a_real_disagreement_is_still_refused(self):
+        folder, path = self.build([(k, name, 2, 20 + k, 4 + k, 5 + k, 0, None, None, None)
+                                   for k, name in enumerate(AWANATA)])
+        births = next(folder.rglob("Virtual Villagers 1 Births and Conceptions Log 1.txt"))
+        births.write_text(births.read_text("latin-1").replace("Lisha Akikai I", "Kita Awanata"), encoding="latin-1")
+        work = restore.plan(folder, SLOT)
+        self.assertEqual(work.restored, [])
+        self.assertEqual(len(work.conflicts), 3)
+        self.assertTrue(all("nothing is guessed" in line for line in work.lines()))
+
+
 if __name__ == "__main__":
     unittest.main()

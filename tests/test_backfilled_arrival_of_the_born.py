@@ -256,7 +256,10 @@ class RepairSavesAndLogsTests(AnNewHomeVillageTests):
     def test_yes_through_the_repair(self):
         game = self.run_repair(additions.RETRO_YES)
         self.assertNotIn(b"Name: Cheop Bahati", self.log.read_bytes())
-        self.assertFalse(decisions.path(game, 1, 1).exists(), "nothing to remember: the records were edited")
+        # No "Retroactively edit records? No" decision for the readers: the records were edited.  (The
+        # answers themselves are kept, so they are not asked again: src/vv_answered_questions.py, v1.35.80.)
+        self.assertEqual([d for d in decisions.load(game, 1, 1) if d.get("kind") != "answered"], [],
+                         "nothing to remember for the readers: the records were edited")
         repairs = (tools.layout.slot_log_folder(game, "Repairs Made", 1) / "Virtual Villagers 1 Repairs Log 1.txt").read_text(encoding="latin-1")
         self.assertIn("Duplicate backfilled Arrived record removed", repairs)
 
@@ -266,6 +269,70 @@ class RepairSavesAndLogsTests(AnNewHomeVillageTests):
         self.assertEqual(self.log.read_bytes(), raw)
         self.assertEqual(decisions.decided(game, 1, 1, "born_arrived", "remove"),
                          {("Cheop Bahati", 4, 15), ("Hoani Chuchip", 11, 2)})
+
+
+RENAMED_LOG = f"""{VILLAGE}
+Birth
+  Child: Lupa Tangaroa
+    Sex: Female
+    Head: 3
+    Body: 5
+    Likes: (none)
+    Dislikes: (none)
+  Mother: Chapa Wanjiko
+    Head: 18
+    Body: 9
+  Father: Usutu Bahati
+    Head: 7
+    Body: 2
+
+Name changed
+  Name: Coral Tangaroa
+  Old name: Lupa Tangaroa
+  Head: 3
+  Body: 5
+
+Arrived 1
+  Name: Coral Tangaroa
+  Age at arrival: (unknown)
+  Sex: Female
+  Head: 3
+  Body: 5
+{BACKFILL}"""
+
+
+class RenamedVillagerTests(unittest.TestCase):
+    """The identity audit: a villager renamed in the game (a "Name changed" record) whose backfilled
+    "How: unknown" Arrived record under the new name duplicates her Birth record under the old one (the
+    owner's Coral Tangaroa).  Repair Saves & Logs offered to remove it; Check Saves & Logs did not
+    report it.  Check reports exactly what Repair offers, in every game."""
+
+    def test_check_reports_what_repair_offers(self):
+        checker = tools.load_checker()
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
+                log = folder / LOGS / "Births and Conceptions" / f"Virtual Villagers {game} Births and Conceptions Log 1.txt"
+                log.parent.mkdir(parents=True)
+                log.write_bytes(RENAMED_LOG.replace("\n", "\r\n").encode("latin-1"))
+                births, _files = checker.births_log(folder, game, 1)
+                found = checker.redundant_backfilled_arrivals(births, {})
+                self.assertEqual([(r.heading, r.child.name, what) for r, what in found],
+                                 [("Arrived 1", "Coral Tangaroa", "a Birth record")])
+                kind = additions.plan_backfilled_arrivals(folder, game, 1, {}, None)
+                self.assertEqual(len(kind.questions), 2, "Repair offers the same record (and its Retroactively)")
+                # Two living villagers with her name and looks need two records: neither reports it.
+                self.assertEqual(checker.redundant_backfilled_arrivals(births, {("Coral Tangaroa", 3, 5): 2}), [])
+
+    def test_check_saves_and_logs_reports_it_as_wrong(self):
+        game = Path(self.enterContext(tempfile.TemporaryDirectory())) / "Virtual Villagers - A New Home"
+        (game / LOGS / "Births and Conceptions").mkdir(parents=True)
+        (game / DATA).mkdir(parents=True)
+        (game / "Virtual Villagers1.ldw").write_bytes(vv1_save(VILLAGERS[:2] + [("Coral Tangaroa", False, 17, 3, 5, False)]))
+        log = game / LOGS / "Births and Conceptions" / "Virtual Villagers 1 Births and Conceptions Log 1.txt"
+        log.write_bytes(RENAMED_LOG.replace("\n", "\r\n").encode("latin-1"))
+        report = tools.check_logs(game, 1, 1).text
+        self.assertIn("Arrived 1: Coral Tangaroa (head 3, body 5) is already recorded by a Birth record", report)
 
 
 class CrossCheckTreatsOnlyRealArrivalsAsArrivals(unittest.TestCase):

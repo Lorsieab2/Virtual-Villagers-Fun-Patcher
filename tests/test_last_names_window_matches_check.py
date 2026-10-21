@@ -148,8 +148,9 @@ class TheWindow(unittest.TestCase):
                     elif int(info["column"]) == 2:
                         marks[int(info["row"])] = text
             seen["marks"] = {rows[r]: marks.get(r, "") for r in rows}
+            # The rule's own box, by its name: the Sort by box (v1.35.80) is a read-only combobox too.
             seen["rule"] = next(str(w.get()) for w in widgets(win) if w.winfo_class() == "TCombobox"
-                                and str(w.cget("state")) == "readonly")
+                                and w.winfo_name() == "last_names_rule")
             seen["alert"] = next((str(w.cget("text")) for w in widgets(win)
                                   if w.winfo_class() == "TLabel" and "are not what the rule gives" in str(w.cget("text"))), "")
             next(w for w in widgets(win) if w.winfo_class() == "TButton" and str(w.cget("text")) == "Cancel").invoke()

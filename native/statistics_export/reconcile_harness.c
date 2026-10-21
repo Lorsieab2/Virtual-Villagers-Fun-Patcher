@@ -262,9 +262,9 @@ static void write_save_file(void) {
 static const char *next_faction = "Believer";
 static int next_faction_set = 0;
 
-/* One villager block of a History snapshot. */
-static void history_villager(char *out, size_t cap, int number, const char *name, int value, int masters,
-                             int parents) {
+/* One villager block of a History snapshot, with its head and body. */
+static void history_villager_looks(char *out, size_t cap, int number, const char *name, int value, int masters,
+                                   int parents, int head, int body) {
     char block[1024];
     unsigned int k;
     size_t len;
@@ -276,7 +276,8 @@ static void history_villager(char *out, size_t cap, int number, const char *name
         len = strlen(block);
         _snprintf(block + len, sizeof block - len, "  Faction: %s\r\n", faction);
     }
-    strcat(block, "  Head: 1\r\n  Body: 2\r\n");
+    len = strlen(block);
+    _snprintf(block + len, sizeof block - len, "  Head: %d\r\n  Body: %d\r\n", head, body);
     if (parents) {
         strcat(block, "  Parents:\r\n    Father: Pa\r\n      Head: 3\r\n      Body: 4\r\n"
                       "    Mother: Ma\r\n      Head: 5\r\n      Body: 6\r\n");
@@ -289,6 +290,11 @@ static void history_villager(char *out, size_t cap, int number, const char *name
     strcat(block, "\r\n");
     len = strlen(out);
     _snprintf(out + len, cap - len, "%s", block);
+}
+
+static void history_villager(char *out, size_t cap, int number, const char *name, int value, int masters,
+                             int parents) {
+    history_villager_looks(out, cap, number, name, value, masters, parents, 1, 2);
 }
 
 static void write_files(int buried, int twins, int chiefs) {
@@ -304,6 +310,14 @@ static void write_files(int buried, int twins, int chiefs) {
     history_villager(h, sizeof h, 4, "Near", 100, 2, 0);
     history_villager(h, sizeof h, 5, "Edge", master, 3, 0);
     history_villager(h, sizeof h, 6, "Edge2", master - 1, 4, 0);
+    /* v1.35.80: "Old" on the elders list, under the name a newer snapshot gave him (a last name added
+       since, or dropped): the same villager, never a second elder. */
+    history_villager(h, sizeof h, 9, "Old Kenobi", 100, 4, 0);
+    /* The identity audit: two dead elders whose namesakes live -- Ann (a living Ann is no elder) and Ana (a
+       living "Ana Bahati" is another villager) -- each with a Death record of her own name and looks: each
+       is counted, once. */
+    history_villager_looks(h, sizeof h, 10, "Ann", 100, 3, 0, 9, 9);
+    history_villager_looks(h, sizeof h, 11, "Ana", 100, 4, 0, 7, 8);
     /* New Believers: a dead Heathen with every skill mastered, and a villager
        from a snapshot written before the Faction line -- neither proves an
        elder (Heathens never count); elsewhere both are ordinary elders'
@@ -330,7 +344,11 @@ static void write_files(int buried, int twins, int chiefs) {
         "  Epitaph: (none)\r\n\r\n"
         "Death 2\r\n  Name: Lua\r\n  Age at death: 300\r\n  Cause of death: Disease\r\n"
         "  Grave: no grave (never buried: the game removed the body)\r\n\r\n"
-        "Death 3\r\n  Name: Rex\r\n  Age at death: 900\r\n  Cause of death: Old age\r\n  Grave: Untrained\r\n\r\n");
+        "Death 3\r\n  Name: Rex\r\n  Age at death: 900\r\n  Cause of death: Old age\r\n  Grave: Untrained\r\n\r\n"
+        "Death 5\r\n  Name: Ann\r\n  Age at death: 950\r\n  Head: 9\r\n  Body: 9\r\n  Cause of death: Old age\r\n"
+        "  Grave: no grave (never buried: the game removed the body)\r\n\r\n"
+        "Death 6\r\n  Name: Ana\r\n  Age at death: 960\r\n  Head: 7\r\n  Body: 8\r\n  Cause of death: Old age\r\n"
+        "  Grave: no grave (never buried: the game removed the body)\r\n\r\n");
     /* In the odd games the logs are where an older build kept them, "Deaths": the reconcile reads them
        there and never moves them (native/shared/save_layout.h). */
     _snprintf(line, sizeof line, LOGS "\\%s\\Virtual Villagers %d Deaths Log 1.txt", DEATHS_DIR, game);
@@ -493,7 +511,7 @@ int main(int argc, char **argv) {
 
     for (game = 1; game <= 5; ++game) {
         int elders_expected = game != 2;
-        int expect = 1 + (elders_expected ? 2 : 0) + (game == 2) + (game == 3);
+        int expect = 1 + (elders_expected ? 4 : 0) + (game == 2) + (game == 3);
         int found;
         g = &LAYOUTS[game - 1];
         printf("Virtual Villagers %d\n", game);
@@ -502,6 +520,7 @@ int main(int argc, char **argv) {
         villager(0, "Alive", 3);
         villager(1, "Ann", 0);
         villager(2, "Bo", 1);
+        villager(5, "Ana Bahati", 0);       /* a living namesake-by-prefix of the dead elder Ana */
         if (g->chief) rec(2)[g->chief] = 1;
         if (g->tribe) {
             villager(3, "Chief", 6);
@@ -534,8 +553,8 @@ int main(int argc, char **argv) {
                              "raised to 2.") != NULL,
               "Villagers Buried: two Death records with a grave, not the \"no grave\" one nor another village's");
         if (elders_expected) {
-            CHECK(strstr(prompt, "- 2 villagers the Village History log shows as Village Elders") != NULL,
-                  "Village Elders: Ghost and Edge (not Old, on the list; Alive, alive; Near, Edge2, Stranger)");
+            CHECK(strstr(prompt, "- 4 villagers the Village History log shows as Village Elders") != NULL,
+                  "Village Elders: Ghost, Edge, and the dead Ann and Ana whose namesakes live (not Old, on the list; Alive, alive; Near, Edge2, Stranger)");
         } else {
             CHECK(strstr(prompt, "Village Elders") == NULL,
                   "Village Elders: none (the game counts its own)");
@@ -582,9 +601,13 @@ int main(int argc, char **argv) {
         read_rel(ELDERS);
         if (elders_expected) {
             char ghost[96];
+            CHECK(strstr(text, "\tOld Kenobi\t") == NULL,
+                  "no line for Old Kenobi: Old, on the list, under a name with a last name added (v1.35.80)");
             _snprintf(ghost, sizeof ghost, "E\t-1\tGhost\t%s\t%s\t0\t0\r\n", g->father ? "Pa" : "", g->father ? "Ma" : "");
             CHECK(strstr(text, ghost) != NULL && strstr(text, "E\t-1\tEdge\t\t\t0\t0\r\n") != NULL,
                   "the elders file gains Ghost%s and Edge, as closed lines", g->father ? " (Pa, Ma)" : "");
+            CHECK(strstr(text, "E\t-1\tAnn\t\t\t0\t0\r\n") != NULL && strstr(text, "E\t-1\tAna\t\t\t0\t0\r\n") != NULL,
+                  "A DEAD ELDER WHOSE NAMESAKE LIVES IS COUNTED: Ann (a living Ann) and Ana (a living Ana Bahati), each once");
             CHECK(strstr(text, "\tNear\t") == NULL && strstr(text, "\tEdge2\t") == NULL && strstr(text, "\tStranger\t") == NULL
                   && strstr(strstr(text, "\tOld\t") + 1, "\tOld\t") == NULL,
                   "no line for Near (2 masteries), Edge2 (under the threshold), Stranger (another village) or a second Old");
@@ -636,7 +659,7 @@ int main(int argc, char **argv) {
         snapshot();
         found = scan(game, 1, prompt, (int)sizeof prompt);
         CHECK(strstr(prompt, "Villagers Buried") == NULL && strstr(prompt, "Twins") == NULL
-              && strstr(prompt, "Chiefs") == NULL && found == (elders_expected ? 2 : 0),
+              && strstr(prompt, "Chiefs") == NULL && found == (elders_expected ? 4 : 0),
               "counters above what the logs prove are never lowered (only the elders are asked about)");
         repair(game, 1, 1);
         save(game, 1, manager);

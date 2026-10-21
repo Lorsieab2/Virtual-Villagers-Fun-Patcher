@@ -165,6 +165,32 @@ class Vv1ParentageSidecarHarnessTests(unittest.TestCase):
             "a repack of nothing but identical twins leaves both unknown (record 1 is not kept for the other twin)",
             "one coincidental identity elsewhere is not the same village: the new Penyo gets no parents",
             "a survivor at her packed record (her rank) is this village even without a majority",
+            # The identity audit, case 3: one of two villagers of one name, gender and scalar dies in play.
+            "ONE OF TWO SUKIS (THE SAME LOOKS) DIES IN PLAY: the survivor keeps her own parents, the dead one's are kept",
+            "ONE OF TWO SUKIS (DIFFERENT LOOKS) DIES IN PLAY: the survivor keeps her own parents, the dead one's are kept",
+            "... AND AFTER THE NEXT LOAD PACKS HER INTO THE DEAD SUKI'S RECORD, HER LOOKS STILL TELL HER APART",
+        ):
+            with self.subTest(case=case):
+                self.assertIn("PASS " + case, out)
+
+    def test_room_for_every_villager_who_ever_lived(self):
+        """The owner, 2026-10-20: "make room for their parents".  At the 256 cap every death is
+        followed by a birth into the freed record, so a departed villager's entry had no record to
+        wait in and was dropped (Etini, Fatai and Ginger Awanata among 45 in Kalahuna Tribe 1); it
+        goes on the departed list after the 256 entries now."""
+        out = self.result.stdout
+        for case in (
+            "setup: a full village's file, with nobody departed, is the earlier builds' file byte for byte",
+            "at the 256 cap a villager who passed away keeps her parents on the departed list",
+            "... and the baby born into her record does not inherit them",
+            "... and the file keeps them after its 256 entries",
+            "the departed list is read back with the file",
+            "... and saving again never adds her twice",
+            "a death with nobody in her record yet keeps the entry in the record",
+            "... and the birth into it moves her entry to the departed list",
+            "a full village of 256 plus many who passed away keeps every one of their parents, once each",
+            "... and all of them are read back from the file",
+            "a departed list with the wrong count is set aside byte for byte",
         ):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)

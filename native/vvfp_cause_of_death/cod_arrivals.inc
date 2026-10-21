@@ -313,10 +313,108 @@ static void faction_sites(void) {
     }
 }
 
+/* ---- A report stays with the villager it was made for ------------------------
+
+   An arrival is reported by its record (the creator hands it over), and the record is all the
+   save-time reconciliation and the Arrived record have to go on.  A record holds another villager
+   once the village is loaded again with no save between (the identity audit, case 4): the save
+   was refused, or the game was closed, and the slot was loaded again as its last save holds it --
+   the newcomer is gone, and whoever that save kept in the record is back in it.  The report would
+   then write that villager an Arrived record, or call a real newcomer in the record reported.
+
+   So each record's report also keeps who it was made for -- name, sex, head, body, likes and
+   dislikes, taken at the first frame after the creator, when the game has named the villager --
+   and every frame (and at the save) follows them: one thing at a time may change in place (Last
+   Names or Rename, Change Appearance or an island event's new head, new likes or dislikes) and the
+   report goes on with them; a record emptied with no departure reported, or holding a villager of
+   the other sex or different in two of those at once, holds somebody else, and the report is
+   dropped -- that villager is matched by who they are at the save, never by the record.  (The
+   struct is in cod_roster.inc: every new report starts it afresh.) */
+static unsigned int who_hash(const unsigned char *p, unsigned int n, int to_terminator) {
+    unsigned int h = 2166136261u, k;
+    for (k = 0; k < n; ++k) {
+        if (to_terminator && p[k] == 0) {
+            break;
+        }
+        h = (h ^ p[k]) * 16777619u;
+    }
+    return h;
+}
+
+static void who_take(struct report_who *w, const unsigned char *record) {
+    const struct game_records *r = &REC[g_game];
+    w->known = 1;
+    w->sex = *(const int *)(record + r->sex);
+    w->head = *(const int *)(record + r->head);
+    w->body = *(const int *)(record + r->body);
+    w->age = rec_age(record);
+    w->name = who_hash(record + r->name, r->name_capacity, 1);
+    w->prefs = PREFS[g_game][2] != 0u
+        ? who_hash(record + PREFS[g_game][0], 4u * PREFS[g_game][2], 0)
+              ^ (who_hash(record + PREFS[g_game][1], 4u * PREFS[g_game][2], 0) * 31u)
+        : 0u;
+}
+
+/* Whether `record` is still the villager `w` was taken from: the same sex, and nothing of name, looks,
+   likes-and-dislikes changed -- or exactly one of them, changed IN PLACE: her age the same as at the
+   last look or one unit on (Codex, #601).  A load with no save between can put the saved occupant
+   straight into the newcomer's record, sharing two of those with her; that is another villager, of
+   her own age, and the report is never carried to her. */
+static int who_still(const struct report_who *w, const unsigned char *record) {
+    struct report_who now;
+    int changed;
+    who_take(&now, record);
+    if (now.sex != w->sex) {
+        return 0;
+    }
+    changed = (now.name != w->name) + (now.head != w->head || now.body != w->body) + (now.prefs != w->prefs);
+    if (changed == 0) {
+        return 1;
+    }
+    return changed == 1 && now.age - w->age >= 0 && now.age - w->age <= 1;
+}
+
+static void report_follow(void) {
+    unsigned char *records = cod_records();
+    int i;
+    if (records == NULL) {
+        return;
+    }
+    for (i = 0; i < RECORDS_MAX && (unsigned int)i < REC[g_game].slots; ++i) {
+        const unsigned char *record = records + (size_t)i * REC[g_game].stride;
+        if (arrived[i] == REPORT_NONE && arrivals[i].state == ARRIVAL_NONE) {
+            report_who[i].known = 0;
+            continue;
+        }
+        if (!roster_member(record)) {
+            if (report_who[i].known) {
+                /* Emptied with no departure reported (a departure clears the report): the village
+                   was loaded again, without the villager the report was made for. */
+                arrived[i] = REPORT_NONE;
+                arrivals[i].state = ARRIVAL_NONE;
+                report_who[i].known = 0;
+            }
+            continue;
+        }
+        if (!report_who[i].known) {
+            who_take(&report_who[i], record);   /* the first look after the creator */
+            continue;
+        }
+        if (!who_still(&report_who[i], record)) {
+            arrived[i] = REPORT_NONE;           /* somebody else in the record now */
+            arrivals[i].state = ARRIVAL_NONE;
+            report_who[i].known = 0;
+            continue;
+        }
+        who_take(&report_who[i], record);       /* changed in place: the report goes on with them */
+    }
+}
+
 /* Every frame: decide what was made, and see New Believers' conversions. */
 static void arrival_tick(void) {
     unsigned char *records = cod_records();
     int i;
+    report_follow();
     for (i = 0; i < RECORDS_MAX && (unsigned int)i < REC[g_game].slots; ++i) {
         arrival_decide(i);
     }

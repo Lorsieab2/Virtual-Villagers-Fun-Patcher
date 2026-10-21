@@ -124,7 +124,25 @@ be possible." Every offered event that has anything to decide gets settings in t
 Pick Island Event dialog (the event list on the left; the event's settings on the
 right, one row each, with the selected row's dropdown, a number box for an amount
 with a wide range, and a villager list with Ctrl/Shift extended selection for
-"Choose who"). Every setting starts at **Random (original game)**. The full list,
+"Choose who"). Every setting starts at **Random (original game)**.
+
+Since v1.35.80 (the owner: "make sure all these windows are expandable"): the
+dialog -- like every dialog of the Story Upgrades and every game's Origins menu
+companion (the VV1 / VV2 / VV4 Origins Icons, VV3 Safe Upgrades, VV5 Task9 Origins
+Icons, which VV4 also uses in the Expanded modes) -- has a sizing frame and minimise / maximise boxes
+(`native/shared/vvfp_dialog_kit.h`). Its smallest size is its own; larger, every
+control keeps its share of the window (lists, text and drop-downs grow; buttons
+and art keep their size); minimised it has a taskbar button of its own and the
+game behind it is left as it is. The lists' entries wrap, so no entry is cut
+off, every drop-down opens as wide as its widest entry, and every description and
+note fits at the smallest size (`tests/test_resizable_pickers.py` measures them).
+A villager list or drop-down has a **sort selector**: the game's own order, **Age
+(oldest at top)** (ties by name) or **Alphabetical (first name, then last name)**
+(case-insensitive, numbered names in numeral order: Kenobi I, II, III, ...),
+kept per game for the session; the chosen villagers stay chosen. The same
+selector is on the Custom Island Event's villager lists (Villager changes and its
+father, Parents, Revive -- made oldest first, so Age or Alphabetical -- and the
+question's picture). The full list,
 per game and event, is `docs/story-island-outcomes.md` (generated); the evidence
 for each (the code it was traced in) is in `scripts/story_outcomes_vv1.py` ...
 `story_outcomes_vv5.py`.
@@ -251,6 +269,18 @@ An armed choice also ends after ten minutes without a ring and when the save
 slot changes. It works with the Gong of Wonder Coconuts Fix ticked or not (none
 of its sites overlap the fix's bytes; with the fix, the coconut results add 30
 instead of setting 30).
+
+The picker has the Pick Island Event dialog's format (the owner, v1.35.80: "I
+like the format of the 'Pick Island Events' better"): the list on the left is
+**What the Gong does** -- "Random (original game)" first, then all 23 results in
+the game's own words under the headings Tier A (6), Tier B (9) and Tier C (8) --
+and choosing one lists on the right only that result's own settings (its amount,
+who falls sick, the skill, the babies, the villager who rang it; Random lists them
+all). While the result is left Random with any other setting made, the window
+and the purchase's confirmation say "The effect itself is still random - pick it
+in 'What the Gong does'": the effect is then the game's own roll, as designed
+(the owner's v1.35.80 preview report of a random effect was this case). OK keeps
+only the chosen result's own settings.
 
 Every outcome (the owner, 2026-10-20: "I want ALL of them"):
 
@@ -431,6 +461,14 @@ Event on the Origins Tech menu. Its plain Windows dialogs:
   list opens: Golden Child (A New Home), Esteemed Elder and their totem (The
   Lost Children), Tribal Chief (The Secret City), Believer, Retired Chief or
   Heathen type (New Believers). The Tree of Life keeps no such role.
+  The **action** list offers every action the game's own code can start for
+  one villager (island events', puzzles', the Golden Child's, the Tribal
+  Chief's and the Heathens' included), for any villager, labelled with the
+  text the Details screen then shows, grouped and sorted; an action that may
+  harm the game or the save ends "(Unsafe)" and its reason is shown, with the
+  advice to back up the save, before it is confirmed. The full list per game
+  is `docs/custom-island-event-villager-actions.md`
+  (scripts/build_cie_actions_doc.py).
 * **New villagers**: how many, sex, age, name, head and body, likes and
   dislikes, skills, custom title, mask.
 * **Parents**: the parentage data of the chosen villagers.

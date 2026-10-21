@@ -700,6 +700,7 @@ static void arrival_save(int slot, int same_village);
 static void arrival_reset(int slot);
 static void arrival_noted_birth(int index);
 static void arrival_backfill_at_save(int slot, const void *save_buffer);
+static void report_follow(void);
 static void births_backfill_at_save(int slot, const void *save_buffer);
 
 /* cod_cie.inc: the bodies the Custom Island Event's "Dies" left (The Secret

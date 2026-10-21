@@ -4,6 +4,7 @@
 #include <string.h>   /* strrchr */
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/vvfp_dialog_kit.h" /* resizable dialogs (min / max), v1.35.80 */
 #include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
@@ -630,14 +631,16 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
    name-only roster: then a mask only moves DOWN a record.  Returns 1 when
    the table changed. */
 static int vv5_mask_follow_table(unsigned char *table, const unsigned int *stored,
-                                 const unsigned int *live, int weak) {
+                                 const unsigned int *live, int weak, int in_play) {
     static unsigned char value[VV5_MAX_VILLAGERS], moved[VV5_MAX_VILLAGERS];
     static unsigned int moved_id[VV5_MAX_VILLAGERS];
     int i, changed, slots = vv5_slots();
     for (i = 0; i < slots; ++i) {
         value[i] = (unsigned char)((i & 1) ? (table[i >> 1] >> 4) & 0x0Fu : table[i >> 1] & 0x0Fu);
     }
-    changed = vv_mask_follow(slots, value, stored, stored, live, weak, moved, moved_id);
+    /* in_play: two looks during play, never the first after a load (vv_mask_follow_in_play). */
+    changed = in_play ? vv_mask_follow_in_play(slots, value, stored, stored, live, weak, moved, moved_id)
+                      : vv_mask_follow(slots, value, stored, stored, live, weak, moved, moved_id);
     vv_om_track(slots, moved, moved_id, g_vv5_mask_id);
     if (!changed) {
         return 0;
@@ -740,7 +743,7 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
         memcpy(table, buf, table_bytes);
         /* The file was written against the records as they were then; a
            reload has packed them since.  Each mask goes to its villager. */
-        g_vv5_rewrite_after_load = vv5_mask_follow_table(table, filesnap, against, weak) || weak;
+        g_vv5_rewrite_after_load = vv5_mask_follow_table(table, filesnap, against, weak, 0) || weak;
         if (weak) {
             vv_om_from_names(VV5_RECORD_COUNT, g_vv5_mask_id, names, live);
         }
@@ -851,7 +854,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
        gender and parents unchanged: the same villager.  The mask stays on
        its record, which takes the new identity, and the file says so now. */
     if (g_vv5_have_roster && slot == g_vv5_slot) {
-        int renamed = vv_roster_renamed(VV5_RECORD_COUNT, g_vv5_roster, g_vv5_stable, cur, cur_stable);
+        int renamed = vv_roster_renamed_in_play(VV5_RECORD_COUNT, g_vv5_roster, g_vv5_stable, cur, cur_stable);
         if (renamed >= 0) {
             g_vv5_roster[renamed] = cur[renamed];
             memcpy(g_vv5_stable, cur_stable, sizeof(cur_stable));
@@ -867,7 +870,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
             /* A birth, a death, or villagers renumbered: each mask goes to
                its villager -- and a record reused by a newborn no longer
                hands it the dead villager's mask. */
-            vv5_mask_follow_table(table, g_vv5_roster, cur, 0);
+            vv5_mask_follow_table(table, g_vv5_roster, cur, 0, 1);   /* in play */
             memcpy(g_vv5_roster, cur, sizeof(cur));
             memcpy(g_vv5_stable, cur_stable, sizeof(cur_stable));
             WriteMaskSidecar(table);
@@ -1306,6 +1309,10 @@ static INT_PTR CALLBACK appearance_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(5, window);   /* "OK deducts 0 tech points" */
         appearance_update_mask_label(window);
@@ -1740,6 +1747,10 @@ static void caf_update_gray(HWND w) {
 }
 
 static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(w, msg, wp, lp, &vk_handled)) {
+        return vk_handled;
+    }
     if (msg == WM_INITDIALOG) {
         vvfp_story_relabel(5, w);   /* "OK deducts 0 tech points" */
         caf_body[0] = caf_body[1] = caf_head[0] = caf_head[1] = caf_mask[0] = caf_mask[1] = -1;
@@ -2294,6 +2305,10 @@ static INT_PTR CALLBACK upgrade_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         int limited_capability = (lparam & STATE_LIMITED_CAPABILITY) != 0;

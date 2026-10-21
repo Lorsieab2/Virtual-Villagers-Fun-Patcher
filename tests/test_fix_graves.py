@@ -203,6 +203,24 @@ class CustomIslandEventDeaths(unittest.TestCase):
             self.assertEqual(vg.check_value(game, "cause", self.CIE), self.CIE)
             self.assertIn(self.CIE, vg.cause_words(game))
 
+    def test_spaces_at_the_ends_of_a_graves_text_are_no_difference(self):
+        # The owner's Lost Children village (audit, 2026-10-20): Banga Shartati's grave says "Parent, Teacher,
+        # Friend " -- a space at the end, which a log line cannot keep -- and the Death record "Parent, Teacher,
+        # Friend".  Shown as the same words on both sides, and picking the grave's own value changed nothing,
+        # so the question came back at every Repair.  It is no difference; a real one still is.
+        words = "Parent, Teacher, Friend"
+        for game in (2, 3, 4, 5):
+            with self.subTest(game=game):
+                job = 0 if game >= 3 else None
+                v = self.village(game, [grave_bytes(game, "Mia", 1000, job=job, epitaph=words + " ")],
+                                 death(1, "Mia", 1000, epitaph=words),
+                                 stones=[(0, words + " ")] if game == 3 else ())
+                self.assertEqual([d.field for d in vg.survey(v.folder, game, 1).differences], [])
+                w = self.village(game, [grave_bytes(game, "Mia", 1000, job=job, epitaph="Respected Citizen")],
+                                 death(1, "Mia", 1000, epitaph=words),
+                                 stones=[(0, "Respected Citizen")] if game == 3 else ())
+                self.assertEqual([d.field for d in vg.survey(w.folder, game, 1).differences], ["epitaph"])
+
     def graves_file(self, v, game, version, cause):
         path = vg.graves_file(v.folder, game, 1)
         path.parent.mkdir(parents=True, exist_ok=True)

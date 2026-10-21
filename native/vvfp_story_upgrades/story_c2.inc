@@ -218,9 +218,9 @@ static int c2_conceive(int index, int litter, int father, ce_result *result) {
 
 static const char *const C2_STATUSES[] = {
     "Becomes an Esteemed Elder (with a totem)",
-    "Totem: brown face, blue mouth", "Totem: green figure", "Totem: teal, red crest",
-    "Totem: yellow and purple", "Totem: red headdress", "Totem: dark navy face",
-    "Totem: tall carved wood", "Totem: green grinning face",
+    "Totem: colour 1", "Totem: colour 2", "Totem: colour 3",
+    "Totem: colour 4", "Totem: colour 5", "Totem: colour 6",
+    "Totem: colour 7", "Totem: colour 8",
 };
 
 static int c2_totems(void) {
@@ -330,71 +330,204 @@ static int c2_set_status(int index, int status) {
    Blessings Day's celebration 0x452920, the Day of Honor's grave visit
    0x454890, Spring Allergies' sneeze 0x44AF20, the Origins Full Heal's
    cure), then the starters the game's idle choosers, job dispatcher and drop
-   handler call.  Never: puzzle actions, burial, pickups, new clothes,
-   embracing, lessons or games that stop other villagers, or a starter no
-   stock code calls. */
+   handler call.  The owner (2026-10-21): every action is offered, labelled
+   with the text the Details screen then shows; one that may harm the game or
+   the save ends " (Unsafe)" with its reason (shown before it is confirmed).
+   "Celebrating" is 0x459B60(index, place, 0): the village celebration
+   0x45D7D0's places (Blessings Day's 0x452920 is "Relaxing at the beach").
+   What an action needs that the game passes (the body to bury, ...) is found
+   when the event happens, the way the game finds it; with none there the
+   change is refused.  Nothing is left out (the owner, 2026-10-21). */
+
+
+/* ---- generated: what some actions are started with ---- */
+static const ce_supply C2_SUPPLY_133 = { CE_SUPPLY_BODY, 0, 0x0u, 0x0u, CE_REFUSE_MINUS1, -1, 0x0u };
+static const int C2_ARGS_134[8] = { 1, 0, 0, 0, 0, 0, 0, 0 };
+static const int C2_ARGS_137[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+/* ---- end of generated ---- */
+
 static const ce_action C2_BEHAVIOURS[] = {
-    { "Stops what they are doing", ACT_STOP, 0x4492A0u, 0 },
-    { "Enjoys the pond (Heat Wave swim)", ACT_CALL, 0x451690u, 0 },
-    { "Relaxes at the beach (Blessings Day)", ACT_CALL, 0x452920u, 0 },
-    { "Honors the dead (Day of Honor)", ACT_CALL, 0x454890u, 0 },
-    { "Sneezes", ACT_EFFECT, 0x44AF20u, 0 },
-    { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0 },
-    { "Does something of their own choosing", ACT_CALL, 0x461850u, 0 },
-    { "Dances", ACT_CALL, 0x450580u, 0 },
-    { "Dances in a circle (a long dance)", ACT_CALL, 0x4530E0u, 0 },
-    { "Rain dancing", ACT_CALL, 0x455A20u, 0 },
-    { "Jumpy!", ACT_CALL, 0x455AC0u, 0 },
-    { "Enjoys the pond", ACT_CALL, 0x45F420u, 0 },
-    { "Goes swimming", ACT_CALL_ARG, 0x45C1B0u, 0 },
-    { "Relaxes at the beach", ACT_CALL, 0x451E10u, 0 },
-    { "Relaxes", ACT_CALL, 0x454AB0u, 0 },
-    { "Reflects", ACT_CALL, 0x4523A0u, 0 },
-    { "Exercises (Building practice)", ACT_CALL, 0x455330u, 0 },
-    { "Gets a drink", ACT_CALL, 0x453430u, 0 },
-    { "Cools their feet in the stream", ACT_CALL, 0x453A70u, 0 },
-    { "Does the laundry", ACT_CALL, 0x453D10u, 0 },
-    { "Listens to a story", ACT_CALL, 0x44A0E0u, 0 },
-    { "Tells a story (Parenting practice)", ACT_CALL, 0x449F40u, 0 },
-    { "Thinking", ACT_CALL, 0x44FE10u, 0 },
-    { "Unsure what to do (wanders)", ACT_CALL, 0x45E700u, 0 },
-    { "Nature is calling!", ACT_CALL, 0x45CD00u, 0 },
-    { "A little bit lonely", ACT_CALL, 0x45CDC0u, 0 },
-    { "Goes indoors", ACT_CALL, 0x44A240u, 0 },
-    { "Runs away", ACT_CALL, 0x44B010u, 0 },
-    { "Shakes their head", ACT_CALL, 0x44B1B0u, 0 },
-    { "Not feeling well (only looks it)", ACT_CALL, 0x45C590u, 0 },
-    { "Recovers at the hospital", ACT_CALL, 0x45C250u, 0 },
-    { "Admires the ancient mosaic", ACT_CALL, 0x457AA0u, 0 },
-    { "Admires the ancient gong encasement", ACT_CALL, 0x459710u, 0 },
-    { "Observes the Gong of Wonder", ACT_CALL, 0x459980u, 0 },
-    { "Reads the writings on the wall", ACT_CALL, 0x459A50u, 0 },
-    { "Curious about the thorny bushes", ACT_CALL, 0x4501F0u, 0 },
-    { "Curious about the ancient place", ACT_CALL, 0x4503C0u, 0 },
-    { "Curious about the vines", ACT_CALL, 0x454F50u, 0 },
-    { "Curious about the patch of soil", ACT_CALL, 0x455030u, 0 },
-    { "Curious about the strange flower", ACT_CALL, 0x45D670u, 0 },
-    { "Tries to reach the coconuts (children)", ACT_CALL, 0x454BC0u, 0 },
-    { "Plays in the very narrow stream (children)", ACT_CALL, 0x454D40u, 0 },
-    { "Looks at the dry shrubs (children)", ACT_CALL, 0x454E40u, 0 },
-    { "Looks at the fire (children)", ACT_CALL, 0x455170u, 0 },
-    { "Fishes (Farming practice, food)", ACT_CALL, 0x4507A0u, 0 },
-    { "Harvests coconuts (Farming practice, food)", ACT_CALL, 0x456F70u, 0 },
-    { "Plants or harvests crops (Farming practice)", ACT_CALL, 0x4593D0u, 0 },
-    { "Waters the crops (Farming practice)", ACT_CALL, 0x45D280u, 0 },
-    { "Eats (uses food)", ACT_CALL, 0x4513F0u, 0 },
+    { "Stops what they are doing", ACT_STOP, 0x4492A0u, 0, CE_GROUP_GENERAL, NULL },
+    { "Enjoying the pond (Heat Wave swim)", ACT_CALL, 0x451690u, 0, CE_GROUP_LEISURE, NULL },
+    { "Relaxing at the beach (Blessings Day)", ACT_CALL, 0x452920u, 0, CE_GROUP_LEISURE, NULL },
+    { "Honoring the Dead (Day of Honor)", ACT_CALL, 0x454890u, 0, CE_GROUP_DEVOTION, NULL },
+    { "Sneezes", ACT_EFFECT, 0x44AF20u, 0, CE_GROUP_HEALTH, NULL },
+    { "Recovers fully (cured, full health)", ACT_RECOVER, 0, 0, CE_GROUP_GENERAL, NULL },
+    { "Nothing (then does something of their own choosing)", ACT_CALL, 0x461850u, 0, CE_GROUP_GENERAL, NULL },
+    { "Dancing", ACT_CALL, 0x450580u, 0, CE_GROUP_CELEBRATION, NULL },
+    { "Dancing (a long dance in a circle)", ACT_CALL, 0x4530E0u, 0, CE_GROUP_CELEBRATION, NULL },
+    { "Rain dancing", ACT_CALL, 0x455A20u, 0, CE_GROUP_CELEBRATION, NULL },
+    { "Jumpy!", ACT_CALL, 0x455AC0u, 0, CE_GROUP_MOOD, NULL },
+    { "Enjoying the pond", ACT_CALL, 0x45F420u, 0, CE_GROUP_LEISURE, NULL },
+    { "Going swimming", ACT_CALL_ARG, 0x45C1B0u, 0, CE_GROUP_LEISURE, NULL },
+    { "Relaxing at the beach", ACT_CALL, 0x451E10u, 0, CE_GROUP_LEISURE, NULL },
+    { "Relaxing", ACT_CALL, 0x454AB0u, 0, CE_GROUP_LEISURE, NULL },
+    { "Reflecting", ACT_CALL, 0x4523A0u, 0, CE_GROUP_LEISURE, NULL },
+    { "Exercising (Building practice)", ACT_CALL, 0x455330u, 0, CE_GROUP_LEISURE, NULL },
+    { "Getting a drink", ACT_CALL, 0x453430u, 0, CE_GROUP_HEALTH, NULL },
+    { "Cooling feet in stream", ACT_CALL, 0x453A70u, 0, CE_GROUP_LEISURE, NULL },
+    { "Doing laundry", ACT_CALL, 0x453D10u, 0, CE_GROUP_WORK, NULL },
+    { "Listening to a story", ACT_CALL, 0x44A0E0u, 0, CE_GROUP_CHILDREN, NULL },
+    { "Telling a story (Parenting practice)", ACT_CALL, 0x449F40u, 0, CE_GROUP_FAMILY, NULL },
+    { "Thinking (or Worried about food or housing)", ACT_CALL, 0x44FE10u, 0, CE_GROUP_MOOD, NULL },
+    { "Unsure what to do (or Caring for baby / Worried about food)", ACT_CALL, 0x45E700u, 0, CE_GROUP_MOOD, NULL },
+    { "Nature is calling!", ACT_CALL, 0x45CD00u, 0, CE_GROUP_MOOD, NULL },
+    { "A little bit lonely", ACT_CALL, 0x45CDC0u, 0, CE_GROUP_MOOD, NULL },
+    { "Going indoors", ACT_CALL, 0x44A240u, 0, CE_GROUP_MOOD, NULL },
+    { "Running away", ACT_CALL, 0x44B010u, 0, CE_GROUP_MOOD, NULL },
+    { "Shaking head", ACT_CALL, 0x44B1B0u, 0, CE_GROUP_MOOD, NULL },
+    { "Not feeling well (only looks it)", ACT_CALL, 0x45C590u, 0, CE_GROUP_HEALTH, NULL },
+    { "Recovering at the hospital", ACT_CALL, 0x45C250u, 0, CE_GROUP_HEALTH, NULL },
+    { "Admiring the ancient mosaic", ACT_CALL, 0x457AA0u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Admiring the ancient gong encasement", ACT_CALL, 0x459710u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Observing the Gong of Wonder", ACT_CALL, 0x459980u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Reading the writings on the wall", ACT_CALL, 0x459A50u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the thorny bushes", ACT_CALL, 0x4501F0u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the ancient place", ACT_CALL, 0x4503C0u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the vines", ACT_CALL, 0x454F50u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the patch of soil", ACT_CALL, 0x455030u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Curious about the strange flower", ACT_CALL, 0x45D670u, 0, CE_GROUP_CURIOSITY, NULL },
+    { "Trying to reach coconuts (children)", ACT_CALL, 0x454BC0u, 0, CE_GROUP_CHILDREN, NULL },
+    { "Playing in the very narrow stream (children)", ACT_CALL, 0x454D40u, 0, CE_GROUP_CHILDREN, NULL },
+    { "Looking at the dry shrubs (children)", ACT_CALL, 0x454E40u, 0, CE_GROUP_CHILDREN, NULL },
+    { "Looking at the fire (children)", ACT_CALL, 0x455170u, 0, CE_GROUP_CHILDREN, NULL },
+    { "Fishing / Disgusted by the algae (Farming practice, food)", ACT_CALL, 0x4507A0u, 0, CE_GROUP_WORK, NULL },
+    { "Harvesting coconuts (Farming practice, food)", ACT_CALL, 0x456F70u, 0, CE_GROUP_WORK, NULL },
+    { "Planting crops / Harvesting crops (Farming practice)", ACT_CALL, 0x4593D0u, 0, CE_GROUP_WORK, NULL },
+    { "Watering crops (Farming practice)", ACT_CALL, 0x45D280u, 0, CE_GROUP_WORK, NULL },
+    { "Eating (uses food)", ACT_CALL, 0x4513F0u, 0, CE_GROUP_HEALTH, NULL },
+    { "Celebrating (The Lovely Hut)", ACT_CALL_ARG2, 0x459B60u, 1, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (Fire)", ACT_CALL_ARG2, 0x459B60u, 2, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Scarecrow)", ACT_CALL_ARG2, 0x459B60u, 3, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Elder Totem)", ACT_CALL_ARG2, 0x459B60u, 4, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Hospital)", ACT_CALL_ARG2, 0x459B60u, 5, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (Herb Mastery)", ACT_CALL_ARG2, 0x459B60u, 6, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Sewing Hut)", ACT_CALL_ARG2, 0x459B60u, 7, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Dam)", ACT_CALL_ARG2, 0x459B60u, 8, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Cutting Tool)", ACT_CALL_ARG2, 0x459B60u, 9, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Stew)", ACT_CALL_ARG2, 0x459B60u, 10, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Vine Wall)", ACT_CALL_ARG2, 0x459B60u, 11, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Ancient Mosaic)", ACT_CALL_ARG2, 0x459B60u, 12, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Boxed Gong Piece)", ACT_CALL_ARG2, 0x459B60u, 13, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Sunken Gong Piece)", ACT_CALL_ARG2, 0x459B60u, 14, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Inlaid Gong Piece)", ACT_CALL_ARG2, 0x459B60u, 16, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Overgrown Gong Piece)", ACT_CALL_ARG2, 0x459B60u, 17, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (Sustainable Fishing)", ACT_CALL_ARG2, 0x459B60u, 18, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (The Gong of Wonder)", ACT_CALL_ARG2, 0x459B60u, 19, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (a new hut, first hut place) [Old Friends]", ACT_CALL_ARG2, 0x459B60u, 24, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (a new hut, second hut place; also Blessings Day) [Day of Elders, Blessings Day Celebration]", ACT_CALL_ARG2, 0x459B60u, 25, CE_GROUP_CELEBRATION, NULL },
+    { "Celebrating (a new hut, third hut place)", ACT_CALL_ARG2, 0x459B60u, 26, CE_GROUP_CELEBRATION, NULL },
+    { "Sitting", ACT_CALL_ARG, 0x44A1E0u, 15, CE_GROUP_LEISURE, NULL },
+    { "Bored (or Caring for baby / Worried about food or housing)", ACT_CALL, 0x450020u, 0, CE_GROUP_MOOD, NULL },
+    { "Watching the construction / Watching the scientists work (or another job; children)", ACT_CALL, 0x45DE10u, 0, CE_GROUP_CHILDREN, NULL },
+    { "Waiting for someone", ACT_CALL, 0x45D4B0u, 0, CE_GROUP_MOOD, NULL },
+    { "Healing someone (Healing practice, cures nobody)", ACT_CALL, 0x45D580u, 0, CE_GROUP_WORK, NULL },
+    { "Researching (Research practice, tech points)", ACT_CALL_ARG, 0x457CC0u, 0, CE_GROUP_WORK, NULL },
+    { "Showing baby the ocean (Unsafe)", ACT_CALL, 0x45D890u, 0, CE_GROUP_FAMILY, "Meant for a mother holding her baby; may look odd for anyone else" },
+    { "Washing baby (Unsafe)", ACT_CALL, 0x45DA60u, 0, CE_GROUP_FAMILY, "Meant for a mother holding her baby; may look odd for anyone else" },
+    { "Changing baby (Unsafe)", ACT_CALL, 0x45DD20u, 0, CE_GROUP_FAMILY, "Meant for a mother holding her baby; may look odd for anyone else" },
+    { "Playing tag (Unsafe)", ACT_CALL, 0x455CF0u, 0, CE_GROUP_CHILDREN, "Starts a game of tag that stops other idle children; needs two of them or it just stops" },
+    { "Chatting / Telling a joke / Arguing / Complaining / Praising / Teaching / Telling a story (Unsafe)", ACT_CALL, 0x45F640u, 0, CE_GROUP_MOOD, "Stops another villager nearby to talk with them" },
+    { "Embracing (Unsafe)", ACT_CALL, 0x45D510u, 0, CE_GROUP_FAMILY, "Half of the game's pairing: done alone it may look odd" },
+    { "Confused (says: It is too hard to do alone) (Unsafe)", ACT_CALL_ARG, 0x454590u, 850, CE_GROUP_MOOD, "Uses up the game's one-time tip about confused villagers" },
+    { "Going to village center (then picks something to do there) (Unsafe)", ACT_CALL, 0x45EE00u, 0, CE_GROUP_MOOD, "May go on to start a game of tag that stops other children" },
+    { "Teaching children (or Attending lessons, for a child) (Unsafe)", ACT_CALL, 0x44A4E0u, 0, CE_GROUP_CHILDREN, "Starts a lesson that stops the village's children to attend" },
+    { "Rebuilding broken hut (Unsafe)", ACT_CALL, 0x44AB90u, 0, CE_GROUP_WORK, "Counts toward The Lovely Hut puzzle (it can complete it)" },
+    { "Trying to open the crate (Unsafe)", ACT_CALL, 0x454730u, 0, CE_GROUP_STORY, "Counts toward opening the crate (The Boxed Gong Piece); may show a hint instead" },
+    { "Retrieving something from the pond (Unsafe)", ACT_CALL, 0x450D50u, 0, CE_GROUP_STORY, "Counts toward The Sunken Gong Piece puzzle (it can complete it)" },
+    { "Retrieving a piece of the gong (the boxed piece) (Unsafe)", ACT_CALL, 0x451040u, 0, CE_GROUP_STORY, "Counts toward The Boxed Gong Piece puzzle (it can complete it)" },
+    { "Retrieving a piece of the gong (the inlaid piece) (Unsafe)", ACT_CALL, 0x451210u, 0, CE_GROUP_STORY, "Counts toward The Inlaid Gong Piece puzzle (it can complete it)" },
+    { "Eating (the stew) (Unsafe)", ACT_CALL, 0x451550u, 0, CE_GROUP_HEALTH, "Eats from the stew: its effect depends on the stew (may heal, sicken or cure)" },
+    { "Removing the vines (Unsafe)", ACT_CALL_ARG, 0x453630u, 1, CE_GROUP_WORK, "Counts toward The Vine Wall puzzle (it can complete it)" },
+    { "Gathering dry grass (Unsafe)", ACT_CALL, 0x457FB0u, 0, CE_GROUP_WORK, "Counts toward the Fire puzzle (it can complete it)" },
+    { "Gathering firewood (Unsafe)", ACT_CALL, 0x4581D0u, 0, CE_GROUP_WORK, "Counts toward the Fire puzzle (it can complete it)" },
+    { "Starting a fire (Unsafe)", ACT_CALL, 0x458390u, 0, CE_GROUP_STORY, "Starts the fire: completes the Fire puzzle" },
+    { "Creating cutting tools (Unsafe)", ACT_CALL, 0x458440u, 0, CE_GROUP_STORY, "Counts toward The Cutting Tool puzzle (it can complete it)" },
+    { "Creating cutting tools (another way) (Unsafe)", ACT_CALL, 0x4585B0u, 0, CE_GROUP_STORY, "Counts toward The Cutting Tool puzzle (it can complete it)" },
+    { "Retrieving a cauldron (Unsafe)", ACT_CALL, 0x458810u, 0, CE_GROUP_STORY, "Counts toward The Stew puzzle (it can complete it)" },
+    { "Studying strange plant (herb 1) (Unsafe)", ACT_CALL, 0x458CD0u, 0, CE_GROUP_STORY, "Counts toward the Herb Mastery puzzle (it can complete it)" },
+    { "Studying strange plant (herb 2) (Unsafe)", ACT_CALL, 0x4589A0u, 0, CE_GROUP_STORY, "Counts toward the Herb Mastery puzzle (it can complete it)" },
+    { "Studying strange plant (herb 3) (Unsafe)", ACT_CALL, 0x458B70u, 0, CE_GROUP_STORY, "Counts toward the Herb Mastery puzzle (it can complete it)" },
+    { "Studying strange plant (herb 4) (Unsafe)", ACT_CALL, 0x458E30u, 0, CE_GROUP_STORY, "Counts toward the Herb Mastery puzzle (it can complete it)" },
+    { "Studying strange plant (herb 5) (Unsafe)", ACT_CALL, 0x458FD0u, 0, CE_GROUP_STORY, "Counts toward the Herb Mastery puzzle (it can complete it)" },
+    { "Studying strange plant (herb 6) (Unsafe)", ACT_CALL, 0x459130u, 0, CE_GROUP_STORY, "Counts toward the Herb Mastery puzzle (it can complete it)" },
+    { "Ringing the Gong of Wonder (Unsafe)", ACT_CALL, 0x459820u, 0, CE_GROUP_STORY, "Rings the Gong of Wonder: it grants or takes food, tech, youth, health or life (once a day)" },
+    { "Uncovering ancient ruins (Unsafe)", ACT_CALL, 0x45A000u, 0, CE_GROUP_WORK, "Counts toward The Ancient Mosaic puzzle (it can complete it)" },
+    { "Building a scarecrow (Unsafe)", ACT_CALL, 0x45A270u, 0, CE_GROUP_WORK, "Counts toward The Scarecrow puzzle (it can complete it)" },
+    { "Starting to prepare a stew (Unsafe)", ACT_CALL, 0x45A4A0u, 0, CE_GROUP_STORY, "Starts a stew: changes the stew and uses food" },
+    { "Adding an herb to the stew (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 33, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Adding food to the stew (Unsafe)", ACT_CALL, 0x45AD70u, 0, CE_GROUP_STORY, "Changes the stew and uses food" },
+    { "Adding water to the stew (Unsafe)", ACT_CALL, 0x45AF30u, 0, CE_GROUP_STORY, "Changes the stew" },
+    { "Cutting away briar thorns (Unsafe)", ACT_CALL_ARG, 0x45B0E0u, 1, CE_GROUP_WORK, "Counts toward The Overgrown Gong Piece puzzle (it can complete it)" },
+    { "Building a dam (Unsafe)", ACT_CALL, 0x45BA20u, 0, CE_GROUP_WORK, "Counts toward The Dam puzzle (it can complete it)" },
+    { "Picking a mushroom (Unsafe)", ACT_CALL, 0x45BCA0u, 0, CE_GROUP_STORY, "Picks the mushroom: changes the mushroom state and Mushrooms Found" },
+    { "Collecting a new item! (Unsafe)", ACT_CALL, 0x45BF10u, 0, CE_GROUP_STORY, "Collects the item lying on the map: changes the collections" },
+    { "Getting new clothes! (Unsafe)", ACT_CALL, 0x45CEB0u, 0, CE_GROUP_STORY, "Starts the sewing hut's new outfit for this villager" },
+    { "Catching algae-eating fish! (Unsafe)", ACT_CALL, 0x45D030u, 0, CE_GROUP_STORY, "Counts toward Sustainable Fishing puzzle (it can complete it)" },
+    { "Building small hut (first hut place) (Unsafe)", ACT_CALL_ARG2, 0x457130u, 24, CE_GROUP_WORK, "Builds at that place, even before the game allows it: adds building progress" },
+    { "Building small hut (second hut place) (Unsafe)", ACT_CALL_ARG2, 0x457130u, 25, CE_GROUP_WORK, "Builds at that place, even before the game allows it: adds building progress" },
+    { "Building small hut (third hut place) (Unsafe)", ACT_CALL_ARG2, 0x457130u, 26, CE_GROUP_WORK, "Builds at that place, even before the game allows it: adds building progress" },
+    { "Building a hospital (Unsafe)", ACT_CALL_ARG2, 0x457130u, 5, CE_GROUP_WORK, "Builds at that place, even before the game allows it: adds building progress" },
+    { "Building a sewing hut (Unsafe)", ACT_CALL_ARG2, 0x457130u, 7, CE_GROUP_WORK, "Builds at that place, even before the game allows it: adds building progress" },
+    { "Examining hut (first hut place) (Unsafe)", ACT_CALL_ARG, 0x45F7C0u, 24, CE_GROUP_WORK, "The place may be empty or unbuilt; may go on to fix that building" },
+    { "Examining hut (second hut place) (Unsafe)", ACT_CALL_ARG, 0x45F7C0u, 25, CE_GROUP_WORK, "The place may be empty or unbuilt; may go on to fix that building" },
+    { "Examining hut (third hut place) (Unsafe)", ACT_CALL_ARG, 0x45F7C0u, 26, CE_GROUP_WORK, "The place may be empty or unbuilt; may go on to fix that building" },
+    { "Examining hut (the hospital) (Unsafe)", ACT_CALL_ARG, 0x45F7C0u, 5, CE_GROUP_WORK, "The place may be empty or unbuilt; may go on to fix that building" },
+    { "Examining hut (the sewing hut) (Unsafe)", ACT_CALL_ARG, 0x45F7C0u, 7, CE_GROUP_WORK, "The place may be empty or unbuilt; may go on to fix that building" },
+    { "Fixing hut (first hut place) (Unsafe)", ACT_CALL_ARG, 0x4575B0u, 24, CE_GROUP_WORK, "The place may be empty or unbuilt; works on that building" },
+    { "Fixing hut (second hut place) (Unsafe)", ACT_CALL_ARG, 0x4575B0u, 25, CE_GROUP_WORK, "The place may be empty or unbuilt; works on that building" },
+    { "Fixing hut (third hut place) (Unsafe)", ACT_CALL_ARG, 0x4575B0u, 26, CE_GROUP_WORK, "The place may be empty or unbuilt; works on that building" },
+    { "Fixing hut (the hospital) (Unsafe)", ACT_CALL_ARG, 0x4575B0u, 5, CE_GROUP_WORK, "The place may be empty or unbuilt; works on that building" },
+    { "Fixing hut (the sewing hut) (Unsafe)", ACT_CALL_ARG, 0x4575B0u, 7, CE_GROUP_WORK, "The place may be empty or unbuilt; works on that building" },
+    { "Enjoying the pond (another way) [The Heat Wave, Isola Day Celebration]", ACT_CALL_ARG, 0x45CB40u, 1, CE_GROUP_LEISURE, NULL },
+    { "Burying the dead (the first body awaiting burial) (Unsafe)", ACT_CALL_ARG, 0x459290u, 0, CE_GROUP_DEVOTION, "Buries the first body awaiting burial (a grave and the body removed); refused when there is none", NULL, &C2_SUPPLY_133 },
+    { "Greeting the guiding hand [Blessings Day Celebration] (Unsafe)", ACT_CALL_RAW, 0x454350u, 1, CE_GROUP_DEVOTION, "Moves the whole village: every living villager stops and walks to greet the guiding hand", C2_ARGS_134, NULL },
+    { "Strolling (or their job) [job dispatcher] (Unsafe)", ACT_CALL_ARG, 0x460590u, 100, CE_GROUP_MOOD, "The job dispatcher: does the villager's assigned job (puzzle jobs and hut building included) or strolls" },
+    { "Nothing (the game's reset) (Unsafe)", ACT_CALL, 0x449380u, 0, CE_GROUP_GENERAL, "The game's own reset of the villager's action state: their step queue and pose are set afresh" },
+    { "One tick of the action runner (no Details text: advances every villager's step) (Unsafe)", ACT_CALL_RAW, 0x464CD0u, 0, CE_GROUP_GENERAL, "Runs one extra tick of the whole village's action runner: every villager's step moves on, bodies decompose", C2_ARGS_137, NULL },
+    { "0x45F1B0 (no own Details text: picks an idle action - honoring, a dance) (Unsafe)", ACT_CALL, 0x45F1B0u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x45F310 (no own Details text: picks A little bit lonely or Rain dancing) (Unsafe)", ACT_CALL, 0x45F310u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x45F370 (no own Details text: picks Eating or Not feeling well) (Unsafe)", ACT_CALL_ARG, 0x45F370u, 100, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x45FBF0 (no own Details text: picks a farming job - fishing, crops) (Unsafe)", ACT_CALL_ARG, 0x45FBF0u, 1, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x460B20 (no own Details text: picks a daily action - eating, stew, a drink) (Unsafe)", ACT_CALL, 0x460B20u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x460C80 (no own Details text: picks a leisure action - swimming, a talk) (Unsafe)", ACT_CALL, 0x460C80u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x460E70 (no own Details text: picks a curiosity - bushes, gong, ruins, vines) (Unsafe)", ACT_CALL, 0x460E70u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "0x461580 (no own Details text: picks a building job - huts, puzzle jobs) (Unsafe)", ACT_CALL, 0x461580u, 0, CE_GROUP_MOOD, "The game's own chooser: it starts whatever it picks, puzzle jobs and actions that stop others included" },
+    { "Going swimming (job variant, argument 1) (Unsafe)", ACT_CALL_ARG, 0x45C1B0u, 1, CE_GROUP_LEISURE, "The leisure chooser's variant of the swim (argument 1); what the argument changes is not proven" },
+    { "Enjoying the pond (drop variant, argument 0) (Unsafe)", ACT_CALL_ARG, 0x45CB40u, 0, CE_GROUP_LEISURE, "The drop handler's pond swim (argument 0); what the argument changes is not proven" },
+    { "Researching (job variant, argument 1) (Unsafe)", ACT_CALL_ARG, 0x457CC0u, 1, CE_GROUP_WORK, "The job dispatcher's variant of research (argument 1); what the argument changes is not proven" },
+    { "Removing the vines (argument 0) (Unsafe)", ACT_CALL_ARG, 0x453630u, 0, CE_GROUP_WORK, "Counts toward The Vine Wall puzzle (it can complete it); the 0x461B10 caller's variant" },
+    { "Cutting away briar thorns (argument 0) (Unsafe)", ACT_CALL_ARG, 0x45B0E0u, 0, CE_GROUP_WORK, "Counts toward The Overgrown Gong Piece puzzle (it can complete it); the 0x461B10 caller's variant" },
+    { "Adding an herb to the stew (herb 2) (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 34, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Adding an herb to the stew (herb 3) (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 35, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Adding an herb to the stew (herb 4) (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 36, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Adding an herb to the stew (herb 5) (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 37, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Adding an herb to the stew (herb 6) (Unsafe)", ACT_CALL_ARG, 0x45A5C0u, 38, CE_GROUP_STORY, "Changes the stew (adds an herb)" },
+    { "Celebrating (place 15, no place of its own) (Unsafe)", ACT_CALL_ARG2, 0x459B60u, 15, CE_GROUP_CELEBRATION, "No stock caller passes this place: it falls to the routine's default spot" },
+    { "Celebrating (place 20, no place of its own) (Unsafe)", ACT_CALL_ARG2, 0x459B60u, 20, CE_GROUP_CELEBRATION, "No stock caller passes this place: it falls to the routine's default spot" },
+    { "Celebrating (place 21, no place of its own) (Unsafe)", ACT_CALL_ARG2, 0x459B60u, 21, CE_GROUP_CELEBRATION, "No stock caller passes this place: it falls to the routine's default spot" },
+    { "Celebrating (place 22, no place of its own) (Unsafe)", ACT_CALL_ARG2, 0x459B60u, 22, CE_GROUP_CELEBRATION, "No stock caller passes this place: it falls to the routine's default spot" },
+    { "Celebrating (place 23, no place of its own) (Unsafe)", ACT_CALL_ARG2, 0x459B60u, 23, CE_GROUP_CELEBRATION, "No stock caller passes this place: it falls to the routine's default spot" },
 };
 
 /* The stop 0x4492A0 first, as the drop handler and the stock events do
    (a sneeze is an effect, not an activity, and is not stopped for). */
+static int c2_skeleton(const unsigned char *r);
+
 static int c2_behave(int index, int behaviour) {
     unsigned char *pool = VV2_POOL();
     unsigned char *r = c2_record(index);
     const ce_action *act;
+    int value = 0;
+    int argument;
     if (behaviour < 0 || behaviour >= (int)(sizeof C2_BEHAVIOURS / sizeof C2_BEHAVIOURS[0])) {
         return 0;
     }
     act = &C2_BEHAVIOURS[behaviour];
+    if (!ce_supply_value(act, index, c2_record, c2_listed, c2_skeleton, &value)) {
+        return 0;
+    }
+    argument = act->supply != NULL && act->supply->slot == -1 ? value : act->arg;
     if (act->kind == ACT_EFFECT) {
         TC1(act->routine, pool, index);
         return 1;
@@ -407,7 +540,17 @@ static int c2_behave(int index, int behaviour) {
     if (act->kind == ACT_CALL) {
         TC1(act->routine, pool, index);
     } else if (act->kind == ACT_CALL_ARG) {
-        TC2(act->routine, pool, index, act->arg);
+        TC2(act->routine, pool, index, argument);
+    } else if (act->kind == ACT_CALL_ARG2) {
+        TC3(act->routine, pool, index, argument, 0);
+    } else if (act->kind == ACT_CALL_RAW) {
+        if (act->arg == 0) {
+            TC0(act->routine, pool);
+        } else if (act->arg == 1) {
+            TC1(act->routine, pool, act->args[0]);
+        } else {
+            TC2(act->routine, pool, act->args[0], act->args[1]);
+        }
     }
     return 1;
 }
@@ -764,10 +907,10 @@ static void c2_apply_spawn_fields(unsigned char *r, const ce_spawn *s) {
    (their statue's +0x550 modulo 8, as c2_set_status reads it). */
 static int c2_role(const unsigned char *r, const char **words) {
     static const char *const ELDER[] = {
-        "Esteemed Elder, totem: brown face, blue mouth", "Esteemed Elder, totem: green figure",
-        "Esteemed Elder, totem: teal, red crest", "Esteemed Elder, totem: yellow and purple",
-        "Esteemed Elder, totem: red headdress", "Esteemed Elder, totem: dark navy face",
-        "Esteemed Elder, totem: tall carved wood", "Esteemed Elder, totem: green grinning face",
+        "Esteemed Elder, totem: colour 1", "Esteemed Elder, totem: colour 2",
+        "Esteemed Elder, totem: colour 3", "Esteemed Elder, totem: colour 4",
+        "Esteemed Elder, totem: colour 5", "Esteemed Elder, totem: colour 6",
+        "Esteemed Elder, totem: colour 7", "Esteemed Elder, totem: colour 8",
     };
     const unsigned char *totem;
     if (r[0x7FC] == 0) {
@@ -822,8 +965,7 @@ static const ce_adapter C2_ADAPTER = {
     "- The unborn baby's starting skill: what the baby does with it at birth was not "
     "traced to the end, so only the father's name and looks are offered.\r\n"
     "- Golden Child, chief, faction: The Lost Children has none.\r\n"
-    "- Actions that solve or advance a puzzle, burying, picking things up, new clothes, "
-    "embracing, and lessons or games that stop other villagers.\r\n"
+    "- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n"
     "- Revive: totems, buried villagers (their record is gone) and skeletons that have "
     "already crumbled away.\r\n"
     "- Joey as a parent: only The Tree of Life and New Believers have him (their default "

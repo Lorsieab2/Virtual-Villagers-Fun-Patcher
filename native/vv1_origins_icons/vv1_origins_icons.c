@@ -6,6 +6,7 @@
 #include "vv1_head_buckets.h"     /* head-index buckets by hair colour (Heads override) */
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/vvfp_dialog_kit.h" /* resizable dialogs (min / max), v1.35.80 */
 #include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
 #include "../shared/skill_repair.h" /* reset obviously corrupted (out-of-range) skills */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
@@ -2493,6 +2494,10 @@ static INT_PTR CALLBACK upgrade_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
@@ -2800,6 +2805,10 @@ static INT_PTR CALLBACK appearance_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     (void)lparam;
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(VV_STORY_GAME, window);   /* "OK deducts 0 tech points" */
@@ -3128,6 +3137,10 @@ static void forall_draw_item(DRAWITEMSTRUCT *item) {
 
 static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
                                       WPARAM wparam, LPARAM lparam) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(VV_STORY_GAME, window);   /* "OK deducts 0 tech points" */
         forall_state.male_head = forall_state.male_body = forall_state.male_mask = FORALL_NO_CHANGE;

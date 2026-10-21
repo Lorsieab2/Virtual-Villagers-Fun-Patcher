@@ -79,6 +79,7 @@
 #include "patcher_files.h"
 #include "arrival_backfill.h"
 #include "custom_titles.h"          /* vv_title_identity: the Former Heathens file's key */
+#include "former_heathens.h"        /* vv_former_lookup: how the readers find an entry */
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -117,7 +118,9 @@ static const struct layout LAYOUTS[5] = {
     { 5, 0x2F44, 150, 0x48, 0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1C40, 0x1B90, 0x154148u, 0,
       0x1F5C, 0x1F68, 3, 0x1BC0 },
 };
+#ifndef VV5_FACTION
 #define VV5_FACTION 0x1CEC
+#endif
 
 /* One marker per game from cod_arrival_sites.inc: a birth, a founder, a
    stock event and its label, as the creators' hook would find them; the
@@ -1176,6 +1179,7 @@ static void renamed_cases(void) {
     villager(4, "Kito Bahati", 500, 0, 18, 0);
     villager(5, "Kito Wanjiko", 500, 0, 18, 0);
     villager(6, "Founda", 400, 1, 1, 0);
+    villager(7, "Mahalo Two", 300, 12, 12, 0);   /* "Tamo" in his Arrived record, renamed in the game since */
     births_path(1, path);
     write_text(path,
         "Village: Rename Tribe (Save 1)\n"
@@ -1190,7 +1194,11 @@ static void renamed_cases(void) {
         "Arrived 2\n  Name: Papu\n  Age at arrival: 300\n  Sex: Male\n  Head: 7\n  Body: 7\n"
         "  Likes: (none)\n  Dislikes: (none)\n  How: unknown\n\n"
         "Appearance changed\n  Name: Papu\n  Old head: 16\n  Old body: 14\n  New head: 5\n  New body: 14\n"
-        "  Changed by: an island event\n\n");
+        "  Changed by: an island event\n\n"
+        "Arrived 3\n  Name: Tamo\n  Age at arrival: 250\n  Sex: Male\n  Head: 12\n  Body: 12\n"
+        "  Likes: (none)\n  Dislikes: (none)\n  How: Old Friends\n\n"
+        "Name changed\n  Name: Mahalo Two\n  Old name: Tamo\n  Age: 280\n  Head: 12\n  Body: 12\n"
+        "  Likes: (none)\n  Dislikes: (none)\n\n");
     write_save_named("Rename Tribe");
     vv_village_publish("");
     buffer = save_buffer("Rename Tribe");
@@ -1209,11 +1217,252 @@ static void renamed_cases(void) {
     CHECK(count_of(text, "  Name: Kito Bahati\r\n") == 1 && count_of(text, "  Name: Kito Wanjiko\r\n") == 1,
           "renamed: a record either of two villagers could be decides nothing: both are written");
     CHECK(count_of(text, "  Name: Founda\r\n") == 1, "renamed: a villager with no record still gets one");
+    CHECK(strstr(text, "Arrived 4\r\n  Name: Mahalo Two\r\n") == NULL && count_of(text, "  Name: Mahalo Two\r\n") == 1,
+          "renamed: a villager renamed in the game is followed through the \"Name changed\" record: no second"
+          " Arrived record (the owner's Coral Tangaroa and Mahalo Makawee I, v1.35.80)");
     CHECK(scan_arrivals(game, 1) == 0, "renamed: the scan then finds nothing");
     reset(game, 1);
     vv_reset_slot_state(game, 1, "Village: Rename Tribe (Save 1)\n");
     for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
     free(buffer);
+}
+
+/* 9: the Unaccounted Villagers log follows villagers by who they are, never by their record (the
+   owner, 2026-10-20: the first load with The Lost Children's Elder Totems companion moved the totems
+   out of the table, every later villager loaded into another record, and 112 "Arrived" and 108 "Left"
+   records were written for villagers who had only moved -- a villager of the same sex in that place
+   was taken for the one kept there).
+     a. the records packed down at the load (a statue gone in The Lost Children to The Tree of Life, a
+        buried villager in A New Home and New Believers), then a villager buried: nothing written;
+     b. a renamed villager, moved too: nothing;
+     c. a villager gone with no report: one "Left", hers; a newcomer nobody reported: one "Arrived";
+     d. one buried (her Death record) and the records packed again: no "Left" for her;
+     e. one gone unseen and somebody else in her very record: "Left" for her and "Arrived" for him. */
+/* A load: the occupied records packed into 0, 1, 2, ... in their order. */
+static void unacc_pack(void) {
+    int i, to = 0;
+    for (i = 0; i < 40; ++i) {
+        if (rec(i)[g->active]) {
+            if (i != to) {
+                memcpy(rec(to), rec(i), g->stride);
+                memset(rec(i), 0, g->stride);
+            }
+            ++to;
+        }
+    }
+}
+
+static void unacc_age_all(int by) {
+    int i;
+    for (i = 0; i < 40; ++i) {
+        if (rec(i)[g->active]) *(int *)(rec(i) + g->age) += by;
+    }
+}
+
+static int unacc_find(const char *name) {
+    int i;
+    for (i = 0; i < 40; ++i) {
+        if (rec(i)[g->active] && strcmp((char *)rec(i) + g->name, name) == 0) return i;
+    }
+    return 0;
+}
+
+static int unacc_count(const char *what) {
+    char path[MAX_PATH];
+    unaccounted_path(path);
+    if (read_into(path) < 0) return 0;
+    return what[0] != 0 ? count_of(text, what) : 0;   /* "": only read the log into text */
+}
+
+#define UNACC_LEFT "  What: Left the village with no Death or Disappeared record\r\n"
+#define UNACC_ARRIVED "  What: Arrived with no Birth record or known arrival\r\n"
+
+static void identity_cases(void) {
+    static const char *const NAMES[10] = { "Ana", "Bao", "Cira", "Dov", "Eli", "Fay", "Gus", "Hana", "Ivo", "Jun" };
+    static const unsigned int STATUE[6] = { 0, 0, 0x558u, 0xE94u, 0x1CC7u, 0 };
+    unsigned char *buffer;
+    int i, left, arrived_n, statue = STATUE[game] != 0u;
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    clean();
+    for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
+    write_save_file();
+    vv_village_publish("");
+    buffer = save_buffer("Arrival Tribe");
+    /* Record 0: a statue (not a villager) where the game has them; a villager otherwise. */
+    villager(0, statue ? "Totem" : "Zia", 800, 9, 9, 0);
+    if (statue) rec(0)[STATUE[game]] = 1;
+    for (i = 0; i < 10; ++i) {
+        villager(1 + i, NAMES[i], 300 + 37 * i, i % 4, 10 + i, 0);
+        *(int *)(rec(1 + i) + g->sex) = i % 3 == 0;      /* both sexes, as in a village */
+    }
+    save_done(1, buffer);                     /* the roster at the last save */
+    CHECK(unacc_count("Unaccounted ") == 0, "identity: (the first save writes nothing)");
+
+    /* a. */
+    if (!statue) departed(0);                 /* Zia buried: her Death record */
+    unacc_age_all(20);
+    if (!statue) rec(0)[g->active] = 0;       /* her record freed by the burial */
+    save_done(1, buffer);                     /* the save at quitting (the statue in it) */
+    if (statue) rec(0)[g->active] = 0;        /* the next load: the Elder Totems companion takes the statue out */
+    unacc_pack();                             /* the next load: every villager in another record */
+    i = unacc_find("Jun");
+    departed(i);                              /* ...and Jun buried in that session: his Death record */
+    rec(i)[g->active] = 0;
+    save_done(1, buffer);
+    CHECK(unacc_count("Unaccounted ") == 0,
+          "identity: records packed down at the load (%s): no Left, no Arrived",
+          statue ? "the statue moved out" : "a buried villager's record freed");
+
+    /* b. */
+    strcpy((char *)rec(3) + g->name, "Dov Kalama");   /* Last Names gave Dov one */
+    unacc_age_all(20);
+    memcpy(rec(10), rec(0), g->stride);       /* Ana moved to another record */
+    rec(0)[g->active] = 0;
+    unacc_pack();
+    save_done(1, buffer);
+    CHECK(unacc_count("Unaccounted ") == 0,
+          "identity: a renamed villager, and every villager in another record: nothing written");
+
+    /* c. */
+    rec(4)[g->active] = 0;                    /* gone, with no Death or Disappeared record */
+    villager(15, "Kiri", 640, 3, 3, 0);       /* a newcomer nobody reported */
+    unacc_age_all(20);
+    save_done(1, buffer);
+    left = unacc_count(UNACC_LEFT);
+    arrived_n = unacc_count(UNACC_ARRIVED);
+    unacc_count("");
+    CHECK(left == 1 && arrived_n == 1 && strstr(text, "  Name: Kiri\r\n") != NULL,
+          "identity: one gone unseen is one Left, one newcomer nobody reported one Arrived");
+
+    /* d. */
+    departed(6);                              /* buried: her Death record */
+    rec(6)[g->active] = 0;
+    unacc_age_all(20);
+    save_done(1, buffer);
+    unacc_pack();
+    save_done(1, buffer);
+    CHECK(unacc_count(UNACC_LEFT) == 1 && unacc_count(UNACC_ARRIVED) == 1,
+          "identity: a villager with a Death record is never Left, and the records packed again write nothing");
+
+    /* e. */
+    for (i = 0; i < 40 && !(rec(i)[g->active] && strcmp((char *)rec(i) + g->name, "Bao") == 0); ++i) {
+    }
+    if (i < 40) {
+        villager(i, "Omar", 500, 8, 8, 0);    /* Bao gone unseen, Omar (the same sex) in his record */
+    }
+    unacc_age_all(20);
+    save_done(1, buffer);
+    unacc_count("");
+    CHECK(i < 40 && unacc_count(UNACC_LEFT) == 2 && unacc_count(UNACC_ARRIVED) == 2
+          && (unacc_count(""), strstr(text, "  Name: Omar\r\n") != NULL) && strstr(text, "  Name: Bao\r\n") != NULL,
+          "identity: somebody else of the same sex in a villager's record: Left for him, Arrived for the other");
+    for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
+    free(buffer);
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+}
+
+/* THE SAME VILLAGE LOADED AGAIN WITH NO SAVE BETWEEN (the identity audit, case 4).  The games save
+   at a clean quit and, The Lost Children to The Tree of Life, every 600 s; a session that ends
+   without its save (the save refused, the game closed) leaves the village as that save holds it,
+   and the slot can be loaded again.  What the hooks reported in the session the game threw away
+   -- an arrival into a record, a departure -- is not this village's any more:
+     a. Dee buried and her record given to a newcomer, Newc; the village loaded again from the
+        save (Dee back in her record): no Arrived record for Dee (the report was Newc's), none
+        for Newc;
+     b. Dee buried, Newc made in a record of his own; loaded again (Dee back, Newc's record
+        empty): no Arrived record for anybody.
+   Either way Dee is in the village after her own Death record, which the table cannot tell from
+   a record written back: one Unaccounted record says exactly that, never "Arrived with no Birth
+   record or known arrival". */
+static void reload_cases(void) {
+    static const char *const NAMES[6] = { "Abe", "Bea", "Cal", "Dee", "Eve", "Fox" };
+    unsigned char *buffer, *saved;
+    char path[MAX_PATH];
+    int variant, i;
+    saved = (unsigned char *)malloc((size_t)g->stride * 40);
+    if (saved == NULL) return;
+    static const char *const LABEL[4] = { "Newc in Dee's record", "Newc in a record of his own",
+                                          "Newc in Dee's record, sharing her sex, looks and likes",
+                                          "no reload: Newc renamed in place" };
+    for (variant = 0; variant < 4; ++variant) {
+        int at = variant == 1 || variant == 3 ? 6 : 3;
+        reset(game, 1);
+        vv_reset_slot_state(game, 1, VILLAGE);
+        clean();
+        for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
+        write_save_file();
+        vv_village_publish("");
+        buffer = save_buffer("Arrival Tribe");
+        for (i = 0; i < 6; ++i) {
+            villager(i, NAMES[i], 400 + 50 * i, i, 10 + i, 0);
+            *(int *)(rec(i) + g->sex) = i % 2;
+        }
+        save_done(1, buffer);                     /* the save the game will load again */
+        memcpy(saved, rec(0), (size_t)g->stride * 40);
+        arrival_tick();                           /* the session's first frame */
+        departed(3);                              /* Dee buried: her Death record */
+        rec(3)[g->active] = 0;
+        arrival_tick();
+        if (variant == 2) {
+            /* Codex, #601: the newcomer has Dee's sex, head, body, likes and dislikes -- only the name
+               and the age differ -- so the saved Dee replacing him changes one facet. */
+            villager(at, "Newc", 640, 3, 13, 0);
+            *(int *)(rec(at) + g->sex) = 1;
+        } else {
+            villager(at, "Newc", 640, 7, 7, 0);   /* a newcomer the game's creator made */
+        }
+        created(at, 0);
+        arrival_tick();
+        unacc_age_all(5);
+        arrival_tick();
+        if (variant == 3) {
+            /* No reload: Last Names gives him a last name in place (his age carries on). */
+            strcpy((char *)rec(at) + g->name, "Newc Bahati");
+            arrival_tick();
+            save_done(1, buffer);
+            slot_births_path(1, path);
+            read_into(path);
+            CHECK(strstr(text, "  Name: Newc Bahati\r\n") != NULL && unacc_count("Unaccounted ") == 0,
+                  "A NEWCOMER RENAMED IN PLACE KEEPS HIS ARRIVAL: his Arrived record, nothing Unaccounted");
+            for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
+            free(buffer);
+            continue;
+        }
+        /* No save: the same village loaded again, as its save holds it, a little older. */
+        memcpy(rec(0), saved, (size_t)g->stride * 40);
+        unacc_age_all(2);
+        arrival_tick();                           /* the reloaded village's first frame */
+        arrival_tick();
+        save_done(1, buffer);
+        slot_births_path(1, path);
+        read_into(path);
+        CHECK(strstr(text, "  Name: Dee\r\n") == NULL && strstr(text, "  Name: Newc\r\n") == NULL
+              && strstr(text, "Arrived 1\r\n") == NULL,
+              "RELOADED WITH NO SAVE (%s): no Arrived record for Dee or for the newcomer the save never held",
+              LABEL[variant]);
+        if (strstr(text, "Arrived ") != NULL) {
+            printf("--- births log:\n%.800s\n", strstr(text, "Arrived "));
+        }
+        /* Dee is in the village after her own Death record: a reload and a record written back look
+           alike in the table, so the player is told exactly that -- never "Arrived with no Birth
+           record", and never nothing. */
+        CHECK(unacc_count("Unaccounted ") == 1 && unacc_count(UNACC_ARRIVED) == 0 && unacc_count(UNACC_LEFT) == 0
+              && (unacc_count(""), strstr(text, "  Name: Dee\r\n") != NULL)
+              && strstr(text, "  What: Back in the village after a Death or Disappeared record") != NULL
+              && strstr(text, "  Last seen: (in the village at the last save)\r\n") != NULL,
+              "RELOADED WITH NO SAVE (%s): one Unaccounted record, Dee back after her Death record (no false"
+              " Arrived)", LABEL[variant]);
+        if (unacc_count("Unaccounted ") != 1) {
+            printf("--- unaccounted:\n%.900s\n", text);
+        }
+        for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
+        free(buffer);
+    }
+    free(saved);
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
 }
 
 int main(int argc, char **argv) {
@@ -1503,6 +1752,89 @@ int main(int argc, char **argv) {
                                            == vv_title_identity(rec(6), 0x1B9Cu, 0x19u, 0x1F5Cu, 0x1F68u, 3u)
                           && *(unsigned int *)(blob + 20) == 3,
                           "A FORMER HEATHEN WHOSE LIKES AN ISLAND EVENT CHANGED KEEPS HER ENTRY (new identity)");
+                    /* The identity audit, case 7: a rename while the file cannot be read (another
+                       program holds it) is carried to the file once it can be -- never forgotten. */
+                    {
+                        HANDLE hold = CreateFileA(former_path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+                        unsigned int renamed_id;
+                        arrival_tick();
+                        strcpy((char *)rec(6) + g->name, "Hea Two");   /* Rename, in the game */
+                        arrival_tick();
+                        renamed_id = vv_title_identity(rec(6), 0x1B9Cu, 0x19u, 0x1F5Cu, 0x1F68u, 3u);
+                        if (hold != INVALID_HANDLE_VALUE) CloseHandle(hold);
+                        Sleep(2100);                  /* past the file's retry window */
+                        arrival_tick();
+                        got = 0;
+                        h = CreateFileA(former_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+                        if (h != INVALID_HANDLE_VALUE) { ReadFile(h, blob, sizeof blob, &got, NULL); CloseHandle(h); }
+                        CHECK(hold != INVALID_HANDLE_VALUE && got == 24 && *(unsigned int *)(blob + 16) == renamed_id
+                              && *(unsigned int *)(blob + 20) == 3,
+                              "A FORMER HEATHEN RENAMED WHILE THE FILE WAS HELD KEEPS HER ENTRY (carried once it could be)");
+                        /* ...a rename in the same frame as a birth and a death is still followed. */
+                        villager(9, "Old", 900, 4, 4, 0);
+                        arrival_tick();
+                        strcpy((char *)rec(6) + g->name, "Hea Three");
+                        villager(8, "Baby", 0, 3, 3, 1);
+                        rec(9)[g->active] = 0;
+                        arrival_tick();
+                        renamed_id = vv_title_identity(rec(6), 0x1B9Cu, 0x19u, 0x1F5Cu, 0x1F68u, 3u);
+                        got = 0;
+                        h = CreateFileA(former_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+                        if (h != INVALID_HANDLE_VALUE) { ReadFile(h, blob, sizeof blob, &got, NULL); CloseHandle(h); }
+                        CHECK(got == 24 && *(unsigned int *)(blob + 16) == renamed_id,
+                              "A FORMER HEATHEN RENAMED IN THE FRAME OF A BIRTH AND A DEATH KEEPS HER ENTRY");
+                        rec(8)[g->active] = 0;
+                        arrival_tick();
+                        /* Codex, #601: more than 64 changes while the file is held -- 70 renames, one
+                           a frame -- are all kept, in order: once the file can be written, the entry
+                           is under her last name. */
+                        {
+                            HANDLE held = CreateFileA(former_path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+                            int r;
+                            char nm[32];
+                            unsigned int last_id = 0;
+                            arrival_tick();
+                            for (r = 0; r < 70; ++r) {
+                                _snprintf(nm, sizeof nm, "Hea %d", r);
+                                strcpy((char *)rec(6) + g->name, nm);
+                                arrival_tick();
+                            }
+                            last_id = vv_title_identity(rec(6), 0x1B9Cu, 0x19u, 0x1F5Cu, 0x1F68u, 3u);
+                            if (held != INVALID_HANDLE_VALUE) CloseHandle(held);
+                            Sleep(2100);
+                            arrival_tick();
+                            got = 0;
+                            h = CreateFileA(former_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+                            if (h != INVALID_HANDLE_VALUE) { ReadFile(h, blob, sizeof blob, &got, NULL); CloseHandle(h); }
+                            CHECK(held != INVALID_HANDLE_VALUE && got == 24 && *(unsigned int *)(blob + 16) == last_id
+                                  && *(unsigned int *)(blob + 20) == 3,
+                                  "70 RENAMES WHILE THE FILE IS HELD: NONE DROPPED, THE ENTRY IS UNDER HER LAST NAME");
+                            strcpy((char *)rec(6) + g->name, "Hea Three");
+                            arrival_tick();
+                        }
+                        /* ...and two villagers of one name, likes and dislikes (the file cannot tell
+                           them apart: neither is called a Former Heathen): the other one renamed
+                           never takes her entry. */
+                        villager(7, "Hea Three", 380, 2, 2, 0);
+                        memcpy(rec(7) + g->likes, rec(6) + g->likes, 4u * g->pref_slots);
+                        memcpy(rec(7) + g->dislikes, rec(6) + g->dislikes, 4u * g->pref_slots);
+                        arrival_tick();
+                        strcpy((char *)rec(7) + g->name, "Bob");
+                        arrival_tick();
+                        {
+                            static unsigned char file[VV_FORMER_FILE_MAX];
+                            DWORD flen = 0;
+                            h = CreateFileA(former_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+                            if (h != INVALID_HANDLE_VALUE) { ReadFile(h, file, sizeof file, &flen, NULL); CloseHandle(h); }
+                            CHECK(flen >= 24 && vv_former_validate(file, flen)
+                                  && vv_former_lookup(file, vv_title_identity(rec(7), 0x1B9Cu, 0x19u, 0x1F5Cu, 0x1F68u, 3u)) == -1
+                                  && vv_former_lookup(file, renamed_id) == -1,
+                                  "A RENAMED NAMESAKE NEVER TAKES A FORMER HEATHEN'S ENTRY (which of the two it was stays unknown)");
+                        }
+                        rec(7)[g->active] = 0;
+                        strcpy((char *)rec(6) + g->name, "Hea");
+                        arrival_tick();
+                    }
                 }
             }
         }
@@ -1574,6 +1906,8 @@ int main(int argc, char **argv) {
         creation_save_cases();
         renamed_cases();
         parents_cases();
+        identity_cases();
+        reload_cases();
         if (game == 5) {
             /* Another village loaded (another slot): a Heathen in this
                village's record and a believer in the same record of the

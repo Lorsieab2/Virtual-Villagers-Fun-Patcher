@@ -627,7 +627,7 @@ def test_the_sidecar_is_bound_to_the_village_that_wrote_it() -> None:
     # mask is moved to its villager by the identity the file holds ('VM06':
     # name, gender, parents; a 'VM04' name roster moves masks only down).
     assert "0x36304D56u" in source, "the identity-roster sidecar 'VM06' is missing"
-    assert "g_vv2_rewrite_after_load = vv2_mask_follow(filesnap, against, weak) || weak;" in load
+    assert "g_vv2_rewrite_after_load = vv2_mask_follow(filesnap, against, weak, 0) || weak;" in load
     assert "weak = magic == VV2_MASK_SIDECAR_MAGIC;" in load
 
     save = source[source.index("static int vv2_mask_sidecar_save("):]
@@ -679,7 +679,7 @@ def test_a_birth_or_death_does_not_count_as_a_new_village() -> None:
         "a changed-but-overlapping roster is not adopted as the same village")
     # ...after each mask has followed its villager (a reused record no longer
     # hands a newborn the dead villager's mask)
-    follow = sync.index("vv2_mask_follow(g_vv2_roster, cur, 0);")
+    follow = sync.index("vv2_mask_follow(g_vv2_roster, cur, 0, 1);")
     assert overlap < follow < adopt, "the in-session follow must precede adopting the new roster"
     # The exact-hash export must not come back.
     assert "Vv2VillageTag" not in source, (
@@ -841,7 +841,7 @@ def test_a_renamed_villager_keeps_the_mask() -> None:
               / "vv2_origins_icons.c").read_text(encoding="utf-8")
     sync = source[source.index("__stdcall Vv2MaskSyncVillage("):]
     sync = sync[:sync.index(chr(10) + "}" + chr(10)) + 3]
-    renamed = sync.index("int renamed = vv_roster_renamed(VV2_RECORD_COUNT, g_vv2_roster, g_vv2_stable, cur, cur_stable);")
+    renamed = sync.index("int renamed = vv_roster_renamed_in_play(VV2_RECORD_COUNT, g_vv2_roster, g_vv2_stable, cur, cur_stable);")
     assert renamed < sync.index("vv2_roster_same(g_vv2_roster, cur)")
     block = sync[renamed:sync.index("return 1;", renamed)]
     assert "g_vv2_roster[renamed] = cur[renamed];" in block

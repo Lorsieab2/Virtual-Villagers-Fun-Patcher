@@ -6,6 +6,9 @@
 typedef int (__fastcall *tc0_fn)(void *self, void *unused_edx);
 typedef int (__fastcall *tc1_fn)(void *self, void *unused_edx, int a);
 typedef int (__fastcall *tc2_fn)(void *self, void *unused_edx, int a, int b);
+typedef int (__fastcall *tc3_fn)(void *self, void *unused_edx, int a, int b, int c);
+#define TC3(va, self, a, b, c) \
+    ((tc3_fn)(uintptr_t)(va))((void *)(self), NULL, (int)(a), (int)(b), (int)(c))
 typedef int (__fastcall *tc5_fn)(void *self, void *unused_edx, int a, int b, int c, int d, int e);
 typedef int (__fastcall *tc7_fn)(void *self, void *unused_edx, int a, int b, int c, int d, int e,
                                  int f, int g);
@@ -36,16 +39,125 @@ enum {
     ACT_CALL,        /* VV1 / VV2: routine(villager index) on the array / pool */
     ACT_CALL_ARG,    /* VV1 / VV2: routine(villager index, arg) */
     ACT_DO,          /* VV3-VV5: the game's do-action routine with action id `arg` */
-    ACT_EFFECT       /* VV1 / VV2: routine(villager index) WITHOUT a stop (an effect
+    ACT_EFFECT,      /* VV1 / VV2: routine(villager index) WITHOUT a stop (an effect
                         such as a sneeze, not an activity) */
+    ACT_CALL_ARG2,   /* VV1 / VV2: routine(villager index, arg, 0) -- three stack
+                        arguments, as the celebration and hut-building starters
+                        take them (the place, then the stock callers' 0) */
+    ACT_CALL_RAW,    /* VV1 / VV2: routine on the array / pool with `arg` (0-2)
+                        stack arguments from `args` -- a village-wide routine
+                        (the action runner, Blessings Day's greeting) */
+    ACT_DROP         /* VV3-VV5: the player's drop of the villager where they stand
+                        (thiscall on `arg`, the record): it picks up the object
+                        there and starts that pickup; 0 = nothing there */
 };
 
+/* The Villager Changes list shows every action under its group, sorted by
+   group then label (the table's own order never moves: a queued purchase
+   stores the row's index). */
+enum {
+    CE_GROUP_GENERAL, CE_GROUP_WORK, CE_GROUP_LEISURE, CE_GROUP_CELEBRATION, CE_GROUP_DEVOTION,
+    CE_GROUP_FAMILY, CE_GROUP_CHILDREN, CE_GROUP_HEALTH, CE_GROUP_CURIOSITY, CE_GROUP_MOOD,
+    CE_GROUP_STORY, CE_GROUPS
+};
+static const char *const CE_GROUP_NAMES[CE_GROUPS] = {
+    "General", "Work", "Leisure", "Celebration and dance", "Devotion", "Family", "Children",
+    "Health, food and drink", "Curiosity", "Moods and idle", "Puzzles and story",
+};
+
+/* What an action needs that the game passes when it starts it (the body to
+   bury, ...), found at the moment of use the way the game finds it; when
+   there is none the change is refused (the villager could not do that now)
+   instead of the action running on nothing. */
+enum { CE_SUPPLY_BODY = 1, CE_SUPPLY_OTHER, CE_SUPPLY_GLOBAL, CE_SUPPLY_CALL };
+enum { CE_REFUSE_ZERO = 1, CE_REFUSE_MINUS1, CE_REFUSE_BOTH };
+typedef struct {
+    int what;               /* CE_SUPPLY_* */
+    int as_record;          /* BODY / OTHER: the record's address instead of its index */
+    unsigned int va;        /* GLOBAL: the dword; CALL: the game's finder */
+    unsigned int self;      /* CALL: thiscall `this` (0: cdecl, no arguments) */
+    int refuse;             /* CE_REFUSE_*: the value that means "none" */
+    int slot;               /* -1 the starter's argument (VV1 / VV2), 0-7 the argument
+                               block's dword (VV3-VV5), -2 neither */
+    unsigned int store_va;  /* non-zero: written there first, where the game keeps it */
+} ce_supply;
+
+/* The owner (2026-10-21): every villager action is offered; one that may
+   harm the game or the save ends its label with " (Unsafe)" and carries
+   `unsafe`, the plain reason the dialog shows before it is confirmed.
+   `args`: the argument block a stock caller passes (VV3-VV5; NULL = zeros);
+   for ACT_CALL_RAW the stack arguments. */
 typedef struct {
     const char *label;
     int kind;
     unsigned int routine;
     int arg;
+    int group;
+    const char *unsafe;
+    const int *args;
+    const ce_supply *supply;
 } ce_action;
+
+typedef int (__cdecl *ce_finder_fn)(void);
+
+/* The supplied value for `act` (1), or 0 when there is none now.  `self`
+   is the villager's own index; `record`, `listed` and `skeleton` are the
+   game adapter's own. */
+static int ce_supply_value(const ce_action *act, int self, unsigned char *(*record)(int),
+                           int (*listed)(const unsigned char *), int (*skeleton)(const unsigned char *),
+                           int *value) {
+    const ce_supply *s = act->supply;
+    int v = 0;
+    int i;
+    int found = 0;
+    if (s == NULL) {
+        return 1;
+    }
+    if (s->what == CE_SUPPLY_BODY || s->what == CE_SUPPLY_OTHER) {
+        for (i = 0; i < 256 && !found; ++i) {
+            unsigned char *r = record(i);
+            if (r == NULL || (s->what == CE_SUPPLY_OTHER && i == self)) {
+                continue;
+            }
+            if (s->what == CE_SUPPLY_BODY ? skeleton(r) : (listed(r) && !skeleton(r))) {
+                v = s->as_record ? (int)(uintptr_t)r : i;
+                found = 1;
+            }
+        }
+        if (!found) {
+            return 0;
+        }
+    } else if (s->what == CE_SUPPLY_GLOBAL) {
+        v = *(const int *)(uintptr_t)s->va;
+    } else if (s->what == CE_SUPPLY_CALL) {
+        v = s->self != 0 ? TC0(s->va, s->self) : ((ce_finder_fn)(uintptr_t)s->va)();
+    } else {
+        return 0;
+    }
+    if ((s->refuse == CE_REFUSE_ZERO || s->refuse == CE_REFUSE_BOTH) && v == 0) {
+        return 0;
+    }
+    if ((s->refuse == CE_REFUSE_MINUS1 || s->refuse == CE_REFUSE_BOTH) && v == -1) {
+        return 0;
+    }
+    if (s->store_va != 0) {
+        *(int *)(uintptr_t)s->store_va = v;
+    }
+    *value = v;
+    return 1;
+}
+
+/* The later games' argument block: the row's own (or zeros), with the
+   supplied value in its slot. */
+static void ce_argument_block(const ce_action *act, int value, int block[8]) {
+    int i;
+    for (i = 0; i < 8; ++i) {
+        block[i] = act->args != NULL ? act->args[i] : 0;
+    }
+    if (act->supply != NULL && act->supply->slot >= 0 && act->supply->slot < 8) {
+        block[act->supply->slot] = value;
+    }
+}
 
 /* ---- The host (the game's Origins companion) ----------------------------- */
 

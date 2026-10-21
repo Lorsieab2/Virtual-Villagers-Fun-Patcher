@@ -16,6 +16,7 @@ from tkinter import filedialog, messagebox, ttk
 
 from transparency import PATCHER_VERSION
 import patcher_files
+import vv_answered_questions
 import vv_how_to_use
 import vv_log_tools
 import vv_log_additions
@@ -548,6 +549,47 @@ def own_rules_changing(current: dict, pending: dict) -> set:
     changed ... naming rules for their children").  "" or absent: the village rule.  A villager whose
     own rule is unchanged is not in it, whatever that rule is."""
     return {key for key in set(current) | set(pending) if (pending.get(key) or "") != (current.get(key) or "")}
+
+
+# "Sort by:" in the last-names window and the own-rules window (the owner, v1.35.80).  "As in the save" is the
+# order both windows always used (the living as the save keeps them, then the dead and gone as the logs
+# know them), and the default; the choice is remembered for the rest of the session.
+SORT_AS_SAVED = "As in the save"
+SORT_ALPHABETICAL = "Alphabetical (first name, then last name)"
+SORT_ARRIVED = "Arrived at top"
+SORT_AGE = "Age (oldest to youngest)"
+LAST_NAMES_SORTS = (SORT_AS_SAVED, SORT_ALPHABETICAL, SORT_ARRIVED, SORT_AGE)
+
+
+def _alphabetical_key(name: str) -> tuple:
+    """First name, then the rest, case-insensitive; a Roman number by its value (Kalama I, II, ... X)."""
+    words = name.split()
+    number = 0
+    if len(words) > 1 and vv_genealogy.roman_value(words[-1]):
+        number = vv_genealogy.roman_value(words[-1])
+        words = words[:-1]
+    first = words[0].casefold() if words else ""
+    return first, " ".join(words[1:]).casefold(), number
+
+
+def last_names_order(people: list, sort: str, current: list[int] | None = None) -> list[int]:
+    """The rows' order (indexes into `people`) for a "Sort by" choice.  Alphabetical: first name, then last
+    name, numbered namesakes in numeral order.  Arrived at top: the villagers who arrived through an event
+    first, each group in `current` (the order shown now).  Age: the save's own age, oldest first -- the dead
+    and gone by their age at death or when last seen; one with no known age last; ties by name.  Anything
+    else: as in the save."""
+    every = list(range(len(people)))
+    if sort == SORT_ALPHABETICAL:
+        return sorted(every, key=lambda k: (_alphabetical_key(people[k].name), k))
+    if sort == SORT_ARRIVED:
+        base = list(current) if current is not None and sorted(current) == every else every
+        return sorted(base, key=lambda k: not getattr(people[k], "arrived", False))
+    if sort == SORT_AGE:
+        def age_key(k: int) -> tuple:
+            age = getattr(people[k], "age", None)
+            return (age is None, -(age or 0), _alphabetical_key(people[k].name), k)
+        return sorted(every, key=age_key)
+    return every
 
 
 def last_name_row_style(changed: bool, asked: bool) -> dict:
@@ -3419,7 +3461,12 @@ class App(tk.Tk):
                 "without asking: everything confirmed wrong is put right, backed up "
                 "and listed in the Repairs log. Nothing is repaired now. The game "
                 "must be closed. The save folder is backed up first, into <save "
-                "folder>\\Backups\\Backup <date and time> (before repair re-arm)."
+                "folder>\\Backups\\Backup <date and time> (before repair re-arm). "
+                "One thing is done before the checklist opens, and stays done if you "
+                "then cancel: when the village gives arriving villagers their own new "
+                "last name automatically (the last-names setting, on by default), each "
+                "arrived villager with no last name gets one first (backed up first, "
+                "and listed in the checklist and the Repairs log)."
             )
         else:
             intro = (
@@ -3508,8 +3555,9 @@ class App(tk.Tk):
             problem_var.set(problem or "")
             go_button.configure(state="normal" if problem is None else "disabled")
             if problem is None:
+                # Only read here, for Check and Repair alike: Repair writes the report when Repair is pressed.
                 vv_reconcile_view.watch(dialog, reconcile_var, state["folders"][folder_box.current()],
-                                        game().number, chosen().slot)
+                                        game().number, chosen().slot, export=False)
             else:
                 vv_reconcile_view.forget(dialog)
                 reconcile_var.set("")
@@ -3788,23 +3836,9 @@ class App(tk.Tk):
             return
         _regrab(parent)
         self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary}")
-        # The Lost Children: the passed-away Esteemed Elders the totems companion gives a totem at the next
-        # load, when the village's setting is on (src/vv_vv2_totem_store.py write_pending; its own file only).
-        if number == vv_vv2_totem_store.GAME:
-            try:
-                vv_vv2_totem_store.write_pending(folder, info.slot)
-            except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
-                    vv_log_tools.LogToolError, ValueError, OSError):
-                pass                    # the next Check or Repair tries again; nothing else depends on it
-        # The reconciliation's report beside the slot's logs (the only file Check Saves & Logs leads to
-        # writing, and only the report: src/vv_reconcile.py export).
-        if result.reconciliation is not None:
-            try:
-                written = vv_reconcile.export(result.reconciliation)
-            except OSError:
-                written = None
-            if written is not None:
-                self.status_var.set(f"Check Saves & Logs: {info.name}: {result.summary} Report: {written.name}")
+        # Check Saves & Logs only reads (audit, 2026-10-20): it writes neither the reconciliation's report
+        # nor The Lost Children's PendingElderTotems.dat -- Repair Saves & Logs writes them, once the player
+        # presses Repair.  The report is the window below.
         self._show_log_report(parent, folder, info, result, numbering_lines)
 
     @staticmethod
@@ -3817,11 +3851,11 @@ class App(tk.Tk):
             auto = vv_number_names.read_auto(folder, number, slot)
         except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError, struct.error):
             return []
-        if not wanted.renames and not wanted.notes:
+        if not wanted.renames and not wanted.ordered and not wanted.notes:
             return []
         lines = ["== Villagers who share a name (Number villagers who share a name automatically: "
                  + ("on" if auto else "off") + ")"]
-        for (old, _head, _body), new in sorted(wanted.renames.items(), key=lambda item: item[1]):
+        for (old, _head, _body), new in sorted(vv_number_names.wanted_names(wanted).items(), key=lambda item: item[1]):
             lines.append(f"NOTE  {old} -> {new}: "
                          + ("numbered at the next Repair Saves & Logs." if auto else "not numbered (the setting is off)."))
         lines += [f"ASK   {note}" for note in wanted.notes]
@@ -3946,7 +3980,7 @@ class App(tk.Tk):
             # the same first AND last name; "Hawa Awanata II" with no other is "Hawa Awanata").
             try:
                 wanted = vv_number_names.pending(folder, number, info.slot)
-                misnumbered = wanted.renames
+                misnumbered = vv_number_names.wanted_names(wanted)
                 numbers["notes"] = wanted.notes     # left as they are: the player decides, never guessed
             except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, ValueError, OSError,
                     struct.error):
@@ -3985,8 +4019,8 @@ class App(tk.Tk):
                     stored = vv_vv2_totem_store.read(folder, info.slot)
                     totems["in_file"] = len(stored.totems) if stored is not None else 0
                     totems["auto"] = vv_vv2_totem_store.auto_give(folder, info.slot)
-                    # The passed-away elders the companion gives a totem at the next load (its own list).
-                    vv_vv2_totem_store.write_pending(folder, info.slot)
+                    # PendingElderTotems.dat is written only once Repair is pressed (audit, 2026-10-20):
+                    # Cancel leaves nothing written.
                 except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
                         vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
                     totems["note"] = ((totems["note"] + " ") if totems["note"] else "") + (
@@ -4002,12 +4036,20 @@ class App(tk.Tk):
                 if checked.wrong
                 else f"The read-only check finds nothing confirmed wrong in {info.name}'s logs."
             )
+            if named_lines:
+                # Done already, before this checklist (the owner's design, v1.35.66): said here, so Cancel
+                # is never thought to undo it.
+                found += ("\n\nAlready done, before this checklist (Cancel does not undo it):\n"
+                          + "\n".join(named_lines))
         except (vv_log_tools.LogToolError, OSError) as exc:
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
+        # Answers changed or cleared in the checklist's Answered questions (src/vv_answered_questions.py):
+        # kept when Repair runs, after the backup, and listed in the Repairs Made log.
+        answered_state: dict = {"changed": {}, "cleared": set()}
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
                                         unpaused, speed, misnumbered, graves, skills=skills, history=history,
-                                        totems=totems, numbers=numbers)
+                                        totems=totems, numbers=numbers, answered_state=answered_state)
         if picked is None:
             return
         rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked
@@ -4015,7 +4057,8 @@ class App(tk.Tk):
             result = self._run_with_wait(
                 "Repairing the logs…\n\nThe save folder is backed up first.",
                 lambda: vv_log_tools.approve_repair(folder, number, info.slot, chosen=chosen,
-                                                    answers=answers, kinds=kinds, rearm=rearm),
+                                                    answers=answers, kinds=kinds, rearm=rearm,
+                                                    answered_changes=answered_state),
             )
         except (vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
             # Markers may already be cleared when a later step fails; the
@@ -4023,6 +4066,13 @@ class App(tk.Tk):
             self.status_var.set("Repair Saves & Logs did not finish. See the message for what changed.")
             messagebox.showerror("Repair Saves & Logs", str(exc), parent=parent)
             return
+        # Written only now that the player pressed Repair (audit, 2026-10-20: Check and Cancel write
+        # nothing): the reconciliation's report beside the slot's logs (src/vv_reconcile.py export).
+        if checked.reconciliation is not None:
+            try:
+                vv_reconcile.export(checked.reconciliation)
+            except OSError:
+                pass                    # only the report; the next Repair writes it again
         # The restarted tribe's villagers the player confirmed (src/vv_history_revision.py): planned again
         # now that the lines above are in, and only a villager still proven gone is removed.
         history_lines: list[str] = []
@@ -4062,6 +4112,14 @@ class App(tk.Tk):
         # totems first, so a reverted record is never counted as an elder's totem.
         if totems["fix"] or totems["give"] or totems.get("move") or totems.get("put_back"):
             grave_lines += self._vv2_totems(parent, folder, number, info, totems)
+        # The passed-away Esteemed Elders the totems companion gives a totem at the next load
+        # (PendingElderTotems.dat, its own file only): written once Repair is pressed, after the totem rows.
+        if number == vv_vv2_totem_store.GAME and totems.get("survey") is not None:
+            try:
+                vv_vv2_totem_store.write_pending(folder, info.slot)
+            except (vv_vv2_totem_store.StoreError, vv_vv2_totems.TotemError, vv_last_names.LastNamesError,
+                    vv_log_tools.LogToolError, ValueError, OSError):
+                pass                    # the next Repair tries again; nothing else depends on it
         # The cut names first of the renames, so last names and numbering never work from a cut name
         # (the checklist leaves those off while the cut names are restored).  After the lines above
         # are added: a renamed line changes no line count, and the like / dislike words are put right
@@ -4087,6 +4145,7 @@ class App(tk.Tk):
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The last-name rules were not kept. {exc}", parent=parent)
         renamed = None
+        nothing_to_name = None
         if names is not None and names["chosen"]:
             try:
                 renamed = self._run_with_wait(
@@ -4096,10 +4155,13 @@ class App(tk.Tk):
                                                           mine=names.get("mine_names"),
                                                           whole=names.get("whole")),
                 )
+            except vv_last_names.NothingToDo as exc:
+                nothing_to_name = f"Give villagers last names: {exc}"     # information, not an error
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The last names were not given. {exc}", parent=parent)
         numbered = None
+        nothing_numbered: list[str] | None = None
         if numbering:
             try:
                 numbered = self._run_with_wait(
@@ -4107,9 +4169,20 @@ class App(tk.Tk):
                     lambda: vv_number_names.number_names(folder, number, info.slot, numbering,
                                                          automatic=numbers["auto"]),
                 )
+            except vv_number_names.NothingToNumber as exc:
+                # Not an error (the owner, 2026-10-20): what is left is shown in the result, never in red.
+                nothing_numbered = exc.notes
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The duplicate names were not numbered. {exc}", parent=parent)
+        else:
+            # Every number in use kept for VVFP Number Names.dll, so a birth never gets a number a dead or
+            # gone namesake had (the owner, 2026-10-20); number_names keeps them itself when it runs.
+            try:
+                vv_number_names.record_used(folder, number, info.slot)
+            except (vv_last_names.LastNamesError, vv_genealogy.GenealogyError, vv_log_tools.LogToolError,
+                    ValueError, OSError, struct.error):
+                pass
         lines = list(named_lines) + grave_lines
         if names is not None and names.get("arrivals") is not None \
                 and names["arrivals"] != vv_last_names.read_arrivals(folder, number, info.slot):
@@ -4138,11 +4211,17 @@ class App(tk.Tk):
         if renamed is not None:
             lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
                          f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
+        elif nothing_to_name:
+            lines.append(nothing_to_name)
         if numbered is not None:
             done, wanted = numbered
-            lines.append(" ".join([f"Duplicate names numbered: {len(done.renamed)} villager(s), in the save and "
-                                   f"{len(done.files) - 1} other file(s)."] + wanted.notes
-                                  + [f"Backup: {done.backup.backup_folder}"]))
+            lines.append(" ".join([f"Duplicate names numbered: {vv_number_names.renamed_count(done, wanted)} "
+                                   f"villager(s), in the save and {len(done.files) - 1} other file(s)."]
+                                  + wanted.notes + [f"Backup: {done.backup.backup_folder}"]))
+        elif nothing_numbered is not None:
+            lines.append("Duplicate names: nothing needed numbering."
+                         + (" Left as they are for you to decide (nothing was guessed): " + " ".join(nothing_numbered)
+                            if nothing_numbered else ""))
         elif numbers["auto"] and numbers["notes"]:
             lines.append("Villagers who share a name, left as they are for you to decide (nothing was guessed): "
                          + " ".join(numbers["notes"]))
@@ -4193,15 +4272,20 @@ class App(tk.Tk):
         if getattr(result, "answered", None):
             lines.append(f"The reconciliation's questions you answered: {len(result.answered)} (remembered, and "
                          "listed in the Repairs log).")
+        if getattr(result, "kept_answers", None):
+            lines.append(f"Answers kept, changed or cleared: {len(result.kept_answers)} (an answer is not asked again; "
+                         "see Answered questions in Repair Saves & Logs; listed in the Repairs log).")
         for (old, head, body), new in getattr(result, "renamed", {}).items():
             lines.append(f"{old} (head {head}, body {body}) has the name {new} back, in the save, the logs and the "
                          "patcher's files.")
         if len(lines) > (1 if rearm else 0):
-            lines.append("Each log was backed up beside itself; everything is listed in the Repairs log.")
+            lines.append("A copy of each file changed was kept first, in Copies Made Before Repairs; everything is "
+                         "listed in the Repairs log.")
         self.status_var.set(f"Repair Saves & Logs: {info.name} done.")
         messagebox.showinfo(
             "Repair Saves & Logs",
-            "\n\n".join(lines + [f"Backup: {result.backup.backup_folder}"]),
+            "\n\n".join(lines + ([f"Backup: {result.backup.backup_folder}"] if result.backup is not None else [])
+                        or ["Nothing needed changing, so nothing was changed and no backup was made."]),
             parent=parent,
         )
 
@@ -4401,6 +4485,8 @@ class App(tk.Tk):
                                                           mine=names.get("mine_names"), whole=names.get("whole")))
                 lines.append(f"Last names given: {len(renamed.renamed)} villager(s), in the save and "
                              f"{len(renamed.files) - 1} other file(s). Backup: {renamed.backup.backup_folder}")
+            except vv_last_names.NothingToDo as exc:
+                lines.append(f"Give villagers last names: {exc}")         # information, not an error
             except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
                     OSError) as exc:
                 messagebox.showerror("Last names", f"The last names were not given. {exc}", parent=parent)
@@ -4410,7 +4496,7 @@ class App(tk.Tk):
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
                           speed: tuple | None = None, misnumbered: dict | None = None, graves=None,
                           skills: dict | None = None, history: dict | None = None, totems: dict | None = None,
-                          numbers: dict | None = None):
+                          numbers: dict | None = None, answered_state: dict | None = None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -4441,6 +4527,10 @@ class App(tk.Tk):
         for kind in kinds:
             for key, question in kind.questions.items():
                 answers[key] = question.default
+            # Answered before (src/vv_answered_questions.py): not asked; the kept answer is applied.
+            if kind.id != "reconcile":
+                for key, (_question, kept) in getattr(kind, "remembered", {}).items():
+                    answers[key] = str(kept.get("applied", kept.get("verdict")))
             if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None):
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
@@ -4497,7 +4587,7 @@ class App(tk.Tk):
         number_tick.pack(side="left")
         number_order_var = tk.StringVar(value=vv_genealogy.NUMBER_ORDERS["appearance"])   # the owner's default
         number_order = ttk.Combobox(number_row, textvariable=number_order_var,
-                                    values=list(vv_genealogy.NUMBER_ORDERS.values()), state="readonly", width=22)
+                                    values=list(vv_genealogy.NUMBER_ORDERS.values()), state="readonly", width=34)
         number_order.pack(side="left", padx=(8, 0))
         if misnumbered:
             ttk.Label(frame, wraplength=600, justify="left", foreground="#555555",
@@ -4712,12 +4802,34 @@ class App(tk.Tk):
         if speed is None:
             speed_box.state(["disabled"])
         questions = [(kind, q) for kind in kinds for q in kind.questions.values()]
+        questions_row = ttk.Frame(frame)
+        questions_row.pack(anchor="w", pady=(8, 0))
+        questions_button = ttk.Button(questions_row, text=f"Answer the {len(questions)} question(s)…",
+                                      command=lambda: self._repair_questions(window, questions, answers))
         if questions:
-            ttk.Button(frame, text=f"Answer the {len(questions)} question(s)…",
-                       command=lambda: self._repair_questions(window, questions, answers)
-                       ).pack(anchor="w", pady=(8, 0))
-            ttk.Label(frame, text="A question you leave at \"Don't know\" or \"Only from now on\" adds nothing.",
-                      foreground="#555555").pack(anchor="w")
+            questions_button.pack(side="left")
+        # Answered questions (the owner, v1.35.80: "once I answer a question it shouldn't be asked again
+        # (goes to an answered questions section where I can change the answer)").
+        answered_state = answered_state if answered_state is not None else {"changed": {}, "cleared": set()}
+        kept_count = vv_answered_questions.count(folder, number, info.slot)
+        held = sum(len(getattr(k, "remembered", {})) for k in kinds)
+
+        def answered_changed() -> None:
+            questions_button.configure(text=f"Answer the {len(questions)} question(s)…")
+            if questions and not questions_button.winfo_ismapped():
+                questions_button.pack(side="left", before=answered_button)
+
+        answered_button = ttk.Button(
+            questions_row, text=f"Answered questions ({kept_count})…",
+            command=lambda: self._answered_questions_dialog(window, folder, number, info, kinds, answers, questions,
+                                                            answered_state, answered_changed))
+        answered_button.pack(side="left", padx=(8, 0) if questions else (0, 0))
+        if not kept_count:
+            answered_button.state(["disabled"])
+        ttk.Label(frame, text="A question you leave at \"Don't know\" changes nothing and is asked again; any other "
+                              f"answer is kept and not asked again ({held} answered before, not asked now). Answered "
+                              "questions lists them: change an answer or clear it there.",
+                  foreground="#555555", wraplength=600, justify="left").pack(anchor="w")
         outcome: dict = {}
         buttons = ttk.Frame(frame)
         buttons.pack(anchor="w", pady=(12, 0))
@@ -4935,7 +5047,8 @@ class App(tk.Tk):
         ttk.Label(rule_row, text="Last names come from:").pack(side="left")
         saved_rule = names.get("rule") or recorded_rule or "father"   # the owner's: the father's name
         rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["father"]))
-        ttk.Combobox(rule_row, textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
+        # Named, so the rule's box is told from the Sort by box by what it is, never by its place.
+        ttk.Combobox(rule_row, name="last_names_rule", textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
                      state="readonly", width=34).pack(side="left", padx=(6, 0))
         # Each living villager's own rule for their children's last name (the owner, 2026-10-09), beside
         # the village's: the record's, or what the player chose here before.
@@ -4949,6 +5062,13 @@ class App(tk.Tk):
                    command=lambda: self._own_rules_dialog(window, people, parents, own_state, lambda: by_rule(),
                                                           current=saved_own)
                    ).pack(side="left", padx=(8, 0))
+        # Sort by (the owner, v1.35.80): the rows move, every box keeps what is in it; nothing is written.
+        sort_row = ttk.Frame(frame, padding=(12, 4, 12, 0))
+        sort_row.pack(anchor="w")
+        ttk.Label(sort_row, text="Sort by:").pack(side="left")
+        sort_var = tk.StringVar(value=getattr(self, "_last_names_sort", SORT_AS_SAVED))
+        ttk.Combobox(sort_row, name="last_names_sort", textvariable=sort_var, values=list(LAST_NAMES_SORTS), state="readonly",
+                     width=max(len(s) for s in LAST_NAMES_SORTS) + 2).pack(side="left", padx=(6, 0))
         # Arriving villagers' own new last names (the owner, v1.35.66: "an optional toggle (default on) for
         # automatically assigning unique last names for arrived villagers"), kept with the village.
         recorded_arrivals = vv_last_names.read_arrivals(folder, number, info.slot)
@@ -4979,6 +5099,7 @@ class App(tk.Tk):
         bold_font = normal_font.copy()
         bold_font.configure(weight="bold")
         labels: dict = {}                       # identity -> (the row's label, whether the prompt asked about it)
+        row_widgets: list[list] = []            # each villager's row of widgets, moved together by Sort by
         for row, (v, who) in enumerate(zip(people, last_name_rows(people, parents))):
             asked = v.identity in highlight
             label = (tk.Label(inner, text=who, background=LAST_NAME_ASKED_BACKGROUND, foreground="#000000")
@@ -5006,6 +5127,18 @@ class App(tk.Tk):
                 ttk.Checkbutton(inner, text=f"'{guessed}' is a last name", variable=is_last,
                                 command=lambda v=v, base=f"{own} {guessed}", var=is_last: one_name(v, base, var)
                                 ).grid(row=row, column=3, sticky="w", padx=(8, 0))
+            row_widgets.append(inner.grid_slaves(row=row))
+        shown_order = list(range(len(people)))
+
+        def resort(*_args) -> None:
+            """Move the rows to the chosen order; their boxes, marks and ticks go with them."""
+            self._last_names_sort = sort_var.get()
+            shown_order[:] = last_names_order(people, sort_var.get(), shown_order)
+            for place, k in enumerate(shown_order):
+                for widget in row_widgets[k]:
+                    widget.grid_configure(row=place)
+        sort_var.trace_add("write", resort)
+        resort()
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
         buttons = ttk.Frame(frame, padding=12)
@@ -5385,6 +5518,12 @@ class App(tk.Tk):
                        "who share a name, looks and sex cannot have one (number the duplicate names first). "
                        "A villager whose rule will change is shown in red bold. "
                        "The game must stay closed.").pack(side="top", anchor="w")
+        sort_row = ttk.Frame(window, padding=(12, 8, 12, 0))
+        sort_row.pack(side="top", anchor="w")
+        ttk.Label(sort_row, text="Sort by:").pack(side="left")
+        sort_var = tk.StringVar(value=getattr(self, "_last_names_sort", SORT_AS_SAVED))
+        ttk.Combobox(sort_row, name="last_names_sort", textvariable=sort_var, values=list(LAST_NAMES_SORTS), state="readonly",
+                     width=max(len(s) for s in LAST_NAMES_SORTS) + 2).pack(side="left", padx=(6, 0))
         buttons = ttk.Frame(window, padding=12)
         buttons.pack(side="bottom", anchor="w")
         body = ttk.Frame(window)
@@ -5400,6 +5539,7 @@ class App(tk.Tk):
         canvas.pack(side="left", fill="both", expand=True)
         values: dict = {}
         labels: list = []                       # (the row's label, the villager's own_key)
+        row_widgets: list[list] = []            # each villager's row of widgets, moved together by Sort by
         normal_font = tkfont.nametofont("TkDefaultFont")
         bold_font = normal_font.copy()
         bold_font.configure(weight="bold")
@@ -5428,6 +5568,18 @@ class App(tk.Tk):
                 ttk.Combobox(inner, textvariable=values[key], values=list(words.values()), state="readonly",
                              width=max(len(text) for text in words.values()) + 2).grid(row=row, column=1, sticky="w", padx=(8, 0), pady=1)
                 values[key].trace_add("write", restyle)
+            row_widgets.append(inner.grid_slaves(row=row))
+        shown_order = list(range(len(shown)))
+
+        def resort(*_args) -> None:
+            """Sort by (the owner, v1.35.80): the rows move with the rule chosen in each."""
+            self._last_names_sort = sort_var.get()
+            shown_order[:] = last_names_order(shown, sort_var.get(), shown_order)
+            for place, k in enumerate(shown_order):
+                for widget in row_widgets[k]:
+                    widget.grid_configure(row=place)
+        sort_var.trace_add("write", resort)
+        resort()
         restyle()
 
         def fit_width() -> None:
@@ -5483,6 +5635,137 @@ class App(tk.Tk):
         window.grab_set()
         parent.wait_window(window)
         _regrab(parent)
+
+    # ANSWERED QUESTIONS (the owner, v1.35.80: "once I answer a question it shouldn't be asked again (goes to
+    # an answered questions section where I can change the answer)"; src/vv_answered_questions.py).
+    ANSWERED_PAGE = 40          # rows per page: the window stays far below Windows' 32,767 px limit
+    ASKED_AGAIN = "Don't know (asked again)"
+
+    def _answered_questions_dialog(self, parent, folder: Path, number: int, info, kinds: list, answers: dict,
+                                   questions: list, state: dict, on_change=None) -> None:
+        """Every answer kept for this save's village, with its date and whether a question asked now is
+        that one.  Change an answer, or clear it (asked again).  Nothing is written here: Repair keeps the
+        changes, after the backup, and lists them in the Repairs Made log.  A question answered before and
+        still found is asked again in this Repair -- back among "Answer the questions", with the new answer
+        chosen (cleared: "Don't know") -- so a changed answer is applied as a first answer is."""
+        try:
+            rows = self._run_with_wait("Reading your answered questions…\n\nNothing is changed.",
+                                       lambda: vv_answered_questions.listing(folder, number, info.slot, kinds))
+        except (OSError, ValueError, vv_log_tools.LogToolError) as exc:
+            messagebox.showerror("Answered questions", f"Your answers could not be read ({exc}).", parent=parent)
+            return
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: answered questions")
+        window.transient(parent)
+        frame = scrollable_frame(window, padding=12)
+        ttk.Label(frame, wraplength=700, justify="left", text=(
+            f"{info.name} (Save {info.slot}): every question you answered, with your answer. An answer is never "
+            "asked again; only \"Don't know\" is. Change an answer, or tick Clear to be asked again. Nothing "
+            "changes until you press Repair: the save folder is backed up first, a question still found is asked "
+            "again with your new answer chosen (and applied as a first answer is), and the Repairs Made log lists "
+            "every change.")).pack(anchor="w")
+        if not rows:
+            ttk.Label(frame, text="No answer is kept for this village yet.", foreground="#555555").pack(
+                anchor="w", pady=(8, 0))
+        nav = ttk.Frame(frame)
+        nav.pack(anchor="w", pady=(8, 0))
+        body = ttk.Frame(frame)
+        body.pack(anchor="w", fill="x")
+        asked_again = state.setdefault("asked_again", set())
+        choices = {r.ident: tk.StringVar(value=state["changed"].get(r.ident, r.answer)) for r in rows}
+        clears = {r.ident: tk.BooleanVar(value=r.ident in state["cleared"]) for r in rows}
+        page = {"n": 0}
+        pages = max(1, (len(rows) + self.ANSWERED_PAGE - 1) // self.ANSWERED_PAGE)
+        page_label = ttk.Label(nav)
+        previous = ttk.Button(nav, text="Previous", command=lambda: turn(-1))
+        following = ttk.Button(nav, text="Next", command=lambda: turn(1))
+        if pages > 1:
+            previous.pack(side="left")
+            following.pack(side="left", padx=(6, 0))
+            page_label.pack(side="left", padx=(8, 0))
+
+        def show() -> None:
+            for widget in body.winfo_children():
+                widget.destroy()
+            start = page["n"] * self.ANSWERED_PAGE
+            for row in rows[start:start + self.ANSWERED_PAGE]:
+                ttk.Label(body, text=f"{row.group}: {row.text}", wraplength=700, justify="left").pack(
+                    anchor="w", pady=(10, 0))
+                status = ("Asked again in this Repair (Answer the questions)." if row.ident in asked_again
+                          else row.status)
+                ttk.Label(body, text=f"Your answer: {row.answer} (answered {row.date or 'before v1.35.80'}). {status}",
+                          wraplength=700, justify="left", foreground="#555555").pack(anchor="w")
+                line = ttk.Frame(body)
+                line.pack(anchor="w")
+                if row.options:
+                    ttk.Label(line, text="Change it to:").pack(side="left")
+                    ttk.Combobox(line, textvariable=choices[row.ident], values=row.options, state="readonly",
+                                 width=56).pack(side="left", padx=(6, 0))
+                ttk.Checkbutton(line, variable=clears[row.ident], text="Clear (ask again)").pack(
+                    side="left", padx=(8, 0))
+            page_label.configure(text=f"Page {page['n'] + 1} of {pages} ({len(rows)} answer(s))")
+            previous.state(["disabled"] if page["n"] == 0 else ["!disabled"])
+            following.state(["disabled"] if page["n"] >= pages - 1 else ["!disabled"])
+
+        def turn(step: int) -> None:
+            page["n"] = min(max(0, page["n"] + step), pages - 1)
+            show()
+
+        def keep() -> None:
+            for row in rows:
+                cleared, new = clears[row.ident].get(), choices[row.ident].get()
+                state["changed"].pop(row.ident, None)
+                state["cleared"].discard(row.ident)
+                if row.live is not None and (cleared or new != row.answer):
+                    kind, key, question = row.live
+                    # Asked again in this Repair, the new answer chosen: kept and applied as a first answer.
+                    kind.questions[key] = question
+                    kind.remembered.pop(key, None)
+                    answers[key] = self.ASKED_AGAIN if cleared else new
+                    if not any(q is question for _k, q in questions):
+                        questions.append((kind, question))
+                    asked_again.add(row.ident)
+                    if cleared:
+                        state["cleared"].add(row.ident)
+                elif cleared:
+                    state["cleared"].add(row.ident)
+                elif row.options and new != row.answer:
+                    state["changed"][row.ident] = new
+            if on_change is not None:
+                on_change()
+            window.destroy()
+
+        show()
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(12, 0))
+        ttk.Button(buttons, text="Keep these changes", command=keep).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+
+    @staticmethod
+    def _totem_fact(t) -> str:
+        """A totem by what it is (vv_vv2_totems.Totem), never by its record number."""
+        return f"totem {t.name}|{t.sex}|{t.head}|{t.body}|{t.lineage}|{t.father}|{t.mother}"
+
+    def _ask_kept(self, parent, folder: Path, number: int, slot: int, source: str, label: str, fact: str,
+                  who: tuple, text: str) -> bool:
+        """A yes / no question of Repair Saves & Logs asked once (src/vv_answered_questions.py): the kept
+        answer when there is one, else the player's, kept (Answered questions lists it, to change or clear)."""
+        try:
+            kept = vv_answered_questions.asked_before(folder, number, slot, source, fact, who)
+        except (OSError, ValueError):
+            kept = None
+        if kept is not None:
+            return kept == vv_answered_questions.YES
+        answer = messagebox.askyesno("Repair Saves & Logs", text, parent=parent)
+        try:
+            vv_answered_questions.keep_yes_no(folder, number, slot, source, label, fact, who, text, answer)
+        except OSError:
+            pass                            # not kept: asked again next time
+        return answer
 
     # FIX GRAVE INFORMATION (the owner, 2026-10-10: "add an option in Repair logs/saves to fix grave
     # information too: Name, age, etc." and "account for mod-added stuff too"; src/vv_graves.py).
@@ -5720,8 +6003,12 @@ class App(tk.Tk):
                 messagebox.showerror("Repair Saves & Logs", f"The totem villagers were not checked. {exc}", parent=parent)
                 found = None
             if found is not None and found.villagers:
+                # Asked once each (src/vv_answered_questions.py): by the record's own name, looks and family,
+                # never its record number (which moves).
                 confirmed = {v.key for v in found.asked_villagers
-                             if messagebox.askyesno("Repair Saves & Logs", v.question(), parent=parent)}
+                             if self._ask_kept(parent, folder, number, info.slot, "totem_villagers",
+                                               vv_vv2_totems.LABEL_FIX, self._totem_fact(v.totem),
+                                               ((v.totem.name, v.totem.head, v.totem.body),), v.question())}
                 chosen = found.certain_villagers + [v for v in found.asked_villagers if v.key in confirmed]
                 if chosen and messagebox.askyesno(
                         "Repair Saves & Logs",
@@ -5747,8 +6034,10 @@ class App(tk.Tk):
                 messagebox.showerror("Repair Saves & Logs", f"The elders' totems were not checked. {exc}", parent=parent)
                 return lines
             # One to one: a statue accepted for one elder is not asked about for any other.
-            kept = vv_vv2_totems.ask(found, lambda q: messagebox.askyesno("Repair Saves & Logs", q.question(),
-                                                                          parent=parent))
+            kept = vv_vv2_totems.ask(found, lambda q: self._ask_kept(
+                parent, folder, number, info.slot, "totem_elders", vv_vv2_totems.LABEL_GIVE,
+                f"sex {q.elder.sex}|{self._totem_fact(q.totem)}", ((q.elder.name, q.elder.head, q.elder.body),),
+                q.question()))
             go, left = vv_vv2_totems.plan_give(found, kept)
             if not go and not left:
                 return lines + [f"{vv_vv2_totems.LABEL_GIVE}: every Esteemed Elder has a totem."]
@@ -5816,7 +6105,8 @@ class App(tk.Tk):
                    command=lambda: [v.set(False) for v in ticks]).pack(side="left", padx=(6, 0))
         for t, var in zip(found, ticks, strict=True):
             ttk.Checkbutton(frame, variable=var, text=t.label()).pack(anchor="w")
-        ttk.Label(frame, text="Their colour (the game's own totems):").pack(anchor="w", pady=(8, 2))
+        ttk.Label(frame, text="Their colour (the game's own totems, numbered 1 to 8 from the left):").pack(
+            anchor="w", pady=(8, 2))
         faces = ttk.Frame(frame)
         faces.pack(anchor="w")
         png = self._totems_png()
@@ -5852,9 +6142,11 @@ class App(tk.Tk):
                 image = tk.PhotoImage(width=40, height=100)
                 image.tk.call(image, "copy", sheet, "-from", face * 40, 0, face * 40 + 40, 100)
                 window._totem_faces.append(image)
-                ttk.Button(faces, image=image, command=lambda f=face: pick(f)).grid(row=0, column=face, padx=2)
+                # Its number under the picture: colour 1 is the leftmost, 8 the rightmost (the owner, v1.35.80).
+                ttk.Button(faces, image=image, text=str(face + 1), compound="top",
+                           command=lambda f=face: pick(f)).grid(row=0, column=face, padx=2)
             else:
-                ttk.Button(faces, text=vv_vv2_totems.FACES[face], width=14,
+                ttk.Button(faces, text=vv_vv2_totems.FACES[face].capitalize(), width=10,
                            command=lambda f=face: pick(f)).grid(row=face // 4, column=face % 4, padx=2, pady=2)
         if sheet is None:
             ttk.Label(frame, text="The game's totems.png was not found (choose The Lost Children's original folder "
@@ -5882,7 +6174,12 @@ class App(tk.Tk):
         for question in lost.questions:
             if question.loss in answered:
                 continue                    # the player already said who it was
-            if messagebox.askyesno("Repair Saves & Logs", question.question, parent=parent):
+            # Asked once (src/vv_answered_questions.py): by the loss and the villager, never their place in
+            # the save (the key's offset moves whenever the records are packed).
+            v = question.villager
+            if self._ask_kept(parent, folder, number, info.slot, "lost_titles", "Lost titles",
+                              f"{question.kind}|{question.loss}|{question.title}", ((v.name, v.head, v.body),),
+                              question.question):
                 chosen.add(question.key)
                 answered.add(question.loss)
         if not chosen:

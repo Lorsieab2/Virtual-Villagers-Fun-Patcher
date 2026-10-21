@@ -268,6 +268,71 @@ first and listed in the Repairs log), and the go-ahead is then used up.
    asked: A New Home's parents are repaired as soon as the village has
    settled, everything else at the game's save when you close it.
 
+ANSWERED QUESTIONS
+
+Once you answer one of Repair Saves & Logs' questions, it is not asked
+again. Only "Don't know" is asked again next time. An answer is kept for the
+record or villager it is about, not for where the record is written, so it
+still holds after records are renumbered, after a log rolls into a new
+numbered file, after Move Files to Save Folders, and after the patcher
+renames the villager (last names, numbering).
+
+To see or change your answers: in Repair Saves & Logs, click "Answered
+questions (N)...". Each answer is listed with its date, and whether a
+question asked now is that one.
+- Change it to: pick another answer. If the question is still found, it is
+  asked again in this Repair with your new answer chosen, and applied like a
+  first answer.
+- Clear (ask again): the answer is taken out and the question is asked again.
+Nothing changes until you click Repair. The save folder is backed up first,
+and the Repairs Made log lists every answer kept, changed or cleared. An
+answer that no longer matches any question (it was carried out, or its
+records changed) is still listed. It is never dropped.
+
+A rename the patcher makes (last names, numbering, a cut name restored, a
+name given back) is never a question in Check Saves & Logs. The game's
+older copies of the save still have the old name, and the patcher follows
+the villager to the new name.
+
+FALSE UNACCOUNTED RECORDS (all five games)
+
+The Unaccounted Villagers log lists a villager who left with no Death or
+Disappeared record, or arrived with no Birth or known arrival. It now follows
+each villager by who they are (name, sex, looks, likes and dislikes, and an age
+that fits), never by record number: a villager who only moved to another
+record -- every load packs the records, a full village reuses them, and The
+Lost Children's Elder Totems move the totems out -- is neither Left nor
+Arrived, and one with a Death or Disappeared record is never Left.
+
+An older version matched by record number and could write false records (the
+owner's Lost Children village: 220 at its first load with the Elder Totems).
+Check Saves & Logs reports them as WRONG. In Repair Saves & Logs, "Remove false
+Unaccounted records" lists each one with why it is false -- the same villager
+Left and Arrived in one check, is still in the village in the Village History,
+was already there before, or has a Death, Disappeared, Birth or Arrived record
+-- and asks you once per check that wrote them. The game must be closed; the
+save folder is backed up first, each log is copied into Copies Made Before
+Repairs, and the Repairs Made log lists what was taken out. A record nothing
+contradicts is kept and shown to you; it is never removed.
+
+The same repair's "Duplicate backfilled Arrived records" now also offers a
+"How: unknown" Arrived record of a villager renamed in the game (a "Name
+changed" record) whose record under the old name is already in the log, and
+Check Saves & Logs reports the same records.
+
+If the game loads the same village again without saving first, what the
+lost session reported no longer counts for anybody the load put back: no
+Arrived record is written for them. A villager back in the village after
+their own Death or Disappeared record gets one Unaccounted record that says
+exactly that ("Back in the village after a Death or Disappeared record"),
+because a reload and a record written back look the same.
+
+Two villagers with one name and the same looks are kept apart everywhere:
+when one dies during play the other keeps her own mask, custom title and
+parents; the Family Tree Maker shows a newborn named like a dead villager as
+a person of her own; and the Village Elders repair counts a dead elder even
+when a living villager has her name.
+
 LAST NAMES: EACH VILLAGER'S OWN RULE
 
 In Repair Saves & Logs, "Give villagers last names" > Choose... > "Each
@@ -299,11 +364,27 @@ in Number Names\, see THE PATCHER'S OWN FILES).
   the villager who already had the name becomes "I". The save folder is backed
   up first ("(before numbering names)"), and a Repairs Made record lists every
   rename, old name -> new name.
-- What it cannot tell for sure is never guessed: two living villagers with the
-  same name AND the same looks, a record that does not say how its villager
-  looks, or a numbered name too long for the game (27 characters in A New
-  Home, 23 in the other games) are left as they are and shown to you in the
-  Repair Saves & Logs window, in its result and in the Repairs Made record.
+- A number is kept for life: when a namesake dies or leaves, the other keeps
+  their number ("Gata Sirikit II" stays II), and a number is never lowered,
+  removed or given twice -- a new namesake gets the next number after the
+  highest any villager of that name has had, the dead and gone included (a
+  baby named like a dead Gata Sirikit II is Gata Sirikit III). The numbers
+  used are kept in Number Names\ for the game to read at each birth.
+- Villagers with the same name AND the same looks are numbered too: the
+  oldest is I; two of the same age (identical twins) go in the game's own
+  order -- the save's order, and the order of their Birth records (the
+  delivery's first child is I). Each record of theirs is renamed where it can
+  be tied to one of them: in a History snapshot, among the Birth records, in
+  a roster, when it lists all of them. A record that names only one of them,
+  or names one as a parent, cannot be tied: it keeps the name, and the Repairs
+  Made record says which.
+- What it cannot tell for sure is never guessed: namesakes of the same looks
+  when a Death or Disappeared record names one of them too, a pair the
+  patcher's custom titles or masks cannot tell apart, a record that does not
+  say how its villager looks, or a numbered name too long for the game (27
+  characters in A New Home, 23 in the other games) are left as they are and
+  shown to you in the Repair Saves & Logs result (as information, never as an
+  error: everything else is still numbered) and in the Repairs Made record.
 - Check Saves & Logs only reports what would be numbered; it changes nothing.
 - Off: nothing is numbered by itself. "Number duplicate names" in Repair Saves &
   Logs and the Family Tree Maker's "Number Duplicate Names..." still work.
@@ -722,6 +803,12 @@ Nothing is written into a villager record or the save.
 
 An entry is never erased. Death leaves it; growing up hides the figures but
 keeps the record, so a villager made young again shows their parents again.
+A villager who passed away keeps their entry in their old place while
+nobody else has it; once a new villager takes that place (in a village of
+256 that is the next birth), their parents go to a list at the end of the
+same file, which has room for every villager who ever lived. Nothing on the
+list is ever changed or removed, and a file with nobody on it is the same
+as an older version's.
 Each entry belongs to its villager, not to a record slot: when the game
 loads a save it renumbers the villagers (everyone after a villager who died
 moves down), and the entries move with them, matched by name, gender and
@@ -841,8 +928,9 @@ Fun Patcher Data", one file per save slot:
     Number Names\                                  (Repair Saves & Logs: "Number
         Virtual Villagers <N> Number Names          villagers who share a name
           - Save <slot>.dat                         automatically", all five games)
-      Written only when you change the setting; no file is ON. Read by the
-      patcher and, at each birth, by VVFP Number Names.dll.
+      The setting (no file is ON) and every number used for each name, so
+      none is given twice. Written by Repair Saves & Logs, and at a birth by
+      VVFP Number Names.dll when it numbers the baby; read by both.
 
 (The Unaccounted Villagers roster is not the "Village Roster - Save <slot>.dat"
 in Village Statistics\: that one is the statistics' own, and a different file.)

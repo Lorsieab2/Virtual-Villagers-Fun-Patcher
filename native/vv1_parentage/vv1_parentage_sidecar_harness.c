@@ -87,6 +87,7 @@ static void fresh(void) {
     g_blocked_wait = 0;
     g_may_replace = 0;
     g_opens = 0;
+    vv1_departed_clear();
 }
 
 static int read_all(const char *p, unsigned char *out, DWORD cap, DWORD *size) {
@@ -549,6 +550,60 @@ static void follow_cases(void) {
     check(g_loaded_slot == SLOT && has_parents(5, 1) && has_parents(0, 2),
           "... and after a repack each Suki still keeps her own parents");
 
+    /* 18d. The identity audit, case 3: one of two Sukis (one name, gender and family scalar) dies
+           in play.  Nothing moves in play -- only a load packs the records -- so the survivor is
+           the Suki in her own record, and keeps her own parents; the dead Suki's parents stay with
+           her, under her identity, as a departed villager's always do.  The old follow took the
+           dead Suki's empty record for a move (her identity is on screen: the other Suki), and
+           dropped BOTH entries -- the survivor's too, with her looks different or not.  Then the
+           next load packs the survivor into the dead Suki's record: with looks that differ, the
+           roster's looks still tell her apart. */
+    {
+        int looks;
+        for (looks = 0; looks < 2; ++looks) {
+            int k, dead_kept = 0;
+            DeleteFileA(path);
+            fresh();
+            memset(before_load, 0, sizeof(before_load));
+            put(before_load, 0, "Keep", 1, 9);
+            put(before_load, 1, "Suki", 0, 50);
+            put(before_load, 2, "Suki", 0, 50);
+            put(before_load, 3, "Ann", 0, 12);
+            *(int *)(before_load + 1 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 1;
+            *(int *)(before_load + 1 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 3;
+            *(int *)(before_load + 2 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = looks ? 14 : 1;
+            *(int *)(before_load + 2 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = looks ? 17 : 3;
+            vv1_take_roster(before_load, g_roster);
+            set_parents(1, 1);
+            set_parents(2, 2);
+            g_may_replace = 1;
+            vv1_parents_save(SLOT, before_load);
+            fresh();
+            play(before_load, 2);
+            before_load[1 * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET] = 0;   /* the first Suki dies */
+            play(before_load, 2);
+            for (k = 0; k < VV1_RECORD_COUNT; ++k) {
+                dead_kept |= g_roster[k].gender && g_roster[k].departed && has_parents(k, 1);
+            }
+            check(g_loaded_slot == SLOT && has_parents(2, 2) && dead_kept,
+                  looks ? "ONE OF TWO SUKIS (DIFFERENT LOOKS) DIES IN PLAY: the survivor keeps her own parents, the dead one's are kept"
+                        : "ONE OF TWO SUKIS (THE SAME LOOKS) DIES IN PLAY: the survivor keeps her own parents, the dead one's are kept");
+            if (looks) {
+                /* The next load packs the survivor into record 1, Ann into 2. */
+                memset(after_load, 0, sizeof(after_load));
+                put(after_load, 0, "Keep", 1, 9);
+                put(after_load, 1, "Suki", 0, 50);
+                put(after_load, 2, "Ann", 0, 12);
+                *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 14;
+                *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 17;
+                fresh();
+                play(after_load, 2);
+                check(g_loaded_slot == SLOT && has_parents(1, 2),
+                      "... AND AFTER THE NEXT LOAD PACKS HER INTO THE DEAD SUKI'S RECORD, HER LOOKS STILL TELL HER APART");
+            }
+        }
+    }
+
     /* 19. Codex (#516): another village in the slot that shares ONE identity
            with the old roster, at another record, is not the old village. */
     write_owner_sidecar();
@@ -883,6 +938,166 @@ static void title_screen_cases(void) {
     fresh();
 }
 
+/* ---- room for every villager who ever lived (the owner, 2026-10-20) ----
+
+   The owner's Kalahuna Tribe 1 is at the 256 cap: every death is followed by
+   a birth into the freed record, so a departed villager's entry had no free
+   record to wait in and was dropped -- Etini, Fatai and Ginger Awanata among
+   45.  It goes on the departed list now, after the 256 entries in the file. */
+static int departed_named(const char *name, const char *father, const char *mother) {
+    int i, n = 0;
+    for (i = 0; i < g_departed_count; ++i) {
+        if (lstrcmpA(g_departed[i].who.name, name) == 0 && g_departed[i].who.departed
+            && lstrcmpA(g_departed[i].entry.father_name, father) == 0
+            && lstrcmpA(g_departed[i].entry.mother_name, mother) == 0) {
+            ++n;
+        }
+    }
+    return n;
+}
+
+static void full_village(unsigned char *records) {
+    char name[16];
+    int i;
+    memset(records, 0, VV1_RECORD_COUNT * VV1_RECORD_STRIDE);
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        wsprintfA(name, "Villager %d", i);
+        put(records, i, name, i & 1, 1000 + i);
+    }
+}
+
+static DWORD file_size(const char *p) {
+    WIN32_FILE_ATTRIBUTE_DATA a;
+    return GetFileAttributesExA(p, GetFileExInfoStandard, &a) ? a.nFileSizeLow : 0u;
+}
+
+#define MANY 700
+static void departed_list_cases(void) {
+    static unsigned char full[VV1_RECORD_COUNT * VV1_RECORD_STRIDE];
+    static unsigned char bytes[12 + sizeof(g_roster) + sizeof(g_entries) + 8 + MANY * sizeof(vv1_departed)];
+    const DWORD base = 12 + sizeof(g_roster) + sizeof(g_entries);
+    DWORD size = 0;
+    char name[16], father[16], mother[16];
+    int i, all = 1;
+
+    /* 36. A full village: Etini (record 7) dies and a baby is born into her record in the
+           same frame.  No record is free, so her entry goes on the departed list. */
+    DeleteFileA(path);
+    fresh();
+    full_village(full);
+    put(full, 7, "Etini Awanata", 0, 1007);
+    vv1_take_roster(full, g_roster);
+    lstrcpyA(g_entries[7].father_name, "Kito Awanata");
+    lstrcpyA(g_entries[7].mother_name, "Chika Awanata");
+    g_entries[7].father_head = 3; g_entries[7].father_body = 4;
+    g_entries[7].mother_head = 5; g_entries[7].mother_body = 6;
+    g_may_replace = 1;
+    check(vv1_parents_save(SLOT, full) && file_size(path) == base,
+          "setup: a full village's file, with nobody departed, is the earlier builds' file byte for byte");
+    fresh();
+    play(full, 2);
+    check(g_loaded_slot == SLOT && lstrcmpA(g_entries[7].father_name, "Kito Awanata") == 0,
+          "setup: the full village's file is loaded");
+    put(full, 7, "Baby Awanata", 1, 2007);
+    *(int *)(full + 7u * VV1_RECORD_STRIDE + VV1_AGE_OFFSET) = 2 * VV1_UNITS_PER_YEAR;
+    play(full, 3);
+    check(departed_named("Etini Awanata", "Kito Awanata", "Chika Awanata") == 1,
+          "at the 256 cap a villager who passed away keeps her parents on the departed list");
+    check(g_entries[7].father_name[0] == '\0' && g_entries[7].mother_name[0] == '\0',
+          "... and the baby born into her record does not inherit them");
+    check(file_size(path) == base + 8 + sizeof(vv1_departed)
+              && read_all(path, bytes, sizeof(bytes), &size)
+              && *(unsigned int *)(bytes + base) == VV1_DEPARTED_MAGIC && *(unsigned int *)(bytes + base + 4) == 1,
+          "... and the file keeps them after its 256 entries");
+    fresh();
+    play(full, 2);
+    check(g_loaded_slot == SLOT && departed_named("Etini Awanata", "Kito Awanata", "Chika Awanata") == 1,
+          "the departed list is read back with the file");
+    play(full, 5);
+    check(g_departed_count == 1 && file_size(path) == base + 8 + sizeof(vv1_departed),
+          "... and saving again never adds her twice");
+
+    /* 37. Death first, then a birth frames later into the same record (the order a
+           real village shows): the entry waits in her record, then moves to the list. */
+    put(full, 9, "Fatai Awanata", 0, 1009);
+    play(full, 2);
+    lstrcpyA(g_entries[9].father_name, "Moki Akikai");
+    lstrcpyA(g_entries[9].mother_name, "Imala Awanata");
+    g_entries[9].father_head = 7; g_entries[9].mother_head = 8;
+    vv1_parents_save(SLOT, full);
+    memset(full + 9u * VV1_RECORD_STRIDE, 0, VV1_RECORD_STRIDE);
+    play(full, 3);
+    check(g_roster[9].departed && lstrcmpA(g_entries[9].father_name, "Moki Akikai") == 0,
+          "a death with nobody in her record yet keeps the entry in the record");
+    put(full, 9, "Baby Two", 0, 2009);
+    play(full, 3);
+    check(departed_named("Fatai Awanata", "Moki Akikai", "Imala Awanata") == 1
+              && g_entries[9].father_name[0] == '\0',
+          "... and the birth into it moves her entry to the departed list");
+
+    /* 38. Many more deaths than the file has records: at the cap 700 births each take the record of a villager who passed away;
+           each followed by a birth into the freed record.  Every one keeps her parents. */
+    DeleteFileA(path);
+    fresh();
+    full_village(full);
+    vv1_take_roster(full, g_roster);
+    g_may_replace = 1;
+    vv1_parents_save(SLOT, full);
+    fresh();
+    play(full, 2);
+    for (i = 0; i < MANY; ++i) {
+        int at = (i * 37) % VV1_RECORD_COUNT;
+        wsprintfA(name, "Gen %d", i);
+        wsprintfA(father, "Father %d", i);
+        wsprintfA(mother, "Mother %d", i);
+        put(full, at, name, i & 1, 5000 + i);
+        play(full, 1);
+        lstrcpyA(g_entries[at].father_name, father);
+        lstrcpyA(g_entries[at].mother_name, mother);
+        vv1_parents_save(SLOT, full);
+    }
+    for (i = 0; i < MANY; ++i) {
+        int at = (i * 37) % VV1_RECORD_COUNT;
+        wsprintfA(name, "Gen %d", i);
+        if (lstrcmpA(g_roster[at].name, name) == 0) {
+            continue;             /* still living */
+        }
+        wsprintfA(father, "Father %d", i);
+        wsprintfA(mother, "Mother %d", i);
+        all = all && departed_named(name, father, mother) == 1;
+    }
+    check(all && g_departed_count == MANY - VV1_RECORD_COUNT,
+          "a full village of 256 plus many who passed away keeps every one of their parents, once each");
+    fresh();
+    play(full, 2);
+    check(g_departed_count == MANY - VV1_RECORD_COUNT, "... and all of them are read back from the file");
+
+    /* 39. A departed list that is not this build's (a bad count, or bytes after it) is
+           set aside like any other unreadable file, never read and never overwritten. */
+    if (read_all(path, bytes, sizeof(bytes), &size) && size > base + 8) {
+        static unsigned char bad[sizeof(bytes) + 4];
+        memcpy(bad, bytes, size);
+        *(unsigned int *)(bad + base + 4) += 1;
+        remove_asides(g_ticks);
+        write_all(path, bad, size);
+        fresh();
+        play(full, VV1_NEW_VILLAGE_STRIKES + 2);
+        {
+            static unsigned char back[sizeof(bad)];
+            char aside[MAX_PATH];
+            DWORD got = 0;
+            wsprintfA(aside, "%s.unreadable-%lu-0", path, (unsigned long)g_ticks);
+            check(read_all(aside, back, sizeof(back), &got) && got == size && memcmp(back, bad, size) == 0,
+                  "a departed list with the wrong count is set aside byte for byte");
+        }
+        remove_asides(g_ticks);
+    } else {
+        check(0, "setup: the file with a departed list is read");
+    }
+    DeleteFileA(path);
+    fresh();
+}
+
 /* A New Home's villager pointer (0x0048B614) and save slot (0x004911F4),
    which Vv1ParentageSetParents reads (case 11), live on this page.  By the
    time main runs the CRT heap has usually reserved it, so the harness runs
@@ -1158,6 +1373,7 @@ int main(int argc, char **argv) {
 
     follow_cases();
     title_screen_cases();
+    departed_list_cases();
 
     DeleteFileA(path);
     printf("%d failure(s)\n", failures);

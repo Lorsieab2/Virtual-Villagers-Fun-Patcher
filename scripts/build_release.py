@@ -232,6 +232,7 @@ FILES = [
     "src/vv_log_tools.py",
     "src/vv_log_additions.py",
     "src/vv_log_decisions.py",
+    "src/vv_answered_questions.py",
     "src/vv_move_old_names.py",
     "src/vv_move_to_save_folders.py",
     "src/vv_log_contradictions.py",
@@ -279,6 +280,8 @@ FILES = [
     "scripts/vvfp_consistency_check.py",
     # README links to it from the Check Saves & Logs / Repair Saves & Logs section.
     "docs/first-load-cross-check.md",
+    # README links to it from the Custom Island Event's Villager Changes (v1.35.80).
+    "docs/custom-island-event-villager-actions.md",
     "src/transparency.py",
     "src/expanded_atomic_writer.py",
     "src/vv5_full_heal.py",

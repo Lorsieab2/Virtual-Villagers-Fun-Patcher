@@ -66,6 +66,11 @@ class LastNamesError(Exception):
     """Nothing was changed (or everything was put back); the message says why."""
 
 
+class NothingToDo(LastNamesError):
+    """Nothing was changed because nothing needed changing: every villager already has the name chosen
+    (a second run).  Not a fault: the window says so as information, not as an error."""
+
+
 def _data_file(folder: Path, kind: str, name: str) -> Path:
     """The one place a save's data file `name` of the Data folder's `kind` is read and written: the
     save's own "Virtual Villagers Fun Patcher\\Save <S>\\Data\\<kind>" or the older layout's
@@ -1031,6 +1036,47 @@ class Plan:
     changes: list[Change] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     questions: list[Question] = field(default_factory=list)
+    # Namesakes with the same looks numbered one by one (plan_renames `ordered`): ((name, head, body,
+    # age), new name) for each villager of the save renamed.
+    numbered: list[tuple[tuple, str]] = field(default_factory=list)
+    # Records naming one of them that cannot be tied to which (a parent kept by name and looks only):
+    # left as they are, each said here (never guessed).
+    untied: list[str] = field(default_factory=list)
+
+
+def _holders(people: list, key: tuple) -> list:
+    """The save's villagers of `key` (name, head, body), oldest first (the owner's oldest-first rule),
+    villagers of one age in the save's record order: the order Number Duplicate Names numbers them."""
+    return sorted((v for v in people if v.identity == key),
+                  key=lambda v: (-(v.age if v.age is not None else -1), v.at))
+
+
+def _ordered_in_save(result: Plan, people: list, ordered: dict[tuple, list[str]],
+                     renames: dict[tuple, str]) -> dict[tuple, list[str]]:
+    """The `ordered` namesakes the save holds exactly as many of as there are names for (any other is
+    left as it is, and said)."""
+    out = {}
+    for key, names in sorted(ordered.items()):
+        if key in renames or len(_holders(people, key)) != len(names) or len(set(names)) != len(names):
+            result.notes.append(f"The {len(names)} villagers called {key[0]} (head {key[1]}, body {key[2]}) "
+                                "are not all in the save as they were counted, so they keep their name.")
+            continue
+        out[key] = list(names)
+    return out
+
+
+def _tie(occurrences: list[tuple[int, int | None]], names: list[str]) -> dict[int, str] | None:
+    """Each record of one place (a History snapshot, the Births log's Birth records, a roster) naming
+    one of the namesakes, tied to a name: when that place names exactly as many of them as there are,
+    the oldest (its own age where every record gives a different one) is the first name, else they
+    go in the place's own order -- the order the game wrote them (a delivery's first child first, the
+    record order).  None when the place names fewer or more: no record is guessed."""
+    if len(occurrences) != len(names):
+        return None
+    ages = [age for _line, age in occurrences]
+    if all(age is not None for age in ages) and len(set(ages)) == len(ages):
+        occurrences = sorted(occurrences, key=lambda o: -o[1])
+    return {line: name for (line, _age), name in zip(occurrences, names)}
 
 
 NOT_THEM = "No: someone else (leave the name)"
@@ -1090,7 +1136,8 @@ def plan(folder: Path, game: int, slot: int, chosen: dict[tuple, str],
 
 
 def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
-                 answers: dict[str, str] | None = None, dead: bool = False, ask: bool | None = None) -> Plan:
+                 answers: dict[str, str] | None = None, dead: bool = False, ask: bool | None = None,
+                 ordered: dict[tuple, list[str]] | None = None) -> Plan:
     """What renaming each (name, head, body) to its new whole name changes, file by file.  Reads only.
 
     With `dead` (Number Duplicate Names), villagers no longer living are renamed too -- in their
@@ -1100,14 +1147,14 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     folder = Path(folder)
     # Every rename is held here too, whoever asks for it (the owner: a character limit "IN EVERY
     # SINGLE PLACE A RENAME (OUTSIDE OF THE GAME) CAN HAPPEN"): the game's room, printable text only.
-    for new in renames.values():
+    for new in list(renames.values()) + [n for names in (ordered or {}).values() for n in names]:
         if not new or len(new) > ROOM[game] or not storable(new):
             raise LastNamesError(f"{new!r} cannot be a name: the game takes 1 to {ROOM[game]} printable "
                                  "characters.")
     f = FIELDS[game]
     people = living(folder, game, slot, bodies=dead)
     result = Plan(renames)
-    if not renames:
+    if not renames and not ordered:
         return result
     # A renamed villager's earlier looks -- before Change Appearance, linked by the "Appearance
     # changed" records -- are the same villager: their records and the parent names saved with them
@@ -1158,6 +1205,13 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
         new = renames.get(v.identity)
         if new:
             _put_name(after, v.at, f.name_cap, new)
+    # Namesakes with the same looks, numbered one by one (`ordered`; the owner, 2026-10-20): in the
+    # save the oldest is the first name, villagers of one age in the save's record order.
+    ordered = _ordered_in_save(result, people, ordered or {}, renames)
+    for key, names in ordered.items():
+        for v, new in zip(_holders(people, key), names):
+            _put_name(after, v.at, f.name_cap, new)
+            result.numbered.append(((*key, v.age), new))
     if f.father is not None:
         # A parent is the renamed villager only by name AND looks: a dead namesake is not.
         fh, fb, mh, mb, eh, eb = f.looks
@@ -1168,6 +1222,12 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
                           _i32(original, v.at + body))
                 if parent in asked:
                     _put_name(after, v.at + off, cap, asked[parent])
+                elif parent in ordered and (head, body) != (eh, eb):
+                    result.untied.append(f"the save: {v.name}'s {'father' if off == f.father else 'mother'} "
+                                         f"{parent[0]} (head {parent[1]}, body {parent[2]})")
+                elif parent in ordered:
+                    result.untied.append(f"the save: the father {v.name} is expecting a child by, {parent[0]} "
+                                         f"(head {parent[1]}, body {parent[2]})")
     # A title or mask is kept by an identity two villagers may share (the same name and likes, or
     # name and parents).  Given different names, the game could no longer tell which of them a
     # title or mask was for: when such an identity is in use in a titles or mask file, that is
@@ -1223,13 +1283,60 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, asked, by_name,
-                      _dead_names(folder, game, slot) if game == 1 else frozenset())
+                      _dead_names(folder, game, slot) if game == 1 else frozenset(), ordered)
     renamed = {name for name, _head, _body in renames}
-    _plan_statistics(result, game, slot, data_dir, by_name, renamed)
-    _plan_logs(result, folder, game, slot, asked, by_name, dead, renamed)
+    # A namesake numbered one by one whose name no other villager (other looks) has: the statistics
+    # roster, which keeps names alone, can follow them by count.
+    alone = {key[0]: names for key, names in ordered.items()
+             if key[0] not in renamed and all(v.identity == key for v in people if v.name == key[0])}
+    _plan_statistics(result, game, slot, data_dir, by_name, renamed | {k[0] for k in ordered}, alone,
+                     _dead_names(folder, game, slot))
+    _plan_logs(result, folder, game, slot, asked, by_name, dead, renamed, ordered)
     _plan_family_trees(result, folder, game, slot, asked)
     _plan_own_rules(result, folder, game, slot, asked)
+    if result.untied:
+        result.notes.append("These records name one of the villagers numbered one by one and cannot be tied to "
+                            "which, so they keep the name: " + "; ".join(result.untied) + ".")
+    try:
+        import vv_tribe_rename
+        tribe = vv_tribe_rename.save_name({g.number: g for g in vv_tribe_rename.GAMES}[game], original)
+        village = vv_tribe_rename.village_header(tribe, slot) if tribe else None
+    except (KeyError, ValueError):
+        village = None
+    _plan_answers(result, folder, game, slot, asked, village)
     return result
+
+
+def _plan_answers(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str],
+                  village: str | None = None) -> None:
+    """The patcher's own renames, kept in the slot's Log Decisions file (vv_log_decisions ALIAS_KIND):
+    the player's remembered answers follow the renamed villagers (src/vv_answered_questions.py), and the
+    read-only reconciliation reads the rename as the patcher's own -- a name, or a parent's name, that a
+    rename explains is never a question (src/vv_reconcile.py).  Only added to; made when it is not there;
+    one that cannot be read is left as it is."""
+    import json
+    import vv_log_decisions as decisions
+    path = decisions.path(folder, game, slot)
+    original: bytes | None = None
+    kept: list[dict] = []
+    if path.exists():
+        try:
+            original = path.read_bytes()
+            data = json.loads(original.decode("utf-8"))
+        except (OSError, ValueError, UnicodeError):
+            return
+        if not isinstance(data, dict) or data.get("version") != decisions.VERSION \
+                or not isinstance(data.get("decisions"), list):
+            return
+        kept = [d for d in data["decisions"] if isinstance(d, dict)]
+    known = decisions.aliases(kept)
+    when = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    added = [{"kind": decisions.ALIAS_KIND, "village": village, "name": name, "head": head, "body": body,
+              "field": new, "verdict": "renamed", "edited": False, "date": when}
+             for (name, head, body), new in sorted(renames.items(), key=lambda kv: (str(kv[0]), kv[1]))
+             if new and new != name and known.get((name, head, body)) != (new, head, body)]
+    if added:
+        result.changes.append(Change(path, original, decisions.encode(kept + added), "the answered questions"))
 
 
 def _look_alike_questions(folder: Path, game: int, slot: int, people: list[Living],
@@ -1439,8 +1546,17 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
             if new:
                 _put_name(buf, occ + 8, 28, new)
                 n += 1
-        for i in range(256):
-            e = 12 + 256 * 36 + i * 92
+        # The departed list after the 256 entries (src/vv1_parents_restore.py departed_list): its parents'
+        # names follow a renamed parent the same way; its villagers themselves have passed away.
+        listed = 0
+        if len(buf) > 12 + 256 * 36 + 256 * 92:
+            import vv1_parents_restore as parents_file
+            found = parents_file.departed_list(bytes(buf))
+            if found is None:
+                continue                                    # not the companion's list: left as it is
+            listed = len(found)
+        for e in ([12 + 256 * 36 + i * 92 for i in range(256)]
+                  + [12 + 256 * 36 + 256 * 92 + 8 + k * 128 + 36 for k in range(listed)]):
             for looks, at in ((0, 8), (2, 36), (4, 64)):
                 name = _cstr(buf, e + at, 28)
                 if not name:
@@ -1459,7 +1575,8 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
 
 def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, renames: dict[tuple, str],
                       asked: dict[tuple, str], by_name: dict[str, set] | None = None,
-                      dead: frozenset | set = frozenset()) -> None:
+                      dead: frozenset | set = frozenset(), ordered: dict[tuple, list[str]] | None = None) -> None:
+    ordered = ordered or {}
     name = f"Virtual Villagers {game} Villagers at Last Save - Save {slot}.dat"
     rec = RECORD[game]
     for path in (layout.route(data_dir.parent, f"{layout.DATA}\\Unaccounted Villagers\\{name}"),
@@ -1481,6 +1598,26 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
         size = 16 + (hi - lo) + tail
         buf = bytearray(original)
         n = 0
+        # The namesakes numbered one by one: the roster's entries of each, in its order (the save's
+        # record order at the last save), tied when it holds as many as the save does.
+        cap = FIELDS[game].name_cap
+        found: dict[tuple, list[tuple[int, None]]] = {}
+        for i in range(count):
+            base = 32 + i * size + 16 - lo
+            if base + hi > len(buf):
+                break
+            own = (_cstr(original, base + rec["name"], cap), _i32(original, base + rec["head"]),
+                   _i32(original, base + rec["body"]))
+            if own in ordered:
+                found.setdefault(own, []).append((base + rec["name"], None))
+        for key, occurrences in found.items():
+            tied = _tie(occurrences, ordered[key])
+            if tied is None:
+                result.untied.append(f"{path.name}: {len(occurrences)} entr(ies) for {key[0]}")
+                continue
+            for at, new in tied.items():
+                _put_name(buf, at, cap, new)
+                n += 1
         # A parent kept by name alone is renamed only when that name is one villager's: every living
         # holder takes the one new name (`by_name`) and no dead villager has the name (as the parents
         # in A New Home's Parentage Records are).
@@ -1515,6 +1652,8 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
                     if parent in asked:
                         _put_name(buf, base + at, width, asked[parent])
                         n += 1
+                    elif parent in ordered:
+                        result.untied.append(f"{path.name}: a {key} named {parent[0]}")
         if n:
             result.changes.append(Change(path, original, bytes(buf), "the Unaccounted roster"))
 
@@ -1566,12 +1705,22 @@ def _left(result: Plan, path: Path, names: set[str]) -> None:
 
 
 def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name: dict[str, set],
-                     renamed: set[str] = frozenset()) -> None:
-    """The Village Statistics roster and Village Elders.  Games sharing a folder share these
+                     renamed: set[str] = frozenset(), alone: dict[str, list[str]] | None = None,
+                     dead_names: set[str] | frozenset = frozenset()) -> None:
+    """The Village Statistics roster and Village Elders.  `alone`: the names of namesakes numbered one
+    by one that no other villager has, with their new names: the roster's lines of such a name are
+    renamed in its order when it holds exactly as many (the roster counts villagers; it keeps no looks).  Games sharing a folder share these
     files' names (Codex, #553): the Elders file names its game on its first line, and the roster
     (which does not) is this game's only when the slot's "Village Statistics - Save N.dat" says so.
-    A name these files hold for more than one new name stays, and is reported (Codex, #557)."""
+    A name these files hold for more than one new name stays, and is reported (Codex, #557).
+
+    An elder's line that is closed -- the elder dead or gone -- and a parent named on any line are
+    renamed only when no Death or Disappeared record carries the name (`dead_names`): the living
+    villagers are all `by_name` knows, so a dead namesake's line took the living one's new name and
+    the two elders' lines read as one villager's (the identity audit, case 5).  Such a line keeps the
+    name, and is reported."""
     unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1}
+    unique_living_only = {old: new for old, new in unique.items() if old not in dead_names}
     roster = layout.route(data_dir.parent, f"{layout.DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat")
     statistics = _first_line(_data_file(data_dir.parent, "Village Statistics", f"Village Statistics - Save {slot}.dat"))
     if roster.is_file() and statistics != f"VVFP VILLAGE STATISTICS v1 game={game}":
@@ -1582,13 +1731,29 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
         lines = original.decode("latin-1").split("\n")
         changed = False
         left = set()
+        alone = alone or {}
+        found: dict[str, list[tuple[int, None]]] = {}
+        for k, line in enumerate(lines):
+            parts = line.split("\t")
+            if len(parts) == 3 and parts[1] in alone:
+                found.setdefault(parts[1], []).append((k, None))
+        for old, occurrences in found.items():
+            tied = _tie(occurrences, alone[old])
+            if tied is None:
+                result.untied.append(f"{roster.name}: {len(occurrences)} line(s) for {old}")
+                continue
+            for k, new in tied.items():
+                parts = lines[k].split("\t")
+                parts[1] = new[:31]
+                lines[k] = "\t".join(parts)
+                changed = True
         for k, line in enumerate(lines):
             parts = line.split("\t")
             if len(parts) == 3 and parts[1] in unique:
                 parts[1] = unique[parts[1]][:31]
                 lines[k] = "\t".join(parts)
                 changed = True
-            elif len(parts) == 3 and parts[1] in renamed:
+            elif len(parts) == 3 and parts[1] in renamed and parts[1] not in found:
                 left.add(parts[1])
         _left(result, roster, left)
         if changed:
@@ -1605,12 +1770,15 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
         for k, line in enumerate(lines):
             parts = line.split("\t")
             if parts and parts[0] == "E" and len(parts) >= 5:
+                # "E <record> <name> <father> <mother> <gone> <open>": an open line is a living elder.
+                is_open = len(parts) >= 7 and parts[6].rstrip("\r") == "1"
                 for col in (2, 3, 4):
-                    if parts[col].rstrip("\r") in unique:
+                    names = unique if col == 2 and is_open else unique_living_only
+                    if parts[col].rstrip("\r") in names:
                         tail = "\r" if parts[col].endswith("\r") else ""
-                        parts[col] = unique[parts[col].rstrip("\r")][:39] + tail
+                        parts[col] = names[parts[col].rstrip("\r")][:39] + tail
                         changed = True
-                    elif parts[col].rstrip("\r") in renamed:
+                    elif parts[col].rstrip("\r") in renamed or parts[col].rstrip("\r") in unique:
                         left.add(parts[col].rstrip("\r"))
                 lines[k] = "\t".join(parts)
         _left(result, elders, left)
@@ -1626,20 +1794,61 @@ PERSON_LINE = re.compile(r"^(\s+)(Name|Child|Mother|Father): (.*)$")
 
 
 def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str],
-               by_name: dict[str, set], dead: bool = False, renamed: set[str] = frozenset()) -> None:
+               by_name: dict[str, set], dead: bool = False, renamed: set[str] = frozenset(),
+               ordered: dict[tuple, list[str]] | None = None) -> None:
     """Every record of a renamed villager: a "Name:" / "Child:" / "Mother:" / "Father:" line whose
     name, head and body are theirs.  A Death, Disappeared or Epitaph record is never theirs when
     only the living are renamed.  A line without looks is renamed when the name alone is unique
-    among those renamed; one naming a renamed villager without saying which stays, and is reported."""
+    among those renamed; one naming a renamed villager without saying which stays, and is reported.
+
+    `ordered` (namesakes with the same looks, numbered one by one): a villager's OWN record ("Name:",
+    "Child:") is tied to one of them place by place (_tie): within one History snapshot, among the
+    Birth records, among the Arrived records, ... of a file -- when the place names as many of them as
+    the save holds, by age where the records give each one's, else in the order the game wrote them.
+    A place naming fewer or more, and a parent line ("Mother:", "Father:"), cannot be tied: it keeps
+    the name and is said (Plan.untied)."""
     import vv_log_additions as additions
     checker = tools.load_checker()
     villages = additions.current_villages(folder, game, slot)
+    ordered = ordered or {}
     for path in checker.log_files(folder):
         original = path.read_bytes()
         crlf = b"\r\n" in original
         lines = original.decode("latin-1").replace("\r\n", "\n").split("\n")
         n = 0
         left = set()
+        if ordered:
+            places: dict[tuple, list[tuple[int, int | None]]] = {}
+            parents: dict[tuple, int] = {}
+            for b in additions.blocks(path, lines):
+                if not b.of(slot, game, villages):
+                    continue
+                for k, line in enumerate(b.lines):
+                    m = PERSON_LINE.match(line)
+                    if not m:
+                        continue
+                    who = additions._who_at(lines, b.start + k)
+                    key = (m.group(3).strip(), who[1], who[2])
+                    if key not in ordered:
+                        continue
+                    if m.group(2) in ("Mother", "Father") or b.heading == "Appearance changed":
+                        parents[key] = parents.get(key, 0) + 1
+                        continue
+                    age = b.int_value("Age")
+                    kind = b.heading.split(" ")[0] if b.heading else ""
+                    places.setdefault((key, b.date, kind), []).append((b.start + k, age))
+            for (key, date, kind), occurrences in places.items():
+                tied = _tie(occurrences, ordered[key])
+                if tied is None:
+                    result.untied.append(f"{path.name}: {len(occurrences)} {kind or 'record'} record(s) of "
+                                         f"{key[0]}" + (f" ({date})" if date else ""))
+                    continue
+                for at, new in tied.items():
+                    m = PERSON_LINE.match(lines[at])
+                    lines[at] = f"{m.group(1)}{m.group(2)}: {new}"
+                    n += 1
+            for key, count in parents.items():
+                result.untied.append(f"{path.name}: {count} parent line(s) naming {key[0]}")
         for b in additions.blocks(path, lines):
             if not b.of(slot, game, villages) or not dead and b.heading.startswith(
                     ("Death", "Disappeared", "Epitaph")):
@@ -1776,7 +1985,8 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
     except (struct.error, ValueError, OSError) as exc:
         raise LastNamesError(f"A file could not be read ({exc}); nothing was changed.") from exc
     if not work.renames:
-        raise LastNamesError("No villager was given a last name.")
+        raise NothingToDo("Nothing to do: every villager already has the last name chosen, so nothing was "
+                          "changed.")
     result = apply(folder, work, controller, now, BACKUP_LABEL, "giving the last names")
     if rule:                                    # what "right" is, for Check Saves & Logs' wrong last names
         _old_rule, fixed = read_record(folder, game, slot)
@@ -2298,15 +2508,22 @@ def apply(folder: Path, work: Plan, controller: vv_save_backup.ProcessController
     done: list[Change] = []
     try:
         for change in work.changes:
-            if change.path.read_bytes() != change.original:
+            # original None: a file made by this change (the renames kept for the answers, _plan_answers).
+            current = change.path.read_bytes() if change.original is not None or change.path.exists() else None
+            if current != change.original:
                 raise LastNamesError(f"{change.path.name} changed while {doing}.")
             done.append(change)
+            if change.original is None:
+                change.path.parent.mkdir(parents=True, exist_ok=True)
             _write(change.path, change.updated)
     except (OSError, LastNamesError) as exc:
         problems = []
         for change in reversed(done):
             try:
-                if change.path.read_bytes() != change.original:
+                if change.original is None:
+                    if change.path.exists():
+                        change.path.unlink()
+                elif change.path.read_bytes() != change.original:
                     _write(change.path, change.original)
             except (OSError, LastNamesError) as undo:
                 problems.append(f"{change.path.name}: {undo}")

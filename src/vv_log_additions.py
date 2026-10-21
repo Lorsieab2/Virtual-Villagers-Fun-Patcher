@@ -60,6 +60,12 @@ CHECKED = {
                  "logs and the patcher's files, and the player's answers",
     "born_arrived": "the backfilled \"How: unknown\" Arrived records of villagers the log already records "
                     "(a Birth record, or an Arrived record that says how they came), and the player's answers",
+    "answered": "the player's answers to Repair Saves & Logs' questions, kept so they are not asked again "
+                "(Answered questions: changed or cleared there)",
+    "false_unaccounted": "the Unaccounted records the logs and the save contradict by who the villager is (the "
+                         "same villager Left and Arrived in one check, still in the village in the Village History, "
+                         "already there before, or a Death, Disappeared, Birth or Arrived record), and the "
+                         "player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
@@ -69,6 +75,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "left_tribe": "Left the tribe record added",
          "contradictions": "Contradicting records taken out or renumbered",
          "born_arrived": "Duplicate backfilled Arrived record removed",
+         "false_unaccounted": "False Unaccounted record removed",
          "reconcile": "Answered"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
@@ -88,6 +95,10 @@ class Question:
     text: str
     options: list[str]
     default: str
+    # What the question is about, the same wherever its records are written (src/vv_answered_questions.py):
+    # its fact (never a line number, a file name or a count) and the villagers ((name, head, body)) it names.
+    fact: str = ""
+    who: tuple = ()
 
 
 @dataclass
@@ -127,6 +138,9 @@ class Kind:
     # (path, line index, new text[, needs]): a line put right where it is (a repeated "Death <n>"),
     # decided, or only on the answers `needs` names.
     replaces: list[tuple] = field(default_factory=list)
+    # The questions the player answered before (src/vv_answered_questions.py hold_back): key -> (the
+    # question, the kept answer).  Not asked; their answers are applied as given.
+    remembered: dict = field(default_factory=dict)
 
     @property
     def decided(self) -> int:
@@ -394,7 +408,7 @@ def _from_date_question(key: str, who: str, what: str, dates: list[str]) -> Ques
 
 
 def _dated_inserts(kind: Kind, rank_name: str, label: str, value: str, key: str,
-                   snapshots: list[Block]) -> None:
+                   snapshots: list[Block], identity: tuple | None = None) -> None:
     """One insert per snapshot, decided by the from-date answer."""
     dates = []
     for b in sorted(snapshots, key=lambda b: b.date or ""):
@@ -404,6 +418,9 @@ def _dated_inserts(kind: Kind, rank_name: str, label: str, value: str, key: str,
         return
     who = snapshots[0].value("Name")
     kind.questions[key] = _from_date_question(key, who, f"the {label.lower()} \"{value}\"", dates)
+    # The fact: this villager has this title (or mask) now -- whatever records are added since.
+    kind.questions[key].fact = f"{label}={value}"
+    kind.questions[key].who = (tuple(identity),) if identity else ()
     for b in snapshots:
         answers = {f"From {d}": f"  {label}: {value}" for d in dates if b.date and b.date >= d}
         kind.inserts.append(Insert(b.path, _after_name(b, rank_name), RANK[rank_name],
@@ -452,7 +469,7 @@ def plan_custom_titles(folder: Path, slot: int, people: list[Block], current: di
             continue
         older = [b for b in people if _now_of(b, current, persons) == identity and b.date
                  and not is_population(b.path) and b.value("Custom title") is None]
-        _dated_inserts(kind, "custom", "Custom title", title, f"custom|{identity}", older)
+        _dated_inserts(kind, "custom", "Custom title", title, f"custom|{identity}", older, identity)
     return kind
 
 
@@ -470,7 +487,7 @@ def plan_masks(folder: Path, slot: int, people: list[Block], current: dict, page
             continue
         older = [b for b in people if _now_of(b, current, persons) == identity and b.date
                  and not is_population(b.path) and b.value("Mask") is None]
-        _dated_inserts(kind, "mask", "Mask", mask, f"mask|{identity}", older)
+        _dated_inserts(kind, "mask", "Mask", mask, f"mask|{identity}", older, identity)
     return kind
 
 
@@ -519,7 +536,7 @@ def plan_special(folder: Path, game: int, slot: int, people: list[Block], curren
                                        line=f"  Special villager: {title}"))
     for identity, older in asked.items():
         title = current[identity].value("Special villager")
-        _dated_inserts(kind, "special", "Special villager", title, f"special|{identity}", older)
+        _dated_inserts(kind, "special", "Special villager", title, f"special|{identity}", older, identity)
     return kind
 
 
@@ -543,7 +560,7 @@ def plan_sex(folder: Path, game: int) -> Kind:
             key = f"sex|{name}|{head}|{body}"
             kind.questions.setdefault(key, Question(
                 key, f"Is {name} male or female? (No save, record or name list says.)",
-                ["Male", "Female", DONT_KNOW], DONT_KNOW))
+                ["Male", "Female", DONT_KNOW], DONT_KNOW, "Sex", ((name, head, body),)))
             kind.inserts.append(Insert(path, after, 0, question=key,
                                        by_answer={"Male": f"{indent}Sex: Male", "Female": f"{indent}Sex: Female"}))
     return kind
@@ -625,12 +642,42 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
                 else:
                     key = f"born|{checker.log_label(path)}|{group[0].start}"
                     names = ", ".join(x.value("Child", "  ") or "?" for x in group)
+                    import vv_answered_questions as answered
                     kind.questions.setdefault(key, Question(
                         key, f"{mother[0] if mother else 'A mother'}'s baby/babies {names}: how many babies "
-                             f"were born together?", ["Single birth", "Twin", "Triplet", DONT_KNOW], DONT_KNOW))
+                             f"were born together?", ["Single birth", "Twin", "Triplet", DONT_KNOW], DONT_KNOW,
+                        # The delivery's own records, wherever they are written and however numbered.
+                        "+".join(answered.fingerprint(x.lines) for x in group),
+                        tuple(w for w in [mother] + [_sub_identity(x, "Child") for x in group] if w)))
                     kind.inserts.append(Insert(path, anchor, 0, question=key,
                                                by_answer={w: f"  Born as: {w}" for w in words.values()}))
     return kind
+
+
+def _golden_born(arrived: Block, every: list[Block]) -> bool:
+    """Whether A New Home's Golden Child of this Arrived record already has a Birth record: one whose
+    child is them -- the Arrived record's name, head and body (only the name where either record
+    gives no looks) -- and that was the Golden Child's birth ("Born as: Golden Child", or no "Born
+    as" line at all, as the earliest Birth records were written).  A Birth of another child of the
+    same first name is not theirs (the identity audit, case 6: a namesake's Birth settled the Golden
+    Child, so the pregnancy the puzzle ended was closed as "lost" without asking, and Repair never
+    offered the Golden Child's own Birth)."""
+    name, head, body = arrived.identity
+    if not name:
+        return False
+    for x in every:
+        if not is_birth(x.heading) or x.value("Born as") not in (None, "Golden Child"):
+            continue
+        child = _sub_identity(x, "Child")
+        if child is None or child[0] != name:
+            continue
+        if None in (head, body, child[1], child[2]):
+            if x.value("Born as") == "Golden Child":
+                return True                     # no looks to compare: only a Golden Child's Birth
+            continue
+        if (child[1], child[2]) == (head, body):
+            return True
+    return False
 
 
 def plan_golden(folder: Path, game: int, slot: int) -> Kind:
@@ -652,12 +699,11 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
     every: list[Block] = []
     for path in paths:
         every += [b for b in blocks(path) if b.of(slot, game, villages)]
-    born = {b.value("Child", "  ") for b in every if is_birth(b.heading)}
     for k, b in enumerate(every):
         if not (b.heading.startswith("Arrived") and b.value("Special villager") == "Golden Child"):
             continue
         name = b.value("Name")
-        if not name or name in born:
+        if not name or _golden_born(b, every):
             continue
         # The pregnancies with no Birth after them, before this record, most recent first.
         open_: list[tuple[tuple, tuple]] = []
@@ -674,9 +720,10 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
             continue
         choices = {f"{m[0]} and {f[0]}": (m, f) for m, f in reversed(open_)}
         key = f"golden|{checker.log_label(b.path)}|{b.start}"
+        import vv_answered_questions as answered
         kind.questions[key] = Question(
             key, f"{name} is the Golden Child: whose pregnancy did the puzzle end? (mother and father)",
-            list(choices) + [DONT_KNOW], DONT_KNOW)
+            list(choices) + [DONT_KNOW], DONT_KNOW, answered.fingerprint(b.lines), (b.identity,))
         # The Birth record goes where the Arrived record was: added after its last line, the Arrived
         # lines taken out on the same answer (the blank line after it stays as the separator).
         kind.inserts.append(Insert(b.path, b.start + len(b.lines) - 1, 9, question=key, by_answer={
@@ -808,6 +855,7 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
     birth" record after the Conception.  When the record's age cannot settle it -- missing, or past the
     delivery (a Birth the log may have missed), two records with her looks, or a Golden Child the puzzle
     may have made of the pregnancy (A New Home) -- the player is asked."""
+    import vv_answered_questions as answered
     checker = tools.load_checker()
     kind = Kind("lost", "Babies lost with their mother (never born)")
     villages = current_villages(folder, game, slot)
@@ -836,7 +884,7 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
             gone.setdefault(b.identity, []).append(b)
     golden_unsettled = game == 1 and any(
         b.heading.startswith("Arrived") and b.value("Special villager") == "Golden Child"
-        and b.value("Name") not in {x.value("Child", "  ") for x in every if is_birth(x.heading)}
+        and not _golden_born(b, every)
         for b in every)
     for mother, conception in open_.items():
         records = gone.get(mother, [])
@@ -880,7 +928,8 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
         kind.questions[key] = Question(
             key, f"{mother[0]} (head {mother[1]}, body {mother[2]}) was expecting {babies} "
                  f"{'baby' if babies == 1 else 'babies'}, and no Birth follows; {why}. Were the babies lost "
-                 f"with her, never born?", [*choices, DONT_KNOW], DONT_KNOW)
+                 f"with her, never born?", [*choices, DONT_KNOW], DONT_KNOW,
+            answered.fingerprint(conception.lines), (mother,))
         for words, (record, line, _lost) in choices.items():
             if line:
                 kind.inserts.append(Insert(record.path, _lost_anchor(record), 4, question=key,
@@ -947,7 +996,8 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
         key = f"look|{name}|{old_head}|{old_body}|{new_head}|{new_body}"
         kind.questions[key] = Question(
             key, f"{name}'s look changed from head {old_head}, body {old_body} to head {new_head}, body "
-                 f"{new_body}, and nothing recorded it. How did it change?", [*LOOK_CAUSES, DONT_KNOW], DONT_KNOW)
+                 f"{new_body}, and nothing recorded it. How did it change?", [*LOOK_CAUSES, DONT_KNOW], DONT_KNOW,
+            f"{old_head},{old_body}->{new_head},{new_body}", ((name, old_head, old_body),))
         record = lead + "\n".join(["Appearance changed", f"  Name: {name}", f"  Old head: {old_head}",
                                    f"  Old body: {old_body}", f"  New head: {new_head}", f"  New body: {new_body}"])
         kind.inserts.append(Insert(target, anchor, len(kind.inserts), question=key, by_answer={
@@ -1064,7 +1114,7 @@ def plan_faction(folder: Path, game: int, slot: int, people: list[Block], curren
         key = f"faction|{who}"
         kind.questions[key] = Question(
             key, f"Was {name} a Heathen or a believer in the older Village History and Village Population "
-                 f"records? (No record settles it.)", options, DONT_KNOW)
+                 f"records? (No record settles it.)", options, DONT_KNOW, "Faction", (tuple(who),))
         for b in older:
             answers = {"Believer in every one of them": "  Faction: Believer",
                        "Heathen in every one of them": "  Faction: Heathen"}
@@ -1184,7 +1234,10 @@ def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
             key, f"{name} (head {head}, body {body}) is a Heathen now, and the logs show them a believer "
                  f"with no \"{LEFT_FOR_THE_HEATHENS}\" record after it; {why}. Add "
                  f"{'a record' if missing == 1 else f'{missing} records'} of their leaving the tribe "
-                 "(when is not known)?", [LEFT_YES, DONT_KNOW], DONT_KNOW)
+                 "(when is not known)?", [LEFT_YES, DONT_KNOW], DONT_KNOW,
+            # A Heathen now with a leaving missing: never their place on the page ("|{n}" in the key), which
+            # moves whenever anyone above them is born, dies or leaves.
+            "Left the tribe", (person.identity,))
         kind.inserts.append(Insert(target, anchor, RANK_LEFT + n, question=key, by_answer={LEFT_YES: text}))
     return kind
 
@@ -1270,16 +1323,36 @@ def plan_backfilled_arrivals(folder: Path, game: int, slot: int, living: dict[tu
             b.identity if b.heading.startswith("Arrived") else None)
         if k and None not in k:
             by_key.setdefault(k, []).append(b)
+    # A villager renamed in the game since their record (a "Name changed" record: the owner's Coral Tangaroa,
+    # "Arrived 3 / Lupa Tangaroa", and Mahalo Makawee I, "Arrived 4 / Tamil Makawee", v1.35.80): the record
+    # of the old name is theirs too.
+    older: dict[tuple, list[tuple]] = {}
+    for blk in every:
+        if blk.heading == "Name changed" and blk.value("Name") and blk.value("Old name"):
+            head, body = blk.int_value("Head"), blk.int_value("Body")
+            older.setdefault((blk.value("Name"), head, body), []).append((blk.value("Old name"), head, body))
+
+    def earlier(k: tuple) -> list[tuple]:
+        out, todo = [], list(older.get(k, []))
+        while todo and len(out) < 64:
+            o = todo.pop()
+            if o not in out and o != k:
+                out.append(o)
+                todo += older.get(o, [])
+        return out
     offered: list[tuple[Block, str]] = []
     for k, records in by_key.items():
+        records = records + [b for o in earlier(k) for b in by_key.get(o, [])]
         firm = [b for b in records if is_birth(b.heading)
                 or (b.heading.startswith("Arrived") and not is_backfilled_arrival(b) and b.value("How"))]
-        filled = [b for b in records if b.heading.startswith("Arrived") and is_removable_backfill(b)]
+        filled = [b for b in records if b.heading.startswith("Arrived") and is_removable_backfill(b)
+                  and b.identity == k]
         if not firm or not filled:
             continue
         what = ("a Birth record" if is_birth(firm[0].heading)
                 else f"{firm[0].heading} (How: {firm[0].value('How')})")
         offered += [(b, what) for b in filled[max(0, living.get(k, 0) - len(firm)):]]
+    import vv_answered_questions as answered
     import vv_log_decisions as decisions
     # Already decided "remove" with the log left as it is: the readers follow that; not asked again.
     settled = decisions.decided(folder, game, slot, kind.id, "remove", villages)
@@ -1291,13 +1364,13 @@ def plan_backfilled_arrivals(folder: Path, game: int, slot: int, living: dict[tu
         kind.questions[key] = Question(
             key, f"{b.heading}: {name} (head {head}, body {body}) is already recorded by {what}, but a "
                  "backfilled \"How: unknown\" Arrived record says they arrived. Remove the backfilled record?",
-            [REMOVE_IT, KEEP_IT], REMOVE_IT)
+            [REMOVE_IT, KEEP_IT], REMOVE_IT, answered.fingerprint(b.lines), ((name, head, body),))
         retro = key + "|retro"
         kind.questions[retro] = Question(
             retro, f"{b.heading}: {name} -- Retroactively edit records? (Yes: the record is taken out of the "
                    "log. No: the log is left as it is, and your answer is remembered for the family tree, "
                    "the Matchmaker, last names and Check Logs.)",
-            [RETRO_YES, RETRO_NO], RETRO_YES)
+            [RETRO_YES, RETRO_NO], RETRO_YES, answered.fingerprint(b.lines) + "|retro", ((name, head, body),))
         lines = read_lines(b.path)
         count = len(b.lines) + (1 if b.start + len(b.lines) < len(lines)
                                 and not lines[b.start + len(b.lines)].strip() else 0)
@@ -1331,9 +1404,15 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     ]
     import vv_log_contradictions
     kinds.append(vv_log_contradictions.plan(folder, game, slot))
+    # Unaccounted records an older build wrote by record number, contradicted by identity (v1.35.80).
+    kinds.append(vv_log_contradictions.plan_false_unaccounted(folder, game, slot))
     # The read-only reconciliation's contradictions, asked before any repair (src/vv_reconcile.py).
     import vv_reconcile
     kinds.append(vv_reconcile.kind(folder, game, slot))
+    # What the player answered before is not asked again (src/vv_answered_questions.py): those questions
+    # are held back, their answers applied as given.
+    import vv_answered_questions
+    vv_answered_questions.hold_back(folder, game, slot, kinds)
     return kinds
 
 
@@ -1614,7 +1693,9 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
         for start, count, kind_id in removes:
             doc.removes.append((start, count, kind_id))
             doc.removed.update(range(start, start + count))
-            if (m := GAME_IN_NAME.search(path.name)):
+            # An Unaccounted record's number is not the Arrived records' running count: taking one out
+            # renumbers nothing (the exporter numbers on above the highest, native/parentage_export).
+            if kind_id != "false_unaccounted" and (m := GAME_IN_NAME.search(path.name)):
                 removed_by[int(m.group(1))] = kind_id
     # Lines put right where they are (a repeated "Death <n>" or "Repair <n>" heading): decided, or only
     # on the answers they name (a contradiction's resolution and "Yes").

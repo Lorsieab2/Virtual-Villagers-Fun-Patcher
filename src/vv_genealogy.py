@@ -49,7 +49,8 @@ LITTER_FROM_NAME = {1: -0x14, 2: -0x20, 3: 0xBC, 4: 0xB4, 5: 0xB4}
 # (native/vv1_parentage/vv1_parentage.c): a 12-byte 'VP02' header, 256 roster occupants of 36 bytes
 # (gender 1/2, departed, head+1, body+1, family scalar, name[28]) and 256 entries of 92 bytes (father
 # head+1/body+1, mother head+1/body+1, the pregnancy stash's father head+1/body+1, 2 spare, then the
-# father's, the mother's and the stashed father's names, 28 bytes each).
+# father's, the mother's and the stashed father's names, 28 bytes each); then, when anybody is on it,
+# the departed list (src/vv1_parents_restore.py departed_list).
 VV1_SIDECAR_MAGIC = b"VP02"
 VV1_SIDECAR_NAME = 28
 VV1_SIDECAR_OCCUPANT = 36
@@ -213,6 +214,13 @@ class _Registry:
         # A New Home's living villagers as its save names them: (id, name, gender, family, head, body).
         self.vv1_living: list[tuple] = []
         self.ran: set[int] = set()                     # who a log says likes running
+        # NAMESAKES BY THEIR OWN BIRTH (the identity audit): two Birth records of one name and look are
+        # two villagers.  key -> every person born with it, the registry's own first; and each person's
+        # Birth (record index, father id, mother id), and the parents the save keeps on a living
+        # villager's record (The Lost Children on).
+        self.namesakes: dict[Key, list[int]] = {}
+        self.birth_of: dict[int, tuple] = {}
+        self.save_parents: dict[int, tuple] = {}
 
     def current(self, key: Key) -> Key:
         """The look a villager has now, following their Change Appearance records, under the full name
@@ -288,6 +296,7 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                         p.father = parent.id
                     else:
                         p.mother = parent.id
+            reg.save_parents[p.id] = (p.father, p.mother)
 
 
 PARENT_LINE = re.compile(r"^\s+(Father|Mother): (.*)$")
@@ -343,6 +352,8 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         if voided and additions.is_removable_backfill(b) and b.identity in voided:
             continue
         p = reg.get(name, head, body)
+        if b.heading.startswith(("Death", "Disappeared")):
+            p = _namesake_for(reg, p, b)     # a living villager's dead namesake (the identity audit)
         sex = b.value("Sex")
         if sex in ("Male", "Female") and p.sex is None:
             p.sex = sex
@@ -424,14 +435,27 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         reg.conceptions.pop(reg.current((rec.mother.name, rec.mother.head, rec.mother.body)) if rec.mother else None,
                             None)
         child = reg.get(rec.child.name, rec.child.head, rec.child.body)
-        if child.birth_record is None:
-            child.birth_record = index
+        if child.birth_record is not None:
+            # A second Birth record of this name and look is another villager (a Birth is written once
+            # per child): never the first one's (the identity audit; _namesakes_by_birth decides who
+            # of them the living villager is).
+            key = (child.name, child.head, child.body)
+            pid = max(reg.people, default=0) + 1
+            reg.people[pid] = Person(pid, *key)
+            reg.namesakes.setdefault(key, [child.id]).append(pid)
+            child = reg.people[pid]
+        child.birth_record = index
+        ids = []
         for person, attr, sex in ((rec.father, "father", "Male"), (rec.mother, "mother", "Female")):
+            parent_id = None
             if person is not None and person.name:
                 parent = reg.get(person.name, person.head, person.body)
                 parent.sex = parent.sex or sex
+                parent_id = parent.id
                 if getattr(child, attr) is None:
                     setattr(child, attr, parent.id)
+            ids.append(parent_id)
+        reg.birth_of[child.id] = (index, ids[0], ids[1])
         mother = rec.mother and (rec.mother.name, rec.mother.head, rec.mother.body)
         # A delivery's Birth records are written one after another, its Conception before them;
         # three babies at most.  A "Born as:" line, where Repair Saves & Logs wrote one, says how many came
@@ -452,6 +476,55 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     for p in reg.people.values():
         if p.litter is not None and sizes[p.litter] < 2:
             p.litter = None
+
+
+def _namesakes_by_birth(reg: _Registry, notes: list[str]) -> None:
+    """Who of the villagers born with one name and look the living one is (the identity audit): the
+    one whose Birth names the parents the save keeps on her record (The Lost Children on) -- never the
+    name and look alone.  The registry's own person for the key is the living one (the save is read
+    first); she takes that Birth and its litter, and the Birth she was given in log order goes to the
+    namesake instead, with its own parents.  When no Birth -- or more than one -- names her record's
+    parents (A New Home keeps none on the record), no Birth is hers: the one she was given becomes a
+    villager of its own, her record keeps its own parents, and the notes say so."""
+    for key, pids in reg.namesakes.items():
+        living = reg.people[pids[0]]
+        if not living.alive or living.id not in reg.birth_of:
+            continue
+        mine = reg.save_parents.get(living.id)
+        matches = [pid for pid in pids if mine and None not in mine
+                   and reg.birth_of.get(pid, (None, None, None))[1:] == mine]
+        given = reg.birth_of[living.id]
+        if len(matches) == 1 and matches[0] == living.id:
+            continue                                   # the Birth she was given is hers
+        if len(matches) == 1:
+            other = reg.people[matches[0]]
+            # Swap the Births: hers to her, the one she was given to the namesake, with its parents.
+            living.birth_record, other.birth_record = other.birth_record, living.birth_record
+            living.litter, other.litter = other.litter, living.litter
+            reg.birth_of[living.id], reg.birth_of[other.id] = reg.birth_of[other.id], given
+            other.father, other.mother = given[1], given[2]
+            continue
+        # Not told apart: one of the Births is hers and the rest are the namesakes', but which is not
+        # known -- so no Birth (and no Birth's parents) is given to any of them; she keeps her record's
+        # own parents, and the namesakes keep none.
+        for pid in pids:
+            person = reg.people[pid]
+            person.birth_record, person.litter = None, None
+            person.father, person.mother = (mine if mine else (None, None)) if pid == living.id else (None, None)
+            reg.birth_of.pop(pid, None)
+        notes.append(f"{key[0]} (head {key[1]}, body {key[2]}): {len(pids)} Birth records name a child with this name "
+                     "and look; which of them is the living villager's could not be told (her record's parents "
+                     "name none of them, or more than one), so no Birth record or parents are given to any of them.")
+
+
+def _namesake_for(reg: _Registry, p: Person, b) -> Person:
+    """The villager a Death or Disappeared record of `p`'s name and look is about: `p`, or -- `p`
+    alive -- the one namesake born with that look who is not alive and has no such record yet."""
+    if not p.alive:
+        return p
+    others = [reg.people[q] for q in reg.namesakes.get((p.name, p.head, p.body), [])
+              if not reg.people[q].alive and not reg.people[q].gone]
+    return others[0] if len(others) == 1 else p
 
 
 def _saved_rename_answers(folder: Path, game: int, slot: int) -> dict:
@@ -501,6 +574,7 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
     _appearance_changes(reg, folder, game, slot)
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
+    _namesakes_by_birth(reg, notes)
     _log_people(reg, folder, game, slot)
     if game == 1:
         _vv1_from_sidecar(reg, folder, slot)
@@ -785,25 +859,36 @@ def _vv1_sidecar(folder: Path, slot: int) -> list[_Vv1Entry]:
         data = path.read_bytes()
     except OSError:
         return []
-    if len(data) != VV1_SIDECAR_SIZE or data[:4] != VV1_SIDECAR_MAGIC or _i32(data, 8) != slot:
+    if len(data) < VV1_SIDECAR_SIZE or data[:4] != VV1_SIDECAR_MAGIC or _i32(data, 8) != slot:
+        return []
+    import vv1_parents_restore as parents_file
+    # The departed list after the 256 entries: room for every villager who ever lived, a village at the
+    # 256 cap included (native/vv1_parentage g_departed).  A file whose list is not the companion's is
+    # one the companion itself sets aside: nothing is read from it.
+    departed_list = parents_file.departed_list(data)
+    if departed_list is None:
         return []
     cut = VV1_SIDECAR_NAME - 1
 
-    def person(e: int, looks: int, at: int) -> Key | None:
+    def person(buf: bytes, e: int, looks: int, at: int) -> Key | None:
         # Every value is stored +1: 0 is "not recorded", and head 0 / body 0 are real looks.
-        name, head, body = _cstr(data, e + at, VV1_SIDECAR_NAME)[:cut], data[e + looks], data[e + looks + 1]
+        name, head, body = _cstr(buf, e + at, VV1_SIDECAR_NAME)[:cut], buf[e + looks], buf[e + looks + 1]
         return (name, head - 1, body - 1) if name and head and body else None
 
+    places = [(data, 12 + i * VV1_SIDECAR_OCCUPANT, 12 + 256 * VV1_SIDECAR_OCCUPANT + i * VV1_SIDECAR_ENTRY)
+              for i in range(256)]
+    places += [(item, 0, VV1_SIDECAR_OCCUPANT) for item in departed_list]
     out = []
-    for i in range(256):
-        occ = 12 + i * VV1_SIDECAR_OCCUPANT
-        e = 12 + 256 * VV1_SIDECAR_OCCUPANT + i * VV1_SIDECAR_ENTRY
-        gender, departed, head, body = data[occ], data[occ + 1], data[occ + 2], data[occ + 3]
+    for buf, occ, e in places:
+        gender, departed, head, body = buf[occ], buf[occ + 1], buf[occ + 2], buf[occ + 3]
         if gender not in (1, 2):
             continue
-        who = (_cstr(data, occ + 8, VV1_SIDECAR_NAME)[:cut], gender, _i32(data, occ + 4),
+        who = (_cstr(buf, occ + 8, VV1_SIDECAR_NAME)[:cut], gender, _i32(buf, occ + 4),
                head - 1 if head and body else None, body - 1 if head and body else None)
-        out.append(_Vv1Entry(who, bool(departed), person(e, 0, 8), person(e, 2, 36), person(e, 4, 64)))
+        entry = _Vv1Entry(who, bool(departed) or buf is not data, person(buf, e, 0, 8), person(buf, e, 2, 36),
+                          person(buf, e, 4, 64))
+        if entry not in out:                # the same villager with the same entry: one entry
+            out.append(entry)
     return out
 
 
@@ -1436,14 +1521,17 @@ def roman(n: int) -> str:
 # Number Duplicate Names' orders: who is "I" (the owner: "the oldest person with a duplicate name should
 # be named "I" unless the player says otherwise").
 NUMBER_ORDERS = {
-    "oldest": "Oldest first",
-    "youngest": "Youngest first",
-    "appearance": "In order of appearance",
+    "oldest": "By age now, oldest first",
+    "youngest": "By age now, youngest first",
+    # The owner (2026-10-20): "oldest first" and "in order of appearance" are the same thing -- the older
+    # villagers appear first -- so the default says both.
+    "appearance": "Oldest first (order of appearance)",
 }
 
 
 def duplicate_names(village: Village, order: str = "appearance", reserved: set[str] = frozenset(),
-                    leave: set[int] = frozenset(), weight: dict[int, int] | None = None) -> dict[int, str]:
+                    leave: set[int] = frozenset(), weight: dict[int, int] | None = None,
+                    blocks: dict[int, list[str]] | None = None) -> dict[int, str]:
     """Each villager who shares a name with another, numbered (the owner, 2026-10-07: "If there are
     duplicate "Soda"s, name the first one "Soda I", and the second one "Soda II" etc."), the dead
     too, in the NUMBER_ORDERS order: by age (the age now, or at death; an unknown age last), or as
@@ -1461,37 +1549,64 @@ def duplicate_names(village: Village, order: str = "appearance", reserved: set[s
     # Namesakes are told by the WHOLE name, first and last, a number they already carry set aside (the
     # owner, 2026-10-08: "roman numerals should be given for people who have both the same first and
     # last name (Suki Wikimak I, Suki Wikimak II)"): two Sukis numbered before they had last names,
-    # "Suki Alosaka I" and "Suki Wanjiko II", are no namesakes now and lose their numbers.
+    # "Suki Alosaka I" and "Suki Wanjiko II", are no namesakes now -- and keep their numbers (below).
     holders: dict[str, list[Person]] = {}
     for p in sorted(village.known(), key=keys[order]):
         if p.id not in leave:
             holders.setdefault(unnumbered(p.name), []).append(p)
-    taken = set(reserved)
+    # A NUMBER IS KEPT FOR LIFE (the owner, 2026-10-20): "a villager who has a number KEEPS it, even after
+    # their namesake dies or leaves"; numbering only ever ADDS numbers -- it never removes or lowers one
+    # -- and a new namesake gets the next free number after the highest used before them, the dead and
+    # gone included, so no number is ever given twice.  Every number any record of the name carries
+    # (`reserved` and the villagers left out too) counts as used.
+    used: dict[str, set[int]] = {}
+    for p in village.known():
+        base, value = unnumbered(p.name), roman_value(p.name.rsplit(" ", 1)[-1])
+        if base != p.name and value:
+            used.setdefault(base, set()).add(value)
+    for taken_name in reserved:
+        base, value = unnumbered(taken_name), roman_value(taken_name.rsplit(" ", 1)[-1])
+        if base != taken_name and value:
+            used.setdefault(base, set()).add(value)
     out = {}
     for name, ps in holders.items():
         if sum((weight or {}).get(p.id, 1) for p in ps) < 2:
-            p = ps[0]
-            if p.name != name and name not in taken:
-                out[p.id] = name                # no namesake now: the old number goes
-            continue
-        # A number one of them already carries, alone among them, stays theirs (Codex, #557: a village
-        # with a "Soda I" numbers its two other Sodas II and III); the rest are numbered around them.
-        counts: dict[str, int] = {}
+            continue                            # no namesake: the name stays as it is, number and all
+        numbers = used.setdefault(name, set())
+        seen: set[str] = set()
+        before = 0                              # the highest number of the namesakes before this one
         for p in ps:
-            counts[p.name] = counts.get(p.name, 0) + 1
-        kept = {p.id for p in ps if p.name != name and counts[p.name] == 1}
-        taken |= {village.people[q].name for q in kept}
-        n = 0
-        for p in ps:
-            if p.id in kept:
-                continue
-            n += 1
-            while f"{name} {roman(n)}" in taken:
-                n += 1
-            out[p.id] = f"{name} {roman(n)}"
-            taken.add(out[p.id])
-            n += (weight or {}).get(p.id, 1) - 1
+            value = roman_value(p.name.rsplit(" ", 1)[-1]) if p.name != name else 0
+            given = []
+            if value and p.name not in seen:
+                seen.add(p.name)                # a number of their own: kept (never lowered or removed)
+                before = max(before, value)
+                given.append(p.name)
+            # Not numbered yet (or a number another namesake before them has): the lowest number never
+            # used that comes after every namesake before them.  One Person standing for several
+            # villagers (namesakes with the same looks) gets one for each (`blocks`, first to last).
+            for _ in range((weight or {}).get(p.id, 1) - len(given)):
+                n = before + 1
+                while n in numbers:
+                    n += 1
+                numbers.add(n)
+                before = n
+                given.append(f"{name} {roman(n)}")
+            if given[0] != p.name:
+                out[p.id] = given[0]
+            if blocks is not None and len(given) > 1:
+                blocks[p.id] = given
     return out
+
+
+_ROMAN_VALUES: dict[str, int] = {}
+
+
+def roman_value(word: str) -> int:
+    """The number a Roman numeral as roman() writes it stands for; 0 for any other word."""
+    if not _ROMAN_VALUES:
+        _ROMAN_VALUES.update({roman(n): n for n in range(1, 4000)})
+    return _ROMAN_VALUES.get(word, 0)
 
 
 def unnumbered(name: str) -> str:

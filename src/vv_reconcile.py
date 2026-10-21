@@ -197,6 +197,9 @@ class Reconciliation:
     findings: list[Finding]
     sources: list[str]
     followed: int
+    # Answers kept under an older id (or an older name) that hold for a question now: new id -> answer,
+    # copied to the new id at the next Repair (remember) -- the older one is kept too.
+    migrated: dict = field(default_factory=dict)
 
     @property
     def questions(self) -> list[Finding]:
@@ -483,11 +486,13 @@ def _same_parent(a: str | None, b: str | None) -> bool:
     return a is None or b is None or a == "" or b == "" or a == b
 
 
-def _could_be(a: Seen, b: Seen, game: int) -> bool:
-    """Whether b may be the same villager as a, a later look at them (age only moves on)."""
+def _could_be(a: Seen, b: Seen, game: int, same_parent=None) -> bool:
+    """Whether b may be the same villager as a, a later look at them (age only moves on).  `same_parent`:
+    how two parent names are compared (the patcher's renames followed, _Builder.same_parent)."""
+    same_parent = same_parent or _same_parent
     return ((a.sex is None or b.sex is None or a.sex == b.sex)
             and _compatible(a.likes, b.likes) and _compatible(a.dislikes, b.dislikes)
-            and _same_parent(a.father, b.father) and _same_parent(a.mother, b.mother)
+            and same_parent(a.father, b.father) and same_parent(a.mother, b.mother)
             and (a.age is None or b.age is None or b.age >= a.age))
 
 
@@ -527,10 +532,62 @@ def names_related(game: int, old: str, new: str) -> bool:
     return checker.names_related(game, old, new) or checker.names_related(game, new, old)
 
 
+def _qwhen(c: "Census") -> str:
+    """A roster in a question's id: a History snapshot by its own date; the save and the Village
+    Population page by what they are -- never their file time, which changes at every save (an
+    answer about the save was asked again after each one)."""
+    return c.when if c.kind == "history" else c.kind
+
+
+def _tail(text: str) -> str:
+    """The unfinished last line of a file cut short, as a checksum: the same cut, however long the file
+    has grown above it."""
+    return f"{zlib.crc32(text.rsplit(chr(10), 1)[-1].encode('latin-1', 'replace')):08X}"
+
+
+_KEY_IN_ID = re.compile(r"\((?:'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\"), (?:-?\d+|None), (?:-?\d+|None)\)")
+
+
+def _canon_qid(qid: str, renamed: dict) -> str:
+    """A question id with every villager it names ((name, head, body)) under the latest name the
+    patcher's renames gave them (src/vv_log_decisions.py aliases): an answer follows its villager."""
+    if not renamed:
+        return qid
+    import ast
+
+    def one(m: re.Match) -> str:
+        try:
+            who = ast.literal_eval(m.group(0))
+        except (ValueError, SyntaxError):
+            return m.group(0)
+        import vv_log_decisions as decisions
+        return repr(decisions.forward(tuple(who), renamed))
+    return _KEY_IN_ID.sub(one, qid)
+
+
+def answer_key(folder: Path, field_: str, renamed: dict | None = None) -> str:
+    """A kept reconciliation answer's id as the questions are told apart now (its file's place, its
+    villagers' latest names)."""
+    return _canon_qid(_answer_id(Path(folder), field_), renamed or {})
+
+
 class _Builder:
-    def __init__(self, folder: Path, game: int, slot: int, logs: Logs, answered: dict[str, str]):
+    def __init__(self, folder: Path, game: int, slot: int, logs: Logs, answered: dict[str, str],
+                 renamed: dict | None = None):
         self.folder, self.game, self.slot, self.logs = folder, game, slot, logs
-        self.answered = answered
+        self.renamed = renamed or {}
+        # The kept answers by their id with each villager under their latest name; and the id each was kept
+        # under, so one kept under an older form (or an older name) is copied to the new one (remember).
+        self.answered = {}
+        self.kept_as: dict[str, str] = {}
+        for raw, answer in answered.items():
+            canon = _canon_qid(raw, self.renamed)
+            self.answered[canon] = answer
+            self.kept_as[canon] = raw
+        self.migrated: dict[str, str] = {}      # new id -> the answer kept under an older one
+        # The patcher's own renames (patcher_renames): (old name, head, body) -> new name, and by name.
+        self.by_id: dict[tuple, str] = {}
+        self.by_name: dict[str, set[str]] = {}
         self.findings: dict[str, Finding] = {}
         self.departed = {r.who.key for r in logs.departures}
         self.departed_names = {r.who.name for r in logs.departures if r.who.head is None}
@@ -540,12 +597,21 @@ class _Builder:
 
     # -- findings --------------------------------------------------------------------------------
     def ask(self, topic: str, qid: str, text: str, options: list[str], rename: tuple | None = None,
-            title_actions: dict | None = None) -> None:
+            title_actions: dict | None = None, legacy: str | None = None) -> None:
+        """`legacy`: the id this question had before v1.35.80 (a file time, a count, a file's length in
+        it), so an answer kept under it still holds."""
         if qid in self.findings:
             if text not in self.findings[qid].text:
                 self.findings[qid].text += " Also: " + text
             return
-        answer = self.answered.get(qid)
+        canon = _canon_qid(qid, self.renamed)
+        answer = self.answered.get(canon)
+        kept_as = self.kept_as.get(canon)
+        if answer is None and legacy is not None:
+            old = _canon_qid(legacy, self.renamed)
+            answer, kept_as = self.answered.get(old), self.kept_as.get(old)
+        if answer is not None and kept_as != qid and answer != DONT_KNOW and answer not in (title_actions or {}):
+            self.migrated[qid] = (kept_as, answer)
         if answer is not None and answer != DONT_KNOW and answer not in (title_actions or {}):
             self.findings[qid] = Finding("note", topic, qid, f"{text} You answered: \"{answer}\".", options,
                                          rename, answer)
@@ -558,6 +624,77 @@ class _Builder:
     def note(self, topic: str, qid: str, text: str) -> None:
         if qid not in self.findings:
             self.findings[qid] = Finding("note", topic, qid, text)
+
+    # -- the patcher's own renames ---------------------------------------------------------------
+    RENAMED_LINE = re.compile(r"^\s*Renamed: (.+) \(head (-?\d+), body (-?\d+)\) -> (.+?)\s*$")
+
+    def patcher_renames(self, villages: set[str] | None) -> None:
+        """Every rename the patcher made in this village: the ones kept in the Log Decisions file
+        (src/vv_last_names.py _plan_answers, every rename since v1.35.80: Last Names, Number Duplicate
+        Names, the cut names restored, a name given back) and the "Renamed: <old> (head h, body b) -> <new>"
+        lines of the Repairs Made log (Number Duplicate Names, src/vv_number_names.py, before that)."""
+        import vv_log_additions as additions
+        import vv_log_decisions as decisions
+        for d in decisions.load(Path(self.folder), self.game, self.slot):
+            if d.get("kind") == decisions.ALIAS_KIND and isinstance(d.get("name"), str) \
+                    and isinstance(d.get("field"), str) \
+                    and (villages is None or d.get("village") is None or d.get("village") in villages):
+                self._renamed((d["name"], d.get("head"), d.get("body")), d["field"])
+        checker = _checker()
+        for path in checker.game_logs(Path(self.folder), layout.REPAIRS_LOGS,
+                                      f"Virtual Villagers {self.game} Repairs Log"):
+            try:
+                found = additions.blocks(path)
+            except OSError:
+                continue
+            for b in found:
+                if not b.of(self.slot, self.game, villages):
+                    continue
+                for line in b.lines:
+                    m = self.RENAMED_LINE.match(line)
+                    if m:
+                        self._renamed((m.group(1), int(m.group(2)), int(m.group(3))), m.group(4))
+
+    def _renamed(self, old: tuple, new: str) -> None:
+        if not new or new == old[0]:
+            return
+        self.by_id[old] = new
+        self.by_name.setdefault(old[0], set()).add(new)
+
+    def forward_name(self, who: tuple) -> str:
+        """The name the patcher's renames gave (name, head, body), a chain followed."""
+        seen = {who}
+        while who in self.by_id:
+            who = (self.by_id[who], who[1], who[2])
+            if who in seen:
+                break
+            seen.add(who)
+        return who[0]
+
+    def renamed_to(self, old: str, new: str) -> bool:
+        """Whether the patcher's renames took a villager named `old` (any looks) to `new`."""
+        reached, todo = {old}, [old]
+        while todo:
+            for n in self.by_name.get(todo.pop(), ()):
+                if n not in reached:
+                    reached.add(n)
+                    todo.append(n)
+        return new in reached and new != old
+
+    def same_parent(self, a: str | None, b: str | None) -> bool:
+        return _same_parent(a, b) or bool(a and b and (self.renamed_to(a, b) or self.renamed_to(b, a)))
+
+    def renamed_census(self, c: "Census") -> "Census":
+        """`c` with each villager under the name the patcher's renames gave them (a roster written before
+        the rename: an older copy of the save, which no rename rewrites); every other field as it is."""
+        if not self.by_id:
+            return c
+        import dataclasses
+        people = []
+        for s in c.people:
+            name = self.forward_name(s.key)
+            people.append(s if name == s.name else dataclasses.replace(s, name=name))
+        return dataclasses.replace(c, people=people)
 
     # -- explanations ----------------------------------------------------------------------------
     def identities(self, s: Seen) -> set[tuple]:
@@ -652,7 +789,13 @@ class _Builder:
         """b after a.  `restored`: b is the save and OLDER than the snapshot a (a save restored from an
         older copy, its time kept): the save going back in time is files()'s one question, so ages and
         villagers new to the save are not looked at; everything else -- a villager gone, likes,
-        parents, looks -- is."""
+        parents, looks -- is.
+
+        THE PATCHER'S OWN RENAMES (Last Names, Number Duplicate Names, the cut names restored, a name
+        given back: patcher_renames) rewrite the save and the logs, never the game's older copies of
+        the save: a villager under the name they had before such a rename is followed to the name it
+        gave them, so it is neither "possibly lost" nor a question."""
+        a, b = self.renamed_census(a), self.renamed_census(b)
         pairs, gone, new = _pair(a.people, b.people)
         game = self.game
         # A save older than the roster it is compared with: whoever is missing from it is most likely in no
@@ -670,18 +813,19 @@ class _Builder:
         if len(backs) >= 3 and len(backs) * 2 >= len(pairs):
             # The whole village went back in time: one question, not one per villager.
             o, n = backs[0]
-            self.ask("age", f"restore|{a.when}|{b.when}",
+            self.ask("age", f"restore|{_qwhen(a)}|{_qwhen(b)}",
                      f"{len(backs)} of the {len(pairs)} villagers in both are younger in {b.label} than in "
                      f"{a.label} (for example {n.name}, {n.looks()}: {o.age} -> {n.age} game units): the village "
                      "went back in time -- most likely a backup restored, or a quit without saving (Alt-F4: the "
                      "game saves only on a clean quit), not a fault?",
-                     [f"{KEEP} (I restored or replaced the save)"])
+                     [f"{KEEP} (I restored or replaced the save)"], legacy=f"restore|{a.when}|{b.when}")
             backs = []
         for old, now in backs:
-            self.ask("age", f"age|{now.key}|{a.when}|{b.when}",
+            self.ask("age", f"age|{now.key}|{_qwhen(a)}|{_qwhen(b)}",
                      f"{now.name} ({now.looks()}) is {old.age} game units old in {a.label} but {now.age} in "
                      f"{b.label}: the age went backwards, and no record says why. Is this the same villager?",
-                     [f"{KEEP} (the same villager; the age was changed)", "Another villager (the first is lost)"])
+                     [f"{KEEP} (the same villager; the age was changed)", "Another villager (the first is lost)"],
+                     legacy=f"age|{now.key}|{a.when}|{b.when}")
         for old, now in pairs:
             if old.sex and now.sex and old.sex != now.sex:
                 self.ask("sex", f"sex|{now.key}", f"{now.name} ({now.looks()}) is {old.sex} in {a.label} but "
@@ -704,18 +848,18 @@ class _Builder:
                     continue
                 if self.prefs_recorded(now.name, what, x, y) or self.prefs_recorded(old.name, what, x, y):
                     continue
-                self.ask(what, f"{what}|{now.key}|{a.when}",
+                self.ask(what, f"{what}|{now.key}|{_qwhen(a)}",
                          f"{now.name} ({now.looks()}) {what}: {', '.join(sorted(x)) or '(none)'} in {a.label}, "
                          f"{', '.join(sorted(y)) or '(none)'} in {b.label}, and no island event records the "
-                         "change.", [f"{KEEP} (the change is right)"])
+                         "change.", [f"{KEEP} (the change is right)"], legacy=f"{what}|{now.key}|{a.when}")
             # Parents: a known parent becoming another, or becoming blank, between two looks at one
             # villager (review of #585).  None means the source does not say (A New Home's save keeps no
             # parents); "" is a source saying "none".  A blank becoming known is a parent recorded later
             # (Restore A New Home Parents), not a loss.
             for what in ("father", "mother"):
                 x, y = getattr(old, what), getattr(now, what)
-                if not x or y is None or x == y:
-                    continue
+                if not x or y is None or x == y or (y and self.renamed_to(x, y)):
+                    continue                        # ...or a rename the patcher made explains it
                 if y == "":
                     self.ask("parents", f"{what}|{now.key}|{x}|",
                              f"{now.name} ({now.looks()}): {what} {x} in {a.label}, none in {b.label}. Was the "
@@ -739,7 +883,7 @@ class _Builder:
                 continue
             if bodies is not None and any(x.key == old.key for x in bodies):
                 continue                                    # a body awaiting burial: its Death record comes then
-            fits = [n for n in unexplained_new if _could_be(old, n, game)
+            fits = [n for n in unexplained_new if _could_be(old, n, game, self.same_parent)
                     and ((n.head, n.body) == (old.head, old.body) or n.name == old.name)]
             same_name = [n for n in fits if n.name == old.name]
             same_looks = [n for n in fits if (n.head, n.body) == (old.head, old.body) and n.name != old.name]
@@ -770,28 +914,30 @@ class _Builder:
                         continue
                     self.rename_question(old, n, a.label, b.label, self.name_record(old, n))
                 else:
-                    self.ask("lost", f"lost|{old.key}|{a.when}",
+                    self.ask("lost", f"lost|{old.key}|{_qwhen(a)}",
                              f"{old.described()} is in {a.label} but not in {b.label}, with no Death, Disappeared, "
                              f"Left the tribe or Unaccounted record; {len(same_looks)} villagers new in {b.label} have "
                              f"the same looks ({', '.join(n.name for n in same_looks)}). Which one is {old.name}, if "
-                             "any?", [f"{KEEP} (left or died without a record)"] + [n.name for n in same_looks])
+                             "any?", [f"{KEEP} (left or died without a record)"] + [n.name for n in same_looks],
+                             legacy=f"lost|{old.key}|{a.when}")
             else:
                 plain_lost.append(old)
         if len(plain_lost) >= 4:
             # Many at once (a log begun after they went, a restored save...): one question, every name.
             names = ", ".join(s.described() for s in plain_lost[:20])
             more = f" and {len(plain_lost) - 20} more" if len(plain_lost) > 20 else ""
-            self.ask("lost", f"lost-many|{a.when}|{b.when}|{len(plain_lost)}",
+            self.ask("lost", f"lost-many|{_qwhen(a)}|{_qwhen(b)}",
                      f"{len(plain_lost)} villagers are in {a.label} but not in {b.label}, and no Death, Disappeared, "
                      f"Left the tribe or Unaccounted record says what became of them: {names}{more}. Possibly "
                      f"lost{restore_why}.",
-                     [f"{KEEP} (they left or died without a record)"])
+                     [f"{KEEP} (they left or died without a record)"],
+                     legacy=f"lost-many|{a.when}|{b.when}|{len(plain_lost)}")
             plain_lost = []
         for old in plain_lost:
-            self.ask("lost", f"lost|{old.key}|{a.when}",
+            self.ask("lost", f"lost|{old.key}|{_qwhen(a)}",
                      f"{old.described()} is in {a.label} but not in {b.label}, and no Death, Disappeared, Left "
                      f"the tribe or Unaccounted record says what became of them: possibly lost{restore_why}.",
-                     [f"{KEEP} (they left or died without a record)"])
+                     [f"{KEEP} (they left or died without a record)"], legacy=f"lost|{old.key}|{a.when}")
         for n in [] if restored else unexplained_new:
             if n.key in self.recorded or (b.kind == "history" and a.kind != "history"):
                 continue
@@ -868,9 +1014,10 @@ class _Builder:
                 continue
             text = data.decode("latin-1")
             if data and not text.endswith("\n"):
-                self.ask("file", f"cut|{_answer_place(folder, _rel(folder, path))}|{len(data)}",
+                self.ask("file", f"cut|{_answer_place(folder, _rel(folder, path))}|end:{_tail(text)}",
                          f"{_rel(folder, path)} ends in the middle of a line: it may have been cut short "
-                         "(the patcher writes every record whole).", [f"{KEEP} (it is complete)"])
+                         "(the patcher writes every record whole).", [f"{KEEP} (it is complete)"],
+                         legacy=f"cut|{_answer_place(folder, _rel(folder, path))}|{len(data)}")
             count = _record_count(text)
             # REPAIR BY REPAIR (review of #585).  Each copy is the file just before one repair; the next
             # copy (or the file now) is it after that repair and the records written since, which only
@@ -897,11 +1044,11 @@ class _Builder:
                               f"{where} holds {old_count - new_count} record(s) fewer than the copy {copy.name} "
                               f"kept before a repair; the Repairs log says that repair took {removed} out of it.")
                 else:
-                    self.ask("file", f"shrunk|{place}|{copy.name}|{new_count}",
+                    self.ask("file", f"shrunk|{place}|{copy.name}",
                              f"{where} holds {new_count} record(s), but the copy kept before a repair, "
                              f"{copy.name}, holds {old_count}; the Repairs log accounts for {removed} taken out of "
                              f"{path.name} by that repair. {old_count - new_count - removed} record(s) may be lost.",
-                             [f"{KEEP} (I know why)"])
+                             [f"{KEEP} (I know why)"], legacy=f"shrunk|{place}|{copy.name}|{new_count}")
         # A file the patcher kept copies of, now missing -- anywhere under the patcher's folders (a file
         # an upgrade moved into its own subfolder is not missing, src/vv_save_layout.py).
         present: set[str] = set()
@@ -1016,19 +1163,21 @@ class _Builder:
                 if need:
                     needed[(identity, title)] += need
                     names.setdefault((identity, title), []).extend(s.name for s in mine if s.title == title)
-        lost = []
+        lost, stable = [], []
         for (identity, title), need in needed.items():
             if held[(identity, title)] < need:
                 who = ", ".join(dict.fromkeys(names[(identity, title)]))
                 short = need - held[(identity, title)]
+                stable.append(f"{who} (\"{title}\")")
                 lost.append(f"{who} (\"{title}\")" if need == 1 else
                             f"{who} (\"{title}\": {need} villagers have it, the file holds {held[(identity, title)]}, "
                             f"so {short} entr{'y is' if short == 1 else 'ies are'} missing)")
         if lost:
-            self.ask("titles", f"titles|{history[-1].when}|{'|'.join(lost)}",
+            self.ask("titles", f"titles|{history[-1].when}|{'|'.join(sorted(stable))}",
                      f"The Village History snapshot of {history[-1].when} gives {len(lost)} living villager(s) a custom "
                      f"title the Custom Titles file ({path.name}) no longer holds for them: {', '.join(lost)}. The "
-                     "title(s) may be lost.", [f"{KEEP} (I removed the title)"])
+                     "title(s) may be lost.", [f"{KEEP} (I removed the title)"],
+                     legacy=f"titles|{history[-1].when}|{'|'.join(lost)}")
 
     def _pending_title(self, path: Path, e, present: list[Seen], snapshot: list[Seen],
                        living: list[Seen] | None = None, file_entries: list | None = None,
@@ -1302,7 +1451,10 @@ def reconcile(folder: Path, game: int, slot: int) -> Reconciliation:
     except (OSError, KeyError, ValueError):
         village_name = None
     logs = read_logs(folder, game, slot, villages)
-    b = _Builder(folder, game, slot, logs, answered(folder, game, slot, villages))
+    import vv_log_decisions as decisions
+    b = _Builder(folder, game, slot, logs, answered(folder, game, slot, villages),
+                 decisions.aliases(decisions.load(folder, game, slot)))
+    b.patcher_renames(villages)
     sources: list[str] = []
     saves: list[tuple[Path, list[Seen]]] = []
     bodies_now: list[Seen] = []
@@ -1375,7 +1527,9 @@ def reconcile(folder: Path, game: int, slot: int) -> Reconciliation:
                "Everything here follows villagers by who they are, never by the slot.")
     _vv1_roster_reuse(b, folder, game, slot, living)
     followed = len({s.key for c in logs.censuses for s in c.people} | {s.key for _p, a in saves for s in a})
-    return Reconciliation(folder, game, slot, village_name, list(b.findings.values()), sources, followed)
+    out = Reconciliation(folder, game, slot, village_name, list(b.findings.values()), sources, followed)
+    out.migrated = {qid: moved for qid, moved in b.migrated.items() if qid in b.findings}
+    return out
 
 
 def _vv1_roster_reuse(b: _Builder, folder: Path, game: int, slot: int, living: list[Seen]) -> None:
@@ -1436,8 +1590,17 @@ def kind(folder: Path, game: int, slot: int, rec: Reconciliation | None = None):
         return out
     for n, f in enumerate(rec.questions, 1):
         out.questions[f.qid] = additions.Question(f.qid, f"{n}. {f.text}", list(f.options), DONT_KNOW)
-    out.context = {"game": game, "slot": slot, "renames": {f.qid: f.rename for f in rec.questions if f.rename},
-                   "titles": {f.qid: f.title_actions for f in rec.questions if f.title_actions}}
+    # The questions answered before (an answered note): not asked, and listed in Repair's Answered
+    # questions, where the answer may be changed (asked again in this Repair, with the new answer chosen)
+    # or cleared (src/vv_answered_questions.py).
+    for f in rec.findings:
+        if f.kind == "note" and f.answer is not None and f.options:
+            text = f.text.rsplit(" You answered:", 1)[0]
+            out.remembered[f.qid] = (additions.Question(f.qid, text, list(f.options) + [DONT_KNOW], DONT_KNOW),
+                                     {"kind": DECISION_KIND, "field": f.qid, "verdict": f.answer})
+    out.context = {"game": game, "slot": slot, "renames": {f.qid: f.rename for f in rec.findings if f.rename},
+                   "titles": {f.qid: f.title_actions for f in rec.questions if f.title_actions},
+                   "migrated": dict(getattr(rec, "migrated", {}) or {})}
     if rec.questions:
         out.notes.append(f"{len(rec.questions)} contradiction(s) between the save, its older copies, the logs and "
                          "the patcher's files. Answer them with the button below; \"Don't know (leave it)\" "
@@ -1640,8 +1803,8 @@ def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str,
     entries, lines, renames, settling = [], [], {}, []
     for qid, question in rk.questions.items():
         answer = answers.get(qid)
-        if not answer or answer == DONT_KNOW:
-            continue
+        if not answer or answer.strip().lower().startswith("don't know"):
+            continue                        # "Don't know" (or cleared in Answered questions): asked again
         entries.append({"kind": DECISION_KIND, "village": village, "field": qid, "verdict": answer,
                         "edited": False})
         lines.append(f"Answered: {question.text.split('. ', 1)[-1][:160]} -- {answer}")
@@ -1651,6 +1814,19 @@ def remember(folder: Path, game: int, slot: int, kinds: list, answers: dict[str,
         action = (rk.context.get("titles", {}).get(qid) or {}).get(answer)
         if action is not None:
             settling.append(action)
+    # An answer kept under an older id that holds for a question now (v1.35.80: ids no longer hold a file
+    # time, a count or an older name) is moved to the new id -- the same answer, its date kept, the older id
+    # kept beside it ("was") -- so it is listed as the answer to that question.
+    moves = {kept: qid for qid, (kept, _answer) in (rk.context.get("migrated") or {}).items()
+             if qid not in rk.questions}
+    if moves:
+        def move(found: list[dict]) -> list[dict]:
+            out = []
+            for d in found:
+                key = _answer_id(Path(folder), str(d.get("field"))) if d.get("kind") == DECISION_KIND else None
+                out.append({**d, "field": moves[key], "was": d.get("field")} if key in moves else d)
+            return out
+        decisions.rewrite(Path(folder), game, slot, move)
     # A pending title bound or cleared (settle_titles) BEFORE the renames: it is checked against the
     # villager's name in the save as the question saw it, and a rename changes the identity it hashes.
     # Like a failed rename, a failed change keeps no answer: the question is asked again.

@@ -394,6 +394,15 @@ def _choices(game: int, key: str, options: dict, seen: dict) -> list:
     return out
 
 
+def _same_value(a, b) -> bool:
+    """Whether a grave's value and a record's agree.  A log line's value is read with its spaces at the
+    ends taken off, so a grave's text that only differs by them (an epitaph typed "Parent, Teacher,
+    Friend ") agrees: the difference could not be shown, and setting the record could never keep it."""
+    if isinstance(a, str) and isinstance(b, str):
+        return a.strip() == b.strip()
+    return a == b
+
+
 def _show(value) -> str:
     if value == "" or value is None:
         return "(none)"
@@ -486,8 +495,15 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
         lasts = ln.read_record(folder, game, slot)[1]
     except (OSError, ValueError, ln.LastNamesError):
         pass
-    kept = {(d.get("name"), d.get("head"), d.get("body"), d.get("verdict"))
-            for d in vv_log_decisions.load(folder, game, slot) if d.get("kind") == DECISION_KIND}
+    found = vv_log_decisions.load(folder, game, slot)
+    # A decision follows its villager through the patcher's renames (vv_log_decisions.aliases).
+    renamed = vv_log_decisions.aliases(found)
+    kept = set()
+    for d in found:
+        if d.get("kind") == DECISION_KIND:
+            who = (d.get("name"), d.get("head"), d.get("body"))
+            for name, head, body in {who, vv_log_decisions.forward(who, renamed)}:
+                kept.add((name, head, body, d.get("verdict")))
     seen: dict[str, set] = {"head": set(), "body": set()}
     for g in graves:
         for key in seen:
@@ -532,7 +548,7 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
                 if r is None or s is None or s == r:
                     continue
                 options = {"the Death record": r, "their last snapshot before they died": s}
-            elif gv is None or r is None or gv == r:
+            elif gv is None or r is None or _same_value(gv, r):
                 continue
             elif key == "cause" and isinstance(r, str) and r.startswith(NOT_RECORDED):
                 continue                        # the record says the death was not seen: nothing to choose

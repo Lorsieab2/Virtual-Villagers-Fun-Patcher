@@ -27,7 +27,15 @@
    with a last name or a number added or dropped ("Cheop" / "Cheop Bahati",
    "Kaula Bahati" / "Kaula Bahati I") or cut short by the Villager Details
    screen ("Kaula Baha" / "Kaula Bahati") is theirs -- when exactly one such
-   record and exactly one villager of this village carry it. */
+   record and exactly one villager of this village carry it.
+
+   A RECORD IS FOLLOWED THROUGH EVERY "Name changed" RECORD TOO (v1.35.80: the
+   owner's Kalahuna Tribe 2 got "Arrived 8 / Coral Tangaroa" and "Arrived 9 /
+   Mahalo Makawee I", How: unknown, beside "Arrived 3 / Lupa Tangaroa" and
+   "Arrived 4 / Tamil Makawee" -- the same two villagers, renamed in the game,
+   their "Name changed" records in the same log).  A key whose name, head and
+   body a "Name changed" record names as the old ones takes the new name, as
+   an "Appearance changed" record gives it the new looks. */
 
 #include "arrival_backfill.h"
 
@@ -38,6 +46,7 @@
 #define ARRIVAL_READ_BIRTH 1
 #define ARRIVAL_READ_ARRIVED 2
 #define ARRIVAL_READ_LOOK 3               /* an "Appearance changed" record: never a key itself */
+#define ARRIVAL_READ_RENAME 4             /* a "Name changed" record: never a key itself */
 
 /* "Appearance changed": a villager of this name changed from these looks to those. */
 struct arrival_look {
@@ -48,6 +57,15 @@ struct arrival_look {
 #define ARRIVAL_LOOKS_MAX 512
 static struct arrival_look arrival_looks[ARRIVAL_LOOKS_MAX];
 static int arrival_look_count;
+
+/* "Name changed": the villager of these looks called `old_name` is `new_name` now. */
+struct arrival_rename {
+    char old_name[ARRIVAL_KEY_NAME];
+    char new_name[ARRIVAL_KEY_NAME];
+    int head, body;
+};
+static struct arrival_rename arrival_renames[ARRIVAL_LOOKS_MAX];
+static int arrival_rename_count;
 
 struct arrival_key {
     char name[ARRIVAL_KEY_NAME];
@@ -90,11 +108,22 @@ struct arrival_reader {
     struct arrival_key key;
     int have_new_head, have_new_body;  /* an "Appearance changed" record's "New head" / "New body" */
     int new_head, new_body;
+    int have_old_name;                 /* a "Name changed" record's "Old name" */
+    char old_name[ARRIVAL_KEY_NAME];
 };
 
 static int arrival_reader_close(struct arrival_reader *r) {
     int ok = 1;
-    if (r->open == ARRIVAL_READ_LOOK) {
+    if (r->open == ARRIVAL_READ_RENAME) {
+        if (r->have_name && r->have_old_name && r->have_head && r->have_body
+            && strcmp(r->old_name, r->key.name) != 0 && arrival_rename_count < ARRIVAL_LOOKS_MAX) {
+            struct arrival_rename *rename = &arrival_renames[arrival_rename_count++];
+            lstrcpynA(rename->old_name, r->old_name, (int)sizeof rename->old_name);
+            lstrcpynA(rename->new_name, r->key.name, (int)sizeof rename->new_name);
+            rename->head = r->key.head;
+            rename->body = r->key.body;
+        }
+    } else if (r->open == ARRIVAL_READ_LOOK) {
         if (r->have_name && r->have_head && r->have_body && r->have_new_head && r->have_new_body
             && arrival_look_count < ARRIVAL_LOOKS_MAX) {
             struct arrival_look *look = &arrival_looks[arrival_look_count++];
@@ -149,6 +178,13 @@ static int arrival_reader_line(struct arrival_reader *r, char *line) {
         r->open = ARRIVAL_READ_LOOK;
         return 1;
     }
+    if (strcmp(line, "Name changed") == 0) {
+        if (!arrival_reader_close(r)) {
+            return 0;
+        }
+        r->open = ARRIVAL_READ_RENAME;
+        return 1;
+    }
     if (line[0] != ' ') {
         return arrival_reader_close(r);    /* a blank line, a heading, another kind */
     }
@@ -178,6 +214,20 @@ static int arrival_reader_line(struct arrival_reader *r, char *line) {
         if (!r->have_name && (value = arrival_value(line, "  Name: ")) != NULL) {
             lstrcpynA(r->key.name, value, (int)sizeof r->key.name);
             r->have_name = 1;
+        } else if (!r->have_head && (value = arrival_value(line, "  Head: ")) != NULL) {
+            r->key.head = atoi(value);
+            r->have_head = 1;
+        } else if (!r->have_body && (value = arrival_value(line, "  Body: ")) != NULL) {
+            r->key.body = atoi(value);
+            r->have_body = 1;
+        }
+    } else if (r->open == ARRIVAL_READ_RENAME) {
+        if (!r->have_name && (value = arrival_value(line, "  Name: ")) != NULL) {
+            lstrcpynA(r->key.name, value, (int)sizeof r->key.name);
+            r->have_name = 1;
+        } else if (!r->have_old_name && (value = arrival_value(line, "  Old name: ")) != NULL) {
+            lstrcpynA(r->old_name, value, (int)sizeof r->old_name);
+            r->have_old_name = 1;
         } else if (!r->have_head && (value = arrival_value(line, "  Head: ")) != NULL) {
             r->key.head = atoi(value);
             r->have_head = 1;
@@ -225,6 +275,14 @@ static void arrival_follow_looks(void) {
                     break;
                 }
             }
+            for (k = 0; !moved && k < arrival_rename_count; ++k) {
+                const struct arrival_rename *rename = &arrival_renames[k];
+                if (rename->head == key->head && rename->body == key->body
+                    && strcmp(rename->old_name, key->name) == 0) {
+                    lstrcpynA(key->name, rename->new_name, (int)sizeof key->name);
+                    moved = 1;
+                }
+            }
             if (!moved) {
                 break;
             }
@@ -269,6 +327,7 @@ static int read_village_arrivals(const struct game_layout *g, int game_id, const
 
     arrival_key_count = 0;
     arrival_look_count = 0;
+    arrival_rename_count = 0;
     *files = 0;
     /* The shared folder older builds wrote, then this village's slot folder (log_slot.h). */
     folder_count = family_read_folders(LOG_BIRTHS, village, folders);

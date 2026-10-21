@@ -121,6 +121,20 @@ VV1_PARENTS_NOTE = (
     "Parents in Details Screen ticked (its file is where A New Home's parents are kept).**"
 )
 
+def BEHAVIOURS_OFFERED(game: str) -> str:
+    """Villager Changes' actions, counted from the adapter's own table (the
+    owner, 2026-10-21: every villager action, "Celebrating" especially)."""
+    source = (ROOT / "native" / "vvfp_story_upgrades" / f"story_c{game[2]}.inc").read_text(encoding="utf-8")
+    body = source[source.index(f"static const ce_action C{game[2]}_BEHAVIOURS[] = {{"):]
+    rows = re.findall(r'^    \{ "((?:[^"\\]|\\.)*)", ACT_', body[:body.index("};")], re.M)
+    unsafe = sum(1 for label in rows if label.endswith(" (Unsafe)"))
+    celebrating = sum(1 for label in rows if label.startswith("Celebrating"))
+    return (f"behaviours: every action the game's own code can start for one villager ({len(rows)}, "
+            f"{celebrating} of them Celebrating), listed by group and labelled with the text the "
+            f"Details screen then shows; the {unsafe} that may harm the game or the save end "
+            "\"(Unsafe)\" and say why, with the advice to back up the save, before they are confirmed")
+
+
 # What each game's Custom Island Event offers and leaves out, with the reason
 # (docs/story-cheat-upgrades.md has the evidence).
 CUSTOM_OFFERED = {
@@ -130,7 +144,7 @@ CUSTOM_OFFERED = {
             "pregnant with a baby, twins or triplets (adults 18+, either sex)",
             "likes and dislikes", "appearance (heads and bodies 0-19)", "skills",
             "parents (with Show Parents in Details Screen)", "custom title", "mask",
-            "behaviours: stops what they are doing, dances, goes swimming, relaxes, recovers fully",
+            BEHAVIOURS_OFFERED("vv1"),
             "village: Isola Day celebration, Blessings Day celebration, the beach dirty again "
             "(as The Big Wave leaves it)"],
     "vv2": ["title and description", "food and tech points (add, subtract, set to 0)",
@@ -140,20 +154,19 @@ CUSTOM_OFFERED = {
             "likes and dislikes", "appearance (heads and bodies 0-29)", "skills", "parents",
             "custom title", "mask", "becomes an Esteemed Elder (with a totem)",
             "Esteemed Elder's totem type (eight carvings)",
-            "behaviours: stops what they are doing, cools off with a swim, celebrates, visits "
-            "the graves, sneezes, recovers fully"],
+            BEHAVIOURS_OFFERED("vv2")],
     "vv3": ["title and description", "food and tech points (add, subtract, set to 0)",
             "refill: fruit trees", "new villagers", "dies (leaves a skeleton)",
             "disappears (no skeleton)", "falls sick",
             "pregnant with a baby, twins or triplets (adults 18+, either sex)",
             "likes and dislikes", "appearance (heads and bodies 0-29)", "skills", "parents",
-            "custom title", "mask", "behaviours: stops what they are doing, recovers fully"],
+            "custom title", "mask", BEHAVIOURS_OFFERED("vv3")],
     "vv4": ["title and description", "food and tech points (add, subtract, set to 0)",
             "refill: berry bushes", "new villagers", "dies (leaves a skeleton)",
             "disappears (no skeleton)", "falls sick",
             "pregnant with a baby, twins or triplets (adults 18+, either sex)",
             "likes and dislikes", "appearance (heads and bodies 0-29)", "skills", "parents",
-            "custom title", "mask", "behaviours: stops what they are doing, recovers fully",
+            "custom title", "mask", BEHAVIOURS_OFFERED("vv4"),
             "village: rain begins, the weather clears"],
     "vv5": ["title and description", "food and tech points (add, subtract, set to 0)",
             "refill: noni bushes, and the crops once the farm is built", "new villagers (believers)",
@@ -161,7 +174,7 @@ CUSTOM_OFFERED = {
             "pregnant with a baby, twins or triplets (adult believers, either sex)",
             "likes and dislikes", "appearance (heads and bodies 0-29)", "skills (six)", "parents",
             "custom title", "mask", "becomes a believer / becomes a Heathen",
-            "behaviours: stops what they are doing, recovers fully"],
+            BEHAVIOURS_OFFERED("vv5")],
 }
 CUSTOM_OMITTED = {
     "vv1": [{"option": "Golden Child", "reason": "only the game's own puzzle makes one; the creator's "
@@ -190,6 +203,14 @@ CUSTOM_OMITTED = {
             {"option": "puzzle solved", "reason": "the completion routine needs world state that is "
              "not proven"}],
 }
+# The owner (2026-10-21): every villager action is offered.  What is left is no
+# action of its own.
+CUSTOM_OMITTED["vv1"].append({"option": "behaviours: the talk row's separate texts",
+                              "reason": "Telling a joke, Arguing and the rest are the talk row's own random "
+                              "texts, not actions of their own (the talk row is offered)"})
+CUSTOM_OMITTED["vv2"].append({"option": "behaviours: the Gong's ringer lookup, the villager initialiser, texts "
+                              "no code shows", "reason": "a lookup and the record initialiser are not actions; "
+                              "the texts left over from A New Home are shown by no code"})
 
 # Every price the Origins rows charge, in any game.
 PRICES = (5000, 30000, 40000, 50000, 75000, 100000, 450000, 500000, 1000000)
@@ -680,6 +701,14 @@ def build() -> None:
                 "Island Event upgrade queues one (the same lock), and when the game's own scheduler "
                 "fires it, the game's own island-event popup shows the custom title and description "
                 "and the changes are made through the game's own routines.",
+                "Villager Changes offers every villager action the game's own code can start for one "
+                "villager, Celebrating included, grouped (work, leisure, celebration and dance, "
+                "devotion, family, children, health, curiosity, moods, puzzles and story) and sorted, "
+                "each labelled with the text the Details screen then shows; the villager is stopped "
+                "first and the game's own starter runs.  An action that may harm the game or the save "
+                "ends \"(Unsafe)\": choosing it shows the reason and advises backing up the save "
+                "(OK / Cancel), and one that would need a missing object is refused when the event "
+                "happens instead of crashing.",
                 "New villagers and babies are made only while the game's own room predicate says "
                 "the village has room, so the population cap of the installed mode is never passed.",
                 "A new tribe's first two island events are always the game's own (each game's "

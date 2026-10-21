@@ -70,6 +70,7 @@ companion's lines.
 | Recorded afterwards (grave backfill) | yes | yes | yes | yes | yes |
 | Disappeared: Age, Sex, What happened, Nursing | yes | yes | yes | yes | yes (and "Left the tribe: became a Heathen") |
 | Epitaph changed | yes | yes | yes | yes | yes |
+| Parents (name, head, body) on Death and Disappeared, read before the record is freed (v1.35.79) | yes (from the Show Parents companion's file) | yes (record) | yes (record) | yes (record) | yes (record) |
 | Numbering beside an older build's "Deaths" folder | was BUG (all five) -- fixed | was BUG -- fixed | was BUG -- fixed | was BUG -- fixed | was BUG -- fixed |
 
 Where the cause is kept differs by design: VV1 and VV2 graves keep no cause, so the Graves .dat

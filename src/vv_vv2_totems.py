@@ -66,6 +66,7 @@ log names every change.
 from __future__ import annotations
 
 import random
+import re
 import struct
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -128,9 +129,11 @@ ELDER = _r(0x7FC)
 FLAG = _r(0x524) + 0x2DC            # the entry's "in use" byte (0 after the last entry)
 
 MALE, FEMALE = 1, 2
-# The eight totem faces (totems.png frames 0..7; the Story companion's own words, story_c2.inc).
-FACES = ("brown face, blue mouth", "green figure", "teal, red crest", "yellow and purple",
-         "red headdress", "dark navy face", "tall carved wood", "green grinning face")
+# The eight totem colours, numbered 1 to 8 as the Change Totem Colour window shows the game's own totems
+# from left to right (totems.png frames 0..7) -- never described by how they look (the owner, v1.35.80).
+# The same numbers everywhere: the Story companion (story_c2.inc) and the Island Events log
+# (island_event_more.inc) use them too.
+FACES = tuple(f"colour {n}" for n in range(1, 9))
 
 
 class TotemError(Exception):
@@ -369,7 +372,64 @@ def _renames(folder: Path, slot: int) -> set[tuple[str, str, int, int]]:
             continue
         if head.lstrip("-").isdigit() and body.lstrip("-").isdigit():
             out.add((old, new, int(head), int(body)))
+    out |= _patcher_renames(folder, slot)
     return out
+
+
+_RENAMED_LINE = re.compile(r"^\s*Renamed: (.+) \(head (-?\d+), body (-?\d+)(?:, age -?\d+)?\) -> (.+?)\s*$")
+
+
+def _patcher_renames(folder: Path, slot: int) -> set[tuple[str, str, int, int]]:
+    """The renames the patcher itself made in this village (the owner, v1.35.80: a totem follows its elder
+    through them, never asked): the ones kept in the Log Decisions file (vv_log_decisions.ALIAS_KIND --
+    Last Names, Number Duplicate Names, cut names restored, a name given back) and the "Renamed: <old>
+    (head h, body b) -> <new>" lines of the Repairs Made log (Number Duplicate Names before v1.35.80).
+    Read only; what cannot be read adds nothing."""
+    import vv_log_additions as additions
+    import vv_log_decisions as decisions
+    import vv_save_layout as layout
+    out: set[tuple[str, str, int, int]] = set()
+    try:
+        villages = additions.current_villages(folder, GAME, slot)
+    except (OSError, ValueError):
+        villages = None
+    try:
+        for d in decisions.load(Path(folder), GAME, slot):
+            if d.get("kind") != decisions.ALIAS_KIND or not isinstance(d.get("name"), str) \
+                    or not isinstance(d.get("field"), str):
+                continue
+            if villages is not None and d.get("village") is not None and d.get("village") not in villages:
+                continue
+            head, body = d.get("head"), d.get("body")
+            if isinstance(head, int) and isinstance(body, int) and d["name"] and d["field"] != d["name"]:
+                out.add((d["name"], d["field"], head, body))
+    except (OSError, ValueError):
+        pass
+    try:
+        checker = tools.load_checker()
+        for path in checker.game_logs(Path(folder), layout.REPAIRS_LOGS, f"Virtual Villagers {GAME} Repairs Log"):
+            try:
+                found = additions.blocks(path)
+            except OSError:
+                continue
+            for b in found:
+                if not b.of(slot, GAME, villages):
+                    continue
+                for line in b.lines:
+                    m = _RENAMED_LINE.match(line)
+                    if m and m.group(1) != m.group(4):
+                        out.add((m.group(1), m.group(4), int(m.group(2)), int(m.group(3))))
+    except (OSError, ValueError, AttributeError):
+        pass
+    return out
+
+
+def _unnumbered(name: str) -> str:
+    """A name without the Roman number Number Duplicate Names gives ("Azizi Kalama I" -> "Azizi Kalama")."""
+    words = name.split(" ")
+    if len(words) > 1 and re.fullmatch(r"[IVXLCDM]+", words[-1]):
+        return " ".join(words[:-1])
+    return name
 
 
 def _renamed(e: Elder, t: Totem, renames: set[tuple[str, str, int, int]]) -> bool:
@@ -377,6 +437,11 @@ def _renamed(e: Elder, t: Totem, renames: set[tuple[str, str, int, int]]) -> boo
     statue copied and the elder still has, and the same sex)."""
     if (t.head, t.body) != (e.head, e.body) or (e.sex and t.sex != e.sex) or t.name == e.name:
         return False
+    # The patcher's numbering: the statue keeps the name the elder had before Number Duplicate Names gave
+    # them a number (or a number the elder has since), the same looks and sex -- and, for a living elder,
+    # the family line the statue copied.  Two numbered namesakes it could both be are asked (one to one).
+    if _unnumbered(t.name) == _unnumbered(e.name) and (not e.living or t.lineage == e.lineage):
+        return True
     seen, todo = {t.name}, [t.name]
     while todo:
         name = todo.pop()

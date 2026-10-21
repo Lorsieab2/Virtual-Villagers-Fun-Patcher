@@ -56,8 +56,10 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # and build_cause_catchup_harness.ps1 (deaths in the load-time catch-up
         # and the bodies a load packs keep their cause), and build_equal_division_harness.ps1
         # (Equal Division of Labor by skill, v1.35.70), and build_save_reset_words_harness.ps1
-        # (Start Over clears the deleted logs' Like and Dislike Words, v1.35.78).
-        self.assertEqual(len(SCRIPTS), 31, [path.name for path in SCRIPTS])
+        # (Start Over clears the deleted logs' Like and Dislike Words, v1.35.78),
+        # and build_dialog_kit_harness.ps1 (the companions' resizable dialogs,
+        # wrapping lists and villager sorting on real windows, v1.35.80).
+        self.assertEqual(len(SCRIPTS), 32, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:

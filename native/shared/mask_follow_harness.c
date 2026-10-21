@@ -282,6 +282,47 @@ int main(void) {
     roster[0] = 111; live[0] = 222;
     check(vv_roster_renamed(N, roster, was_stable, live, now_stable) == -1, "unknown stable fields are never a rename");
 
+    /* 25. The identity audit: twins of one identity at 3 (mask 1) and 4 (mask 2); the one at 3
+           dies IN PLAY (nobody moves in play).  The survivor keeps her own mask at her own record,
+           and the dead twin's stays on her empty record. */
+    reset();
+    village(stored, 8, -1);
+    stored[3] = 900; stored[4] = 900;
+    value[3] = 1; value[4] = 2;
+    memcpy(live, stored, sizeof live);
+    live[3] = 0;
+    vv_mask_follow_in_play(N, value, stored, stored, live, 0, new_value, new_stored);
+    check(new_value[4] == 2 && new_stored[4] == 900 && new_value[3] == 1,
+          "ONE OF TWO MASKED TWINS DIES IN PLAY: the survivor keeps her own mask, the dead twin's stays on her record");
+    vv_mask_follow_in_play(N, value, stored, stored, live, 0, new_value, new_stored);
+    check(vv_roster_moved_in_play(N, stored, live) == 0 && vv_roster_moved(N, stored, live) == 1,
+          "(in play a twin's death is no move; after a load the same picture may be one)");
+
+    /* 26. ...the very same picture after a LOAD may be the survivor packed into the dead twin's
+           record: whose mask it is cannot be told, so nobody is given one. */
+    vv_mask_follow(N, value, stored, stored, live, 0, new_value, new_stored);
+    check(new_value[4] == 0, "THE SAME PICTURE AFTER A LOAD: neither twin's mask is guessed");
+
+    /* 27. In play, a villager who appears in a record that did not hold her identity is a move. */
+    reset();
+    stored[3] = 900; stored[5] = 777; value[3] = 1;
+    live[3] = 0; live[5] = 777; live[6] = 900;
+    check(vv_roster_moved_in_play(N, stored, live) == 1,
+          "in play, an identity found in a record that did not hold it is a move");
+
+    /* 28. A rename in the same frame as a birth and a death, in play. */
+    reset();
+    village(roster, 8, -1); village(live, 8, -1);
+    for (changed = 0; changed < 8; ++changed) {
+        was_stable[changed] = now_stable[changed] = 50u + (unsigned int)changed;
+    }
+    live[5] = 999;                              /* renamed */
+    live[2] = 0;                                /* a death */
+    live[9] = 555; now_stable[9] = 70;          /* a birth */
+    check(vv_roster_renamed_in_play(N, roster, was_stable, live, now_stable) == 5
+          && vv_roster_renamed(N, roster, was_stable, live, now_stable) == -1,
+          "A RENAME IN THE FRAME OF A BIRTH AND A DEATH IS FOLLOWED IN PLAY");
+
     printf("%d failure(s)\n", failures);
     return failures == 0 ? 0 : 1;
 }

@@ -1508,6 +1508,28 @@ static int village_changed(int game_id, int save_id) {
                                   ROSTER_ROW) ? ROSTER_SAME : ROSTER_NEW;
 }
 
+/* Each row's fingerprint ("slot<TAB>name<TAB>XXXXXXXX", or "-" when there is nothing to
+   fingerprint) by its record; 0 for none. */
+static void elders_fingerprints(char rows[ROSTER_MAX][ROSTER_ROW], int count, unsigned int *out) {
+    int i;
+    for (i = 0; i < ROSTER_MAX; ++i) {
+        out[i] = 0u;
+    }
+    for (i = 0; i < count; ++i) {
+        int slot = atoi(rows[i]);
+        const char *tab = strrchr(rows[i], '\t');
+        char *end = NULL;
+        unsigned long value;
+        if (slot < 0 || slot >= ROSTER_MAX || tab == NULL || tab[1] == '-' || tab[1] == '\0') {
+            continue;
+        }
+        value = strtoul(tab + 1, &end, 16);
+        if (end != NULL && *end == '\0') {
+            out[slot] = (unsigned int)value;
+        }
+    }
+}
+
 static void elders_ranks(struct elders_layout *l) {
     static int rank_of_slot[ROSTER_MAX];
     int i;
@@ -1522,6 +1544,17 @@ static void elders_ranks(struct elders_layout *l) {
     }
     l->rank_of_slot = rank_of_slot;
     l->rank_slots = ROSTER_MAX;
+    /* ...and who each villager is by what a rename does not change: the roster's own fingerprint,
+       at the previous save (by its record then) and now (by its record now), so an elder's line
+       follows its villager through a rename and a reload together (the identity audit, case 5). */
+    {
+        static unsigned int fp_was[ROSTER_MAX], fp_now[ROSTER_MAX];
+        elders_fingerprints(g_roster_was, g_roster_was_count, fp_was);
+        elders_fingerprints(g_roster_now, g_roster_now_count, fp_now);
+        l->fp_was = fp_was;
+        l->fp_now = fp_now;
+        l->fp_slots = ROSTER_MAX;
+    }
 }
 
 /* AFTER the stock save succeeded: for a new village, move the slot's three

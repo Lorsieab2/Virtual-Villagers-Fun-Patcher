@@ -166,6 +166,10 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
@@ -1416,6 +1420,10 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     (void)lparam;
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(2, window);   /* "OK deducts 0 tech points" */
@@ -1769,10 +1777,13 @@ static unsigned int g_vv2_mask_id[VV2_RECORD_COUNT];
 /* The record array the per-frame sweep was last handed (0: no village). */
 static unsigned char *g_vv2_sweep_base;
 
-static int vv2_mask_follow(const unsigned int *stored, const unsigned int *live, int weak) {
+/* in_play: two looks during play, never the first after a load (vv_mask_follow_in_play). */
+static int vv2_mask_follow(const unsigned int *stored, const unsigned int *live, int weak, int in_play) {
     static unsigned char moved[VV2_RECORD_COUNT];
     static unsigned int moved_id[VV2_RECORD_COUNT];
-    int changed = vv_mask_follow(VV2_RECORD_COUNT, VV2_MASK_TABLE, stored, stored, live, weak, moved, moved_id);
+    int changed = in_play
+        ? vv_mask_follow_in_play(VV2_RECORD_COUNT, VV2_MASK_TABLE, stored, stored, live, weak, moved, moved_id)
+        : vv_mask_follow(VV2_RECORD_COUNT, VV2_MASK_TABLE, stored, stored, live, weak, moved, moved_id);
     vv_om_track(VV2_RECORD_COUNT, moved, moved_id, g_vv2_mask_id);
     if (!changed) {
         return 0;
@@ -2002,7 +2013,7 @@ static int vv2_mask_sidecar_load(const unsigned char *base, const unsigned int *
             memcpy(VV2_MASK_TABLE, buf, sizeof(buf));
             /* Written against the records as they were; a reload has packed
                them since.  Each mask goes to its villager. */
-            g_vv2_rewrite_after_load = vv2_mask_follow(filesnap, against, weak) || weak;
+            g_vv2_rewrite_after_load = vv2_mask_follow(filesnap, against, weak, 0) || weak;
             if (weak) {
                 vv_om_from_names(VV2_RECORD_COUNT, g_vv2_mask_id, names, live);
             }
@@ -2049,7 +2060,7 @@ static int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
        gender and parents unchanged: the same villager.  The mask stays on
        its record, which takes the new identity, and the file says so now. */
     if (g_vv2_have_roster && slot == g_vv2_slot) {
-        int renamed = vv_roster_renamed(VV2_RECORD_COUNT, g_vv2_roster, g_vv2_stable, cur, cur_stable);
+        int renamed = vv_roster_renamed_in_play(VV2_RECORD_COUNT, g_vv2_roster, g_vv2_stable, cur, cur_stable);
         if (renamed >= 0) {
             g_vv2_roster[renamed] = cur[renamed];
             memcpy(g_vv2_stable, cur_stable, sizeof(cur_stable));
@@ -2065,7 +2076,7 @@ static int __stdcall Vv2MaskSyncVillage(unsigned char *base) {
             /* A birth, a death, or villagers renumbered: each mask goes to
                its villager -- and a record reused by a newborn no longer
                hands it the dead villager's mask. */
-            vv2_mask_follow(g_vv2_roster, cur, 0);
+            vv2_mask_follow(g_vv2_roster, cur, 0, 1);   /* in play */
             memcpy(g_vv2_roster, cur, sizeof(cur));
             memcpy(g_vv2_stable, cur_stable, sizeof(cur_stable));
             vv2_mask_sidecar_save();
@@ -2771,6 +2782,10 @@ static void caf_set_body_mode(HWND w, int sel) {
 }
 
 static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(w, msg, wp, lp, &vk_handled)) {
+        return vk_handled;
+    }
     (void)lp;
     if (msg == WM_INITDIALOG) {
         vvfp_story_relabel(2, w);     /* "OK deducts 0 tech points" */

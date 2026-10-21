@@ -1,20 +1,25 @@
 """Every Villager Behaviour the Custom Island Event offers must name the action the game really runs.
 
-The owner reported (VV2) that choosing "Celebrating" made the villager do "Relaxing at the beach".
-EXPECTED pins, for each game and each offered behaviour, the label, how the adapter starts it
-(the routine for A New Home / The Lost Children, the do-action id for the later games) and the
-action text the stock game shows for that action.  Each row was proved from the stock executable:
-the routine's own text lookup (or the do-action id's registered handler's lookup) yields `text`,
-and the label says the same thing.  The live checks re-derive the text from the stock executable
-when it is present (research/stock-executables), so a label cannot drift from the real action.
+The owner reported (VV2) that choosing "Celebrating" made the villager do "Relaxing at the beach",
+and then (2026-10-21) asked for ALL villager actions, "Celebrating" especially, every label the
+text the Details screen then shows, and anything potentially unsafe still offered but marked
+" (Unsafe)" with its reason.  cie_behaviour_catalog.json pins, for each game and each offered
+behaviour in the adapter's own order, the label, how the adapter starts it (the routine for A
+New Home / The Lost Children, the do-action id for the later games), its group, its unsafe
+reason and guard, and the action text the stock game shows for that action.  Each row was proved
+from the stock executable: the routine's own text lookup (or the do-action id's registered
+handler's lookup) yields `text`, and the label says the same thing.  The live checks re-derive
+the text from the stock executable when it is present (research/stock-executables), so a label
+cannot drift from the real action; tests/test_cie_behaviours_emulated.py runs each one.
 
-Row layout: (label, kind, routine-or-action-id, mode, string id, game's action text)
+Row layout of EXPECTED: (label, kind, routine-or-action-id, mode, string id, game's action text)
   mode "direct"   the routine/handler looks the text up itself (string id pushed before the lookup call)
   mode "indirect" the text is chosen on a branch (a conditional push), the id is still pushed in the routine
   mode "literal"  the text is a string constant, no table lookup
   mode "effect"   an animation only, the game sets no action text
   mode "none"     not an action starter (stop / recover)
 """
+import json
 import re
 import struct
 from pathlib import Path
@@ -25,8 +30,23 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "native" / "vvfp_story_upgrades"
 STOCK = ROOT / "research" / "stock-executables"
 EXE = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
+CATALOG = json.loads((Path(__file__).resolve().parent / "cie_behaviour_catalog.json").read_text(encoding="utf-8"))
+GROUPS = ("GENERAL", "WORK", "LEISURE", "CELEBRATION", "DEVOTION", "FAMILY", "CHILDREN", "HEALTH",
+          "CURIOSITY", "MOOD", "STORY")
 
-EXPECTED = {
+
+def _key(game, row):
+    if row["kind"] in ("ACT_STOP", "ACT_RECOVER"):
+        return row["routine"] if game <= 2 else 0
+    return row["routine"] if game <= 2 else row["arg"]
+
+
+EXPECTED = {game: [(r["label"], r["kind"], _key(game, r), r["mode"], r["sid"], r["text"]) for r in CATALOG[str(game)]]
+            for game in (1, 2, 3, 4, 5)}
+
+# The audited table this release started from: its rows keep their places (a queued purchase
+# stores the row index) and their actions; only the labels became the game's own wording.
+BEFORE = {
     1: [
         ('Stops what they are doing', 'ACT_STOP', 0x439470, 'none', None, None),
         ('Celebrates (Blessings Day dance)', 'ACT_CALL_ARG', 0x443fa0, 'direct', 190, 'Celebrating'),
@@ -296,35 +316,52 @@ EXPECTED = {
     ],
 }
 
-# A label and the game's text may differ in wording (a verb for a gerund) but never in meaning.
-# These are the labels whose text the owner's report or this audit corrected.
+# Labels the owner's report or the audits corrected, with the game's text they name.
 CORRECTED = {
-    (1, "Celebrates (Blessings Day dance)"): "Celebrating",
-    (2, "Enjoys the pond (Heat Wave swim)"): "Enjoying the pond",
-    (2, "Relaxes at the beach (Blessings Day)"): "Relaxing at the beach",
-    (2, "Honors the dead (Day of Honor)"): "Honoring the Dead",
+    (1, "Celebrating"): "Celebrating",
+    (2, "Enjoying the pond (Heat Wave swim)"): "Enjoying the pond",
+    (2, "Relaxing at the beach (Blessings Day)"): "Relaxing at the beach",
+    (2, "Honoring the Dead (Day of Honor)"): "Honoring the Dead",
 }
-# Old labels that named an action the game does not run for that routine.
+# Old labels that named an action the game does not run for that routine, or the old wording.
 RETIRED = {
     (1, "Dances (Blessings Day)"), (2, "Celebrates"), (2, "Cools off with a swim"), (2, "Visits the graves"),
+    (1, "Celebrates (Blessings Day dance)"), (2, "Relaxes at the beach (Blessings Day)"),
+    (3, "Celebrates Isola Day"), (4, "Celebrates Isola Day"), (5, "Celebrates Isola Day"),
 }
 
+ROW = re.compile(r'\{ "((?:[^"\\]|\\.)*)", (ACT_[A-Z_0-9]+), (0x[0-9A-Fa-f]+u?|0), (0x[0-9A-Fa-f]+|-?\d+), '
+                 r'CE_GROUP_([A-Z]+), (NULL|"(?:[^"\\]|\\.)*")(?:, (NULL|C\d_ARGS_\d+), (NULL|&C\d_SUPPLY_\d+))? \}')
+ARGS = re.compile(r"static const int (C\d_ARGS_\d+)\[8\] = \{ ([-\d, ]+) \};")
+SUPPLY = re.compile(r"static const ce_supply (C\d_SUPPLY_\d+) = \{ (CE_SUPPLY_[A-Z]+), (\d), (0x[0-9A-F]+)u, "
+                    r"(0x[0-9A-F]+)u, (CE_REFUSE_[A-Z0-9]+), (-?\d+), (0x[0-9A-F]+)u \};")
+SUPPLY_WHAT = {"CE_SUPPLY_BODY": "BODY", "CE_SUPPLY_OTHER": "OTHER", "CE_SUPPLY_GLOBAL": "GLOBAL",
+               "CE_SUPPLY_CALL": "CALL"}
+REFUSE = {"CE_REFUSE_ZERO": "zero", "CE_REFUSE_MINUS1": "minus1", "CE_REFUSE_BOTH": "zero_or_minus1"}
 
-def adapter_rows(game: int):
+
+def adapter_table(game: int):
+    """(label, kind, routine, arg, group, unsafe, args, supply) as the adapter declares them."""
     source = (SOURCE / f"story_c{game}.inc").read_text(encoding="utf-8")
+    args = {name: [int(v) for v in values.split(",")] for name, values in ARGS.findall(source)}
+    supplies = {name: {"what": SUPPLY_WHAT[what], "as": "record" if as_record == "1" else "index",
+                       "va": int(va, 16), "this": int(this, 16), "refuse": REFUSE[refuse], "slot": int(slot),
+                       "store": int(store, 16)}
+                for name, what, as_record, va, this, refuse, slot, store in SUPPLY.findall(source)}
     body = source[source.index(f"static const ce_action C{game}_BEHAVIOURS[] = {{"):]
     body = body[:body.index("};")]
-    rows = re.findall(r'\{ "((?:[^"\\]|\\.)*)", (ACT_[A-Z_]+), (0x[0-9A-Fa-f]+u?|0), (0x[0-9A-Fa-f]+|\d+) \}', body)
+    assert len(ROW.findall(body)) == body.count('\n    { "'), f"VV{game}: a row the pattern does not read"
     out = []
-    for label, kind, routine, arg in rows:
-        routine = int(routine.rstrip("u"), 16)
-        out.append((label, kind, routine if game <= 2 else int(arg, 0)))
+    for label, kind, routine, arg, group, unsafe, a, s in ROW.findall(body):
+        out.append((label.replace('\\"', '"'), kind, int(routine.rstrip("u"), 16), int(arg, 0), group,
+                    None if unsafe == "NULL" else unsafe[1:-1].replace('\\"', '"'),
+                    args[a] if a and a != "NULL" else None,
+                    supplies[s[1:]] if s and s != "NULL" else None))
     return out
 
 
-def expected_keys(game: int):
-    return [(label, kind, key if kind not in ("ACT_STOP", "ACT_RECOVER") else (key if game <= 2 else 0))
-            for label, kind, key, *_ in EXPECTED[game]]
+def adapter_rows(game: int):
+    return [(label, kind, routine if game <= 2 else arg) for label, kind, routine, arg, *_ in adapter_table(game)]
 
 
 @pytest.mark.parametrize("game", [1, 2, 3, 4, 5])
@@ -336,6 +373,24 @@ def test_every_offered_behaviour_is_pinned_with_its_real_action(game):
     if game >= 3:
         norm = lambda rows: [(l, k, key if k == "ACT_DO" else 0) for l, k, key in rows]
     assert norm(got) == norm(want), f"VV{game}: the offered behaviours differ from the audited table"
+    # ...with the same arguments, groups, reasons and guards.
+    full = [(r["label"], r["kind"], r["routine"] if game <= 2 or r["kind"] == "ACT_DROP" else 0, r["arg"], r["group"],
+             r["unsafe"], r["args"], r["supply"])
+            for r in CATALOG[str(game)]]
+    mine = [(l, k, rt if game <= 2 or k == "ACT_DROP" else 0, a, g, u, ar, s)
+            for l, k, rt, a, g, u, ar, s in adapter_table(game)]
+    if game <= 2:
+        full = [row if row[1] != "ACT_RECOVER" else row[:2] + (0,) + row[3:] for row in full]
+    assert mine == full
+
+
+@pytest.mark.parametrize("game", [1, 2, 3, 4, 5])
+def test_the_rows_before_this_release_keep_their_places_and_actions(game):
+    """A queued purchase stores the row index: the earlier rows never move."""
+    got = adapter_rows(game)[:len(BEFORE[game])]
+    assert [(k, key) for _, k, key in got] == [(k, key) for _, k, key, *_ in BEFORE[game]]
+    # The same text, too (the label now says it in the game's own words).
+    assert [r[3:] for r in EXPECTED[game][:len(BEFORE[game])]] == [r[3:] for r in BEFORE[game]]
 
 
 @pytest.mark.parametrize("game", [1, 2, 3, 4, 5])
@@ -356,12 +411,77 @@ def test_no_two_labels_in_a_game_are_the_same(game):
     assert len(labels) == len(set(labels))
 
 
+@pytest.mark.parametrize("game", [1, 2, 3, 4, 5])
+def test_every_label_starts_with_the_text_the_game_shows(game):
+    """The owner's rule: the label is what the villager then does -- the game's own words."""
+    for label, kind, _key, mode, _sid, text in EXPECTED[game]:
+        if mode in ("direct", "literal", "argtext") and text:
+            assert label.startswith(text), (label, text)
+        elif mode == "indirect":
+            assert text in label, (label, text)
+
+
+@pytest.mark.parametrize("game", [1, 2, 3, 4, 5])
+def test_unsafe_actions_say_so_and_why(game):
+    """The owner (2026-10-21): nothing left out for being risky; marked " (Unsafe)" with a reason."""
+    for label, kind, _routine, _arg, group, unsafe, args, supply in adapter_table(game):
+        assert group in GROUPS
+        assert label.endswith(" (Unsafe)") == (unsafe is not None), label
+        assert label.count("(Unsafe)") <= 1
+        if unsafe is not None:
+            assert 10 <= len(unsafe) <= 200 and not unsafe.endswith("."), (label, unsafe)
+        if supply is not None or kind == "ACT_DROP":
+            # Whatever it needs is found when the event happens, or the change is refused.
+            assert unsafe is not None and "refused" in unsafe, (label, unsafe)
+
+
+@pytest.mark.parametrize("game", [1, 2, 3, 4, 5])
+def test_every_action_left_out_has_its_reason(game):
+    # The owner (2026-10-21): nothing is left out; what remains here is no action at all (a text
+    # no code shows, a lookup, the record initialiser), each with the reason.
+    left = CATALOG[f"{game}_left_out"]
+    for row in left:
+        assert row["what"] and len(row["reason"]) > 20, row
+
+
+CELEBRATING = {   # the plain "Celebrating" action each game's village celebration starts
+    1: ("ACT_CALL_ARG", 0x443FA0, 9, 190),
+    2: ("ACT_CALL_ARG2", 0x459B60, 1, 272),
+    3: ("ACT_DO", 0, 82, 320),
+    4: ("ACT_DO", 0, 42, 413),
+    5: ("ACT_DO", 0, 49, 364),
+}
+
+
+@pytest.mark.parametrize("game", [1, 2, 3, 4, 5])
+def test_celebrating_is_offered_and_starts_the_real_celebration(game):
+    kind, routine, arg, sid = CELEBRATING[game]
+    rows = [r for r in CATALOG[str(game)] if r["label"] == "Celebrating" or r["label"].startswith("Celebrating (")]
+    plain = [r for r in rows if r["text"] == "Celebrating" and r["unsafe"] is None]
+    assert plain, f"VV{game}: no safe Celebrating"
+    first = next(r for r in plain if r["kind"] == kind and r["arg"] == arg)
+    assert (first["routine"] if game <= 2 else 0) == routine
+    assert first["sid"] == sid
+    assert all(r["group"] == "CELEBRATION" for r in rows)
+
+
+def test_the_villager_actions_doc_is_current():
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("build_cie_actions_doc", ROOT / "scripts" / "build_cie_actions_doc.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.DOC.read_text(encoding="utf-8") == module.render(), "run scripts/build_cie_actions_doc.py"
+
+
 def test_the_owner_report_is_fixed_in_the_lost_children():
     labels = {l: k for l, _, k in adapter_rows(2)}
     # The Blessings Day routine 0x452920 shows "Relaxing at the beach"; no label may call it celebrating.
     name = [l for l, _, k in adapter_rows(2) if k == 0x452920]
-    assert name == ["Relaxes at the beach (Blessings Day)"]
+    assert name == ["Relaxing at the beach (Blessings Day)"]
     assert "Celebrates" not in labels
+    # "Celebrating" now starts the game's own celebration 0x459B60, never that routine.
+    assert {k for l, _, k in adapter_rows(2) if l.startswith("Celebrating")} == {0x459B60}
 
 
 # ---- live: re-derive each text from the stock executable --------------------------------------
@@ -437,6 +557,8 @@ def test_vv1_vv2_routines_show_the_pinned_text(game):
     for label, kind, routine, mode, sid, text in EXPECTED[game]:
         if mode == "none":
             continue
+        if mode in ("effect", "chooser"):
+            continue    # no text of its own / another action's (the emulated run checks it)
         ins = _func(pe, base, capstone, routine)
         found = _pushes_before_calls(ins, getters, 2)
         if mode == "direct":
@@ -452,8 +574,14 @@ def test_vv1_vv2_routines_show_the_pinned_text(game):
             assert tab[sid] == text, f"VV{game} {label!r}: string {sid} is {tab[sid]!r}, not {text!r}"
 
 
-def _later_games_tables(pe, base, capstone):
-    """The string table {id: (name, text)} and the do-action registrations {action id: handler}."""
+# Each later game registers its do-action handlers through two routines: one for a handler that
+# takes only the villager, one for a handler that also takes the argument block.
+REGISTRARS = {3: (0x4411B0, 0x4411D0), 4: (0x44F770, 0x44F790), 5: (0x452C20, 0x452C40)}
+
+
+def _later_games_tables(pe, base, capstone, game=None):
+    """The string table {id: (name, text)} and the do-action registrations {action id: handler}
+    (with `game`, both registrars' -- see registrations())."""
     d = pe.__data__
     secs = [(s.PointerToRawData, s.PointerToRawData + s.SizeOfRawData) for s in pe.sections
             if s.Name.startswith((b".rdata", b".data"))]
@@ -509,7 +637,21 @@ def _later_games_tables(pe, base, capstone):
         if aid is None or not 0 <= aid <= 400:
             continue
         cand.setdefault(target, {})[aid] = func
+    _later_games_tables.candidates = cand
+    if game is not None:
+        plain, with_args = REGISTRARS[game]
+        return texts, {**cand.get(plain, {}), **cand.get(with_args, {})}
     return texts, max(cand.values(), key=len)
+
+
+def registrations(pe, base, capstone, game):
+    """{action id: (handler, 1 when it takes the argument block)} from both registrars."""
+    _later_games_tables(pe, base, capstone, game)
+    cand = _later_games_tables.candidates
+    plain, with_args = REGISTRARS[game]
+    out = {aid: (func, 0) for aid, func in cand.get(plain, {}).items()}
+    out.update({aid: (func, 1) for aid, func in cand.get(with_args, {}).items()})
+    return out
 
 
 GETTER = {3: 0x42F190, 4: 0x44D3D0, 5: 0x4506D0}
@@ -518,12 +660,24 @@ GETTER = {3: 0x42F190, 4: 0x44D3D0, 5: 0x4506D0}
 @pytest.mark.parametrize("game", [3, 4, 5])
 def test_do_action_handlers_show_the_pinned_text(game):
     pe, base, capstone = _stock(game)
-    texts, handlers = _later_games_tables(pe, base, capstone)
+    texts, handlers = _later_games_tables(pe, base, capstone, game)
+    plain, with_args = REGISTRARS[game]
+    assert len(_later_games_tables.candidates[plain]) > 150 and _later_games_tables.candidates[with_args]
     for label, kind, aid, mode, sid, text in EXPECTED[game]:
-        if mode == "none":
+        if mode in ("none", "drop", "chooser"):
+            continue
+        if mode == "argtext":
+            # The handler shows the text whose id the argument block carries (as a stock caller passes it).
+            assert aid in handlers and (not sid or texts[sid][1] == text), label
             continue
         assert aid in handlers, f"VV{game} {label!r}: action {aid} has no registered handler"
         ins = _func(pe, base, capstone, handlers[aid])
-        found = _pushes_before_calls(ins, {GETTER[game]}, 8)
-        assert sid in found, f"VV{game} {label!r}: action {aid} never looks up string {sid}"
+        if mode == "direct":
+            found = _pushes_before_calls(ins, {GETTER[game]}, 8)
+            assert sid in found, f"VV{game} {label!r}: action {aid} never looks up string {sid}"
+        elif mode == "effect":
+            continue    # an animation only (the emulated run in test_cie_behaviours_emulated checks it)
+        else:
+            assert mode == "indirect", (label, mode)
+            assert sid in _all_pushes(ins), f"VV{game} {label!r}: action {aid} never uses string {sid}"
         assert texts[sid][1] == text, f"VV{game} {label!r}: string {sid} is {texts[sid][1]!r}, not {text!r}"

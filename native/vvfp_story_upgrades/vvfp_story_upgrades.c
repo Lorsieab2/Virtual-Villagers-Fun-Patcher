@@ -68,6 +68,7 @@
 #include "../shared/save_folder.h"
 #include "../shared/per_save_data.h"       /* one folder per save */
 #include "../shared/patcher_files.h"
+#include "../shared/vvfp_dialog_kit.h"     /* resizable dialogs, wrapping lists, villager sorting */
 #include "story_targets.h"
 #include "story_custom.h"
 

@@ -425,7 +425,7 @@ class CodexReview(GiveLastNames):
         self.titles.write_bytes(bytes(data))
         elders = self.folder / DATA / "Village Elders" / "Village Elders - Save 1.dat"
         elders.parent.mkdir(parents=True)
-        line = b"E\t0\tAgo\t\t\t1\t0\r\n"
+        line = b"E\t0\tAgo\t\t\t0\t1\r\n"                       # a living elder (open)
         for game, changed in ((4, False), (3, True)):
             with self.subTest(game=game):
                 elders.write_bytes(b"VVFP VILLAGE ELDERS v2 game=%d\r\n" % game + line)
@@ -440,6 +440,26 @@ class CodexReview(GiveLastNames):
         (roster.parent / "Village Statistics - Save 1.dat").write_bytes(b"VVFP VILLAGE STATISTICS v1 game=3\n")
         work = ln.plan(self.folder, 3, 1, self.chosen())
         self.assertTrue(any(c.path == roster for c in work.changes))
+
+    def test_a_dead_namesakes_elder_line_keeps_its_name(self):
+        # The identity audit, case 5: the fixture's Deaths log has a dead Ago (head 1).  Her closed
+        # elder line, and a parent named Ago, are not the living Ago's: renaming him must not give
+        # them his new name (the two elders' lines would read as one villager's).  His own open line
+        # follows him.
+        elders = self.folder / DATA / "Village Elders" / "Village Elders - Save 1.dat"
+        elders.parent.mkdir(parents=True, exist_ok=True)
+        elders.write_bytes(b"VVFP VILLAGE ELDERS v2 game=3\r\ngraves_seen=0\r\n"
+                           b"E\t0\tAgo\t\t\t0\t1\r\n"                   # the living Ago, an elder
+                           b"E\t7\tAgo\t\t\t1\t0\r\n"                   # the dead Ago's line, closed
+                           b"E\t8\tTui\tAgo\tAipi\t0\t1\r\n")           # a child of one of the two Agos
+        work = ln.plan(self.folder, 3, 1, self.chosen())
+        change = next(c for c in work.changes if c.path == elders)
+        text = change.updated.decode("latin-1")
+        self.assertIn("E\t0\tAgo Akikai\t\t\t0\t1\r\n", text, "the living elder's own line follows him")
+        self.assertIn("E\t7\tAgo\t\t\t1\t0\r\n", text, "the dead namesake's line keeps her name")
+        self.assertIn("E\t8\tTui\tAgo\tAipi Wikimak\t0\t1\r\n", text, "a father named Ago could be either")
+        self.assertTrue(any("Ago" in note and elders.name in note for note in work.notes),
+                        "the line left with the name is reported")
 
     def test_a_parent_reference_from_before_a_change_of_looks_is_asked(self):
         # Codex (#553): a child's father field keeps the looks he had when she was born.
