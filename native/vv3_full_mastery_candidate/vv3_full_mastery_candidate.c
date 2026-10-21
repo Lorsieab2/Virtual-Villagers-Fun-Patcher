@@ -4,6 +4,7 @@
 #include <string.h>
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/vvfp_dialog_kit.h" /* resizable dialogs (min / max), v1.35.80 */
 #include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
 #include "../shared/skill_repair.h" /* reset obviously corrupted (out-of-range) skills */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
@@ -785,6 +786,10 @@ static INT_PTR CALLBACK upgrade_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         s_villager_menu = villager_menu;
@@ -3258,6 +3263,10 @@ static void vv3_appearance_repaint(HWND window, int control) {
 static INT_PTR CALLBACK vv3_appearance_dialog(
     HWND window, UINT message, WPARAM wparam, LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     (void)lparam;
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(3, window);   /* "OK deducts 0 tech points" */
@@ -3869,6 +3878,10 @@ static void caf_set_head_body_enable(HWND w) {
 }
 
 static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(w, msg, wp, lp, &vk_handled)) {
+        return vk_handled;
+    }
     (void)lp;
     if (msg == WM_INITDIALOG) {
         int r;

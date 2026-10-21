@@ -105,8 +105,11 @@ FOUNDATION_OUTPUT = (
 # Recertified for Recharge Chief Powers (the owner, 2026-10-20): the Story / Cheat Upgrades Tech
 # menu's VV3-only button, which calls "VVFP Story Upgrades.dll"'s VvfpStoryRechargeChiefPowers.
 # Without the row (or with an older Story DLL lacking that export) nothing changes.
-SOURCE_SHA256 = "88BA262CD3B4B18DA02927F29CC8E62C8F4B0DEAA6373C706477A117CB31B531"
-SOURCE_SIZE = 1991680
+# Recertified for resizable dialogs (native/shared/vvfp_dialog_kit.h, the owner, v1.35.80:
+# "make sure all these windows are expandable"): every dialog of the companion has a
+# sizing frame and minimise / maximise boxes and lays its controls out as it grows.
+SOURCE_SHA256 = "646F687355D364CBE338244A339E88260608F1C36A30C6277738DA8C8B02005D"
+SOURCE_SIZE = 1995264
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

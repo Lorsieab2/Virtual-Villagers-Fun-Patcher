@@ -4,6 +4,7 @@
 #include <string.h>   /* strrchr */
 #include "../shared/sidecar_io.h" /* atomic mask-sidecar publish; invalid files set aside */
 #include "../shared/story_bridge.h" /* Story / Cheat Upgrades: free upgrades, Pick Island Event */
+#include "../shared/vvfp_dialog_kit.h" /* resizable dialogs (min / max), v1.35.80 */
 #include "../shared/equal_division.h" /* Equal Division of Labor: seats by skill progress */
 #include "../shared/cause_bridge.h"  /* Cause of Death: graves and the Deaths log */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
@@ -1306,6 +1307,10 @@ static INT_PTR CALLBACK appearance_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(5, window);   /* "OK deducts 0 tech points" */
         appearance_update_mask_label(window);
@@ -1740,6 +1745,10 @@ static void caf_update_gray(HWND w) {
 }
 
 static INT_PTR CALLBACK caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(w, msg, wp, lp, &vk_handled)) {
+        return vk_handled;
+    }
     if (msg == WM_INITDIALOG) {
         vvfp_story_relabel(5, w);   /* "OK deducts 0 tech points" */
         caf_body[0] = caf_body[1] = caf_head[0] = caf_head[1] = caf_mask[0] = caf_mask[1] = -1;
@@ -2294,6 +2303,10 @@ static INT_PTR CALLBACK upgrade_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
+    INT_PTR vk_handled;
+    if (vk_dialog_hook(window, message, wparam, lparam, &vk_handled)) {
+        return vk_handled;
+    }
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         int limited_capability = (lparam & STATE_LIMITED_CAPABILITY) != 0;

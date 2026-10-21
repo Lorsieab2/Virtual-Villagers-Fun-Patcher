@@ -55,12 +55,16 @@ DIALOG_SOURCES = {
     "vv1_origins_icons": ["vv1_origins_icons.rc"],
     "vv2_origins_icons": ["vv2_origins_icons.rc"],
     "vv4_origins_icons": ["vv4_origins_icons.rc"],
+    "vv3_full_mastery_candidate": ["vv3_full_mastery_candidate.rc"],   # VV3 Safe Upgrades
+    "vv5_task9_origins": ["vv5_task9_origins.rc"],                     # VV5 (and VV4 Expanded)
 }
 SHIPPED_DLLS = [
     ROOT / "assets" / "story_upgrades" / "VVFP Story Upgrades.dll",
     ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll",
     ROOT / "assets" / "origins" / "VVFP VV2 Origins Icons.dll",
     ROOT / "assets" / "origins" / "VVFP VV4 Origins Icons.dll",
+    ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll",
+    ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 ]
 FRAME = ("WS_THICKFRAME", "WS_MINIMIZEBOX", "WS_MAXIMIZEBOX")
 
@@ -115,8 +119,8 @@ class RealWindows(unittest.TestCase):
         self.assertNotIn("FAIL", out)
         total = re.search(r"dialogs (\d+), failures 0", out)
         self.assertIsNotNone(total, out)
-        # 11 Story Upgrades dialogs, and the three Origins Icons DLLs' own
-        self.assertGreaterEqual(int(total.group(1)), 11 + 3 * 4, out)
+        # 11 Story Upgrades dialogs, and the five Origins menus' own
+        self.assertGreaterEqual(int(total.group(1)), 11 + 3 * 4 + 2 * 4, out)
 
 
 def _cstr(proc, va):
