@@ -83,12 +83,13 @@ class NoGame:
         return []
 
 
-def make(folder: Path, game: int) -> Path:
+def make(folder: Path, game: int, unaccounted: str = UNACCOUNTED, history: str = HISTORY,
+         births: str = BIRTHS) -> Path:
     files = {
-        f"Unaccounted Villagers/Virtual Villagers {game} Unaccounted Villagers Log 1.txt": UNACCOUNTED,
-        "Tribe History/Village History 1.txt": HISTORY.replace("Virtual Villagers 2 --", f"Virtual Villagers {game} --"),
+        f"Unaccounted Villagers/Virtual Villagers {game} Unaccounted Villagers Log 1.txt": unaccounted,
+        "Tribe History/Village History 1.txt": history.replace("Virtual Villagers 2 --", f"Virtual Villagers {game} --"),
         f"Deaths and Disappearances/Virtual Villagers {game} Deaths Log 1.txt": DEATHS,
-        f"Births and Conceptions/Virtual Villagers {game} Births and Conceptions Log 1.txt": BIRTHS,
+        f"Births and Conceptions/Virtual Villagers {game} Births and Conceptions Log 1.txt": births,
     }
     for rel, text in files.items():
         path = folder / LOGS / rel
@@ -159,6 +160,56 @@ class FalseUnaccountedEveryGame(unittest.TestCase):
         notes = [f.text for f in contradictions._notes(folder, 2, 1)]
         self.assertIn("Dead One is Unaccounted (left the village) and has a Death record (false: Repair Saves & "
                       "Logs, Remove false Unaccounted records, takes it out)", notes)
+
+    def verdicts(self, game: int, **files) -> dict:
+        folder = Path(self.enterContext(tempfile.TemporaryDirectory(prefix="vvf")))
+        make(folder, game, **files)
+        return {v.block.heading: v for v in contradictions.false_unaccounted(folder, game, 1)}
+
+    def test_two_villagers_of_one_name_and_looks_are_never_paired_by_guess(self):
+        # Codex, #600: a real departure and a different real arrival of the same name, sex, looks and
+        # likes in one check (numbering off) are kept, never both called a move.
+        found = "2026-10-20 10:00:00"
+        log = (VILLAGE + "\n" + unacc(1, "Pair", "Left", 200, "Male", 8, 8, found=found)
+               + unacc(2, "Pair", "Arrived", 201, "Male", 8, 8, found=found)
+               + unacc(3, "Twin", "Left", 300, "Female", 9, 9, found=found)
+               + unacc(4, "Twin", "Arrived", 500, "Female", 9, 9, found=found))
+        history = ("=== Virtual Villagers 2 -- 2026-10-20 10:00:00 ===\n" + VILLAGE + "\n\n"
+                   + villager(1, "Pair", 201, "Male", 8, 8) + villager(2, "Twin", 500, "Female", 9, 9) + "\n")
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                v = self.verdicts(game, unaccounted=log, history=history)
+                self.assertTrue(v["Unaccounted 1"].false and v["Unaccounted 2"].false, "the move beyond doubt")
+                self.assertFalse(v["Unaccounted 3"].false, v["Unaccounted 3"].reason)
+                self.assertFalse(v["Unaccounted 4"].false, v["Unaccounted 4"].reason)
+                self.assertIn("can not be told", v["Unaccounted 3"].reason)
+
+    def test_a_birth_of_the_other_sex_or_two_that_fit_settle_nothing(self):
+        # Codex, #600: the Birth must be this villager's -- the same sex too -- and the only one that fits.
+        log = (VILLAGE + "\n" + unacc(1, "Born Here", "Arrived", 60, "Female", 5, 5)
+               + unacc(2, "Two Fit", "Arrived", 60, "Male", 6, 6))
+        birth = ("Birth {n}\n  Child: {name}\n    Sex: {sex}\n    Head: {h}\n    Body: {h}\n    Likes: (none)\n"
+                 "    Dislikes: (none)\n  Mother: Ma\n    Head: 9\n    Body: 9\n  Father: Pa\n    Head: 8\n"
+                 "    Body: 8\n\n")
+        births = (VILLAGE + "\n" + birth.format(n=1, name="Born Here", sex="Male", h=5)
+                  + birth.format(n=2, name="Two Fit", sex="Male", h=6) + birth.format(n=3, name="Two Fit", sex="Male", h=6))
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                v = self.verdicts(game, unaccounted=log, history="", births=births)
+                self.assertFalse(v["Unaccounted 1"].false, "a Birth of the other sex is not hers")
+                self.assertFalse(v["Unaccounted 2"].false, "two Births fit: neither is taken")
+                self.assertIn("2 Birth / Arrived records fit", v["Unaccounted 2"].reason)
+
+    def test_age_0_is_an_age(self):
+        # Codex, #600 (the owner: 0 is a valid age): a newborn "Left" at age 0, in the next snapshot at 0.
+        log = VILLAGE + "\n" + unacc(1, "Baby", "Left", 0, "Male", 0, 0)
+        history = ("=== Virtual Villagers 2 -- 2026-10-20 09:22:01 ===\n" + VILLAGE + "\n\n"
+                   + villager(1, "Baby", 0, "Male", 0, 0) + "\n")
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                v = self.verdicts(game, unaccounted=log, history=history)
+                self.assertTrue(v["Unaccounted 1"].false, v["Unaccounted 1"].reason)
+                self.assertIn("still in the village", v["Unaccounted 1"].reason)
 
     def test_a_renamed_villagers_backfilled_arrival_is_offered(self):
         for game in (1, 2, 3, 4, 5):

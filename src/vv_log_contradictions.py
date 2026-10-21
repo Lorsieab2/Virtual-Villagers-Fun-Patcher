@@ -391,6 +391,30 @@ def _int_or_none(v):
         return None
 
 
+def _child_sex(b) -> str | None:
+    """A Birth record's child's sex ("    Sex:" before the parents), or None."""
+    for line in b.lines:
+        if line.startswith("  Mother:") or line.startswith("  Father:"):
+            break
+        m = re.match(r"^    Sex: (\S+)", line)
+        if m:
+            return m.group(1)
+    return None
+
+
+def _record_fits(r, names: set, sex: str | None, head, body) -> bool:
+    """A Birth record's child, or an Arrived record's villager, is one of `names` with these looks, and
+    of this sex when both say."""
+    import vv_log_additions as additions
+    if additions.is_birth(r.heading):
+        key, their_sex = _child(r), _child_sex(r)
+    else:
+        key, their_sex = r.identity, r.value("Sex")
+    if not key or key[0] not in names or tuple(key[1:]) != (head, body):
+        return False
+    return not (sex and their_sex) or sex.strip().lower() == their_sex.strip().lower()
+
+
 def false_unaccounted(folder: Path, game: int, slot: int) -> list[UnaccountedVerdict]:
     """Every Unaccounted record of this slot's village, judged by identity (above).  Reads only."""
     import vv_log_additions as additions
@@ -454,77 +478,123 @@ def false_unaccounted(folder: Path, game: int, slot: int) -> list[UnaccountedVer
                 b.int_value("Age"), b.value("Found") or "", (b.value("What") or "").startswith("Left"))
 
     rows = [(b, *info(b)) for b in unacc]
-    # 1. One villager both "Left" and "Arrived" in one reconciliation: moved to another record.
-    for b, name, sex, head, body, age, found, left in rows:
-        if not left or id(b) in verdict or None in (head, body, age):
-            continue
-        for a, aname, asex, ahead, abody, aage, afound, aleft in rows:
-            if aleft or id(a) in verdict or afound != found or aage is None or aage < age:
+
+    def fits(lrow, arow, prefs: bool, step: int | None) -> bool:
+        """Arrived `arow` could be Left `lrow` moved to another record: one check, the same name (a rename
+        followed), sex and looks (and likes and dislikes with `prefs`), the age gone on (by `step`)."""
+        lb, name, sex, head, body, age, found, _l = lrow
+        ab, _an, _as, _ah, _abody, aage, afound, _al = arow
+        if afound != found or None in (age, aage, head, body) or aage < age or not same(ab, name, sex, head, body):
+            return False
+        if prefs and (ab.value("Likes"), ab.value("Dislikes")) != (lb.value("Likes"), lb.value("Dislikes")):
+            return False
+        return step is None or aage - age == step
+
+    lefts = [r for r in rows if r[7]]
+    arriveds = [r for r in rows if not r[7]]
+    # The time every moved villager aged between the two saves of a check: the step most of the pairs
+    # beyond doubt share (exactly one candidate on each side).
+    steps: dict[str, int] = {}
+    tally: dict[str, dict[int, int]] = {}
+    for lrow in lefts:
+        cands = [a for a in arriveds if fits(lrow, a, True, None)]
+        if len(cands) == 1 and len([x for x in lefts if fits(x, cands[0], True, None)]) == 1:
+            t = tally.setdefault(lrow[6], {})
+            t[cands[0][5] - lrow[5]] = t.get(cands[0][5] - lrow[5], 0) + 1
+    for found, t in tally.items():
+        steps[found] = max(t, key=lambda k: (t[k], -k))
+    # 1. One villager both "Left" and "Arrived" in one check: moved to another record -- only when the
+    # pairing is beyond doubt, exactly one candidate on each side (Codex, #600: two villagers of one name,
+    # sex, looks and likes are never paired by guess).
+    paired: set[int] = set()
+    for prefs in (True, False):
+        for lrow in lefts:
+            if id(lrow[0]) in paired:
                 continue
-            if same(a, name, sex, head, body) and (a.value("Likes"), a.value("Dislikes")) == (
-                    b.value("Likes"), b.value("Dislikes")):
-                why = f"the same villager \"Arrived\" in the same check ({a.heading}): moved to another record"
-                verdict[id(b)] = UnaccountedVerdict(b, True, True, why)
-                verdict[id(a)] = UnaccountedVerdict(a, False, True,
-                                                    f"the same villager \"Left\" in the same check ({b.heading}): "
-                                                    "moved to another record")
-                break
-    # ...the same, the likes or dislikes changed since: still the same name, sex and looks.
-    for b, name, sex, head, body, age, found, left in rows:
-        if not left or id(b) in verdict or None in (head, body, age):
-            continue
-        matches = [a for a, _n, _s, _h, _b, aage, afound, aleft in rows
-                   if not aleft and id(a) not in verdict and afound == found and aage is not None and aage >= age
-                   and same(a, name, sex, head, body)]
-        if len(matches) == 1:
-            a = matches[0]
+            step = steps.get(lrow[6])
+            cands = [a for a in arriveds if id(a[0]) not in paired and fits(lrow, a, prefs, step)]
+            if len(cands) != 1:
+                continue
+            back = [x for x in lefts if id(x[0]) not in paired and fits(x, cands[0], prefs, step)]
+            if len(back) != 1:
+                continue
+            b, a = lrow[0], cands[0][0]
+            paired |= {id(b), id(a)}
             verdict[id(b)] = UnaccountedVerdict(b, True, True, f"the same villager \"Arrived\" in the same check "
                                                                f"({a.heading}): moved to another record")
             verdict[id(a)] = UnaccountedVerdict(a, False, True, f"the same villager \"Left\" in the same check "
                                                                 f"({b.heading}): moved to another record")
+
+    def namesake_in_check(row) -> object | None:
+        """An unpaired record of the other kind in the same check with the same name, sex and looks: the
+        evidence below could be that villager's, so it settles nothing."""
+        b, name, sex, head, body, age, found, left = row
+        for other in (arriveds if left else lefts):
+            if id(other[0]) not in paired and other[6] == found and same(other[0], name, sex, head, body):
+                return other[0]
+        return None
+
     # 2. The rest, one by one.
-    for b, name, sex, head, body, age, found, left in rows:
+    for row in rows:
+        b, name, sex, head, body, age, found, left = row
         if id(b) in verdict:
             out.append(verdict[id(b)])
             continue
         if None in (head, body) or not name or age is None or not found:
             out.append(UnaccountedVerdict(b, left, False, "the record does not name the villager fully"))
             continue
+        twin = namesake_in_check(row)
         if left:
-            after = [d for d in dates if d >= found][:1]
-            here = take(v for d in after for v in snapshots[d]
-                        if same(v, name, sex, head, body) and (v.int_value("Age") or -1) >= age)
-            if here is not None:
-                out.append(UnaccountedVerdict(b, True, True, f"still in the village in the Village History "
-                                                             f"snapshot of {after[0]} ({here.heading}, age "
-                                                             f"{here.int_value('Age')})"))
-                continue
+            if twin is None:
+                after = [d for d in dates if d >= found][:1]
+                here = take(v for d in after for v in snapshots[d]
+                            if same(v, name, sex, head, body) and v.int_value("Age") is not None
+                            and v.int_value("Age") >= age)
+                if here is not None:
+                    out.append(UnaccountedVerdict(b, True, True, f"still in the village in the Village History "
+                                                                 f"snapshot of {after[0]} ({here.heading}, age "
+                                                                 f"{here.int_value('Age')})"))
+                    continue
             gone = take(d for d in deaths if same(d, name, sex, head, body)
                         and (d.int_value("Age at death") is None or d.int_value("Age at death") >= age))
             if gone is not None:
                 out.append(UnaccountedVerdict(b, True, True, f"has a {gone.heading.split(' ')[0]} record "
                                                              f"({gone.heading}, {gone.path.name})"))
                 continue
+            if twin is not None:
+                out.append(UnaccountedVerdict(b, True, False, f"{twin.heading} in the same check has the same name, "
+                                                              "sex and looks: which villager is which can not be told"))
+                continue
             out.append(UnaccountedVerdict(b, True, False, "nothing in the logs or the save says where they went"))
         else:
+            if twin is not None:
+                out.append(UnaccountedVerdict(b, False, False, f"{twin.heading} in the same check has the same name, "
+                                                               "sex and looks: which villager is which can not be told"))
+                continue
             before = [d for d in dates if d < found][-1:]
             here = take(v for d in before for v in snapshots[d]
-                        if same(v, name, sex, head, body) and (v.int_value("Age") or 0) <= age)
+                        if same(v, name, sex, head, body) and v.int_value("Age") is not None
+                        and v.int_value("Age") <= age)
             if here is not None:
                 out.append(UnaccountedVerdict(b, False, True, f"already in the village in the Village History "
                                                               f"snapshot of {before[0]} ({here.heading}, age "
                                                               f"{here.int_value('Age')})"))
                 continue
-            record = take(r for r in births_records
-                          if (_child(r) if additions.is_birth(r.heading) else r.identity)[0] in names_of(name, head, body)
-                          and (_child(r) if additions.is_birth(r.heading) else r.identity)[1:] == (head, body))
-            if record is not None:
-                out.append(UnaccountedVerdict(b, False, True, f"has a {record.heading} record "
-                                                              f"({record.path.name})"))
+            # A Birth or Arrived record of this villager: the same name (a rename followed), head, body and
+            # sex -- one record only; two that fit settle nothing (Codex, #600).
+            fitting = [r for r in births_records if id(r) not in used and _record_fits(r, names_of(name, head, body),
+                                                                                       sex, head, body)]
+            if len(fitting) == 1:
+                used.add(id(fitting[0]))
+                out.append(UnaccountedVerdict(b, False, True, f"has a {fitting[0].heading} record "
+                                                              f"({fitting[0].path.name})"))
+                continue
+            if len(fitting) > 1:
+                out.append(UnaccountedVerdict(b, False, False, f"{len(fitting)} Birth / Arrived records fit: which "
+                                                               "one is theirs can not be told"))
                 continue
             out.append(UnaccountedVerdict(b, False, False, "nothing in the logs says how they came"))
     return out
-
 
 def plan_false_unaccounted(folder: Path, game: int, slot: int):
     """Repair Saves & Logs' "Remove false Unaccounted records": every record false_unaccounted finds
