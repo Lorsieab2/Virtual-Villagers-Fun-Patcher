@@ -215,7 +215,11 @@ class CutNames(unittest.TestCase):
     def test_the_plan_renames_the_save_and_every_record_of_the_cut_name(self):
         work = cn.plan(self.folder, 3, 1)
         self.assertEqual(work.renames, {(CUT, 5, 6): FULL})
-        self.assertEqual({c.path for c in work.changes}, {self.save, self.history})
+        # ...and the rename is kept in the slot's Log Decisions file, so the answers and the reconciliation
+        # follow the villager (src/vv_last_names.py _plan_answers, v1.35.80).
+        import vv_log_decisions
+        self.assertEqual({c.path for c in work.changes},
+                         {self.save, self.history, vv_log_decisions.path(self.folder, 3, 1)})
 
     def test_restore_renames_the_save_and_the_logs_after_a_backup(self):
         result = cn.restore(self.folder, 3, 1, NoGame(), NOW)

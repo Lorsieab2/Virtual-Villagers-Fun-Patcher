@@ -268,6 +268,32 @@ first and listed in the Repairs log), and the go-ahead is then used up.
    asked: A New Home's parents are repaired as soon as the village has
    settled, everything else at the game's save when you close it.
 
+ANSWERED QUESTIONS
+
+Once you answer one of Repair Saves & Logs' questions, it is not asked
+again. Only "Don't know" is asked again next time. An answer is kept for the
+record or villager it is about, not for where the record is written, so it
+still holds after records are renumbered, after a log rolls into a new
+numbered file, after Move Files to Save Folders, and after the patcher
+renames the villager (last names, numbering).
+
+To see or change your answers: in Repair Saves & Logs, click "Answered
+questions (N)...". Each answer is listed with its date, and whether a
+question asked now is that one.
+- Change it to: pick another answer. If the question is still found, it is
+  asked again in this Repair with your new answer chosen, and applied like a
+  first answer.
+- Clear (ask again): the answer is taken out and the question is asked again.
+Nothing changes until you click Repair. The save folder is backed up first,
+and the Repairs Made log lists every answer kept, changed or cleared. An
+answer that no longer matches any question (it was carried out, or its
+records changed) is still listed. It is never dropped.
+
+A rename the patcher makes (last names, numbering, a cut name restored, a
+name given back) is never a question in Check Saves & Logs. The game's
+older copies of the save still have the old name, and the patcher follows
+the villager to the new name.
+
 LAST NAMES: EACH VILLAGER'S OWN RULE
 
 In Repair Saves & Logs, "Give villagers last names" > Choose... > "Each

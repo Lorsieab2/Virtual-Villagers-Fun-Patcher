@@ -495,8 +495,15 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
         lasts = ln.read_record(folder, game, slot)[1]
     except (OSError, ValueError, ln.LastNamesError):
         pass
-    kept = {(d.get("name"), d.get("head"), d.get("body"), d.get("verdict"))
-            for d in vv_log_decisions.load(folder, game, slot) if d.get("kind") == DECISION_KIND}
+    found = vv_log_decisions.load(folder, game, slot)
+    # A decision follows its villager through the patcher's renames (vv_log_decisions.aliases).
+    renamed = vv_log_decisions.aliases(found)
+    kept = set()
+    for d in found:
+        if d.get("kind") == DECISION_KIND:
+            who = (d.get("name"), d.get("head"), d.get("body"))
+            for name, head, body in {who, vv_log_decisions.forward(who, renamed)}:
+                kept.add((name, head, body, d.get("verdict")))
     seen: dict[str, set] = {"head": set(), "body": set()}
     for g in graves:
         for key in seen:

@@ -16,6 +16,7 @@ from tkinter import filedialog, messagebox, ttk
 
 from transparency import PATCHER_VERSION
 import patcher_files
+import vv_answered_questions
 import vv_how_to_use
 import vv_log_tools
 import vv_log_additions
@@ -4002,9 +4003,12 @@ class App(tk.Tk):
         except (vv_log_tools.LogToolError, OSError) as exc:
             messagebox.showerror("Repair Saves & Logs", f"The logs could not be checked ({exc}).", parent=parent)
             return
+        # Answers changed or cleared in the checklist's Answered questions (src/vv_answered_questions.py):
+        # kept when Repair runs, after the backup, and listed in the Repairs Made log.
+        answered_state: dict = {"changed": {}, "cleared": set()}
         picked = self._repair_checklist(parent, folder, number, info, found, old_words, kinds, cuts, cut_notes,
                                         unpaused, speed, misnumbered, graves, skills=skills, history=history,
-                                        totems=totems, numbers=numbers)
+                                        totems=totems, numbers=numbers, answered_state=answered_state)
         if picked is None:
             return
         rearm, chosen, answers, names, numbering, restore_cuts, to_pause, speed_choice, grave_fixes = picked
@@ -4012,7 +4016,8 @@ class App(tk.Tk):
             result = self._run_with_wait(
                 "Repairing the logs…\n\nThe save folder is backed up first.",
                 lambda: vv_log_tools.approve_repair(folder, number, info.slot, chosen=chosen,
-                                                    answers=answers, kinds=kinds, rearm=rearm),
+                                                    answers=answers, kinds=kinds, rearm=rearm,
+                                                    answered_changes=answered_state),
             )
         except (vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
             # Markers may already be cleared when a later step fails; the
@@ -4226,6 +4231,9 @@ class App(tk.Tk):
         if getattr(result, "answered", None):
             lines.append(f"The reconciliation's questions you answered: {len(result.answered)} (remembered, and "
                          "listed in the Repairs log).")
+        if getattr(result, "kept_answers", None):
+            lines.append(f"Answers kept, changed or cleared: {len(result.kept_answers)} (an answer is not asked again; "
+                         "see Answered questions in Repair Saves & Logs; listed in the Repairs log).")
         for (old, head, body), new in getattr(result, "renamed", {}).items():
             lines.append(f"{old} (head {head}, body {body}) has the name {new} back, in the save, the logs and the "
                          "patcher's files.")
@@ -4447,7 +4455,7 @@ class App(tk.Tk):
                           kinds: list, cuts: list = (), cut_notes: list = (), unpaused: list = (),
                           speed: tuple | None = None, misnumbered: dict | None = None, graves=None,
                           skills: dict | None = None, history: dict | None = None, totems: dict | None = None,
-                          numbers: dict | None = None):
+                          numbers: dict | None = None, answered_state: dict | None = None):
         """The Repair Saves & Logs checklist (the owner, 2026-10-06): what to repair and add, each
         ticked or not, and the questions the save and the files cannot answer.  `cuts`: the names
         the Villager Details screen cut short (vv_cut_names.find_cut) -- restoring them is ticked by
@@ -4478,6 +4486,10 @@ class App(tk.Tk):
         for kind in kinds:
             for key, question in kind.questions.items():
                 answers[key] = question.default
+            # Answered before (src/vv_answered_questions.py): not asked; the kept answer is applied.
+            if kind.id != "reconcile":
+                for key, (_question, kept) in getattr(kind, "remembered", {}).items():
+                    answers[key] = str(kept.get("applied", kept.get("verdict")))
             if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None):
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
@@ -4749,12 +4761,34 @@ class App(tk.Tk):
         if speed is None:
             speed_box.state(["disabled"])
         questions = [(kind, q) for kind in kinds for q in kind.questions.values()]
+        questions_row = ttk.Frame(frame)
+        questions_row.pack(anchor="w", pady=(8, 0))
+        questions_button = ttk.Button(questions_row, text=f"Answer the {len(questions)} question(s)…",
+                                      command=lambda: self._repair_questions(window, questions, answers))
         if questions:
-            ttk.Button(frame, text=f"Answer the {len(questions)} question(s)…",
-                       command=lambda: self._repair_questions(window, questions, answers)
-                       ).pack(anchor="w", pady=(8, 0))
-            ttk.Label(frame, text="A question you leave at \"Don't know\" or \"Only from now on\" adds nothing.",
-                      foreground="#555555").pack(anchor="w")
+            questions_button.pack(side="left")
+        # Answered questions (the owner, v1.35.80: "once I answer a question it shouldn't be asked again
+        # (goes to an answered questions section where I can change the answer)").
+        answered_state = answered_state if answered_state is not None else {"changed": {}, "cleared": set()}
+        kept_count = vv_answered_questions.count(folder, number, info.slot)
+        held = sum(len(getattr(k, "remembered", {})) for k in kinds)
+
+        def answered_changed() -> None:
+            questions_button.configure(text=f"Answer the {len(questions)} question(s)…")
+            if questions and not questions_button.winfo_ismapped():
+                questions_button.pack(side="left", before=answered_button)
+
+        answered_button = ttk.Button(
+            questions_row, text=f"Answered questions ({kept_count})…",
+            command=lambda: self._answered_questions_dialog(window, folder, number, info, kinds, answers, questions,
+                                                            answered_state, answered_changed))
+        answered_button.pack(side="left", padx=(8, 0) if questions else (0, 0))
+        if not kept_count:
+            answered_button.state(["disabled"])
+        ttk.Label(frame, text="A question you leave at \"Don't know\" changes nothing and is asked again; any other "
+                              f"answer is kept and not asked again ({held} answered before, not asked now). Answered "
+                              "questions lists them: change an answer or clear it there.",
+                  foreground="#555555", wraplength=600, justify="left").pack(anchor="w")
         outcome: dict = {}
         buttons = ttk.Frame(frame)
         buttons.pack(anchor="w", pady=(12, 0))
@@ -5521,6 +5555,137 @@ class App(tk.Tk):
         parent.wait_window(window)
         _regrab(parent)
 
+    # ANSWERED QUESTIONS (the owner, v1.35.80: "once I answer a question it shouldn't be asked again (goes to
+    # an answered questions section where I can change the answer)"; src/vv_answered_questions.py).
+    ANSWERED_PAGE = 40          # rows per page: the window stays far below Windows' 32,767 px limit
+    ASKED_AGAIN = "Don't know (asked again)"
+
+    def _answered_questions_dialog(self, parent, folder: Path, number: int, info, kinds: list, answers: dict,
+                                   questions: list, state: dict, on_change=None) -> None:
+        """Every answer kept for this save's village, with its date and whether a question asked now is
+        that one.  Change an answer, or clear it (asked again).  Nothing is written here: Repair keeps the
+        changes, after the backup, and lists them in the Repairs Made log.  A question answered before and
+        still found is asked again in this Repair -- back among "Answer the questions", with the new answer
+        chosen (cleared: "Don't know") -- so a changed answer is applied as a first answer is."""
+        try:
+            rows = self._run_with_wait("Reading your answered questions…\n\nNothing is changed.",
+                                       lambda: vv_answered_questions.listing(folder, number, info.slot, kinds))
+        except (OSError, ValueError, vv_log_tools.LogToolError) as exc:
+            messagebox.showerror("Answered questions", f"Your answers could not be read ({exc}).", parent=parent)
+            return
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: answered questions")
+        window.transient(parent)
+        frame = scrollable_frame(window, padding=12)
+        ttk.Label(frame, wraplength=700, justify="left", text=(
+            f"{info.name} (Save {info.slot}): every question you answered, with your answer. An answer is never "
+            "asked again; only \"Don't know\" is. Change an answer, or tick Clear to be asked again. Nothing "
+            "changes until you press Repair: the save folder is backed up first, a question still found is asked "
+            "again with your new answer chosen (and applied as a first answer is), and the Repairs Made log lists "
+            "every change.")).pack(anchor="w")
+        if not rows:
+            ttk.Label(frame, text="No answer is kept for this village yet.", foreground="#555555").pack(
+                anchor="w", pady=(8, 0))
+        nav = ttk.Frame(frame)
+        nav.pack(anchor="w", pady=(8, 0))
+        body = ttk.Frame(frame)
+        body.pack(anchor="w", fill="x")
+        asked_again = state.setdefault("asked_again", set())
+        choices = {r.ident: tk.StringVar(value=state["changed"].get(r.ident, r.answer)) for r in rows}
+        clears = {r.ident: tk.BooleanVar(value=r.ident in state["cleared"]) for r in rows}
+        page = {"n": 0}
+        pages = max(1, (len(rows) + self.ANSWERED_PAGE - 1) // self.ANSWERED_PAGE)
+        page_label = ttk.Label(nav)
+        previous = ttk.Button(nav, text="Previous", command=lambda: turn(-1))
+        following = ttk.Button(nav, text="Next", command=lambda: turn(1))
+        if pages > 1:
+            previous.pack(side="left")
+            following.pack(side="left", padx=(6, 0))
+            page_label.pack(side="left", padx=(8, 0))
+
+        def show() -> None:
+            for widget in body.winfo_children():
+                widget.destroy()
+            start = page["n"] * self.ANSWERED_PAGE
+            for row in rows[start:start + self.ANSWERED_PAGE]:
+                ttk.Label(body, text=f"{row.group}: {row.text}", wraplength=700, justify="left").pack(
+                    anchor="w", pady=(10, 0))
+                status = ("Asked again in this Repair (Answer the questions)." if row.ident in asked_again
+                          else row.status)
+                ttk.Label(body, text=f"Your answer: {row.answer} (answered {row.date or 'before v1.35.80'}). {status}",
+                          wraplength=700, justify="left", foreground="#555555").pack(anchor="w")
+                line = ttk.Frame(body)
+                line.pack(anchor="w")
+                if row.options:
+                    ttk.Label(line, text="Change it to:").pack(side="left")
+                    ttk.Combobox(line, textvariable=choices[row.ident], values=row.options, state="readonly",
+                                 width=56).pack(side="left", padx=(6, 0))
+                ttk.Checkbutton(line, variable=clears[row.ident], text="Clear (ask again)").pack(
+                    side="left", padx=(8, 0))
+            page_label.configure(text=f"Page {page['n'] + 1} of {pages} ({len(rows)} answer(s))")
+            previous.state(["disabled"] if page["n"] == 0 else ["!disabled"])
+            following.state(["disabled"] if page["n"] >= pages - 1 else ["!disabled"])
+
+        def turn(step: int) -> None:
+            page["n"] = min(max(0, page["n"] + step), pages - 1)
+            show()
+
+        def keep() -> None:
+            for row in rows:
+                cleared, new = clears[row.ident].get(), choices[row.ident].get()
+                state["changed"].pop(row.ident, None)
+                state["cleared"].discard(row.ident)
+                if row.live is not None and (cleared or new != row.answer):
+                    kind, key, question = row.live
+                    # Asked again in this Repair, the new answer chosen: kept and applied as a first answer.
+                    kind.questions[key] = question
+                    kind.remembered.pop(key, None)
+                    answers[key] = self.ASKED_AGAIN if cleared else new
+                    if not any(q is question for _k, q in questions):
+                        questions.append((kind, question))
+                    asked_again.add(row.ident)
+                    if cleared:
+                        state["cleared"].add(row.ident)
+                elif cleared:
+                    state["cleared"].add(row.ident)
+                elif row.options and new != row.answer:
+                    state["changed"][row.ident] = new
+            if on_change is not None:
+                on_change()
+            window.destroy()
+
+        show()
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(12, 0))
+        ttk.Button(buttons, text="Keep these changes", command=keep).pack(side="left")
+        ttk.Button(buttons, text="Cancel", command=window.destroy).pack(side="left", padx=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+
+    @staticmethod
+    def _totem_fact(t) -> str:
+        """A totem by what it is (vv_vv2_totems.Totem), never by its record number."""
+        return f"totem {t.name}|{t.sex}|{t.head}|{t.body}|{t.lineage}|{t.father}|{t.mother}"
+
+    def _ask_kept(self, parent, folder: Path, number: int, slot: int, source: str, label: str, fact: str,
+                  who: tuple, text: str) -> bool:
+        """A yes / no question of Repair Saves & Logs asked once (src/vv_answered_questions.py): the kept
+        answer when there is one, else the player's, kept (Answered questions lists it, to change or clear)."""
+        try:
+            kept = vv_answered_questions.asked_before(folder, number, slot, source, fact, who)
+        except (OSError, ValueError):
+            kept = None
+        if kept is not None:
+            return kept == vv_answered_questions.YES
+        answer = messagebox.askyesno("Repair Saves & Logs", text, parent=parent)
+        try:
+            vv_answered_questions.keep_yes_no(folder, number, slot, source, label, fact, who, text, answer)
+        except OSError:
+            pass                            # not kept: asked again next time
+        return answer
+
     # FIX GRAVE INFORMATION (the owner, 2026-10-10: "add an option in Repair logs/saves to fix grave
     # information too: Name, age, etc." and "account for mod-added stuff too"; src/vv_graves.py).
     def _graves_dialog(self, parent, number: int, surveyed, state: dict, tick) -> None:
@@ -5757,8 +5922,12 @@ class App(tk.Tk):
                 messagebox.showerror("Repair Saves & Logs", f"The totem villagers were not checked. {exc}", parent=parent)
                 found = None
             if found is not None and found.villagers:
+                # Asked once each (src/vv_answered_questions.py): by the record's own name, looks and family,
+                # never its record number (which moves).
                 confirmed = {v.key for v in found.asked_villagers
-                             if messagebox.askyesno("Repair Saves & Logs", v.question(), parent=parent)}
+                             if self._ask_kept(parent, folder, number, info.slot, "totem_villagers",
+                                               vv_vv2_totems.LABEL_FIX, self._totem_fact(v.totem),
+                                               ((v.totem.name, v.totem.head, v.totem.body),), v.question())}
                 chosen = found.certain_villagers + [v for v in found.asked_villagers if v.key in confirmed]
                 if chosen and messagebox.askyesno(
                         "Repair Saves & Logs",
@@ -5784,8 +5953,10 @@ class App(tk.Tk):
                 messagebox.showerror("Repair Saves & Logs", f"The elders' totems were not checked. {exc}", parent=parent)
                 return lines
             # One to one: a statue accepted for one elder is not asked about for any other.
-            kept = vv_vv2_totems.ask(found, lambda q: messagebox.askyesno("Repair Saves & Logs", q.question(),
-                                                                          parent=parent))
+            kept = vv_vv2_totems.ask(found, lambda q: self._ask_kept(
+                parent, folder, number, info.slot, "totem_elders", vv_vv2_totems.LABEL_GIVE,
+                f"sex {q.elder.sex}|{self._totem_fact(q.totem)}", ((q.elder.name, q.elder.head, q.elder.body),),
+                q.question()))
             go, left = vv_vv2_totems.plan_give(found, kept)
             if not go and not left:
                 return lines + [f"{vv_vv2_totems.LABEL_GIVE}: every Esteemed Elder has a totem."]
@@ -5919,7 +6090,12 @@ class App(tk.Tk):
         for question in lost.questions:
             if question.loss in answered:
                 continue                    # the player already said who it was
-            if messagebox.askyesno("Repair Saves & Logs", question.question, parent=parent):
+            # Asked once (src/vv_answered_questions.py): by the loss and the villager, never their place in
+            # the save (the key's offset moves whenever the records are packed).
+            v = question.villager
+            if self._ask_kept(parent, folder, number, info.slot, "lost_titles", "Lost titles",
+                              f"{question.kind}|{question.loss}|{question.title}", ((v.name, v.head, v.body),),
+                              question.question):
                 chosen.add(question.key)
                 answered.add(question.loss)
         if not chosen:
