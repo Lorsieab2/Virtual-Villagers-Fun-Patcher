@@ -98,6 +98,10 @@ CHECKS += 3
 CHECKS += 3 * 5
 # + 1 in New Believers (Codex, #601): 70 changes while the Former Heathens file is held, none dropped
 CHECKS += 1
+# + 4 per game (v1.35.80 update): a change of looks AND likes together (a new chief's robe) is no Left and no
+# Arrived, and a villager whose looks changed before they were buried is accounted for by their Death record
+# (arrival_harness.c identity_cases f and g; cod_roster.inc roster_match, roster_gone_accounts_changed)
+CHECKS += 4 * 5
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

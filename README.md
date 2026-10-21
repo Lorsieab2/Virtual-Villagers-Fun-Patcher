@@ -24,6 +24,14 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 ## What's new in v1.35.80
 
+- **A villager stays the same villager when their looks or title change** (all five games). A new head, body or mask, or a new title or special villager status (a Tribal Chief, an Esteemed Elder, a Golden Child, a Heathen converted), never means a villager left. In The Secret City the game gives a new Tribal Chief the chief's robe, a new body, and the Family Tree Maker showed the chief as *(left the village)* and again with a numeral. Now:
+  - The Family Tree Maker, the Village Matchmaker and numbering follow a villager by what does not change: the name, the sex, the parents, the age, the likes, and an unbroken Village History. The looks only break ties.
+  - When the records cannot settle whether an older record and a villager now are one villager, the Family Tree Maker asks, in one window beside the tree: **Same**, **Different** or **Don't know**, with both villagers' faces, looks, ages, dates and parents. Your answer is kept in Repair Saves & Logs' **Answered questions**, where you can change it. Don't know asks again next time.
+  - Check Saves & Logs notes a change of looks; it no longer asks "Is this the same villager?".
+  - The game no longer writes "Left the village" and "Arrived" Unaccounted records when a villager's looks and likes change at the same moment (the chief's robe), or when a villager's looks change and they die before the next save.
+  - Repair Saves & Logs can add the missing "Appearance changed" record, with **Becoming the Tribal Chief (the chief's robe)** offered in The Secret City.
+  - **Take off numbers given because a villager's looks or title changed** (Repair Saves & Logs). Each villager is listed with the evidence and asked about. When you say yes, the number comes off in the save and the logs, after a backup, and the change goes in the Repairs Made log. A villager with a genuine namesake keeps their number.
+
 - **An answered question is never asked again** (Repair Saves & Logs, all five games). Every answer except "Don't know" is kept for the record or villager it is about, not for the line or file it is written in. It still holds after records are renumbered, after a log rolls into a new numbered file, after Move Files to Save Folders, after the game saves again, and after the patcher renames the villager. Before, "Only from now on", "Keep it" and "Keep both" were asked again at every Repair, and many questions came back whenever their record moved.
   - **Answered questions (N)...** in Repair Saves & Logs lists every answer of the save with its date. Change an answer (applied as a first answer is, when you click Repair: backup first, listed in the Repairs Made log) or clear it (asked again). An answer that no longer matches a question is listed too, never dropped.
   - Answers kept by earlier versions keep working, and are moved to the new form at the next Repair.

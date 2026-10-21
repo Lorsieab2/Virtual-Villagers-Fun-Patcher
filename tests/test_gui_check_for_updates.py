@@ -181,19 +181,22 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_corrupt_skills",
                               "vv_reconcile",          # the read-only reconciliation (2026-10-11)
                               "vv_answered_questions",  # a real answer is never asked again (v1.35.80)
+                              "vv_number_names",       # numbers a looks change gave, taken off (v1.35.80 update)
                               # PATCHER_VERSION: the repair copies are named for the running build.
                               "transparency"}),
             # The player's "Retroactively edit records?" No answers (vv_log_decisions).
             # ...and the save slot's own log folders (vv_save_layout).
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
                                   "vv_log_contradictions", "vv_save_layout", "vv_reconcile",
-                                  "vv_answered_questions"}),   # answered questions held back (v1.35.80)
+                                  "vv_answered_questions",     # answered questions held back (v1.35.80)
+                                  "vv_number_names"}),         # numbers a looks change gave (v1.35.80 update)
             # The always-on read-only reconciliation of records, logs and files (the owner, 2026-10-11), and
             # the pickers' background run of it.
             ("vv_reconcile", {"vv_save_layout", "vv_log_tools", "vv_last_names", "vv_lost_titles",
                               "vv_log_additions", "vv_genealogy", "vv_tribe_rename", "vv_log_decisions",
                               "vv1_parents_restore", "vv_titles_file",
-                              "vv_save_backup"}),      # a backup first, when an answer settles a custom title (v1.35.71)
+                              "vv_save_backup",        # a backup first, when an answer settles a custom title (v1.35.71)
+                              "vv_answered_questions"}),   # the tree's "the same villager?" answers (v1.35.80 update)
             ("vv_reconcile_view", {"vv_reconcile"}),
             ("vv_log_decisions", {"vv_save_layout"}),
             # Answered questions (the owner, v1.35.80): kept in the Log Decisions file; the village header
@@ -224,7 +227,9 @@ class ReleasesLinkTests(unittest.TestCase):
                               # function-level import, as vv_reconcile imports vv_genealogy.
                               "vv_reconcile",
                               # A New Home's parents file's departed list, read as Restore reads it (v1.35.79).
-                              "vv1_parents_restore"}),
+                              "vv1_parents_restore",
+                              # "The same villager?" answers kept in Answered questions (v1.35.80 update).
+                              "vv_answered_questions"}),
             # Restoring cut names renames through Last Names; likes compare as vv_log_tools says (v1.35.68).
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions", "vv_log_tools"}),
             # Fix grave information: the graves' fingerprints and writes through Last Names.
@@ -263,7 +268,8 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_genealogy_window", {"vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy", "vv_save_backup",
                                      "vv_tribe_rename", "vv_tree_editor_tools", "vv_last_names", "vv_log_tools",
                                      "vv_number_names", "vv_villager_info", "vv_reconcile_view",
-                                     "vv_history_revision"}),     # Hide villagers not in the current save (v1.35.73)
+                                     "vv_history_revision",      # Hide villagers not in the current save (v1.35.73)
+                                     "vv_answered_questions"}),  # "the same villager?" asked in the tree (v1.35.80 update)
             # Remove a restarted tribe's villagers from the history (the owner, v1.35.73).
             ("vv_history_revision", {"vv_log_tools", "vv_log_additions", "vv_reconcile", "vv_save_backup"}),
             # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).

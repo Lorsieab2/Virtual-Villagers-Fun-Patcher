@@ -1357,6 +1357,36 @@ static void identity_cases(void) {
     CHECK(i < 40 && unacc_count(UNACC_LEFT) == 2 && unacc_count(UNACC_ARRIVED) == 2
           && (unacc_count(""), strstr(text, "  Name: Omar\r\n") != NULL) && strstr(text, "  Name: Bao\r\n") != NULL,
           "identity: somebody else of the same sex in a villager's record: Left for him, Arrived for the other");
+
+    /* f. A CHANGE OF LOOKS OR TITLE NEVER MEANS A VILLAGER LEFT (the owner, v1.35.80 update).  The Secret
+       City's new Tribal Chief: the robe's body and a dislike dropped in the same moment -- here the head too
+       (an island event), so neither the looks nor the likes still hold: the same villager, no Left, no
+       Arrived. */
+    left = unacc_count(UNACC_LEFT);
+    arrived_n = unacc_count(UNACC_ARRIVED);
+    i = unacc_find("Cira");
+    CHECK(rec(i)[g->active] && strcmp((char *)rec(i) + g->name, "Cira") == 0, "identity: Cira is in the village");
+    *(int *)(rec(i) + g->body) = 29;
+    *(int *)(rec(i) + g->head) = 21;
+    *(int *)(rec(i) + g->dislikes) = 7;
+    unacc_age_all(20);
+    save_done(1, buffer);
+    CHECK(unacc_count(UNACC_LEFT) == left && unacc_count(UNACC_ARRIVED) == arrived_n,
+          "identity: looks AND likes changed together (a new chief's robe): no Left, no Arrived");
+
+    /* g. Her looks changed, then she was buried before the next save: her Death record, with the new looks,
+       accounts for her -- never "Left the village" beside it. */
+    for (i = 39; i >= 0 && !(rec(i)[g->active] && strcmp((char *)rec(i) + g->name, "Cira") != 0
+                             && strcmp((char *)rec(i) + g->name, "Totem") != 0); --i) {
+    }
+    CHECK(i >= 0, "identity: another villager is in the village");
+    *(int *)(rec(i) + g->body) = 29;
+    departed(i);
+    rec(i)[g->active] = 0;
+    unacc_age_all(20);
+    save_done(1, buffer);
+    CHECK(unacc_count(UNACC_LEFT) == left && unacc_count(UNACC_ARRIVED) == arrived_n,
+          "identity: looks changed, then buried: her Death record accounts for her (no Left)");
     for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
     free(buffer);
     reset(game, 1);

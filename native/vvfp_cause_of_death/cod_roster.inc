@@ -55,7 +55,15 @@
         villager on each side is such (an island event changed the head);
      4. the sex, head, body, likes and dislikes, aged on -- only when
         exactly one on each side is such (a rename: Last Names, Rename);
-     5. everything but the age, exactly one on each side (rejuvenated).
+     5. everything but the age, exactly one on each side (rejuvenated);
+     6. the name and sex, aged on by the elapsed time, then by any step forward
+        -- exactly one on each side, never a villager the game just made:
+        looks AND likes changed together (The Secret City's new Tribal Chief:
+        the robe's body and a dislike dropped; the owner, v1.35.80 update: a
+        change of looks or title never means a villager left).
+   A kept villager in the village as nobody whose looks changed before they
+   went is accounted for by a departure of their name and sex, one to one
+   (roster_gone_accounts_changed).
    First, a departure the game reported since -- the departing villager's
    own name, sex, head and body, kept at the departure (roster_departed),
    at an age at least the kept one -- accounts for the kept villager it
@@ -541,6 +549,9 @@ static void roster_match_pass(const unsigned char *const *kept, int nk, unsigned
             if (!id_same(kept[k], now, what) || !id_age_ok(kept_age, rec_age(now), mode, elapsed)) {
                 continue;
             }
+            if (!(what & (ID_LOOKS | ID_PREFS)) && live_reported[l]) {
+                continue;             /* by name and sex alone: never a villager the game just made */
+            }
             ++count;
             cost = rec_age(now) - kept_age - (elapsed >= 0 ? elapsed : 0);
             cost = cost < 0 ? -cost : cost;
@@ -568,6 +579,20 @@ static void roster_match_pass(const unsigned char *const *kept, int nk, unsigned
             }
             if (others != 0) {
                 continue;
+            }
+            if (!(what & (ID_LOOKS | ID_PREFS))) {
+                /* By name and sex alone: only when no villager now unmatched has the kept one's own
+                   looks -- a namesake who looks as they did is never passed over for one who does not. */
+                int l2, alike = 0;
+                for (l2 = 0; l2 < nl; ++l2) {
+                    if (lm[l2] < 0 && l2 != best
+                        && id_same(kept[k], records + (size_t)live[l2] * r->stride, ID_SEX | ID_LOOKS)) {
+                        ++alike;
+                    }
+                }
+                if (alike != 0) {
+                    continue;
+                }
             }
         }
         km[k] = best;
@@ -633,6 +658,15 @@ static int roster_match(const unsigned char *const *kept, int nk, unsigned char 
     roster_match_pass(kept, nk, records, live, nl, km, lm, ID_NAME | ID_SEX | ID_PREFS, AGE_ON, 1, elapsed);
     roster_match_pass(kept, nk, records, live, nl, km, lm, ID_SEX | ID_LOOKS | ID_PREFS, AGE_ON, 1, elapsed);
     roster_match_pass(kept, nk, records, live, nl, km, lm, ID_FULL, AGE_ANY, 1, elapsed);
+    /* IDENTITY SURVIVES A CHANGE OF LOOKS OR TITLE (the owner, v1.35.80 update: "A change in body, head and
+       mask does not mean they disappeared.  A change in title or special villager status does not mean
+       they disappeared.").  The Secret City's new Tribal Chief takes the chief's robe (a new body) and
+       loses a dislike of dancing in the same moment, so neither pass 2 (the looks) nor pass 3 (the
+       likes) holds for them: the name and sex, aged on by exactly the time every villager aged, then by
+       any step forward -- one on each side, never a villager the game just made, and never when a
+       villager now unmatched still has the kept one's own looks. */
+    roster_match_pass(kept, nk, records, live, nl, km, lm, ID_NAME | ID_SEX, AGE_ELAPSED, 1, elapsed);
+    roster_match_pass(kept, nk, records, live, nl, km, lm, ID_NAME | ID_SEX, AGE_ON, 1, elapsed);
     for (k = 0; k < nk; ++k) {
         matched += km[k] >= 0;
     }
@@ -669,6 +703,53 @@ static int roster_gone_accounts(const unsigned char *kept, int slot) {
         }
     }
     return 0;
+}
+
+/* The same name to the terminator: a departure's kept name against a kept villager's. */
+static int gone_same_name(int i, const unsigned char *kept) {
+    const struct game_records *r = &REC[g_game];
+    const unsigned char *name = id_field(kept, 1, r->name);
+    unsigned int n;
+    for (n = 0; n < GONE_NAME && n < r->name_capacity; ++n) {
+        if ((unsigned char)gone[i].name[n] != name[n]) {
+            return 0;
+        }
+        if (name[n] == 0) {
+            break;
+        }
+    }
+    return 1;
+}
+
+/* A kept villager no exact departure accounted for (roster_gone_accounts, run first for everyone): a
+   departure reported since of the same NAME and SEX, at an age at least the kept one, accounts for them
+   though the looks differ -- their looks changed between the save and the departure (the owner, v1.35.80
+   update: a change of looks or title never means a villager left).  Only one to one: exactly one such
+   departure is left unspent, and no other kept villager still unaccounted has that name and sex. */
+static int roster_gone_accounts_changed(const unsigned char *const *kept, int nk, const int *km, int k, int slot) {
+    const struct game_records *r = &REC[g_game];
+    int i, found = -1, j;
+    for (i = 0; i < RECORDS_MAX; ++i) {
+        if (gone[i].tag == REPORT_NONE || !report_counts(gone[i].tag, slot) || gone_spent[i]
+            || gone[i].age < id_int(kept[k], 1, r->age) || gone[i].sex != id_int(kept[k], 1, r->sex)
+            || !gone_same_name(i, kept[k])) {
+            continue;
+        }
+        if (found >= 0) {
+            return 0;                 /* two departures could be theirs */
+        }
+        found = i;
+    }
+    if (found < 0) {
+        return 0;
+    }
+    for (j = 0; j < nk; ++j) {
+        if (j != k && km[j] == -1 && id_int(kept[j], 1, r->sex) == gone[found].sex && gone_same_name(found, kept[j])) {
+            return 0;                 /* a namesake of the same sex could be the one who went */
+        }
+    }
+    gone_spent[found] = 1;
+    return 1;
 }
 
 /* Whether `record`, in the village now and matched to nobody kept, is a villager whose reported
@@ -783,6 +864,14 @@ static void roster_reconcile(int slot) {
             kept_match[i] = roster_gone_accounts(kept[i], slot) ? -2 : -1;
         }
         matched = roster_match(kept, (int)n, records, live, live_count, kept_match, live_match);
+        /* ...and, for a kept villager in the village now as nobody, a departure left over of their name
+           and sex (the looks changed between the save and the departure: a new chief's robe, an island
+           event): roster_gone_accounts_changed. */
+        for (i = 0; i < n; ++i) {
+            if (kept_match[i] == -1 && roster_gone_accounts_changed(kept, (int)n, kept_match, (int)i, slot)) {
+                kept_match[i] = -2;
+            }
+        }
         for (i = 0; i < r->slots; ++i) {
             if (report_counts(departed[i], slot) || report_counts(arrived[i], slot)) {
                 ++reported;

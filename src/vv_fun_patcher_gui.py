@@ -4531,13 +4531,18 @@ class App(tk.Tk):
             if kind.id != "reconcile":
                 for key, (_question, kept) in getattr(kind, "remembered", {}).items():
                     answers[key] = str(kept.get("applied", kept.get("verdict")))
-            if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None):
+            # Numbers a looks or title change gave (src/vv_number_names.py): asked villager by villager, each
+            # left as it is unless the player answers "Take the number off".
+            unnumber = kind.id == vv_number_names.UNNUMBER_KIND and bool(kind.questions)
+            if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None) \
+                    and not unnumber:
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
                               justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
                 continue
             ticks[kind.id] = tk.BooleanVar(value=True)
-            text = (f"Put right {kind.label[0].lower() + kind.label[1:]}: "
+            text = (f"Take off {kind.label[0].lower() + kind.label[1:]}: {len(kind.questions)} found" if unnumber
+                    else f"Put right {kind.label[0].lower() + kind.label[1:]}: "
                     f"{len(kind.removes) + len(kind.replaces)} found" if kind.id == "contradictions"
                     else f"Remove {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
                     if getattr(kind, "removes", None) else f"Add {kind.label.lower()}: {kind.decided} decided")
