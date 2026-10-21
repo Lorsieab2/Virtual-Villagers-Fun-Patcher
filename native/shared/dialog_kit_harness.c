@@ -27,6 +27,9 @@
 #include <string.h>
 
 #include "vvfp_dialog_kit.h"
+/* The DLLs are loaded as resource files only (no code of theirs runs), but every harness that
+   loads a companion points the process at a throwaway Documents first. */
+#include "harness_redirect_documents.h"
 
 static int failures;
 static int dialogs;
@@ -345,6 +348,10 @@ static void check_wrapping(HMODULE module, const char *dll) {
 int main(int argc, char **argv) {
     int a;
     int i;
+    if (!harness_redirect_documents_process()) {
+        printf("FAIL: Documents not redirected\n");
+        return 1;
+    }
     for (a = 1; a < argc; ++a) {
         HMODULE module = LoadLibraryExA(argv[a], NULL, LOAD_LIBRARY_AS_DATAFILE | LOAD_LIBRARY_AS_IMAGE_RESOURCE);
         if (module == NULL) {

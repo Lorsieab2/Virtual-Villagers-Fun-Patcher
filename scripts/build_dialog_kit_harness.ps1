@@ -40,6 +40,7 @@ try {
         kernel32.lib `
         user32.lib `
         gdi32.lib `
+        shell32.lib `
         ("/OUT:" + $out)
     if ($LASTEXITCODE -ne 0) { throw "dialog kit harness failed to build" }
     & $out @Dlls

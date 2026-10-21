@@ -127,8 +127,9 @@ with a wide range, and a villager list with Ctrl/Shift extended selection for
 "Choose who"). Every setting starts at **Random (original game)**.
 
 Since v1.35.80 (the owner: "make sure all these windows are expandable"): the
-dialog -- like every dialog of the Story Upgrades and the VV1 / VV2 / VV4 Origins
-Icons companions -- has a sizing frame and minimise / maximise boxes
+dialog -- like every dialog of the Story Upgrades and every game's Origins menu
+companion (the VV1 / VV2 / VV4 Origins Icons, VV3 Safe Upgrades, VV5 Task9 Origins
+Icons, which VV4 also uses in the Expanded modes) -- has a sizing frame and minimise / maximise boxes
 (`native/shared/vvfp_dialog_kit.h`). Its smallest size is its own; larger, every
 control keeps its share of the window (lists, text and drop-downs grow; buttons
 and art keep their size); minimised it has a taskbar button of its own and the
