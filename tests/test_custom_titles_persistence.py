@@ -239,7 +239,10 @@ class CustomTitlesFile(unittest.TestCase):
                       "the lookup the Island Events log makes in the same frame re-looks first")
         former = (ROOT / "native" / "vvfp_cause_of_death" / "cod_former.inc").read_text(encoding="utf-8")
         self.assertIn("vv_roster_changed_in_place(n, former_roster", former)
-        self.assertIn("former_rekey(former_roster[renamed], now[renamed])", former)
+        # The rename is queued (identity audit, case 7: never lost while the file is held), and says
+        # whether two villagers carried the old identity.
+        self.assertIn("former_rekey(former_roster[renamed], now[renamed],", former)
+        self.assertIn("former_apply();", former)
         arrivals = (ROOT / "native" / "vvfp_cause_of_death" / "cod_arrivals.inc").read_text(encoding="utf-8")
         self.assertIn("former_follow(records);", arrivals)
 

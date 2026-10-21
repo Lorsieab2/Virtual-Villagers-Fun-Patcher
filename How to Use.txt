@@ -291,7 +291,15 @@ contradicts is kept and shown to you; it is never removed.
 
 The same repair's "Duplicate backfilled Arrived records" now also offers a
 "How: unknown" Arrived record of a villager renamed in the game (a "Name
-changed" record) whose record under the old name is already in the log.
+changed" record) whose record under the old name is already in the log, and
+Check Saves & Logs reports the same records.
+
+If the game loads the same village again without saving first, what the
+lost session reported no longer counts for anybody the load put back: no
+Arrived record is written for them. A villager back in the village after
+their own Death or Disappeared record gets one Unaccounted record that says
+exactly that ("Back in the village after a Death or Disappeared record"),
+because a reload and a record written back look the same.
 
 LAST NAMES: EACH VILLAGER'S OWN RULE
 

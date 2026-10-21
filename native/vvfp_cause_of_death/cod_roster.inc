@@ -59,10 +59,18 @@
    First, a departure the game reported since -- the departing villager's
    own name, sex, head and body, kept at the departure (roster_departed),
    at an age at least the kept one -- accounts for the kept villager it
-   names, who is then never matched to anybody now (one written back alive
-   unreported, or a newcomer in their record, has arrived unaccounted for).
+   names, who is then never matched to anybody now (a newcomer in their
+   record has arrived unaccounted for).  One who is in the village again --
+   the same village loaded again with no save between, which threw the
+   departure's session away, or the record written back -- cannot be told
+   from the table, and is never called an arrival with no Birth record: the
+   record says "Back in the village after a Death or Disappeared record",
+   and the player decides (the identity audit, case 4).
    A record the game's creator filled since (an arrival reported) is
-   accounted for and is matched only when no unreported villager is such.
+   accounted for and is matched only when no unreported villager is such;
+   the report holds only while the record holds the villager it was made for
+   (cod_arrivals.inc report_follow): after a load with no save between, the
+   record holds whoever that save kept there.
    A kept villager matched by nobody whose grave was just recorded from
    (cod_backfill.inc) is accounted for; one who is not is "Left the
    village"; a villager now matched by nobody and not reported "Arrived".  A Death or Disappeared
@@ -109,6 +117,16 @@
 #define REPORT_EARLY (-1)
 static signed char departed[RECORDS_MAX];
 static signed char arrived[RECORDS_MAX];
+
+/* Who a record's report was made for (cod_arrivals.inc report_follow): taken at the first frame
+   after the report, followed every frame, and the report dropped when the record holds somebody
+   else -- the village loaded again with no save between. */
+struct report_who {
+    unsigned char known;
+    int sex, head, body;
+    unsigned int name, prefs;
+};
+static struct report_who report_who[RECORDS_MAX];
 
 static signed char report_tag(void) {
     int slot = install_state == 1 ? cod_slot() : 0;
@@ -167,6 +185,7 @@ static void roster_departed(int index, const unsigned char *record) {
     if (index >= 0 && index < RECORDS_MAX) {
         departed[index] = report_tag();
         arrived[index] = REPORT_NONE;
+        report_who[index].known = 0;
         roster_gone_note(record);
         COD_COUNT(departed);
     }
@@ -175,6 +194,7 @@ static void roster_departed(int index, const unsigned char *record) {
 static void roster_arrived(int index) {
     if (index >= 0 && index < RECORDS_MAX) {
         arrived[index] = report_tag();
+        report_who[index].known = 0;      /* a new report: who it is for is taken at the next frame */
         COD_COUNT(arrived);
     }
 }
@@ -650,6 +670,36 @@ static int roster_gone_accounts(const unsigned char *kept, int slot) {
     return 0;
 }
 
+/* Whether `record`, in the village now and matched to nobody kept, is a villager whose reported
+   departure accounted for a kept villager at this reconciliation (gone_spent): the same name, sex,
+   head and body.  Such a villager is back after their own Death or Disappeared record. */
+static int roster_gone_back(const unsigned char *record, int slot) {
+    const struct game_records *r = &REC[g_game];
+    int i;
+    for (i = 0; i < RECORDS_MAX; ++i) {
+        unsigned int n;
+        int same = 1;
+        if (gone[i].tag == REPORT_NONE || !report_counts(gone[i].tag, slot) || !gone_spent[i]
+            || gone[i].sex != *(const int *)(record + r->sex) || gone[i].head != *(const int *)(record + r->head)
+            || gone[i].body != *(const int *)(record + r->body)) {
+            continue;
+        }
+        for (n = 0; n < GONE_NAME && n < r->name_capacity; ++n) {
+            if ((unsigned char)gone[i].name[n] != record[r->name + n]) {
+                same = 0;
+                break;
+            }
+            if (record[r->name + n] == 0) {
+                break;
+            }
+        }
+        if (same) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static void roster_reconcile(int slot) {
     unsigned char *records = cod_records();
     const struct game_records *r = &REC[g_game];
@@ -675,6 +725,7 @@ static void roster_reconcile(int slot) {
     if (records == NULL || slot <= 0) {
         return;
     }
+    report_follow();                  /* a report counts only while its record holds its villager */
     if (roster_buffer == NULL) {
         roster_buffer = (unsigned char *)VirtualAlloc(NULL, roster_max_bytes() * 2u,
                                                       MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
@@ -786,6 +837,13 @@ static void roster_reconcile(int slot) {
                 continue;         /* the same villager as at the last save, or an arrival reported */
             }
             vv1_parents_block(parents, (int)sizeof parents, live[i]);
+            if (roster_gone_back(now_record, slot)) {
+                roster_log(now_record, 1, live[i],
+                           "Back in the village after a Death or Disappeared record (the village loaded"
+                           " again with no save between, or the record written back)",
+                           "(in the village at the last save)", now, 0, parents);
+                continue;
+            }
             roster_log(now_record, 1, live[i],
                        "Arrived with no Birth record or known arrival", "(never before)", now, 0, parents);
         }

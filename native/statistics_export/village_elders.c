@@ -259,6 +259,34 @@ static int slot_claimed(int slot) {
     return 0;
 }
 
+#define ELDERS_RECORDS_MAX 256u
+
+/* Could open line `e` be the elder in record `slot` now?  Its own record or the record a reload
+   puts it in; `level` 0: and the elder's fingerprint is the one the previous save found for the
+   line's villager; 1: and the same name; 2: the record alone. */
+static int elder_fits(const struct elders_layout *l, const struct elder *e, unsigned int slot, int level,
+                      const char *name) {
+    int at_reload;
+    if (e->kind != 'E' || !e->open || e->seen || e->slot < 0) {
+        return 0;
+    }
+    at_reload = l->rank_of_slot != NULL && (unsigned int)e->slot < l->rank_slots
+        && l->rank_of_slot[e->slot] == (int)slot;
+    if (e->slot != (int)slot && !at_reload) {
+        return 0;
+    }
+    if (level == 0) {
+        return l->fp_was != NULL && l->fp_now != NULL && (unsigned int)e->slot < l->fp_slots && slot < l->fp_slots
+            && l->fp_was[e->slot] != 0u && l->fp_was[e->slot] == l->fp_now[slot];
+    }
+    return level == 2 || strcmp(e->name, name) == 0;
+}
+
+/* Did the previous save find a villager in record `slot`?  (Only when its roster is known.) */
+static int elder_record_was_held(const struct elders_layout *l, unsigned int slot) {
+    return l->rank_of_slot != NULL && slot < l->rank_slots && l->rank_of_slot[slot] >= 0;
+}
+
 static int grave_occupied(const struct elders_layout *l, unsigned int index) {
     int occupancy;
     memcpy(&occupancy, l->graves + index * l->grave_stride + l->grave_occupied, sizeof(occupancy));
@@ -326,60 +354,120 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
        living elders: first the same record or that reload record WITH the
        same name, so nobody's line is taken by a neighbour; then the same
        record or reload record alone, which keeps a renamed elder's line. */
+    /* ONE TO ONE, NEVER THE FIRST THAT FITS (the identity audit, case 5).  Two elders of one
+       name, one renamed and both moved by a reload, swapped lines: the first line in the file
+       that fitted a record by its old record and name took it, the renamed elder was added as a
+       third, and the other line was closed.  Now a line and an elder are paired only when the
+       pairing is the only one possible: first by the roster's fingerprint (what a rename does not
+       change: likes, dislikes, the parents' names), then by the name, then by the record alone --
+       each time only when the elder fits that one line and the line that one elder, or the elder
+       is in a record nobody held at the previous save (a reload put them there: a newborn is
+       never an elder by the next save).  What is still not certain is neither added as a new
+       elder nor closed: the lines wait for a save that tells them apart. */
     if (l->villagers != NULL) {
+        static unsigned char is_elder[ELDERS_RECORDS_MAX];
+        static char names[ELDERS_RECORDS_MAX][NAME_MAX_CHARS];
+        static char fathers[ELDERS_RECORDS_MAX][NAME_MAX_CHARS];
+        static char mothers[ELDERS_RECORDS_MAX][NAME_MAX_CHARS];
+        static signed char taken[ELDERS_RECORDS_MAX];
         unsigned int slot;
+        unsigned int records = l->slots < ELDERS_RECORDS_MAX ? l->slots : ELDERS_RECORDS_MAX;
         int i;
-        int pass;
+        int level;
+        int progress;
         for (i = 0; i < g_count; ++i) {
             g_elders[i].seen = 0;
         }
-        for (pass = 0; pass < 3; ++pass) {
-            for (slot = 0; slot < l->slots; ++slot) {
-                const unsigned char *record = l->villagers + l->record_base + slot * l->stride;
-                char name[NAME_MAX_CHARS];
-                char father[NAME_MAX_CHARS];
-                char mother[NAME_MAX_CHARS];
-                struct elder *line = NULL;
-                if (record[l->active] != 1 || vv_lookalike(l->stride, record)
-                    || mastered_skills(record, l) < 3 || slot_claimed((int)slot)) {
-                    continue;
-                }
-                /* Only the player's own villagers: New Believers keeps its
-                   heathens in the same array, and the Heathen Chief is born with
-                   every skill at 100 -- a live read showed him as the village's
-                   only "elder". A converted heathen joins the tribe and counts. */
-                if (l->tribe != 0u && record[l->tribe] != 0) {
-                    continue;
-                }
-                copy_name(name, record + l->name, l->name_capacity);
-                copy_name(father, l->father_name ? record + l->father_name : NULL, l->parent_name_capacity);
-                copy_name(mother, l->mother_name ? record + l->mother_name : NULL, l->parent_name_capacity);
-                for (i = 0; i < g_count && line == NULL && pass < 2; ++i) {
-                    const struct elder *e = &g_elders[i];
-                    int at_reload = l->rank_of_slot != NULL && e->slot >= 0
-                        && (unsigned int)e->slot < l->rank_slots && l->rank_of_slot[e->slot] == (int)slot;
-                    if (e->kind == 'E' && e->open && !e->seen && (e->slot == (int)slot || at_reload)
-                        && (pass == 1 || strcmp(e->name, name) == 0)) {
-                        line = &g_elders[i];
+        for (slot = 0; slot < records; ++slot) {
+            const unsigned char *record = l->villagers + l->record_base + slot * l->stride;
+            is_elder[slot] = 0;
+            taken[slot] = 0;
+            if (record[l->active] != 1 || vv_lookalike(l->stride, record)
+                || mastered_skills(record, l) < 3 || slot_claimed((int)slot)) {
+                continue;
+            }
+            /* Only the player's own villagers: New Believers keeps its
+               heathens in the same array, and the Heathen Chief is born with
+               every skill at 100 -- a live read showed him as the village's
+               only "elder". A converted heathen joins the tribe and counts. */
+            if (l->tribe != 0u && record[l->tribe] != 0) {
+                continue;
+            }
+            is_elder[slot] = 1;
+            copy_name(names[slot], record + l->name, l->name_capacity);
+            copy_name(fathers[slot], l->father_name ? record + l->father_name : NULL, l->parent_name_capacity);
+            copy_name(mothers[slot], l->mother_name ? record + l->mother_name : NULL, l->parent_name_capacity);
+        }
+        do {
+            progress = 0;
+            for (level = 0; level < 3 && !progress; ++level) {
+                for (slot = 0; slot < records; ++slot) {
+                    int line = -1, count = 0, back = 0;
+                    if (!is_elder[slot] || taken[slot]) {
+                        continue;
                     }
+                    for (i = 0; i < g_count; ++i) {
+                        if (elder_fits(l, &g_elders[i], slot, level, names[slot])) {
+                            line = i;
+                            ++count;
+                        }
+                    }
+                    if (count != 1) {
+                        continue;
+                    }
+                    /* ...and that line fits no other elder, unless this record was nobody's at the
+                       previous save (a reload put this elder here). */
+                    if (!(l->rank_of_slot != NULL && slot < l->rank_slots && !elder_record_was_held(l, slot))) {
+                        unsigned int other;
+                        for (other = 0; other < records; ++other) {
+                            if (other != slot && is_elder[other] && !taken[other]
+                                && elder_fits(l, &g_elders[line], other, level, names[other])) {
+                                ++back;
+                            }
+                        }
+                        if (back != 0) {
+                            continue;
+                        }
+                    }
+                    /* the same villager: keep the line current through renames and the record it
+                       is in now */
+                    g_elders[line].slot = (int)slot;
+                    strncpy_s(g_elders[line].name, sizeof(g_elders[line].name), names[slot], _TRUNCATE);
+                    strncpy_s(g_elders[line].father, sizeof(g_elders[line].father), fathers[slot], _TRUNCATE);
+                    strncpy_s(g_elders[line].mother, sizeof(g_elders[line].mother), mothers[slot], _TRUNCATE);
+                    g_elders[line].seen = 1;
+                    taken[slot] = 1;
+                    progress = 1;
                 }
-                if (line != NULL) {
-                    /* the same villager: keep the line current through renames
-                       and the record it is in now */
-                    line->slot = (int)slot;
-                    strncpy_s(line->name, sizeof(line->name), name, _TRUNCATE);
-                    strncpy_s(line->father, sizeof(line->father), father, _TRUNCATE);
-                    strncpy_s(line->mother, sizeof(line->mother), mother, _TRUNCATE);
-                    line->seen = 1;
-                } else if (pass == 2 && add('E', (int)slot, name, father, mother, 0)) {
-                    g_elders[g_count - 1].open = 1;
-                    g_elders[g_count - 1].seen = 1;
-                }
+            }
+        } while (progress);
+        /* An elder no open line could be is a new elder; one some open line could still be is
+           not certain, and waits. */
+        for (slot = 0; slot < records; ++slot) {
+            int maybe = 0;
+            if (!is_elder[slot] || taken[slot]) {
+                continue;
+            }
+            for (i = 0; i < g_count && !maybe; ++i) {
+                maybe = elder_fits(l, &g_elders[i], slot, 2, names[slot]);
+            }
+            if (maybe) {
+                taken[slot] = -1;
+            } else if (add('E', (int)slot, names[slot], fathers[slot], mothers[slot], 0)) {
+                g_elders[g_count - 1].open = 1;
+                g_elders[g_count - 1].seen = 1;
+                taken[slot] = 1;
             }
         }
         for (i = 0; i < g_count; ++i) {
             if (g_elders[i].kind == 'E' && g_elders[i].open && !g_elders[i].seen) {
-                g_elders[i].open = 0;   /* the slot no longer holds this elder */
+                int waits = 0;
+                for (slot = 0; slot < records && !waits; ++slot) {
+                    waits = taken[slot] == -1 && elder_fits(l, &g_elders[i], slot, 2, names[slot]);
+                }
+                if (!waits) {
+                    g_elders[i].open = 0;   /* the slot no longer holds this elder */
+                }
             }
         }
     }

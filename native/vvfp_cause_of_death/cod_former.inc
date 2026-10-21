@@ -36,59 +36,164 @@ static int former_validate(const unsigned char *data, DWORD length, void *contex
 #define FORMER_DISLIKES 0x1F68u
 #define FORMER_SLOTS 3u
 
-/* File `kind` for the villager in `record`, replacing any entry of the same
-   identity; the oldest entry gives way when the file is full. */
-static void former_file(const unsigned char *record, int kind) {
+/* EVERY CHANGE REACHES THE FILE (the identity audit, case 7).  The file is the only place a former
+   Heathen is kept, and a conversion or a rename the tick saw while the file could not be read or
+   written (another program holding it, a read error, the retry window after one) was dropped: the
+   rename was never carried, the entry stayed under the old name, and the villager was no longer
+   called a Former Heathen.  So each change is queued, in order, and applied once the file can be
+   read and written; a queued change is dropped only by Start Over (former_reset). */
+enum { FORMER_OP_FILE = 1, FORMER_OP_REKEY = 2, FORMER_OP_UNSURE = 3 };
+#define FORMER_PENDING 64
+static struct {
+    int slot;
+    int op;
+    unsigned int a, b;          /* FILE: identity, kind; REKEY / UNSURE: from, to */
+} former_pending[FORMER_PENDING];
+static int former_pending_count;
+
+static int former_bind(int slot);
+
+static void former_queue(int op, unsigned int a, unsigned int b) {
     int slot = cod_slot();
-    DWORD length = 0;
-    int result;
-    unsigned int count = 0, kept = 0, i, identity;
-    const void *parts[1];
-    DWORD sizes[1];
-    if (slot <= 0 || kind < VV_FORMER_BLUE || kind > VV_FORMER_CHIEF) {
+    if (slot <= 0) {
         return;
     }
-    if (slot != former.slot) {
-        former.slot = slot;
-        former.path[0] = '\0';
-        vv_sidecar_gate_bind(&former.gate, 0x300 + slot);
+    if (former_pending_count == FORMER_PENDING) {
+        /* Never more than a handful between two frames; should it ever fill, the oldest change
+           is the one the file cannot take. */
+        memmove(&former_pending[0], &former_pending[1], sizeof former_pending[0] * (FORMER_PENDING - 1));
+        --former_pending_count;
     }
-    if (former.path[0] == '\0' && !cod_data_path(former.path, "Former Heathens", "Former Heathens", slot)) {
-        return;
-    }
-    result = vv_sidecar_load(&former.gate, former.path, former_buffer, sizeof former_buffer, &length,
-                             former_validate, NULL);
-    if (result == VV_SIDECAR_LOAD_BLOCKED) {
-        return;
-    }
-    if (result == VV_SIDECAR_LOAD_VALID) {
-        count = vv_former_u32(former_buffer + 12);
-    }
-    identity = vv_title_identity(record, FORMER_NAME, FORMER_NAME_CAP, FORMER_LIKES, FORMER_DISLIKES,
-                                 FORMER_SLOTS);
-    for (i = 0; i < count; ++i) {
-        unsigned char *e = former_buffer + VV_FORMER_HEADER + i * VV_FORMER_ENTRY;
-        if (vv_former_u32(e) == identity) {
-            continue;
-        }
-        memmove(former_buffer + VV_FORMER_HEADER + kept * VV_FORMER_ENTRY, e, VV_FORMER_ENTRY);
-        ++kept;
-    }
-    if (kept == VV_FORMER_MAX) {
+    former_pending[former_pending_count].slot = slot;
+    former_pending[former_pending_count].op = op;
+    former_pending[former_pending_count].a = a;
+    former_pending[former_pending_count].b = b;
+    ++former_pending_count;
+}
+
+/* Append (identity, kind) to the loaded buffer of `count` entries; the oldest gives way when full. */
+static unsigned int former_append(unsigned int count, unsigned int identity, unsigned int kind) {
+    if (count == VV_FORMER_MAX) {
         memmove(former_buffer + VV_FORMER_HEADER, former_buffer + VV_FORMER_HEADER + VV_FORMER_ENTRY,
                 (VV_FORMER_MAX - 1) * VV_FORMER_ENTRY);
-        --kept;
+        --count;
     }
-    memcpy(former_buffer + VV_FORMER_HEADER + kept * VV_FORMER_ENTRY, &identity, 4);
-    memcpy(former_buffer + VV_FORMER_HEADER + kept * VV_FORMER_ENTRY + 4, &kind, 4);
-    ++kept;
-    ((unsigned int *)former_buffer)[0] = VV_FORMER_MAGIC;
-    ((unsigned int *)former_buffer)[1] = VV_FORMER_VERSION;
-    ((unsigned int *)former_buffer)[2] = 5u;
-    ((unsigned int *)former_buffer)[3] = kept;
-    parts[0] = former_buffer;
-    sizes[0] = VV_FORMER_HEADER + kept * VV_FORMER_ENTRY;
-    (void)vv_sidecar_publish(&former.gate, former.path, parts, sizes, 1);
+    memcpy(former_buffer + VV_FORMER_HEADER + count * VV_FORMER_ENTRY, &identity, 4);
+    memcpy(former_buffer + VV_FORMER_HEADER + count * VV_FORMER_ENTRY + 4, &kind, 4);
+    return count + 1;
+}
+
+/* One queued change applied to the loaded file of `count` entries; returns the new count. */
+static unsigned int former_apply_one(int op, unsigned int a, unsigned int b, unsigned int count) {
+    unsigned int i, kept = 0;
+    if (op == FORMER_OP_FILE) {
+        /* The conversion: (identity a, kind b), replacing any entry of the same identity. */
+        for (i = 0; i < count; ++i) {
+            unsigned char *e = former_buffer + VV_FORMER_HEADER + i * VV_FORMER_ENTRY;
+            if (vv_former_u32(e) == a) {
+                continue;
+            }
+            memmove(former_buffer + VV_FORMER_HEADER + kept * VV_FORMER_ENTRY, e, VV_FORMER_ENTRY);
+            ++kept;
+        }
+        return former_append(kept, a, b);
+    }
+    if (op == FORMER_OP_REKEY) {
+        /* A rename or a change in place: every entry of identity a carried to b. */
+        for (i = 0; i < count; ++i) {
+            unsigned char *e = former_buffer + VV_FORMER_HEADER + i * VV_FORMER_ENTRY;
+            if (vv_former_u32(e) == a) {
+                memcpy(e, &b, 4);
+            }
+        }
+        return count;
+    }
+    {
+        /* FORMER_OP_UNSURE: identity a was carried by two villagers at once (one name, likes and
+           dislikes -- an identity the readers already call nobody's) and one of them changed to
+           b.  Which of the two the entry was for is not known, so nobody is given it: both
+           identities are left carried by two entries -- nobody's (vv_former_lookup) -- and Repair
+           Saves & Logs asks the player, as for any former Heathen the file cannot name. */
+        unsigned int kind = 0, from = 0, to = 0;
+        for (i = 0; i < count; ++i) {
+            const unsigned char *e = former_buffer + VV_FORMER_HEADER + i * VV_FORMER_ENTRY;
+            if (vv_former_u32(e) == a) {
+                if (from++ == 0) {
+                    kind = vv_former_u32(e + 4);
+                }
+            }
+            to += vv_former_u32(e) == b;
+        }
+        if (from == 0) {
+            return count;             /* neither of them was filed */
+        }
+        for (; from < 2; ++from) {
+            count = former_append(count, a, kind);
+        }
+        for (; to < 2; ++to) {
+            count = former_append(count, b, kind);
+        }
+        return count;
+    }
+}
+
+/* Apply what is queued, in order -- each change to the file of the slot it was seen in -- while
+   the file can be read and written. */
+static void former_apply(void) {
+    while (former_pending_count > 0) {
+        DWORD length = 0;
+        int result, k = 0, done = 0;
+        int slot = former_pending[0].slot;
+        unsigned int count = 0;
+        const void *parts[1];
+        DWORD sizes[1];
+        if (!former_bind(slot)) {
+            return;
+        }
+        result = vv_sidecar_load(&former.gate, former.path, former_buffer, sizeof former_buffer, &length,
+                                 former_validate, NULL);
+        if (result == VV_SIDECAR_LOAD_BLOCKED) {
+            return;                   /* tried again at a later frame */
+        }
+        if (result == VV_SIDECAR_LOAD_VALID) {
+            count = vv_former_u32(former_buffer + 12);
+        }
+        /* Every queued change for this slot, in one write. */
+        while (k < former_pending_count && former_pending[k].slot == slot) {
+            if (former_pending[k].op != FORMER_OP_FILE && count == 0) {
+                ++k;                  /* nothing filed to carry */
+                continue;
+            }
+            count = former_apply_one(former_pending[k].op, former_pending[k].a, former_pending[k].b, count);
+            ++k;
+            done = 1;
+        }
+        if (done) {
+            ((unsigned int *)former_buffer)[0] = VV_FORMER_MAGIC;
+            ((unsigned int *)former_buffer)[1] = VV_FORMER_VERSION;
+            ((unsigned int *)former_buffer)[2] = 5u;
+            ((unsigned int *)former_buffer)[3] = count;
+            parts[0] = former_buffer;
+            sizes[0] = VV_FORMER_HEADER + count * VV_FORMER_ENTRY;
+            if (!vv_sidecar_publish(&former.gate, former.path, parts, sizes, 1)) {
+                return;               /* not written: everything stays queued */
+            }
+        }
+        memmove(&former_pending[0], &former_pending[k], sizeof former_pending[0] * (size_t)(former_pending_count - k));
+        former_pending_count -= k;
+    }
+}
+
+/* File `kind` for the villager in `record`, replacing any entry of the same identity. */
+static void former_file(const unsigned char *record, int kind) {
+    if (kind < VV_FORMER_BLUE || kind > VV_FORMER_CHIEF) {
+        return;
+    }
+    former_queue(FORMER_OP_FILE,
+                 vv_title_identity(record, FORMER_NAME, FORMER_NAME_CAP, FORMER_LIKES, FORMER_DISLIKES,
+                                   FORMER_SLOTS),
+                 (unsigned int)kind);
+    former_apply();
 }
 
 /* FORMER HEATHENS FOLLOW THEIR VILLAGER (v1.35.68).  The file keeps each
@@ -101,7 +206,10 @@ static void former_file(const unsigned char *record, int kind) {
    same rule as the masks' and titles': one record changed, its sex, likes
    and dislikes unchanged), their entry is carried to the new identity.  An
    identity two entries carry stays nobody's (vv_former_lookup): nothing is
-   guessed. */
+   guessed.  Since the identity audit (case 7): the change is queued until the
+   file takes it (a rename while the file was held was lost); a rename in the
+   frame of a birth or a death is followed (former_renamed); and when two
+   villagers carried the old identity, neither is given the entry (FORMER_OP_UNSURE). */
 static unsigned int former_roster[RECORDS_MAX];
 static unsigned int former_roster_stable[RECORDS_MAX];
 static unsigned int former_roster_keep[RECORDS_MAX];
@@ -126,32 +234,46 @@ static int former_bind(int slot) {
     return former.path[0] != '\0' || cod_data_path(former.path, "Former Heathens", "Former Heathens", slot);
 }
 
-/* Carry every entry of identity `from` to `to` in the slot's file. */
-static void former_rekey(unsigned int from, unsigned int to) {
-    int slot = cod_slot();
-    DWORD length = 0;
-    unsigned int count, i;
-    int changed = 0;
-    const void *parts[1];
-    DWORD sizes[1];
-    if (from == to || !former_bind(slot)
-        || vv_sidecar_load(&former.gate, former.path, former_buffer, sizeof former_buffer, &length,
-                           former_validate, NULL) != VV_SIDECAR_LOAD_VALID) {
+/* Carry every entry of identity `from` to `to` in the slot's file -- queued, so it reaches the file
+   even when the file cannot be written this frame.  `shared`: `from` was carried by more than one
+   villager at the last look, so which of them the entry is for is not known (FORMER_OP_UNSURE). */
+static void former_rekey(unsigned int from, unsigned int to, int shared) {
+    if (from == to || from == 0u || to == 0u) {
         return;
     }
-    count = vv_former_u32(former_buffer + 12);
-    for (i = 0; i < count; ++i) {
-        unsigned char *e = former_buffer + VV_FORMER_HEADER + i * VV_FORMER_ENTRY;
-        if (vv_former_u32(e) == from) {
-            memcpy(e, &to, 4);
-            changed = 1;
+    former_queue(shared ? FORMER_OP_UNSURE : FORMER_OP_REKEY, from, to);
+}
+
+/* How many records carried `identity` at the last look. */
+static int former_carried(int n, const unsigned int *seen, unsigned int identity) {
+    int i, c = 0;
+    for (i = 0; i < n; ++i) {
+        c += seen[i] == identity;
+    }
+    return c;
+}
+
+/* A rename between two looks: exactly one record holds a villager at both looks and changed
+   identity, keeping its sex, likes and dislikes (`*_stable`); every other change is a record
+   emptied (a death, a departure) or filled (a birth, a newcomer) -- never a villager moved, which
+   empties one record and fills another, and is no rename.  The masks' and titles' rule
+   (vv_roster_renamed) refuses a rename in the same frame as a birth or a death; here it is
+   followed (the identity audit, case 7).  Returns that record, or -1. */
+static int former_renamed(int n, const unsigned int *was, const unsigned int *was_stable,
+                          const unsigned int *now, const unsigned int *now_stable) {
+    int i, at = -1;
+    for (i = 0; i < n; ++i) {
+        if (was[i] != now[i] && was[i] != 0u && now[i] != 0u) {
+            if (at >= 0) {
+                return -1;            /* two records hold somebody else: not one rename */
+            }
+            at = i;
         }
     }
-    if (changed) {
-        parts[0] = former_buffer;
-        sizes[0] = VV_FORMER_HEADER + count * VV_FORMER_ENTRY;
-        (void)vv_sidecar_publish(&former.gate, former.path, parts, sizes, 1);
+    if (at < 0 || was_stable[at] == 0 || was_stable[at] != now_stable[at]) {
+        return -1;
     }
+    return at;
 }
 
 /* What a rename leaves of the identity: the likes, dislikes and sex. */
@@ -181,18 +303,20 @@ static void former_follow(const unsigned char *records) {
         }
     }
     if (former_roster_known && anyone) {
-        int renamed = vv_roster_renamed(n, former_roster, former_roster_stable, now, now_stable);
+        int renamed = former_renamed(n, former_roster, former_roster_stable, now, now_stable);
         if (renamed >= 0) {
-            former_rekey(former_roster[renamed], now[renamed]);
+            former_rekey(former_roster[renamed], now[renamed],
+                         former_carried(n, former_roster, former_roster[renamed]) > 1);
         } else if (vv_roster_changed_in_place(n, former_roster, former_roster_keep, former_roster_age, now,
                                               now_keep, now_age, same) > 0) {
             for (i = 0; i < n; ++i) {
                 if (same[i]) {
-                    former_rekey(former_roster[i], now[i]);
+                    former_rekey(former_roster[i], now[i], former_carried(n, former_roster, former_roster[i]) > 1);
                 }
             }
         }
     }
+    former_apply();                   /* what is queued, as soon as the file can take it */
     memcpy(former_roster, now, sizeof(unsigned int) * (size_t)n);
     memcpy(former_roster_stable, now_stable, sizeof(unsigned int) * (size_t)n);
     memcpy(former_roster_keep, now_keep, sizeof(unsigned int) * (size_t)n);
@@ -224,6 +348,14 @@ static void former_forget(int index) {
 }
 
 static void former_reset(int slot) {
+    int i, kept = 0;
+    /* Start Over: nothing queued for the erased village is written into the new one. */
+    for (i = 0; i < former_pending_count; ++i) {
+        if (former_pending[i].slot != slot) {
+            former_pending[kept++] = former_pending[i];
+        }
+    }
+    former_pending_count = kept;
     if (slot == former.slot) {
         vv_sidecar_gate_bind(&former.gate, -1);
         former.slot = 0;

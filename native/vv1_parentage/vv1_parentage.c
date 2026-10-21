@@ -600,6 +600,22 @@ static int vv1_roster_overlap(const unsigned char *records, const vv1_occupant *
    so the parents return if Origins makes them young again.  Returns 1 when
    anyone moved to another index (the per-frame snapshot no longer describes
    the same villagers, and the caller drops it). */
+/* Record j held a living villager and is empty now: did that villager move?  Yes when their
+   identity is on screen in a record k whose roster entry is NOT that same living identity -- a
+   villager who came into k.  The identity on screen only where the roster already had it (the
+   other of two Sukis, in her own record) is no move: one of the two died, and only a load moves
+   anybody (the identity audit, case 3). */
+static int vv1_moved_away(const vv1_occupant *now, int j) {
+    int k;
+    for (k = 0; k < VV1_RECORD_COUNT; ++k) {
+        if (k != j && now[k].gender && vv1_same_occupant(&g_roster[j], &now[k])
+            && !(g_roster[k].gender && !g_roster[k].departed && vv1_same_occupant(&g_roster[k], &now[k]))) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int vv1_follow_roster(const vv1_occupant *now) {
     static vv1_parent_entry moved[VV1_RECORD_COUNT];
     static vv1_occupant kept[VV1_RECORD_COUNT];
@@ -614,12 +630,12 @@ static int vv1_follow_roster(const vv1_occupant *now) {
        record, a death, or a newborn in a departed villager's record is not. */
     int repacked = 0;
     int back = 0;                 /* a departed villager is on screen again */
+    unsigned char taken[VV1_RECORD_COUNT];
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         if (!g_roster[j].gender || g_roster[j].departed) {
             continue;
         }
-        if (now[j].gender ? !vv1_same_occupant(&g_roster[j], &now[j])
-                          : vv1_count_occupant(now, &g_roster[j], NULL) > 0) {
+        if (now[j].gender ? !vv1_same_occupant(&g_roster[j], &now[j]) : vv1_moved_away(now, j)) {
             repacked = 1;
         }
     }
@@ -646,7 +662,10 @@ static int vv1_follow_roster(const vv1_occupant *now) {
        looks match nobody (or more than one) stays unknown, as before. */
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         int at = -1;
-        if (now[j].gender && from[j] < 0 && vv1_count_occupant(now, &now[j], NULL) > 1
+        /* ...also when that identity is on screen once but recorded twice: one of the two died
+           (the identity audit, case 3), and a load since packed the survivor elsewhere. */
+        if (now[j].gender && from[j] < 0
+            && (vv1_count_occupant(now, &now[j], NULL) > 1 || vv1_count_occupant(g_roster, &now[j], NULL) > 1)
             && vv1_count_looks(now, &now[j], NULL) == 1
             && vv1_count_looks(g_roster, &now[j], &at) == 1) {
             from[j] = at;
@@ -658,6 +677,12 @@ static int vv1_follow_roster(const vv1_occupant *now) {
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
         if (now[j].gender && from[j] < 0 && !repacked && vv1_same_occupant(&g_roster[j], &now[j])) {
             from[j] = j;          /* an ambiguous identity, where nothing moved: its own index */
+        }
+    }
+    memset(taken, 0, sizeof(taken));
+    for (j = 0; j < VV1_RECORD_COUNT; ++j) {
+        if (now[j].gender && from[j] >= 0) {
+            taken[from[j]] = 1;
         }
     }
     for (j = 0; j < VV1_RECORD_COUNT; ++j) {
@@ -672,8 +697,11 @@ static int vv1_follow_roster(const vv1_occupant *now) {
                 born[j] = 1;                /* a new occupant: nothing of theirs is in the log file yet */
                 stashed[j] = 0;
             }
-        } else if (g_roster[j].gender && vv1_count_occupant(now, &g_roster[j], NULL) == 0) {
-            kept[j] = g_roster[j];          /* away or dead, and nobody holds the record: kept */
+        } else if (g_roster[j].gender && !taken[j]) {
+            /* Away or dead, and nobody holds the record: kept -- also while a villager of the
+               same identity is on screen elsewhere (the other of two Sukis, case 3), as long as
+               the entry was not followed to anybody now. */
+            kept[j] = g_roster[j];
             kept[j].departed = 1;
             moved[j] = g_entries[j];
             born[j] = g_session_born[j];

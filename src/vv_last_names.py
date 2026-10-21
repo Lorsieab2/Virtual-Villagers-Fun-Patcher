@@ -1225,7 +1225,7 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     _plan_unaccounted(result, game, slot, data_dir, renames, asked, by_name,
                       _dead_names(folder, game, slot) if game == 1 else frozenset())
     renamed = {name for name, _head, _body in renames}
-    _plan_statistics(result, game, slot, data_dir, by_name, renamed)
+    _plan_statistics(result, game, slot, data_dir, by_name, renamed, _dead_names(folder, game, slot))
     _plan_logs(result, folder, game, slot, asked, by_name, dead, renamed)
     _plan_family_trees(result, folder, game, slot, asked)
     _plan_own_rules(result, folder, game, slot, asked)
@@ -1566,12 +1566,19 @@ def _left(result: Plan, path: Path, names: set[str]) -> None:
 
 
 def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name: dict[str, set],
-                     renamed: set[str] = frozenset()) -> None:
+                     renamed: set[str] = frozenset(), dead_names: set[str] | frozenset = frozenset()) -> None:
     """The Village Statistics roster and Village Elders.  Games sharing a folder share these
     files' names (Codex, #553): the Elders file names its game on its first line, and the roster
     (which does not) is this game's only when the slot's "Village Statistics - Save N.dat" says so.
-    A name these files hold for more than one new name stays, and is reported (Codex, #557)."""
+    A name these files hold for more than one new name stays, and is reported (Codex, #557).
+
+    An elder's line that is closed -- the elder dead or gone -- and a parent named on any line are
+    renamed only when no Death or Disappeared record carries the name (`dead_names`): the living
+    villagers are all `by_name` knows, so a dead namesake's line took the living one's new name and
+    the two elders' lines read as one villager's (the identity audit, case 5).  Such a line keeps the
+    name, and is reported."""
     unique = {old: next(iter(news)) for old, news in by_name.items() if len(news) == 1}
+    unique_living_only = {old: new for old, new in unique.items() if old not in dead_names}
     roster = layout.route(data_dir.parent, f"{layout.DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat")
     statistics = _first_line(_data_file(data_dir.parent, "Village Statistics", f"Village Statistics - Save {slot}.dat"))
     if roster.is_file() and statistics != f"VVFP VILLAGE STATISTICS v1 game={game}":
@@ -1605,12 +1612,15 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
         for k, line in enumerate(lines):
             parts = line.split("\t")
             if parts and parts[0] == "E" and len(parts) >= 5:
+                # "E <record> <name> <father> <mother> <gone> <open>": an open line is a living elder.
+                is_open = len(parts) >= 7 and parts[6].rstrip("\r") == "1"
                 for col in (2, 3, 4):
-                    if parts[col].rstrip("\r") in unique:
+                    names = unique if col == 2 and is_open else unique_living_only
+                    if parts[col].rstrip("\r") in names:
                         tail = "\r" if parts[col].endswith("\r") else ""
-                        parts[col] = unique[parts[col].rstrip("\r")][:39] + tail
+                        parts[col] = names[parts[col].rstrip("\r")][:39] + tail
                         changed = True
-                    elif parts[col].rstrip("\r") in renamed:
+                    elif parts[col].rstrip("\r") in renamed or parts[col].rstrip("\r") in unique:
                         left.add(parts[col].rstrip("\r"))
                 lines[k] = "\t".join(parts)
         _left(result, elders, left)

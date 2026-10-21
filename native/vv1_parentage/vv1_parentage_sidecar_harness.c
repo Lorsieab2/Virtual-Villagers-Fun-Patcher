@@ -549,6 +549,60 @@ static void follow_cases(void) {
     check(g_loaded_slot == SLOT && has_parents(5, 1) && has_parents(0, 2),
           "... and after a repack each Suki still keeps her own parents");
 
+    /* 18d. The identity audit, case 3: one of two Sukis (one name, gender and family scalar) dies
+           in play.  Nothing moves in play -- only a load packs the records -- so the survivor is
+           the Suki in her own record, and keeps her own parents; the dead Suki's parents stay with
+           her, under her identity, as a departed villager's always do.  The old follow took the
+           dead Suki's empty record for a move (her identity is on screen: the other Suki), and
+           dropped BOTH entries -- the survivor's too, with her looks different or not.  Then the
+           next load packs the survivor into the dead Suki's record: with looks that differ, the
+           roster's looks still tell her apart. */
+    {
+        int looks;
+        for (looks = 0; looks < 2; ++looks) {
+            int k, dead_kept = 0;
+            DeleteFileA(path);
+            fresh();
+            memset(before_load, 0, sizeof(before_load));
+            put(before_load, 0, "Keep", 1, 9);
+            put(before_load, 1, "Suki", 0, 50);
+            put(before_load, 2, "Suki", 0, 50);
+            put(before_load, 3, "Ann", 0, 12);
+            *(int *)(before_load + 1 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 1;
+            *(int *)(before_load + 1 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 3;
+            *(int *)(before_load + 2 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = looks ? 14 : 1;
+            *(int *)(before_load + 2 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = looks ? 17 : 3;
+            vv1_take_roster(before_load, g_roster);
+            set_parents(1, 1);
+            set_parents(2, 2);
+            g_may_replace = 1;
+            vv1_parents_save(SLOT, before_load);
+            fresh();
+            play(before_load, 2);
+            before_load[1 * VV1_RECORD_STRIDE + VV1_OCCUPIED_OFFSET] = 0;   /* the first Suki dies */
+            play(before_load, 2);
+            for (k = 0; k < VV1_RECORD_COUNT; ++k) {
+                dead_kept |= g_roster[k].gender && g_roster[k].departed && has_parents(k, 1);
+            }
+            check(g_loaded_slot == SLOT && has_parents(2, 2) && dead_kept,
+                  looks ? "ONE OF TWO SUKIS (DIFFERENT LOOKS) DIES IN PLAY: the survivor keeps her own parents, the dead one's are kept"
+                        : "ONE OF TWO SUKIS (THE SAME LOOKS) DIES IN PLAY: the survivor keeps her own parents, the dead one's are kept");
+            if (looks) {
+                /* The next load packs the survivor into record 1, Ann into 2. */
+                memset(after_load, 0, sizeof(after_load));
+                put(after_load, 0, "Keep", 1, 9);
+                put(after_load, 1, "Suki", 0, 50);
+                put(after_load, 2, "Ann", 0, 12);
+                *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_HEAD_OFFSET) = 14;
+                *(int *)(after_load + 1 * VV1_RECORD_STRIDE + VV1_BODY_OFFSET) = 17;
+                fresh();
+                play(after_load, 2);
+                check(g_loaded_slot == SLOT && has_parents(1, 2),
+                      "... AND AFTER THE NEXT LOAD PACKS HER INTO THE DEAD SUKI'S RECORD, HER LOOKS STILL TELL HER APART");
+            }
+        }
+    }
+
     /* 19. Codex (#516): another village in the slot that shares ONE identity
            with the old roster, at another record, is not the old village. */
     write_owner_sidecar();

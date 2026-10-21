@@ -638,6 +638,32 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
     return kind
 
 
+def _golden_born(arrived: Block, every: list[Block]) -> bool:
+    """Whether A New Home's Golden Child of this Arrived record already has a Birth record: one whose
+    child is them -- the Arrived record's name, head and body (only the name where either record
+    gives no looks) -- and that was the Golden Child's birth ("Born as: Golden Child", or no "Born
+    as" line at all, as the earliest Birth records were written).  A Birth of another child of the
+    same first name is not theirs (the identity audit, case 6: a namesake's Birth settled the Golden
+    Child, so the pregnancy the puzzle ended was closed as "lost" without asking, and Repair never
+    offered the Golden Child's own Birth)."""
+    name, head, body = arrived.identity
+    if not name:
+        return False
+    for x in every:
+        if not is_birth(x.heading) or x.value("Born as") not in (None, "Golden Child"):
+            continue
+        child = _sub_identity(x, "Child")
+        if child is None or child[0] != name:
+            continue
+        if None in (head, body, child[1], child[2]):
+            if x.value("Born as") == "Golden Child":
+                return True                     # no looks to compare: only a Golden Child's Birth
+            continue
+        if (child[1], child[2]) == (head, body):
+            return True
+    return False
+
+
 def plan_golden(folder: Path, game: int, slot: int) -> Kind:
     """A New Home's Golden Child as a Birth.  The puzzle makes the Golden Child from a pregnant
     mother and ends her pregnancy, so it is a birth (the owner, 2026-10-08: "THE GOLDEN CHILD
@@ -657,12 +683,11 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
     every: list[Block] = []
     for path in paths:
         every += [b for b in blocks(path) if b.of(slot, game, villages)]
-    born = {b.value("Child", "  ") for b in every if is_birth(b.heading)}
     for k, b in enumerate(every):
         if not (b.heading.startswith("Arrived") and b.value("Special villager") == "Golden Child"):
             continue
         name = b.value("Name")
-        if not name or name in born:
+        if not name or _golden_born(b, every):
             continue
         # The pregnancies with no Birth after them, before this record, most recent first.
         open_: list[tuple[tuple, tuple]] = []
@@ -841,7 +866,7 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
             gone.setdefault(b.identity, []).append(b)
     golden_unsettled = game == 1 and any(
         b.heading.startswith("Arrived") and b.value("Special villager") == "Golden Child"
-        and b.value("Name") not in {x.value("Child", "  ") for x in every if is_birth(x.heading)}
+        and not _golden_born(b, every)
         for b in every)
     for mother, conception in open_.items():
         records = gone.get(mother, [])
