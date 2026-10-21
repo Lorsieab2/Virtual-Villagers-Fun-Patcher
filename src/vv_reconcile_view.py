@@ -4,7 +4,9 @@ Every tribe picker (Check Saves & Logs, Repair Saves & Logs, Rename Tribe, the F
 the other village windows) calls `watch` when a tribe is chosen: the reconciliation runs off the
 window's thread, its one-line summary appears in the picker, and its report is written to the save's
 own "Virtual Villagers Fun Patcher\\Save <n>\\Logs\\Reconciliation" folder (an older save's
-"...Logs\\Save <n>\\Reconciliation" while it is written there).  It never changes the save, a log or a data file.
+"...Logs\\Save <n>\\Reconciliation" while it is written there) -- except by Check Saves & Logs and Repair
+Saves & Logs' picker, which only read (`export=False`; Repair writes it once Repair is pressed).  It never
+changes the save, a log or a data file.
 """
 from __future__ import annotations
 
@@ -18,10 +20,11 @@ import vv_reconcile
 WAITING = "Reconciling this village's records, logs and files (read-only)..."
 
 
-def watch(widget, var, folder: Path, game: int, slot: int, on_done=None) -> None:
+def watch(widget, var, folder: Path, game: int, slot: int, on_done=None, export: bool = True) -> None:
     """Reconcile (folder, game, slot) in the background and show the summary in `var` (a Tk variable
     owned by `widget`).  Choosing the same village again does not run it twice; choosing another one
-    while it runs drops the first result."""
+    while it runs drops the first result.  `export` False: the report is not written (Check Saves & Logs
+    and Repair Saves & Logs' picker only read; Repair writes it when Repair is pressed)."""
     key = (str(folder), game, slot)
     if getattr(widget, "_vv_reconcile_key", None) == key:
         return
@@ -35,10 +38,11 @@ def watch(widget, var, folder: Path, game: int, slot: int, on_done=None) -> None
         except (vv_reconcile.ReconcileError, OSError, ValueError, KeyError, IndexError, struct.error) as exc:
             box["error"] = exc
             return
-        try:
-            box["path"] = vv_reconcile.export(rec)
-        except OSError as exc:
-            box["export_error"] = exc
+        if export:
+            try:
+                box["path"] = vv_reconcile.export(rec)
+            except OSError as exc:
+                box["export_error"] = exc
         box["result"] = rec
 
     thread = threading.Thread(target=work, name="vvfp-reconcile", daemon=True)

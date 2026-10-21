@@ -1436,9 +1436,11 @@ def roman(n: int) -> str:
 # Number Duplicate Names' orders: who is "I" (the owner: "the oldest person with a duplicate name should
 # be named "I" unless the player says otherwise").
 NUMBER_ORDERS = {
-    "oldest": "Oldest first",
-    "youngest": "Youngest first",
-    "appearance": "In order of appearance",
+    "oldest": "By age now, oldest first",
+    "youngest": "By age now, youngest first",
+    # The owner (2026-10-20): "oldest first" and "in order of appearance" are the same thing -- the older
+    # villagers appear first -- so the default says both.
+    "appearance": "Oldest first (order of appearance)",
 }
 
 

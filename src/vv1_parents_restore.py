@@ -157,6 +157,7 @@ class Plan:
     restored: list[Restored] = field(default_factory=list)
     conflicts: list[str] = field(default_factory=list)
     ambiguous: list[str] = field(default_factory=list)
+    no_room: list[str] = field(default_factory=list)
 
     def lines(self) -> list[str]:
         out = []
@@ -164,9 +165,11 @@ class Plan:
             what = "a departed villager's parents kept" if r.departed else "parents restored"
             out.append(f"{r.name}: {what} -- father {r.father or '(unknown)'}, mother {r.mother or '(unknown)'} "
                        f"(from {r.source})")
-        out += [f"Not restored (the copy and the Births log disagree; Check Saves & Logs asks): {c}"
+        out += [f"Not restored (the copy and the Births log disagree, so nothing is guessed): {c}"
                 for c in self.conflicts]
         out += [f"Not restored (two villagers share the name, family and gender): {a}" for a in self.ambiguous]
+        out += [f"Not restored (a villager who passed away, and every record of the parentage file is in use, "
+                f"so there is no room to keep their parents): {n}" for n in self.no_room]
         return out
 
 
@@ -302,6 +305,31 @@ def _refined(table: Table, by_identity: dict[tuple, list[int]], shared: set[tupl
     return out
 
 
+def _name_field(name: str) -> bytes:
+    return name.encode("latin-1").ljust(NAME, b"\0")
+
+
+def _same_but_numbered(father: str, mother: str, logged: set[tuple[str, str]]) -> tuple[str, str] | None:
+    """The one (father, mother) of the Births log that names the copy's parents but for a number Number
+    Duplicate Names gave since (as src/vv_genealogy.py unnumbered reads it), and that fits the file; else
+    None."""
+    def unnumbered(name: str) -> str:               # vv_genealogy.unnumbered (this module imports no tree code)
+        words = name.split(" ")
+        return " ".join(words[:-1]) if len(words) > 1 and re.fullmatch(r"[IVXLCDM]+", words[-1]) else name
+
+    found = {(f, m) for f, m in logged
+             if unnumbered(f) == unnumbered(father) and unnumbered(m) == unnumbered(mother)}
+    if len(found) != 1:
+        return None
+    f, m = next(iter(found))
+    try:
+        if len(f.encode("latin-1")) >= NAME or len(m.encode("latin-1")) >= NAME:
+            return None
+    except UnicodeEncodeError:
+        return None
+    return f, m
+
+
 def plan(folder: Path, slot: int) -> Plan:
     folder = Path(folder)
     path = parents_path(folder, slot)
@@ -364,6 +392,15 @@ def plan(folder: Path, slot: int) -> Plan:
             logged = births.get((ident[0], head, body))
             if not now_at and not logged and ident[0] in by_name:
                 logged = by_name[ident[0]]                 # the dead: their Birth records by name
+            parents = old.parents(i)
+            if logged and (father, mother) not in logged:
+                # A parent numbered since the copy was made (Number Duplicate Names: "Lisha Akikai" is now
+                # "Lisha Akikai I") is the same parent: given back under the name the Births log has now.
+                same = _same_but_numbered(father, mother, logged)
+                if same is not None:
+                    father, mother = same
+                    parents = parents[:4] + _name_field(father) + _name_field(mother)
+                    logged = None
             if logged and (father, mother) not in logged:
                 skipped.add(ident)
                 result.conflicts.append(f"{ident[0]} -- the copy says father {father or '(unknown)'}, mother "
@@ -372,17 +409,21 @@ def plan(folder: Path, slot: int) -> Plan:
                                                     for f, m in sorted(logged)))
                 continue
             if now_at:
-                table.put_parents(now_at[0], old.parents(i))
+                table.put_parents(now_at[0], parents)
                 result.restored.append(Restored(ident[0], father, mother, copy.name))
             else:
                 free = next((k for k in range(COUNT) if table.empty_record(k)), None)
                 if free is None:
+                    # Every record of the file is in use: said so, never silently left out.
+                    if ident[0] not in result.no_room:
+                        result.no_room.append(ident[0])
+                    skipped.add(ident)
                     continue
                 o = HEADER + free * OCCUPANT
                 src = HEADER + i * OCCUPANT
                 table.data[o:o + OCCUPANT] = old.data[src:src + OCCUPANT]
                 table.data[o + 1] = 1                      # departed
-                table.put_parents(free, old.parents(i))
+                table.put_parents(free, parents)
                 where[ident] = [free]
                 result.restored.append(Restored(ident[0], father, mother, copy.name, departed=True))
             done.add(ident)
