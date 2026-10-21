@@ -820,7 +820,7 @@ static void titles_pass(int game, int sweep) {
     /* Every tick, titled or not, so the last look is never stale when a
        title is set. */
     present = titles_take_roster(game, now, now_stable, now_keep, now_age);
-    renamed = vv_roster_renamed(TITLES_ROSTER, titles.roster, titles.roster_stable, now, now_stable);
+    renamed = vv_roster_renamed_in_play(TITLES_ROSTER, titles.roster, titles.roster_stable, now, now_stable);
     /* LIKES OR DISLIKES CHANGED (v1.35.68): an island event, the Custom
        Island Event, a vial, the Crystal of Reflections or an upgrade gave a
        villager new likes or dislikes, so the identity the title is kept by
@@ -841,7 +841,7 @@ static void titles_pass(int game, int sweep) {
        quit to the menu, whose slot list leaves seeded founders there. */
     foreign = renamed < 0 && in_place_count == 0 && titles.roster_anyone && present > 0
         && vv_roster_shares(TITLES_ROSTER, titles.roster, now) == 0;
-    moved = !titles.roster_anyone || foreign || vv_roster_moved(TITLES_ROSTER, titles.roster, now);
+    moved = !titles.roster_anyone || foreign || vv_roster_moved_in_play(TITLES_ROSTER, titles.roster, now);
     if (in_place_count > 0 && !titles.frozen) {
         moved = 0;                            /* the same villagers, in the same records */
         for (i = 0; i < titles.count; ++i) {

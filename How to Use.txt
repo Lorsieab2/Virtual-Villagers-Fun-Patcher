@@ -327,6 +327,12 @@ their own Death or Disappeared record gets one Unaccounted record that says
 exactly that ("Back in the village after a Death or Disappeared record"),
 because a reload and a record written back look the same.
 
+Two villagers with one name and the same looks are kept apart everywhere:
+when one dies during play the other keeps her own mask, custom title and
+parents; the Family Tree Maker shows a newborn named like a dead villager as
+a person of her own; and the Village Elders repair counts a dead elder even
+when a living villager has her name.
+
 LAST NAMES: EACH VILLAGER'S OWN RULE
 
 In Repair Saves & Logs, "Give villagers last names" > Choose... > "Each
