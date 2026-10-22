@@ -217,17 +217,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for Fix Vanilla Bugs' Details name box identity guard: putting its rows
     # (tests/test_details_name_identity.py) back to stock and recomputing the CheckSum gives the
     # previous digest in all three modes.
+    # Re-pinned for Fix Vanilla Bugs' catch-up hut walk: putting its one site (0x53B73, 90 90 ->
+    # 75 19) back to stock and restoring the previous CheckSum gives the previous digest in all
+    # three modes.
     "stock": (
-        "0B0FB32420F46CD9538E9CD3879159F87408EF45EF744576BF95F457B5C9660F",
-        "664B0D00",
+        "4D4FEF3DAD40876D3553A195713224B172FB7B76C41658A17E54A8DB1516C712",
+        "DD660D00",
     ),
     "collection_progression": (
-        "050E57506862F1956A8A25375E1B2240061989D2B3D677B973BF127BA137CE30",
-        "66640D00",
+        "85B1D5D6E72595A9E394C3A01F218F4D2D1A53049BF20C9BA33FAECD5F0B8586",
+        "DD7F0D00",
     ),
     "immediate_fixed": (
-        "5F0545C4800F81855E684B27DA88FD19124090BCD63E8A7EB1514356C02C5A4B",
-        "64A60D00",
+        "5A3882773707EA86FC8B3D730A284B10E4EBFDDC6EF80A1C2A6C3DB37BD7685D",
+        "DBC10D00",
     ),
 }
 
