@@ -234,7 +234,9 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_answered_questions",
                               # The Family Tree's automatic marks: the graves' titles and each living villager's
                               # Custom title as the Villager Info tab reads them (function-level, 2026-10-22).
-                              "vv_graves", "vv_villager_info"}),
+                              "vv_graves", "vv_villager_info",
+                              # Master of a skill: the save's skills as Reset Corrupted Skills reads them.
+                              "vv_corrupt_skills"}),
             # Restoring cut names renames through Last Names; likes compare as vv_log_tools says (v1.35.68).
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions", "vv_log_tools"}),
             # Fix grave information: the graves' fingerprints and writes through Last Names.

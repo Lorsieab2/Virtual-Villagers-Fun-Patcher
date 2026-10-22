@@ -16,17 +16,18 @@ BI = {"bold": True, "italic": True}
 
 def person(pid, name, number, litter=None, generation=1, alive=True, sex="Male", runner=False):
     return SimpleNamespace(id=pid, name=name, number=number, litter=litter, upcoming=False, age=1400,
-                           years=70, alive=alive, gone="died", heathen=False, generation=generation, sex=sex, runner=runner)
+                           years=70, alive=alive, gone="died", heathen=False, generation=generation, sex=sex, runner=runner,
+                           father=None, mother=None, arrived=False, how="", first_seen=None, masters=[], statuses=[])
 
 
 def lay(people, entries=None, runner=True):
     opts = {"show_units": False, "show_years": True, "show_founder": True, "show_twins": True, "show_runner": runner,
-            "text_wrap": ft.WRAP}
-    edits = SimpleNamespace(styles={})
+            "show_arrived": True, "show_masters": True, "text_wrap": ft.WRAP}
+    edits = SimpleNamespace(styles={}, mark_names={}, marks_off=[])
     entries = entries or {}
     return SimpleNamespace(edits=edits, names={}, opt=lambda _p, name: opts[name],
                            entry=lambda p: entries.get(p.id, {}),
-                           village=SimpleNamespace(people={p.id: p for p in people}))
+                           village=SimpleNamespace(people={p.id: p for p in people}, snapshot_dates=[]))
 
 
 class DefaultStyleTests(unittest.TestCase):
@@ -45,11 +46,14 @@ class DefaultStyleTests(unittest.TestCase):
         dead = person(3, "Ghali", 1, alive=False, runner=True)                    # living or dead alike
         self.assertIn(("Runner", BI), [r for line in ft.node_runs(lay([dead]), dead) for r in line])
 
-    def test_the_toggle_is_saved_and_old_edits_load_with_it_off(self):
-        self.assertFalse(ft.Edits().show_runner)
-        self.assertFalse(ft.Edits._from_data({}).show_runner)
-        e = ft.Edits(show_runner=True)
-        self.assertTrue(ft.Edits._from_data(e.to_data()).show_runner)
+    def test_the_toggle_is_saved_and_on_by_default(self):
+        # On by default since 2026-10-22 (the owner: "villagers get auto-denoted with special descriptors if
+        # applicable"); an earlier build's saved False reads as the new default, a value saved now is kept.
+        self.assertTrue(ft.Edits().show_runner)
+        self.assertTrue(ft.Edits._from_data({}).show_runner)
+        self.assertTrue(ft.Edits._from_data({"show_runner": False}).show_runner)
+        e = ft.Edits(show_runner=False)
+        self.assertFalse(ft.Edits._from_data(e.to_data()).show_runner)
         self.assertIn("show_runner", ft.GROUP_FIELDS)
 
     def test_the_name_and_age_alone_stay_plain(self):

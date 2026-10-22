@@ -398,8 +398,14 @@ class Edits:
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
     portrait_gap: float = 22.0          # pixels between two portraits side by side (the owner: batch-editable)
     row_gap: float = 30.0               # pixels under a generation's row before its children's lines (LANE_TOP)
-    show_runner: bool = False           # "Runner" for a villager who likes running (the owner, 2026-10-10)
-    show_founder: bool = False          # "Founder" in each generation I portrait (the owner, 2026-10-09)
+    # The descriptors each portrait gets by itself where they apply (the owner, 2026-10-22: "villagers get
+    # auto-denoted with special descriptors if applicable (tribal chief, founder, runner etc)"): on unless the
+    # player unticks them.  descriptors_v2 marks a value saved since then: every earlier build wrote these
+    # False whether or not the player ever unticked them, so an earlier file's False reads as the new default.
+    show_runner: bool = True            # "Runner" for a villager who likes running (the owner, 2026-10-10)
+    show_founder: bool = True           # "Founder" for each founder of the village (the owner, 2026-10-09)
+    show_arrived: bool = True           # "Arrived: <how>" for a villager who came later (an Arrived record)
+    show_masters: bool = True           # "Master Farmer"... (the save's skills now; a grave's for the dead)
     fit_width: int = 0                  # 0, or shrink every portrait so the widest row fits this many pixels
     # The canvas (the owner, 2026-10-09): 0 x 0 is Automatic, the page as large as the tree; else every
     # page is this many pixels, the tree shrunk evenly to fit it or centred on it at its own size.
@@ -409,7 +415,7 @@ class Edits:
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
-    show_twins: bool = False            # "<name>'s twin" / "<name> and <name>'s triplet" after the age
+    show_twins: bool = True             # "<name>'s twin" / "<name> and <name>'s triplet" after the age
     # Villagers who share a name numbered: "Soda I", "Soda II"... -- on by default (the owner, 2026-10-20:
     # numbering "must be ON BY DEFAULT").  number_names_v2 marks a value saved since then: every earlier
     # build wrote number_names (False) whether or not the player ever changed it, so an earlier file's
@@ -592,8 +598,11 @@ class Edits:
         out.text_size = _number(data.get("text_size"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
         out.row_gap = float(_number(data.get("row_gap"), ROW_GAP_MIN, ROW_GAP_MAX, LANE_TOP))
-        out.show_founder = data.get("show_founder", False) is True
-        out.show_runner = data.get("show_runner", False) is True
+        kept = data.get("descriptors_v2") is True       # else an earlier build's False: the new default, on
+        out.show_founder = data.get("show_founder") is not False if kept else True
+        out.show_runner = data.get("show_runner") is not False if kept else True
+        out.show_arrived = data.get("show_arrived") is not False
+        out.show_masters = data.get("show_masters") is not False
         out.page_generations = int(_number(data.get("page_generations"), PAGE_GENS_MIN, PAGE_GENS_MAX, PAGE_GENS))
         fit = data.get("fit_width")
         out.fit_width = int(_number(fit, FIT_MIN, FIT_MAX, 0)) if isinstance(fit, (int, float)) and fit else 0
@@ -603,7 +612,7 @@ class Edits:
             out.canvas_h = int(_number(ch, CANVAS_MIN, CANVAS_MAX, 0))
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
-        out.show_twins = data.get("show_twins", False) is True
+        out.show_twins = data.get("show_twins") is not False if kept else True
         out.number_names = data.get("number_names") is not False if data.get("number_names_v2") is True else True
         if data.get("number_order") in gen.NUMBER_ORDERS:
             out.number_order = data["number_order"]
@@ -777,7 +786,8 @@ class Edits:
         return {"format": 1, "page_edits": clean_page_edits(self.page_edits), "title": self.title, "subtitle": self.subtitle,
                 "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "line_mode": self.line_mode, "line_order": self.line_order, "line_reverse": self.line_reverse, "gradient_start": self.gradient_start, "gradient_end": self.gradient_end, "range_colours": self.range_colours, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "show_runner": self.show_runner, "number_names": self.number_names,
-                "number_names_v2": True,
+                "number_names_v2": True, "descriptors_v2": True, "show_arrived": self.show_arrived,
+                "show_masters": self.show_masters,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
                 "numbering": self.numbering,
@@ -1445,7 +1455,8 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "fixed_face_size", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
     "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "canvas_w", "canvas_h", "page_generations", "diagonal_lines",
-    "show_units", "show_years", "show_twins", "show_runner", "number_names", "number_names_v2", "number_order", "sort", "positioning", "numbering",
+    "show_units", "show_years", "show_twins", "show_runner", "show_arrived", "show_masters", "descriptors_v2",
+    "number_names", "number_names_v2", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
     "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
@@ -1467,6 +1478,8 @@ def styled(style: dict | None) -> "Edits":
         base.update({key: value for key, value in style.items() if key in STYLE_KEYS})
         if style.get("number_names_v2") is not True:   # a look an earlier build kept: numbering's new default
             base["number_names"] = True
+        if style.get("descriptors_v2") is not True:     # and the descriptors' new default: on
+            base.update(show_founder=True, show_runner=True, show_twins=True)
         shapes = style.get("shapes") if isinstance(style.get("shapes"), dict) else {}
         for name in SHAPE_BAKES:                # a look remembered before, with that shape: moved on
             if f"{name}_v2" not in style and name in shapes.values():
@@ -4971,9 +4984,94 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
         extra = "Heathen" if p.heathen else ""
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
-    founder = ["Founder"] if lay.opt(p, "show_founder") and p.generation == 1 else []     # the owner, 2026-10-09
-    runner = ["Runner"] if lay.opt(p, "show_runner") and p.runner else []        # likes running (the owner, 2026-10-10)
-    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + founder + runner + born_with(lay, p) + ([extra] if extra else [])
+    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + descriptors(lay, p) + ([extra] if extra else [])
+
+
+def is_founder(village: gen.Village, p: gen.Person) -> bool:
+    """One of the village's founders: generation I, no parents recorded, and not a later arrival (an Arrived
+    record with a known "How" other than Founder, or first seen after the village's first snapshot)."""
+    if p.upcoming or p.generation != 1 or p.father is not None or p.mother is not None:
+        return False
+    return not gen.is_arrival(p, min(gen.snapshot_dates(village), default=None))
+
+
+def arrival_words(village: gen.Village, p: gen.Person) -> str:
+    """ "Arrived: <how>" for a villager an Arrived record says came later (an island event, a visitor, a Custom
+    Island Event...); "" for a founder, a birth, or a backfilled "How: unknown"."""
+    how = (p.how or "").strip()
+    if p.upcoming or not p.arrived or not how or how.lower() in ("founder", "unknown", "golden child"):
+        return ""
+    return f"Arrived: {how}"
+
+
+def status_descriptors(lay: Layout, p: gen.Person) -> list[str]:
+    """The special villager statuses this portrait says in words: each automatic mark the villager has (the
+    mark and its words are one: a mark taken off them, or removed from everyone, takes its words too)."""
+    auto = auto_labels(lay.edits, p)
+    return [label for label in entry_marks(lay.entry(p)) if label in auto]
+
+
+def descriptors(lay: Layout, p: gen.Person) -> list[str]:
+    """The descriptors after the age (the owner, 2026-10-22: "villagers get auto-denoted with special descriptors
+    if applicable"): Founder, Runner, twins and triplets, how they arrived, the jobs they are a Master of, and
+    their special villager statuses -- each where it applies and its option is ticked."""
+    v = lay.village
+    out = ["Founder"] if lay.opt(p, "show_founder") and is_founder(v, p) else []      # the owner, 2026-10-09
+    out += ["Runner"] if lay.opt(p, "show_runner") and p.runner else []             # likes running (2026-10-10)
+    out += born_with(lay, p)
+    arrived = arrival_words(v, p) if lay.opt(p, "show_arrived") else ""
+    out += [arrived] if arrived else []
+    out += [f"Master {job}" for job in getattr(p, "masters", [])] if lay.opt(p, "show_masters") else []
+    return out + [s for s in status_descriptors(lay, p) if s not in out]
+
+
+# The descriptor options (the Faces & Text tab's tick boxes): (Edits field, words).
+DESCRIPTOR_OPTIONS = (("show_founder", "Founder (the village's founders)"),
+                      ("show_runner", "Runner (villagers who like running)"),
+                      ("show_twins", "Twins and triplets (\"Kalea's twin\")"),
+                      ("show_arrived", "How they arrived (\"Arrived: Shipwreck\")"),
+                      ("show_masters", "Master of a skill (\"Master Farmer\")"))
+
+
+def status_options(edits: Edits, village: gen.Village) -> list[tuple[str, bool]]:
+    """The special villager statuses this tree can describe, (the mark's name now, ticked): the game's own
+    (gen.GAME_STATUSES) and every status a villager of the village has (their Custom titles too).  Ticked
+    unless the player took the status off everyone (marks_off) -- the mark and its words together."""
+    statuses = list(gen.GAME_STATUSES.get(village.game, ()))
+    for p in village.people.values():
+        statuses += [s for s in p.statuses if s not in statuses]
+    out, seen = [], set()
+    for status in statuses:
+        label = auto_label(edits, status)
+        if label not in seen:
+            seen.add(label)
+            out.append((label, status not in edits.marks_off and label not in edits.marks_off))
+    return out
+
+
+def set_status_option(edits: Edits, village: gen.Village, label: str, on: bool) -> None:
+    """A status's descriptor option ticked or unticked -- and its mark with it, on everyone: off, the status is
+    kept off (marks_off) and its mark taken off every villager (the tree's and each page's); on, given again
+    to everyone who has it (each villager's own "unmarked" still kept)."""
+    if on:
+        edits.marks_off = [m for m in edits.marks_off if m != label and auto_label(edits, m) != label]
+        apply_auto_marks(edits, village)
+        return
+    if label not in edits.marks_off:
+        edits.marks_off.append(label)
+    own = {id(e) for e in edits.entries.values()}
+    entries = list(edits.entries.values()) + [e for part in edits.page_edits.values()
+                                              for e in part.get("entries", {}).values()]
+    for entry in entries:
+        if label in entry_marks(entry):
+            left = [m for m in entry_marks(entry) if m != label]
+            if left or id(entry) not in own:
+                entry["marks"], entry["mark"] = left or None, left[0] if left else None
+            else:
+                entry.pop("marks", None)
+                entry.pop("mark", None)
+    for key in [k for k, e in edits.entries.items() if not e]:
+        del edits.entries[key]
 
 
 def born_with(lay: Layout, p: gen.Person) -> list[str]:
