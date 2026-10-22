@@ -59,6 +59,7 @@ def main() -> None:
             "Loading (0x428A08): after the stock loader accepts the save, the entry written with exactly this save (same slot, same fingerprint, the same first faction at the same level) gives the second faction its level back through the game's own level-up 0x426FD0, as the stock loader restores every level. Any other save of the slot loads as the stock game loads it.",
             "The world draw 0x420B30 also draws the Magic herb (herb_magic.png, the Berry Plant) when it has drawn the Nature herb (herb_nature.png, the Pitcher Plant): its ret at 0x420BD5 becomes a nop. The two are separate images at separate places, and the herbs' own drop places (map regions 30 and 31, 0x421340 and 0x4213D0) and carried items (0x24 and 0x25) never read a technology.",
             "The Tech screen (0x464AE4): with both factions above 0, both columns get the sunbeam (sunbeam.png, image 0x90, at the columns' x - 0x28, full strength) and neither is darkened; with one faction or none the stock drawing runs.",
+            "The Tech screen's floating particles (0x465583): the stock frame 0x465530 gives only the chosen faction's column its particles (one in ten frames: Nature's petals, particle type 0xA; Magic's sparkles, type 2; from the shared pool 0x583B28, 0x200 slots, through 0x429400). With both factions each column gets its own, with the stock chance, random calls and particle; with one faction or none (and the stock preview on hover while neither is bought) the stock emitter runs.",
             "Every other faction reader takes its own technology and works with both: Nature 1 fruit refill (0x4347C3), Nature 3 longevity (0x4601C4), Magic 1 research point (0x4593DC), Magic 3 population maximum (0x45FE9D), the Ghostly Dream island events (0x4154F0, 0x415630), and the Tech screen's level marks and information (0x4649C0, 0x464C30).",
         ],
         "explicit_non_changes": [
@@ -103,6 +104,13 @@ def main() -> None:
                 "stock_bytes": "8B87D400000083F8FF",
                 "written_bytes": "E9XXXXXXXX90909090",
                 "routine": "the Tech screen draw (0x4649C0): the chosen faction's sunbeam and the other column's shade; with both factions both get the sunbeam and neither is shaded (on to 0x464BE1)",
+                "installed_by": INSTALLED_BY,
+            },
+            {
+                "va": "0x465583",
+                "stock_bytes": "83BED4000000FF0F8494000000",
+                "written_bytes": "E9XXXXXXXX9090909090909090",
+                "routine": "the Tech screen frame (0x465530): the chosen faction's floating particles (one in ten frames, in its column: Nature's petals type 0xA, Magic's sparkles type 2, pool 0x583B28 via 0x429400); with both factions each column gets its own, otherwise the stock emitter runs (on to 0x465590 or 0x465624)",
                 "installed_by": INSTALLED_BY,
             },
             {

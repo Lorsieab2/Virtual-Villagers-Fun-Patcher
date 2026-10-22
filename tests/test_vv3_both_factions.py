@@ -75,6 +75,7 @@ SITES = {
     0x420BD5: "C3",
     0x4656FE: "7F36",
     0x465734: "7ECA",
+    0x465583: "83BED4000000FF0F8494000000",
 }
 
 
@@ -292,6 +293,27 @@ class Game:
         p.call(0x464920, [1], ecx=screen)       # the screen opens (stock: picks the chosen faction)
         p.call(0x4649C0, [], ecx=screen)
         return drawn
+
+    def tech_screen_frame(self, chosen: int, rolls) -> list[tuple]:
+        """The Tech screen's frame 0x465530 with [screen+0xD4] = `chosen` and the
+        game's rand(n) answering from `rolls`; returns the particles spawned
+        (type, x, y, petal flag)."""
+        p = self.proc
+        screen = p.alloc(0x200)
+        p.put32(screen + 0xD4, chosen & 0xFFFFFFFF)
+        flag = p.alloc(0x10)
+        p.write(flag, b"\1")
+        spawned: list[tuple] = []
+        answers = iter(rolls)
+        p.stub(0x42E0C0, lambda q: (0, 0))
+        p.stub(0x436E60, lambda q: (0, 12))
+        p.stub(0x4377F0, lambda q: (0, 8))
+        p.stub(0x42E230, lambda q: (flag, 0))
+        p.stub(0x4032D0, lambda q: (next(answers), 0))
+        p.stub(0x429400, lambda q: (spawned.append((q.arg(0), q.arg(1), q.arg(2), q.arg(5))) or 0, 0x20))
+        p.stub(0x429710, lambda q: (0, 0))
+        p.call(0x465530, [], ecx=screen)
+        return spawned
 
     # ---- the world -----------------------------------------------------
     def draw_world(self) -> list[int]:
@@ -788,6 +810,30 @@ class BothFactionsWork(unittest.TestCase):
             drawn = g.draw_tech_screen()
             self.assertEqual(sorted(x[2] for x in drawn if x[0] == "image" and x[1] == 0x90), [0x16F - 0x28])
             self.assertIn(("shade",), drawn)
+
+    def test_both_factions_float_their_own_particles_on_the_tech_screen(self):
+        nature = (0xA, 0x16F + 3, 0x92 + 4, 1)          # petals in Nature's column
+        magic = (2, 0x283 + 5, 0x92 + 6, 0)             # sparkles in Magic's column
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                g = Game(mode)
+                g.levels(1, 1, 1, 1, 1, 1, 2)
+                # Each column rolls its own chance (rand(100) < 10), then x, then y.
+                self.assertEqual(g.tech_screen_frame(NATURE, [0, 3, 4, 0, 5, 6]), [nature, magic])
+                self.assertEqual(g.tech_screen_frame(NATURE, [50, 9, 5, 6]), [magic])
+                self.assertEqual(g.tech_screen_frame(MAGIC, [9, 3, 4, 10]), [nature])
+                self.assertEqual(g.tech_screen_frame(NATURE, [10, 99]), [])
+
+    def test_one_faction_or_none_floats_as_the_stock_game(self):
+        for companion in (True, False):
+            with self.subTest(companion=companion):
+                g = Game(companion=companion)
+                g.levels(1, 1, 1, 1, 1, 0, 2)
+                self.assertEqual(g.tech_screen_frame(MAGIC, [0, 5, 6]), [(2, 0x283 + 5, 0x92 + 6, 0)])
+                g.levels(1, 1, 1, 1, 1, 0, 0)
+                self.assertEqual(g.tech_screen_frame(-1, []), [])
+                # Neither bought: the stock preview of the faction under the pointer.
+                self.assertEqual(g.tech_screen_frame(NATURE, [0, 3, 4]), [(0xA, 0x16F + 3, 0x92 + 4, 1)])
 
     def test_every_level_reader_sees_both(self):
         g = bought("stock", first=NATURE, first_levels=3, second_levels=3)

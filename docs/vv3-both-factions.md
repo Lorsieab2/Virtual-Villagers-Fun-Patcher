@@ -67,7 +67,8 @@ fails the test).
 | 0x464942 / 0x464969 (Tech screen open 0x464920) | 5 / 6 | `[screen+0xD4]` = the chosen faction (Nature first) | harmless; drawing handled below |
 | 0x4649C0 (Tech screen draw), 0x464A0C / 0x464AB0 | any | level pips for every technology | works: both filled in |
 | 0x464AE4..0x464BE1 (same draw) | `[+0xD4]` | sunbeam.png (0x90) on the chosen faction, the other column darkened | **one only** -> handled |
-| 0x464DBB.. / 0x464EB6.. (hover 0x464D90) | 5 / 6 | preview while neither is chosen | harmless |
+| 0x465583..0x465624 (Tech screen frame 0x465530) | `[+0xD4]` | floating particles in the chosen column only: one in ten frames, Nature's petals (type 0xA) or Magic's sparkles (type 2), shared pool 0x583B28 (0x429400, 0x200 slots, type 2 limited to the first 0x65) | **one only** -> handled (each column its own) |
+| 0x464DBB.. / 0x464EB6.. (hover 0x464D90) | 5 / 6 | preview (sunbeam and particles) while neither is chosen | harmless; kept stock |
 | 0x464C65 (info box 0x464C30) | any | level and next price | works |
 | 0x4656F7 / 0x46572D (purchase) | 5 / 6 | "already chosen" refusal | **blocks** -> handled |
 | 0x46575F / 0x46576F (purchase) | 5 / 6 | confirmation while neither is chosen | stock |
@@ -134,6 +135,7 @@ stock bytes at every site and installs all or nothing; the purchase last.
 | 0x465734 | `jle 0x465700` | jmp (Nature while Magic) |
 | 0x420BD5 | `ret` | nop: the Magic herb is drawn too |
 | 0x464AE4 | `mov eax,[edi+0xD4] / cmp eax,-1` | with both: both sunbeams at full strength, no shade |
+| 0x465583 | `cmp [esi+0xD4],-1 / je 0x465624` | with both: each column its own particles (petals, sparkles), stock chance and art |
 
 **The file**: `<save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Factions\Virtual Villagers 3 Second Faction - Save <S>.dat`
 (magic `VV2F`, version 1, game 3, slot, up to 16 entries: fingerprint,
@@ -171,6 +173,12 @@ and is used again if the patch is put back.
    on the Tech screen, only in the sidecar.
 4. Tech screen: both factions' levels filled in (the pips draw from each
    level) and both highlighted with the game's own sunbeam.
+5. (Owner, after the first preview) both factions' floating particles at the
+   same time, each around its own column, with the game's own particles;
+   the stock hover preview kept while neither is bought. The Buy buttons are
+   the stock ones: the stock game never hides a faction's button (no reader
+   of the two levels does), so both stay before and after both are bought; a
+   click on a fully researched faction says so, as for any technology.
 
 Gate: every reader in section 2 is handled or independent, the companion
 installs only when every site is stock, and no path writes a save with both

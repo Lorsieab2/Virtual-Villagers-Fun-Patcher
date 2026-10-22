@@ -57,7 +57,9 @@
      d. THE HERBS (0x420BD5): the `ret` becomes a nop, so the Berry Plant is
         also drawn when the Pitcher Plant is.
      e. THE TECH SCREEN (0x464AE4): with both factions, both get the sunbeam
-        and neither column is darkened.
+        and neither column is darkened; (0x465583) both columns get their own
+        floating particles (Nature's petals, Magic's sparkles), each from the
+        stock emitter's own chance and art.
 
    Installed by VvfpStartup(game, shipped), which VVFP Startup.dll calls once
    at game start.  Only The Secret City installs, and only when every place
@@ -98,6 +100,11 @@
 #define HERB_SITE 0x420BD5u       /* ret (Nature herb drawn: Magic's never asked) */
 #define BUY_MAGIC_SITE 0x4656FEu  /* jg 0x465736: Magic refused while Nature > 0 */
 #define BUY_NATURE_SITE 0x465734u /* jle 0x465700: Nature allowed only while Magic is 0 */
+#define PARTICLE_SITE 0x465583u   /* cmp [esi+0xD4], -1 / je 0x465624: the chosen faction's particles */
+#define RAND 0x4032D0u            /* cdecl rand(n): 0..n-1 */
+#define SPAWN 0x429400u           /* thiscall: one particle (8 arguments) */
+#define PARTICLES 0x583B28u       /* the particle pool */
+#define COLUMNS 0x4B1F6Cu         /* the Tech screen's columns: x, y at +16*id */
 
 #define SAVE_FIRST 0x6CE0u        /* the fingerprint's span of the save buffer */
 #define SAVE_TECH 0x6CC0u         /* the levels in the save buffer */
@@ -110,6 +117,8 @@ static const unsigned char SUN_STOCK[9] = { 0x8B, 0x87, 0xD4, 0x00, 0x00, 0x00, 
 static const unsigned char HERB_STOCK[3] = { 0xC3, 0x6A, 0x06 };     /* ret / push 6 (the Magic test) */
 static const unsigned char BUY_MAGIC_STOCK[2] = { 0x7F, 0x36 };
 static const unsigned char BUY_NATURE_STOCK[2] = { 0x7E, 0xCA };
+static const unsigned char PARTICLE_STOCK[13] = { 0x83, 0xBE, 0xD4, 0x00, 0x00, 0x00, 0xFF,
+                                                  0x0F, 0x84, 0x94, 0x00, 0x00, 0x00 };
 
 /* THE FILE.  One entry per save written with a second faction, newest
    last; the oldest is dropped past ENTRIES, so the backups the game and the
@@ -419,6 +428,36 @@ static int __cdecl both_factions_c(void) {
     return both_factions();
 }
 
+/* THE PARTICLES.  The Tech screen's frame (0x465530) gives the chosen
+   faction ([screen+0xD4]) one particle in ten frames, at a random point of
+   its column (x + rand(0x72), y + rand(0x162)), from the shared particle
+   pool 0x583B28 (0x429400, 0x200 slots): Nature's petals (type 0xA, flag 1),
+   Magic's sparkles (type 2).  With both factions each column gets its own,
+   exactly as the stock frame gives the one: the same chance, the same
+   random calls in the same order, the same particle. */
+typedef int (__cdecl *rand_fn)(int n);
+typedef void (__fastcall *spawn_fn)(void *pool, void *unused, int type, int x, int y, int a, int b,
+                                    int petal, int c, int d);
+
+static void emit(int id) {
+    rand_fn rnd = (rand_fn)(uintptr_t)RAND;
+    int column_x = *(const int *)(uintptr_t)(COLUMNS + 16u * (unsigned int)id);
+    int column_y = *(const int *)(uintptr_t)(COLUMNS + 4u + 16u * (unsigned int)id);
+    int x, y;
+    if (rnd(100) >= 10) {
+        return;
+    }
+    x = rnd(0x72) + column_x;
+    y = rnd(0x162) + column_y;
+    ((spawn_fn)(uintptr_t)SPAWN)((void *)(uintptr_t)PARTICLES, 0, id == NATURE ? 0xA : 2, x, y, 1, 0,
+                                 id == NATURE ? 1 : 0, 0xA, 0);
+}
+
+static void __cdecl emit_both(void) {
+    emit(NATURE);
+    emit(MAGIC);
+}
+
 /* ---- the stubs ----------------------------------------------------------- */
 
 /* At SAVE_SITE: esi = the game, edi = the slot, the buffer's levels pushed. */
@@ -500,6 +539,31 @@ static __declspec(naked) void sun_stub(void) {
     }
 }
 
+/* At PARTICLE_SITE: esi = the Tech screen; on to 0x465624 (the pool's
+   update) or the stock emitter 0x465590. */
+static __declspec(naked) void particle_stub(void) {
+    __asm {
+        pushad
+        call both_factions_c
+        test eax, eax
+        popad
+        jne both
+        cmp dword ptr [esi + 0xD4], -1
+        je none
+        push 0x465590
+        ret
+    none:
+        push 0x465624
+        ret
+    both:
+        pushad
+        call emit_both
+        popad
+        push 0x465624
+        ret
+    }
+}
+
 /* ---- installing ---------------------------------------------------------- */
 
 static int write_code(unsigned int va, const unsigned char *bytes, int length) {
@@ -543,13 +607,15 @@ static void install(void) {
         || !is_stock(SUN_SITE, SUN_STOCK, sizeof SUN_STOCK)
         || !is_stock(HERB_SITE, HERB_STOCK, sizeof HERB_STOCK)
         || !is_stock(BUY_MAGIC_SITE, BUY_MAGIC_STOCK, sizeof BUY_MAGIC_STOCK)
-        || !is_stock(BUY_NATURE_SITE, BUY_NATURE_STOCK, sizeof BUY_NATURE_STOCK)) {
+        || !is_stock(BUY_NATURE_SITE, BUY_NATURE_STOCK, sizeof BUY_NATURE_STOCK)
+        || !is_stock(PARTICLE_SITE, PARTICLE_STOCK, sizeof PARTICLE_STOCK)) {
         return;
     }
     if (!write_jump(SAVE_SITE, save_stub, sizeof SAVE_STOCK)
         || !write_jump(LOAD_SITE, load_stub, sizeof LOAD_STOCK)
         || !write_jump(NOTE_SITE, note_stub, sizeof NOTE_STOCK)
         || !write_jump(SUN_SITE, sun_stub, sizeof SUN_STOCK)
+        || !write_jump(PARTICLE_SITE, particle_stub, sizeof PARTICLE_STOCK)
         || !write_code(HERB_SITE, &nop, 1)) {
         return;
     }
