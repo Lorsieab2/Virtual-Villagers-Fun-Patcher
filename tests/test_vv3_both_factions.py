@@ -1046,6 +1046,72 @@ class BothHerbRecipes(unittest.TestCase):
                 self.assertEqual(g.brew(pot, herbs), s.brew(spot, herbs))
         self.assertEqual(g.recipes(pot), s.recipes(spot))
 
+    def test_each_new_potion_is_the_stock_recipes_potion_from_the_pot_on(self):
+        """Brewing (0x430A50's lookup) stores the effect at pot+0x97C, the only
+        thing the pot's particles (0x430160) and the drink (0x4303E0 ->
+        0x4583A0 -> the effect switch 0x4268F0) read.  So a new combination
+        and the stock recipe of the same effect give the drinker exactly the
+        same potion."""
+        g = Game()
+        g.levels(1, 1, 1, 1, 1, 1, 1)
+        # The stock table's own recipe for each effect (record: key, effect, herbs at +0x8..+0x10).
+        table = g.new_pot()
+        stock_recipe = {}
+        for i in range(g.recipes(table)):
+            rec = table + 0x18 + 0x18 * i
+            effect = g.proc.u32(rec + 4)
+            stock_recipe.setdefault(effect, tuple(g.proc.u32(rec + 8 + 4 * k) for k in range(3)))
+        self.assertTrue(set(BOTH_HERB_RECIPES.values()) <= set(stock_recipe), "every new effect has a stock recipe")
+        for herbs, effect in BOTH_HERB_RECIPES.items():
+            with self.subTest(effect=hex(effect)):
+                new_pot, old_pot = g.new_pot(), g.new_pot()
+                self.assertEqual(g.brew(new_pot, herbs), effect)
+                self.assertEqual(g.brew(old_pot, stock_recipe[effect]), effect, "the stock recipe of that effect")
+                drinks = []
+                g.proc.stub(0x4583A0, lambda q: (drinks.append((q.arg(0), q.arg(1), q.arg(2))) or 1, 0x14))
+                for pot in (new_pot, old_pot):
+                    g.proc.put32(pot + 0x97C, g.brew(pot, herbs if pot == new_pot else stock_recipe[effect]))
+                    g.proc.call(0x4303E0, [0x1234, 0], ecx=pot)
+                self.assertEqual(drinks[0], drinks[1])
+                self.assertEqual(drinks[0][1], effect)
+
+    def test_the_yummy_potion_sends_every_free_child_to_the_pot(self):
+        """Effect 0x28 (stock Cactus + Cactus + Rose, new Pitcher + Berry + Berry):
+        the drinker says "Something smells YUMMY!" and the village (0x45E0C0 ->
+        0x45DDE0, flag 1) gives task 0xC1 (0x44DB40: "Something smells YUMMY!",
+        walk to the pot) to every living villager YOUNGER THAN 14 (age < 0x118)
+        who is free (+0xF20 = -1: holding and heading for nothing).  No child, nobody goes: as in the stock game."""
+        g = Game()
+        p = g.proc
+        manager = 0x59E110
+        given: list[tuple[int, int]] = []
+        p.stub(0x455570, lambda q: (given.append((q.reg("ecx"), q.arg(0))) or 0, 8))
+        p.stub(0x460F70, lambda q: (0, 4))
+        p.stub(0x461BF0, lambda q: (0, 4))
+        p.stub(0x42F1D0, lambda q: (0, 0x20))
+        p.stub(0x42E200, lambda q: (0, 4))
+
+        def record(i):
+            return manager + 0x14 + 0x1F8C * i
+
+        def villager(i, age, free=True, health=50):
+            r = record(i)
+            p.put32(r + 0xE78, health)          # health
+            p.write(r + 0xF10, b"\x01\0\0\0")   # the record is in use (+0xF10 set, +0xF13 clear)
+            p.put32(r + 0xDC4, age)             # age (20 a year: 0x118 = 14 years)
+            p.put32(r + 0xF20, 0xFFFFFFFF if free else 0x2A)   # nothing in hand / going to
+        for i in range(150):
+            p.put32(record(i) + 0xE78, 0)
+        villager(0, 600)                 # the adult drinker
+        villager(1, 100)                 # a free child: goes
+        villager(2, 279)                 # just under 14: goes
+        villager(3, 280)                 # 14: does not
+        villager(4, 120, free=False)     # a busy child: does not
+        villager(5, 50, health=0)        # a dead child: does not
+        out = p.alloc(4)
+        p.call(0x4268F0, [record(0), 0x28, out], ecx=0x582610)
+        self.assertEqual(given, [(record(1), 0xC1), (record(2), 0xC1)])
+
     def test_stews_found_counts_each_combination(self):
         g = Game("collection_progression")
         self.assertEqual(g.proc.read(0x430510, 1), b"\xE9", "the Village Statistics hook is in this build")

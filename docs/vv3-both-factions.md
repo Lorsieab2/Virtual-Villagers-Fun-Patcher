@@ -188,6 +188,28 @@ stock table's flags:
 | Pitcher + Pitcher + Berry | 0x21 "Whoa!" |
 | Pitcher + Berry + Berry | 0x28 "Something smells YUMMY!" |
 
+What each potion does is the stock game's own effect code: the brew stores
+only the effect id (pot+0x97C, written at 0x430ABC); the pot's particles
+(0x430160) and the drink (0x4303E0 -> 0x4583A0 -> the effect switch
+0x4268F0, jump table 0x426E6C) read nothing else, so a new combination and
+the stock recipe of the same effect give identical results (checked in the
+emulator against the stock table's own recipe for each effect):
+
+* 0x07 (0x45B9B0 on the drinker), says "Whee! What a fun potion!" -- the drinker.
+* 0x23 task 0xA1 "In a trance" -- the drinker.
+* 0x26 task 0xBF, crazy talk "Blannesamagawa loomajoobamooga!!", lasts 0x258 -- the drinker.
+* 0x16 task 0x9C "Paralyzed" -- the drinker.
+* 0x19 task 0x66 "A little bit lonely" -- the drinker.
+* 0x21 "Whoa!": the drinker is moved to a random free spot of the map (0x560990,
+  0x420970), with a puff -- the drinker.
+* 0x28 "Something smells YUMMY!" (said by the drinker): the village
+  (0x45E0C0 -> 0x45DDE0, flag 1) gives task 0xC1 (0x44DB40: says it too and
+  walks to the pot, then a short pose) to every living villager **younger
+  than 14** (age < 0x118) who holds and heads for nothing (+0xF20 = -1). Adults
+  never go; with no free child nobody moves. That is the stock game's own
+  Cactus + Cactus + Rose potion; the owner's first test ("nothing really
+  happened", the drinker did say it) matches a village with no free child.
+
 Which ones were brewed is kept in the per-save file's entry (version 2 adds a
 byte; version 1 files from the first preview are still read), and counted
 with the table's found flags toward "Alchemy R Us". The Village Statistics
