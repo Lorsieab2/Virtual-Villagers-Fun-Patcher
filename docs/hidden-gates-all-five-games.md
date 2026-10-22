@@ -1141,6 +1141,8 @@ Source: stock `Virtual Villagers - The Secret City.exe` (831,488 bytes), disasse
 - **Build speed:** each successful "Building small hut" action adds **1 unit** of progress. The builder must pass the Building skill test first; on a failure no unit is added. A supervising chief adds a second unit on a 25% × Leadership roll. Hut 0 starts needing 250 units, hut 1 needs 1,600, and huts 2 and 3 need 2,000 each.
   Evidence: the chain is practise step 0x453B62 then step 27 at 0x453BE2 → 0x4358B0 → hut vtable+0x24 0x432680 → `0x435990` (+1) at 0x4327E9, with the extra +1 at 0x4327DE behind 0x45FC60. Starting remainders [0,250,1600,2000,2000] are at 0x49D0E0, applied by 0x4322F0. Totals are 2,000 for projects 21–24 at 0x49D230. REACHED.
 - Low food applies here too: builders face the 50% "Worried about food" substitution when food is 250 or less (section 1).
+- **During catch-up (a Time Warp, or time away) huts get almost no work.** The hut action skips every walk to the hut while the catch-up flag is set, and the build step credits only the hut the builder is standing in, so a builder elsewhere adds nothing. The other construction projects walk (and so are moved) in catch-up too, and The Tree of Life and New Believers do it for huts. Fixed by Fix Vanilla Bugs (the last walk is queued in catch-up too).
+  Evidence: `mov al,[edi+0x12FB4]; test; jne` before each hut walk 0x4610D0 at 0x4539CF, 0x453A2D, 0x453B1E and 0x453B73 in 0x453990; step 27 → 0x4358B0 → 0x432680 compares the builder's map area (0x455EF0 → 0x4205B0) with the four hut areas (0x4326B1–0x4326C1); the catch-up runner 0x45B790 turns a walk (step 3) into a move at 0x45B7D7 → 0x455EB0. REACHED (catch-up).
 
 ## 3. Breeding (making babies)
 

@@ -222,17 +222,23 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # row and diffing byte for byte: 97 differing bytes per mode, every one inside its
     # three rows (0x34A9B..0x34ABA, 0x34C27..0x34C2B, 0x34C44..0x34C7F) or the PE
     # CheckSum at 0x160..0x163; the length is unchanged.
+    # Re-pinned for Fix Vanilla Bugs' catch-up hut walk: putting its one site (0x53B73, 90 90 ->
+    # 75 19) back to stock and restoring the previous CheckSum gives the previous digest in all
+    # three modes.
+    # Re-pinned for the v1.35.81 release, which carries both of the above: the combined render
+    # differs from the fruit-only render only at 0x53B73..0x53B74 and the PE CheckSum, and from
+    # the hut-only render only inside the fruit rows above and the PE CheckSum, in all three modes.
     "stock": (
-        "0879133EE92DABD680D52D7AB7B3FB7627BF5E99A414A773204695DB70B7E0B9",
-        "71740D00",
+        "FA1FEC998274691C62AF9547A8B2C23604E323B41FB0C96990A8DAE6373E62F0",
+        "E88F0D00",
     ),
     "collection_progression": (
-        "6514A1C760F1133BE55A173DE10097743A927048DC9B84DE9E76EFA48DC38529",
-        "718D0D00",
+        "06A20076A2F4074C9AE3508A3A4AB412BF5E86E320AB8FFFFC4D7390C3E68057",
+        "E8A80D00",
     ),
     "immediate_fixed": (
-        "BD8EDE67069037D671E12A29727264598FFC850B3500DE8D3E9E9132EFAB53C8",
-        "6FCF0D00",
+        "571A2EAD2CF3EC6A3FAA2EFC436BBA8D8CF91EB9196FB2E6180446493CC31D4A",
+        "E7EA0C00",
     ),
 }
 
