@@ -96,6 +96,10 @@ NAME_BOX_FIXES = (
 FIXES = ((VIAL_OFFSET, VIAL_STOCK, VIAL_PATCHED),) + NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_BOX_FIXES
 # ...and to the villager it was filled for (tests/test_details_name_identity.py).
 FIXES = FIXES + name_identity_fixes("vv1")
+# Healers learn Healing in catch-up (tests/test_catch_up_healing_practice.py).
+from test_catch_up_healing_practice import healing_practice_fixes  # noqa: E402
+
+FIXES = FIXES + healing_practice_fixes("vv1")
 
 # Game addresses and fields.
 BLUE_VIAL = 0x419C3F           # resolve 0x419380's case for the blue vial
