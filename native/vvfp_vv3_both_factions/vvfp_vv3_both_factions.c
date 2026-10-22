@@ -119,12 +119,44 @@ static const unsigned char BUY_MAGIC_STOCK[2] = { 0x7F, 0x36 };
 static const unsigned char BUY_NATURE_STOCK[2] = { 0x7E, 0xCA };
 static const unsigned char PARTICLE_STOCK[13] = { 0x83, 0xBE, 0xD4, 0x00, 0x00, 0x00, 0xFF,
                                                   0x0F, 0x84, 0x94, 0x00, 0x00, 0x00 };
+static const unsigned char RECIPE_STOCK[10] = { 0x57, 0x53, 0x55, 0x8B, 0xF1, 0xE8, 0xC6, 0xFD, 0xFF, 0xFF };
+static const unsigned char CONFIRM_STOCK[10] = { 0x83, 0xFE, 0x05, 0x74, 0x05, 0x83, 0xFE, 0x06, 0x75, 0x70 };
+static const unsigned char TEXT_STOCK[12] = { 0x68, 0x18, 0x04, 0x00, 0x00, 0x8B, 0xCD,
+                                              0xE8, 0x09, 0x9A, 0xFC, 0xFF };
+
+#define RECIPE_SITE 0x430520u     /* the brew lookup 0x430510: push the herbs / call 0x4302F0 */
+#define CONFIRM_SITE 0x46574Eu    /* the purchase: the faction confirmation's test (both 0) */
+#define TEXT_SITE 0x46577Bu       /* the purchase: the confirmation's text, string 0x418 */
+#define ACHIEVEMENTS 0x4B3710u    /* 0x412CD0(2): "Alchemy R Us", 50 recipes brewed */
+#define ACHIEVE 0x412CD0u
+#define HERB_PITCHER 0x24         /* carried herbs 0x1F..0x25: Tiger Lily, Cactus, Lotus, */
+#define HERB_BERRY 0x25           /* Black Orchid, Rose, Pitcher Plant, Berry Plant */
+
+/* The owner's text for the faction confirmation (the stock box breaks its
+   lines by hand, as its own text does). */
+static const char CONFIRM_TEXT[] =
+    "With the power of the Fun Patcher,\n"
+    "you can now embrace both Nature\n"
+    "and Magic Factions. Use this\n"
+    "gift wisely.\n";
+
+/* The seven recipes that need both factions' herbs (the owner's choice).
+   herb: the third herb; effect: the effect id the brew gives (0x4268F0). */
+static const struct { unsigned char herb; unsigned char effect; } RECIPES[7] = {
+    { 0x1F, 0x07 },   /* Tiger Lily: "Whee! What a fun potion!" */
+    { 0x20, 0x23 },   /* Cactus: "In a trance" */
+    { 0x21, 0x26 },   /* Lotus: "Blannesamagawa loomajoobamooga!!" */
+    { 0x22, 0x16 },   /* Black Orchid: "Paralyzed" */
+    { 0x23, 0x19 },   /* Rose: "A little bit lonely" */
+    { 0x24, 0x21 },   /* a second Pitcher Plant: "Whoa!" */
+    { 0x25, 0x28 },   /* a second Berry Plant: "Something smells YUMMY!" */
+};
 
 /* THE FILE.  One entry per save written with a second faction, newest
    last; the oldest is dropped past ENTRIES, so the backups the game and the
    patcher keep of the last saves still find theirs. */
 #define FILE_MAGIC 0x46325656u    /* 'V' 'V' '2' 'F' */
-#define FILE_VERSION 1u
+#define FILE_VERSION 2u           /* 2: + the recipes found; 1 (the first preview) is still read */
 #define ENTRIES 16
 
 #pragma pack(push, 1)
@@ -135,6 +167,8 @@ typedef struct {
     unsigned char primary;        /* the faction the save holds */
     unsigned char primary_level;  /* 1..3, as the save holds it */
     unsigned int written_lo, written_hi;
+    unsigned char recipes;        /* bit k: the both-herb recipe k has been brewed (version 2) */
+    unsigned char reserved[3];
 } faction_entry;
 
 typedef struct {
@@ -143,9 +177,13 @@ typedef struct {
 } faction_file;
 #pragma pack(pop)
 
+#define V1_ENTRY 20u              /* a version-1 entry: everything before `recipes` */
+#define V1_FILE (20u + ENTRIES * V1_ENTRY)
+
 static int installed;
 static int g_primary;             /* the faction bought first in this village (0 none) */
 static int g_secondary;           /* the faction bought second (0 none) */
+static unsigned int g_recipes;    /* the both-herb recipes brewed in this village (bits 0..6) */
 static vv_sidecar_gate g_gate;
 
 static int level(int id) {
@@ -210,23 +248,33 @@ typedef struct {
 
 static int valid_file(const unsigned char *data, DWORD len, void *ctx) {
     const faction_file *f = (const faction_file *)data;
-    unsigned int i;
-    if (len != sizeof(faction_file) || f->magic != FILE_MAGIC || f->version != FILE_VERSION
-        || f->game != VV3_GAME || f->slot != (unsigned int)((faction_ctx *)ctx)->slot
-        || f->count > ENTRIES) {
+    unsigned int i, stride;
+    if (len < 20u || f->magic != FILE_MAGIC || f->game != VV3_GAME
+        || f->slot != (unsigned int)((faction_ctx *)ctx)->slot || f->count > ENTRIES) {
+        return 0;
+    }
+    if (f->version == FILE_VERSION && len == sizeof(faction_file)) {
+        stride = sizeof(faction_entry);
+    } else if (f->version == 1u && len == V1_FILE) {
+        stride = V1_ENTRY;
+    } else {
         return 0;
     }
     for (i = 0; i < f->count; ++i) {
-        const faction_entry *e = &f->entry[i];
+        const faction_entry *e = (const faction_entry *)(data + 20u + i * stride);
         if ((e->secondary != NATURE && e->secondary != MAGIC) || e->primary + e->secondary != NATURE + MAGIC
             || e->secondary_level < 1 || e->secondary_level > 3 || e->primary_level < 1 || e->primary_level > 3) {
+            return 0;
+        }
+        if (stride == sizeof(faction_entry) && (e->recipes & 0x80u) != 0) {
             return 0;
         }
     }
     return 1;
 }
 
-/* Read the slot's file: 1 valid, 0 none (missing or set aside), -1 blocked. */
+/* Read the slot's file: 1 valid, 0 none (missing or set aside), -1 blocked.
+   A version-1 file comes back as version 2 with no recipes found. */
 static int read_file(int slot, faction_file *f, char *path) {
     faction_ctx ctx;
     DWORD got = 0;
@@ -236,11 +284,26 @@ static int read_file(int slot, faction_file *f, char *path) {
     if (!faction_path(slot, path, 0)) {
         return -1;
     }
+    memset(f, 0, sizeof *f);
     r = vv_sidecar_load(&g_gate, path, (unsigned char *)f, sizeof *f, &got, valid_file, &ctx);
     if (r == VV_SIDECAR_LOAD_BLOCKED) {
         return -1;
     }
-    return r == VV_SIDECAR_LOAD_VALID ? 1 : 0;
+    if (r != VV_SIDECAR_LOAD_VALID) {
+        return 0;
+    }
+    if (f->version == 1u) {
+        int i;
+        for (i = (int)f->count - 1; i >= 0; --i) {
+            faction_entry e;
+            memcpy(&e, (unsigned char *)f + 20u + (unsigned int)i * V1_ENTRY, V1_ENTRY);
+            e.recipes = 0;
+            e.reserved[0] = e.reserved[1] = e.reserved[2] = 0;
+            f->entry[i] = e;
+        }
+        f->version = FILE_VERSION;
+    }
+    return 1;
 }
 
 /* ---- the fingerprint ----------------------------------------------------- */
@@ -280,7 +343,7 @@ static int pick_secondary(void) {
 }
 
 static void record(int slot, unsigned int fp_lo, unsigned int fp_hi, int secondary, int secondary_level,
-                   int primary, int primary_level) {
+                   int primary, int primary_level, unsigned int recipes) {
     static faction_file f;
     char path[MAX_PATH];
     const void *parts[1];
@@ -314,6 +377,8 @@ static void record(int slot, unsigned int fp_lo, unsigned int fp_hi, int seconda
     f.entry[f.count].primary_level = (unsigned char)primary_level;
     f.entry[f.count].written_lo = now.dwLowDateTime;
     f.entry[f.count].written_hi = now.dwHighDateTime;
+    f.entry[f.count].recipes = (unsigned char)(recipes & 0x7Fu);
+    f.entry[f.count].reserved[0] = f.entry[f.count].reserved[1] = f.entry[f.count].reserved[2] = 0;
     f.count += 1;
     f.magic = FILE_MAGIC;
     f.version = FILE_VERSION;
@@ -350,7 +415,7 @@ static void __cdecl on_save(unsigned char *game, int slot) {
         return;
     }
     fingerprint(buffer, *(volatile int *)(uintptr_t)TECH_POINTS, &lo, &hi);
-    record(slot, lo, hi, secondary, secondary_level, primary, saved[primary]);
+    record(slot, lo, hi, secondary, secondary_level, primary, saved[primary], g_recipes);
 }
 
 /* ---- the load ------------------------------------------------------------ */
@@ -367,6 +432,7 @@ static void __cdecl on_load(unsigned char *game, int slot) {
     unsigned int lo, hi, i;
     int primary, secondary;
     g_secondary = 0;
+    g_recipes = 0;
     g_primary = level(NATURE) > 0 ? NATURE : (level(MAGIC) > 0 ? MAGIC : 0);
     primary = g_primary;
     if (slot > 20 && slot <= 25) {
@@ -391,6 +457,7 @@ static void __cdecl on_load(unsigned char *game, int slot) {
             ((level_up_fn)(uintptr_t)LEVEL_UP)((void *)(uintptr_t)TECH, 0, secondary);
         }
         g_secondary = secondary;
+        g_recipes = e->recipes & 0x7Fu;
         return;
     }
 }
@@ -407,10 +474,74 @@ static void __cdecl on_purchase(int id) {
     if (level(id) == 0 && level(other) == 0) {
         g_primary = id;
         g_secondary = 0;
+        g_recipes = 0;          /* a village's first faction: nothing brewed with both yet */
     } else if (level(id) == 0 && level(other) > 0) {
         g_primary = other;
         g_secondary = id;
     }
+}
+
+/* ---- the both-herb recipes ---------------------------------------------- */
+
+typedef void (__fastcall *achieve_fn)(void *achievements, void *unused, int id);
+
+/* A brew of herbs h1, h2, h3 in the pot: the effect of one of the seven
+   both-herb recipes, or 0 for the stock lookup.  Only with both factions:
+   otherwise every brew is the stock game's (a Pitcher Plant combination
+   nobody knows gets the stock "failed" effect 0x18, a Berry Plant one
+   nothing).  The recipes are never put in the pot's table, whose found
+   flags the save keeps (0x430120): the save stays exactly as the stock game
+   writes it, and the recipes found are kept in the file instead.  Like a
+   table recipe, a brew counts toward the 50 recipes of "Alchemy R Us". */
+static int __cdecl both_herb_recipe(const unsigned char *pot, int h1, int h2, int h3) {
+    int herbs[3];
+    int pitchers = 0, berries = 0, other = -1, k;
+    unsigned int found, i, n;
+    herbs[0] = h1;
+    herbs[1] = h2;
+    herbs[2] = h3;
+    if (!both_factions()) {
+        return 0;
+    }
+    for (k = 0; k < 3; ++k) {
+        if (herbs[k] == HERB_PITCHER) {
+            ++pitchers;
+        } else if (herbs[k] == HERB_BERRY) {
+            ++berries;
+        } else {
+            other = herbs[k];
+        }
+    }
+    if (pitchers == 0 || berries == 0) {
+        return 0;
+    }
+    if (pitchers == 2) {
+        other = HERB_PITCHER;
+    } else if (berries == 2) {
+        other = HERB_BERRY;
+    }
+    for (k = 0; k < 7; ++k) {
+        if (RECIPES[k].herb == other) {
+            break;
+        }
+    }
+    if (k == 7) {
+        return 0;
+    }
+    g_recipes |= 1u << k;
+    /* "Alchemy R Us" (0x430562..0x430589): the table's recipes found and these. */
+    n = *(const unsigned int *)(pot + 0x978);
+    found = 0;
+    for (i = 0; i < n && i < 100u; ++i) {
+        found += pot[0x2C + 0x18 * i] != 0;
+    }
+    for (i = 0; i < 7u; ++i) {
+        found += (g_recipes >> i) & 1u;
+    }
+    if (found >= 50u) {
+        ((achieve_fn)(uintptr_t)ACHIEVE)((void *)(uintptr_t)ACHIEVEMENTS, 0, 2);
+    }
+    return RECIPES[k].effect;
 }
 
 /* ---- the Tech screen ----------------------------------------------------- */
@@ -564,6 +695,73 @@ static __declspec(naked) void particle_stub(void) {
     }
 }
 
+/* At RECIPE_SITE (inside 0x430510, after its pushes of ebx/ebp/esi/edi):
+   ecx = the pot, ebp/ebx/edi = the three herbs.  A both-herb recipe returns
+   its effect through the function's own epilogue; anything else runs the
+   stock lookup (0x4302F0) and goes on at 0x43052A. */
+static __declspec(naked) void recipe_stub(void) {
+    __asm {
+        mov esi, ecx
+        pushad
+        push edi
+        push ebx
+        push ebp
+        push esi
+        call both_herb_recipe
+        add esp, 16
+        mov dword ptr [esp + 0x1C], eax
+        popad
+        test eax, eax
+        je stock
+        pop edi
+        pop esi
+        pop ebp
+        pop ebx
+        ret 0xC
+    stock:
+        push edi
+        push ebx
+        push ebp
+        mov ecx, esi
+        mov eax, 0x4302F0
+        call eax
+        push 0x43052A
+        ret
+    }
+}
+
+/* At CONFIRM_SITE: esi = the technology clicked.  Level 1 of either
+   faction is confirmed (the stock game confirms only while both are 0);
+   everything else goes on to the purchase, 0x4657C8, as in the stock game. */
+static __declspec(naked) void confirm_stub(void) {
+    __asm {
+        cmp esi, 5
+        je faction
+        cmp esi, 6
+        jne other
+    faction:
+        cmp dword ptr [esi * 4 + 0x582618], 0
+        jne other
+        xor eax, eax
+        push 0x465778
+        ret
+    other:
+        push 0x4657C8
+        ret
+    }
+}
+
+/* At TEXT_SITE: `push 0` and `push 1` of the text lookup are on the stack;
+   the owner's text replaces string 0x418 (the lookup is not called). */
+static __declspec(naked) void text_stub(void) {
+    __asm {
+        add esp, 8
+        mov eax, offset CONFIRM_TEXT
+        push 0x465787
+        ret
+    }
+}
+
 /* ---- installing ---------------------------------------------------------- */
 
 static int write_code(unsigned int va, const unsigned char *bytes, int length) {
@@ -608,7 +806,10 @@ static void install(void) {
         || !is_stock(HERB_SITE, HERB_STOCK, sizeof HERB_STOCK)
         || !is_stock(BUY_MAGIC_SITE, BUY_MAGIC_STOCK, sizeof BUY_MAGIC_STOCK)
         || !is_stock(BUY_NATURE_SITE, BUY_NATURE_STOCK, sizeof BUY_NATURE_STOCK)
-        || !is_stock(PARTICLE_SITE, PARTICLE_STOCK, sizeof PARTICLE_STOCK)) {
+        || !is_stock(PARTICLE_SITE, PARTICLE_STOCK, sizeof PARTICLE_STOCK)
+        || !is_stock(RECIPE_SITE, RECIPE_STOCK, sizeof RECIPE_STOCK)
+        || !is_stock(CONFIRM_SITE, CONFIRM_STOCK, sizeof CONFIRM_STOCK)
+        || !is_stock(TEXT_SITE, TEXT_STOCK, sizeof TEXT_STOCK)) {
         return;
     }
     if (!write_jump(SAVE_SITE, save_stub, sizeof SAVE_STOCK)
@@ -616,6 +817,9 @@ static void install(void) {
         || !write_jump(NOTE_SITE, note_stub, sizeof NOTE_STOCK)
         || !write_jump(SUN_SITE, sun_stub, sizeof SUN_STOCK)
         || !write_jump(PARTICLE_SITE, particle_stub, sizeof PARTICLE_STOCK)
+        || !write_jump(RECIPE_SITE, recipe_stub, sizeof RECIPE_STOCK)
+        || !write_jump(TEXT_SITE, text_stub, sizeof TEXT_STOCK)
+        || !write_jump(CONFIRM_SITE, confirm_stub, sizeof CONFIRM_STOCK)
         || !write_code(HERB_SITE, &nop, 1)) {
         return;
     }

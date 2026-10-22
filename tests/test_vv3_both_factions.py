@@ -76,7 +76,23 @@ SITES = {
     0x4656FE: "7F36",
     0x465734: "7ECA",
     0x465583: "83BED4000000FF0F8494000000",
+    0x430520: "5753558BF1E8C6FDFFFF",
+    0x46574E: "83FE05740583FE067570",
+    0x46577B: "68180400008BCDE8099AFCFF",
 }
+CONFIRM_TEXT = ("With the power of the Fun Patcher,\nyou can now embrace both Nature\n"
+                "and Magic Factions. Use this\ngift wisely.\n")
+TIGER, CACTUS, LOTUS, ORCHID, ROSE, PITCHER, BERRY = range(0x1F, 0x26)
+BOTH_HERB_RECIPES = {
+    (TIGER, PITCHER, BERRY): 0x07,
+    (CACTUS, PITCHER, BERRY): 0x23,
+    (LOTUS, PITCHER, BERRY): 0x26,
+    (ORCHID, PITCHER, BERRY): 0x16,
+    (ROSE, PITCHER, BERRY): 0x19,
+    (PITCHER, PITCHER, BERRY): 0x21,
+    (PITCHER, BERRY, BERRY): 0x28,
+}
+STEWS_FOUND_BITS = 0x5824F8          # the Village Statistics' "Stews Found" bitmap (statistics_features.json)
 
 
 def stock_exe() -> Path:
@@ -231,10 +247,18 @@ class Game:
         p.stub(0x424110, lambda q: (self.sounds.append(q.arg(0)) or 0, 4))     # sound
         p.stub(0x42E0B0, lambda q: (0, 0))
         p.stub(0x42F740, lambda q: (0x0E00F000, 0))
-        p.stub(0x42F190, lambda q: (0x0E00F100, 12))
-        p.stub(0x41C7A0, lambda q: (0, 4))
+        # The game's text lookup answers "string 0x...": the prompt then shows which text it got.
+        self.prompts: list[str] = []
+        self.answer = 1                                                        # the prompt's OK; -1 is No
+        text = p.alloc(0x40)
+
+        def lookup(q):
+            q.write(text, f"string 0x{q.arg(0):X}\0".encode())
+            return text, 12
+        p.stub(0x42F190, lookup)
+        p.stub(0x41C7A0, lambda q: (self.prompts.append(q.cstring(q.arg(0))) or 0, 4))
         p.stub(0x41C2F0, lambda q: (0, 0))
-        p.stub(0x401AF0, lambda q: (1, 8))                                     # the faction confirm: OK
+        p.stub(0x401AF0, lambda q: (self.answer & 0xFFFFFFFF, 8))           # the faction prompt (Yes/No)
         self.levels(1, 1, 1, 1, 1, 0, 0)
         if companion and install:
             p.export("VvfpStartup", 3, 0)
@@ -314,6 +338,29 @@ class Game:
         p.stub(0x429710, lambda q: (0, 0))
         p.call(0x465530, [], ecx=screen)
         return spawned
+
+    # ---- the alchemy pot ----------------------------------------------
+    def new_pot(self) -> int:
+        """The alchemy pot with the stock recipe table (0x4305A0, run for real)."""
+        p = self.proc
+        pot = p.alloc(0x1000)
+        self.achievements: list[int] = []
+        p.stub(0x429B00, lambda q: (0, 4))
+        p.stub(0x429530, lambda q: (0, 4))
+        p.stub(0x435680, lambda q: (0, 4))
+        p.stub(0x412CD0, lambda q: (self.achievements.append(q.arg(0)) or 0, 4))
+        p.call(0x4305A0, [], ecx=pot)
+        return pot
+
+    def recipes(self, pot: int) -> int:
+        return self.proc.u32(pot + 0x978)
+
+    def found(self, pot: int) -> int:
+        return sum(self.proc.read(pot + 0x2C + 0x18 * i, 1)[0] != 0 for i in range(self.recipes(pot)))
+
+    def brew(self, pot: int, herbs) -> int:
+        """The brew lookup 0x430510 (the game's own, through the patched entry)."""
+        return self.proc.call(0x430510, list(herbs), ecx=pot)
 
     # ---- the world -----------------------------------------------------
     def draw_world(self) -> list[int]:
@@ -844,6 +891,168 @@ class BothFactionsWork(unittest.TestCase):
         # Every other reader asks the getter for its own technology.
         for tech in (NATURE, MAGIC):
             self.assertEqual(p.call(0x426FC0, [tech], ecx=TECH), 3)
+
+
+@emulated
+class TheConfirmation(unittest.TestCase):
+    """Level 1 of either faction asks with the owner's text; later levels as stock."""
+
+    def test_level_one_of_each_faction_asks_with_the_owners_text(self):
+        for mode in MODES:
+            for first in (NATURE, MAGIC):
+                with self.subTest(mode=mode, first=first):
+                    g = Game(mode)
+                    g.points(10_000_000)
+                    second = NATURE + MAGIC - first
+                    g.buy(first)
+                    g.buy(second)
+                    self.assertEqual(g.prompts, [CONFIRM_TEXT, CONFIRM_TEXT])
+                    g.buy(first)
+                    g.buy(second)
+                    g.buy(first)
+                    self.assertEqual(len(g.prompts), 2, "levels 2 and 3: no prompt, as in the stock game")
+                    self.assertEqual((g.level(first), g.level(second)), (3, 2))
+
+    def test_no_buys_nothing(self):
+        g = Game()
+        g.points(1_000_000)
+        g.answer = -1
+        g.buy(NATURE)
+        self.assertEqual((g.level(NATURE), g.points()), (0, 1_000_000))
+        g.answer = 1
+        g.buy(NATURE)
+        g.answer = -1
+        g.buy(MAGIC)
+        self.assertEqual(g.level(MAGIC), 0)
+        self.assertEqual(g.points(), 1_000_000 - stock_cost(0, NATURE))
+        self.assertEqual(g.prompts, [CONFIRM_TEXT] * 3)
+
+    def test_the_stock_game_keeps_its_own_text(self):
+        g = Game(companion=False)
+        g.points(1_000_000)
+        g.buy(MAGIC)
+        self.assertEqual(g.prompts, ["string 0x418"])
+        self.assertEqual(len(CONFIRM_TEXT.replace("\n", " ").strip()), len(
+            "With the power of the Fun Patcher, you can now embrace both Nature and Magic Factions. "
+            "Use this gift wisely."))
+        self.assertEqual(" ".join(CONFIRM_TEXT.split()),
+                         "With the power of the Fun Patcher, you can now embrace both Nature and Magic Factions. "
+                         "Use this gift wisely.")
+
+    def test_the_text_is_in_the_companion(self):
+        self.assertIn(CONFIRM_TEXT.encode(), DLL.read_bytes())
+
+
+@emulated
+class BothHerbRecipes(unittest.TestCase):
+
+    def test_the_seven_recipes_with_both_factions_in_every_mode(self):
+        import itertools
+        for mode in MODES:
+            g = Game(mode)
+            g.levels(1, 1, 1, 1, 1, 2, 2)
+            pot = g.new_pot()
+            stock_count = g.recipes(pot)
+            self.assertEqual(stock_count, 77)
+            for herbs, effect in BOTH_HERB_RECIPES.items():
+                for order in set(itertools.permutations(herbs)):
+                    with self.subTest(mode=mode, herbs=[hex(h) for h in order]):
+                        self.assertEqual(g.brew(pot, order), effect)
+            # Never in the table: the save's found flags stay the stock game's.
+            self.assertEqual(g.recipes(pot), stock_count)
+            self.assertEqual(g.found(pot), 0)
+
+    def test_one_faction_brews_as_the_stock_game(self):
+        for companion in (True, False):
+            for levels in ((2, 0), (0, 2), (0, 0)):
+                with self.subTest(companion=companion, levels=levels):
+                    g = Game(companion=companion)
+                    g.levels(1, 1, 1, 1, 1, *levels)
+                    pot = g.new_pot()
+                    # A Pitcher Plant combination nobody knows: the stock "failed" effect, added to the table.
+                    self.assertEqual(g.brew(pot, (TIGER, PITCHER, BERRY)), 0x18)
+                    self.assertEqual(g.recipes(pot), 78)
+                    self.assertEqual(g.brew(pot, (PITCHER, BERRY, BERRY)), 0x18)
+                    # A table recipe with Berry Plants: as stock.
+                    self.assertEqual(g.brew(pot, (TIGER, BERRY, BERRY)), 0x15)
+                    # A table recipe: as stock.
+                    self.assertEqual(g.brew(pot, (ROSE, ROSE, ROSE)), 0x0C)
+
+    def test_table_recipes_are_unchanged_with_both_factions(self):
+        g = Game()
+        g.levels(1, 1, 1, 1, 1, 1, 1)
+        pot = g.new_pot()
+        s = Game(companion=False)
+        s.levels(1, 1, 1, 1, 1, 1, 1)
+        spot = s.new_pot()
+        for herbs in ((ROSE, ROSE, ROSE), (LOTUS, ROSE, ROSE), (ORCHID, ROSE, ROSE), (TIGER, TIGER, PITCHER),
+                      (BERRY, BERRY, BERRY), (PITCHER, PITCHER, PITCHER), (TIGER, CACTUS, LOTUS)):
+            with self.subTest(herbs=herbs):
+                self.assertEqual(g.brew(pot, herbs), s.brew(spot, herbs))
+        self.assertEqual(g.recipes(pot), s.recipes(spot))
+
+    def test_stews_found_counts_each_combination(self):
+        g = Game("collection_progression")
+        self.assertEqual(g.proc.read(0x430510, 1), b"\xE9", "the Village Statistics hook is in this build")
+        g.levels(1, 1, 1, 1, 1, 1, 1)
+        pot = g.new_pot()
+        for herbs in BOTH_HERB_RECIPES:
+            before = g.proc.read(STEWS_FOUND_BITS, 64)
+            g.brew(pot, herbs)
+            after = g.proc.read(STEWS_FOUND_BITS, 64)
+            index = ((herbs[0] - 0x1F) * 7 + herbs[1] - 0x1F) * 7 + herbs[2] - 0x1F
+            self.assertTrue(after[index // 8] >> (index % 8) & 1, herbs)
+            self.assertEqual(sum(bin(b).count("1") for b in after) - sum(bin(b).count("1") for b in before), 1)
+
+    def test_alchemy_r_us_counts_them(self):
+        g = Game()
+        g.levels(1, 1, 1, 1, 1, 1, 1)
+        pot = g.new_pot()
+        for i in range(48):
+            g.proc.write(pot + 0x2C + 0x18 * i, b"\1")
+        g.brew(pot, (TIGER, PITCHER, BERRY))
+        self.assertEqual(g.achievements, [])
+        g.brew(pot, (TIGER, BERRY, PITCHER))                # the same recipe: still 49
+        self.assertEqual(g.achievements, [])
+        g.brew(pot, (ROSE, PITCHER, BERRY))
+        self.assertEqual(g.achievements, [2])
+
+    def test_the_recipes_found_follow_the_save(self):
+        g = bought("stock", second_levels=1)
+        pot = g.new_pot()
+        for herbs in ((TIGER, PITCHER, BERRY), (PITCHER, PITCHER, BERRY), (PITCHER, BERRY, BERRY)):
+            g.brew(pot, herbs)
+        game = g.new_game_object()
+        data = g.save(game, 1)
+        side = g.files.side(1)
+        self.assertEqual(len(side), 20 + 16 * 24)
+        count = struct.unpack_from("<I", side, 16)[0]
+        self.assertEqual(side[20 + 24 * (count - 1) + 20], 0b1100001)
+        # A later session: the save loads, and 47 table recipes + these 3 make 50.
+        h = Game()
+        h.files.files.update(g.files.files)
+        self.assertEqual(h.load(h.new_game_object(), 1, data), 1)
+        self.assertEqual((h.level(NATURE), h.level(MAGIC)), (1, 1))
+        pot = h.new_pot()
+        for i in range(47):
+            h.proc.write(pot + 0x2C + 0x18 * i, b"\1")
+        h.brew(pot, (TIGER, PITCHER, BERRY))
+        self.assertEqual(h.achievements, [2])
+
+    def test_a_first_preview_file_still_loads(self):
+        g = bought("stock", first=MAGIC, second_levels=2)
+        game = g.new_game_object()
+        data = g.save(game, 3)
+        key = Files.key(SIDE.format(s=3))
+        v2 = g.files.files[key]
+        count = struct.unpack_from("<I", v2, 16)[0]
+        v1 = bytearray(struct.pack("<5I", 0x46325656, 1, 3, 3, count))
+        for i in range(16):
+            v1 += v2[20 + 24 * i:20 + 24 * i + 20]
+        g.files.files[key] = bytes(v1)
+        g.reset()
+        self.assertEqual(g.load(game, 3, data), 1)
+        self.assertEqual((g.level(NATURE), g.level(MAGIC)), (2, 1))
 
 
 @emulated

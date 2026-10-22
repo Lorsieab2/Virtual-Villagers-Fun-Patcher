@@ -136,6 +136,54 @@ stock bytes at every site and installs all or nothing; the purchase last.
 | 0x420BD5 | `ret` | nop: the Magic herb is drawn too |
 | 0x464AE4 | `mov eax,[edi+0xD4] / cmp eax,-1` | with both: both sunbeams at full strength, no shade |
 | 0x465583 | `cmp [esi+0xD4],-1 / je 0x465624` | with both: each column its own particles (petals, sparkles), stock chance and art |
+| 0x46574E | `cmp esi,5 / je / cmp esi,6 / jne 0x4657C8` | level 1 of either faction goes to the confirmation (stock: only while both are 0) |
+| 0x46577B | `push 0x418 / mov ecx,ebp / call 0x42F190` | the confirmation's text from the companion |
+| 0x430520 | `push edi/ebx/ebp / mov esi,ecx / call 0x4302F0` | with both: the seven both-herb recipes |
+
+### The confirmation (owner requirement 6)
+
+Stock: `0x46574E..0x4657BD` asks only while Nature and Magic are both 0, with
+string 0x418 ("Are you sure? Once you choose a faction for your tribe, you
+cannot change it.", looked up by `0x42F190(0x418, 0, 1)`), in the game's
+Yes/No box `0x401AF0` (-1 = No: nothing bought). With the companion level 1
+of either faction is asked, with the owner's text supplied from the DLL (the
+stock buffer is not patched): "With the power of the Fun Patcher, you can now
+embrace both Nature and Magic Factions. Use this gift wisely." (lines broken
+by hand, as the stock text is). Levels 2 and 3 are bought without a prompt, as
+in the stock game.
+
+### The both-herb recipes (owner requirement 7)
+
+Stock alchemy (read with the research in `scratchpad\alch`, re-checked here):
+the key `0x430270` packs the count of each herb (carried ids 0x1F..0x25:
+Tiger Lily, Cactus, Lotus, Black Orchid, Rose, Pitcher Plant, Berry Plant)
+base 4, so order does not matter. `0x4305A0` builds 77 records of 0x18 bytes
+at pot+0x18 (key, effect, herbs, found byte +0x2C), count at +0x978, capacity
+100. The lookup `0x430510` -> `0x4302F0`: no record and a Pitcher Plant ->
+the record is APPENDED with effect 0x18 (the failed potion); then the found
+byte is set and 50 found -> "Alchemy R Us" `0x412CD0(2)`. The pot saves only
+the found bytes and the count (`0x430120`: 100 bytes + count; `0x4300C0`
+loads, count must be < 100). All seven both-herb combinations are 0x18 today.
+
+With both factions the companion answers the seven combinations before the
+table (0x430520), so they are never appended and the save keeps exactly the
+stock table's flags:
+
+| herbs | effect |
+|---|---|
+| Tiger Lily + Pitcher + Berry | 0x07 "Whee! What a fun potion!" |
+| Cactus + Pitcher + Berry | 0x23 "In a trance" |
+| Lotus + Pitcher + Berry | 0x26 "Blannesamagawa loomajoobamooga!!" |
+| Black Orchid + Pitcher + Berry | 0x16 "Paralyzed" |
+| Rose + Pitcher + Berry | 0x19 "A little bit lonely" |
+| Pitcher + Pitcher + Berry | 0x21 "Whoa!" |
+| Pitcher + Berry + Berry | 0x28 "Something smells YUMMY!" |
+
+Which ones were brewed is kept in the per-save file's entry (version 2 adds a
+byte; version 1 files from the first preview are still read), and counted
+with the table's found flags toward "Alchemy R Us". The Village Statistics
+hook at the entry of 0x430510 still runs first, so Stews Found counts each
+combination. With one faction or none every brew is the stock game's.
 
 **The file**: `<save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Factions\Virtual Villagers 3 Second Faction - Save <S>.dat`
 (magic `VV2F`, version 1, game 3, slot, up to 16 entries: fingerprint,
@@ -188,7 +236,10 @@ including the backup generation).
 ## 6. Not verified
 
 * Not run in the game: the purchase click, the herbs on the island, the
-  sunbeams, a real save/load/quit cycle and a real file on disk.
+  sunbeams, the particles, the prompt's look, the seven potions' effects on a
+  villager (the effect ids are the owner's choice from the research; the
+  effect switch 0x4268F0 was not run), a real save/load/quit cycle and a real
+  file on disk.
 * The emulator stubs display, sound, text and the other systems' savers and
   loaders; only the technology code, the purchase, the save/load routines, the
   herb draw and the Tech screen draw run for real.

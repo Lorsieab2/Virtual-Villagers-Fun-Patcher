@@ -687,14 +687,22 @@ elapsed-time catch-up.
 
 VV3 BOTH FACTIONS: NATURE AND MAGIC
 
-Buy your first faction on the Tech screen as usual (the game asks you to
-confirm). Then click the other faction: instead of "You have already chosen
-your faction!" it is bought like any technology, at its normal price in tech
-points, and each of its levels after that too. Both factions then work at the
+Buy your first faction on the Tech screen. The game asks: "With the power of
+the Fun Patcher, you can now embrace both Nature and Magic Factions. Use this
+gift wisely." Say Yes. Then click the other faction: instead of "You have
+already chosen your faction!" the same question is asked, and Yes buys it at
+its normal price in tech points. Levels 2 and 3 of each are bought without a
+question, as in the unpatched game. Both factions then work at the
 same time, every level of each: Nature's faster food, Pitcher Plant herb and
 longer lives, and Magic's extra research point, Berry Plant herb and higher
 population maximum. Both herbs grow on the island and both factions are lit
-on the Tech screen.
+on the Tech screen, each with its own floating petals or sparkles.
+
+Seven new Alchemy Lab recipes need both herbs: a Pitcher Plant and a Berry
+Plant with a Tiger Lily (a fun potion), a Cactus (a trance), a Lotus (crazy
+talk), a Black Orchid (paralysis), a Rose (a little bit lonely), a second
+Pitcher Plant (whoa!) or a second Berry Plant (something smells yummy, for
+the whole village). They count toward "Alchemy R Us" and Stews Found.
 
 The save keeps only the faction you bought first, exactly as the unpatched
 game keeps it. The second one is kept in the save's own folder, in

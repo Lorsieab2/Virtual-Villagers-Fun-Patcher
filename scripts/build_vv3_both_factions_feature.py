@@ -40,7 +40,10 @@ def main() -> None:
             "at its stock price in tech points, and both work at the same time: every level of Nature "
             "(faster food, the Pitcher Plant herb, longer lives) and every level of Magic (the "
             "scientists' extra point, the Berry Plant herb, the higher population maximum), with both "
-            "herbs on the island and both factions lit on the Tech screen. The faction bought first stays "
+            "herbs on the island, seven new Alchemy Lab recipes that need both herbs, and both factions lit "
+            "on the Tech screen with their own floating petals and sparkles. Buying level 1 of either "
+            "faction asks: \"With the power of the Fun Patcher, you can now embrace both Nature and Magic "
+            "Factions. Use this gift wisely.\" The faction bought first stays "
             "in the save exactly as the stock game keeps it; the second one is kept in its own file in "
             "the save's folder (" + SIDECAR + ") and comes back when that save is loaded. So every save "
             "is one the stock game loads: without this patch it loads with the first faction only, and "
@@ -53,7 +56,9 @@ def main() -> None:
         "output_tag": "Both Factions",
         "dependencies": [],
         "behavior_changes": [
-            "The Tech screen purchase (0x465640) no longer answers \"You have already chosen your faction!\" (string 0x419): Magic (technology 6) can be bought while Nature (5) is above 0 (the jg at 0x4656FE becomes two nops) and Nature while Magic is above 0 (the jle at 0x465734 becomes a jmp). The second faction is bought like any technology, at its stock price (0x427020, the table at 0x4A818C) and without the faction confirmation, which the stock game asks only while both are 0.",
+            "The Tech screen purchase (0x465640) no longer answers \"You have already chosen your faction!\" (string 0x419): Magic (technology 6) can be bought while Nature (5) is above 0 (the jg at 0x4656FE becomes two nops) and Nature while Magic is above 0 (the jle at 0x465734 becomes a jmp). The second faction is bought like any technology, at its stock price (0x427020, the table at 0x4A818C).",
+            "The faction confirmation (0x46574E, 0x46577B): level 1 of EITHER faction is confirmed with Yes/No in the game's own prompt (0x401AF0), the stock game confirming only while both are 0; its text is the owner's, supplied by the companion instead of string 0x418 (\"Are you sure? Once you choose a faction for your tribe, you cannot change it.\"): \"With the power of the Fun Patcher, you can now embrace both Nature and Magic Factions. Use this gift wisely.\" (lines broken by hand, as the stock text is). No buys nothing. Levels 2 and 3 are bought without a prompt, as in the stock game.",
+            "Alchemy (0x430520, in the brew lookup 0x430510): with both factions, the seven herb combinations that need both faction herbs are recipes of their own, in any order: Tiger Lily + Pitcher Plant + Berry Plant gives effect 0x07 (\"Whee! What a fun potion!\"), Cactus 0x23 (\"In a trance\"), Lotus 0x26 (\"Blannesamagawa loomajoobamooga!!\"), Black Orchid 0x16 (\"Paralyzed\"), Rose 0x19 (\"A little bit lonely\"), a second Pitcher Plant 0x21 (\"Whoa!\") and a second Berry Plant 0x28 (\"Something smells YUMMY!\"); the stock game gives every one of them the failed effect 0x18 and adds it to the pot's table. The seven are never put in the pot's table (77 stock recipes, whose found flags the save keeps through 0x430120), so the save stays the stock game's; which of them were brewed is kept in the per-save file with the second faction, and they count toward the 50 recipes of \"Alchemy R Us\" (0x412CD0(2)) like table recipes. The Village Statistics' Stews Found hook at the entry 0x430510 still sees every brew.",
             "Which faction was bought second is noted as it is bought (0x4657D5, before the game's own level-up 0x426FD0).",
             "Saving (0x427D1F): after the stock copy of the seven levels into the save buffer (0x426F60), the second faction's level is written as 0 there, so the stock loader's refusal of a save with both factions (0x427060, 0x427067..0x427079) can never be met. The level is kept in \"" + SIDECAR + "\" with the save's fingerprint (FNV-1a 64 over the save buffer's first 0x6CDC bytes and the tech points), the slot, and both factions and levels; the file keeps the last 16 saves' entries and is written atomically (a temporary file moved over it).",
             "Loading (0x428A08): after the stock loader accepts the save, the entry written with exactly this save (same slot, same fingerprint, the same first faction at the same level) gives the second faction its level back through the game's own level-up 0x426FD0, as the stock loader restores every level. Any other save of the slot loads as the stock game loads it.",
@@ -65,7 +70,8 @@ def main() -> None:
         "explicit_non_changes": [
             "This row changes no executable bytes: VVFP VV3 Both Factions.dll verifies the stock bytes at each place and writes its changes at run time; a different build of the game installs nothing. Everything is installed together or not at all, and the purchase last, so no village can hold both factions unless the save and load changes are in place.",
             "No save ever holds both factions: the game's save keeps the first faction only, as the stock game writes it. Without the companion, the stock game loads every save with the first faction.",
-            "The first faction's purchase is stock, with its \"Are you sure?\" confirmation; prices, levels (at most 3), tech points and every other technology are unchanged.",
+            "Prices, levels (at most 3), tech points and every other technology are unchanged; levels 2 and 3 of a faction are bought without a prompt, as in the stock game.",
+            "With one faction (or none) every brew is the stock game's, and the pot's table is never changed by this row.",
             "A save made with both factions by editing memory or the save file (which the stock loader refuses) is not repaired.",
             "Nothing is written to a villager record.",
         ],
@@ -111,6 +117,27 @@ def main() -> None:
                 "stock_bytes": "83BED4000000FF0F8494000000",
                 "written_bytes": "E9XXXXXXXX9090909090909090",
                 "routine": "the Tech screen frame (0x465530): the chosen faction's floating particles (one in ten frames, in its column: Nature's petals type 0xA, Magic's sparkles type 2, pool 0x583B28 via 0x429400); with both factions each column gets its own, otherwise the stock emitter runs (on to 0x465590 or 0x465624)",
+                "installed_by": INSTALLED_BY,
+            },
+            {
+                "va": "0x430520",
+                "stock_bytes": "5753558BF1E8C6FDFFFF",
+                "written_bytes": "E9XXXXXXXX9090909090",
+                "routine": "the brew lookup (0x430510, after the Village Statistics entry hook): with both factions the seven both-herb recipes give their effect through the function's own epilogue; otherwise the stock lookup 0x4302F0 runs (on to 0x43052A)",
+                "installed_by": INSTALLED_BY,
+            },
+            {
+                "va": "0x46574E",
+                "stock_bytes": "83FE05740583FE067570",
+                "written_bytes": "E9XXXXXXXX9090909090",
+                "routine": "the Tech screen purchase (0x465640): the faction confirmation's test; level 1 of either faction goes to the confirmation (0x465778), everything else to the purchase (0x4657C8) as in the stock game",
+                "installed_by": INSTALLED_BY,
+            },
+            {
+                "va": "0x46577B",
+                "stock_bytes": "68180400008BCDE8099AFCFF",
+                "written_bytes": "E9XXXXXXXX90909090909090",
+                "routine": "the Tech screen purchase (0x465640): the confirmation's text, string 0x418 through 0x42F190; the owner's text from the companion instead (on to 0x465787)",
                 "installed_by": INSTALLED_BY,
             },
             {
