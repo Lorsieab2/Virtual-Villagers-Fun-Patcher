@@ -169,6 +169,14 @@
       ]
     },
     {
+      "ids": ["vv3_fruit_harvested_at_food_bin"],
+      "guide": [
+        "A villager picking fruit now adds the food, and takes the fruit off the tree, only when the fruit goes into the food bin, as honey does.",
+        "Fruit dropped on the way stays on the tree and adds nothing.",
+        "Nothing to click: villagers pick fruit as usual. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv4_complete_scales_golden_fish"],
       "guide": [
         "Golden Fish can only turn up in the fishing nets after all 12 Fish Scales are collected.",
