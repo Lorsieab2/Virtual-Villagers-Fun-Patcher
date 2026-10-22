@@ -56,6 +56,7 @@ DLL_LEAF = "VVFP VV3 Both Factions.dll"
 DLL = ROOT / "assets" / "both_factions" / DLL_LEAF
 ROW = ROOT / "data" / "vv3_both_factions_feature.json"
 MODES = ("stock", "collection_progression", "immediate_fixed")
+BUILDS = [(m, False) for m in MODES] + [("immediate_fixed", True)]   # + the 256 Villagers build
 
 TECH = 0x582618
 POINTS = 0x582644
@@ -127,6 +128,29 @@ def stock_image() -> bytes:
 def stock_cost(level: int, tech: int) -> int:
     """The stock price of the next level (0x427020): dword [0x4A818C + 4*(level + 1 + 3*tech)]."""
     return struct.unpack_from("<I", stock_image(), COST_TABLE + 4 * (level + 1 + 3 * tech) - 0x400000)[0]
+
+
+@functools.lru_cache(maxsize=None)
+def real_pop(va: int) -> int:
+    """The bytes the stock routine at `va` pops on return (its first `ret`, after
+    following a tail jump at its start).  Every stub this test installs must pop
+    exactly that: a stub that pops a different number hides a caller that would
+    leave the real stack unbalanced (the owner's crash on the second faction: a
+    detour that dropped two arguments the stock lookup 0x42F190 never takes)."""
+    import capstone
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+    image = stock_image()
+    at = va
+    for _ in range(4):
+        for count, ins in enumerate(md.disasm(image[at - 0x400000:at - 0x400000 + 0x800], at)):
+            if ins.mnemonic == "ret":
+                return int(ins.op_str, 0) if ins.op_str else 0
+            if ins.mnemonic == "jmp" and count < 3 and ins.op_str.startswith("0x"):
+                at = int(ins.op_str, 16)
+                break
+        else:
+            break
+    raise AssertionError(f"no ret found for 0x{va:X}")
 
 
 class Files:
@@ -234,6 +258,17 @@ class Game:
         exe = stock_exe().read_bytes() if unpatched else render(mode, expanded)
         self.proc = Process(exe, DLL if companion else None)
         p = self.proc
+        # Every stub keeps the routine's true calling convention (real_pop).
+        install_stub = p.stub
+
+        def checked_stub(va, fn):
+            def run(q):
+                value, pop = fn(q)
+                if pop != real_pop(va):
+                    raise AssertionError(f"stub 0x{va:X} pops {pop}, the routine pops {real_pop(va)}")
+                return value, pop
+            install_stub(va, run)
+        p.stub = checked_stub
         if not companion:
             self._bind_game_imports()
         self.files = Files(p)
@@ -254,9 +289,9 @@ class Game:
 
         def lookup(q):
             q.write(text, f"string 0x{q.arg(0):X}\0".encode())
-            return text, 12
+            return text, 4
         p.stub(0x42F190, lookup)
-        p.stub(0x41C7A0, lambda q: (self.prompts.append(q.cstring(q.arg(0))) or 0, 4))
+        p.stub(0x41C7A0, lambda q: (self.prompts.append(q.cstring(q.arg(0))) or 0, 12))
         p.stub(0x41C2F0, lambda q: (0, 0))
         p.stub(0x401AF0, lambda q: (self.answer & 0xFFFFFFFF, 8))           # the faction prompt (Yes/No)
         self.levels(1, 1, 1, 1, 1, 0, 0)
@@ -840,9 +875,9 @@ class BothFactionsWork(unittest.TestCase):
                 self.assertEqual([part for part in g.draw_world() if part in (5, 6)], herbs_alone)
 
     def test_both_factions_are_lit_on_the_tech_screen(self):
-        for mode in MODES:
-            with self.subTest(mode=mode):
-                g = Game(mode)
+        for mode, expanded in BUILDS:
+            with self.subTest(mode=mode, expanded=expanded):
+                g = Game(mode, expanded=expanded)
                 g.levels(1, 1, 1, 1, 1, 2, 3)
                 drawn = g.draw_tech_screen()
                 sunbeams = sorted(x[2] for x in drawn if x[0] == "image" and x[1] == 0x90)
@@ -861,9 +896,9 @@ class BothFactionsWork(unittest.TestCase):
     def test_both_factions_float_their_own_particles_on_the_tech_screen(self):
         nature = (0xA, 0x16F + 3, 0x92 + 4, 1)          # petals in Nature's column
         magic = (2, 0x283 + 5, 0x92 + 6, 0)             # sparkles in Magic's column
-        for mode in MODES:
-            with self.subTest(mode=mode):
-                g = Game(mode)
+        for mode, expanded in BUILDS:
+            with self.subTest(mode=mode, expanded=expanded):
+                g = Game(mode, expanded=expanded)
                 g.levels(1, 1, 1, 1, 1, 1, 2)
                 # Each column rolls its own chance (rand(100) < 10), then x, then y.
                 self.assertEqual(g.tech_screen_frame(NATURE, [0, 3, 4, 0, 5, 6]), [nature, magic])
@@ -898,10 +933,10 @@ class TheConfirmation(unittest.TestCase):
     """Level 1 of either faction asks with the owner's text; later levels as stock."""
 
     def test_level_one_of_each_faction_asks_with_the_owners_text(self):
-        for mode in MODES:
+        for mode, expanded in BUILDS:
             for first in (NATURE, MAGIC):
-                with self.subTest(mode=mode, first=first):
-                    g = Game(mode)
+                with self.subTest(mode=mode, expanded=expanded, first=first):
+                    g = Game(mode, expanded=expanded)
                     g.points(10_000_000)
                     second = NATURE + MAGIC - first
                     g.buy(first)
@@ -912,6 +947,26 @@ class TheConfirmation(unittest.TestCase):
                     g.buy(first)
                     self.assertEqual(len(g.prompts), 2, "levels 2 and 3: no prompt, as in the stock game")
                     self.assertEqual((g.level(first), g.level(second)), (3, 2))
+
+    def test_the_owners_crash_second_faction_after_a_loaded_first(self):
+        # The owner's save: Nature 3 bought in an earlier session, Magic 0; buying Magic level 1
+        # through the prompt crashed (EIP 7).  Every stub here pops what the routine pops.
+        for mode, expanded in BUILDS:
+            for first in (NATURE, MAGIC):
+                with self.subTest(mode=mode, expanded=expanded, first=first):
+                    g = Game(mode, expanded=expanded)
+                    levels = [1, 1, 3, 2, 2, 0, 0]
+                    levels[first] = 3
+                    g.levels(*levels)
+                    g.points(10_000_000)
+                    second = NATURE + MAGIC - first
+                    self.assertEqual(g.buy(second), 0)
+                    self.assertEqual((g.level(first), g.level(second)), (3, 1))
+                    self.assertEqual(g.prompts, [CONFIRM_TEXT])
+                    g.buy(second)
+                    g.buy(second)
+                    self.assertEqual(g.level(second), 3)
+                    self.assertEqual(g.prompts, [CONFIRM_TEXT])
 
     def test_no_buys_nothing(self):
         g = Game()
@@ -948,8 +1003,8 @@ class BothHerbRecipes(unittest.TestCase):
 
     def test_the_seven_recipes_with_both_factions_in_every_mode(self):
         import itertools
-        for mode in MODES:
-            g = Game(mode)
+        for mode, expanded in BUILDS:
+            g = Game(mode, expanded=expanded)
             g.levels(1, 1, 1, 1, 1, 2, 2)
             pot = g.new_pot()
             stock_count = g.recipes(pot)

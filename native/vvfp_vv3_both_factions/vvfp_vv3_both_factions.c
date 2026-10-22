@@ -751,11 +751,15 @@ static __declspec(naked) void confirm_stub(void) {
     }
 }
 
-/* At TEXT_SITE: `push 0` and `push 1` of the text lookup are on the stack;
-   the owner's text replaces string 0x418 (the lookup is not called). */
+/* At TEXT_SITE: the owner's text replaces string 0x418 (the lookup
+   0x42F190 is not called).  The `push 1` / `push eax` before the site are
+   NOT the lookup's (it takes one argument, ret 4): they are the last two
+   arguments of the text box 0x41C7A0(text, 0, 1), ret 0xC, called at
+   0x46578C, so they stay on the stack.  (The first preview of this prompt
+   dropped them, and the box's own ret 0xC then returned through a wrong
+   address: the owner's crash at EIP 7 buying the second faction.) */
 static __declspec(naked) void text_stub(void) {
     __asm {
-        add esp, 8
         mov eax, offset CONFIRM_TEXT
         push 0x465787
         ret

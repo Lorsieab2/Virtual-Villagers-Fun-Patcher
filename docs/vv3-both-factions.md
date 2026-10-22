@@ -152,6 +152,15 @@ embrace both Nature and Magic Factions. Use this gift wisely." (lines broken
 by hand, as the stock text is). Levels 2 and 3 are bought without a prompt, as
 in the stock game.
 
+The calling convention matters here: `0x42F190(id)` takes ONE argument
+(`ret 4`); the `push 1` / `push eax` before it are the last two arguments of
+the text box `0x41C7A0(text, 0, 1)` (`ret 0xC`). The first preview of the
+prompt took them for the lookup's and dropped them, so the box returned
+through a wrong address: the owner's crash (EIP 7) buying a faction's level 1.
+The fix leaves them on the stack; every stub in the tests now pops exactly
+what the stock routine pops (`real_pop`), which reproduces that crash with
+the old DLL on the owner's own 256 executable.
+
 ### The both-herb recipes (owner requirement 7)
 
 Stock alchemy (read with the research in `scratchpad\alch`, re-checked here):
