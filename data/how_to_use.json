@@ -238,6 +238,7 @@
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager, even when the arrows are clicked quickly; a name you type is still kept.",
+        "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "Nothing to click. On by default."
       ]
     },
@@ -249,6 +250,7 @@
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
+        "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "Nothing to click. On by default."
       ]
     },
