@@ -719,6 +719,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # the tree -- the tree only; the logs keep them until Repair Saves & Logs removes them.
         self.full_village = village
         self.hide_gone = tk.BooleanVar(value=self.window.get("hide_not_in_save", True) is not False)
+        # "Hide unconverted Heathens" (the owner, 2026-10-22; off by default): kept with the tree (Edits.hide_heathens).
+        self.hide_heathens = tk.BooleanVar(value=edits.hide_heathens)
+        self.heathens_hidden = edits.hide_heathens
         self.village = self._shown_village(village)
         self.geometry(self.window.get("geometry", "1400x860"))
         self._build()
@@ -839,6 +842,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
         ttk.Checkbutton(bar, text="Hide villagers not in the current save", variable=self.hide_gone,
                         command=self._toggle_hide_gone).pack(side="left")
+        ttk.Checkbutton(bar, text="Hide unconverted Heathens", variable=self.hide_heathens,
+                        command=self._toggle_hide_heathens).pack(side="left", padx=(6, 0))
         ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
         ttk.Label(bar, text="Page:").pack(side="left")
         self.page_var = tk.StringVar()
@@ -1926,6 +1931,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.canvas.yview_moveto(max(0.0, (py * self.z - sy) / height))
 
     def redraw(self, rescene: bool = True) -> None:
+        self._sync_heathens()
         anchor = self._view_anchor()
         self._same_scene = not rescene
         self._draw_tree()
@@ -2775,10 +2781,30 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _shown_village(self, village: gen.Village) -> gen.Village:
         """The village as the tree shows it: with "Hide villagers not in the current save" on, without the
         villagers of a tribe started over that src/vv_history_revision.py proves gone."""
+        self.heathens_hidden = self.edits.hide_heathens
+        if self.edits.hide_heathens:            # "Hide unconverted Heathens" (Edits.hide_heathens)
+            village = gen.without_heathens(village)
         if not self.hide_gone.get():
             return village
         return vv_history_revision.without(village, vv_history_revision.hidden_in_tree(self.folder, self.game,
                                                                                        self.slot))
+
+    def _toggle_hide_heathens(self) -> None:
+        """New Believers' Heathens who never converted off the tree (and its pictures), or back on.  Kept with
+        the tree; their marks and edits are kept either way."""
+        self.edits.hide_heathens = bool(self.hide_heathens.get())
+        self._saved()                           # a change to the tree, to undo and save (redraws, after _sync_heathens)
+        self.status.set("Unconverted Heathens are hidden." if self.edits.hide_heathens
+                        else "Unconverted Heathens are shown.")
+
+    def _sync_heathens(self) -> None:
+        """The village shown as the edits say (after the switch, an undo, or a tree file opened)."""
+        if getattr(self, "heathens_hidden", None) is None or self.heathens_hidden == self.edits.hide_heathens:
+            return
+        self.village = self._shown_village(self.full_village)
+        self.selected = [q for q in self.selected if q in self.village.people]
+        if hasattr(self, "hide_heathens"):
+            self.hide_heathens.set(self.edits.hide_heathens)
 
     def _toggle_hide_gone(self) -> None:
         self.village = self._shown_village(self.full_village)

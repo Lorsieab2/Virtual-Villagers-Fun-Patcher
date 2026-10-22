@@ -471,6 +471,9 @@ class Edits:
     # now), and the statuses whose mark the player removed from everyone (never given again).
     mark_names: dict[str, str] = field(default_factory=dict)
     marks_off: list[str] = field(default_factory=list)
+    # "Hide unconverted Heathens" (the owner, 2026-10-22; off unless ticked): New Believers' Heathens who never
+    # converted left off this tree, its pictures and its page (gen.without_heathens); their edits are kept.
+    hide_heathens: bool = False
     # entry key -> {"lines", "runs" (those lines formatted word by word: clean_runs), "marks" (every mark
     # they have, in order; "mark" the first, as older builds read it), "unmarked" (automatic marks the
     # player took off them), ...}
@@ -638,6 +641,7 @@ class Edits:
             if isinstance(label, str) and label.strip():
                 out.mark_names[str(status)] = label.strip()
         out.marks_off = _clean_labels(data.get("marks_off"))
+        out.hide_heathens = data.get("hide_heathens") is True
         for key, entry in dict(data.get("entries", {})).items():
             if not isinstance(entry, dict):     # damaged: that villager's edits are passed over
                 continue
@@ -791,7 +795,8 @@ class Edits:
                 "label_line_reach": self.label_line_reach,
                 "line_moves": self.line_moves, "free_lines": self.free_lines,
                 "generations": self.generations, "words": self.words, "marks": self.marks,
-                "mark_names": self.mark_names, "marks_off": self.marks_off, "entries": self.entries,
+                "mark_names": self.mark_names, "marks_off": self.marks_off, "hide_heathens": self.hide_heathens,
+                "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers,
                 "group_opts": self.group_opts, "equal_sizes": self.equal_sizes, "monstera_v2": self.monstera_v2,
                 "feather_v2": self.feather_v2, "bakes_v3": self.bakes_v3}
@@ -1155,7 +1160,7 @@ STATUS_COLOURS = {
     "Tribal Chief": "#d4a017", "Esteemed Elder": "#7b68ee", "Scholar": "#1e90ff", "Golden Child": "#ffb000",
     "Retired Heathen Chief": "#4b0082", "Heathen Chief": "#b22222", "Heathen Mommy": "#ff69b4",
     "Heathen Doctor": "#00ced1", "Heathen Master Scientist": "#008080", "Heathen Master Builder": "#a0522d",
-    "Heathen Master Farmer": "#9acd32", "Former Heathen Master": "#800080", "Former Heathen": "#708090",
+    "Heathen Master Farmer": "#9acd32", "Heathen": "#8b0000", "Former Heathen Master": "#800080", "Former Heathen": "#708090",
     "Converted Purple Mask Heathen": "#ba55d3", "Converted Red Mask Heathen": "#e0301e",
     "Converted Orange Mask Heathen": "#ff8c00", "Converted Blue Mask Heathen": "#0000cd",
 }
@@ -8311,6 +8316,8 @@ def build(folder: Path, game: int, slot: int, edits: Edits | None = None) -> tup
     village = gen.load_village(folder, game, slot, rename_answers=edits.renames)
     edits = full_name_edits(edits, village)
     apply_auto_marks(edits, village)            # every special villager marked, as the editor shows them
+    if edits.hide_heathens:                     # "Hide unconverted Heathens": the pictures as the editor shows it
+        village = gen.without_heathens(village)
     arrange(village, edits)
     return village, edits, layout(village, edits)
 

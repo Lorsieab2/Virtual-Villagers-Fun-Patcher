@@ -116,6 +116,12 @@ class Person:
     # and the patcher's own files (_statuses).  A former holder keeps it.
     statuses: list[str] = field(default_factory=list)
     converted: bool = False             # New Believers: a record says they converted from the Heathens
+    # New Believers: the faction their latest snapshot gives ((date, "Heathen" / "Believer"), or None), and
+    # whether a record says they left the tribe to become a Heathen (is_unconverted_heathen).
+    faction_seen: tuple | None = None
+    left_heathen: bool = False
+    # A parent "Hide unconverted Heathens" left off the tree: "Father" / "Mother" -> their name (without_heathens).
+    hidden_parents: dict = field(default_factory=dict)
 
     @property
     def key(self) -> Key:
@@ -147,7 +153,7 @@ class Person:
 # line; vv_graves.TITLE_RANK), in that order; a converted Heathen by the mask colour the logs give
 # ("Former Heathen (red mask)" is a "Converted Red Mask Heathen"); the player's Custom titles by their words.
 STATUS_ORDER = ("Tribal Chief", "Retired Heathen Chief", "Heathen Chief", "Heathen Mommy", "Heathen Doctor",
-                "Heathen Master Scientist", "Heathen Master Builder", "Heathen Master Farmer",
+                "Heathen Master Scientist", "Heathen Master Builder", "Heathen Master Farmer", "Heathen",
                 "Former Heathen Master", "Converted Purple Mask Heathen", "Converted Red Mask Heathen",
                 "Converted Orange Mask Heathen", "Converted Blue Mask Heathen", "Former Heathen",
                 "Golden Child", "Esteemed Elder", "Scholar")
@@ -157,6 +163,7 @@ _FORMER_TITLE = re.compile(r"^Former Heathen( Master)? \((blue|orange|red|purple
 FORMER_FILE_TITLES = {0: "Former Heathen (blue mask)", 1: "Former Heathen (orange mask)", 2: "Former Heathen (red mask)",
                       3: "Former Heathen Master (purple mask)", 4: "Retired Heathen Chief"}
 CONVERTED_HOW = "Converted from the Heathens"
+LEFT_FOR_THE_HEATHENS = "Left the tribe: became a Heathen"     # vv_log_additions.LEFT_FOR_THE_HEATHENS
 # Where the save keeps a status, from the villager's name in the saved entry (vv_last_names.FIELDS), as
 # special_title.h reads the record: The Lost Children's Esteemed Elder +0x7FC (name +0x564); The Secret
 # City's Tribal Chief +0xE80 and its five skills +0xEAC (name +0xDD4); The Tree of Life's five skills
@@ -215,6 +222,57 @@ def save_statuses(game: int, data: bytes, at: int, family: int | None = None) ->
     except (IndexError, struct.error):
         pass
     return out
+
+
+def _merge_faction(p: Person, q: Person) -> None:
+    """The older record `p`'s faction facts kept on `q`, the same villager."""
+    q.converted = q.converted or p.converted
+    q.left_heathen = q.left_heathen or p.left_heathen
+    if p.faction_seen and (q.faction_seen is None or p.faction_seen[0] > q.faction_seen[0]):
+        q.faction_seen = p.faction_seen
+
+
+def converted_heathen(p: Person) -> bool:
+    """Whether anything says they converted from the Heathens: a converted arrival, a Former Heathen or Retired
+    Heathen Chief title (the logs, or New Believers' Former Heathens file)."""
+    return p.converted or any(s.startswith(("Converted ", "Former Heathen")) or s == "Retired Heathen Chief"
+                              for s in p.statuses)
+
+
+def is_unconverted_heathen(p: Person) -> bool:
+    """New Believers: a Heathen now -- the save's faction for the living, else their latest snapshot's (a
+    "Left the tribe: became a Heathen" record when no snapshot says) -- with nothing saying they converted."""
+    if p.upcoming or converted_heathen(p):
+        return False
+    if p.alive:
+        return p.heathen
+    if p.faction_seen is not None:
+        return p.faction_seen[1] == "Heathen"
+    return p.left_heathen
+
+
+def without_heathens(village: Village) -> Village:
+    """The tree's village without its unconverted Heathens (the Family Tree Maker's "Hide unconverted Heathens",
+    the owner, 2026-10-22): living, dead and titled Heathens and the babies a hidden Heathen carries left out --
+    the tree only; nothing is changed in any file, and the tree's edits for them are kept.  A converted villager
+    stays, with their whole history.  A parent so hidden is no longer drawn (no line); the child keeps their
+    name in `hidden_parents` ("Father: <name> (Heathen)" in Villager Info)."""
+    import dataclasses
+    hidden = {pid for pid, p in village.people.items() if is_unconverted_heathen(p)}
+    hidden |= {pid for pid, p in village.people.items() if p.upcoming and p.mother in hidden}
+    if not hidden:
+        return village
+    people = {}
+    for pid, p in village.people.items():
+        if pid in hidden:
+            continue
+        gone = {label: village.people[q].name for label, q in (("Father", p.father), ("Mother", p.mother))
+                if q in hidden}
+        people[pid] = dataclasses.replace(p, father=None if p.father in hidden else p.father,
+                                          mother=None if p.mother in hidden else p.mother,
+                                          hidden_parents={**p.hidden_parents, **gone})
+    return dataclasses.replace(village, people=people,
+                               base_generation={k: v for k, v in village.base_generation.items() if k not in hidden})
 
 
 @dataclass
@@ -480,6 +538,19 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         _add_status(p, _values(b.value("Custom title")))
         if (b.value("How") or "").strip() == CONVERTED_HOW:
             p.converted = True
+        # A Heathen then (New Believers): the snapshot's Faction, an Island Events "Heathen: no -> yes", a
+        # "Left the tribe: became a Heathen" record.  A status ever held, as every other (_finish_statuses).
+        if (b.value("Faction") or "").strip() == "Heathen" \
+                or "yes" in [v.lower() for v in _values(b.value("Heathen"))] \
+                or (b.value("What happened") or "").strip() == LEFT_FOR_THE_HEATHENS:
+            _add_status(p, ["Heathen"])
+        if (b.value("What happened") or "").strip() == LEFT_FOR_THE_HEATHENS:
+            p.left_heathen = True
+        if b.heading.startswith("Villager "):
+            faction = (b.value("Faction") or "").strip() or additions._faction_of_title(b.value("Special villager"))
+            when = "9999" if additions.is_population(b.path) else (b.date or "")
+            if faction in ("Heathen", "Believer") and (p.faction_seen is None or when >= p.faction_seen[0]):
+                p.faction_seen = (when, faction)
         if b.heading.startswith("Death") and not p.alive:     # reanimated (New Believers): alive again
             p.gone = "died"
             age = b.value("Age at death")
@@ -600,11 +671,17 @@ def _file_statuses(reg: _Registry, folder: Path, game: int, slot: int) -> None:
 
 def _finish_statuses(reg: _Registry) -> None:
     """A villager the records say converted from the Heathens, with no mask colour known, is a Former
-    Heathen; every list in the games' order."""
+    Heathen; anyone who is or ever was a Heathen -- the save's faction, a Heathen role, a conversion, a
+    former Heathen's title -- has the Heathen status too (the owner, 2026-10-22: an ordinary Heathen is
+    marked "Heathen", and one who converts keeps it as a status ever held, beside their Converted or Former
+    mark); every list in the games' order."""
     converted = ("Retired Heathen Chief", "Former Heathen Master")
     for p in reg.people.values():
         if p.converted and not any(s in converted or s.startswith("Converted ") for s in p.statuses):
             _add_status(p, ["Former Heathen"])
+        if p.heathen or p.converted or any(s.startswith(("Heathen ", "Former Heathen", "Converted "))
+                                           or s == "Retired Heathen Chief" for s in p.statuses):
+            _add_status(p, ["Heathen"])
         p.statuses = _sorted_statuses(p.statuses)
 
 
@@ -915,7 +992,7 @@ def _merge_renamed(reg: _Registry, p: Person, q: Person) -> None:
     q.runner = q.runner or p.runner
     q.likes_seen |= p.likes_seen
     _add_status(q, p.statuses)          # a status held under the old name is still theirs
-    q.converted = q.converted or p.converted
+    _merge_faction(p, q)
     q.former = [p.name] + [n for n in q.former if n != p.name] + [n for n in p.former if n not in q.former]
     for r in reg.people.values():
         if r.father == p.id:
@@ -1043,7 +1120,7 @@ def _merge_into(reg: _Registry, p: Person, q: Person) -> None:
     q.runner = q.runner or p.runner
     q.likes_seen |= p.likes_seen
     _add_status(q, p.statuses)          # a change of looks or title never takes a status away
-    q.converted = q.converted or p.converted
+    _merge_faction(p, q)
     for r in reg.people.values():
         if r.father == p.id:
             r.father = q.id

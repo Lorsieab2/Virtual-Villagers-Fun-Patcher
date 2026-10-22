@@ -206,6 +206,8 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person,
     for label, q in (("Father", p.father), ("Mother", p.mother)):
         if q is not None and q in people:
             note((f"{label}: ", "plain", None), *_person_runs(edits, names, people[q]))
+        elif (getattr(p, "hidden_parents", None) or {}).get(label):     # left off by "Hide unconverted Heathens"
+            note((f"{label}: {p.hidden_parents[label]} (Heathen)", "plain", None))
     if not p.upcoming:
         number = f", number {p.number}" if p.number is not None else ""
         note((f"Generation {gen.roman(p.generation)}{number}", "plain", None))

@@ -95,7 +95,8 @@ class FromTheLogs(Base):
                 for k, t in enumerate(titles):
                     dead = holder(village, f"Gone{k}")
                     self.assertEqual(dead.gone, "died")
-                    self.assertEqual(dead.statuses, gen.status_marks(t) + ["Old Wise One"])
+                    heathen = ["Heathen"] if game == 5 else []     # every New Believers title here: ever a Heathen
+                    self.assertEqual(dead.statuses, gen._sorted_statuses(gen.status_marks(t) + heathen + ["Old Wise One"]))
 
     def test_an_island_event_change_gives_both_titles(self) -> None:
         v = self.village("huttest", 3)
@@ -110,7 +111,146 @@ class FromTheLogs(Base):
         v.births("Arrived 1\n  Name: Turned\n  Age at arrival: 400\n  Sex: Male\n  Head: 2\n  Body: 3\n"
                  "  How: Converted from the Heathens\n\n")
         village = gen.load_village(v.folder, 5, 1)
-        self.assertEqual(holder(village, "Turned").statuses, ["Former Heathen"])
+        self.assertEqual(holder(village, "Turned").statuses, ["Heathen", "Former Heathen"])
+
+
+class OrdinaryHeathens(Base):
+    """The owner (2026-10-22): an ordinary Heathen (no title) is marked "Heathen"; one who converts keeps it as a
+    status ever held, beside their Converted or Former mark.  (Heathens never count in the statistics; a mark
+    is not a statistic.)"""
+
+    def test_a_current_heathen_by_the_saves_faction(self) -> None:
+        v = self.village("huttest", 5)
+        data = bytearray(v.save_path(1).read_bytes())
+        first, second = v.entries(bytes(data))[:2]
+        data[first + gen.VV5_FACTION_FROM_NAME] = 1
+        data[second + gen.VV5_FACTION_FROM_NAME] = 0
+        v.write_save(1, bytes(data))
+        people = v.people(bytes(data))
+        village = gen.load_village(v.folder, 5, 1)
+        by_key = {p.key: p for p in village.people.values() if p.alive}
+        self.assertIn("Heathen", by_key[(people[0].name, people[0].head, people[0].body)].statuses)
+        self.assertNotIn("Heathen", by_key[(people[1].name, people[1].head, people[1].body)].statuses)
+        self.assertEqual(ft.STATUS_COLOURS["Heathen"], gw.PRESET_MARKS["Heathen"])
+
+    def test_a_heathen_once_keeps_it_after_converting(self) -> None:
+        v = self.village("huttest", 5)
+        data = bytearray(v.save_path(1).read_bytes())
+        for at in v.entries(bytes(data)):
+            data[at + gen.VV5_FACTION_FROM_NAME] = 0       # everyone a believer now
+        v.write_save(1, bytes(data))
+        people = v.people(bytes(data))
+        x, y, z = people[0], people[1], people[2]
+        history_text(v, [(T1, people), (T2, people)],
+                     {(T1, x.name): ["Faction: Heathen"],
+                      (T2, x.name): ["Faction: Believer", "Special villager: Former Heathen (red mask)"],
+                      (T1, y.name): ["Special villager: Heathen Doctor"],
+                      (T2, y.name): ["Special villager: Former Heathen Master (purple mask)"]})
+        v.deaths("Disappeared\n  Name: Leaver\n  Age: 400\n  Sex: Male\n  Head: 3\n  Body: 4\n"
+                 "  What happened: Left the tribe: became a Heathen\n\n")
+        village = gen.load_village(v.folder, 5, 1)
+        self.assertEqual(holder(village, x.name, alive=True).statuses[:2], ["Heathen", "Converted Red Mask Heathen"])
+        self.assertEqual(holder(village, y.name, alive=True).statuses[:4],
+                         ["Heathen Doctor", "Heathen", "Former Heathen Master", "Converted Purple Mask Heathen"])
+        self.assertNotIn("Heathen", holder(village, z.name, alive=True).statuses)
+        leaver = holder(village, "Leaver")
+        self.assertEqual(leaver.statuses, ["Heathen"])
+        # ...and "Hide unconverted Heathens": the one who left for the Heathens hidden, the converted two kept.
+        shown = {p.name for p in gen.without_heathens(village).people.values()}
+        self.assertNotIn("Leaver", shown)
+        self.assertTrue({x.name, y.name, z.name} <= shown)
+
+    def test_a_dead_heathen_by_their_latest_snapshot(self) -> None:
+        v = self.village("huttest", 5)
+        people = v.people(v.save_path(1).read_bytes())
+        history_text(v, [(T1, people)], {(T1, people[0].name): ["Faction: Heathen"]})
+        v.deaths(death(1, people[0].name, people[0].head, people[0].body, 2000))
+        data = bytearray(v.save_path(1).read_bytes())    # no longer in the save: died a Heathen
+        at = v.entries(bytes(data))[0]
+        data[at:at + 4] = b"Zzz\0"
+        v.write_save(1, bytes(data))
+        village = gen.load_village(v.folder, 5, 1)
+        dead = [p for p in village.people.values() if p.name == people[0].name and not p.alive]
+        self.assertTrue(dead and all(gen.is_unconverted_heathen(p) for p in dead))
+
+
+def heathen_village() -> gen.Village:
+    """Hand-built: Hea a living Heathen, father of the believer Kid; Mom a living Heathen expecting; Old a dead
+    Heathen; Conv a converted Heathen; Ret the Retired Heathen Chief (his last snapshot a Heathen's); Late a
+    Heathen once, converted later; Left who left for the Heathens; Bel a believer."""
+    P = gen.Person
+    people = {1: P(1, "Hea", 1, 1, sex="Male", age=900, alive=True, heathen=True, statuses=["Heathen"]),
+              2: P(2, "Kid", 2, 2, sex="Female", age=300, alive=True, father=1, mother=8),
+              3: P(3, "Mom", 3, 3, sex="Female", age=500, alive=True, heathen=True, expecting=True),
+              4: P(4, "Upcoming child", -1, -1, upcoming=True, mother=3, father=1),
+              5: P(5, "Old", 5, 5, sex="Male", age=1500, gone="died", faction_seen=("2026-01-01", "Heathen")),
+              6: P(6, "Conv", 6, 6, sex="Male", age=700, alive=True, statuses=["Heathen", "Converted Red Mask Heathen"]),
+              7: P(7, "Ret", 7, 7, sex="Male", age=1400, gone="died", faction_seen=("2026-01-01", "Heathen"),
+                   statuses=["Retired Heathen Chief", "Heathen"]),
+              8: P(8, "Bel", 8, 8, sex="Female", age=800, alive=True),
+              9: P(9, "Late", 9, 9, sex="Male", age=600, alive=True, converted=True),
+              10: P(10, "Left", 10, 10, sex="Male", age=400, gone="disappeared", left_heathen=True),
+              11: P(11, "Child of Ret", 11, 11, sex="Male", age=200, alive=True, father=7)}
+    v = gen.Village(5, 1, "Test Tribe", people)
+    gen._generations(v, {})
+    gen.number_people(v)
+    return v
+
+
+class HideUnconvertedHeathens(unittest.TestCase):
+    def test_off_by_default_everyone_shows(self) -> None:
+        v = heathen_village()
+        self.assertFalse(ft.Edits().hide_heathens)
+        lay = ft.layout(v, ft.Edits())
+        self.assertTrue({1, 3, 5, 10} <= set(lay.x))
+
+    def test_on_hides_unconverted_heathens_and_their_babies_and_keeps_the_converted(self) -> None:
+        v = heathen_village()
+        shown = gen.without_heathens(v)
+        self.assertEqual(sorted(p.name for p in shown.people.values()),
+                         sorted(["Kid", "Conv", "Ret", "Bel", "Late", "Child of Ret"]))
+        self.assertIsNone(shown.people[2].father, "no line to a hidden parent")
+        self.assertEqual(shown.people[2].mother, 8)
+        self.assertEqual(shown.people[2].hidden_parents, {"Father": "Hea"})
+        self.assertEqual(shown.people[11].father, 7, "a Retired Heathen Chief stays, with his family")
+        self.assertIs(v.people[2].father, 1, "the village read is never changed")
+        text = info.plain_text(info.info_lines(shown, ft.Edits(), 2))
+        self.assertIn("Father: Hea (Heathen)", text)
+        lay = ft.layout(shown, ft.Edits(hide_heathens=True))
+        self.assertEqual(set(lay.x), set(shown.people))
+
+    def test_the_switch_is_kept_with_the_tree_and_hidden_villagers_keep_their_edits(self) -> None:
+        v = heathen_village()
+        e = ft.Edits(hide_heathens=True, entries={"Hea|1|1": {"lines": ["Our Heathen"]}})
+        ft.apply_auto_marks(e, v)
+        back = ft.Edits.from_data(json_round(e))
+        self.assertTrue(back.hide_heathens)
+        self.assertEqual(back.entries["Hea|1|1"]["lines"], ["Our Heathen"])
+        self.assertEqual(back.entries["Hea|1|1"]["marks"], ["Heathen"])
+        self.assertFalse(ft.Edits.from_data({"format": 1}).hide_heathens, "an older tree: shown, as before")
+
+    def test_the_editor_follows_the_switch(self) -> None:
+        v = heathen_village()
+        ed = FakeEditor(v, ft.Edits())
+        ed.hide_gone = mock.Mock(get=mock.Mock(return_value=False))
+        ed.selected = [1, 2]
+        ed.heathens_hidden = False
+        shown_village = gw.TreeEditor._shown_village
+        ed.village = shown_village(ed, v)
+        self.assertIn(1, ed.village.people)
+        ed.edits.hide_heathens = True                   # the switch, an undo or a tree file opened
+        type(ed)._shown_village = shown_village
+        gw.TreeEditor._sync_heathens(ed)
+        self.assertNotIn(1, ed.village.people)
+        self.assertEqual(ed.selected, [2])
+        ed.edits.hide_heathens = False
+        gw.TreeEditor._sync_heathens(ed)
+        self.assertIn(1, ed.village.people)
+
+
+def json_round(e: ft.Edits) -> dict:
+    import json
+    return json.loads(json.dumps(e.to_data()))
 
 
 class FromTheSave(Base):
