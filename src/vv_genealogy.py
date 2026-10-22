@@ -111,6 +111,17 @@ class Person:
     likes: frozenset | None = None      # the living villager's likes as words (the save's)
     likes_seen: set = field(default_factory=set)     # every likes list a log record gives them (frozensets of words)
     former: list[str] = field(default_factory=list)  # names they had before the player renamed them (RenameQuestion)
+    # Every special status or title they hold or ever held, as the Family Tree's automatic marks name them
+    # (status_marks; the player's Custom titles by their own words): the save, every log record, the graves
+    # and the patcher's own files (_statuses).  A former holder keeps it.
+    statuses: list[str] = field(default_factory=list)
+    converted: bool = False             # New Believers: a record says they converted from the Heathens
+    # New Believers: the faction their latest snapshot gives ((date, "Heathen" / "Believer"), or None), and
+    # whether a record says they left the tribe to become a Heathen (is_unconverted_heathen).
+    faction_seen: tuple | None = None
+    left_heathen: bool = False
+    # A parent "Hide unconverted Heathens" left off the tree: "Father" / "Mother" -> their name (without_heathens).
+    hidden_parents: dict = field(default_factory=dict)
 
     @property
     def key(self) -> Key:
@@ -131,6 +142,137 @@ class Person:
         is written in birth order), then the older."""
         return (self.upcoming, (self.first_seen or "")[:16], self.birth_record if self.birth_record is not None else -1,
                 -(self.age or 0), self.name)
+
+
+# ---------------------------------------------------------------------------
+# Special statuses: the Family Tree's automatic marks
+# ---------------------------------------------------------------------------
+# The owner (2026-10-22): "All Tribal Chiefs in VV3 will now be automatically marked under Special Villager
+# status", then every special or custom status in all five games -- a former holder keeps it, a villager may
+# hold several.  The patcher's own titles (native/shared/special_title.h, the logs' "Special villager:"
+# line; vv_graves.TITLE_RANK), in that order; a converted Heathen by the mask colour the logs give
+# ("Former Heathen (red mask)" is a "Converted Red Mask Heathen"); the player's Custom titles by their words.
+STATUS_ORDER = ("Tribal Chief", "Retired Heathen Chief", "Heathen Chief", "Heathen Mommy", "Heathen Doctor",
+                "Heathen Master Scientist", "Heathen Master Builder", "Heathen Master Farmer", "Heathen",
+                "Former Heathen Master", "Converted Purple Mask Heathen", "Converted Red Mask Heathen",
+                "Converted Orange Mask Heathen", "Converted Blue Mask Heathen", "Former Heathen",
+                "Golden Child", "Esteemed Elder", "Scholar")
+NO_TITLE = frozenset({"", "none", "(none)", "-", "unknown", "(unknown)", "(not recorded)"})
+_FORMER_TITLE = re.compile(r"^Former Heathen( Master)? \((blue|orange|red|purple) mask\)$", re.I)
+# The Former Heathens file's kinds (native/shared/former_heathens.h; vv_lost_titles.FORMER_KINDS) as the logs word them.
+FORMER_FILE_TITLES = {0: "Former Heathen (blue mask)", 1: "Former Heathen (orange mask)", 2: "Former Heathen (red mask)",
+                      3: "Former Heathen Master (purple mask)", 4: "Retired Heathen Chief"}
+CONVERTED_HOW = "Converted from the Heathens"
+LEFT_FOR_THE_HEATHENS = "Left the tribe: became a Heathen"     # vv_log_additions.LEFT_FOR_THE_HEATHENS
+# Where the save keeps a status, from the villager's name in the saved entry (vv_last_names.FIELDS), as
+# special_title.h reads the record: The Lost Children's Esteemed Elder +0x7FC (name +0x564); The Secret
+# City's Tribal Chief +0xE80 and its five skills +0xEAC (name +0xDD4); The Tree of Life's five skills
+# +0x1C5C (name +0x1B9C).  A New Home's Golden Child is its family number 199 (Person.family).
+VV2_ELDER_FROM_NAME = 0x7FC - 0x564
+VV3_CHIEF_FROM_NAME = 0xE80 - 0xDD4
+VV3_SKILLS_FROM_NAME = 0xEAC - 0xDD4
+VV4_SKILLS_FROM_NAME = 0x1C5C - 0x1B9C
+MASTER = 88
+
+
+def status_marks(title: str | None) -> list[str]:
+    """The automatic marks one "Special villager" title gives (none for no title)."""
+    t = (title or "").strip()
+    if t.lower() in NO_TITLE:
+        return []
+    m = _FORMER_TITLE.match(t)
+    if m:
+        return (["Former Heathen Master"] if m.group(1) else []) + [f"Converted {m.group(2).capitalize()} Mask Heathen"]
+    return [t]
+
+
+def _values(text: str | None) -> list[str]:
+    """A record line's values: an Island Events change ("old -> new") gives both, as both were held."""
+    return [part.strip() for part in (text or "").split("->") if part.strip().lower() not in NO_TITLE]
+
+
+def _add_status(p: Person, labels) -> None:
+    for label in labels:
+        if label and label not in p.statuses:
+            p.statuses.append(label)
+
+
+def _sorted_statuses(labels: list[str]) -> list[str]:
+    """The game's titles in their order, then the player's own titles as they were found."""
+    return sorted(labels, key=lambda s: (STATUS_ORDER.index(s) if s in STATUS_ORDER else len(STATUS_ORDER),
+                                         labels.index(s)))
+
+
+def save_statuses(game: int, data: bytes, at: int, family: int | None = None) -> list[str]:
+    """The statuses the save itself keeps on a living villager (their name at `at`)."""
+    import struct
+    out = []
+    try:
+        if game == 1 and family == 199:
+            out.append("Golden Child")
+        elif game == 2 and data[at + VV2_ELDER_FROM_NAME]:
+            out.append("Esteemed Elder")
+        elif game == 3:
+            if data[at + VV3_CHIEF_FROM_NAME]:
+                out.append("Tribal Chief")
+            if sum(v >= MASTER for v in struct.unpack_from("<5i", data, at + VV3_SKILLS_FROM_NAME)) >= 3:
+                out.append("Esteemed Elder")
+        elif game == 4 and all(v >= MASTER for v in struct.unpack_from("<5f", data, at + VV4_SKILLS_FROM_NAME)):
+            out.append("Scholar")
+    except (IndexError, struct.error):
+        pass
+    return out
+
+
+def _merge_faction(p: Person, q: Person) -> None:
+    """The older record `p`'s faction facts kept on `q`, the same villager."""
+    q.converted = q.converted or p.converted
+    q.left_heathen = q.left_heathen or p.left_heathen
+    if p.faction_seen and (q.faction_seen is None or p.faction_seen[0] > q.faction_seen[0]):
+        q.faction_seen = p.faction_seen
+
+
+def converted_heathen(p: Person) -> bool:
+    """Whether anything says they converted from the Heathens: a converted arrival, a Former Heathen or Retired
+    Heathen Chief title (the logs, or New Believers' Former Heathens file)."""
+    return p.converted or any(s.startswith(("Converted ", "Former Heathen")) or s == "Retired Heathen Chief"
+                              for s in p.statuses)
+
+
+def is_unconverted_heathen(p: Person) -> bool:
+    """New Believers: a Heathen now -- the save's faction for the living, else their latest snapshot's (a
+    "Left the tribe: became a Heathen" record when no snapshot says) -- with nothing saying they converted."""
+    if p.upcoming or converted_heathen(p):
+        return False
+    if p.alive:
+        return p.heathen
+    if p.faction_seen is not None:
+        return p.faction_seen[1] == "Heathen"
+    return p.left_heathen
+
+
+def without_heathens(village: Village) -> Village:
+    """The tree's village without its unconverted Heathens (the Family Tree Maker's "Hide unconverted Heathens",
+    the owner, 2026-10-22): living, dead and titled Heathens and the babies a hidden Heathen carries left out --
+    the tree only; nothing is changed in any file, and the tree's edits for them are kept.  A converted villager
+    stays, with their whole history.  A parent so hidden is no longer drawn (no line); the child keeps their
+    name in `hidden_parents` ("Father: <name> (Heathen)" in Villager Info)."""
+    import dataclasses
+    hidden = {pid for pid, p in village.people.items() if is_unconverted_heathen(p)}
+    hidden |= {pid for pid, p in village.people.items() if p.upcoming and p.mother in hidden}
+    if not hidden:
+        return village
+    people = {}
+    for pid, p in village.people.items():
+        if pid in hidden:
+            continue
+        gone = {label: village.people[q].name for label, q in (("Father", p.father), ("Mother", p.mother))
+                if q in hidden}
+        people[pid] = dataclasses.replace(p, father=None if p.father in hidden else p.father,
+                                          mother=None if p.mother in hidden else p.mother,
+                                          hidden_parents={**p.hidden_parents, **gone})
+    return dataclasses.replace(village, people=people,
+                               base_generation={k: v for k, v in village.base_generation.items() if k not in hidden})
 
 
 @dataclass
@@ -315,6 +457,7 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         litter = _i32(data, at + LITTER_FROM_NAME[game])
         if p.expecting and (litter in (1, 2, 3) or game <= 2 and litter == 0):
             reg.due[p.id] = max(1, litter)
+        _add_status(p, save_statuses(game, data, at, p.family))
         if game == 5:
             p.heathen = data[at + VV5_FACTION_FROM_NAME] != 0
         if f.father is not None:
@@ -389,6 +532,25 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         sex = b.value("Sex")
         if sex in ("Male", "Female") and p.sex is None:
             p.sex = sex
+        # Every status any record gives them, held then or now (a former Tribal Chief stays one).
+        for title in _values(b.value("Special villager")):
+            _add_status(p, status_marks(title))
+        _add_status(p, _values(b.value("Custom title")))
+        if (b.value("How") or "").strip() == CONVERTED_HOW:
+            p.converted = True
+        # A Heathen then (New Believers): the snapshot's Faction, an Island Events "Heathen: no -> yes", a
+        # "Left the tribe: became a Heathen" record.  A status ever held, as every other (_finish_statuses).
+        if (b.value("Faction") or "").strip() == "Heathen" \
+                or "yes" in [v.lower() for v in _values(b.value("Heathen"))] \
+                or (b.value("What happened") or "").strip() == LEFT_FOR_THE_HEATHENS:
+            _add_status(p, ["Heathen"])
+        if (b.value("What happened") or "").strip() == LEFT_FOR_THE_HEATHENS:
+            p.left_heathen = True
+        if b.heading.startswith("Villager "):
+            faction = (b.value("Faction") or "").strip() or additions._faction_of_title(b.value("Special villager"))
+            when = "9999" if additions.is_population(b.path) else (b.date or "")
+            if faction in ("Heathen", "Believer") and (p.faction_seen is None or when >= p.faction_seen[0]):
+                p.faction_seen = (when, faction)
         if b.heading.startswith("Death") and not p.alive:     # reanimated (New Believers): alive again
             p.gone = "died"
             age = b.value("Age at death")
@@ -437,6 +599,90 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                 parent = reg.get(*parents[label])
                 parent.sex = parent.sex or sex
                 setattr(p, attr, parent.id)
+
+
+def _file_statuses(reg: _Registry, folder: Path, game: int, slot: int) -> None:
+    """The statuses the save's graves and the patcher's own files keep, after every villager is known
+    and joined (their looks, names and records): each only on the one villager it can be."""
+    import struct
+    import vv_last_names as ln
+    try:
+        data = ln.save_path(folder, game, slot).read_bytes()
+    except OSError:
+        return
+    people = list(reg.people.values())
+    # The graves: The Secret City's Tribal Chief byte, and the later three games' Esteemed Elder byte
+    # (vv_graves._title_of), on the one villager recorded dead at that age by that name (and looks).
+    try:
+        import vv_graves
+        cap = vv_graves.LAYOUTS[game].name_cap
+        graves = vv_graves.read_graves(game, data)
+    except Exception:                   # the graves are one source of several: never the tree's undoing
+        graves = []
+    for g in graves:
+        title = g.values.get("title")
+        if not title:
+            continue
+        looks = (g.values.get("head"), g.values.get("body"))
+        fits = [p for p in people if p.gone == "died" and not p.alive and p.age == g.age
+                and (g.name in (p.name, *p.former) or (len(g.name) >= cap - 1 and p.name.startswith(g.name)))
+                and (looks[0] is None or looks == (p.head, p.body) or looks in p.old_looks)]
+        if len(fits) == 1:
+            _add_status(fits[0], status_marks(title))
+    try:
+        entries = ln._entries(game, data)
+    except Exception:
+        return
+    f = ln.FIELDS[game]
+
+    def holder(at: int) -> Person | None:
+        key = reg.current((_cstr(data, at, f.name_cap), _i32(data, at + f.head), _i32(data, at + f.body)))
+        return reg.people.get(reg.by_key.get(key, -1))
+    # New Believers' Former Heathens file: a converted Heathen's mask (or Chief), by their title identity.
+    if game == 5:
+        try:
+            import vv_lost_titles as lt
+            import vv_save_layout as layout
+            rows = lt._read_file(layout.route(folder, lt.FORMER_FILE.format(slot=slot)), lt.FORMER_MAGIC,
+                                 lt.FORMER_VERSION, game, lt.FORMER_HEADER, lt.FORMER_ENTRY, 1024) or []
+            kinds: dict[int, set] = {}
+            for row in rows:
+                identity, kind = struct.unpack("<II", row)
+                kinds.setdefault(identity, set()).add(kind)
+            ids = {at: ln._title_identity(data, at, f) for at in entries}
+            for at, identity in ids.items():
+                one = kinds.get(identity, set())
+                p = holder(at)
+                if p is not None and len(one) == 1 and list(ids.values()).count(identity) == 1:
+                    _add_status(p, status_marks(FORMER_FILE_TITLES.get(next(iter(one)))))
+        except Exception:
+            pass
+    # The Custom Titles file: each living villager's own title, as the game's load gives it.
+    try:
+        import vv_villager_info
+        held = vv_villager_info.file_titles(folder, game, slot) or {}
+    except Exception:
+        held = {}
+    for key, title in held.items():
+        p = reg.people.get(reg.by_key.get(reg.current(key), -1))
+        if p is not None:
+            _add_status(p, _values(title))
+
+
+def _finish_statuses(reg: _Registry) -> None:
+    """A villager the records say converted from the Heathens, with no mask colour known, is a Former
+    Heathen; anyone who is or ever was a Heathen -- the save's faction, a Heathen role, a conversion, a
+    former Heathen's title -- has the Heathen status too (the owner, 2026-10-22: an ordinary Heathen is
+    marked "Heathen", and one who converts keeps it as a status ever held, beside their Converted or Former
+    mark); every list in the games' order."""
+    converted = ("Retired Heathen Chief", "Former Heathen Master")
+    for p in reg.people.values():
+        if p.converted and not any(s in converted or s.startswith("Converted ") for s in p.statuses):
+            _add_status(p, ["Former Heathen"])
+        if p.heathen or p.converted or any(s.startswith(("Heathen ", "Former Heathen", "Converted "))
+                                           or s == "Retired Heathen Chief" for s in p.statuses):
+            _add_status(p, ["Heathen"])
+        p.statuses = _sorted_statuses(p.statuses)
 
 
 def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
@@ -674,6 +920,8 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
     for old, now in village.relooked.items():
         if now in reg.by_key:
             reg.people[reg.by_key[now]].old_looks.append((old[1], old[2]))
+    _file_statuses(reg, folder, game, slot)
+    _finish_statuses(reg)
     for p in reg.people.values():
         p.placeholder = is_placeholder_father(game, p)
     _generations(village, reg.snapshots)
@@ -743,6 +991,8 @@ def _merge_renamed(reg: _Registry, p: Person, q: Person) -> None:
     q.how = "Founder" if p.how == "Founder" and q.how in (None, "", "unknown") else (q.how or p.how)
     q.runner = q.runner or p.runner
     q.likes_seen |= p.likes_seen
+    _add_status(q, p.statuses)          # a status held under the old name is still theirs
+    _merge_faction(p, q)
     q.former = [p.name] + [n for n in q.former if n != p.name] + [n for n in p.former if n not in q.former]
     for r in reg.people.values():
         if r.father == p.id:
@@ -869,6 +1119,8 @@ def _merge_into(reg: _Registry, p: Person, q: Person) -> None:
     q.how = "Founder" if p.how == "Founder" and q.how in (None, "", "unknown") else (q.how or p.how)
     q.runner = q.runner or p.runner
     q.likes_seen |= p.likes_seen
+    _add_status(q, p.statuses)          # a change of looks or title never takes a status away
+    _merge_faction(p, q)
     for r in reg.people.values():
         if r.father == p.id:
             r.father = q.id
