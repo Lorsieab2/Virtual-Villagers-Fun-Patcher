@@ -173,6 +173,45 @@ class OrdinaryHeathens(Base):
         dead = [p for p in village.people.values() if p.name == people[0].name and not p.alive]
         self.assertTrue(dead and all(gen.is_unconverted_heathen(p) for p in dead))
 
+    def test_a_dead_heathen_known_only_by_a_heathen_role_title_is_hidden(self) -> None:
+        """PR #603 review: a dead villager whose only record is a Death with a Heathen role title (no snapshot,
+        no "Left the tribe" record) is a Heathen; "Hide unconverted Heathens" hides them.  A conversion still
+        keeps a titled one shown."""
+        v = self.village("huttest", 5)
+        v.deaths(death(1, "Docta", 3, 4, 1500, "Special villager: Heathen Doctor")
+                 + death(2, "Mama", 5, 6, 1600, "Special villager: Heathen Mommy")
+                 + death(3, "Turned", 7, 8, 1700, "Special villager: Former Heathen Master (purple mask)")
+                 + death(4, "Plain", 9, 10, 1800))
+        v.births("Arrived 1\n  Name: Mama\n  Age at arrival: 400\n  Sex: Male\n  Head: 5\n  Body: 6\n"
+                 "  How: Converted from the Heathens\n\n")
+        village = gen.load_village(v.folder, 5, 1)
+        docta = holder(village, "Docta")
+        self.assertEqual(docta.faction_seen[1], "Heathen", "the Death record's title says Heathen")
+        self.assertTrue(gen.is_unconverted_heathen(docta))
+        self.assertFalse(gen.is_unconverted_heathen(holder(village, "Mama")), "converted: kept")
+        self.assertFalse(gen.is_unconverted_heathen(holder(village, "Turned")), "a former Heathen: kept")
+        self.assertFalse(gen.is_unconverted_heathen(holder(village, "Plain")), "no Heathen evidence")
+        shown = {p.name for p in gen.without_heathens(village).people.values()}
+        self.assertNotIn("Docta", shown)
+        self.assertTrue({"Mama", "Turned", "Plain"} <= shown)
+
+    def test_a_heathen_role_title_with_no_faction_record_is_heathen_evidence(self) -> None:
+        P = gen.Person
+        for title in ("Heathen Chief", "Heathen Mommy", "Heathen Doctor", "Heathen Master Scientist",
+                      "Heathen Master Builder", "Heathen Master Farmer"):
+            with self.subTest(title=title):
+                grave_only = P(1, "G", 1, 1, sex="Male", age=900, gone="died", statuses=[title, "Heathen"])
+                self.assertTrue(gen.is_unconverted_heathen(grave_only))
+                # A faction record decides when there is one...
+                later = P(2, "B", 2, 2, sex="Male", age=900, gone="died", statuses=[title, "Heathen"],
+                          faction_seen=("2026-05-01", "Believer"))
+                self.assertFalse(gen.is_unconverted_heathen(later))
+                # ...and conversion evidence always keeps them.
+                conv = P(3, "C", 3, 3, sex="Male", age=900, gone="died", converted=True, statuses=[title])
+                self.assertFalse(gen.is_unconverted_heathen(conv))
+        plain = P(4, "H", 4, 4, sex="Male", age=900, gone="died", statuses=["Heathen"])
+        self.assertFalse(gen.is_unconverted_heathen(plain), "a Heathen ever held is not a role title")
+
 
 def heathen_village() -> gen.Village:
     """Hand-built: Hea a living Heathen, father of the believer Kid; Mom a living Heathen expecting; Old a dead

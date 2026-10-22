@@ -816,8 +816,8 @@ class Edits:
 # one portrait.  Each is checked as the tree's own is (_group_value).
 GROUP_FIELDS = ("text_align", "text_valign", "centre_heads", "text_room", "flip_words", "turn_words",
                 "text_inside", "fixed_face_size", "picture_size", "text_size", "text_wrap", "show_units", "show_years",
-                "show_twins", "show_founder", "show_runner", "detail_lines", "detail_colour", "detail_opacity",
-                "detail_width", "portrait_fill")
+                "show_twins", "show_founder", "show_runner", "show_arrived", "show_masters", "detail_lines",
+                "detail_colour", "detail_opacity", "detail_width", "portrait_fill")
 
 
 def _group_value(name: str, value) -> tuple[bool, object]:

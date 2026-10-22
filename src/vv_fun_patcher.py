@@ -995,10 +995,22 @@ RESET_HOOK_OWNERS = {
 # byte and overlap guards still require the cave to be stock zeros claimed by
 # nothing else, so a later claim on it fails the build rather than corrupting
 # it.
+#
+# The companion-only features that keep a per-save sidecar file are owners
+# too, after the logs: The Lost Children's totems (ElderTotems.dat) and The
+# Secret City's Both Factions ("Virtual Villagers 3 Second Faction - Save
+# <S>.dat"). Ticked alone they ship no executable bytes of their own, so
+# without this the build had neither the hook nor VVFP Save Reset.dll and
+# Start Over left the old village's file for the new one to read.
+START_OVER_RESET_SIDECAR_OWNERS = {
+    "vv2": ("vv2_totems_out_of_entries",),
+    "vv3": ("vv3_both_factions",),
+}
 START_OVER_RESET_FILE_OWNERS = {
     f"vv{number}": (
         f"vv{number}_write_parentage_log",
         f"vv{number}_write_village_statistics",
+        *START_OVER_RESET_SIDECAR_OWNERS.get(f"vv{number}", ()),
     )
     for number in range(1, 6)
 }

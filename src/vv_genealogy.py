@@ -285,7 +285,10 @@ def is_unconverted_heathen(p: Person) -> bool:
         return p.heathen
     if p.faction_seen is not None:
         return p.faction_seen[1] == "Heathen"
-    return p.left_heathen
+    # No record says their faction: a "Left the tribe" record, or a Heathen role title from anywhere (a
+    # grave's too) -- only a current Heathen holds one (vv_log_additions.HEATHEN_ROLES).
+    import vv_log_additions as additions
+    return p.left_heathen or any(s in additions.HEATHEN_ROLES for s in p.statuses)
 
 
 def without_heathens(village: Village) -> Village:
@@ -589,6 +592,16 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             when = "9999" if additions.is_population(b.path) else (b.date or "")
             if faction in ("Heathen", "Believer") and (p.faction_seen is None or when >= p.faction_seen[0]):
                 p.faction_seen = (when, faction)
+        else:
+            # Any other record (a Death, a Disappeared, an Island Events change) whose title -- the one held
+            # after it, the last of an "old -> new" -- is a Heathen role (Heathen Doctor, Heathen Mommy, ...)
+            # says they were a Heathen then: only a current Heathen holds one (_faction_of_title).  A later
+            # snapshot still decides; a conversion still keeps them (is_unconverted_heathen).
+            titles = _values(b.value("Special villager"))
+            when = b.date or ""
+            if titles and additions._faction_of_title(titles[-1]) == "Heathen" \
+                    and (p.faction_seen is None or when >= p.faction_seen[0]):
+                p.faction_seen = (when, "Heathen")
         if b.heading.startswith("Death") and not p.alive:     # reanimated (New Believers): alive again
             p.gone = "died"
             age = b.value("Age at death")

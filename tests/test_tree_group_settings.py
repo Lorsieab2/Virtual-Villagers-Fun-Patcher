@@ -106,6 +106,39 @@ class ModelTests(unittest.TestCase):
                 self.assertTrue(all(check(t) for t in texts(edits, MALE)))
                 self.assertFalse(any(check(t) for t in texts(edits, FEMALE)))
 
+    def test_arrived_and_masters_for_one_group(self):
+        """PR #603 review: "How they arrived" and "Master of a skill" with "Settings for:" a group are that
+        group's, as the other descriptors are; an older tree (no group value) shows the tree's own."""
+        self.assertIn("show_arrived", ft.GROUP_FIELDS)
+        self.assertIn("show_masters", ft.GROUP_FIELDS)
+        v = village()
+        for pid in (MALE, FEMALE):
+            v.people[pid].arrived, v.people[pid].how = True, "Shipwreck"
+            v.people[pid].masters = ["Farmer"]
+        for name, words in (("show_arrived", "Arrived: Shipwreck"), ("show_masters", "Master Farmer")):
+            with self.subTest(name=name):
+                lay = ft.layout(v, males(**{name: False}))
+                self.assertNotIn(words, ft.default_text(lay, v.people[MALE]))
+                self.assertIn(words, ft.default_text(lay, v.people[FEMALE]))
+                # The tree's off and one group's on.
+                lay = ft.layout(v, males({name: False}, **{name: True}))
+                self.assertIn(words, ft.default_text(lay, v.people[MALE]))
+                self.assertNotIn(words, ft.default_text(lay, v.people[FEMALE]))
+                # Saved and read back: kept; a bad value is dropped (the tree's own shows).
+                edits = males(**{name: False})
+                back = ft.Edits.from_data(json.loads(json.dumps(edits.to_data())))
+                self.assertEqual(back.group_opts, {"Male": {name: False}})
+                self.assertEqual(ft.clean_group_opts({"Male": {name: "no"}}), {})
+        # A tree saved before: the two are the tree's own, for every group.
+        old = ft.Edits.from_data({"format": 1, "show_arrived": False, "show_masters": False,
+                                  "group_opts": {"Male": {"show_twins": False}}})
+        self.assertEqual(old.group_opts, {"Male": {"show_twins": False}})
+        lay = ft.layout(v, old)
+        for pid in (MALE, FEMALE):
+            text = ft.default_text(lay, v.people[pid])
+            self.assertNotIn("Arrived: Shipwreck", text)
+            self.assertNotIn("Master Farmer", text)
+
     def test_a_villagers_own_sizes_still_win(self):
         v = village()
         edits = males(picture_size=50.0, text_size=200.0)
