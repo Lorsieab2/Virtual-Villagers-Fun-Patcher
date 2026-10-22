@@ -51,7 +51,7 @@ static const char *c1_arm_refusal(void) {
                "can be queued once it has happened.";
     }
     if (!vv1_any_villager(VV1_ARRAY(), VV1_CHILD_AGE, -1)) {
-        return "An island event needs a living adult in the village.";
+        return ce_empty_refusal(1, "An island event needs a living adult in the village.");
     }
     return NULL;
 }

@@ -483,7 +483,16 @@ static int ce_opening(int game, int counted) {
 
 /* Whether the armed event of `game` (a player's own, not the notice) waits for
    the opening events; it is then still to be made due. */
+static int ce_dead_firing;               /* story_empty_village.inc */
+static int ce_village_empty(int game);
+static const char *ce_empty_refusal(int game, const char *refusal);
+
 static int ce_held(int game, int counted) {
+    /* An empty village's trigger delivering it (story_empty_village.inc):
+       such a village can never have its opening events. */
+    if (ce_dead_firing == game) {
+        return 0;
+    }
     if (!ce_armed || ce_armed_is_notice || ce_armed_event.game != game || !ce_opening(game, counted)) {
         return 0;
     }
@@ -1694,6 +1703,7 @@ static int ce_deliver(int game, char *text, int size) {
     notice = ce_armed_is_notice;
     ce_armed = 0;
     ce_armed_is_notice = 0;
+    ce_dead_firing = 0;
     ce_notice_shown = notice ? game : 0;
     ce_apply(a, &ce_armed_event, &ce_last_result);
     if (!ce_compose(a, &ce_armed_event, &ce_last_result, text, size)) {

@@ -67,6 +67,12 @@ DESCRIPTION = (
     "this game's own code supports is offered; the rest is shown as not available in "
     "this game. A custom title is kept per save slot in a file beside the saves and is "
     "removed by Start Over. "
+    "A Custom Island Event can also be bought and delivered when everyone in the village has "
+    "died (the game's own island events wait for a living villager), so new villagers, food, "
+    "Tech Points, refills and revived skeletons can bring the village back; what needs a living "
+    "villager is simply not there to choose, and a question with two choices is refused until "
+    "someone lives. In A New Home and The Lost Children a village's first island event is still "
+    "the game's own visitor. "
     "A custom event can also ask a question with two choices: the player writes the question, "
     "the two button labels and, for each button, one to four outcomes, each with its own chance, "
     "result text and changes (everything the event itself can change); clicking a button rolls "
@@ -317,18 +323,29 @@ CUSTOM_SITES = {
         "VV1_TITLE_SITE_BYTES": (0x41FD75, 5),
         "VV1_CHOICE_SETUP_BYTES": (0x41A51F, 5),
         "VV1_EVENT_PICK_BYTES": (0x4237DD, 5),
+        "VV1_EMPTY_COUNT_BYTES": (0x4237CB, 5),
     },
     "vv2": {
         "VV2_CUSTOM_CHOOSE_BYTES": (0x4349B2, 5),
         "VV2_TITLE_SITE_BYTES": (0x429DE3, 5),
         "VV2_CHOICE_SETUP_BYTES": (0x42244A, 5),
         "VV2_EVENT_PICK_BYTES": (0x42EEED, 5),
+        "VV2_EMPTY_COUNT_BYTES": (0x42EEDB, 5),
     },
-    "vv3": {"VV3_TITLE_SITE_BYTES": (0x468FC8, 6), "VV3_EVENT_PICK_BYTES": (0x468757, 5)},
-    "vv4": {"VV4_TITLE_SITE_BYTES": (0x4404D9, 5), "VV4_EVENT_PICK_BYTES": (0x43FA70, 5)},
-    "vv5": {"VV5_TITLE_SITE_BYTES": (0x44319E, 6), "VV5_EVENT_PICK_BYTES": (0x44272F, 5)},
+    "vv3": {"VV3_TITLE_SITE_BYTES": (0x468FC8, 6), "VV3_EVENT_PICK_BYTES": (0x468757, 5),
+            "VV3_EMPTY_COUNT_BYTES": (0x468743, 5)},
+    "vv4": {"VV4_TITLE_SITE_BYTES": (0x4404D9, 5), "VV4_EVENT_PICK_BYTES": (0x43FA70, 5),
+            "VV4_EMPTY_COUNT_BYTES": (0x43FA4E, 5)},
+    "vv5": {"VV5_TITLE_SITE_BYTES": (0x44319E, 6), "VV5_EVENT_PICK_BYTES": (0x44272F, 5),
+            "VV5_EMPTY_COUNT_BYTES": (0x4426FB, 5), "VV5_EMPTY_SELECT_BYTES": (0x4188E5, 8)},
 }
 CUSTOM_SITE_ROUTINES = {
+    "VV1_EMPTY_COUNT_BYTES": "the event trigger's population count 0x41CF90 (a Custom Island Event reaches a village where everyone has died)",
+    "VV2_EMPTY_COUNT_BYTES": "the event trigger's population count 0x425860 (a Custom Island Event reaches a village where everyone has died)",
+    "VV3_EMPTY_COUNT_BYTES": "the event trigger's population count 0x45E8F0 (a Custom Island Event reaches a village where everyone has died)",
+    "VV4_EMPTY_COUNT_BYTES": "the event trigger's population count 0x467610 (a Custom Island Event reaches a village where everyone has died)",
+    "VV5_EMPTY_COUNT_BYTES": "the event trigger's population count 0x4713F0 (a Custom Island Event reaches a village where everyone has died)",
+    "VV5_EMPTY_SELECT_BYTES": "the island-event selector's no-event exit (a Custom Island Event reaches a village where everyone has died)",
     "VV1_EVENT_PICK_BYTES": "the event trigger's villager draw 0x43BCD0 (a Custom Island Event arrives within seconds)",
     "VV2_EVENT_PICK_BYTES": "the event trigger's villager draw 0x44BAE0 (a Custom Island Event arrives within seconds)",
     "VV3_EVENT_PICK_BYTES": "the event trigger's villager draw 0x45C9D0 (a Custom Island Event arrives within seconds)",
@@ -716,6 +733,18 @@ def build() -> None:
                 "the second of them stays queued -- the same lock, nothing charged again -- without "
                 "making the island event due, and is made due exactly as the Island Event upgrade "
                 "does once the game has made both, so it is the third.",
+                "A village where everyone has died (the game's own population count is 0; in New "
+                "Believers the believers): the game keeps running but its island-event trigger does "
+                "nothing while that count is 0.  The trigger's call of the count is retargeted to a "
+                "stub that runs it unchanged; only when it answers 0 and a plain Custom Island Event "
+                "is queued for this village does the trigger go on past its villager draw (as if one "
+                "had been drawn), so the game reschedules, plays its sound, counts the event, builds "
+                "it and shows its own popup with the custom event.  New Believers' selector, when no "
+                "stock event is possible, goes to its delivery site with the custom event the same "
+                "way (its two stock trophy calls first).  The purchase allows an empty village (a "
+                "question with two choices is refused: it needs a living villager), an empty village "
+                "does not wait for the two opening island events, and A New Home's and The Lost "
+                "Children's first island event stays the game's own visitor.",
                 "Pick Island Event's settings: each offered event can carry its result, every "
                 "amount it rolls, who a per-villager roll hits, which villager it is about and each "
                 "baby's details (A New Home and The Lost Children: also its strength), each "
@@ -743,6 +772,9 @@ def build() -> None:
                 "event changes only what the player chose, through the game's own routines and "
                 "fields, and the game saves the village as usual.",
                 "No custom title is written into a villager record.",
+                "An empty village with nothing queued, and every village with anyone alive, runs "
+                "the island-event trigger exactly as stock; the game's own \"Your tribe has been "
+                "lost! Game over.\" status line and its tips are left as they are.",
             ] + ([
                 "Pick Gong of Wonder Outcome writes one value at the purchase: the Gong's rest "
                 "(village +0x2EAC8) is set to 1, the value the game itself writes when the Gong "

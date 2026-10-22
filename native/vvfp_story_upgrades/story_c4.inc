@@ -91,7 +91,7 @@ static const char *c4_arm_refusal(void) {
             return NULL;
         }
     }
-    return "An island event needs a living adult in the village.";
+    return ce_empty_refusal(4, "An island event needs a living adult in the village.");
 }
 
 /* The game's own room predicate 0x468350 (the mode's cap, the housing

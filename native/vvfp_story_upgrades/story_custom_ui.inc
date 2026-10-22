@@ -2616,6 +2616,14 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
         }
         if (id == IDC_CE_CHANGE_ADD) {
             ui.change_editing = -1;
+            /* Everyone has died and every body is gone (story_empty_village.inc):
+               there is nobody to change. */
+            ui_load_roster();
+            if (ui.roster_count == 0) {
+                ui_message(window, "There is nobody in the village to change: everyone has died. "
+                                   "Add new villagers instead, under New villagers.");
+                return TRUE;
+            }
             if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CHANGES), window,
                                 ui_changes_dialog, 0) == IDOK) {
                 ui_refresh_lists(window);
@@ -2923,7 +2931,9 @@ static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wpar
    without making the island event due (ce_held, story_custom.inc):
    ce_opening_tick does that once they are over.  1 on success. */
 static int ce_arm_with(int game, const ce_event *e, const ce_choice *c, int notice) {
-    int hold = !notice && ce_opening(game, 0);
+    /* An empty village never has its opening events (its trigger waits for a
+       villager): nothing to wait for (story_empty_village.inc). */
+    int hold = !notice && ce_opening(game, 0) && !ce_village_empty(game);
     if (!hold && !GAMES[game].arm()) {
         return 0;
     }
@@ -2943,6 +2953,7 @@ static int ce_arm_with(int game, const ce_event *e, const ce_choice *c, int noti
    open, and not when one is already on its way (the game's own then carries
    it). */
 static void ce_opening_tick(int game) {
+    ce_dead_firing = 0;              /* only ever set inside one trigger run */
     if (!ce_armed) {
         ce_wait_arm = 0;
         return;
@@ -2950,10 +2961,12 @@ static void ce_opening_tick(int game) {
     if (ce_armed_event.game != game || ce_armed_is_notice || !ce_pending(game)) {
         return;
     }
-    if (ce_opening(game, 0)) {
+    if (ce_opening(game, 0) && !ce_village_empty(game)) {
         ce_wait_arm = 1;             /* e.g. put back from the queue file in a new village */
         return;
     }
+    /* Everyone has died before the opening events were over: they can never
+       come, so the event is made due now (story_empty_village.inc). */
     if (!ce_wait_arm || time_skip_event_open()) {
         return;
     }

@@ -544,6 +544,56 @@ Time Skip Amount's closing notice is not an island event (its count is taken
 back) and is not held. tests/test_story_opening_events.py runs each game's
 real trigger three times in a new village.
 
+**A village where everyone has died (v1.35.80).** The owner (2026-10-21):
+"allow Custom Island Events to be bought and triggered when everyone is dead
+(so the player can add new villagers)". None of the five games ends a village
+whose last villager dies: there is no game-over state, no return to the title
+and no change to the save. The village keeps running (clock, food, menus); the
+game shows "Your tribe has been lost! Game over." (eSayGameOver) on its status
+line every 2 s while its population count is 0 (VV1 0x421B40(0x1F) from the
+main update 0x42373C, VV2 0x42EE49, VV3 0x4686AF, VV4 0x43F9B7, VV5 0x442676,
+each a 5-second status label), and A New Home, The Lost Children and The Tree
+of Life queue their "all of your villagers died" tip once and mark their
+tutorial tips shown (stock, left as it is). What stopped a Custom Island Event:
+
+| Game | Trigger's count call | Skip | Routine between draw and age check | Resume |
+| --- | --- | --- | --- | --- |
+| A New Home | 0x4237CB call 0x41CF90 (world) | 0x423ABE | 0x41D110 -> edi | 0x423816 |
+| The Lost Children | 0x42EEDB call 0x425860 (world) | 0x42F1D4 | 0x426110 -> edi | 0x42EF26 |
+| The Secret City | 0x468743 call 0x45E8F0 (manager) | 0x4688DF | 0x402200 -> ebp | 0x468798 |
+| The Tree of Life | 0x43FA4E call 0x467610 (manager) | 0x43FC0E | 0x416EB0 -> ebp | 0x43FA9B |
+| New Believers | 0x4426FB call 0x4713F0 (manager; believers only) | 0x44285F | 0x417650 -> ebp | 0x44275A |
+
+(the trigger does nothing, not even reschedule, while the count is 0), New
+Believers' selector returning before its delivery site when no stock event is
+possible (0x4188E5 `test edi, edi; je 0x4189C5`), and the companion's own
+purchase refusing a village with no living adult. Each count call is now a
+call to a stub (native/vvfp_story_upgrades/story_empty_village.inc) that runs
+the count unchanged; only when it answers 0 and a plain Custom Island Event is
+queued for this village does it drop its return and resume after the villager
+draw and age check with the register the stock code has there. The drawn
+villager is never used after that check in any game, and nothing from there to
+the popup reads a villager record for a custom event (its object shows no
+villager), so the game reschedules, plays its sound, counts the event, builds
+it, and the usual delivery point puts the custom event in it. New Believers'
+selector exit, with no stock event possible and a plain custom event due, makes
+the stock path's two trophy calls (0x413450 on 0x4DB358 with 0x2F and 0x30) and
+goes to 0x41895B with esi 1. The `mov ecx` before each count call is left as it
+is, so 256 Villagers (Experimental), which moves the manager to 0x800000, keeps
+working. The creators (0x43C350, 0x44F580 via 0x44C600, 0x45FF50, 0x467D10,
+0x471E20) take the first free record and read no other villager; the room
+predicates pass at population 0; bodies keep their records and can be revived.
+Nothing else needs resetting: once the count is above 0 the game's own next tick
+treats it as a normal village. The purchase now allows an empty village; a
+question with two choices is refused (it needs a living villager to show), an
+empty village does not wait for its two opening island events (its trigger can
+never make them), and A New Home's and The Lost Children's first island event
+stays the game's own visitor. Villager Changes says there is nobody to change
+when no villager or body is left. Tests: tests/test_story_empty_village.py (each
+game's real trigger in all three population modes and with 256 Villagers, the
+selector exit, the purchase, arrivals and skeletons). **Not yet seen in a
+running game.**
+
 ### What each game offers
 
 | Option | A New Home | The Lost Children | The Secret City | The Tree of Life | New Believers |
