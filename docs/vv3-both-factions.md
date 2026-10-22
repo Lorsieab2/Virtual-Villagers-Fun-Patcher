@@ -83,6 +83,37 @@ them. The "prince of magic / princess of nature" text is story only. The
 patcher's own Nature patches (honey refill, Nature 3 mortality) and the
 population caps read the getter, so they see both.
 
+### Every faction effect at once (owner's list), vanilla and patcher
+
+| effect | granted by (stock info text) | read at | with both factions |
+|---|---|---|---|
+| longer lives | Nature 3 ("increase your villagers' longevity") | 0x4601C4 (stock); patch `vv3_nature_level_three_alters_mortality` cave (+7 years) | live level, getter |
+| food refills | Nature 1 ("replenish your food sources more quickly") | 0x4347C3 (stock fruit factor); patch `vv3_nature_honey_refill` caves (fruit and honey timers, honey amount) | live level, getter |
+| research point | Magic 1 ("increase your scientists' productivity") | 0x4593DC (+1 per research; the Origins doubler at 0x427130 doubles it as before) | live level, getter |
+| population maximum | Magic 3 ("increase your villagers' max population") | 0x45FE9D (+10); the patcher's cap rows at 0x45FEA2/0x45FEE1/0x45FEE3 | live level; the only population bonus, so nothing stacks twice |
+| Pitcher Plant | Nature 2 ("a special natural herb") | art 0x420BB9; gathering 0x421340 (no tech read) | drawn with the Berry Plant (0x420BD5) |
+| Berry Plant | Magic 2 ("a special magical herb") | art 0x420BDD; gathering 0x4213D0 (no tech read) | drawn with the Pitcher Plant |
+
+Every read of either faction in the rendered executable -- the stock code and
+the patcher's caves -- is `push 5|6 / mov ecx, 0x582618 / call 0x426FC0` on
+the live levels; none reads the save. The second faction is put in those
+levels inside the loader (right after the levels load, before the villagers
+and before any catch-up), and the companion installs at game start, before
+any load, so load order and catch-up see both. No other companion (Story,
+Custom Island Event, Chief Hospital, Statistics, the logs) reads a VV3
+faction. `EveryFactionEffectAtOnce` runs every one of those reads, in all
+three modes and the 256 build, and the population bonus:
+
+| build | cap with Magic 3 | without |
+|---|---|---|
+| stock | 115 + collections (0-25) + 10, at most 150 | at most 140 |
+| Collection Progression | 115 + collections + 10 = 150 at most | - 10 |
+| Immediate Fixed | 150 (the bonus ignored by design) | 150 |
+| 256, Collection Progression | 221 + collections + 10 = 256 at most | - 10 |
+| 256, Immediate Fixed | 256 | 256 |
+
+Never above the slot capacity (150 / 256).
+
 ### The level-2 herbs (owner requirement 1)
 
 | | Nature (Pitcher Plant) | Magic (Berry Plant) |

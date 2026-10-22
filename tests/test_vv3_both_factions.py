@@ -1177,6 +1177,80 @@ class BothHerbRecipes(unittest.TestCase):
 
 
 @emulated
+class EveryFactionEffectAtOnce(unittest.TestCase):
+    """The owner's list: longevity, food refills (and the patcher's honey
+    refill), the research point, the population bonus, the Pitcher Plant and
+    the Berry Plant, all active together.  Every one of them -- the stock code
+    and every patcher cave -- asks the game's getter 0x426FC0 on the live
+    levels, which hold both factions; run here at each place."""
+
+    FACTION_READ = (b"\x6A\x05\xB9\x18\x26\x58\x00\xE8", b"\x6A\x06\xB9\x18\x26\x58\x00\xE8")
+
+    def reads(self, image: bytes, base: int):
+        """Every `push 5|6 / mov ecx, 0x582618 / call` in the rendered executable."""
+        for pattern in self.FACTION_READ:
+            at = image.find(pattern)
+            while at >= 0:
+                yield base + at, pattern[1]
+                at = image.find(pattern, at + 1)
+
+    def test_every_read_of_either_faction_sees_its_level(self):
+        import pefile as _pe
+        for mode, expanded in BUILDS:
+            with self.subTest(mode=mode, expanded=expanded):
+                exe = render(mode, expanded)
+                pe = _pe.PE(data=exe)
+                image = pe.get_memory_mapped_image()
+                sites = list(self.reads(image, pe.OPTIONAL_HEADER.ImageBase))
+                caves = [va for va, _ in sites if va >= 0x47B000]
+                stock = {va for va, _ in sites if va < 0x47B000}
+                self.assertTrue(stock, "the stock reads")
+                if mode != "stock":
+                    self.assertTrue(caves, "the patcher's Nature caves (honey refill, Nature 3 mortality)")
+                g = Game(mode, expanded=expanded)
+                g.levels(1, 1, 1, 1, 1, 3, 2)
+                for va, tech in sites:
+                    target = va + 12 + struct.unpack_from("<i", image, va - pe.OPTIONAL_HEADER.ImageBase + 8)[0]
+                    self.assertEqual(target, 0x426FC0, f"0x{va:X} calls the getter")
+                    g.proc.set_reg("esp", 0x0FE80000)
+                    g.proc.run(va, va + 12)
+                    self.assertEqual(g.proc.reg("eax"), {NATURE: 3, MAGIC: 2}[tech], hex(va))
+
+    def test_the_population_bonus(self):
+        """Magic 3 is the only population bonus (+10 at 0x45FE9D..0x45FEA7);
+        Nature has none, so owning both adds Magic's alone, never two."""
+        results = {}
+        for mode, expanded in BUILDS:
+            for magic in (0, 3):
+                g = Game(mode, expanded=expanded)
+                g.levels(1, 1, 1, 1, 1, 3, magic)
+                g.proc.set_reg("esi", 140)
+                g.proc.set_reg("esp", 0x0FE80000)
+                g.proc.run(0x45FE96, 0x45FEAA)
+                results[(mode, expanded, magic)] = g.proc.reg("esi")
+        for mode, expanded in BUILDS:
+            with self.subTest(mode=mode, expanded=expanded):
+                without, with_magic = results[(mode, expanded, 0)], results[(mode, expanded, 3)]
+                if mode == "immediate_fixed":
+                    self.assertEqual(without, with_magic, "Immediate Fixed ignores the bonus by design")
+                else:
+                    self.assertEqual(with_magic - without, 10)
+
+    def test_both_herbs_can_be_gathered(self):
+        for companion in (True, False):
+            g = Game(companion=companion)
+            g.levels(1, 1, 1, 1, 1, 2, 2)
+            given = []
+            g.proc.stub(0x4358D0, lambda q: (1, 4))           # the Alchemy Lab is restored
+            g.proc.stub(0x430E80, lambda q: (0, 0))           # room in the pot
+            g.proc.stub(0x455570, lambda q: (given.append((q.arg(0), q.u32(q.arg(1)))) or 0, 8))
+            child = g.proc.alloc(0x2000)
+            for handler in (0x421340, 0x4213D0):
+                g.proc.call(handler, [child])
+            self.assertEqual(given, [(0x73, PITCHER), (0x73, BERRY)], "Gathering herbs: each its own herb")
+
+
+@emulated
 class Installing(unittest.TestCase):
 
     def test_installs_every_site_in_every_build(self):
