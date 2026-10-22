@@ -692,26 +692,39 @@ the Fun Patcher, you can now embrace both Nature and Magic Factions. Use this
 gift wisely." Say Yes. Then click the other faction: instead of "You have
 already chosen your faction!" the same question is asked, and Yes buys it at
 its normal price in tech points. Levels 2 and 3 of each are bought without a
-question, as in the unpatched game. Both factions then work at the
-same time, every level of each: Nature's faster food, Pitcher Plant herb and
-longer lives, and Magic's extra research point, Berry Plant herb and higher
-population maximum. Both herbs grow on the island and both factions are lit
-on the Tech screen, each with its own floating petals or sparkles.
+question, as in the unpatched game, and both Buy buttons stay as they are.
 
-Seven new Alchemy Lab recipes need both herbs: a Pitcher Plant and a Berry
-Plant with a Tiger Lily (a fun potion), a Cactus (a trance), a Lotus (crazy
-talk), a Black Orchid (paralysis), a Rose (a little bit lonely), a second
-Pitcher Plant (whoa!) or a second Berry Plant (something smells yummy, for
-the whole village). They count toward "Alchemy R Us" and Stews Found.
+Both factions then work at the same time, every level of each: Nature's
+faster food refills (with the patcher's Nature Level 1 refill patch if
+ticked), the Pitcher Plant and longer lives (with the patcher's Nature Level
+3 patch if ticked), and Magic's extra tech point from research, the Berry
+Plant and the population bonus (+10). Nature has no population bonus, so the
+maximum stays 150 (256 with 256 Villagers; Immediate Fixed keeps its fixed
+maximum). Both herbs grow on the island and can be gathered and brewed, and
+both factions are lit on the Tech screen, each with its own floating petals
+or sparkles.
+
+Seven new Alchemy Lab potions need a Pitcher Plant and a Berry Plant
+together, with a Tiger Lily (a fun potion), a Cactus (a trance), a Lotus
+(crazy talk), a Black Orchid (paralysis), a Rose (a little bit lonely), a
+second Pitcher Plant (whoa! the drinker is moved) or a second Berry Plant
+(something smells yummy: free children under 14 run to the pot). They count
+toward "Alchemy R Us" and Stews Found.
+
+The sharks: the latest shark potion decides how they look. Nature's stink
+bomb makes them go; Magic's Shark Charmer Vial brings them back, charmed and
+sparkling. Nothing else changes: the puzzle, its message and reward stay
+once, and fishing stays open.
 
 The save keeps only the faction you bought first, exactly as the unpatched
-game keeps it. The second one is kept in the save's own folder, in
-Virtual Villagers Fun Patcher\Save N\Data\Factions, and comes back when that
-save is loaded. So every save is one the unpatched game can load: without the
-patch the village loads with its first faction only, and the second comes back
-if the patch is put back. Start Over deletes the file with the rest of the
-save's data. (A save made with both factions by a cheat cannot be loaded by
-the game at all; this patch never writes one.) Not yet tested in play.
+game keeps it. The second one (and which new potions you brewed) is kept in
+the save's own folder, in Virtual Villagers Fun Patcher\Save N\Data\Factions,
+and comes back when that save is loaded. So every save is one the unpatched
+game can load: without the patch the village loads with its first faction
+only, and the second comes back if the patch is put back. Start Over deletes
+the file with the rest of the save's data. (A save made with both factions by
+a cheat cannot be loaded by the game at all; this patch never writes one.)
+Needs no other patch. Not yet tested in play.
 
 VV5 HEATHEN MOMMY PUZZLE RESTORATION
 
