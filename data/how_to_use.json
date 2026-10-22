@@ -537,6 +537,18 @@
       ]
     },
     {
+      "ids": ["vv3_both_factions"],
+      "guide": [
+        "Buy a faction on the Tech screen and say Yes to the new message, then do the same for the other one, at its normal price.",
+        "Both then work together, every level of each: food refills, longer lives, the research point and the population bonus, and both herbs grow on the island.",
+        "Seven new potions need a Pitcher Plant and a Berry Plant in the pot together.",
+        "The latest shark potion decides how the sharks look; nothing else changes.",
+        "The save keeps your first faction; the second is kept in the save's own folder and comes back when you load.",
+        "Without the patch the village loads with the first faction only.",
+        "Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv1_healers_study_regardless_of_food"],
       "guide": [
         "Drop a villager on the medical cactus to start them studying.",

@@ -47,6 +47,7 @@ static const char *const VVFP_STARTUP_COMPANIONS[] = {
     "VVFP VV2 Totems.dll",
     "VVFP VV1 Easier Healing.dll",
     "VVFP VV1 Research At Max.dll",
+    "VVFP VV3 Both Factions.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT \
