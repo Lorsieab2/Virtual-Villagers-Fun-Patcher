@@ -65,6 +65,7 @@ def main() -> None:
             "The world draw 0x420B30 also draws the Magic herb (herb_magic.png, the Berry Plant) when it has drawn the Nature herb (herb_nature.png, the Pitcher Plant): its ret at 0x420BD5 becomes a nop. The two are separate images at separate places, and the herbs' own drop places (map regions 30 and 31, 0x421340 and 0x4213D0) and carried items (0x24 and 0x25) never read a technology.",
             "The Tech screen (0x464AE4): with both factions above 0, both columns get the sunbeam (sunbeam.png, image 0x90, at the columns' x - 0x28, full strength) and neither is darkened; with one faction or none the stock drawing runs.",
             "The Tech screen's floating particles (0x465583): the stock frame 0x465530 gives only the chosen faction's column its particles (one in ten frames: Nature's petals, particle type 0xA; Magic's sparkles, type 2; from the shared pool 0x583B28, 0x200 slots, through 0x429400). With both factions each column gets its own, with the stock chance, random calls and particle; with one faction or none (and the stock preview on hover while neither is bought) the stock emitter runs.",
+            "The sharks (0x4365B1, in 0x436580): Nature's stink bomb (effect 0x1B, Black Orchid x2 + Pitcher Plant) makes the sharks go (the shark object's byte 0x594BC0, saved by 0x4364E0, set and the sharks off, 0x425C70); Magic's Shark Charmer Vial (effect 0x1A, Rose x2 + Berry Plant) charms them (sparkles; the shark update 0x425E20 keeps them sparkling); both solve the puzzle (0xA, tip 0x2C6) once. With both factions the latest shark potion decides the look, every time: the vial after the stink bomb puts the byte back to 0 and the stock three sharks back where the world's start puts them (0x425DE0 at (0x47E, 0x32), (0x4E2, 0x32), (0x546, 0x32)), charmed; the stink bomb after the vial makes them go as stock. Nothing else changes: the puzzle, its message and rewards stay once. The save holds the look stock-validly (the byte), so nothing is kept for it in the file.",
             "Every other faction reader takes its own technology and works with both: Nature 1 fruit refill (0x4347C3), Nature 3 longevity (0x4601C4), Magic 1 research point (0x4593DC), Magic 3 population maximum (0x45FE9D), the Ghostly Dream island events (0x4154F0, 0x415630), and the Tech screen's level marks and information (0x4649C0, 0x464C30).",
         ],
         "explicit_non_changes": [
@@ -138,6 +139,13 @@ def main() -> None:
                 "stock_bytes": "68180400008BCDE8099AFCFF",
                 "written_bytes": "E9XXXXXXXX90909090909090",
                 "routine": "the Tech screen purchase (0x465640): the confirmation's text, string 0x418 through 0x42F190; the owner's text from the companion instead (on to 0x465787)",
+                "installed_by": INSTALLED_BY,
+            },
+            {
+                "va": "0x4365B1",
+                "stock_bytes": "576A0AB990495900E8D2F3FFFF",
+                "written_bytes": "E9XXXXXXXX9090909090909090",
+                "routine": "the sharks (0x436580, a villager with a shark potion at the Diving Rock): with both factions the Magic vial after the stink bomb brings the sharks back (the byte 0x594BC0 to 0, the stock three sharks re-added by 0x425DE0); then the stock code runs on: the puzzle's flag (0x435990, once) and the ending (0x4365BE)",
                 "installed_by": INSTALLED_BY,
             },
             {

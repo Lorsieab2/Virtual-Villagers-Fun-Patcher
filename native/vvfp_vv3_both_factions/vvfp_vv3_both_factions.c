@@ -124,7 +124,16 @@ static const unsigned char CONFIRM_STOCK[10] = { 0x83, 0xFE, 0x05, 0x74, 0x05, 0
 static const unsigned char TEXT_STOCK[12] = { 0x68, 0x18, 0x04, 0x00, 0x00, 0x8B, 0xCD,
                                               0xE8, 0x09, 0x9A, 0xFC, 0xFF };
 
-#define RECIPE_SITE 0x430520u     /* the brew lookup 0x430510: push the herbs / call 0x4302F0 */
+static const unsigned char SHARK_STOCK[13] = { 0x57, 0x6A, 0x0A, 0xB9, 0x90, 0x49, 0x59, 0x00,
+                                               0xE8, 0xD2, 0xF3, 0xFF, 0xFF };
+#define SHARK_SITE 0x4365B1u      /* the sharks (0x436580): push edi / the puzzle's flag 0xA (0x435990) */
+#define PUZZLES 0x594990u         /* the puzzle counters: 0x4358D0(id) solved, 0x435990(id) one more */
+#define PUZZLE_SOLVED 0x4358D0u
+#define HAS_EFFECT 0x455E10u      /* thiscall(villager; provider, id): a potion effect on the villager */
+#define EFFECTS 0x582610u         /* the potion effects' provider */
+#define SHARK_PUZZLE 0x0A         /* "The Sharks" (tip 0x2C6) */
+#define STINK_BOMB 0x1B           /* Black Orchid x2 + Pitcher Plant: the sharks go */
+#define RECIPE_SITE 0x430520u    /* the brew lookup 0x430510: push the herbs / call 0x4302F0 */
 #define CONFIRM_SITE 0x46574Eu    /* the purchase: the faction confirmation's test (both 0) */
 #define TEXT_SITE 0x46577Bu       /* the purchase: the confirmation's text, string 0x418 */
 #define ACHIEVEMENTS 0x4B3710u    /* 0x412CD0(2): "Alchemy R Us", 50 recipes brewed */
@@ -544,6 +553,71 @@ static int __cdecl both_herb_recipe(const unsigned char *pot, int h1, int h2, in
     return RECIPES[k].effect;
 }
 
+/* ---- the sharks ---------------------------------------------------------- */
+
+typedef unsigned char (__fastcall *puzzle_fn)(void *puzzles, void *unused, int id);
+typedef unsigned char (__fastcall *has_effect_fn)(void *villager, void *unused, unsigned int provider, int id);
+
+/* THE SHARKS (0x436580, a villager with a shark potion at the Diving Rock,
+   map region 0x2A).  Stock: the puzzle's flag 0xA goes up (solved at 1: tip
+   0x2C6 once; 0x435990 does nothing once solved); then a villager under the
+   Nature stink bomb (effect 0x1B, Black Orchid x2 + Pitcher Plant) makes the
+   sharks go -- the shark object's byte (0x594BC0; saved by 0x4364E0) set
+   and the sharks switched off (0x425C70), particles type 5 -- and anyone else
+   (the Magic Shark Charmer Vial, effect 0x1A, Rose x2 + Berry Plant) charms
+   them: particles type 6, and the shark update (0x425E20) keeps sparkling
+   over the sharks while the puzzle is solved and they are there.  Both solve
+   the puzzle (fishing).  The save tells the look: the byte 1 gone, 0 here.
+
+   With both factions the latest shark potion decides the look, every time:
+   the stink bomb after a charm makes them go (the stock code already does);
+   the vial after the stink bomb brings them back, charmed -- the byte back
+   to 0 and the stock game's three sharks put back where the world's start
+   puts them (0x420EC0: 0x425DE0 at (0x47E, 0x32), (0x4E2, 0x32), (0x546,
+   0x32)).  Nothing else: the puzzle, the tip and every reward are the
+   stock game's, once.  One faction: stock. */
+typedef unsigned char (__fastcall *add_shark_fn)(void *sharks, void *unused, int x, int y);
+#define SHARK_LIST 0x5823D0u      /* six sharks of 0x18 bytes, +0 in the water */
+#define ADD_SHARK 0x425DE0u
+
+static void __cdecl shark_look(unsigned char *sharks, void *villager) {
+    static const int AT[3] = { 0x47E, 0x4E2, 0x546 };
+    int i, any = 0;
+    if (!both_factions() || sharks[4] == 0
+        || ((has_effect_fn)(uintptr_t)HAS_EFFECT)(villager, 0, EFFECTS, STINK_BOMB) != 0
+        || ((puzzle_fn)(uintptr_t)PUZZLE_SOLVED)((void *)(uintptr_t)PUZZLES, 0, SHARK_PUZZLE) == 0) {
+        return;
+    }
+    sharks[4] = 0;
+    for (i = 0; i < 6; ++i) {
+        any |= *(const unsigned char *)(uintptr_t)(SHARK_LIST + 0x18u * (unsigned int)i);
+    }
+    if (!any) {
+        for (i = 0; i < 3; ++i) {
+            ((add_shark_fn)(uintptr_t)ADD_SHARK)((void *)(uintptr_t)SHARK_LIST, 0, AT[i], 0x32);
+        }
+    }
+}
+
+/* At SHARK_SITE: esi = the shark object (+4 the "gone" byte), ebx = the
+   villager.  The stock code then runs on (the puzzle's flag, the ending). */
+static __declspec(naked) void shark_stub(void) {
+    __asm {
+        push edi
+        pushad
+        push ebx
+        push esi
+        call shark_look
+        add esp, 8
+        popad
+        push 0x0A
+        mov ecx, 0x594990
+        mov eax, 0x435990
+        call eax
+        push 0x4365BE
+        ret
+    }
+}
 /* ---- the Tech screen ----------------------------------------------------- */
 
 typedef void *(__cdecl *images_fn)(void);
@@ -813,7 +887,8 @@ static void install(void) {
         || !is_stock(PARTICLE_SITE, PARTICLE_STOCK, sizeof PARTICLE_STOCK)
         || !is_stock(RECIPE_SITE, RECIPE_STOCK, sizeof RECIPE_STOCK)
         || !is_stock(CONFIRM_SITE, CONFIRM_STOCK, sizeof CONFIRM_STOCK)
-        || !is_stock(TEXT_SITE, TEXT_STOCK, sizeof TEXT_STOCK)) {
+        || !is_stock(TEXT_SITE, TEXT_STOCK, sizeof TEXT_STOCK)
+        || !is_stock(SHARK_SITE, SHARK_STOCK, sizeof SHARK_STOCK)) {
         return;
     }
     if (!write_jump(SAVE_SITE, save_stub, sizeof SAVE_STOCK)
@@ -822,6 +897,7 @@ static void install(void) {
         || !write_jump(SUN_SITE, sun_stub, sizeof SUN_STOCK)
         || !write_jump(PARTICLE_SITE, particle_stub, sizeof PARTICLE_STOCK)
         || !write_jump(RECIPE_SITE, recipe_stub, sizeof RECIPE_STOCK)
+        || !write_jump(SHARK_SITE, shark_stub, sizeof SHARK_STOCK)
         || !write_jump(TEXT_SITE, text_stub, sizeof TEXT_STOCK)
         || !write_jump(CONFIRM_SITE, confirm_stub, sizeof CONFIRM_STOCK)
         || !write_code(HERB_SITE, &nop, 1)) {

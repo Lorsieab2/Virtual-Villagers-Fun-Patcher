@@ -83,6 +83,30 @@ them. The "prince of magic / princess of nature" text is story only. The
 patcher's own Nature patches (honey refill, Nature 3 mortality) and the
 population caps read the getter, so they see both.
 
+### The sharks (owner requirement 8)
+
+Stock (0x436580, a villager with a shark potion reaching the Diving Rock,
+map region 0x2A): the puzzle counter 0xA goes up (solved at 1; its message
+0x2C6 and reward once, 0x435990 does nothing once solved). Then:
+
+* Nature's stink bomb (effect 0x1B, Black Orchid x2 + Pitcher Plant): the
+  sharks go -- the shark object's byte 0x594BC0 = 1 (saved by 0x4364E0, read
+  back by 0x436550) and the sharks switched off (0x425C70); particles 5.
+* Magic's Shark Charmer Vial (effect 0x1A, Rose x2 + Berry Plant; task 0xA3
+  carries the vial, item 0x2F): the sharks are charmed -- particles 6, and the
+  shark update (0x425E20) keeps sparkling over them while the puzzle is solved
+  and they are there; they stay and no longer stop fishing.
+
+The save already says which look: puzzle solved, and the byte (1 gone, 0
+charmed). With both factions (owner's rule) the latest shark potion decides
+the look every time: the stink bomb after a charm makes them go (the stock
+code already does); the vial after the stink bomb brings them back charmed
+(0x4365B1: the byte back to 0 and the stock three sharks re-added with
+0x425DE0 where the world's start puts them, (0x47E, 0x32), (0x4E2, 0x32),
+(0x546, 0x32)). Nothing else: the puzzle, its message and rewards stay once;
+nothing extra is kept in the file. One faction: stock (a vial after the stink
+bomb only sparkles over the empty water).
+
 ### Every faction effect at once (owner's list), vanilla and patcher
 
 | effect | granted by (stock info text) | read at | with both factions |

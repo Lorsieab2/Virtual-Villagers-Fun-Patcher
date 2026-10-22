@@ -80,6 +80,7 @@ SITES = {
     0x430520: "5753558BF1E8C6FDFFFF",
     0x46574E: "83FE05740583FE067570",
     0x46577B: "68180400008BCDE8099AFCFF",
+    0x4365B1: "576A0AB990495900E8D2F3FFFF",
 }
 CONFIRM_TEXT = ("With the power of the Fun Patcher,\nyou can now embrace both Nature\n"
                 "and Magic Factions. Use this\ngift wisely.\n")
@@ -1248,6 +1249,124 @@ class EveryFactionEffectAtOnce(unittest.TestCase):
             for handler in (0x421340, 0x4213D0):
                 g.proc.call(handler, [child])
             self.assertEqual(given, [(0x73, PITCHER), (0x73, BERRY)], "Gathering herbs: each its own herb")
+
+
+class Sharks:
+    """The shark puzzle's object and a villager arriving at the Diving Rock
+    with a shark potion (0x436580, run for real with the puzzle counters
+    0x594990 and the six sharks 0x5823D0)."""
+
+    def __init__(self, g: "Game"):
+        self.g = g
+        p = g.proc
+        self.obj = p.alloc(0x40)
+        p.put32(self.obj, 0x49D350)
+        p.put32(self.obj + 4, 0x49D344)
+        p.put32(0x4B0D88 + 4 * 0x0A, self.obj)        # the puzzle's object (its tip, vtable +0x28)
+        for i in range(6):
+            p.write(0x5823D0 + 0x18 * i, b"\1")       # six sharks in the water
+        self.tips: list[int] = []
+        self.particles: list[int] = []
+        pos = p.alloc(8)
+        p.stub(0x455EF0, lambda q: (pos, 4))
+        p.stub(0x4205B0, lambda q: (0x2A, 8))           # the Diving Rock
+        p.stub(0x426590, lambda q: (0, 0))
+        p.stub(0x436E60, lambda q: (self.tips.append(q.arg(0)) or 0, 12))
+        p.stub(0x424110, lambda q: (0, 4))
+        p.stub(0x429400, lambda q: (self.particles.append(q.arg(0)) or 0, 0x20))
+        p.stub(0x4032D0, lambda q: (0, 0))
+        p.stub(0x455D20, lambda q: (0, 8))
+
+    def arrive(self, effect: int) -> None:
+        p = self.g.proc
+        villager = p.alloc(0x2000)
+        p.put32(villager + 0xFB0, 1)                     # one potion effect on the villager
+        p.put32(villager + 0xF50, 0x582610)
+        p.put32(villager + 0xF54, effect)
+        self.particles.clear()
+        p.call(0x436580, [villager, 0], ecx=self.obj + 4)
+
+    def solved(self) -> bool:
+        return self.g.proc.u32(0x594990 + 8 * 0x0A) >= 1
+
+    def gone(self) -> bool:
+        return self.g.proc.read(self.obj + 8, 1) == b"\1"
+
+    def sharks_in_water(self) -> int:
+        return sum(self.g.proc.read(0x5823D0 + 0x18 * i, 1) == b"\1" for i in range(6))
+
+
+STINK, CHARM = 0x1B, 0x1A
+
+
+@emulated
+class TheSharks(unittest.TestCase):
+    """Nature's stink bomb makes the sharks go; Magic's Shark Charmer Vial
+    charms them (they stay, sparkling).  With both factions the latest shark
+    potion decides the look, every time; the puzzle, its tip and rewards once."""
+
+    def sharks(self, both=True, mode="stock", companion=True):
+        g = Game(mode, companion=companion)
+        g.levels(1, 1, 1, 1, 1, *((2, 2) if both else (2, 0)))
+        return Sharks(g)
+
+    def test_nature_then_magic_then_nature_again(self):
+        for mode, expanded in BUILDS[:3]:
+            with self.subTest(mode=mode):
+                s = self.sharks(mode=mode)
+                s.arrive(STINK)
+                self.assertTrue(s.solved() and s.gone())
+                self.assertEqual((s.sharks_in_water(), s.tips), (0, [0x2C6]))
+                self.assertEqual(set(s.particles), {5})
+                s.arrive(CHARM)                                      # the vial: back, charmed
+                self.assertFalse(s.gone())
+                self.assertEqual(s.sharks_in_water(), 3)
+                self.assertEqual(set(s.particles), {6})
+                s.arrive(STINK)                                      # gone again
+                self.assertTrue(s.gone())
+                self.assertEqual(s.sharks_in_water(), 0)
+                s.arrive(CHARM)
+                self.assertEqual((s.gone(), s.sharks_in_water()), (False, 3))
+                self.assertEqual(s.tips, [0x2C6], "the puzzle's message once")
+                self.assertEqual(s.g.proc.u32(0x594990 + 8 * 0x0A), 1, "solved once, never again")
+
+    def test_magic_then_nature(self):
+        for mode, expanded in BUILDS[:3]:
+            with self.subTest(mode=mode):
+                s = self.sharks(mode=mode)
+                s.arrive(CHARM)
+                self.assertTrue(s.solved())
+                self.assertEqual((s.gone(), s.sharks_in_water(), s.tips), (False, 6, [0x2C6]))
+                self.assertEqual(set(s.particles), {6})
+                s.arrive(STINK)
+                self.assertEqual((s.gone(), s.sharks_in_water(), s.tips), (True, 0, [0x2C6]))
+                s.arrive(CHARM)
+                self.assertEqual((s.gone(), s.sharks_in_water()), (False, 3))
+
+    def test_one_faction_or_no_companion_is_stock(self):
+        for both, companion in ((False, True), (True, False)):
+            with self.subTest(both=both, companion=companion):
+                s = self.sharks(both=both, companion=companion)
+                s.arrive(STINK)
+                s.arrive(CHARM)                                      # stock: the sharks stay gone
+                self.assertTrue(s.gone())
+                self.assertEqual(s.sharks_in_water(), 0)
+                self.assertEqual(s.tips, [0x2C6])
+    def test_the_save_tells_which_ending(self):
+        """The saved state is stock: puzzle 0xA solved, and the object's byte
+        (0x4364E0 writes it, 0x436550 reads 0 or 1): 1 gone, 0 charmed."""
+        for potions, gone in (((STINK,), 1), ((CHARM,), 0), ((STINK, CHARM), 0), ((CHARM, STINK), 1)):
+            s = self.sharks()
+            for potion in potions:
+                s.arrive(potion)
+            out = s.g.proc.alloc(4)
+            self.assertEqual(s.g.proc.call(0x4364E0, [out, 1], ecx=s.obj), 1)
+            self.assertEqual(s.g.proc.read(out, 1)[0], gone)
+            t = self.sharks()                                       # a later session loads it
+            saved = t.g.proc.alloc(4)
+            t.g.proc.write(saved, bytes([gone]))
+            self.assertEqual(t.g.proc.call(0x436550, [saved], ecx=t.obj), 1)
+            self.assertEqual(t.gone(), bool(gone))
 
 
 @emulated
