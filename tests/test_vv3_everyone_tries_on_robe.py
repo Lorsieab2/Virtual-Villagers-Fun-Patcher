@@ -217,17 +217,22 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for Fix Vanilla Bugs' Details name box identity guard: putting its rows
     # (tests/test_details_name_identity.py) back to stock and recomputing the CheckSum gives the
     # previous digest in all three modes.
+    # Re-pinned when Fruit Counts When It Reaches the Food Bin joined the catalog.
+    # Justified BEFORE re-pinning by rendering the full catalog with and without that
+    # row and diffing byte for byte: 97 differing bytes per mode, every one inside its
+    # three rows (0x34A9B..0x34ABA, 0x34C27..0x34C2B, 0x34C44..0x34C7F) or the PE
+    # CheckSum at 0x160..0x163; the length is unchanged.
     "stock": (
-        "0B0FB32420F46CD9538E9CD3879159F87408EF45EF744576BF95F457B5C9660F",
-        "664B0D00",
+        "0879133EE92DABD680D52D7AB7B3FB7627BF5E99A414A773204695DB70B7E0B9",
+        "71740D00",
     ),
     "collection_progression": (
-        "050E57506862F1956A8A25375E1B2240061989D2B3D677B973BF127BA137CE30",
-        "66640D00",
+        "6514A1C760F1133BE55A173DE10097743A927048DC9B84DE9E76EFA48DC38529",
+        "718D0D00",
     ),
     "immediate_fixed": (
-        "5F0545C4800F81855E684B27DA88FD19124090BCD63E8A7EB1514356C02C5A4B",
-        "64A60D00",
+        "BD8EDE67069037D671E12A29727264598FFC850B3500DE8D3E9E9132EFAB53C8",
+        "6FCF0D00",
     ),
 }
 

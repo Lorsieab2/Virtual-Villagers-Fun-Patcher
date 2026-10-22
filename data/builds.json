@@ -1780,6 +1780,33 @@
       ]
     },
     {
+      "id": "vv3_fruit_harvested_at_food_bin",
+      "game_id": "vv3",
+      "name": "Fruit Counts When It Reaches the Food Bin",
+      "description": "Fruit picking works like honey gathering: the fruit leaves the tree, and the village gains its food, only when the villager puts it in the food bin. In the stock game both happened the moment the fruit was picked, before the walk to the bin. A villager who lets go of the fruit anywhere else -- the trip is interrupted, for example -- takes nothing from the tree and adds no food. Several villagers may pick the same tree at once: each delivery takes its own load off the tree, which never goes below zero, and a delivery that finds the tree already emptied by the others still adds its food, as honey does. The food per load, the Tribal Chief's supervision bonus, the Food Gathered statistic and the trees' regrowth are unchanged, and catch-up (the time that passes while the game is closed) still gains the same food. **Unverified in play: the effect has not been tested in the game.**",
+      "output_tag": "Fruit at Food Bin",
+      "patches": [
+        {
+          "offset": "0x34A9B",
+          "before": "8D44241450E84B1402008B44241433DB3DC10500007C093D590600000F9DC343",
+          "after": "E97C01000090905883EC085350578B99A00E000083EB1783FB020F8761010000",
+          "purpose": "picking (the fruit trees' take-item listener 0x434A80, action 0x7D): accept the fruit and return at once instead of adding its food and taking it off the tree; the rest of the old pick-time block becomes the delivery entry 0x434AA2, which builds the routine's own frame, takes the tree from the picker's site (+0xEA0 = 0x17 + tree, written by the pick at 0x4349B5), leaves without a change for any other site, and runs the unchanged stock award at 0x434ABB: the food (4 per load at Normal speed, 4 in catch-up), the chief's bonus (0x45FC60(0x17)), then the tree's fruit less the load, never below 0"
+        },
+        {
+          "offset": "0x34C27",
+          "before": "9090909090",
+          "after": "E976FEFFFF",
+          "purpose": "in the padding before the release listener: jump to the delivery entry 0x434AA2"
+        },
+        {
+          "offset": "0x34C44",
+          "before": "8B48048B105152B900874B00E85BB9FEFF83F80E74126A008D4EFCE82CF4FFFF84C07504C64609015E83C408C2080090909090909090909090909090",
+          "after": "FF7004FF30B900874B00E85DB9FEFF83F80E75148B4C241083B9240F00007D74C25E83C408C208006A008D4EFCE81AF4FFFF84C075EBC6460901EBE5",
+          "purpose": "delivering (the fruit trees' release-item listener 0x434C30): when the fruit is let go in the food bin (region 0xE) by a villager still on the fruit job (action 0x7D), deliver it through 0x434AA2; anywhere else, or on any other job, the stock release runs unchanged"
+        }
+      ]
+    },
+    {
       "id": "vv4_complete_scales_golden_fish",
       "game_id": "vv4",
       "name": "Complete Fish Scales = Golden Fish in Nets",
