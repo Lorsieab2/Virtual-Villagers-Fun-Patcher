@@ -56,6 +56,10 @@ except ImportError:  # pragma: no cover - environment dependent
 
 GAMES = ("vv1", "vv2", "vv3", "vv4", "vv5")
 CLOCK = 1_700_000_000
+# Each game's own population count, the one its island-event trigger asks
+# (thiscall, no arguments).
+POPULATION_COUNT = {"vv1": 0x41CF90, "vv2": 0x425860, "vv3": 0x45E8F0, "vv4": 0x467610,
+                    "vv5": 0x4713F0}
 
 
 # ---------------------------------------------------------------------------
@@ -419,6 +423,10 @@ class HeldPurchaseTests(unittest.TestCase):
 
         world = part1.LockTests._world(None, proc, game)
         proc.put32(events_seen_address(game, world), seen)
+        # A new village: its founders are alive (the game's own population
+        # count says so).  An empty village never waits for its opening
+        # events (EmptyVillageTests, test_story_empty_village.py).
+        proc.stub(POPULATION_COUNT[game], lambda p: (3, 0))
         return world
 
     def _state(self, proc, game, world):

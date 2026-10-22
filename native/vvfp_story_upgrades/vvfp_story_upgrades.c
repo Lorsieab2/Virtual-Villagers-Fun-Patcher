@@ -565,6 +565,7 @@ static int titles_rebase(int game, int index);
 #include "story_c4.inc"
 #include "story_c5.inc"
 #include "story_fast_delivery.inc"
+#include "story_empty_village.inc"
 
 static const ce_adapter *ce_adapter_for(int game) {
     switch (game) {
@@ -696,17 +697,20 @@ static story_detour vv1_custom_detours[] = {
     { 0x41FD75u, 5, VV1_TITLE_SITE_BYTES, 0, (void *)c1_title_stub },
     { 0x41A51Fu, 5, VV1_CHOICE_SETUP_BYTES, 1, (void *)c1_choice_setup },
     { 0x4237DDu, 5, VV1_EVENT_PICK_BYTES, 1, (void *)c1_event_pick },
+    { 0x4237CBu, 5, VV1_EMPTY_COUNT_BYTES, 1, (void *)c1_count_stub },
 };
 static story_detour vv2_custom_detours[] = {
     { 0x4349B2u, 5, VV2_CUSTOM_CHOOSE_BYTES, 1, (void *)c2_choose },
     { 0x429DE3u, 5, VV2_TITLE_SITE_BYTES, 1, (void *)c2_title },
     { 0x42244Au, 5, VV2_CHOICE_SETUP_BYTES, 1, (void *)c2_choice_setup },
     { 0x42EEEDu, 5, VV2_EVENT_PICK_BYTES, 1, (void *)c2_event_pick },
+    { 0x42EEDBu, 5, VV2_EMPTY_COUNT_BYTES, 1, (void *)c2_count_stub },
 };
 static story_detour vv3_detours[] = {
     { VV3_PICK_SITE, 7, VV3_PICK_SITE_BYTES, 0, (void *)vv3_stub },
     { 0x468FC8u, 6, VV3_TITLE_SITE_BYTES, 0, (void *)c3_title_stub },
     { 0x468757u, 5, VV3_EVENT_PICK_BYTES, 1, (void *)c3_event_pick },
+    { 0x468743u, 5, VV3_EMPTY_COUNT_BYTES, 1, (void *)c3_count_stub },
     { 0x419A29u, 12, VV3_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv3_choice_stub },
     { 0x419A41u, 5, VV3_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv3_simple_stub },
 };
@@ -714,6 +718,7 @@ static story_detour vv4_detours[] = {
     { VV4_PICK_SITE, 7, VV4_PICK_SITE_BYTES, 0, (void *)vv4_stub },
     { 0x4404D9u, 5, VV4_TITLE_SITE_BYTES, 0, (void *)c4_title_stub },
     { 0x43FA70u, 5, VV4_EVENT_PICK_BYTES, 1, (void *)c4_event_pick },
+    { 0x43FA4Eu, 5, VV4_EMPTY_COUNT_BYTES, 1, (void *)c4_count_stub },
     { 0x417EC9u, 16, VV4_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv4_choice_stub },
     { 0x417EE5u, 9, VV4_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv4_simple_stub },
 };
@@ -721,6 +726,8 @@ static story_detour vv5_detours[] = {
     { VV5_PICK_SITE, 7, VV5_PICK_SITE_BYTES, 0, (void *)vv5_stub },
     { 0x44319Eu, 6, VV5_TITLE_SITE_BYTES, 0, (void *)c5_title_stub },
     { 0x44272Fu, 5, VV5_EVENT_PICK_BYTES, 1, (void *)c5_event_pick },
+    { 0x4426FBu, 5, VV5_EMPTY_COUNT_BYTES, 1, (void *)c5_count_stub },
+    { 0x4188E5u, 8, VV5_EMPTY_SELECT_BYTES, 0, (void *)c5_select_stub },
     { 0x418749u, 16, VV5_OC_CHOICE_APPLY_BYTES, 0, (void *)oc_vv5_choice_stub },
     { 0x418765u, 9, VV5_OC_SIMPLE_APPLY_BYTES, 0, (void *)oc_vv5_simple_stub },
 };

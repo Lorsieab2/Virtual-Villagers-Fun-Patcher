@@ -777,7 +777,12 @@ class StaticTimeSkipPopupTests(unittest.TestCase):
         body = text[text.index("static int ce_deliver(int game, char *text, int size) {"):]
         body = body[:body.index("\n}\n")]
         self.assertIn("notice = ce_armed_is_notice;", body)
-        self.assertIn("if (notice) {\n        ce_uncount_notice(game);", body)
+        # ... and for an empty A New Home / The Lost Children village's event
+        # before its first island event, which stays the game's visitor
+        # (story_empty_village.inc, ce_dead_first): never for a player's event
+        # in a village with anyone alive.
+        self.assertIn("first = ce_dead_first == game;", body)
+        self.assertIn("if (notice || first) {\n        ce_uncount_notice(game);", body)
 
     def test_no_log_is_written_for_it(self):
         inc = SOURCE.read_text(encoding="utf-8")

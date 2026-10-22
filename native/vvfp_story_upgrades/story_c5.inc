@@ -102,7 +102,7 @@ static const char *c5_arm_refusal(void) {
             return NULL;
         }
     }
-    return "An island event needs a living adult believer in the village.";
+    return ce_empty_refusal(5, "An island event needs a living adult believer in the village.");
 }
 
 /* The game's own room predicate 0x472BD0 (believers below the mode's cap,
