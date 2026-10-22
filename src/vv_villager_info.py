@@ -187,8 +187,9 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person,
     golden = village.game == 1 and (p.family == 199 or p.how == "Golden Child")
     if special and not (golden and special == "Golden Child"):     # the Golden Child line above says it
         note((f"Special title: {special}", "plain", None))
-    if entry.get("mark"):
-        note((f"Special mark: {entry['mark']}", "plain", None))
+    marks = ft.entry_marks(entry)
+    if marks:
+        note((f"Special mark{'s' if len(marks) > 1 else ''}: {', '.join(marks)}", "plain", None))
     if p.litter is not None and not p.upcoming:
         others = sorted((q for q in people.values() if q.litter == p.litter and q.id != p.id and not q.upcoming),
                         key=_born_order)

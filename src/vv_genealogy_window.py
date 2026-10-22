@@ -75,6 +75,8 @@ TREE_SUFFIX = ft.TREE_SUFFIX
 TREE_FORMAT = ft.TREE_FORMAT
 PRESET_MARKS = {"Tribal Chief": "#d4a017", "Esteemed Elder": "#7b68ee", "Scholar": "#1e90ff",
                 "Golden Child": "#ffb000", "Favourite": "#ff1493", "Heathen": "#8b0000", "Founder": "#2e8b57"}
+# Every special status the tree marks by itself (ft.STATUS_COLOURS) is a ready-made mark too, in its colour.
+PRESET_MARKS.update({label: colour for label, colour in ft.STATUS_COLOURS.items() if label not in PRESET_MARKS})
 CONTROLS = """\
 SELECTING
   Click a villager                select them
@@ -663,7 +665,7 @@ def find_villagers(village: gen.Village, edits: ft.Edits, query: str) -> list[in
                   "expecting pregnant" if p.expecting else "", "heathen" if p.heathen else "",
                   "runner running" if p.runner else "", "golden" if getattr(p, "golden", False) else ""]
         parents = " ".join(people[q].name for q in (p.father, p.mother) if q in people)
-        mark = edits.entries.get(ft.entry_key(village, p), {}).get("mark", "")
+        mark = " ".join(ft.entry_marks(edits.entries.get(ft.entry_key(village, p), {})) + list(p.statuses))
         text = " ".join([p.name, f"head {p.head}", f"body {p.body}", f"head{p.head} body{p.body}", p.sex or "",
                          f"{p.age} units" if p.age is not None else "", f"{p.years} years" if p.years is not None else "",
                          f"generation {p.generation} gen {p.generation} {gen.roman(p.generation)}", parents,
@@ -995,6 +997,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.mark_box.pack(side="left")
         ttk.Button(row, text="Give mark", command=self._apply_mark).pack(side="left", padx=(6, 0))
         ttk.Button(row, text="Remove mark", command=lambda: self._apply_mark(clear=True)).pack(side="left", padx=(6, 0))
+        # Each mark they have, ticked (the owner, 2026-10-22: every special status is marked by itself -- a
+        # Tribal Chief, a Former Heathen...; untick one to take it off them, and it stays off).
+        self.mark_checks = ttk.Frame(box)
+        self.mark_checks.pack(fill="x", pady=(4, 0))
+        self.mark_check_vars: dict[str, tk.BooleanVar] = {}
 
         box = ttk.LabelFrame(tab, text="Their family colour", padding=6)
         box.pack(fill="x", pady=(8, 0))
@@ -1107,7 +1114,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # scroll bar for the side panel options! it's cut off!"), like the other tabs.
         tab = ScrollingTab(self.notebook, "Marks")      # the owner, 2026-10-09
         ttk.Label(tab, text="A special mark is a coloured border or glow around a villager, named in the Key "
-                            "under the title.", wraplength=320, justify="left").pack(anchor="w")
+                            "under the title.  Every special villager (a Tribal Chief, a Former Heathen, a Custom "
+                            "title...) is marked by itself; untick one on the Selected tab to take it off.",
+                  wraplength=320, justify="left").pack(anchor="w")
         box = ttk.LabelFrame(tab, text="How every mark looks", padding=6)
         box.pack(fill="x", pady=(6, 0))
         self.mark_style_var = tk.StringVar(value=ft.MARK_STYLES[self.edits.mark_style])
@@ -2672,6 +2681,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # As a tree with no edits file opens: in the look last used (it was the factory look, which
         # closing then made the look remembered for every new tree).
         self.edits = ft.styled(getattr(self.app, "tree_style", None))
+        ft.apply_auto_marks(self.edits, self.full_village)     # as a new tree opens: its special villagers marked
         self.obj = None
         self.selected = []
         self.page = 0
@@ -2706,6 +2716,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.history.clear()
             self.future.clear()
             self.last_state = self._state()
+        self._auto_marks()                      # under the keys the villagers have now
         changed = [p for p in self.village.known() if p.old_looks and "look" not in self._entry(p)]
         if changed:
             self.after_idle(lambda: self._ask_looks(changed))
@@ -3530,8 +3541,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.lines_text.configure(state="disabled")
         marks = ["(none)"] + list(self.edits.marks)
         self.mark_box.configure(values=marks)
-        current = {self._entry(p).get("mark", "(none)") for p in people}
+        current = {(ft.entry_marks(self._entry(p)) or ["(none)"])[0] for p in people}
         self.mark_var.set(current.pop() if len(current) == 1 else "")
+        self._refresh_mark_checks(people)
         gens = {p.generation for p in people}
         self.gen_choice.set(str(gens.pop()) if len(gens) == 1 else "")
         colours = {self._colours_now("family_colours").get(self._family(p), "") if self._family(p) is not None
@@ -4883,10 +4895,71 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         return "break"
 
     def _apply_mark(self, clear: bool = False) -> None:
-        label = "" if clear or self.mark_var.get() in ("", "(none)") else self.mark_var.get()
+        """Give mark: the mark picked, beside any they have.  Remove mark: the mark picked, or every
+        mark when none is picked.  An automatic mark taken off stays off (_take_mark)."""
+        label = "" if self.mark_var.get() in ("", "(none)") else self.mark_var.get()
+        if not clear and not label:
+            return
         for q in self.selected:
-            self._set_entry(self.village.people[q], mark=label or None)
+            p = self.village.people[q]
+            if not clear:
+                self._give_mark(p, label)
+            for gone in ([label] if label else ft.entry_marks(self._entry(p))) if clear else []:
+                self._take_mark(p, gone)
         self._saved()
+
+    def _set_marks(self, p: gen.Person, marks: list[str], unmarked: list[str]) -> None:
+        self._set_entry(p, marks=list(marks) or None, mark=marks[0] if marks else None,
+                        unmarked=list(unmarked) or None)
+
+    def _give_mark(self, p: gen.Person, label: str) -> None:
+        entry = self._entry(p)
+        have = ft.entry_marks(entry)
+        self._set_marks(p, have + ([label] if label not in have else []),
+                        [u for u in entry.get("unmarked") or [] if u != label])
+
+    def _take_mark(self, p: gen.Person, label: str) -> None:
+        """A mark off a villager.  One the tree gives by itself (their status) is kept as taken off --
+        in the tree's own edits, never the save -- so it is not given back the next time the tree opens."""
+        entry = self._entry(p)
+        unmarked = list(entry.get("unmarked") or [])
+        if label in ft.auto_labels(self.edits, p) and label not in unmarked:
+            unmarked.append(label)
+        self._set_marks(p, [m for m in ft.entry_marks(entry) if m != label], unmarked)
+
+    def _refresh_mark_checks(self, people: list) -> None:
+        """A tick box for each mark the selected villager has, or that the tree gives them by itself."""
+        for child in self.mark_checks.winfo_children():
+            child.destroy()
+        self.mark_check_vars = {}
+        if len(people) != 1:
+            return
+        p = people[0]
+        have = ft.entry_marks(self._entry(p))
+        auto = ft.auto_labels(self.edits, p)
+        for label in have + [a for a in auto if a not in have]:
+            var = tk.BooleanVar(value=label in have)
+            self.mark_check_vars[label] = var
+            ttk.Checkbutton(self.mark_checks, variable=var,
+                            text=label + ("  (special villager status)" if label in auto else ""),
+                            command=lambda label=label, var=var: self._tick_mark(label, var.get())
+                            ).pack(anchor="w")
+
+    def _tick_mark(self, label: str, on: bool) -> None:
+        for q in self.selected[:1]:
+            p = self.village.people[q]
+            if on:
+                self.edits.marks.setdefault(label, PRESET_MARKS.get(label) or ft.status_colour(label))
+                self._give_mark(p, label)
+            else:
+                self._take_mark(p, label)
+        self._saved()
+
+    def _auto_marks(self) -> None:
+        """Every villager's special statuses marked on the tree by itself (ft.apply_auto_marks): on opening,
+        on Update from the save and logs, and on a saved tree opened -- the player's own marks kept."""
+        if ft.apply_auto_marks(self.edits, getattr(self, "full_village", self.village)) and hasattr(self, "history"):
+            self.last_state = self._state()     # given by the tree, not a step of the player's to undo
 
     def _set_generation(self, back: bool = False) -> None:
         """The selected villagers into the generation chosen (or back to the records')."""
@@ -5135,8 +5208,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 return
         self.edits.marks.setdefault(label, PRESET_MARKS.get(label) or ask_colour(self, f"The colour for {label}")
                                     or "#d4a017")
+        if label in self.edits.marks_off:      # removed from everyone before, wanted again: given by the tree again
+            self.edits.marks_off.remove(label)
+            ft.apply_auto_marks(self.edits, self.full_village)
         for q in self.selected:
-            self._set_entry(self.village.people[q], mark=label)
+            self._give_mark(self.village.people[q], label)
         self._refresh_marks()
         self._saved()
         self.status.set(f"{label}: {len(self.selected)} villager(s) marked." if self.selected
@@ -5163,11 +5239,24 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         new = new.strip()
         self.edits.marks = {(new if k == old else k): v for k, v in self.edits.marks.items()}
-        for entry in self.edits.entries.values():
+        for entry in self._all_entries():
+            for name in ("marks", "unmarked"):
+                if entry.get(name):
+                    entry[name] = list(dict.fromkeys(new if m == old else m for m in entry[name]))
             if entry.get("mark") == old:
                 entry["mark"] = new
+        # A status's automatic mark keeps the player's name for it (Edits.mark_names).
+        for status in {s for p in self.full_village.people.values() for s in p.statuses}:
+            if ft.auto_label(self.edits, status) == old:
+                self.edits.mark_names[status] = new
+        self.edits.marks_off = [new if m == old else m for m in self.edits.marks_off]
         self._refresh_marks()
         self._saved()
+
+    def _all_entries(self) -> list[dict]:
+        """Every villager's edits: the tree's and each page's own."""
+        return list(self.edits.entries.values()) + [entry for part in self.edits.page_edits.values()
+                                                    for entry in part.get("entries", {}).values()]
 
     def _recolour_mark(self) -> None:
         label = self._mark_at()
@@ -5185,11 +5274,23 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                                                     parent=self):
             return
         del self.edits.marks[label]
+        own = {id(e) for e in self.edits.entries.values()}
+        for entry in self._all_entries():
+            if label in ft.entry_marks(entry):
+                left = [m for m in ft.entry_marks(entry) if m != label]
+                entry["marks"], entry["mark"] = left or None, left[0] if left else None
+            if label in (entry.get("unmarked") or []):
+                entry["unmarked"] = [m for m in entry["unmarked"] if m != label] or None
+            for name in ("marks", "mark", "unmarked"):
+                if name in entry and entry[name] is None and id(entry) in own:
+                    del entry[name]         # the tree's own: nothing; a page's own None still says "none here"
         for key, entry in list(self.edits.entries.items()):
-            if entry.get("mark") == label:
-                entry.pop("mark")
-                if not entry:
-                    del self.edits.entries[key]
+            if not entry:
+                del self.edits.entries[key]
+        # A special status's mark removed from everyone stays removed: the tree does not give it again.
+        if any(ft.auto_label(self.edits, s) == label for p in self.full_village.people.values() for s in p.statuses) \
+                and label not in self.edits.marks_off:
+            self.edits.marks_off.append(label)
         self._refresh_marks()
         self._saved()
 
