@@ -75,7 +75,7 @@ class ModelTests(unittest.TestCase):
         cases = {
             "text_align": "left", "text_valign": "top",
             "picture_size": 50.0, "text_size": 150.0, "text_wrap": 8, "show_units": False, "show_years": False,
-            "show_twins": True,
+            "show_twins": False,        # on for the tree by default since 2026-10-22: off for the males alone
         }
         for name, value in cases.items():
             with self.subTest(name=name):
@@ -94,7 +94,7 @@ class ModelTests(unittest.TestCase):
 
     def test_founder_flip_and_turn_words_for_one_group(self):
         v = village()
-        lay = ft.layout(v, males(show_founder=True))
+        lay = ft.layout(v, males({"show_founder": False}, show_founder=True))     # the tree's off, the males' on
         self.assertIn("Founder", ft.default_text(lay, v.people[1]))          # A, a male founder
         self.assertNotIn("Founder", ft.default_text(lay, v.people[2]))       # B, a female one
         key_m, key_f = ft.entry_key(v, v.people[MALE]), ft.entry_key(v, v.people[FEMALE])

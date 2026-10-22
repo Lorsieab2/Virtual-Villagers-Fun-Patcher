@@ -120,6 +120,9 @@ class Person:
     # whether a record says they left the tribe to become a Heathen (is_unconverted_heathen).
     faction_seen: tuple | None = None
     left_heathen: bool = False
+    # The jobs they are a Master of ("Farmer", "Doctor"...): the living by the save's skills now (save_masters),
+    # the dead by their grave's line (its best skill only).  Current, not ever held: the save keeps no history.
+    masters: list[str] = field(default_factory=list)
     # A parent "Hide unconverted Heathens" left off the tree: "Father" / "Mother" -> their name (without_heathens).
     hidden_parents: dict = field(default_factory=dict)
 
@@ -157,6 +160,18 @@ STATUS_ORDER = ("Tribal Chief", "Retired Heathen Chief", "Heathen Chief", "Heath
                 "Former Heathen Master", "Converted Purple Mask Heathen", "Converted Red Mask Heathen",
                 "Converted Orange Mask Heathen", "Converted Blue Mask Heathen", "Former Heathen",
                 "Golden Child", "Esteemed Elder", "Scholar")
+# The statuses each game can give (the Family Tree's descriptor options shown for that game; a Custom title is
+# any game's).  Esteemed Elder in The Tree of Life and New Believers: their graves keep the elder byte.
+GAME_STATUSES = {
+    1: ("Golden Child",),
+    2: ("Esteemed Elder",),
+    3: ("Tribal Chief", "Esteemed Elder"),
+    4: ("Scholar", "Esteemed Elder"),
+    5: ("Retired Heathen Chief", "Heathen Chief", "Heathen Mommy", "Heathen Doctor", "Heathen Master Scientist",
+        "Heathen Master Builder", "Heathen Master Farmer", "Heathen", "Former Heathen Master",
+        "Converted Purple Mask Heathen", "Converted Red Mask Heathen", "Converted Orange Mask Heathen",
+        "Converted Blue Mask Heathen", "Former Heathen", "Esteemed Elder"),
+}
 NO_TITLE = frozenset({"", "none", "(none)", "-", "unknown", "(unknown)", "(not recorded)"})
 _FORMER_TITLE = re.compile(r"^Former Heathen( Master)? \((blue|orange|red|purple) mask\)$", re.I)
 # The Former Heathens file's kinds (native/shared/former_heathens.h; vv_lost_titles.FORMER_KINDS) as the logs word them.
@@ -222,6 +237,28 @@ def save_statuses(game: int, data: bytes, at: int, family: int | None = None) ->
     except (IndexError, struct.error):
         pass
     return out
+
+
+# Each skill's job word, as the graves and the game's Details screen name a Master of it (vv_graves.LAYOUTS jobs).
+JOB_OF_SKILL = {"Farming": "Farmer", "Parenting": "Parent", "Healing": "Doctor", "Research": "Scientist",
+                "Building": "Builder", "Devotion": "Devotee"}
+
+
+def save_masters(game: int, data: bytes, at: int) -> list[str]:
+    """The jobs a living villager (their name at `at`) is a Master of now: each skill the save keeps at the
+    game's Master level or above (vv_corrupt_skills.SKILLS; vv_graves.LAYOUTS master: 90 in A New Home, 88
+    in the others), in the game's own skill order."""
+    import struct
+    import vv_corrupt_skills as cs
+    import vv_graves
+    names = cs.SKILL_NAMES[game]
+    off, is_float = cs.SKILLS[game]
+    try:
+        values = struct.unpack_from(f"<{len(names)}{'f' if is_float else 'i'}", data, at + off)
+    except struct.error:
+        return []
+    level = vv_graves.LAYOUTS[game].master
+    return [JOB_OF_SKILL[name] for name, value in zip(names, values) if level <= value <= 100]
 
 
 def _merge_faction(p: Person, q: Person) -> None:
@@ -458,6 +495,7 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         if p.expecting and (litter in (1, 2, 3) or game <= 2 and litter == 0):
             reg.due[p.id] = max(1, litter)
         _add_status(p, save_statuses(game, data, at, p.family))
+        p.masters = save_masters(game, data, at)
         if game == 5:
             p.heathen = data[at + VV5_FACTION_FROM_NAME] != 0
         if f.father is not None:
@@ -621,7 +659,8 @@ def _file_statuses(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         graves = []
     for g in graves:
         title = g.values.get("title")
-        if not title:
+        master = (g.values.get("grave") or "").startswith("Master ")    # the grave's best skill, mastered
+        if not title and not master:
             continue
         looks = (g.values.get("head"), g.values.get("body"))
         fits = [p for p in people if p.gone == "died" and not p.alive and p.age == g.age
@@ -629,6 +668,9 @@ def _file_statuses(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                 and (looks[0] is None or looks == (p.head, p.body) or looks in p.old_looks)]
         if len(fits) == 1:
             _add_status(fits[0], status_marks(title))
+            job = g.values["grave"][len("Master "):] if master else ""
+            if job and job not in fits[0].masters:
+                fits[0].masters.append(job)
     try:
         entries = ln._entries(game, data)
     except Exception:

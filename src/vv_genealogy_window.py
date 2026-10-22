@@ -1437,16 +1437,23 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.years_var = tk.BooleanVar(value=e.show_years)
         ttk.Checkbutton(words, text="Show age in years", variable=self.years_var,
                         command=lambda: self._change(show_years=bool(self.years_var.get()))).pack(anchor="w")
-        # The owner, 2026-10-09: "X's twin/triplet" after the age.
-        self.twins_var = tk.BooleanVar(value=e.show_twins)
-        ttk.Checkbutton(words, text="Show twins and triplets (\"Kalea's twin\")", variable=self.twins_var,
-                        command=lambda: self._change(show_twins=bool(self.twins_var.get()))).pack(anchor="w")
-        self.founder_var = tk.BooleanVar(value=e.show_founder)          # the owner, 2026-10-09
-        ttk.Checkbutton(words, text="Show \"Founder\" in the first generation", variable=self.founder_var,
-                        command=lambda: self._change(show_founder=bool(self.founder_var.get()))).pack(anchor="w")
-        self.runner_var = tk.BooleanVar(value=e.show_runner)             # the owner, 2026-10-10
-        ttk.Checkbutton(words, text="Show \"Runner\" for villagers who like running", variable=self.runner_var,
-                        command=lambda: self._change(show_runner=bool(self.runner_var.get()))).pack(anchor="w")
+        # The special descriptors after the age, each where it applies (the owner, 2026-10-22: "villagers get
+        # auto-denoted with special descriptors if applicable (tribal chief, founder, runner etc)"): ticked
+        # unless the player unticks them.  "X's twin/triplet" (2026-10-09), Founder (2026-10-09), Runner
+        # (2026-10-10), how they arrived, Master of a skill; then each special villager status of this game.
+        box = ttk.LabelFrame(words, text="Special descriptors (shown where they apply)", padding=4)
+        box.pack(fill="x", anchor="w", pady=(4, 0))
+        self.descriptor_vars: dict[str, tk.BooleanVar] = {}
+        for attr, text in ft.DESCRIPTOR_OPTIONS:
+            var = self.descriptor_vars[attr] = tk.BooleanVar(value=getattr(e, attr))
+            ttk.Checkbutton(box, text=text, variable=var,
+                            command=lambda attr=attr, var=var: self._change(**{attr: bool(var.get())})).pack(anchor="w")
+        self.twins_var, self.founder_var, self.runner_var = (self.descriptor_vars[k] for k in
+                                                             ("show_twins", "show_founder", "show_runner"))
+        # A special villager status's words and its mark are one (ft.set_status_option).
+        self.status_checks = ttk.Frame(box)
+        self.status_checks.pack(fill="x", anchor="w")
+        self.status_check_vars: dict[str, tk.BooleanVar] = {}
         # The owner, 2026-10-10: "add a button to retroactively update that text too".
         ttk.Button(words, text="Bold and italic for extra lines (Golden Child, Founder, twins...)",
                    command=self._bold_italic_extra_lines).pack(anchor="w", pady=(4, 0))
@@ -4648,9 +4655,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.page_gens_var.set(str(e.page_generations))
         self.units_var.set(e.show_units)
         self.years_var.set(e.show_years)
-        self.twins_var.set(e.show_twins)
-        self.founder_var.set(e.show_founder)
-        self.runner_var.set(e.show_runner)
+        for attr, var in self.descriptor_vars.items():
+            var.set(getattr(e, attr))
+        self._refresh_status_checks()
         self.number_names_var.set(e.number_names)
         self.number_order_var.set(gen.NUMBER_ORDERS[e.number_order])
         self.diagonal_var.set(e.diagonal_lines)
@@ -4981,6 +4988,33 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 self._take_mark(p, label)
         self._saved()
 
+    def _refresh_status_checks(self) -> None:
+        """A tick box for each special villager status this game (and this village) has: ticked, its words
+        and its mark show on everyone who has it; unticked, on nobody (ft.set_status_option)."""
+        if not hasattr(self, "status_checks"):
+            return
+        options = ft.status_options(self.edits, getattr(self, "full_village", self.village))
+        if [label for label, _on in options] == list(self.status_check_vars):
+            for label, on in options:
+                self.status_check_vars[label].set(on)
+            return
+        for child in self.status_checks.winfo_children():
+            child.destroy()
+        self.status_check_vars = {}
+        for label, on in options:
+            var = self.status_check_vars[label] = tk.BooleanVar(value=on)
+            ttk.Checkbutton(self.status_checks, text=label, variable=var,
+                            command=lambda label=label, var=var: self._tick_status(label, var.get())).pack(anchor="w")
+
+    def _tick_status(self, label: str, on: bool) -> None:
+        if on:
+            status = next((s for p in self.full_village.people.values() for s in p.statuses
+                           if ft.auto_label(self.edits, s) == label), label)
+            self.edits.marks.setdefault(label, PRESET_MARKS.get(label) or ft.status_colour(status))
+        ft.set_status_option(self.edits, self.full_village, label, on)
+        self._refresh_marks()
+        self._saved()
+
     def _auto_marks(self) -> None:
         """Every villager's special statuses marked on the tree by itself (ft.apply_auto_marks): on opening,
         on Update from the save and logs, and on a saved tree opened -- the player's own marks kept."""
@@ -5219,6 +5253,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         for label, colour in self.edits.marks.items():
             self.marks_list.insert("end", f"{label}   ({colour})")
             self.marks_list.itemconfigure("end", foreground=tk_colour(colour, "#888888"))
+        self._refresh_status_checks()       # a status's mark removed or renamed: its descriptor with it
 
     def _mark_at(self) -> str | None:
         picked = self.marks_list.curselection()
