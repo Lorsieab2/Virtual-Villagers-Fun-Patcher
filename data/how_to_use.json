@@ -537,6 +537,16 @@
       ]
     },
     {
+      "ids": ["vv3_both_factions"],
+      "guide": [
+        "Buy your first faction on the Tech screen as usual, then click the other one: it is bought like any technology, at its normal price.",
+        "Both then work together, every level of each, and both herbs grow on the island.",
+        "The save keeps your first faction; the second is kept in the save's own folder and comes back when you load.",
+        "Without the patch the village loads with the first faction only.",
+        "Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv1_healers_study_regardless_of_food"],
       "guide": [
         "Drop a villager on the medical cactus to start them studying.",

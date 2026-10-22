@@ -1,0 +1,191 @@
+# VV3 Both Factions: Nature and Magic
+
+The owner asked for The Secret City to let a tribe buy **both** the Faction of
+Nature and the Faction of Magic, with both working at once, without crashing
+or breaking saves. An earlier attempt to cheat both in (memory / save edit)
+broke the owner's save. The owner's suggested shape: the save keeps one normal,
+stock-valid faction and the patcher keeps the second one in a per-save `.dat`
+file and applies it at run time.
+
+Everything below was read from the stock executable (hash pinned in
+`data/builds.json`) with capstone, and checked by running the rendered bytes
+in an emulator (`tests/test_vv3_both_factions.py`). **Not run in the game.**
+
+## 1. Where the faction lives
+
+There is no faction field. The technology manager `0x582618` holds seven
+levels, `dword [0x582618 + 4*id]`, read by `0x426FC0(id)` (thiscall):
+
+| id | technology (Tech screen label) | info string |
+|---:|---|---|
+| 0 | Science | 0x40B |
+| 1 | Medicine | 0x40C |
+| 2 | Alchemy | 0x40D |
+| 3 | Restoration | 0x40E |
+| 4 | Leadership | 0x40F |
+| 5 | **Nature** | 0x410 "Faction of Nature" |
+| 6 | **Magic** | 0x411 "Faction of Magic" |
+
+A new village starts at 1,1,1,1,1,0,0 (`0x426F40`). The "chosen faction" is
+whichever of 5 and 6 is above 0. Levels go to 3 (`0x426FD0` stops at 3).
+
+In the save the seven levels are seven dwords at **save buffer offset 0x6CC0**
+(the game object's `+0x6CC8`; the file is a 12-byte `ldwg` header plus the
+buffer, so file offset 0x6CCC): Nature at buffer 0x6CD4, Magic at 0x6CD8. The
+tech points follow at 0x6CDC. The owner's saves (read-only copies) show exactly
+one of the two above 0, e.g. `(3,3,3,3,3,3,0)` or `(3,3,3,3,3,0,3)`.
+
+### How it is bought
+
+Tech screen message 8, button `id+1`, handler `0x465640`:
+
+* `0x4656E6..0x465749`: buying Nature while Magic > 0, or Magic while
+  Nature > 0, shows string 0x419 "You have already chosen your faction!" and
+  stops.
+* `0x465700`: price `0x427020(id)` = `dword [0x4A818C + 4*(level+1 + 3*id)]`
+  (0 when fully researched -> message 0x32); not enough points -> 0x34.
+* `0x46574E..0x4657BD`: when both are 0, the "Are you sure? Once you choose a
+  faction for your tribe, you cannot change it." confirmation (0x418).
+* `0x4657C8..0x4657DB`: points taken (`0x427130(-cost)` on `0x582644`), level
+  up (`0x426FD0`).
+
+## 2. Every reader of the two levels
+
+Every call of the getter with id 5 or 6, and every other access, in the stock
+executable (`EveryFactionReader` checks this list is complete: a new reader
+fails the test).
+
+| site | tech | what it does | with both |
+|---|---|---|---|
+| 0x415517 (event cond 0x4154F0) | 5 | Ghostly Dream: nature / healing (island event 16), needs Nature >= 1 | works: separate predicate |
+| 0x415657 (event cond 0x415630) | 6 | Ghostly Dream: research / architecture (event 17), needs Magic >= 1 | works |
+| 0x4347C3 (0x434760) | 5 | Nature 1: fruit-tree refill factor 42 instead of 37 | works |
+| 0x4593DC (0x459095) | 6 | Magic 1: +1 tech point per research | works |
+| 0x45FE9D (room check 0x45FE30) | 6 | Magic 3: +10 population maximum | works |
+| 0x4601C4 (0x45FFE0) | 5 | Nature 3: longevity | works |
+| 0x420BB9 / 0x420BDD (world draw 0x420B30) | 5 / 6 | Level 2 herb art: part 6 herb_nature.png (image 0x99, the Pitcher Plant) if Nature >= 2, **else** part 5 herb_magic.png (0x98, the Berry Plant) if Magic >= 2 | **exclusive** (the `ret` at 0x420BD5) -> handled |
+| 0x464942 / 0x464969 (Tech screen open 0x464920) | 5 / 6 | `[screen+0xD4]` = the chosen faction (Nature first) | harmless; drawing handled below |
+| 0x4649C0 (Tech screen draw), 0x464A0C / 0x464AB0 | any | level pips for every technology | works: both filled in |
+| 0x464AE4..0x464BE1 (same draw) | `[+0xD4]` | sunbeam.png (0x90) on the chosen faction, the other column darkened | **one only** -> handled |
+| 0x464DBB.. / 0x464EB6.. (hover 0x464D90) | 5 / 6 | preview while neither is chosen | harmless |
+| 0x464C65 (info box 0x464C30) | any | level and next price | works |
+| 0x4656F7 / 0x46572D (purchase) | 5 / 6 | "already chosen" refusal | **blocks** -> handled |
+| 0x46575F / 0x46576F (purchase) | 5 / 6 | confirmation while neither is chosen | stock |
+| 0x4325E2 (0x432550) | computed (0) | not a faction reader | - |
+| save `0x426F60` (from 0x427D24) | all 7 | copies the array into the save buffer | would write both -> handled |
+| load `0x427060` (from 0x428A0D) | all 7 | **refuses** Nature > 0 and Magic > 0 (0x427067..0x427079), any level > 3, and replays the rest through 0x426FD0 | the breakage -> never reached |
+| level-change listeners (0x426FD0 -> list at +0x1C) | - | one listener, vtable 0x49D140, `ret 8` (does nothing) | - |
+
+Nothing else names the two levels (no direct `0x58262C` / `0x582630` access).
+Puzzles, the chief, statues, statistics and the patcher's own logs never read
+them. The "prince of magic / princess of nature" text is story only. The
+patcher's own Nature patches (honey refill, Nature 3 mortality) and the
+population caps read the getter, so they see both.
+
+### The level-2 herbs (owner requirement 1)
+
+| | Nature (Pitcher Plant) | Magic (Berry Plant) |
+|---|---|---|
+| art | herb_nature.png, image 0x99, world-object part 6, drawn at (0x78, 0x4B5) | herb_magic.png, image 0x98, part 5, at (0x32, 0x550) |
+| drop place | map region 30 ("Herb6", cmap.dat), handler 0x421340 (registered 0x422B14) | region 31 ("Herb7"), handler 0x4213D0 |
+| gathering | task 0x73 "Gathering herbs" (0x44BCD0), carried item 0x24 (eCarrying_Herb6) | task 0x73, item 0x25 (eCarrying_Herb7) |
+| object / names | eObject_Herb6 (0x2A), "Pitcher Plant" (say 0xB5, 0x209) | eObject_Herb7 (0x2B), "Berry plant" (0xB6, 0x20A) |
+
+Separate images at separate places, separate regions, separate carried items:
+nothing is shared. Gathering needs the Alchemy Lab restored (puzzle flag 2) and
+room in the pot; **no gathering, carrying or alchemy code reads a technology**.
+The only exclusive piece is the art's `else`. Both herbs therefore coexist
+once the art is drawn for both; no new storage is needed for them.
+
+## 3. Why the cheated save broke
+
+Setting both levels and saving writes both into the buffer (0x426F60 copies
+all seven). On the next load the village loader `0x428880` calls `0x427060`,
+which returns 0 when `[in+0x14]` and `[in+0x18]` are both nonzero; the loader
+then returns 0 at 0x428A74 after the systems before it were already loaded
+and before the villagers. The slot no longer loads: the menu's load path
+(0x428420) falls through to another slot or a new village. Reproduced in the
+emulator on the stock executable: a save with (1,0), (0,3), (3,0) loads; (1,1),
+(3,3), (2,1) fails (`WhyTheCheatedSaveBroke`).
+
+## 4. Room for both
+
+The runtime array already has a slot for each faction, and every reader reads
+its own slot. Only four places make them exclusive (purchase, herb art, Tech
+screen highlight, loader). So both can be active in memory; the save must
+simply never hold both.
+
+## 5. Design (built)
+
+**Primary** = the faction bought first on the Tech screen; it stays in the save,
+stock-valid. **Secondary** = the other one, bought second on the Tech screen;
+it lives only in memory and in the sidecar file.
+
+Companion `VVFP VV3 Both Factions.dll` (`native/vvfp_vv3_both_factions`), its
+own DLL, started by `VVFP Startup.dll` (bit 25, appended). It verifies the
+stock bytes at every site and installs all or nothing; the purchase last.
+
+| site | stock | change |
+|---|---|---|
+| 0x427D1F | `mov ecx,0x582618 / call 0x426F60` | after the stock copy: the secondary written as 0 in the buffer; recorded in the file |
+| 0x428A08 | `mov ecx,0x582618 / call 0x427060` | after the stock loader accepts: the file entry for exactly this save restores the secondary via 0x426FD0 |
+| 0x4657D5 | `push esi / mov ecx / call 0x426FD0` | note which faction is bought second |
+| 0x4656FE | `jg 0x465736` | nop nop (Magic while Nature) |
+| 0x465734 | `jle 0x465700` | jmp (Nature while Magic) |
+| 0x420BD5 | `ret` | nop: the Magic herb is drawn too |
+| 0x464AE4 | `mov eax,[edi+0xD4] / cmp eax,-1` | with both: both sunbeams at full strength, no shade |
+
+**The file**: `<save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Factions\Virtual Villagers 3 Second Faction - Save <S>.dat`
+(magic `VV2F`, version 1, game 3, slot, up to 16 entries: fingerprint,
+secondary + level, primary + level, time). Read and written through
+`native/shared/sidecar_io.h` (atomic `.tmp` + MoveFileEx; an unreadable file is
+never replaced; an invalid one is set aside, never trusted).
+
+**Bound to the village**: each entry carries the FNV-1a 64 fingerprint of the
+save buffer's first 0x6CDC bytes (every system saved before the technologies,
+the seven levels as saved) plus the tech points. At load the same fingerprint
+is computed from the loaded file; only an entry with the same slot, fingerprint
+and primary faction/level is applied. Another village, another save of the
+slot, a Start Over, an older copy without an entry: nothing is applied. The
+last 16 saves are kept, so restoring a recent backup (the game's slot+20
+generation or a patcher backup) still finds its entry. Start Over deletes the
+file (`native/shared/save_reset.c`, VVFP Save Reset.dll).
+
+**Purchase**: on the Tech screen itself, the same click as any technology, at
+the stock price of that faction's next level (tech points). The first faction
+keeps its stock confirmation; the second needs none, like every other
+technology. Saves that already have one faction: that faction is the primary,
+and the other can be bought. Fresh villages: whichever is bought first.
+
+**Uninstalling**: the save holds the primary only, which the stock loader
+accepts; the stock purchase again refuses the other faction. The file stays
+and is used again if the patch is put back.
+
+### Owner requirements (binding) and the gate list
+
+1. Both level-2 herbs in the world at once, usable normally: the art `else`
+   removed (0x420BD5); regions, items and alchemy are already independent.
+2. Every level effect of both factions at once: both levels live in memory;
+   every reader in section 2 reads its own technology.
+3. Primary = bought first (in the save, stock-valid); secondary = bought second
+   on the Tech screen, only in the sidecar.
+4. Tech screen: both factions' levels filled in (the pips draw from each
+   level) and both highlighted with the game's own sunbeam.
+
+Gate: every reader in section 2 is handled or independent, the companion
+installs only when every site is stock, and no path writes a save with both
+factions (`test_the_companion_never_lets_such_a_save_be_written`, all slots
+including the backup generation).
+
+## 6. Not verified
+
+* Not run in the game: the purchase click, the herbs on the island, the
+  sunbeams, a real save/load/quit cycle and a real file on disk.
+* The emulator stubs display, sound, text and the other systems' savers and
+  loaders; only the technology code, the purchase, the save/load routines, the
+  herb draw and the Tech screen draw run for real.
+* A save already broken by a cheat (both factions in the file) is not repaired:
+  the stock loader refuses it before the companion is asked.
+* If the file cannot be written at a save (locked, disk full), that save still
+  holds the first faction only (always stock-valid), but its second faction is
+  not recorded: loading that save gives the first faction only.

@@ -685,6 +685,26 @@ calculated first, so the two benefits stack. Nature levels 0 through 2 are
 unchanged. VV3's shared aging loop applies the shift during normal play and
 elapsed-time catch-up.
 
+VV3 BOTH FACTIONS: NATURE AND MAGIC
+
+Buy your first faction on the Tech screen as usual (the game asks you to
+confirm). Then click the other faction: instead of "You have already chosen
+your faction!" it is bought like any technology, at its normal price in tech
+points, and each of its levels after that too. Both factions then work at the
+same time, every level of each: Nature's faster food, Pitcher Plant herb and
+longer lives, and Magic's extra research point, Berry Plant herb and higher
+population maximum. Both herbs grow on the island and both factions are lit
+on the Tech screen.
+
+The save keeps only the faction you bought first, exactly as the unpatched
+game keeps it. The second one is kept in the save's own folder, in
+Virtual Villagers Fun Patcher\Save N\Data\Factions, and comes back when that
+save is loaded. So every save is one the unpatched game can load: without the
+patch the village loads with its first faction only, and the second comes back
+if the patch is put back. Start Over deletes the file with the rest of the
+save's data. (A save made with both factions by a cheat cannot be loaded by
+the game at all; this patch never writes one.) Not yet tested in play.
+
 VV5 HEATHEN MOMMY PUZZLE RESTORATION
 
 The naturally enabled reference creates a 29th, tag-17 Heathen mother and gives
