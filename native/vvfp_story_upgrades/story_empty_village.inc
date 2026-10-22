@@ -52,11 +52,13 @@
    village then counts them, and the game's own next tick makes it a normal
    village again (the status line stops, the trigger goes back to its
    draws).  Nothing else is changed: a question (two choices) needs a living
-   villager to show, so it is refused for an empty village; A New Home's
-   and The Lost Children's first island event is always the game's own
-   visitor, so a village that has had none can not be given one; and a new
+   villager to show, so it is refused for an empty village; and a new
    village's two opening island events are not waited for in an empty
-   village, which can never have them. */
+   village, which can never have them.  A New Home's and The Lost Children's
+   trigger makes a village's first island event the game's own visitor; an
+   empty village that died before it gets the custom event past that check,
+   uncounted, so the visitor is still its first island event once someone
+   lives (ce_dead_first below). */
 
 /* The game's own population count, as the trigger asks it.  -1 when there
    is no village to ask (the arrays not there yet). */
@@ -95,25 +97,44 @@ static int ce_village_empty(int game) {
    village can never have its two opening island events. */
 static int ce_dead_firing;
 
-/* Asked by a game's count stub when its count is 0: 1 = go on to the event
-   as if a villager had been drawn.  Only a plain Custom Island Event (or the
-   time skip's notice) queued for this village; in A New Home and The Lost
-   Children not before the village's first island event, which the trigger
-   always makes the game's own visitor. */
+/* A New Home / The Lost Children: the game whose empty village is being
+   given a custom event before its first island event (0 = none).  The
+   trigger makes a village's first island event the game's own visitor
+   (VV1 0x42382C, VV2 0x42EF39: Island Events Seen still 0); for an empty
+   village the stub resumes past that check (CE_DEAD_FIRST), and the
+   delivery takes the trigger's count of the event back (ce_deliver), so
+   Island Events Seen stays 0 and the village's first island event, once
+   someone lives, is still the game's visitor -- with the 30-minute second
+   one after it, as stock. */
+static int ce_dead_first;
+
+#define CE_DEAD_GO 1                   /* resume after the villager draw */
+#define CE_DEAD_FIRST 2                /* ... and past the first-event visitor check */
+
+/* Asked by a game's count stub when its count is 0: CE_DEAD_GO (or
+   CE_DEAD_FIRST) = go on to the event as if a villager had been drawn, 0 =
+   wait as stock.  Only a plain Custom Island Event (or the time skip's
+   notice) queued for this village. */
 static int __cdecl ce_dead_bypass(int game) {
     const int *counter;
     ce_dead_firing = 0;
+    ce_dead_first = 0;
     if (!ce_plain_pending(game)) {
         return 0;
     }
     if (game == 1 || game == 2) {
         counter = ce_event_counter(game);
-        if (counter == NULL || *counter == 0) {
-            return 0;
+        if (counter == NULL) {
+            return 0;                  /* a trigger this companion does not know */
+        }
+        if (*counter == 0) {
+            ce_dead_firing = game;
+            ce_dead_first = game;
+            return CE_DEAD_FIRST;
         }
     }
     ce_dead_firing = game;
-    return 1;
+    return CE_DEAD_GO;
 }
 
 /* New Believers' selector found no stock event possible: 1 = present the
@@ -164,12 +185,19 @@ __declspec(naked) static void c1_count_stub(void) {
         test eax, eax
         jz nobody
         add esp, 4
+        push eax                    /* CE_DEAD_GO or CE_DEAD_FIRST */
         mov ecx, dword ptr [esi + 0x10]
         mov eax, 0x41D110
         call eax
         mov edi, eax
         xor ebp, ebp
+        pop eax
+        cmp eax, 2
+        je first
         push 0x423816
+        ret
+    first:                          /* past the first-event visitor check */
+        push 0x423838
         ret
     nobody:
         xor eax, eax
@@ -193,12 +221,19 @@ __declspec(naked) static void c2_count_stub(void) {
         test eax, eax
         jz nobody
         add esp, 4
+        push eax                    /* CE_DEAD_GO or CE_DEAD_FIRST */
         mov ecx, dword ptr [esi + 0x10]
         mov eax, 0x426110
         call eax
         mov edi, eax
         xor ebp, ebp
+        pop eax
+        cmp eax, 2
+        je first
         push 0x42EF26
+        ret
+    first:                          /* past the first-event visitor check */
+        push 0x42EF48
         ret
     nobody:
         xor eax, eax

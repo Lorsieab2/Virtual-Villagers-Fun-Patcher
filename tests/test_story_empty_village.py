@@ -114,6 +114,21 @@ class StockTests(unittest.TestCase):
                 self.assertIn(f"mov {keep}, eax", moves)
                 self.assertEqual(ins(resume)[0], "push 0x64", "the trigger's first family / event roll")
 
+    def test_the_first_event_visitor_check_and_the_point_past_it(self):
+        """A New Home / The Lost Children: after the first family roll, Island
+        Events Seen 0 sends the trigger to the visitor; the empty-village stub
+        resumes at the next roll, past that check."""
+        for game, (check, field, visitor, past) in {
+                "vv1": (0x42382C, 0x9E40, 0x423A1B, 0x423838),
+                "vv2": (0x42EF3C, 0x2E51C, 0x42F12B, 0x42EF48)}.items():
+            with self.subTest(game=game):
+                ins = _disassembler(game)
+                text, size = ins(check)
+                self.assertTrue(text.startswith("cmp dword ptr [e") and text.endswith(f"+ 0x{field:x}], ebx"), text)
+                self.assertEqual(ins(check + size)[0], f"je 0x{visitor:x}")
+                self.assertEqual(check + size + 6, past)
+                self.assertEqual(ins(past)[0], "push 0x64")
+
     def test_new_believers_selector_exit(self):
         ins = _disassembler("vv5")
         self.assertEqual(ins(0x4188E5)[0], "test edi, edi")
@@ -249,14 +264,42 @@ class EmptyTriggerTests(unittest.TestCase):
                 self.assertEqual(e.run_waiting(), [])
                 self.assertEqual(p.export("VvfpStoryProbeCustomPending", e.n), 1, "still queued")
 
-    def test_a_new_home_and_the_lost_children_keep_their_first_visitor(self):
+    def test_died_before_the_first_island_event_and_the_visitor_stays_first(self):
+        """A New Home / The Lost Children: the trigger makes a village's first
+        island event the game's visitor (Island Events Seen 0).  An empty
+        village gets the custom event past that check, uncounted; once someone
+        lives, the first island event is still the visitor, then the
+        30-minute second one, as stock -- in every mode."""
+        for game in ("vv1", "vv2"):
+            if not have_stock(game):
+                continue
+            for mode in MODES:
+                with self.subTest(game=game, mode=mode):
+                    e = _Empty(self, game, mode, counter=0)
+                    e.queue()
+                    self.assertEqual(e.trigger.fire(), "custom")
+                    self.assertEqual(e.draws, [])
+                    self.assertEqual(e.trigger.counter, 0, "not counted: the visitor is still first")
+                    self.assertGreater(e.countdown, CLOCK, "the game rescheduled the next one")
+                    # Someone lives again (the new villagers): the game's own
+                    # first event, then its own second one.
+                    e.population[0] = 3
+                    e.story.village.put(1, sex="m", years=30, name="Adam")
+                    self.assertEqual(e.trigger.fire(), "visitor")
+                    self.assertEqual(e.trigger.counter, 1)
+                    self.assertEqual(e.trigger.fire(), "stock island event")
+                    self.assertEqual(e.trigger.counter, 2)
+
+    def test_a_living_village_before_its_first_event_is_unchanged(self):
         for game in ("vv1", "vv2"):
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 e = _Empty(self, game, counter=0)
+                e.population[0] = 3
+                e.story.village.put(1, sex="m", years=30, name="Adam")
                 e.queue()
-                self.assertEqual(e.run_waiting(), [])
+                self.assertEqual(e.trigger.fire(), "visitor", "the game's own first event")
                 self.assertEqual(e.story.proc.export("VvfpStoryProbeCustomPending", e.n), 1)
 
     def test_an_empty_village_does_not_wait_for_its_opening_events(self):
@@ -405,13 +448,17 @@ class PurchaseTests(unittest.TestCase):
                 self.assertNotEqual(at, 0)
                 self.assertIn("nobody to ask a question", p.cstring(at))
 
-    def test_the_first_island_event_rule_stays(self):
+    def test_before_the_first_island_event(self):
+        """An empty village may queue one before its first island event (the
+        visitor stays its first); a living one still waits for the visitor."""
         for game in ("vv1", "vv2"):
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 story = self._story(game)
                 story.proc.put32(events_seen_address(game, story.village.world), 0)
+                self.assertIsNone(story.refusal(Event(spawns=[Spawn(count=2)])))
+                story.village.put(1, sex="m", years=30, name="Adam")
                 self.assertIn("first island event", story.refusal(Event()) or "")
 
     def test_bought_for_an_empty_new_village_it_is_made_due_at_once(self):

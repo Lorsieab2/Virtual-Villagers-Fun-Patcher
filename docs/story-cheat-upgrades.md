@@ -587,8 +587,13 @@ Nothing else needs resetting: once the count is above 0 the game's own next tick
 treats it as a normal village. The purchase now allows an empty village; a
 question with two choices is refused (it needs a living villager to show), an
 empty village does not wait for its two opening island events (its trigger can
-never make them), and A New Home's and The Lost Children's first island event
-stays the game's own visitor. Villager Changes says there is nobody to change
+never make them). A New Home's and The Lost Children's trigger makes a village's
+first island event the visitor while Island Events Seen is 0 (VV1 0x42382C,
+VV2 0x42EF39); an empty village that died before it resumes past that check too
+(VV1 0x423838, VV2 0x42EF48: the next family roll, island family for a custom
+event), and the delivery takes the trigger's count back as for the time skip's
+notice, so the counter stays 0 and once someone lives the first island event is
+still the visitor, then the 30-minute second one, as stock. Villager Changes says there is nobody to change
 when no villager or body is left. Tests: tests/test_story_empty_village.py (each
 game's real trigger in all three population modes and with 256 Villagers, the
 selector exit, the purchase, arrivals and skeletons). **Not yet seen in a

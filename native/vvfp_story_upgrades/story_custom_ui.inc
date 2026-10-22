@@ -2954,6 +2954,7 @@ static int ce_arm_with(int game, const ce_event *e, const ce_choice *c, int noti
    it). */
 static void ce_opening_tick(int game) {
     ce_dead_firing = 0;              /* only ever set inside one trigger run */
+    ce_dead_first = 0;
     if (!ce_armed) {
         ce_wait_arm = 0;
         return;

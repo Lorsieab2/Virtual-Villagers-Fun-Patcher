@@ -484,6 +484,7 @@ static int ce_opening(int game, int counted) {
 /* Whether the armed event of `game` (a player's own, not the notice) waits for
    the opening events; it is then still to be made due. */
 static int ce_dead_firing;               /* story_empty_village.inc */
+static int ce_dead_first;
 static int ce_village_empty(int game);
 static const char *ce_empty_refusal(int game, const char *refusal);
 
@@ -1697,10 +1698,15 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
 static int ce_deliver(int game, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
     int notice;
+    int first;
     if (a == NULL || !ce_plain_pending(game) || ce_held(game, 1)) {
         return 0;
     }
     notice = ce_armed_is_notice;
+    /* An empty village's event before its first island event: not counted,
+       so that first one is still the game's visitor (story_empty_village.inc). */
+    first = ce_dead_first == game;
+    ce_dead_first = 0;
     ce_armed = 0;
     ce_armed_is_notice = 0;
     ce_dead_firing = 0;
@@ -1711,7 +1717,7 @@ static int ce_deliver(int game, char *text, int size) {
            checked when the event was queued, so show those alone. */
         ce_compose(a, &ce_armed_event, NULL, text, size);
     }
-    if (notice) {
+    if (notice || first) {
         ce_uncount_notice(game);   /* the time skip's notice is not an island event */
     }
     STORY_COUNT(delivered);
