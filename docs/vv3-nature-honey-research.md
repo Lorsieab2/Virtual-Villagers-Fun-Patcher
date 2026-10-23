@@ -31,7 +31,13 @@ The detour:
 2. Reads Nature technology level through the stock technology getter.
 3. At Nature level 0, executes the original multiply-and-shift arithmetic.
 4. At Nature level 1 or higher, calculates `floor(elapsed_seconds * 84 / 99900)`. The denominator is `37 × 2700`, so the honey quantity retains the fruit trees' exact `42 / 37` improvement while being normalized to the new 45-minute interval.
-5. Returns to the untouched stock amount addition, timestamp update, and 3,000-unit cap.
+5. At Nature level 1 or higher, adds that amount and sets the timestamp to the current time less the time not yet paid for, `floor((elapsed_seconds * 84 mod 99900) / 84)` seconds, then goes on to the stock 3,000-unit cap. At Nature level 0 it returns to the untouched stock arithmetic, amount addition and timestamp update.
+
+The detour is entered by replacing the clock read at file offset `0x319F4` (`call 0x426590`) with a call to the cave at file offset `0x7B2A0`, which reads the clock itself; the stock arithmetic at `0x319F9` is not modified.
+
+### Why the time not paid for is carried
+
+While the game is open the refill check runs every frame, so each Nature refill fires as soon as 2,700 seconds have passed and is worth `2700 × 84 / 99900 = 2.27` units. The game stores whole units only. The first version of this patch reset the timestamp to the current time, so the 0.27 of every refill was thrown away: about 12% of the honey was lost in play (100 hours of play: 266 units instead of 302), while a long time away, paid in one refill, lost almost nothing. Keeping the unpaid time in the timestamp pays it with the next refill; the remaining loss is under one second's worth (`< 84 / 99900` unit) per refill. The stock routine and the fruit trees have no such loss: their intervals pay exact whole numbers (`3600 × 2 / 3600 = 2`, `10800 × 37 / 3600 = 111`, `8100 × 56 / 3600 = 126`).
 
 No fruit or honey is granted immediately when the patch is applied. The shorter thresholds and improved honey amount are evaluated by the game's existing refill updates.
 
