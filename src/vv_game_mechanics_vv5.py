@@ -140,9 +140,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", True)
-    add("Collectibles", "The others are collectibles: 82% common, 13% uncommon, 5% rare. The relic set always; the lab "
-                        "set once the Knowing Totem is built (then half from each). A piece already found gives a "
-                        "relic +10, 50 or 150 Divine Energy, a lab piece +100, 250 or 1,500 tech points.", True)
+    add("Collectibles", "The others are collectibles: 82% common, 13% uncommon, 5% rare. One set of 24 can always "
+                        "appear; a second set of 24 only once the Knowing Totem is built (then half from each). A "
+                        "piece already found gives +10, 50 or 150 Divine Energy from the first set, +100, 250 or "
+                        "1,500 tech points from the second.", True)
     add("Collectibles", "The Earthquake God Power drops one collectible 10 seconds after it is cast: 72% uncommon, "
                         "28% rare.", True)
     add("Collectibles", "The Earthquake also raises every villager's belief by 2 to 8.")
@@ -162,7 +163,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         f"Divine Energy: {_i32(data, ENERGY):,} of {_i32(data, ENERGY_CAP):,}. Each believer adds 1 "
         f"{gm.every(UNIT, speed_value)}, 4 at Devotion 50 or more, 9 at 88 or more (1 more at 8,000 food on Medium, "
         "or on Hard); Honoring adds 3, 7 or 12. The cap is 5 x (believers + 2), more with the statue, the Idol, "
-        "Spirituality and relics, at most 1,000."), True)
+        "Spirituality and the first set's pieces, at most 1,000."), True)
     add("Tech points and effects", "God Powers cost 10, 25, 50, 100, 150, 300, 400, 500, 600, 700 and 800.")
 
     # -- Food earned ---------------------------------------------------------------------

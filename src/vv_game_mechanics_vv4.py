@@ -9,8 +9,8 @@ Mastery), Mushrooms Found 0x874, island events seen 0x884, blackberries 0x17108,
 0x170F0.
 
 THE RULES: the coordinator's verified spec mech_vv4\\spec.md v2 (2026-10-23).  A line built only from what
-it marks EMULATED, or from the save, is verified; anything READ, or worded "probably" / "likely" there,
-carries UNCONFIRMED.  Handlers the stock game never fires and events that never happen are not listed.
+it marks EMULATED, or from the save, is verified; anything READ carries UNCONFIRMED, and nothing the spec
+only guessed (a collection's name, what a flyer is) is shown at all (the owner: do not infer).  Handlers the stock game never fires and events that never happen are not listed.
 """
 from __future__ import annotations
 
@@ -148,9 +148,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "
                         "hours.", True)
-    add("Collectibles", "Once the third collection is complete, a buried villager's ghost brings a collectible every "
+    add("Collectibles", "Once Collection set 3 is complete, a buried villager's ghost brings a collectible every "
                         "50 to 58 minutes (nothing if more than an hour overdue).", True)
-    add("Collectibles", "In fog or a cold snap things appear only with pieces of the wind flute set (every 7.5 "
+    add("Collectibles", "In fog or a cold snap things appear only with pieces of one particular collection (every 7.5 "
                         "seconds with all 12); each complete collection raises the population limit by 5, all four "
                         "by 25.")
 

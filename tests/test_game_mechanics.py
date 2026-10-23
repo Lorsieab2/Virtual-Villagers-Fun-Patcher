@@ -401,6 +401,12 @@ class EveryGame(unittest.TestCase):
                 old = [f for f in facts if f.text.startswith("Old age:")]
                 self.assertEqual(len(old), 1)
                 self.assertFalse(old[0].verified)
+    def test_nothing_inferred(self) -> None:
+        """The owner: DO NOT INFER -- no guessing words, no names chosen from a theme."""
+        for name in self.SAVES:
+            with self.subTest(save=name):
+                text = gm.render(self.page(name)).lower()
+                self.assertNotRegex(text, r"probabl|(?<!equally )likely|perhaps|presumab|wind flute|mausoleum|relic")
     def test_golden_mushroom_stays_a_secret(self) -> None:
         for name, fid in (("vv1-huttest-1", "vv1_super_secret_golden_mushroom"),
                           ("vv2-huttest-1", "vv2_super_secret_golden_mushroom"),
