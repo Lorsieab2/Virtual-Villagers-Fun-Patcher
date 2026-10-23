@@ -128,9 +128,9 @@ class PreviousPartnersTests(unittest.TestCase):
 
     def test_age_units_can_be_turned_off(self) -> None:
         """The owner, 2026-10-08: "a toggle to turn Age Units on and off in the village matchmaker"."""
-        self.assertTrue(gen.Rules().show_age_units)
-        on = gen.pair_report(self.village(), gen.Rules(), "A New Home")
-        off = gen.pair_report(self.village(), gen.Rules(show_age_units=False), "A New Home")
+        self.assertFalse(gen.Rules().show_age_units)
+        on = gen.pair_report(self.village(), gen.Rules(show_age_units=True), "A New Home")
+        off = gen.pair_report(self.village(), gen.Rules(), "A New Home")
         self.assertIn("600 game units (30 years old)", on)
         self.assertNotIn("game units", off)
         self.assertIn("Hoani Chuchip, 30 years old", off)
