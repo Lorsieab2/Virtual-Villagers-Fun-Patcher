@@ -39,6 +39,7 @@ import vv_vv2_totem_store
 import vv_vv2_totems
 import vv_genealogy
 import vv_genealogy_window
+import vv_game_mechanics_window
 from vv_tree_editor_tools import scrollable_frame
 
 # Link colours: the resting blue and the hover red.
@@ -1638,6 +1639,11 @@ class App(tk.Tk):
             genealogy, "Village Matchmaker...", self._matchmaker_single
         ).pack(side="left", padx=(18, 0))
         self._help_button(genealogy, "village_matchmaker").pack(side="left", padx=(3, 0))
+        # Game Mechanics (the owner, 2026-10-22): a save's hidden rules, read-only, in its own window.
+        self._folder_link(
+            genealogy, "Game Mechanics...", self._game_mechanics_single
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(genealogy, "game_mechanics").pack(side="left", padx=(3, 0))
         box = ttk.LabelFrame(tab, text="Each of the five games (their folders on the All 5 Games tab)", padding=10)
         box.pack(fill="x", pady=(10, 0))
         # The save and log links get a grid of their own below: in one row
@@ -1655,6 +1661,7 @@ class App(tk.Tk):
             (tools, 5, "repair_logs"),
             (family, 1, "family_tree_maker"),
             (family, 2, "village_matchmaker"),
+            (family, 3, "game_mechanics"),
         ):
             self._help_button(grid_, key).grid(
                 row=0, column=column, padx=(12, 0), pady=(0, 2)
@@ -1701,6 +1708,11 @@ class App(tk.Tk):
                 "Village matchmaker...",
                 lambda game=build: vv_genealogy_window.open_pair_suggestions(self, game),
             ).grid(row=row, column=2, padx=(12, 0), pady=2)
+            self._folder_link(
+                family,
+                "Game mechanics...",
+                lambda game=build: vv_game_mechanics_window.open_game_mechanics(self, game),
+            ).grid(row=row, column=3, padx=(12, 0), pady=2)
         tools.pack(anchor="w")
         family.pack(anchor="w", pady=(8, 0))
         # The save and log tools get a row of their own: with a "?" beside
@@ -1745,6 +1757,12 @@ class App(tk.Tk):
             command=lambda: vv_genealogy_window.open_pair_suggestions(self, None),
         ).pack(side="left", padx=(8, 0))
         self._help_button(genealogy_tools, "village_matchmaker").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            genealogy_tools,
+            text="Game Mechanics...",
+            command=lambda: vv_game_mechanics_window.open_game_mechanics(self, None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(genealogy_tools, "game_mechanics").pack(side="left", padx=(2, 0))
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()
@@ -3418,6 +3436,12 @@ class App(tk.Tk):
         build = self._single_build()
         if build is not None:
             vv_genealogy_window.open_pair_suggestions(self, build)
+
+    def _game_mechanics_single(self) -> None:
+        """Game Mechanics for the game chosen on the One Game tab (src/vv_game_mechanics_window.py)."""
+        build = self._single_build()
+        if build is not None:
+            vv_game_mechanics_window.open_game_mechanics(self, build)
 
     # -- Check Saves & Logs / Repair Saves & Logs -------------------------------------------
 

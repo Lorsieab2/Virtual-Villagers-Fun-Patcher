@@ -975,6 +975,16 @@
         "Your ticks are remembered for next time."
       ]
     },
+    "game_mechanics": {
+      "title": "Game Mechanics",
+      "guide": [
+        "For the curious: shows the hidden rules of one village, worked out from its save.",
+        "Choose a game, its save folder and a tribe. The page groups what it finds: food sources, refills and more.",
+        "Every time is a real date and time, at the save's game speed. For The Secret City: each fruit tree, when it was planted, when it refills and when it can be picked.",
+        "It counts the techs the village has and the patches in the game that change a rule, when it can find that game's folder.",
+        "It only reads: nothing is changed, so the game may be running (it shows the save as it was last written)."
+      ]
+    },
     "check_logs_automatically": {
       "title": "Check logs automatically",
       "guide": [

@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 HELPER = "scrollable_frame"
 HELPER_MODULE = "vv_tree_editor_tools.py"
-WINDOW_MODULES = ["vv_fun_patcher_gui.py", "vv_genealogy_window.py", HELPER_MODULE]
+WINDOW_MODULES = ["vv_fun_patcher_gui.py", "vv_genealogy_window.py", "vv_game_mechanics_window.py", HELPER_MODULE]
 NO_TK = 3
 
 # file::enclosing function (Class.method, nested as outer.inner), or file::ClassName for a
@@ -51,6 +51,10 @@ EXEMPT = {
         "the villagers' list already scrolls in its own canvas",
     "vv_genealogy_window.py::_show_text":
         "a Text box with its own scroll bar, in a fixed-size window",
+    "vv_game_mechanics_window.py::open_game_mechanics":
+        "resizable: the pickers keep their height, the page is a Text box with its own scroll bar that "
+        "takes the rest, and a minimum size keeps the pickers and buttons on screen "
+        "(tests/test_game_mechanics.py builds it)",
     "vv_tree_editor_tools.py::choose_font":
         "a font list (Text) with its own scroll bar; the search box and buttons sit around it",
 }
@@ -134,7 +138,7 @@ class WindowScrollbars(unittest.TestCase):
         seen_exempt = set()
         for module in WINDOW_MODULES:
             creations, helper_calls, imported = _scan(module)
-            if module != HELPER_MODULE:
+            if module != HELPER_MODULE and any(f"{module}::{name}" not in EXEMPT for name, _line in creations):
                 self.assertIn(HELPER, imported, f"{module} must import {HELPER} from {HELPER_MODULE}")
             per_function: dict[str, int] = {}
             for name, line in creations:

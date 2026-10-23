@@ -242,6 +242,14 @@ FILES = [
     # The always-on read-only reconciliation of records, logs and files, and the pickers' run of it.
     "src/vv_reconcile.py",
     "src/vv_reconcile_view.py",
+    # Game Mechanics (Tools tab): its window, the page and each game's module (found by name).
+    "src/vv_game_mechanics_window.py",
+    "src/vv_game_mechanics.py",
+    "src/vv_game_mechanics_vv1.py",
+    "src/vv_game_mechanics_vv2.py",
+    "src/vv_game_mechanics_vv3.py",
+    "src/vv_game_mechanics_vv4.py",
+    "src/vv_game_mechanics_vv5.py",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).
