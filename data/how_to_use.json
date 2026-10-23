@@ -149,6 +149,7 @@
       "guide": [
         "Once Nature reaches level 1, fruit trees refill in 2 hours 15 minutes instead of 3 hours, and honey in 45 minutes instead of 1 hour.",
         "Honey also gets the same extra amount that fruit trees get from Nature.",
+        "Part of a refill too small to make a whole unit of honey is kept for the next one, so nothing is lost while you play.",
         "Nothing to click: research Nature as usual."
       ]
     },
@@ -173,6 +174,7 @@
       "guide": [
         "A villager picking fruit now adds the food, and takes the fruit off the tree, only when the fruit goes into the food bin, as honey does.",
         "Fruit dropped on the way stays on the tree and adds nothing.",
+        "The fruit the rain lift brings down (once all three trees are planted) also adds its food only when it goes into the food bin.",
         "Nothing to click: villagers pick fruit as usual. Not yet tested in play."
       ]
     },

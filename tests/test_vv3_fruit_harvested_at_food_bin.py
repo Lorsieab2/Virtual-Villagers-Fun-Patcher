@@ -26,6 +26,15 @@ letting go of the fruit (step 0x10, 0x455F30(-1)) at the food-bin point the
 walk chose, where the release asks the real 0x455EF0 / 0x4205B0 for the region.
 Only the helpers that read a running game are stubbed there as well: the
 cmap.dat file open, the text table, the clock, rand and the skill roll.
+
+The rain lift's fruit: once the lift is repaired, rain carries a villager up
+and the cliff tree drops a fruit on the cliff top (0x433FE0 from the lift's
+update 0x435D97).  A villager dropped on it takes it (0x42D2E0 -> the grab
+0x434DA0 -> step 0xF -> the take listener on any job but 0x7D, 0x434B40), or
+a fruit carrier above the cliff line is sent on by 0x434C80 (from 0x45715B).
+With all three trees planted both start Depositing food (action 0xB1,
+handler 0x451690: walk to the food bin, let go) -- and in the stock game add
+4 food at the pick-up (0x434BFF / 0x434D78).  The patch adds them at the bin.
 """
 from __future__ import annotations
 
@@ -36,7 +45,13 @@ from pathlib import Path
 
 import pefile
 from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
-from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_ECX, UC_X86_REG_EIP, UC_X86_REG_ESP
+from unicorn.x86_const import (
+    UC_X86_REG_EAX,
+    UC_X86_REG_ECX,
+    UC_X86_REG_EIP,
+    UC_X86_REG_ESP,
+    UC_X86_REG_FPCW,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -59,7 +74,9 @@ REGION = 0x4205B0            # thiscall (x, y), ret 8
 GAME = 0x428B60              # returns the game object
 CHIEF_ROLL = 0x45FC60        # thiscall (site), ret 4
 
-FRUIT_JOB, OTHER_JOB = 0x7D, 0x06
+FRUIT_JOB, OTHER_JOB, DEPOSITING_FOOD = 0x7D, 0x06, 0xB1
+CLIFF_CARRIER = 0x434C80     # thiscall (villager, item) on the trees object, ret 8
+DEPOSITING_FOOD_HANDLER = 0x451690  # action 0xB1: walk to the food bin, let go (cdecl)
 FOOD_BIN, ELSEWHERE = 0xE, 0x3
 TREE_X = (0x500, 0x600, 0x700)  # x positions inside trees 0, 1 and 2
 
@@ -77,6 +94,15 @@ SETTINGS, FILE_OPEN = 0x402C90, 0x46F47B
 STACK, HEAP, GAME_OBJECT = 0x30000000, 0x31000000, 0x32000000
 FAKE = 0x34000000            # a settings object, its vtable and a file name
 RECORD_SIZE = 0x1F8C
+# The x87 control word the game runs with: its C runtime's start-up
+# (_cinit 0x46F195 -> 0x46EC7C -> 0x4714BF) calls _controlfp(_PC_53, _MCW_PC),
+# 53-bit precision, and nothing later changes it -- the exe has no other
+# fldcw, and SDL 2.0.3 creates its Direct3D 9 device with
+# D3DCREATE_FPU_PRESERVE (flags 2 | 0x40 or 0x20).  The load per pick,
+# truncate(4.0 / (speed * 0.16666667f)) at 0x434AD4..0x434AE4, then comes to
+# 3 at Normal (speed 6), 7 at Fast (3) and 2 at Slow (10); catch-up is a fixed 4.
+GAME_FPCW = 0x027F
+NORMAL, FAST, SLOW = 6, 3, 10
 RETURN = 0x33000000          # sentinel return address
 
 
@@ -105,6 +131,7 @@ class Village:
         self.region = ELSEWHERE
         self.chief = chief
         self.chief_rolls = 0
+        uc.reg_write(UC_X86_REG_FPCW, GAME_FPCW)
         self.reset(supply)
         self.write32(SPEED, speed)
         uc.mem_write(GAME_OBJECT + 0x12FB4, bytes([1 if catch_up else 0]))
@@ -319,6 +346,22 @@ class FruitHarvestedAtFoodBinTests(unittest.TestCase):
         self.assertEqual(village.food(), (self.load, self.load))
         self.assertEqual(village.supplies(), (100, 100 - self.load, 100))
 
+    def test_the_load_per_pick_at_each_speed(self):
+        # The stock game's own arithmetic, with the game's 53-bit precision:
+        # what a delivery adds is exactly this.
+        for speed, catch_up, load in ((NORMAL, False, 3), (FAST, False, 7), (SLOW, False, 2),
+                                      (NORMAL, True, 4), (FAST, True, 4), (SLOW, True, 4)):
+            with self.subTest(speed=speed, catch_up=catch_up):
+                stock = Village(self.stock, speed=speed, catch_up=catch_up)
+                stock.pick(stock.villager(0))
+                self.assertEqual(stock.food(), (load, load))
+                for name, image in self.rendered.items():
+                    village = Village(image, speed=speed, catch_up=catch_up)
+                    picker = village.villager(0)
+                    village.pick(picker)
+                    village.let_go(picker, FOOD_BIN)
+                    self.assertEqual(village.food(), (load, load), name)
+
     def test_picking_takes_nothing_and_the_food_bin_takes_it_once(self):
         for image in self.each():
             village = Village(image)
@@ -340,8 +383,8 @@ class FruitHarvestedAtFoodBinTests(unittest.TestCase):
     def test_the_delivery_pays_what_the_stock_pick_paid(self):
         # Speed, catch-up and the chief's bonus are the stock award's own.
         cases = [
-            dict(speed=6), dict(speed=3), dict(speed=12), dict(speed=6, chief=True),
-            dict(speed=12, catch_up=True), dict(speed=3, catch_up=True, chief=True),
+            dict(speed=NORMAL), dict(speed=FAST), dict(speed=SLOW), dict(speed=NORMAL, chief=True),
+            dict(speed=SLOW, catch_up=True), dict(speed=FAST, catch_up=True, chief=True),
         ]
         for case in cases:
             stock = Village(self.stock, **case)
@@ -523,6 +566,91 @@ class FruitHarvestedAtFoodBinTests(unittest.TestCase):
                 village, _ = self._catch_up(image, tree=1, point=0, supply=(100, 4, 100))
                 self.assertEqual(village.food(), (0, 0), "below 5 the stock pick refuses")
                 self.assertEqual(village.supplies(), (100, 4, 100))
+
+    # The rain lift's fruit.
+    def _lift_pickup(self, image: bytes, *, route: str, trees: int = 3):
+        # With fewer than three trees the fruit is a seed, and the planting
+        # walk asks the real map for the next tree's place.
+        village = Village(image, real_map=self.loaded_map if trees < 3 else None)
+        village.write32(TREES + 0x64, trees)
+        carrier = village.villager(0, job=OTHER_JOB, x=0x697)
+        if route == "drop":   # dropped on the fruit: the grab's step 0xF takes it
+            village.call(SET_ITEM, carrier, 0x27)
+        else:                 # a fruit carrier on the cliff top
+            village.call(CLIFF_CARRIER, TREES, carrier, 0x27)
+        return village, carrier
+
+    def test_the_stock_game_pays_for_lift_fruit_at_the_pick_up(self):
+        for route in ("drop", "cliff"):
+            with self.subTest(route=route):
+                village, carrier = self._lift_pickup(self.stock, route=route)
+                self.assertEqual(village.food(), (4, 4))
+                self.assertEqual(village.read32(carrier + 0xF24), DEPOSITING_FOOD)
+                self.assertEqual(village.carried(carrier), 0x27)
+                village.let_go(carrier, FOOD_BIN)
+                self.assertEqual(village.food(), (4, 4), "the stock bin adds nothing")
+
+    def test_lift_fruit_counts_once_at_the_food_bin(self):
+        for name, image in self.rendered.items():
+            for route in ("drop", "cliff"):
+                with self.subTest(build=name, route=route):
+                    village, carrier = self._lift_pickup(image, route=route)
+                    self.assertEqual(village.food(), (0, 0), "nothing at the pick-up")
+                    self.assertEqual(village.read32(carrier + 0xF24), DEPOSITING_FOOD)
+                    self.assertEqual(village.carried(carrier), 0x27)
+                    village.let_go(carrier, FOOD_BIN)
+                    self.assertEqual(village.food(), (4, 4))
+                    self.assertEqual(village.supplies(), (100, 100, 100), "no tree is touched")
+                    self.assertEqual(village.awards, [], "not the trees' award")
+                    village.let_go(carrier, FOOD_BIN)
+                    self.assertEqual(village.food(), (4, 4), "only once")
+
+    def test_lift_fruit_let_go_elsewhere_or_interrupted_adds_nothing(self):
+        for name, image in self.rendered.items():
+            for how in ("elsewhere", "interrupted"):
+                with self.subTest(build=name, how=how):
+                    village, carrier = self._lift_pickup(image, route="drop")
+                    if how == "elsewhere":
+                        village.let_go(carrier, ELSEWHERE)
+                    else:
+                        village.write32(carrier + 0xF24, OTHER_JOB)
+                        village.let_go(carrier, FOOD_BIN)
+                    self.assertEqual(village.food(), (0, 0))
+                    self.assertEqual(village.supplies(), (100, 100, 100))
+                    # As in the stock game, a fruit let go with trees planted
+                    # does not go back on the ground.
+                    self.assertEqual(village.uc.mem_read(TREES_LISTENER + 9, 1), b"\x00")
+
+    def test_lift_fruit_before_three_trees_is_still_a_seed(self):
+        # Fewer than three trees: the stock planting walk (action 0x7C), no food.
+        for name, image in [("unpatched", self.stock), *self.rendered.items()]:
+            for route in ("drop", "cliff"):
+                with self.subTest(build=name, route=route):
+                    village, carrier = self._lift_pickup(image, route=route, trees=2)
+                    self.assertEqual(village.food(), (0, 0))
+                    self.assertEqual(village.read32(carrier + 0xF24), 0x7C)
+
+    def test_catch_up_delivers_lift_fruit_once_at_the_bin(self):
+        for name, image in [("unpatched", self.stock), *self.rendered.items()]:
+            with self.subTest(build=name):
+                village = Village(image, catch_up=True, real_map=self.loaded_map)
+                carrier = village.villager(0, job=OTHER_JOB, x=0x697)
+                self.write_age(village, carrier)
+                village.call(SET_ITEM, carrier, 0x27)
+                at_pick_up = village.food()
+                params = HEAP + 0x80000
+                village.call(DEPOSITING_FOOD_HANDLER, 0, carrier, params, cdecl=True)
+                village.call(CATCH_UP_RUNNER, carrier, carrier, count=5_000_000)
+                self.assertEqual(village.read32(carrier), 0, "the runner emptied the queue")
+                self.assertEqual(village.carried(carrier), -1)
+                self.assertEqual(village.food(), (4, 4), "4 food in all, once")
+                if name == "unpatched":
+                    self.assertEqual(at_pick_up, (4, 4))
+                else:
+                    self.assertEqual(at_pick_up, (0, 0))
+                    x, y = village.position(carrier)
+                    village.call(REGION, MAP, x, y)
+                    self.assertEqual(village.uc.reg_read(UC_X86_REG_EAX), FOOD_BIN)
 
     def test_without_the_patch_the_bytes_are_stock(self):
         for mode, image in self.without.items():

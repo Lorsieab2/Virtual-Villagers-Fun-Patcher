@@ -1114,7 +1114,7 @@ Source: stock `Virtual Villagers - The Secret City.exe` (831,488 bytes), disasse
 - If none of these is available, the farmer finds nothing to do. Evidence: `test ebx,ebx; je fail` at 0x45AFEC.
 
 **How much food a success brings**
-- Fruit picking gives 4 food at Normal speed (8 at Fast, 2 at Slow, 4 during catch-up). Honey gives the same amounts.
+- Fruit picking gives 3 food at Normal speed (7 at Fast, 2 at Slow, 4 during catch-up). Honey gives the same amounts. (Corrected 2026-10-22: the amount is `truncate(4.0 / (speed × 0.16666667f))` with speed 3 / 6 / 10 for Fast / Normal / Slow (the setter calls at 0x41DBAC / 0x41DB5D / 0x41DB0B); the game's C runtime sets 53-bit x87 precision at start-up (0x4714BF: `_controlfp(_PC_53, _MCW_PC)`) and SDL 2.0.3 keeps it (`D3DCREATE_FPU_PRESERVE`), so `6 × 0.16666667f` is slightly above 1 and Normal truncates to 3. Static evidence; LIVE-PENDING.)
   Evidence: `4.0 / (speed/6)` truncated, using the constant at 0x49D054: fruit at 0x434ACF–0x434AE4, honey at 0x431C0D–0x431C22. Catch-up fixed 4 at 0x434ABB / 0x431BE8. REACHED.
 - A fishing success gives 8 food (11 at Fast, 5 at Slow, 8 in catch-up). **A fisher with Farming 88+ has a 10% chance of a 55-food catch instead.**
   Evidence: step 0x18 → 0x458E81 (8/11/5 at 0x458E90–0x458EBA); `cmp [esi+0xEAC],0x58; rand<10` → step 0x19 (+0x37) at 0x453597 / 0x458FDA. REACHED.
