@@ -303,7 +303,7 @@ class WindowTests(unittest.TestCase):
 
     def test_the_pickers_sit_in_the_window(self):
         source = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
-        self.assertEqual(source.count("self._scope_picker("), 3)   # Faces & Text, inside colour, detail lines
+        self.assertEqual(source.count("self._scope_picker("), 4)   # Faces & Text, inside colour, detail lines, text box
         for words in ('text="Settings for:"', 'text="Same as everyone"', 'text="Make every group the same"'):
             self.assertIn(words, source)
         self.assertIn("e = self._view()", source[source.index("    def _refresh_panels("):])
