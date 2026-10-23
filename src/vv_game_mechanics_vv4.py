@@ -147,9 +147,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "
                         "hours.", True)
-    add("Collectibles", "Once the Mausoleum set is complete, a buried villager's ghost brings a collectible every "
+    add("Collectibles", "Once the Mausoleum Mural set is complete, a buried villager's ghost brings a collectible every "
                         "50 to 58 minutes (nothing if more than an hour overdue).", True)
+    add("Collectibles", "The four collections are the Fish Scale, Lab Equipment, Mausoleum Mural and Wind Flute sets; "
+                        "ghost visits need the Mausoleum Mural set complete.", gm.RUNNING)
     add("Collectibles", "Fog increases collectible spawning if you have Wind Flute pieces collected.", gm.OWNER)
+    add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 minutes (every 23 to 25 once "
+                        "Decorate Tree is done); it changes nothing.")
     add("Collectibles", "How much each Wind Flute piece adds in fog, and what a cold snap does, is not yet worked out. "
                         "Each complete collection raises the population limit by 5, all four by 25.")
 
