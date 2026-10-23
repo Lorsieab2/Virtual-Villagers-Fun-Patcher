@@ -16,7 +16,9 @@ Each game has one Building dispatcher, called with the villager's preferred
 job by the idle scheduler in live play and directly by the catch-up worker
 (VV1 `0x42E790`, VV2 `0x43B4D0`, VV3 `0x45BF00`, VV4 `0x465750`, VV5
 `0x46E8E0`), which never runs the idle scheduler. Examining a hut leads to fixing
-it 30% of the time, and the fix ends with a practice-Building roll.
+it 70% of the time (`rand(100) < 70`: VV1 `0x4468D8`, VV2 `0x45FB57`, VV3
+`0x453CE6`, VV4 `0x45CA3C`, VV5 `0x463F47`), and the fix ends with a
+practice-Building roll.
 
 | game | dispatcher | how "fix a hut" is reached stock |
 |---|---|---|

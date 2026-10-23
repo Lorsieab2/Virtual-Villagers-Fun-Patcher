@@ -278,11 +278,13 @@ to the internal age field, and displayed age uses 20 internal units per year.
 The result is therefore exactly 60 internal age units, or 3 displayed villager
 years, at every active speed:
 
-- half speed (`3`): 3 real hours
-- normal speed (`6`): 6 real hours
-- double speed (`10`): 10 real hours
+- Fast (`3`): 3 real hours
+- Normal (`6`): 6 real hours
+- Slow (`10`): 10 real hours
 
-Paused values (`>= 999`) are refused without charging.
+The value is the real minutes per internal age unit, so the smallest value is
+the fastest game. Paused values (`>= 999`, the speed plus 999) are refused
+without charging.
 
 ## UI construction map
 

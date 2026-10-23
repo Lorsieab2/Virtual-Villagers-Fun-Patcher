@@ -1092,7 +1092,7 @@ def vv3_transaction(stock: bytes) -> tuple[list[dict], dict, list[dict]]:
 def main() -> None:
     sha = hashlib.sha256(DLL.read_bytes()).hexdigest().upper()
     common_non_changes = [
-        "Nothing about the examine/fix job itself changes: its route, its 30% repair chance, its Building practice roll and its messages are the game's own.",
+        "Nothing about the examine/fix job itself changes: its route, its 70% repair chance, its Building practice roll and its messages are the game's own.",
         "A builder with a project available still takes the project. With no population hut built there is nothing to fix. With every hut built and no construction available, at Building level 3 or above (and in The Secret City, The Tree of Life and New Believers at any level) the hut choice is the stock fix-a-hut option; below level 3 in A New Home and The Lost Children a built population hut is fixed directly (never The Lost Children's building 5).",
         "Nothing is written to a villager record, the save or any file.",
     ]
