@@ -481,8 +481,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
     add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.")
     add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%; the coral collection needs "
-                        "its project started, and a coral piece already owned never appears again. Another piece already "
-                        "found gives 100, 250 or 1,500 tech points by rarity; a full collection raises the population "
+                        "its project started. A piece already found gives 100, 250 or 1,500 tech points by rarity; a full collection raises the population "
                         "limit by 5, all four by 25.")
     add("Collectibles", "A Tribal Chief with Leadership 3 can call a rare collectible every 23 hours. "
                         + gm.patch_words(village, RARE_RETRY, "the call never silently fails"))
