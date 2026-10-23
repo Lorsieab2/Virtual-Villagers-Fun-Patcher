@@ -421,11 +421,13 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # Preferences and the two Check Highest Skill rows). New size and
         # digest for the current companion source as rebuilt on the
         # Equal Division of Labor branch. Larger again when the skill
-        # upgrades learned to reset corrupted skill values (v1.35.70).
-        self.assertEqual(vv5_companion["size"], 1867264)
+        # upgrades learned to reset corrupted skill values (v1.35.70). Larger
+        # again when bought island events learned to keep the game's own
+        # island-event timer (native/shared/island_timer_keep.h).
+        self.assertEqual(vv5_companion["size"], 1871872)
         self.assertEqual(
             vv5_companion["sha256"],
-            "2F0480603DD5497232EB4015423AF8D97BD54F837DD2AA57FE74D10377D351B2",
+            "526F043500928FE067E5F8E217C0BE210D22D1529C5B27CC28B7C2FFAE9F5F98",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

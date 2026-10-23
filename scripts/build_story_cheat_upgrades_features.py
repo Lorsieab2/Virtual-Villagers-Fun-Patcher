@@ -67,6 +67,7 @@ DESCRIPTION = (
     "this game's own code supports is offered; the rest is shown as not available in "
     "this game. A custom title is kept per save slot in a file beside the saves and is "
     "removed by Start Over. "
+    "Bought island events don't change when the game's own island events come. "
     "A Custom Island Event can also be bought and delivered when everyone in the village has "
     "died (the game's own island events wait for a living villager), so new villagers, food, "
     "Tech Points, refills and revived skeletons can bring the village back; what needs a living "

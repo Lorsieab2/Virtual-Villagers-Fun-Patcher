@@ -64,6 +64,15 @@ TEST_BUILDS = {
                                                             "vv1_research_at_max"),
 }
 
+# Test builds of code the shipped DLLs compile from a shared header, with no
+# shipped twin of their own: native/shared/island_timer_keep.h is compiled into
+# every Origins companion (bought island events keep the game's own island-event
+# timer), and its test build carries all five games' sites for the emulator.
+# Test build -> (its source under native/, its build script).
+TEST_ONLY_BUILDS = {
+    "VVFP Island Event Timer.test.dll": ("shared/island_timer_keep_test", "build_island_timer_keep_test.ps1"),
+}
+
 VV3_COMPANION = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
 VV3_SOURCE = ROOT / "native" / "vv3_full_mastery_candidate" / "vv3_full_mastery_candidate.c"
 
@@ -175,7 +184,23 @@ class TestBuildsStayOutOfTheRelease(unittest.TestCase):
         tracked = subprocess.run(["git", "-C", str(ROOT), "ls-files", "tests/test_dlls"],
                                  capture_output=True, text=True, check=True).stdout.splitlines()
         self.assertEqual(sorted(Path(t).name for t in tracked),
-                         sorted(name for name, _ in TEST_BUILDS.values()))
+                         sorted([name for name, _ in TEST_BUILDS.values()] + list(TEST_ONLY_BUILDS)))
+
+    @unittest.skipUnless(any(TEST_DLLS.glob("*.test.dll")), "test builds are not in the release source archive (tests/test_dlls)")
+    def test_each_test_only_build_exports_hooks_alone_and_is_built_by_its_script(self):
+        for test_name, (source, script) in TEST_ONLY_BUILDS.items():
+            with self.subTest(dll=test_name):
+                test_dll = TEST_DLLS / test_name
+                self.assertTrue(test_dll.is_file(), f"{test_dll} missing: run scripts/{script}")
+                exports = _exports(test_dll)
+                self.assertTrue(exports)
+                self.assertTrue(all(HOOK_NAME.search(n) for n in exports), exports)
+                definition = (ROOT / "native" / f"{source}.def").read_text(encoding="utf-8")
+                self.assertIn(f'LIBRARY "{test_name}"', definition)
+                text = (ROOT / "scripts" / script).read_text(encoding="utf-8-sig")
+                self.assertIn("/DVVFP_TEST", text)
+                self.assertIn(f'"{test_name}"', text)
+                self.assertNotIn(test_name, "\n".join(_release_files()))
 
     @unittest.skipUnless(any(TEST_DLLS.glob("*.test.dll")), "test builds are not in the release source archive (tests/test_dlls)")
     def test_each_test_build_is_the_shipped_dll_plus_its_hooks(self):

@@ -2136,6 +2136,25 @@ static void vv2_paid_tick(const unsigned char *base) {
     vv_paid_tick(2, VV2_MASK_SLOT_NOW, ids, &VV2_PAID);
 }
 
+/* Bought island events do not change when the game's own island events come
+   (native/shared/island_timer_keep.h): the Origins Island Event's write
+   (0x494824), the Story / Cheat Upgrades' arms (the host table below) and
+   the trigger's own (0x42EECD and its four writes).  The roster is read
+   from the records the sweep last drew, or -- before the first frame, in a
+   load's catch-up -- from the village's own record pool ([0x499F24]). */
+#include "../shared/island_timer_keep.h"
+#include "../shared/island_timer_vv2.inc"
+static int __stdcall vv2_story_slot(void);
+static int vv2_itk_roster(unsigned int *out) {
+    const unsigned char *base = g_vv2_sweep_base != NULL
+        ? g_vv2_sweep_base : *(const unsigned char *volatile *)(UINT_PTR)0x00499F24u;
+    return base != NULL ? vv2_roster_identities(base, out) : 0;
+}
+static const itk_game VV2_ITK = {
+    2, ITK_VV2_SITES, sizeof ITK_VV2_SITES / sizeof ITK_VV2_SITES[0], vv2_story_slot, vv2_itk_roster,
+    "Virtual Villagers - The Lost Children"
+};
+
 void __stdcall Vv2MaskSweep(unsigned char *base) {
     int i;
     vvfp_pathfinding_bridge(2); /* pathfinding companion: installs its detours once, fail-open */
@@ -2147,6 +2166,7 @@ void __stdcall Vv2MaskSweep(unsigned char *base) {
     g_vv2_sweep_base = base;    /* the records the cross-check's mask scan reads */
     vvfp_crosscheck_bridge(2, base != 0);  /* the cross-check, silent while played (A New Home's header, compiled in) */
     vv2_paid_tick(base);        /* a bought Barrel not delivered yet survives a quit */
+    itk_install(&VV2_ITK);      /* bought island events keep the natural timer: once (game start made it) */
     if (base == 0 || !vv2_mask_table_ok()) {
         return;
     }
@@ -2368,7 +2388,8 @@ static int __stdcall vv2_story_time_skip_running(void) {
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv2_story_slot, vv2_story_mask_get, vv2_story_mask_set, NULL,
-        vv2_story_time_skip_step, vv2_story_time_skip_settled, vv2_story_time_skip_running
+        vv2_story_time_skip_step, vv2_story_time_skip_settled, vv2_story_time_skip_running,
+        itk_story_arming
     };
     return &host;
 }
@@ -2486,6 +2507,7 @@ done:
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
+    VVFP_STARTUP_GUARDED(itk_install(&VV2_ITK));     /* bought island events keep the natural timer */
     VVFP_STARTUP_GUARDED(vvfp_pathfinding_bridge(2));
     VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge(2));         /* loads and installs Builders and Healers Work First too */
     VVFP_STARTUP_GUARDED(vvfp_lesson_cap_bridge(2));

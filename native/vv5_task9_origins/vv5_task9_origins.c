@@ -793,6 +793,28 @@ static void vvfp_fix_huts_bridge(void) {
     }
 }
 
+/* Bought island events do not change when the game's own island events come
+   (native/shared/island_timer_keep.h): the Origins Island Event's write
+   (0x7CCCFC), the Barrel of Babies' (0x7CEE63), the Story / Cheat Upgrades'
+   arms (the host table below) and the trigger's own (0x4426EA and its three
+   writes).  The roster is the masks' (vv5_roster_identities). */
+#include "../shared/island_timer_keep.h"
+#include "../shared/island_timer_vv5.inc"
+static int __stdcall vv5_story_slot(void);
+static int vv5_itk_roster(unsigned int *out) {
+    static unsigned int ids[VV5_RECORD_COUNT];
+    static unsigned int stable[VV5_RECORD_COUNT];
+    int i, n = vv5_roster_identities(ids, stable);
+    for (i = 0; i < VV5_RECORD_COUNT && i < ITK_ROSTER; ++i) {
+        out[i] = ids[i];
+    }
+    return n;
+}
+static const itk_game VV5_ITK = {
+    5, ITK_VV5_SITES, sizeof ITK_VV5_SITES / sizeof ITK_VV5_SITES[0], vv5_story_slot, vv5_itk_roster,
+    "Virtual Villagers - New Believers"
+};
+
 /* The runtime companions, installed before the first catch-up.  Vv5MaskSync
    runs only on a villager head draw, and New Believers catches up the time
    that passed while it was closed when it enters the village (0x425E30, from
@@ -803,6 +825,7 @@ static void vvfp_fix_huts_bridge(void) {
    loaded village has a clock to catch up.  Install-once (the bridge's own
    state); every later save and load makes it a no-op. */
 __declspec(dllexport) void __stdcall Vv5InstallCompanions(void) {
+    itk_install(&VV5_ITK);      /* bought island events keep the natural timer: once (game start made it) */
     vvfp_fix_huts_bridge();
     vvfp_story_bridge(5);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(5);  /* cause of death companion: once, fail-open */
@@ -820,6 +843,7 @@ __declspec(dllexport) void __stdcall Vv5InstallCompanions(void) {
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
+    VVFP_STARTUP_GUARDED(itk_install(&VV5_ITK));     /* bought island events keep the natural timer */
     VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
     VVFP_STARTUP_GUARDED(vvfp_story_startup(5));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(5));
@@ -2136,7 +2160,8 @@ static int __stdcall vv5_story_time_skip_running(void) {
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv5_story_slot, vv5_story_mask_get, vv5_story_mask_set, NULL,
-        vv5_story_time_skip_step, vv5_story_time_skip_settled, vv5_story_time_skip_running
+        vv5_story_time_skip_step, vv5_story_time_skip_settled, vv5_story_time_skip_running,
+        itk_story_arming
     };
     return &host;
 }

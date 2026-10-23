@@ -1872,6 +1872,9 @@ static int __stdcall vv3_story_mask_set(void *record, int mask) {
     return VV3_SetMaskForRecord(record, mask);
 }
 
+#include "../shared/island_timer_keep.h"   /* bought island events keep the natural timer */
+#include "../shared/island_timer_vv3.inc"
+
 /* Choose Time Skip Amount: defined with the Time Warp below. */
 static int __stdcall vv3_story_time_skip_step(int years);
 static int __stdcall vv3_story_time_skip_settled(void);
@@ -1880,10 +1883,42 @@ static int __stdcall vv3_story_time_skip_running(void);
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv3_story_slot, vv3_story_mask_get, vv3_story_mask_set,
-        VV3RunningMaskBoundary, vv3_story_time_skip_step, vv3_story_time_skip_settled, vv3_story_time_skip_running
+        VV3RunningMaskBoundary, vv3_story_time_skip_step, vv3_story_time_skip_settled, vv3_story_time_skip_running,
+        itk_story_arming
     };
     return &host;
 }
+
+/* Bought island events do not change when the game's own island events come
+   (native/shared/island_timer_keep.h): the Origins Island Event's helper
+   (0x6DF34A, which the Story / Cheat Upgrades' arms call too) and the
+   trigger's own (0x468732 and its four writes).  The roster is the one the
+   Barrel's file keeps (vv3_paid_tick below). */
+static int vv3_itk_roster(unsigned int *out) {
+    unsigned int bound, i;
+    int n = 0;
+    const unsigned char *base;
+    if (vv3_population_manager() == 0u) {
+        return 0;
+    }
+    bound = *(volatile unsigned int *)(UINT_PTR)VV3_SLOT_BOUND_PTR;
+    base = (const unsigned char *)(UINT_PTR)VV3_RECORD_BASE;
+    if (bound == 0u || bound > ITK_ROSTER) {
+        return 0;
+    }
+    for (i = 0; i < bound; ++i) {
+        const unsigned char *rec = base + (size_t)i * VV3_RECORD_STRIDE;
+        if (rec[VV3_OFF_ACTIVE] != 0) {
+            out[i] = vv3_mask_fingerprint(rec);
+            n += out[i] != 0u;
+        }
+    }
+    return n;
+}
+static const itk_game VV3_ITK = {
+    3, ITK_VV3_SITES, sizeof ITK_VV3_SITES / sizeof ITK_VV3_SITES[0], vv3_story_slot, vv3_itk_roster,
+    "Virtual Villagers - The Secret City"
+};
 
 /* GAME START.  "VVFP Startup.dll" calls this from the executable's call of
    WinMain -- the game's own thread, outside the loader lock, before the
@@ -1899,6 +1934,7 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
+    VVFP_STARTUP_GUARDED(itk_install(&VV3_ITK));     /* bought island events keep the natural timer */
     VVFP_STARTUP_GUARDED(vvfp_story_startup(3));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(3));
     VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(3));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
@@ -2083,6 +2119,7 @@ __declspec(dllexport) void __stdcall VV3WorldMaskDrawAt(void *record, int *args)
     vvfp_cause_bridge(3);  /* cause of death companion: once, fail-open */
     vvfp_crosscheck_bridge(3, record != NULL);  /* the cross-check, silent while played: a villager is drawn */
     vv3_paid_tick();             /* a bought Barrel not delivered yet survives a quit */
+    itk_install(&VV3_ITK);       /* bought island events keep the natural timer: once (game start made it) */
     if (record == NULL || args == NULL) return;
     mask = VV3_GetMaskForRecord(record);
     if (mask <= 0) return;
