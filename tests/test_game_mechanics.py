@@ -423,7 +423,7 @@ class EveryGame(unittest.TestCase):
         text = text_of(self.page("vv1-huttest-1", data=bytes(data)))
         self.assertIn("Berry bush: 1,300; a pick takes 10 from it now", text)
         self.assertIn("The berry bush grows 30 every 4 hours on Normal speed", text)
-        self.assertIn("Each villager eats 2 food every 6 minutes on Normal speed (20 an hour).", text)
+        self.assertIn("Each villager eats 2 food every 6 minutes on Normal speed (20 an hour)", text)
         self.assertNotIn("Collectibles\n  A New Home has collectibles", text)
 
     def test_vv2_values(self) -> None:

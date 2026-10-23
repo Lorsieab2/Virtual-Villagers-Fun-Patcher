@@ -52,6 +52,55 @@ FIELD_CAP = 800
 GOLDEN = "vv1_super_secret_golden_mushroom"
 LEARNING = "vv1_learning_never_fails"
 
+# The island events, each outcome and its odds, and life -- all verified by emulation (the coordinator's spec
+# mech_vv1\spec.md v2, sections 5 and 7).
+EVENT_LINES = (
+    "Each event is a story event 20% of the time, a village event 40% and a crate or vial 40%; within each kind "
+    "every event whose conditions hold is equally likely.",
+    "Story events: Trapped Whale (Spirituality below 3): free it, Spirituality +1 level; harvest it, +1,000 food. "
+    "Strange Berries (taste): 51% the villager becomes 12 and a half, 49% death. Old Drum: cut it, Healing 100; "
+    "play it, bush +500. Mysterious Face (look): 51% the villager vanishes, 49% a stranger of 14 joins (or the "
+    "villager vanishes if there is no room).",
+    "Visitor (Medicine below 3): allow, Medicine +1 level; refuse, the villager falls sick and everyone else at "
+    "75%. Mysterious Vial, red (drink): 50% everyone else sick, 50% Healing 100. Troubled Child (a child): "
+    "farming, Farming +50 and sick; research, Research 100 and +3,000 tech points. Mysterious Vial, blue (drink): "
+    "50% the villager becomes 4 years old, 50% nothing.",
+    "Suspicious Monkey (a child): scare it, -50 health; wait, Healing +60. Wild Mushroom (taste): 50% Farming +65 "
+    "and 300 to 499 food, 50% sick and -25 to -49 health. Black Pearl: share it, everyone +5 to 9 health; keep "
+    "it, dislikes crowds and work. The Dream: the right cave, dislikes fish and the ocean; the left, nothing.",
+    "The Moth: help it, nothing; leave it, Healing 100. The Book: read it, the villager vanishes; give it to the "
+    "researchers, nothing. Brass Compass: mash it, everyone Farming +10 to 19; give it to the researchers, +2,000 "
+    "to 4,999 tech points. Skills stop at 100.",
+    "Village events (n is a third of the population, 1 to 10): Bad Little Monkey -900n tech points; Plague of "
+    "Parrots bush -200n; Plague of Locusts (Farming 2 or more) the field emptied; Measles Epidemic (a child) every "
+    "child sick; South Wind -80n from food, bush and field; Heat Wave everyone rests; Isola Day and Blessings Day "
+    "-10 food a villager.",
+    "Big Wave (the beach cleaned) dirties the beach again; Good Little Monkey +900n tech points; Greedy Little "
+    "Monkey +200n food; Barrel O' Babies (room) 1, 2 or 3 toddlers for n under 5, 5 to 7, 8 or more; North Wind "
+    "bush and field +100n; Helpful Honeybees bush +300n.",
+    "Crates and vials, 1 in 9 each; small 33%, medium 34%, large 33%: wooden +500/1,000/1,500 food; sealed "
+    "+1,000/2,000/3,000 tech; weathered +500/1,000/1,500 tech and each villager sick at 15/20/25%; rotting the "
+    "opener sick and -15 health, each villager sick at 20/30/45% with -10/-15/-20 health; watertight 1/2/3 "
+    "toddlers if there is room.",
+    "Fruit crate: the opener -40/70/110 health (a large one is fatal); red vial a new head; blue vial one skill "
+    "+50/75/100; fizzy vial every skill -30/50/70. Leaving a crate or pouring a vial out does nothing.",
+)
+LIFE_LINES = (
+    "A baby is born 41 age units after conception. Conception: a roll of 300 at or under Parenting - 50 + 50 x "
+    "Fertility level (1, 51 or 101 in 300 at Parenting 0, 50, 100 and Fertility 1); below 400 food only 26% of "
+    "embraces get that far. Twins 7% with Fertility 3 or the strange fish; a quarter of twins are triplets, "
+    "needing both.",
+    "Babies need room: under 15 people always; 15 or more need the first hut, 25 the second, 50 the third; none "
+    "at 90. Villagers work from 14 and have children from 18.",
+    "Sickness each age unit (14 and older): 1 in 600, 1 in 1,200 or 3 in 10,000 at Medicine 1, 2, 3; past 50, 58 "
+    "or 66 years 1.5% more. Children never fall sick. With food and not sick, a villager regains 1 health half the "
+    "age units (every one on Easy); past 50, 58 or 66 years 10% (20% on Easy).",
+    "Old age: at each birthday past 55, 63 or 71 years (Medicine 1, 2, 3) a 10% chance of death for each year "
+    "over, certain at 65, 73 or 81.",
+    "Building trips: huts 250, 400 and 600; the beach 75 (each counts 2); the blockage 350; the field 200; digging "
+    "800; the ruins 1,000; chiseling 1,350 (the last two half as many at Building 90 or more). Each trip injures 2% "
+    "of the time; an examined hut is repaired 70% of the time.",
+)
 
 def _i32(data: bytes, at: int) -> int:
     return struct.unpack_from("<i", data, at)[0]
@@ -83,38 +132,39 @@ def facts(village: gm.Village) -> list[gm.Fact]:
 
     out: list[gm.Fact] = []
     add = lambda group, text, ok=False: out.append(gm.Fact(group, text, ok))  # noqa: E731
+    farming = level[FARMING]
 
     # -- Food sources --------------------------------------------------------------------
     add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", True)
     bush = _i32(data, BUSH)
-    add("Food sources", f"Berry bush: {bush:,}; a pick takes {max(2, bush // 130):,} from it now (the bush ÷ 130, "
-                        "at least 2).")
-    field = _i32(data, FIELD)
-    add("Food sources", f"Crop field: {field:,} of {FIELD_CAP}; a harvest gives 7"
-                        + ("." if level[FARMING] >= 2 else "; it refills only at Farming level 2 or more."))
-    add("Food sources", "Fishing: 9 a catch, or for a villager with Farming skill 90 or more a 21% chance of 55; "
-                        "it needs Farming level 3 and the beach cleaned"
-                        + (" (Farming is level 3)." if level[FARMING] >= 3 else f" (Farming is level {level[FARMING]})."))
+    add("Food sources", f"Berry bush: {bush:,}; a pick takes {max(2, bush // 130):,} from it now (the bush ÷ 130, at "
+                        "least 2).", True)
+    add("Food sources", f"Crop field: {_i32(data, FIELD):,} of {FIELD_CAP}; a harvest gives 7.", True)
+    add("Food sources", "Fishing: 9 a catch, or 55 for a big catch; it needs Farming level 3 and the beach cleaned "
+                        f"(Farming is level {farming}).", True)
+    add("Food sources", "A villager with Farming skill 90 or more has a 21% chance of the big catch.")
+    add("Food sources", ("Where a farmer goes: at Farming level 1 the bush; at level 2 half the time the bush and "
+                         "half the crops (the crops when the bush is under 100); at level 3 with the beach clean fish "
+                         "50%, berries 16.5%, crops 16.75%, nothing 16.75% (with a dirty beach berries 33%, crops "
+                         f"33.5%, nothing 33.5%). Farming is level {farming}."), True)
 
     # -- Refills -------------------------------------------------------------------------
     if paused:
-        add("Refills", gm.PAUSED_NOTE)
-    every = gm.every(REGROW_UNITS * UNIT, speed_value)
-    add("Refills", f"The berry bush grows 30 {every}"
-                   + (f"; the crop field grows 800, up to {FIELD_CAP}, at the same time." if level[FARMING] >= 2
-                      else "; the crop field does not refill below Farming level 2."))
-    add("Refills", f"Next regrowth: {due(REGROW)}.", True)
-    add("Refills", "Changing the speed rescales the time left to the next regrowth.")
+        add("Refills", gm.PAUSED_NOTE, True)
+    add("Refills", f"The berry bush grows 30 {gm.every(REGROW_UNITS * UNIT, speed_value)}"
+                   + (f"; the crop field grows 800, up to {FIELD_CAP}, at the same time." if farming >= 2
+                      else "; the crop field does not refill below Farming level 2."), True)
+    add("Refills", f"Next regrowth: {due(REGROW)}. Changing the speed rescales the time left.", True)
 
-    # -- Collectibles / Mushrooms --------------------------------------------------------
-    add("Collectibles", "A New Home has no collectibles: mushrooms are its only random pickup.")
-    add("Mushrooms", "While none is out, a mushroom appears after about 2 minutes on average, at any speed, at one "
-                     "of 9 spots, and stays 1 minute unless picked. It gives 8 food, or 45 for the big kind "
-                     "(1 in 20). Mushrooms are not kept in the save.")
-    # The Super-Secret Golden Mushroom: only that a secret exists, never its odds or what it gives (the owner).
+    # -- Mushrooms / Collectibles --------------------------------------------------------
+    add("Mushrooms", "While none is out, a mushroom appears after about 2 minutes on average, at any speed (even "
+                     "while paused), at one of 9 places, and stays 1 minute unless picked. It gives 8 food, or 45 for "
+                     "the big kind (1 in 20).", True)
+    add("Mushrooms", "Mushrooms are not kept in the save.")
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", True)
+    add("Collectibles", "A New Home has no collectibles: mushrooms are its only random pickup.", True)
 
     # -- Tech points ---------------------------------------------------------------------
     science = level[SCIENCE]
@@ -123,35 +173,48 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     if divisor:
         add("Tech points and effects", (
             f"Research gives the researcher's Research skill ÷ {divisor} (Science is level {science}), after a "
-            "roll of (Research skill + 31)% that can fail."))
+            "(skill + 31)% roll; 2% of tries injure (0 to 9 health)."), True)
     else:
         add("Tech points and effects", "Research gives no tech points before Science level 1.")
-    add("Tech points and effects", gm.patch_words(village, LEARNING, "the roll always passes"))
+    add("Tech points and effects", "Every job succeeds at (skill + 31)%. A success raises the skill by 10 at 0, by 8 "
+                                   "at 10, by 1 at 45; from 46 up by 1 at 26% x (100 - skill)% (14% at 46, 2.6% at "
+                                   "90).", True)
+    if village.has(LEARNING) is not False:
+        add("Tech points and effects", gm.patch_words(village, LEARNING, "the roll always passes"))
 
     # -- Food earned ---------------------------------------------------------------------
-    per_hour = 2 * 3600 / (60 * speed)
-    add("Food earned", f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
-                       f"({per_hour:g} an hour).")
+    add("Food earned", (f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
+                        f"({2 * 3600 / (60 * speed):g} an hour); on Medium above 2,000 food, or on Hard, 2 more 76% of "
+                        "the time; never on Easy. At 200 food or less a villager skips the meal half the time and "
+                        "loses 1 health."), True)
+    add("Food earned", "With no food, a villager loses 1 health 76% of age units (every one on Hard).")
 
     # -- Time away and Time Warp ---------------------------------------------------------
-    out += gm.time_away(village, saved, speed_value,
-                        "Saved paused: the time away is not counted when it is next played, and the regrowth and "
-                        f"island event timers wait.", unit_seconds=20 * 60 * speed)
-    add("Time away and Time Warp", "Each counted age unit lets every adult try up to 5 jobs at once.")
-    add("Time away and Time Warp", "Every regrowth missed while the game was closed is added when it is next played, with no limit on how many: the bush has no cap, the crop field stops at 800.", True)
+    out.extend(gm.time_away(village, saved, speed_value,
+                            "Saved paused: the time away is not counted when it is next played, and the regrowth and "
+                            "island event timers move on with the paused time.", unit_seconds=20 * 60 * speed))
+    for n, fact in enumerate(out):
+        if fact.text.startswith("Saved paused:"):
+            out[n] = gm.Fact(fact.group, fact.text, True)             # verified (spec v2, section 1 and 8)
+    add("Time away and Time Warp", "While catching up, an adult more than 2 age units behind tries 5 jobs for every "
+                                   "counted age unit.", True)
+    add("Time away and Time Warp", "Every regrowth missed while the game was closed is added when it is next played, "
+                                   "with no limit on how many: the bush has no cap, the crop field stops at 800.", True)
     out.append(gm.time_warp_line(speed_value))
 
     # -- Island events -------------------------------------------------------------------
-    first = (" The first is always the item event, the second 30 minutes later;"
+    first = (" The first is always a story event, the second 30 minutes later;"
              if _i32(data, EVENTS_SEEN) < 2 else "")
-    add("Island events", f"Next island event: {due(EVENT)}.{first} Island events come every 12 to 23 hours, at any "
-                         "speed. Paused, the timer waits; after time away at most one happens.")
-    add("Island events", "Each event: 20% the item event; 40% an event scaled by the population (a third of it, 1 "
-                         "to 10), whose outcomes include tech points (900 each), food (200 each), losses of 80 each "
-                         "from the bush, the field or the food, or the beach dirtied again; 40% one of the other "
-                         f"events. The odds of each outcome inside an event are not yet worked out.")
-    add("Other", (f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} "
-                  "speed: ages, pregnancies (40 units) and regrowth follow the speed; work, mushrooms and island "
-                  "events do not."))
+    add("Island events", f"Next island event: {due(EVENT)}.{first} Island events come every 12 to 23 whole hours, "
+                         "each equally likely, at any speed. Paused, the timer waits; after time away at most one "
+                         "happens.", True)
+    for line in EVENT_LINES:
+        add("Island events", line, True)
+
+    # -- Other ---------------------------------------------------------------------------
+    for line in LIFE_LINES:
+        add("Other", line, True)
+    add("Other", (f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} speed: "
+                  "ages, pregnancies and regrowth follow the speed; work, mushrooms and island events do not."), True)
     add("Other", f"The village was started at {gm.when(real(CREATED))}.", True)
     return out
