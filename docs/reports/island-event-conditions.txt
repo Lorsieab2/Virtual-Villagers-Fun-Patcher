@@ -51,9 +51,10 @@ Rules for all island events in this game:
     999: the village was saved paused), the time since world+0xA304 is added (0x42E90A-0x42E930).
   * When the time has come (0x4237BD), an event is attempted only if the population (0x41CF90) is
     above 0 and a living villager aged 14 or over exists (0x43BCD0(1)); that randomly drawn
-    villager's age (+0x348) must also equal its field +0x34C (named 'Nursing' in the owner's Cheat
-    Engine table; why the check uses it was not determined). If either fails, nothing is rescheduled
-    and the trigger tries again on its next update.
+    villager's age (+0x348) must also equal its processed age +0x34C (the age the life tick has
+    stepped up to so far, which the old-age roll uses; it trails the age while credited time is
+    still being worked off; the owner's Cheat Engine table names it 'Nursing'). If either fails,
+    nothing is rescheduled and the trigger tries again on its next update.
   * Family weights (0x423818, 0x42383A): if the village's Island Events Seen counter (world+0x9E40,
     saved) is 0, the event is always an Encounter. Otherwise a first rand(100) below 20 gives an
     Encounter (20%); else a second rand(100) below 50 gives an Island event (40%), and 50 or more
@@ -409,9 +410,10 @@ Rules for all island events in this game:
     event to 60 seconds later (0x44ECE1).
   * When the time has come (0x42EECD), an event is attempted only if the population (0x425860) is
     above 0 and a living villager aged 14 or over exists (0x44BAE0(1)); that randomly drawn
-    villager's age (+0x530) must also equal its field +0x534 (named 'Nursing Timer' in the owner's
-    Cheat Engine table; why the check uses it was not determined). If either fails, nothing is
-    rescheduled and the trigger tries again on its next update.
+    villager's age (+0x530) must also equal its processed age +0x534 (the age the life tick has
+    stepped up to so far, which the old-age roll uses; it trails the age while credited time is
+    still being worked off; the owner's Cheat Engine table names it 'Nursing Timer'). If either
+    fails, nothing is rescheduled and the trigger tries again on its next update.
   * Family weights (0x42EF28, 0x42EF4A): if the village's Island Events Seen counter (world+0x2E51C,
     saved) is 0, the event is always from the two-choice family. Otherwise rand(100) below 20 gives
     a two-choice event (20%); else a second rand(100) below 50 gives a single-result event (40%) and
@@ -922,9 +924,10 @@ Rules for all island events in this game:
     carried, 0x45E8F0) is above 0.
   * Before every attempt the scheduler draws a random villager aged 14 or over (0x45C9D0(1)); there
     must be one, and an internal check must pass: that villager's age (+0xDC4) must equal its
-    internal field +0xE74 (meaning not determined; the game writes both together, e.g.
-    0x417440/0x417449). If the check fails nothing is rescheduled and the scheduler tries again on
-    its next update (0x468750-0x468792).
+    processed age +0xE74 (the age the life tick has stepped up to so far, which the old-age roll
+    uses; it trails the age while credited time is still being worked off; the game writes both
+    together, e.g. 0x417440/0x417449). If the check fails nothing is rescheduled and the scheduler
+    tries again on its next update (0x468750-0x468792).
   * Delay to the next event: the village's first island event ever (its lifetime Island Events Seen
     count 0x5824C4, statistics block 0x5824A0 +0x24, saved with the village by the block copy
     0x4264A0) schedules the next one 30 minutes later (+0x708); every later one schedules the next 8
@@ -1416,9 +1419,10 @@ Rules for all island events in this game:
     has come, the event is attempted only if the population (living villagers plus babies being
     carried, 0x467610) is above 0.
   * Before every attempt the scheduler draws one random living villager of any age (0x4679B0 with no
-    filters); its age (+0x1B8C) must equal its age clock (+0x1C3C, the field the conception code
-    copies) -- if not, nothing is rescheduled and the scheduler tries again on its next update
-    (0x43FA5B-0x43FA95). Why the two can differ was not determined.
+    filters); its age (+0x1B8C) must equal its processed age +0x1C3C (the age the life tick has
+    stepped up to so far, which the old-age roll uses; it trails the age while credited time is
+    still being worked off; the conception code copies it) -- if not, nothing is rescheduled and the
+    scheduler tries again on its next update (0x43FA5B-0x43FA95).
   * Delay to the next event: the village's first island event ever (its lifetime Island Events Seen
     count 0x4D6E04, statistics block 0x4D6DE0 +0x24, saved with the village by the block copy
     0x41DA20) schedules the next one 30 minutes later (+0x708); every later one schedules the next 8
@@ -1863,9 +1867,10 @@ Rules for all island events in this game:
     determined; the stock code only ever writes -1 to it, at 0x44356F in a message handler, and
     0x446131 makes the same test elsewhere).
   * Before every attempt the scheduler draws one random living believer of any age (picker with no
-    other filters); its age (+0x1B8C) must equal its age clock (+0x1C3C) -- if not, nothing is
-    rescheduled and the scheduler tries again on its next update (0x442715-0x442754). Why the two
-    can differ was not determined.
+    other filters); its age (+0x1B8C) must equal its processed age +0x1C3C (the age the life tick
+    has stepped up to so far, which the old-age roll uses; it trails the age while credited time is
+    still being worked off) -- if not, nothing is rescheduled and the scheduler tries again on its
+    next update (0x442715-0x442754).
   * Delay to the next event: the village's first island event ever (its lifetime Island Events Seen
     count 0x51D37C, statistics block 0x51D358 +0x24, saved with the village at file 0x7E8) schedules
     the next one 30 minutes later (+0x708); every later one schedules the next 8 to 15 hours later
@@ -2344,9 +2349,8 @@ NOT FULLY RESOLVED
     500 counter is exact, but which delivered item ids count as mushrooms (as opposed to other
     non-collection items) was not established.
   * Internal fields whose meaning was not determined (their required value is stated exactly): the
-    per-attempt "age equals +0x34C / +0x534 / +0xE74 / +0x1C3C" check in all five games; New
-    Believers global 0x51D5A4 (must be -1); New Believers picker flag +0x1CE1 (must be clear) and
-    statuses 14-16 of +0x1CFC; The Tree of Life stream flag 0x4D8CF0+4.
+    New Believers global 0x51D5A4 (must be -1); New Believers picker flag +0x1CE1 (must be clear)
+    and statuses 14-16 of +0x1CFC; The Tree of Life stream flag 0x4D8CF0+4.
   * Technology names for A New Home (+0xA2BC Spirituality, +0xA2D4 Medicine, +0xA2E4 Farming) and
     The Lost Children (+0x2EA74 Culture, +0x2EA94 Exploration) come from pairing the Technologies
     screen's row order with its label order; Medicine (VV1) and Engineering (VV2) are independently

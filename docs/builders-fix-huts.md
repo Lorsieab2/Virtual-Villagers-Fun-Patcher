@@ -189,9 +189,9 @@ How builders reached a hut fix while construction stood:
 
 | Game | Stock construction order | The way to a fix |
 |---|---|---|
-| VV2 | 80% (`rand(100) > 20`): own task `[record+0x7E0]` 11..20 while its project is incomplete; project 1; then 80%: hut 24 while incomplete, hut 25 (population > 22, progress >= 2), hut 26 (population > 45, progress >= 2); level >= 2, each 80%: project 17, 8, 5; level gate `0x4601F2`; level >= 3, each 80%: project 12, 11; hut site `0x46029D` | any failed roll fell through to the level gate (below level 3) or the hut site, where this companion -- or the stock `rand(4)` -- fixed a hut |
+| VV2 | 79% (`rand(100) > 20`): own task `[record+0x7E0]` 11..20 while its project is incomplete; project 1; then 79%: hut 24 while incomplete, hut 25 (population > 22, progress >= 2), hut 26 (population > 45, progress >= 2); level >= 2, each 79%: project 17, 8, 5; level gate `0x4601F2`; level >= 3, each 79%: project 12, 11; hut site `0x46029D` | any failed roll fell through to the level gate (below level 3) or the hut site, where this companion -- or the stock `rand(4)` -- fixed a hut |
 | VV3 | option list: huts 0..2 and 3 (state > 1, incomplete), projects 8, 6, 7, 3; no rolls | option 9 (fix) sits beside construction once all four huts are built, picked 1 time in n |
-| VV4 | option list: huts 19..22 and projects 23, 25, 24 (state >= 1, incomplete), options 5-7; a villager with dislike item 30 (`0x45D1F0` on `record+0x1E6C`) keeps each hut/project option only on `rand(100) <= 15` | the mix above, and a list the dislike roll emptied went to this companion's fix |
+| VV4 | option list: huts 19..22 and projects 23, 25, 24 (state >= 1, incomplete), options 5-7; a villager with dislike item 30 (`0x45D1F0` on `record+0x1E6C`) keeps each hut/project option only on `rand(100) <= 15` (16%; VV4 `0x463CB4`.., VV5 `0x46C826`..) | the mix above, and a list the dislike roll emptied went to this companion's fix |
 | VV5 | the same with state > 1, projects 23, 24 (and option 6 behind dislike item 53), `0x464F90` on `record+0x1F68` | the same |
 
 Project records in VV2 are (signed progress dword, complete byte) at state

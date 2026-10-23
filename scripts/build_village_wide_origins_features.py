@@ -758,12 +758,13 @@ def main() -> None:
         # the internal base adds, because ticking this installs all of it.
         if game_id == "vv1":
             description += (
-                " The Tech screen's Food and Tech Point Doublers do not double "
+                " The Tech screen also offers Time Warp. The Tech screen's Food "
+                "and Tech Point Doublers do not double "
                 "Island Event, Duplicate Collectible or Golden Child tech gains."
             )
         elif game_id == "vv3":
             description += (
-                " The Tech screen also offers Food and Tech Point Doublers, Complete "
+                " The Tech screen also offers Time Warp, Food and Tech Point Doublers, Complete "
                 "all Collections, Reset all Collections, Equal Division of Labor "
                 "with and without Parenting, Clear All Skill Preferences, and Check "
                 "Highest Skill with and without Parenting, all supplied by the base Origins "
