@@ -371,4 +371,142 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         out.append(gm.Fact("Other", (
             "The patcher's fruit-tree timers file is there, but this version cannot read it yet: the "
             "save's own refill times are shown.")))
+    out.extend(_village(village, buf, epoch, clock, nature))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# The rest of the village (the coordinator's spec mech_vv3\spec.md, 2026-10-23; island events from
+# docs/reports/island-event-conditions.txt, The Secret City)
+# ---------------------------------------------------------------------------
+
+FOOD = 0x4EC - HEADER                   # buffer offsets: the spec's file offsets less the 12-byte header
+STATS = 0x4F0 - HEADER
+MUSHROOMS_FOUND = STATS + 0x14
+LAST_SAVED = 0x12F08 - HEADER               # wall seconds from the epoch
+EVENT_NEXT = 0x12EF8 - HEADER               # wall seconds from the epoch
+FIRE_END = 0x12125 + 4 - HEADER             # the fire record's burn deadline, wall seconds
+SCIENCE, MEDICINE, ALCHEMY = 0, 1, 2
+UNSURE = "(uncertain)"
+GOLDEN = "vv3_super_secret_golden_mushroom"
+RARE_RETRY = "vv3_rare_collectible_retry"
+MORTALITY = "vv3_nature_level_three_alters_mortality"
+STORY = "vv3_story_cheat_upgrades"
+SOURCE = "(from the patcher's island event report)"
+
+EVENT_LINES = (
+    "Which event: every one of the 57 events whose conditions hold is equally likely; if none qualifies, "
+    "nothing happens. None is limited to once per village.",
+    "Rescue: with 2 or fewer of the outnumbered sex, or fewer than 3 villagers, a 15% chance the event is "
+    "instead The Crystal of Reflections (30%), The Canoe from the Other Side (30%) or Another One of Those "
+    "Barrels (40%).",
+    "Always possible: The Plague Of Ants, The Allergy Season, Isola Day Celebration, The Mysterious Fog (food "
+    "gained, food lost, tech gained, tech lost), Blessings Day Celebration, The Reflection in the Water, The "
+    "Rainy Season, The Salty Air, The Oppressive Humidity, \"Thick as Pea Soup\", The Stinging Jellyfish and The "
+    f"Yellow Geckos {SOURCE}.",
+    "Room for more villagers: The Canoe from the Other Side, Another One of Those Barrels, and with an adult, The "
+    "Crystal of Reflections (a copy of the villager if it is kept). Day of Honor needs 2 graves; The Science Fair "
+    "3 children; The Low Tide 8 villagers besides the chief (grabbing the fish sweeps each away at 20%, on a 50% "
+    "coin); The Tsunami 15 of the 16 puzzles and 2 women and 2 men (each villager swept away at 15%).",
+    "The Bee Hive solved: The Miraculous Bloom, and with an adult The Hole in the Hut. The Alchemy Lab solved: The "
+    "Blue Pearl. Nature level 1: The Ghostly Dream (nature or healing); Magic level 1: The Ghostly Dream (research "
+    "or architecture). Medicine level 2: The Medical Emergency. A burning fire: The Cold Snap. 500 mushrooms "
+    "brought home: The Mushroom Celebration. A Tribal Chief: The Chief's Address.",
+    "Science below level 2: The Bitter Brown Beans (taste or dye) and The Ancient Tablet (laundry or decoration); "
+    "Science 2 or more: The Bitter Brown Beans (brew or fertilizer), and with Alchemy below 3 The Ancient Tablet "
+    "(research or display).",
+    "A child: The Ants and the Granary, The Playful Otters, The Ant Hill, The Shooting Star; with an adult of "
+    "Research 30 or more, The Lazy Apprentice. A man of 18 or more and 2 women: The Daredevil. A woman and a "
+    "man of 18 to 49: The Lovers (her gift, his gift). A woman of 18 to 49: Vanity and the Bee, The Noisy Bird.",
+    "Any adult (or, for some, any villager): The Green Pearl, The Red Starfish, The Blue Starfish, Bed Bugs, The "
+    "Royal Jelly, The Omen in the Clouds, The Mysterious Vial (quartz, obsidian, amber), The Mango and the "
+    "Papaya (the swim decided by a 50% coin), The Return of Biggles; 3 adults of 18 to 49: The Mysterious Crate. "
+    f"The weather events last about 3 to 6 minutes {UNSURE}.",
+)
+ODDS_LINES = (
+    "Brewing a potion blows up {blow}% of the time at Alchemy level {alchemy} (46%, 31%, 16% or 1% at Alchemy "
+    "0 to 3). A brewed potion keeps 5 minutes, at any speed and even while paused.",
+    "Conception: a roll of 300 + 50 - 50 x Medicine level (less a potion's help) at or under Breeding. Twins or "
+    "triplets only at Medicine 3: 7% of births, a quarter of those triplets.",
+    "Old age: from 47, 55, 63 or 71 years (Medicine 0 to 3), a 10% chance of death for each year past it. "
+    "A sick villager is cured at Healing + 34%.",
+)
+
+
+def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int) -> list[gm.Fact]:
+    out: list[gm.Fact] = []
+    add = lambda group, text: out.append(gm.Fact(group, text))  # noqa: E731
+    speed_value = clock.speed
+    speed = clock.runs_at
+    paused = clock.paused
+    on = gm.speed_name(speed)
+    level = [_i32(buf, TECHS + 4 * k) for k in range(7)]
+    wall = lambda at: epoch + _i32(buf, at)  # noqa: E731
+
+    def due(at: int) -> str:
+        if paused:
+            return f"{gm.duration(max(0, _i32(buf, at) - _i32(buf, LAST_SAVED)))} after it is unpaused"
+        return gm.when(wall(at)) + (" (when the village is next played)" if wall(at) <= village.now else "")
+
+    pick = {gm.FAST: 8, gm.NORMAL: 4, gm.SLOW: 2}[speed]
+    add("Food sources", f"Food in storage: {_i32(buf, FOOD):,}.")
+    add("Food sources", f"Picking fruit or honey brings {pick} on {on} speed (4 while catching up); honey is "
+                        "gathered only above 10. Fishing brings "
+                        f"{ {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed] } (8 while catching up), and a fisher "
+                        "with Farming 88 or more has a 10% chance of 55; the sea never runs out.")
+
+    add("Mushrooms", "While playing, about one thing appears a minute at any speed (about every 30 seconds in "
+                     f"storms) {UNSURE}; at most 2 at a time; each is gone after 1 minute 30 seconds unpicked.")
+    add("Mushrooms", "In fair weather 30% of them are mushrooms, in rain or storms all: 92% give 6 food, 8% "
+                     "give 35.")
+    if village.has(GOLDEN):
+        add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
+    add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.")
+    add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%; the coral collection needs "
+                        "its project started. A piece already found gives 100, 250 or 1,500 tech points by rarity; a "
+                        "full collection raises the population limit by 5, all four by 25.")
+    add("Collectibles", "A Tribal Chief with Leadership 3 can call a rare collectible once a day. "
+                        + gm.patch_words(village, RARE_RETRY, "the call never silently fails"))
+
+    add("Tech points and effects", f"Tech points: {_i32(buf, POINTS):,}.")
+    divisor = {0: 5, 1: 11, 2: 9, 3: 7}.get(level[SCIENCE], 7)
+    catch = {0: 4, 1: 7, 2: 7, 3: 5}.get(level[SCIENCE], 5)
+    speed_words = {gm.FAST: "twice that on Fast speed", gm.NORMAL: "as it is on Normal speed",
+                   gm.SLOW: "0.6 of it on Slow speed" if level[SCIENCE] else "half of it on Slow speed"}[speed]
+    add("Tech points and effects", (
+        f"Research gives Research skill ÷ {divisor} at Science level {level[SCIENCE]}, {speed_words}; a lit fire "
+        f"adds a 10% chance of 1 more; while catching up ÷ {catch} {UNSURE}."))
+    blow = max(0, 15 * (3 - level[ALCHEMY]) + 1)
+    add("Tech points and effects", ODDS_LINES[0].format(blow=min(blow, 100), alchemy=level[ALCHEMY]))
+
+    add("Food earned", f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
+                       f"({2 * 3600 / (60 * speed):g} an hour); at 500 food or less only half the time {UNSURE}.")
+
+    out.extend(gm.time_away(village, wall(LAST_SAVED), speed_value,
+                            "Saved paused: nobody ages, the clock is stopped and the next island event is pushed "
+                            "back by the time away; nothing advances.", unit_seconds=20 * 60 * speed))
+    add("Time away and Time Warp", ("The fruit trees and the honey get the whole time away when it is next played "
+                                    "(the game's clock ran on), with no limit. While catching up every healthy adult "
+                                    f"does 4 jobs each age unit, without walking {UNSURE}; mushrooms and collectibles "
+                                    "do not pile up and only one overdue island event happens."))
+    add("Time away and Time Warp", (f"Time Warp (the patcher's Origins upgrades) {UNSURE}: each one moves the clock "
+                                    "on 3 hours times the speed: 3 years on Fast and Normal, fewer on Slow; refused "
+                                    "while paused."))
+
+    add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 8 to 15 hours at any speed "
+                         "(the first 15 minutes after the village is made, then 30 minutes after the first of each "
+                         "time the game is started); paused time does not count.")
+    for line in EVENT_LINES:
+        add("Island events", line)
+    if village.has(STORY) is not False:
+        add("Island events", gm.patch_words(village, STORY, "Pick Island Event chooses the event"))
+
+    fire = wall(FIRE_END)
+    add("Other", ("The fire " + (f"burns until {gm.when(fire)}" if fire > village.now and not paused else
+                                 "is out" if not paused else "was burning or out as saved")
+                  + "; while it burns sickness is lower and research gets its 10% chance of 1 more."))
+    for line in ODDS_LINES[1:]:
+        add("Other", line)
+    if level[5] >= 3 or nature >= 3:
+        add("Other", gm.patch_words(village, MORTALITY, "at Nature level 3 villagers live 7 years longer"))
     return out

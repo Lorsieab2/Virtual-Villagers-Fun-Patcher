@@ -288,18 +288,144 @@ class RealSaves(unittest.TestCase):
                 self.assertRegex(text, r"Fruit trees: each gains 111 fruit every (3 hours on Normal|1 hour 30 minutes on Fast) speed")
 
 
-class OtherGames(unittest.TestCase):
+class EveryGame(unittest.TestCase):
+    """All five games: the committed real saves read, real time only, the secrets kept, and no time-away
+    figure shown until it is verified."""
+
+    SAVES = ("vv1-huttest-1", "vv2-huttest-1", "vv3-huttest-1", "vv3-256-1", "vv4-huttest-1", "vv4-256-1",
+             "vv5-huttest-1", "vv5-256-1")
+
+    def page(self, name: str, data: bytes | None = None, features=None):
+        import vv_tribe_rename
+        number, slot = int(name[2]), int(name[-1])
+        base = next(item.base for item in vv_tribe_rename.GAMES if item.number == number)
+        folder = Folder(self, base)
+        (folder.path / f"{base}{slot}.ldw").write_bytes(
+            data if data is not None else gzip.decompress((FIXTURES / f"{name}.ldw.gz").read_bytes()))
+        games = [folder.game(features)] if features is not None else []
+        return gm.read(folder.path, number, slot, games, now=EPOCH + 3_000_000)
+
     def test_every_game_has_a_module(self) -> None:
         for n in range(1, 6):
             module = __import__(f"vv_game_mechanics_vv{n}")
             self.assertTrue(callable(module.facts))
 
-    def test_unresearched_game_says_so(self) -> None:
-        folder = Folder(self, "Virtual Villagers - The Lost Children")
-        (folder.path / "Virtual Villagers - The Lost Children1.ldw").write_bytes(b"ldwg")
-        facts = gm.read(folder.path, 2, 1, [])
-        self.assertEqual(lines(facts), ["Nothing is shown for this game yet."])
+    def test_real_saves_read_in_every_group(self) -> None:
+        for name in self.SAVES:
+            with self.subTest(save=name):
+                facts = self.page(name)
+                text = text_of(facts)
+                self.assertNotIn("could not be read:", text)
+                for group in ("Food sources", "Refills", "Mushrooms", "Tech points and effects",
+                              gm.TIME_AWAY, "Island events"):
+                    self.assertIn(group, {f.group for f in facts}, group)
+                self.assertRegex(text, r"Last saved: \d{1,2} [A-Z][a-z]+ \d{4}, \d{1,2}:\d{2} (AM|PM), ")
+                self.assertRegex(text, r"Next island event: ")
+                order = [gm.GROUPS.index(f.group) for f in facts]
+                self.assertEqual(order, sorted(order))
 
+    def test_real_time_only(self) -> None:
+        for name in self.SAVES:
+            with self.subTest(save=name):
+                text = text_of(self.page(name)).lower()
+                self.assertNotRegex(text, r"game (hours?|minutes?|seconds?|clock units?)\b")
+                self.assertNotRegex(text, r"\bclock (seconds|units)\b")
+
+    def test_time_away_figures_wait_for_verification(self) -> None:
+        """The research specs disagreed: no limit is shown until AWAY_LIMITS holds a verified table."""
+        self.assertEqual(gm.AWAY_LIMITS, {})
+        for name in self.SAVES:
+            with self.subTest(save=name):
+                lines_ = lines(self.page(name), gm.TIME_AWAY)
+                joined = " ".join(lines_)
+                self.assertTrue("not yet confirmed" in joined or "paused" in joined, joined)
+                self.assertNotIn("8 hours 36 minutes 40 seconds", joined)
+
+    def test_time_away_uses_the_verified_table(self) -> None:
+        table = {"full": {3: 38_200, 6: 31_000, 10: 23_800}, "band_end": 86_400, "band": 31_000, "over": 86_400}
+        old = dict(gm.AWAY_LIMITS)
+        gm.AWAY_LIMITS[5] = table
+        self.addCleanup(lambda: (gm.AWAY_LIMITS.clear(), gm.AWAY_LIMITS.update(old)))
+        self.assertEqual(gm.counted_away(5, 10_000, 6), 10_000)
+        self.assertEqual(gm.counted_away(5, 40_000, 6), 31_000)
+        self.assertEqual(gm.counted_away(5, 90_000, 10), 86_400)
+        self.assertIsNone(gm.counted_away(4, 10_000, 6))
+        joined = " ".join(lines(self.page("vv5-huttest-1"), gm.TIME_AWAY))
+        self.assertIn("of which", joined)
+        self.assertIn("8 hours 36 minutes 40 seconds", joined)
+
+    def test_golden_mushroom_stays_a_secret(self) -> None:
+        for name, fid in (("vv1-huttest-1", "vv1_super_secret_golden_mushroom"),
+                          ("vv2-huttest-1", "vv2_super_secret_golden_mushroom"),
+                          ("vv3-huttest-1", "vv3_super_secret_golden_mushroom"),
+                          ("vv4-huttest-1", "vv4_super_secret_golden_mushroom"),
+                          ("vv5-huttest-1", "vv5_super_secret_golden_mushroom")):
+            with self.subTest(save=name):
+                text = text_of(self.page(name, features=[fid]))
+                self.assertIn("there is a secret to find", text)
+                self.assertNotRegex(text.lower(), r"golden mushroom(?!\x22 is in the game: there is a secret to find\.)")
+                self.assertNotRegex(text.lower(), r"1,000,000|1 in 1,000\b")
+                self.assertNotIn("secret", text_of(self.page(name, features=[])))
+
+    def test_paused_saves_wait(self) -> None:
+        import vv_save_backup
+        for name in ("vv1-huttest-1", "vv2-huttest-1", "vv4-huttest-1", "vv5-huttest-1"):
+            with self.subTest(save=name):
+                data = gzip.decompress((FIXTURES / f"{name}.ldw.gz").read_bytes())
+                paused = vv_save_backup.pause_save_bytes(int(name[2]), data)
+                if paused is None:
+                    paused = data
+                text = text_of(self.page(name, data=paused))
+                self.assertIn(", paused.", text)
+                self.assertIn("after it is unpaused", text)
+                self.assertIn(gm.PAUSED_NOTE, text)
+
+    def test_vv1_values(self) -> None:
+        data = bytearray(gzip.decompress((FIXTURES / "vv1-huttest-1.ldw.gz").read_bytes()))
+        import vv_game_mechanics_vv1 as vv1
+        struct.pack_into("<i", data, vv1.BUSH, 1300)
+        struct.pack_into("<i", data, vv1.SPEED, 6)
+        text = text_of(self.page("vv1-huttest-1", data=bytes(data)))
+        self.assertIn("Berry bush: 1,300; a pick takes 10 from it now", text)
+        self.assertIn("The berry bush grows 30 every 4 hours on Normal speed", text)
+        self.assertIn("Each villager eats 2 food every 6 minutes on Normal speed (20 an hour).", text)
+        self.assertNotIn("Collectibles\n  A New Home has collectibles", text)
+
+    def test_vv2_values(self) -> None:
+        import vv_game_mechanics_vv2 as vv2
+        data = bytearray(gzip.decompress((FIXTURES / "vv2-huttest-1.ldw.gz").read_bytes()))
+        struct.pack_into("<i", data, vv2.SPEED + vv2.S, 3)
+        struct.pack_into("<i", data, vv2.COCONUTS + vv2.S, 1234)
+        text = text_of(self.page("vv2-huttest-1", data=bytes(data)))
+        self.assertIn("Coconuts: 1,234; a trip brings 8 on Fast speed", text)
+        self.assertIn("every 2 hours on Fast speed: coconuts +30", text)
+        self.assertIn("a lit fire burns 10 hours on Fast speed", text)
+        totems = text_of(self.page("vv2-huttest-1", data=bytes(data), features=["vv2_totems_out_of_entries"]))
+        self.assertIn("with no limit on how many", totems)
+        self.assertIn("while there are fewer than 50 totems", text)
+
+    def test_vv4_and_vv5_values(self) -> None:
+        import vv_game_mechanics_vv4 as vv4
+        import vv_game_mechanics_vv5 as vv5
+        data = bytearray(gzip.decompress((FIXTURES / "vv4-huttest-1.ldw.gz").read_bytes()))
+        struct.pack_into("<i", data, vv4.BERRIES, 500)
+        struct.pack_into("<i", data, vv4.LEVELS + 4 * vv4.FOOD_MASTERY, 1)
+        text = text_of(self.page("vv4-huttest-1", data=bytes(data)))
+        self.assertIn("Blackberries: 500 of 1,000; a pick brings 5 food now", text)
+        data = bytearray(gzip.decompress((FIXTURES / "vv5-huttest-1.ldw.gz").read_bytes()))
+        struct.pack_into("<i", data, vv5.NONI, 640)
+        struct.pack_into("<i", data, vv5.SPEED, 10)
+        text = text_of(self.page("vv5-huttest-1", data=bytes(data)))
+        self.assertIn("Noni bushes: 640 of 1,000; a pick gives 6 food now", text)
+        self.assertIn("Noni: +2 every 10 minutes on Slow speed", text)
+        self.assertNotIn("Stinging Wasps", text)            # never happens in New Believers
+
+    def test_not_a_save(self) -> None:
+        for name in ("vv1-huttest-1", "vv2-huttest-1", "vv4-huttest-1", "vv5-huttest-1"):
+            with self.subTest(save=name):
+                facts = self.page(name, data=b"ldwg" + bytes(40))
+                self.assertEqual([f.group for f in facts], ["Other"])
+                self.assertIn("could not be read", facts[0].text)
 
 class InstalledPatches(unittest.TestCase):
     def test_report_lists_the_ids(self) -> None:

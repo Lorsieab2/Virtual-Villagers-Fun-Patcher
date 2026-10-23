@@ -27,7 +27,7 @@ from datetime import datetime
 from pathlib import Path
 
 TITLE = "Game Mechanics"
-GROUPS = ("Food sources", "Refills", "Collectibles", "Mushrooms", "Tech points and effects",
+GROUPS = ("Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
           "Food earned", "Time away and Time Warp", "Island events", "Other")
 # A rule read from the game's code but not yet seen happen in a game: said so on the page.
 UNCONFIRMED = "(not yet confirmed in game)"
@@ -124,6 +124,57 @@ def every(game_seconds: float, speed_value: int) -> str:
 
 
 PAUSED_NOTE = "The game was saved paused: nothing refills or grows until it is unpaused."
+
+
+# ---------------------------------------------------------------------------
+# Time away (catch-up)
+# ---------------------------------------------------------------------------
+
+# How much time away each game counts, per game -- ONLY figures verified by emulating the game's own
+# clamp (the coordinator's clamp verification; the research specs disagreed): {"full": {speed: real
+# seconds counted in full}, "band_end": real seconds, "band": counted in the band, "over": counted past
+# it}.  A game not listed here shows that its limits are not yet confirmed, never a guessed figure.
+AWAY_LIMITS: dict[int, dict] = {}
+TIME_AWAY = "Time away and Time Warp"
+
+
+def counted_away(game: int, seconds: float, speed: int) -> float | None:
+    """How much of `seconds` away `game` counts at `speed`, or None while its limits are not confirmed."""
+    limits = AWAY_LIMITS.get(game)
+    if limits is None:
+        return None
+    seconds = max(0.0, seconds)
+    if seconds <= limits["full"][speed]:
+        return seconds
+    return limits["band"] if seconds <= limits["band_end"] else limits["over"]
+
+
+def time_away(village: "Village", last: float, speed_value: int, paused_words: str,
+              unit_seconds: float | None = None) -> list[Fact]:
+    """The time-away lines every game shares: when the save was last played, its speed or pause, how much
+    of the time since then would count if it were opened now, and the rule -- the rule only from
+    AWAY_LIMITS.  `unit_seconds`: a year's real length at this speed, to say the counted time in years."""
+    speed = speed_base(speed_value)
+    paused = speed_value >= PAUSED
+    out = [Fact(TIME_AWAY, f"Last saved: {when(last)}, " + ("paused." if paused else f"on {speed_name(speed)} speed."))]
+    if paused:
+        out.append(Fact(TIME_AWAY, paused_words))
+        return out
+    away = max(0.0, village.now - last)
+    counted = counted_away(village.game, away, speed)
+    if counted is None:
+        out.append(Fact(TIME_AWAY, f"Time since then: {duration(away)}. How much of it the game counts when the "
+                                   "village is next played is not yet confirmed."))
+        return out
+    years = f" ({counted / unit_seconds:.1f} years of the villagers' lives)" if unit_seconds and counted else ""
+    out.append(Fact(TIME_AWAY, f"If it were played now: {duration(away)} away, of which {duration(counted)} "
+                               f"counts{years}."))
+    limits = AWAY_LIMITS[village.game]
+    out.append(Fact(TIME_AWAY, (
+        f"On {speed_name(speed)} speed time away counts in full up to {duration(limits['full'][speed], exact=True)}; "
+        f"from then to {duration(limits['band_end'], exact=True)} it counts as {duration(limits['band'], exact=True)}; "
+        f"past that as {duration(limits['over'], exact=True)}, however long the game was closed.")))
+    return out
 
 
 # ---------------------------------------------------------------------------

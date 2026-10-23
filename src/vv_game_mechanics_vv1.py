@@ -28,10 +28,9 @@ scratchpad spec, mech_vv1\\spec.md, 2026-10-23):
     for the 5% big kind (0x43AFEF / 0x43B04C).  Mushrooms are not saved.  A New Home has no collectibles.
   * Island events: after the first two, every 12 to 23 real hours at any speed (0x423886); the timer
     freezes while paused; after an absence at most one fires.
-  * Time away (0x42EA62): each villager's away time counts in full up to 10 h 36 m 40 s / 8 h 36 m
-    40 s / 6 h 36 m 40 s (Fast / Normal / Slow); from there to 24 hours it counts as 8 h 36 m 40 s; over
-    24 hours as 24 hours.  A save left paused gets no catch-up (credit zeroed, 0x42EACE) -- a static
-    reading, not yet confirmed in game.
+  * Time away (0x42EA62): how much counts is shown only from vv_game_mechanics.AWAY_LIMITS, the verified
+    table.  A save left paused gets no catch-up (credit zeroed, 0x42EACE) -- a static reading, not yet
+    confirmed in game.
 """
 from __future__ import annotations
 
@@ -50,24 +49,12 @@ EVENTS_SEEN = 0x9E44                          # the Island Events statistic
 UNIT = 360                                    # an age unit, in Normal-speed seconds (60 x 6)
 REGROW_UNITS = 40
 FIELD_CAP = 800
-# Time away: counted in full up to this (real seconds), per speed; then 8 h 36 m 40 s up to a day;
-# then a day.
-FULL_AWAY = {gm.FAST: 38_200, gm.NORMAL: 31_000, gm.SLOW: 23_800}
-BAND_AWAY = 31_000
-DAY = 86_400
 GOLDEN = "vv1_super_secret_golden_mushroom"
 LEARNING = "vv1_learning_never_fails"
 
 
 def _i32(data: bytes, at: int) -> int:
     return struct.unpack_from("<i", data, at)[0]
-
-
-def counted_away(seconds: float, speed: int) -> float:
-    """How much of `seconds` away the game counts, at `speed` (3, 6 or 10)."""
-    if seconds <= FULL_AWAY.get(speed, FULL_AWAY[gm.NORMAL]):
-        return max(0.0, seconds)
-    return BAND_AWAY if seconds <= DAY else DAY
 
 
 def facts(village: gm.Village) -> list[gm.Fact]:
@@ -147,26 +134,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                        f"({per_hour:g} an hour).")
 
     # -- Time away and Time Warp ---------------------------------------------------------
-    add("Time away and Time Warp", f"Last saved: {gm.when(saved)}, "
-                                   + ("paused." if paused else f"on {on} speed."))
-    if paused:
-        add("Time away and Time Warp", (
-            "Saved paused: the time away is not counted when it is next played, and the regrowth and island "
-            f"event timers wait {gm.UNCONFIRMED}."))
-    else:
-        away = max(0.0, village.now - saved)
-        counted = counted_away(away, speed)
-        add("Time away and Time Warp", (
-            f"If it were played now: {gm.duration(away)} away, of which {gm.duration(counted)} counts"
-            + (f" ({counted / (60 * speed) / 20:.1f} years of the villagers' lives)." if counted else ".")))
-    full = FULL_AWAY[speed]
-    add("Time away and Time Warp", (
-        f"On {on} speed time away counts in full up to {gm.duration(full, exact=True)}; from then to 24 hours it "
-        f"counts as only {gm.duration(BAND_AWAY, exact=True)}; the most it ever counts is 24 hours, "
-        f"{DAY / (60 * speed) / 20:g} years of the villagers' lives on {on} speed, however long the game was "
-        "closed. Each counted age unit lets every adult try up to 5 jobs at once."))
+    out += gm.time_away(village, saved, speed_value,
+                        "Saved paused: the time away is not counted when it is next played, and the regrowth and "
+                        f"island event timers wait {gm.UNCONFIRMED}.", unit_seconds=20 * 60 * speed)
+    add("Time away and Time Warp", "Each counted age unit lets every adult try up to 5 jobs at once; every regrowth "
+                                   "missed is added in full.")
 
-    # -- Other ---------------------------------------------------------------------------
     # -- Island events -------------------------------------------------------------------
     first = (" The first is always the item event, the second 30 minutes later;"
              if _i32(data, EVENTS_SEEN) < 2 else "")

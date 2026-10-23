@@ -26,11 +26,9 @@ scratchpad spec, mech_vv5\\spec.md, 2026-10-23):
   * Island events: 15 minutes after the village is made, the second 30 minutes later, then every 8 to
     15 whole hours at any speed (0x4427A6); paused time does not count, closed time does; an overdue
     one happens once after loading.
-  * Time away (0x46FF97..0x470013): counted in full up to 10 h 36 m 40 s / 8 h 36 m 40 s / 6 h 36 m 40 s
-    (Fast / Normal / Slow), then as 8 h 36 m 40 s up to 24 hours, then 24 hours; a paused save gets
-    nothing (0x47002E).  Heathens get no age on this path.
-  * Time Warp (the patcher's vv5_expanded_256_time_warp): 3 / 6 / 12 years on Slow / Normal / Fast,
-    past the caps; refused while paused.
+  * Time away (0x46FF97..0x470013): how much counts is shown only from vv_game_mechanics.AWAY_LIMITS,
+    the verified table; a paused save gets nothing (0x47002E).  Heathens get no age on this path.
+  * Time Warp (Origins): 3 / 6 / 12 years on Slow / Normal / Fast, past the limits; refused while paused.
 """
 from __future__ import annotations
 
@@ -46,8 +44,6 @@ NONI, NONI_NEXT, CROPS, CROPS_NEXT = 0x17D68, 0x17D50, 0x17D6C, 0x17D54
 ENERGY, ENERGY_CAP, EVENT_NEXT = 0x17D74, 0x17D70, 0x17D4C
 UNIT = 360                                    # an age unit, in Normal-speed seconds
 NONI_CAP, CROPS_FULL, CROP_UNITS = 1000, 800, 40
-FULL_AWAY = {gm.FAST: 38_200, gm.NORMAL: 31_000, gm.SLOW: 23_800}
-BAND_AWAY, DAY = 31_000, 86_400
 TIME_WARP = "vv5_expanded_256_time_warp"
 TIME_WARP_YEARS = {gm.SLOW: 3, gm.NORMAL: 6, gm.FAST: 12}
 STORY = "vv5_story_cheat_upgrades"
@@ -105,12 +101,6 @@ LEARNING = "vv5_learning_never_fails"
 
 def _i32(data: bytes, at: int) -> int:
     return struct.unpack_from("<i", data, at)[0]
-
-
-def counted_away(seconds: float, speed: int) -> float:
-    if seconds <= FULL_AWAY.get(speed, FULL_AWAY[gm.NORMAL]):
-        return max(0.0, seconds)
-    return BAND_AWAY if seconds <= DAY else DAY
 
 
 def facts(village: gm.Village) -> list[gm.Fact]:
@@ -189,29 +179,18 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                        "at 500 food or less only half the time. Heathens eat nothing.")
 
     # -- Time away and Time Warp ---------------------------------------------------------
-    add("Time away and Time Warp", f"Last played: {gm.when(last)}, " + ("paused." if paused else f"on {on} speed."))
-    if paused:
-        add("Time away and Time Warp", "Saved paused: the time away is not counted when it is next played; "
-                                       "nothing ages, grows or comes due.")
-    else:
-        away = max(0.0, village.now - last)
-        counted = counted_away(away, speed)
-        add("Time away and Time Warp", (
-            f"If it were played now: {gm.duration(away)} away, of which {gm.duration(counted)} counts"
-            + (f" ({counted / (60 * speed) / 20:.1f} years of the villagers' lives)." if counted else ".")))
-    add("Time away and Time Warp", (
-        f"On {on} speed time away counts in full up to {gm.duration(FULL_AWAY[speed], exact=True)}; from then to "
-        f"24 hours it counts as only {gm.duration(BAND_AWAY, exact=True)}; the most it ever counts is 24 hours, "
-        f"{DAY / (60 * speed) / 20:g} years on {on} speed, however long the game was closed. Heathens do not age "
-        "while catching up."))
+    out += gm.time_away(village, last, speed_value,
+                        "Saved paused: the time away is not counted when it is next played; nothing ages, grows "
+                        "or comes due.", unit_seconds=20 * 60 * speed)
+    add("Time away and Time Warp", "Heathens do not age while catching up.")
     add("Time away and Time Warp", (
         "While catching up, each counted age unit runs eating, belief, Divine Energy, sickness and births, and "
         "4 jobs for every healthy villager of 14 or more; island events, mushrooms, collectibles and weather "
         "do not run."))
     add("Time away and Time Warp", (
-        f"Time Warp (the patcher's Origins upgrades): each one adds {TIME_WARP_YEARS[speed]} years on {on} speed "
+        f"Time Warp (the patcher's Origins upgrades) {UNSURE}: each one adds {TIME_WARP_YEARS[speed]} years on {on} speed "
         "(3 on Slow, 6 on Normal, 12 on Fast), past the time-away limits, and is refused while paused; the "
-        "added time runs the same catch-up as time away " + UNSURE + "."))
+        "added time runs the same catch-up as time away."))
 
     # -- Island events -------------------------------------------------------------------
     first = (" The first comes 15 minutes after the village is made and the second 30 minutes after it;"
