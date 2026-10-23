@@ -398,8 +398,14 @@ class Edits:
     text_wrap: int = 17                 # characters across a portrait before a line wraps (the owner: adjustable)
     portrait_gap: float = 22.0          # pixels between two portraits side by side (the owner: batch-editable)
     row_gap: float = 30.0               # pixels under a generation's row before its children's lines (LANE_TOP)
-    show_runner: bool = False           # "Runner" for a villager who likes running (the owner, 2026-10-10)
-    show_founder: bool = False          # "Founder" in each generation I portrait (the owner, 2026-10-09)
+    # The descriptors each portrait gets by itself where they apply (the owner, 2026-10-22: "villagers get
+    # auto-denoted with special descriptors if applicable (tribal chief, founder, runner etc)"): on unless the
+    # player unticks them.  descriptors_v2 marks a value saved since then: every earlier build wrote these
+    # False whether or not the player ever unticked them, so an earlier file's False reads as the new default.
+    show_runner: bool = True            # "Runner" for a villager who likes running (the owner, 2026-10-10)
+    show_founder: bool = True           # "Founder" for each founder of the village (the owner, 2026-10-09)
+    show_arrived: bool = True           # "Arrived: <how>" for a villager who came later (an Arrived record)
+    show_masters: bool = True           # "Master Farmer"... (the save's skills now; a grave's for the dead)
     fit_width: int = 0                  # 0, or shrink every portrait so the widest row fits this many pixels
     # The canvas (the owner, 2026-10-09): 0 x 0 is Automatic, the page as large as the tree; else every
     # page is this many pixels, the tree shrunk evenly to fit it or centred on it at its own size.
@@ -409,7 +415,7 @@ class Edits:
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
-    show_twins: bool = False            # "<name>'s twin" / "<name> and <name>'s triplet" after the age
+    show_twins: bool = True             # "<name>'s twin" / "<name> and <name>'s triplet" after the age
     # Villagers who share a name numbered: "Soda I", "Soda II"... -- on by default (the owner, 2026-10-20:
     # numbering "must be ON BY DEFAULT").  number_names_v2 marks a value saved since then: every earlier
     # build wrote number_names (False) whether or not the player ever changed it, so an earlier file's
@@ -467,7 +473,16 @@ class Edits:
     generations: dict[str, list[str]] = field(default_factory=dict)   # "2" -> the label's lines
     words: dict[str, str] = field(default_factory=dict)                # WORDS -> the player's own words
     marks: dict[str, str] = field(default_factory=dict)               # label -> "#rrggbb", in order
-    # entry key -> {"lines", "runs" (those lines formatted word by word: clean_runs), "mark", ...}
+    # The automatic marks (apply_auto_marks): a status's mark the player renamed (status -> the mark's name
+    # now), and the statuses whose mark the player removed from everyone (never given again).
+    mark_names: dict[str, str] = field(default_factory=dict)
+    marks_off: list[str] = field(default_factory=list)
+    # "Hide unconverted Heathens" (the owner, 2026-10-22; off unless ticked): New Believers' Heathens who never
+    # converted left off this tree, its pictures and its page (gen.without_heathens); their edits are kept.
+    hide_heathens: bool = False
+    # entry key -> {"lines", "runs" (those lines formatted word by word: clean_runs), "marks" (every mark
+    # they have, in order; "mark" the first, as older builds read it), "unmarked" (automatic marks the
+    # player took off them), ...}
     entries: dict[str, dict] = field(default_factory=dict)
     # Stickers (the owner: "any image file on the computer where people can drag and place them
     # like a scrapbook", "resize, rotate, transform"): pictures on top of the tree, bottom one first.
@@ -583,8 +598,11 @@ class Edits:
         out.text_size = _number(data.get("text_size"), TEXT_SCALE_MIN, TEXT_SCALE_MAX, 100.0)
         out.portrait_gap = float(_number(data.get("portrait_gap"), GAP_MIN, GAP_MAX, GAP_X))
         out.row_gap = float(_number(data.get("row_gap"), ROW_GAP_MIN, ROW_GAP_MAX, LANE_TOP))
-        out.show_founder = data.get("show_founder", False) is True
-        out.show_runner = data.get("show_runner", False) is True
+        kept = data.get("descriptors_v2") is True       # else an earlier build's False: the new default, on
+        out.show_founder = data.get("show_founder") is not False if kept else True
+        out.show_runner = data.get("show_runner") is not False if kept else True
+        out.show_arrived = data.get("show_arrived") is not False
+        out.show_masters = data.get("show_masters") is not False
         out.page_generations = int(_number(data.get("page_generations"), PAGE_GENS_MIN, PAGE_GENS_MAX, PAGE_GENS))
         fit = data.get("fit_width")
         out.fit_width = int(_number(fit, FIT_MIN, FIT_MAX, 0)) if isinstance(fit, (int, float)) and fit else 0
@@ -594,7 +612,7 @@ class Edits:
             out.canvas_h = int(_number(ch, CANVAS_MIN, CANVAS_MAX, 0))
         out.show_units = data.get("show_units", True) is not False
         out.show_years = data.get("show_years", True) is not False
-        out.show_twins = data.get("show_twins", False) is True
+        out.show_twins = data.get("show_twins") is not False if kept else True
         out.number_names = data.get("number_names") is not False if data.get("number_names_v2") is True else True
         if data.get("number_order") in gen.NUMBER_ORDERS:
             out.number_order = data["number_order"]
@@ -628,6 +646,11 @@ class Edits:
         for label, colour in dict(data.get("marks", {})).items():
             if is_colour(colour):
                 out.marks[str(label)] = str(colour)
+        for status, label in dict(data.get("mark_names", {})).items():
+            if isinstance(label, str) and label.strip():
+                out.mark_names[str(status)] = label.strip()
+        out.marks_off = _clean_labels(data.get("marks_off"))
+        out.hide_heathens = data.get("hide_heathens") is True
         for key, entry in dict(data.get("entries", {})).items():
             if not isinstance(entry, dict):     # damaged: that villager's edits are passed over
                 continue
@@ -637,8 +660,15 @@ class Edits:
                 runs = runs_data(clean_runs(entry.get("runs"), item["lines"]))
                 if runs:
                     item["runs"] = runs
-            if entry.get("mark"):
+            if "marks" in entry:                # several marks (since 2026-10-22), the first also as "mark"
+                labels = _clean_labels(entry.get("marks"))
+                if labels:
+                    item["marks"], item["mark"] = labels, labels[0]
+            elif entry.get("mark"):             # one mark, as every earlier build kept it
                 item["mark"] = str(entry["mark"])
+            unmarked = _clean_labels(entry.get("unmarked"))
+            if unmarked:
+                item["unmarked"] = unmarked
             if entry.get("hidden") is True:
                 item["hidden"] = True
             if entry.get("shape") in PORTRAIT_SHAPES:
@@ -756,7 +786,8 @@ class Edits:
         return {"format": 1, "page_edits": clean_page_edits(self.page_edits), "title": self.title, "subtitle": self.subtitle,
                 "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "line_mode": self.line_mode, "line_order": self.line_order, "line_reverse": self.line_reverse, "gradient_start": self.gradient_start, "gradient_end": self.gradient_end, "range_colours": self.range_colours, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "show_runner": self.show_runner, "number_names": self.number_names,
-                "number_names_v2": True,
+                "number_names_v2": True, "descriptors_v2": True, "show_arrived": self.show_arrived,
+                "show_masters": self.show_masters,
                 "number_order": self.number_order,
                 "sort": self.sort, "positioning": self.positioning,
                 "numbering": self.numbering,
@@ -773,7 +804,9 @@ class Edits:
                 "mark_opacity": self.mark_opacity, "label_line_width": self.label_line_width,
                 "label_line_reach": self.label_line_reach,
                 "line_moves": self.line_moves, "free_lines": self.free_lines,
-                "generations": self.generations, "words": self.words, "marks": self.marks, "entries": self.entries,
+                "generations": self.generations, "words": self.words, "marks": self.marks,
+                "mark_names": self.mark_names, "marks_off": self.marks_off, "hide_heathens": self.hide_heathens,
+                "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers,
                 "group_opts": self.group_opts, "equal_sizes": self.equal_sizes, "monstera_v2": self.monstera_v2,
                 "feather_v2": self.feather_v2, "bakes_v3": self.bakes_v3}
@@ -783,8 +816,8 @@ class Edits:
 # one portrait.  Each is checked as the tree's own is (_group_value).
 GROUP_FIELDS = ("text_align", "text_valign", "centre_heads", "text_room", "flip_words", "turn_words",
                 "text_inside", "fixed_face_size", "picture_size", "text_size", "text_wrap", "show_units", "show_years",
-                "show_twins", "show_founder", "show_runner", "detail_lines", "detail_colour", "detail_opacity",
-                "detail_width", "portrait_fill")
+                "show_twins", "show_founder", "show_runner", "show_arrived", "show_masters", "detail_lines",
+                "detail_colour", "detail_opacity", "detail_width", "portrait_fill")
 
 
 def _group_value(name: str, value) -> tuple[bool, object]:
@@ -1109,7 +1142,106 @@ def _clean_entry_field(name: str, value):
     if name == "look":
         return (True, value) if isinstance(value, list) and len(value) == 2 \
             and all(isinstance(v, int) and not isinstance(v, bool) for v in value) else (False, None)
+    if name in ("marks", "unmarked"):
+        return (True, _clean_labels(value) or None) if isinstance(value, list) else (False, None)
     return True, value
+
+
+def _clean_labels(raw) -> list[str]:
+    """A saved list of mark names: words only, each once, in order."""
+    out: list[str] = []
+    for label in raw if isinstance(raw, list) else []:
+        if isinstance(label, str) and label.strip() and label.strip() not in out:
+            out.append(label.strip())
+    return out
+
+
+def entry_marks(entry: dict) -> list[str]:
+    """Every mark a villager's entry gives them, in order (an older file's one "mark" too)."""
+    if "marks" in entry:
+        return list(entry.get("marks") or [])
+    return [entry["mark"]] if entry.get("mark") else []
+
+
+# The marks the tree gives by itself (the owner, 2026-10-22: every Tribal Chief, then every special or custom
+# status a villager has or ever had, in all five games): each status's preset colour, the Tribal Chief's,
+# Esteemed Elder's, Scholar's and Golden Child's as they were; a Custom title's from CUSTOM_MARK_COLOURS.
+STATUS_COLOURS = {
+    "Tribal Chief": "#d4a017", "Esteemed Elder": "#7b68ee", "Scholar": "#1e90ff", "Golden Child": "#ffb000",
+    "Retired Heathen Chief": "#4b0082", "Heathen Chief": "#b22222", "Heathen Mommy": "#ff69b4",
+    "Heathen Doctor": "#00ced1", "Heathen Master Scientist": "#008080", "Heathen Master Builder": "#a0522d",
+    "Heathen Master Farmer": "#9acd32", "Heathen": "#8b0000", "Former Heathen Master": "#800080", "Former Heathen": "#708090",
+    "Converted Purple Mask Heathen": "#ba55d3", "Converted Red Mask Heathen": "#e0301e",
+    "Converted Orange Mask Heathen": "#ff8c00", "Converted Blue Mask Heathen": "#0000cd",
+}
+CUSTOM_MARK_COLOURS = ("#c71585", "#2e8b57", "#4169e1", "#d2691e", "#6a5acd", "#228b22", "#dc143c", "#008b8b",
+                       "#b8860b", "#8b008b")
+
+
+def status_colour(status: str) -> str:
+    """A status's mark colour: its preset, else one of CUSTOM_MARK_COLOURS by its words (the same each time)."""
+    import zlib
+    return STATUS_COLOURS.get(status) or CUSTOM_MARK_COLOURS[zlib.crc32(status.encode("utf-8")) % len(CUSTOM_MARK_COLOURS)]
+
+
+def auto_label(edits: "Edits", status: str) -> str:
+    """The name of a status's mark: the status's own, or what the player renamed the mark to."""
+    return edits.mark_names.get(status, status)
+
+
+def auto_labels(edits: "Edits", p: gen.Person) -> list[str]:
+    """The automatic marks a villager is given: each status they hold or held (Person.statuses), by its
+    mark's name now, but none the player removed from everyone (marks_off)."""
+    out = []
+    for status in getattr(p, "statuses", []) or []:
+        label = auto_label(edits, status)
+        if status not in edits.marks_off and label not in edits.marks_off and label not in out:
+            out.append(label)
+    return out
+
+
+def apply_auto_marks(edits: "Edits", village: gen.Village) -> bool:
+    """Every villager's automatic marks into the tree's edits (the tree's own data, never the save): each one
+    the player has not taken off them ("unmarked", the tree's or a page's) added after their own marks, and
+    every such mark into the Key's list with its colour.  The player's own marks and edits stay as they are.
+    Whether anything changed."""
+    changed = False
+    for p in village.people.values():
+        if p.upcoming or p.placeholder:
+            continue
+        labels = auto_labels(edits, p)
+        if not labels:
+            continue
+        key = entry_key(village, p)
+        for part in edits.page_edits.values():
+            over = part.get("entries", {}).get(key)
+            if over and "mark" in over and "marks" not in over:
+                # An earlier build's page mark, one name: as a list, so the tree's list below never hides it.
+                over["marks"] = [over["mark"]] if over["mark"] else None
+        entry = edits.entries.get(key, {})
+        off = set(entry.get("unmarked") or [])
+        have = entry_marks(entry)
+        add = [label for label in labels if label not in have and label not in off]
+        if add:
+            entry = edits.entries.setdefault(key, entry)
+            entry["marks"] = have + add
+            entry["mark"] = entry["marks"][0]
+            changed = True
+        # A page with marks of its own: the new ones there too, unless taken off on that page.
+        for part in edits.page_edits.values():
+            over = part.get("entries", {}).get(key)
+            if over and over.get("marks"):
+                page_off = off | set(over.get("unmarked") or [])
+                more = [label for label in labels if label not in over["marks"] and label not in page_off]
+                if more:
+                    over["marks"] = over["marks"] + more
+                    changed = True
+        for label in labels:
+            if label not in edits.marks and label not in off:
+                status = next((s for s in p.statuses if auto_label(edits, s) == label), label)
+                edits.marks[label] = status_colour(status)
+                changed = True
+    return changed
 
 
 def _clean_line_shift(shift):
@@ -1148,6 +1280,8 @@ def clean_page_edits(raw) -> dict[str, dict]:
                     ok, v = _clean_entry_field(str(f), v)
                     if ok:
                         kept[str(f)] = v
+                if "marks" in kept:                     # one page's marks: the list, its first as "mark"
+                    kept["mark"] = kept["marks"][0] if kept["marks"] else None
                 if kept:
                     entries[str(ekey)] = kept
         if entries:
@@ -1321,7 +1455,8 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "fixed_face_size", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
     "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "canvas_w", "canvas_h", "page_generations", "diagonal_lines",
-    "show_units", "show_years", "show_twins", "show_runner", "number_names", "number_names_v2", "number_order", "sort", "positioning", "numbering",
+    "show_units", "show_years", "show_twins", "show_runner", "show_arrived", "show_masters", "descriptors_v2",
+    "number_names", "number_names_v2", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
     "ink", "font", "styles", "portrait_fill", "shapes", "borders", "plate_colour", "opacity", "sizes",
     "line_width", "line_dash", "mark_style", "mark_glow", "mark_opacity", "label_line_width",
@@ -1343,6 +1478,8 @@ def styled(style: dict | None) -> "Edits":
         base.update({key: value for key, value in style.items() if key in STYLE_KEYS})
         if style.get("number_names_v2") is not True:   # a look an earlier build kept: numbering's new default
             base["number_names"] = True
+        if style.get("descriptors_v2") is not True:     # and the descriptors' new default: on
+            base.update(show_founder=True, show_runner=True, show_twins=True)
         shapes = style.get("shapes") if isinstance(style.get("shapes"), dict) else {}
         for name in SHAPE_BAKES:                # a look remembered before, with that shape: moved on
             if f"{name}_v2" not in style and name in shapes.values():
@@ -1571,8 +1708,13 @@ class Layout:
         return shape_points(kind, x, y, w, h, corner_radius(kind), angle)
 
     def mark(self, p: gen.Person) -> str | None:
-        """The colour of the player's mark on this villager, if any."""
-        return self.edits.marks.get(self.entry(p).get("mark", ""))
+        """The colour of the villager's first mark, if any."""
+        found = self.marks(p)
+        return found[0][1] if found else None
+
+    def marks(self, p: gen.Person) -> list[tuple[str, str]]:
+        """Every mark the villager has that the Key lists, (name, colour), in their order."""
+        return drawn_marks(self.edits, self.entry(p))
 
 
 # ---------------------------------------------------------------------------
@@ -2741,9 +2883,26 @@ def frame_pad(edits: Edits, entry: dict, group: str, w: float, h: float) -> floa
         pad = (1.0 if border == "rope" else 1.4) * max(6.0, 0.1 * min(w, h))
     else:
         pad = BORDER_WIDTHS.get(border, 3.0) / 2
-    if entry.get("mark") and edits.marks.get(entry["mark"]) and edits.mark_style == "border":
-        pad += MARK_GAP + 3.0
+    shown = drawn_marks(edits, entry)
+    if shown and edits.mark_style == "border":
+        pad += MARK_GAP + 3.0 + MARK_STEP * (len(shown) - 1)
     return pad
+
+
+# A villager with several marks (the owner, 2026-10-22: "show all"): the first drawn as the tree draws a mark
+# (a border or a glow), each other one a ring of its own this much further out.
+MARK_STEP = 6.0
+
+
+def drawn_marks(edits: Edits, entry: dict) -> list[tuple[str, str]]:
+    """(name, colour) of each mark an entry gives that the Key has a colour for, in order."""
+    return [(label, edits.marks[label]) for label in entry_marks(entry) if edits.marks.get(label)]
+
+
+def extra_mark_reach(edits: Edits, entry: dict) -> float:
+    """How far past a glow the further marks' rings reach (a glow style's second and later marks)."""
+    shown = drawn_marks(edits, entry)
+    return MARK_GAP + 3.0 + MARK_STEP * (len(shown) - 2) if len(shown) > 1 else 0.0
 
 
 PAGE_MARGIN = 10                # nothing a portrait draws comes nearer a page's edge than this (as MARGIN)
@@ -2756,8 +2915,9 @@ def drawn_reach(edits: Edits, village, p, profile: tuple) -> tuple[float, float,
     border, mark), a glow round it, and its place's own box, where its words go."""
     left, right, top, bottom = _reach(profile)
     entry = edits.entries.get(entry_key(village, p), {})
-    if entry.get("mark") and edits.marks.get(entry["mark"]) and edits.mark_style == "glow":
-        left, right, top, bottom = left + edits.mark_glow, right + edits.mark_glow, top - edits.mark_glow, bottom + edits.mark_glow
+    if drawn_marks(edits, entry) and edits.mark_style == "glow":
+        reach = max(edits.mark_glow, extra_mark_reach(edits, entry))
+        left, right, top, bottom = left + reach, right + reach, top - reach, bottom + reach
     return max(left, NODE_W / 2), max(right, NODE_W / 2), min(top, 0.0), max(bottom, float(NODE_H))
 
 
@@ -4824,9 +4984,94 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
         extra = "Heathen" if p.heathen else ""
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
-    founder = ["Founder"] if lay.opt(p, "show_founder") and p.generation == 1 else []     # the owner, 2026-10-09
-    runner = ["Runner"] if lay.opt(p, "show_runner") and p.runner else []        # likes running (the owner, 2026-10-10)
-    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + founder + runner + born_with(lay, p) + ([extra] if extra else [])
+    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + descriptors(lay, p) + ([extra] if extra else [])
+
+
+def is_founder(village: gen.Village, p: gen.Person) -> bool:
+    """One of the village's founders: generation I, no parents recorded, and not a later arrival (an Arrived
+    record with a known "How" other than Founder, or first seen after the village's first snapshot)."""
+    if p.upcoming or p.generation != 1 or p.father is not None or p.mother is not None:
+        return False
+    return not gen.is_arrival(p, min(gen.snapshot_dates(village), default=None))
+
+
+def arrival_words(village: gen.Village, p: gen.Person) -> str:
+    """ "Arrived: <how>" for a villager an Arrived record says came later (an island event, a visitor, a Custom
+    Island Event...); "" for a founder, a birth, or a backfilled "How: unknown"."""
+    how = (p.how or "").strip()
+    if p.upcoming or not p.arrived or not how or how.lower() in ("founder", "unknown", "golden child"):
+        return ""
+    return f"Arrived: {how}"
+
+
+def status_descriptors(lay: Layout, p: gen.Person) -> list[str]:
+    """The special villager statuses this portrait says in words: each automatic mark the villager has (the
+    mark and its words are one: a mark taken off them, or removed from everyone, takes its words too)."""
+    auto = auto_labels(lay.edits, p)
+    return [label for label in entry_marks(lay.entry(p)) if label in auto]
+
+
+def descriptors(lay: Layout, p: gen.Person) -> list[str]:
+    """The descriptors after the age (the owner, 2026-10-22: "villagers get auto-denoted with special descriptors
+    if applicable"): Founder, Runner, twins and triplets, how they arrived, the jobs they are a Master of, and
+    their special villager statuses -- each where it applies and its option is ticked."""
+    v = lay.village
+    out = ["Founder"] if lay.opt(p, "show_founder") and is_founder(v, p) else []      # the owner, 2026-10-09
+    out += ["Runner"] if lay.opt(p, "show_runner") and p.runner else []             # likes running (2026-10-10)
+    out += born_with(lay, p)
+    arrived = arrival_words(v, p) if lay.opt(p, "show_arrived") else ""
+    out += [arrived] if arrived else []
+    out += [f"Master {job}" for job in getattr(p, "masters", [])] if lay.opt(p, "show_masters") else []
+    return out + [s for s in status_descriptors(lay, p) if s not in out]
+
+
+# The descriptor options (the Faces & Text tab's tick boxes): (Edits field, words).
+DESCRIPTOR_OPTIONS = (("show_founder", "Founder (the village's founders)"),
+                      ("show_runner", "Runner (villagers who like running)"),
+                      ("show_twins", "Twins and triplets (\"Kalea's twin\")"),
+                      ("show_arrived", "How they arrived (\"Arrived: Shipwreck\")"),
+                      ("show_masters", "Master of a skill (\"Master Farmer\")"))
+
+
+def status_options(edits: Edits, village: gen.Village) -> list[tuple[str, bool]]:
+    """The special villager statuses this tree can describe, (the mark's name now, ticked): the game's own
+    (gen.GAME_STATUSES) and every status a villager of the village has (their Custom titles too).  Ticked
+    unless the player took the status off everyone (marks_off) -- the mark and its words together."""
+    statuses = list(gen.GAME_STATUSES.get(village.game, ()))
+    for p in village.people.values():
+        statuses += [s for s in p.statuses if s not in statuses]
+    out, seen = [], set()
+    for status in statuses:
+        label = auto_label(edits, status)
+        if label not in seen:
+            seen.add(label)
+            out.append((label, status not in edits.marks_off and label not in edits.marks_off))
+    return out
+
+
+def set_status_option(edits: Edits, village: gen.Village, label: str, on: bool) -> None:
+    """A status's descriptor option ticked or unticked -- and its mark with it, on everyone: off, the status is
+    kept off (marks_off) and its mark taken off every villager (the tree's and each page's); on, given again
+    to everyone who has it (each villager's own "unmarked" still kept)."""
+    if on:
+        edits.marks_off = [m for m in edits.marks_off if m != label and auto_label(edits, m) != label]
+        apply_auto_marks(edits, village)
+        return
+    if label not in edits.marks_off:
+        edits.marks_off.append(label)
+    own = {id(e) for e in edits.entries.values()}
+    entries = list(edits.entries.values()) + [e for part in edits.page_edits.values()
+                                              for e in part.get("entries", {}).values()]
+    for entry in entries:
+        if label in entry_marks(entry):
+            left = [m for m in entry_marks(entry) if m != label]
+            if left or id(entry) not in own:
+                entry["marks"], entry["mark"] = left or None, left[0] if left else None
+            else:
+                entry.pop("marks", None)
+                entry.pop("mark", None)
+    for key in [k for k, e in edits.entries.items() if not e]:
+        del edits.entries[key]
 
 
 def born_with(lay: Layout, p: gen.Person) -> list[str]:
@@ -6416,8 +6661,8 @@ def _edge_y(lay: "Layout", q: int, at: float, bottom: bool) -> float:
 
 
 def key_marks(lay: Layout) -> list[tuple[str, str]]:
-    """The Key: every mark the player has given someone in this tree, in the player's order."""
-    used = {lay.entry(lay.village.people[q]).get("mark") for q in lay.x}
+    """The Key: every mark someone in this tree has, in the player's order."""
+    used = {label for q in lay.x for label in entry_marks(lay.entry(lay.village.people[q]))}
     return [(label, colour) for label, colour in lay.edits.marks.items() if label in used]
 
 
@@ -7441,10 +7686,17 @@ def _node(lay: Layout, p: gen.Person, present: dict, add) -> None:
     ink = lay.portrait_ink
     kind = lay.shape(p)
     border = lay.border(p)
-    mark = lay.mark(p)
+    shown = lay.marks(p)
+    mark = shown[0][1] if shown else None
     fx, fy, fw, fh, angle = lay.frame(p.id)
     see = lay.edits.mark_opacity / 100
-    target = ("mark", lay.entry(p).get("mark"))
+    target = ("mark", shown[0][0] if shown else None)
+    # Their second and later marks: a ring each, outside the first (MARK_STEP apart; the owner: "show all").
+    first = MARK_GAP + MARK_STEP if lay.edits.mark_style == "border" else MARK_GAP
+    for k, (label, colour) in reversed(list(enumerate(shown[1:]))):
+        m = first + k * MARK_STEP
+        add(Shape(kind, fx - m, fy - m, fw + 2 * m, fh + 2 * m, colour, width=4, fill=None,
+                  radius=corner_radius(kind) + m, pid=p.id, target=("mark", label), angle=angle, opacity=see))
     marks_scheme = mark and lay.edits.schemes.get("marks", "own") != "own"
     if mark and lay.edits.mark_style == "glow" and marks_scheme:      # a rainbow or alternating glow
         reach = lay.edits.mark_glow
@@ -8161,6 +8413,9 @@ def build(folder: Path, game: int, slot: int, edits: Edits | None = None) -> tup
         edits = Edits.load(Edits.path(folder, game, slot))
     village = gen.load_village(folder, game, slot, rename_answers=edits.renames)
     edits = full_name_edits(edits, village)
+    apply_auto_marks(edits, village)            # every special villager marked, as the editor shows them
+    if edits.hide_heathens:                     # "Hide unconverted Heathens": the pictures as the editor shows it
+        village = gen.without_heathens(village)
     arrange(village, edits)
     return village, edits, layout(village, edits)
 

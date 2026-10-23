@@ -48,7 +48,9 @@ ROWS = {
             "catch-up chooses what they do (otherwise catch-up's own choice "
             "stands). **Only a villager you dropped on the medical cactus is "
             "studying it; for every healer to study the cactus whenever no one "
-            "is sick, also select Easier Healing Mastery.**"
+            "is sick, also select Easier Healing Mastery.** **Without Fix "
+            "Vanilla Bugs (on by default) that study teaches almost no Healing "
+            "during catch-up.**"
         ),
         "catch_up_site": {"va": "0x42E817", "stock_bytes": "8B4F045056E89F8A0100",
                           "routine": "the catch-up worker's pick dispatch (0x42E790: mov ecx, [edi+4]; push eax; push esi; call 0x4472C0)"},
@@ -73,7 +75,8 @@ ROWS = {
             "stands). **Only a villager studying a plant carries on (one you "
             "dropped on a plant, or a healer Easier Healing Mastery sent to "
             "study); for every healer to study whenever no one is sick, also "
-            "select Easier Healing Mastery.**"
+            "select Easier Healing Mastery.** **Without Fix Vanilla Bugs (on by "
+            "default) that study teaches almost no Healing during catch-up.**"
         ),
         "catch_up_site": {"va": "0x43B581", "stock_bytes": "5557E868460200",
                           "routine": "the catch-up worker's pick dispatch (0x43B4D0: push ebp; push edi; call 0x45FBF0)"},

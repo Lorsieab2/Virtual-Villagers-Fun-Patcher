@@ -517,6 +517,108 @@ class PublishedBuildShipsTheDllTests(unittest.TestCase):
                     shutil.rmtree(work, ignore_errors=True)
 
 
+SIDECAR_OWNERS = {
+    # game: (the companion-only feature, its per-save file's own words, which
+    # VVFP Save Reset.dll deletes on Start Over)
+    "vv2": ("vv2_totems_out_of_entries", b"Elder Totems"),
+    "vv3": ("vv3_both_factions", b"Virtual Villagers 3 Second Faction"),
+}
+
+
+class SidecarOwnersCarryTheResetTests(unittest.TestCase):
+    """A companion-only feature with a per-save file, ticked alone, gets Start Over.
+
+    Both Factions (VV3) and the totems (VV2) ship no executable bytes of their
+    own. Ticked without Origins, the parentage log or the statistics log, the
+    build had neither hook nor VVFP Save Reset.dll, so Start Over left the old
+    village's "Second Faction - Save <S>.dat" / ElderTotems.dat for the new
+    village to read (PR #603 review).
+    """
+
+    def test_they_are_registered_after_the_logs(self) -> None:
+        for game, (feature_id, _words) in SIDECAR_OWNERS.items():
+            with self.subTest(game=game):
+                owners = vp.START_OVER_RESET_FILE_OWNERS[game]
+                self.assertEqual(owners[-1], feature_id)
+                self.assertEqual(
+                    owners[:2],
+                    (f"{game}_write_parentage_log", f"{game}_write_village_statistics"),
+                )
+
+    def test_alone_it_carries_both_hooks_and_the_dll(self) -> None:
+        for game, (feature_id, _words) in SIDECAR_OWNERS.items():
+            build = next(b for b in vp.load_builds() if b.id == game)
+            with self.subTest(game=game):
+                features = vp._attach_start_over_reset(
+                    game, vp._selected_fun_patches(build, [feature_id])
+                )
+                self.assertEqual(_writers_of_hook(game, features), [feature_id])
+                site = vp.MAIN_MENU_START_OVER[game]["site"]
+                self.assertEqual(
+                    [f.id for f in features if vp._feature_writes_offset(f, site)],
+                    [feature_id],
+                )
+                carrier = next(f for f in features if f.id == feature_id)
+                self.assertIn(
+                    DLL,
+                    [i.get("destination") for i in carrier.raw["companion_files"]],
+                )
+                # The catalog row itself is untouched.
+                self.assertEqual(vp.get_fun_patch(feature_id).raw.get("patches"), [])
+
+    def test_a_log_still_carries_it_first(self) -> None:
+        for game, (feature_id, _words) in SIDECAR_OWNERS.items():
+            build = next(b for b in vp.load_builds() if b.id == game)
+            ids = [f"{game}_write_village_statistics", feature_id]
+            with self.subTest(game=game):
+                features = vp._attach_start_over_reset(
+                    game, vp._selected_fun_patches(build, ids)
+                )
+                self.assertEqual(
+                    _writers_of_hook(game, features), [f"{game}_write_village_statistics"]
+                )
+
+    def test_the_save_reset_dll_deletes_their_files(self) -> None:
+        dll = (ROOT / "assets" / "save_reset" / DLL).read_bytes()
+        for game, (_feature_id, words) in SIDECAR_OWNERS.items():
+            with self.subTest(game=game):
+                wide = words.decode("ascii").encode("utf-16-le")
+                self.assertTrue(words in dll or wide in dll, words)
+
+
+@unittest.skipUnless(HAVE_STOCK, "requires all five stock executables")
+class SidecarOwnerBuildShipsTheResetTests(unittest.TestCase):
+    def test_a_standalone_build_ships_save_reset_in_every_mode(self) -> None:
+        for game, (feature_id, _words) in SIDECAR_OWNERS.items():
+            stock = (STOCK / EXE[game]).read_bytes()
+            site = vp.MAIN_MENU_START_OVER[game]["site"]
+            for mode in ("stock", "collection_progression", "immediate_fixed"):
+                with self.subTest(game=game, mode=mode):
+                    work = pathlib.Path(tempfile.mkdtemp(prefix=f"{game}_sidecar_"))
+                    try:
+                        source_dir = work / "game"
+                        source_dir.mkdir()
+                        shutil.copy2(STOCK / EXE[game], source_dir / EXE[game])
+                        output, _log = vp.apply_patch(
+                            source_dir / EXE[game],
+                            patch_mode=mode,
+                            fun_patch_ids=[feature_id],
+                            output_root=work / "out",
+                        )
+                        files = output.parent / "Virtual Villagers Fun Patcher Files"
+                        self.assertEqual(
+                            vp.sha256(files / DLL),
+                            vp.sha256(ROOT / "assets" / "save_reset" / DLL),
+                        )
+                        data = output.read_bytes()
+                        hook = HOOK[game]
+                        self.assertEqual(data[hook], 0xE8)
+                        self.assertNotEqual(data[hook : hook + 5], stock[hook : hook + 5])
+                        self.assertNotEqual(data[site : site + 5], stock[site : site + 5])
+                    finally:
+                        shutil.rmtree(work, ignore_errors=True)
+
+
 class PopulationPagesAreMatchedByVillageTests(unittest.TestCase):
     """Start Over deletes the erased village's roster pages, not "page <slot>".
 

@@ -54,12 +54,13 @@ static const char *c2_arm_refusal(void) {
        own popup) may be queued before it, a plain event may not.  Either is
        delivered only after the village's two opening island events, which
        stay the game's own (ce_held, story_custom.inc). */
-    if (*(int *)(world + VV2_EVENT_COUNT_FIELD) == 0 && !ce_refusal_for_choice) {
+    if (*(int *)(world + VV2_EVENT_COUNT_FIELD) == 0 && !ce_refusal_for_choice
+        && !ce_village_empty(2)) {   /* an empty village: story_empty_village.inc */
         return "A village's first island event is always one with a choice. A custom island "
                "event can be queued once it has happened.";
     }
     if (!vv2_any_villager(VV2_POOL(), 0x118, -1, 0, 0)) {
-        return "An island event needs a living adult in the village.";
+        return ce_empty_refusal(2, "An island event needs a living adult in the village.");
     }
     return NULL;
 }

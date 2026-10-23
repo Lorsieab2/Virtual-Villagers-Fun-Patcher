@@ -217,17 +217,28 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for Fix Vanilla Bugs' Details name box identity guard: putting its rows
     # (tests/test_details_name_identity.py) back to stock and recomputing the CheckSum gives the
     # previous digest in all three modes.
+    # Re-pinned when Fruit Counts When It Reaches the Food Bin joined the catalog.
+    # Justified BEFORE re-pinning by rendering the full catalog with and without that
+    # row and diffing byte for byte: 97 differing bytes per mode, every one inside its
+    # three rows (0x34A9B..0x34ABA, 0x34C27..0x34C2B, 0x34C44..0x34C7F) or the PE
+    # CheckSum at 0x160..0x163; the length is unchanged.
+    # Re-pinned for Fix Vanilla Bugs' catch-up hut walk: putting its one site (0x53B73, 90 90 ->
+    # 75 19) back to stock and restoring the previous CheckSum gives the previous digest in all
+    # three modes.
+    # Re-pinned for the v1.35.81 release, which carries both of the above: the combined render
+    # differs from the fruit-only render only at 0x53B73..0x53B74 and the PE CheckSum, and from
+    # the hut-only render only inside the fruit rows above and the PE CheckSum, in all three modes.
     "stock": (
-        "0B0FB32420F46CD9538E9CD3879159F87408EF45EF744576BF95F457B5C9660F",
-        "664B0D00",
+        "FA1FEC998274691C62AF9547A8B2C23604E323B41FB0C96990A8DAE6373E62F0",
+        "E88F0D00",
     ),
     "collection_progression": (
-        "050E57506862F1956A8A25375E1B2240061989D2B3D677B973BF127BA137CE30",
-        "66640D00",
+        "06A20076A2F4074C9AE3508A3A4AB412BF5E86E320AB8FFFFC4D7390C3E68057",
+        "E8A80D00",
     ),
     "immediate_fixed": (
-        "5F0545C4800F81855E684B27DA88FD19124090BCD63E8A7EB1514356C02C5A4B",
-        "64A60D00",
+        "571A2EAD2CF3EC6A3FAA2EFC436BBA8D8CF91EB9196FB2E6180446493CC31D4A",
+        "E7EA0C00",
     ),
 }
 

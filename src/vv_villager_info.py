@@ -187,8 +187,9 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person,
     golden = village.game == 1 and (p.family == 199 or p.how == "Golden Child")
     if special and not (golden and special == "Golden Child"):     # the Golden Child line above says it
         note((f"Special title: {special}", "plain", None))
-    if entry.get("mark"):
-        note((f"Special mark: {entry['mark']}", "plain", None))
+    marks = ft.entry_marks(entry)
+    if marks:
+        note((f"Special mark{'s' if len(marks) > 1 else ''}: {', '.join(marks)}", "plain", None))
     if p.litter is not None and not p.upcoming:
         others = sorted((q for q in people.values() if q.litter == p.litter and q.id != p.id and not q.upcoming),
                         key=_born_order)
@@ -205,6 +206,8 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person,
     for label, q in (("Father", p.father), ("Mother", p.mother)):
         if q is not None and q in people:
             note((f"{label}: ", "plain", None), *_person_runs(edits, names, people[q]))
+        elif (getattr(p, "hidden_parents", None) or {}).get(label):     # left off by "Hide unconverted Heathens"
+            note((f"{label}: {p.hidden_parents[label]} (Heathen)", "plain", None))
     if not p.upcoming:
         number = f", number {p.number}" if p.number is not None else ""
         note((f"Generation {gen.roman(p.generation)}{number}", "plain", None))

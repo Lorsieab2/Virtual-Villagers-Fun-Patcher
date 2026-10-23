@@ -10,7 +10,7 @@
         },
         {
           "destination": "VVFP Save Reset.dll",
-          "sha256": "012789df197c13a13444b8dce4e1e0ed26a1f9ccd8db916431fb9927fec49582",
+          "sha256": "a0a33d0b6df27e4e7a6dc78f5311f645d409e684b9fe9fdb67cba6b01d245494",
           "source": "assets/save_reset/VVFP Save Reset.dll"
         }
       ],

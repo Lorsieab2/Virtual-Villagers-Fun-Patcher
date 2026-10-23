@@ -48,6 +48,18 @@ another test class below.
    flag only below 150, the loader 0x45C860 bounded at 150 entries, and the
    block check accepting a size whose only difference is a zeroed low byte when
    entry #150 is in use, which repairs saves the unfixed game damaged.
+
+5. Population huts get no work during catch-up (a Time Warp, or the time
+   replayed when a village is opened).  The owner (2026-10-22): "when I use
+   time warp in VV3 no villagers make progress on hut building".  The hut
+   action 0x453990 skips every walk to the hut while the catch-up flag
+   [world+0x12FB4] is set, and the build step 27 (0x4358B0 -> 0x432680)
+   credits only the hut whose map area the builder is standing in.  The Tree
+   of Life and New Believers queue the walk in catch-up too, and their
+   catch-up runners move the villager there.  The fix turns the `jne` at
+   0x453B73 (before the last walk, right ahead of step 27) into two NOPs; the
+   VV3 catch-up runner 0x45B790 already turns a walk (step 3) into a move
+   (0x45B7D7 -> 0x455EB0).
 """
 from __future__ import annotations
 
@@ -149,6 +161,12 @@ from test_details_name_identity import name_identity_fixes  # noqa: E402
 # The Details name box is written back only to the villager it was filled for
 # (tests/test_details_name_identity.py).
 FIXES = FIXES + PERCENT_FIXES + LIKES_FIXES + name_identity_fixes("vv3")
+# Population huts are built during catch-up (a Time Warp, or time away): the
+# hut action's last walk before the build step is no longer skipped there.
+HUT_WALK_OFFSET = 0x53B73
+HUT_WALK_STOCK = bytes.fromhex("7519")       # jne 0x453B8E (skip the walk in catch-up)
+HUT_WALK_PATCHED = bytes.fromhex("9090")
+FIXES = FIXES + ((HUT_WALK_OFFSET, HUT_WALK_STOCK, HUT_WALK_PATCHED),)
 TECH_REWARD = 100
 
 # Game addresses.
@@ -309,6 +327,7 @@ class ManifestTests(unittest.TestCase):
                0x468D47, 0x40D54B,                      # the '%' fixes (#566)
                0x45537C, 0x4547FC)                      # the Details screen's likes/dislikes
         vas += tuple(0x400000 + off for off, _, _ in name_identity_fixes("vv3"))   # the name box guard
+        vas += (0x453B73,)                                                      # catch-up hut walk
         self.assertEqual(len(vas), len(FIXES))
         for va, (offset, before, _after) in zip(vas, FIXES):
             self.assertEqual(pe.get_offset_from_rva(va - 0x400000), offset)
@@ -628,6 +647,146 @@ class Save150DecodeTests(unittest.TestCase):
 
 class Save150EmulationTests(SaveTableCases, unittest.TestCase, _Builds):
     LAYOUT = VV3
+
+
+# ---- 5. Population huts during catch-up -------------------------------------
+
+HUT_ACTION = 0x453990          # cdecl (villager, &hut index): "Building small hut"
+CATCH_UP_RUNNER = 0x45B790     # thiscall (villager) ret 4: runs the queue at once
+CATCH_UP_FLAG = 0x12FB4        # world byte, 1 while catch-up runs
+HUT_AREAS = 0x49D0B0           # 0x4321C0: hut i's map area
+HUT_OBJECTS = 0x49D0D0         # 0x4321E0: hut i's project object id
+QUEUE_ENTRY = 0x2C             # 0x460E30: 80 entries of 0x2C at the record
+WALK, BUILD = 3, 27            # step types: walk to a point, add build progress
+
+
+def _hut_process(exe: bytes, catch_up: bool, hut: int):
+    """Run the real hut action for a builder, then the real catch-up runner on
+    what it queued.  Returns (steps queued, [builder's point at each build
+    step], the area point the walk was given)."""
+    import story_emulator as se
+
+    p = se.Process(exe)
+    world = p.alloc(0x14000)
+    record = p.alloc(0x2000)
+    index = p.alloc(16)
+    label = p.alloc(64)
+    p.write(label, b"Building small hut\0")
+    p.put32(index, hut)
+    p.put32(record + 0xDC4, 400)                   # an adult: full size (0x455E50)
+    p.write(world + CATCH_UP_FLAG, bytes([1 if catch_up else 0]))
+    # Stand-ins for what the action reads, each popping what the real routine
+    # pops (cdecl 0 / thiscall ret 4 / ret 8).
+    p.stub(0x428B60, lambda q: (world, 0))         # world getter, no arguments
+    p.stub(0x42F740, lambda q: (world, 0))         # text table getter, no arguments
+    p.stub(0x42F190, lambda q: (label, 4))         # text by id, thiscall ret 4
+    p.stub(0x46F780, lambda q: (0, 0))             # strncpy, cdecl
+    p.stub(0x4547B0, lambda q: (0, 4))             # dislikes wood? no -- thiscall ret 4
+    p.stub(0x4032D0, lambda q: (0, 0))             # rand(n) -> 0, cdecl
+    p.stub(0x461BF0, lambda q: (0, 4))             # start the queue, thiscall ret 4
+
+    def area_point(q):                             # map 0x4B8700: a point in an area, ret 8
+        out, area = q.arg(0), q.arg(1)
+        q.put32(out, 1000 + area)
+        q.put32(out + 4, 2000 + area)
+        return out, 8
+    p.stub(0x4202F0, area_point)
+    top = se.STACK_TOP - 0x1000
+    p.call(HUT_ACTION, [record, index])
+    assert p.reg("esp") == top - 8, hex(p.reg("esp"))   # cdecl: only the return address popped
+    steps = []
+    for i in range(0x50):
+        kind = p.u32(record + i * QUEUE_ENTRY)
+        if kind == 0:
+            break
+        steps.append(tuple(p.u32(record + i * QUEUE_ENTRY + 4 * k) for k in range(4)))
+
+    at_build: list[tuple[int, int]] = []
+
+    def step_start(q):                             # 0x461FB0: thiscall (villager) ret 4
+        if q.u32(q.reg("ecx")) == BUILD:
+            # 0x455EF0 reads the point back as +0xEE0 + 20, +0xEE4 + 55 at full size
+            at_build.append((q.u32(record + 0xEE0) + 20 & 0xFFFFFFFF, q.u32(record + 0xEE4) + 55 & 0xFFFFFFFF))
+        return 0, 4
+    p.stub(0x461FB0, step_start)
+    p.put32(record + 0xEE0, 7)                     # the builder stands somewhere else
+    p.put32(record + 0xEE4, 7)
+    p.call(CATCH_UP_RUNNER, [record], ecx=record)
+    area = p.u32(HUT_AREAS + 4 * hut)
+    return steps, at_build, (1000 + area, 2000 + area)
+
+
+class CatchUpHutBuildingTests(unittest.TestCase, _Builds):
+    def test_decoded(self) -> None:
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        stock = list(md.disasm(STOCK.read_bytes()[0x53B6B:0x53B8E], 0x453B6B))
+        self.assertEqual([(i.mnemonic, i.op_str) for i in stock[:3]],
+                         [("mov", "al, byte ptr [edi + 0x12fb4]"), ("test", "al, al"), ("jne", "0x453b8e")])
+        self.assertEqual(stock[2].address, 0x453B73)
+        self.assertEqual([(i.address, i.mnemonic, i.op_str) for i in stock if i.mnemonic == "call"][-1],
+                         (0x453B89, "call", "0x4610d0"))
+        patched = list(md.disasm(HUT_WALK_PATCHED, 0x453B73))
+        self.assertEqual([i.mnemonic for i in patched], ["nop", "nop"])
+
+    def test_stock_catch_up_builds_where_the_builder_stands(self) -> None:
+        """The bug, as the owner saw it: in catch-up the build step runs with
+        no walk before it, so the builder is wherever they were."""
+        for hut in range(4):
+            with self.subTest(hut=hut):
+                steps, at_build, point = _hut_process(STOCK.read_bytes(), True, hut)
+                kinds = [s[0] for s in steps]
+                self.assertIn(BUILD, kinds)
+                self.assertNotIn(WALK, kinds)
+                self.assertEqual(at_build, [(27, 62)])          # (7 + 20, 7 + 55): not the hut
+
+    def test_catch_up_moves_the_builder_onto_the_hut_before_building(self) -> None:
+        for mode in MODES:
+            for build in ("patched", "patched_with_all"):
+                exe = self.builds()[(mode, build)]
+                for hut in range(4):
+                    with self.subTest(mode=mode, build=build, hut=hut):
+                        steps, at_build, point = _hut_process(exe, True, hut)
+                        kinds = [s[0] for s in steps]
+                        self.assertEqual(kinds.count(WALK), 1)
+                        self.assertLess(kinds.index(WALK), kinds.index(BUILD))
+                        # The walk leads to the chosen hut's own area ...
+                        self.assertEqual(steps[kinds.index(WALK)][2:], point)
+                        # ... and the build step is the chosen hut's, with the builder on it.
+                        self.assertEqual(at_build, [point])
+                        # Nothing else in the queue changed: the stock list with the walk added.
+                        stock_steps, _, _ = _hut_process(STOCK.read_bytes(), True, hut)
+                        without = steps[:kinds.index(WALK)] + steps[kinds.index(WALK) + 1:]
+                        self.assertEqual(without, stock_steps)
+
+    def test_with_256_villagers_in_every_mode(self) -> None:
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                exe = _render(mode, ["vv3_population_256", FEATURE_ID])
+                self.assertEqual(exe[HUT_WALK_OFFSET:HUT_WALK_OFFSET + 2], HUT_WALK_PATCHED)
+                steps, at_build, point = _hut_process(exe, True, 2)
+                self.assertEqual([s[0] for s in steps].count(WALK), 1)
+                self.assertEqual(at_build, [point])
+
+    def test_live_building_is_unchanged(self) -> None:
+        for mode in MODES:
+            exe = self.builds()[(mode, "patched_with_all")]
+            for hut in range(4):
+                with self.subTest(mode=mode, hut=hut):
+                    self.assertEqual(_hut_process(exe, False, hut)[0],
+                                     _hut_process(STOCK.read_bytes(), False, hut)[0])
+
+    def test_the_build_step_names_the_chosen_hut(self) -> None:
+        """Step 27 carries the chosen hut's project object (0x4321E0), as in
+        stock: the fix moves the builder, it does not change what is built."""
+        stock = STOCK.read_bytes()
+        image = pefile.PE(data=stock).get_memory_mapped_image()
+        exe = self.builds()[("stock", "patched")]
+        for hut in range(4):
+            with self.subTest(hut=hut):
+                build = next(s for s in _hut_process(exe, True, hut)[0] if s[0] == BUILD)
+                stock_build = next(s for s in _hut_process(stock, True, hut)[0] if s[0] == BUILD)
+                self.assertEqual(build, stock_build)
+                self.assertEqual(build[1], struct.unpack_from("<I", image, HUT_OBJECTS - 0x400000 + 4 * hut)[0])
 
 
 if __name__ == "__main__":

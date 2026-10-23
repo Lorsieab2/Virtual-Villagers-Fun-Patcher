@@ -86,6 +86,7 @@ class StoredRunsTests(unittest.TestCase):
 
     def test_reset_text_leaves_the_patchers_own_words(self) -> None:
         v, p, e, key = edits_with([[("9. I", BOLD)]])
+        e.show_twins = False            # I is a twin: no extra line, so the patcher's own words are plain
         lay = ft.layout(v, e)
         self.assertIsNotNone(ft.node_runs(lay, p))
         e.entries[key].pop("lines")

@@ -169,6 +169,14 @@
       ]
     },
     {
+      "ids": ["vv3_fruit_harvested_at_food_bin"],
+      "guide": [
+        "A villager picking fruit now adds the food, and takes the fruit off the tree, only when the fruit goes into the food bin, as honey does.",
+        "Fruit dropped on the way stays on the tree and adds nothing.",
+        "Nothing to click: villagers pick fruit as usual. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv4_complete_scales_golden_fish"],
       "guide": [
         "Golden Fish can only turn up in the fishing nets after all 12 Fish Scales are collected.",
@@ -238,6 +246,7 @@
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager, even when the arrows are clicked quickly; a name you type is still kept.",
+        "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "Nothing to click. On by default."
       ]
     },
@@ -249,6 +258,7 @@
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
+        "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "Nothing to click. On by default."
       ]
     },
@@ -260,6 +270,7 @@
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
+        "After a Time Warp, or while the game catches up on time away, builders now really build the population huts that have been started.",
         "Keep it on with 256 Villagers (Experimental). On by default."
       ]
     },
@@ -537,6 +548,18 @@
       ]
     },
     {
+      "ids": ["vv3_both_factions"],
+      "guide": [
+        "Buy a faction on the Tech screen and say Yes to the new message, then do the same for the other one, at its normal price.",
+        "Both then work together, every level of each: food refills, longer lives, the research point and the population bonus, and both herbs grow on the island.",
+        "Seven new potions need a Pitcher Plant and a Berry Plant in the pot together.",
+        "The latest shark potion decides how the sharks look; nothing else changes.",
+        "The save keeps your first faction; the second is kept in the save's own folder and comes back when you load.",
+        "Without the patch the village loads with the first faction only.",
+        "Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv1_healers_study_regardless_of_food"],
       "guide": [
         "Drop a villager on the medical cactus to start them studying.",
@@ -572,7 +595,7 @@
       "guide": [
         "For stories and cheats: every Origins Upgrade costs 0 tech points.",
         "Adds Pick Island Event: choose an island event from a list, and how it turns out if you like.",
-        "Adds Custom Island Event: write your own event with its title, text, food, tech points, new villagers and more.",
+        "Adds Custom Island Event: write your own event with its title, text, food, tech points, new villagers and more, even when everyone has died.",
         "Its villager list shows each villager's special role: the Golden Child, the Tribal Chief, or Believer and Heathen type.",
         "In New Believers it also has All Heathens and one button for each Heathen type: blue, red, orange, purple, Chief and Heathen Mommy.",
         "Find both in the Origins Upgrades menus.",
@@ -584,7 +607,7 @@
       "ids": ["vv3_story_cheat_upgrades"],
       "guide": [
         "For stories and cheats: every Origins Upgrade costs 0 tech points.",
-        "Adds Pick Island Event (choose an event and how it turns out) and Custom Island Event (write your own).",
+        "Adds Pick Island Event (choose an event and how it turns out) and Custom Island Event (write your own, even when everyone has died).",
         "Its villager list shows who your Tribal Chief is.",
         "Adds Recharge Chief Powers: your chief's once-a-day powers are ready to use again at once.",
         "Find them in the Origins Upgrades menus.",
@@ -596,7 +619,7 @@
       "ids": ["vv2_story_cheat_upgrades"],
       "guide": [
         "For stories and cheats: every Origins Upgrade costs 0 tech points.",
-        "Adds Pick Island Event (choose an event and how it turns out) and Custom Island Event (write your own).",
+        "Adds Pick Island Event (choose an event and how it turns out) and Custom Island Event (write your own, even when everyone has died).",
         "Its villager list shows each Esteemed Elder and the totem they have.",
         "Adds Pick Gong of Wonder Outcome: choose what the next ring of the Gong does -- any of its 23 results, and which villager it acts on.",
         "Buying it makes the Gong ready to ring at once. Ring it within ten minutes. It needs the Gong whole.",
