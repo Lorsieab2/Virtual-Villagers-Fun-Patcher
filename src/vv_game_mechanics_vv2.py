@@ -94,7 +94,6 @@ ODDS_LINES = (
      "conceptions are twins or more, 1.84% triplets.", True),
     ("Sickness each age unit with the fire out / lit: 0.52% / 0.28% at Medicine 1, 0.28% / 0.14% at Medicine 2, "
      "0.11% / 0.09% at Medicine 3, about 1.5% more from 50, 58 or 66 years; Easy halves these.", True),
-    ("Old age: from 55, 63 or 71 years (Medicine 1, 2, 3), each birthday past it carries a death roll, the chance rising 10% for each year over.", False),
     ("Building: huts and the hospital +2 a try (+1 while catching up); the dam, vines and thorns +2, or +3 at "
      "Building 88 (+1 or +2 while catching up); the ruins +1, or +2 at 88. A work try injures about 2% of the "
      "time (1% at the ruins).", True),
@@ -242,4 +241,5 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                  f"{gm.duration(240 * 60 * speed)} on {on} speed.", True)
     for line, ok in ODDS_LINES:
         add("Other", line, ok)
+    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "Totems do not age."))
     return out

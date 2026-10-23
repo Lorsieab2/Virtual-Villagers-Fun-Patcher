@@ -390,9 +390,9 @@ class EveryGame(unittest.TestCase):
                 for line in body:
                     content = line.strip().removeprefix(f"{gm.UNCONFIRMED}  ")
                     self.assertNotRegex(content, r" [.;,]|  |\(\)", content)
-    def test_old_age_is_held(self) -> None:
-        """The owner sees villagers live past the old-age rule: until it is re-checked, every game shows it
-        UNCONFIRMED and never says death is certain at an age."""
+    def test_old_age_rule(self) -> None:
+        """The verified old-age rule (all five games): a death roll by the hidden processed age, never "certain
+        at" an age, with the shown-age difference explained."""
         for name in self.SAVES:
             with self.subTest(save=name):
                 facts = self.page(name)
@@ -401,7 +401,9 @@ class EveryGame(unittest.TestCase):
                 self.assertNotIn("lives past", text)
                 old = [f for f in facts if f.text.startswith("Old age:")]
                 self.assertEqual(len(old), 1)
-                self.assertFalse(old[0].confirmed)
+                self.assertTrue(old[0].confirmed)
+                self.assertIn("death roll whose chance is 10% for each year over", old[0].text)
+                self.assertIn("processed age", old[0].text)
     def test_nothing_inferred(self) -> None:
         """The owner: DO NOT INFER -- no guessing words, no names chosen from a theme (The Tree of Life's Mausoleum
         and Wind Flute sets are named by the owner)."""

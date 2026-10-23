@@ -362,7 +362,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         f"Honey: gains {honey_gain} {gm.every(honey_every, speed)}, up to {HONEY_CAP}{honey_next} By the time since "
         f"the last gain -- " + ", ".join(f"{gm.duration(gm.real_seconds(t, speed))} +{g}" for t, g in
                                        zip((2700, 3600, 10800, 36000), HONEY_PATCHED_GAINS if faster else HONEY_GAINS))
-        + "."), True))                  # verified, stock and patched (v1.35.81), the coordinator 2026-10-23
+        + "."), gm.RUNNING))            # stock and patched (v1.35.81), reach traced (spec addendum 3)
 
     # -- the clock ------------------------------------------------------------------------
     if clock.paused:
@@ -455,6 +455,10 @@ EVENT_LINES = (
     "younger and health +50; The Mysterious Crate coconuts food +500, tarantulas food +400, sick and health -10 to "
     "-29; The Royal Jelly Healing +15 to +29; The Shooting Star food +200 or Research +25 to +49; The Return of "
     "Biggles Research +20 to +44 or tech points.",
+    "The Ghostly Dream needs Nature level 1 or more (nature or healing: Farming or Healing +20 to +39) or Magic "
+    "level 1 or more (research or architecture: Research or Building +20), and a villager of 18 or more who is not "
+    "pregnant or nursing and not the chief; skills stop at 100. With both factions both can happen, as separate "
+    "events.",
 )
 ODDS_LINES = (
     "Brewing a potion blows up {blow}% of the time at Alchemy level {alchemy} (46%, 31%, 16% or 1% at Alchemy "
@@ -462,7 +466,6 @@ ODDS_LINES = (
     "Conception: a roll of 300 + 50 - 50 x Medicine level (less a potion's help: 50 or 100) at or under Breeding; "
     "at Breeding 100 that is 17%, 33%, 51% or 67% at Medicine 0 to 3. Twins 5.3% and triplets 1.75%, at "
     "Medicine 3 only.",
-    "Old age: from 47, 55, 63 or 71 years (Medicine 0 to 3), each birthday past it carries a death roll, the chance rising 10% for each year over.",
     "Sickness, each age unit, with the fire lit or the hospital project done / without: 0.28% / 0.49% at "
     "Medicine 1, 0.17% / 0.30% at Medicine 2, 0.064% / 0.107% at Medicine 3; the elderly (from 42 years plus 8 "
     "for each Medicine level) 1.51% more. Easy halves these; Hard raises them.",
@@ -479,8 +482,8 @@ ODDS_LINES = (
 
 
 # The lines of EVENT_LINES and ODDS_LINES verified by emulation (the spec's addendum, section C and D).
-VERIFIED_EVENT_LINES = {1, 8, 9, 10, 11}   # the rescue odds, the rolled results, the Fog, the results
-VERIFIED_ODDS_LINES = {0, 1, 3, 5, 6}       # blow-up, conception, sickness, life, potions (old age held)
+VERIFIED_EVENT_LINES = {1, 8, 9, 10, 11, 12}   # rescue, rolled results, Fog, results, the Ghostly Dream
+VERIFIED_ODDS_LINES = {0, 1, 2, 4, 5}       # blow-up, conception, sickness, life, potions
 
 
 def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int) -> list[gm.Fact]:
@@ -510,18 +513,18 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                      "seconds in storms; each is gone after 1 minute 30 seconds unpicked.", True)
     add("Mushrooms", "At most 2 are out at a time.")
     add("Mushrooms", "In fair weather 30% of them are mushrooms, in rain all: 92% give 6 food, 8% give 35, counted "
-                     "when they reach the food bin.", True)
+                     "when they reach the food bin.", gm.RUNNING)
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
     add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%. A piece already found "
-                        "gives 100, 250 or 1,500 tech points by rarity.", True)
+                        "gives 100, 250 or 1,500 tech points by rarity.", gm.RUNNING)
     add("Collectibles", "Tablet pieces already owned never appear again; coral, feather and turtle shell pieces "
-                        "keep appearing, and each one already owned pays its tech points.", True)
+                        "keep appearing, and each one already owned pays its tech points.", gm.RUNNING)
     add("Collectibles", "The tablet collection appears once its project is started; a full collection raises the "
                         "population limit by 5, all four by 25.")
     add("Collectibles", "A Tribal Chief with Leadership 3 can call a rare collectible every 23 hours; it fails "
-                        "only when it picks a rare tablet piece already owned.", True)
+                        "only when it picks a rare tablet piece already owned.", gm.RUNNING)
     if village.has(RARE_RETRY) is not False:
         add("Collectibles", gm.patch_words(village, RARE_RETRY, "a failed call is tried again"))
 
@@ -535,13 +538,13 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         + (" -- 1 point less on Normal speed, by the game's own rounding" if level[SCIENCE] >= 1 else "")
         + f"; a lit fire adds a 10% chance of 1 more; while catching up ÷ {catch}."))
     blow = max(0, 15 * (3 - level[ALCHEMY]) + 1)
-    add("Tech points and effects", ODDS_LINES[0].format(blow=min(blow, 100), alchemy=level[ALCHEMY]), True)
+    add("Tech points and effects", ODDS_LINES[0].format(blow=min(blow, 100), alchemy=level[ALCHEMY]), gm.RUNNING)
 
     add("Food earned", f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
                        f"({2 * 3600 / (60 * speed):g} an hour) while there is more than 500; at Normal difficulty 2 "
                        "more 76% of the time at 8,000 food or more, on Hard always, on Easy never. At 500 or less "
                        "a villager eats half the time, and otherwise loses 1 health 30% of the time; with no food "
-                       "at all a villager loses 1 or 2 health about two times in three.", True)
+                       "at all a villager loses 1 or 2 health about two times in three.", gm.RUNNING)
 
     out.extend(gm.time_away(village, wall(LAST_SAVED), speed_value,
                             "Saved paused: nobody ages, the clock is stopped and the next island event is pushed "
@@ -557,10 +560,10 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
     add("Island events", f" Island events come every 8 to 15 whole hours at any "
                          "speed, each hour about equally likely; the first of each time the game is started comes "
-                         "30 minutes after it.", True)
+                         "30 minutes after it.", gm.RUNNING)
     add("Island events", "A new village's first event comes 15 minutes after it is made; paused time does not count.")
     for n, line in enumerate(EVENT_LINES):
-        add("Island events", line, n in VERIFIED_EVENT_LINES)
+        add("Island events", line, gm.RUNNING if n in VERIFIED_EVENT_LINES else False)
     if village.has(STORY) is not False:
         add("Island events", gm.patch_words(village, STORY, "Pick Island Event chooses the event"))
 
@@ -570,9 +573,11 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                                  else f"was burning when saved, with {gm.duration(fire - wall(LAST_SAVED))} left")
                   + "; while it burns sickness is lower and research gets its 10% chance of 1 more."))
     for n, line in enumerate(ODDS_LINES[1:], 1):
-        add("Other", line, n in VERIFIED_ODDS_LINES)
+        add("Other", line, gm.RUNNING if n in VERIFIED_ODDS_LINES else False)
+    extra = ""
     if level[5] >= 3 or nature >= 3:
-        add("Other", gm.patch_words(village, MORTALITY, "at Nature level 3 the old-age rolls start 7 years later"))
+        extra = gm.patch_words(village, MORTALITY, "at Nature level 3 the rolls start 7 years later")
+    out.append(gm.old_age_line("47, 55, 63 or 71 years (Medicine 0 to 3)", extra))
     leadership = level[LEADERSHIP]
     ready = []
     for words, at in CHIEF_READY.items():

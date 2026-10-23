@@ -31,8 +31,10 @@ import vv_tribe_rename  # noqa: E402
 
 FIXTURES = ROOT / "tests" / "fixtures" / "rename_tribe"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
-STATUS = {gm.OWNER: "CONFIRMED BY OWNER", gm.CLAMP: "VERIFIED FROM RUNNING CODE", gm.SAVE: "READ FROM THE SAVE"}
+STATUS = {gm.OWNER: "CONFIRMED BY OWNER", gm.CLAMP: "VERIFIED FROM RUNNING CODE", gm.RUNNING: "VERIFIED FROM RUNNING CODE",
+          gm.SAVE: "READ FROM THE SAVE"}
 EVIDENCE = {gm.OWNER: "owner", gm.CLAMP: "the catch-up clamp and Time Warp, verified on the games' own aging path",
+            gm.RUNNING: "the research spec's emulation with its call path from the game traced (addresses in the module)",
             gm.SAVE: "the save"}
 NOW = 1_800_000_000.0                         # a fixed "now", so the export does not change from run to run
 _DATE = re.compile(r"\b\d{1,2} (January|February|March|April|May|June|July|August|September|October|November|"

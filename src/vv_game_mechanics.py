@@ -39,8 +39,10 @@ LABEL_NOTE = ("UNCONFIRMED marks anything not yet confirmed by the owner in a ga
 # a rule the owner confirmed in a game, or the time-away clamp and Time Warp verified on the games' own aging
 # path.  A rule only emulated in isolation by the research (a spec's VERIFIED) is NOT enough: it is shown
 # UNCONFIRMED until its reach from the game's own call paths is shown.
-SAVE, OWNER, CLAMP = "save", "owner", "clamp"
-TRUSTED = frozenset({SAVE, OWNER, CLAMP})
+# RUNNING: emulated AND traced from the game's own call paths with inputs the game supplies (a research
+# spec's reachability re-check, e.g. The Secret City's addendum 3).
+SAVE, OWNER, CLAMP, RUNNING = "save", "owner", "clamp", "running"
+TRUSTED = frozenset({SAVE, OWNER, CLAMP, RUNNING})
 
 # The games' speed values (src/vv_save_backup.py, "GAME SPEED"): real seconds per 6 game seconds.
 FAST, NORMAL, SLOW = 3, 6, 10
@@ -171,6 +173,16 @@ def time_warp_line(speed_value: int) -> Fact:
         f"Time Warp (the Origins upgrade): each one gives the villagers {TIME_WARP_YEARS[speed]} years on "
         f"{speed_name(speed)} speed (12 on Fast, 6 on Normal, 3 on Slow), past the time-away limits; not while "
         "paused."), CLAMP)
+
+
+def old_age_line(thresholds: str, extra: str = "") -> Fact:
+    """The verified old-age rule (2026-10-23, all five games, emulated and checked against the owner's logs):
+    a death roll at each whole year past the threshold in the hidden processed age."""
+    return Fact("Other", (
+        f"Old age: at each whole year past {thresholds}, a death roll whose chance is 10% for each year over (100% "
+        "at 10 years over). The roll follows a hidden processed age: time away adds to the age shown in the game, "
+        "logs and graves at once, while the processed age catches up a step at a time, so the shown age can be "
+        "higher, by up to about 12 years after a long time away." + (f" {extra}" if extra else "")), RUNNING)
 
 
 def counted_away(game: int, seconds: float, speed: int) -> float | None:
