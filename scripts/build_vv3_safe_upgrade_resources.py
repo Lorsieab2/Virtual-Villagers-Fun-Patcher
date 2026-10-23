@@ -114,7 +114,7 @@ FOUNDATION_OUTPUT = (
 # start, and the Story / Cheat Upgrades host table gains island_arming.
 # Recertified for the VV3 fruit-tree companions (native/shared/startup_companions.h gains
 # "VVFP VV3 Trees Refill Together.dll" and "VVFP VV3 Trees Take Turns.dll", which the Story
-# bridge compiles in): rebuilt on the merged v1.35.81 sources.
+# bridge compiles in): rebuilt on the merged v1.35.82 sources.
 SOURCE_SHA256 = "B72B4DB5A323AF96646EB409C212357791974730CD2D7529217716CD086D5BE0"
 SOURCE_SIZE = 1999360
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
