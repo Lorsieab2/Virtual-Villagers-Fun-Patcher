@@ -84,7 +84,7 @@ GONG_LINES = (
      "ringer dies).", True),
     ("Tier B 23.75% (each of 9 about 2.64%: each villager sick at 30%; an island event in a minute; +10,000 to "
      "29,999 tech points; +1000 to 2998 food; the ringer -90 health; the crops emptied; the coconuts emptied; "
-     "youth taken; youth given). Tier C 71.25% (each about 7.9%, Wisdom twice as likely: everyone healed; +200 to "
+     "youth taken; youth given). Tier C 71.25% (each about 7.9%, Wisdom 15.8% as it is on two of the 9: everyone healed; +200 to "
      "999 food; the crops refilled; the coconuts refilled; +3005 to 12,999 tech points; -3000 to 12,999 tech "
      "points; each villager sick at 15%; one of the ringer's skills set to 100).", True),
 )
