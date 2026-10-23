@@ -138,6 +138,11 @@ CONFIG = {
 }
 
 
+# The owner (2026-10-23): bought island events leave the game's own island-event timer as it was
+# (native/shared/island_timer_keep.h, compiled into every Origins companion).
+BOUGHT_EVENTS_SENTENCE = " Bought island events don't change when the game's own island events come."
+
+
 def assemble(source: str, address: int) -> bytes:
     encoding, _ = Ks(KS_ARCH_X86, KS_MODE_32).asm(source, address)
     return bytes(encoding)
@@ -834,7 +839,7 @@ def main() -> None:
                 "entry_name": "running",
             },
             "name": feature_name,
-            "description": description,
+            "description": description + BOUGHT_EVENTS_SENTENCE,
             "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
             "dependencies": [f"{game_id}_enable_origins_exclusive_features"],
             "extension_abi": {
@@ -943,6 +948,7 @@ VV5_ROUTE = {
         "(Farming, Building, Research, Healing, Parenting, Devotion). Villagers "
         "with no progress in any skill yet keep their preference; Heathens are "
         "never touched."
+        + BOUGHT_EVENTS_SENTENCE
     ),
     "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
     "dependencies": ["vv5_enable_origins_exclusive_features"],
@@ -986,6 +992,7 @@ VV2_ROUTE = {
         "Running, and Set Age to 18, and the Heathen mask cosmetics are "
         "included. The point doublers do not double Island Event, Duplicate "
         "Collectible or Gong of Wonder tech gains."
+        + BOUGHT_EVENTS_SENTENCE
     ),
     "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
     "dependencies": ["vv2_enable_origins_exclusive_features"],

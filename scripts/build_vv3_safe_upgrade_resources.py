@@ -108,8 +108,12 @@ FOUNDATION_OUTPUT = (
 # Recertified for resizable dialogs (native/shared/vvfp_dialog_kit.h, the owner, v1.35.80:
 # "make sure all these windows are expandable"): every dialog of the companion has a
 # sizing frame and minimise / maximise boxes and lays its controls out as it grows.
-SOURCE_SHA256 = "646F687355D364CBE338244A339E88260608F1C36A30C6277738DA8C8B02005D"
-SOURCE_SIZE = 1995264
+# Recertified for bought island events keeping the game's own island-event timer
+# (native/shared/island_timer_keep.h, the owner, 2026-10-23: "I would prefer they don't affect
+# timing"): the Origins Island Event's helper and the trigger's own writes are detoured at game
+# start, and the Story / Cheat Upgrades host table gains island_arming.
+SOURCE_SHA256 = "1D6EAB0FCC219D3D282488322CEB3B5AFC2D7FA247273E9F2BFBDA60AD818A5F"
+SOURCE_SIZE = 1999360
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

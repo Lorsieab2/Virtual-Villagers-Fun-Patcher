@@ -174,12 +174,19 @@ typedef struct {
     /* Whether the game's clock runs (not paused): absent from a host that
        predates it (its size stops before it). */
     int (__stdcall *time_skip_running)(void);
+    /* Called with the island-event timer and the value about to be written
+       into it, just before an arm writes it, so the game's own next island
+       event keeps its time (native/shared/island_timer_keep.h): absent from
+       a host that predates it (its size stops before it). */
+    void (__stdcall *island_arming)(void *field, unsigned int value);
 } story_host;
 
 /* The size of a host without the time skip's entries. */
 #define STORY_HOST_BASE_SIZE ((int)offsetof(story_host, time_skip_step))
 /* ...and of one with the step and settled entries but not running. */
 #define STORY_HOST_SKIP_SIZE ((int)offsetof(story_host, time_skip_running))
+/* ...and of one with every time-skip entry but not the island timer's. */
+#define STORY_HOST_RUNNING_SIZE ((int)offsetof(story_host, island_arming))
 
 static const story_host *story_hosts[6];
 
@@ -196,10 +203,19 @@ static const story_host *story_time_skip_host(int game) {
 /* Whether `host`'s game clock runs now; a host that cannot say counts as
    running (only time between frames that run is counted at all). */
 static int story_host_running(const story_host *host) {
-    if (host->size < (int)sizeof(story_host) || host->time_skip_running == NULL) {
+    if (host->size < STORY_HOST_RUNNING_SIZE || host->time_skip_running == NULL) {
         return 1;
     }
     return host->time_skip_running() != 0;
+}
+
+/* Before an arm of `game` writes `value` into its island-event timer at
+   `field`: the host keeps the time the game's own next event was due. */
+static void story_island_arming(int game, void *field, unsigned int value) {
+    const story_host *host = game >= 1 && game <= 5 ? story_hosts[game] : NULL;
+    if (host != NULL && host->size >= (int)sizeof(story_host) && host->island_arming != NULL) {
+        host->island_arming(field, value);
+    }
 }
 
 /* Called once by each game's Origins companion (native/shared/story_bridge.h)
@@ -207,7 +223,7 @@ static int story_host_running(const story_host *host) {
 __declspec(dllexport) int __stdcall VvfpStoryAttachHost(int game, const story_host *host) {
     if (game < 1 || game > 5 || host == NULL
         || (host->size != STORY_HOST_BASE_SIZE && host->size != STORY_HOST_SKIP_SIZE
-            && host->size != (int)sizeof(story_host))
+            && host->size != STORY_HOST_RUNNING_SIZE && host->size != (int)sizeof(story_host))
         || host->slot == NULL || host->mask_get == NULL || host->mask_set == NULL) {
         return 0;
     }

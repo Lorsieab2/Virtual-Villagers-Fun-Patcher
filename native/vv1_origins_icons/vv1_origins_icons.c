@@ -1809,6 +1809,21 @@ static void vv1_paid_tick(int slot) {
     }
     vv_paid_tick(1, slot, live, &VV1_PAID);
 }
+
+/* Bought island events do not change when the game's own island events come
+   (native/shared/island_timer_keep.h): the Origins Island Event's write
+   (0x456B47), the Story / Cheat Upgrades' arms (the host table below) and
+   the trigger's own (0x4237BD and its four writes). */
+#include "../shared/island_timer_keep.h"
+#include "../shared/island_timer_vv1.inc"
+static int __stdcall vv1_story_slot(void);
+static int vv1_itk_roster(unsigned int *out) {
+    return vv1_mask_live_roster(out);
+}
+static const itk_game VV1_ITK = {
+    1, ITK_VV1_SITES, sizeof ITK_VV1_SITES / sizeof ITK_VV1_SITES[0], vv1_story_slot, vv1_itk_roster,
+    "Virtual Villagers"
+};
 #endif
 
 void __stdcall Vv1MaskTick(void) {
@@ -1836,6 +1851,7 @@ void __stdcall Vv1MaskTick(void) {
     vvfp_crosscheck_bridge(1, 1);
 #if VV_STORY_GAME == 1
     vv1_paid_tick(slot);        /* a bought Barrel not delivered yet survives a quit */
+    itk_install(&VV1_ITK);      /* bought island events keep the natural timer: once (game start made it) */
 #endif
     if (!vv_sidecar_gate_ready(&vv1_mask_gate, slot)) {
         /* This slot's sidecar has not loaded: never read yet, or present but
@@ -1880,6 +1896,7 @@ void __stdcall Vv1MaskTick(void) {
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
+    VVFP_STARTUP_GUARDED(itk_install(&VV1_ITK));     /* bought island events keep the natural timer */
     VVFP_STARTUP_GUARDED(vv1_numkeys_resolve());     /* loaded; the event watch waits for the first frame */
     VVFP_STARTUP_GUARDED(vvfp_pathfinding_bridge(1));
     VVFP_STARTUP_GUARDED(vv1_watering_bridge());
@@ -2658,7 +2675,8 @@ static int __stdcall vv1_story_time_skip_running(void);
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv1_story_slot, vv1_story_mask_get, vv1_story_mask_set, NULL,
-        vv1_story_time_skip_step, vv1_story_time_skip_settled, vv1_story_time_skip_running
+        vv1_story_time_skip_step, vv1_story_time_skip_settled, vv1_story_time_skip_running,
+        itk_story_arming
     };
     return &host;
 }

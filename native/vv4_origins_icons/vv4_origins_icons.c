@@ -1225,6 +1225,34 @@ static int __stdcall vv4_story_mask_set(void *record, int mask) {
     return 1;
 }
 
+/* Bought island events do not change when the game's own island events come
+   (native/shared/island_timer_keep.h): the Origins Island Event's write
+   (0x4897B8), the Barrel of Babies' (0x4897E6), the re-arm of an Island
+   Event a barrel went ahead of (0x728A6B), the Barrel's own re-arm after a
+   relaunch (vv4_paid_rearm below), the Story / Cheat Upgrades' arms (the
+   host table below) and the trigger's own (0x43FA3D and its four writes).
+   The roster is the one the Barrel's file keeps (vv4_paid_tick below). */
+#include "../shared/island_timer_keep.h"
+#include "../shared/island_timer_vv4.inc"
+static int vv4_itk_roster(unsigned int *out) {
+    int slots = vv_slots(), i, n = 0;
+    if (VV_REC_ARRAY_BASE == 0u || slots <= 0 || slots > ITK_ROSTER) {
+        return 0;
+    }
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *rec = (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)i * VV_REC_STRIDE);
+        if (rec[VV_OCCUPIED_OFFSET] != 0) {
+            out[i] = vv_fingerprint(rec);
+            n += out[i] != 0u;
+        }
+    }
+    return n;
+}
+static const itk_game VV4_ITK = {
+    4, ITK_VV4_SITES, sizeof ITK_VV4_SITES / sizeof ITK_VV4_SITES[0], vv4_story_slot, vv4_itk_roster,
+    "Virtual Villagers - The Tree of Life"
+};
+
 /* Choose Time Skip Amount: defined with the Time Warp below. */
 static int __stdcall vv4_story_time_skip_step(int years);
 static int __stdcall vv4_story_time_skip_settled(void);
@@ -1233,7 +1261,8 @@ static int __stdcall vv4_story_time_skip_running(void);
 static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv4_story_slot, vv4_story_mask_get, vv4_story_mask_set, NULL,
-        vv4_story_time_skip_step, vv4_story_time_skip_settled, vv4_story_time_skip_running
+        vv4_story_time_skip_step, vv4_story_time_skip_settled, vv4_story_time_skip_running,
+        itk_story_arming
     };
     return &host;
 }
@@ -1250,6 +1279,7 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
+    VVFP_STARTUP_GUARDED(itk_install(&VV4_ITK));     /* bought island events keep the natural timer */
     VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
     VVFP_STARTUP_GUARDED(vvfp_story_startup(4));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(4));
@@ -1269,6 +1299,9 @@ static void vv4_paid_rearm(void) {
     *(volatile unsigned char *)(UINT_PTR)0x00728B00u = 1;      /* three children */
     *(volatile unsigned char *)(UINT_PTR)0x004CCA0Du = 0;      /* no cooldown */
     if (world != NULL) {
+        if (itk_state == 1) {
+            itk_note((unsigned int *)(world + 0x170E0u), 0u);  /* the game's own next event keeps its time */
+        }
         *(volatile unsigned int *)(world + 0x170E0u) = 0u;     /* due now */
     }
 }
@@ -1298,6 +1331,7 @@ void __stdcall Vv4MaskCacheSurface(void *surface) {
     vvfp_story_bridge(4);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(4);  /* cause of death companion: once, fail-open */
     (void)surface;   /* the hook still passes the render target; nothing here draws */
+    itk_install(&VV4_ITK);      /* bought island events keep the natural timer: once (game start made it) */
     vv4_paid_tick();            /* a bought Barrel not delivered yet survives a quit */
     vv_prepare_mask_state();
     cleared = vv_mask_sweep();  /* clear masks on slots the game freed/reused */
