@@ -1,0 +1,401 @@
+"""Game Mechanics (the Tools tab's window, src/vv_game_mechanics_window.py): one save's hidden rules.
+
+For the curious, and read-only: for the tribe chosen in the window, each game's own module
+(src/vv_game_mechanics_vv<N>.py) reads the slot's save -- and the patcher's per-save files that
+change a rule -- and returns plain-words lines, each a fact of this village (an amount now, the next
+time something happens) together with its rule (a rate or an interval at the save's game speed and
+techs, and the patcher's patches in the game that change it).  The lines are grouped as GROUPS.
+
+Nothing here writes anything: no save, log, data file or backup is created or changed, so the page
+may be read with the game running (it then shows the save as it was last written).
+
+TIME.  Every time is real time.  The games count their own clock in game seconds; at Normal speed a
+game second is a real second, at Fast two pass each real second and at Slow 0.6 (the games' speed
+value -- 3 Fast, 6 Normal, 10 Slow -- is real seconds per 6 game seconds).  A game rule of N game
+seconds therefore takes N * speed / 6 real seconds.  Paused (the speed plus 999) stops the clock.
+
+A GAME'S MODULE is found by name (vv_game_mechanics_vv<N>) and has
+    facts(village: Village) -> list[Fact]
+It raises nothing for a save it cannot read: it returns a Fact saying what could not be read.
+"""
+from __future__ import annotations
+
+import importlib
+import re
+import struct
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+
+TITLE = "Game Mechanics"
+GROUPS = ("Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
+          "Food earned", "Time away and Time Warp", "Island events", "Chance and timers", "Other")
+# The label every unverified line carries, in capitals, right beside it (the owner, 2026-10-23), and the
+# line at the top of the window that explains it.
+UNCONFIRMED = "UNCONFIRMED"
+LABEL_NOTE = ("UNCONFIRMED marks anything not yet confirmed by the owner in a game, or verified from the "
+              "game's own code as the game itself runs it. Lines without it are values read straight from the "
+              "save, or confirmed that way.")
+# What lets a line go without the label (the owner, 2026-10-23, binding): a value read straight from the save,
+# a rule the owner confirmed in a game, or the time-away clamp and Time Warp verified on the games' own aging
+# path.  A rule only emulated in isolation by the research (a spec's VERIFIED) is NOT enough: it is shown
+# UNCONFIRMED until its reach from the game's own call paths is shown.
+# RUNNING: emulated AND traced from the game's own call paths with inputs the game supplies (a research
+# spec's reachability re-check, e.g. The Secret City's addendum 3).
+SAVE, OWNER, CLAMP, RUNNING = "save", "owner", "clamp", "running"
+TRUSTED = frozenset({SAVE, OWNER, CLAMP, RUNNING})
+
+# The games' speed values (src/vv_save_backup.py, "GAME SPEED"): real seconds per 6 game seconds.
+FAST, NORMAL, SLOW = 3, 6, 10
+PAUSED = 999
+SPEED_NAMES = {FAST: "Fast", NORMAL: "Normal", SLOW: "Slow"}
+
+# The game folder's transparency report lists each patch in the game:
+# "- Optional feature: <name> [<id>]" (src/transparency.py); src/vv_move_old_names.py reads the same file.
+TRANSPARENCY = ("Virtual Villagers Fun Patcher Files\\VVFP Transparency Log.txt", "VVFP Transparency Log.txt")
+_FEATURE = re.compile(r"^- Optional feature: .* \[([a-z0-9_]+)\]\s*$", re.M)
+
+_MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September",
+           "October", "November", "December")
+
+
+@dataclass(frozen=True)
+class Fact:
+    """One line of the page.  `verified` says what stands behind it: SAVE, OWNER or CLAMP (see TRUSTED) let it
+    go without the label; True (a research spec's isolated emulation) or False does not -- it is shown with
+    UNCONFIRMED.  A line is unconfirmed unless it says otherwise."""
+    group: str
+    text: str
+    verified: bool | str = False
+
+    @property
+    def confirmed(self) -> bool:
+        return self.verified in TRUSTED
+
+
+@dataclass
+class Village:
+    """One save slot, read once.  `installed` is the set of the patcher's feature ids in the game
+    that writes this save folder, or None when that game's folder (and its report) was not found."""
+    folder: Path
+    game: int
+    slot: int
+    save: Path
+    data: bytes
+    installed: frozenset[str] | None
+    now: float                      # the real time the section is shown at (Unix seconds)
+    notes: list[str] = field(default_factory=list)
+
+    def has(self, feature: str) -> bool | None:
+        return None if self.installed is None else feature in self.installed
+
+
+# ---------------------------------------------------------------------------
+# Words
+# ---------------------------------------------------------------------------
+
+
+def when(seconds: float) -> str:
+    """A real moment as the owner reads it: "22 October 2026, 3:14 PM" (local time)."""
+    moment = datetime.fromtimestamp(seconds)
+    hour = moment.hour % 12 or 12
+    return f"{moment.day} {_MONTHS[moment.month - 1]} {moment.year}, {hour}:{moment.minute:02d} " \
+           f"{'AM' if moment.hour < 12 else 'PM'}"
+
+
+def duration(seconds: float, exact: bool = False) -> str:
+    """A real length of time in words: "3 hours", "1 hour 30 minutes", "45 minutes", "20 seconds" --
+    to the minute, or `exact` to the second (a rule like "8 hours 36 minutes 40 seconds")."""
+    seconds = int(round(seconds))
+    if seconds < 60:
+        return _plural(seconds, "second")
+    if exact and seconds % 60:
+        return f"{duration(seconds - seconds % 60)} {_plural(seconds % 60, 'second')}"
+    minutes = (seconds + 30) // 60
+    days, rest = divmod(minutes, 24 * 60) if minutes > 24 * 60 else (0, minutes)
+    hours, minutes = divmod(rest, 60)
+    parts = [_plural(n, unit) for n, unit in ((days, "day"), (hours, "hour"), (minutes, "minute")) if n]
+    return " ".join(parts)
+
+
+def _plural(n: int, unit: str) -> str:
+    return f"{n} {unit}" if n == 1 else f"{n} {unit}s"
+
+
+def speed_base(value: int) -> int:
+    """The speed a save runs at once unpaused (the value less 999 while paused)."""
+    return value - PAUSED if value >= PAUSED else value
+
+
+def speed_name(value: int) -> str:
+    return SPEED_NAMES.get(speed_base(value), f"speed {speed_base(value)}")
+
+
+def real_seconds(game_seconds: float, speed: int) -> float:
+    """How long `game_seconds` of the game's clock take in real time at `speed` (3, 6 or 10)."""
+    return game_seconds * speed_base(speed) / NORMAL
+
+
+def every(game_seconds: float, speed_value: int) -> str:
+    """"every 3 hours on Normal speed" -- or, for a save written paused, "... once unpaused" (the owner,
+    2026-10-22: real time only; a game's module also says once that a paused save waits, PAUSED_NOTE)."""
+    base = speed_base(speed_value)
+    text = f"every {duration(real_seconds(game_seconds, base))} on {speed_name(base)} speed"
+    return f"{text} once unpaused" if speed_value >= PAUSED else text
+
+
+PAUSED_NOTE = "The game was saved paused: nothing refills or grows until it is unpaused."
+
+
+# ---------------------------------------------------------------------------
+# Time away (catch-up)
+# ---------------------------------------------------------------------------
+
+# How much time away each game counts, per game -- ONLY figures verified by emulating the game's own
+# clamp (the coordinator's clamp verification; the research specs disagreed): {"full": {speed: real
+# seconds counted in full}, "band_end": real seconds, "band": counted in the band, "over": counted past
+# it}.  A game not listed here shows that its limits are not yet confirmed, never a guessed figure.
+#
+# VERIFIED (2026-10-23, the coordinator's emulation of each game's own clamp, identical in all five):
+# pending += away; over 86,400 s it becomes 86,400 and the speed band is skipped; otherwise Fast keeps
+# up to 38,200 s else 31,000, Normal at most 31,000, Slow up to 23,800 s else 31,000; paused gives 0.
+_VERIFIED_AWAY = {"full": {FAST: 38_200, NORMAL: 31_000, SLOW: 23_800}, "band_end": 86_400, "band": 31_000,
+                  "over": 86_400}
+AWAY_LIMITS: dict[int, dict] = {game: _VERIFIED_AWAY for game in range(1, 6)}
+TIME_AWAY = "Time away and Time Warp"
+# The Origins Time Warp (every game, verified the same way): years credited per warp, by speed.  The
+# patcher's Expanded warps differ and are not shown until the owner settles them.
+TIME_WARP_YEARS = {FAST: 12, NORMAL: 6, SLOW: 3}
+
+
+def time_warp_line(speed_value: int) -> Fact:
+    speed = speed_base(speed_value)
+    return Fact(TIME_AWAY, (
+        f"Time Warp (the Origins upgrade): each one gives the villagers {TIME_WARP_YEARS[speed]} years on "
+        f"{speed_name(speed)} speed (12 on Fast, 6 on Normal, 3 on Slow), past the time-away limits; not while "
+        "paused."), CLAMP)
+
+
+def old_age_line(thresholds: str, extra: str = "") -> Fact:
+    """The verified old-age rule (2026-10-23, all five games, emulated and checked against the owner's logs):
+    a death roll at each whole year past the threshold in the hidden processed age."""
+    return Fact("Other", (
+        f"Old age: at each whole year past {thresholds}, a death roll whose chance is 10% for each year over (100% "
+        "at 10 years over). The roll follows a hidden processed age: time away adds to the age shown in the game, "
+        "logs and graves at once, while the processed age catches up a step at a time, so the shown age can be "
+        "higher, by up to about 12 years after a long time away." + (f" {extra}" if extra else "")), RUNNING)
+
+
+def counted_away(game: int, seconds: float, speed: int) -> float | None:
+    """How much of `seconds` away `game` counts at `speed`, or None while its limits are not confirmed."""
+    limits = AWAY_LIMITS.get(game)
+    if limits is None:
+        return None
+    seconds = max(0.0, seconds)
+    if seconds <= limits["full"].get(speed, limits["full"][NORMAL]):
+        return seconds
+    return limits["band"] if seconds <= limits["band_end"] else limits["over"]
+
+
+def time_away(village: "Village", last: float, speed_value: int, paused_words: str,
+              unit_seconds: float | None = None) -> list[Fact]:
+    """The time-away lines every game shares: when the save was last played, its speed or pause, how much
+    of the time since then would count if it were opened now, and the rule -- the rule only from
+    AWAY_LIMITS.  `unit_seconds`: a year's real length at this speed, to say the counted time in years."""
+    speed = speed_base(speed_value)
+    paused = speed_value >= PAUSED
+    out = [Fact(TIME_AWAY, f"Last saved: {when(last)}, " + ("paused." if paused else f"on {speed_name(speed)} speed."),
+                SAVE)]
+    limits = AWAY_LIMITS.get(village.game)
+    if paused:
+        out.append(Fact(TIME_AWAY, paused_words))
+    else:
+        away = max(0.0, village.now - last)
+        counted = counted_away(village.game, away, speed)
+        if counted is None:
+            out.append(Fact(TIME_AWAY, f"Time since then: {duration(away)}. How much of it the game counts when the "
+                                       "village is next played is not yet confirmed."))
+        else:
+            years = f" ({counted / unit_seconds:.1f} years of the villagers' lives)" if unit_seconds and counted else ""
+            out.append(Fact(TIME_AWAY, f"If it were played now: {duration(away)} away, of which {duration(counted)} "
+                                       f"counts{years}.", CLAMP))
+    if limits is None:
+        return out
+    full = limits["full"].get(speed, limits["full"][NORMAL])
+    band, band_end, over = limits["band"], limits["band_end"], limits["over"]
+    if full == band:
+        rule = f"counts in full up to {duration(full, exact=True)}, and as that up to {duration(band_end)}"
+    else:
+        rule = (f"counts in full up to {duration(full, exact=True)}; from then to {duration(band_end)} it counts as "
+                f"{duration(band, exact=True)}" + (" -- more than the time away, while that is under it" if band > full else ""))
+    out.append(Fact(TIME_AWAY, (
+        f"On {speed_name(speed)} speed time away {rule}; past that as {duration(over)}, however long the game was "
+        "closed" + (f" ({over / unit_seconds:g} years on {speed_name(speed)} speed)." if unit_seconds else ".")
+        + " A save left paused gets none."), CLAMP))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# The patches in the game
+# ---------------------------------------------------------------------------
+
+
+def feature_name(feature: str) -> str:
+    """A patch's name as the patcher shows it (data/builds.json, then the feature manifests
+    data/*_feature.json), or its id when it is in neither."""
+    global _NAMES
+    if _NAMES is None:
+        import json
+        data_folder = Path(__file__).resolve().parents[1] / "data"
+        names: dict[str, str] = {}
+        for path in sorted(data_folder.glob("*_feature.json")) + [data_folder / "builds.json"]:
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            entries = data.get("fun_patches", []) if path.name == "builds.json" else [data]
+            names.update({entry["id"]: entry["name"] for entry in entries
+                          if isinstance(entry, dict) and "id" in entry and "name" in entry})
+        _NAMES = names
+    return _NAMES.get(feature, feature)
+
+
+_NAMES: dict[str, str] | None = None
+
+
+def feature_ids(prefix: str) -> list[str]:
+    """Every patch id the patcher knows that starts with `prefix` (for example "vv3_")."""
+    feature_name("")
+    return sorted(fid for fid in (_NAMES or {}) if fid.startswith(prefix))
+
+
+def patch_words(village: "Village", feature: str, effect: str) -> str:
+    """One sentence on a patch that changes a rule: whether it is in the game and what it does."""
+    name = f"\"{feature_name(feature)}\""
+    has = village.has(feature)
+    if has is None:
+        return f"With the patcher's {name}: {effect} (whether the game has it could not be told)."
+    return f"The patcher's {name} is {'in' if has else 'not in'} the game" + (f": {effect}." if has else ".")
+
+
+def installed_features(save_folder: Path, game_folders: list[Path]) -> frozenset[str] | None:
+    """The patcher's feature ids in the game that saves into `save_folder`: the first of
+    `game_folders` named like the save folder and holding "<name>.exe" (the repair window's
+    _game_folders_for, as Move Old Files to New Names finds it), read from its transparency report.
+    None when no such game folder, or no readable report, was found."""
+    name = Path(save_folder).name
+    for folder in game_folders:
+        folder = Path(folder)
+        if folder.name.casefold() != name.casefold() or not (folder / f"{name}.exe").is_file():
+            continue
+        for report in TRANSPARENCY:
+            try:
+                text = (folder / report).read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            return frozenset(_FEATURE.findall(text))
+        return None
+    return None
+
+
+# ---------------------------------------------------------------------------
+# The section
+# ---------------------------------------------------------------------------
+
+
+def save_path(folder: Path, game: int, slot: int) -> Path:
+    """The slot's own save, named as every other repair tool names it (src/vv_tribe_rename.py)."""
+    import vv_tribe_rename
+    saves = next(item for item in vv_tribe_rename.GAMES if item.number == game)
+    return saves.save_path(Path(folder), slot)
+
+
+def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None,
+         now: float | None = None) -> list[Fact]:
+    """Every line of the section for one save slot, in GROUPS order.  Reads only."""
+    import time
+    path = save_path(folder, game, slot)
+    try:
+        data = path.read_bytes()
+    except OSError as exc:
+        return [Fact("Other", f"The save {path.name} could not be read ({exc.strerror or exc}).")]
+    village = Village(Path(folder), game, slot, path, data,
+                      installed_features(Path(folder), game_folders or []),
+                      time.time() if now is None else now)
+    try:
+        module = importlib.import_module(f"vv_game_mechanics_vv{game}")
+    except ImportError:
+        return [Fact("Other", "Nothing is shown for this game yet.")]
+    facts = list(module.facts(village))
+    if not facts:
+        facts = [Fact("Other", "Nothing is shown for this game yet.")]
+    order = {name: n for n, name in enumerate(GROUPS)}
+    return sorted(facts, key=lambda fact: order.get(fact.group, len(GROUPS)))
+
+
+# A new, empty village's save for each game, to show the general rules when no save is found: (header size,
+# where the buffer's length is, the buffer's length, where the speed is, where the clock's epoch is and its
+# width) -- the layouts vv_save_backup reads (its "GAME SPEED" notes).
+_BLANK = {1: (12, 8, 0x0ABDC, 12 + 0xA310), 2: (12, 8, 0x30370, 12 + 0x2EB00), 3: (12, 8, 0x12F1C, 12 + 0x12F18),
+          4: (24, 16, 0x1710C, 24 + 0x17108), 5: (24, 16, 0x17D78, 24 + 0x17D74)}
+GENERAL_NOTE = ("No save was found for this game, so these are its general rules at Normal speed; everything "
+                "read from a save is left out.")
+
+
+def blank_save(game: int, now: float) -> bytes:
+    header, length_at, length, speed_at = _BLANK[game]
+    data = bytearray(header + length)
+    data[:4] = b"ldwg"
+    struct.pack_into("<I", data, length_at, length)
+    if header == 24:
+        struct.pack_into("<q", data, 8, int(now))
+    else:
+        struct.pack_into("<I", data, 4, int(now))
+    struct.pack_into("<i", data, speed_at, NORMAL)
+    if game == 3:                              # the clock running at Normal, and the puzzles' mark
+        struct.pack_into("<4i", data, 12 + 0x57C, NORMAL, 0, 0, 0)
+        struct.pack_into("<I", data, 12 + 0x11ECC, 0x2AD)
+    return bytes(data)
+
+
+def general(game: int, now: float | None = None) -> list[Fact]:
+    """A game's general rules, for when no save is found: its page for a new, empty village at Normal speed,
+    without anything read from a save (the values, the dates and the time-away figures of that save)."""
+    import time
+    now = time.time() if now is None else now
+    village = Village(Path("."), game, 1, Path(f"{game}.ldw"), blank_save(game, now), None, now)
+    module = importlib.import_module(f"vv_game_mechanics_vv{game}")
+    keep = []
+    for fact in module.facts(village):
+        if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",
+                                                          "Saved paused", "Fruit trees: none")):
+            continue
+        if re.search(r"\b(19[67]\d|20\d\d)\b", fact.text) or "could not be read" in fact.text:
+            continue                           # a date from the empty save
+        if re.match(r"^[A-Z][A-Za-z' ]{0,30}: -?[\d,]+\b", fact.text) or "would bring 0" in fact.text \
+                or fact.text.startswith("The birds:"):
+            continue                           # an amount from the empty save ("Crop field: 0 of 800")
+        keep.append(fact)
+    order = {name: n for n, name in enumerate(GROUPS)}
+    return sorted(keep, key=lambda fact: order.get(fact.group, len(GROUPS)))
+
+
+def render(facts: list[Fact]) -> str:
+    """The section as text: each group's heading, then its lines."""
+    out: list[str] = []
+    group = None
+    for fact in facts:
+        if fact.group != group:
+            if out:
+                out.append("")
+            out.append(fact.group)
+            group = fact.group
+        out.append(f"  {UNCONFIRMED}  {tidy(fact.text)}" if not fact.confirmed else f"  {tidy(fact.text)}")
+    return "\n".join(out)
+
+
+def tidy(text: str) -> str:
+    """A line with an empty marker left in it read cleanly: no space before a stop, no double space."""
+    text = re.sub(r"\(\s*\)", "", text)
+    text = re.sub(r"\s+([.;,)])", r"\1", text)
+    return re.sub(r"  +", " ", text).strip()

@@ -162,7 +162,11 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
-               "vv_vv2_totems", "vv_vv2_totem_store"}
+               "vv_vv2_totems", "vv_vv2_totem_store",
+               # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
+               # found by name (importlib) and so listed here for the release zip.
+               "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
+               "vv_game_mechanics_vv4", "vv_game_mechanics_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -289,6 +293,11 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_tree_editor_tools", {"vv_family_tree", "vv_gdiplus"}),
             # The save folder's folder and file names, old and new (the owner, 2026-10-09).
             ("vv_save_layout", set()),
+            # Game Mechanics: the slot's save named as every repair tool names it (function-level), and its window.
+            ("vv_game_mechanics", {"vv_tribe_rename"}),
+            ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename"}),
+            # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
+            *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup"}) for n in range(1, 6)),
         ):
             tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))
             imported = set()
