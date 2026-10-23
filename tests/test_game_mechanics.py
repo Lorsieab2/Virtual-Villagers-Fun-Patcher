@@ -114,19 +114,20 @@ class FruitTrees(unittest.TestCase):
         clock = (6, 0, 100_000, 50_000)
         facts = self.read(make_save(clock=clock, trees=[(1, 46_400, 49_000, 300)]),
                           now=real(clock, 50_000))
-        first = lines(facts, "Food sources")[0]
-        self.assertTrue(first.startswith(
-            f"Tree 1: Mango, planted at {gm.when(real(clock, 46_400))}, refills every 3 hours on Normal speed. "
-            "300 of 1000 fruit."), first)
-        self.assertRegex(first, r"^Tree 1: Mango, planted at \d{1,2} [A-Z][a-z]+ \d{4}, \d{1,2}:\d{2} (AM|PM), "
-                                r"refills every 3 hours on Normal speed\.")
+        tree = lines(facts, "Food sources")[:4]
+        self.assertEqual(tree[0], f"Tree 1: Mango, planted at {gm.when(real(clock, 46_400))}, refills every 3 hours "
+                                  "on Normal speed.")
+        self.assertRegex(tree[0], r"^Tree 1: Mango, planted at \d{1,2} [A-Z][a-z]+ \d{4}, \d{1,2}:\d{2} (AM|PM), "
+                                  r"refills every 3 hours on Normal speed\.$")
+        self.assertEqual(tree[1], "Tree 1: 300 of 1000 fruit.")
         # Picked from 8 hours after planting; the next refill 3 hours after the last.
-        self.assertIn(f"Ready to pick from {gm.when(real(clock, 46_400 + 28_800))}.", first)
-        self.assertIn(f"Next refill due {gm.when(real(clock, 49_000 + 10_800))} (111 fruit).", first)
+        self.assertEqual(tree[2], f"Tree 1: ready to pick from {gm.when(real(clock, 46_400 + 28_800))}.")
+        self.assertEqual(tree[3], f"Tree 1: next refill due {gm.when(real(clock, 49_000 + 10_800))} (111 fruit).")
 
     def test_fruit_names_follow_the_kind(self) -> None:
         facts = self.read(make_save(trees=[(0, 1, 1, 0), (1, 1, 1, 0), (2, 1, 1, 0)]))
-        names = [re.match(r"Tree \d: (\w+),", t).group(1) for t in lines(facts, "Food sources")[:3]]
+        names = [re.match(r"Tree \d: (\w+),", t).group(1) for t in lines(facts, "Food sources")
+                 if re.match(r"Tree \d: \w+, planted", t)]
         self.assertEqual(names, ["Banana", "Mango", "Papaya"])
 
     def test_fast_and_slow(self) -> None:
@@ -146,7 +147,7 @@ class FruitTrees(unittest.TestCase):
         self.assertIn("refills every 3 hours on Normal speed once unpaused.", text)
         self.assertIn(gm.PAUSED_NOTE, text)
         # Paused: 5,000 of the 10,800 game seconds have passed, and nothing more while it waits.
-        self.assertIn(f"Next refill (111 fruit) after {gm.duration(5_800)} more of play once unpaused.", text)
+        self.assertIn(f"Tree 1: next refill (111 fruit) after {gm.duration(5_800)} more of play once unpaused.", text)
 
     def test_closed_game_catches_up(self) -> None:
         clock = (6, 0, 100_000, 50_000)
@@ -154,14 +155,14 @@ class FruitTrees(unittest.TestCase):
         facts = self.read(make_save(clock=clock, trees=[(0, 1, 40_000, 100)], techs=(1, 1, 1, 1, 1, 0, 0)),
                           now=now)
         gained = (30_000 * 37) // 3600
-        self.assertIn(f"A refill was due at {gm.when(real(clock, 50_800))}: the next time the village is played it "
-                      f"gets {gained} fruit.", lines(facts)[0])
-        self.assertIn("Ready to pick since", lines(facts)[0])
+        tree = lines(facts, "Food sources")
+        self.assertIn(f"Tree 1: a refill was due at {gm.when(real(clock, 50_800))}; the next time the village is "
+                      f"played it gets {gained} fruit.", tree)
+        self.assertTrue(any(line.startswith("Tree 1: ready to pick since") for line in tree))
 
     def test_full_tree(self) -> None:
         facts = self.read(make_save(trees=[(0, 1, 1, 1000)]))
-        self.assertIn("Full: a refill adds nothing until fruit is picked.", lines(facts)[0])
-
+        self.assertIn("Tree 1: full; a refill adds nothing until fruit is picked.", lines(facts))
     def test_nature_patch_installed(self) -> None:
         nature1 = (1, 1, 1, 1, 1, 1, 0)
         on = self.read(make_save(techs=nature1, trees=[(0, 1, 1, 0)]), features=[vv3.NATURE_PATCH])
@@ -373,16 +374,16 @@ class EveryGame(unittest.TestCase):
                 body = [line for line in rendered if line.startswith("  ")]
                 self.assertEqual(len(body), len(facts))
                 for fact, line in zip(facts, body):
-                    if fact.verified:
+                    if fact.confirmed:
                         self.assertNotIn(gm.UNCONFIRMED, line)
                     else:
                         self.assertTrue(line.startswith(f"  {gm.UNCONFIRMED}  "), line)
-                self.assertTrue(any(f.verified for f in facts))
-                self.assertTrue(any(not f.verified for f in facts))
+                self.assertTrue(any(f.confirmed for f in facts))
+                self.assertTrue(any(not f.confirmed for f in facts))
                 for fact in facts:
                     if fact.group == gm.TIME_AWAY and fact.text.startswith(("Last saved", "If it were", "On ",
                                                                           "Time Warp")):
-                        self.assertTrue(fact.verified, fact.text)
+                        self.assertTrue(fact.confirmed, fact.text)
                 text = gm.render(facts)
                 self.assertNotIn("(uncertain)", text)
                 self.assertNotIn("not yet confirmed in game", text)
@@ -400,13 +401,14 @@ class EveryGame(unittest.TestCase):
                 self.assertNotIn("lives past", text)
                 old = [f for f in facts if f.text.startswith("Old age:")]
                 self.assertEqual(len(old), 1)
-                self.assertFalse(old[0].verified)
+                self.assertFalse(old[0].confirmed)
     def test_nothing_inferred(self) -> None:
-        """The owner: DO NOT INFER -- no guessing words, no names chosen from a theme."""
+        """The owner: DO NOT INFER -- no guessing words, no names chosen from a theme (The Tree of Life's Mausoleum
+        and Wind Flute sets are named by the owner)."""
         for name in self.SAVES:
             with self.subTest(save=name):
                 text = gm.render(self.page(name)).lower()
-                self.assertNotRegex(text, r"probabl|(?<!equally )likely|perhaps|presumab|wind flute|mausoleum|relic")
+                self.assertNotRegex(text, r"probabl|(?<!equally )likely|perhaps|presumab|relic")
     def test_golden_mushroom_stays_a_secret(self) -> None:
         for name, fid in (("vv1-huttest-1", "vv1_super_secret_golden_mushroom"),
                           ("vv2-huttest-1", "vv2_super_secret_golden_mushroom"),

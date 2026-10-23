@@ -130,7 +130,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     dam, scared = _i32(data, DAM) > 0, _i32(data, SCARER) > 0
 
     # -- Food sources --------------------------------------------------------------------
-    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", True)
+    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", gm.SAVE)
     add("Food sources", f"Coconuts: {_i32(data, COCONUTS):,}; a trip brings {(8, 4, 2)[pick]} on {on} speed "
                         "(4 while catching up).", True)
     add("Food sources", f"Crops: {_i32(data, CROPS):,} of {CROPS_FULL}; a trip brings {(10, 7, 4)[pick]} on {on} speed "
@@ -153,7 +153,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                     "kept away), otherwise the crops are lost to the birds. "
                     f"({'Dam built' if dam else 'No dam yet'}; {'birds kept away' if scared else 'no bird scarer'}.)"),
         True)
-    add("Refills", f"Next regrowth: {due(REGROW)}.", True)
+    add("Refills", f"Next regrowth: {due(REGROW)}.", gm.SAVE)
 
     # -- Mushrooms and collectibles ------------------------------------------------------
     add("Mushrooms", "One thing at a time, at any speed and only while playing: every 2 seconds with nothing out, a "
@@ -171,7 +171,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "raises the population limit by 5, all four by 25.")
 
     # -- Tech points ---------------------------------------------------------------------
-    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", True)
+    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
     add("Tech points and effects", (
         "Research gives Research skill ÷ 11, ÷ 9 or ÷ 5 at Science 1, 2 or 3, "
         + {gm.FAST: "twice that on Fast speed", gm.NORMAL: "as it is on Normal speed",
@@ -208,7 +208,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                    "Gong 10 hours (Slow) or 12 hours (Normal, Fast) sooner.")
 
     # -- Island events -------------------------------------------------------------------
-    add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 10 to 19 whole hours at any "
+    add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
+    add("Island events", f" Island events come every 10 to 19 whole hours at any "
                          "speed, each equally likely; a new village's first comes 15 minutes after it is made, the "
                          "second 30 minutes later.", True)
     for line, ok in EVENT_LINES:

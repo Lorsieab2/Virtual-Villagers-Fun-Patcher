@@ -118,7 +118,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         mastery, "")
 
     # -- Food sources --------------------------------------------------------------------
-    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", True)
+    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", gm.SAVE)
     berries = _i32(data, BERRIES)
     add("Food sources", f"Blackberries: {berries:,} of {BERRY_CAP:,}; picking brings {food(max(2, berries // 100))} food "
                         f"now (the berries ÷ 100, at least 2; picking stops below 3), a harvest {food(min(30, berries))} "
@@ -135,7 +135,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Refills", gm.PAUSED_NOTE, True)
     add("Refills", f"Blackberries: +2 {gm.every(360, speed_value)}, up to {BERRY_CAP:,}; the stream gathers 2% more "
                    "debris at the same time, up to 100%.", True)
-    add("Refills", f"Next growth: {due(NEXT_TICK)}.", True)
+    add("Refills", f"Next growth: {due(NEXT_TICK)}.", gm.SAVE)
 
     # -- Mushrooms / Collectibles --------------------------------------------------------
     add("Mushrooms", "While playing (not paused), something appears about every 45 seconds at any speed, twice as "
@@ -144,18 +144,18 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      f"{food(35)}.", True)
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
-    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", True)
+    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "
                         "hours.", True)
-    add("Collectibles", "Once Collection set 3 is complete, a buried villager's ghost brings a collectible every "
+    add("Collectibles", "Once the Mausoleum set is complete, a buried villager's ghost brings a collectible every "
                         "50 to 58 minutes (nothing if more than an hour overdue).", True)
-    add("Collectibles", "In fog or a cold snap things appear only with pieces of one particular collection (every 7.5 "
-                        "seconds with all 12); each complete collection raises the population limit by 5, all four "
-                        "by 25.")
+    add("Collectibles", "Fog increases collectible spawning if you have Wind Flute pieces collected.", gm.OWNER)
+    add("Collectibles", "How much each Wind Flute piece adds in fog, and what a cold snap does, is not yet worked out. "
+                        "Each complete collection raises the population limit by 5, all four by 25.")
 
     # -- Tech points ---------------------------------------------------------------------
-    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", True)
+    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
     lvl = level[SCIENCE]
     divisor = {1: 11, 2: 9, 3: 7}.get(lvl)
     if divisor:
@@ -189,7 +189,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
 
     # -- Island events -------------------------------------------------------------------
     first = " (30 minutes while none has been seen yet)" if _i32(data, EVENTS_SEEN) == 0 else ""
-    add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 8 to 15 whole hours, each "
+    add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
+    add("Island events", f" Island events come every 8 to 15 whole hours, each "
                          f"equally likely, at any speed{first}; paused time does not count; after time away at most "
                          "one happens.", True)
     for line, ok in EVENT_LINES:

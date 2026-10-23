@@ -134,7 +134,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     farming = level[FARMING]
 
     # -- Food sources --------------------------------------------------------------------
-    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", True)
+    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", gm.SAVE)
     bush = _i32(data, BUSH)
     add("Food sources", f"Berry bush: {bush:,}; a pick takes {max(2, bush // 130):,} from it now (the bush ÷ 130, at "
                         "least 2).", True)
@@ -153,7 +153,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Refills", f"The berry bush grows 30 {gm.every(REGROW_UNITS * UNIT, speed_value)}"
                    + (f"; the crop field grows 800, up to {FIELD_CAP}, at the same time." if farming >= 2
                       else "; the crop field does not refill below Farming level 2."), True)
-    add("Refills", f"Next regrowth: {due(REGROW)}. Changing the speed rescales the time left.", True)
+    add("Refills", f"Next regrowth: {due(REGROW)}.", gm.SAVE)
+    add("Refills", "Changing the speed rescales the time left.")
 
     # -- Mushrooms / Collectibles --------------------------------------------------------
     add("Mushrooms", "While none is out, a mushroom appears after about 2 minutes on average, at any speed (even "
@@ -162,13 +163,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Mushrooms", "Mushrooms are not kept in the save.")
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
-    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", True)
+    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "A New Home has no collectibles: mushrooms are its only random pickup.", True)
 
     # -- Tech points ---------------------------------------------------------------------
     science = level[SCIENCE]
     divisor = {1: 7, 2: 5, 3: 3}.get(science)
-    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", True)
+    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
     if divisor:
         add("Tech points and effects", (
             f"Research gives the researcher's Research skill ÷ {divisor} (Science is level {science}), after a "
@@ -204,7 +205,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Island events -------------------------------------------------------------------
     first = (" The first is always a story event, the second 30 minutes later;"
              if _i32(data, EVENTS_SEEN) < 2 else "")
-    add("Island events", f"Next island event: {due(EVENT)}.{first} Island events come every 12 to 23 whole hours, "
+    add("Island events", f"Next island event: {due(EVENT)}.", gm.SAVE)
+    add("Island events", f"{first} Island events come every 12 to 23 whole hours, "
                          "each equally likely, at any speed. Paused, the timer waits; after time away at most one "
                          "happens.", True)
     for line in EVENT_LINES:
@@ -216,5 +218,5 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Other", OLD_AGE)                     # held: villagers are seen living past the rule (the owner)
     add("Other", (f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} speed: "
                   "ages, pregnancies and regrowth follow the speed; work, mushrooms and island events do not."), True)
-    add("Other", f"The village was started at {gm.when(real(CREATED))}.", True)
+    add("Other", f"The village was started at {gm.when(real(CREATED))}.", gm.SAVE)
     return out

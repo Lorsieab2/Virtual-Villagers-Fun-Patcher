@@ -260,6 +260,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     except SaveUnreadable as exc:
         return [gm.Fact("Other", f"{village.save.name} could not be read: {exc}.")]
     clock = clock_of(buf, epoch)
+    if gm.speed_base(clock.speed) not in gm.SPEED_NAMES:
+        return [gm.Fact("Other", f"{village.save.name} could not be read: its game speed is not one the game writes.")]
     out: list[gm.Fact] = []
     nature, second = nature_level(village.folder, village.slot, buf)
     patch = village.has(NATURE_PATCH)
@@ -279,30 +281,34 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         out.append(gm.Fact("Food sources", "Fruit trees: none is planted yet."))
     for tree in trees:
         refilled = timers[tree.number - 1] if timers is not None else tree.refilled
-        text = (f"Tree {tree.number}: {tree.name}, planted at {at(tree.planted)}, refills "
-                f"{gm.every(interval, clock.speed)}. {max(tree.fruit, 0)} of {FRUIT_CAP} fruit.")
+        tag = f"Tree {tree.number}"
+        # The owner's line first, then one line for each other fact about the tree.
+        out.append(gm.Fact("Food sources", f"{tag}: {tree.name}, planted at {at(tree.planted)}, refills "
+                                           f"{gm.every(interval, clock.speed)}."))
+        out.append(gm.Fact("Food sources", f"{tag}: {max(tree.fruit, 0)} of {FRUIT_CAP} fruit.", gm.SAVE))
         ready = tree.planted + READY
         if clock.frozen:
-            text += (" Ready to pick." if now >= ready else
-                     f" Ready to pick after {gm.duration(gm.real_seconds(ready - now, clock.runs_at))} more "
-                     f"of play on {gm.speed_name(clock.runs_at)} speed.")
+            text = (f"{tag}: ready to pick." if now >= ready else
+                    f"{tag}: ready to pick after {gm.duration(gm.real_seconds(ready - now, clock.runs_at))} more "
+                    f"of play on {gm.speed_name(clock.runs_at)} speed.")
         else:
-            text += (f" Ready to pick since {at(ready)}." if now >= ready else
-                     f" Ready to pick from {at(ready)}.")
+            text = (f"{tag}: ready to pick since {at(ready)}." if now >= ready else
+                    f"{tag}: ready to pick from {at(ready)}.")
+        out.append(gm.Fact("Food sources", text))
         due = refilled + interval
         if tree.fruit >= FRUIT_CAP:
-            text += " Full: a refill adds nothing until fruit is picked."
+            text = f"{tag}: full; a refill adds nothing until fruit is picked."
         elif clock.frozen:
             left = max(0, due - now)
-            text += (f" Next refill ({per_refill} fruit) after {gm.duration(gm.real_seconds(left, clock.runs_at))} "
-                     f"more of play{' once unpaused' if clock.paused else ''}." if left else
-                     f" A refill is due as soon as the game {'is unpaused' if clock.paused else 'is played'}.")
+            text = (f"{tag}: next refill ({per_refill} fruit) after "
+                    f"{gm.duration(gm.real_seconds(left, clock.runs_at))} more of play"
+                    f"{' once unpaused' if clock.paused else ''}." if left else
+                    f"{tag}: a refill is due as soon as the game {'is unpaused' if clock.paused else 'is played'}.")
         elif now >= due:
             gained = min(_gain(now - refilled, factor), FRUIT_CAP - tree.fruit)
-            text += (f" A refill was due at {at(due)}: the next time the village is played it gets "
-                     f"{gained} fruit.")
+            text = f"{tag}: a refill was due at {at(due)}; the next time the village is played it gets {gained} fruit."
         else:
-            text += f" Next refill due {at(due)} ({min(per_refill, FRUIT_CAP - tree.fruit)} fruit)."
+            text = f"{tag}: next refill due {at(due)} ({min(per_refill, FRUIT_CAP - tree.fruit)} fruit)."
         out.append(gm.Fact("Food sources", text))
 
     # -- the honey ------------------------------------------------------------------------
@@ -310,7 +316,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     honey = _i32(buf, HONEY + 8)
     hive = _i32(buf, PUZZLES + 4 + 8 * BEE_HIVE) >= 1
     out.append(gm.Fact("Food sources", f"Honey: {honey} of {HONEY_CAP}"
-                       + (" (The Bee Hive is solved)." if hive else " (The Bee Hive is not solved yet)."), True))
+                       + (" (The Bee Hive is solved)." if hive else " (The Bee Hive is not solved yet)."), gm.SAVE))
 
     # -- the rules ------------------------------------------------------------------------
     speed = clock.speed
@@ -493,7 +499,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         return gm.when(wall(at)) + (" (when the village is next played)" if wall(at) <= village.now else "")
 
     pick = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}[speed]          # the game's own rounding (the spec's addendum)
-    add("Food sources", f"Food in storage: {_i32(buf, FOOD):,}.", True)
+    add("Food sources", f"Food in storage: {_i32(buf, FOOD):,}.", gm.SAVE)
     add("Food sources", f"Picking fruit or honey brings {pick} on {on} speed (7, 3 or 2 on Fast, Normal or Slow, by "
                         "the game's own rounding; 4 while catching up); honey is gathered only above 10.")
     add("Food sources", f"Fishing brings { {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed] } on {on} speed (8 while "
@@ -507,7 +513,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                      "when they reach the food bin.", True)
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
-    add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.", True)
+    add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity.", True)
     add("Collectibles", "Tablet pieces already owned never appear again; coral, feather and turtle shell pieces "
@@ -519,7 +525,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     if village.has(RARE_RETRY) is not False:
         add("Collectibles", gm.patch_words(village, RARE_RETRY, "a failed call is tried again"))
 
-    add("Tech points and effects", f"Tech points: {_i32(buf, POINTS):,}.", True)
+    add("Tech points and effects", f"Tech points: {_i32(buf, POINTS):,}.", gm.SAVE)
     divisor = {0: 5, 1: 11, 2: 9, 3: 7}.get(level[SCIENCE], 7)
     catch = {0: 4, 1: 7, 2: 7, 3: 5}.get(level[SCIENCE], 5)
     speed_words = {gm.FAST: "twice that on Fast speed", gm.NORMAL: "as it is on Normal speed",
@@ -548,7 +554,8 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                                    "happens.")
     out.append(gm.time_warp_line(speed_value))
 
-    add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 8 to 15 whole hours at any "
+    add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
+    add("Island events", f" Island events come every 8 to 15 whole hours at any "
                          "speed, each hour about equally likely; the first of each time the game is started comes "
                          "30 minutes after it.", True)
     add("Island events", "A new village's first event comes 15 minutes after it is made; paused time does not count.")

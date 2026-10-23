@@ -32,9 +32,15 @@ GROUPS = ("Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points a
 # The label every unverified line carries, in capitals, right beside it (the owner, 2026-10-23), and the
 # line at the top of the window that explains it.
 UNCONFIRMED = "UNCONFIRMED"
-LABEL_NOTE = ("UNCONFIRMED marks a figure or statement read from the game's code or inferred, but not yet "
-              "verified by running the game's own code or seen in a game. Lines without it are verified, or "
-              "read straight from the save.")
+LABEL_NOTE = ("UNCONFIRMED marks anything not yet confirmed by the owner in a game, or verified from the "
+              "game's own code as the game itself runs it. Lines without it are values read straight from the "
+              "save, or confirmed that way.")
+# What lets a line go without the label (the owner, 2026-10-23, binding): a value read straight from the save,
+# a rule the owner confirmed in a game, or the time-away clamp and Time Warp verified on the games' own aging
+# path.  A rule only emulated in isolation by the research (a spec's VERIFIED) is NOT enough: it is shown
+# UNCONFIRMED until its reach from the game's own call paths is shown.
+SAVE, OWNER, CLAMP = "save", "owner", "clamp"
+TRUSTED = frozenset({SAVE, OWNER, CLAMP})
 
 # The games' speed values (src/vv_save_backup.py, "GAME SPEED"): real seconds per 6 game seconds.
 FAST, NORMAL, SLOW = 3, 6, 10
@@ -52,13 +58,16 @@ _MONTHS = ("January", "February", "March", "April", "May", "June", "July", "Augu
 
 @dataclass(frozen=True)
 class Fact:
-    """One line of the page.  `verified`: every figure and statement in it was verified by emulating the
-    game (or confirmed by the owner in a game), or is a value read straight from the save; anything else
-    -- read from the code only, inferred, or in the least doubt -- is shown with the UNCONFIRMED label
-    (the owner, 2026-10-23).  A line is unverified unless it says otherwise."""
+    """One line of the page.  `verified` says what stands behind it: SAVE, OWNER or CLAMP (see TRUSTED) let it
+    go without the label; True (a research spec's isolated emulation) or False does not -- it is shown with
+    UNCONFIRMED.  A line is unconfirmed unless it says otherwise."""
     group: str
     text: str
-    verified: bool = False
+    verified: bool | str = False
+
+    @property
+    def confirmed(self) -> bool:
+        return self.verified in TRUSTED
 
 
 @dataclass
@@ -161,7 +170,7 @@ def time_warp_line(speed_value: int) -> Fact:
     return Fact(TIME_AWAY, (
         f"Time Warp (the Origins upgrade): each one gives the villagers {TIME_WARP_YEARS[speed]} years on "
         f"{speed_name(speed)} speed (12 on Fast, 6 on Normal, 3 on Slow), past the time-away limits; not while "
-        "paused."), True)
+        "paused."), CLAMP)
 
 
 def counted_away(game: int, seconds: float, speed: int) -> float | None:
@@ -183,7 +192,7 @@ def time_away(village: "Village", last: float, speed_value: int, paused_words: s
     speed = speed_base(speed_value)
     paused = speed_value >= PAUSED
     out = [Fact(TIME_AWAY, f"Last saved: {when(last)}, " + ("paused." if paused else f"on {speed_name(speed)} speed."),
-                True)]
+                SAVE)]
     limits = AWAY_LIMITS.get(village.game)
     if paused:
         out.append(Fact(TIME_AWAY, paused_words))
@@ -196,7 +205,7 @@ def time_away(village: "Village", last: float, speed_value: int, paused_words: s
         else:
             years = f" ({counted / unit_seconds:.1f} years of the villagers' lives)" if unit_seconds and counted else ""
             out.append(Fact(TIME_AWAY, f"If it were played now: {duration(away)} away, of which {duration(counted)} "
-                                       f"counts{years}.", True))
+                                       f"counts{years}.", CLAMP))
     if limits is None:
         return out
     full = limits["full"].get(speed, limits["full"][NORMAL])
@@ -209,7 +218,7 @@ def time_away(village: "Village", last: float, speed_value: int, paused_words: s
     out.append(Fact(TIME_AWAY, (
         f"On {speed_name(speed)} speed time away {rule}; past that as {duration(over)}, however long the game was "
         "closed" + (f" ({over / unit_seconds:g} years on {speed_name(speed)} speed)." if unit_seconds else ".")
-        + " A save left paused gets none."), True))
+        + " A save left paused gets none."), CLAMP))
     return out
 
 
@@ -239,6 +248,12 @@ def feature_name(feature: str) -> str:
 
 
 _NAMES: dict[str, str] | None = None
+
+
+def feature_ids(prefix: str) -> list[str]:
+    """Every patch id the patcher knows that starts with `prefix` (for example "vv3_")."""
+    feature_name("")
+    return sorted(fid for fid in (_NAMES or {}) if fid.startswith(prefix))
 
 
 def patch_words(village: "Village", feature: str, effect: str) -> str:
@@ -315,7 +330,7 @@ def render(facts: list[Fact]) -> str:
                 out.append("")
             out.append(fact.group)
             group = fact.group
-        out.append(f"  {UNCONFIRMED}  {tidy(fact.text)}" if not fact.verified else f"  {tidy(fact.text)}")
+        out.append(f"  {UNCONFIRMED}  {tidy(fact.text)}" if not fact.confirmed else f"  {tidy(fact.text)}")
     return "\n".join(out)
 
 

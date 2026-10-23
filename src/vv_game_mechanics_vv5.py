@@ -111,7 +111,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     farm = _i32(data, PROJECTS + 8 * HYDRO_FARM) >= HYDRO_DONE
 
     # -- Food sources --------------------------------------------------------------------
-    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", True)
+    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", gm.SAVE)
     noni = _i32(data, NONI)
     add("Food sources", f"Noni bushes: {noni:,} of {NONI_CAP:,}; a pick gives {max(2, noni // 100)} food now (the noni "
                         f"÷ 100, at least 2), a gathering {min(noni, 30)} (up to 30), and takes as many noni.", True)
@@ -139,7 +139,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "seconds.", True)
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
-    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", True)
+    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: 82% common, 13% uncommon, 5% rare. One set of 24 can always "
                         "appear; a second set of 24 only once the Knowing Totem is built (then half from each). A "
                         "piece already found gives +10, 50 or 150 Divine Energy from the first set, +100, 250 or "
@@ -149,7 +149,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Collectibles", "The Earthquake also raises every villager's belief by 2 to 8.")
 
     # -- Tech points and Divine Energy ---------------------------------------------------
-    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", True)
+    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
     add("Tech points and effects", (
         f"Research gives the researcher's skill ÷ 11, ÷ 9 or ÷ 7 at Science 1, 2 or 3, "
         f"{'twice that' if speed == gm.FAST else ('0.6 of that' if speed == gm.SLOW else 'as it is')} on {on} "
@@ -184,13 +184,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Time away and Time Warp", "Every noni growth and crop refill missed while the game was closed is added when "
                                    "it is next played, with no limit on how many: noni stop at 1,000, crops at 800.",
         True)
-    add("Time away and Time Warp", "Heathens never age, while catching up or otherwise (the stock game's design).", True)
+    add("Time away and Time Warp", "Heathens never age, while catching up or otherwise (the stock game's design).", gm.OWNER)
     out.append(gm.time_warp_line(speed_value))
 
     # -- Island events -------------------------------------------------------------------
     first = (" The first comes 15 minutes after the village is made and the next 30 minutes after it;"
              if _i32(data, EVENTS_SEEN) == 0 else "")
-    add("Island events", f"Next island event: {due(EVENT_NEXT)}.{first} Island events come every 8 to 15 whole hours, "
+    add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
+    add("Island events", f"{first} Island events come every 8 to 15 whole hours, "
                          "each equally likely, at any speed; paused time does not count.", True)
     for line, ok in EVENT_LINES:
         add("Island events", line, ok)
