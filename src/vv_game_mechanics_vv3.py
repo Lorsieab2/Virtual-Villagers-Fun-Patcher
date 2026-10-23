@@ -72,6 +72,10 @@ REFILL = 0x2A30                         # 3 game hours
 REFILL_PATCHED = 8100                   # 2 hours 15 minutes
 HONEY_EVERY = 3600
 HONEY_PATCHED = 2700
+# Honey gained 45 minutes, 1 hour, 3 hours and 10 hours (Normal speed) after the last gain: stock, and with the
+# Nature refill patch at Nature 1 or more (both emulated).
+HONEY_GAINS = (0, 2, 6, 20)
+HONEY_PATCHED_GAINS = (2, 3, 9, 30)
 NATURE_PATCH = "vv3_nature_honey_refill"
 NATURE_PATCH_NAME = "Nature Level 1 Actually Replenishes Food Sources Faster"
 
@@ -349,8 +353,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         honey_next = (f"; a gain was due at {at(honey_due)}: the next time the village is played it gets "
                       f"{min(honey_factor_gain, HONEY_CAP - honey)}.")
     out.append(gm.Fact("Refills", (
-        f"Honey: gains {honey_gain} {gm.every(honey_every, speed)}, up to {HONEY_CAP}{honey_next}"),
-        not faster))                    # the stock refill is verified; the patched one is read only
+        f"Honey: gains {honey_gain} {gm.every(honey_every, speed)}, up to {HONEY_CAP}{honey_next} By the time since "
+        f"the last gain -- " + ", ".join(f"{gm.duration(gm.real_seconds(t, speed))} +{g}" for t, g in
+                                       zip((2700, 3600, 10800, 36000), HONEY_PATCHED_GAINS if faster else HONEY_GAINS))
+        + "."), True))                  # verified, stock and patched (v1.35.81), the coordinator 2026-10-23
 
     # -- the clock ------------------------------------------------------------------------
     if clock.paused:
