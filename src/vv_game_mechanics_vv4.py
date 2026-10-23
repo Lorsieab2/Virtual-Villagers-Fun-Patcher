@@ -139,9 +139,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Time away and Time Warp", "While catching up, each counted age unit gives every villager of 14 or more 4 "
                                    "jobs; gathering brings 8 food at every speed; with the Fruitwells built a "
                                    "successful farmer brings 5 more.")
-    add("Time away and Time Warp", (f"Time Warp (the patcher's Origins upgrades) {UNSURE}: moves the clock on 3 "
-                                    "years' worth at the current speed (3 hours on Fast, 6 on Normal, 10 on Slow); "
-                                    "the island event and growth then come due at once."))
+    out.append(gm.time_warp_line(speed_value))
 
     first = " (30 minutes after the first)" if _i32(data, EVENTS_SEEN) == 0 else ""
     add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 8 to 15 whole hours at any "

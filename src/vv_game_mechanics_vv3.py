@@ -489,9 +489,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                                     "(the game's clock ran on), with no limit. While catching up every healthy adult "
                                     f"does 4 jobs each age unit, without walking {UNSURE}; mushrooms and collectibles "
                                     "do not pile up and only one overdue island event happens."))
-    add("Time away and Time Warp", (f"Time Warp (the patcher's Origins upgrades) {UNSURE}: each one moves the clock "
-                                    "on 3 hours times the speed: 3 years on Fast and Normal, fewer on Slow; refused "
-                                    "while paused."))
+    out.append(gm.time_warp_line(speed_value))
 
     add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 8 to 15 hours at any speed "
                          "(the first 15 minutes after the village is made, then 30 minutes after the first of each "

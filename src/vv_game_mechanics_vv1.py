@@ -139,6 +139,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         f"island event timers wait {gm.UNCONFIRMED}.", unit_seconds=20 * 60 * speed)
     add("Time away and Time Warp", "Each counted age unit lets every adult try up to 5 jobs at once; every regrowth "
                                    "missed is added in full.")
+    out.append(gm.time_warp_line(speed_value))
 
     # -- Island events -------------------------------------------------------------------
     first = (" The first is always the item event, the second 30 minutes later;"

@@ -91,7 +91,7 @@ def duration(seconds: float, exact: bool = False) -> str:
     if exact and seconds % 60:
         return f"{duration(seconds - seconds % 60)} {_plural(seconds % 60, 'second')}"
     minutes = (seconds + 30) // 60
-    days, rest = divmod(minutes, 24 * 60)
+    days, rest = divmod(minutes, 24 * 60) if minutes > 24 * 60 else (0, minutes)
     hours, minutes = divmod(rest, 60)
     parts = [_plural(n, unit) for n, unit in ((days, "day"), (hours, "hour"), (minutes, "minute")) if n]
     return " ".join(parts)
@@ -134,8 +134,25 @@ PAUSED_NOTE = "The game was saved paused: nothing refills or grows until it is u
 # clamp (the coordinator's clamp verification; the research specs disagreed): {"full": {speed: real
 # seconds counted in full}, "band_end": real seconds, "band": counted in the band, "over": counted past
 # it}.  A game not listed here shows that its limits are not yet confirmed, never a guessed figure.
-AWAY_LIMITS: dict[int, dict] = {}
+#
+# VERIFIED (2026-10-23, the coordinator's emulation of each game's own clamp, identical in all five):
+# pending += away; over 86,400 s it becomes 86,400 and the speed band is skipped; otherwise Fast keeps
+# up to 38,200 s else 31,000, Normal at most 31,000, Slow up to 23,800 s else 31,000; paused gives 0.
+_VERIFIED_AWAY = {"full": {FAST: 38_200, NORMAL: 31_000, SLOW: 23_800}, "band_end": 86_400, "band": 31_000,
+                  "over": 86_400}
+AWAY_LIMITS: dict[int, dict] = {game: _VERIFIED_AWAY for game in range(1, 6)}
 TIME_AWAY = "Time away and Time Warp"
+# The Origins Time Warp (every game, verified the same way): years credited per warp, by speed.  The
+# patcher's Expanded warps differ and are not shown until the owner settles them.
+TIME_WARP_YEARS = {FAST: 12, NORMAL: 6, SLOW: 3}
+
+
+def time_warp_line(speed_value: int) -> Fact:
+    speed = speed_base(speed_value)
+    return Fact(TIME_AWAY, (
+        f"Time Warp (the Origins upgrade): each one gives the villagers {TIME_WARP_YEARS[speed]} years on "
+        f"{speed_name(speed)} speed (12 on Fast, 6 on Normal, 3 on Slow), past the time-away limits; not while "
+        "paused."))
 
 
 def counted_away(game: int, seconds: float, speed: int) -> float | None:
@@ -144,7 +161,7 @@ def counted_away(game: int, seconds: float, speed: int) -> float | None:
     if limits is None:
         return None
     seconds = max(0.0, seconds)
-    if seconds <= limits["full"][speed]:
+    if seconds <= limits["full"].get(speed, limits["full"][NORMAL]):
         return seconds
     return limits["band"] if seconds <= limits["band_end"] else limits["over"]
 
@@ -157,23 +174,32 @@ def time_away(village: "Village", last: float, speed_value: int, paused_words: s
     speed = speed_base(speed_value)
     paused = speed_value >= PAUSED
     out = [Fact(TIME_AWAY, f"Last saved: {when(last)}, " + ("paused." if paused else f"on {speed_name(speed)} speed."))]
+    limits = AWAY_LIMITS.get(village.game)
     if paused:
         out.append(Fact(TIME_AWAY, paused_words))
+    else:
+        away = max(0.0, village.now - last)
+        counted = counted_away(village.game, away, speed)
+        if counted is None:
+            out.append(Fact(TIME_AWAY, f"Time since then: {duration(away)}. How much of it the game counts when the "
+                                       "village is next played is not yet confirmed."))
+        else:
+            years = f" ({counted / unit_seconds:.1f} years of the villagers' lives)" if unit_seconds and counted else ""
+            out.append(Fact(TIME_AWAY, f"If it were played now: {duration(away)} away, of which {duration(counted)} "
+                                       f"counts{years}."))
+    if limits is None:
         return out
-    away = max(0.0, village.now - last)
-    counted = counted_away(village.game, away, speed)
-    if counted is None:
-        out.append(Fact(TIME_AWAY, f"Time since then: {duration(away)}. How much of it the game counts when the "
-                                   "village is next played is not yet confirmed."))
-        return out
-    years = f" ({counted / unit_seconds:.1f} years of the villagers' lives)" if unit_seconds and counted else ""
-    out.append(Fact(TIME_AWAY, f"If it were played now: {duration(away)} away, of which {duration(counted)} "
-                               f"counts{years}."))
-    limits = AWAY_LIMITS[village.game]
+    full = limits["full"].get(speed, limits["full"][NORMAL])
+    band, band_end, over = limits["band"], limits["band_end"], limits["over"]
+    if full == band:
+        rule = f"counts in full up to {duration(full, exact=True)}, and as that up to {duration(band_end)}"
+    else:
+        rule = (f"counts in full up to {duration(full, exact=True)}; from then to {duration(band_end)} it counts as "
+                f"{duration(band, exact=True)}" + (" -- more than the time away, while that is under it" if band > full else ""))
     out.append(Fact(TIME_AWAY, (
-        f"On {speed_name(speed)} speed time away counts in full up to {duration(limits['full'][speed], exact=True)}; "
-        f"from then to {duration(limits['band_end'], exact=True)} it counts as {duration(limits['band'], exact=True)}; "
-        f"past that as {duration(limits['over'], exact=True)}, however long the game was closed.")))
+        f"On {speed_name(speed)} speed time away {rule}; past that as {duration(over)}, however long the game was "
+        "closed" + (f" ({over / unit_seconds:g} years on {speed_name(speed)} speed)." if unit_seconds else ".")
+        + " A save left paused gets none.")))
     return out
 
 

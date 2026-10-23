@@ -228,7 +228,7 @@ class FruitTrees(unittest.TestCase):
     def test_real_time_only(self) -> None:
         """The owner, 2026-10-22: never game hours or any game-clock unit."""
         for speed, clock in ((6, (6, 0, 100_000, 50_000)), (3, (3, 0, 100_000, 50_000)),
-                             (1010, (0, 10, 100_000, 50_000))):
+                             (1009, (0, 10, 100_000, 50_000))):
             text = text_of(self.read(make_save(clock=clock, speed=speed, trees=[(2, 1, 49_000, 5)]),
                                      features=[vv3.NATURE_PATCH], now=EPOCH + 150_000))
             self.assertNotRegex(text.lower(), r"game (hour|minute|second|time|clock unit)")
@@ -331,16 +331,26 @@ class EveryGame(unittest.TestCase):
                 self.assertNotRegex(text, r"game (hours?|minutes?|seconds?|clock units?)\b")
                 self.assertNotRegex(text, r"\bclock (seconds|units)\b")
 
-    def test_time_away_figures_wait_for_verification(self) -> None:
-        """The research specs disagreed: no limit is shown until AWAY_LIMITS holds a verified table."""
-        self.assertEqual(gm.AWAY_LIMITS, {})
+    def test_time_away_is_the_verified_clamp(self) -> None:
+        """Every game: in full up to 10 h 36 m 40 s / 8 h 36 m 40 s / 6 h 36 m 40 s, then 8 h 36 m 40 s up to
+        and including 24 hours, then 24 hours (the coordinator's emulation of each game's own clamp)."""
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                self.assertEqual(gm.counted_away(game, 38_200, 3), 38_200)
+                self.assertEqual(gm.counted_away(game, 38_201, 3), 31_000)
+                self.assertEqual(gm.counted_away(game, 31_001, 6), 31_000)
+                self.assertEqual(gm.counted_away(game, 23_800, 10), 23_800)
+                self.assertEqual(gm.counted_away(game, 25_000, 10), 31_000)      # more than was away
+                self.assertEqual(gm.counted_away(game, 86_400, 6), 31_000)       # exactly 24 hours: the band
+                self.assertEqual(gm.counted_away(game, 86_401, 10), 86_400)
         for name in self.SAVES:
             with self.subTest(save=name):
-                lines_ = lines(self.page(name), gm.TIME_AWAY)
-                joined = " ".join(lines_)
-                self.assertTrue("not yet confirmed" in joined or "paused" in joined, joined)
-                self.assertNotIn("8 hours 36 minutes 40 seconds", joined)
-
+                joined = " ".join(lines(self.page(name), gm.TIME_AWAY))
+                self.assertIn("8 hours 36 minutes 40 seconds", joined)
+                self.assertRegex(joined, r"If it were played now: .* away, of which 24 hours counts \((24|12|7\.2)\.0 "
+                                         r"years|paused")
+                self.assertRegex(joined, r"Time Warp \(the Origins upgrade\): each one gives the villagers (12|6|3) years")
+                self.assertNotIn("not yet confirmed", joined)
     def test_time_away_uses_the_verified_table(self) -> None:
         table = {"full": {3: 38_200, 6: 31_000, 10: 23_800}, "band_end": 86_400, "band": 31_000, "over": 86_400}
         old = dict(gm.AWAY_LIMITS)
@@ -349,7 +359,6 @@ class EveryGame(unittest.TestCase):
         self.assertEqual(gm.counted_away(5, 10_000, 6), 10_000)
         self.assertEqual(gm.counted_away(5, 40_000, 6), 31_000)
         self.assertEqual(gm.counted_away(5, 90_000, 10), 86_400)
-        self.assertIsNone(gm.counted_away(4, 10_000, 6))
         joined = " ".join(lines(self.page("vv5-huttest-1"), gm.TIME_AWAY))
         self.assertIn("of which", joined)
         self.assertIn("8 hours 36 minutes 40 seconds", joined)

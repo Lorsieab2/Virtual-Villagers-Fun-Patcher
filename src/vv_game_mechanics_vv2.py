@@ -180,10 +180,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                    "take about 8 minutes); each unit eats, rolls sickness and old age, and gives "
                                    "every healthy villager of 14 or more 4 jobs. Building adds 1 a try instead of 2. "
                                    "Mushrooms and collectibles do not pile up; a due island event happens once.")
-    add("Time away and Time Warp", ("Time Warp (the patcher's Origins upgrades): exactly 3, 6 or 12 years on Slow, "
-                                    "Normal or Fast, past the time-away limits, and the regrowth, fire, island "
-                                    "event and Gong come due 10 hours (Slow) or 12 hours sooner; refused while "
-                                    "paused."))
+    out.append(gm.time_warp_line(speed_value))
+    add("Time away and Time Warp", "A Time Warp also brings the regrowth, the fire, the next island event and the "
+                                   "Gong 10 hours (Slow) or 12 hours (Normal, Fast) sooner.")
 
     # -- Island events -------------------------------------------------------------------
     add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 10 to 19 hours at any "
