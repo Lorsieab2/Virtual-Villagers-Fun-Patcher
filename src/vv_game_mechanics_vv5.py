@@ -9,8 +9,7 @@ seconds from the base (not scaled by the speed), so a stamp v is the real moment
   project n's progress 0x16D30 + 8n (the Hydroponic Farm is project 5, done at 30; the Knowing Totem 4).
 
 THE RULES: the coordinator's verified spec mech_vv5\\spec.md (2026-10-23).  A line built only from what it
-marks VERIFIED (the stock routine emulated) or from the save is verified; anything it marks READ, and
-"heathens never age" (held for a re-check), carries UNCONFIRMED.  Events that can never happen in the
+marks VERIFIED (the stock routine emulated) or from the save is verified; anything it marks READ carries UNCONFIRMED.  Events that can never happen in the
 stock game are not listed.
 """
 from __future__ import annotations
@@ -184,7 +183,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Time away and Time Warp", "Every noni growth and crop refill missed while the game was closed is added when "
                                    "it is next played, with no limit on how many: noni stop at 1,000, crops at 800.",
         True)
-    add("Time away and Time Warp", "Heathens never age, while catching up or otherwise.")
+    add("Time away and Time Warp", "Heathens never age, while catching up or otherwise (the stock game's design).", True)
     out.append(gm.time_warp_line(speed_value))
 
     # -- Island events -------------------------------------------------------------------

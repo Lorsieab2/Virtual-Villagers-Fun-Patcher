@@ -446,7 +446,7 @@ class EveryGame(unittest.TestCase):
         struct.pack_into("<i", data, vv4.BERRIES, 500)
         struct.pack_into("<i", data, vv4.LEVELS + 4 * vv4.FOOD_MASTERY, 1)
         text = text_of(self.page("vv4-huttest-1", data=bytes(data)))
-        self.assertIn("Blackberries: 500 of 1,000; a pick brings 5 food now", text)
+        self.assertIn("Blackberries: 500 of 1,000; picking brings 5 food now", text)
         data = bytearray(gzip.decompress((FIXTURES / "vv5-huttest-1.ldw.gz").read_bytes()))
         struct.pack_into("<i", data, vv5.NONI, 640)
         struct.pack_into("<i", data, vv5.SPEED, 10)

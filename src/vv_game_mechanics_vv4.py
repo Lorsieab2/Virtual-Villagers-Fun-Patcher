@@ -3,22 +3,14 @@
 THE SAVE.  A 24-byte header -- "ldwg", ..., the clock's base as an int64 Unix time at 0x08 -- then the
 game state: state field X is file offset X + 0x10.  The clock counts real seconds from the base, so a
 stamp v is the real moment base + v.  FILE offsets: speed 0x17120 (3 Fast, 6 Normal, 10 Slow; + 999
-paused), the last world tick 0x17100, the next world tick 0x170F4, food 0x85C, tech points 0xBCD0, tech
-levels 0xBCB8 (index 0 drives research, index 4 is Food Mastery), Mushrooms Found 0x874, island events
-seen 0x884, blackberries 0x17108, the next island event 0x170F0.
+paused), difficulty 0x17104 (0 Easy, 1 Medium, 2 Hard), the last world tick 0x17100, the next world tick
+0x170F4, food 0x85C, tech points 0xBCD0, tech levels 0xBCB8 (0 Science, 1 Medicine, 2 Learning, 4 Food
+Mastery), Mushrooms Found 0x874, island events seen 0x884, blackberries 0x17108, the next island event
+0x170F0.
 
-THE RULES (static reading of the stock executable; the coordinator's scratchpad spec mech_vv4\\spec.md,
-2026-10-23 -- what it could not trace is said to be not yet worked out, what it inferred is marked
-uncertain):
-  * The world tick runs every 60 x speed real seconds; overdue ticks all run on return; paused time is
-    not counted (0x420330).  Each tick: blackberries +2 up to 1000; stream debris +2% up to 100%.
-  * Food Mastery: level 2 adds half, level 3 doubles every food gain (0x41D920).  Gathering 11 / 8 / 5
-    on Fast / Normal / Slow (8 while catching up); a blackberry pick max(2, berries / 100); fishing 4,
-    a Golden Fish 8 at (2 x scales + 1)% ; mushrooms 6 or 35.
-  * Research: skill / 11, / 9, / 7 at level 1, 2, 3, x 2 on Fast, x 0.6 on Slow (uncertain); while
-    catching up / 7, / 7, / 5.  A duplicate collectible 100 / 250 / 1500 tech points (0x414410).
-  * Island events: 8 to 15 whole hours after the last (30 minutes after the first), at any speed; one
-    picked uniformly among the eligible (0x418000); at most one after time away.
+THE RULES: the coordinator's verified spec mech_vv4\\spec.md v2 (2026-10-23).  A line built only from what
+it marks EMULATED, or from the save, is verified; anything READ, or worded "probably" / "likely" there,
+carries UNCONFIRMED.  Handlers the stock game never fires and events that never happen are not listed.
 """
 from __future__ import annotations
 
@@ -28,33 +20,65 @@ import vv_game_mechanics as gm
 import vv_save_backup
 
 GAME = 4
-SPEED, LAST_TICK, NEXT_TICK = 0x17120, 0x17100, 0x170F4
+SPEED, LAST_TICK, NEXT_TICK, DIFFICULTY = 0x17120, 0x17100, 0x170F4, 0x17104
 FOOD, TECH, LEVELS = 0x85C, 0xBCD0, 0xBCB8
 MUSHROOMS_FOUND, EVENTS_SEEN = 0x874, 0x884
 BERRIES, EVENT_NEXT = 0x17108, 0x170F0
-RESEARCH, FOOD_MASTERY = 0, 4
+SCIENCE, MEDICINE, LEARNING_TECH, FOOD_MASTERY = 0, 1, 2, 4
 BERRY_CAP = 1000
-UNSURE = ""                              # every unverified line carries UNCONFIRMED
-NOT_YET = "not yet worked out"
 GOLDEN = "vv4_super_secret_golden_mushroom"
 LEARNING = "vv4_learning_never_fails"
 SCALES = "vv4_complete_scales_golden_fish"
 STORY = "vv4_story_cheat_upgrades"
 
+# (line, verified)
 EVENT_LINES = (
-    "Which event: every event whose conditions hold is equally likely (1 in the number of them); at most one "
-    "happens after time away.",
-    "Always possible: Creeping Mold, Allergy Season, Isola Day, the four Mysterious Fog events (food gained, "
-    "food lost, tech gained, tech lost), Blessings Day, Rainy Season, Monsoon, Stinging Wasps and Pure Sea Air.",
-    "With a suitable villager (most need one of 14 or more): A Closer Look, Arc of Colors, Robber Crab, "
-    "Phosphorescent Fungi, Abandoned Infants, Pink Shell, Calabash, Climber, Mosquito Larvae, Faces in the "
-    "Night, Screaming Baby, Sealed Box, Wet Book, The Lie, Aspiring Doctor (6 kinds), Aspiring Scientist, "
-    "Innovation in Construction, Innovation in Farming, Child in the Tree, Pretty Shell, Biggles Pays a Visit.",
-    "Day of Honor needs 2 graves; Banyan Festival 500 mushrooms found and 3 tree stages; Village & Tree Malaise "
-    "fewer than 3 stages, Euphoria 3 or more; Daredevil Barrel room for more villagers, the stream restored and "
-    f"some debris; Cold Snap a condition {NOT_YET}.",
-    f"Rescue {UNSURE}: with too few of one sex or fewer than 3 villagers, a 6% chance of Daredevil Barrel instead.",
-    f"Several events then roll 50% or 60% for their result; the odds of each outcome are {NOT_YET}.",
+    ("Which event: every event whose conditions hold is equally likely (1 in the number of them; Aspiring Doctor "
+     "counts 6 times). Rescue: with one sex down to 2 or fewer, or fewer than 3 villagers, 6% more become "
+     "Daredevil Barrel, even when it could not otherwise happen.", True),
+    ("Rolled results: Arc of Colors (run right) 50% a fall (-25 to 44 health), 50% +300 food; Sealed Box (swim "
+     "it back) 50% +5000 tech points, 50% the villager is lost; Innovation in Construction or Farming (try it) "
+     "60% a skill gain, 40% -75 to 149 health.", True),
+    ("Creeping Mold -100 food (or all of it); Mysterious Footprints +300 food, -300 food, +2000 or -2000 tech "
+     "points; A Closer Look +350 berries; Robber Crab (cut the tail) healing for several, (let go) Food Mastery "
+     "+1 level; Phosphorescent Fungi (throw away) Research +40 to 49, sick, -15 to 19 health, (admire) some fall "
+     "sick; Stinging Wasps some lose 10 to 19 health.", False),
+    ("Village & Tree Malaise (fewer than 3 tree stages) some lose 5 to 14 health or fall sick; Euphoria (3 or "
+     "more) everyone cured and fully healed; Pure Sea Air everyone cured; Cold Snap (the fire lit) puts the fire "
+     "out; Daredevil Barrel (room, the stream restored, some debris) up to 3 babies; Abandoned Infants (6 women, "
+     "room) babies for 6 women.", False),
+    ("Day of Honor needs 2 graves, Banyan Festival 500 mushrooms found and 3 tree stages; Allergy Season, Isola "
+     "Day, Blessings Day, Rainy Season and Monsoon change nothing stored. Pink Shell, Calabash, Faces in the "
+     "Night, Screaming Baby, Wet Book, The Lie, Aspiring Doctor, Aspiring Scientist, Pretty Shell, Legendary "
+     "Stranger, Climber, Mosquito Larvae and Tough Lessons have a fixed result for each choice.", False),
+)
+STEW_LINES = (
+    ("Stews need 3 herbs and fresh water in a cooked pot; a ready stew is gone 5 minutes later. Spicy x3: runs to "
+     "the stream; spicy, spicy, sweet: every adult comes; spicy, spicy, soapy: has got to go; spicy, sweet, "
+     "sweet: the whole village comes; spicy, sweet, soapy: the Grand Feast (a well-cooked pot and the 4 feast "
+     "items); spicy, soapy, soapy: the soapy-stew reaction.", True),
+    ("Sweet x3: honours the tree; sweet, sweet, soapy: the children get hiccups; sweet, soapy, soapy: heals 25 to "
+     "59 health (5 to 14 with under 100 food), then no stew for 10 minutes; soapy x3: sick, then no stew for 10 "
+     "minutes. In salt water, pulpy vines x3 make soap; any other mix tastes nasty or too salty.", True),
+)
+LIFE_LINES = (
+    ("A baby is born on the 41st age unit after conception. Conception after an embrace: (Parenting + 50 x "
+     "(Medicine level - 1) + 1) in 300 (17% at Parenting 50 and Medicine 1). At Medicine 3: twins 5.25%, "
+     "triplets 1.75%.", True),
+    ("A villager with food and not sick regains 1 health half the age units (75% while the Fire Pit burns, every "
+     "one at Medicine 3 or on Easy); the elderly (50, 58 or 66 years) a fifth of that. Sickness each age unit: "
+     "0.27%, 0.17% or 0.065% at Medicine 1, 2 or 3, 1.5% more for the elderly, a quarter on Easy. A sick "
+     "villager loses 1 health 61% of age units and is never cured by time, except on Easy (25%).", True),
+    ("Old age: at each birthday from 56, 64 or 72 (Medicine 1, 2, 3) a 10% chance of death for each year past "
+     "55, 63 or 71, certain at 65, 73 or 81.", True),
+    ("A job succeeds at skill + 34 out of 100 (+ 67 if they like learning, + 17 if they dislike it), + 15 or + 30 "
+     "at Learning level 2 or 3; a success gains (70 - skill) ÷ 9 (at least 7 at skill 0), twice that if they "
+     "like learning, half if they dislike it.", True),
+    ("Building: a hut needs 2000 -- the first hut gains 12 a visit, the second 4, the third 1; the clothing hut "
+     "12, the Love Shack 200, the nursery and the hospital 50. Babies need the Love Shack; women of 50 or more "
+     "cannot conceive; a baby is of the rarer sex when it is down to 2 or fewer. The Fire Pit stays lit 10, 20 "
+     "or 33 hours 20 minutes on Fast, Normal or Slow. A research try injures (0 to 9 health) 2% of the time.",
+     False),
 )
 
 
@@ -91,64 +115,91 @@ def facts(village: gm.Village) -> list[gm.Fact]:
 
     out: list[gm.Fact] = []
     add = lambda group, text, ok=False: out.append(gm.Fact(group, text, ok))  # noqa: E731
-    gather = {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed]
     mastery_words = {2: " (Food Mastery level 2: half as much again)", 3: " (Food Mastery level 3: doubled)"}.get(
         mastery, "")
 
+    # -- Food sources --------------------------------------------------------------------
     add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", True)
     berries = _i32(data, BERRIES)
-    add("Food sources", f"Blackberries: {berries:,} of {BERRY_CAP:,}; a pick brings {food(max(2, berries // 100))} food "
-                        f"now{mastery_words} (the berries ÷ 100, at least 2); picking stops below 3.")
-    add("Food sources", f"Gathering brings {food(gather)} food on {on} speed ({food(8)} while catching up){mastery_words}.")
-    add("Food sources", f"Fishing (once fishing is restored) brings {food(4)} a fish, or {food(8)} for a Golden Fish: a "
-                        "(2 x fish scales collected + 1)% chance with at least 1 scale (3% with 1, 25% with 12). "
-                        + gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
+    add("Food sources", f"Blackberries: {berries:,} of {BERRY_CAP:,}; picking brings {food(max(2, berries // 100))} food "
+                        f"now (the berries ÷ 100, at least 2; picking stops below 3), a harvest {food(min(30, berries))} "
+                        f"(up to 30){mastery_words}.", True)
+    add("Food sources", f"Stomping or shaking down fruit brings {food(3)}; the fishing net {food(4)} a fish, or {food(8)} for "
+                        "a Golden Fish: a (2 x fish scales + 1)% chance (3% with 1 scale, 25% with 12, none with 0)."
+                        + mastery_words, True)
+    add("Food sources", f"Catching a crab brings {food(35)}." + mastery_words)
+    if village.has(SCALES) is not False:
+        add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
 
+    # -- Refills -------------------------------------------------------------------------
     if paused:
-        add("Refills", gm.PAUSED_NOTE)
+        add("Refills", gm.PAUSED_NOTE, True)
     add("Refills", f"Blackberries: +2 {gm.every(360, speed_value)}, up to {BERRY_CAP:,}; the stream gathers 2% more "
-                   "debris at the same time, up to 100%.")
+                   "debris at the same time, up to 100%.", True)
     add("Refills", f"Next growth: {due(NEXT_TICK)}.", True)
 
-    add("Mushrooms", f"Mushrooms give {food(6)} food, or {food(35)} for the large kinds{mastery_words}. When they appear "
-                     f"is {NOT_YET}.")
+    # -- Mushrooms / Collectibles --------------------------------------------------------
+    add("Mushrooms", "While playing (not paused), something appears about every 45 seconds at any speed, twice as "
+                     "often on wet ground; at most 2 at a time, each gone after 1 minute 30 seconds. 30% are "
+                     f"mushrooms (all of them in rain or on wet ground): small 92% for {food(6)} food, large 8% for "
+                     f"{food(35)}.", True)
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", True)
-    add("Collectibles", "Four collections of 12. Once the collectible timer is running, one appears every 50 to 58 "
-                        f"minutes at any speed {UNSURE}. A piece already found gives 100, 250 or 1,500 tech points by "
-                        "rarity.")
+    add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
+                        "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "
+                        "hours.", True)
+    add("Collectibles", "Once the third collection is complete, a buried villager's ghost brings a collectible every "
+                        "50 to 58 minutes (nothing if more than an hour overdue).", True)
+    add("Collectibles", "In fog or a cold snap things appear only with pieces of the wind flute set (every 7.5 "
+                        "seconds with all 12); each complete collection raises the population limit by 5, all four "
+                        "by 25.")
 
+    # -- Tech points ---------------------------------------------------------------------
     add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", True)
-    lvl = level[RESEARCH]
+    lvl = level[SCIENCE]
     divisor = {1: 11, 2: 9, 3: 7}.get(lvl)
     if divisor:
         add("Tech points and effects", (
-            f"Research gives the researcher's skill ÷ {divisor} at research level {lvl}, "
+            f"Research gives the researcher's skill ÷ {divisor} at Science level {lvl}, "
             + {gm.FAST: "twice that on Fast speed", gm.NORMAL: "as it is on Normal speed",
                gm.SLOW: "0.6 of it on Slow speed"}[speed]
-            + f" {UNSURE}; while catching up ÷ {5 if lvl >= 3 else 7}."))
-    add("Tech points and effects", gm.patch_words(village, LEARNING, "no skill roll fails"))
+            + f", rounded down; 3 times that with a stew's study effect; 10% of the time 1 more while the Fire Pit "
+              f"burns; while catching up ÷ {5 if lvl >= 3 else 7}."), True)
+    if village.has(LEARNING) is not False:
+        add("Tech points and effects", gm.patch_words(village, LEARNING, "no skill roll fails"))
+    add("Tech points and effects", "Nursery School: each child gains the teacher's five skills added up ÷ 240 an hour "
+                                   "at any speed, in skills under 50.", True)
 
-    add("Food earned", f"A villager eats only when below full health: 1 food a meal {UNSURE}.")
+    # -- Food earned ---------------------------------------------------------------------
+    add("Food earned", f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
+                       f"({2 * 3600 / (60 * speed):g} an hour); at 500 food or less half the time, and otherwise loses "
+                       "1 health 30% of the time; on Medium at 8,000 food or more, or on Hard, 2 more 76% of the "
+                       "time, never on Easy. A snack (below full health) costs 1 food and heals 1 half the time.",
+        True)
 
+    # -- Time away and Time Warp ---------------------------------------------------------
     out.extend(gm.time_away(village, real(LAST_TICK), speed_value,
                             "Saved paused: no age is counted for the time away, and the timers move on with the "
                             "pause.", unit_seconds=20 * 60 * speed))
-    add("Time away and Time Warp", "While catching up, each counted age unit gives every villager of 14 or more 4 "
-                                   "jobs; gathering brings 8 food at every speed; with the Fruitwells built a "
-                                   "successful farmer brings 5 more.")
-    add("Time away and Time Warp", "Every blackberry growth missed while the game was closed is added when it is next played, with no limit on how many, up to 1,000.", True)
+    add("Time away and Time Warp", "While catching up: aging, eating, sickness, births and 4 jobs per age unit for "
+                                   "adults.")
+    add("Time away and Time Warp", "Every blackberry growth missed while the game was closed is added when it is next "
+                                   "played, with no limit on how many, up to 1,000.", True)
     out.append(gm.time_warp_line(speed_value))
 
-    first = " (30 minutes after the first)" if _i32(data, EVENTS_SEEN) == 0 else ""
-    add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 8 to 15 whole hours at any "
-                         f"speed{first}; paused time does not count.")
-    for line in EVENT_LINES:
-        add("Island events", line)
+    # -- Island events -------------------------------------------------------------------
+    first = " (30 minutes while none has been seen yet)" if _i32(data, EVENTS_SEEN) == 0 else ""
+    add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 8 to 15 whole hours, each "
+                         f"equally likely, at any speed{first}; paused time does not count; after time away at most "
+                         "one happens.", True)
+    for line, ok in EVENT_LINES:
+        add("Island events", line, ok)
     if village.has(STORY) is not False:
         add("Island events", gm.patch_words(village, STORY, "Pick Island Event chooses the event and its rolls"))
 
-    add("Other", f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} speed. "
-                 f"Sickness, healing, building, pregnancy and stews are {NOT_YET}.")
+    # -- Other ---------------------------------------------------------------------------
+    for line, ok in STEW_LINES + LIFE_LINES:
+        add("Other", line, ok)
+    add("Other", f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} speed.", True)
     return out
