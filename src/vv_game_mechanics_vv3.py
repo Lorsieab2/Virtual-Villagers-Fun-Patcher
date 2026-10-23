@@ -456,8 +456,7 @@ ODDS_LINES = (
     "Conception: a roll of 300 + 50 - 50 x Medicine level (less a potion's help: 50 or 100) at or under Breeding; "
     "at Breeding 100 that is 17%, 33%, 51% or 67% at Medicine 0 to 3. Twins 5.3% and triplets 1.75%, at "
     "Medicine 3 only.",
-    "Old age: from 47, 55, 63 or 71 years (Medicine 0 to 3) a 10% chance of death for each year past it, so "
-    "nobody lives past 57, 65, 73 or 81.",
+    "Old age: from 47, 55, 63 or 71 years (Medicine 0 to 3), each birthday past it carries a death roll, the chance rising 10% for each year over.",
     "Sickness, each age unit, with the fire lit or the hospital project done / without: 0.28% / 0.49% at "
     "Medicine 1, 0.17% / 0.30% at Medicine 2, 0.064% / 0.107% at Medicine 3; the elderly (from 42 years plus 8 "
     "for each Medicine level) 1.51% more. Easy halves these; Hard raises them.",
@@ -475,7 +474,7 @@ ODDS_LINES = (
 
 # The lines of EVENT_LINES and ODDS_LINES verified by emulation (the spec's addendum, section C and D).
 VERIFIED_EVENT_LINES = {1, 8, 9, 10, 11}   # the rescue odds, the rolled results, the Fog, the results
-VERIFIED_ODDS_LINES = {0, 1, 2, 3, 5, 6}    # blow-up, conception, old age, sickness, life, potions
+VERIFIED_ODDS_LINES = {0, 1, 3, 5, 6}       # blow-up, conception, sickness, life, potions (old age held)
 
 
 def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int) -> list[gm.Fact]:
@@ -566,7 +565,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     for n, line in enumerate(ODDS_LINES[1:], 1):
         add("Other", line, n in VERIFIED_ODDS_LINES)
     if level[5] >= 3 or nature >= 3:
-        add("Other", gm.patch_words(village, MORTALITY, "at Nature level 3 villagers live 7 years longer"), True)
+        add("Other", gm.patch_words(village, MORTALITY, "at Nature level 3 the old-age rolls start 7 years later"))
     leadership = level[LEADERSHIP]
     ready = []
     for words, at in CHIEF_READY.items():

@@ -85,6 +85,7 @@ EVENT_LINES = (
     "Fruit crate: the opener -40/70/110 health (a large one is fatal); red vial a new head; blue vial one skill "
     "+50/75/100; fizzy vial every skill -30/50/70. Leaving a crate or pouring a vial out does nothing.",
 )
+OLD_AGE = "Old age: from 55, 63 or 71 years (Medicine 1, 2, 3), each birthday past it carries a death roll, the chance rising 10% for each year over."
 LIFE_LINES = (
     "A baby is born 41 age units after conception. Conception: a roll of 300 at or under Parenting - 50 + 50 x "
     "Fertility level (1, 51 or 101 in 300 at Parenting 0, 50, 100 and Fertility 1); below 400 food only 26% of "
@@ -95,8 +96,6 @@ LIFE_LINES = (
     "Sickness each age unit (14 and older): 1 in 600, 1 in 1,200 or 3 in 10,000 at Medicine 1, 2, 3; past 50, 58 "
     "or 66 years 1.5% more. Children never fall sick. With food and not sick, a villager regains 1 health half the "
     "age units (every one on Easy); past 50, 58 or 66 years 10% (20% on Easy).",
-    "Old age: at each birthday past 55, 63 or 71 years (Medicine 1, 2, 3) a 10% chance of death for each year "
-    "over, certain at 65, 73 or 81.",
     "Building trips: huts 250, 400 and 600; the beach 75 (each counts 2); the blockage 350; the field 200; digging "
     "800; the ruins 1,000; chiseling 1,350 (the last two half as many at Building 90 or more). Each trip injures 2% "
     "of the time; an examined hut is repaired 70% of the time.",
@@ -214,6 +213,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Other ---------------------------------------------------------------------------
     for line in LIFE_LINES:
         add("Other", line, True)
+    add("Other", OLD_AGE)                     # held: villagers are seen living past the rule (the owner)
     add("Other", (f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} speed: "
                   "ages, pregnancies and regrowth follow the speed; work, mushrooms and island events do not."), True)
     add("Other", f"The village was started at {gm.when(real(CREATED))}.", True)

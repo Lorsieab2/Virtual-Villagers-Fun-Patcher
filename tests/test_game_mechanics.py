@@ -389,6 +389,18 @@ class EveryGame(unittest.TestCase):
                 for line in body:
                     content = line.strip().removeprefix(f"{gm.UNCONFIRMED}  ")
                     self.assertNotRegex(content, r" [.;,]|  |\(\)", content)
+    def test_old_age_is_held(self) -> None:
+        """The owner sees villagers live past the old-age rule: until it is re-checked, every game shows it
+        UNCONFIRMED and never says death is certain at an age."""
+        for name in self.SAVES:
+            with self.subTest(save=name):
+                facts = self.page(name)
+                text = gm.render(facts)
+                self.assertNotIn("certain at", text)
+                self.assertNotIn("lives past", text)
+                old = [f for f in facts if f.text.startswith("Old age:")]
+                self.assertEqual(len(old), 1)
+                self.assertFalse(old[0].verified)
     def test_golden_mushroom_stays_a_secret(self) -> None:
         for name, fid in (("vv1-huttest-1", "vv1_super_secret_golden_mushroom"),
                           ("vv2-huttest-1", "vv2_super_secret_golden_mushroom"),

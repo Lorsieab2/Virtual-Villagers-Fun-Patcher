@@ -69,8 +69,7 @@ LIFE_LINES = (
      "one at Medicine 3 or on Easy); the elderly (50, 58 or 66 years) a fifth of that. Sickness each age unit: "
      "0.27%, 0.17% or 0.065% at Medicine 1, 2 or 3, 1.5% more for the elderly, a quarter on Easy. A sick "
      "villager loses 1 health 61% of age units and is never cured by time, except on Easy (25%).", True),
-    ("Old age: at each birthday from 56, 64 or 72 (Medicine 1, 2, 3) a 10% chance of death for each year past "
-     "55, 63 or 71, certain at 65, 73 or 81.", True),
+    ("Old age: from 55, 63 or 71 years (Medicine 1, 2, 3), each birthday past it carries a death roll, the chance rising 10% for each year over.", False),
     ("A job succeeds at skill + 34 out of 100 (+ 67 if they like learning, + 17 if they dislike it), + 15 or + 30 "
      "at Learning level 2 or 3; a success gains (70 - skill) ÷ 9 (at least 7 at skill 0), twice that if they "
      "like learning, half if they dislike it.", True),

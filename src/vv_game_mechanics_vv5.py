@@ -61,8 +61,8 @@ EVENT_LINES = (
 )
 LIFE_LINES = (
     ("Sickness each age unit: 0.28%, 0.16% or 0.06% at Medicine 1, 2 or 3, 1.5% more from 50, 58 or 66 years; on "
-     "Easy a quarter of that. Old age: at each birthday past 55, 63 or 71 (Medicine 1, 2, 3) a 10% chance of "
-     "death for each year over, certain at 65, 73 or 81.", True),
+     "Easy a quarter of that.", True),
+    ("Old age: from 55, 63 or 71 years (Medicine 1, 2, 3), each birthday past it carries a death roll, the chance rising 10% for each year over.", False),
     ("A believer who is not sick regains 1 health half the age units, 75% while the fire burns, every one at "
      "Medicine 3 or on Easy; old villagers a fifth of that. At 500 food or less a believer loses 1 health 15% of "
      "age units.", True),
