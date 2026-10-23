@@ -1772,7 +1772,7 @@ class Rules:
     block_first_cousins: bool = False
     not_expecting: bool = True
     different_last_name: bool = True
-    one_family_per_partner: bool = True   # no partner from a family they already have a child with
+    one_family_per_partner: bool = False  # no partner from a family they already have a child with
     prefer_previous_partners: bool = True   # established couples first (the owner, 2026-10-08)
     prefer_fresh_blood: bool = True
     # How the pairings are LISTED (the owner, 2026-10-10: "prioritize latest generation", then "List pairings by"):
@@ -1786,7 +1786,7 @@ class Rules:
 
     # How the report shows ages, not a pairing rule (the owner, 2026-10-08: "a toggle to turn Age
     # Units on and off"): "1379 game units (68 years old)", or "68 years old" alone.
-    show_age_units: bool = True
+    show_age_units: bool = False
 
     def describe(self) -> list[str]:
         out = []
