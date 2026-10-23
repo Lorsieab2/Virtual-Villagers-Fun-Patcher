@@ -701,7 +701,8 @@ def render345(game, mode, slots):
     if key not in _RENDERS:
         build = next(b for b in vfp.load_builds() if b.id == game)
         feats = [f.id for f in vfp.load_public_fun_patches()
-                 if f.raw.get("game_id") == game and not f.id.endswith("population_256")]
+                 if f.raw.get("game_id") == game and not f.id.endswith("population_256")
+                 and f.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
         if slots == 256:
             feats.append(f"{game}_population_256")
         data, _ = vfp.render_patched_bytes(STOCK / VV345[game]["exe"], build, mode, feats)

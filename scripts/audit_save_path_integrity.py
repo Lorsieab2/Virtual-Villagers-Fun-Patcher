@@ -344,7 +344,8 @@ def audit_game(game_id: str, verbose: bool = True) -> list[str]:
     # means "every mode", so it must not be treated as an empty set -- doing so
     # silently selects nothing and makes this audit pass vacuously.
     features = [
-        p for p in patcher.load_public_fun_patches() if p.raw.get("game_id") == game_id
+        p for p in patcher.load_public_fun_patches()
+        if p.raw.get("game_id") == game_id and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS
     ]
 
     for mode in patcher.load_patch_modes():

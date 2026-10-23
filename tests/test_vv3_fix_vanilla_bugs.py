@@ -83,6 +83,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 from vv_fun_patcher import (  # noqa: E402
     EXPERIMENTAL_FUN_PATCH_IDS,
     load_builds,
+    ALTERNATIVE_FUN_PATCH_IDS,
     load_fun_patches,
     load_public_fun_patches,
     render_patched_bytes,
@@ -211,7 +212,8 @@ def _other_public_vv3_ids() -> list[str]:
     # writer and loader these rows fix (its own tests cover the two together,
     # tests/test_vv3_population_256.py FixVanillaBugsTests).
     return [p.id for p in load_public_fun_patches()
-            if p.game_id == "vv3" and p.id != FEATURE_ID and p.id not in EXPERIMENTAL_FUN_PATCH_IDS]
+            if p.game_id == "vv3" and p.id != FEATURE_ID and p.id not in EXPERIMENTAL_FUN_PATCH_IDS
+            and p.id not in ALTERNATIVE_FUN_PATCH_IDS]
 
 
 def _changed_bytes(before: bytes, after: bytes) -> list[int]:

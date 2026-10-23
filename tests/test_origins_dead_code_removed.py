@@ -88,7 +88,8 @@ def analysed(game: str, scope: str, mode: str):
         if scope == "alone":
             ids = vfp.resolve_fun_patch_ids([f"{game}_origins_village_wide_upgrades"], game_id=game)
         else:
-            public = [p.id for p in vfp.load_public_fun_patches() if p.game_id == game]
+            public = [p.id for p in vfp.load_public_fun_patches()
+                      if p.game_id == game and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
             ids = vfp.resolve_fun_patch_ids(public, game_id=game)
         data, applied = vfp.render_patched_bytes(STOCK / build.input_name, build, mode, ids)
         caves = reach.owned_caves(

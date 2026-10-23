@@ -517,12 +517,14 @@ class PublishedBuildShipsTheDllTests(unittest.TestCase):
                     shutil.rmtree(work, ignore_errors=True)
 
 
-SIDECAR_OWNERS = {
-    # game: (the companion-only feature, its per-save file's own words, which
+SIDECAR_OWNERS = [
+    # (game, the companion-only feature, its per-save file's own words, which
     # VVFP Save Reset.dll deletes on Start Over)
-    "vv2": ("vv2_totems_out_of_entries", b"Elder Totems"),
-    "vv3": ("vv3_both_factions", b"Virtual Villagers 3 Second Faction"),
-}
+    ("vv2", "vv2_totems_out_of_entries", b"Elder Totems"),
+    ("vv3", "vv3_both_factions", b"Virtual Villagers 3 Second Faction"),
+    ("vv3", "vv3_fruit_trees_refill_together", b"Virtual Villagers 3 Fruit Tree Timers"),
+    ("vv3", "vv3_fruit_trees_take_turns", b"Virtual Villagers 3 Fruit Tree Timers"),
+]
 
 
 class SidecarOwnersCarryTheResetTests(unittest.TestCase):
@@ -536,19 +538,19 @@ class SidecarOwnersCarryTheResetTests(unittest.TestCase):
     """
 
     def test_they_are_registered_after_the_logs(self) -> None:
-        for game, (feature_id, _words) in SIDECAR_OWNERS.items():
+        for game, feature_id, _words in SIDECAR_OWNERS:
             with self.subTest(game=game):
                 owners = vp.START_OVER_RESET_FILE_OWNERS[game]
-                self.assertEqual(owners[-1], feature_id)
+                self.assertIn(feature_id, owners[2:])
                 self.assertEqual(
                     owners[:2],
                     (f"{game}_write_parentage_log", f"{game}_write_village_statistics"),
                 )
 
     def test_alone_it_carries_both_hooks_and_the_dll(self) -> None:
-        for game, (feature_id, _words) in SIDECAR_OWNERS.items():
+        for game, feature_id, _words in SIDECAR_OWNERS:
             build = next(b for b in vp.load_builds() if b.id == game)
-            with self.subTest(game=game):
+            with self.subTest(game=game, feature=feature_id):
                 features = vp._attach_start_over_reset(
                     game, vp._selected_fun_patches(build, [feature_id])
                 )
@@ -567,7 +569,7 @@ class SidecarOwnersCarryTheResetTests(unittest.TestCase):
                 self.assertEqual(vp.get_fun_patch(feature_id).raw.get("patches"), [])
 
     def test_a_log_still_carries_it_first(self) -> None:
-        for game, (feature_id, _words) in SIDECAR_OWNERS.items():
+        for game, feature_id, _words in SIDECAR_OWNERS:
             build = next(b for b in vp.load_builds() if b.id == game)
             ids = [f"{game}_write_village_statistics", feature_id]
             with self.subTest(game=game):
@@ -580,7 +582,7 @@ class SidecarOwnersCarryTheResetTests(unittest.TestCase):
 
     def test_the_save_reset_dll_deletes_their_files(self) -> None:
         dll = (ROOT / "assets" / "save_reset" / DLL).read_bytes()
-        for game, (_feature_id, words) in SIDECAR_OWNERS.items():
+        for game, _feature_id, words in SIDECAR_OWNERS:
             with self.subTest(game=game):
                 wide = words.decode("ascii").encode("utf-16-le")
                 self.assertTrue(words in dll or wide in dll, words)
@@ -589,7 +591,7 @@ class SidecarOwnersCarryTheResetTests(unittest.TestCase):
 @unittest.skipUnless(HAVE_STOCK, "requires all five stock executables")
 class SidecarOwnerBuildShipsTheResetTests(unittest.TestCase):
     def test_a_standalone_build_ships_save_reset_in_every_mode(self) -> None:
-        for game, (feature_id, _words) in SIDECAR_OWNERS.items():
+        for game, feature_id, _words in SIDECAR_OWNERS:
             stock = (STOCK / EXE[game]).read_bytes()
             site = vp.MAIN_MENU_START_OVER[game]["site"]
             for mode in ("stock", "collection_progression", "immediate_fixed"):

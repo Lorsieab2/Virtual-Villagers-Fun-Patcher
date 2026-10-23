@@ -179,7 +179,7 @@ def _catalog():
 
 @functools.lru_cache(maxsize=None)
 def _public():
-    return tuple(patcher.load_public_fun_patches())
+    return tuple(p for p in patcher.load_public_fun_patches() if p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS)
 
 
 @functools.lru_cache(maxsize=None)

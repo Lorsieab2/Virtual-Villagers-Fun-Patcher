@@ -308,7 +308,8 @@ class StockExecutables(unittest.TestCase):
     def test_the_writers_bytes_survive_every_build_in_every_mode(self):
         for game in GAMES:
             ids = [p.id for p in patcher.load_public_fun_patches()
-                   if p.game_id == game and p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS]
+                   if p.game_id == game and p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS
+                   and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
             self.assertIn(f"{game}_game_log", ids)
             selections = [ids]
             experimental = [p.id for p in patcher.load_public_fun_patches()

@@ -229,7 +229,8 @@ class NoPatchTouchesTheShutdown(unittest.TestCase):
             want = stock[at:at + site + 5 - shutdown]
             ids = [p.id for p in vfp.load_fun_patches()
                    if p.game_id == game and not p.raw.get("catalog_hidden")
-                   and p.raw.get("catalog_enabled", True) and p.raw.get("enabled", True)]
+                   and p.raw.get("catalog_enabled", True) and p.raw.get("enabled", True)
+                   and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
             for mode in ("stock", "collection_progression", "immediate_fixed"):
                 with self.subTest(game=game, mode=mode):
                     data, _applied = vfp.render_patched_bytes(stock_path(game), build, mode, ids)

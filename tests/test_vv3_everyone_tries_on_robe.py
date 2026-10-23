@@ -667,6 +667,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
         selected = [
             item.id for item in patcher.load_fun_patches()
             if item.game_id == "vv3" and item.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS
+            and item.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS
         ]
         self.assertNotIn("vv3_full_mastery_all_stage_a_candidate", selected)
         for mode, expected in STOCK_CATALOG_COMPOSITION_RESULTS.items():
