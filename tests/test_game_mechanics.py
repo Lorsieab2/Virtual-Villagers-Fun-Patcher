@@ -503,7 +503,8 @@ sys.path.insert(0, sys.argv[1])
 import vv_save_backup, vv_game_mechanics_window as w
 folder, game_folder = Path(sys.argv[2]), Path(sys.argv[3])
 vv_save_backup.documents_folder = lambda: folder.parent
-vv_save_backup.find_save_folders = lambda title, documents: [folder]
+# Only The Secret City has a save folder; the other games show their general rules.
+vv_save_backup.find_save_folders = lambda title, documents: [folder] if "Secret City" in title else []
 try:
     root = tkinter.Tk()
 except tkinter.TclError as exc:
@@ -511,27 +512,43 @@ except tkinter.TclError as exc:
     sys.exit(3)
 root.withdraw()
 class Build:
-    title = "Virtual Villagers - The Secret City"
-root.builds = [Build()]
+    def __init__(self, title):
+        self.title = title
+titles = ["Virtual Villagers - A New Home", "Virtual Villagers - The Lost Children",
+          "Virtual Villagers - The Secret City", "Virtual Villagers - The Tree of Life",
+          "Virtual Villagers - New Believers"]
+root.builds = [Build(t) for t in titles]
 root._game_folders_for = lambda save_folder: [game_folder]
-window = w.open_game_mechanics(root, Build())
+window = w.open_game_mechanics(root, root.builds[2])
 window.update()
-page = window.mechanics_page
-text = page.get("1.0", "end")
-print(window.resizable() == (True, True), int(bool(page.cget("yscrollcommand"))))
-# At its smallest the intro wraps at the window's width; the pickers, the buttons and the padding
-# must leave the page at least 80 pixels (about four lines) -- nothing above or below it cut off.
-pickers, intro, buttons, note = window.mechanics_parts
+tabs, notebook = window.mechanics_tabs, window.mechanics_notebook
+print(window.resizable() == (True, True), len(tabs), notebook.index("end"))
+top, intro, buttons, note = window.mechanics_parts
 intro.configure(wraplength=w.MIN_WIDTH - 40)
 note.configure(wraplength=w.MIN_WIDTH - 40)
-window.update_idletasks()
-fixed = pickers.winfo_reqheight() + buttons.winfo_reqheight() + 24 + 16
-print(fixed + 80 <= w.MIN_HEIGHT, pickers.winfo_reqwidth() <= w.MIN_WIDTH - 24, fixed)
-print(len(page.tag_ranges('unconfirmed')) > 0, 'UNCONFIRMED marks' in note.cget('text'))
-print(repr(text))
+results = []
+for number in sorted(tabs):
+    notebook.select(sorted(tabs).index(number))
+    window.update()
+    tab = tabs[number]
+    page = tab["page"]
+    # At its smallest: the intro, the tab header, the pickers, the links and the buttons must leave the page
+    # at least 80 pixels (about four lines) -- nothing above or below it cut off.
+    window.update_idletasks()
+    fixed = (top.winfo_reqheight() + 30 + tab["pickers"].winfo_reqheight() + tab["links"].winfo_reqheight()
+             + buttons.winfo_reqheight() + 24 + 40)
+    text = page.get("1.0", "end")
+    tab["jump"](tab["groups"][-1])
+    window.update()
+    results.append((number, fixed + 80 <= w.MIN_HEIGHT, bool(page.cget("yscrollcommand")), len(tab["groups"]),
+                    page.yview()[0] > 0.0, "No save was found" in text, len(page.tag_ranges("unconfirmed")) > 0))
+    if number == 3:
+        secret = text
+for row in results:
+    print(*row)
+print(repr(secret))
 root.destroy()
 """
-
 
 class Window(unittest.TestCase):
     """Game Mechanics is a window of its own on the Tools tab (the owner, 2026-10-22), not part of
@@ -571,14 +588,18 @@ class Window(unittest.TestCase):
         if done.returncode == 3:
             self.skipTest("no Tk display: " + done.stderr.strip())
         self.assertEqual(done.returncode, 0, done.stderr)
-        first, second, tags, text = done.stdout.strip().splitlines()[:4]
-        self.assertEqual(first, "True 1")
-        self.assertEqual(second.split()[:2], ["True", "True"], second)
+        out = done.stdout.strip().splitlines()
+        self.assertEqual(out[0], "True 5 5")
+        rows = [line.split() for line in out[1:6]]
+        for number, fits, bar, groups, jumped, general, labelled in rows:
+            with self.subTest(game=number):
+                self.assertEqual((fits, bar, jumped, labelled), ("True", "True", "True", "True"))
+                self.assertGreaterEqual(int(groups), 6)
+                self.assertEqual(general, "False" if number == "3" else "True")
+        text = out[6]
         self.assertIn("Tree 1: Mango, planted at ", text)
-        self.assertIn("640 of 1000 fruit", text)
+        self.assertIn("Tree 1: 640 of 1000 fruit", text)
         self.assertIn("is in the game", text)
-        self.assertEqual(tags, "True True")
-
 
 if __name__ == "__main__":
     unittest.main()

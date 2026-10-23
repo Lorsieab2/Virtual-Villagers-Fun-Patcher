@@ -22,13 +22,14 @@ from __future__ import annotations
 
 import importlib
 import re
+import struct
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
 TITLE = "Game Mechanics"
 GROUPS = ("Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
-          "Food earned", "Time away and Time Warp", "Island events", "Other")
+          "Food earned", "Time away and Time Warp", "Island events", "Chance and timers", "Other")
 # The label every unverified line carries, in capitals, right beside it (the owner, 2026-10-23), and the
 # line at the top of the window that explains it.
 UNCONFIRMED = "UNCONFIRMED"
@@ -330,6 +331,53 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
         facts = [Fact("Other", "Nothing is shown for this game yet.")]
     order = {name: n for n, name in enumerate(GROUPS)}
     return sorted(facts, key=lambda fact: order.get(fact.group, len(GROUPS)))
+
+
+# A new, empty village's save for each game, to show the general rules when no save is found: (header size,
+# where the buffer's length is, the buffer's length, where the speed is, where the clock's epoch is and its
+# width) -- the layouts vv_save_backup reads (its "GAME SPEED" notes).
+_BLANK = {1: (12, 8, 0x0ABDC, 12 + 0xA310), 2: (12, 8, 0x30370, 12 + 0x2EB00), 3: (12, 8, 0x12F1C, 12 + 0x12F18),
+          4: (24, 16, 0x1710C, 24 + 0x17108), 5: (24, 16, 0x17D78, 24 + 0x17D74)}
+GENERAL_NOTE = ("No save was found for this game, so these are its general rules at Normal speed; everything "
+                "read from a save is left out.")
+
+
+def blank_save(game: int, now: float) -> bytes:
+    header, length_at, length, speed_at = _BLANK[game]
+    data = bytearray(header + length)
+    data[:4] = b"ldwg"
+    struct.pack_into("<I", data, length_at, length)
+    if header == 24:
+        struct.pack_into("<q", data, 8, int(now))
+    else:
+        struct.pack_into("<I", data, 4, int(now))
+    struct.pack_into("<i", data, speed_at, NORMAL)
+    if game == 3:                              # the clock running at Normal, and the puzzles' mark
+        struct.pack_into("<4i", data, 12 + 0x57C, NORMAL, 0, 0, 0)
+        struct.pack_into("<I", data, 12 + 0x11ECC, 0x2AD)
+    return bytes(data)
+
+
+def general(game: int, now: float | None = None) -> list[Fact]:
+    """A game's general rules, for when no save is found: its page for a new, empty village at Normal speed,
+    without anything read from a save (the values, the dates and the time-away figures of that save)."""
+    import time
+    now = time.time() if now is None else now
+    village = Village(Path("."), game, 1, Path(f"{game}.ldw"), blank_save(game, now), None, now)
+    module = importlib.import_module(f"vv_game_mechanics_vv{game}")
+    keep = []
+    for fact in module.facts(village):
+        if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",
+                                                          "Saved paused", "Fruit trees: none")):
+            continue
+        if re.search(r"\b(19[67]\d|20\d\d)\b", fact.text) or "could not be read" in fact.text:
+            continue                           # a date from the empty save
+        if re.match(r"^[A-Z][A-Za-z' ]{0,30}: -?[\d,]+\b", fact.text) or "would bring 0" in fact.text \
+                or fact.text.startswith("The birds:"):
+            continue                           # an amount from the empty save ("Crop field: 0 of 800")
+        keep.append(fact)
+    order = {name: n for n, name in enumerate(GROUPS)}
+    return sorted(keep, key=lambda fact: order.get(fact.group, len(GROUPS)))
 
 
 def render(facts: list[Fact]) -> str:

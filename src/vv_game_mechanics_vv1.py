@@ -87,6 +87,28 @@ EVENT_LINES = (
     "Fruit crate: the opener -40/70/110 health (a large one is fatal); red vial a new head; blue vial one skill "
     "+50/75/100; fizzy vial every skill -30/50/70. Leaving a crate or pouring a vial out does nothing.",
 )
+# Chance and timers (the coordinator's spec mech_vv1\spec.md, "Chance and timers (complete index)"):
+# (line, verified on a traced path).  The full index of every roll is in the claims export.
+CHANCE_LINES = (
+    ("Every roll that changes play: a mushroom 2 in 120 each 2 seconds with none out, big 5 in 100; the island "
+     "event kind and its next time; the event choices; crates and vials; rationing 50%, waste 76%, starving 76%; "
+     "health regained 50% (20% for the elderly); falling sick; old age; the scheduler's 66% of nothing; the job "
+     "chooser; the food source; skill success and gain; the embrace below 400 food (26%) and conception; twins "
+     "7%, triplets 25% of twins; injuries 2%; rest +1 health 50%; an examined hut repaired 70%.", True),
+    ("Sick damage (71%, about 22% at 20 health or less), the catch-up embrace (6%) and healing, the big catch "
+     "(21%), dislike refusals and the story events' outcomes.", False),
+    ("Every frame some map effects are rolled (1 in 20 of 1,000, 3 in 20, 3 in 25,000) depending on the puzzles; "
+     "what they draw is not yet worked out, and their rate follows the frame rate.", False),
+    ("64 more functions roll the dice (walking, animation, speech, villager creation and others): not individually "
+     "worked out.", False),
+    ("Timers: an age unit 3, 6 or 10 minutes (aging, eating, sickness, health, pregnancy, birthdays); regrowth 2 "
+     "hours, 4 hours or 6 hours 40 minutes, every missed one added on load; island events 30 minutes after the "
+     "first, then 12 to 23 hours, at any speed; the 2-second village step; the 40-second idle sweep; a mushroom "
+     "lasts 1 minute.", True),
+    ("A new village's first island event 15 minutes after it is made; the Golden Child's special action after 36 "
+     "hours; the tutorial mushroom 1 minute 40 seconds; step and screen timers.", False),
+    ("The game may also save every 10 minutes while playing; this has not been seen in a game.", False),
+)
 LIFE_LINES = (
     "A baby is born 41 age units after conception. Conception: a roll of 300 at or under Parenting - 50 + 50 x "
     "Fertility level (1, 51 or 101 in 300 at Parenting 0, 50, 100 and Fertility 1); below 400 food only 26% of "
@@ -215,6 +237,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Island events", line, False if 1 <= n <= 4 else gm.RUNNING)
 
     # -- Other ---------------------------------------------------------------------------
+    for line, ok in CHANCE_LINES:
+        add("Chance and timers", line, gm.RUNNING if ok else False)
     for line in LIFE_LINES:
         add("Other", line, gm.RUNNING)
     out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)",

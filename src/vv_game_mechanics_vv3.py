@@ -345,7 +345,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             out.append(gm.Fact("Refills", "Fruit trees otherwise: " + "; ".join(alt) + "."))
     out.append(gm.Fact("Refills", (
         f"A new tree can be picked {gm.duration(gm.real_seconds(READY, clock.runs_at))} after it is planted, on "
-        f"{gm.speed_name(clock.runs_at)} speed.")))
+        f"{gm.speed_name(clock.runs_at)} speed."), gm.RUNNING))
     honey_every = HONEY_PATCHED if faster else HONEY_EVERY
     honey_gain = ((honey_every * 84) // 99900) if faster else ((honey_every * 2) // 3600)
     honey_due = honey_at + honey_every
@@ -486,6 +486,23 @@ VERIFIED_EVENT_LINES = {1, 8, 9, 10, 11, 12}   # rescue, rolled results, Fog, re
 VERIFIED_ODDS_LINES = {0, 1, 2, 4, 5}       # blow-up, conception, sickness, life, potions
 
 
+# Chance and timers (the coordinator's spec mech_vv3\spec.md, "Chance and timers (complete index)"):
+# (line, verified on a traced path).  The full index of every roll is in the claims export.
+CHANCE_LINES = (
+    ("Every roll that decides an outcome is in the lines above; none is worked out from its range alone.", True),
+    ("About 2,000 more random rolls inside villager actions (walking, timing, animation, speech), and about 650 "
+     "more in the game update, the drop handlers, the island events' animations, the screens and the world "
+     "objects: not individually worked out.", False),
+    ("Timers: the game's clock runs 2 times, 1 time or 0.6 times real time on Fast, Normal or Slow, and stops while "
+     "paused; an age unit is 3, 6 or 10 minutes, a year 1 hour, 2 hours or 3 hours 20 minutes; a birth 41 age "
+     "units; a planted fruit tree can be picked after 4 hours, 8 hours or 13 hours 20 minutes; an item lies 90 "
+     "seconds (still counting while paused, when no new ones appear); a potion keeps 5 minutes.", True),
+    ("Villagers re-decide what to do every 40 seconds at any speed; a fixed-spot coral appears for 90 seconds from "
+     "puzzle code; the weather, fire and shark timers' lengths; the game may also save every 10 minutes while "
+     "playing (not seen in a game: a 30-minute run left no new save).", False),
+)
+
+
 def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int) -> list[gm.Fact]:
     out: list[gm.Fact] = []
     add = lambda group, text, ok=False: out.append(gm.Fact(group, text, ok))  # noqa: E731
@@ -578,6 +595,8 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     if level[5] >= 3 or nature >= 3:
         extra = gm.patch_words(village, MORTALITY, "at Nature level 3 the rolls start 7 years later")
     out.append(gm.old_age_line("47, 55, 63 or 71 years (Medicine 0 to 3)", extra))
+    for line, ok in CHANCE_LINES:
+        add("Chance and timers", line, gm.RUNNING if ok else False)
     leadership = level[LEADERSHIP]
     ready = []
     for words, at in CHIEF_READY.items():
