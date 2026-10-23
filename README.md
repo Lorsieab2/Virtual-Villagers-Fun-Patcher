@@ -446,7 +446,7 @@ Researchers keep choosing the stock research action and earning tech points afte
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 
-Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen's Food and Tech Point Doublers do not double Island Event, Duplicate Collectible or Golden Child tech gains.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp. The Tech screen's Food and Tech Point Doublers do not double Island Event, Duplicate Collectible or Golden Child tech gains.
 
 - Requires: vv1_enable_origins_exclusive_features
 - Patch ID: `vv1_origins_village_wide_upgrades`
@@ -830,7 +830,7 @@ Keeps the game's own log, 'ldwLog.txt' in the game's save folder (Documents\LDW\
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 
-Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Food and Tech Point Doublers, Complete all Collections, Reset all Collections, and Equal Division of Labor with and without Parenting, all supplied by the base Origins feature rather than this optional payload. The point doublers do not double Island Event or Duplicate Collectible tech gains.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Food and Tech Point Doublers, Complete all Collections, Reset all Collections, and Equal Division of Labor with and without Parenting, all supplied by the base Origins feature rather than this optional payload. The point doublers do not double Island Event or Duplicate Collectible tech gains.
 
 - Requires: vv3_enable_origins_exclusive_features
 - Patch ID: `vv3_origins_village_wide_upgrades`

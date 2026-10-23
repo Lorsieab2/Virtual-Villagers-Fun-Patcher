@@ -203,8 +203,8 @@ build, SHA-256
 Live evidence changed `+0xDC4` 372->360, immediately displayed age 18,
 survived save/reload, and natively advanced to 361; `+0xE74` remained 372 and
 `+0xE8C` remained zero. `sub_45F3E0` passes `+0xDC4` to `sub_45C640`.
-`+0xE74` is the nursing/conception-age/lifecycle timestamp and must remain
-unchanged. `sub_45FFE0` runs hidden food/health/mortality/reproduction steps
+`+0xE74` is the processed age (the age the life tick has stepped up to, which
+the old-age roll uses) and must remain unchanged. `sub_45FFE0` runs hidden food/health/mortality/reproduction steps
 only while `+0xE74 < +0xDC4`; lowering target age below the timestamp pauses
 those steps until target age advances beyond it. Target-only writing is not
 inherently invalid, but final GO is absent: exact command-8 transaction/result

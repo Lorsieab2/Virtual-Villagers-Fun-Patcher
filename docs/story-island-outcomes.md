@@ -1462,7 +1462,7 @@ is about (one the game would not pick leaves the choice to the game).
 ### Looked at and not offered (the Gong of Wonder)
 
 * 0x44EB32 rand(50) in 'Grants life': passed as arg2 of 0x44B980 and stored at the mother's +0x5EC (0x44BA1A); no code reads +0x5EC by displacement (only writes at 0x424FD8, 0x44BA1A, 0x44C992, 0x44CF86, 0x44D2CD), so no traced effect -> not offered (uncertain: could be read through a whole-record copy).
-* Jump-table default branches are dead: rand(6)/rand(9)/rand(5) can never exceed the bound.
+* Jump-table default branches are dead: the tier-A roll rand(6), the tier-B and tier-C rolls rand(9) and the Grants wisdom skill roll rand(5) can never exceed the bound.
 * Tier-C entries 7 and 8 are byte-identical 'Grants wisdom' paths -> one option.
 * No other developer-dead outcomes: every table entry of all three tiers is reachable in stock (A/B after the first tier-C ring).
 * 'Grants life': which women become pregnant is not a roll -- every woman aged 18-49, alive and not pregnant, in index order, while the population cap allows -- so it is not offered.

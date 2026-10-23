@@ -511,7 +511,7 @@ COOLDOWN = "village dword +0x2EAC8 = next allowed time.  0x461B3A-0x461B45: if [
 
 OMITTED = [
     "0x44EB32 rand(50) in 'Grants life': passed as arg2 of 0x44B980 and stored at the mother's +0x5EC (0x44BA1A); no code reads +0x5EC by displacement (only writes at 0x424FD8, 0x44BA1A, 0x44C992, 0x44CF86, 0x44D2CD), so no traced effect -> not offered (uncertain: could be read through a whole-record copy).",
-    'Jump-table default branches (ja 0x44F448 after cmp 5 / cmp 8 / cmp 4) are dead: rand(6)/rand(9)/rand(5) can never exceed the bound.',
+    'Jump-table default branches (ja 0x44F448 after cmp 5 / cmp 8 / cmp 4) are dead: the tier-A roll rand(6) (0x44E8CD), the tier-B and tier-C rolls rand(9) (0x44EBE3, 0x44EFE2) and the Grants wisdom skill roll rand(5) (0x44F35C, 0x44F3C9) can never exceed the bound.',
     "Tier-C entries 7 and 8 (0x44F305 / 0x44F376) are byte-identical 'Grants wisdom' paths -> one option.",
     'No other developer-dead outcomes: every table entry of all three tiers is reachable in stock (A/B after the first tier-C ring).',
     "'Grants life': which women become pregnant is not a roll -- every woman aged 18-49, alive and not pregnant, in index order, while the population cap allows (0x44EAF5-0x44EB50) -- so it is not offered.",

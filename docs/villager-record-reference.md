@@ -30,7 +30,7 @@ Record base in the sampled process: `0x0C3B0F30`. Stride `0x3D8`.
 |---|---|---|
 | Health | `0x0C3B1274` | `+0x344` |
 | Age | `0x0C3B1278` | `+0x348` |
-| Nursing | `0x0C3B127C` | `+0x34C` |
+| Nursing (Cheat Engine name; it is the processed age: the age the life tick has stepped up to, used by the old-age roll) | `0x0C3B127C` | `+0x34C` |
 | Gender | `0x0C3B1280` | `+0x350` |
 | Sick | `0x0C3B1284` | `+0x354` |
 | **Pregnant** | `0x0C3B1288` | **`+0x358`** |
@@ -57,7 +57,7 @@ Record base in the sampled process: `0x0D730020`. Stride `0xE48C`.
 |---|---|---|
 | Health | `0x0D73054C` | `+0x52C` |
 | Age | `0x0D730550` | `+0x530` |
-| Nursing Timer | `0x0D730554` | `+0x534` |
+| Nursing Timer (Cheat Engine name; it is the processed age: the age the life tick has stepped up to, used by the old-age roll) | `0x0D730554` | `+0x534` |
 | Gender (1 = male, 2 = female) | `0x0D730558` | `+0x538` |
 | Sick | `0x0D73055C` | `+0x53C` |
 | **Nursing** | `0x0D730560` | **`+0x540`** |

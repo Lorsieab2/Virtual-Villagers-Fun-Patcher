@@ -94,9 +94,12 @@ BARREL_CUE_FRAMES = 90
 # made due on the very next scheduler tick, so a NATURAL island event due in the
 # same tick cannot present back to back with the purchased one.
 #
-# 0x403200 is the scheduler's own clock: it converts GetSystemTimeAsFileTime
-# through 0x989680 (10,000,000), so it returns Unix epoch SECONDS -- the same
-# units [world+0x2EAE0] already holds and the same units Time Warp subtracts in.
+# 0x403200 is the scheduler's own clock: it takes the time (0x467F9A converts
+# GetSystemTimeAsFileTime through 0x989680, 10,000,000) and subtracts the
+# save's clock base [0x4950F0], so it returns real SECONDS since that base, not
+# Unix epoch seconds.  The base is the save header dword at file 0x04 (the
+# village's creation time, restored at 0x4032FF).  These are the same units
+# [world+0x2EAE0] already holds and the same units Time Warp subtracts in.
 #
 # CRITICAL: the duplicate-purchase guard reads that same field, and it used to
 # treat "queued" as "exactly zero", because queueing meant "due now".  A delayed
