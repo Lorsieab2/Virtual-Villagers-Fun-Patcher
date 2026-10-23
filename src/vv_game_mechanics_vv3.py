@@ -306,8 +306,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     honey = _i32(buf, HONEY + 8)
     hive = _i32(buf, PUZZLES + 4 + 8 * BEE_HIVE) >= 1
     out.append(gm.Fact("Food sources", f"Honey: {honey} of {HONEY_CAP}"
-                       + (" (The Bee Hive is solved)." if hive else
-                          " (gathering it needs The Bee Hive solved; it is not solved yet).")))
+                       + (" (The Bee Hive is solved)." if hive else " (The Bee Hive is not solved yet)."), True))
 
     # -- the rules ------------------------------------------------------------------------
     speed = clock.speed
@@ -350,7 +349,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         honey_next = (f"; a gain was due at {at(honey_due)}: the next time the village is played it gets "
                       f"{min(honey_factor_gain, HONEY_CAP - honey)}.")
     out.append(gm.Fact("Refills", (
-        f"Honey: gains {honey_gain} {gm.every(honey_every, speed)}, up to {HONEY_CAP}{honey_next}")))
+        f"Honey: gains {honey_gain} {gm.every(honey_every, speed)}, up to {HONEY_CAP}{honey_next}"),
+        not faster))                    # the stock refill is verified; the patched one is read only
 
     # -- the clock ------------------------------------------------------------------------
     if clock.paused:
@@ -391,7 +391,7 @@ CHIEF_READY = {"call a rare collectible (Leadership 3)": 0x12EFC - HEADER,
                "educate the children (Leadership 2)": 0x12F00 - HEADER,
                "grant food (Leadership 1)": 0x12F04 - HEADER}
 SCIENCE, MEDICINE, ALCHEMY, LEADERSHIP = 0, 1, 2, 4
-UNSURE = "(uncertain)"
+UNSURE = ""                              # every unverified line carries UNCONFIRMED
 GOLDEN = "vv3_super_secret_golden_mushroom"
 RARE_RETRY = "vv3_rare_collectible_retry"
 MORTALITY = "vv3_nature_level_three_alters_mortality"
@@ -430,8 +430,19 @@ EVENT_LINES = (
     "(tasted) three results at 33/33/34% (the quartz vial goes by age); The Mysterious Crate (opened) coconuts 50%, "
     "tarantulas 50% (sick and 10 to 29 health lost); The Omen in the Clouds one of 4 omens, 25% each; The Bitter "
     "Brown Beans (dye) one of two looks, 50% each; The Low Tide and The Mango and the Papaya a hidden 50% coin.",
-    "The Mysterious Fog (food lost) takes (population ÷ 20 + 1) x 300 food, up to what there is. Every other "
-    "choice has a fixed result.",
+    "The Mysterious Fog: food gained or lost (population ÷ 20 + 1) x 300, tech points gained or lost (population "
+    "÷ 20 + 1) x 2,000; a loss takes no more than there is.",
+    "Results on the villager picked: The Daredevil swoon Breeding +30, crab Breeding -5 to -14 and health -5 to -10; "
+    "The Ghostly Dream Farming or Healing +21 to +39, or Research or Building +20; The Bitter Brown Beans taste food "
+    "+200 and tech +1,000, brew food +600 and tech +2,000; The Green Pearl health +50 or Breeding +15 to +29; The "
+    "Blue Pearl Research +20 to +34; The Lazy Apprentice (new teacher) Farming +21 to +39 and Building +10 to +19.",
+    "The Omen in the Clouds (warn) omen 4 Research +15 to +24, (dance) sick; The Playful Otters Farming +15 to +29; "
+    "The Ant Hill health -5 to -14; The Ants and the Granary Farming +5 to +9; Bed Bugs sick and health -5 to -9; "
+    "Vanity and the Bee (swat) sick and health -15 to -24; The Lovers Breeding +25; The Medical Emergency success "
+    "Healing +40, failure death; The Mysterious Vial quartz 20 years younger, amber Research +15 to +44 or 5 years "
+    "younger and health +50; The Mysterious Crate coconuts food +500, tarantulas food +400, sick and health -10 to "
+    "-29; The Royal Jelly Healing +15 to +29; The Shooting Star food +200 or Research +25 to +49; The Return of "
+    "Biggles Research +20 to +44 or tech points.",
 )
 ODDS_LINES = (
     "Brewing a potion blows up {blow}% of the time at Alchemy level {alchemy} (46%, 31%, 16% or 1% at Alchemy "
@@ -443,16 +454,27 @@ ODDS_LINES = (
     "nobody lives past 57, 65, 73 or 81.",
     "Sickness, each age unit, with the fire lit or the hospital project done / without: 0.28% / 0.49% at "
     "Medicine 1, 0.17% / 0.30% at Medicine 2, 0.064% / 0.107% at Medicine 3; the elderly (from 42 years plus 8 "
-    "for each Medicine level) 1.51% more. Easy halves these; Hard raises them. "
-    f"A sick villager is cured at Healing + 34% {UNSURE}.",
+    "for each Medicine level) 1.51% more. Easy halves these; Hard raises them.",
+    "A sick villager is cured at Healing + 34%.",
+    "A baby is born on the 41st age unit after conception. A healthy villager with food regains 1 health about "
+    "half of the age units on Normal difficulty (every one on Easy); a sick one loses 1 health 61% of them. A "
+    "successful building action adds 1 to the building, 2 when a supervising chief wins the Leadership roll.",
+    "Potion effects last 10 minutes (feels smarter, scientific clarity, hiccups, garlic breath, bubble breath, crazy "
+    "talk and two more), 5 minutes (light and springy, fertility +50, everyone slowing down, strong fertility +100) "
+    "or happen at once (the rest, such as curing sickness), in real time.",
     "Herbs never run out: a bush can be gathered without limit once the Alchemy Lab is restored. A villager cannot "
     "drink a potion whose effect they already have, or any potion while they already have 4 effects.",
 )
 
 
+# The lines of EVENT_LINES and ODDS_LINES verified by emulation (the spec's addendum, section C and D).
+VERIFIED_EVENT_LINES = {1, 8, 9, 10, 11}   # the rescue odds, the rolled results, the Fog, the results
+VERIFIED_ODDS_LINES = {0, 1, 2, 3, 5, 6}    # blow-up, conception, old age, sickness, life, potions
+
+
 def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int) -> list[gm.Fact]:
     out: list[gm.Fact] = []
-    add = lambda group, text: out.append(gm.Fact(group, text))  # noqa: E731
+    add = lambda group, text, ok=False: out.append(gm.Fact(group, text, ok))  # noqa: E731
     speed_value = clock.speed
     speed = clock.runs_at
     paused = clock.paused
@@ -466,27 +488,33 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         return gm.when(wall(at)) + (" (when the village is next played)" if wall(at) <= village.now else "")
 
     pick = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}[speed]          # the game's own rounding (the spec's addendum)
-    add("Food sources", f"Food in storage: {_i32(buf, FOOD):,}.")
-    add("Food sources", f"Picking fruit or honey brings {pick} on {on} speed (7, 3 or 2 on Fast, Normal or Slow by the game's own "
-                        f"rounding {UNSURE}; 4 while catching up); honey is "
-                        "gathered only above 10. Fishing brings "
-                        f"{ {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed] } (8 while catching up), and a fisher "
-                        "with Farming 88 or more has a 10% chance of 55; the sea never runs out.")
+    add("Food sources", f"Food in storage: {_i32(buf, FOOD):,}.", True)
+    add("Food sources", f"Picking fruit or honey brings {pick} on {on} speed (7, 3 or 2 on Fast, Normal or Slow, by "
+                        "the game's own rounding; 4 while catching up); honey is gathered only above 10.")
+    add("Food sources", f"Fishing brings { {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed] } on {on} speed (8 while "
+                        "catching up).", True)
+    add("Food sources", "A fisher with Farming 88 or more has a 10% chance of 55; the sea never runs out.")
 
-    add("Mushrooms", "While playing (not paused), about one thing appears a minute at any speed, about every 30 seconds "
-                     "in storms; at most 2 at a time; each is gone after 1 minute 30 seconds unpicked.")
-    add("Mushrooms", "In fair weather 30% of them are mushrooms, in rain or storms all: 92% give 6 food, 8% "
-                     "give 35.")
+    add("Mushrooms", "While playing (not paused), about one thing appears a minute at any speed, about every 30 "
+                     "seconds in storms; each is gone after 1 minute 30 seconds unpicked.", True)
+    add("Mushrooms", "At most 2 are out at a time.")
+    add("Mushrooms", "In fair weather 30% of them are mushrooms, in rain all: 92% give 6 food, 8% give 35, counted "
+                     "when they reach the food bin.", True)
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
-    add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.")
-    add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%; the coral collection needs "
-                        "its project started. A piece already found gives 100, 250 or 1,500 tech points by rarity; a full collection raises the population "
-                        "limit by 5, all four by 25.")
-    add("Collectibles", "A Tribal Chief with Leadership 3 can call a rare collectible every 23 hours. "
-                        + gm.patch_words(village, RARE_RETRY, "the call never silently fails"))
+    add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.", True)
+    add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%. A piece already found "
+                        "gives 100, 250 or 1,500 tech points by rarity.", True)
+    add("Collectibles", "Tablet pieces already owned never appear again; coral, feather and turtle shell pieces "
+                        "keep appearing, and each one already owned pays its tech points.", True)
+    add("Collectibles", "The tablet collection appears once its project is started; a full collection raises the "
+                        "population limit by 5, all four by 25.")
+    add("Collectibles", "A Tribal Chief with Leadership 3 can call a rare collectible every 23 hours; it fails "
+                        "only when it picks a rare tablet piece already owned.", True)
+    if village.has(RARE_RETRY) is not False:
+        add("Collectibles", gm.patch_words(village, RARE_RETRY, "a failed call is tried again"))
 
-    add("Tech points and effects", f"Tech points: {_i32(buf, POINTS):,}.")
+    add("Tech points and effects", f"Tech points: {_i32(buf, POINTS):,}.", True)
     divisor = {0: 5, 1: 11, 2: 9, 3: 7}.get(level[SCIENCE], 7)
     catch = {0: 4, 1: 7, 2: 7, 3: 5}.get(level[SCIENCE], 5)
     speed_words = {gm.FAST: "twice that on Fast speed", gm.NORMAL: "as it is on Normal speed",
@@ -496,25 +524,31 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         + (" -- 1 point less on Normal speed, by the game's own rounding" if level[SCIENCE] >= 1 else "")
         + f"; a lit fire adds a 10% chance of 1 more; while catching up ÷ {catch}."))
     blow = max(0, 15 * (3 - level[ALCHEMY]) + 1)
-    add("Tech points and effects", ODDS_LINES[0].format(blow=min(blow, 100), alchemy=level[ALCHEMY]))
+    add("Tech points and effects", ODDS_LINES[0].format(blow=min(blow, 100), alchemy=level[ALCHEMY]), True)
 
     add("Food earned", f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
-                       f"({2 * 3600 / (60 * speed):g} an hour); at 500 food or less only half the time {UNSURE}.")
+                       f"({2 * 3600 / (60 * speed):g} an hour) while there is more than 500; at Normal difficulty 2 "
+                       "more 76% of the time at 8,000 food or more, on Hard always, on Easy never. At 500 or less "
+                       "a villager eats half the time, and otherwise loses 1 health 30% of the time; with no food "
+                       "at all a villager loses 1 or 2 health about two times in three.", True)
 
     out.extend(gm.time_away(village, wall(LAST_SAVED), speed_value,
                             "Saved paused: nobody ages, the clock is stopped and the next island event is pushed "
                             "back by the time away; nothing advances.", unit_seconds=20 * 60 * speed))
-    add("Time away and Time Warp", ("The fruit trees and the honey get the whole time away when it is next played "
-                                    "(the game's clock ran on), with no limit. While catching up every healthy adult "
-                                    f"does 4 jobs each age unit, without walking {UNSURE}; mushrooms and collectibles "
-                                    "do not pile up and only one overdue island event happens."))
+    add("Time away and Time Warp", "The fruit trees and the honey get the whole time away when it is next played "
+                                   "(the game's clock ran on), with no limit on how many refills: the honey stops at "
+                                   "3,000, a tree at 1,000.", True)
+    add("Time away and Time Warp", "While catching up every healthy adult does 4 jobs each age unit, without walking; "
+                                   "mushrooms and collectibles do not pile up and only one overdue island event "
+                                   "happens.")
     out.append(gm.time_warp_line(speed_value))
 
-    add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 8 to 15 hours at any speed "
-                         "(the first 15 minutes after the village is made, then 30 minutes after the first of each "
-                         "time the game is started); paused time does not count.")
-    for line in EVENT_LINES:
-        add("Island events", line)
+    add("Island events", f"Next island event: {due(EVENT_NEXT)}. Island events come every 8 to 15 whole hours at any "
+                         "speed, each hour about equally likely; the first of each time the game is started comes "
+                         "30 minutes after it.", True)
+    add("Island events", "A new village's first event comes 15 minutes after it is made; paused time does not count.")
+    for n, line in enumerate(EVENT_LINES):
+        add("Island events", line, n in VERIFIED_EVENT_LINES)
     if village.has(STORY) is not False:
         add("Island events", gm.patch_words(village, STORY, "Pick Island Event chooses the event"))
 
@@ -523,10 +557,10 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                                  "is out" if not paused or fire <= wall(LAST_SAVED)
                                  else f"was burning when saved, with {gm.duration(fire - wall(LAST_SAVED))} left")
                   + "; while it burns sickness is lower and research gets its 10% chance of 1 more."))
-    for line in ODDS_LINES[1:]:
-        add("Other", line)
+    for n, line in enumerate(ODDS_LINES[1:], 1):
+        add("Other", line, n in VERIFIED_ODDS_LINES)
     if level[5] >= 3 or nature >= 3:
-        add("Other", gm.patch_words(village, MORTALITY, "at Nature level 3 villagers live 7 years longer"))
+        add("Other", gm.patch_words(village, MORTALITY, "at Nature level 3 villagers live 7 years longer"), True)
     leadership = level[LEADERSHIP]
     ready = []
     for words, at in CHIEF_READY.items():

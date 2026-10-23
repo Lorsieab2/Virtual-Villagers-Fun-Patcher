@@ -34,7 +34,7 @@ MUSHROOMS_FOUND, EVENTS_SEEN = 0x874, 0x884
 BERRIES, EVENT_NEXT = 0x17108, 0x170F0
 RESEARCH, FOOD_MASTERY = 0, 4
 BERRY_CAP = 1000
-UNSURE = "(uncertain)"
+UNSURE = ""                              # every unverified line carries UNCONFIRMED
 NOT_YET = "not yet worked out"
 GOLDEN = "vv4_super_secret_golden_mushroom"
 LEARNING = "vv4_learning_never_fails"
@@ -90,12 +90,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         return amount * 2 if mastery >= 3 else (amount + amount // 2 if mastery == 2 else amount)
 
     out: list[gm.Fact] = []
-    add = lambda group, text: out.append(gm.Fact(group, text))  # noqa: E731
+    add = lambda group, text, ok=False: out.append(gm.Fact(group, text, ok))  # noqa: E731
     gather = {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed]
     mastery_words = {2: " (Food Mastery level 2: half as much again)", 3: " (Food Mastery level 3: doubled)"}.get(
         mastery, "")
 
-    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.")
+    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", True)
     berries = _i32(data, BERRIES)
     add("Food sources", f"Blackberries: {berries:,} of {BERRY_CAP:,}; a pick brings {food(max(2, berries // 100))} food "
                         f"now{mastery_words} (the berries ÷ 100, at least 2); picking stops below 3.")
@@ -108,19 +108,18 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Refills", gm.PAUSED_NOTE)
     add("Refills", f"Blackberries: +2 {gm.every(360, speed_value)}, up to {BERRY_CAP:,}; the stream gathers 2% more "
                    "debris at the same time, up to 100%.")
-    add("Refills", f"Next growth: {due(NEXT_TICK)}. Every growth missed while the game is closed happens when it is "
-                   "next played.")
+    add("Refills", f"Next growth: {due(NEXT_TICK)}.", True)
 
     add("Mushrooms", f"Mushrooms give {food(6)} food, or {food(35)} for the large kinds{mastery_words}. When they appear "
                      f"is {NOT_YET}.")
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
-    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.")
+    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", True)
     add("Collectibles", "Four collections of 12. Once the collectible timer is running, one appears every 50 to 58 "
                         f"minutes at any speed {UNSURE}. A piece already found gives 100, 250 or 1,500 tech points by "
                         "rarity.")
 
-    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.")
+    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", True)
     lvl = level[RESEARCH]
     divisor = {1: 11, 2: 9, 3: 7}.get(lvl)
     if divisor:
@@ -139,6 +138,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Time away and Time Warp", "While catching up, each counted age unit gives every villager of 14 or more 4 "
                                    "jobs; gathering brings 8 food at every speed; with the Fruitwells built a "
                                    "successful farmer brings 5 more.")
+    add("Time away and Time Warp", "Every blackberry growth missed while the game was closed is added when it is next played, with no limit on how many, up to 1,000.", True)
     out.append(gm.time_warp_line(speed_value))
 
     first = " (30 minutes after the first)" if _i32(data, EVENTS_SEEN) == 0 else ""

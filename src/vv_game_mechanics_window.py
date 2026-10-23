@@ -25,6 +25,7 @@ INTRO = ("For the curious: the hidden rules of one village -- its food sources, 
          "out from its save, at the save's game speed, with the patches in the game that change them. "
          "All times are real times. It only reads: nothing is changed, so the game may be running.")
 WIDTH, HEIGHT = 860, 680
+LABEL_RED = "#b00020"
 MIN_WIDTH, MIN_HEIGHT = 560, 480
 
 
@@ -59,21 +60,25 @@ def open_game_mechanics(app, build) -> tk.Toplevel | None:
     pickers = ttk.Frame(outer)
     pickers.pack(fill="x")
     intro = ttk.Label(pickers, text=INTRO, wraplength=width - 60, justify="left")
-    intro.grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 8))
+    intro.grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 4))
+    # What the UNCONFIRMED label means (the owner, 2026-10-23), right under the intro.
+    label_note = ttk.Label(pickers, text=gm.LABEL_NOTE, wraplength=width - 60, justify="left", foreground=LABEL_RED)
+    label_note.grid(row=1, column=0, columnspan=3, sticky="w", pady=(0, 8))
     # The intro wraps at the window's width as it is resized, so it never runs off the side.
-    pickers.bind("<Configure>", lambda event: intro.configure(wraplength=max(200, event.width - 8)))
+    pickers.bind("<Configure>", lambda event: (intro.configure(wraplength=max(200, event.width - 8)),
+                                               label_note.configure(wraplength=max(200, event.width - 8))))
     game_var = tk.StringVar(value=build.title if build is not None else titles[0])
     folder_var = tk.StringVar()
     state: dict = {"folders": [], "slots": []}
-    ttk.Label(pickers, text="Game:").grid(row=1, column=0, sticky="w")
+    ttk.Label(pickers, text="Game:").grid(row=2, column=0, sticky="w")
     game_box = ttk.Combobox(pickers, textvariable=game_var, values=titles, state="readonly", width=48)
-    game_box.grid(row=1, column=1, sticky="we", pady=2)
-    ttk.Label(pickers, text="Save folder:").grid(row=2, column=0, sticky="w")
+    game_box.grid(row=2, column=1, sticky="we", pady=2)
+    ttk.Label(pickers, text="Save folder:").grid(row=3, column=0, sticky="w")
     folder_box = ttk.Combobox(pickers, textvariable=folder_var, state="readonly", width=48)
-    folder_box.grid(row=2, column=1, sticky="we", pady=2)
-    ttk.Label(pickers, text="Tribe:").grid(row=3, column=0, sticky="nw", pady=(4, 0))
+    folder_box.grid(row=3, column=1, sticky="we", pady=2)
+    ttk.Label(pickers, text="Tribe:").grid(row=4, column=0, sticky="nw", pady=(4, 0))
     slot_list = tk.Listbox(pickers, height=5, width=60, exportselection=False)
-    slot_list.grid(row=3, column=1, sticky="we", pady=(4, 2))
+    slot_list.grid(row=4, column=1, sticky="we", pady=(4, 2))
     pickers.columnconfigure(1, weight=1)
 
     buttons = ttk.Frame(outer)
@@ -89,8 +94,9 @@ def open_game_mechanics(app, build) -> tk.Toplevel | None:
     bold.configure(weight="bold")
     window.bold_font = bold                 # kept while the window is open
     box.tag_configure("group", font=bold)
+    box.tag_configure("unconfirmed", font=bold, foreground=LABEL_RED)
     window.mechanics_page = box             # for the tests
-    window.mechanics_parts = (pickers, intro, buttons)
+    window.mechanics_parts = (pickers, intro, buttons, label_note)
 
     def game() -> vv_tribe_rename.GameSaves:
         return vv_tribe_rename.game_for_title(game_var.get())
@@ -118,6 +124,9 @@ def open_game_mechanics(app, build) -> tk.Toplevel | None:
         for number, line in enumerate(text.split("\n"), 1):
             if line in gm.GROUPS:
                 box.tag_add("group", f"{number}.0", f"{number}.end")
+            at = line.find(gm.UNCONFIRMED)
+            if at >= 0:
+                box.tag_add("unconfirmed", f"{number}.{at}", f"{number}.{at + len(gm.UNCONFIRMED)}")
         box.configure(state="disabled")
 
     def load_slots(*_args) -> None:

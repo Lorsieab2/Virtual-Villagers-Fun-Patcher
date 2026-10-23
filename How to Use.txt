@@ -282,8 +282,8 @@ date and time at the save's game speed, for example:
   Tree 1: Mango, planted at 22 October 2026, 3:14 PM, refills every 3 hours
   on Normal speed
 A rule a patch changes says whether that patch is in the game, when the
-patcher knows where that game's folder is. Rules still being researched say
-"uncertain" or "not yet worked out". It only reads: nothing is changed, so the
+patcher knows where that game's folder is. Anything not yet verified by
+running the game's own code carries the label UNCONFIRMED. It only reads: nothing is changed, so the
 game may be running (it shows the save as it was last written). Refresh reads
 the save again.
 

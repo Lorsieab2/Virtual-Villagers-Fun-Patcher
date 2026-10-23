@@ -363,6 +363,32 @@ class EveryGame(unittest.TestCase):
         self.assertIn("of which", joined)
         self.assertIn("8 hours 36 minutes 40 seconds", joined)
 
+    def test_unverified_lines_carry_the_label(self) -> None:
+        """The owner, 2026-10-23: every figure or statement not verified by emulation carries UNCONFIRMED,
+        in capitals, right beside it; verified ones (and values read straight from the save) carry nothing."""
+        for name in self.SAVES:
+            with self.subTest(save=name):
+                facts = self.page(name)
+                rendered = gm.render(facts).split("\n")
+                body = [line for line in rendered if line.startswith("  ")]
+                self.assertEqual(len(body), len(facts))
+                for fact, line in zip(facts, body):
+                    if fact.verified:
+                        self.assertNotIn(gm.UNCONFIRMED, line)
+                    else:
+                        self.assertTrue(line.startswith(f"  {gm.UNCONFIRMED}  "), line)
+                self.assertTrue(any(f.verified for f in facts))
+                self.assertTrue(any(not f.verified for f in facts))
+                for fact in facts:
+                    if fact.group == gm.TIME_AWAY and fact.text.startswith(("Last saved", "If it were", "On ",
+                                                                          "Time Warp")):
+                        self.assertTrue(fact.verified, fact.text)
+                text = gm.render(facts)
+                self.assertNotIn("(uncertain)", text)
+                self.assertNotIn("not yet confirmed in game", text)
+                for line in body:
+                    content = line.strip().removeprefix(f"{gm.UNCONFIRMED}  ")
+                    self.assertNotRegex(content, r" [.;,]|  |\(\)", content)
     def test_golden_mushroom_stays_a_secret(self) -> None:
         for name, fid in (("vv1-huttest-1", "vv1_super_secret_golden_mushroom"),
                           ("vv2-huttest-1", "vv2_super_secret_golden_mushroom"),
@@ -473,11 +499,13 @@ text = page.get("1.0", "end")
 print(window.resizable() == (True, True), int(bool(page.cget("yscrollcommand"))))
 # At its smallest the intro wraps at the window's width; the pickers, the buttons and the padding
 # must leave the page at least 80 pixels (about four lines) -- nothing above or below it cut off.
-pickers, intro, buttons = window.mechanics_parts
+pickers, intro, buttons, note = window.mechanics_parts
 intro.configure(wraplength=w.MIN_WIDTH - 40)
+note.configure(wraplength=w.MIN_WIDTH - 40)
 window.update_idletasks()
 fixed = pickers.winfo_reqheight() + buttons.winfo_reqheight() + 24 + 16
 print(fixed + 80 <= w.MIN_HEIGHT, pickers.winfo_reqwidth() <= w.MIN_WIDTH - 24, fixed)
+print(len(page.tag_ranges('unconfirmed')) > 0, 'UNCONFIRMED marks' in note.cget('text'))
 print(repr(text))
 root.destroy()
 """
@@ -521,12 +549,13 @@ class Window(unittest.TestCase):
         if done.returncode == 3:
             self.skipTest("no Tk display: " + done.stderr.strip())
         self.assertEqual(done.returncode, 0, done.stderr)
-        first, second, text = done.stdout.strip().splitlines()[:3]
+        first, second, tags, text = done.stdout.strip().splitlines()[:4]
         self.assertEqual(first, "True 1")
         self.assertEqual(second.split()[:2], ["True", "True"], second)
         self.assertIn("Tree 1: Mango, planted at ", text)
         self.assertIn("640 of 1000 fruit", text)
         self.assertIn("is in the game", text)
+        self.assertEqual(tags, "True True")
 
 
 if __name__ == "__main__":

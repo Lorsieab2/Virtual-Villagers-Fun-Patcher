@@ -82,10 +82,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         return gm.when(real(at)) if real(at) > village.now else f"{gm.when(real(at))} (when the village is next played)"
 
     out: list[gm.Fact] = []
-    add = lambda group, text: out.append(gm.Fact(group, text))  # noqa: E731
+    add = lambda group, text, ok=False: out.append(gm.Fact(group, text, ok))  # noqa: E731
 
     # -- Food sources --------------------------------------------------------------------
-    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.")
+    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", True)
     bush = _i32(data, BUSH)
     add("Food sources", f"Berry bush: {bush:,}; a pick takes {max(2, bush // 130):,} from it now (the bush ÷ 130, "
                         "at least 2).")
@@ -103,8 +103,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Refills", f"The berry bush grows 30 {every}"
                    + (f"; the crop field grows 800, up to {FIELD_CAP}, at the same time." if level[FARMING] >= 2
                       else "; the crop field does not refill below Farming level 2."))
-    add("Refills", f"Next regrowth: {due(REGROW)}. Changing the speed rescales the time left; every regrowth "
-                   "missed while the game is closed is added when it is next played.")
+    add("Refills", f"Next regrowth: {due(REGROW)}.", True)
+    add("Refills", "Changing the speed rescales the time left to the next regrowth.")
 
     # -- Collectibles / Mushrooms --------------------------------------------------------
     add("Collectibles", "A New Home has no collectibles: mushrooms are its only random pickup.")
@@ -114,12 +114,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # The Super-Secret Golden Mushroom: only that a secret exists, never its odds or what it gives (the owner).
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
-    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.")
+    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", True)
 
     # -- Tech points ---------------------------------------------------------------------
     science = level[SCIENCE]
     divisor = {1: 7, 2: 5, 3: 3}.get(science)
-    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.")
+    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", True)
     if divisor:
         add("Tech points and effects", (
             f"Research gives the researcher's Research skill ÷ {divisor} (Science is level {science}), after a "
@@ -136,9 +136,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Time away and Time Warp ---------------------------------------------------------
     out += gm.time_away(village, saved, speed_value,
                         "Saved paused: the time away is not counted when it is next played, and the regrowth and "
-                        f"island event timers wait {gm.UNCONFIRMED}.", unit_seconds=20 * 60 * speed)
-    add("Time away and Time Warp", "Each counted age unit lets every adult try up to 5 jobs at once; every regrowth "
-                                   "missed is added in full.")
+                        f"island event timers wait.", unit_seconds=20 * 60 * speed)
+    add("Time away and Time Warp", "Each counted age unit lets every adult try up to 5 jobs at once.")
+    add("Time away and Time Warp", "Every regrowth missed while the game was closed is added when it is next played, with no limit on how many: the bush has no cap, the crop field stops at 800.", True)
     out.append(gm.time_warp_line(speed_value))
 
     # -- Island events -------------------------------------------------------------------
@@ -149,9 +149,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Island events", "Each event: 20% the item event; 40% an event scaled by the population (a third of it, 1 "
                          "to 10), whose outcomes include tech points (900 each), food (200 each), losses of 80 each "
                          "from the bush, the field or the food, or the beach dirtied again; 40% one of the other "
-                         f"events. The odds of each outcome inside an event are {gm.UNCONFIRMED.strip('()')}.")
+                         f"events. The odds of each outcome inside an event are not yet worked out.")
     add("Other", (f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} "
                   "speed: ages, pregnancies (40 units) and regrowth follow the speed; work, mushrooms and island "
                   "events do not."))
-    add("Other", f"The village was started at {gm.when(real(CREATED))}.")
+    add("Other", f"The village was started at {gm.when(real(CREATED))}.", True)
     return out

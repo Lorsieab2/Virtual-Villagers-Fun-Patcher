@@ -45,7 +45,7 @@ ENERGY, ENERGY_CAP, EVENT_NEXT = 0x17D74, 0x17D70, 0x17D4C
 UNIT = 360                                    # an age unit, in Normal-speed seconds
 NONI_CAP, CROPS_FULL, CROP_UNITS = 1000, 800, 40
 STORY = "vv5_story_cheat_upgrades"
-UNSURE = "(uncertain)"
+UNSURE = ""                              # every unverified line carries UNCONFIRMED
 # The selector 0x418870: one of the events whose conditions hold, each equally likely; the eleven the
 # stock game can never pick (dead code) are not listed (the coordinator's spec, section 5).
 EVENT_LINES = (
@@ -124,11 +124,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         return gm.when(real(at))
 
     out: list[gm.Fact] = []
-    add = lambda group, text: out.append(gm.Fact(group, text))  # noqa: E731
+    add = lambda group, text, ok=False: out.append(gm.Fact(group, text, ok))  # noqa: E731
     unit = gm.duration(60 * speed)
 
     # -- Food sources --------------------------------------------------------------------
-    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.")
+    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", True)
     noni = _i32(data, NONI)
     add("Food sources", f"Noni bushes: {noni:,} of {NONI_CAP:,}; a pick gives {max(2, noni // 100)} food now "
                         "(the noni ÷ 100, at least 2), once the granary is built.")
@@ -146,8 +146,6 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     crop_next = "" if not paused and real(CROPS_NEXT) <= village.now else f"; next {due(CROPS_NEXT)}"
     add("Refills", f"Crops: refilled to {CROPS_FULL} {gm.every(CROP_UNITS * UNIT, speed_value)} once the "
                    f"Hydroponic Farm is built{crop_next}.")
-    add("Refills", "Every noni growth and crop refill missed while the game is closed is added, without a cap, "
-                   "when it is next played.")
 
     # -- Collectibles / Mushrooms --------------------------------------------------------
     add("Mushrooms", "About one thing appears a minute at any speed (none while paused or closed); 30% of them are "
@@ -156,12 +154,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "1 minute 30 seconds.")
     if village.has(GOLDEN):
         add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
-    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.")
+    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", True)
     add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. The lab set appears "
                         "only once the Knowing Totem is built. Unpicked, one is gone after 1 minute 30 seconds.")
 
     # -- Tech points ---------------------------------------------------------------------
-    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.")
+    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", True)
     add("Tech points and effects", (
         f"Research gives the researcher's Research skill ÷ 11, ÷ 9 or ÷ 7 at Science level 1, 2 or 3, "
         f"{'twice that' if speed == gm.FAST else ('0.6 of that' if speed == gm.SLOW else 'as it is')} on {on} "
@@ -185,6 +183,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         "While catching up, each counted age unit runs eating, belief, Divine Energy, sickness and births, and "
         "4 jobs for every healthy villager of 14 or more; island events, mushrooms, collectibles and weather "
         "do not run."))
+    add("Time away and Time Warp", "Every noni growth and crop refill missed while the game was closed is added when it is next played, with no limit on how many: noni stop at 1,000, crops at 800.", True)
     out.append(gm.time_warp_line(speed_value))
 
     # -- Island events -------------------------------------------------------------------

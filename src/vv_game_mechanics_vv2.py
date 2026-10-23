@@ -42,7 +42,7 @@ REGROW, FIRE_END, GONG_NEXT, EVENT_NEXT = 0x2EAC0, 0x2EAC4, 0x2EAC8, 0x2EAE0
 DAM, IRRIGATION, GONG_FIRST_DONE = 0x2E798, 0x2E770, 0x2E910
 COCONUT_CAP, CROPS_FULL = 1500, 800
 FIRE_HOURS = {gm.FAST: 10, gm.NORMAL: 20, gm.SLOW: 40}
-UNSURE = "(uncertain)"
+UNSURE = ""                              # every unverified line carries UNCONFIRMED
 GOLDEN = "vv2_super_secret_golden_mushroom"
 LEARNING = "vv2_learning_never_fails"
 TOTEMS = "vv2_totems_out_of_entries"
@@ -113,11 +113,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         return gm.when(real(at)) + (" (when the village is next played)" if real(at) <= village.now else "")
 
     out: list[gm.Fact] = []
-    add = lambda group, text: out.append(gm.Fact(group, text))  # noqa: E731
+    add = lambda group, text, ok=False: out.append(gm.Fact(group, text, ok))  # noqa: E731
     pick = {gm.FAST: 0, gm.NORMAL: 1, gm.SLOW: 2}[speed]
 
     # -- Food sources --------------------------------------------------------------------
-    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.")
+    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", True)
     add("Food sources", f"Coconuts: {_i32(data, COCONUTS):,}; a trip brings {(8, 4, 2)[pick]} on {on} speed "
                         "(4 while catching up).")
     dam, irrigated = _i32(data, DAM) > 0, _i32(data, IRRIGATION) > 0
@@ -137,8 +137,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                     f"refilled to {CROPS_FULL} while the dam is built and the field has water or irrigation "
                     f"({'built' if dam else 'no dam yet'}, {'irrigated' if irrigated else 'not irrigated'}), "
                     "otherwise the crops are lost."))
-    add("Refills", f"Next regrowth: {due(REGROW)}. Every regrowth missed while the game is closed happens when it "
-                   "is next played.")
+    add("Refills", f"Next regrowth: {due(REGROW)}.", True)
 
     # -- Mushrooms and collectibles ------------------------------------------------------
     add("Mushrooms", "One thing at a time, at any speed and only while playing: every 2 seconds with nothing out, a "
@@ -153,7 +152,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "collection raises the population limit by 5, all four by 25.")
 
     # -- Tech points ---------------------------------------------------------------------
-    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.")
+    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", True)
     add("Tech points and effects", (
         "Research gives Research skill ÷ 11, ÷ 9 or ÷ 5 at Science 1, 2 or 3, "
         + {gm.FAST: "twice that on Fast speed", gm.NORMAL: "as it is on Normal speed",
@@ -180,6 +179,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                    "take about 8 minutes); each unit eats, rolls sickness and old age, and gives "
                                    "every healthy villager of 14 or more 4 jobs. Building adds 1 a try instead of 2. "
                                    "Mushrooms and collectibles do not pile up; a due island event happens once.")
+    add("Time away and Time Warp", "Every regrowth missed while the game was closed is added when it is next played, with no limit on how many: coconuts stop at 1,500, crops at 800.", True)
     out.append(gm.time_warp_line(speed_value))
     add("Time away and Time Warp", "A Time Warp also brings the regrowth, the fire, the next island event and the "
                                    "Gong 10 hours (Slow) or 12 hours (Normal, Fast) sooner.")
