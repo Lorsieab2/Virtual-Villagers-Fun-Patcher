@@ -31,10 +31,16 @@ WHAT IS CERTAIN AND WHAT IS ASKED:
   * A record with +0x558 set and health above 0 is a living villager carrying the totem flag: the game
     never makes a totem alive (0x44D467 writes health 0 just before 0x44D485 sets the flag).  Such a
     record is reverted by clearing +0x558 alone -- every other field is the villager's own, as the save
-    holds it.  (How it happens: the copy creator 0x44CEC0 -- twins, triplets, the Silver Mirror -- never
-    clears +0x558, and the burial 0x465024..0x46503B frees the record it was sent to without checking it
-    is still a body, so a totem made in a record freed in between is buried and its record keeps the
-    flag for the next copy.  Static reading; never seen live.)
+    holds it.  How it happens, emulated on the stock executable (tests/test_vv2_fix_vanilla_bugs.py,
+    TotemTickTests): the copy creator 0x44CEC0 -- the second and third baby of a litter, and the Silver
+    Mirror's double -- never clears +0x558, so a copy made in a record left marked is a totem.  A record
+    is left marked when the burial (0x464FFF..0x46503B) frees a totem made where a body was, and when a
+    new village or Start Over (0x424C80) frees every record without clearing the mark of the previous
+    village's totems.  The world tick skips a marked record (0x43B805), so the copy never ages, never
+    loses health and never dies: the players' "born as a totem, stays two forever" (two reports,
+    2026-10).  Fix Vanilla Bugs prevents it (the copy creator clears the mark; a totem is never buried).
+    The confirmation shows each one's health, its frozen age and its brothers and sisters, naming the
+    one it was born with (the copy creator gives a twin its sibling's +0x550 plus one).
   * A totem (health 0 or less) that no Esteemed Elder of the save or the Deaths log matches, even by
     first name, is asked about: the player says whether it is a villager who turned into a totem.  A
     yes clears +0x558; the save holds health 0 for it, so it is that villager's unburied body.
@@ -296,6 +302,37 @@ def _totem_of(data: bytes, at: int, record: int) -> Totem:
                  _i32(data, at + X), _i32(data, at + Y))
 
 
+def _years(age: int) -> str:
+    return f"{age // 20} year{'' if age // 20 == 1 else 's'}"
+
+
+def _living_evidence(data: bytes, offsets: list[int], t: Totem) -> str:
+    """Why a living record marked as a totem is a villager, with what the save shows of it: its health,
+    its age (frozen: the world tick 0x43B805 never ages a marked record) and, when the save holds them,
+    its brothers and sisters -- the same parents' names and family line -- naming the one it was born
+    with when the copy creator's own mark shows it: 0x44CEC0 gives a twin its sibling's +0x550 plus one
+    (a triplet, the twin's plus one)."""
+    age = _i32(data, t.at + AGE)
+    why = (f"alive (health {t.health}) and marked as a totem, aged {_years(age)} -- the game only ever makes "
+           "a totem with health 0, and a record marked as a totem never ages or dies")
+    if not (t.father or t.mother):
+        return why
+    litter, siblings = [], []
+    for at in offsets:
+        if at == t.at or data[at + IS_TOTEM] != 0:
+            continue
+        if (_text(data, at + FATHER, PARENT_CAP), _text(data, at + MOTHER, PARENT_CAP)) != (t.father, t.mother) \
+                or _i32(data, at + LINEAGE) != t.lineage:
+            continue
+        name = f"{_text(data, at, NAME_CAP)} (now {_years(_i32(data, at + AGE))})"
+        (litter if t.type - _i32(data, at + TYPE) in (1, 2) else siblings).append(name)
+    if litter:
+        why += f"; born in one litter with {', '.join(litter)} (parents {t.father} and {t.mother})"
+    elif siblings:
+        why += f"; brother or sister of {', '.join(siblings)} (parents {t.father} and {t.mother})"
+    return why
+
+
 def _owed(data: bytes, offsets: list[int]) -> int:
     """Every baby still owed: each living record carrying (+0x540) is owed her litter (+0x544, one
     baby at least) -- scripts/build_slot_guards.py V2_OWED, the patcher's own count."""
@@ -532,8 +569,7 @@ def survey_bytes(data: bytes, dead: list[Elder] | None = None, folder: Path | No
     statues = []
     for t in s.totems:
         if t.health > 0:
-            s.villagers.append(TotemVillager(t, True, "alive (health above 0) and marked as a totem: the game "
-                                                      "only ever makes a totem with health 0"))
+            s.villagers.append(TotemVillager(t, True, _living_evidence(data, offsets, t)))
         else:
             statues.append(t)
     # The totems kept in ElderTotems.dat are statues too (an elder who has one there has a totem).
