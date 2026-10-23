@@ -726,6 +726,26 @@ the file with the rest of the save's data. (A save made with both factions by
 a cheat cannot be loaded by the game at all; this patch never writes one.)
 Needs no other patch. Not yet tested in play.
 
+VV3 FRUIT TREE TIMING: TICK ONLY ONE OF THE TWO
+
+All Fruit Trees Refill at the Same Time: when the first fruit tree is due to
+refill, every tree refills with it, and from then on they refill together.
+
+Fruit Trees Take Turns Refilling: the trees refill one after another, evenly
+spread over the refill time -- with three trees one tree every hour (every 45
+minutes at Nature level 1 with the Nature patch) -- so a village living on
+fruit waits the shortest time with nothing to pick.
+
+Either way each tree gets the normal amount of fruit for the time since its
+own last refill, so the trees give exactly as much fruit as without the
+patch; only when the fruit comes changes. The two cannot be ticked together:
+ticking one greys the other out, and a selection with both builds nothing.
+The default ticks Refill at the Same Time; Owner's Defaults ticks Take Turns.
+The save keeps every tree's normal refill time, so without the patch the
+trees go back to their own times. The patch's schedule is kept in the save's
+own folder (Virtual Villagers Fun Patcher\Save N\Data\Fruit Trees) and Start
+Over deletes it. Not yet tested in play.
+
 VV5 HEATHEN MOMMY PUZZLE RESTORATION
 
 The naturally enabled reference creates a 29th, tag-17 Heathen mother and gives

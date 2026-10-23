@@ -535,7 +535,8 @@ def _feature_ids(patcher, game: str) -> tuple[list[str], list[str]]:
     public = patcher.load_public_fun_patches()
     minimal = [f"{game}_origins_village_wide_upgrades"]
     # Every other row (this one, and its "cost Tech Points" row that needs it, left out).
-    full = [p.id for p in public if p.game_id == game and not p.id.startswith(f"{game}_story_cheat_upgrades")]
+    full = [p.id for p in public if p.game_id == game and not p.id.startswith(f"{game}_story_cheat_upgrades")
+            and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
     return minimal, full
 
 

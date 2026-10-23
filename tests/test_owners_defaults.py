@@ -30,8 +30,10 @@ def _owner_keeps_off(patch_id: str) -> bool:
     """The owner's one exception: Learning Skills Never Fails.  Story / Cheat
     Upgrades and 256 Villagers (Experimental) are ticked (owner, 2026-10-03:
     "please toggle ON in the Owner's Defaults: 256 experimental patches,
-    Story events patches")."""
-    return "learning_never_fails" in patch_id
+    Story events patches").  ...and of The Secret City's two fruit-tree schedules, which are
+    never built together, the owner picks Fruit Trees Take Turns Refilling, so All Fruit Trees
+    Refill at the Same Time stays off."""
+    return "learning_never_fails" in patch_id or patch_id == "vv3_fruit_trees_refill_together"
 
 
 class OwnersDefaultsTests(unittest.TestCase):

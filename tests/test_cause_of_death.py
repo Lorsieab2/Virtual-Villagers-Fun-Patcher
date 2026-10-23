@@ -77,7 +77,8 @@ def rendered(game: str, mode: str, everything: bool) -> bytes:
             # The ordinary build: 256 Villagers (Experimental) builds another
             # layout and has its own tests (LaterGames256 below).
             rows = [p.id for p in vfp.load_public_fun_patches()
-                    if p.game_id == game and p.id not in vfp.EXPERIMENTAL_FUN_PATCH_IDS]
+                    if p.game_id == game and p.id not in vfp.EXPERIMENTAL_FUN_PATCH_IDS
+                    and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
         else:
             rows = [f"{game}_cause_of_death"]
         data, _ = vfp.render_patched_bytes(STOCK[game], build, mode, rows)
@@ -1670,7 +1671,8 @@ def rendered_256(game: str, mode: str) -> bytes:
     if (game, mode) not in _RENDERS_256:
         import vv_fun_patcher as vfp
         build = next(b for b in vfp.load_builds() if b.id == game)
-        rows = [p.id for p in vfp.load_public_fun_patches() if p.game_id == game]
+        rows = [p.id for p in vfp.load_public_fun_patches()
+                if p.game_id == game and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
         assert f"{game}_population_256" in rows
         data, _ = vfp.render_patched_bytes(STOCK[game], build, mode, rows)
         _RENDERS_256[(game, mode)] = bytes(data)

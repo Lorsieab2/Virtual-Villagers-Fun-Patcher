@@ -115,7 +115,8 @@ def render(mode: str, expanded: bool = False) -> bytes:
     the experimental 256 Villagers build)."""
     build = {b.id: b for b in patcher.load_builds()}["vv3"]
     ids = [p.id for p in patcher.load_public_fun_patches()
-           if p.game_id == "vv3" and (expanded or p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS)]
+           if p.game_id == "vv3" and (expanded or p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS)
+           and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
     data, _ = patcher.render_patched_bytes(stock_exe(), build, mode, ids)
     return bytes(data)
 
@@ -521,7 +522,8 @@ class BothFactionsRow(unittest.TestCase):
         self.assertEqual(hashlib.sha256(DLL.read_bytes()).hexdigest().upper(), item["sha256"])
 
     def test_the_loader_knows_the_companion_in_its_appended_place(self):
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS[-1], DLL_LEAF)
+        # Appended at bit 25 (index 24); the list only ever grows after it.
+        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS.index(DLL_LEAF), 24)
         header = (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
         body = header[header.index("VVFP_STARTUP_COMPANIONS[] = {"):]
         body = body[:body.index("};")]

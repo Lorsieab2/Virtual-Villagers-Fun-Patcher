@@ -104,7 +104,7 @@ def public_ids(game: str) -> list[str]:
     for p in vfp.load_fun_patches():
         r = p.raw
         if p.game_id == game and not r.get("catalog_hidden") and r.get("catalog_enabled", True) \
-                and r.get("enabled", True):
+                and r.get("enabled", True) and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS:
             out.append(p.id)
     return out
 

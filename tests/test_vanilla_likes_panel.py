@@ -52,6 +52,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
     load_builds,
+    ALTERNATIVE_FUN_PATCH_IDS,
     load_fun_patches,
     load_public_fun_patches,
     render_patched_bytes,
@@ -335,7 +336,8 @@ class ManifestTests(unittest.TestCase):
     def test_render_in_every_mode_alone_and_with_every_other_patch(self) -> None:
         for game in EXES:
             fid = f"{game}_fix_vanilla_bugs"
-            others = [p.id for p in load_public_fun_patches() if p.game_id == game and p.id != fid]
+            others = [p.id for p in load_public_fun_patches() if p.game_id == game and p.id != fid
+                      and p.id not in ALTERNATIVE_FUN_PATCH_IDS]
             sets = [[], others]
             if game in NEGATIVE:
                 sets.append(others + [f"{game}_population_256"])

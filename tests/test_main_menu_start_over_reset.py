@@ -400,7 +400,7 @@ class FullCatalogTests(unittest.TestCase):
         # 256 Villagers (Experimental) builds a different executable; its
         # compositions are tested in tests/test_vv3_population_256.py.
         public = [p for p in vp.load_public_fun_patches()
-                  if p.id not in vp.EXPERIMENTAL_FUN_PATCH_IDS]
+                  if p.id not in vp.EXPERIMENTAL_FUN_PATCH_IDS and p.id not in vp.ALTERNATIVE_FUN_PATCH_IDS]
         base = set(vp.INTERNAL_ORIGINS_BASE_FEATURE_ID_SET)
         for game in EXE:
             build = _build(game)

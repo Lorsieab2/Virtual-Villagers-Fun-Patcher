@@ -674,7 +674,8 @@ class LoaderStubTests(unittest.TestCase):
         if key not in _CACHE:
             build = next(b for b in vfp.load_builds() if b.id == f"vv{game}")
             rid = f"vv{game}_super_secret_golden_mushroom"
-            sel = [p.id for p in vfp.load_fun_patches() if p.game_id == f"vv{game}"] if catalog else [rid]
+            sel = [p.id for p in vfp.load_fun_patches() if p.game_id == f"vv{game}"
+                   and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS] if catalog else [rid]
             data, applied = vfp.render_patched_bytes(STOCK / build.input_name, build, "immediate_fixed", sel)
             self.assertIn(f"feature:{rid}", {a["owner"] for a in applied})
             _CACHE[key] = bytes(data)
@@ -791,7 +792,7 @@ class ManifestTests(unittest.TestCase):
         for game in ART_GAMES:
             build = next(b for b in vfp.load_builds() if b.id == f"vv{game}")
             rid = f"vv{game}_super_secret_golden_mushroom"
-            catalog = [p.id for p in rows if p.game_id == f"vv{game}"]
+            catalog = [p.id for p in rows if p.game_id == f"vv{game}" and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
             for mode in modes:
                 for sel in ([rid], catalog):
                     with self.subTest(game=game, mode=mode, n=len(sel)):

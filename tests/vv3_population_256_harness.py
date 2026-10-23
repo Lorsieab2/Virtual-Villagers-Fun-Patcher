@@ -58,7 +58,7 @@ def public_vv3_ids() -> list[str]:
     return [
         patch.id
         for patch in vfp.load_public_fun_patches()
-        if patch.raw.get("game_id") == "vv3" and patch.id != FEATURE
+        if patch.raw.get("game_id") == "vv3" and patch.id != FEATURE and patch.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS
     ]
 
 
