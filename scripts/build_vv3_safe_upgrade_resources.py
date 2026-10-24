@@ -117,7 +117,9 @@ FOUNDATION_OUTPUT = (
 # bridge compiles in): rebuilt on the merged v1.35.82 sources.
 # Recertified for the review of #604: a bought island event's kept natural time is read back from its
 # file before a re-arm records one, and a purchase in another village never lends its distance.
-SOURCE_SHA256 = "2D6BC40495D1190159E9EAB3EA863D93FE3D1C8B7190272A6E7811292E33AE05"
+# Recertified for Difficulty Settings (native/shared/startup_companions.h gains "VVFP
+# Difficulty.dll", which the Story bridge compiles in; The Secret City never ships it).
+SOURCE_SHA256 = "4565301D8D96122138BA29533216F6E1117647AEE62591DFC247095A86944CDD"
 SOURCE_SIZE = 1999360
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

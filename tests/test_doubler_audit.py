@@ -397,7 +397,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # rows (v1.35.70), and for resetting corrupted skills.
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "15D51D3832C24723324F8668C816D1867126C1AC9383526F296C30F1A3C00F19",
+            "10C49740E32F8ACC86EAE679A212A1EB717FE42C46A78D590680F254E306E439",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
