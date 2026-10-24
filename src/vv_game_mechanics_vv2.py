@@ -359,14 +359,19 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
     paused = speed_value >= gm.PAUSED
     level = [_i32(data, LEVELS + 8 * k) for k in range(6)]
     crops_grow = dam and (scared or allowance > 0)
-    every = gm.duration(gm.real_seconds(2400 * 6, speed_value))
+    every = life.every_real(2400 * 6, speed_value).removeprefix("every ")
+    # The regrowth's own steps (0x43B960): coconuts +30 up to 1,500; crops refilled to 800.
+    steps = dict(interval=gm.real_seconds(2400 * 6, speed_value),
+                 next_at=struct.unpack_from("<I", data, 4)[0] + _i32(data, REGROW),
+                 first_in=max(0, _i32(data, REGROW) - _i32(data, LAST_TICK)))
     sources = [
-        life.Source("Coconuts", _i32(data, COCONUTS), COCONUT_CAP, 30 / 40, regrow_at, f"+30 every {every}", verified=gm.SAVE),
+        life.Source("Coconuts", _i32(data, COCONUTS), COCONUT_CAP, 30 / 40, regrow_at, f"+30 every {every}", verified=gm.SAVE,
+                    step=30, **steps),
         life.Source("Crops", _i32(data, CROPS), CROPS_FULL, CROPS_FULL / 40 if crops_grow else 0.0,
                     regrow_at if crops_grow else None,
                     f"refilled to {CROPS_FULL} every {every}" if crops_grow else
                     ("no refill until the dam is built" if not dam else "eaten by the birds at every regrowth"),
-                    verified=gm.SAVE),
+                    verified=gm.SAVE, step=CROPS_FULL if crops_grow else 0, **steps),
         life.Source("Fish", _i32(data, FISH), None, 0.0, None, "they never grow back", verified=gm.SAVE)]
     exploration = level[EXPLORATION_LEVEL]
     waits = {1: (40, 0.50), 2: (34, 0.35), 3: (28, 0.20)}
@@ -375,14 +380,14 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
         village, speed_value, real_last(data), _i32(data, FOOD), low_food=150, extra_from=4001, sources=sources,
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 5 at Science 1 to 3).",
         brown=6, red=35, red_share=0.10, mushrooms_an_hour=3600 / wait * share, golden=village.has(GOLDEN) is True,
-        mushroom_words=f"At Exploration level {exploration} something appears about every {wait} seconds while "
+        mushroom_words=f"At Exploration level {exploration} something appears about every {wait} real-life seconds while "
                        f"nothing is out, {share:.0%} of them mushrooms, picked only when you drop a child on them.",
         event_next=event_at,
         event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,
-        event_rule="It comes 10 to 19 whole hours after the last, at any speed; then every event whose conditions hold "
+        event_rule="It comes 10 to 19 whole real-life hours after the last, at any speed; then every event whose conditions hold "
                    "is equally likely within its kind (two-choice 20%, single-result 40%, sacks and vials 40%).",
         event_running="Paused, its timer is pushed back by the paused time; with the game closed it runs on, and a due "
-                      "event happens once; a Time Warp brings it 10 hours (Slow) or 12 hours (Normal, Fast) sooner.",
+                      "event happens once; a Time Warp brings it 10 real-life hours (Slow) or 12 (Normal, Fast) sooner.",
         medicine=level[MEDICINE_LEVEL], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
         parents_from=18, sick_loss=(0.61, 0.19),
         collectibles=[("Collectibles owned: not read from this save. A piece already found pays 100, 250 or 1,500 "

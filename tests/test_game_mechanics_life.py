@@ -208,7 +208,7 @@ class Timers(unittest.TestCase):
         put(data, at + life.VV1_FAMILY, life.GOLDEN_FAMILY)
         name = ln._cstr(data, at, 0x18)
         facts = page(self, 1, data)
-        self.assertIn(f"{name} is the Golden Child: always 5 years old", texts(facts, life.VILLAGER_TIMERS))
+        self.assertIn(f"{name} is the Golden Child: always 5 villager years old", texts(facts, life.VILLAGER_TIMERS))
         self.assertIn("the Golden Child never eats", texts(facts, life.VITALS))
 
     def test_the_next_natural_island_event_has_a_countdown(self) -> None:
@@ -324,8 +324,8 @@ class Vitals(unittest.TestCase):
                 head = next(f for f in group(facts, life.VITALS) if f.text.startswith("Food estimates"))
                 self.assertIn("estimates, not the game's own figures", head.text)
                 self.assertFalse(head.confirmed)
-                for start in ("Food eaten:", "Sustainable population", "Storage alone lasts",
-                              "Food needed for 100% health over 8 hours", "Food needed for 100% health over 24 hours"):
+                for start in ("Food eaten:", "Sustainable population", "Storage alone, with nothing picked, lasts",
+                              "Food needed for 100% health over 8 real-life hours", "Food needed for 100% health over 24 real-life hours"):
                     line = next(f for f in group(facts, life.VITALS) if f.text.startswith(start))
                     self.assertTrue(line.sub)
                     self.assertFalse(line.confirmed, start)
@@ -333,7 +333,7 @@ class Vitals(unittest.TestCase):
     def test_speed_difficulty_and_time_away_are_named(self) -> None:
         for game in range(1, 6):
             with self.subTest(game=game):
-                first = page(self, game, fixture(game))[0]
+                first = next(f for f in page(self, game, fixture(game)) if f.text.startswith("Speed "))
                 self.assertRegex(first.text, r"^Speed (Fast|Normal|Slow)")
                 self.assertIn("difficulty", first.text)
                 self.assertIn("would count if it were played now", first.text)
@@ -344,8 +344,152 @@ class Vitals(unittest.TestCase):
                 data = fixture(game)
                 _unpause(game, data)
                 vitals = texts(page(self, game, data), life.VITALS)
-                self.assertIn("Closed for 8 hours:", vitals)
-                self.assertIn("Closed for 24 hours:", vitals)
+                self.assertIn("Closed for 8 real-life hours:", vitals)
+                self.assertIn("Closed for 24 real-life hours:", vitals)
+
+    @staticmethod
+    def refilling(game: int) -> bytearray:
+        """The game's fixture, unpaused at Normal speed, with a source that refills and has room."""
+        import vv_game_mechanics_vv1 as vv1
+        import vv_game_mechanics_vv2 as vv2
+        import vv_game_mechanics_vv3 as vv3
+        import vv_game_mechanics_vv4 as vv4
+        import vv_game_mechanics_vv5 as vv5
+        data = fixture(game)
+        _unpause(game, data)
+        at, _value = __import__("vv_save_backup").save_speed(game, bytes(data))
+        struct.pack_into("<i", data, at, 6)
+        if game == 1:
+            struct.pack_into("<i", data, vv1.BUSH, 50)
+        elif game == 2:
+            struct.pack_into("<i", data, vv2.COCONUTS + vv2.S, 0)
+        elif game == 3:
+            struct.pack_into("<i", data, 12 + vv3.PUZZLES + 4 + 8 * vv3.BEE_HIVE, 1)
+            struct.pack_into("<i", data, 12 + vv3.HONEY + 8, 0)
+        elif game == 4:
+            struct.pack_into("<i", data, vv4.BERRIES, 0)
+        else:
+            struct.pack_into("<i", data, vv5.NONI, 0)
+        return data
+
+    def test_every_food_figure_is_net_of_the_refills(self) -> None:
+        """The owner, 2026-10-24: count the food the sources refill in every food figure, all five games."""
+        number = r"([\d,]+)"
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                vitals = texts(page(self, game, self.refilling(game)), life.VITALS)
+                import re
+                n = lambda s: int(s.replace(",", ""))  # noqa: E731
+                m = re.search(rf"Food eaten: about {number} per real-life hour; refilled on the sources about {number} per "
+                              r"real-life hour; net change about ([+-][\d,]+) per real-life hour\.", vitals)
+                self.assertIsNotNone(m, vitals)
+                eaten, refilled, net = n(m.group(1)), n(m.group(2)), int(m.group(3).replace(",", ""))
+                self.assertGreater(refilled, 0)
+                self.assertLessEqual(abs(net - (refilled - eaten)), 1)
+                m = re.search(rf"over 8 real-life hours of play: about {number} \(eating, plus staying above {number}\); net of "
+                              rf"the {number} the sources refill in that time and the {number} already on them, about "
+                              rf"{number} from storage", vitals)
+                self.assertIsNotNone(m, vitals)
+                gross, _low, credit, on, need = (n(m.group(k)) for k in range(1, 6))
+                self.assertLessEqual(abs(credit - 8 * refilled), 8)
+                self.assertLessEqual(abs(need - max(0, gross - credit - on)), 2)
+                self.assertIn("they count here once gatherers pick them", vitals)
+                self.assertRegex(vitals, r"Closed for 24 real-life hours: .*about [\d,]+ on the sources \(each stops at its "
+                                         r"limit\); net change about [+-][\d,]+ once that is picked\.")
+                self.assertRegex(vitals, r"To fill the gap of about [\d,]+ food per real-life hour|The refills cover the eating")
+
+    def fill(self, facts, name: str) -> gm.Fact:
+        return next(f for f in group(facts, "Refills") if f.text.startswith(name + ", time to full: "))
+
+    def check_fill(self, game: int, data: bytes, name: str, refills: int, next_at: float, interval: float) -> None:
+        facts = page(self, game, data)
+        line = self.fill(facts, name)
+        self.assertIn(f"({refills} refill{'s' if refills != 1 else ''})", line.text)
+        self.assertTrue(line.text.endswith("with nobody picking."), line.text)
+        self.assertIn(gm.when(next_at + (refills - 1) * interval), line.text)
+        expected = next_at + (refills - 1) * interval
+        if expected > NOW:
+            self.assertEqual(line.due, expected)
+            self.assertEqual(line.due_kind, "refill")
+            self.assertIn(gm.when(expected), line.text)
+        vital = next(f for f in group(facts, life.VITALS) if f.sub and f.text.startswith(name + ": "))
+        self.assertIn("with nobody picking", vital.text)
+        empty = facts[facts.index(line) + 1]
+        self.assertTrue(empty.sub and empty.text.startswith("From empty to full: "), empty.text)
+
+    def test_time_to_full_by_the_games_own_refill_steps(self) -> None:
+        """The owner, 2026-10-24: each refilling source's time from now to full with nobody picking -- the refills
+        still needed (the room over one refill, rounded up), one interval apart from the next due one."""
+        import vv_game_mechanics_vv1 as vv1
+        import vv_game_mechanics_vv2 as vv2
+        import vv_game_mechanics_vv4 as vv4
+        import vv_game_mechanics_vv5 as vv5
+        with self.subTest(game=1):
+            data = self.refilling(1)
+            struct.pack_into("<i", data, vv1.LEVELS + 8 * vv1.FARMING, 2)
+            struct.pack_into("<i", data, vv1.FIELD, 0)
+            epoch = struct.unpack_from("<I", data, 4)[0]
+            self.check_fill(1, data, "Crop field", 1, epoch + struct.unpack_from("<i", data, vv1.REGROW)[0], 40 * 360)
+            self.assertIn("Berry bush, time to full: has no limit, so it never fills up.",
+                          texts(page(self, 1, data), "Refills"))
+        with self.subTest(game=2):
+            data = self.refilling(2)
+            base = struct.unpack_from("<I", data, 4)[0]
+            self.check_fill(2, data, "Coconuts", 50, base + struct.unpack_from("<i", data, vv2.REGROW + vv2.S)[0],
+                            40 * 360)
+            self.assertIn("Fish, time to full: does not refill.", texts(page(self, 2, data), "Refills"))
+        with self.subTest(game=4):
+            data = self.refilling(4)
+            struct.pack_into("<i", data, vv4.BERRIES, 990)
+            base = struct.unpack_from("<q", data, 8)[0]
+            self.check_fill(4, data, "Blackberries", 5, base + struct.unpack_from("<i", data, vv4.NEXT_TICK)[0], 360)
+        with self.subTest(game=5):
+            data = self.refilling(5)
+            struct.pack_into("<i", data, vv5.NONI, 995)
+            base = struct.unpack_from("<q", data, 8)[0]
+            self.check_fill(5, data, "Noni bushes", 3, base + struct.unpack_from("<i", data, vv5.NONI_NEXT)[0], 360)
+
+    def test_the_secret_citys_trees_fill_from_their_next_refill(self) -> None:
+        """A Mango with 748 of 1000 fruit at Nature level 0: 111 fruit a refill, so three refills, one 3 hours apart."""
+        import test_game_mechanics as t
+        clock = (6, 0, 100_000, 50_000)
+        now_game = 50_000 + 20_000                          # NOW below is the wall base + 20,000 seconds
+        refilled = now_game - 100
+        data = t.make_save(clock=clock, trees=[(1, 1, refilled, 748)])
+        root = Path(tempfile.mkdtemp(prefix="gml"))
+        self.addCleanup(shutil.rmtree, root, True)
+        folder = root / t.BASE
+        folder.mkdir()
+        (folder / f"{t.BASE}1.ldw").write_bytes(data)
+        facts = gm.read(folder, 3, 1, [], now=t.EPOCH + 100_000 + 20_000)
+        line = self.fill(facts, "Tree 1 (Mango)")
+        self.assertIn("(3 refills), with nobody picking", line.text)
+        self.assertEqual(line.due, t.real(clock, refilled + 10_800) + 2 * 10_800)
+        self.assertIn("From empty to full: ", facts[facts.index(line) + 1].text)
+
+    def test_full_now(self) -> None:
+        import vv_game_mechanics_vv4 as vv4
+        data = self.refilling(4)
+        struct.pack_into("<i", data, vv4.BERRIES, 1000)
+        line = self.fill(page(self, 4, data), "Blackberries")
+        self.assertEqual(line.text, "Blackberries, time to full: full now.")
+        self.assertTrue(line.confirmed)
+        self.assertIsNone(line.due)
+
+    def test_a_full_source_adds_nothing_and_closed_refills_stop_at_the_limit(self) -> None:
+        import re
+        import vv_game_mechanics_vv4 as vv4
+        data = self.refilling(4)
+        struct.pack_into("<i", data, vv4.BERRIES, 1000)
+        vitals = texts(page(self, 4, data), life.VITALS)
+        self.assertIn("refilled on the sources about 0 per real-life hour", vitals)
+        self.assertIn("Blackberries 0 (full now)", vitals)
+        struct.pack_into("<i", data, vv4.BERRIES, 990)
+        mastery = struct.unpack_from("<i", data, vv4.LEVELS + 4 * vv4.FOOD_MASTERY)[0]
+        factor = 2 if mastery >= 3 else (1.5 if mastery == 2 else 1)
+        vitals = texts(page(self, 4, data), life.VITALS)
+        m = re.search(r"Closed for 24 real-life hours: .*?about ([\d,]+) on the sources", vitals)
+        self.assertEqual(int(m.group(1).replace(",", "")), round(10 * factor))
 
     def test_the_tree_of_life_sets(self) -> None:
         data = fixture(4)
@@ -355,7 +499,7 @@ class Vitals(unittest.TestCase):
         self.assertIn("Collectibles: 24 of 48 pieces owned; 36 found in all, 12 of them duplicates", vitals)
         self.assertIn("Fish Scale 12 of 12 (12 duplicates); Lab Equipment 12 of 12 (0 duplicates); Mausoleum Mural 0 "
                       "of 12", vitals)
-        self.assertIn("The limit is 100: 90 plus 10 for collections", vitals)
+        self.assertIn("The limit in the normal game is 90 plus 10 for collections, so 100", vitals)
 
     def test_golden_mushroom_only_with_its_patch(self) -> None:
         for game in range(1, 6):
@@ -363,6 +507,44 @@ class Vitals(unittest.TestCase):
                 vitals = texts(page(self, game, fixture(game)), life.VITALS).lower()
                 self.assertNotIn("golden mushroom", vitals)
                 self.assertNotIn("1,000,000", vitals)
+
+
+class Campfire(unittest.TestCase):
+    """The Secret City's campfire (the owner, 2026-10-24): it goes out when its timer runs out, the weather does not
+    affect it; its timer is a real-time deadline the clock holds while paused."""
+
+    def fire_page(self, clock, speed, deadline, saved):
+        import test_game_mechanics as t
+        import vv_game_mechanics_vv3 as vv3
+        buf = bytearray(t.make_save(clock=clock, speed=speed))
+        struct.pack_into("<i", buf, 12 + vv3.FIRE_END, deadline)
+        struct.pack_into("<i", buf, 12 + vv3.LAST_SAVED, saved)
+        root = Path(tempfile.mkdtemp(prefix="gml"))
+        self.addCleanup(shutil.rmtree, root, True)
+        folder = root / t.BASE
+        folder.mkdir()
+        (folder / f"{t.BASE}1.ldw").write_bytes(bytes(buf))
+        return gm.read(folder, 3, 1, [], now=t.EPOCH + 120_000)
+
+    def test_the_false_weather_line_is_gone_and_the_owners_rule_is_shown(self) -> None:
+        import test_game_mechanics as t
+        facts = self.fire_page((6, 0, 100_000, 50_000), 6, 130_000, 110_000)
+        text = gm.render(facts)
+        self.assertNotIn("rain and the Omen", text)
+        line = next(f for f in facts if f.text.startswith("The campfire goes out when its timer runs out"))
+        self.assertTrue(line.confirmed)
+        self.assertIn("rain and the weather do not affect it", line.text)
+        self.assertIn("Four trips of water for the Ash Key put a lit fire out", line.text)
+        burning = next(f for f in facts if f.text.startswith("The campfire burns until"))
+        self.assertEqual(burning.due, t.EPOCH + 130_000)
+
+    def test_saved_paused_the_time_left_counts_from_when_the_clock_stopped(self) -> None:
+        # Paused at wall 100,000 with the deadline at 130,000 and the save written later, at 140,000: 30,000
+        # real-life seconds are still to burn once the clock runs again (the old page said it was out).
+        facts = self.fire_page((0, 6, 100_000, 50_000), 1005, 130_000, 140_000)
+        line = next(f for f in facts if f.text.startswith("The fire "))
+        self.assertIn("was burning when saved, with 8 hours 20 minutes left once the clock runs again", line.text)
+        self.assertFalse(any(f.text.startswith("The campfire burns until") for f in facts))
 
 
 class Heathens(unittest.TestCase):

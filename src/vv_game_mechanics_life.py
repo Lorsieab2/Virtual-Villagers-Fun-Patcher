@@ -37,6 +37,7 @@ Nothing here writes anything.
 """
 from __future__ import annotations
 
+import math
 import struct
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -53,6 +54,7 @@ BIRTH_UNITS = 41                             # the babies come on the 41st age u
 DETAILS_UNITS = {1: 40, 3: 41, 4: 41, 5: 41}  # the Details screen's "Nursing for" (VV1 0x449375; VV3-5 add 0x29)
 CATCH_UP_STEP = 2                            # real seconds a counted age unit takes to work off (UNCONFIRMED)
 DIFFICULTY = {0: "Easy", 1: "Medium", 2: "Hard"}
+GOLDEN_IDS = {n: f"vv{n}_super_secret_golden_mushroom" for n in range(1, 6)}
 
 # The difficulty: the dword each game's own menus set to 0, 1 or 2 (Easy, Medium, Hard; the exes' strings) and
 # its eating, starving and sickness code reads -- VV1 manager +0xA30C (0x42ECE1), VV2 +0x2EAEC (0x43BB0E), VV3
@@ -182,6 +184,15 @@ class Source:
     refill_words: str = ""
     unlimited: bool = False                  # the sea: limited only by the gatherers
     verified: bool | str = False
+    # The game's own refill steps, for the time to fill up: what one refill adds (in the source's units; a refill
+    # "to" the cap is a step of the cap), the real seconds between refills at the save's speed, the next refill's
+    # real moment (also when it is past: due when next played), or, saved paused, the seconds of play to it.
+    step: float = 0.0
+    interval: float = 0.0
+    next_at: float | None = None
+    first_in: float | None = None
+    first_step: float | None = None          # the next refill's own gain, when it is not `step` (The Secret City)
+    rule: bool | str = False                 # what stands behind its refill rule (its game's Refills line)
 
 
 @dataclass
@@ -255,13 +266,18 @@ def full_away(ctx: Context) -> float:
     return min(limits["full"].get(ctx.speed, limits["full"][gm.NORMAL]), limits["band"])
 
 
+def every_real(game_seconds: float, speed_value: int) -> str:
+    """gm.every with its unit named: "every 4 hours of real-life time on Normal speed"."""
+    return gm.every(game_seconds, speed_value).replace(" on ", " of real-life time on ", 1)
+
+
 def by_age(ctx: Context, units: float) -> tuple[float | None, str]:
     """When `units` more age units will have passed: time away adds to the age at once (counted in full up to the
     verified limit), so a moment within that limit is a real moment even with the game closed; past it, the rest
     needs play.  (moment or None, words)."""
     seconds = max(0.0, units) * ctx.unit
     if ctx.paused:
-        return None, f"after {gm.duration(seconds)} of play once it is unpaused"
+        return None, f"after {gm.duration(seconds)} of real-life play once it is unpaused"
     if seconds <= full_away(ctx):
         moment = ctx.last + seconds
         if moment <= ctx.village.now:
@@ -270,7 +286,7 @@ def by_age(ctx: Context, units: float) -> tuple[float | None, str]:
     counted = gm.counted_away(ctx.game, ctx.village.now - ctx.last, ctx.speed) or 0.0
     if seconds <= counted:
         return None, "as soon as the village is next played (the time away counted covers it)"
-    return None, (f"after about {gm.duration(seconds - counted)} more of play on {gm.speed_name(ctx.speed)} speed "
+    return None, (f"after about {gm.duration(seconds - counted)} more of real-life play on {gm.speed_name(ctx.speed)} speed "
                   "once the time away counted is used")
 
 
@@ -279,7 +295,7 @@ def by_processed(ctx: Context, p: Person, units: float) -> tuple[float | None, s
     to the age (one age unit every 2 seconds of play, UNCONFIRMED), then runs at the speed."""
     lag = max(0, p.age - p.processed)
     if units <= lag:
-        return None, (f"within about {gm.duration(units * CATCH_UP_STEP)} of play while the village catches up "
+        return None, (f"within about {gm.duration(units * CATCH_UP_STEP)} of real-life play while the village catches up "
                       "(the time away is already counted)")
     return by_age(ctx, units - lag)
 
@@ -370,7 +386,8 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
         gm.Fact(VILLAGER_TIMERS, text, ok, sub, due, kind))
     people_ = [p for p in tribe(everyone) if not p.golden]
     on = gm.speed_name(ctx.speed)
-    add(f"An age unit is {gm.duration(ctx.unit)} of play on {on} speed and a year {gm.duration(YEAR * ctx.unit)}; "
+    add(f"An age unit is {gm.duration(ctx.unit)} of real-life play on {on} speed and a villager year (20 age units) "
+        f"{gm.duration(YEAR * ctx.unit)}; "
         "time away adds to the ages at once, as far as it counts.", gm.RUNNING)
 
     # Growing up.
@@ -386,16 +403,16 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
             names = [p.name for p in rows[units]]
             who = names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
             verb = "turns" if len(names) == 1 else "turn"
-            out.append(gm.Fact(VILLAGER_TIMERS, f"{who}, {rows[units][0].years}: {verb} {at_years} {words}.", False,
+            out.append(gm.Fact(VILLAGER_TIMERS, f"{who}, {rows[units][0].years}: {verb} {at_years} villager years {words}.", gm.OWNER,
                                True, moment, "due" if moment else None))
 
     if children:
-        add(f"Children ({len(children)}): each works from 14 and can have children from {ctx.parents_from}.",
-            gm.RUNNING if ctx.game == 1 else False)
+        add(f"Children ({len(children)}): each works from 14 villager years and can have children from {ctx.parents_from}.",
+            gm.OWNER)        # the owner: 14 working age, 18 breeding age
         growing(children, 14)
     teens = sorted((p for p in people_ if adult <= p.age < ctx.parents_from * YEAR), key=lambda p: -p.age)
     if teens and ctx.parents_from > 14:
-        add(f"Old enough to work, not yet to have children ({len(teens)}):", gm.RUNNING if ctx.game == 1 else False)
+        add(f"Old enough to work, not yet to have children ({len(teens)}):", gm.OWNER)        # the owner: 14 working age, 18 breeding age
         growing(teens, ctx.parents_from)
 
     # Old age.
@@ -404,7 +421,7 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
         if med in ctx.old_age_from:
             start = ctx.old_age_from[med]
             rolling = [p for p in people_ if p.processed >= start * YEAR]
-            words = (f"Old-age rolls start at {start} years (Medicine level {med}): "
+            words = (f"Old-age rolls start at {start} villager years (Medicine level {med}; ages below in villager years): "
                      + (", ".join(f"{p.name} ({p.years})" for p in sorted(rolling, key=lambda q: -q.age))
                         + " roll each year" if rolling else "nobody is that old yet") + ".")
             add(words, gm.SAVE if not rolling else gm.RUNNING)
@@ -414,12 +431,12 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
                 out.append(gm.Fact(VILLAGER_TIMERS, f"Next to reach it: {p.name}, {when_words}.", False, True,
                                    moment, "starts" if moment else None))
         else:
-            add("Old-age rolls start at " + ", ".join(f"{y} years at Medicine {m}" for m, y in ctx.old_age_from.items())
+            add("Old-age rolls start at " + ", ".join(f"{y} villager years at Medicine {m}" for m, y in ctx.old_age_from.items())
                 + "; this save's Medicine level is not read here.", gm.RUNNING)
     if ctx.elderly_from and ctx.medicine in ctx.elderly_from:
         start = ctx.elderly_from[ctx.medicine]
         elders = [p for p in people_ if p.age >= start * YEAR]
-        add(f"Elderly from {start} years (Medicine level {ctx.medicine}): {len(elders)} villager"
+        add(f"Elderly from {start} villager years (Medicine level {ctx.medicine}): {len(elders)} villager"
             f"{'s' if len(elders) != 1 else ''}; they regain health a fifth as often and fall sick more.", gm.RUNNING)
 
     # The sick.
@@ -439,7 +456,7 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
 
     # A New Home's Golden Child.
     for p in (q for q in everyone if q.golden):
-        add(f"{p.name} is the Golden Child: always 5 years old (100 age units) and never older; never eats, starves, "
+        add(f"{p.name} is the Golden Child: always 5 villager years old (100 age units) and never older; never eats, starves, "
             "falls sick or dies of old age.", gm.RUNNING)
 
     # New Believers: faith.
@@ -456,7 +473,7 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
         if heathens:
             top = sorted(heathens, key=lambda q: -(q.faith or -1000))[:5]
             add(f"Heathens outside the tribe: {len(heathens)}, never counted on this page. Highest belief (preaching "
-                "adds 3 to 5, then that Heathen waits 2 hours): "
+                "adds 3 to 5 belief): "
                 + ", ".join(f"{p.name} ({p.faith})" for p in top) + ".", gm.SAVE)
     out.extend(ctx.villager_extra)
     return out
@@ -540,7 +557,7 @@ def village_lines(ctx: Context) -> tuple[list[gm.Fact], tuple[float | None, str]
     if queue is not None:
         ctx.village.notes.append(f"Read: {queue[1]}.")
     if ctx.paused and ctx.event_paused_left is not None:
-        event = (None, f"after {gm.duration(ctx.event_paused_left)} of play once unpaused")
+        event = (None, f"after {gm.duration(ctx.event_paused_left)} of real-life play once unpaused")
     elif ctx.event_next is not None:
         event = (ctx.event_next, gm.when(ctx.event_next) + (" (when the village is next played)"
                                                              if ctx.event_next <= ctx.village.now else ""))
@@ -592,11 +609,21 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
     level = ctx.difficulty
     level_words = DIFFICULTY.get(level, "not read") if level is not None else "not read"
 
+    # 0. Time and units (the owner, 2026-10-24: every time says whether it is real-life or in-game time).
+    add("Time and units: every time and date on this page is real-life time (the clock on the wall), counted while "
+        "the game is open and running; while it is paused the villagers' time stands still, and while it is closed "
+        "only as much as time away counts (below).", gm.CLAMP)
+    sub(f"The villagers' own (in-game) clock counts age units: an age unit is 3, 6 or 10 real-life minutes on "
+        f"Fast, Normal or Slow speed ({gm.duration(ctx.unit)} now, on {on}), and a villager year is 20 age units "
+        f"({gm.duration(YEAR * ctx.unit)} of real-life play now), so Fast runs the villagers' time twice as fast as "
+        "Normal and Slow at 0.6 times. Villagers work from 14 villager years (280 age units) and can have children "
+        "from 18 (360).", gm.OWNER)
+
     # 1. The game's speed, difficulty and time away -- every figure below uses them.
     away = max(0.0, ctx.village.now - ctx.last)
     counted = 0.0 if ctx.paused else (gm.counted_away(ctx.game, away, ctx.speed) or 0.0)
     add(f"Speed {on}" + (" (saved paused)" if ctx.paused else "") + f"; difficulty {level_words}; last saved "
-        f"{gm.when(ctx.last)}, {gm.duration(away)} ago, of which {gm.duration(counted)} would count if it were "
+        f"{gm.when(ctx.last)}, {gm.duration(away)} of real-life time ago, of which {gm.duration(counted)} would count if it were "
         "played now. Every figure below is at this speed and difficulty.", gm.SAVE)
 
     # 2. Food and its sources.
@@ -608,7 +635,16 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
             text += f"; next refill {gm.when(s.next_refill)}"
         elif s.refill_words:
             text += f"; {s.refill_words}"
-        sub(text + ".", s.verified, due=s.next_refill, kind="refill" if s.next_refill else None)
+        moment, fill = fill_time(ctx, s)
+        # A time worked out from the refill rule is no plain save value: it carries the label.
+        ok = s.verified if moment is None and not fill.startswith("full after") else (
+            s.rule if s.verified in gm.TRUSTED else False)
+        due = s.next_refill if s.next_refill is not None and s.next_refill > ctx.village.now else (
+            moment if moment is not None and moment > ctx.village.now else None)
+        if moment is not None and due != moment and moment > ctx.village.now:
+            fill = fill.replace(" (", f", in {gm.duration(moment - ctx.village.now)} (", 1)   # its own countdown
+        text += f"; {fill}"
+        sub(text + ".", ok, due=due, kind="refill" if due else None)
 
     # 3. Tech points and collectibles.
     if ctx.tech is not None:
@@ -618,10 +654,12 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
 
     # 4. Mushrooms.
     avg = (1 - ctx.red_share) * ctx.brown + ctx.red_share * ctx.red
-    golden = " and 1 in 1,000,000 a Golden Mushroom worth 100" if ctx.golden else ""
-    add(f"Mushrooms: brown worth {ctx.brown * ctx.mastery:g} food, red (rare) {ctx.red * ctx.mastery:g}, "
-        f"{ctx.red_share:.0%} of them red{golden}." + (f" {ctx.mushroom_words}" if ctx.mushroom_words else ""),
-        gm.RUNNING)
+    # A patch is named only where it changes a figure shown, the normal game's value first (the owner, 2026-10-24).
+    golden = (f" With the patcher's \"{gm.feature_name(GOLDEN_IDS[ctx.game])}\" (in this game): also 1 in 1,000,000 of "
+              f"them a Golden Mushroom worth {100 * ctx.mastery:g}." if ctx.golden else "")
+    add(f"Mushrooms: {'Normal game: ' if ctx.golden else ''}brown worth {ctx.brown * ctx.mastery:g} food, red (rare) "
+        f"{ctx.red * ctx.mastery:g}, {ctx.red_share:.0%} of them red.{golden}"
+        + (f" {ctx.mushroom_words}" if ctx.mushroom_words else ""), gm.RUNNING)
 
     # 5. The next natural island event and the soonest birth.
     add(f"Next natural island event: {event[1]}.", gm.SAVE, due=event[0], kind="next" if event[0] else None)
@@ -672,52 +710,64 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
         + ("; the Golden Child never eats" if any(p.golden for p in members) else "")
         + ("; Heathens outside the tribe never eat" if ctx.game == 5 else "") + ".", True, gm.SAVE)
     add(f"Eating: {ctx.food_words} That is {per_unit:g} food a villager each age unit now, "
-        f"{per_unit * units_hour:g} an hour on {on} speed.", True, gm.RUNNING)
-    add(f"Food eaten: about {per_hour:,.0f} an hour.", True)
+        f"{per_unit * units_hour:g} per real-life hour on {on} speed.", True, gm.RUNNING)
+    # The refills (the owner, 2026-10-24: "count the amount of food refilled from the food sources that refill"):
+    # every source's refill an age unit, at the save's speed, Nature level, difficulty and patches as its game's
+    # module worked it out (Source.per_unit), times Food Mastery.  A source that is full now adds nothing until it is
+    # picked; the others are taken to be picked as their food lands, so it counts once picked.
+    refill_unit, refill_hour, on_sources = refills(ctx)
+    net_hour = refill_hour - per_hour
+    add(f"Food eaten: about {per_hour:,.0f} per real-life hour; refilled on the sources about {refill_hour:,.0f} per "
+        f"real-life hour; net change about {net_hour:+,.0f} per real-life hour.", True)
+    add("The refills land on the sources, not in storage: they count here once gatherers pick them, as these figures "
+        "take it; a full source adds nothing until it is picked.", True)
     stay = ctx.low_food + 1
     for hours in (8, 24):
-        add(f"Food needed for 100% health over {hours} hours of play: about {per_hour * hours + stay:,.0f} "
-            f"(eating, plus staying above {ctx.low_food:,}).", True)
+        gross = per_hour * hours + stay
+        net_need = max(0.0, gross - refill_hour * hours - on_sources)
+        add(f"Food needed for 100% health over {hours} real-life hours of play: about {gross:,.0f} (eating, plus staying above "
+            f"{ctx.low_food:,}); net of the {refill_hour * hours:,.0f} the sources refill in that time and the "
+            f"{on_sources:,} already on them, about {net_need:,.0f} from storage, which holds {ctx.food:,} ("
+            + ("enough" if ctx.food >= net_need else f"short by {net_need - ctx.food:,.0f}") + ").", True)
     add(f"100% health needs: more than {ctx.low_food:,} food at every age unit (at or below it meals are skipped and "
         "health is lost), no sickness, and time: a healthy villager regains 1 health on about half the age units.",
         True, gm.RUNNING)
 
-    refill_unit = sum(s.per_unit for s in ctx.sources) * ctx.mastery
-    refill_hour = refill_unit * units_hour
-    on_sources = int(sum(max(0, s.amount or 0) for s in ctx.sources if not s.unlimited) * ctx.mastery)
-    add(f"Refills: about {refill_hour:,.0f} food an hour back on the sources"
+    add(f"Refills: about {refill_hour:,.0f} food per real-life hour back on the sources"
         + (f" (Food Mastery x{ctx.mastery:g})" if ctx.mastery != 1 else "") + "; "
-        + ("; ".join(f"{s.name} {s.per_unit * units_hour * ctx.mastery:,.0f}" for s in ctx.sources if s.per_unit)
-           or "none refill") + ".", True)
+        + ("; ".join(f"{s.name} {_source_hour(ctx, s):,.0f}" + (" (full now)" if _full(s) else "")
+                     for s in ctx.sources if s.per_unit) or "none refill") + ".", True)
     if per_hour > 0:
         hours_store = ctx.food / per_hour
-        add(f"Storage alone lasts about {gm.duration(hours_store * 3600)} of play"
+        add(f"Storage alone, with nothing picked, lasts about {gm.duration(hours_store * 3600)} of real-life play"
             + (f", to about {gm.when(ctx.village.now + hours_store * 3600)} if played from now" if not ctx.paused else "")
             + ".", True)
-        net = per_hour - refill_hour
         total = ctx.food + on_sources
-        if net > 0:
-            add(f"With the food still on the sources ({on_sources:,}) and their refills: about "
-                f"{gm.duration(total / net * 3600)} of play.", True)
+        if net_hour < 0:
+            lasts = total / -net_hour * 3600
+            add(f"Storage, the food on the sources ({on_sources:,}) and their refills, all picked: about "
+                f"{gm.duration(lasts)} of real-life play"
+                + (f", to about {gm.when(ctx.village.now + lasts)} if played from now" if not ctx.paused else "")
+                + ".", True)
         else:
-            add(f"With the food still on the sources ({on_sources:,}): the refills keep up with the eating, so it "
-                "lasts while gatherers bring it in.", True)
+            add(f"Storage, the food on the sources ({on_sources:,}) and their refills, all picked: the refills keep up "
+                "with the eating, so it lasts while gatherers bring it in.", True)
     per_villager_unit = per_unit
     if per_villager_unit:
         add(f"Sustainable population on the refills alone: about {refill_unit / per_villager_unit:,.1f} villagers "
-            f"(refills {refill_unit:,.2f} food an age unit, each villager eats {per_villager_unit:g})"
+            f"(refills {refill_unit:,.2f} food per age unit, each villager eats {per_villager_unit:g})"
             + ("; fishing adds without limit, as far as the gatherers bring it" if any(s.unlimited for s in ctx.sources)
                else "") + ".", True)
     gap = per_hour - refill_hour
     if gap > 0:
         brown, red = ctx.brown * ctx.mastery, ctx.red * ctx.mastery
-        line = (f"To fill the gap of about {gap:,.0f} food an hour: {gap / brown:,.0f} brown or {gap / red:,.0f} red "
-                f"mushrooms an hour ({gap * 24 / brown:,.0f} or {gap * 24 / red:,.0f} a day)")
+        line = (f"To fill the gap of about {gap:,.0f} food per real-life hour: {gap / brown:,.0f} brown or {gap / red:,.0f} "
+                f"red mushrooms per real-life hour ({gap * 24 / brown:,.0f} or {gap * 24 / red:,.0f} per real-life day)")
         if ctx.golden:
             line += f", or {gap / (100 * ctx.mastery):,.1f} Golden Mushrooms"
         if ctx.mushrooms_an_hour is not None:
             supply = ctx.mushrooms_an_hour * ((1 - ctx.red_share) * brown + ctx.red_share * red)
-            line += (f"; random mushrooms bring at most about {supply:,.0f} an hour while playing, which "
+            line += (f"; random mushrooms bring at most about {supply:,.0f} per real-life hour while playing, which "
                      + ("covers it." if supply >= gap else "does not cover it."))
         else:
             line += "."
@@ -727,7 +777,7 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
     trips = [(name, food * ctx.mastery) for name, food in ctx.trips if food > 0]
     if trips and per_hour > 0:
         add("Gatherers: to bring in what is eaten takes about " + ", or ".join(
-            f"{per_hour / food:,.0f} {name} an hour ({food:g} each)" for name, food in trips)
+            f"{per_hour / food:,.0f} {name} per real-life hour ({food:g} each)" for name, food in trips)
             + "; a trip's length depends on walking, so the number of gatherers this needs is not worked out.", True)
     if ctx.gatherer_words:
         add(ctx.gatherer_words, True)
@@ -740,10 +790,99 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
         for hours in (8, 24):
             counted = gm.counted_away(ctx.game, hours * 3600, ctx.speed) or 0.0
             eaten = eaters * per_unit * counted / ctx.unit
-            add(f"Closed for {hours} hours: {gm.duration(counted)} counts, so about {eaten:,.0f} food is eaten while "
-                f"catching up (gatherers bring some back meanwhile); refills missed while closed are all added.",
-                True)
+            credited = closed_refills(ctx, hours * 3600)
+            add(f"Closed for {hours} real-life hours: {gm.duration(counted)} counts as time away, so about {eaten:,.0f} food is eaten while "
+                f"catching up; every refill missed while closed is added, about {credited:,.0f} on the sources (each "
+                f"stops at its limit); net change about {credited - eaten:+,.0f} once that is picked.", True)
     return out
+
+
+def fill_time(ctx: Context, s: Source) -> tuple[float | None, str]:
+    """When `s` is full if nobody picks from it, by the game's own refill steps: the number of refills still needed
+    (its room divided by one refill, rounded up) taken from the next due refill, one interval apart.  (moment or
+    None, words)."""
+    if s.unlimited:
+        return None, "no store that fills up, so no time to full"
+    if not s.step or not s.interval:
+        return None, "does not refill"
+    if s.cap is None:
+        return None, "has no limit, so it never fills up"
+    if s.amount is not None and s.amount >= s.cap:
+        return None, "full now"
+    room = s.cap - max(0, s.amount or 0)
+    first = s.step if s.first_step is None else max(0.0, s.first_step)
+    steps = 1 + (math.ceil((room - first) / s.step) if room > first else 0)
+    rest = (steps - 1) * s.interval
+    words = _refills(steps)
+    if ctx.paused:
+        first = s.first_in if s.first_in is not None else s.interval
+        return None, f"full after {gm.duration(first + rest)} of real-life play once unpaused ({words}), with nobody picking"
+    if s.next_at is None:
+        return None, f"full after about {gm.duration(s.interval + rest)} of real-life play ({words}), with nobody picking"
+    moment = s.next_at + rest
+    if moment <= ctx.village.now:
+        return moment, f"full by {gm.when(moment)} ({words}), when the village is next played, with nobody picking"
+    return moment, f"full on {gm.when(moment)} ({words}), with nobody picking"
+
+
+def _refills(n: int) -> str:
+    return f"{n:,} refill{'s' if n != 1 else ''}"
+
+
+def empty_to_full(s: Source) -> float | None:
+    """Real seconds from empty to full at the save's speed: every refill step one interval apart."""
+    if s.unlimited or not s.step or not s.interval or s.cap is None:
+        return None
+    return math.ceil(s.cap / s.step) * s.interval
+
+
+def fill_lines(ctx: Context) -> list[gm.Fact]:
+    """The Refills group's time to fill each source, and the general time from empty to full."""
+    out = []
+    for s in ctx.sources:
+        moment, words = fill_time(ctx, s)
+        live = moment is not None and moment > ctx.village.now
+        # The save's amounts and timers with the game's own refill steps: as sure as the refill rule itself (the
+        # owner, 2026-10-24: no label on what live code or the save proves).
+        ok = gm.SAVE if words == "full now" else (s.verified if s.unlimited else s.rule)
+        out.append(gm.Fact("Refills", f"{s.name}, time to full: {words}.", ok,
+                           due=moment if live else None, due_kind="refill" if live else None))
+        whole = empty_to_full(s)
+        if whole is not None:
+            out.append(gm.Fact("Refills", f"From empty to full: {gm.duration(whole)} of real-life time on {gm.speed_name(ctx.speed)} "
+                                          f"speed ({_refills(math.ceil(s.cap / s.step))}).", s.rule, True))
+    return out
+
+
+def _full(s: Source) -> bool:
+    return s.cap is not None and s.amount is not None and s.amount >= s.cap
+
+
+def _source_hour(ctx: Context, s: Source) -> float:
+    """A source's refill an hour of play, in food (Food Mastery applied); nothing while it is full."""
+    return 0.0 if _full(s) else s.per_unit * 3600.0 / ctx.unit * ctx.mastery
+
+
+def refills(ctx: Context) -> tuple[float, float, int]:
+    """(food refilled an age unit, an hour, the food on the sources now), Food Mastery applied; a full source adds
+    nothing."""
+    unit = sum(s.per_unit for s in ctx.sources if not _full(s)) * ctx.mastery
+    on = int(sum(max(0, s.amount or 0) for s in ctx.sources if not s.unlimited) * ctx.mastery)
+    return unit, unit * 3600.0 / ctx.unit, on
+
+
+def closed_refills(ctx: Context, seconds: float) -> float:
+    """The food the sources gain over `seconds` closed: every refill missed is added when the village is next
+    played, at the save's speed, each source stopping at its limit (nobody picks while it is closed)."""
+    total = 0.0
+    for s in ctx.sources:
+        if not s.per_unit or s.unlimited:
+            continue
+        gain = s.per_unit * seconds / ctx.unit
+        if s.cap is not None and s.amount is not None:
+            gain = min(gain, max(0, s.cap - s.amount))
+        total += gain
+    return total * ctx.mastery
 
 
 # ---------------------------------------------------------------------------
@@ -784,23 +923,24 @@ def population_mode(village: gm.Village) -> str | None:
 def limit_words(village: gm.Village, bonus: int | None, bonus_words: str, stock_extra: str = "") -> tuple[str, bool | str]:
     """The population limit's words: the mode the exe has, the 256 Villagers patch, and the collection bonus when
     the save tells it (`bonus`, points), else the rule (`bonus_words`)."""
+    # The normal game's limit first, then what a patch in this game makes of it (the owner, 2026-10-24).
     game = village.game
     mode = population_mode(village)
+    stock = (f"{STOCK_BASE[game]} plus {bonus} for collections, so {STOCK_BASE[game] + bonus}" if bonus is not None
+             else f"{STOCK_BASE[game]} plus {bonus_words}")
+    normal = f"the limit in the normal game is {stock}{stock_extra}"
     big = POP_256.get(game)
     if big and village.has(big):
-        return "the limit is up to 256 with the patcher's \"256 Villagers (Experimental)\"", False
+        return (f"{normal}. With the patcher's \"{gm.feature_name(big)}\" (in this game): up to 256", False)
     if mode == "immediate_fixed":
         cap = 256 if game <= 2 else 150
-        return f"the limit is {cap} (the patcher's Immediate Fixed Max Pop, read from the exe)", gm.SAVE
-    base = PROGRESSION_BASE[game] if mode == "collection_progression" else STOCK_BASE[game]
-    mode_words = ("the patcher's Collection Progression Max Pop, read from the exe" if mode == "collection_progression"
-                  else "the stock limit, read from the exe" if mode == "stock"
-                  else "the stock rule; which population mode the exe has is not known")
-    top = 256 if game <= 2 else 150
-    if bonus is not None:
-        cap = min(top, base + bonus) if mode == "collection_progression" else base + bonus
-        return f"the limit is {cap}: {base} plus {bonus} for collections ({mode_words}){stock_extra}", False
-    return f"the limit is {base} plus {bonus_words} ({mode_words}){stock_extra}", False
+        return f"{normal}. With the patcher's Immediate Fixed Max Pop (in this game's exe): {cap}", gm.SAVE
+    if mode == "collection_progression":
+        base, top = PROGRESSION_BASE[game], 256 if game <= 2 else 150
+        cap = (f"{min(top, base + bonus)}" if bonus is not None else f"{base} plus {bonus_words}, up to {top}")
+        return f"{normal}. With the patcher's Collection Progression Max Pop (in this game's exe): {cap}", False
+    known = "" if mode == "stock" else " (which population mode the exe has is not known)"
+    return f"{normal}{known}", False
 
 
 # The later games' collectibles: the item manager's 51 dwords the save writer copies first (VV3 0x42D460, VV4
@@ -886,5 +1026,5 @@ def sections(ctx: Context) -> list[gm.Fact]:
         out.append(gm.Fact(NURSING, "The villager table could not be read.", gm.SAVE))
     village, event = village_lines(ctx)
     out += village
-    out = vitals_lines(ctx, everyone, soonest, event) + out
+    out = vitals_lines(ctx, everyone, soonest, event) + out + fill_lines(ctx)
     return out
