@@ -5,19 +5,20 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Numeric Keys: Zip Around the Island",
-  "description": "The number keys move the view to nine measured feature targets in the VV1 1680-unit map, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), using the measured truncating tenth-of-remaining glide on the native village-update cadence. Top-row digits and keypad digits both work; holding a key does not repeat; a glide keeps going even if the view is scrolled or a villager is dragged mid-glide -- press another number key to change course. Adds the loading-screen tip \"You can zip around the island with your numeric keys.\" **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL.",
+  "description": "The number keys glide the view to nine spots on the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), exactly the way they do in The Lost Children: the same nine spots, the same glide (a tenth of the remaining distance each update), and the same controls -- another number key changes course, dragging the map pulls against the glide while the mouse button is held and releasing the button (or any click) ends it, and opening another screen ends it. The keys work on the village screen: the top-row digits, and the numeric keypad when Num Lock is on. Adds the loading-screen tip \"You can zip around the island with your numeric keys.\" **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL.",
   "output_tag": "Numeric Keys",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"
   ],
   "behavior_changes": [
-    "Pressing 1-9 (top row or numeric keypad) glides the view to the explicitly ported targets 1=(-150,1200), 2=(300,1200), 3=(850,1200), 4=(-150,500), 5=(300,570), 6=(850,500), 7=(-150,0), 8=(300,0), 9=(850,0). These are feature targets, not native VV1 keyboard targets; they remain inside the exact VV1 native clamp bounds x=-205..885, y=-5..1205.",
-    "The glide advances once per exact native village update with signed truncation toward zero, clears active edge velocities, and stops when both post-step remaining deltas divided by ten are zero; there is no minimum-one step and no final snap.",
+    "Typing 1-9 on the village screen (the game's own text-character handler 0x41FDF0, detoured at 0x41FE04 as The Lost Children's 0x429E70 does it) sets the glide target to The Lost Children's nine spots 1=(-150,1200), 2=(300,1200), 3=(850,1200), 4=(-150,500), 5=(300,570), 6=(850,500), 7=(-150,0), 8=(300,0), 9=(850,0); another digit retargets from where the view is.",
+    "The glide is The Lost Children's 0x42F814, run from the Origins village-update hook (0x423F89): while a target is set it zeroes the edge velocities, moves each axis a tenth of the remaining distance (truncated, no minimum step, no snap), clamps with A New Home's own clamp (an axis that hits it has its target zeroed, as in The Lost Children), and ends once both remaining distances divided by ten are zero.",
+    "The map drag is untouched and moves the view against the glide while the button is held; the mouse-up branch (0x424F12), the screen buttons that leave the village view (0x4208CC, 0x420932, 0x420998) and the screen constructor (0x422555) now also clear the glide, where The Lost Children clears it. These six sites are detoured at run time by the companion after their stock bytes are checked; if any differs, nothing is installed.",
     "One more loading-screen tip can appear: \"You can zip around the island with your numeric keys.\""
   ],
   "explicit_non_changes": [
-    "The companion writes only the camera pair and active native screen edge velocity pair (+0x2D8/+0x2DC); the existing native held-record carry routine refreshes a carried villager after the camera step. No save-format change is made, and idle updates leave edge scrolling native.",
-    "Ctrl+digit and Alt+digit are ignored; key auto-repeat is ignored; a digit typed before any village exists does nothing.",
+    "The companion writes only the camera pair and the screen's edge velocity pair (+0x2D8/+0x2DC); the native held-record carry routine refreshes a carried villager after each glide step. No save-format change is made, and with no glide the edge scrolling and map drag are stock.",
+    "Characters other than 1-9 reach the stock handler unchanged; a digit typed on another screen goes to that screen, as in The Lost Children.",
     "The \"points.\" string is unchanged in wording; only its internal id moves (0x225 -> 0x27E).",
     "No executable space is claimed: every changed byte replaces bytes of the unreferenced demo-version string record or a single immediate."
   ],
@@ -25,7 +26,7 @@
     {
       "source": "assets/number_keys/VVFP VV1 Number Keys.dll",
       "destination": "VVFP VV1 Number Keys.dll",
-      "sha256": "7B6928E03F69B8D221F2AA2CE080825B67E1EF9E6DE5DCA1C338205EBDEBAA34"
+      "sha256": "AA7194622DA31E7092EF40A0E303EB0274B7FC6454439B6EA6DA77E5F98423DC"
     }
   ],
   "patches": [

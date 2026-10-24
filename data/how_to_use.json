@@ -385,9 +385,9 @@
     {
       "ids": ["vv1_number_keys"],
       "guide": [
-        "Press a number key (1 to 9, on the top row or the keypad) to glide the view to a part of the island.",
+        "Press a number key (1 to 9, on the top row or the keypad with Num Lock on) to glide the view to a part of the island, as in The Lost Children.",
         "They are laid out like a keypad: 7 8 9 at the top, 4 5 6 in the middle, 1 2 3 at the bottom.",
-        "Press another number to change course.",
+        "Press another number to change course; drag the map and let go of the button to stop the glide.",
         "Also adds the Origins Upgrades buttons to the Tech and Villager Details screens."
       ]
     },

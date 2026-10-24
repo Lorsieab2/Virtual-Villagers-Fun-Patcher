@@ -835,15 +835,17 @@ the island, laid out like a numeric keypad:
     4 5 6    middle
     1 2 3    bottom row
 
-A New Home now does the same, and glides there the way The Lost Children does
-rather than jumping. Both the top-row digits and the numeric keypad work.
-Holding a key does not repeat; scrolling by hand while it is gliding cancels
-the glide; Ctrl+digit and Alt+digit are left alone; nothing happens until a
-village is on screen. It also adds the loading-screen tip "You can zip around
+A New Home now does the same, exactly the way The Lost Children does: the same
+nine spots and the same glide. Press another number key to change course. To
+stop a glide, drag the map against it: while the mouse button is held the
+glide keeps pulling, and letting go of the button (or any click on the
+village) ends it where the view is. Opening another screen ends it too. The
+keys work on the village screen: the top-row digits, and the numeric keypad
+when Num Lock is on. It also adds the loading-screen tip "You can zip around
 the island with your numeric keys."
 
-The feature is its own companion, VVFP VV1 Number Keys.dll, which the Origins
-companion loads once per game session. So the row runs on the
+The feature is its own companion, VVFP VV1 Number Keys.dll, which the game
+loads at startup. So the row runs on the
 Origins-exclusive base, which the patcher installs automatically with it:
 there is no separate box to tick, and selecting this row also adds the
 Origins Upgrades buttons to the Tech and Villager Details screens. No
