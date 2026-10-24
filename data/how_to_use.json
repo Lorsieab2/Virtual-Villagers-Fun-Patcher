@@ -549,7 +549,7 @@
         "The level is saved with the village; a village starts on Normal.",
         "Easy: more starting food, less food eaten, faster healing and less illness. Hard: less starting food, more food eaten and harder starvation.",
         "The starting food only changes for a village made after you pick the level; the other rules follow it at once.",
-        "Not yet tested in play."
+        "Checked in play, windowed; not yet tried in fullscreen."
       ]
     },
     {
