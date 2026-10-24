@@ -205,7 +205,7 @@ class Wording(Pages):
                 data[vv2.DAM + s] = dam
                 struct.pack_into("<i", data, vv2.ALLOWANCE + s, allowance)
                 facts = self.page(2, data)
-                parent = next(i for i, f in enumerate(facts) if f.text.startswith("The birds: "))
+                parent = next(i for i, f in enumerate(facts) if f.group == "Food sources" and f.text.startswith("The birds: "))
                 self.assertTrue(facts[parent].text.startswith(expect), facts[parent].text)
                 self.assertFalse(facts[parent].confirmed)         # a static reading: UNCONFIRMED
                 subs = [f.text for f in facts[parent + 1:parent + 5]]
