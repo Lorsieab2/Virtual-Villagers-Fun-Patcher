@@ -66,6 +66,7 @@
 #include <string.h>
 #include <intrin.h>
 #include "../shared/patcher_files.h"  /* the patcher's folder; full-path, wide loads */
+#include "../shared/install_sites.h"  /* every site written, or none */
 
 /* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
    tests/test_dlls/): the shipped DLL carries no counters and no probe. */
@@ -1854,7 +1855,6 @@ static const struct gate GATES[6] = {
     { 0x44754Au, VV1_GATE_STOCK, VV1_GATE_LIFTED, sizeof VV1_GATE_STOCK },
     { 0 }, { 0 }, { 0 }, { 0 },
 };
-static int gate_install_state[6];
 
 /* ---- Installing ---------------------------------------------------------- */
 struct site {
@@ -1878,30 +1878,6 @@ static int code_matches(unsigned int va, const unsigned char *bytes, int length)
 
 static int site_is_stock(const struct site *s) {
     return code_matches(s->va, s->stock, s->length);
-}
-
-/* The lifted hut gate: already there (Builder Action Fixes), or written over
-   the exact stock bytes.  1 when it is in place. */
-static int install_gate(const struct gate *g) {
-    unsigned char *at;
-    DWORD old;
-    if (g->va == 0) {
-        return 0;
-    }
-    if (code_matches(g->va, g->lifted, g->length)) {
-        return 1;
-    }
-    if (!code_matches(g->va, g->stock, g->length)) {
-        return 0;
-    }
-    at = (unsigned char *)(uintptr_t)g->va;
-    if (!VirtualProtect(at, (SIZE_T)g->length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, g->lifted, (size_t)g->length);
-    VirtualProtect(at, (SIZE_T)g->length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)g->length);
-    return 1;
 }
 
 static void site_bytes(const struct site *s, unsigned char *out) {
@@ -1934,7 +1910,6 @@ static const struct site FOOD_SITES[6] = {
     { VV4_FOOD_SITE, VV4_FOOD_STOCK, sizeof VV4_FOOD_STOCK, vv4_food_stub },
     { VV5_FOOD_SITE, VV5_FOOD_STOCK, sizeof VV5_FOOD_STOCK, vv5_food_stub },
 };
-static int food_install_state[6];
 
 /* The Building-level gates (A New Home, The Lost Children only). */
 static const struct site LEVEL_SITES[6] = {
@@ -1943,7 +1918,6 @@ static const struct site LEVEL_SITES[6] = {
     { VV2_LEVEL_SITE, VV2_LEVEL_STOCK, sizeof VV2_LEVEL_STOCK, vv2_level_stub },
     { 0 }, { 0 }, { 0 },
 };
-static int level_install_state[6];
 
 /* The scheduler entries (The Secret City's is executable-side). */
 static const unsigned char VV1_SCHED_STOCK[8] = { 0x53, 0x55, 0x56, 0x57, 0x8B, 0x7C, 0x24, 0x14 };
@@ -1958,7 +1932,6 @@ static const struct site SCHED_SITES[6] = {
     { 0x465840u, VV4_SCHED_STOCK, sizeof VV4_SCHED_STOCK, vv4_sched_stub },
     { 0x46F070u, VV5_SCHED_STOCK, sizeof VV5_SCHED_STOCK, vv5_sched_stub },
 };
-static int sched_install_state[6];
 
 /* The catch-up workers' entries (The Secret City's is executable-side). */
 static const unsigned char VV1_CU_STOCK[6] = { 0x56, 0x8B, 0x74, 0x24, 0x08, 0x57 };
@@ -1973,7 +1946,6 @@ static const struct site CU_SITES[6] = {
     { 0x465750u, VV4_CU_STOCK, sizeof VV4_CU_STOCK, vv4_cu_stub },
     { 0x46E8E0u, VV5_CU_STOCK, sizeof VV5_CU_STOCK, vv5_cu_stub },
 };
-static int cu_install_state[6];
 
 /* A New Home's 400-food gate as Builder Action Fixes leaves it. */
 static const struct site VV1_BAF_SITE = { VV1_FOOD_SITE, VV1_BAF_JUMP, sizeof VV1_BAF_JUMP, vv1_baf_stub };
@@ -1989,64 +1961,76 @@ static int baf_cave_is_ours(void) {
 }
 
 
-/* Verify the stock bytes, then write the jmp.  1 on success. */
-static int install_site(const struct site *s) {
-    unsigned char bytes[16];
-    unsigned char *at;
-    DWORD old;
-    if (s->va == 0 || !site_is_stock(s)) {
+/* Adds a stock site's jmp to the write list.  A site this game does not
+   have (va 0) adds nothing; any bytes but the stock ones refuse the whole
+   install. */
+static int add_site(vvfp_site_write *w, int *n, const struct site *s) {
+    if (s->va == 0) {
+        return 1;
+    }
+    if (!site_is_stock(s)) {
         return 0;
     }
-    at = (unsigned char *)(uintptr_t)s->va;
-    site_bytes(s, bytes);
-    if (!VirtualProtect(at, (SIZE_T)s->length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)s->length);
-    VirtualProtect(at, (SIZE_T)s->length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)s->length);
+    vvfp_site_branch(&w[(*n)++], s->va, s->length, s->stock, 0xE9, (const void *)s->stub);
     return 1;
 }
 
 /* Called by a companion that runs every frame in the game.  Idempotent.
-   The scheduler wrapper goes in first and everything else only after it:
-   without it a decision could not be told apart, so nothing else is
-   installed (the stock game runs).  After it, the hut site, the level gate,
-   the lifted hut gate and the food site are independent: any may be absent
-   (another patch owns its bytes) without holding back the others.  Returns
-   whether the hut site is installed, as before. */
+   Every site this game has -- the scheduler wrapper (without which a
+   decision cannot be told apart, so it is required), the hut site, the
+   level gate, the lifted hut gate, the food site and the catch-up worker's
+   entry -- is checked first, then all are written together, or none
+   (native/shared/install_sites.h).  The two forms another row leaves are
+   accepted: the hut gate already lifted (Builder Action Fixes writes the
+   same bytes), and A New Home's food gate as Builder Action Fixes leaves it
+   (taken over).  Any other bytes at any site: nothing is installed and the
+   stock game runs -- never part of the feature.  (Before, each was written
+   on its own once the scheduler was in, so a site another patch held, or a
+   refused VirtualProtect, left the feature in part.)  Returns whether it is
+   installed. */
 __declspec(dllexport) int __stdcall VvfpFixHutsInstall(int game_id) {
+    vvfp_site_write w[8];
+    int n = 0;
+    const struct gate *g;
     if (game_id < 1 || game_id > 5) {
         return 0;
     }
-    if (sched_install_state[game_id] == 0) {
-        sched_install_state[game_id] = install_site(&SCHED_SITES[game_id]) ? 1 : -1;
-    }
-    if (sched_install_state[game_id] != 1) {
-        return 0;
-    }
-    if (level_install_state[game_id] == 0) {
-        level_install_state[game_id] = install_site(&LEVEL_SITES[game_id]) ? 1 : -1;
-    }
-    if (gate_install_state[game_id] == 0) {
-        gate_install_state[game_id] = install_gate(&GATES[game_id]) ? 1 : -1;
-    }
-    if (food_install_state[game_id] == 0) {
-        food_install_state[game_id] = install_site(&FOOD_SITES[game_id]) ? 1 : -1;
-        if (food_install_state[game_id] != 1 && game_id == 1 && baf_cave_is_ours()
-            && install_site(&VV1_BAF_SITE)) {
-            food_install_state[game_id] = 2;       /* Builder Action Fixes' gate, taken over */
-        }
-    }
-    if (cu_install_state[game_id] == 0) {
-        cu_install_state[game_id] = install_site(&CU_SITES[game_id]) ? 1 : -1;
-    }
-    work_first_bridge(game_id);
     if (install_state[game_id] != 0) {
+        if (install_state[game_id] == 1) {
+            work_first_bridge(game_id);
+        }
         return install_state[game_id] == 1;
     }
-    install_state[game_id] = install_site(&SITES[game_id]) ? 1 : -1;
-    return install_state[game_id] == 1;
+    install_state[game_id] = -1;
+    if (SCHED_SITES[game_id].va == 0 || SITES[game_id].va == 0
+        || !add_site(w, &n, &SCHED_SITES[game_id])
+        || !add_site(w, &n, &LEVEL_SITES[game_id])
+        || !add_site(w, &n, &CU_SITES[game_id])
+        || !add_site(w, &n, &SITES[game_id])) {
+        return 0;
+    }
+    g = &GATES[game_id];
+    if (g->va != 0 && !code_matches(g->va, g->lifted, g->length)) {
+        if (!code_matches(g->va, g->stock, g->length)) {
+            return 0;
+        }
+        vvfp_site_bytes(&w[n++], g->va, g->length, g->stock, g->lifted);
+    }
+    if (FOOD_SITES[game_id].va != 0) {
+        if (site_is_stock(&FOOD_SITES[game_id])) {
+            (void)add_site(w, &n, &FOOD_SITES[game_id]);
+        } else if (game_id == 1 && baf_cave_is_ours() && site_is_stock(&VV1_BAF_SITE)) {
+            (void)add_site(w, &n, &VV1_BAF_SITE);     /* Builder Action Fixes' gate, taken over */
+        } else {
+            return 0;
+        }
+    }
+    if (!vvfp_install_sites(w, n)) {
+        return 0;
+    }
+    install_state[game_id] = 1;
+    work_first_bridge(game_id);
+    return 1;
 }
 
 #ifdef VVFP_TEST

@@ -98,6 +98,7 @@
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
 #include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
+#include "install_sites.h"       /* every site written, or none */
 
 /* ---- Counters the tests read (TEST build only) ---------------------------- */
 #ifdef VVFP_TEST
@@ -551,27 +552,6 @@ static unsigned char *cod_build_stubs(void) {
     return page;
 }
 
-/* A `jmp stub` and nops over the displaced bytes. */
-static int cod_write_jmp(unsigned int va, int length, const void *stub) {
-    unsigned char bytes[16];
-    unsigned char *at = (unsigned char *)(uintptr_t)va;
-    unsigned int rel = (unsigned int)((const unsigned char *)stub - (at + 5));
-    DWORD old;
-    int i;
-    bytes[0] = 0xE9;
-    memcpy(bytes + 1, &rel, 4);
-    for (i = 5; i < length; ++i) {
-        bytes[i] = 0x90;
-    }
-    if (!VirtualProtect(at, (SIZE_T)length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)length);
-    VirtualProtect(at, (SIZE_T)length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)length);
-    return 1;
-}
-
 /* Add a site to the table being assembled for this game. */
 static void cod_add(unsigned int va, const char *stock_hex, site_fn fn) {
     struct hook_site *s;
@@ -594,23 +574,33 @@ static void cod_add(unsigned int va, const char *stock_hex, site_fn fn) {
 
 /* All or nothing: every site must hold its stock bytes before any is
    written, so a build where another patch took one of them is left alone
-   entirely rather than half-recorded. */
+   entirely rather than half-recorded -- and every site is made writable
+   before any is written, so a VirtualProtect refused at the twentieth site
+   leaves the first nineteen stock too (native/shared/install_sites.h; it
+   used to leave them detoured and report the install refused). */
+static vvfp_site_write cod_writes[SITES_MAX];
+
 static int cod_install_sites(int first) {
+    unsigned char *page;
     int i;
     for (i = first; i < site_count; ++i) {
         if (sites[i].length < 5 || !cod_bytes_are(sites[i].va, sites[i].stock, sites[i].length)) {
             return 0;
         }
     }
-    stub_page = cod_build_stubs();
-    if (stub_page == NULL) {
+    page = cod_build_stubs();
+    if (page == NULL) {
         return 0;
     }
     for (i = first; i < site_count; ++i) {
-        if (!cod_write_jmp(sites[i].va, sites[i].length, stub_page + i * STUB_BYTES)) {
-            return 0;
-        }
+        vvfp_site_branch(&cod_writes[i - first], sites[i].va, sites[i].length, sites[i].stock, 0xE9,
+                         page + i * STUB_BYTES);
     }
+    if (site_count - first <= 0 || !vvfp_install_sites(cod_writes, site_count - first)) {
+        VirtualFree(page, 0, MEM_RELEASE);     /* no site points at it */
+        return 0;
+    }
+    stub_page = page;
     return 1;
 }
 

@@ -48,6 +48,7 @@
    installs nothing on any other build.  Missing DLL: the stock game. */
 #include <windows.h>
 #include <string.h>
+#include "../shared/install_sites.h"
 
 #ifdef VVFP_TEST
 struct storytelling_stats {
@@ -372,7 +373,7 @@ static int install(int game) {
     unsigned int site;
     void (*stub)(void);
     unsigned char bytes[SITE_LENGTH];
-    DWORD old;
+    vvfp_site_write w[1];
     if (install_state != 0) {
         return install_state == 1;
     }
@@ -395,12 +396,10 @@ static int install(int game) {
         }
     }
     site_bytes(site, stub, bytes);
-    if (!VirtualProtect((void *)(uintptr_t)site, SITE_LENGTH, PAGE_EXECUTE_READWRITE, &old)) {
+    vvfp_site_bytes(&w[0], site, SITE_LENGTH, stock, bytes);
+    if (!vvfp_install_sites(w, 1)) {   /* native/shared/install_sites.h */
         return 0;
     }
-    memcpy((void *)(uintptr_t)site, bytes, SITE_LENGTH);
-    VirtualProtect((void *)(uintptr_t)site, SITE_LENGTH, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), (void *)(uintptr_t)site, SITE_LENGTH);
     install_state = 1;
     return 1;
 }

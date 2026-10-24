@@ -67,10 +67,12 @@
 
    Nothing else is written: no save byte, no file, no villager.  Only The
    Tree of Life (game 4) and New Believers (game 5) install, and only when
-   every site is stock; otherwise nothing is written at all. */
+   every site is stock; otherwise nothing is written at all
+   (native/shared/install_sites.h: every site, or none). */
 #include <windows.h>
 #include <string.h>
 #include <stdint.h>
+#include "../shared/install_sites.h"
 
 #define VV4_GAME 4
 #define VV5_GAME 5
@@ -255,50 +257,27 @@ static __declspec(naked) void draw_stub(void) {
     }
 }
 
-static int write_code(unsigned int va, const unsigned char *bytes, int length) {
-    DWORD old;
-    void *at = (void *)(uintptr_t)va;
-    if (!VirtualProtect(at, (SIZE_T)length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)length);
-    VirtualProtect(at, (SIZE_T)length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)length);
-    return 1;
-}
+/* Every site and the draw hook, all or none (native/shared/install_sites.h):
+   each verified stock, all made writable, then all written; if any of it
+   fails nothing is written and the game keeps its stock dialog. */
+static vvfp_site_write writes[32];
 
-static int is_stock(unsigned int va, const unsigned char *stock, int length) {
-    return memcmp((const void *)(uintptr_t)va, stock, (size_t)length) == 0;
-}
-
-/* Every site stock, or nothing is written.  The draw hook goes last: until
-   it is in, the dialog only has a taller frame and Game Speed one row
-   lower. */
 static void install(const struct game *g) {
-    unsigned char jump[6];
-    unsigned int rel;
     int i;
-    if (active != NULL || !is_stock(g->hook, g->hook_stock, 6)) {
+    if (active != NULL || g->site_count + 1 > (int)(sizeof writes / sizeof writes[0])) {
         return;
     }
     for (i = 0; i < g->site_count; ++i) {
-        if (!is_stock(g->sites[i].va, g->sites[i].stock, g->sites[i].length)) {
-            return;
-        }
+        vvfp_site_bytes(&writes[i], g->sites[i].va, g->sites[i].length, g->sites[i].stock,
+                        g->sites[i].after);
     }
-    active = g;
+    vvfp_site_branch(&writes[g->site_count], g->hook, 6, g->hook_stock, 0xE9, (const void *)draw_stub);
     hook_return = g->hook_return;
     hook_colour = g->text_font;
-    for (i = 0; i < g->site_count; ++i) {
-        if (!write_code(g->sites[i].va, g->sites[i].after, g->sites[i].length)) {
-            return;
-        }
+    active = g;                          /* the stub reads these once the hook is in */
+    if (!vvfp_install_sites(writes, g->site_count + 1)) {
+        active = NULL;
     }
-    rel = (unsigned int)((uintptr_t)draw_stub - (g->hook + 5u));
-    jump[0] = 0xE9;
-    memcpy(jump + 1, &rel, 4);
-    jump[5] = 0x90;
-    write_code(g->hook, jump, 6);
 }
 
 /* Called once by VVFP Startup.dll at game start, outside DllMain. */

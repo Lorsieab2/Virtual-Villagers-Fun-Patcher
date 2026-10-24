@@ -24,7 +24,7 @@
     {
       "source": "assets/difficulty/VVFP Difficulty.dll",
       "destination": "VVFP Difficulty.dll",
-      "sha256": "889CCB04AE49224DBF7529A7F1194AA4B679F2C337A6D9D34D17488FD9D661B2"
+      "sha256": "F17F8473363E37F12A242D1A8273DE6568756141325534489EC3ABCB5DD890D7"
     }
   ],
   "patches": [],

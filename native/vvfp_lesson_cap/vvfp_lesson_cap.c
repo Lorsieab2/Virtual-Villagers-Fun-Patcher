@@ -43,6 +43,7 @@
 #include <windows.h>
 #include <string.h>
 #include <stdint.h>
+#include "../shared/install_sites.h"
 
 #define CAP 50
 #define SKILLS 5
@@ -185,8 +186,7 @@ static void site_bytes(const struct site *s, unsigned char *out) {
 __declspec(dllexport) int __stdcall VvfpLessonCapInstall(int game_id) {
     const struct site *s;
     unsigned char bytes[5];
-    unsigned char *at;
-    DWORD old;
+    vvfp_site_write w[1];
     if (game_id < 1 || game_id > 2) {
         return 0;
     }
@@ -198,14 +198,11 @@ __declspec(dllexport) int __stdcall VvfpLessonCapInstall(int game_id) {
     if (!site_is_the_cave_head(s)) {
         return 0;                      /* the lesson row is not applied */
     }
-    at = (unsigned char *)(uintptr_t)s->va;
     site_bytes(s, bytes);
-    if (!VirtualProtect(at, sizeof bytes, PAGE_EXECUTE_READWRITE, &old)) {
+    vvfp_site_bytes(&w[0], s->va, sizeof bytes, CAVE_HEAD, bytes);
+    if (!vvfp_install_sites(w, 1)) {   /* native/shared/install_sites.h */
         return 0;
     }
-    memcpy(at, bytes, sizeof bytes);
-    VirtualProtect(at, sizeof bytes, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, sizeof bytes);
     install_state[game_id] = 1;
     return 1;
 }

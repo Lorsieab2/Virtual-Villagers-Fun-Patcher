@@ -62,12 +62,12 @@
    Nothing jumps into the bytes the detours overwrite (checked in the stock
    executable).  Installed at run time by VvfpStartup(game, shipped), which
    the startup loader (VVFP Startup.dll) calls once at game start.  Only The
-   Secret City (game 3) installs, and only over the stock bytes: the cure
-   detour on its own, and 2-4 together or not at all, with the index byte
-   written last. */
+   Secret City (game 3) installs, and only over the stock bytes: all four
+   places together or not at all (native/shared/install_sites.h). */
 #include <windows.h>
 #include <string.h>
 #include <stdint.h>
+#include "../shared/install_sites.h"
 
 #define VV3_GAME 3
 
@@ -97,7 +97,6 @@ static const unsigned char GAIN_STOCK[9] = { 0x50, 0x6A, 0x02, 0x8D, 0x8E, 0xAC,
 typedef unsigned char *(__fastcall *get_chief_fn)(void *village, void *unused);
 
 static int installed;
-static int behaviour_installed;
 
 /* Entered by the jump at CURE_SITE with the Healing roll's result in al and
    the stack and registers exactly as the stock test sees them.  A passed
@@ -200,66 +199,29 @@ static __declspec(naked) void study_gain_stub(void) {
     }
 }
 
-/* Write `length` bytes at `va`, unprotecting only that range (the same
-   narrow write the Story companion makes). */
-static int write_code(unsigned int va, const unsigned char *bytes, int length) {
-    DWORD old;
-    void *at = (void *)(uintptr_t)va;
-    if (!VirtualProtect(at, (SIZE_T)length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)length);
-    VirtualProtect(at, (SIZE_T)length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)length);
-    return 1;
-}
-
-static int is_stock(unsigned int va, const unsigned char *stock, size_t length) {
-    return memcmp((const void *)(uintptr_t)va, stock, length) == 0;
-}
-
-/* A jump from `site` to `stub`, padded with nops to `length` bytes. */
-static int write_jump(unsigned int site, void (*stub)(void), int length) {
-    unsigned char bytes[16];
-    unsigned int rel = (unsigned int)((uintptr_t)stub - (site + 5u));
-    int i;
-    bytes[0] = 0xE9;
-    memcpy(bytes + 1, &rel, 4);
-    for (i = 5; i < length; i++) {
-        bytes[i] = 0x90;
-    }
-    return write_code(site, bytes, length);
-}
-
-static void install_cure(void) {
-    if (installed || !is_stock(CURE_SITE, CURE_STOCK, sizeof CURE_STOCK)) {
-        return;
-    }
-    if (write_jump(CURE_SITE, chief_cure_stub, sizeof CURE_STOCK)) {
-        installed = 1;
-    }
-}
-
-/* Directing work at the hospital and the study bonus: all three places
-   stock, or nothing.  The index byte goes last -- until it is written the
-   chief is never sent to the hospital, so the two detours alone change
-   nothing. */
-static void install_behaviour(void) {
+/* All four places stock, then all four written -- or none
+   (native/shared/install_sites.h).  The cure, directing work at the hospital
+   and the study bonus are one feature: before, the cure went in on its own
+   and the behaviour's three writes went one at a time, so a refused
+   VirtualProtect could leave the cure without the rest, or the two detours
+   without the index byte. */
+static void install(void) {
     static const unsigned char take_hospital = 0x0B;
-    if (behaviour_installed
-        || !is_stock(SITE_INDEX, INDEX_STOCK, sizeof INDEX_STOCK)
-        || !is_stock(DIRECT_SWITCH, SWITCH_STOCK, sizeof SWITCH_STOCK)
-        || !is_stock(STUDY_GAIN, GAIN_STOCK, sizeof GAIN_STOCK)) {
+    vvfp_site_write w[4];
+    if (installed
+        || !vvfp_site_holds(CURE_SITE, CURE_STOCK, sizeof CURE_STOCK)
+        || !vvfp_site_holds(SITE_INDEX, INDEX_STOCK, sizeof INDEX_STOCK)
+        || !vvfp_site_holds(DIRECT_SWITCH, SWITCH_STOCK, sizeof SWITCH_STOCK)
+        || !vvfp_site_holds(STUDY_GAIN, GAIN_STOCK, sizeof GAIN_STOCK)) {
         return;
     }
-    if (!write_jump(DIRECT_SWITCH, direct_switch_stub, sizeof SWITCH_STOCK)) {
-        return;
-    }
-    if (!write_jump(STUDY_GAIN, study_gain_stub, sizeof GAIN_STOCK)) {
-        return;
-    }
-    if (write_code(SITE_INDEX + 4u, &take_hospital, 1)) {
-        behaviour_installed = 1;
+    vvfp_site_branch(&w[0], CURE_SITE, sizeof CURE_STOCK, CURE_STOCK, 0xE9, (const void *)chief_cure_stub);
+    vvfp_site_branch(&w[1], DIRECT_SWITCH, sizeof SWITCH_STOCK, SWITCH_STOCK, 0xE9,
+                     (const void *)direct_switch_stub);
+    vvfp_site_branch(&w[2], STUDY_GAIN, sizeof GAIN_STOCK, GAIN_STOCK, 0xE9, (const void *)study_gain_stub);
+    vvfp_site_bytes(&w[3], SITE_INDEX + 4u, 1, INDEX_STOCK + 4, &take_hospital);
+    if (vvfp_install_sites(w, 4)) {
+        installed = 1;
     }
 }
 
@@ -269,8 +231,7 @@ __declspec(dllexport) void __stdcall VvfpStartup(int game, unsigned int shipped)
     if (game != VV3_GAME) {
         return;
     }
-    install_cure();
-    install_behaviour();
+    install();
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {

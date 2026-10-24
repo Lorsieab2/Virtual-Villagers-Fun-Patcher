@@ -71,6 +71,7 @@
 #include <shlobj.h>
 #include <string.h>
 #include "../shared/sidecar_io.h"
+#include "../shared/install_sites.h"    /* every site written, or none */
 
 #define VV3_GAME 3
 
@@ -842,32 +843,8 @@ static __declspec(naked) void text_stub(void) {
 
 /* ---- installing ---------------------------------------------------------- */
 
-static int write_code(unsigned int va, const unsigned char *bytes, int length) {
-    DWORD old;
-    void *at = (void *)(uintptr_t)va;
-    if (!VirtualProtect(at, (SIZE_T)length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)length);
-    VirtualProtect(at, (SIZE_T)length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)length);
-    return 1;
-}
-
 static int is_stock(unsigned int va, const unsigned char *stock, size_t length) {
-    return memcmp((const void *)(uintptr_t)va, stock, length) == 0;
-}
-
-static int write_jump(unsigned int site, void (*stub)(void), int length) {
-    unsigned char bytes[16];
-    unsigned int rel = (unsigned int)((uintptr_t)stub - (site + 5u));
-    int i;
-    bytes[0] = 0xE9;
-    memcpy(bytes + 1, &rel, 4);
-    for (i = 5; i < length; i++) {
-        bytes[i] = 0x90;
-    }
-    return write_code(site, bytes, length);
+    return vvfp_site_holds(va, stock, (int)length);
 }
 
 /* Every place stock, or nothing.  The save and load go first, the purchase
@@ -876,6 +853,7 @@ static void install(void) {
     static const unsigned char nop = 0x90;
     static const unsigned char buy_magic[2] = { 0x90, 0x90 };
     static const unsigned char buy_nature = 0xEB;
+    vvfp_site_write w[12];
     if (installed
         || !is_stock(SAVE_SITE, SAVE_STOCK, sizeof SAVE_STOCK)
         || !is_stock(LOAD_SITE, LOAD_STOCK, sizeof LOAD_STOCK)
@@ -891,19 +869,23 @@ static void install(void) {
         || !is_stock(SHARK_SITE, SHARK_STOCK, sizeof SHARK_STOCK)) {
         return;
     }
-    if (!write_jump(SAVE_SITE, save_stub, sizeof SAVE_STOCK)
-        || !write_jump(LOAD_SITE, load_stub, sizeof LOAD_STOCK)
-        || !write_jump(NOTE_SITE, note_stub, sizeof NOTE_STOCK)
-        || !write_jump(SUN_SITE, sun_stub, sizeof SUN_STOCK)
-        || !write_jump(PARTICLE_SITE, particle_stub, sizeof PARTICLE_STOCK)
-        || !write_jump(RECIPE_SITE, recipe_stub, sizeof RECIPE_STOCK)
-        || !write_jump(SHARK_SITE, shark_stub, sizeof SHARK_STOCK)
-        || !write_jump(TEXT_SITE, text_stub, sizeof TEXT_STOCK)
-        || !write_jump(CONFIRM_SITE, confirm_stub, sizeof CONFIRM_STOCK)
-        || !write_code(HERB_SITE, &nop, 1)) {
-        return;
-    }
-    if (write_code(BUY_MAGIC_SITE, buy_magic, 2) && write_code(BUY_NATURE_SITE, &buy_nature, 1)) {
+    /* All twelve written together, or none (native/shared/install_sites.h):
+       before, they went one at a time and a refused VirtualProtect returned
+       with the earlier ones already in place. */
+    vvfp_site_branch(&w[0], SAVE_SITE, sizeof SAVE_STOCK, SAVE_STOCK, 0xE9, (const void *)save_stub);
+    vvfp_site_branch(&w[1], LOAD_SITE, sizeof LOAD_STOCK, LOAD_STOCK, 0xE9, (const void *)load_stub);
+    vvfp_site_branch(&w[2], NOTE_SITE, sizeof NOTE_STOCK, NOTE_STOCK, 0xE9, (const void *)note_stub);
+    vvfp_site_branch(&w[3], SUN_SITE, sizeof SUN_STOCK, SUN_STOCK, 0xE9, (const void *)sun_stub);
+    vvfp_site_branch(&w[4], PARTICLE_SITE, sizeof PARTICLE_STOCK, PARTICLE_STOCK, 0xE9,
+                     (const void *)particle_stub);
+    vvfp_site_branch(&w[5], RECIPE_SITE, sizeof RECIPE_STOCK, RECIPE_STOCK, 0xE9, (const void *)recipe_stub);
+    vvfp_site_branch(&w[6], SHARK_SITE, sizeof SHARK_STOCK, SHARK_STOCK, 0xE9, (const void *)shark_stub);
+    vvfp_site_branch(&w[7], TEXT_SITE, sizeof TEXT_STOCK, TEXT_STOCK, 0xE9, (const void *)text_stub);
+    vvfp_site_branch(&w[8], CONFIRM_SITE, sizeof CONFIRM_STOCK, CONFIRM_STOCK, 0xE9, (const void *)confirm_stub);
+    vvfp_site_bytes(&w[9], HERB_SITE, 1, HERB_STOCK, &nop);
+    vvfp_site_bytes(&w[10], BUY_MAGIC_SITE, 2, BUY_MAGIC_STOCK, buy_magic);
+    vvfp_site_bytes(&w[11], BUY_NATURE_SITE, 1, BUY_NATURE_STOCK, &buy_nature);
+    if (vvfp_install_sites(w, 12)) {
         installed = 1;
     }
 }

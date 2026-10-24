@@ -53,6 +53,7 @@
 #include <windows.h>
 #include <string.h>
 #include "../shared/patcher_files.h"  /* the game's Images folder, by a wide path */
+#include "../shared/install_sites.h"  /* every site written, or none */
 
 /* ---- The golden sprite ----------------------------------------------------- */
 struct game_calls {
@@ -353,11 +354,13 @@ static void site_bytes(const struct site *s, unsigned char *out) {
 
 /* All of a game's sites, or none: each is verified as stock and made
    writable before any is written, so a VirtualProtect failure at a later site
-   leaves every site stock (the loader ignores the export's result). */
+   leaves every site stock (the loader ignores the export's result) --
+   through the shared writer every companion uses
+   (native/shared/install_sites.h). */
 static int install(int game_id) {
-    DWORD old[MAX_SITES];
+    vvfp_site_write w[MAX_SITES];
     unsigned char bytes[16];
-    int i, unlocked = 0;
+    int i, n = 0;
     if (install_state[game_id] != 0) {
         return install_state[game_id] == 1;
     }
@@ -370,28 +373,15 @@ static int install(int game_id) {
             return 0;
         }
     }
-    for (; unlocked < MAX_SITES && SITES[game_id][unlocked].va != 0; ++unlocked) {
-        const struct site *s = &SITES[game_id][unlocked];
-        if (!VirtualProtect((void *)(uintptr_t)s->va, (SIZE_T)s->length, PAGE_EXECUTE_READWRITE,
-                            &old[unlocked])) {
-            while (unlocked-- > 0) {
-                const struct site *r = &SITES[game_id][unlocked];
-                DWORD ignored;
-                VirtualProtect((void *)(uintptr_t)r->va, (SIZE_T)r->length, old[unlocked], &ignored);
-            }
-            return 0;
-        }
+    for (; n < MAX_SITES && SITES[game_id][n].va != 0; ++n) {
+        const struct site *s = &SITES[game_id][n];
+        site_bytes(s, bytes);
+        vvfp_site_bytes(&w[n], s->va, s->length, s->stock, bytes);
+    }
+    if (!vvfp_install_sites(w, n)) {
+        return 0;
     }
     active_game = game_id;
-    for (i = 0; i < unlocked; ++i) {
-        const struct site *s = &SITES[game_id][i];
-        unsigned char *at = (unsigned char *)(uintptr_t)s->va;
-        DWORD ignored;
-        site_bytes(s, bytes);
-        memcpy(at, bytes, (size_t)s->length);
-        VirtualProtect(at, (SIZE_T)s->length, old[i], &ignored);
-        FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)s->length);
-    }
     install_state[game_id] = 1;
     return 1;
 }
