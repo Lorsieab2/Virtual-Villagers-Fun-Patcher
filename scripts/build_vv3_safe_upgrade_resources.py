@@ -117,9 +117,11 @@ FOUNDATION_OUTPUT = (
 # bridge compiles in): rebuilt on the merged v1.35.82 sources.
 # Recertified for the review of #604: a bought island event's kept natural time is read back from its
 # file before a re-arm records one, and a purchase in another village never lends its distance.
+# Recertified for Fix Vanilla Bugs' speed-change timers (native/shared/startup_companions.h gains
+# "VVFP Speed Change Timers.dll", which the Story bridge compiles in): nothing else changed.
 # Recertified for Difficulty Settings (native/shared/startup_companions.h gains "VVFP
-# Difficulty.dll", which the Story bridge compiles in; The Secret City never ships it).
-SOURCE_SHA256 = "4565301D8D96122138BA29533216F6E1117647AEE62591DFC247095A86944CDD"
+# Difficulty.dll" after "VVFP Speed Change Timers.dll"; the Story bridge compiles that list in).
+SOURCE_SHA256 = "C804A91CF66C5A6E899B96FEDEDBEA1D7CD8F54D9A37C17E3CD8A2596AA052BB"
 SOURCE_SIZE = 1999360
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

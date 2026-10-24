@@ -59,6 +59,8 @@ FILES = [
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
+    # Fix Vanilla Bugs (The Secret City, The Tree of Life): unpausing at another speed.
+    "assets/speed_timers/VVFP Speed Change Timers.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -238,6 +240,8 @@ FILES = [
     # Back Up Saves; the GUI imports it, so the patcher window cannot open
     # without it.
     "src/vv_save_backup.py",
+    # Its game-speed changes replay each game's own speed routine; vv_save_backup imports it.
+    "src/vv_save_clock.py",
     # Rename Tribe; the GUI imports it too.
     "src/vv_tribe_rename.py",
     # Check Saves & Logs and Repair Saves & Logs; the GUI imports it, and Check Saves & Logs runs
@@ -260,6 +264,7 @@ FILES = [
     "src/vv_game_mechanics_vv3.py",
     "src/vv_game_mechanics_vv4.py",
     "src/vv_game_mechanics_vv5.py",
+    "src/vv_game_mechanics_life.py",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).

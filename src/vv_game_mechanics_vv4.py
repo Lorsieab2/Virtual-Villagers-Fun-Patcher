@@ -17,6 +17,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_life as life
 import vv_save_backup
 
 GAME = 4
@@ -278,6 +279,48 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.append(gm.started_line(clock.created))
     out.extend(gm.later_puzzle_lines(PUZZLE_NAMES, lambda pid: struct.unpack_from("<ii", data, PUZZLE_ENTRIES + 8 * pid),
                                      PUZZLE_THRESHOLDS, clock))
+
+    # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
+    growth_at = None if paused else real(NEXT_TICK)
+    event_at = None if paused else real(EVENT_NEXT)
+    gm.with_due(out, "Next growth:", growth_at, "refill")
+    gm.with_due(out, "Next island event:", event_at, "next")
+    multiplier = 2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0)
+    collectibles, complete = life.collectible_lines(village, "100, 250 or 1,500 tech points")
+    bonus = None if complete is None else 5 * complete + (5 if complete == 4 else 0)
+    puzzles = []
+    for pid, name in PUZZLE_NAMES.items():
+        progress = _i32(data, PUZZLE_ENTRIES + 8 * pid)
+        if 0 < progress < PUZZLE_THRESHOLDS[pid]:
+            puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
+    ctx = life.Context(
+        village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000,
+        sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {gm.every(360, speed_value)}",
+                             verified=gm.SAVE),
+                 life.Source("The fishing net and the fruit", None, unlimited=True,
+                             refill_words="no store of theirs is read here: they bring what the gatherers fetch",
+                             verified=False)],
+        tech=_i32(data, TECH), tech_words="Research brings them; a piece already found pays 100, 250 or 1,500 by rarity.",
+        brown=6, red=35, red_share=0.08, mushrooms_an_hour=3600 / 45 * 0.30, mastery=multiplier,
+        golden=village.has(GOLDEN) is True,
+        mushroom_words="Something appears about every 45 seconds while playing (twice as often on wet ground), 30% of "
+                       "them mushrooms (all in rain), so about 24 mushrooms an hour.",
+        event_next=event_at,
+        event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,
+        event_rule="It comes 8 to 15 whole hours after the last, each equally likely, at any speed; then every event "
+                   "whose conditions hold is equally likely.",
+        event_running="Paused time does not count; with the game closed it runs on, and after time away at most one "
+                      "happens.",
+        medicine=level[MEDICINE], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
+        parents_from=14, sick_loss=(0.61, 0.19),
+        sick_end="Time never cures a sickness except on Easy (25%); a healer or a healing stew does.",
+        collectibles=collectibles,
+        limit=life.limit_words(village, bonus, "5 for each complete collection, 25 with all four"),
+        puzzles=puzzles,
+        food_words="2 food a villager every age unit while there is more than 500; on Medium at 8,000 or more, or "
+                   "on Hard, 2 more 76% of the time; never more on Easy; a snack below full health costs 1 more.",
+        trips=[("blackberry picks", max(2, berries // 100)), ("fish in the net", 4), ("fruit stomps", 3)])
+    out.extend(life.sections(ctx))
     return out
 
 

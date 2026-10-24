@@ -151,8 +151,8 @@ class DifficultyRows(unittest.TestCase):
 
     def test_the_loader_knows_the_companion_in_its_appended_place(self):
         import vv_fun_patcher as vfp
-        # Entry 28 (bit 28): the list is append-only.
-        self.assertEqual(vfp.STARTUP_LOADER_COMPANIONS[27], DLL_LEAF)
+        # Entry 29 (bit 29), after VVFP Speed Change Timers.dll: the list is append-only.
+        self.assertEqual(vfp.STARTUP_LOADER_COMPANIONS[28], DLL_LEAF)
         header = (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
         body = header[header.index("VVFP_STARTUP_COMPANIONS[] = {"):]
         body = body[:body.index("};")]

@@ -57,6 +57,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterator, Protocol
 
+import vv_save_clock
+
 # The folder the backups go into, inside each save folder. Every patcher
 # feature that reads or deletes files in a save folder looks only at named
 # files or at its own named subfolders, so nothing in here is ever read,
@@ -259,6 +261,11 @@ class BackupResult:
     resume_problems: list[str] = field(default_factory=list)
     paused_slots: list[str] = field(default_factory=list)   # slot saves whose copy was set to Paused
     paused_from: dict[Path, int] = field(default_factory=dict)   # ... and the speed each one had
+    # ... and each one's bytes as they were (the original's), so a failed restore puts them back
+    # exactly: pausing changes the clock and its timers too, which no speed write could undo.
+    unpaused_bytes: dict[Path, bytes] = field(default_factory=dict)
+    # Slot saves whose copy could not be paused exactly as the game pauses (kept as they were).
+    not_paused: list[tuple[str, str]] = field(default_factory=list)
 
     @property
     def file_count(self) -> int:
@@ -458,11 +465,17 @@ def copy_save_folder(
         game = game_number(save_folder)
         if game is not None:
             for copied in result.files:
-                speed = pause_save_copy(game, staging / copied.relative, copied.relative)
+                original = (staging / copied.relative).read_bytes() if is_slot_save(copied.relative) else b""
+                try:
+                    speed = pause_save_copy(game, staging / copied.relative, copied.relative)
+                except SpeedRefused as exc:
+                    result.not_paused.append((copied.relative.name, str(exc)))
+                    continue
                 if speed is not None:
                     copied.size, copied.sha256 = _hash_file(staging / copied.relative)
                     result.paused_slots.append(copied.relative.name)
                     result.paused_from[copied.relative] = speed
+                    result.unpaused_bytes[copied.relative] = original
                     if copied.times is not None:
                         _keep_times(staging / copied.relative, copied.times)   # the pause rewrote it
         result.backup_folder = _finish_backup(staging, when, suffix)
@@ -844,6 +857,12 @@ def read_village_name(game: int, path: Path) -> str | None:
 # does not age or catch up while the game is closed, so a backup is set to
 # Paused: restoring an old backup must never fast-forward the village through
 # the real time since it was saved (the owner, 2026-10-08).
+#
+# The dword is never written on its own (the owner, 2026-10-24: a Game speed change that wrote only
+# it left The Secret City's clock running at the old speed, and the campfire then burned for the old
+# speed's length).  Every change replays the game's own pause / unpause / speed-change routine on the
+# save -- its clock and every timer the game ties to the clock, at the save's last tick
+# (src/vv_save_clock.py) -- and is refused when that cannot be done exactly.
 _SPEED_IN_BUFFER = {1: 0xA310, 2: 0x2EB00, 3: 0x12F18, 4: 0x17108, 5: 0x17D74}
 _SPEEDS = (3, 6, 10)
 _PAUSED = 999
@@ -852,9 +871,12 @@ _PAUSED = 999
 _SAVE_LAYOUTS = {1: ((12, 8),), 2: ((12, 8),), 3: ((12, 8),), 4: ((24, 16), (12, 8)), 5: ((24, 16),)}
 
 
-def save_speed(game: int, data: bytes) -> tuple[int, int] | None:
-    """(file offset of the speed, its value) in a slot save, or None when the file is not one
-    of this game's saves or the value there is not a speed the game writes."""
+class SpeedRefused(BackupError):
+    """A speed change the game's own routine could not be replayed for exactly; nothing was written."""
+
+
+def _save_header(game: int, data: bytes) -> int | None:
+    """The header length of a slot save of this game, or None when the file is not one."""
     if data[:4] != b"ldwg":
         return None
     for header, length_at in _SAVE_LAYOUTS[game]:
@@ -862,22 +884,46 @@ def save_speed(game: int, data: bytes) -> tuple[int, int] | None:
             continue
         length = int.from_bytes(data[length_at:length_at + 4], "little")
         if length in _SAVE_BUFFERS[game] and len(data) == header + length:
-            offset = header + _SPEED_IN_BUFFER[game]
-            value = int.from_bytes(data[offset:offset + 4], "little")
-            if value in _SPEEDS or value - _PAUSED in _SPEEDS:
-                return offset, value
-            return None
+            return header
     return None
 
 
-def pause_save_bytes(game: int, data: bytes) -> bytes | None:
-    """The save with its speed set to Paused (the speed it had, plus 999, as the game does), or
-    None when it is already paused or not a save this can read.  Nothing else changes."""
-    found = save_speed(game, data)
-    if found is None or found[1] >= _PAUSED:
+def save_speed(game: int, data: bytes) -> tuple[int, int] | None:
+    """(file offset of the speed, its value) in a slot save, or None when the file is not one
+    of this game's saves or the value there is not a speed the game writes."""
+    header = _save_header(game, data)
+    if header is None:
         return None
-    offset, value = found
-    return data[:offset] + (value + _PAUSED).to_bytes(4, "little") + data[offset + 4:]
+    offset = header + _SPEED_IN_BUFFER[game]
+    value = int.from_bytes(data[offset:offset + 4], "little")
+    if value in _SPEEDS or value - _PAUSED in _SPEEDS:
+        return offset, value
+    return None
+
+
+def _speed_edit(game: int, data: bytes, speed: int, paused: bool) -> bytes | None:
+    """The save set to ``speed``, paused or not, the way the game itself does it (src/vv_save_clock.py),
+    or None when it already is so.  SpeedRefused when that cannot be reproduced exactly."""
+    header = _save_header(game, data)
+    if header is None:
+        return None
+    try:
+        return vv_save_clock.edit_speed(game, data, header, speed, paused)
+    except vv_save_clock.SpeedEditRefused as exc:
+        raise SpeedRefused(f"the game speed of this save cannot be changed exactly as the game changes it "
+                           f"({exc}), so it was left as it is") from exc
+
+
+def pause_save_bytes(game: int, data: bytes) -> bytes | None:
+    """The save set to Paused at the speed it had, exactly as the game's pause key leaves it (the
+    speed plus 999, the game clock stopped and its timers kept, src/vv_save_clock.py); None when it
+    already is so or is not a save this can read.  SpeedRefused when the game's pause cannot be
+    reproduced exactly."""
+    found = save_speed(game, data)
+    if found is None:
+        return None
+    value = found[1]
+    return _speed_edit(game, data, value - _PAUSED if value >= _PAUSED else value, True)
 
 
 def is_slot_save(relative: Path) -> bool:
@@ -927,25 +973,17 @@ def _write_save(path: Path, data: bytes, original: bytes) -> None:
 def pause_save_file(game: int, path: Path) -> int | None:
     """Set one save file to Paused, through a temporary file and a read-back.  Returns the speed
     it had, or None when it was already paused or is not a save this can read (then it is left
-    exactly as it was)."""
+    exactly as it was).  SpeedRefused (and the file left as it is) when the game's own pause cannot
+    be reproduced exactly."""
     data = path.read_bytes()
-    paused = pause_save_bytes(game, data)
+    try:
+        paused = pause_save_bytes(game, data)
+    except SpeedRefused as exc:
+        raise SpeedRefused(f"{path.name}: {exc}.") from exc
     if paused is None:
         return None
     _write_save(path, paused, data)
     return save_speed(game, data)[1]
-
-
-def set_save_speed(game: int, path: Path, speed: int) -> None:
-    """Put a save's speed back to ``speed`` (Restore's roll-back, which places files from a
-    backup whose saves were set to Paused, so a failed restore leaves every save exactly as it
-    was)."""
-    data = path.read_bytes()
-    found = save_speed(game, data)
-    if found is None:
-        raise BackupError(f"{path.name} is not a save whose speed can be put back.")
-    offset = found[0]
-    _write_save(path, data[:offset] + speed.to_bytes(4, "little") + data[offset + 4:], data)
 
 
 # Repair Saves & Logs' Game speed (the owner, 2026-10-08: "options to change the game save speed in
@@ -965,10 +1003,12 @@ def speed_words(value: int) -> str:
 
 def set_speed_choice(game: int, path: Path, choice: str,
                      processes: ProcessController | None = None) -> tuple[int, int] | None:
-    """Set one save to Paused, Slow, Normal or Fast, the way the game writes them; the speed it keeps
-    under Paused is the one it had.  Returns (old value, new value), or None when it already is so.
-    A file that is not a save of this game, or whose game is running or cannot be checked (Codex,
-    #576), is refused and left exactly as it is."""
+    """Set one save to Paused, Slow, Normal or Fast, exactly as the game's own pause key, unpause key
+    and Options speed buttons leave it -- the speed dword, the game clock and every timer the game
+    ties to its clock (src/vv_save_clock.py); the speed it keeps under Paused is the one it had.
+    Returns (old value, new value), or None when it already is so.  A file that is not a save of this
+    game, whose game is running or cannot be checked (Codex, #576), or whose change cannot be
+    replayed exactly (SpeedRefused), is refused and left exactly as it is."""
     exe = game_exe_name(path.parent)
     try:
         controller = processes if processes is not None else WindowsProcesses()
@@ -983,11 +1023,16 @@ def set_speed_choice(game: int, path: Path, choice: str,
         raise BackupError(f"{path.name} is not a save whose speed can be read; it was left as it is.")
     old = found[1]
     base = old - _PAUSED if old >= _PAUSED else old
-    new = base + _PAUSED if choice == "paused" else _SPEED_VALUES[choice]
-    if new == old:
+    paused = choice == "paused"
+    speed = base if paused else _SPEED_VALUES[choice]
+    try:
+        changed = _speed_edit(game, data, speed, paused)
+    except SpeedRefused as exc:
+        raise SpeedRefused(f"{path.name}: {exc}.") from exc
+    if changed is None:
         return None
-    set_save_speed(game, path, new)
-    return old, new
+    _write_save(path, changed, data)
+    return old, speed + _PAUSED if paused else speed
 
 
 def pause_save_copy(game: int, path: Path, relative: Path) -> int | None:
@@ -996,8 +1041,9 @@ def pause_save_copy(game: int, path: Path, relative: Path) -> int | None:
 
 
 def unpaused_backup_saves(save_folder: Path) -> list[Path]:
-    """Every slot save in the folder's finished backups whose game speed is not Paused (backups
-    made before v1.35.63-v6, and copies the player made of a backup)."""
+    """Every slot save in the folder's finished backups that is not paused as the game pauses
+    (backups made before v1.35.63-v6, copies the player made of a backup, and backups whose pause
+    wrote only the speed dword, so that their game clock kept running)."""
     game = game_number(save_folder)
     found: list[Path] = []
     if game is None:
@@ -1007,11 +1053,10 @@ def unpaused_backup_saves(save_folder: Path) -> list[Path]:
             if not is_slot_save(Path(path.name)):
                 continue
             try:
-                speed = save_speed(game, path.read_bytes())
-            except OSError:
+                if pause_save_bytes(game, path.read_bytes()) is not None:
+                    found.append(path)
+            except (OSError, SpeedRefused):
                 continue
-            if speed is not None and speed[1] < _PAUSED:
-                found.append(path)
     return found
 
 
@@ -1393,12 +1438,15 @@ def _roll_back(save_folder: Path, before: BackupResult | None, done: list[Path])
         original = before.backup_folder / relative if before else None
         try:
             if original is not None and original.is_file():
-                _place(original, target)
-                # The before-restore backup's saves are Paused; the save goes back as it was.
-                if relative in before.paused_from:
-                    set_save_speed(game_number(save_folder), target, before.paused_from[relative])
+                # The before-restore backup's saves are Paused (their clock and timers too); such a
+                # save goes back byte for byte as it was, from the bytes kept when it was copied.
+                if relative in before.unpaused_bytes:
+                    _write_save(target, before.unpaused_bytes[relative],
+                                target.read_bytes() if target.exists() else b"")
                     kept = original.stat()
                     _keep_times(target, (kept.st_atime_ns, kept.st_mtime_ns))
+                else:
+                    _place(original, target)
             elif target.exists():
                 target.unlink()
         except (OSError, BackupError):
