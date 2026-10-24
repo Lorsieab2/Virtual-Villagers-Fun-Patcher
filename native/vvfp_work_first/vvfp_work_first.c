@@ -78,6 +78,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <intrin.h>
+#include "../shared/install_sites.h"    /* every site written, or none */
 
 /* ---- Population huts ------------------------------------------------------ */
 /* The same tests the fix-huts companion makes (native/vvfp_fix_huts). */
@@ -576,7 +577,6 @@ static const struct site CU_SITES[6] = {
     { 0x46579Fu, VV4_CU_STOCK, sizeof VV4_CU_STOCK, vv4_cu_stub },
     { 0x46E92Fu, VV5_CU_STOCK, sizeof VV5_CU_STOCK, vv5_cu_stub },
 };
-static int cu_install_state[6];
 
 static int site_is_stock(const struct site *s) {
     MEMORY_BASIC_INFORMATION info;
@@ -600,37 +600,16 @@ static void site_bytes(const struct site *s, unsigned char *out) {
     }
 }
 
-/* Verify the stock bytes, then write the jmp.  1 on success. */
-static int install_site(const struct site *s) {
-    unsigned char bytes[16];
-    unsigned char *at;
-    DWORD old;
-    if (s->va == 0 || !site_is_stock(s)) {
-        return 0;
-    }
-    at = (unsigned char *)(uintptr_t)s->va;
-    site_bytes(s, bytes);
-    if (!VirtualProtect(at, (SIZE_T)s->length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)s->length);
-    VirtualProtect(at, (SIZE_T)s->length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)s->length);
-    return 1;
-}
-
-/* The catch-up worker's research-pick site, once, after the dispatcher hook
-   (VvfpWorkFirstInstall): the site's stub calls the dispatcher through the
-   replayed stock bytes that hook verified.  The Secret City has none here. */
-static void install_catch_up(int game_id) {
-    if (cu_install_state[game_id] == 0) {
-        cu_install_state[game_id] = install_site(&CU_SITES[game_id]) ? 1 : -1;
-    }
-}
-
 /* Called by the fix-huts companion from its per-frame install.  Idempotent:
-   the dispatcher hook and then the catch-up site, each tried once. */
+   the dispatcher hook and the catch-up worker's research-pick site (whose
+   stub calls the dispatcher through the replayed stock bytes the hook
+   verified; The Secret City has none here) are checked, then both written,
+   or neither (native/shared/install_sites.h).  Before, the catch-up site was
+   tried on its own after the hook, so live play could have the feature and
+   catch-up not. */
 __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
+    vvfp_site_write w[2];
+    int n = 0;
     if (game_id < 1 || game_id > 5) {
         return 0;
     }
@@ -638,11 +617,20 @@ __declspec(dllexport) int __stdcall VvfpWorkFirstInstall(int game_id) {
         return install_state[game_id] == 1;
     }
     install_state[game_id] = -1;
-    if (!install_site(&SITES[game_id])) {
+    if (SITES[game_id].va == 0 || !site_is_stock(&SITES[game_id])
+        || (CU_SITES[game_id].va != 0 && !site_is_stock(&CU_SITES[game_id]))) {
+        return 0;
+    }
+    vvfp_site_branch(&w[n++], SITES[game_id].va, SITES[game_id].length, SITES[game_id].stock, 0xE9,
+                     (const void *)SITES[game_id].stub);
+    if (CU_SITES[game_id].va != 0) {
+        vvfp_site_branch(&w[n++], CU_SITES[game_id].va, CU_SITES[game_id].length, CU_SITES[game_id].stock,
+                         0xE9, (const void *)CU_SITES[game_id].stub);
+    }
+    if (!vvfp_install_sites(w, n)) {
         return 0;
     }
     install_state[game_id] = 1;
-    install_catch_up(game_id);
     return 1;
 }
 

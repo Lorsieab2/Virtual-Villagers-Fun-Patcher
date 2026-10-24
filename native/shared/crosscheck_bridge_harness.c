@@ -176,6 +176,9 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = { sizeof(vvfp_story_host), harness_slot, NULL, NULL, NULL };
     return &host;
 }
+/* An unlock the shared writer is told to fail (native/shared/install_sites.h). */
+static int g_fail_unlock;
+#define VVFP_INSTALL_SITES_TEST_FAIL() (g_fail_unlock != 0)
 #include "crosscheck_bridge.h"
 #include "orphan_masks.h"
 #undef MessageBoxA
@@ -777,6 +780,14 @@ int main(void) {
         site[2] = 0x0C;                 /* not this game's bytes */
         check(!vvfp_xc_hook(site, stock345, 3, harness_hit) && site[0] == 0x8B,
               "a site that does not hold its stock bytes is left alone");
+        /* The owner (2026-10-24): every site or none.  The site cannot be
+           made writable: nothing is written and the hook reports refused. */
+        site = site_with(stock345);
+        g_fail_unlock = 1;
+        ok = vvfp_xc_hook(site, stock345, 3, harness_hit);
+        g_fail_unlock = 0;
+        check(!ok && memcmp(site, stock345, 5) == 0,
+              "a site that cannot be made writable is left stock and the hook is refused");
     }
     {
         /* The handler reads the slot the shutdown saved. */

@@ -138,6 +138,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "../shared/per_save.h"          /* one folder per save */
+#include "../shared/install_sites.h"     /* every site written, or none */
 
 #define GAMES 5
 #define FAMILIES 50
@@ -1089,9 +1090,9 @@ static void site_bytes(const struct game_site *s, void (*wrapper)(void), unsigne
 static int install(int game) {
     const struct game_site *s;
     unsigned char bytes[6];
-    unsigned char *at;
+    unsigned char *page;
     unsigned int back;
-    DWORD old;
+    vvfp_site_write w[1];
     if (game < 1 || game > GAMES) {
         return 0;
     }
@@ -1104,28 +1105,29 @@ static int install(int game) {
         || !read_list((const char *)(uintptr_t)s->list)) {
         return 0;
     }
-    /* The trampoline: the routine's own `sub esp, imm32`, then jmp back. */
-    g_trampoline = (unsigned char *)VirtualAlloc(NULL, 16, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-    if (g_trampoline == NULL) {
+    /* The trampoline: the routine's own `sub esp, imm32`, then jmp back --
+       built read/write, sealed read/execute (never both at once). */
+    page = vvfp_code_page_alloc(16);
+    if (page == NULL) {
         return 0;
     }
-    memcpy(g_trampoline, s->prologue, sizeof s->prologue);
-    g_trampoline[6] = 0xE9;
-    back = (unsigned int)((s->routine + 6) - ((unsigned int)(uintptr_t)g_trampoline + 11));
-    memcpy(g_trampoline + 7, &back, 4);
-    FlushInstructionCache(GetCurrentProcess(), g_trampoline, 16);
-
+    memcpy(page, s->prologue, sizeof s->prologue);
+    page[6] = 0xE9;
+    back = (unsigned int)((s->routine + 6) - ((unsigned int)(uintptr_t)page + 11));
+    memcpy(page + 7, &back, 4);
+    if (!vvfp_code_page_seal(page, 16)) {
+        return 0;                          /* (the page is freed) */
+    }
+    g_trampoline = page;
     g_game = game;
     site_bytes(s, s->stride != 0 ? wrap_out : wrap_villager, bytes);
-    at = (unsigned char *)(uintptr_t)s->routine;
-    if (!VirtualProtect(at, sizeof bytes, PAGE_EXECUTE_READWRITE, &old)) {
-        VirtualFree(g_trampoline, 0, MEM_RELEASE);
+    vvfp_site_bytes(&w[0], s->routine, sizeof bytes, s->prologue, bytes);
+    if (!vvfp_install_sites(w, 1)) {       /* native/shared/install_sites.h */
         g_trampoline = NULL;
+        g_game = 0;
+        VirtualFree(page, 0, MEM_RELEASE);
         return 0;
     }
-    memcpy(at, bytes, sizeof bytes);
-    VirtualProtect(at, sizeof bytes, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, sizeof bytes);
     install_state = 1;
     return 1;
 }

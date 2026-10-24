@@ -36,6 +36,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <intrin.h>
+#include "../shared/install_sites.h"
 
 #define SITE_VA          0x43B1E6u
 #define SITE_LENGTH      12
@@ -216,29 +217,6 @@ static void gate_bytes(unsigned char *out) {
     }
 }
 
-static int gate_state;   /* 0 untried, 1 installed, -1 refused */
-
-static void install_gate(void) {
-    unsigned char bytes[GATE_LENGTH];
-    unsigned char *at = (unsigned char *)(uintptr_t)GATE_VA;
-    DWORD old;
-    if (gate_state != 0) {
-        return;
-    }
-    gate_state = -1;
-    if (!code_is(GATE_VA, GATE_STOCK, GATE_LENGTH)) {
-        return;
-    }
-    gate_bytes(bytes);
-    if (!VirtualProtect(at, GATE_LENGTH, PAGE_EXECUTE_READWRITE, &old)) {
-        return;
-    }
-    memcpy(at, bytes, GATE_LENGTH);
-    VirtualProtect(at, GATE_LENGTH, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, GATE_LENGTH);
-    gate_state = 1;
-}
-
 static int site_is_stock(void) {
     MEMORY_BASIC_INFORMATION info;
     const void *site = (const void *)(uintptr_t)SITE_VA;
@@ -265,26 +243,28 @@ static void site_bytes(unsigned char *out) {
 
 static int install_state;   /* 0 untried, 1 installed, -1 refused */
 
-/* Called by the Origins companion from its per-frame tick.  Idempotent. */
+/* Called by the Origins companion from its per-frame tick.  Idempotent.
+   The progress step and the 14% gate are one feature: both are written, or
+   neither (native/shared/install_sites.h) -- never the training without the
+   gate, or the gate without the training. */
 __declspec(dllexport) int __stdcall VvfpVv1WateringBuildsInstall(void) {
     unsigned char bytes[SITE_LENGTH];
-    unsigned char *site = (unsigned char *)(uintptr_t)SITE_VA;
-    DWORD old;
-    install_gate();                     /* its own state; independent of the site */
+    unsigned char gate[GATE_LENGTH];
+    vvfp_site_write w[2];
     if (install_state != 0) {
         return install_state == 1;
     }
     install_state = -1;
-    if (!site_is_stock()) {
+    if (!site_is_stock() || !code_is(GATE_VA, GATE_STOCK, GATE_LENGTH)) {
         return 0;
     }
     site_bytes(bytes);
-    if (!VirtualProtect(site, SITE_LENGTH, PAGE_EXECUTE_READWRITE, &old)) {
+    gate_bytes(gate);
+    vvfp_site_bytes(&w[0], SITE_VA, SITE_LENGTH, SITE_STOCK, bytes);
+    vvfp_site_bytes(&w[1], GATE_VA, GATE_LENGTH, GATE_STOCK, gate);
+    if (!vvfp_install_sites(w, 2)) {
         return 0;
     }
-    memcpy(site, bytes, SITE_LENGTH);
-    VirtualProtect(site, SITE_LENGTH, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), site, SITE_LENGTH);
     install_state = 1;
     return 1;
 }

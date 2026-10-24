@@ -27,7 +27,7 @@
     {
       "source": "assets/vv2_totems/VVFP VV2 Totems.dll",
       "destination": "VVFP VV2 Totems.dll",
-      "sha256": "69032C026CF8EBD607FE25BF9EA79B5101A7ACC2263C8D093E153F4D2FC644F7"
+      "sha256": "3BCFD47BE0BD05789BB998D9D4EA8378113FEE13F6791303B5386F7B8AE20315"
     }
   ],
   "runtime_detours": [

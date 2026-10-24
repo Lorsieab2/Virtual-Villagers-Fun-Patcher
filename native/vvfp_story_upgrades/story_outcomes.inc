@@ -1092,43 +1092,24 @@ static int oc_verify(int game) {
     return 1;
 }
 
-static int oc_write_call(unsigned int va, void *target) {
-    unsigned char bytes[5];
-    unsigned int rel = (unsigned int)((uintptr_t)target - ((uintptr_t)va + 5));
-    bytes[0] = 0xE8;
-    memcpy(bytes + 1, &rel, 4);
-    return mem_write(va, bytes, 5);
+/* How many writes the outcome sites and scope calls add. */
+static int oc_write_count(int game) {
+    return OC_GAMES[game].site_count + OC_GAMES[game].scope_count;
 }
 
-/* A write failed part-way: put the stock call back at the first `sites`
-   outcome sites and the first `scopes` scope calls, which were written. */
-static void oc_undo(const oc_game *g, int sites, int scopes) {
-    int i;
-    for (i = 0; i < scopes; ++i) {
-        mem_write(g->scopes[i].va, g->scopes[i].expect, 5);
-    }
-    for (i = 0; i < sites; ++i) {
-        mem_write(g->sites[i].va, g->sites[i].expect, 5);
-    }
-}
-
-/* Writes every outcome site and scope call, or (a write failing) none. */
-static int oc_install(int game) {
+/* Adds every outcome site's and scope call's `call` to the install's one
+   write list (vvfp_story_upgrades.c, install): all are written with the
+   rest of the game's sites, or none.  Returns the new count. */
+static int oc_add_writes(int game, vvfp_site_write *w, int n) {
     const oc_game *g = &OC_GAMES[game];
     int i;
     for (i = 0; i < g->site_count; ++i) {
-        if (!oc_write_call(g->sites[i].va, (void *)oc_rand_stub)) {
-            oc_undo(g, i, 0);
-            return 0;
-        }
+        vvfp_site_branch(&w[n++], g->sites[i].va, 5, g->sites[i].expect, 0xE8, (const void *)oc_rand_stub);
     }
     for (i = 0; i < g->scope_count; ++i) {
-        if (!oc_write_call(g->scopes[i].va, (void *)oc_scope_stub)) {
-            oc_undo(g, g->site_count, i);
-            return 0;
-        }
+        vvfp_site_branch(&w[n++], g->scopes[i].va, 5, g->scopes[i].expect, 0xE8, (const void *)oc_scope_stub);
     }
-    return 1;
+    return n;
 }
 
 /* ---- The Secret City, The Tree of Life, New Believers: the apply ----------
