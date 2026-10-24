@@ -10,8 +10,11 @@ state at state+8 onward, so a state offset S is buffer offset S - 8 (0x12F1C byt
     is game base + (wall now - wall base) * 6 / rate, wall seconds counted by 0x403330 from the epoch
     in the save's header (0x4A4210, loaded with the save).  So a game second G is the real moment
         epoch + wall base + (G - game base) * speed / 6
-    -- exact from the wall base on (the last speed change or pause); before it, worked out at the same
-    speed, as the game's own clock relates them.  The clock runs on while the game is closed (the next
+    -- exact from the wall base on (the last speed change or pause).  Before it the save cannot date a game
+    second (the speeds, pauses and closed spells between are not kept): such a time is shown as the village's age
+    then, counted on Normal speed (a new village starts the clock at 0, 0x4264F0 from 0x427FE2), never as a
+    date worked back (gm.GameClock.moment).  The village's start is the statistics block's first field
+    (0x5824A0, buffer 0x4E4: wall seconds, written from 0x403330 at 0x4646EB).  The clock runs on while the game is closed (the next
     load catches up), except when it was saved stopped (a rate of 0: paused, among others).  The speed
     the player sees -- and Repair Saves & Logs' Game speed sets -- is the dword at buffer 0x12F18
     (3 Fast, 6 Normal, 10 Slow; +999 while paused); intervals are shown at that speed.
@@ -93,42 +96,8 @@ class SaveUnreadable(ValueError):
     pass
 
 
-@dataclass
-class Clock:
-    rate: int           # the speed while running, 0 while paused
-    before: int         # the speed before a pause
-    wall: int           # wall seconds from the epoch at the base
-    base: int           # the game seconds at the base
-    epoch: int          # the save's own epoch (Unix seconds)
-    speed: int          # the save's speed value (3/6/10, +999 paused)
-
-    @property
-    def paused(self) -> bool:
-        """Saved paused, as the player set it (the speed value plus 999)."""
-        return self.speed >= gm.PAUSED
-
-    @property
-    def frozen(self) -> bool:
-        """The clock was saved stopped (paused, or a rate of 0): no time passes while the game is closed."""
-        return self.rate == 0 or self.paused
-
-    @property
-    def runs_at(self) -> int:
-        """The speed the clock runs at (once unpaused): the save's speed, as the player set it."""
-        for value in (gm.speed_base(self.speed), self.rate, self.before):
-            if value in gm.SPEED_NAMES:
-                return value
-        return gm.NORMAL
-
-    def real(self, game_seconds: int) -> float:
-        """The real moment (Unix seconds) of a game second, as the game's clock relates them."""
-        return self.epoch + self.wall + (game_seconds - self.base) * self.runs_at / gm.NORMAL
-
-    def game_now(self, now: float) -> int:
-        """The game clock at the real moment `now`: it ran on after the save unless stopped."""
-        if self.frozen:
-            return self.base
-        return self.base + int(max(0.0, now - self.epoch - self.wall) * gm.NORMAL / self.runs_at)
+# The game clock (vv_game_mechanics.GameClock): a past game second is dated only from the clock's base on.
+Clock = gm.GameClock
 
 
 def _u32(buf: bytes, at: int) -> int:
@@ -200,8 +169,9 @@ def buffer_of(data: bytes) -> tuple[bytes, int]:
 
 
 def clock_of(buf: bytes, epoch: int) -> Clock:
-    rate, before, wall, base = (_i32(buf, CLOCK + 4 * k) for k in range(4))
-    return Clock(rate, before, wall, base, epoch, _i32(buf, SPEED))
+    """The saved clock, with the village's start: the statistics block's first field (0x5824A0, written from
+    the wall clock 0x403330 at 0x4646EB), wall seconds from the epoch."""
+    return gm.later_clock(buf, CLOCK, epoch, _i32(buf, SPEED), _i32(buf, STATS))
 
 
 @dataclass
@@ -369,9 +339,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     factor = 56 if faster else (42 if nature >= 1 else 37)
     per_refill = _gain(interval, factor)
     now = clock.game_now(village.now)
+    # A past game second is dated only from the clock's base on; before it the line says how far into the
+    # village it was (clock.moment) -- never a date worked back at today's speed, which the speed changes,
+    # pauses and closed spells before the base would make wrong.
+    at = clock.moment
 
-    def at(game_seconds: int) -> str:
-        return gm.when(clock.real(game_seconds))
+    def sub(text: str, ok=False) -> None:
+        out.append(gm.Fact("Food sources", text, ok, sub=True))
 
     # -- the fruit trees ------------------------------------------------------------------
     timers = patch_tree_timers(village, buf)
@@ -381,38 +355,32 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     for tree in trees:
         scheduled = timers is not None and tree.number <= len(timers.due)
         refilled = timers.credit[tree.number - 1] if scheduled else tree.refilled
-        tag = f"Tree {tree.number}"
-        # The owner's line first, then one line for each other fact about the tree.
-        out.append(gm.Fact("Food sources", f"{tag}: {tree.name}, planted at {at(tree.planted)}, refills "
-                                           f"{gm.every(interval, clock.speed)}."))
-        out.append(gm.Fact("Food sources", f"{tag}: {max(tree.fruit, 0)} of {FRUIT_CAP} fruit.", gm.SAVE))
+        # The tree, then one sub-bullet for each fact about it (the owner, 2026-10-23).
+        out.append(gm.Fact("Food sources", f"Tree {tree.number}: {tree.name}", gm.SAVE))
+        sub(f"Planted {at(tree.planted, at=True)}; refills {gm.every(interval, clock.speed)}.")
+        sub(f"{max(tree.fruit, 0)} of {FRUIT_CAP} fruit.", gm.SAVE)
         ready = tree.planted + READY
         if clock.frozen:
-            text = (f"{tag}: ready to pick." if now >= ready else
-                    f"{tag}: ready to pick after {gm.duration(gm.real_seconds(ready - now, clock.runs_at))} more "
-                    f"of play on {gm.speed_name(clock.runs_at)} speed.")
+            sub("Ready to pick." if now >= ready else
+                f"Ready to pick after {gm.duration(gm.real_seconds(ready - now, clock.runs_at))} more of play on "
+                f"{gm.speed_name(clock.runs_at)} speed.")
         else:
-            text = (f"{tag}: ready to pick since {at(ready)}." if now >= ready else
-                    f"{tag}: ready to pick from {at(ready)}.")
-        out.append(gm.Fact("Food sources", text))
+            sub(f"Ready to pick since {at(ready)}." if now >= ready else f"Ready to pick from {at(ready)}.")
         due = timers.due[tree.number - 1] if scheduled else refilled + interval
         if scheduled:
-            out.append(gm.Fact("Food sources", f"{tag}: on the patcher's \"{timers.name}\" schedule, read from "
-                                               "its file for this save."))
+            sub(f"On the patcher's \"{timers.name}\" schedule, read from its file for this save.")
         if tree.fruit >= FRUIT_CAP:
-            text = f"{tag}: full; a refill adds nothing until fruit is picked."
+            sub("Full; a refill adds nothing until fruit is picked.")
         elif clock.frozen:
             left = max(0, due - now)
-            text = (f"{tag}: next refill ({per_refill} fruit) after "
-                    f"{gm.duration(gm.real_seconds(left, clock.runs_at))} more of play"
-                    f"{' once unpaused' if clock.paused else ''}." if left else
-                    f"{tag}: a refill is due as soon as the game {'is unpaused' if clock.paused else 'is played'}.")
+            sub(f"Next refill ({per_refill} fruit) after {gm.duration(gm.real_seconds(left, clock.runs_at))} more "
+                f"of play{' once unpaused' if clock.paused else ''}." if left else
+                f"A refill is due as soon as the game {'is unpaused' if clock.paused else 'is played'}.")
         elif now >= due:
             gained = min(_gain(now - refilled, factor), FRUIT_CAP - tree.fruit)
-            text = f"{tag}: a refill was due at {at(due)}; the next time the village is played it gets {gained} fruit."
+            sub(f"The next time the village is played it gets {gained} fruit: a refill was due {at(due, at=True)}.")
         else:
-            text = f"{tag}: next refill due {at(due)} ({min(per_refill, FRUIT_CAP - tree.fruit)} fruit)."
-        out.append(gm.Fact("Food sources", text))
+            sub(f"Next refill due {at(due)} ({min(per_refill, FRUIT_CAP - tree.fruit)} fruit).")
 
     # -- the honey ------------------------------------------------------------------------
     honey_at = _i32(buf, HONEY + 4)
@@ -459,8 +427,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     else:
         honey_factor_gain = (((now - honey_at) * 84) & 0xFFFFFFFF) // 99900 if faster else \
             (((now - honey_at) * 2) & 0xFFFFFFFF) // 3600
-        honey_next = (f"; a gain was due at {at(honey_due)}: the next time the village is played it gets "
-                      f"{min(honey_factor_gain, HONEY_CAP - honey)}.")
+        honey_next = (f"; the next time the village is played it gets {min(honey_factor_gain, HONEY_CAP - honey)} "
+                      f"(a gain was due {at(honey_due, at=True)}).")
     out.append(gm.Fact("Refills", (
         f"Honey: gains {honey_gain} {gm.every(honey_every, speed)}, up to {HONEY_CAP}{honey_next} By the time since "
         f"the last gain -- " + ", ".join(f"{gm.duration(gm.real_seconds(t, speed))} +{g}" for t, g in
@@ -471,17 +439,20 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     if clock.paused:
         out.append(gm.Fact("Other", (
             f"The game's clock is stopped while paused; once unpaused it runs on {gm.speed_name(clock.runs_at)} "
-            "speed. Times are real times, worked out at that speed.")))
+            "speed. Times are real times from when its speed was last set; earlier ones are given as the village's age "
+            "then, counted on Normal speed.")))
     elif clock.frozen:
         out.append(gm.Fact("Other", (
             f"The save's clock was written stopped; it runs again on {gm.speed_name(clock.runs_at)} speed once the "
-            "village is played, so the time the game is closed does not count. Times are real times, worked "
-            "out at that speed.")))
+            "village is played, so the time the game is closed does not count. Times are real times from when its speed was "
+            "last set; earlier ones "
+            "are given as the village's age then, counted on Normal speed.")))
     else:
         out.append(gm.Fact("Other", (
             f"The game's clock runs on {gm.speed_name(clock.runs_at)} speed, also while the game is closed "
-            "(the next time it is played it catches up). Times are real times; those before "
-            f"{gm.when(clock.real(clock.base))} assume it was always on this speed.")))
+            "(the next time it is played it catches up). Times are real times from "
+            f"{gm.when(clock.restarted)} on, when its speed was last set; the save does not keep how it ran before "
+            "then, so earlier times are given as the village's age then, counted on Normal speed.")))
     if timers is None and trees and tree_timers_file(village).is_file():
         out.append(gm.Fact("Other", (
             "The patcher's fruit-tree timers file is there but has no schedule for this save: the save's own "
@@ -630,15 +601,20 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                         "the game's own rounding; 4 while catching up); honey is gathered only above 10.")
     add("Food sources", f"Fishing brings { {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed] } on {on} speed (8 while "
                         "catching up).", True)
-    add("Food sources", "A fisher with Farming 88 or more has a 10% chance of 55; the sea never runs out.")
+    # The big catch is a crab (the owner, 2026-10-23; the code's carried item 9, "Crab" in the carry-name
+    # table 0x4A8A14, against 8 "Fish" for the plain catch, 0x4535AF / 0x4535F3).
+    add("Food sources", "A fisher with Farming 88 or more has a 10% chance of catching a crab, worth 55 food; the sea "
+                        "never runs out.")
 
     add("Mushrooms", "While playing (not paused), about one thing appears a minute at any speed, about every 30 "
                      "seconds in storms; each is gone after 1 minute 30 seconds unpicked.", True)
     add("Mushrooms", "At most 2 are out at a time.")
-    add("Mushrooms", "In fair weather 30% of them are mushrooms, in rain all: 92% give 6 food, 8% give 35, counted "
-                     "when they reach the food bin.", gm.RUNNING)
+    # Brown and red are the owner's words (2026-10-23); the code calls the 35-food one the rare mushroom
+    # (eCarrying_RareShroom 0x481224, item 0x65; the brown one eCarrying_Shroom, item 0x64).
+    add("Mushrooms", "In fair weather 30% of them are mushrooms, in rain all: 92% are brown mushrooms worth 6 food, 8% "
+                     "red (rare) mushrooms worth 35, counted when they reach the food bin.", gm.RUNNING)
     if village.has(GOLDEN):
-        add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
+        add("Mushrooms", gm.golden_line(GOLDEN, "about 6 years of play in fair weather"), gm.RUNNING)
     add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity.", gm.RUNNING)
@@ -718,4 +694,16 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         ready.append(f"{words}: " + ("ready" if stamp == 0 or wall(at) <= village.now else gm.when(wall(at))))
     add("Other", "The Tribal Chief's powers each wait 23 hours after use, at any speed, paused or closed: "
                  + "; ".join(ready) + f". Granting food gives 3 x Leadership x 10 to 29 (Leadership is {leadership}).")
+    out.append(gm.started_line(clock.created))
+    out.extend(gm.later_puzzle_lines(
+        PUZZLE_NAMES, lambda pid: struct.unpack_from("<ii", buf, PUZZLES + 4 + 8 * pid), PUZZLE_THRESHOLDS, clock))
     return out
+
+
+# The 16 puzzles by id (the game's own names, as the patcher's Story Cheat Upgrades lists them,
+# native/vvfp_story_upgrades/story_c3.inc), each solved at the threshold the game's table 0x49D230 holds.
+PUZZLE_NAMES = {0: "The First Chief", 1: "The Bee Hive", 2: "The Alchemy Lab", 3: "The Roster of the Dead",
+                4: "Weather Dancing", 5: "The Lift", 6: "The Ruins", 7: "The Ancient Bath", 8: "The Statue",
+                9: "The Orchard", 10: "The Sharks", 11: "Aromatherapy", 12: "The Ash Key", 13: "The Cliff Key",
+                14: "The Clam Key", 15: "The Chief and the Princess"}
+PUZZLE_THRESHOLDS = dict(enumerate((1, 1, 5, 700, 1, 1, 1800, 1400, 2, 1, 1, 6, 1, 1, 1, 1)))

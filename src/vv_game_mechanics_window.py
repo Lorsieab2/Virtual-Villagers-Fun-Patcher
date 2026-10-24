@@ -139,6 +139,10 @@ def _game_tab(window, notebook, app, title: str, saves, documents, bold) -> dict
     box.pack(side="left", fill="both", expand=True)
     box.tag_configure("group", font=bold)
     box.tag_configure("unconfirmed", font=bold, foreground=LABEL_RED)
+    # Bullets (the owner, 2026-10-23): a wrapped line continues under the bullet's text, not under the bullet.
+    plain = tkfont.nametofont(box.cget("font"))
+    box.tag_configure("bullet", lmargin1=0, lmargin2=plain.measure(gm.BULLET))
+    box.tag_configure("sub", lmargin1=0, lmargin2=plain.measure(gm.SUB_BULLET))
     state: dict = {"folders": [], "slots": []}
 
     def chosen():
@@ -171,6 +175,10 @@ def _game_tab(window, notebook, app, title: str, saves, documents, bold) -> dict
                 box.tag_add("group", f"{number}.0", f"{number}.end")
                 box.mark_set(f"group:{line}", f"{number}.0")
                 found.append(line)
+            elif line.startswith(gm.SUB_BULLET):
+                box.tag_add("sub", f"{number}.0", f"{number}.end")
+            elif line.startswith(gm.BULLET):
+                box.tag_add("bullet", f"{number}.0", f"{number}.end")
             at = line.find(gm.UNCONFIRMED)
             if at >= 0:
                 box.tag_add("unconfirmed", f"{number}.{at}", f"{number}.{at + len(gm.UNCONFIRMED)}")

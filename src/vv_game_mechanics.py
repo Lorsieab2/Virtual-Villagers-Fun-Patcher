@@ -29,8 +29,12 @@ from pathlib import Path
 
 TITLE = "Game Mechanics"
 GROUPS = ("Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
-          "Food earned", "Time away and Time Warp", "Island events", "Hidden villager stats", "Chance and timers",
-          "Other")
+          "Food earned", "Time away and Time Warp", "Island events", "Puzzles", "Hidden villager stats",
+          "Chance and timers", "Other")
+PUZZLES = "Puzzles"
+# Every fact is a bullet under its heading; a sub-fact (a tree's planting, its fruit, ...) an indented dash under
+# the fact before it (the owner, 2026-10-23: "bullet point everything ... for easier legibility").
+BULLET, SUB_BULLET = "• ", "    – "
 # The label every unverified line carries, in capitals, right beside it (the owner, 2026-10-23), and the
 # line at the top of the window that explains it.
 UNCONFIRMED = "UNCONFIRMED"
@@ -64,10 +68,12 @@ _MONTHS = ("January", "February", "March", "April", "May", "June", "July", "Augu
 class Fact:
     """One line of the page.  `verified` says what stands behind it: SAVE, OWNER or CLAMP (see TRUSTED) let it
     go without the label; True (a research spec's isolated emulation) or False does not -- it is shown with
-    UNCONFIRMED.  A line is unconfirmed unless it says otherwise."""
+    UNCONFIRMED.  A line is unconfirmed unless it says otherwise.  `sub`: shown as a sub-bullet of the fact
+    before it."""
     group: str
     text: str
     verified: bool | str = False
+    sub: bool = False
 
     @property
     def confirmed(self) -> bool:
@@ -264,6 +270,139 @@ def time_away(village: "Village", last: float, speed_value: int, paused_words: s
 
 
 # ---------------------------------------------------------------------------
+# The later games' game clock, and dating its past times
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class GameClock:
+    """The game clock of The Secret City, The Tree of Life and New Believers (VV3 0x5825D4, VV4 0x4D6F18, VV5
+    0x51D490; each saved with the village): the rate (the speed; 0 while paused), the speed before a pause, the
+    wall base and the game base.  Its "now" is game base + (wall now - wall base) * 6 / rate, so a game second
+    G from the game base on is the real moment
+        epoch + wall base + (G - game base) * speed / 6.
+    The base is reset at every speed change or pause (VV3 0x426630); the save keeps only the last one, so a
+    game second BEFORE it cannot be dated: the speeds, pauses and closed spells between are not kept.  What
+    the save does establish is how far into the village it was -- a new village starts the clock at game
+    second 0 (VV3 0x4264F0 from 0x427FE2, VV4 0x41DA70 from 0x41F252, VV5 0x41EC90 from 0x424747) -- and that
+    it was before the base.  `created`: the village's start (Unix seconds), or None when the save has none."""
+    rate: int
+    before: int
+    wall: int
+    base: int
+    epoch: int                      # the clock's wall origin (Unix seconds)
+    speed: int                      # the save's speed value (3/6/10, +999 paused)
+    created: float | None = None
+
+    @property
+    def paused(self) -> bool:
+        return self.speed >= PAUSED
+
+    @property
+    def frozen(self) -> bool:
+        """Saved stopped (paused, or a rate of 0): no time passes while the game is closed."""
+        return self.rate == 0 or self.paused
+
+    @property
+    def runs_at(self) -> int:
+        for value in (speed_base(self.speed), self.rate, self.before):
+            if value in SPEED_NAMES:
+                return value
+        return NORMAL
+
+    def real(self, game_seconds: int) -> float:
+        """The real moment of a game second at or after the base (later ones at the save's speed)."""
+        return self.epoch + self.wall + (game_seconds - self.base) * self.runs_at / NORMAL
+
+    def game_now(self, now: float) -> int:
+        if self.frozen:
+            return self.base
+        return self.base + int(max(0.0, now - self.epoch - self.wall) * NORMAL / self.runs_at)
+
+    @property
+    def restarted(self) -> float:
+        """The real moment of the base: the earliest one the save can date."""
+        return self.epoch + self.wall
+
+    def dated(self, game_seconds: int) -> bool:
+        return game_seconds >= self.base
+
+    def moment(self, game_seconds: int, at: bool = False) -> str:
+        """A game second in words: its real date ("at ..." with `at`) when the save can date it, otherwise how
+        far into the village it was and that it was before the base -- never a date worked back."""
+        if self.dated(game_seconds):
+            return ("at " if at else "") + when(self.real(game_seconds))
+        # Real time only (the owner, 2026-10-22): the clock's count, as the Ash Key line gives it, on Normal speed.
+        started = f"started {when(self.created)}; " if self.created is not None else ""
+        return (f"{'when ' if at else ''}the village was {duration(max(0, game_seconds), exact=True)} old, counted on "
+                f"Normal speed ({started}the save keeps no real date before {when(self.restarted)})")
+
+
+def later_clock(data: bytes, at: int, epoch: int, speed: int, created_wall: int | None) -> GameClock:
+    """The saved clock at `at` (four int32: rate, before, wall base, game base), with the village's start
+    `created_wall` (wall seconds from `epoch`, the statistics block's first field) when it is one."""
+    rate, before, wall, base = struct.unpack_from("<4i", data, at)
+    # (A new village's start is written just after its clock starts, so it may be a little after the wall base.)
+    created = epoch + created_wall if created_wall is not None and created_wall > 0 else None
+    return GameClock(rate, before, wall, base, epoch, speed, created)
+
+
+def started_line(created: float | None) -> Fact:
+    """The village's start, read from the save (the statistics block's first field, which the game sets when the
+    village is made and its Real Hours Played counts from)."""
+    if created is None:
+        return Fact("Other", "When the village was started is not in this save.", SAVE)
+    return Fact("Other", f"The village was started at {when(created)}.", SAVE)
+
+
+def later_puzzle_lines(names: dict[int, str], entry, threshold: dict[int, int], clock: GameClock,
+                       total: str = "") -> list[Fact]:
+    """One line for each named puzzle of a later game: solved, and when (the time the game's own Advance stamps,
+    on the game clock), or not yet solved.  `entry(id)` -> (progress, solve time); solved is the game's own test,
+    progress >= the threshold the puzzle registers with."""
+    out = []
+    solved = 0
+    for pid, name in names.items():
+        progress, stamp = entry(pid)
+        if progress >= threshold[pid]:
+            solved += 1
+            when_words = (f"solved {clock.moment(stamp, at=True)}" if stamp > 0 else
+                          "solved (the game kept no time for it)")
+            out.append(Fact(PUZZLES, f"{name}: {when_words}.", SAVE))
+        else:
+            out.append(Fact(PUZZLES, f"{name}: not yet solved.", SAVE))
+    out.insert(0, Fact(PUZZLES, f"Puzzles solved: {solved} of {len(names)}{total}.", SAVE))
+    return out
+
+
+def hours_puzzle_lines(names: list[str], solved, hours, created: float | None) -> list[Fact]:
+    """A New Home's and The Lost Children's puzzles: a solved flag and the whole hours since the village was
+    started that its completion writes (the Puzzles screen's "Completed in N hours"; at least 1 in The Lost
+    Children), so the moment is known to within the hour."""
+    out = []
+    count = 0
+    for n, name in enumerate(names):
+        if not solved(n):
+            out.append(Fact(PUZZLES, f"{name}: not yet solved.", SAVE))
+            continue
+        count += 1
+        h = hours(n)
+        if h <= 0:
+            words = "solved (the game kept no time for it)"
+        elif h == 1:                     # 0 and 1 whole hours are both written as 1
+            words = "solved within 2 hours of the village's start" + (
+                f", by {when(created + 7200)}" if created is not None else "")
+        elif created is None:
+            words = f"solved {h} hours after the village was started"
+        else:
+            words = (f"solved {h} hours after the village was started: between {when(created + h * 3600)} "
+                     f"and {when(created + (h + 1) * 3600)}")
+        out.append(Fact(PUZZLES, f"{name}: {words}.", False))
+    out.insert(0, Fact(PUZZLES, f"Puzzles solved: {count} of {len(names)}.", SAVE))
+    return out
+
+
+# ---------------------------------------------------------------------------
 # The patches in the game
 # ---------------------------------------------------------------------------
 
@@ -295,6 +434,17 @@ def feature_ids(prefix: str) -> list[str]:
     """Every patch id the patcher knows that starts with `prefix` (for example "vv3_")."""
     feature_name("")
     return sorted(fid for fid in (_NAMES or {}) if fid.startswith(prefix))
+
+
+def golden_line(feature: str, wait: str) -> str:
+    """The Super-Secret Golden Mushroom's facts, for the Game Mechanics page only and only when the patch is in
+    the game (the owner, 2026-10-23; everywhere else it stays a secret).  From the patch itself: the kind roll
+    (native/vvfp_golden_mushroom kind_roll; The Lost Children's own row) is two draws of the game's raw C rand,
+    each a multiple of 1000 out of 0..31999 -- 1 in 1,000,000 -- made only on the random mushroom spawn, and the
+    pickup gives 100 food through the game's own mushroom award (tests/test_super_secret_golden_mushroom.py)."""
+    return (f"The patcher's \"{feature_name(feature)}\" is in the game: 1 in 1,000,000 of the random brown or red "
+            "mushrooms is a gold Golden Mushroom instead, worth 100 food. It never comes from anything else, and it "
+            f"counts as a mushroom. At this game's mushroom rate one appears on average once in {wait}.")
 
 
 def patch_words(village: "Village", feature: str, effect: str) -> str:
@@ -418,7 +568,8 @@ def render(facts: list[Fact]) -> str:
                 out.append("")
             out.append(fact.group)
             group = fact.group
-        out.append(f"  {UNCONFIRMED}  {tidy(fact.text)}" if not fact.confirmed else f"  {tidy(fact.text)}")
+        mark = SUB_BULLET if fact.sub else BULLET
+        out.append(f"{mark}{UNCONFIRMED}  {tidy(fact.text)}" if not fact.confirmed else f"{mark}{tidy(fact.text)}")
     return "\n".join(out)
 
 

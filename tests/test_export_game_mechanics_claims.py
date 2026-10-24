@@ -103,7 +103,10 @@ class Coverage(unittest.TestCase):
         for status in ("UNCONFIRMED", "READ FROM THE SAVE", "VERIFIED FROM RUNNING CODE"):
             self.assertIn(f"Status: {status}", text)
         self.assertIn("- Honey: # of 3000", text)                 # a rule's own number kept, the save's not
-        self.assertIn("Tree #: Mango, planted at <date>, refills every 3 hours on Normal speed.", text)
+        self.assertIn("- Tree #: Mango\n", text)
+        self.assertIn("- Planted at <date>; refills every ", text)
+        self.assertIn("- Planted when the village was <time> old, counted on Normal speed (started <date>; the save "
+                      "keeps no real date before <date>); refills every ", text)
         self.assertIn("Patches: Nature Level 1 Actually Replenishes Food Sources Faster", text)
         owner = (out / export.file_name(5)).read_text(encoding="utf-8")
         self.assertIn("Status: CONFIRMED BY OWNER", owner)

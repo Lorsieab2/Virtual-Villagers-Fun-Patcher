@@ -175,7 +175,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out: list[gm.Fact] = []
     add = lambda group, text, ok=False: out.append(gm.Fact(group, text, ok))  # noqa: E731
     pick = {gm.FAST: 0, gm.NORMAL: 1, gm.SLOW: 2}[speed]
-    dam, scared = _i32(data, DAM) > 0, _i32(data, SCARER) > 0
+    # Both are the puzzles' solved bytes (0x425AC9 reads the Scarecrow's as a byte), not dwords.
+    dam, scared = data[DAM + S] != 0, data[SCARER + S] != 0
 
     # -- Food sources --------------------------------------------------------------------
     add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", gm.SAVE)
@@ -183,9 +184,27 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "(4 while catching up).", gm.RUNNING)
     add("Food sources", f"Crops: {_i32(data, CROPS):,} of {CROPS_FULL}; a trip brings {(10, 7, 4)[pick]} on {on} speed "
                         "(7 while catching up).", gm.RUNNING)
-    add("Food sources", ("The birds: " + ("kept away." if scared else
-                                          f"{_i32(data, ALLOWANCE):,} more food of harvest before they find the "
-                                          "field and eat the young crops.")), gm.RUNNING)
+    # The birds (the owner, 2026-10-23: clarify them): the regrowth step 0x43B960 grows the crops 800 only while
+    # 0x425AC0 says the birds have not found the field (the dam built, the Scarecrow's byte 0, the allowance
+    # 0x2EAD4 at 0 or less), and otherwise sets them to 0 (0x43BA0D); the allowance starts at 1000 (0x425261) and
+    # every crop harvest takes its food from it (0x463264); message 0x1CA (0x487138).  Static reading.
+    allowance = _i32(data, ALLOWANCE)
+    add("Food sources", ("The birds: " + ("kept away by The Scarecrow." if scared else
+                                          f"{allowance:,} more food of crop harvest before they find the field and "
+                                          "eat the young crops." if allowance > 0 else
+                                          "they have found the field: each regrowth's new crops are eaten.")), gm.RUNNING)
+    out.append(gm.Fact("Food sources", "A new village allows 1,000 food of crop harvest; every harvest (10, 7 or 4 "
+                                       "food on Fast, Normal or Slow) counts against it, and it never comes back.",
+                       False, sub=True))
+    out.append(gm.Fact("Food sources", ("Once it is used up, at every regrowth (every "
+                                        f"{gm.duration(2400 * 3)}, {gm.duration(2400 * 6)} or {gm.duration(2400 * 10)} "
+                                        "on Fast, Normal or Slow; none while paused; every missed one after time away) "
+                                        "the birds eat all the field's crops instead of it growing 800. No chance is "
+                                        "rolled; the time of day and the weather do not matter, and stored food is never "
+                                        "touched."), False, sub=True))
+    out.append(gm.Fact("Food sources", "Only The Scarecrow stops it, for good; no patch changes it.", False, sub=True))
+    out.append(gm.Fact("Food sources", "The game says: \"Oh my! Birds found your field and are relentlessly eating "
+                                       "the young crops before your villagers can harvest them!\"", False, sub=True))
     add("Food sources", f"Fish: {_i32(data, FISH):,} (they never grow back); a trip brings {(11, 8, 5)[pick]} on {on} "
                         "speed (8 while catching up).", gm.RUNNING)
     add("Food sources", "At 0 fish, fishing stops until the algae-eating fish have been done 10 times; after that "
@@ -209,10 +228,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Mushrooms", "One thing at a time, at any speed and only while playing: every 2 seconds with nothing out, a "
                      "(Exploration level + 4)% chance (about 40, 34 or 28 seconds' wait at Exploration 1, 2, 3). It "
                      "stays 1 minute 15 seconds. Only a villager under 14 picks one up, when you drop them on it.", gm.RUNNING)
-    add("Mushrooms", "It is a mushroom 50%, 35% or 20% of the time at Exploration 1, 2, 3: +6 food, or 1 in 10 a "
-                     "special one for +35.", gm.RUNNING)
+    add("Mushrooms", "It is a mushroom 50%, 35% or 20% of the time at Exploration 1, 2, 3: a brown "
+                     "mushroom worth 6 food, or 1 in 10 a red (rare) mushroom worth 35.", gm.RUNNING)
     if village.has(GOLDEN):
-        add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
+        add("Mushrooms", gm.golden_line(GOLDEN, "about 2.5, 3 or 4.5 years of play at Exploration 1, 2, 3"), gm.RUNNING)
     add("Collectibles", "When it is not a mushroom it is a collectible: rare 4%, 6% or 8% at Exploration 1, 2, 3, "
                         "uncommon 12%, the rest common. Butterflies and shells can always appear, pebbles once the "
                         "dam is built, beetles once their place is opened"
@@ -299,4 +318,23 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     for line, ok in ODDS_LINES:
         add("Other", line, ok)
     out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "Totems do not age."))
+    created = real(CREATED)
+    out.append(gm.started_line(created))
+    out.extend(gm.hours_puzzle_lines([name for name, _flag, _hours in PUZZLES],
+                                     lambda n: data[PUZZLES[n][1] + S] != 0,
+                                     lambda n: _i32(data, PUZZLES[n][2]), created))
     return out
+
+
+# The village's start: [state+0x2E4F8], on the clock 0x403200, that the puzzles' hours count from.  The 16
+# puzzles (the Village Statistics' count): a solved byte and the whole hours since the start that the completion
+# writes, (the clock - the start) / 3600, at least 1 (0x462B44..0x462B73); state offsets, as the patcher's Story
+# Cheat Upgrades reads them.
+CREATED = 0x2E4F8
+PUZZLES = (("Fire", 0x2E768, 0x2E530), ("The Scarecrow", 0x2E770, 0x2E534), ("The Elder Totem", 0x2E778, 0x2E538),
+           ("The Hospital", 0x2E780, 0x2E53C), ("Herb Mastery", 0x2E788, 0x2E540), ("The Sewing Hut", 0x2E790, 0x2E544),
+           ("The Dam", 0x2E798, 0x2E548), ("The Cutting Tool", 0x2E7A0, 0x2E54C), ("The Stew", 0x2E7A8, 0x2E550),
+           ("The Vine Wall", 0x2E7B0, 0x2E554), ("The Ancient Mosaic", 0x2E7B8, 0x2E558),
+           ("The Boxed Gong Piece", 0x2E7C0, 0x2E55C), ("The Sunken Gong Piece", 0x2E7C8, 0x2E560),
+           ("The Inlaid Gong Piece", 0x2E7D8, 0x2E568), ("The Overgrown Gong Piece", 0x2E7E0, 0x2E56C),
+           ("Sustainable Fishing", 0x2E7E8, 0x2E570))

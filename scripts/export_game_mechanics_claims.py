@@ -99,6 +99,8 @@ def pokes(game: int, data: bytes) -> list[bytes]:
             out += [_put(data, at + m.S, 0), _put(data, at + m.S, 1)]
         for at in (m.FIRE_END, m.GONG_NEXT):
             out += [_put(data, at + m.S, 0), _put(data, at + m.S, 400_000_000)]
+        for scarer in (0, 1):                   # the birds: kept away, still allowed some harvest, or found the field
+            out += [_put(_put(data, m.SCARER + m.S, scarer), m.ALLOWANCE + m.S, amount) for amount in (0, 500)]
     elif game == 3:
         h = m.HEADER
         for level in range(0, 4):
@@ -112,20 +114,53 @@ def pokes(game: int, data: bytes) -> list[bytes]:
             out.append(_put(data, h + at, 400_000_000))
         clock = struct.unpack_from("<4i", data, h + m.CLOCK)
         base = clock[3]
-        for trees in ([(1, base - 50_000, base - 20_000, 300)], [(0, base - 100, base - 100, 1000)],
-                      [(2, base - 1000, base - 500, 10), (1, base - 90_000, base - 90_000, 999),
-                       (0, base - 200_000, base - 5_000, 0)]):
-            buf = data
-            for n, (kind, planted, refilled, fruit) in enumerate(trees):
-                buf = _put(buf, h + m.TREES + 0x14 + 0x18 * n + 8, planted, refilled, kind, fruit)
-            out.append(_put(buf, h + m.TREES + 0x5C, len(trees)))
+        # Trees and refills before the clock's base (not dated) and after it (dated); the last two also without the
+        # village's start in the save.
+        sets = ([(1, base - 50_000, base - 20_000, 300)], [(0, base - 100, base - 100, 1000)],
+                [(2, base - 1000, base - 500, 10), (1, base - 90_000, base - 90_000, 999),
+                 (0, base - 200_000, base - 5_000, 0)], [(1, base + 10, base + 10, 5)])
+        for start, chosen in ((data, sets), (_put(data, h + m.STATS, 0), sets[2:])):
+            for trees in chosen:
+                buf = start
+                for n, (kind, planted, refilled, fruit) in enumerate(trees):
+                    buf = _put(buf, h + m.TREES + 0x14 + 0x18 * n + 8, planted, refilled, kind, fruit)
+                out.append(_put(buf, h + m.TREES + 0x5C, len(trees)))
+        out += _puzzle_pokes(data, [h + m.PUZZLES + 4 + 8 * pid for pid in m.PUZZLE_NAMES], base)
     elif game == 4:
         for level in range(1, 4):
             out += [_put(data, m.LEVELS + 4 * m.SCIENCE, level), _put(data, m.LEVELS + 4 * m.FOOD_MASTERY, level)]
         out += [_put(data, m.EVENTS_SEEN, 0), _put(data, m.EVENTS_SEEN, 3)]
+        base = struct.unpack_from("<4i", data, m.CLOCK)[3]
+        out += _puzzle_pokes(data, [m.PUZZLE_ENTRIES + 8 * pid for pid in m.PUZZLE_NAMES], base)
+        out.append(_put(data, m.STATS, 0))
     elif game == 5:
         out += [_put(data, m.PROJECTS + 8 * m.HYDRO_FARM, 0), _put(data, m.PROJECTS + 8 * m.HYDRO_FARM, 30)]
         out += [_put(data, m.EVENTS_SEEN, 0), _put(data, m.EVENTS_SEEN, 3)]
+        base = struct.unpack_from("<4i", data, m.CLOCK)[3]
+        out += _puzzle_pokes(data, [m.PROJECTS + 8 * pid for pid in list(m.PUZZLE_NAMES) + [17]], base)
+        out.append(_put(data, m.STATS, 0))
+    if game in (1, 2):
+        s = 4                                   # file offset = state offset + 4
+        buf = data
+        for _name, flag, _hours in m.PUZZLES:
+            buf = buf[:flag + s] + b"\0" + buf[flag + s + 1:]
+        out.append(buf)
+        for hours in (0, 1, 7):
+            buf = data
+            for _name, flag, at in m.PUZZLES:
+                buf = _put(buf[:flag + s] + b"\1" + buf[flag + s + 1:], at + s, hours)
+            out.append(buf)
+    return out
+
+
+def _puzzle_pokes(data: bytes, entries: list[int], base: int) -> list[bytes]:
+    """The puzzles all unsolved, and all solved with no time, with a time before the clock's base and after it."""
+    out = []
+    for progress, stamp in ((0, 0), (5_000, 0), (5_000, max(1, base - 100)), (5_000, base + 100)):
+        buf = data
+        for at in entries:
+            buf = _put(buf, at, progress, stamp)
+        out.append(buf)
     return out
 
 

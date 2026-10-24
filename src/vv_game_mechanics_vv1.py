@@ -95,7 +95,7 @@ CHANCE_LINES = (
      "health regained 50% (20% for the elderly); falling sick; old age; the scheduler's 66% of nothing; the job "
      "chooser; the food source; skill success and gain; the embrace below 400 food (26%) and conception; twins "
      "7%, triplets 25% of twins; injuries 2%; rest +1 health 50%; an examined hut repaired 70%.", True),
-    ("Sick damage (71%, about 22% at 20 health or less), the catch-up embrace (6%) and healing, the big catch "
+    ("Sick damage (71%, about 22% at 20 health or less), the catch-up embrace (6%) and healing, the crab catch "
      "(21%), dislike refusals and the story events' outcomes.", False),
     ("Every frame some map effects are rolled (1 in 20 of 1,000, 3 in 20, 3 in 25,000) depending on the puzzles; "
      "what they draw is not yet worked out, and their rate follows the frame rate.", False),
@@ -134,9 +134,15 @@ HIDDEN_LINES = (
      '(brothers and sisters often do).', False),
     ("A baby takes its mother's family number and starts with one skill at 5 to 7: a parent's highest, never "
      'Breeding (Farming 0 instead).', gm.RUNNING),
+    # The Golden Child (the owner, 2026-10-23: "I do not think the Golden Child can die of starvation"): the age lock
+    # 0x42EB70..0x42EB8E sets his age and processed age to 100 each tick, and the age-unit body runs a villager
+    # only while the processed age is below the age (0x42EC74), so he skips eating (0x42ECCC), both starvation
+    # drains (0x42ECB7, 0x42ED37), sickness (0x42EDA3, and 0x42E5A4), regaining health and the old-age roll.
     ('The Golden Child has family number 199 and is born beside a normal baby; he starts with every skill at '
-     '100, is set back to 5 years old at every age unit (so he never grows up or dies of old age) and never '
-     'falls sick; going without food and injuries still hurt him.', gm.RUNNING),
+     '100 and is set back to 5 years old at every age unit, so the game skips him in its age-unit step: he never '
+     'eats, never starves, never falls sick, never dies of old age and never regains health.', gm.RUNNING),
+    ('Work injuries and island-event health losses do not check for the Golden Child; since he never regains '
+     'health, such losses last, and at 0 health he dies.', False),
     ('With 6 or fewer villagers, when one sex has 2 or fewer members, a baby is of the more numerous sex.', gm.RUNNING),
     ("Likes: at birth 70% none, 21% one, 9% two; dislikes the same; a like is never also a dislike.", gm.RUNNING),
     ("Running, liked: a villager of 14 or more runs, three times walking speed. Disliked: a child under 14 "
@@ -199,9 +205,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food sources", f"Berry bush: {bush:,}; a pick takes {max(2, bush // 130):,} from it now (the bush ÷ 130, at "
                         "least 2).", gm.RUNNING)
     add("Food sources", f"Crop field: {_i32(data, FIELD):,} of {FIELD_CAP}; a harvest gives 7.", gm.RUNNING)
-    add("Food sources", "Fishing: 9 a catch, or 55 for a big catch; it needs Farming level 3 and the beach cleaned "
+    # The big catch is a crab (the owner, 2026-10-23; the code does not name it: 0x43F4A7).
+    add("Food sources", "Fishing: 9 a catch, or a crab worth 55 food; it needs Farming level 3 and the beach cleaned "
                         f"(Farming is level {farming}).", gm.RUNNING)
-    add("Food sources", "A villager with Farming skill 90 or more has a 21% chance of the big catch.")
+    add("Food sources", "A villager with Farming skill 90 or more has a 21% chance of catching a crab, worth 55 food.")
     add("Food sources", ("Where a farmer goes: at Farming level 1 the bush; at level 2 half the time the bush and "
                          "half the crops (the crops when the bush is under 100); at level 3 with the beach clean fish "
                          "50%, berries 16.5%, crops 16.75%, nothing 16.75% (with a dirty beach berries 33%, crops "
@@ -218,11 +225,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
 
     # -- Mushrooms / Collectibles --------------------------------------------------------
     add("Mushrooms", "While none is out, a mushroom appears after about 2 minutes on average, at any speed (even "
-                     "while paused), at one of 9 places, and stays 1 minute; it is picked only when you drop a villager on it. It gives 8 food, or 45 for "
-                     "the big kind (1 in 20).", gm.RUNNING)
+                     "while paused), at one of 9 places, and stays 1 minute; it is picked only when you drop a villager on it. It is a brown mushroom worth "
+                     "8 food, or 1 in 20 a red (rare) mushroom worth 45.", gm.RUNNING)
     add("Mushrooms", "Mushrooms are not kept in the save.")
     if village.has(GOLDEN):
-        add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
+        add("Mushrooms", gm.golden_line(GOLDEN, "about 4 years of play"), gm.RUNNING)
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "A New Home has no collectibles: mushrooms are its only random pickup.", gm.RUNNING)
 
@@ -248,6 +255,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "the time; never on Easy. At 200 food or less a villager skips the meal half the time and "
                         "loses 1 health."), gm.RUNNING)
     add("Food earned", "With no food, a villager loses 1 health 76% of age units (every one on Hard).")
+    add("Food earned", "The Golden Child neither eats nor starves: the age-unit step that feeds and starves the villagers "
+                       "skips him.", gm.RUNNING)
 
     # -- Time away and Time Warp ---------------------------------------------------------
     out.extend(gm.time_away(village, saved, speed_value,
@@ -286,4 +295,18 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Other", (f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} speed: "
                   "ages, pregnancies and regrowth follow the speed; work, mushrooms and island events do not."), gm.RUNNING)
     add("Other", f"The village was started at {gm.when(real(CREATED))}.", gm.SAVE)
+    out.extend(gm.hours_puzzle_lines([name for name, _flag, _hours in PUZZLES],
+                                     lambda n: data[PUZZLES[n][1] + 4] != 0,
+                                     lambda n: _i32(data, PUZZLES[n][2] + 4), real(CREATED)))
     return out
+
+
+# The puzzles: each a solved byte and the whole hours since the village was started that its completion writes
+# ((clock - [state+0x9E1C]) / 3600, 1 for 0: 0x4245A0), the Puzzles screen's "Completed in N hours"; state
+# offsets (a file offset is 4 more), as the patcher's Story Cheat Upgrades and the Village Statistics read them.
+PUZZLES = (("The Well", 0xA058, 0x9EA8), ("The Hut", 0x9FE8, 0x9E70), ("The Beach", 0x9FB8, 0x9E58),
+           ("The School", 0xA050, 0x9EA4), ("The Lagoon", 0x9FB0, 0x9E54),
+           ("The Magic Fish of Fertility", 0xA090, 0x9EC4), ("The Cemetery", 0xA000, 0x9E7C),
+           ("Herb Mastery", 0xA080, 0x9EBC), ("The Garden", 0x9FC0, 0x9E5C), ("The Magic Plant of Life", 0xA098, 0x9EC8),
+           ("The Temple", 0x9FE0, 0x9E6C), ("The Idol", 0x9FD8, 0x9E68), ("The Butterflies", 0xA088, 0x9EC0),
+           ("The Treasure", 0x9FC8, 0x9E60), ("The Cave", 0x9FA8, 0x9E50), ("The Golden Child", 0xA008, 0x9E80))
