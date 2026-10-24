@@ -22,6 +22,33 @@ $vsTools = "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\
 
 $runDir = Join-Path $env:TEMP ("vvfp_dwp_" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $runDir -Force | Out-Null
+# The writers measure every path against MAX_PATH with room for their
+# ".unreadable-..." set-aside name (VV_DATA_RESERVE, 27 with the NUL), and a
+# save's own folder that would not fit is never used: the older layout's path
+# is kept (native/shared/per_save.h, rule 6 of data_subfolder.h). That is the
+# shipped behaviour for an over-long save folder, not what checks a. measure,
+# so the scratch "Documents" folder must leave the longest writer room. The
+# longest is the Unaccounted Villagers roster (writer 8): with this run's
+# folder, the default %TEMP% left it 3 characters, and any longer %TEMP% (a
+# private one per test run) sent it to the older layout and failed checks a.
+# The scratch is therefore named by its 8.3 short form where the volume has
+# one, and a scratch that still leaves too little room is refused up front
+# with the reason, never reported as the writer's failure.
+$scratchRoot = $runDir
+try {
+    $short = (New-Object -ComObject Scripting.FileSystemObject).GetFolder($runDir).ShortPath
+    if ($short) {
+        $scratchRoot = $short
+    }
+} catch {
+}
+$longest = (Join-Path $scratchRoot "d8") + "\LDW\data_writer_paths_harness_8\Virtual Villagers Fun Patcher" +
+    "\Save 5\Data\Unaccounted Villagers\Virtual Villagers 4 Villagers at Last Save - Save 5.dat"
+if ($longest.Length + 27 -gt 260) {
+    Remove-Item -LiteralPath $runDir -Recurse -Force -ErrorAction SilentlyContinue
+    throw ("The scratch folder " + $scratchRoot + " is too long for the writers' MAX_PATH budget (" +
+        $longest.Length + " + 27 > 260) and has no 8.3 short name: set TEMP to a shorter folder.")
+}
 $failed = @()
 Push-Location $runDir
 try {
@@ -56,7 +83,7 @@ try {
             throw "Data writer paths harness $writer compilation failed."
         }
         # A short scratch path: the writers' MAX_PATH budgets include it.
-        $scratch = Join-Path $runDir ("d" + $writer)
+        $scratch = Join-Path $scratchRoot ("d" + $writer)
         & $exe $scratch
         if ($LASTEXITCODE -ne 0) {
             $failed += $writer
