@@ -658,15 +658,17 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
     on = gm.speed_name(ctx.speed)
     mothers = [p for p in members if p.carrying]
     eaters_now = [p for p in members if not p.golden]
-    eaters = len(eaters_now) + len(mothers)      # each nursing mother and her babies counted as 2 (the owner)
+    # The game's own eating step feeds only villagers (VV1 0x42ECCC and the later games' life ticks): a nursing
+    # mother eats as 1 and her babies eat nothing until they are born (the owner, 2026-10-24: follow the code).
+    eaters = len(eaters_now)
     per_unit = eat_per_unit(ctx)
     units_hour = 3600.0 / ctx.unit
     per_hour = eaters * per_unit * units_hour
     level = ctx.difficulty
     add(f"Food estimates (estimates, not the game's own figures), on {on} speed at difficulty "
         f"{DIFFICULTY.get(level, 'not read') if level is not None else 'not read'}:")
-    add(f"Population for food: {eaters} -- {len(eaters_now)} who eat, each nursing mother and her baby or babies "
-        f"counted as 2 ({len(mothers)} mother{'s' if len(mothers) != 1 else ''})"
+    add(f"Population for food: {eaters} villagers who eat; nursing babies need no food, as the game feeds only "
+        f"villagers ({len(mothers)} nursing mother{'s' if len(mothers) != 1 else ''}, each counted once)"
         + ("; the Golden Child never eats" if any(p.golden for p in members) else "")
         + ("; Heathens outside the tribe never eat" if ctx.game == 5 else "") + ".", True, gm.SAVE)
     add(f"Eating: {ctx.food_words} That is {per_unit:g} food a villager each age unit now, "

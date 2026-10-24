@@ -144,7 +144,9 @@ class Nursing(unittest.TestCase):
                 self.assertIn(f'"Nursing for: {(10 + extra - 41) * speed} min"', shown.text)
                 self.assertTrue(shown.sub)
 
-    def test_a_mother_counts_as_two_for_food_and_her_babies_in_the_population(self) -> None:
+    def test_a_mother_eats_as_one_and_her_babies_count_in_the_population(self) -> None:
+        """The owner, 2026-10-24: follow the game's code -- a nursing mother is 1 eater, her babies 0 (the game
+        feeds only villagers); the babies still count in the population."""
         for game in range(1, 6):
             with self.subTest(game=game):
                 data = fixture(game)
@@ -158,7 +160,10 @@ class Nursing(unittest.TestCase):
                                                   if f.text.startswith(start))
                 pop_before = int(count(before, "Population for food: ").split()[3])
                 pop_after = int(count(after, "Population for food: ").split()[3])
-                self.assertEqual(pop_after, pop_before + 1)
+                self.assertEqual(pop_after, pop_before)
+                self.assertIn("nursing babies need no food", count(after, "Population for food: "))
+                eaten = lambda facts: count(facts, "Food eaten: ")  # noqa: E731
+                self.assertEqual(eaten(after), eaten(before))
                 self.assertIn("3 babies on the way", count(after, "Population: "))
 
     def test_nobody_carrying(self) -> None:
