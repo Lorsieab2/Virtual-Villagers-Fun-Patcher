@@ -101,6 +101,8 @@ def pokes(game: int, data: bytes) -> list[bytes]:
             out += [_put(data, at + m.S, 0), _put(data, at + m.S, 400_000_000)]
         for scarer in (0, 1):                   # the birds: kept away, still allowed some harvest, or found the field
             out += [_put(_put(data, m.SCARER + m.S, scarer), m.ALLOWANCE + m.S, amount) for amount in (0, 500)]
+        for dam in (0, 1):                      # with the allowance used up: the birds only with the dam built
+            out.append(_put(_put(_put(data, m.SCARER + m.S, 0), m.ALLOWANCE + m.S, 0), m.DAM + m.S, dam))
     elif game == 3:
         h = m.HEADER
         for level in range(0, 4):
