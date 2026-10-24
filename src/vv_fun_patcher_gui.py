@@ -3009,6 +3009,9 @@ class App(tk.Tk):
                     + " (your own saves are unchanged), so a restored backup opens "
                     "paused and never catches up on the time since it was made."
                 )
+            for name, why in result.not_paused:
+                lines.append(f"Not set to Paused in the backup: {name} -- {why}. That copy is "
+                             "exactly as your save is.")
             if result.paused:
                 lines.append(
                     "The game was running: it was paused for the copy and has "
@@ -4292,7 +4295,8 @@ class App(tk.Tk):
                 text += f"; {len(paused.already)} already paused"
             if paused.skipped:
                 text += "; left as they were: " + "; ".join(f"{p.name} ({why})" for p, why in paused.skipped)
-            lines.append(text + ". Only the speed changed, to what the game writes when you pause and quit.")
+            lines.append(text + ". Each save was paused exactly as the game's own pause key pauses it (its "
+                         "game clock stopped and its timers kept), as if you had paused and quit.")
         if restored is not None:
             lines.append(f"Names the Villager Details screen cut short restored: {len(restored.renamed)} villager(s) "
                          f"({', '.join(f'{old} -> {new}' for (old, _h, _b), new in restored.renamed.items())}), "
@@ -4341,8 +4345,12 @@ class App(tk.Tk):
             try:
                 changed = self._run_with_wait("Setting the game speed…", lambda: vv_save_backup.set_speed_choice(
                     number, vv_last_names.save_path(folder, number, info.slot), speed_choice))
-                lines.append(f"Game speed in the save: {vv_save_backup.speed_words(changed[1])} (was "
-                             f"{vv_save_backup.speed_words(changed[0])})." if changed else
+                lines.append((f"Game speed in the save: {vv_save_backup.speed_words(changed[1])} (its game "
+                              "clock and timers now follow it, as the game's own speed change leaves them)."
+                              if changed[0] == changed[1] else
+                              f"Game speed in the save: {vv_save_backup.speed_words(changed[1])} (was "
+                              f"{vv_save_backup.speed_words(changed[0])}), changed exactly as the game's own "
+                              "speed control changes it.") if changed else
                              f"Game speed in the save: already {vv_save_backup.SPEED_CHOICES[speed_choice]}.")
             except (vv_save_backup.BackupError, OSError) as exc:
                 messagebox.showerror("Repair Saves & Logs", f"The game speed was not changed. {exc}", parent=parent)

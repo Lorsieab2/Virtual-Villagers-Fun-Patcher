@@ -857,7 +857,9 @@ class HospitalTableLegsTests(unittest.TestCase):
         data = HOSPITAL_SHIPPED.read_bytes()
         self.assertEqual(hashlib.sha256(data).hexdigest().upper(), HOSPITAL_SHIPPED_SHA256)
         self.assertEqual(len(data), HOSPITAL_SHIPPED_SIZE)
-        self.assertEqual(self.feature.raw["companion_files"], [{
+        # (The row's other companion is the speed-change timers DLL, tests/test_speed_change_timers.py.)
+        self.assertEqual([c for c in self.feature.raw["companion_files"]
+                          if not c["destination"].endswith(".dll")], [{
             "source": "assets/vv3_hospital/vvfp_hospitalFixed.png",
             "destination": "Images/vvfp_hospitalFixed.png",
             "size": HOSPITAL_SHIPPED_SIZE,
@@ -914,7 +916,8 @@ class HospitalTableLegsTests(unittest.TestCase):
             folder = Path(holder)
             copied = vfp._copy_companion_files(folder, [self.feature])
             target = folder / "Images" / "vvfp_hospitalFixed.png"
-            self.assertEqual([item["path"] for item in copied], [str(target)])
+            # The row also ships its speed-change timers companion (into the patcher's own folder).
+            self.assertEqual([item["path"] for item in copied if item["path"].endswith(".png")], [str(target)])
             self.assertEqual(target.read_bytes(), HOSPITAL_SHIPPED.read_bytes())
             # Turned off (the selection lacks the row), the patcher removes its own file ...
             removed = vfp._remove_unselected_companions(folder, build, [])
