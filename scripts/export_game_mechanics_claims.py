@@ -164,6 +164,10 @@ def _puzzle_pokes(data: bytes, entries: list[int], base: int) -> list[bytes]:
     return out
 
 
+# The game folder's stand-in exe (b"MZ") and the transparency report line giving its hash, so the report counts as
+# the patcher's log of this exe (vv_game_mechanics.patch_source).
+HASH_LINE = ("Modified EXE: {name}.exe | size 2 | SHA-256 "
+             "9b8db510ef42b8ed54a3712636fda55a4f8cfcd5493e20b74ab00cd4f3979f2d\n")
 NOWS = (1_790_000_000.0, NOW)                 # before and long after the fixtures were saved
 
 
@@ -200,7 +204,8 @@ def pages(game: int) -> list[list[gm.Fact]]:
         for data, patches in variants(game):
             (folder / f"{saves.base}1.ldw").write_bytes(data)
             if patches is not None:
-                report.write_text("\n".join(f"- Optional feature: {gm.feature_name(fid)} [{fid}]" for fid in patches)
+                report.write_text(HASH_LINE.format(name=saves.base)
+                                  + "\n".join(f"- Optional feature: {gm.feature_name(fid)} [{fid}]" for fid in patches)
                                   + "\n", encoding="utf-8")
             for now in NOWS:
                 result.append(gm.read(folder, game, 1, [game_folder] if patches is not None else [], now=now))
@@ -239,6 +244,8 @@ def claims(game: int) -> dict[str, dict[str, tuple[str, str, str, str]]]:
     seen: dict[tuple[str, str], list[gm.Fact]] = {}
     for page in pages(game):
         for fact in page:
+            if fact.group == gm.SOURCES:       # where this page was read from: no claim about the game
+                continue
             seen.setdefault((fact.group, template(fact.text)), []).append(fact)
     out: dict[str, dict[str, tuple[str, str, str, str]]] = {group: {} for group in gm.GROUPS}
     for (group, key), facts in seen.items():

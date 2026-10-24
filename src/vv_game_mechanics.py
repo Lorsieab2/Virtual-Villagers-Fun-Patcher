@@ -28,7 +28,7 @@ from datetime import datetime
 from pathlib import Path
 
 TITLE = "Game Mechanics"
-GROUPS = ("Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
+GROUPS = ("Sources", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
           "Food earned", "Time away and Time Warp", "Island events", "Puzzles", "Hidden villager stats",
           "Chance and timers", "Other")
 PUZZLES = "Puzzles"
@@ -92,9 +92,12 @@ class Village:
     installed: frozenset[str] | None
     now: float                      # the real time the section is shown at (Unix seconds)
     notes: list[str] = field(default_factory=list)
+    certain: bool = True            # a patch missing from installed is known to be out (False: only not seen)
 
     def has(self, feature: str) -> bool | None:
-        return None if self.installed is None else feature in self.installed
+        if self.installed is None:
+            return None
+        return True if feature in self.installed else (False if self.certain else None)
 
 
 # ---------------------------------------------------------------------------
@@ -456,24 +459,160 @@ def patch_words(village: "Village", feature: str, effect: str) -> str:
     return f"The patcher's {name} is {'in' if has else 'not in'} the game" + (f": {effect}." if has else ".")
 
 
-def installed_features(save_folder: Path, game_folders: list[Path]) -> frozenset[str] | None:
-    """The patcher's feature ids in the game that saves into `save_folder`: the first of
-    `game_folders` named like the save folder and holding "<name>.exe" (the repair window's
-    _game_folders_for, as Move Old Files to New Names finds it), read from its transparency report.
-    None when no such game folder, or no readable report, was found."""
+@dataclass
+class PatchSource:
+    """Which of the patcher's patches are in the game, and where that was read (the owner, 2026-10-23: from the
+    game's executable as it is now, or the patcher's log of the run that made it -- never from the save).
+    `installed`: the ids known to be in it, or None when nothing can be told; `certain`: whether an id missing
+    from `installed` is known to be out (a log matching the exe) or only not seen (read from the exe's bytes)."""
+    installed: frozenset[str] | None
+    certain: bool
+    exe: Path | None
+    words: str                                  # the source, for the top of the page
+    problems: list[str] = field(default_factory=list)
+
+
+_MODIFIED = re.compile(r"^Modified EXE: .*\| SHA-256 ([0-9a-fA-F]{64})\s*$", re.M)
+_TIMESTAMP = re.compile(r"^Timestamp \(UTC\): (.+?)\s*$", re.M)
+PATCH_LOG_SUFFIX = ".patch-log.json"
+PATCHER_SIGNATURE = "Virtual Villagers Fun Patcher"
+
+
+def _sha256(path: Path) -> str:
+    import hashlib
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _game_exes(save_folder: Path, game_folders: list[Path]) -> list[Path]:
+    """The executables of the game that saves into `save_folder`: each of `game_folders` named like the save
+    folder (Documents\\LDW\\<exe stem>) and holding "<name>.exe" (the repair window's _game_folders_for)."""
     name = Path(save_folder).name
+    found: list[Path] = []
     for folder in game_folders:
         folder = Path(folder)
-        if folder.name.casefold() != name.casefold() or not (folder / f"{name}.exe").is_file():
+        exe = folder / f"{name}.exe"
+        if folder.name.casefold() == name.casefold() and exe.is_file():
+            if all(exe.resolve() != other.resolve() for other in found):
+                found.append(exe)
+    return found
+
+
+def _from_logs(exe: Path, digest: str) -> tuple[frozenset[str] | None, str, list[str]]:
+    """The patch list from the patcher's own logs of the run that wrote `exe` -- its patch log
+    "<exe stem>.patch-log.json" or its transparency report -- only when the log's output hash is this exe's."""
+    import json
+    files = exe.parent / "Virtual Villagers Fun Patcher Files"
+    problems: list[str] = []
+    try:
+        data = json.loads((files / (exe.stem + PATCH_LOG_SUFFIX)).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        data = None
+    if isinstance(data, dict) and data.get("patcher") == PATCHER_SIGNATURE:
+        if str(data.get("output_sha256", "")).lower() == digest:
+            ids = frozenset(str(x) for x in data.get("fun_patches", []) if isinstance(x, str))
+            return ids, f"the patcher's log of the run that made it ({data.get('created_utc', 'no date')} UTC)", []
+        problems.append(f"The patcher's log {exe.stem + PATCH_LOG_SUFFIX} is for a different {exe.name} (made "
+                        f"{data.get('created_utc', 'on an unknown date')} UTC): the game was patched again or replaced "
+                        "since, so the log is not used.")
+    for report in TRANSPARENCY:
+        try:
+            text = (exe.parent / report).read_text(encoding="utf-8", errors="replace")
+        except OSError:
             continue
-        for report in TRANSPARENCY:
-            try:
-                text = (folder / report).read_text(encoding="utf-8", errors="replace")
-            except OSError:
+        stamp = _TIMESTAMP.search(text)
+        when_words = f" ({stamp.group(1)} UTC)" if stamp else ""
+        recorded = _MODIFIED.search(text)
+        if recorded and recorded.group(1).lower() == digest:
+            return frozenset(_FEATURE.findall(text)), f"the patcher's transparency log{when_words}", problems
+        problems.append(f"The patcher's transparency log{when_words} "
+                        + ("records a different " + exe.name if recorded else "records no hash for the game")
+                        + ", so it is not used.")
+        break
+    return None, "", problems
+
+
+def _from_exe(exe: Path, game: int) -> frozenset[str] | None:
+    """The patches whose every byte edit is in `exe` at its recorded place (the patcher's own check,
+    vv_fun_patcher._patches_present), read only.  A patch whose code the patcher places elsewhere is not seen,
+    so a missing id means only "not seen"."""
+    try:
+        import vv_fun_patcher as fp
+        data = exe.read_bytes()
+        found = set()
+        for feature in fp.load_fun_patches():
+            if feature.raw.get("game_id") not in (game, f"vv{game}") and not feature.id.startswith(f"vv{game}_"):
                 continue
-            return frozenset(_FEATURE.findall(text))
+            edits = feature.raw.get("patches") or []
+            if edits and fp._patches_present(data, edits):
+                found.add(feature.id)
+        return frozenset(found)
+    except Exception:  # noqa: BLE001 -- a catalog or exe that cannot be read tells nothing
         return None
-    return None
+
+
+def patch_source(save_folder: Path, game_folders: list[Path], game: int = 0) -> PatchSource:
+    """Which patches the game that saves into `save_folder` has now (see PatchSource): its exe found among
+    `game_folders`; the patcher's log of the run that made it when that log's hash is the exe's; otherwise the
+    exe's own bytes.  Never the save."""
+    exes = _game_exes(save_folder, game_folders)
+    name = Path(save_folder).name
+    if not exes:
+        return PatchSource(None, False, None, "", [f"Could not tell which patches this game has: no game folder "
+                                                   f"holding {name}.exe was found."])
+    digests = {}
+    for exe in exes:
+        try:
+            digests[exe] = _sha256(exe)
+        except OSError:
+            continue
+    if not digests:
+        return PatchSource(None, False, exes[0], "", [f"Could not tell which patches this game has: {exes[0]} could "
+                                                      "not be read."])
+    if len(set(digests.values())) > 1:
+        return PatchSource(None, False, None, "", ["Could not tell which patches this game has: several different "
+                                                   f"{name}.exe were found (" + "; ".join(str(e) for e in digests)
+                                                   + ")."])
+    exe = next(iter(digests))
+    ids, words, problems = _from_logs(exe, digests[exe])
+    if ids is not None:
+        return PatchSource(ids, True, exe, f"{exe}, as listed by {words}", problems)
+    ids = _from_exe(exe, game) if game else None
+    if ids is None:
+        return PatchSource(None, False, exe, "", problems + [f"Could not tell which patches this game has: no "
+                                                             f"patcher log matches {exe}, and its bytes could not be "
+                                                             "read."])
+    return PatchSource(ids, False, exe, f"{exe}, read from its own bytes (no patcher log matches it); a patch the "
+                                        "exe does not show is given as not known", problems)
+
+
+SOURCES = "Sources"
+
+
+def sources_lines(save: Path, patches: PatchSource, notes: list[str]) -> list[Fact]:
+    """Where the page's facts come from (the owner, 2026-10-23): the save and when it was last written (a game saves
+    only on a clean quit, so while it runs the save can be behind it), the game's exe and where its patch list was
+    read, the patcher's per-save files the page read, and every disagreement between them."""
+    out = []
+    try:
+        written = when(save.stat().st_mtime)
+        out.append(Fact(SOURCES, f"The save: {save}, last written {written}. The game writes it only when it is "
+                                 "closed normally, so while it is being played the values here can be behind it.", SAVE))
+    except OSError:
+        out.append(Fact(SOURCES, f"The save: {save}.", SAVE))
+    if patches.words:
+        out.append(Fact(SOURCES, f"The patches in the game: {patches.words}.", SAVE))
+    out += [Fact(SOURCES, problem, SAVE) for problem in patches.problems]
+    out += [Fact(SOURCES, note, SAVE) for note in notes]
+    return out
+
+
+def installed_features(save_folder: Path, game_folders: list[Path]) -> frozenset[str] | None:
+    """The patch ids known to be in the game (patch_source), or None."""
+    return patch_source(save_folder, game_folders).installed
 
 
 # ---------------------------------------------------------------------------
@@ -497,9 +636,9 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
         data = path.read_bytes()
     except OSError as exc:
         return [Fact("Other", f"The save {path.name} could not be read ({exc.strerror or exc}).")]
-    village = Village(Path(folder), game, slot, path, data,
-                      installed_features(Path(folder), game_folders or []),
-                      time.time() if now is None else now)
+    patches = patch_source(Path(folder), game_folders or [], game)
+    village = Village(Path(folder), game, slot, path, data, patches.installed,
+                      time.time() if now is None else now, certain=patches.certain)
     try:
         module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     except ImportError:
@@ -507,6 +646,7 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     facts = list(module.facts(village))
     if not facts:
         facts = [Fact("Other", "Nothing is shown for this game yet.")]
+    facts = sources_lines(path, patches, village.notes) + facts
     order = {name: n for n, name in enumerate(GROUPS)}
     return sorted(facts, key=lambda fact: order.get(fact.group, len(GROUPS)))
 

@@ -45,13 +45,16 @@ class Coverage(unittest.TestCase):
             (game_folder / "Virtual Villagers Fun Patcher Files").mkdir(parents=True)
             (game_folder / f"{base}.exe").write_bytes(b"MZ")
             (game_folder / "Virtual Villagers Fun Patcher Files" / "VVFP Transparency Log.txt").write_text(
-                "".join(f"- Optional feature: x [{fid}]\n" for fid in features), encoding="utf-8")
+                export.HASH_LINE.format(name=base) + "".join(f"- Optional feature: x [{fid}]\n" for fid in features),
+                encoding="utf-8")
             games = [game_folder]
         return gm.read(folder, game, 1, games, now=now)
 
     def assert_covered(self, game: int, facts: list[gm.Fact]) -> None:
         known = claims(game)
         for fact in facts:
+            if fact.group == gm.SOURCES:
+                continue
             self.assertIn(export.template(fact.text), known.get(fact.group, {}), f"{fact.group}: {fact.text}")
 
     def test_every_fixture_line_at_another_moment(self) -> None:

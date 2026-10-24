@@ -90,6 +90,7 @@ FACTION_ENTRIES = 16
 # Turns Refilling", branch feat/vv3-trees-refill-together): kept beside the save, which keeps the stock
 # timers.  See patch_tree_timers.
 TREE_TIMERS_FILE = "Data\\Fruit Trees\\Virtual Villagers 3 Fruit Tree Timers - Save {slot}.dat"
+TOGETHER, TAKE_TURNS, BOTH_FACTIONS = "vv3_fruit_trees_refill_together", "vv3_fruit_trees_take_turns", "vv3_both_factions"
 
 
 class SaveUnreadable(ValueError):
@@ -453,6 +454,24 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "(the next time it is played it catches up). Times are real times from "
             f"{gm.when(clock.restarted)} on, when its speed was last set; the save does not keep how it ran before "
             "then, so earlier times are given as the village's age then, counted on Normal speed.")))
+    # The patcher's per-save files the page read, and where they disagree with the game as it is now.
+    timer_file = tree_timers_file(village)
+    if timer_file.is_file():
+        village.notes.append(f"Read: {timer_file}.")
+        if timers is not None:
+            mode_id = {1: TOGETHER, 2: TAKE_TURNS}[timers.mode]
+            if village.has(mode_id) is False:
+                village.notes.append(
+                    f"They disagree: this save's fruit-tree timers file holds a \"{timers.name}\" schedule, so that "
+                    "patch was in the game when the village was last played, but the game's exe does not have it now. "
+                    "The schedule is shown as the file has it; the game as it is now would not use it.")
+    faction_file = Path(village.folder) / SAVES / f"Save {village.slot}" / FACTION_FILE.format(slot=village.slot)
+    if faction_file.is_file():
+        village.notes.append(f"Read: {faction_file}.")
+        if second and village.has(BOTH_FACTIONS) is False:
+            village.notes.append(
+                "They disagree: this save's Both Factions file gives it a second faction, but the game's exe does not "
+                "have the patcher's \"Both Factions\" now.")
     if timers is None and trees and tree_timers_file(village).is_file():
         out.append(gm.Fact("Other", (
             "The patcher's fruit-tree timers file is there but has no schedule for this save: the save's own "

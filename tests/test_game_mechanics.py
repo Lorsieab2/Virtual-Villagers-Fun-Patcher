@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import ast
 import gzip
+import hashlib
 import os
 import re
 import shutil
@@ -69,7 +70,10 @@ class Folder:
         game = self.root / "games" / self.path.name
         (game / "Virtual Villagers Fun Patcher Files").mkdir(parents=True)
         (game / f"{self.path.name}.exe").write_bytes(b"MZ")
-        lines = ["Patcher version/commit: v1.35.81 / unavailable"]
+        # The report the patcher writes beside the exe it made, with that exe's hash (vv_game_mechanics.patch_source
+        # uses a log only when its hash is the exe's as it is now).
+        lines = ["Patcher version/commit: v1.35.81 / unavailable", f"Modified EXE: {self.path.name}.exe | size 2 | SHA-256 "
+                 f"{hashlib.sha256(b'MZ').hexdigest()}", "Timestamp (UTC): 2026-10-23T00:00:00+00:00"]
         lines += [f"- Optional feature: Name of {fid} [{fid}]" for fid in features]
         (game / "Virtual Villagers Fun Patcher Files" / "VVFP Transparency Log.txt").write_text(
             "\n".join(lines) + "\n", encoding="utf-8")
@@ -303,8 +307,8 @@ class FruitTrees(unittest.TestCase):
 
     def test_not_a_save(self) -> None:
         facts = self.read(make_save()[:-4])
-        self.assertEqual([f.group for f in facts], ["Other"])
-        self.assertIn("could not be read", facts[0].text)
+        self.assertEqual([f.group for f in facts if f.group != gm.SOURCES], ["Other"])
+        self.assertIn("could not be read", facts[-1].text)
         missing = gm.read(Folder(self).path, 3, 2, [])
         self.assertIn("could not be read", missing[0].text)
 
@@ -510,7 +514,7 @@ class EveryGame(unittest.TestCase):
                 self.assertIn("counts as a mushroom", line.text)
                 self.assertEqual(line.group, "Mushrooms")
                 for features in ([], None):
-                    off = text_of(self.page(name, features=features)).lower()
+                    off = text_of([f for f in self.page(name, features=features) if f.group != gm.SOURCES]).lower()
                     self.assertNotIn("golden mushroom", off)
                     self.assertNotIn("secret", off)
                     self.assertNotIn("1,000,000", off)
@@ -572,8 +576,8 @@ class EveryGame(unittest.TestCase):
         for name in ("vv1-huttest-1", "vv2-huttest-1", "vv4-huttest-1", "vv5-huttest-1"):
             with self.subTest(save=name):
                 facts = self.page(name, data=b"ldwg" + bytes(40))
-                self.assertEqual([f.group for f in facts], ["Other"])
-                self.assertIn("could not be read", facts[0].text)
+                self.assertEqual([f.group for f in facts if f.group != gm.SOURCES], ["Other"])
+                self.assertIn("could not be read", facts[-1].text)
 
 class InstalledPatches(unittest.TestCase):
     def test_report_lists_the_ids(self) -> None:
