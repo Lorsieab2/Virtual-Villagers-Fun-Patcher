@@ -38,6 +38,7 @@ GAMES = {
         "draw": 0x41A5A0, "click": 0x41AD60,
         "get_string": 0x44D3D0, "image": 0x409960, "left": 0x409BD0, "centred": 0x409BE0,
         "fullscreen_read": 0x408360, "set_speed": 0x41ACB0, "sound": 0x448E10,
+        "toggle_query": 0x408350, "toggle_on": 0x409FB0, "toggle_off": 0x409FA0, "colour": 0x4CCB08,
         "difficulty": 0x170F4, "speed": 0x17110, "fullscreen": 0x1711D,
         "screen": (800, 600), "height": 0x24C, "stock_height": 0x1FC,
         "button": (158, 55, 0x23),          # main_wide_button2.png frame, gap under it
@@ -54,6 +55,7 @@ GAMES = {
         "draw": 0x41ADF0, "click": 0x41B5C0,
         "get_string": 0x4506D0, "image": 0x409B90, "left": 0x409EA0, "centred": 0x409EB0,
         "fullscreen_read": 0x408330, "set_speed": 0x41B500, "sound": 0x44C440,
+        "toggle_query": 0x408320, "toggle_on": 0x40A280, "toggle_off": 0x40A270, "colour": 0x4DC948,
         "difficulty": 0x17D54, "speed": 0x17D7C, "fullscreen": 0x17D89,
         "screen": (1024, 768), "height": 0x260, "stock_height": 0x1FC,
         "button": (140, 32, 0x0F),          # popup_button1.png frame, gap under it
@@ -68,7 +70,7 @@ GAMES = {
 }
 COLUMNS = (0xC8, 0x13C, 0x1B0, 0x224)    # the radio buttons' left edges
 RADIO = 61                                # radioblank.png / radioselected.png
-TEXT = 20                                 # ldwarialbold.png's height
+TEXT = 27                                 # ldwBurweed27.png's height: the dialog's default font
 SPEEDS = (0x3E7, 0xA, 0x6, 0x3)           # Paused, Slow, Normal, Fast, by column
 
 DIALOG = 0x51000000
@@ -274,6 +276,7 @@ class _Dialog:
         self.images: list[tuple[int, int, int]] = []
         self.texts: list[tuple[str, int, int, int]] = []
         self.speed_calls: list[int] = []
+        self.text_args: list[tuple[str, int, int, int]] = []
         mu = self.mu
         for base, size in ((DIALOG, 0x1000), (STATE, 0x20000), (GRAPHICS, 0x1000), (STRINGS, 0x1000)):
             mu.mem_map(base, size)
@@ -286,19 +289,28 @@ class _Dialog:
         mu.mem_write(g["fullscreen_read"], b"\x30\xC0\xC3")
         mu.mem_write(g["set_speed"], b"\xC2\x04\x00")
         mu.mem_write(g["sound"], b"\xC2\x04\x00")
+        mu.mem_write(g["toggle_query"], b"\x30\xC0\xC3")
+        mu.mem_write(g["toggle_on"], b"\xC3")
+        mu.mem_write(g["toggle_off"], b"\xC3")
         hooks = {g["image"]: self._image, g["left"]: self._left, g["centred"]: self._centred,
                  g["set_speed"]: self._speed}
         for address, fn in hooks.items():
             mu.hook_add(UC_HOOK_CODE, lambda uc, a, s, d, fn=fn: fn(), begin=address, end=address)
         width, height = g["screen"]
-        self.x = (width - 0x280) // 2
-        self.y = (height - self.height()) // 2
-        fields = {0x74: STATE, 0x78: self.x, 0x7C: self.x + 0x140, 0x80: self.y,
+        self.place((width - 0x280) // 2, (height - self.height()) // 2)
+        fields = {0x74: STATE,
                   0x8C: BLANK, 0x90: SELECTED, 0x94: SLIDER, 0x98: HANDLE, 0x9C: GRAPHICS, 0xA8: STRINGS,
                   0x64: 0x60, 0x68: 0x60, 0x6C: 0x60}
         for offset, value in fields.items():
             mu.mem_write(DIALOG + offset, struct.pack("<I", value))
         mu.mem_write(DIALOG + 0x60, b"\x01\x00\x00\x00")    # the Fullscreen row is shown
+
+    def place(self, x: int, y: int) -> None:
+        """Put the dialog's top-left at (x, y): the origin fields every stock
+        row, and the new one, are drawn and hit-tested from."""
+        self.x, self.y = x, y
+        for offset, value in ((0x78, x), (0x7C, x + 0x140), (0x80, y)):
+            self.mu.mem_write(DIALOG + offset, struct.pack("<i", value))
 
     def height(self) -> int:
         """The dialog's height as the constructor's `push` reads it; its
@@ -319,8 +331,9 @@ class _Dialog:
         self.images.append((image, x - self.x, y - self.y))
 
     def _text(self, kind):
-        text, x, y, _colour, _zero = self._args(5)
+        text, x, y, colour, font = self._args(5)
         self.texts.append((kind, text - TEXT_BASE, x, y - self.y))
+        self.text_args.append((kind, text - TEXT_BASE, colour, font))
 
     def _left(self):
         self._text("left")
@@ -352,6 +365,7 @@ class _Dialog:
     def draw(self):
         self.images.clear()
         self.texts.clear()
+        self.text_args.clear()
         self._call(self.g["draw"])
         return list(self.images), list(self.texts)
 
@@ -362,6 +376,24 @@ class _Dialog:
         self._call(self.g["click"], (2, self.x + x, self.y + y))
         self.mu.mem_write(DIALOG + 0x60, b"\x01")
         return list(self.speed_calls)
+
+    def press(self, x: int, y: int, fullscreen: int):
+        """A mouse press at (x, y) from the dialog's top-left, with the
+        Fullscreen row live and the game in fullscreen (1) or windowed (0).
+        Returns what changed: the level, the speed calls, the fullscreen
+        choice -- each None when untouched (sentinels are planted first)."""
+        level_field = STATE + self.g["difficulty"]
+        screen_field = STATE + self.g["fullscreen"]
+        self.mu.mem_write(level_field, struct.pack("<i", 0x5A5A))
+        self.mu.mem_write(screen_field, bytes([fullscreen]))
+        self.mu.mem_write(DIALOG + 0xAD, bytes([fullscreen]))
+        self.mu.mem_write(DIALOG + 0x60, b"\x01")
+        self.speed_calls.clear()
+        self._call(self.g["click"], (2, self.x + x, self.y + y))
+        level = struct.unpack("<i", self.mu.mem_read(level_field, 4))[0]
+        screen = self.mu.mem_read(screen_field, 1)[0]
+        return (None if level == 0x5A5A else level, list(self.speed_calls) or None,
+                None if screen == fullscreen else screen)
 
 
 @lru_cache(maxsize=None)
@@ -498,6 +530,70 @@ class ThePatchedDialog(unittest.TestCase):
             for mode in MODES:
                 with self.subTest(game=game, mode=mode):
                     self.check_draw(game, mode)
+
+    def test_the_new_row_draws_with_the_stock_rows_routines_font_and_colour(self):
+        # The heading goes through the same routine as the stock "Fullscreen"
+        # heading and the labels through the one "On" / "Off" use, with the
+        # same colour (the value of the stock rows' global at that moment) and
+        # the same font argument (0: the dialog's default, ldwBurweed27).
+        for game in GAMES:
+            g = GAMES[game]
+            s = g["strings"]
+            dialog = _patched_dialog(game, "collection_progression")
+            dialog.mu.mem_write(g["colour"], struct.pack("<I", 0x7F3C2A19))
+            dialog.set(1, 6)
+            dialog.draw()
+            args = {(kind, i): (colour, font) for kind, i, colour, font in dialog.text_args}
+            with self.subTest(game=game):
+                stock_heading = args[("left", s["Fullscreen"])]
+                stock_labels = {args[("centred", g["strings"]["Fullscreen"] + 1)],
+                                args[("centred", g["strings"]["Fullscreen"] + 2)]}
+                self.assertEqual(stock_heading, (0x7F3C2A19, 0))
+                self.assertEqual(stock_labels, {(0x7F3C2A19, 0)})
+                self.assertEqual(args[("left", s["Difficulty"])], stock_heading)
+                for word in ("Easy", "Normal", "Hard"):
+                    self.assertEqual(args[("centred", s[word])], stock_heading)
+                self.assertNotIn(("centred", s["Difficulty"]), args)
+                for word in ("Easy", "Hard"):
+                    self.assertNotIn(("left", s[word]), args)
+
+    def test_every_click_hits_exactly_the_control_drawn_there(self):
+        # Hit areas are the stock handler's own, computed from the same origin
+        # fields (+0x78, +0x80) as the drawing, so they follow the dialog
+        # wherever it is placed; the game hands its handler logical
+        # coordinates (800 x 600, 1024 x 768) windowed or fullscreen.
+        for game in GAMES:
+            g = GAMES[game]
+            dialog = _patched_dialog(game, "collection_progression")
+            stock_origin = (dialog.x, dialog.y)
+            controls = [("fullscreen", 1, COLUMNS[0], g["fullscreen_row"]),
+                        ("fullscreen", 0, COLUMNS[1], g["fullscreen_row"])]
+            controls += [("level", i, COLUMNS[i], g["row"]) for i in range(3)]
+            controls += [("speed", [SPEEDS[i]], COLUMNS[i], g["speed_row"]) for i in range(4)]
+            for origin in (stock_origin, (stock_origin[0] + 37, stock_origin[1] - 5)):
+                dialog.place(*origin)
+                for fullscreen in (0, 1):
+                    for kind, value, column, row in controls:
+                        left, top, right, bottom = column + 0xA, row + 0xA, column + 0x2F, row + 0x2F
+                        if kind == "fullscreen" and value == fullscreen:
+                            continue        # choosing the current state changes nothing to observe
+                        want = {"level": (value, None, None), "speed": (None, value, None),
+                                "fullscreen": (None, None, value)}[kind]
+                        inside = [((left + right) // 2, (top + bottom) // 2), (left, top), (right, top),
+                                  (left, bottom), (right, bottom)]
+                        for x, y in inside:
+                            with self.subTest(game=game, origin=origin, fullscreen=fullscreen,
+                                              control=(kind, str(value)), at=(x, y)):
+                                self.assertEqual(dialog.press(x, y, fullscreen), want)
+                        outside = [(left - 1, (top + bottom) // 2), (right + 1, (top + bottom) // 2),
+                                   ((left + right) // 2, top - 1), ((left + right) // 2, bottom + 1)]
+                        for x, y in outside:
+                            got = dialog.press(x, y, fullscreen)
+                            with self.subTest(game=game, origin=origin, fullscreen=fullscreen,
+                                              control=(kind, str(value)), outside=(x, y)):
+                                self.assertNotEqual(got, want)
+                                self.assertEqual(got, (None, None, None))
+            dialog.place(*stock_origin)
 
     def test_the_buttons_set_the_level_and_game_speed_in_every_mode(self):
         for game in GAMES:
