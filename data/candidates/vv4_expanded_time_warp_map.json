@@ -4,7 +4,7 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "E44A7F0542DCF0B93C635F8EE2CBD0E3D95A9D79961D562A2821155DDFBB4F45"
+      "source_text_sha256": "025FC2DC85DE38972C0E634AEBD28B8AA03B2C65CEB3BD22D751740CAEE3CF75"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
@@ -26,8 +26,8 @@
   "companion": {
     "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "destination": "VVFP Origins Icons.dll",
-    "sha256": "6C3A68410E51C1F5B5B84C86832F427FBA0113380F9818A6954ABDC315C2C521",
-    "size": 1872384
+    "sha256": "8D9E92BEB24F560547AB25A28126B0F3315A70568C3C718860126B6A94EA0F32",
+    "size": 1871872
   },
   "payload_file_offset": "0x89373",
   "payload_va": "0x489373",

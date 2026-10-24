@@ -884,10 +884,10 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "BC46E5E251A90F77B5E1BA30F02E43B36DCF6988D5A3A7AB6A1ECFD3151195F3",
-    "map": "BD447CA7842AF2F87C87FC8F04160560A4A25E82FC2E9A76FA9899F85A455A56",
+    "manifest": "C8F444B63D2BE8B158BD9C954866A57CB2719B482D601A3F314BDD7E71CB7FE1",
+    "map": "2ABDA1AAAF8D3D54BCF6EADBA0B7F5586CC23F2DB18D4CC6CE413A9E93CE2FC6",
 }
-VV5_TASK9_DLL_SHA256 = "6C3A68410E51C1F5B5B84C86832F427FBA0113380F9818A6954ABDC315C2C521"
+VV5_TASK9_DLL_SHA256 = "8D9E92BEB24F560547AB25A28126B0F3315A70568C3C718860126B6A94EA0F32"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
@@ -1944,7 +1944,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "E44A7F0542DCF0B93C635F8EE2CBD0E3D95A9D79961D562A2821155DDFBB4F45",
+    "builder": "025FC2DC85DE38972C0E634AEBD28B8AA03B2C65CEB3BD22D751740CAEE3CF75",
     "task9_builder": "FF7A07082EF966F2E2A6EF84931167524A84B3B3F5A769FF9C94ED909A8F68B9",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
@@ -1957,8 +1957,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "0FA14A2A01F37A2D5285B5EF5195AC1D386E867F5D2E06C19F700B0DE571343C",
-        "map": "C22BAA0E0087F47855A1497076ED89F75B4ABDF7D3B0E97F48B8252E44269A65",
+        "manifest": "F5FB253A5C872B4D752141F5753A5FE889B2F75D71055C3EE50DD1213583D2C7",
+        "map": "BBF15E12A2698271BF94551EF81D466D72057AD58F34FF47305EF71B7F840D66",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3380,7 +3380,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1872384,
+        "size": 1871872,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3738,7 +3738,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1872384,
+        "size": 1871872,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -12076,7 +12076,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "E45D844899CBA36DB00E61D8C88119A07DB0A8F586769811C716489102349ECA",
+    "sha256": "E9C2B38EF3117BA6D3BEA7A4E910AB6938EB90B0AD9CAF69FAA9839A71950C0E",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12122,6 +12122,7 @@ STARTUP_LOADER_COMPANIONS = (
     "VVFP VV3 Both Factions.dll",
     "VVFP VV3 Trees Refill Together.dll",
     "VVFP VV3 Trees Take Turns.dll",
+    "VVFP Speed Change Timers.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

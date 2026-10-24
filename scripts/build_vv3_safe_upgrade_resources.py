@@ -117,8 +117,10 @@ FOUNDATION_OUTPUT = (
 # bridge compiles in): rebuilt on the merged v1.35.82 sources.
 # Recertified for the review of #604: a bought island event's kept natural time is read back from its
 # file before a re-arm records one, and a purchase in another village never lends its distance.
-SOURCE_SHA256 = "17B73E42100108CC67A8A0DA45ED9D06AB02987CF07C55D261D0DF89EAC6FCDF"
-SOURCE_SIZE = 1999872
+# Recertified for Fix Vanilla Bugs' speed-change timers (native/shared/startup_companions.h gains
+# "VVFP Speed Change Timers.dll", which the Story bridge compiles in): nothing else changed.
+SOURCE_SHA256 = "280551B4F40474C2F42FE43692CB111C9920075F4D356BCF44DF96CDDF640F97"
+SOURCE_SIZE = 1999360
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

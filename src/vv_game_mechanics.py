@@ -17,10 +17,29 @@ seconds therefore takes N * speed / 6 real seconds.  Paused (the speed plus 999)
 A GAME'S MODULE is found by name (vv_game_mechanics_vv<N>) and has
     facts(village: Village) -> list[Fact]
 It raises nothing for a save it cannot read: it returns a Fact saying what could not be read.
+
+LIVE COUNTDOWNS (the owner, 2026-10-24; docs/game-mechanics-window.md).  A Fact whose moment is a
+real time still to come -- a refill, a crop ready, an event that ends -- may carry
+    due:      that moment, absolute real time in Unix seconds (work it out from village.now and the
+              save's clock), or None;
+    due_kind: what happens then, in one word: "refill", "ready", "ends", "due", ... (DUE_KINDS).
+The page then shows the moment's date and time and, right after it on the same bullet, a live
+countdown -- "24 October 2026, 3:14 PM (in 12 min 03 s)" -- that the window ticks every second from
+ONE shared timer, without reading any file again.  At zero it reads "..., due now (refresh to see
+the new state)": the game's own state is only known again from the save.  Where the date goes:
+  * the text holds DUE ("{due}"): the date and countdown go there, e.g.
+        Fact("Refills", f"Honey: 40 of 100; the next refill is {gm.DUE}.", SAVE, due=t, due_kind="refill");
+  * otherwise, when the text already holds when(due), the countdown goes right after it;
+  * otherwise "<Kind>: <date> (countdown)." is added at the end ("Next refill: ...", "Ready: ...").
+A fact whose clock is stopped (the save was written paused, a frozen clock) passes due=None and
+keeps its own words ("once unpaused"); it gets no countdown.  render(facts) gives the text as it
+reads at `now`; render_live(facts, now) also gives each countdown's place (Countdown) for the window.
+A fact with a due is left out of a game's general rules (general()), which have no village.
 """
 from __future__ import annotations
 
 import importlib
+import math
 import re
 import struct
 from dataclasses import dataclass, field
@@ -28,9 +47,13 @@ from datetime import datetime
 from pathlib import Path
 
 TITLE = "Game Mechanics"
-GROUPS = ("Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
-          "Food earned", "Time away and Time Warp", "Island events", "Hidden villager stats", "Chance and timers",
-          "Other")
+GROUPS = ("Sources", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
+          "Food earned", "Time away and Time Warp", "Island events", "Puzzles", "Hidden villager stats",
+          "Chance and timers", "Other")
+PUZZLES = "Puzzles"
+# Every fact is a bullet under its heading; a sub-fact (a tree's planting, its fruit, ...) an indented dash under
+# the fact before it (the owner, 2026-10-23: "bullet point everything ... for easier legibility").
+BULLET, SUB_BULLET = "• ", "    – "
 # The label every unverified line carries, in capitals, right beside it (the owner, 2026-10-23), and the
 # line at the top of the window that explains it.
 UNCONFIRMED = "UNCONFIRMED"
@@ -64,10 +87,15 @@ _MONTHS = ("January", "February", "March", "April", "May", "June", "July", "Augu
 class Fact:
     """One line of the page.  `verified` says what stands behind it: SAVE, OWNER or CLAMP (see TRUSTED) let it
     go without the label; True (a research spec's isolated emulation) or False does not -- it is shown with
-    UNCONFIRMED.  A line is unconfirmed unless it says otherwise."""
+    UNCONFIRMED.  A line is unconfirmed unless it says otherwise.  `sub`: shown as a sub-bullet of the fact
+    before it.  `due` / `due_kind`: a real moment still to come and what happens then, for the live countdown
+    (see LIVE COUNTDOWNS in the module docstring); None when the clock is stopped or there is none."""
     group: str
     text: str
     verified: bool | str = False
+    sub: bool = False
+    due: float | None = None
+    due_kind: str | None = None
 
     @property
     def confirmed(self) -> bool:
@@ -86,9 +114,12 @@ class Village:
     installed: frozenset[str] | None
     now: float                      # the real time the section is shown at (Unix seconds)
     notes: list[str] = field(default_factory=list)
+    certain: bool = True            # a patch missing from installed is known to be out (False: only not seen)
 
     def has(self, feature: str) -> bool | None:
-        return None if self.installed is None else feature in self.installed
+        if self.installed is None:
+            return None
+        return True if feature in self.installed else (False if self.certain else None)
 
 
 # ---------------------------------------------------------------------------
@@ -264,6 +295,149 @@ def time_away(village: "Village", last: float, speed_value: int, paused_words: s
 
 
 # ---------------------------------------------------------------------------
+# The later games' game clock, and dating its past times
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class GameClock:
+    """The game clock of The Secret City, The Tree of Life and New Believers (VV3 0x5825D4, VV4 0x4D6F18, VV5
+    0x51D490; each saved with the village): the rate (the speed; 0 while paused), the speed before a pause, the
+    wall base and the game base.  Its "now" is game base + (wall now - wall base) * 6 / rate, so a game second
+    G from the game base on is the real moment
+        epoch + wall base + (G - game base) * speed / 6.
+    The base is reset at every speed change or pause (VV3 0x426630); the save keeps only the last one, so a
+    game second BEFORE it cannot be dated: the speeds, pauses and closed spells between are not kept.  What
+    the save does establish is how far into the village it was -- a new village starts the clock at game
+    second 0 (VV3 0x4264F0 from 0x427FE2, VV4 0x41DA70 from 0x41F252, VV5 0x41EC90 from 0x424747) -- and that
+    it was before the base.  `created`: the village's start (Unix seconds), or None when the save has none."""
+    rate: int
+    before: int
+    wall: int
+    base: int
+    epoch: int                      # the clock's wall origin (Unix seconds)
+    speed: int                      # the save's speed value (3/6/10, +999 paused)
+    created: float | None = None
+
+    @property
+    def paused(self) -> bool:
+        return self.speed >= PAUSED
+
+    @property
+    def frozen(self) -> bool:
+        """Saved stopped (paused, or a rate of 0): no time passes while the game is closed."""
+        return self.rate == 0 or self.paused
+
+    @property
+    def runs_at(self) -> int:
+        for value in (speed_base(self.speed), self.rate, self.before):
+            if value in SPEED_NAMES:
+                return value
+        return NORMAL
+
+    def real(self, game_seconds: int) -> float:
+        """The real moment of a game second at or after the base (later ones at the save's speed)."""
+        return self.epoch + self.wall + (game_seconds - self.base) * self.runs_at / NORMAL
+
+    def game_now(self, now: float) -> int:
+        if self.frozen:
+            return self.base
+        return self.base + int(max(0.0, now - self.epoch - self.wall) * NORMAL / self.runs_at)
+
+    @property
+    def restarted(self) -> float:
+        """The real moment of the base: the earliest one the save can date."""
+        return self.epoch + self.wall
+
+    def dated(self, game_seconds: int) -> bool:
+        return game_seconds >= self.base
+
+    def moment(self, game_seconds: int, at: bool = False) -> str:
+        """A game second in words: its real date ("at ..." with `at`) when the save can date it, otherwise how
+        far into the village it was and that it was before the base -- never a date worked back."""
+        if self.dated(game_seconds):
+            return ("at " if at else "") + when(self.real(game_seconds))
+        # Real time only (the owner, 2026-10-22): the clock's count, as the Ash Key line gives it, on Normal speed.
+        started = f"started {when(self.created)}; " if self.created is not None else ""
+        return (f"{'when ' if at else ''}the village was {duration(max(0, game_seconds), exact=True)} old, counted on "
+                f"Normal speed ({started}the save keeps no real date before {when(self.restarted)})")
+
+
+def later_clock(data: bytes, at: int, epoch: int, speed: int, created_wall: int | None) -> GameClock:
+    """The saved clock at `at` (four int32: rate, before, wall base, game base), with the village's start
+    `created_wall` (wall seconds from `epoch`, the statistics block's first field) when it is one."""
+    rate, before, wall, base = struct.unpack_from("<4i", data, at)
+    # (A new village's start is written just after its clock starts, so it may be a little after the wall base.)
+    created = epoch + created_wall if created_wall is not None and created_wall > 0 else None
+    return GameClock(rate, before, wall, base, epoch, speed, created)
+
+
+def started_line(created: float | None) -> Fact:
+    """The village's start, read from the save (the statistics block's first field, which the game sets when the
+    village is made and its Real Hours Played counts from)."""
+    if created is None:
+        return Fact("Other", "When the village was started is not in this save.", SAVE)
+    return Fact("Other", f"The village was started at {when(created)}.", SAVE)
+
+
+def later_puzzle_lines(names: dict[int, str], entry, threshold: dict[int, int], clock: GameClock,
+                       total: str = "") -> list[Fact]:
+    """One line for each named puzzle of a later game: solved, and when (the time the game's own Advance stamps,
+    on the game clock), or not yet solved.  `entry(id)` -> (progress, solve time); solved is the game's own test,
+    progress >= the threshold the puzzle registers with."""
+    out = []
+    solved = 0
+    for pid, name in names.items():
+        progress, stamp = entry(pid)
+        if progress >= threshold[pid]:
+            solved += 1
+            if stamp <= 0:
+                when_words = "solved (the game kept no time for it)"
+            elif stamp > clock.base + MAX_AHEAD:     # far past the clock's base: not a time it wrote
+                when_words = f"solved (the time the save holds for it, {stamp:,}, is not one the game's clock reached)"
+            else:
+                when_words = f"solved {clock.moment(stamp, at=True)}"
+            out.append(Fact(PUZZLES, f"{name}: {when_words}.", SAVE))
+        else:
+            out.append(Fact(PUZZLES, f"{name}: not yet solved.", SAVE))
+    out.insert(0, Fact(PUZZLES, f"Puzzles solved: {solved} of {len(names)}{total}.", SAVE))
+    return out
+
+
+MAX_HOURS = 24 * 365 * 100                 # a century of play: any recorded time past it is not a real one
+MAX_AHEAD = 2 * 366 * 86_400               # a year on Fast past the clock's base: a stamp later is not a real one
+
+
+def hours_puzzle_lines(names: list[str], solved, hours, created: float | None) -> list[Fact]:
+    """A New Home's and The Lost Children's puzzles: a solved flag and the whole hours since the village was
+    started that its completion writes (the Puzzles screen's "Completed in N hours"; at least 1 in The Lost
+    Children), so the moment is known to within the hour."""
+    out = []
+    count = 0
+    for n, name in enumerate(names):
+        if not solved(n):
+            out.append(Fact(PUZZLES, f"{name}: not yet solved.", SAVE))
+            continue
+        count += 1
+        h = hours(n)
+        if h <= 0:
+            words = "solved (the game kept no time for it)"
+        elif h > MAX_HOURS:                  # a value no completion writes: shown, never turned into a date
+            words = f"solved (the hours the save holds for it, {h:,}, are not a possible time)"
+        elif h == 1:                     # 0 and 1 whole hours are both written as 1
+            words = "solved within 2 hours of the village's start" + (
+                f", by {when(created + 7200)}" if created is not None else "")
+        elif created is None:
+            words = f"solved {h} hours after the village was started"
+        else:
+            words = (f"solved {h} hours after the village was started: between {when(created + h * 3600)} "
+                     f"and {when(created + (h + 1) * 3600)}")
+        out.append(Fact(PUZZLES, f"{name}: {words}.", False))
+    out.insert(0, Fact(PUZZLES, f"Puzzles solved: {count} of {len(names)}.", SAVE))
+    return out
+
+
+# ---------------------------------------------------------------------------
 # The patches in the game
 # ---------------------------------------------------------------------------
 
@@ -297,6 +471,17 @@ def feature_ids(prefix: str) -> list[str]:
     return sorted(fid for fid in (_NAMES or {}) if fid.startswith(prefix))
 
 
+def golden_line(feature: str, wait: str) -> str:
+    """The Super-Secret Golden Mushroom's facts, for the Game Mechanics page only and only when the patch is in
+    the game (the owner, 2026-10-23; everywhere else it stays a secret).  From the patch itself: the kind roll
+    (native/vvfp_golden_mushroom kind_roll; The Lost Children's own row) is two draws of the game's raw C rand,
+    each a multiple of 1000 out of 0..31999 -- 1 in 1,000,000 -- made only on the random mushroom spawn, and the
+    pickup gives 100 food through the game's own mushroom award (tests/test_super_secret_golden_mushroom.py)."""
+    return (f"The patcher's \"{feature_name(feature)}\" is in the game: 1 in 1,000,000 of the random brown or red "
+            "mushrooms is a gold Golden Mushroom instead, worth 100 food. It never comes from anything else, and it "
+            f"counts as a mushroom. At this game's mushroom rate one appears on average once in {wait}.")
+
+
 def patch_words(village: "Village", feature: str, effect: str) -> str:
     """One sentence on a patch that changes a rule: whether it is in the game and what it does."""
     name = f"\"{feature_name(feature)}\""
@@ -306,24 +491,172 @@ def patch_words(village: "Village", feature: str, effect: str) -> str:
     return f"The patcher's {name} is {'in' if has else 'not in'} the game" + (f": {effect}." if has else ".")
 
 
-def installed_features(save_folder: Path, game_folders: list[Path]) -> frozenset[str] | None:
-    """The patcher's feature ids in the game that saves into `save_folder`: the first of
-    `game_folders` named like the save folder and holding "<name>.exe" (the repair window's
-    _game_folders_for, as Move Old Files to New Names finds it), read from its transparency report.
-    None when no such game folder, or no readable report, was found."""
+@dataclass
+class PatchSource:
+    """Which of the patcher's patches are in the game, and where that was read (the owner, 2026-10-23: from the
+    game's executable as it is now, or the patcher's log of the run that made it -- never from the save).
+    `installed`: the ids known to be in it, or None when nothing can be told; `certain`: whether an id missing
+    from `installed` is known to be out (a log matching the exe) or only not seen (read from the exe's bytes)."""
+    installed: frozenset[str] | None
+    certain: bool
+    exe: Path | None
+    words: str                                  # the source, for the top of the page
+    problems: list[str] = field(default_factory=list)
+
+
+_MODIFIED = re.compile(r"^Modified EXE: .*\| SHA-256 ([0-9a-fA-F]{64})\s*$", re.M)
+_TIMESTAMP = re.compile(r"^Timestamp \(UTC\): (.+?)\s*$", re.M)
+PATCH_LOG_SUFFIX = ".patch-log.json"
+PATCHER_SIGNATURE = "Virtual Villagers Fun Patcher"
+
+
+def _sha256(path: Path) -> str:
+    import hashlib
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _game_exes(save_folder: Path, game_folders: list[Path]) -> list[Path]:
+    """The executables of the game that saves into `save_folder`: each of `game_folders` named like the save
+    folder (Documents\\LDW\\<exe stem>) and holding "<name>.exe" (the repair window's _game_folders_for)."""
     name = Path(save_folder).name
+    found: list[Path] = []
     for folder in game_folders:
         folder = Path(folder)
-        if folder.name.casefold() != name.casefold() or not (folder / f"{name}.exe").is_file():
+        exe = folder / f"{name}.exe"
+        if folder.name.casefold() == name.casefold() and exe.is_file():
+            if all(exe.resolve() != other.resolve() for other in found):
+                found.append(exe)
+    return found
+
+
+def _from_logs(exe: Path, digest: str) -> tuple[frozenset[str] | None, str, list[str]]:
+    """The patch list from the patcher's own logs of the run that wrote `exe` -- its patch log
+    "<exe stem>.patch-log.json" or its transparency report -- only when the log's output hash is this exe's."""
+    import json
+    files = exe.parent / "Virtual Villagers Fun Patcher Files"
+    problems: list[str] = []
+    try:
+        data = json.loads((files / (exe.stem + PATCH_LOG_SUFFIX)).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        data = None
+    if isinstance(data, dict) and data.get("patcher") == PATCHER_SIGNATURE:
+        if str(data.get("output_sha256", "")).lower() == digest:
+            ids = frozenset(str(x) for x in data.get("fun_patches", []) if isinstance(x, str))
+            return ids, f"the patcher's log of the run that made it ({data.get('created_utc', 'no date')} UTC)", []
+        problems.append(f"The patcher's log {exe.stem + PATCH_LOG_SUFFIX} is for a different {exe.name} (made "
+                        f"{data.get('created_utc', 'on an unknown date')} UTC): the game was patched again or replaced "
+                        "since, so the log is not used.")
+    for report in TRANSPARENCY:
+        try:
+            text = (exe.parent / report).read_text(encoding="utf-8", errors="replace")
+        except OSError:
             continue
-        for report in TRANSPARENCY:
-            try:
-                text = (folder / report).read_text(encoding="utf-8", errors="replace")
-            except OSError:
+        stamp = _TIMESTAMP.search(text)
+        when_words = f" ({stamp.group(1)} UTC)" if stamp else ""
+        recorded = _MODIFIED.search(text)
+        if recorded and recorded.group(1).lower() == digest:
+            return frozenset(_FEATURE.findall(text)), f"the patcher's transparency log{when_words}", problems
+        problems.append(f"The patcher's transparency log{when_words} "
+                        + ("records a different " + exe.name if recorded else "records no hash for the game")
+                        + ", so it is not used.")
+        break
+    return None, "", problems
+
+
+def _from_exe(exe: Path, game: int) -> frozenset[str] | None:
+    """The patches whose every byte edit is in `exe` at its recorded place (the patcher's own check,
+    vv_fun_patcher._patches_present), read only.  A patch whose code the patcher places elsewhere is not seen,
+    so a missing id means only "not seen"."""
+    try:
+        import vv_fun_patcher as fp
+        data = exe.read_bytes()
+        found = set()
+        for feature in fp.load_fun_patches():
+            if feature.raw.get("game_id") not in (game, f"vv{game}") and not feature.id.startswith(f"vv{game}_"):
                 continue
-            return frozenset(_FEATURE.findall(text))
+            edits = feature.raw.get("patches") or []
+            if edits and fp._patches_present(data, edits):
+                found.add(feature.id)
+        return frozenset(found)
+    except Exception:  # noqa: BLE001 -- a catalog or exe that cannot be read tells nothing
         return None
-    return None
+
+
+def patch_source(save_folder: Path, game_folders: list[Path], game: int = 0,
+                 exe: Path | None = None) -> PatchSource:
+    """Which patches the game that saves into `save_folder` has now (see PatchSource): its exe found among
+    `game_folders` -- or `exe`, the one the player chose with the window's Browse... -- the patcher's log of the
+    run that made it when that log's hash is the exe's; otherwise the exe's own bytes.  Never the save."""
+    chosen: list[str] = []
+    if exe is not None and Path(exe).is_file():
+        exes = [Path(exe)]
+    else:
+        exes = _game_exes(save_folder, game_folders)
+        if exe is not None:
+            chosen = [f"The game chosen for this save folder, {exe}, was not found; the game was looked for as "
+                      "usual."]
+    if chosen:
+        found = patch_source(save_folder, game_folders, game)
+        found.problems[:0] = chosen
+        return found
+    name = Path(save_folder).name
+    if not exes:
+        return PatchSource(None, False, None, "", [f"Could not tell which patches this game has: no game folder "
+                                                   f"holding {name}.exe was found."])
+    digests = {}
+    for exe in exes:
+        try:
+            digests[exe] = _sha256(exe)
+        except OSError:
+            continue
+    if not digests:
+        return PatchSource(None, False, exes[0], "", [f"Could not tell which patches this game has: {exes[0]} could "
+                                                      "not be read."])
+    if len(set(digests.values())) > 1:
+        return PatchSource(None, False, None, "", ["Could not tell which patches this game has: several different "
+                                                   f"{name}.exe were found (" + "; ".join(str(e) for e in digests)
+                                                   + ")."])
+    exe = next(iter(digests))
+    ids, words, problems = _from_logs(exe, digests[exe])
+    if ids is not None:
+        return PatchSource(ids, True, exe, f"{exe}, as listed by {words}", problems)
+    ids = _from_exe(exe, game) if game else None
+    if ids is None:
+        return PatchSource(None, False, exe, "", problems + [f"Could not tell which patches this game has: no "
+                                                             f"patcher log matches {exe}, and its bytes could not be "
+                                                             "read."])
+    return PatchSource(ids, False, exe, f"{exe}, read from its own bytes (no patcher log matches it); a patch the "
+                                        "exe does not show is given as not known", problems)
+
+
+SOURCES = "Sources"
+
+
+def sources_lines(save: Path, patches: PatchSource, notes: list[str]) -> list[Fact]:
+    """Where the page's facts come from (the owner, 2026-10-23): the save and when it was last written (a game saves
+    only on a clean quit, so while it runs the save can be behind it), the game's exe and where its patch list was
+    read, the patcher's per-save files the page read, and every disagreement between them."""
+    out = []
+    try:
+        written = when(save.stat().st_mtime)
+        out.append(Fact(SOURCES, f"The save: {save}, last written {written}. The game writes it only when it is "
+                                 "closed normally, so while it is being played the values here can be behind it.", SAVE))
+    except OSError:
+        out.append(Fact(SOURCES, f"The save: {save}.", SAVE))
+    if patches.words:
+        out.append(Fact(SOURCES, f"The patches in the game: {patches.words}.", SAVE))
+    out += [Fact(SOURCES, problem, SAVE) for problem in patches.problems]
+    out += [Fact(SOURCES, note, SAVE) for note in notes]
+    return out
+
+
+def installed_features(save_folder: Path, game_folders: list[Path]) -> frozenset[str] | None:
+    """The patch ids known to be in the game (patch_source), or None."""
+    return patch_source(save_folder, game_folders).installed
 
 
 # ---------------------------------------------------------------------------
@@ -339,17 +672,18 @@ def save_path(folder: Path, game: int, slot: int) -> Path:
 
 
 def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None,
-         now: float | None = None) -> list[Fact]:
-    """Every line of the section for one save slot, in GROUPS order.  Reads only."""
+         now: float | None = None, exe: Path | None = None) -> list[Fact]:
+    """Every line of the section for one save slot, in GROUPS order.  Reads only, and reads every source again
+    at each call (the window's Refresh).  `exe`: the game the player chose for this save folder, if any."""
     import time
     path = save_path(folder, game, slot)
     try:
         data = path.read_bytes()
     except OSError as exc:
         return [Fact("Other", f"The save {path.name} could not be read ({exc.strerror or exc}).")]
-    village = Village(Path(folder), game, slot, path, data,
-                      installed_features(Path(folder), game_folders or []),
-                      time.time() if now is None else now)
+    patches = patch_source(Path(folder), game_folders or [], game, exe)
+    village = Village(Path(folder), game, slot, path, data, patches.installed,
+                      time.time() if now is None else now, certain=patches.certain)
     try:
         module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     except ImportError:
@@ -357,6 +691,7 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     facts = list(module.facts(village))
     if not facts:
         facts = [Fact("Other", "Nothing is shown for this game yet.")]
+    facts = sources_lines(path, patches, village.notes) + facts
     order = {name: n for n, name in enumerate(GROUPS)}
     return sorted(facts, key=lambda fact: order.get(fact.group, len(GROUPS)))
 
@@ -395,6 +730,8 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     keep = []
     for fact in module.facts(village):
+        if fact.due is not None:
+            continue                           # a moment of the empty save's village
         if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",
                                                           "Saved paused", "Fruit trees: none")):
             continue
@@ -408,9 +745,73 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     return sorted(keep, key=lambda fact: order.get(fact.group, len(GROUPS)))
 
 
-def render(facts: list[Fact]) -> str:
-    """The section as text: each group's heading, then its lines."""
+DUE = "{due}"
+# A due fact's kind, as the words before its date when its text does not place the date itself.
+DUE_KINDS = {"refill": "Next refill", "ready": "Ready", "ends": "Ends", "due": "Due", "starts": "Starts",
+             "next": "Next"}
+DUE_NOW = "due now (refresh to see the new state)"
+
+
+def countdown(due: float, now: float) -> str:
+    """The time left until `due` at `now`: "in 12 min 03 s", "in 2 h 05 min 00 s", "in 3 d 4 h 05 min 06 s",
+    "in 9 s" -- whole seconds rounded up, so it reads "in 1 s" until the very moment -- or DUE_NOW from then on."""
+    left = math.ceil(due - now - 1e-9)
+    if left <= 0:
+        return DUE_NOW
+    days, rest = divmod(left, 86_400)
+    hours, rest = divmod(rest, 3600)
+    minutes, seconds = divmod(rest, 60)
+    if days:
+        return f"in {days} d {hours} h {minutes:02d} min {seconds:02d} s"
+    if hours:
+        return f"in {hours} h {minutes:02d} min {seconds:02d} s"
+    if minutes:
+        return f"in {minutes} min {seconds:02d} s"
+    return f"in {seconds} s"
+
+
+def countdown_span(due: float, now: float) -> str:
+    """The live words right after a due fact's date: " (in 12 min 03 s)", or ", due now (refresh ...)"."""
+    words = countdown(due, now)
+    return f", {words}" if words == DUE_NOW else f" ({words})"
+
+
+@dataclass(frozen=True)
+class Countdown:
+    """Where a live countdown is on the rendered page: its line (1-based, as Tk counts), its first column and
+    its length, as rendered, and the moment it counts down to."""
+    line: int
+    column: int
+    length: int
+    due: float
+
+
+def _due_line(text: str, due: float, kind: str | None, now: float) -> tuple[str, int, int]:
+    """`text` with the due's date and countdown placed (see LIVE COUNTDOWNS); the countdown's start and length."""
+    date = when(due)
+    span = countdown_span(due, now)
+    if DUE in text:
+        head, tail = text.split(DUE, 1)
+        return head + date + span + tail.replace(DUE, date), len(head) + len(date), len(span)
+    at = text.find(date)
+    if at >= 0:
+        at += len(date)
+        return text[:at] + span + text[at:], at, len(span)
+    label = DUE_KINDS.get(kind or "due", (kind or "due").capitalize())
+    head = text.rstrip()
+    if head and head[-1] not in ".!?":
+        head += "."
+    head = f"{head} {label}: {date}" if head else f"{label}: {date}"
+    return head + span + ".", len(head), len(span)
+
+
+def render_live(facts: list[Fact], now: float | None = None) -> tuple[str, list[Countdown]]:
+    """The section as text as it reads at `now` (each group's heading, then its lines), and every live
+    countdown's place on it for the window to tick."""
+    import time
+    now = time.time() if now is None else now
     out: list[str] = []
+    spans: list[Countdown] = []
     group = None
     for fact in facts:
         if fact.group != group:
@@ -418,8 +819,19 @@ def render(facts: list[Fact]) -> str:
                 out.append("")
             out.append(fact.group)
             group = fact.group
-        out.append(f"  {UNCONFIRMED}  {tidy(fact.text)}" if not fact.confirmed else f"  {tidy(fact.text)}")
-    return "\n".join(out)
+        mark = SUB_BULLET if fact.sub else BULLET
+        lead = mark if fact.confirmed else f"{mark}{UNCONFIRMED}  "
+        body = tidy(fact.text)
+        if fact.due is not None:
+            body, column, length = _due_line(body, fact.due, fact.due_kind, now)
+            spans.append(Countdown(len(out) + 1, len(lead) + column, length, fact.due))
+        out.append(lead + body)
+    return "\n".join(out), spans
+
+
+def render(facts: list[Fact], now: float | None = None) -> str:
+    """The section as text: each group's heading, then its lines (a countdown as it reads at `now`)."""
+    return render_live(facts, now)[0]
 
 
 def tidy(text: str) -> str:

@@ -18,6 +18,17 @@ $vsTools = "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\
 $runDir = Join-Path $env:TEMP ("vvfp_data_subfolder_harness_" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $runDir -Force | Out-Null
 $scratch = Join-Path $runDir "scratch"
+# The harness takes a scratch folder of at most MAX_PATH - 120 characters, the
+# room its longest data path needs; a long private %TEMP% would exceed it, so
+# the run's folder is named by its 8.3 short form where the volume has one
+# (as scripts/build_data_writer_paths_harness.ps1 does).
+try {
+    $short = (New-Object -ComObject Scripting.FileSystemObject).GetFolder($runDir).ShortPath
+    if ($short) {
+        $scratch = Join-Path $short "scratch"
+    }
+} catch {
+}
 Push-Location $runDir
 try {
     & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") `

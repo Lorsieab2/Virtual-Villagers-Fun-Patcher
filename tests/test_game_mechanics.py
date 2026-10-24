@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import ast
 import gzip
+import hashlib
 import os
 import re
 import shutil
@@ -30,9 +31,10 @@ FIXTURES = ROOT / "tests" / "fixtures" / "rename_tribe"
 
 
 def make_save(*, size=0x12F1C, clock=(6, 0, 100_000, 50_000), speed=6, techs=(1, 1, 1, 1, 1, 0, 0),
-              trees=(), honey=(49_000, 120), hive=True, points=7) -> bytes:
+              trees=(), honey=(49_000, 120), hive=True, points=7, created=0) -> bytes:
     buf = bytearray(size)
     struct.pack_into("<4i", buf, vv3.CLOCK, *clock)
+    struct.pack_into("<i", buf, vv3.STATS, created)          # the village's start (wall seconds; 0: none)
     struct.pack_into("<i", buf, vv3.SPEED, speed)
     struct.pack_into("<7i", buf, vv3.TECHS, *techs)
     struct.pack_into("<i", buf, vv3.POINTS, points)
@@ -68,7 +70,10 @@ class Folder:
         game = self.root / "games" / self.path.name
         (game / "Virtual Villagers Fun Patcher Files").mkdir(parents=True)
         (game / f"{self.path.name}.exe").write_bytes(b"MZ")
-        lines = ["Patcher version/commit: v1.35.81 / unavailable"]
+        # The report the patcher writes beside the exe it made, with that exe's hash (vv_game_mechanics.patch_source
+        # uses a log only when its hash is the exe's as it is now).
+        lines = ["Patcher version/commit: v1.35.81 / unavailable", f"Modified EXE: {self.path.name}.exe | size 2 | SHA-256 "
+                 f"{hashlib.sha256(b'MZ').hexdigest()}", "Timestamp (UTC): 2026-10-23T00:00:00+00:00"]
         lines += [f"- Optional feature: Name of {fid} [{fid}]" for fid in features]
         (game / "Virtual Villagers Fun Patcher Files" / "VVFP Transparency Log.txt").write_text(
             "\n".join(lines) + "\n", encoding="utf-8")
@@ -81,6 +86,25 @@ def text_of(facts) -> str:
 
 def lines(facts, group=None) -> list[str]:
     return [f.text for f in facts if group is None or f.group == group]
+
+
+def tree(facts, number=1) -> list[str]:
+    """A tree's parent bullet and its sub-bullets."""
+    out, inside = [], False
+    for f in facts:
+        if f.group != "Food sources":
+            continue
+        if not f.sub:
+            inside = f.text.startswith(f"Tree {number}: ")
+            if inside:
+                out.append(f.text)
+        elif inside:
+            out.append(f.text)
+    return out
+
+
+def planted(facts, number=1) -> str:
+    return next(t for t in tree(facts, number) if t.startswith("Planted "))
 
 
 class Words(unittest.TestCase):
@@ -111,34 +135,65 @@ class FruitTrees(unittest.TestCase):
         return gm.read(folder.path, 3, slot, games, now=now)
 
     def test_the_owners_line_at_normal_speed(self) -> None:
+        # Planted after the clock's base: the save dates it.
         clock = (6, 0, 100_000, 50_000)
-        facts = self.read(make_save(clock=clock, trees=[(1, 46_400, 49_000, 300)]),
-                          now=real(clock, 50_000))
-        tree = lines(facts, "Food sources")[:4]
-        self.assertEqual(tree[0], f"Tree 1: Mango, planted at {gm.when(real(clock, 46_400))}, refills every 3 hours "
-                                  "on Normal speed.")
-        self.assertRegex(tree[0], r"^Tree 1: Mango, planted at \d{1,2} [A-Z][a-z]+ \d{4}, \d{1,2}:\d{2} (AM|PM), "
-                                  r"refills every 3 hours on Normal speed\.$")
-        self.assertEqual(tree[1], "Tree 1: 300 of 1000 fruit.")
+        facts = self.read(make_save(clock=clock, trees=[(1, 50_400, 51_000, 300)]), now=real(clock, 52_000))
+        lines_ = tree(facts)
+        self.assertEqual(lines_[0], "Tree 1: Mango")
+        self.assertEqual(lines_[1], f"Planted at {gm.when(real(clock, 50_400))}; refills every 3 hours on Normal speed.")
+        self.assertRegex(lines_[1], r"^Planted at \d{1,2} [A-Z][a-z]+ \d{4}, \d{1,2}:\d{2} (AM|PM); "
+                                    r"refills every 3 hours on Normal speed\.$")
+        self.assertEqual(lines_[2], "300 of 1000 fruit.")
         # Picked from 8 hours after planting; the next refill 3 hours after the last.
-        self.assertEqual(tree[2], f"Tree 1: ready to pick from {gm.when(real(clock, 46_400 + 28_800))}.")
-        self.assertEqual(tree[3], f"Tree 1: next refill due {gm.when(real(clock, 49_000 + 10_800))} (111 fruit).")
+        self.assertEqual(lines_[3], f"Ready to pick from {gm.when(real(clock, 50_400 + 28_800))}.")
+        self.assertEqual(lines_[4], f"Next refill due {gm.when(real(clock, 51_000 + 10_800))} (111 fruit).")
+        self.assertTrue(all(f.sub for f in facts if f.group == "Food sources" and f.text in lines_[1:]))
+
+    def test_planted_before_the_clocks_base_is_not_dated(self) -> None:
+        """The owner's Secret City save (2026-10-23): Tree 1 planted 147 game seconds after the village was made,
+        the clock's base at 144,871 -- the old line worked the date back at today's speed and printed a moment 19
+        hours too late.  Before the base the save keeps no real date: the line gives the village's age then."""
+        clock = (6, 0, 782_113, 144_871)
+        created = 567_237
+        facts = self.read(make_save(clock=clock, created=created, trees=[(1, 147, 144_434, 1)]),
+                          now=EPOCH + 782_113 + 60)
+        line = planted(facts)
+        restarted = gm.when(EPOCH + 782_113)
+        self.assertEqual(line, f"Planted when the village was 2 minutes 27 seconds old, counted on Normal speed (started "
+                               f"{gm.when(EPOCH + created)}; the save keeps no real date before {restarted}); refills "
+                               "every 3 hours on Normal speed.")
+        self.assertNotIn(gm.when(EPOCH + 782_113 + (147 - 144_871)), text_of(facts))     # the old, wrong date
+        self.assertIn("Ready to pick since the village was 8 hours 2 minutes 27 seconds old", text_of(facts))
+        self.assertIn(f"The village was started at {gm.when(EPOCH + created)}.", lines(facts, "Other"))
+
+    def test_a_speed_change_after_planting_does_not_move_its_date(self) -> None:
+        """Two saves of the same village, the second after a spell on Fast speed: the base moved, so the old line's
+        date for the same planting moved too.  Now neither dates it, and both give the same age."""
+        before = self.read(make_save(clock=(6, 0, 100_000, 50_000), trees=[(0, 40_000, 49_000, 0)]),
+                           now=EPOCH + 100_000)
+        after = self.read(make_save(clock=(3, 6, 110_000, 70_000), speed=3, trees=[(0, 40_000, 49_000, 0)]),
+                          now=EPOCH + 110_000)
+        age = "the village was 11 hours 6 minutes 40 seconds old, counted on Normal speed"
+        self.assertIn(age, planted(before))
+        self.assertIn(age, planted(after))
+        self.assertNotIn(" at ", planted(before).split(";")[0])
+        self.assertNotIn(" at ", planted(after).split(";")[0])
 
     def test_fruit_names_follow_the_kind(self) -> None:
         facts = self.read(make_save(trees=[(0, 1, 1, 0), (1, 1, 1, 0), (2, 1, 1, 0)]))
-        names = [re.match(r"Tree \d: (\w+),", t).group(1) for t in lines(facts, "Food sources")
-                 if re.match(r"Tree \d: \w+, planted", t)]
+        names = [re.match(r"Tree \d: (\w+)$", t).group(1) for t in lines(facts, "Food sources")
+                 if re.match(r"Tree \d: \w+$", t)]
         self.assertEqual(names, ["Banana", "Mango", "Papaya"])
 
     def test_fast_and_slow(self) -> None:
         fast = self.read(make_save(clock=(3, 0, 100_000, 50_000), speed=3, trees=[(0, 1, 49_000, 0)]),
                          now=EPOCH + 100_000)
-        self.assertIn("refills every 1 hour 30 minutes on Fast speed.", lines(fast)[0])
-        slow = self.read(make_save(clock=(10, 0, 100_000, 50_000), speed=10, trees=[(0, 1, 49_000, 0)]),
+        self.assertIn("refills every 1 hour 30 minutes on Fast speed.", planted(fast))
+        slow = self.read(make_save(clock=(10, 0, 100_000, 50_000), speed=10, trees=[(0, 50_001, 49_000, 0)]),
                          now=EPOCH + 100_000)
-        self.assertIn("refills every 5 hours on Slow speed.", lines(slow)[0])
-        # At Slow the planted time is worked back at Slow: 1 game second is 10/6 real ones.
-        self.assertIn(f"planted at {gm.when(real((10, 0, 100_000, 50_000), 1, 10))}", lines(slow)[0])
+        self.assertIn("refills every 5 hours on Slow speed.", planted(slow))
+        # After the base at Slow a game second is 10/6 real ones.
+        self.assertIn(f"Planted at {gm.when(real((10, 0, 100_000, 50_000), 50_001, 10))}", planted(slow))
 
     def test_paused_save_waits(self) -> None:
         facts = self.read(make_save(clock=(0, 6, 100_000, 50_000), speed=1005, trees=[(0, 1, 45_000, 10)]),
@@ -147,7 +202,7 @@ class FruitTrees(unittest.TestCase):
         self.assertIn("refills every 3 hours on Normal speed once unpaused.", text)
         self.assertIn(gm.PAUSED_NOTE, text)
         # Paused: 5,000 of the 10,800 game seconds have passed, and nothing more while it waits.
-        self.assertIn(f"Tree 1: next refill (111 fruit) after {gm.duration(5_800)} more of play once unpaused.", text)
+        self.assertIn(f"Next refill (111 fruit) after {gm.duration(5_800)} more of play once unpaused.", tree(facts))
 
     def test_closed_game_catches_up(self) -> None:
         clock = (6, 0, 100_000, 50_000)
@@ -155,26 +210,27 @@ class FruitTrees(unittest.TestCase):
         facts = self.read(make_save(clock=clock, trees=[(0, 1, 40_000, 100)], techs=(1, 1, 1, 1, 1, 0, 0)),
                           now=now)
         gained = (30_000 * 37) // 3600
-        tree = lines(facts, "Food sources")
-        self.assertIn(f"Tree 1: a refill was due at {gm.when(real(clock, 50_800))}; the next time the village is "
-                      f"played it gets {gained} fruit.", tree)
-        self.assertTrue(any(line.startswith("Tree 1: ready to pick since") for line in tree))
+        lines_ = tree(facts)
+        # The refill was due at 50,800, after the base: dated.
+        self.assertIn(f"The next time the village is played it gets {gained} fruit: a refill was due at "
+                      f"{gm.when(real(clock, 50_800))}.", lines_)
+        self.assertTrue(any(line.startswith("Ready to pick since the village was") for line in lines_))
 
     def test_full_tree(self) -> None:
         facts = self.read(make_save(trees=[(0, 1, 1, 1000)]))
-        self.assertIn("Tree 1: full; a refill adds nothing until fruit is picked.", lines(facts))
+        self.assertIn("Full; a refill adds nothing until fruit is picked.", tree(facts))
     def test_nature_patch_installed(self) -> None:
         nature1 = (1, 1, 1, 1, 1, 1, 0)
         on = self.read(make_save(techs=nature1, trees=[(0, 1, 1, 0)]), features=[vv3.NATURE_PATCH])
-        self.assertIn("refills every 2 hours 15 minutes on Normal speed.", lines(on)[0])
+        self.assertIn("refills every 2 hours 15 minutes on Normal speed.", planted(on))
         self.assertIn("is in the game.", text_of(on))
         self.assertIn("Honey: gains 2 every 45 minutes on Normal speed", text_of(on))
         off = self.read(make_save(techs=nature1, trees=[(0, 1, 1, 0)]), features=["vv3_birth_control"])
-        self.assertIn("refills every 3 hours on Normal speed.", lines(off)[0])
+        self.assertIn("refills every 3 hours on Normal speed.", planted(off))
         self.assertIn("is not in the game.", text_of(off))
         self.assertIn("each gains 126 fruit", text_of(off))
         level0 = self.read(make_save(trees=[(0, 1, 1, 0)]), features=[vv3.NATURE_PATCH])
-        self.assertIn("refills every 3 hours on Normal speed.", lines(level0)[0])
+        self.assertIn("refills every 3 hours on Normal speed.", planted(level0))
         self.assertIn("but needs Nature level 1.", text_of(level0))
         self.assertIn("each gains 111 fruit", text_of(level0))
         unknown = self.read(make_save(techs=nature1, trees=[(0, 1, 1, 0)]))
@@ -201,10 +257,10 @@ class FruitTrees(unittest.TestCase):
                 facts = self.read(save, features=[vv3.NATURE_PATCH], folder=folder)
                 if expect:
                     self.assertIn("Nature is level 1 (the second faction", text_of(facts))
-                    self.assertIn("every 2 hours 15 minutes", lines(facts)[0])
+                    self.assertIn("every 2 hours 15 minutes", planted(facts))
                 else:
                     self.assertIn("Nature is level 0", text_of(facts))
-                    self.assertIn("every 3 hours", lines(facts)[0])
+                    self.assertIn("every 3 hours", planted(facts))
 
     def test_patch_tree_schedule(self) -> None:
         """The Refill Together / Take Turns patches' file (native/shared/vv3_fruit_timers.h): a tree shows the
@@ -226,15 +282,15 @@ class FruitTrees(unittest.TestCase):
                 (place / "Virtual Villagers 3 Fruit Tree Timers - Save 1.dat").write_bytes(
                     struct.pack("<5I", vv3.TIMER_MAGIC, 1, 3, 1, 1) + bytes(body))
                 facts = self.read(data, folder=folder, now=real(clock, 50_000))
-                tree = lines(facts, "Food sources")
+                tree1, tree2 = tree(facts, 1), tree(facts, 2)
                 if matched:
-                    self.assertIn('Tree 1: on the patcher\'s "All Fruit Trees Refill at the Same Time" schedule, read '
-                                  'from its file for this save.', tree)
-                    self.assertIn(f"Tree 1: next refill due {gm.when(real(clock, 55_000))} (111 fruit).", tree)
-                    self.assertIn(f"Tree 2: next refill due {gm.when(real(clock, 55_000))} (111 fruit).", tree)
+                    self.assertIn('On the patcher\'s "All Fruit Trees Refill at the Same Time" schedule, read '
+                                  'from its file for this save.', tree1)
+                    self.assertIn(f"Next refill due {gm.when(real(clock, 55_000))} (111 fruit).", tree1)
+                    self.assertIn(f"Next refill due {gm.when(real(clock, 55_000))} (111 fruit).", tree2)
                 else:
-                    self.assertFalse(any("schedule" in line for line in tree))
-                    self.assertIn(f"Tree 1: next refill due {gm.when(real(clock, 49_000 + 10_800))} (111 fruit).", tree)
+                    self.assertFalse(any("schedule" in line for line in tree1 + tree2))
+                    self.assertIn(f"Next refill due {gm.when(real(clock, 49_000 + 10_800))} (111 fruit).", tree1)
                     self.assertIn("has no schedule for this save", text_of(facts))
     def test_tree_timers_file_is_only_noted(self) -> None:
         folder = Folder(self)
@@ -251,8 +307,8 @@ class FruitTrees(unittest.TestCase):
 
     def test_not_a_save(self) -> None:
         facts = self.read(make_save()[:-4])
-        self.assertEqual([f.group for f in facts], ["Other"])
-        self.assertIn("could not be read", facts[0].text)
+        self.assertEqual([f.group for f in facts if f.group != gm.SOURCES], ["Other"])
+        self.assertIn("could not be read", facts[-1].text)
         missing = gm.read(Folder(self).path, 3, 2, [])
         self.assertIn("could not be read", missing[0].text)
 
@@ -401,13 +457,15 @@ class EveryGame(unittest.TestCase):
             with self.subTest(save=name):
                 facts = self.page(name)
                 rendered = gm.render(facts).split("\n")
-                body = [line for line in rendered if line.startswith("  ")]
+                body = [line for line in rendered if line.startswith((gm.BULLET, gm.SUB_BULLET))]
                 self.assertEqual(len(body), len(facts))
                 for fact, line in zip(facts, body):
+                    mark = gm.SUB_BULLET if fact.sub else gm.BULLET
                     if fact.confirmed:
                         self.assertNotIn(gm.UNCONFIRMED, line)
+                        self.assertTrue(line.startswith(mark), line)
                     else:
-                        self.assertTrue(line.startswith(f"  {gm.UNCONFIRMED}  "), line)
+                        self.assertTrue(line.startswith(f"{mark}{gm.UNCONFIRMED}  "), line)
                 self.assertTrue(any(f.confirmed for f in facts))
                 self.assertTrue(any(not f.confirmed for f in facts))
                 for fact in facts:
@@ -418,7 +476,7 @@ class EveryGame(unittest.TestCase):
                 self.assertNotIn("(uncertain)", text)
                 self.assertNotIn("not yet confirmed in game", text)
                 for line in body:
-                    content = line.strip().removeprefix(f"{gm.UNCONFIRMED}  ")
+                    content = line.removeprefix(gm.SUB_BULLET).removeprefix(gm.BULLET).removeprefix(f"{gm.UNCONFIRMED}  ")
                     self.assertNotRegex(content, r" [.;,]|  |\(\)", content)
     def test_old_age_rule(self) -> None:
         """The verified old-age rule (all five games): a death roll by the hidden processed age, never "certain
@@ -441,18 +499,25 @@ class EveryGame(unittest.TestCase):
             with self.subTest(save=name):
                 text = gm.render(self.page(name)).lower()
                 self.assertNotRegex(text, r"probabl|(?<!equally )likely|perhaps|presumab|relic")
-    def test_golden_mushroom_stays_a_secret(self) -> None:
+    def test_golden_mushroom_facts_only_with_its_patch(self) -> None:
+        """The owner, 2026-10-23: with the patch in the game the page gives the Golden Mushroom's facts (100 food, 1 in
+        1,000,000 random brown or red mushrooms); without it nothing about it at all."""
         for name, fid in (("vv1-huttest-1", "vv1_super_secret_golden_mushroom"),
                           ("vv2-huttest-1", "vv2_super_secret_golden_mushroom"),
                           ("vv3-huttest-1", "vv3_super_secret_golden_mushroom"),
                           ("vv4-huttest-1", "vv4_super_secret_golden_mushroom"),
                           ("vv5-huttest-1", "vv5_super_secret_golden_mushroom")):
             with self.subTest(save=name):
-                text = text_of(self.page(name, features=[fid]))
-                self.assertIn("there is a secret to find", text)
-                self.assertNotRegex(text.lower(), r"golden mushroom(?!\x22 is in the game: there is a secret to find\.)")
-                self.assertNotRegex(text.lower(), r"1,000,000|1 in 1,000\b")
-                self.assertNotIn("secret", text_of(self.page(name, features=[])))
+                line = next(f for f in self.page(name, features=[fid]) if "Golden Mushroom instead" in f.text)
+                self.assertIn("1 in 1,000,000 of the random brown or red mushrooms", line.text)
+                self.assertIn("worth 100 food", line.text)
+                self.assertIn("counts as a mushroom", line.text)
+                self.assertEqual(line.group, "Mushrooms")
+                for features in ([], None):
+                    off = text_of([f for f in self.page(name, features=features) if f.group != gm.SOURCES]).lower()
+                    self.assertNotIn("golden mushroom", off)
+                    self.assertNotIn("secret", off)
+                    self.assertNotIn("1,000,000", off)
 
     def test_paused_saves_wait(self) -> None:
         import vv_save_backup
@@ -511,8 +576,8 @@ class EveryGame(unittest.TestCase):
         for name in ("vv1-huttest-1", "vv2-huttest-1", "vv4-huttest-1", "vv5-huttest-1"):
             with self.subTest(save=name):
                 facts = self.page(name, data=b"ldwg" + bytes(40))
-                self.assertEqual([f.group for f in facts], ["Other"])
-                self.assertIn("could not be read", facts[0].text)
+                self.assertEqual([f.group for f in facts if f.group != gm.SOURCES], ["Other"])
+                self.assertIn("could not be read", facts[-1].text)
 
 class InstalledPatches(unittest.TestCase):
     def test_report_lists_the_ids(self) -> None:
@@ -566,17 +631,18 @@ for number in sorted(tabs):
     # at least 80 pixels (about four lines) -- nothing above or below it cut off.
     window.update_idletasks()
     fixed = (top.winfo_reqheight() + 30 + tab["pickers"].winfo_reqheight() + tab["links"].winfo_reqheight()
-             + buttons.winfo_reqheight() + 24 + 40)
+             + tab["status"].winfo_reqheight() + buttons.winfo_reqheight() + 24 + 40)
     text = page.get("1.0", "end")
     tab["jump"](tab["groups"][-1])
     window.update()
     results.append((number, fixed + 80 <= w.MIN_HEIGHT, bool(page.cget("yscrollcommand")), len(tab["groups"]),
-                    page.yview()[0] > 0.0, "No save was found" in text, len(page.tag_ranges("unconfirmed")) > 0))
+                    page.yview()[0] > 0.0, "No save was found" in text, len(page.tag_ranges("unconfirmed")) > 0,
+                    len(page.tag_ranges("bullet")) > 0, page.tag_cget("bullet", "lmargin2") not in ("", "0")))
     if number == 3:
         secret = text
 for row in results:
     print(*row)
-print(repr(secret))
+print(ascii(secret))
 root.destroy()
 """
 
@@ -621,14 +687,17 @@ class Window(unittest.TestCase):
         out = done.stdout.strip().splitlines()
         self.assertEqual(out[0], "True 5 5")
         rows = [line.split() for line in out[1:6]]
-        for number, fits, bar, groups, jumped, general, labelled in rows:
+        for number, fits, bar, groups, jumped, general, labelled, bullets, hanging in rows:
             with self.subTest(game=number):
                 self.assertEqual((fits, bar, jumped, labelled), ("True", "True", "True", "True"))
+                # Bullets, wrapped lines continuing under the bullet's text (the owner, 2026-10-23).
+                self.assertEqual((bullets, hanging), ("True", "True"))
                 self.assertGreaterEqual(int(groups), 6)
                 self.assertEqual(general, "False" if number == "3" else "True")
         text = out[6]
-        self.assertIn("Tree 1: Mango, planted at ", text)
-        self.assertIn("Tree 1: 640 of 1000 fruit", text)
+        self.assertIn(ascii(gm.BULLET + "Tree 1: Mango")[1:-1], text)
+        self.assertIn(ascii(gm.SUB_BULLET + "640 of 1000 fruit")[1:-1], text)
+        self.assertIn("Planted when the village was 1 minute 40 seconds old", text)
         self.assertIn("is in the game", text)
 
 if __name__ == "__main__":

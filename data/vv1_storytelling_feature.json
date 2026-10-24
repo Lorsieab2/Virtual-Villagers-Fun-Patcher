@@ -31,7 +31,7 @@
     {
       "source": "assets/storytelling/VVFP Storytelling.dll",
       "destination": "VVFP Storytelling.dll",
-      "sha256": "D431F750D4B4E95C563C2B9067C6E38AABE6FF55E505C1CCE4AC78673AA3C7C4"
+      "sha256": "B8AACB052669121D509C5E514232D9CB32A7E85B8556090896ED3CE90D6D8911"
     }
   ],
   "patches": []
