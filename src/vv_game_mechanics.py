@@ -17,10 +17,29 @@ seconds therefore takes N * speed / 6 real seconds.  Paused (the speed plus 999)
 A GAME'S MODULE is found by name (vv_game_mechanics_vv<N>) and has
     facts(village: Village) -> list[Fact]
 It raises nothing for a save it cannot read: it returns a Fact saying what could not be read.
+
+LIVE COUNTDOWNS (the owner, 2026-10-24; docs/game-mechanics-window.md).  A Fact whose moment is a
+real time still to come -- a refill, a crop ready, an event that ends -- may carry
+    due:      that moment, absolute real time in Unix seconds (work it out from village.now and the
+              save's clock), or None;
+    due_kind: what happens then, in one word: "refill", "ready", "ends", "due", ... (DUE_KINDS).
+The page then shows the moment's date and time and, right after it on the same bullet, a live
+countdown -- "24 October 2026, 3:14 PM (in 12 min 03 s)" -- that the window ticks every second from
+ONE shared timer, without reading any file again.  At zero it reads "..., due now (refresh to see
+the new state)": the game's own state is only known again from the save.  Where the date goes:
+  * the text holds DUE ("{due}"): the date and countdown go there, e.g.
+        Fact("Refills", f"Honey: 40 of 100; the next refill is {gm.DUE}.", SAVE, due=t, due_kind="refill");
+  * otherwise, when the text already holds when(due), the countdown goes right after it;
+  * otherwise "<Kind>: <date> (countdown)." is added at the end ("Next refill: ...", "Ready: ...").
+A fact whose clock is stopped (the save was written paused, a frozen clock) passes due=None and
+keeps its own words ("once unpaused"); it gets no countdown.  render(facts) gives the text as it
+reads at `now`; render_live(facts, now) also gives each countdown's place (Countdown) for the window.
+A fact with a due is left out of a game's general rules (general()), which have no village.
 """
 from __future__ import annotations
 
 import importlib
+import math
 import re
 import struct
 from dataclasses import dataclass, field
@@ -69,11 +88,14 @@ class Fact:
     """One line of the page.  `verified` says what stands behind it: SAVE, OWNER or CLAMP (see TRUSTED) let it
     go without the label; True (a research spec's isolated emulation) or False does not -- it is shown with
     UNCONFIRMED.  A line is unconfirmed unless it says otherwise.  `sub`: shown as a sub-bullet of the fact
-    before it."""
+    before it.  `due` / `due_kind`: a real moment still to come and what happens then, for the live countdown
+    (see LIVE COUNTDOWNS in the module docstring); None when the clock is stopped or there is none."""
     group: str
     text: str
     verified: bool | str = False
     sub: bool = False
+    due: float | None = None
+    due_kind: str | None = None
 
     @property
     def confirmed(self) -> bool:
@@ -564,11 +586,23 @@ def _from_exe(exe: Path, game: int) -> frozenset[str] | None:
         return None
 
 
-def patch_source(save_folder: Path, game_folders: list[Path], game: int = 0) -> PatchSource:
+def patch_source(save_folder: Path, game_folders: list[Path], game: int = 0,
+                 exe: Path | None = None) -> PatchSource:
     """Which patches the game that saves into `save_folder` has now (see PatchSource): its exe found among
-    `game_folders`; the patcher's log of the run that made it when that log's hash is the exe's; otherwise the
-    exe's own bytes.  Never the save."""
-    exes = _game_exes(save_folder, game_folders)
+    `game_folders` -- or `exe`, the one the player chose with the window's Browse... -- the patcher's log of the
+    run that made it when that log's hash is the exe's; otherwise the exe's own bytes.  Never the save."""
+    chosen: list[str] = []
+    if exe is not None and Path(exe).is_file():
+        exes = [Path(exe)]
+    else:
+        exes = _game_exes(save_folder, game_folders)
+        if exe is not None:
+            chosen = [f"The game chosen for this save folder, {exe}, was not found; the game was looked for as "
+                      "usual."]
+    if chosen:
+        found = patch_source(save_folder, game_folders, game)
+        found.problems[:0] = chosen
+        return found
     name = Path(save_folder).name
     if not exes:
         return PatchSource(None, False, None, "", [f"Could not tell which patches this game has: no game folder "
@@ -638,15 +672,16 @@ def save_path(folder: Path, game: int, slot: int) -> Path:
 
 
 def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None,
-         now: float | None = None) -> list[Fact]:
-    """Every line of the section for one save slot, in GROUPS order.  Reads only."""
+         now: float | None = None, exe: Path | None = None) -> list[Fact]:
+    """Every line of the section for one save slot, in GROUPS order.  Reads only, and reads every source again
+    at each call (the window's Refresh).  `exe`: the game the player chose for this save folder, if any."""
     import time
     path = save_path(folder, game, slot)
     try:
         data = path.read_bytes()
     except OSError as exc:
         return [Fact("Other", f"The save {path.name} could not be read ({exc.strerror or exc}).")]
-    patches = patch_source(Path(folder), game_folders or [], game)
+    patches = patch_source(Path(folder), game_folders or [], game, exe)
     village = Village(Path(folder), game, slot, path, data, patches.installed,
                       time.time() if now is None else now, certain=patches.certain)
     try:
@@ -695,6 +730,8 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     keep = []
     for fact in module.facts(village):
+        if fact.due is not None:
+            continue                           # a moment of the empty save's village
         if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",
                                                           "Saved paused", "Fruit trees: none")):
             continue
@@ -708,9 +745,73 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     return sorted(keep, key=lambda fact: order.get(fact.group, len(GROUPS)))
 
 
-def render(facts: list[Fact]) -> str:
-    """The section as text: each group's heading, then its lines."""
+DUE = "{due}"
+# A due fact's kind, as the words before its date when its text does not place the date itself.
+DUE_KINDS = {"refill": "Next refill", "ready": "Ready", "ends": "Ends", "due": "Due", "starts": "Starts",
+             "next": "Next"}
+DUE_NOW = "due now (refresh to see the new state)"
+
+
+def countdown(due: float, now: float) -> str:
+    """The time left until `due` at `now`: "in 12 min 03 s", "in 2 h 05 min 00 s", "in 3 d 4 h 05 min 06 s",
+    "in 9 s" -- whole seconds rounded up, so it reads "in 1 s" until the very moment -- or DUE_NOW from then on."""
+    left = math.ceil(due - now - 1e-9)
+    if left <= 0:
+        return DUE_NOW
+    days, rest = divmod(left, 86_400)
+    hours, rest = divmod(rest, 3600)
+    minutes, seconds = divmod(rest, 60)
+    if days:
+        return f"in {days} d {hours} h {minutes:02d} min {seconds:02d} s"
+    if hours:
+        return f"in {hours} h {minutes:02d} min {seconds:02d} s"
+    if minutes:
+        return f"in {minutes} min {seconds:02d} s"
+    return f"in {seconds} s"
+
+
+def countdown_span(due: float, now: float) -> str:
+    """The live words right after a due fact's date: " (in 12 min 03 s)", or ", due now (refresh ...)"."""
+    words = countdown(due, now)
+    return f", {words}" if words == DUE_NOW else f" ({words})"
+
+
+@dataclass(frozen=True)
+class Countdown:
+    """Where a live countdown is on the rendered page: its line (1-based, as Tk counts), its first column and
+    its length, as rendered, and the moment it counts down to."""
+    line: int
+    column: int
+    length: int
+    due: float
+
+
+def _due_line(text: str, due: float, kind: str | None, now: float) -> tuple[str, int, int]:
+    """`text` with the due's date and countdown placed (see LIVE COUNTDOWNS); the countdown's start and length."""
+    date = when(due)
+    span = countdown_span(due, now)
+    if DUE in text:
+        head, tail = text.split(DUE, 1)
+        return head + date + span + tail.replace(DUE, date), len(head) + len(date), len(span)
+    at = text.find(date)
+    if at >= 0:
+        at += len(date)
+        return text[:at] + span + text[at:], at, len(span)
+    label = DUE_KINDS.get(kind or "due", (kind or "due").capitalize())
+    head = text.rstrip()
+    if head and head[-1] not in ".!?":
+        head += "."
+    head = f"{head} {label}: {date}" if head else f"{label}: {date}"
+    return head + span + ".", len(head), len(span)
+
+
+def render_live(facts: list[Fact], now: float | None = None) -> tuple[str, list[Countdown]]:
+    """The section as text as it reads at `now` (each group's heading, then its lines), and every live
+    countdown's place on it for the window to tick."""
+    import time
+    now = time.time() if now is None else now
     out: list[str] = []
+    spans: list[Countdown] = []
     group = None
     for fact in facts:
         if fact.group != group:
@@ -719,8 +820,18 @@ def render(facts: list[Fact]) -> str:
             out.append(fact.group)
             group = fact.group
         mark = SUB_BULLET if fact.sub else BULLET
-        out.append(f"{mark}{UNCONFIRMED}  {tidy(fact.text)}" if not fact.confirmed else f"{mark}{tidy(fact.text)}")
-    return "\n".join(out)
+        lead = mark if fact.confirmed else f"{mark}{UNCONFIRMED}  "
+        body = tidy(fact.text)
+        if fact.due is not None:
+            body, column, length = _due_line(body, fact.due, fact.due_kind, now)
+            spans.append(Countdown(len(out) + 1, len(lead) + column, length, fact.due))
+        out.append(lead + body)
+    return "\n".join(out), spans
+
+
+def render(facts: list[Fact], now: float | None = None) -> str:
+    """The section as text: each group's heading, then its lines (a countdown as it reads at `now`)."""
+    return render_live(facts, now)[0]
 
 
 def tidy(text: str) -> str:
