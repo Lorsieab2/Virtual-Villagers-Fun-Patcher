@@ -791,11 +791,20 @@ class CompositionTests(unittest.TestCase):
         return bytes(data), applied
 
     def test_every_public_patch(self):
-        public = [p.id for p in vfp.load_public_fun_patches()
-                  if p.raw.get("game_id") == "vv3" and p.id != "vv3_population_256"]
+        catalog = {p.id: p for p in vfp.load_public_fun_patches()}
+        public = [i for i, p in catalog.items()
+                  if p.raw.get("game_id") == "vv3" and i != "vv3_population_256"]
+        # An alternative row (Fruit Trees Take Turns Refilling) can never be
+        # built with the row it conflicts with: "all" leaves it out, and
+        # "all, alternatives instead" builds it in that row's place.
+        together = [i for i in public if i not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
+        replaced = {c for i in public if i in vfp.ALTERNATIVE_FUN_PATCH_IDS
+                    for c in vfp.conflict_ids(catalog[i])}
+        swapped = [i for i in public if i not in replaced]
         origins = {"vv3_enable_origins_exclusive_features"}
-        no_origins = [i for i in public if not origins & set(_with_prerequisites([i]))]
-        selections = [("all", public), ("all without Origins", no_origins)]
+        no_origins = [i for i in together if not origins & set(_with_prerequisites([i]))]
+        selections = [("all", together), ("all without Origins", no_origins),
+                      ("all, alternatives instead", swapped)]
         selections += [(i, _with_prerequisites([i])) for i in public]
         for mode in MODES:
             for label, ids in selections:

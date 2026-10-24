@@ -1771,7 +1771,18 @@ class StockIntegrationTests(unittest.TestCase):
                             prerequisites.append(dependency)
                             pending.append(dependency)
                 scenarios.append((feature_id, prerequisites[::-1] + [feature_id]))
-            scenarios.append(("all", public_ids))
+            # "Everything" is every row that can be built together: an
+            # alternative row (Fruit Trees Take Turns Refilling) is refused
+            # with the row it conflicts with, so "all" leaves it out and
+            # "all, alternatives instead" swaps it in for that row.
+            import vv_fun_patcher as _vfp
+            scenarios.append(("all", [i for i in public_ids
+                                      if i not in _vfp.ALTERNATIVE_FUN_PATCH_IDS]))
+            alternatives = [i for i in public_ids if i in _vfp.ALTERNATIVE_FUN_PATCH_IDS]
+            if alternatives:
+                replaced = {c for i in alternatives for c in _vfp.conflict_ids(feature_catalog[i])}
+                scenarios.append(("all, alternatives instead",
+                                  [i for i in public_ids if i not in replaced]))
             expected_safety = {
                 int(patch["offset"], 0) for patch in build.safety_patches
             }

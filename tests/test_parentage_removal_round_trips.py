@@ -114,6 +114,9 @@ class ParentageRemovalRoundTripTests(unittest.TestCase):
                 for item in catalog
                 if item.game_id == game_id and "candidate" not in item.id
                 and item.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS
+                # An alternative row (Fruit Trees Take Turns Refilling) is never
+                # built with the row it conflicts with.
+                and item.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS
             ]
             without_origins = [
                 item

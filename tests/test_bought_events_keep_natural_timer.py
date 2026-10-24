@@ -588,13 +588,21 @@ class EveryPatchTogether(unittest.TestCase):
         for game in GAMES:
             if not have_stock(game):
                 continue
-            ids = patcher.resolve_fun_patch_ids([p.id for p in catalog if p.id.startswith(game + "_")],
-                                                game_id=game)
-            for mode in MODES:
-                with self.subTest(game=game, mode=mode):
-                    data, _ = patcher.render_patched_bytes(stock_path(game), _builds()[game], mode, ids)
-                    proc = Process(bytes(data), DLL)
-                    self.assertEqual(proc.export("ItkProbeInstall", int(game[2:])), 1)
+            rows = [p for p in catalog if p.id.startswith(game + "_")]
+            # An alternative row (Fruit Trees Take Turns Refilling) is never built
+            # with the row it conflicts with: once without it, once in that row's place.
+            replaced = {c for p in rows if p.id in patcher.ALTERNATIVE_FUN_PATCH_IDS
+                        for c in patcher.conflict_ids(p)}
+            selections = [("all", [p.id for p in rows if p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS])]
+            if replaced:
+                selections.append(("alternatives instead", [p.id for p in rows if p.id not in replaced]))
+            for label, chosen in selections:
+                ids = patcher.resolve_fun_patch_ids(chosen, game_id=game)
+                for mode in MODES:
+                    with self.subTest(game=game, mode=mode, selection=label):
+                        data, _ = patcher.render_patched_bytes(stock_path(game), _builds()[game], mode, ids)
+                        proc = Process(bytes(data), DLL)
+                        self.assertEqual(proc.export("ItkProbeInstall", int(game[2:])), 1)
 
 
 if __name__ == "__main__":
