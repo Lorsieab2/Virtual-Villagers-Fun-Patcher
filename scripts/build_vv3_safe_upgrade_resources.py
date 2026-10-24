@@ -119,8 +119,8 @@ FOUNDATION_OUTPUT = (
 # file before a re-arm records one, and a purchase in another village never lends its distance.
 # Recertified for Fix Vanilla Bugs' speed-change timers (native/shared/startup_companions.h gains
 # "VVFP Speed Change Timers.dll", which the Story bridge compiles in): nothing else changed.
-SOURCE_SHA256 = "280551B4F40474C2F42FE43692CB111C9920075F4D356BCF44DF96CDDF640F97"
-SOURCE_SIZE = 1999360
+SOURCE_SHA256 = "2866DEC0A6F4B568188D1F8308D04DDDD01411617C8B7B2EBC436A42E1BAF3A0"
+SOURCE_SIZE = 1999872
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

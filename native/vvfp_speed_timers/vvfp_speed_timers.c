@@ -28,10 +28,11 @@
 
    INSTALLING.  VvfpStartup(game, shipped), called once by VVFP Startup.dll at game start.  The
    whole of set_speed (VV3 0x426630..0x426742, VV4 0x41DBE0..0x41DD0F) and the constants the stub
-   uses must hold the stock bytes, or nothing is written; the one detour is written in one
-   VirtualProtect'd copy and read back, and put back if it does not read back exactly. */
+   uses must hold the stock bytes, or nothing is written; the one detour goes in through the
+   shared all-or-none writer (native/shared/install_sites.h). */
 #include <windows.h>
 #include <string.h>
+#include "../shared/install_sites.h"
 
 #define VV3_GAME 3
 #define VV4_GAME 4
@@ -216,32 +217,14 @@ static int holds(unsigned int va, const unsigned char *bytes, size_t length) {
     return readable(va, length) && memcmp((const void *)(UINT_PTR)va, bytes, length) == 0;
 }
 
-static int write_code(unsigned int va, const unsigned char *bytes, size_t length) {
-    DWORD old;
-    void *at = (void *)(UINT_PTR)va;
-    if (!VirtualProtect(at, length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, length);
-    VirtualProtect(at, length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, length);
-    return memcmp(at, bytes, length) == 0;
-}
-
-/* The detour at `site`: a jmp to `stub`, then nops; put back exactly if it does not read back. */
+/* The detour at `site`: a jmp to `stub`, then nops -- through the shared all-or-none writer
+   (native/shared/install_sites.h): the site is made writable before it is written, so a refused
+   VirtualProtect writes nothing and nothing needs putting back. */
 static void detour(unsigned int site, size_t length, void (*stub)(void), const unsigned char *stock) {
-    unsigned char bytes[16];
-    unsigned int rel = (unsigned int)((UINT_PTR)stub - (site + 5u));
-    size_t i;
-    bytes[0] = 0xE9;
-    memcpy(bytes + 1, &rel, 4);
-    for (i = 5; i < length; ++i) {
-        bytes[i] = 0x90;
-    }
-    if (write_code(site, bytes, length)) {
+    vvfp_site_write w[1];
+    vvfp_site_branch(&w[0], site, (int)length, stock, 0xE9, (const void *)stub);
+    if (vvfp_install_sites(w, 1)) {
         installed = 1;
-    } else {
-        write_code(site, stock, length);
     }
 }
 

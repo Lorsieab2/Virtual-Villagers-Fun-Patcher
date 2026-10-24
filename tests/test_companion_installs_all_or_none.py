@@ -335,6 +335,8 @@ CASES = [
          lambda g: ["vv3_fruit_trees_refill_together"], _startup, reports=False),
     Case("VV3 Trees Take Turns", "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll", (3,),
          lambda g: ["vv3_fruit_trees_take_turns"], _startup, reports=False),
+    Case("Speed Change Timers", "assets/speed_timers/VVFP Speed Change Timers.dll", (3, 4),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"], _startup, reports=False),
     Case("Work First", "assets/work_first/VVFP Work First.dll", (1, 2, 4, 5),
          lambda g: [f"vv{g}_builders_and_healers_work_first"],
          lambda m, g: m.export("VvfpWorkFirstInstall", g)),
