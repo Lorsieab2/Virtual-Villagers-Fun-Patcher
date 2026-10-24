@@ -228,17 +228,26 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for the v1.35.81 release, which carries both of the above: the combined render
     # differs from the fruit-only render only at 0x53B73..0x53B74 and the PE CheckSum, and from
     # the hut-only render only inside the fruit rows above and the PE CheckSum, in all three modes.
+    # Re-pinned when the fruit row took in the rain lift's fruit (Depositing food). Justified BEFORE
+    # re-pinning by rendering the full catalog on main (648bef29) and on the branch and diffing
+    # byte for byte: 58-59 differing bytes per mode, every one inside the row's ranges
+    # 0x34B4C..0x34B51, 0x34BFF..0x34C0A, 0x34C27..0x34C2F, 0x34C44..0x34C7F and 0x34CCE..0x34CD3
+    # or the PE CheckSum at 0x160..0x163; the length is unchanged.
+    # Re-pinned again in the same update for the Nature honey refill's carried remainder: against
+    # main (648bef29) the full catalog now differs in 128-129 bytes per mode, every one inside the
+    # fruit row's ranges above, the honey row's clock-read site 0x319F4..0x319F8, its stock
+    # arithmetic restored at 0x319F9..0x31A08, its cave 0x7B2A0..0x7B2DF, or the PE CheckSum.
     "stock": (
-        "FA1FEC998274691C62AF9547A8B2C23604E323B41FB0C96990A8DAE6373E62F0",
-        "E88F0D00",
+        "C3000C504A19B893C6B03E3B54A29C3D0E63DD44C47726C3B47F56597EB885B4",
+        "58340D00",
     ),
     "collection_progression": (
-        "06A20076A2F4074C9AE3508A3A4AB412BF5E86E320AB8FFFFC4D7390C3E68057",
-        "E8A80D00",
+        "E69571F6C3948CE5A5FCEEAC26C2C5EFBF31A0CAFA1F1B9165A44B864127AB8A",
+        "584D0D00",
     ),
     "immediate_fixed": (
-        "571A2EAD2CF3EC6A3FAA2EFC436BBA8D8CF91EB9196FB2E6180446493CC31D4A",
-        "E7EA0C00",
+        "D01E1128F380F5AFCF707C1984EB9EC500B1DA695C67CC7E325CAF88AE40BDED",
+        "568F0D00",
     ),
 }
 
@@ -658,6 +667,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
         selected = [
             item.id for item in patcher.load_fun_patches()
             if item.game_id == "vv3" and item.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS
+            and item.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS
         ]
         self.assertNotIn("vv3_full_mastery_all_stage_a_candidate", selected)
         for mode, expected in STOCK_CATALOG_COMPOSITION_RESULTS.items():

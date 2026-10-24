@@ -104,7 +104,7 @@ def public_ids(game: str) -> list[str]:
     for p in vfp.load_fun_patches():
         r = p.raw
         if p.game_id == game and not r.get("catalog_hidden") and r.get("catalog_enabled", True) \
-                and r.get("enabled", True):
+                and r.get("enabled", True) and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS:
             out.append(p.id)
     return out
 
@@ -530,12 +530,18 @@ class OnlyThisBuildsCompanions(unittest.TestCase):
                 stale = {n: s for n, s in STALE.items()}
                 machine, shipped = self.run_with_stale(game, selection, stale)
                 self.assertEqual({m.name for m in machine.modules.values()}, started(shipped))
-                # The only code written is the Origins companion's own quit
-                # hook: its five bytes (made writable, then restored) and its stub's page.
+                # The only code written is the Origins companion's own: its quit
+                # hook's five bytes (made writable, then restored) and its stub's
+                # page, and the island-event timer keeper's sites (bought island
+                # events keep the game's own timer, native/shared/island_timer_keep.h),
+                # each made writable and restored.
+                from test_bought_events_keep_natural_timer import KEEPER_SITES
                 pages = [c[1] for c in machine.calls if c[0] == "VirtualAlloc"]
                 protected = [c[1] for c in machine.calls if c[0] == "VirtualProtect"]
                 self.assertEqual(len(pages), 1)
-                self.assertEqual(sorted(protected), sorted([QUIT_SITES[game][0], QUIT_SITES[game][0], 0x60000000]))
+                keeper = [va for va in KEEPER_SITES[game] for _ in range(2)]
+                self.assertEqual(sorted(protected),
+                                 sorted([QUIT_SITES[game][0], QUIT_SITES[game][0], 0x60000000] + keeper))
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)

@@ -450,6 +450,72 @@ class FixTotemVillagers(unittest.TestCase):
         self.assertEqual(v.save.read_bytes(), before)
 
 
+class TheReportedCases(unittest.TestCase):
+    """Two players' reports (2026-10): "a kid will age out of nursing to age 2 but they are a totem and
+    don't grow up or die" ("Amago`s totem"), and "my villager had twins but one of them is showing up as a
+    totem" ("Mucha`s totem").  As the stock game leaves them (tests/test_vv2_fix_vanilla_bugs.py,
+    TotemTickTests): the copy creator 0x44CEC0 made the second (or third) baby in a record still marked
+    as a totem, with health 90 (0x44D15C), the first baby's parents, family line and looks, its +0x550
+    plus one, and the age it was born at (40, two years), which never changes again."""
+
+    @staticmethod
+    def litter(n: int, now_age: int = 300) -> list[dict]:
+        first = person("Kaya Wambui", age=now_age, health=88, father="Hoto", mother="Nia", lineage=12, kind=40)
+        out = [first]
+        for k, name in enumerate(("Mucha Wambui", "Amago Wambui")[:n - 1], start=1):
+            out.append(person(name, age=40, health=90, father="Hoto", mother="Nia", lineage=12, kind=40 + k,
+                              totem=True))
+        return out
+
+    def test_a_twin_born_as_a_totem_is_certain_with_its_litter_shown(self):
+        v = Village(self, crowd(4) + self.litter(2) + [person("Other Child", age=300, father="Hoto",
+                                                              mother="Nia", lineage=12, kind=70)])
+        s = vt.survey(v.folder, 1)
+        self.assertEqual([x.totem.name for x in s.certain_villagers], ["Mucha Wambui"])
+        self.assertEqual(s.asked_villagers, [])
+        why = s.certain_villagers[0].describe()
+        self.assertIn("alive (health 90) and marked as a totem, aged 2 years", why)
+        self.assertIn("never ages or dies", why)
+        self.assertIn("born in one litter with Kaya Wambui (now 15 years) (parents Hoto and Nia)", why)
+        self.assertNotIn("Other Child", why)
+
+    def test_triplets_both_copies_are_found(self):
+        v = Village(self, crowd(3) + self.litter(3))
+        s = vt.survey(v.folder, 1)
+        self.assertEqual(sorted(x.totem.name for x in s.certain_villagers), ["Amago Wambui", "Mucha Wambui"])
+        amago = next(x for x in s.certain_villagers if x.totem.name == "Amago Wambui")
+        self.assertIn("born in one litter with Kaya Wambui", amago.reason)
+
+    def test_a_copy_with_a_random_mark_names_its_brothers_and_sisters(self):
+        people = self.litter(2)
+        people[1]["kind"] = 5                   # past 123 the copy creator rolls a new +0x550
+        v = Village(self, crowd(2) + people)
+        why = vt.survey(v.folder, 1).certain_villagers[0].reason
+        self.assertIn("brother or sister of Kaya Wambui (now 15 years)", why)
+
+    def test_fixed_only_the_mark_and_the_evidence_is_logged(self):
+        v = Village(self, crowd(4) + self.litter(2))
+        before = v.save.read_bytes()
+        vt.fix_totem_villagers(v.folder, 1, processes=NoGame(), now=NOW)
+        after = v.save.read_bytes()
+        at = v.entries()[5]
+        self.assertEqual([i for i in range(len(before)) if before[i] != after[i]], [at + rel(0x558)])
+        text = v.repairs()
+        self.assertIn("Reverted to a villager (certain): Mucha Wambui (record 6", text)
+        self.assertIn("born in one litter with Kaya Wambui", text)
+        self.assertTrue(v.backups())
+
+    def test_an_elders_real_totem_beside_them_is_never_touched(self):
+        e, t = elder_and_totem("Hoto Wambui", head=14, body=5)
+        v = Village(self, crowd(3) + [e, t] + self.litter(2))
+        s = vt.survey(v.folder, 1)
+        self.assertEqual([x.totem.name for x in s.villagers], ["Mucha Wambui"])
+        vt.fix_totem_villagers(v.folder, 1, processes=NoGame(), now=NOW)
+        data = v.save.read_bytes()
+        statue = v.entries()[4]
+        self.assertEqual(data[statue + rel(0x558)], 1)
+
+
 class TheChecklist(unittest.TestCase):
     def test_the_rows_are_wired_into_repair(self):
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")

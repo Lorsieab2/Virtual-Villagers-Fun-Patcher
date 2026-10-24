@@ -634,5 +634,117 @@ class TotemFixTests(unittest.TestCase, _Builds):
                     self.assertEqual(mark, b"\x01" if label == "stock" else b"\x00")
 
 
+class _World:
+    """The rendered image in unicorn running the game's own world tick 0x43B690 (the 2-second block of the
+    village frame) on a full 256-record pool: the game's rand (0x4031A0, seed 0x498D10) and creators run
+    as they are; only the clock (0x403200), the string table (0x441680, an empty string) and the message,
+    sound and drawing calls (0x4257A0, 0x45C590, 0x41C1D0) are answered here."""
+    POOL = 0x10000000
+    GAME = 0x0F000000
+    TICK_THIS = 0x0E000000
+    STOPS = {0x403200: 0, 0x441680: 4, 0x4257A0: 8, 0x45C590: 4, 0x41C1D0: 0}
+
+    def __init__(self, exe: bytes) -> None:
+        pe = pefile.PE(data=exe)
+        image = pe.get_memory_mapped_image()
+        self.mu = mu = Uc(UC_ARCH_X86, UC_MODE_32)
+        mu.mem_map(0x400000, (len(image) + 0xFFFF) & ~0xFFFF)
+        mu.mem_write(0x400000, image)
+        mu.mem_map(STACK - 0x20000, 0x30000)
+        mu.mem_map(RETURN, 0x1000)
+        mu.mem_map(self.POOL, (RECORDS * STRIDE + 0x10000 + 0xFFF) & ~0xFFF)
+        mu.mem_map(self.GAME, 0x40000)
+        mu.mem_map(self.TICK_THIS, 0x1000)
+        self.now = 1_000_000
+        self.w32(self.POOL + 0xE574D4, self.GAME)
+        self.w32(self.GAME + 0x305A4, self.POOL)
+        self.w32(self.TICK_THIS, self.GAME)
+        self.w32(self.TICK_THIS + 4, self.POOL)
+        for off, value in ((0x2EB08, 6), (0x2EAA4, 1000), (0x2EA8C, 3), (0x2EAEC, 1), (0x2EAE4, self.now),
+                           (0x2EAC0, self.now + 10**7)):
+            self.w32(self.GAME + off, value)
+        self.w32(0x498D10, 777)                                   # the game's rand seed
+        mu.hook_add(UC_HOOK_CODE, self._on_code)
+
+    def w32(self, at: int, value: int) -> None:
+        self.mu.mem_write(at, struct.pack("<I", value & 0xFFFFFFFF))
+
+    def r32(self, at: int) -> int:
+        return struct.unpack("<i", self.mu.mem_read(at, 4))[0]
+
+    def rec(self, index: int) -> int:
+        return self.POOL + index * STRIDE
+
+    def villager(self, index: int, age: int, sex: int = 1, health: int = 100) -> None:
+        rec = self.rec(index)
+        self.mu.mem_write(rec + 0x30, b"\x01")
+        for off, value in ((0x52C, health), (0x530, age), (0x534, age), (0x538, sex), (0x528, self.now),
+                           (0x524, 0)):
+            self.w32(rec + off, value)
+
+    def _on_code(self, mu, address, size, user_data) -> None:
+        if address in self.STOPS:
+            value = self.now if address == 0x403200 else 0x48F9C0 if address == 0x441680 else 0
+            esp = mu.reg_read(UC_X86_REG_ESP)
+            ret = struct.unpack("<I", mu.mem_read(esp, 4))[0]
+            mu.reg_write(UC_X86_REG_EAX, value)
+            mu.reg_write(UC_X86_REG_ESP, esp + 4 + self.STOPS[address])
+            mu.reg_write(UC_X86_REG_EIP, ret)
+
+    def tick(self) -> None:
+        mu = self.mu
+        esp = STACK - 4
+        mu.mem_write(esp, struct.pack("<I", RETURN))
+        mu.reg_write(UC_X86_REG_ESP, esp)
+        mu.reg_write(UC_X86_REG_ECX, self.TICK_THIS)
+        mu.emu_start(0x43B690, RETURN, count=50_000_000)
+
+
+class TotemTickTests(unittest.TestCase, _Builds):
+    """The players' reports (2026-10): "a kid will age out of nursing to age 2 but they are a totem and
+    don't grow up or die", and "my villager had twins but one of them is showing up as a totem".  Run
+    through the game's own world tick: a mother's litter comes due (+0x540 + 40 < her age) and the tick
+    makes the first baby with 0x44F5C0 -> 0x44C600 (which clears +0x558, 0x44C84F) and each further baby
+    with the copy creator 0x44CEC0, which in the base game leaves +0x558 as the record had it.  A record is
+    left marked by a buried totem (TotemFixTests) or by a new village / Start Over (0x424C80, which frees
+    every record and never clears +0x558).  The marked baby then never ages and never dies: the tick
+    passes a marked record over (0x43B805)."""
+
+    def _litter(self, exe: bytes, babies: int) -> list[tuple[int, int, int]]:
+        w = _World(exe)
+        w.villager(0, 600, sex=2)
+        w.w32(w.rec(0) + 0x534, 599)                  # one age unit to process
+        w.w32(w.rec(0) + 0x540, 500)                  # conceived at 500: due at 540
+        w.w32(w.rec(0) + 0x544, babies)
+        for index in range(1, 1 + babies):            # the free records the litter takes, the later ones marked
+            w.mu.mem_write(w.rec(index) + 0x558, b"\x01" if index > 1 else b"\x00")
+        w.tick()
+        w.now += 4 * 3600                             # four hours on Normal: a living baby ages two years
+        w.w32(w.GAME + 0x2EAA4, 0)                    # with no food, and loses health
+        w.tick()
+        return [(w.mu.mem_read(w.rec(i) + 0x558, 1)[0], w.r32(w.rec(i) + 0x530), w.r32(w.rec(i) + 0x52C))
+                for i in range(1, 1 + babies)]
+
+    def test_emulated_a_litter_born_into_marked_records(self):
+        # Fix Vanilla Bugs alone: with every other patch the tick also calls the companions' hooks, which
+        # this image has no DLLs for (their bytes with this row's are covered by TotemFixTests).
+        for mode in MODES:
+            for label in ("stock", "patched"):
+                exe = self.builds()[(mode, label)]
+                for babies in (2, 3):
+                    with self.subTest(mode=mode, build=label, babies=babies):
+                        born = self._litter(exe, babies)
+                        mark, age, _health = born[0]
+                        self.assertEqual(mark, 0, "the first baby is made by 0x44C600, which clears the mark")
+                        self.assertGreater(age, 40)
+                        for mark, age, health in born[1:]:
+                            if label == "stock":
+                                # The reports: a totem, two years old for ever, and starving cannot kill it.
+                                self.assertEqual((mark, age, health), (1, 40, 90))
+                            else:
+                                self.assertEqual(mark, 0)
+                                self.assertGreater(age, 40)
+
+
 if __name__ == "__main__":
     unittest.main()

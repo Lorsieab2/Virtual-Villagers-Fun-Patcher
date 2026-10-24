@@ -250,7 +250,7 @@ class RuleTests(unittest.TestCase):
         # ... but the same partner again is always fine (the owner: "stop him only from moving on to a second person from the same family").
         self.assertIn(("Hoani Chuchip", "Meka Wanjiko"), allowed(one_family_per_partner=True))
         self.assertIn(("Hoani Chuchip", "Kaula Akikai II"), allowed(one_family_per_partner=True))
-        self.assertTrue(gen.Rules().one_family_per_partner)        # on by default
+        self.assertFalse(gen.Rules().one_family_per_partner)       # off by default
 
     def test_an_expecting_mother_is_left_out_unless_the_player_says(self) -> None:
         v = village()

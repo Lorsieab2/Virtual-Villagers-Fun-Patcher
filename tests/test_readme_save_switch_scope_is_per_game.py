@@ -44,6 +44,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from src.vv_fun_patcher import (  # noqa: E402
     load_builds,
+    ALTERNATIVE_FUN_PATCH_IDS,
     load_fun_patches,
     render_patched_bytes,
 )
@@ -146,7 +147,7 @@ class ReadmeSaveSwitchScopeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         builds = {b.id: b for b in load_builds()}
-        catalog = [p.id for p in load_fun_patches()]
+        catalog = [p.id for p in load_fun_patches() if p.id not in ALTERNATIVE_FUN_PATCH_IDS]
         cls.images = {}
         for game, stock in STOCK.items():
             path = ROOT / stock

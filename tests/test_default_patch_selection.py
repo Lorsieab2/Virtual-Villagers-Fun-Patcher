@@ -110,7 +110,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_story_cheat_upgrades_cost_tech_points")
                   # 256 Villagers (Experimental): off by default -- it moves
                   # the villager table and changes the save format.
-                  or p in ("vv3_population_256", "vv4_population_256", "vv5_population_256")})
+                  or p in ("vv3_population_256", "vv4_population_256", "vv5_population_256")
+                  # The alternative of a pair that can never be built together:
+                  # All Fruit Trees Refill at the Same Time is the one ticked.
+                  or p == "vv3_fruit_trees_take_turns"})
 
     def test_story_cheat_upgrades_is_off_by_default_in_all_five(self) -> None:
         """The owner: Story / Cheat Upgrades is a default-off patch."""
@@ -179,13 +182,17 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         self.assertIn("select_all_fun_patch_selection(patch_id)", body)
         self.assertNotIn("default_fun_patch_selection", body)
 
+        # ...and the alternative of a pair the patcher never builds together
+        # (Fruit Trees Take Turns Refilling; its pair is ticked), so Select All
+        # always gives a selection that builds.
         experimental = {"vv3_population_256", "vv4_population_256", "vv5_population_256"}
-        self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), experimental)
+        held_back = experimental | {"vv3_fruit_trees_take_turns"}
+        self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
-        self.assertTrue(experimental <= ids)
+        self.assertTrue(held_back <= ids)
         for patch_id in sorted(ids):
             self.assertEqual(select_all_fun_patch_selection(patch_id),
-                             patch_id not in experimental, patch_id)
+                             patch_id not in held_back, patch_id)
 
 
 if __name__ == "__main__":

@@ -108,8 +108,17 @@ FOUNDATION_OUTPUT = (
 # Recertified for resizable dialogs (native/shared/vvfp_dialog_kit.h, the owner, v1.35.80:
 # "make sure all these windows are expandable"): every dialog of the companion has a
 # sizing frame and minimise / maximise boxes and lays its controls out as it grows.
-SOURCE_SHA256 = "646F687355D364CBE338244A339E88260608F1C36A30C6277738DA8C8B02005D"
-SOURCE_SIZE = 1995264
+# Recertified for bought island events keeping the game's own island-event timer
+# (native/shared/island_timer_keep.h, the owner, 2026-10-23: "I would prefer they don't affect
+# timing"): the Origins Island Event's helper and the trigger's own writes are detoured at game
+# start, and the Story / Cheat Upgrades host table gains island_arming.
+# Recertified for the VV3 fruit-tree companions (native/shared/startup_companions.h gains
+# "VVFP VV3 Trees Refill Together.dll" and "VVFP VV3 Trees Take Turns.dll", which the Story
+# bridge compiles in): rebuilt on the merged v1.35.82 sources.
+# Recertified for the review of #604: a bought island event's kept natural time is read back from its
+# file before a re-arm records one, and a purchase in another village never lends its distance.
+SOURCE_SHA256 = "2D6BC40495D1190159E9EAB3EA863D93FE3D1C8B7190272A6E7811292E33AE05"
+SOURCE_SIZE = 1999360
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

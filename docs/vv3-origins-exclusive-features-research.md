@@ -275,14 +275,22 @@ Time Warp subtracts `speed * 3600` seconds from the baseline at `0x4A4210`.
 The catch-up path divides elapsed seconds by 60 and then by the current speed
 before passing the result to the age updater. The age updater adds that value
 to the internal age field, and displayed age uses 20 internal units per year.
-The result is therefore exactly 60 internal age units, or 3 displayed villager
-years, at every active speed:
+Before that division the elapsed seconds are clamped (`0x45F51D`-`0x45F567`):
+over 86,400 becomes 86,400, then over 38,200 on Fast, 31,000 on Normal or
+23,800 on Slow becomes 31,000. The shift and its result are:
 
-- half speed (`3`): 3 real hours
-- normal speed (`6`): 6 real hours
-- double speed (`10`): 10 real hours
+- Fast (`3`): 3 real hours, 60 age units (3 displayed years)
+- Normal (`6`): 6 real hours, 60 age units (3 displayed years)
+- Slow (`10`): 10 real hours, clamped to 31,000 s, 51 age units (2.55 years)
 
-Paused values (`>= 999`) are refused without charging.
+The value is the real minutes per internal age unit, so the smallest value is
+the fastest game. Paused values (`>= 999`, the speed plus 999) are refused
+without charging.
+
+That clamp is why the Time Warp that ships does not move the clock alone: the
+companion (`vv3_time_warp_years` in
+`native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c`) credits
+3 villager years on Slow, 6 on Normal and 12 on Fast directly.
 
 ## UI construction map
 

@@ -1194,8 +1194,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         p_shape, p_size, p_colour, p_schemes, p_details, p_special = (
             slot(portraits_tab), slot(portraits_tab), slot(portraits_tab, "Colours"), slot(portraits_tab),
             slot(portraits_tab), slot(portraits_tab))
-        t_words, t_colour, t_numbers = (slot(text_tab), slot(text_tab, "Text colour"),
-                                        slot(text_tab, "Numbered names"))
+        t_words, t_colour, t_numbers, t_box = (slot(text_tab), slot(text_tab, "Text colour"),
+                                               slot(text_tab, "Numbered names"), slot(text_tab, "Text box background"))
         l_title, l_arrange, l_spacing, l_lines, l_labels, l_label_line, l_opacity, l_page_size, l_pages, l_deleted = (
             slot(layout_tab, "Title"), slot(layout_tab, "Arrangement"), slot(layout_tab), slot(layout_tab),
             slot(layout_tab, "Generation labels"), slot(layout_tab), slot(layout_tab), slot(layout_tab, "Page size"),
@@ -1463,6 +1463,27 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Label(tab, text="Every word on the tree (a part's own colour: Fonts tab):").pack(anchor="w", pady=(0, 1))
         self.ink_field = ColourField(tab, e.ink, lambda c: self._change(ink=c))
         self.ink_field.pack(anchor="w")
+        # The owner, 2026-10-23: a box behind each portrait's name and age words -- its colour, how solid
+        # it is (0 %: none, as a tree has it), and whether it is drawn over the shapes.  By group.
+        tab = t_box
+        self._scope_picker(tab).pack(anchor="w", fill="x", pady=(0, 6))
+        box = ttk.Frame(tab)
+        box.pack(anchor="w")
+        ttk.Label(box, text="Colour:").grid(row=0, column=0, sticky="w")
+        self.text_box_field = ColourField(box, e.text_box_colour, lambda c: self._change(text_box_colour=c or "#ffffff"))
+        self.text_box_field.grid(row=0, column=1, sticky="w", padx=(6, 0))
+        self._reset_button(box, "text_box_colour").grid(row=0, column=2, sticky="w", padx=(6, 0))
+        ttk.Label(box, text="Opacity (%, 0: no box):").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        self.text_box_opacity_var = tk.StringVar(value=f"{e.text_box_opacity:g}")
+        self._live(ttk.Spinbox(box, textvariable=self.text_box_opacity_var, from_=0, to=100, increment=5, width=5),
+                   lambda: self._detail_number("text_box_opacity", self.text_box_opacity_var, 0, 100)).grid(
+            row=1, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
+        self._reset_button(box, "text_box_opacity").grid(row=1, column=2, sticky="w", padx=(6, 0), pady=(4, 0))
+        self.text_box_over_var = tk.BooleanVar(value=e.text_box_over)
+        ttk.Checkbutton(box, text="Draw the box over the shapes (leaves, tails, flowers...)",
+                        variable=self.text_box_over_var,
+                        command=lambda: self._change(text_box_over=bool(self.text_box_over_var.get()))).grid(
+            row=2, column=0, columnspan=3, sticky="w", pady=(4, 0))
         tab = p_colour
         self._scope_picker(tab).pack(anchor="w", fill="x", pady=(0, 6))
         ttk.Label(tab, text="Inside every portrait:").pack(anchor="w", pady=(0, 1))
@@ -4646,6 +4667,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.detail_field.set_quietly(e.detail_colour)
         self.detail_opacity_var.set(f"{e.detail_opacity:g}")
         self.detail_width_var.set(f"{e.detail_width:g}")
+        self.text_box_field.set_quietly(e.text_box_colour)
+        self.text_box_opacity_var.set(f"{e.text_box_opacity:g}")
+        self.text_box_over_var.set(e.text_box_over)
         self.valign_var.set(ft.TEXT_VALIGNS[e.text_valign])
         self.wrap_var.set(str(e.text_wrap))
         self.gap_var.set(f"{e.portrait_gap:g}")

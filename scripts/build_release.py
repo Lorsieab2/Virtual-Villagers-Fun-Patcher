@@ -56,6 +56,8 @@ FILES = [
     "assets/lesson_cap/VVFP Lesson Cap.dll",
     "assets/chief_hospital/VVFP VV3 Chief Hospital.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
+    "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
+    "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -141,6 +143,8 @@ FILES = [
     "data/vv3_story_cheat_upgrades_feature.json",
     "data/vv3_chief_hospital_feature.json",
     "data/vv3_both_factions_feature.json",
+    "data/vv3_fruit_trees_refill_together_feature.json",
+    "data/vv3_fruit_trees_take_turns_feature.json",
     "data/vv2_totems_out_of_entries_feature.json",
     "data/vv4_story_cheat_upgrades_feature.json",
     "data/vv5_story_cheat_upgrades_feature.json",
@@ -199,6 +203,7 @@ FILES = [
     "docs/vv3-nature-honey-research.md",
     "docs/vv3-nature-mortality-research.md",
     "docs/vv3-both-factions.md",
+    "docs/vv3-fruit-tree-timing.md",
     "docs/vv4-golden-fish-scales-research.md",
     "docs/vv5-heathen-mommy-research.md",
     "docs/vv5-easier-devotee-research.md",
@@ -242,6 +247,14 @@ FILES = [
     # The always-on read-only reconciliation of records, logs and files, and the pickers' run of it.
     "src/vv_reconcile.py",
     "src/vv_reconcile_view.py",
+    # Game Mechanics (Tools tab): its window, the page and each game's module (found by name).
+    "src/vv_game_mechanics_window.py",
+    "src/vv_game_mechanics.py",
+    "src/vv_game_mechanics_vv1.py",
+    "src/vv_game_mechanics_vv2.py",
+    "src/vv_game_mechanics_vv3.py",
+    "src/vv_game_mechanics_vv4.py",
+    "src/vv_game_mechanics_vv5.py",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).

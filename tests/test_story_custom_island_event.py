@@ -110,7 +110,8 @@ def render_full(game: str, mode: str) -> bytes:
     """The whole public catalog (the Parentage row's hooks included) --
     except the experimental 256-slot build, whose own tests compose it."""
     ids = [p.id for p in patcher.load_public_fun_patches()
-           if p.game_id == game and p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS]
+           if p.game_id == game and p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS
+           and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
     data, _ = patcher.render_patched_bytes(stock_path(game), _builds()[game], mode, ids)
     return bytes(data)
 

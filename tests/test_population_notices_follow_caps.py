@@ -145,6 +145,9 @@ def public_ids(game: str) -> list[str]:
             and r.get("catalog_enabled", True)
             and r.get("enabled", True)
             and p.id not in POP_256.values()
+            # An alternative row (Fruit Trees Take Turns Refilling) is never built
+            # with the row it conflicts with, which "everything public" holds.
+            and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS
         ):
             out.append(p.id)
     return out

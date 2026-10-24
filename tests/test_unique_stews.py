@@ -848,7 +848,8 @@ class CatalogCompositionTests(unittest.TestCase):
         nothing."""
         patches = vfp.load_public_fun_patches()
         for game in EXE:
-            ids = [p.raw["id"] for p in patches if p.raw.get("game_id") == game]
+            ids = [p.raw["id"] for p in patches if p.raw.get("game_id") == game
+                   and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
             build = next(b for b in vfp.load_builds() if b.id == game)
             for mode in MODES:
                 with self.subTest(game=game, mode=mode):

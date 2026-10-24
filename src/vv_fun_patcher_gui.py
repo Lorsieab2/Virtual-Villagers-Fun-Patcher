@@ -39,6 +39,7 @@ import vv_vv2_totem_store
 import vv_vv2_totems
 import vv_genealogy
 import vv_genealogy_window
+import vv_game_mechanics_window
 from vv_tree_editor_tools import scrollable_frame
 
 # Link colours: the resting blue and the hover red.
@@ -46,6 +47,8 @@ LINK_COLOR = "#0645ad"
 LINK_HOVER_COLOR = "#c5350b"
 
 from vv_fun_patcher import (
+    ALTERNATIVE_FUN_PATCH_IDS,
+    conflict_ids,
     patch_requirement_text,
     unmet_needs_on_text,
     DEFAULT_PATCH_MODE,
@@ -84,6 +87,14 @@ START_OVER_DISCLAIMER = (
     "Before Repairs and exported family tree pictures. Other saves are not touched."
 )
 
+# The alternative of a pair of patches that can never be built together (each
+# names the other in "conflicts"): the default and Select All tick the other
+# one, so these stay off and every bulk selection builds. The Secret City's
+# fruit trees: All Fruit Trees Refill at the Same Time is ticked, Fruit Trees
+# Take Turns Refilling is not (Owner's Defaults picks the other way round,
+# OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
+ALTERNATIVE_OFF_FUN_PATCH_IDS = ALTERNATIVE_FUN_PATCH_IDS
+
 # Patches the default selection leaves OFF.
 #
 # The owner's rule: the defaults select every patch except Learning Skills
@@ -113,6 +124,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # table and changes the save format. Owner's Defaults ticks it (owner,
     # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
+    + sorted(ALTERNATIVE_OFF_FUN_PATCH_IDS)
 )
 
 # Ticking the key ticks the value too (the value can still be unticked on its
@@ -129,6 +141,9 @@ COTICKED_FUN_PATCH_IDS = {
 # Owner's Defaults: 256 experimental patches, Story events patches.")
 OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
+    # The owner's own pick of the fruit-tree pair is the other way round: Fruit
+    # Trees Take Turns Refilling on, All Fruit Trees Refill at the Same Time off.
+    + ["vv3_fruit_trees_refill_together"]
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -136,7 +151,46 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
 # separate "- Modded 256" game with its own save folder and save format.
 SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
-)
+) | ALTERNATIVE_OFF_FUN_PATCH_IDS
+
+
+def conflict_blockers(patch_id: str, fun_patches, ticked) -> list[str]:
+    """The names of the ticked patches that patch `patch_id` can never be built with (either one
+    naming the other in "conflicts"); empty when it is ticked itself or nothing blocks it."""
+    if patch_id in ticked:
+        return []
+    by_id = {patch.id: patch for patch in fun_patches}
+    mine = set(conflict_ids(by_id[patch_id])) if patch_id in by_id else set()
+    return [
+        patch.name for patch in fun_patches
+        if patch.id in ticked and (patch.id in mine or patch_id in conflict_ids(patch))
+    ]
+
+
+def refresh_conflict_rows(win) -> None:
+    """Grey out every drawn patch row a ticked patch excludes, with the reason under it; a row
+    no longer excluded is available again.  When both of a pair are ticked anyway (a saved
+    selection, Patch Selection Settings) neither is greyed, so either can be unticked; the
+    patcher refuses to build such a selection."""
+    rows = getattr(win, "_conflict_rows", {})
+    ticked = {patch.id for patch in win.fun_patches if win.fun_patch_vars[patch.id].get()}
+    for patch_id, (button, reason) in list(rows.items()):
+        try:
+            if not button.winfo_exists():
+                del rows[patch_id]
+                continue
+            blockers = conflict_blockers(patch_id, win.fun_patches, ticked)
+            button.state(["disabled"] if blockers else ["!disabled"])
+            if blockers:
+                reason.configure(text=(
+                    "Unavailable while " + " and ".join(f'"{name}"' for name in blockers)
+                    + " is ticked: the two cannot be used together. Untick it to tick this one."))
+                reason.grid()
+            else:
+                reason.configure(text="")
+                reason.grid_remove()
+        except tk.TclError:
+            del rows[patch_id]
 
 
 def select_all_fun_patch_selection(patch_id: str) -> bool:
@@ -1013,11 +1067,12 @@ class App(tk.Tk):
             # src/ or scripts/ reads that field, so it decides nothing and
             # setting it would leave every box unticked exactly as before.
             #
-            # Safe as a blanket default because no fun patch declares a
-            # conflict. The only declared relationships are dependencies --
-            # each game's village-wide upgrades, and VV2's parentage log,
-            # require that game's Origins base -- and selecting everything
-            # satisfies those by construction.
+            # Safe as a blanket default: dependencies -- each game's
+            # village-wide upgrades, and VV2's parentage log, require that
+            # game's Origins base -- are satisfied by selecting everything, and
+            # the one declared conflict (The Secret City's two fruit-tree
+            # schedules) keeps one of its pair off by default
+            # (ALTERNATIVE_OFF_FUN_PATCH_IDS).
             self.fun_patch_vars = {
                 patch.id: tk.BooleanVar(
                     value=default_fun_patch_selection(patch.id)
@@ -1025,6 +1080,8 @@ class App(tk.Tk):
                 for patch in self.fun_patches
             }
             self._last_fun_selection: set[str] = set()
+            # The drawn rows of patches that exclude another: (checkbox, reason label).
+            self._conflict_rows: dict[str, tuple] = {}
             self.exe_var = tk.StringVar()
             self.patch_mode_var = tk.StringVar(value=DEFAULT_PATCH_MODE)
             self.output_root_var = tk.StringVar()
@@ -1383,12 +1440,13 @@ class App(tk.Tk):
         frame.columnconfigure(0, weight=1)
         patch_row = ttk.Frame(frame)
         patch_row.grid(row=0, column=0, sticky="w", pady=3)
-        ttk.Checkbutton(
+        button = ttk.Checkbutton(
             patch_row,
             text=label,
             variable=self.fun_patch_vars[patch.id],
             command=self._fun_patch_changed,
-        ).pack(side="left")
+        )
+        button.pack(side="left")
         self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
         RichDescription(frame, patch.description, 620, requirement_font,
                         description_font, background).grid(row=1, column=0, sticky="w", pady=(0, 3))
@@ -1398,6 +1456,14 @@ class App(tk.Tk):
             wraplength=620,
             font=requirement_font,
         ).grid(row=2, column=0, sticky="w", pady=(0, 6))
+        # A patch that can never be built with another: greyed, with the reason, while the
+        # other is ticked (refresh_conflict_rows).
+        if any(conflict_ids(other) and (other.id == patch.id or patch.id in conflict_ids(other))
+               for other in self.fun_patches):
+            reason = ttk.Label(frame, text="", wraplength=620, font=styles[0], foreground="#9a3412")
+            reason.grid(row=3, column=0, sticky="w", pady=(0, 6))
+            self._conflict_rows[patch.id] = (button, reason)
+            refresh_conflict_rows(self)
 
     def _open_releases_page(self) -> None:
         """Open the project's GitHub page. No version check, by design.
@@ -1638,6 +1704,11 @@ class App(tk.Tk):
             genealogy, "Village Matchmaker...", self._matchmaker_single
         ).pack(side="left", padx=(18, 0))
         self._help_button(genealogy, "village_matchmaker").pack(side="left", padx=(3, 0))
+        # Game Mechanics (the owner, 2026-10-22): a save's hidden rules, read-only, in its own window.
+        self._folder_link(
+            genealogy, "Game Mechanics...", self._game_mechanics_single
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(genealogy, "game_mechanics").pack(side="left", padx=(3, 0))
         box = ttk.LabelFrame(tab, text="Each of the five games (their folders on the All 5 Games tab)", padding=10)
         box.pack(fill="x", pady=(10, 0))
         # The save and log links get a grid of their own below: in one row
@@ -1655,6 +1726,7 @@ class App(tk.Tk):
             (tools, 5, "repair_logs"),
             (family, 1, "family_tree_maker"),
             (family, 2, "village_matchmaker"),
+            (family, 3, "game_mechanics"),
         ):
             self._help_button(grid_, key).grid(
                 row=0, column=column, padx=(12, 0), pady=(0, 2)
@@ -1701,6 +1773,11 @@ class App(tk.Tk):
                 "Village matchmaker...",
                 lambda game=build: vv_genealogy_window.open_pair_suggestions(self, game),
             ).grid(row=row, column=2, padx=(12, 0), pady=2)
+            self._folder_link(
+                family,
+                "Game mechanics...",
+                lambda game=build: vv_game_mechanics_window.open_game_mechanics(self, game),
+            ).grid(row=row, column=3, padx=(12, 0), pady=2)
         tools.pack(anchor="w")
         family.pack(anchor="w", pady=(8, 0))
         # The save and log tools get a row of their own: with a "?" beside
@@ -1745,6 +1822,12 @@ class App(tk.Tk):
             command=lambda: vv_genealogy_window.open_pair_suggestions(self, None),
         ).pack(side="left", padx=(8, 0))
         self._help_button(genealogy_tools, "village_matchmaker").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            genealogy_tools,
+            text="Game Mechanics...",
+            command=lambda: vv_game_mechanics_window.open_game_mechanics(self, None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(genealogy_tools, "game_mechanics").pack(side="left", padx=(2, 0))
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()
@@ -1852,6 +1935,7 @@ class App(tk.Tk):
 
     def _fun_patch_changed(self) -> None:
         self._apply_gui_dependency_selection()
+        refresh_conflict_rows(self)
         self._selected_fun_patch_ids()
         selected = [
             patch.name
@@ -2010,6 +2094,7 @@ class App(tk.Tk):
                 self.fun_patch_vars[patch.id].set(patch.id in selected_fun)
             self._last_fun_selection = set()
             self._apply_gui_dependency_selection(cotick=False)
+            refresh_conflict_rows(self)
         self.exe_var.set(data.get("original_exe", ""))
         saved_output_root = data.get("output_root", "")
         if isinstance(saved_output_root, str):
@@ -3418,6 +3503,12 @@ class App(tk.Tk):
         build = self._single_build()
         if build is not None:
             vv_genealogy_window.open_pair_suggestions(self, build)
+
+    def _game_mechanics_single(self) -> None:
+        """Game Mechanics for the game chosen on the One Game tab (src/vv_game_mechanics_window.py)."""
+        build = self._single_build()
+        if build is not None:
+            vv_game_mechanics_window.open_game_mechanics(self, build)
 
     # -- Check Saves & Logs / Repair Saves & Logs -------------------------------------------
 

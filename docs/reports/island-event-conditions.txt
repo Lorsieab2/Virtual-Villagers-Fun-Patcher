@@ -46,14 +46,15 @@ Rules for all island events in this game:
   * Crate family (0x42D0E0 -> 0x42B000): one rand(9) at 0x42B03E, no re-roll and no conditions; a
     strength roll rand(100) at 0x42B00C gives 1 (below 33), 2 (33-66) or 3 (67+).
   * Timing: the next island event time is world+0xA300 in game-clock seconds (clock 0x402F70). A new
-    village sets it to 15 minutes after creation (0x41C4A9: +0x384). When a village is loaded and an
-    internal value world+0xA318 is 999 or more (meaning not determined), the time since world+0xA304
-    is added (0x42E90A-0x42E930).
+    village sets it to 15 minutes after creation (0x41C4A9: +0x384). When a village is loaded and
+    the saved speed world+0xA318 is 999 or more (the game speed -- 3 Fast, 6 Normal, 10 Slow -- plus
+    999: the village was saved paused), the time since world+0xA304 is added (0x42E90A-0x42E930).
   * When the time has come (0x4237BD), an event is attempted only if the population (0x41CF90) is
     above 0 and a living villager aged 14 or over exists (0x43BCD0(1)); that randomly drawn
-    villager's age (+0x348) must also equal its field +0x34C (named 'Nursing' in the owner's Cheat
-    Engine table; why the check uses it was not determined). If either fails, nothing is rescheduled
-    and the trigger tries again on its next update.
+    villager's age (+0x348) must also equal its processed age +0x34C (the age the life tick has
+    stepped up to so far, which the old-age roll uses; it trails the age while credited time is
+    still being worked off; the owner's Cheat Engine table names it 'Nursing'). If either fails,
+    nothing is rescheduled and the trigger tries again on its next update.
   * Family weights (0x423818, 0x42383A): if the village's Island Events Seen counter (world+0x9E40,
     saved) is 0, the event is always an Encounter. Otherwise a first rand(100) below 20 gives an
     Encounter (20%); else a second rand(100) below 50 gives an Island event (40%), and 50 or more
@@ -403,14 +404,16 @@ Rules for all island events in this game:
     rand(100) at 0x437ADC gives 1 (below 33), 2 (33-66) or 3 (67+).
   * Timing: the next island event time is world+0x2EAE0 in game-clock seconds (clock 0x403200). A
     new village sets it to 15 minutes after creation (0x42529B: +0x384). When a village is loaded
-    and an internal value world+0x2EB08 is 999 or more (meaning not determined), the time since
-    world+0x2EAE4 is added (0x43B690-0x43B6C8). A stock routine at 0x44EC85 (which spawns 20
-    objects) also sets the next event to 60 seconds later (0x44ECE1).
+    and the saved speed world+0x2EB08 is 999 or more (the game speed -- 3 Fast, 6 Normal, 10 Slow --
+    plus 999: the village was saved paused), the time since world+0x2EAE4 is added
+    (0x43B690-0x43B6C8). A stock routine at 0x44EC85 (which spawns 20 objects) also sets the next
+    event to 60 seconds later (0x44ECE1).
   * When the time has come (0x42EECD), an event is attempted only if the population (0x425860) is
     above 0 and a living villager aged 14 or over exists (0x44BAE0(1)); that randomly drawn
-    villager's age (+0x530) must also equal its field +0x534 (named 'Nursing Timer' in the owner's
-    Cheat Engine table; why the check uses it was not determined). If either fails, nothing is
-    rescheduled and the trigger tries again on its next update.
+    villager's age (+0x530) must also equal its processed age +0x534 (the age the life tick has
+    stepped up to so far, which the old-age roll uses; it trails the age while credited time is
+    still being worked off; the owner's Cheat Engine table names it 'Nursing Timer'). If either
+    fails, nothing is rescheduled and the trigger tries again on its next update.
   * Family weights (0x42EF28, 0x42EF4A): if the village's Island Events Seen counter (world+0x2E51C,
     saved) is 0, the event is always from the two-choice family. Otherwise rand(100) below 20 gives
     a two-choice event (20%); else a second rand(100) below 50 gives a single-result event (40%) and
@@ -921,15 +924,18 @@ Rules for all island events in this game:
     carried, 0x45E8F0) is above 0.
   * Before every attempt the scheduler draws a random villager aged 14 or over (0x45C9D0(1)); there
     must be one, and an internal check must pass: that villager's age (+0xDC4) must equal its
-    internal field +0xE74 (meaning not determined; the game writes both together, e.g.
-    0x417440/0x417449). If the check fails nothing is rescheduled and the scheduler tries again on
-    its next update (0x468750-0x468792).
-  * Delay to the next event: the first island event after the game is started (in-memory counter
-    0x5824C4, not saved) schedules the next one 30 minutes later (+0x708); every later one schedules
-    the next 8 to 15 hours later ((rand(8)+8) x 3600 s). The extra rand(100) rolls at 0x468798 and
-    0x4687B8 do not change this (0x402200 always returns 0).
-  * When a village is loaded and an internal value manager+0x12F20 is 999 or more (meaning not
-    determined), the time the game was closed is added to the next-event time (0x428C60-0x428C8B).
+    processed age +0xE74 (the age the life tick has stepped up to so far, which the old-age roll
+    uses; it trails the age while credited time is still being worked off; the game writes both
+    together, e.g. 0x417440/0x417449). If the check fails nothing is rescheduled and the scheduler
+    tries again on its next update (0x468750-0x468792).
+  * Delay to the next event: the village's first island event ever (its lifetime Island Events Seen
+    count 0x5824C4, statistics block 0x5824A0 +0x24, saved with the village by the block copy
+    0x4264A0) schedules the next one 30 minutes later (+0x708); every later one schedules the next 8
+    to 15 hours later ((rand(8)+8) x 3600 s). The extra rand(100) rolls at 0x468798 and 0x4687B8 do
+    not change this (0x402200 always returns 0).
+  * When a village is loaded and the saved speed manager+0x12F20 is 999 or more (the game speed -- 3
+    Fast, 6 Normal, 10 Slow -- plus 999: the village was saved paused), the time the game was closed
+    is added to the next-event time (0x428C60-0x428C8B).
   * Choice (selector 0x419B30): every one of the 57 slots whose own condition holds is collected,
     and one is picked uniformly at random. No retries: if none qualifies, nothing happens and the
     next event is still rescheduled. Calling the conditions also picks the subject villagers.
@@ -1413,15 +1419,18 @@ Rules for all island events in this game:
     has come, the event is attempted only if the population (living villagers plus babies being
     carried, 0x467610) is above 0.
   * Before every attempt the scheduler draws one random living villager of any age (0x4679B0 with no
-    filters); its age (+0x1B8C) must equal its age clock (+0x1C3C, the field the conception code
-    copies) -- if not, nothing is rescheduled and the scheduler tries again on its next update
-    (0x43FA5B-0x43FA95). Why the two can differ was not determined.
-  * Delay to the next event: the first island event after the game is started (in-memory counter
-    0x4D6E04, not saved) schedules the next one 30 minutes later (+0x708); every later one schedules
-    the next 8 to 15 hours later ((rand(8)+8) x 3600 s). The other rand(100) rolls at
+    filters); its age (+0x1B8C) must equal its processed age +0x1C3C (the age the life tick has
+    stepped up to so far, which the old-age roll uses; it trails the age while credited time is
+    still being worked off; the conception code copies it) -- if not, nothing is rescheduled and the
+    scheduler tries again on its next update (0x43FA5B-0x43FA95).
+  * Delay to the next event: the village's first island event ever (its lifetime Island Events Seen
+    count 0x4D6E04, statistics block 0x4D6DE0 +0x24, saved with the village by the block copy
+    0x41DA20) schedules the next one 30 minutes later (+0x708); every later one schedules the next 8
+    to 15 hours later ((rand(8)+8) x 3600 s). The other rand(100) rolls at
     0x43FA9B/0x43FABA/0x43FACD do not change this (0x416EB0 always returns 0).
-  * When a village is loaded and an internal value manager+0x17110 is 999 or more (meaning not
-    determined), the time since the last save is added to the next-event time (0x420330-0x420359).
+  * When a village is loaded and the saved speed manager+0x17110 is 999 or more (the game speed -- 3
+    Fast, 6 Normal, 10 Slow -- plus 999: the village was saved paused), the time since the last save
+    is added to the next-event time (0x420330-0x420359).
   * Choice (selector 0x418000): every slot 1-49 whose own condition holds is collected and one is
     picked uniformly at random. No retries: if none qualifies nothing happens (the next event was
     already rescheduled).
@@ -1858,16 +1867,18 @@ Rules for all island events in this game:
     determined; the stock code only ever writes -1 to it, at 0x44356F in a message handler, and
     0x446131 makes the same test elsewhere).
   * Before every attempt the scheduler draws one random living believer of any age (picker with no
-    other filters); its age (+0x1B8C) must equal its age clock (+0x1C3C) -- if not, nothing is
-    rescheduled and the scheduler tries again on its next update (0x442715-0x442754). Why the two
-    can differ was not determined.
-  * Delay to the next event: the first island event after the game is started (in-memory counter
-    0x51D37C) schedules the next one 30 minutes later (+0x708); every later one schedules the next 8
-    to 15 hours later ((rand(8)+8) x 3600 s). The other rand(100) rolls at
-    0x44275A/0x442771/0x442784 only pick between code paths that all end the same way (0x417650
-    always returns 0).
-  * When a village is loaded and an internal value manager+0x17D7C is 999 or more (meaning not
-    determined), the time since the last save is added to the next-event time (0x425E36-0x425E54).
+    other filters); its age (+0x1B8C) must equal its processed age +0x1C3C (the age the life tick
+    has stepped up to so far, which the old-age roll uses; it trails the age while credited time is
+    still being worked off) -- if not, nothing is rescheduled and the scheduler tries again on its
+    next update (0x442715-0x442754).
+  * Delay to the next event: the village's first island event ever (its lifetime Island Events Seen
+    count 0x51D37C, statistics block 0x51D358 +0x24, saved with the village at file 0x7E8) schedules
+    the next one 30 minutes later (+0x708); every later one schedules the next 8 to 15 hours later
+    ((rand(8)+8) x 3600 s). The other rand(100) rolls at 0x44275A/0x442771/0x442784 only pick
+    between code paths that all end the same way (0x417650 always returns 0).
+  * When a village is loaded and the saved speed manager+0x17D7C is 999 or more (the game speed -- 3
+    Fast, 6 Normal, 10 Slow -- plus 999: the village was saved paused), the time since the last save
+    is added to the next-event time (0x425E36-0x425E54).
   * Choice (selector 0x418870): every slot 1-55 whose own condition holds is collected and one is
     picked uniformly at random. No retries: if none qualifies nothing happens.
   * Rescue rule (0x418913-0x418956): if (men outnumber women and there are at most 2 women) or (men
@@ -2338,10 +2349,8 @@ NOT FULLY RESOLVED
     500 counter is exact, but which delivered item ids count as mushrooms (as opposed to other
     non-collection items) was not established.
   * Internal fields whose meaning was not determined (their required value is stated exactly): the
-    per-attempt "age equals +0x34C / +0x534 / +0xE74 / +0x1C3C" check in all five games; VV1/VV2/
-    VV3/VV4/VV5 load-time value (999 or more) that adds offline time; New Believers global 0x51D5A4
-    (must be -1); New Believers picker flag +0x1CE1 (must be clear) and statuses 14-16 of +0x1CFC;
-    The Tree of Life stream flag 0x4D8CF0+4.
+    New Believers global 0x51D5A4 (must be -1); New Believers picker flag +0x1CE1 (must be clear)
+    and statuses 14-16 of +0x1CFC; The Tree of Life stream flag 0x4D8CF0+4.
   * Technology names for A New Home (+0xA2BC Spirituality, +0xA2D4 Medicine, +0xA2E4 Farming) and
     The Lost Children (+0x2EA74 Culture, +0x2EA94 Exploration) come from pairing the Technologies
     screen's row order with its label order; Medicine (VV1) and Engineering (VV2) are independently

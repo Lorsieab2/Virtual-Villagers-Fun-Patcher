@@ -149,6 +149,7 @@
       "guide": [
         "Once Nature reaches level 1, fruit trees refill in 2 hours 15 minutes instead of 3 hours, and honey in 45 minutes instead of 1 hour.",
         "Honey also gets the same extra amount that fruit trees get from Nature.",
+        "Part of a refill too small to make a whole unit of honey is kept for the next one, so nothing is lost while you play.",
         "Nothing to click: research Nature as usual."
       ]
     },
@@ -173,6 +174,7 @@
       "guide": [
         "A villager picking fruit now adds the food, and takes the fruit off the tree, only when the fruit goes into the food bin, as honey does.",
         "Fruit dropped on the way stays on the tree and adds nothing.",
+        "The fruit the rain lift brings down (once all three trees are planted) also adds its food only when it goes into the food bin.",
         "Nothing to click: villagers pick fruit as usual. Not yet tested in play."
       ]
     },
@@ -560,6 +562,25 @@
       ]
     },
     {
+      "ids": ["vv3_fruit_trees_refill_together"],
+      "guide": [
+        "All the fruit trees refill at the same moment: when the first one is due, the others refill with it.",
+        "Each tree still gets the normal amount for its own time, so the trees give as much fruit as before.",
+        "Cannot be ticked with Fruit Trees Take Turns Refilling: tick only one.",
+        "Nothing to click. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv3_fruit_trees_take_turns"],
+      "guide": [
+        "The fruit trees refill one after another, evenly spread: with three trees one refills every hour.",
+        "A village living on fruit waits the shortest time with nothing to pick; the trees give as much fruit as before.",
+        "Cannot be ticked with All Fruit Trees Refill at the Same Time: untick that one first.",
+        "Off by default and Select All does not tick it; Owner's Defaults ticks it instead of the other.",
+        "Nothing to click. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv1_healers_study_regardless_of_food"],
       "guide": [
         "Drop a villager on the medical cactus to start them studying.",
@@ -755,7 +776,8 @@
       "title": "Select All Patches",
       "guide": [
         "Ticks every patch for every game.",
-        "Except 256 Villagers (Experimental), which you tick yourself.",
+        "Except 256 Villagers (Experimental), which you tick yourself,",
+        "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "It does not change the population mode."
       ]
     },
@@ -763,7 +785,8 @@
       "title": "Default Patches",
       "guide": [
         "Ticks the recommended set: all but Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points,",
-        "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom.",
+        "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom,",
+        "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "This is what a fresh install starts with.",
         "It does not change the population mode."
       ]
@@ -771,7 +794,8 @@
     "owners_defaults": {
       "title": "Owner's Defaults",
       "guide": [
-        "Ticks the patcher owner's own choice: every patch except Learning Skills Never Fails.",
+        "Ticks the patcher owner's own choice: every patch except Learning Skills Never Fails,",
+        "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
         "It does not change the population mode."
       ]
@@ -973,6 +997,16 @@
         "Ages are 18 to 49 unless you tick Allow 50 and older, or Plan ahead to include everyone.",
         "It suggests only: nothing in the game is changed. The suggestions are also saved beside the tribe's logs.",
         "Your ticks are remembered for next time."
+      ]
+    },
+    "game_mechanics": {
+      "title": "Game Mechanics",
+      "guide": [
+        "For the curious: shows the hidden rules of one village, worked out from its save.",
+        "Choose a game, its save folder and a tribe. The page groups what it finds: food sources, refills and more.",
+        "Every time is a real date and time, at the save's game speed. For The Secret City: each fruit tree, when it was planted, when it refills and when it can be picked.",
+        "It counts the techs the village has and the patches in the game that change a rule, when it can find that game's folder.",
+        "It only reads: nothing is changed, so the game may be running (it shows the save as it was last written)."
       ]
     },
     "check_logs_automatically": {

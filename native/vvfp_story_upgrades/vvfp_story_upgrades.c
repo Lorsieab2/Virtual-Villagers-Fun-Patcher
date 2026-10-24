@@ -164,6 +164,9 @@ static void *c5_choice_object(void);
 static void time_skip_tick(int game);
 static int time_skip_event_open(void);
 static unsigned int choice_resolve_target(int game, unsigned int va, unsigned int ecx);
+/* Defined with the host (story_common.inc), used by the arms below: the
+   game's own next island event keeps its time (island_timer_keep.h). */
+static void story_island_arming(int game, void *field, unsigned int value);
 /* ---- Memory ---------------------------------------------------------------- */
 
 static int mem_readable(unsigned int va, int length) {
@@ -493,6 +496,7 @@ static int vv4_arm(void) {
         return 0;
     }
     due = (unsigned int)((clock_fn)(uintptr_t)VV4_CLOCK)(world, NULL) + 5u;
+    story_island_arming(4, world + VV4_COUNTDOWN, due);
     *(unsigned int *)(world + VV4_COUNTDOWN) = due;
     *(volatile unsigned char *)(uintptr_t)VV4_ISLAND_TOKEN = 1;
     *(volatile unsigned int *)(uintptr_t)VV4_ISLAND_STAMP = due;
@@ -508,6 +512,7 @@ static int vv5_arm(void) {
     if (world == NULL) {
         return 0;
     }
+    story_island_arming(5, world + VV5_COUNTDOWN, 0u);
     *(unsigned int *)(world + VV5_COUNTDOWN) = 0;
     *(volatile unsigned int *)(uintptr_t)VV5_PURCHASE_FLAGS |= 0x10u;
     return 1;

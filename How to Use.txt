@@ -271,6 +271,22 @@ first and listed in the Repairs log), and the go-ahead is then used up.
    asked: A New Home's parents are repaired as soon as the village has
    settled, everything else at the game's save when you close it.
 
+GAME MECHANICS
+
+On the Tools tab, click Game Mechanics... (or Game mechanics... on any game's
+row). Choose a game, its save folder and a tribe. The page shows, for the
+curious, that village's hidden rules worked out from its save: food sources
+and refills, mushrooms and collectibles, tech points, food eaten, time away
+and Time Warp, island events and their odds, and more. Every time is a real
+date and time at the save's game speed, for example:
+  Tree 1: Mango, planted at 22 October 2026, 3:14 PM, refills every 3 hours
+  on Normal speed
+A rule a patch changes says whether that patch is in the game, when the
+patcher knows where that game's folder is. Anything not yet verified by
+running the game's own code carries the label UNCONFIRMED. It only reads: nothing is changed, so the
+game may be running (it shows the save as it was last written). Refresh reads
+the save again.
+
 ANSWERED QUESTIONS
 
 Once you answer one of Repair Saves & Logs' questions, it is not asked
@@ -725,6 +741,26 @@ only, and the second comes back if the patch is put back. Start Over deletes
 the file with the rest of the save's data. (A save made with both factions by
 a cheat cannot be loaded by the game at all; this patch never writes one.)
 Needs no other patch. Not yet tested in play.
+
+VV3 FRUIT TREE TIMING: TICK ONLY ONE OF THE TWO
+
+All Fruit Trees Refill at the Same Time: when the first fruit tree is due to
+refill, every tree refills with it, and from then on they refill together.
+
+Fruit Trees Take Turns Refilling: the trees refill one after another, evenly
+spread over the refill time -- with three trees one tree every hour (every 45
+minutes at Nature level 1 with the Nature patch) -- so a village living on
+fruit waits the shortest time with nothing to pick.
+
+Either way each tree gets the normal amount of fruit for the time since its
+own last refill, so the trees give exactly as much fruit as without the
+patch; only when the fruit comes changes. The two cannot be ticked together:
+ticking one greys the other out, and a selection with both builds nothing.
+The default ticks Refill at the Same Time; Owner's Defaults ticks Take Turns.
+The save keeps every tree's normal refill time, so without the patch the
+trees go back to their own times. The patch's schedule is kept in the save's
+own folder (Virtual Villagers Fun Patcher\Save N\Data\Fruit Trees) and Start
+Over deletes it. Not yet tested in play.
 
 VV5 HEATHEN MOMMY PUZZLE RESTORATION
 

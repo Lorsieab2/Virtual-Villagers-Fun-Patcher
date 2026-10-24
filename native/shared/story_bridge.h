@@ -53,6 +53,10 @@ typedef struct {
     int (__stdcall *time_skip_step)(int years);
     int (__stdcall *time_skip_settled)(void);
     int (__stdcall *time_skip_running)(void);
+    /* Bought island events keep the game's own island-event timer
+       (native/shared/island_timer_keep.h): called by an arm with the timer
+       and the value about to be written into it.  NULL: nothing kept. */
+    void (__stdcall *island_arming)(void *field, unsigned int value);
 } vvfp_story_host;
 static const vvfp_story_host *vvfp_story_host_table(void);
 

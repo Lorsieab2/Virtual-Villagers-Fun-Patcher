@@ -93,6 +93,10 @@ int vv_reset_refused_paths = 0;
    village being erased.  Written only in the save's own folder (per_save.h),
    which the older-layout name below routes to. */
 #define BOTH_FACTIONS_FORMAT DATA_FORMAT("Factions", "Virtual Villagers 3 Second Faction")
+/* ...and The Secret City's fruit-tree schedule (native/shared/vv3_fruit_timers.h: All Fruit
+   Trees Refill at the Same Time, or Fruit Trees Take Turns Refilling), which the save never
+   holds.  It belongs to the village being erased; routed the same way. */
+#define FRUIT_TREES_FORMAT DATA_FORMAT("Fruit Trees", "Virtual Villagers 3 Fruit Tree Timers")
 #define SIDECAR_FORMAT_COUNT 23
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
     /* VV1 */ { PAID_FORMAT("1"), STORY_QUEUE_FORMAT("1"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),
@@ -121,7 +125,7 @@ static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 3 Villagers at Last Save"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 3 Village Roster"),
                ROSTER_FORMAT("3"), GRAVES_LOGGED_FORMAT("3"), ARRIVALS_FORMAT("3"), BIRTHS_FORMAT("3"),
-               APPROVAL_FORMAT("3"), CIE_DEATHS_FORMAT("3"), BOTH_FACTIONS_FORMAT, 0, 0, 0, 0 },
+               APPROVAL_FORMAT("3"), CIE_DEATHS_FORMAT("3"), BOTH_FACTIONS_FORMAT, FRUIT_TREES_FORMAT, 0, 0, 0 },
     /* VV4 */ { PAID_FORMAT("4"), STORY_QUEUE_FORMAT("4"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Village Masks - Save %d.dat",
                "%s\\vvfp_masks_%d.dat", CUSTOM_TITLES_FORMAT,

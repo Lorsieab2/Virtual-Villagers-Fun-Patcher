@@ -299,10 +299,12 @@ static int vv1_island_pending(void) {
 /* The Origins Island Event purchase (0x456B3B): countdown = clock + 5. */
 static int vv1_arm(void) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV1_WORLD_GLOBAL;
+    unsigned int due;
     if (world == NULL) {
         return 0;
     }
-    *(unsigned int *)(world + VV1_COUNTDOWN) =
-        (unsigned int)((clock_fn)(uintptr_t)VV1_CLOCK)(world, NULL) + 5u;
+    due = (unsigned int)((clock_fn)(uintptr_t)VV1_CLOCK)(world, NULL) + 5u;
+    story_island_arming(1, world + VV1_COUNTDOWN, due);   /* the game's own next event keeps its time */
+    *(unsigned int *)(world + VV1_COUNTDOWN) = due;
     return 1;
 }

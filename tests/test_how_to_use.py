@@ -41,6 +41,7 @@ CONTROLS = {
     "open_vanilla_folder", "open_modified_folder", "open_game_folder",
     "back_up_saves", "restore_saves", "rename_tribe", "check_logs", "repair_logs",
     "check_logs_automatically", "check_for_updates", "family_tree_maker", "village_matchmaker",
+    "game_mechanics",
 }
 
 # Words a player never sees in the patcher or the game.

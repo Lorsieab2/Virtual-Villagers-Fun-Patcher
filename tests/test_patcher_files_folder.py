@@ -77,7 +77,8 @@ def public_ids(game: str) -> list[str]:
     return [p.id for p in vfp.load_fun_patches()
             if p.game_id == game and not p.raw.get("catalog_hidden")
             and p.raw.get("catalog_enabled", True) and p.raw.get("enabled", True)
-            and p.id not in POPULATION_256 and not replaces_game_files(p)]
+            and p.id not in POPULATION_256 and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS
+            and not replaces_game_files(p)]
 
 
 def catalog_items(game: str | None = None):
@@ -156,6 +157,7 @@ SAVE_FOLDER_BASENAME_FUNCTIONS = {
     "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c": 1,
     "native/vv4_origins_icons/vv4_origins_icons.c": 1,
     "native/vv5_task9_origins/vv5_task9_origins.c": 1,
+    "native/shared/vv3_fruit_timers.h": 1,  # the fruit-tree schedule's per-save file
 }
 
 

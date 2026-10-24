@@ -26,7 +26,7 @@
      VV4   0x4639B0     as VV3: job 46, huts = projects 19..22.
      VV5   0x46C540     as VV3: job 53, huts = projects 19..22.
 
-   Examining a hut leads to fixing it (30% of the time) and the fix ends
+   Examining a hut leads to fixing it (70% of the time) and the fix ends
    with a practice-Building roll.  So a builder whose village has no
    project available -- the next hut not yet unlocked by population,
    everything else built -- idles in VV3-VV5 and mostly idles in VV1-VV2.

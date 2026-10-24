@@ -73,13 +73,13 @@ class MatchmakerGenerationTests(unittest.TestCase):
             self.assertNotIn(7, [p.man.id for p in pr.get(8, [])])     # full siblings stay blocked
 
     def test_the_report_shows_each_villagers_generation(self) -> None:
-        report = gen.pair_report(village(), gen.Rules(), "A New Home")
+        report = gen.pair_report(village(), gen.Rules(show_age_units=True), "A New Home")
         self.assertIn("Eko Wanjiko, 400 game units (20 years old), Generation III", report)
         self.assertIn("Generation I", report)
         for line in report.splitlines():
             if line.strip().startswith("1.") and "#" in line:
                 self.assertEqual(line.count("Generation"), 2)
-        off = gen.pair_report(village(), gen.Rules(show_age_units=False), "A New Home")
+        off = gen.pair_report(village(), gen.Rules(), "A New Home")
         self.assertIn("Eko Wanjiko, 20 years old, Generation III", off)
 
     def test_zero_values_and_the_fallback_list(self) -> None:

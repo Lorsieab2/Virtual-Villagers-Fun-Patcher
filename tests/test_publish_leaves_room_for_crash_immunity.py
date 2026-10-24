@@ -43,6 +43,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from vv_fun_patcher import (  # noqa: E402
     apply_patch,
     load_builds,
+    ALTERNATIVE_FUN_PATCH_IDS,
     load_fun_patches,
 )
 
@@ -75,7 +76,8 @@ class PublishLeavesRoomForCrashImmunityTests(unittest.TestCase):
         """
         selectable = []
         for patch in load_fun_patches():
-            if patch.game_id != game_id or patch.id.endswith(EXCLUDED_SUFFIX):
+            if (patch.game_id != game_id or patch.id.endswith(EXCLUDED_SUFFIX)
+                    or patch.id in ALTERNATIVE_FUN_PATCH_IDS):
                 continue
             raw = patch.raw if hasattr(patch, "raw") else {}
             companions = raw.get("companion_files") or []

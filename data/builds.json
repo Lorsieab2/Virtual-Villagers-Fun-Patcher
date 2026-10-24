@@ -1684,7 +1684,7 @@
       "id": "vv3_nature_honey_refill",
       "game_id": "vv3",
       "name": "Nature Level 1 Actually Replenishes Food Sources Faster",
-      "description": "Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.",
+      "description": "Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus. Honey keeps the part of a refill too small to make a whole unit for the next refill, so playing with the game open gains the same honey as the same time away.",
       "output_tag": "Nature Faster Food Refill",
       "patches": [
         {
@@ -1694,16 +1694,16 @@
           "purpose": "route the honey eligibility timer through a guarded Nature-level threshold"
         },
         {
-          "offset": "0x319F9",
-          "before": "8B4E0C8BD02BD1D1E2B8C5B3A291F7E2",
-          "after": "E9A29804009090909090909090909090",
-          "purpose": "route honey refill arithmetic through a guarded Nature-technology multiplier"
+          "offset": "0x319F4",
+          "before": "E8974BFFFF",
+          "after": "E8A7980400",
+          "purpose": "the honey refill's clock read (0x426590) goes through the guarded amount routine at 0x47B2A0, which returns the clock unchanged to the stock arithmetic at Nature 0"
         },
         {
           "offset": "0x7B2A0",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C12B954000000F7E1B93C860100F7F18BD0EB0E8BD0D1E2B8C5B3A291F7E2C1EA0B8B4610E92F67FBFF",
-          "purpose": "compute the honey added -- the stock elapsed/1800 at Nature 0, elapsed*84/99900 at Nature 1 or higher -- then load the stored honey and resume at the stock add (0x431A0F), past the stock shift, so the amount is shifted exactly once"
+          "after": "E8EBB2FAFF506A05B918265800E80EBDFAFF85C0587E275A502B460C6A5459F7E1B93C860100F7F10146109231D26A5459F7F15929C1894E0CE94367FBFFC300",
+          "purpose": "read the clock; at Nature 0 return to the stock honey arithmetic (elapsed/1800, the timestamp set to now); at Nature 1 or higher add floor(elapsed*84/99900) and set the timestamp to now less the time not yet paid for (floor(remainder/84) seconds), so the unpaid part of each refill is carried into the next one instead of being lost, then go on to the stock 3,000 cap (0x431A21)"
         },
         {
           "offset": "0x7B340",
@@ -1783,7 +1783,7 @@
       "id": "vv3_fruit_harvested_at_food_bin",
       "game_id": "vv3",
       "name": "Fruit Counts When It Reaches the Food Bin",
-      "description": "Fruit picking works like honey gathering: the fruit leaves the tree, and the village gains its food, only when the villager puts it in the food bin. In the stock game both happened the moment the fruit was picked, before the walk to the bin. A villager who lets go of the fruit anywhere else -- the trip is interrupted, for example -- takes nothing from the tree and adds no food. Several villagers may pick the same tree at once: each delivery takes its own load off the tree, which never goes below zero, and a delivery that finds the tree already emptied by the others still adds its food, as honey does. The food per load, the Tribal Chief's supervision bonus, the Food Gathered statistic and the trees' regrowth are unchanged, and catch-up (the time that passes while the game is closed) still gains the same food. **Unverified in play: the effect has not been tested in the game.**",
+      "description": "Fruit picking works like honey gathering: the fruit leaves the tree, and the village gains its food, only when the villager puts it in the food bin. In the stock game both happened the moment the fruit was picked, before the walk to the bin. A villager who lets go of the fruit anywhere else -- the trip is interrupted, for example -- takes nothing from the tree and adds no food. Several villagers may pick the same tree at once: each delivery takes its own load off the tree, which never goes below zero, and a delivery that finds the tree already emptied by the others still adds its food, as honey does. The same goes for the fruit the rain lift brings down from the cliff tree once all three fruit trees are planted: a villager who picks it up and carries it to the food bin (\"Depositing food\") now adds its 4 food when it goes into the bin, not when it is picked up; dropped on the way, it adds nothing and is lost, as it is in the stock game. The food per load, the Tribal Chief's supervision bonus, the Food Gathered statistic and the trees' regrowth are unchanged, and catch-up (the time that passes while the game is closed) still gains the same food. **Unverified in play: the effect has not been tested in the game.**",
       "output_tag": "Fruit at Food Bin",
       "patches": [
         {
@@ -1793,16 +1793,34 @@
           "purpose": "picking (the fruit trees' take-item listener 0x434A80, action 0x7D): accept the fruit and return at once instead of adding its food and taking it off the tree; the rest of the old pick-time block becomes the delivery entry 0x434AA2, which builds the routine's own frame, takes the tree from the picker's site (+0xEA0 = 0x17 + tree, written by the pick at 0x4349B5), leaves without a change for any other site, and runs the unchanged stock award at 0x434ABB: the food (4 per load at Normal speed, 4 in catch-up), the chief's bonus (0x45FC60(0x17)), then the tree's fruit less the load, never below 0"
         },
         {
+          "offset": "0x34B4C",
+          "before": "0F8DAD000000",
+          "after": "0F8DB9000000",
+          "purpose": "picking up the rain lift's fruit (the take listener 0x434A80 on any job but 0x7D, all three trees planted): start Depositing food (0x434C0B) without the stock +4 food at 0x434BFF, which is now given at the bin"
+        },
+        {
+          "offset": "0x34BFF",
+          "before": "6A04B990245800E8E517FFFF",
+          "after": "837E60007F6BC6460901EB65",
+          "purpose": "the stock +4 skipped by the row above becomes the release listener's away-from-the-bin block, the stock code it replaced moved here unchanged in effect: with no fruit tree planted the fruit goes back on the ground (+0xD = 1), otherwise nothing"
+        },
+        {
           "offset": "0x34C27",
-          "before": "9090909090",
-          "after": "E976FEFFFF",
-          "purpose": "in the padding before the release listener: jump to the delivery entry 0x434AA2"
+          "before": "909090909090909090",
+          "after": "6A04B990245800EB47",
+          "purpose": "in the padding before the release listener: the rain lift's fruit delivered in the bin adds 4 food (push 4, the food store 0x582490, the food writer call at 0x434C77)"
         },
         {
           "offset": "0x34C44",
           "before": "8B48048B105152B900874B00E85BB9FEFF83F80E74126A008D4EFCE82CF4FFFF84C07504C64609015E83C408C2080090909090909090909090909090",
-          "after": "FF7004FF30B900874B00E85DB9FEFF83F80E75148B4C241083B9240F00007D74C25E83C408C208006A008D4EFCE81AF4FFFF84C075EBC6460901EBE5",
-          "purpose": "delivering (the fruit trees' release-item listener 0x434C30): when the fruit is let go in the food bin (region 0xE) by a villager still on the fruit job (action 0x7D), deliver it through 0x434AA2; anywhere else, or on any other job, the stock release runs unchanged"
+          "after": "FF7004FF30B900874B00E85DB9FEFF83F80E75A78B4C24108B91240F000083EA7D0F8437FEFFFF83FA3474B75E83C408C20800E87417FFFFEBF29090",
+          "purpose": "delivering (the fruit trees' release-item listener 0x434C30), from its region lookup on: let go in the food bin (region 0xE) by a villager on the fruit job (action 0x7D), the fruit is delivered through 0x434AA2; by a villager Depositing food (action 0xB1, the rain lift's fruit), the village gains the 4 food the stock game gave at the pick-up (0x434C27, then 0x4263F0 at 0x434C77); on any other job in the bin nothing happens, and anywhere else the stock release runs (0x434BFF), as before"
+        },
+        {
+          "offset": "0x34CCE",
+          "before": "0F8DA4000000",
+          "after": "0F8DB0000000",
+          "purpose": "a villager carrying a fruit on the cliff top (0x434C80, from the per-villager update at 0x45715B), all three trees planted: start Depositing food (0x434D84) without the stock +4 food at 0x434D78, which is now given at the bin"
         }
       ]
     },
@@ -2315,7 +2333,7 @@
       "id": "vv2_fix_vanilla_bugs",
       "game_id": "vv2",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Achak and Zuri (male) and Aba and Zuna (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"dirt\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, a number past the end of the list showed garbage, and a villager with a great many likes or dislikes overflowed the game's 256-character line, damaging memory. Now the last word shows like any other, a number that is not a word is left out, and a line too long for its space ends in \"...\" instead of overflowing. A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. Villagers never turn into totems: the game could bury an Esteemed Elder's totem as if it were a body, leaving its record marked as a totem, and a twin, triplet or the Silver Mirror's double born into that record became an immortal totem that still had a villager's Details screen. Now a totem is never buried and a twin, triplet or double never inherits the mark. Healers learn Healing while you are away: during catch-up -- the time that passes while the game is closed, and Time Warp -- the game skipped a healer's Healing practice (healing work, or studying a plant) unless a small chance, the healer's Healing out of 1,500, made it look for a patient instead, so a healer learned almost no Healing while you were away, and one with no Healing learned none. Now that practice counts as it does while you play, whenever the search for a patient has not already given it; the search itself is unchanged. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Crystal Ball: the island event is only offered when at least one other living villager besides the one who finds the ball is there to trade places with, and if \"Keep it\" is ever chosen with nobody else living (for example through Pick Island Event), nothing is swapped and the game carries on instead of closing. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Achak and Zuri (male) and Aba and Zuna (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". The Likes and Dislikes on the Details screen are always shown correctly: the game read each word up to the next comma, but the last word of its list (\"dirt\") has none, so a villager with that like or dislike showed stray characters and lost every word after it, a number past the end of the list showed garbage, and a villager with a great many likes or dislikes overflowed the game's 256-character line, damaging memory. Now the last word shows like any other, a number that is not a word is left out, and a line too long for its space ends in \"...\" instead of overflowing. A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. Villagers never turn into totems: the game could bury an Esteemed Elder's totem as if it were a body, leaving its record marked as a totem (starting a new village or Start Over also left the last village's totem records marked), and a twin, triplet or the Silver Mirror's double born into that record became an immortal totem that still had a villager's Details screen. Now a totem is never buried and a twin, triplet or double never inherits the mark. Healers learn Healing while you are away: during catch-up -- the time that passes while the game is closed, and Time Warp -- the game skipped a healer's Healing practice (healing work, or studying a plant) unless a small chance, the healer's Healing out of 1,500, made it look for a patient instead, so a healer learned almost no Healing while you were away, and one with no Healing learned none. Now that practice counts as it does while you play, whenever the search for a patient has not already given it; the search itself is unchanged. **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Crystal Ball (two-choice island event) is offered only when the base game's own condition holds (a living villager aged 14 or over) and at least two villagers are living, so the finder always has someone to trade places with.",

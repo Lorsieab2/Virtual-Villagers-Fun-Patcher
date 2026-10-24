@@ -1,0 +1,9 @@
+LIBRARY "VVFP Island Event Timer.test.dll"
+EXPORTS
+    ItkProbeInstall=_ItkProbeInstall@4
+    ItkProbeSite=_ItkProbeSite@12
+    ItkProbeVillage=_ItkProbeVillage@8
+    ItkProbeSession=_ItkProbeSession@4
+    ItkProbeSaved=_ItkProbeSaved@4
+    ItkProbeState=_ItkProbeState@4
+    ItkProbeStoryArming=_ItkProbeStoryArming@8

@@ -1771,7 +1771,18 @@ class StockIntegrationTests(unittest.TestCase):
                             prerequisites.append(dependency)
                             pending.append(dependency)
                 scenarios.append((feature_id, prerequisites[::-1] + [feature_id]))
-            scenarios.append(("all", public_ids))
+            # "Everything" is every row that can be built together: an
+            # alternative row (Fruit Trees Take Turns Refilling) is refused
+            # with the row it conflicts with, so "all" leaves it out and
+            # "all, alternatives instead" swaps it in for that row.
+            import vv_fun_patcher as _vfp
+            scenarios.append(("all", [i for i in public_ids
+                                      if i not in _vfp.ALTERNATIVE_FUN_PATCH_IDS]))
+            alternatives = [i for i in public_ids if i in _vfp.ALTERNATIVE_FUN_PATCH_IDS]
+            if alternatives:
+                replaced = {c for i in alternatives for c in _vfp.conflict_ids(feature_catalog[i])}
+                scenarios.append(("all, alternatives instead",
+                                  [i for i in public_ids if i not in replaced]))
             expected_safety = {
                 int(patch["offset"], 0) for patch in build.safety_patches
             }
@@ -3408,9 +3419,14 @@ class StockIntegrationTests(unittest.TestCase):
                     bytes(rendered[0x319E2:0x319EF]),
                     bytes.fromhex("E9599904009090909090909090"),
                 )
+                # The clock read before the honey arithmetic goes through the
+                # amount routine; the stock arithmetic itself stays in place.
+                self.assertEqual(
+                    bytes(rendered[0x319F4:0x319F9]), bytes.fromhex("E8A7980400")
+                )
                 self.assertEqual(
                     bytes(rendered[0x319F9:0x31A09]),
-                    bytes.fromhex("E9A29804009090909090909090909090"),
+                    bytes.fromhex("8B4E0C8BD02BD1D1E2B8C5B3A291F7E2"),
                 )
                 self.assertEqual(
                     bytes(rendered[0x347AA:0x347B7]),
@@ -3419,9 +3435,9 @@ class StockIntegrationTests(unittest.TestCase):
                 self.assertEqual(
                     bytes(rendered[0x7B2A0:0x7B2E0]),
                     bytes.fromhex(
-                        "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C12"
-                        "B954000000F7E1B93C860100F7F18BD0EB0E8BD0D1E2B8C5"
-                        "B3A291F7E2C1EA0B8B4610E92F67FBFF"
+                        "E8EBB2FAFF506A05B918265800E80EBDFAFF85C0587E275A"
+                        "502B460C6A5459F7E1B93C860100F7F10146109231D26A54"
+                        "59F7F15929C1894E0CE94367FBFFC300"
                     ),
                 )
                 self.assertEqual(

@@ -67,6 +67,7 @@ DESCRIPTION = (
     "this game's own code supports is offered; the rest is shown as not available in "
     "this game. A custom title is kept per save slot in a file beside the saves and is "
     "removed by Start Over. "
+    "Bought island events don't change when the game's own island events come. "
     "A Custom Island Event can also be bought and delivered when everyone in the village has "
     "died (the game's own island events wait for a living villager), so new villagers, food, "
     "Tech Points, refills and revived skeletons can bring the village back; what needs a living "
@@ -535,7 +536,8 @@ def _feature_ids(patcher, game: str) -> tuple[list[str], list[str]]:
     public = patcher.load_public_fun_patches()
     minimal = [f"{game}_origins_village_wide_upgrades"]
     # Every other row (this one, and its "cost Tech Points" row that needs it, left out).
-    full = [p.id for p in public if p.game_id == game and not p.id.startswith(f"{game}_story_cheat_upgrades")]
+    full = [p.id for p in public if p.game_id == game and not p.id.startswith(f"{game}_story_cheat_upgrades")
+            and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
     return minimal, full
 
 

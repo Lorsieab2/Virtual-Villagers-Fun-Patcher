@@ -158,10 +158,11 @@ nothing was changed. Say the word and they become pull requests.
    - The Lost Children, The Tree of Life and New Believers match exactly.
    Best confirmed against a villager's Details panel in the game.
 
-2. docs/builders-fix-huts.md says examining a hut leads to a repair 30% of
-   the time. VV4's code repairs 70% of the time (0x45CA3C). VV1 has the same
-   70/30 roll (0x4468D8, confirmed), but which branch is the repair there is
-   not yet confirmed.
+2. RESOLVED: docs/builders-fix-huts.md and the Builders Fix Huts When Idle
+   descriptions said examining a hut leads to a repair 30% of the time. In
+   all five games the repair is the 70% branch (rand(100) < 70: VV1 0x4468D8,
+   VV2 0x45FB57, VV3 0x453CE6, VV4 0x45CA3C, VV5 0x463F47), and every text
+   now says 70%.
 
 3. docs/vv2-easier-healing-research.md mislabels three VV2 skill offsets
    (+0x7E4 is Parenting, +0x7EC Farming, +0x7F4 Research), and VV2 field
@@ -429,8 +430,8 @@ at `0x44765E` was observed in the owner's game (builders-fix-huts doc).
     Evidence: `0x447724 rand(100); cmp eax,14h; jle false-started`; `rand(3)` hut, only if built
     (`0x447752 cmp byte [st+9FF8h],1; jne`). Examine `0x4468CE rand(100); cmp eax,46h; jge inspect-only; call 0x4423E0`.
     "Fixing hut" `0x4423E0` ends with opcode 6 skill 4 (`0x4427FB`) and no callback. Leisure `0x44606F
-    cmp [rec+3C0h],32h; jl` -> `0x440AD0`. **Contradicts `docs/builders-fix-huts.md`**, which says 30%: the code fixes
-    when `rand(100) < 70`.
+    cmp [rec+3C0h],32h; jl` -> `0x440AD0`. The code fixes when `rand(100) < 70`;
+    `docs/builders-fix-huts.md` once said 30% and now says 70% (resolved).
 38. **Dislikes block projects:** dislikes drift wood means refusing the beach 85% of the time; dislikes rocks means
     refusing the blockage 75% of the time.
     Evidence: `0x444696 push 1Eh` -> `cmp eax,55h; jge go`; `0x43FDA6 push 0Fh` -> `cmp eax,4Bh; jge go`.
@@ -588,8 +589,8 @@ Route: the chooser returns 3, then dispatcher case 3 at `0x44747B` -> `0x442C10`
 
 ### Incidental findings (not fixed; outside this task)
 
-- `docs/builders-fix-huts.md` says examining a hut leads to a repair 30% of the time; the stock code repairs when
-  `rand(100) < 70`, which is 70% (`0x4468D8`).
+- Resolved: `docs/builders-fix-huts.md` said examining a hut leads to a repair 30% of the time; the stock code
+  repairs when `rand(100) < 70`, which is 70% (`0x4468D8`), and the doc and descriptions now say 70%.
 - The VV1 preference list the exporters print (`native/parentage_export/parentage_export.c` `PREFERENCES_47`:
   "...rocks,heights,...,rough wood,...,learning,...,parrots,work,...") differs from the exe's own English list at
   `0x47B3xx` ("...rocks, rough wood, ..., drift wood, ..., dancing, monkeys, birds, work, lifting, surprises, jokes,
@@ -1114,7 +1115,7 @@ Source: stock `Virtual Villagers - The Secret City.exe` (831,488 bytes), disasse
 - If none of these is available, the farmer finds nothing to do. Evidence: `test ebx,ebx; je fail` at 0x45AFEC.
 
 **How much food a success brings**
-- Fruit picking gives 4 food at Normal speed (8 at Fast, 2 at Slow, 4 during catch-up). Honey gives the same amounts.
+- Fruit picking gives 3 food at Normal speed (7 at Fast, 2 at Slow, 4 during catch-up). Honey gives the same amounts. (Corrected 2026-10-22: the amount is `truncate(4.0 / (speed × 0.16666667f))` with speed 3 / 6 / 10 for Fast / Normal / Slow (the setter calls at 0x41DBAC / 0x41DB5D / 0x41DB0B); the game's C runtime sets 53-bit x87 precision at start-up (0x4714BF: `_controlfp(_PC_53, _MCW_PC)`) and SDL 2.0.3 keeps it (`D3DCREATE_FPU_PRESERVE`), so `6 × 0.16666667f` is slightly above 1 and Normal truncates to 3. Static evidence; LIVE-PENDING.)
   Evidence: `4.0 / (speed/6)` truncated, using the constant at 0x49D054: fruit at 0x434ACF–0x434AE4, honey at 0x431C0D–0x431C22. Catch-up fixed 4 at 0x434ABB / 0x431BE8. REACHED.
 - A fishing success gives 8 food (11 at Fast, 5 at Slow, 8 in catch-up). **A fisher with Farming 88+ has a 10% chance of a 55-food catch instead.**
   Evidence: step 0x18 → 0x458E81 (8/11/5 at 0x458E90–0x458EBA); `cmp [esi+0xEAC],0x58; rand<10` → step 0x19 (+0x37) at 0x453597 / 0x458FDA. REACHED.
