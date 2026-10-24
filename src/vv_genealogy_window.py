@@ -395,7 +395,8 @@ PORTRAITS
   Faces & Text tab                text left / centre / right, the face and text at the top /
                                   middle / bottom; the text area; picture and text size; ages in
                                   units / years; twins and triplets; "Founder"; the text colour;
-                                  numbered names
+                                  numbered names; a box behind the words and its border (any
+                                  portrait border, the rope and vines too; weight 0: none)
   "Settings for:"                 Everyone, or one group (Males, Females, Babies on the way) to give
                                   its own faces, words, detail lines and inside colour; "Same as
                                   everyone" / "Make every group the same" clear them (Ctrl+Z undoes)
@@ -1788,6 +1789,39 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                         variable=self.text_box_over_var,
                         command=lambda: self._change(text_box_over=bool(self.text_box_over_var.get()))).pack(
             anchor="w", pady=(4, 0))
+        # The owner: "border options for the text boxes, like the portrait shapes" -- the portraits' border
+        # choices (the special rope and vines too), a weight (0: none, as a tree has it) and a colour
+        # (Automatic: the portrait's own); for the group picked in "Settings for:" above.
+        box = ttk.LabelFrame(tab, text="Text box border", padding=6)
+        box.pack(fill="x", pady=(8, 0))
+        row = ttk.Frame(box)
+        row.pack(anchor="w", fill="x")
+        ttk.Label(row, text="Border:").pack(side="left")
+        self.text_box_border_var = tk.StringVar(value=ft.BORDERS[e.text_box_border])
+        kind = ttk.Combobox(row, textvariable=self.text_box_border_var, values=ft.alphabetical(ft.BORDERS.values()),
+                            state="readonly", width=18)
+        kind.pack(side="left", padx=(6, 0))
+        kind.bind("<<ComboboxSelected>>", lambda _e: self._change(text_box_border=next(
+            k for k, n in ft.BORDERS.items() if n == self.text_box_border_var.get())))
+        self.text_box_kind = kind
+        ttk.Label(row, text="Weight (0: none):").pack(side="left", padx=(10, 0))
+        self.text_box_border_width_var = tk.StringVar(value=f"{e.text_box_border_width:g}")
+        self._live(ttk.Spinbox(row, textvariable=self.text_box_border_width_var, from_=0,
+                               to=ft.TEXT_BOX_BORDER_WIDTHS[1], increment=0.5, width=5),
+                   lambda: self._detail_number("text_box_border_width", self.text_box_border_width_var,
+                                               *ft.TEXT_BOX_BORDER_WIDTHS)).pack(side="left", padx=(6, 0))
+        self._reset_button(row, "text_box_border", "text_box_border_width").pack(side="left", padx=(6, 0))
+        flow_row(row, natural=False)
+        row = ttk.Frame(box)
+        row.pack(anchor="w", fill="x", pady=(4, 0))
+        ttk.Label(row, text="Colour (Automatic: the portrait's):").pack(side="left")
+        self.text_box_border_field = ColourField(row, e.text_box_border_colour,
+                                                 lambda c: self._change(text_box_border_colour=c or ""))
+        self.text_box_border_field.pack(side="left", padx=(6, 0))
+        self._reset_button(row, "text_box_border_colour").pack(side="left", padx=(6, 0))
+        flow_row(row, natural=False)
+        ttk.Label(box, text="Special borders take the rope and vine colours (Shapes tab).", foreground="#555555",
+                  wraplength=360, justify="left").pack(anchor="w", pady=(4, 0))
         tab = p_colour
         self._scope_picker(tab).pack(anchor="w", fill="x", pady=(0, 6))
         ttk.Label(tab, text="Inside every portrait:").pack(anchor="w", pady=(0, 1))
@@ -4995,6 +5029,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.text_box_field.set_quietly(e.text_box_colour)
         self.text_box_opacity_var.set(f"{e.text_box_opacity:g}")
         self.text_box_over_var.set(e.text_box_over)
+        self.text_box_border_var.set(ft.BORDERS[e.text_box_border])
+        self.text_box_border_width_var.set(f"{e.text_box_border_width:g}")
+        self.text_box_border_field.set_quietly(e.text_box_border_colour)
         self.valign_var.set(ft.TEXT_VALIGNS[e.text_valign])
         self.wrap_var.set(str(e.text_wrap))
         self.gap_var.set(f"{e.portrait_gap:g}")
