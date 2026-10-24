@@ -7800,6 +7800,8 @@ def copy_vanilla_saves(
         raise PatcherError(
             f"Required vanilla slot-zero file is missing: {source / slot_zero_name}"
         )
+    # A copy an earlier run was cut off in is finished or undone first.
+    recovery_warnings = _recover_interrupted_save_copies(destination)
     existing = (
         sorted(
             path
@@ -7810,15 +7812,18 @@ def copy_vanilla_saves(
         else []
     )
     if existing and not replace_existing:
-        return {
+        preserved: dict[str, Any] = {
             "status": "existing_modded_saves_preserved",
             "source_folder": str(source),
             "destination_folder": str(destination),
             "copied_files": 0,
             "slot_zero": slot_zero_name,
         }
-    copied = _copy_save_set_all_or_none(source_files, destination, existing)
-    return {
+        if recovery_warnings:
+            preserved["warnings"] = recovery_warnings
+        return preserved
+    copied, swap_warnings = _copy_save_set_all_or_none(source_files, destination, existing)
+    result: dict[str, Any] = {
         "status": "vanilla_saves_copied",
         "source_folder": str(source),
         "destination_folder": str(destination),
@@ -7826,12 +7831,19 @@ def copy_vanilla_saves(
         "slot_zero": slot_zero_name,
         "files": copied,
     }
+    warnings = recovery_warnings + swap_warnings
+    if warnings:
+        result["warnings"] = warnings
+    return result
 
 
 # A save another program has open (the game, an editor, a sync client) can
 # refuse to be read or renamed for a moment: retry briefly, then fail cleanly.
 SAVE_COPY_LOCK_RETRIES = 5
 SAVE_COPY_LOCK_DELAY_SECONDS = 0.2
+# The swap's record, kept in its backup folder until the backup is gone, so a
+# copy cut off part-way (a crash, a power cut) is put right on the next run.
+SAVE_COPY_JOURNAL = "save-copy-journal.json"
 
 
 def _save_copy_retry(action: Any, description: str) -> Any:
@@ -7848,27 +7860,57 @@ def _save_copy_retry(action: Any, description: str) -> Any:
     raise AssertionError("unreachable")
 
 
+def _save_copy_names(destination: Path, token: str) -> tuple[Path, Path]:
+    parent = destination.parent
+    return (
+        parent / f".{destination.name}.copy-stage-{token}",
+        parent / f".{destination.name}.copy-backup-{token}",
+    )
+
+
+def _write_save_copy_journal(backup: Path, payload: dict[str, Any]) -> None:
+    temporary = backup / f"{SAVE_COPY_JOURNAL}.tmp"
+    with temporary.open("w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2, sort_keys=True)
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(temporary, backup / SAVE_COPY_JOURNAL)
+
+
+def _remove_tree_best_effort(root: Path) -> bool:
+    """Remove a folder of copies the save copy owns; False if it stays."""
+    for attempt in range(SAVE_COPY_LOCK_RETRIES):
+        try:
+            _cleanup_owned_tree(root)
+            return True
+        except (OSError, PatcherError):
+            if attempt + 1 < SAVE_COPY_LOCK_RETRIES:
+                time.sleep(SAVE_COPY_LOCK_DELAY_SECONDS)
+    return not os.path.lexists(root)
+
+
 def _copy_save_set_all_or_none(
     source_files: list[Path], destination: Path, existing: list[Path]
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], list[str]]:
     """Replace the destination's save set with ``source_files``, all-or-none.
 
     Every source is first copied into a staging folder beside the destination
-    (same volume) and verified by size and SHA-256 against the source.  Only
-    then are the current saves moved to a sibling backup folder and the staged
-    copies moved into place.  The backup is removed only after every placed
-    file verifies; on any failure the originals are moved back exactly and the
-    staging is removed, so the destination is byte-identical to before.  Only
-    the ``existing`` save files are ever moved: the patcher's logs, .dat
-    sidecars and Backups folder in the save folder are never touched.
+    (same volume) and verified by size and SHA-256 against the source.  Then a
+    journal naming every original and every new save (by size and SHA-256) is
+    written into a sibling backup folder, the current saves are moved into
+    that backup and the staged copies moved into place.  The commit point is
+    the journal marked committed after every placed save verifies.  Before it,
+    any failure is undone by comparing the files actually on disk with the
+    journal, so the destination is byte-identical to before; after it, removing
+    the staging and backup is best-effort and never fails the copy.  Only the
+    ``existing`` save files are ever moved: the patcher's logs, .dat sidecars
+    and Backups folder in the save folder are never touched.
     """
-    parent = destination.parent
     token = uuid.uuid4().hex
-    stage = parent / f".{destination.name}.copy-stage-{token}"
-    backup = parent / f".{destination.name}.copy-backup-{token}"
+    stage, backup = _save_copy_names(destination, token)
     if os.path.lexists(stage) or os.path.lexists(backup):
         raise PatcherError("Save copy staging collision; nothing was changed.")
-    parent.mkdir(parents=True, exist_ok=True)
+    destination.parent.mkdir(parents=True, exist_ok=True)
     stage.mkdir()
     copied: list[dict[str, Any]] = []
     try:
@@ -7882,86 +7924,239 @@ def _copy_save_set_all_or_none(
                 raise PatcherError(f"Save copy verification failed: {staged}")
             copied.append({"name": source_path.name, "size": size, "sha256": source_hash})
         originals = {
-            path.name: (
+            path.name: [
                 path.stat().st_size,
                 _save_copy_retry(lambda: sha256(path), f"Save {path}"),
-            )
+            ]
             for path in existing
         }
     except BaseException:
-        _cleanup_owned_tree(stage)
+        _remove_tree_best_effort(stage)
         raise
+    new = {item["name"]: [item["size"], item["sha256"]] for item in copied}
+    journal = {
+        "version": 1,
+        "destination": destination.name,
+        "originals": originals,
+        "new": new,
+        "committed": False,
+    }
 
     created_destination = not destination.exists()
-    moved_out: list[str] = []
-    placed: list[str] = []
     try:
-        destination.mkdir(parents=True, exist_ok=True)
         backup.mkdir()
+        _write_save_copy_journal(backup, journal)
+        destination.mkdir(parents=True, exist_ok=True)
         for path in existing:
             _save_copy_retry(
                 lambda: os.replace(path, backup / path.name), f"Save {path}"
             )
-            moved_out.append(path.name)
-        for item in copied:
-            name = item["name"]
+        for name in new:
             target = destination / name
             _save_copy_retry(lambda: os.replace(stage / name, target), f"Save {target}")
-            placed.append(name)
-        for item in copied:
-            target = destination / item["name"]
-            if target.stat().st_size != item["size"] or sha256(target) != item["sha256"]:
+        for name, (size, digest) in new.items():
+            target = destination / name
+            if target.stat().st_size != size or sha256(target) != digest:
                 raise PatcherError(f"Save copy verification failed: {target}")
+        _write_save_copy_journal(backup, {**journal, "committed": True})
     except BaseException:
-        # If the undo itself fails it raises and the backup folder is kept.
-        _restore_save_set(destination, backup, moved_out, placed, originals)
-        _cleanup_owned_tree(stage)
-        if backup.is_dir() and not any(backup.iterdir()):
-            backup.rmdir()
+        # Undo from what is really on disk, not from what this run believes
+        # it moved: a move can finish just before an interrupt lands.
+        _roll_back_save_swap(destination, stage, backup, originals, new)
         if created_destination and destination.is_dir() and not any(destination.iterdir()):
             destination.rmdir()
         raise
-    # Every staged save is in place and verified: the replaced saves are now
-    # safely superseded, so their backup can go.
-    _cleanup_owned_tree(stage)
-    _cleanup_owned_tree(backup)
-    return copied
+    try:
+        return copied, _finish_committed_save_copy(stage, backup, originals)
+    except Exception as exc:          # never fail a copy that has committed
+        return copied, [
+            f"The new saves are in place, but cleaning up after the copy failed "
+            f"({exc}); the replaced saves may still be in {backup}, and the next "
+            "run removes them."
+        ]
 
 
-def _restore_save_set(
+def _roll_back_save_swap(
     destination: Path,
+    stage: Path,
     backup: Path,
-    moved_out: list[str],
-    placed: list[str],
-    originals: dict[str, tuple[int, str]],
+    originals: dict[str, list],
+    new: dict[str, list],
 ) -> None:
-    """Undo a partial save swap; never delete a save that has no backup."""
-    problems: list[str] = []
-    for name in reversed(placed):
-        target = destination / name
-        if name in originals and name not in moved_out:
-            problems.append(f"{target} has no backup, so it was left in place")
-            continue
-        try:
-            if target.exists():
-                _save_copy_retry(target.unlink, f"Save {target}")
-        except Exception as exc:
-            problems.append(f"{target}: {exc}")
-    for name in reversed(moved_out):
-        held = backup / name
-        target = destination / name
-        try:
-            _save_copy_retry(lambda: os.replace(held, target), f"Save {target}")
-            size, digest = originals[name]
-            if target.stat().st_size != size or sha256(target) != digest:
-                raise PatcherError("the restored save does not match the original")
-        except Exception as exc:
-            problems.append(f"{target}: {exc}")
+    """Put every original back; raise, keeping the backup, if one cannot be."""
+    problems = _reconcile_save_swap(destination, stage, backup, originals, new)
     if problems:
         raise PatcherError(
             "The save copy failed and could not be fully undone; the original "
             f"saves are kept in {backup}: " + "; ".join(problems)
         )
+    _remove_tree_best_effort(stage)
+    _remove_tree_best_effort(backup)    # holds only the journal by now
+
+
+def _reconcile_save_swap(
+    destination: Path,
+    stage: Path,
+    backup: Path,
+    originals: dict[str, list],
+    new: dict[str, list],
+) -> list[str]:
+    """Return the destination to its originals from the files on disk.
+
+    A file at a new save's name is taken away only when its name's original
+    (if any) is safely in the backup and it is the staged copy: it left the
+    staging folder (a rename is atomic, so it is the file now at that name)
+    or it is byte-for-byte the staged copy.  An original is moved back only
+    into a free name and is then verified.  Nothing that cannot be
+    identified is ever removed.
+    """
+    problems: list[str] = []
+    for name, (size, digest) in new.items():
+        target = destination / name
+        try:
+            if not target.is_file():
+                continue
+            if name in originals and not (backup / name).is_file():
+                continue                        # still the original
+            moved_from_stage = stage.is_dir() and not os.path.lexists(stage / name)
+            if not moved_from_stage and (
+                target.stat().st_size != size
+                or _save_copy_retry(lambda: sha256(target), f"Save {target}") != digest
+            ):
+                continue                        # not ours; checked below
+            _save_copy_retry(target.unlink, f"Save {target}")
+        except Exception as exc:
+            problems.append(f"{target}: {exc}")
+    for name, (size, digest) in originals.items():
+        held = backup / name
+        target = destination / name
+        try:
+            if held.is_file():
+                if os.path.lexists(target):
+                    problems.append(f"{target} is in the way of its original")
+                    continue
+                _save_copy_retry(lambda: os.replace(held, target), f"Save {target}")
+            if not target.is_file():
+                problems.append(f"{target} is missing")
+                continue
+            if target.stat().st_size != size or _save_copy_retry(
+                lambda: sha256(target), f"Save {target}"
+            ) != digest:
+                problems.append(f"{target} does not match the original")
+        except Exception as exc:
+            problems.append(f"{target}: {exc}")
+    return problems
+
+
+def _finish_committed_save_copy(
+    stage: Path, backup: Path, originals: dict[str, list]
+) -> list[str]:
+    """Best-effort removal of a committed copy's staging and backup.
+
+    Runs only after every new save is in place and verified.  An original in
+    the backup is removed only when it is still byte-for-byte the original the
+    journal recorded; anything that cannot be removed stays where it is, the
+    journal stays with it (so the next run finishes the job), and a warning
+    naming the folder is returned instead of an error.
+    """
+    warnings: list[str] = []
+    if os.path.lexists(stage) and not _remove_tree_best_effort(stage):
+        warnings.append(
+            f"The new saves are in place, but the staging folder {stage} could "
+            "not be removed; it holds only copies and can be deleted."
+        )
+    if not os.path.lexists(backup):
+        return warnings
+    kept: list[str] = []
+    for name, (size, digest) in originals.items():
+        held = backup / name
+        try:
+            if not held.is_file():
+                continue
+            if held.stat().st_size != size or sha256(held) != digest:
+                kept.append(name)
+                continue
+            _save_copy_retry(held.unlink, f"Save {held}")
+        except Exception:
+            kept.append(name)
+    others = [
+        entry.name
+        for entry in backup.iterdir()
+        if entry.name not in (SAVE_COPY_JOURNAL, f"{SAVE_COPY_JOURNAL}.tmp")
+        and entry.name not in kept
+    ]
+    if not kept and not others:
+        try:
+            for leftover in (SAVE_COPY_JOURNAL, f"{SAVE_COPY_JOURNAL}.tmp"):
+                if (backup / leftover).exists():
+                    _save_copy_retry((backup / leftover).unlink, f"File {backup / leftover}")
+            _save_copy_retry(backup.rmdir, f"Folder {backup}")
+            return warnings
+        except Exception:
+            pass
+    warnings.append(
+        f"The new saves are in place, but the replaced saves were kept in {backup} "
+        "because they could not all be removed (another program may have one "
+        "open). They are the old saves; the next run removes the folder, or it "
+        "can be deleted once nothing is using it."
+    )
+    return warnings
+
+
+def _recover_interrupted_save_copies(destination: Path) -> list[str]:
+    """Finish or undo a save copy an earlier run was cut off in.
+
+    An uncommitted swap is undone from its journal (the originals go back);
+    a committed one just has its leftovers removed.  If an undo cannot be
+    completed nothing is changed and the error names the backup folder.
+    """
+    parent = destination.parent
+    if not parent.is_dir():
+        return []
+    stage_prefix = f".{destination.name}.copy-stage-"
+    backup_prefix = f".{destination.name}.copy-backup-"
+    warnings: list[str] = []
+    for backup in sorted(parent.iterdir()):
+        if not backup.name.startswith(backup_prefix) or not backup.is_dir():
+            continue
+        token = backup.name[len(backup_prefix):]
+        stage, _ = _save_copy_names(destination, token)
+        try:
+            journal = json.loads((backup / SAVE_COPY_JOURNAL).read_text(encoding="utf-8"))
+            originals = dict(journal["originals"])
+            new = dict(journal["new"])
+            committed = bool(journal["committed"])
+        except (OSError, ValueError, KeyError, TypeError):
+            if any(entry.name.lower().endswith(".ldw") for entry in backup.iterdir()):
+                raise PatcherError(
+                    f"An earlier save copy left saves in {backup} without a readable "
+                    "record, so nothing was changed. Check those saves before "
+                    "copying again."
+                )
+            # Cut off before any save moved: the folder holds no save.
+            _remove_tree_best_effort(stage)
+            _remove_tree_best_effort(backup)
+            continue
+        if committed:
+            warnings += _finish_committed_save_copy(stage, backup, originals)
+            continue
+        problems = _reconcile_save_swap(destination, stage, backup, originals, new)
+        if problems:
+            raise PatcherError(
+                "An earlier save copy was cut off and could not be undone, so "
+                f"nothing was changed; its original saves are kept in {backup}: "
+                + "; ".join(problems)
+            )
+        _remove_tree_best_effort(stage)
+        _remove_tree_best_effort(backup)
+    for stage in sorted(parent.iterdir()):
+        # A staging folder without a backup was cut off while copying: it
+        # holds only copies of the vanilla saves.
+        if stage.name.startswith(stage_prefix) and stage.is_dir():
+            token = stage.name[len(stage_prefix):]
+            if not os.path.lexists(_save_copy_names(destination, token)[1]):
+                _remove_tree_best_effort(stage)
+    return warnings
 
 
 def get_patch_mode(patch_mode: str) -> PatchMode:

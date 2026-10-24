@@ -24,6 +24,13 @@ import vv_fun_patcher as vvp  # noqa: E402
 from vv_fun_patcher import PatcherError, copy_vanilla_saves, load_builds  # noqa: E402
 
 MODE = "experimental_expanded_256"
+# os.replace calls in a swap: the journal, 3 saves out, 3 in, the commit.
+REPLACES = 8
+REPLACES_FRESH = 5
+
+
+class PowerCut(BaseException):
+    """A crash the running copy never gets to undo."""
 
 
 def snapshot(root: Path) -> dict[str, tuple[str, bytes | None, int]]:
@@ -162,9 +169,10 @@ class AtomicSaveCopyTests(unittest.TestCase):
                     self.assert_untouched(before)
 
     def test_failure_on_every_swap_move_changes_nothing(self) -> None:
-        # 3 existing saves moved out, then 3 staged saves moved in.
+        # The journal written, 3 existing saves moved out, 3 staged saves
+        # moved in, the journal marked committed.
         for fresh in (False, True):
-            moves = 3 if fresh else 6
+            moves = REPLACES_FRESH if fresh else REPLACES
             for fail_at in range(1, moves + 1):
                 with self.subTest(fresh=fresh, fail_at=fail_at):
                     if self.modded.exists():
@@ -212,7 +220,7 @@ class AtomicSaveCopyTests(unittest.TestCase):
         def corrupting(src, dst):
             result = real(src, dst)
             calls["n"] += 1
-            if calls["n"] == 6:            # the last staged save moved in
+            if calls["n"] == 7:            # the last staged save moved in
                 Path(dst).write_bytes(b"corrupted")
             return result
 
@@ -287,11 +295,13 @@ class AtomicSaveCopyTests(unittest.TestCase):
         real = os.replace
         calls = {"n": 0}
 
+        before = snapshot(self.root)
+
         def failing(src, dst):
             calls["n"] += 1
-            if calls["n"] == 4:                      # the first save moved in
+            if calls["n"] == 5:                      # the first save moved in
                 raise OSError(5, "swap failed")
-            if calls["n"] >= 5 and ".copy-backup-" in str(src):
+            if calls["n"] >= 6 and ".copy-backup-" in str(src):
                 raise OSError(5, "undo failed")      # every undo move fails
             return real(src, dst)
 
@@ -308,6 +318,146 @@ class AtomicSaveCopyTests(unittest.TestCase):
             (self.modded / "Virtual Villagers Fun Patcher Logs/Village History 1.txt").read_bytes(),
             b"history",
         )
+        # The next run undoes it from the journal.
+        result = copy_vanilla_saves(self.build, MODE, save_root=self.root)
+        self.assertEqual(result["status"], "existing_modded_saves_preserved")
+        self.assert_untouched(before)
+
+    # -- interrupts right after a rename ---------------------------------------
+
+    def interrupt_after(self, n: int, error: type[BaseException]):
+        real = os.replace
+        calls = {"n": 0}
+
+        def replace(src, dst):
+            real(src, dst)
+            calls["n"] += 1
+            if calls["n"] == n:
+                raise error
+        return mock.patch.object(vvp.os, "replace", replace)
+
+    def test_an_interrupt_right_after_each_rename_is_undone(self) -> None:
+        for fresh in (False, True):
+            for n in range(1, (REPLACES_FRESH if fresh else REPLACES) + 1):
+                with self.subTest(fresh=fresh, n=n):
+                    if self.modded.exists():
+                        shutil.rmtree(self.modded)
+                    if not fresh:
+                        self.make_existing_modded()
+                    before = snapshot(self.root)
+                    with self.interrupt_after(n, KeyboardInterrupt):
+                        with self.assertRaises(KeyboardInterrupt):
+                            self.run_copy()
+                    self.assert_untouched(before)
+
+    def test_a_crash_right_after_each_rename_is_put_right_on_the_next_run(self) -> None:
+        # The running copy never gets to undo (a power cut): the journal on
+        # disk lets the next run finish or undo it.
+        for n in range(1, REPLACES + 1):
+            with self.subTest(n=n):
+                if self.modded.exists():
+                    shutil.rmtree(self.modded)
+                self.make_existing_modded()
+                before = snapshot(self.root)
+                with self.interrupt_after(n, PowerCut), mock.patch.object(
+                    vvp, "_roll_back_save_swap", lambda *a: None
+                ):
+                    with self.assertRaises(PowerCut):
+                        self.run_copy()
+                self.assertTrue(any(".copy-backup-" in p.name for p in self.root.iterdir()))
+                result = copy_vanilla_saves(self.build, MODE, save_root=self.root)
+                self.assertEqual(result["status"], "existing_modded_saves_preserved")
+                self.assertNotIn("warnings", result)
+                leftovers = [p.name for p in self.root.iterdir() if p.name.startswith(".")]
+                self.assertEqual(leftovers, [])
+                if n < REPLACES:
+                    self.assert_untouched(before)       # undone
+                else:
+                    # Committed: the new set stays, only the old saves go.
+                    for name, data in self.sources.items():
+                        self.assertEqual((self.modded / name).read_bytes(), data)
+                    self.assertFalse((self.modded / f"{self.build.title}5.ldw").exists())
+
+    def test_a_backup_without_a_record_is_never_guessed_at(self) -> None:
+        self.make_existing_modded()
+        stray = self.root / f".{self.modded.name}.copy-backup-{'0' * 32}"
+        stray.mkdir()
+        (stray / f"{self.build.title}1.ldw").write_bytes(b"orphan")
+        before = snapshot(self.root)
+        with self.assertRaisesRegex(PatcherError, "without a readable record"):
+            self.run_copy()
+        self.assert_untouched(before)
+
+    # -- after the commit point --------------------------------------------
+
+    def assert_committed_with_retained_backup(self, result: dict) -> Path:
+        self.assertEqual(result["status"], "vanilla_saves_copied")
+        for name, data in self.sources.items():
+            self.assertEqual((self.modded / name).read_bytes(), data)
+        backups = [p for p in self.root.iterdir() if ".copy-backup-" in p.name]
+        self.assertEqual(len(backups), 1)
+        self.assertEqual(len(result["warnings"]), 1)
+        self.assertIn(str(backups[0]), result["warnings"][0])
+        held = backups[0] / f"{self.build.title}1.ldw"
+        self.assertEqual(held.read_bytes(), b"modded-one" * 9)
+        return backups[0]
+
+    def assert_next_run_clears_it(self) -> None:
+        result = copy_vanilla_saves(self.build, MODE, save_root=self.root)
+        self.assertEqual(result["status"], "existing_modded_saves_preserved")
+        self.assertNotIn("warnings", result)
+        self.assertEqual([p.name for p in self.root.iterdir() if p.name.startswith(".")], [])
+        for name, data in self.sources.items():
+            self.assertEqual((self.modded / name).read_bytes(), data)
+
+    def test_a_locked_save_in_the_backup_never_fails_a_committed_copy(self) -> None:
+        self.make_existing_modded()
+        locked_name = f"{self.build.title}1.ldw"
+        real_unlink = Path.unlink
+
+        def unlink(path, *a, **k):
+            if path.name == locked_name and ".copy-backup-" in str(path.parent):
+                raise PermissionError(13, "The process cannot access the file")
+            return real_unlink(path, *a, **k)
+
+        with mock.patch.object(Path, "unlink", unlink):
+            result = self.run_copy()
+        self.assert_committed_with_retained_backup(result)
+        self.assert_next_run_clears_it()
+
+    @unittest.skipUnless(os.name == "nt", "Windows file locks")
+    def test_a_backed_up_save_held_open_never_fails_a_committed_copy(self) -> None:
+        self.make_existing_modded()
+        real_finish = vvp._finish_committed_save_copy
+        handles = []
+
+        def finish(stage, backup, originals):
+            handles.append(open(backup / f"{self.build.title}1.ldw", "rb"))
+            return real_finish(stage, backup, originals)
+
+        try:
+            with mock.patch.object(vvp, "_finish_committed_save_copy", finish):
+                result = self.run_copy()
+            self.assert_committed_with_retained_backup(result)
+        finally:
+            for handle in handles:
+                handle.close()
+        self.assert_next_run_clears_it()
+
+    def test_cleanup_never_removes_a_backed_up_save_that_changed(self) -> None:
+        self.make_existing_modded()
+        real_finish = vvp._finish_committed_save_copy
+
+        def finish(stage, backup, originals):
+            (backup / f"{self.build.title}1.ldw").write_bytes(b"changed since")
+            return real_finish(stage, backup, originals)
+
+        with mock.patch.object(vvp, "_finish_committed_save_copy", finish):
+            result = self.run_copy()
+        backups = [p for p in self.root.iterdir() if ".copy-backup-" in p.name]
+        self.assertEqual(len(backups), 1)
+        self.assertIn(str(backups[0]), result["warnings"][0])
+        self.assertEqual((backups[0] / f"{self.build.title}1.ldw").read_bytes(), b"changed since")
 
 
 if __name__ == "__main__":
