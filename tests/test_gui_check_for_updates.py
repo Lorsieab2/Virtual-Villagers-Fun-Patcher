@@ -155,7 +155,7 @@ class ReleasesLinkTests(unittest.TestCase):
         # Logs) and vv_how_to_use (the "?" guides) are held to the same
         # promise below; patcher_files (where the patcher's own files go)
         # imports only the standard library.
-        own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_tribe_rename", "vv_log_tools",
+        own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_save_clock", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info",
@@ -176,7 +176,10 @@ class ReleasesLinkTests(unittest.TestCase):
             with self.subTest(ships=module):
                 self.assertIn(f'"src/{module}.py"', release)
         for module, may_import in (
-            ("vv_save_backup", set()),
+            # Its game-speed changes replay each game's own speed routine (vv_save_clock), which
+            # imports nothing of the patcher's.
+            ("vv_save_backup", {"vv_save_clock"}),
+            ("vv_save_clock", set()),
             # The patcher's data that names the village moves with a rename (function-level imports):
             # the answered questions' decisions, and The Lost Children's ElderTotems.dat.
             ("vv_tribe_rename", {"vv_save_backup", "vv_log_additions", "vv_log_decisions", "vv_vv2_totem_store"}),

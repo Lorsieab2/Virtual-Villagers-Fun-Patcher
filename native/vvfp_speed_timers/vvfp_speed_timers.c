@@ -1,0 +1,284 @@
+/* VVFP Speed Change Timers -- part of "Fix Vanilla Bugs" in The Secret City and The Tree of Life
+   (owner-approved, 2026-10-24: "yes fix that in all 5 games please!!!").
+
+   THE STOCK BUG.  Both games keep a game clock object (VV3 0x5825D4, VV4 0x4D6F18) with the timers
+   registered to it -- the campfire / Fire Pit among them -- and one routine set_speed(new) (VV3
+   0x426630, VV4 0x41DBE0) for every speed change, the pause key, the unpause key and the Options
+   speed buttons alike.  A timer holds a wall-clock deadline, so on a speed change the routine
+   rescales it: from a running rate the factor is new / old and every set timer not yet due
+   becomes trunc(timer * factor) + (now - trunc(now * factor)).  But from a paused clock (rate 0)
+   the routine takes the factor 1 (VV3 0x42669F: mov eax,[esi+0x28] / mov [esp+0xC],1.0f; VV4
+   0x41DC4E: fld1 / sub ecx,[esi+0x28] / fstp [esp+0x10]) and only moves each timer by the time
+   paused -- whatever the new speed is.  So a village paused on Fast and unpaused on Normal (the
+   Options buttons unpause too) keeps every timer at its Fast length: the fire lit for 10 hours on
+   Fast burns 10 more real hours on Normal instead of 20.  The speed the clock had before the
+   pause is in the clock itself (+0x24), written by the pause (0x42673B / 0x41DD01).
+
+   THE FIX.  Only that from-paused branch changes: the factor becomes new / before, exactly as the
+   running branch computes new / old (fild new; fidiv; fstp dword), and the base it is applied
+   around becomes the wall clock at the pause (+0x28) -- trunc(pause * factor), with the game's own
+   truncating conversion -- so each timer becomes now + (timer - pause) * new / before, through the
+   routine's own rescale loop.  Unpausing at the speed it was paused at gives the factor 1 and the
+   stock result byte for byte.  A clock whose "before" or new speed is not 3, 6 or 10 takes the
+   stock branch.
+
+   A New Home, The Lost Children and New Believers do not have the bug: their speed routine
+   (0x42E830, 0x43B5A0, 0x426260) counts a paused speed as Normal on both sides, so a pause and an
+   unpause at another speed rescale by 6 / old and new / 6 -- new / old in all.
+
+   INSTALLING.  VvfpStartup(game, shipped), called once by VVFP Startup.dll at game start.  The
+   whole of set_speed (VV3 0x426630..0x426742, VV4 0x41DBE0..0x41DD0F) and the constants the stub
+   uses must hold the stock bytes, or nothing is written; the one detour is written in one
+   VirtualProtect'd copy and read back, and put back if it does not read back exactly. */
+#include <windows.h>
+#include <string.h>
+
+#define VV3_GAME 3
+#define VV4_GAME 4
+
+/* ---- The Secret City ------------------------------------------------------------------ */
+
+#define VV3_ROUTINE 0x426630u
+#define VV3_SITE 0x42669Fu
+#define VV3_SITE_LEN 13
+#define VV3_RESUME 0x4266D3u          /* sub edi, eax: ebx = now - eax, then the rescale loop */
+#define VV3_FTOL 0x46EF58u
+#define VV3_TWO32 0x47F510u            /* 4294967296.0f */
+
+static const unsigned char VV3_STOCK[] = {
+    0x8B, 0x44, 0x24, 0x04, 0x83, 0xEC, 0x08, 0x56, 0x8B, 0xF1, 0x3B, 0x46, 0x20, 0x0F, 0x84, 0xF9,
+    0x00, 0x00, 0x00, 0x3D, 0xE7, 0x03, 0x00, 0x00, 0x57, 0x75, 0x3A, 0xA1, 0xD0, 0x25, 0x58, 0x00,
+    0x33, 0xFF, 0x85, 0xC0, 0xC7, 0x44, 0x24, 0x14, 0x00, 0x00, 0x00, 0x00, 0x0F, 0x8E, 0xB3, 0x00,
+    0x00, 0x00, 0x8B, 0x0C, 0xBE, 0xE8, 0xF6, 0x01, 0x00, 0x00, 0x84, 0xC0, 0x74, 0x08, 0x8B, 0x0C,
+    0xBE, 0xE8, 0x4A, 0x02, 0x00, 0x00, 0xA1, 0xD0, 0x25, 0x58, 0x00, 0x47, 0x3B, 0xF8, 0x7C, 0xE2,
+    0xE9, 0x90, 0x00, 0x00, 0x00, 0x53, 0xE8, 0xD5, 0x24, 0x00, 0x00, 0x8B, 0xC8, 0xE8, 0x9E, 0xCC,
+    0xFD, 0xFF, 0x8B, 0xF8, 0x8B, 0x46, 0x20, 0x85, 0xC0, 0x89, 0x44, 0x24, 0x0C, 0x75, 0x0D, 0x8B,
+    0x46, 0x28, 0xC7, 0x44, 0x24, 0x0C, 0x00, 0x00, 0x80, 0x3F, 0xEB, 0x27, 0x85, 0xFF, 0xDB, 0x44,
+    0x24, 0x18, 0x89, 0x7C, 0x24, 0x10, 0xDA, 0x74, 0x24, 0x0C, 0xD9, 0x5C, 0x24, 0x0C, 0xDB, 0x44,
+    0x24, 0x10, 0x7D, 0x06, 0xD8, 0x05, 0x10, 0xF5, 0x47, 0x00, 0xD8, 0x4C, 0x24, 0x0C, 0xE8, 0x85,
+    0x88, 0x04, 0x00, 0x2B, 0xF8, 0xA1, 0xD0, 0x25, 0x58, 0x00, 0x8B, 0xDF, 0x33, 0xFF, 0x85, 0xC0,
+    0x7E, 0x32, 0x55, 0x8B, 0x6C, 0x24, 0x10, 0x8B, 0x0C, 0xBE, 0xE8, 0x71, 0x01, 0x00, 0x00, 0x84,
+    0xC0, 0x74, 0x16, 0x8B, 0x0C, 0xBE, 0xE8, 0x75, 0x01, 0x00, 0x00, 0x84, 0xC0, 0x75, 0x0A, 0x8B,
+    0x0C, 0xBE, 0x55, 0x53, 0xE8, 0x57, 0x00, 0x00, 0x00, 0xA1, 0xD0, 0x25, 0x58, 0x00, 0x47, 0x3B,
+    0xF8, 0x7C, 0xD4, 0x5D, 0x5B, 0x8B, 0xCE, 0xE8, 0x74, 0xFE, 0xFF, 0xFF, 0x89, 0x46, 0x2C, 0xE8,
+    0x3C, 0x24, 0x00, 0x00, 0x8B, 0xC8, 0xE8, 0x05, 0xCC, 0xFD, 0xFF, 0x8B, 0x4C, 0x24, 0x14, 0x89,
+    0x46, 0x28, 0x8B, 0x46, 0x20, 0x89, 0x46, 0x24, 0x89, 0x4E, 0x20, 0x5F, 0x5E, 0x83, 0xC4, 0x08,
+    0xC2, 0x04, 0x00,
+};
+/* _ftol's first bytes and the 2^32 float the routine adds to a "negative" unsigned value. */
+static const unsigned char VV3_FTOL_STOCK[] = { 0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x20, 0x83, 0xE4, 0xF0 };
+static const unsigned char TWO32_FLOAT[] = { 0x00, 0x00, 0x80, 0x4F };
+
+/* At VV3_SITE, from a paused clock: esi = the clock, edi = now, the factor slot [esp+0xC], the new
+   speed [esp+0x18] (the routine's frame: ebx, edi, esi pushed below 8 bytes of locals).  Leaves
+   eax = trunc(pause * factor) and the factor in [esp+0xC] for the stock code at VV3_RESUME. */
+static __declspec(naked) void vv3_from_paused(void) {
+    __asm {
+        mov eax, dword ptr [esi + 0x24]
+        cmp eax, 3
+        je before_ok
+        cmp eax, 6
+        je before_ok
+        cmp eax, 10
+        jne stock
+    before_ok:
+        mov eax, dword ptr [esp + 0x18]
+        cmp eax, 3
+        je rescale
+        cmp eax, 6
+        je rescale
+        cmp eax, 10
+        jne stock
+    rescale:
+        fild dword ptr [esp + 0x18]
+        fidiv dword ptr [esi + 0x24]
+        fstp dword ptr [esp + 0x0C]
+        mov eax, dword ptr [esi + 0x28]
+        test eax, eax
+        fild dword ptr [esi + 0x28]
+        jge positive
+        mov ecx, VV3_TWO32
+        fadd dword ptr [ecx]
+    positive:
+        fmul dword ptr [esp + 0x0C]
+        mov ecx, VV3_FTOL
+        call ecx
+        push VV3_RESUME
+        ret
+    stock:
+        mov eax, dword ptr [esi + 0x28]
+        mov dword ptr [esp + 0x0C], 0x3F800000
+        push VV3_RESUME
+        ret
+    }
+}
+
+/* ---- The Tree of Life ------------------------------------------------------------------ */
+
+#define VV4_ROUTINE 0x41DBE0u
+#define VV4_SITE 0x41DC4Eu
+#define VV4_SITE_LEN 11
+#define VV4_RESUME 0x41DCA1u          /* ebx = ecx, then the rescale loop */
+#define VV4_TWO32 0x48C4C0u
+
+static const unsigned char VV4_STOCK[] = {
+    0x83, 0xEC, 0x0C, 0x55, 0x8B, 0x6C, 0x24, 0x14, 0x56, 0x8B, 0xF1, 0x3B, 0x6E, 0x20, 0x0F, 0x84,
+    0x14, 0x01, 0x00, 0x00, 0x81, 0xFD, 0xE7, 0x03, 0x00, 0x00, 0x57, 0x75, 0x37, 0x33, 0xFF, 0x33,
+    0xED, 0x39, 0x3D, 0x10, 0x6F, 0x4D, 0x00, 0x0F, 0x8E, 0xD8, 0x00, 0x00, 0x00, 0x8D, 0x49, 0x00,
+    0x8B, 0x0C, 0xBE, 0xE8, 0x48, 0x02, 0x00, 0x00, 0x84, 0xC0, 0x74, 0x08, 0x8B, 0x0C, 0xBE, 0xE8,
+    0x9C, 0x02, 0x00, 0x00, 0x83, 0xC7, 0x01, 0x3B, 0x3D, 0x10, 0x6F, 0x4D, 0x00, 0x7C, 0xE1, 0xE9,
+    0xB1, 0x00, 0x00, 0x00, 0x53, 0xE8, 0x36, 0x22, 0x00, 0x00, 0x8B, 0xC8, 0xE8, 0x0F, 0x5B, 0xFE,
+    0xFF, 0x8B, 0xC8, 0x8B, 0x46, 0x20, 0x85, 0xC0, 0x89, 0x44, 0x24, 0x10, 0x75, 0x0B, 0xD9, 0xE8,
+    0x2B, 0x4E, 0x28, 0xD9, 0x5C, 0x24, 0x10, 0xEB, 0x48, 0xDB, 0x44, 0x24, 0x20, 0x8B, 0xC1, 0x85,
+    0xC0, 0x89, 0x44, 0x24, 0x20, 0xDA, 0x74, 0x24, 0x10, 0xD9, 0x5C, 0x24, 0x10, 0xDB, 0x44, 0x24,
+    0x20, 0x7D, 0x06, 0xD8, 0x05, 0xC0, 0xC4, 0x48, 0x00, 0xD8, 0x4C, 0x24, 0x10, 0xD9, 0x7C, 0x24,
+    0x20, 0x0F, 0xB7, 0x44, 0x24, 0x20, 0x0D, 0x00, 0x0C, 0x00, 0x00, 0x89, 0x44, 0x24, 0x14, 0xD9,
+    0x6C, 0x24, 0x14, 0xDF, 0x7C, 0x24, 0x14, 0x8B, 0x54, 0x24, 0x14, 0x2B, 0xCA, 0xD9, 0x6C, 0x24,
+    0x20, 0x33, 0xFF, 0x39, 0x3D, 0x10, 0x6F, 0x4D, 0x00, 0x8B, 0xD9, 0x7E, 0x37, 0x8D, 0x49, 0x00,
+    0x8B, 0x0C, 0xBE, 0xE8, 0xA8, 0x01, 0x00, 0x00, 0x84, 0xC0, 0x74, 0x1D, 0x8B, 0x0C, 0xBE, 0xE8,
+    0xAC, 0x01, 0x00, 0x00, 0x84, 0xC0, 0x75, 0x11, 0xD9, 0x44, 0x24, 0x10, 0x51, 0x8B, 0x0C, 0xBE,
+    0xD9, 0x1C, 0x24, 0x53, 0xE8, 0x47, 0x00, 0x00, 0x00, 0x83, 0xC7, 0x01, 0x3B, 0x3D, 0x10, 0x6F,
+    0x4D, 0x00, 0x7C, 0xCC, 0x5B, 0x8B, 0xCE, 0xE8, 0x34, 0xFE, 0xFF, 0xFF, 0x89, 0x46, 0x2C, 0xE8,
+    0x7C, 0x21, 0x00, 0x00, 0x8B, 0xC8, 0xE8, 0x55, 0x5A, 0xFE, 0xFF, 0x89, 0x46, 0x28, 0x8B, 0x46,
+    0x20, 0x89, 0x46, 0x24, 0x89, 0x6E, 0x20, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x0C, 0xC2, 0x04, 0x00,
+};
+
+/* At VV4_SITE, from a paused clock: esi = the clock, ecx = now, the factor slot [esp+0x10], the new
+   speed [esp+0x20] (ebx, edi, esi, ebp pushed below 12 bytes of locals).  Leaves ecx = now -
+   trunc(pause * factor) and the factor in [esp+0x10] for the stock code at VV4_RESUME, converting
+   with truncation exactly as the routine's own fistp does (0x41DC7D..0x41DC9D). */
+static __declspec(naked) void vv4_from_paused(void) {
+    __asm {
+        mov eax, dword ptr [esi + 0x24]
+        cmp eax, 3
+        je before_ok
+        cmp eax, 6
+        je before_ok
+        cmp eax, 10
+        jne stock
+    before_ok:
+        mov eax, dword ptr [esp + 0x20]
+        cmp eax, 3
+        je rescale
+        cmp eax, 6
+        je rescale
+        cmp eax, 10
+        jne stock
+    rescale:
+        fild dword ptr [esp + 0x20]
+        fidiv dword ptr [esi + 0x24]
+        fstp dword ptr [esp + 0x10]
+        mov eax, dword ptr [esi + 0x28]
+        test eax, eax
+        fild dword ptr [esi + 0x28]
+        jge positive
+        mov edx, VV4_TWO32
+        fadd dword ptr [edx]
+    positive:
+        fmul dword ptr [esp + 0x10]
+        sub esp, 0x0C
+        fnstcw word ptr [esp]
+        movzx eax, word ptr [esp]
+        or eax, 0x0C00
+        mov dword ptr [esp + 8], eax
+        fldcw word ptr [esp + 8]
+        fistp qword ptr [esp + 4]
+        mov edx, dword ptr [esp + 4]
+        fldcw word ptr [esp]
+        add esp, 0x0C
+        sub ecx, edx
+        push VV4_RESUME
+        ret
+    stock:
+        fld1
+        sub ecx, dword ptr [esi + 0x28]
+        fstp dword ptr [esp + 0x10]
+        push VV4_RESUME
+        ret
+    }
+}
+
+/* ---- installing ------------------------------------------------------------------------ */
+
+static int installed;
+
+static int readable(unsigned int va, size_t length) {
+    MEMORY_BASIC_INFORMATION info;
+    const void *at = (const void *)(UINT_PTR)va;
+    if (VirtualQuery(at, &info, sizeof info) != sizeof info || info.State != MEM_COMMIT
+        || (info.Protect & (PAGE_NOACCESS | PAGE_GUARD)) != 0) {
+        return 0;
+    }
+    return (UINT_PTR)at + length <= (UINT_PTR)info.BaseAddress + info.RegionSize;
+}
+
+static int holds(unsigned int va, const unsigned char *bytes, size_t length) {
+    return readable(va, length) && memcmp((const void *)(UINT_PTR)va, bytes, length) == 0;
+}
+
+static int write_code(unsigned int va, const unsigned char *bytes, size_t length) {
+    DWORD old;
+    void *at = (void *)(UINT_PTR)va;
+    if (!VirtualProtect(at, length, PAGE_EXECUTE_READWRITE, &old)) {
+        return 0;
+    }
+    memcpy(at, bytes, length);
+    VirtualProtect(at, length, old, &old);
+    FlushInstructionCache(GetCurrentProcess(), at, length);
+    return memcmp(at, bytes, length) == 0;
+}
+
+/* The detour at `site`: a jmp to `stub`, then nops; put back exactly if it does not read back. */
+static void detour(unsigned int site, size_t length, void (*stub)(void), const unsigned char *stock) {
+    unsigned char bytes[16];
+    unsigned int rel = (unsigned int)((UINT_PTR)stub - (site + 5u));
+    size_t i;
+    bytes[0] = 0xE9;
+    memcpy(bytes + 1, &rel, 4);
+    for (i = 5; i < length; ++i) {
+        bytes[i] = 0x90;
+    }
+    if (write_code(site, bytes, length)) {
+        installed = 1;
+    } else {
+        write_code(site, stock, length);
+    }
+}
+
+static void install_vv3(void) {
+    if (!holds(VV3_ROUTINE, VV3_STOCK, sizeof VV3_STOCK)
+        || !holds(VV3_FTOL, VV3_FTOL_STOCK, sizeof VV3_FTOL_STOCK)
+        || !holds(VV3_TWO32, TWO32_FLOAT, sizeof TWO32_FLOAT)) {
+        return;
+    }
+    detour(VV3_SITE, VV3_SITE_LEN, vv3_from_paused, VV3_STOCK + (VV3_SITE - VV3_ROUTINE));
+}
+
+static void install_vv4(void) {
+    if (!holds(VV4_ROUTINE, VV4_STOCK, sizeof VV4_STOCK)
+        || !holds(VV4_TWO32, TWO32_FLOAT, sizeof TWO32_FLOAT)) {
+        return;
+    }
+    detour(VV4_SITE, VV4_SITE_LEN, vv4_from_paused, VV4_STOCK + (VV4_SITE - VV4_ROUTINE));
+}
+
+/* Called once by VVFP Startup.dll at game start, outside DllMain. */
+__declspec(dllexport) void __stdcall VvfpStartup(int game, unsigned int shipped) {
+    (void)shipped;
+    if (installed) {
+        return;
+    }
+    if (game == VV3_GAME) {
+        install_vv3();
+    } else if (game == VV4_GAME) {
+        install_vv4();
+    }
+}
+
+BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
+    (void)reserved;
+    if (reason == DLL_PROCESS_ATTACH) {
+        DisableThreadLibraryCalls(instance);
+    }
+    return TRUE;
+}
