@@ -60,6 +60,17 @@ another test class below.
    0x453B73 (before the last walk, right ahead of step 27) into two NOPs; the
    VV3 catch-up runner 0x45B790 already turns a walk (step 3) into a move
    (0x45B7D7 -> 0x455EB0).
+
+6. The hospital's lower supply table has broken legs in the stock art
+   (Images/map_hospitalStates.png, frames 2 and 3).  The owner redrew them:
+   "It's the exact same as the normal one except I fixed the table leg
+   graphics."  The fixed sheet ships as its own file,
+   Images/vvfp_hospitalFixed.png (built from the owner's art by
+   scripts/build_vv3_hospital_fix.py); the stock file is never touched.  The
+   only reference to the sheet's name is the sprite table entry 0x5E at
+   0x4AA744 (3 frames, 1 row), so the name at .rdata 0x482EE8 is rewritten in
+   place to the new file's name, which has the same length.  Off, the
+   executable names the stock sheet and the patcher removes its own file.
 """
 from __future__ import annotations
 
@@ -168,6 +179,12 @@ HUT_WALK_OFFSET = 0x53B73
 HUT_WALK_STOCK = bytes.fromhex("7519")       # jne 0x453B8E (skip the walk in catch-up)
 HUT_WALK_PATCHED = bytes.fromhex("9090")
 FIXES = FIXES + ((HUT_WALK_OFFSET, HUT_WALK_STOCK, HUT_WALK_PATCHED),)
+# The hospital's tables have their legs (owner's art): the sprite table's name
+# for the hospital sheet now names the owner's fixed sheet.
+HOSPITAL_NAME_OFFSET = 0x82EE8
+HOSPITAL_STOCK_NAME = b"map_hospitalStates.png"
+HOSPITAL_FIXED_NAME = b"vvfp_hospitalFixed.png"
+FIXES = FIXES + ((HOSPITAL_NAME_OFFSET, HOSPITAL_STOCK_NAME, HOSPITAL_FIXED_NAME),)
 TECH_REWARD = 100
 
 # Game addresses.
@@ -330,6 +347,7 @@ class ManifestTests(unittest.TestCase):
                0x45537C, 0x4547FC)                      # the Details screen's likes/dislikes
         vas += tuple(0x400000 + off for off, _, _ in name_identity_fixes("vv3"))   # the name box guard
         vas += (0x453B73,)                                                      # catch-up hut walk
+        vas += (0x482EE8,)                                                      # the hospital sheet's name
         self.assertEqual(len(vas), len(FIXES))
         for va, (offset, before, _after) in zip(vas, FIXES):
             self.assertEqual(pe.get_offset_from_rva(va - 0x400000), offset)
@@ -789,6 +807,164 @@ class CatchUpHutBuildingTests(unittest.TestCase, _Builds):
                 stock_build = next(s for s in _hut_process(stock, True, hut)[0] if s[0] == BUILD)
                 self.assertEqual(build, stock_build)
                 self.assertEqual(build[1], struct.unpack_from("<I", image, HUT_OBJECTS - 0x400000 + 4 * hut)[0])
+
+
+HOSPITAL_ART = ROOT / "assets" / "vv3_hospital"
+HOSPITAL_SHIPPED = HOSPITAL_ART / "vvfp_hospitalFixed.png"
+HOSPITAL_STOCK_ART = HOSPITAL_ART / "map_hospitalStates_stock.png"   # the game's own file, byte for byte
+HOSPITAL_OWNER_ART = HOSPITAL_ART / "hospital_owner_source.png"
+HOSPITAL_SHIPPED_SHA256 = "792650329C88B8892AF17F4937244404A8761188CB427CD1D59690B67E698880"
+HOSPITAL_SHIPPED_SIZE = 249221
+HOSPITAL_STOCK_SHA256 = "5DDC0ADE99E4CE48B1CB60C5470BE3960A44DF3E62A60FFF067A15247BC67A37"
+HOSPITAL_STOCK_SIZE = 278803
+HOSPITAL_SPRITE_ENTRY = 0xAA744          # file offset of the entry's name pointer (VA 0x4AA744)
+# The lower supply table's legs, sheet coordinates (x0, y0, x1, y1), end exclusive.
+HOSPITAL_LEG_BOXES = ((498, 241, 525, 274), (840, 246, 881, 269))
+HOSPITAL_FRAME = (357, 280)
+
+
+def _visible_changes(a, b) -> list[tuple[int, int]]:
+    """(x, y) of every pixel two RGBA sheets show differently: alpha differs,
+    or colour differs where either is not fully transparent."""
+    pa, pb = a.load(), b.load()
+    out = []
+    for y in range(a.height):
+        for x in range(a.width):
+            p, q = pa[x, y], pb[x, y]
+            if p != q and (p[3] != q[3] or p[3] or q[3]):
+                out.append((x, y))
+    return out
+
+
+class HospitalTableLegsTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        from PIL import Image
+
+        cls.Image = Image
+        cls.feature = next(p for p in load_fun_patches() if p.id == FEATURE_ID)
+
+    def _open(self, path):
+        image = self.Image.open(path)
+        image.load()
+        return image
+
+    def test_the_sheet_is_pinned_and_installed_where_the_game_reads_it(self) -> None:
+        import hashlib
+
+        from patcher_files import installed_relative_path, stays_in_place
+
+        data = HOSPITAL_SHIPPED.read_bytes()
+        self.assertEqual(hashlib.sha256(data).hexdigest().upper(), HOSPITAL_SHIPPED_SHA256)
+        self.assertEqual(len(data), HOSPITAL_SHIPPED_SIZE)
+        self.assertEqual(self.feature.raw["companion_files"], [{
+            "source": "assets/vv3_hospital/vvfp_hospitalFixed.png",
+            "destination": "Images/vvfp_hospitalFixed.png",
+            "size": HOSPITAL_SHIPPED_SIZE,
+            "sha256": HOSPITAL_SHIPPED_SHA256,
+        }])
+        # A new file the game's sprite loader opens from Images; never a
+        # replacement of a game file (no preimage), so the stock sheet stays.
+        self.assertTrue(stays_in_place("Images/vvfp_hospitalFixed.png"))
+        self.assertEqual(str(installed_relative_path("Images/vvfp_hospitalFixed.png")), "Images/vvfp_hospitalFixed.png")
+        self.assertEqual(HOSPITAL_FIXED_NAME.decode(), "vvfp_hospitalFixed.png")
+        self.assertIn("Fixes the hospital tables' broken legs (art by Lorsieab2).", self.feature.raw["description"])
+
+    def test_the_stock_reference_is_the_games_own_sheet(self) -> None:
+        import hashlib
+
+        data = HOSPITAL_STOCK_ART.read_bytes()
+        self.assertEqual(hashlib.sha256(data).hexdigest().upper(), HOSPITAL_STOCK_SHA256)
+        self.assertEqual(len(data), HOSPITAL_STOCK_SIZE)
+
+    def test_the_sprite_table_names_the_sheet_once_with_three_frames(self) -> None:
+        stock = STOCK.read_bytes()
+        name_va = 0x400000 + HOSPITAL_NAME_OFFSET
+        self.assertEqual(stock[HOSPITAL_NAME_OFFSET:HOSPITAL_NAME_OFFSET + 23], HOSPITAL_STOCK_NAME + b"\0")
+        self.assertEqual(len(HOSPITAL_FIXED_NAME), len(HOSPITAL_STOCK_NAME))
+        # The entry: id 0x5E, name, 3 columns, 1 row.
+        self.assertEqual(struct.unpack_from("<IIII", stock, HOSPITAL_SPRITE_ENTRY - 4), (0x5E, name_va, 3, 1))
+        # Nothing else points at the name, nor into it.
+        for va in range(name_va, name_va + len(HOSPITAL_STOCK_NAME)):
+            hits = stock.count(struct.pack("<I", va))
+            self.assertEqual(hits, 1 if va == name_va else 0, hex(va))
+        # The new name is not already a stock image name.
+        self.assertNotIn(HOSPITAL_FIXED_NAME, stock)
+
+    def test_the_executable_names_the_new_sheet_only_when_on(self) -> None:
+        for mode in MODES:
+            for others in ([], _other_public_vv3_ids()):
+                with self.subTest(mode=mode, with_others=bool(others)):
+                    off = _render(mode, others)
+                    on = _render(mode, others + [FEATURE_ID])
+                    end = HOSPITAL_NAME_OFFSET + len(HOSPITAL_STOCK_NAME) + 1
+                    self.assertEqual(off[HOSPITAL_NAME_OFFSET:end], HOSPITAL_STOCK_NAME + b"\0")
+                    self.assertEqual(on[HOSPITAL_NAME_OFFSET:end], HOSPITAL_FIXED_NAME + b"\0")
+                    for exe in (off, on):
+                        self.assertEqual(struct.unpack_from("<IIII", exe, HOSPITAL_SPRITE_ENTRY - 4),
+                                         (0x5E, 0x400000 + HOSPITAL_NAME_OFFSET, 3, 1))
+
+    def test_the_sheet_ships_only_when_on(self) -> None:
+        import tempfile
+
+        import vv_fun_patcher as vfp
+
+        build = _vv3()
+        with tempfile.TemporaryDirectory() as holder:
+            folder = Path(holder)
+            copied = vfp._copy_companion_files(folder, [self.feature])
+            target = folder / "Images" / "vvfp_hospitalFixed.png"
+            self.assertEqual([item["path"] for item in copied], [str(target)])
+            self.assertEqual(target.read_bytes(), HOSPITAL_SHIPPED.read_bytes())
+            # Turned off (the selection lacks the row), the patcher removes its own file ...
+            removed = vfp._remove_unselected_companions(folder, build, [])
+            self.assertIn("Images/vvfp_hospitalFixed.png", [item["path"] for item in removed])
+            self.assertFalse(target.exists())
+            # ... and leaves a player's file of the same name alone.
+            target.write_bytes(b"not the patcher's")
+            vfp._remove_unselected_companions(folder, build, [])
+            self.assertTrue(target.exists())
+            # On, it is kept.
+            target.unlink()
+            vfp._copy_companion_files(folder, [self.feature])
+            vfp._remove_unselected_companions(folder, build, [self.feature])
+            self.assertTrue(target.is_file())
+
+    def test_the_sheet_decodes_with_the_stock_layout(self) -> None:
+        shipped = self._open(HOSPITAL_SHIPPED)
+        stock = self._open(HOSPITAL_STOCK_ART)
+        self.assertEqual(shipped.format, "PNG")
+        self.assertEqual((shipped.mode, shipped.size), (stock.mode, stock.size))
+        self.assertEqual(shipped.mode, "RGBA")
+        self.assertEqual(shipped.size, (3 * HOSPITAL_FRAME[0], HOSPITAL_FRAME[1]))
+        # Only the stock sheet's own gamma; no colour-profile chunk the
+        # owner's editor added.
+        self.assertEqual(shipped.info.get("gamma"), stock.info.get("gamma"))
+        for chunk in ("icc_profile", "srgb", "chromaticity"):
+            self.assertNotIn(chunk, shipped.info)
+
+    def test_the_sheet_differs_from_stock_only_at_the_table_legs(self) -> None:
+        shipped = self._open(HOSPITAL_SHIPPED).convert("RGBA")
+        stock = self._open(HOSPITAL_STOCK_ART).convert("RGBA")
+        changed = _visible_changes(stock, shipped)
+        inside = lambda x, y, box: box[0] <= x < box[2] and box[1] <= y < box[3]   # noqa: E731
+        self.assertEqual([p for p in changed if not any(inside(*p, box) for box in HOSPITAL_LEG_BOXES)], [])
+        for box in HOSPITAL_LEG_BOXES:
+            self.assertTrue(any(inside(*p, box) for p in changed), box)
+        # Frame 1 (straw beds) is untouched; every pixel not changed is the stock
+        # pixel exactly, including the colour under fully transparent pixels.
+        self.assertFalse(any(x < HOSPITAL_FRAME[0] for x, _ in changed))
+        ps, pf = stock.load(), shipped.load()
+        changed_set = set(changed)
+        differing = [(x, y) for y in range(stock.height) for x in range(stock.width)
+                     if ps[x, y] != pf[x, y]]
+        self.assertEqual(set(differing), changed_set)
+        self.assertEqual(len(changed), 606)
+
+    def test_the_sheet_shows_exactly_the_owners_art(self) -> None:
+        shipped = self._open(HOSPITAL_SHIPPED).convert("RGBA")
+        owner = self._open(HOSPITAL_OWNER_ART).convert("RGBA")
+        self.assertEqual(_visible_changes(owner, shipped), [])
 
 
 if __name__ == "__main__":

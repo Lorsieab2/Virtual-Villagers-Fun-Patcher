@@ -96,6 +96,8 @@ FILES = [
     "data/candidates/vv5_task9_native_actions_map.json",
     "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "assets/vv5_bighead_masks/bigheads_masks.png",
+    # The Secret City's Fix Vanilla Bugs: the hospital sheet with the tables' legs fixed.
+    "assets/vv3_hospital/vvfp_hospitalFixed.png",
     "data/vv1_origins_village_wide_upgrades.json",
     "data/vv2_origins_village_wide_upgrades.json",
     "data/vv3_origins_village_wide_upgrades.json",
