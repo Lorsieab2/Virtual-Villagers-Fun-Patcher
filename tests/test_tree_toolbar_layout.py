@@ -144,6 +144,11 @@ class ToolbarTests(unittest.TestCase):
     def test_nothing_on_the_side_panel_is_cut_off_at_its_default_width(self) -> None:
         """The owner's screenshot: "Make every..." and "Automa..." cut off in Text box background."""
         ed = self.open(1400)
+        # The panel's width as a 1400-pixel window gives it, whatever the screen (CI's is smaller, so its
+        # window, and the panel, came out narrower).
+        ed.body.sashpos(0, max(0, ed.winfo_width() - 600))
+        self.settle()
+        self.assertGreaterEqual(ed.panel.winfo_width(), 560)
         names = []
         for tab in ed.notebook.tabs():
             ed.notebook.select(tab)
