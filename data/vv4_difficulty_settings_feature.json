@@ -5,12 +5,12 @@
   "catalog_hidden": false,
   "game_id": "vv4",
   "name": "Difficulty Settings",
-  "description": "Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A New Home, The Lost Children and The Secret City have it. The Tree of Life already plays by a difficulty level, saved with each village (a village starts on Normal), and its rules are The Secret City's, but its Options dialog never shows the choice. With this patch the Difficulty row is drawn where The Secret City has it, directly above Game Speed, with the game's own radio buttons, words and font; Game Speed moves down one row and the dialog grows by that row, so every row and the Done button stay in view. The choice is saved with the village. Easy: a new village starts with 300 more food; villagers never eat the extra food the other levels take; a fed, healthy villager tries to regain health on every check instead of about half of them; and villagers fall sick about a quarter as often. Normal (a village's level until you change it): above 8,000 food each villager's meal takes 2 more food three times in four; a starving villager loses health on about three checks in four. Hard: a new village starts with 99 less food; each villager's meal takes 2 more food three times in four at any food level; a starving villager loses health on every check. **The starting food only changes for a village made after you pick the level; the other rules follow the level at once.** **Needs no other patch; it works the same with every other patch and in every population mode.** **Unverified in play: the dialog has not been seen in a live game yet.** It is on by default; untick it to keep the stock dialog (a village then keeps the level it has). The companion is \"VVFP Difficulty.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock dialog is shown.",
+  "description": "Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A New Home, The Lost Children and The Secret City have it. The Tree of Life already plays by a difficulty level, saved with each village (a village starts on Normal), and its rules are The Secret City's, but its Options dialog never shows the choice. With this patch the Difficulty row is drawn where The Secret City has it, directly above Game Speed, with the game's own radio buttons, words and font; Game Speed moves down a row and the dialog's frame grows by whole tiles, so the whole dialog stays on the screen with everything in it where it was. The choice is saved with the village. Easy: a new village starts with 300 more food; villagers never eat the extra food the other levels take; a fed, healthy villager tries to regain health on every check instead of about half of them; and villagers fall sick about a quarter as often. Normal (a village's level until you change it): above 8,000 food each villager's meal takes 2 more food three times in four; a starving villager loses health on about three checks in four. Hard: a new village starts with 99 less food; each villager's meal takes 2 more food three times in four at any food level; a starving villager loses health on every check. **The starting food only changes for a village made after you pick the level; the other rules follow the level at once.** **Needs no other patch; it works the same with every other patch and in every population mode.** **Unverified in play: the dialog has not been seen in a live game yet.** It is on by default; untick it to keep the stock dialog (a village then keeps the level it has). The companion is \"VVFP Difficulty.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock dialog is shown.",
   "output_tag": "Difficulty",
   "dependencies": [],
   "behavior_changes": [
-    "The Options dialog (drawing 0x41A5A0, clicks 0x41AD60) shows a Difficulty row at y+0x14D: the heading and three radio buttons with Easy, Normal and Hard (strings 0x534 Difficulty, 0x535 Easy, 0x53A Normal (Game Speed's own), 0x537 Hard), the selected one the village's level (game-state field +0x170F4).",
-    "Game Speed's buttons, heading, labels and click areas move down 0x50 (80 pixels, the dialog's own spacing between its Fullscreen and Game Speed rows), to y+0x19D; the dialog's height becomes 0x24C (588 pixels on the 800 x 600 screen), so the Done button, placed from the height, moves down with them.",
+    "The Options dialog (drawing 0x41A5A0, clicks 0x41AD60) shows a Difficulty row at y+0x145: the heading and three radio buttons with Easy, Normal and Hard (strings 0x534 Difficulty, 0x535 Easy, 0x53A Normal (Game Speed's own), 0x537 Hard), the selected one the village's level (game-state field +0x170F4).",
+    "Game Speed's buttons, heading, labels and click areas move down 0x40 (64 pixels, the one tile the frame grows by; Difficulty sits 0x48 below Fullscreen and Game Speed 0x48 below Difficulty, as the stock 0x50 spacing does not fit the 600-pixel screen), to y+0x18D; the dialog's height becomes 0x23C, so its frame is one 64-pixel tile taller (576 pixels on the 800 x 600 screen); the frame, the Done button and the Music Tracks checkboxes are placed by the game from the frame, and the rows from the frame's top + 2 as in the stock dialog, so nothing else moves against them.",
     "The stock handler's own three Difficulty click areas (0x41B159 / 0x41B187 / 0x41B1B9 write 0, 1, 2) move onto the new row's buttons, with the Game Speed buttons' insets; no click near Game Speed changes the level any more.",
     "The level's effects are the stock game's own (starting food 0x41F3A3; food use, starvation and healing 0x4684E5..0x4686B0; sickness 0x4686B0 and 0x45E938): Easy: a new village starts with 300 more food; villagers never eat the extra food the other levels take; a fed, healthy villager tries to regain health on every check instead of about half of them; and villagers fall sick about a quarter as often. Normal (a village's level until you change it): above 8,000 food each villager's meal takes 2 more food three times in four; a starving villager loses health on about three checks in four. Hard: a new village starts with 99 less food; each villager's meal takes 2 more food three times in four at any food level; a starving villager loses health on every check."
   ],
@@ -24,7 +24,7 @@
     {
       "source": "assets/difficulty/VVFP Difficulty.dll",
       "destination": "VVFP Difficulty.dll",
-      "sha256": "2D6C14B8102C8C76CEA5425B8094077D7D9F1009A3F974754AEBA10C9709C364"
+      "sha256": "889CCB04AE49224DBF7529A7F1194AA4B679F2C337A6D9D34D17488FD9D661B2"
     }
   ],
   "patches": [],
@@ -32,155 +32,155 @@
     {
       "va": "0x41A07D",
       "stock_bytes": "68FC010000",
-      "written_bytes": "684C020000",
-      "routine": "the dialog's frame (0x419FA0): its height 0x1FC -> 0x24C",
+      "written_bytes": "683C020000",
+      "routine": "the dialog's frame (0x419FA0): its height 0x1FC -> 0x23C",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A109",
       "stock_bytes": "2DFC010000",
-      "written_bytes": "2D4C020000",
-      "routine": "the dialog's vertical centring: its height 0x1FC -> 0x24C",
+      "written_bytes": "2D3C020000",
+      "routine": "the dialog's vertical centring: its height 0x1FC -> 0x23C",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A747",
       "stock_bytes": "81C14D010000",
-      "written_bytes": "81C19D010000",
-      "routine": "a Game Speed radio button's top y+0x14D -> y+0x19D",
+      "written_bytes": "81C18D010000",
+      "routine": "a Game Speed radio button's top y+0x14D -> y+0x18D",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A770",
       "stock_bytes": "81C14D010000",
-      "written_bytes": "81C19D010000",
-      "routine": "a Game Speed radio button's top y+0x14D -> y+0x19D",
+      "written_bytes": "81C18D010000",
+      "routine": "a Game Speed radio button's top y+0x14D -> y+0x18D",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A799",
       "stock_bytes": "81C14D010000",
-      "written_bytes": "81C19D010000",
-      "routine": "a Game Speed radio button's top y+0x14D -> y+0x19D",
+      "written_bytes": "81C18D010000",
+      "routine": "a Game Speed radio button's top y+0x14D -> y+0x18D",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A7D2",
       "stock_bytes": "81C14D010000",
-      "written_bytes": "81C19D010000",
-      "routine": "a Game Speed radio button's top y+0x14D -> y+0x19D",
+      "written_bytes": "81C18D010000",
+      "routine": "a Game Speed radio button's top y+0x14D -> y+0x18D",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A80B",
       "stock_bytes": "81C14D010000",
-      "written_bytes": "81C19D010000",
-      "routine": "a Game Speed radio button's top y+0x14D -> y+0x19D",
+      "written_bytes": "81C18D010000",
+      "routine": "a Game Speed radio button's top y+0x14D -> y+0x18D",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A834",
       "stock_bytes": "81C14D010000",
-      "written_bytes": "81C19D010000",
-      "routine": "a Game Speed radio button's top y+0x14D -> y+0x19D",
+      "written_bytes": "81C18D010000",
+      "routine": "a Game Speed radio button's top y+0x14D -> y+0x18D",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A871",
       "stock_bytes": "81C14D010000",
-      "written_bytes": "81C19D010000",
-      "routine": "a Game Speed radio button's top y+0x14D -> y+0x19D",
+      "written_bytes": "81C18D010000",
+      "routine": "a Game Speed radio button's top y+0x14D -> y+0x18D",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A89A",
       "stock_bytes": "81C14D010000",
-      "written_bytes": "81C19D010000",
-      "routine": "a Game Speed radio button's top y+0x14D -> y+0x19D",
+      "written_bytes": "81C18D010000",
+      "routine": "a Game Speed radio button's top y+0x14D -> y+0x18D",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A8C3",
       "stock_bytes": "81C14D010000",
-      "written_bytes": "81C19D010000",
-      "routine": "a Game Speed radio button's top y+0x14D -> y+0x19D",
+      "written_bytes": "81C18D010000",
+      "routine": "a Game Speed radio button's top y+0x14D -> y+0x18D",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A8EC",
       "stock_bytes": "81C14D010000",
-      "written_bytes": "81C19D010000",
-      "routine": "a Game Speed radio button's top y+0x14D -> y+0x19D",
+      "written_bytes": "81C18D010000",
+      "routine": "a Game Speed radio button's top y+0x14D -> y+0x18D",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A91E",
       "stock_bytes": "81C252010000",
-      "written_bytes": "81C2A2010000",
-      "routine": "the Game Speed heading y+0x152 -> y+0x1A2",
+      "written_bytes": "81C292010000",
+      "routine": "the Game Speed heading y+0x152 -> y+0x192",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A954",
       "stock_bytes": "81C27F010000",
-      "written_bytes": "81C2CF010000",
-      "routine": "a Game Speed label y+0x17F -> y+0x1CF",
+      "written_bytes": "81C2BF010000",
+      "routine": "a Game Speed label y+0x17F -> y+0x1BF",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A984",
       "stock_bytes": "81C17F010000",
-      "written_bytes": "81C1CF010000",
-      "routine": "a Game Speed label y+0x17F -> y+0x1CF",
+      "written_bytes": "81C1BF010000",
+      "routine": "a Game Speed label y+0x17F -> y+0x1BF",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A9C1",
       "stock_bytes": "057F010000",
-      "written_bytes": "05CF010000",
-      "routine": "a Game Speed label y+0x17F -> y+0x1CF",
+      "written_bytes": "05BF010000",
+      "routine": "a Game Speed label y+0x17F -> y+0x1BF",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A9F7",
       "stock_bytes": "81C27F010000",
-      "written_bytes": "81C2CF010000",
-      "routine": "a Game Speed label y+0x17F -> y+0x1CF",
+      "written_bytes": "81C2BF010000",
+      "routine": "a Game Speed label y+0x17F -> y+0x1BF",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41AD83",
       "stock_bytes": "8D9050010000",
-      "written_bytes": "8D9057010000",
-      "routine": "the click handler (0x41AD60): the Difficulty areas' top y+0x150 -> y+0x157",
+      "written_bytes": "8D904F010000",
+      "routine": "the click handler (0x41AD60): the Difficulty areas' top y+0x150 -> y+0x14F",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41ADCB",
       "stock_bytes": "8D9075010000",
-      "written_bytes": "8D907C010000",
-      "routine": "the click handler: the Hard area's bottom y+0x175 -> y+0x17C",
+      "written_bytes": "8D9074010000",
+      "routine": "the click handler: the Hard area's bottom y+0x175 -> y+0x174",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41ADE0",
       "stock_bytes": "8DB875010000",
-      "written_bytes": "8DB87C010000",
-      "routine": "the click handler: the Easy and Normal areas' bottom y+0x175 -> y+0x17C",
+      "written_bytes": "8DB874010000",
+      "routine": "the click handler: the Easy and Normal areas' bottom y+0x175 -> y+0x174",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41ADF1",
       "stock_bytes": "8D9057010000",
-      "written_bytes": "8D90A7010000",
-      "routine": "the click handler: the Game Speed areas' top y+0x157 -> y+0x1A7",
+      "written_bytes": "8D9097010000",
+      "routine": "the click handler: the Game Speed areas' top y+0x157 -> y+0x197",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41AE2C",
       "stock_bytes": "8DB87C010000",
-      "written_bytes": "8DB8CC010000",
-      "routine": "the click handler: the Game Speed areas' bottom y+0x17C -> y+0x1CC",
+      "written_bytes": "8DB8BC010000",
+      "routine": "the click handler: the Game Speed areas' bottom y+0x17C -> y+0x1BC",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {

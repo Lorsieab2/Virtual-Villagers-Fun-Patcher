@@ -45,10 +45,10 @@ GAMES = {
         "field": "+0x170F4",
         "draw": "0x41A5A0",
         "click": "0x41AD60",
-        "height": "0x24C (588 pixels on the 800 x 600 screen)",
-        "move": "0x50 (80 pixels, the dialog's own spacing between its Fullscreen and Game Speed rows)",
-        "row_y": "y+0x14D",
-        "speed_y": "y+0x19D",
+        "height": "0x23C, so its frame is one 64-pixel tile taller (576 pixels on the 800 x 600 screen)",
+        "move": "0x40 (64 pixels, the one tile the frame grows by; Difficulty sits 0x48 below Fullscreen and Game Speed 0x48 below Difficulty, as the stock 0x50 spacing does not fit the 600-pixel screen)",
+        "row_y": "y+0x145",
+        "speed_y": "y+0x18D",
         "strings": "0x534 Difficulty, 0x535 Easy, 0x53A Normal (Game Speed's own), 0x537 Hard",
         "rules": "starting food 0x41F3A3; food use, starvation and healing 0x4684E5..0x4686B0; "
                  "sickness 0x4686B0 and 0x45E938",
@@ -58,26 +58,26 @@ GAMES = {
                  "its heading begins (mov ecx, [0x4CCB08]): the Difficulty row is drawn, then the "
                  "stolen instruction runs and the drawing goes on at 0x41A90C"),
         "sites": [
-            ("0x41A07D", "68FC010000", "684C020000", "the dialog's frame (0x419FA0): its height 0x1FC -> 0x24C"),
-            ("0x41A109", "2DFC010000", "2D4C020000", "the dialog's vertical centring: its height 0x1FC -> 0x24C"),
-            *[(va, "81C14D010000", "81C19D010000", "a Game Speed radio button's top y+0x14D -> y+0x19D")
+            ("0x41A07D", "68FC010000", "683C020000", "the dialog's frame (0x419FA0): its height 0x1FC -> 0x23C"),
+            ("0x41A109", "2DFC010000", "2D3C020000", "the dialog's vertical centring: its height 0x1FC -> 0x23C"),
+            *[(va, "81C14D010000", "81C18D010000", "a Game Speed radio button's top y+0x14D -> y+0x18D")
               for va in ("0x41A747", "0x41A770", "0x41A799", "0x41A7D2", "0x41A80B",
                          "0x41A834", "0x41A871", "0x41A89A", "0x41A8C3", "0x41A8EC")],
-            ("0x41A91E", "81C252010000", "81C2A2010000", "the Game Speed heading y+0x152 -> y+0x1A2"),
-            ("0x41A954", "81C27F010000", "81C2CF010000", "a Game Speed label y+0x17F -> y+0x1CF"),
-            ("0x41A984", "81C17F010000", "81C1CF010000", "a Game Speed label y+0x17F -> y+0x1CF"),
-            ("0x41A9C1", "057F010000", "05CF010000", "a Game Speed label y+0x17F -> y+0x1CF"),
-            ("0x41A9F7", "81C27F010000", "81C2CF010000", "a Game Speed label y+0x17F -> y+0x1CF"),
-            ("0x41AD83", "8D9050010000", "8D9057010000",
-             "the click handler (0x41AD60): the Difficulty areas' top y+0x150 -> y+0x157"),
-            ("0x41ADCB", "8D9075010000", "8D907C010000",
-             "the click handler: the Hard area's bottom y+0x175 -> y+0x17C"),
-            ("0x41ADE0", "8DB875010000", "8DB87C010000",
-             "the click handler: the Easy and Normal areas' bottom y+0x175 -> y+0x17C"),
-            ("0x41ADF1", "8D9057010000", "8D90A7010000",
-             "the click handler: the Game Speed areas' top y+0x157 -> y+0x1A7"),
-            ("0x41AE2C", "8DB87C010000", "8DB8CC010000",
-             "the click handler: the Game Speed areas' bottom y+0x17C -> y+0x1CC"),
+            ("0x41A91E", "81C252010000", "81C292010000", "the Game Speed heading y+0x152 -> y+0x192"),
+            ("0x41A954", "81C27F010000", "81C2BF010000", "a Game Speed label y+0x17F -> y+0x1BF"),
+            ("0x41A984", "81C17F010000", "81C1BF010000", "a Game Speed label y+0x17F -> y+0x1BF"),
+            ("0x41A9C1", "057F010000", "05BF010000", "a Game Speed label y+0x17F -> y+0x1BF"),
+            ("0x41A9F7", "81C27F010000", "81C2BF010000", "a Game Speed label y+0x17F -> y+0x1BF"),
+            ("0x41AD83", "8D9050010000", "8D904F010000",
+             "the click handler (0x41AD60): the Difficulty areas' top y+0x150 -> y+0x14F"),
+            ("0x41ADCB", "8D9075010000", "8D9074010000",
+             "the click handler: the Hard area's bottom y+0x175 -> y+0x174"),
+            ("0x41ADE0", "8DB875010000", "8DB874010000",
+             "the click handler: the Easy and Normal areas' bottom y+0x175 -> y+0x174"),
+            ("0x41ADF1", "8D9057010000", "8D9097010000",
+             "the click handler: the Game Speed areas' top y+0x157 -> y+0x197"),
+            ("0x41AE2C", "8DB87C010000", "8DB8BC010000",
+             "the click handler: the Game Speed areas' bottom y+0x17C -> y+0x1BC"),
         ],
     },
     "vv5": {
@@ -85,7 +85,7 @@ GAMES = {
         "field": "+0x17D54",
         "draw": "0x41ADF0",
         "click": "0x41B5C0",
-        "height": "0x260 (608 pixels on the 1024 x 768 screen)",
+        "height": "0x27C, so its frame is two 64-pixel tiles taller (640 pixels on the 1024 x 768 screen)",
         "move": "0x64 (100 pixels, the dialog's own spacing between its Fullscreen and Game Speed rows)",
         "row_y": "y+0x161",
         "speed_y": "y+0x1C5",
@@ -98,8 +98,8 @@ GAMES = {
                  "its heading begins (mov ecx, [0x4DC948]): the Difficulty row is drawn, then the "
                  "stolen instruction runs and the drawing goes on at 0x41B15C"),
         "sites": [
-            ("0x41A8D1", "68FC010000", "6860020000", "the dialog's frame (0x41A800): its height 0x1FC -> 0x260"),
-            ("0x41A95B", "2DFC010000", "2D60020000", "the dialog's vertical centring: its height 0x1FC -> 0x260"),
+            ("0x41A8D1", "68FC010000", "687C020000", "the dialog's frame (0x41A800): its height 0x1FC -> 0x27C"),
+            ("0x41A95B", "2DFC010000", "2D7C020000", "the dialog's vertical centring: its height 0x1FC -> 0x27C"),
             *[(va, "81C161010000", "81C1C5010000", "a Game Speed radio button's top y+0x161 -> y+0x1C5")
               for va in ("0x41AF97", "0x41AFC0", "0x41AFE9", "0x41B022", "0x41B05B",
                          "0x41B084", "0x41B0C1", "0x41B0EA", "0x41B113", "0x41B13C")],
@@ -130,8 +130,9 @@ def description(game: dict) -> str:
         "difficulty level, saved with each village (a village starts on Normal), and its rules are The "
         "Secret City's, but its Options dialog never shows the choice. With this patch the Difficulty "
         "row is drawn where The Secret City has it, directly above Game Speed, with the game's own "
-        "radio buttons, words and font; Game Speed moves down one row and the dialog grows by that "
-        "row, so every row and the Done button stay in view. The choice is saved with the village. "
+        "radio buttons, words and font; Game Speed moves down a row and the dialog's frame grows by "
+        "whole tiles, so the whole dialog stays on the screen with everything in it where it was. "
+        "The choice is saved with the village. "
         + " ".join(LEVELS) + " "
         "**The starting food only changes for a village made after you pick the level; the other "
         "rules follow the level at once.** "
@@ -163,8 +164,9 @@ def row(game_id: str, sha: str) -> dict:
             f"(strings {game['strings']}), the selected one the village's level (game-state field "
             f"{game['field']}).",
             f"Game Speed's buttons, heading, labels and click areas move down {game['move']}, to "
-            f"{game['speed_y']}; the dialog's height becomes {game['height']}, so the Done button, "
-            "placed from the height, moves down with them.",
+            f"{game['speed_y']}; the dialog's height becomes {game['height']}; the frame, the Done "
+            "button and the Music Tracks checkboxes are placed by the game from the frame, and the "
+            "rows from the frame's top + 2 as in the stock dialog, so nothing else moves against them.",
             f"The stock handler's own three Difficulty click areas ({game['writes']} write 0, 1, 2) "
             "move onto the new row's buttons, with the Game Speed buttons' insets; no click near Game "
             "Speed changes the level any more.",

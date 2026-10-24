@@ -5,12 +5,12 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Difficulty Settings",
-  "description": "Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A New Home, The Lost Children and The Secret City have it. New Believers already plays by a difficulty level, saved with each village (a village starts on Normal), and its rules are The Secret City's, but its Options dialog never shows the choice. With this patch the Difficulty row is drawn where The Secret City has it, directly above Game Speed, with the game's own radio buttons, words and font; Game Speed moves down one row and the dialog grows by that row, so every row and the Done button stay in view. The choice is saved with the village. Easy: a new village starts with 300 more food; villagers never eat the extra food the other levels take; a fed, healthy villager tries to regain health on every check instead of about half of them; and villagers fall sick about a quarter as often. Normal (a village's level until you change it): above 8,000 food each villager's meal takes 2 more food three times in four; a starving villager loses health on about three checks in four. Hard: a new village starts with 99 less food; each villager's meal takes 2 more food three times in four at any food level; a starving villager loses health on every check. **The starting food only changes for a village made after you pick the level; the other rules follow the level at once.** **Needs no other patch; it works the same with every other patch and in every population mode.** **Unverified in play: the dialog has not been seen in a live game yet.** It is on by default; untick it to keep the stock dialog (a village then keeps the level it has). The companion is \"VVFP Difficulty.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock dialog is shown.",
+  "description": "Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A New Home, The Lost Children and The Secret City have it. New Believers already plays by a difficulty level, saved with each village (a village starts on Normal), and its rules are The Secret City's, but its Options dialog never shows the choice. With this patch the Difficulty row is drawn where The Secret City has it, directly above Game Speed, with the game's own radio buttons, words and font; Game Speed moves down a row and the dialog's frame grows by whole tiles, so the whole dialog stays on the screen with everything in it where it was. The choice is saved with the village. Easy: a new village starts with 300 more food; villagers never eat the extra food the other levels take; a fed, healthy villager tries to regain health on every check instead of about half of them; and villagers fall sick about a quarter as often. Normal (a village's level until you change it): above 8,000 food each villager's meal takes 2 more food three times in four; a starving villager loses health on about three checks in four. Hard: a new village starts with 99 less food; each villager's meal takes 2 more food three times in four at any food level; a starving villager loses health on every check. **The starting food only changes for a village made after you pick the level; the other rules follow the level at once.** **Needs no other patch; it works the same with every other patch and in every population mode.** **Unverified in play: the dialog has not been seen in a live game yet.** It is on by default; untick it to keep the stock dialog (a village then keeps the level it has). The companion is \"VVFP Difficulty.dll\", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock dialog is shown.",
   "output_tag": "Difficulty",
   "dependencies": [],
   "behavior_changes": [
     "The Options dialog (drawing 0x41ADF0, clicks 0x41B5C0) shows a Difficulty row at y+0x161: the heading and three radio buttons with Easy, Normal and Hard (strings 0x57E Difficulty, 0x57F Easy, 0x584 Normal (Game Speed's own), 0x581 Hard), the selected one the village's level (game-state field +0x17D54).",
-    "Game Speed's buttons, heading, labels and click areas move down 0x64 (100 pixels, the dialog's own spacing between its Fullscreen and Game Speed rows), to y+0x1C5; the dialog's height becomes 0x260 (608 pixels on the 1024 x 768 screen), so the Done button, placed from the height, moves down with them.",
+    "Game Speed's buttons, heading, labels and click areas move down 0x64 (100 pixels, the dialog's own spacing between its Fullscreen and Game Speed rows), to y+0x1C5; the dialog's height becomes 0x27C, so its frame is two 64-pixel tiles taller (640 pixels on the 1024 x 768 screen); the frame, the Done button and the Music Tracks checkboxes are placed by the game from the frame, and the rows from the frame's top + 2 as in the stock dialog, so nothing else moves against them.",
     "The stock handler's own three Difficulty click areas (0x41B9B9 / 0x41B9E7 / 0x41BA19 write 0, 1, 2) move onto the new row's buttons, with the Game Speed buttons' insets; no click near Game Speed changes the level any more.",
     "The level's effects are the stock game's own (starting food 0x4248EB; food use, starvation and healing 0x472DBB..0x472F81; sickness 0x472F81 and 0x465F58): Easy: a new village starts with 300 more food; villagers never eat the extra food the other levels take; a fed, healthy villager tries to regain health on every check instead of about half of them; and villagers fall sick about a quarter as often. Normal (a village's level until you change it): above 8,000 food each villager's meal takes 2 more food three times in four; a starving villager loses health on about three checks in four. Hard: a new village starts with 99 less food; each villager's meal takes 2 more food three times in four at any food level; a starving villager loses health on every check."
   ],
@@ -24,7 +24,7 @@
     {
       "source": "assets/difficulty/VVFP Difficulty.dll",
       "destination": "VVFP Difficulty.dll",
-      "sha256": "2D6C14B8102C8C76CEA5425B8094077D7D9F1009A3F974754AEBA10C9709C364"
+      "sha256": "889CCB04AE49224DBF7529A7F1194AA4B679F2C337A6D9D34D17488FD9D661B2"
     }
   ],
   "patches": [],
@@ -32,15 +32,15 @@
     {
       "va": "0x41A8D1",
       "stock_bytes": "68FC010000",
-      "written_bytes": "6860020000",
-      "routine": "the dialog's frame (0x41A800): its height 0x1FC -> 0x260",
+      "written_bytes": "687C020000",
+      "routine": "the dialog's frame (0x41A800): its height 0x1FC -> 0x27C",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {
       "va": "0x41A95B",
       "stock_bytes": "2DFC010000",
-      "written_bytes": "2D60020000",
-      "routine": "the dialog's vertical centring: its height 0x1FC -> 0x260",
+      "written_bytes": "2D7C020000",
+      "routine": "the dialog's vertical centring: its height 0x1FC -> 0x27C",
       "installed_by": "VVFP Difficulty.dll, VvfpStartup"
     },
     {

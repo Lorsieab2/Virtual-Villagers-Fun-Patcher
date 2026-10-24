@@ -2,11 +2,11 @@
 
 The rows, the companion and the guide are checked from the files; every site
 is checked against the stock executables; and the Options dialog itself is
-EMULATED -- the published executable with "VVFP Difficulty.dll" installed by
-the startup loader, then the game's own Options drawing and click handler run
-on a dialog in emulated memory, with the game's drawing primitives recorded
-instead of drawn -- so what is drawn where, and what each click changes, is
-the game's own code's answer.  The stock executables are emulated the same
+EMULATED whole (tests/options_dialog_emulation.py) -- the published executable
+with "VVFP Difficulty.dll" installed by the startup loader, then the game's own
+constructor (frame, Done button, Music Tracks checkboxes), the frame's own tile
+draw, the dialog's draw routine and its click handler -- so what is placed and
+drawn where, and what each click changes, is the game's own code's answer.  The stock executables are emulated the same
 way to pin what the stock dialog does.  The live look of the dialog is NOT
 verified here: it needs a running game.
 """
@@ -40,13 +40,13 @@ GAMES = {
         "fullscreen_read": 0x408360, "set_speed": 0x41ACB0, "sound": 0x448E10,
         "toggle_query": 0x408350, "toggle_on": 0x409FB0, "toggle_off": 0x409FA0, "colour": 0x4CCB08,
         "difficulty": 0x170F4, "speed": 0x17110, "fullscreen": 0x1711D,
-        "screen": (800, 600), "height": 0x24C, "stock_height": 0x1FC,
+        "screen": (800, 600), "height": 0x23C, "stock_height": 0x1FC, "grow": 64,
         "button": (158, 55, 0x23),          # main_wide_button2.png frame, gap under it
         "strings": {"Difficulty": 0x534, "Easy": 0x535, "Normal": 0x53A, "Hard": 0x537,
                     "Game Speed": 0x538, "Paused": 0x539, "Slow": 0x53B, "Fast": 0x53C,
                     "Fullscreen": 0x53D},
         "fullscreen_row": 0xFD,
-        "stock_speed_row": 0x14D, "row": 0x14D, "speed_row": 0x19D,
+        "stock_speed_row": 0x14D, "row": 0x145, "speed_row": 0x18D,
         "heading_dy": 0x5, "label_dy": 0x32,
         "label_x": (0x135, 0x1AB, 0x21F, 0x294),
     },
@@ -57,7 +57,7 @@ GAMES = {
         "fullscreen_read": 0x408330, "set_speed": 0x41B500, "sound": 0x44C440,
         "toggle_query": 0x408320, "toggle_on": 0x40A280, "toggle_off": 0x40A270, "colour": 0x4DC948,
         "difficulty": 0x17D54, "speed": 0x17D7C, "fullscreen": 0x17D89,
-        "screen": (1024, 768), "height": 0x260, "stock_height": 0x1FC,
+        "screen": (1024, 768), "height": 0x27C, "stock_height": 0x1FC, "grow": 128,
         "button": (140, 32, 0x0F),          # popup_button1.png frame, gap under it
         "strings": {"Difficulty": 0x57E, "Easy": 0x57F, "Normal": 0x584, "Hard": 0x581,
                     "Game Speed": 0x582, "Paused": 0x583, "Slow": 0x585, "Fast": 0x586,
@@ -73,12 +73,13 @@ RADIO = 61                                # radioblank.png / radioselected.png
 TEXT = 27                                 # ldwBurweed27.png's height: the dialog's default font
 SPEEDS = (0x3E7, 0xA, 0x6, 0x3)           # Paused, Slow, Normal, Fast, by column
 
-DIALOG = 0x51000000
-STATE = 0x52000000
-GRAPHICS = 0x53000000
-STRINGS = 0x53100000
-BLANK, SELECTED, SLIDER, HANDLE = 0x5B000000, 0x5C000000, 0x5D000000, 0x5E000000
-TEXT_BASE = 0x71000000                    # get_string returns TEXT_BASE + id
+# The frame's inner edges (GreenDlgTileGrid.png's bars and their vines, more
+# than 8 pixels a row or column): top + 16, bottom - 17, left + 18, right - 16.
+INNER = (18, 16, 16, 17)
+BLANK_ID = {"vv4": 0x9D, "vv5": 0x7B}
+SELECTED_ID = {"vv4": 0x9E, "vv5": 0x7C}
+STONE = (10, 11, 50, 50)                  # the visible part of a 61 x 61 radio button
+INK = (3, 27)                             # ldwBurweed27's ink rows in these words
 
 
 def row_path(game: str) -> Path:
@@ -265,137 +266,6 @@ class DifficultyInTheStockExecutables(unittest.TestCase):
         del pefile
 
 
-class _Dialog:
-    """The game's Options dialog, emulated over a published or stock image."""
-
-    def __init__(self, game: str, machine):
-        from unicorn import UC_HOOK_CODE
-        self.game = game
-        self.g = GAMES[game]
-        self.mu = machine.mu
-        self.images: list[tuple[int, int, int]] = []
-        self.texts: list[tuple[str, int, int, int]] = []
-        self.speed_calls: list[int] = []
-        self.text_args: list[tuple[str, int, int, int]] = []
-        mu = self.mu
-        for base, size in ((DIALOG, 0x1000), (STATE, 0x20000), (GRAPHICS, 0x1000), (STRINGS, 0x1000)):
-            mu.mem_map(base, size)
-        g = self.g
-        # get_string(id) returns TEXT_BASE + id; the primitives record and return.
-        mu.mem_write(g["get_string"], bytes.fromhex("8B44240405") + struct.pack("<I", TEXT_BASE) + b"\xC2\x04\x00")
-        mu.mem_write(g["image"], b"\xC2\x0C\x00")
-        mu.mem_write(g["left"], b"\xC2\x14\x00")
-        mu.mem_write(g["centred"], b"\xC2\x14\x00")
-        mu.mem_write(g["fullscreen_read"], b"\x30\xC0\xC3")
-        mu.mem_write(g["set_speed"], b"\xC2\x04\x00")
-        mu.mem_write(g["sound"], b"\xC2\x04\x00")
-        mu.mem_write(g["toggle_query"], b"\x30\xC0\xC3")
-        mu.mem_write(g["toggle_on"], b"\xC3")
-        mu.mem_write(g["toggle_off"], b"\xC3")
-        hooks = {g["image"]: self._image, g["left"]: self._left, g["centred"]: self._centred,
-                 g["set_speed"]: self._speed}
-        for address, fn in hooks.items():
-            mu.hook_add(UC_HOOK_CODE, lambda uc, a, s, d, fn=fn: fn(), begin=address, end=address)
-        width, height = g["screen"]
-        self.place((width - 0x280) // 2, (height - self.height()) // 2)
-        fields = {0x74: STATE,
-                  0x8C: BLANK, 0x90: SELECTED, 0x94: SLIDER, 0x98: HANDLE, 0x9C: GRAPHICS, 0xA8: STRINGS,
-                  0x64: 0x60, 0x68: 0x60, 0x6C: 0x60}
-        for offset, value in fields.items():
-            mu.mem_write(DIALOG + offset, struct.pack("<I", value))
-        mu.mem_write(DIALOG + 0x60, b"\x01\x00\x00\x00")    # the Fullscreen row is shown
-
-    def place(self, x: int, y: int) -> None:
-        """Put the dialog's top-left at (x, y): the origin fields every stock
-        row, and the new one, are drawn and hit-tested from."""
-        self.x, self.y = x, y
-        for offset, value in ((0x78, x), (0x7C, x + 0x140), (0x80, y)):
-            self.mu.mem_write(DIALOG + offset, struct.pack("<i", value))
-
-    def height(self) -> int:
-        """The dialog's height as the constructor's `push` reads it; its
-        centring (`sub eax, height`) must agree."""
-        push, centring = {"vv4": (0x41A07D, 0x41A109), "vv5": (0x41A8D1, 0x41A95B)}[self.game]
-        code = bytes(self.mu.mem_read(push, 5))
-        sub = bytes(self.mu.mem_read(centring, 5))
-        assert code[0] == 0x68 and sub[0] == 0x2D and code[1:] == sub[1:], (code.hex(), sub.hex())
-        return struct.unpack("<I", code[1:])[0]
-
-    def _args(self, count):
-        from unicorn.x86_const import UC_X86_REG_ESP
-        sp = self.mu.reg_read(UC_X86_REG_ESP)
-        return struct.unpack(f"<{count}I", self.mu.mem_read(sp + 4, 4 * count))
-
-    def _image(self):
-        image, x, y = self._args(3)
-        self.images.append((image, x - self.x, y - self.y))
-
-    def _text(self, kind):
-        text, x, y, colour, font = self._args(5)
-        self.texts.append((kind, text - TEXT_BASE, x, y - self.y))
-        self.text_args.append((kind, text - TEXT_BASE, colour, font))
-
-    def _left(self):
-        self._text("left")
-
-    def _centred(self):
-        self._text("centred")
-
-    def _speed(self):
-        (value,) = self._args(1)
-        self.speed_calls.append(value)
-
-    def set(self, difficulty: int, speed: int) -> None:
-        self.mu.mem_write(STATE + self.g["difficulty"], struct.pack("<i", difficulty))
-        self.mu.mem_write(STATE + self.g["speed"], struct.pack("<i", speed))
-
-    def difficulty(self) -> int:
-        return struct.unpack("<i", self.mu.mem_read(STATE + self.g["difficulty"], 4))[0]
-
-    def _call(self, address, args=()):
-        from unicorn.x86_const import UC_X86_REG_ECX, UC_X86_REG_ESP
-        from startup_emulation import CRT_RETURN_SENTINEL, STACK_TOP
-        sp = STACK_TOP - 0x20000
-        frame = struct.pack("<I", CRT_RETURN_SENTINEL) + b"".join(struct.pack("<i", a) for a in args)
-        self.mu.mem_write(sp, frame)
-        self.mu.reg_write(UC_X86_REG_ESP, sp)
-        self.mu.reg_write(UC_X86_REG_ECX, DIALOG)
-        self.mu.emu_start(address, CRT_RETURN_SENTINEL, count=2_000_000)
-
-    def draw(self):
-        self.images.clear()
-        self.texts.clear()
-        self.text_args.clear()
-        self._call(self.g["draw"])
-        return list(self.images), list(self.texts)
-
-    def click(self, x: int, y: int):
-        """A mouse press at (x, y) from the dialog's top-left."""
-        self.speed_calls.clear()
-        self.mu.mem_write(DIALOG + 0x60, b"\x00")            # no fullscreen toggle under the test
-        self._call(self.g["click"], (2, self.x + x, self.y + y))
-        self.mu.mem_write(DIALOG + 0x60, b"\x01")
-        return list(self.speed_calls)
-
-    def press(self, x: int, y: int, fullscreen: int):
-        """A mouse press at (x, y) from the dialog's top-left, with the
-        Fullscreen row live and the game in fullscreen (1) or windowed (0).
-        Returns what changed: the level, the speed calls, the fullscreen
-        choice -- each None when untouched (sentinels are planted first)."""
-        level_field = STATE + self.g["difficulty"]
-        screen_field = STATE + self.g["fullscreen"]
-        self.mu.mem_write(level_field, struct.pack("<i", 0x5A5A))
-        self.mu.mem_write(screen_field, bytes([fullscreen]))
-        self.mu.mem_write(DIALOG + 0xAD, bytes([fullscreen]))
-        self.mu.mem_write(DIALOG + 0x60, b"\x01")
-        self.speed_calls.clear()
-        self._call(self.g["click"], (2, self.x + x, self.y + y))
-        level = struct.unpack("<i", self.mu.mem_read(level_field, 4))[0]
-        screen = self.mu.mem_read(screen_field, 1)[0]
-        return (None if level == 0x5A5A else level, list(self.speed_calls) or None,
-                None if screen == fullscreen else screen)
-
-
 @lru_cache(maxsize=None)
 def _published(game: str, mode: str):
     import vv_fun_patcher as vfp
@@ -410,21 +280,37 @@ def _published(game: str, mode: str):
     return bytes(data), shipped
 
 
-def _patched_dialog(game: str, mode: str) -> _Dialog:
+def patched_dialog(game: str, mode: str = "collection_progression"):
     import vv_fun_patcher as vfp
+    from options_dialog_emulation import OptionsDialog
     from startup_emulation import StartupMachine
     exe, shipped = _published(game, mode)
     machine = StartupMachine(exe, GAMES[game]["exe"], shipped)
     call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
     machine.run_to_winmain(call_va, winmain)
     machine.stop_at = None
-    return _Dialog(game, machine)
+    return OptionsDialog(game, machine).construct()
 
 
-def _stock_dialog(game: str) -> _Dialog:
+def stock_dialog(game: str):
+    from options_dialog_emulation import OptionsDialog
     from startup_emulation import StartupMachine
     machine = StartupMachine(stock_exe(game).read_bytes(), GAMES[game]["exe"], {})
-    return _Dialog(game, machine)
+    return OptionsDialog(game, machine).construct()
+
+
+def layout(dialog, difficulty=1, speed=6):
+    """Everything the dialog shows, relative to its frame's top-left:
+    (kind, what, x, y) for each image, text, child widget and tile."""
+    dialog.set(difficulty=difficulty, speed=speed, fullscreen=0)
+    frame = dialog.draw()
+    left, top, right, bottom = dialog.rect
+    items = [("image", image, x - left, y - top) for image, x, y in frame.images]
+    items += [("text", (kind, ident if ident is not None else ("ptr", ptr)), x - left, y - top)
+              for kind, ident, ptr, x, y, _c, _f in frame.texts]
+    items += [(child.kind, child.ident, child.x, child.y) for child in dialog.children]
+    tiles = [(tile, x - left, y - top) for tile, x, y in frame.tiles]
+    return items, tiles, (left, top, right, bottom)
 
 
 @unittest.skipUnless(STOCK_PRESENT and emulation_available(), STOCK_ABSENT + ", or unicorn is missing")
@@ -432,175 +318,185 @@ class TheStockDialog(unittest.TestCase):
     """What the unpatched games do: no Difficulty row, and the stock click
     areas for it hidden in a strip right above the Game Speed buttons."""
 
-    def test_no_difficulty_row_is_drawn(self):
+    def test_no_difficulty_row_is_drawn_and_the_frame_is_512_high(self):
         for game in GAMES:
-            dialog = _stock_dialog(game)
-            dialog.set(1, 6)
-            _, texts = dialog.draw()
-            ids = {t[1] for t in texts}
+            dialog = stock_dialog(game)
+            items, tiles, rect = layout(dialog)
+            texts = {what[1] for kind, what, _x, _y in items if kind == "text"}
             with self.subTest(game=game):
-                self.assertIn(GAMES[game]["strings"]["Game Speed"], ids)
+                self.assertIn(GAMES[game]["strings"]["Game Speed"], texts)
                 for word in ("Difficulty", "Easy", "Hard"):
-                    self.assertNotIn(GAMES[game]["strings"][word], ids)
-                self.assertEqual(dialog.height(), 0x1FC)
+                    self.assertNotIn(GAMES[game]["strings"][word], texts)
+                self.assertEqual(rect[3] - rect[1], 512)          # 8 tiles for a 0x1FC request
+                self.assertEqual(dialog.origin[1] - rect[1], 2)
 
     def test_a_click_just_above_the_game_speed_buttons_changes_the_level_unseen(self):
         for game in GAMES:
-            dialog = _stock_dialog(game)
+            dialog = stock_dialog(game)
+            x0, y0 = dialog.origin
             for column, level in zip(COLUMNS, (0, 1, 2)):
-                dialog.set(1 if level != 1 else 0, 6)
+                dialog.set(difficulty=1 if level != 1 else 0, speed=6, fullscreen=0)
                 with self.subTest(game=game, column=hex(column)):
-                    calls = dialog.click(column + 0xA + 5, 0x150 + 2)
-                    self.assertEqual(calls, [])
-                    self.assertEqual(dialog.difficulty(), level)
-
+                    self.assertEqual(dialog.press(x0 + column + 0xA + 5, y0 + 0x150 + 2), [])
+                    self.assertEqual(dialog.get("difficulty"), level)
 
 
 @unittest.skipUnless(STOCK_PRESENT and emulation_available(), STOCK_ABSENT + ", or unicorn is missing")
 class ThePatchedDialog(unittest.TestCase):
-    """The game's own Options drawing and click handler, run in the emulator
-    after the startup loader has installed "VVFP Difficulty.dll" -- in every
-    population mode."""
+    """The whole dialog -- constructor, frame, children, draw, clicks -- as the
+    game builds it after the startup loader installed "VVFP Difficulty.dll",
+    compared with the stock dialog, in every population mode."""
 
-    def check_draw(self, game, mode):
+    def moved(self, game, item):
+        """Where a stock item must be in the patched dialog, frame-relative."""
         g = GAMES[game]
-        dialog = _patched_dialog(game, mode)
-        self.assertEqual(dialog.height(), g["height"])
+        shift = g["speed_row"] - g["stock_speed_row"]
+        kind, what, x, y = item
+        if kind == "done":
+            return (kind, what, x, y + g["grow"])
+        if y >= g["stock_speed_row"] + 2 - 8 and kind in ("image", "text"):
+            return (kind, what, x, y + shift)
+        return item
+
+    def check_layout(self, game, mode):
+        g = GAMES[game]
         s = g["strings"]
-        speed_delta = g["speed_row"] - g["stock_speed_row"]
+        stock = stock_dialog(game)
+        patched = patched_dialog(game, mode)
+        width, height = g["screen"]
         for level in (0, 1, 2):
-            dialog.set(level, 6)
-            images, texts = dialog.draw()
-            # The Difficulty row: three buttons where Game Speed's stood, the level's selected.
-            row = [(img, x, y) for img, x, y in images if y == g["row"]]
-            self.assertEqual(row, [(SELECTED if i == level else BLANK, COLUMNS[i], g["row"]) for i in range(3)])
-            # Its heading and labels, as the Game Speed row draws its own (stock positions).
-            self.assertIn(("left", s["Difficulty"], dialog.x + 0x32, g["row"] + g["heading_dy"]), texts)
-            for i, word in enumerate(("Easy", "Normal", "Hard")):
-                self.assertIn(("centred", s[word], g["label_x"][i], g["row"] + g["label_dy"]), texts)
-            # Game Speed one row lower, buttons, heading and labels; Normal selected.
-            speed = [(img, x) for img, x, y in images if y == g["speed_row"]]
-            self.assertEqual(speed, [(SELECTED if c == COLUMNS[2] else BLANK, c) for c in COLUMNS])
-            self.assertIn(("left", s["Game Speed"], dialog.x + 0x32,
-                           g["stock_speed_row"] + speed_delta + g["heading_dy"]), texts)
-            for i, word in enumerate(("Paused", "Slow", "Normal", "Fast")):
-                self.assertIn(("centred", s[word], g["label_x"][i], g["speed_row"] + g["label_dy"]), texts)
-            # Nothing is drawn at Game Speed's old place but the Difficulty row.
-            self.assertFalse([t for t in texts if t[1] == s["Game Speed"] and t[3] < g["speed_row"]])
-            # Every button and word above the Done button, which the height places.
-            width, button_height, gap = g["button"]
-            button_top = g["height"] - button_height - gap
-            for img, x, y in images:
-                self.assertLessEqual(y + RADIO, button_top, (hex(img), x, y))
-            for kind, string_id, x, y in texts:
-                self.assertLessEqual(y + TEXT, button_top, (kind, hex(string_id), x, y))
-            # The rows keep the game's own spacing and never overlap.
-            self.assertEqual(g["row"] - g["fullscreen_row"], g["speed_row"] - g["row"])
-            self.assertTrue([t for t in texts if t[1] == s["Fullscreen"]])
-        # The dialog still fits the screen.
-        self.assertGreaterEqual(dialog.y, 0)
-        self.assertLessEqual(dialog.y + g["height"], g["screen"][1])
+            stock_items, stock_tiles, stock_rect = layout(stock, difficulty=level)
+            items, tiles, rect = layout(patched, difficulty=level)
+            # The frame: whole tiles, the stock width, one or two tiles taller,
+            # centred and wholly on the screen; the rows drawn from top + 2.
+            self.assertEqual(rect[2] - rect[0], stock_rect[2] - stock_rect[0])
+            self.assertEqual(rect[3] - rect[1], 512 + g["grow"])
+            self.assertEqual(rect[0], (width - 640) // 2)
+            self.assertEqual(rect[1], (height - (512 + g["grow"])) // 2)
+            self.assertTrue(0 <= rect[1] and rect[3] <= height and 0 <= rect[0] and rect[2] <= width)
+            self.assertEqual(patched.origin[1] - rect[1], 2)
+            self.assertEqual(patched.origin[0] - rect[0], 0)
+            self.assertEqual(len(tiles), 10 * (512 + g["grow"]) // 64)
+            self.assertEqual(max(y for _t, _x, y in tiles) + 64, rect[3] - rect[1])
+            # Every stock item is drawn, unchanged or exactly one move lower.
+            expected = sorted((self.moved(game, item) for item in stock_items), key=repr)
+            new = [item for item in items if item not in expected]
+            self.assertEqual(sorted((item for item in items if item in expected), key=repr), expected)
+            # And the only new items are the Difficulty row's.
+            y0 = 2
+            row = g["row"] + y0
+            want_new = sorted(                [("image", SELECTED_ID[game] if i == level else BLANK_ID[game], COLUMNS[i], row) for i in range(3)]
+                + [("text", ("left", s["Difficulty"]), 0x32, row + g["heading_dy"])]
+                + [("text", ("centred", s[w]), g["label_x"][i] - rect[0], row + g["label_dy"])
+                   for i, w in enumerate(("Easy", "Normal", "Hard"))], key=repr)
+            self.assertEqual(sorted(new, key=repr), want_new)
+            # Nothing overlaps: every row's band (stone top to label ink
+            # bottom) is clear of the next, of the checkboxes' labels above
+            # and of the Done button below; all inside the frame's inner edges.
+            rows = [g["fullscreen_row"] + y0, row, g["speed_row"] + y0]
+            bands = [(r + STONE[1], r + g["label_dy"] + INK[1]) for r in rows]
+            track_labels = 0xDC + y0 + INK[1]          # the Music Tracks numbers' ink bottom
+            done = next(item for item in items if item[0] == "done")
+            done_top = done[3] + 1
+            self.assertLess(track_labels, bands[0][0])
+            for upper, lower in zip(bands, bands[1:]):
+                self.assertLess(upper[1], lower[0], bands)
+            self.assertLess(bands[-1][1], done_top)
+            inner_left, inner_top = INNER[0], INNER[1]
+            inner_right, inner_bottom = 640 - INNER[2], rect[3] - rect[1] - INNER[3]
+            for kind, what, x, y in items:
+                if kind == "image":
+                    box = (x + STONE[0], y + STONE[1], x + STONE[2], y + STONE[3]) if what in (
+                        BLANK_ID[game], SELECTED_ID[game]) else (x, y, x + 1, y + 1)
+                elif kind == "text":
+                    box = (x, y + INK[0], x + 1, y + INK[1])
+                elif kind == "done":
+                    continue
+                else:
+                    box = (x, y, x + 48, y + 32)
+                self.assertTrue(inner_left <= box[0] and box[2] <= inner_right
+                                and inner_top <= box[1] and box[3] <= inner_bottom, (kind, what, box))
+            # Done keeps the stock distance to the frame's bottom.
+            stock_done = next(item for item in stock_items if item[0] == "done")
+            self.assertEqual((rect[3] - rect[1]) - done[3], (stock_rect[3] - stock_rect[1]) - stock_done[3])
 
-    def check_clicks(self, game, mode):
-        g = GAMES[game]
-        dialog = _patched_dialog(game, mode)
-        # Each Difficulty button sets its level, and no Game Speed.
-        for level, column in enumerate(COLUMNS[:3]):
-            dialog.set(1 if level != 1 else 2, 6)
-            self.assertEqual(dialog.click(column + RADIO // 2, g["row"] + RADIO // 2), [])
-            self.assertEqual(dialog.difficulty(), level)
-        # Each Game Speed button, one row lower, sets its speed and not the level.
-        for column, speed in zip(COLUMNS, SPEEDS):
-            dialog.set(1, 6)
-            self.assertEqual(dialog.click(column + RADIO // 2, g["speed_row"] + RADIO // 2), [speed])
-            self.assertEqual(dialog.difficulty(), 1)
-        # The old hidden strip and the gap between the rows change nothing.
-        for column in COLUMNS[:3]:
-            for y in (0x150, 0x152, g["row"] + 0xA - 1, g["row"] + 0x2F + 1, g["speed_row"] + 0xA - 1):
-                dialog.set(1, 6)
-                self.assertEqual(dialog.click(column + 0xA + 5, y), [])
-                self.assertEqual(dialog.difficulty(), 1)
-        # The fourth column has no Difficulty button.
-        dialog.set(1, 6)
-        self.assertEqual(dialog.click(COLUMNS[3] + RADIO // 2, g["row"] + RADIO // 2), [])
-        self.assertEqual(dialog.difficulty(), 1)
-
-    def test_the_row_is_drawn_and_game_speed_moves_down_in_every_mode(self):
+    def test_the_whole_dialog_is_the_stock_one_plus_the_row_in_every_mode(self):
         for game in GAMES:
             for mode in MODES:
                 with self.subTest(game=game, mode=mode):
-                    self.check_draw(game, mode)
+                    self.check_layout(game, mode)
 
     def test_the_new_row_draws_with_the_stock_rows_routines_font_and_colour(self):
-        # The heading goes through the same routine as the stock "Fullscreen"
-        # heading and the labels through the one "On" / "Off" use, with the
-        # same colour (the value of the stock rows' global at that moment) and
-        # the same font argument (0: the dialog's default, ldwBurweed27).
         for game in GAMES:
-            g = GAMES[game]
-            s = g["strings"]
-            dialog = _patched_dialog(game, "collection_progression")
-            dialog.mu.mem_write(g["colour"], struct.pack("<I", 0x7F3C2A19))
-            dialog.set(1, 6)
-            dialog.draw()
-            args = {(kind, i): (colour, font) for kind, i, colour, font in dialog.text_args}
+            s = GAMES[game]["strings"]
+            dialog = patched_dialog(game)
+            dialog.mu.mem_write(GAMES[game]["colour"], struct.pack("<I", 0x7F3C2A19))
+            dialog.set(difficulty=1, speed=6, fullscreen=0)
+            frame = dialog.draw()
+            args = {(kind, ident): (colour, font) for kind, ident, _p, _x, _y, colour, font in frame.texts}
             with self.subTest(game=game):
                 stock_heading = args[("left", s["Fullscreen"])]
-                stock_labels = {args[("centred", g["strings"]["Fullscreen"] + 1)],
-                                args[("centred", g["strings"]["Fullscreen"] + 2)]}
                 self.assertEqual(stock_heading, (0x7F3C2A19, 0))
-                self.assertEqual(stock_labels, {(0x7F3C2A19, 0)})
+                self.assertEqual({args[("centred", s["Fullscreen"] + 1)], args[("centred", s["Fullscreen"] + 2)]},
+                                 {stock_heading})
                 self.assertEqual(args[("left", s["Difficulty"])], stock_heading)
                 for word in ("Easy", "Normal", "Hard"):
                     self.assertEqual(args[("centred", s[word])], stock_heading)
                 self.assertNotIn(("centred", s["Difficulty"]), args)
-                for word in ("Easy", "Hard"):
-                    self.assertNotIn(("left", s[word]), args)
 
-    def test_every_click_hits_exactly_the_control_drawn_there(self):
-        # Hit areas are the stock handler's own, computed from the same origin
-        # fields (+0x78, +0x80) as the drawing, so they follow the dialog
-        # wherever it is placed; the game hands its handler logical
-        # coordinates (800 x 600, 1024 x 768) windowed or fullscreen.
-        for game in GAMES:
-            g = GAMES[game]
-            dialog = _patched_dialog(game, "collection_progression")
-            stock_origin = (dialog.x, dialog.y)
-            controls = [("fullscreen", 1, COLUMNS[0], g["fullscreen_row"]),
+    def check_clicks(self, game, mode):
+        g = GAMES[game]
+        stock = stock_dialog(game)
+        patched = patched_dialog(game, mode)
+        shift = g["speed_row"] - g["stock_speed_row"]
+        controls = {
+            "patched": [("fullscreen", 1, COLUMNS[0], g["fullscreen_row"]),
                         ("fullscreen", 0, COLUMNS[1], g["fullscreen_row"])]
-            controls += [("level", i, COLUMNS[i], g["row"]) for i in range(3)]
-            controls += [("speed", [SPEEDS[i]], COLUMNS[i], g["speed_row"]) for i in range(4)]
-            for origin in (stock_origin, (stock_origin[0] + 37, stock_origin[1] - 5)):
-                dialog.place(*origin)
-                for fullscreen in (0, 1):
-                    for kind, value, column, row in controls:
-                        left, top, right, bottom = column + 0xA, row + 0xA, column + 0x2F, row + 0x2F
-                        if kind == "fullscreen" and value == fullscreen:
-                            continue        # choosing the current state changes nothing to observe
-                        want = {"level": (value, None, None), "speed": (None, value, None),
-                                "fullscreen": (None, None, value)}[kind]
-                        inside = [((left + right) // 2, (top + bottom) // 2), (left, top), (right, top),
-                                  (left, bottom), (right, bottom)]
-                        for x, y in inside:
-                            with self.subTest(game=game, origin=origin, fullscreen=fullscreen,
-                                              control=(kind, str(value)), at=(x, y)):
-                                self.assertEqual(dialog.press(x, y, fullscreen), want)
-                        outside = [(left - 1, (top + bottom) // 2), (right + 1, (top + bottom) // 2),
-                                   ((left + right) // 2, top - 1), ((left + right) // 2, bottom + 1)]
-                        for x, y in outside:
-                            got = dialog.press(x, y, fullscreen)
-                            with self.subTest(game=game, origin=origin, fullscreen=fullscreen,
-                                              control=(kind, str(value)), outside=(x, y)):
-                                self.assertNotEqual(got, want)
-                                self.assertEqual(got, (None, None, None))
-            dialog.place(*stock_origin)
+                       + [("level", i, COLUMNS[i], g["row"]) for i in range(3)]
+                       + [("speed", [SPEEDS[i]], COLUMNS[i], g["speed_row"]) for i in range(4)],
+            "stock": [("fullscreen", 1, COLUMNS[0], g["fullscreen_row"]),
+                      ("fullscreen", 0, COLUMNS[1], g["fullscreen_row"])]
+                     + [("speed", [SPEEDS[i]], COLUMNS[i], g["stock_speed_row"]) for i in range(4)],
+        }
+        for name, dialog in (("stock", stock), ("patched", patched)):
+            x0, y0 = dialog.origin
+            for fullscreen in (0, 1):
+                for kind, value, column, row in controls[name]:
+                    if kind == "fullscreen" and value == fullscreen:
+                        continue
+                    left, top, right, bottom = column + 0xA, row + 0xA, column + 0x2F, row + 0x2F
+                    # The stock dialog's hidden Difficulty strip lies just above its first three
+                    # Game Speed buttons (TheStockDialog); the patched dialog has none.
+                    above = (None, None, None)
+                    if name == "stock" and kind == "speed" and column in COLUMNS[:3]:
+                        above = (COLUMNS.index(column), None, None)
+                    want = {"level": (value, None, None), "speed": (None, value, None),
+                            "fullscreen": (None, None, value)}[kind]
+                    probes = [(((left + right) // 2, (top + bottom) // 2), want), ((left, top), want),
+                              ((right, top), want), ((left, bottom), want), ((right, bottom), want),
+                              ((left - 1, (top + bottom) // 2), (None, None, None)),
+                              ((right + 1, (top + bottom) // 2), (None, None, None)),
+                              (((left + right) // 2, top - 1), above),
+                              (((left + right) // 2, bottom + 1), (None, None, None))]
+                    for (x, y), result in probes:
+                        dialog.set(difficulty=0x5A5A, speed=6, fullscreen=fullscreen)
+                        calls = dialog.press(x0 + x, y0 + y)
+                        level = dialog.get("difficulty")
+                        screen = dialog.get("fullscreen")
+                        got = (None if level == 0x5A5A else level, calls or None,
+                               None if screen == fullscreen else screen)
+                        with self.subTest(game=game, mode=mode, dialog=name, fullscreen=fullscreen,
+                                          control=(kind, str(value)), at=(x, y)):
+                            self.assertEqual(got, result)
+        # The patched hit areas are the stock ones: Fullscreen identical, Game
+        # Speed one move lower, relative to the origin rows are drawn from.
+        self.assertEqual(shift, {"vv4": 0x40, "vv5": 0x64}[game])
 
-    def test_the_buttons_set_the_level_and_game_speed_in_every_mode(self):
+    def test_every_click_hits_exactly_the_control_drawn_there_in_every_mode(self):
         for game in GAMES:
             for mode in MODES:
                 with self.subTest(game=game, mode=mode):
                     self.check_clicks(game, mode)
-
 
 
 if __name__ == "__main__":
