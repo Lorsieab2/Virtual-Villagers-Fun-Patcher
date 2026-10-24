@@ -414,7 +414,9 @@ class TabTests(unittest.TestCase):
 
     def test_every_part_has_a_scheme_box(self):
         self.assertIn("Rainbow and alternating colours", self.SOURCE)
-        self.assertIn("for k, (part, words) in enumerate(ft.SCHEME_PARTS.items()):", self.SOURCE)
+        # A choice for every part (they wrap, two to a line when there is room: #605).
+        self.assertIn("for part, words in ft.SCHEME_PARTS.items():", self.SOURCE)
+        self.assertIn("self.scheme_vars[part] = var", self.SOURCE)
 
 
 if __name__ == "__main__":
