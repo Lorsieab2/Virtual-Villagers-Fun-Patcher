@@ -124,6 +124,36 @@ LIFE_LINES = (
     "of the time; an examined hut is repaired 70% of the time.",
 )
 
+# Hidden villager stats (the coordinator's specs hidden_vv1\spec.md and likes_all, 2026-10-23):
+# (line, what stands behind it -- gm.RUNNING, gm.OWNER, or False for UNCONFIRMED).
+HIDDEN_LINES = (
+    ('A villager has no hidden fertility, learning rate, lifespan, aging rate, mood, hunger or energy value: '
+     'the save keeps 39 numbers and the name for each villager, and none of them is such a value.', gm.RUNNING),
+    ("Each villager's name number (1 to 100) picks the name, and with the family number (1 to 50) it is the "
+     'game\'s "same villager" key; a healer never cures a villager whose two numbers equal the healer\'s own '
+     '(brothers and sisters often do).', False),
+    ("A baby takes its mother's family number and starts with one skill at 5 to 7: a parent's highest, never "
+     'Breeding (Farming 0 instead).', gm.RUNNING),
+    ('The Golden Child has family number 199 and is born beside a normal baby; he starts with every skill at '
+     '100, is set back to 5 years old at every age unit (so he never grows up or dies of old age) and never '
+     'falls sick; going without food and injuries still hurt him.', gm.RUNNING),
+    ('With 6 or fewer villagers, when one sex has 2 or fewer members, a baby is of the more numerous sex.', gm.RUNNING),
+    ('Likes: at birth 70% none, 21% one, 9% two; dislikes the same; a like is never also a dislike. A villager '
+     'who likes running takes long walks; a child who dislikes running does not.', gm.OWNER),
+    ("Disliking work makes 70% of a villager's job picks end in doing nothing, on top of the 15% everyone has; "
+     'disliking medicine skips the Healing pick half the time.', gm.RUNNING),
+    ('Liking work; and the job refusals: berries and bushes (foraging) 75%, turnips (crops) 75%, rocks '
+     '(blockage) 75%, drift wood (beach) 85%, fish (fishing) always, swimming and the ocean, dancing, '
+     'butterflies, flowers, laundry, resting, caves, herbs, crowds (stays out of Isola and Blessings Day).', False),
+    ("A New Home's skill test reads only the skill: success at skill + 31%, with no like or dislike of "
+     'learning.', gm.RUNNING),
+    ('Sick: -1 health on 71% of age units above 20 health, 22% at 20 or below. Health comes back on half the '
+     'age units with food and no sickness (every one on Easy), a fifth of that past 50, 58 or 66 years '
+     '(Medicine 1, 2, 3). Injuries: 2% of trips, 0 to 14 health building, 0 to 9 researching.', gm.RUNNING),
+    ('A New Home has no fire.', gm.RUNNING),
+)
+
+
 def _i32(data: bytes, at: int) -> int:
     return struct.unpack_from("<i", data, at)[0]
 
@@ -237,6 +267,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Island events", line, False if 1 <= n <= 4 else gm.RUNNING)
 
     # -- Other ---------------------------------------------------------------------------
+    for line, ok in HIDDEN_LINES:
+        add(gm.HIDDEN, line, ok)
     for line, ok in CHANCE_LINES:
         add("Chance and timers", line, gm.RUNNING if ok else False)
     for line in LIFE_LINES:

@@ -206,6 +206,36 @@ class FruitTrees(unittest.TestCase):
                     self.assertIn("Nature is level 0", text_of(facts))
                     self.assertIn("every 3 hours", lines(facts)[0])
 
+    def test_patch_tree_schedule(self) -> None:
+        """The Refill Together / Take Turns patches' file (native/shared/vv3_fruit_timers.h): a tree shows the
+        patch's schedule when an entry matches this save's trees, the save's own timers otherwise."""
+        clock = (6, 0, 100_000, 50_000)
+        data = make_save(clock=clock, trees=[(1, 1_000, 49_000, 300), (0, 2_000, 48_000, 200)])
+        buf = data[12:]
+        fp = vv3._trees_fingerprint(buf)
+        entries = bytearray(20 * 0 + vv3.TIMER_ENTRIES * vv3.TIMER_ENTRY)
+        struct.pack_into("<IIBBBBI3I3I", entries, 0, fp & 0xFFFFFFFF, fp >> 32, 1, 2, 0, 0, 10_800,
+                         49_500, 49_500, 0, 55_000, 55_000, 0)
+        for matched, fingerprint in ((True, fp), (False, fp ^ 1)):
+            with self.subTest(matched=matched):
+                body = bytearray(entries)
+                struct.pack_into("<II", body, 0, fingerprint & 0xFFFFFFFF, fingerprint >> 32)
+                folder = Folder(self)
+                place = folder.path / "Virtual Villagers Fun Patcher" / "Save 1" / "Data" / "Fruit Trees"
+                place.mkdir(parents=True)
+                (place / "Virtual Villagers 3 Fruit Tree Timers - Save 1.dat").write_bytes(
+                    struct.pack("<5I", vv3.TIMER_MAGIC, 1, 3, 1, 1) + bytes(body))
+                facts = self.read(data, folder=folder, now=real(clock, 50_000))
+                tree = lines(facts, "Food sources")
+                if matched:
+                    self.assertIn('Tree 1: on the patcher\'s "All Fruit Trees Refill at the Same Time" schedule, read '
+                                  'from its file for this save.', tree)
+                    self.assertIn(f"Tree 1: next refill due {gm.when(real(clock, 55_000))} (111 fruit).", tree)
+                    self.assertIn(f"Tree 2: next refill due {gm.when(real(clock, 55_000))} (111 fruit).", tree)
+                else:
+                    self.assertFalse(any("schedule" in line for line in tree))
+                    self.assertIn(f"Tree 1: next refill due {gm.when(real(clock, 49_000 + 10_800))} (111 fruit).", tree)
+                    self.assertIn("has no schedule for this save", text_of(facts))
     def test_tree_timers_file_is_only_noted(self) -> None:
         folder = Folder(self)
         place = folder.path / "Virtual Villagers Fun Patcher" / "Save 1" / "Data" / "Fruit Trees"

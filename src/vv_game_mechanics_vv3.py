@@ -135,6 +135,41 @@ def _u32(buf: bytes, at: int) -> int:
     return struct.unpack_from("<I", buf, at)[0]
 
 
+# Hidden villager stats (the coordinator's specs hidden_vv3\spec.md and likes_all, 2026-10-23):
+# (line, what stands behind it -- gm.RUNNING, gm.OWNER, or False for UNCONFIRMED).
+HIDDEN_LINES = (
+    ("Each villager's hidden name number (1 to 123) sets how it starves, its voice and its grave spot; "
+     "renaming changes the name, not the number. The villagers' numbers are below.", gm.RUNNING),
+    ('No hidden fertility, learning rate, lifespan or toughness value is rolled: a new villager rolls only '
+     'sex, name number, family number, head, body, likes and dislikes.', gm.RUNNING),
+    ('Liking learning (or the clever potion) makes a skill try succeed at skill + 66% instead of + 33%; '
+     'disliking it, + 16%. A success gains (70 - skill) ÷ 9, doubled for a liked skill and halved for a '
+     'disliked one; a failure at 0 gives 4.', gm.RUNNING),
+    ("Parenting is the exception: any failed try while Parenting is above 0 gives 4 (the stock game's own "
+     'rule).', gm.RUNNING),
+    ('Disliking work makes 76% of job picks end in doing nothing (21% otherwise, at Farming 60); disliking '
+     'medicine skips the Healing pick half the time. A preferred job wins 86% of the time. A villager other '
+     'than the chief decides something only 35% of the time.', gm.RUNNING),
+    ('The other likes and dislikes make a villager refuse some actions; how much each changes is not yet '
+     'worked out.', False),
+    ("A baby starts with one skill at 5 to 7 (4 to 6 when both parents' best is the same), from the mother's "
+     "best 98% of the time; never Parenting. Twins and triplets are the first baby's copies but for the name. "
+     "The mother's Parenting rises at each conception.", gm.RUNNING),
+    ('Sick: -1 health on 61% of age units above 20 health, 19.5% at 20 or below. Health comes back on 51% of '
+     'age units (75% with the fire lit, every one at Medicine 3); the elderly 10% (14%, 21%).', gm.RUNNING),
+    ('The campfire burns 10, 20 or 33 hours 20 minutes on Fast, Normal or Slow, stops while paused, and wood '
+     'on a burning fire fills it again; while it burns a research payout gives 1 more tech point 10% of the '
+     'time.', gm.RUNNING),
+    ('The campfire burns out while the game is closed (a saved unpaused game); rain and the Omen stop it being '
+     'lit.', False),
+    ('The Ash Key: no timer and no chance. The fire must have burned 61 hours on Normal in all (30.5 on Fast, '
+     '101.7 on Slow): a burnout counts its whole burn, wood added counts the time burned so far, water counts '
+     'nothing, paused time nothing. Then 12 trips of water (the 4th puts a lit fire out; while it burns, 10 '
+     "minutes between trips starts the count again); then, with the fire out, a villager dropped on the key's "
+     'spot finds it.', gm.RUNNING),
+)
+
+
 def _i32(buf: bytes, at: int) -> int:
     return struct.unpack_from("<i", buf, at)[0]
 
@@ -233,10 +268,62 @@ def nature_level(folder: Path, slot: int, buf: bytes) -> tuple[int, bool]:
 # ---------------------------------------------------------------------------
 
 
-def patch_tree_timers(village: gm.Village) -> list[int] | None:
-    """THE HOOK for "All Fruit Trees Refill at the Same Time" / "Fruit Trees Take Turns Refilling":
-    their own refill times, per tree, from their per-save file -- None while this build cannot read
-    it (its format is not yet published), and then the save's own (stock) timers are shown."""
+TIMER_MAGIC = 0x54335656                 # 'V' 'V' '3' 'T'
+TIMER_ENTRY = 40                         # fp (8), mode, count, 2 unused, interval, credit[3], due[3]
+TIMER_ENTRIES = 16
+TIMER_MODES = {1: "All Fruit Trees Refill at the Same Time", 2: "Fruit Trees Take Turns Refilling"}
+
+
+@dataclass
+class TreeSchedule:
+    mode: int
+    interval: int
+    credit: list[int]                    # each tree's fruit is paid up to here (game seconds)
+    due: list[int]                       # each tree's next refill (game seconds)
+
+    @property
+    def name(self) -> str:
+        return TIMER_MODES.get(self.mode, "")
+
+
+def _trees_fingerprint(buf: bytes) -> int | None:
+    """FNV-1a 64 of the trees as the saver writes them -- their 0x14-byte header, `count` records and the
+    count (native/shared/vv3_fruit_timers.h, fingerprint)."""
+    count = _i32(buf, TREES + 0x5C)
+    if not 0 <= count <= MAX_TREES:
+        return None
+    value = _fnv(buf[TREES:TREES + 0x14])
+    value = _fnv(buf[TREES + 0x14:TREES + 0x14 + TREE_SIZE * count], value)
+    return _fnv(struct.pack("<i", count), value)
+
+
+def patch_tree_timers(village: gm.Village, buf: bytes) -> TreeSchedule | None:
+    """The schedule "All Fruit Trees Refill at the Same Time" / "Fruit Trees Take Turns Refilling" keep
+    for exactly this save, from their per-save file (the format of native/shared/vv3_fruit_timers.h,
+    branch feat/vv3-trees-refill-together): the newest entry whose fingerprint is this save's trees.
+    None when there is no file, it is not a valid one, or no entry matches -- the game then pays the
+    fruit on the save's own (stock) timers.  Only read."""
+    try:
+        data = tree_timers_file(village).read_bytes()
+    except OSError:
+        return None
+    if len(data) != 20 + TIMER_ENTRIES * TIMER_ENTRY:
+        return None
+    magic, version, game, slot, count = struct.unpack_from("<5I", data, 0)
+    if magic != TIMER_MAGIC or version != 1 or game != GAME or slot != village.slot or count > TIMER_ENTRIES:
+        return None
+    fingerprint = _trees_fingerprint(buf)
+    if fingerprint is None:
+        return None
+    for n in range(count - 1, -1, -1):
+        at = 20 + n * TIMER_ENTRY
+        lo, hi, mode, trees, _a, _b, interval = struct.unpack_from("<IIBBBBI", data, at)
+        credit = list(struct.unpack_from("<3I", data, at + 16))
+        due = list(struct.unpack_from("<3I", data, at + 28))
+        if mode not in TIMER_MODES or trees > MAX_TREES or interval == 0:
+            return None                  # the companion sets such a file aside: so does the page
+        if (hi << 32 | lo) == fingerprint:
+            return TreeSchedule(mode, interval, credit[:trees], due[:trees])
     return None
 
 
@@ -275,12 +362,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         return gm.when(clock.real(game_seconds))
 
     # -- the fruit trees ------------------------------------------------------------------
-    timers = patch_tree_timers(village)
+    timers = patch_tree_timers(village, buf)
     trees = trees_of(buf)
     if not trees:
         out.append(gm.Fact("Food sources", "Fruit trees: none is planted yet."))
     for tree in trees:
-        refilled = timers[tree.number - 1] if timers is not None else tree.refilled
+        scheduled = timers is not None and tree.number <= len(timers.due)
+        refilled = timers.credit[tree.number - 1] if scheduled else tree.refilled
         tag = f"Tree {tree.number}"
         # The owner's line first, then one line for each other fact about the tree.
         out.append(gm.Fact("Food sources", f"{tag}: {tree.name}, planted at {at(tree.planted)}, refills "
@@ -295,7 +383,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             text = (f"{tag}: ready to pick since {at(ready)}." if now >= ready else
                     f"{tag}: ready to pick from {at(ready)}.")
         out.append(gm.Fact("Food sources", text))
-        due = refilled + interval
+        due = timers.due[tree.number - 1] if scheduled else refilled + interval
+        if scheduled:
+            out.append(gm.Fact("Food sources", f"{tag}: on the patcher's \"{timers.name}\" schedule, read from "
+                                               "its file for this save."))
         if tree.fruit >= FRUIT_CAP:
             text = f"{tag}: full; a refill adds nothing until fruit is picked."
         elif clock.frozen:
@@ -379,10 +470,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             f"The game's clock runs on {gm.speed_name(clock.runs_at)} speed, also while the game is closed "
             "(the next time it is played it catches up). Times are real times; those before "
             f"{gm.when(clock.real(clock.base))} assume it was always on this speed.")))
-    if timers is None and tree_timers_file(village).is_file():
+    if timers is None and trees and tree_timers_file(village).is_file():
         out.append(gm.Fact("Other", (
-            "The patcher's fruit-tree timers file is there, but this version cannot read it yet: the "
-            "save's own refill times are shown.")))
+            "The patcher's fruit-tree timers file is there but has no schedule for this save: the save's own "
+            "refill times are shown, as the game uses them.")))
     out.extend(_village(village, buf, epoch, clock, nature))
     return out
 
@@ -398,6 +489,9 @@ MUSHROOMS_FOUND = STATS + 0x14
 LAST_SAVED = 0x12F08 - HEADER               # wall seconds from the epoch
 EVENT_NEXT = 0x12EF8 - HEADER               # wall seconds from the epoch
 FIRE_END = 0x12125 + 4 - HEADER             # the fire record's burn deadline, wall seconds
+FIRE_BURNED = 0x12125 + 0xC - HEADER         # its burning time in all, game seconds (the Ash Key's count)
+FIRE_WATER = 0x12125 + 0x10 - HEADER         # its water trips counted
+ASH_GATE = 219_600                           # game seconds of burning before the water trips count
 # The chief's powers, ready again at (wall seconds; 0 = ready): rare collectible, educate, grant food.
 CHIEF_READY = {"call a rare collectible (Leadership 3)": 0x12EFC - HEADER,
                "educate the children (Leadership 2)": 0x12F00 - HEADER,
@@ -595,6 +689,14 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     if level[5] >= 3 or nature >= 3:
         extra = gm.patch_words(village, MORTALITY, "at Nature level 3 the rolls start 7 years later")
     out.append(gm.old_age_line("47, 55, 63 or 71 years (Medicine 0 to 3)", extra))
+    for line, ok in HIDDEN_LINES:
+        add(gm.HIDDEN, line, ok)
+    burned, water = _i32(buf, FIRE_BURNED), _i32(buf, FIRE_WATER)
+    add(gm.HIDDEN, (f"This village's Ash Key count: the campfire has burned {gm.duration(burned)} in all, counted on "
+                    f"Normal speed, of the {gm.duration(ASH_GATE)} needed"
+                    + (", so the gate is open" if burned >= ASH_GATE else "") + f"; water trips counted: {water}."),
+        gm.RUNNING)
+    out.extend(gm.starvation_lines(village, 0x8, gm.RUNNING))
     for line, ok in CHANCE_LINES:
         add("Chance and timers", line, gm.RUNNING if ok else False)
     leadership = level[LEADERSHIP]

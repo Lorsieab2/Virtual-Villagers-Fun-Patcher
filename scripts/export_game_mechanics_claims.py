@@ -48,13 +48,21 @@ _TOKEN = re.compile(rf"(?P<date>{_DATE.pattern})|(?P<time>{_UNIT}(?: {_UNIT})*)|
 _PLACE = {"date": "<date>", "time": "<time>", "num": "#"}
 
 
+_VILLAGER = re.compile(r"^.*?(?=: hidden number )")
+
+
+def _plain(text: str) -> str:
+    """A line as rendered, with a villager's name (the per-villager lines) as <villager>."""
+    return _VILLAGER.sub("<villager>", gm.tidy(text), count=1)
+
+
 def _tokens(text: str) -> list[tuple[str, str]]:
-    return [(m.lastgroup, m.group(0)) for m in _TOKEN.finditer(gm.tidy(text))]
+    return [(m.lastgroup, m.group(0)) for m in _TOKEN.finditer(_plain(text))]
 
 
 def template(text: str) -> str:
     """A line's shape: every date, length of time and number replaced -- the key its renderings share."""
-    return _TOKEN.sub(lambda m: _PLACE[m.lastgroup], gm.tidy(text))
+    return _TOKEN.sub(lambda m: _PLACE[m.lastgroup], _plain(text))
 
 
 def merged(texts: list[str]) -> str:
@@ -63,7 +71,7 @@ def merged(texts: list[str]) -> str:
     rows = [_tokens(t) for t in texts]
     keep = [len({row[k][1] for row in rows}) == 1 for k in range(len(rows[0]))]
     pieces = iter(keep)
-    return _TOKEN.sub(lambda m: m.group(0) if next(pieces) else _PLACE[m.lastgroup], gm.tidy(texts[0]))
+    return _TOKEN.sub(lambda m: m.group(0) if next(pieces) else _PLACE[m.lastgroup], _plain(texts[0]))
 
 def fixture_saves(game: int) -> list[Path]:
     return sorted(FIXTURES.glob(f"vv{game}-*-[1-5].ldw.gz"))
@@ -161,7 +169,34 @@ def pages(game: int) -> list[list[gm.Fact]]:
                                   + "\n", encoding="utf-8")
             for now in NOWS:
                 result.append(gm.read(folder, game, 1, [game_folder] if patches is not None else [], now=now))
+            if game == 3 and patches is None:
+                # The fruit-tree timing patches' own schedule for these trees, in each of their two modes.
+                for mode in (1, 2):
+                    timers = _tree_timer_file(data, mode)
+                    if timers is None:
+                        continue
+                    place = folder / "Virtual Villagers Fun Patcher" / "Save 1" / "Data" / "Fruit Trees"
+                    place.mkdir(parents=True, exist_ok=True)
+                    (place / "Virtual Villagers 3 Fruit Tree Timers - Save 1.dat").write_bytes(timers)
+                    for now in NOWS:
+                        result.append(gm.read(folder, game, 1, [], now=now))
+                    (place / "Virtual Villagers 3 Fruit Tree Timers - Save 1.dat").unlink()
     return result
+
+
+def _tree_timer_file(data: bytes, mode: int) -> bytes | None:
+    """A timers file (native/shared/vv3_fruit_timers.h) whose one entry is these trees' schedule."""
+    import vv_game_mechanics_vv3 as vv3
+    buf = data[12:]
+    count = struct.unpack_from("<i", buf, vv3.TREES + 0x5C)[0]
+    fingerprint = vv3._trees_fingerprint(buf)
+    if fingerprint is None or count < 1:
+        return None
+    timers = [struct.unpack_from("<i", buf, vv3.TREES + 0x14 + 0x18 * n + 12)[0] & 0xFFFFFFFF for n in range(3)]
+    entry = struct.pack("<IIBBBBI3I3I", fingerprint & 0xFFFFFFFF, fingerprint >> 32, mode, count, 0, 0, 10_800,
+                        *timers, *[(t + 10_800) & 0xFFFFFFFF for t in timers])
+    return (struct.pack("<5I", vv3.TIMER_MAGIC, 1, 3, 1, 1) + entry
+            + bytes(vv3.TIMER_ENTRY * (vv3.TIMER_ENTRIES - 1)))
 
 
 def claims(game: int) -> dict[str, dict[str, tuple[str, str, str, str]]]:

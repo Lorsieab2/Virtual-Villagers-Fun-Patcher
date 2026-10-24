@@ -29,7 +29,8 @@ from pathlib import Path
 
 TITLE = "Game Mechanics"
 GROUPS = ("Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
-          "Food earned", "Time away and Time Warp", "Island events", "Chance and timers", "Other")
+          "Food earned", "Time away and Time Warp", "Island events", "Hidden villager stats", "Chance and timers",
+          "Other")
 # The label every unverified line carries, in capitals, right beside it (the owner, 2026-10-23), and the
 # line at the top of the window that explains it.
 UNCONFIRMED = "UNCONFIRMED"
@@ -184,6 +185,33 @@ def old_age_line(thresholds: str, extra: str = "") -> Fact:
         "at 10 years over). The roll follows a hidden processed age: time away adds to the age shown in the game, "
         "logs and graves at once, while the processed age catches up a step at a time, so the shown age can be "
         "higher, by up to about 12 years after a long time away." + (f" {extra}" if extra else "")), RUNNING)
+
+
+HIDDEN = "Hidden villager stats"
+
+
+def starvation_lines(village: "Village", delta: int, basis: str, totem_colour: bool = False) -> list[Fact]:
+    """Each living villager's hidden starvation number (a value the game rolls at creation and keeps in the
+    save, `delta` bytes before the villager's name in its record) and what it means for them: a multiple of
+    6 loses health on every age unit without food, any other escapes 24% of them (never on Hard); an odd one
+    at 20 health or less regains 1 after the loss 31% of the time.  Read only."""
+    try:
+        import vv_last_names
+        roster = vv_last_names.living(village.folder, village.game, village.slot)
+    except Exception:  # noqa: BLE001 -- a villager table that cannot be read gives no per-villager lines
+        return []
+    out = []
+    for villager in roster:
+        if not 0 <= villager.at - delta <= len(village.data) - 4:
+            continue
+        number = struct.unpack_from("<i", village.data, villager.at - delta)[0]
+        words = ("every age unit without food costs 1 health" if number % 6 == 0 else
+                 "escapes the health loss on 24% of age units without food (never on Hard)")
+        if number % 2:
+            words += "; at 20 health or less, regains 1 after a loss 31% of the time"
+        colour = f" (totem colour {number % 8})" if totem_colour else ""
+        out.append(Fact(HIDDEN, f"{villager.name}: hidden number {number}{colour} -- {words}.", basis))
+    return out
 
 
 def counted_away(game: int, seconds: float, speed: int) -> float | None:
