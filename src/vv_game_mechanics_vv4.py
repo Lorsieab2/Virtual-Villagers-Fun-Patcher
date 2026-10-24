@@ -201,10 +201,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Mushrooms / Collectibles --------------------------------------------------------
     add("Mushrooms", "While playing (not paused), something appears about every 45 seconds at any speed, twice as "
                      "often on wet ground; at most 2 at a time, each gone after 1 minute 30 seconds. 30% are "
-                     f"mushrooms (all of them in rain or on wet ground): small 92% for {food(6)} food, large 8% for "
-                     f"{food(35)}.", False)
+                     f"mushrooms (all of them in rain or on wet ground): brown 92% worth {food(6)} food, red (rare) 8% "
+                     f"worth {food(35)}.", False)        # the 35 one is the game's rare mushroom ("You picked N rare mushrooms")
     if village.has(GOLDEN):
-        add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
+        add("Mushrooms", gm.golden_line(GOLDEN, "about 5 years of play"), gm.RUNNING)
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "
@@ -274,4 +274,21 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Other", line, ok)
     out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)"))
     add("Other", f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} speed.", gm.RUNNING)
+    clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
+    out.append(gm.started_line(clock.created))
+    out.extend(gm.later_puzzle_lines(PUZZLE_NAMES, lambda pid: struct.unpack_from("<ii", data, PUZZLE_ENTRIES + 8 * pid),
+                                     PUZZLE_THRESHOLDS, clock))
     return out
+
+
+# The game clock 0x4D6F18, saved by 0x41DAC0 at manager+0x8E8 (0x41F0BF) and loaded by 0x41DAA0 (0x41FCAB); the
+# statistics block 0x4D6DE0 (manager+0x850), whose first field is the village's start, written from the wall
+# clock 0x403750 by the new-village routine 0x41FEF0 (0x41FF35).  The puzzles 0x4D8BF8 (manager+0x160C0, by
+# 0x438810: a dword, then each puzzle's progress and solve time); solved at the threshold each puzzle registers
+# with (0x4386A0; The Grand Feast's 1 by 0x4386C0), the time stamped by Advance 0x438A30 from the game clock.
+CLOCK, STATS, PUZZLE_ENTRIES = 0x8F8, 0x860, 0x160D4
+PUZZLE_NAMES = {0: "The Cutting Tool", 1: "The Stream", 2: "Boiling Water", 3: "Soap Invented", 4: "The Butterflies",
+                5: "The Frog Rescue", 6: "The Cooking Pit", 7: "Cloth Invented", 8: "The Nursery School",
+                9: "The Mossy Rocks", 10: "The Grand Feast", 11: "Fishing Nets", 12: "Pruning the Tree",
+                13: "Honoring the Tree", 14: "Purify Tree", 15: "Decorating the Tree"}
+PUZZLE_THRESHOLDS = {0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 5, 6: 1, 7: 1, 8: 1, 9: 5, 10: 1, 11: 1, 12: 1, 13: 1, 14: 1, 15: 3}

@@ -200,11 +200,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Mushrooms / Collectibles --------------------------------------------------------
     add("Mushrooms", "Each update of the village, something appears with a chance of 18 in 32,768, twice in some "
                      "weather; none while paused or closed. 30% are mushrooms (all of them in the rain): brown 92% "
-                     "for 6 food, red 8% for 35, counted when they reach the food bin. Unpicked, a thing is gone "
+                     "worth 6 food, red (rare) 8% worth 35, counted when they reach the food bin. Unpicked, a thing is gone "
                      "after 1 minute 30 seconds.", gm.RUNNING)
     add("Mushrooms", "That is about one thing a minute, at any speed.")
     if village.has(GOLDEN):
-        add("Mushrooms", f"The patcher's \"{gm.feature_name(GOLDEN)}\" is in the game: there is a secret to find.")
+        add("Mushrooms", gm.golden_line(GOLDEN, "about 6 years of play"), gm.RUNNING)
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: 82% common, 13% uncommon, 5% rare. One set of 24 can always "
                         "appear; a second set of 24 only once the Knowing Totem is built (then half from each). A "
@@ -279,4 +279,26 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Other", f"An age unit is {unit} and a year {gm.duration(20 * 60 * speed)} on {on} speed: ages, pregnancies, "
                  "noni, crops, weather and the fire follow the speed; mushrooms, collectibles and island events do "
                  "not.", gm.RUNNING)
+    clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
+    out.append(gm.started_line(clock.created))
+    names = dict(PUZZLE_NAMES)
+    if village.has(HEATHEN_PARENT):
+        names[17] = "The Heathen Parent"
+    out.extend(gm.later_puzzle_lines(names, lambda pid: struct.unpack_from("<ii", data, PROJECTS + 8 * pid),
+                                     PUZZLE_THRESHOLDS, clock))
     return out
+
+
+# The game clock 0x51D490, saved by 0x41ECE0 at manager+0x84C (0x42457F) and loaded by 0x41ECC0 (0x42579B); the
+# statistics block 0x51D358 (manager+0x7B4), whose first field is the village's start, written from the wall
+# clock 0x4036E0 (0x425A19).  The puzzles are the items at PROJECTS (0x51E008, each progress and solve time),
+# solved at the threshold each registers with (0x43ABB0), the time stamped by Advance 0x43AF80 from the game
+# clock.  The 16 puzzles are ids 1 to 16 (the Village Statistics' count), 17 with the patcher's Heathen Parent
+# puzzle; their names are the game's own puzzle tips.
+CLOCK, STATS = 0x85C, 0x7C4
+HEATHEN_PARENT = "vv5_heathen_mommy_puzzle"
+PUZZLE_NAMES = {1: "The Sick Heathen", 2: "The Prison Break", 3: "The Hungry Totem", 4: "The Knowing Totem",
+                5: "The Hydroponic Farm", 6: "The Buried Mausoleum", 7: "The Blocking Totem", 8: "The Hollow Totem",
+                9: "The Heathen Builder", 10: "The Lake", 11: "The Pain Totem", 12: "The Rainbow Totem",
+                13: "The Heathen Scientist", 14: "The Tribute Statue", 15: "The Blind Totem", 16: "The Heathen Chief"}
+PUZZLE_THRESHOLDS = {pid: 1 for pid in range(1, 18)} | {5: HYDRO_DONE, 10: 2}
