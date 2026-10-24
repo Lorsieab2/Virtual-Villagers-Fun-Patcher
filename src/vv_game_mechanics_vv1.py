@@ -138,13 +138,20 @@ HIDDEN_LINES = (
      '100, is set back to 5 years old at every age unit (so he never grows up or dies of old age) and never '
      'falls sick; going without food and injuries still hurt him.', gm.RUNNING),
     ('With 6 or fewer villagers, when one sex has 2 or fewer members, a baby is of the more numerous sex.', gm.RUNNING),
-    ('Likes: at birth 70% none, 21% one, 9% two; dislikes the same; a like is never also a dislike. A villager '
-     'who likes running takes long walks; a child who dislikes running does not.', gm.OWNER),
-    ("Disliking work makes 70% of a villager's job picks end in doing nothing, on top of the 15% everyone has; "
-     'disliking medicine skips the Healing pick half the time.', gm.RUNNING),
-    ('Liking work; and the job refusals: berries and bushes (foraging) 75%, turnips (crops) 75%, rocks '
-     '(blockage) 75%, drift wood (beach) 85%, fish (fishing) always, swimming and the ocean, dancing, '
-     'butterflies, flowers, laundry, resting, caves, herbs, crowds (stays out of Isola and Blessings Day).', False),
+    ("Likes: at birth 70% none, 21% one, 9% two; dislikes the same; a like is never also a dislike.", gm.RUNNING),
+    ("Running, liked: a villager of 14 or more runs, three times walking speed. Disliked: a child under 14 "
+     "walks instead of running, and the dislike works for adults too.", gm.OWNER),
+    ("Disliking work makes 70% of idle picks take no job; disliking medicine passes Healing over half the time. "
+     "Fish, disliked: always refuses fishing (\"Running away\"); berries or bushes: refuses foraging 75% of the "
+     "time; rocks: refuses clearing the blockage 75%; turnips: skips the crops 75%; drift wood: skips the beach "
+     "clean-up 85%.", gm.RUNNING),
+    ("Swimming or the ocean, disliked: keeps away from the lagoon and swimming, and dropped in the water, "
+     "\"Leaving the water\". Dancing: no dancing, and no dance steps at celebrations and honouring. Flowers: no "
+     "garden or flower gathering. Resting: no relaxing in a well-off village. Butterflies and laundry: skipped. "
+     "Crowds: sits out village-wide celebrations. Caves: dropped on one cave spot, no action starts. Herbs: "
+     "refuses plant-study drops.", gm.RUNNING),
+    ("The other likes and dislikes: no effect has been found in the running game. Wandering may ignore running, "
+     "and elders may never run.", False),
     ("A New Home's skill test reads only the skill: success at skill + 31%, with no like or dislike of "
      'learning.', gm.RUNNING),
     ('Sick: -1 health on 71% of age units above 20 health, 22% at 20 or below. Health comes back on half the '

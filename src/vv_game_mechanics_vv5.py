@@ -95,10 +95,31 @@ HIDDEN_LINES = (
      'at skill 0, doubled when liked and halved when disliked.', gm.RUNNING),
     ('Parenting: a failed check gives 4 at any Parenting except 0, where the other skills give 4 only at 0 (at '
      "Parenting 10: 55% fail for +4, 45% succeed for +6). This is the stock game's own behaviour.", gm.RUNNING),
-    ('Disliking work makes 70% of job picks end in doing nothing; disliking medicine roughly halves the '
-     'Healing picks.', gm.RUNNING),
-    ('Liking work skips the 15% chance of doing nothing; the other likes and dislikes change behaviour; any '
-     'effect on outcomes is not yet worked out.', False),
+    ('Liking work skips the 15% chance of doing nothing and keeps a player-given task 99% of the time (86% '
+     'otherwise); disliking it, 70% of job picks end in doing nothing, a player-given task is kept 63% of the '
+     'time, and while catching up 78% find no job (29% otherwise).', gm.RUNNING),
+    ('Rain: a villager who likes it drinks the rain 98.7% of the time (12% otherwise); one who dislikes it gets '
+     'out of the rain 98.7% of the time. Running: liked, a walk at speed 300 (150 otherwise); disliked, 40, '
+     'except when fleeing. Jumping: liked, Dancing becomes a 30-jump dance; disliked, jump steps are skipped.',
+     gm.RUNNING),
+    ('Dancing, disliked: no dancing or rain dancing, and no dance moves at celebrations. Laundry: liked 53% of the '
+     'time (12.3% otherwise), disliked never. Swimming, disliked: no swimming, pools, lake or waterfall; the '
+     'ocean, disliked: no swimming or pools, and 60% of fishing becomes running away.', gm.RUNNING),
+    ('Disliked heights: no waterfall; talking: no praising; resting: no relaxing, and like sitting, a villager '
+     'who is not feeling well paces instead of lying or sitting down. Fish or berries, disliked: 60% of fishing '
+     'or noni picking becomes running away.', gm.RUNNING),
+    ('Wood, disliked: wooden projects are offered 16% of the time, 37% of hut building becomes running away, a '
+     'drop on the wood pile is refused half the time. Owls, disliked: the granary 16%. Rocks, disliked: never the '
+     'statue, and running away. Medicine, disliked: the Healing job 42.6% instead of 78.5%, a cure accepted 36.7% '
+     'instead of 73.5%.', gm.RUNNING),
+    ('Fire, disliked: dropped on the fire pit, the villager runs away (80% unlit, always when burning). Stories, '
+     'disliked: no story when either villager dislikes them. Children, disliked: "Telling a story" stops 69 '
+     'times in 70. Playing: liked, a child picks from 5 plays; disliked, never plays in the dirt. Crowds, '
+     'disliked: never joins village celebrations.', gm.RUNNING),
+    ('Heathen adults choose what to do without their likes; heathen children follow the children\'s ways.',
+     gm.RUNNING),
+    ('Plants and lifting, and the other 53 likes and dislikes: no effect has been found in the running game.',
+     False),
     ('Sick: -1 health on 61% of age units, 19% at 20 health or less. Health comes back on half the age units, '
      '75% while the fire burns, every one at Medicine 3 or on Easy; old villagers a fifth of that. With food '
      'at 500 or less, -1 health 15% of age units.', gm.RUNNING),
