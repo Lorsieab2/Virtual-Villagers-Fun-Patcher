@@ -10,6 +10,7 @@ import stat
 import struct
 import sys
 import tempfile
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -7816,26 +7817,7 @@ def copy_vanilla_saves(
             "copied_files": 0,
             "slot_zero": slot_zero_name,
         }
-    destination.mkdir(parents=True, exist_ok=True)
-    if replace_existing:
-        for path in existing:
-            path.unlink()
-    copied: list[dict[str, Any]] = []
-    for source_path in source_files:
-        destination_path = destination / source_path.name
-        shutil.copy2(source_path, destination_path)
-        source_hash = sha256(source_path)
-        if sha256(destination_path) != source_hash:
-            raise PatcherError(
-                f"Save copy verification failed: {destination_path}"
-            )
-        copied.append(
-            {
-                "name": source_path.name,
-                "size": source_path.stat().st_size,
-                "sha256": source_hash,
-            }
-        )
+    copied = _copy_save_set_all_or_none(source_files, destination, existing)
     return {
         "status": "vanilla_saves_copied",
         "source_folder": str(source),
@@ -7844,6 +7826,142 @@ def copy_vanilla_saves(
         "slot_zero": slot_zero_name,
         "files": copied,
     }
+
+
+# A save another program has open (the game, an editor, a sync client) can
+# refuse to be read or renamed for a moment: retry briefly, then fail cleanly.
+SAVE_COPY_LOCK_RETRIES = 5
+SAVE_COPY_LOCK_DELAY_SECONDS = 0.2
+
+
+def _save_copy_retry(action: Any, description: str) -> Any:
+    for attempt in range(SAVE_COPY_LOCK_RETRIES):
+        try:
+            return action()
+        except PermissionError as exc:
+            if attempt + 1 >= SAVE_COPY_LOCK_RETRIES:
+                raise PatcherError(
+                    f"{description} is locked by another program; close the game "
+                    f"or any program using it and try again ({exc})"
+                ) from exc
+            time.sleep(SAVE_COPY_LOCK_DELAY_SECONDS)
+    raise AssertionError("unreachable")
+
+
+def _copy_save_set_all_or_none(
+    source_files: list[Path], destination: Path, existing: list[Path]
+) -> list[dict[str, Any]]:
+    """Replace the destination's save set with ``source_files``, all-or-none.
+
+    Every source is first copied into a staging folder beside the destination
+    (same volume) and verified by size and SHA-256 against the source.  Only
+    then are the current saves moved to a sibling backup folder and the staged
+    copies moved into place.  The backup is removed only after every placed
+    file verifies; on any failure the originals are moved back exactly and the
+    staging is removed, so the destination is byte-identical to before.  Only
+    the ``existing`` save files are ever moved: the patcher's logs, .dat
+    sidecars and Backups folder in the save folder are never touched.
+    """
+    parent = destination.parent
+    token = uuid.uuid4().hex
+    stage = parent / f".{destination.name}.copy-stage-{token}"
+    backup = parent / f".{destination.name}.copy-backup-{token}"
+    if os.path.lexists(stage) or os.path.lexists(backup):
+        raise PatcherError("Save copy staging collision; nothing was changed.")
+    parent.mkdir(parents=True, exist_ok=True)
+    stage.mkdir()
+    copied: list[dict[str, Any]] = []
+    try:
+        for source_path in source_files:
+            staged = stage / source_path.name
+            description = f"Save {source_path}"
+            source_hash = _save_copy_retry(lambda: sha256(source_path), description)
+            _save_copy_retry(lambda: shutil.copy2(source_path, staged), description)
+            size = source_path.stat().st_size
+            if staged.stat().st_size != size or sha256(staged) != source_hash:
+                raise PatcherError(f"Save copy verification failed: {staged}")
+            copied.append({"name": source_path.name, "size": size, "sha256": source_hash})
+        originals = {
+            path.name: (
+                path.stat().st_size,
+                _save_copy_retry(lambda: sha256(path), f"Save {path}"),
+            )
+            for path in existing
+        }
+    except BaseException:
+        _cleanup_owned_tree(stage)
+        raise
+
+    created_destination = not destination.exists()
+    moved_out: list[str] = []
+    placed: list[str] = []
+    try:
+        destination.mkdir(parents=True, exist_ok=True)
+        backup.mkdir()
+        for path in existing:
+            _save_copy_retry(
+                lambda: os.replace(path, backup / path.name), f"Save {path}"
+            )
+            moved_out.append(path.name)
+        for item in copied:
+            name = item["name"]
+            target = destination / name
+            _save_copy_retry(lambda: os.replace(stage / name, target), f"Save {target}")
+            placed.append(name)
+        for item in copied:
+            target = destination / item["name"]
+            if target.stat().st_size != item["size"] or sha256(target) != item["sha256"]:
+                raise PatcherError(f"Save copy verification failed: {target}")
+    except BaseException:
+        # If the undo itself fails it raises and the backup folder is kept.
+        _restore_save_set(destination, backup, moved_out, placed, originals)
+        _cleanup_owned_tree(stage)
+        if backup.is_dir() and not any(backup.iterdir()):
+            backup.rmdir()
+        if created_destination and destination.is_dir() and not any(destination.iterdir()):
+            destination.rmdir()
+        raise
+    # Every staged save is in place and verified: the replaced saves are now
+    # safely superseded, so their backup can go.
+    _cleanup_owned_tree(stage)
+    _cleanup_owned_tree(backup)
+    return copied
+
+
+def _restore_save_set(
+    destination: Path,
+    backup: Path,
+    moved_out: list[str],
+    placed: list[str],
+    originals: dict[str, tuple[int, str]],
+) -> None:
+    """Undo a partial save swap; never delete a save that has no backup."""
+    problems: list[str] = []
+    for name in reversed(placed):
+        target = destination / name
+        if name in originals and name not in moved_out:
+            problems.append(f"{target} has no backup, so it was left in place")
+            continue
+        try:
+            if target.exists():
+                _save_copy_retry(target.unlink, f"Save {target}")
+        except Exception as exc:
+            problems.append(f"{target}: {exc}")
+    for name in reversed(moved_out):
+        held = backup / name
+        target = destination / name
+        try:
+            _save_copy_retry(lambda: os.replace(held, target), f"Save {target}")
+            size, digest = originals[name]
+            if target.stat().st_size != size or sha256(target) != digest:
+                raise PatcherError("the restored save does not match the original")
+        except Exception as exc:
+            problems.append(f"{target}: {exc}")
+    if problems:
+        raise PatcherError(
+            "The save copy failed and could not be fully undone; the original "
+            f"saves are kept in {backup}: " + "; ".join(problems)
+        )
 
 
 def get_patch_mode(patch_mode: str) -> PatchMode:
