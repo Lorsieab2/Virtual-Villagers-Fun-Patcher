@@ -539,6 +539,68 @@ class KeptAcrossAQuit(unittest.TestCase):
                 self.assertTrue(v.tick())
                 self.assertIn(v.timer(), v.hours())
 
+    def test_a_barrel_saved_and_reloaded_then_re_armed_keeps_the_natural_time(self):
+        """Review of #604: a Barrel of Babies bought, saved and reloaded before
+        its delivery is armed again after the reload -- The Tree of Life's
+        companion re-arms it (vv4_paid_rearm: itk_note, then the timer to 0),
+        New Believers' own per-frame payload zeroes the timer again for the
+        saved purchase bit.  That second write must keep the natural time the
+        file holds, not take the saved purchase's own timer for it."""
+        for game in ("vv4", "vv5"):
+            if not have_stock(game):
+                continue
+            for paused in (0, 5000):
+                with self.subTest(game=game, paused=paused):
+                    v = Village(game)
+                    natural = CLOCK + 8 * HOUR
+                    v.set_timer(natural)
+                    v.buy("barrel")
+                    v.proc.export("ItkProbeSaved", 1)
+                    v.proc.export("ItkProbeSession", 1)      # relaunch: memory empty, file on disk
+                    v.set_timer(v.timer() + paused)          # the load moves the saved timer by a pause
+                    if game == "vv4":
+                        v.story_arm(0)                       # vv4_paid_rearm: itk_note(timer, 0), then 0
+                    else:
+                        v.buy("barrel")                      # the saved bit: the payload zeroes it again
+                    self.assertEqual(v.state()[0], 1)
+                    self.assertEqual(v.state()[5], natural + paused, "the file kept the natural time")
+                    v.now += 10
+                    self.assertTrue(v.tick())
+                    self.assertEqual(v.timer(), natural + paused)
+
+    def test_buying_in_a_second_village_starts_fresh(self):
+        """Review of #604: a purchase still on its way in another slot's
+        village never lends its distance to a purchase made in this one, and
+        the new purchase is bound to this village."""
+        for game in self._each():
+            with self.subTest(game=game):
+                v = Village(game)
+                v.set_timer(CLOCK + 8 * HOUR)
+                v.buy()                                      # village A, slot 1: on its way
+                v.village(2, OTHER_ROSTER)                   # village B loaded, A's purchase pending
+                natural_b = CLOCK + 3 * HOUR
+                v.set_timer(natural_b)
+                v.buy()
+                state = v.state()
+                self.assertEqual(state[2], 2, "bound to the second village's slot")
+                v.now += 10
+                self.assertTrue(v.tick())
+                self.assertEqual(v.timer(), natural_b)
+
+    def test_buying_in_another_village_of_the_same_slot_starts_fresh(self):
+        for game in self._each():
+            with self.subTest(game=game):
+                v = Village(game)
+                v.set_timer(CLOCK + 8 * HOUR)
+                v.buy()
+                v.village(1, OTHER_ROSTER)                   # Start Over in the slot
+                natural_b = CLOCK + 2 * HOUR
+                v.set_timer(natural_b)
+                v.buy()
+                v.now += 10
+                self.assertTrue(v.tick())
+                self.assertEqual(v.timer(), natural_b)
+
 
 @emulated
 class TheStoryArmsTellTheKeeperFirst(unittest.TestCase):

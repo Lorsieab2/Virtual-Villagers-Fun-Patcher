@@ -115,7 +115,9 @@ FOUNDATION_OUTPUT = (
 # Recertified for the VV3 fruit-tree companions (native/shared/startup_companions.h gains
 # "VVFP VV3 Trees Refill Together.dll" and "VVFP VV3 Trees Take Turns.dll", which the Story
 # bridge compiles in): rebuilt on the merged v1.35.82 sources.
-SOURCE_SHA256 = "B72B4DB5A323AF96646EB409C212357791974730CD2D7529217716CD086D5BE0"
+# Recertified for the review of #604: a bought island event's kept natural time is read back from its
+# file before a re-arm records one, and a purchase in another village never lends its distance.
+SOURCE_SHA256 = "2D6BC40495D1190159E9EAB3EA863D93FE3D1C8B7190272A6E7811292E33AE05"
 SOURCE_SIZE = 1999360
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

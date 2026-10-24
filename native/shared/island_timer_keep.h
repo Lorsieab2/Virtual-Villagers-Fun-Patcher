@@ -1,4 +1,4 @@
-﻿/* BOUGHT ISLAND EVENTS DO NOT CHANGE WHEN THE GAME'S OWN ISLAND EVENTS COME.
+/* BOUGHT ISLAND EVENTS DO NOT CHANGE WHEN THE GAME'S OWN ISLAND EVENTS COME.
 
    The owner (2026-10-23): "Do buying custom island events affect the timing
    of naturally spawned ones?  I would prefer they don't affect timing."
@@ -231,40 +231,18 @@ static int itk_same_village(const unsigned int *was, const unsigned int *now) {
 
 /* ---- The three moments ---------------------------------------------------- */
 
-/* A purchase is about to write `value` into the timer at `field`. */
-static void __cdecl itk_note(unsigned int *field, unsigned int value) {
-    static unsigned int roster[ITK_ROSTER];
-    unsigned int natural;
-    if (field == NULL) {
-        return;
-    }
-    /* The natural time: the timer itself, or -- a second write before the
-       first purchase was delivered -- what that purchase kept. */
-    natural = itk_active ? *field + itk_rec.delta : *field;
-    memset(&itk_rec, 0, sizeof itk_rec);
-    itk_rec.magic = ITK_MAGIC;
-    itk_rec.version = ITK_VERSION;
-    itk_rec.game = itk_g != NULL ? (unsigned int)itk_g->game : 0u;
-    itk_rec.slot = (unsigned int)itk_slot_now();
-    itk_rec.delta = natural - value;
-    itk_rec.when = itk_now();
-    itk_active = 1;
-    itk_fire_pending = 0;
-    if (itk_roster_now(roster) > 0) {
-        memcpy(itk_rec.roster, roster, sizeof roster);
-        if (itk_rec.slot != 0u) {
-            itk_store(&itk_rec);
-        }
-    }
-}
-
-/* Nothing on its way in memory: the slot's file, once for this timer. */
-static void itk_load(const unsigned int *field) {
+/* Nothing on its way in memory: the slot's file -- once for this timer
+   (`force` 0, the trigger's frames), or now whatever was looked at before
+   (`force` 1: a purchase is about to write the timer, and a purchase saved
+   and reloaded before its delivery -- a Barrel of Babies re-armed after a
+   relaunch -- must keep the natural time its file holds, not take the
+   saved purchase's own timer for it). */
+static void itk_load(const unsigned int *field, int force) {
     static unsigned int roster[ITK_ROSTER];
     static itk_file f;
     unsigned __int64 saved;
     int slot = itk_slot_now(), read;
-    if (slot == 0 || (itk_checked && itk_checked_slot == slot && itk_checked_value == *field)) {
+    if (slot == 0 || (!force && itk_checked && itk_checked_slot == slot && itk_checked_value == *field)) {
         return;
     }
     if (itk_roster_now(roster) == 0) {
@@ -293,35 +271,70 @@ static void itk_load(const unsigned int *field) {
     itk_active = 1;
 }
 
+/* Whether the bought event in memory is this village's: its slot, and --
+   when it was bought with anyone in the village -- a majority of its
+   villagers.  One bought in another village (its file stays for it) is
+   never applied here, nor its distance added to a purchase made here. */
+static int itk_rec_here(void) {
+    static unsigned int roster[ITK_ROSTER];
+    int i, any = 0;
+    if (itk_rec.slot != 0u && (unsigned int)itk_slot_now() != itk_rec.slot) {
+        return 0;
+    }
+    for (i = 0; i < ITK_ROSTER && !any; ++i) {
+        any = itk_rec.roster[i] != 0u;
+    }
+    return !any || (itk_roster_now(roster) > 0 && itk_same_village(itk_rec.roster, roster));
+}
+
+/* A purchase is about to write `value` into the timer at `field`. */
+static void __cdecl itk_note(unsigned int *field, unsigned int value) {
+    static unsigned int roster[ITK_ROSTER];
+    unsigned int natural;
+    if (field == NULL) {
+        return;
+    }
+    if (itk_active && !itk_rec_here()) {
+        itk_active = 0;                   /* another village's purchase: this one starts fresh */
+    }
+    if (!itk_active) {
+        itk_load(field, 1);               /* this village's own, saved before a reload */
+    }
+    /* The natural time: the timer itself, or -- a second write before the
+       first purchase was delivered -- what that purchase kept. */
+    natural = itk_active ? *field + itk_rec.delta : *field;
+    memset(&itk_rec, 0, sizeof itk_rec);
+    itk_rec.magic = ITK_MAGIC;
+    itk_rec.version = ITK_VERSION;
+    itk_rec.game = itk_g != NULL ? (unsigned int)itk_g->game : 0u;
+    itk_rec.slot = (unsigned int)itk_slot_now();
+    itk_rec.delta = natural - value;
+    itk_rec.when = itk_now();
+    itk_active = 1;
+    itk_fire_pending = 0;
+    if (itk_roster_now(roster) > 0) {
+        memcpy(itk_rec.roster, roster, sizeof roster);
+        if (itk_rec.slot != 0u) {
+            itk_store(&itk_rec);
+        }
+    }
+}
+
 /* The trigger found the timer at `field` due. */
 static void __cdecl itk_firing(unsigned int *field) {
-    static unsigned int roster[ITK_ROSTER];
     if (itk_fire_pending && field == itk_fire_field && *field == itk_fire_seen) {
         return;                           /* worked out already, nothing moved */
     }
     itk_fire_pending = 0;
     if (!itk_active) {
-        itk_load(field);
+        itk_load(field, 0);
         if (!itk_active) {
             return;
         }
     }
-    /* Only in the village it was bought in: its slot, and -- when it was
-       bought with anyone in the village -- a majority of its villagers (the
-       file stays for that village; another one never takes it). */
-    if (itk_rec.slot != 0u && (unsigned int)itk_slot_now() != itk_rec.slot) {
-        itk_active = 0;
+    if (!itk_rec_here()) {
+        itk_active = 0;                   /* another village's: its file stays for it */
         return;
-    }
-    {
-        int i, any = 0;
-        for (i = 0; i < ITK_ROSTER && !any; ++i) {
-            any = itk_rec.roster[i] != 0u;
-        }
-        if (any && (itk_roster_now(roster) == 0 || !itk_same_village(itk_rec.roster, roster))) {
-            itk_active = 0;
-            return;
-        }
     }
     itk_fire_pending = 1;
     itk_fire_field = field;
