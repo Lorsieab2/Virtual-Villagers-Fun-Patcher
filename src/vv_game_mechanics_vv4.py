@@ -85,15 +85,30 @@ LIFE_LINES = (
 HIDDEN_LINES = (
     ("Each villager's hidden number (1 to 183, rolled at every creation, not inherited) sets how it starves, "
      "its voice and its grave or ghost spot; the villagers' numbers are below.", gm.RUNNING),
-    ('Liking learning makes a skill try succeed at skill + 67% instead of + 34%; disliking it, + 17%; a '
-     'success gains twice as much when it is liked, half when disliked.', gm.RUNNING),
-    ('Disliking work makes 78.5% of job picks end in doing nothing (29% otherwise, at Farming 50). A skill '
-     'chosen on the Details screen wins 86% of the time; Parenting is picked on its own only when it is the '
-     'chosen one.', gm.RUNNING),
-    ('Disliking medicine: a healer considers Healing only half the time, and a patient refuses the cure half '
-     'the time. Disliking wood, fish, the ocean, swimming, fruit, berries, plants, lifting or rocks makes a '
-     'villager refuse that job. Running, rain, dancing, jumping, stories, frogs, fire, children and the others '
-     'change reactions; any effect on outcomes is not yet worked out.', False),
+    ("Learning: liking it takes a skill roll's success from 74% to 100% (at the same skill) and doubles the gain; "
+     "disliking it, 57.6% and half the gain.", gm.RUNNING),
+    ("Work: liking it takes a villager's idle self-picks from 18.7% to 5%, and a job you give them is always "
+     "done; disliking it, 75.9% idle, and a job you give them is done 47.9% of the time while food is under "
+     "8,000. A skill chosen on the Details screen wins 86% of the time.", gm.RUNNING),
+    ("Medicine, disliked: a healer considers Healing half as often and cures about half as often. Wood, disliked: "
+     "builders take huts 29% of the time instead of 70%, 41% stop half-way (\"Running away\"), and half of "
+     "drops on the wood pile end in running away.", gm.RUNNING),
+    ("Running: a liking adult walks at speed 300 (150 otherwise) and one who dislikes it at 40 -- 3.4, 6.7 or "
+     "24.9 seconds for the same walk; children run unless they dislike it; the elderly always walk at 40. "
+     "Jumping: liked, Dancing becomes 30 hops; disliked, every hop is skipped.", gm.RUNNING),
+    ("Rain: liked, always \"Drinking rain\" in the rain; disliked, always \"Getting out of the rain\". Laundry: "
+     "liked 38% of the time (11% otherwise), disliked never. Playing: liked, a child only plays; disliked, no "
+     "dirt or sandcastle play. Dancing, disliked: never dances, and dance steps are cut from 5 other actions.",
+     gm.RUNNING),
+    ("Disliked fish, the ocean, swimming, berries or fruit: 60% run away from that farming job, and no water "
+     "leisure; rocks, plants or lifting: 60% run away from clearing rubble and debris. Crowds: skips the "
+     "Celebrating rally. Resting or sitting: a villager not feeling well paces (resting also blocks Relaxing).",
+     gm.RUNNING),
+    ("Disliked herbs or flowers: never \"Curious about the herbs\"; sand: no beach lounging; talking: no "
+     "Chatting; fire: dropped on the fire pit, runs away (always when lit, 81% unlit); frogs: dropped on the "
+     "cooking table, runs away (100% or 76%); children: \"Telling a story\" ends 99% of the time; stories: no "
+     "story when either villager dislikes them.", gm.RUNNING),
+    ("The other 46 likes and dislikes: no effect has been found in the running game.", False),
     ("A baby starts with one skill at 5 to 7 (4 to 6 when both parents' best is the same) from the mother's "
      "best 49 times in 50, never Parenting; its family number is the mother's.", False),
     ('Sick: -1 health on 61% of age units, 19% at 20 health or less. Health comes back on half the age units '
