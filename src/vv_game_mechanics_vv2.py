@@ -18,6 +18,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_life as life
 import vv_save_backup
 
 GAME = 2
@@ -331,7 +332,73 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.extend(gm.hours_puzzle_lines([name for name, _flag, _hours in PUZZLES],
                                      lambda n: data[PUZZLES[n][1] + S] != 0,
                                      lambda n: _i32(data, PUZZLES[n][2]), created))
+
+    # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
+    regrow_at = None if paused else real(REGROW)
+    event_at = None if paused else real(EVENT_NEXT)
+    gm.with_due(out, "Next regrowth:", regrow_at, "refill")
+    gm.with_due(out, "Next island event:", event_at, "next")
+    if real(GONG_NEXT) > village.now:
+        gm.with_due(out, "The Gong of Wonder can ring again", real(GONG_NEXT), "ready")
+    if not paused and fire > village.now:
+        gm.with_due(out, "The fire burns until", fire, "ends")
+    out.extend(life.sections(_context(village, data, speed_value, regrow_at, event_at, dam, scared, allowance)))
     return out
+
+
+# The tech levels: six dwords 8 apart from state 0x2EA74 (all six reset at 0x425229); Medicine is the fourth
+# (0x2EA8C: the twins roll at 0x44BA6A, sickness at 0x43B2ED), Exploration the fifth (0x2EA94: the mushroom spawn
+# roll, its level + 4, at 0x415FF5).
+LEVELS, MEDICINE_LEVEL, EXPLORATION_LEVEL = 0x2EA74, 3, 4
+
+
+def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: float | None, event_at: float | None,
+             dam: bool, scared: bool, allowance: int) -> life.Context:
+    speed = gm.speed_base(speed_value)
+    pick = {gm.FAST: 0, gm.NORMAL: 1, gm.SLOW: 2}[speed]
+    paused = speed_value >= gm.PAUSED
+    level = [_i32(data, LEVELS + 8 * k) for k in range(6)]
+    crops_grow = dam and (scared or allowance > 0)
+    every = gm.duration(gm.real_seconds(2400 * 6, speed_value))
+    sources = [
+        life.Source("Coconuts", _i32(data, COCONUTS), COCONUT_CAP, 30 / 40, regrow_at, f"+30 every {every}", verified=gm.SAVE),
+        life.Source("Crops", _i32(data, CROPS), CROPS_FULL, CROPS_FULL / 40 if crops_grow else 0.0,
+                    regrow_at if crops_grow else None,
+                    f"refilled to {CROPS_FULL} every {every}" if crops_grow else
+                    ("no refill until the dam is built" if not dam else "eaten by the birds at every regrowth"),
+                    verified=gm.SAVE),
+        life.Source("Fish", _i32(data, FISH), None, 0.0, None, "they never grow back", verified=gm.SAVE)]
+    exploration = level[EXPLORATION_LEVEL]
+    waits = {1: (40, 0.50), 2: (34, 0.35), 3: (28, 0.20)}
+    wait, share = waits.get(exploration, (40, 0.50))
+    ctx = life.Context(
+        village, speed_value, real_last(data), _i32(data, FOOD), low_food=150, extra_from=4001, sources=sources,
+        tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 5 at Science 1 to 3).",
+        brown=6, red=35, red_share=0.10, mushrooms_an_hour=3600 / wait * share, golden=village.has(GOLDEN) is True,
+        mushroom_words=f"At Exploration level {exploration} something appears about every {wait} seconds while "
+                       f"nothing is out, {share:.0%} of them mushrooms, picked only when you drop a child on them.",
+        event_next=event_at,
+        event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,
+        event_rule="It comes 10 to 19 whole hours after the last, at any speed; then every event whose conditions hold "
+                   "is equally likely within its kind (two-choice 20%, single-result 40%, sacks and vials 40%).",
+        event_running="Paused, its timer is pushed back by the paused time; with the game closed it runs on, and a due "
+                      "event happens once; a Time Warp brings it 10 hours (Slow) or 12 hours (Normal, Fast) sooner.",
+        medicine=level[MEDICINE_LEVEL], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
+        parents_from=18, sick_loss=(0.61, 0.19),
+        collectibles=[("Collectibles owned: not read from this save. A piece already found pays 100, 250 or 1,500 "
+                       "tech points by rarity.", gm.SAVE)],
+        limit=life.limit_words(village, None, "5 for each complete collection, 25 with all four"),
+        food_words="2 food a villager every age unit; on Medium above 4,000 food, or on Hard, 2 more 76% of the "
+                   "time; never more on Easy.",
+        gatherer_words=("The birds: the field's crops count for nothing here, as the birds eat each regrowth's crops."
+                        if dam and not crops_grow else ""),
+        trips=[("coconut trips", (8, 4, 2)[pick]), ("crop trips", (10, 7, 4)[pick] if crops_grow or _i32(data, CROPS) else 0),
+               ("fishing trips", (11, 8, 5)[pick] if _i32(data, FISH) > 0 else 0)])
+    return ctx
+
+
+def real_last(data: bytes) -> float:
+    return struct.unpack_from("<I", data, 4)[0] + _i32(data, LAST_TICK)
 
 
 # The village's start: [state+0x2E4F8], on the clock 0x403200, that the puzzles' hours count from.  The 16
