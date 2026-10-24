@@ -376,6 +376,13 @@ class Edits:
     text_box_colour: str = "#ffffff"
     text_box_opacity: float = 0.0       # percent
     text_box_over: bool = False
+    # Its border, like a portrait's (the owner: "border options for the text boxes, like the portrait
+    # shapes"): any BORDERS choice -- the special rope and vines too -- its colour ("" Automatic: the
+    # portrait's border colour) and its weight (0 -- the default -- draws none).  Round the box's own rounded
+    # corners; drawn even with no box behind the words.
+    text_box_border: str = "thin"
+    text_box_border_colour: str = ""
+    text_box_border_width: float = 0.0
     text_valign: str = "middle"
     row_align: str = "arranged"        # each row across the tree (ROW_ALIGNS)
     row_valign: str = "middle"         # the portraits in a row lined up by (ROW_VALIGNS)
@@ -581,6 +588,10 @@ class Edits:
         out.text_box_colour = box_colour if isinstance(box_colour, str) and re.fullmatch(r"#[0-9a-fA-F]{6}", box_colour) else "#ffffff"
         out.text_box_opacity = float(_number(data.get("text_box_opacity"), 0, 100, 0.0))
         out.text_box_over = data.get("text_box_over") is True
+        out.text_box_border = data.get("text_box_border") if data.get("text_box_border") in BORDERS else "thin"
+        border_colour = data.get("text_box_border_colour")
+        out.text_box_border_colour = border_colour if _border_colour(border_colour) else ""
+        out.text_box_border_width = float(_number(data.get("text_box_border_width"), *TEXT_BOX_BORDER_WIDTHS, 0.0))
         align = data.get("text_align")
         out.text_align = align if align in TEXT_ALIGNS else "centre"
         valign = data.get("text_valign")
@@ -794,7 +805,7 @@ class Edits:
 
     def to_data(self) -> dict:
         return {"format": 1, "page_edits": clean_page_edits(self.page_edits), "title": self.title, "subtitle": self.subtitle,
-                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_box_colour": self.text_box_colour, "text_box_opacity": self.text_box_opacity, "text_box_over": self.text_box_over, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "line_mode": self.line_mode, "line_order": self.line_order, "line_reverse": self.line_reverse, "gradient_start": self.gradient_start, "gradient_end": self.gradient_end, "range_colours": self.range_colours, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
+                "centre_heads": self.text_valign == "middle", "text_align": self.text_align, "text_inside": self.text_inside, "fixed_face_size": self.fixed_face_size, "turn_words": self.turn_words, "flip_words": self.flip_words, "text_room": self.text_room, "special_mode": self.special_mode, "special_pick": self.special_pick, "special_palette": self.special_palette, "special_count": self.special_count, "hibiscus": self.hibiscus, "special_opacity": self.special_opacity, "rainbow_strength": self.rainbow_strength, "schemes": self.schemes, "detail_lines": self.detail_lines, "detail_colour": self.detail_colour, "detail_opacity": self.detail_opacity, "detail_width": self.detail_width, "text_box_colour": self.text_box_colour, "text_box_opacity": self.text_box_opacity, "text_box_over": self.text_box_over, "text_box_border": self.text_box_border, "text_box_border_colour": self.text_box_border_colour, "text_box_border_width": self.text_box_border_width, "text_valign": self.text_valign, "text_wrap": self.text_wrap, "row_align": self.row_align, "row_valign": self.row_valign, "row_limit": self.row_limit, "keep_families": self.keep_families, "others_columns": self.others_columns, "others_side": self.others_side, "packing": self.packing, "lines_behind": self.lines_behind, "outline_lines": self.outline_lines, "line_mode": self.line_mode, "line_order": self.line_order, "line_reverse": self.line_reverse, "gradient_start": self.gradient_start, "gradient_end": self.gradient_end, "range_colours": self.range_colours, "picture_size": self.picture_size, "text_size": self.text_size, "portrait_gap": self.portrait_gap, "row_gap": self.row_gap, "show_founder": self.show_founder, "fit_width": self.fit_width, "canvas_w": self.canvas_w, "canvas_h": self.canvas_h,"page_generations": self.page_generations, "diagonal_lines": self.diagonal_lines,
                 "show_units": self.show_units, "show_years": self.show_years, "show_twins": self.show_twins, "show_runner": self.show_runner, "number_names": self.number_names,
                 "number_names_v2": True, "descriptors_v2": True, "show_arrived": self.show_arrived,
                 "show_masters": self.show_masters,
@@ -828,15 +839,25 @@ GROUP_FIELDS = ("text_align", "text_valign", "centre_heads", "text_room", "flip_
                 "text_inside", "fixed_face_size", "picture_size", "text_size", "text_wrap", "show_units", "show_years",
                 "show_twins", "show_founder", "show_runner", "show_arrived", "show_masters", "detail_lines",
                 "detail_colour", "detail_opacity", "detail_width", "portrait_fill", "text_box_colour", "text_box_opacity",
-                "text_box_over")
+                "text_box_over", "text_box_border", "text_box_border_colour", "text_box_border_width")
+TEXT_BOX_BORDER_WIDTHS = (0.0, 20.0)    # a text box border's weight: 0 draws none
+
+
+def _border_colour(value) -> bool:
+    """A good text box border colour: "" (Automatic), #rrggbb, or TRANSPARENT (Codex, #606: a border made
+    see-through came back after the tree was saved and opened again)."""
+    return isinstance(value, str) and (value in ("", TRANSPARENT)
+                                       or re.fullmatch(r"#[0-9a-fA-F]{6}", value) is not None)
 
 
 def _group_value(name: str, value) -> tuple[bool, object]:
     """(whether `value` is a good value of the setting `name`, the value as kept): numbers held within
     the tree's own limits, as the tree's own are; anything else not of the setting's kind is bad."""
-    choices = {"text_align": TEXT_ALIGNS, "text_valign": TEXT_VALIGNS, "text_room": TEXT_ROOMS}
+    choices = {"text_align": TEXT_ALIGNS, "text_valign": TEXT_VALIGNS, "text_room": TEXT_ROOMS,
+               "text_box_border": BORDERS}
     numbers = {"picture_size": (PICTURE_SCALE_MIN, PICTURE_SCALE_MAX), "text_size": (TEXT_SCALE_MIN, TEXT_SCALE_MAX),
-               "text_wrap": (WRAP_MIN, WRAP_MAX), "detail_opacity": (0, 100), "text_box_opacity": (0, 100), "detail_width": LINE_WIDTHS}
+               "text_wrap": (WRAP_MIN, WRAP_MAX), "detail_opacity": (0, 100), "text_box_opacity": (0, 100), "detail_width": LINE_WIDTHS,
+               "text_box_border_width": TEXT_BOX_BORDER_WIDTHS}
     if name in choices:
         return value in choices[name], value
     if name in numbers:
@@ -844,6 +865,8 @@ def _group_value(name: str, value) -> tuple[bool, object]:
             return False, value
         kept = _number(value, *numbers[name], 0.0)
         return True, int(kept) if name == "text_wrap" else float(kept)
+    if name == "text_box_border_colour":
+        return _border_colour(value), value
     if name == "detail_colour":
         return isinstance(value, str) and (value == "" or re.fullmatch(r"#[0-9a-fA-F]{6}", value) is not None), value
     if name == "portrait_fill":
@@ -1467,7 +1490,7 @@ TREE_FORMAT = "Virtual Villagers Fun Patcher family tree"
 # portraits, pages, words, families' colours, villagers' entries or stickers.
 STYLE_KEYS = (
     "centre_heads", "text_align", "text_inside", "fixed_face_size", "turn_words", "flip_words", "text_room", "special_mode", "special_pick", "special_palette",
-    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_box_colour", "text_box_opacity", "text_box_over", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "canvas_w", "canvas_h", "page_generations", "diagonal_lines",
+    "special_count", "hibiscus", "special_opacity", "rainbow_strength", "schemes", "detail_lines", "detail_colour", "detail_opacity", "detail_width", "text_box_colour", "text_box_opacity", "text_box_over", "text_box_border", "text_box_border_colour", "text_box_border_width", "text_valign", "text_wrap", "row_align", "row_valign", "row_limit", "keep_families", "others_columns", "others_side", "packing", "lines_behind", "picture_size", "text_size", "portrait_gap", "row_gap", "show_founder", "fit_width", "canvas_w", "canvas_h", "page_generations", "diagonal_lines",
     "show_units", "show_years", "show_twins", "show_runner", "show_arrived", "show_masters", "descriptors_v2",
     "number_names", "number_names_v2", "number_order", "sort", "positioning", "numbering",
     "background", "background2", "rainbow", "background_image", "background_fit", "background_opacity",
@@ -7179,6 +7202,23 @@ def _words_extent(item: "Text") -> tuple[float, float, float, float]:
     return box
 
 
+TEXT_BOX_RADIUS = 5.0                   # a text box's rounded corners
+
+
+def text_box_border(edits: "Edits", border: str, colour: str, width: float, box: tuple, pid: int) -> list:
+    """The border round a portrait's text box (x, y, w, h), as a portrait's border of that kind is drawn:
+    a line of `width` (dotted, dashed...) round its rounded corners, or a special border -- the rope or a
+    vine, in the special borders' own colours and opacity -- along the same outline."""
+    x, y, w, h = box
+    if border in SPECIAL_BORDERS:
+        return special_border_items(border, "rect", (x, y, w, h, 0.0), TEXT_BOX_RADIUS, edits, pid,
+                                    edits.special_opacity / 100)
+    if colour == TRANSPARENT:                   # a see-through border: nothing to draw
+        return []
+    dash = border if border in ("dotted", "dashed", "dashdot") else ""
+    return [Shape("rect", x, y, w, h, colour, width=width, fill=None, radius=TEXT_BOX_RADIUS, dash=dash, pid=pid)]
+
+
 def _text_boxes(lay: "Layout", items: list) -> None:
     """The box behind each portrait's name and age words (Edits.text_box_colour / text_box_opacity, by group;
     none at 0 %): one rectangle round all of that portrait's lines, put just before its words -- so under
@@ -7189,18 +7229,25 @@ def _text_boxes(lay: "Layout", items: list) -> None:
     for item in items:
         if isinstance(item, Text) and item.pid in people and item.role in ("names", "portraits") and item.text:
             words.setdefault(item.pid, []).append(item)
-    boxes: dict[int, Shape] = {}
+    boxes: dict[int, list] = {}                 # each portrait's box, then its border
     for pid, lines in words.items():
         p = people[pid]
         opacity = lay.opt(p, "text_box_opacity")
-        if opacity <= 0:
+        border_width = lay.opt(p, "text_box_border_width")
+        if opacity <= 0 and border_width <= 0:
             continue
         extents = [_words_extent(t) for t in lines]
         left, top = min(b[0] for b in extents) - TEXT_BOX_PAD, min(b[1] for b in extents) - TEXT_BOX_PAD
         right, bottom = max(b[2] for b in extents) + TEXT_BOX_PAD, max(b[3] for b in extents) + TEXT_BOX_PAD
-        colour = lay.opt(p, "text_box_colour")
-        boxes[pid] = Shape("rect", left, top, right - left, bottom - top, colour, width=0, fill=colour, radius=5,
-                           pid=pid, opacity=opacity / 100)
+        drawn = boxes[pid] = []
+        if opacity > 0:
+            colour = lay.opt(p, "text_box_colour")
+            drawn.append(Shape("rect", left, top, right - left, bottom - top, colour, width=0, fill=colour,
+                               radius=TEXT_BOX_RADIUS, pid=pid, opacity=opacity / 100))
+        if border_width > 0:
+            drawn += text_box_border(lay.edits, lay.opt(p, "text_box_border"),
+                                     lay.opt(p, "text_box_border_colour") or lay.birth_colour.get(pid, GREY),
+                                     border_width, (left, top, right - left, bottom - top), pid)
     if not boxes:
         return
     over = {pid for pid in boxes if lay.opt(people[pid], "text_box_over")}
@@ -7213,12 +7260,12 @@ def _text_boxes(lay: "Layout", items: list) -> None:
         if isinstance(item, Text) and pid in boxes and item.role in ("names", "portraits") and item.text:
             if pid in over:
                 if pid not in seen:
-                    lifted.append(boxes[pid])
+                    lifted += boxes[pid]
                     seen.add(pid)
                 lifted_words.append(item)
                 continue
             if pid not in seen:
-                out.append(boxes[pid])
+                out += boxes[pid]
                 seen.add(pid)
         out.append(item)
     if lifted:

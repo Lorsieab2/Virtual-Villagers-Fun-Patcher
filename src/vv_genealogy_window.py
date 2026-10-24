@@ -63,6 +63,256 @@ def faded(colour: str, opacity: float, under: str) -> str:
 def tk_colour(colour: str, otherwise: str = "") -> str:
     """A colour for tkinter, which knows no "transparent": nothing drawn (or `otherwise`)."""
     return otherwise if colour == ft.TRANSPARENT else colour
+
+
+# ---- hover tips --------------------------------------------------------------------------------------------
+# The owner: "TOOLTIP all labels and text that could be cut off!"  Every label, button, tick box, choice,
+# list box and typing box in a Family Tree Maker window (the editor and every window it opens) shows, when
+# the mouse rests on it, its full words if they are cut off at its present width -- and its shortcut key, if
+# `tip` gave it one, always.  Bound once to the widget CLASSES, so a widget made later (a tab, a dialog)
+# has it without being walked.
+TIP_CLASSES = ("TLabel", "Label", "TButton", "Button", "TCheckbutton", "Checkbutton", "TRadiobutton",
+               "Radiobutton", "TMenubutton", "Menubutton", "TCombobox", "TEntry", "Entry", "TSpinbox", "Spinbox")
+TIP_DELAY = 500                         # ms the mouse rests before a tip shows
+_TIP: dict = {"win": None, "over": None, "job": None}
+
+
+def tip(widget, text: str) -> None:
+    """`widget`'s shortcut key (or other short help), shown in its hover tip (where a longer label would
+    crowd the toolbar)."""
+    widget.tip_text = text
+    install_tips(widget)
+
+
+def install_tips(widget) -> None:
+    """The hover tips, once for `widget`'s whole application."""
+    root = widget._root()
+    if getattr(root, "_tree_tips", False):
+        return
+    root._tree_tips = True
+    for cls in TIP_CLASSES:
+        root.bind_class(cls, "<Enter>", _tip_enter, add="+")
+        root.bind_class(cls, "<Leave>", _tip_hide, add="+")
+        root.bind_class(cls, "<ButtonPress>", _tip_hide, add="+")
+
+
+def _in_tree_window(widget) -> bool:
+    """`widget` is in the Family Tree Maker or a window it opened (the patcher's own windows are left alone)."""
+    try:
+        w = widget.winfo_toplevel()
+    except (tk.TclError, AttributeError):
+        return False
+    while w is not None:
+        if getattr(w, "tree_tips", False):
+            return True
+        w = getattr(w, "master", None)
+    return False
+
+
+def _words(widget) -> str:
+    """The words `widget` shows."""
+    try:
+        if widget.winfo_class() in ("TCombobox", "TEntry", "Entry", "TSpinbox", "Spinbox"):
+            return str(widget.get())
+        var = str(widget.cget("textvariable") or "")
+        return str(widget.getvar(var)) if var else str(widget.cget("text"))
+    except (tk.TclError, AttributeError):
+        return ""
+
+
+def _font(widget):
+    try:
+        name = str(widget.cget("font") or "")
+    except tk.TclError:
+        name = ""
+    if not name:
+        try:
+            name = str(ttk.Style(widget).lookup(widget.winfo_class(), "font") or "")
+        except tk.TclError:
+            name = ""
+    try:
+        return tkfont.nametofont(name or "TkDefaultFont", root=widget)
+    except (tk.TclError, RuntimeError):
+        return tkfont.Font(root=widget, font=name or "TkDefaultFont")
+
+
+def is_cut_off(widget) -> bool:
+    """`widget`'s words do not all show at its present size."""
+    words = _words(widget)
+    if not words.strip():
+        return False
+    try:
+        if widget.winfo_class() in ("TCombobox", "TEntry", "Entry", "TSpinbox", "Spinbox"):
+            room = widget.winfo_width() - (26 if widget.winfo_class() in ("TCombobox", "TSpinbox", "Spinbox")
+                                           else 8)
+            return _font(widget).measure(words) > room or clipped(widget)
+        if (widget.winfo_width() < widget.winfo_reqwidth() - 1
+                or widget.winfo_height() < widget.winfo_reqheight() - 1):
+            return True
+    except tk.TclError:
+        return False
+    return clipped(widget)
+
+
+def clipped(widget) -> bool:
+    """`widget` runs past the right edge of a frame (or window) it is in, so its end is hidden."""
+    try:
+        right = widget.winfo_rootx() + widget.winfo_width()
+        w = widget.master
+        while w is not None:
+            if w.winfo_rootx() + w.winfo_width() < right - 1:
+                return True
+            if w.winfo_class() in ("Toplevel", "Tk"):
+                break
+            w = w.master
+    except (tk.TclError, AttributeError):
+        pass
+    return False
+
+
+def tip_words(widget) -> str:
+    """What `widget`'s hover tip says: its full words when they are cut off, and its shortcut; "" for none."""
+    lines = []
+    if is_cut_off(widget):
+        lines.append(_words(widget))
+    extra = getattr(widget, "tip_text", "")
+    if extra and extra not in lines:
+        lines.append(extra)
+    return "\n".join(lines)
+
+
+def _tip_enter(event) -> None:
+    widget = event.widget
+    if isinstance(widget, str) or not _in_tree_window(widget):
+        return
+    _tip_hide()
+    _TIP["over"] = widget
+    _TIP["job"] = widget.after(TIP_DELAY, lambda: show_tip(widget))
+
+
+def show_tip(widget) -> None:
+    """The hover tip under `widget`, if it has anything to say and the mouse is still on it."""
+    _TIP["job"] = None
+    if _TIP["over"] is not widget:
+        return
+    try:
+        words = tip_words(widget)
+        if not words or not widget.winfo_exists():
+            return
+        win = tk.Toplevel(widget)
+        win.wm_overrideredirect(True)
+        win.wm_geometry(f"+{widget.winfo_rootx()}+{widget.winfo_rooty() + widget.winfo_height() + 2}")
+        tk.Label(win, text=words, justify="left", background="#ffffe1", foreground="#000000", relief="solid",
+                 borderwidth=1, padx=4, pady=1, wraplength=max(300, widget.winfo_screenwidth() // 2)).pack()
+        try:
+            win.attributes("-topmost", True)
+        except tk.TclError:
+            pass
+        _TIP["win"] = win
+    except tk.TclError:
+        pass
+
+
+def _tip_hide(_event=None) -> None:
+    over, job, win = _TIP["over"], _TIP["job"], _TIP["win"]
+    _TIP.update(over=None, job=None, win=None)
+    try:
+        if job is not None and over is not None:
+            over.after_cancel(job)
+    except tk.TclError:
+        pass
+    try:
+        if win is not None:
+            win.destroy()
+    except tk.TclError:
+        pass
+
+
+WRAP_MIN = 220                          # a wrapping hint narrower than this goes onto its own line
+
+
+def flow_row(frame, natural: bool = True) -> None:
+    """Lay the widgets packed (side="left") in `frame` out like words in a paragraph: along a line while they
+    fit, then onto the next line -- so a toolbar never squeezes or cuts off its last controls when the window
+    is narrow or the display scaled (the owner: the Hide panel button was squeezed to a sliver).  Each keeps
+    its pack padx; a fill="y" one (a separator) is as tall as its line; a Label with `flow_wrap` set wraps
+    its words to the rest of its line.  The frame asks for the width of everything on one line (`natural`),
+    or only of its widest widget -- for one its parent stretches (fill="x", sticky="ew") that must not
+    widen the parent itself."""
+    items = []
+    for w in frame.pack_slaves():
+        info = w.pack_info()
+        pad = info.get("padx", 0)
+        pad = [int(float(p)) for p in (pad if isinstance(pad, (tuple, list)) else str(pad).split())] or [0]
+        items.append((w, pad[0], pad[-1], info.get("fill") in ("y", "both")))
+        w.pack_forget()
+    seen = {"height": None}
+
+    def lay(_e=None) -> None:
+        width = frame.winfo_width()
+        if width <= 1 or not frame.winfo_exists():
+            return
+        lines, line, x = [], [], 0
+        for w, before, after, stretch in items:
+            gap = before if line else 0
+            if getattr(w, "flow_wrap", False):
+                room = width - x - gap - after
+                if line and room < WRAP_MIN:
+                    lines.append(line)
+                    line, x, gap = [], 0, 0
+                    room = width - after
+                room = max(60, room)
+                if int(float(str(w.cget("wraplength") or 0))) != room - 6:      # its padding: room to spare
+                    w.configure(wraplength=room - 6)
+                line.append((w, x + gap, room, stretch))
+                x += gap + room + after
+                continue
+            need = w.winfo_reqwidth()
+            if line and x + gap + need > width:
+                lines.append(line)
+                line, x, gap = [], 0, 0
+            if stretch and not line:            # no separator at the start of a line
+                w.place_forget()
+                continue
+            # Never wider than the line (a row of its own, like a colour field, wraps inside it then).
+            line.append((w, x + gap, None if stretch else min(need, width), stretch))
+            x += gap + need + after
+        if line:
+            lines.append(line)
+        y = 0
+        for line in lines:
+            while line and line[-1][3]:         # ... or at its end
+                line.pop()[0].place_forget()
+            if not line:
+                continue
+            tall = max([w.winfo_reqheight() for w, _x, _wd, stretch in line if not stretch] or [20])
+            for w, left, wide, stretch in line:
+                if stretch:
+                    w.place(x=left, y=y, height=tall)
+                else:
+                    w.place(x=left, y=y + max(0, tall - w.winfo_reqheight()) // 2, width=wide)
+            y += tall + 2
+        height = max(1, y - 2)
+        if seen["height"] != height:
+            seen["height"] = height
+            frame.configure(height=height)
+        ask_width()
+
+    def ask_width() -> None:
+        """The frame asks for the width of everything on one line (it is given less when there is less)."""
+        sizes = [(WRAP_MIN if getattr(w, "flow_wrap", False) else w.winfo_reqwidth()) + before + after
+                 for w, before, after, stretch in items]
+        wide = sum(sizes) if natural else max(sizes or [1])
+        if seen.get("width") != wide:
+            seen["width"] = wide
+            frame.configure(width=max(1, wide))
+
+    frame.bind("<Configure>", lay, add="+")
+    for w, *_ in items:          # a wrapped hint's height (or a relabelled button's width) changes: lay again
+        w.bind("<Configure>", lambda _e: frame.after_idle(lay), add="+")
+    frame.configure(height=max([w.winfo_reqheight() for w, *_ in items] or [1]))
+    ask_width()
+    frame.flow_lay = lay
 GUIDE = "#e0218a"                       # a smart guide while dragging
 GRID_SIZES = ("10", "20", "40", "80")
 SNAP_REACH = 7                          # screen pixels: how near a guide pulls
@@ -145,7 +395,8 @@ PORTRAITS
   Faces & Text tab                text left / centre / right, the face and text at the top /
                                   middle / bottom; the text area; picture and text size; ages in
                                   units / years; twins and triplets; "Founder"; the text colour;
-                                  numbered names
+                                  numbered names; a box behind the words and its border (any
+                                  portrait border, the rope and vines too; weight 0: none)
   "Settings for:"                 Everyone, or one group (Males, Females, Babies on the way) to give
                                   its own faces, words, detail lines and inside colour; "Same as
                                   everyone" / "Make every group the same" clear them (Ctrl+Z undoes)
@@ -213,6 +464,8 @@ EVERYWHERE
   Ctrl+Shift+S                    Export as Picture: a PNG or JPG anywhere (every page)
   F5                              Update Family Tree from Logs/Saves (every edit kept)
   F1                              these controls   F4  hide or show the panel   F11  full screen
+                                  (Help, Full screen and Hide panel: the right end of the Find row)
+  Ctrl+F                          Find a villager (the row under the toolbar)
 """
 # How far the tree can be zoomed, and for each how the canvas scales a head (tkinter scales a
 # picture only by whole numbers: up by the first, then down by the second).  A head is drawn at
@@ -431,6 +684,9 @@ class ColourField(ttk.Frame):
         if allow_default:
             ttk.Button(self, text=default_text, command=lambda: self._set("")).pack(side="left", padx=(4, 0))
         ttk.Button(self, text="Transparent", command=lambda: self._set(ft.TRANSPARENT)).pack(side="left", padx=(4, 0))
+        # Its buttons wrap onto a second line in a narrow panel rather than being cut off (the owner's
+        # screenshot: "Automa..." cut at the panel's edge).
+        flow_row(self)
         self._show()
 
     def _show(self) -> None:
@@ -685,6 +941,7 @@ def unknown_preferences(village: gen.Village) -> list[int]:
 
 class TreeEditor(CanvasTools, tk.Toplevel):
     ColourField = ColourField           # the tools' colour fields
+    tree_tips = True                    # hover tips for cut-off words here and in every window it opens
 
     def __init__(self, app, folder: Path, game: int, slot: int, game_title: str, images: Path | None,
                  village: gen.Village, edits: ft.Edits) -> None:
@@ -724,6 +981,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.heathens_hidden = edits.hide_heathens
         self.village = self._shown_village(village)
         self.geometry(self.window.get("geometry", "1400x860"))
+        install_tips(self)
         self._build()
         self._follow_looks()
         self.redraw()
@@ -751,23 +1009,47 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     # ---- finding a villager ---------------------------------------------------------------
     def _build_find(self, bar) -> None:
         """A search row under the toolbar: type, press Enter (again for the next one) or pick from the list."""
-        row = ttk.Frame(self, padding=(6, 0, 6, 3))
-        row.pack(side="top", fill="x", after=bar)
-        ttk.Label(row, text="Find a villager:").pack(side="left")
+        row = self.find_row = ttk.Frame(self)
+        row.pack(side="top", fill="x", after=bar, padx=6, pady=(0, 3))
+        # The window buttons, right-aligned on this row (the owner: on the crowded toolbar above, the Hide panel
+        # button was squeezed to a sliver).  Packed FIRST, so pack gives them their full width before anything
+        # else on the row, at any window width and display scaling; the find controls beside them wrap instead.
+        buttons = self.window_buttons = ttk.Frame(row)
+        buttons.pack(side="right", anchor="n")
+        self.panel_button = ttk.Button(buttons, text="Hide panel (F4)", command=self._toggle_panel)
+        self.panel_button.pack(side="right")
+        ttk.Button(buttons, text="Full screen (F11)", command=self._toggle_full).pack(side="right", padx=(0, 6))
+        ttk.Button(buttons, text="Help (F1)", command=self._help).pack(side="right", padx=(0, 6))
+        row = self.find_controls = ttk.Frame(row)
+        row.pack(side="left", fill="x", expand=True, anchor="n", padx=(0, 8))
+        ttk.Label(row, text="Find a villager (Ctrl+F):").pack(side="left")
         self.find_var = tk.StringVar()
         self.find_entry = ttk.Entry(row, textvariable=self.find_var, width=30)
         self.find_entry.pack(side="left", padx=(4, 0))
         self.find_box = ttk.Combobox(row, state="readonly", width=46, values=[])
         self.find_box.pack(side="left", padx=(4, 0))
-        ttk.Button(row, text="Find", command=self._find_next).pack(side="left", padx=(4, 0))
-        ttk.Label(row, text="Name, head or body number, parent, generation, mark, like or dislike, or status (died, left, "
-                            "expecting, runner...).  Enter: the first match, again: the next.").pack(side="left", padx=(8, 0))
+        find = ttk.Button(row, text="Find", command=self._find_next)
+        find.pack(side="left", padx=(4, 0))
+        tip(find, "The next match (Enter)")
+        hint = ttk.Label(row, justify="left",
+                         text="Name, head or body number, parent, generation, mark, like or dislike, or status (died, "
+                              "left, expecting, runner...).  Enter: the first match, again: the next.")
+        hint.pack(side="left", padx=(8, 0))
+        hint.flow_wrap = True           # wraps to the room left rather than being cut off
+        flow_row(row, natural=False)
         self.find_hits: list[int] = []
         self.find_at = -1
         self.find_entry.bind("<Return>", lambda _e: self._find_next())
         self.find_entry.bind("<KeyRelease>", self._find_typed)
         self.find_box.bind("<<ComboboxSelected>>", lambda _e: self._find_picked())
-        self.bind("<Control-f>", lambda _e: (self.find_entry.focus_set(), self.find_entry.select_range(0, "end"), "break")[-1])
+        self.bind("<Control-f>", self._find_focus)
+        self.bind("<Control-F>", self._find_focus)
+
+    def _find_focus(self, _event=None) -> str:
+        """Ctrl+F: into the Find a villager box, its words selected to type over."""
+        self.find_entry.focus_set()
+        self.find_entry.select_range(0, "end")
+        return "break"
 
     def _find_typed(self, event) -> None:
         if event.keysym in ("Return", "Tab", "Shift_L", "Shift_R", "Control_L", "Control_R"):
@@ -815,15 +1097,26 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.status.set(f"{self.village.people[pid].name} (match {which}) is selected on page {self.page + 1}.")
 
     def _build(self) -> None:
-        bar = ttk.Frame(self, padding=(6, 4))
-        bar.pack(side="top", fill="x")
-        ttk.Button(bar, text="-", width=3, command=lambda: self._zoom_step(-1)).pack(side="left")
+        bar = self.toolbar = ttk.Frame(self)
+        bar.pack(side="top", fill="x", padx=6, pady=4)
+        # Shortcut keys on this crowded row are in hover tips, not longer labels (the owner: "you may put
+        # shortcut keys in the taskbar too").
+        # The toolbar wraps onto a second line when the window is too narrow (flow_row, below): controls that
+        # belong together sit in one frame so they wrap together.
+        zooms = ttk.Frame(bar)
+        zooms.pack(side="left")
+        out = ttk.Button(zooms, text="-", width=3, command=lambda: self._zoom_step(-1))
+        out.pack(side="left")
+        tip(out, "Zoom out (-)")
         self.zoom_var = tk.StringVar(value="100%")
-        zoom = ttk.Combobox(bar, textvariable=self.zoom_var, values=[f"{int(z * 100)}%" for z in ZOOMS] + ["Fit"],
+        zoom = ttk.Combobox(zooms, textvariable=self.zoom_var, values=[f"{int(z * 100)}%" for z in ZOOMS] + ["Fit"],
                             state="readonly", width=6)
         zoom.pack(side="left", padx=2)
         zoom.bind("<<ComboboxSelected>>", lambda _e: self._zoom_choice())
-        ttk.Button(bar, text="+", width=3, command=lambda: self._zoom_step(1)).pack(side="left")
+        tip(zoom, "Zoom (Ctrl+0: 100%)")
+        into = ttk.Button(zooms, text="+", width=3, command=lambda: self._zoom_step(1))
+        into.pack(side="left")
+        tip(into, "Zoom in (+)")
         ttk.Button(bar, text="Fit", command=self._zoom_fit).pack(side="left", padx=(6, 0))
         ttk.Label(bar, text="Zoom: wheel or + -    Move around: drag empty space").pack(side="left", padx=(8, 0))
         # Snapping (the owner: 'a "snap to grid" thing? (center vertical/horizontal, etc)').
@@ -833,8 +1126,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.show_grid = tk.BooleanVar(value=self.window.get("show_grid", False))
         ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
         ttk.Checkbutton(bar, text="Smart guides", variable=self.smart_var).pack(side="left")
-        ttk.Checkbutton(bar, text="Snap to grid", variable=self.snap_var).pack(side="left", padx=(6, 0))
-        size = ttk.Combobox(bar, textvariable=self.grid_size, values=GRID_SIZES, state="readonly", width=3)
+        snap = ttk.Frame(bar)
+        snap.pack(side="left", padx=(6, 0))
+        ttk.Checkbutton(snap, text="Snap to grid", variable=self.snap_var).pack(side="left")
+        size = ttk.Combobox(snap, textvariable=self.grid_size, values=GRID_SIZES, state="readonly", width=3)
         size.pack(side="left", padx=(2, 0))
         size.bind("<<ComboboxSelected>>", lambda _e: self._draw_grid())
         ttk.Checkbutton(bar, text="Show grid", variable=self.show_grid, command=self._draw_grid
@@ -845,9 +1140,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Checkbutton(bar, text="Hide unconverted Heathens", variable=self.hide_heathens,
                         command=self._toggle_hide_heathens).pack(side="left", padx=(6, 0))
         ttk.Separator(bar, orient="vertical").pack(side="left", fill="y", padx=8)
-        ttk.Label(bar, text="Page:").pack(side="left")
+        pages = ttk.Frame(bar)
+        pages.pack(side="left")
+        ttk.Label(pages, text="Page:").pack(side="left")
         self.page_var = tk.StringVar()
-        self.page_box = ttk.Combobox(bar, textvariable=self.page_var, state="readonly", width=22)
+        self.page_box = ttk.Combobox(pages, textvariable=self.page_var, state="readonly", width=22)
         self.page_box.pack(side="left", padx=(2, 0))
         self.page_box.bind("<<ComboboxSelected>>", lambda _e: self._show_page(self.page_box.current()))
         self.diagonal_var = tk.BooleanVar(value=self.edits.diagonal_lines)
@@ -866,11 +1163,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 menu.add_command(label=words, command=lambda h=how: self._align(h))
         align["menu"] = menu
         align.pack(side="left", padx=(6, 0))
-        self._build_find(bar)
-        self.panel_button = ttk.Button(bar, text="Hide panel (F4)", command=self._toggle_panel)
-        self.panel_button.pack(side="right")
-        ttk.Button(bar, text="Full screen (F11)", command=self._toggle_full).pack(side="right", padx=(0, 6))
-        ttk.Button(bar, text="Help (F1)", command=self._help).pack(side="right", padx=(0, 6))
+        flow_row(bar, natural=False)
+        self._build_find(bar)           # the row under it, with Help, Full screen and Hide panel at its right end
         self.status = tk.StringVar(value="Click to select, drag anything to move it, right-click anything to "
                                          "change its colour.  F1 lists every control.")
         ttk.Label(self, textvariable=self.status, anchor="w", padding=(8, 2)).pack(side="bottom", fill="x")
@@ -1060,14 +1354,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(sizes, text="Reset", width=6, command=self._own_inner_reset).pack(side="left", padx=(6, 0))
         # The owner, 2026-10-09: "an option to recolor the inside of the portraits" -- each selected
         # villager's own; Automatic is the whole tree's (the Shapes tab).
+        # A row each, wrapping in a narrow panel (side by side they ran past the panel's edge).
         row = ttk.Frame(box)
-        row.grid(row=7, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        row.grid(row=7, column=0, columnspan=3, sticky="ew", pady=(6, 0))
         ttk.Label(row, text="Inside colour:").pack(side="left")
         self.own_fill = ColourField(row, "", self._own_fill)
         self.own_fill.pack(side="left", padx=(4, 0))
-        ttk.Label(row, text="Detail colour:").pack(side="left", padx=(10, 0))       # the lines inside it
+        flow_row(row, natural=False)
+        row = ttk.Frame(box)
+        row.grid(row=8, column=0, columnspan=3, sticky="ew", pady=(4, 0))
+        ttk.Label(row, text="Detail colour:").pack(side="left")       # the lines inside it
         self.own_detail = ColourField(row, "", self._own_detail)
         self.own_detail.pack(side="left", padx=(4, 0))
+        flow_row(row, natural=False)
+        box.columnconfigure(2, weight=1)
         # The owner, 2026-10-09: flip the portrait's shape either way, and turn it to an exact angle.
         row = ttk.Frame(box)
         row.grid(row=6, column=0, columnspan=3, sticky="w", pady=(6, 0))
@@ -1467,23 +1767,61 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # it is (0 %: none, as a tree has it), and whether it is drawn over the shapes.  By group.
         tab = t_box
         self._scope_picker(tab).pack(anchor="w", fill="x", pady=(0, 6))
-        box = ttk.Frame(tab)
-        box.pack(anchor="w")
-        ttk.Label(box, text="Colour:").grid(row=0, column=0, sticky="w")
-        self.text_box_field = ColourField(box, e.text_box_colour, lambda c: self._change(text_box_colour=c or "#ffffff"))
-        self.text_box_field.grid(row=0, column=1, sticky="w", padx=(6, 0))
-        self._reset_button(box, "text_box_colour").grid(row=0, column=2, sticky="w", padx=(6, 0))
-        ttk.Label(box, text="Opacity (%, 0: no box):").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        # Each row wraps in a narrow panel (flow_row) rather than cutting its last buttons off.
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", fill="x")
+        ttk.Label(row, text="Colour:").pack(side="left")
+        self.text_box_field = ColourField(row, e.text_box_colour, lambda c: self._change(text_box_colour=c or "#ffffff"))
+        self.text_box_field.pack(side="left", padx=(6, 0))
+        self._reset_button(row, "text_box_colour").pack(side="left", padx=(6, 0))
+        flow_row(row)
+        row = ttk.Frame(tab)
+        row.pack(anchor="w", fill="x", pady=(4, 0))
+        ttk.Label(row, text="Opacity (%, 0: no box):").pack(side="left")
         self.text_box_opacity_var = tk.StringVar(value=f"{e.text_box_opacity:g}")
-        self._live(ttk.Spinbox(box, textvariable=self.text_box_opacity_var, from_=0, to=100, increment=5, width=5),
-                   lambda: self._detail_number("text_box_opacity", self.text_box_opacity_var, 0, 100)).grid(
-            row=1, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
-        self._reset_button(box, "text_box_opacity").grid(row=1, column=2, sticky="w", padx=(6, 0), pady=(4, 0))
+        self._live(ttk.Spinbox(row, textvariable=self.text_box_opacity_var, from_=0, to=100, increment=5, width=5),
+                   lambda: self._detail_number("text_box_opacity", self.text_box_opacity_var, 0, 100)).pack(
+            side="left", padx=(6, 0))
+        self._reset_button(row, "text_box_opacity").pack(side="left", padx=(6, 0))
+        flow_row(row)
         self.text_box_over_var = tk.BooleanVar(value=e.text_box_over)
-        ttk.Checkbutton(box, text="Draw the box over the shapes (leaves, tails, flowers...)",
+        ttk.Checkbutton(tab, text="Draw the box over the shapes (leaves, tails, flowers...)",
                         variable=self.text_box_over_var,
-                        command=lambda: self._change(text_box_over=bool(self.text_box_over_var.get()))).grid(
-            row=2, column=0, columnspan=3, sticky="w", pady=(4, 0))
+                        command=lambda: self._change(text_box_over=bool(self.text_box_over_var.get()))).pack(
+            anchor="w", pady=(4, 0))
+        # The owner: "border options for the text boxes, like the portrait shapes" -- the portraits' border
+        # choices (the special rope and vines too), a weight (0: none, as a tree has it) and a colour
+        # (Automatic: the portrait's own); for the group picked in "Settings for:" above.
+        box = ttk.LabelFrame(tab, text="Text box border", padding=6)
+        box.pack(fill="x", pady=(8, 0))
+        row = ttk.Frame(box)
+        row.pack(anchor="w", fill="x")
+        ttk.Label(row, text="Border:").pack(side="left")
+        self.text_box_border_var = tk.StringVar(value=ft.BORDERS[e.text_box_border])
+        kind = ttk.Combobox(row, textvariable=self.text_box_border_var, values=ft.alphabetical(ft.BORDERS.values()),
+                            state="readonly", width=18)
+        kind.pack(side="left", padx=(6, 0))
+        kind.bind("<<ComboboxSelected>>", lambda _e: self._change(text_box_border=next(
+            k for k, n in ft.BORDERS.items() if n == self.text_box_border_var.get())))
+        self.text_box_kind = kind
+        ttk.Label(row, text="Weight (0: none):").pack(side="left", padx=(10, 0))
+        self.text_box_border_width_var = tk.StringVar(value=f"{e.text_box_border_width:g}")
+        self._live(ttk.Spinbox(row, textvariable=self.text_box_border_width_var, from_=0,
+                               to=ft.TEXT_BOX_BORDER_WIDTHS[1], increment=0.5, width=5),
+                   lambda: self._detail_number("text_box_border_width", self.text_box_border_width_var,
+                                               *ft.TEXT_BOX_BORDER_WIDTHS)).pack(side="left", padx=(6, 0))
+        self._reset_button(row, "text_box_border", "text_box_border_width").pack(side="left", padx=(6, 0))
+        flow_row(row, natural=False)
+        row = ttk.Frame(box)
+        row.pack(anchor="w", fill="x", pady=(4, 0))
+        ttk.Label(row, text="Colour (Automatic: the portrait's):").pack(side="left")
+        self.text_box_border_field = ColourField(row, e.text_box_border_colour,
+                                                 lambda c: self._change(text_box_border_colour=c or ""))
+        self.text_box_border_field.pack(side="left", padx=(6, 0))
+        self._reset_button(row, "text_box_border_colour").pack(side="left", padx=(6, 0))
+        flow_row(row, natural=False)
+        ttk.Label(box, text="Special borders take the rope and vine colours (Shapes tab).", foreground="#555555",
+                  wraplength=360, justify="left").pack(anchor="w", pady=(4, 0))
         tab = p_colour
         self._scope_picker(tab).pack(anchor="w", fill="x", pady=(0, 6))
         ttk.Label(tab, text="Inside every portrait:").pack(anchor="w", pady=(0, 1))
@@ -1508,19 +1846,23 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         box = ttk.LabelFrame(tab, text="Shape and border (by group)", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.group_vars: dict[tuple[str, str], tk.StringVar] = {}
-        for row_no, (group, label) in enumerate(ft.GROUPS.items()):
-            ttk.Label(box, text=label + ":").grid(row=row_no, column=0, sticky="w", pady=1)
-            for col, (attr, choices) in enumerate((("shapes", ft.PORTRAIT_SHAPES), ("borders", ft.BORDERS)), 1):
+        widest = max(len(label) for label in ft.GROUPS.values()) + 1
+        for group, label in ft.GROUPS.items():
+            row = ttk.Frame(box)                # wraps in a narrow panel (flow_row)
+            row.pack(anchor="w", fill="x", pady=1)
+            ttk.Label(row, text=label + ":", width=widest).pack(side="left")
+            for attr, choices in (("shapes", ft.PORTRAIT_SHAPES), ("borders", ft.BORDERS)):
                 var = tk.StringVar(value=choices[getattr(e, attr)[group]])
                 self.group_vars[(attr, group)] = var
-                combo = ttk.Combobox(box, textvariable=var, values=ft.alphabetical(choices.values()), state="readonly", width=16)
-                combo.grid(row=row_no, column=col, sticky="w", padx=(6, 0), pady=1)
+                combo = ttk.Combobox(row, textvariable=var, values=ft.alphabetical(choices.values()), state="readonly", width=16)
+                combo.pack(side="left", padx=(6, 0))
                 combo.bind("<<ComboboxSelected>>", lambda _e, a=attr, g=group, c=choices, v=var: self._group_style(
                     a, g, next(k for k, n in c.items() if n == v.get())))
             # The owner, 2026-10-08: change ALL male, female or unborn portraits at once -- the ones
             # given their own shape or border one by one too.
-            ttk.Button(box, text="Apply to all", command=lambda g=group: self._group_all(g)).grid(
-                row=row_no, column=3, sticky="w", padx=(6, 0), pady=1)
+            ttk.Button(row, text="Apply to all", command=lambda g=group: self._group_all(g)).pack(
+                side="left", padx=(6, 0))
+            flow_row(row, natural=False)
         # The owner, 2026-10-09: "batch rotate/transform portraits by group" -- every portrait of a group
         # flipped or turned at once (each villager's own flip and turn, so any can still be changed alone).
         box = ttk.LabelFrame(tab, text="Flip and turn (by group)", padding=6)
@@ -1544,28 +1886,32 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         tab = p_details
         box = ttk.LabelFrame(tab, text="Detail lines (shells, stars, flowers...)", padding=6)
         box.pack(fill="x", pady=(12, 0))
-        self._scope_picker(box).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 6))
-        box = ttk.Frame(box)                    # the settings, under the picker
-        box.grid(row=1, column=0, columnspan=3, sticky="w")
+        # A row each, wrapping in a narrow panel (flow_row) rather than running past its edge.
+        self._scope_picker(box).pack(anchor="w", fill="x", pady=(0, 6))
         self.detail_var = tk.BooleanVar(value=e.detail_lines)
         ttk.Checkbutton(box, text="Show detail lines", variable=self.detail_var,
-                        command=lambda: self._change(detail_lines=bool(self.detail_var.get()))).grid(
-            row=0, column=0, columnspan=2, sticky="w")
-        ttk.Label(box, text="Colour (Automatic: the border's):").grid(row=1, column=0, sticky="w", pady=(4, 0))
-        self.detail_field = ColourField(box, e.detail_colour, lambda c: self._change(detail_colour=c or ""))
-        self.detail_field.grid(row=1, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
-        ttk.Label(box, text="Opacity (%):").grid(row=2, column=0, sticky="w", pady=(4, 0))
+                        command=lambda: self._change(detail_lines=bool(self.detail_var.get()))).pack(anchor="w")
+        row = ttk.Frame(box)
+        row.pack(anchor="w", fill="x", pady=(4, 0))
+        ttk.Label(row, text="Colour (Automatic: the border's):").pack(side="left")
+        self.detail_field = ColourField(row, e.detail_colour, lambda c: self._change(detail_colour=c or ""))
+        self.detail_field.pack(side="left", padx=(6, 0))
+        flow_row(row, natural=False)
+        row = ttk.Frame(box)
+        row.pack(anchor="w", fill="x", pady=(4, 0))
+        ttk.Label(row, text="Opacity (%):").pack(side="left")
         self.detail_opacity_var = tk.StringVar(value=f"{e.detail_opacity:g}")
-        self._live(ttk.Spinbox(box, textvariable=self.detail_opacity_var, from_=0, to=100, increment=5, width=5),
-                   lambda: self._detail_number("detail_opacity", self.detail_opacity_var, 0, 100)).grid(
-            row=2, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
-        self._reset_button(box, "detail_opacity").grid(row=2, column=2, sticky="w", padx=(6, 0), pady=(4, 0))
-        ttk.Label(box, text="Line weight:").grid(row=3, column=0, sticky="w", pady=(4, 0))
+        self._live(ttk.Spinbox(row, textvariable=self.detail_opacity_var, from_=0, to=100, increment=5, width=5),
+                   lambda: self._detail_number("detail_opacity", self.detail_opacity_var, 0, 100)).pack(
+            side="left", padx=(6, 0))
+        self._reset_button(row, "detail_opacity").pack(side="left", padx=(6, 0))
+        ttk.Label(row, text="Line weight:").pack(side="left", padx=(12, 0))
         self.detail_width_var = tk.StringVar(value=f"{e.detail_width:g}")
-        self._live(ttk.Spinbox(box, textvariable=self.detail_width_var, values=ft.LINE_STEPS, width=5),
-                   lambda: self._detail_number("detail_width", self.detail_width_var, *ft.LINE_WIDTHS)).grid(
-            row=3, column=1, sticky="w", padx=(6, 0), pady=(4, 0))
-        self._reset_button(box, "detail_width").grid(row=3, column=2, sticky="w", padx=(6, 0), pady=(4, 0))
+        self._live(ttk.Spinbox(row, textvariable=self.detail_width_var, values=ft.LINE_STEPS, width=5),
+                   lambda: self._detail_number("detail_width", self.detail_width_var, *ft.LINE_WIDTHS)).pack(
+            side="left", padx=(6, 0))
+        self._reset_button(row, "detail_width").pack(side="left", padx=(6, 0))
+        flow_row(row, natural=False)
         # The owner, 2026-10-09: the special borders' colours -- natural, rainbow flowers, picked for each
         # part, or 2-7 colours by turns or as a gradient.
         tab = p_special
@@ -1586,13 +1932,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         flower.bind("<<ComboboxSelected>>", lambda _e: self._change(
             hibiscus=next(k for k, v in ft.HIBISCUS_CHOICES.items() if v == self.hibiscus_var.get())))
         ttk.Label(box, text="Pick colours (each part):").grid(row=1, column=0, columnspan=4, sticky="w", pady=(6, 0))
+        # Side by side when there is room, else one under another (two to a row ran past the panel's edge).
         self.special_pick_fields = {}
-        for k, (part, words) in enumerate(ft.SPECIAL_PARTS.items()):
-            ttk.Label(box, text=words).grid(row=2 + k // 2, column=(k % 2) * 2, sticky="w")
-            fieldw = ColourField(box, e.special_pick.get(part, ft.NATURAL[part]),
+        picks = ttk.Frame(box)
+        picks.grid(row=2, column=0, rowspan=2, columnspan=4, sticky="ew")
+        for part, words in ft.SPECIAL_PARTS.items():
+            pair = ttk.Frame(picks)
+            pair.pack(side="left", padx=(0, 8))
+            ttk.Label(pair, text=words, width=max(len(w) for w in ft.SPECIAL_PARTS.values())).pack(side="left")
+            fieldw = ColourField(pair, e.special_pick.get(part, ft.NATURAL[part]),
                                  lambda c, part=part: self._special_pick(part, c), allow_default=False)
-            fieldw.grid(row=2 + k // 2, column=(k % 2) * 2 + 1, sticky="w", padx=(4, 8))
+            fieldw.pack(side="left", padx=(4, 0))
             self.special_pick_fields[part] = fieldw
+        flow_row(picks, natural=False)
+        box.columnconfigure(3, weight=1)
         row = ttk.Frame(box)
         row.grid(row=4, column=0, columnspan=4, sticky="w", pady=(6, 0))
         ttk.Label(row, text="Alternating or gradient colours, how many (2-7):").pack(side="left")
@@ -1615,27 +1968,40 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             side="left", padx=(4, 0))
         self._reset_button(row, "rainbow_strength", "special_opacity").pack(side="left", padx=(6, 0))
         self.special_palette_fields = []
+        palette = ttk.Frame(box)
+        palette.grid(row=5, column=0, rowspan=4, columnspan=4, sticky="ew", pady=1)
         for k in range(7):
-            fieldw = ColourField(box, e.special_palette[k], lambda c, k=k: self._special_palette(k, c), allow_default=False)
-            fieldw.grid(row=5 + k // 2, column=(k % 2) * 2, columnspan=2, sticky="w", pady=1)
+            fieldw = ColourField(palette, e.special_palette[k], lambda c, k=k: self._special_palette(k, c),
+                                 allow_default=False)
+            fieldw.pack(side="left", padx=(0, 8))
             self.special_palette_fields.append(fieldw)
+        flow_row(palette, natural=False)
         # The owner, 2026-10-09: rainbow and alternating colours for the special marks, plain portrait
         # borders, portrait insides, family lines and detail lines too.
         tab = p_schemes
         box = ttk.LabelFrame(tab, text="Rainbow and alternating colours", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.scheme_vars: dict[str, tk.StringVar] = {}
-        for k, (part, words) in enumerate(ft.SCHEME_PARTS.items()):
-            ttk.Label(box, text=words + ":").grid(row=k // 2, column=(k % 2) * 2, sticky="w", pady=1)
+        # Two to a line when there is room, else one (side by side they ran past a narrow panel's edge).
+        pairs = ttk.Frame(box)
+        pairs.pack(anchor="w", fill="x")
+        widest = max(len(words) for words in ft.SCHEME_PARTS.values()) + 1
+        for part, words in ft.SCHEME_PARTS.items():
+            pair = ttk.Frame(pairs)
+            pair.pack(side="left", padx=(0, 10))
+            ttk.Label(pair, text=words + ":", width=widest).pack(side="left")
             var = tk.StringVar(value=ft.COLOUR_SCHEMES[e.schemes.get(part, "own")])
-            pick = ttk.Combobox(box, textvariable=var, values=list(ft.COLOUR_SCHEMES.values()), state="readonly",
+            pick = ttk.Combobox(pair, textvariable=var, values=list(ft.COLOUR_SCHEMES.values()), state="readonly",
                                 width=18)
-            pick.grid(row=k // 2, column=(k % 2) * 2 + 1, sticky="w", padx=(4, 10), pady=1)
+            pick.pack(side="left", padx=(4, 0), pady=1)
             pick.bind("<<ComboboxSelected>>", lambda _e, part=part: self._scheme(part))
             self.scheme_vars[part] = var
-        ttk.Label(box, text="The rainbow strength and the alternating colours are set below, under Rope and vine colours.  A "
-                            "villager's own inside or detail colour still wins.",
-                  wraplength=520, foreground="#555555").grid(row=3, column=0, columnspan=4, sticky="w", pady=(4, 0))
+        flow_row(pairs, natural=False)
+        note = ttk.Label(box, text="The rainbow strength and the alternating colours are set below, under Rope and vine "
+                                   "colours.  A villager's own inside or detail colour still wins.",
+                         foreground="#555555", justify="left")
+        note.pack(anchor="w", fill="x", pady=(4, 0))
+        note.bind("<Configure>", lambda ev: note.configure(wraplength=max(120, ev.width - 4)))
         tab = p_size
         box = ttk.LabelFrame(tab, text="Size (by group)", padding=6)
         box.pack(fill="x", pady=(12, 0))
@@ -2603,6 +2969,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                      ("Delete Tree...", "", self._delete_tree), None,
                      ("Close", "", self._close)],
             "Edit": [("Undo", "Ctrl+Z", self._undo), ("Redo", "Ctrl+Y", self._redo), None,
+                     ("Find a Villager", "Ctrl+F", self._find_focus), None,
                      ("Reorganize Portraits", "", self._reorganize_portraits),
                      ("Reorganize Lines", "", self._reorganize_lines),
                      ("Reorganize Generation Labels", "", self._reorganize_labels), None,
@@ -3707,7 +4074,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         group's), and a note when the picked group's settings differ from everyone's."""
         frame = ttk.Frame(parent)
         row = ttk.Frame(frame)
-        row.pack(anchor="w")
+        row.pack(anchor="w", fill="x")
         ttk.Label(row, text="Settings for:").pack(side="left")
         combo = ttk.Combobox(row, textvariable=self.scope_var, values=[EVERYONE] + list(ft.GROUPS.values()),
                              state="readonly", width=17)
@@ -3716,6 +4083,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         ttk.Button(row, text="Same as everyone", command=lambda: self._clear_group(self._scope())).pack(
             side="left", padx=(6, 0))
         ttk.Button(row, text="Make every group the same", command=self._all_groups_same).pack(side="left", padx=(4, 0))
+        flow_row(row)           # wraps in a narrow panel (the owner's screenshot: "Make every..." cut off)
         ttk.Label(frame, textvariable=self.scope_note, foreground="#8a4b00").pack(anchor="w")
         return frame
 
@@ -4670,6 +5038,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.text_box_field.set_quietly(e.text_box_colour)
         self.text_box_opacity_var.set(f"{e.text_box_opacity:g}")
         self.text_box_over_var.set(e.text_box_over)
+        self.text_box_border_var.set(ft.BORDERS[e.text_box_border])
+        self.text_box_border_width_var.set(f"{e.text_box_border_width:g}")
+        self.text_box_border_field.set_quietly(e.text_box_border_colour)
         self.valign_var.set(ft.TEXT_VALIGNS[e.text_valign])
         self.wrap_var.set(str(e.text_wrap))
         self.gap_var.set(f"{e.portrait_gap:g}")

@@ -61,6 +61,10 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     # New Believers' big-head mask sheet: the game's own sprite table names it
     # (the Task9 page points the sheet's name at it).
     "Images/bigheads_masks.png": _GAME_IMAGE,
+    # The Secret City's Fix Vanilla Bugs: the owner's hospital sheet with the
+    # tables' legs fixed; the game's own sprite table names it (the row
+    # renames the stock name "map_hospitalStates.png" in place).
+    "Images/vvfp_hospitalFixed.png": _GAME_IMAGE,
     # The Tree of Life / New Believers text: the game's own string table.
     "Assets/sm.xml": "replaces the game's own string table, which the game opens from Assets\\",
     # New Believers' Guardians of Isola rewrite: stock art replaced in place.
