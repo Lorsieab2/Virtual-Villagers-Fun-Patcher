@@ -1,0 +1,3 @@
+LIBRARY "VVFP Speed Change Timers"
+EXPORTS
+    VvfpStartup = _VvfpStartup@8

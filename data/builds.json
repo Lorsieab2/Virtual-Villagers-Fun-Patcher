@@ -2663,7 +2663,7 @@
       "id": "vv3_fix_vanilla_bugs",
       "game_id": "vv3",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. Builders build population huts while the game catches up: after a Time Warp, or when the game is opened after time away, the base game had builders work on a hut without walking there, so their work counted only if they already stood on that hut's site and the huts hardly grew; now each builder goes to the hut first, as in The Tree of Life and New Believers, so the work is added to that hut (each try still needs the builder's Building roll, as in the base game). **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. The Royal Jelly: the dark vial now cures the villager's cold and raises their Healing, and the clear vial (whose text says the jelly turned bitter) changes nothing, so each vial does what its own text says. The Mysterious Vial (amber): the \"flash of scientific insight\" result now also gives the tribe 100 tech points, as its text promises, as well as the villager's Research gain. The Mysterious Vial (quartz): a villager who is exactly 14 now gets the text of what really happens to them (becoming an elder) instead of the text about becoming a little child. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village refused to load; now all 150 are kept and the village loads, and a village already saved that way is repaired when it is loaded. Every default name can be chosen: the game numbers its 125 male and 125 female names from 0 but picks a number from 1 (and never the last one), so Akivi and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. Builders build population huts while the game catches up: after a Time Warp, or when the game is opened after time away, the base game had builders work on a hut without walking there, so their work counted only if they already stood on that hut's site and the huts hardly grew; now each builder goes to the hut first, as in The Tree of Life and New Believers, so the work is added to that hut (each try still needs the builder's Building roll, as in the base game). Unpausing at a different speed now gives the campfire and the game's other timers the new speed's length, as a speed change while playing does (the base game kept the old one: a fire lit on Fast burned only 10 hours after unpausing on Normal). **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "The Royal Jelly: the dark vial (whose text says the cold is gone) clears the sick flag and adds 15-29 Healing (capped at 100); the clear vial (whose text says the jelly spoiled) changes nothing.",
@@ -2674,7 +2674,8 @@
         "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
         "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before.",
         "Villager Details name box (The Secret City): the screen remembers which villager it filled the box for -- the villager-name pointer (+0xDD4) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0xDC8), kept in 8 new bytes at the end of the screen object (+0x33C) -- whenever the box is filled (setText 0x40D1A0 (shown 0x46E449, after an arrow 0x46E516)); every write-back (the record lookup 0x45C840 that gives each write-back its destination (arrow 0x46E492, Done 0x46E56D)) goes ahead only when its destination is that same name and that villager still has the same fingerprint, otherwise the box is not saved (the next fill shows the right name). This covers any way the selected record could stop holding the villager shown (two clicks in one frame, a record reused or moved while the screen is open).",
-        "Population huts during catch-up (a Time Warp, or the time replayed when a village is opened): the hut-building action 0x453990 skips its walk steps while the catch-up flag [world+0x12FB4] is set, and the build-progress step (27, 0x4358B0 -> 0x432680) credits only the hut whose map area the builder stands in, so a builder anywhere else added nothing.  The last walk before the progress step (0x4610D0, step 3 to the chosen hut's area) is now queued in catch-up too, and the catch-up runner turns step 3 into a move (0x45B7D7 -> 0x455EB0), exactly as The Tree of Life and New Believers always do; the skill test before it and every other step are unchanged."
+        "Population huts during catch-up (a Time Warp, or the time replayed when a village is opened): the hut-building action 0x453990 skips its walk steps while the catch-up flag [world+0x12FB4] is set, and the build-progress step (27, 0x4358B0 -> 0x432680) credits only the hut whose map area the builder stands in, so a builder anywhere else added nothing.  The last walk before the progress step (0x4610D0, step 3 to the chosen hut's area) is now queued in catch-up too, and the catch-up runner turns step 3 into a move (0x45B7D7 -> 0x455EB0), exactly as The Tree of Life and New Believers always do; the skill test before it and every other step are unchanged.",
+        "Unpausing at another speed (the pause key or an Options speed button from a paused game): the game clock's set_speed 0x426630, whose branch from a paused clock (0x42669F) took the factor 1, now takes new / the speed before the pause (clock +0x24) applied around the wall clock at the pause (+0x28), exactly as its running branch applies new / old, through the routine's own rescale loop; every timer registered to the clock (the campfire's two among them) therefore gets the new speed's length. Unpausing at the same speed is byte for byte the base game's. Installed at run time by \"VVFP Speed Change Timers.dll\", which checks the whole routine (0x426630..0x426742), _ftol 0x46EF58 and the 2^32 constant 0x47F510 hold the stock bytes, or installs nothing."
       ],
       "explicit_non_changes": [
         "Every result text, every other vial result and every other island event are the base game's own.",
@@ -2682,9 +2683,26 @@
         "No villager record layout or art is changed; saves with 0 to 149 villagers are written and read exactly as before, and the save file's size and format are unchanged.",
         "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes.",
         "Renaming on the Details screen works as before: a typed name is saved to the villager shown by Done and the arrows; which villager the arrows select, the box's length and every other Details control are unchanged.",
-        "Live building, every other construction project (they already walk in catch-up), the Building skill test, build amounts and the huts' sizes are the base game's own."
+        "Live building, every other construction project (they already walk in catch-up), the Building skill test, build amounts and the huts' sizes are the base game's own.",
+        "The speed-change timers fix changes no executable bytes and nothing in the save's layout: the clock and its timers are saved exactly as before; only the values the game computes when it is unpaused at another speed differ."
       ],
       "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes; the Details name box identity guard: static exact-build evidence (every fill and write-back of the box, the screen's allocation, the padding used) and emulation of the real handlers, stock and patched, in every mode",
+      "companion_files": [
+        {
+          "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
+          "destination": "VVFP Speed Change Timers.dll",
+          "sha256": "CFB8234C95308938088F757ADB34BE5E1D5AB8EB927CE95A4B30E9C8FE25DA74"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x42669F",
+          "stock_bytes": "8B4628C744240C0000803FEB27",
+          "written_bytes": "E9XXXXXXXX9090909090909090",
+          "routine": "the game clock's set_speed (0x426630), its branch from a paused clock: the factor new / the speed before the pause (+0x24) around the wall clock at the pause, instead of 1 (on to 0x4266D3, the routine's own rescale loop)",
+          "installed_by": "VVFP Speed Change Timers.dll, VvfpStartup"
+        }
+      ],
       "patches": [
         {
           "offset": "0x180FB",
@@ -2922,7 +2940,7 @@
       "id": "vv4_fix_vanilla_bugs",
       "game_id": "vv4",
       "name": "Fix Vanilla Bugs",
-      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. **Needs no other patch.**",
+      "description": "Fixes bugs in the base game. A village with exactly 150 villagers can be saved and loaded again: the base game, when it saves a full list of 150 villagers, writes past the end of that list and damages the next part of the save, so the village then refuses to load and the game offers to start a new tribe. Now all 150 villagers are kept and the village loads. A village that was already saved with 150 villagers and would not load is repaired when it is loaded. Only a village with 150 villagers is affected; the base game cannot reach 150 on its own, but the Collection Progression and Immediate Fixed population modes can. Every default name can be chosen: the game numbers its 185 male and 185 female names from 0 but picks a number from 1 (and never the last one), so Ago and Yapili (male) and Aipi and Zucca (female) could never be given; now every name in each list can come up, for new villagers and twins alike. A \"%\" in a villager's name can no longer crash the game: the game showed some names by using them as formatting instructions; now it copies them as plain text, and its text boxes no longer accept a typed \"%\". A like or dislike holding a negative number other than the game's own \"none\" (-1) is left out of the Details screen instead of being shown as \"ants\". A villager's name is saved only to the villager it belongs to on the Details screen: the screen remembers which villager it filled the name box for, and Done or the arrows save the box only into that same villager; if the selected villager is not the one the box was filled for, the box is dropped and the right name is shown. A name you type is still saved to the villager shown. Unpausing at a different speed now gives the Fire Pit the new speed's length, as a speed change while playing does (the base game kept the old one: a fire lit on Fast burned only 10 hours after unpausing on Normal). **Needs no other patch.**",
       "output_tag": "Fix Vanilla Bugs",
       "behavior_changes": [
         "Saving a village of exactly 150 villagers keeps all 150 and no longer writes past the saved villager list into the next block of the save, so the village loads again.",
@@ -2931,16 +2949,34 @@
         "A villager's default first name is picked from the whole of the game's male or female list (185 names each): name numbers 0 to 184 instead of 1 to the base game's limit.",
         "A villager's name (and in The Lost Children a grave's epitaph and the parents' names) is copied as plain text, never used as a printf format, and every text box refuses a typed \"%\".",
         "Details screen Likes/Dislikes builders: a slot is skipped when it is negative (the stock test was 'equal to -1'); every word index from 0 up is shown exactly as before.",
-        "Villager Details name box (The Tree of Life): the screen remembers which villager it filled the box for -- the villager-name pointer (+0x1B9C) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x1B90), kept in 8 new bytes at the end of the screen object (+0xD8) -- whenever the box is filled (setText 0x40D3E0 (shown 0x448516, after an arrow 0x4485F3)); every write-back (the record lookup 0x466040 that gives each write-back its destination (arrow 0x44856C, Done 0x448653)) goes ahead only when its destination is that same name and that villager still has the same fingerprint, otherwise the box is not saved (the next fill shows the right name). This covers any way the selected record could stop holding the villager shown (two clicks in one frame, a record reused or moved while the screen is open)."
+        "Villager Details name box (The Tree of Life): the screen remembers which villager it filled the box for -- the villager-name pointer (+0x1B9C) and a fingerprint: the name's first dword XOR its second, the low byte also XOR the sex byte (+0x1B90), kept in 8 new bytes at the end of the screen object (+0xD8) -- whenever the box is filled (setText 0x40D3E0 (shown 0x448516, after an arrow 0x4485F3)); every write-back (the record lookup 0x466040 that gives each write-back its destination (arrow 0x44856C, Done 0x448653)) goes ahead only when its destination is that same name and that villager still has the same fingerprint, otherwise the box is not saved (the next fill shows the right name). This covers any way the selected record could stop holding the villager shown (two clicks in one frame, a record reused or moved while the screen is open).",
+        "Unpausing at another speed (the pause key or an Options speed button from a paused game): the game clock's set_speed 0x41DBE0, whose branch from a paused clock (0x41DC4E) took the factor 1, now takes new / the speed before the pause (clock +0x24) applied around the wall clock at the pause (+0x28), exactly as its running branch applies new / old, through the routine's own rescale loop; every timer registered to the clock (the Fire Pit's two) therefore gets the new speed's length. Unpausing at the same speed is byte for byte the base game's. Installed at run time by \"VVFP Speed Change Timers.dll\", which checks the whole routine (0x41DBE0..0x41DD0F) and the 2^32 constant 0x48C4C0 hold the stock bytes, or installs nothing."
       ],
       "explicit_non_changes": [
         "The population cap, births, events and every population mode are unchanged; no villager is removed or added.",
         "Saves with 0 to 149 villagers are written and read exactly as before, byte for byte; the save file's size and format are unchanged.",
         "A save whose size check fails for any other reason is still refused, as in the base game.",
         "Which words a villager likes or dislikes, and how likes and dislikes affect behaviour, are the base game's own; only the Details screen's text changes.",
-        "Renaming on the Details screen works as before: a typed name is saved to the villager shown by Done and the arrows; which villager the arrows select, the box's length and every other Details control are unchanged."
+        "Renaming on the Details screen works as before: a typed name is saved to the villager shown by Done and the arrows; which villager the arrows select, the box's length and every other Details control are unchanged.",
+        "The speed-change timers fix changes no executable bytes and nothing in the save's layout: the clock and its timers are saved exactly as before; only the values the game computes when it is unpaused at another speed differ."
       ],
       "evidence_status": "static exact-build evidence; emulation of the real save writer, loader and block check (0, 1, 149 and 150 villagers, round trip, and the repair of a damaged save); live test (v1.35.50 test build, Immediate Fixed, 2026-10-02): the unfixed game saved 150 villagers with the block size 0x250 overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x250) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes; the Details name box identity guard: static exact-build evidence (every fill and write-back of the box, the screen's allocation, the padding used) and emulation of the real handlers, stock and patched, in every mode",
+      "companion_files": [
+        {
+          "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
+          "destination": "VVFP Speed Change Timers.dll",
+          "sha256": "CFB8234C95308938088F757ADB34BE5E1D5AB8EB927CE95A4B30E9C8FE25DA74"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x41DC4E",
+          "stock_bytes": "D9E82B4E28D95C2410EB48",
+          "written_bytes": "E9XXXXXXXX909090909090",
+          "routine": "the game clock's set_speed (0x41DBE0), its branch from a paused clock: the factor new / the speed before the pause (+0x24) around the wall clock at the pause, instead of 1 (on to 0x41DCA1, the routine's own rescale loop)",
+          "installed_by": "VVFP Speed Change Timers.dll, VvfpStartup"
+        }
+      ],
       "patches": [
         {
           "offset": "0x660F1",
@@ -3878,7 +3914,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "83BF61F47170AAC59A89F322644E16CED4106B44331798780B25B93895BC9202"
+          "sha256": "743ACADA0D8CC03E10FABA6461EA6FF0406EC0887559FD1BF1817F2B4C0445D4"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4066,7 +4102,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "83BF61F47170AAC59A89F322644E16CED4106B44331798780B25B93895BC9202"
+          "sha256": "743ACADA0D8CC03E10FABA6461EA6FF0406EC0887559FD1BF1817F2B4C0445D4"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4149,7 +4185,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "83BF61F47170AAC59A89F322644E16CED4106B44331798780B25B93895BC9202"
+          "sha256": "743ACADA0D8CC03E10FABA6461EA6FF0406EC0887559FD1BF1817F2B4C0445D4"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4232,7 +4268,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "83BF61F47170AAC59A89F322644E16CED4106B44331798780B25B93895BC9202"
+          "sha256": "743ACADA0D8CC03E10FABA6461EA6FF0406EC0887559FD1BF1817F2B4C0445D4"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
