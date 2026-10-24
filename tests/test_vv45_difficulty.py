@@ -127,7 +127,8 @@ class DifficultyRows(unittest.TestCase):
                 self.assertEqual(row["patches"], [])
                 self.assertNotIn("experimental", row["name"].lower())
                 self.assertIn("**Needs no other patch", row["description"])
-                self.assertIn("**Unverified in play", row["description"])
+                self.assertIn("**Checked in a live game, windowed", row["description"])
+                self.assertIn("Clicks in fullscreen have not been tried in a live game.**", row["description"])
                 self.assertIn("**The starting food only changes", row["description"])
 
     def test_the_rows_are_what_the_generator_writes(self):
@@ -194,7 +195,10 @@ class DifficultyRows(unittest.TestCase):
         found = [e for e in _entries(guide) if "vv4_difficulty_settings" in e.get("ids", [])]
         self.assertEqual(len(found), 1)
         self.assertIn("vv5_difficulty_settings", found[0]["ids"])
-        self.assertTrue(any("not yet tested" in line.lower() for line in found[0]["guide"]))
+        # Checked live, windowed; fullscreen clicks not yet tried (the guide says both).
+        self.assertTrue(any("checked in play, windowed" in line.lower() and "not yet tried in fullscreen" in line.lower()
+                            for line in found[0]["guide"]))
+        self.assertNotIn("not yet tested", " ".join(found[0]["guide"]).lower())
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("`vv4_difficulty_settings`", readme)
         self.assertIn("`vv5_difficulty_settings`", readme)
