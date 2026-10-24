@@ -131,6 +131,18 @@ class TextBoxBorderTests(unittest.TestCase):
         # The look carried to the next new tree.
         self.assertEqual(ft.styled(ft.style_of(tree)).text_box_border_width, 4.0)
 
+    def test_a_transparent_border_stays_transparent_when_saved_and_opened(self):
+        """Codex, #606: Transparent came back as Automatic (everyone's) or was dropped (a group's)."""
+        tree = ft.Edits(text_box_border="thick", text_box_border_width=3.0, text_box_border_colour=ft.TRANSPARENT)
+        tree.group_opts = {"Male": {"text_box_border_colour": ft.TRANSPARENT, "text_box_border_width": 2.0}}
+        back = ft.Edits._from_data(json.loads(json.dumps(tree.to_data())))
+        self.assertEqual(back.text_box_border_colour, ft.TRANSPARENT)
+        self.assertEqual(back.group_opts, tree.group_opts)
+        self.assertEqual(ft.clean_group_opts({"Female": {"text_box_border_colour": ft.TRANSPARENT}}),
+                         {"Female": {"text_box_border_colour": ft.TRANSPARENT}})
+        self.assertEqual(ft.styled(ft.style_of(tree)).text_box_border_colour, ft.TRANSPARENT)
+        self.assertEqual(borders(scene(back).items), [])                 # nothing drawn, for anyone
+
     def test_svg_export_carries_the_border(self):
         edits = ft.Edits(text_box_border="dashed", text_box_border_width=3.0, text_box_border_colour="#12ab34")
         svg = ft.to_svg(scene(edits), {})

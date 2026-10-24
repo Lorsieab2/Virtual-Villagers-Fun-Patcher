@@ -590,8 +590,7 @@ class Edits:
         out.text_box_over = data.get("text_box_over") is True
         out.text_box_border = data.get("text_box_border") if data.get("text_box_border") in BORDERS else "thin"
         border_colour = data.get("text_box_border_colour")
-        out.text_box_border_colour = (border_colour if isinstance(border_colour, str) and re.fullmatch(
-            r"#[0-9a-fA-F]{6}", border_colour) else "")
+        out.text_box_border_colour = border_colour if _border_colour(border_colour) else ""
         out.text_box_border_width = float(_number(data.get("text_box_border_width"), *TEXT_BOX_BORDER_WIDTHS, 0.0))
         align = data.get("text_align")
         out.text_align = align if align in TEXT_ALIGNS else "centre"
@@ -844,6 +843,13 @@ GROUP_FIELDS = ("text_align", "text_valign", "centre_heads", "text_room", "flip_
 TEXT_BOX_BORDER_WIDTHS = (0.0, 20.0)    # a text box border's weight: 0 draws none
 
 
+def _border_colour(value) -> bool:
+    """A good text box border colour: "" (Automatic), #rrggbb, or TRANSPARENT (Codex, #606: a border made
+    see-through came back after the tree was saved and opened again)."""
+    return isinstance(value, str) and (value in ("", TRANSPARENT)
+                                       or re.fullmatch(r"#[0-9a-fA-F]{6}", value) is not None)
+
+
 def _group_value(name: str, value) -> tuple[bool, object]:
     """(whether `value` is a good value of the setting `name`, the value as kept): numbers held within
     the tree's own limits, as the tree's own are; anything else not of the setting's kind is bad."""
@@ -859,7 +865,9 @@ def _group_value(name: str, value) -> tuple[bool, object]:
             return False, value
         kept = _number(value, *numbers[name], 0.0)
         return True, int(kept) if name == "text_wrap" else float(kept)
-    if name in ("detail_colour", "text_box_border_colour"):
+    if name == "text_box_border_colour":
+        return _border_colour(value), value
+    if name == "detail_colour":
         return isinstance(value, str) and (value == "" or re.fullmatch(r"#[0-9a-fA-F]{6}", value) is not None), value
     if name == "portrait_fill":
         return is_colour(value), value
@@ -7205,6 +7213,8 @@ def text_box_border(edits: "Edits", border: str, colour: str, width: float, box:
     if border in SPECIAL_BORDERS:
         return special_border_items(border, "rect", (x, y, w, h, 0.0), TEXT_BOX_RADIUS, edits, pid,
                                     edits.special_opacity / 100)
+    if colour == TRANSPARENT:                   # a see-through border: nothing to draw
+        return []
     dash = border if border in ("dotted", "dashed", "dashdot") else ""
     return [Shape("rect", x, y, w, h, colour, width=width, fill=None, radius=TEXT_BOX_RADIUS, dash=dash, pid=pid)]
 
