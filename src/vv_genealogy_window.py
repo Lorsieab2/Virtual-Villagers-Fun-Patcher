@@ -1948,17 +1948,26 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         box = ttk.LabelFrame(tab, text="Rainbow and alternating colours", padding=6)
         box.pack(fill="x", pady=(12, 0))
         self.scheme_vars: dict[str, tk.StringVar] = {}
-        for k, (part, words) in enumerate(ft.SCHEME_PARTS.items()):
-            ttk.Label(box, text=words + ":").grid(row=k // 2, column=(k % 2) * 2, sticky="w", pady=1)
+        # Two to a line when there is room, else one (side by side they ran past a narrow panel's edge).
+        pairs = ttk.Frame(box)
+        pairs.pack(anchor="w", fill="x")
+        widest = max(len(words) for words in ft.SCHEME_PARTS.values()) + 1
+        for part, words in ft.SCHEME_PARTS.items():
+            pair = ttk.Frame(pairs)
+            pair.pack(side="left", padx=(0, 10))
+            ttk.Label(pair, text=words + ":", width=widest).pack(side="left")
             var = tk.StringVar(value=ft.COLOUR_SCHEMES[e.schemes.get(part, "own")])
-            pick = ttk.Combobox(box, textvariable=var, values=list(ft.COLOUR_SCHEMES.values()), state="readonly",
+            pick = ttk.Combobox(pair, textvariable=var, values=list(ft.COLOUR_SCHEMES.values()), state="readonly",
                                 width=18)
-            pick.grid(row=k // 2, column=(k % 2) * 2 + 1, sticky="w", padx=(4, 10), pady=1)
+            pick.pack(side="left", padx=(4, 0), pady=1)
             pick.bind("<<ComboboxSelected>>", lambda _e, part=part: self._scheme(part))
             self.scheme_vars[part] = var
-        ttk.Label(box, text="The rainbow strength and the alternating colours are set below, under Rope and vine colours.  A "
-                            "villager's own inside or detail colour still wins.",
-                  wraplength=520, foreground="#555555").grid(row=3, column=0, columnspan=4, sticky="w", pady=(4, 0))
+        flow_row(pairs, natural=False)
+        note = ttk.Label(box, text="The rainbow strength and the alternating colours are set below, under Rope and vine "
+                                   "colours.  A villager's own inside or detail colour still wins.",
+                         foreground="#555555", justify="left")
+        note.pack(anchor="w", fill="x", pady=(4, 0))
+        note.bind("<Configure>", lambda ev: note.configure(wraplength=max(120, ev.width - 4)))
         tab = p_size
         box = ttk.LabelFrame(tab, text="Size (by group)", padding=6)
         box.pack(fill="x", pady=(12, 0))
