@@ -424,10 +424,10 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # upgrades learned to reset corrupted skill values (v1.35.70). Larger
         # again when bought island events learned to keep the game's own
         # island-event timer (native/shared/island_timer_keep.h).
-        self.assertEqual(vv5_companion["size"], 1871872)
+        self.assertEqual(vv5_companion["size"], 1872384)
         self.assertEqual(
             vv5_companion["sha256"],
-            "D3C089E94F5E41087AFA37AA9F7EC028C9E2DEA826FFE7060B72792ECA415AB8",
+            "6C3A68410E51C1F5B5B84C86832F427FBA0113380F9818A6954ABDC315C2C521",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

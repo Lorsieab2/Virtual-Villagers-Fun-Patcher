@@ -149,24 +149,20 @@ class RowsAndDllTests(unittest.TestCase):
         prepare = prepare[:prepare.index("\n}")]
         self.assertLess(prepare.index("stock_bytes_present("), prepare.index("VirtualAlloc("))
         self.assertIn("PAGE_EXECUTE_READ, &old", prepare, "the trampoline page is made read-execute")
-        write = source[source.index("static int write_site("):]
-        write = write[:write.index("\n}")]
-        self.assertIn("VirtualProtect(site, (SIZE_T)d->length, old, &old);", write,
-                      "the site's protection is put back after the write")
-        self.assertIn("FlushInstructionCache(", write)
-        # Codex (#454, P2): all sites are prepared before any is written, and
-        # a write that fails part-way restores the sites already written.
+        # Codex (#454, P2) and the owner (2026-10-24, "no half-assed
+        # patches"): all sites are prepared before any is written, and the
+        # sites go in through the shared all-or-none writer, which makes every
+        # site writable before writing any -- so a refused VirtualProtect
+        # leaves every site stock and only then are the pages discarded
+        # (tests/test_companion_installs_all_or_none.py runs it).
+        self.assertIn('#include "../shared/install_sites.h"', source)
+        self.assertNotIn("VirtualProtect(site", source, "no site is written outside the shared writer")
         install = source[source.index("__stdcall VvfpPathfindingInstall("):]
         install = install[:install.index("\n}")]
-        self.assertLess(install.index("prepare_detour(&set[i])"), install.index("install_detour(&set[i])"))
-        self.assertIn("restore_detour(&set[i]);", install)
-        restore = source[source.index("static void restore_detour("):]
-        restore = restore[:restore.index("\n}")]
-        # Codex (#455, P2): a site whose stock bytes could not be put back is
-        # still detoured, so its trampoline page must not be freed.
-        self.assertIn("if (write_site(d, d->stock)) {", restore)
-        self.assertIn("for (i = failed; i < count; ++i) {", install,
-                      "only the never-written sites' pages are discarded unconditionally")
+        self.assertLess(install.index("prepare_detour(&set[i])"), install.index("vvfp_install_sites(writes, count)"))
+        failed = install[install.index("vvfp_install_sites(writes, count)"):]
+        self.assertLess(failed.index("discard_detour(&set[i]);"), failed.index("install_state[game_id] = 1;"),
+                        "a refused install frees the never-used pages")
         # Nothing runs from DllMain.
         dllmain = source[source.index("BOOL WINAPI DllMain("):]
         self.assertIn("return TRUE;", dllmain)

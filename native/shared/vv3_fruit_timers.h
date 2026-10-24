@@ -60,6 +60,7 @@
 #include <string.h>
 #include "sidecar_io.h"
 #include "game_save_slot.h"
+#include "install_sites.h"     /* every site written, or none */
 
 #if !defined(VV3_FRUIT_MODE) || (VV3_FRUIT_MODE != 1 && VV3_FRUIT_MODE != 2)
 #error "define VV3_FRUIT_MODE 1 (together) or 2 (in turns) before including vv3_fruit_timers.h"
@@ -530,32 +531,8 @@ static __declspec(naked) void save_stub(void) {
 
 /* ---- installing ---------------------------------------------------------------------- */
 
-static int write_code(unsigned int va, const unsigned char *bytes, int length) {
-    DWORD old;
-    void *at = (void *)(uintptr_t)va;
-    if (!VirtualProtect(at, (SIZE_T)length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)length);
-    VirtualProtect(at, (SIZE_T)length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)length);
-    return 1;
-}
-
 static int is_bytes(unsigned int va, const unsigned char *bytes, size_t length) {
-    return memcmp((const void *)(uintptr_t)va, bytes, length) == 0;
-}
-
-static int write_jump(unsigned int site, void (*stub)(void), int length) {
-    unsigned char bytes[16];
-    unsigned int rel = (unsigned int)((uintptr_t)stub - (site + 5u));
-    int i;
-    bytes[0] = 0xE9;
-    memcpy(bytes + 1, &rel, 4);
-    for (i = 5; i < length; i++) {
-        bytes[i] = 0x90;
-    }
-    return write_code(site, bytes, length);
+    return vvfp_site_holds(va, bytes, (int)length);
 }
 
 /* The interval and the factors the game's own pass uses: stock, or the Nature patch. */
@@ -579,9 +556,13 @@ static int read_rules(void) {
     return g_factor[0] > 0u && g_factor[0] < 1000u && g_factor[1] > 0u && g_factor[1] < 1000u;
 }
 
-/* Every site stock, or nothing: the save and load first, the pass last (until it is written
-   the stock loop pays the fruit); a write that fails puts back what was written. */
+/* Every site stock, then all three written together, or none
+   (native/shared/install_sites.h): every site is made writable before any
+   is written, so a refused VirtualProtect leaves them all stock.  (Before,
+   a failure "put back" the earlier writes with more writes that could fail
+   the same way.) */
 static void install(void) {
+    vvfp_site_write w[3];
     if (installed
         || !is_bytes(PASS_SITE, PASS_STOCK, sizeof PASS_STOCK)
         || !is_bytes(LOAD_SITE, LOAD_STOCK, sizeof LOAD_STOCK)
@@ -589,19 +570,12 @@ static void install(void) {
         || !read_rules()) {
         return;
     }
-    if (!write_jump(LOAD_SITE, load_stub, sizeof LOAD_STOCK)) {
-        return;
+    vvfp_site_branch(&w[0], LOAD_SITE, sizeof LOAD_STOCK, LOAD_STOCK, 0xE9, (const void *)load_stub);
+    vvfp_site_branch(&w[1], SAVE_SITE, sizeof SAVE_STOCK, SAVE_STOCK, 0xE9, (const void *)save_stub);
+    vvfp_site_branch(&w[2], PASS_SITE, sizeof PASS_STOCK, PASS_STOCK, 0xE9, (const void *)pass_stub);
+    if (vvfp_install_sites(w, 3)) {
+        installed = 1;
     }
-    if (!write_jump(SAVE_SITE, save_stub, sizeof SAVE_STOCK)) {
-        write_code(LOAD_SITE, LOAD_STOCK, sizeof LOAD_STOCK);
-        return;
-    }
-    if (!write_jump(PASS_SITE, pass_stub, sizeof PASS_STOCK)) {
-        write_code(SAVE_SITE, SAVE_STOCK, sizeof SAVE_STOCK);
-        write_code(LOAD_SITE, LOAD_STOCK, sizeof LOAD_STOCK);
-        return;
-    }
-    installed = 1;
 }
 
 /* Called once by VVFP Startup.dll at game start, outside DllMain. */

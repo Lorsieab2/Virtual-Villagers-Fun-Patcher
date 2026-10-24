@@ -60,6 +60,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include "../shared/install_sites.h"
 
 #define ROLL_BYTES (4u * 1024u * 1024u)
 #define REPEAT_SECONDS 60
@@ -456,7 +457,7 @@ static int install_state;   /* 0 untried, 1 installed, -1 refused */
 static int install(int game) {
     unsigned char bytes[SITE_LENGTH];
     unsigned int va;
-    DWORD old;
+    vvfp_site_write w[1];
     if (install_state != 0) {
         return install_state == 1;
     }
@@ -469,12 +470,10 @@ static int install(int game) {
         return 0;
     }
     site_bytes(va, bytes);
-    if (!VirtualProtect((void *)(UINT_PTR)va, SITE_LENGTH, PAGE_EXECUTE_READWRITE, &old)) {
+    vvfp_site_bytes(&w[0], va, SITE_LENGTH, SITES[game].stock, bytes);
+    if (!vvfp_install_sites(w, 1)) {   /* native/shared/install_sites.h */
         return 0;
     }
-    memcpy((void *)(UINT_PTR)va, bytes, SITE_LENGTH);
-    VirtualProtect((void *)(UINT_PTR)va, SITE_LENGTH, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), (void *)(UINT_PTR)va, SITE_LENGTH);
     install_state = 1;
     return 1;
 }

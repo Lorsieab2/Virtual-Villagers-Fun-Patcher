@@ -188,25 +188,22 @@ static int mem_matches(unsigned int va, const unsigned char *bytes, int length) 
 }
 
 #ifdef VVFP_TEST
-/* TEST build only: the write that fails (0 = the first), -1 = none. */
+/* TEST build only: the site whose unlock fails (0 = the first), -1 = none
+   (native/shared/install_sites.h asks it before each VirtualProtect). */
 static int test_fail_write = -1;
+#define VVFP_INSTALL_SITES_TEST_FAIL() (test_fail_write >= 0 && test_fail_write-- == 0)
 #endif
+#include "../shared/install_sites.h"      /* every site written, or none */
 
+/* One write on its own (the lore pages' roll, story_vv2.inc), through the
+   same writer: the bytes there now are what it expects. */
 static int mem_write(unsigned int va, const unsigned char *bytes, int length) {
-    DWORD old;
-    void *at = (void *)(uintptr_t)va;
-#ifdef VVFP_TEST
-    if (test_fail_write >= 0 && test_fail_write-- == 0) {
+    vvfp_site_write w[1];
+    if (!mem_readable(va, length)) {
         return 0;
     }
-#endif
-    if (!VirtualProtect(at, (SIZE_T)length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)length);
-    VirtualProtect(at, (SIZE_T)length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)length);
-    return 1;
+    vvfp_site_bytes(&w[0], va, length, (const unsigned char *)(uintptr_t)va, bytes);
+    return vvfp_install_sites(w, 1);
 }
 
 static unsigned int read_u32(unsigned int va) {
@@ -773,27 +770,22 @@ static const story_detour *game_detour(const story_game *g, int index) {
     return index < g->detour_count ? &g->detours[index] : &g->more_detours[index - g->detour_count];
 }
 
-/* A write failed part-way: put the stock bytes back at the first `writes`
-   price sites and the first `detours` detour sites, which were written, so
-   a game reported inactive has none of the feature live. */
-static void install_undo(const story_game *g, int writes, int detours) {
-    int i;
-    for (i = 0; i < detours; ++i) {
-        const story_detour *d = game_detour(g, i);
-        mem_write(d->va, d->expect, d->length);
-    }
-    for (i = 0; i < writes; ++i) {
-        mem_write(g->writes[i].va, g->writes[i].expect, g->writes[i].length);
-    }
-}
+/* Verify every site of this game, then write every one -- or write nothing.
+   The prices, the detours and the outcome sites and scope calls go through
+   the shared writer in ONE call (native/shared/install_sites.h): every site
+   is made writable before any is written, so a refused VirtualProtect leaves
+   them all stock.  (Before, they were written one at a time and a failure
+   "undid" the earlier ones with more writes that could fail the same way.) */
+#define STORY_MAX_WRITES 400
+static vvfp_site_write story_writes[STORY_MAX_WRITES];
 
-/* Verify every site of this game, then write every one -- or write nothing. */
 static int install(int game) {
     const story_game *g = &GAMES[game];
     unsigned char bytes[16];
-    int i;
+    int i, n = 0;
     for (i = 0; i < g->write_count; ++i) {
-        if (!mem_matches(g->writes[i].va, g->writes[i].expect, g->writes[i].length)) {
+        if (g->writes[i].length > VVFP_SITE_MAX_BYTES
+            || !mem_matches(g->writes[i].va, g->writes[i].expect, g->writes[i].length)) {
             return 0;
         }
     }
@@ -806,25 +798,20 @@ static int install(int game) {
     if (!oc_verify(game)) {
         return 0;
     }
+    if (g->write_count + game_detour_count(g) + oc_write_count(game) > STORY_MAX_WRITES) {
+        return 0;
+    }
     for (i = 0; i < g->write_count && !charges[game]; ++i) {
-        if (!mem_write(g->writes[i].va, g->writes[i].replace, g->writes[i].length)) {
-            install_undo(g, i, 0);
-            return 0;
-        }
+        vvfp_site_bytes(&story_writes[n++], g->writes[i].va, g->writes[i].length, g->writes[i].expect,
+                        g->writes[i].replace);
     }
     for (i = 0; i < game_detour_count(g); ++i) {
         const story_detour *d = game_detour(g, i);
         detour_bytes(d, bytes);
-        if (!mem_write(d->va, bytes, d->length)) {
-            install_undo(g, charges[game] ? 0 : g->write_count, i);
-            return 0;
-        }
+        vvfp_site_bytes(&story_writes[n++], d->va, d->length, d->expect, bytes);
     }
-    if (!oc_install(game)) {
-        install_undo(g, charges[game] ? 0 : g->write_count, game_detour_count(g));
-        return 0;
-    }
-    return 1;
+    n = oc_add_writes(game, story_writes, n);
+    return vvfp_install_sites(story_writes, n);
 }
 
 /* "Story / Cheat Upgrades cost Tech Points" for `game`: called by the

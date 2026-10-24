@@ -57,6 +57,7 @@
 #include <windows.h>
 #include <string.h>
 
+#include "install_sites.h"     /* every site written, or none */
 #ifndef ITK_TEST
 #include "paid_purchases.h"
 #endif
@@ -379,54 +380,35 @@ static int itk_readable(unsigned int va, int length) {
     return (UINT_PTR)at + (unsigned int)length <= (UINT_PTR)info.BaseAddress + info.RegionSize;
 }
 
-static int itk_write(unsigned int va, const unsigned char *bytes, int length) {
-    DWORD old;
-    void *at = (void *)(UINT_PTR)va;
-    if (!VirtualProtect(at, (SIZE_T)length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)length);
-    VirtualProtect(at, (SIZE_T)length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)length);
-    return 1;
-}
-
-static void itk_jump(const itk_site *s, unsigned char *out) {
-    unsigned int rel = (unsigned int)((UINT_PTR)s->stub - ((UINT_PTR)s->va + 5u));
-    int i;
-    out[0] = 0xE9;
-    memcpy(out + 1, &rel, 4);
-    for (i = 5; i < s->length; ++i) {
-        out[i] = 0x90;
-    }
-}
-
 /* Every site holds exactly the bytes listed, then every one is written -- or
    nothing is (a build whose bytes differ keeps the game's own behaviour).
-   Once; returns whether it is in place. */
+   Every site is made writable before any is written
+   (native/shared/install_sites.h), so a refused VirtualProtect leaves them
+   all stock; before, the sites already written were "put back" with more
+   writes that could fail the same way.  Once; returns whether it is in
+   place. */
+#define ITK_MAX_SITES 16
 static int itk_install(const itk_game *g) {
-    unsigned char bytes[12];
+    vvfp_site_write w[ITK_MAX_SITES];
     int i;
     if (itk_state != 0) {
         return itk_state == 1;
     }
     itk_state = -1;
     itk_g = g;
+    if (g->site_count <= 0 || g->site_count > ITK_MAX_SITES) {
+        return 0;
+    }
     for (i = 0; i < g->site_count; ++i) {
         const itk_site *s = &g->sites[i];
         if (s->length < 5 || s->length > 12 || !itk_readable(s->va, s->length)
             || memcmp((const void *)(UINT_PTR)s->va, s->expect, (size_t)s->length) != 0) {
             return 0;
         }
+        vvfp_site_branch(&w[i], s->va, s->length, s->expect, 0xE9, (const void *)s->stub);
     }
-    for (i = 0; i < g->site_count; ++i) {
-        itk_jump(&g->sites[i], bytes);
-        if (!itk_write(g->sites[i].va, bytes, g->sites[i].length)) {
-            while (--i >= 0) {
-                itk_write(g->sites[i].va, g->sites[i].expect, g->sites[i].length);
-            }
-            return 0;
-        }
+    if (!vvfp_install_sites(w, g->site_count)) {
+        return 0;
     }
     itk_state = 1;
     return 1;
