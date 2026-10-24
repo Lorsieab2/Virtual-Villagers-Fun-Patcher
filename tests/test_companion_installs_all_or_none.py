@@ -53,6 +53,11 @@ try:
     HAVE_EMULATOR = True
 except ImportError:  # pragma: no cover - environment dependent
     HAVE_EMULATOR = False
+    # Stand-ins so the module still defines Machine and the emulator cases
+    # skip (_skip_reason) while OneWriterTests run without pefile/unicorn.
+    Process = object
+    HEAP = RETURN = 0
+    UC_HOOK_MEM_WRITE = None
 
 TEST_BUILD_ABSENT = "test builds are not in the release source archive (tests/test_dlls)"
 # A mutation run points this at a folder holding older builds of the DLLs.
