@@ -28,7 +28,9 @@ from datetime import datetime
 from pathlib import Path
 
 TITLE = "Game Mechanics"
-GROUPS = ("Sources", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
+# Vital statistics first (the owner, 2026-10-24), then where the page's facts come from, then the village's people
+# and clocks (src/vv_game_mechanics_life.py), then the rules.
+GROUPS = ("Vital statistics", "Sources", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
           "Food earned", "Time away and Time Warp", "Island events", "Puzzles", "Hidden villager stats",
           "Chance and timers", "Other")
 PUZZLES = "Puzzles"
@@ -69,11 +71,14 @@ class Fact:
     """One line of the page.  `verified` says what stands behind it: SAVE, OWNER or CLAMP (see TRUSTED) let it
     go without the label; True (a research spec's isolated emulation) or False does not -- it is shown with
     UNCONFIRMED.  A line is unconfirmed unless it says otherwise.  `sub`: shown as a sub-bullet of the fact
-    before it."""
+    before it.  `due` / `due_kind`: a real moment still to come and what happens then, for the live countdown
+    (see LIVE COUNTDOWNS in the module docstring); None when the clock is stopped or there is none."""
     group: str
     text: str
     verified: bool | str = False
     sub: bool = False
+    due: float | None = None
+    due_kind: str | None = None
 
     @property
     def confirmed(self) -> bool:
@@ -93,6 +98,8 @@ class Village:
     now: float                      # the real time the section is shown at (Unix seconds)
     notes: list[str] = field(default_factory=list)
     certain: bool = True            # a patch missing from installed is known to be out (False: only not seen)
+    exe: Path | None = None         # the game's executable as found (patch_source), when one was
+    general: bool = False           # a game's general rules page (no save): nothing read from a save is shown
 
     def has(self, feature: str) -> bool | None:
         if self.installed is None:
@@ -638,7 +645,7 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
         return [Fact("Other", f"The save {path.name} could not be read ({exc.strerror or exc}).")]
     patches = patch_source(Path(folder), game_folders or [], game)
     village = Village(Path(folder), game, slot, path, data, patches.installed,
-                      time.time() if now is None else now, certain=patches.certain)
+                      time.time() if now is None else now, certain=patches.certain, exe=patches.exe)
     try:
         module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     except ImportError:
@@ -681,7 +688,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     without anything read from a save (the values, the dates and the time-away figures of that save)."""
     import time
     now = time.time() if now is None else now
-    village = Village(Path("."), game, 1, Path(f"{game}.ldw"), blank_save(game, now), None, now)
+    village = Village(Path("."), game, 1, Path(f"{game}.ldw"), blank_save(game, now), None, now, general=True)
     module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     keep = []
     for fact in module.facts(village):
@@ -696,6 +703,17 @@ def general(game: int, now: float | None = None) -> list[Fact]:
         keep.append(fact)
     order = {name: n for n, name in enumerate(GROUPS)}
     return sorted(keep, key=lambda fact: order.get(fact.group, len(GROUPS)))
+
+
+def with_due(facts: list[Fact], start: str, moment: float | None, kind: str) -> None:
+    """Give the facts whose text starts with `start` an upcoming moment for the window's countdown (in place).  A
+    moment of None (saved paused, not read) leaves them as they are."""
+    if moment is None:
+        return
+    import dataclasses
+    for n, fact in enumerate(facts):
+        if fact.text.startswith(start) and fact.due is None:
+            facts[n] = dataclasses.replace(fact, due=float(moment), due_kind=kind)
 
 
 def render(facts: list[Fact]) -> str:

@@ -17,6 +17,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_life as life
 import vv_save_backup
 
 GAME = 5
@@ -286,7 +287,58 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         names[17] = "The Heathen Parent"
     out.extend(gm.later_puzzle_lines(names, lambda pid: struct.unpack_from("<ii", data, PROJECTS + 8 * pid),
                                      PUZZLE_THRESHOLDS, clock))
+
+    # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
+    noni_at = None if paused else real(NONI_NEXT)
+    crops_at = None if paused or not farm or real(CROPS_NEXT) <= village.now else real(CROPS_NEXT)
+    event_at = None if paused else real(EVENT_NEXT)
+    gm.with_due(out, "Noni: +2", noni_at if noni_at and noni_at > village.now else None, "refill")
+    gm.with_due(out, "Crops: refilled", crops_at, "refill")
+    gm.with_due(out, "Next island event:", event_at, "next")
+    level = [_i32(data, LEVELS + 4 * k) for k in range(6)]
+    mastery = level[FOOD_MASTERY]
+    puzzles = []
+    for pid, name in names.items():
+        progress = _i32(data, PROJECTS + 8 * pid)
+        if 0 < progress < PUZZLE_THRESHOLDS[pid]:
+            puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
+    ctx = life.Context(
+        village, speed_value, last, _i32(data, FOOD), low_food=500, extra_from=8000,
+        sources=[life.Source("Noni bushes", noni, NONI_CAP, 2.0, noni_at if noni_at and noni_at > village.now else None,
+                             f"+2 {gm.every(UNIT, speed_value)}", verified=gm.SAVE),
+                 life.Source("Hydroponic Farm crops", crops, CROPS_FULL, CROPS_FULL / CROP_UNITS if farm else 0.0, crops_at,
+                             f"refilled to {CROPS_FULL} {gm.every(CROP_UNITS * UNIT, speed_value)}" if farm
+                             else "the Hydroponic Farm is not built yet", verified=gm.SAVE),
+                 life.Source("Fishing at the lake", None, unlimited=True,
+                             refill_words="no store of its own is read here: it brings what the gatherers fetch",
+                             verified=False)],
+        tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 7 at Science 1 to 3).",
+        brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0,
+        mastery=2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0), golden=village.has(GOLDEN) is True,
+        mushroom_words="About one thing appears a minute while playing, 30% of them mushrooms (all in rain), so "
+                       "about 18 mushrooms an hour.",
+        event_next=event_at,
+        event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,
+        event_rule="It comes 8 to 15 whole hours after the last (15 minutes, then 30, in a new village), each equally "
+                   "likely, at any speed; then every event whose conditions hold is equally likely.",
+        event_running="Paused time does not count; with the game closed it runs on, and after time away the due "
+                      "event happens once.",
+        medicine=level[MEDICINE_LEVEL], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
+        parents_from=14, sick_loss=(0.61, 0.19),
+        collectibles=life.collectible_lines(village, "10, 50 or 150 Divine Energy (the first set) or 100, 250 or "
+                                                     "1,500 tech points (the second)")[0],
+        limit=life.limit_words(village, None, "up to 15 for collections"),
+        puzzles=puzzles,
+        food_words="2 food a believer every age unit (Heathens skip it); at 500 or less only half the time; on "
+                   "Medium at 8,000 or more, or on Hard, 2 more 76% of the time; never more on Easy.",
+        trips=[("noni picks", max(2, noni // 100)), ("crop harvests", harvest if farm else 0), ("fish", 4)])
+    out.extend(life.sections(ctx))
     return out
+
+
+# The tech levels: six dwords at manager +0xBC0C (saved by 0x4235B0 from 0x51D5CC); Medicine is the second (the
+# twins roll at 0x465EC6), Food Mastery the fifth (the food-gain multiplier 0x41EB4C: x1.5 at level 2, x2 at 3).
+LEVELS, MEDICINE_LEVEL, FOOD_MASTERY = 0xBC0C + 0x10, 1, 4
 
 
 # The game clock 0x51D490, saved by 0x41ECE0 at manager+0x84C (0x42457F) and loaded by 0x41ECC0 (0x42579B); the

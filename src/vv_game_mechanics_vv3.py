@@ -51,6 +51,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_life as life
 
 GAME = 3
 HEADER = 12
@@ -345,8 +346,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # pauses and closed spells before the base would make wrong.
     at = clock.moment
 
-    def sub(text: str, ok=False) -> None:
-        out.append(gm.Fact("Food sources", text, ok, sub=True))
+    def sub(text: str, ok=False, due: float | None = None, kind: str | None = None) -> None:
+        out.append(gm.Fact("Food sources", text, ok, sub=True, due=due, due_kind=kind if due is not None else None))
+
+    sources: list[life.Source] = []
 
     # -- the fruit trees ------------------------------------------------------------------
     timers = patch_tree_timers(village, buf)
@@ -366,8 +369,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                 f"Ready to pick after {gm.duration(gm.real_seconds(ready - now, clock.runs_at))} more of play on "
                 f"{gm.speed_name(clock.runs_at)} speed.")
         else:
-            sub(f"Ready to pick since {at(ready)}." if now >= ready else f"Ready to pick from {at(ready)}.")
+            sub(f"Ready to pick since {at(ready)}." if now >= ready else f"Ready to pick from {at(ready)}.",
+                due=clock.real(ready) if now < ready and clock.dated(ready) else None, kind="ready")
         due = timers.due[tree.number - 1] if scheduled else refilled + interval
+        due_real = clock.real(due) if not clock.frozen and now < due and clock.dated(due) else None
+        sources.append(life.Source(f"Tree {tree.number} ({tree.name})", max(tree.fruit, 0), FRUIT_CAP,
+                                   per_refill * 360 / interval if interval else 0.0, due_real,
+                                   f"+{per_refill} {gm.every(interval, clock.speed)}", verified=gm.SAVE))
         if scheduled:
             sub(f"On the patcher's \"{timers.name}\" schedule, read from its file for this save.")
         if tree.fruit >= FRUIT_CAP:
@@ -381,7 +389,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             gained = min(_gain(now - refilled, factor), FRUIT_CAP - tree.fruit)
             sub(f"The next time the village is played it gets {gained} fruit: a refill was due {at(due, at=True)}.")
         else:
-            sub(f"Next refill due {at(due)} ({min(per_refill, FRUIT_CAP - tree.fruit)} fruit).")
+            sub(f"Next refill due {at(due)} ({min(per_refill, FRUIT_CAP - tree.fruit)} fruit).", due=due_real,
+                kind="refill")
 
     # -- the honey ------------------------------------------------------------------------
     honey_at = _i32(buf, HONEY + 4)
@@ -421,6 +430,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     honey_every = HONEY_PATCHED if faster else HONEY_EVERY
     honey_gain = ((honey_every * 84) // 99900) if faster else ((honey_every * 2) // 3600)
     honey_due = honey_at + honey_every
+    honey_real = (clock.real(honey_due) if not clock.frozen and honey < HONEY_CAP and now < honey_due
+                  and clock.dated(honey_due) else None)
     if clock.frozen or honey >= HONEY_CAP:
         honey_next = "."
     elif now < honey_due:
@@ -434,7 +445,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         f"Honey: gains {honey_gain} {gm.every(honey_every, speed)}, up to {HONEY_CAP}{honey_next} By the time since "
         f"the last gain -- " + ", ".join(f"{gm.duration(gm.real_seconds(t, speed))} +{g}" for t, g in
                                        zip((2700, 3600, 10800, 36000), HONEY_PATCHED_GAINS if faster else HONEY_GAINS))
-        + "."), gm.RUNNING))            # stock and patched (v1.35.81), reach traced (spec addendum 3)
+        + "."), gm.RUNNING,              # stock and patched (v1.35.81), reach traced (spec addendum 3)
+        due=honey_real, due_kind="refill" if honey_real is not None else None))
+    sources.append(life.Source("Honey" + ("" if hive else " (The Bee Hive not solved yet)"), honey, HONEY_CAP,
+                               honey_gain * 360 / honey_every if hive else 0.0, honey_real,
+                               f"+{honey_gain} {gm.every(honey_every, speed)}", verified=gm.SAVE))
 
     # -- the clock ------------------------------------------------------------------------
     if clock.paused:
@@ -476,7 +491,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         out.append(gm.Fact("Other", (
             "The patcher's fruit-tree timers file is there but has no schedule for this save: the save's own "
             "refill times are shown, as the game uses them.")))
-    out.extend(_village(village, buf, epoch, clock, nature))
+    out.extend(_village(village, buf, epoch, clock, nature, sources))
     return out
 
 
@@ -599,7 +614,8 @@ CHANCE_LINES = (
 )
 
 
-def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int) -> list[gm.Fact]:
+def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int,
+             sources: list[life.Source] | None = None) -> list[gm.Fact]:
     out: list[gm.Fact] = []
     add = lambda group, text, ok=False: out.append(gm.Fact(group, text, ok))  # noqa: E731
     speed_value = clock.speed
@@ -716,6 +732,54 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     out.append(gm.started_line(clock.created))
     out.extend(gm.later_puzzle_lines(
         PUZZLE_NAMES, lambda pid: struct.unpack_from("<ii", buf, PUZZLES + 4 + 8 * pid), PUZZLE_THRESHOLDS, clock))
+
+    # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
+    event_at = None if paused else wall(EVENT_NEXT)
+    gm.with_due(out, "Next island event:", event_at, "next")
+    if not paused and fire > village.now:
+        gm.with_due(out, "The fire burns until", fire, "ends")
+    village_extra = []
+    for words, at in CHIEF_READY.items():
+        if _i32(buf, at) != 0 and wall(at) > village.now:
+            village_extra.append(gm.Fact(life.VILLAGE_TIMERS, f"The Tribal Chief's power to {words.split(' (')[0]}: "
+                                         f"ready again {gm.when(wall(at))}.", gm.SAVE, due=wall(at),
+                                         due_kind="ready"))
+    if not paused and fire > village.now:
+        village_extra.append(gm.Fact(life.VILLAGE_TIMERS, f"The campfire burns until {gm.when(fire)}.", gm.SAVE,
+                                     due=fire, due_kind="ends"))
+    puzzles = []
+    for pid, name in PUZZLE_NAMES.items():
+        progress = struct.unpack_from("<i", buf, PUZZLES + 4 + 8 * pid)[0]
+        if 0 < progress < PUZZLE_THRESHOLDS[pid]:
+            puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
+    pick_food = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}[speed]
+    srcs = list(sources or [])
+    srcs.append(life.Source("Fishing", None, unlimited=True, refill_words="the sea never runs out", verified=gm.RUNNING))
+    ctx = life.Context(
+        village, speed_value, wall(LAST_SAVED), _i32(buf, FOOD), low_food=500, extra_from=8000, sources=srcs,
+        tech=_i32(buf, POINTS), tech_words=f"Research brings them (the skill ÷ {divisor} at Science level "
+                                           f"{level[SCIENCE]}); a piece already found pays 100, 250 or 1,500 by rarity.",
+        brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0, golden=village.has(GOLDEN) is True,
+        mushroom_words="About one thing appears a minute while playing (not paused), 30% of them mushrooms in fair "
+                       "weather and all of them in rain, so about 18 mushrooms an hour in fair weather.",
+        event_next=event_at,
+        event_paused_left=max(0, _i32(buf, EVENT_NEXT) - _i32(buf, LAST_SAVED)) if paused else None,
+        event_rule="It comes 8 to 15 whole hours after the last, at any speed, each hour about equally likely; the "
+                   "first each time the game is started comes 30 minutes after it; then each of the 57 events whose "
+                   "conditions hold is equally likely.",
+        event_running="Paused time does not count; with the game closed it runs on, and after time away only one "
+                      "overdue event happens; the catch-up adds none.",
+        medicine=level[MEDICINE], elderly_from={0: 42, 1: 50, 2: 58, 3: 66}, old_age_from={0: 47, 1: 55, 2: 63, 3: 71},
+        parents_from=14, sick_loss=(0.61, 0.195),
+        sick_end="A healer cures a sick villager at Healing + 34%.",
+        collectibles=life.collectible_lines(village, "100, 250 or 1,500 tech points")[0],
+        limit=life.limit_words(village, None, "5 for each complete collection, 25 with all four, and 10 at Magic "
+                                              "level 3"),
+        puzzles=puzzles, village_extra=village_extra,
+        food_words="2 food a villager every age unit while there is more than 500; on Medium at 8,000 or more, or "
+                   "on Hard, 2 more 76% of the time (always on Hard); never more on Easy.",
+        trips=[("fruit or honey picks", pick_food), ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed])])
+    out.extend(life.sections(ctx))
     return out
 
 

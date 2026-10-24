@@ -53,7 +53,8 @@ _VILLAGER = re.compile(r"^.*?(?=: hidden number )")
 
 def _plain(text: str) -> str:
     """A line as rendered, with a villager's name (the per-villager lines) as <villager>."""
-    return _VILLAGER.sub("<villager>", gm.tidy(text), count=1)
+    import vv_game_mechanics_life as life
+    return life.claim_template(_VILLAGER.sub("<villager>", gm.tidy(text), count=1))
 
 
 def _tokens(text: str) -> list[tuple[str, str]]:
@@ -153,6 +154,52 @@ def pokes(game: int, data: bytes) -> list[bytes]:
     return out
 
 
+def _life_pokes(game: int, data: bytes) -> list[bytes]:
+    """The people and the difficulty (src/vv_game_mechanics_life.py): each difficulty; a mother of 1, 2 or 3 babies
+    now due, due later and with time away still to work off; a sick villager; a child and a youth; A New Home's
+    Golden Child; New Believers' faith and Heathens; and a save whose villager table cannot be read."""
+    import vv_game_mechanics_life as life
+    import vv_last_names as ln
+    out = [_put(data, life.DIFFICULTY_AT[game], level) for level in (0, 1, 2)]
+    out.append(_put(_put(data, life.DIFFICULTY_AT[game], 1), _FOOD[game], 9_000))
+    out.append(gm.blank_save(game, NOW))        # a new, empty village's save: no villager table to be found
+    try:
+        entries = ln._entries(game, data)
+    except Exception:  # noqa: BLE001 -- a fixture without villagers gives no people pokes
+        return out
+    if not entries:
+        return out
+    lay = life.LAYOUTS[game]
+    at = entries[0]
+    age = struct.unpack_from("<i", data, at + lay.age)[0]
+    for babies in (1, 2, 3):
+        for left, lag in ((0, 0), (12, 0), (12, 30), (40, 0)):
+            buf = _put(data, at + lay.processed, age - lag)
+            buf = _put(buf, at + lay.conceived, age - lag - life.BIRTH_UNITS + left)
+            out.append(_put(buf, at + lay.babies, (0 if babies == 1 else babies) if lay.singles_unwritten else babies))
+    for health in (90, 15):
+        buf = _put(data, at + lay.health, health)
+        sick = bytearray(buf)
+        if lay.sick_byte:
+            sick[at + lay.sick] = 1
+        else:
+            struct.pack_into("<i", sick, at + lay.sick, 1)
+        out.append(bytes(sick))
+    for years_units in (277, 100, 300, 360 * 3):
+        out.append(_put(_put(data, at + lay.age, years_units), at + lay.processed, years_units))
+    if game == 1:
+        out.append(_put(data, at + life.VV1_FAMILY, life.GOLDEN_FAMILY))
+    if game == 5:
+        out.append(_put(data, at + life.VV5_FAITH, 5))
+        flipped = bytearray(data)
+        flipped[at + life.VV5_FACTION] = 0 if data[at + life.VV5_FACTION] else 1
+        out.append(bytes(flipped))
+    return out
+
+
+_FOOD = {1: 0xA2F0, 2: 0x2EAA4 + 4, 3: 0x4EC, 4: 0x85C, 5: 0x7C0}
+
+
 def _puzzle_pokes(data: bytes, entries: list[int], base: int) -> list[bytes]:
     """The puzzles all unsolved, and all solved with no time, with a time before the clock's base and after it."""
     out = []
@@ -177,7 +224,9 @@ def variants(game: int) -> list[tuple[bytes, list[str] | None]]:
     out = []
     features = gm.feature_ids(f"vv{game}_")
     for path in fixture_saves(game):
-        for data in pokes(game, gzip.decompress(path.read_bytes())):
+        raw = gzip.decompress(path.read_bytes())
+        # The people pokes change no patch's line, so they are read with the patches not known only.
+        for data, all_patches in [(d, True) for d in pokes(game, raw)] + [(d, False) for d in _life_pokes(game, raw)]:
             found = vv_save_backup.save_speed(game, data)
             speeds = [data]
             if found is not None:
@@ -185,7 +234,7 @@ def variants(game: int) -> list[tuple[bytes, list[str] | None]]:
                 for value in (3, 6, 10, 1002, 1005, 1009):
                     speeds.append(data[:offset] + value.to_bytes(4, "little") + data[offset + 4:])
             for each in speeds:
-                for patches in (None, [], features):
+                for patches in ((None, [], features) if all_patches else (None,)):
                     out.append((each, patches))
     return out
 

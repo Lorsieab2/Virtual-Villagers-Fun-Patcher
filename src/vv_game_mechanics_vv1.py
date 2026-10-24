@@ -37,6 +37,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_life as life
 
 GAME = 1
 LENGTH = 0xABDC
@@ -298,7 +299,53 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.extend(gm.hours_puzzle_lines([name for name, _flag, _hours in PUZZLES],
                                      lambda n: data[PUZZLES[n][1] + 4] != 0,
                                      lambda n: _i32(data, PUZZLES[n][2] + 4), real(CREATED)))
+
+    # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
+    regrow_at = None if paused else real(REGROW)
+    event_at = None if paused else real(EVENT)
+    gm.with_due(out, "Next regrowth:", regrow_at, "refill")
+    gm.with_due(out, "Next island event:", event_at, "next")
+    out.extend(life.sections(_context(village, data, epoch, speed_value, level, bush, saved, regrow_at, event_at)))
     return out
+
+
+def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, level: list[int], bush: int,
+             saved: float, regrow_at: float | None, event_at: float | None) -> life.Context:
+    farming = level[FARMING]
+    every = gm.duration(gm.real_seconds(REGROW_UNITS * UNIT, speed_value))
+    sources = [life.Source("Berry bush", bush, None, 30 / REGROW_UNITS, regrow_at, f"+30 every {every}", verified=gm.SAVE),
+               life.Source("Crop field", _i32(data, FIELD), FIELD_CAP, FIELD_CAP / REGROW_UNITS if farming >= 2 else 0.0,
+                           regrow_at if farming >= 2 else None,
+                           f"refilled to {FIELD_CAP} every {every}" if farming >= 2 else "no refill below Farming level 2",
+                           verified=gm.SAVE)]
+    if farming >= 3:
+        sources.append(life.Source("Fishing (Farming level 3, the beach cleaned)", None, unlimited=True,
+                                   refill_words="the sea never runs out", verified=gm.RUNNING))
+    paused = speed_value >= gm.PAUSED
+    golden = village.has(GOLDEN) is True
+    ctx = life.Context(
+        village, speed_value, saved, _i32(data, FOOD), low_food=200, extra_from=2001, sources=sources,
+        tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 7, ÷ 5 or ÷ 3 at Science 1 to 3).",
+        brown=8, red=45, red_share=0.05, mushrooms_an_hour=30.0, golden=golden,
+        mushroom_words="While none is out one appears about every 2 minutes at any speed and stays 1 minute; it is "
+                       "picked only when you drop a villager on it, so at most about 30 an hour.",
+        event_next=event_at,
+        event_paused_left=max(0, _i32(data, EVENT) - _i32(data, SAVED)) if paused else None,
+        event_rule="It comes 12 to 23 whole hours after the last, each hour equally likely, at any speed; which "
+                   "event is drawn then (a story event 20%, a village event 40%, a crate or vial 40%).",
+        event_running="Paused, its timer waits; with the game closed it runs on in real time, and after time away at "
+                      "most one event happens; the catch-up adds none. What a Time Warp does to it is not worked out.",
+        medicine=level[3], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71}, parents_from=18,
+        sick_loss=(0.71, 0.22),
+        collectibles=[("Collectibles: A New Home has none; mushrooms are its only random pickup.", gm.RUNNING)],
+        limit=life.limit_words(village, None, "nothing for collections (A New Home has none)",
+                               "; babies also need room: 15 people or more need the first hut, 25 the second, 50 "
+                               "the third"),
+        food_words="2 food a villager every age unit; on Medium above 2,000 food, or on Hard, 2 more 76% of the "
+                   "time; never more on Easy.",
+        trips=[("berry picks", max(2, bush // 130)), ("crop harvests", 7 if farming >= 2 else 0),
+               ("catches", 9 if farming >= 3 else 0)])
+    return ctx
 
 
 # The puzzles: each a solved byte and the whole hours since the village was started that its completion writes
