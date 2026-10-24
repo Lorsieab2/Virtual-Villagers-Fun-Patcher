@@ -165,6 +165,21 @@ def _life_pokes(game: int, data: bytes) -> list[bytes]:
     out = [_put(data, life.DIFFICULTY_AT[game], level) for level in (0, 1, 2)]
     out.append(_put(_put(data, life.DIFFICULTY_AT[game], 1), _FOOD[game], 9_000))
     out.append(gm.blank_save(game, NOW))        # a new, empty village's save: no villager table to be found
+    if game == 3:
+        # The honey with The Bee Hive solved and its next gain still ahead: its time to full as a date to come.
+        import vv_game_mechanics_vv3 as vv3
+        h = vv3.HEADER
+        base = struct.unpack_from("<4i", data, h + vv3.CLOCK)[3]
+        hive = _put(data, h + vv3.PUZZLES + 4 + 8 * vv3.BEE_HIVE, 1)
+        out.append(_put(hive, h + vv3.HONEY + 4, base + 50_000_000, 100))
+        # ... and with its gain just overdue at the export's first moment, on a running clock at Fast and Normal:
+        # the time to full is then a date to come with no next-refill date of its own.
+        epoch = struct.unpack_from("<I", data, 4)[0]
+        wall = struct.unpack_from("<4i", data, h + vv3.CLOCK)[2]
+        for speed in (3, 6):
+            now_game = base + int((NOWS[0] - epoch - wall) * 6 / speed)
+            running = _put(_put(hive, h + vv3.CLOCK, speed), h + vv3.SPEED, speed)
+            out.append(_put(running, h + vv3.HONEY + 4, now_game - 3_700, 100))
     try:
         entries = ln._entries(game, data)
     except Exception:  # noqa: BLE001 -- a fixture without villagers gives no people pokes

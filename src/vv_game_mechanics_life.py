@@ -1015,6 +1015,10 @@ def claim_template(text: str) -> str:
         if new != text:
             text = new
             break
+    # A source's own name and a count's plural are no claim of their own: The Secret City's trees by fruit, and
+    # "1 refill" / "11 refills", share one shape.
+    text = _re.sub(r"\bTree (\d+) \((?:Banana|Mango|Papaya)\)", r"Tree \1 (<fruit>)", text)
+    text = _re.sub(r"\b(\d[\d,]*) refills?\b", r"\1 refill(s)", text)
     return _NAME_LISTS.sub("<villagers>", text)
 
 
