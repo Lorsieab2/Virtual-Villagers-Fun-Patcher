@@ -124,6 +124,23 @@ class ToolbarTests(unittest.TestCase):
                 self.assertGreaterEqual(b.winfo_width(), max(b.winfo_reqwidth(), words))
                 self.assertLessEqual(b.winfo_rootx() + b.winfo_width(), ed.winfo_rootx() + ed.winfo_width())
 
+    def test_a_flow_row_asks_for_its_widest_child_or_all_on_one_line(self) -> None:
+        """Codex, #605: the frame's own helper once shadowed `natural`, so both asked for the sum."""
+        import tkinter as tk
+        holder = tk.Toplevel(self.root)
+        holder.withdraw()
+        try:
+            for natural, wanted in ((False, 200), (True, 300)):
+                with self.subTest(natural=natural):
+                    row = tk.Frame(holder)
+                    for wide in (100, 200):
+                        tk.Frame(row, width=wide, height=10).pack(side="left")
+                    gw.flow_row(row, natural=natural)
+                    holder.update_idletasks()
+                    self.assertEqual(row.winfo_reqwidth(), wanted)
+        finally:
+            holder.destroy()
+
     def test_nothing_on_the_side_panel_is_cut_off_at_its_default_width(self) -> None:
         """The owner's screenshot: "Make every..." and "Automa..." cut off in Text box background."""
         ed = self.open(1400)
