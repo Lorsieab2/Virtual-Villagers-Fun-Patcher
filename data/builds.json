@@ -1512,7 +1512,7 @@
         {
           "source": "assets/easier_healing/VVFP VV1 Easier Healing.dll",
           "destination": "VVFP VV1 Easier Healing.dll",
-          "sha256": "954F0BED57C9CB95D43CEFF09CE415066023E2D4C484DDD04D8D605E5BE2D35F"
+          "sha256": "B191F11E56EA4FA66FCD451FF7B0A202C1E7D80598FB53C2B84191A3BBD139B8"
         }
       ],
       "runtime_detours": [
@@ -1575,7 +1575,7 @@
         {
           "source": "assets/research_at_max/VVFP VV1 Research At Max.dll",
           "destination": "VVFP VV1 Research At Max.dll",
-          "sha256": "866F60DBC3F26A752EBC334BF9A14B6F45424D4D13AC46BD5704D5AAEF65B9D6"
+          "sha256": "66C657F84C03337DA1EA9E49874D601055194A750D843E6AE31CECCC5790B273"
         }
       ],
       "runtime_detours": [
@@ -2699,7 +2699,7 @@
         {
           "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
           "destination": "VVFP Speed Change Timers.dll",
-          "sha256": "CFB8234C95308938088F757ADB34BE5E1D5AB8EB927CE95A4B30E9C8FE25DA74"
+          "sha256": "4F62269B4D9DF29ED8766EB728AFD81AC99A6663D80DF5A5C839C18F67830907"
         }
       ],
       "runtime_detours": [
@@ -2979,7 +2979,7 @@
         {
           "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
           "destination": "VVFP Speed Change Timers.dll",
-          "sha256": "CFB8234C95308938088F757ADB34BE5E1D5AB8EB927CE95A4B30E9C8FE25DA74"
+          "sha256": "4F62269B4D9DF29ED8766EB728AFD81AC99A6663D80DF5A5C839C18F67830907"
         }
       ],
       "runtime_detours": [
@@ -3928,7 +3928,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "743ACADA0D8CC03E10FABA6461EA6FF0406EC0887559FD1BF1817F2B4C0445D4"
+          "sha256": "4CD2168FAE103223E06A8A454B7BDA9951C90378E850CF86C4B2766253222BCC"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4116,7 +4116,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "743ACADA0D8CC03E10FABA6461EA6FF0406EC0887559FD1BF1817F2B4C0445D4"
+          "sha256": "4CD2168FAE103223E06A8A454B7BDA9951C90378E850CF86C4B2766253222BCC"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4199,7 +4199,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "743ACADA0D8CC03E10FABA6461EA6FF0406EC0887559FD1BF1817F2B4C0445D4"
+          "sha256": "4CD2168FAE103223E06A8A454B7BDA9951C90378E850CF86C4B2766253222BCC"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4282,7 +4282,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "743ACADA0D8CC03E10FABA6461EA6FF0406EC0887559FD1BF1817F2B4C0445D4"
+          "sha256": "4CD2168FAE103223E06A8A454B7BDA9951C90378E850CF86C4B2766253222BCC"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",

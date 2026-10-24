@@ -29,7 +29,7 @@
     {
       "source": "assets/game_log/VVFP Game Log.dll",
       "destination": "VVFP Game Log.dll",
-      "sha256": "2786C0FA3018A1CE4A45699629958C81B82A681EEADCF1D3CBD5FD1D4ECD7574"
+      "sha256": "1F12375B32C28088B39FA34F6EFF63306816857E1E11F5C56D20DDE77379A743"
     }
   ],
   "runtime_detours": [

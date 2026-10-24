@@ -39,6 +39,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <intrin.h>
+#include "../shared/install_sites.h"
 
 #define VV1_GAME 1
 #define NOT_PREFERRED_PERCENT 14u
@@ -141,20 +142,14 @@ static int installed;
 /* Called once by VVFP Startup.dll at game start, outside DllMain. */
 __declspec(dllexport) void __stdcall VvfpStartup(int game, unsigned int shipped) {
     unsigned char bytes[SITE_LENGTH];
-    unsigned char *at = (unsigned char *)(uintptr_t)SITE_VA;
-    DWORD old;
+    vvfp_site_write w[1];
     (void)shipped;
     if (game != VV1_GAME || installed || !site_is_the_rows()) {
         return;
     }
     site_bytes(bytes);
-    if (!VirtualProtect(at, SITE_LENGTH, PAGE_EXECUTE_READWRITE, &old)) {
-        return;
-    }
-    memcpy(at, bytes, SITE_LENGTH);
-    VirtualProtect(at, SITE_LENGTH, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, SITE_LENGTH);
-    installed = 1;
+    vvfp_site_bytes(&w[0], SITE_VA, SITE_LENGTH, ROW_BYTES, bytes);
+    installed = vvfp_install_sites(w, 1);    /* all-or-none (native/shared/install_sites.h) */
 }
 
 #ifdef VVFP_TEST

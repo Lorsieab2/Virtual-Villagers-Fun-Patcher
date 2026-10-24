@@ -121,6 +121,7 @@
 #include "../shared/sidecar_io.h"
 #include "../shared/save_folder.h"
 #include "../shared/per_save.h"
+#include "../shared/install_sites.h"    /* every site written, or none */
 
 #define GAME 2
 #define RECORDS 256
@@ -1613,18 +1614,6 @@ static void put_rel(unsigned char *out, unsigned char op, unsigned int from, con
     memcpy(out + 1, &rel, 4);
 }
 
-static int write_code(unsigned int va, const unsigned char *bytes, unsigned int len) {
-    DWORD old;
-    unsigned char *at = (unsigned char *)(uintptr_t)va;
-    if (!VirtualProtect(at, len, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, len);
-    VirtualProtect(at, len, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, len);
-    return 1;
-}
-
 /* The trampolines: each prologue the wrappers call through, then a jump back. */
 static unsigned char *g_tramps;
 
@@ -1635,10 +1624,15 @@ static void *tramp(int index, const site_t *s) {
     return t;
 }
 
+/* Every site stock, then every one written -- or none
+   (native/shared/install_sites.h).  Before, the sites were written one at a
+   time and a refused VirtualProtect returned with the earlier ones already
+   detoured: half the store live, and the next try refused for good because
+   those sites were no longer stock. */
 static int install(void) {
     static const unsigned char *const label_text_at = (const unsigned char *)(uintptr_t)LABEL_SUFFIX_VA;
-    unsigned char bytes[16];
-    DWORD old;
+    vvfp_site_write w[S_COUNT];
+    unsigned char *page;
     int i;
     if (g_installed) {
         return 1;
@@ -1652,22 +1646,21 @@ static int install(void) {
         || memcmp(label_text_at, LABEL_SUFFIX_AT, sizeof LABEL_SUFFIX_AT) != 0) {
         return 0;
     }
-    g_tramps = (unsigned char *)VirtualAlloc(NULL, 4096, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    if (g_tramps == NULL) {
+    page = vvfp_code_page_alloc(4096);
+    if (page == NULL) {
         return 0;
     }
+    g_tramps = page;
     g_load_original = (slot_fn)tramp(0, &SITES[S_LOAD]);
     g_save_original = (slot_fn)tramp(1, &SITES[S_SAVE]);
     g_reset_original = (reset_fn)tramp(2, &SITES[S_RESET]);
     g_create_original = (create_fn)tramp(3, &SITES[S_CREATE]);
     g_input_original = (input_fn)tramp(4, &SITES[S_INPUT]);
     g_pass_original = (pass_fn)tramp(5, &SITES[S_PASS]);
-    if (!VirtualProtect(g_tramps, 4096, PAGE_EXECUTE_READ, &old)) {
-        VirtualFree(g_tramps, 0, MEM_RELEASE);
-        g_tramps = NULL;
+    if (!vvfp_code_page_seal(page, 4096)) {
+        g_tramps = NULL;                 /* (the page is freed) */
         return 0;
     }
-    FlushInstructionCache(GetCurrentProcess(), g_tramps, 4096);
     g_back_draw_loop = (void *)(uintptr_t)0x445C25u;
     g_back_draw_done = (void *)(uintptr_t)0x4478DAu;
     g_back_hit_after = (void *)(uintptr_t)0x43107Fu;
@@ -1697,11 +1690,12 @@ static int install(void) {
         case S_INPUT: to = (const void *)wrap_input; break;
         default: to = (const void *)stub_label; break;
         }
-        memset(bytes, 0x90, sizeof bytes);
-        put_rel(bytes, op, s->va, to);
-        if (!write_code(s->va, bytes, s->len)) {
-            return 0;            /* VirtualProtect refused: cannot happen on the game's own code */
-        }
+        vvfp_site_branch(&w[i], s->va, (int)s->len, s->stock, op, to);
+    }
+    if (!vvfp_install_sites(w, S_COUNT)) {
+        g_tramps = NULL;
+        VirtualFree(page, 0, MEM_RELEASE);   /* no site points at it */
+        return 0;
     }
     g_installed = 1;
     return 1;

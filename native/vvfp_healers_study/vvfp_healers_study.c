@@ -54,6 +54,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <intrin.h>
+#include "../shared/install_sites.h"
 
 /* Counters the tests read.  Compiled only into the TEST build (VVFP_TEST,
    tests/test_dlls/): the shipped DLL carries no counters and no probe. */
@@ -466,7 +467,6 @@ static const struct site CU_SITES[3] = {
     { VV1_CU_SITE, VV1_CU_STOCK, sizeof VV1_CU_STOCK, vv1_cu_stub },
     { VV2_CU_SITE, VV2_CU_STOCK, sizeof VV2_CU_STOCK, vv2_cu_stub },
 };
-static int cu_install_state[3];
 
 static int site_is_stock(const struct site *s) {
     MEMORY_BASIC_INFORMATION info;
@@ -490,37 +490,33 @@ static void site_bytes(const struct site *s, unsigned char *out) {
     }
 }
 
-/* Verify the stock bytes, then write the jmp.  1 on success. */
-static int install_site(const struct site *s) {
-    unsigned char bytes[16];
-    unsigned char *at;
-    DWORD old;
-    if (s->va == 0 || !site_is_stock(s)) {
-        return 0;
-    }
-    at = (unsigned char *)(uintptr_t)s->va;
-    site_bytes(s, bytes);
-    if (!VirtualProtect(at, (SIZE_T)s->length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(at, bytes, (size_t)s->length);
-    VirtualProtect(at, (SIZE_T)s->length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), at, (SIZE_T)s->length);
-    return 1;
-}
-
 /* Called by a companion that runs every frame in the game.  Idempotent: the
-   scheduler site and the catch-up site, each tried once
-   and independently.  Returns whether the scheduler site is installed. */
+   scheduler site and the catch-up site are checked, then both written, or
+   neither (native/shared/install_sites.h) -- before, each was tried on its
+   own, so live play could have the feature and catch-up not, or the other
+   way round.  Returns whether it is installed. */
 __declspec(dllexport) int __stdcall VvfpHealersStudyInstall(int game_id) {
+    vvfp_site_write w[2];
+    int n = 0;
     if (game_id < 1 || game_id > 2) {
         return 0;
     }
-    if (cu_install_state[game_id] == 0) {
-        cu_install_state[game_id] = install_site(&CU_SITES[game_id]) ? 1 : -1;
+    if (install_state[game_id] != 0) {
+        return install_state[game_id] == 1;
     }
-    if (install_state[game_id] == 0) {
-        install_state[game_id] = install_site(&SITES[game_id]) ? 1 : -1;
+    install_state[game_id] = -1;
+    if (SITES[game_id].va == 0 || !site_is_stock(&SITES[game_id])
+        || (CU_SITES[game_id].va != 0 && !site_is_stock(&CU_SITES[game_id]))) {
+        return 0;
+    }
+    vvfp_site_branch(&w[n++], SITES[game_id].va, SITES[game_id].length, SITES[game_id].stock, 0xE9,
+                     (const void *)SITES[game_id].stub);
+    if (CU_SITES[game_id].va != 0) {
+        vvfp_site_branch(&w[n++], CU_SITES[game_id].va, CU_SITES[game_id].length, CU_SITES[game_id].stock,
+                         0xE9, (const void *)CU_SITES[game_id].stub);
+    }
+    if (vvfp_install_sites(w, n)) {
+        install_state[game_id] = 1;
     }
     return install_state[game_id] == 1;
 }

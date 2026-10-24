@@ -33,6 +33,7 @@
 #include <stdint.h>
 
 #include "../shared/patcher_files.h"
+#include "../shared/install_sites.h"   /* every site written, or none */
 
 #define GAMES 5
 #define KIND_ISLAND_EVENT 8               /* parentage_export.c */
@@ -734,10 +735,18 @@ static void put_jmp(unsigned char *at, const void *to) {
     memcpy(at + 1, &rel, 4);
 }
 
+/* Every routine's entry, or none (native/shared/install_sites.h).  Before,
+   a site whose VirtualProtect failed was skipped and the install still
+   reported success: some events logged, others never, with nothing to say
+   so.  The stubs and trampolines are now built in a read/write page sealed
+   read/execute before any site points at it (it used to stay writable and
+   executable). */
 static int install(int game) {
     const struct site *sites;
+    vvfp_site_write w[MAX_SITES];
+    unsigned char *code;
+    SIZE_T size;
     int count, i;
-    DWORD old;
     if (game < 1 || game > GAMES || GAME_SITES[game] == NULL || GAME_LAYOUTS[game] == NULL
         || writer() == NULL) {
         return 0;                         /* nothing to write to: nothing installed */
@@ -750,43 +759,42 @@ static int install(int game) {
             return 0;                     /* not the stock bytes: nothing is installed */
         }
     }
-    g_code = (unsigned char *)VirtualAlloc(NULL, (SIZE_T)count * (STUB_SIZE + TRAMPOLINE_SIZE),
-                                           MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-    if (g_code == NULL) {
+    if (count == 0) {
         return 0;
     }
-    g_game = game;
-    g_layout = GAME_LAYOUTS[game];
+    size = (SIZE_T)count * (STUB_SIZE + TRAMPOLINE_SIZE);
+    code = vvfp_code_page_alloc(size);
+    if (code == NULL) {
+        return 0;
+    }
     for (i = 0; i < count; ++i) {
-        unsigned char *stub = g_code + i * (STUB_SIZE + TRAMPOLINE_SIZE);
+        unsigned char *stub = code + i * (STUB_SIZE + TRAMPOLINE_SIZE);
         unsigned char *trampoline = stub + STUB_SIZE;
         unsigned char *at = (unsigned char *)(uintptr_t)sites[i].entry;
-        g_sites[i] = &sites[i];
-        g_trampolines[i] = trampoline;
         stub[0] = 0x68;                   /* push imm32 (the site's index) */
         memcpy(stub + 1, &i, 4);
         put_jmp(stub + 5, (const void *)(uintptr_t)thunk_body);
         memcpy(trampoline, sites[i].stolen, sites[i].length);
         put_jmp(trampoline + sites[i].length, at + sites[i].length);
+        /* The jump is relative to where it will sit, the routine's entry. */
+        vvfp_site_branch(&w[i], sites[i].entry, sites[i].length, sites[i].stolen, 0xE9, stub);
     }
-    FlushInstructionCache(GetCurrentProcess(), g_code, (SIZE_T)count * (STUB_SIZE + TRAMPOLINE_SIZE));
+    if (!vvfp_code_page_seal(code, size)) {
+        return 0;                         /* (the page is freed) */
+    }
     for (i = 0; i < count; ++i) {
-        unsigned char *at = (unsigned char *)(uintptr_t)sites[i].entry;
-        unsigned char bytes[8];
-        if (!VirtualProtect(at, sites[i].length, PAGE_EXECUTE_READWRITE, &old)) {
-            continue;
-        }
-        /* The jump is relative to where it will sit, the routine's entry -- not
-           to this buffer it is assembled in. */
-        memset(bytes, 0x90, sizeof bytes);
-        bytes[0] = 0xE9;
-        {
-            int rel = (int)(g_code + i * (STUB_SIZE + TRAMPOLINE_SIZE) - (at + 5));
-            memcpy(bytes + 1, &rel, 4);
-        }
-        memcpy(at, bytes, sites[i].length);
-        VirtualProtect(at, sites[i].length, old, &old);
-        FlushInstructionCache(GetCurrentProcess(), at, sites[i].length);
+        g_sites[i] = &sites[i];
+        g_trampolines[i] = code + i * (STUB_SIZE + TRAMPOLINE_SIZE) + STUB_SIZE;
+    }
+    g_code = code;
+    g_game = game;
+    g_layout = GAME_LAYOUTS[game];
+    if (!vvfp_install_sites(w, count)) {
+        g_code = NULL;
+        g_game = 0;
+        g_layout = NULL;
+        VirtualFree(code, 0, MEM_RELEASE);
+        return 0;
     }
     return 1;
 }

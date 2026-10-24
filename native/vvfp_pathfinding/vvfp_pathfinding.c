@@ -59,6 +59,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../shared/install_sites.h"   /* every site written, or none */
 
 #define GAME_VV1 1
 #define GAME_VV2 2
@@ -756,39 +757,7 @@ static void discard_detour(const struct detour *d) {
     }
 }
 
-/* Write `bytes` (the jmp, or the stock bytes back) over the site. */
-static int write_site(const struct detour *d, const unsigned char *bytes) {
-    unsigned char *site = (unsigned char *)(uintptr_t)d->va;
-    DWORD old;
-    if (!VirtualProtect(site, (SIZE_T)d->length, PAGE_EXECUTE_READWRITE, &old)) {
-        return 0;
-    }
-    memcpy(site, bytes, (size_t)d->length);
-    VirtualProtect(site, (SIZE_T)d->length, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), site, (SIZE_T)d->length);
-    return 1;
-}
-
-static int install_detour(const struct detour *d) {
-    unsigned char jmp[16];
-    if (!stock_bytes_present(d)) {
-        return 0;
-    }
-    site_bytes(d, jmp);
-    return write_site(d, jmp);
-}
-
-/* Put the stock bytes back (Codex, #454: a set that fails part-way must
-   not leave the earlier sites detoured).  If even that write fails, the
-   site is still detoured, so its trampoline page must stay: the handler
-   is complete on its own and keeps working (Codex, #455). */
-static void restore_detour(const struct detour *d) {
-    if (write_site(d, d->stock)) {
-        discard_detour(d);
-    }
-}
-
-static int install_state[3];            /* per game: 0 untried, 1 installed, -1 refused */
+static int install_state[3];           /* per game: 0 untried, 1 installed, -1 refused */
 
 /* Called by the game's Origins companion from its per-frame tick, once the
    game is up.  Idempotent.  Returns 1 while the detours are live. */
@@ -804,6 +773,7 @@ __declspec(dllexport) int __stdcall VvfpPathfindingInstall(int game_id) {
           vv2_descent_stub, &vv2_descent_trampoline },
     };
     const struct detour *set;
+    vvfp_site_write writes[2];
     int count;
     int i;
     if (game_id != GAME_VV1 && game_id != GAME_VV2) {
@@ -817,8 +787,11 @@ __declspec(dllexport) int __stdcall VvfpPathfindingInstall(int game_id) {
                                 : (int)(sizeof vv2 / sizeof vv2[0]);
     /* All or nothing: The Lost Children's flood and descent share a field
        layout contract, so one without the other is refused.  Every site is
-       verified and every trampoline built before the first byte is written;
-       a write that still fails puts the sites already written back. */
+       verified and every trampoline built before the first byte is written,
+       and every site is made writable before any is written
+       (native/shared/install_sites.h): a refused VirtualProtect leaves every
+       site stock, so no "put back" write (which could fail the same way, and
+       leave a site detoured with the install reported refused) is needed. */
     for (i = 0; i < count; ++i) {
         if (!prepare_detour(&set[i])) {
             while (i-- > 0) {
@@ -829,17 +802,16 @@ __declspec(dllexport) int __stdcall VvfpPathfindingInstall(int game_id) {
         }
     }
     for (i = 0; i < count; ++i) {
-        if (!install_detour(&set[i])) {
-            int failed = i;
-            while (i-- > 0) {
-                restore_detour(&set[i]);      /* keeps its page if the site stays detoured */
-            }
-            for (i = failed; i < count; ++i) {
-                discard_detour(&set[i]);      /* never written: only their pages exist */
-            }
-            install_state[game_id] = -1;
-            return 0;
+        unsigned char jmp[16];
+        site_bytes(&set[i], jmp);
+        vvfp_site_bytes(&writes[i], set[i].va, set[i].length, set[i].stock, jmp);
+    }
+    if (!vvfp_install_sites(writes, count)) {
+        for (i = 0; i < count; ++i) {
+            discard_detour(&set[i]);          /* never written: only their pages exist */
         }
+        install_state[game_id] = -1;
+        return 0;
     }
     install_state[game_id] = 1;
     return 1;

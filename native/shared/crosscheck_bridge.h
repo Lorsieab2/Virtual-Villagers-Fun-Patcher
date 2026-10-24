@@ -140,6 +140,7 @@
 #include "patcher_files.h"
 #include "save_layout.h"
 #include "per_save.h"
+#include "install_sites.h"     /* every site written, or none */
 
 #define VVFP_XC_PARENTAGE_DLL "VVFP VV1 Parentage.dll"
 #define VVFP_XC_CAUSE_DLL     "VVFP Cause of Death.dll"
@@ -283,7 +284,7 @@ static int vvfp_xc_hook(unsigned char *site, const unsigned char *stock, int gam
     MEMORY_BASIC_INFORMATION info;
     unsigned char *page;
     unsigned char *p;
-    unsigned char jump[5];
+    vvfp_site_write jump[1];
     DWORD old;
     int rel;
     if (VirtualQuery(site, &info, sizeof(info)) != sizeof(info) || info.State != MEM_COMMIT
@@ -314,16 +315,11 @@ static int vvfp_xc_hook(unsigned char *site, const unsigned char *stock, int gam
         return 0;
     }
     FlushInstructionCache(GetCurrentProcess(), page, VVFP_XC_STUB_BYTES);
-    jump[0] = 0xE9;
-    rel = (int)((uintptr_t)page - ((uintptr_t)site + 5));
-    memcpy(jump + 1, &rel, 4);
-    if (!VirtualProtect(site, 5, PAGE_EXECUTE_READWRITE, &old)) {
+    vvfp_site_branch(&jump[0], (unsigned int)(uintptr_t)site, 5, stock, 0xE9, page);
+    if (!vvfp_install_sites(jump, 1)) {      /* native/shared/install_sites.h */
         VirtualFree(page, 0, MEM_RELEASE);
         return 0;
     }
-    memcpy(site, jump, 5);
-    VirtualProtect(site, 5, old, &old);
-    FlushInstructionCache(GetCurrentProcess(), site, 5);
     return 1;
 }
 

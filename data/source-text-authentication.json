@@ -98,7 +98,7 @@
     },
     {
       "path": "data/candidates/vv5_expanded_time_warp_map.json",
-      "sha256": "BBF15E12A2698271BF94551EF81D466D72057AD58F34FF47305EF71B7F840D66"
+      "sha256": "6328CF8A3D1747AA961853699CA09E1A64298483FD0A0C750272AC6E13A04042"
     },
     {
       "path": "data/candidates/vv5_individual_running_candidate.json",
@@ -114,7 +114,7 @@
     },
     {
       "path": "data/candidates/vv5_task9_native_actions_map.json",
-      "sha256": "2ABDA1AAAF8D3D54BCF6EADBA0B7F5586CC23F2DB18D4CC6CE413A9E93CE2FC6"
+      "sha256": "ED66332DFF1354B4B9C8303DE9EEBA8CF37AC5AC50CE993893D4708CDFDF8A6E"
     },
     {
       "path": "data/expanded_256_static_repair_integration.json",
@@ -142,7 +142,7 @@
     },
     {
       "path": "data/vv5_expanded_time_warp.json",
-      "sha256": "F5FB253A5C872B4D752141F5753A5FE889B2F75D71055C3EE50DD1213583D2C7"
+      "sha256": "F8684E51ED16FD33E44DBB2FAFB6B115273DFB4F3914A6A5137DAAE8EFE59C65"
     },
     {
       "path": "data/vv5_origins_feature.json",
@@ -150,7 +150,7 @@
     },
     {
       "path": "data/vv5_task9_native_actions.json",
-      "sha256": "C8F444B63D2BE8B158BD9C954866A57CB2719B482D601A3F314BDD7E71CB7FE1"
+      "sha256": "3D36F40E4054863DD485A2B308F5E9E0946713F3E1AF0C74E216A3A92CCAEC09"
     }
   ]
 }
