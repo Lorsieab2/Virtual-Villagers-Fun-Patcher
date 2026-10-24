@@ -631,7 +631,7 @@ for number in sorted(tabs):
     # at least 80 pixels (about four lines) -- nothing above or below it cut off.
     window.update_idletasks()
     fixed = (top.winfo_reqheight() + 30 + tab["pickers"].winfo_reqheight() + tab["links"].winfo_reqheight()
-             + buttons.winfo_reqheight() + 24 + 40)
+             + tab["status"].winfo_reqheight() + buttons.winfo_reqheight() + 24 + 40)
     text = page.get("1.0", "end")
     tab["jump"](tab["groups"][-1])
     window.update()

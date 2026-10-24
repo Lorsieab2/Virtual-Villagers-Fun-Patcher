@@ -1092,6 +1092,8 @@ class App(tk.Tk):
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
+            # Game Mechanics' Browse...: the game exe the player chose for each save folder.
+            self.game_mechanics_exes: dict = {}
             self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
             self.status_var = tk.StringVar(
                 value="Choose a population mode and one game or all five."
@@ -2108,6 +2110,9 @@ class App(tk.Tk):
         self.tree_window = saved_window if isinstance(saved_window, dict) else {}
         saved_style = data.get("tree_style", {})
         self.tree_style = saved_style if isinstance(saved_style, dict) else {}
+        saved_exes = data.get("game_mechanics_exes", {})
+        self.game_mechanics_exes = ({str(k): v for k, v in saved_exes.items() if isinstance(v, str)}
+                                    if isinstance(saved_exes, dict) else {})
         saved_check_logs = data.get("check_logs_automatically", True)
         self.check_logs_var.set(saved_check_logs is not False)
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
@@ -2130,6 +2135,7 @@ class App(tk.Tk):
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
             "tree_style": self.tree_style,
+            "game_mechanics_exes": self.game_mechanics_exes,
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip()
                 for build in self.builds

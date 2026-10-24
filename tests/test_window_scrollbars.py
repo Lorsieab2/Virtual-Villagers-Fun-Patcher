@@ -26,6 +26,8 @@ NO_TK = 3
 # Toplevel subclass. Each one is a window that already scrolls, or cannot grow, so it does not
 # go through the helper.
 EXEMPT = {
+    "vv_genealogy_window.py::show_tip":
+        "a borderless hover tip of one wrapped label, gone when the mouse moves",
     "vv_fun_patcher_gui.py::WaitWindow.__init__":
         "a small fixed-size progress window (not resizable, close disabled while the work runs)",
     "vv_fun_patcher_gui.py::App._show_folder_confirmation":
