@@ -49,6 +49,7 @@ def main() -> int:
     workers = int(sys.argv[2]) if len(sys.argv) > 2 else 12
     short = Path(tempfile.gettempdir()) / "vvp"
     out.mkdir(parents=True, exist_ok=True)
+    short.mkdir(parents=True, exist_ok=True)                          # pytest makes --basetemp, not its parent
     files = sorted((REPO / "tests").glob("test_*.py"), key=lambda p: p.stat().st_size, reverse=True)
     began = time.time()
     with cf.ThreadPoolExecutor(workers) as pool:
