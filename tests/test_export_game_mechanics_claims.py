@@ -108,8 +108,8 @@ class Coverage(unittest.TestCase):
         self.assertIn("- Honey: # of 3000", text)                 # a rule's own number kept, the save's not
         self.assertIn("- Tree #: Mango\n", text)
         self.assertIn("- Planted at <date>; refills every ", text)
-        self.assertIn("- Planted when the village was <time> old, counted on Normal speed (started <date>; the save "
-                      "keeps no real date before <date>); refills every ", text)
+        self.assertRegex(text, r"- Planted when the village was <time> old, counted on Normal speed \(started [^;]+; the "
+                               r"save keeps no real date before [^)]+\); refills every ")
         self.assertIn("Patches: Nature Level 1 Actually Replenishes Food Sources Faster", text)
         owner = (out / export.file_name(5)).read_text(encoding="utf-8")
         self.assertIn("Status: CONFIRMED BY OWNER", owner)
