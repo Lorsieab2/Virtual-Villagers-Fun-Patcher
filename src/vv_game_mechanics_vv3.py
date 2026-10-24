@@ -573,7 +573,7 @@ EVENT_LINES = (
 )
 ODDS_LINES = (
     "Brewing a potion blows up {blow}% of the time at Alchemy level {alchemy} (46%, 31%, 16% or 1% at Alchemy "
-    "0 to 3). A brewed potion keeps 5 minutes, at any speed and even while paused.",
+    "0 to 3).",
     "Conception: a roll of 300 + 50 - 50 x Medicine level (less a potion's help: 50 or 100) at or under Breeding; "
     "at Breeding 100 that is 17%, 33%, 51% or 67% at Medicine 0 to 3. Twins 5.3% and triplets 1.75%, at "
     "Medicine 3 only.",
@@ -607,11 +607,25 @@ CHANCE_LINES = (
     ("Timers: the game's clock runs 2 times, 1 time or 0.6 times real time on Fast, Normal or Slow, and stops while "
      "paused; an age unit is 3, 6 or 10 minutes, a year 1 hour, 2 hours or 3 hours 20 minutes; a birth 41 age "
      "units; a planted fruit tree can be picked after 4 hours, 8 hours or 13 hours 20 minutes; an item lies 90 "
-     "seconds (still counting while paused, when no new ones appear); a potion keeps 5 minutes.", True),
+     "seconds (still counting while paused, when no new ones appear).", True),
+    ("A brewed potion keeps 5 minutes on Normal speed, 2 minutes 30 seconds on Fast and 8 minutes 20 seconds on "
+     "Slow, as the pot's countdown shows.", False),
     ("Villagers re-decide what to do every 40 seconds at any speed; a fixed-spot coral appears for 90 seconds from "
      "puzzle code; the weather, fire and shark timers' lengths; the game may also save every 10 minutes while "
      "playing (not seen in a game: a 30-minute run left no new save).", False),
 )
+
+
+# A brewed potion waits in the pot (0x59454C) until a deadline 300 seconds ahead on 0x403330 (0x430E60, checked
+# by 0x430F10), and the pot's countdown (0x469B53) shows what is left times the clock's rate / 6 (0x426580): 5
+# minutes on Normal, 2 minutes 30 seconds on Fast, 8 minutes 20 seconds on Slow.  The owner sees its time change
+# with the speed (2026-10-24); not timed in a game.  The pot is not saved, so no save holds a potion to count down.
+POTION_KEEPS = {gm.FAST: "2 minutes 30 seconds", gm.NORMAL: "5 minutes", gm.SLOW: "8 minutes 20 seconds"}
+
+
+def potion_line(speed: int) -> str:
+    return (f"A brewed potion keeps {POTION_KEEPS[speed]} on {gm.speed_name(speed)} speed (5 minutes on Normal, "
+            "2 minutes 30 seconds on Fast, 8 minutes 20 seconds on Slow), as the pot's countdown shows.")
 
 
 def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int,
@@ -673,6 +687,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         + f"; a lit fire adds a 10% chance of 1 more; while catching up ÷ {catch}."))
     blow = max(0, 15 * (3 - level[ALCHEMY]) + 1)
     add("Tech points and effects", ODDS_LINES[0].format(blow=min(blow, 100), alchemy=level[ALCHEMY]), gm.RUNNING)
+    add("Tech points and effects", potion_line(speed))
 
     add("Food earned", f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
                        f"({2 * 3600 / (60 * speed):g} an hour) while there is more than 500; at Normal difficulty 2 "

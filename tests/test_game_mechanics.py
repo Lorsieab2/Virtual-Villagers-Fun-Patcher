@@ -343,6 +343,40 @@ class FruitTrees(unittest.TestCase):
         self.assertEqual(snapshot(), before)
 
 
+class BrewedPotion(unittest.TestCase):
+    """The owner, 2026-10-24: a brewed potion's time changes with the game speed -- the old "5 minutes, at any
+    speed and even while paused" was wrong.  The pot's countdown (0x469B53) is the time left x rate / 6."""
+
+    def read(self, speed: int):
+        folder = Folder(self)
+        folder.save(make_save(clock=(speed, 0, 100_000, 50_000), speed=speed))
+        return gm.read(folder.path, 3, 1, [])
+
+    def test_the_line_is_given_at_the_saves_speed(self) -> None:
+        for speed, keeps in ((gm.NORMAL, "5 minutes"), (gm.FAST, "2 minutes 30 seconds"),
+                             (gm.SLOW, "8 minutes 20 seconds")):
+            with self.subTest(speed=speed):
+                facts = self.read(speed)
+                potion = [f for f in facts if f.text.startswith("A brewed potion keeps")]
+                self.assertEqual(len(potion), 2)
+                self.assertEqual(potion[0].text, (
+                    f"A brewed potion keeps {keeps} on {gm.speed_name(speed)} speed (5 minutes on Normal, 2 minutes "
+                    "30 seconds on Fast, 8 minutes 20 seconds on Slow), as the pot's countdown shows."))
+                self.assertEqual(potion[1].text, (
+                    "A brewed potion keeps 5 minutes on Normal speed, 2 minutes 30 seconds on Fast and 8 minutes 20 "
+                    "seconds on Slow, as the pot's countdown shows."))
+                self.assertFalse(any(f.confirmed for f in potion))      # not timed in a game: UNCONFIRMED
+                text = gm.render(facts)
+                self.assertNotIn("at any speed and even while paused", text)
+                self.assertNotIn("a potion keeps 5 minutes", text)
+
+    def test_the_per_speed_values_are_the_countdowns(self) -> None:
+        # 300 seconds left x rate / 6 (0x426580), shown as minutes and seconds.
+        for speed, words in vv3.POTION_KEEPS.items():
+            minutes, rest = divmod(300 * speed // 6, 60)
+            self.assertEqual(words, f"{minutes} minutes" + (f" {rest} seconds" if rest else ""))
+
+
 class SaveOffsets(unittest.TestCase):
     """The offsets follow from the stock save writer (vv_game_mechanics_vv3's docstring), so a synthetic
     save built with the module's own constants cannot catch a wrong one: pin them here."""
