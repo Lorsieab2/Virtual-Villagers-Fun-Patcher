@@ -24,6 +24,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 ## What's new in v1.35.82
 
+- **Difficulty Settings** (The Tree of Life and New Believers, new; added in an update to v1.35.82). The Options dialog gets back its Difficulty row -- Easy, Normal or Hard -- as A New Home, The Lost Children and The Secret City have it. Both games already keep a difficulty level with each village (a village starts on Normal) and play by The Secret City's rules for it, but never showed the choice; its old click areas lay hidden under the Game Speed buttons. The row sits directly above Game Speed, which moves down one row, and the dialog grows by that row. Easy gives a new village 300 more food, less food eaten, faster healing and about a quarter of the illness; Hard gives 99 less food, more food eaten and harder starvation. The new "VVFP Difficulty.dll" is started by VVFP Startup.dll. **Patch The Tree of Life and New Believers again** after updating. Not yet seen in a running game (the game's own Options drawing and click handler run in the emulator).
 - **Nature honey no longer loses part of every refill while you play** (The Secret City, Nature Level 1 Actually Replenishes Food Sources Faster). At Nature 1 or higher the hive refills every 45 minutes with 2.27 units' worth of honey, but only whole units are added and the rest was thrown away, so about an eighth of the honey was lost while the game was open (time away was not affected). Now the part not yet added is kept for the next refill, so playing gathers the same honey as the same time away. Nature 0, the 3,000 cap and the fruit trees are unchanged. Not yet seen in a running game (the game's own honey routine runs in the emulator).
 - **The rain lift's fruit counts when it reaches the food bin** (The Secret City, Fruit Harvested at the Food Bin). The fruit the rain lift brings down from the cliff tree once all three fruit trees are planted now works like picked fruit: its 4 food is added when it goes into the food bin ("Depositing food"), not when it is picked up. Not yet seen in a running game (the game's own lift, walk and let-go run in the emulator).
 - **All Fruit Trees Refill at the Same Time** / **Fruit Trees Take Turns Refilling** (The Secret City, new). Two ways to time the fruit trees' refills: every tree refills at the same moment, or the trees take turns, spread evenly over the refill time (with three trees, one refills every hour). **They cannot be ticked together: ticking one greys the other out, and a selection holding both builds nothing and says to tick only one.** Either way each tree gets the stock amount of fruit for the time since its own last refill, so the trees give exactly as much fruit as in the stock game; only when it comes changes. The save keeps every tree's own refill time, so without the patch the trees go back to their own times with nothing lost. Default and Select All tick Refill at the Same Time; Owner's Defaults ticks Take Turns. The new "VVFP VV3 Trees Refill Together.dll" and "VVFP VV3 Trees Take Turns.dll" are started by VVFP Startup.dll. **Patch The Secret City again** after updating. Not yet seen in a running game (checked by emulation and tests). Research: `docs/vv3-fruit-tree-timing.md`.
@@ -1149,6 +1150,12 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 
 - Patch ID: `vv4_story_cheat_upgrades_cost_tech_points`
 
+**Difficulty Settings**
+
+Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A New Home, The Lost Children and The Secret City have it. The Tree of Life already plays by a difficulty level, saved with each village (a village starts on Normal), with The Secret City's rules, but its Options dialog never shows the choice. The Difficulty row is drawn where The Secret City has it, directly above Game Speed, with the game's own radio buttons, words and font; Game Speed moves down one row and the dialog grows by that row, so every row and the Done button stay in view. Easy: a new village starts with 300 more food, villagers never eat the extra food the other levels take, a fed, healthy villager tries to regain health on every check, and villagers fall sick about a quarter as often. Normal: above 8,000 food each villager's meal takes 2 more food three times in four, and a starving villager loses health on about three checks in four. Hard: a new village starts with 99 less food, the extra food is taken at any food level, and a starving villager loses health on every check. **The starting food only changes for a village made after you pick the level.** **Needs no other patch.** The companion is "VVFP Difficulty.dll", started by VVFP Startup.dll. On by default; **not yet seen in a running game** (checked by emulation and tests).
+
+- Patch ID: `vv4_difficulty_settings`
+
 ### Virtual Villagers - New Believers
 
 **Clickable Tips**
@@ -1320,6 +1327,12 @@ Gives New Believers 256 villager slots (numbered 0 to 255) instead of 150 (belie
 
 - Population modes: stock, collection_progression, immediate_fixed
 - Patch ID: `vv5_population_256`
+
+**Difficulty Settings**
+
+Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A New Home, The Lost Children and The Secret City have it. New Believers already plays by a difficulty level, saved with each village (a village starts on Normal), with The Secret City's rules, but its Options dialog never shows the choice. The Difficulty row is drawn where The Secret City has it, directly above Game Speed, with the game's own radio buttons, words and font; Game Speed moves down one row and the dialog grows by that row, so every row and the Done button stay in view. Easy: a new village starts with 300 more food, villagers never eat the extra food the other levels take, a fed, healthy villager tries to regain health on every check, and villagers fall sick about a quarter as often. Normal: above 8,000 food each villager's meal takes 2 more food three times in four, and a starving villager loses health on about three checks in four. Hard: a new village starts with 99 less food, the extra food is taken at any food level, and a starving villager loses health on every check. **The starting food only changes for a village made after you pick the level.** **Needs no other patch.** The companion is "VVFP Difficulty.dll", started by VVFP Startup.dll. On by default; **not yet seen in a running game** (checked by emulation and tests).
+
+- Patch ID: `vv5_difficulty_settings`
 
 ## The Origins upgrades menus
 

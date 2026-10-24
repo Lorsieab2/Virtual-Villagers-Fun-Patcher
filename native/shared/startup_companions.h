@@ -51,6 +51,7 @@ static const char *const VVFP_STARTUP_COMPANIONS[] = {
     "VVFP VV3 Trees Refill Together.dll",
     "VVFP VV3 Trees Take Turns.dll",
     "VVFP Speed Change Timers.dll",
+    "VVFP Difficulty.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT \
