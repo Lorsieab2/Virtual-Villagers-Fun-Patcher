@@ -294,7 +294,8 @@ class ReleasesLinkTests(unittest.TestCase):
             # The save folder's folder and file names, old and new (the owner, 2026-10-09).
             ("vv_save_layout", set()),
             # Game Mechanics: the slot's save named as every repair tool names it (function-level), and its window.
-            ("vv_game_mechanics", {"vv_tribe_rename"}),
+            ("vv_game_mechanics", {"vv_tribe_rename",
+                                   "vv_last_names"}),   # the villagers, as Last Names reads them (function-level)
             ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename"}),
             # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
             *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup"}) for n in range(1, 6)),
