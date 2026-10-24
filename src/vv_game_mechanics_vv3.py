@@ -605,27 +605,47 @@ CHANCE_LINES = (
      "more in the game update, the drop handlers, the island events' animations, the screens and the world "
      "objects: not individually worked out.", False),
     ("Timers: the game's clock runs 2 times, 1 time or 0.6 times real time on Fast, Normal or Slow, and stops while "
-     "paused; an age unit is 3, 6 or 10 minutes, a year 1 hour, 2 hours or 3 hours 20 minutes; a birth 41 age "
-     "units; a planted fruit tree can be picked after 4 hours, 8 hours or 13 hours 20 minutes; an item lies 90 "
-     "seconds (still counting while paused, when no new ones appear).", True),
-    ("A brewed potion keeps 5 minutes on Normal speed, 2 minutes 30 seconds on Fast and 8 minutes 20 seconds on "
-     "Slow, as the pot's countdown shows.", False),
+     "paused; an age unit is 3, 6 or 10 real-life minutes, a villager year 1 hour, 2 hours or 3 hours 20 minutes "
+     "of real life; a birth 41 age units; a planted fruit tree can be picked after 4, 8 or 13 hours 20 minutes of "
+     "real life; an item lies 90 real-life seconds (still counting while paused, when no new ones appear).", True),
+    ("A brewed potion: the pot's on-screen countdown starts at 5:00 on Normal speed, 2:30 on Fast and 8:20 on Slow "
+     "(what it shows changes with the speed), and the potion is gone when it reaches 0:00.", True),
     ("Villagers re-decide what to do every 40 seconds at any speed; a fixed-spot coral appears for 90 seconds from "
      "puzzle code; the weather, fire and shark timers' lengths; the game may also save every 10 minutes while "
      "playing (not seen in a game: a 30-minute run left no new save).", False),
 )
 
 
-# A brewed potion waits in the pot (0x59454C) until a deadline 300 seconds ahead on 0x403330 (0x430E60, checked
-# by 0x430F10), and the pot's countdown (0x469B53) shows what is left times the clock's rate / 6 (0x426580): 5
-# minutes on Normal, 2 minutes 30 seconds on Fast, 8 minutes 20 seconds on Slow.  The owner sees its time change
-# with the speed (2026-10-24); not timed in a game.  The pot is not saved, so no save holds a potion to count down.
-POTION_KEEPS = {gm.FAST: "2 minutes 30 seconds", gm.NORMAL: "5 minutes", gm.SLOW: "8 minutes 20 seconds"}
+# A brewed potion waits in the pot (0x59454C) until a deadline 300 seconds ahead on the wall clock 0x403330
+# (0x430E60; the pot's update 0x430F10 spoils it there through 0x430D00 / 0x430350), and the pot's countdown
+# (0x469B53) shows what is left times the clock's rate / 6 (0x426580) as m:ss: 5:00 on Normal, 2:30 on Fast,
+# 8:20 on Slow.  The owner sees its time change with the speed (2026-10-24).  The pot is not saved (its save and
+# load slots are the no-ops 0x436170 / 0x436180), so no save holds a potion to count down.
+POTION_COUNTDOWN = {gm.FAST: "2:30", gm.NORMAL: "5:00", gm.SLOW: "8:20"}
 
 
 def potion_line(speed: int) -> str:
-    return (f"A brewed potion keeps {POTION_KEEPS[speed]} on {gm.speed_name(speed)} speed (5 minutes on Normal, "
-            "2 minutes 30 seconds on Fast, 8 minutes 20 seconds on Slow), as the pot's countdown shows.")
+    return (f"A brewed potion: the pot's on-screen countdown starts at {POTION_COUNTDOWN[speed]} on "
+            f"{gm.speed_name(speed)} speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with "
+            "the speed), and the potion is gone when it reaches 0:00.")
+
+
+# "That villager can't drink another potion so soon." (string 0x1A7, eSayCantDrinkAgain; the text at 0x49B9CC)
+# is said only by the brewed potion's drop handler 0x4303E0 (the alchemy pot's vtable 0x49CF54, slot 9) when
+# the villager's add-effect 0x4583A0 refuses the potion's effect: 0x455E10 finds the same effect already on
+# that villager, or the villager already has 4 (+0xFB0, the count of the 24-byte effects at +0xF50).  So it is
+# the "already have / 4 effects" rule, with no timer of its own.  An effect ends at a wall-clock deadline (+0x10
+# of its entry, 0x403330 + 600 or 300 set by the effect's apply 0x4268F0; checked by the villager update
+# 0x457051) -- 10 or 5 real-life minutes, the effect line's "in real time".  Saving ends every villager's
+# effects first (0x45EF9C calls 0x455DD0 for each villager), so no save holds one to count down.
+CANT_DRINK_LINE = (
+    "\"That villager can't drink another potion so soon.\" is the game's answer when the rule above refuses a "
+    "potion: that villager already has the same potion's effect, or already has 4 effects. It has no timer of "
+    "its own; it lasts until that villager's effect ends (10 or 5 real-life minutes after drinking, as the effect "
+    "line says), for that villager and that effect only, so other villagers, and other potions while under 4 "
+    "effects, can still be drunk. Saving the game ends every villager's potion effects, so time away never "
+    "carries one over and a save holds none to count down.")
+OWNER_ODDS_LINES = {6}                       # herbs never run out; already have / 4 effects (the owner, 2026-10-24)
 
 
 def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int,
@@ -687,7 +707,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         + f"; a lit fire adds a 10% chance of 1 more; while catching up ÷ {catch}."))
     blow = max(0, 15 * (3 - level[ALCHEMY]) + 1)
     add("Tech points and effects", ODDS_LINES[0].format(blow=min(blow, 100), alchemy=level[ALCHEMY]), gm.RUNNING)
-    add("Tech points and effects", potion_line(speed))
+    add("Tech points and effects", potion_line(speed), gm.RUNNING)
 
     add("Food earned", f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
                        f"({2 * 3600 / (60 * speed):g} an hour) while there is more than 500; at Normal difficulty 2 "
@@ -722,7 +742,8 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                                  else f"was burning when saved, with {gm.duration(fire - wall(LAST_SAVED))} left")
                   + "; while it burns sickness is lower and research gets its 10% chance of 1 more."))
     for n, line in enumerate(ODDS_LINES[1:], 1):
-        add("Other", line, gm.RUNNING if n in VERIFIED_ODDS_LINES else False)
+        add("Other", line, gm.RUNNING if n in VERIFIED_ODDS_LINES else gm.OWNER if n in OWNER_ODDS_LINES else False)
+    add("Other", CANT_DRINK_LINE, gm.RUNNING)
     extra = ""
     if level[5] >= 3 or nature >= 3:
         extra = gm.patch_words(village, MORTALITY, "at Nature level 3 the rolls start 7 years later")
