@@ -85,7 +85,7 @@ EVENT_LINES = (
     "opener sick and -15 health, each villager sick at 20/30/45% with -10/-15/-20 health; watertight 1/2/3 "
     "children of 3.5 to 4.45 years if there is room.",
     "Fruit crate: the opener -40/70/110 health (a large one is fatal); red vial a new head; blue vial one skill "
-    "+50/75/100; fizzy vial every skill -30/50/70. Leaving a crate or pouring a vial out does nothing.",
+    "+50/75/100; fizzy vial every skill -30/50/70. Leaving a crate or pouring a vial out changes nothing.",
 )
 # Chance and timers (the coordinator's spec mech_vv1\spec.md, "Chance and timers (complete index)"):
 # (line, verified on a traced path).  The full index of every roll is in the claims export.

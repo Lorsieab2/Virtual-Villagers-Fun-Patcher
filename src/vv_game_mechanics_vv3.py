@@ -147,11 +147,23 @@ HIDDEN_LINES = (
      'disliked one; a failure at 0 gives 4.', gm.RUNNING),
     ("Parenting is the exception: any failed try while Parenting is above 0 gives 4 (the stock game's own "
      'rule).', gm.RUNNING),
-    ('Disliking work makes 76% of job picks end in doing nothing (21% otherwise, at Farming 60); disliking '
-     'medicine skips the Healing pick half the time. A preferred job wins 86% of the time. A villager other '
+    ('Disliking work makes 76% of job picks end in doing nothing (21% otherwise, at Farming 60), and liking it, '
+     'never; a villager who dislikes work leaves an assigned spot more often (a fishing spot is kept 47.5% of the '
+     'time, 80% otherwise, always when work is liked). A preferred job wins 86% of the time. A villager other '
      'than the chief decides something only 35% of the time.', gm.RUNNING),
-    ('The other likes and dislikes make a villager refuse some actions; how much each changes is not yet '
-     'worked out.', False),
+    ("Running: a liking adult walks at speed 300 (100 otherwise); a disliking villager of any age at 40, even "
+     "running away (the same walk takes 146, 439 or 1,109 frames). Rain: liked, \"Drinking rain\"; disliked, "
+     "\"Getting out of the rain\". Laundry: liked 37% of the time (10% otherwise), disliked never. Playing: a "
+     "liking child picks from the plays; a disliking one makes no sandcastles or dirt play. Jumping: liked, a "
+     "30-hop dance; disliked, no hops.", gm.RUNNING),
+    ("Medicine, disliked: Healing is skipped half the time, and cures fall from 84% to 43%. Fish, the ocean or "
+     "swimming, disliked: refused (\"Running away\"); fruit, bees, honey, rocks, lifting, plants, bushes or "
+     "wood: 60% of those jobs become running away (a drop on the hive 60%, on the driftwood 50%); fire, "
+     "alchemy, potions, caves or the dark: a drop on that spot is refused.", gm.RUNNING),
+    ("Disliked dancing, talking, sand, resting, heights, herbs or flowers: that choice is never made; resting or "
+     "sitting: a sick villager paces; children: storytelling is called off 69 times in 70; stories: an adult "
+     "dropped on a child tells no story; crowds: left out of celebrations.", gm.RUNNING),
+    ('The other 44 likes and dislikes: no effect has been found in the running game.', False),
     ("A baby starts with one skill at 5 to 7 (4 to 6 when both parents' best is the same), from the mother's "
      "best 98% of the time; never Parenting. Twins and triplets are the first baby's copies but for the name. "
      "The mother's Parenting rises at each conception.", gm.RUNNING),
