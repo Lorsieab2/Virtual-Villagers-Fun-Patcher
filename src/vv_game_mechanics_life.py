@@ -293,6 +293,23 @@ def _babies_words(n: int) -> str:
     return {1: "1 baby", 2: "twins", 3: "triplets"}.get(n, f"{n} babies")
 
 
+def birth_wait(ctx: Context, p: Person) -> float:
+    """Seconds of play from now until `p`'s babies are born, as by_processed times it: what time away has already
+    added (her lag, and the time away counted if the village were played now) is worked off at CATCH_UP_STEP a unit,
+    the rest at the speed's age unit."""
+    left = max(0, p.conceived + BIRTH_UNITS - p.processed)
+    if left == 0:
+        return 0.0
+    lag = max(0, p.age - p.processed)
+    if left <= lag:
+        return left * CATCH_UP_STEP
+    rest = (left - lag) * ctx.unit
+    counted = 0.0 if ctx.paused else (gm.counted_away(ctx.game, ctx.village.now - ctx.last, ctx.speed) or 0.0)
+    if rest <= counted:
+        return (lag + rest / ctx.unit) * CATCH_UP_STEP
+    return (lag + counted / ctx.unit) * CATCH_UP_STEP + rest - counted
+
+
 def nursing_lines(ctx: Context, everyone: list[Person]) -> tuple[list[gm.Fact], tuple[float | None, str] | None]:
     """Each mother carrying babies, and (the soonest birth's moment, its words)."""
     out: list[gm.Fact] = []
@@ -310,7 +327,9 @@ def nursing_lines(ctx: Context, everyone: list[Person]) -> tuple[list[gm.Fact], 
         add("Nobody is carrying a baby now.", gm.SAVE)
     soonest: tuple[float | None, str] | None = None
     best = None
-    for p in sorted(mothers, key=lambda m: m.conceived + BIRTH_UNITS - m.processed):
+    # In order of birth by the same catch-up-aware timing the lines give (not by units left alone: a mother further
+    # from her birth but with time away still to work off can be born first).
+    for p in sorted(mothers, key=lambda m: birth_wait(ctx, m)):
         left = max(0, p.conceived + BIRTH_UNITS - p.processed)
         if left == 0:
             moment, words = None, "at the next age unit the game steps (they are due)"
@@ -450,27 +469,65 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
 
 STORY_FILE = "Virtual Villagers {game} Story Purchases - Save {slot}.dat"
 STORY_MAGIC = 0x31515356                     # 'V' 'S' 'Q' '1' (native/vvfp_story_upgrades/story_queue.inc)
-STORY_HAVE = 16 + 16 + 4 * 256               # magic, version, game, slot, layout[4], roster[256], then `have`
+STORY_ROSTER = 16 + 16                       # magic, version, game, slot, layout[4], then roster[256]
+STORY_HAVE = STORY_ROSTER + 4 * 256          # then `have`
+STORY_WHEN = STORY_HAVE + 8                  # then when[4], FILETIMEs (8-aligned after `have`)
 SQ_PICK, SQ_CUSTOM, SQ_GONG, SQ_SKIP = 1, 2, 4, 8
+SQ_BITS = (SQ_PICK, SQ_CUSTOM, SQ_GONG, SQ_SKIP)   # their when[] index, as sq_bit_index
+FILETIME_UNIX = 11_644_473_600               # seconds from 1601 to 1970
+
+
+def title_identity(game: int, data: bytes, at: int) -> int:
+    """native/shared/custom_titles.h vv_title_identity of the saved villager whose name is at `at`: FNV-1a of the
+    name to its NUL, 0xFF, then the likes' and the dislikes' bytes -- the roster key the queue file keeps."""
+    import vv_last_names as ln
+    f = ln.FIELDS[game]
+    h = 2166136261
+    for b in data[at:at + f.name_cap]:
+        if b == 0:
+            break
+        h = ((h ^ b) * 16777619) & 0xFFFFFFFF
+    h = ((h ^ 0xFF) * 16777619) & 0xFFFFFFFF
+    h = h or 1
+    for b in data[at + f.likes:at + f.likes + 4 * f.slots] + data[at + f.dislikes:at + f.dislikes + 4 * f.slots]:
+        h = ((h ^ b) * 16777619) & 0xFFFFFFFF
+    return h or 1
 
 
 def story_queue(village: gm.Village) -> tuple[int, Path] | None:
-    """The patcher's queued Story / Cheat purchases for this slot (Pick Island Event, Custom Island Event, Pick Gong
-    of Wonder Outcome, Choose Time Skip Amount): (the SQ_* bits, the file), or None when there is none.  Read
-    only; the companion uses it only when its roster is this village's, which is not checked here."""
+    """The patcher's queued Story / Cheat purchases that the companion would deliver into this save (Pick Island
+    Event, Custom Island Event, Pick Gong of Wonder Outcome, Choose Time Skip Amount): (the SQ_* bits still in
+    force, the file), or None when there is no such file.  As story_queue.inc's restore decides it: the file is
+    this game's and slot's; its roster shares a strict majority with the save's villagers (sq_same_village; another
+    village's file -- an older save or another village restored into the slot -- counts for nothing); and an item
+    bought after the save was last written was never paid for in it (sq_restore) and is dropped.  Read only."""
     try:
+        import vv_last_names as ln
         import vv_save_layout as layout
         path = layout.route(Path(village.folder), f"{layout.DATA}\\Paid Purchases\\"
                             + STORY_FILE.format(game=village.game, slot=village.slot))
         data = path.read_bytes()
+        saved = village.save.stat().st_mtime
     except (OSError, ValueError, AttributeError):
         return None
-    if len(data) < STORY_HAVE + 4:
+    if len(data) < STORY_WHEN + 8 * len(SQ_BITS):
         return None
     magic, _version, game, slot = struct.unpack_from("<4I", data, 0)
     if magic != STORY_MAGIC or game != village.game or slot != village.slot:
         return None
-    return struct.unpack_from("<I", data, STORY_HAVE)[0], path
+    try:
+        now = {title_identity(game, village.data, at) for at in ln._entries(game, village.data, bodies=True)}
+    except Exception:  # noqa: BLE001 -- no villagers to match: not this village's queue
+        return 0, path
+    was = [v for v in struct.unpack_from("<256I", data, STORY_ROSTER) if v]
+    if not was or sum(1 for v in was if v in now) * 2 <= len(was):
+        return 0, path
+    have = struct.unpack_from("<I", data, STORY_HAVE)[0]
+    saved_ft = int((saved + FILETIME_UNIX) * 10_000_000)
+    for k, bit in enumerate(SQ_BITS):
+        if have & bit and struct.unpack_from("<Q", data, STORY_WHEN + 8 * k)[0] > saved_ft:
+            have &= ~bit                       # newer than the save: never paid for there
+    return have, path
 
 
 def village_lines(ctx: Context) -> tuple[list[gm.Fact], tuple[float | None, str]]:
@@ -490,9 +547,10 @@ def village_lines(ctx: Context) -> tuple[list[gm.Fact], tuple[float | None, str]
     else:
         event = (None, "not read")
     if blocked:
-        add("The save's island event timer belongs to an island event bought with the patcher's Story / Cheat "
-            "Upgrades and queued for this village; the next natural one is timed afresh after it.", gm.SAVE)
-        event = (None, "after the queued purchased event, timed afresh then")
+        # The owner: a Custom or Picked island event is never listed here, only that one delays the natural one.
+        add("A purchased island event is pending and delays the natural one, which is timed afresh after it.",
+            gm.SAVE)
+        event = (None, "after a pending purchased event, timed afresh then")
     else:
         add(f"Next natural island event: {event[1]}.", gm.SAVE, due=event[0], kind="next" if event[0] else None)
     if ctx.event_rule:

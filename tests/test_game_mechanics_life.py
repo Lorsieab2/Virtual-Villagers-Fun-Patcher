@@ -217,19 +217,71 @@ class Timers(unittest.TestCase):
                 rule = next(f for f in facts if f.text.startswith("Next island event:"))
                 self.assertEqual(rule.due, line.due)
 
-    def test_a_queued_purchased_event_is_not_listed(self) -> None:
+    def queued(self, *, same_village: bool, bought_after_save: bool) -> list[gm.Fact]:
+        """The Secret City's page with a Pick Island Event in the patcher's queued purchases file, its roster
+        this village's or another's, bought before or after the save was last written."""
+        import os
+        data = fixture(3)
+
         def queue(folder: Path) -> None:
             path = folder / "Virtual Villagers Fun Patcher Data" / "Paid Purchases"
             path.mkdir(parents=True)
-            body = bytearray(life.STORY_HAVE + 64)
+            body = bytearray(life.STORY_WHEN + 64)
             struct.pack_into("<4I", body, 0, life.STORY_MAGIC, 1, 3, 1)
+            roster = [life.title_identity(3, bytes(data), at) for at in ln._entries(3, bytes(data), bodies=True)]
+            if not same_village:
+                roster = [(v * 7 + 1) & 0xFFFFFFFF or 1 for v in roster]
+            struct.pack_into(f"<{len(roster)}I", body, life.STORY_ROSTER, *roster)
             struct.pack_into("<I", body, life.STORY_HAVE, life.SQ_PICK)
+            save = folder / next(p.name for p in folder.glob("*.ldw"))
+            os.utime(save, (1_790_000_000, 1_790_000_000))
+            bought = 1_790_000_000 + (600 if bought_after_save else -600)
+            struct.pack_into("<Q", body, life.STORY_WHEN, (bought + life.FILETIME_UNIX) * 10_000_000)
             (path / "Virtual Villagers 3 Story Purchases - Save 1.dat").write_bytes(bytes(body))
-        facts = page(self, 3, fixture(3), extra=queue)
+        return page(self, 3, data, extra=queue)
+
+    def test_a_valid_queued_purchased_event_only_delays_the_natural_one(self) -> None:
+        facts = self.queued(same_village=True, bought_after_save=False)
         timers = texts(facts, life.VILLAGE_TIMERS)
-        self.assertIn("bought with the patcher's Story / Cheat Upgrades", timers)
+        self.assertIn("A purchased island event is pending and delays the natural one", timers)
         self.assertNotIn("Next natural island event:", timers)
-        self.assertIn("Next natural island event: after the queued purchased event", texts(facts, life.VITALS))
+        self.assertNotIn("Pick", timers)                       # never listed
+        self.assertIn("Next natural island event: after a pending purchased event", texts(facts, life.VITALS))
+
+    def test_another_villages_or_an_unpaid_purchase_does_not_count(self) -> None:
+        for same, after in ((False, False), (True, True)):
+            with self.subTest(same_village=same, bought_after_save=after):
+                facts = self.queued(same_village=same, bought_after_save=after)
+                timers = texts(facts, life.VILLAGE_TIMERS)
+                self.assertNotIn("purchased island event is pending", timers)
+                line = next(f for f in group(facts, life.VILLAGE_TIMERS)
+                            if f.text.startswith("Next natural island event:"))
+                self.assertNotIn("purchased", line.text)
+
+    def test_the_soonest_birth_counts_the_catch_up(self) -> None:
+        """10 units left with no time away to work off comes after 15 left of which 20 are already counted (worked
+        off in about 30 seconds of catch-up)."""
+        import vv_game_mechanics_vv4 as vv4
+        data = fixture(4)
+        struct.pack_into("<i", data, vv4.SPEED, 6)
+        lay = life.LAYOUTS[4]
+        first, second = entries(4, data)[:2]
+        for other in entries(4, data):
+            put(data, other + lay.conceived, 0)
+        for at, left, lag in ((first, 10, 0), (second, 15, 20)):
+            age = struct.unpack_from("<i", data, at + lay.age)[0]
+            put(data, at + lay.processed, age - lag)
+            put(data, at + lay.conceived, age - lag - life.BIRTH_UNITS + left)
+            put(data, at + lay.babies, 1)
+            put(data, at - 0x0C, 1)
+        last = struct.unpack_from("<q", data, 8)[0] + struct.unpack_from("<i", data, vv4.LAST_TICK)[0]
+        facts = page(self, 4, data, now=last + 1)
+        later = ln._cstr(data, second, 0x18)
+        soonest = next(f for f in group(facts, life.VITALS) if f.text.startswith("Soonest birth:"))
+        self.assertIn(later, soonest.text)
+        self.assertIn("while the village catches up", soonest.text)
+        mothers = [f.text for f in group(facts, life.NURSING) if " age units to go" in f.text]
+        self.assertTrue(mothers[0].startswith(later))
 
     def test_puzzles_under_way(self) -> None:
         import vv_game_mechanics_vv3 as vv3
