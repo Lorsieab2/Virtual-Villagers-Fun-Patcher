@@ -100,6 +100,55 @@ ODDS_LINES = (
 )
 
 
+# Hidden villager stats (the coordinator's specs hidden_vv2\spec.md and likes_all, 2026-10-23):
+# (line, what stands behind it -- gm.RUNNING, gm.OWNER, or False for UNCONFIRMED).
+HIDDEN_LINES = (
+    ("Each villager's hidden number (1 to 123, rolled at creation, not inherited; a twin's is its sibling's + "
+     "1) sets how it starves, its totem's colour (the number's remainder by 8) and its body and some "
+     "animations; the villagers' numbers are below.", gm.RUNNING),
+    ("Likes and dislikes: a new villager gets them from the first 47 words; jumping, cooking, fire, eating, "
+     "children, talking and vegetables appear only when edited in.", gm.RUNNING),
+    ("Learning: a skill try passes at skill + 66% when liked, + 16% when disliked, + 33% otherwise; the gain is "
+     "doubled when liked and halved when disliked (Building gains ÷ 7, the others ÷ 10 of (100 - 2 x skill)).",
+     gm.RUNNING),
+    ("Work: liked, never idles for the 15% skip and always goes back to a remembered task; disliked, idles 70% of "
+     "the time and drops remembered tasks (time on jobs 25.5% liked, 21.6% otherwise, 6.6% disliked). Medicine, "
+     "disliked: Healing about half as often.", gm.RUNNING),
+    ("Running: liked, walks at speed 300 (100 otherwise); disliked, 40 on every walk, children too; elders always "
+     "walk at 40. Crowds, disliked: never joins Heat Wave, Isola Day, Day of Honor, the Blessings Days, completion "
+     "celebrations or Gong watching.", gm.RUNNING),
+    ("Disliked swimming, heights, coconuts, herbs, fire or cooking: \"Running away\" at that spot (the coconut "
+     "harvest refused 75% of the time); fish: always refuses fishing; turnips or vegetables: refuses the crops "
+     "trip 75%; wood: refuses building 40% at the check and half of firewood drops. Wood, liked: always the "
+     "shorter route.", gm.RUNNING),
+    ("Eating, liked: snacks instead of going to the pond and always eats a ready stew. Laundry, the ocean, "
+     "talking, sand or resting, disliked: never chosen. Dancing or jumping, disliked: no dance or jump. Children, "
+     "disliked: a storyteller tells a story only 2% of the time. Playing, liked: a child picks one of 4 lively "
+     "plays.", gm.RUNNING),
+    ("The other 37 likes and dislikes: no effect has been found in the running game. A preferred job wins 86% of "
+     "the time; Parenting is picked on its own only 25% of the time.", False),
+    ("A baby starts with one skill at 5 to 7 from a parent's best (Parenting is never inherited); the mother's "
+     'Parenting rises at each conception; the litter is born after 40 age units of the mother.', False),
+    ("An Esteemed Elder's totem keeps the elder's hidden number, so its colour was set when the elder was "
+     'born; a totem never ages, loses health or dies.', gm.RUNNING),
+    ("Totem babies: in the stock game a twin or triplet born into a record a totem left behind (a totem's "
+     "burial, or Start Over) kept the totem mark and never aged or died. The patcher's Fix Vanilla Bugs has "
+     'cleared that since v1.35.77.', gm.RUNNING),
+    ('Sick: -1 health on 61% of age units, 19% at 20 health or less. Health comes back on every age unit on '
+     'Easy, half of them otherwise (75% with the fire lit), a fifth of that past 42 + 8 x Medicine years.', gm.RUNNING),
+    ('The fire: while lit, a research try gives 1 more tech point 10% of the time; fuel on a lit fire fills it '
+     'to 10, 20 or 40 hours (Fast, Normal, Slow); fuel does not light a cold pit.', False),
+)
+CHANCE_EXTRA = (
+    ('Every roll that changes play is in the groups above, with its odds as measured.', gm.RUNNING),
+    ('Timers: an age unit 3, 6 or 10 minutes; regrowth every 2 hours, 4 hours or 6 hours 40 minutes; island '
+     "events 10 to 19 whole hours apart; the Gong's 24-hour rest; a stew 15 minutes; an item lies 1 minute 15 "
+     'seconds; an unburied body 240 age units.', gm.RUNNING),
+    ('Many more rolls inside villager actions (walking, timing, animation, speech): not individually worked '
+     'out.', False),
+)
+
+
 def _i32(data: bytes, state: int) -> int:
     return struct.unpack_from("<i", data, state + S)[0]
 
@@ -242,6 +291,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                     "fire fills it again."), gm.RUNNING)
     add("Other", f"A stew is ready 15 minutes after it starts. An unburied body is gone after "
                  f"{gm.duration(240 * 60 * speed)} on {on} speed.", gm.RUNNING)
+    for line, ok in HIDDEN_LINES:
+        add(gm.HIDDEN, line, ok)
+    out.extend(gm.starvation_lines(village, 0x14, gm.RUNNING, totem_colour=True))
+    for line, ok in CHANCE_EXTRA:
+        add("Chance and timers", line, ok)
     for line, ok in ODDS_LINES:
         add("Other", line, ok)
     out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "Totems do not age."))

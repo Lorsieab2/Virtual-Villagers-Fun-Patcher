@@ -79,6 +79,69 @@ LIFE_LINES = (
 )
 
 
+# Hidden villager stats (the coordinator's specs hidden_vv5\spec.md and likes_all, 2026-10-23):
+# (line, what stands behind it -- gm.RUNNING, gm.OWNER, or False for UNCONFIRMED).
+HIDDEN_LINES = (
+    ("Each villager's hidden name number (1 to 183, not inherited; a name always has the same one) sets how it "
+     "starves; the villagers' numbers are below.", gm.RUNNING),
+    ('The Time Warp God Power (500 Divine Energy) makes everyone age about 18 to 20 times as fast for 5 real '
+     'minutes: 6 age units a minute on Fast, 3 on Normal, 2 on Slow -- 30, 15 or 10 units in all (1.5, 0.75 or '
+     '0.5 years). Quitting during those 5 minutes loses the rest.', gm.RUNNING),
+    ("Preaching to a heathen: the preacher's Devotion check (35% at Devotion 0, 83% at 50, sure at 88) gives "
+     'the heathen 3 belief, 4 at Devotion 50, 5 at 88; then that heathen cannot be preached to for 2 hours '
+     '(the 800-energy God Power sets the same wait).', gm.RUNNING),
+    ('Liking learning makes a skill check succeed at skill + 66% instead of + 33% (+ 15 or + 30 at Learning 2 '
+     'or 3); disliking it, + 16%. A success gains (70 - skill) ÷ 18 (Parenting ÷ 10, Healing ÷ 12), at least 7 '
+     'at skill 0, doubled when liked and halved when disliked.', gm.RUNNING),
+    ('Parenting: a failed check gives 4 at any Parenting except 0, where the other skills give 4 only at 0 (at '
+     "Parenting 10: 55% fail for +4, 45% succeed for +6). This is the stock game's own behaviour.", gm.RUNNING),
+    ('Liking work skips the 15% chance of doing nothing and keeps a player-given task 99% of the time (86% '
+     'otherwise); disliking it, 70% of job picks end in doing nothing, a player-given task is kept 63% of the '
+     'time, and while catching up 78% find no job (29% otherwise).', gm.RUNNING),
+    ('Rain: a villager who likes it drinks the rain 98.7% of the time (12% otherwise); one who dislikes it gets '
+     'out of the rain 98.7% of the time. Running: liked, a walk at speed 300 (150 otherwise); disliked, 40, '
+     'except when fleeing. Jumping: liked, Dancing becomes a 30-jump dance; disliked, jump steps are skipped.',
+     gm.RUNNING),
+    ('Dancing, disliked: no dancing or rain dancing, and no dance moves at celebrations. Laundry: liked 53% of the '
+     'time (12.3% otherwise), disliked never. Swimming, disliked: no swimming, pools, lake or waterfall; the '
+     'ocean, disliked: no swimming or pools, and 60% of fishing becomes running away.', gm.RUNNING),
+    ('Disliked heights: no waterfall; talking: no praising; resting: no relaxing, and like sitting, a villager '
+     'who is not feeling well paces instead of lying or sitting down. Fish or berries, disliked: 60% of fishing '
+     'or noni picking becomes running away.', gm.RUNNING),
+    ('Wood, disliked: wooden projects are offered 16% of the time, 37% of hut building becomes running away, a '
+     'drop on the wood pile is refused half the time. Owls, disliked: the granary 16%. Rocks, disliked: never the '
+     'statue, and running away. Medicine, disliked: the Healing job 42.6% instead of 78.5%, a cure accepted 36.7% '
+     'instead of 73.5%.', gm.RUNNING),
+    ('Fire, disliked: dropped on the fire pit, the villager runs away (80% unlit, always when burning). Stories, '
+     'disliked: no story when either villager dislikes them. Children, disliked: "Telling a story" stops 69 '
+     'times in 70. Playing: liked, a child picks from 5 plays; disliked, never plays in the dirt. Crowds, '
+     'disliked: never joins village celebrations.', gm.RUNNING),
+    ('Heathen adults choose what to do without their likes; heathen children follow the children\'s ways.',
+     gm.RUNNING),
+    ('Plants and lifting, and the other 53 likes and dislikes: no effect has been found in the running game.',
+     False),
+    ('Sick: -1 health on 61% of age units, 19% at 20 health or less. Health comes back on half the age units, '
+     '75% while the fire burns, every one at Medicine 3 or on Easy; old villagers a fifth of that. With food '
+     'at 500 or less, -1 health 15% of age units.', gm.RUNNING),
+    ('The fire (the 100-energy God Power on a built fire pit) burns 10, 20 or 33 hours 20 minutes on Fast, '
+     'Normal or Slow, stops while paused and is rescaled when the speed changes; while it burns a research '
+     'success gives 1 more tech point 10% of the time.', gm.RUNNING),
+)
+CHANCE_EXTRA = (
+    ('104 rolls are verified: every one in the groups above.', gm.RUNNING),
+    ('About 2,250 more rolls (where villagers walk, how long they wait or animate, sounds and voices, pickers, '
+     'God Power side effects, child and leisure choices): not individually worked out.', False),
+    ('Spreading the Word gives a random heathen 30 belief and marks them for 2 hours; the Earthquake marks '
+     'every heathen the same way.', False),
+    ('Timers: an age unit 3, 6 or 10 minutes; noni +2 at the same pace; crops every 2 hours, 4 hours or 6 '
+     'hours 40 minutes; the next island event 15 minutes, then 30 minutes, then 8 to 15 hours; weather 1.5 to '
+     "3, 3 to 6 or 5 to 10 minutes; each villager's catch-up stamp.", gm.RUNNING),
+    ('God Power spells run on their own clock that ignores pausing: Fog of Doom 2 minutes, Time Warp 5 '
+     "minutes, Reanimate 4 seconds, the Earthquake's drop after 10 seconds; an item lies 1 minute 30 seconds; "
+     'puzzle and on-screen timers of 5 seconds to 2 minutes.', False),
+)
+
+
 def _i32(data: bytes, at: int) -> int:
     return struct.unpack_from("<i", data, at)[0]
 
@@ -205,6 +268,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Island events", gm.patch_words(village, STORY, "Pick Island Event chooses the event"))
 
     # -- Other ---------------------------------------------------------------------------
+    for line, ok in HIDDEN_LINES:
+        add(gm.HIDDEN, line, ok)
+    out.extend(gm.starvation_lines(village, 0x8, gm.RUNNING))
+    for line, ok in CHANCE_EXTRA:
+        add("Chance and timers", line, ok)
     for line, ok in LIFE_LINES:
         add("Other", line, ok)
     out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "Heathens do not age."))
