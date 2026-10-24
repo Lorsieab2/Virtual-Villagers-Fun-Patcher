@@ -2691,6 +2691,12 @@
       "evidence_status": "static exact-build evidence, emulation of the real event code, and a live test (v1.35.49 test build, 2026-10-02): the dark vial cured and raised Healing 0 to 29, the clear vial changed nothing, the insight result gave tech 100000 to 100100 and Research 0 to 36, and a 14-year-old read the elder text and became an elder; 150-villager save: emulation of the real writer, loader and block check, and a live test (v1.35.50 test build, Immediate Fixed, 2026-10-02) in which the unfixed game saved 150 villagers with the block size 0x2AD overwritten to 0x200 and refused to load the village, while 149 saved and loaded; with this fix (test build, 2026-10-03) that damaged save loaded with all 150 villagers, a clean quit wrote 150 villagers with the size intact (0x2AD) and the village loaded again, and 149 still saved and loaded; the default names: static exact-build evidence (the naming routine's roll and comma walk); the Details screen likes/dislikes: emulation of the real builders (stock and patched) with the last word, indexes past the end, negative indexes; the Details name box identity guard: static exact-build evidence (every fill and write-back of the box, the screen's allocation, the padding used) and emulation of the real handlers, stock and patched, in every mode; the hospital table legs: the shipped sheet decodes to the stock sheet's size and frame layout and differs from it only in the two table-leg boxes (tests/test_vv3_fix_vanilla_bugs.py); no live test yet",
       "companion_files": [
         {
+          "source": "assets/vv3_hospital/vvfp_hospitalFixed.png",
+          "destination": "Images/vvfp_hospitalFixed.png",
+          "size": 249221,
+          "sha256": "792650329C88B8892AF17F4937244404A8761188CB427CD1D59690B67E698880"
+        },
+        {
           "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
           "destination": "VVFP Speed Change Timers.dll",
           "sha256": "CFB8234C95308938088F757ADB34BE5E1D5AB8EB927CE95A4B30E9C8FE25DA74"

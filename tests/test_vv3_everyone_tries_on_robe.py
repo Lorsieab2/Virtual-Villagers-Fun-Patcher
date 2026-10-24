@@ -238,17 +238,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # fruit row's ranges above, the honey row's clock-read site 0x319F4..0x319F8, its stock
     # arithmetic restored at 0x319F9..0x31A08, its cave 0x7B2A0..0x7B2DF, or the PE CheckSum.
     "stock": (
-        "C3000C504A19B893C6B03E3B54A29C3D0E63DD44C47726C3B47F56597EB885B4",
-        "58340D00",
+        "5E8DD35594ED2222AC44940DB91B53B70BDF3FF793C484EC47EFAC3923BFF4F2",
+        "85070D00",
     ),
     "collection_progression": (
-        "E69571F6C3948CE5A5FCEEAC26C2C5EFBF31A0CAFA1F1B9165A44B864127AB8A",
-        "584D0D00",
+        "892B274DE9FD750D8BB713D723F289829F897B52542CA1B68FD40BAE0AF064E2",
+        "85200D00",
     ),
     "immediate_fixed": (
-        "D01E1128F380F5AFCF707C1984EB9EC500B1DA695C67CC7E325CAF88AE40BDED",
-        "568F0D00",
+        "8D17B1EDC34F5197CAF46172EBEA6D5A8DB589BCA3FA9B4141DDD76D35C072BE",
+        "83620D00",
     ),
+    # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
+    # render on main without re-pinning it: the three digests above are main's own render at
+    # 33e96f52, byte for byte (the speed-change timers companion ships no executable bytes).
 }
 
 

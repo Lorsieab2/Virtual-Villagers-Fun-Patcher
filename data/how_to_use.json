@@ -273,8 +273,7 @@
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "After a Time Warp, or while the game catches up on time away, builders now really build the population huts that have been started.",
-        "The hospital's supply tables have their broken legs fixed (art by Lorsieab2).",
-        "Unpausing at a different speed now gives the campfire the new speed's length (the original game kept the old one).",
+        "The hospital's supply tables have their broken legs fixed (art by Lorsieab2). Unpausing at another speed gives the fire that speed's length.",
         "Keep it on with 256 Villagers (Experimental). On by default."
       ]
     },
