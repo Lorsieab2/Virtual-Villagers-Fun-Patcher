@@ -1,14 +1,15 @@
 """Numeric keys for A New Home, and the matching tip wording in The Lost Children.
 
-The feature is a companion DLL of its own (native/vv1_number_keys) that the
-Origins companion loads and ticks once per frame.  These guards pin:
+The feature is a companion DLL of its own (native/vv1_number_keys) that
+VVFP Startup.dll arms at game start and the Origins companion's native
+village-update hook drives.  These guards pin:
 
-  * the game facts the DLL relies on, each derived from the stock executable
-    rather than restated -- the village-state global, the scroll pair, and
-    the four clamp bounds the game's own map-click handler applies;
-  * the SDL event layout and the key classification;
-  * the glide (signed truncating tenth-of-remaining step, driven by the
-    native village update, including while a villager is carried);
+  * the game facts the DLL relies on, each derived from the stock executables
+    rather than restated -- The Lost Children's nine targets, A New Home's
+    village-state global and its clamp's four screen margins;
+  * that the keys are the game's own text characters (no SDL watch);
+  * the glide (The Lost Children's 0x42F814) and the all-or-nothing install
+    (the emulator runs both: tests/test_vv1_number_keys_like_vv2.py);
   * the Origins bridge (load from the executable's own directory, tick per
     frame, fail open);
   * the two manifests: every `before` is the stock bytes, the VV1 tip
@@ -61,100 +62,111 @@ def _function(text: str, opening: str) -> str:
 
 
 class NumberKeysDllTest(unittest.TestCase):
+    """Static pins on the companion; tests/test_vv1_number_keys_like_vv2.py
+    runs it, against The Lost Children's own code."""
+
     def setUp(self) -> None:
         self.text = KEYS_C.read_text(encoding="utf-8")
 
-    def test_game_facts_come_from_the_map_click_handler(self) -> None:
-        """Positive control on the executable: the clamp at 0x429C8E..0x429CCF
-        and the getter's global are exactly what the DLL encodes."""
+    def _mem(self, path: Path) -> bytes:
+        import pefile
+        return bytes(pefile.PE(str(path)).get_memory_mapped_image())
+
+    def test_targets_are_the_lost_childrens_nine(self) -> None:
+        """The Lost Children's handler 0x429E70: '1'..'9' index its jump table
+        (0x42A0F0 bytes 0x11..0x19 -> cases 2..10 of 0x42A0AC), each case a
+        `mov [esi+0x230], x; mov [esi+0x234], y`."""
+        if not VV2_STOCK.is_file():
+            self.skipTest("stock VV2 executable not present")
+        mem = self._mem(VV2_STOCK)
+        u32 = lambda va: struct.unpack_from("<I", mem, va - 0x400000)[0]
+        index = mem[0x42A0F0 - 0x400000 + 0x11: 0x42A0F0 - 0x400000 + 0x1A]
+        self.assertEqual(list(index), list(range(2, 11)))
+        found = []
+        for case in index:
+            at = u32(0x42A0AC + 4 * case) - 0x400000
+            self.assertEqual(mem[at:at + 2], b"\xc7\x86")
+            self.assertEqual(struct.unpack_from("<I", mem, at + 2)[0], 0x230)
+            self.assertEqual(mem[at + 10:at + 12], b"\xc7\x86")
+            self.assertEqual(struct.unpack_from("<I", mem, at + 12)[0], 0x234)
+            found.append(struct.unpack_from("<ii", mem, at + 6)[0:1] + struct.unpack_from("<i", mem, at + 16))
+        xs = [int(v) for v in re.search(r"vv1_target_xs\[9\] = \{([^}]*)\}", self.text).group(1).replace("\n", " ").split(",")]
+        ys = [int(v) for v in re.search(r"vv1_target_ys\[9\] = \{([^}]*)\}", self.text).group(1).replace("\n", " ").split(",")]
+        self.assertEqual(found, list(zip(xs, ys)))
+
+    def test_the_clamp_fields_are_a_new_homes_own(self) -> None:
+        """A New Home's clamp after the scroll (0x423FD6) reads the four
+        margins the glide predicts it with, against the same 0x690."""
         if not VV1_STOCK.is_file():
             self.skipTest("stock VV1 executable not present")
-        blob = VV1_STOCK.read_bytes()
-        import pefile
-        pe = pefile.PE(str(VV1_STOCK))
-        mem = bytes(pe.get_memory_mapped_image())
-        def at(va, n):
-            return mem[va - 0x400000: va - 0x400000 + n]
-        # cmp ecx, -205 / mov [eax+8], -205 / cmp ecx, 885 / mov [eax+8], 885
-        self.assertEqual(at(0x429C8E, 6), b"\x81\xf9" + struct.pack("<i", -205))
-        self.assertEqual(at(0x429C9F, 6), b"\x81\xf9" + struct.pack("<i", 885))
-        self.assertEqual(at(0x429CB4, 3), b"\x83\xf8\xfb")            # cmp eax, -5
-        self.assertEqual(at(0x429CC8, 5), b"\x3d" + struct.pack("<i", 1205))  # cmp eax, 1205
-        self.assertEqual(at(0x429C73, 3), b"\x89\x41\x08")            # mov [ecx+8], eax  (x)
-        self.assertEqual(at(0x429C85, 3), b"\x89\x50\x0c")            # mov [eax+0xC], edx (y)
-        self.assertEqual(at(0x429D44, 5), b"\xe8" + struct.pack("<i", 0x41D500 - 0x429D49))  # call getter
-        self.assertEqual(at(0x41D516, 5), b"\xa1" + struct.pack("<I", 0x48AEDC))            # mov eax,[0x48AEDC]
-        self.assertEqual(_macro(self.text, "VV1_SCROLL_X_MIN"), -205)
-        self.assertEqual(_macro(self.text, "VV1_SCROLL_X_MAX"), 885)
-        self.assertEqual(_macro(self.text, "VV1_SCROLL_Y_MIN"), -5)
-        self.assertEqual(_macro(self.text, "VV1_SCROLL_Y_MAX"), 1205)
-        self.assertEqual(_macro(self.text, "VV1_SCROLL_X_OFFSET"), 8)
-        self.assertEqual(_macro(self.text, "VV1_SCROLL_Y_OFFSET"), 0xC)
+        mem = self._mem(VV1_STOCK)
+        at = lambda va, n: mem[va - 0x400000: va - 0x400000 + n]
+        self.assertEqual(at(0x423FD9, 6), b"\x8b\x86" + struct.pack("<I", 0x298))
+        self.assertEqual(at(0x423FE8, 6), b"\x8b\xae" + struct.pack("<I", 0x2A0))
+        self.assertEqual(at(0x423FEE, 5), b"\xb8" + struct.pack("<I", 0x690))
+        self.assertEqual(at(0x424002, 6), b"\x8b\x86" + struct.pack("<I", 0x29C))
+        self.assertEqual(at(0x42401B, 6), b"\x2b\x86" + struct.pack("<I", 0x2A4))
+        self.assertEqual(at(0x41D516, 5), b"\xa1" + struct.pack("<I", 0x48AEDC))  # the state getter's global
+        for name, value in (("VV1_MARGIN_LEFT_OFFSET", 0x298), ("VV1_MARGIN_TOP_OFFSET", 0x29C),
+                            ("VV1_MARGIN_RIGHT_OFFSET", 0x2A0), ("VV1_MARGIN_BOTTOM_OFFSET", 0x2A4),
+                            ("VV1_MAP_SPAN", 0x690), ("VV1_EDGE_X_OFFSET", 0x2D8), ("VV1_EDGE_Y_OFFSET", 0x2DC),
+                            ("VV1_SCROLL_X_OFFSET", 8), ("VV1_SCROLL_Y_OFFSET", 0xC), ("VV1_PAN_DIVISOR", 10)):
+            self.assertEqual(_macro(self.text, name), value, name)
         self.assertIn("(*(unsigned char **)0x0048AEDCu)", self.text)
 
-    def test_sdl_layout_and_key_classification(self) -> None:
-        self.assertEqual(_macro(self.text, "VV1_SDL_KEYDOWN"), 0x300)
-        self.assertEqual(_macro(self.text, "VV1_SDL_KEY_REPEAT_OFFSET"), 13)
-        self.assertEqual(_macro(self.text, "VV1_SDL_KEY_SYM_OFFSET"), 20)
-        self.assertEqual(_macro(self.text, "VV1_SDL_KEY_MOD_OFFSET"), 24)
-        self.assertEqual(_macro(self.text, "VV1_SDLK_KP_1"), 0x40000059)
-        self.assertEqual(_macro(self.text, "VV1_SDLK_KP_9"), 0x40000061)
-        digit = _function(self.text, "static int vv1_numkeys_digit(")
-        self.assertRegex(digit, r"e\[VV1_SDL_KEY_REPEAT_OFFSET\]\s*!=\s*0")
-        self.assertRegex(digit, r"VV1_KMOD_CTRL\s*\|\s*VV1_KMOD_ALT")
-        self.assertRegex(digit, r"sym\s*>=\s*'1'\s*&&\s*sym\s*<=\s*'9'")
-        self.assertRegex(digit, r"sym\s*>=\s*VV1_SDLK_KP_1\s*&&\s*sym\s*<=\s*VV1_SDLK_KP_9")
+    def test_no_sdl_watch_any_more(self) -> None:
+        """Digits arrive as the game's own text characters, as in every later
+        game; the SDL key watch (which ignored repeats and read the keypad by
+        key code) is gone."""
+        self.assertNotIn("SDL_AddEventWatch", self.text)
+        self.assertNotIn("SDL2.dll", self.text)
+        blob = KEYS_DLL.read_bytes()
+        self.assertNotIn(b"SDL_AddEventWatch\0", blob)
+        self.assertNotIn(b"SDL2.dll\0", blob)
 
-    def test_keypad_layout_maps_explicit_measured_targets(self) -> None:
-        jump = _function(self.text, "static int vv1_numkeys_jump(")
-        self.assertIn("vv1_pan_target_xs[digit - 1]", jump)
-        self.assertIn("vv1_pan_target_ys[digit - 1]", jump)
-        self.assertIn("digit < 1 || digit > 9", jump)
-        self.assertIn("-150, 300, 850", self.text)
-        self.assertIn("1200, 1200, 1200", self.text)
-        self.assertIn("500, 570, 500", self.text)
-        self.assertIn("0, 0, 0", self.text)
-        # the key sets a target; it does not write the scroll itself
-        self.assertNotRegex(jump, r"\*\(int \*\)\(state \+ VV1_SCROLL_[XY]_OFFSET\)\s*=")
-
-    def test_glide_is_native_update_driven_with_measured_residual_stop(self) -> None:
-        self.assertEqual(_macro(self.text, "VV1_PAN_DIVISOR"), 10)
-        step = _function(self.text, "static int vv1_pan_step(")
+    def test_glide_is_the_lost_childrens(self) -> None:
+        step = _function(self.text, "static int vv1_glide_step(")
         self.assertIn("return cur + (target - cur) / VV1_PAN_DIVISOR", step)
-        self.assertNotIn("step == 0", step)
-        update = _function(self.text, "static int vv1_pan_update(")
-        self.assertIn("screen_bytes + 0x10", update)
+        update = _function(self.text, "static int vv1_glide_update(")
+        self.assertRegex(update, r"vv1_target_x == 0 && vv1_target_y == 0\)\s*\{\s*return 0;")
         self.assertIn("state != VV1_VILLAGE_STATE_PTR", update)
-        self.assertIn("screen_bytes + 0x2D8", update)
-        self.assertIn("screen_bytes + 0x2DC", update)
-        self.assertRegex(update, r"\(vv1_pan_target_x - \*x\)\s*/\s*VV1_PAN_DIVISOR\s*==\s*0")
-        self.assertRegex(update, r"\(vv1_pan_target_y - \*y\)\s*/\s*VV1_PAN_DIVISOR\s*==\s*0")
-        self.assertIn("return 1", update, "the completion tick is consumed")
-        self.assertNotIn("vv1_pan_last_x", self.text)
-        self.assertNotIn("vv1_pan_last_y", self.text)
-        tick = _function(self.text, "__declspec(dllexport) int __stdcall Vv1NumberKeysTick(")
-        self.assertIn("Vv1NumberKeysInstall()", tick)
-        self.assertNotIn("vv1_pan_update", tick)
+        self.assertRegex(update, r"\(vv1_target_x - x\) / VV1_PAN_DIVISOR == 0 && \(vv1_target_y - y\) / VV1_PAN_DIVISOR == 0")
+        self.assertEqual(update.count("vv1_target_x = 0;"), 3, "two clamp edges and arrival")
+        self.assertEqual(update.count("vv1_target_y = 0;"), 3)
+        self.assertIn("return 1;", update)
         export = _function(self.text, "__declspec(dllexport) int __stdcall Vv1NumberKeysUpdate(")
-        self.assertIn("Vv1NumberKeysInstall()", export)
-        self.assertIn("vv1_pan_update(screen)", export)
+        self.assertIn("vv1_glide_update(", export)
+        tick = _function(self.text, "__declspec(dllexport) int __stdcall Vv1NumberKeysTick(")
+        self.assertNotIn("vv1_glide_update", tick)
 
-    def test_key_before_village_does_not_arm_future_village(self) -> None:
-        jump = _function(self.text, "static int vv1_numkeys_jump(")
-        self.assertIn("VV1_VILLAGE_STATE_PTR == NULL", jump)
+    def test_install_is_all_or_nothing_and_armed_at_startup(self) -> None:
+        install = _function(self.text, "__declspec(dllexport) int __stdcall Vv1NumberKeysInstall(")
+        self.assertLess(install.index("vv1_site_is_stock"), install.index("VirtualProtect"),
+                        "every site is checked before any is written")
+        self.assertIn("vv1_numkeys_installed = -1;", install)
+        startup = _function(self.text, "__declspec(dllexport) void __stdcall VvfpStartup(")
+        self.assertIn("game == VV1_GAME", startup)
+        self.assertIn("Vv1NumberKeysInstall()", startup)
+        dllmain = _function(self.text, "BOOL WINAPI DllMain(")
+        self.assertNotIn("Install", dllmain)
 
     def test_exports_and_built_dll(self) -> None:
         deftext = KEYS_DEF.read_text(encoding="utf-8")
-        for name in ("Vv1NumberKeysInstall=_Vv1NumberKeysInstall@0", "Vv1NumberKeysTick=_Vv1NumberKeysTick@0", "Vv1NumberKeysUpdate=_Vv1NumberKeysUpdate@4"):
+        for name in ("VvfpStartup=_VvfpStartup@8", "Vv1NumberKeysInstall=_Vv1NumberKeysInstall@0",
+                     "Vv1NumberKeysTick=_Vv1NumberKeysTick@0", "Vv1NumberKeysUpdate=_Vv1NumberKeysUpdate@4"):
             self.assertIn(name, deftext)
-        # The harness's test seam ships only in the TEST build (VVFP_TEST).
-        self.assertNotIn("Vv1NumberKeysProbe", deftext)
-        self.assertIn("Vv1NumberKeysProbe=_Vv1NumberKeysProbe@4",
-                      KEYS_DEF.with_name("vv1_number_keys_test.def").read_text(encoding="utf-8"))
+        # The test seams ship only in the TEST build (VVFP_TEST).
+        self.assertNotIn("Probe", deftext)
+        testdef = KEYS_DEF.with_name("vv1_number_keys_test.def").read_text(encoding="utf-8")
+        self.assertIn("Vv1NumberKeysProbeTarget=_Vv1NumberKeysProbeTarget@8", testdef)
+        self.assertIn("Vv1NumberKeysProbeSite=_Vv1NumberKeysProbeSite@16", testdef)
         self.assertTrue(KEYS_DLL.is_file())
         blob = KEYS_DLL.read_bytes()
-        for needle in (b"SDL2.dll\0", b"SDL_AddEventWatch\0", b"Vv1NumberKeysTick\0", b"Vv1NumberKeysUpdate\0", struct.pack("<i", -150), struct.pack("<i", 1200), struct.pack("<i", 570)):
+        for needle in (b"VvfpStartup\0", b"Vv1NumberKeysTick\0", b"Vv1NumberKeysUpdate\0",
+                       struct.pack("<i", -150), struct.pack("<i", 1200), struct.pack("<i", 570),
+                       bytes.fromhex("8B44242483C0E0"), bytes.fromhex("8B8EF0020000")):
             self.assertIn(needle, blob, needle)
+        self.assertNotIn(b"Probe", blob)
 
 
 class OriginsBridgeTest(unittest.TestCase):
