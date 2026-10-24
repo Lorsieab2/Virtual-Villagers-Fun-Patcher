@@ -343,6 +343,60 @@ class FruitTrees(unittest.TestCase):
         self.assertEqual(snapshot(), before)
 
 
+class BrewedPotion(unittest.TestCase):
+    """The owner, 2026-10-24: a brewed potion's time changes with the game speed -- the old "5 minutes, at any
+    speed and even while paused" was wrong.  The pot's countdown (0x469B53) is the time left x rate / 6."""
+
+    def read(self, speed: int):
+        folder = Folder(self)
+        folder.save(make_save(clock=(speed, 0, 100_000, 50_000), speed=speed))
+        return gm.read(folder.path, 3, 1, [])
+
+    def test_the_line_is_given_at_the_saves_speed(self) -> None:
+        for speed, shows in ((gm.NORMAL, "5:00"), (gm.FAST, "2:30"), (gm.SLOW, "8:20")):
+            with self.subTest(speed=speed):
+                facts = self.read(speed)
+                potion = [f for f in facts if f.text.startswith("A brewed potion:")]
+                self.assertEqual(len(potion), 2)
+                self.assertEqual(potion[0].text, (
+                    f"A brewed potion: the pot's on-screen countdown starts at {shows} on {gm.speed_name(speed)} "
+                    "speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with the speed), and "
+                    "the potion is gone when it reaches 0:00."))
+                self.assertEqual(potion[1].text, (
+                    "A brewed potion: the pot's on-screen countdown starts at 5:00 on Normal speed, 2:30 on Fast and "
+                    "8:20 on Slow (what it shows changes with the speed), and the potion is gone when it reaches "
+                    "0:00."))
+                # Traced on the game's live code and seen by the owner: no UNCONFIRMED.
+                self.assertTrue(all(f.confirmed for f in potion))
+                text = gm.render(facts)
+                self.assertNotIn("at any speed and even while paused", text)
+                self.assertNotIn("a potion keeps 5 minutes", text)
+                self.assertNotIn("A brewed potion keeps", text)
+
+    def test_the_per_speed_values_are_the_countdowns(self) -> None:
+        # 300 seconds left x rate / 6 (0x426580), shown as m:ss.
+        for speed, shows in vv3.POTION_COUNTDOWN.items():
+            minutes, rest = divmod(300 * speed // 6, 60)
+            self.assertEqual(shows, f"{minutes}:{rest:02d}")
+
+    def test_the_cant_drink_answer_and_the_owner_confirmed_lines(self) -> None:
+        facts = self.read(gm.NORMAL)
+        other = {f.text: f for f in facts if f.group == "Other"}
+        herbs = next(f for t, f in other.items() if t.startswith("Herbs never run out"))
+        self.assertEqual(herbs.text, vv3.ODDS_LINES[6])           # the owner's confirmed wording, unchanged
+        self.assertIn("A villager cannot drink a potion whose effect they already have, or any potion while they "
+                      "already have 4 effects.", herbs.text)
+        self.assertTrue(herbs.confirmed)
+        cant = other[vv3.CANT_DRINK_LINE]
+        self.assertTrue(cant.confirmed)
+        self.assertTrue(cant.text.startswith("\"That villager can't drink another potion so soon.\" is the game's "
+                                             "answer when the rule above refuses a potion"))
+        self.assertIn("10 or 5 real-life minutes", cant.text)
+        self.assertIn("a save holds none to count down", cant.text)
+        names = [f.text for f in facts]
+        self.assertEqual(names.index(cant.text), names.index(herbs.text) + 1)   # right after the rule it explains
+
+
 class SaveOffsets(unittest.TestCase):
     """The offsets follow from the stock save writer (vv_game_mechanics_vv3's docstring), so a synthetic
     save built with the module's own constants cannot catch a wrong one: pin them here."""
