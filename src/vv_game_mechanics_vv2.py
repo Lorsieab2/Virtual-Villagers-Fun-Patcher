@@ -106,14 +106,27 @@ HIDDEN_LINES = (
     ("Each villager's hidden number (1 to 123, rolled at creation, not inherited; a twin's is its sibling's + "
      "1) sets how it starves, its totem's colour (the number's remainder by 8) and its body and some "
      "animations; the villagers' numbers are below.", gm.RUNNING),
-    ('Liking learning makes a skill try succeed at skill + 66% instead of + 33% and doubles the gain; '
-     'disliking it, + 16% and half the gain (Building gains ÷ 7, the others ÷ 10 of (100 - 2 x skill)).', gm.RUNNING),
-    ('Disliking work makes 70% of job picks end in doing nothing; disliking medicine skips the Healing pick '
-     'half the time.', gm.RUNNING),
-    ('Liking work skips the 15% chance of doing nothing; a preferred job wins 86% of the time; Parenting is '
-     'picked on its own only 25% of the time. Running, dancing, jumping, crowds, swimming, fire, cooking and '
-     'the other likes and dislikes change animations and idle acts; any effect on outcomes is not yet worked '
-     'out.', False),
+    ("Likes and dislikes: a new villager gets them from the first 47 words; jumping, cooking, fire, eating, "
+     "children, talking and vegetables appear only when edited in.", gm.RUNNING),
+    ("Learning: a skill try passes at skill + 66% when liked, + 16% when disliked, + 33% otherwise; the gain is "
+     "doubled when liked and halved when disliked (Building gains ÷ 7, the others ÷ 10 of (100 - 2 x skill)).",
+     gm.RUNNING),
+    ("Work: liked, never idles for the 15% skip and always goes back to a remembered task; disliked, idles 70% of "
+     "the time and drops remembered tasks (time on jobs 25.5% liked, 21.6% otherwise, 6.6% disliked). Medicine, "
+     "disliked: Healing about half as often.", gm.RUNNING),
+    ("Running: liked, walks at speed 300 (100 otherwise); disliked, 40 on every walk, children too; elders always "
+     "walk at 40. Crowds, disliked: never joins Heat Wave, Isola Day, Day of Honor, the Blessings Days, completion "
+     "celebrations or Gong watching.", gm.RUNNING),
+    ("Disliked swimming, heights, coconuts, herbs, fire or cooking: \"Running away\" at that spot (the coconut "
+     "harvest refused 75% of the time); fish: always refuses fishing; turnips or vegetables: refuses the crops "
+     "trip 75%; wood: refuses building 40% at the check and half of firewood drops. Wood, liked: always the "
+     "shorter route.", gm.RUNNING),
+    ("Eating, liked: snacks instead of going to the pond and always eats a ready stew. Laundry, the ocean, "
+     "talking, sand or resting, disliked: never chosen. Dancing or jumping, disliked: no dance or jump. Children, "
+     "disliked: a storyteller tells a story only 2% of the time. Playing, liked: a child picks one of 4 lively "
+     "plays.", gm.RUNNING),
+    ("The other 37 likes and dislikes: no effect has been found in the running game. A preferred job wins 86% of "
+     "the time; Parenting is picked on its own only 25% of the time.", False),
     ("A baby starts with one skill at 5 to 7 from a parent's best (Parenting is never inherited); the mother's "
      'Parenting rises at each conception; the litter is born after 40 age units of the mother.', False),
     ("An Esteemed Elder's totem keeps the elder's hidden number, so its colour was set when the elder was "
