@@ -376,13 +376,21 @@ def later_puzzle_lines(names: dict[int, str], entry, threshold: dict[int, int], 
         progress, stamp = entry(pid)
         if progress >= threshold[pid]:
             solved += 1
-            when_words = (f"solved {clock.moment(stamp, at=True)}" if stamp > 0 else
-                          "solved (the game kept no time for it)")
+            if stamp <= 0:
+                when_words = "solved (the game kept no time for it)"
+            elif stamp > clock.base + MAX_AHEAD:     # far past the clock's base: not a time it wrote
+                when_words = f"solved (the time the save holds for it, {stamp:,}, is not one the game's clock reached)"
+            else:
+                when_words = f"solved {clock.moment(stamp, at=True)}"
             out.append(Fact(PUZZLES, f"{name}: {when_words}.", SAVE))
         else:
             out.append(Fact(PUZZLES, f"{name}: not yet solved.", SAVE))
     out.insert(0, Fact(PUZZLES, f"Puzzles solved: {solved} of {len(names)}{total}.", SAVE))
     return out
+
+
+MAX_HOURS = 24 * 365 * 100                 # a century of play: any recorded time past it is not a real one
+MAX_AHEAD = 2 * 366 * 86_400               # a year on Fast past the clock's base: a stamp later is not a real one
 
 
 def hours_puzzle_lines(names: list[str], solved, hours, created: float | None) -> list[Fact]:
@@ -399,6 +407,8 @@ def hours_puzzle_lines(names: list[str], solved, hours, created: float | None) -
         h = hours(n)
         if h <= 0:
             words = "solved (the game kept no time for it)"
+        elif h > MAX_HOURS:                  # a value no completion writes: shown, never turned into a date
+            words = f"solved (the hours the save holds for it, {h:,}, are not a possible time)"
         elif h == 1:                     # 0 and 1 whole hours are both written as 1
             words = "solved within 2 hours of the village's start" + (
                 f", by {when(created + 7200)}" if created is not None else "")

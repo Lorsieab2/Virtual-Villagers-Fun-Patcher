@@ -143,6 +143,27 @@ class HoursGames(Pages):
     def test_vv1(self) -> None:
         self.hours(1, vv1, 4)
 
+    def test_an_impossible_time_keeps_the_page(self) -> None:
+        """A solved flag with a garbage hours value (about 2^31) once made the date raise and the whole page become
+        error text: the puzzle is shown solved with the value named, and the rest of the page stays."""
+        for game, module, s in ((1, vv1, 4), (2, vv2, vv2.S)):
+            with self.subTest(game=game):
+                data = fixture(f"vv{game}-huttest-1")
+                name, flag, at = module.PUZZLES[0]
+                data[flag + s] = 1
+                struct.pack_into("<i", data, at + s, 0x7FFFFFF0)
+                facts = self.page(game, data)
+                line = next(x for x in self.puzzles(facts) if x.startswith(name + ": "))
+                self.assertEqual(line, f"{name}: solved (the hours the save holds for it, {0x7FFFFFF0:,}, are not a "
+                                       "possible time).")
+                self.assertTrue(any(f.group == "Food sources" for f in facts))
+        data = bytearray(make_save())
+        struct.pack_into("<ii", data, 12 + vv3.PUZZLES + 4, 1, 0x7FFFFFF0)
+        facts = self.page(3, data, now=EPOCH + 100_000)
+        self.assertIn(f"The First Chief: solved (the time the save holds for it, {0x7FFFFFF0:,}, is not one the game's "
+                      "clock reached).", self.puzzles(facts))
+        self.assertTrue(any(f.group == "Food sources" for f in facts))
+
     def test_vv2(self) -> None:
         self.hours(2, vv2, vv2.S)
 
@@ -175,15 +196,18 @@ class Wording(Pages):
     def test_the_lost_childrens_birds(self) -> None:
         data = fixture("vv2-huttest-1")
         s = vv2.S
-        for scarer, allowance, expect in ((1, 0, "The birds: kept away by The Scarecrow."),
-                                          (0, 250, "The birds: 250 more food of crop harvest before they find"),
-                                          (0, 0, "The birds: they have found the field")):
-            with self.subTest(scarer=scarer, allowance=allowance):
+        for scarer, allowance, dam, expect in ((1, 0, 1, "The birds: kept away by The Scarecrow."),
+                                               (0, 250, 1, "The birds: 250 more food of crop harvest before they find"),
+                                               (0, 0, 1, "The birds: they have found the field"),
+                                               (0, 0, 0, "The birds: they come only once the dam is built")):
+            with self.subTest(scarer=scarer, allowance=allowance, dam=dam):
                 data[vv2.SCARER + s] = scarer
+                data[vv2.DAM + s] = dam
                 struct.pack_into("<i", data, vv2.ALLOWANCE + s, allowance)
                 facts = self.page(2, data)
                 parent = next(i for i, f in enumerate(facts) if f.text.startswith("The birds: "))
                 self.assertTrue(facts[parent].text.startswith(expect), facts[parent].text)
+                self.assertFalse(facts[parent].confirmed)         # a static reading: UNCONFIRMED
                 subs = [f.text for f in facts[parent + 1:parent + 5]]
                 self.assertTrue(all(f.sub for f in facts[parent + 1:parent + 5]))
                 self.assertTrue(subs[0].startswith("A new village allows 1,000 food of crop harvest"))

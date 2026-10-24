@@ -189,11 +189,19 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # 0x425AC0 says the birds have not found the field (the dam built, the Scarecrow's byte 0, the allowance
     # 0x2EAD4 at 0 or less), and otherwise sets them to 0 (0x43BA0D); the allowance starts at 1000 (0x425261) and
     # every crop harvest takes its food from it (0x463264); message 0x1CA (0x487138).  Static reading.
+    # 0x425AC0 says the birds have found the field only with the dam's byte at 1 (cmp byte [ecx+0x2E798], 1);
+    # without the dam the regrowth sets the crops to 0 for that reason alone (0x43B9F2 -> 0x43BA0D).
     allowance = _i32(data, ALLOWANCE)
-    add("Food sources", ("The birds: " + ("kept away by The Scarecrow." if scared else
-                                          f"{allowance:,} more food of crop harvest before they find the field and "
-                                          "eat the young crops." if allowance > 0 else
-                                          "they have found the field: each regrowth's new crops are eaten.")), gm.RUNNING)
+    if scared:
+        birds = "kept away by The Scarecrow."
+    elif allowance > 0:
+        birds = f"{allowance:,} more food of crop harvest before they find the field and eat the young crops."
+    elif dam:
+        birds = "they have found the field: each regrowth's new crops are eaten."
+    else:
+        birds = ("they come only once the dam is built; until then each regrowth leaves the field empty because "
+                 "there is no dam, not because of birds.")
+    add("Food sources", "The birds: " + birds, False)                      # static reading
     out.append(gm.Fact("Food sources", "A new village allows 1,000 food of crop harvest; every harvest (10, 7 or 4 "
                                        "food on Fast, Normal or Slow) counts against it, and it never comes back.",
                        False, sub=True))

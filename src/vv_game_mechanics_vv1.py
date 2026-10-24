@@ -139,6 +139,7 @@ HIDDEN_LINES = (
     # 0x42EB70..0x42EB8E sets his age and processed age to 100 each tick, and the age-unit body runs a villager
     # only while the processed age is below the age (0x42EC74), so he skips eating (0x42ECCC), both starvation
     # drains (0x42ECB7, 0x42ED37), sickness (0x42EDA3, and 0x42E5A4), regaining health and the old-age roll.
+    # Emulated on the stock bytes: tests/test_vv1_golden_child_skips_the_age_unit.py.
     ('The Golden Child has family number 199 and is born beside a normal baby; he starts with every skill at '
      '100 and is set back to 5 years old at every age unit, so the game skips him in its age-unit step: he never '
      'eats, never starves, never falls sick, never dies of old age and never regains health.', gm.RUNNING),
