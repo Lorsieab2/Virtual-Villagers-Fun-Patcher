@@ -73,7 +73,7 @@ MARGINS = (205, 5, 795, 480)
 class Game:
     """One emulated game with its village screen and state."""
 
-    def __init__(self, game: str, *, tamper: int | None = None, margins=MARGINS):
+    def __init__(self, game: str, *, tamper: int | None = None, margins=MARGINS, protect_fails: int | None = None):
         self.game = game
         if game == "vv1":
             exe = rig.rendered("vv1", ROWS)
@@ -83,6 +83,7 @@ class Game:
                 exe[off] ^= 0xFF
                 exe = bytes(exe)
             self.m = Machine("vv1", exe, modules=("number_keys",))
+            self._model_protection(protect_fails)
             self.m.w32(VV1_STATE_GLOBAL, STATE)
             self.m.w32(NUMBER_KEYS_UPDATE_DLL_FN, self.m.exports["number_keys"]["Vv1NumberKeysUpdate"])
             self.m.call_export("number_keys", "VvfpStartup", 1, 0)
@@ -96,6 +97,38 @@ class Game:
         for k, v in enumerate(margins):
             self.m.w32(SCREEN + self.f["margins"] + 4 * k, v)
         self.at(123, 456)
+
+    # -- page protection --------------------------------------------------------
+    def _model_protection(self, fails: int | None) -> None:
+        """VirtualProtect with real per-page state (code pages start
+        PAGE_EXECUTE_READ, 0x20); a call for the site at `fails` fails
+        while self.protect_fails is set."""
+        self.protect = {}
+        self.protect_calls: list[tuple[int, int]] = []
+        self.protect_fails = fails
+        base_import = self.m._import
+
+        def _import(name: str) -> None:
+            if name != "VirtualProtect":
+                base_import(name)
+                return
+            mu = self.m.mu
+            sp = mu.reg_read(rig.UC_X86_REG_ESP)
+            addr, size, new, old_out = struct.unpack("<4I", mu.mem_read(sp + 4, 16))
+            self.protect_calls.append((addr, new))
+            if addr == self.protect_fails:
+                mu.reg_write(UC_X86_REG_EAX, 0)
+                return
+            pages = range(addr & ~0xFFF, addr + size, 0x1000)
+            mu.mem_write(old_out, struct.pack("<I", self.protect.get(addr & ~0xFFF, 0x20)))
+            for page in pages:
+                self.protect[page] = new
+            mu.reg_write(UC_X86_REG_EAX, 1)
+
+        self.m._import = _import
+
+    def loosened(self) -> list[int]:
+        return sorted(page for page, value in self.protect.items() if value != 0x20)
 
     # -- the view ------------------------------------------------------------
     def at(self, x: int, y: int) -> None:
@@ -352,6 +385,35 @@ class SameAsTheLostChildren(unittest.TestCase):
         self.assertEqual(a.target(), (0, 0))
         a.update()
         self.assertEqual(a.view(), (123, 456))
+
+    def test_one_site_that_cannot_be_made_writable_installs_nothing_and_retries(self):
+        """VirtualProtect fails for the 4th site (0x420932): no site is
+        written, every protection already loosened is put back, the install
+        reports 0 (not installed) -- and a later tick installs all six."""
+        a = Game("vv1", protect_fails=SITES[3][0])
+        for va, want, _ in SITES:
+            self.assertEqual(bytes(a.m.mu.mem_read(va, len(want))), want, f"{va:#x} untouched")
+        self.assertEqual(a.loosened(), [], "every protection changed was restored")
+        self.assertEqual([c[0] for c in a.protect_calls[:4]], [s[0] for s in SITES[:4]],
+                         "all four acquisitions were tried before anything was written")
+        self.assertEqual(a.m.call_export("number_keys", "Vv1NumberKeysInstall"), 0)
+        a.key("3")
+        self.assertEqual(a.target(), (0, 0), "no key detour")
+        a.update()
+        self.assertEqual(a.view(), (123, 456))
+
+        a.protect_fails = None                    # a later tick, when it works
+        self.assertEqual(a.m.call_export("number_keys", "Vv1NumberKeysTick"), 1)
+        for va, want, _ in SITES:
+            self.assertEqual(a.m.mu.mem_read(va, 1)[0], 0xE9, f"{va:#x} detoured on the retry")
+        self.assertEqual(a.loosened(), [], "the original protections are back after writing")
+        a.key("3")
+        self.assertEqual(a.target(), (850, 1200))
+
+    def test_a_normal_install_restores_every_protection(self):
+        a = Game("vv1", protect_fails=0)
+        self.assertEqual(a.m.mu.mem_read(SITES[1][0], 1)[0], 0xE9)
+        self.assertEqual(a.loosened(), [])
 
     def test_no_village_nothing_moves(self):
         a = Game("vv1")

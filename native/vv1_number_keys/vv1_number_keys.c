@@ -297,11 +297,22 @@ static int vv1_site_is_stock(const struct vv1_site *site) {
 
 static int vv1_numkeys_installed;   /* 0 = not tried, 1 = installed, -1 = not this game */
 
-/* Install every detour or none.  Idempotent; returns 1 once installed. */
+/* Install every detour or none.  Idempotent; returns 1 once installed, 0
+   while not installed (a later call tries again), -1 for good when a site
+   is not the stock game's.
+
+   All or none, truly: every site's bytes are checked, then every site is
+   made writable BEFORE any is written.  If one cannot be made writable,
+   the protections already changed are put back, nothing is written and
+   the install stays unmarked, so the next tick retries (as VVFP VV1 Easier
+   Healing does when VirtualProtect fails).  A half install -- the key
+   detour live without the mouse-up one -- would be a glide nothing can
+   end. */
 __declspec(dllexport) int __stdcall Vv1NumberKeysInstall(void) {
     unsigned char bytes[12];
-    unsigned int i;
-    DWORD old;
+    DWORD old[6];
+    DWORD ignored;
+    unsigned int i, j;
     if (vv1_numkeys_installed != 0) {
         return vv1_numkeys_installed;
     }
@@ -312,17 +323,28 @@ __declspec(dllexport) int __stdcall Vv1NumberKeysInstall(void) {
         }
     }
     for (i = 0; i < 6; ++i) {
-        unsigned char *at = (unsigned char *)(uintptr_t)vv1_sites[i].va;
-        vv1_site_bytes(&vv1_sites[i], bytes);
-        if (!VirtualProtect(at, vv1_sites[i].length, PAGE_EXECUTE_READWRITE, &old)) {
-            continue;
+        if (!VirtualProtect((void *)(uintptr_t)vv1_sites[i].va, vv1_sites[i].length,
+                            PAGE_EXECUTE_READWRITE, &old[i])) {
+            /* Newest first: three sites share a page, so a later site's
+               "old" protection is the one an earlier site just loosened. */
+            for (j = i; j-- > 0;) {
+                VirtualProtect((void *)(uintptr_t)vv1_sites[j].va, vv1_sites[j].length, old[j], &ignored);
+            }
+            return 0;                     /* nothing written; try again later */
         }
-        memcpy(at, bytes, vv1_sites[i].length);
-        VirtualProtect(at, vv1_sites[i].length, old, &old);
-        FlushInstructionCache(GetCurrentProcess(), at, vv1_sites[i].length);
     }
     vv1_target_x = 0;
     vv1_target_y = 0;
+    for (i = 0; i < 6; ++i) {
+        unsigned char *at = (unsigned char *)(uintptr_t)vv1_sites[i].va;
+        vv1_site_bytes(&vv1_sites[i], bytes);
+        memcpy(at, bytes, vv1_sites[i].length);
+    }
+    for (i = 6; i-- > 0;) {               /* newest first, as above */
+        void *at = (void *)(uintptr_t)vv1_sites[i].va;
+        VirtualProtect(at, vv1_sites[i].length, old[i], &ignored);
+        FlushInstructionCache(GetCurrentProcess(), at, vv1_sites[i].length);
+    }
     vv1_numkeys_installed = 1;
     return 1;
 }
