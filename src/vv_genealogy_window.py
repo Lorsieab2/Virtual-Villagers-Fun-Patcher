@@ -296,9 +296,9 @@ def flow_row(frame, natural: bool = True) -> None:
         if seen["height"] != height:
             seen["height"] = height
             frame.configure(height=height)
-        natural()
+        ask_width()
 
-    def natural() -> None:
+    def ask_width() -> None:
         """The frame asks for the width of everything on one line (it is given less when there is less)."""
         sizes = [(WRAP_MIN if getattr(w, "flow_wrap", False) else w.winfo_reqwidth()) + before + after
                  for w, before, after, stretch in items]
@@ -311,7 +311,7 @@ def flow_row(frame, natural: bool = True) -> None:
     for w, *_ in items:          # a wrapped hint's height (or a relabelled button's width) changes: lay again
         w.bind("<Configure>", lambda _e: frame.after_idle(lay), add="+")
     frame.configure(height=max([w.winfo_reqheight() for w, *_ in items] or [1]))
-    natural()
+    ask_width()
     frame.flow_lay = lay
 GUIDE = "#e0218a"                       # a smart guide while dragging
 GRID_SIZES = ("10", "20", "40", "80")
