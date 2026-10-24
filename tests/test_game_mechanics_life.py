@@ -467,6 +467,41 @@ class Vitals(unittest.TestCase):
         self.assertEqual(line.due, t.real(clock, refilled + 10_800) + 2 * 10_800)
         self.assertIn("From empty to full: ", facts[facts.index(line) + 1].text)
 
+    def test_paused_on_fast_or_slow_the_first_refill_is_rescaled(self) -> None:
+        """Pausing rescales A New Home's and The Lost Children's regrowth and New Believers' crops to Normal speed,
+        unpausing back (src/vv_save_clock.py): a paused Fast save holding 14,400 seconds left has 7,200 once
+        unpaused, a paused Slow one 24,000."""
+        import vv_game_mechanics_vv1 as vv1
+        import vv_game_mechanics_vv2 as vv2
+        import vv_game_mechanics_vv5 as vv5
+        for speed, left in ((3, "2 hours"), (10, "6 hours 40 minutes")):
+            with self.subTest(game=1, speed=speed):
+                data = fixture(1)
+                struct.pack_into("<i", data, vv1.SPEED, speed + gm.PAUSED)
+                struct.pack_into("<i", data, vv1.LEVELS + 8 * vv1.FARMING, 2)
+                struct.pack_into("<i", data, vv1.FIELD, 0)
+                struct.pack_into("<i", data, vv1.REGROW, struct.unpack_from("<i", data, vv1.SAVED)[0] + 14_400)
+                self.assertIn(f"Crop field, time to full: full after {left} of real-life play once unpaused (1 refill)",
+                              texts(page(self, 1, data), "Refills"))
+            with self.subTest(game=2, speed=speed):
+                data = fixture(2)
+                at, _v = __import__("vv_save_backup").save_speed(2, bytes(data))
+                struct.pack_into("<i", data, at, speed + gm.PAUSED)
+                struct.pack_into("<i", data, vv2.COCONUTS + vv2.S, 1470)
+                last = struct.unpack_from("<i", data, vv2.LAST_TICK + vv2.S)[0]
+                struct.pack_into("<i", data, vv2.REGROW + vv2.S, last + 14_400)
+                self.assertIn(f"Coconuts, time to full: full after {left} of real-life play once unpaused (1 refill)",
+                              texts(page(self, 2, data), "Refills"))
+            with self.subTest(game=5, speed=speed):
+                data = fixture(5)
+                struct.pack_into("<i", data, vv5.SPEED, speed + gm.PAUSED)
+                struct.pack_into("<i", data, vv5.PROJECTS + 8 * vv5.HYDRO_FARM, vv5.HYDRO_DONE)
+                struct.pack_into("<i", data, vv5.CROPS, 0)
+                last = struct.unpack_from("<i", data, vv5.LAST_TICK)[0]
+                struct.pack_into("<i", data, vv5.CROPS_NEXT, last + 14_400)
+                self.assertIn(f"Hydroponic Farm crops, time to full: full after {left} of real-life play once unpaused "
+                              "(1 refill)", texts(page(self, 5, data), "Refills"))
+
     def test_full_now(self) -> None:
         import vv_game_mechanics_vv4 as vv4
         data = self.refilling(4)

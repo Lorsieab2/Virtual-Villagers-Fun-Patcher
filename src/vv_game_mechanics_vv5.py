@@ -312,7 +312,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                              f"refilled to {CROPS_FULL} {life.every_real(CROP_UNITS * UNIT, speed_value)}" if farm
                              else "the Hydroponic Farm is not built yet", verified=gm.SAVE,
                              step=CROPS_FULL if farm else 0, interval=gm.real_seconds(CROP_UNITS * UNIT, speed_value),
-                             next_at=real(CROPS_NEXT), first_in=max(0, _i32(data, CROPS_NEXT) - _i32(data, LAST_TICK)), rule=gm.RUNNING),
+                             next_at=real(CROPS_NEXT), first_in=life.resumed(max(0, _i32(data, CROPS_NEXT) - _i32(data, LAST_TICK)), speed_value), rule=gm.RUNNING),
                  life.Source("Fishing at the lake", None, unlimited=True,
                              refill_words="no store of its own is read here: it brings what the gatherers fetch",
                              verified=False)],

@@ -363,7 +363,7 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
     # The regrowth's own steps (0x43B960): coconuts +30 up to 1,500; crops refilled to 800.
     steps = dict(interval=gm.real_seconds(2400 * 6, speed_value),
                  next_at=struct.unpack_from("<I", data, 4)[0] + _i32(data, REGROW),
-                 first_in=max(0, _i32(data, REGROW) - _i32(data, LAST_TICK)))
+                 first_in=life.resumed(max(0, _i32(data, REGROW) - _i32(data, LAST_TICK)), speed_value))
     sources = [
         life.Source("Coconuts", _i32(data, COCONUTS), COCONUT_CAP, 30 / 40, regrow_at, f"+30 every {every}", verified=gm.SAVE,
                     step=30, **steps),
@@ -390,7 +390,8 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
                       "event happens once; a Time Warp brings it 10 real-life hours (Slow) or 12 (Normal, Fast) sooner.",
         medicine=level[MEDICINE_LEVEL], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
         parents_from=18, sick_loss=(0.61, 0.19),
-        collectibles=[("Collectibles owned: not read from this save. A piece already found pays 100, 250 or 1,500 "
+        collectibles=[("Collectibles owned: not shown, because where The Lost Children's save keeps its collection "
+                       "counts has not been traced. A piece already found pays 100, 250 or 1,500 "
                        "tech points by rarity.", gm.SAVE)],
         limit=life.limit_words(village, None, "5 for each complete collection, 25 with all four"),
         food_words="2 food a villager every age unit; on Medium above 4,000 food, or on Hard, 2 more 76% of the "

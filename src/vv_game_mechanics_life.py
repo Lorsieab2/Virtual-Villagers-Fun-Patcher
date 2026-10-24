@@ -266,6 +266,16 @@ def full_away(ctx: Context) -> float:
     return min(limits["full"].get(ctx.speed, limits["full"][gm.NORMAL]), limits["band"])
 
 
+def resumed(stored: float, speed_value: int) -> float:
+    """A timer's time left, saved paused, once the game is unpaused: A New Home's and The Lost Children's regrowth
+    and New Believers' crops are rescaled to Normal speed when the game pauses and back to the speed under the pause
+    when it unpauses (VV1 0x42E830, VV2 0x43B5A0, VV5 0x426260; src/vv_save_clock.py), so what the save holds is
+    the time left at Normal speed.  Running saves are not rescaled."""
+    if speed_value < gm.PAUSED:
+        return stored
+    return stored * gm.speed_base(speed_value) / gm.NORMAL
+
+
 def every_real(game_seconds: float, speed_value: int) -> str:
     """gm.every with its unit named: "every 4 hours of real-life time on Normal speed"."""
     return gm.every(game_seconds, speed_value).replace(" on ", " of real-life time on ", 1)
@@ -778,7 +788,8 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
     if trips and per_hour > 0:
         add("Gatherers: to bring in what is eaten takes about " + ", or ".join(
             f"{per_hour / food:,.0f} {name} per real-life hour ({food:g} each)" for name, food in trips)
-            + "; a trip's length depends on walking, so the number of gatherers this needs is not worked out.", True)
+            + "; the number of gatherers this takes is not given, because a trip's length is each walk's own path "
+            "and the save keeps no trip times.", True)
     if ctx.gatherer_words:
         add(ctx.gatherer_words, True)
     add("How many villagers gather now is not kept in the save.", True, gm.SAVE)
@@ -964,7 +975,8 @@ def collectible_lines(village: gm.Village, duplicate_words: str) -> tuple[list[t
     """The lines for Vital statistics, and the complete sets (The Tree of Life only; None otherwise)."""
     counts = collectible_counts(village)
     if counts is None:
-        return [("Collectibles owned: not read from this save.", gm.SAVE)], None
+        return [("Collectibles owned: not shown, because where this game's save keeps its collection counts has not "
+             "been traced.", gm.SAVE)], None
     owned = sum(1 for c in counts if c > 0)
     found = sum(counts)
     lines = [(f"Collectibles: {owned} of 48 pieces owned; {found:,} found in all, {found - owned:,} of them "

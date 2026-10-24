@@ -316,7 +316,7 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
     every = life.every_real(REGROW_UNITS * UNIT, speed_value).removeprefix("every ")
     # The regrowth's own steps (0x42EC0D, 0x42F2C5): +30 to the bush (no limit), +800 up to 800 to the field.
     steps = dict(interval=gm.real_seconds(REGROW_UNITS * UNIT, speed_value), next_at=epoch + _i32(data, REGROW),
-                 first_in=max(0, _i32(data, REGROW) - _i32(data, SAVED)), rule=gm.RUNNING)
+                 first_in=life.resumed(max(0, _i32(data, REGROW) - _i32(data, SAVED)), speed_value), rule=gm.RUNNING)
     sources = [life.Source("Berry bush", bush, None, 30 / REGROW_UNITS, regrow_at, f"+30 every {every}", verified=gm.SAVE,
                            step=30, **steps),
                life.Source("Crop field", _i32(data, FIELD), FIELD_CAP, FIELD_CAP / REGROW_UNITS if farming >= 2 else 0.0,
@@ -340,7 +340,9 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
         event_rule="It comes 12 to 23 whole real-life hours after the last, each hour equally likely, at any speed; which "
                    "event is drawn then (a story event 20%, a village event 40%, a crate or vial 40%).",
         event_running="Paused, its timer waits; with the game closed it runs on in real time, and after time away at "
-                      "most one event happens; the catch-up adds none. What a Time Warp does to it is not worked out.",
+                      "most one event happens; the catch-up adds none. A Time Warp does not move it: its only writers are the "
+                      "game's own rescheduling (0x423891, 0x42391A, 0x423A37, 0x423A6F) and the Origins Island Event "
+                      "(0x456B47; native/shared/island_timer_vv1.inc).",
         medicine=level[3], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71}, parents_from=18,
         sick_loss=(0.71, 0.22),
         collectibles=[("Collectibles: A New Home has none; mushrooms are its only random pickup.", gm.RUNNING)],
