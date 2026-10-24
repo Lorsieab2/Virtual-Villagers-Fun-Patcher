@@ -2,11 +2,14 @@
 on the real time since it was made), and Repair Saves & Logs' "set saves to Paused".
 
 The speed is a dword in the save buffer: 3 / 6 / 10, plus 999 while paused (1002 / 1005 / 1009),
-at the in-memory field less 8.  Read on every one of the owner's saves of all five games.  These
-tests build saves of each game's own layout and check that exactly those four bytes change, to
-exactly what the game writes, and that nothing else is ever touched."""
+at the in-memory field less 8.  Read on every one of the owner's saves of all five games.  Since
+2026-10-24 a change also replays the game's own speed routine on the save's clock and clock-tied
+timers (src/vv_save_clock.py; tests/test_save_speed_edit.py compares it with the stock routine run
+in an emulator).  These tests build saves of each game's own layout and check that only those
+fields change, and that nothing else is ever touched."""
 from __future__ import annotations
 
+import struct
 import sys
 import tempfile
 import unittest
@@ -17,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 import vv_save_backup as backup  # noqa: E402
+import vv_save_clock as save_clock  # noqa: E402
 
 TITLES = {
     1: ("Virtual Villagers - A New Home", "Virtual Villagers"),
@@ -39,7 +43,29 @@ def save_bytes(game: int, speed: int, header: int | None = None, buffer: int | N
     data[length_at:length_at + 4] = buffer.to_bytes(4, "little")
     at = header + MEMORY_FIELD[game] - 8
     data[at:at + 4] = speed.to_bytes(4, "little")
+    rules = save_clock.GAMES[game]
+    put = lambda state, value: struct.pack_into("<I", data, header + state - 8, value)  # noqa: E731
+    now = 200_000_000
+    put(rules.now, now)
+    if isinstance(rules, save_clock.ClockGame):
+        # A clock in a state the game writes: running at the speed, or stopped by a pause.
+        base = speed - 999 if speed >= 999 else speed
+        put(rules.block, rules.block_size)
+        for k, value in enumerate((0 if speed >= 999 else base, base if speed >= 999 else 6,
+                                   now - 100, 40_000)):
+            put(rules.clock + 4 * k, value)
+        for field in rules.timers:
+            put(field, 0)
     return bytes(data)
+
+
+def clock_fields(game: int, header: int) -> set[int]:
+    """The file offsets the game's own speed change may write: the speed, the clock, its timers."""
+    rules = save_clock.GAMES[game]
+    fields = {rules.speed, *rules.timers}
+    if isinstance(rules, save_clock.ClockGame):
+        fields |= {rules.clock + 4 * k for k in range(4)}
+    return {header + state - 8 + i for state in fields for i in range(4)}
 
 
 class SpeedTests(unittest.TestCase):
@@ -47,7 +73,7 @@ class SpeedTests(unittest.TestCase):
         for game, field in MEMORY_FIELD.items():
             self.assertEqual(backup._SPEED_IN_BUFFER[game], field - 8, game)
 
-    def test_pausing_adds_999_and_changes_nothing_else(self) -> None:
+    def test_pausing_adds_999_and_changes_only_what_the_games_pause_changes(self) -> None:
         for game in TITLES:
             for header, _at in backup._SAVE_LAYOUTS[game]:
                 for buffer in backup._SAVE_BUFFERS[game]:
@@ -58,8 +84,24 @@ class SpeedTests(unittest.TestCase):
                         self.assertEqual(len(after), len(before))
                         changed = [i for i in range(len(before)) if before[i] != after[i]]
                         at = header + MEMORY_FIELD[game] - 8
-                        self.assertTrue(set(changed) <= set(range(at, at + 4)), (game, changed[:8]))
+                        self.assertTrue(set(changed) <= clock_fields(game, header), (game, changed[:8]))
                         self.assertEqual(backup.save_speed(game, after), (at, speed + 999))
+                        self.assertEqual(after, save_clock.edit_speed(game, before, header, speed, True))
+                        if isinstance(save_clock.GAMES[game], save_clock.ClockGame):
+                            rate = struct.unpack_from("<I", after, header + save_clock.GAMES[game].clock - 8)[0]
+                            self.assertEqual(rate, 0)       # the game clock is stopped, as the pause key does
+
+    def test_the_old_dword_only_pause_is_repaired(self) -> None:
+        """A save an older patcher paused by its dword only (its clock still running) is paused
+        properly when paused again, and listed by Repair as not yet paused."""
+        for game in (3, 4):
+            running = save_bytes(game, 6)
+            header = backup._save_header(game, running)
+            at = header + MEMORY_FIELD[game] - 8
+            old = running[:at] + (1005).to_bytes(4, "little") + running[at + 4:]
+            fixed = backup.pause_save_bytes(game, old)
+            self.assertIsNotNone(fixed, game)
+            self.assertEqual(fixed, backup.pause_save_bytes(game, running))
 
     def test_an_already_paused_save_is_left_alone(self) -> None:
         for game in TITLES:
@@ -85,7 +127,7 @@ class NoGames:
 class SpeedChoiceTests(unittest.TestCase):
     """Repair Saves & Logs' Game speed (the owner, 2026-10-08: "Paused, slow, normal, fast")."""
 
-    def test_every_choice_from_every_speed_changes_only_the_speed(self) -> None:
+    def test_every_choice_from_every_speed_changes_only_the_games_own_fields(self) -> None:
         expected = {"slow": lambda v: 10, "normal": lambda v: 6, "fast": lambda v: 3,
                     "paused": lambda v: v if v >= 999 else v + 999}
         with tempfile.TemporaryDirectory() as tmp:
@@ -99,8 +141,9 @@ class SpeedChoiceTests(unittest.TestCase):
                         after = path.read_bytes()
                         self.assertEqual(backup.save_speed(game, after)[1], want(start), (game, start, choice))
                         self.assertEqual(result, None if want(start) == start else (start, want(start)))
-                        at = backup.save_speed(game, before)[0]
-                        self.assertEqual(after[:at] + after[at + 4:], before[:at] + before[at + 4:])
+                        header = backup._save_header(game, before)
+                        changed = {i for i in range(len(before)) if before[i] != after[i]}
+                        self.assertLessEqual(changed, clock_fields(game, header), (game, start, choice))
             junk = Path(tmp) / "junk.ldw"
             junk.write_bytes(b"not a save")
             with self.assertRaises(backup.BackupError):
