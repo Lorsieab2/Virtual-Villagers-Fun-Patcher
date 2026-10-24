@@ -9,6 +9,7 @@ never touches the patcher's logs, .dat files or Backups folder.
 """
 from __future__ import annotations
 
+import contextlib
 import os
 import shutil
 import sys
@@ -33,6 +34,36 @@ class PowerCut(BaseException):
     """A crash the running copy never gets to undo."""
 
 
+@contextlib.contextmanager
+def exclusive_lock(path: Path):
+    """Hold ``path`` open with no sharing at all, as a locking program does."""
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateFileW.restype = wintypes.HANDLE
+    kernel32.CreateFileW.argtypes = [
+        wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID,
+        wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE,
+    ]
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    generic_read, open_existing = 0x80000000, 3
+    handle = kernel32.CreateFileW(str(path), generic_read, 0, None, open_existing, 0, None)
+    if handle in (None, wintypes.HANDLE(-1).value):
+        raise ctypes.WinError(ctypes.get_last_error())
+    try:
+        # The lock really holds: this process cannot open the file either.
+        try:
+            path.open("rb").close()
+        except PermissionError:
+            pass
+        else:
+            raise AssertionError(f"{path} is not exclusively locked")
+        yield
+    finally:
+        kernel32.CloseHandle(handle)
+
+
 def snapshot(root: Path) -> dict[str, tuple[str, bytes | None, int]]:
     """Every file and folder under ``root``: kind, bytes, modification time."""
     found: dict[str, tuple[str, bytes | None, int]] = {}
@@ -48,7 +79,9 @@ def snapshot(root: Path) -> dict[str, tuple[str, bytes | None, int]]:
 class AtomicSaveCopyTests(unittest.TestCase):
     def setUp(self) -> None:
         self._temp = tempfile.TemporaryDirectory()
-        self.root = Path(self._temp.name) / "LDW"
+        # Resolved, as the patcher resolves it: a temp folder can be spelt
+        # with an 8.3 short name (C:\Users\RUNNER~1 on the CI runner).
+        self.root = Path(self._temp.name).resolve() / "LDW"
         self.build = load_builds()[2]
         title = self.build.title
         self.vanilla = self.root / title
@@ -266,21 +299,46 @@ class AtomicSaveCopyTests(unittest.TestCase):
         locked = self.modded / f"{self.build.title}1.ldw"
         real = os.replace
 
+        refused = []
+
         def locked_replace(src, dst):
-            if Path(src) == locked:
+            # Compared resolved: the patcher resolves the save root, and a
+            # temp folder can be spelt with an 8.3 short name (RUNNER~1).
+            if Path(src).resolve() == locked.resolve():
+                refused.append(src)
                 raise PermissionError(13, "The process cannot access the file")
             return real(src, dst)
 
         with mock.patch.object(vvp.os, "replace", locked_replace):
             with self.assertRaisesRegex(PatcherError, "locked by another program"):
                 self.run_copy()
+        self.assertEqual(len(refused), vvp.SAVE_COPY_LOCK_RETRIES)
         self.assert_untouched(before)
 
     @unittest.skipUnless(os.name == "nt", "Windows file locks")
-    def test_a_save_held_open_by_another_program_fails_cleanly(self) -> None:
+    def test_a_modded_save_locked_by_another_program_fails_cleanly(self) -> None:
         self.make_existing_modded()
         before = snapshot(self.root)
-        # An open handle without delete sharing blocks renaming it on Windows.
+        with exclusive_lock(self.modded / f"{self.build.title}1.ldw"):
+            with self.assertRaisesRegex(PatcherError, "locked by another program"):
+                self.run_copy()
+        self.assert_untouched(before)
+
+    @unittest.skipUnless(os.name == "nt", "Windows file locks")
+    def test_a_vanilla_save_locked_by_another_program_fails_cleanly(self) -> None:
+        self.make_existing_modded()
+        before = snapshot(self.root)
+        with exclusive_lock(self.vanilla / f"{self.build.title}1.ldw"):
+            with self.assertRaisesRegex(PatcherError, "locked by another program"):
+                self.run_copy()
+        self.assert_untouched(before)
+
+    @unittest.skipUnless(os.name == "nt", "Windows file locks")
+    def test_a_modded_save_held_open_without_delete_sharing_fails_cleanly(self) -> None:
+        # Python's own open() shares read and write but not delete, which is
+        # enough to refuse the rename on Windows.
+        self.make_existing_modded()
+        before = snapshot(self.root)
         with open(self.modded / f"{self.build.title}1.ldw", "rb"):
             with self.assertRaisesRegex(PatcherError, "locked by another program"):
                 self.run_copy()
