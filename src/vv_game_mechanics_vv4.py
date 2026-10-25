@@ -34,15 +34,21 @@ LEARNING = "vv4_learning_never_fails"
 SCALES = "vv4_complete_scales_golden_fish"
 STORY = "vv4_story_cheat_upgrades"
 
+# The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the
+# stew's effect switch 0x41DEE0 (CPotion, vtable 0x48D5C4): 5 sends the villager "Burping up soap bubbles"
+# (action 0xA1, 0x42E4AC) and counts the Soapy Stew achievement (0x41E02D); 9 says "I feel sick!" and sends them
+# "Throwing up soapy stew!" (action 0x9F, 0x42E2A9) -- nothing in either sets the sickness flag +0x1C48.  The
+# healing stew (8) and the soapy one (9) are kept 600 real-life seconds (0x41DF71, 0x41E0D6).
 STEW_LINES = (
-    ("Stews need 3 herbs and fresh water in a cooked pot; a ready stew is gone 5 real-life minutes later at every "
-     "speed. Spicy x3: runs to "
-     "the stream; spicy, spicy, sweet: every adult comes; spicy, spicy, soapy: has got to go; spicy, sweet, "
+    ("A stew is 3 herbs in fresh water in the pot, heated by hot rocks (the heat rules are below). Spicy x3: runs "
+     "to the stream; spicy, spicy, sweet: every adult comes; spicy, spicy, soapy: has got to go; spicy, sweet, "
      "sweet: the whole village comes; spicy, sweet, soapy: the Grand Feast (a well-cooked pot and the 4 feast "
-     "items); spicy, soapy, soapy: the soapy-stew reaction.", gm.RUNNING),
+     "items); spicy, soapy, soapy: \"Burping up soap bubbles\".", gm.RUNNING),
     ("Sweet x3: honours the tree; sweet, sweet, soapy: the children get hiccups; sweet, soapy, soapy: heals 25 to "
-     "59 health (5 to 14 with under 100 food), then no stew for 10 real-life minutes; soapy x3: sick, then no stew "
-     "for 10 real-life minutes. In salt water, pulpy vines x3 make soap; any other mix tastes nasty or too salty.", gm.RUNNING),
+     "59 health (5 to 14 with under 100 food), and that villager cannot eat that stew again for 10 real-life "
+     "minutes; soapy x3: \"I feel sick!\" and \"Throwing up soapy stew!\" (it does not make the villager sick), and "
+     "the same 10 real-life minutes. In salt water, pulpy vines x3 make soap; any other mix tastes nasty or too "
+     "salty.", gm.RUNNING),
 )
 # The stew pot (0x4D76D8) and its herb table (0x4D8220), the same design as The Secret City's potion: a stew
 # made (0x42EDE0) sets the table's deadline +8 to the real clock 0x403750 + 300 (0x42F240, from 0x42EEB2); the
@@ -55,7 +61,8 @@ STEW_COUNTDOWN = {gm.FAST: "2:30", gm.NORMAL: "5:00", gm.SLOW: "8:20"}
 def stew_pot_line(speed: int) -> str:
     return (f"A ready stew: the pot's on-screen countdown starts at {STEW_COUNTDOWN[speed]} on {gm.speed_name(speed)} "
             "speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with the speed), and the pot "
-            "empties itself when it reaches 0:00. The save does not keep the pot.")
+            "empties itself when it reaches 0:00, 5 real-life minutes after the stew was made at every speed. The "
+            "save does not keep the pot.")
 
 
 # The owner (2026-10-24).  In the code a villager dropped on the herb table (its drop slot 0x42F0F0) empties the
@@ -91,23 +98,29 @@ CANT_EAT_LINE = (
     "stew's effect, or already has 12 effects: it lasts until that effect ends (10 real-life minutes at every speed "
     "for the healing and sick stews), for that villager and that stew only. Saving the game ends every villager's stew effects, so a save "
     "holds none to count down.")
+# Conception, births, health, sickness and the skill check's odds are under Chances and Births and gender; these
+# are what those groups do not give.
+# The skill check 0x462A80, one case per skill (jump table 0x4634B8): a success raises the skill by (70 - skill)
+# divided by 18 for Farming (0x462CB7), Research (0x4633F0) and Building (0x4631C7), by 10 for Parenting
+# (0x462EC2) and by 12 for Healing (0x46304F) -- the magic numbers 0x38E38E39 >> 34, 0x66666667 >> 34 and
+# 0x2AAAAAAB >> 33 -- rounded toward 0, raised to 7 at skill 0; doubled for a villager who likes learning, halved
+# for one who dislikes it; at 0 or less a roll of rand(100) <= 50 and then rand(100) >= skill gives 1 (0x462CFA).
+# The buildings (0x431020..0x431372): every one needs 2,000 (the 0x7D0 each registers with 0x4386A0), and each
+# build step Advances it [+0x24] times (0x43028D): Hut 1 12, Hut 2 4, Hut 3 1, the Clothing Hut 12, the Love Shack
+# 200, the Nursery School and the Hospital 50.  The Fire Pit: lit for 72,000 game-clock seconds (0x4327F7, again on
+# the pit fed while lit, 0x432882 -> 0x4328AA), the clock running at the speed (0x41DE70); research's extra point 0x464E87.
 LIFE_LINES = (
-    ("A baby is born on the 41st age unit after conception. Conception after an embrace: (Parenting + 50 x "
-     "(Medicine level - 1) + 1) in 300 (17% at Parenting 50 and Medicine 1). At Medicine 3: twins 5.25%, "
-     "triplets 1.75%.", gm.RUNNING),
-    ("A villager with food and not sick regains 1 health half the age units (75% while the Fire Pit burns, every "
-     "one at Medicine 3 or on Easy); the elderly (50, 58 or 66 years) a fifth of that. Sickness each age unit: "
-     "0.27%, 0.17% or 0.065% at Medicine 1, 2 or 3, 1.5% more for the elderly, a quarter on Easy. A sick "
-     "villager loses 1 health 61% of age units and is never cured by time, except on Easy (25%).", gm.RUNNING),
-    ("A job succeeds at skill + 34 out of 100 (+ 67 if they like learning, + 17 if they dislike it), + 15 or + 30 "
-     "at Learning level 2 or 3; a success gains (70 - skill) ÷ 9 (at least 7 at skill 0), twice that if they "
-     "like learning, half if they dislike it.", gm.RUNNING),
-    ("Building: a hut needs 2000 -- the first hut gains 12 a visit, the second 4, the third 1; the clothing hut "
-     "12, the Love Shack 200, the nursery and the hospital 50. Babies need the Love Shack; women of 50 or more "
-     "cannot conceive; with 6 or fewer villagers a baby is of the more common sex when the other is down to 2 "
-     "or fewer (see Births and gender). The Fire Pit stays lit 10, 20 "
-     "or 33 hours 20 minutes on Fast, Normal or Slow. A research try injures (0 to 9 health) 2% of the time.",
-     False),
+    ("A success raises the skill by (70 - skill) ÷ 18 for Farming, Research and Building, ÷ 10 for Parenting and "
+     "÷ 12 for Healing, rounded down (7 at skill 0); twice that for a villager who likes learning, half for one who "
+     "dislikes it. When that comes to 0 (Farming, Research and Building from skill 53, Parenting from 61, Healing "
+     "from 59, before the doubling or halving), a success gives 1 point 51.05% of the time when a second roll of 0 "
+     "to 99 is at or above the skill, and nothing otherwise. The odds of the check itself are under Chances.",
+     gm.RUNNING),
+    ("Building: every building needs 2,000 build points; each build step adds 12 to Hut 1, 4 to Hut 2, 1 to Hut 3, "
+     "12 to the Clothing Hut, 200 to the Love Shack and 50 to the Nursery School and the Hospital.", gm.RUNNING),
+    ("The Fire Pit stays lit 10, 20 or 33 hours 20 minutes of real-life play on Fast, Normal or Slow speed; feeding "
+     "the pit again while it burns starts that time over. While it burns each research job gives 1 more "
+     "tech point 10.01% of the time, and health comes back more often (see Chances).", gm.RUNNING),
 )
 
 
@@ -116,8 +129,10 @@ LIFE_LINES = (
 HIDDEN_LINES = (
     ("Each villager's hidden number (1 to 183, rolled at every creation, not inherited) sets how it starves, "
      "its voice and its grave or ghost spot; the villagers' numbers are below.", gm.RUNNING),
-    ("Learning: liking it takes a skill roll's success from 74% to 100% (at the same skill) and doubles the gain; "
-     "disliking it, 57.6% and half the gain.", gm.RUNNING),
+    # The skill check 0x462A80: liked learning (word 0x27) adds 66 (0x462AB9), disliked 16 (0x462AC6), else 33.
+    ("Learning: liking it makes every skill check succeed at skill + 67 in 100 instead of skill + 34 (so from "
+     "skill 33 always) and doubles the skill gained; disliking it, skill + 17 in 100 and half the gain (the checks "
+     "and the gains are under Chances and Other).", gm.RUNNING),
     ("Work: liking it takes a villager's idle self-picks from 18.7% to 5%, and a job you give them is always "
      "done; disliking it, 75.9% idle, and a job you give them is done 47.9% of the time while food is under "
      "8,000. A skill chosen on the Details screen wins 86% of the time.", gm.RUNNING),
@@ -140,40 +155,33 @@ HIDDEN_LINES = (
      "cooking table, runs away (100% or 76%); children: \"Telling a story\" ends 99% of the time; stories: no "
      "story when either villager dislikes them.", gm.RUNNING),
     ("The other 46 likes and dislikes: no effect has been found in the running game.", False),
-    ("A baby starts with one skill at 5 to 7 (4 to 6 when both parents' best is the same) from the mother's "
-     "best 49 times in 50, never Parenting; its family number is the mother's.", False),
-    ('Sick: -1 health on 61% of age units, 19% at 20 health or less. Health comes back on half the age units '
-     '(75% with the Fire Pit burning, every one at Medicine 3 or on Easy), a fifth of that for the elderly.', gm.RUNNING),
-    ('The Fire Pit burns 10, 20 or 33 hours 20 minutes on Fast, Normal or Slow; a drop on the lit pit fills it '
-     'again; while it burns each research job gives 1 more tech point 10% of the time.', False),
-    # The owner (2026-10-24); the Cold Snap's apply 0x414BD0 ends the fire (tail jmp 0x432620 on 0x4D867C).
-    (gm.FIRE_OUT + " The Cold Snap island event (it needs the Fire Pit burning) puts it out.", gm.OWNER),
-    (gm.FIRE_CLOSED, gm.OWNER),
+    # The conception 0x460990: the best skill (0x46AC20, the first highest above 0) of the mother 49 times in 50
+    # (rand(50) != 0, 0x4609CD), else the father's; 5 to 7 (rand(3) + 5), or 4 to 6 when both parents' best is the
+    # same skill (0x4609EE); a Parenting pick becomes no skill (index and level 0, 0x45E817).
+    ("A baby starts with one skill at 5 to 7 (4 to 6 when both parents' best skill is the same one): the mother's "
+     "best skill 49 times in 50, the father's 1 time in 50; when that skill is Parenting the baby starts with no "
+     "skill.", gm.RUNNING),
 )
 
 # Chance and timers (the coordinator's spec mech_vv4\\spec.md, "Chance and timers (v2.2)"):
 # (line, verified on the running game's path); the full index of every roll is in the claims export.
 CHANCE_V4 = (
-    ("Every roll that changes play is in the groups above, with its odds: the spawn roll each frame (4 in "
-     "6,000, a second one when the rain is heavy), mushroom or collectible, the Golden Fish, the island event "
-     "and its outcomes, eating, health, sickness, old age, the skill roll, the snack, conception and twins, "
-     "the Nursery School and the stews.", gm.RUNNING),
-    ("Island events: Phosphorescent Fungi (admire) makes each villager sick at 30%; Mosquito Larvae (soap) at "
-     "25%; Village & Tree Malaise at 20%, and each at 10% loses 5 to 14 health; Stinging Wasps: each at 50% "
-     "loses 10 to 19 health; Robber Crab (cut the tail): each at 80% gains 5 to 9 Healing.", False),
-    ("A new village: one of the first five villagers has a 30% chance of liking running. Every 40 seconds each "
-     "villager's queue of actions is refreshed. About 2,000 more rolls (walk targets, animation lengths, job "
-     "and idle choices, particles, speech): not individually worked out.", False),
-    ("Timers: the second island event 30 minutes after the first, then 8 to 15 hours, at any speed; the world "
-     "tick (berries, debris, Nursery School) and the age unit 3, 6 or 10 minutes; a birth on the 41st age "
-     "unit; a ghost visit every 50 to 58 minutes; the hummingbird every 3 to 5 minutes (23 to 25 after Decorate "
-     "Tree).", gm.RUNNING),
-    ("A new village's first island event 15 real-life minutes after it is made; an item lies 1 minute 30 real-life "
-     "seconds; a stew keeps 5 real-life minutes (another hot rock starts them over) and a healing or sick stew "
-     "locks the villager out for 10 real-life minutes; on Fast, Normal or Slow, the Fire Pit burns 10, 20 or 33 "
-     "hours 20 minutes of real life, clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes and other "
-     "weather 1.5 to 3, 3 to 6 or 5 to 10, and the wind flutes play in fog every 30 to 45, 60 to 89 or 100 to 148 "
-     "real-life seconds.", False),
+    ("Every roll that changes play is in its own group above, with its odds: the appearance roll each update of "
+     "the village (Collectibles), mushroom or collectible (Mushrooms), the Golden Fish (Food sources), the island "
+     "event and its outcomes (Island events), eating, health, sickness, old age, the skill check, conception, "
+     "twins and the baby's sex (Chances, Births and gender), the snack (Food earned), the Nursery School (Tech "
+     "points and effects) and the stews (Other).", gm.RUNNING),
+    ("Every timer is in its own group too: island events (Island events), the world tick and the age unit "
+     "(Refills, Villager timers), births (Births and gender), ghost visits and the hummingbird (Collectibles), how "
+     "long an item lies (Mushrooms), the stews and the Fire Pit (Other), weather an event brings (Island "
+     "events).", gm.RUNNING),
+    ("A new village: one of the first five villagers has a 30% chance of liking running, and every 40 seconds "
+     "each villager's queue of actions is refreshed (read from the coordinator's spec, not traced in the game's "
+     "code here, so neither the 30% nor whether the 40 seconds are real-life or in-game is proven).",
+     False),
+    ("Clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes on Fast, Normal or Slow speed, and the "
+     "wind flutes play in fog every 30 to 45, 60 to 89 or 100 to 148 real-life seconds (read from the coordinator's "
+     "spec, not traced in the game's weather code here).", False),
 )
 
 
@@ -213,16 +221,24 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     mastery_words = {2: " (Food Mastery level 2: half as much again)", 3: " (Food Mastery level 3: doubled)"}.get(
         mastery, "")
 
-    # -- Food sources --------------------------------------------------------------------
-    add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", gm.SAVE)
+    # -- Food sources (the food in storage is under Vital statistics) ---------------------------
     berries = _i32(data, BERRIES)
+    # Picking 0x464464 (the berries ÷ 100, at least 2), a harvest 0x4644EE (the berries, at most 30); either ends the
+    # task below 3 berries (0x4644A9, 0x464522).  Every food gain goes through 0x41D920 (Food Mastery 2: + half,
+    # 3: doubled).
     add("Food sources", f"Blackberries: {berries:,} of {BERRY_CAP:,}; picking brings {food(max(2, berries // 100))} food "
                         f"now (the berries ÷ 100, at least 2; picking stops below 3), a harvest {food(min(30, berries))} "
-                        f"(up to 30){mastery_words}.", gm.RUNNING)
+                        f"(the berries, at most 30, before Food Mastery){mastery_words}.", gm.RUNNING)
     add("Food sources", f"Stomping or shaking down fruit brings {food(3)}; the fishing net {food(4)} a fish, or {food(8)} for "
                         "a Golden Fish: a (2 x fish scales + 1)% chance (3% with 1 scale, 25% with 12, none with 0)."
                         + mastery_words, gm.RUNNING)
-    add("Food sources", f"Catching a crab brings {food(35)}." + mastery_words)
+    # The Mossy Rocks (CMossyRocks, vtable 0x48E944; its villager is "Catching a crab", 0x436F30) pay 35 on their
+    # result 1 (0x436F0E); a villager's find of a crab pays 55 and says "This villager found a crab!" (the job
+    # event 18, 0x464A3F..0x464A93).  The owner: the 55-food catch is a crab.
+    add("Food sources", f"A crab caught at the Mossy Rocks (\"Catching a crab\") brings {food(35)}." + mastery_words,
+        gm.RUNNING)
+    add("Food sources", f"A crab a villager finds (\"This villager found a crab!\") brings {food(55)}." + mastery_words,
+        gm.OWNER)
     if village.has(SCALES) is not False:
         add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
 
@@ -234,22 +250,32 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Refills", f"Next growth: {due(NEXT_TICK)}.", gm.SAVE)
 
     # -- Mushrooms / Collectibles --------------------------------------------------------
-    add("Mushrooms", "While playing (not paused), something appears about every 45 seconds at any speed, twice as "
-                     "often on wet ground; at most 2 at a time, each gone after 1 minute 30 seconds. 30% are "
-                     f"mushrooms (all of them in rain or on wet ground): brown 92% worth {food(6)} food, red (rare) 8% "
-                     f"worth {food(35)}.", False)        # the 35 one is the game's rare mushroom ("You picked N rare mushrooms")
+    # The appearance: 0x413EE0 (at most 2 at a time, 0x413EFA); a mushroom when rand(100) < 30, or always in rain
+    # (weather 2 or 3) or with the weather level above 20 (0x413F33..0x413F5C); red (0x77) when rand(100) < 8, else
+    # brown (0x76) (0x413F8F); the item lies 90 real-life seconds (0x4140EC, the wall clock 0x403750).  Picked: brown
+    # 6, red 35 (0x4145DE..0x414660), and Mushrooms Found +1 (0x414665).  How many updates the village gets each
+    # real-life second is the game loop's and is not read here, so "about every 45 seconds" stays an estimate.
+    add("Mushrooms", "While playing (not paused) a mushroom or a collectible appears by the roll under Collectibles: "
+                     "about every 45 real-life seconds (an estimate: the roll is made once per update of the village, "
+                     "and how many updates come each real-life second is not read here); at most 2 lie at a time, "
+                     "each gone after 90 real-life seconds.", False)
+    add("Mushrooms", "30.03% of them are mushrooms, and every one while it rains or while the weather level is above "
+                     f"20 (wet ground): brown 91.99% of the time, worth {food(6)} food, red (rare) 8.01%, worth "
+                     f"{food(35)}.", gm.RUNNING)
     if village.has(GOLDEN):
         out.extend(gm.golden_lines(GOLDEN, 3600 / 45 * 0.30, speed_value, "something about every 45 real-life seconds "
                                    "at every speed, 30% of them mushrooms on dry ground in fair weather"))
-    add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
-    add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
-                        "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "
-                        "hours.", gm.RUNNING)
+    # The rarity 0x41404D: rand(100) < 5 rare (+8), < 18 uncommon (+4), else common; a piece already found pays
+    # 100, 250 or 1,500 tech points (0x41446C..0x4144A4).  Fish-scale spots (0x46) need 0x41F5E0: (the save's clock
+    # ÷ 3,600) odd.
+    add("Collectibles", "The others are collectibles: 81.98% common, 13.01% uncommon, 5.01% rare. A piece already found "
+                        "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in every other "
+                        "real-life hour (the odd whole hours counted from the save's clock base).", gm.RUNNING)
     # A ghost is not a buried villager (the owner, 2026-10-24): it takes a random grave's looks (0x414110).
-    add("Collectibles", "Once the Mausoleum Mural set is complete, a ghost brings a collectible every 50 to 58 minutes "
-                        "(nothing if more than an hour overdue); what a ghost is: under Death and graves.", gm.RUNNING)
-    add("Collectibles", "The four collections are the Fish Scale, Lab Equipment, Mausoleum Mural and Wind Flute sets; "
-                        "ghost visits need the Mausoleum Mural set complete.", gm.RUNNING)
+    add("Collectibles", "The four collections are the Fish Scale, Lab Equipment, Mausoleum Mural and Wind Flute sets. "
+                        "Once the Mausoleum Mural set is complete, a ghost brings a collectible every 50 to 58 real-life "
+                        "minutes (nothing if more than an hour overdue); what a ghost is: under Death and graves.",
+        gm.RUNNING)
     add("Collectibles", "Fog increases collectible spawning if you have Wind Flute pieces collected.", gm.OWNER)
     add("Collectibles", (
         "Exactly (0x41437E): each update of the village (while not paused) something appears when a roll of 0 to 5,999 "
@@ -263,14 +289,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         out.append(gm.Fact("Collectibles", (
             f"This village: {found} of the 12 Wind Flute pieces found, so in fog the first roll's chance is "
             f"{6 * 4 * (found // 2)} in 32,768 each update."), gm.SAVE, True))
-    add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 minutes (every 23 to 25 once "
-                        "Decorate Tree is done); it changes nothing.", gm.RUNNING)
-    add("Collectibles", "The Cold Snap island event brings fog and puts the fire out (0x414BD0). Each complete "
-                        "collection raises the population limit by 5, all four by 25 (the room check 0x468350).",
+    add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life minutes (every 23 to 25 "
+                        "once Decorate Tree is done); it changes nothing.", gm.RUNNING)
+    # The room check 0x468350: +5 for each complete set (0x4143F0), 20 made 25 (0x4683AA).
+    add("Collectibles", "Fog comes with the weather and with island events (see Island events). Each complete "
+                        "collection raises the population limit by 5, and all four by 25 (the room check 0x468350).",
         gm.RUNNING)
 
-    # -- Tech points ---------------------------------------------------------------------
-    add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
+    # -- Tech points (how many there are is under Vital statistics) -----------------------------
     lvl = level[SCIENCE]
     divisor = {1: 11, 2: 9, 3: 7}.get(lvl)
     if divisor:
@@ -278,20 +304,29 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             f"Research gives the researcher's skill ÷ {divisor} at Science level {lvl}, "
             + {gm.FAST: "twice that on Fast speed", gm.NORMAL: "as it is on Normal speed",
                gm.SLOW: "0.6 of it on Slow speed"}[speed]
-            + f", rounded down; 10% of the time 1 more while the Fire Pit burns; while catching up "
-              f"÷ {5 if lvl >= 3 else 7}."), gm.RUNNING)
-        add("Tech points and effects", "Some effect on a villager triples their research for 4 minutes.")
+            + f", rounded down; then 3 times that for a villager with the Purify Tree's glow (below); then 0 to "
+              f"(Lab Equipment pieces found - 1) more, each equally likely; then 1 more 10.01% of the time while "
+              f"the Fire Pit burns. While catching up the skill ÷ {5 if lvl >= 3 else 7}, at every speed."),
+            gm.RUNNING)
+        # 0x45EB90 looks for the villager's effect kind 1 on 0x4CE1C0, which only the Purify Tree's result 0
+        # (CPurifyTree vtable 0x48E9F8 +0x30 = 0x437EC0 -> 0x438089) gives, for 240 real-life seconds (0x4380CF ->
+        # 0x460A90); 0x464E4F triples the research.  The Lab Equipment bonus: rand(pieces) (0x464E5D..0x464E82).
+        add("Tech points and effects", "The Purify Tree's glow: one of the Purify Tree's two results gives the "
+                                       "villager a glow for 4 real-life minutes (240 seconds), and while it lasts "
+                                       "their research brings 3 times the tech points.", gm.RUNNING)
     if village.has(LEARNING) is not False:
         add("Tech points and effects", gm.patch_words(village, LEARNING, "no skill roll fails"))
-    add("Tech points and effects", "Nursery School: each child gains the teacher's five skills added up ÷ 240 an hour "
-                                   "at any speed, in skills under 50.", gm.RUNNING)
+    add("Tech points and effects", "Nursery School: each child gains the teacher's five skills added up ÷ 240 per "
+                                   "real-life hour at any speed, in skills under 50 (the exact rule is under Time "
+                                   "away).", gm.RUNNING)
 
-    # -- Food earned ---------------------------------------------------------------------
-    add("Food earned", f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
-                       f"({2 * 3600 / (60 * speed):g} an hour); at 500 food or less half the time, and otherwise loses "
-                       "1 health 30% of the time; on Medium at 8,000 food or more, or on Hard, 2 more 76% of the "
-                       "time, never on Easy. A snack (below full health) costs 1 food and heals 1 half the time.",
-        True)
+    # -- Food earned: the eating odds are under Chances ------------------------------------
+    # The snack, job event 68 (0x46438D): below 100 health with food in storage, rand(100) < 50 gives +1 health;
+    # 1 food is taken either way (0x4643DF).
+    add("Food earned", f"Each villager eats 2 food every age unit ({gm.duration(60 * speed)} of real-life play on {on} "
+                       f"speed, {2 * 3600 / (60 * speed):g} food per real-life hour); when it is skipped and how much "
+                       "more is eaten are under Chances (Eating). A snack (below full health, with food in storage) "
+                       "costs 1 food and heals 1 health 50.05% of the time.", gm.RUNNING)
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
@@ -314,8 +349,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Other", CANT_EAT_LINE, gm.RUNNING)
     for line, ok in LIFE_LINES:
         add("Other", line, ok)
+    # The owner (2026-10-24); the Cold Snap's apply 0x414BD0 ends the fire (tail jmp 0x432620 on 0x4D867C).
+    add("Other", gm.FIRE_OUT + " The Cold Snap island event (it needs the Fire Pit burning) puts it out.", gm.OWNER)
+    add("Other", gm.FIRE_CLOSED, gm.OWNER)
     out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)"))
-    add("Other", f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} speed.", gm.RUNNING)
+    add("Other", f"An age unit is {gm.duration(60 * speed)} and a villager year (20 age units) "
+                 f"{gm.duration(20 * 60 * speed)} of real-life play on {on} speed.", gm.RUNNING)
     clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
     out.append(gm.started_line(clock.created))
     out.extend(gm.later_puzzle_lines(PUZZLE_NAMES, lambda pid: struct.unpack_from("<ii", data, PUZZLE_ENTRIES + 8 * pid),
