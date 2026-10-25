@@ -471,9 +471,14 @@ class StewPots(unittest.TestCase):
             self.assertEqual(shows, f"{minutes}:{rest:02d}")
         self.assertTrue(facts[vv4.GRATE_LINE].confirmed)
         self.assertEqual(vv4.GRATE_LINE, "The pot can be emptied by dropping a villager on the grate.")
-        reheat = facts[vv4.REHEAT_LINE]
-        self.assertFalse(reheat.confirmed)                    # "some stews": not settled by the code
-        self.assertIn("starts its 5 real-life minutes over", reheat.text)
+        self.assertTrue(facts[vv4.REHEAT_LINE].confirmed)     # the owner's word
+        code = facts[vv4.REHEAT_CODE_LINE]
+        self.assertTrue(code.confirmed)                       # 0x42EAA7, 0x42DC80, 0x42EA61, 0x42EE1D, 0x42F240
+        for words in ("each hot rock adds 10 heat", "the Grand Feast at 20 with its 4 feast items",
+                      "the two salt-water mixes (soapy x3, pulpy vines x3) need no heat",
+                      "stays hot for 10 real-life minutes on Normal speed (5 on Fast, 16 minutes 40 seconds on Slow)",
+                      "starts its 5 real-life minutes over; nothing limits how often"):
+            self.assertIn(words, code.text)
         self.assertTrue(facts[vv4.CANT_EAT_LINE].confirmed)
         text = gm.render(list(facts.values()))
         self.assertIn("a ready stew is gone 5 real-life minutes later at every speed", text)
@@ -661,6 +666,34 @@ class EveryGame(unittest.TestCase):
         totems = text_of(self.page("vv2-huttest-1", data=bytes(data), features=["vv2_totems_out_of_entries"]))
         self.assertIn("with no limit on how many", totems)
         self.assertIn("while there are fewer than 50 totems", text)
+
+    def test_vv2_fish_below_zero(self) -> None:
+        """The fish count is a signed dword the game keeps subtracting from with no floor once Sustainable Fishing
+        is solved (0x463305, 0x425B00); the window says fishing has no limit then, not "they never grow back"."""
+        import vv_game_mechanics_vv2 as vv2
+        base = bytearray(gzip.decompress((FIXTURES / "vv2-huttest-1.ldw.gz").read_bytes()))
+        struct.pack_into("<i", base, vv2.SPEED + vv2.S, 6)
+
+        def render(fish: int, solved: int, farming: int) -> str:
+            data = bytearray(base)
+            struct.pack_into("<i", data, vv2.FISH + vv2.S, fish)
+            data[vv2.SUSTAINABLE_FISHING + vv2.S] = solved
+            struct.pack_into("<i", data, vv2.LEVELS + 8 * vv2.FARMING_LEVEL + vv2.S, farming)
+            return text_of(self.page("vv2-huttest-1", data=bytes(data)))
+
+        text = render(-1_162_256, 1, 3)
+        self.assertIn("Fish: no limit, as Sustainable Fishing is solved; a trip brings 8 on Normal speed", text)
+        self.assertIn("The game's own fish count is -1,162,256", text)
+        self.assertNotIn("-1,162,256 (they never grow back)", text)
+        self.assertIn("fishing adds without limit", text)
+        self.assertIn("fishing trips per real-life hour", text)
+        level1 = render(-40, 1, 1)
+        self.assertIn("Fish: -40; Sustainable Fishing is solved, but at Farming level 1", level1)
+        self.assertNotIn("fishing trips per real-life hour", level1)
+        stock = render(700, 0, 3)
+        self.assertIn("Fish: 700 (they never grow back); a trip brings 8 on Normal speed", stock)
+        self.assertNotIn("fishing adds without limit", stock)
+        self.assertNotIn("fishing trips per real-life hour", render(0, 0, 3))
 
     def test_vv4_and_vv5_values(self) -> None:
         import vv_game_mechanics_vv4 as vv4

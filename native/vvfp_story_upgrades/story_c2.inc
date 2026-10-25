@@ -699,23 +699,29 @@ static const ce_value_def C2_VALUES[] = {
     { "Crops", 0, 800, "Only while the farm is planted (after The Dam). The ceiling is 800." },
 };
 
-static int c2_value_get(int which) {
+/* The fish and the field's protection are plain signed counts the game
+   keeps subtracting from with no floor (fish 0x463305 once Sustainable
+   Fishing is solved, the field 0x463264), so a long-lived village holds
+   them below 0: that is an amount, shown and replaced like any other. */
+static int c2_value_get(int which, int *now) {
     static const unsigned int fields[4] = { 0x2EACC, 0x2EAD0, 0x2EAD4, 0x2EAD8 };
     unsigned char *world = VV2_WORLD();
     if (world == NULL || which < 0 || which > 3) {
-        return -1;
+        return 0;
     }
     if (which == 3 && world[0x2E798] != 1) {
-        return -1;
+        return 0;
     }
-    return *(int *)(world + fields[which]);
+    *now = *(int *)(world + fields[which]);
+    return 1;
 }
 
 /* Plain writes: the game's own writers are plain adds and subtracts
    (fish 0x463305, the field 0x463264, the regrowth 0x43B9B0). */
 static int c2_value_set(int which, int amount) {
     static const unsigned int fields[4] = { 0x2EACC, 0x2EAD0, 0x2EAD4, 0x2EAD8 };
-    if (c2_value_get(which) < 0) {
+    int now;
+    if (!c2_value_get(which, &now)) {
         return 0;
     }
     *(int *)(VV2_WORLD() + fields[which]) = amount;
