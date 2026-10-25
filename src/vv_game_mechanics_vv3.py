@@ -119,10 +119,12 @@ HIDDEN_LINES = (
     # The skill test 0x45A2C0: rand(100) <= skill + 33, + 66 when learning is liked or the "feels smarter" effect
     # (3) is on, + 16 when it is disliked (0x45A309..0x45A31B); a success gains (70 - skill) / 18 (0x45A455, Farming),
     # doubled or halved by liking or disliking LEARNING, not the skill (0x45A476..0x45A48D).  An earlier line here
-    # said "+ 66% instead of + 33%" and "(70 - skill) / 9, doubled for a liked skill": both wrong.
-    ('Liking learning, or the potion effect "feels smarter", makes every skill test easier and every skill gain '
-     'twice as big; disliking learning makes the test harder and the gain half as big. The exact chances and gains '
-     'are under Chances (The skill test).', gm.CODE),
+    # said "+ 66% instead of + 33%" and "(70 - skill) / 9, doubled for a liked skill": both wrong.  The doubling
+    # reads only the likes flag ([esp+0x13], set from 0x4547B0 on the likes list +0xFB4 at 0x45A2F1): the potion's
+    # effect 3 (0x455E10 at 0x45A300) raises only the test's bonus, never the gain.
+    ('Liking learning makes every skill test easier and every skill gain twice as big; the potion effect "feels '
+     'smarter" makes the test just as easy but does not change the gain; disliking learning makes the test harder '
+     'and the gain half as big. The exact chances and gains are under Chances (The skill test).', gm.CODE),
     # 0x45A554: a failed Parenting test gives +4 when Parenting is above 0; the other skills only at exactly 0.
     ("Parenting is the exception: any failed try while Parenting is above 0 gives 4 (the stock game's own "
      'rule).', gm.RUNNING),
