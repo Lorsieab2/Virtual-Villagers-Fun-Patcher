@@ -25,6 +25,7 @@ import vv_move_to_save_folders
 import vv_last_names
 import vv_cut_names
 import vv_corrupt_skills
+import vv_golden_child_revive
 import vv_graves
 import vv_history_revision
 import vv_lost_titles
@@ -4106,6 +4107,12 @@ class App(tk.Tk):
                 skills["found"] = vv_corrupt_skills.survey(folder, number, info.slot)
             except (vv_last_names.LastNamesError, ValueError, OSError, struct.error) as exc:
                 skills["note"] = f"Skills were not checked: the save could not be read ({exc})."
+            # A New Home's Golden Child, dead or gone with his record still there (src/vv_golden_child_revive.py).
+            if number == vv_golden_child_revive.GAME:
+                try:
+                    skills["golden"] = vv_golden_child_revive.survey(folder, info.slot)
+                except (vv_golden_child_revive.ReviveError, ValueError, OSError, struct.error):
+                    skills["golden"] = None
             # The Lost Children's Esteemed Elders' totems (src/vv_vv2_totems.py), for the checklist's rows.
             if number == vv_vv2_totems.GAME:
                 try:
@@ -4210,6 +4217,8 @@ class App(tk.Tk):
         # villager as the save names them now.
         if skills["reset"]:
             grave_lines += self._reset_corrupt_skills(parent, folder, number, info)
+        if skills.get("revive_golden"):
+            grave_lines += self._revive_golden_child(parent, folder, info)
         # The Lost Children's totems (src/vv_vv2_totems.py), before any rename: the villagers turned into
         # totems first, so a reverted record is never counted as an elder's totem.
         if totems["fix"] or totems["give"] or totems.get("move") or totems.get("put_back"):
@@ -4771,6 +4780,18 @@ class App(tk.Tk):
                      + ([skills["note"]] if skills.get("note") else [])):
             ttk.Label(frame, text=line, wraplength=600, justify="left",
                       foreground="#555555").pack(anchor="w", padx=(20, 0))
+        # A New Home's Golden Child (src/vv_golden_child_revive.py; the owner, 2026-10-24): offered only when he
+        # is dead or gone and his record is still in the save; never ticked for the player.
+        golden = skills.get("golden")
+        golden_var = tk.BooleanVar(value=False)
+        if golden is not None and golden.state != "none":
+            golden_tick = ttk.Checkbutton(frame, variable=golden_var,
+                                          text="Bring the Golden Child back (health 100, still five years old)")
+            golden_tick.pack(anchor="w", pady=(4, 0))
+            if not golden.revivable:
+                golden_tick.state(["disabled"])
+            ttk.Label(frame, text=golden.describe(), wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
         # The Lost Children's Esteemed Elders' totems (src/vv_vv2_totems.py; the owner, 2026-10-19): each
         # row ticked only when the save has something for it; what is unsure is asked after Repair.
         totems = totems if totems is not None else {"survey": None, "note": None, "give": False, "fix": False}
@@ -4980,6 +5001,7 @@ class App(tk.Tk):
             numbers["changed"] = number_auto_var.get() != bool(numbers["auto"])
             numbers["auto"] = number_auto_var.get()
             skills["reset"] = bool(skills["found"]) and skills_var.get()
+            skills["revive_golden"] = golden is not None and golden.revivable and golden_var.get()
             totems["give"] = totem_survey is not None and give_var.get()
             totems["fix"] = totem_survey is not None and fix_var.get()
             totems["move"] = totem_survey is not None and move_var.get()
@@ -6060,6 +6082,22 @@ class App(tk.Tk):
         return [f"Grave information fixed: {len(result.fixes)} field(s), in {len(result.files)} file(s)"
                 + (" (the old records were left as they were)" if not retro else "")
                 + f". Backup: {result.backup.backup_folder}"]
+
+    def _revive_golden_child(self, parent, folder: Path, info) -> list[str]:
+        """Repair Saves & Logs' "Bring the Golden Child back" (src/vv_golden_child_revive.py), ticked in the
+        checklist: surveyed again and done with the game closed.  Returns the summary lines."""
+        try:
+            result = self._run_with_wait(
+                "Bringing the Golden Child back…\n\nThe save folder is backed up first.",
+                lambda: vv_golden_child_revive.revive(folder, info.slot))
+        except (vv_golden_child_revive.ReviveError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                OSError) as exc:
+            messagebox.showerror("Repair Saves & Logs", f"The Golden Child was not brought back. {exc}",
+                                 parent=parent)
+            return []
+        return [f"The Golden Child {result.survey.name} is back (health {vv_golden_child_revive.REVIVED_HEALTH}, "
+                f"five years old); a \"{vv_golden_child_revive.HEADING}\" record was added. "
+                f"Backup: {result.backup.backup_folder}"]
 
     def _reset_corrupt_skills(self, parent, folder: Path, number: int, info) -> list[str]:
         """Repair Saves & Logs' "Reset corrupted skill values" (src/vv_corrupt_skills.py), ticked in the
