@@ -107,11 +107,9 @@ def _pending_lines(village: gm.Village, speed_value: int, entries: list[tuple[in
         total = pending + max(0.0, village.now - stamp)   # a stamp ahead of the clock is reset to now (0x46FF7B)
         return total if total <= full else (band if total <= band_end else over)
 
-    units = sorted({int(counted(p, s) // unit) for p, s in entries})
-    ages = f"{units[0]:,} age units ({units[0] / 20:.2f} villager years)" if len(units) == 1 else \
-        f"{units[0]:,} to {units[-1]:,} age units ({units[0] / 20:.2f} to {units[-1] / 20:.2f} villager years)"
-    out.append(gm.Fact(G, (f"If it were played now each {who} would age {ages} at once, all worked through in the "
-                           "first update after it loads."), SAVE))
+    most = max(int(counted(p, s) // unit) for p, s in entries)   # one shape for every save (the claims export)
+    out.append(gm.Fact(G, (f"If it were played now each {who} would age by at most {most:,} age units ({most / 20:.2f} "
+                           "villager years) at once, all worked through in the first update after it loads."), SAVE))
     # The moments for the villagers last updated latest (the save's own last moment), the most of them.
     stamps: dict[float, list[int]] = {}
     for p, s in entries:
