@@ -319,7 +319,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "8 food, or 1 in 20 a red (rare) mushroom worth 45.", gm.RUNNING)
     add("Mushrooms", "Mushrooms are not kept in the save.")
     if village.has(GOLDEN):
-        add("Mushrooms", gm.golden_line(GOLDEN, "about 4 years of play"), gm.RUNNING)
+        out.extend(gm.golden_lines(GOLDEN, 30.0, speed_value, "one appears about every 2 real-life minutes while none "
+                                   "is out, at every speed, so at most about 30 an hour when each is picked at once",
+                                   even_paused=True))
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "A New Home has no collectibles: mushrooms are its only random pickup.", gm.RUNNING)
 

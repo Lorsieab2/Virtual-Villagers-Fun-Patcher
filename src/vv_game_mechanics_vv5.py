@@ -207,7 +207,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "after 1 minute 30 seconds.", gm.RUNNING)
     add("Mushrooms", "That is about one thing a minute, at any speed.")
     if village.has(GOLDEN):
-        add("Mushrooms", gm.golden_line(GOLDEN, "about 6 years of play"), gm.RUNNING)
+        out.extend(gm.golden_lines(GOLDEN, 18.0, speed_value, "about one thing a real-life minute at every speed, 30% "
+                                   "of them mushrooms in fair weather"))
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: 82% common, 13% uncommon, 5% rare. One set of 24 can always "
                         "appear; a second set of 24 only once the Knowing Totem is built (then half from each). A "
