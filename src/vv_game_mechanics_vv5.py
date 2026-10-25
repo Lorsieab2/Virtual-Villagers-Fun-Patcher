@@ -217,7 +217,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         "research sessions also cost the researcher 0 to 9 health (see Death and graves)."), gm.RUNNING)
     # The cap 0x425020-0x4250D0: 5 x (0x4713F0: living believers + the babies they carry + 2); +50 at the statue's
     # stage 1 or more and +50 more at 2 (0x51D950); +100 once The Tribute Statue (puzzle 14) is solved; +50 at
-    # Spirituality 2 and +50 more at 3; +3 a first-set piece owned (ids 0x68-0x7F), 90 for all 24; at most 1,000.
+    # Spirituality 2 and +50 more at 3; the first set's pieces owned (ids 0x68-0x7F, 0x413F50 at 0x42509F): below 24
+    # it adds 3 x the count (0x4250AE: lea ecx,[eax+esi]; lea esi,[ecx+eax*2]), at 24 a flat 90 instead (0x4250A9:
+    # add esi, 0x5A) -- 23 pieces give 69, the 24th jumps it to 90; at most 1,000.
     # Honoring, job step (0x46D88F-0x46D8D7): +3, +4 more at Devotion 50 or more, +5 more at 88 or more.
     add("Tech points and effects", (
         f"Divine Energy: {_i32(data, ENERGY):,} of {_i32(data, ENERGY_CAP):,}."), gm.SAVE)
@@ -227,7 +229,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         "and on the fourth only if the Devotion check succeeds. The cap is 5 x (believers + the babies they carry + "
         "2), +50 once the Tribute Statue reaches its first stage and +50 more at its second, +100 once The Tribute "
         "Statue is solved, +50 at Spirituality 2 and +50 more at 3, and +3 for each piece of the first collectible "
-        "set owned (90 for all 24), at most 1,000."), gm.RUNNING)
+        "set owned while it is incomplete (69 with 23 pieces), then a flat +90 once all 24 are owned (the 24th "
+        "piece adds 21), at most 1,000."), gm.RUNNING)
     out.extend(powers.lines(village))
 
     # -- Food earned ---------------------------------------------------------------------
