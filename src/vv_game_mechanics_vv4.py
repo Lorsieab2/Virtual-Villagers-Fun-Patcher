@@ -338,24 +338,25 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
     ctx = life.Context(
         village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000,
-        sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {gm.every(360, speed_value)}",
-                             verified=gm.SAVE),
+        sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {life.every_real(360, speed_value)}",
+                             verified=gm.SAVE, step=2, interval=gm.real_seconds(360, speed_value),
+                             next_at=real(NEXT_TICK), first_in=max(0, _i32(data, NEXT_TICK) - _i32(data, LAST_TICK)), rule=gm.RUNNING),
                  life.Source("The fishing net and the fruit", None, unlimited=True,
                              refill_words="no store of theirs is read here: they bring what the gatherers fetch",
                              verified=False)],
         tech=_i32(data, TECH), tech_words="Research brings them; a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=3600 / 45 * 0.30, mastery=multiplier,
         golden=village.has(GOLDEN) is True,
-        mushroom_words="Something appears about every 45 seconds while playing (twice as often on wet ground), 30% of "
-                       "them mushrooms (all in rain), so about 24 mushrooms an hour.",
+        mushroom_words="Something appears about every 45 real-life seconds while playing (twice as often on wet "
+                       "ground), 30% of them mushrooms (all in rain), so about 24 mushrooms per real-life hour.",
         event_next=event_at,
         event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,
-        event_rule="It comes 8 to 15 whole hours after the last, each equally likely, at any speed; then every event "
+        event_rule="It comes 8 to 15 whole real-life hours after the last, each equally likely, at any speed; then every event "
                    "whose conditions hold is equally likely.",
         event_running="Paused time does not count; with the game closed it runs on, and after time away at most one "
                       "happens.",
         medicine=level[MEDICINE], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
-        parents_from=14, sick_loss=(0.61, 0.19),
+        parents_from=18, sick_loss=(0.61, 0.19),
         sick_end="Time never cures a sickness except on Easy (25%); a healer or a healing stew does.",
         collectibles=collectibles,
         limit=life.limit_words(village, bonus, "5 for each complete collection, 25 with all four"),

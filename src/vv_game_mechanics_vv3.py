@@ -143,8 +143,12 @@ HIDDEN_LINES = (
     ('The campfire burns 10, 20 or 33 hours 20 minutes on Fast, Normal or Slow, stops while paused, and wood '
      'on a burning fire fills it again; while it burns a research payout gives 1 more tech point 10% of the '
      'time.', gm.RUNNING),
-    ('The campfire burns out while the game is closed (a saved unpaused game); rain and the Omen stop it being '
-     'lit.', False),
+    # The owner (2026-10-24): the fire runs out when its timer expires; rain and the weather do not affect it (an
+    # earlier line here said rain and the Omen stopped it being lit: false).  Its timer is a real-time deadline the
+    # game clock 0x5825D4 shifts by the time paused and rescales at a speed change (0x426630, src/vv_save_clock.py),
+    # so it also runs out while the game is closed, as the save's deadline shows.
+    ('The campfire goes out when its timer runs out; rain and the weather do not affect it. Four trips of water '
+     'for the Ash Key put a lit fire out.', gm.OWNER),
     ('The Ash Key: no timer and no chance. The fire must have burned 61 hours on Normal in all (30.5 on Fast, '
      '101.7 on Slow): a burnout counts its whole burn, wood added counts the time burned so far, water counts '
      'nothing, paused time nothing. Then 12 trips of water (the 4th puts a lit fire out; while it burns, 10 '
@@ -320,6 +324,23 @@ def tree_timers_file(village: gm.Village) -> Path:
 # ---------------------------------------------------------------------------
 
 
+def _tree_steps(clock: Clock, now: int, due: int, interval: int, amount: int, credited: int, gain) -> dict:
+    """A tree's or the honey's refill steps for the time to fill up (vv_game_mechanics_life.Source): the next refill
+    comes at its due time (or as soon as the village is played, when it is overdue) and gains `gain(elapsed)` for all
+    the time since `credited` -- the stock formula (0x434760, 0x4319B0) -- then `amount` every `interval` game
+    seconds, in real time at the clock's speed."""
+    out = {"step": amount, "interval": gm.real_seconds(interval, clock.runs_at)}
+    if clock.frozen:
+        out["first_in"] = gm.real_seconds(max(0, due - now), clock.runs_at)
+        out["first_step"] = gain(max(0, due - credited))
+    else:
+        first = max(due, now)
+        out["first_step"] = gain(max(0, first - credited))
+        if clock.dated(first):
+            out["next_at"] = clock.real(first)
+    return out
+
+
 def _gain(elapsed: int, factor: int) -> int:
     """The game's own arithmetic: (elapsed * factor) in 32 bits, divided by 3600."""
     return ((elapsed * factor) & 0xFFFFFFFF) // 3600
@@ -375,7 +396,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         due_real = clock.real(due) if not clock.frozen and now < due and clock.dated(due) else None
         sources.append(life.Source(f"Tree {tree.number} ({tree.name})", max(tree.fruit, 0), FRUIT_CAP,
                                    per_refill * 360 / interval if interval else 0.0, due_real,
-                                   f"+{per_refill} {gm.every(interval, clock.speed)}", verified=gm.SAVE))
+                                   f"+{per_refill} {life.every_real(interval, clock.speed)}", verified=gm.SAVE,
+                                   **_tree_steps(clock, now, due, timers.interval if scheduled else interval,
+                                                 _gain(timers.interval, factor) if scheduled else per_refill,
+                                                 refilled, lambda t: _gain(t, factor))))
         if scheduled:
             sub(f"On the patcher's \"{timers.name}\" schedule, read from its file for this save.")
         if tree.fruit >= FRUIT_CAP:
@@ -449,7 +473,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         due=honey_real, due_kind="refill" if honey_real is not None else None))
     sources.append(life.Source("Honey" + ("" if hive else " (The Bee Hive not solved yet)"), honey, HONEY_CAP,
                                honey_gain * 360 / honey_every if hive else 0.0, honey_real,
-                               f"+{honey_gain} {gm.every(honey_every, speed)}", verified=gm.SAVE))
+                               f"+{honey_gain} {life.every_real(honey_every, speed)}", verified=gm.SAVE,
+                               **(_tree_steps(clock, now, honey_due, honey_every, honey_gain, honey_at,
+                                              (lambda t: ((t * 84) & 0xFFFFFFFF) // 99900) if faster
+                                              else (lambda t: ((t * 2) & 0xFFFFFFFF) // 3600)) if hive else {})))
 
     # -- the clock ------------------------------------------------------------------------
     if clock.paused:
@@ -743,9 +770,13 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         add("Island events", gm.patch_words(village, STORY, "Pick Island Event chooses the event"))
 
     fire = wall(FIRE_END)
-    add("Other", ("The fire " + (f"burns until {gm.when(fire)}" if fire > village.now and not paused else
-                                 "is out" if not paused or fire <= wall(LAST_SAVED)
-                                 else f"was burning when saved, with {gm.duration(fire - wall(LAST_SAVED))} left")
+    # Saved with the clock stopped, the deadline waits from the moment the clock stopped (its wall base): unpausing
+    # moves it on by the time paused (0x426630), so what is left is counted from there, not from the save.
+    stopped_at = clock.restarted
+    add("Other", ("The fire " + (f"burns until {gm.when(fire)}" if fire > village.now and not clock.frozen else
+                                 "is out" if not clock.frozen or fire <= stopped_at
+                                 else f"was burning when saved, with {gm.duration(fire - stopped_at)} left once "
+                                      "the clock runs again")
                   + "; while it burns sickness is lower and research gets its 10% chance of 1 more."))
     for n, line in enumerate(ODDS_LINES[1:], 1):
         add("Other", line, gm.RUNNING if n in VERIFIED_ODDS_LINES else gm.OWNER if n in OWNER_ODDS_LINES else False)
@@ -778,7 +809,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
     event_at = None if paused else wall(EVENT_NEXT)
     gm.with_due(out, "Next island event:", event_at, "next")
-    if not paused and fire > village.now:
+    if not clock.frozen and fire > village.now:
         gm.with_due(out, "The fire burns until", fire, "ends")
     village_extra = []
     for words, at in CHIEF_READY.items():
@@ -786,7 +817,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
             village_extra.append(gm.Fact(life.VILLAGE_TIMERS, f"The Tribal Chief's power to {words.split(' (')[0]}: "
                                          f"ready again {gm.when(wall(at))}.", gm.SAVE, due=wall(at),
                                          due_kind="ready"))
-    if not paused and fire > village.now:
+    if not clock.frozen and fire > village.now:
         village_extra.append(gm.Fact(life.VILLAGE_TIMERS, f"The campfire burns until {gm.when(fire)}.", gm.SAVE,
                                      due=fire, due_kind="ends"))
     puzzles = []
@@ -802,17 +833,18 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         tech=_i32(buf, POINTS), tech_words=f"Research brings them (the skill ÷ {divisor} at Science level "
                                            f"{level[SCIENCE]}); a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0, golden=village.has(GOLDEN) is True,
-        mushroom_words="About one thing appears a minute while playing (not paused), 30% of them mushrooms in fair "
-                       "weather and all of them in rain, so about 18 mushrooms an hour in fair weather.",
+        mushroom_words="About one thing appears each real-life minute while playing (not paused), 30% of them "
+                       "mushrooms in fair weather and all of them in rain, so about 18 mushrooms per real-life hour in "
+                       "fair weather.",
         event_next=event_at,
         event_paused_left=max(0, _i32(buf, EVENT_NEXT) - _i32(buf, LAST_SAVED)) if paused else None,
-        event_rule="It comes 8 to 15 whole hours after the last, at any speed, each hour about equally likely; the "
-                   "first each time the game is started comes 30 minutes after it; then each of the 57 events whose "
+        event_rule="It comes 8 to 15 whole real-life hours after the last, at any speed, each hour about equally "
+                   "likely; the first each time the game is started comes 30 real-life minutes after it; then each of the 57 events whose "
                    "conditions hold is equally likely.",
         event_running="Paused time does not count; with the game closed it runs on, and after time away only one "
                       "overdue event happens; the catch-up adds none.",
         medicine=level[MEDICINE], elderly_from={0: 42, 1: 50, 2: 58, 3: 66}, old_age_from={0: 47, 1: 55, 2: 63, 3: 71},
-        parents_from=14, sick_loss=(0.61, 0.195),
+        parents_from=18, sick_loss=(0.61, 0.195),
         sick_end="A healer cures a sick villager at Healing + 34%.",
         collectibles=life.collectible_lines(village, "100, 250 or 1,500 tech points")[0],
         limit=life.limit_words(village, None, "5 for each complete collection, 25 with all four, and 10 at Magic "
