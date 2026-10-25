@@ -297,9 +297,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.extend(gm.time_away(village, real(LAST_TICK), speed_value,
                             "Saved paused: no age is counted for the time away, and the timers move on with the "
                             "pause.", unit_seconds=20 * 60 * speed))
-    add("Time away and Time Warp", "While catching up: aging, eating, sickness, births and 4 jobs per age unit for "
+    add(gm.TIME_AWAY, "While catching up: aging, eating, sickness, births and 4 jobs per age unit for "
                                    "adults.")
-    add("Time away and Time Warp", "Every blackberry growth missed while the game was closed is added when it is next "
+    add(gm.TIME_AWAY, "Every blackberry growth missed while the game was closed is added when it is next "
                                    "played, with no limit on how many, up to 1,000.", gm.RUNNING)
     out.append(gm.time_warp_line(speed_value))
 

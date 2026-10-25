@@ -371,9 +371,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     for n, fact in enumerate(out):
         if fact.text.startswith("Saved paused:"):
             out[n] = gm.Fact(fact.group, fact.text, gm.RUNNING)             # verified (spec v2, section 1 and 8)
-    add("Time away and Time Warp", "While catching up, an adult more than 2 age units behind tries 5 jobs for every "
+    add(gm.TIME_AWAY, "While catching up, an adult more than 2 age units behind tries 5 jobs for every "
                                    "counted age unit.", gm.RUNNING)
-    add("Time away and Time Warp", "Every regrowth missed while the game was closed is added when it is next played, "
+    add(gm.TIME_AWAY, "Every regrowth missed while the game was closed is added when it is next played, "
                                    "with no limit on how many: the bush has no cap, the crop field stops at 800.", gm.RUNNING)
     out.append(gm.time_warp_line(speed_value))
 

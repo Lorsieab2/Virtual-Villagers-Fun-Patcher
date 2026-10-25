@@ -751,10 +751,10 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     out.extend(gm.time_away(village, wall(LAST_SAVED), speed_value,
                             "Saved paused: nobody ages, the clock is stopped and the next island event is pushed "
                             "back by the time away; nothing advances.", unit_seconds=20 * 60 * speed))
-    add("Time away and Time Warp", "The fruit trees and the honey get the whole time away when it is next played "
+    add(gm.TIME_AWAY, "The fruit trees and the honey get the whole time away when it is next played "
                                    "(the game's clock ran on), with no limit on how many refills: the honey stops at "
                                    "3,000, a tree at 1,000.", True)
-    add("Time away and Time Warp", "While catching up every healthy adult does 4 jobs each age unit, without walking; "
+    add(gm.TIME_AWAY, "While catching up every healthy adult does 4 jobs each age unit, without walking; "
                                    "mushrooms and collectibles do not pile up and only one overdue island event "
                                    "happens.")
     out.append(gm.time_warp_line(speed_value))
