@@ -52,7 +52,8 @@ def stock(game: int) -> tuple[bytes, int] | None:
 
 
 class Group(unittest.TestCase):
-    GAMES = {5: ("vv5-huttest-1", "vv5-256-1"), 4: ("vv4-huttest-1", "vv4-256-1"), 3: ("vv3-huttest-1", "vv3-256-1")}
+    GAMES = {5: ("vv5-huttest-1", "vv5-256-1"), 4: ("vv4-huttest-1", "vv4-256-1"), 3: ("vv3-huttest-1", "vv3-256-1"),
+             2: ("vv2-huttest-1",), 1: ("vv1-huttest-1",)}
 
     def test_every_game_has_the_group_in_order(self) -> None:
         self.assertIn(gm.DEATH, gm.GROUPS)

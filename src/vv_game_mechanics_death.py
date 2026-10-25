@@ -430,9 +430,172 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
     return out
 
 
+# ---------------------------------------------------------------------------
+# A New Home (VV1) and The Lost Children (VV2)
+# ---------------------------------------------------------------------------
+#
+# Neither game keeps a cause: health only (VV1 record +0x344, VV2 +0x52C, 0 to 100).  The patcher's Cause of Death
+# companion (native/vvfp_cause_of_death/cod_vv12.inc) records one at each site below, in New Believers' words.
+# VV1 aging step 0x42E900: food 200 or less (0x42EC94) -1 on 50% of age units (0x42ECB2, rand(100) >= 50); no food
+# (0x42ED0C) -1 unless rand(100) > 75 and not Hard (76%; always on Hard); sick (+0x354) -1 when rand(100) <= 70
+# (71%), at 20 health or less also rand(100) <= 30 (22% in all); old age 0x42EE8A: Medicine (world +0xA2D4) gives
+# 1,100 + 160 x (Medicine - 1) age units, rand(100) < 10 x years over sets 0 (0x42EF05).  Work injuries: 2% of job
+# steps, rand(15) building, rand(10) research (0x43A5B4 ... 0x43B393).
+# VV2 aging step 0x43B690: food 150 or less (0x43BAB2) -1 on 15% (50% x 30%); no food 76% unless the hidden number
+# spares them (0x43BB45 ... 0x43BB79, as the later games); sick (+0x53C) 61%, 19% at 20 or less (0x43BC0E); old age
+# the same rule (0x43BD89, set 0 at 0x43BDEE).  Work injuries: building steps rand(15) at 2% (one at 1%, 0x462981),
+# research and the restorations rand(10) at 2% (0x46299C ... 0x4641B3).
+# Bodies.  VV1 AI 0x448221: 34% of picks (0x448266), not sick, 14 or older (0x44828A), not carrying (0x4482A5); with
+# The Cemetery solved (world +0xA000, 0x448307) and a body (0x43A200), always "Burying the dead" (0x443890, string
+# 0xBA).  VV2 AI 0x461850: 34% of picks (0x461896), not sick (+0x53C), 14 or older (+0x530), not carrying (+0x540);
+# a body (0x44B400): 25% (0x461994), else Healing (+0x7F0) 50 or more 70% (0x4619AC) -> 0x459290 ("Burying the
+# dead", string 0x108).  Removal: VV1 0x42E9A2, VV2 0x43B76C: (real now - stamp) / 60 / the speed >= 240 (the stamp
+# is health - 4: VV1 +0x340, VV2 +0x528).
+# Graves: 50 each.  VV1 0x448F70: the first grave whose age is 0 (name, best value +0x1C, job +0x20 by 0x43B520,
+# age +0x24); none: no grave.  VV2 0x465042: the same over 50 x 0x7C, and the epitaph into +0x19 (0x4650D4): under
+# 360 string 0x1EE "Curious And Playful" / 0x1EF "Loving And Special" (rand(100) < 50 the first); a villager with a
+# totem (+0x7FC, set by the totem maker 0x44D4A2) 0x1F0 "Esteemed Elder"; else the highest skill, starting from
+# Parenting (+0x7E4), then Building (+0x7E8), Healing (+0x7F0), Farming (+0x7EC), Research (+0x7F4), each taking the
+# place only when strictly higher; by its table 0x46542C: Farming 0x1E4/0x1E5, Parenting 0x1E8/0x1E9, Healing
+# 0x1EA/0x1EB, Research 0x1E6/0x1E7, Building 0x1EC/0x1ED, 50% each (the string table 0x496300).
+
+EARLY_STAMP = {1: -0x30, 2: -0x3C}             # the body's stamp, from the name
+GRAVES_EARLY = 50
+MAGIC_FRUIT = "vv1_magic_fruit_alters_mortality"
+
+
+def _bodies_lines(village: gm.Village, add, base: int, speed_value: int, stamp: int) -> None:
+    speed = gm.speed_base(speed_value)
+    if village.general:
+        return
+    found = bodies(village)
+    if not found:
+        add("Unburied bodies in this save: none.", gm.SAVE)
+    for name, at in found:
+        due = base + _i32(village.data, at + stamp) + 240 * 60 * speed
+        if speed_value >= gm.PAUSED:
+            add(f"{name}'s body is unburied; saved paused, it is removed with no grave 240 age units after the "
+                "death once unpaused, unless buried first.", gm.SAVE)
+        elif due <= village.now:
+            add(f"{name}'s body is unburied and its 240 age units have passed: it is removed with no grave when "
+                "the village is next played.", gm.SAVE)
+        else:
+            add(f"{name}'s body is unburied: removed with no grave {gm.DUE} on {gm.speed_name(speed)} speed, unless "
+                "buried first.", gm.SAVE, due=float(due), due_kind="due")
+
+
+REMOVAL = ("A body nobody buries is removed with no grave once 240 age units (12 villager years) of real time have "
+           "passed since the death at the game's speed then: 12 real-life hours on Fast, 24 on Normal, 40 on Slow. "
+           "Time paused and time with the game closed count, so a body left when the game was closed can be gone as "
+           "soon as it is next played; while paused, none is removed.")
+
+
+def _early(village: gm.Village, medicine: int | None, speed_value: int, base: int,
+           magic_fruit: bool = False) -> list[gm.Fact]:
+    """A New Home's and The Lost Children's lines (the addresses above)."""
+    game = village.game
+    out: list[gm.Fact] = []
+
+    def add(text: str, ok: bool | str = CODE, **kw) -> None:
+        out.append(gm.Fact(DEATH, text, ok, **kw))
+
+    cod = f"vv{game}_cause_of_death"
+    add("A villager dies when their health (0 to 100) reaches 0. The game itself keeps no cause of death; the "
+        "patcher's Cause of Death patch records one at that moment, in New Believers' words: Old age, Disease, "
+        "Starvation, Work accident, or Unknown causes for anything else (island events).")
+    if medicine in (1, 2, 3):
+        start = 55 + 8 * (medicine - 1)
+        later = ""
+        if game == 1 and magic_fruit and village.has(MAGIC_FRUIT):
+            start += 7
+            later = " and the Magic Fruit of Life with the patcher's mortality patch"
+        add(f"Old age in this village (Medicine level {medicine}{later}): the first roll is at {start + 1} years "
+            f"(10%), and at {start + 10} years it is 100%.", gm.SAVE)
+    if game == 1:
+        add("Disease: a sick villager loses 1 health on 71% of age units (22% at 20 health or less).")
+        add("Starvation: with 200 food or less a villager loses 1 health on 50% of age units; with no food at all on "
+            "76% (every one on Hard).")
+        add("Work accident: 2% of building steps cost 0 to 14 health, 2% of research steps 0 to 9.")
+        add("Island events that can kill or remove a villager (from the patcher's island-event research; their "
+            "chances are under Island events): The Strange Berries (one result of tasting them: the villager dies), "
+            "The Wild Mushroom (poisoned: sick and 25 to 49 health), A Mysterious Crate of rotting fruit (rats bite "
+            "20%, 30% or 45% of villagers: sick and 10, 15 or 20) and of old fruit (spiders: the finder loses 40, 70 "
+            "or 110); The Mysterious Face (\"take a closer look\": the villager can be never seen again) and The Book "
+            "(reading it: the villager can vanish) leave no body and no grave.", False)
+        add("The Golden Child stays 5 years old and the game skips him in its age-unit step, so he never starves, "
+            "falls sick or dies of old age; island events can still kill him or make him vanish (The Strange "
+            "Berries, the crates' bites, The Mysterious Face, The Book).")
+    else:
+        add("Disease: a sick villager loses 1 health on 61% of age units (19% at 20 health or less).")
+        add("Starvation: with 150 food or less a villager loses 1 health on 15% of age units; with no food at all, "
+            "by their hidden number (Hidden villager stats).")
+        add("Work accident: 2% of building steps cost 0 to 14 health (1% for one of them), 2% of research and "
+            "restoration steps 0 to 9.")
+        add("Island events that can kill (from the patcher's island-event research; their chances are under Island "
+            "events): Rats! (each bitten villager falls sick and loses 60 health), A Bump On The Head (bonking: "
+            "10), A Mysterious Sack of thick canvas (the finder falls sick and loses 15; mice bite 20%, 30% or 45% "
+            "of villagers for 10, 15 or 20) and of heavy burlap (fire ants: the finder loses 40, 70 or 110).", False)
+        add("An Esteemed Elder's totem is not a death: the game makes it as a separate record copied from the elder, "
+            "who lives on (see the Esteemed Elders line).")
+    add("A mother who dies while nursing takes her babies with her: they were never villagers, so they leave no "
+        "body and no grave.", gm.OWNER)
+    if game == 1:
+        add("A body lies where the villager died until a villager buries it (\"Burying the dead\") or the game "
+            "removes it. Nobody buries anyone before The Cemetery is solved. After that, when a villager of 14 or more "
+            "who is not sick or carrying picks something to do, 34% of the picks look for a body, and then they "
+            "always go to bury it.")
+    else:
+        add("A body lies where the villager died until a villager buries it (\"Burying the dead\") or the game "
+            "removes it. When a villager of 14 or more who is not sick or carrying picks something to do, 34% of the "
+            "picks look for a body: they go to bury it 25% of the time, or 77.5% of the time with Healing 50 or "
+            "more.")
+    add(REMOVAL)
+    _bodies_lines(village, add, base, speed_value, EARLY_STAMP[game])
+    add("A burial takes the first free grave of 50; with all 50 used it still takes the body but makes no grave. "
+        "The game treats a grave whose age is 0 as free, so a villager buried at age 0 loses their grave to the "
+        "next burial. Nothing else removes a grave.")
+    add("Age at Death: the age the villager showed when they died (ages stop at death). It can be higher than "
+        "the hidden processed age the old-age roll follows, after time away.")
+    master = 90 if game == 1 else 88
+    jobs = "Farmer, Parent, Scientist, Builder or Doctor" if game == 1 else "Farmer, Parent, Doctor, Scientist or Builder"
+    add(f"Job: the villager's best skill, shown \"Untrained\" below 20, else \"Trainee\" below 50, \"Adept\" below "
+        f"{master}, \"Master\" from {master}, with {jobs}.")
+    if game == 1:
+        add("Epitaph: the game has none.")
+    else:
+        add("Epitaph, chosen once at the burial: under 18 years, \"Curious And Playful\" or \"Loving And Special\" "
+            "(50% each); a villager whose totem stands, \"Esteemed Elder\"; otherwise by their highest skill (on a "
+            "tie the first of Parenting, Building, Healing, Farming, Research), 50% each: Farming \"Child Of The "
+            "Earth\" or \"Nature's Friend\", Parenting \"Parent, Teacher, Friend\" or \"Dedicated To Children\", "
+            "Healing \"Guardian Of Health\" or \"Dedicated To Others\", Research \"Dedicated Student\" or \"Inspired "
+            "Inventor\", Building \"Inspired Architect\" or \"Strong Arms, Big Heart\". With every skill at 0 that is "
+            "Parenting's pair; there is no other. The player can type a new one (64 characters at most) on the "
+            "grave.")
+    if village.has(cod) is not False:
+        extra = ("; it also gives each new grave an epitaph by New Believers' rule (under 18 years \"Curious and "
+                 "Playful\" or \"Loving and Special\", otherwise the pair for the grave's job, \"Respected Citizen\" "
+                 "with no skill; each pair 50% either way), which the player can retype (31 characters at most)") if game == 1 else ""
+        add(gm.patch_words(village, cod, "the grave shows the recorded cause, a child's grave (under 14 years) says "
+                                         "\"Apprentice\" instead of the rank, and every death goes into the Deaths "
+                                         "log" + extra))
+    if game == 2:
+        fix = "vv2_fix_vanilla_bugs"
+        if village.has(fix) is not False:
+            add("Normally the game can bury an Esteemed Elder's totem as if it were a body, making a grave for an "
+                "elder who still lives. " + gm.patch_words(village, fix, "a totem is never buried"))
+    story = f"vv{game}_story_cheat_upgrades"
+    if village.has(story):
+        add(gm.patch_words(village, story, "the Custom Island Event can make a villager die (the patcher records "
+                                           "\"Died in a custom island event\") or disappear (no body, no grave) and "
+                                           "can revive bodies"))
+    out += grave_lines(village, GRAVES_EARLY, by_cause=False)
+    out += log_lines(village)
+    return out
+
+
 def facts(village: gm.Village, **kw) -> list[gm.Fact]:
-    """The Death and graves lines for `village`'s game: VV4 and VV5 take medicine, speed_value and base (the
-    save's clock base, Unix seconds)."""
+    """The Death and graves lines for `village`'s game: every game takes medicine, speed_value and base (the save's
+    clock base, Unix seconds); The Secret City also nature, A New Home magic_fruit (the Magic Fruit of Life solved)."""
     if village.game in LATER:
         return _later(village, kw.get("medicine"), kw["speed_value"], kw["base"], kw.get("nature", 0))
-    return []
+    return _early(village, kw.get("medicine"), kw["speed_value"], kw["base"], kw.get("magic_fruit", False))
