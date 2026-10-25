@@ -215,17 +215,22 @@ EVENTS = (
         Line("How the pair is picked: the woman, then the man, each drawn equally likely from the villagers the "
              "game's picker allows (0x416ED0 -> 0x45D460 with its adult class: age 360 to 999 age units, a woman "
              "not pregnant or nursing, not the chief)."),
-        Line("The owner has seen The Lovers choose a teenager (14 to 17 villager years) -- the only way the owner "
-             "has seen a villager under 18 breed. The picker as read takes 360 to 999 age units only; the path that "
-             "lets a teenager through is not in the event's own code (0x416ED0).", "owner"),
+        Line("The owner has seen The Lovers choose a teenager (14 to 17 villager years). The game's own draw cannot: "
+             "both picks use the picker's adult class, 360 to 999 age units (18 to 49 villager years), and a woman "
+             "not pregnant or nursing (0x45D4CC), and Pick Island Event offers only villagers the game could draw. A "
+             "teenager is chosen only through the patcher's Custom Island Event, which may pick any villager by "
+             "design.", "owner"),
         "\"Carve a knife for him\": both gain 25 Parenting, up to 100, and she conceives his child (0x4582A0), if "
         "there is room; at Medicine level 3 the conception's twin and triplet rolls are made (0x416F30).",
         "\"Give him a shark-tooth necklace\": nothing changes.")),
     Event("The Lovers (his gift)", "needs a living man of 18 to 49 who is not the chief and a living woman of 18 to "
                                    "49 who is not pregnant or nursing and not the chief", (
         Line("How the pair is picked: the man, then the woman, as for her gift (0x417050 -> 0x45D460)."),
-        Line("The owner has seen The Lovers choose a teenager (14 to 17 villager years); the picker as read takes "
-             "360 to 999 age units only (0x417050).", "owner"),
+        Line("The owner has seen The Lovers choose a teenager (14 to 17 villager years). The game's own draw cannot: "
+             "both picks use the picker's adult class, 360 to 999 age units (18 to 49 villager years), and a woman "
+             "not pregnant or nursing (0x45D4CC), and Pick Island Event offers only villagers the game could draw. A "
+             "teenager is chosen only through the patcher's Custom Island Event, which may pick any villager by "
+             "design.", "owner"),
         "\"Give her a shell necklace\": nothing changes (0x4170B0).",
         "\"Give her flowers\": both gain 25 Parenting, up to 100, and she conceives his child, if there is room.")),
     Event("The Medical Emergency", "needs Medicine technology level 2 or more, a living villager who is not the "

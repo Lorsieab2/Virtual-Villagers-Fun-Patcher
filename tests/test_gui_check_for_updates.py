@@ -168,7 +168,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
                "vv_game_mechanics_vv4", "vv_game_mechanics_vv5", "vv_game_mechanics_life",
                "vv_game_mechanics_genetics", "vv_game_mechanics_events", "vv_game_mechanics_events_vv1",
-               "vv_game_mechanics_events_vv2", "vv_game_mechanics_events_vv3", "vv_game_mechanics_events_vv5"}
+               "vv_game_mechanics_events_vv2", "vv_game_mechanics_events_vv3", "vv_game_mechanics_events_vv4",
+               "vv_game_mechanics_events_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -310,7 +311,7 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Island events catalogs: the shared renderer, and each game's events.
             ("vv_game_mechanics_events", {"vv_game_mechanics"}),
             *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events"})
-              for n in (1, 2, 3, 5)),
+              for n in (1, 2, 3, 4, 5)),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout"}),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).
