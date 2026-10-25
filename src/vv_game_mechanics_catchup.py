@@ -171,7 +171,8 @@ def _entries(village: gm.Village, pending_at: int, health_at: int, faction_at: i
 
 
 def _later_save(village: gm.Village, speed_at: int, last_at: int, paused_words: str,
-                entries: list[tuple[int, int]], who: str) -> tuple[list[gm.Fact], int] | None:
+                entries: list[tuple[int, int]], who: str, base: int | None = None
+                ) -> tuple[list[gm.Fact], int] | None:
     """The Tree of Life's and New Believers' save lines (int64 clock base at 0x08): when it was last played, the
     verified clamp's rule, the uncounted time kept and what would count now.  (lines, speed value), or None for
     a save that is not this game's.  `entries`: _entries (stamps on the save's clock)."""
@@ -184,7 +185,8 @@ def _later_save(village: gm.Village, speed_at: int, last_at: int, paused_words: 
     speed = gm.speed_base(speed_value)
     unit = 60 * speed
     unit_word = f"{gm.duration(unit)} of real-life time on {gm.speed_name(speed)} speed"
-    base = struct.unpack_from("<q", data, 8)[0]
+    if base is None:
+        base = struct.unpack_from("<q", data, 8)[0]
     last = base + _i32(data, last_at)
     out = gm.time_away(village, last, speed_value, paused_words, unit_seconds=20 * unit)
     out = [gm.Fact(f.group, f.text, CODE) if f.text.startswith("Saved paused:") else f for f in out]
@@ -213,8 +215,8 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         "age unit is kept for the next update.")
     add("How it is stepped through: in that same update the game runs the counted age units one at a time for "
         "every believer, over and over until no one is behind, so all of the catch-up happens in the first update "
-        "after the village loads, before the next picture is drawn. No in-game time passes while it runs; how many "
-        "real-life seconds it takes depends on the computer (one pass of the life rules per believer per age unit, "
+        "after the village loads, before the next picture is drawn. How many real-life seconds "
+        "it takes depends on the computer (one pass of the life rules per believer per age unit, "
         "plus the job turns below).")
     add("Each counted age unit, for each believer, exactly as in live play: Faith rises or falls, Divine Energy is "
         "earned, food is eaten, health is regained or lost, sickness may start, the old-age death roll is made at "
@@ -349,8 +351,8 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
         "next update. The mausoleum's ghosts are skipped: they never age, eat or work.")
     add("How it is stepped through: in that same update the game runs the counted age units one at a time for "
         "every villager, over and over until no one is behind, so all of the catch-up happens in the first update "
-        "after the village loads, before the next picture is drawn. No in-game time passes while it runs; how many "
-        "real-life seconds it takes depends on the computer (one pass of the life rules per villager per age unit, "
+        "after the village loads, before the next picture is drawn. How many real-life seconds "
+        "it takes depends on the computer (one pass of the life rules per villager per age unit, "
         "plus the job turns below).")
     add("Each counted age unit, for each villager, exactly as in live play: food is eaten, health is regained or "
         "lost, sickness may start (and on Easy may clear), the old-age death roll is made at each birthday past "
@@ -423,6 +425,122 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
     return out
 
 
+# ---------------------------------------------------------------------------
+# The Secret City (VV3)
+# ---------------------------------------------------------------------------
+
+VV3_LAST = 0x12F08                                           # file offset: wall seconds from the epoch (+4)
+VV3_PENDING, VV3_HEALTH = 0x98, 0xA4                         # from a villager entry (vv_last_names._entries)
+VV3_WORK_FIRST = "vv3_builders_and_healers_work_first"
+VV3_FIX_HUTS = "vv3_builders_fix_huts"
+VV3_LEARNING = "vv3_learning_never_fails"
+VV3_FIX_VANILLA = "vv3_fix_vanilla_bugs"
+VV3_MORTALITY = "vv3_nature_level_three_alters_mortality"
+VV3_STORY = "vv3_story_cheat_upgrades"
+VV3_ORIGINS = "vv3_enable_origins_exclusive_features"
+
+
+def _vv3(village: gm.Village) -> list[gm.Fact]:
+    """The Secret City (stock exe SHA-256 8bc5db38...6503): the clamp and ageing 0x45F3E0 (0x45F4BB-0x45F588),
+    the aging loop 0x45FFE0 (from 0x428CA0) repeated until no one is behind (0x4605CE -> 0x45FFF0), job turns
+    0x45BF00 x 4 (0x46051F-0x460580: more than 2 units behind, not sick, not pregnant or nursing, age >= 280, not
+    a look-alike record, and none for the Tribal Chief, +0xE80 at 0x460555; flag game+0x12FB4), the instant
+    runner 0x45B790 (walk -> move 0x455EB0 at 0x45B7D7; conception 0x45B7EB-0x45B8C9; cure 0x45B91E-0x45B971);
+    the partner search 0x45CE00 (both 18 to 49, 0x45CE3C-0x45CE7A); fruit and honey 4 while catching up
+    (0x434ABB / 0x431BE8), fish 8 (0x458E90-0x458EBA); research ÷4/÷7/÷7/÷5 and the 2% injury with no catch-up
+    test (0x45916D-0x459191); huts: the hut job skips its walks while catching up (0x4539CF, 0x453A2D, 0x453B1E,
+    0x453B73) and a build step credits only the hut the builder stands in (0x432680)."""
+    epoch = struct.unpack_from("<I", village.data, 4)[0] if len(village.data) >= 8 else 0
+    import vv_save_backup
+    found = vv_save_backup.save_speed(3, village.data)
+    if found is None:
+        return []
+    done = _later_save(village, found[0], VV3_LAST,
+                       "Saved paused: none of the time it stays closed will count. While paused the game sets every "
+                       "villager's uncounted time to 0 each update, the game's clock (fruit trees, honey) is stopped "
+                       "and the next island event is pushed back by the paused time.",
+                       _entries(village, VV3_PENDING, VV3_HEALTH), "villager", base=epoch)
+    if done is None:
+        return []
+    out, speed_value = done
+    add = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok))  # noqa: E731
+
+    add("How it counts: each villager keeps its own clock. Every update the real-life time since that villager's "
+        "last update is added to its uncounted time, then cut to the limits above; what is cut off is lost and "
+        "never counted later. The counted time ÷ the length of an age unit (3, 6 or 10 real-life minutes on Fast, "
+        "Normal or Slow) is added to the age shown at once, and what is left under one age unit is kept for the "
+        "next update.")
+    add("How it is stepped through: in that same update the game runs the counted age units one at a time for "
+        "every villager, over and over until no one is behind, so all of the catch-up happens in the first update "
+        "after the village loads, before the next picture is drawn. How many real-life seconds "
+        "it takes depends on the computer (one pass of the life rules per villager per age unit, "
+        "plus the job turns below).")
+    add("Each counted age unit, for each villager, exactly as in live play: food is eaten, health is regained or "
+        "lost, sickness may start, the old-age death roll is made at each birthday past the limit, and babies due "
+        "are born (twins and triplets as live). The ages shown, logs and graves therefore jump at once, and every "
+        "death and birth of the time away happens in that first update.")
+    add("Work: for every counted age unit except the last 2, each villager aged 14 or more (by the age shown after "
+        "the time away is added) who is not sick, not pregnant or nursing and has 20 health or more gets 4 job "
+        "turns; the Tribal Chief gets none. A job turn uses the game's own job choice, and a job the player gave "
+        "keeps going; walks become instant moves, and the skill checks, the work's food and tech points and the "
+        "building steps all run, while every other step (animations, waits, talk, play, rest) is skipped. Live "
+        "play has no job turns of this kind: villagers walk and work in real time.")
+    add("Food while catching up: at 250 food or less a villager with Farming 20 or more farms first, as in live "
+        "play, but nobody stops to be \"Worried about food\". Fruit and honey give 4 food a pick at any speed (live: "
+        "7, 3 or 2 on Fast, Normal or Slow), fishing 8 (live: 11, 8 or 5).")
+    add("Research while catching up: a success gives the skill ÷ 4, ÷ 7, ÷ 7 or ÷ 5 at Science 0, 1, 2 or 3, the "
+        "same at every speed (live: ÷ 5, ÷ 11, ÷ 9 or ÷ 7, scaled by the speed). The 2% chance of losing 0 to 9 "
+        "health on each research success happens while catching up too.")
+    add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100; the "
+        "partner search is the live one (opposite sex, both 18 to 49, the partner not sick, and neither pregnant "
+        "or nursing), and the population limit and huts apply as live. A baby is conceived when rand(300) + 50 - "
+        "50 x Medicine level is at most the Breeding skill. Unlike live play there is no embrace skill check, no "
+        "refusal when food is low, no fertility potion bonus, and the village's first conception does not skip "
+        "the roll.")
+    add("Healing while catching up: a cure is the healer's Healing skill check alone (live: a healer who dislikes "
+        "medicine also fails half the cures), and People Cured goes up even when the cure fails (live: only on a "
+        "success).")
+    add("Building while catching up: the other projects walk to their site (an instant move) and advance as in "
+        "live play, but the population huts hardly grow: the hut job skips its walk to the hut while catching up, "
+        "and a build step adds to a hut only when the builder already stands on that hut's site.")
+    fix = _patch(village, VV3_FIX_VANILLA, "That is the stock game.",
+                 "each builder goes to the hut first while catching up too, so the work is added to that hut.")
+    if fix:
+        out.append(fix)
+    add("Fruit trees and honey: they follow the game's own clock, which keeps running while the game is closed "
+        "unpaused, so they get the WHOLE time closed when it is next played, with no limit on how many refills: "
+        "a tree stops at 1,000 fruit, the honey at 3,000.", RUNNING)
+    add("Potions: saving the game ends every villager's potion effects, and the pot (with a brewed potion) is not "
+        "saved, so nothing from a potion carries over the time away.", RUNNING)
+    add("Island events: their timer runs on real-life time, so the whole time closed counts. If an event came due "
+        "while the game was closed it happens once when the village is next played; the first event of each time "
+        "the game is started sets the next 30 minutes later, then 8 to 15 whole real-life hours apart.", RUNNING)
+    add("The Tribal Chief's powers: their 23-hour wait runs on real-life time, so the time closed counts in full.",
+        RUNNING)
+    add("Mushrooms and collectibles: none appear for the time closed. The appearance roll is made once per update "
+        "of the village, so the catch-up's one update gives one roll, like any other update.", RUNNING)
+    add("The campfire keeps burning down while the game is closed, when the save was left unpaused.", OWNER)
+    add("Graves: the whole time closed counts toward a body's removal, not only the counted part (see Death and "
+        "graves).")
+
+    for fact in (
+        _patch(village, VV3_WORK_FIRST, "Normally every job turn uses the game's own choice.",
+               "on 75 job turns in 100 a builder (while it has hut work) or a healer does that job first; at 250 "
+               "food or less a villager with Farming 20 or more still farms first."),
+        _patch(village, VV3_FIX_HUTS, "Normally a builder in a job turn joins only a site already 2% or more "
+                                      "built, and examines huts only once all four huts stand.",
+               "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
+        _patch(village, VV3_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
+               "every skill check succeeds, in job turns too."),
+        _patch(village, VV3_MORTALITY, "Normally the old-age rolls start at 47, 55, 63 or 71 years (Medicine 0 to "
+                                       "3).", "at Nature level 3 they start 7 years later, while catching up too."),
+    ):
+        if fact:
+            out.append(fact)
+    _warp_lines(village, out, speed_value, VV3_ORIGINS, VV3_STORY)
+    return out
+
+
 def _warp_lines(village: gm.Village, out: list[gm.Fact], speed_value: int, origins: str, story: str) -> None:
     """The Origins Time Warp and the Story / Cheat time skip, when they may be in the game."""
     if village.has(origins) is not False:
@@ -436,4 +554,4 @@ def _warp_lines(village: gm.Village, out: list[gm.Fact], speed_value: int, origi
         out.append(fact)
 
 
-_GAMES = {4: _vv4, 5: _vv5}
+_GAMES = {3: _vv3, 4: _vv4, 5: _vv5}
