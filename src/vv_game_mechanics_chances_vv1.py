@@ -23,7 +23,8 @@ ROLLS = (
          "(a roll of 0 to 119 above 117).",
          (Check(0x423516, 120, 0x75, "jle", take=False), Check(0x4236C9, 100, 5, "jge", take=False)),
          ("It is a red mushroom {1} of the time (a roll of 0 to 99 below 5), otherwise brown.",)),
-    Roll("Falling sick: checked " + AGE_UNIT + " for each villager of 14 or older who is not sick.",
+    Roll("Falling sick: checked " + AGE_UNIT + " for each villager of 14 or older who is not sick (younger villagers "
+         "and the Golden Child never fall sick this way: 0x42E5A4, 0x42E5C2).",
          (Check(0x42E5E8, 10000, 2, "jg", take=False), Check(0x42E604, 4800, 3, "jg", take=False),
           Check(0x42E604, 2400, 3, "jg", take=False, push=0x42E61B), Check(0x42E648, 1000, 14, "jle"),
           Check(0x42EE5F, 100, 0x32, "jl", take=False)),
@@ -43,11 +44,12 @@ ROLLS = (
          "Sickness never ends by itself.",
          (Check(0x42ED77, 100, 0x46, "jg", take=False), Check(0x42ED93, 100, 0x1E, "jg", take=False))),
     Roll("Regaining health: " + AGE_UNIT + ", a villager who is not sick, while there is food, regains 1 health {0} "
-         "of the time, and every age unit on Easy; an elderly villager (42 years plus 8 for each Medicine level) only "
-         "{1} of those (0x42EDCB).",
+         "of the time, and every age unit on Easy; an elderly villager (from 50, 58 or 66 years at Medicine 1, 2 or "
+         "3) only {1} of those (0x42EDCB).",
          (Check(0x42EDE3, 100, 0x32, "jl"), Check(0x42EE1E, 100, 0x14, "jge", take=False))),
     Roll("The old-age death roll: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 on Normal, 3 real-life hours 20 "
-         "minutes on Slow) past 47, 55, 63 or 71 years (Medicine 0, 1, 2 or 3) a villager dies with a chance of 10% "
+         "minutes on Slow) past 55, 63 or 71 years (Medicine 1, 2 or 3; every technology starts at level 1) a villager "
+         "dies with a chance of 10% "
          "for each year past it (a roll of 0 to 99 under 10 x the years over): " + chance(below(100, 10))
          + " one year over, " + chance(below(100, 50)) + " five years over, 100% from ten years over (0x42EE7E).",
          (Check(0x42EEBC, 100),),

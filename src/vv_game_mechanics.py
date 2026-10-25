@@ -453,10 +453,12 @@ MAX_HOURS = 24 * 365 * 100                 # a century of play: any recorded tim
 MAX_AHEAD = 2 * 366 * 86_400               # a year on Fast past the clock's base: a stamp later is not a real one
 
 
-def hours_puzzle_lines(names: list[str], solved, hours, created: float | None) -> list[Fact]:
+def hours_puzzle_lines(names: list[str], solved, hours, created: float | None,
+                       ok: bool | str = False) -> list[Fact]:
     """A New Home's and The Lost Children's puzzles: a solved flag and the whole hours since the village was
     started that its completion writes (the Puzzles screen's "Completed in N hours"; at least 1 in The Lost
-    Children), so the moment is known to within the hour."""
+    Children), so the moment is known to within the hour.  `ok`: what stands behind a solved puzzle's line (A New
+    Home passes CODE: its completion stamps were read in the stock exe)."""
     out = []
     count = 0
     for n, name in enumerate(names):
@@ -477,7 +479,7 @@ def hours_puzzle_lines(names: list[str], solved, hours, created: float | None) -
         else:
             words = (f"solved {h} hours after the village was started: between {when(created + h * 3600)} "
                      f"and {when(created + (h + 1) * 3600)}")
-        out.append(Fact(PUZZLES, f"{name}: {words}.", False))
+        out.append(Fact(PUZZLES, f"{name}: {words}.", ok))
     out.insert(0, Fact(PUZZLES, f"Puzzles solved: {count} of {len(names)}.", SAVE))
     return out
 

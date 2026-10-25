@@ -174,7 +174,7 @@ class Wording(Pages):
 
     def test_the_big_catch_is_a_crab(self) -> None:
         self.assertIn("a 10% chance of catching a crab, worth 55 food", self.text(3))
-        self.assertIn("a 21% chance of catching a crab, worth 55 food", self.text(1))
+        self.assertIn("instead catches a crab worth 55 food 21.02% of the time", self.text(1))
         for game in (1, 3):
             self.assertNotIn("big catch", self.text(game))
 
@@ -188,11 +188,13 @@ class Wording(Pages):
 
     def test_the_golden_child_never_starves(self) -> None:
         text = self.text(1)
-        self.assertIn("he never eats, never starves, never falls sick, never dies of old age", text)
+        self.assertIn("he never has a meal, never starves, never falls sick on his own, never loses health to "
+                      "sickness, never dies of old age", text)
         self.assertNotIn("going without food", text)
-        self.assertIn("The Golden Child neither eats nor starves", text)
-        line = next(f for f in vv1.HIDDEN_LINES if f[0].startswith("Work injuries"))
-        self.assertFalse(line[1])                       # not settled by the code: UNCONFIRMED
+        self.assertIn("The Golden Child has no age-unit meal and never starves", text)
+        # Work injuries: the drop handler tests no age, so a job drop injures him like anyone (the 2026-10-25 audit).
+        line = next(f for f in vv1.GOLDEN_CHILD_LINES if "with its injuries" in f[0])
+        self.assertEqual(line[1], gm.CODE)
 
     def test_the_lost_childrens_birds(self) -> None:
         data = fixture("vv2-huttest-1")
