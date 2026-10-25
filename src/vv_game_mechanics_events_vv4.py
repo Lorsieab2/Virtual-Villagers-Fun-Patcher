@@ -45,9 +45,9 @@ RULES = (
     Line("Rescue: when the sexes are out of balance (2 or fewer women and more men, or 2 or fewer men and no more men "
          "than women) or there are fewer than 3 people, 6% of events (a 15% roll, then a 40% one) become Daredevil "
          "Barrel...of Babies!, even without its condition (0x4180A5)."),
-    Line("Room for new villagers (the room check 0x468350): villagers plus the babies being carried below 90, plus 5 "
-         "for each of the four collections completed; and a population of 10 to 16 needs 1 rebuilt hut, 17 to 34 needs "
-         "2, 35 or more all 3."),
+    Line("Room for new villagers (the room check 0x468350): villagers plus the babies being carried below 90 plus "
+         "the collections' bonus (5 for each complete collection, 25 with all four: see Collectibles); and a "
+         "population of 10 to 16 needs 1 rebuilt hut, 17 to 34 needs 2, 35 or more all 3."),
     Line(f"Weather an event brings lasts like any other weather: {WEATHER}."),
     Line("A loss of food or tech points takes no more than there is. Health and skills stop at 0 and 100."),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event chooses the next event "
