@@ -522,9 +522,8 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
             "20%, 30% or 45% of villagers: sick and 10, 15 or 20) and of old fruit (spiders: the finder loses 40, 70 "
             "or 110); The Mysterious Face (\"take a closer look\": the villager can be never seen again) and The Book "
             "(reading it: the villager can vanish) leave no body and no grave.", False)
-        add("The Golden Child stays 5 years old and the game skips him in its age-unit step, so he never starves, "
-            "falls sick or dies of old age; island events can still kill him or make him vanish (The Strange "
-            "Berries, the crates' bites, The Mysterious Face, The Book).")
+        add("The Golden Child never starves, falls sick or dies of old age; how island events can still kill him "
+            "or make him vanish, and the patches that change it, is under Golden Child.")
     else:
         add("Disease: a sick villager loses 1 health on 61% of age units (19% at 20 health or less).")
         add("Starvation: with 150 food or less a villager loses 1 health on 15% of age units; with no food at all, "
