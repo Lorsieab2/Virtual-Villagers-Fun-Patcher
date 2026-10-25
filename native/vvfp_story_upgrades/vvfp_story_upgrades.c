@@ -1073,6 +1073,14 @@ __declspec(dllexport) int __stdcall VvfpStoryPickPending(int game) {
     return (pick_slot >= 0 && pick_game == game) || ce_pending(game);
 }
 
+/* Whether the island event `game` is setting up now was chosen by Pick Island Event (A New Home:
+   story_vv1.inc vv1_event_chosen); 0 for a natural one, and in every other game.  "VVFP VV1 Golden
+   Child Safe.dll" (part of Fix Vanilla Bugs) asks it so that its rule -- the Golden Child is never
+   the villager of a natural island event that could kill him -- never changes a picked event. */
+__declspec(dllexport) int __stdcall VvfpStoryEventChosen(int game) {
+    return game == 1 && install_state[1] == 1 && vv1_event_chosen;
+}
+
 #include "story_custom_ui.inc"
 #include "story_time_skip.inc"
 #include "story_queue.inc"      /* queued purchases kept across a quit */

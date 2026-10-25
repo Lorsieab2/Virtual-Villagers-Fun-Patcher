@@ -16,6 +16,7 @@ EXPORTS
     VvfpStoryRechargeChiefPowers=_VvfpStoryRechargeChiefPowers@8
     VvfpStoryTimeSkipPrice=_VvfpStoryTimeSkipPrice@4
     VvfpStoryCallerReturn=_VvfpStoryCallerReturn@4
+    VvfpStoryEventChosen=_VvfpStoryEventChosen@4
     VvfpStoryProbeQueueCustom=_VvfpStoryProbeQueueCustom@12
     VvfpStoryProbeSetCustom=_VvfpStoryProbeSetCustom@12
     VvfpStoryProbeCustomPending=_VvfpStoryProbeCustomPending@4
