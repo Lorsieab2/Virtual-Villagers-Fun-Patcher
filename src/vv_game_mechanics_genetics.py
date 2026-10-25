@@ -149,6 +149,19 @@ def _later(game: int) -> list[gm.Fact]:
             + {4: "(0x467B00, its conception call 0x467C15)", 5: "(0x471A50)"}[game]
             + ", so such a baby's head is half of (the mother's head + 2), -1, 0 or +1 (or any head on 5 births in "
             "100)."), gm.RUNNING))
+    # "Unknown" (the owner: seen for the Heathen Mommy in New Believers and after island events): no game passes it
+    # as a father -- its one reference in each exe is the string table (VV2 0x49640C, VV3 0x4ABB38, VV4 0x4C49E0,
+    # VV5 0x4D38A8); every conception copies a partner record's head and body onto the mother (VV5 0x467DBE,
+    # 0x46E16B, 0x46E19B; VV4 0x460A2E, 0x4650EB, 0x46511B) apart from the default fathers ("?" in VV2, Joey in VV4
+    # and VV5).  See docs/known-behaviours-and-non-bugs.md, the default fathers.
+    default = {2: "The Gong of Wonder's \"?\" (head 0)", 3: "", 4: "Joey (head 2)", 5: "Joey (head 2)"}[game]
+    out.append(f(GENETICS, (
+        "A father shown as \"Unknown\" is not one the game itself names: none of the four games passes \"Unknown\" "
+        "as a father; the patcher shows it where the game kept no father's name. The baby's head was still worked "
+        "out by the rule above, from the father's head the game copied onto the mother at the conception: every "
+        "conception copies a real partner's head"
+        + (f", except {default}, as above." if default else " (this game has no fatherless conception).")
+        + " So \"Unknown\" never stands for a head of its own and never changes a baby's head."), gm.RUNNING))
     old = {2: "male_heads_old / female_heads_old", 3: "male_heads_old / female_heads_old",
            4: "male_heads10 / female_heads10", 5: "male_heads10 / female_heads10"}[game]
     out.append(f(GENETICS, (
