@@ -262,12 +262,12 @@ GOLDEN_CHILD_LINES = (
     # 0x42EF39: the birth of a pregnancy whose father ([rec+0x394], stored at conception 0x43BC04) is family 199.
     ("A pregnancy fathered by a family-199 villager would bring a second Golden Child at its birth, beside her own "
      "baby; he is always 5 and parents must be 18, so the stock game never reaches it.", gm.RUNNING),
-    # Health losses do not check family 199 (HIDDEN_LINES); the island-event picks are being checked separately, and
-    # Fix Vanilla Game Bugs is getting an exclusion for natural events (the coordinator, 2026-10-24).
-    ("How he can leave: health he loses never comes back, and at 0 health he dies. Natural island events can pick "
-     "him: Strange Berries (49% death), a large fruit crate (fatal) and the events' health losses; Mysterious Face "
-     "and The Book make the villager vanish. A Fix Vanilla Game Bugs exclusion that keeps natural events from picking "
-     "him is being added.", False),
+    # Health losses do not check family 199 (HIDDEN_LINES); the island events' villager picks take him like anyone
+    # (no family-199 test in their pickers), with the outcomes EVENT_LINES gives.
+    ("How he can leave: health he loses never comes back, and at 0 health he dies. In the original game island "
+     "events can pick him like any villager: Strange Berries (49% death), a large fruit crate (110 health lost, "
+     "fatal from his 100) and the other events' health losses, which add up; Mysterious Face and The Book make the "
+     "villager they pick vanish.", gm.RUNNING),
     ("Start Over deletes the village's save: the new village has no Golden Child, and his puzzle can be done again.",
      False),
 )

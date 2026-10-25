@@ -65,9 +65,11 @@ class GoldenChild(unittest.TestCase):
 
     def test_only_the_unproven_lines_are_unconfirmed(self) -> None:
         unconfirmed = [line for line, ok in vv1.GOLDEN_CHILD_LINES if ok not in gm.TRUSTED]
-        self.assertEqual(len(unconfirmed), 2)
-        self.assertTrue(unconfirmed[0].startswith("How he can leave:"))
-        self.assertTrue(unconfirmed[1].startswith("Start Over"))
+        self.assertEqual(len(unconfirmed), 1)
+        self.assertTrue(unconfirmed[0].startswith("Start Over"))
+        leave = next(line for line, ok in vv1.GOLDEN_CHILD_LINES if line.startswith("How he can leave:"))
+        self.assertIn("In the original game island events can pick him", leave)
+        self.assertNotIn("being added", leave)
 
     def test_no_golden_child_yet(self) -> None:
         data = fixture(1)
