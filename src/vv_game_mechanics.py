@@ -185,6 +185,9 @@ PAUSED_NOTE = "The game was saved paused: nothing refills or grows until it is u
 # save was left unpaused, and not when it was saved paused.
 FIRE_CLOSED = ("While the game is closed the fire keeps burning down if the save was left unpaused; saved paused, "
                "it does not burn down until the game is unpaused.")
+# The owner (2026-10-24), the same four games: the fire runs out only when its timer expires; rain and the weather
+# never touch it (an earlier line said rain and the Omen stopped it being lit: false).
+FIRE_OUT = "The fire goes out when its timer runs out; rain and the weather do not affect it."
 
 
 # ---------------------------------------------------------------------------

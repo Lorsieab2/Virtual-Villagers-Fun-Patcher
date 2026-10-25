@@ -166,6 +166,13 @@ HIDDEN_LINES = (
      'age units with food and no sickness (every one on Easy), a fifth of that past 50, 58 or 66 years '
      '(Medicine 1, 2, 3). Injuries: 2% of trips, 0 to 14 health building, 0 to 9 researching.', gm.RUNNING),
     ('A New Home has no fire.', gm.RUNNING),
+    # Breeding age 18 (the owner): the embrace checks both ages >= 360 (0x43DB35..0x43DB46), the catch-up embrace
+    # too (0x446E96, 0x446EA6).  The two 280 checks just before it in the catch-up code (0x446D39, 0x446E28) are
+    # the catch-up healers' patient test, not a breeding gate; under-14s never fall sick (0x42E590).
+    ("Breeding age: every embrace, the catch-up embrace included, needs both villagers 18 or older. The 14-year "
+     "checks beside the catch-up embrace in the game's code belong to catch-up healing: there the healer cures "
+     "only patients 14 or older, and since children under 14 never fall sick, no child is ever left uncured by "
+     "it.", gm.RUNNING),
 )
 
 
