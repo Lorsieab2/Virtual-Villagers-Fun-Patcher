@@ -18,6 +18,7 @@ import struct
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_life as life
+import vv_game_mechanics_powers_vv5 as powers
 import vv_save_backup
 
 GAME = 5
@@ -85,9 +86,6 @@ LIFE_LINES = (
 HIDDEN_LINES = (
     ("Each villager's hidden name number (1 to 183, not inherited; a name always has the same one) sets how it "
      "starves; the villagers' numbers are below.", gm.RUNNING),
-    ('The Time Warp God Power (500 Divine Energy) makes everyone age about 18 to 20 times as fast for 5 real '
-     'minutes: 6 age units a minute on Fast, 3 on Normal, 2 on Slow -- 30, 15 or 10 units in all (1.5, 0.75 or '
-     '0.5 years). Quitting during those 5 minutes loses the rest.', gm.RUNNING),
     ("Preaching to a heathen: the preacher's Devotion check (35% at Devotion 0, 83% at 50, sure at 88) gives "
      'the heathen 3 belief, 4 at Devotion 50, 5 at 88; then that heathen cannot be preached to for 2 hours '
      '(the 800-energy God Power sets the same wait).', gm.RUNNING),
@@ -211,9 +209,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "appear; a second set of 24 only once the Knowing Totem is built (then half from each). A "
                         "piece already found gives +10, 50 or 150 Divine Energy from the first set, +100, 250 or "
                         "1,500 tech points from the second.", gm.RUNNING)
-    add("Collectibles", "The Earthquake God Power drops one collectible 10 seconds after it is cast: 72% uncommon, "
-                        "28% rare.")
-    add("Collectibles", "The Earthquake also raises every villager's belief by 2 to 8.")
+    add("Collectibles", "The Earthquake God Power drops one collectible 10 real-life seconds after it is cast: 72% "
+                        "uncommon, 28% rare (see God powers).", gm.RUNNING)
 
     # -- Tech points and Divine Energy ---------------------------------------------------
     add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
@@ -232,7 +229,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         "or on Hard). Honoring adds 3, 7 or 12 on three Honorings in four, and on the fourth only if the Devotion "
         "check succeeds. The cap is 5 x (believers + 2), more with the statue, the Idol, "
         "Spirituality and the first set's pieces, at most 1,000."), gm.RUNNING)
-    add("Tech points and effects", "God Powers cost 10, 25, 50, 100, 150, 300, 400, 500, 600, 700 and 800.")
+    out.extend(powers.lines(village))
 
     # -- Food earned ---------------------------------------------------------------------
     add("Food earned", f"Each believer eats 2 food every {unit} on {on} speed ({2 * 3600 / (60 * speed):g} an hour); at "
