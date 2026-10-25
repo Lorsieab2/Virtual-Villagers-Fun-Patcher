@@ -97,8 +97,8 @@ ROLLS = (
          "of the time, and of those {1} are triplets, so " + chance(_TWINS) + " twins and " + chance(_TRIPLETS)
          + " triplets.",
          (Check(0x45E893, 100, 7, "jge", take=False), Check(0x45E8B3, 100, 0x19, "jge", take=False)),
-         ("The babies are born on the 41st age unit after conception (2 villager years and 1 age unit): 2 hours 3 "
-          "minutes, 4 hours 6 minutes or 6 hours 50 minutes of real-life play on Fast, Normal or Slow (0x4687F2).",),
+         ("The babies are born on the 41st age unit after conception (2 villager years and 1 age unit): 2 real-life "
+          "hours 3 minutes, 4 real-life hours 6 minutes or 6 real-life hours 50 minutes of play on Fast, Normal or Slow (0x4687F2).",),
          group=BIRTHS),
     Roll("Boy or girl: each first baby of a pregnancy, and any villager the game makes without a sex given, is a boy "
          "{0} of the time and a girl " + chance(_not(_MALE)) + " (0x465D00).",
