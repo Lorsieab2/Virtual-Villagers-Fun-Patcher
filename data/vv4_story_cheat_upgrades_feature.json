@@ -15,6 +15,7 @@
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
     "Offers 45 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children, plus in New Believers All Heathens and one toggle for each Heathen type; each villager's row names the role the game keeps for them, such as the Golden Child or the Tribal Chief).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
+    "Its amounts list shows each amount the game keeps as it is now, below 0 included (The Lost Children's fish and the field's protection fall below 0 in the original game), and the event replaces it; only a store that is not there yet, such as a farm not yet built, reads \"not there yet\" and is refused.",
     "Villager Changes offers every villager action the game's own code can start for one villager, Celebrating included, grouped (work, leisure, celebration and dance, devotion, family, children, health, curiosity, moods, puzzles and story) and sorted, each labelled with the text the Details screen then shows; the villager is stopped first and the game's own starter runs.  An action that may harm the game or the save ends \"(Unsafe)\": choosing it shows the reason and advises backing up the save (OK / Cancel), and one that would need a missing object is refused when the event happens instead of crashing.",
     "New villagers and babies are made only while the game's own room predicate says the village has room, so the population cap of the installed mode is never passed.",
     "A new tribe's first two island events are always the game's own (each game's village start sets its island-event counter to 0): a custom event queued before the second of them stays queued -- the same lock, nothing charged again -- without making the island event due, and is made due exactly as the Island Event upgrade does once the game has made both, so it is the third.",
@@ -35,7 +36,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "197D11DF20AFA7FEA4F51C0BD064EE2875C65F3B8E37AEC1BA15E707CA9B84CB"
+      "sha256": "93F59A253D9EB53D0C432FA4AA4E182EB8B677D50029562D36E6F23FC51ADC00"
     }
   ],
   "runtime_detours": [

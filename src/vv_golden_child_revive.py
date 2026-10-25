@@ -51,7 +51,7 @@ PRESENT, HEALTH, AGE, PROCESSED, SICK, FAMILY, NAME, SEX, HEAD, BODY = (
     0x3D4, 0x344, 0x348, 0x34C, 0x354, 0x36C, 0x370, 0x350, 0x360, 0x364)
 GOLDEN_FAMILY = 199
 GOLDEN_BYTE = 0xA008 + 4                    # file offset (state + 4)
-GRAVES, GRAVE_PLACES, GRAVE_STRIDE, GRAVE_NAME_CAP, GRAVE_AGE = 0xA320, 50, 0x2C, 0x1C, 0x24
+GRAVES, GRAVE_PLACES, GRAVE_STRIDE, GRAVE_NAME_CAP, GRAVE_AGE, GRAVE_SKILL = 0xA320, 50, 0x2C, 0x1C, 0x24, 0x1C
 FIVE = 100                                  # age units: 5 villager years
 REVIVED_HEALTH = 100
 
@@ -113,7 +113,8 @@ def survey_bytes(data: bytes) -> Survey:
         if _i32(data, _rel(i, FAMILY)) == GOLDEN_FAMILY:
             health = _i32(data, _rel(i, HEALTH))
             name = _name(data, _rel(i, NAME), 0x1C)
-            return Survey("alive" if health > 0 else "body", i, name, health, _graves(data, name))
+            # A body is not buried yet, so it has no grave: no grave is ever touched for one.
+            return Survey("alive" if health > 0 else "body", i, name, health, ())
     if loaded < RECORDS and _i32(data, _rel(loaded, FAMILY)) == GOLDEN_FAMILY \
             and _name(data, _rel(loaded, NAME), 0x1C):
         name = _name(data, _rel(loaded, NAME), 0x1C)
@@ -122,12 +123,17 @@ def survey_bytes(data: bytes) -> Survey:
 
 
 def _graves(data, name: str) -> tuple:
+    """His grave, only when it is certainly his: his name, age 100 (five) and a best skill of 100 -- every
+    skill of his is 100 (0x43C7AF..0x43C80C), which a five-year-old namesake reaches only through an event.
+    None such, or more than one, and no grave is touched (Codex, #625: never erase a namesake's grave on a
+    guess)."""
     out = []
     for place in range(GRAVE_PLACES):
         at = GRAVES + place * GRAVE_STRIDE
-        if name and _name(data, at, GRAVE_NAME_CAP) == name and _i32(data, at + GRAVE_AGE) == FIVE:
+        if name and _name(data, at, GRAVE_NAME_CAP) == name and _i32(data, at + GRAVE_AGE) == FIVE \
+                and _i32(data, at + GRAVE_SKILL) == 100:
             out.append(at)
-    return tuple(out[-1:])                  # the newest such grave: his (a namesake child would be another)
+    return tuple(out) if len(out) == 1 else ()
 
 
 def survey(folder: Path, slot: int) -> Survey:

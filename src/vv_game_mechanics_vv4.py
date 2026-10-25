@@ -80,15 +80,27 @@ def stew_pot_line(speed: int) -> str:
 # The owner (2026-10-24).  In the code a villager dropped on the herb table (its drop slot 0x42F0F0) empties the
 # pot through 0x42F060 -> 0x42DA30 and puts the herbs back, as in The Secret City.
 GRATE_LINE = "The pot can be emptied by dropping a villager on the grate."
-# The owner (2026-10-24): some stews can be reheated by putting another hot rock in the pot.  In the code each
-# hot rock adds 10 to the pot's heat (+0xB1C, 0x42EAA7; nothing lowers it until the pot is emptied, 0x42DA76);
-# a stew is ready at 10 heat (the Grand Feast, stew 4, at 20 with its 4 feast items; stews 10 and 11 need none:
-# 0x42DC80), and a rock added to a pot whose stew is ready makes it again (0x42EAF1 -> 0x42EDE0), which sets the
-# 300-second deadline again (0x42F240), with no limit.  Which stews the owner means by "some" is not settled by
-# the code, which makes no exception: UNCONFIRMED.
-REHEAT_LINE = ("Some stews can be reheated by putting another hot rock in the pot: each hot rock adds 10 heat, a "
-               "stew is ready at 10 (the Grand Feast at 20), and a rock added to a pot whose stew is ready makes it "
-               "again, which starts its 5 real-life minutes over, as often as a rock is added.")
+# The owner (2026-10-24): some stews can be reheated by putting another hot rock in the pot.
+REHEAT_LINE = "Some stews can be reheated by putting another hot rock in the pot."
+# The code.  The recipe 0x42ECA0 (via 0x42DBF0): stews 0-9 in fresh water (state 9), 10 = soapy x3 and 11 =
+# pulpy vines x3 in salt water (state 0xA), 12 / 13 any other mix in salt / fresh water.  Each hot rock (item 6)
+# adds 10 heat (+0xB1C, 0x42EAA7; only emptying the pot lowers it, 0x42DA76); 0x42DC80 has a stew ready at 10
+# heat, the Grand Feast (4) at 20 with its 4 feast items, 10 and 11 at once.  The pot takes an item only while
+# its hot state 0x18 is on (0x42EA61, read by 0x42DD50); state 0x18 lasts 600 game-clock seconds (0x46D530,
+# table 0x46D5C0 -> 0x46D555, clock 0x41DB20).  Making a stew (0x42EDE0) ends states 0x18, 9 and 0xA
+# (0x42EE5F..0x42EE7E); an unfinished Grand Feast instead turns 0x18 on again (0x42EE1D).  A rock that goes in
+# while the pot is hot and its stew is ready makes the same stew again (0x42EAF1 -> vtable +0x2C = 0x42EDE0,
+# the recipe read again from the 3 herbs kept), which sets the 300-second deadline again (0x42EEB2 -> 0x42F240);
+# nothing counts the times.  What turns the hot state on for an already-made stew is not traced here (the only
+# other writer is 0x42F4A0, a drop handler on the pot's boiling-water object, vtable 0x48E2F0 +0x28).
+REHEAT_CODE_LINE = (
+    "In the game's code: each hot rock adds 10 heat to the pot, which only emptying it takes away; a stew is ready "
+    "at 10 heat, the Grand Feast at 20 with its 4 feast items, and the two salt-water mixes (soapy x3, pulpy "
+    "vines x3) need no heat. The pot takes things only while it is hot: making a stew ends that, and an unfinished "
+    "Grand Feast stays hot for 10 real-life minutes on Normal speed (5 on Fast, 16 minutes 40 seconds on Slow) "
+    "after each thing added. A hot rock that goes into the hot pot while its stew is ready makes "
+    "the same stew again and starts its 5 real-life minutes over; nothing limits how often, and no stew is left "
+    "out of this.")
 # "That villager can't eat more stew so soon." (string 0x203) is said when the villager dropped on the pot
 # (0x42E920) is refused by the add-effect 0x460A90: the same stew's effect is already on them (0x45EB40) or they
 # have 12 (+0x1E5C).  An effect ends at a real-clock deadline (0x403750 + its length, 0x460B60); saving ends every
@@ -312,7 +324,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Other", line, ok)
     add("Other", stew_pot_line(speed), gm.RUNNING)
     add("Other", GRATE_LINE, gm.OWNER)
-    add("Other", REHEAT_LINE)
+    add("Other", REHEAT_LINE, gm.OWNER)
+    add("Other", REHEAT_CODE_LINE, gm.RUNNING)
     add("Other", CANT_EAT_LINE, gm.RUNNING)
     for line, ok in LIFE_LINES:
         add("Other", line, ok)

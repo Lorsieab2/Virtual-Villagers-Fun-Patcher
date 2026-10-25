@@ -62,9 +62,10 @@ def golden(data: bytearray, i: int, health: int, name: bytes = b"Lulu") -> bytea
     return data
 
 
-def grave(data: bytearray, place: int, name: bytes, age: int) -> int:
+def grave(data: bytearray, place: int, name: bytes, age: int, skill: int = 100) -> int:
     at = gcr.GRAVES + place * gcr.GRAVE_STRIDE
     data[at:at + 0x1C] = name.ljust(0x1C, b"\0")
+    struct.pack_into("<i", data, at + 0x1C, skill)
     struct.pack_into("<i", data, at + 0x24, age)
     return at
 
@@ -94,12 +95,30 @@ class Survey(unittest.TestCase):
         data = golden(base(), loaded(base()) + 3, 0)       # a deeper stale copy: never loaded, not his slot
         self.assertEqual(gcr.survey_bytes(bytes(data)).state, "reused")
 
-    def test_his_grave_is_his_name_at_age_five(self):
-        data = golden(base(), 1, 0)
+    def gone(self) -> bytearray:
+        data = base()
+        return golden(data, loaded(data), 0)
+
+    def test_his_grave_is_his_name_at_age_five_with_skill_100(self):
+        data = self.gone()
         grave(data, 0, b"Lulu", 400)                     # a namesake adult
+        grave(data, 1, b"Lulu", 100, skill=6)            # a namesake child of five (Codex, #625)
         his = grave(data, 2, b"Lulu", 100)
         grave(data, 3, b"Kai", 100)
         self.assertEqual(gcr.survey_bytes(bytes(data)).graves, (his,))
+
+    def test_a_namesake_grave_alone_or_two_candidates_are_never_touched(self):
+        data = self.gone()                               # vanished: no grave of his own
+        grave(data, 1, b"Lulu", 100, skill=6)
+        self.assertEqual(gcr.survey_bytes(bytes(data)).graves, ())
+        grave(data, 2, b"Lulu", 100)
+        grave(data, 3, b"Lulu", 100)                     # two that could be his: neither is chosen
+        self.assertEqual(gcr.survey_bytes(bytes(data)).graves, ())
+
+    def test_a_body_has_no_grave(self):
+        data = golden(base(), 1, 0)
+        grave(data, 2, b"Lulu", 100)
+        self.assertEqual(gcr.survey_bytes(bytes(data)).graves, ())
 
 
 class Revive(unittest.TestCase):
@@ -116,7 +135,7 @@ class Revive(unittest.TestCase):
     def test_a_body_is_brought_back_with_the_record_added(self):
         data = golden(base(), 1, 0)
         struct.pack_into("<i", data, rel(1, 0x354), 1)    # sick
-        his = grave(data, 4, b"Lulu", 100)
+        namesake = grave(data, 4, b"Lulu", 100)          # not his: a body is not buried
         self.save.write_bytes(bytes(data))
         before = bytes(data)
         result = gcr.revive(self.folder, 1, processes=NoGame(), now=NOW)
@@ -125,16 +144,15 @@ class Revive(unittest.TestCase):
         self.assertEqual(i32(after, rel(1, 0x344)), 100)
         self.assertEqual((i32(after, rel(1, 0x348)), i32(after, rel(1, 0x34C))), (100, 100))
         self.assertEqual(i32(after, rel(1, 0x354)), 0)
-        self.assertEqual(after[his:his + gcr.GRAVE_STRIDE], bytes(gcr.GRAVE_STRIDE))
+        self.assertEqual(after[namesake:namesake + gcr.GRAVE_STRIDE], before[namesake:namesake + gcr.GRAVE_STRIDE])
         changed = {k for k in range(len(after)) if after[k] != before[k]}
-        allowed = set(range(rel(1, 0x344), rel(1, 0x350))) | set(range(rel(1, 0x354), rel(1, 0x358))) \
-            | set(range(his, his + gcr.GRAVE_STRIDE))
+        allowed = set(range(rel(1, 0x344), rel(1, 0x350))) | set(range(rel(1, 0x354), rel(1, 0x358)))
         self.assertLessEqual(changed, allowed)
         self.assertEqual(gcr.survey_bytes(after).state, "alive")
         deaths = self.logs("Deaths Log")
         self.assertIn("Returned to life\n  Name: Lulu\n  Special villager: Golden Child\n  Age: 100 (5 years)\n"
                       "  Sex: Male\n", deaths.replace("\r\n", "\n"))
-        self.assertIn("his grave was removed", deaths)
+        self.assertNotIn("his grave was removed", deaths)
         self.assertIn("Revived: Lulu, the Golden Child", self.logs("Repairs Log"))
         copies = list(self.folder.rglob("*" + gcr.COPY_SUFFIX))
         self.assertEqual(len(copies), 1)
@@ -145,11 +163,14 @@ class Revive(unittest.TestCase):
         n = loaded(data)
         data = golden(data, n, 0)
         data[rel(n + 1, 0x3D4)] = 1                     # a stale copy after him still flagged present
+        his = grave(data, 5, b"Lulu", 100)               # buried: his grave (his name, five, skill 100)
         self.save.write_bytes(bytes(data))
         gcr.revive(self.folder, 1, processes=NoGame(), now=NOW)
         after = self.save.read_bytes()
         self.assertEqual(after[rel(n, 0x3D4)], 1)
         self.assertEqual(loaded(after), n + 1)           # only he comes back, no stale copy with him
+        self.assertEqual(after[his:his + gcr.GRAVE_STRIDE], bytes(gcr.GRAVE_STRIDE))
+        self.assertIn("his grave was removed", self.logs("Deaths Log"))
         self.assertEqual(i32(after, rel(n, 0x344)), 100)
 
     def test_refused_while_running_alive_or_reused(self):
