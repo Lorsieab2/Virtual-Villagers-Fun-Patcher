@@ -344,7 +344,7 @@ class ReleasesLinkTests(unittest.TestCase):
             # Life's puzzles (all function-level).
             ("vv_game_mechanics_counts", {"vv_game_mechanics", "vv_game_mechanics_life", "vv_last_names",
                                           "vv_save_layout", "vv_vv2_totems", "vv_vv2_totem_store",
-                                          "vv_game_mechanics_vv4"}),
+                                          "vv_game_mechanics_vv4", "vv_game_mechanics_vv2"}),
         ):
             tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))
             imported = set()
