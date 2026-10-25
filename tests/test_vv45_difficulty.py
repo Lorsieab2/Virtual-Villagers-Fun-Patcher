@@ -42,6 +42,7 @@ GAMES = {
         "difficulty": 0x170F4, "speed": 0x17110, "fullscreen": 0x1711D,
         "screen": (800, 600), "height": 0x23C, "stock_height": 0x1FC, "grow": 64,
         "button": (158, 55, 0x23),          # main_wide_button2.png frame, gap under it
+        "done_raise": 0,                    # Done keeps its stock place
         "strings": {"Difficulty": 0x534, "Easy": 0x535, "Normal": 0x53A, "Hard": 0x537,
                     "Game Speed": 0x538, "Paused": 0x539, "Slow": 0x53B, "Fast": 0x53C,
                     "Fullscreen": 0x53D},
@@ -58,7 +59,8 @@ GAMES = {
         "toggle_query": 0x408320, "toggle_on": 0x40A280, "toggle_off": 0x40A270, "colour": 0x4DC948,
         "difficulty": 0x17D54, "speed": 0x17D7C, "fullscreen": 0x17D89,
         "screen": (1024, 768), "height": 0x27C, "stock_height": 0x1FC, "grow": 128,
-        "button": (140, 32, 0x0F),          # popup_button1.png frame, gap under it
+        "button": (140, 32, 0x0F),          # popup_button1.png frame, the stock gap under it
+        "done_raise": 0x14,                 # Done raised off the bottom bar: gap 0x0F -> 0x23 (0x41AA82)
         "strings": {"Difficulty": 0x57E, "Easy": 0x57F, "Normal": 0x584, "Hard": 0x581,
                     "Game Speed": 0x582, "Paused": 0x583, "Slow": 0x585, "Fast": 0x586,
                     "Fullscreen": 0x587},
@@ -183,7 +185,7 @@ class DifficultyRows(unittest.TestCase):
             declared = [(int(d["va"], 16), bytes.fromhex(d["stock_bytes"]), d["written_bytes"])
                         for d in load_row(game)["runtime_detours"]]
             with self.subTest(game=game):
-                self.assertEqual(len(sites), 22)
+                self.assertEqual(len(sites), {"vv4": 22, "vv5": 23}[game])   # VV5: and Done raised
                 self.assertEqual([(va, stock, after.hex().upper()) for va, stock, after in sites],
                                  declared[:-1])
                 hook_va, hook_stock, hook_written = declared[-1]
@@ -357,7 +359,7 @@ class ThePatchedDialog(unittest.TestCase):
         shift = g["speed_row"] - g["stock_speed_row"]
         kind, what, x, y = item
         if kind == "done":
-            return (kind, what, x, y + g["grow"])
+            return (kind, what, x, y + g["grow"] - g["done_raise"])
         if y >= g["stock_speed_row"] + 2 - 8 and kind in ("image", "text"):
             return (kind, what, x, y + shift)
         return item
@@ -420,9 +422,13 @@ class ThePatchedDialog(unittest.TestCase):
                     box = (x, y, x + 48, y + 32)
                 self.assertTrue(inner_left <= box[0] and box[2] <= inner_right
                                 and inner_top <= box[1] and box[3] <= inner_bottom, (kind, what, box))
-            # Done keeps the stock distance to the frame's bottom.
+            # Done keeps the stock distance to the frame's bottom (New Believers: raised by done_raise), and sits
+            # wholly above the frame's bottom bar with a visible gap, as The Tree of Life's does.
             stock_done = next(item for item in stock_items if item[0] == "done")
-            self.assertEqual((rect[3] - rect[1]) - done[3], (stock_rect[3] - stock_rect[1]) - stock_done[3])
+            self.assertEqual((rect[3] - rect[1]) - done[3],
+                             (stock_rect[3] - stock_rect[1]) - stock_done[3] + g["done_raise"])
+            self.assertEqual((rect[3] - rect[1]) - done[3] - g["button"][1], 0x23)
+            self.assertGreaterEqual(inner_bottom - (done[3] + g["button"][1]), 18)
 
     def test_the_whole_dialog_is_the_stock_one_plus_the_row_in_every_mode(self):
         for game in GAMES:

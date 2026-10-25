@@ -7,7 +7,8 @@ the window groups them.  A line's numbers, dates and times depend on the save, s
 template ("#" for a number, "<date>" for a date and time); every template the window can render from the
 repository's real saves (tests/fixtures/rename_tribe), at every speed and paused, with the patcher's patches
 in the game, not in it, and not known, is listed once, with:
-  * its status: CONFIRMED BY OWNER, VERIFIED FROM RUNNING CODE, READ FROM THE SAVE, or UNCONFIRMED;
+  * its status: CONFIRMED BY OWNER, VERIFIED FROM RUNNING CODE, VERIFIED FROM THE GAME'S OWN CODE, READ FROM THE
+    SAVE, or UNCONFIRMED;
   * the evidence: "owner", the catch-up clamp verification, the save, or the research spec (the addresses
     are in the game's module, src/vv_game_mechanics_vv<N>.py);
   * the patches it names.
@@ -32,11 +33,11 @@ import vv_tribe_rename  # noqa: E402
 FIXTURES = ROOT / "tests" / "fixtures" / "rename_tribe"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
 STATUS = {gm.OWNER: "CONFIRMED BY OWNER", gm.CLAMP: "VERIFIED FROM RUNNING CODE", gm.RUNNING: "VERIFIED FROM RUNNING CODE",
-          gm.CODE: "VERIFIED FROM RUNNING CODE", gm.SAVE: "READ FROM THE SAVE"}
+          gm.SAVE: "READ FROM THE SAVE", gm.CODE: "VERIFIED FROM THE GAME'S OWN CODE"}
 EVIDENCE = {gm.OWNER: "owner", gm.CLAMP: "the catch-up clamp and Time Warp, verified on the games' own aging path",
             gm.RUNNING: "the research spec's emulation with its call path from the game traced (addresses in the module)",
-            gm.CODE: "the game's own reachable code, read at the addresses in src/vv_game_mechanics_catchup.py",
-            gm.SAVE: "the save"}
+            gm.SAVE: "the save",
+            gm.CODE: "the stock exe's own reachable code, read (addresses in the module that writes the line)"}
 NOW = 1_800_000_000.0                         # a fixed "now", so the export does not change from run to run
 _DATE = re.compile(r"\b\d{1,2} (January|February|March|April|May|June|July|August|September|October|November|"
                    r"December) \d{4}, \d{1,2}:\d{2} (AM|PM)")
@@ -49,13 +50,18 @@ _TOKEN = re.compile(rf"(?P<date>{_DATE.pattern})|(?P<time>{_UNIT}(?: {_UNIT})*)|
 _PLACE = {"date": "<date>", "time": "<time>", "num": "#"}
 
 
-_VILLAGER = re.compile(r"^.*?(?=: hidden number )")
+_VILLAGER = re.compile(r"^.*?(?=: hidden number )|^.*?(?='s body is unburied)|(?<=^The oldest at death: )[^,]*")
+# The Death and graves counts by cause and epitaph: which words appear differ from village to village.
+_TALLY = re.compile(r"^(Graves by cause of death, [^:]*|Graves by epitaph|The patcher's Deaths log for this village)"
+                    r"(: | \()?.*$")
 
 
 def _plain(text: str) -> str:
     """A line as rendered, with a villager's name (the per-villager lines) as <villager>."""
     import vv_game_mechanics_life as life
-    return life.claim_template(_VILLAGER.sub("<villager>", gm.tidy(text), count=1))
+    text = _VILLAGER.sub("<villager>", gm.tidy(text), count=1)
+    text = _TALLY.sub(lambda m: f"{m.group(1)}: <tally>.", text)
+    return life.claim_template(text)
 
 
 def _tokens(text: str) -> list[tuple[str, str]]:

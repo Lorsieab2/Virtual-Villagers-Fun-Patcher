@@ -167,7 +167,7 @@ class ReleasesLinkTests(unittest.TestCase):
                # found by name (importlib) and so listed here for the release zip.
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
                "vv_game_mechanics_vv4", "vv_game_mechanics_vv5", "vv_game_mechanics_life",
-               "vv_game_mechanics_genetics", "vv_game_mechanics_catchup"}
+               "vv_game_mechanics_death", "vv_game_mechanics_genetics", "vv_game_mechanics_catchup"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -303,8 +303,14 @@ class ReleasesLinkTests(unittest.TestCase):
                                    "vv_fun_patcher"}),  # the patcher's own applied-patch check of the exe (function-level)
             ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename"}),
             # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
-            *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life"})
+            # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py).
+            *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
+                                            "vv_game_mechanics_death"})
               for n in range(1, 6)),
+            # Death and graves: the graves and Deaths log as Fix grave information reads them, the villagers as
+            # Last Names reads them, the record layouts of the people and clocks (all function-level).
+            ("vv_game_mechanics_death", {"vv_game_mechanics", "vv_graves", "vv_last_names",
+                                         "vv_game_mechanics_life"}),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout"}),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).

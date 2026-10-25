@@ -110,24 +110,28 @@ def _pending_lines(village: gm.Village, speed_value: int, entries: list[tuple[in
     most = max(int(counted(p, s) // unit) for p, s in entries)   # one shape for every save (the claims export)
     out.append(gm.Fact(G, (f"If it were played now each {who} would age by at most {most:,} age units ({most / 20:.2f} "
                            "villager years) at once, all worked through in the first update after it loads."), SAVE))
-    # The moments for the villagers last updated latest (the save's own last moment), the most of them.
-    stamps: dict[float, list[int]] = {}
+    # Each villager crosses the limits at its own moments (its own stamp and kept time), so the state is counted
+    # villager by villager, and the countdown is to the next crossing of any of them.  One sentence shape for every
+    # state (the claims export renders a save at two moments only).
+    in_full = cut = whole_day = 0
+    crossings: list[float] = []
     for p, s in entries:
-        stamps.setdefault(s, []).append(p)
-    stamp = max(stamps, key=lambda s: (len(stamps[s]), s))
-    pending = max(stamps[stamp])
-    full_at = stamp + full - pending
-    band_at = stamp + band_end - pending
-    if village.now < full_at:
-        out.append(gm.Fact(G, f"Time away counts in full until {gm.DUE}; from then until "
-                              f"{gm.when(band_at)} only {gm.duration(band, exact=True)} counts.", SAVE,
-                           due=full_at, due_kind="ends"))
-    elif village.now < band_at:
-        out.append(gm.Fact(G, f"Time away now counts as {gm.duration(band, exact=True)} until {gm.DUE}; from "
-                              f"then on as {gm.duration(over)}.", SAVE, due=band_at, due_kind="ends"))
+        total = p + max(0.0, village.now - s)
+        if total <= full:
+            in_full += 1
+        elif total <= band_end:
+            cut += 1
+        else:
+            whole_day += 1
+        crossings += [t for t in (s + full - p, s + band_end - p) if t > village.now]
+    out.append(gm.Fact(G, (f"Counted now, {who} by {who}: {in_full:,} in full, {cut:,} cut to "
+                           f"{gm.duration(band, exact=True)}, {whole_day:,} cut to {gm.duration(over)}."), SAVE))
+    if crossings:
+        out.append(gm.Fact(G, f"The next {who}'s time away crosses a limit at {gm.DUE}.", SAVE,
+                           due=min(crossings), due_kind="next"))
     else:
-        out.append(gm.Fact(G, f"Time away now counts as {gm.duration(over)} however much longer the game stays "
-                              "closed.", SAVE))
+        out.append(gm.Fact(G, f"Every {who}'s time away now counts as {gm.duration(over)}, however much longer the "
+                              "game stays closed.", SAVE))
     return out
 
 

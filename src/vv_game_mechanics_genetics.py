@@ -44,6 +44,7 @@ GENETICS = gm.GENETICS
 
 ORIGINS = "vv{}_enable_origins_exclusive_features"
 STORY = "vv{}_story_cheat_upgrades"
+GENETICS_PATCH = "vv1_genetics"
 
 # The later games' creator, its head roll and its body roll, the birth's call, and the twin copy.
 _LATER = {
@@ -71,6 +72,15 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
     then the patch; nothing said of a patch the game does not have)."""
     out = []
     g = village.game
+    if g == 1 and village.has(GENETICS_PATCH):
+        out.append(gm.Fact(GENETICS, (
+            f"With the patcher's \"{gm.feature_name(GENETICS_PATCH)}\" (in this game): a baby's head comes from "
+            "its parents as in the later games -- the father's and the mother's heads added and halved (dropping "
+            "any half), then -1, 0 or +1, one chance in 3 each; on 5 births in 100 the head the game rolled "
+            "instead. A boy stays within 0 to 18 (never the Golden Child's 19), a girl within 0 to 19. The "
+            "father is the one Show Parents recorded at the conception; when it knows none, the mother's head "
+            "alone. Twins and triplets share the first baby's head; bodies stay random. (\"VVFP VV1 "
+            "Genetics.dll\", at 0x43C647, for a birth's first child only.)"), gm.RUNNING))
     if village.has(ORIGINS.format(g)):
         out.append(gm.Fact(GENETICS, (
             f"With the patcher's \"{gm.feature_name(ORIGINS.format(g))}\" (in this game): Change Appearance on the "

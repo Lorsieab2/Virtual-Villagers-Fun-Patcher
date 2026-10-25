@@ -17,6 +17,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_death as death
 import vv_game_mechanics_life as life
 import vv_save_backup
 
@@ -164,6 +165,9 @@ HIDDEN_LINES = (
      '(75% with the Fire Pit burning, every one at Medicine 3 or on Easy), a fifth of that for the elderly.', gm.RUNNING),
     ('The Fire Pit burns 10, 20 or 33 hours 20 minutes on Fast, Normal or Slow; a drop on the lit pit fills it '
      'again; while it burns each research job gives 1 more tech point 10% of the time.', False),
+    # The owner (2026-10-24); the Cold Snap's apply 0x414BD0 ends the fire (tail jmp 0x432620 on 0x4D867C).
+    (gm.FIRE_OUT + " The Cold Snap island event (it needs the Fire Pit burning) puts it out.", gm.OWNER),
+    (gm.FIRE_CLOSED, gm.OWNER),
 )
 
 # Chance and timers (the coordinator's spec mech_vv4\\spec.md, "Chance and timers (v2.2)"):
@@ -259,8 +263,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "
                         "hours.", gm.RUNNING)
-    add("Collectibles", "Once the Mausoleum Mural set is complete, a buried villager's ghost brings a collectible every "
-                        "50 to 58 minutes (nothing if more than an hour overdue).", gm.RUNNING)
+    # A ghost is not a buried villager (the owner, 2026-10-24): it takes a random grave's looks (0x414110).
+    add("Collectibles", "Once the Mausoleum Mural set is complete, a ghost brings a collectible every 50 to 58 minutes "
+                        "(nothing if more than an hour overdue); what a ghost is: under Death and graves.", gm.RUNNING)
     add("Collectibles", "The four collections are the Fish Scale, Lab Equipment, Mausoleum Mural and Wind Flute sets; "
                         "ghost visits need the Mausoleum Mural set complete.", gm.RUNNING)
     add("Collectibles", "Fog increases collectible spawning if you have Wind Flute pieces collected.", gm.OWNER)
@@ -370,6 +375,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                    "on Hard, 2 more 76% of the time; never more on Easy; a snack below full health costs 1 more.",
         trips=[("blackberry picks", max(2, berries // 100)), ("fish in the net", 4), ("fruit stomps", 3)])
     out.extend(life.sections(ctx))
+    out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))
     return out
 
 

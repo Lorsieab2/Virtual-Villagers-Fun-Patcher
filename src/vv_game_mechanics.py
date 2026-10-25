@@ -51,8 +51,9 @@ TITLE = "Game Mechanics"
 # and clocks (src/vv_game_mechanics_life.py), then the rules.
 # Time away (catch-up) right after the sources (the owner, 2026-10-24: the most important topic, near the top).
 GROUPS = ("Vital statistics", "Sources", "Time away (catch-up)", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
-          "Food earned", "Island events", "Puzzles", "Golden Child",
-          "Hidden villager stats", "Chance and timers", "Other")
+          "Food earned", "Island events", "Death and graves", "Puzzles",
+          "Golden Child", "Hidden villager stats", "Chance and timers", "Other")
+DEATH = "Death and graves"            # src/vv_game_mechanics_death.py
 PUZZLES = "Puzzles"
 GOLDEN_CHILD = "Golden Child"                 # A New Home only: vv_game_mechanics_vv1.golden_child_facts
 # Every fact is a bullet under its heading; a sub-fact (a tree's planting, its fruit, ...) an indented dash under
@@ -70,9 +71,10 @@ LABEL_NOTE = ("UNCONFIRMED marks anything not yet confirmed by the owner in a ga
 # UNCONFIRMED until its reach from the game's own call paths is shown.
 # RUNNING: emulated AND traced from the game's own call paths with inputs the game supplies (a research
 # spec's reachability re-check, e.g. The Secret City's addendum 3).
-# CODE: read from the game's own reachable (live, non-dead) code at the addresses its module cites -- enough to
-# drop the label (the owner, 2026-10-24: "the game's own live (reachable, non-dead) code").
-SAVE, OWNER, CLAMP, RUNNING, CODE = "save", "owner", "clamp", "running", "code"
+SAVE, OWNER, CLAMP, RUNNING = "save", "owner", "clamp", "running"
+# CODE: read from the stock game's own reachable code (the owner, 2026-10-24: "the game's own live, reachable,
+# non-dead code" verifies a line), each address cited beside it in the module that writes the line.
+CODE = "code"
 TRUSTED = frozenset({SAVE, OWNER, CLAMP, RUNNING, CODE})
 
 # The games' speed values (src/vv_save_backup.py, "GAME SPEED"): real seconds per 6 game seconds.
@@ -185,6 +187,13 @@ def every(game_seconds: float, speed_value: int) -> str:
 
 
 PAUSED_NOTE = "The game was saved paused: nothing refills or grows until it is unpaused."
+# The owner (2026-10-24), The Lost Children to New Believers: the fire burns down while the game is closed when the
+# save was left unpaused, and not when it was saved paused.
+FIRE_CLOSED = ("While the game is closed the fire keeps burning down if the save was left unpaused; saved paused, "
+               "it does not burn down until the game is unpaused.")
+# The owner (2026-10-24), the same four games: the fire runs out only when its timer expires; rain and the weather
+# never touch it (an earlier line said rain and the Omen stopped it being lit: false).
+FIRE_OUT = "The fire goes out when its timer runs out; rain and the weather do not affect it."
 
 
 # ---------------------------------------------------------------------------
@@ -221,7 +230,7 @@ def old_age_line(thresholds: str, extra: str = "") -> Fact:
     a death roll at each whole year past the threshold in the hidden processed age.  The processed age is stepped
     up to the age inside one update (each game's life loop repeats until no one is behind: VV1 0x42F15C, VV2
     0x43C0B5, VV3 0x4605CE, VV4 0x468B09, VV5 0x47336A; src/vv_game_mechanics_catchup.py)."""
-    return Fact("Other", (
+    return Fact(DEATH, (
         f"Old age: at each whole year past {thresholds}, a death roll whose chance is 10% for each year over (100% "
         "at 10 years over). The roll follows a hidden processed age: time away adds to the age shown in the game, "
         "logs and graves at once, and the processed age is stepped up to it one age unit at a time within that same "
