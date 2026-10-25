@@ -265,7 +265,7 @@ class Timers(unittest.TestCase):
 
     def test_the_soonest_birth_counts_the_catch_up(self) -> None:
         """10 units left with no time away to work off comes after 15 left of which 20 are already counted (worked
-        off in about 30 seconds of catch-up)."""
+        off in the first update after loading: the whole catch-up runs in one update)."""
         import vv_game_mechanics_vv4 as vv4
         data = fixture(4)
         struct.pack_into("<i", data, vv4.SPEED, 6)
@@ -284,7 +284,7 @@ class Timers(unittest.TestCase):
         later = ln._cstr(data, second, 0x18)
         soonest = next(f for f in group(facts, life.VITALS) if f.text.startswith("Soonest birth:"))
         self.assertIn(later, soonest.text)
-        self.assertIn("while the village catches up", soonest.text)
+        self.assertIn("as soon as the village is next played: the catch-up works off", soonest.text)
         mothers = [f.text for f in group(facts, life.NURSING) if " age units to go" in f.text]
         self.assertTrue(mothers[0].startswith(later))
 

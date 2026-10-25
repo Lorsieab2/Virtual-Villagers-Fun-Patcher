@@ -271,6 +271,7 @@ FILES = [
     "src/vv_game_mechanics_life.py",
     "src/vv_game_mechanics_death.py",
     "src/vv_game_mechanics_genetics.py",
+    "src/vv_game_mechanics_catchup.py",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).

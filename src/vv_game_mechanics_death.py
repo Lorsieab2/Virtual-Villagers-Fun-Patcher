@@ -336,8 +336,10 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
         f"\"Disease\". How often {whom} fall sick is under Other.")
     add(f"Starvation: with 500 food or less a {who} loses 1 health on 15% of age units; with no food at all, by "
         "their hidden number (Hidden villager stats). Dying of it gives \"Starvation\".")
-    add("Work accident: 2% of research tries in play cost the researcher 0 to 9 health (never while the game "
-        "catches up); dying of it gives \"Work accident\".")
+    # The 2% roll runs while catching up too: the catch-up flag skips only the 10% lab accident (VV5 0x46DB80 ->
+    # 0x46DC67, VV4 0x464C3E -> 0x464BB0); The Secret City's roll has no test at all (0x45916D).
+    add("Work accident: 2% of successful research tries cost the researcher 0 to 9 health, in play and while the "
+        "game catches up; dying of it gives \"Work accident\".")
     add(c["events"])
     if game == 5:
         add("Heathens never age, eat or fall sick (the game runs none of that for them), so none of these reach "

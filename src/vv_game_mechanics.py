@@ -49,8 +49,9 @@ from pathlib import Path
 TITLE = "Game Mechanics"
 # Vital statistics first (the owner, 2026-10-24), then where the page's facts come from, then the village's people
 # and clocks (src/vv_game_mechanics_life.py), then the rules.
-GROUPS = ("Vital statistics", "Sources", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
-          "Food earned", "Time away and Time Warp", "Island events", "Death and graves", "Puzzles",
+# Time away (catch-up) right after the sources (the owner, 2026-10-24: the most important topic, near the top).
+GROUPS = ("Vital statistics", "Sources", "Time away (catch-up)", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
+          "Food earned", "Island events", "Death and graves", "Puzzles",
           "Golden Child", "Hidden villager stats", "Chance and timers", "Other")
 DEATH = "Death and graves"            # src/vv_game_mechanics_death.py
 PUZZLES = "Puzzles"
@@ -210,7 +211,7 @@ FIRE_OUT = "The fire goes out when its timer runs out; rain and the weather do n
 _VERIFIED_AWAY = {"full": {FAST: 38_200, NORMAL: 31_000, SLOW: 23_800}, "band_end": 86_400, "band": 31_000,
                   "over": 86_400}
 AWAY_LIMITS: dict[int, dict] = {game: _VERIFIED_AWAY for game in range(1, 6)}
-TIME_AWAY = "Time away and Time Warp"
+TIME_AWAY = "Time away (catch-up)"            # its game lines: src/vv_game_mechanics_catchup.py
 # The Origins Time Warp (every game, verified the same way): years credited per warp, by speed.  The
 # patcher's Expanded warps differ and are not shown until the owner settles them.
 TIME_WARP_YEARS = {FAST: 12, NORMAL: 6, SLOW: 3}
@@ -226,12 +227,15 @@ def time_warp_line(speed_value: int) -> Fact:
 
 def old_age_line(thresholds: str, extra: str = "") -> Fact:
     """The verified old-age rule (2026-10-23, all five games, emulated and checked against the owner's logs):
-    a death roll at each whole year past the threshold in the hidden processed age."""
+    a death roll at each whole year past the threshold in the hidden processed age.  The processed age is stepped
+    up to the age inside one update (each game's life loop repeats until no one is behind: VV1 0x42F15C, VV2
+    0x43C0B5, VV3 0x4605CE, VV4 0x468B09, VV5 0x47336A; src/vv_game_mechanics_catchup.py)."""
     return Fact(DEATH, (
         f"Old age: at each whole year past {thresholds}, a death roll whose chance is 10% for each year over (100% "
         "at 10 years over). The roll follows a hidden processed age: time away adds to the age shown in the game, "
-        "logs and graves at once, while the processed age catches up a step at a time, so the shown age can be "
-        "higher, by up to about 12 years after a long time away." + (f" {extra}" if extra else "")), RUNNING)
+        "logs and graves at once, and the processed age is stepped up to it one age unit at a time within that same "
+        "update, so every birthday of the time away gets its roll before the village is drawn again."
+        + (f" {extra}" if extra else "")), RUNNING)
 
 
 HIDDEN = "Hidden villager stats"
@@ -244,6 +248,11 @@ GROUPS = GROUPS[:GROUPS.index(HIDDEN) + 1] + (GENETICS,) + GROUPS[GROUPS.index(H
 def genetics_facts(village: "Village") -> list[Fact]:
     """The Genetics group for `village` (found by name, as each game's module is)."""
     return list(importlib.import_module("vv_game_mechanics_genetics").facts(village))
+
+
+def catchup_facts(village: "Village") -> list[Fact]:
+    """The game's own Time away (catch-up) lines (src/vv_game_mechanics_catchup.py, found by name)."""
+    return list(importlib.import_module("vv_game_mechanics_catchup").facts(village))
 
 
 def starvation_lines(village: "Village", delta: int, basis: str, totem_colour: bool = False) -> list[Fact]:
@@ -715,7 +724,7 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
         return [Fact("Other", "Nothing is shown for this game yet.")]
     facts = list(module.facts(village))
     if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
-        facts += genetics_facts(village)
+        facts += catchup_facts(village) + genetics_facts(village)
     if not facts:
         facts = [Fact("Other", "Nothing is shown for this game yet.")]
     facts = sources_lines(path, patches, village.notes) + facts
@@ -756,7 +765,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     village = Village(Path("."), game, 1, Path(f"{game}.ldw"), blank_save(game, now), None, now, general=True)
     module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     keep = []
-    for fact in list(module.facts(village)) + genetics_facts(village):
+    for fact in list(module.facts(village)) + catchup_facts(village) + genetics_facts(village):
         if fact.due is not None:
             continue                           # a moment of the empty save's village
         if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",
