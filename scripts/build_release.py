@@ -289,6 +289,7 @@ FILES = [
     "src/vv_titles_file.py",
     # Repair Saves & Logs' Reset corrupted skill values (the GUI imports it).
     "src/vv_corrupt_skills.py",
+    "src/vv_golden_child_revive.py",
     # Repair Saves & Logs' The Lost Children totem rows: Give Esteemed Elders Totems Retroactively and Fix
     # Rare Villager Turning Into Totem (the GUI imports it).
     "src/vv_vv2_totems.py",

@@ -249,8 +249,7 @@
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager, even when the arrows are clicked quickly; a name you type is still kept.",
         "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
-        "The Golden Child can't be picked by an island event that could kill him or make him disappear (he stays five and never heals); such an event picks one of the other villagers instead, and the rotting crate's rats pass him over when their bite would kill him.",
-        "Pick Island Event and Custom Island Event can still choose any villager you wish, the Golden Child included.",
+        "The game's own island events never pick the Golden Child for an outcome that could kill him or make him vanish; Pick Island Event and Custom Island Event still can.",
         "Nothing to click. On by default."
       ]
     },

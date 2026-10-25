@@ -161,7 +161,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info",
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
-               "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
+               "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_vv2_totems", "vv_vv2_totem_store",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
