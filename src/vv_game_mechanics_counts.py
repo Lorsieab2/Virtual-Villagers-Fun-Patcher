@@ -444,19 +444,22 @@ def vv4_lines(village: gm.Village) -> list[gm.Fact]:
     done = [name for pid, name in VV4_TREE_PUZZLES.items() if solved(pid)]
     out.append(gm.Fact(COUNTS, (
         f"The Tree of Life: stage {len(done)} of 5 -- one stage for each of The Stream, Pruning, Honoring, Purify and "
-        "Decorating solved (0x41F570; the tree's art tree-state-00 to 05)"
-        + (f"; solved: {', '.join(done)}." if done else "; none solved yet.")), False))
+        "Decorating solved (0x41F570 counts the puzzles 1, 12, 13, 14 and 15; the tree's art tree-state-00 to 05)"
+        + (f"; solved: {', '.join(done)}." if done else "; none solved yet.")), gm.RUNNING))
     levels = [_i32(data, VV4_TECHS + 4 * k) for k in range(6)]
-    if None not in levels:
+    if None not in levels:                         # the levels every Tree of Life rule on this page reads
         out.append(gm.Fact(COUNTS, "Tech levels: " + "; ".join(f"{n} {v}" for n, v in zip(VV4_TECH_NAMES, levels))
-                                   + " (tech points are one shared pool, not kept by area).", False))
+                                   + " (tech points are one shared pool, not kept by area).", gm.SAVE))
     blocked = _i32(data, VV4_STREAM_BLOCKED)
     if blocked is not None and 0 <= blocked <= 100:
-        out.append(gm.Fact(COUNTS, f"The stream: {blocked}% obstructed (the game's \"Stream obstruction percentage\").",
-                           False))
+        out.append(gm.Fact(COUNTS, f"The stream: {blocked}% obstructed (the game's \"Stream obstruction percentage\"; "
+                                   "where the save keeps it was matched on the owner's saves, not traced in the "
+                                   "game's save code).", False))
     if VV4_CLOTH < len(data):
         soap, cloth, tools = data[VV4_SOAP], data[VV4_CLOTH], _i32(data, VV4_TOOLS)
-        out.append(gm.Fact(COUNTS, f"On hand: {soap} soap bars, {cloth} cloth bolts, {tools} cutting tools.", False))
+        out.append(gm.Fact(COUNTS, f"On hand: {soap} soap bars, {cloth} cloth bolts, {tools} cutting tools (where the "
+                                   "save keeps them was matched on the owner's saves, not traced in the game's save "
+                                   "code).", False))
     out.append(gm.Fact(COUNTS, "Stews made, one by one: the patcher's Stews Found above counts the different ones "
                                "(cloth pulp and soap brews are stews too); the game's recipe book marks a recipe when it "
                                "is looked up, before the brew can still fail, so it is no count of stews made.",

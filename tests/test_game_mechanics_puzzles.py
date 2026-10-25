@@ -184,7 +184,8 @@ class Wording(Pages):
         self.assertIn("a brown mushroom worth 8 food, or 1 in 20 a red (rare) mushroom worth 45", self.text(1))
         self.assertIn("a brown mushroom worth 6 food, or 1 in 10 a red (rare) mushroom worth 35", self.text(2))
         self.assertIn("92% are brown mushrooms worth 6 food, 8% red (rare) mushrooms worth 35", self.text(3))
-        self.assertIn("brown 92% worth 6 food, red (rare) 8% worth 35", self.text(4))
+        # The Tree of Life: rand(100) < 8 red (0x413F8F), 6 or 35 food when picked (0x4145DE).
+        self.assertIn("brown 91.99% of the time, worth 6 food, red (rare) 8.01%, worth 35", self.text(4))
         self.assertIn("brown 92% worth 6 food, red (rare) 8% worth 35", self.text(5))
 
     def test_the_golden_child_never_starves(self) -> None:

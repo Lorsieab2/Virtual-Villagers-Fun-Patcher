@@ -478,8 +478,13 @@ class StewPots(unittest.TestCase):
             self.assertIn(words, code.text)
         self.assertTrue(facts[vv4.CANT_EAT_LINE].confirmed)
         text = gm.render(list(facts.values()))
-        self.assertIn("a ready stew is gone 5 real-life minutes later at every speed", text)
-        self.assertIn("then no stew for 10 real-life minutes", text)
+        self.assertIn("5 real-life minutes after the stew was made at every speed", text)
+        # The lock-out is that stew only, for that villager (0x45EB40); soapy x3 sets no sickness (0x41E0BC).
+        self.assertIn("that villager cannot eat that stew again for 10 real-life minutes", text)
+        self.assertNotIn("then no stew for 10 real-life minutes", text)
+        self.assertIn("(it does not make the villager sick)", text)
+        self.assertIn("spicy, soapy, soapy: \"Burping up soap bubbles\"", text)
+        self.assertNotIn("the soapy-stew reaction", text)
         self.assertNotIn("a stew keeps 5 minutes", text)
 
 
@@ -714,6 +719,58 @@ class EveryGame(unittest.TestCase):
                 facts = self.page(name, data=b"ldwg" + bytes(40))
                 self.assertEqual([f.group for f in facts if f.group != gm.SOURCES], ["Other"])
                 self.assertIn("could not be read", facts[-1].text)
+
+VV4_STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Tree of Life.exe"
+
+
+class TreeOfLifeAudit(unittest.TestCase):
+    """The Tree of Life's Game Mechanics lines audited against the stock exe (2026-10-25)."""
+
+    page = lambda self, name: EveryGame.page(self, name)  # noqa: E731
+
+    def code(self, at: int, count: int = 3) -> list[str]:
+        try:
+            import pefile
+            from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+        except ImportError:
+            self.skipTest("pefile and capstone are needed")
+        if not VV4_STOCK.is_file():
+            self.skipTest("the stock Tree of Life exe is not in research/stock-executables")
+        pe = pefile.PE(str(VV4_STOCK), fast_load=True)
+        image = pe.get_memory_mapped_image()
+        start = at - pe.OPTIONAL_HEADER.ImageBase
+        return [f"{i.mnemonic} {i.op_str}" for i in Cs(CS_ARCH_X86, CS_MODE_32).disasm(image[start:start + 32], at)][:count]
+
+    def test_skill_gain_divisors(self) -> None:
+        # (70 - skill) x magic >> 32 >> k: 0x38E38E39 >> 2 is ÷ 18, 0x66666667 >> 2 ÷ 10, 0x2AAAAAAB >> 1 ÷ 12.
+        for at, magic, shift, divisor in ((0x462CB7, 0x38E38E39, 2, 18), (0x4631C7, 0x38E38E39, 2, 18),
+                                          (0x4633F0, 0x38E38E39, 2, 18), (0x462EC2, 0x66666667, 2, 10),
+                                          (0x46304F, 0x2AAAAAAB, 1, 12)):
+            with self.subTest(at=hex(at)):
+                self.assertEqual(self.code(at), [f"mov eax, {magic:#x}", "imul ecx", f"sar edx, {shift}"])
+                for skill in range(0, 71):
+                    self.assertEqual(((70 - skill) * magic >> 32) >> shift, (70 - skill) // divisor)
+        text = text_of(self.page("vv4-huttest-1"))
+        self.assertIn("(70 - skill) ÷ 18 for Farming, Research and Building, ÷ 10 for Parenting and ÷ 12 for Healing",
+                      text)
+        self.assertNotIn("(70 - skill) ÷ 9", text)
+
+    def test_food_amounts_and_the_room(self) -> None:
+        self.assertEqual(self.code(0x464A3F, 2), ["push 0x37", "mov ecx, 0x4d6dd0"])      # a crab found: 55
+        self.assertEqual(self.code(0x436F0E, 2), ["push 0x23", "mov ecx, 0x4d6dd0"])      # the Mossy Rocks: 35
+        self.assertEqual(self.code(0x4683AA, 3), ["cmp esi, 0x14", "jne 0x4683b4", "mov esi, 0x19"])
+        self.assertEqual(self.code(0x464E63, 2), ["push 0x52", "mov ecx, 0x4cc838"])      # Lab Equipment pieces
+        self.assertEqual(self.code(0x4686DC, 1), ["mov byte ptr [esi + 0xc], al"])         # Easy cures
+        text = text_of(self.page("vv4-huttest-1"))
+        for words in ("A crab a villager finds (\"This villager found a crab!\") brings 55.",
+                      "A crab caught at the Mossy Rocks (\"Catching a crab\") brings 35.",
+                      "5 for each complete collection, 25 with all four",
+                      "0 to (Lab Equipment pieces found - 1) more",
+                      "Sickness never ends by itself, except on Easy: there a sick villager is cured on 25% of age units."):
+            self.assertIn(words, text)
+        for gone in ("Village & Tree Malaise", "Some effect", "not individually worked out", "the soapy-stew reaction"):
+            self.assertNotIn(gone, text)
+
 
 class InstalledPatches(unittest.TestCase):
     def test_report_lists_the_ids(self) -> None:
