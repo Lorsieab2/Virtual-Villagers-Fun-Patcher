@@ -1,4 +1,4 @@
-﻿"""Game Mechanics for The Lost Children (VV2): read-only lines from one save (src/vv_game_mechanics.py).
+"""Game Mechanics for The Lost Children (VV2): read-only lines from one save (src/vv_game_mechanics.py).
 
 THE SAVE.  A 12-byte header -- "ldwg", the clock's base (the village's creation, Unix seconds), the
 buffer's length -- then the game state from state+8 on: state offset S is file offset S + 4.  The clock

@@ -38,8 +38,8 @@ RESCUE = 15
 
 M = "m x"            # the amounts' multiplier (the module docstring)
 ADULT = "a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more)"
-WEATHER = ("weather for 180 to 359 game seconds (3 to 6 game minutes: half that in real time on Fast, 1 2/3 times "
-           "it on Slow)")
+WEATHER = ("weather for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes on Fast, Normal or Slow speed (paused "
+           "time does not count)")
 
 RULES = (
     Line("Timing: an event comes 8 to 15 whole real-life hours after the last (each of the 8 hour counts 1 in 8), at "
@@ -152,7 +152,7 @@ EVENTS = (
     Event("The Bitter Brown Beans (brew or fertilizer)", "needs Science technology level 2 or more and a living "
                                                          "villager of 18 to 49 not pregnant or nursing", (
         f"\"Try to brew the beans\": the tribe gains {M} 600 food and {M} 2,000 tech points (0x415A10).",
-        "\"Use the beans as fertilizer\": every fruit tree grown (planted 28,800 game seconds ago or more) is set "
+        "\"Use the beans as fertilizer\": every fruit tree grown (ready to pick: 8 real-life hours of play after planting on Normal speed, 4 on Fast, 13 hours 20 minutes on Slow) is set "
         "to 1,000 fruit (0x4340A0).")),
     Event("The Ancient Tablet (laundry or decoration)", "needs Science technology below level 2 and a living "
                                                         "villager of 18 to 49 not pregnant or nursing", (

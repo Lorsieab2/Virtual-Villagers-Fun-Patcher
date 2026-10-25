@@ -1,4 +1,4 @@
-﻿"""A New Home (VV1): every island event the game fires, its odds and outcomes (src/vv_game_mechanics_events.py).
+"""A New Home (VV1): every island event the game fires, its odds and outcomes (src/vv_game_mechanics_events.py).
 
 Read from the stock executable (research/stock-executables, inputs/vv1-stock-copy); state offsets are the world's
 (a save's file offset is 4 more).  The popup words are the game's own strings (the table the getter 0x433880 walks,
