@@ -208,8 +208,40 @@ def bodies(village: gm.Village) -> list[tuple[str, int]]:
 # body (+0x24); it carries the collectible.  With no graves no ghost is made.  The step at 0x46A7CC calls the same
 # spawn with 0 and never makes a ghost.
 
-VV_STAMP = 0x9C                                 # VV4/VV5: the body's stamp, from the name (save record +0xBC)
+
+# ---------------------------------------------------------------------------
+# The Secret City (VV3)
+# ---------------------------------------------------------------------------
+#
+# Health record +0xE78, cause +0xE7C (the object +0xE6C): set 0x462670, add 0x4626B0, the same clamp and cause rule.
+# Life tick 0x460030 (the same rules; old age at 0x4602E3, Medicine 0 to 3: 940 + 160 x Medicine age units, set 0 at
+# 0x46033C, cause 2).  Research 0x459191: 2% (0x459177) lose rand(10), cause 3.  Island events (outcome slot 11,
+# vtable start = its address - 0x2C), cause -1:
+#   The Ant Hill 0x416AC0 "Poke the ant hill with a stick" -(5 + rand(10)); Bed Bugs 0x416E20 "Swat it" sick,
+#   -(5 + rand(5)); The Mysterious Crate 0x417B00 "Open the crate" with its roll [+0x10] 1, -(10 + rand(20));
+#   Vanity and the Bee 0x417D50 "Run to the water" -(15 + rand(10)); The Daredevil 0x4190C0 "He swims with sharks"
+#   with its roll 1, -(5 + rand(6)); The Medical Emergency 0x417260 "Attempt the procedure" with its roll not 0,
+#   health set to 0 (0x4172E6);
+#   The Stinging Jellyfish 0x415220: every villager 50% (0x45D920 with 50, 10, 10) -(10 + rand(10)), cause 0;
+#   The Tsunami 0x414B30 -> 0x45D990(15, -1): every living villager 15% has the presence byte cleared -- gone, no
+#   body, no grave.
+#   Two other losses never kill: 0x426C9F -(35 + rand(35)) but never below 2; 0x430C3E -(30 + rand(40)), then 1 at 0.
+# Bodies: the AI 0x45C0BA: 34% of picks (rand(100) > 65), or always for the Tribal Chief (+0xE80); not sick (+0xE89),
+# not carrying (+0xE8C); the Chief goes to bury a body (0x45C950) whenever one lies (0x45C13D); others 14 or older:
+# 25% (0x45C191), else Healing (+0xEB4) 50 or more, 70% (0x45C1A9) -> behaviour 0x51 "Burying the dead" (0x4491F0,
+# registered at 0x454106).  The burial clears the presence (0x462293) and calls the writer 0x454FF0: 500 entries x
+# 0x30 (name, age +0x1C, job +0x20 by 0x462460 over five integer skills, strictly higher wins; Tribal Chief +0x28
+# from record +0xE80; Esteemed Elder +0x29 by 0x462570, three or more skills at 88 or more; cause +0x2C); only an
+# entry under 50 (0x455072) gets its gravestone (0x2C each: its place, the best value, the epitaph char[0x20]).
+# Epitaph 0x4550AC: under 360 0x2E1 "Curious and Playful" / 0x2E2 "Loving and Special" 50%; the Tribal Chief 0x2E4
+# "Wise and Beloved Chief"; an Esteemed Elder 0x2E3 "Esteemed Elder"; job table 0x4551E4: Farmer 0x2D7/0x2D8, Parent
+# 0x2DB/0x2DC, Doctor 0x2DD/0x2DE, Scientist 0x2D9/0x2DA, Builder 0x2DF/0x2E0; else 0x2D6 "Respected Citizen".
+# Removal 0x45F437: the same 240 age units (the stamp is health - 8, as in VV4 and VV5; the speed at +0x12F20; the
+# wall clock 0x403330 counts real seconds from the save's epoch).
+
+VV_STAMP = 0x9C                                 # VV3-VV5: the body's stamp, from the name (save record +0xBC)
 ROSTER = 500
+MORTALITY_VV3 = "vv3_nature_level_three_alters_mortality"
 
 LATER = {
     5: dict(
@@ -253,11 +285,32 @@ LATER = {
         elder="with all five skills at 88 or more, \"Scholar\"",
         farmer="Child Of the Earth", default="a villager with no skill, \"Respected Citizen\"",
     ),
+    3: dict(
+        who="villager", whom="villagers",
+        causes="Old age, Disease, Starvation, Work accident or Unknown causes",
+        game="The Secret City",
+        events=("Island events that can kill, \"Unknown causes\" unless said (their chances are under Island "
+                "events): The Ant Hill (\"Poke the ant hill with a stick\": 5 to 14 health), Bed Bugs (\"Swat it\": "
+                "sick and 5 to 9), The Mysterious Crate (\"Open the crate\" when it goes badly: 10 to 29), Vanity and "
+                "the Bee (\"Run to the water\": 15 to 24), The Daredevil (\"He swims with sharks\" when the crab "
+                "bites: 5 to 10), The Medical Emergency (\"Attempt the procedure\" when it fails: health to 0, always "
+                "fatal) and, \"Disease\", The Stinging Jellyfish (each villager 50%: 10 to 19)."),
+        burial_needs=("The Tribal Chief, whenever he is not sick and picks something to do, goes to bury a body if "
+                      "one lies. When any other"),
+        buriers="",
+        skills="Farming, Parenting, Healing, Research, Building",
+        jobs="Farmer, Parent, Doctor, Scientist or Builder", apprentice="",
+        elder=("the Tribal Chief, \"Wise and Beloved Chief\"; with three or more skills at 88 or more, \"Esteemed "
+               "Elder\""),
+        farmer="Child Of the Earth", default="a villager with no skill, \"Respected Citizen\"",
+    ),
 }
 
 
-def _later(village: gm.Village, medicine: int | None, speed_value: int, base: int) -> list[gm.Fact]:
-    """The Tree of Life's and New Believers' lines (the addresses above)."""
+def _later(village: gm.Village, medicine: int | None, speed_value: int, base: int,
+           nature: int = 0) -> list[gm.Fact]:
+    """The Secret City's, The Tree of Life's and New Believers' lines (the addresses above); `nature`: The Secret
+    City's Nature level (its patch moves the old-age rolls)."""
     c = LATER[village.game]
     game = village.game
     out: list[gm.Fact] = []
@@ -270,10 +323,14 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
     who, whom = c["who"], c["whom"]
     add(f"A {who} dies when their health (0 to 100) reaches 0. The grave's Cause of Death is the cause of the loss "
         f"that took it to 0, in the game's words: {c['causes']}. The game also has the words Act of Nature, but "
-        f"nothing in {c['game']} ever gives that cause.")
-    if medicine in (1, 2, 3):
+        "nothing in this game ever gives that cause.")
+    if medicine in ((0, 1, 2, 3) if game == 3 else (1, 2, 3)):
         start = 55 + 8 * (medicine - 1)
-        add(f"Old age in this village (Medicine level {medicine}): the first roll is at {start + 1} years "
+        later = ""
+        if game == 3 and nature >= 3 and village.has(MORTALITY_VV3):
+            start += 7
+            later = " and Nature level 3 with the patcher's mortality patch"
+        add(f"Old age in this village (Medicine level {medicine}{later}): the first roll is at {start + 1} years "
             f"(10%), and at {start + 10} years it is 100%; cause \"Old age\".", gm.SAVE)
     add(f"Disease: a sick {who} loses 1 health on 61% of age units (19% at 20 health or less); dying of it gives "
         f"\"Disease\". How often {whom} fall sick is under Other.")
@@ -285,6 +342,9 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
     if game == 5:
         add("Heathens never age, eat or fall sick (the game runs none of that for them), so none of these reach "
             "them; a Heathen grave is never made.", gm.OWNER)
+    if game == 3:
+        add("Leaving without dying: The Tsunami sweeps away every living villager with a 15% chance each: they "
+            "vanish, with no body and no grave (its chance is under Island events).")
     add("A mother who dies while nursing takes her babies with her: they were never villagers, so they leave no "
         "body and no grave.", gm.OWNER)
     if game == 5:
@@ -294,7 +354,7 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
             "their old-age rolls come (see God Powers).")
     # Bodies
     add(f"A body lies where the villager died until a {who} buries it (\"Burying the dead\") or the game removes it. "
-        f"{c['burial_needs']} a {who} of 14 or more who is not sick or carrying picks something to do, 34% of the "
+        f"{c['burial_needs']}{' a' if game != 3 else ''} {who} of 14 or more who is not sick or carrying picks something to do, 34% of the "
         "picks look for a body: they go to bury the lowest-numbered one 25% of the time, or 77.5% of the time with "
         f"Healing 50 or more.{c['buriers']}")
     add("A body nobody buries is removed with no grave once 240 age units (12 villager years) of real time have "
@@ -319,6 +379,9 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
     # Graves
     add("A burial writes the villager into the Roster of the Dead, 500 places. With all 500 used, a burial still "
         "takes the body but writes nothing: no grave. Nothing in the game ever removes a grave.")
+    if game == 3:
+        add("Only the first 50 graves of the Roster of the Dead get a gravestone, and only a gravestone has an "
+            "epitaph: graves 51 to 500 have none.")
     add("Age at Death: the age the villager showed when they died (ages stop at death). It can be higher than "
         "the hidden processed age the old-age roll follows, after time away.")
     add("Cause of Death: the game's own, kept from the moment health reached 0 (above), shown on the grave in "
@@ -371,5 +434,5 @@ def facts(village: gm.Village, **kw) -> list[gm.Fact]:
     """The Death and graves lines for `village`'s game: VV4 and VV5 take medicine, speed_value and base (the
     save's clock base, Unix seconds)."""
     if village.game in LATER:
-        return _later(village, kw.get("medicine"), kw["speed_value"], kw["base"])
+        return _later(village, kw.get("medicine"), kw["speed_value"], kw["base"], kw.get("nature", 0))
     return []

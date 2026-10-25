@@ -52,7 +52,7 @@ def stock(game: int) -> tuple[bytes, int] | None:
 
 
 class Group(unittest.TestCase):
-    GAMES = {5: ("vv5-huttest-1", "vv5-256-1"), 4: ("vv4-huttest-1", "vv4-256-1")}
+    GAMES = {5: ("vv5-huttest-1", "vv5-256-1"), 4: ("vv4-huttest-1", "vv4-256-1"), 3: ("vv3-huttest-1", "vv3-256-1")}
 
     def test_every_game_has_the_group_in_order(self) -> None:
         self.assertIn(gm.DEATH, gm.GROUPS)
@@ -149,6 +149,24 @@ class StockCodeVV4(StockCode):
         self.assertEqual(self.at(0x465889, 3), bytes.fromhex("83F841"))          # 34% of picks
         self.assertEqual(self.at(0x414221, 5)[:1], b"\xE8")                      # ghost: rand(graves)
         self.assertEqual(self.at(0x466401, 7), bytes.fromhex("C686C71C000001"))  # the ghost byte
+
+class StockCodeVV3(StockCode):
+    """The stock bytes behind The Secret City's lines."""
+
+    def setUp(self) -> None:
+        found = stock(3)
+        if found is None:
+            self.skipTest("the stock Secret City executable is not here")
+        self.img, self.base = found
+
+    def test_the_rules_bytes(self) -> None:
+        self.assertEqual(self.at(0x45F43D, 5), bytes.fromhex("3DF0000000"))      # 240 age units
+        self.assertEqual(self.at(0x455072, 3), bytes.fromhex("83FF32"))          # a gravestone under 50
+        self.assertEqual(self.at(0x4550E3, 5), bytes.fromhex("B8E4020000"))      # the Chief's epitaph
+        self.assertEqual(self.at(0x45C0C4, 3), bytes.fromhex("83F841"))          # 34% of picks
+        self.assertEqual(self.at(0x45C191, 3), bytes.fromhex("83F819"))          # 25%
+        self.assertEqual(self.at(0x45D9CD, 4), bytes.fromhex("3BC57D03"))        # the Tsunami's roll
+        self.assertEqual(self.at(0x45D9D1, 3), bytes.fromhex("C60600"))          # ...clears presence
 
 
 if __name__ == "__main__":
