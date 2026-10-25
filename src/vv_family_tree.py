@@ -5049,15 +5049,16 @@ def status_descriptors(lay: Layout, p: gen.Person) -> list[str]:
 
 def descriptors(lay: Layout, p: gen.Person) -> list[str]:
     """The descriptors after the age (the owner, 2026-10-22: "villagers get auto-denoted with special descriptors
-    if applicable"): Founder, Runner, twins and triplets, how they arrived, the jobs they are a Master of, and
-    their special villager statuses -- each where it applies and its option is ticked."""
+    if applicable"): Founder, Runner, twins and triplets, how they arrived, and their special villager statuses --
+    each where it applies and its option is ticked.  Never "Master Farmer", "Master Builder"... (the owner,
+    2026-10-25: "you do NOT have to put Master Farmer, Builder, Scientist, Parent etc on the family tree, just the
+    labels I said"); show_masters is kept only so older trees still read."""
     v = lay.village
     out = ["Founder"] if lay.opt(p, "show_founder") and is_founder(v, p) else []      # the owner, 2026-10-09
     out += ["Runner"] if lay.opt(p, "show_runner") and p.runner else []             # likes running (2026-10-10)
     out += born_with(lay, p)
     arrived = arrival_words(v, p) if lay.opt(p, "show_arrived") else ""
     out += [arrived] if arrived else []
-    out += [f"Master {job}" for job in getattr(p, "masters", [])] if lay.opt(p, "show_masters") else []
     return out + [s for s in status_descriptors(lay, p) if s not in out]
 
 
@@ -5065,8 +5066,7 @@ def descriptors(lay: Layout, p: gen.Person) -> list[str]:
 DESCRIPTOR_OPTIONS = (("show_founder", "Founder (the village's founders)"),
                       ("show_runner", "Runner (villagers who like running)"),
                       ("show_twins", "Twins and triplets (\"Kalea's twin\")"),
-                      ("show_arrived", "How they arrived (\"Arrived: Shipwreck\")"),
-                      ("show_masters", "Master of a skill (\"Master Farmer\")"))
+                      ("show_arrived", "How they arrived (\"Arrived: Shipwreck\")"))
 
 
 def status_options(edits: Edits, village: gen.Village) -> list[tuple[str, bool]]:
