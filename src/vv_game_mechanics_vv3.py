@@ -149,6 +149,23 @@ HIDDEN_LINES = (
     # so it also runs out while the game is closed, as the save's deadline shows.
     ('The campfire goes out when its timer runs out; rain and the weather do not affect it. Four trips of water '
      'for the Ash Key put a lit fire out.', gm.OWNER),
+    # The Cold Snap (cond 0x415100) needs the fire burning and only sets the weather; no event ends the fire.
+    ('No island event in this game puts the fire out: The Cold Snap needs it burning and leaves it lit.',
+     gm.RUNNING),
+    (gm.FIRE_CLOSED, gm.OWNER),
+    # Breeding age (the owner, 2026-10-25): nobody under 18 breeds, but the owner has seen The Lovers choose a
+    # teenager.  The code: every embrace checks both ages >= 360 (0x45854C..0x458565), the partner search too
+    # (0x45CE3F, 0x45CE51); The Lovers' conditions 0x416ED0 / 0x417050 pick both lovers with 0x45D460 mode 2,
+    # age [+0xDC4] 360..999 and the woman not carrying (0x45D4CC..0x45D4EF), never the chief (arg 3); the knife
+    # (0x416F8B) or flowers (0x41710A) gives both +25 Breeding and calls 0x4582A0, which conceives at once
+    # (0x455AB0: room check 0x45FE30, no conception roll, no age check).
+    ("Breeding age: no villager under 18 has children, but the owner has seen The Lovers island event choose a "
+     "teenager.", gm.OWNER),
+    ("The Lovers in the game's code: both lovers are picked only from villagers of 18 to 49.95 villager years "
+     "(360 to 999 age units), the woman not pregnant or nursing, neither one the Tribal Chief; if she carves the "
+     "knife or he gives the flowers, both gain 25 Breeding and she conceives at once when there is room for a "
+     "baby, with no conception roll and no age check of its own. Every other embrace needs both villagers 18 "
+     "or older.", gm.RUNNING),
     ('The Ash Key: no timer and no chance. The fire must have burned 61 hours on Normal in all (30.5 on Fast, '
      '101.7 on Slow): a burnout counts its whole burn, wood added counts the time burned so far, water counts '
      'nothing, paused time nothing. Then 12 trips of water (the 4th puts a lit fire out; while it burns, 10 '

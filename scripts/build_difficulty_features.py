@@ -118,7 +118,12 @@ GAMES = {
              "the click handler: the Game Speed areas' top y+0x16B -> y+0x1CF"),
             ("0x41B68C", "8DB890010000", "8DB8F4010000",
              "the click handler: the Game Speed areas' bottom y+0x190 -> y+0x1F4"),
+            ("0x41AA82", "83E80F", "83E823",
+             "the Done button (the constructor): its gap above the frame's bottom 0x0F -> 0x23, The Tree of "
+             "Life's own, so it sits clear of the frame's bottom bar"),
         ],
+        "done": "The Done button sits 20 pixels higher than in the stock dialog, clear of the frame's "
+                "bottom bar as in The Tree of Life (not yet checked in a live game). ",
     },
 }
 
@@ -133,6 +138,7 @@ def description(game: dict) -> str:
         "radio buttons, words and font; Game Speed moves down a row and the dialog's frame grows by "
         "whole tiles, so the whole dialog stays on the screen with everything in it where it was. "
         "The choice is saved with the village. "
+        + game.get("done", "")
         + " ".join(LEVELS) + " "
         "**The starting food only changes for a village made after you pick the level; the other "
         "rules follow the level at once.** "
