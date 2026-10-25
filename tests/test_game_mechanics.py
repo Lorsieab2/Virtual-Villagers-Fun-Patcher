@@ -471,9 +471,14 @@ class StewPots(unittest.TestCase):
             self.assertEqual(shows, f"{minutes}:{rest:02d}")
         self.assertTrue(facts[vv4.GRATE_LINE].confirmed)
         self.assertEqual(vv4.GRATE_LINE, "The pot can be emptied by dropping a villager on the grate.")
-        reheat = facts[vv4.REHEAT_LINE]
-        self.assertFalse(reheat.confirmed)                    # "some stews": not settled by the code
-        self.assertIn("starts its 5 real-life minutes over", reheat.text)
+        self.assertTrue(facts[vv4.REHEAT_LINE].confirmed)     # the owner's word
+        code = facts[vv4.REHEAT_CODE_LINE]
+        self.assertTrue(code.confirmed)                       # 0x42EAA7, 0x42DC80, 0x42EA61, 0x42EE1D, 0x42F240
+        for words in ("each hot rock adds 10 heat", "the Grand Feast at 20 with its 4 feast items",
+                      "the two salt-water mixes (soapy x3, pulpy vines x3) need no heat",
+                      "stays hot for 10 real-life minutes on Normal speed (5 on Fast, 16 minutes 40 seconds on Slow)",
+                      "starts its 5 real-life minutes over; nothing limits how often"):
+            self.assertIn(words, code.text)
         self.assertTrue(facts[vv4.CANT_EAT_LINE].confirmed)
         text = gm.render(list(facts.values()))
         self.assertIn("a ready stew is gone 5 real-life minutes later at every speed", text)
