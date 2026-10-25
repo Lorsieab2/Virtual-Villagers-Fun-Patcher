@@ -521,17 +521,23 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
             f"(10%), and at {start + 10} years it is 100%.", gm.SAVE)
     if game == 1:
         add("Disease: a sick villager loses 1 health on 71% of age units (22% at 20 health or less).")
-        add("Starvation: with 200 food or less a villager loses 1 health on 50% of age units; with no food at all on "
-            "76% (every one on Hard).")
+        # The meal 0x42EC94..0x42ECC8 and the empty store 0x42ED0C..0x42ED46 are separate: with the food at 0 both
+        # can cost 1 health in the same age unit.
+        add("Starvation: with 200 food or less a villager skips the meal on 49.95% of age units and loses 1 health "
+            "each time; when the food is at 0 after the meal it loses 1 more on 76.05% of age units (every one on "
+            "Hard), so with no food it can lose 2 in one age unit.")
         add("Work accident: 2% of building steps cost 0 to 14 health, 2% of research steps 0 to 9.")
-        add("Island events that can kill or remove a villager (from the patcher's island-event research; their "
-            "chances are under Island events): The Strange Berries (one result of tasting them: the villager dies), "
-            "The Wild Mushroom (poisoned: sick and 25 to 49 health), A Mysterious Crate of rotting fruit (rats bite "
-            "20%, 30% or 45% of villagers: sick and 10, 15 or 20) and of old fruit (spiders: the finder loses 40, 70 "
-            "or 110); The Mysterious Face (\"take a closer look\": the villager can be never seen again) and The Book "
-            "(reading it: the villager can vanish) leave no body and no grave.", False)
-        add("The Golden Child never starves, falls sick or dies of old age; how island events can still kill him "
-            "or make him vanish, and the patches that change it, is under Golden Child.")
+        # The outcomes and their addresses are in src/vv_game_mechanics_events_vv1.py.
+        add("Island events that can kill or remove a villager (each outcome and its chance is under Island events): "
+            "The Strange Berries (\"Taste\": dies 49% of the time), The Suspicious Monkey (scaring it: 50 health), "
+            "The Wild Mushroom (poisoned: sick and 25 to 49 health), the rotting crate (bitten: sick and 10, 15 or "
+            "20 health; its opener 15 more) and the old fruit crate (its opener 40, 70 or 110 health); The "
+            "Mysterious Face (\"Get a closer look.\": 51% never seen again, or always when the village has no room) "
+            "and The Book (\"Read the book.\": never seen again) leave no body and no grave.")
+        add("The Black Pearl's \"Share the treasure with the tribe.\" adds 5 to 9 health to every unburied body as "
+            "well as to the living, so a body at 0 health gets up a living villager again (see Island events).")
+        add("The Golden Child never starves, never loses health to sickness and never dies of old age; how island "
+            "events can still kill him or make him vanish, and the patches that change it, is under Golden Child.")
     else:
         add("Disease: a sick villager loses 1 health on 61% of age units (19% at 20 health or less).")
         add("Starvation: with 150 food or less a villager loses 1 health on 15% of age units; with no food at all, "

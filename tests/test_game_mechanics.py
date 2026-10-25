@@ -657,10 +657,42 @@ class EveryGame(unittest.TestCase):
         struct.pack_into("<i", data, vv1.BUSH, 1300)
         struct.pack_into("<i", data, vv1.SPEED, 6)
         text = text_of(self.page("vv1-huttest-1", data=bytes(data)))
-        self.assertIn("Berry bush: 1,300; a pick takes 10 from it now", text)
-        self.assertIn("The berry bush grows 30 every 4 hours on Normal speed", text)
-        self.assertIn("Each villager eats 2 food every 6 minutes on Normal speed (20 an hour)", text)
+        self.assertIn("Berry bush: 1,300; a pick brings 10 food now and takes as much from the bush", text)
+        self.assertIn("The berry bush grows 30 every 4 hours of real-life play on Normal speed", text)
+        self.assertIn("Each villager eats 2 food every age unit (6 minutes of real-life play on Normal speed, 20 food "
+                      "per real-life hour)", text)
         self.assertNotIn("Collectibles\n  A New Home has collectibles", text)
+
+    def test_vv1_audit(self) -> None:
+        """The A New Home audit (2026-10-25, the stock exe): the skill gain is (50 - skill) x 2 / 10, / 9 for Healing
+        (0x43D814); research never lacks Science (every technology starts at 1, 0x41C43E); the Golden Child regains
+        health on the food store and from The Black Pearl, which also lifts bodies (0x41A050); a crab is 21.02%
+        (0x43F4C3); the crop field never stays past 800 (0x42F2C5); duplicates of other groups are gone."""
+        data = bytearray(gzip.decompress((FIXTURES / "vv1-huttest-1.ldw.gz").read_bytes()))
+        import vv_game_mechanics_vv1 as vv1
+        struct.pack_into("<i", data, vv1.SPEED, 6)
+        facts = self.page("vv1-huttest-1", data=bytes(data))
+        text = text_of(facts)
+        self.assertIn("and by (50 - skill) x 2 ÷ 9 for Healing: 10 at skill 0 (Healing 11)", text)
+        self.assertNotIn("Research gives no tech points", text)
+        self.assertIn("Health does come back two ways", text)
+        self.assertIn("instead catches a crab worth 55 food 21.02% of the time", text)
+        self.assertIn("which the game cuts back to 800 within 2 real-life seconds", text)
+        self.assertIn("a body at 0 health (old age, sickness, hunger", text)
+        self.assertNotIn("not yet worked out", text)
+        self.assertNotIn("save every 10 minutes", text)
+        # The autosave (the owner, 2026-10-25; 0x41BFC0 -> 0x41BF70), and the Sources line agrees with it.
+        self.assertIn("if 10 real-life minutes have passed since the program started or since its last autosave", text)
+        self.assertIn("The game writes it when it is closed normally and by its autosave", text)
+        self.assertNotIn("never regains. See", text)
+        groups = {(f.group, f.text.split(":")[0]) for f in facts}
+        self.assertNotIn(("Food sources", "Food in storage"), groups)
+        self.assertNotIn(("Tech points and effects", "Tech points"), groups)
+        self.assertNotIn(("Mushrooms", "Mushrooms found in this village"), groups)
+        self.assertNotIn(("Island events", "Island events seen in this village"), groups)
+        golden = [f.text for f in facts if f.group == "Hidden villager stats" and f.text.startswith("The Golden Child")]
+        self.assertEqual(len(golden), 1)              # the owner's line; the rest is under Golden Child
+        self.assertFalse([f for f in facts if f.group == "Puzzles" and "solved" in f.text and not f.confirmed])
 
     def test_vv2_values(self) -> None:
         import vv_game_mechanics_vv2 as vv2

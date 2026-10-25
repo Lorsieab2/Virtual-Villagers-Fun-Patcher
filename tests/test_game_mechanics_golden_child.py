@@ -44,8 +44,9 @@ class GoldenChild(unittest.TestCase):
         facts = page(self, 1, fixture(1))
         text = gm.render(facts)
         self.assertNotIn("special action", text)
-        self.assertIn("The Golden Child's cave timer: 36 real hours after his birth, at any speed; see Golden Child.",
-                      text)
+        # Real-life wording (the 2026-10-25 audit: every time says real-life or in-game).
+        self.assertIn("The Golden Child's cave timer: 36 real-life hours after his birth, at any speed; see Golden "
+                      "Child.", text)
         self.assertIn("The 36-hour action is the Cave Opening.", text)
 
     def test_the_chances_follow_the_rolls(self) -> None:
@@ -64,9 +65,12 @@ class GoldenChild(unittest.TestCase):
         self.assertIn("12 hours on Fast or Normal and 10 hours on Slow", rules)
 
     def test_only_the_unproven_lines_are_unconfirmed(self) -> None:
+        # The Start Over line was the last unproven one; the 2026-10-25 audit read it in the exe (the new-village
+        # set-up 0x41C38A..0x41C39E clears every puzzle flag, his 0xA008 included), so none is left.
         unconfirmed = [line for line, ok in vv1.GOLDEN_CHILD_LINES if ok not in gm.TRUSTED]
-        self.assertEqual(len(unconfirmed), 1)
-        self.assertTrue(unconfirmed[0].startswith("Start Over"))
+        self.assertEqual(unconfirmed, [])
+        new_village = next(ok for line, ok in vv1.GOLDEN_CHILD_LINES if line.startswith("A new village (Start Over)"))
+        self.assertEqual(new_village, gm.CODE)
         leave = next(line for line, ok in vv1.GOLDEN_CHILD_LINES if line.startswith("How he can leave:"))
         self.assertIn("In the original game island events can pick him", leave)
         self.assertNotIn("being added", leave)

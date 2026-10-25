@@ -29,8 +29,9 @@ THE SCHEDULER (0x4237BD; the conditions report docs/reports/island-event-conditi
   * A body: health 0 or less makes the villager a body at the villager update (0x438921); burial (0x448F65)
     and the removal of an unburied body after 240 age units (0x42E9A2 -> 0x42E9C3) clear only the present
     byte +0x28.  "Never seen again" (The Mysterious Face, The Book) clears +0x28 at once: no body, no grave.
-  * The Golden Child never regains health (his age-unit step is skipped, 0x42EC74 with the age lock
-    0x42EB70), so an event's health losses on him add up; at 0 he dies like anyone.
+  * The Golden Child never regains health in the age-unit step (it is skipped, 0x42EC74 with the age lock
+    0x42EB70); only eating on the food store (0x4243F3) and The Black Pearl's share (0x41A050) give it back, so
+    an event's health losses on him otherwise add up; at 0 he dies like anyone.
 """
 from __future__ import annotations
 
@@ -65,8 +66,10 @@ RULES = (
          "villager years. Choosing a button applies the result at once. Every \"N%\" is the game's test "
          "rand(100) < N: the C runtime's random number (0 to 32,767) modulo 100, which makes it N% to within 0.07 "
          "percentage points."),
+    # His health comes back only by eating on the food store (0x4243F3) and The Black Pearl's share (0x41A050).
     Line("The Golden Child and these events: see the Golden Child group, which lists every event that can pick him "
-         "and what it does to him (he never regains health, so a loss stays)."),
+         "and what it does to him (his health comes back only by eating on the food store or The Black Pearl, so a "
+         "loss otherwise stays)."),
     Line("With the patcher's \"Fix Vanilla Bugs\" (in this game): no natural island event with a result that kills "
          "or removes its villager can pick the Golden Child (the picker 0x43BCD0 passes over him for those events); "
          "a Pick Island Event or Custom Island Event may still pick him, by design (the owner).", only_with=FIX),
@@ -168,8 +171,14 @@ EVENTS = (
              "and the losses add up."),
         "\"Discard the mushroom.\": nothing changes.")),
     Event("The Black Pearl", "an encounter, always possible", (
+        # The share loops over all 256 records (0x41A050..0x41A09B) with no test of the present byte or the health,
+        # and a record that is present with health above 0 is a living villager (0x428510..0x42851C); burial
+        # (0x448F3D) and the removal (0x42E96D) take only records at 0 health or less.
         "\"Share the treasure with the tribe.\": every villager gains 5 to 9 health (each rolled 1 in 5 for "
-        "each villager), up to 100, and the village celebrates (0x41A000).",
+        "each villager), up to 100, and the village celebrates (0x41A000). The game adds it to every unburied body "
+        "too: a body at 0 health (old age, sickness, hunger, The Strange Berries, the floored losses) is a living "
+        "villager again with 5 to 9 health; a body below 0 health (research injuries, the rotting crate's opener and "
+        "the old fruit crate have no floor) comes back only when the 5 to 9 lifts it above 0.",
         "\"Keep the pearl hidden.\": the villager's first two dislikes become crowds and work (dislike slots 1 "
         "and 2 overwritten: 1 and 42 in the game's list, string 0xD6) (0x41A0B5).")),
     Event("The Dream", "an encounter, always possible", (

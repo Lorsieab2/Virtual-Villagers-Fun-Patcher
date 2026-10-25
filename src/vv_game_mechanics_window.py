@@ -137,8 +137,8 @@ def save_status(save: Path | None, running: bool) -> str:
     except OSError:
         return f"The save {save.name} could not be read."
     if running:
-        return (f"The game is running: values are from the last save at {written}. The games save only when "
-                "they are closed normally.")
+        return (f"The game is running: values are from the last save at {written}. The games save when they are "
+                "closed normally, and A New Home also autosaves (see its Chance and timers).")
     return f"The save was last written {written}."
 
 
