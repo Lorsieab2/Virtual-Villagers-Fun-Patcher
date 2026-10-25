@@ -127,9 +127,10 @@ def bodies(village: gm.Village) -> list[tuple[str, int]]:
 #   research 0x46DC91: 2% of tries (rand(100) < 2, 0x46DC71) lose rand(10) = 0 to 9, cause 3 Work accident;
 #   island events, cause -1 (each outcome is the event's vtable slot 11; its choice A = 0, B = 1):
 #     The Bed Bugs 0x4156A0: "Let it go" -15 (0x4156C5); "Search for the bugs all night" -5 only above 6 health
-#       (0x4156EF) and sick;
+#       (0x4156EF), no sickness (0x4156E7-0x415725 sets none; corrected 2026-10-25);
 #     You're Doing It Wrong! 0x416020: "Teach them to reduce explosions." when it explodes, -(10 + rand(20));
-#     The Missing Kids 0x416120: "Yell for help", both children -5 and sick;
+#     The Missing Kids 0x416120: "Yell for help", both children -5 and marked sick (a Heathen's mark does nothing:
+#       the life tick skips Heathens);
 #     The Cracked Mask 0x416BB0: "Attempt to fix the mask", -(20 + rand(11));
 #     The Stinging Wasps 0x415160 (condition 0x415B10 always false: never in the stock game): every villager
 #       50% (0x470BF0 with 50, 10, 10) to lose 10 + rand(10), cause 0 Disease;
@@ -250,9 +251,10 @@ LATER = {
         game="New Believers",
         events=("Island events that can kill, all \"Unknown causes\" (their chances are under Island events): The "
                 "Bed Bugs (\"Let it go\": 15 health), You're Doing It Wrong! (\"Teach them to reduce explosions.\" "
-                "when it explodes: 10 to 29), The Missing Kids (\"Yell for help\": both children lose 5 and fall sick) "
-                "and The Cracked Mask (\"Attempt to fix the mask\": 20 to 30). The Bed Bugs' \"Search for the bugs "
-                "all night\" takes 5 only above 6 health, so it never kills, but it makes them sick."),
+                "when it explodes: 10 to 29), The Missing Kids (\"Yell for help\": the believer child loses 5 and "
+                "falls sick) and The Cracked Mask (\"Attempt to fix the mask\": 20 to 30). The Bed Bugs' \"Search for "
+                "the bugs all night\" takes 5 only above 6 health, so it never kills, and it sets no sickness "
+                "(0x4156E7-0x415725)."),
         burial_needs="Nobody buries anyone before The Buried Mausoleum is solved. After that, when",
         buriers=" Heathens never bury.",
         skills="Farming, Parenting, Healing, Research, Building, Devotion",
@@ -342,8 +344,8 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
         "game catches up; dying of it gives \"Work accident\".")
     add(c["events"])
     if game == 5:
-        add("Heathens never age, eat or fall sick on their own (the game runs none of that for them), so none of "
-            "these reach them; a Heathen grave is never made.", gm.OWNER)
+        add("Heathens never age, eat or fall sick (the game runs none of that for them), so none of these reach "
+            "them; a Heathen grave is never made.", gm.OWNER)
     if game == 3:
         add("Leaving without dying: The Tsunami sweeps away every living villager with a 15% chance each: they "
             "vanish, with no body and no grave (its chance is under Island events).")

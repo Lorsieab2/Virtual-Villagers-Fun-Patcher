@@ -151,10 +151,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         f"÷ 100, at least 2, before Food Mastery), and takes as many noni. Noni can be picked once the "
                         "granary is built (while catching up, also only once The Hungry Totem is solved: see Time away "
                         "(catch-up)).", gm.RUNNING)
-    # Job step 13 (0x46D057) takes min(noni, 30) at once; no job or event that queues it was found.
-    add("Food sources", f"The job code also has a noni gathering that would bring {min(noni, 30)} at once (the noni, "
-                        "up to 30; step 13 at 0x46D057), but no job or event that uses it was found, so whether it can "
-                        "ever happen is not proven.")
+    # Job step 13 (0x46D057, min(noni, 30) at once) is inherited code nothing in New Believers queues: never listed
+    # (the owner: inherited unused things stay off the page).
     crops = _i32(data, CROPS)
     harvest = {gm.FAST: 10, gm.NORMAL: 7, gm.SLOW: 4}[speed]
     add("Food sources", f"Hydroponic Farm crops: {crops:,} of {CROPS_FULL}; a harvest gives {harvest} food on {on} speed "

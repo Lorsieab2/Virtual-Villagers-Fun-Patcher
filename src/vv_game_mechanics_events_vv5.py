@@ -137,7 +137,12 @@ EVENTS = (
         "condition at 0x415FDD).",
         "\"There are a lot of them; better not!\": +500 tech points (0x4160A4).")),
     Event("The Missing Kids", f"needs {CHILD} and {HEATHEN_CHILD}", (
-        "\"Yell for help\": the child and the Heathen child each -5 health and both fall sick (0x4161D1).",
+        # 0x4161D1 also sets the Heathen child's sick flag, but the life tick skips Heathens (0x472CB7), so in play it
+        # costs that child nothing; its one effect is the pickers' "not sick" test (the owner, 2026-10-25: show what
+        # happens in play, not a flag).
+        "\"Yell for help\": the child loses 5 health and falls sick; the Heathen child loses 5 health and does not "
+        "fall ill, as Heathens never fall sick, but from then on it is no longer picked by the events that need a "
+        "Heathen child who is not sick (0x4161D1).",
         "\"Try to help the heathen\": Devotion +10 for the child, the Heathen child's Faith +10 (0x41620E).")),
     Event("Outreach?", f"needs {BELIEVER} of 14 or more and a Heathen of 14 or more who is not sick (the envoy)", (
         "\"Offer a tour\": the envoy's Faith +20, the believer's Devotion +20, the stored food loses 25 and -800 "

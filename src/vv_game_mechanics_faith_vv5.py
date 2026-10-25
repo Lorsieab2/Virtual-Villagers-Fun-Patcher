@@ -82,11 +82,14 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "Island events: their own amounts (see Island events)."):
         add(text, sub=True)
     if village.has(HEATHEN_MOMMY) is True:
-        add(f"With \"{gm.feature_name(HEATHEN_MOMMY)}\" (in this game): solving the Heathen Mommy's puzzle sets her "
-            "Faith to 50 to 59, each equally likely, which brings her into the tribe (0x43979C).", sub=True)
-    add("Heathens: they never age, eat, fall sick on their own or gain Divine Energy, while catching up or otherwise (the "
-        "life tick skips them, 0x472CB7; The Missing Kids can mark a Heathen child sick, 0x4161D1, which then does "
-        "nothing to it); their details can't be viewed (\"You cannot view details about heathens. They do not "
+        add(f"With \"{gm.feature_name(HEATHEN_MOMMY)}\" (in this game): a new village's Heathen Mommy starts "
+            "carrying one baby whose father is \"Unknown\", a name with head 2 and body 2 and no villager behind it "
+            "(see Genetics); solving the Heathen Mommy's puzzle sets her Faith to 50 to 59, each equally likely, which brings her "
+            "into the tribe (0x43979C).", sub=True)
+    # The owner's words (2026-10-25: "Heathens never fall sick" is true in play): the life tick skips them, so a
+    # sick mark an island event sets on one has no effect (The Missing Kids' own line says so).
+    add("Heathens: they never age, eat, fall sick or gain Divine Energy, while catching up or otherwise (the life tick "
+        "skips them, 0x472CB7); their details can't be viewed (\"You cannot view details about heathens. They do not "
         "believe in you.\"). Becoming a Heathen clears a villager's role, even the Retired Chief's (0x4669F5); "
         "joining the tribe clears it too, except the Retired Chief's (0x466966).")
     add("Heathens never count in the tribe's population or in any statistics row (see Village counts).", gm.OWNER,
