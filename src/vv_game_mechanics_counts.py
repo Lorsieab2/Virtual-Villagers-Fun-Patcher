@@ -250,12 +250,17 @@ def vv2_lines(village: gm.Village) -> list[gm.Fact]:
         elders = None
     try:
         import vv_vv2_totem_store as store_mod
-        statues = [ln._cstr(data, at, totems.NAME_CAP) for _k, at in store_mod.statues_in_save(data)]
+        places = [at for _k, at in store_mod.statues_in_save(data)]
+        statues = [ln._cstr(data, at, totems.NAME_CAP) for at in places]
         stored: list[str] = []
         try:
             store = store_mod.read(village.folder, village.slot)
             if store is not None and store_mod.bound(store, data):
-                stored = [t.name for t in store.totems]
+                # A totem both in the save and in the file (a save restored after a move, or a move cut short) is
+                # one statue: the same identity test Put Totems Back uses (same_statue), never the name alone.
+                in_save = [store_mod._entry_at(data, at) for at in places]
+                stored = [t.name for t in store.totems
+                          if not any(store_mod.same_statue(t.entry, e) for e in in_save)]
         except Exception:  # noqa: BLE001 -- an unreadable store is said, never guessed at
             stored = []
     except Exception:  # noqa: BLE001
@@ -289,6 +294,105 @@ VV3_CHIEF_NOTE = ("Tribal Chiefs over time: the patcher's Chiefs Robed row above
                   "stays chief until death).")
 
 
+# The Alchemy Lab's recipe book: a 0x68-byte block in the save (its save slot 0x430110), one byte per recipe and the
+# count (77) at +0x64; the owner's saves hold it at file offset 0x120BA.
+VV3_BOOK, VV3_RECIPES = 0x120BA, 77
+VV3_COMBOS = (                                     # herb a, b, c, potion; the recipe register 0x430480, in order
+    (0x23, 0x23, 0x23, 12), (0x23, 0x23, 0x21, 10), (0x23, 0x23, 0x22, 25), (0x23, 0x23, 0x1F, 36),
+    (0x23, 0x23, 0x20, 17), (0x23, 0x23, 0x24, 37), (0x23, 0x23, 0x25, 26), (0x23, 0x21, 0x22, 21),
+    (0x23, 0x21, 0x1F, 8), (0x23, 0x21, 0x20, 11), (0x23, 0x21, 0x24, 30), (0x23, 0x21, 0x25, 32),
+    (0x23, 0x22, 0x1F, 2), (0x23, 0x22, 0x20, 2), (0x23, 0x22, 0x24, 2), (0x23, 0x22, 0x25, 2),
+    (0x23, 0x1F, 0x20, 38), (0x23, 0x1F, 0x24, 1), (0x23, 0x1F, 0x25, 32), (0x23, 0x20, 0x24, 5),
+    (0x23, 0x20, 0x25, 4), (0x21, 0x21, 0x21, 35), (0x23, 0x21, 0x21, 17), (0x21, 0x21, 0x22, 0),
+    (0x21, 0x21, 0x1F, 18), (0x21, 0x21, 0x20, 9), (0x21, 0x21, 0x24, 29), (0x21, 0x21, 0x25, 29),
+    (0x21, 0x22, 0x1F, 23), (0x21, 0x22, 0x20, 24), (0x21, 0x22, 0x24, 2), (0x21, 0x22, 0x25, 3),
+    (0x21, 0x1F, 0x20, 15), (0x21, 0x20, 0x24, 19), (0x21, 0x20, 0x25, 19), (0x21, 0x1F, 0x24, 20),
+    (0x21, 0x1F, 0x25, 20), (0x22, 0x22, 0x22, 31), (0x23, 0x22, 0x22, 20), (0x21, 0x22, 0x22, 20),
+    (0x22, 0x22, 0x1F, 8), (0x22, 0x22, 0x20, 20), (0x22, 0x22, 0x24, 27), (0x22, 0x22, 0x25, 0),
+    (0x22, 0x1F, 0x20, 6), (0x22, 0x1F, 0x24, 23), (0x22, 0x1F, 0x25, 23), (0x22, 0x20, 0x24, 0),
+    (0x22, 0x20, 0x25, 39), (0x1F, 0x1F, 0x1F, 7), (0x23, 0x1F, 0x1F, 7), (0x21, 0x1F, 0x1F, 0),
+    (0x22, 0x1F, 0x1F, 34), (0x1F, 0x1F, 0x20, 0), (0x1F, 0x1F, 0x24, 0), (0x1F, 0x1F, 0x25, 33),
+    (0x1F, 0x20, 0x24, 0), (0x1F, 0x20, 0x25, 0), (0x20, 0x20, 0x20, 19), (0x23, 0x20, 0x20, 40),
+    (0x21, 0x20, 0x20, 9), (0x22, 0x20, 0x20, 21), (0x1F, 0x20, 0x20, 0), (0x20, 0x20, 0x24, 14),
+    (0x20, 0x20, 0x25, 13), (0x24, 0x24, 0x24, 16), (0x25, 0x25, 0x25, 22), (0x23, 0x24, 0x24, 5),
+    (0x23, 0x25, 0x25, 2), (0x21, 0x24, 0x24, 5), (0x21, 0x25, 0x25, 2), (0x22, 0x24, 0x24, 28),
+    (0x22, 0x25, 0x25, 28), (0x1F, 0x24, 0x24, 21), (0x1F, 0x25, 0x25, 21), (0x20, 0x24, 0x24, 5),
+    (0x20, 0x25, 0x25, 0),
+)
+# The herbs (carried items 0x1F..0x25, eCarrying_Herb1..7 in the exe) by the names the patcher's Both Factions row
+# gives them (docs/vv3-both-factions.md).
+VV3_HERBS = {0x1F: "Tiger Lily", 0x20: "Cactus", 0x21: "Lotus", 0x22: "Black Orchid", 0x23: "Rose",
+             0x24: "Pitcher Plant", 0x25: "Berry Plant"}
+# Each product: what the drinker says (the game names a potion by nothing else; string ids 0x19D..0x1CC, eSay...) and
+# what it does -- the effect switch 0x4268F0 (jump table 0x426E6C), the say shown by its tail 0x426B47.  How long the
+# effect is kept is the deadline the switch writes (0x403330 real-life seconds; 600 or 300; 1 = at once; 0 = no
+# deadline), and a villager cannot drink a potion whose effect is still kept (0x4583A0).  Health losses stop at 2
+# (0x426CB6 -> 0x462670); "18 or older" is 360 age units (0x426A58, 0x426AE7, 0x426C7F: younger, nothing happens and
+# nothing is said).  Actions are named by the status their handler shows.
+VV3_POTIONS = {
+    0: ("Nasty! It's bitter.", "nothing happens"),
+    1: ("Oh no, hiccups!", "a puff of the game's effect 7 at the villager (0x429400), nothing else"),
+    2: ("Oh, it burns!", "3 to 6 health lost, never below 2"),
+    3: ("{He/She} feels smarter.", "for 10 real-life minutes skill tries succeed at skill + 66% instead of + 33% "
+                                  "(0x45A300)"),
+    4: ("{He/She} has scientific clarity.", "for 10 real-life minutes each research session pays 1 more tech point "
+                                           "(0x4593FB)"),
+    5: ("{He/She} feels better.", "cured of sickness"),
+    6: ("Must exercise!", "goes \"Doing exercise\""),
+    7: ("Whee! What a fun potion!", "picks a pastime at once (0x45B9B0; 16.02% of the time none)"),
+    8: ("{He/She} feels woozy.", "goes \"Feeling faint\""),
+    9: ("{He/She} feels much healthier!", "25 to 59 health back (with stored food under 100: \"This potion works better "
+                                         "when the tribe is eating well.\" and 5 to 14); kept 10 real-life minutes"),
+    10: ("{He/She} has happy feet!", "goes \"Dancing\" (not a villager who dislikes dancing)"),
+    11: ("{He/She} feels light and springy!", "jumps 4 times as high for 5 real-life minutes (0x426A39; undone "
+                                            "0x426F17)"),
+    12: ("{He/She} feels romantic!", "18 or older: goes to embrace a partner the game finds (0x45AF00 -> 0x45CE00), "
+                                    "when there is one"),
+    13: ("{He/She} is freezing!", "goes \"Trying to get warm\""),
+    14: ("{He/She} is way too hot!", "goes \"Trying to cool off\""),
+    15: ("{He/She} suddenly feels very hungry!", "goes \"Eating\""),
+    16: ("{He/She} is all itchy!", "goes \"Itchy\""),
+    17: ("{He/She} feels fertile.", "18 or older: for 5 real-life minutes conception's roll is 50 easier (0x458682)"),
+    18: ("Oh no, hiccups!", "\"Hic!\" now and, for 10 real-life minutes, every time the villager picks what to do next "
+                           "(0x45C023)"),
+    19: ("{He/She} feels better.", "10 to 14 health back (with stored food under 100: \"This potion works better when "
+                                  "the tribe is eating well.\" and 2 to 6); kept 10 real-life minutes"),
+    20: ("{He/She} has a stomachache.", "5 to 9 health lost, never below 2"),
+    21: ("That potion was awful.", "falls sick"),
+    22: ("...can't move...", "goes \"Paralyzed\""),
+    23: ("{He/She} has got to go!", "goes \"Nature is calling!\""),
+    24: ("Is everyone else slowing down?", "walks at speed 300 (100 usually) for 5 real-life minutes (0x4572D9, "
+                                          "0x45760B)"),
+    25: ("{He/She} feels kind of down.", "goes \"A little bit lonely\""),
+    26: ("(nothing is said)", "goes \"Carrying vial to ocean\"; kept with no time limit"),
+    27: ("(nothing is said)", "goes \"Carrying vial to ocean\"; kept with no time limit; this vial is the one The Sharks "
+                             "puzzle answers (0x4365C7)"),
+    28: ("So sleepy...", "goes \"Needs to lie down\""),
+    29: ("{He/She} feels a trance coming on.", "goes \"Having an epiphany\""),
+    30: ("{He/She} feels very fertile.", "18 or older: for 5 real-life minutes conception's roll is 100 easier "
+                                        "(0x458699)"),
+    31: ("Yikes!", "35 to 69 health lost, never below 2"),
+    32: ("Yummy!", "nothing happens"),
+    33: ("Whoa!", "moved at once to another spot (0x4230C0)"),
+    34: ("{He/She} feels tired...", "goes \"Needs to sit down\""),
+    35: ("{He/She} feels a trance coming on.", "goes \"In a trance\""),
+    36: ("Stinky breath!", "\"Stinky breath!\" now and, for 10 real-life minutes, every time the villager picks what "
+                          "to do next (0x45C073)"),
+    37: ("That tasted soapy", "\"That tasted soapy\" now and, for 10 real-life minutes, every time the villager picks "
+                             "what to do next (0x45C09A)"),
+    38: ("Blannesamagawa loomajoobamooga!!", "the same words now and, for 10 real-life minutes, every time the villager "
+                                            "picks what to do next (0x45C04C)"),
+    39: ("Who turned out the lights?!", "goes \"Who turned out the lights?!\""),
+    40: ("Something smells YUMMY!", "every villager goes \"Something smells YUMMY!\" (0x45E0C0)"),
+}
+
+
+def vv3_potion(product: int) -> str:
+    """A potion in words: what the drinker says, then what it does."""
+    say, does = VV3_POTIONS[product]
+    return (say if say.startswith("(") else f"\"{say}\"") + f": {does}"
+
+
 def vv3_lines(village: gm.Village) -> list[gm.Fact]:
     out: list[gm.Fact] = []
     everyone = _people(village)
@@ -297,11 +401,23 @@ def vv3_lines(village: gm.Village) -> list[gm.Fact]:
         out.append(gm.Fact(COUNTS, ("Tribal Chief now: " + ", ".join(chiefs) + "." if chiefs
                                     else "Tribal Chief now: none."), gm.SAVE))
     out.append(gm.Fact(COUNTS, VV3_CHIEF_NOTE, gm.OWNER, sub=True))
+    book = VV3_BOOK
+    if book + 0x68 <= len(village.data) and _i32(village.data, book + 0x64) == VV3_RECIPES:
+        known = [k for k in range(VV3_RECIPES) if village.data[book + k] == 1]
+        combos = "; ".join(" + ".join(VV3_HERBS[h] for h in VV3_COMBOS[k][:3]) + " -> " + vv3_potion(VV3_COMBOS[k][3])
+                           for k in known)
+        out.append(gm.Fact(COUNTS, (
+            f"Potion recipes discovered: {len(known)} of the {VV3_RECIPES} herb combinations"
+            + (f" ({combos})" if known else "") + ". The Alchemy Lab's book keeps one byte for each combination, set "
+            "the first time a brew of it does not blow up (0x430AAC -> 0x430510) and saved (0x430110; file offset "
+            "0x120BA). A potion has no name in the game: it is shown by what the drinker says, and its effect is the "
+            "game's own (0x4268F0)."), gm.SAVE))
+    else:
+        out.append(gm.Fact(COUNTS, "Potion recipes discovered: the Alchemy Lab's book could not be read from this "
+                                   "save.", gm.SAVE))
     out.append(gm.Fact(COUNTS, (
-        "Potions and stews: the Alchemy Lab's recipe book (0x59454C) keeps one byte for each of its recipes, set by "
-        "0x430510 after a brew succeeds, and the game saves it (0x430110); every successful cauldron product, a "
-        "potion included, is a stew for the patcher's Stews Found above. This page does not read the book: where in "
-        "the save it lies is not worked out, so no list of the recipes is shown."), False))
+        "Every successful cauldron product, a potion included, is a stew for the patcher's Stews Found above."),
+        gm.RUNNING, sub=True))
     out.append(gm.Fact(COUNTS, "Potions brewed, counted one by one: not kept by the game's statistics or the patcher.",
                        False))
     return out

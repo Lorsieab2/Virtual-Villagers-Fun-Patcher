@@ -172,7 +172,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_chances_vv2", "vv_game_mechanics_chances_vv3", "vv_game_mechanics_chances_vv4",
                "vv_game_mechanics_chances_vv5", "vv_game_mechanics_events", "vv_game_mechanics_events_vv1",
                "vv_game_mechanics_events_vv2", "vv_game_mechanics_events_vv3", "vv_game_mechanics_events_vv4",
-               "vv_game_mechanics_events_vv5"}
+               "vv_game_mechanics_events_vv5", "vv_game_mechanics_faith_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -317,7 +317,7 @@ class ReleasesLinkTests(unittest.TestCase):
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
                                        "vv_game_mechanics_death", "vv_game_mechanics_powers_vv5",
-                                       "vv_game_mechanics_events"}),
+                                       "vv_game_mechanics_events", "vv_game_mechanics_faith_vv5"}),
             ("vv_game_mechanics_powers_vv5", {"vv_game_mechanics"}),
             # Death and graves: the graves and Deaths log as Fix grave information reads them, the villagers as
             # Last Names reads them, the record layouts of the people and clocks (all function-level).
@@ -338,6 +338,8 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Time away (catch-up) group: the speed as Back Up Saves finds it, the villagers as Last Names
             # reads them (function-level).
             ("vv_game_mechanics_catchup", {"vv_game_mechanics", "vv_save_backup", "vv_last_names"}),
+            # New Believers' Faith and Heathens group: the villagers (function-level).
+            ("vv_game_mechanics_faith_vv5", {"vv_game_mechanics", "vv_game_mechanics_life"}),
             # Village counts: the statistics log's place, the villagers, the Esteemed Elders' totems, The Tree of
             # Life's puzzles (all function-level).
             ("vv_game_mechanics_counts", {"vv_game_mechanics", "vv_game_mechanics_life", "vv_last_names",

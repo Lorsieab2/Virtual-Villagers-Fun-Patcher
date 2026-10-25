@@ -19,6 +19,7 @@ import struct
 import vv_game_mechanics as gm
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
+import vv_game_mechanics_faith_vv5 as faith
 import vv_game_mechanics_life as life
 import vv_game_mechanics_powers_vv5 as powers
 import vv_save_backup
@@ -42,11 +43,7 @@ LIFE_LINES = (
     ("A believer who is not sick regains 1 health half the age units, 75% while the fire burns, every one at "
      "Medicine 3 or on Easy; old villagers a fifth of that. At 500 food or less a believer loses 1 health 15% of "
      "age units.", gm.RUNNING),
-    ("Belief each age unit: down 37% with food under 10, 10% at 250 or less, 15% when sick, (12 - believers)% "
-     "under 12 believers; up 20% at 8,000 food or more, 30% with the Idol, 10% or 20% at statue stage 1 or 2, "
-     "10/20/30% at Spirituality 1/2/3, (believers ÷ 5)% at 12 or more. A drop is skipped half the time below "
-     "belief 5, a rise 70% of the time above 75.", gm.RUNNING),
-    ("A believer turns heathen at belief 0 or less; a new villager's starting faith is 30 to 59.", False),
+    ("Faith: how it rises and falls, and Heathens, are in the Faith and Heathens group.", gm.RUNNING),
     ("Conception after an embrace: (Breeding - 50 + 50 x Medicine level + 1) in 300 (17%, 33% or 50% at Breeding "
      "50); the village's first is certain; a mother of 50 or more never conceives. At Medicine 3: 93% single, "
      "5.3% twins, 1.8% triplets.", gm.RUNNING),
@@ -61,7 +58,7 @@ HIDDEN_LINES = (
     ("Each villager's hidden name number (1 to 183, not inherited; a name always has the same one) sets how it "
      "starves; the villagers' numbers are below.", gm.RUNNING),
     ("Preaching to a heathen: the preacher's Devotion check (35% at Devotion 0, 83% at 50, sure at 88) gives "
-     'the heathen 3 belief, 4 at Devotion 50, 5 at 88; then that heathen cannot be preached to for 2 hours '
+     'the heathen 3 Faith, 4 at Devotion 50, 5 at 88; then that heathen cannot be preached to for 2 hours '
      '(the 800-energy God Power sets the same wait).', gm.RUNNING),
     ('Liking learning makes a skill check succeed at skill + 66% instead of + 33% (+ 15 or + 30 at Learning 2 '
      'or 3); disliking it, + 16%. A success gains (70 - skill) ÷ 18 (Parenting ÷ 10, Healing ÷ 12), at least 7 '
@@ -107,7 +104,7 @@ CHANCE_EXTRA = (
     ('104 rolls are verified: every one in the groups above.', gm.RUNNING),
     ('About 2,250 more rolls (where villagers walk, how long they wait or animate, sounds and voices, pickers, '
      'God Power side effects, child and leisure choices): not individually worked out.', False),
-    ('Spreading the Word gives a random heathen 30 belief and marks them for 2 hours; the Earthquake marks '
+    ('Spreading the Word gives a random heathen 30 Faith and marks them for 2 hours; the Earthquake marks '
      'every heathen the same way.', False),
     ('Timers: an age unit 3, 6 or 10 minutes; noni +2 at the same pace; crops every 2 hours, 4 hours or 6 '
      'hours 40 minutes; the next island event 15 minutes, then 30 minutes, then 8 to 15 hours; weather 1.5 to '
@@ -189,6 +186,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "1,500 tech points from the second.", gm.RUNNING)
     add("Collectibles", "The Earthquake God Power drops one collectible 10 real-life seconds after it is cast: 72% "
                         "uncommon, 28% rare (see God powers).", gm.RUNNING)
+    add("Collectibles", "The Earthquake also raises every villager's Faith by 2 to 8.")
 
     # -- Tech points and Divine Energy ---------------------------------------------------
     add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
@@ -291,6 +289,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         trips=[("noni picks", max(2, noni // 100)), ("crop harvests", harvest if farm else 0), ("fish", 4)])
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))
+    out.extend(faith.lines(village))
     return out
 
 
