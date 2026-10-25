@@ -195,6 +195,64 @@ FIRE_CLOSED = ("While the game is closed the fire keeps burning down if the save
 # never touch it (an earlier line said rain and the Omen stopped it being lit: false).
 FIRE_OUT = "The fire goes out when its timer runs out; rain and the weather do not affect it."
 
+# The autosave (the owner, 2026-10-25: "Games autosave"), read in each stock exe (2026-10-25): the same
+# 600-second check in all five, (check -> the save writer, the field the next autosave time is kept in):
+#   VV1 0x41BFC0 -> 0x41BF70, [0xADEC]; VV2 0x424C40 -> 0x424C00, [0x305AC]; VV3 0x427DD0 -> 0x427D90,
+#   [0x12FD0]; VV4 0x41F1A0 -> 0x41F160, [0x171C0]; VV5 0x424660 -> 0x424620, [0x17E34].
+# The check: when time() (VV1 0x401E10, VV2 0x401EA0, VV3 0x401ED0, VV4 0x402150, VV5 0x402100 -- the C
+# library's time(), the computer's clock in whole seconds) has reached the kept time, it sets it to time() + 600
+# (0x258) and runs the save writer.  The program's start-up sets the first one 600 seconds on (VV1 0x41D484,
+# VV2 0x426610, VV3 0x428B1B, VV4 0x41FE26, VV5 0x425913).  The check is the last step of the game object's
+# per-frame update (its vtable slot 0x1C: VV1 0x41B350 at 0x41B8BD, VV2 0x423D70 at 0x424394, VV3 0x427720 at
+# 0x427B40, VV4 0x41E640 at 0x41EB52, VV5 0x423AF0 at 0x424002), which the main loop (VV1 0x402690) runs
+# with the frame's drawing on every pass while the program is open; VV3 to VV5 skip it only while the start-up
+# loading screen is still on its first six steps.  No speed or pause test: real-life time.  The writer is the
+# one the menus' quit paths call (VV1 0x413635, 0x41418D): the slot list (slot 0), then, with a slot chosen,
+# the slot's save and its slot + 20 copy.  (An earlier VV1 line said the check came only at a screen switch:
+# the function is the per-frame update, not a screen switch.)
+
+
+def autosave_line(game: int) -> str:
+    """The autosave, the same in all five games (`game` kept for the callers), in each Chance and timers group.  The
+    files are named by their endings: the start of each name is the game's title (src/vv_tribe_rename.py)."""
+    return ("Autosave: while the game is open it checks the computer's clock on every frame, and once 10 real-life "
+            "minutes have passed since the program started or since its last autosave it saves: the slot list (the "
+            "save file ending \"0.ldw\") and, once a village has been chosen, that village's save (ending "
+            "\"<slot>.ldw\") and its second copy (ending \"2<slot>.ldw\"). The 10 minutes are real-life time at every "
+            "speed, so they "
+            "count while the game is paused too. Quitting normally saves the same files; closing the game any other "
+            "way (a crash, ending the program) loses only what happened since the last autosave.")
+
+
+SAVES_WHEN = "when it is closed normally and every 10 real-life minutes by its autosave (see Chance and timers)"
+
+# Every patcher Time Warp (the Origins upgrade, and each step of Choose Time Skip Amount) moves the game's clock
+# on by moving the clock's start (its epoch) back by the warp's real-life seconds (native/vv1_origins_icons
+# vv1_time_warp_apply, vv2_origins_icons, vv3_full_mastery_candidate, vv4_origins_icons, vv5_task9_origins).
+# Every moment the save keeps on that clock (the village's start, a puzzle's completion, a timer) is dated from
+# the clock's start, so one kept BEFORE a warp comes out earlier than its real moment by every warp made after
+# it, and the save keeps no count of the warps (no field, no log), so the real moment cannot be worked back.
+# What is dated after the last warp, the last save, and timers still to come are right.
+WARP_IDS = {game: (f"vv{game}_enable_origins_exclusive_features", f"vv{game}_story_cheat_upgrades")
+            for game in range(1, 6)}
+
+
+def warp_dates_note(village: "Village", group: str, what: str) -> "Fact | None":
+    """What `what` (the start date, the puzzle dates) means when the patcher's Time Warp may be in the game; None
+    when it is known not to be (then every date is real)."""
+    states = [village.has(feature) for feature in WARP_IDS.get(village.game, ())]
+    if village.general or not states or all(state is False for state in states):
+        return None
+    which = ("This game has the patcher's Time Warp" if any(state is True for state in states)
+             else "If this game has the patcher's Time Warp (whether it does could not be told)")
+    return Fact(group, (
+        f"{which}: each Time Warp (and each step of Choose Time Skip Amount) moves the game's clock on by its "
+        "real-life length (12 hours on Fast or Normal, 10 on Slow) by moving the clock's start back, and "
+        f"{what} read on that clock. A date from before a Time Warp is therefore earlier than the real moment by "
+        "the total length of the Time Warps made after it; the save keeps no count of them, so the real date "
+        "cannot be worked out from it. A date after the last Time Warp, the last save and the timers still to "
+        "come are real."), CODE)
+
 
 # ---------------------------------------------------------------------------
 # Time away (catch-up)
@@ -225,14 +283,21 @@ def time_warp_line(speed_value: int) -> Fact:
         "paused."), CLAMP)
 
 
-def old_age_line(thresholds: str, extra: str = "") -> Fact:
+def old_age_line(thresholds: str, hundred: str, extra: str = "", who: str = "villager") -> Fact:
     """The verified old-age rule (2026-10-23, all five games, emulated and checked against the owner's logs):
     a death roll at each whole year past the threshold in the hidden processed age.  The processed age is stepped
     up to the age inside one update (each game's life loop repeats until no one is behind: VV1 0x42F15C, VV2
-    0x43C0B5, VV3 0x4605CE, VV4 0x468B09, VV5 0x47336A; src/vv_game_mechanics_catchup.py)."""
+    0x43C0B5, VV3 0x4605CE, VV4 0x468B09, VV5 0x47336A; src/vv_game_mechanics_catchup.py).  The one full copy:
+    Chances points here (the roll's rand(100) sites, VV1 0x42EEBC, VV2 0x43BDA5, VV3 0x4602F9, VV4 0x46873F, VV5
+    0x47300A, stay in each game's chances table).  `hundred`: the ages the chance reaches 100%."""
+    import vv_game_mechanics_chances as chances
+    odds = "; ".join(f"{years} year{'s' if years > 1 else ''} over {chances.chance(chances.below(100, 10 * years))}"
+                     for years in (1, 2, 5, 7))
     return Fact(DEATH, (
-        f"Old age: at each whole year past {thresholds}, a death roll whose chance is 10% for each year over (100% "
-        "at 10 years over). The roll follows a hidden processed age: time away adds to the age shown in the game, "
+        f"Old age: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 on Normal, 3 real-life hours "
+        f"20 minutes on Slow) past {thresholds}, a death roll: the {who} dies when a roll of 0 to 99 is under 10 x "
+        f"the years over, so the chance is 10% for each year over ({odds}; 100% from 10 years over, at "
+        f"{hundred}). The roll follows a hidden processed age: time away adds to the age shown in the game, "
         "logs and graves at once, and the processed age is stepped up to it one age unit at a time within that same "
         "update, so every birthday of the time away gets its roll before the village is drawn again."
         + (f" {extra}" if extra else "")), RUNNING)
@@ -739,15 +804,13 @@ SOURCES = "Sources"
 
 def sources_lines(save: Path, patches: PatchSource, notes: list[str], game: int = 0) -> list[Fact]:
     """Where the page's facts come from (the owner, 2026-10-23): the save and when it was last written (a game saves
-    on a clean quit, so while it runs the save can be behind it), the game's exe and where its patch list was
-    read, the patcher's per-save files the page read, and every disagreement between them.  A New Home also
-    autosaves (the owner, 2026-10-25; vv_game_mechanics_vv1.AUTOSAVE)."""
+    on a clean quit and by its 10-minute autosave, so while it runs the save can be behind it), the game's exe and
+    where its patch list was read, the patcher's per-save files the page read, and every disagreement between
+    them.  Every game autosaves (the owner, 2026-10-25; autosave_line)."""
     out = []
     try:
         written = when(save.stat().st_mtime)
-        when_written = ("when it is closed normally and by its autosave (see Chance and timers)" if game == 1
-                        else "only when it is closed normally")
-        out.append(Fact(SOURCES, f"The save: {save}, last written {written}. The game writes it {when_written}, so "
+        out.append(Fact(SOURCES, f"The save: {save}, last written {written}. The game writes it {SAVES_WHEN}, so "
                                  "while it is being played the values here can be behind it.", SAVE))
     except OSError:
         out.append(Fact(SOURCES, f"The save: {save}.", SAVE))

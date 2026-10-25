@@ -240,18 +240,20 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events -------------------------------------------------------------------
-    add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
+    add("Island events", "When the next natural island event comes: under Village timers.", gm.SAVE)
     out.extend(events.facts(village))          # the catalog (src/vv_game_mechanics_events_vv5.py)
 
     # -- Other ---------------------------------------------------------------------------
     for line, ok in HIDDEN_LINES:
         add(gm.HIDDEN, line, ok)
     out.extend(gm.starvation_lines(village, 0x8, gm.RUNNING))
+    add("Chance and timers", gm.autosave_line(5), gm.OWNER)
     for line, ok in CHANCE_EXTRA:
         add("Chance and timers", line, ok)
     for line, ok in LIFE_LINES:
         add("Other", line, ok)
-    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "Heathens do not age."))
+    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "65, 73 or 81 years", "Heathens do not age.",
+                               who="believer"))
     if village.general:      # a save's page says it under Vital statistics ("Time and units")
         add("Other", f"Time and units: an age unit is {unit} of real-life time and a villager year (20 age units) "
                      f"{gm.duration(20 * 60 * speed)} on {on} speed (an age unit is 3, 6 or 10 real-life minutes on "
@@ -263,11 +265,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Other", line, ok)
     clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
     out.append(gm.started_line(clock.created))
+    out.extend(f for f in [gm.warp_dates_note(village, "Other", "the village's start date is")] if f)
     names = dict(PUZZLE_NAMES)
     if village.has(HEATHEN_PARENT):
         names[17] = "The Heathen Parent"
     out.extend(gm.later_puzzle_lines(names, lambda pid: struct.unpack_from("<ii", data, PROJECTS + 8 * pid),
                                      PUZZLE_THRESHOLDS, clock))
+    out.extend(f for f in [gm.warp_dates_note(village, gm.PUZZLES, "the puzzle dates are")] if f)
 
     # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
     noni_at = None if paused else real(NONI_NEXT)
@@ -275,7 +279,6 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     event_at = None if paused else real(EVENT_NEXT)
     gm.with_due(out, "Noni: +2", noni_at if noni_at and noni_at > village.now else None, "refill")
     gm.with_due(out, "Crops: refilled", crops_at, "refill")
-    gm.with_due(out, "Next island event:", event_at, "next")
     level = [_i32(data, LEVELS + 4 * k) for k in range(6)]
     mastery = level[FOOD_MASTERY]
     puzzles = []
@@ -311,8 +314,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         event_running="",                      # said, verified, by the Island events group's Timing line
         medicine=level[MEDICINE_LEVEL], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
         parents_from=18, sick_loss=(0.61, 0.19),
-        collectibles=life.collectible_lines(village, "10, 50 or 150 Divine Energy (the first set) or 100, 250 or "
-                                                     "1,500 tech points (the second)")[0],
+        collectibles=life.collectible_lines(village, life.COLLECTIBLE_PAY[5])[0],
         limit=life.limit_words(village, None, "up to 15 for collections"),
         puzzles=puzzles,
         food_words="2 food a believer every age unit (Heathens skip it), less at 500 or less and 2 more 76% of the "

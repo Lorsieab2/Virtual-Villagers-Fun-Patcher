@@ -249,7 +249,9 @@ class VillageCounts(unittest.TestCase):
         self.assertNotIn("Duplication Cheat", plain)
         cheat = page.facts(["vv4_everyone_collects_like_vv1"])
         self.assertIn("Duplication Cheat\" (in this game)", texts(cheat))
-        self.assertIn("Duplication Cheat\" (in this game)", texts(cheat, "Vital statistics"))
+        # Given once, under Village counts with the counts it changes (it stood in Vital statistics too).
+        self.assertNotIn("Duplication Cheat", texts(cheat, "Vital statistics"))
+        self.assertEqual(texts(cheat).count("Duplication Cheat\" (in this game)"), 1)
         page1 = Page(self, 1)
         page1.save(fixture(SAVES[1]))
         self.assertNotIn("Normal game: a mushroom", texts(page1.facts([])))

@@ -29,8 +29,10 @@ Pausing
     suspended for the copy and always resumed afterwards, even when the copy
     fails. If any of them cannot be suspended the backup is refused rather
     than taken while the game might be writing. The game is never closed.
-    These games save only when the player quits normally, so a backup of a
-    running game holds the village as of its last save.
+    These games save when the player quits normally and autosave every 10
+    real-life minutes while running (checked every frame, counting while
+    paused; src/vv_game_mechanics.py autosave_line), so a backup of a
+    running game holds the village as of its last save or autosave.
 
 Restore
     A backup is restored -- the whole save folder, or one save slot -- only

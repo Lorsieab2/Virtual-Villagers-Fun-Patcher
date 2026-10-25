@@ -132,11 +132,10 @@ ROLLS = (
           "sick on a second roll (0 to 999, 14 or less) {3} of the time.",
           "On Easy the whole check is made only {4} of age units (a roll of 0 to 99 of 50 or more). The Hospital does "
           "not change these odds.")),
-    Roll("The old-age death roll: rolled at each birthday (every 20 age units) of a villager past 55, 63 or 71 years (Medicine "
-         "level 1, 2 or 3); the villager dies when a roll of 0 to 99 is below 10 x the years past that age.",
-         (Check(0x43BDA5, 100),),
-         (f"1 year past: {_c(_b(100, 10))}; 2: {_c(_b(100, 20))}; 5: {_c(_b(100, 50))}; 7: {_c(_b(100, 70))}; 10 "
-          "or more: 100%.",)),
+    # The old-age roll (rand(100) at 0x43BDA5): its one full copy is gm.old_age_line, under Death and graves.
+    Roll("The old-age death roll: its timing and exact odds are under Death and graves (Old age), the one place "
+         "they are given.",
+         (Check(0x43BDA5, 100),)),
     # ---------------------------------------------------------------- Skills
     Roll("Every work step's skill roll (farming, building, healing, research, parenting): rolled once per step; it "
          "passes when a roll of 0 to 99 is at most the skill + 33 (+ 66 for a villager who likes learning, + 16 for "

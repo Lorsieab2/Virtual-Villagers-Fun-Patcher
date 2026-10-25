@@ -114,7 +114,9 @@ class Sources(unittest.TestCase):
     def test_the_save_is_named_with_its_time(self) -> None:
         sources = self.sources(self.read([]))
         self.assertTrue(sources[0].startswith(f"The save: {self.saves / (BASE + '1.ldw')}, last written "))
-        self.assertIn("only when it is closed normally", sources[0])
+        # Every game autosaves (the owner, 2026-10-25: "Games autosave").
+        self.assertIn("when it is closed normally and every 10 real-life minutes by its autosave", sources[0])
+        self.assertNotIn("only when", sources[0])
 
 
 if __name__ == "__main__":

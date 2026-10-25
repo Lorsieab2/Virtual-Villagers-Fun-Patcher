@@ -520,7 +520,11 @@ class EveryGame(unittest.TestCase):
                               gm.TIME_AWAY, "Island events"):
                     self.assertIn(group, {f.group for f in facts}, group)
                 self.assertRegex(text, r"Last saved: \d{1,2} [A-Z][a-z]+ \d{4}, \d{1,2}:\d{2} (AM|PM), ")
-                self.assertRegex(text, r"Next island event: ")
+                # The next natural island event: one full copy, under Village timers; Island events points there.
+                self.assertEqual(len([f for f in facts if f.text.startswith("Next natural island event:")]), 1)
+                self.assertTrue(all(f.group == "Village timers" for f in facts
+                                    if f.text.startswith("Next natural island event:")))
+                self.assertIn("When the next natural island event comes: under Village timers.", text)
                 order = [gm.GROUPS.index(f.group) for f in facts]
                 self.assertEqual(order, sorted(order))
 
@@ -554,8 +558,10 @@ class EveryGame(unittest.TestCase):
                     # it (the audit of 2026-10-25), and these test saves have no game folder to tell.
                     self.assertNotIn("Origins upgrade", joined)
                 else:
-                    self.assertRegex(joined, r"Time Warp \(the Origins upgrade\): each one gives the villagers "
-                                             r"(12|6|3) years")
+                    # The Origins Time Warp is the patcher's, shown only with it in the current exe; these saves
+                    # have no game folder to tell, so the stock value is given (the clean-up of 2026-10-25).
+                    self.assertNotIn("Origins upgrade", joined)
+                    self.assertIn("Time Warp: the stock game has none; whether the patcher's", joined)
                 self.assertNotIn("not yet confirmed", joined)
     def test_time_away_uses_the_verified_table(self) -> None:
         table = {"full": {3: 38_200, 6: 31_000, 10: 23_800}, "band_end": 86_400, "band": 31_000, "over": 86_400}
@@ -609,7 +615,11 @@ class EveryGame(unittest.TestCase):
                 old = [f for f in facts if f.text.startswith("Old age:")]
                 self.assertEqual(len(old), 1)
                 self.assertTrue(old[0].confirmed)
-                self.assertIn("death roll whose chance is 10% for each year over", old[0].text)
+                self.assertIn("so the chance is 10% for each year over", old[0].text)
+                self.assertIn("10.01%", old[0].text)                  # the exact odds, once (Chances points here)
+                self.assertIn("The old-age death roll: its timing and exact odds are under Death and graves",
+                              text)
+                self.assertNotIn("a villager dies with a chance of 10% for each year past it", text)
                 self.assertIn("processed age", old[0].text)
     def test_nothing_inferred(self) -> None:
         """The owner: DO NOT INFER -- no guessing words, no names chosen from a theme (The Tree of Life's Mausoleum
@@ -682,8 +692,12 @@ class EveryGame(unittest.TestCase):
         self.assertNotIn("not yet worked out", text)
         self.assertNotIn("save every 10 minutes", text)
         # The autosave (the owner, 2026-10-25; 0x41BFC0 -> 0x41BF70), and the Sources line agrees with it.
-        self.assertIn("if 10 real-life minutes have passed since the program started or since its last autosave", text)
-        self.assertIn("The game writes it when it is closed normally and by its autosave", text)
+        self.assertIn("once 10 real-life minutes have passed since the program started or since its last autosave",
+                      text)
+        self.assertIn("checks the computer's clock on every frame", text)
+        self.assertNotIn("switches from one of its screens", text)     # the check is per frame, not per switch
+        self.assertIn("The game writes it when it is closed normally and every 10 real-life minutes by its "
+                      "autosave", text)
         self.assertNotIn("never regains. See", text)
         groups = {(f.group, f.text.split(":")[0]) for f in facts}
         self.assertNotIn(("Food sources", "Food in storage"), groups)
@@ -1030,6 +1044,47 @@ class Window(unittest.TestCase):
         self.assertIn(ascii(gm.SUB_BULLET + "640 of 1000 fruit")[1:-1], text)
         self.assertIn("Planted when the village was 1 minute 40 seconds old", text)
         self.assertIn("is in the game", text)
+
+
+class Autosave(unittest.TestCase):
+    """The owner, 2026-10-25: "Games autosave".  Every game's page gives the same autosave line once, under Chance
+    and timers, and each stock exe has the 600-second check gm.autosave_line describes."""
+    # game: (exe, the check, the save writer, the field the next autosave time is kept in)
+    CHECKS = {1: ("vv1-stock-copy/Virtual Villagers - A New Home.exe", 0x41BFC0, 0x41BF70, 0xADEC),
+              2: ("vv2-stock-copy/Virtual Villagers - The Lost Children.exe", 0x424C40, 0x424C00, 0x305AC),
+              3: ("vv3-stock-copy/Virtual Villagers - The Secret City.exe", 0x427DD0, 0x427D90, 0x12FD0),
+              4: ("vv4-stock-copy/Virtual Villagers - The Tree of Life.exe", 0x41F1A0, 0x41F160, 0x171C0),
+              5: ("vv5-stock-copy/Virtual Villagers - New Believers.exe", 0x424660, 0x424620, 0x17E34)}
+
+    def test_every_game_gives_it_once(self) -> None:
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                facts = gm.general(game, EPOCH)
+                lines = [f for f in facts if f.text.startswith("Autosave:")]
+                self.assertEqual(len(lines), 1)
+                self.assertEqual(lines[0].group, "Chance and timers")
+                self.assertTrue(lines[0].confirmed)
+                self.assertIn("once 10 real-life minutes have passed since the program started or since its last "
+                              "autosave", lines[0].text)
+                self.assertIn("count while the game is paused too", lines[0].text)
+
+    def test_the_stock_exes_check(self) -> None:
+        for game, (name, check, writer, field) in self.CHECKS.items():
+            exe = ROOT / "inputs" / name
+            if not exe.is_file():
+                self.skipTest("the stock executables are not here")
+            with self.subTest(game=game):
+                import pefile
+                pe = pefile.PE(str(exe), fast_load=True)
+                code = pe.get_data(check - pe.OPTIONAL_HEADER.ImageBase, 0x2C)
+                self.assertEqual(code[3], 0xE8)                                 # call time()
+                self.assertEqual(code[8:10], b"\x39\x86")                       # cmp [esi + field], eax
+                self.assertEqual(struct.unpack_from("<I", code, 10)[0], field)
+                at = code.index(b"\x05\x58\x02\x00\x00")                        # add eax, 600
+                self.assertLess(at, 0x20)
+                jump = code.index(b"\xE9" if game <= 3 else b"\xE8", at)        # on to the save writer
+                self.assertEqual(check + jump + 5 + struct.unpack_from("<i", code, jump + 1)[0], writer)
+
 
 if __name__ == "__main__":
     unittest.main()

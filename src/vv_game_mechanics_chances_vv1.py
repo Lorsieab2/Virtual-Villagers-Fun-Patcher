@@ -47,15 +47,10 @@ ROLLS = (
          "of the time, and every age unit on Easy; an elderly villager (from 50, 58 or 66 years at Medicine 1, 2 or "
          "3) only {1} of those (0x42EDCB).",
          (Check(0x42EDE3, 100, 0x32, "jl"), Check(0x42EE1E, 100, 0x14, "jge", take=False))),
-    Roll("The old-age death roll: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 on Normal, 3 real-life hours 20 "
-         "minutes on Slow) past 55, 63 or 71 years (Medicine 1, 2 or 3; every technology starts at level 1) a villager "
-         "dies with a chance of 10% "
-         "for each year past it (a roll of 0 to 99 under 10 x the years over): " + chance(below(100, 10))
-         + " one year over, " + chance(below(100, 50)) + " five years over, 100% from ten years over (0x42EE7E).",
-         (Check(0x42EEBC, 100),),
-         ("The birthday roll follows the hidden processed age, which the game steps up one age unit at a time to "
-          "the age shown -- every step in the same update after time away, so each birthday passed while away gets "
-          "its roll. The Golden Child stays 5 and never reaches it.",)),
+    # The old-age roll (rand(100) at 0x42EEBC): its one full copy is gm.old_age_line, under Death and graves.
+    Roll("The old-age death roll: its timing and exact odds are under Death and graves (Old age), the one place "
+         "they are given.",
+         (Check(0x42EEBC, 100),)),
     Roll("Conception (dropping one villager on another, or two embracing on their own): with less than 400 food the "
          "pair refuses {0} of the time; then the villager who started it must pass the Parenting skill test, and a "
          "roll of 0 to 299, plus 50, less 50 x the Fertility level, must be at or under that villager's Parenting "

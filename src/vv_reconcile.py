@@ -812,7 +812,8 @@ class _Builder:
         pairs, gone, new = _pair(a.people, b.people)
         game = self.game
         # A save older than the roster it is compared with: whoever is missing from it is most likely in no
-        # save only because of a quit without saving (Alt-F4) or a restored backup -- said so.
+        # save only because of a quit without saving (Alt-F4, which loses what happened since the last
+        # 10-minute autosave) or a restored backup -- said so.
         restore_why = (f" -- or, as {b.label} is older than {a.label}, most likely only missing from the save "
                        "after a quit without saving (Alt-F4) or a restored backup") if restored else ""
         a_one_word, b_one_word = one_word_writer(a), one_word_writer(b)
@@ -830,7 +831,8 @@ class _Builder:
                      f"{len(backs)} of the {len(pairs)} villagers in both are younger in {b.label} than in "
                      f"{a.label} (for example {n.name}, {n.looks()}: {o.age} -> {n.age} game units): the village "
                      "went back in time -- most likely a backup restored, or a quit without saving (Alt-F4: the "
-                     "game saves only on a clean quit), not a fault?",
+                     "game saves on a clean quit and autosaves every 10 real-life minutes, so a crash or "
+                     "kill loses what happened since the last autosave), not a fault?",
                      [f"{KEEP} (I restored or replaced the save)"], legacy=f"restore|{a.when}|{b.when}")
             backs = []
         for old, now in backs:

@@ -331,13 +331,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events -------------------------------------------------------------------
-    add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
+    add("Island events", "When the next natural island event comes: under Village timers.", gm.SAVE)
     out.extend(events.facts(village))          # the catalog (src/vv_game_mechanics_events_vv4.py)
 
     # -- Other ---------------------------------------------------------------------------
     for line, ok in HIDDEN_LINES:
         add(gm.HIDDEN, line, ok)
     out.extend(gm.starvation_lines(village, 0x8, gm.RUNNING))
+    add("Chance and timers", gm.autosave_line(4), gm.OWNER)
     for line, ok in CHANCE_V4:
         add("Chance and timers", line, ok)
     for line, ok in STEW_LINES:
@@ -352,21 +353,22 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # The owner (2026-10-24); the Cold Snap's apply 0x414BD0 ends the fire (tail jmp 0x432620 on 0x4D867C).
     add("Other", gm.FIRE_OUT + " The Cold Snap island event (it needs the Fire Pit burning) puts it out.", gm.OWNER)
     add("Other", gm.FIRE_CLOSED, gm.OWNER)
-    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)"))
+    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "65, 73 or 81 years"))
     add("Other", f"An age unit is {gm.duration(60 * speed)} and a villager year (20 age units) "
                  f"{gm.duration(20 * 60 * speed)} of real-life play on {on} speed.", gm.RUNNING)
     clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
     out.append(gm.started_line(clock.created))
+    out.extend(f for f in [gm.warp_dates_note(village, "Other", "the village's start date is")] if f)
     out.extend(gm.later_puzzle_lines(PUZZLE_NAMES, lambda pid: struct.unpack_from("<ii", data, PUZZLE_ENTRIES + 8 * pid),
                                      PUZZLE_THRESHOLDS, clock))
+    out.extend(f for f in [gm.warp_dates_note(village, gm.PUZZLES, "the puzzle dates are")] if f)
 
     # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
     growth_at = None if paused else real(NEXT_TICK)
     event_at = None if paused else real(EVENT_NEXT)
     gm.with_due(out, "Next growth:", growth_at, "refill")
-    gm.with_due(out, "Next island event:", event_at, "next")
     multiplier = 2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0)
-    collectibles, complete = life.collectible_lines(village, "100, 250 or 1,500 tech points")
+    collectibles, complete = life.collectible_lines(village, life.COLLECTIBLE_PAY[4])
     bonus = None if complete is None else 5 * complete + (5 if complete == 4 else 0)
     puzzles = []
     for pid, name in PUZZLE_NAMES.items():

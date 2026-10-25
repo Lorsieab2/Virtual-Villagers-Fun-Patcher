@@ -342,7 +342,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events -------------------------------------------------------------------
-    add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
+    add("Island events", "When the next natural island event comes: under Village timers.", gm.SAVE)
     add("Island events", f"Island events seen in this village: {_i32(data, EVENTS_SEEN):,}.", gm.SAVE)
     out.extend(events.event_facts(village, catalog.RULES, catalog.EVENTS))
     # The Gong of Wonder: its rest from the save (the clock counts real seconds at any speed), then its results.
@@ -382,25 +382,27 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     for line, ok in HIDDEN_LINES:
         add(gm.HIDDEN, line, ok)
     out.extend(gm.starvation_lines(village, 0x14, gm.RUNNING, totem_colour=True))
+    add("Chance and timers", gm.autosave_line(2), gm.OWNER)
     for line, ok in CHANCE_EXTRA:
         add("Chance and timers", line, ok)
     for line, ok in ODDS_LINES:
         add("Other", line, ok)
-    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "Totems do not age."))
+    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "65, 73 or 81 years", "Totems do not age."))
     created = real(CREATED)
     out.append(gm.started_line(created))
+    out.extend(f for f in [gm.warp_dates_note(village, "Other", "the village's start date is")] if f)
     # Every puzzle's hours: (the clock - the start +0x2E4F8) / 3600, then at least 1, written with its solved byte
     # (checked 2026-10-25 for all 16: 0x46264A Fire .. 0x462743 Sustainable Fishing; the gong pieces 0x463E89,
     # 0x463B5C, 0x463CDA, 0x463967).
     out.extend(gm.hours_puzzle_lines([name for name, _flag, _hours in PUZZLES],
                                      lambda n: data[PUZZLES[n][1] + S] != 0,
                                      lambda n: _i32(data, PUZZLES[n][2]), created, verified=gm.RUNNING))
+    out.extend(f for f in [gm.warp_dates_note(village, gm.PUZZLES, "the puzzle dates are")] if f)
 
     # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
     regrow_at = None if paused else real(REGROW)
     event_at = None if paused else real(EVENT_NEXT)
     gm.with_due(out, "Next regrowth:", regrow_at, "refill")
-    gm.with_due(out, "Next island event:", event_at, "next")
     if real(GONG_NEXT) > village.now:
         gm.with_due(out, "The Gong of Wonder can ring again", real(GONG_NEXT), "ready")
     if not paused and fire > village.now:
@@ -447,9 +449,14 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
     exploration = level[EXPLORATION_LEVEL]
     wait, share = GOLDEN_WAITS.get(exploration, GOLDEN_WAITS[1])
     found = collections(data)
-    collectible_words = ("Collectibles: " + (f"{sum(found)} of the 48 pieces found (by collection under Village "
-                                             "counts)" if found is not None else "not read from this save")
-                         + "; what a piece found again pays is under Collectibles.")
+    # A save's page gives the pieces found once, by collection, under Village counts (src/vv_game_mechanics_counts.py).
+    if village.general:
+        collectible_words = ("Collectibles: " + (f"{sum(found)} of the 48 pieces found" if found is not None
+                                                 else "not read from this save")
+                             + "; what a piece found again pays is under Collectibles.")
+    else:
+        collectible_words = ("Collectibles: the pieces found, by collection, are under Village counts; what a piece "
+                             "found again pays is under Collectibles.")
     ctx = life.Context(
         village, speed_value, real_last(data), _i32(data, FOOD), low_food=150, extra_from=4001, sources=sources,
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 5 at Science 1 to 3).",
