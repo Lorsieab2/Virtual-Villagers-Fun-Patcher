@@ -140,10 +140,26 @@ HIDDEN_LINES = (
     ('The fire: while lit, a research try gives 1 more tech point 10% of the time; fuel on a lit fire fills it '
      'to 10, 20 or 40 hours (Fast, Normal, Slow); fuel does not light a cold pit.', False),
 )
+# The stew pot (state +0x3043C..+0x30455, past the saved range +8..+0x30378, so never saved).  The cook routine
+# 0x425B90 (called when the last ingredient goes in, 0x4620A1..0x4623BA) sets the stew +0x3044C at once and
+# the pot's end +0x30450 to the real clock 0x403200 + 900 (0x425BA2); the world update empties the pot with
+# 0x425B20 once 0x403200 passes it (0x42EBCC..0x42EBE7) -- nothing else empties it, and eating (0x461040,
+# from 0x4623E9) leaves it.  Nothing reads +0x30450 for the screen, so no countdown is shown.  The stews'
+# effects (0x461040 and the routines it calls: 0x455330, 0x45CD00, 0x450580, 0x454AB0, 0x455AC0, 0x453430,
+# 0x44B010, 0x45FBF0, 0x44B1B0, 0x449B70) never read the clock: each acts once, when eaten.
+STEW_POT_LINE = (
+    "A stew is ready the moment it is made, and the pot keeps it 15 real-life minutes at every speed, then empties "
+    "itself; the pot's timer runs on the real clock, so paused time counts too. Eating does not empty it: every "
+    "villager who eats from it in those 15 minutes gets the stew. The game shows no countdown for it, and the save "
+    "does not keep the pot.")
+STEW_EFFECT_LINE = (
+    "Each stew acts once, at the moment a villager eats it: none of the stews' effects sets a timer, so no "
+    "villager has one running and a save holds none to count down.")
 CHANCE_EXTRA = (
     ('Every roll that changes play is in the groups above, with its odds as measured.', gm.RUNNING),
-    ('Timers: an age unit 3, 6 or 10 minutes; regrowth every 2 hours, 4 hours or 6 hours 40 minutes; island '
-     "events 10 to 19 whole hours apart; the Gong's 24-hour rest; a stew 15 minutes; an item lies 1 minute 15 "
+    ('Timers: an age unit 3, 6 or 10 real-life minutes on Fast, Normal or Slow; regrowth every 2 hours, 4 hours '
+     "or 6 hours 40 minutes of real life; island events 10 to 19 whole real-life hours apart; the Gong's 24 "
+     'real-life hours of rest; a stew stays in the pot 15 real-life minutes; an item lies 1 minute 15 real-life '
      'seconds; an unburied body 240 age units.', gm.RUNNING),
     ('Many more rolls inside villager actions (walking, timing, animation, speech): not individually worked '
      'out.', False),
@@ -346,8 +362,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                   else "is out"))
                   + f"; a lit fire burns {gm.duration(FIRE_HOURS[speed] * 3600)} on {on} speed, and fuel on a burning "
                     "fire fills it again."), gm.RUNNING)
-    add("Other", f"A stew is ready 15 minutes after it starts. An unburied body is gone after "
-                 f"{gm.duration(240 * 60 * speed)} on {on} speed.", gm.RUNNING)
+    add("Other", STEW_POT_LINE, gm.RUNNING)
+    add("Other", STEW_EFFECT_LINE)
+    add("Other", f"An unburied body is gone after {gm.duration(240 * 60 * speed)} of real life on {on} speed "
+                 "(240 age units).", gm.RUNNING)
     for line, ok in HIDDEN_LINES:
         add(gm.HIDDEN, line, ok)
     out.extend(gm.starvation_lines(village, 0x14, gm.RUNNING, totem_colour=True))

@@ -429,6 +429,58 @@ class RealSaves(unittest.TestCase):
                 self.assertRegex(text, r"Fruit trees: each gains 111 fruit every (3 hours on Normal|1 hour 30 minutes on Fast) speed")
 
 
+class StewPots(unittest.TestCase):
+    """The owner, 2026-10-24: when stews and their effects end, and what empties the pot, in VV2 to VV4."""
+
+    page = lambda self, name: EveryGame.page(self, name)  # noqa: E731
+
+    def facts(self, name):
+        return {f.text: f for f in self.page(name)}
+
+    def test_lost_children_pot_and_effects(self) -> None:
+        import vv_game_mechanics_vv2 as vv2
+        facts = self.facts("vv2-huttest-1")
+        pot = facts[vv2.STEW_POT_LINE]
+        self.assertTrue(pot.confirmed)
+        self.assertIn("15 real-life minutes at every speed, then empties itself", pot.text)
+        self.assertIn("Eating does not empty it", pot.text)
+        self.assertIn("no countdown", pot.text)
+        effect = facts[vv2.STEW_EFFECT_LINE]
+        self.assertFalse(effect.confirmed)                    # no clock read is traced; tick timers not excluded
+        text = gm.render(list(facts.values()))
+        self.assertNotIn("A stew is ready 15 minutes after it starts", text)
+        self.assertIn("a stew stays in the pot 15 real-life minutes", text)
+
+    def test_secret_city_table_empties_the_pot(self) -> None:
+        facts = self.facts("vv3-huttest-1")
+        line = facts[vv3.POT_EMPTIED_LINE]
+        self.assertTrue(line.confirmed)                       # the owner's word, and 0x430D90 -> 0x430D00
+        self.assertTrue(line.text.startswith("The pot can be emptied by dropping a villager on the table with 3 "
+                                             "herbs"))
+
+    def test_tree_of_life_pot_grate_reheat_and_answer(self) -> None:
+        import vv_game_mechanics_vv4 as vv4
+        facts = self.facts("vv4-huttest-1")
+        pot = [f for t, f in facts.items() if t.startswith("A ready stew: the pot's on-screen countdown starts at ")]
+        self.assertEqual(len(pot), 1)
+        self.assertTrue(pot[0].confirmed)
+        for speed, shows in ((gm.NORMAL, "5:00"), (gm.FAST, "2:30"), (gm.SLOW, "8:20")):
+            self.assertIn(f"starts at {shows} on {gm.speed_name(speed)} speed", vv4.stew_pot_line(speed))
+        for speed, shows in vv4.STEW_COUNTDOWN.items():            # 300 real seconds x rate / 6, as m:ss
+            minutes, rest = divmod(300 * speed // 6, 60)
+            self.assertEqual(shows, f"{minutes}:{rest:02d}")
+        self.assertTrue(facts[vv4.GRATE_LINE].confirmed)
+        self.assertEqual(vv4.GRATE_LINE, "The pot can be emptied by dropping a villager on the grate.")
+        reheat = facts[vv4.REHEAT_LINE]
+        self.assertFalse(reheat.confirmed)                    # "some stews": not settled by the code
+        self.assertIn("starts its 5 real-life minutes over", reheat.text)
+        self.assertTrue(facts[vv4.CANT_EAT_LINE].confirmed)
+        text = gm.render(list(facts.values()))
+        self.assertIn("a ready stew is gone 5 real-life minutes later at every speed", text)
+        self.assertIn("then no stew for 10 real-life minutes", text)
+        self.assertNotIn("a stew keeps 5 minutes", text)
+
+
 class EveryGame(unittest.TestCase):
     """All five games: the committed real saves read, real time only, the secrets kept, and no time-away
     figure shown until it is verified."""
