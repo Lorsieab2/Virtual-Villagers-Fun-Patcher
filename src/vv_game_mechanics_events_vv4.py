@@ -45,9 +45,9 @@ RULES = (
     Line("Rescue: when the sexes are out of balance (2 or fewer women and more men, or 2 or fewer men and no more men "
          "than women) or there are fewer than 3 people, 6% of events (a 15% roll, then a 40% one) become Daredevil "
          "Barrel...of Babies!, even without its condition (0x4180A5)."),
-    Line("Room for new villagers (the room check 0x468350): villagers plus the babies being carried below 90, plus 5 "
-         "for each of the four collections completed; and a population of 10 to 16 needs 1 rebuilt hut, 17 to 34 needs "
-         "2, 35 or more all 3."),
+    Line("Room for new villagers (the room check 0x468350): villagers plus the babies being carried below 90 plus "
+         "the collections' bonus (5 for each complete collection, 25 with all four: see Collectibles); and a "
+         "population of 10 to 16 needs 1 rebuilt hut, 17 to 34 needs 2, 35 or more all 3."),
     Line(f"Weather an event brings lasts like any other weather: {WEATHER}."),
     Line("A loss of food or tech points takes no more than there is. Health and skills stop at 0 and 100."),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event chooses the next event "
@@ -91,8 +91,12 @@ EVENTS = (
         "Every sick villager is cured and everyone is healed to 100 health (0x414F20).",)),
     Event("The Abandoned Infants", "needs room and 6 living women of 14 or more who are not pregnant or sick", (
         "Up to 6 women of 18 or more who are not pregnant or nursing and not sick become pregnant (the father the "
-        "game's default, head 2, body 2), each pregnancy with the usual chance of twins or triplets at Medicine 3 "
-        "(0x467B00 -> 0x45E7B0).",)),
+        "game's default, Joey, head 2, body 2), each pregnancy with the usual chance of twins or triplets at "
+        "Medicine 3 (0x467B00 -> 0x45E7B0); the only way the game gives a baby Joey as its father.",)),
+    # Slot 28 (0x4173DC -> 0x4CCA98), CEventAbandonedInfants vtable 0x48CB1C: its condition [1] 0x414F60 is live
+    # (the picker 0x4679B0 for women of 280 age units or more, the room check 0x468350, at least 6 found), unlike
+    # New Believers' always-false one; its result [12] 0x414FC0 calls 0x467B00 (360 age units or more), the only
+    # caller, which conceives by "Joey" (0x4AB360) at 0x467C15 with the room check skipped (bl = 1).
     # -- Two-choice events (argument 0 is the first button) --------------------------------------------
     Event("The Arc of Brilliant Colors", f"needs {ANY} who is not pregnant or nursing", (
         "\"Run to the left side\": the villager walks to the mausoleum; nothing else changes (0x415213).",

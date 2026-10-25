@@ -29,6 +29,10 @@ _TWINS = times(_MULTI, _not(_TRIPLE))
 _TRIPLETS = times(_MULTI, _TRIPLE)
 _MALE = at_most(100, 49)                   # the sex roll (0x465D0A): 49 or less is a boy
 _EASY = _not(below(100, 50))
+# On Easy the life tick rolls rand(100) (0x4686BB) and, at 50 or more, calls the sickness roll 0x45E930, whose own
+# first Easy roll (0x45E943) below 50 returns "not sick" -- and the caller stores that result over the sick flag
+# (0x4686DC), so a sick villager on Easy is cured on (49.95% x 50.05%) of age units.  On Medium and Hard 0x45E954
+# keeps a sick villager sick.
 
 ROLLS = (
     Roll("Eating: " + AGE_UNIT + ", each villager eats 2 food; with 500 food or less they eat only {0} of the time, "
@@ -44,7 +48,8 @@ ROLLS = (
           "regains 1 health {1} of the time.")),
     Roll("A sick villager's health: " + AGE_UNIT + ", a sick villager loses 1 health {0} of the time while above 20 "
          "health, and only " + chance(times(at_most(100, 60), at_most(100, 30))) + " of age units at 20 or less. "
-         "Sickness never ends by itself.",
+         "Sickness never ends by itself, except on Easy: there a sick villager is cured on "
+         + chance(times(_EASY, below(100, 50))) + " of age units.",
          (Check(0x4685D7, 100, 0x3C, "jg", take=False), Check(0x4685EC, 100, 0x1E, "jg", take=False))),
     Roll("Regaining health: " + AGE_UNIT + ", a villager who is not sick, while there is food, passes the health check "
          "{0} of the time; failing that, it passes on Easy, at Medicine level 3, and with the Fire Pit burning on a "
