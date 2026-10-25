@@ -152,7 +152,7 @@ EVENTS = (
     Event("The Bitter Brown Beans (brew or fertilizer)", "needs Science technology level 2 or more and a living "
                                                          "villager of 18 to 49 not pregnant or nursing", (
         f"\"Try to brew the beans\": the tribe gains {M} 600 food and {M} 2,000 tech points (0x415A10).",
-        "\"Use the beans as fertilizer\": every fruit tree grown (ready to pick: 8 real-life hours of play after planting on Normal speed, 4 on Fast, 13 hours 20 minutes on Slow) is set "
+        "\"Use the beans as fertilizer\": every fruit tree grown (ready to pick: 8 real-life hours of play after planting on Normal speed, 4 on Fast, 13 real-life hours 20 minutes on Slow) is set "
         "to 1,000 fruit (0x4340A0).")),
     Event("The Ancient Tablet (laundry or decoration)", "needs Science technology below level 2 and a living "
                                                         "villager of 18 to 49 not pregnant or nursing", (
