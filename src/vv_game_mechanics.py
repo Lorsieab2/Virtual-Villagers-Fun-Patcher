@@ -50,9 +50,10 @@ TITLE = "Game Mechanics"
 # Vital statistics first (the owner, 2026-10-24), then where the page's facts come from, then the village's people
 # and clocks (src/vv_game_mechanics_life.py), then the rules.
 GROUPS = ("Vital statistics", "Sources", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
-          "Food earned", "Time away and Time Warp", "Island events", "Puzzles", "Hidden villager stats",
-          "Chance and timers", "Other")
+          "Food earned", "Time away and Time Warp", "Island events", "Puzzles", "Golden Child",
+          "Hidden villager stats", "Chance and timers", "Other")
 PUZZLES = "Puzzles"
+GOLDEN_CHILD = "Golden Child"                 # A New Home only: vv_game_mechanics_vv1.golden_child_facts
 # Every fact is a bullet under its heading; a sub-fact (a tree's planting, its fruit, ...) an indented dash under
 # the fact before it (the owner, 2026-10-23: "bullet point everything ... for easier legibility").
 BULLET, SUB_BULLET = "• ", "    – "
@@ -181,6 +182,13 @@ def every(game_seconds: float, speed_value: int) -> str:
 
 
 PAUSED_NOTE = "The game was saved paused: nothing refills or grows until it is unpaused."
+# The owner (2026-10-24), The Lost Children to New Believers: the fire burns down while the game is closed when the
+# save was left unpaused, and not when it was saved paused.
+FIRE_CLOSED = ("While the game is closed the fire keeps burning down if the save was left unpaused; saved paused, "
+               "it does not burn down until the game is unpaused.")
+# The owner (2026-10-24), the same four games: the fire runs out only when its timer expires; rain and the weather
+# never touch it (an earlier line said rain and the Omen stopped it being lit: false).
+FIRE_OUT = "The fire goes out when its timer runs out; rain and the weather do not affect it."
 
 
 # ---------------------------------------------------------------------------
@@ -223,6 +231,15 @@ def old_age_line(thresholds: str, extra: str = "") -> Fact:
 
 
 HIDDEN = "Hidden villager stats"
+# How a villager gets its head and body (src/vv_game_mechanics_genetics.py, the owner 2026-10-24), shown right
+# after the hidden villager stats.
+GENETICS = "Genetics"
+GROUPS = GROUPS[:GROUPS.index(HIDDEN) + 1] + (GENETICS,) + GROUPS[GROUPS.index(HIDDEN) + 1:]
+
+
+def genetics_facts(village: "Village") -> list[Fact]:
+    """The Genetics group for `village` (found by name, as each game's module is)."""
+    return list(importlib.import_module("vv_game_mechanics_genetics").facts(village))
 
 
 def starvation_lines(village: "Village", delta: int, basis: str, totem_colour: bool = False) -> list[Fact]:
@@ -693,6 +710,8 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     except ImportError:
         return [Fact("Other", "Nothing is shown for this game yet.")]
     facts = list(module.facts(village))
+    if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
+        facts += genetics_facts(village)
     if not facts:
         facts = [Fact("Other", "Nothing is shown for this game yet.")]
     facts = sources_lines(path, patches, village.notes) + facts
@@ -733,7 +752,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     village = Village(Path("."), game, 1, Path(f"{game}.ldw"), blank_save(game, now), None, now, general=True)
     module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     keep = []
-    for fact in module.facts(village):
+    for fact in list(module.facts(village)) + genetics_facts(village):
         if fact.due is not None:
             continue                           # a moment of the empty save's village
         if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",

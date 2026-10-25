@@ -104,6 +104,12 @@ def pokes(game: int, data: bytes) -> list[bytes]:
             out += [_put(_put(data, m.SCARER + m.S, scarer), m.ALLOWANCE + m.S, amount) for amount in (0, 500)]
         for dam in (0, 1):                      # with the allowance used up: the birds only with the dam built
             out.append(_put(_put(_put(data, m.SCARER + m.S, 0), m.ALLOWANCE + m.S, 0), m.DAM + m.S, dam))
+        # The fish: still some, used up, and below 0 once Sustainable Fishing is solved (no limit from Farming
+        # level 2; at level 1 fishing stops at 0).
+        solved_at = m.SUSTAINABLE_FISHING + m.S
+        for fish, solved, farming in ((700, 0, 3), (0, 0, 3), (-40, 1, 1), (-1_162_256, 1, 3)):
+            buf = _put(_put(data, m.FISH + m.S, fish), m.LEVELS + 8 * m.FARMING_LEVEL + m.S, farming)
+            out.append(buf[:solved_at] + bytes([solved]) + buf[solved_at + 1:])
     elif game == 3:
         h = m.HEADER
         for level in range(0, 4):
@@ -165,6 +171,21 @@ def _life_pokes(game: int, data: bytes) -> list[bytes]:
     out = [_put(data, life.DIFFICULTY_AT[game], level) for level in (0, 1, 2)]
     out.append(_put(_put(data, life.DIFFICULTY_AT[game], 1), _FOOD[game], 9_000))
     out.append(gm.blank_save(game, NOW))        # a new, empty village's save: no villager table to be found
+    if game == 3:
+        # The honey with The Bee Hive solved and its next gain still ahead: its time to full as a date to come.
+        import vv_game_mechanics_vv3 as vv3
+        h = vv3.HEADER
+        base = struct.unpack_from("<4i", data, h + vv3.CLOCK)[3]
+        hive = _put(data, h + vv3.PUZZLES + 4 + 8 * vv3.BEE_HIVE, 1)
+        out.append(_put(hive, h + vv3.HONEY + 4, base + 50_000_000, 100))
+        # ... and with its gain just overdue at the export's first moment, on a running clock at Fast and Normal:
+        # the time to full is then a date to come with no next-refill date of its own.
+        epoch = struct.unpack_from("<I", data, 4)[0]
+        wall = struct.unpack_from("<4i", data, h + vv3.CLOCK)[2]
+        for speed in (3, 6):
+            now_game = base + int((NOWS[0] - epoch - wall) * 6 / speed)
+            running = _put(_put(hive, h + vv3.CLOCK, speed), h + vv3.SPEED, speed)
+            out.append(_put(running, h + vv3.HONEY + 4, now_game - 3_700, 100))
     try:
         entries = ln._entries(game, data)
     except Exception:  # noqa: BLE001 -- a fixture without villagers gives no people pokes

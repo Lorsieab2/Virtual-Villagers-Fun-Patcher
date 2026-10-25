@@ -29,10 +29,18 @@
    INSTALLING.  VvfpStartup(game, shipped), called once by VVFP Startup.dll at game start.  The
    whole of set_speed (VV3 0x426630..0x426742, VV4 0x41DBE0..0x41DD0F) and the constants the stub
    uses must hold the stock bytes, or nothing is written; the one detour goes in through the
-   shared all-or-none writer (native/shared/install_sites.h). */
+   shared all-or-none writer (native/shared/install_sites.h).
+
+   A NEW HOME.  This is also the companion A New Home's Fix Vanilla Bugs ships, to start that
+   game's own fix there: the startup loader's list of companions is full (native/shared/
+   startup_companions.h, bits 1-29), so "VVFP VV1 Golden Child Safe.dll" -- the Golden Child is
+   never the villager of a natural island event that could kill him -- is loaded from here, by its
+   full path in the patcher's folder, and its VvfpStartup called; a fault in it is abandoned, and
+   without the file nothing happens.  Nothing of the speed fix runs in A New Home. */
 #include <windows.h>
 #include <string.h>
 #include "../shared/install_sites.h"
+#include "../shared/patcher_files.h"
 
 #define VV3_GAME 3
 #define VV4_GAME 4
@@ -245,9 +253,39 @@ static void install_vv4(void) {
     detour(VV4_SITE, VV4_SITE_LEN, vv4_from_paused, VV4_STOCK + (VV4_SITE - VV4_ROUTINE));
 }
 
+/* ---- A New Home: the Golden Child's fix, in its own companion ---------------------------- */
+
+#define VV1_GAME 1
+static const char GOLDEN_CHILD_SAFE[] = "VVFP VV1 Golden Child Safe.dll";
+typedef void (__stdcall *startup_fn)(int game, unsigned int shipped);
+static int vv1_started;
+
+static void start_vv1(int game, unsigned int shipped) {
+    HMODULE module;
+    startup_fn startup;
+    if (vv1_started) {
+        return;
+    }
+    vv1_started = 1;
+    module = vvfp_load_patcher_dll(GOLDEN_CHILD_SAFE);
+    if (module == NULL) {
+        return;
+    }
+    startup = (startup_fn)GetProcAddress(module, "VvfpStartup");
+    if (startup != NULL) {
+        __try {
+            startup(game, shipped);
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+        }
+    }
+}
+
 /* Called once by VVFP Startup.dll at game start, outside DllMain. */
 __declspec(dllexport) void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    (void)shipped;
+    if (game == VV1_GAME) {
+        start_vv1(game, shipped);
+        return;
+    }
     if (installed) {
         return;
     }

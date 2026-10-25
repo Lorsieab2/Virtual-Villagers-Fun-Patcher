@@ -1,0 +1,4 @@
+LIBRARY "VVFP VV1 Golden Child Safe"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpGoldenChildSafeInstalled=_VvfpGoldenChildSafeInstalled@0

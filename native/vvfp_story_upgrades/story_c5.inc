@@ -796,19 +796,21 @@ static int c5_farm_built(void) {
     return (TC1(0x43AE80u, 0x51E008u, 5) & 0xFF) != 0;
 }
 
-static int c5_value_get(int which) {
+static int c5_value_get(int which, int *now) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV5_WORLD_GLOBAL;
     if (world == NULL || which < 0 || which > 1 || (which == 1 && !c5_farm_built())) {
-        return -1;
+        return 0;
     }
-    return *(int *)(world + (which == 0 ? 0x17D58 : 0x17D5C));
+    *now = *(int *)(world + (which == 0 ? 0x17D58 : 0x17D5C));
+    return 1;
 }
 
 /* Plain writes, as the game's own events change them (0x414FB5, 0x41678B);
    the bushes' art is redrawn from the store every frame. */
 static int c5_value_set(int which, int amount) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV5_WORLD_GLOBAL;
-    if (c5_value_get(which) < 0) {
+    int now;
+    if (!c5_value_get(which, &now)) {
         return 0;
     }
     *(int *)(world + (which == 0 ? 0x17D58 : 0x17D5C)) = amount;

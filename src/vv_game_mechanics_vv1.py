@@ -73,8 +73,10 @@ CHANCE_LINES = (
      "hours, 4 hours or 6 hours 40 minutes, every missed one added on load; island events 30 minutes after the "
      "first, then 12 to 23 hours, at any speed; the 2-second village step; the 40-second idle sweep; a mushroom "
      "lasts 1 minute.", True),
-    ("A new village's first island event 15 minutes after it is made; the Golden Child's special action after 36 "
-     "hours; the tutorial mushroom 1 minute 40 seconds; step and screen timers.", False),
+    ("A new village's first island event 15 minutes after it is made; the tutorial mushroom 1 minute 40 seconds; "
+     "step and screen timers.", False),
+    # The Golden Child's timer (0x447A14..0x447A57): the full rule is in GOLDEN_CHILD_LINES.
+    ("The Golden Child's cave timer: 36 real hours after his birth, at any speed; see Golden Child.", True),
     ("The game may also save every 10 minutes while playing; this has not been seen in a game.", False),
 )
 LIFE_LINES = (
@@ -85,7 +87,8 @@ LIFE_LINES = (
     "Babies need room: under 15 people always; 15 or more need the first hut, 25 the second, 50 the third; none "
     "at 90. Villagers work from 14 and have children from 18.",
     "Sickness each age unit (14 and older): 1 in 600, 1 in 1,200 or 3 in 10,000 at Medicine 1, 2, 3; past 50, 58 "
-    "or 66 years 1.5% more. Children never fall sick. With food and not sick, a villager regains 1 health half the "
+    "or 66 years 1.5% more. Children never fall sick on their own (only The Measles Epidemic makes them sick). "
+    "With food and not sick, a villager regains 1 health half the "
     "age units (every one on Easy); past 50, 58 or 66 years 10% (20% on Easy).",
     "Building trips: huts 250, 400 and 600; the beach 75 (each counts 2); the blockage 350; the field 200; digging "
     "800; the ruins 1,000; chiseling 1,350 (the last two half as many at Building 90 or more). Each trip injures 2% "
@@ -139,6 +142,117 @@ HIDDEN_LINES = (
      'age units with food and no sickness (every one on Easy), a fifth of that past 50, 58 or 66 years '
      '(Medicine 1, 2, 3). Injuries: 2% of trips, 0 to 14 health building, 0 to 9 researching.', gm.RUNNING),
     ('A New Home has no fire.', gm.RUNNING),
+    # Breeding age 18 (the owner): the embrace checks both ages >= 360 (0x43DB35..0x43DB46), the catch-up embrace
+    # too (0x446E96, 0x446EA6).  The two 280 checks just before it in the catch-up code (0x446D39, 0x446E28) are
+    # the catch-up healers' patient test, not a breeding gate.  Under-14s never fall sick at random (0x42E590), but The
+    # Measles Epidemic (handler 0x4284FA) makes every living child sick, and those checks leave them uncured.
+    ("Breeding age: every embrace, the catch-up embrace included, needs both villagers 18 or older. The 14-year "
+     "checks beside the catch-up embrace in the game's code belong to catch-up healing: there the healer cures "
+     "only patients 14 or older. Children under 14 never fall sick at random, but The Measles Epidemic island "
+     "event makes every child sick, and catch-up healing never cures them: drop a healer on each sick child.",
+     gm.RUNNING),
+)
+
+# The Golden Child (the owner, 2026-10-24: "what is it -- the Cave Opening?").  Traced on the stock executable
+# (inputs\vv1-stock-copy), state offsets (a file offset is 4 more); the owner's save and logs agree (Lulu Chuchip:
+# born in hour 274, the cave opened in hour 275, male, head 19, body 19, every skill 100, age 100).
+#
+# The pick (0x448220, each time a villager picks what to do next): rand(100) <= 65 is "Nothing" (0x448266); the sick
+# are seen to first (0x44826F; he is never sick); under 14 years the child routine 0x4479B0 runs (0x44828A).  There
+# rand(100) <= 15 picks nothing (0x4479BD).  For family 199 (0x4479E5): rand(100) <= 20 runs his own routine
+# 0x446920 (0x4479F3), otherwise, when the whole hours since the village was started ((clock - [0x9E1C]) / 3600)
+# reach his birth hour [0x9E80] + 36 and the cave [0x9FA8] is shut, he is sent to open it (0x447A14..0x447A57).
+# 0x446920: rand(100) <= 25 a show in place (one of three animations, no effect: 0x44692E); otherwise rand(7)
+# (jump table 0x446C48): 0 berry bush +400 (effect 37, 0x43B050, message 0x39); 1 at Farming level 2+ the crop field
+# +400, no cap (effect 38, 0x43B070, message 0x3A); 2 food +150 and Food Gathered (effect 39, 0x43B090 -> 0x41D140,
+# message 0x3B); 3 and 4 nothing; 5 every living villager "Dancing" (0x4407D0; one who dislikes dancing, word 39,
+# only stops) and every sick one cured at once, People Cured +1 each ([0x9E2C], 0x446B77); 6 with the cave shut,
+# every living villager "Observing" (0x4408A0) and he opens it (0x446BE1).  Opening it (0x445910, "Unblocking the
+# Cave"): a walk to the boulder, then effect 1 (0x43ABC4): [0x9FA8] = 1, the map changed (0x414590, 0x416380), the
+# hour stamped at [0x9E50] and the message 0x13E.
+P_CHILD = 0.34 * 0.84                     # the pick reaches his choices: 34% (0x448266) x 84% (0x4479BD)
+P_TIMER = P_CHILD * 0.79                  # the 36-hour branch: 79% (0x4479F3)
+P_SHOW = P_CHILD * 0.21 * 0.26            # his routine (21%), the show (26%)
+P_ACT = P_CHILD * 0.21 * 0.74 / 7         # his routine, each of the seven acts
+GC_FLAG, GC_HOUR, CAVE_FLAG, CAVE_HOUR = 0xA008 + 4, 0x9E80 + 4, 0x9FA8 + 4, 0x9E50 + 4    # file offsets
+IDOL_FLAG, BUTTERFLIES_FLAG, GARDEN_FLAG = 0x9FD8 + 4, 0xA088 + 4, 0x9FC0 + 4
+FERTILITY = 4                             # the level's index: Fertility ([state+0xA2DC])
+CAVE_WAIT_HOURS = 36
+
+
+def _pc(p: float) -> str:
+    return f"{100 * p:.2g}%" if p < 0.1 else f"{100 * p:.1f}%"
+
+
+GOLDEN_CHILD_LINES = (
+    # 0x424150 case 13 (drop area 15, the water; 0x425065), y <= 900 (0x424186, the lagoon; below is the sea):
+    # pregnant ([rec+0x358], 0x424242), no Golden Child yet ([0xA008], 0x42424D), The Idol ([0x9FD8], 0x42425B),
+    # Fertility level 3 ([0xA2DC], 0x42426E).  0x424289 is the flag's only writer; 0x4242F8 makes him (family 199,
+    # 0x4242F3); 0x42431C/0x424326 clear her due and twin count, so the pregnancy is never delivered.
+    ("How he is born: drop a pregnant villager into the lagoon after The Idol is done, with Fertility at level 3. "
+     "There is no chance roll: those conditions always make him, at once, and otherwise the drop is an ordinary one "
+     "into the water. The pregnancy she carried ends there: its baby or babies are never born; the Golden Child takes "
+     "their place. The game's message: \"A miracle! One of your villagers gave birth to a special, golden child! No "
+     "one can doubt or deny his powers! Behold the Golden Child!\" The game makes only one Golden Child a village.",
+     gm.RUNNING),
+    # 0x43C7AF..0x43C80C (the creator for family 199); the owner's log (Lulu Chuchip); the owner's rule.
+    ("He is born a boy of exactly 5 years (100 age units) and stays 5 for life, with 100 health, every skill at 100, "
+     "head 19 and body 19; his likes and dislikes are rolled like anyone's. His family number is 199.", gm.OWNER),
+    # 0x42EB70..0x42EC74 (tests/test_vv1_golden_child_skips_the_age_unit.py).
+    ("He never eats, never starves, never falls sick, never dies of old age and never regains health: the game "
+     "skips him in its age-unit step.", gm.RUNNING),
+    # 0x44828A, 0x447B56 ("Meditating" for "Nature is calling!"), 0x447C62 (no "Curious about the cactus"),
+    # 0x41FBDC (text 0x5F), parents from 18 (LIFE_LINES).
+    ("As a child under 14 he never works and never has children; he picks a child's things to do, except that he "
+     "goes \"Meditating\" where another child goes \"Nature is calling!\" and is never \"Curious about the cactus\". "
+     "His villager panel shows \"Golden Child\" where others show their skill rank. He can be picked up and dropped "
+     "like anyone.", gm.RUNNING),
+    # 0x447A14..0x447A57; the clock 0x402F70 is the computer's time less the save's base (difftime, 0x44B6FE).
+    (f"The 36-hour action is the Cave Opening. From {CAVE_WAIT_HOURS} real hours after his birth, while the cave is "
+     f"still shut, each time he picks what to do there is a {_pc(P_TIMER)} chance (34% x 84% x 79%) that he walks to "
+     "the giant boulder (\"Unblocking the Cave\") and opens the cave. Exactly: the whole hours since the village was "
+     "started must reach his birth hour (the Puzzles screen's) plus 36, so it starts 35 to 36 real hours after his "
+     "birth (36 to 37 if he was born in the village's first hour).", gm.RUNNING),
+    ("The 36 hours are real hours on the computer's clock: 36 hours on Slow, Normal and Fast alike (10.8, 18 or 36 game "
+     "years, though he never ages). They count while the game is paused or closed; the load-time catch-up does "
+     "nothing for him; each Origins Time Warp moves the clock on 12 hours on Fast or Normal and 10 hours on Slow, which "
+     "counts towards them.", gm.RUNNING),
+    # 0x4479F3, 0x446920, 0x446C48 (see the comment above GOLDEN_CHILD_LINES).
+    (f"His own acts, at any time from his birth: each time he picks what to do, {_pc(P_SHOW)} a short show where he "
+     f"stands (nothing else happens), and {_pc(P_ACT)} each of: the berry bush +400 (\"The Golden Child magically "
+     "created berries!\"); at Farming level 2 or more the crop field +400, even past 800 (\"The Golden Child restored "
+     "the crops!\"); +150 food, counted in Food Gathered (\"The Golden Child magically created food!\"); every living "
+     "villager stops to dance (one who dislikes dancing only stops) and every sick villager is cured at once, each "
+     "counted in People Cured; and, while the cave is shut, opening the cave with every living villager "
+     "\"Observing\". So the cave can open before the 36 hours. Two in seven of these picks do nothing (three in seven below "
+     "Farming level 2).", gm.RUNNING),
+    # 0x43ABC4 (effect 1), 0x424635 / 0x4245F1 (drop areas 2 and 18), word 10 "caves".
+    ("Opening the cave: the boulder is gone, the Puzzles screen records the hour, and the game's message reads \"The "
+     "magical Golden Child moved the giant boulder and opened the cave! Maybe more clues about Isola's mysteries are "
+     "waiting to be found inside...\". It happens once: with the cave open he never tries again. From then dropping a "
+     "villager on the cave takes the game to the cave's own screen (on one of its two spots a villager who "
+     "dislikes caves starts nothing).", gm.RUNNING),
+    # 0x424B3A (drop area 32 with The Garden [0x9FC0]), 0x43F380 ("Calling Butterflies!"), effect 29 (0x43A4F7).
+    ("The Butterflies: once The Garden is done, drop him on the garden: he goes \"Calling Butterflies!\" and the "
+     "puzzle is done (\"The Golden Child called forth a group of beautiful butterflies to grace the new garden!\"). "
+     "Anyone else dropped there does the garden's ordinary action.", gm.RUNNING),
+    # 0x4243CF: not pregnant, The Magic Fish not found, Farming level 3, skill 0x3C4 at 90 or more.
+    ("With Farming skill 100 he can find The Magic Fish of Fertility when dropped into the lagoon at Farming level 3, "
+     "like any villager with Farming skill 90 or more.", gm.RUNNING),
+    # 0x445910's only callers 0x447A57 and 0x446C3D; effect 29 only from 0x43F380 (0x424B6E); 0x424289.
+    ("Only he opens the cave and only he calls the butterflies. If he dies or vanishes first, that village never gets "
+     "them: his puzzle cannot be done again.", gm.RUNNING),
+    # 0x42EF39: the birth of a pregnancy whose father ([rec+0x394], stored at conception 0x43BC04) is family 199.
+    ("A pregnancy fathered by a family-199 villager would bring a second Golden Child at its birth, beside her own "
+     "baby; he is always 5 and parents must be 18, so the stock game never reaches it.", gm.RUNNING),
+    # Health losses do not check family 199 (HIDDEN_LINES); the island events' villager picks take him like anyone
+    # (no family-199 test in their pickers), with the outcomes EVENT_LINES gives.
+    ("How he can leave: health he loses never comes back, and at 0 health he dies. In the original game island "
+     "events can pick him like any villager: Strange Berries (49% death), a large fruit crate (110 health lost, "
+     "fatal from his 100) and the other events' health losses, which add up; Mysterious Face and The Book make the "
+     "villager they pick vanish.", gm.RUNNING),
+    ("Start Over deletes the village's save: the new village has no Golden Child, and his puzzle can be done again.",
+     False),
 )
 
 
@@ -267,6 +381,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.extend(gm.hours_puzzle_lines([name for name, _flag, _hours in PUZZLES],
                                      lambda n: data[PUZZLES[n][1] + 4] != 0,
                                      lambda n: _i32(data, PUZZLES[n][2] + 4), real(CREATED)))
+    out.extend(golden_child_facts(village, data, real(CREATED), level))
 
     # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
     regrow_at = None if paused else real(REGROW)
@@ -277,15 +392,74 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     return out
 
 
+def _hours(n: int) -> str:
+    return f"hour {n:,} of the village"
+
+
+def golden_child_facts(village: gm.Village, data: bytes, created: float, level: list[int]) -> list[gm.Fact]:
+    """The Golden Child subsection: the rules (GOLDEN_CHILD_LINES), then this save's Golden Child, his puzzle and
+    the cave's 36-hour timer, with its real moment for the live countdown.  The hour stamps are whole hours since
+    the village was started, 1 for 0 (0x4242AD, 0x43AC08); the clock is real time, so the timer runs on while the
+    game is paused or closed and its moment is real even in a save left paused."""
+    group = gm.GOLDEN_CHILD
+    out: list[gm.Fact] = []
+    add = lambda text, ok, due=None, kind=None: out.append(gm.Fact(group, text, ok, False, due, kind))  # noqa: E731
+    born = data[GC_FLAG] != 0
+    born_hour = _i32(data, GC_HOUR)
+    cave_open = data[CAVE_FLAG] != 0
+    if not born:
+        idol = data[IDOL_FLAG] != 0
+        fertility = _i32(data, LEVELS + 8 * FERTILITY)
+        needs = []
+        if not idol:
+            needs.append("The Idol done")
+        if fertility < 3:
+            needs.append(f"Fertility at level 3 (it is level {fertility})")
+        add("This village has no Golden Child yet. " + (
+            "Everything he needs is in place: drop a pregnant villager into the lagoon." if not needs else
+            "First it needs " + " and ".join(needs) + "; then drop a pregnant villager into the lagoon."), gm.SAVE)
+    else:
+        people = life.people(village) or []
+        golden = [p for p in people if p.golden]
+        when = gm.when(created + born_hour * 3600)
+        if golden:
+            for p in golden:
+                add(f"{p.name} is this village's Golden Child, born in {_hours(born_hour)} (from about {when}); "
+                    f"health {p.health}.", gm.SAVE)
+        else:
+            add(f"This village's Golden Child was born in {_hours(born_hour)} (from about {when}), but no Golden "
+                "Child lives in it now; the game never makes another.", gm.SAVE)
+        if cave_open:
+            add(f"The cave was opened in {_hours(_i32(data, CAVE_HOUR))}: his 36-hour timer is spent.", gm.SAVE)
+        elif not golden:
+            add("The cave is still shut, and with no Golden Child it can never open.", gm.SAVE)
+        else:
+            due = created + (born_hour + CAVE_WAIT_HOURS) * 3600
+            if due > village.now:
+                add(f"The cave is still shut. His 36 hours are up at {gm.when(due)} (real time, at any speed, paused "
+                    f"or not); until then only his {_pc(P_ACT)} act can open it.", gm.SAVE, due, "due")
+            else:
+                add(f"The cave is still shut and his 36 hours were up at {gm.when(due)}: each time he picks what to "
+                    f"do, a {_pc(P_TIMER)} chance he opens it.", gm.SAVE)
+        if data[GARDEN_FLAG] != 0 and data[BUTTERFLIES_FLAG] == 0 and golden:
+            add("The Garden is done and The Butterflies is not: drop him on the garden.", gm.SAVE)
+    out.extend(gm.Fact(group, line, ok) for line, ok in GOLDEN_CHILD_LINES)
+    return out
+
+
 def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, level: list[int], bush: int,
              saved: float, regrow_at: float | None, event_at: float | None) -> life.Context:
     farming = level[FARMING]
-    every = gm.duration(gm.real_seconds(REGROW_UNITS * UNIT, speed_value))
-    sources = [life.Source("Berry bush", bush, None, 30 / REGROW_UNITS, regrow_at, f"+30 every {every}", verified=gm.SAVE),
+    every = life.every_real(REGROW_UNITS * UNIT, speed_value).removeprefix("every ")
+    # The regrowth's own steps (0x42EC0D, 0x42F2C5): +30 to the bush (no limit), +800 up to 800 to the field.
+    steps = dict(interval=gm.real_seconds(REGROW_UNITS * UNIT, speed_value), next_at=epoch + _i32(data, REGROW),
+                 first_in=life.resumed(max(0, _i32(data, REGROW) - _i32(data, SAVED)), speed_value), rule=gm.RUNNING)
+    sources = [life.Source("Berry bush", bush, None, 30 / REGROW_UNITS, regrow_at, f"+30 every {every}", verified=gm.SAVE,
+                           step=30, **steps),
                life.Source("Crop field", _i32(data, FIELD), FIELD_CAP, FIELD_CAP / REGROW_UNITS if farming >= 2 else 0.0,
                            regrow_at if farming >= 2 else None,
                            f"refilled to {FIELD_CAP} every {every}" if farming >= 2 else "no refill below Farming level 2",
-                           verified=gm.SAVE)]
+                           verified=gm.SAVE, step=FIELD_CAP if farming >= 2 else 0, **steps)]
     if farming >= 3:
         sources.append(life.Source("Fishing (Farming level 3, the beach cleaned)", None, unlimited=True,
                                    refill_words="the sea never runs out", verified=gm.RUNNING))
@@ -295,14 +469,17 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
         village, speed_value, saved, _i32(data, FOOD), low_food=200, extra_from=2001, sources=sources,
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 7, ÷ 5 or ÷ 3 at Science 1 to 3).",
         brown=8, red=45, red_share=0.05, mushrooms_an_hour=30.0, golden=golden,
-        mushroom_words="While none is out one appears about every 2 minutes at any speed and stays 1 minute; it is "
-                       "picked only when you drop a villager on it, so at most about 30 an hour.",
+        mushroom_words="While none is out one appears about every 2 real-life minutes at any speed and stays 1 "
+                       "real-life minute; it is picked only when you drop a villager on it, so at most about 30 per "
+                       "real-life hour.",
         event_next=event_at,
         event_paused_left=max(0, _i32(data, EVENT) - _i32(data, SAVED)) if paused else None,
-        event_rule="It comes 12 to 23 whole hours after the last, each hour equally likely, at any speed; which "
+        event_rule="It comes 12 to 23 whole real-life hours after the last, each hour equally likely, at any speed; which "
                    "event is drawn then (a story event 20%, a village event 40%, a crate or vial 40%).",
         event_running="Paused, its timer waits; with the game closed it runs on in real time, and after time away at "
-                      "most one event happens; the catch-up adds none. What a Time Warp does to it is not worked out.",
+                      "most one event happens; the catch-up adds none. A Time Warp does not move it: its only writers are the "
+                      "game's own rescheduling (0x423891, 0x42391A, 0x423A37, 0x423A6F) and the Origins Island Event "
+                      "(0x456B47; native/shared/island_timer_vv1.inc).",
         medicine=level[3], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71}, parents_from=18,
         sick_loss=(0.71, 0.22),
         collectibles=[("Collectibles: A New Home has none; mushrooms are its only random pickup.", gm.RUNNING)],
