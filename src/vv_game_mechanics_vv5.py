@@ -17,6 +17,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_faith_vv5 as faith
 import vv_game_mechanics_life as life
 import vv_save_backup
 
@@ -55,10 +56,10 @@ EVENT_LINES = (
      "From Another Tribe (a newcomer) need room for more villagers.", False),
     ("Rolled results: You're Doing It Wrong! (teach them), Advanced Artifacts (independent report) and Defector "
      "(accept) are 50/50.", gm.RUNNING),
-    ("Vision faith +20 to +39; Strange Crystals +2,000 to 2,999 tech points; Pesky Critter -500 to -2,999 tech "
+    ("Vision Faith +20 to +39; Strange Crystals +2,000 to 2,999 tech points; Pesky Critter -500 to -2,999 tech "
      "points; Mushroom Day +50 to 99 food and -500 to -1,499 tech points.", False),
     ("Heathen Toy +20 to 29 Research or Devotion; Cracked Mask (fix it) -20 to 30 health; Barrels and Chutes up to "
-     "3 ten-year-olds, each 50% a boy, with one random skill at 5 to 9 (a heathen barrel's babies start at faith "
+     "3 ten-year-olds, each 50% a boy, with one random skill at 5 to 9 (a heathen barrel's babies start at Faith "
      "-55); a newcomer is 18, 50% a man, with a random skill at 80 to 84.", False),
 )
 LIFE_LINES = (
@@ -67,11 +68,7 @@ LIFE_LINES = (
     ("A believer who is not sick regains 1 health half the age units, 75% while the fire burns, every one at "
      "Medicine 3 or on Easy; old villagers a fifth of that. At 500 food or less a believer loses 1 health 15% of "
      "age units.", gm.RUNNING),
-    ("Belief each age unit: down 37% with food under 10, 10% at 250 or less, 15% when sick, (12 - believers)% "
-     "under 12 believers; up 20% at 8,000 food or more, 30% with the Idol, 10% or 20% at statue stage 1 or 2, "
-     "10/20/30% at Spirituality 1/2/3, (believers ÷ 5)% at 12 or more. A drop is skipped half the time below "
-     "belief 5, a rise 70% of the time above 75.", gm.RUNNING),
-    ("A believer turns heathen at belief 0 or less; a new villager's starting faith is 30 to 59.", False),
+    ("Faith: how it rises and falls, and Heathens, are in the Faith and Heathens group.", gm.RUNNING),
     ("Conception after an embrace: (Breeding - 50 + 50 x Medicine level + 1) in 300 (17%, 33% or 50% at Breeding "
      "50); the village's first is certain; a mother of 50 or more never conceives. At Medicine 3: 93% single, "
      "5.3% twins, 1.8% triplets.", gm.RUNNING),
@@ -89,7 +86,7 @@ HIDDEN_LINES = (
      'minutes: 6 age units a minute on Fast, 3 on Normal, 2 on Slow -- 30, 15 or 10 units in all (1.5, 0.75 or '
      '0.5 years). Quitting during those 5 minutes loses the rest.', gm.RUNNING),
     ("Preaching to a heathen: the preacher's Devotion check (35% at Devotion 0, 83% at 50, sure at 88) gives "
-     'the heathen 3 belief, 4 at Devotion 50, 5 at 88; then that heathen cannot be preached to for 2 hours '
+     'the heathen 3 Faith, 4 at Devotion 50, 5 at 88; then that heathen cannot be preached to for 2 hours '
      '(the 800-energy God Power sets the same wait).', gm.RUNNING),
     ('Liking learning makes a skill check succeed at skill + 66% instead of + 33% (+ 15 or + 30 at Learning 2 '
      'or 3); disliking it, + 16%. A success gains (70 - skill) ÷ 18 (Parenting ÷ 10, Healing ÷ 12), at least 7 '
@@ -132,7 +129,7 @@ CHANCE_EXTRA = (
     ('104 rolls are verified: every one in the groups above.', gm.RUNNING),
     ('About 2,250 more rolls (where villagers walk, how long they wait or animate, sounds and voices, pickers, '
      'God Power side effects, child and leisure choices): not individually worked out.', False),
-    ('Spreading the Word gives a random heathen 30 belief and marks them for 2 hours; the Earthquake marks '
+    ('Spreading the Word gives a random heathen 30 Faith and marks them for 2 hours; the Earthquake marks '
      'every heathen the same way.', False),
     ('Timers: an age unit 3, 6 or 10 minutes; noni +2 at the same pace; crops every 2 hours, 4 hours or 6 '
      'hours 40 minutes; the next island event 15 minutes, then 30 minutes, then 8 to 15 hours; weather 1.5 to '
@@ -214,7 +211,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "1,500 tech points from the second.", gm.RUNNING)
     add("Collectibles", "The Earthquake God Power drops one collectible 10 seconds after it is cast: 72% uncommon, "
                         "28% rare.")
-    add("Collectibles", "The Earthquake also raises every villager's belief by 2 to 8.")
+    add("Collectibles", "The Earthquake also raises every villager's Faith by 2 to 8.")
 
     # -- Tech points and Divine Energy ---------------------------------------------------
     add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
@@ -247,7 +244,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     for n, fact in enumerate(out):
         if fact.text.startswith("Saved paused:"):
             out[n] = gm.Fact(fact.group, fact.text, gm.RUNNING)
-    add("Time away and Time Warp", "While catching up, each counted age unit runs the believers' life (eating, belief, "
+    add("Time away and Time Warp", "While catching up, each counted age unit runs the believers' life (eating, Faith, "
                                    "Divine Energy, sickness, births) and 4 jobs: crops 7 food, research ÷ 7, ÷ 7 or "
                                    "÷ 5, no lab mishaps.", gm.RUNNING)
     add("Time away and Time Warp", "Every noni growth and crop refill missed while the game was closed is added when "
@@ -339,6 +336,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                    "Medium at 8,000 or more, or on Hard, 2 more 76% of the time; never more on Easy.",
         trips=[("noni picks", max(2, noni // 100)), ("crop harvests", harvest if farm else 0), ("fish", 4)])
     out.extend(life.sections(ctx))
+    out.extend(faith.lines(village))
     return out
 
 

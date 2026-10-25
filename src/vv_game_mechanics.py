@@ -50,7 +50,7 @@ TITLE = "Game Mechanics"
 # Vital statistics first (the owner, 2026-10-24), then where the page's facts come from, then the village's people
 # and clocks (src/vv_game_mechanics_life.py), then the rules.
 GROUPS = ("Vital statistics", "Village counts", "Sources", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
-          "Food earned", "Time away and Time Warp", "Island events", "Puzzles", "Golden Child",
+          "Faith and Heathens", "Food earned", "Time away and Time Warp", "Island events", "Puzzles", "Golden Child",
           "Hidden villager stats", "Chance and timers", "Other")
 PUZZLES = "Puzzles"
 GOLDEN_CHILD = "Golden Child"                 # A New Home only: vv_game_mechanics_vv1.golden_child_facts
