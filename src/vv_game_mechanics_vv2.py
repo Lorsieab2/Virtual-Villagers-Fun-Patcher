@@ -321,7 +321,18 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         + {gm.FAST: "twice that on Fast speed", gm.NORMAL: "as it is on Normal speed",
            gm.SLOW: "halved on Slow speed when above 1"}[speed]
         + "; a lit fire adds a 10% chance of 1 more. While catching up ÷ 7, ÷ 6 or ÷ 4."), gm.RUNNING)
-    add("Tech points and effects", "Esteemed Elders and their totems: see Village counts.", gm.RUNNING)
+    if village.general:
+        # The general page has no Village counts group (gm.general leaves counts.facts out), so the elder rules
+        # stand here; a save's page keeps its one copy under Village counts (counts.vv2_lines).
+        add("Tech points and effects", "Esteemed Elders: about every 2 real-life seconds while the game runs, any "
+                                       "living villager who is not yet an elder and has 3 of the 5 skills at 88 or "
+                                       "more becomes one and gets a totem (0x44D4C0, 0x44D190); no dice roll, no age "
+                                       "condition, the same at every speed.", gm.RUNNING)
+        add("Tech points and effects", "Normal game: at most 50 totems (0x44D4D1, 0x44D54C): with 50 standing no new "
+                                       "elder is made, and each totem takes one of the 256 villager records.",
+            gm.RUNNING)
+    else:
+        add("Tech points and effects", "Esteemed Elders and their totems: see Village counts.", gm.RUNNING)
 
     # -- Food earned: the eating odds are under Chances ------------------------------------
     add("Food earned", f"Each villager eats 2 food every age unit ({gm.duration(60 * speed)} of real-life play on {on} "

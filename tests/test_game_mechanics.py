@@ -794,6 +794,18 @@ class LostChildrenAudit(unittest.TestCase):
         self.assertIn("4 to 5, 5 to 8 or 7 to 11 at Culture level 1, 2 or 3", text)
         self.assertIn("fuel does not light a cold pit", text)
 
+    def test_elder_rules_once_on_each_page(self) -> None:
+        # The general page has no Village counts, so the rules stand under Tech points; a save's page has them
+        # once, under Village counts (the Codex review of #640).
+        general = text_of(gm.general(2, EPOCH))
+        self.assertIn("has 3 of the 5 skills at 88 or more becomes one and gets a totem", general)
+        self.assertIn("Normal game: at most 50 totems", general)
+        self.assertNotIn("see Village counts.", general)
+        text = text_of(self.page("vv2-huttest-1"))
+        self.assertEqual(text.count("has 3 of the 5 skills at 88 or more becomes one and gets a totem"), 1)
+        self.assertEqual(text.count("Normal game: at most 50 totems"), 1)
+        self.assertIn("Esteemed Elders and their totems: see Village counts.", text)
+
 
 VV4_STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Tree of Life.exe"
 
