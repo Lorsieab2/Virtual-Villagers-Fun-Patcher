@@ -18,6 +18,7 @@ import struct
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_death as death
+import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
 import vv_save_backup
 
@@ -33,27 +34,6 @@ LEARNING = "vv4_learning_never_fails"
 SCALES = "vv4_complete_scales_golden_fish"
 STORY = "vv4_story_cheat_upgrades"
 
-# (line, verified)
-EVENT_LINES = (
-    ("Which event: every event whose conditions hold is equally likely (1 in the number of them; Aspiring Doctor "
-     "counts 6 times). Rescue: with one sex down to 2 or fewer, or fewer than 3 villagers, 6% more become "
-     "Daredevil Barrel, even when it could not otherwise happen.", gm.RUNNING),
-    ("Rolled results: Arc of Colors (run right) 50% a fall (-25 to 44 health), 50% +300 food; Sealed Box (swim "
-     "it back) 50% +5000 tech points, 50% the villager is lost; Innovation in Construction or Farming (try it) "
-     "60% a skill gain, 40% -75 to 149 health.", gm.RUNNING),
-    ("Creeping Mold -100 food (or all of it); Mysterious Footprints +300 food, -300 food, +2000 or -2000 tech "
-     "points; A Closer Look +350 berries; Robber Crab (cut the tail) healing for several, (let go) Food Mastery "
-     "+1 level; Phosphorescent Fungi (throw away) Research +40 to 49, sick, -15 to 19 health, (admire) some fall "
-     "sick; Stinging Wasps some lose 10 to 19 health.", False),
-    ("Village & Tree Malaise (fewer than 3 tree stages) some lose 5 to 14 health or fall sick; Euphoria (3 or "
-     "more) everyone cured and fully healed; Pure Sea Air everyone cured; Cold Snap (the fire lit) puts the fire "
-     "out; Daredevil Barrel (room, the stream restored, some debris) up to 3 babies; Abandoned Infants (6 women, "
-     "room) babies for 6 women.", False),
-    ("Day of Honor needs 2 graves, Banyan Festival 500 mushrooms found and 3 tree stages; Allergy Season, Isola "
-     "Day, Blessings Day, Rainy Season and Monsoon change nothing stored. Pink Shell, Calabash, Faces in the "
-     "Night, Screaming Baby, Wet Book, The Lie, Aspiring Doctor, Aspiring Scientist, Pretty Shell, Legendary "
-     "Stranger, Climber, Mosquito Larvae and Tough Lessons have a fixed result for each choice.", False),
-)
 STEW_LINES = (
     ("Stews need 3 herbs and fresh water in a cooked pot; a ready stew is gone 5 real-life minutes later at every "
      "speed. Spicy x3: runs to "
@@ -124,7 +104,8 @@ LIFE_LINES = (
      "like learning, half if they dislike it.", gm.RUNNING),
     ("Building: a hut needs 2000 -- the first hut gains 12 a visit, the second 4, the third 1; the clothing hut "
      "12, the Love Shack 200, the nursery and the hospital 50. Babies need the Love Shack; women of 50 or more "
-     "cannot conceive; a baby is of the rarer sex when it is down to 2 or fewer. The Fire Pit stays lit 10, 20 "
+     "cannot conceive; with 6 or fewer villagers a baby is of the more common sex when the other is down to 2 "
+     "or fewer (see Births and gender). The Fire Pit stays lit 10, 20 "
      "or 33 hours 20 minutes on Fast, Normal or Slow. A research try injures (0 to 9 health) 2% of the time.",
      False),
 )
@@ -258,7 +239,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      f"mushrooms (all of them in rain or on wet ground): brown 92% worth {food(6)} food, red (rare) 8% "
                      f"worth {food(35)}.", False)        # the 35 one is the game's rare mushroom ("You picked N rare mushrooms")
     if village.has(GOLDEN):
-        add("Mushrooms", gm.golden_line(GOLDEN, "about 5 years of play"), gm.RUNNING)
+        out.extend(gm.golden_lines(GOLDEN, 3600 / 45 * 0.30, speed_value, "something about every 45 real-life seconds "
+                                   "at every speed, 30% of them mushrooms on dry ground in fair weather"))
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "
@@ -269,10 +251,23 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Collectibles", "The four collections are the Fish Scale, Lab Equipment, Mausoleum Mural and Wind Flute sets; "
                         "ghost visits need the Mausoleum Mural set complete.", gm.RUNNING)
     add("Collectibles", "Fog increases collectible spawning if you have Wind Flute pieces collected.", gm.OWNER)
+    add("Collectibles", (
+        "Exactly (0x41437E): each update of the village (while not paused) something appears when a roll of 0 to 5,999 "
+        "comes under 4 -- 24 in 32,768 -- and, when the weather level is above 50 (rain or wet ground), a second such "
+        "roll gives another chance. In fog the first roll's 4 becomes 4 for every 2 Wind Flute pieces found (0x413B90 "
+        "on the set 0x6A..0x75): no spawns at all from it with 0 or 1, the normal chance with 2 or 3, twice it with 4 "
+        "or 5, up to 6 times it (144 in 32,768) with all 12."), gm.RUNNING)
+    flutes = life.collectible_counts(village)
+    if flutes is not None and len(flutes) >= 48 and not village.general:
+        found = sum(1 for c in flutes[36:48] if c > 0)
+        out.append(gm.Fact("Collectibles", (
+            f"This village: {found} of the 12 Wind Flute pieces found, so in fog the first roll's chance is "
+            f"{6 * 4 * (found // 2)} in 32,768 each update."), gm.SAVE, True))
     add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 minutes (every 23 to 25 once "
                         "Decorate Tree is done); it changes nothing.", gm.RUNNING)
-    add("Collectibles", "How much each Wind Flute piece adds in fog, and what a cold snap does, is not yet worked out. "
-                        "Each complete collection raises the population limit by 5, all four by 25.")
+    add("Collectibles", "The Cold Snap island event brings fog and puts the fire out (0x414BD0). Each complete "
+                        "collection raises the population limit by 5, all four by 25 (the room check 0x468350).",
+        gm.RUNNING)
 
     # -- Tech points ---------------------------------------------------------------------
     add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
@@ -301,15 +296,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events -------------------------------------------------------------------
-    first = " (30 minutes while none has been seen yet)" if _i32(data, EVENTS_SEEN) == 0 else ""
     add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
-    add("Island events", f" Island events come every 8 to 15 whole hours, each "
-                         f"equally likely, at any speed{first}; paused time does not count; after time away at most "
-                         "one happens.", gm.RUNNING)
-    for line, ok in EVENT_LINES:
-        add("Island events", line, ok)
-    if village.has(STORY) is not False:
-        add("Island events", gm.patch_words(village, STORY, "Pick Island Event chooses the event and its rolls"))
+    out.extend(events.facts(village))          # the catalog (src/vv_game_mechanics_events_vv4.py)
 
     # -- Other ---------------------------------------------------------------------------
     for line, ok in HIDDEN_LINES:

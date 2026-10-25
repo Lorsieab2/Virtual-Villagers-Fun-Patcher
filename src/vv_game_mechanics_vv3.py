@@ -52,6 +52,7 @@ from pathlib import Path
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_death as death
+import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
 
 GAME = 3
@@ -566,56 +567,6 @@ MORTALITY = "vv3_nature_level_three_alters_mortality"
 STORY = "vv3_story_cheat_upgrades"
 SOURCE = "(from the patcher's island event report)"
 
-EVENT_LINES = (
-    "Which event: every one of the 57 events whose conditions hold is equally likely; if none qualifies, "
-    "nothing happens. None is limited to once per village.",
-    "Rescue: with 2 or fewer of the outnumbered sex, or fewer than 3 villagers, the event is instead The Crystal "
-    "of Reflections 4.5% of the time, The Canoe from the Other Side 4.5% and Another One of Those Barrels 6%.",
-    "Always possible: The Plague Of Ants, The Allergy Season, Isola Day Celebration, The Mysterious Fog (food "
-    "gained, food lost, tech gained, tech lost), Blessings Day Celebration, The Reflection in the Water, The "
-    "Rainy Season, The Salty Air, The Oppressive Humidity, \"Thick as Pea Soup\", The Stinging Jellyfish and The "
-    f"Yellow Geckos {SOURCE}.",
-    "Room for more villagers: The Canoe from the Other Side, Another One of Those Barrels, and with an adult, The "
-    "Crystal of Reflections (a copy of the villager if it is kept). Day of Honor needs 2 graves; The Science Fair "
-    "3 children; The Low Tide 8 villagers besides the chief (grabbing the fish sweeps each away at 20%, on a 50% "
-    "coin); The Tsunami 15 of the 16 puzzles and 2 women and 2 men (each villager swept away at 15%).",
-    "The Bee Hive solved: The Miraculous Bloom, and with an adult The Hole in the Hut. The Alchemy Lab solved: The "
-    "Blue Pearl. Nature level 1: The Ghostly Dream (nature or healing); Magic level 1: The Ghostly Dream (research "
-    "or architecture). Medicine level 2: The Medical Emergency. A burning fire: The Cold Snap. 500 mushrooms "
-    "brought home: The Mushroom Celebration. A Tribal Chief: The Chief's Address.",
-    "Science below level 2: The Bitter Brown Beans (taste or dye) and The Ancient Tablet (laundry or decoration); "
-    "Science 2 or more: The Bitter Brown Beans (brew or fertilizer), and with Alchemy below 3 The Ancient Tablet "
-    "(research or display).",
-    "A child: The Ants and the Granary, The Playful Otters, The Ant Hill, The Shooting Star; with an adult of "
-    "Research 30 or more, The Lazy Apprentice. A man of 18 or more and 2 women: The Daredevil. A woman and a "
-    "man of 18 to 49: The Lovers (her gift, his gift). A woman of 18 to 49: Vanity and the Bee, The Noisy Bird.",
-    "Any adult (or, for some, any villager): The Green Pearl, The Red Starfish, The Blue Starfish, Bed Bugs, The "
-    "Royal Jelly, The Omen in the Clouds, The Mysterious Vial (quartz, obsidian, amber), The Mango and the "
-    "Papaya (the swim decided by a 50% coin), The Return of Biggles; 3 adults of 18 to 49: The Mysterious Crate. "
-    f"The weather events last about 3 to 6 minutes {UNSURE}.",
-    "Rolled results: The Tsunami sweeps each villager away at 15%; The Daredevil (swims) the ladies swoon 75%, a "
-    "crab bites 25%; The Medical Emergency (tried) recovery 50%, death 50%; The Mysterious Vial, obsidian or amber "
-    "(tasted) three results at 33/33/34% (the quartz vial goes by age); The Mysterious Crate (opened) coconuts 50%, "
-    "tarantulas 50% (sick and 10 to 29 health lost); The Omen in the Clouds one of 4 omens, 25% each; The Bitter "
-    "Brown Beans (dye) one of two looks, 50% each; The Low Tide and The Mango and the Papaya a hidden 50% coin.",
-    "The Mysterious Fog: food gained or lost (population ÷ 20 + 1) x 300, tech points gained or lost (population "
-    "÷ 20 + 1) x 2,000; a loss takes no more than there is.",
-    "Results on the villager picked: The Daredevil swoon Breeding +30, crab Breeding -5 to -14 and health -5 to -10; "
-    "The Ghostly Dream Farming or Healing +21 to +39, or Research or Building +20; The Bitter Brown Beans taste food "
-    "+200 and tech +1,000, brew food +600 and tech +2,000; The Green Pearl health +50 or Breeding +15 to +29; The "
-    "Blue Pearl Research +20 to +34; The Lazy Apprentice (new teacher) Farming +21 to +39 and Building +10 to +19.",
-    "The Omen in the Clouds (warn) omen 4 Research +15 to +24, (dance) sick; The Playful Otters Farming +15 to +29; "
-    "The Ant Hill health -5 to -14; The Ants and the Granary Farming +5 to +9; Bed Bugs sick and health -5 to -9; "
-    "Vanity and the Bee (swat) sick and health -15 to -24; The Lovers Breeding +25; The Medical Emergency success "
-    "Healing +40, failure death; The Mysterious Vial quartz 20 years younger, amber Research +15 to +44 or 5 years "
-    "younger and health +50; The Mysterious Crate coconuts food +500, tarantulas food +400, sick and health -10 to "
-    "-29; The Royal Jelly Healing +15 to +29; The Shooting Star food +200 or Research +25 to +49; The Return of "
-    "Biggles Research +20 to +44 or tech points.",
-    "The Ghostly Dream needs Nature level 1 or more (nature or healing: Farming or Healing +20 to +39) or Magic "
-    "level 1 or more (research or architecture: Research or Building +20), and a villager of 18 or more who is not "
-    "pregnant or nursing and not the chief; skills stop at 100. With both factions both can happen, as separate "
-    "events.",
-)
 ODDS_LINES = (
     "Brewing a potion blows up {blow}% of the time at Alchemy level {alchemy} (46%, 31%, 16% or 1% at Alchemy "
     "0 to 3).",
@@ -629,9 +580,10 @@ ODDS_LINES = (
     "A baby is born on the 41st age unit after conception. A healthy villager with food regains 1 health about "
     "half of the age units on Normal difficulty (every one on Easy); a sick one loses 1 health 61% of them. A "
     "successful building action adds 1 to the building, 2 when a supervising chief wins the Leadership roll.",
-    "Potion effects last 10 minutes (feels smarter, scientific clarity, hiccups, garlic breath, bubble breath, crazy "
-    "talk and two more), 5 minutes (light and springy, fertility +50, everyone slowing down, strong fertility +100) "
-    "or happen at once (the rest, such as curing sickness), in real time.",
+    "Potion effects are kept 10 real-life minutes (feels smarter, scientific clarity, hiccups, much healthier, feels "
+    "better with 10 to 14 health, stinky breath, tasted soapy, crazy talk), 5 real-life minutes (light and springy, "
+    "fertile +50, everyone else slowing down, very fertile +100), with no time limit (the two vials carried to the "
+    "ocean) or not at all (the rest, such as curing sickness, which happen at once).",
     "Herbs never run out: a bush can be gathered without limit once the Alchemy Lab is restored. A villager cannot "
     "drink a potion whose effect they already have, or any potion while they already have 4 effects.",
 )
@@ -652,11 +604,12 @@ CHANCE_LINES = (
     ("Timers: the game's clock runs 2 times, 1 time or 0.6 times real time on Fast, Normal or Slow, and stops while "
      "paused; an age unit is 3, 6 or 10 real-life minutes, a villager year 1 hour, 2 hours or 3 hours 20 minutes "
      "of real life; a birth 41 age units; a planted fruit tree can be picked after 4, 8 or 13 hours 20 minutes of "
-     "real life; an item lies 90 real-life seconds (still counting while paused, when no new ones appear).", True),
+     "real life; an item lies 90 real-life seconds (still counting while paused, when no new ones appear); a clear "
+     "sky lasts 15 to 30 real-life minutes on Normal speed and any other weather 3 to 6 (0x41FB40).", True),
     ("A brewed potion: the pot's on-screen countdown starts at 5:00 on Normal speed, 2:30 on Fast and 8:20 on Slow "
      "(what it shows changes with the speed), and the potion is gone when it reaches 0:00.", True),
     ("Villagers re-decide what to do every 40 seconds at any speed; a fixed-spot coral appears for 90 seconds from "
-     "puzzle code; the weather, fire and shark timers' lengths; the game may also save every 10 minutes while "
+     "puzzle code; the fire and shark timers' lengths; the game may also save every 10 minutes while "
      "playing (not seen in a game: a 30-minute run left no new save).", False),
 )
 
@@ -733,7 +686,8 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     add("Mushrooms", "In fair weather 30% of them are mushrooms, in rain all: 92% are brown mushrooms worth 6 food, 8% "
                      "red (rare) mushrooms worth 35, counted when they reach the food bin.", gm.RUNNING)
     if village.has(GOLDEN):
-        add("Mushrooms", gm.golden_line(GOLDEN, "about 6 years of play in fair weather"), gm.RUNNING)
+        out.extend(gm.golden_lines(GOLDEN, 18.0, speed_value, "about one thing a real-life minute at every speed, "
+                                   "30% of them mushrooms in fair weather (all of them in rain, which makes it sooner)"))
     add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity.", gm.RUNNING)
@@ -769,14 +723,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
-    add("Island events", f" Island events come every 8 to 15 whole hours at any "
-                         "speed, each hour about equally likely; the first of each time the game is started comes "
-                         "30 minutes after it.", gm.RUNNING)
-    add("Island events", "A new village's first event comes 15 minutes after it is made; paused time does not count.")
-    for n, line in enumerate(EVENT_LINES):
-        add("Island events", line, gm.RUNNING if n in VERIFIED_EVENT_LINES else False)
-    if village.has(STORY) is not False:
-        add("Island events", gm.patch_words(village, STORY, "Pick Island Event chooses the event"))
+    out.extend(events.facts(village))
 
     fire = wall(FIRE_END)
     # Saved with the clock stopped, the deadline waits from the moment the clock stopped (its wall base): unpausing

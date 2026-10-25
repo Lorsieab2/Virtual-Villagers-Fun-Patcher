@@ -166,9 +166,13 @@ class ReleasesLinkTests(unittest.TestCase):
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
-               "vv_game_mechanics_vv4", "vv_game_mechanics_vv5", "vv_game_mechanics_life",
+               "vv_game_mechanics_vv4", "vv_game_mechanics_vv5", "vv_game_mechanics_life", "vv_game_mechanics_counts",
                "vv_game_mechanics_death", "vv_game_mechanics_genetics", "vv_game_mechanics_catchup",
-               "vv_game_mechanics_powers_vv5"}
+               "vv_game_mechanics_powers_vv5", "vv_game_mechanics_chances", "vv_game_mechanics_chances_vv1",
+               "vv_game_mechanics_chances_vv2", "vv_game_mechanics_chances_vv3", "vv_game_mechanics_chances_vv4",
+               "vv_game_mechanics_chances_vv5", "vv_game_mechanics_events", "vv_game_mechanics_events_vv1",
+               "vv_game_mechanics_events_vv2", "vv_game_mechanics_events_vv3", "vv_game_mechanics_events_vv4",
+               "vv_game_mechanics_events_vv5", "vv_game_mechanics_faith_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -301,28 +305,46 @@ class ReleasesLinkTests(unittest.TestCase):
             # Game Mechanics: the slot's save named as every repair tool names it (function-level), and its window.
             ("vv_game_mechanics", {"vv_tribe_rename",
                                    "vv_last_names",    # the villagers, as Last Names reads them (function-level)
+                                   "vv_game_mechanics_counts",  # the Village counts group (function-level)
                                    "vv_fun_patcher"}),  # the patcher's own applied-patch check of the exe (function-level)
             ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename"}),
             # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
-            # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py).
+            # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py) and Island events catalog.
             *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
-                                            "vv_game_mechanics_death"})
+                                            "vv_game_mechanics_death", "vv_game_mechanics_events",
+                                            "vv_game_mechanics_events_vv2"})
               for n in range(1, 5)),
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
-                                       "vv_game_mechanics_death", "vv_game_mechanics_powers_vv5"}),
+                                       "vv_game_mechanics_death", "vv_game_mechanics_powers_vv5",
+                                       "vv_game_mechanics_events", "vv_game_mechanics_faith_vv5"}),
             ("vv_game_mechanics_powers_vv5", {"vv_game_mechanics"}),
             # Death and graves: the graves and Deaths log as Fix grave information reads them, the villagers as
             # Last Names reads them, the record layouts of the people and clocks (all function-level).
             ("vv_game_mechanics_death", {"vv_game_mechanics", "vv_graves", "vv_last_names",
                                          "vv_game_mechanics_life"}),
+            # The Island events catalogs: the shared renderer, and each game's events.
+            ("vv_game_mechanics_events", {"vv_game_mechanics"}),
+            *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events"})
+              for n in (1, 2, 3, 4, 5)),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout"}),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).
             ("vv_game_mechanics_genetics", {"vv_game_mechanics", "vv_last_names"}),
+            # The Chances groups: the shared table, and each game's rolls (found by name).
+            ("vv_game_mechanics_chances", {"vv_game_mechanics"}),
+            *((f"vv_game_mechanics_chances_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_chances"})
+              for n in (1, 2, 3, 4, 5)),
             # The Time away (catch-up) group: the speed as Back Up Saves finds it, the villagers as Last Names
             # reads them (function-level).
             ("vv_game_mechanics_catchup", {"vv_game_mechanics", "vv_save_backup", "vv_last_names"}),
+            # New Believers' Faith and Heathens group: the villagers (function-level).
+            ("vv_game_mechanics_faith_vv5", {"vv_game_mechanics", "vv_game_mechanics_life"}),
+            # Village counts: the statistics log's place, the villagers, the Esteemed Elders' totems, The Tree of
+            # Life's puzzles (all function-level).
+            ("vv_game_mechanics_counts", {"vv_game_mechanics", "vv_game_mechanics_life", "vv_last_names",
+                                          "vv_save_layout", "vv_vv2_totems", "vv_vv2_totem_store",
+                                          "vv_game_mechanics_vv4"}),
         ):
             tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))
             imported = set()

@@ -1,0 +1,582 @@
+"""Game Mechanics: the "Village counts" group, for all five games (src/vv_game_mechanics.py).
+
+Every count a game or the patcher keeps for one village, read only -- never estimated, never worked back:
+
+  * the rows of the patcher's Village Statistics log for this save ("Village Statistics v2 - Save <S>.txt",
+    written by native/statistics_export/statistics_export.c after every successful save).  The counting is that
+    code's, never done again here: this page only reads the log it wrote.  The rows the game itself keeps in its
+    save's statistics block are also read straight from the save, at the very fields that code reads (the same
+    offsets, less nothing: a FILE offset here is the manager field + 4 in the first three games and + 0x10 in the
+    last two); where the save and the log disagree both are shown (the owner: contradictions are shown, never
+    silently picked).  The rows only the patcher keeps (Village Elders in the later games, Villagers Buried,
+    The Lost Children's Twins Birthed, Chiefs Robed, Debris Cleared, The Tree of Life's and New Believers' Food
+    Gathered, Heathens Converted, the stews) are in its per-save .dat files and printed in that log, so they come
+    from the log alone;
+  * what else each game keeps that a player counts: A New Home's Golden Child, The Lost Children's discovered
+    stew recipes and its Esteemed Elders and their totems, The Secret City's Tribal Chief, The Tree of Life's tree,
+    stream, Fire Pit and stores, New Believers' Heathens;
+  * and, said plainly, what is not kept anywhere ("not kept").
+
+Heathens (New Believers) are never counted in any row unless they are in the tribe (the owner; the statistics code
+counts believers only).  The Golden Mushroom is a mushroom in every row; the patcher keeps no count of its own
+finds (native/vvfp_golden_mushroom keeps no record), and it is named only when its patch is in the game.
+"""
+from __future__ import annotations
+
+import re
+import struct
+from dataclasses import dataclass
+from pathlib import Path
+
+import vv_game_mechanics as gm
+
+COUNTS = "Village counts"
+VITALS = "Vital statistics"
+LOG_FOLDER = "Village Statistics"
+LOG_NAME = "Village Statistics v2 - Save {slot}.txt"
+GOLDEN = "vv{game}_super_secret_golden_mushroom"
+DUPLICATION = "vv{game}_everyone_collects_like_vv1"
+HEATHEN_MOMMY = "vv5_heathen_mommy_puzzle"
+
+# The game's own statistics fields, as FILE offsets, by row (the statistics writer's reads,
+# native/statistics_export/statistics_export.c write_vv1 / write_vv2 / write_later_game / write_vv5).
+_LATER = {"Tech Points Earned": 0x04, "Babies Made": 0x08, "People Cured": 0x10, "Mushrooms Found": 0x14,
+          "Highest Population": 0x18, "Oldest Villager": 0x20, "Island Events Seen": 0x24, "Twins Birthed": 0x28,
+          "Triplets Birthed": 0x2C}
+SAVE_ROWS: dict[int, dict[str, int]] = {
+    1: {"Food Gathered": 0x9E2C, "Tech Points Earned": 0x9E24, "People Cured": 0x9E30, "Mushrooms Found": 0x9E34,
+        "Highest Population": 0x9E38, "Oldest Villager": 0x9E40, "Island Events Seen": 0x9E44, "Babies Made": 0x9E28,
+        "Twins Birthed": 0x9E48, "Triplets Birthed": 0x9E4C},
+    2: {"Food Gathered": 0x2E508, "Tech Points Earned": 0x2E500, "People Cured": 0x2E50C, "Mushrooms Found": 0x2E510,
+        "Highest Population": 0x2E514, "Village Elders": 0x2E518, "Oldest Villager": 0x2E51C,
+        "Island Events Seen": 0x2E520, "Babies Made": 0x2E504, "Triplets Birthed": 0x2E528,
+        "Special Stews Found": 0x2E524},
+    3: {**{k: 0x4F0 + v for k, v in _LATER.items()}, "Food Gathered": 0x4F0 + 0x0C},
+    4: {k: 0x860 + v for k, v in _LATER.items()},
+    5: {k: 0x7C4 + v for k, v in _LATER.items()},
+}
+# Every row of the log, in its order (docs/village-statistics-directive.md), and the game-specific rows.
+COMMON = ("Real Hours Played", "Food Gathered", "Tech Points Earned", "People Cured", "Mushrooms Found",
+          "Highest Population", "Village Elders", "Oldest Villager", "Island Events Seen", "Babies Made",
+          "Twins Birthed", "Triplets Birthed", "Villagers Buried", "Puzzles Solved")
+EXTRA = {1: (), 2: ("Special Stews Found", "Total Stews Found"), 3: ("Chiefs Robed", "Stews Found"),
+         4: ("Debris Cleared", "Stews Found"), 5: ("Heathens Converted",)}
+# What each row counts, in plain words with its unit (the owner: real-life or in-game, never a bare unit).
+MEANING = {
+    "Real Hours Played": "real-life hours since the village was founded (the games' own formula, not the time "
+                         "the game was open)",
+    "Food Gathered": "food brought in",
+    "Tech Points Earned": "tech points earned",
+    "People Cured": "villagers cured",
+    "Mushrooms Found": "mushrooms picked",
+    "Highest Population": "the most villagers the village has had at once",
+    "Village Elders": "villagers who ever held Master in 3 or more skills, each counted once",
+    "Oldest Villager": "the oldest age a villager has reached, in villager years",
+    "Island Events Seen": "island events",
+    "Babies Made": "babies, counted at conception as the game counts them",
+    "Twins Birthed": "twin births, +1 for each pair",
+    "Triplets Birthed": "triplet births, +1 for each set",
+    "Villagers Buried": "skeletons buried, each villager once (deaths with no burial are not counted)",
+    "Puzzles Solved": "puzzles solved",
+    "Special Stews Found": "stew recipes cooked for the first time (the game's own count, 18 recipes)",
+    "Total Stews Found": "different herb combinations cooked into a stew",
+    "Stews Found": "different ingredient combinations made in the cauldron",
+    "Chiefs Robed": "villagers robed Tribal Chief, each once for life",
+    "Debris Cleared": "units of debris cleared from the stream (the trophy is at 1,000)",
+    "Heathens Converted": "Heathens brought into the tribe: the Heathen Chief and each Red, Purple, Blue or Orange "
+                          "Mask +1, the Heathen Mommy +2",
+}
+NO_HEATHENS = {"Highest Population", "Village Elders", "Oldest Villager", "Babies Made", "Twins Birthed",
+               "Triplets Birthed", "Villagers Buried", "People Cured", "Food Gathered", "Mushrooms Found"}
+_ROW = re.compile(r"^([A-Za-z' ]+): (-?\d+)(?: out of (\d+))?\s*$")
+
+
+@dataclass
+class StatisticsLog:
+    path: Path
+    written: float
+    rows: dict[str, tuple[int, int | None]]
+
+
+def statistics_log(village: gm.Village) -> StatisticsLog | None:
+    """The patcher's Village Statistics log for this save, when there is one (the slot's own folder first, then the
+    older places it may still be in); None when none is found or it cannot be read."""
+    import vv_save_layout as layout
+    name = LOG_NAME.format(slot=village.slot)
+    places = [layout.slot_log_folder(village.folder, LOG_FOLDER, village.slot)]
+    places += [p for p in reversed(layout.log_folders(village.folder, LOG_FOLDER, village.slot)) if p not in places]
+    for place in places:
+        path = Path(place) / name
+        try:
+            text = path.read_text(encoding="latin-1")
+            written = path.stat().st_mtime
+        except OSError:
+            continue
+        rows: dict[str, tuple[int, int | None]] = {}
+        for line in text.splitlines():
+            m = _ROW.match(line.strip())
+            if m:
+                rows[m.group(1)] = (int(m.group(2)), int(m.group(3)) if m.group(3) else None)
+        return StatisticsLog(path, written, rows)
+    return None
+
+
+def _i32(data: bytes, at: int) -> int | None:
+    if 0 <= at <= len(data) - 4:
+        return struct.unpack_from("<i", data, at)[0]
+    return None
+
+
+def _value(row: str, n: int, of: int | None) -> str:
+    return f"{n:,} out of {of:,}" if of is not None else f"{n:,}"
+
+
+def _puzzles_from_page(facts: list[gm.Fact]) -> tuple[int, int] | None:
+    for f in facts:
+        m = re.match(r"^Puzzles solved: (\d+) of (\d+)", f.text)
+        if f.group == gm.PUZZLES and m:
+            return int(m.group(1)), int(m.group(2))
+    return None
+
+
+def statistics_lines(village: gm.Village, facts: list[gm.Fact]) -> list[gm.Fact]:
+    """Every row of the Village Statistics for this save: the game's own field from the save where it keeps one, the
+    patcher's log otherwise, and both where they disagree."""
+    out: list[gm.Fact] = []
+    log = statistics_log(village)
+    data = village.data
+    fields = SAVE_ROWS[village.game]
+    if log is None:
+        out.append(gm.Fact(COUNTS, (
+            "The patcher's Village Statistics log for this save was not found (it is written after each save by "
+            "the patcher's Village Statistics patch); the rows below that only it keeps are not shown."), gm.SAVE))
+    else:
+        behind = ""
+        try:
+            if village.save.stat().st_mtime > log.written + 60:
+                behind = (" The save was written after it, by a game that did not refresh it, so its rows can be "
+                          "behind the save.")
+        except OSError:
+            pass
+        out.append(gm.Fact(COUNTS, f"Village Statistics (the patcher's log {log.path.name}, last written "
+                                   f"{gm.when(log.written)}; the game's own fields read from the save beside it)."
+                                   + behind, gm.SAVE))
+    page_puzzles = _puzzles_from_page(facts)
+    for row in COMMON + EXTRA[village.game]:
+        logged = log.rows.get(row) if log else None
+        saved = _i32(data, fields[row]) if row in fields else None
+        if row == "Puzzles Solved" and page_puzzles is not None:
+            saved_words = f"{page_puzzles[0]} out of {page_puzzles[1]}"
+            saved_pair = page_puzzles
+        else:
+            saved_words = None if saved is None else f"{saved:,}"
+            saved_pair = None if saved is None else (saved, None)
+        meaning = MEANING[row]
+        if row == "Mushrooms Found" and village.has(GOLDEN.format(game=village.game)) is True:
+            meaning += ", a Golden Mushroom counting as one"       # named only with its patch in the game
+        if village.game == 5 and row in NO_HEATHENS:
+            meaning += "; believers only, Heathens never count unless in the tribe"
+        lead = f"{row}: "
+        if saved_words is not None and logged is not None:
+            same = (saved_pair[0] == logged[0]) and (saved_pair[1] is None or logged[1] is None or saved_pair[1] == logged[1])
+            if same:
+                text = f"{lead}{_value(row, *logged)} ({meaning}; the save and the patcher's log agree)."
+            else:
+                text = (f"{lead}the save holds {saved_words}; the patcher's Village Statistics log says "
+                        f"{_value(row, *logged)} ({meaning}). They disagree: the log is written at each save, so "
+                        "one of them is from another moment.")
+        elif saved_words is not None:
+            source = "the Puzzles list below, from the save" if row == "Puzzles Solved" else "the save"
+            text = f"{lead}{saved_words} ({meaning}; from {source})."
+        elif logged is not None:
+            text = f"{lead}{_value(row, *logged)} ({meaning}; kept by the patcher, from its log)."
+        else:
+            text = (f"{lead}not shown: only the patcher's Village Statistics log gives it, and its log for this save "
+                    + ("was not found." if log is None else "has no such row."))
+        out.append(gm.Fact(COUNTS, text, gm.SAVE, sub=True))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Game-specific counts
+# ---------------------------------------------------------------------------
+
+
+def _people(village: gm.Village):
+    import vv_game_mechanics_life as life
+    return life.people(village)
+
+
+def vv1_lines(village: gm.Village) -> list[gm.Fact]:
+    out: list[gm.Fact] = []
+    everyone = _people(village)
+    solved = village.data[0xA008 + 4] != 0                 # The Golden Child puzzle's solved byte (vv1.PUZZLES)
+    golden = [p for p in (everyone or []) if p.golden]
+    if golden:
+        for p in golden:
+            out.append(gm.Fact(COUNTS, f"The Golden Child: born; {p.name}, age 5 villager years (100 age units), as "
+                                       "always: he is born at 5 and stays 5.", gm.SAVE))
+    elif solved:
+        out.append(gm.Fact(COUNTS, "The Golden Child: born (The Golden Child puzzle is solved), but he is not among "
+                                   "the living villagers in this save.", gm.SAVE))
+    else:
+        out.append(gm.Fact(COUNTS, "The Golden Child: not born yet (The Golden Child puzzle is not solved).", gm.SAVE))
+    out.append(gm.Fact(COUNTS, "Stews, potions, collectibles and chiefs: A New Home has none.", gm.RUNNING))
+    return out
+
+
+VV2_RECIPE_FLAGS = 0x2EAAC + 4                    # file offset; byte +recipe (1..18) set the first time it is cooked
+VV2_RECIPES = 18
+
+
+def vv2_lines(village: gm.Village) -> list[gm.Fact]:
+    import vv_last_names as ln
+    import vv_vv2_totems as totems
+    data = village.data
+    out: list[gm.Fact] = []
+    found = [r for r in range(1, VV2_RECIPES + 1) if VV2_RECIPE_FLAGS + r < len(data) and data[VV2_RECIPE_FLAGS + r]]
+    out.append(gm.Fact(COUNTS, (
+        f"Stew recipes discovered: {len(found)} of {VV2_RECIPES}"
+        + (f" (the game's recipe numbers {', '.join(map(str, found))})" if found else "")
+        + ". The game gives its stews no names: it tells them apart only by what a stew does when eaten (\"This "
+        "delicious stew is very filling.\", ...). The cook routine 0x425B90 sets a recipe's byte the first time it is "
+        "cooked (0x4260A5, 0x4260D4) and counts Special Stews Found then."), gm.SAVE))
+    # The Esteemed Elders and their totems (src/vv_vv2_totems.py, src/vv_vv2_totem_store.py).
+    try:
+        living = ln._entries(2, data)
+        elders = [ln._cstr(data, at, totems.NAME_CAP) for at in living
+                  if 0 <= at + totems.ELDER < len(data) and data[at + totems.ELDER] != 0]
+    except Exception:  # noqa: BLE001 -- a villager table that cannot be read gives no elder line
+        elders = None
+    try:
+        import vv_vv2_totem_store as store_mod
+        places = [at for _k, at in store_mod.statues_in_save(data)]
+        statues = [ln._cstr(data, at, totems.NAME_CAP) for at in places]
+        stored: list[str] = []
+        try:
+            store = store_mod.read(village.folder, village.slot)
+            if store is not None and store_mod.bound(store, data):
+                # A totem both in the save and in the file (a save restored after a move, or a move cut short) is
+                # one statue: the same identity test Put Totems Back uses (same_statue), never the name alone.
+                in_save = [store_mod._entry_at(data, at) for at in places]
+                stored = [t.name for t in store.totems
+                          if not any(store_mod.same_statue(t.entry, e) for e in in_save)]
+        except Exception:  # noqa: BLE001 -- an unreadable store is said, never guessed at
+            stored = []
+    except Exception:  # noqa: BLE001
+        statues, stored = None, []
+    if elders is not None:
+        out.append(gm.Fact(COUNTS, f"Esteemed Elders living now: {len(elders)}"
+                                   + (f" ({', '.join(elders)})" if elders else "") + ".", gm.SAVE))
+    if statues is not None:
+        names = statues + stored
+        where = (f"; {len(stored)} of them kept in the patcher's ElderTotems.dat, outside the save" if stored else "")
+        out.append(gm.Fact(COUNTS, f"Totems standing now: {len(names)}" + (f" ({', '.join(names)})" if names else "")
+                                   + where + ".", gm.SAVE))
+    out.append(gm.Fact(COUNTS, (
+        "How a villager becomes an Esteemed Elder: about every 2 real-life seconds while the game runs (the world tick "
+        "0x43B690 into the elder pass 0x44D4C0), any living villager who is not yet an elder and has 3 of the 5 skills "
+        "at 88 or more becomes one and gets a totem (0x44D190; Village Elders +1 at 0x44D55F). No dice roll, no "
+        "age condition, the same at every speed; the first totem solves The Elder Totem."), gm.RUNNING))
+    has = village.has("vv2_totems_out_of_entries")
+    words = (f"Normal game: at most 50 totems (0x44D4D1, 0x44D54C): with 50 standing no new elder is made, and each "
+             "totem takes one of the 256 villager records.")
+    if has:
+        words += (f" With \"{gm.feature_name('vv2_totems_out_of_entries')}\" (in this game): totems take no record and "
+                  "there is no limit.")
+    out.append(gm.Fact(COUNTS, words, gm.RUNNING, sub=True))
+    out.append(gm.Fact(COUNTS, "Esteemed Elders over time: the game's Village Elders field above counts every elder "
+                               "made.", gm.RUNNING, sub=True))
+    return out
+
+
+VV3_CHIEF_NOTE = ("Tribal Chiefs over time: the patcher's Chiefs Robed row above (a villager is robed at most once and "
+                  "stays chief until death).")
+
+
+# The Alchemy Lab's recipe book: a 0x68-byte block in the save (its save slot 0x430110), one byte per recipe and the
+# count (77) at +0x64; the owner's saves hold it at file offset 0x120BA.
+VV3_BOOK, VV3_RECIPES = 0x120BA, 77
+VV3_COMBOS = (                                     # herb a, b, c, potion; the recipe register 0x430480, in order
+    (0x23, 0x23, 0x23, 12), (0x23, 0x23, 0x21, 10), (0x23, 0x23, 0x22, 25), (0x23, 0x23, 0x1F, 36),
+    (0x23, 0x23, 0x20, 17), (0x23, 0x23, 0x24, 37), (0x23, 0x23, 0x25, 26), (0x23, 0x21, 0x22, 21),
+    (0x23, 0x21, 0x1F, 8), (0x23, 0x21, 0x20, 11), (0x23, 0x21, 0x24, 30), (0x23, 0x21, 0x25, 32),
+    (0x23, 0x22, 0x1F, 2), (0x23, 0x22, 0x20, 2), (0x23, 0x22, 0x24, 2), (0x23, 0x22, 0x25, 2),
+    (0x23, 0x1F, 0x20, 38), (0x23, 0x1F, 0x24, 1), (0x23, 0x1F, 0x25, 32), (0x23, 0x20, 0x24, 5),
+    (0x23, 0x20, 0x25, 4), (0x21, 0x21, 0x21, 35), (0x23, 0x21, 0x21, 17), (0x21, 0x21, 0x22, 0),
+    (0x21, 0x21, 0x1F, 18), (0x21, 0x21, 0x20, 9), (0x21, 0x21, 0x24, 29), (0x21, 0x21, 0x25, 29),
+    (0x21, 0x22, 0x1F, 23), (0x21, 0x22, 0x20, 24), (0x21, 0x22, 0x24, 2), (0x21, 0x22, 0x25, 3),
+    (0x21, 0x1F, 0x20, 15), (0x21, 0x20, 0x24, 19), (0x21, 0x20, 0x25, 19), (0x21, 0x1F, 0x24, 20),
+    (0x21, 0x1F, 0x25, 20), (0x22, 0x22, 0x22, 31), (0x23, 0x22, 0x22, 20), (0x21, 0x22, 0x22, 20),
+    (0x22, 0x22, 0x1F, 8), (0x22, 0x22, 0x20, 20), (0x22, 0x22, 0x24, 27), (0x22, 0x22, 0x25, 0),
+    (0x22, 0x1F, 0x20, 6), (0x22, 0x1F, 0x24, 23), (0x22, 0x1F, 0x25, 23), (0x22, 0x20, 0x24, 0),
+    (0x22, 0x20, 0x25, 39), (0x1F, 0x1F, 0x1F, 7), (0x23, 0x1F, 0x1F, 7), (0x21, 0x1F, 0x1F, 0),
+    (0x22, 0x1F, 0x1F, 34), (0x1F, 0x1F, 0x20, 0), (0x1F, 0x1F, 0x24, 0), (0x1F, 0x1F, 0x25, 33),
+    (0x1F, 0x20, 0x24, 0), (0x1F, 0x20, 0x25, 0), (0x20, 0x20, 0x20, 19), (0x23, 0x20, 0x20, 40),
+    (0x21, 0x20, 0x20, 9), (0x22, 0x20, 0x20, 21), (0x1F, 0x20, 0x20, 0), (0x20, 0x20, 0x24, 14),
+    (0x20, 0x20, 0x25, 13), (0x24, 0x24, 0x24, 16), (0x25, 0x25, 0x25, 22), (0x23, 0x24, 0x24, 5),
+    (0x23, 0x25, 0x25, 2), (0x21, 0x24, 0x24, 5), (0x21, 0x25, 0x25, 2), (0x22, 0x24, 0x24, 28),
+    (0x22, 0x25, 0x25, 28), (0x1F, 0x24, 0x24, 21), (0x1F, 0x25, 0x25, 21), (0x20, 0x24, 0x24, 5),
+    (0x20, 0x25, 0x25, 0),
+)
+# The herbs (carried items 0x1F..0x25, eCarrying_Herb1..7 in the exe) by the names the patcher's Both Factions row
+# gives them (docs/vv3-both-factions.md).
+VV3_HERBS = {0x1F: "Tiger Lily", 0x20: "Cactus", 0x21: "Lotus", 0x22: "Black Orchid", 0x23: "Rose",
+             0x24: "Pitcher Plant", 0x25: "Berry Plant"}
+# Each product: what the drinker says (the game names a potion by nothing else; string ids 0x19D..0x1CC, eSay...) and
+# what it does -- the effect switch 0x4268F0 (jump table 0x426E6C), the say shown by its tail 0x426B47.  How long the
+# effect is kept is the deadline the switch writes (0x403330 real-life seconds; 600 or 300; 1 = at once; 0 = no
+# deadline), and a villager cannot drink a potion whose effect is still kept (0x4583A0).  Health losses stop at 2
+# (0x426CB6 -> 0x462670); "18 or older" is 360 age units (0x426A58, 0x426AE7, 0x426C7F: younger, nothing happens and
+# nothing is said).  Actions are named by the status their handler shows.
+VV3_POTIONS = {
+    0: ("Nasty! It's bitter.", "nothing happens"),
+    1: ("Oh no, hiccups!", "a puff of the game's effect 7 at the villager (0x429400), nothing else"),
+    2: ("Oh, it burns!", "3 to 6 health lost, never below 2"),
+    3: ("{He/She} feels smarter.", "for 10 real-life minutes skill tries succeed at skill + 66% instead of + 33% "
+                                  "(0x45A300)"),
+    4: ("{He/She} has scientific clarity.", "for 10 real-life minutes each research session pays 1 more tech point "
+                                           "(0x4593FB)"),
+    5: ("{He/She} feels better.", "cured of sickness"),
+    6: ("Must exercise!", "goes \"Doing exercise\""),
+    7: ("Whee! What a fun potion!", "picks a pastime at once (0x45B9B0; 16.02% of the time none)"),
+    8: ("{He/She} feels woozy.", "goes \"Feeling faint\""),
+    9: ("{He/She} feels much healthier!", "25 to 59 health back (with stored food under 100: \"This potion works better "
+                                         "when the tribe is eating well.\" and 5 to 14); kept 10 real-life minutes"),
+    10: ("{He/She} has happy feet!", "goes \"Dancing\" (not a villager who dislikes dancing)"),
+    11: ("{He/She} feels light and springy!", "jumps 4 times as high for 5 real-life minutes (0x426A39; undone "
+                                            "0x426F17)"),
+    12: ("{He/She} feels romantic!", "18 or older: goes to embrace a partner the game finds (0x45AF00 -> 0x45CE00), "
+                                    "when there is one"),
+    13: ("{He/She} is freezing!", "goes \"Trying to get warm\""),
+    14: ("{He/She} is way too hot!", "goes \"Trying to cool off\""),
+    15: ("{He/She} suddenly feels very hungry!", "goes \"Eating\""),
+    16: ("{He/She} is all itchy!", "goes \"Itchy\""),
+    17: ("{He/She} feels fertile.", "18 or older: for 5 real-life minutes conception's roll is 50 easier (0x458682)"),
+    18: ("Oh no, hiccups!", "\"Hic!\" now and, for 10 real-life minutes, every time the villager picks what to do next "
+                           "(0x45C023)"),
+    19: ("{He/She} feels better.", "10 to 14 health back (with stored food under 100: \"This potion works better when "
+                                  "the tribe is eating well.\" and 2 to 6); kept 10 real-life minutes"),
+    20: ("{He/She} has a stomachache.", "5 to 9 health lost, never below 2"),
+    21: ("That potion was awful.", "falls sick"),
+    22: ("...can't move...", "goes \"Paralyzed\""),
+    23: ("{He/She} has got to go!", "goes \"Nature is calling!\""),
+    24: ("Is everyone else slowing down?", "walks at speed 300 (100 usually) for 5 real-life minutes (0x4572D9, "
+                                          "0x45760B)"),
+    25: ("{He/She} feels kind of down.", "goes \"A little bit lonely\""),
+    26: ("(nothing is said)", "goes \"Carrying vial to ocean\"; kept with no time limit"),
+    27: ("(nothing is said)", "goes \"Carrying vial to ocean\"; kept with no time limit; this vial is the one The Sharks "
+                             "puzzle answers (0x4365C7)"),
+    28: ("So sleepy...", "goes \"Needs to lie down\""),
+    29: ("{He/She} feels a trance coming on.", "goes \"Having an epiphany\""),
+    30: ("{He/She} feels very fertile.", "18 or older: for 5 real-life minutes conception's roll is 100 easier "
+                                        "(0x458699)"),
+    31: ("Yikes!", "35 to 69 health lost, never below 2"),
+    32: ("Yummy!", "nothing happens"),
+    33: ("Whoa!", "moved at once to another spot (0x4230C0)"),
+    34: ("{He/She} feels tired...", "goes \"Needs to sit down\""),
+    35: ("{He/She} feels a trance coming on.", "goes \"In a trance\""),
+    36: ("Stinky breath!", "\"Stinky breath!\" now and, for 10 real-life minutes, every time the villager picks what "
+                          "to do next (0x45C073)"),
+    37: ("That tasted soapy", "\"That tasted soapy\" now and, for 10 real-life minutes, every time the villager picks "
+                             "what to do next (0x45C09A)"),
+    38: ("Blannesamagawa loomajoobamooga!!", "the same words now and, for 10 real-life minutes, every time the villager "
+                                            "picks what to do next (0x45C04C)"),
+    39: ("Who turned out the lights?!", "goes \"Who turned out the lights?!\""),
+    40: ("Something smells YUMMY!", "every villager goes \"Something smells YUMMY!\" (0x45E0C0)"),
+}
+
+
+def vv3_potion(product: int) -> str:
+    """A potion in words: what the drinker says, then what it does."""
+    say, does = VV3_POTIONS[product]
+    return (say if say.startswith("(") else f"\"{say}\"") + f": {does}"
+
+
+def vv3_lines(village: gm.Village) -> list[gm.Fact]:
+    out: list[gm.Fact] = []
+    everyone = _people(village)
+    if everyone is not None:
+        chiefs = [p.name for p in everyone if p.chief]
+        out.append(gm.Fact(COUNTS, ("Tribal Chief now: " + ", ".join(chiefs) + "." if chiefs
+                                    else "Tribal Chief now: none."), gm.SAVE))
+    out.append(gm.Fact(COUNTS, VV3_CHIEF_NOTE, gm.OWNER, sub=True))
+    book = VV3_BOOK
+    if book + 0x68 <= len(village.data) and _i32(village.data, book + 0x64) == VV3_RECIPES:
+        known = [k for k in range(VV3_RECIPES) if village.data[book + k] == 1]
+        combos = "; ".join(" + ".join(VV3_HERBS[h] for h in VV3_COMBOS[k][:3]) + " -> " + vv3_potion(VV3_COMBOS[k][3])
+                           for k in known)
+        out.append(gm.Fact(COUNTS, (
+            f"Potion recipes discovered: {len(known)} of the {VV3_RECIPES} herb combinations"
+            + (f" ({combos})" if known else "") + ". The Alchemy Lab's book keeps one byte for each combination, set "
+            "the first time a brew of it does not blow up (0x430AAC -> 0x430510) and saved (0x430110; file offset "
+            "0x120BA). A potion has no name in the game: it is shown by what the drinker says, and its effect is the "
+            "game's own (0x4268F0)."), gm.SAVE))
+    else:
+        out.append(gm.Fact(COUNTS, "Potion recipes discovered: the Alchemy Lab's book could not be read from this "
+                                   "save.", gm.SAVE))
+    out.append(gm.Fact(COUNTS, (
+        "Every successful cauldron product, a potion included, is a stew for the patcher's Stews Found above."),
+        gm.RUNNING, sub=True))
+    out.append(gm.Fact(COUNTS, "Potions brewed, counted one by one: not kept by the game's statistics or the patcher.",
+                       False))
+    return out
+
+
+# The Tree of Life (the coordinator's VV4 save research, 2026-10-24, FILE offsets checked on the committed saves).
+VV4_TREE_PUZZLES = {1: "The Stream", 12: "Pruning", 13: "Honoring", 14: "Purify", 15: "Decorating"}
+VV4_PUZZLE_ENTRIES = 0x160D4                     # (progress, solve time) per puzzle id
+VV4_STREAM_BLOCKED = 0x161AC
+VV4_SOAP, VV4_CLOTH, VV4_TOOLS = 0x161B1, 0x161CA, 0x161A4
+VV4_TECHS = 0xBCB8
+VV4_TECH_NAMES = ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Dendrology")
+
+
+def vv4_lines(village: gm.Village) -> list[gm.Fact]:
+    import vv_game_mechanics_vv4 as vv4
+    data = village.data
+    out: list[gm.Fact] = []
+
+    def solved(pid: int) -> bool:
+        progress = _i32(data, VV4_PUZZLE_ENTRIES + 8 * pid)
+        return progress is not None and progress >= vv4.PUZZLE_THRESHOLDS.get(pid, 1)
+
+    done = [name for pid, name in VV4_TREE_PUZZLES.items() if solved(pid)]
+    out.append(gm.Fact(COUNTS, (
+        f"The Tree of Life: stage {len(done)} of 5 -- one stage for each of The Stream, Pruning, Honoring, Purify and "
+        "Decorating solved (0x41F570; the tree's art tree-state-00 to 05)"
+        + (f"; solved: {', '.join(done)}." if done else "; none solved yet.")), False))
+    levels = [_i32(data, VV4_TECHS + 4 * k) for k in range(6)]
+    if None not in levels:
+        out.append(gm.Fact(COUNTS, "Tech levels: " + "; ".join(f"{n} {v}" for n, v in zip(VV4_TECH_NAMES, levels))
+                                   + " (tech points are one shared pool, not kept by area).", False))
+    blocked = _i32(data, VV4_STREAM_BLOCKED)
+    if blocked is not None and 0 <= blocked <= 100:
+        out.append(gm.Fact(COUNTS, f"The stream: {blocked}% obstructed (the game's \"Stream obstruction percentage\").",
+                           False))
+    if VV4_CLOTH < len(data):
+        soap, cloth, tools = data[VV4_SOAP], data[VV4_CLOTH], _i32(data, VV4_TOOLS)
+        out.append(gm.Fact(COUNTS, f"On hand: {soap} soap bars, {cloth} cloth bolts, {tools} cutting tools.", False))
+    out.append(gm.Fact(COUNTS, "Stews made, one by one: the patcher's Stews Found above counts the different ones "
+                               "(cloth pulp and soap brews are stews too); the game's recipe book marks a recipe when it "
+                               "is looked up, before the brew can still fail, so it is no count of stews made.",
+                       gm.RUNNING))
+    out.append(gm.Fact(COUNTS, "Barrel of Babies opened: not kept by the game or the patcher.", False))
+    return out
+
+
+# New Believers' Heathens (the coordinator's VV5 research, 2026-10-24; offsets from the villager's name).
+VV5_ROLE, VV5_SEX, VV5_ORANGE, VV5_RED = -0x14, -0x0C, -0x1E, -0x1D
+VV5_ROLES = {12: "Heathen Doctor", 13: "Heathen Chief", 14: "Heathen Master Scientist", 15: "Heathen Master Builder",
+             16: "Heathen Master Farmer", 17: "Heathen Mommy"}
+
+
+def vv5_lines(village: gm.Village) -> list[gm.Fact]:
+    import vv_last_names as ln
+    data = village.data
+    out: list[gm.Fact] = []
+    try:
+        entries = ln._entries(5, data)
+    except Exception:  # noqa: BLE001
+        entries = None
+    if entries is None:
+        out.append(gm.Fact(COUNTS, "Heathens: the villager table could not be read.", gm.SAVE))
+        return out
+    heathens, retired = [], []
+    for at in entries:
+        if not 0x20 <= at < len(data) - 4:
+            continue
+        name = ln._cstr(data, at, 0x18)
+        role = _i32(data, at + VV5_ROLE)
+        if data[at - 0x1F] != 0:
+            mask = ("purple" if role in (12, 14, 15, 16) else "chief's" if role == 13 else
+                    "orange" if data[at + VV5_ORANGE] else "red" if data[at + VV5_RED] else "blue")
+            heathens.append((name, VV5_ROLES.get(role, "Heathen"), mask, _i32(data, at + VV5_SEX) == 0,
+                             _i32(data, at - 0x18)))
+        elif role == 13:
+            retired.append(name)
+    out.append(gm.Fact(COUNTS, f"Heathens now: {len(heathens)} outside the tribe, never counted in the tribe's "
+                               "population or in any statistics row.", gm.SAVE))
+    groups: dict[str, list[str]] = {}
+    for name, role, mask, _male, faith in heathens:
+        label = role if role != "Heathen" else f"Heathens ({mask} mask)"
+        groups.setdefault(label, []).append(f"{name} (Faith {faith})")
+    for label in list(VV5_ROLES.values()) + sorted(k for k in groups if k not in VV5_ROLES.values()):
+        if label in groups:
+            out.append(gm.Fact(COUNTS, f"{label}: {', '.join(groups[label])}.", gm.SAVE, sub=True))
+    if retired:
+        out.append(gm.Fact(COUNTS, f"Retired Heathen Chief in the tribe: {', '.join(retired)}.", gm.SAVE, sub=True))
+    out.append(gm.Fact(COUNTS, (
+        "Converted so far: the patcher's Heathens Converted row above. The game itself keeps no count of conversions, "
+        "nor of Heathens born, arrived, died or left, and no date of a conversion; a converted Heathen other than the "
+        "Chief keeps no mark of it (0x466966 sets the role to 0)."), gm.RUNNING, sub=True))
+    out.append(gm.Fact(COUNTS, (
+        "Heathen camps: the game models none; an ordinary Heathen's role number (0 to 11, 18) is only the spot it "
+        "stays at, picked at random among the unsolved puzzles' spots (0x469F20)."), gm.RUNNING, sub=True))
+    out.append(gm.Fact(COUNTS, (
+        "Conversion: setting a Heathen's Faith (0x467F90) converts them (0x4668B0) when it goes from 0 or less to "
+        "above 0, once the story allows it (game flag +0x17E39, 0x442206); a convert below 5 is raised to 55. "
+        "Preaching (0x468DA0) adds 3 Faith, 4 at Devotion 50 or more, 5 at 88 or more, after a Devotion skill roll "
+        "(0x46B270), and that Heathen then waits 7,200 real-life seconds (2 real-life hours, at any speed, 0x468F2A); "
+        "the Doctor, the Chief, the Masters and the Mommy cannot be preached to. The Chief's puzzle sets the Chief's "
+        "Faith to 100 (0x4360E0); curing the Heathen Doctor sets 25 to 59 (0x468CF2)."), gm.RUNNING, sub=True))
+    if village.has(HEATHEN_MOMMY):
+        out.append(gm.Fact(COUNTS, (
+            f"The Heathen Mommy (with \"{gm.feature_name(HEATHEN_MOMMY)}\", in this game): she is made with no sex "
+            "given (the creator 0x46FD20 with sex -1, so 0x468534 leaves it), and the game's own villager roll "
+            "decides it (0x46F5E0: the C rand value modulo 100, 49 or less is male): male 16,400 times in 32,768 (50.05%), female "
+            "49.95%. A male Heathen Mommy is the game's own doing, as intended, not a fault. Her conversion counts +2 "
+            "in Heathens Converted."), gm.RUNNING, sub=True))
+    return out
+
+
+def collectible_lines(village: gm.Village, group: str) -> list[gm.Fact]:
+    """The collectibles found (the save's own counts) and, where the patcher's duplication cheat exists, what it
+    changes: the normal game first."""
+    import vv_game_mechanics_life as life
+    out: list[gm.Fact] = []
+    if group == COUNTS:
+        counts = life.collectible_counts(village)
+        if counts is None:
+            out.append(gm.Fact(group, "Collectibles found: not read from this save by this page.", gm.SAVE))
+        else:
+            owned = sum(1 for c in counts if c > 0)
+            out.append(gm.Fact(group, f"Collectibles found: {sum(counts):,} in all; {owned} of the 48 pieces owned.",
+                               gm.SAVE))
+    feature = DUPLICATION.format(game=village.game)
+    name = gm.feature_name(feature)
+    words = "Normal game: a mushroom or collectible is picked up by the one child dropped on it."
+    if village.has(feature):
+        words += (f" With \"{name}\" (in this game): several children can be dropped onto one mushroom or "
+                  "collectible and it is multiplied, one for each, so the counts above can grow faster.")
+    out.append(gm.Fact(group, words, False, sub=group == COUNTS))
+    return out
+
+
+def golden_finds(village: gm.Village) -> list[gm.Fact]:
+    if village.has(GOLDEN.format(game=village.game)) is not True:
+        return []
+    return [gm.Fact(COUNTS, (
+        "Golden Mushrooms found: not kept. The patcher's Golden Mushroom code (native/vvfp_golden_mushroom) writes no "
+        "record of a find, and the game counts it only inside Mushrooms Found, as a mushroom, so neither how many "
+        "nor when the first one was found can be told."), gm.RUNNING)]
+
+
+GAME_LINES = {1: vv1_lines, 2: vv2_lines, 3: vv3_lines, 4: vv4_lines, 5: vv5_lines}
+
+
+def facts(village: gm.Village, page: list[gm.Fact]) -> list[gm.Fact]:
+    """The Village counts group (and the collectibles' duplication line in Vital statistics) for a save its game's
+    module read; nothing for one it could not."""
+    if village.general or not any(f.group != "Other" for f in page):
+        return []
+    out = statistics_lines(village, page)
+    out += GAME_LINES[village.game](village)
+    if village.game in (3, 4, 5) or village.game == 2:
+        out += collectible_lines(village, COUNTS)
+        out += collectible_lines(village, VITALS)
+    out += golden_finds(village)
+    out.append(gm.Fact(COUNTS, (
+        "Arrivals and departures, deaths without a burial, and tech points spent: not kept by the game as counts; "
+        "the patcher's Births and Conceptions and Deaths and Disappearances logs list each birth and death."), False))
+    return out

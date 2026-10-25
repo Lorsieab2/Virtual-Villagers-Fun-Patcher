@@ -50,8 +50,8 @@ TITLE = "Game Mechanics"
 # Vital statistics first (the owner, 2026-10-24), then where the page's facts come from, then the village's people
 # and clocks (src/vv_game_mechanics_life.py), then the rules.
 # Time away (catch-up) right after the sources (the owner, 2026-10-24: the most important topic, near the top).
-GROUPS = ("Vital statistics", "Sources", "Time away (catch-up)", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
-          "God powers", "Food earned", "Island events", "Death and graves", "Puzzles",
+GROUPS = ("Vital statistics", "Village counts", "Sources", "Time away (catch-up)", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
+          "God powers", "Faith and Heathens", "Food earned", "Island events", "Death and graves", "Puzzles",
           "Golden Child", "Hidden villager stats", "Chance and timers", "Other")
 DEATH = "Death and graves"            # src/vv_game_mechanics_death.py
 PUZZLES = "Puzzles"
@@ -248,6 +248,17 @@ GROUPS = GROUPS[:GROUPS.index(HIDDEN) + 1] + (GENETICS,) + GROUPS[GROUPS.index(H
 def genetics_facts(village: "Village") -> list[Fact]:
     """The Genetics group for `village` (found by name, as each game's module is)."""
     return list(importlib.import_module("vv_game_mechanics_genetics").facts(village))
+
+
+# Every random roll with its exact odds (src/vv_game_mechanics_chances.py, the owner 2026-10-24), shown just before
+# the general "Chance and timers".
+CHANCES_GROUPS = ("Chances", "Births and gender")
+GROUPS = GROUPS[:GROUPS.index("Chance and timers")] + CHANCES_GROUPS + GROUPS[GROUPS.index("Chance and timers"):]
+
+
+def chances_facts(village: "Village") -> list[Fact]:
+    """The Chances and Births and gender groups for `village` (found by name)."""
+    return list(importlib.import_module("vv_game_mechanics_chances").facts(village))
 
 
 def catchup_facts(village: "Village") -> list[Fact]:
@@ -516,6 +527,60 @@ def golden_line(feature: str, wait: str) -> str:
             f"counts as a mushroom. At this game's mushroom rate one appears on average once in {wait}.")
 
 
+GOLDEN_ODDS = 1_000_000                    # 1 in 1,000,000 random brown or red mushrooms (golden_line)
+PLAYTHROUGH_DAYS = 7                       # the owner's full playthrough: 7 real-life days of play (2026-10-24)
+REAL_YEAR_HOURS = 365.25 * 24
+
+
+def golden_wait(per_hour: float) -> dict[str, float]:
+    """The Golden Mushroom's expected wait at `per_hour` random mushrooms an hour of real-life play: the hours and
+    years on average, the playthroughs (of PLAYTHROUGH_DAYS real-life days of play) on average, and the playthroughs
+    for a 50% and a 95% chance of having seen at least one (ln 2 and ln 20 times the average: the chance of none in
+    n playthroughs is exp(-n / average))."""
+    hours = GOLDEN_ODDS / per_hour
+    average = hours / (PLAYTHROUGH_DAYS * 24)
+    return {"hours": hours, "years": hours / REAL_YEAR_HOURS, "playthroughs": average,
+            "half": math.log(2) * average, "most": math.log(20) * average}
+
+
+def rounded(value: float) -> str:
+    """A count rounded sensibly: one decimal under 10, whole numbers to 1,000, three significant figures past it."""
+    if value < 10:
+        return f"{value:.1f}"
+    if value < 1000:
+        return f"{round(value):,}"
+    digits = len(str(int(value))) - 3
+    return f"{int(round(value, -digits)):,}"
+
+
+def golden_lines(feature: str, per_hour: float, speed_value: int, rate_words: str, group: str = "Mushrooms",
+                 even_paused: bool = False) -> list[Fact]:
+    """The Super-Secret Golden Mushroom's facts (golden_line), then -- as estimates, since they depend on how long the
+    game is played -- how long one takes to appear in real-life time at this game's mushroom rate (`per_hour` random
+    mushrooms an hour of real-life play; `rate_words` says where it comes from) and how many playthroughs that is.
+    `even_paused`: the game's mushrooms appear while it is paused too (A New Home)."""
+    wait = golden_wait(per_hour)
+    speed = speed_name(speed_value)
+    if even_paused:
+        playing = "the game open, paused or not: this game's mushrooms appear even while paused"
+        paused = ""
+    else:
+        playing = "the game open and running, not paused"
+        paused = " (the save was written paused; this is once it is unpaused)" if speed_value >= PAUSED else ""
+    rule = golden_line(feature, f"{wait['years']:.1f} real-life years of playing").split(" At this game's")[0]
+    return [
+        Fact(group, rule, RUNNING),
+        Fact(group, (f"Estimate: at this game's mushroom rate ({rate_words}: about {per_hour:g} random mushrooms an hour "
+                     f"of real-life play), one Golden Mushroom appears on average once in about {wait['years']:.1f} "
+                     f"real-life years of playing ({playing}), at {speed} speed{paused} -- "
+                     f"about {rounded(wait['hours'])} real-life hours."), False, sub=True),
+        Fact(group, (f"Estimate: if a full game playthrough takes {PLAYTHROUGH_DAYS} real-life days of play "
+                     f"({PLAYTHROUGH_DAYS * 24} real-life hours with the game running), it takes around "
+                     f"{rounded(wait['playthroughs'])} playthroughs on average to see one Golden Mushroom; "
+                     f"{rounded(wait['half'])} playthroughs give a 50% chance and {rounded(wait['most'])} a 95% chance "
+                     "of having seen at least one."), False, sub=True)]
+
+
 def patch_words(village: "Village", feature: str, effect: str) -> str:
     """One sentence on a patch that changes a rule: whether it is in the game and what it does."""
     name = f"\"{feature_name(feature)}\""
@@ -725,6 +790,9 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     facts = list(module.facts(village))
     if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
         facts += catchup_facts(village) + genetics_facts(village)
+        facts += chances_facts(village)
+    import vv_game_mechanics_counts as counts      # the Village counts group (src/vv_game_mechanics_counts.py)
+    facts += counts.facts(village, facts)
     if not facts:
         facts = [Fact("Other", "Nothing is shown for this game yet.")]
     facts = sources_lines(path, patches, village.notes) + facts
@@ -765,7 +833,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     village = Village(Path("."), game, 1, Path(f"{game}.ldw"), blank_save(game, now), None, now, general=True)
     module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     keep = []
-    for fact in list(module.facts(village)) + catchup_facts(village) + genetics_facts(village):
+    for fact in list(module.facts(village)) + catchup_facts(village) + genetics_facts(village) + chances_facts(village):
         if fact.due is not None:
             continue                           # a moment of the empty save's village
         if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",

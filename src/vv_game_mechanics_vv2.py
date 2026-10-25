@@ -19,6 +19,8 @@ import struct
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_death as death
+import vv_game_mechanics_events as events
+import vv_game_mechanics_events_vv2 as catalog
 import vv_game_mechanics_life as life
 import vv_save_backup
 
@@ -33,63 +35,8 @@ FIRE_HOURS = {gm.FAST: 10, gm.NORMAL: 20, gm.SLOW: 40}
 GOLDEN = "vv2_super_secret_golden_mushroom"
 LEARNING = "vv2_learning_never_fails"
 TOTEMS = "vv2_totems_out_of_entries"
-RESTORE_EVENTS = "vv2_restore_missing_island_events"
-GONG_FIX = "vv2_gong_of_wonder_coconuts_fix"
-STORY = "vv2_story_cheat_upgrades"
+EVENTS_SEEN = 0x2E51C                          # the Island Events Seen counter (state offset)
 
-# (line, verified)
-EVENT_LINES = (
-    ("The first event is always a two-choice event. After that 20% are two-choice events, 40% single-result "
-     "events and 40% sacks or vials; within each kind every event whose conditions hold is equally likely: "
-     "with every condition met each single-result event is 1.67%, each two-choice event 0.95%, each sack or "
-     "vial 5%.", gm.RUNNING),
-    ("Single-result events: Obnoxious Parrot, Flash Flood, Dense Fog (4 kinds), East Wind, Heat Wave, Isola Day, "
-     "Day of Elders, Blessings Day (2 kinds), Spring Allergies, Friendly Parrot, West Wind and Mother Parrot "
-     "always; Epidemic, Rats! and Foul Passing once all 16 puzzles are solved; Where Are The Infants? also needs "
-     "a nursing adult; Day of Honor a memorial grave; A Dangerous Mission more than 60 villagers; Barrel O' "
-     "Babies and Old Friends room for more villagers.", False),
-    ("Single-result results (k is 1 up to 50 villagers, 3 above): Obnoxious Parrot -25% of the tech points; Flash "
-     "Flood food cut to 750; Dense Fog food -200k, tech -1000k, tech +800k or food +150k; Friendly Parrot food "
-     "+400k; East Wind -80 per strength from food, coconuts and crops; West Wind +100 per strength to coconuts "
-     "and crops; Isola Day and Blessings Day cost 10 food a villager + 10.", gm.RUNNING),
-    ("Epidemic makes each villager sick at 79.7%; Rats! takes half the food and bites each villager at 40.2% "
-     "(sick, -60 health); Foul Passing takes all the food; Mother Parrot gives each child a 35% chance of +7 to "
-     "17 Parenting; A Dangerous Mission sends up to 8 of the youngest adults away. Heat Wave, Spring Allergies "
-     "and Day of Honor change no amounts.", gm.RUNNING),
-    ("Two-choice events: Ancient Gold Coin needs Culture below 2; Spyglass Exploration below 2; Cursed Idol 250 "
-     "food or more; Prettiest Girl a woman of 14 or more; Savage Child room for more villagers; For The Birds "
-     "and Child Prodigy a child; Silver Mirror 2 or more villagers; Love Note an adult man and an adult woman.",
-     False),
-    ("Two-choice results (k is 1 up to 25 villagers, 2 up to 50, 3 above): Voices In The Brush (investigate) 50% "
-     "+700k food, 50% the villager is never seen again; Hole In The Sand (investigate) 1 in 6 each: +1000 tech, "
-     "+1000 tech, +300 food, -150 food, the finder sick, or the finder sick and every other villager at 40%; "
-     "Bump On The Head (bonk) 50% every skill +30, 50% every skill -30, either way -10 health.", gm.RUNNING),
-    ("Falling Star: a wish for yourself raises one skill by 10 to 20; for the village 50% +100 to 299k food, 50% "
-     "+1000 to 2999k tech. Gold Coin (give) +2000 tech; Cursed Idol (offer) -250 food; Prettiest Girl (looks "
-     "aren't everything) +20 to 39 Parenting; Strange Request (allow) -3000 tech; Savage Child (chase) -1000 "
-     "tech; For The Birds +100 food or +30 Farming; Nightmare (let sleep) -20 health.", gm.RUNNING),
-    ("Child Prodigy (play) Building +50, (apprentice) +1000 tech and +10 Research; Dragonflies (chase) each "
-     "villager sick at 20%; Crystal Ball (keep) swaps with another villager; Huge Coconut (hurl) +250 food and "
-     "the finder fully healed; Spyglass (give) +3000 tech; Love Note +30 Parenting; White Pearl (keep) +10 to 29 "
-     "every skill, (show) -200 tech.", gm.RUNNING),
-    ("Sacks by size small / medium / large (33%, 34%, 33%): plastic +500/1000/1500 food; sealed +1000/2000/3000 "
-     "tech; compromised +500/1000/1500 tech and each villager sick at 15/20/25%; canvas the finder -15 health and "
-     "each villager bitten at 20/30/45% for -10/-15/-20; burlap the finder -40/70/110 health; green vial a new "
-     "head; orange vial one skill +50/75/100; fragrant vial every skill -30/50/70.", gm.RUNNING),
-    ("Barrel O' Babies, Old Friends and Savage Child (lure) bring villagers; how many and who is not yet "
-     "worked out.", False),
-)
-GONG_LINES = (
-    ("Gong of Wonder: the first ring is always tier C, each of its 9 results 11.1%. Later rings: tier A 5% (each "
-     "of 6 about 0.84%: sparkles and a glow only; +1000 food with the crops and coconuts refilled; +20,000 to "
-     "59,999 tech points; all food, crops and coconuts taken; every woman of 18 to 49 healed and pregnant; the "
-     "ringer dies).", gm.RUNNING),
-    ("Tier B 23.75% (each of 9 about 2.64%: each villager sick at 30%; an island event in a minute; +10,000 to "
-     "29,999 tech points; +1000 to 2998 food; the ringer -90 health; the crops emptied; the coconuts emptied; "
-     "youth taken; youth given). Tier C 71.25% (each about 7.9%, Wisdom 15.8% as it is on two of the 9: everyone healed; +200 to "
-     "999 food; the crops refilled; the coconuts refilled; +3005 to 12,999 tech points; -3000 to 12,999 tech "
-     "points; each villager sick at 15%; one of the ringer's skills set to 100).", gm.RUNNING),
-)
 ODDS_LINES = (
     ("Conception per embrace at Parenting 100: 33.9%, 50.5% or 67.1% at Medicine 1, 2, 3 (7.6% at Parenting 30 "
      "and Medicine 1); with food under 300 two thirds of that; never for a woman of 50. At Medicine 3, 7.18% of "
@@ -111,7 +58,7 @@ HIDDEN_LINES = (
     ("Likes and dislikes: a new villager gets them from the first 47 words; jumping, cooking, fire, eating, "
      "children, talking and vegetables appear only when edited in.", gm.RUNNING),
     ("Learning: a skill try passes at skill + 66% when liked, + 16% when disliked, + 33% otherwise; the gain is "
-     "doubled when liked and halved when disliked (Building gains ÷ 7, the others ÷ 10 of (100 - 2 x skill)).",
+     "doubled when liked and halved when disliked (Building gains Ã· 7, the others Ã· 10 of (100 - 2 x skill)).",
      gm.RUNNING),
     ("Work: liked, never idles for the 15% skip and always goes back to a remembered task; disliked, idles 70% of "
      "the time and drops remembered tasks (time on jobs 25.5% liked, 21.6% otherwise, 6.6% disliked). Medicine, "
@@ -286,7 +233,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Mushrooms", "It is a mushroom 50%, 35% or 20% of the time at Exploration 1, 2, 3: a brown "
                      "mushroom worth 6 food, or 1 in 10 a red (rare) mushroom worth 35.", gm.RUNNING)
     if village.has(GOLDEN):
-        add("Mushrooms", gm.golden_line(GOLDEN, "about 2.5, 3 or 4.5 years of play at Exploration 1, 2, 3"), gm.RUNNING)
+        explore = _i32(data, LEVELS + 8 * EXPLORATION_LEVEL)
+        wait_s, share_m = GOLDEN_WAITS.get(explore, GOLDEN_WAITS[1])
+        out.extend(gm.golden_lines(GOLDEN, 3600 / wait_s * share_m, speed_value, (
+            f"at Exploration level {explore if explore in GOLDEN_WAITS else 1}, something appears about every {wait_s} "
+            f"real-life seconds while nothing is out, at every speed, {share_m:.0%} of them mushrooms")))
     add("Collectibles", "When it is not a mushroom it is a collectible: rare 4%, 6% or 8% at Exploration 1, 2, 3, "
                         "uncommon 12%, the rest common. Butterflies and shells can always appear, pebbles once the "
                         "dam is built, beetles once their place is opened"
@@ -297,10 +248,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Tech points ---------------------------------------------------------------------
     add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
     add("Tech points and effects", (
-        "Research gives Research skill ÷ 11, ÷ 9 or ÷ 5 at Science 1, 2 or 3, "
+        "Research gives Research skill Ã· 11, Ã· 9 or Ã· 5 at Science 1, 2 or 3, "
         + {gm.FAST: "twice that on Fast speed", gm.NORMAL: "as it is on Normal speed",
            gm.SLOW: "halved on Slow speed when above 1"}[speed]
-        + "; a lit fire adds a 10% chance of 1 more. While catching up ÷ 7, ÷ 6 or ÷ 4."), gm.RUNNING)
+        + "; a lit fire adds a 10% chance of 1 more. While catching up Ã· 7, Ã· 6 or Ã· 4."), gm.RUNNING)
     if village.has(TOTEMS):
         add("Tech points and effects", "Esteemed Elders: a villager with 3 skills at 88 or more becomes a totem; the "
                                        f"patcher's \"{gm.feature_name(TOTEMS)}\" keeps the totems apart from the "
@@ -319,29 +270,18 @@ def facts(village: gm.Village) -> list[gm.Fact]:
 
     # -- Island events -------------------------------------------------------------------
     add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
-    add("Island events", f" Island events come every 10 to 19 whole hours at any "
-                         "speed, each equally likely; a new village's first comes 15 minutes after it is made, the "
-                         "second 30 minutes later.", gm.RUNNING)
-    for line, ok in EVENT_LINES:
-        add("Island events", line, ok)
-    if village.has(RESTORE_EVENTS):              # patch-only events: never shown as the stock game's
-        add("Island events", gm.patch_words(village, RESTORE_EVENTS,
-                                            "Mosquito Swarm (each villager sick at 20%), Dragonfly Migration (+20 "
-                                            "health for all) and Science Awareness Day (each child +3 to 7 Research) "
-                                            "can happen too"))
-    if village.has(STORY) is not False:
-        add("Island events", gm.patch_words(village, STORY, "Pick Island Event and Pick Gong Outcome choose them"))
-
-    # -- Other ---------------------------------------------------------------------------
+    add("Island events", f"Island events seen in this village: {_i32(data, EVENTS_SEEN):,}.", gm.SAVE)
+    out.extend(events.event_facts(village, catalog.RULES, catalog.EVENTS))
+    # The Gong of Wonder: its rest from the save (the clock counts real seconds at any speed), then its results.
     gong_first = _i32(data, GONG_FIRST_DONE) == 0
     gong_when = (f"can ring again {gm.when(real(GONG_NEXT))}" if real(GONG_NEXT) > village.now
                  else "can ring now")
-    add("Other", f"The Gong of Wonder {gong_when}; it can be rung only once its 24-hour rest has passed, at any speed."
-                 + (" Its first ring is always tier C." if gong_first else ""), gm.RUNNING)
-    for line, ok in GONG_LINES:
-        add("Other", line, ok)
-    if village.has(GONG_FIX) is not False:
-        add("Other", gm.patch_words(village, GONG_FIX, "its coconut results work as their words say"))
+    add("Island events", f"The Gong of Wonder {gong_when} (its rest is 24 real-life hours at any speed)."
+                         + (" This village has had no tier C result yet, so its next ring is tier C." if gong_first
+                            else ""), gm.SAVE)
+    out.extend(events.event_facts(village, extra=catalog.EXTRA))
+
+    # -- Other ---------------------------------------------------------------------------
     fire = real(FIRE_END)
     add("Other", ("The fire " + (f"burns until {gm.when(fire)}" if fire > village.now and not paused else
                                  ("was burning when it was saved" if paused and _i32(data, FIRE_END) > _i32(data, LAST_TICK)
@@ -389,6 +329,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
 # (0x2EA8C: the twins roll at 0x44BA6A, sickness at 0x43B2ED), Exploration the fifth (0x2EA94: the mushroom spawn
 # roll, its level + 4, at 0x415FF5).
 LEVELS, MEDICINE_LEVEL, EXPLORATION_LEVEL = 0x2EA74, 3, 4
+# The wait for something to appear (real-life seconds) and the share of mushrooms, by Exploration level (the
+# Mushrooms lines: a (level + 4)% chance every 2 seconds; 50%, 35% or 20% mushrooms).
+GOLDEN_WAITS = {1: (40, 0.50), 2: (34, 0.35), 3: (28, 0.20)}
 
 
 def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: float | None, event_at: float | None,
@@ -420,7 +363,7 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
     wait, share = waits.get(exploration, (40, 0.50))
     ctx = life.Context(
         village, speed_value, real_last(data), _i32(data, FOOD), low_food=150, extra_from=4001, sources=sources,
-        tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 5 at Science 1 to 3).",
+        tech=_i32(data, TECH), tech_words="Research brings them (the skill Ã· 11, Ã· 9 or Ã· 5 at Science 1 to 3).",
         brown=6, red=35, red_share=0.10, mushrooms_an_hour=3600 / wait * share, golden=village.has(GOLDEN) is True,
         mushroom_words=f"At Exploration level {exploration} something appears about every {wait} real-life seconds while "
                        f"nothing is out, {share:.0%} of them mushrooms, picked only when you drop a child on them.",
