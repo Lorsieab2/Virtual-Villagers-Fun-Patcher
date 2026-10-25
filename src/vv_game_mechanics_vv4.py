@@ -260,15 +260,29 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "
                         "hours.", gm.RUNNING)
-    add("Collectibles", "Once the Mausoleum Mural set is complete, a buried villager's ghost brings a collectible every "
+    add("Collectibles", "Once the Mausoleum Mural set is complete, a mausoleum ghost (not necessarily a buried villager, the "
+                        "owner) brings a collectible every "
                         "50 to 58 minutes (nothing if more than an hour overdue).", gm.RUNNING)
     add("Collectibles", "The four collections are the Fish Scale, Lab Equipment, Mausoleum Mural and Wind Flute sets; "
                         "ghost visits need the Mausoleum Mural set complete.", gm.RUNNING)
     add("Collectibles", "Fog increases collectible spawning if you have Wind Flute pieces collected.", gm.OWNER)
+    add("Collectibles", (
+        "Exactly (0x41437E): each update of the village (while not paused) something appears when a roll of 0 to 5,999 "
+        "comes under 4 -- 24 in 32,768 -- and, when the weather level is above 50 (rain or wet ground), a second such "
+        "roll gives another chance. In fog the first roll's 4 becomes 4 for every 2 Wind Flute pieces found (0x413B90 "
+        "on the set 0x6A..0x75): no spawns at all from it with 0 or 1, the normal chance with 2 or 3, twice it with 4 "
+        "or 5, up to 6 times it (144 in 32,768) with all 12."), gm.RUNNING)
+    flutes = life.collectible_counts(village)
+    if flutes is not None and len(flutes) >= 48 and not village.general:
+        found = sum(1 for c in flutes[36:48] if c > 0)
+        out.append(gm.Fact("Collectibles", (
+            f"This village: {found} of the 12 Wind Flute pieces found, so in fog the first roll's chance is "
+            f"{6 * 4 * (found // 2)} in 32,768 each update."), gm.SAVE, True))
     add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 minutes (every 23 to 25 once "
                         "Decorate Tree is done); it changes nothing.", gm.RUNNING)
-    add("Collectibles", "How much each Wind Flute piece adds in fog, and what a cold snap does, is not yet worked out. "
-                        "Each complete collection raises the population limit by 5, all four by 25.")
+    add("Collectibles", "The Cold Snap island event brings fog and puts the fire out (0x414BD0). Each complete "
+                        "collection raises the population limit by 5, all four by 25 (the room check 0x468350).",
+        gm.RUNNING)
 
     # -- Tech points ---------------------------------------------------------------------
     add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
