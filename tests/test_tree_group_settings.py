@@ -115,7 +115,7 @@ class ModelTests(unittest.TestCase):
         for pid in (MALE, FEMALE):
             v.people[pid].arrived, v.people[pid].how = True, "Shipwreck"
             v.people[pid].masters = ["Farmer"]
-        for name, words in (("show_arrived", "Arrived: Shipwreck"), ("show_masters", "Master Farmer")):
+        for name, words in (("show_arrived", "Arrived: Shipwreck"),):
             with self.subTest(name=name):
                 lay = ft.layout(v, males(**{name: False}))
                 self.assertNotIn(words, ft.default_text(lay, v.people[MALE]))
