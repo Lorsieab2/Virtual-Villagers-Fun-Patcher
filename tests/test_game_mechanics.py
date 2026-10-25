@@ -356,16 +356,13 @@ class BrewedPotion(unittest.TestCase):
         for speed, shows in ((gm.NORMAL, "5:00"), (gm.FAST, "2:30"), (gm.SLOW, "8:20")):
             with self.subTest(speed=speed):
                 facts = self.read(speed)
+                # Once, under Tech points and effects (the audit, 2026-10-25: no line repeated in another group).
                 potion = [f for f in facts if f.text.startswith("A brewed potion:")]
-                self.assertEqual(len(potion), 2)
+                self.assertEqual(len(potion), 1)
                 self.assertEqual(potion[0].text, (
                     f"A brewed potion: the pot's on-screen countdown starts at {shows} on {gm.speed_name(speed)} "
                     "speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with the speed), and "
                     "the potion is gone when it reaches 0:00."))
-                self.assertEqual(potion[1].text, (
-                    "A brewed potion: the pot's on-screen countdown starts at 5:00 on Normal speed, 2:30 on Fast and "
-                    "8:20 on Slow (what it shows changes with the speed), and the potion is gone when it reaches "
-                    "0:00."))
                 # Traced on the game's live code and seen by the owner: no UNCONFIRMED.
                 self.assertTrue(all(f.confirmed for f in potion))
                 text = gm.render(facts)
@@ -383,7 +380,7 @@ class BrewedPotion(unittest.TestCase):
         facts = self.read(gm.NORMAL)
         other = {f.text: f for f in facts if f.group == "Other"}
         herbs = next(f for t, f in other.items() if t.startswith("Herbs never run out"))
-        self.assertEqual(herbs.text, vv3.ODDS_LINES[6])           # the owner's confirmed wording, unchanged
+        self.assertEqual(herbs.text, vv3.HERBS_LINE)              # the owner's confirmed wording, unchanged
         self.assertIn("A villager cannot drink a potion whose effect they already have, or any potion while they "
                       "already have 4 effects.", herbs.text)
         self.assertTrue(herbs.confirmed)

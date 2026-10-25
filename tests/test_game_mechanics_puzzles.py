@@ -173,7 +173,9 @@ class Wording(Pages):
         return gm.render(self.page(game, fixture(f"vv{game}-huttest-1"), features=features))
 
     def test_the_big_catch_is_a_crab(self) -> None:
-        self.assertIn("a 10% chance of catching a crab, worth 55 food", self.text(3))
+        # The Secret City gives the crab's chance once, in Chances (the audit, 2026-10-25: no line repeated).
+        self.assertIn("lands a crab worth 55 food", self.text(3))
+        self.assertIn("is a crab, worth 55 food, 10.01% of the time", self.text(3))
         self.assertIn("a 21% chance of catching a crab, worth 55 food", self.text(1))
         for game in (1, 3):
             self.assertNotIn("big catch", self.text(game))

@@ -115,15 +115,17 @@ ROLLS = (
          ("A villager who likes learning, or who is under the potion effect that makes them feel smarter, adds 66 "
           "instead of 33 (" + _ch(below(100, 67)) + " at skill 0); one who dislikes learning adds 16 ("
           + _ch(below(100, 17)) + " at skill 0).",
+          # A failure gives +4 at exactly 0 (0x45A3A9), but in Parenting at anything above 0 (0x45A554): an
+          # earlier line gave the first rule for every skill.
           "On a failure nothing of the task is paid and the skill does not rise, except that a villager at exactly 0 "
-          "gains 4. Before the village's first success in Farming, Breeding or Research, the try after one failure "
-          "always succeeds.",
-          "On a success the skill rises by (70 - skill) / 18 for Farming, Research and Building, / 10 for Breeding and "
+          "gains 4 (in Parenting the other way round: a failure at anything above 0 gains 4). Before the village's "
+          "first success in Farming, Parenting or Research, the try after one failure always succeeds.",
+          "On a success the skill rises by (70 - skill) / 18 for Farming, Research and Building, / 10 for Parenting and "
           "/ 12 for Healing (whole numbers, at least 7 from 0), doubled when the villager likes learning and halved "
           "when they dislike it; once that comes to 0, the skill rises by 1 only when a roll of 0 to 99 is at or "
           "under 50 ({1}) and a second is at or above the skill."),
          feature="vv3_learning_never_fails",
-         patched="every Farming, Building, Research, Healing and Breeding skill test succeeds; the skill gains are "
+         patched="every Farming, Building, Research, Healing and Parenting skill test succeeds; the skill gains are "
                  "the game's own."),
     Roll("Deciding what to do: every 40 real-life seconds at any speed, each idle villager decides again, up to 10 "
          "tries; each try goes on to look for something to do only {0} of the time (a roll of 0 to 99 above 65), "
@@ -135,15 +137,15 @@ ROLLS = (
           Check(0x45978E, 100, 0x0F, "jle", take=False), Check(0x459853, 100, 0x55, "jg", take=False),
           Check(0x459874, 100, None, "jge"), Check(0x459892, 100)),
          ("Each of the five skills is looked at only {2} of the time (a roll of 0 to 99 above 15), and the highest skill "
-          "looked at wins; Breeding counts 15 lower than it is; a villager who dislikes medicine passes over Healing "
+          "looked at wins; Parenting counts 15 lower than it is; a villager who dislikes medicine passes over Healing "
           + _ch(below(100, 50)) + " of the time.",
           "A job ticked as the villager's preference on the Details screen replaces that pick {3} of the time.",
           "Then, with the job's score 6 or more, the villager takes the job only when a roll of 0 to 99 is under the "
           "score + 40, so from a score of 60 always; with 5 or less never.",
-          "Children (Breeding) without the Children preference ticked still goes ahead only "
+          "Children (Parenting) without the Children preference ticked still goes ahead only "
           + _ch(_not(below(100, 75))) + " of the time."),
          feature="vv3_birth_control",
-         patched="a villager starts embracing on their own only with both Breeding skill and the Children preference "
+         patched="a villager starts embracing on their own only with both Parenting skill and the Children preference "
                  "ticked: the " + _ch(_not(below(100, 75))) + " route without the preference is gone."),
     Roll("Low food: while food is 250 or less, a villager with Farming 20 or more tries farming first; otherwise one "
          "whose job is not Farming or Healing stands \"Worried about food\" instead of working {0} of the time.",
@@ -258,17 +260,18 @@ ROLLS = (
     # -- Births and gender ---------------------------------------------------------------------------------------
     Roll("Conception (dropping one villager on another, or a villager embracing on their own): the pair must be a man "
          "and a woman, both 18 or older, alive, not sick, neither already pregnant or nursing; with 250 food or less "
-         "they refuse {0} of the time; then the villager you dropped (or who started it) must pass the Breeding skill "
+         "they refuse {0} of the time; then the villager you dropped (or who started it) must pass the Parenting skill "
          "test.",
          (Check(0x45857D, 100, 0x41, "jle", take=False), Check(0x4586E1, 300)),
          ("Then a roll of 0 to 299, plus 50, less 50 x the Medicine level, less a potion's help, must be at or under "
-          "that villager's Breeding: at Breeding 100, " + _conceive(100, 0) + ", " + _conceive(100, 1) + ", "
-          + _conceive(100, 2) + " or " + _conceive(100, 3) + " at Medicine 0 to 3; at Breeding 50, "
+          "that villager's Parenting: at Parenting 100, " + _conceive(100, 0) + ", " + _conceive(100, 1) + ", "
+          + _conceive(100, 2) + " or " + _conceive(100, 3) + " at Medicine 0 to 3; at Parenting 50, "
           + _conceive(50, 1) + " at Medicine 1.",
-          "The fertility potion takes 50 more off the roll (" + _conceive(50, 1, 50) + " at Breeding 50 and "
+          "The fertility potion takes 50 more off the roll (" + _conceive(50, 1, 50) + " at Parenting 50 and "
           "Medicine 1), the strong one 100 (" + _conceive(50, 1, 100) + ").",
           "A woman of 50 or older never conceives. The village's very first conception skips the food refusal and "
-          "this roll. A conception raises that villager's Breeding by a tenth of what it lacks of 100, at least 5.",
+          "this roll. A conception raises the mother's Parenting by a tenth of what it lacks of 100, at least 5 "
+          "(0x455AC5).",
           "No pregnancy starts once the population, babies on the way included, reaches 90 + 5 for each complete "
           "collection (25 for all four) + 10 at Magic 3, or without room in the huts: 10 people or more need one "
           "finished hut, 17 two, 35 three."),
