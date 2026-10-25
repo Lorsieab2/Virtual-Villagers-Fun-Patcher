@@ -429,6 +429,63 @@ class RealSaves(unittest.TestCase):
                 self.assertRegex(text, r"Fruit trees: each gains 111 fruit every (3 hours on Normal|1 hour 30 minutes on Fast) speed")
 
 
+class StewPots(unittest.TestCase):
+    """The owner, 2026-10-24: when stews and their effects end, and what empties the pot, in VV2 to VV4."""
+
+    page = lambda self, name: EveryGame.page(self, name)  # noqa: E731
+
+    def facts(self, name):
+        return {f.text: f for f in self.page(name)}
+
+    def test_lost_children_pot_and_effects(self) -> None:
+        import vv_game_mechanics_vv2 as vv2
+        facts = self.facts("vv2-huttest-1")
+        pot = facts[vv2.STEW_POT_LINE]
+        self.assertTrue(pot.confirmed)
+        self.assertIn("15 real-life minutes at every speed, then empties itself", pot.text)
+        self.assertIn("Eating does not empty it", pot.text)
+        self.assertIn("no countdown", pot.text)
+        effect = facts[vv2.STEW_EFFECT_LINE]
+        self.assertFalse(effect.confirmed)                    # no clock read is traced; tick timers not excluded
+        text = gm.render(list(facts.values()))
+        self.assertNotIn("A stew is ready 15 minutes after it starts", text)
+        self.assertIn("a stew stays in the pot 15 real-life minutes", text)
+
+    def test_secret_city_table_empties_the_pot(self) -> None:
+        facts = self.facts("vv3-huttest-1")
+        line = facts[vv3.POT_EMPTIED_LINE]
+        self.assertTrue(line.confirmed)                       # the owner's word, and 0x430D90 -> 0x430D00
+        self.assertTrue(line.text.startswith("The pot can be emptied by dropping a villager on the table with 3 "
+                                             "herbs"))
+
+    def test_tree_of_life_pot_grate_reheat_and_answer(self) -> None:
+        import vv_game_mechanics_vv4 as vv4
+        facts = self.facts("vv4-huttest-1")
+        pot = [f for t, f in facts.items() if t.startswith("A ready stew: the pot's on-screen countdown starts at ")]
+        self.assertEqual(len(pot), 1)
+        self.assertTrue(pot[0].confirmed)
+        for speed, shows in ((gm.NORMAL, "5:00"), (gm.FAST, "2:30"), (gm.SLOW, "8:20")):
+            self.assertIn(f"starts at {shows} on {gm.speed_name(speed)} speed", vv4.stew_pot_line(speed))
+        for speed, shows in vv4.STEW_COUNTDOWN.items():            # 300 real seconds x rate / 6, as m:ss
+            minutes, rest = divmod(300 * speed // 6, 60)
+            self.assertEqual(shows, f"{minutes}:{rest:02d}")
+        self.assertTrue(facts[vv4.GRATE_LINE].confirmed)
+        self.assertEqual(vv4.GRATE_LINE, "The pot can be emptied by dropping a villager on the grate.")
+        self.assertTrue(facts[vv4.REHEAT_LINE].confirmed)     # the owner's word
+        code = facts[vv4.REHEAT_CODE_LINE]
+        self.assertTrue(code.confirmed)                       # 0x42EAA7, 0x42DC80, 0x42EA61, 0x42EE1D, 0x42F240
+        for words in ("each hot rock adds 10 heat", "the Grand Feast at 20 with its 4 feast items",
+                      "the two salt-water mixes (soapy x3, pulpy vines x3) need no heat",
+                      "stays hot for 10 real-life minutes on Normal speed (5 on Fast, 16 minutes 40 seconds on Slow)",
+                      "starts its 5 real-life minutes over; nothing limits how often"):
+            self.assertIn(words, code.text)
+        self.assertTrue(facts[vv4.CANT_EAT_LINE].confirmed)
+        text = gm.render(list(facts.values()))
+        self.assertIn("a ready stew is gone 5 real-life minutes later at every speed", text)
+        self.assertIn("then no stew for 10 real-life minutes", text)
+        self.assertNotIn("a stew keeps 5 minutes", text)
+
+
 class EveryGame(unittest.TestCase):
     """All five games: the committed real saves read, real time only, the secrets kept, and no time-away
     figure shown until it is verified."""
@@ -609,6 +666,34 @@ class EveryGame(unittest.TestCase):
         totems = text_of(self.page("vv2-huttest-1", data=bytes(data), features=["vv2_totems_out_of_entries"]))
         self.assertIn("with no limit on how many", totems)
         self.assertIn("while there are fewer than 50 totems", text)
+
+    def test_vv2_fish_below_zero(self) -> None:
+        """The fish count is a signed dword the game keeps subtracting from with no floor once Sustainable Fishing
+        is solved (0x463305, 0x425B00); the window says fishing has no limit then, not "they never grow back"."""
+        import vv_game_mechanics_vv2 as vv2
+        base = bytearray(gzip.decompress((FIXTURES / "vv2-huttest-1.ldw.gz").read_bytes()))
+        struct.pack_into("<i", base, vv2.SPEED + vv2.S, 6)
+
+        def render(fish: int, solved: int, farming: int) -> str:
+            data = bytearray(base)
+            struct.pack_into("<i", data, vv2.FISH + vv2.S, fish)
+            data[vv2.SUSTAINABLE_FISHING + vv2.S] = solved
+            struct.pack_into("<i", data, vv2.LEVELS + 8 * vv2.FARMING_LEVEL + vv2.S, farming)
+            return text_of(self.page("vv2-huttest-1", data=bytes(data)))
+
+        text = render(-1_162_256, 1, 3)
+        self.assertIn("Fish: no limit, as Sustainable Fishing is solved; a trip brings 8 on Normal speed", text)
+        self.assertIn("The game's own fish count is -1,162,256", text)
+        self.assertNotIn("-1,162,256 (they never grow back)", text)
+        self.assertIn("fishing adds without limit", text)
+        self.assertIn("fishing trips per real-life hour", text)
+        level1 = render(-40, 1, 1)
+        self.assertIn("Fish: -40; Sustainable Fishing is solved, but at Farming level 1", level1)
+        self.assertNotIn("fishing trips per real-life hour", level1)
+        stock = render(700, 0, 3)
+        self.assertIn("Fish: 700 (they never grow back); a trip brings 8 on Normal speed", stock)
+        self.assertNotIn("fishing adds without limit", stock)
+        self.assertNotIn("fishing trips per real-life hour", render(0, 0, 3))
 
     def test_vv4_and_vv5_values(self) -> None:
         import vv_game_mechanics_vv4 as vv4

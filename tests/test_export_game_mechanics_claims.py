@@ -65,6 +65,18 @@ class Coverage(unittest.TestCase):
                     for now in (1_785_000_000.0, 1_791_000_000.0, 1_850_000_000.0):
                         self.assert_covered(game, self.page(game, data, now))
 
+    def test_the_lost_childrens_fish(self) -> None:
+        import struct
+        import vv_game_mechanics_vv2 as vv2
+        data = gzip.decompress((t.FIXTURES / "vv2-huttest-1.ldw.gz").read_bytes())
+        for fish, solved, farming in ((700, 0, 3), (0, 0, 3), (-40, 1, 1), (-1_162_256, 1, 3), (5, 1, 2)):
+            buf = bytearray(data)
+            struct.pack_into("<i", buf, vv2.FISH + vv2.S, fish)
+            struct.pack_into("<i", buf, vv2.LEVELS + 8 * vv2.FARMING_LEVEL + vv2.S, farming)
+            buf[vv2.SUSTAINABLE_FISHING + vv2.S] = solved
+            with self.subTest(fish=fish, solved=solved, farming=farming):
+                self.assert_covered(2, self.page(2, bytes(buf), 1_791_000_000.0))
+
     def test_the_secret_citys_trees_and_patches(self) -> None:
         clock = (6, 0, 100_000, 50_000)
         for speed, c in ((6, clock), (3, (3, 0, 100_000, 50_000)), (1009, (0, 10, 100_000, 50_000))):

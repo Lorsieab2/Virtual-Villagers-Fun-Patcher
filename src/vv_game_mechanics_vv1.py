@@ -118,7 +118,8 @@ LIFE_LINES = (
     "Babies need room: under 15 people always; 15 or more need the first hut, 25 the second, 50 the third; none "
     "at 90. Villagers work from 14 and have children from 18.",
     "Sickness each age unit (14 and older): 1 in 600, 1 in 1,200 or 3 in 10,000 at Medicine 1, 2, 3; past 50, 58 "
-    "or 66 years 1.5% more. Children never fall sick. With food and not sick, a villager regains 1 health half the "
+    "or 66 years 1.5% more. Children never fall sick on their own (only The Measles Epidemic makes them sick). "
+    "With food and not sick, a villager regains 1 health half the "
     "age units (every one on Easy); past 50, 58 or 66 years 10% (20% on Easy).",
     "Building trips: huts 250, 400 and 600; the beach 75 (each counts 2); the blockage 350; the field 200; digging "
     "800; the ruins 1,000; chiseling 1,350 (the last two half as many at Building 90 or more). Each trip injures 2% "
@@ -168,11 +169,13 @@ HIDDEN_LINES = (
     ('A New Home has no fire.', gm.RUNNING),
     # Breeding age 18 (the owner): the embrace checks both ages >= 360 (0x43DB35..0x43DB46), the catch-up embrace
     # too (0x446E96, 0x446EA6).  The two 280 checks just before it in the catch-up code (0x446D39, 0x446E28) are
-    # the catch-up healers' patient test, not a breeding gate; under-14s never fall sick (0x42E590).
+    # the catch-up healers' patient test, not a breeding gate.  Under-14s never fall sick at random (0x42E590), but The
+    # Measles Epidemic (handler 0x4284FA) makes every living child sick, and those checks leave them uncured.
     ("Breeding age: every embrace, the catch-up embrace included, needs both villagers 18 or older. The 14-year "
      "checks beside the catch-up embrace in the game's code belong to catch-up healing: there the healer cures "
-     "only patients 14 or older, and since children under 14 never fall sick, no child is ever left uncured by "
-     "it.", gm.RUNNING),
+     "only patients 14 or older. Children under 14 never fall sick at random, but The Measles Epidemic island "
+     "event makes every child sick, and catch-up healing never cures them: drop a healer on each sick child.",
+     gm.RUNNING),
 )
 
 

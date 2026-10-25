@@ -1841,10 +1841,11 @@ static void ui_values_fill(HWND window) {
     SendDlgItemMessageA(window, IDC_VA_LIST, LB_RESETCONTENT, 0, 0);
     for (i = 0; i < ui.a->value_count && i < CE_MAX_VALUES; ++i) {
         const ce_value_def *d = &ui.a->values[i];
-        int now = ui.a->value_get(i);
+        int now = 0;
+        int there = ui.a->value_get(i, &now);
         char *p = text;
         p += wsprintfA(p, "%s (%d-%d): ", d->name, d->min, d->max);
-        p += now < 0 ? wsprintfA(p, "not there yet") : wsprintfA(p, "now %d", now);
+        p += there ? wsprintfA(p, "now %d", now) : wsprintfA(p, "not there yet");
         if (ui.values[i] != CE_KEEP) {
             wsprintfA(p, "  ->  %d", ui.values[i]);
         }

@@ -230,6 +230,15 @@ def old_age_line(thresholds: str, extra: str = "") -> Fact:
 
 
 HIDDEN = "Hidden villager stats"
+# How a villager gets its head and body (src/vv_game_mechanics_genetics.py, the owner 2026-10-24), shown right
+# after the hidden villager stats.
+GENETICS = "Genetics"
+GROUPS = GROUPS[:GROUPS.index(HIDDEN) + 1] + (GENETICS,) + GROUPS[GROUPS.index(HIDDEN) + 1:]
+
+
+def genetics_facts(village: "Village") -> list[Fact]:
+    """The Genetics group for `village` (found by name, as each game's module is)."""
+    return list(importlib.import_module("vv_game_mechanics_genetics").facts(village))
 
 
 def starvation_lines(village: "Village", delta: int, basis: str, totem_colour: bool = False) -> list[Fact]:
@@ -700,6 +709,8 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     except ImportError:
         return [Fact("Other", "Nothing is shown for this game yet.")]
     facts = list(module.facts(village))
+    if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
+        facts += genetics_facts(village)
     if not facts:
         facts = [Fact("Other", "Nothing is shown for this game yet.")]
     facts = sources_lines(path, patches, village.notes) + facts
@@ -740,7 +751,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     village = Village(Path("."), game, 1, Path(f"{game}.ldw"), blank_save(game, now), None, now, general=True)
     module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     keep = []
-    for fact in module.facts(village):
+    for fact in list(module.facts(village)) + genetics_facts(village):
         if fact.due is not None:
             continue                           # a moment of the empty save's village
         if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",

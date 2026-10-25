@@ -1416,6 +1416,17 @@ __declspec(dllexport) unsigned int __stdcall VvfpStoryProbeCaps(int game) {
     return a != NULL ? a->caps : 0;
 }
 
+/* `game`'s amount `which` as the Amounts dialog reads it: 1 with *now set
+   when the store is there, 0 (and *now untouched) when it is not yet, -1
+   for no such amount. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeValue(int game, int which, int *now) {
+    const ce_adapter *a = ce_adapter_for(game);
+    if (a == NULL || !(a->caps & CAP_VALUES) || which < 0 || which >= a->value_count) {
+        return -1;
+    }
+    return a->value_get(which, now);
+}
+
 /* Every game may ask a question (1) or only those whose adapter has
    CAP_CHOICE (0): the engine is tested apart from the hooks. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceCap(int on) {
