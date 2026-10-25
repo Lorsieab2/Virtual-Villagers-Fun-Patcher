@@ -324,8 +324,11 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
     on = gm.speed_name(speed)
     who, whom = c["who"], c["whom"]
     add(f"A {who} dies when their health (0 to 100) reaches 0. The grave's Cause of Death is the cause of the loss "
-        f"that took it to 0, in the game's words: {c['causes']}. The game also has the words Act of Nature, but "
-        "nothing in this game ever gives that cause.")
+        f"that took it to 0, in the game's words: {c['causes']}."
+        # The Secret City (the owner, 2026-10-25: a rule inherited from an earlier game that can never happen is never
+        # listed): its unused Act of Nature cause is left out.
+        + ("" if game == 3 else " The game also has the words Act of Nature, but nothing in this game ever gives "
+                                "that cause."))
     if medicine in ((0, 1, 2, 3) if game == 3 else (1, 2, 3)):
         start = 55 + 8 * (medicine - 1)
         later = ""

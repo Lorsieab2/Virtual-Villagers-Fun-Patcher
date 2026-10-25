@@ -505,7 +505,7 @@ def _vv3(village: gm.Village) -> list[gm.Fact]:
     add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100; the "
         "partner search is the live one (opposite sex, both 18 to 49, the partner not sick, and neither pregnant "
         "or nursing), and the population limit and huts apply as live. A baby is conceived when rand(300) + 50 - "
-        "50 x Medicine level is at most the Breeding skill. Unlike live play there is no embrace skill check, no "
+        "50 x Medicine level is at most the Parenting skill. Unlike live play there is no embrace skill check, no "
         "refusal when food is low, no fertility potion bonus, and the village's first conception does not skip "
         "the roll.")
     add("Healing while catching up: a cure is the healer's Healing skill check alone (live: a healer who dislikes "
@@ -523,9 +523,12 @@ def _vv3(village: gm.Village) -> list[gm.Fact]:
         "a tree stops at 1,000 fruit, the honey at 3,000.", RUNNING)
     add("Potions: saving the game ends every villager's potion effects, and the pot (with a brewed potion) is not "
         "saved, so nothing from a potion carries over the time away.", RUNNING)
+    # The scheduler 0x468727 on the wall clock: nothing resets it when the game starts (an earlier line said the
+    # first event of each start sets the next 30 minutes later; the 30 minutes follow only the village's first event
+    # ever, 0x468899, as Island events says).
     add("Island events: their timer runs on real-life time, so the whole time closed counts. If an event came due "
-        "while the game was closed it happens once when the village is next played; the first event of each time "
-        "the game is started sets the next 30 minutes later, then 8 to 15 whole real-life hours apart.", RUNNING)
+        "while the game was closed it happens once when the village is next played, and the next comes 8 to 15 whole "
+        "real-life hours after it (30 real-life minutes after the village's first event ever).", RUNNING)
     add("The Tribal Chief's powers: their 23-hour wait runs on real-life time, so the time closed counts in full.",
         RUNNING)
     add("Mushrooms and collectibles: none appear for the time closed. The appearance roll is made once per update "

@@ -62,6 +62,11 @@ RULES = (
     Line("Who: an event's villager is drawn from those its condition allows, each equally likely. Every \"N%\" is "
          "the game's test rand(100) < N: the C runtime's random number (0 to 32,767) modulo 100, which makes it N% "
          "to within 0.07 percentage points."),
+    # Of the likes and dislikes the outcomes add, Hidden villager stats lists those the game's code acts on; ants and
+    # clouds, and liking medicine or crowds, are not among them (the 44 words with no effect found).
+    Line("A like or dislike an outcome adds shows on the villager's Details screen; of those the events give, liking "
+         "or disliking ants, liking clouds, and liking medicine or crowds change nothing that has been found in the "
+         "game's code (Hidden villager stats lists the ones that do).", False),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event chooses the next event "
          "instead of the draw above.", only_with=STORY),
 )
@@ -249,9 +254,16 @@ EVENTS = (
         "0x417610).",
         "\"Bring it back to the village\": nothing changes.")),
     Event("The Mysterious Vial (amber)", f"needs {ADULT} (the chief can be the one)", (
+        # "Feels years younger" lowers only the shown age +0xDC4 (0x41780C), not the processed age +0xE74 that the
+        # aging loop 0x45FFE0 steps (it runs a villager's age unit only while processed < shown, 0x46001E): so the
+        # villager's life rules stop until the shown age catches up again.  The quartz vial sets both (0x417440).
         "\"Taste it\": 33% scientific insight -- +15 to 44 Research, up to 100; 33% feels years younger -- health "
-        "100, cured, and 100 age units (5 villager years) younger, not below 100; 34% two copies of the villager "
-        "join, each if there is a free record (rand(100) at 0x41771D; 0x417770).",
+        "100 and cured at once, and the age shown drops 100 age units (5 villager years), not below 100, but the "
+        "hidden processed age stays, so for the next 100 age units (10 real-life hours of play on Normal speed, 5 "
+        "real-life hours on Fast, 16 real-life hours 40 minutes on Slow) the villager's age units do nothing: no eating, no health gained or "
+        "lost, no sickness roll, no old-age roll and no progress of a pregnancy; then they run on as before, the "
+        "old-age rolls by the processed age, which was never made younger; 34% two copies of the villager join, "
+        "each if there is a free record (rand(100) at 0x41771D; 0x417770).",
         "\"Bring it back to the village\": nothing changes."),
         patched=((FIX, "scientific insight also gives the tribe 100 tech points, as its text says; in the normal "
                        "game it gives only the Research"),)),
