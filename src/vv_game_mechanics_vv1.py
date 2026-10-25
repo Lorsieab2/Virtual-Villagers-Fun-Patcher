@@ -443,7 +443,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # 0x4245D2, The Cave 0x43ABE7..0x43AC1E, the Golden Child 0x4242AD; the clock 0x402F70 counts real seconds.
     out.extend(gm.hours_puzzle_lines([name for name, _flag, _hours in PUZZLES],
                                      lambda n: data[PUZZLES[n][1] + 4] != 0,
-                                     lambda n: _i32(data, PUZZLES[n][2] + 4), real(CREATED), ok=gm.CODE))
+                                     lambda n: _i32(data, PUZZLES[n][2] + 4), real(CREATED), verified=gm.CODE))
     out.extend(golden_child_facts(village, data, real(CREATED), level))
 
     # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------

@@ -133,7 +133,10 @@ NOTE = ("Every chance here is exact for the game's own random numbers: each roll
         "not exactly 50%. Each was read from the game's own running code; how often it is rolled is given in real-life "
         "time or per age unit.")
 BIRTH_NOTE = ("Births: how many babies a pregnancy brings and whether each is a boy or a girl, exactly from the game's "
-              "own code. Every way a villager can be born or arrive is listed. A Golden Child counts as a birth.")
+              "own code. Every way a villager can be born or arrive is listed.")
+# Only A New Home has a Golden Child; the sentence is not shown for The Secret City, which has none (an inherited
+# rule that cannot happen there is never listed, the owner 2026-10-25).
+GOLDEN_BIRTH = " A Golden Child counts as a birth."
 
 
 def rolls(game: int) -> tuple[Roll, ...]:
@@ -157,7 +160,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         mine = [r for r in table if r.group == group]
         if not mine:
             continue
-        note = own.get(group, note)
+        if group in own:                       # a game's own wording wins (New Believers words its Births note)
+            note = own[group]
+        elif group == BIRTHS and village.game != 3:
+            note += GOLDEN_BIRTH
         out.append(gm.Fact(group, note, gm.RUNNING))
         for roll in mine:
             out.append(gm.Fact(group, roll.words(roll.text), roll.verified))

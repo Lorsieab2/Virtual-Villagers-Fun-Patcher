@@ -102,7 +102,8 @@ ROLLS = (
          "time (a roll of 0 to 99 of 75 or less), every time on Hard, and every time for a villager whose hidden "
          "number is a multiple of 6.",
          (Check(0x43BB4D, 100, 0x4B, "jle"), Check(0x43BBC0, 100, 0x1E, "jg", take=False)),
-         ("After such a loss, a villager left at 20 health or less whose hidden number is odd and not a multiple of 3 "
+         # 0x43BB98..0x43BBBC: the number must be odd and not a multiple of 6, which every odd number is.
+         ("After such a loss, a villager left at 20 health or less whose hidden number is odd "
           "regains the 1 health {1} of the time (a roll of 0 to 99 of 30 or less). The hidden numbers are in Hidden "
           "villager stats.",)),
     Roll("Sickness costs health: rolled " + AGE_UNIT + " for each sick villager; above 20 health it loses 1 health "

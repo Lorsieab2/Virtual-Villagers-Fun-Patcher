@@ -312,7 +312,9 @@ class ReleasesLinkTests(unittest.TestCase):
             # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py) and Island events catalog.
             *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
                                             "vv_game_mechanics_death", "vv_game_mechanics_events",
-                                            "vv_game_mechanics_events_vv2"})
+                                            "vv_game_mechanics_events_vv2",
+                                            # The Secret City's audit cites the chance helpers (at_most, chance).
+                                            "vv_game_mechanics_chances"})
               for n in range(1, 5)),
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
@@ -344,7 +346,7 @@ class ReleasesLinkTests(unittest.TestCase):
             # Life's puzzles (all function-level).
             ("vv_game_mechanics_counts", {"vv_game_mechanics", "vv_game_mechanics_life", "vv_last_names",
                                           "vv_save_layout", "vv_vv2_totems", "vv_vv2_totem_store",
-                                          "vv_game_mechanics_vv4"}),
+                                          "vv_game_mechanics_vv4", "vv_game_mechanics_vv2"}),
         ):
             tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))
             imported = set()

@@ -173,7 +173,10 @@ class Wording(Pages):
         return gm.render(self.page(game, fixture(f"vv{game}-huttest-1"), features=features))
 
     def test_the_big_catch_is_a_crab(self) -> None:
-        self.assertIn("a 10% chance of catching a crab, worth 55 food", self.text(3))
+        # The Secret City gives the crab's chance once, in Chances (the audit, 2026-10-25: no line repeated).
+        self.assertIn("lands a crab worth 55 food", self.text(3))
+        self.assertIn("is a crab, worth 55 food, 10.01% of the time", self.text(3))
+        # A New Home: one fishing line with the exact chance (0x43F4C3, the A New Home audit).
         self.assertIn("instead catches a crab worth 55 food 21.02% of the time", self.text(1))
         for game in (1, 3):
             self.assertNotIn("big catch", self.text(game))
@@ -210,7 +213,7 @@ class Wording(Pages):
                 facts = self.page(2, data)
                 parent = next(i for i, f in enumerate(facts) if f.group == "Food sources" and f.text.startswith("The birds: "))
                 self.assertTrue(facts[parent].text.startswith(expect), facts[parent].text)
-                self.assertFalse(facts[parent].confirmed)         # a static reading: UNCONFIRMED
+                self.assertTrue(facts[parent].confirmed)          # the reached world tick 0x43B9B0.. (2026-10-25)
                 subs = [f.text for f in facts[parent + 1:parent + 5]]
                 self.assertTrue(all(f.sub for f in facts[parent + 1:parent + 5]))
                 self.assertTrue(subs[0].startswith("A new village allows 1,000 food of crop harvest"))
