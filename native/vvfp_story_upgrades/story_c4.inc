@@ -624,18 +624,24 @@ static unsigned char *c4_world(void) {
     return *(unsigned char **)(uintptr_t)VV4_WORLD_GLOBAL;
 }
 
-static int c4_value_get(int which) {
+static int c4_value_get(int which, int *now) {
     unsigned char *world = c4_world();
     switch (which) {
-    case 0: return world != NULL ? *(int *)(world + 0x170F8) : -1;
-    case 1: return *(int *)(uintptr_t)0x4D8618u;
-    case 2: return *(int *)(uintptr_t)0x4D8D98u;
-    default: return -1;
+    case 0:
+        if (world == NULL) {
+            return 0;
+        }
+        *now = *(int *)(world + 0x170F8);
+        return 1;
+    case 1: *now = *(int *)(uintptr_t)0x4D8618u; return 1;
+    case 2: *now = *(int *)(uintptr_t)0x4D8D98u; return 1;
+    default: return 0;
     }
 }
 
 static int c4_value_set(int which, int amount) {
-    if (c4_value_get(which) < 0) {
+    int now;
+    if (!c4_value_get(which, &now)) {
         return 0;
     }
     switch (which) {
