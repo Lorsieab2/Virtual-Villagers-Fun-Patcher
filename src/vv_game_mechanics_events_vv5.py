@@ -158,8 +158,9 @@ EVENTS = (
         "\"Research bugs that eat aphids\": noni -90, Farming +40 and +1,500 tech points (0x41684D).",
         "\"Research potions that kill aphids\": noni cut to 50 if above (0x4168A3).")),
     Event("The Defector", "needs a living Heathen who is not sick", (
-        "\"Accept the heathen\": 50.05% a genuine defector -- Faith set to 20, and they join the tribe; 49.95% a spy "
-        "-- -2,000 tech points (0x416988, the coin rolled with the condition at 0x416902).",
+        "\"Accept the heathen\": 50.05% a genuine defector -- Faith set to 20, and they join the tribe (SetFaith "
+        "0x467F90 converts them and keeps the 20: it raises a convert to 55 only when given less than 5); 49.95% a "
+        "spy -- -2,000 tech points (0x416988, the coin rolled with the condition at 0x416902).",
         "\"Better not\": nothing changes.")),
     Event("The Straw Hat", f"needs {BELIEVER}", (
         "\"Wear it\": Devotion +35 (0x416A38).",
