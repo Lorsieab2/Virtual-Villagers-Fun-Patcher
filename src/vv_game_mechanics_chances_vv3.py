@@ -191,8 +191,8 @@ ROLLS = (
          "or swimming (fishing) runs away instead {0} of the time; a fish-hater who does start fishing walks off "
          "every time. A builder who dislikes wood walks off a hut {1} of the time.",
          (Check(0x45B145, 100, 0x3C, "jge", take=False), Check(0x453A9D, 100, 0x28, "jge", take=False))),
-    Roll("The big catch: each successful catch by a fisher with Farming 88 or more is a 55-food catch {0} of the time "
-         "instead of the usual one.",
+    Roll("The crab: each successful catch by a fisher with Farming 88 or more is a crab, worth 55 food, {0} of the "
+         "time instead of the usual catch.",
          (Check(0x4535A2, 100, 0x0A, "jge", take=False),)),
     Roll("The Tribal Chief's supervision: when the chief directs work where a villager is fishing, picking fruit, "
          "gathering honey, building or researching, the work pays more when a roll of 0 to 99 is under 25 x the "
