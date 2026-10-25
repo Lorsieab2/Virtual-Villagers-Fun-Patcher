@@ -205,7 +205,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      f"mushrooms (all of them in rain or on wet ground): brown 92% worth {food(6)} food, red (rare) 8% "
                      f"worth {food(35)}.", False)        # the 35 one is the game's rare mushroom ("You picked N rare mushrooms")
     if village.has(GOLDEN):
-        add("Mushrooms", gm.golden_line(GOLDEN, "about 5 years of play"), gm.RUNNING)
+        out.extend(gm.golden_lines(GOLDEN, 3600 / 45 * 0.30, speed_value, "something about every 45 real-life seconds "
+                                   "at every speed, 30% of them mushrooms on dry ground in fair weather"))
     add("Mushrooms", f"Mushrooms found in this village: {_i32(data, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "

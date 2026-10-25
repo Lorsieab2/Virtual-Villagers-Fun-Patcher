@@ -447,16 +447,16 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
         believers = tribe(everyone)
         heathens = [p for p in everyone if p.heathen]
         low = sorted((p for p in believers if p.faith is not None and p.faith <= 10), key=lambda q: q.faith)
-        add("Faith: a believer becomes a Heathen at belief 0 or less; belief moves each age unit by food, sickness, "
-            "the village's size, the Idol, the statue and Spirituality.", gm.RUNNING)
+        add("Faith: a believer becomes a Heathen at Faith 0 or less (0x4669E0); Faith moves each age unit by food, "
+            "sickness, the village's size, the Idol, the statue and Spirituality.", gm.RUNNING)
         if low:
-            add("Believers at belief 10 or less: " + ", ".join(f"{p.name} ({p.faith})" for p in low) + ".", gm.SAVE)
+            add("Believers at Faith 10 or less: " + ", ".join(f"{p.name} ({p.faith})" for p in low) + ".", gm.SAVE)
         else:
-            add("No believer is at belief 10 or less.", gm.SAVE)
+            add("No believer is at Faith 10 or less.", gm.SAVE)
         if heathens:
             top = sorted(heathens, key=lambda q: -(q.faith or -1000))[:5]
-            add(f"Heathens outside the tribe: {len(heathens)}, never counted on this page. Highest belief (preaching "
-                "adds 3 to 5, then that Heathen waits 2 hours): "
+            add(f"Heathens outside the tribe: {len(heathens)}, never counted on this page. Highest Faith (preaching "
+                "adds 3 to 5, then that Heathen waits 2 real-life hours): "
                 + ", ".join(f"{p.name} ({p.faith})" for p in top) + ".", gm.SAVE)
     out.extend(ctx.villager_extra)
     return out

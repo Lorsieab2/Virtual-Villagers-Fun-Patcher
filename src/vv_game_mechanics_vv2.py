@@ -240,7 +240,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Mushrooms", "It is a mushroom 50%, 35% or 20% of the time at Exploration 1, 2, 3: a brown "
                      "mushroom worth 6 food, or 1 in 10 a red (rare) mushroom worth 35.", gm.RUNNING)
     if village.has(GOLDEN):
-        add("Mushrooms", gm.golden_line(GOLDEN, "about 2.5, 3 or 4.5 years of play at Exploration 1, 2, 3"), gm.RUNNING)
+        explore = _i32(data, LEVELS + 8 * EXPLORATION_LEVEL)
+        wait_s, share_m = GOLDEN_WAITS.get(explore, GOLDEN_WAITS[1])
+        out.extend(gm.golden_lines(GOLDEN, 3600 / wait_s * share_m, speed_value, (
+            f"at Exploration level {explore if explore in GOLDEN_WAITS else 1}, something appears about every {wait_s} "
+            f"real-life seconds while nothing is out, at every speed, {share_m:.0%} of them mushrooms")))
     add("Collectibles", "When it is not a mushroom it is a collectible: rare 4%, 6% or 8% at Exploration 1, 2, 3, "
                         "uncommon 12%, the rest common. Butterflies and shells can always appear, pebbles once the "
                         "dam is built, beetles once their place is opened"
@@ -350,6 +354,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
 # (0x2EA8C: the twins roll at 0x44BA6A, sickness at 0x43B2ED), Exploration the fifth (0x2EA94: the mushroom spawn
 # roll, its level + 4, at 0x415FF5).
 LEVELS, MEDICINE_LEVEL, EXPLORATION_LEVEL = 0x2EA74, 3, 4
+# The wait for something to appear (real-life seconds) and the share of mushrooms, by Exploration level (the
+# Mushrooms lines: a (level + 4)% chance every 2 seconds; 50%, 35% or 20% mushrooms).
+GOLDEN_WAITS = {1: (40, 0.50), 2: (34, 0.35), 3: (28, 0.20)}
 
 
 def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: float | None, event_at: float | None,

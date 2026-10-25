@@ -649,7 +649,8 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     add("Mushrooms", "In fair weather 30% of them are mushrooms, in rain all: 92% are brown mushrooms worth 6 food, 8% "
                      "red (rare) mushrooms worth 35, counted when they reach the food bin.", gm.RUNNING)
     if village.has(GOLDEN):
-        add("Mushrooms", gm.golden_line(GOLDEN, "about 6 years of play in fair weather"), gm.RUNNING)
+        out.extend(gm.golden_lines(GOLDEN, 18.0, speed_value, "about one thing a real-life minute at every speed, "
+                                   "30% of them mushrooms in fair weather (all of them in rain, which makes it sooner)"))
     add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity.", gm.RUNNING)
