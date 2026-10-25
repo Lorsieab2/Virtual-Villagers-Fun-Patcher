@@ -543,6 +543,16 @@
       ]
     },
     {
+      "ids": ["vv1_genetics"],
+      "guide": [
+        "Nothing to click: tick the patch, and every baby born from then on takes after its parents.",
+        "A baby's head is about halfway between its father's and its mother's; now and then (5 births in 100) it is any head.",
+        "Turn on Show Parents in Details Screen too: it knows each baby's father. Without it a baby takes after its mother.",
+        "Boys never get the Golden Child's head; twins and triplets look alike; bodies stay random.",
+        "On by default. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv4_difficulty_settings", "vv5_difficulty_settings"],
       "guide": [
         "Open Options (in the game's menu) and choose Easy, Normal or Hard on the Difficulty row, above Game Speed.",

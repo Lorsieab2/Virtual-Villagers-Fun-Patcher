@@ -255,15 +255,18 @@ class StartupLoaderPlacement(unittest.TestCase):
                 features = vfp._attach_automatic_companions(game, vfp._selected_fun_patches(
                     build_of(game), [i for i in public_ids(game) if i not in POPULATION_256]))
                 mask = vfp._startup_loader_mask(game, features)
-                # all but the loader; bit 30 is the tech-point setting, not a companion
-                self.assertEqual(bin(mask & ~vfp.STARTUP_LOADER_STORY_CHARGES).count("1"), len(started(shipped)) - 1)
+                mask_2 = vfp._startup_loader_mask_2(features)
+                # all but the loader, in the two words; bit 30 is the tech-point setting, not a companion
+                self.assertEqual(bin(mask & ~vfp.STARTUP_LOADER_STORY_CHARGES).count("1") + bin(mask_2).count("1"),
+                                 len(started(shipped)) - 1)
                 # Check logs automatically is on by default: bit 31 rides with the companion bits.
                 block = vfp._startup_loader_block(va, int(game[2]), mask | vfp.STARTUP_LOADER_CHECK_LOGS,
                                                   slots[b"GetModuleHandleA"], slots[b"GetProcAddress"],
-                                                  winmain)
+                                                  winmain, mask_2)
                 self.assertEqual(pe.get_data(section.VirtualAddress, len(block)), block)
+                code_offset = vfp._startup_loader_layout(mask_2 != 0)[1]
                 self.assertEqual(pe.get_data(call_va - 0x400000, 5),
-                                 b"\xE8" + struct.pack("<i", va + vfp.STARTUP_LOADER_CODE_OFFSET - (call_va + 5)))
+                                 b"\xE8" + struct.pack("<i", va + code_offset - (call_va + 5)))
 
     def test_the_check_logs_setting_is_bit_31_and_on_by_default(self):
         self.assertEqual(vfp.STARTUP_LOADER_CHECK_LOGS, 0x80000000)
@@ -321,6 +324,7 @@ class StartupLoaderPlacement(unittest.TestCase):
     def test_every_companion_dll_is_one_the_loader_knows(self):
         source = (ROOT / "native" / "vvfp_startup" / "vvfp_startup.c").read_text(encoding="utf-8")
         source += (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
+        source += (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         named = set(re.findall(r'"(VVFP [^"]+\.dll)"', source))
         shipped = {str(item["destination"]) for p in vfp.load_fun_patches()
                    for item in p.raw.get("companion_files", [])
@@ -347,6 +351,46 @@ class StartupLoaderPlacement(unittest.TestCase):
         origins = re.findall(r'"([^"]+)"', origins[:origins.index("};")])
         self.assertEqual(origins, [vfp.STARTUP_LOADER_ORIGINS[g] for g in GAMES])
         self.assertLess(len(vfp.STARTUP_LOADER_COMPANIONS), 31)   # bits 1-30; bit 31 is the setting
+        # The second word (the first is full): its own list, in the same order, bits 0-31.
+        header_2 = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
+        body_2 = header_2[header_2.index("VVFP_STARTUP_COMPANIONS_2[] = {"):]
+        body_2 = body_2[:body_2.index("};")]
+        self.assertEqual(tuple(re.findall(r'"([^"]+)"', body_2)), vfp.STARTUP_LOADER_COMPANIONS_2)
+        self.assertLessEqual(len(vfp.STARTUP_LOADER_COMPANIONS_2), 32)
+        self.assertEqual(set(vfp.STARTUP_LOADER_COMPANIONS) & set(vfp.STARTUP_LOADER_COMPANIONS_2), set())
+        self.assertIn("#include \"../shared/startup_companions_2.h\"", source)
+        self.assertIn(b"VvfpStartupEx", vfp._pe_export_names((ROOT / "assets" / "startup" / "VVFP Startup.dll")
+                                                              .read_bytes()))
+
+    def test_the_second_word_changes_the_stub_only_when_it_is_used(self):
+        """Without a second-word companion the stub is byte for byte the one before the second word (it
+        calls VvfpStartup(game, shipped)); with one it calls VvfpStartupEx(game, shipped, shipped2)."""
+        game = "vv1"
+        call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
+        for selection, word_2 in ((tuple(closure("vv1_show_parents")), 0), (tuple(closure("vv1_genetics")), 1)):
+            with self.subTest(selection=selection):
+                exe, shipped, ids = published(game, "collection_progression", selection)
+                pe = pefile.PE(data=exe)
+                section = pe.sections[-1]
+                body = pe.get_data(section.VirtualAddress, section.Misc_VirtualSize)
+                features = vfp._attach_automatic_companions(game, vfp._selected_fun_patches(build_of(game),
+                                                                                             list(selection)))
+                self.assertEqual(vfp._startup_loader_mask_2(features), word_2)
+                code_offset = vfp._startup_loader_layout(bool(word_2))[1]
+                self.assertEqual(code_offset == vfp.STARTUP_LOADER_CODE_OFFSET, not word_2)
+                self.assertEqual(b"VvfpStartupEx\0" in body, bool(word_2))
+                if word_2:
+                    self.assertIn(b"\x68" + struct.pack("<I", word_2), body[code_offset:])
+                    self.assertIn("VVFP VV1 Genetics.dll", shipped)
+                va = 0x400000 + section.VirtualAddress
+                self.assertEqual(pe.get_data(call_va - 0x400000, 5),
+                                 b"\xE8" + struct.pack("<i", va + code_offset - (call_va + 5)))
+
+    def test_genetics_is_started_from_the_second_word(self):
+        machine, result, features, before, shipped = run("vv1", "collection_progression", closure("vv1_genetics"))
+        self.assertEqual(result["return_address"], vfp.STARTUP_LOADER_WINMAIN_CALL["vv1"][0] + 5)
+        self.assertIn("vvfp vv1 genetics.dll", {m.name.lower() for m in machine.modules.values()})
+        self.assertEqual(machine.code(0x43C647, 1), b"\xE9", "the head store is hooked when WinMain is entered")
 
     def test_every_origins_companion_exports_vvfpstartup(self):
         for game in GAMES:

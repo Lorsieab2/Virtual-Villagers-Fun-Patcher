@@ -339,6 +339,8 @@ CASES = [
          lambda g: [f"vv{g}_fix_vanilla_bugs"], _startup, reports=False),
     Case("Difficulty Settings", "assets/difficulty/VVFP Difficulty.dll", (4, 5),
          lambda g: [f"vv{g}_difficulty_settings"], _startup, reports=False),
+    Case("VV1 Genetics", "assets/genetics/VVFP VV1 Genetics.dll", (1,),
+         lambda g: ["vv1_genetics"], _startup, reports=False),
     Case("Work First", "assets/work_first/VVFP Work First.dll", (1, 2, 4, 5),
          lambda g: [f"vv{g}_builders_and_healers_work_first"],
          lambda m, g: m.export("VvfpWorkFirstInstall", g)),
