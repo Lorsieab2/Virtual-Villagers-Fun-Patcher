@@ -82,17 +82,17 @@ def _limits_words(speed: int) -> tuple[int, int, int, int]:
     return limits["full"][speed], limits["band"], limits["band_end"], limits["over"]
 
 
-def _pending_lines(village: gm.Village, last: float, speed_value: int, entries: list[tuple[int, int, int]],
+def _pending_lines(village: gm.Village, speed_value: int, entries: list[tuple[int, float]],
                    unit: float, unit_word: str, who: str = "villager") -> list[gm.Fact]:
-    """This save: the uncounted time kept for each believer, what would count if it were played now, and the two
-    moments the counted time changes (live countdowns).  `entries`: (uncounted seconds, its stamp, the clock
-    value the stamp is on) for each believer."""
+    """This save: the uncounted time kept for each villager, what would count if it were played now, and the two
+    moments the counted time changes (live countdowns).  `entries`: (uncounted seconds, the real moment of its
+    last update) for each living villager (believer) -- each one's time away runs from its own stamp."""
     out: list[gm.Fact] = []
     speed = gm.speed_base(speed_value)
     paused = speed_value >= gm.PAUSED
     if not entries:
         return out
-    kept = sorted({p for p, _s, _b in entries})
+    kept = sorted({p for p, _s in entries})
     words = gm.duration(kept[0], exact=True) if len(kept) == 1 else \
         f"{gm.duration(kept[0], exact=True)} to {gm.duration(kept[-1], exact=True)}"
     after = ("the game sets it to 0 as soon as it is loaded paused" if paused else
@@ -102,14 +102,24 @@ def _pending_lines(village: gm.Village, last: float, speed_value: int, entries: 
     if paused:
         return out
     full, band, band_end, over = _limits_words(speed)
-    away = max(0.0, village.now - last)
-    pending = kept[-1] + away
-    counted = pending if pending <= full else (band if pending <= band_end else over)
-    units = int(counted // unit)
-    out.append(gm.Fact(G, (f"If it were played now each {who} would age {units:,} age units ({units / 20:.2f} "
-                           f"villager years) at once, all worked through in the first update after it loads."), SAVE))
-    full_at = last + full - kept[-1]
-    band_at = last + band_end - kept[-1]
+
+    def counted(pending: int, stamp: float) -> float:
+        total = pending + max(0.0, village.now - stamp)   # a stamp ahead of the clock is reset to now (0x46FF7B)
+        return total if total <= full else (band if total <= band_end else over)
+
+    units = sorted({int(counted(p, s) // unit) for p, s in entries})
+    ages = f"{units[0]:,} age units ({units[0] / 20:.2f} villager years)" if len(units) == 1 else \
+        f"{units[0]:,} to {units[-1]:,} age units ({units[0] / 20:.2f} to {units[-1] / 20:.2f} villager years)"
+    out.append(gm.Fact(G, (f"If it were played now each {who} would age {ages} at once, all worked through in the "
+                           "first update after it loads."), SAVE))
+    # The moments for the villagers last updated latest (the save's own last moment), the most of them.
+    stamps: dict[float, list[int]] = {}
+    for p, s in entries:
+        stamps.setdefault(s, []).append(p)
+    stamp = max(stamps, key=lambda s: (len(stamps[s]), s))
+    pending = max(stamps[stamp])
+    full_at = stamp + full - pending
+    band_at = stamp + band_end - pending
     if village.now < full_at:
         out.append(gm.Fact(G, f"Time away counts in full until {gm.DUE}; from then until "
                               f"{gm.when(band_at)} only {gm.duration(band, exact=True)} counts.", SAVE,
@@ -137,46 +147,62 @@ VV5_STORY = "vv5_story_cheat_upgrades"
 VV5_ORIGINS = "vv5_enable_origins_exclusive_features"
 
 
-def _vv5_entries(village: gm.Village) -> list[tuple[int, int, int]]:
+def _entries(village: gm.Village, pending_at: int, health_at: int, faction_at: int | None = None
+             ) -> list[tuple[int, int, int]]:
+    """(uncounted seconds, its stamp on the save's real clock) for each living villager (each believer, with
+    `faction_at`), read from the villager entries as Last Names finds them; [] when the table cannot be read."""
     try:
         import vv_last_names
-        found = vv_last_names._entries(5, village.data)
+        found = vv_last_names._entries(village.game, village.data)
     except Exception:  # noqa: BLE001 -- a villager table that cannot be read gives no per-villager line
         return []
     out = []
     data = village.data
     for at in found:
-        if at + VV5_FACTION < 0 or at + VV5_PENDING + 8 > len(data):
+        low = at + min(0, faction_at or 0)
+        if low < 0 or at + max(pending_at + 8, health_at + 4) > len(data):
             continue
-        if data[at + VV5_FACTION] != 0 or _i32(data, at + VV5_HEALTH) <= 0:
+        if (faction_at is not None and data[at + faction_at] != 0) or _i32(data, at + health_at) <= 0:
             continue                                   # a Heathen, or a grave
-        pending, stamp = struct.unpack_from("<iI", data, at + VV5_PENDING)
+        pending, stamp = struct.unpack_from("<iI", data, at + pending_at)
         if 0 <= pending <= 86_400:
-            out.append((pending, stamp, 0))
+            out.append((pending, stamp))
     return out
 
 
-def _vv5(village: gm.Village) -> list[gm.Fact]:
+def _later_save(village: gm.Village, speed_at: int, last_at: int, paused_words: str,
+                entries: list[tuple[int, int]], who: str) -> tuple[list[gm.Fact], int] | None:
+    """The Tree of Life's and New Believers' save lines (int64 clock base at 0x08): when it was last played, the
+    verified clamp's rule, the uncounted time kept and what would count now.  (lines, speed value), or None for
+    a save that is not this game's.  `entries`: _entries (stamps on the save's clock)."""
     import vv_save_backup
     data = village.data
-    found = vv_save_backup.save_speed(5, data)
-    if found is None or found[0] != VV5_SPEED:
-        return []
+    found = vv_save_backup.save_speed(village.game, data)
+    if found is None or found[0] != speed_at:
+        return None
     speed_value = found[1]
     speed = gm.speed_base(speed_value)
-    on = gm.speed_name(speed)
     unit = 60 * speed
-    unit_word = f"{gm.duration(unit)} of real-life time on {on} speed"
+    unit_word = f"{gm.duration(unit)} of real-life time on {gm.speed_name(speed)} speed"
     base = struct.unpack_from("<q", data, 8)[0]
-    last = base + _i32(data, VV5_LAST)
-    out = gm.time_away(village, last, speed_value,
+    last = base + _i32(data, last_at)
+    out = gm.time_away(village, last, speed_value, paused_words, unit_seconds=20 * unit)
+    out = [gm.Fact(f.group, f.text, CODE) if f.text.startswith("Saved paused:") else f for f in out]
+    if not village.general:
+        out += _pending_lines(village, speed_value, [(p, float(base + s)) for p, s in entries], unit, unit_word,
+                              who)
+    return out, speed_value
+
+
+def _vv5(village: gm.Village) -> list[gm.Fact]:
+    done = _later_save(village, VV5_SPEED, VV5_LAST,
                        "Saved paused: none of the time it stays closed will count. While paused the game sets every "
                        "villager's uncounted time to 0 each update and moves the noni, crop and island-event timers "
                        "on by the paused time; the fire and the weather stop with the game's clock.",
-                       unit_seconds=20 * unit)
-    out = [gm.Fact(f.group, f.text, CODE) if f.text.startswith("Saved paused:") else f for f in out]
-    if not village.general:
-        out += _pending_lines(village, last, speed_value, _vv5_entries(village), unit, unit_word, "believer")
+                       _entries(village, VV5_PENDING, VV5_HEALTH, VV5_FACTION), "believer")
+    if done is None:
+        return []
+    out, speed_value = done
     add = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok))  # noqa: E731
 
     # How it is counted and stepped through.
@@ -211,7 +237,7 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         "of losing 0 to 9 health on each research success stays, as in live play.")
     add("Babies while catching up: a believer whose job choice is Children tries on 6 job turns in 100, if the "
         "population limit allows; the partner search is the live one (opposite sex, both 18 or more, the partner "
-        "under 50 and not sick, pregnant or nursing). Conception is certain when rand(300) + 50 - 50 x Medicine "
+        "under 50 and not sick, pregnant or nursing). A baby is conceived when rand(300) + 50 - 50 x Medicine "
         "level is at most the Breeding skill (17%, 33% or 50% at Breeding 50 and Medicine 1, 2 or 3). Unlike live "
         "play there is no embrace skill check, no Love Shack needed, no refusal when food is low, the village's "
         "first conception is not certain, and a woman of 50 or more who starts it can still conceive.")
@@ -262,7 +288,7 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         _patch(village, VV5_FIX_HUTS, "Normally a builder in a job turn joins only a site already more than 1% "
                                       "built, and examines huts only once Houses 1 to 3 and the Clothing Hut stand.",
                "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
-        _patch(village, VV5_LEARNING, "Normally a skill check in a job turn succeeds at skill + 33 out of 100.",
+        _patch(village, VV5_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
                "every skill check succeeds, in job turns too."),
     ):
         if fact:
@@ -279,4 +305,135 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
     return out
 
 
-_GAMES = {5: _vv5}
+# ---------------------------------------------------------------------------
+# The Tree of Life (VV4)
+# ---------------------------------------------------------------------------
+
+VV4_SPEED, VV4_LAST = 0x17120, 0x17100
+VV4_PENDING, VV4_HEALTH = 0x98, 0xA4                         # from a villager entry (vv_last_names._entries)
+VV4_WORK_FIRST = "vv4_builders_and_healers_work_first"
+VV4_FIX_HUTS = "vv4_builders_fix_huts"
+VV4_LEARNING = "vv4_learning_never_fails"
+VV4_STORY = "vv4_story_cheat_upgrades"
+VV4_ORIGINS = "vv4_enable_origins_exclusive_features"
+
+
+def _vv4(village: gm.Village) -> list[gm.Fact]:
+    """The Tree of Life (stock exe SHA-256 6d27a429...b220): the same design as New Believers at its own addresses
+    -- the clamp and ageing 0x466450 (0x466538-0x4665FD; the ghost flag +0x1CC7 skipped at 0x46646E), from
+    0x420556; the life tick 0x468430 (from 0x420560), repeated until no one is behind (0x468B09 -> 0x468440);
+    job turns 0x465750 x 4 (0x468A24-0x468A75, flag game+0x171A4); the Fruitwells bonus 0x468A7A-0x468AC5; the
+    step resolver 0x464FA0 (table 0x4651B0/0x4651C4: 3 walk -> move 0x45ECB0, 9 skill check, 15 conception
+    0x464FF8, 24 cure 0x465122-0x465182, the rest of 17-19 and 29-32 through 0x46A4D0); research 0x464C08 /
+    0x464C3E (÷7/÷7/÷5; the flag skips the 10% lab accident but not the 2% injury at 0x464BB0); the world tick
+    0x420330 (paused: island event and world tick moved on by the pause, 0x42034A-0x42036F; running: every
+    missed tick replayed, +2 berries to 1,000, stream debris +2% 0x4203E7, the Nursery School 0x4203F3-0x420515:
+    the teacher's (job 8) five-skill total x speed ÷ 14,400, half to the highest skill (rand(5) when all are 0),
+    otherwise ÷ 5.0 (0x48D678) to each skill below 50, ghosts and adults excluded); fruit gathering refused while
+    catching up (0x463A30); the ghost visit 0x414260 (more than 1 hour overdue: reset, nothing spawns)."""
+    done = _later_save(village, VV4_SPEED, VV4_LAST,
+                       "Saved paused: none of the time it stays closed will count. While paused the game sets every "
+                       "villager's uncounted time to 0 each update and moves the world tick (berries, stream, "
+                       "Nursery School) and the island-event timer on by the paused time; the fire and the weather "
+                       "stop with the game's clock.",
+                       _entries(village, VV4_PENDING, VV4_HEALTH), "villager")
+    if done is None:
+        return []
+    out, speed_value = done
+    add = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok))  # noqa: E731
+
+    add("How it counts: each villager keeps its own clock. Every update the real-life time since that villager's "
+        "last update is added to its uncounted time, then cut to the limits above; what is cut off is lost and "
+        "never counted later. The counted time ÷ the length of an age unit (3, 6 or 10 real-life minutes on Fast, "
+        "Normal or Slow) is added to the age shown at once, and what is left under one age unit is kept for the "
+        "next update. The mausoleum's ghosts are skipped: they never age, eat or work.")
+    add("How it is stepped through: in that same update the game runs the counted age units one at a time for "
+        "every villager, over and over until no one is behind, so all of the catch-up happens in the first update "
+        "after the village loads, before the next picture is drawn. No in-game time passes while it runs; how many "
+        "real-life seconds it takes depends on the computer (one pass of the life rules per villager per age unit, "
+        "plus the job turns below).")
+    add("Each counted age unit, for each villager, exactly as in live play: food is eaten, health is regained or "
+        "lost, sickness may start (and on Easy may clear), the old-age death roll is made at each birthday past "
+        "the limit, and babies due are born (twins and triplets as live). The ages shown, logs and graves "
+        "therefore jump at once, and every death and birth of the time away happens in that first update.")
+    add("Work: for every counted age unit except the last 2, each villager aged 14 or more (by the age shown after "
+        "the time away is added) who is not sick, not pregnant or nursing and has 20 health or more gets 4 job "
+        "turns. A job turn uses the game's own job choice, and a job the player gave keeps going; walks become "
+        "instant moves, and the skill checks, the work's food and tech points and the building steps all run, "
+        "while every other step (animations, waits, talk, play, rest) is skipped. Live play has no job turns of "
+        "this kind: villagers walk and work in real time.")
+    add("Fruitwells while catching up: once the Fruitwells are restored, after its 4 job turns each such villager "
+        "also gets 5 food (times Food Mastery) and a Farming skill check, if its player-given task is the game's farming task 2 "
+        "(one of its seven farming tasks), or else with a chance of (Farming - 25) in 100. In live play fruit comes only from villagers shaking it "
+        "down, 3 food a load, and that is never chosen while catching up.")
+    add("Food while catching up: at 250 food or less a villager with Farming 20 or more farms first, as in live "
+        "play, but nobody stops to be \"Worried about food\". Blackberry picking (the bush ÷ 100, at least 2) and "
+        "fishing (4 food) give what they give live.")
+    add("Research while catching up: a success gives the skill ÷ 7, ÷ 7 or ÷ 5 at Science 1, 2 or 3, the same at "
+        "every speed (live: ÷ 11, ÷ 9 or ÷ 7, times 2 on Fast and 0.6 on Slow). The 10% lab accident (sparks only) "
+        "is skipped, but the 2% chance of losing 0 to 9 health on each research success stays, as in live play.")
+    add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100; the "
+        "partner search is the live one (opposite sex, both 18 or more, the partner under 50 and not sick or "
+        "pregnant), and the population limit and huts apply as live. A baby is conceived when rand(300) + 50 - "
+        "50 x Medicine level is at most the Parenting skill (17%, 33% or 50% at Parenting 50 and Medicine 1, 2 or "
+        "3). Unlike live play there is no embrace skill check, no Love Shack needed, no refusal when food is low, "
+        "the village's first embrace does not skip the roll, and a woman of 50 or more who starts it can still "
+        "conceive.")
+    add("Healing while catching up: a cure is the healer's Healing skill check alone (live: a healer who dislikes "
+        "medicine also fails half the cures), and People Cured goes up even when the cure fails (live: only "
+        "on a success).")
+    add("Building while catching up: the build steps run, with the walk to the site turned into an instant move, "
+        "so huts and the other buildings advance as in live play.")
+    add("Nursery School: for every missed world tick (one per age unit of the WHOLE time closed, with no limit) "
+        "each child under 14 learns from the Nursery School teacher: the teacher's five skills added together x the "
+        "speed value (3, 6 or 10) ÷ 14,400 (the teacher's total ÷ 240 per real-life hour at any speed), half the "
+        "time all to the child's highest skill (a random one while every skill is 0) if it is below 50, otherwise "
+        "a fifth of that to every skill below 50. This is the live rule, run for the whole time closed; it runs "
+        "before the time away is added to the ages, so a child who turns 14 during it learns for all of it.")
+    add("Blackberries and the stream: every missed world tick of the WHOLE time closed is added when it is next "
+        "played, with no limit: +2 blackberries each (up to 1,000) and 2% more of the stream's debris.")
+    add("Island events: their timer runs on real-life time, so the whole time closed counts. If an event came due "
+        "while the game was closed it happens once when the village is next played, and the next one is set 8 to "
+        "15 whole real-life hours after that (30 minutes while no event has been seen yet).", RUNNING)
+    add("Ghost visits (the Mausoleum Mural Collection complete): their 50 to 58 real-life minute timer is not "
+        "caught up. When the village is next played more than 1 hour after a visit was due, the timer is reset to "
+        "0 to 8 minutes and no ghost comes for the time closed.", RUNNING)
+    add("Mushrooms and collectibles: none appear for the time closed. The appearance rolls are made once per update "
+        "of the village, so the catch-up's one update gives one set of rolls, like any other update.", RUNNING)
+    add("The fire and the weather follow the game's own clock, which keeps running while the game is closed "
+        "unpaused: the Fire Pit burns down (10, 20 or 33 hours 20 minutes of real-life time on Fast, Normal or "
+        "Slow) and a weather spell, fog included, ends, by the whole time closed, not only the counted part.")
+    add("The campfire keeps burning down while the game is closed, when the save was left unpaused.", OWNER)
+    add("Graves: the whole time closed counts toward a body's removal, not only the counted part (see Death and "
+        "graves).")
+
+    for fact in (
+        _patch(village, VV4_WORK_FIRST, "Normally every job turn uses the game's own choice.",
+               "on 75 job turns in 100 a builder (while it has hut work) or a healer does that job first; at 250 "
+               "food or less a villager with Farming 20 or more still farms first."),
+        _patch(village, VV4_FIX_HUTS, "Normally a builder in a job turn joins only a building already more than 1% "
+                                      "built, and examines huts only once Huts 1 to 3 and the Clothing Hut stand.",
+               "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
+        _patch(village, VV4_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
+               "every skill check succeeds, in job turns too."),
+    ):
+        if fact:
+            out.append(fact)
+    _warp_lines(village, out, speed_value, VV4_ORIGINS, VV4_STORY)
+    return out
+
+
+def _warp_lines(village: gm.Village, out: list[gm.Fact], speed_value: int, origins: str, story: str) -> None:
+    """The Origins Time Warp and the Story / Cheat time skip, when they may be in the game."""
+    if village.has(origins) is not False:
+        warp = gm.time_warp_line(speed_value)
+        out.append(gm.Fact(G, warp.text + " It is worked through like time away, in the first update after it.",
+                           warp.verified))
+    fact = _patch(village, story, "The stock game has no time skip.",
+                  "Choose Time Skip Amount skips 1 to 72 villager years as a run of Time Warps (12, 6 or 3 years "
+                  "each on Fast, Normal or Slow, the last only what is left), each caught up before the next.")
+    if fact:
+        out.append(fact)
+
+
+_GAMES = {4: _vv4, 5: _vv5}
