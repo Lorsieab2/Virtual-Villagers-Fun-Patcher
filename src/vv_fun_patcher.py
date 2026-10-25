@@ -12452,9 +12452,13 @@ STARTUP_LOADER_COMPANIONS = (
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
 # it needs it, and fails open without it.  "VVFP Number Names.dll" is loaded by
 # VVFP Parentage Export.dll and VVFP VV1 Parentage.dll at a birth; it installs
-# nothing at startup and ships only with the rows that ship those two.
+# nothing at startup and ships only with the rows that ship those two.  "VVFP
+# VV1 Golden Child Safe.dll" (A New Home's Fix Vanilla Bugs) is loaded and
+# started by VVFP Speed Change Timers.dll, which that row ships with it: the
+# companion list above is full (bits 1-29).
 STARTUP_LOADER_ON_DEMAND = (
     "VVFP Number Names.dll",
+    "VVFP VV1 Golden Child Safe.dll",
 )
 # Bit 31 of the same word is not a companion: the "Check logs automatically"
 # setting (the patcher window, beside Check Saves & Logs / Repair Saves & Logs; ON by

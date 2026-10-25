@@ -306,26 +306,31 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     ctx = life.Context(
         village, speed_value, last, _i32(data, FOOD), low_food=500, extra_from=8000,
         sources=[life.Source("Noni bushes", noni, NONI_CAP, 2.0, noni_at if noni_at and noni_at > village.now else None,
-                             f"+2 {gm.every(UNIT, speed_value)}", verified=gm.SAVE),
+                             f"+2 {life.every_real(UNIT, speed_value)}", verified=gm.SAVE,
+                             step=2, interval=gm.real_seconds(UNIT, speed_value), next_at=real(NONI_NEXT),
+                             first_in=max(0, _i32(data, NONI_NEXT) - _i32(data, LAST_TICK)), rule=gm.RUNNING),
                  life.Source("Hydroponic Farm crops", crops, CROPS_FULL, CROPS_FULL / CROP_UNITS if farm else 0.0, crops_at,
-                             f"refilled to {CROPS_FULL} {gm.every(CROP_UNITS * UNIT, speed_value)}" if farm
-                             else "the Hydroponic Farm is not built yet", verified=gm.SAVE),
+                             f"refilled to {CROPS_FULL} {life.every_real(CROP_UNITS * UNIT, speed_value)}" if farm
+                             else "the Hydroponic Farm is not built yet", verified=gm.SAVE,
+                             step=CROPS_FULL if farm else 0, interval=gm.real_seconds(CROP_UNITS * UNIT, speed_value),
+                             next_at=real(CROPS_NEXT), first_in=life.resumed(max(0, _i32(data, CROPS_NEXT) - _i32(data, LAST_TICK)), speed_value), rule=gm.RUNNING),
                  life.Source("Fishing at the lake", None, unlimited=True,
                              refill_words="no store of its own is read here: it brings what the gatherers fetch",
                              verified=False)],
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 7 at Science 1 to 3).",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0,
         mastery=2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0), golden=village.has(GOLDEN) is True,
-        mushroom_words="About one thing appears a minute while playing, 30% of them mushrooms (all in rain), so "
-                       "about 18 mushrooms an hour.",
+        mushroom_words="About one thing appears each real-life minute while playing, 30% of them mushrooms (all in "
+                       "rain), so about 18 mushrooms per real-life hour.",
         event_next=event_at,
         event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,
-        event_rule="It comes 8 to 15 whole hours after the last (15 minutes, then 30, in a new village), each equally "
+        event_rule="It comes 8 to 15 whole real-life hours after the last (15 real-life minutes, then 30, in a new "
+                   "village), each equally "
                    "likely, at any speed; then every event whose conditions hold is equally likely.",
         event_running="Paused time does not count; with the game closed it runs on, and after time away the due "
                       "event happens once.",
         medicine=level[MEDICINE_LEVEL], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
-        parents_from=14, sick_loss=(0.61, 0.19),
+        parents_from=18, sick_loss=(0.61, 0.19),
         collectibles=life.collectible_lines(village, "10, 50 or 150 Divine Energy (the first set) or 100, 250 or "
                                                      "1,500 tech points (the second)")[0],
         limit=life.limit_words(village, None, "up to 15 for collections"),

@@ -161,12 +161,14 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info",
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
-               "vv_corrupt_skills", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
+               "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_vv2_totems", "vv_vv2_totem_store",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
                "vv_game_mechanics_vv4", "vv_game_mechanics_vv5", "vv_game_mechanics_life", "vv_game_mechanics_counts"}
+               "vv_game_mechanics_vv4", "vv_game_mechanics_vv5", "vv_game_mechanics_life",
+               "vv_game_mechanics_genetics"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -312,6 +314,8 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_game_mechanics_counts", {"vv_game_mechanics", "vv_game_mechanics_life", "vv_last_names",
                                           "vv_save_layout", "vv_vv2_totems", "vv_vv2_totem_store",
                                           "vv_game_mechanics_vv4"}),
+            # The Genetics group: the villagers and their parents as Last Names reads them (function-level).
+            ("vv_game_mechanics_genetics", {"vv_game_mechanics", "vv_last_names"}),
         ):
             tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))
             imported = set()

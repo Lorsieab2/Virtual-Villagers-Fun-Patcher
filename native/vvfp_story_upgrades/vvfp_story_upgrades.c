@@ -1073,6 +1073,14 @@ __declspec(dllexport) int __stdcall VvfpStoryPickPending(int game) {
     return (pick_slot >= 0 && pick_game == game) || ce_pending(game);
 }
 
+/* Whether the island event `game` is setting up now was chosen by Pick Island Event (A New Home:
+   story_vv1.inc vv1_event_chosen); 0 for a natural one, and in every other game.  "VVFP VV1 Golden
+   Child Safe.dll" (part of Fix Vanilla Bugs) asks it so that its rule -- the Golden Child is never
+   the villager of a natural island event that could kill him -- never changes a picked event. */
+__declspec(dllexport) int __stdcall VvfpStoryEventChosen(int game) {
+    return game == 1 && install_state[1] == 1 && vv1_event_chosen;
+}
+
 #include "story_custom_ui.inc"
 #include "story_time_skip.inc"
 #include "story_queue.inc"      /* queued purchases kept across a quit */
@@ -1414,6 +1422,17 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceSizes(int *out) {
 __declspec(dllexport) unsigned int __stdcall VvfpStoryProbeCaps(int game) {
     const ce_adapter *a = ce_adapter_for(game);
     return a != NULL ? a->caps : 0;
+}
+
+/* `game`'s amount `which` as the Amounts dialog reads it: 1 with *now set
+   when the store is there, 0 (and *now untouched) when it is not yet, -1
+   for no such amount. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeValue(int game, int which, int *now) {
+    const ce_adapter *a = ce_adapter_for(game);
+    if (a == NULL || !(a->caps & CAP_VALUES) || which < 0 || which >= a->value_count) {
+        return -1;
+    }
+    return a->value_get(which, now);
 }
 
 /* Every game may ask a question (1) or only those whose adapter has

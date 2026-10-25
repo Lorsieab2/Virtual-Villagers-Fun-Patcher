@@ -128,11 +128,12 @@ typedef struct {
     int (*refill)(void);
     int (*parents_supported)(void);            /* CAP_PARENTS needs the game's / companion's store */
     int (*set_parents)(int index, const ce_change *change);
-    /* CAP_VALUES: the current amount (-1 = not there yet, e.g. a farm not
-       built) and the write (0 = refused). */
+    /* CAP_VALUES: whether the store is there yet (0 = not, e.g. a farm not
+       built), with its current amount in *now -- which may be below 0, as
+       the game's own counts can be -- and the write (0 = refused). */
     const ce_value_def *values;
     int value_count;
-    int (*value_get)(int which);
+    int (*value_get)(int which, int *now);
     int (*value_set)(int which, int amount);
     /* CAP_PUZZLES. */
     const ce_puzzle_def *puzzles;
