@@ -149,8 +149,13 @@ HIDDEN_LINES = (
      "sitting: a sick villager paces; children: storytelling is called off 69 times in 70; stories: an adult "
      "dropped on a child tells no story; crowds: left out of celebrations.", gm.RUNNING),
     ('The other 44 likes and dislikes: no effect has been found in the running game.', False),
+    # The traced chain: 0x4582A0 picks the mother's best skill 0x462460 (Parenting can be it), the father's on
+    # rand(50) == 0, and passes it to the pregnancy writer 0x455AB0 as its 2nd argument; there a skill of 1
+    # (Parenting) is stored as skill 0 with 0 points (0x455B1C..0x455B39, record +0xE3C / +0xE40), which the birth
+    # 0x4603B6 -> 0x45FF90 -> 0x45F0B0 -> 0x456120 writes as Farming 0 (0x456470): so never Parenting, and no skill.
     ("A baby starts with one skill at 5 to 7 (4 to 6 when both parents' best is the same), from the mother's "
-     "best 98% of the time; never Parenting. Twins and triplets are the first baby's copies but for the name. "
+     "best 98% of the time; never Parenting: when the skill chosen is Parenting the baby starts with no skill at "
+     "all. Twins and triplets are the first baby's copies but for the name. "
      "The mother's Parenting rises at each conception.", gm.RUNNING),
     # The aging loop 0x45FFE0: sick -1 at rand(100) <= 60, at 20 or less also rand(100) <= 30 (0x46017D, 0x460195):
     # 61.06% and 18.95%; health back rand(100) < 50, else Easy / fire + rand(100) < 50 / Medicine 3 (0x4601E6..

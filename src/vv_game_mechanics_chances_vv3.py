@@ -300,7 +300,9 @@ ROLLS = (
           "roll decides.",
           "Twins and triplets are copies of the first baby: the same sex, skills and likes.",
           "The baby's one starting skill is the mother's best skill (the father's " + _ch(below(50, 1)) + " of the "
-          "time) at 5 to 7, or 4 to 6 when both parents' best skill is the same one."),
+          # A chosen Parenting is stored as no skill (0x455B1C; the line in Hidden villager stats has the chain).
+          "time) at 5 to 7, or 4 to 6 when both parents' best skill is the same one; when that skill is Parenting "
+          "the baby starts with no skill at all (0x455B1C)."),
          group=BIRTHS),
     Roll("Other new villagers: Another One of Those Barrels brings 3 children of 10 years (the second and third only "
          "while there is room), each a boy or a girl exactly half the time, with one skill at 5 to 9.",
