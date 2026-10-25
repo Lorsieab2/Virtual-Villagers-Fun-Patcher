@@ -168,7 +168,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
                "vv_game_mechanics_vv4", "vv_game_mechanics_vv5", "vv_game_mechanics_life",
                "vv_game_mechanics_genetics", "vv_game_mechanics_chances", "vv_game_mechanics_chances_vv1",
-               "vv_game_mechanics_chances_vv2", "vv_game_mechanics_chances_vv3", "vv_game_mechanics_chances_vv5"}
+               "vv_game_mechanics_chances_vv2", "vv_game_mechanics_chances_vv3", "vv_game_mechanics_chances_vv4",
+               "vv_game_mechanics_chances_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -313,7 +314,7 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Chances groups: the shared table, and each game's rolls (found by name).
             ("vv_game_mechanics_chances", {"vv_game_mechanics"}),
             *((f"vv_game_mechanics_chances_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_chances"})
-              for n in (1, 2, 3, 5)),
+              for n in (1, 2, 3, 4, 5)),
         ):
             tree = ast.parse((ROOT / "src" / f"{module}.py").read_text(encoding="utf-8"))
             imported = set()

@@ -272,6 +272,7 @@ FILES = [
     "src/vv_game_mechanics_chances_vv1.py",
     "src/vv_game_mechanics_chances_vv2.py",
     "src/vv_game_mechanics_chances_vv3.py",
+    "src/vv_game_mechanics_chances_vv4.py",
     "src/vv_game_mechanics_chances_vv5.py",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
