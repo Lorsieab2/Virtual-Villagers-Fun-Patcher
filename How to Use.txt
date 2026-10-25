@@ -168,10 +168,12 @@ The patcher can copy your modded games' saves for you, in all five games.
    never replaced, and nothing in the patcher ever reads or deletes the
    Backups folder (Start Over leaves it alone).
 4. If the game is running, it is paused for the copy and then carries on by
-   itself; it is never closed. These games save only when you quit them
-   normally, so a backup made while a game is running holds the village as of
-   its last save. If the game cannot be paused, nothing is copied and the
-   window says why.
+   itself; it is never closed. These games save when you quit them normally
+   and also autosave every 10 real-life minutes while running (checked every
+   frame, and the minutes count while paused), so a backup made while a game
+   is running holds the village as of its last save or autosave. To be sure
+   the latest state is in the backup, quit the game normally first. If the
+   game cannot be paused, nothing is copied and the window says why.
 5. The result window shows how many files were copied and their size, with an
    "Open Backup Folder" link.
 6. The backup's copies of your slot saves are set to Paused exactly as the

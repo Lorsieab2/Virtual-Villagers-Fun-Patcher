@@ -2921,9 +2921,11 @@ class App(tk.Tk):
                 "Each folder is copied into a new dated folder inside it: "
                 "<save folder>\\Backups\\Backup <date and time>. "
                 "If the game is running it is paused for the copy and then "
-                "resumes by itself. These games save only when you quit "
-                "normally, so a backup made while a game is running holds the "
-                "village as of its last save."
+                "resumes by itself. These games save when you quit normally "
+                "and autosave every 10 real-life minutes while running (even "
+                "paused), so a backup made while a game is running holds the "
+                "village as of its last save or autosave; quit the game "
+                "normally first to be sure the latest state is backed up."
             ),
             wraplength=640,
             justify="left",
