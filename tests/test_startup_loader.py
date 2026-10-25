@@ -330,12 +330,14 @@ class StartupLoaderPlacement(unittest.TestCase):
         # An on-demand DLL is never a startup companion, and every row that
         # ships one ships the companion that loads it.
         self.assertEqual(on_demand & set(vfp.STARTUP_LOADER_COMPANIONS), set())
-        loaders = {"VVFP Parentage Export.dll", "VVFP VV1 Parentage.dll"}
+        loaders = {"VVFP Number Names.dll": {"VVFP Parentage Export.dll", "VVFP VV1 Parentage.dll"},
+                   "VVFP VV1 Golden Child Safe.dll": {"VVFP Speed Change Timers.dll"}}
+        self.assertEqual(set(loaders), on_demand)
         for p in vfp.load_fun_patches():
             dlls = {str(item["destination"]) for item in p.raw.get("companion_files", [])}
-            if dlls & on_demand:
-                with self.subTest(row=p.id):
-                    self.assertTrue(dlls & loaders, f"{p.id} ships {dlls & on_demand} without its loader")
+            for name in dlls & on_demand:
+                with self.subTest(row=p.id, dll=name):
+                    self.assertTrue(dlls & loaders[name], f"{p.id} ships {name} without its loader")
 
     def test_the_loader_and_the_patcher_number_the_companions_alike(self):
         header = (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")

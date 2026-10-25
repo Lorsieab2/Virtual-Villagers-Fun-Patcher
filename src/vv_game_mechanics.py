@@ -51,9 +51,10 @@ TITLE = "Game Mechanics"
 # and clocks (src/vv_game_mechanics_life.py), then the rules.
 GROUPS = ("Vital statistics", "Sources", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
           "Food earned", "Time away and Time Warp", "Island events", "Death and graves", "Puzzles",
-          "Hidden villager stats", "Chance and timers", "Other")
+          "Golden Child", "Hidden villager stats", "Chance and timers", "Other")
 DEATH = "Death and graves"            # src/vv_game_mechanics_death.py
 PUZZLES = "Puzzles"
+GOLDEN_CHILD = "Golden Child"                 # A New Home only: vv_game_mechanics_vv1.golden_child_facts
 # Every fact is a bullet under its heading; a sub-fact (a tree's planting, its fruit, ...) an indented dash under
 # the fact before it (the owner, 2026-10-23: "bullet point everything ... for easier legibility").
 BULLET, SUB_BULLET = "• ", "    – "
