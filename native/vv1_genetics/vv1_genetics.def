@@ -1,0 +1,4 @@
+LIBRARY "VVFP VV1 Genetics"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpGeneticsInstalled=_VvfpGeneticsInstalled@0

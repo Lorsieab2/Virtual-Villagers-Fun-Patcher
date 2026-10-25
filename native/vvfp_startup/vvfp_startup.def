@@ -1,3 +1,4 @@
 LIBRARY "VVFP Startup"
 EXPORTS
     VvfpStartup=_VvfpStartup@8
+    VvfpStartupEx=_VvfpStartupEx@12
