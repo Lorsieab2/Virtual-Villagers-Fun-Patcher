@@ -362,6 +362,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                   else "is out"))
                   + f"; a lit fire burns {gm.duration(FIRE_HOURS[speed] * 3600)} on {on} speed, and fuel on a burning "
                     "fire fills it again."), gm.RUNNING)
+    add("Other", gm.FIRE_OUT, gm.OWNER)
+    # The Lost Children's island events (the island-event conditions report, VV2 part): none reads or ends the fire.
+    add("Other", "No island event in this game puts the fire out.", gm.RUNNING)
+    add("Other", gm.FIRE_CLOSED, gm.OWNER)
     add("Other", STEW_POT_LINE, gm.RUNNING)
     add("Other", STEW_EFFECT_LINE)
     add("Other", f"An unburied body is gone after {gm.duration(240 * 60 * speed)} of real life on {on} speed "
