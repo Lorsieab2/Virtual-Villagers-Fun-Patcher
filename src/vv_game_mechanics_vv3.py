@@ -51,6 +51,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_death as death
 import vv_game_mechanics_life as life
 
 GAME = 3
@@ -871,6 +872,8 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                    "on Hard, 2 more 76% of the time (always on Hard); never more on Easy.",
         trips=[("fruit or honey picks", pick_food), ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed])])
     out.extend(life.sections(ctx))
+    out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=epoch,
+                           nature=max(level[5], nature)))
     return out
 
 

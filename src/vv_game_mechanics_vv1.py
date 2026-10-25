@@ -37,6 +37,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_death as death
 import vv_game_mechanics_life as life
 
 GAME = 1
@@ -422,6 +423,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     gm.with_due(out, "Next regrowth:", regrow_at, "refill")
     gm.with_due(out, "Next island event:", event_at, "next")
     out.extend(life.sections(_context(village, data, epoch, speed_value, level, bush, saved, regrow_at, event_at)))
+    magic = next(flag for name, flag, _hours in PUZZLES if name == "The Magic Plant of Life")
+    out.extend(death.facts(village, medicine=level[3], speed_value=speed_value, base=epoch,
+                           magic_fruit=data[magic + 4] != 0))
     return out
 
 

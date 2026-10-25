@@ -17,6 +17,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_death as death
 import vv_game_mechanics_life as life
 import vv_save_backup
 
@@ -341,6 +342,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                    "Medium at 8,000 or more, or on Hard, 2 more 76% of the time; never more on Easy.",
         trips=[("noni picks", max(2, noni // 100)), ("crop harvests", harvest if farm else 0), ("fish", 4)])
     out.extend(life.sections(ctx))
+    out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))
     return out
 
 

@@ -50,8 +50,9 @@ TITLE = "Game Mechanics"
 # Vital statistics first (the owner, 2026-10-24), then where the page's facts come from, then the village's people
 # and clocks (src/vv_game_mechanics_life.py), then the rules.
 GROUPS = ("Vital statistics", "Sources", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
-          "Food earned", "Time away and Time Warp", "Island events", "Puzzles", "Golden Child",
-          "Hidden villager stats", "Chance and timers", "Other")
+          "Food earned", "Time away and Time Warp", "Island events", "Death and graves", "Puzzles",
+          "Golden Child", "Hidden villager stats", "Chance and timers", "Other")
+DEATH = "Death and graves"            # src/vv_game_mechanics_death.py
 PUZZLES = "Puzzles"
 GOLDEN_CHILD = "Golden Child"                 # A New Home only: vv_game_mechanics_vv1.golden_child_facts
 # Every fact is a bullet under its heading; a sub-fact (a tree's planting, its fruit, ...) an indented dash under
@@ -70,7 +71,10 @@ LABEL_NOTE = ("UNCONFIRMED marks anything not yet confirmed by the owner in a ga
 # RUNNING: emulated AND traced from the game's own call paths with inputs the game supplies (a research
 # spec's reachability re-check, e.g. The Secret City's addendum 3).
 SAVE, OWNER, CLAMP, RUNNING = "save", "owner", "clamp", "running"
-TRUSTED = frozenset({SAVE, OWNER, CLAMP, RUNNING})
+# CODE: read from the stock game's own reachable code (the owner, 2026-10-24: "the game's own live, reachable,
+# non-dead code" verifies a line), each address cited beside it in the module that writes the line.
+CODE = "code"
+TRUSTED = frozenset({SAVE, OWNER, CLAMP, RUNNING, CODE})
 
 # The games' speed values (src/vv_save_backup.py, "GAME SPEED"): real seconds per 6 game seconds.
 FAST, NORMAL, SLOW = 3, 6, 10
@@ -223,7 +227,7 @@ def time_warp_line(speed_value: int) -> Fact:
 def old_age_line(thresholds: str, extra: str = "") -> Fact:
     """The verified old-age rule (2026-10-23, all five games, emulated and checked against the owner's logs):
     a death roll at each whole year past the threshold in the hidden processed age."""
-    return Fact("Other", (
+    return Fact(DEATH, (
         f"Old age: at each whole year past {thresholds}, a death roll whose chance is 10% for each year over (100% "
         "at 10 years over). The roll follows a hidden processed age: time away adds to the age shown in the game, "
         "logs and graves at once, while the processed age catches up a step at a time, so the shown age can be "

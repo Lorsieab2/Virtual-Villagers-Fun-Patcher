@@ -17,6 +17,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_death as death
 import vv_game_mechanics_life as life
 import vv_save_backup
 
@@ -262,8 +263,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Collectibles", "The other 70% are collectibles: 82% common, 13% uncommon, 5% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in odd clock "
                         "hours.", gm.RUNNING)
-    add("Collectibles", "Once the Mausoleum Mural set is complete, a buried villager's ghost brings a collectible every "
-                        "50 to 58 minutes (nothing if more than an hour overdue).", gm.RUNNING)
+    # A ghost is not a buried villager (the owner, 2026-10-24): it takes a random grave's looks (0x414110).
+    add("Collectibles", "Once the Mausoleum Mural set is complete, a ghost brings a collectible every 50 to 58 minutes "
+                        "(nothing if more than an hour overdue); what a ghost is: under Death and graves.", gm.RUNNING)
     add("Collectibles", "The four collections are the Fish Scale, Lab Equipment, Mausoleum Mural and Wind Flute sets; "
                         "ghost visits need the Mausoleum Mural set complete.", gm.RUNNING)
     add("Collectibles", "Fog increases collectible spawning if you have Wind Flute pieces collected.", gm.OWNER)
@@ -381,6 +383,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                    "on Hard, 2 more 76% of the time; never more on Easy; a snack below full health costs 1 more.",
         trips=[("blackberry picks", max(2, berries // 100)), ("fish in the net", 4), ("fruit stomps", 3)])
     out.extend(life.sections(ctx))
+    out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))
     return out
 
 
