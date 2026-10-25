@@ -174,6 +174,29 @@ class VillageCounts(unittest.TestCase):
         with_patch = texts(page.facts(["vv2_totems_out_of_entries"]))
         self.assertIn("(in this game): totems take no record and there is no limit.", with_patch)
 
+    def test_vv2_a_totem_in_the_save_and_the_file_is_one(self) -> None:
+        """Codex (PR #628): a save restored after Move Totems Out holds the statue the file holds too; it is one
+        totem (same_statue), while a different statue of the same name still counts."""
+        sys.path.insert(0, str(ROOT / "tests"))
+        import test_vv2_totem_repairs as rep
+        import vv_vv2_totem_store as ts
+        from datetime import datetime
+        e1, t1 = rep.elder_and_totem("Hoto Kenobi", head=14, body=5)
+        v = rep.Village(self, rep.crowd(4) + [e1, t1])
+        ts.move_out(v.folder, 1, processes=rep.NoGame(), now=datetime(2026, 10, 20, 9, 0, 0))
+        restored = rep.save_for(rep.crowd(4) + [e1, t1])
+        v.save.write_bytes(restored)
+
+        def line(data: bytes) -> str:
+            village = gm.Village(v.folder, 2, 1, v.save, data, frozenset(), 0.0)
+            return next(f.text for f in counts.vv2_lines(village) if f.text.startswith("Totems standing now"))
+
+        self.assertEqual(line(restored), "Totems standing now: 1 (Hoto Kenobi).")
+        _e2, t2 = rep.elder_and_totem("Hoto Kenobi", head=3, body=9)      # another statue, the same name
+        other = rep.save_for(rep.crowd(4) + [e1, t2])
+        self.assertEqual(line(other), "Totems standing now: 2 (Hoto Kenobi, Hoto Kenobi); 1 of them kept in the "
+                                      "patcher's ElderTotems.dat, outside the save.")
+
     def test_vv3_chief(self) -> None:
         page = Page(self, 3)
         page.save(fixture(SAVES[3]))

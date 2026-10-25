@@ -591,7 +591,8 @@ EVENT_LINES = (
     "Any adult (or, for some, any villager): The Green Pearl, The Red Starfish, The Blue Starfish, Bed Bugs, The "
     "Royal Jelly, The Omen in the Clouds, The Mysterious Vial (quartz, obsidian, amber), The Mango and the "
     "Papaya (the swim decided by a 50% coin), The Return of Biggles; 3 adults of 18 to 49: The Mysterious Crate. "
-    f"The weather events last about 3 to 6 minutes {UNSURE}.",
+    "The weather an event brings lasts 3 to 6 real-life minutes on Normal speed (1.5 to 3 on Fast, 5 to 10 on Slow; "
+    "exactly 3 on Normal while the first fruit tree is grown and no second one is planted).",
     "Rolled results: The Tsunami sweeps each villager away at 15%; The Daredevil (swims) the ladies swoon 75%, a "
     "crab bites 25%; The Medical Emergency (tried) recovery 50%, death 50%; The Mysterious Vial, obsidian or amber "
     "(tasted) three results at 33/33/34% (the quartz vial goes by age); The Mysterious Crate (opened) coconuts 50%, "
@@ -628,9 +629,10 @@ ODDS_LINES = (
     "A baby is born on the 41st age unit after conception. A healthy villager with food regains 1 health about "
     "half of the age units on Normal difficulty (every one on Easy); a sick one loses 1 health 61% of them. A "
     "successful building action adds 1 to the building, 2 when a supervising chief wins the Leadership roll.",
-    "Potion effects last 10 minutes (feels smarter, scientific clarity, hiccups, garlic breath, bubble breath, crazy "
-    "talk and two more), 5 minutes (light and springy, fertility +50, everyone slowing down, strong fertility +100) "
-    "or happen at once (the rest, such as curing sickness), in real time.",
+    "Potion effects are kept 10 real-life minutes (feels smarter, scientific clarity, hiccups, much healthier, feels "
+    "better with 10 to 14 health, stinky breath, tasted soapy, crazy talk), 5 real-life minutes (light and springy, "
+    "fertile +50, everyone else slowing down, very fertile +100), with no time limit (the two vials carried to the "
+    "ocean) or not at all (the rest, such as curing sickness, which happen at once).",
     "Herbs never run out: a bush can be gathered without limit once the Alchemy Lab is restored. A villager cannot "
     "drink a potion whose effect they already have, or any potion while they already have 4 effects.",
 )
@@ -651,11 +653,12 @@ CHANCE_LINES = (
     ("Timers: the game's clock runs 2 times, 1 time or 0.6 times real time on Fast, Normal or Slow, and stops while "
      "paused; an age unit is 3, 6 or 10 real-life minutes, a villager year 1 hour, 2 hours or 3 hours 20 minutes "
      "of real life; a birth 41 age units; a planted fruit tree can be picked after 4, 8 or 13 hours 20 minutes of "
-     "real life; an item lies 90 real-life seconds (still counting while paused, when no new ones appear).", True),
+     "real life; an item lies 90 real-life seconds (still counting while paused, when no new ones appear); a clear "
+     "sky lasts 15 to 30 real-life minutes on Normal speed and any other weather 3 to 6 (0x41FB40).", True),
     ("A brewed potion: the pot's on-screen countdown starts at 5:00 on Normal speed, 2:30 on Fast and 8:20 on Slow "
      "(what it shows changes with the speed), and the potion is gone when it reaches 0:00.", True),
     ("Villagers re-decide what to do every 40 seconds at any speed; a fixed-spot coral appears for 90 seconds from "
-     "puzzle code; the weather, fire and shark timers' lengths; the game may also save every 10 minutes while "
+     "puzzle code; the fire and shark timers' lengths; the game may also save every 10 minutes while "
      "playing (not seen in a game: a 30-minute run left no new save).", False),
 )
 
