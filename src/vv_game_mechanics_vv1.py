@@ -37,6 +37,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
 
 GAME = 1
@@ -54,40 +55,6 @@ GOLDEN = "vv1_super_secret_golden_mushroom"
 LEARNING = "vv1_learning_never_fails"
 MAGIC_FRUIT = "vv1_magic_fruit_alters_mortality"
 
-# The island events, each outcome and its odds, and life -- all verified by emulation (the coordinator's spec
-# mech_vv1\spec.md v2, sections 5 and 7).
-EVENT_LINES = (
-    "Each event is a story event 20% of the time, a village event 40% and a crate or vial 40%; within each kind "
-    "every event whose conditions hold is equally likely. The story events and their choices follow (what each "
-    "choice does is not yet confirmed).",
-    "Story events: Trapped Whale (Spirituality below 3): free it, Spirituality +1 level; harvest it, +1,000 food. "
-    "Strange Berries (taste): 51% the villager becomes 12 and a half, 49% death. Old Drum: cut it, Healing 100; "
-    "play it, bush +500. Mysterious Face (look): 51% the villager vanishes, 49% a stranger of 14 joins (or the "
-    "villager vanishes if there is no room).",
-    "Visitor (Medicine below 3): allow, Medicine +1 level; refuse, the villager falls sick and everyone else at "
-    "75%. Mysterious Vial, red (drink): 50% everyone else sick, 50% Healing 100. Troubled Child (a child): "
-    "farming, Farming +50 and sick; research, Research 100 and +3,000 tech points. Mysterious Vial, blue (drink): "
-    "50% the villager becomes 4 years old, 50% nothing.",
-    "Suspicious Monkey (a child): scare it, -50 health; wait, Healing +60. Wild Mushroom (taste): 50% Farming +65 "
-    "and 300 to 499 food, 50% sick and -25 to -49 health. Black Pearl: share it, everyone +5 to 9 health; keep "
-    "it, dislikes crowds and work. The Dream: the right cave, dislikes fish and the ocean; the left, nothing.",
-    "The Moth: help it, nothing; leave it, Healing 100. The Book: read it, the villager vanishes; give it to the "
-    "researchers, nothing. Brass Compass: mash it, everyone Farming +10 to 19; give it to the researchers, +2,000 "
-    "to 4,999 tech points. Skills stop at 100.",
-    "Village events (n is a third of the population, 1 to 10): Bad Little Monkey -900n tech points; Plague of "
-    "Parrots bush -200n; Plague of Locusts (Farming 2 or more) the field emptied; Measles Epidemic (a child) every "
-    "child sick; South Wind -80n from food, bush and field; Heat Wave sets each villager to one of two idle "
-    "actions, nothing else; Isola Day and Blessings Day -10 food a villager and a gathering of the village.",
-    "Big Wave (the beach cleaned) dirties the beach again; Good Little Monkey +900n tech points; Greedy Little "
-    "Monkey +200n food; Barrel O' Babies (room) 1, 2 or 3 children of 3.5 to 4.45 years for n under 5, 5 to 7, 8 or more; North Wind "
-    "bush and field +100n; Helpful Honeybees bush +300n.",
-    "Crates and vials, 1 in 9 each; small 33%, medium 34%, large 33%: wooden +500/1,000/1,500 food; sealed "
-    "+1,000/2,000/3,000 tech; weathered +500/1,000/1,500 tech and each villager sick at 15/20/25%; rotting the "
-    "opener sick and -15 health, each villager sick at 20/30/45% with -10/-15/-20 health; watertight 1/2/3 "
-    "children of 3.5 to 4.45 years if there is room.",
-    "Fruit crate: the opener -40/70/110 health (a large one is fatal); red vial a new head; blue vial one skill "
-    "+50/75/100; fizzy vial every skill -30/50/70. Leaving a crate or pouring a vial out changes nothing.",
-)
 # Chance and timers (the coordinator's spec mech_vv1\spec.md, "Chance and timers (complete index)"):
 # (line, verified on a traced path).  The full index of every roll is in the claims export.
 CHANCE_LINES = (
@@ -143,8 +110,14 @@ HIDDEN_LINES = (
     ('The Golden Child has family number 199 and is born beside a normal baby; he starts with every skill at '
      '100 and is set back to 5 years old at every age unit, so the game skips him in its age-unit step: he never '
      'eats, never starves, never falls sick, never dies of old age and never regains health.', gm.RUNNING),
-    ('Work injuries and island-event health losses do not check for the Golden Child; since he never regains '
-     'health, such losses last, and at 0 health he dies.', False),
+    # The owner (2026-10-24): the Golden Child can die from certain outcomes of certain island events.  The code
+    # agrees: no island event tests his flag, and the event picker 0x43BCD0(0) takes any living villager.
+    ('The Golden Child can die or be lost in island events: The Strange Berries ("Taste": 49% death), the old '
+     'fruit crate (strength 3 always kills; any strength hurts), The Mysterious Face ("Get a closer look": '
+     '51% never seen again) and The Book ("Read the book": never seen again); The Suspicious Monkey, The Wild '
+     'Mushroom and the rotting crate take health that he never regains. See Island events.', gm.OWNER),
+    ('Work injuries do not check for the Golden Child either; since he never regains health, such losses last, '
+     'and at 0 health he dies.', False),
     ('With 6 or fewer villagers, when one sex has 2 or fewer members, a baby is of the more numerous sex.', gm.RUNNING),
     ("Likes: at birth 70% none, 21% one, 9% two; dislikes the same; a like is never also a dislike.", gm.RUNNING),
     ("Running, liked: a villager of 14 or more runs, three times walking speed. Disliked: a child under 14 "
@@ -274,15 +247,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.append(gm.time_warp_line(speed_value))
 
     # -- Island events -------------------------------------------------------------------
-    first = (" The first is always a story event, the second 30 minutes later;"
-             if _i32(data, EVENTS_SEEN) < 2 else "")
     add("Island events", f"Next island event: {due(EVENT)}.", gm.SAVE)
-    add("Island events", f"{first} Island events come every 12 to 23 whole hours, "
-                         "each equally likely, at any speed. Paused, the timer waits; after time away at most one "
-                         "happens.", gm.RUNNING)
-    for n, line in enumerate(EVENT_LINES):
-        # Which event is picked is V; the story events' choice outcomes (lines 1 to 4) are not (spec v3, section 7).
-        add("Island events", line, False if 1 <= n <= 4 else gm.RUNNING)
+    add("Island events", f"Island events seen in this village: {_i32(data, EVENTS_SEEN):,}.", gm.SAVE)
+    out.extend(events.facts(village))
 
     # -- Other ---------------------------------------------------------------------------
     for line, ok in HIDDEN_LINES:
