@@ -218,12 +218,15 @@ def time_warp_line(speed_value: int) -> Fact:
 
 def old_age_line(thresholds: str, extra: str = "") -> Fact:
     """The verified old-age rule (2026-10-23, all five games, emulated and checked against the owner's logs):
-    a death roll at each whole year past the threshold in the hidden processed age."""
+    a death roll at each whole year past the threshold in the hidden processed age.  The processed age is stepped
+    up to the age inside one update (each game's life loop repeats until no one is behind: VV1 0x42F15C, VV2
+    0x43C0B5, VV3 0x4605CE, VV4 0x468B09, VV5 0x47336A; src/vv_game_mechanics_catchup.py)."""
     return Fact("Other", (
         f"Old age: at each whole year past {thresholds}, a death roll whose chance is 10% for each year over (100% "
         "at 10 years over). The roll follows a hidden processed age: time away adds to the age shown in the game, "
-        "logs and graves at once, while the processed age catches up a step at a time, so the shown age can be "
-        "higher, by up to about 12 years after a long time away." + (f" {extra}" if extra else "")), RUNNING)
+        "logs and graves at once, and the processed age is stepped up to it one age unit at a time within that same "
+        "update, so every birthday of the time away gets its roll before the village is drawn again."
+        + (f" {extra}" if extra else "")), RUNNING)
 
 
 HIDDEN = "Hidden villager stats"
