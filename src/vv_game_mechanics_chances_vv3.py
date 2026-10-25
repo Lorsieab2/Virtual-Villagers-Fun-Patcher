@@ -101,8 +101,9 @@ ROLLS = (
          + _ch(below(100, 10)) + " one year over, " + _ch(below(100, 50)) + " five years over, 100% from ten years "
          "over.",
          (Check(0x4602F9, 100),),
-         ("The roll follows the hidden processed age, which catches up with the age shown a step at a time after time "
-          "away.",),
+         ("The birthday roll follows the hidden processed age, which the game steps up one age unit at a time to "
+          "the age shown -- every step in the same update after time away, so each birthday passed while away gets its "
+          "roll.",),
          feature="vv3_nature_level_three_alters_mortality",
          patched="at Nature level 3 every one of these thresholds is 7 years later (54, 62, 70 or 78 years)."),
     # -- Work: the skill test (0x45A2C0, step 7) and the job chooser ---------------------------------------------

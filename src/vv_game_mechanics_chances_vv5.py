@@ -77,8 +77,9 @@ ROLLS = (
          "it (a roll of 0 to 99 under 10 x the years over): " + chance(below(100, 10)) + " one year over, "
          + chance(below(100, 50)) + " five years over, 100% from ten years over (65, 73 or 81).",
          (Check(0x47300A, 100),),
-         ("The roll follows the hidden processed age, which catches up with the age shown a step at a time after time "
-          "away. Heathens never age.",)),
+         ("The birthday roll follows the hidden processed age, which the game steps up one age unit at a time to "
+          "the age shown -- every step in the same update after time away, so each birthday passed while away gets its "
+          "roll. Heathens never age.",)),
     # -- Work ------------------------------------------------------------------------------------------------
     Roll("The skill check, made whenever a villager finishes a task (a harvest, a building action, a cure, a research "
          "session, an embrace, Honoring): a roll of 0 to 99 at or under the skill + 33 succeeds, so the chance is the "
