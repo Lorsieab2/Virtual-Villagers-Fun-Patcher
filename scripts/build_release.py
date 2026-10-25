@@ -268,6 +268,7 @@ FILES = [
     "src/vv_game_mechanics_vv3.py",
     "src/vv_game_mechanics_vv4.py",
     "src/vv_game_mechanics_vv5.py",
+    "src/vv_game_mechanics_powers_vv5.py",
     "src/vv_game_mechanics_life.py",
     "src/vv_game_mechanics_death.py",
     "src/vv_game_mechanics_genetics.py",
