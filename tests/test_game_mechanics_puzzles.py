@@ -207,7 +207,7 @@ class Wording(Pages):
                 facts = self.page(2, data)
                 parent = next(i for i, f in enumerate(facts) if f.group == "Food sources" and f.text.startswith("The birds: "))
                 self.assertTrue(facts[parent].text.startswith(expect), facts[parent].text)
-                self.assertFalse(facts[parent].confirmed)         # a static reading: UNCONFIRMED
+                self.assertTrue(facts[parent].confirmed)          # the reached world tick 0x43B9B0.. (2026-10-25)
                 subs = [f.text for f in facts[parent + 1:parent + 5]]
                 self.assertTrue(all(f.sub for f in facts[parent + 1:parent + 5]))
                 self.assertTrue(subs[0].startswith("A new village allows 1,000 food of crop harvest"))

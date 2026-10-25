@@ -537,7 +537,13 @@ def collectible_lines(village: gm.Village, group: str) -> list[gm.Fact]:
     out: list[gm.Fact] = []
     if group == COUNTS:
         counts = life.collectible_counts(village)
-        if counts is None:
+        vv2_words = None
+        if counts is None and village.game == 2:      # The Lost Children keeps a found byte a piece, not a count
+            import vv_game_mechanics_vv2 as vv2
+            vv2_words = vv2.collections_line(village.data)
+        if vv2_words:
+            out.append(gm.Fact(group, vv2_words, gm.SAVE))
+        elif counts is None:
             out.append(gm.Fact(group, "Collectibles found: not read from this save by this page.", gm.SAVE))
         else:
             owned = sum(1 for c in counts if c > 0)
