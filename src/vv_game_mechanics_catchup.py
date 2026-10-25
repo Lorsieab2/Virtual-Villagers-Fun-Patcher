@@ -811,11 +811,18 @@ def _vv1(village: gm.Village) -> list[gm.Fact]:
 
 
 def _warp_lines(village: gm.Village, out: list[gm.Fact], speed_value: int, origins: str, story: str) -> None:
-    """The Origins Time Warp and the Story / Cheat time skip, when they may be in the game."""
-    if village.has(origins) is not False:
+    """The Origins Time Warp (only when the patch is in the current exe; the stock game's value otherwise) and the
+    Story / Cheat time skip, when it may be in the game."""
+    if village.has(origins) is True:
         warp = gm.time_warp_line(speed_value)
-        out.append(gm.Fact(G, warp.text + " It is worked through like time away, in the first update after it.",
-                           warp.verified))
+        out.append(gm.Fact(G, f"The stock game has no Time Warp. With the patcher's \"{gm.feature_name(origins)}\" "
+                              "(in this game): " + warp.text + " It is worked through like time away, in the first "
+                              "update after it.", warp.verified))
+    else:
+        out.append(gm.Fact(G, "Time Warp: the stock game has none" + (
+            "." if village.has(origins) is False else
+            f"; whether the patcher's \"{gm.feature_name(origins)}\", which adds one, is in the game could not be "
+            "told."), CODE))
     fact = _patch(village, story, "The stock game has no time skip.",
                   "Choose Time Skip Amount skips 1 to 72 villager years as a run of Time Warps (12, 6 or 3 years "
                   "each on Fast, Normal or Slow, the last only what is left), each caught up before the next.")

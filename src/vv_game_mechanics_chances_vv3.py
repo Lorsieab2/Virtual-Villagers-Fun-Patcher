@@ -96,16 +96,10 @@ ROLLS = (
           "a second one: {3} more.",
           "On Easy the roll is made only " + _ch(times(_not(below(100, 50)), _not(below(100, 50)))) + " of age units "
           "(two rolls of 0 to 99 at 50 or more must both come up), so about a quarter of these chances.")),
-    Roll("The old-age death roll: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 real-life hours on Normal, 3 "
-         "real-life hours 20 minutes on Slow) past 47, 55, 63 or 71 years (Medicine 0, 1, 2 or 3) a villager dies with a chance of 10% for each year past it (a roll of 0 to 99 under 10 x the years over): "
-         + _ch(below(100, 10)) + " one year over, " + _ch(below(100, 50)) + " five years over, 100% from ten years "
-         "over.",
-         (Check(0x4602F9, 100),),
-         ("The birthday roll follows the hidden processed age, which the game steps up one age unit at a time to "
-          "the age shown -- every step in the same update after time away, so each birthday passed while away gets its "
-          "roll.",),
-         feature="vv3_nature_level_three_alters_mortality",
-         patched="at Nature level 3 every one of these thresholds is 7 years later (54, 62, 70 or 78 years)."),
+    # The old-age roll (rand(100) at 0x4602F9): its one full copy is gm.old_age_line, under Death and graves.
+    Roll("The old-age death roll: its timing and exact odds are under Death and graves (Old age), the one place "
+         "they are given.",
+         (Check(0x4602F9, 100),)),
     # -- Work: the skill test (0x45A2C0, step 7) and the job chooser ---------------------------------------------
     Roll("The skill test, made whenever a villager finishes a task (a harvest, a building action, a cure, a research "
          "session, an embrace): a roll of 0 to 99 at or under the skill + 33 succeeds, so the chance is the skill + "

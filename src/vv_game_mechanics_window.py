@@ -18,8 +18,8 @@ LIVE (the owner, 2026-10-24; docs/game-mechanics-window.md):
     the scroll position.  The other tabs are read again when next shown.
   * Auto-refresh (off by default) refreshes every AUTO_REFRESH_SECONDS.
   * The top of each tab says when the save was last written; when the game for it is running (found read-only
-    in the list of running programs) it says the values are from that last save -- the games save only on a
-    clean quit.
+    in the list of running programs) it says the values are from that last save -- the games save on a clean
+    quit and by their 10-minute autosave.
   * Browse... beside the save folder picks the game's exe, kept per save folder in the patcher's own settings
     (app.game_mechanics_exes, saved by app._save_settings), never in the save.
   * Closing cancels the timer and every callback the window scheduled before it is destroyed (the stale
@@ -137,8 +137,8 @@ def save_status(save: Path | None, running: bool) -> str:
     except OSError:
         return f"The save {save.name} could not be read."
     if running:
-        return (f"The game is running: values are from the last save at {written}. The games save when they are "
-                "closed normally, and A New Home also autosaves (see its Chance and timers).")
+        return (f"The game is running: values are from the last save at {written}. Each game saves when it is "
+                "closed normally and every 10 real-life minutes by its autosave (see Chance and timers).")
     return f"The save was last written {written}."
 
 

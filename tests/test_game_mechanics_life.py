@@ -219,8 +219,11 @@ class Timers(unittest.TestCase):
                 facts = page(self, game, data)
                 line = next(f for f in group(facts, life.VILLAGE_TIMERS) if f.text.startswith("Next natural island event:"))
                 self.assertEqual(line.due_kind, "next")
-                rule = next(f for f in facts if f.text.startswith("Next island event:"))
-                self.assertEqual(rule.due, line.due)
+                # The one full copy: Island events points to it, and Vital statistics no longer repeats it.
+                self.assertFalse([f for f in facts if f.text.startswith("Next island event:")])
+                self.assertNotIn("Next natural island event:", texts(facts, life.VITALS))
+                self.assertIn("When the next natural island event comes: under Village timers.",
+                              texts(facts, "Island events"))
 
     def queued(self, *, same_village: bool, bought_after_save: bool) -> list[gm.Fact]:
         """The Secret City's page with a Pick Island Event in the patcher's queued purchases file, its roster
@@ -251,7 +254,7 @@ class Timers(unittest.TestCase):
         self.assertIn("A purchased island event is pending and delays the natural one", timers)
         self.assertNotIn("Next natural island event:", timers)
         self.assertNotIn("Pick", timers)                       # never listed
-        self.assertIn("Next natural island event: after a pending purchased event", texts(facts, life.VITALS))
+        self.assertNotIn("island event", texts(facts, life.VITALS))       # given once, under Village timers
 
     def test_another_villages_or_an_unpaid_purchase_does_not_count(self) -> None:
         for same, after in ((False, False), (True, True)):
@@ -530,10 +533,14 @@ class Vitals(unittest.TestCase):
         data = fixture(4)
         at = life.COLLECTIBLES_AT[4]
         struct.pack_into("<48i", data, at, *([2] * 12 + [1] * 12 + [0] * 24))
-        vitals = texts(page(self, 4, data), life.VITALS)
-        self.assertIn("Collectibles: 24 of 48 pieces owned; 36 found in all, 12 of them duplicates", vitals)
+        facts = page(self, 4, data)
+        vitals, counts = texts(facts, life.VITALS), texts(facts, "Village counts")
+        # One full copy, under Village counts; Vital statistics points there.
+        self.assertIn("Collectibles: 24 of 48 pieces owned; 36 found in all, 12 of them duplicates", counts)
         self.assertIn("Fish Scale 12 of 12 (12 duplicates); Lab Equipment 12 of 12 (0 duplicates); Mausoleum Mural 0 "
-                      "of 12", vitals)
+                      "of 12", counts)
+        self.assertNotIn("36 found in all", vitals)
+        self.assertIn(life.COLLECTIBLES_POINTER, vitals)
         self.assertIn("The limit in the normal game is 90 plus 10 for collections, so 100", vitals)
 
     def test_golden_mushroom_only_with_its_patch(self) -> None:

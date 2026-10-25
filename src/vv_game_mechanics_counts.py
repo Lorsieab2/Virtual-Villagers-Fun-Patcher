@@ -543,19 +543,19 @@ def collectible_lines(village: gm.Village, group: str) -> list[gm.Fact]:
             vv2_words = vv2.collections_line(village.data)
         if vv2_words:
             out.append(gm.Fact(group, vv2_words, gm.SAVE))
-        elif counts is None:
+        elif counts is None and village.game not in life.COLLECTIBLE_PAY:
             out.append(gm.Fact(group, "Collectibles found: not read from this save by this page.", gm.SAVE))
         else:
-            owned = sum(1 for c in counts if c > 0)
-            out.append(gm.Fact(group, f"Collectibles found: {sum(counts):,} in all; {owned} of the 48 pieces owned.",
-                               gm.SAVE))
+            # The one full copy (Vital statistics points here): owned, found, found again and its pay, the sets.
+            lines, _complete = life.collectible_lines(village, life.COLLECTIBLE_PAY[village.game], full=True)
+            out += [gm.Fact(group, text, ok) for text, ok in lines]
     feature = DUPLICATION.format(game=village.game)
     name = gm.feature_name(feature)
     words = "Normal game: a mushroom or collectible is picked up by the one child dropped on it."
     if village.has(feature):
         words += (f" With \"{name}\" (in this game): several children can be dropped onto one mushroom or "
                   "collectible and it is multiplied, one for each, so the counts above can grow faster.")
-    out.append(gm.Fact(group, words, False, sub=group == COUNTS))
+    out.append(gm.Fact(group, words, False, sub=True))
     return out
 
 
@@ -572,15 +572,14 @@ GAME_LINES = {1: vv1_lines, 2: vv2_lines, 3: vv3_lines, 4: vv4_lines, 5: vv5_lin
 
 
 def facts(village: gm.Village, page: list[gm.Fact]) -> list[gm.Fact]:
-    """The Village counts group (and the collectibles' duplication line in Vital statistics) for a save its game's
-    module read; nothing for one it could not."""
+    """The Village counts group (the collectibles' one full copy among it) for a save its game's module read;
+    nothing for one it could not."""
     if village.general or not any(f.group != "Other" for f in page):
         return []
     out = statistics_lines(village, page)
     out += GAME_LINES[village.game](village)
     if village.game in (3, 4, 5) or village.game == 2:
         out += collectible_lines(village, COUNTS)
-        out += collectible_lines(village, VITALS)
     out += golden_finds(village)
     out.append(gm.Fact(COUNTS, (
         "Arrivals and departures, deaths without a burial, and tech points spent: not kept by the game as counts; "

@@ -783,7 +783,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
-    add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
+    add("Island events", "When the next natural island event comes: under Village timers.", gm.SAVE)
     out.extend(events.facts(village))
 
     fire = wall(FIRE_END)
@@ -800,9 +800,10 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     add("Other", HERBS_LINE, gm.OWNER)
     add("Other", CANT_DRINK_LINE, gm.RUNNING)
     extra = ""
-    if level[5] >= 3 or nature >= 3:
-        extra = gm.patch_words(village, MORTALITY, "at Nature level 3 the rolls start 7 years later")
-    out.append(gm.old_age_line("47, 55, 63 or 71 years (Medicine 0 to 3)", extra))
+    if level[5] >= 3 or nature >= 3 or village.has(MORTALITY) is True:
+        extra = gm.patch_words(village, MORTALITY, "at Nature level 3 the rolls start 7 years later (54, 62, 70 "
+                                                   "or 78 years)")
+    out.append(gm.old_age_line("47, 55, 63 or 71 years (Medicine 0 to 3)", "57, 65, 73 or 81 years", extra))
     for line, ok in HIDDEN_LINES:
         add(gm.HIDDEN, line, ok)
     burned, water = _i32(buf, FIRE_BURNED), _i32(buf, FIRE_WATER)
@@ -811,6 +812,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                     + (", so the gate is open" if burned >= ASH_GATE else "") + f"; water trips counted: {water}."),
         gm.RUNNING)
     out.extend(gm.starvation_lines(village, 0x8, gm.RUNNING))
+    add("Chance and timers", gm.autosave_line(3), gm.OWNER)
     for line, ok in CHANCE_LINES:
         add("Chance and timers", line, gm.RUNNING if ok else False)
     leadership = level[LEADERSHIP]
@@ -823,12 +825,13 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     add("Other", "The Tribal Chief's powers each wait 23 real-life hours after use, at any speed, paused or closed: "
                  + "; ".join(ready) + f". Leadership is {leadership} (what Grant Food gives: Chances).", gm.CODE)
     out.append(gm.started_line(clock.created))
+    out.extend(f for f in [gm.warp_dates_note(village, "Other", "the village's start date is")] if f)
     out.extend(gm.later_puzzle_lines(
         PUZZLE_NAMES, lambda pid: struct.unpack_from("<ii", buf, PUZZLES + 4 + 8 * pid), PUZZLE_THRESHOLDS, clock))
+    out.extend(f for f in [gm.warp_dates_note(village, gm.PUZZLES, "the puzzle dates are")] if f)
 
     # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
     event_at = None if paused else wall(EVENT_NEXT)
-    gm.with_due(out, "Next island event:", event_at, "next")
     if not clock.frozen and fire > village.now:
         gm.with_due(out, "The fire burns until", fire, "ends")
     village_extra = []
@@ -869,7 +872,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         # 61.06% above 20 health, 61.06% x 31.03% = 18.95% at 20 or less (0x46017D, 0x460195; Chances).
         parents_from=18, sick_loss=(0.6106, 0.1895),
         sick_end="A healer cures a sick villager at Healing + 34%.",
-        collectibles=life.collectible_lines(village, "100, 250 or 1,500 tech points")[0],
+        collectibles=life.collectible_lines(village, life.COLLECTIBLE_PAY[3])[0],
         limit=life.limit_words(village, None, "5 for each complete collection, 25 with all four, and 10 at Magic "
                                               "level 3"),
         puzzles=puzzles, village_extra=village_extra,

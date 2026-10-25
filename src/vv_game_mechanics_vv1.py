@@ -68,16 +68,13 @@ MAGIC_FRUIT = "vv1_magic_fruit_alters_mortality"
 # fills the 256-entry list of on-screen effects (0x34 bytes each) with a picture.  The new village's first event:
 # 0x41C4A9 (now + 900 s); the tutorial mushroom: 0x4234C4 (now + 100 s); the village step every 2 real seconds
 # (0x42345D), the idle sweep 40 real seconds after the last (0x4233F9 -> 0x448450).
-# The autosave (the owner, 2026-10-25: the games autosave): 0x41BFC0, at the end of the screen switch 0x41B350
-# (0x41B8BD, every path of its switch on the screen [0xACB4]), when the real clock time() (0x401E10) has reached
-# [0xADEC] sets [0xADEC] = now + 600 and runs the save writer 0x41BF70 -- the slot list (0), the slot ([0xABE4]) and
-# its slot + 20 copy -- with a village started ([0x9E1C]) and a slot chosen; the program start sets the first one 600
-# seconds on (0x41D484).  No pause test.  0x41BF70 is the routine the menus' quit paths call (0x413635, 0x41418D).
-AUTOSAVE = ("Autosave: each time the game switches from one of its screens to another, it "
-            "saves the village if 10 real-life minutes have passed since the program started or since its last "
-            "autosave: the slot's save, its second copy (\"Virtual Villagers2<slot>.ldw\") and the slot list. The "
-            "10 minutes are real-life time, so they count while the game is paused too; with no screen switch "
-            "there is no autosave, and quitting normally saves as well.")
+# The autosave (the owner, 2026-10-25: the games autosave): 0x41BFC0, the last step of the game object's per-frame
+# update 0x41B350 (0x41B8BD; the main loop 0x402690 calls it, vtable slot 0x1C, then the frame's drawing, on every
+# pass), when the real clock time() (0x401E10) has reached [0xADEC] sets [0xADEC] = now + 600 and runs the save
+# writer 0x41BF70 -- the slot list (0), then, with a village started ([0x9E1C]) and a slot chosen ([0xABE4]), the
+# slot and its slot + 20 copy; the program start sets the first one 600 seconds on (0x41D484).  No pause test.
+# 0x41BF70 is the routine the menus' quit paths call (0x413635, 0x41418D).  The five games' check: gm.autosave_line.
+AUTOSAVE = gm.autosave_line(GAME)
 CHANCE_LINES = (
     (AUTOSAVE, gm.OWNER),
     ("Every roll that changes play is in its own group, with its exact odds: the mushroom roll (Mushrooms, Chances); "
@@ -422,7 +419,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events (how many have been seen is under Village counts) -----------------------
-    add("Island events", f"Next island event: {due(EVENT)}.", gm.SAVE)
+    add("Island events", "When the next natural island event comes: under Village timers.", gm.SAVE)
     out.extend(events.facts(village))
 
     # -- Other ---------------------------------------------------------------------------
@@ -432,25 +429,27 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Chance and timers", line, ok)
     for line in LIFE_LINES:
         add("Other", line, gm.RUNNING)
-    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)",
+    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3; every technology starts at level 1)",
+                               "65, 73 or 81 years",
                                "The Golden Child does not age. " + gm.patch_words(
                                    village, MAGIC_FRUIT, "with its puzzle done, the rolls start 7 years later")))
     add("Other", (f"An age unit is {gm.duration(60 * speed)} and a villager year (20 age units) "
                   f"{gm.duration(20 * 60 * speed)} of real-life play on {on} speed: ages, pregnancies and regrowth "
                   "follow the speed; work, mushrooms and island events do not."), gm.RUNNING)
     add("Other", f"The village was started at {gm.when(real(CREATED))}.", gm.SAVE)
+    out.extend(f for f in [gm.warp_dates_note(village, "Other", "the village's start date is")] if f)
     # The completion stamp (clock - [state+0x9E1C]) / 3600 (0x91A2B3C5 >> 43), 1 for 0: The Cemetery 0x4245A0..
     # 0x4245D2, The Cave 0x43ABE7..0x43AC1E, the Golden Child 0x4242AD; the clock 0x402F70 counts real seconds.
     out.extend(gm.hours_puzzle_lines([name for name, _flag, _hours in PUZZLES],
                                      lambda n: data[PUZZLES[n][1] + 4] != 0,
                                      lambda n: _i32(data, PUZZLES[n][2] + 4), real(CREATED), verified=gm.CODE))
+    out.extend(f for f in [gm.warp_dates_note(village, gm.PUZZLES, "the puzzle dates are")] if f)
     out.extend(golden_child_facts(village, data, real(CREATED), level))
 
     # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
     regrow_at = None if paused else real(REGROW)
     event_at = None if paused else real(EVENT)
     gm.with_due(out, "Next regrowth:", regrow_at, "refill")
-    gm.with_due(out, "Next island event:", event_at, "next")
     out.extend(life.sections(_context(village, data, epoch, speed_value, level, bush, saved, regrow_at, event_at)))
     magic = next(flag for name, flag, _hours in PUZZLES if name == "The Magic Plant of Life")
     out.extend(death.facts(village, medicine=level[3], speed_value=speed_value, base=epoch,
@@ -546,9 +545,11 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
         # seconds: 12 hours on Fast and Normal, 10 on Slow), so the event comes that much sooner.
         event_rule="It comes 12 to 23 whole real-life hours after the last, at any speed; how the kind and the event "
                    "are drawn is under Island events.",
-        event_running="Each Origins Time Warp brings it 12 real-life hours nearer on Fast or Normal and 10 on Slow: "
-                      "the warp moves the game's clock on, and the timer is a moment on that clock (read from the "
-                      "patcher's Time Warp code and the game's timer, not yet seen in a game).",
+        # Shown only with the patcher's Time Warp in the current exe (the clean-up of 2026-10-25).
+        event_running=("Each Origins Time Warp brings it 12 real-life hours nearer on Fast or Normal and 10 on Slow: "
+                       "the warp moves the game's clock on, and the timer is a moment on that clock (read from the "
+                       "patcher's Time Warp code and the game's timer, not yet seen in a game)."
+                       if village.has(gm.WARP_IDS[GAME][0]) is True else ""),
         medicine=level[3], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71}, parents_from=18,
         sick_loss=(0.71, 0.22),
         collectibles=[("Collectibles: A New Home has none; mushrooms are its only random pickup.", gm.RUNNING)],

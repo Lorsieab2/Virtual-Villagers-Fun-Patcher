@@ -61,7 +61,10 @@ class LaterGames(Pages):
         self.assertIn(f"The Orchard: solved at {gm.when(EPOCH + 100_000 + 600)}.", lines)
         self.assertIn("The Roster of the Dead: not yet solved.", lines)
         self.assertIn("The Bee Hive: solved (the game kept no time for it).", lines)
-        self.assertEqual(len(lines), 17)
+        # 16 puzzles and the count; with no game folder to tell whether the patcher's Time Warp is in the game,
+        # what the dates mean after one is said once more (TimeWarpDates below).
+        self.assertEqual(len([x for x in lines if "Time Warp" not in x]), 17)
+        self.assertTrue(lines[-1].startswith("If this game has the patcher's Time Warp"), lines[-1])
         self.assertIn(f"The village was started at {started}.", [f.text for f in facts if f.group == "Other"])
         self.assertTrue(all(f.confirmed for f in facts if f.group == gm.PUZZLES))
 
@@ -166,6 +169,74 @@ class HoursGames(Pages):
 
     def test_vv2(self) -> None:
         self.hours(2, vv2, vv2.S)
+
+
+class TimeWarpDates(Pages):
+    """Every patcher Time Warp moves the game's clock on by moving the clock's start (the save's epoch) back by its
+    real-life seconds (native/vv1_origins_icons vv1_time_warp_apply: 43,200 on Normal), so the start and puzzle
+    dates, kept on that clock, come out earlier than real by every warp made after them; the save keeps no count of
+    the warps, so the page says precisely what the dates mean (the clean-up of 2026-10-25)."""
+
+    ORIGINS = {1: "vv1_enable_origins_exclusive_features", 2: "vv2_enable_origins_exclusive_features",
+               3: "vv3_enable_origins_exclusive_features", 4: "vv4_enable_origins_exclusive_features",
+               5: "vv5_enable_origins_exclusive_features"}
+
+    def warped(self, game: int, seconds: int) -> bytearray:
+        """The fixture after Time Warps of `seconds` in all: the clock's start moved back (A New Home, The Lost
+        Children and The Secret City keep it as a 32-bit field at 4, the later two as a 64-bit one at 8)."""
+        data = fixture(f"vv{game}-huttest-1")
+        if game <= 3:
+            struct.pack_into("<I", data, 4, struct.unpack_from("<I", data, 4)[0] - seconds)
+        else:
+            struct.pack_into("<q", data, 8, struct.unpack_from("<q", data, 8)[0] - seconds)
+        return data
+
+    def start(self, facts) -> int:
+        """Where the village's start line is (a dated one, or the line saying the save keeps none)."""
+        return next(i for i, f in enumerate(facts) if f.text.startswith(("The village was started at ",
+                                                                         "When the village was started")))
+
+    def test_a_warp_moves_the_start_date_and_the_page_says_so(self) -> None:
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                before = self.page(game, fixture(f"vv{game}-huttest-1"), features=[self.ORIGINS[game]])
+                after = self.page(game, self.warped(game, 43_200), features=[self.ORIGINS[game]])
+                # The game's own arithmetic: the same stamp on a clock whose start is 12 hours earlier.
+                if before[self.start(before)].text.startswith("The village was started at "):
+                    self.assertNotEqual(before[self.start(before)].text, after[self.start(after)].text)
+                notes = [f for f in after if f.text.startswith("This game has the patcher's Time Warp")]
+                self.assertEqual({f.group for f in notes}, {"Other", gm.PUZZLES})
+                for note in notes:
+                    self.assertTrue(note.confirmed)
+                    self.assertIn("12 hours on Fast or Normal, 10 on Slow", note.text)
+                    self.assertIn("earlier than the real moment by the total length of the Time Warps made after "
+                                  "it", note.text)
+                    self.assertIn("the last save and the timers still to come are real", note.text)
+                # The note follows the line it explains.
+                self.assertIn("the village's start date is read on that clock", after[self.start(after) + 1].text)
+
+    def test_no_note_without_the_time_warp(self) -> None:
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                facts = self.page(game, fixture(f"vv{game}-huttest-1"), features=[])
+                self.assertNotIn("patcher's Time Warp", gm.render(facts))
+                unknown = gm.render(self.page(game, fixture(f"vv{game}-huttest-1")))
+                self.assertIn("If this game has the patcher's Time Warp (whether it does could not be told)", unknown)
+
+    def test_the_origins_time_warp_only_with_its_patch(self) -> None:
+        """The shared Time away line (A New Home to The Tree of Life): the warp's rule only with the patch in the
+        current exe, the stock game's value otherwise -- never shown as if it were there when it cannot be told."""
+        for game in range(1, 5):
+            with self.subTest(game=game):
+                def away(features):
+                    return " ".join(f.text for f in self.page(game, fixture(f"vv{game}-huttest-1"),
+                                                              features=features) if f.group == gm.TIME_AWAY)
+                self.assertIn("The stock game has no Time Warp. With the patcher's", away([self.ORIGINS[game]]))
+                self.assertIn("Time Warp (the Origins upgrade): each one gives the villagers",
+                              away([self.ORIGINS[game]]))
+                for features in ([], None):
+                    self.assertNotIn("the Origins upgrade", away(features))
+                    self.assertIn("Time Warp: the stock game has none", away(features))
 
 
 class Wording(Pages):

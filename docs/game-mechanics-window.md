@@ -44,7 +44,7 @@ A fact whose clock is stopped (saved paused, a frozen clock) passes `due=None` a
 - **Auto-refresh** (off by default) does the same every 30 seconds, from the same one-second timer.
 - The top of each tab says when the save was last written. If the game for the save is running (looked for
   read-only in the list of running programs), it says that the values are from the last save, because the
-  games save only when they are closed normally.
+  games save when they are closed normally and every 10 real-life minutes by their autosave.
 - **Browse...** beside the save folder picks the game's exe when the window cannot find it or its sources
   disagree. The choice is kept per save folder in the patcher's own settings file
   (`patcher_local_settings.json`, `game_mechanics_exes`), never in the save.

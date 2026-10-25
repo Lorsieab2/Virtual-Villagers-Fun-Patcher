@@ -681,8 +681,7 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
         f"{ctx.red * ctx.mastery:g}, {ctx.red_share:.0%} of them red.{golden}"
         + (f" {ctx.mushroom_words}" if ctx.mushroom_words else ""), gm.RUNNING)
 
-    # 5. The next natural island event and the soonest birth.
-    add(f"Next natural island event: {event[1]}.", gm.SAVE, due=event[0], kind="next" if event[0] else None)
+    # 5. The soonest birth (the next natural island event is under Village timers only: it stood here too).
     if soonest is not None:
         add(f"Soonest birth: {soonest[1]}.", False, due=soonest[0], kind="due" if soonest[0] else None)
     elif everyone is not None:
@@ -971,6 +970,13 @@ def limit_words(village: gm.Village, bonus: int | None, bonus_words: str, stock_
 # pieces is not worked out, so they are given as totals.  File offsets of the block.
 COLLECTIBLES_AT = {3: 0x370 + 12, 4: 0x6DC + 0x10, 5: 0x640 + 0x10}
 VV4_SETS = ("Fish Scale", "Lab Equipment", "Mausoleum Mural", "Wind Flute")
+# What a piece found again pays, by rarity (each game's pay table; the per-game modules cite it).
+COLLECTIBLE_PAY = {3: "100, 250 or 1,500 tech points", 4: "100, 250 or 1,500 tech points",
+                   5: "10, 50 or 150 Divine Energy (the first set) or 100, 250 or 1,500 tech points (the second)"}
+# A save's page gives the collectibles once, under Village counts (src/vv_game_mechanics_counts.py); Vital
+# statistics points there.  The general page (no save, no Village counts) keeps the full lines.
+COLLECTIBLES_POINTER = ("Collectibles: how many were found, the pieces owned, the pieces found again and what they "
+                        "pay are under Village counts.")
 
 
 def collectible_counts(village: gm.Village) -> list[int] | None:
@@ -981,9 +987,18 @@ def collectible_counts(village: gm.Village) -> list[int] | None:
     return counts if all(0 <= c < 1_000_000 for c in counts) else None
 
 
-def collectible_lines(village: gm.Village, duplicate_words: str) -> tuple[list[tuple[str, bool | str]], int | None]:
-    """The lines for Vital statistics, and the complete sets (The Tree of Life only; None otherwise)."""
+def collectible_lines(village: gm.Village, duplicate_words: str,
+                      full: bool | None = None) -> tuple[list[tuple[str, bool | str]], int | None]:
+    """The collectibles' lines and the complete sets (The Tree of Life only; None otherwise).  `full`: the
+    whole lines (Village counts, or the general page's Vital statistics); otherwise Vital statistics' pointer.
+    None: full only on the general page."""
+    full = village.general if full is None else full
     counts = collectible_counts(village)
+    if not full:
+        complete = None
+        if village.game == 4 and counts is not None:
+            complete = sum(1 for k in range(4) if all(c > 0 for c in counts[12 * k:12 * k + 12]))
+        return [(COLLECTIBLES_POINTER, gm.SAVE)], complete
     if counts is None:
         return [("Collectibles owned: not shown, because where this game's save keeps its collection counts has not "
              "been traced.", gm.SAVE)], None
