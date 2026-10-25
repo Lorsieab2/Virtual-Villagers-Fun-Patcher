@@ -107,8 +107,8 @@ ROLLS = (
          "of the time, and of those {1} are triplets, so " + chance(_TWINS) + " twins and " + chance(_TRIPLETS)
          + " triplets (0x465ED7).",
          (Check(0x465EE3, 100, 7, "jge", take=False), Check(0x465F03, 100, 0x19, "jge", take=False)),
-         ("The babies are born 40 age units (2 villager years) after conception: 2, 4 or 6 hours 40 minutes of "
-          "real-life play on Fast, Normal or Slow (0x4730BA).",
+         ("The babies are born on the 41st age unit after conception (2 villager years and 1 age unit): 2 hours 3 "
+          "minutes, 4 hours 6 minutes or 6 hours 50 minutes of real-life play on Fast, Normal or Slow (0x4730BA).",
           "In a game written by the patcher, twins or triplets are kept only while 2 or 3 villager records are free "
           "(Heathens, bodies and babies still owed counted), and a birth waits, the pregnancy kept, until the whole "
           "litter fits (the patcher's safety fixes at 0x65F10, 0x65F23, 0x730AF); the stock game makes the litter "

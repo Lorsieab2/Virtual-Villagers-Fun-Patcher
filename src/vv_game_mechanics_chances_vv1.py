@@ -29,8 +29,8 @@ ROLLS = (
          (Check(0x43BC41, 100, 7, "jge", take=False), Check(0x43BC7F, 100, 0x19, "jge", take=False)),
          ("So with one of the two: " + chance(_MULTI) + " twins; with both: "
           + chance(times(_MULTI, DRAWS - _TRIPLE)) + " twins and " + chance(times(_MULTI, _TRIPLE)) + " triplets.",
-          "The babies are born 40 age units (2 villager years) after conception: 2, 4 or 6 real-life hours 40 minutes "
-          "of play on Fast, Normal or Slow (0x42EF27)."),
+          "The babies are born on the 41st age unit after conception (2 villager years and 1 age unit): 2 hours 3 "
+          "minutes, 4 hours 6 minutes or 6 hours 50 minutes of real-life play on Fast, Normal or Slow (0x42EF27)."),
          group=BIRTHS),
     Roll("Boy or girl: each baby is a boy {0} of the time and a girl " + chance(DRAWS - _MALE) + " (0x43C5F3).",
          (Check(0x43C5F3, 100, 0x31, "jg", take=False),),
