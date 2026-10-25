@@ -127,9 +127,10 @@ def bodies(village: gm.Village) -> list[tuple[str, int]]:
 #   research 0x46DC91: 2% of tries (rand(100) < 2, 0x46DC71) lose rand(10) = 0 to 9, cause 3 Work accident;
 #   island events, cause -1 (each outcome is the event's vtable slot 11; its choice A = 0, B = 1):
 #     The Bed Bugs 0x4156A0: "Let it go" -15 (0x4156C5); "Search for the bugs all night" -5 only above 6 health
-#       (0x4156EF) and sick;
+#       (0x4156EF), no sickness (0x4156E7-0x415725 sets none; corrected 2026-10-25);
 #     You're Doing It Wrong! 0x416020: "Teach them to reduce explosions." when it explodes, -(10 + rand(20));
-#     The Missing Kids 0x416120: "Yell for help", both children -5 and sick;
+#     The Missing Kids 0x416120: "Yell for help", both children -5 and marked sick (a Heathen's mark does nothing:
+#       the life tick skips Heathens);
 #     The Cracked Mask 0x416BB0: "Attempt to fix the mask", -(20 + rand(11));
 #     The Stinging Wasps 0x415160 (condition 0x415B10 always false: never in the stock game): every villager
 #       50% (0x470BF0 with 50, 10, 10) to lose 10 + rand(10), cause 0 Disease;
@@ -250,9 +251,10 @@ LATER = {
         game="New Believers",
         events=("Island events that can kill, all \"Unknown causes\" (their chances are under Island events): The "
                 "Bed Bugs (\"Let it go\": 15 health), You're Doing It Wrong! (\"Teach them to reduce explosions.\" "
-                "when it explodes: 10 to 29), The Missing Kids (\"Yell for help\": both children lose 5 and fall sick) "
-                "and The Cracked Mask (\"Attempt to fix the mask\": 20 to 30). The Bed Bugs' \"Search for the bugs "
-                "all night\" takes 5 only above 6 health, so it never kills, but it makes them sick."),
+                "when it explodes: 10 to 29), The Missing Kids (\"Yell for help\": the believer child loses 5 and "
+                "falls sick) and The Cracked Mask (\"Attempt to fix the mask\": 20 to 30). The Bed Bugs' \"Search for "
+                "the bugs all night\" takes 5 only above 6 health, so it never kills, and it sets no sickness "
+                "(0x4156E7-0x415725)."),
         burial_needs="Nobody buries anyone before The Buried Mausoleum is solved. After that, when",
         buriers=" Heathens never bury.",
         skills="Farming, Parenting, Healing, Research, Building, Devotion",
@@ -336,7 +338,7 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
         add(f"Old age in this village (Medicine level {medicine}{later}): the first roll is at {start + 1} years "
             f"(10%), and at {start + 10} years it is 100%; cause \"Old age\".", gm.SAVE)
     add(f"Disease: a sick {who} loses 1 health on 61% of age units (19% at 20 health or less); dying of it gives "
-        f"\"Disease\". How often {whom} fall sick is under Other.")
+        f"\"Disease\". How often {whom} fall sick is under {'Chances' if game == 5 else 'Other'}.")
     add(f"Starvation: with 500 food or less a {who} loses 1 health on 15% of age units; with no food at all, by "
         "their hidden number (Hidden villager stats). Dying of it gives \"Starvation\".")
     # The 2% roll runs while catching up too: the catch-up flag skips only the 10% lab accident (VV5 0x46DB80 ->
@@ -354,9 +356,9 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
         "body and no grave.", gm.OWNER)
     if game == 5:
         add("Leaving without dying: a believer whose Faith falls to 0 becomes a Heathen and leaves the tribe (see "
-            "the Faith lines). The God Power Revive (\"bring a fallen believer back!\") raises a body before it is "
+            "Faith and Heathens). The God Power Revive (\"bring a fallen believer back!\") raises a body before it is "
             "buried or removed, and the Time Warp and Grant Youth God Powers change villagers' ages, and so when "
-            "their old-age rolls come (see God Powers).")
+            "their old-age rolls come (see God powers).")
     # Bodies
     add(f"A body lies where the villager died until a {who} buries it (\"Burying the dead\") or the game removes it. "
         f"{c['burial_needs']}{' a' if game != 3 else ''} {who} of 14 or more who is not sick or carrying picks something to do, 34% of the "
@@ -408,13 +410,14 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
     # Patches
     if game == 5:
         soul = "vv5_devoted_soul_epitaph"
-        if village.has(soul) is not False:
+        # New Believers names a patch only when the current exe has it (the audit, 2026-10-25).
+        if village.has(soul) is True:
             # (The patch's own epitaph is named through the patch, never as a quoted text: no code here holds an
             # epitaph's words to check a grave by -- tests/test_vv5_devoted_soul_epitaph.py.)
             add("A Devotee's epitaph: normally always \"Respected Citizen\". "
                 + gm.patch_words(village, soul, "\"Respected Citizen\" or the patch's own Charitable Soul, 50% each"))
         isola = "vv5_guardians_of_isola_rewrite"
-        if village.has(isola) is not False:
+        if village.has(isola) is True:
             add(gm.patch_words(village, isola, "\"Respected Citizen\" reads \"Respected Devotee\" and \"Retired "
                                                "Chief\" reads \"Respected Chief\" on new graves (the words only)"))
     story = f"vv{game}_story_cheat_upgrades"
@@ -426,7 +429,7 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
                                            "\"Unknown causes\", the Deaths log \"Died in a custom island event\") or "
                                            "disappear (no body, no grave) and can revive bodies" + extra))
     cod = f"vv{game}_cause_of_death"
-    if village.has(cod) is not False:
+    if village.has(cod) is True or (game != 5 and village.has(cod) is None):
         add(gm.patch_words(village, cod, "every death is written to the Deaths log when the body is buried or "
                                          "removed, and a disappearance to a Disappeared record; the game itself "
                                          "is unchanged"))

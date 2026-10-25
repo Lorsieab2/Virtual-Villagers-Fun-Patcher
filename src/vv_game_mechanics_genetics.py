@@ -153,6 +153,20 @@ def _later(game: int) -> list[gm.Fact]:
             "20, 21, 28 or 29 and the bodies 0, 1, 2, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14 or 15; a woman one of the "
             "heads 1, 4, 8, 17, 18, 19, 26, 27, 28 or 29 and the bodies 10, 12, 15, 16, 18, 19, 22, 23 or 29, each "
             "equally likely."), gm.RUNNING))
+    elif game == 5:
+        # Nothing about Joey: his only writer, the abandoned-infants event (0x4155E0 -> 0x471A50), is inherited and
+        # never drawn (its condition 0x415B10 is `xor al, al; ret`), and inherited unused events are never listed
+        # (the owner).  The Heathen Mommy's father "Unknown": the patch's new-village code (file 0x94620, from the
+        # original build) calls the pregnancy writer 0x465E00 with the name 0x4B6AA0 ("Unknown", the game's own
+        # word, string id 0x4A6), head 2 and body 2; no record stands behind it.  Every stock conception passes the
+        # partner's own record (0x467DBE, 0x46E16B, 0x46E19B).
+        out.append(f(GENETICS, (
+            "The Heathen Mommy's children have the father \"Unknown\" (the owner). He is a name only, not a villager: "
+            "in a village made with the patcher's \"Heathen Mommy Puzzle Restoration\", the new-village code it "
+            "restores from the original build starts her pregnancy with the game's own word \"Unknown\" as the "
+            "father's name, head 2 and body 2 (0x465E00), so her baby's head is half of (her head + 2), -1, 0 or +1 "
+            "(or any head on 5 births in 100). Every other conception in New Believers passes the real partner's "
+            "name, head and body (0x467DBE)."), gm.RUNNING))   # the owner's fact, read in the patch and the exe
     elif game in (4, 5):
         out.append(f(GENETICS, (
             "One island event makes a woman expecting by the game's default father Joey, who has head 2 and body 2 "
@@ -164,14 +178,15 @@ def _later(game: int) -> list[gm.Fact]:
     # VV5 0x4D38A8); every conception copies a partner record's head and body onto the mother (VV5 0x467DBE,
     # 0x46E16B, 0x46E19B; VV4 0x460A2E, 0x4650EB, 0x46511B) apart from the default fathers ("?" in VV2, Joey in VV4
     # and VV5).  See docs/known-behaviours-and-non-bugs.md, the default fathers.
-    default = {2: "The Gong of Wonder's \"?\" (head 0)", 3: "", 4: "Joey (head 2)", 5: "Joey (head 2)"}[game]
-    out.append(f(GENETICS, (
-        "A father shown as \"Unknown\" is not one the game itself names: none of the four games passes \"Unknown\" "
-        "as a father; the patcher shows it where the game kept no father's name. The baby's head was still worked "
-        "out by the rule above, from the father's head the game copied onto the mother at the conception: every "
-        "conception copies a real partner's head"
-        + (f", except {default}, as above." if default else " (this game has no fatherless conception).")
-        + " So \"Unknown\" never stands for a head of its own and never changes a baby's head."), gm.RUNNING))
+    default = {2: "The Gong of Wonder's \"?\" (head 0)", 3: "", 4: "Joey (head 2)", 5: ""}[game]
+    if game != 5:      # New Believers' "Unknown" is a father the game passes (its line above)
+        out.append(f(GENETICS, (
+            "A father shown as \"Unknown\" is not one the game itself names: this game never passes \"Unknown\" as a "
+            "father; the patcher shows it where the game kept no father's name. The baby's head was still worked "
+            "out by the rule above, from the father's head the game copied onto the mother at the conception: every "
+            "conception copies a real partner's head"
+            + (f", except {default}, as above." if default else " (this game has no fatherless conception).")
+            + " So \"Unknown\" never stands for a head of its own and never changes a baby's head."), gm.RUNNING))
     old = {2: "male_heads_old / female_heads_old", 3: "male_heads_old / female_heads_old",
            4: "male_heads10 / female_heads10", 5: "male_heads10 / female_heads10"}[game]
     out.append(f(GENETICS, (

@@ -33,7 +33,7 @@ NEW BELIEVERS (VV5).  Manager field X is file offset X + 0x10; villager records 
   check 0x472BD0, then embrace; a job the player gave continues through 0x46BCF0; at food <= 250 Farming 20+
   farms (0x46E985), with no "Worried about food".  Steps run at once by 0x46E020 (table 0x46E230/0x46E244):
   4 walk -> instant move 0x466300; 10 skill check, 18-20 work payoffs, 31-34 projects (31 builds, 0x43B080)
-  through the live executor 0x473B30; 16 conception 0x46E078 (rand(300) + 50 - 50 x Medicine <= Breeding,
+  through the live executor 0x473B30; 16 conception 0x46E078 (rand(300) + 50 - 50 x Medicine <= Parenting +0x1C60,
   0x46E094-0x46E0C8; no Love Shack, no skill check, no hungry refusal, no first-time pass, no over-50 rule for
   the one who starts it); 25 cure 0x46E1A2 (Healing skill check only; People Cured +1 even on a failure,
   0x46E202); every other step is skipped.
@@ -244,7 +244,7 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
     add("Babies while catching up: a believer whose job choice is Children tries on 6 job turns in 100, if the "
         "population limit allows; the partner search is the live one (opposite sex, both 18 or more, the partner "
         "under 50 and not sick, pregnant or nursing). A baby is conceived when rand(300) + 50 - 50 x Medicine "
-        "level is at most the Breeding skill (17%, 33% or 50% at Breeding 50 and Medicine 1, 2 or 3). Unlike live "
+        "level is at most the Parenting skill (17%, 33% or 50% at Parenting 50 and Medicine 1, 2 or 3). Unlike live "
         "play there is no embrace skill check, no Love Shack needed, no refusal when food is low, the village's "
         "first conception is not certain, and a woman of 50 or more who starts it can still conceive.")
     add("Healing while catching up: a cure is the healer's Healing skill check alone (live: a healer who dislikes "
@@ -256,15 +256,20 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         "Spreading the Word and every other live-only behaviour do not happen.")
     add("Heathens while catching up: they never age, eat or work, and their Faith does not change; a believer whose "
         "Faith falls to 0 during the catch-up becomes a Heathen then and stops ageing.", CODE)
-    add("Heathens never age, while catching up or otherwise (the stock game's design).", OWNER)
+    # The owner's "Heathens never age, while catching up or otherwise" stood here too, word for word the line above.
     add("Nursery School: for every missed noni regrowth (one per age unit of the WHOLE time closed, with no limit) "
         "each child under 14 learns from the Nursery School teacher: the teacher's six skills added together x the "
         "speed value (3, 6 or 10) ÷ 14,400, half the time all to the child's highest skill (a random one while "
         "every skill is 0) if it is below 50, otherwise a fifth of that to every skill below 50. This is the live "
         "rule, run for the whole time closed; it runs before the time away is added to the ages, so a child who "
         "turns 14 during it learns for all of it.")
-    nursery = _patch(village, VV5_NURSERY, "Normally the spread share is a fifth.",
-                     "a sixth instead, one for each of the six skills.")
+    # New Believers: a patch's value only when the current exe has it (the audit brief, 2026-10-25); unknown or out,
+    # the stock rule above is the whole story.
+    def _patch_vv5(village: gm.Village, feature: str, normal: str, patched: str) -> gm.Fact | None:
+        return _patch(village, feature, normal, patched) if village.has(feature) is True else None
+
+    nursery = _patch_vv5(village, VV5_NURSERY, "Normally the spread share is a fifth.",
+                         "a sixth instead, one for each of the six skills.")
     if nursery:
         out.append(nursery)
     add("Noni and crops: every missed noni regrowth (+2 each age unit) and crop refill (to 800 every 40 age units, "
@@ -278,32 +283,34 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         RUNNING)
     add("The fire and the weather follow the game's own clock, which keeps running while the game is closed "
         "unpaused: the fire burns down (10, 20 or 33 hours 20 minutes of real-life time on Fast, Normal or Slow) "
-        "and a weather spell ends, by the whole time closed, not only the counted part.", RUNNING)
-    add("The campfire keeps burning down while the game is closed, when the save was left unpaused.", OWNER)
+        "and a weather spell ends, by the whole time closed, not only the counted part; saved paused, the fire "
+        "does not burn down until the game is unpaused.", OWNER)   # the owner, 2026-10-25, and the code (RUNNING)
     add("Graves: the whole time closed counts toward a body's removal, not only the counted part (see Death and "
         "graves).")
     add("The Time Warp God Power (500 Divine Energy) speeds up ageing for 5 real-life minutes while the game is "
-        "open; quitting during them loses the rest (see Hidden villager stats).", RUNNING)
+        "open; quitting during them loses the rest (see God powers).", RUNNING)
 
     # The patches that change a catch-up rule (stock rule first).
     for fact in (
-        _patch(village, VV5_WORK_FIRST, "Normally every job turn uses the game's own choice.",
+        _patch_vv5(village, VV5_WORK_FIRST, "Normally every job turn uses the game's own choice.",
                "on 75 job turns in 100 a builder (while it has hut work), a healer, or a believer whose job is "
                "Devotion (when Honoring is allowed) does that job first; at 250 food or less a believer with "
                "Farming 20 or more still farms first."),
-        _patch(village, VV5_FIX_HUTS, "Normally a builder in a job turn joins only a site already more than 1% "
-                                      "built, and examines huts only once Houses 1 to 3 and the Clothing Hut stand.",
-               "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
-        _patch(village, VV5_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
-               "every skill check succeeds, in job turns too."),
+        _patch_vv5(village, VV5_FIX_HUTS, "Normally a builder in a job turn joins only a site already more than 1% "
+                                          "built, and examines huts only once Houses 1 to 3 and the Clothing Hut "
+                                          "stand.",
+                   "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
+        _patch_vv5(village, VV5_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
+                   "every skill check succeeds, in job turns too."),
     ):
         if fact:
             out.append(fact)
-    if village.has(VV5_ORIGINS) is not False:
+    if village.has(VV5_ORIGINS) is True:       # the Origins upgrades are the patcher's, not the stock game's
         warp = gm.time_warp_line(speed_value)
-        out.append(gm.Fact(G, warp.text + " It is worked through like time away, in the first update after it.",
+        out.append(gm.Fact(G, f"With the patcher's \"{gm.feature_name(VV5_ORIGINS)}\" (in this game): "
+                              + warp.text + " It is worked through like time away, in the first update after it.",
                            warp.verified))
-    story = _patch(village, VV5_STORY, "The stock game has no time skip.",
+    story = _patch_vv5(village, VV5_STORY, "The stock game has no time skip.",
                    "Choose Time Skip Amount skips 1 to 72 villager years as a run of Time Warps (12, 6 or 3 years "
                    "each on Fast, Normal or Slow, the last only what is left), each caught up before the next.")
     if story:

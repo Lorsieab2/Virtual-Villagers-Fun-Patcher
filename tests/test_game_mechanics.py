@@ -549,7 +549,13 @@ class EveryGame(unittest.TestCase):
                 self.assertIn("8 hours 36 minutes 40 seconds", joined)
                 self.assertRegex(joined, r"If it were played now: .* away, of which 24 hours counts \((24|12|7\.2)\.0 "
                                          r"years|paused")
-                self.assertRegex(joined, r"Time Warp \(the Origins upgrade\): each one gives the villagers (12|6|3) years")
+                if name.startswith("vv5"):
+                    # New Believers' Time Warp upgrade is the patcher's Origins patch: shown only when the exe has
+                    # it (the audit of 2026-10-25), and these test saves have no game folder to tell.
+                    self.assertNotIn("Origins upgrade", joined)
+                else:
+                    self.assertRegex(joined, r"Time Warp \(the Origins upgrade\): each one gives the villagers "
+                                             r"(12|6|3) years")
                 self.assertNotIn("not yet confirmed", joined)
     def test_time_away_uses_the_verified_table(self) -> None:
         table = {"full": {3: 38_200, 6: 31_000, 10: 23_800}, "band_end": 86_400, "band": 31_000, "over": 86_400}
@@ -710,8 +716,24 @@ class EveryGame(unittest.TestCase):
         struct.pack_into("<i", data, vv5.SPEED, 10)
         text = text_of(self.page("vv5-huttest-1", data=bytes(data)))
         self.assertIn("Noni bushes: 640 of 1,000; a pick gives 6 food now", text)
-        self.assertIn("Noni: +2 every 10 minutes on Slow speed", text)
+        self.assertIn("Noni: +2 every 10 minutes of real-life time on Slow speed", text)
         self.assertNotIn("Stinging Wasps", text)            # never happens in New Believers
+
+    def test_vv5_divine_energy_cap_collectibles(self) -> None:
+        """The cap's first-set term, pinned to the stock exe (0x4250A4): below 24 pieces 3 x the count, at 24 a flat
+        90 -- so the page says 69 with 23 and +90 for all 24, never "+3 each" adding to 90."""
+        exe = next((p for p in (ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe",
+                                ROOT / "inputs" / "vv5-stock-copy" / "Virtual Villagers - New Believers.exe")
+                    if p.is_file()), None)
+        if exe is not None:
+            code = exe.read_bytes()[151716:151716 + 16]          # file offset of 0x4250A4
+            # cmp eax,24; jl +5; add esi,90; jmp +6; lea ecx,[eax+esi]; lea esi,[ecx+eax*2]
+            self.assertEqual(code.hex(), "83f8187c0583c65aeb068d0c308d3441")
+        for facts in (gm.general(5), self.page("vv5-huttest-1")):
+            text = text_of(facts)
+            self.assertIn("+3 for each piece of the first collectible set owned while it is incomplete (69 with 23 "
+                          "pieces), then a flat +90 once all 24 are owned", text)
+            self.assertNotIn("90 for all 24", text)
 
     def test_not_a_save(self) -> None:
         for name in ("vv1-huttest-1", "vv2-huttest-1", "vv4-huttest-1", "vv5-huttest-1"):

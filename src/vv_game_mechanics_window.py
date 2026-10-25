@@ -46,7 +46,9 @@ INTRO = ("For the curious: the hidden rules of each game -- its food sources, re
 WIDTH, HEIGHT = 900, 720
 LABEL_RED = "#b00020"
 MIN_WIDTH, MIN_HEIGHT = 600, 600
-LINKS_PER_ROW = 5
+# 4, not 5: a New Believers save's 24 group links need 607 pixels in 5 columns, more than the 556 the window has at
+# its smallest, so 7 of them were cut (the audit of 2026-10-25); in 4 columns they need 512.
+LINKS_PER_ROW = 4
 TICK_MS = 1000                  # the one timer: every countdown, and Auto-refresh
 AUTO_REFRESH_SECONDS = 30
 AUTO_REFRESH = "Auto-refresh every 30 seconds"
