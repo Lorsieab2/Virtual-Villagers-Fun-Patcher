@@ -249,8 +249,10 @@ def _vv5(village: gm.Village, medicine: int | None, speed_value: int, base: int)
     # Patches
     soul = "vv5_devoted_soul_epitaph"
     if village.has(soul) is not False:
+        # (The patch's own epitaph is named through the patch, never as a quoted text: no code here holds an
+        # epitaph's words to check a grave by -- tests/test_vv5_devoted_soul_epitaph.py.)
         add("A Devotee's epitaph: normally always \"Respected Citizen\". "
-            + gm.patch_words(village, soul, "\"Respected Citizen\" or \"Charitable Soul\", 50% each"))
+            + gm.patch_words(village, soul, "\"Respected Citizen\" or the patch's own Charitable Soul, 50% each"))
     isola = "vv5_guardians_of_isola_rewrite"
     if village.has(isola) is not False:
         add(gm.patch_words(village, isola, "\"Respected Citizen\" reads \"Respected Devotee\" and \"Retired Chief\" "
