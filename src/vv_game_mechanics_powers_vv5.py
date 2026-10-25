@@ -103,7 +103,9 @@ EFFECTS = (
         "credit 0x470040 doubles the warp's 10). In practice the target gains 6, 3 or 2 age units each real-life "
         "minute on Fast, Normal or Slow (instead of 1 unit every 3, 6 or 10 minutes): about 30, 15 or 10 units in "
         "all (1.5, 0.75 or 0.5 years).",
-     ("While the game is paused nobody ages, so the warp's paused minutes are lost; Heathens and the dead never age "
+     ("While warped, the target's movement and actions also run 10 steps for every update of the village "
+      "(0x471EF9), so they walk and work 10 times as fast.",
+      "While the game is paused nobody ages, so the warp's paused minutes are lost; Heathens and the dead never age "
       "(0x470077, 0x46FF63). The warp is not saved: quitting ends it (0x465207).",)),
     (8, "brings a dead villager (0 health or less) back with 100 health; after 4 real-life seconds they rise "
         "(0x41FF93, 0x420080). The game checks only that the target is dead: \"This villager is still full of life.\" "
