@@ -149,6 +149,7 @@ HIDDEN_LINES = (
     # so it also runs out while the game is closed, as the save's deadline shows.
     ('The campfire goes out when its timer runs out; rain and the weather do not affect it. Four trips of water '
      'for the Ash Key put a lit fire out.', gm.OWNER),
+    (gm.FIRE_CLOSED, gm.OWNER),
     ('The Ash Key: no timer and no chance. The fire must have burned 61 hours on Normal in all (30.5 on Fast, '
      '101.7 on Slow): a burnout counts its whole burn, wood added counts the time burned so far, water counts '
      'nothing, paused time nothing. Then 12 trips of water (the 4th puts a lit fire out; while it burns, 10 '

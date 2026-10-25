@@ -116,6 +116,7 @@ HIDDEN_LINES = (
      '(75% with the Fire Pit burning, every one at Medicine 3 or on Easy), a fifth of that for the elderly.', gm.RUNNING),
     ('The Fire Pit burns 10, 20 or 33 hours 20 minutes on Fast, Normal or Slow; a drop on the lit pit fills it '
      'again; while it burns each research job gives 1 more tech point 10% of the time.', False),
+    (gm.FIRE_CLOSED, gm.OWNER),
 )
 
 # Chance and timers (the coordinator's spec mech_vv4\\spec.md, "Chance and timers (v2.2)"):

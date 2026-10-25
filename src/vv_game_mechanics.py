@@ -181,6 +181,10 @@ def every(game_seconds: float, speed_value: int) -> str:
 
 
 PAUSED_NOTE = "The game was saved paused: nothing refills or grows until it is unpaused."
+# The owner (2026-10-24), The Lost Children to New Believers: the fire burns down while the game is closed when the
+# save was left unpaused, and not when it was saved paused.
+FIRE_CLOSED = ("While the game is closed the fire keeps burning down if the save was left unpaused; saved paused, "
+               "it does not burn down until the game is unpaused.")
 
 
 # ---------------------------------------------------------------------------

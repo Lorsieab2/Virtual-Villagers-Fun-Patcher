@@ -317,6 +317,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                   else "is out"))
                   + f"; a lit fire burns {gm.duration(FIRE_HOURS[speed] * 3600)} on {on} speed, and fuel on a burning "
                     "fire fills it again."), gm.RUNNING)
+    add("Other", gm.FIRE_CLOSED, gm.OWNER)
     add("Other", f"A stew is ready 15 minutes after it starts. An unburied body is gone after "
                  f"{gm.duration(240 * 60 * speed)} on {on} speed.", gm.RUNNING)
     for line, ok in HIDDEN_LINES:
