@@ -83,8 +83,8 @@ EFFECTS = (
      ("On the field: with the Hydroponic Farm built, the crops are filled to 800 at once and the crop timer starts "
       "again from then (0x439EA0); without it the game says \"The field is hopeless with the aqueduct in this "
       "condition.\" and nothing is spent.",
-      "On the noni bushes: +1 noni every update of the village for 100 to 199 updates (+100 to +199 noni in about 3 "
-      "to 7 real-life seconds) (0x420E5B); above 1,000 it is cut back at the next +2 growth.",
+      "On the noni bushes: +1 noni every update of the village for 100 to 199 updates, +100 to +199 noni in all "
+      "(0x420E5B); above 1,000 it is cut back at the next +2 growth.",
       "Anywhere else (not the food bin's area, where it is refused, 0x422F69): 17 to 22 plants grow within 104 "
       "pixels, as the ground allows (0x420C18). While 10 to 12 mushroom places are left, each plant is a mushroom "
       "half the time (a brown or a red one, equally likely), otherwise a flower; a grown mushroom is a normal one "
@@ -117,8 +117,8 @@ EFFECTS = (
       "room in your village to revive this person.\" (the patcher's safety fix at 0x2341A).",
       "On the dry lake bed while The Lake is unsolved, no target is needed: with no progress yet The Lake gets 1 of "
       "its 2 points (0x4233DD); once it has progress, a Revive there gives none.")),
-    (9, "makes a living believer of 14 or more 5 years old (age 100 age units), counting down 3 age units every update "
-        "of the village (a few real-life seconds) (0x41FDC0). Refused, nothing spent: under 14 \"This villager is "
+    (9, "makes a living believer of 14 or more 5 years old (age 100 age units), counting the age down by 3 age units "
+        "at every update of the village until it gets there (0x41FDC0, 0x41FDDC). Refused, nothing spent: under 14 \"This villager is "
         "already full of youth.\", a Heathen \"You cannot grant youth to heathens.\", the dead \"You cannot grant "
         "youth to corpses.\" (0x42330D).",
      ("A pregnant villager stays pregnant, but the time she had already carried is counted backwards, so the birth "

@@ -30,6 +30,11 @@ def _conceive(parenting: int, medicine: int) -> str:
     return chance(sum(1 for v in range(DRAWS) if v % 300 + 50 - 50 * medicine <= parenting))
 
 
+# New Believers has no Golden Child, and its arrivals are island events' (the shared note says otherwise).
+NOTES = {BIRTHS: ("Births: how many babies a pregnancy brings and whether each is a boy or a girl, exactly from the "
+                  "game's own code. Villagers who arrive instead (Barrel O' Babies!, Chutes Without Ladders, News From "
+                  "Another Tribe) are under Island events.")}
+
 _MULTI = below(100, 7)                     # a multiple birth at Medicine 3 (0x465EE3)
 _TRIPLE = below(100, 25)                   # of those, triplets (0x465F03)
 _TWINS = times(_MULTI, _not(_TRIPLE))

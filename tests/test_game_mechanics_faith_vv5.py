@@ -25,7 +25,7 @@ class Faith(unittest.TestCase):
         page = " ".join(f.text for f in facts).lower()
         self.assertNotIn("belief", page)                    # the game's word is Faith (the owner)
         text = " ".join(f.text for f in faith.lines(village(frozenset())))
-        for words in ("37.03%", "A believer who is sick: -1 15.01%", "30 to 59", "set to 55", "70.06%"):
+        for words in ("37.03%", "A sick believer loses 1 more 15.01% of the time", "30 to 59", "set to 55", "70.06%"):
             self.assertIn(words, text)
 
     def test_heathen_mommy_only_with_its_patch(self) -> None:
