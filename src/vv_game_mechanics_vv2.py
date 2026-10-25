@@ -314,22 +314,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                        "the time; at 150 food or less half the time, and a skipped meal costs 1 health 30% of the "
                        "time.", gm.RUNNING)
 
-    # -- Time away and Time Warp ---------------------------------------------------------
-    out.extend(gm.time_away(village, real(LAST_TICK), speed_value,
-                            "Saved paused: nobody ages while it is closed; the regrowth, the fire and the next "
-                            "island event are pushed back by the paused time, the Gong's rest is not.",
-                            unit_seconds=20 * 60 * speed))
-    add(gm.TIME_AWAY, "While catching up a trip brings 4 coconuts, 7 crops or 8 fish at every speed, "
-                                   "research ÷ 7, ÷ 6 or ÷ 4, building 1 a try.", gm.RUNNING)
-    add(gm.TIME_AWAY, "Counted years are worked off at one age unit every 2 seconds of play; mushrooms "
-                                   "and collectibles do not pile up; a due island event happens once.")
-    add(gm.TIME_AWAY, "A stew cooking when the game is closed is lost: the save does not keep it.",
-        gm.SAVE)
-    add(gm.TIME_AWAY, "Every regrowth missed while the game was closed is added when it is next played, "
-                                   "with no limit on how many: coconuts stop at 1,500, crops at 800.", gm.RUNNING)
-    out.append(gm.time_warp_line(speed_value))
-    add(gm.TIME_AWAY, "A Time Warp also brings the regrowth, the fire, the next island event and the "
-                                   "Gong 10 hours (Slow) or 12 hours (Normal, Fast) sooner.")
+    # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events -------------------------------------------------------------------
     add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
