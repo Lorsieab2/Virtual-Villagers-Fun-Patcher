@@ -37,19 +37,10 @@ STORY = "vv5_story_cheat_upgrades"
 GOLDEN = "vv5_super_secret_golden_mushroom"
 LEARNING = "vv5_learning_never_fails"
 
-LIFE_LINES = (
-    ("Sickness each age unit: 0.28%, 0.16% or 0.06% at Medicine 1, 2 or 3, 1.5% more from 50, 58 or 66 years; on "
-     "Easy a quarter of that.", gm.RUNNING),
-    ("A believer who is not sick regains 1 health half the age units, 75% while the fire burns, every one at "
-     "Medicine 3 or on Easy; old villagers a fifth of that. At 500 food or less a believer loses 1 health 15% of "
-     "age units.", gm.RUNNING),
-    ("Faith: how it rises and falls, and Heathens, are in the Faith and Heathens group.", gm.RUNNING),
-    ("Conception after an embrace: (Breeding - 50 + 50 x Medicine level + 1) in 300 (17%, 33% or 50% at Breeding "
-     "50); the village's first is certain; a mother of 50 or more never conceives. At Medicine 3: 93% single, "
-     "5.3% twins, 1.8% triplets.", gm.RUNNING),
-    ("A job succeeds at skill + 33 out of 100 (+ 66 if they like learning, + 16 if they dislike it), + 15 or + 30 "
-     "at Learning level 2 or 3.", gm.RUNNING),
-)
+# The audit of 2026-10-25 removed the Other group's sickness, health, conception and skill-check lines: each repeated
+# the exact one under Chances or Births and gender (and the sickness line had Medicine 2 as 0.16%, the code's
+# 2460-roll gives 0.171%, 0x465FB6).  The Faith pointer went too: the group is on the page under its own heading.
+LIFE_LINES: tuple[tuple[str, object], ...] = ()
 
 
 # Hidden villager stats (the coordinator's specs hidden_vv5\spec.md and likes_all, 2026-10-23):
@@ -57,12 +48,11 @@ LIFE_LINES = (
 HIDDEN_LINES = (
     ("Each villager's hidden name number (1 to 183, not inherited; a name always has the same one) sets how it "
      "starves; the villagers' numbers are below.", gm.RUNNING),
-    ("Preaching to a heathen: the preacher's Devotion check (35% at Devotion 0, 83% at 50, sure at 88) gives "
-     'the heathen 3 Faith, 4 at Devotion 50, 5 at 88; then that heathen cannot be preached to for 2 hours '
-     '(the 800-energy God Power sets the same wait).', gm.RUNNING),
-    ('Liking learning makes a skill check succeed at skill + 66% instead of + 33% (+ 15 or + 30 at Learning 2 '
-     'or 3); disliking it, + 16%. A success gains (70 - skill) ÷ 18 (Parenting ÷ 10, Healing ÷ 12), at least 7 '
-     'at skill 0, doubled when liked and halved when disliked.', gm.RUNNING),
+    # Preaching is under Faith and Heathens; the skill check's odds (with the like and dislike of learning) under
+    # Chances.  The gain: (70 - skill) ÷ 18 at 0x46B3EE, 7 at skill 0 (0x46B40E), halved or doubled 0x46B41C.
+    ('Learning: a skill check that succeeds gains (70 - skill) ÷ 18 skill points (Parenting ÷ 10, Healing ÷ 12), '
+     '7 at skill 0, then doubled for a villager who likes learning and halved for one who dislikes it; how often '
+     'the check succeeds, liked or disliked, is under Chances.', gm.RUNNING),
     ('Parenting: a failed check gives 4 at any Parenting except 0, where the other skills give 4 only at 0 (at '
      "Parenting 10: 55% fail for +4, 45% succeed for +6). This is the stock game's own behaviour.", gm.RUNNING),
     ('Liking work skips the 15% chance of doing nothing and keeps a player-given task 99% of the time (86% '
@@ -88,30 +78,37 @@ HIDDEN_LINES = (
      'disliked: never joins village celebrations.', gm.RUNNING),
     ('Heathen adults choose what to do without their likes; heathen children follow the children\'s ways.',
      gm.RUNNING),
-    ('Plants and lifting, and the other 53 likes and dislikes: no effect has been found in the running game.',
-     False),
-    ('Sick: -1 health on 61% of age units, 19% at 20 health or less. Health comes back on half the age units, '
-     '75% while the fire burns, every one at Medicine 3 or on Easy; old villagers a fifth of that. With food '
-     'at 500 or less, -1 health 15% of age units.', gm.RUNNING),
-    ('The fire (the 100-energy God Power on a built fire pit) burns 10, 20 or 33 hours 20 minutes on Fast, '
-     'Normal or Slow, stops while paused and is rescaled when the speed changes; while it burns a research '
-     'success gives 1 more tech point 10% of the time.', gm.RUNNING),
-    # The owner (2026-10-24); the Cold Snap's apply 0x414E20 sets weather 4, then 0x438E30 ends the fire.
-    (gm.FIRE_OUT + " The Cold Snap island event (it needs the fire burning) puts it out.", gm.OWNER),
-    (gm.FIRE_CLOSED, gm.OWNER),
+    # Unproven, not wrong: the 24 likes above are every read of the like and dislike lists traced for this page.
+    ('The other 55 of the game\'s 79 likes and dislikes (Plants and Lifting among them): no code that reads them '
+     'was found, so they are thought to change nothing; not proven, as not every read of a villager\'s likes and '
+     'dislikes in the game was traced.', False),
+    # The sickness and health line that stood here repeated Chances and Death and graves word for word.
 )
+# The fire (the Other group): its length and lighting are the Lightning Strike's (God powers, 0x439090); the
+# research bonus 0x46DE7C-0x46DEA0 (rand(100) < 10 while 0x438EC0 says it burns); the Cold Snap's apply 0x414E20 sets
+# weather 4, then 0x438E30 ends the fire; the owner (2026-10-24) for the rest.
+FIRE_LINES = (
+    ('The fire: lit on the built fire pit by the Lightning Strike God Power, it burns 10, 20 or 33 hours 20 '
+     'minutes of real-life play on Fast, Normal or Slow (see God powers). While it burns, health comes back more '
+     'often (see Chances) and a research success gives 1 more tech point 10.01% of the time.', gm.RUNNING),
+    (gm.FIRE_OUT + " The Cold Snap island event (it needs the fire burning) puts it out. How it burns down while "
+     "the game is closed is under Time away (catch-up).", gm.OWNER),
+)
+# The audit of 2026-10-25: "104 rolls are verified" was a count nobody could check, Spreading the Word's line
+# contradicted the exact one under Faith and Heathens (0x46D2A8: +30 to one listener, not "a random heathen"), and
+# the God Power spell timers repeated God powers (the game calls Revive "Revive", not "Reanimate").
 CHANCE_EXTRA = (
-    ('104 rolls are verified: every one in the groups above.', gm.RUNNING),
-    ('About 2,250 more rolls (where villagers walk, how long they wait or animate, sounds and voices, pickers, '
-     'God Power side effects, child and leisure choices): not individually worked out.', False),
-    ('Spreading the Word gives a random heathen 30 Faith and marks them for 2 hours; the Earthquake marks '
-     'every heathen the same way.', False),
-    ('Timers: an age unit 3, 6 or 10 minutes; noni +2 at the same pace; crops every 2 hours, 4 hours or 6 '
-     'hours 40 minutes; the next island event 15 minutes, then 30 minutes, then 8 to 15 hours; weather 1.5 to '
-     "3, 3 to 6 or 5 to 10 minutes; each villager's catch-up stamp.", gm.RUNNING),
-    ('God Power spells run on their own clock that ignores pausing: Fog of Doom 2 minutes, Time Warp 5 '
-     "minutes, Reanimate 4 seconds, the Earthquake's drop after 10 seconds; an item lies 1 minute 30 seconds; "
-     'puzzle and on-screen timers of 5 seconds to 2 minutes.', False),
+    # 2,368 calls and jumps to rand 0x403660 in the stock exe's code section, counted 2026-10-25.
+    ('The game asks its random-number routine (0x403660) from 2,368 places in its code. The rolls on this page '
+     'are the ones that decide food, health, sickness, Faith, births, deaths, skills, island events, collectibles '
+     'and God Powers; the others (where villagers walk, how long they wait or animate, which sound or voice plays, '
+     'which child or leisure action is picked) were not traced one by one, so it is not proven that none of them '
+     'changes a figure on this page.', False),
+    ('Timers, in real-life time on Fast, Normal or Slow speed: an age unit 3, 6 or 10 minutes (noni +2 at each); '
+     'a crop refill every 2 hours, 4 hours or 6 hours 40 minutes; weather 1.5 to 3, 3 to 6 or 5 to 10 minutes. '
+     'At any speed: the first island event 15 minutes after a village is made, the next 30 minutes later while '
+     'none has been seen, then 8 to 15 whole hours after the last; God Power spells as under God powers.',
+     gm.RUNNING),
 )
 
 
@@ -149,33 +146,53 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Food sources --------------------------------------------------------------------
     add("Food sources", f"Food in storage: {_i32(data, FOOD):,}.", gm.SAVE)
     noni = _i32(data, NONI)
+    # The pick is job step 12 (0x46CFCD): max(2, noni ÷ 100) into storage through 0x41EB40, as many noni taken.
     add("Food sources", f"Noni bushes: {noni:,} of {NONI_CAP:,}; a pick gives {max(2, noni // 100)} food now (the noni "
-                        f"÷ 100, at least 2), and takes as many noni.", gm.RUNNING)
-    add("Food sources", f"A noni gathering would bring {min(noni, 30)} (up to 30); nothing in the game was found to start "
-                        "one.")
-    add("Food sources", "Noni can be picked once the granary is built.")
+                        f"÷ 100, at least 2, before Food Mastery), and takes as many noni. Noni can be picked once the "
+                        "granary is built (while catching up, also only once The Hungry Totem is solved: see Time away "
+                        "(catch-up)).", gm.RUNNING)
+    # Job step 13 (0x46D057) takes min(noni, 30) at once; no job or event that queues it was found.
+    add("Food sources", f"The job code also has a noni gathering that would bring {min(noni, 30)} at once (the noni, "
+                        "up to 30; step 13 at 0x46D057), but no job or event that uses it was found, so whether it can "
+                        "ever happen is not proven.")
     crops = _i32(data, CROPS)
     harvest = {gm.FAST: 10, gm.NORMAL: 7, gm.SLOW: 4}[speed]
     add("Food sources", f"Hydroponic Farm crops: {crops:,} of {CROPS_FULL}; a harvest gives {harvest} food on {on} speed "
-                        "(7 while catching up) and takes as many crops. Fishing at the lake: 4 food a fish.", gm.RUNNING)
+                        "(10, 7 or 4 on Fast, Normal or Slow; 7 while catching up), before Food Mastery, and takes as "
+                        "many crops. Fishing at the lake: 4 food a fish, before Food Mastery.", gm.RUNNING)
+    if village.general:      # the lines above carry a save's amounts, which the general page leaves out
+        add("Food sources", "A noni pick gives the noni ÷ 100 food (at least 2) and takes as many noni; noni can be "
+                            "picked once the granary is built (while catching up, also only once The Hungry Totem is "
+                            "solved). A Hydroponic Farm harvest gives 10, 7 or 4 food on Fast, Normal or Slow (7 while "
+                            "catching up) and takes as many crops; fishing at the lake gives 4 food a fish; all before "
+                            "Food Mastery.", gm.RUNNING)
+        add("Refills", f"Noni: +2 every age unit ({life.every_real(UNIT, speed_value)}), up to {NONI_CAP:,} (empty to "
+                       f"full in {gm.duration(NONI_CAP // 2 * 60 * speed)} of real-life time).", gm.RUNNING)
     add("Food sources", "Food Mastery raises every food gain by half (level 2) or doubles it (level 3).", gm.RUNNING)
 
     # -- Refills -------------------------------------------------------------------------
     if paused:
         add("Refills", gm.PAUSED_NOTE, gm.RUNNING)
-    add("Refills", f"Noni: +2 {gm.every(UNIT, speed_value)}, up to {NONI_CAP:,} (empty to full in "
-                   f"{gm.duration(NONI_CAP // 2 * 60 * speed)}); next {due(NONI_NEXT)}.", gm.RUNNING)
+    add("Refills", f"Noni: +2 {life.every_real(UNIT, speed_value)}, up to {NONI_CAP:,} (empty to full in "
+                   f"{gm.duration(NONI_CAP // 2 * 60 * speed)} of real-life time); next {due(NONI_NEXT)}.", gm.RUNNING)
     crop_next = "" if not paused and real(CROPS_NEXT) <= village.now else f"; next {due(CROPS_NEXT)}"
-    add("Refills", f"Crops: refilled to {CROPS_FULL} {gm.every(CROP_UNITS * UNIT, speed_value)} once the Hydroponic "
-                   f"Farm is built{crop_next}.", gm.RUNNING)
-    add("Refills", "The Hydroponic Farm is " + ("built." if farm else "not built yet."))
+    add("Refills", f"Crops: refilled to {CROPS_FULL} {life.every_real(CROP_UNITS * UNIT, speed_value)} (only with the "
+                   f"Hydroponic Farm built){crop_next}.", gm.RUNNING)
+    add("Refills", "The Hydroponic Farm is " + ("built." if farm else "not built yet."), gm.SAVE)
 
     # -- Mushrooms / Collectibles --------------------------------------------------------
-    add("Mushrooms", "Each update of the village, something appears with a chance of 18 in 32,768, twice in some "
-                     "weather; none while paused or closed. 30% are mushrooms (all of them in the rain): brown 92% "
-                     "worth 6 food, red (rare) 8% worth 35, counted when they reach the food bin. Unpicked, a thing is gone "
-                     "after 1 minute 30 seconds.", gm.RUNNING)
-    add("Mushrooms", "That is about one thing a minute, at any speed.")
+    # The spawn 0x414622-0x414684: none while paused; rand(6000) < 3 (18 in 32,768), < 6 in fog (weather 4,
+    # 0x414633), and a second rand(6000) < 3 while the weather level 0x718EB8 is above 50.  What appears
+    # 0x41422C-0x4142CE: a mushroom 30.03% (rand(100) < 30), always while it rains (0x477040) or the weather level
+    # is above 20; red 8% (rand(100) < 8), else brown.
+    add("Mushrooms", "Each update of the village (none while paused or closed) something appears with a chance of 18 "
+                     "in 32,768; in fog 36 in 32,768, and while the weather level is above 50 a second roll of 18 in "
+                     "32,768 comes on top. 30% of what appears are mushrooms, and all of it while it rains or the "
+                     "weather level is above 20: brown 92% worth 6 food, red (rare) 8% worth 35 (before Food Mastery), "
+                     "counted when they reach the food bin. Unpicked, a thing is gone after 1 minute 30 seconds of "
+                     "real-life time.", gm.RUNNING)
+    add("Mushrooms", "That is about one thing a real-life minute at any speed if the village updates about 30 times a "
+                     "real-life second; the update rate was not read from the code, so this is an estimate.")
     if village.has(GOLDEN):
         out.extend(gm.golden_lines(GOLDEN, 18.0, speed_value, "about one thing a real-life minute at every speed, 30% "
                                    "of them mushrooms in fair weather"))
@@ -184,33 +201,40 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "appear; a second set of 24 only once the Knowing Totem is built (then half from each). A "
                         "piece already found gives +10, 50 or 150 Divine Energy from the first set, +100, 250 or "
                         "1,500 tech points from the second.", gm.RUNNING)
-    add("Collectibles", "The Earthquake God Power drops one collectible 10 real-life seconds after it is cast: 72% "
-                        "uncommon, 28% rare (see God powers).", gm.RUNNING)
-    add("Collectibles", "The Earthquake also raises every villager's Faith by 2 to 8.")
+    add("Collectibles", "The Earthquake God Power also drops one (see God powers).", gm.RUNNING)
 
     # -- Tech points and Divine Energy ---------------------------------------------------
     add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
+    # Research, job step 19 (0x46DB7B): the divisors 0x46DCDF-0x46DE09, the speed factor 0x41ED20; then
+    # rand(owned ÷ 2) more, where owned counts the second set's pieces (ids 0x50-0x67, 0x413F50 at 0x46DE5A), and
+    # the fire's +1 (0x46DE7C).  The injury 0x46DC67 is in the same step, after the skill check succeeded.
     add("Tech points and effects", (
-        f"Research gives the researcher's skill ÷ 11, ÷ 9 or ÷ 7 at Science 1, 2 or 3, "
+        f"Research gives the researcher's Research skill ÷ 11, ÷ 9 or ÷ 7 at Science 1, 2 or 3, "
         f"{'twice that' if speed == gm.FAST else ('0.6 of that' if speed == gm.SLOW else 'as it is')} on {on} "
-        "speed, plus up to half the lab's items and, while the fire burns, 1 more 10% of the time; while catching "
-        "up ÷ 7, ÷ 7 or ÷ 5. In play 2% of tries injure (0 to 9 health)."), gm.RUNNING)
-    add("Tech points and effects", "While catching up, nobody researches before the Knowing Totem is built, and "
-                                   "nobody picks noni before the Hungry Totem.")
-    if village.has(LEARNING) is not False:
-        add("Tech points and effects", gm.patch_words(village, LEARNING, "learning never fails"))
+        "speed (twice on Fast, 0.6 of it on Slow), plus 0 to (half the pieces of the second collectible set owned, "
+        "less 1) more, each equally likely (0 to 11 with all 24), and, while the fire burns, 1 more 10.01% of the "
+        "time; while catching up ÷ 7, ÷ 7 or ÷ 5 at any speed (see Time away (catch-up)). 2% of successful "
+        "research sessions also cost the researcher 0 to 9 health (see Death and graves)."), gm.RUNNING)
+    # The cap 0x425020-0x4250D0: 5 x (0x4713F0: living believers + the babies they carry + 2); +50 at the statue's
+    # stage 1 or more and +50 more at 2 (0x51D950); +100 once The Tribute Statue (puzzle 14) is solved; +50 at
+    # Spirituality 2 and +50 more at 3; +3 a first-set piece owned (ids 0x68-0x7F), 90 for all 24; at most 1,000.
+    # Honoring, job step (0x46D88F-0x46D8D7): +3, +4 more at Devotion 50 or more, +5 more at 88 or more.
     add("Tech points and effects", (
-        f"Divine Energy: {_i32(data, ENERGY):,} of {_i32(data, ENERGY_CAP):,}. Each believer adds 1 "
-        f"{gm.every(UNIT, speed_value)}, 4 at Devotion 50 or more, 9 at 88 or more (1 more at 8,000 food on Medium, "
-        "or on Hard). Honoring adds 3, 7 or 12 on three Honorings in four, and on the fourth only if the Devotion "
-        "check succeeds. The cap is 5 x (believers + 2), more with the statue, the Idol, "
-        "Spirituality and the first set's pieces, at most 1,000."), gm.RUNNING)
+        f"Divine Energy: {_i32(data, ENERGY):,} of {_i32(data, ENERGY_CAP):,}."), gm.SAVE)
+    add("Tech points and effects", (      # its own line: the general page drops the amounts line above
+        f"Divine Energy: each believer adds 1 every age unit ({life.every_real(UNIT, speed_value)}), 4 at Devotion 50 or more, 9 at 88 or more (1 more at 8,000 food on Medium, "
+        "or on Hard). Honoring adds 3, 7 at Devotion 50 or more, or 12 at 88 or more, on three Honorings in four, "
+        "and on the fourth only if the Devotion check succeeds. The cap is 5 x (believers + the babies they carry + "
+        "2), +50 once the Tribute Statue reaches its first stage and +50 more at its second, +100 once The Tribute "
+        "Statue is solved, +50 at Spirituality 2 and +50 more at 3, and +3 for each piece of the first collectible "
+        "set owned (90 for all 24), at most 1,000."), gm.RUNNING)
     out.extend(powers.lines(village))
 
     # -- Food earned ---------------------------------------------------------------------
-    add("Food earned", f"Each believer eats 2 food every {unit} on {on} speed ({2 * 3600 / (60 * speed):g} an hour); at "
-                       "500 food or less only half the time; on Medium at 8,000 food or more, or on Hard, 2 more 76% "
-                       "of the time; never on Easy. Heathens skip it.", gm.RUNNING)
+    add("Food earned", f"Each believer eats 2 food every age unit ({unit} of real-life time on {on} speed, "
+                       f"{2 * 3600 / (60 * speed):g} a real-life hour); how often they eat less at 500 food or less, or 2 more on "
+                       "Medium at 8,000 food or more and on Hard, is under Chances. Heathens never eat; a nursing "
+                       "mother eats as one believer and her babies nothing.", gm.RUNNING)
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
@@ -227,9 +251,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     for line, ok in LIFE_LINES:
         add("Other", line, ok)
     out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "Heathens do not age."))
-    add("Other", f"An age unit is {unit} and a year {gm.duration(20 * 60 * speed)} on {on} speed: ages, pregnancies, "
-                 "noni, crops, weather and the fire follow the speed; mushrooms, collectibles and island events do "
-                 "not.", gm.RUNNING)
+    if village.general:      # a save's page says it under Vital statistics ("Time and units")
+        add("Other", f"Time and units: an age unit is {unit} of real-life time and a villager year (20 age units) "
+                     f"{gm.duration(20 * 60 * speed)} on {on} speed (an age unit is 3, 6 or 10 real-life minutes on "
+                     "Fast, Normal or Slow).", gm.RUNNING)
+    add("Other", "Ages, pregnancies, noni, crops, weather and the fire follow the speed; mushrooms and collectibles "
+                 "appearing, island events, God Power spells and a Heathen's 2-hour wait after preaching run on "
+                 "real-life time at any speed.", gm.RUNNING)
+    for line, ok in FIRE_LINES:
+        add("Other", line, ok)
     clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
     out.append(gm.started_line(clock.created))
     names = dict(PUZZLE_NAMES)
@@ -263,9 +293,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                              else "the Hydroponic Farm is not built yet", verified=gm.SAVE,
                              step=CROPS_FULL if farm else 0, interval=gm.real_seconds(CROP_UNITS * UNIT, speed_value),
                              next_at=real(CROPS_NEXT), first_in=life.resumed(max(0, _i32(data, CROPS_NEXT) - _i32(data, LAST_TICK)), speed_value), rule=gm.RUNNING),
+                 # The fish step 0x46D790 adds 4 food (0x41EB40) and reads or takes nothing: no store to run out.
                  life.Source("Fishing at the lake", None, unlimited=True,
-                             refill_words="no store of its own is read here: it brings what the gatherers fetch",
-                             verified=False)],
+                             refill_words="it has no store: every fish brings 4 food (before Food Mastery) and "
+                                          "nothing runs out",
+                             verified=gm.CODE)],
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 7 at Science 1 to 3).",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0,
         mastery=2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0), golden=village.has(GOLDEN) is True,
@@ -274,18 +306,16 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         event_next=event_at,
         event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,
         event_rule="It comes 8 to 15 whole real-life hours after the last (15 real-life minutes, then 30, in a new "
-                   "village), each equally "
-                   "likely, at any speed; then every event whose conditions hold is equally likely.",
-        event_running="Paused time does not count; with the game closed it runs on, and after time away the due "
-                      "event happens once.",
+                   "village), each equally likely, at any speed; paused time and time away: see Island events.",
+        event_running="",                      # said, verified, by the Island events group's Timing line
         medicine=level[MEDICINE_LEVEL], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
         parents_from=18, sick_loss=(0.61, 0.19),
         collectibles=life.collectible_lines(village, "10, 50 or 150 Divine Energy (the first set) or 100, 250 or "
                                                      "1,500 tech points (the second)")[0],
         limit=life.limit_words(village, None, "up to 15 for collections"),
         puzzles=puzzles,
-        food_words="2 food a believer every age unit (Heathens skip it); at 500 or less only half the time; on "
-                   "Medium at 8,000 or more, or on Hard, 2 more 76% of the time; never more on Easy.",
+        food_words="2 food a believer every age unit (Heathens skip it), less at 500 or less and 2 more 76% of the "
+                   "time on Medium at 8,000 or more and on Hard (the exact odds: Chances).",
         trips=[("noni picks", max(2, noni // 100)), ("crop harvests", harvest if farm else 0), ("fish", 4)])
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))

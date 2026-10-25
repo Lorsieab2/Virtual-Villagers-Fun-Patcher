@@ -153,6 +153,13 @@ def _later(game: int) -> list[gm.Fact]:
             "20, 21, 28 or 29 and the bodies 0, 1, 2, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14 or 15; a woman one of the "
             "heads 1, 4, 8, 17, 18, 19, 26, 27, 28 or 29 and the bodies 10, 12, 15, 16, 18, 19, 22, 23 or 29, each "
             "equally likely."), gm.RUNNING))
+    elif game == 5:
+        # The abandoned-infants event (vtable 0x497CEC): its result 0x4155E0 gives up to 6 women babies by Joey
+        # through 0x471A50 (0x471B5C), but its condition, vtable [1] 0x415B10, is `xor al, al; ret`: never drawn.
+        out.append(f(GENETICS, (
+            "The game's default father Joey (head 2, body 2) is written only by the abandoned-infants island event "
+            "(0x4155E0 through 0x471A50), and that event's condition is always false (0x415B10), so in New Believers "
+            "no baby ever has Joey as its father."), gm.RUNNING))
     elif game in (4, 5):
         out.append(f(GENETICS, (
             "One island event makes a woman expecting by the game's default father Joey, who has head 2 and body 2 "
@@ -164,7 +171,7 @@ def _later(game: int) -> list[gm.Fact]:
     # VV5 0x4D38A8); every conception copies a partner record's head and body onto the mother (VV5 0x467DBE,
     # 0x46E16B, 0x46E19B; VV4 0x460A2E, 0x4650EB, 0x46511B) apart from the default fathers ("?" in VV2, Joey in VV4
     # and VV5).  See docs/known-behaviours-and-non-bugs.md, the default fathers.
-    default = {2: "The Gong of Wonder's \"?\" (head 0)", 3: "", 4: "Joey (head 2)", 5: "Joey (head 2)"}[game]
+    default = {2: "The Gong of Wonder's \"?\" (head 0)", 3: "", 4: "Joey (head 2)", 5: ""}[game]   # VV5: never (above)
     out.append(f(GENETICS, (
         "A father shown as \"Unknown\" is not one the game itself names: none of the four games passes \"Unknown\" "
         "as a father; the patcher shows it where the game kept no father's name. The baby's head was still worked "

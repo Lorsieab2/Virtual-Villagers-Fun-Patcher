@@ -434,7 +434,10 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
         if med in ctx.old_age_from:
             start = ctx.old_age_from[med]
             rolling = [p for p in people_ if p.processed >= start * YEAR]
-            words = (f"Old-age rolls start at {start} villager years (Medicine level {med}; ages below in villager years): "
+            # A roll's chance is 10% a year past `start`, so the first that can kill is at start + 1 (as Death and
+            # graves says it).
+            words = (f"Old-age rolls come at each birthday past {start} villager years, the first (10%) at {start + 1} "
+                     f"(Medicine level {med}; ages below in villager years): "
                      + (", ".join(f"{p.name} ({p.years})" for p in sorted(rolling, key=lambda q: -q.age))
                         + " roll each year" if rolling else "nobody is that old yet") + ".")
             add(words, gm.SAVE if not rolling else gm.RUNNING)
@@ -450,7 +453,8 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
         start = ctx.elderly_from[ctx.medicine]
         elders = [p for p in people_ if p.age >= start * YEAR]
         add(f"Elderly from {start} villager years (Medicine level {ctx.medicine}): {len(elders)} villager"
-            f"{'s' if len(elders) != 1 else ''}; they regain health a fifth as often and fall sick more.", gm.RUNNING)
+            f"{'s' if len(elders) != 1 else ''}; they regain health a fifth as often and fall sick more"
+            + (" often (both exactly under Chances)." if ctx.game == 5 else "."), gm.RUNNING)
 
     # The sick.
     sick = [p for p in people_ if p.sick]
@@ -477,8 +481,11 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
         believers = tribe(everyone)
         heathens = [p for p in everyone if p.heathen]
         low = sorted((p for p in believers if p.faith is not None and p.faith <= 10), key=lambda q: q.faith)
+        # The drift 0x468040 reads food, sickness, the believers' count, the Tribute Statue (its stage 0x51D950 and
+        # puzzle 14; the statue is the idol) and Spirituality -- one statue, not two.
         add("Faith: a believer becomes a Heathen at Faith 0 or less (0x4669E0); Faith moves each age unit by food, "
-            "sickness, the village's size, the Idol, the statue and Spirituality.", gm.RUNNING)
+            "sickness, the number of believers, the Tribute Statue and Spirituality (see Faith and Heathens).",
+            gm.RUNNING)
         if low:
             add("Believers at Faith 10 or less: " + ", ".join(f"{p.name} ({p.faith})" for p in low) + ".", gm.SAVE)
         else:

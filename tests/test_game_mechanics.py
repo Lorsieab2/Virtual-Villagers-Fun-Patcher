@@ -547,7 +547,13 @@ class EveryGame(unittest.TestCase):
                 self.assertIn("8 hours 36 minutes 40 seconds", joined)
                 self.assertRegex(joined, r"If it were played now: .* away, of which 24 hours counts \((24|12|7\.2)\.0 "
                                          r"years|paused")
-                self.assertRegex(joined, r"Time Warp \(the Origins upgrade\): each one gives the villagers (12|6|3) years")
+                if name.startswith("vv5"):
+                    # New Believers' Time Warp upgrade is the patcher's Origins patch: shown only when the exe has
+                    # it (the audit of 2026-10-25), and these test saves have no game folder to tell.
+                    self.assertNotIn("Origins upgrade", joined)
+                else:
+                    self.assertRegex(joined, r"Time Warp \(the Origins upgrade\): each one gives the villagers "
+                                             r"(12|6|3) years")
                 self.assertNotIn("not yet confirmed", joined)
     def test_time_away_uses_the_verified_table(self) -> None:
         table = {"full": {3: 38_200, 6: 31_000, 10: 23_800}, "band_end": 86_400, "band": 31_000, "over": 86_400}
@@ -708,7 +714,7 @@ class EveryGame(unittest.TestCase):
         struct.pack_into("<i", data, vv5.SPEED, 10)
         text = text_of(self.page("vv5-huttest-1", data=bytes(data)))
         self.assertIn("Noni bushes: 640 of 1,000; a pick gives 6 food now", text)
-        self.assertIn("Noni: +2 every 10 minutes on Slow speed", text)
+        self.assertIn("Noni: +2 every 10 minutes of real-life time on Slow speed", text)
         self.assertNotIn("Stinging Wasps", text)            # never happens in New Believers
 
     def test_not_a_save(self) -> None:

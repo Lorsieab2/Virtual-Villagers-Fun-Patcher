@@ -52,11 +52,15 @@ def lines(village: gm.Village) -> list[gm.Fact]:
     for text in (
             f"Food in storage under 10: -1 {pct(round(starving * DRAWS))} of the time ({_p(30)}, or else {_p(10)}); 10 "
             f"to 250: -1 {_p(10)}; 8,000 or more: +1 {_p(20)}; anything between: nothing.",
-            f"A believer who is sick: -1 {_p(15)}.",
+            # Not "A believer who is sick: -1 ...": the general page drops a line shaped "<Name>: <number>" as a
+            # save's amount (vv_game_mechanics.general).
+            f"A sick believer loses 1 more {_p(15)} of the time.",
             f"The Tribute Statue solved: +1 {_p(30)}; before that, at the statue's first stage +1 {_p(10)}, at its "
             f"second +1 {_p(20)}.",
             f"Spirituality level 1, 2 or 3: +1 {_p(10)}, {_p(20)} or {_p(30)}.",
-            f"Fewer than 12 believers: -1 with a chance of (12 - believers) in 100 (11 believers {_p(1)}, 1 believer "
+            # The count is 0x4713F0's: living believers plus the babies they carry (0x46815E).
+            f"Fewer than 12 believers (the babies they carry counted): -1 with a chance of (12 - believers) in 100 "
+            f"(11 believers {_p(1)}, 1 believer "
             f"{_p(11)}); 12 or more: +1 with a chance of (believers / 5, rounded down) in 100 (12 to 14: {_p(2)}; 50: "
             f"{_p(10)}; 150: {_p(30)}).",
             f"Then, when the sum is a fall and Faith is below 5, the fall is skipped {_p(50)} of the time; when it is a "
@@ -66,9 +70,11 @@ def lines(village: gm.Village) -> list[gm.Fact]:
     add("Other things that change Faith, exactly:")
     for text in (
             "Preaching to a Heathen (after the preacher's Devotion check): +3, +4 at Devotion 50 or more, +5 at 88 or "
-            "more; that Heathen then cannot be preached to for 2 real-life hours, paused or closed (0x468F2A).",
+            "more; that Heathen then cannot be preached to for 2 real-life hours, paused or closed (0x468F2A). The "
+            "Heathen Doctor, the Chief, the three Masters and the Mommy cannot be preached to.",
             "Spreading the Word (the Retired Chief's): +30 to one villager picked at random among those listening to "
-            "the sermon (behaviour 0xE4) (0x46D2A8).",
+            "the sermon (behaviour 0xE4), who then cannot be preached to for 2 real-life hours either (0x46D2A8, "
+            "0x46D2D8).",
             "The Earthquake God Power: +2 to +8 to every villager but the six special roles (see God powers).",
             "Curing the Heathen Doctor: Faith set to 25 to 59, each equally likely (0x468CFB). Solving The Heathen "
             "Chief: the Chief's Faith set to 100 (0x4360EE). Solving the Hydroponic Farm: the Heathen Master Farmer "
@@ -78,8 +84,9 @@ def lines(village: gm.Village) -> list[gm.Fact]:
     if village.has(HEATHEN_MOMMY) is True:
         add(f"With \"{gm.feature_name(HEATHEN_MOMMY)}\" (in this game): solving the Heathen Mommy's puzzle sets her "
             "Faith to 50 to 59, each equally likely, which brings her into the tribe (0x43979C).", sub=True)
-    add("Heathens: they never age, eat, fall sick or gain Divine Energy, while catching up or otherwise (the life tick "
-        "skips them, 0x472CB7); their details can't be viewed (\"You cannot view details about heathens. They do not "
+    add("Heathens: they never age, eat, fall sick on their own or gain Divine Energy, while catching up or otherwise (the "
+        "life tick skips them, 0x472CB7; The Missing Kids can mark a Heathen child sick, 0x4161D1, which then does "
+        "nothing to it); their details can't be viewed (\"You cannot view details about heathens. They do not "
         "believe in you.\"). Becoming a Heathen clears a villager's role, even the Retired Chief's (0x4669F5); "
         "joining the tribe clears it too, except the Retired Chief's (0x466966).")
     add("Heathens never count in the tribe's population or in any statistics row (see Village counts).", gm.OWNER,

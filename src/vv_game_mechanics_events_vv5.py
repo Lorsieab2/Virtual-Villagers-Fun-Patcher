@@ -44,9 +44,10 @@ RULES = (
     Line("Rescue: when the sexes are out of balance (2 or fewer women and more men, or 2 or fewer men and no more men "
          "than women; Heathens counted) or there are fewer than 3 believers, 6% of events (a 15% roll, then a 40% "
          "one) become Chutes Without Ladders, even without room (0x418913)."),
-    Line("Room for new villagers (the room check 0x472BD0): believers plus the babies they carry below 90, plus 5 for "
-         "each of the two collections completed; and a population of 10 to 16 needs 1 rebuilt hut, 17 to 34 needs 2, "
-         "35 or more all 3. Heathens are not counted."),
+    # 0x472BDC-0x472C49: +5 for one completed set, and 10 becomes 15 for both (0x472C04).
+    Line("Room for new villagers (the room check 0x472BD0): believers plus the babies they carry below 90, below 95 "
+         "with one of the two collections completed and below 105 with both; and a population of 10 to 16 needs 1 "
+         "rebuilt hut, 17 to 34 needs 2, 35 or more all 3. Heathens are not counted."),
     Line(f"Weather an event brings lasts like any other weather: {WEATHER}."),
     Line("A loss of food or tech points takes no more than there is. Skills stop at 0 and 100; Faith at -100 and "
          "100. A believer whose Faith falls to 0 or less becomes a Heathen; a Heathen above 0 joins the tribe (see "
@@ -77,7 +78,8 @@ EVENTS = (
     Event("The Mysterious Footprints (tech lost)", "always possible", (
         "-2,000 tech points, and fog comes 15, 30 or 50 real-life seconds later on Fast, Normal or Slow (0x414D60).",)),
     Event("The Cold Snap", "needs the fire burning", ("Fog comes and the fire goes out (0x414E20).",)),
-    Event("Army Ants!", "needs the Hydroponic Farm", ("The crops are all eaten: 0 of 800 (0x414E80).",)),
+    # Not "The crops are all eaten: 0 of 800": the general page drops a "<Name>: <number>" line as a save's amount.
+    Event("Army Ants!", "needs the Hydroponic Farm", ("Every crop is eaten, so the crops drop to 0 (0x414E80).",)),
     Event("Aphid Infestation!", "needs the Hydroponic Farm", ("The crops are halved, rounded down (0x414EB0).",)),
     Event("The River Breaks Its Banks", "needs the Hydroponic Farm", (
         "Noni +200 and crops +200 (0x414FB0); both can pass their caps (1,000 and 800) until the next growth or "

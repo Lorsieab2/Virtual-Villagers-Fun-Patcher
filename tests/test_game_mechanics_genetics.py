@@ -103,7 +103,9 @@ class Rules(unittest.TestCase):
         self.assertIn("33 times in 100 their looks change", genetics_text(3))
         for game in (4, 5):
             with self.subTest(game=game):
-                self.assertIn("Joey, who has head 2 and body 2", genetics_text(game))
+                # New Believers' Joey event can never be drawn (its condition 0x415B10 is always false).
+                self.assertIn("Joey, who has head 2 and body 2" if game == 4 else
+                              "that event's condition is always false (0x415B10)", genetics_text(game))
                 self.assertIn("changes a villager's head after it is made", genetics_text(game))
         for game in (1, 3, 4, 5):
             self.assertNotIn("fixed lists", genetics_text(game))
