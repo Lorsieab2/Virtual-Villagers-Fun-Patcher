@@ -35,8 +35,9 @@
       holds), VV5 0x1FC -> 0x27C (512 -> 640, two tiles, on 1024 x 768), at
       both places the constructor uses it.  Everything -- frame, title,
       sliders, checkboxes, every row, Done and every click area -- then
-      stays where it was relative to the frame, and Done keeps its stock
-      distance from the frame's bottom.
+      stays where it was relative to the frame.  Done keeps its stock
+      distance from the frame's bottom in The Tree of Life; in New Believers
+      it is raised 20 pixels off the frame's bottom bar (see its site).
 
    2. A ROW FOR IT.  The Difficulty row goes directly above Game Speed, as
       in The Secret City.  VV5: at Game Speed's old place (y+0x161, its own
@@ -178,6 +179,13 @@ static const struct site VV5_SITES[] = {
     { 0x41B640, 6, { 0x8D, 0xB8, 0x75, 0x01, 0x00, 0x00 }, { 0x8D, 0xB8, 0x90, 0x01, 0x00, 0x00 } },
     { 0x41B651, 6, { 0x8D, 0x90, 0x6B, 0x01, 0x00, 0x00 }, { 0x8D, 0x90, 0xCF, 0x01, 0x00, 0x00 } },
     { 0x41B68C, 6, { 0x8D, 0xB8, 0x90, 0x01, 0x00, 0x00 }, { 0x8D, 0xB8, 0xF4, 0x01, 0x00, 0x00 } },
+    /* Done (the owner, 2026-10-25: it sat on the frame's bottom bar): the
+       constructor places it at frame height - its height - 0x0F; the bar is
+       17 pixels deep, so the stock button overlapped it by 2.  0x0F -> 0x23,
+       The Tree of Life's own gap (0x41A233), raises it 20 pixels to sit 18
+       pixels clear of the bar; the button is a child widget, so its click
+       area moves with it, and it stays 40 pixels below Game Speed's labels. */
+    { 0x41AA82, 3, { 0x83, 0xE8, 0x0F }, { 0x83, 0xE8, 0x23 } },
 };
 
 static const struct game VV4 = {

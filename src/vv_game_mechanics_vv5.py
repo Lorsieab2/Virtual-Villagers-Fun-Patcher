@@ -17,6 +17,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_death as death
 import vv_game_mechanics_life as life
 import vv_game_mechanics_powers_vv5 as powers
 import vv_save_backup
@@ -125,6 +126,9 @@ HIDDEN_LINES = (
     ('The fire (the 100-energy God Power on a built fire pit) burns 10, 20 or 33 hours 20 minutes on Fast, '
      'Normal or Slow, stops while paused and is rescaled when the speed changes; while it burns a research '
      'success gives 1 more tech point 10% of the time.', gm.RUNNING),
+    # The owner (2026-10-24); the Cold Snap's apply 0x414E20 sets weather 4, then 0x438E30 ends the fire.
+    (gm.FIRE_OUT + " The Cold Snap island event (it needs the fire burning) puts it out.", gm.OWNER),
+    (gm.FIRE_CLOSED, gm.OWNER),
 )
 CHANCE_EXTRA = (
     ('104 rolls are verified: every one in the groups above.', gm.RUNNING),
@@ -335,6 +339,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                    "Medium at 8,000 or more, or on Hard, 2 more 76% of the time; never more on Easy.",
         trips=[("noni picks", max(2, noni // 100)), ("crop harvests", harvest if farm else 0), ("fish", 4)])
     out.extend(life.sections(ctx))
+    out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))
     return out
 
 

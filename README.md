@@ -475,6 +475,12 @@ Gives A New Home the true parentage the later games keep: every villager born in
 
 - Patch ID: `vv1_show_parents`
 
+**Genetics: Babies Take After Their Parents**
+
+Gives A New Home the head genetics of the later games. In the original game a baby's head is picked at random and neither parent's looks count; with this patch a baby's head comes from its parents, by The Lost Children, The Secret City, The Tree of Life and New Believers' own rule: the father's head and the mother's head added and halved (rounded down), then one row lower, the same or one row higher, one chance in three each; on 5 births in 100 any head instead, as the game rolls it. A boy's head stays within the boys' heads (0 to 18), so no boy is ever given head 19, which stays the Golden Child's; a girl's within 0 to 19. When the father is not known -- "Unknown", or a birth whose conception was not recorded -- the mother's head alone is used, with the same one-row step and the same 5 in 100. Twins and triplets share the first baby's head, as in every game. Bodies stay random, as in every game, and the Golden Child, new villages and island events' villagers are the game's own. **Needs Show Parents in Details Screen to know each baby's father; without it every baby takes after its mother.** **Works the same with every other patch and in every population mode.** **Not yet tested in a running game.** The companion is "VVFP VV1 Genetics.dll", started by VVFP Startup.dll; if the DLL cannot be loaded, the game is stock.
+
+- Patch ID: `vv1_genetics`
+
 **Sort by Age/Skill/Health in Details Screen**
 
 Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, under the Age and Gender boxes: Age, Skill and Health, each with a radio. The left and right arrows then walk the villagers in that order the way the later games do -- ascending by age, by the villager's highest skill, or by health, with earlier villagers first among equals, and the place in the list is kept when the order is changed. Age is the default. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL, and the base's arrow hooks ask it which villager comes next.
