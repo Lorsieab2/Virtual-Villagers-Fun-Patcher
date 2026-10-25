@@ -52,7 +52,7 @@ def stock(game: int) -> tuple[bytes, int] | None:
 
 
 class Group(unittest.TestCase):
-    GAMES = {5: ("vv5-huttest-1", "vv5-256-1")}
+    GAMES = {5: ("vv5-huttest-1", "vv5-256-1"), 4: ("vv4-huttest-1", "vv4-256-1")}
 
     def test_every_game_has_the_group_in_order(self) -> None:
         self.assertIn(gm.DEATH, gm.GROUPS)
@@ -96,7 +96,7 @@ class Group(unittest.TestCase):
         struct.pack_into("<i", buf, at + life.LAYOUTS[5].health, 0)
         base = struct.unpack_from("<q", data, 8)[0]
         stamp = int(NOW - base) - 3600                       # died an hour before "now"
-        struct.pack_into("<i", buf, at + death.VV5_STAMP, stamp)
+        struct.pack_into("<i", buf, at + death.VV_STAMP, stamp)
         speed = struct.unpack_from("<i", data, 0x17D8C)[0]
         facts = page("vv5-huttest-1", bytes(buf))
         mine = [f for f in facts if f.text.startswith(f"{name}'s body is unburied")]
@@ -129,6 +129,26 @@ class StockCode(unittest.TestCase):
         self.assertEqual(self.at(0x46F0D9, 3), bytes.fromhex("83F841"))          # 34% of picks
         self.assertEqual(self.at(0x464C8B, 6), bytes.fromhex("81FDF4010000"))    # 500 graves
         self.assertEqual(self.at(0x4156BB, 4), bytes.fromhex("6AFF6AF1"))        # The Bed Bugs: -15, cause -1
+
+
+class StockCodeVV4(StockCode):
+    """The stock bytes behind The Tree of Life's lines."""
+
+    def setUp(self) -> None:
+        found = stock(4)
+        if found is None:
+            self.skipTest("the stock Tree of Life executable is not here")
+        self.img, self.base = found
+
+    def test_the_rules_bytes(self) -> None:
+        self.assertEqual(self.at(0x4664AD, 5), bytes.fromhex("3DF0000000"))      # 240 age units
+        self.assertEqual(self.at(0x45D527, 10), bytes.fromhex("81BF8C1B000068010000"))  # under 360: child lines
+        self.assertEqual(self.at(0x46ACBA, 3), bytes.fromhex("83FA05"))          # Scholar: all five skills
+        self.assertEqual(self.at(0x415425, 4), bytes.fromhex("6AFF6A03"))        # the Fungi: health 0, cause 3
+        self.assertEqual(self.at(0x4658FD, 3), bytes.fromhex("83F819"))          # 25%
+        self.assertEqual(self.at(0x465889, 3), bytes.fromhex("83F841"))          # 34% of picks
+        self.assertEqual(self.at(0x414221, 5)[:1], b"\xE8")                      # ghost: rand(graves)
+        self.assertEqual(self.at(0x466401, 7), bytes.fromhex("C686C71C000001"))  # the ghost byte
 
 
 if __name__ == "__main__":

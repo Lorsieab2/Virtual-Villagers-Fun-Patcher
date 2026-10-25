@@ -165,64 +165,151 @@ def bodies(village: gm.Village) -> list[tuple[str, int]]:
 # the job's skill line ("Untrained" below 20, "Trainee " below 50, "Adept " below 88, "Master ") and the cause
 # (0x314 + cause); Done copies its text box over the epitaph (0x41CB33), 31 characters at most.
 
-VV5_STAMP = 0x9C                                # the body's stamp, from the name (save record +0xBC)
-VV5_ROSTER = 500
-VV5_CAUSES = ("Old age", "Disease", "Starvation", "Work accident", "Unknown causes", "Act of Nature")
+
+# ---------------------------------------------------------------------------
+# The Tree of Life (VV4)
+# ---------------------------------------------------------------------------
+#
+# The same health and cause fields and setters as New Believers: 0x46AF40 (add), 0x46AF00 (set).  Life tick (every
+# villager): 0x4684C1 food 500 or less -1 on 15% of age units, cause 1; 0x468567 no food, cause 1; 0x468600 sick, -1
+# on 61% (19% at 20 health or less), cause 0; 0x46877F old age, set 0, cause 2 (threshold 1,100 + 160 x (Medicine -
+# 1) at 0x468729).  Research 0x464BDB: 2% (0x464BBA) lose rand(10), cause 3.
+# Island events (outcome = vtable slot 11; choice A 0, B 1), cause -1 unless said:
+#   The Arc of Brilliant Colors 0x415090: "Run to the right side" ([esp+8] 1) when its roll [+0x10] is 0,
+#     -(25 + rand(20));
+#   The Phosphorescent Fungi 0x4153B0: "Throw it into the ocean": sick, -(15 + rand(5)); at 0 or less the cause is
+#     set to 3 Work accident (0x415429); "Admire it from afar": each villager 30% sick (0x466F40, 30, no damage);
+#   The Pink Shell 0x415760: "Pick it up and listen inside" -(5 + rand(6));
+#   The Climber 0x4158E0: "Try to find a way down" -50;
+#   The Sealed Box 0x415D60: "Swim back with the box" when its roll [+0x10] is not 0: health set to 0;
+#   The Lie 0x415FA0: "Lie" -(25 + rand(26));
+#   The Aspiring Doctor: sea water 0x4161E0 "Drink sea water" sick, -15; forbidden mushrooms 0x416360 "Eat a bit"
+#     -(15 + rand(20)); bark 0x416430 "Eat a bit" +25 (heals); fasting 0x4164F0 "Fast" -(20 + rand(11)); cut leg
+#     0x4165C0 either choice -(10 + rand(6));
+#   The Aspiring Scientist 0x4166C0: "Try the salts" -(35 + rand(41));
+#   Innovation in Construction 0x4167F0 / Innovation in Farming 0x416920: "Try the technique" / "Try standing on
+#     fruit" when its roll [+0x10] is not 0: -(75 + rand(75));
+#   Tough Lessons 0x416A50: "Climb the Tree", the adult -75;
+#   The Stinging Wasps 0x414C50 (slot 12): every villager 50% (0x467040 with 50, 10, 10) -(10 + rand(10)), cause 0;
+#   The State of the Tree (glum) 0x414EB0: every villager 10% -(5 + rand(10)), cause 0, then each 20% sick.
+#   The Medical Emergency 0x415500 sets health 0 but its condition 0x4146E0 is always false and no patch offers it.
+# Bodies: the villager AI 0x465840: 34% of picks (0x465889), not sick, not carrying, 14 or older, a body lying
+# (0x466CE0): 25% (0x4658FD), else Healing 50 or more (0x461910, 50.0 at 0x4AA900) 70% (0x465923) -> behaviour
+# 0x29 "Burying the dead" (0x453E50, registered at 0x45CC35); no puzzle is needed.  The burial step clears the
+# presence (0x46A977) and calls the writer 0x45D470 (500 entries; job by 0x46AC20 over five skills; Scholar flag
+# +0x31 by 0x46AC70: all five skills at 88 or more).  Epitaph 0x45D527: under 360, 0x313 "Curious and Playful" /
+# 0x314 "Loving and Special" 50%; Scholar 0x315 "Scholar"; job table 0x45D638: Farmer 0x309/0x30A, Parent
+# 0x30D/0x30E, Doctor 0x30F/0x310, Scientist 0x30B/0x30C, Builder 0x311/0x312; otherwise 0x308 "Respected
+# Citizen".  The game's own words are its Assets\sm.xml's, the same as the exe's (Farmer's first: "Child Of the
+# Earth").  Removal: 0x4664AD, the same 240 age units at the speed (manager +0x17110).
+# Ghosts (0x414110, called with 1 by the mausoleum timer 0x43FE4B): when the roster holds graves (0x45D670 counts
+# them up to the first empty), one is picked at random (rand(count), 0x414221) and a ghost record is made
+# (0x466370: the ghost byte +0x1CC7, no name) with that grave's sex (+0x33), age at death (+0x1C), head (+0x20) and
+# body (+0x24); it carries the collectible.  With no graves no ghost is made.  The step at 0x46A7CC calls the same
+# spawn with 0 and never makes a ghost.
+
+VV_STAMP = 0x9C                                 # VV4/VV5: the body's stamp, from the name (save record +0xBC)
+ROSTER = 500
+
+LATER = {
+    5: dict(
+        who="believer", whom="believers",
+        causes="Old age, Disease, Starvation, Work accident or Unknown causes",
+        game="New Believers",
+        events=("Island events that can kill, all \"Unknown causes\" (their chances are under Island events): The "
+                "Bed Bugs (\"Let it go\": 15 health), You're Doing It Wrong! (\"Teach them to reduce explosions.\" "
+                "when it explodes: 10 to 29), The Missing Kids (\"Yell for help\": both children lose 5 and fall sick) "
+                "and The Cracked Mask (\"Attempt to fix the mask\": 20 to 30). The Bed Bugs' \"Search for the bugs "
+                "all night\" takes 5 only above 6 health, so it never kills, but it makes them sick."),
+        burial_needs="Nobody buries anyone before The Buried Mausoleum is solved. After that, when",
+        buriers=" Heathens never bury.",
+        skills="Farming, Parenting, Healing, Research, Building, Devotion",
+        jobs="Farmer, Parent, Doctor, Scientist, Builder or Devotee", apprentice="",
+        elder=("with three or more skills at 88 or more, \"Esteemed Elder\" (the Retired Chief gets \"Retired "
+               "Chief\" once The Heathen Chief is solved)"),
+        farmer="Child of the Earth", default="a Devotee or a villager with no skill, \"Respected Citizen\"",
+    ),
+    4: dict(
+        who="villager", whom="villagers",
+        causes="Old age, Disease, Starvation, Work accident or Unknown causes",
+        game="The Tree of Life",
+        events=("Island events that can kill (their chances are under Island events), \"Unknown causes\" unless "
+                "said: The Arc of Brilliant Colors (\"Run to the right side\" when it goes badly: 25 to 44 health), "
+                "The Phosphorescent Fungi (\"Throw it into the ocean\": sick and 15 to 19; a death from it is "
+                "\"Work accident\"), The Pink Shell (\"Pick it up and listen inside\": 5 to 10), The Climber (\"Try "
+                "to find a way down\": 50), The Sealed Box (\"Swim back with the box\" when it goes badly: health "
+                "to 0, always fatal), The Lie (\"Lie\": 25 to 50), The Aspiring Doctor (\"Drink sea water\": sick "
+                "and 15; the forbidden mushrooms' \"Eat a bit\": 15 to 34; \"Fast\": 20 to 30; the cut leg, either "
+                "choice: 10 to 15; the bark's \"Eat a bit\" heals 25 instead), The Aspiring Scientist (\"Try the "
+                "salts\": 35 to 75), Innovation in Construction (\"Try the technique\") and Innovation in Farming "
+                "(\"Try standing on fruit\") when they go badly: 75 to 149, Tough Lessons (\"Climb the Tree\": the "
+                "adult loses 75), and, \"Disease\", The Stinging Wasps (each villager 50%: 10 to 19) and The State "
+                "of the Tree when the villagers are glum (each villager 10%: 5 to 14, and 20% fall sick)."),
+        burial_needs="When",
+        buriers="",
+        skills="Farming, Parenting, Healing, Research, Building",
+        jobs="Farmer, Parent, Doctor, Scientist or Builder",
+        apprentice=" (under 14 years, \"Apprentice\" instead of the rank)",
+        elder="with all five skills at 88 or more, \"Scholar\"",
+        farmer="Child Of the Earth", default="a villager with no skill, \"Respected Citizen\"",
+    ),
+}
 
 
-def _vv5(village: gm.Village, medicine: int | None, speed_value: int, base: int) -> list[gm.Fact]:
-    add_to: list[gm.Fact] = []
+def _later(village: gm.Village, medicine: int | None, speed_value: int, base: int) -> list[gm.Fact]:
+    """The Tree of Life's and New Believers' lines (the addresses above)."""
+    c = LATER[village.game]
+    game = village.game
+    out: list[gm.Fact] = []
 
     def add(text: str, ok: bool | str = CODE, **kw) -> None:
-        add_to.append(gm.Fact(DEATH, text, ok, **kw))
+        out.append(gm.Fact(DEATH, text, ok, **kw))
 
     speed = gm.speed_base(speed_value)
     on = gm.speed_name(speed)
-    add("A believer dies when their health (0 to 100) reaches 0. The grave's Cause of Death is the cause of the "
-        "loss that took it to 0, in the game's words: Old age, Disease, Starvation, Work accident or Unknown causes. "
-        "The game also has the words Act of Nature, but nothing in New Believers ever gives that cause.")
+    who, whom = c["who"], c["whom"]
+    add(f"A {who} dies when their health (0 to 100) reaches 0. The grave's Cause of Death is the cause of the loss "
+        f"that took it to 0, in the game's words: {c['causes']}. The game also has the words Act of Nature, but "
+        f"nothing in {c['game']} ever gives that cause.")
     if medicine in (1, 2, 3):
         start = 55 + 8 * (medicine - 1)
         add(f"Old age in this village (Medicine level {medicine}): the first roll is at {start + 1} years "
             f"(10%), and at {start + 10} years it is 100%; cause \"Old age\".", gm.SAVE)
-    add("Disease: a sick believer loses 1 health on 61% of age units (19% at 20 health or less); dying of it gives "
-        "\"Disease\". How often believers fall sick is under Other.")
-    add("Starvation: with 500 food or less a believer loses 1 health on 15% of age units; with no food at all, by "
+    add(f"Disease: a sick {who} loses 1 health on 61% of age units (19% at 20 health or less); dying of it gives "
+        f"\"Disease\". How often {whom} fall sick is under Other.")
+    add(f"Starvation: with 500 food or less a {who} loses 1 health on 15% of age units; with no food at all, by "
         "their hidden number (Hidden villager stats). Dying of it gives \"Starvation\".")
     add("Work accident: 2% of research tries in play cost the researcher 0 to 9 health (never while the game "
         "catches up); dying of it gives \"Work accident\".")
-    add("Island events that can kill, all \"Unknown causes\" (their chances are under Island events): The Bed Bugs "
-        "(\"Let it go\": 15 health), You're Doing It Wrong! (\"Teach them to reduce explosions.\" when it explodes: 10 "
-        "to 29), The Missing Kids (\"Yell for help\": both children lose 5 and fall sick) and The Cracked Mask "
-        "(\"Attempt to fix the mask\": 20 to 30). The Bed Bugs' \"Search for the bugs all night\" takes 5 only above "
-        "6 health, so it never kills, but it makes them sick.")
-    add("Heathens never age, eat or fall sick (the game runs none of that for them), so none of these reach them; "
-        "a Heathen grave is never made.", gm.OWNER)
+    add(c["events"])
+    if game == 5:
+        add("Heathens never age, eat or fall sick (the game runs none of that for them), so none of these reach "
+            "them; a Heathen grave is never made.", gm.OWNER)
     add("A mother who dies while nursing takes her babies with her: they were never villagers, so they leave no "
         "body and no grave.", gm.OWNER)
-    add("Leaving without dying: a believer whose Faith falls to 0 becomes a Heathen and leaves the tribe (see the "
-        "Faith lines). The God Power Revive (\"bring a fallen believer back!\") raises a body before it is buried or "
-        "removed, and the Time Warp and Grant Youth God Powers change villagers' ages, and so when their old-age "
-        "rolls come (see God Powers).")
+    if game == 5:
+        add("Leaving without dying: a believer whose Faith falls to 0 becomes a Heathen and leaves the tribe (see "
+            "the Faith lines). The God Power Revive (\"bring a fallen believer back!\") raises a body before it is "
+            "buried or removed, and the Time Warp and Grant Youth God Powers change villagers' ages, and so when "
+            "their old-age rolls come (see God Powers).")
     # Bodies
-    add("A body lies where the villager died until a believer buries it (\"Burying the dead\") or the game removes "
-        "it. Nobody buries anyone before The Buried Mausoleum is solved. After that, when a believer of 14 or more "
-        "who is not sick or carrying picks something to do, 34% of the picks look for a body: they go to bury the "
-        "lowest-numbered one 25% of the time, or 77.5% of the time with Healing 50 or more. Heathens never bury.")
-    add(f"A body nobody buries is removed with no grave once 240 age units (12 villager years) of real time have "
-        f"passed since the death at the game's speed then: 12 real-life hours on Fast, 24 on Normal, 40 on Slow. "
-        f"Time paused and time with the game closed count, so a body left when the game was closed can be gone as "
-        f"soon as it is next played; while paused, none is removed.")
+    add(f"A body lies where the villager died until a {who} buries it (\"Burying the dead\") or the game removes it. "
+        f"{c['burial_needs']} a {who} of 14 or more who is not sick or carrying picks something to do, 34% of the "
+        "picks look for a body: they go to bury the lowest-numbered one 25% of the time, or 77.5% of the time with "
+        f"Healing 50 or more.{c['buriers']}")
+    add("A body nobody buries is removed with no grave once 240 age units (12 villager years) of real time have "
+        "passed since the death at the game's speed then: 12 real-life hours on Fast, 24 on Normal, 40 on Slow. "
+        "Time paused and time with the game closed count, so a body left when the game was closed can be gone as "
+        "soon as it is next played; while paused, none is removed.")
     if not village.general:
         found = bodies(village)
         if not found:
             add("Unburied bodies in this save: none.", gm.SAVE)
         for name, at in found:
-            stamp = _i32(village.data, at + VV5_STAMP)
-            due = base + stamp + 240 * 60 * speed
+            due = base + _i32(village.data, at + VV_STAMP) + 240 * 60 * speed
             if speed_value >= gm.PAUSED:
                 add(f"{name}'s body is unburied; saved paused, it is removed with no grave 240 age units after the "
-                    f"death once unpaused, unless buried first.", gm.SAVE)
+                    "death once unpaused, unless buried first.", gm.SAVE)
             elif due <= village.now:
                 add(f"{name}'s body is unburied and its 240 age units have passed: it is removed with no grave when "
                     "the village is next played.", gm.SAVE)
@@ -236,47 +323,53 @@ def _vv5(village: gm.Village, medicine: int | None, speed_value: int, base: int)
         "the hidden processed age the old-age roll follows, after time away.")
     add("Cause of Death: the game's own, kept from the moment health reached 0 (above), shown on the grave in "
         "those words.")
-    add("Job: the villager's highest skill (on a tie the first of Farming, Parenting, Healing, Research, Building, "
-        "Devotion), shown \"Untrained\" below 20 or with every skill at 0, else \"Trainee\" below 50, \"Adept\" below "
-        "88, \"Master\" from 88, with Farmer, Parent, Doctor, Scientist, Builder or Devotee.")
+    add(f"Job: the villager's highest skill (on a tie the first of {c['skills']}), shown \"Untrained\" below 20 or "
+        "with every skill at 0, else \"Trainee\" below 50, \"Adept\" below 88, \"Master\" from 88"
+        f"{c['apprentice']}, with {c['jobs']}.")
     add("Epitaph, chosen once at the burial: under 18 years, \"Curious and Playful\" or \"Loving and Special\" (50% "
-        "each); with three or more skills at 88 or more, \"Esteemed Elder\" (the Retired Chief gets \"Retired "
-        "Chief\" once The Heathen Chief is solved); otherwise by the Job, 50% each: Farmer \"Child of the Earth\" or "
-        "\"Nature's Friend\", Parent \"Parent, Teacher, Friend\" or \"Dedicated to Children\", Doctor \"Guardian of "
-        "Health\" or \"Dedicated to Others\", Scientist \"Dedicated Student\" or \"Inspired Inventor\", Builder "
-        "\"Inspired Architect\" or \"Strong Arms, Big Heart\"; a Devotee or a villager with no skill, \"Respected "
-        "Citizen\". The player can type a new one (31 characters at most) on the grave.")
+        f"each); {c['elder']}; otherwise by the Job, 50% each: Farmer \"{c['farmer']}\" or \"Nature's Friend\", "
+        "Parent \"Parent, Teacher, Friend\" or \"Dedicated to Children\", Doctor \"Guardian of Health\" or "
+        "\"Dedicated to Others\", Scientist \"Dedicated Student\" or \"Inspired Inventor\", Builder \"Inspired "
+        f"Architect\" or \"Strong Arms, Big Heart\"; {c['default']}. The player can type a new one (31 characters "
+        "at most) on the grave.")
+    if game == 4:
+        add("The mausoleum's ghosts are not the dead coming back: each ghost visit makes a new ghost with no name and "
+            "the sex, age at death, head and body of one grave picked at random from the Roster of the Dead (every "
+            "grave equally, the same one can come again). With no graves, no ghost is made. When the visits come "
+            "is under Collectibles.")
     # Patches
-    soul = "vv5_devoted_soul_epitaph"
-    if village.has(soul) is not False:
-        # (The patch's own epitaph is named through the patch, never as a quoted text: no code here holds an
-        # epitaph's words to check a grave by -- tests/test_vv5_devoted_soul_epitaph.py.)
-        add("A Devotee's epitaph: normally always \"Respected Citizen\". "
-            + gm.patch_words(village, soul, "\"Respected Citizen\" or the patch's own Charitable Soul, 50% each"))
-    isola = "vv5_guardians_of_isola_rewrite"
-    if village.has(isola) is not False:
-        add(gm.patch_words(village, isola, "\"Respected Citizen\" reads \"Respected Devotee\" and \"Retired Chief\" "
-                                           "reads \"Respected Chief\" on new graves (the words only)"))
-    story = "vv5_story_cheat_upgrades"
+    if game == 5:
+        soul = "vv5_devoted_soul_epitaph"
+        if village.has(soul) is not False:
+            # (The patch's own epitaph is named through the patch, never as a quoted text: no code here holds an
+            # epitaph's words to check a grave by -- tests/test_vv5_devoted_soul_epitaph.py.)
+            add("A Devotee's epitaph: normally always \"Respected Citizen\". "
+                + gm.patch_words(village, soul, "\"Respected Citizen\" or the patch's own Charitable Soul, 50% each"))
+        isola = "vv5_guardians_of_isola_rewrite"
+        if village.has(isola) is not False:
+            add(gm.patch_words(village, isola, "\"Respected Citizen\" reads \"Respected Devotee\" and \"Retired "
+                                               "Chief\" reads \"Respected Chief\" on new graves (the words only)"))
+    story = f"vv{game}_story_cheat_upgrades"
     if village.has(story):                      # only when it is known to be in: The Stinging Wasps is otherwise
-                                                # never named for New Believers (tests/test_game_mechanics.py)
+        # never named for New Believers (tests/test_game_mechanics.py)
+        extra = ("; Pick Island Event can choose The Stinging Wasps, never in the stock game, where every villager "
+                 "has a 50% chance to lose 10 to 19 health, cause \"Disease\"") if game == 5 else ""
         add(gm.patch_words(village, story, "the Custom Island Event can make a villager die (the grave says "
                                            "\"Unknown causes\", the Deaths log \"Died in a custom island event\") or "
-                                           "disappear (no body, no grave) and can revive bodies; Pick Island Event "
-                                           "can choose The Stinging Wasps, never in the stock game, where every "
-                                           "villager has a 50% chance to lose 10 to 19 health, cause \"Disease\""))
-    cod = "vv5_cause_of_death"
+                                           "disappear (no body, no grave) and can revive bodies" + extra))
+    cod = f"vv{game}_cause_of_death"
     if village.has(cod) is not False:
         add(gm.patch_words(village, cod, "every death is written to the Deaths log when the body is buried or "
                                          "removed, and a disappearance to a Disappeared record; the game itself "
                                          "is unchanged"))
-    add_to += grave_lines(village, VV5_ROSTER, by_cause=True)
-    add_to += log_lines(village)
-    return add_to
+    out += grave_lines(village, ROSTER, by_cause=True)
+    out += log_lines(village)
+    return out
 
 
 def facts(village: gm.Village, **kw) -> list[gm.Fact]:
-    """The Death and graves lines for `village`'s game (see each game's helper for the keywords it takes)."""
-    if village.game == 5:
-        return _vv5(village, kw.get("medicine"), kw["speed_value"], kw["base"])
+    """The Death and graves lines for `village`'s game: VV4 and VV5 take medicine, speed_value and base (the
+    save's clock base, Unix seconds)."""
+    if village.game in LATER:
+        return _later(village, kw.get("medicine"), kw["speed_value"], kw["base"])
     return []
