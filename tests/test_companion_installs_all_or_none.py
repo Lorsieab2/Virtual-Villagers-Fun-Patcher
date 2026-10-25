@@ -337,6 +337,11 @@ CASES = [
          lambda g: ["vv3_fruit_trees_take_turns"], _startup, reports=False),
     Case("Speed Change Timers", "assets/speed_timers/VVFP Speed Change Timers.dll", (3, 4),
          lambda g: [f"vv{g}_fix_vanilla_bugs"], _startup, reports=False),
+    # A New Home's Fix Vanilla Bugs: the Golden Child and island events (started by the Speed
+    # Change Timers companion the row ships with it).
+    Case("VV1 Golden Child Safe", "assets/golden_child_safe/VVFP VV1 Golden Child Safe.dll", (1,),
+         lambda g: ["vv1_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpGoldenChildSafeInstalled"))[1]),
     Case("Difficulty Settings", "assets/difficulty/VVFP Difficulty.dll", (4, 5),
          lambda g: [f"vv{g}_difficulty_settings"], _startup, reports=False),
     Case("Work First", "assets/work_first/VVFP Work First.dll", (1, 2, 4, 5),

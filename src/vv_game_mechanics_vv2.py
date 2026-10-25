@@ -140,10 +140,26 @@ HIDDEN_LINES = (
     ('The fire: while lit, a research try gives 1 more tech point 10% of the time; fuel on a lit fire fills it '
      'to 10, 20 or 40 hours (Fast, Normal, Slow); fuel does not light a cold pit.', False),
 )
+# The stew pot (state +0x3043C..+0x30455, past the saved range +8..+0x30378, so never saved).  The cook routine
+# 0x425B90 (called when the last ingredient goes in, 0x4620A1..0x4623BA) sets the stew +0x3044C at once and
+# the pot's end +0x30450 to the real clock 0x403200 + 900 (0x425BA2); the world update empties the pot with
+# 0x425B20 once 0x403200 passes it (0x42EBCC..0x42EBE7) -- nothing else empties it, and eating (0x461040,
+# from 0x4623E9) leaves it.  Nothing reads +0x30450 for the screen, so no countdown is shown.  The stews'
+# effects (0x461040 and the routines it calls: 0x455330, 0x45CD00, 0x450580, 0x454AB0, 0x455AC0, 0x453430,
+# 0x44B010, 0x45FBF0, 0x44B1B0, 0x449B70) never read the clock: each acts once, when eaten.
+STEW_POT_LINE = (
+    "A stew is ready the moment it is made, and the pot keeps it 15 real-life minutes at every speed, then empties "
+    "itself; the pot's timer runs on the real clock, so paused time counts too. Eating does not empty it: every "
+    "villager who eats from it in those 15 minutes gets the stew. The game shows no countdown for it, and the save "
+    "does not keep the pot.")
+STEW_EFFECT_LINE = (
+    "Each stew acts once, at the moment a villager eats it: none of the stews' effects sets a timer, so no "
+    "villager has one running and a save holds none to count down.")
 CHANCE_EXTRA = (
     ('Every roll that changes play is in the groups above, with its odds as measured.', gm.RUNNING),
-    ('Timers: an age unit 3, 6 or 10 minutes; regrowth every 2 hours, 4 hours or 6 hours 40 minutes; island '
-     "events 10 to 19 whole hours apart; the Gong's 24-hour rest; a stew 15 minutes; an item lies 1 minute 15 "
+    ('Timers: an age unit 3, 6 or 10 real-life minutes on Fast, Normal or Slow; regrowth every 2 hours, 4 hours '
+     "or 6 hours 40 minutes of real life; island events 10 to 19 whole real-life hours apart; the Gong's 24 "
+     'real-life hours of rest; a stew stays in the pot 15 real-life minutes; an item lies 1 minute 15 real-life '
      'seconds; an unburied body 240 age units.', gm.RUNNING),
     ('Many more rolls inside villager actions (walking, timing, animation, speech): not individually worked '
      'out.', False),
@@ -152,6 +168,23 @@ CHANCE_EXTRA = (
 
 def _i32(data: bytes, state: int) -> int:
     return struct.unpack_from("<i", data, state + S)[0]
+
+
+# The fish: one signed dword (0x2EAD0) a new village sets to 1100 (0x425257), or 2200 or 550 by difficulty
+# (0x4255B7 / 0x42559D), that nothing ever adds to.  Each catch subtracts 11, 8 or 5 (8 while catching up) at
+# 0x463305 with no floor.  The polluted-water test 0x425B00 is "fish <= 0 and Sustainable Fishing (the solved byte
+# 0x2E7E8) not solved", so once it is solved Farming level 2 (0x45FD1B) and 3 (0x45FC36) farmers and the fishing
+# task itself (0x45E562) fish on with no limit and the count keeps falling below 0, as in the stock game; level 1
+# (0x45FDF4) only ever fishes while the count is above 0.  The other readers (0x45536B, 0x460970) also only test
+# "> 0" (signed); nothing else writes it.  Wrapping past -2^31 would take about 195 million more trips.
+SUSTAINABLE_FISHING, FARMING_LEVEL = 0x2E7E8, 5
+
+
+def _fishing(data: bytes) -> tuple[int, bool, bool]:
+    """(the fish count, Sustainable Fishing solved, fishing now has no limit)."""
+    solved = data[SUSTAINABLE_FISHING + S] != 0
+    farming = _i32(data, LEVELS + 8 * FARMING_LEVEL)
+    return _i32(data, FISH), solved, solved and farming >= 2
 
 
 def facts(village: gm.Village) -> list[gm.Fact]:
@@ -214,10 +247,22 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.append(gm.Fact("Food sources", "Only The Scarecrow stops it, for good; no patch changes it.", False, sub=True))
     out.append(gm.Fact("Food sources", "The game says: \"Oh my! Birds found your field and are relentlessly eating "
                                        "the young crops before your villagers can harvest them!\"", False, sub=True))
-    add("Food sources", f"Fish: {_i32(data, FISH):,} (they never grow back); a trip brings {(11, 8, 5)[pick]} on {on} "
-                        "speed (8 while catching up).", gm.RUNNING)
-    add("Food sources", "At 0 fish, fishing stops until the algae-eating fish have been done 10 times; after that "
-                        "the count can go below 0, as in the stock game.")
+    fish, fishing_solved, fishing_unlimited = _fishing(data)
+    trip = f"a trip brings {(11, 8, 5)[pick]} on {on} speed (8 while catching up)."
+    if fishing_unlimited:
+        add("Food sources", f"Fish: no limit, as Sustainable Fishing is solved; {trip}", gm.RUNNING)
+        out.append(gm.Fact("Food sources", f"The game's own fish count is {fish:,}: it started at 2,200, 1,100 or "
+                                           "550 by difficulty, never grows back, and every catch still takes from "
+                                           "it. Below 0 it only means the first fish were used up long ago; every "
+                                           "check in the game only asks whether it is above 0, so it does no harm.", gm.SAVE, sub=True))
+    elif fishing_solved and fish <= 0:
+        add("Food sources", f"Fish: {fish:,}; Sustainable Fishing is solved, but at Farming level 1 villagers fish "
+                            "only while the count is above 0. From Farming level 2 they fish with no limit.", gm.SAVE)
+    else:
+        add("Food sources", f"Fish: {fish:,} (they never grow back); {trip}", gm.RUNNING)
+    add("Food sources", "At 0 fish, fishing stops until Sustainable Fishing is solved (the algae-eating fish done 10 "
+                        "times); after that, from Farming level 2, villagers fish with no limit and the count goes "
+                        "below 0, as in the stock game.")
     add("Food sources", "Every trip needs a Farming roll; a failed trip brings nothing. "
                         + gm.patch_words(village, LEARNING, "no trip fails"))
 
@@ -317,8 +362,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                   else "is out"))
                   + f"; a lit fire burns {gm.duration(FIRE_HOURS[speed] * 3600)} on {on} speed, and fuel on a burning "
                     "fire fills it again."), gm.RUNNING)
-    add("Other", f"A stew is ready 15 minutes after it starts. An unburied body is gone after "
-                 f"{gm.duration(240 * 60 * speed)} on {on} speed.", gm.RUNNING)
+    add("Other", STEW_POT_LINE, gm.RUNNING)
+    add("Other", STEW_EFFECT_LINE)
+    add("Other", f"An unburied body is gone after {gm.duration(240 * 60 * speed)} of real life on {on} speed "
+                 "(240 age units).", gm.RUNNING)
     for line, ok in HIDDEN_LINES:
         add(gm.HIDDEN, line, ok)
     out.extend(gm.starvation_lines(village, 0x14, gm.RUNNING, totem_colour=True))
@@ -359,6 +406,7 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
     paused = speed_value >= gm.PAUSED
     level = [_i32(data, LEVELS + 8 * k) for k in range(6)]
     crops_grow = dam and (scared or allowance > 0)
+    fish, _, fishing_unlimited = _fishing(data)
     every = life.every_real(2400 * 6, speed_value).removeprefix("every ")
     # The regrowth's own steps (0x43B960): coconuts +30 up to 1,500; crops refilled to 800.
     steps = dict(interval=gm.real_seconds(2400 * 6, speed_value),
@@ -372,7 +420,9 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
                     f"refilled to {CROPS_FULL} every {every}" if crops_grow else
                     ("no refill until the dam is built" if not dam else "eaten by the birds at every regrowth"),
                     verified=gm.SAVE, step=CROPS_FULL if crops_grow else 0, **steps),
-        life.Source("Fish", _i32(data, FISH), None, 0.0, None, "they never grow back", verified=gm.SAVE)]
+        (life.Source("Fish: no limit, as Sustainable Fishing is solved", None, unlimited=True, verified=gm.SAVE)
+         if fishing_unlimited else
+         life.Source("Fish", fish, None, 0.0, None, "they never grow back", verified=gm.SAVE))]
     exploration = level[EXPLORATION_LEVEL]
     waits = {1: (40, 0.50), 2: (34, 0.35), 3: (28, 0.20)}
     wait, share = waits.get(exploration, (40, 0.50))
@@ -399,7 +449,7 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
         gatherer_words=("The birds: the field's crops count for nothing here, as the birds eat each regrowth's crops."
                         if dam and not crops_grow else ""),
         trips=[("coconut trips", (8, 4, 2)[pick]), ("crop trips", (10, 7, 4)[pick] if crops_grow or _i32(data, CROPS) else 0),
-               ("fishing trips", (11, 8, 5)[pick] if _i32(data, FISH) > 0 else 0)])
+               ("fishing trips", (11, 8, 5)[pick] if fish > 0 or fishing_unlimited else 0)])
     return ctx
 
 

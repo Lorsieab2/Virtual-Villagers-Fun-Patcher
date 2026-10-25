@@ -721,6 +721,10 @@ def build() -> None:
                 "Island Event upgrade queues one (the same lock), and when the game's own scheduler "
                 "fires it, the game's own island-event popup shows the custom title and description "
                 "and the changes are made through the game's own routines.",
+                "Its amounts list shows each amount the game keeps as it is now, below 0 included (The Lost "
+                "Children's fish and the field's protection fall below 0 in the original game), and the "
+                "event replaces it; only a store that is not there yet, such as a farm not yet built, reads "
+                "\"not there yet\" and is refused.",
                 "Villager Changes offers every villager action the game's own code can start for one "
                 "villager, Celebrating included, grouped (work, leisure, celebration and dance, "
                 "devotion, family, children, health, curiosity, moods, puzzles and story) and sorted, "

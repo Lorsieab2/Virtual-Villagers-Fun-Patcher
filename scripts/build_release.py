@@ -59,8 +59,10 @@ FILES = [
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
-    # Fix Vanilla Bugs (The Secret City, The Tree of Life): unpausing at another speed.
+    # Fix Vanilla Bugs (The Secret City, The Tree of Life): unpausing at another speed.  It also
+    # starts A New Home's (the Golden Child and island events), which it ships beside.
     "assets/speed_timers/VVFP Speed Change Timers.dll",
+    "assets/golden_child_safe/VVFP VV1 Golden Child Safe.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -265,6 +267,7 @@ FILES = [
     "src/vv_game_mechanics_vv4.py",
     "src/vv_game_mechanics_vv5.py",
     "src/vv_game_mechanics_life.py",
+    "src/vv_game_mechanics_genetics.py",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).
@@ -287,6 +290,7 @@ FILES = [
     "src/vv_titles_file.py",
     # Repair Saves & Logs' Reset corrupted skill values (the GUI imports it).
     "src/vv_corrupt_skills.py",
+    "src/vv_golden_child_revive.py",
     # Repair Saves & Logs' The Lost Children totem rows: Give Esteemed Elders Totems Retroactively and Fix
     # Rare Villager Turning Into Totem (the GUI imports it).
     "src/vv_vv2_totems.py",
