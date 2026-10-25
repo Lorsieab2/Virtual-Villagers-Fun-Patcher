@@ -516,13 +516,10 @@ def vv5_lines(village: gm.Village) -> list[gm.Fact]:
     out.append(gm.Fact(COUNTS, (
         "Heathen camps: the game models none; an ordinary Heathen's role number (0 to 11, 18) is only the spot it "
         "stays at, picked at random among the unsolved puzzles' spots (0x469F20)."), gm.RUNNING, sub=True))
-    out.append(gm.Fact(COUNTS, (
-        "Conversion: setting a Heathen's Faith (0x467F90) converts them (0x4668B0) when it goes from 0 or less to "
-        "above 0, once the story allows it (game flag +0x17E39, 0x442206); a convert below 5 is raised to 55. "
-        "Preaching (0x468DA0) adds 3 Faith, 4 at Devotion 50 or more, 5 at 88 or more, after a Devotion skill roll "
-        "(0x46B270), and that Heathen then waits 7,200 real-life seconds (2 real-life hours, at any speed, 0x468F2A); "
-        "the Doctor, the Chief, the Masters and the Mommy cannot be preached to. The Chief's puzzle sets the Chief's "
-        "Faith to 100 (0x4360E0); curing the Heathen Doctor sets 25 to 59 (0x468CF2)."), gm.RUNNING, sub=True))
+    # How a Heathen converts, preaching and the other Faith changes are said once, under Faith and Heathens (the
+    # audit of 2026-10-25: this line repeated them).
+    out.append(gm.Fact(COUNTS, "Conversion, preaching and every other change of Faith: see Faith and Heathens.",
+                       gm.RUNNING, sub=True))
     if village.has(HEATHEN_MOMMY):
         out.append(gm.Fact(COUNTS, (
             f"The Heathen Mommy (with \"{gm.feature_name(HEATHEN_MOMMY)}\", in this game): she is made with no sex "

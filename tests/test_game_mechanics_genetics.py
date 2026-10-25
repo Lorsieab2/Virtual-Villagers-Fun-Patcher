@@ -103,7 +103,15 @@ class Rules(unittest.TestCase):
         self.assertIn("33 times in 100 their looks change", genetics_text(3))
         for game in (4, 5):
             with self.subTest(game=game):
-                self.assertIn("Joey, who has head 2 and body 2", genetics_text(game))
+                if game == 4:
+                    self.assertIn("Joey, who has head 2 and body 2", genetics_text(game))
+                else:
+                    # New Believers: Joey's only event is inherited and never drawn (0x415B10), so never named; the
+                    # Heathen Mommy's father "Unknown" is a name the patch's new-village code passes, head 2 body 2.
+                    self.assertNotIn("Joey", genetics_text(game))
+                    self.assertIn("father \"Unknown\" (the owner). He is a name only, not a villager",
+                                  genetics_text(game))
+                    self.assertIn("head 2 and body 2 (0x465E00)", genetics_text(game))
                 self.assertIn("changes a villager's head after it is made", genetics_text(game))
         for game in (1, 3, 4, 5):
             self.assertNotIn("fixed lists", genetics_text(game))

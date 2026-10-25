@@ -149,10 +149,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     sub-bullets, and a patch's change after the normal game's odds only when the patch is in the game."""
     out: list[gm.Fact] = []
     table = rolls(village.game)
+    try:                                       # a game's own wording of a group's note (its module's NOTES)
+        own = dict(getattr(importlib.import_module(f"vv_game_mechanics_chances_vv{village.game}"), "NOTES", {}))
+    except ImportError:
+        own = {}
     for group, note in ((CHANCES, NOTE), (BIRTHS, BIRTH_NOTE)):
         mine = [r for r in table if r.group == group]
         if not mine:
             continue
+        note = own.get(group, note)
         out.append(gm.Fact(group, note, gm.RUNNING))
         for roll in mine:
             out.append(gm.Fact(group, roll.words(roll.text), roll.verified))
