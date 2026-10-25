@@ -235,6 +235,17 @@ def genetics_facts(village: "Village") -> list[Fact]:
     return list(importlib.import_module("vv_game_mechanics_genetics").facts(village))
 
 
+# Every random roll with its exact odds (src/vv_game_mechanics_chances.py, the owner 2026-10-24), shown just before
+# the general "Chance and timers".
+CHANCES_GROUPS = ("Chances", "Births and gender")
+GROUPS = GROUPS[:GROUPS.index("Chance and timers")] + CHANCES_GROUPS + GROUPS[GROUPS.index("Chance and timers"):]
+
+
+def chances_facts(village: "Village") -> list[Fact]:
+    """The Chances and Births and gender groups for `village` (found by name)."""
+    return list(importlib.import_module("vv_game_mechanics_chances").facts(village))
+
+
 def starvation_lines(village: "Village", delta: int, basis: str, totem_colour: bool = False) -> list[Fact]:
     """Each living villager's hidden starvation number (a value the game rolls at creation and keeps in the
     save, `delta` bytes before the villager's name in its record) and what it means for them: a multiple of
@@ -705,6 +716,7 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     facts = list(module.facts(village))
     if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
         facts += genetics_facts(village)
+        facts += chances_facts(village)
     if not facts:
         facts = [Fact("Other", "Nothing is shown for this game yet.")]
     facts = sources_lines(path, patches, village.notes) + facts
@@ -745,7 +757,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     village = Village(Path("."), game, 1, Path(f"{game}.ldw"), blank_save(game, now), None, now, general=True)
     module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     keep = []
-    for fact in list(module.facts(village)) + genetics_facts(village):
+    for fact in list(module.facts(village)) + genetics_facts(village) + chances_facts(village):
         if fact.due is not None:
             continue                           # a moment of the empty save's village
         if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",
