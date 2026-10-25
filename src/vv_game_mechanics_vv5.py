@@ -240,21 +240,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                        "500 food or less only half the time; on Medium at 8,000 food or more, or on Hard, 2 more 76% "
                        "of the time; never on Easy. Heathens skip it.", gm.RUNNING)
 
-    # -- Time away and Time Warp ---------------------------------------------------------
-    out.extend(gm.time_away(village, last, speed_value,
-                            "Saved paused: the time away is not counted when it is next played; nothing ages, grows "
-                            "or comes due.", unit_seconds=20 * 60 * speed))
-    for n, fact in enumerate(out):
-        if fact.text.startswith("Saved paused:"):
-            out[n] = gm.Fact(fact.group, fact.text, gm.RUNNING)
-    add("Time away and Time Warp", "While catching up, each counted age unit runs the believers' life (eating, belief, "
-                                   "Divine Energy, sickness, births) and 4 jobs: crops 7 food, research ÷ 7, ÷ 7 or "
-                                   "÷ 5, no lab mishaps.", gm.RUNNING)
-    add("Time away and Time Warp", "Every noni growth and crop refill missed while the game was closed is added when "
-                                   "it is next played, with no limit on how many: noni stop at 1,000, crops at 800.",
-        True)
-    add("Time away and Time Warp", "Heathens never age, while catching up or otherwise (the stock game's design).", gm.OWNER)
-    out.append(gm.time_warp_line(speed_value))
+    # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events -------------------------------------------------------------------
     first = (" The first comes 15 minutes after the village is made and the next 30 minutes after it;"

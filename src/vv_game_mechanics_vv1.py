@@ -375,18 +375,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food earned", "The Golden Child neither eats nor starves: the age-unit step that feeds and starves the villagers "
                        "skips him.", gm.RUNNING)
 
-    # -- Time away and Time Warp ---------------------------------------------------------
-    out.extend(gm.time_away(village, saved, speed_value,
-                            "Saved paused: the time away is not counted when it is next played, and the regrowth and "
-                            "island event timers move on with the paused time.", unit_seconds=20 * 60 * speed))
-    for n, fact in enumerate(out):
-        if fact.text.startswith("Saved paused:"):
-            out[n] = gm.Fact(fact.group, fact.text, gm.RUNNING)             # verified (spec v2, section 1 and 8)
-    add("Time away and Time Warp", "While catching up, an adult more than 2 age units behind tries 5 jobs for every "
-                                   "counted age unit.", gm.RUNNING)
-    add("Time away and Time Warp", "Every regrowth missed while the game was closed is added when it is next played, "
-                                   "with no limit on how many: the bush has no cap, the crop field stops at 800.", gm.RUNNING)
-    out.append(gm.time_warp_line(speed_value))
+    # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events -------------------------------------------------------------------
     first = (" The first is always a story event, the second 30 minutes later;"
