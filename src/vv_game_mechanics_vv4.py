@@ -18,6 +18,7 @@ import struct
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_death as death
+import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
 import vv_save_backup
 
@@ -33,27 +34,6 @@ LEARNING = "vv4_learning_never_fails"
 SCALES = "vv4_complete_scales_golden_fish"
 STORY = "vv4_story_cheat_upgrades"
 
-# (line, verified)
-EVENT_LINES = (
-    ("Which event: every event whose conditions hold is equally likely (1 in the number of them; Aspiring Doctor "
-     "counts 6 times). Rescue: with one sex down to 2 or fewer, or fewer than 3 villagers, 6% more become "
-     "Daredevil Barrel, even when it could not otherwise happen.", gm.RUNNING),
-    ("Rolled results: Arc of Colors (run right) 50% a fall (-25 to 44 health), 50% +300 food; Sealed Box (swim "
-     "it back) 50% +5000 tech points, 50% the villager is lost; Innovation in Construction or Farming (try it) "
-     "60% a skill gain, 40% -75 to 149 health.", gm.RUNNING),
-    ("Creeping Mold -100 food (or all of it); Mysterious Footprints +300 food, -300 food, +2000 or -2000 tech "
-     "points; A Closer Look +350 berries; Robber Crab (cut the tail) healing for several, (let go) Food Mastery "
-     "+1 level; Phosphorescent Fungi (throw away) Research +40 to 49, sick, -15 to 19 health, (admire) some fall "
-     "sick; Stinging Wasps some lose 10 to 19 health.", False),
-    ("Village & Tree Malaise (fewer than 3 tree stages) some lose 5 to 14 health or fall sick; Euphoria (3 or "
-     "more) everyone cured and fully healed; Pure Sea Air everyone cured; Cold Snap (the fire lit) puts the fire "
-     "out; Daredevil Barrel (room, the stream restored, some debris) up to 3 babies; Abandoned Infants (6 women, "
-     "room) babies for 6 women.", False),
-    ("Day of Honor needs 2 graves, Banyan Festival 500 mushrooms found and 3 tree stages; Allergy Season, Isola "
-     "Day, Blessings Day, Rainy Season and Monsoon change nothing stored. Pink Shell, Calabash, Faces in the "
-     "Night, Screaming Baby, Wet Book, The Lie, Aspiring Doctor, Aspiring Scientist, Pretty Shell, Legendary "
-     "Stranger, Climber, Mosquito Larvae and Tough Lessons have a fixed result for each choice.", False),
-)
 STEW_LINES = (
     ("Stews need 3 herbs and fresh water in a cooked pot; a ready stew is gone 5 real-life minutes later at every "
      "speed. Spicy x3: runs to "
@@ -303,15 +283,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events -------------------------------------------------------------------
-    first = " (30 minutes while none has been seen yet)" if _i32(data, EVENTS_SEEN) == 0 else ""
     add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
-    add("Island events", f" Island events come every 8 to 15 whole hours, each "
-                         f"equally likely, at any speed{first}; paused time does not count; after time away at most "
-                         "one happens.", gm.RUNNING)
-    for line, ok in EVENT_LINES:
-        add("Island events", line, ok)
-    if village.has(STORY) is not False:
-        add("Island events", gm.patch_words(village, STORY, "Pick Island Event chooses the event and its rolls"))
+    out.extend(events.facts(village))          # the catalog (src/vv_game_mechanics_events_vv4.py)
 
     # -- Other ---------------------------------------------------------------------------
     for line, ok in HIDDEN_LINES:

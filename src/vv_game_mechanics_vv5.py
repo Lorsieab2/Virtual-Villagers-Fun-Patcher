@@ -18,6 +18,7 @@ import struct
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_death as death
+import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
 import vv_game_mechanics_powers_vv5 as powers
 import vv_save_backup
@@ -35,34 +36,6 @@ STORY = "vv5_story_cheat_upgrades"
 GOLDEN = "vv5_super_secret_golden_mushroom"
 LEARNING = "vv5_learning_never_fails"
 
-# (line, verified)
-EVENT_LINES = (
-    ("Which event: every event whose conditions hold at that moment is equally likely (1 in the number of them); "
-     "if none qualifies, nothing happens.", gm.RUNNING),
-    ("Rescue: with the sexes out of balance or fewer than 3 believers, 6% of events become Chutes Without Ladders "
-     "instead.", gm.RUNNING),
-    ("Always possible: Creeping Mold, Allergy Season, Isola Day, the four Footprints events (food gained, food lost, "
-     "tech gained, tech lost), Blessings Day, Strange Crystals, Especially Offensive Cloud, Spicy Juice, Clumsy "
-     "Heathen, Salty Air and News From Another Tribe (a message).", False),
-    ("Day of Honor needs 2 or more graves. Vision, Mask, Doubt, Aphids in the Noni Bush, Straw Hat and Daredevil "
-     "Jump need a believer; Bed Bugs a believer who is not pregnant; Strange Nectar a believer of 18 or more. Cold "
-     "Snap needs the fire burning. Army Ants, Aphid Infestation and River Breaks Its Banks need the Hydroponic "
-     "Farm; Pesky Critter the Knowing Totem. Advanced Artifacts needs Science exactly level 2; Trick Or Trade 100 "
-     "food or more.", False),
-    ("Mushroom Day needs a believer child; Migrating Fruit Bats also Food Mastery below 2; Innovation in Farming "
-     "also the Heathen Scientist. Heathen Toy, Spying on the Heathens and Missing Kids need a believer child and a "
-     "healthy heathen child. Spa and Cracked Mask need a believer and a healthy heathen child; You're Doing It "
-     "Wrong! an adult believer, a heathen child and Science below 2; Outreach? an adult believer and a healthy "
-     "adult heathen; Defector a healthy heathen. The Barrel O' Babies events, Chutes Without Ladders and News "
-     "From Another Tribe (a newcomer) need room for more villagers.", False),
-    ("Rolled results: You're Doing It Wrong! (teach them), Advanced Artifacts (independent report) and Defector "
-     "(accept) are 50/50.", gm.RUNNING),
-    ("Vision faith +20 to +39; Strange Crystals +2,000 to 2,999 tech points; Pesky Critter -500 to -2,999 tech "
-     "points; Mushroom Day +50 to 99 food and -500 to -1,499 tech points.", False),
-    ("Heathen Toy +20 to 29 Research or Devotion; Cracked Mask (fix it) -20 to 30 health; Barrels and Chutes up to "
-     "3 ten-year-olds, each 50% a boy, with one random skill at 5 to 9 (a heathen barrel's babies start at faith "
-     "-55); a newcomer is 18, 50% a man, with a random skill at 80 to 84.", False),
-)
 LIFE_LINES = (
     ("Sickness each age unit: 0.28%, 0.16% or 0.06% at Medicine 1, 2 or 3, 1.5% more from 50, 58 or 66 years; on "
      "Easy a quarter of that.", gm.RUNNING),
@@ -244,17 +217,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events -------------------------------------------------------------------
-    first = (" The first comes 15 minutes after the village is made and the next 30 minutes after it;"
-             if _i32(data, EVENTS_SEEN) == 0 else "")
     add("Island events", f"Next island event: {due(EVENT_NEXT)}.", gm.SAVE)
-    add("Island events", f"{first} Island events come every 8 to 15 whole hours, "
-                         "each equally likely, at any speed; paused time does not count.", gm.RUNNING)
-    for line, ok in EVENT_LINES:
-        add("Island events", line, ok)
-    weather = {gm.FAST: "1.5 to 3", gm.NORMAL: "3 to 6", gm.SLOW: "5 to 10"}[speed]
-    add("Island events", f"Weather events last {weather} minutes on {on} speed.", gm.RUNNING)
-    if village.has(STORY) is not False:
-        add("Island events", gm.patch_words(village, STORY, "Pick Island Event chooses the event"))
+    out.extend(events.facts(village))          # the catalog (src/vv_game_mechanics_events_vv5.py)
 
     # -- Other ---------------------------------------------------------------------------
     for line, ok in HIDDEN_LINES:

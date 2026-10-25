@@ -38,8 +38,8 @@ RESCUE = 15
 
 M = "m x"            # the amounts' multiplier (the module docstring)
 ADULT = "a living villager of 18 villager years or more who is not pregnant or nursing (or 50 or more)"
-WEATHER = ("weather for 180 to 359 game seconds (3 to 6 game minutes: half that in real time on Fast, 1 2/3 times "
-           "it on Slow)")
+WEATHER = ("weather for 1.5 to 3, 3 to 6 or 5 to 10 real-life minutes on Fast, Normal or Slow speed (paused "
+           "time does not count)")
 
 RULES = (
     Line("Timing: an event comes 8 to 15 whole real-life hours after the last (each of the 8 hour counts 1 in 8), at "
@@ -152,7 +152,7 @@ EVENTS = (
     Event("The Bitter Brown Beans (brew or fertilizer)", "needs Science technology level 2 or more and a living "
                                                          "villager of 18 to 49 not pregnant or nursing", (
         f"\"Try to brew the beans\": the tribe gains {M} 600 food and {M} 2,000 tech points (0x415A10).",
-        "\"Use the beans as fertilizer\": every fruit tree grown (planted 28,800 game seconds ago or more) is set "
+        "\"Use the beans as fertilizer\": every fruit tree grown (ready to pick: 8 real-life hours of play after planting on Normal speed, 4 on Fast, 13 real-life hours 20 minutes on Slow) is set "
         "to 1,000 fruit (0x4340A0).")),
     Event("The Ancient Tablet (laundry or decoration)", "needs Science technology below level 2 and a living "
                                                         "villager of 18 to 49 not pregnant or nursing", (
@@ -215,17 +215,22 @@ EVENTS = (
         Line("How the pair is picked: the woman, then the man, each drawn equally likely from the villagers the "
              "game's picker allows (0x416ED0 -> 0x45D460 with its adult class: age 360 to 999 age units, a woman "
              "not pregnant or nursing, not the chief)."),
-        Line("The owner has seen The Lovers choose a teenager (14 to 17 villager years) -- the only way the owner "
-             "has seen a villager under 18 breed. The picker as read takes 360 to 999 age units only; the path that "
-             "lets a teenager through is not in the event's own code (0x416ED0).", "owner"),
+        Line("The owner has seen The Lovers choose a teenager (14 to 17 villager years). The game's own draw cannot: "
+             "both picks use the picker's adult class, 360 to 999 age units (18 to 49 villager years), and a woman "
+             "not pregnant or nursing (0x45D4CC), and Pick Island Event offers only villagers the game could draw. A "
+             "teenager is chosen only through the patcher's Custom Island Event, which may pick any villager by "
+             "design.", "owner"),
         "\"Carve a knife for him\": both gain 25 Parenting, up to 100, and she conceives his child (0x4582A0), if "
         "there is room; at Medicine level 3 the conception's twin and triplet rolls are made (0x416F30).",
         "\"Give him a shark-tooth necklace\": nothing changes.")),
     Event("The Lovers (his gift)", "needs a living man of 18 to 49 who is not the chief and a living woman of 18 to "
                                    "49 who is not pregnant or nursing and not the chief", (
         Line("How the pair is picked: the man, then the woman, as for her gift (0x417050 -> 0x45D460)."),
-        Line("The owner has seen The Lovers choose a teenager (14 to 17 villager years); the picker as read takes "
-             "360 to 999 age units only (0x417050).", "owner"),
+        Line("The owner has seen The Lovers choose a teenager (14 to 17 villager years). The game's own draw cannot: "
+             "both picks use the picker's adult class, 360 to 999 age units (18 to 49 villager years), and a woman "
+             "not pregnant or nursing (0x45D4CC), and Pick Island Event offers only villagers the game could draw. A "
+             "teenager is chosen only through the patcher's Custom Island Event, which may pick any villager by "
+             "design.", "owner"),
         "\"Give her a shell necklace\": nothing changes (0x4170B0).",
         "\"Give her flowers\": both gain 25 Parenting, up to 100, and she conceives his child, if there is room.")),
     Event("The Medical Emergency", "needs Medicine technology level 2 or more, a living villager who is not the "

@@ -170,7 +170,9 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_death", "vv_game_mechanics_genetics", "vv_game_mechanics_catchup",
                "vv_game_mechanics_powers_vv5", "vv_game_mechanics_chances", "vv_game_mechanics_chances_vv1",
                "vv_game_mechanics_chances_vv2", "vv_game_mechanics_chances_vv3", "vv_game_mechanics_chances_vv4",
-               "vv_game_mechanics_chances_vv5"}
+               "vv_game_mechanics_chances_vv5", "vv_game_mechanics_events", "vv_game_mechanics_events_vv1",
+               "vv_game_mechanics_events_vv2", "vv_game_mechanics_events_vv3", "vv_game_mechanics_events_vv4",
+               "vv_game_mechanics_events_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -307,18 +309,24 @@ class ReleasesLinkTests(unittest.TestCase):
                                    "vv_fun_patcher"}),  # the patcher's own applied-patch check of the exe (function-level)
             ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename"}),
             # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
-            # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py).
+            # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py) and Island events catalog.
             *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
-                                            "vv_game_mechanics_death"})
+                                            "vv_game_mechanics_death", "vv_game_mechanics_events",
+                                            "vv_game_mechanics_events_vv2"})
               for n in range(1, 5)),
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
-                                       "vv_game_mechanics_death", "vv_game_mechanics_powers_vv5"}),
+                                       "vv_game_mechanics_death", "vv_game_mechanics_powers_vv5",
+                                       "vv_game_mechanics_events"}),
             ("vv_game_mechanics_powers_vv5", {"vv_game_mechanics"}),
             # Death and graves: the graves and Deaths log as Fix grave information reads them, the villagers as
             # Last Names reads them, the record layouts of the people and clocks (all function-level).
             ("vv_game_mechanics_death", {"vv_game_mechanics", "vv_graves", "vv_last_names",
                                          "vv_game_mechanics_life"}),
+            # The Island events catalogs: the shared renderer, and each game's events.
+            ("vv_game_mechanics_events", {"vv_game_mechanics"}),
+            *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events"})
+              for n in (1, 2, 3, 4, 5)),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout"}),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).

@@ -1,4 +1,4 @@
-﻿"""The Lost Children (VV2): every island event the game fires and the Gong of Wonder, their odds and outcomes
+"""The Lost Children (VV2): every island event the game fires and the Gong of Wonder, their odds and outcomes
 (src/vv_game_mechanics_events.py).
 
 Read from the stock executable (research/stock-executables, inputs/vv2-stock-copy); state offsets are the world's

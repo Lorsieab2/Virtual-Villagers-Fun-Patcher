@@ -1,4 +1,4 @@
-﻿"""A New Home (VV1): every island event the game fires, its odds and outcomes (src/vv_game_mechanics_events.py).
+"""A New Home (VV1): every island event the game fires, its odds and outcomes (src/vv_game_mechanics_events.py).
 
 Read from the stock executable (research/stock-executables, inputs/vv1-stock-copy); state offsets are the world's
 (a save's file offset is 4 more).  The popup words are the game's own strings (the table the getter 0x433880 walks,
@@ -65,6 +65,11 @@ RULES = (
          "villager years. Choosing a button applies the result at once. Every \"N%\" is the game's test "
          "rand(100) < N: the C runtime's random number (0 to 32,767) modulo 100, which makes it N% to within 0.07 "
          "percentage points."),
+    Line("The Golden Child and these events: see the Golden Child group, which lists every event that can pick him "
+         "and what it does to him (he never regains health, so a loss stays)."),
+    Line("With the patcher's \"Fix Vanilla Bugs\" (in this game): no natural island event with a result that kills "
+         "or removes its villager can pick the Golden Child (the picker 0x43BCD0 passes over him for those events); "
+         "a Pick Island Event or Custom Island Event may still pick him, by design (the owner).", only_with=FIX),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event chooses the next event "
          "and its rolls instead of the chances above.", only_with=STORY),
 )
