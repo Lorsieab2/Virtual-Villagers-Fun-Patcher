@@ -45,7 +45,7 @@ INTRO = ("For the curious: the hidden rules of each game -- its food sources, re
          "are real times. It only reads: nothing is changed, so the game may be running.")
 WIDTH, HEIGHT = 900, 720
 LABEL_RED = "#b00020"
-MIN_WIDTH, MIN_HEIGHT = 600, 560
+MIN_WIDTH, MIN_HEIGHT = 600, 600
 LINKS_PER_ROW = 5
 TICK_MS = 1000                  # the one timer: every countdown, and Auto-refresh
 AUTO_REFRESH_SECONDS = 30
