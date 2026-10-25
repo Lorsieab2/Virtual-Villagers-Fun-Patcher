@@ -177,8 +177,8 @@ EVENTS = (
         "\"Share the treasure with the tribe.\": every villager gains 5 to 9 health (each rolled 1 in 5 for "
         "each villager), up to 100, and the village celebrates (0x41A000). The game adds it to every unburied body "
         "too: a body at 0 health (old age, sickness, hunger, The Strange Berries, the floored losses) is a living "
-        "villager again with 5 to 9 health; a body below 0 health (research injuries and some crate losses have no "
-        "floor) comes back only when the 5 to 9 lifts it above 0.",
+        "villager again with 5 to 9 health; a body below 0 health (research injuries, the rotting crate's opener and "
+        "the old fruit crate have no floor) comes back only when the 5 to 9 lifts it above 0.",
         "\"Keep the pearl hidden.\": the villager's first two dislikes become crowds and work (dislike slots 1 "
         "and 2 overwritten: 1 and 42 in the game's list, string 0xD6) (0x41A0B5).")),
     Event("The Dream", "an encounter, always possible", (
