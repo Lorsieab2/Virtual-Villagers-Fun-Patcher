@@ -811,19 +811,21 @@ static unsigned int c3_value_field(int which) {
     return which == 6 ? 0x5945E0u : 0;
 }
 
-static int c3_value_get(int which) {
+static int c3_value_get(int which, int *now) {
     int trees = *(int *)(uintptr_t)0x594844u;
     if (which < 0 || which > 6) {
-        return -1;
+        return 0;
     }
     if (which < 6 && which % 3 >= trees) {
-        return -1;                     /* no tree planted there */
+        return 0;                      /* no tree planted there */
     }
-    return *(int *)(uintptr_t)c3_value_field(which);
+    *now = *(int *)(uintptr_t)c3_value_field(which);
+    return 1;
 }
 
 static int c3_value_set(int which, int amount) {
-    if (c3_value_get(which) < 0) {
+    int now;
+    if (!c3_value_get(which, &now)) {
         return 0;
     }
     *(int *)(uintptr_t)c3_value_field(which) = amount;

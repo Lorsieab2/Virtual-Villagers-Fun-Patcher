@@ -16,6 +16,7 @@ EXPORTS
     VvfpStoryRechargeChiefPowers=_VvfpStoryRechargeChiefPowers@8
     VvfpStoryTimeSkipPrice=_VvfpStoryTimeSkipPrice@4
     VvfpStoryCallerReturn=_VvfpStoryCallerReturn@4
+    VvfpStoryEventChosen=_VvfpStoryEventChosen@4
     VvfpStoryProbeQueueCustom=_VvfpStoryProbeQueueCustom@12
     VvfpStoryProbeSetCustom=_VvfpStoryProbeSetCustom@12
     VvfpStoryProbeCustomPending=_VvfpStoryProbeCustomPending@4
@@ -62,6 +63,7 @@ EXPORTS
     VvfpStoryProbeOutcomeControl=_VvfpStoryProbeOutcomeControl@16
     VvfpStoryProbeChoiceSizes=_VvfpStoryProbeChoiceSizes@4
     VvfpStoryProbeCaps=_VvfpStoryProbeCaps@4
+    VvfpStoryProbeValue=_VvfpStoryProbeValue@12
     VvfpStoryProbeChoiceCap=_VvfpStoryProbeChoiceCap@4
     VvfpStoryProbeSetRoll=_VvfpStoryProbeSetRoll@4
     VvfpStoryProbeRollIndex=_VvfpStoryProbeRollIndex@12

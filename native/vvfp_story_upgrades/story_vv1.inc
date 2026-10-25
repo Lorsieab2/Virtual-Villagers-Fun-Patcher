@@ -142,13 +142,26 @@ __declspec(naked) static void vv1_unlock_encounter_stub(void) {
     }
 }
 
+/* Whether the island event the game is setting up now was chosen by Pick Island Event: set when a
+   pick is delivered by the roll below, cleared by every roll the game makes on its own (a natural
+   event, or the re-roll after a delivered pick's own condition failed).  Every encounter and crate
+   setup makes this roll before it picks the villager the event is about, so the flag always names
+   the event whose villager is being picked.  A Custom Island Event never runs a stock setup (its
+   question has its own, story_c1.inc c1_choice_setup; its plain event is applied in the chooser
+   call, c1_choose).  Read by "VVFP VV1 Golden Child Safe.dll" (VvfpStoryEventChosen): Fix Vanilla
+   Bugs keeps the Golden Child out of the natural island events that could kill him, never out of
+   the ones the player picks or builds. */
+static int vv1_event_chosen;
+
 static int vv1_event_roll(int family, int bound) {
     int slot;
     oc_reroll(1);
     slot = vv1_peek();
     if (slot < 0 || VV1_SLOT_FAMILY(slot) != family || VV1_SLOT_INDEX(slot) >= bound) {
+        vv1_event_chosen = 0;
         return VV1_RAND(bound);
     }
+    vv1_event_chosen = 1;
     if (oc_unlocked(1, slot)) {
         /* pass the event's own condition for this one roll */
         if (family == VV1_FAMILY_ISLAND) {
