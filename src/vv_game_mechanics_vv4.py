@@ -54,14 +54,50 @@ EVENT_LINES = (
      "Stranger, Climber, Mosquito Larvae and Tough Lessons have a fixed result for each choice.", False),
 )
 STEW_LINES = (
-    ("Stews need 3 herbs and fresh water in a cooked pot; a ready stew is gone 5 minutes later. Spicy x3: runs to "
+    ("Stews need 3 herbs and fresh water in a cooked pot; a ready stew is gone 5 real-life minutes later at every "
+     "speed. Spicy x3: runs to "
      "the stream; spicy, spicy, sweet: every adult comes; spicy, spicy, soapy: has got to go; spicy, sweet, "
      "sweet: the whole village comes; spicy, sweet, soapy: the Grand Feast (a well-cooked pot and the 4 feast "
      "items); spicy, soapy, soapy: the soapy-stew reaction.", gm.RUNNING),
     ("Sweet x3: honours the tree; sweet, sweet, soapy: the children get hiccups; sweet, soapy, soapy: heals 25 to "
-     "59 health (5 to 14 with under 100 food), then no stew for 10 minutes; soapy x3: sick, then no stew for 10 "
-     "minutes. In salt water, pulpy vines x3 make soap; any other mix tastes nasty or too salty.", gm.RUNNING),
+     "59 health (5 to 14 with under 100 food), then no stew for 10 real-life minutes; soapy x3: sick, then no stew "
+     "for 10 real-life minutes. In salt water, pulpy vines x3 make soap; any other mix tastes nasty or too salty.", gm.RUNNING),
 )
+# The stew pot (0x4D76D8) and its herb table (0x4D8220), the same design as The Secret City's potion: a stew
+# made (0x42EDE0) sets the table's deadline +8 to the real clock 0x403750 + 300 (0x42F240, from 0x42EEB2); the
+# table's update 0x42F1D0 empties the pot there (0x42F060 -> 0x42DA30, the herbs put back).  The pot's countdown
+# (0x42E5D2) shows the time left (0x42F410) x the clock's rate / 6 (0x41DB00) as m:ss.  The table is not saved
+# (its save and load slots are no-ops, 0x432380), so no save holds a stew to count down.
+STEW_COUNTDOWN = {gm.FAST: "2:30", gm.NORMAL: "5:00", gm.SLOW: "8:20"}
+
+
+def stew_pot_line(speed: int) -> str:
+    return (f"A ready stew: the pot's on-screen countdown starts at {STEW_COUNTDOWN[speed]} on {gm.speed_name(speed)} "
+            "speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with the speed), and the pot "
+            "empties itself when it reaches 0:00. The save does not keep the pot.")
+
+
+# The owner (2026-10-24).  In the code a villager dropped on the herb table (its drop slot 0x42F0F0) empties the
+# pot through 0x42F060 -> 0x42DA30 and puts the herbs back, as in The Secret City.
+GRATE_LINE = "The pot can be emptied by dropping a villager on the grate."
+# The owner (2026-10-24): some stews can be reheated by putting another hot rock in the pot.  In the code each
+# hot rock adds 10 to the pot's heat (+0xB1C, 0x42EAA7; nothing lowers it until the pot is emptied, 0x42DA76);
+# a stew is ready at 10 heat (the Grand Feast, stew 4, at 20 with its 4 feast items; stews 10 and 11 need none:
+# 0x42DC80), and a rock added to a pot whose stew is ready makes it again (0x42EAF1 -> 0x42EDE0), which sets the
+# 300-second deadline again (0x42F240), with no limit.  Which stews the owner means by "some" is not settled by
+# the code, which makes no exception: UNCONFIRMED.
+REHEAT_LINE = ("Some stews can be reheated by putting another hot rock in the pot: each hot rock adds 10 heat, a "
+               "stew is ready at 10 (the Grand Feast at 20), and a rock added to a pot whose stew is ready makes it "
+               "again, which starts its 5 real-life minutes over, as often as a rock is added.")
+# "That villager can't eat more stew so soon." (string 0x203) is said when the villager dropped on the pot
+# (0x42E920) is refused by the add-effect 0x460A90: the same stew's effect is already on them (0x45EB40) or they
+# have 12 (+0x1E5C).  An effect ends at a real-clock deadline (0x403750 + its length, 0x460B60); saving ends every
+# villager's effects first (0x4660C4 -> 0x45EAA0), so no save holds one.
+CANT_EAT_LINE = (
+    "\"That villager can't eat more stew so soon.\" is the game's answer when that villager already has the same "
+    "stew's effect, or already has 12 effects: it lasts until that effect ends (10 real-life minutes at every speed "
+    "for the healing and sick stews), for that villager and that stew only. Saving the game ends every villager's stew effects, so a save "
+    "holds none to count down.")
 LIFE_LINES = (
     ("A baby is born on the 41st age unit after conception. Conception after an embrace: (Parenting + 50 x "
      "(Medicine level - 1) + 1) in 300 (17% at Parenting 50 and Medicine 1). At Medicine 3: twins 5.25%, "
@@ -135,11 +171,12 @@ CHANCE_V4 = (
      "tick (berries, debris, Nursery School) and the age unit 3, 6 or 10 minutes; a birth on the 41st age "
      "unit; a ghost visit every 50 to 58 minutes; the hummingbird every 3 to 5 minutes (23 to 25 after Decorate "
      "Tree).", gm.RUNNING),
-    ("A new village's first island event 15 minutes after it is made; an item lies 1 minute 30 seconds; a stew "
-     "keeps 5 minutes and a healing or sick stew locks the villager out for 10; the Fire Pit 10, 20 or 33 hours "
-     "20 minutes; clear weather 4 to 15, 8 to 30 or 13 to 50 minutes and other weather 1.5 to 3, 3 to 6 or 5 to "
-     "10 minutes on Fast, Normal or Slow; the wind flutes play in fog every 30 to 45, 60 to 89 or 100 to 148 "
-     "seconds.", False),
+    ("A new village's first island event 15 real-life minutes after it is made; an item lies 1 minute 30 real-life "
+     "seconds; a stew keeps 5 real-life minutes (another hot rock starts them over) and a healing or sick stew "
+     "locks the villager out for 10 real-life minutes; on Fast, Normal or Slow, the Fire Pit burns 10, 20 or 33 "
+     "hours 20 minutes of real life, clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes and other "
+     "weather 1.5 to 3, 3 to 6 or 5 to 10, and the wind flutes play in fog every 30 to 45, 60 to 89 or 100 to 148 "
+     "real-life seconds.", False),
 )
 
 
@@ -271,7 +308,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.extend(gm.starvation_lines(village, 0x8, gm.RUNNING))
     for line, ok in CHANCE_V4:
         add("Chance and timers", line, ok)
-    for line, ok in STEW_LINES + LIFE_LINES:
+    for line, ok in STEW_LINES:
+        add("Other", line, ok)
+    add("Other", stew_pot_line(speed), gm.RUNNING)
+    add("Other", GRATE_LINE, gm.OWNER)
+    add("Other", REHEAT_LINE)
+    add("Other", CANT_EAT_LINE, gm.RUNNING)
+    for line, ok in LIFE_LINES:
         add("Other", line, ok)
     out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)"))
     add("Other", f"An age unit is {gm.duration(60 * speed)} and a year {gm.duration(20 * 60 * speed)} on {on} speed.", gm.RUNNING)
@@ -295,24 +338,25 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
     ctx = life.Context(
         village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000,
-        sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {gm.every(360, speed_value)}",
-                             verified=gm.SAVE),
+        sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {life.every_real(360, speed_value)}",
+                             verified=gm.SAVE, step=2, interval=gm.real_seconds(360, speed_value),
+                             next_at=real(NEXT_TICK), first_in=max(0, _i32(data, NEXT_TICK) - _i32(data, LAST_TICK)), rule=gm.RUNNING),
                  life.Source("The fishing net and the fruit", None, unlimited=True,
                              refill_words="no store of theirs is read here: they bring what the gatherers fetch",
                              verified=False)],
         tech=_i32(data, TECH), tech_words="Research brings them; a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=3600 / 45 * 0.30, mastery=multiplier,
         golden=village.has(GOLDEN) is True,
-        mushroom_words="Something appears about every 45 seconds while playing (twice as often on wet ground), 30% of "
-                       "them mushrooms (all in rain), so about 24 mushrooms an hour.",
+        mushroom_words="Something appears about every 45 real-life seconds while playing (twice as often on wet "
+                       "ground), 30% of them mushrooms (all in rain), so about 24 mushrooms per real-life hour.",
         event_next=event_at,
         event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,
-        event_rule="It comes 8 to 15 whole hours after the last, each equally likely, at any speed; then every event "
+        event_rule="It comes 8 to 15 whole real-life hours after the last, each equally likely, at any speed; then every event "
                    "whose conditions hold is equally likely.",
         event_running="Paused time does not count; with the game closed it runs on, and after time away at most one "
                       "happens.",
         medicine=level[MEDICINE], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
-        parents_from=14, sick_loss=(0.61, 0.19),
+        parents_from=18, sick_loss=(0.61, 0.19),
         sick_end="Time never cures a sickness except on Easy (25%); a healer or a healing stew does.",
         collectibles=collectibles,
         limit=life.limit_words(village, bonus, "5 for each complete collection, 25 with all four"),

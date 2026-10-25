@@ -1740,7 +1740,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # The special descriptors after the age, each where it applies (the owner, 2026-10-22: "villagers get
         # auto-denoted with special descriptors if applicable (tribal chief, founder, runner etc)"): ticked
         # unless the player unticks them.  "X's twin/triplet" (2026-10-09), Founder (2026-10-09), Runner
-        # (2026-10-10), how they arrived, Master of a skill; then each special villager status of this game.
+        # (2026-10-10), how they arrived; then each special villager status of this game.
         box = ttk.LabelFrame(words, text="Special descriptors (shown where they apply)", padding=4)
         box.pack(fill="x", anchor="w", pady=(4, 0))
         self.descriptor_vars: dict[str, tk.BooleanVar] = {}
