@@ -123,7 +123,8 @@ LIFE_LINES = (
      "like learning, half if they dislike it.", gm.RUNNING),
     ("Building: a hut needs 2000 -- the first hut gains 12 a visit, the second 4, the third 1; the clothing hut "
      "12, the Love Shack 200, the nursery and the hospital 50. Babies need the Love Shack; women of 50 or more "
-     "cannot conceive; a baby is of the rarer sex when it is down to 2 or fewer. The Fire Pit stays lit 10, 20 "
+     "cannot conceive; with 6 or fewer villagers a baby is of the more common sex when the other is down to 2 "
+     "or fewer (see Births and gender). The Fire Pit stays lit 10, 20 "
      "or 33 hours 20 minutes on Fast, Normal or Slow. A research try injures (0 to 9 health) 2% of the time.",
      False),
 )
