@@ -68,10 +68,18 @@ MAGIC_FRUIT = "vv1_magic_fruit_alters_mortality"
 # fills the 256-entry list of on-screen effects (0x34 bytes each) with a picture.  The new village's first event:
 # 0x41C4A9 (now + 900 s); the tutorial mushroom: 0x4234C4 (now + 100 s); the village step every 2 real seconds
 # (0x42345D), the idle sweep 40 real seconds after the last (0x4233F9 -> 0x448450).
-# The 10-minute timer 0x41BFC0 (called from the screen update at 0x41B8BD) runs the save writer 0x41BF70 (the slot
-# list, the slot, the slot + 20 copy), the routine the menus' quit paths call (0x413635, 0x41418D); the owner's word
-# is that a village is saved only on a clean quit (the Sources line), so it is not shown -- listed for the owner.
+# The autosave (the owner, 2026-10-25: the games autosave): 0x41BFC0, at the end of the screen switch 0x41B350
+# (0x41B8BD, every path of its switch on the screen [0xACB4]), when the real clock time() (0x401E10) has reached
+# [0xADEC] sets [0xADEC] = now + 600 and runs the save writer 0x41BF70 -- the slot list (0), the slot ([0xABE4]) and
+# its slot + 20 copy -- with a village started ([0x9E1C]) and a slot chosen; the program start sets the first one 600
+# seconds on (0x41D484).  No pause test.  0x41BF70 is the routine the menus' quit paths call (0x413635, 0x41418D).
+AUTOSAVE = ("Autosave: each time the game switches from one of its screens to another, it "
+            "saves the village if 10 real-life minutes have passed since the program started or since its last "
+            "autosave: the slot's save, its second copy (\"Virtual Villagers2<slot>.ldw\") and the slot list. The "
+            "10 minutes are real-life time, so they count while the game is paused too; with no screen switch "
+            "there is no autosave, and quitting normally saves as well.")
 CHANCE_LINES = (
+    (AUTOSAVE, gm.OWNER),
     ("Every roll that changes play is in its own group, with its exact odds: the mushroom roll (Mushrooms, Chances); "
      "the island event's kind, its time and every outcome, crates and vials (Island events); eating, starving, "
      "health, sickness and old age (Chances); the 66% of picks that do nothing, the job and food-source choices "
@@ -120,13 +128,14 @@ HIDDEN_LINES = (
     ("A baby takes its mother's family number and starts with one skill at 5 to 7: a parent's highest, never "
      'Breeding (Farming 0 instead).', gm.RUNNING),
     # The owner (2026-10-24): the Golden Child can die from certain outcomes of certain island events.  The code
-    # agrees: no island event tests his flag, and the event picker 0x43BCD0(0) takes any living villager.  (The
-    # code also gives him health back -- dropped on the food store, 0x4243F3, and The Black Pearl's share,
-    # 0x41A050 -- so "never regains" is the owner's wording, kept as it is; the Golden Child group has the code's.)
+    # agrees: no island event tests his flag, and the event picker 0x43BCD0(0) takes any living villager.  His
+    # health comes back only by eating on the food store (0x4243F3) and The Black Pearl's share (0x41A050) (the
+    # owner, 2026-10-25: follow the code).
     ('The Golden Child can die or be lost in island events: The Strange Berries ("Taste": 49% death), the old '
      'fruit crate (strength 3 always kills; any strength hurts), The Mysterious Face ("Get a closer look": '
      '51% never seen again) and The Book ("Read the book": never seen again); The Suspicious Monkey, The Wild '
-     'Mushroom and the rotting crate take health that he never regains. See Island events.', gm.OWNER),
+     'Mushroom and the rotting crate take health that comes back only when he eats on the food store or from The '
+     'Black Pearl. See Island events and Golden Child.', gm.OWNER),
     ("Likes: at birth 70% none, 21% one, 9% two; dislikes the same; a like is never also a dislike.", gm.RUNNING),
     ("Running, liked: a villager of 14 or more runs, three times walking speed. Disliked: a child under 14 "
      "walks instead of running, and the dislike works for adults too.", gm.OWNER),

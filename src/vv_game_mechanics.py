@@ -737,15 +737,18 @@ def patch_source(save_folder: Path, game_folders: list[Path], game: int = 0,
 SOURCES = "Sources"
 
 
-def sources_lines(save: Path, patches: PatchSource, notes: list[str]) -> list[Fact]:
+def sources_lines(save: Path, patches: PatchSource, notes: list[str], game: int = 0) -> list[Fact]:
     """Where the page's facts come from (the owner, 2026-10-23): the save and when it was last written (a game saves
-    only on a clean quit, so while it runs the save can be behind it), the game's exe and where its patch list was
-    read, the patcher's per-save files the page read, and every disagreement between them."""
+    on a clean quit, so while it runs the save can be behind it), the game's exe and where its patch list was
+    read, the patcher's per-save files the page read, and every disagreement between them.  A New Home also
+    autosaves (the owner, 2026-10-25; vv_game_mechanics_vv1.AUTOSAVE)."""
     out = []
     try:
         written = when(save.stat().st_mtime)
-        out.append(Fact(SOURCES, f"The save: {save}, last written {written}. The game writes it only when it is "
-                                 "closed normally, so while it is being played the values here can be behind it.", SAVE))
+        when_written = ("when it is closed normally and by its autosave (see Chance and timers)" if game == 1
+                        else "only when it is closed normally")
+        out.append(Fact(SOURCES, f"The save: {save}, last written {written}. The game writes it {when_written}, so "
+                                 "while it is being played the values here can be behind it.", SAVE))
     except OSError:
         out.append(Fact(SOURCES, f"The save: {save}.", SAVE))
     if patches.words:
@@ -797,7 +800,7 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     facts += counts.facts(village, facts)
     if not facts:
         facts = [Fact("Other", "Nothing is shown for this game yet.")]
-    facts = sources_lines(path, patches, village.notes) + facts
+    facts = sources_lines(path, patches, village.notes, game) + facts
     order = {name: n for n, name in enumerate(GROUPS)}
     return sorted(facts, key=lambda fact: order.get(fact.group, len(GROUPS)))
 

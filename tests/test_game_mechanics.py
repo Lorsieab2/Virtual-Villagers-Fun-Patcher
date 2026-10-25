@@ -684,6 +684,10 @@ class EveryGame(unittest.TestCase):
         self.assertIn("a body at 0 health (old age, sickness, hunger", text)
         self.assertNotIn("not yet worked out", text)
         self.assertNotIn("save every 10 minutes", text)
+        # The autosave (the owner, 2026-10-25; 0x41BFC0 -> 0x41BF70), and the Sources line agrees with it.
+        self.assertIn("if 10 real-life minutes have passed since the program started or since its last autosave", text)
+        self.assertIn("The game writes it when it is closed normally and by its autosave", text)
+        self.assertNotIn("never regains. See", text)
         groups = {(f.group, f.text.split(":")[0]) for f in facts}
         self.assertNotIn(("Food sources", "Food in storage"), groups)
         self.assertNotIn(("Tech points and effects", "Tech points"), groups)
