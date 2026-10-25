@@ -62,6 +62,7 @@ EXPORTS
     VvfpStoryProbeOutcomeControl=_VvfpStoryProbeOutcomeControl@16
     VvfpStoryProbeChoiceSizes=_VvfpStoryProbeChoiceSizes@4
     VvfpStoryProbeCaps=_VvfpStoryProbeCaps@4
+    VvfpStoryProbeValue=_VvfpStoryProbeValue@12
     VvfpStoryProbeChoiceCap=_VvfpStoryProbeChoiceCap@4
     VvfpStoryProbeSetRoll=_VvfpStoryProbeSetRoll@4
     VvfpStoryProbeRollIndex=_VvfpStoryProbeRollIndex@12
