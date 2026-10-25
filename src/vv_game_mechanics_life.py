@@ -52,7 +52,10 @@ VILLAGE_TIMERS = "Village timers"
 YEAR = 20                                    # age units a year
 BIRTH_UNITS = 41                             # the babies come on the 41st age unit after conceiving
 DETAILS_UNITS = {1: 40, 3: 41, 4: 41, 5: 41}  # the Details screen's "Nursing for" (VV1 0x449375; VV3-5 add 0x29)
-CATCH_UP_STEP = 2                            # real seconds a counted age unit takes to work off (UNCONFIRMED)
+# The whole catch-up runs inside one update: each game's life loop repeats until no villager's processed age is
+# behind its age (VV1 0x42F15C -> 0x42EC55, VV2 0x43C0B5 -> 0x43BA70, VV3 0x4605CE -> 0x45FFF0, VV4 0x468B09 ->
+# 0x468440, VV5 0x47336A -> 0x472CA0), so a lag is worked off the moment the village is next played.
+CATCH_UP_STEP = 0                            # real seconds a counted age unit takes to work off
 DIFFICULTY = {0: "Easy", 1: "Medium", 2: "Hard"}
 GOLDEN_IDS = {n: f"vv{n}_super_secret_golden_mushroom" for n in range(1, 6)}
 
@@ -301,12 +304,12 @@ def by_age(ctx: Context, units: float) -> tuple[float | None, str]:
 
 
 def by_processed(ctx: Context, p: Person, units: float) -> tuple[float | None, str]:
-    """When the processed age will have stepped `units` more: it first works off what time away has already added
-    to the age (one age unit every 2 seconds of play, UNCONFIRMED), then runs at the speed."""
+    """When the processed age will have stepped `units` more: what time away has already added to the age is worked
+    off in the first update after the village loads (CATCH_UP_STEP), then it runs at the speed."""
     lag = max(0, p.age - p.processed)
     if units <= lag:
-        return None, (f"within about {gm.duration(units * CATCH_UP_STEP)} of real-life play while the village catches up "
-                      "(the time away is already counted)")
+        return None, ("as soon as the village is next played: the catch-up works off the time away already counted "
+                      "in its first update")
     return by_age(ctx, units - lag)
 
 
@@ -321,8 +324,8 @@ def _babies_words(n: int) -> str:
 
 def birth_wait(ctx: Context, p: Person) -> float:
     """Seconds of play from now until `p`'s babies are born, as by_processed times it: what time away has already
-    added (her lag, and the time away counted if the village were played now) is worked off at CATCH_UP_STEP a unit,
-    the rest at the speed's age unit."""
+    added (her lag, and the time away counted if the village were played now) is worked off at once in the first
+    update (CATCH_UP_STEP), the rest at the speed's age unit."""
     left = max(0, p.conceived + BIRTH_UNITS - p.processed)
     if left == 0:
         return 0.0
@@ -362,8 +365,8 @@ def nursing_lines(ctx: Context, everyone: list[Person]) -> tuple[list[gm.Fact], 
         else:
             moment, words = by_processed(ctx, p, left)
         father = f" by {p.father}" if p.father else ""
-        # Built from the save and the verified 41-unit rule and time-away clamp; the catch-up pace is not verified.
-        ok = gm.RUNNING if p.age <= p.processed else False
+        # Built from the save, the verified 41-unit rule, the time-away clamp and the one-update catch-up.
+        ok = gm.RUNNING
         add(f"{p.name}{father}: {_babies_words(p.babies)}; {left} age unit{'s' if left != 1 else ''} to go, born "
             f"{words}.", ok, due=moment, kind="due" if moment is not None else None)
         if ctx.game in DETAILS_UNITS:            # the Details screen's own sum (The Lost Children's is not traced)

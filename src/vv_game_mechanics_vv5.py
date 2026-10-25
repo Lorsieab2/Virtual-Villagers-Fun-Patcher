@@ -17,7 +17,9 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_death as death
 import vv_game_mechanics_life as life
+import vv_game_mechanics_powers_vv5 as powers
 import vv_save_backup
 
 GAME = 5
@@ -85,9 +87,6 @@ LIFE_LINES = (
 HIDDEN_LINES = (
     ("Each villager's hidden name number (1 to 183, not inherited; a name always has the same one) sets how it "
      "starves; the villagers' numbers are below.", gm.RUNNING),
-    ('The Time Warp God Power (500 Divine Energy) makes everyone age about 18 to 20 times as fast for 5 real '
-     'minutes: 6 age units a minute on Fast, 3 on Normal, 2 on Slow -- 30, 15 or 10 units in all (1.5, 0.75 or '
-     '0.5 years). Quitting during those 5 minutes loses the rest.', gm.RUNNING),
     ("Preaching to a heathen: the preacher's Devotion check (35% at Devotion 0, 83% at 50, sure at 88) gives "
      'the heathen 3 belief, 4 at Devotion 50, 5 at 88; then that heathen cannot be preached to for 2 hours '
      '(the 800-energy God Power sets the same wait).', gm.RUNNING),
@@ -214,9 +213,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "appear; a second set of 24 only once the Knowing Totem is built (then half from each). A "
                         "piece already found gives +10, 50 or 150 Divine Energy from the first set, +100, 250 or "
                         "1,500 tech points from the second.", gm.RUNNING)
-    add("Collectibles", "The Earthquake God Power drops one collectible 10 seconds after it is cast: 72% uncommon, "
-                        "28% rare.")
-    add("Collectibles", "The Earthquake also raises every villager's belief by 2 to 8.")
+    add("Collectibles", "The Earthquake God Power drops one collectible 10 real-life seconds after it is cast: 72% "
+                        "uncommon, 28% rare (see God powers).", gm.RUNNING)
 
     # -- Tech points and Divine Energy ---------------------------------------------------
     add("Tech points and effects", f"Tech points: {_i32(data, TECH):,}.", gm.SAVE)
@@ -235,28 +233,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         "or on Hard). Honoring adds 3, 7 or 12 on three Honorings in four, and on the fourth only if the Devotion "
         "check succeeds. The cap is 5 x (believers + 2), more with the statue, the Idol, "
         "Spirituality and the first set's pieces, at most 1,000."), gm.RUNNING)
-    add("Tech points and effects", "God Powers cost 10, 25, 50, 100, 150, 300, 400, 500, 600, 700 and 800.")
+    out.extend(powers.lines(village))
 
     # -- Food earned ---------------------------------------------------------------------
     add("Food earned", f"Each believer eats 2 food every {unit} on {on} speed ({2 * 3600 / (60 * speed):g} an hour); at "
                        "500 food or less only half the time; on Medium at 8,000 food or more, or on Hard, 2 more 76% "
                        "of the time; never on Easy. Heathens skip it.", gm.RUNNING)
 
-    # -- Time away and Time Warp ---------------------------------------------------------
-    out.extend(gm.time_away(village, last, speed_value,
-                            "Saved paused: the time away is not counted when it is next played; nothing ages, grows "
-                            "or comes due.", unit_seconds=20 * 60 * speed))
-    for n, fact in enumerate(out):
-        if fact.text.startswith("Saved paused:"):
-            out[n] = gm.Fact(fact.group, fact.text, gm.RUNNING)
-    add("Time away and Time Warp", "While catching up, each counted age unit runs the believers' life (eating, belief, "
-                                   "Divine Energy, sickness, births) and 4 jobs: crops 7 food, research ÷ 7, ÷ 7 or "
-                                   "÷ 5, no lab mishaps.", gm.RUNNING)
-    add("Time away and Time Warp", "Every noni growth and crop refill missed while the game was closed is added when "
-                                   "it is next played, with no limit on how many: noni stop at 1,000, crops at 800.",
-        True)
-    add("Time away and Time Warp", "Heathens never age, while catching up or otherwise (the stock game's design).", gm.OWNER)
-    out.append(gm.time_warp_line(speed_value))
+    # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
     # -- Island events -------------------------------------------------------------------
     first = (" The first comes 15 minutes after the village is made and the next 30 minutes after it;"
@@ -341,6 +325,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                    "Medium at 8,000 or more, or on Hard, 2 more 76% of the time; never more on Easy.",
         trips=[("noni picks", max(2, noni // 100)), ("crop harvests", harvest if farm else 0), ("fish", 4)])
     out.extend(life.sections(ctx))
+    out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))
     return out
 
 

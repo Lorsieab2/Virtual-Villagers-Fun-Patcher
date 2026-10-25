@@ -43,6 +43,12 @@
    folder but not in this build -- left over from another build, or copied
    along with the game folder -- is never loaded.
 
+   A SECOND WORD.  The first word is full (bits 1-29), so newer companions
+   are numbered in a second (native/shared/startup_companions_2.h): a build
+   that ships one calls VvfpStartupEx(game, shipped, shipped2), which starts
+   the first word's companions exactly as VvfpStartup does and then the
+   second's.  A build that ships none calls VvfpStartup as before.
+
    FAIL-SAFE.  A companion that is not shipped is skipped; one that fails
    to load, or lacks an export, is skipped and the rest still load; a call
    into a companion that faults is abandoned (structured exception
@@ -51,6 +57,7 @@
 #include <windows.h>
 #include <string.h>
 #include "../shared/startup_companions.h"
+#include "../shared/startup_companions_2.h"
 #include "../shared/patcher_files.h"
 
 #define VVFP_STARTUP_GAMES 5
@@ -123,6 +130,19 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     for (i = 0; i < VVFP_STARTUP_COMPANION_COUNT; ++i) {
         if (shipped & (1u << (i + 1))) {
             start(game, shipped, VVFP_STARTUP_COMPANIONS[i]);
+        }
+    }
+}
+
+/* The same, then the second word's companions (native/shared/startup_companions_2.h): called instead of
+   VvfpStartup by the stub of a build that ships any of them.  Each is handed the first word, as every
+   companion is. */
+void __stdcall VvfpStartupEx(int game, unsigned int shipped, unsigned int shipped2) {
+    size_t i;
+    VvfpStartup(game, shipped);
+    for (i = 0; i < VVFP_STARTUP_COMPANION_COUNT_2 && i < 32; ++i) {
+        if (shipped2 & (1u << i)) {
+            start(game, shipped, VVFP_STARTUP_COMPANIONS_2[i]);
         }
     }
 }

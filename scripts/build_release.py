@@ -56,6 +56,7 @@ FILES = [
     "assets/lesson_cap/VVFP Lesson Cap.dll",
     "assets/chief_hospital/VVFP VV3 Chief Hospital.dll",
     "assets/difficulty/VVFP Difficulty.dll",
+    "assets/genetics/VVFP VV1 Genetics.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
@@ -151,6 +152,7 @@ FILES = [
     "data/vv3_chief_hospital_feature.json",
     "data/vv4_difficulty_settings_feature.json",
     "data/vv5_difficulty_settings_feature.json",
+    "data/vv1_genetics_feature.json",
     "data/vv3_both_factions_feature.json",
     "data/vv3_fruit_trees_refill_together_feature.json",
     "data/vv3_fruit_trees_take_turns_feature.json",
@@ -266,7 +268,9 @@ FILES = [
     "src/vv_game_mechanics_vv3.py",
     "src/vv_game_mechanics_vv4.py",
     "src/vv_game_mechanics_vv5.py",
+    "src/vv_game_mechanics_powers_vv5.py",
     "src/vv_game_mechanics_life.py",
+    "src/vv_game_mechanics_death.py",
     "src/vv_game_mechanics_genetics.py",
     "src/vv_game_mechanics_chances.py",
     "src/vv_game_mechanics_chances_vv1.py",
@@ -274,6 +278,7 @@ FILES = [
     "src/vv_game_mechanics_chances_vv3.py",
     "src/vv_game_mechanics_chances_vv4.py",
     "src/vv_game_mechanics_chances_vv5.py",
+    "src/vv_game_mechanics_catchup.py",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).
