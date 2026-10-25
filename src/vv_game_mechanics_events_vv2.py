@@ -293,8 +293,9 @@ EXTRA = (
                             "nothing happens", (
         "Tiers -- 5% A, 23.75% B (25% of the rest), 71.25% C -- but A and B only once a C result has happened in "
         "this village, so the village's first ring is always C (100%). Each tier's results are equally likely.",
-        "Tier A, each 1 in 6 (0.83% of rings): \"Grants vision\" -- two images shown over the scene for 30 real-life "
-        "seconds while world flag +0x2E7F0 is set, nothing else; +1,000 stored food with the crops set to 800 and "
+        "Tier A, each 1 in 6 (0.83% of rings): \"Grants vision\" -- only two images drawn by the Gong for 30 real-life "
+        "seconds; no amount and no villager changes (the glow timer 0x44E907, drawn by "
+        "0x445B50); +1,000 stored food with the crops set to 800 and "
         "the coconut trees to 30; +20,000 to 59,999 tech points; the stored food, the crops and the coconuts all "
         "set to 0; every woman of 18 to 49 villager years who is not pregnant is cured, set to 100 health and "
         "becomes pregnant (father unknown), each if there is room; the ringer dies (health 0).",

@@ -623,7 +623,11 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
     add("Research while catching up: a success gives the skill ÷ 7, ÷ 6 or ÷ 4 at Science 1, 2 or 3, the same at "
         "every speed (live: ÷ 11, ÷ 9 or ÷ 5, twice that on Fast and half on Slow). The 2% chance of losing 0 to "
         "9 health on each research success happens while catching up too.")
-    add("Building while catching up: each successful try adds half as much (1 instead of 2).")
+    # The building callbacks skip their second +1 under the catch-up flag +0x3046C (0x462BD8, 0x462D0F, 0x462E4B,
+    # 0x462F5D, 0x4638AD, 0x464011, 0x46417A); the Ancient Mosaic, the starting hut and the Sewing Hut have no test.
+    add("Building while catching up: each successful try on the three huts, the Hospital, the Dam, the Vine Wall or "
+        "the thorns of the Overgrown Gong Piece adds 1 point less (1 instead of 2; 2 instead of 3 at Building 88 on "
+        "the last three); the Ancient Mosaic, the broken starting hut and the Sewing Hut add the same as in live play.")
     add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100. The try "
         "goes through the whole village twice and does not stop at a conception: with each villager of the other "
         "sex (both 18 or more, the woman under 50, neither sick or nursing) it is refused 34 times in 100 when food "
@@ -676,8 +680,14 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
         if fact:
             out.append(fact)
     _warp_lines(village, out, speed_value, VV2_ORIGINS, VV2_STORY)
-    out.append(gm.Fact(G, "A Time Warp also brings the regrowth, the fire, the next island event and the Gong 10 "
-                          "hours (Slow) or 12 hours (Normal, Fast) sooner."))
+    # The Time Warp moves the clock's epoch 0x4950F0 back by its years' real seconds, 36,000 on Slow and 43,200 on
+    # Normal and Fast (native/vv2_origins_icons/vv2_origins_icons.c, vv2_time_warp_apply), and every timer below
+    # compares against that clock 0x403200 (the regrowth 0x43B97D, the fire 0x42ECA7, the event, the Gong 0x42FE1E,
+    # the pot 0x42EBD8).
+    if village.has(VV2_ORIGINS) is True or village.has(VV2_STORY) is True:     # a patch's rule: only when in the exe
+        out.append(gm.Fact(G, "A Time Warp also moves the game's clock 10 real-life hours (Slow) or 12 (Normal, Fast) "
+                              "on, so the regrowth (every regrowth due is added), the fire, the next island event, the "
+                              "Gong's rest and a stew in the pot all come that much sooner.", RUNNING))
     return out
 
 

@@ -536,12 +536,17 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
         add("Disease: a sick villager loses 1 health on 61% of age units (19% at 20 health or less).")
         add("Starvation: with 150 food or less a villager loses 1 health on 15% of age units; with no food at all, "
             "by their hidden number (Hidden villager stats).")
-        add("Work accident: 2% of building steps cost 0 to 14 health (1% for one of them), 2% of research and "
-            "restoration steps 0 to 9.")
-        add("Island events that can kill (from the patcher's island-event research; their chances are under Island "
-            "events): Rats! (each bitten villager falls sick and loses 60 health), A Bump On The Head (bonking: "
-            "10), A Mysterious Sack of thick canvas (the finder falls sick and loses 15; mice bite 20%, 30% or 45% "
-            "of villagers for 10, 15 or 20) and of heavy burlap (fire ants: the finder loses 40, 70 or 110).", False)
+        # The Lost Children (the audit, 2026-10-25): the injuries as in tests/test_game_mechanics_chances.py; the
+        # events from the exe-cited catalog src/vv_game_mechanics_events_vv2.py.
+        add("Work accident: 2% of successful steps on the huts, the Hospital, the broken starting hut and the Sewing "
+            "Hut cost 0 to 14 health, 1% on the Ancient Mosaic; 2% of successful steps on the Dam, the Vine Wall, "
+            "the thorns and research cost 0 to 9 (Chances, Work injuries).", gm.RUNNING)
+        add("Island events that can kill (their chances are under Island events): Rats! (each bitten villager falls "
+            "sick and loses 60 health), A Bump On The Head (bonking: 10), The Nightmare (\"Let him (her) sleep\": "
+            "20), A Mysterious Sack of thick canvas (the opener falls sick and loses 15; mice bite 20%, 30% or 45% of "
+            "villagers for 10, 15 or 20) and of stained, heavy burlap (fire ants: the opener loses 40, 70 or 110), "
+            "and the Gong of Wonder (tier A: the ringer dies; tier B: the ringer loses 90). The Voices In The Brush "
+            "and A Dangerous Mission take villagers away with no body and no grave.", gm.RUNNING)
         add("An Esteemed Elder's totem is not a death: the game makes it as a separate record copied from the elder, "
             "who lives on (see the Esteemed Elders line).")
     add("A mother who dies while nursing takes her babies with her: they were never villagers, so they leave no "

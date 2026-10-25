@@ -443,10 +443,10 @@ class StewPots(unittest.TestCase):
         self.assertIn("Eating does not empty it", pot.text)
         self.assertIn("no countdown", pot.text)
         effect = facts[vv2.STEW_EFFECT_LINE]
-        self.assertFalse(effect.confirmed)                    # no clock read is traced; tick timers not excluded
+        self.assertTrue(effect.confirmed)       # the 75 routines reached from 0x461040 read no clock (2026-10-25)
         text = gm.render(list(facts.values()))
         self.assertNotIn("A stew is ready 15 minutes after it starts", text)
-        self.assertIn("a stew stays in the pot 15 real-life minutes", text)
+        self.assertIn("the fire and the stew pot (Other)", text)
 
     def test_secret_city_table_empties_the_pot(self) -> None:
         facts = self.facts("vv3-huttest-1")
@@ -670,10 +670,10 @@ class EveryGame(unittest.TestCase):
         text = text_of(self.page("vv2-huttest-1", data=bytes(data)))
         self.assertIn("Coconuts: 1,234; a trip brings 8 on Fast speed", text)
         self.assertIn("every 2 hours on Fast speed: coconuts +30", text)
-        self.assertIn("a lit fire burns 10 hours on Fast speed", text)
+        self.assertIn("a lit fire burns 10 hours of real-life time on Fast speed", text)
         totems = text_of(self.page("vv2-huttest-1", data=bytes(data), features=["vv2_totems_out_of_entries"]))
-        self.assertIn("with no limit on how many", totems)
-        self.assertIn("while there are fewer than 50 totems", text)
+        self.assertIn("totems take no record and there is no limit", totems)
+        self.assertIn("Normal game: at most 50 totems", text)
 
     def test_vv2_fish_below_zero(self) -> None:
         """The fish count is a signed dword the game keeps subtracting from with no floor once Sustainable Fishing
@@ -741,6 +741,90 @@ class EveryGame(unittest.TestCase):
                 facts = self.page(name, data=b"ldwg" + bytes(40))
                 self.assertEqual([f.group for f in facts if f.group != gm.SOURCES], ["Other"])
                 self.assertIn("could not be read", facts[-1].text)
+
+VV2_STOCK = ROOT / "inputs" / "vv2-stock-copy" / "Virtual Villagers - The Lost Children.exe"
+
+
+class LostChildrenAudit(unittest.TestCase):
+    """The Lost Children's Game Mechanics lines audited against the stock exe (2026-10-25)."""
+
+    page = lambda self, name, **kw: EveryGame.page(self, name, **kw)  # noqa: E731
+
+    def code(self, at: int, count: int = 3) -> list[str]:
+        try:
+            import pefile
+            from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+        except ImportError:
+            self.skipTest("pefile and capstone are needed")
+        if not VV2_STOCK.is_file():
+            self.skipTest("the stock Lost Children exe is not in inputs (tests/README: copy inputs\\)")
+        pe = pefile.PE(str(VV2_STOCK), fast_load=True)
+        image = pe.get_memory_mapped_image()
+        start = at - pe.OPTIONAL_HEADER.ImageBase
+        return [f"{i.mnemonic} {i.op_str}" for i in Cs(CS_ARCH_X86, CS_MODE_32).disasm(image[start:start + 48], at)][:count]
+
+    def test_skill_gain_divisors(self) -> None:
+        # (50 - skill) x 2 x magic: 0x66666667 >> 2 is / 10, 0x92492493 (+ x) >> 2 is / 7 (Building).
+        for at in (0x44E2C1, 0x44E428, 0x44E52B, 0x44E7F7):
+            self.assertEqual(self.code(at, 2), ["mov eax, 0x66666667", "imul ecx"])
+        self.assertEqual(self.code(0x44E62E, 2), ["mov eax, 0x92492493", "imul ecx"])
+        self.assertEqual(self.code(0x44E19B, 1), ["mov ebp, 0x42"])          # + 66 liking learning
+        text = text_of(self.page("vv2-huttest-1"))
+        self.assertIn("(100 - 2 x skill) / 10, rounded down (Building: / 7)", text)
+        self.assertNotIn("passes at skill + 66%", text)
+
+    def test_building_points_and_injuries(self) -> None:
+        self.assertEqual(self.code(0x4629C8, 1), ["cmp eax, 0x58"])          # the Ancient Mosaic's Building 88
+        self.assertEqual(self.code(0x462BD8, 1), ["mov cl, byte ptr [eax + 0x3046c]"])   # huts: the catch-up test
+        text = text_of(self.page("vv2-huttest-1"))
+        self.assertIn("the Ancient Mosaic +1, or +2 at Building 88; the broken starting hut and the Sewing Hut +1",
+                      text)
+        self.assertIn("the Ancient Mosaic, the broken starting hut and the Sewing Hut add the same as in live play",
+                      text)
+        for gone in ("adds half as much (1 instead of 2)", "33.9%, 50.5% or 67.1%", "0.52% / 0.28%",
+                     "not individually worked out", "Ã"):
+            self.assertNotIn(gone, text)
+
+    def test_starvation_regain_is_any_odd_number(self) -> None:
+        self.assertEqual(self.code(0x43BBB3, 2), ["mov ecx, 6", "idiv ecx"])
+        text = text_of(self.page("vv2-huttest-1"))
+        self.assertIn("whose hidden number is odd regains the 1 health", text)
+        self.assertNotIn("not a multiple of 3", text)
+
+    def test_collections_and_the_gong(self) -> None:
+        self.assertEqual(self.code(0x426130, 1), ["mov bl, byte ptr [ecx + eax + 0x2e720]"])
+        self.assertEqual(self.code(0x44B378, 3), ["cmp edi, 0x14", "jne 0x44b382", "mov edi, 0x19"])
+        self.assertEqual(self.code(0x42FE12, 1), ["mov al, byte ptr [ebx + 0x2e7f0]"])
+        self.assertEqual(self.code(0x44E8C1, 1), ["cmp byte ptr [eax + 0x2e910], bl"])
+        data = bytearray(gzip.decompress((FIXTURES / "vv2-huttest-1.ldw.gz").read_bytes()))
+        import vv_game_mechanics_vv2 as vv2
+        data[vv2.COLLECTION_FLAGS + 4:vv2.COLLECTION_FLAGS + 4 + 48] = bytes([1] * 12 + [1, 0] * 6 + [0] * 24)
+        data[vv2.GONG_WHOLE + 4] = 0
+        text = text_of(self.page("vv2-huttest-1", data=bytes(data)))
+        self.assertIn("Collectibles found: 18 of the 48 pieces (Butterflies 12 of 12, Shells 6 of 12, Beetles 0 of 12, "
+                      "Pebbles 0 of 12); 1 of the 4 collections complete.", text)
+        self.assertIn("The Gong of Wonder is not rebuilt yet", text)
+        self.assertNotIn("has not been traced", text)
+
+    def test_baby_skill_and_the_fire(self) -> None:
+        self.assertEqual(self.code(0x44F846, 2), ["push 3", "call 0x4031a0"])
+        self.assertEqual(self.code(0x46252F, 2), ["call 0x403200", "add eax, 0x8ca0"])
+        text = text_of(self.page("vv2-huttest-1"))
+        self.assertIn("4 to 5, 5 to 8 or 7 to 11 at Culture level 1, 2 or 3", text)
+        self.assertIn("fuel does not light a cold pit", text)
+
+    def test_elder_rules_once_on_each_page(self) -> None:
+        # The general page has no Village counts, so the rules stand under Tech points; a save's page has them
+        # once, under Village counts (the Codex review of #640).
+        general = text_of(gm.general(2, EPOCH))
+        self.assertIn("has 3 of the 5 skills at 88 or more becomes one and gets a totem", general)
+        self.assertIn("Normal game: at most 50 totems", general)
+        self.assertNotIn("see Village counts.", general)
+        text = text_of(self.page("vv2-huttest-1"))
+        self.assertEqual(text.count("has 3 of the 5 skills at 88 or more becomes one and gets a totem"), 1)
+        self.assertEqual(text.count("Normal game: at most 50 totems"), 1)
+        self.assertIn("Esteemed Elders and their totems: see Village counts.", text)
+
 
 VV4_STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Tree of Life.exe"
 
