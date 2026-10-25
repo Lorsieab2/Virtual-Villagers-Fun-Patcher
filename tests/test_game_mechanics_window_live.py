@@ -81,7 +81,9 @@ class Placement(unittest.TestCase):
         module = types.SimpleNamespace(facts=lambda village: [
             gm.Fact("Refills", "Honey refills every 3 hours.", True),
             gm.Fact("Refills", f"The next refill is {gm.DUE}.", True, due=village.now + 60, due_kind="refill")])
-        with mock.patch.object(gm.importlib, "import_module", return_value=module):
+        # The stand-in replaces the game's module only; the Genetics group (found by name too) is left out here.
+        with mock.patch.object(gm.importlib, "import_module", return_value=module), \
+                mock.patch.object(gm, "genetics_facts", return_value=[]):
             kept = gm.general(3, T0)
         self.assertEqual([fact.text for fact in kept], ["Honey refills every 3 hours."])
 

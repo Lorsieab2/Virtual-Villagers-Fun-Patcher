@@ -111,6 +111,12 @@ def pokes(game: int, data: bytes) -> list[bytes]:
             out += [_put(_put(data, m.SCARER + m.S, scarer), m.ALLOWANCE + m.S, amount) for amount in (0, 500)]
         for dam in (0, 1):                      # with the allowance used up: the birds only with the dam built
             out.append(_put(_put(_put(data, m.SCARER + m.S, 0), m.ALLOWANCE + m.S, 0), m.DAM + m.S, dam))
+        # The fish: still some, used up, and below 0 once Sustainable Fishing is solved (no limit from Farming
+        # level 2; at level 1 fishing stops at 0).
+        solved_at = m.SUSTAINABLE_FISHING + m.S
+        for fish, solved, farming in ((700, 0, 3), (0, 0, 3), (-40, 1, 1), (-1_162_256, 1, 3)):
+            buf = _put(_put(data, m.FISH + m.S, fish), m.LEVELS + 8 * m.FARMING_LEVEL + m.S, farming)
+            out.append(buf[:solved_at] + bytes([solved]) + buf[solved_at + 1:])
     elif game == 3:
         h = m.HEADER
         for level in range(0, 4):
