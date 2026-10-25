@@ -648,6 +648,11 @@ CHANCE_LINES = (
 # (0x469B53) shows what is left times the clock's rate / 6 (0x426580) as m:ss: 5:00 on Normal, 2:30 on Fast,
 # 8:20 on Slow.  The owner sees its time change with the speed (2026-10-24).  The pot is not saved (its save and
 # load slots are the no-ops 0x436170 / 0x436180), so no save holds a potion to count down.
+# The owner (2026-10-24), and the code: a villager dropped on the herb table (0x59454C's drop slot 0x430D90)
+# runs 0x430D00, which throws the brewed potion away (0x430350 on the pot 0x593BA0) and puts the table's
+# herbs back as they were -- the same routine the spoil timer 0x430F10 runs.
+POT_EMPTIED_LINE = ("The pot can be emptied by dropping a villager on the table with 3 herbs: the brewed potion is "
+                    "thrown away and the herbs stay on the table.")
 POTION_COUNTDOWN = {gm.FAST: "2:30", gm.NORMAL: "5:00", gm.SLOW: "8:20"}
 
 
@@ -735,6 +740,7 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     blow = max(0, 15 * (3 - level[ALCHEMY]) + 1)
     add("Tech points and effects", ODDS_LINES[0].format(blow=min(blow, 100), alchemy=level[ALCHEMY]), gm.RUNNING)
     add("Tech points and effects", potion_line(speed), gm.RUNNING)
+    add("Tech points and effects", POT_EMPTIED_LINE, gm.OWNER)
 
     add("Food earned", f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
                        f"({2 * 3600 / (60 * speed):g} an hour) while there is more than 500; at Normal difficulty 2 "

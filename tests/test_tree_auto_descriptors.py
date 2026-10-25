@@ -43,7 +43,8 @@ class OnByDefault(unittest.TestCase):
                 self.assertFalse(getattr(ft.Edits.from_data(off.to_data()), attr), "an untick saved now is kept")
                 self.assertTrue(getattr(ft.styled({attr: False}), attr) if attr in ("show_founder", "show_runner",
                                                                                      "show_twins") else True)
-        self.assertEqual([a for a, _w in ft.DESCRIPTOR_OPTIONS], list(self.FIELDS[:3]) + list(self.FIELDS[3:]))
+        # No "Master of a skill" tick box: the tree never says "Master Farmer" (the owner, 2026-10-25).
+        self.assertEqual([a for a, _w in ft.DESCRIPTOR_OPTIONS], list(self.FIELDS[:4]))
 
 
 class WhereTheyApply(unittest.TestCase):
@@ -68,16 +69,17 @@ class WhereTheyApply(unittest.TestCase):
         v.people[12].how = "unknown"
         self.assertEqual(ft.arrival_words(v, v.people[12]), "")
 
-    def test_master_of_a_skill_and_the_status_words(self) -> None:
+    def test_the_status_words_but_never_master_of_a_skill(self) -> None:
+        """The owner, 2026-10-25: no "Master Farmer", "Master Builder"... on the tree, only the special labels."""
         v, e = hand_village(), ft.Edits()
-        v.people[1].masters = ["Farmer", "Builder"]
+        v.people[1].masters = ["Farmer", "Builder", "Scientist", "Parent"]
         ft.apply_auto_marks(e, v)
         lay = ft.layout(v, e)
         words = ft.default_text(lay, v.people[1])
-        for w in ("Master Farmer", "Master Builder", "Tribal Chief", "Esteemed Elder"):
+        for w in ("Tribal Chief", "Esteemed Elder"):
             self.assertIn(w, words)
+        self.assertFalse([w for w in words if w.startswith("Master ")], words)
         self.assertIn("Keeper of Shells", ft.default_text(lay, v.people[3]))   # a Custom title too
-        self.assertNotIn("Master Farmer", ft.default_text(ft.layout(v, ft.Edits(show_masters=False)), v.people[1]))
 
 
 class TheMarkAndItsWordsAreOne(unittest.TestCase):

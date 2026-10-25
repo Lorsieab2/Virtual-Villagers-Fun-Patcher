@@ -127,6 +127,42 @@ class ValueTests(unittest.TestCase):
                         self.assertEqual(r["refused"], 1, f"{bad} is outside {low}-{high}")
                         self.assertEqual(i32(s.proc, va), (low + high) // 2)
 
+    def test_a_count_below_zero_is_an_amount_not_missing(self):
+        """The game's own counts can go below 0 (The Lost Children's fish,
+        0x463305, and the field's protection, 0x463264, are subtracted from
+        with no floor): the Amounts dialog shows such a count and an event
+        replaces it; only a store that is not there yet is "not there yet"."""
+        out = base.SCRATCH
+        sentinel = 0x5A5A5A5A
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            s = story(game)
+            for which, va, enable in self._fields(s):
+                low, high = self.RANGES[game][which]
+                with self.subTest(game=game, value=which):
+                    if game == "vv3":
+                        s.proc.put32(0x594844, 0)          # no tree planted yet
+                    if enable is not None:
+                        s.proc.write(va, struct.pack("<i", -40))
+                        s.proc.put32(out, sentinel)
+                        self.assertEqual(s.proc.export("VvfpStoryProbeValue", s.n, which, out), 0)
+                        self.assertEqual(s.proc.u32(out), sentinel, "nothing is read when it is not there")
+                        ok, r, _ = s.apply(Event(values=[(which, high)]))
+                        self.assertEqual(r["refused"], 1, "not there yet: refused")
+                        self.assertEqual(i32(s.proc, va), -40)
+                        enable()
+                    for now in (-1_162_256, -1, 0, 7):
+                        s.proc.write(va, struct.pack("<i", now))
+                        s.proc.put32(out, sentinel)
+                        self.assertEqual(s.proc.export("VvfpStoryProbeValue", s.n, which, out), 1)
+                        self.assertEqual(i32(s.proc, out), now)
+                        ok, r, _ = s.apply(Event(values=[(which, high)]))
+                        self.assertEqual(r["refused"], 0, f"a count of {now} is replaced")
+                        self.assertEqual(i32(s.proc, va), high)
+            self.assertEqual(s.proc.export("VvfpStoryProbeValue", s.n, len(self.RANGES[game]), out), 0xFFFFFFFF,
+                             "no such amount")
+
     def test_a_tree_kind_is_never_past_papaya(self):
         if not have_stock("vv3"):
             self.skipTest("no stock executable")

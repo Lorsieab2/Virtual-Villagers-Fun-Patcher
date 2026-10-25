@@ -681,18 +681,13 @@ static const ce_value_def C1_VALUES[] = {
       "Only once the farm is producing (Farming level 2). The game's own ceiling is 800." },
 };
 
-static int c1_value_get(int which) {
+static int c1_value_get(int which, int *now) {
     unsigned char *world = VV1_WORLD();
-    if (world == NULL) {
-        return -1;
+    if (world == NULL || which < 0 || which > 1 || (which == 1 && *(int *)(world + 0xA2E4) < 2)) {
+        return 0;
     }
-    if (which == 0) {
-        return *(int *)(world + 0xA2F4);
-    }
-    if (which == 1) {
-        return *(int *)(world + 0xA2E4) >= 2 ? *(int *)(world + 0xA2F8) : -1;
-    }
-    return -1;
+    *now = *(int *)(world + (which == 0 ? 0xA2F4 : 0xA2F8));
+    return 1;
 }
 
 /* Plain writes, as the game's own events change them (North Wind 0x4283B5,
@@ -700,7 +695,8 @@ static int c1_value_get(int which) {
    the crops' too (the game caps crops at 800 itself). */
 static int c1_value_set(int which, int amount) {
     unsigned char *world = VV1_WORLD();
-    if (c1_value_get(which) < 0) {
+    int now;
+    if (!c1_value_get(which, &now)) {
         return 0;
     }
     *(int *)(world + (which == 0 ? 0xA2F4 : 0xA2F8)) = amount;
