@@ -22,6 +22,7 @@ Nothing here writes anything.
 """
 from __future__ import annotations
 
+import functools
 import importlib
 from dataclasses import dataclass
 
@@ -45,6 +46,12 @@ def _holds(r: int, op: str, k: int) -> bool:
     return {"<": r < k, "<=": r <= k, ">": r > k, ">=": r >= k, "==": r == k, "!=": r != k}[op]
 
 
+@functools.lru_cache(maxsize=None)
+def _hits(n: int, op: str, k: int) -> int:
+    """How many of the 32,768 values v give (v % n) op k: counted once, then kept (the page renders them often)."""
+    return sum(1 for v in range(DRAWS) if _holds(v % n, op, k))
+
+
 @dataclass(frozen=True)
 class Check:
     """One call of the game's rand(n) in the stock exe and the test of its result.
@@ -64,8 +71,7 @@ class Check:
         """How many of the 32,768 values give the outcome, or None when n or the compare is worked out at run time."""
         if self.n is None or self.cmp is None or self.jump is None:
             return None
-        op = _JUMPS[self.jump]
-        hits = sum(1 for v in range(DRAWS) if _holds(v % self.n, op, self.cmp))
+        hits = _hits(self.n, _JUMPS[self.jump], self.cmp)
         return hits if self.take else DRAWS - hits
 
     @property
@@ -90,7 +96,7 @@ def chance(count: int, of: int = DRAWS) -> str:
 
 def below(n: int, k: int) -> int:
     """How many of the 32,768 values give rand(n) < k (k may be past n: then every value)."""
-    return sum(1 for v in range(DRAWS) if v % n < k)
+    return _hits(n, "<", k)
 
 
 def at_most(n: int, k: int) -> int:

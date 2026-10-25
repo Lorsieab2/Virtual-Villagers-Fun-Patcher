@@ -96,7 +96,7 @@ ROLLS = (
           "a second one: {3} more.",
           "On Easy the roll is made only " + _ch(times(_not(below(100, 50)), _not(below(100, 50)))) + " of age units "
           "(two rolls of 0 to 99 at 50 or more must both come up), so about a quarter of these chances.")),
-    Roll("Old age: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 real-life hours on Normal, 3 "
+    Roll("The old-age death roll: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 real-life hours on Normal, 3 "
          "real-life hours 20 minutes on Slow) past 47, 55, 63 or 71 years (Medicine 0, 1, 2 or 3) a villager dies with a chance of 10% for each year past it (a roll of 0 to 99 under 10 x the years over): "
          + _ch(below(100, 10)) + " one year over, " + _ch(below(100, 50)) + " five years over, 100% from ten years "
          "over.",
@@ -148,11 +148,45 @@ ROLLS = (
     Roll("Low food: while food is 250 or less, a villager with Farming 20 or more tries farming first; otherwise one "
          "whose job is not Farming or Healing stands \"Worried about food\" instead of working {0} of the time.",
          (Check(0x45C246, 100, 0x32, "jl", take=False),)),
-    Roll("Heavy rain: in rain or a storm of strength 50 or more, a worker who neither likes nor dislikes rain stops "
-         "working {0} of the time (rain-lovers go to drink the rain, rain-haters indoors).",
-         (Check(0x459537, 100, 0x14, "jge", take=False),), verified=False,
-         subs=("Not proven: the two values the game tests here are called the weather and its strength only from the "
-               "actions they lead to, and the code that sets the strength was not traced.",)),
+    # The weather (0x4B86C4; start 0x41FB40, every-frame update 0x41FD30 from 0x468BF3, reset 0x41FCC0): kind +0, the
+    # waiting kind +4, its end +8 (game clock 0x5825D4), its start +0xC, the strength then +0x10, the strength +0x14
+    # (0x4B86D8).  Kinds: 0 clear, 1 only from the roll below, 2 rain (Rainy Season 0x4150D0), 3 storm (the Omen
+    # 0x4166B2), 4 fog (the Fog events 0x414E50 / 0x414E90, Thick as Pea Soup 0x4151E0, the Cold Snap 0x415110).
+    Roll("The weather: when a spell of weather ends (0x41FEE4), a clear sky is followed by one of the other four kinds "
+         "-- kind 1, rain, a storm or fog, 1 in 4 each (a roll of 0 to 4, made again while it comes up clear) -- and "
+         "any other weather by a clear sky; a kind an island event or puzzle has set comes instead (30 real-life "
+         "seconds after it is set on Normal speed, 0x41F990).",
+         (Check(0x41FF52, 5), Check(0x41FC4E, None), Check(0x41FCE9, 100, push=0x41FCC6),
+          Check(0x45BA42, 100, 0x4B, "jge", take=False)),
+         ("A clear sky lasts 15 to 30 real-life minutes on Normal speed (7.5 to 15 on Fast, 25 to 50 on Slow), any "
+          "other weather 3 to 6 (1.5 to 3 on Fast, 5 to 10 on Slow), each whole second of the range equally likely "
+          "(0x41FC4E); while the first fruit tree is grown (planted 8 real-life hours ago on Normal) and no second one is "
+          "planted, each lasts its shortest and a clear sky is always followed by rain (0x41FC0F, 0x41FF62).",
+          "A new village starts clear; " + _ch(below(100, 20)) + " of the time instead the kind the real-life "
+          "clock's minute gives (its remainder by 5, 1 to 4) comes 30 real-life seconds later on Normal speed (0x41FCC0, 0x41FA30).",
+          "The weather's strength (0 to 100), on Normal speed: in rain or a storm it grows 5 every 6 real-life seconds "
+          "from what it was when the rain began, up to 100 -- from 0, above 20 after 26 real-life seconds, 50 after "
+          "60, above 50 after 62, 100 after 120 (0x41FE31) -- and in any other weather it falls 5 every 12 real-life "
+          "seconds, down to 0 (100 to 0 in 240; 0x41FE0E). On Fast every one of these times is half as long, on "
+          "Slow 1 2/3 times as long (the game's clock, paused time not counted). The Tsunami and a storm from The Omen in the Clouds set it to 100 at once "
+          "(0x414B3E, 0x4166FF -> 0x41F9B0); a new village starts at 0.",
+          "What the strength changes: above 20 every mushroom-or-collectible is a mushroom, and above 50 a second "
+          "spawn roll is made (the mushroom line below); in rain or a storm at 50 or more the heavy-rain stop below, "
+          "and a villager's pastime pick (0x45B9B0) is \"Playing in puddles\" {3} of the time; in rain or a storm "
+          "above 30 every villager standing idle, \"Unsure what to do\" or \"Not feeling well\" goes \"Getting out "
+          "of the rain\" (0x41FE4E); after it, while the strength is above 5 and no rain or storm falls, two of the "
+          "six water-side pastimes (0x4598D0) are \"Cleaning up after the rain\" instead of \"Washing the laundry\" "
+          "and \"Washing face\"; with The Lift solved the lift's height follows it, (strength - 20) x 8 "
+          "/ 100 from 0 to 7, carrying a villager \"Standing on the lift\" (0x435C26), and \"Playing seesaw\" is "
+          "picked only at strength 0 with nobody on the lift (0x45BBF9). When rain or a storm ends, villagers "
+          "\"Drinking rain\", \"Getting out of the rain\" or \"Playing in puddles\" stop (0x41FF0E).",
+          "Above 50 the scene also draws one more picture and sets one scene object's look (0x429269, 0x4210DA); "
+          "what they show was not seen."),
+         sub_verified=(gm.RUNNING, gm.RUNNING, gm.RUNNING, gm.RUNNING, False)),
+    Roll("Heavy rain: in rain or a storm of strength 50 or more (the weather line above), a worker who neither likes "
+         "nor dislikes rain stops working {0} of the time (rain-lovers go to drink the rain, rain-haters get out of "
+         "it).",
+         (Check(0x459537, 100, 0x14, "jge", take=False),)),
     Roll("Dislikes at work: a farmer who dislikes bees or honey (the honey), fruit (the fruit trees), or fish, the ocean "
          "or swimming (fishing) runs away instead {0} of the time; a fish-hater who does start fishing walks off "
          "every time. A builder who dislikes wood walks off a hut {1} of the time.",
@@ -201,16 +235,14 @@ ROLLS = (
          "seconds.",
          (Check(0x42DD72, 6000, 3, "jl"), Check(0x42DD8D, 6000, 3, "jge", take=False),
           Check(0x42D98D, 100), Check(0x42DA7A, 100, 8, "jge", take=False), Check(0x42DAB9, 100, 4, "jge", take=False)),
-         ("With the weather's strength above 50 a second roll of {1} follows, about doubling it.",
+         ("With the weather's strength above 50 (the weather line above says when) a second roll of {1} follows in "
+          "the same frame.",
           "It is a mushroom " + _ch(below(100, 30)) + " of the time (a roll of 0 to 99 under 30), and always in rain or "
           "a storm or with the weather's strength above 20; otherwise a collectible.",
           "A mushroom is red (35 food) {3} of the time, otherwise brown (6 food).",
           "A collectible is rare {4} of the time, uncommon " + _ch(below(100, 17) - below(100, 4)) + " and common "
           + _ch(_not(below(100, 17))) + ", from one of the four collections chosen at random (the Tablet only once "
-          "The Ruins is at least 2% done); an owned Tablet piece is not placed again.",
-          "Not proven: the tests of the weather's strength (above 50, above 20) are the game's own, but the code that "
-          "sets that strength was not traced, so when it passes them is not known."),
-         sub_verified=(False, gm.RUNNING, gm.RUNNING, gm.RUNNING, False),
+          "The Ruins is at least 2% done); an owned Tablet piece is not placed again."),
          feature="vv3_super_secret_golden_mushroom",
          patched="1 in 1,000,000 of the random brown or red mushrooms is a gold Golden Mushroom instead, worth 100 "
                  "food."),

@@ -46,7 +46,7 @@ ROLLS = (
          "of the time, and every age unit on Easy; an elderly villager (42 years plus 8 for each Medicine level) only "
          "{1} of those (0x42EDCB).",
          (Check(0x42EDE3, 100, 0x32, "jl"), Check(0x42EE1E, 100, 0x14, "jge", take=False))),
-    Roll("Old age: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 on Normal, 3 real-life hours 20 "
+    Roll("The old-age death roll: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 on Normal, 3 real-life hours 20 "
          "minutes on Slow) past 47, 55, 63 or 71 years (Medicine 0, 1, 2 or 3) a villager dies with a chance of 10% "
          "for each year past it (a roll of 0 to 99 under 10 x the years over): " + chance(below(100, 10))
          + " one year over, " + chance(below(100, 50)) + " five years over, 100% from ten years over (0x42EE7E).",

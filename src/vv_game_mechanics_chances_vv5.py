@@ -72,7 +72,7 @@ ROLLS = (
           "An old believer (50, 58 or 66 years at Medicine 1, 2 or 3) who escapes that roll has a second one: {3} more.",
           "On Easy the roll is made only " + chance(times(_EASY, _EASY)) + " of age units (two rolls of 0 to 99 at 50 "
           "or more must both come up), so about a quarter of these chances.")),
-    Roll("Old age: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 on Normal, 3 real-life hours 20 "
+    Roll("The old-age death roll: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 on Normal, 3 real-life hours 20 "
          "minutes on Slow) past 55, 63 or 71 years (Medicine 1, 2 or 3) a believer dies with a chance of 10% for each year past "
          "it (a roll of 0 to 99 under 10 x the years over): " + chance(below(100, 10)) + " one year over, "
          + chance(below(100, 50)) + " five years over, 100% from ten years over (65, 73 or 81).",

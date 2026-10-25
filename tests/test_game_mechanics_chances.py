@@ -219,6 +219,17 @@ class ChancesWords(unittest.TestCase):
         self.assertEqual(ch.below(100, 50), 16400)
         self.assertEqual(ch.Check(0, 6000, 2, "jle").count, 18)
 
+    def test_odds_are_counted_once(self) -> None:
+        """Codex (PR #623): the page renders often, so each check's 32,768-value count is worked out once and kept."""
+        village = gm.Village(Path("."), 2, 1, Path("x"), b"", frozenset(), 0.0)
+        ch.facts(village)
+        before = ch._hits.cache_info()
+        again = ch.facts(village)
+        after = ch._hits.cache_info()
+        self.assertTrue(again)
+        self.assertEqual(after.misses, before.misses)
+        self.assertGreater(after.hits, before.hits)
+
     def test_every_game_has_rolls_and_no_bare_units(self) -> None:
         """The owner (2026-10-24): every time says real-life or per age unit; no vague words."""
         for game in range(1, 6):
