@@ -358,9 +358,13 @@ was given.
   pregnancy with the GAME's own default father, which every log, the Family
   Tree and the Matchmaker show exactly as the game wrote it:
   - VV2 (The Lost Children): the Gong of Wonder's `"?"`, head 0, body 0.
-  - VV4 (The Tree of Life) and VV5 (New Believers): an island event's babies
-    (the owner: the abandoned-infants event) have `"Joey"`, head 2, body 2 --
-    `"Joey Joerson"` once Villagers Have Last Names has given him one.
+  - VV4 (The Tree of Life): the Abandoned Infants event's babies have `"Joey"`,
+    head 2, body 2 -- `"Joey Joerson"` once Villagers Have Last Names has given
+    him one. VV5 inherits that event but its condition is always false
+    (`0x415B10`), so no VV5 baby ever has Joey.
+  - VV5 (New Believers): in a village made with the Heathen Mommy Puzzle
+    Restoration patch, the Heathen Mommy's children have `"Unknown"` (the
+    game's own string `0x4B6AA0`), head 2, body 2 (the owner, 2026-10-25).
   - VV1 and VV3 have no default father.
   A genuine birth whose game wrote no father at all gets the patcher's
   fallback father `"Unknown"`, head 0, body 0. Only A New Home can produce one:
@@ -384,10 +388,11 @@ was given.
   purpose").
 - **Evidence:** Static analysis of the stock executables: VV2 pushes `"?"`
   (`0x476290`) with head 0 and body 0 at `0x44EB1D`..`0x44EB3E`; VV4 pushes
-  `"Joey"` (`0x4AB360`) with 2 and 2 at `0x467C00`..`0x467C15`, VV5 `"Joey"`
-  (`0x4B8E1C`) at `0x471B58`..`0x471B6D`, each from a single island-event
-  action. No game passes `"Unknown"` as a father (its one reference in each
-  executable is a data table). The owner's logs: 10 Birth records with
+  `"Joey"` (`0x4AB360`) with 2 and 2 at `0x467C00`..`0x467C15` from a single
+  island-event action; VV5's copy (`0x4B8E1C`, `0x471B58`..`0x471B6D`) belongs to
+  an event whose condition at `0x415B10` is always false, so it never runs. No
+  stock game passes `"Unknown"` as a father; the Heathen Mommy Puzzle
+  Restoration patch's new-village code does (`0x4B6AA0`, head 2, body 2). The owner's logs: 10 Birth records with
   `Father: ?` 0/0 (VV2) and 6 Conceptions with `Father: Joey` 2/2 (VV4,
   2026-10-05). Tests: `tests/test_default_fathers.py`, the parentage export
   harness and the VV1 parentage harness.
@@ -923,8 +928,9 @@ owner: "Fix all those issues!!!"), each against the current code on
 3. **How a fatherless birth is labelled.** The owner's two rulings and #436
    rule 8 agree once each is read for the case it covers (P5):
    - Where the game writes its own default father, that is what is shown:
-     VV2's Gong `"?"` 0/0; VV4's and VV5's island-event `"Joey"` 2/2 (`"Joey
-     Joerson"` with last names). These are the game's values, not invented
+     VV2's Gong `"?"` 0/0; VV4's island-event `"Joey"` 2/2 (`"Joey
+     Joerson"` with last names); VV5's Heathen Mommy `"Unknown"` 2/2 with the
+     Heathen Mommy Puzzle Restoration patch. These are the game's values, not invented
      ones, so rule 8 is kept.
    - Where the game provides nothing -- only A New Home, which stores no father
      -- a genuine birth gets the stated placeholder `"Unknown"` 0/0. The memory
