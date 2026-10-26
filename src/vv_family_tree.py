@@ -229,6 +229,12 @@ PRESETS = [
     ("The mausoleum", "#16302f", "", "asset:mausoleum.png"),
     ("The green tree", "#cfe6d0", "", "asset:green-tree.png"),
     ("Starry night", "#000000", "", "asset:starry-night.png"),
+    # The owner's five more (2026-10-26), the same names and colours as the Virtual Families patchers' trees.
+    ("The tree in vines", "#abd0b1", "", "asset:tree-in-vines.png"),
+    ("The blue board on wood", "#5c8dcf", "", "asset:blue-board-on-wood.png"),
+    ("Wood and magnifying glass", "#dc6707", "", "asset:wood-and-magnifier.png"),
+    ("Sand in a black frame", "#a88c68", "", "asset:sand-in-black-frame.png"),
+    ("Canvas in a wooden frame", "#d0cfcd", "", "asset:canvas-in-wood-frame.png"),
 ]
 # How a ready-made picture fits the page when picked (any other picture: stretched to the page).  The
 # starry night is small and repeats without a seam, so it is tiled rather than blown up and blurred.
