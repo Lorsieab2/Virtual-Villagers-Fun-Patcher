@@ -957,7 +957,9 @@ LOGOS = [(f"{title} logo", f"vv{n}:logo1.png") for n, title in
 # The owner's two Virtual Families logos (2026-10-26), shipped with the patcher next to the backgrounds; the
 # same names and files as the Virtual Families patchers' trees.
 LOGOS += [("Virtual Families logo", "asset:virtual-families-logo.png"),
-          ("Virtual Families 2 logo", "asset:virtual-families-2-logo.png")]
+          ("Virtual Families 2 logo", "asset:virtual-families-2-logo.png"),
+          ("Fish Tycoon logo", "asset:fish-tycoon-logo.png"),
+          ("Plant Tycoon logo", "asset:plant-tycoon-logo.png")]
 
 
 def _number(value, low: float, high: float, default: float) -> float:

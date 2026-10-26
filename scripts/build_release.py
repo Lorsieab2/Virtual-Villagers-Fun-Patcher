@@ -37,6 +37,8 @@ FILES = [
     "assets/genealogy/backgrounds/canvas-in-wood-frame.png",
     "assets/genealogy/backgrounds/virtual-families-logo.png",
     "assets/genealogy/backgrounds/virtual-families-2-logo.png",
+    "assets/genealogy/backgrounds/fish-tycoon-logo.png",
+    "assets/genealogy/backgrounds/plant-tycoon-logo.png",
     "assets/genealogy/backgrounds/deck-and-hose.png",
     "assets/genealogy/backgrounds/autumn-paving.png",
     "assets/genealogy/backgrounds/grass-and-acorns.png",
