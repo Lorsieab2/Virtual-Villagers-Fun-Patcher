@@ -58,8 +58,10 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # (Equal Division of Labor by skill, v1.35.70), and build_save_reset_words_harness.ps1
         # (Start Over clears the deleted logs' Like and Dislike Words, v1.35.78),
         # and build_dialog_kit_harness.ps1 (the companions' resizable dialogs,
-        # wrapping lists and villager sorting on real windows, v1.35.80).
-        self.assertEqual(len(SCRIPTS), 32, [path.name for path in SCRIPTS])
+        # wrapping lists and villager sorting on real windows, v1.35.80),
+        # and build_change_appearance_harness.ps1 (Change Appearance reaches
+        # every head and body row in all five games).
+        self.assertEqual(len(SCRIPTS), 33, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:

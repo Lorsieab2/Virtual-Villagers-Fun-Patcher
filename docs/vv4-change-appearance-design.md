@@ -10,6 +10,14 @@ stance in `appearance-upgrades-requirements.md` per the maintainer's explicit
 decision to build the full picker; the open items below remain the honest
 runtime-verification boundary.
 
+**Update:** the shipped picker cycles **every** row of the art -- heads `0..29`
+and bodies `0..29` -- for both sexes and any age (`VV_HEAD_COUNT` and
+`VV_BODY_COUNT` in `native/vv4_origins_icons/vv4_origins_icons.c`). The owner:
+every head and outfit is selectable. The native clothing chooser's `0..28`
+cycle described below is the stock game's, not the patcher's; body row 29 has
+art and is offered. `tests/test_change_appearance_all_rows.py` drives the
+picker's own dialog procedure to the last rows.
+
 ## Intended behavior (spec)
 
 A **Change Appearance** row in the VV4 Villager Details (Origins) Upgrades
@@ -132,11 +140,9 @@ These are not yet proven and cannot be validated in a non-runtime environment:
 
 1. ~~Head catalog range per sex~~ — **RESOLVED**: head range is `0..29` (30
    rows in every head atlas; `male_heads`/`female_heads`/`BigHeads` all 30 rows;
-   matches constructor `RNG(30)`). One remaining sub-check: whether the game
-   treats any specific row (e.g. a chief/special head) as non-selectable the way
-   the body chooser excludes body row 29 — the body chooser cycles `0..28`
-   despite 30 body rows. If a head special row exists it should likewise be
-   excluded; otherwise cycle the full `0..29`.
+   matches constructor `RNG(30)`). The picker cycles the full `0..29` for heads
+   and for bodies too: the stock body chooser stops at `0..28`, but body row 29
+   has art and the owner wants every row selectable, so no row is excluded.
 2. **Added-control layout coordinates** for the head arrows + OK/Cancel within
    `sub_419710`'s window, and their hit-test/event routing through the dialog's
    message handler.
