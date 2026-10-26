@@ -26,7 +26,7 @@
     {
       "source": "assets/number_keys/VVFP VV1 Number Keys.dll",
       "destination": "VVFP VV1 Number Keys.dll",
-      "sha256": "3C90E75C503BC0A5C7A9BCB529F8B86481FCB4F30398B034C14CF05C5A8428C8"
+      "sha256": "C05B8D7FEB268A59BD119AA056C6FCC79D708EB6FFC9309F0A1B8BD73E447EA0"
     }
   ],
   "patches": [
