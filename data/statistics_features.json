@@ -1,6 +1,10 @@
 {
   "schema_version": 1,
+<<<<<<< HEAD
   "companion_sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB",
+=======
+  "companion_sha256": "1BA2ECB673A4E4B4EF20DEB12C72C33213C80C9B2E0CE22FDE1E5C209FCFC909",
+>>>>>>> 9eae497e
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,7 +16,11 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
+<<<<<<< HEAD
           "sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB"
+=======
+          "sha256": "1BA2ECB673A4E4B4EF20DEB12C72C33213C80C9B2E0CE22FDE1E5C209FCFC909"
+>>>>>>> 9eae497e
         }
       ],
       "patches": [
@@ -47,7 +55,11 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
+<<<<<<< HEAD
           "sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB"
+=======
+          "sha256": "1BA2ECB673A4E4B4EF20DEB12C72C33213C80C9B2E0CE22FDE1E5C209FCFC909"
+>>>>>>> 9eae497e
         }
       ],
       "patches": [
@@ -106,7 +118,11 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
+<<<<<<< HEAD
           "sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB"
+=======
+          "sha256": "1BA2ECB673A4E4B4EF20DEB12C72C33213C80C9B2E0CE22FDE1E5C209FCFC909"
+>>>>>>> 9eae497e
         }
       ],
       "patches": [
@@ -153,7 +169,11 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
+<<<<<<< HEAD
           "sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB"
+=======
+          "sha256": "1BA2ECB673A4E4B4EF20DEB12C72C33213C80C9B2E0CE22FDE1E5C209FCFC909"
+>>>>>>> 9eae497e
         }
       ],
       "patches": [
@@ -212,7 +232,11 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
+<<<<<<< HEAD
           "sha256": "B6DDD6DE6141BDDECC0CD42EBE5A3A91C836BBB24CA0E86548898192A464A9DB"
+=======
+          "sha256": "1BA2ECB673A4E4B4EF20DEB12C72C33213C80C9B2E0CE22FDE1E5C209FCFC909"
+>>>>>>> 9eae497e
         }
       ],
       "patches": [
