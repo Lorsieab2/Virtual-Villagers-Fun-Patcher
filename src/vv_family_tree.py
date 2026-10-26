@@ -244,6 +244,9 @@ PRESETS = [
     ("The stone patio", "#9198a5", "", "asset:stone-patio.png"),
     ("Seeds and a trowel", "#837f70", "", "asset:seeds-and-trowel.png"),
     ("The island map", "#426141", "", "asset:island-map.png"),
+    ("Aquarium with a rock arch", "#367f8a", "", "asset:aquarium-rock-arch.png"),
+    ("Aquarium with driftwood", "#53918d", "", "asset:aquarium-driftwood.png"),
+    ("Aquarium with coral", "#7994c6", "", "asset:aquarium-coral.png"),
 ]
 # How a ready-made picture fits the page when picked (any other picture: stretched to the page).  The
 # starry night is small and repeats without a seam, so it is tiled rather than blown up and blurred.
