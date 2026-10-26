@@ -32,6 +32,7 @@ from tkinter import filedialog, font as tkfont, messagebox, ttk
 
 import vv_family_tree as ft
 import vv_gdiplus
+import vv_tool_fonts
 
 SELECT = "#1f6fd1"
 CLIP_MARK = "VVFP Family Tree Maker sticker:"
@@ -202,7 +203,7 @@ def choose_font(parent, fonts: list[str], current: str) -> str | None:
     entry.pack(fill="x", padx=8)
     frame = ttk.Frame(window)
     frame.pack(fill="both", expand=True, padx=8, pady=6)
-    text = tk.Text(frame, width=42, height=20, wrap="none", cursor="hand2", spacing1=2, spacing3=2)
+    text = vv_tool_fonts.tool_text(frame, width=42, height=20, wrap="none", cursor="hand2", spacing1=2, spacing3=2)
     bar = ttk.Scrollbar(frame, command=text.yview)
     text.configure(yscrollcommand=bar.set)
     bar.pack(side="right", fill="y")
@@ -671,7 +672,7 @@ class CanvasTools:
         self.text_frame = ttk.LabelFrame(tab, text="Text box", padding=6)
         self.text_frame.pack(fill="x", pady=(10, 0))
         t = self.text_frame
-        self.box_text = tk.Text(t, height=4, width=34, undo=True, wrap="word")
+        self.box_text = vv_tool_fonts.tool_text(t, height=4, width=34, undo=True, wrap="word")
         self.box_text.grid(row=0, column=0, columnspan=4, sticky="ew")
         ttk.Button(t, text="Save text", command=self._apply_box_text).grid(row=1, column=0, sticky="w", pady=(2, 6))
         ttk.Label(t, text="Font:").grid(row=2, column=0, sticky="w")

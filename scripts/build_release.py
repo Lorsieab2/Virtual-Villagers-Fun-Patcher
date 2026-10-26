@@ -262,6 +262,8 @@ FILES = [
     "src/vv_reconcile_view.py",
     # Game Mechanics (Tools tab): its window, the page and each game's module (found by name).
     "src/vv_game_mechanics_window.py",
+    # The tool windows' fonts (the VF1 patcher's), shared by every Tools tab window.
+    "src/vv_tool_fonts.py",
     "src/vv_game_mechanics.py",
     "src/vv_game_mechanics_vv1.py",
     "src/vv_game_mechanics_vv2.py",
