@@ -1512,7 +1512,10 @@ worked, but nothing confirmed it.
 **Change Appearance** and **Change Appearance for All** offer every head and
 body the game ships, for both sexes: **20 each in A New Home** and **30 each in
 the other four**. Both choosers offer the same range, so anything you can set on
-one villager you can set for the whole village.
+one villager you can set for the whole village. Every head and every outfit can
+be picked for a man or a woman, a child, an adult or an elder, including the
+rows no villager is born with: A New Home's **Golden Child head and body (19)**
+and The Secret City's **Tribal Chief robe (body 29)**.
 
 **Change Appearance for All** adds four village-wide groups on top of that pair
 of per-sex selectors, and all five games now carry the same set:

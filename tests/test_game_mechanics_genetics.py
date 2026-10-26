@@ -141,6 +141,11 @@ class Patches(unittest.TestCase):
                 text = gm.render(genetics.facts(self.village(game, both)))
                 self.assertIn("Change Appearance on the Villager Details screen", text)
                 self.assertEqual("Pick Island Event" in text, game in (1, 2, 3))
+                rows = 20 if game == 1 else 30
+                self.assertIn(f"every one of the game's {rows} heads and {rows} bodies, for a man or a woman "
+                              "of any age", text)
+                self.assertEqual("the Golden Child's head 19 and body 19 included" in text, game == 1)
+                self.assertEqual("the Tribal Chief's body 29 included" in text, game == 3)
 
 
 class Villagers(unittest.TestCase):

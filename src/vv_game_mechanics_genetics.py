@@ -57,6 +57,11 @@ _LATER = {
     5: dict(creator="0x4681F0", head="0x46853A..0x4685AC", body=("0x4685B3", 29), birth="0x473120",
             twin="0x46F5C0 called from 0x4687F0, via the twin and triplet creator 0x46FD70"),
 }
+# The rows Change Appearance offers that no villager is born with (the owner: every head and outfit is selectable).
+_CHOOSER_SPECIAL_ROWS = {
+    1: ", the Golden Child's head 19 and body 19 included",
+    3: ", the Tribal Chief's body 29 included",
+}
 # The share of each of the three heads around the parents' average, and of any other head (per birth).
 NEAR = 0.95 / 3 + 0.05 / 30
 FAR = 0.05 / 30
@@ -84,7 +89,9 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
     if village.has(ORIGINS.format(g)):
         out.append(gm.Fact(GENETICS, (
             f"With the patcher's \"{gm.feature_name(ORIGINS.format(g))}\" (in this game): Change Appearance on the "
-            "Villager Details screen sets a villager's head (and body) to any the player picks, and Change Appearance "
+            "Villager Details screen sets a villager's head (and body) to any the player picks -- every one of the "
+            f"game's {20 if g == 1 else 30} heads and {20 if g == 1 else 30} bodies, for a man or a woman of any age"
+            f"{_CHOOSER_SPECIAL_ROWS.get(g, '')} -- and Change Appearance "
             "for All can give the whole village random heads by sex or heads of one hair colour (Black, Brown, Red, "
             "Blonde or Other). Neither changes anyone's recorded parents."), gm.RUNNING))
     if g in (1, 2, 3) and village.has(STORY.format(g)):
