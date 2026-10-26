@@ -162,7 +162,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
-               "vv_vv2_totems", "vv_vv2_totem_store",
+               "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
@@ -289,7 +289,8 @@ class ReleasesLinkTests(unittest.TestCase):
                                      "vv_tribe_rename", "vv_tree_editor_tools", "vv_last_names", "vv_log_tools",
                                      "vv_number_names", "vv_villager_info", "vv_reconcile_view",
                                      "vv_history_revision",      # Hide villagers not in the current save (v1.35.73)
-                                     "vv_answered_questions"}),  # "the same villager?" asked in the tree (v1.35.80 update)
+                                     "vv_answered_questions",    # "the same villager?" asked in the tree (v1.35.80 update)
+                                     "vv_tool_fonts"}),          # the tool windows' fonts (the VF1 patcher's)
             # Remove a restarted tribe's villagers from the history (the owner, v1.35.73).
             ("vv_history_revision", {"vv_log_tools", "vv_log_additions", "vv_reconcile", "vv_save_backup"}),
             # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).
@@ -299,7 +300,7 @@ class ReleasesLinkTests(unittest.TestCase):
             # as the save does (vv_tribe_rename).
             ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup", "vv_log_additions",
                                  "vv_save_layout", "vv_tribe_rename"}),
-            ("vv_tree_editor_tools", {"vv_family_tree", "vv_gdiplus"}),
+            ("vv_tree_editor_tools", {"vv_family_tree", "vv_gdiplus", "vv_tool_fonts"}),
             # The save folder's folder and file names, old and new (the owner, 2026-10-09).
             ("vv_save_layout", set()),
             # Game Mechanics: the slot's save named as every repair tool names it (function-level), and its window.
@@ -308,7 +309,7 @@ class ReleasesLinkTests(unittest.TestCase):
                                    "vv_game_mechanics_counts",  # the Village counts group (function-level)
                                    "vv_game_mechanics_chances",  # the old-age roll's exact odds (function-level)
                                    "vv_fun_patcher"}),  # the patcher's own applied-patch check of the exe (function-level)
-            ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename"}),
+            ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename", "vv_tool_fonts"}),
             # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
             # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py) and Island events catalog.
             *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
