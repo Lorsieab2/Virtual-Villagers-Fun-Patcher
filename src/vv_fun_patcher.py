@@ -12403,7 +12403,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "53AA5663161AABC888D828BD540BDA1DC7AF9D40647FE2666F65044FB2A6171E",
+    "sha256": "9FEF457991950A9F6236F81545EDCF388AB46C8DA3E31CA6C6760028F3138DB8",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12458,6 +12458,7 @@ STARTUP_LOADER_COMPANIONS = (
 # as before.  APPEND ONLY, as the first word.
 STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP VV1 Genetics.dll",
+    "VVFP Appearance Rolls.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

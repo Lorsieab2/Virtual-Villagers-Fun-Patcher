@@ -342,6 +342,10 @@ CASES = [
     Case("VV1 Golden Child Safe", "assets/golden_child_safe/VVFP VV1 Golden Child Safe.dll", (1,),
          lambda g: ["vv1_fix_vanilla_bugs"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpGoldenChildSafeInstalled"))[1]),
+    # Fix Vanilla Bugs (The Lost Children, The Tree of Life, New Believers): the last head and body rows.
+    Case("Appearance Rolls", "assets/appearance_rolls/VVFP Appearance Rolls.dll", (2, 4, 5),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpAppearanceRollsInstalled"))[1]),
     Case("Difficulty Settings", "assets/difficulty/VVFP Difficulty.dll", (4, 5),
          lambda g: [f"vv{g}_difficulty_settings"], _startup, reports=False),
     Case("VV1 Genetics", "assets/genetics/VVFP VV1 Genetics.dll", (1,),

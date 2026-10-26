@@ -276,7 +276,9 @@ EVENTS = (
         "(0x43919E); at 0 or less the opener dies, so strength 3 always kills.",)),
     Event("A Mysterious Vial (green)", "a vial. Item: a thin or viscous green vial (the word changes nothing)", (
         "\"Drink the liquid\": the drinker's head is re-rolled: a man gets one of heads 0 to 28, a woman one of 0 "
-        "to 29, each equally likely (0x43954E); the strength changes only the words.",)),
+        "to 29, each equally likely (0x43954E); the strength changes only the words.",),
+        patched=((FIX, "a man gets one of heads 0 to 29 too, each equally likely, as a woman does; in the normal "
+                       "game a man never gets head 29 from the drink"),)),
     Event("A Mysterious Vial (orange)", "a vial. Item: a thin or viscous orange vial", (
         "\"Drink the liquid\": one skill, 20% each -- Farming, Building, Parenting, Healing or Research -- gains "
         "50, 75 or 100 at strength 1, 2, 3, up to 100 (rand(5) at 0x439727).",)),

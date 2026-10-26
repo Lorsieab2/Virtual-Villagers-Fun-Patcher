@@ -45,6 +45,22 @@ GENETICS = gm.GENETICS
 ORIGINS = "vv{}_enable_origins_exclusive_features"
 STORY = "vv{}_story_cheat_upgrades"
 GENETICS_PATCH = "vv1_genetics"
+FIX = "vv{}_fix_vanilla_bugs"
+# What Fix Vanilla Bugs changes in a game's random looks ("VVFP Appearance Rolls.dll", native/
+# vvfp_appearance_rolls): only where the normal game's roll leaves out the last row.  A New Home (its boys'
+# row 19 is the Golden Child's; its girls already reach 19) and The Secret City (body 29 is the Tribal
+# Chief's robe; every head already reaches 29) have no line.
+APPEARANCE_ROLLS = {
+    2: ("a man who drinks \"A Mysterious Vial\" (the green liquid) gets any head 0 to 29, 1 chance in 30 each, "
+        "as a woman does, so head 29 can come from the drink too (\"VVFP Appearance Rolls.dll\", at 0x4395ED and "
+        "0x43968F)."),
+    4: ("a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too -- at a birth, to "
+        "twins and triplets (copies of the first baby) and to every arrival and new village's villager, all made "
+        "by the same creator (\"VVFP Appearance Rolls.dll\", at 0x45F2AE)."),
+    5: ("a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too -- at a birth, to "
+        "twins and triplets (copies of the first baby) and to every arrival and new village's villager, all made "
+        "by the same creator (\"VVFP Appearance Rolls.dll\", at 0x4685B3)."),
+}
 
 # The later games' creator, its head roll and its body roll, the birth's call, and the twin copy.
 _LATER = {
@@ -86,6 +102,10 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
             "father is the one Show Parents recorded at the conception; when it knows none, the mother's head "
             "alone. Twins and triplets share the first baby's head; bodies stay random. (\"VVFP VV1 "
             "Genetics.dll\", at 0x43C647, for a birth's first child only.)"), gm.RUNNING))
+    if g in APPEARANCE_ROLLS and village.has(FIX.format(g)):
+        out.append(gm.Fact(GENETICS, (
+            f"With the patcher's \"{gm.feature_name(FIX.format(g))}\" (in this game): "
+            + APPEARANCE_ROLLS[g]), gm.RUNNING))
     if village.has(ORIGINS.format(g)):
         out.append(gm.Fact(GENETICS, (
             f"With the patcher's \"{gm.feature_name(ORIGINS.format(g))}\" (in this game): Change Appearance on the "

@@ -71,6 +71,11 @@ class TheRendering(exe.CatalogChecks, unittest.TestCase):
         self.assertIn("The Mosquito Swarm --", patched)
         self.assertIn('With the patcher\'s "Fix Vanilla Bugs" (in this game)', patched)
         self.assertIn("they add 30 to the coconut trees", patched)
+        # The green vial: the normal game's man's 0 to 28 first, the fix's 0 to 29 only with the row.
+        vial = "a man gets one of heads 0 to 29 too"
+        self.assertIn(vial, patched)
+        self.assertLess(patched.index("a man gets one of heads 0 to 28"), patched.index(vial))
+        self.assertNotIn(vial, gm.render(events.facts(exe.village(GAME, {vv2.RESTORE}))))
 
     def test_the_gong_heading(self) -> None:
         general = gm.render(gm.general(GAME))
