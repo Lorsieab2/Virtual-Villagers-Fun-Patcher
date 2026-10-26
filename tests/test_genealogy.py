@@ -356,9 +356,9 @@ class TreeTests(unittest.TestCase):
     def test_the_owners_backgrounds_ship_with_the_patcher(self) -> None:
         # The owner: "I want these and only these backgrounds as defaults: along with your plain
         # gradient ones" -- ten pictures of their own, then the starry night ("add this for a background
-        # too!"), always offered, every one a PNG.
+        # too!"), then the owner's five more (2026-10-26), always offered, every one a PNG.
         pictures = [p[3] for p in ft.PRESETS if p[3]]
-        self.assertEqual(len(pictures), 11)
+        self.assertEqual(len(pictures), 16)
         self.assertEqual(set(ft.PRESET_FITS) - set(pictures), set())
         self.assertTrue(set(ft.PRESET_FITS.values()) <= set(ft.FITS))
         self.assertTrue(all(p.startswith("asset:") for p in pictures))
