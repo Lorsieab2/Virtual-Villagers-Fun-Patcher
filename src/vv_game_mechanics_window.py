@@ -37,6 +37,7 @@ from tkinter import filedialog, messagebox, ttk
 
 import vv_game_mechanics as gm
 import vv_save_backup
+import vv_tool_fonts
 import vv_tribe_rename
 
 TITLE = gm.TITLE
@@ -176,10 +177,8 @@ def open_game_mechanics(app, build) -> tk.Toplevel | None:
     notebook = ttk.Notebook(outer)
     notebook.pack(fill="both", expand=True)
 
-    probe = tk.Text(window)
-    bold = tkfont.nametofont(probe.cget("font")).copy()
-    probe.destroy()
-    bold.configure(weight="bold")
+    # The VF1 patcher's tool fonts (src/vv_tool_fonts.py): a group's heading in Segoe UI 12 bold.
+    bold = vv_tool_fonts.fonts(window)["heading"]
     window.bold_font = bold                 # kept while the window is open
     tabs: dict[int, dict] = {}
     jobs: dict[str, str] = {}               # every callback the window has scheduled, by name
@@ -317,13 +316,14 @@ def _game_tab(window, notebook, app, title: str, saves, documents, bold) -> dict
     links.pack(fill="x", pady=(6, 0))
     page_frame = ttk.Frame(tab)
     page_frame.pack(fill="both", expand=True, pady=(6, 0))
-    box = tk.Text(page_frame, wrap="word", height=1)
+    # The VF1 patcher's page (src/vv_tool_fonts.py): Segoe UI 10, headings 12 bold, labels 9 bold.
+    box = vv_tool_fonts.tool_text(page_frame, wrap="word", height=1, padx=8, pady=8, borderwidth=1, relief="solid")
     bar = ttk.Scrollbar(page_frame, orient="vertical", command=box.yview)
     box.configure(yscrollcommand=bar.set, state="disabled")
     bar.pack(side="right", fill="y")
     box.pack(side="left", fill="both", expand=True)
-    box.tag_configure("group", font=bold)
-    box.tag_configure("unconfirmed", font=bold, foreground=LABEL_RED)
+    box.tag_configure("group", font=bold, **vv_tool_fonts.HEADING_SPACING)
+    box.tag_configure("unconfirmed", font=vv_tool_fonts.fonts(box)["label"], foreground=LABEL_RED)
     # Bullets (the owner, 2026-10-23): a wrapped line continues under the bullet's text, not under the bullet.
     plain = tkfont.nametofont(box.cget("font"))
     box.tag_configure("bullet", lmargin1=0, lmargin2=plain.measure(gm.BULLET))

@@ -32,6 +32,7 @@ from tkinter import colorchooser, filedialog, font as tkfont, messagebox, simple
 
 import vv_family_tree as ft
 import vv_gdiplus
+import vv_tool_fonts
 import vv_genealogy as gen
 import vv_last_names
 import vv_line_colours
@@ -1274,7 +1275,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                                relief="groove", takefocus=False, command=lambda w=what: self._format_text(w))
             button.pack(side="left", padx=(0, 2))
             self.format_buttons[what] = button
-        self.lines_text = tk.Text(box, height=5, width=34, undo=True)
+        self.lines_text = vv_tool_fonts.tool_text(box, height=5, width=34, undo=True)
         self.lines_text.pack(fill="x")
         self.lines_text.bind("<Button-3>", self._format_menu)
         self.lines_text.bind("<Control-b>", lambda _e: self._format_text("bold"))
@@ -2141,7 +2142,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         gen_box = ttk.Combobox(tab, textvariable=self.gen_var, values=[gen.roman(g) for g in gens], state="readonly", width=8)
         gen_box.pack(anchor="w")
         gen_box.bind("<<ComboboxSelected>>", lambda _e: self._show_generation())
-        self.gen_text = tk.Text(tab, height=4, width=34)
+        self.gen_text = vv_tool_fonts.tool_text(tab, height=4, width=34)
         self.gen_text.pack(fill="x", pady=(2, 2))
         row = ttk.Frame(tab)
         row.pack(fill="x")
@@ -6289,7 +6290,7 @@ def _show_text(parent, title: str, text: str, path: Path, refresh=None) -> None:
     top.pack(fill="x")
     saved = ttk.Label(top, text=f"Also saved as {path}", wraplength=700)
     saved.pack(side="left", anchor="w")
-    box = tk.Text(frame, wrap="word")
+    box = vv_tool_fonts.tool_text(frame, wrap="word")
     scroll = ttk.Scrollbar(frame, command=box.yview)
     box.configure(yscrollcommand=scroll.set)
     scroll.pack(side="right", fill="y")

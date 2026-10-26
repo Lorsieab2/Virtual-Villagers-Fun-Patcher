@@ -41,6 +41,7 @@ import vv_vv2_totems
 import vv_genealogy
 import vv_genealogy_window
 import vv_game_mechanics_window
+import vv_tool_fonts
 from vv_tree_editor_tools import scrollable_frame
 
 # Link colours: the resting blue and the hover red.
@@ -3858,7 +3859,7 @@ class App(tk.Tk):
                        "until its new copy is checked.").pack(anchor="w", pady=(0, 8))
         body = ttk.Frame(frame)
         body.pack(fill="both", expand=True)
-        text = tk.Text(body, wrap="word", width=110, height=24)
+        text = vv_tool_fonts.tool_text(body, wrap="word", width=110, height=24)
         scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
         text.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
@@ -3994,14 +3995,14 @@ class App(tk.Tk):
         ).pack(anchor="w", pady=(4, 8))
         body = ttk.Frame(frame)
         body.pack(fill="both", expand=True)
-        text = tk.Text(body, wrap="word", width=110, height=30)
+        text = vv_tool_fonts.tool_text(body, wrap="word", width=110, height=30)
         scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
         text.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
         text.pack(side="left", fill="both", expand=True)
         text.tag_configure("WRONG", foreground="#a01010")
         text.tag_configure("ASK", foreground="#8a4b00")
-        text.tag_configure("file", font=("Segoe UI", 9, "bold"))
+        text.tag_configure("file", font=vv_tool_fonts.BOLD)
         for line in result.text.splitlines() + list(extra):
             verdict = line.split(None, 1)[0] if line.strip() else ""
             tag = "file" if line.startswith("== ") else (verdict if verdict in ("WRONG", "ASK") else ())
@@ -5052,7 +5053,7 @@ class App(tk.Tk):
                        "log.").pack(anchor="w", pady=(0, 8))
         body = ttk.Frame(frame)
         body.pack(fill="both", expand=True)
-        text = tk.Text(body, wrap="word", width=110, height=30)
+        text = vv_tool_fonts.tool_text(body, wrap="word", width=110, height=30)
         scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
         text.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
@@ -5105,7 +5106,7 @@ class App(tk.Tk):
                        "the Repairs log lists the villagers put back.").pack(anchor="w", pady=(0, 8))
         body = ttk.Frame(frame)
         body.pack(fill="both", expand=True)
-        text = tk.Text(body, wrap="word", width=110, height=24)
+        text = vv_tool_fonts.tool_text(body, wrap="word", width=110, height=24)
         scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
         text.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")

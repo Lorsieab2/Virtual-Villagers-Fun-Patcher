@@ -1512,7 +1512,7 @@
         {
           "source": "assets/easier_healing/VVFP VV1 Easier Healing.dll",
           "destination": "VVFP VV1 Easier Healing.dll",
-          "sha256": "B191F11E56EA4FA66FCD451FF7B0A202C1E7D80598FB53C2B84191A3BBD139B8"
+          "sha256": "C61C022FDD24837CDB34A7EE0B3DD819188530D986A1F58D5459CB1E6AAAAAA7"
         }
       ],
       "runtime_detours": [
@@ -1575,7 +1575,7 @@
         {
           "source": "assets/research_at_max/VVFP VV1 Research At Max.dll",
           "destination": "VVFP VV1 Research At Max.dll",
-          "sha256": "66C657F84C03337DA1EA9E49874D601055194A750D843E6AE31CECCC5790B273"
+          "sha256": "0D043B7EDAC0919CBB70D50AAB3BA5696EC78FF8D856560297A315836F8EF098"
         }
       ],
       "runtime_detours": [
@@ -2083,12 +2083,12 @@
         {
           "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
           "destination": "VVFP Speed Change Timers.dll",
-          "sha256": "4C2864B2A4A0A0508A4E6C7922B41B7441F95A4CAFE7ADA1693037E876E59749"
+          "sha256": "8946DAD5F8E84A38EDE8334D80E6349A06208D883A28AB8509005F4927468F37"
         },
         {
           "source": "assets/golden_child_safe/VVFP VV1 Golden Child Safe.dll",
           "destination": "VVFP VV1 Golden Child Safe.dll",
-          "sha256": "00EB606887AE1414F50E198B78440040AD2C9FBB2FF9437CBC76B2400A3A0A59"
+          "sha256": "AA42E9393AC1AD8F04BC2A592F61EA7C61F619C4667E9F0DCCAA51F445B6E5E0"
         }
       ],
       "runtime_detours": [
@@ -2754,7 +2754,7 @@
         {
           "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
           "destination": "VVFP Speed Change Timers.dll",
-          "sha256": "4C2864B2A4A0A0508A4E6C7922B41B7441F95A4CAFE7ADA1693037E876E59749"
+          "sha256": "8946DAD5F8E84A38EDE8334D80E6349A06208D883A28AB8509005F4927468F37"
         }
       ],
       "runtime_detours": [
@@ -3036,7 +3036,7 @@
         {
           "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
           "destination": "VVFP Speed Change Timers.dll",
-          "sha256": "4C2864B2A4A0A0508A4E6C7922B41B7441F95A4CAFE7ADA1693037E876E59749"
+          "sha256": "8946DAD5F8E84A38EDE8334D80E6349A06208D883A28AB8509005F4927468F37"
         },
         {
           "source": "assets/appearance_rolls/VVFP Appearance Rolls.dll",
@@ -3997,7 +3997,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "4CD2168FAE103223E06A8A454B7BDA9951C90378E850CF86C4B2766253222BCC"
+          "sha256": "03CA2538FBBC02D775DB505CE422C5FD299C4FE5AEB84FAA48485D38E7C281A1"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4185,7 +4185,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "4CD2168FAE103223E06A8A454B7BDA9951C90378E850CF86C4B2766253222BCC"
+          "sha256": "03CA2538FBBC02D775DB505CE422C5FD299C4FE5AEB84FAA48485D38E7C281A1"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4268,7 +4268,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "4CD2168FAE103223E06A8A454B7BDA9951C90378E850CF86C4B2766253222BCC"
+          "sha256": "03CA2538FBBC02D775DB505CE422C5FD299C4FE5AEB84FAA48485D38E7C281A1"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4351,7 +4351,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "4CD2168FAE103223E06A8A454B7BDA9951C90378E850CF86C4B2766253222BCC"
+          "sha256": "03CA2538FBBC02D775DB505CE422C5FD299C4FE5AEB84FAA48485D38E7C281A1"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
