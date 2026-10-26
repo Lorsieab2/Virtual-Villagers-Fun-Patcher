@@ -18,7 +18,7 @@ identity) gives them back.  It only ever adds:
   - a pregnancy's expected father is never touched;
   - a villager the file no longer names (dead and dropped by an older build) comes back as a departed
     entry in a free record, so the logs and the family tree keep their parents;
-  - two villagers who share the identity in the file or in a copy are left alone, never guessed;
+  - a copy is a source only when it is THIS village's: a strict majority of the smaller roster is found in\n    both (an ".another-village-..." copy is often a different village that was in the slot);\n  - two villagers who share the identity in the file or in a copy are left alone, never guessed;
   - a copy whose parents disagree with the villager's own Birth record (same name and looks) is not
     used for them: that is a contradiction the player decides (Check Saves & Logs lists it).
 
@@ -260,6 +260,17 @@ def _arrived_names(folder: Path, slot: int) -> set[str]:
     return out
 
 
+def _same_village(now: dict[tuple, list[int]], old: dict[tuple, list[int]]) -> bool:
+    """Is a copy this village's?  A copy set aside as "another-village" is very often a DIFFERENT
+    village (a save copied into the slot), and names and family numbers repeat across villages, so a
+    copy is a source only when a strict majority of the smaller roster is found in both, each identity
+    once on each side (the companion's own rule, vv1_roster_overlap)."""
+    if not now or not old:
+        return False
+    found = sum(1 for ident, at in old.items() if len(at) == 1 and len(now.get(ident, [])) == 1)
+    return found >= min(len(now), len(old)) // 2 + 1
+
+
 def plan(folder: Path, slot: int) -> Plan:
     folder = Path(folder)
     path = parents_path(folder, slot)
@@ -292,6 +303,8 @@ def plan(folder: Path, slot: int) -> Plan:
             ident = old.identity(i)
             if ident is not None:
                 seen.setdefault(ident, []).append(i)
+        if not _same_village(where, seen):
+            continue                                       # another village's file: not a source
         for ident, at in seen.items():
             if ident in done or ident in skipped:
                 continue

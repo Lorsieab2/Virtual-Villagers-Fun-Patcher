@@ -1,4 +1,0 @@
-LIBRARY "VVFP Save Reset"
-EXPORTS
-    ResetDeletedTribe=_ResetDeletedTribe@8
-    SavedVillageHeader=_SavedVillageHeader@16
