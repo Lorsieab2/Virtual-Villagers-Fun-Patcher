@@ -1,3 +1,0 @@
-LIBRARY "VVFP Startup"
-EXPORTS
-    VvfpStartup=_VvfpStartup@8

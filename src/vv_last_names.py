@@ -1156,7 +1156,8 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
                        b"VFH1", 1, game, 16, 8, 0, title_map, "former Heathens", conflicts)
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
-    _plan_unaccounted(result, game, slot, data_dir, renames, asked)
+    _plan_unaccounted(result, game, slot, data_dir, renames, asked, by_name,
+                      _dead_names(folder, game, slot) if game == 1 else frozenset())
     renamed = {name for name, _head, _body in renames}
     _plan_statistics(result, game, slot, data_dir, by_name, renamed)
     _plan_logs(result, folder, game, slot, asked, by_name, dead, renamed)
@@ -1351,7 +1352,8 @@ def _plan_vv1_parentage(result: Plan, folder: Path, data_dir: Path, slot: int, p
 
 
 def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, renames: dict[tuple, str],
-                      asked: dict[tuple, str]) -> None:
+                      asked: dict[tuple, str], by_name: dict[str, set] | None = None,
+                      dead: frozenset | set = frozenset()) -> None:
     name = f"Virtual Villagers {game} Villagers at Last Save - Save {slot}.dat"
     rec = RECORD[game]
     for path in (layout.find(data_dir.parent, f"{layout.DATA}\\Unaccounted Villagers\\{name}"),
@@ -1373,10 +1375,15 @@ def _plan_unaccounted(result: Plan, game: int, slot: int, data_dir: Path, rename
         size = 16 + (hi - lo) + tail
         buf = bytearray(original)
         n = 0
-        # A parent kept by name alone is renamed only when that name is one villager's.
-        by_parent_name: dict[str, set[str]] = {}
-        for (old, _head, _body), new in renames.items():
-            by_parent_name.setdefault(old, set()).add(new)
+        # A parent kept by name alone is renamed only when that name is one villager's: every living
+        # holder takes the one new name (`by_name`) and no dead villager has the name (as the parents
+        # in A New Home's Parentage Records are).
+        if by_name is not None:
+            by_parent_name = {old: news for old, news in by_name.items() if old not in dead}
+        else:
+            by_parent_name = {}
+            for (old, _head, _body), new in renames.items():
+                by_parent_name.setdefault(old, set()).add(new)
         for i in range(count):
             base = 32 + i * size + 16 - lo
             if base + hi > len(buf):
