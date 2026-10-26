@@ -2103,10 +2103,10 @@ CONTROLS = {
                         [0x4396BE, 0x1D],
                         [0x4396EB, 0x1D],
                     ],
-                    'condition': "the finder is female (+0x538 == 2): a male's roll is rand(29)",
+                    'condition': "the finder is female (+0x538 == 2), in the normal game: a male's roll is rand(29); with Fix Vanilla Bugs in the game a male's roll is rand(30), so a man can get head 29 too",
                 },
             ],
-            'evidence': "Variant 5 0x43954E, Drink (+0x509C == 1): level 1 or 3 -> 0x439574, level 2 -> 0x43961A (same texts 0x296/0x2A1/0x29D). Each tests the finder's sex +0x538 == 1 (male) (0x4395DF / 0x439685): male -> head +0x548 = rand(29) (0x4395EF / 0x439691, 6A 1D E8), otherwise rand(30) (0x4396EB / 0x4396BE, 6A 1E E8). All four sites are forced together; a male's bound is 29, so head 29 is female-only.",
+            'evidence': "Variant 5 0x43954E, Drink (+0x509C == 1): level 1 or 3 -> 0x439574, level 2 -> 0x43961A (same texts 0x296/0x2A1/0x29D). Each tests the finder's sex +0x538 == 1 (male) (0x4395DF / 0x439685): male -> head +0x548 = rand(29) (0x4395EF / 0x439691, 6A 1D E8), otherwise rand(30) (0x4396EB / 0x4396BE, 6A 1E E8). All four sites are forced together; a male's bound is 29, so head 29 is female-only in the normal game (Fix Vanilla Bugs' VVFP Appearance Rolls.dll makes it 30 at 0x4395ED / 0x43968F; a forced answer is kept below the bound the game passes).",
         },
         {
             'id': 'finder',
