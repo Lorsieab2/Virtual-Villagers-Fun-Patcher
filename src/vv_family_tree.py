@@ -235,6 +235,15 @@ PRESETS = [
     ("Wood and magnifying glass", "#dc6707", "", "asset:wood-and-magnifier.png"),
     ("Sand in a black frame", "#a88c68", "", "asset:sand-in-black-frame.png"),
     ("Canvas in a wooden frame", "#d0cfcd", "", "asset:canvas-in-wood-frame.png"),
+    # And eight more (the owner, 2026-10-26), again the same as the Virtual Families patchers' trees.
+    ("The deck and the hose", "#8c5929", "", "asset:deck-and-hose.png"),
+    ("Autumn paving", "#a77647", "", "asset:autumn-paving.png"),
+    ("Grass and acorns", "#469f21", "", "asset:grass-and-acorns.png"),
+    ("The blue rose", "#767160", "", "asset:blue-rose.png"),
+    ("The garden gate", "#88844e", "", "asset:garden-gate.png"),
+    ("The stone patio", "#9198a5", "", "asset:stone-patio.png"),
+    ("Seeds and a trowel", "#837f70", "", "asset:seeds-and-trowel.png"),
+    ("The island map", "#426141", "", "asset:island-map.png"),
 ]
 # How a ready-made picture fits the page when picked (any other picture: stretched to the page).  The
 # starry night is small and repeats without a seam, so it is tiled rather than blown up and blurred.
@@ -942,6 +951,10 @@ PICTURE_TYPES = (".png", ".jpg", ".jpeg", ".bmp", ".gif")
 LOGOS = [(f"{title} logo", f"vv{n}:logo1.png") for n, title in
          ((1, "A New Home"), (2, "The Lost Children"), (3, "The Secret City"), (4, "The Tree of Life"),
           (5, "New Believers"))]
+# The owner's two Virtual Families logos (2026-10-26), shipped with the patcher next to the backgrounds; the
+# same names and files as the Virtual Families patchers' trees.
+LOGOS += [("Virtual Families logo", "asset:virtual-families-logo.png"),
+          ("Virtual Families 2 logo", "asset:virtual-families-2-logo.png")]
 
 
 def _number(value, low: float, high: float, default: float) -> float:
