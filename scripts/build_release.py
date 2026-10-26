@@ -64,6 +64,8 @@ FILES = [
     # starts A New Home's (the Golden Child and island events), which it ships beside.
     "assets/speed_timers/VVFP Speed Change Timers.dll",
     "assets/golden_child_safe/VVFP VV1 Golden Child Safe.dll",
+    # Fix Vanilla Bugs (The Lost Children, The Tree of Life, New Believers): head and body rolls reach row 29.
+    "assets/appearance_rolls/VVFP Appearance Rolls.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",

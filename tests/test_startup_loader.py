@@ -290,6 +290,7 @@ class StartupLoaderPlacement(unittest.TestCase):
         build = build_of("vv2")
         features = vfp._attach_automatic_companions("vv2", vfp._selected_fun_patches(build, list(selection)))
         mask = vfp._startup_loader_mask("vv2", features)
+        mask_2 = vfp._startup_loader_mask_2(features)   # Fix Vanilla Bugs' VVFP Appearance Rolls.dll
         self.assertEqual(mask & vfp.STARTUP_LOADER_CHECK_LOGS, 0)
         for setting in (False, True):
             with self.subTest(check_logs=setting):
@@ -303,7 +304,7 @@ class StartupLoaderPlacement(unittest.TestCase):
                 block = vfp._startup_loader_block(
                     va, 2, mask | (vfp.STARTUP_LOADER_CHECK_LOGS if setting else 0),
                     slots[b"GetModuleHandleA"], slots[b"GetProcAddress"],
-                    vfp.STARTUP_LOADER_WINMAIN_CALL["vv2"][1])
+                    vfp.STARTUP_LOADER_WINMAIN_CALL["vv2"][1], mask_2)
                 self.assertEqual(pe.get_data(section.VirtualAddress, len(block)), block)
                 pushed = b"\x68" + struct.pack("<I", mask | (vfp.STARTUP_LOADER_CHECK_LOGS if setting else 0))
                 self.assertIn(pushed, block)

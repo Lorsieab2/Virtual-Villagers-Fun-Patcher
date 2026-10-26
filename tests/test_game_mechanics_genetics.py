@@ -191,6 +191,37 @@ class Villagers(unittest.TestCase):
             self.assertEqual([f for f in genetics.facts(village) if f.verified == gm.SAVE], [])
 
 
+class PatchLines(unittest.TestCase):
+    """The normal game's rule first; Fix Vanilla Bugs' line only when the exe has the row ("VVFP Appearance
+    Rolls.dll": The Lost Children's green vial for a man, The Tree of Life's and New Believers' body roll)."""
+
+    def text(self, game: int, patches: frozenset) -> list[str]:
+        village = gm.Village(Path("."), game, 1, Path("x.ldw"), b"\0" * 64, patches, 1_700_000_000)
+        with mock.patch.object(vv_last_names, "living", return_value=[]):
+            return [f.text for f in genetics.facts(village)]
+
+    def test_the_fix_line_follows_the_normal_rule_only_with_the_row(self) -> None:
+        wanted = {2: "a man who drinks \"A Mysterious Vial\" (the green liquid) gets any head 0 to 29",
+                  4: "a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too",
+                  5: "a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too"}
+        normal = {2: "a man any of 0 to 28", 4: "body 29 is never given at birth", 5: "body 29 is never given at birth"}
+        for game, line in wanted.items():
+            with self.subTest(game=game):
+                fix = f"vv{game}_fix_vanilla_bugs"
+                self.assertFalse(any(line in t for t in self.text(game, frozenset())))
+                lines = self.text(game, frozenset({fix}))
+                at = [i for i, t in enumerate(lines) if line in t]
+                self.assertEqual(len(at), 1)
+                self.assertTrue(lines[at[0]].startswith("With the patcher's \"Fix Vanilla Bugs\" (in this game): "))
+                self.assertLess(next(i for i, t in enumerate(lines) if normal[game] in t), at[0])
+
+    def test_a_new_home_and_the_secret_city_have_no_fix_line(self) -> None:
+        for game in (1, 3):
+            with self.subTest(game=game):
+                lines = self.text(game, frozenset({f"vv{game}_fix_vanilla_bugs"}))
+                self.assertFalse(any("Appearance Rolls" in t for t in lines))
+
+
 class StockCode(unittest.TestCase):
     """The instructions each rule was read from, in each game's stock executable."""
 

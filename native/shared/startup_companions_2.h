@@ -16,6 +16,7 @@
 
 static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     "VVFP VV1 Genetics.dll",
+    "VVFP Appearance Rolls.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

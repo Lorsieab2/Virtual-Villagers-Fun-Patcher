@@ -1,0 +1,4 @@
+LIBRARY "VVFP Appearance Rolls"
+EXPORTS
+    VvfpStartup = _VvfpStartup@8
+    VvfpAppearanceRollsInstalled = _VvfpAppearanceRollsInstalled@0
