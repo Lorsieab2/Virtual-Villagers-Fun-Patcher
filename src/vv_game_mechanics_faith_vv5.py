@@ -88,10 +88,12 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "into the tribe (0x43979C).", sub=True)
     # The owner's words (2026-10-25: "Heathens never fall sick" is true in play): the life tick skips them, so a
     # sick mark an island event sets on one has no effect (The Missing Kids' own line says so).
-    add("Heathens: they never age, eat, fall sick or gain Divine Energy, while catching up or otherwise (the life tick "
-        "skips them, 0x472CB7); their details can't be viewed (\"You cannot view details about heathens. They do not "
-        "believe in you.\"). Becoming a Heathen clears a villager's role, even the Retired Chief's (0x4669F5); "
+    add("Heathens: the life tick skips them (0x472CB7), so while catching up or otherwise they never age, eat, gain "
+        "Divine Energy or get the sickness roll, and a sick mark costs them no health; in the game's code The Missing "
+        "Kids can mark a Heathen child sick (0x4161D1, see Island events). Their details can't be viewed (\"You "
+        "cannot view details about heathens. They do not believe in you.\"). Becoming a Heathen clears a villager's role, even the Retired Chief's (0x4669F5); "
         "joining the tribe clears it too, except the Retired Chief's (0x466966).")
+    add("The owner: Heathens never fall sick in play.", gm.OWNER, sub=True)
     add("Heathens never count in the tribe's population or in any statistics row (see Village counts).", gm.OWNER,
         sub=True)
     try:

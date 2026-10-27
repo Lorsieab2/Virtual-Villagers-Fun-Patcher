@@ -635,13 +635,19 @@ CHANCE_LINES = (
      "real life; an item lies 90 real-life seconds (still counting while paused, when no new ones appear); a clear "
      "sky lasts 15 to 30 real-life minutes on Normal speed and any other weather 3 to 6 (0x41FB40).", True),
     # (The brewed potion's countdown is under Tech points and effects; the 40-second re-decision under Chances; the
-    # fire's 20 game hours, 0x433A33, under Hidden villager stats.)  0x427DD0 (from the loader's step 0x427B40) calls
-    # 0x427D90, which saves the settings, the slot and slot + 20, once 600 seconds of the system clock 0x401ED0 have
-    # passed; whether that step runs while a village is played is not traced.
+    # fire's 20 game hours, 0x433A33, under Hidden villager stats.)  0x427DD0 calls 0x427D90, which saves the
+    # settings, the slot and slot + 20, once 600 seconds of the system clock 0x401ED0 have passed.  It is called at
+    # 0x427B40, the last step of the game object's per-frame update 0x427720 (vtable slot 0x1C), skipped only while
+    # the start-up loading step [+0x2C] is 6 or less (0x427B37); gm.autosave_line has the five games' trace.
     ("Not traced: how long a fixed-spot coral from puzzle code stays out, and the sharks' timer (so their clocks, "
-     "real time or on the game's clock, are not known). The autosave every 10 real-life minutes (real time, the same at "
-     "every speed, paused too) is under Autosave above: 0x427DD0 is the last step of the per-frame update; an "
-     "earlier 30-minute live run that left no new save is not explained.", False),
+     "real time or on the game's clock, are not known).", False),
+    # A live run of The Secret City, written down in the Game Mechanics audit of 2026-10-25 (commit 72b88737): a
+    # village played for 30 minutes left no new save.  The code says otherwise (Autosave above); the owner,
+    # 2026-10-27: "for cases where the code contradicts live observation write both cases down".
+    ("Seen in a live run of the game made for the Game Mechanics audit: a village played for 30 minutes of real "
+     "time left no new save, while the game's code saves every 10 real-life minutes at every speed (Autosave above: the per-frame update "
+     "0x427720 runs the save check 0x427DD0 at 0x427B40). What that run did differently was not recorded, so the "
+     "difference is not explained.", False),
 )
 
 

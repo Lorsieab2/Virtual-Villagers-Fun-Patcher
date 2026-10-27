@@ -220,11 +220,14 @@ EVENTS = (
         Line("How the pair is picked: the woman, then the man, each drawn equally likely from the villagers the "
              "game's picker allows (0x416ED0 -> 0x45D460 with its adult class: age 360 to 999 age units, a woman "
              "not pregnant or nursing, not the chief)."),
-        Line("The owner has seen The Lovers choose a teenager (14 to 17 villager years). The game's own draw cannot: "
-             "both picks use the picker's adult class, 360 to 999 age units (18 to 49 villager years), and a woman "
-             "not pregnant or nursing (0x45D4CC), and Pick Island Event offers only villagers the game could draw. A "
-             "teenager is chosen only through the patcher's Custom Island Event, which may pick any villager by "
-             "design.", "owner"),
+        # The code and the owner's sighting disagree (the owner, 2026-10-27: "for cases where the code contradicts
+        # live observation write both cases down"): the code's line, then the owner's, never one without the other.
+        Line("In the game's code both picks use the picker's adult class, 360 to 999 age units (18 to 49 villager "
+             "years), and a woman not pregnant or nursing (0x416ED0 -> 0x45D460, 0x45D4CC), so the game's own draw "
+             "never chooses a teenager; Pick Island Event offers only villagers the game could draw, and only the "
+             "patcher's Custom Island Event, which may pick any villager by design, can choose one."),
+        Line("The owner has seen The Lovers choose a teenager (14 to 17 villager years) while playing.",
+             "owner"),
         "\"Carve a knife for him\": both gain 25 Parenting, up to 100, and she conceives his child (0x4582A0), if "
         "there is room; at Medicine level 3 the conception's twin and triplet rolls are made (0x416F30).",
         "\"Give him a shark-tooth necklace\": nothing changes.")),
@@ -232,8 +235,9 @@ EVENTS = (
                                    "49 who is not pregnant or nursing and not the chief", (
         Line("How the pair is picked: the man, then the woman, as for her gift (0x417050 -> 0x45D460)."),
         # The teenager note is given once, under her gift (it stood here word for word too).
-        Line("A teenager: as for her gift (the owner has seen one chosen; only the patcher's Custom Island Event "
-             "can choose one).", "owner"),
+        Line("A teenager, in the game's code: as for her gift, the game's own draw never chooses one; only the "
+             "patcher's Custom Island Event can (0x417050 -> 0x45D460)."),
+        Line("A teenager, seen by the owner: as for her gift.", "owner"),
         "\"Give her a shell necklace\": nothing changes (0x4170B0).",
         "\"Give her flowers\": both gain 25 Parenting, up to 100, and she conceives his child, if there is room.")),
     Event("The Medical Emergency", "needs Medicine technology level 2 or more, a living villager who is not the "

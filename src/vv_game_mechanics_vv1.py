@@ -137,6 +137,18 @@ HIDDEN_LINES = (
     ("Likes: at birth 70% none, 21% one, 9% two; dislikes the same; a like is never also a dislike.", gm.RUNNING),
     ("Running, liked: a villager of 14 or more runs, three times walking speed. Disliked: a child under 14 "
      "walks instead of running, and the dislike works for adults too.", gm.OWNER),
+    # The code beside the owner's word (the owner, 2026-10-27: where code and what is seen differ, write both).  The
+    # dislike test 0x4372E0 is called for word 38 (running) only at 0x43CD25 (every call scanned); the walk 0x43CCF0
+    # is step 3 of the villager step dispatcher 0x43DEF0 (jump table 0x43DF74 -> 0x43DF1E -> 0x43DF22), run from the
+    # game's own drop and walk paths (tests/test_manual_drop_breeding.py).  Step 1 (0x43DF0C -> 0x43CBD0) sets 300
+    # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read; what queues step 1 is not traced.
+    ("In the game's code the dislike of running is read in one place only, the walk's speed (the walk step "
+     "0x43CCF0): a villager under 14 who dislikes running is not given the running speed (0x43CD20..0x43CD2C), and "
+     "from 14 on only a like is read (0x43CD33), so on that walk an adult who dislikes running moves exactly as one "
+     "who neither likes nor dislikes it.", gm.CODE),
+    ("Another movement step (0x43CBD0) gives every villager under 14 the running speed without reading the "
+     "dislike; which actions use that step was not traced, so whether a child who dislikes running ever runs "
+     "through it is not settled.", False),
     ("Disliking work makes 70% of idle picks take no job; disliking medicine passes Healing over half the time. "
      "Fish, disliked: always refuses fishing (\"Running away\"); berries or bushes: refuses foraging 75% of the "
      "time; rocks: refuses clearing the blockage 75%; turnips: skips the crops 75%; drift wood: skips the beach "

@@ -137,12 +137,15 @@ EVENTS = (
         "condition at 0x415FDD).",
         "\"There are a lot of them; better not!\": +500 tech points (0x4160A4).")),
     Event("The Missing Kids", f"needs {CHILD} and {HEATHEN_CHILD}", (
-        # 0x4161D1 also sets the Heathen child's sick flag, but the life tick skips Heathens (0x472CB7), so in play it
-        # costs that child nothing; its one effect is the pickers' "not sick" test (the owner, 2026-10-25: show what
-        # happens in play, not a flag).
-        "\"Yell for help\": the child loses 5 health and falls sick; the Heathen child loses 5 health and does not "
-        "fall ill, as Heathens never fall sick, but from then on it is no longer picked by the events that need a "
-        "Heathen child who is not sick (0x4161D1).",
+        # 0x4161D1..0x4161F0 take 5 health from both children; 0x4161FA and 0x416203 set both children's sick flag
+        # (+0x1C48), the Heathen child's too, but the life tick skips Heathens (0x472CB7), so in play it costs
+        # that child nothing; its one effect is the pickers' "not sick" test (the owner, 2026-10-25: show what
+        # happens in play, not a flag).  The code and the owner's word are both written (the owner, 2026-10-27).
+        "\"Yell for help\": the child loses 5 health and falls sick; the Heathen child loses 5 health.",
+        Line("In the game's code \"Yell for help\" marks the Heathen child sick too (0x4161D1), but the life tick "
+             "skips every Heathen (0x472CB7), so the mark costs that child no health; from then on it is no longer "
+             "picked by the events that need a Heathen child who is not sick."),
+        Line("The owner: Heathens never fall sick in play.", "owner"),
         "\"Try to help the heathen\": Devotion +10 for the child, the Heathen child's Faith +10 (0x41620E).")),
     Event("Outreach?", f"needs {BELIEVER} of 14 or more and a Heathen of 14 or more who is not sick (the envoy)", (
         "\"Offer a tour\": the envoy's Faith +20, the believer's Devotion +20, the stored food loses 25 and -800 "
