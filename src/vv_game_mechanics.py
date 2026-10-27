@@ -58,7 +58,7 @@ TITLE = "Game Mechanics"
 GROUPS = ("Vital statistics", "Village counts", "Time and units", "Sources", "Time away (catch-up)", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
           "Technologies, items and buildings",
           "God powers", "Faith and Heathens", "Food earned", "Island events", "Death and graves", "Puzzles",
-          "Golden Child", "Hidden villager stats", "Chance and timers", "Other")
+          "Golden Child", "Hidden villager stats", "Hidden keys, clicks and cheats", "Chance and timers", "Other")
 DEATH = "Death and graves"            # src/vv_game_mechanics_death.py
 PUZZLES = "Puzzles"
 GOLDEN_CHILD = "Golden Child"                 # A New Home only: vv_game_mechanics_vv1.golden_child_facts
@@ -949,6 +949,20 @@ def items_facts(village: "Village") -> list[Fact]:
     return [dataclasses.replace(fact, group=ITEMS) if fact.group != ITEMS else fact for fact in found]
 
 
+# Every key, cheat code, hidden click spot and game tip of each game, and the patcher's own keys (the owner,
+# 2026-10-27): src/vv_game_mechanics_hidden_vv<N>.py.  One group on every game's tab.
+KEYS = "Hidden keys, clicks and cheats"
+
+
+def hidden_facts(village: "Village") -> list[Fact]:
+    """The game's hidden keys, clicks, cheats and tips (src/vv_game_mechanics_hidden_vv<N>.py)."""
+    try:
+        module = importlib.import_module(f"vv_game_mechanics_hidden_vv{village.game}")
+    except ImportError:
+        return []
+    return list(module.hidden_facts(village))
+
+
 def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None,
          now: float | None = None, exe: Path | None = None) -> list[Fact]:
     """Every line of the section for one save slot, in GROUPS order.  Reads only, and reads every source again
@@ -969,7 +983,7 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     facts = list(module.facts(village))
     if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
         facts += catchup_facts(village) + genetics_facts(village)
-        facts += chances_facts(village) + items_facts(village)
+        facts += chances_facts(village) + items_facts(village) + hidden_facts(village)
     import vv_game_mechanics_counts as counts      # the Village counts group (src/vv_game_mechanics_counts.py)
     facts += counts.facts(village, facts)
     if not facts:
@@ -1025,7 +1039,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
                 or fact.text.startswith("The birds:"):
             continue                           # an amount from the empty save ("Crop field: 0 of 800")
         keep.append(fact)
-    keep += [fact for fact in items if fact.due is None]
+    keep += [fact for fact in items + hidden_facts(village) if fact.due is None]
     # The page's clock key (the owner, 2026-10-27): game time vs real time, at Normal speed like the rest.
     keep = time_units_lines(TIME_UNITS, NORMAL) + [with_clock(fact) for fact in keep]
     order = {name: n for n, name in enumerate(GROUPS)}
