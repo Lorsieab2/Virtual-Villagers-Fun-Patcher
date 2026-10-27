@@ -475,7 +475,7 @@ def copy_save_folder(
                     result.not_paused.append((copied.relative.name, str(exc)))
                     continue
                 if speed is not None:
-                    _relink_second_faction(game, staging, copied.relative, original, result.files)
+                    _relink_second_faction(game, staging, copied.relative, original, result)
                     copied.size, copied.sha256 = _hash_file(staging / copied.relative)
                     result.paused_slots.append(copied.relative.name)
                     result.paused_from[copied.relative] = speed
@@ -1474,17 +1474,26 @@ def relink_backups(save_folder: Path) -> dict[str, dict[int, bool]]:
     return out
 
 
-def _relink_second_faction(game: int, folder: Path, relative: Path, before: bytes, files: list) -> None:
+def _relink_second_faction(game: int, folder: Path, relative: Path, before: bytes, result: "BackupResult") -> None:
     """The Secret City: the paused copy keeps the second faction its save had (vv3_second_faction), and the
-    backup's record of the faction file follows the new bytes."""
+    backup's record of the faction file follows the new bytes.  The file's own bytes as copied are kept with the
+    unpaused saves, so a failed restore puts it back exactly as it was (Codex, #651: adding an entry to a full
+    file drops its oldest)."""
     if game != vv3_second_faction.GAME:
         return
     number = _save_number(relative.name)
-    if number is None or not vv3_second_faction.relink(folder, number, before, (folder / relative).read_bytes()):
+    if number is None:
         return
     changed = vv3_second_faction.faction_file(folder, number)
-    for copied in files:
+    try:
+        as_copied = changed.read_bytes()
+    except OSError:
+        return
+    if not vv3_second_faction.relink(folder, number, before, (folder / relative).read_bytes()):
+        return
+    for copied in result.files:
         if folder / copied.relative == changed:
+            result.unpaused_bytes.setdefault(copied.relative, as_copied)
             copied.size, copied.sha256 = _hash_file(changed)
 
 

@@ -78,6 +78,19 @@ class SecondFaction(unittest.TestCase):
         record = next(c for c in made.files if c.relative == self.dat.relative_to(self.folder))
         self.assertEqual(record.size, faction.faction_file(made.backup_folder, 1).stat().st_size)
 
+    def test_a_failed_restore_puts_the_faction_file_back_as_it_was(self):
+        """Codex, #651: the before-restore backup's faction file gains an entry (dropping its oldest when full);
+        the bytes it had are kept, as the unpaused saves are, so a rollback writes exactly those."""
+        self.dat.write_bytes(faction_bytes(1, list(range(1, 16)) + [faction.fingerprint(self.save)]))
+        live = self.dat.read_bytes()
+        made = backup.copy_save_folder(self.folder, NOW)
+        relative = self.dat.relative_to(self.folder)
+        self.assertNotEqual(faction.faction_file(made.backup_folder, 1).read_bytes(), live, "the copy gained an entry")
+        self.assertEqual(made.unpaused_bytes[relative], live, "and its bytes as copied are kept")
+        self.dat.write_bytes(b"changed by a restore")
+        self.assertEqual(backup._roll_back(self.folder, made, [relative]), [])
+        self.assertEqual(self.dat.read_bytes(), live, "a rollback puts the file back exactly")
+
     def test_a_save_without_a_second_faction_gets_no_entry(self):
         self.dat.write_bytes(faction_bytes(1, [12345]))
         made = backup.copy_save_folder(self.folder, NOW)
