@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.84
+
+- **Fixed: "The output folder's path is too long"** when the output folder itself fit (e.g. a Secret City 256 build in a deep folder). The patcher's hidden working folders beside the output now have short fixed-length names (such as `.vvfp-stage-1a2b3c4d`) instead of a copy of the output's name plus 32 characters. Before anything is written, every file the patch will place, including your own files a re-patch carries over, is checked against Windows' 259-character limit; a folder that is too deep is refused up front with the folder to shorten, never part-way through. Nothing in any game changes; no need to patch again.
+
 ## What's new in v1.35.83
 
 - **Genetics: Babies Take After Their Parents** (A New Home, new, on by default). A baby's head now comes from its parents, as in the later games: the average of the father's and mother's heads, one either side of it, or 1 time in 20 any head the game rolls. A boy never gets head 19, the Golden Child's own. **It needs Show Parents to know each baby's father**; without it every baby takes after its mother. Twins and triplets share the first baby's head; bodies stay random. The new "VVFP VV1 Genetics.dll" is started from a second list of companions in VVFP Startup.dll (an exe patched before keeps working as it is). **Patch A New Home again** after updating. Not yet seen in a running game (checked by emulation on the stock exe).
