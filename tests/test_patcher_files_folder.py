@@ -350,9 +350,10 @@ class ASourceFolderWithLooseCopies(unittest.TestCase):
 class ATooDeepOutputFolder(unittest.TestCase):
 
     def test_the_boundary(self):
-        """The longest path the build writes is measured in the hidden
-        staging folder (42 characters longer than the output) -- here the
-        patch log in the patcher's folder, which is longer than any DLL."""
+        """The longest path the build writes -- here the patch log in the
+        patcher's folder, which is longer than any DLL -- is measured in the
+        output folder and in the hidden staging folder; with the short staging
+        name (".vvfp-stage-<8>") the output folder is the deeper of the two."""
         features = vfp._attach_automatic_companions(
             "vv1", vfp._selected_fun_patches(build_of("vv1"), ["vv1_builders_fix_huts"]))
         name = "Virtual Villagers - A New Home - Modded.exe"
@@ -361,16 +362,54 @@ class ATooDeepOutputFolder(unittest.TestCase):
                            for f in features for i in f.raw.get("companion_files", [])), key=len)
         self.assertGreater(len(log), len(longest_dll))
         base = Path(os.path.abspath(tempfile.gettempdir()))
-        # <base>\<folder>  and  <base>\.<folder>.staging-<32>\<log>
-        room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - len(".staging-") - 1 - 32 - 1 - len(log)
+        # <base>\<folder>\<log>, and <base>\.vvfp-stage-<8>\<log> is shorter
+        room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - 1 - len(log)
         ok = base / ("o" * room)
-        staged = ok.parent / f".{ok.name}.staging-{'0' * 32}" / log
-        self.assertEqual(len(str(staged)), patcher_files.MAX_PATH - 1)
+        self.assertEqual(len(str(ok / log)), patcher_files.MAX_PATH - 1)
+        self.assertLess(len(str(vfp._publish_sibling(base, "stage", "0" * 8) / log)), len(str(ok / log)))
         vfp._require_patcher_files_path_fits(ok, features, name)                       # 259: fits
         with self.assertRaises(vfp.PatcherError):
             vfp._require_patcher_files_path_fits(base / ("o" * (room + 1)), features, name)   # 260
         # The old check (only <output>\<longest DLL>) passed this folder.
         self.assertLess(len(str(base / ("o" * (room + 1)) / longest_dll)), patcher_files.MAX_PATH)
+
+    def test_a_folder_that_fits_is_not_refused_for_its_staging_name(self):
+        """The owner, 2026-10-26: "...\\Modded Games\\Virtual Villagers - The
+        Secret City - Modded 256" was refused at 263 characters, measured only
+        in the old ".<name>.staging-<32 hex>" folder; the output itself fit."""
+        base = Path(os.path.abspath(tempfile.gettempdir()))
+        name = "g - Modded.exe"
+        log = str(Path(*patcher_files.patch_log_relative_path(name).parts))
+        folder = base / ("o" * (patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - 1 - len(log)))
+        old_staging = folder.parent / f".{folder.name}.staging-{'0' * 32}" / log
+        self.assertGreaterEqual(len(str(old_staging)), patcher_files.MAX_PATH)   # the old name refused it
+        vfp._require_patcher_files_path_fits(folder, [], name)                    # now it fits
+
+    def test_publish_siblings_are_short_and_fixed_length(self):
+        parent = Path(os.path.abspath(tempfile.gettempdir()))
+        for kind in ("stage", "backup", "failed", "recovery"):
+            sibling = vfp._publish_sibling(parent, kind)
+            self.assertEqual(sibling.parent, parent)
+            self.assertRegex(sibling.name, r"^\.vvfp-%s-[0-9a-f]{8}$" % kind)
+        self.assertNotEqual(vfp._publish_sibling(parent, "stage"), vfp._publish_sibling(parent, "stage"))
+
+    def test_the_recovery_evidence_folders_are_measured(self):
+        """Codex, PR #648: an unresolved failure keeps the failed publication in
+        <recovery>\\failed-publication, deeper than the recovery sibling itself;
+        a file that fits only without that nesting is refused up front."""
+        base = Path(os.path.abspath(tempfile.gettempdir()))
+        deepest = vfp._publish_sibling(base, "recovery", "0" * vfp.PUBLISH_SIBLING_TOKEN) / "failed-publication"
+        holder = tempfile.TemporaryDirectory()
+        self.addCleanup(holder.cleanup)
+        source = Path(holder.name) / "s"
+        source.mkdir()
+        out = base / "o"                                        # a short output: the nesting is the deepest
+        room = patcher_files.MAX_PATH - 1 - len(str(deepest)) - 1
+        (source / ("f" * room)).write_bytes(b"")
+        vfp._require_patcher_files_path_fits(out, [], "g.exe", source)          # 259 in failed-publication: fits
+        (source / ("f" * (room + 1))).write_bytes(b"")
+        with self.assertRaises(vfp.PatcherError):
+            vfp._require_patcher_files_path_fits(out, [], "g.exe", source)      # 260 there: refused
 
     def test_the_games_own_files_count_too(self):
         holder = tempfile.TemporaryDirectory()
@@ -378,7 +417,7 @@ class ATooDeepOutputFolder(unittest.TestCase):
         source = Path(holder.name) / "s"
         (source / "Sounds" / ("x" * 60)).mkdir(parents=True)
         (source / "Sounds" / ("x" * 60) / ("y" * 60 + ".ogg")).write_bytes(b"")
-        out = Path(os.path.abspath(tempfile.gettempdir())) / ("o" * 80)
+        out = Path(os.path.abspath(tempfile.gettempdir())) / ("o" * 110)   # deep enough for the game files alone
         vfp._require_patcher_files_path_fits(out, [], "g.exe")                      # without them: fits
         with self.assertRaises(vfp.PatcherError):
             vfp._require_patcher_files_path_fits(out, [], "g.exe", source)
@@ -398,13 +437,62 @@ class ATooDeepOutputFolder(unittest.TestCase):
         self.assertIn("too long", str(raised.exception))
         self.assertFalse(deep.exists())
 
+    def test_a_deep_output_is_written_whole_or_refused_up_front(self):
+        """The owner, 2026-10-26: "make sure no staging file or file runs into a
+        'path too long' error".  A real patch into output folders just inside
+        and just past the limit either writes every file (each path under
+        MAX_PATH, no hidden .vvfp-* folder left behind) or is refused before
+        anything is written -- never a failure part way through."""
+        game = "vv1"
+        holder = tempfile.TemporaryDirectory()
+        self.addCleanup(holder.cleanup)
+        temp = Path(holder.name)
+        source = temp / "s"
+        source.mkdir()
+        shutil.copy2(stock_path(game), source / build_of(game).input_name)
+        features = vfp._attach_automatic_companions(
+            game, vfp._selected_fun_patches(build_of(game), ["vv1_builders_fix_huts"]))
+        exe = source / build_of(game).input_name
+        mode = "collection_progression"
+        name = vfp._output_name(build_of(game), mode, features)
+
+        def fits(depth: int) -> bool:
+            folder = vfp.output_folder_for(exe, build_of(game), mode, features, temp / ("d" * depth))
+            try:
+                vfp._require_patcher_files_path_fits(folder, features, name, source)
+                return True
+            except vfp.PatcherError:
+                return False
+        low, high = 1, patcher_files.MAX_PATH          # the deepest folder name that still fits
+        while low < high:
+            mid = (low + high + 1) // 2
+            low, high = (mid, high) if fits(mid) else (low, mid - 1)
+        outcomes = set()
+        for depth in (low - 1, low, low + 1, low + 2):
+            root = temp / ("d" * depth)
+            try:
+                vfp.apply_patch(exe, mode,
+                                         fun_patch_ids=["vv1_builders_fix_huts"], output_root=root)
+            except vfp.PatcherError as raised:
+                self.assertIn("too long", str(raised))
+                self.assertFalse(root.exists(), "a refused patch wrote something")
+                outcomes.add("refused")
+                continue
+            written = [path for path in root.rglob("*") if path.is_file()]
+            self.assertTrue(written)
+            for path in written:
+                self.assertLess(len(str(path)), patcher_files.MAX_PATH, str(path))
+            self.assertEqual([p.name for p in temp.iterdir() if p.name.startswith(".vvfp-")], [])
+            outcomes.add("written")
+            shutil.rmtree(root)
+        self.assertEqual(outcomes, {"written", "refused"})
+
     def test_windows_utf16_units_are_counted(self):
         """An emoji is two WCHARs to Windows; a path Python measures as 259
         characters is then 260 units and must be refused."""
         base = Path(os.path.abspath(tempfile.gettempdir()))
-        staging_extra = len(".staging-") + 32 + 1   # ".<name>.staging-<32>" vs "<name>"
         log = str(Path(*patcher_files.TRANSPARENCY_RELATIVE_PATH.parts))
-        room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - staging_extra - 1 - len(log)
+        room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - 1 - len(log)   # <base>\<folder>\<log>
         fits = base / ("o" * room)
         vfp._require_patcher_files_path_fits(fits, [], "")
         emoji = base / ("o" * (room - 1) + "\U0001F600")   # same len(), one more unit

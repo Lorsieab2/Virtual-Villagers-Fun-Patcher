@@ -12994,6 +12994,24 @@ def _route_companion_loads(
     return sites
 
 
+# The publish's hidden folders beside the output: a staging tree, the prior
+# install's backup, a failed publication and the recovery folder.  Their names
+# are short and fixed-length (".vvfp-<kind>-<8 hex>"), never derived from the
+# output's own name: ".<name>.staging-<32 hex>" made the staging tree 42
+# characters deeper than the output, so a folder whose game, companions and
+# logs all fit was refused (the owner, 2026-10-26: a 256-villager Secret City
+# build in "...\Modded Games" needed 263 characters only in staging).
+PUBLISH_SIBLING_TOKEN = 8
+PUBLISH_SIBLING_KINDS = ("stage", "backup", "failed", "recovery")
+# Where an unresolved publish keeps the prior install and the failed publication.
+RECOVERY_RETAINED_FOLDERS = ("backup", "failed-publication")
+
+
+def _publish_sibling(parent: Path, kind: str, token: str | None = None) -> Path:
+    """A hidden sibling folder for the publish, e.g. ".vvfp-stage-1a2b3c4d"."""
+    return parent / f".vvfp-{kind}-{token if token is not None else uuid.uuid4().hex[:PUBLISH_SIBLING_TOKEN]}"
+
+
 def _require_patcher_files_path_fits(
     output_folder: Path,
     fun_patches: list[FunPatch],
@@ -13006,14 +13024,15 @@ def _require_patcher_files_path_fits(
     Two limits meet here. The games are not long-path aware, so Windows would
     refuse to load a companion past it: the build would start, but none of
     its add-ons would (the loaders fail safe either way). And the patcher
-    itself writes through the hidden staging folder
-    (".<name>.staging-<32 hex>", 42 characters longer than the output) and
+    itself writes through the hidden staging folder (".vvfp-stage-<8 hex>",
+    see _publish_sibling) and
     puts the patch log and the transparency log in the patcher's folder, so
     on a default Windows install a deep enough folder would fail part way
     through publishing. So every file the build will hold -- the game's own
     files copied from `source_folder`, the modified executable, every
-    companion, both logs -- is measured in the staging folder and in the
-    output folder. The folder is taken as the player gave it
+    companion, both logs, and the player's own files a re-patch carries over --
+    is measured in the output folder and in every hidden sibling the publish
+    may move it through (stage, backup, failed, recovery). The folder is taken as the player gave it
     (os.path.abspath, not resolve(): a mapped or subst drive stays the short
     path the game will see).
     """
@@ -13030,14 +13049,26 @@ def _require_patcher_files_path_fits(
             if path.is_file():
                 relatives.append(str(path.relative_to(source_folder)))
     output = Path(os.path.abspath(output_folder))
-    staging = output.parent / f".{output.name}.staging-{'0' * 32}"
+    # A re-patch over an existing Modded folder carries the player's own files
+    # over into the staging tree, and the whole prior folder moves through the
+    # backup (or failed / recovery) sibling: every one of them is measured too,
+    # so nothing can fail part way through for its depth.
+    if output.is_dir():
+        for path in output.rglob("*"):
+            if path.is_file():
+                relatives.append(str(path.relative_to(output)))
+    siblings = [_publish_sibling(output.parent, kind, "0" * PUBLISH_SIBLING_TOKEN) for kind in PUBLISH_SIBLING_KINDS]
+    # An unresolved failure keeps its evidence one level deeper, inside the
+    # recovery sibling (apply_patch: "backup" and "failed-publication").
+    recovery = _publish_sibling(output.parent, "recovery", "0" * PUBLISH_SIBLING_TOKEN)
+    siblings += [recovery / name for name in RECOVERY_RETAINED_FOLDERS]
     # Windows counts UTF-16 units: a character outside the BMP (an emoji)
     # takes two, where Python's len() counts one.
     def wchars(path: str) -> int:
         return len(path.encode("utf-16-le", "surrogatepass")) // 2
 
     worst = max(
-        (str(folder / relative) for folder in (output, staging) for relative in relatives),
+        (str(folder / relative) for folder in (output, *siblings) for relative in relatives),
         key=wchars,
     )
     if wchars(worst) >= patcher_files.MAX_PATH:
@@ -13162,7 +13193,7 @@ def apply_patch(
     output_parent = output_folder.parent
     if os.path.lexists(output_folder) and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
-    staging_folder = output_parent / f".{output_folder.name}.staging-{uuid.uuid4().hex}"
+    staging_folder = _publish_sibling(output_parent, "stage")
     if os.path.lexists(staging_folder):
         raise PatcherError(f"Staging destination already exists: {staging_folder}")
     _copy_game_folder_direct(source.parent, staging_folder, False, selected_output_root)
@@ -13247,7 +13278,7 @@ def apply_patch(
                     continue
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(prior, target)
-            backup_folder = output_parent / f".{output_folder.name}.backup-{uuid.uuid4().hex}"
+            backup_folder = _publish_sibling(output_parent, "backup")
             if os.path.lexists(backup_folder):
                 raise PatcherError(f"Backup destination already exists: {backup_folder}")
             os.rename(output_folder, backup_folder)
@@ -13278,7 +13309,7 @@ def apply_patch(
     except Exception:
         restore_ok = True
         if published and output_folder.exists():
-            failed_publish = output_parent / f".{output_folder.name}.failed-{uuid.uuid4().hex}"
+            failed_publish = _publish_sibling(output_parent, "failed")
             try:
                 os.rename(output_folder, failed_publish)
                 if failed_publish.exists():
@@ -13304,17 +13335,17 @@ def apply_patch(
             except OSError:
                 restore_ok = False
         if not restore_ok or (backup_folder is not None and backup_folder.exists()):
-            recovery_dir = output_parent / f".{output_folder.name}.recovery-{uuid.uuid4().hex}"
+            recovery_dir = _publish_sibling(output_parent, "recovery")
             if os.path.lexists(recovery_dir):
                 raise PatcherError("Recovery destination collision; original evidence retained")
             recovery_dir.mkdir()
-            retained_backup = recovery_dir / "backup"
+            retained_backup = recovery_dir / RECOVERY_RETAINED_FOLDERS[0]
             if backup_folder is not None and backup_folder.exists():
                 os.rename(backup_folder, retained_backup)
                 backup_folder = None
             if failed_publish is not None and failed_publish.exists():
-                os.rename(failed_publish, recovery_dir / "failed-publication")
-                retained_failed_publish = recovery_dir / "failed-publication"
+                os.rename(failed_publish, recovery_dir / RECOVERY_RETAINED_FOLDERS[1])
+                retained_failed_publish = recovery_dir / RECOVERY_RETAINED_FOLDERS[1]
             else:
                 retained_failed_publish = None
             _write_recovery_report(
