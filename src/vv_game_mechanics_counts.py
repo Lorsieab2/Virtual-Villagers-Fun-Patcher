@@ -333,18 +333,18 @@ VV3_POTIONS = {
     0: ("Nasty! It's bitter.", "nothing happens"),
     1: ("Oh no, hiccups!", "a puff of the game's effect 7 at the villager (0x429400), nothing else"),
     2: ("Oh, it burns!", "3 to 6 health lost, never below 2"),
-    3: ("{He/She} feels smarter.", "for 10 real-life minutes skill tries succeed at skill + 66% instead of + 33% "
+    3: ("{He/She} feels smarter.", "for 10 real-life minutes (real time) skill tries succeed at skill + 66% instead of + 33% "
                                   "(0x45A300)"),
-    4: ("{He/She} has scientific clarity.", "for 10 real-life minutes each research session pays 1 more tech point "
+    4: ("{He/She} has scientific clarity.", "for 10 real-life minutes (real time) each research session pays 1 more tech point "
                                            "(0x4593FB)"),
     5: ("{He/She} feels better.", "cured of sickness"),
     6: ("Must exercise!", "goes \"Doing exercise\""),
     7: ("Whee! What a fun potion!", "picks a pastime at once (0x45B9B0; 16.02% of the time none)"),
     8: ("{He/She} feels woozy.", "goes \"Feeling faint\""),
     9: ("{He/She} feels much healthier!", "25 to 59 health back (with stored food under 100: \"This potion works better "
-                                         "when the tribe is eating well.\" and 5 to 14); kept 10 real-life minutes"),
+                                         "when the tribe is eating well.\" and 5 to 14); kept 10 real-life minutes (real time)"),
     10: ("{He/She} has happy feet!", "goes \"Dancing\" (not a villager who dislikes dancing)"),
-    11: ("{He/She} feels light and springy!", "jumps 4 times as high for 5 real-life minutes (0x426A39; undone "
+    11: ("{He/She} feels light and springy!", "jumps 4 times as high for 5 real-life minutes (real time) (0x426A39; undone "
                                             "0x426F17)"),
     12: ("{He/She} feels romantic!", "18 or older: goes to embrace a partner the game finds (0x45AF00 -> 0x45CE00), "
                                     "when there is one"),
@@ -352,16 +352,16 @@ VV3_POTIONS = {
     14: ("{He/She} is way too hot!", "goes \"Trying to cool off\""),
     15: ("{He/She} suddenly feels very hungry!", "goes \"Eating\""),
     16: ("{He/She} is all itchy!", "goes \"Itchy\""),
-    17: ("{He/She} feels fertile.", "18 or older: for 5 real-life minutes conception's roll is 50 easier (0x458682)"),
-    18: ("Oh no, hiccups!", "\"Hic!\" now and, for 10 real-life minutes, every time the villager picks what to do next "
+    17: ("{He/She} feels fertile.", "18 or older: for 5 real-life minutes (real time) conception's roll is 50 easier (0x458682)"),
+    18: ("Oh no, hiccups!", "\"Hic!\" now and, for 10 real-life minutes (real time), every time the villager picks what to do next "
                            "(0x45C023)"),
     19: ("{He/She} feels better.", "10 to 14 health back (with stored food under 100: \"This potion works better when "
-                                  "the tribe is eating well.\" and 2 to 6); kept 10 real-life minutes"),
+                                  "the tribe is eating well.\" and 2 to 6); kept 10 real-life minutes (real time)"),
     20: ("{He/She} has a stomachache.", "5 to 9 health lost, never below 2"),
     21: ("That potion was awful.", "falls sick"),
     22: ("...can't move...", "goes \"Paralyzed\""),
     23: ("{He/She} has got to go!", "goes \"Nature is calling!\""),
-    24: ("Is everyone else slowing down?", "walks at speed 300 (100 usually) for 5 real-life minutes (0x4572D9, "
+    24: ("Is everyone else slowing down?", "walks at speed 300 (100 usually) for 5 real-life minutes (real time) (0x4572D9, "
                                           "0x45760B)"),
     25: ("{He/She} feels kind of down.", "goes \"A little bit lonely\""),
     26: ("(nothing is said)", "goes \"Carrying vial to ocean\"; kept with no time limit"),
@@ -369,18 +369,18 @@ VV3_POTIONS = {
                              "puzzle answers (0x4365C7)"),
     28: ("So sleepy...", "goes \"Needs to lie down\""),
     29: ("{He/She} feels a trance coming on.", "goes \"Having an epiphany\""),
-    30: ("{He/She} feels very fertile.", "18 or older: for 5 real-life minutes conception's roll is 100 easier "
+    30: ("{He/She} feels very fertile.", "18 or older: for 5 real-life minutes (real time) conception's roll is 100 easier "
                                         "(0x458699)"),
     31: ("Yikes!", "35 to 69 health lost, never below 2"),
     32: ("Yummy!", "nothing happens"),
     33: ("Whoa!", "moved at once to another spot (0x4230C0)"),
     34: ("{He/She} feels tired...", "goes \"Needs to sit down\""),
     35: ("{He/She} feels a trance coming on.", "goes \"In a trance\""),
-    36: ("Stinky breath!", "\"Stinky breath!\" now and, for 10 real-life minutes, every time the villager picks what "
+    36: ("Stinky breath!", "\"Stinky breath!\" now and, for 10 real-life minutes (real time), every time the villager picks what "
                           "to do next (0x45C073)"),
-    37: ("That tasted soapy", "\"That tasted soapy\" now and, for 10 real-life minutes, every time the villager picks "
+    37: ("That tasted soapy", "\"That tasted soapy\" now and, for 10 real-life minutes (real time), every time the villager picks "
                              "what to do next (0x45C09A)"),
-    38: ("Blannesamagawa loomajoobamooga!!", "the same words now and, for 10 real-life minutes, every time the villager "
+    38: ("Blannesamagawa loomajoobamooga!!", "the same words now and, for 10 real-life minutes (real time), every time the villager "
                                             "picks what to do next (0x45C04C)"),
     39: ("Who turned out the lights?!", "goes \"Who turned out the lights?!\""),
     40: ("Something smells YUMMY!", "every living villager under 14 who is free walks to the pot and says \"Something smells YUMMY!\" too; adults never go (0x45E0C0 -> 0x45DDE0, flag 1)"),

@@ -349,6 +349,11 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
     if game == 5:
         add("Heathens never age, eat or fall sick (the game runs none of that for them), so none of these reach "
             "them; a Heathen grave is never made.", gm.OWNER)
+        # The code beside the owner's word (the owner, 2026-10-27: where they differ, write both): The Missing Kids
+        # sets a Heathen child's sick flag (0x416203), and the life tick 0x472C90 skips Heathens (0x472CB7).
+        add("In the game's code a Heathen can be marked sick: The Missing Kids' \"Yell for help\" marks the Heathen "
+            "child sick (0x4161D1). The life tick skips every Heathen (0x472CB7), so the mark costs no health and no "
+            "Heathen dies of Disease.", sub=True)
     if game == 3:
         add("Leaving without dying: The Tsunami sweeps away every living villager with a 15% chance each: they "
             "vanish, with no body and no grave (its chance is under Island events).")

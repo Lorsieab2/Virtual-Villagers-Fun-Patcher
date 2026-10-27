@@ -197,7 +197,7 @@ ROLLS = (
          (Check(0x45FC9D, 100),),
          ("It adds a third to fish and fruit, a half to honey, 1 more to a building action, and a third (Science 0) or a "
           "quarter (Science 1 or more) to research.",)),
-    Roll("The chief's Grant Food (Leadership 1 or more, every 23 real-life hours): 3 x Leadership x (10 to 29, each "
+    Roll("The chief's Grant Food (Leadership 1 or more, every 23 real-life hours, real time at any speed): 3 x Leadership x (10 to 29, each "
          "equally) food, so 30 to 87 at Leadership 1, 60 to 174 at 2, 90 to 261 at 3.",
          (Check(0x459042, 20),)),
     Roll("Hut repairs: once all four huts are finished, a builder who examines a hut goes on to fix it {0} of the time; "
@@ -242,7 +242,7 @@ ROLLS = (
          feature="vv3_super_secret_golden_mushroom",
          patched="1 in 1,000,000 of the random brown or red mushrooms is a gold Golden Mushroom instead, worth 100 "
                  "food."),
-    Roll("The Tribal Chief's rare collectible (Leadership 3, every 23 real-life hours): the piece is always rare, from a "
+    Roll("The Tribal Chief's rare collectible (Leadership 3, every 23 real-life hours, real time at any speed): the piece is always rare, from a "
          "collection chosen at random; it is lost when the game picks an owned Tablet piece or one already out.",
          (Check(0x42DC2B, 100),),
          feature="vv3_rare_collectible_retry",

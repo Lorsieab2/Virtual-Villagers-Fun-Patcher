@@ -228,7 +228,7 @@ def _tech_entries() -> list[Entry]:
 # ---------------------------------------------------------------------------
 
 POWER_WORDS = {
-    "Spawn Butterflies": "for 2 minutes 6 seconds of real-life time every living child under 14 not being carried "
+    "Spawn Butterflies": "for 2 minutes 6 seconds of real-life time (real time, at every speed, paused or not) every living child under 14 not being carried "
                          "goes \"Playing with butterflies!\"; adults are not drawn.",
     "Swarm of Bees": "every living villager within 150 pixels hides or runs, nobody loses health; cast on the noni "
                      "bushes it gives +20 noni at once.",
@@ -242,18 +242,18 @@ POWER_WORDS = {
                      "half the time while 10 to 12 mushroom places are left.",
     "Tempest": "a full-strength storm (weather 5) for one weather spell; while it rains every random spawn is a "
                "mushroom; with The Lake not started and the weather level above 50, The Lake gets 1 of its 2 points "
-               "120 real-life seconds later.",
-    "Fog of Doom": "fog for 2 real-life minutes; mushrooms and collectibles appear twice as often (36 in 32,768 each "
+               "120 real-life seconds later (real time).",
+    "Fog of Doom": "fog for 2 real-life minutes (real time, at every speed, paused or not); mushrooms and collectibles appear twice as often (36 in 32,768 each "
                    "update instead of 18).",
-    "Time Warp": "the target villager ages 20 times as fast for 5 real-life minutes (about 30, 15 or 10 age units on "
+    "Time Warp": "the target villager ages 20 times as fast for 5 real-life minutes (real time, paused or not; about 30, 15 or 10 age units on "
                  "Fast, Normal or Slow) and walks and works 10 times as fast; not saved, ended by quitting.",
-    "Revive": "a dead villager still lying on the island comes back with 100 health after 4 real-life seconds; cast "
+    "Revive": "a dead villager still lying on the island comes back with 100 health after 4 real-life seconds (real time); cast "
               "on the dry lake bed with The Lake not started, The Lake gets 1 of its 2 points.",
     "Grant Youth": "a living believer of 14 or more is brought back to 5 years old (100 age units), 3 age units each "
                    "update; skills, likes and Faith are kept. A pregnant villager stays pregnant, but the time she had "
                    "already carried is counted backwards, so the birth comes that much later (0x41FEB0).",
     "Earthquake": "every living villager but the six special roles gains 2 to 8 Faith (a Heathen above 0 joins the "
-                  "tribe); 10 real-life seconds later one collectible drops (72% uncommon, 28% rare) and each "
+                  "tribe); 10 real-life seconds (real time) later one collectible drops (72% uncommon, 28% rare) and each "
                   "unfinished project with progress loses some (each started hut 100 of its 2,000).",
 }
 
@@ -319,11 +319,11 @@ def _puzzle_entries() -> list[Entry]:
             "not traced."), UNCONFIRMED),
         Entry(PUZZLE, "The Lake", "2 points", (
             "1 point from a Tempest cast while The Lake has none and the weather level is above 50 (it comes 120 "
-            "real-life seconds later), 1 from Revive cast on the dry lake bed (0x43C7E0, 0x4233DD). Solved, the lake "
+            "real-life seconds later, real time), 1 from Revive cast on the dry lake bed (0x43C7E0, 0x4233DD). Solved, the lake "
             "has fish: a fishing trip gives 4 food a fish, before Food Mastery (0x46D790), and nothing runs out."),
          VERIFIED_E),
         Entry(PUZZLE, "The Pain Totem", "a Lightning Strike on it, then villagers take it down", (
-            "villagers work on taking it down only during the 75 real-life seconds after each strike on it (0x43A0C0). "
+            "villagers work on taking it down only during the 75 real-life seconds (real time) after each strike on it (0x43A0C0). "
             "Solved, healers with nobody to cure study medicine on their own (0x46CD24)."), VERIFIED_E),
         Entry(PUZZLE, "The Rainbow Totem", "villagers put three dyes in the pools and dismantle it", (
             "the game's tip says the warm springs become the villagers'; what changes in play was not traced."),
@@ -421,7 +421,7 @@ def _item_entries() -> list[Entry]:
     return [
         Entry(ITEM, "Brown mushroom", "appears on the island at random, see Mushrooms", (
             "6 food (9 at Food Mastery 2, 12 at 3) when it reaches the food bin, counted in Mushrooms Found. 92% of "
-            "the mushrooms that appear are brown; an unpicked one is gone after 1 minute 30 seconds of real-life "
+            "the mushrooms that appear are brown; an unpicked one is gone after 1 minute 30 seconds (real time, the same at every speed) of real-life "
             "time."), VERIFIED_E),
         Entry(ITEM, "Red (rare) mushroom", "appears on the island at random, see Mushrooms", (
             "35 food (52 at Food Mastery 2, 70 at 3), 8% of the mushrooms that appear."), VERIFIED_E,

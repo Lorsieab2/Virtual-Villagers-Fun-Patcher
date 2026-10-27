@@ -59,7 +59,8 @@ RULES = (
 
 # (power index, main line, sub-lines); every sub-line is from the code cited in it.
 EFFECTS = (
-    (0, "lasts 2 minutes 6 seconds of real-life time, paused or not (the real clock, 0x422A4F). Every 2 real-life "
+    (0, "lasts 2 minutes 6 seconds of real-life time (real time, the same at every speed), paused or not (the real "
+        "clock, 0x422A4F). Every 2 real-life "
         "seconds, until 6 seconds before the end, every living child under 14 who is not being carried and is not "
         "already at it stops what they are doing to go \"Playing with butterflies!\" (0x41F170); adults are not "
         "drawn. The game's tip: \"Butterflies are great for distracting children, both believers and heathens "
@@ -75,7 +76,7 @@ EFFECTS = (
         "(0x421C05). Nobody loses health.",
      ("On the built fire pit: lights it, or relights it with a full fire, for 10, 20 or 33 hours 20 minutes of real-life "
       "play on Fast, Normal or Slow; paused time does not count (0x439090).",
-      "On the Pain Totem: villagers work on taking it down only during the 75 real-life seconds after a strike on it "
+      "On the Pain Totem: villagers work on taking it down only during the 75 real-life seconds (real time) after a strike on it "
       "(0x43A0C0, read by the job choice at 0x46C2FF).",
       "Aimed within 300 pixels of the water, the bolt strikes one fixed spot instead (world point 520, 177), and "
       "nobody hides (0x421B7F).")),
@@ -93,13 +94,13 @@ EFFECTS = (
     (5, f"starts a storm at full strength (weather 5, rain) (0x4230C7); it {WEATHER}. While it rains every random "
         "spawn is a mushroom (0x477040).",
      ("The Lake: when The Lake has no progress yet and the weather level is above 50 when Tempest is cast, The Lake "
-      "gets 1 of its 2 points 120 real-life seconds later (0x43C7E0, 0x43C460); once it has progress, a Tempest there "
+      "gets 1 of its 2 points 120 real-life seconds (real time) later (0x43C7E0, 0x43C460); once it has progress, a Tempest there "
       "gives none.",)),
-    (6, "covers the island in fog (weather 4) for 2 real-life minutes, paused or not (0x41FBA0); then the weather "
+    (6, "covers the island in fog (weather 4) for 2 real-life minutes (real time), paused or not (0x41FBA0); then the weather "
         "goes back to the season's own 15, 30 or 50 real-life seconds later on Fast, Normal or Slow. In the fog the chance of a mushroom or "
         "collectible appearing doubles: 36 in 32,768 each update of the village instead of 18 in 32,768 "
         "(0x414633).", ()),
-    (7, "makes the target age 20 times as fast for 5 real-life minutes, paused or not (0x41FC4E, 0x41FC9B; the age "
+    (7, "makes the target age 20 times as fast for 5 real-life minutes (real time), paused or not (0x41FC4E, 0x41FC9B; the age "
         "credit 0x470040 doubles the warp's 10). In practice the target gains 6, 3 or 2 age units each real-life "
         "minute on Fast, Normal or Slow (instead of 1 unit every 3, 6 or 10 minutes): about 30, 15 or 10 units in "
         "all (1.5, 0.75 or 0.5 years).",
@@ -107,7 +108,7 @@ EFFECTS = (
       "(0x471EF9), so they walk and work 10 times as fast.",
       "While the game is paused nobody ages, so the warp's paused minutes are lost; Heathens and the dead never age "
       "(0x470077, 0x46FF63). The warp is not saved: quitting ends it (0x465207).",)),
-    (8, "brings a dead villager (0 health or less) back with 100 health; after 4 real-life seconds they rise "
+    (8, "brings a dead villager (0 health or less) back with 100 health; after 4 real-life seconds (real time) they rise "
         "(0x41FF93, 0x420080). The game checks only that the target is dead: \"This villager is still full of life.\" "
         "otherwise (0x423404).",
      ("Only a dead villager still lying on the island can be the target: a buried one cannot be picked.",
@@ -127,8 +128,8 @@ EFFECTS = (
     (10, "every living villager's Faith goes up by 2 to 8 (each amount equally likely, rand(7) + 2), except the six "
          "special roles (the Heathen Doctor, Chief, Master Scientist, Master Builder, Master Farmer and Mommy: role "
          "12 to 17) (0x41F78F). A Heathen whose Faith rises above 0 joins the tribe; every Heathen it reaches cannot "
-         "be preached to for 2 real-life hours, paused or not (0x41F7B8).",
-      ("10 real-life seconds after the cast (0x41F832): one collectible drops, 72% uncommon, 28% rare (0x41F853).",
+         "be preached to for 2 real-life hours (real time), paused or not (0x41F7B8).",
+      ("10 real-life seconds (real time) after the cast (0x41F832): one collectible drops, 72% uncommon, 28% rare (0x41F853).",
        "At the same moment, each unfinished project with some progress loses some: the Hydroponic Farm 1 of its 30 "
        "points (0x439F00), each started hut 100 of its 2,000 (0x434790), the Tribute Statue 1 (5 at its last stage) "
        "(0x432C90); the Buried Mausoleum gains 50 of the 1,000 it needs (0x43C9C0).")),

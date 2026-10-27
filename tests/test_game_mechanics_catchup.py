@@ -55,10 +55,10 @@ class TimeAway(unittest.TestCase):
         facts = [f for f in _page(self, 1, data, now) if f.group == gm.TIME_AWAY]
         texts = [f.text for f in facts]
         self.assertIn("If it were played now each villager would age by at most 211 age units (10.55 villager years) "
-                      "at once, all worked through in the first update after it loads.", texts)
+                      "at once, all worked through in the first update after it loads. " + gm.AGES, texts)
         counted = next(t for t in texts if t.startswith("Counted now,"))
         self.assertRegex(counted, r"^Counted now, villager by villager: [1-9]\d* in full, [1-9]\d* cut to 8 hours 36 "
-                                  r"minutes 40 seconds, 0 cut to 24 hours\.$")
+                                  r"minutes 40 seconds of real time, 0 cut to 24 hours of real time\.$")
         nxt = next(f for f in facts if f.text.startswith("The next villager's time away crosses a limit"))
         self.assertIsNotNone(nxt.due)
         self.assertGreater(nxt.due, now)

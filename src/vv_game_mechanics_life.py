@@ -493,7 +493,7 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
         if heathens:
             top = sorted(heathens, key=lambda q: -(q.faith or -1000))[:5]
             add(f"Heathens outside the tribe: {len(heathens)}, never counted on this page. Highest Faith (preaching "
-                "adds 3 to 5, then that Heathen waits 2 real-life hours): "
+                "adds 3 to 5, then that Heathen waits 2 real-life hours, real time): "
                 + ", ".join(f"{p.name} ({p.faith})" for p in top) + ".", gm.SAVE)
     out.extend(ctx.villager_extra)
     return out
@@ -630,20 +630,14 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
     level_words = DIFFICULTY.get(level, "not read") if level is not None else "not read"
 
     # 0. Time and units (the owner, 2026-10-24: every time says whether it is real-life or in-game time).
-    add("Time and units: every time and date on this page is real-life time (the clock on the wall), counted while "
-        "the game is open and running; while it is paused the villagers' time stands still, and while it is closed "
-        "only as much as time away counts (below).", gm.CLAMP)
-    sub(f"The villagers' own (in-game) clock counts age units: an age unit is 3, 6 or 10 real-life minutes on "
-        f"Fast, Normal or Slow speed ({gm.duration(ctx.unit)} now, on {on}), and a villager year is 20 age units "
-        f"({gm.duration(YEAR * ctx.unit)} of real-life play now), so Fast runs the villagers' time twice as fast as "
-        "Normal and Slow at 0.6 times. Villagers work from 14 villager years (280 age units) and can have children "
-        "from 18 (360).", gm.OWNER)
+    # The owner, 2026-10-27: game time vs real time, the page's clock key (gm.time_units_lines, also on general pages).
+    out.extend(gm.time_units_lines(gm.TIME_UNITS, ctx.speed))
 
     # 1. The game's speed, difficulty and time away -- every figure below uses them.
     away = max(0.0, ctx.village.now - ctx.last)
     counted = 0.0 if ctx.paused else (gm.counted_away(ctx.game, away, ctx.speed) or 0.0)
     add(f"Speed {on}" + (" (saved paused)" if ctx.paused else "") + f"; difficulty {level_words}; last saved "
-        f"{gm.when(ctx.last)}, {gm.duration(away)} of real-life time ago, of which {gm.duration(counted)} would count if it were "
+        f"{gm.when(ctx.last)}, {gm.duration(away)} of real time ago, of which {gm.duration(counted)} would count if it were "
         "played now. Every figure below is at this speed and difficulty.", gm.SAVE)
 
     # 2. Food and its sources.
@@ -737,7 +731,8 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
     refill_unit, refill_hour, on_sources = refills(ctx)
     net_hour = refill_hour - per_hour
     add(f"Food eaten: about {per_hour:,.0f} per real-life hour; refilled on the sources about {refill_hour:,.0f} per "
-        f"real-life hour; net change about {net_hour:+,.0f} per real-life hour.", True)
+        f"real-life hour; net change about {net_hour:+,.0f} per real-life hour. All three are on {on} speed: the "
+        "eating and the refills follow the speed (the game's clock).", True)
     add("The refills land on the sources, not in storage: they count here once gatherers pick them, as these figures "
         "take it; a full source adds nothing until it is picked.", True)
     stay = ctx.low_food + 1
@@ -747,25 +742,26 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
         add(f"Food needed for 100% health over {hours} real-life hours of play: about {gross:,.0f} (eating, plus staying above "
             f"{ctx.low_food:,}); net of the {refill_hour * hours:,.0f} the sources refill in that time and the "
             f"{on_sources:,} already on them, about {net_need:,.0f} from storage, which holds {ctx.food:,} ("
-            + ("enough" if ctx.food >= net_need else f"short by {net_need - ctx.food:,.0f}") + ").", True)
+            + ("enough" if ctx.food >= net_need else f"short by {net_need - ctx.food:,.0f}") + f"). The "
+            f"{hours} hours are play on {on} speed (the game's clock).", True)
     add(f"100% health needs: more than {ctx.low_food:,} food at every age unit (at or below it meals are skipped and "
         "health is lost), no sickness, and time: a healthy villager regains 1 health on about half the age units.",
         True, gm.RUNNING)
 
-    add(f"Refills: about {refill_hour:,.0f} food per real-life hour back on the sources"
+    add(f"Refills: about {refill_hour:,.0f} food per real-life hour on {on} speed back on the sources"
         + (f" (Food Mastery x{ctx.mastery:g})" if ctx.mastery != 1 else "") + "; "
         + ("; ".join(f"{s.name} {_source_hour(ctx, s):,.0f}" + (" (full now)" if _full(s) else "")
                      for s in ctx.sources if s.per_unit) or "none refill") + ".", True)
     if per_hour > 0:
         hours_store = ctx.food / per_hour
-        add(f"Storage alone, with nothing picked, lasts about {gm.duration(hours_store * 3600)} of real-life play"
+        add(f"Storage alone, with nothing picked, lasts about {gm.duration(hours_store * 3600)} of real-life play on {on} speed"
             + (f", to about {gm.when(ctx.village.now + hours_store * 3600)} if played from now" if not ctx.paused else "")
             + ".", True)
         total = ctx.food + on_sources
         if net_hour < 0:
             lasts = total / -net_hour * 3600
             add(f"Storage, the food on the sources ({on_sources:,}) and their refills, all picked: about "
-                f"{gm.duration(lasts)} of real-life play"
+                f"{gm.duration(lasts)} of real-life play on {on} speed"
                 + (f", to about {gm.when(ctx.village.now + lasts)} if played from now" if not ctx.paused else "")
                 + ".", True)
         else:
@@ -780,7 +776,7 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
     gap = per_hour - refill_hour
     if gap > 0:
         brown, red = ctx.brown * ctx.mastery, ctx.red * ctx.mastery
-        line = (f"To fill the gap of about {gap:,.0f} food per real-life hour: {gap / brown:,.0f} brown or {gap / red:,.0f} "
+        line = (f"To fill the gap of about {gap:,.0f} food per real-life hour on {on} speed: {gap / brown:,.0f} brown or {gap / red:,.0f} "
                 f"red mushrooms per real-life hour ({gap * 24 / brown:,.0f} or {gap * 24 / red:,.0f} per real-life day)")
         if ctx.golden:
             line += f", or {gap / (100 * ctx.mastery):,.1f} Golden Mushrooms"
@@ -796,7 +792,7 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
     trips = [(name, food * ctx.mastery) for name, food in ctx.trips if food > 0]
     if trips and per_hour > 0:
         add("Gatherers: to bring in what is eaten takes about " + ", or ".join(
-            f"{per_hour / food:,.0f} {name} per real-life hour ({food:g} each)" for name, food in trips)
+            f"{per_hour / food:,.0f} {name} per real-life hour on {on} speed ({food:g} each)" for name, food in trips)
             + "; the number of gatherers this takes is not given, because a trip's length is each walk's own path "
             "and the save keeps no trip times.", True)
     if ctx.gatherer_words:
@@ -811,7 +807,8 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
             counted = gm.counted_away(ctx.game, hours * 3600, ctx.speed) or 0.0
             eaten = eaters * per_unit * counted / ctx.unit
             credited = closed_refills(ctx, hours * 3600)
-            add(f"Closed for {hours} real-life hours: {gm.duration(counted)} counts as time away, so about {eaten:,.0f} food is eaten while "
+            add(f"Closed for {hours} real-life hours: {gm.duration(counted)} counts as time away on {on} speed (the hours "
+                f"closed are real time), so about {eaten:,.0f} food is eaten while "
                 f"catching up; every refill missed while closed is added, about {credited:,.0f} on the sources (each "
                 f"stops at its limit); net change about {credited - eaten:+,.0f} once that is picked.", True)
     return out

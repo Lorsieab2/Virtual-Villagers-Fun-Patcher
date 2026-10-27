@@ -70,10 +70,10 @@ def lines(village: gm.Village) -> list[gm.Fact]:
     add("Other things that change Faith, exactly:")
     for text in (
             "Preaching to a Heathen (after the preacher's Devotion check): +3, +4 at Devotion 50 or more, +5 at 88 or "
-            "more; that Heathen then cannot be preached to for 2 real-life hours, paused or closed (0x468F2A). The "
+            "more; that Heathen then cannot be preached to for 2 real-life hours (real time, the same at every speed), paused or closed (0x468F2A). The "
             "Heathen Doctor, the Chief, the three Masters and the Mommy cannot be preached to.",
             "Spreading the Word (the Retired Chief's): +30 to one villager picked at random among those listening to "
-            "the sermon (behaviour 0xE4), who then cannot be preached to for 2 real-life hours either (0x46D2A8, "
+            "the sermon (behaviour 0xE4), who then cannot be preached to for 2 real-life hours (real time) either (0x46D2A8, "
             "0x46D2D8).",
             "The Earthquake God Power: +2 to +8 to every villager but the six special roles (see God powers).",
             "Curing the Heathen Doctor: Faith set to 25 to 59, each equally likely (0x468CFB). Solving The Heathen "
@@ -88,10 +88,12 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "into the tribe (0x43979C).", sub=True)
     # The owner's words (2026-10-25: "Heathens never fall sick" is true in play): the life tick skips them, so a
     # sick mark an island event sets on one has no effect (The Missing Kids' own line says so).
-    add("Heathens: they never age, eat, fall sick or gain Divine Energy, while catching up or otherwise (the life tick "
-        "skips them, 0x472CB7); their details can't be viewed (\"You cannot view details about heathens. They do not "
-        "believe in you.\"). Becoming a Heathen clears a villager's role, even the Retired Chief's (0x4669F5); "
+    add("Heathens: the life tick skips them (0x472CB7), so while catching up or otherwise they never age, eat, gain "
+        "Divine Energy or get the sickness roll, and a sick mark costs them no health; in the game's code The Missing "
+        "Kids can mark a Heathen child sick (0x4161D1, see Island events). Their details can't be viewed (\"You "
+        "cannot view details about heathens. They do not believe in you.\"). Becoming a Heathen clears a villager's role, even the Retired Chief's (0x4669F5); "
         "joining the tribe clears it too, except the Retired Chief's (0x466966).")
+    add("The owner: Heathens never fall sick in play.", gm.OWNER, sub=True)
     add("Heathens never count in the tribe's population or in any statistics row (see Village counts).", gm.OWNER,
         sub=True)
     try:

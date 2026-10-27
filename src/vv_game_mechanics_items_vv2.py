@@ -67,7 +67,7 @@ TECHNOLOGIES = (
         # 0x415FF5 (spawn: rand(100) < Exploration + 4 each 2 s), 0x4154B8 (mushroom below 65 - 15 x Exploration),
         # 0x415D99 (rare below 2 x Exploration + 2, uncommon below 2 x Exploration + 14).
         ("Something appears on the ground 6% of each 2-second check instead of 5% (about 33 real-life seconds' "
-         "wait instead of 40); 35% of them are mushrooms instead of 50%; a collectible is rare 6% of the time "
+         "wait instead of 40; real time, at every speed, paused too); 35% of them are mushrooms instead of 50%; a collectible is rare 6% of the time "
          "instead of 4% (uncommon 12%). Exact odds under Chances.", C),
         # 0x42F6F2 (a drop at Exploration >= 2 places a picture 30% of the time while +0x2E8A8 and +0x2E8A4 are 0),
         # 0x419C20, 0x41C7D4, 0x424AA9, callbacks 42/43 (+0x2E8A8 set, +0x2E8A4 + 1).
@@ -76,7 +76,7 @@ TECHNOLOGIES = (
     )),
     Entry(TECH, "Exploration level 3", (
         (_buy("Exploration", 3), C),
-        ("Something appears 7% of each check (about 29 real-life seconds' wait); 20% of them are mushrooms; a "
+        ("Something appears 7% of each check (about 29 real-life seconds' wait; real time, the same at every speed, paused too); 20% of them are mushrooms; a "
          "collectible is rare 8% of the time (uncommon 12%).", C),
     )),
     Entry(TECH, "Science level 2", (
@@ -168,7 +168,9 @@ PUZZLE_ENTRIES = (
         # sets its end (Fast / Normal / Slow) and the Fire flag +0x2E768 the first time.
         ("Solved the first time the fire is lit: villagers gather dry grass and firewood into the pit (each counts "
          "toward it) and then light it.", U),
-        ("Reward: a fire that burns 10, 20 or 40 real-life hours on Fast, Normal or Slow; fuel on a burning fire "
+        ("Reward: a fire that burns 10, 20 or 40 real-life hours when lit on Fast, Normal or Slow (a later speed "
+         "change rescales what is left; a pause pushes it on; it burns down while the game is closed); fuel on a "
+         "burning fire "
          "fills it to that again (Other).", E),
         ("While it burns: a villager falls sick half as often; on Medium and Hard a failed health roll gets a second "
          "roll; each successful research session gives 1 more tech point 10% of the time (Chances).", E),
@@ -181,7 +183,7 @@ PUZZLE_ENTRIES = (
     Entry(PUZZLE, "The Elder Totem", (
         # 0x44D19B..0x44D1AF: the first Esteemed Elder sets +0x2E778.
         ("Solved when the first villager becomes an Esteemed Elder: 3 of its 5 skills at 88 or more (checked about "
-         "every 2 real-life seconds).", E),
+         "every 2 real-life seconds, real time).", E),
         ("Reward: every Esteemed Elder gets a totem statue (Village counts).", E),
         ("With the patcher (Esteemed Elders' Totems Use No Villager Records, on by default): the totems are kept in "
          "a file beside the save and take none of the 256 villager records, and there is no limit of 50.", C),
@@ -343,8 +345,8 @@ STEW_EFFECTS = (
 ITEMS = (
     Entry(ITEM, "Mushrooms", (
         ("Brown mushroom 6 food; red (rare) mushroom 35 food, 1 in 10 of them. Something appears every 2-second "
-         "check 5%, 6% or 7% of the time at Exploration 1, 2, 3, 50%, 35% or 20% of them mushrooms; it lies 75 "
-         "real-life seconds and only a child under 14 dropped on it picks it up (Mushrooms).", E),
+         "check 5%, 6% or 7% of the time at Exploration 1, 2, 3, 50%, 35% or 20% of them mushrooms; the check every 2 real-life seconds and "
+         "the 75 real-life seconds it lies are real time, at every speed, paused too; only a child under 14 dropped on it picks it up (Mushrooms).", E),
         ("With the patcher (Super-Secret Golden Mushroom, off by default): 1 in 1,000,000 of them is a Golden "
          "Mushroom worth 100 food.", E),
         ("With the patcher (VV1 Mushroom/Collectible Duplication Cheat, off by default): several children can be "
@@ -358,7 +360,7 @@ ITEMS = (
          "population limit by 5, all four by 25.", E),
     )),
     Entry(ITEM, "Stews", (
-        ("Cooked in the pot from water, food and herbs; ready the moment it is made and kept 15 real-life minutes "
+        ("Cooked in the pot from water, food and herbs; ready the moment it is made and kept 15 real-life minutes (real time, the same at every speed, paused too) "
          "(Other). Every villager who eats from it in that time gets its effect, once, at the moment it eats.", E),
         ("Adding food to the stew uses food; there are 18 stews, each told apart only by what it does.", C),
         # 0x461040, table 0x461510.
@@ -379,7 +381,7 @@ ITEMS = (
          "and never past 50.", C),
     )),
     Entry(ITEM, "The Gong of Wonder", (
-        ("Whole once its four pieces are found; rung by a villager dropped on it, then rests 24 real-life hours; "
+        ("Whole once its four pieces are found; rung by a villager dropped on it, then rests 24 real-life hours (real time, the same at every speed, paused or closed); "
          "its results are under Island events.", E),
         ("With the patcher (Gong of Wonder Coconuts Fix, on by default): a coconut result adds 30 to the coconut "
          "trees instead of setting them to 30.", C),

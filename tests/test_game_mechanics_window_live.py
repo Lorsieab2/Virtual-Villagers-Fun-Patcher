@@ -87,7 +87,8 @@ class Placement(unittest.TestCase):
                 mock.patch.object(gm, "genetics_facts", return_value=[]), \
                 mock.patch.object(gm, "catchup_facts", return_value=[]), \
                 mock.patch.object(gm, "chances_facts", return_value=[]), \
-                mock.patch.object(gm, "items_facts", return_value=[]):
+                mock.patch.object(gm, "items_facts", return_value=[]), \
+                mock.patch.object(gm, "time_units_lines", return_value=[]):     # the clock key (its own test)
             kept = gm.general(3, T0)
         self.assertEqual([fact.text for fact in kept], ["Honey refills every 3 hours."])
 

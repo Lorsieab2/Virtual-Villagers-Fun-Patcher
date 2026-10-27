@@ -356,7 +356,8 @@ PUZZLE_ENTRIES = (
          "tech points.", C),
     )),
     Entry(PUZZLE, "The Cave", (
-        ("Solved only by The Golden Child: 36 real-life hours after his birth he may open it, or earlier by one of "
+        ("Solved only by The Golden Child: 36 real-life hours (real time, at any speed, paused or closed) after his "
+         "birth he may open it, or earlier by one of "
          "his own acts. See Golden Child.", E),
         ("Reward: the boulder is gone and dropping a villager on the cave takes the game to the cave's own screen "
          "(Golden Child).", E),
@@ -433,7 +434,8 @@ BUILDINGS = (
 ITEMS = (
     Entry(ITEM, "Mushrooms", (
         ("Brown mushroom: 8 food; red (rare) mushroom: 45 food, 1 in 20 of them. One appears about every 2 real-life "
-         "minutes while none is out and stays 1 real-life minute; it is picked only when you drop a villager on it. "
+         "minutes while none is out and stays 1 real-life minute (real time, at every speed, even while paused); it "
+         "is picked only when you drop a villager on it. "
          "See Mushrooms.", E),
         ("With the patcher (Super-Secret Golden Mushroom, off by default): 1 in 1,000,000 of them is a Golden "
          "Mushroom worth 100 food (Mushrooms).", E),

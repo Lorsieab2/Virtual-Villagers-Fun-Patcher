@@ -13,6 +13,10 @@ TIME.  Every time is real time.  The games count their own clock in game seconds
 game second is a real second, at Fast two pass each real second and at Slow 0.6 (the games' speed
 value -- 3 Fast, 6 Normal, 10 Slow -- is real seconds per 6 game seconds).  A game rule of N game
 seconds therefore takes N * speed / 6 real seconds.  Paused (the speed plus 999) stops the clock.
+Every duration, rate and timer on the page names its clock (the owner, 2026-10-27; THE TWO CLOCKS below): the game's
+clock (it follows the speed; said "on the game's clock" or as a real-life length at a named speed, never "game time",
+which the owner's wording rule of 2026-10-22 bans) or real time (the computer's clock, the same at every speed), and
+whether it runs while paused or closed where that matters; the "Time and units" group explains both on every tab.
 
 A GAME'S MODULE is found by name (vv_game_mechanics_vv<N>) and has
     facts(village: Village) -> list[Fact]
@@ -51,10 +55,10 @@ TITLE = "Game Mechanics"
 # Vital statistics first (the owner, 2026-10-24), then where the page's facts come from, then the village's people
 # and clocks (src/vv_game_mechanics_life.py), then the rules.
 # Time away (catch-up) right after the sources (the owner, 2026-10-24: the most important topic, near the top).
-GROUPS = ("Vital statistics", "Village counts", "Sources", "Time away (catch-up)", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
+GROUPS = ("Vital statistics", "Village counts", "Time and units", "Sources", "Time away (catch-up)", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
           "Technologies, items and buildings",
           "God powers", "Faith and Heathens", "Food earned", "Island events", "Death and graves", "Puzzles",
-          "Golden Child", "Hidden villager stats", "Chance and timers", "Other")
+          "Golden Child", "Hidden villager stats", "Hidden keys, clicks and cheats", "Chance and timers", "Other")
 DEATH = "Death and graves"            # src/vv_game_mechanics_death.py
 PUZZLES = "Puzzles"
 GOLDEN_CHILD = "Golden Child"                 # A New Home only: vv_game_mechanics_vv1.golden_child_facts
@@ -189,6 +193,83 @@ def every(game_seconds: float, speed_value: int) -> str:
 
 
 PAUSED_NOTE = "The game was saved paused: nothing refills or grows until it is unpaused."
+
+# THE TWO CLOCKS (the owner, 2026-10-27: "specify game time vs real time").  Every duration, rate, timer, cooldown
+# and countdown on the page names its clock, in these words:
+#   * game time -- it runs with the game's own clock, so it scales with the speed: its real-life length is given at
+#     each speed ("3, 6 or 10 real-life minutes on Fast, Normal or Slow"), or the line points to Time and units
+#     (AGES) for ages and age units.  It stands still while the game is paused, and while the game is closed it
+#     counts only as far as the line says (time away for ages; some refills catch up in full).
+#   * real time -- the computer's clock (time(), GetTickCount): "real-life minutes, the same at every speed", and
+#     the line says whether it runs while paused and while the game is closed where that matters.
+# tests/test_game_mechanics_time_units.py renders every tab and fails on a line with a time amount and no clock.
+# (The page never says "game time": the owner's rule of 2026-10-22 bans "game" + a time unit, so a timer on the
+# game's clock is said that way -- "on the game's clock" -- or as a real-life length at a named speed.)
+# The clock key has a group of its own, third on every tab (the owner, 2026-10-27), on a save's page and a general one.
+TIME_UNITS = "Time and units"
+GAME_TIME, REAL_TIME = "the game's clock", "real time"
+AGES = "Ages and age units here run on the game's clock (see Time and units)."
+SAME_EVERY_SPEED = "the same at every speed"
+# What names a line's clock (the test pins the same phrasings): game time; a real-life length at a named speed (the
+# page's form for game time); real time; or the pointer to Time and units.
+CLOCK_WORDS = re.compile(
+    r"\bthe game's (?:own )?clock\b|\breal time\b|see Time and units|\bon (Fast|Normal|Slow) speed\b"
+    r"|\breal-life\b.*\b(on (Fast|Normal|Slow)\b|Fast, Normal\b|Fast or Normal\b|at (every|any) speed\b"
+    r"|whatever the speed\b)"
+    r"|\b(on (Fast|Normal|Slow)\b|Fast, Normal\b|Fast or Normal\b|at (every|any) speed\b).*\breal-life\b",
+    re.S)
+# A villager age or an age-unit count (game time by definition: an age unit is 60 x the speed value real seconds).
+AGE_AMOUNT = re.compile(r"\b\d[\d,.]*(?: to \d[\d,.]*)? (?:villager )?years?\b|\bage units?\b|\b\d[\d,.]*-year-olds?\b"
+                        r"|\bvillager years?\b")
+
+
+def with_clock(fact: "Fact") -> "Fact":
+    """A line that gives villager ages or age units and names no clock gets the pointer to Time and units (AGES):
+    ages and age units are game time on every tab.  Any other time amount names its clock in its own words."""
+    text = fact.text
+    if not AGE_AMOUNT.search(text) or CLOCK_WORDS.search(text):
+        return fact
+    text = text.rstrip()
+    joined = f"{text} {AGES}" if text.endswith((".", "!", "?", ".\"", "!\"", "?\"")) else f"{text}. {AGES}"
+    return dataclasses.replace(fact, text=joined)
+
+
+def at_speeds(game_seconds: float, exact: bool = False) -> str:
+    """A game-time length at each speed: "1 hour 30 minutes on Fast, 3 hours on Normal or 5 hours on Slow"."""
+    return (f"{duration(real_seconds(game_seconds, FAST), exact)} on Fast, "
+            f"{duration(real_seconds(game_seconds, NORMAL), exact)} on Normal or "
+            f"{duration(real_seconds(game_seconds, SLOW), exact)} on Slow")
+
+
+def game_time(game_seconds: float, exact: bool = False) -> str:
+    """The game's-clock tag for a length given at one speed: "(on the game's clock: 1 hour 30 minutes on Fast, 3
+    hours on Normal or 5 hours on Slow of real-life play)"."""
+    return f"(on the game's clock: {at_speeds(game_seconds, exact)} of real-life play)"
+
+
+def time_units_lines(group: str, speed_value: int, verified_clocks: bool | str = CLAMP,
+                     verified_units: bool | str = OWNER) -> list["Fact"]:
+    """The page's clock key, on every tab (a save's Vital statistics, a general page's): what real time and game
+    time mean, then the villagers' own units at the save's speed."""
+    speed = speed_base(speed_value)
+    unit = real_seconds(360, speed)
+    return [
+        Fact(group, (
+            "Time and units: every date and countdown on this page is real-life time (the clock on the wall), and "
+            "every timer says which clock it runs on. A timer on the game's clock follows the speed: its real-life length "
+            "depends on the speed (Fast runs it twice as fast as Normal, Slow at 0.6 times), it stands still while "
+            "the game is paused, and while the game is closed it counts only as far as time away counts (see Time "
+            "away (catch-up)) unless the line says otherwise. Real time is the computer's clock: real-life minutes, "
+            f"{SAME_EVERY_SPEED}, and each such line says whether it runs while the game is paused or closed."),
+            verified_clocks),
+        Fact(group, (
+            f"The villagers' own clock counts age units, on the game's clock: an age unit is 3, 6 or 10 real-life minutes on "
+            f"Fast, Normal or Slow speed ({duration(unit)} now, on {speed_name(speed)}), and a villager year is 20 "
+            f"age units (1 hour, 2 hours or 3 hours 20 minutes of real-life play on Fast, Normal or Slow; "
+            f"{duration(20 * unit)} now), so Fast runs the villagers' time twice as fast as Normal and Slow at 0.6 "
+            "times. Every age, villager year and age unit on this page runs on the game's clock. Villagers work from 14 "
+            "villager "
+            "years (280 age units) and can have children from 18 (360)."), verified_units, sub=True)]
 # The owner (2026-10-24), The Lost Children to New Believers: the fire burns down while the game is closed when the
 # save was left unpaused, and not when it was saved paused.
 FIRE_CLOSED = ("While the game is closed the fire keeps burning down if the save was left unpaused; saved paused, "
@@ -226,7 +307,8 @@ def autosave_line(game: int) -> str:
             "way (a crash, ending the program) loses only what happened since the last autosave.")
 
 
-SAVES_WHEN = "when it is closed normally and every 10 real-life minutes by its autosave (see Chance and timers)"
+SAVES_WHEN = ("when it is closed normally and every 10 real-life minutes by its autosave (real time, the same at every "
+              "speed, paused too; see Chance and timers)")
 
 # Every patcher Time Warp (the Origins upgrade, and each step of Choose Time Skip Amount) moves the game's clock
 # on by moving the clock's start (its epoch) back by the warp's real-life seconds (native/vv1_origins_icons
@@ -384,11 +466,11 @@ def time_away(village: "Village", last: float, speed_value: int, paused_words: s
         away = max(0.0, village.now - last)
         counted = counted_away(village.game, away, speed)
         if counted is None:
-            out.append(Fact(TIME_AWAY, f"Time since then: {duration(away)}. How much of it the game counts when the "
+            out.append(Fact(TIME_AWAY, f"Time since then: {duration(away)} of real time. How much of it the game counts when the "
                                        "village is next played is not yet confirmed."))
         else:
             years = f" ({counted / unit_seconds:.1f} years of the villagers' lives)" if unit_seconds and counted else ""
-            out.append(Fact(TIME_AWAY, f"If it were played now: {duration(away)} away, of which {duration(counted)} "
+            out.append(Fact(TIME_AWAY, f"If it were played now: {duration(away)} of real time away, of which {duration(counted)} "
                                        f"counts{years}.", CLAMP))
     if limits is None:
         return out
@@ -546,6 +628,10 @@ def hours_puzzle_lines(names: list[str], solved, hours, created: float | None,
         else:
             words = (f"solved {h} hours after the village was started: between {when(created + h * 3600)} "
                      f"and {when(created + (h + 1) * 3600)}")
+        if 0 < h <= MAX_HOURS:
+            # VV1 0x402F70 and VV2 0x403200 count the computer's seconds from the save's base (time()), so the hours
+            # are real time and run on while the game is paused or closed.
+            words += " (real time: whole real-life hours, the same at every speed, counted while paused or closed too)"
         out.append(Fact(PUZZLES, f"{name}: {words}.", verified))
     out.insert(0, Fact(PUZZLES, f"Puzzles solved: {count} of {len(names)}.", SAVE))
     return out
@@ -863,6 +949,20 @@ def items_facts(village: "Village") -> list[Fact]:
     return [dataclasses.replace(fact, group=ITEMS) if fact.group != ITEMS else fact for fact in found]
 
 
+# Every key, cheat code, hidden click spot and game tip of each game, and the patcher's own keys (the owner,
+# 2026-10-27): src/vv_game_mechanics_hidden_vv<N>.py.  One group on every game's tab.
+KEYS = "Hidden keys, clicks and cheats"
+
+
+def hidden_facts(village: "Village") -> list[Fact]:
+    """The game's hidden keys, clicks, cheats and tips (src/vv_game_mechanics_hidden_vv<N>.py)."""
+    try:
+        module = importlib.import_module(f"vv_game_mechanics_hidden_vv{village.game}")
+    except ImportError:
+        return []
+    return list(module.hidden_facts(village))
+
+
 def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None,
          now: float | None = None, exe: Path | None = None) -> list[Fact]:
     """Every line of the section for one save slot, in GROUPS order.  Reads only, and reads every source again
@@ -883,12 +983,12 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     facts = list(module.facts(village))
     if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
         facts += catchup_facts(village) + genetics_facts(village)
-        facts += chances_facts(village) + items_facts(village)
+        facts += chances_facts(village) + items_facts(village) + hidden_facts(village)
     import vv_game_mechanics_counts as counts      # the Village counts group (src/vv_game_mechanics_counts.py)
     facts += counts.facts(village, facts)
     if not facts:
         facts = [Fact("Other", "Nothing is shown for this game yet.")]
-    facts = sources_lines(path, patches, village.notes, game) + facts
+    facts = sources_lines(path, patches, village.notes, game) + [with_clock(fact) for fact in facts]
     order = {name: n for n, name in enumerate(GROUPS)}
     return sorted(facts, key=lambda fact: order.get(fact.group, len(GROUPS)))
 
@@ -939,7 +1039,9 @@ def general(game: int, now: float | None = None) -> list[Fact]:
                 or fact.text.startswith("The birds:"):
             continue                           # an amount from the empty save ("Crop field: 0 of 800")
         keep.append(fact)
-    keep += [fact for fact in items if fact.due is None]
+    keep += [fact for fact in items + hidden_facts(village) if fact.due is None]
+    # The page's clock key (the owner, 2026-10-27): game time vs real time, at Normal speed like the rest.
+    keep = time_units_lines(TIME_UNITS, NORMAL) + [with_clock(fact) for fact in keep]
     order = {name: n for n, name in enumerate(GROUPS)}
     return sorted(keep, key=lambda fact: order.get(fact.group, len(GROUPS)))
 
