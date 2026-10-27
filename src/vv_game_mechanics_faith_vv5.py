@@ -70,10 +70,10 @@ def lines(village: gm.Village) -> list[gm.Fact]:
     add("Other things that change Faith, exactly:")
     for text in (
             "Preaching to a Heathen (after the preacher's Devotion check): +3, +4 at Devotion 50 or more, +5 at 88 or "
-            "more; that Heathen then cannot be preached to for 2 real-life hours, paused or closed (0x468F2A). The "
+            "more; that Heathen then cannot be preached to for 2 real-life hours (real time, the same at every speed), paused or closed (0x468F2A). The "
             "Heathen Doctor, the Chief, the three Masters and the Mommy cannot be preached to.",
             "Spreading the Word (the Retired Chief's): +30 to one villager picked at random among those listening to "
-            "the sermon (behaviour 0xE4), who then cannot be preached to for 2 real-life hours either (0x46D2A8, "
+            "the sermon (behaviour 0xE4), who then cannot be preached to for 2 real-life hours (real time) either (0x46D2A8, "
             "0x46D2D8).",
             "The Earthquake God Power: +2 to +8 to every villager but the six special roles (see God powers).",
             "Curing the Heathen Doctor: Faith set to 25 to 59, each equally likely (0x468CFB). Solving The Heathen "

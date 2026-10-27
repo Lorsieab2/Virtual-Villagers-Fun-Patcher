@@ -125,12 +125,12 @@ def _pending_lines(village: gm.Village, speed_value: int, entries: list[tuple[in
             whole_day += 1
         crossings += [t for t in (s + full - p, s + band_end - p) if t > village.now]
     out.append(gm.Fact(G, (f"Counted now, {who} by {who}: {in_full:,} in full, {cut:,} cut to "
-                           f"{gm.duration(band, exact=True)}, {whole_day:,} cut to {gm.duration(over)}."), SAVE))
+                           f"{gm.duration(band, exact=True)} of real time, {whole_day:,} cut to {gm.duration(over)} of real time."), SAVE))
     if crossings:
         out.append(gm.Fact(G, f"The next {who}'s time away crosses a limit at {gm.DUE}.", SAVE,
                            due=min(crossings), due_kind="next"))
     else:
-        out.append(gm.Fact(G, f"Every {who}'s time away now counts as {gm.duration(over)}, however much longer the "
+        out.append(gm.Fact(G, f"Every {who}'s time away now counts as {gm.duration(over)} of real time, however much longer the "
                               "game stays closed.", SAVE))
     return out
 
@@ -275,9 +275,10 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
     add("Noni and crops: every missed noni regrowth (+2 each age unit) and crop refill (to 800 every 40 age units, "
         "once the Hydroponic Farm is built) of the WHOLE time closed is added when it is next played, with no "
         "limit: noni stop at 1,000, crops at 800.")
-    add("Island events: their timer runs on real-life time, so the whole time closed counts. If an event came due "
-        "while the game was closed it happens once when the village is next played, and the next one is set 8 to "
-        "15 whole real-life hours after that (30 minutes while no event has been seen yet).")
+    add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "
+        "closed counts; while the game is paused it stands still (moved on by the paused time, 0x425E45-0x425E7E). If "
+        "an event came due while the game was closed it happens once when the village is next played, and the next "
+        "one is set 8 to 15 whole real-life hours after that (30 real-life minutes while no event has been seen yet).")
     add("Mushrooms and collectibles: none appear for the time closed. The appearance roll (18 in 32,768) is made "
         "once per update of the village, so the catch-up's one update gives one roll, like any other update.",
         RUNNING)
@@ -287,7 +288,8 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         "does not burn down until the game is unpaused.", OWNER)   # the owner, 2026-10-25, and the code (RUNNING)
     add("Graves: the whole time closed counts toward a body's removal, not only the counted part (see Death and "
         "graves).")
-    add("The Time Warp God Power (500 Divine Energy) speeds up ageing for 5 real-life minutes while the game is "
+    add("The Time Warp God Power (500 Divine Energy) speeds up ageing for 5 real-life minutes (real time, the same "
+        "at every speed, paused or not) while the game is "
         "open; quitting during them loses the rest (see God powers).", RUNNING)
 
     # The patches that change a catch-up rule (stock rule first).
@@ -405,12 +407,15 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
         "before the time away is added to the ages, so a child who turns 14 during it learns for all of it.")
     add("Blackberries and the stream: every missed world tick of the WHOLE time closed is added when it is next "
         "played, with no limit: +2 blackberries each (up to 1,000) and 2% more of the stream's debris.")
-    add("Island events: their timer runs on real-life time, so the whole time closed counts. If an event came due "
-        "while the game was closed it happens once when the village is next played, and the next one is set 8 to "
-        "15 whole real-life hours after that (30 minutes while no event has been seen yet).", RUNNING)
-    add("Ghost visits (the Mausoleum Mural Collection complete): their 50 to 58 real-life minute timer is not "
-        "caught up. When the village is next played more than 1 hour after a visit was due, the timer is reset to "
-        "0 to 8 minutes and no ghost comes for the time closed.", RUNNING)
+    add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "
+        "closed counts; while the game is paused it stands still (moved on by the paused time, 0x42034A-0x42036F). If "
+        "an event came due while the game was closed it happens once when the village is next played, and the next "
+        "one is set 8 to 15 whole real-life hours after that (30 real-life minutes while no event has been seen yet).",
+        RUNNING)
+    add("Ghost visits (the Mausoleum Mural Collection complete): their timer (50 to 58 real-life minutes, real time, "
+        "the same at every speed) is not caught up. When the village is next played more than 1 real-life hour after a "
+        "visit was due, the timer is reset to 0 to 8 real-life minutes and no ghost comes for the time closed.",
+        RUNNING)
     add("Mushrooms and collectibles: none appear for the time closed. The appearance rolls are made once per update "
         "of the village, so the catch-up's one update gives one set of rolls, like any other update.", RUNNING)
     add("The fire and the weather follow the game's own clock, which keeps running while the game is closed "
@@ -526,10 +531,12 @@ def _vv3(village: gm.Village) -> list[gm.Fact]:
     # The scheduler 0x468727 on the wall clock: nothing resets it when the game starts (an earlier line said the
     # first event of each start sets the next 30 minutes later; the 30 minutes follow only the village's first event
     # ever, 0x468899, as Island events says).
-    add("Island events: their timer runs on real-life time, so the whole time closed counts. If an event came due "
+    add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "
+        "closed counts; while the game is paused it stands still (pushed back by the paused time). If an event came due "
         "while the game was closed it happens once when the village is next played, and the next comes 8 to 15 whole "
         "real-life hours after it (30 real-life minutes after the village's first event ever).", RUNNING)
-    add("The Tribal Chief's powers: their 23-hour wait runs on real-life time, so the time closed counts in full.",
+    add("The Tribal Chief's powers: their 23-hour wait runs on real time (23 real-life hours, the same at every "
+        "speed, paused or not), so the time closed counts in full.",
         RUNNING)
     add("Mushrooms and collectibles: none appear for the time closed. The appearance roll is made once per update "
         "of the village, so the catch-up's one update gives one roll, like any other update.", RUNNING)
@@ -658,10 +665,11 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
     add("Regrowth: every coconut and crop regrowth missed while the game was closed is added when it is next "
         "played, with no limit on how many: coconuts stop at 1,500, crops at 800.", RUNNING)
     add("A stew cooking when the game is closed is lost: the save does not keep the pot.", SAVE)
-    add("Island events: their timer runs on real-life time, so the whole time closed counts. If an event came due "
-        "while the game was closed it happens once when the village is next played.", RUNNING)
-    add("The Gong of Wonder's 24-hour rest runs on real-life time, so the time closed counts in full, paused or "
-        "not.", RUNNING)
+    add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "
+        "closed counts; while the game is paused it stands still (pushed back by the paused time). If an event came "
+        "due while the game was closed it happens once when the village is next played.", RUNNING)
+    add("The Gong of Wonder's 24-hour rest runs on real time (24 real-life hours, the same at every speed), so the "
+        "time closed counts in full, paused or not.", RUNNING)
     add("Mushrooms and collectibles: none appear for the time closed; they appear only on live updates of the "
         "village.", RUNNING)
     add("The campfire keeps burning down while the game is closed, when the save was left unpaused.", OWNER)
@@ -788,10 +796,11 @@ def _vv1(village: gm.Village) -> list[gm.Fact]:
             out.append(fact)
     add("Regrowth: every regrowth missed while the game was closed is added when it is next played, with no limit "
         "on how many: the berry bush has no cap, the crop field stops at 800.", RUNNING)
-    add("Island events: their timer runs on real-life time, so the whole time closed counts; after time away at "
-        "most one event happens.", RUNNING)
+    add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "
+        "closed counts; while the game is paused it stands still (the pause pushes it on). After time away at most "
+        "one event happens.", RUNNING)
     add("Mushrooms: none appear for the time closed; they are not saved and appear only on live updates (a "
-        "2-in-120 roll every 2 real-life seconds while none is out).", RUNNING)
+        "2-in-120 roll every 2 real-life seconds while none is out, at every speed, paused or not).", RUNNING)
     add("Graves: the whole time closed counts toward a body's removal, not only the counted part (see Death and "
         "graves).")
     for fact in (

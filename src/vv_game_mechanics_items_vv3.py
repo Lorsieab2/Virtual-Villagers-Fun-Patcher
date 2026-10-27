@@ -405,7 +405,8 @@ def _items() -> list[Entry]:
             "the villager tending it 30 to 69 health."), VERIFIED_E,
             (("The pot's on-screen countdown for a brewed potion (5:00, 2:30 or 8:20 at the start on Normal, Fast or "
               "Slow) is under Tech points and effects; the potion is gone at 0:00, which comes sooner on Fast and later "
-              "on Slow. The save does not keep the pot.", VERIFIED_E),
+              "on Slow: the potion's time runs on the game's clock (it follows the speed, the owner's word). The save does not keep "
+              "the pot.", VERIFIED_E),
              ("A brewed potion's duration follows the game speed (the countdown shown changes with it).", gm.OWNER),
              ("The pot can be emptied by dropping a villager on the table with 3 herbs: the brewed potion is thrown "
               "away and the herbs stay on the table.", gm.OWNER))),
@@ -434,7 +435,8 @@ def _items() -> list[Entry]:
              (patch("vv3_fruit_trees_refill_together") + ": every tree refills when the first one is due; over time "
               "each gives the same fruit as in the stock game.", UNCONFIRMED),
              (patch("vv3_fruit_trees_take_turns") + ": the trees refill one after another, evenly spread over the "
-              "refill time (one every hour with three trees).", UNCONFIRMED))),
+              "refill time (one every hour of real-life play on Normal speed with three trees at the stock 3-hour refill; "
+              "on the game's clock: 30 minutes on Fast, 1 hour 40 minutes on Slow).", UNCONFIRMED))),
         Entry(ITEM, "Honey", (
             "after The Bee Hive: a pick brings 7, 3 or 2 food on Fast, Normal or Slow (4 while catching up), half "
             "as much again when the supervising chief's roll passes; the hive gives honey only while it holds 10 "
@@ -456,16 +458,17 @@ def _items() -> list[Entry]:
             "already owned never appear again. Each complete collection raises the population limit by 5, all four "
             "by 25."), VERIFIED_C),
         Entry(ITEM, "Grant Food (the chief's power)", (
-            "from Leadership level 1, once every 23 real-life hours: 3 x Leadership x (10 to 29, each equally "
+            "from Leadership level 1, once every 23 real-life hours (real time, at any speed): 3 x Leadership x (10 to 29, each equally "
             "likely) food -- 30 to 87 at level 1, 60 to 174 at level 2, 90 to 261 at level 3."), VERIFIED_C),
         Entry(ITEM, "Educate the Children (the chief's power)", (
-            "once every 23 real-life hours: each child who finishes the lesson gains 7 to 9 points in one random "
+            "once every 23 real-life hours (real time, at any speed): each child who finishes the lesson gains 7 to 9 points in one random "
             "skill, up to 100."), VERIFIED_C,
             (("It needs Leadership level 2 (the game's Leadership text says so).", UNCONFIRMED),
              (patch("vv3_chief_lessons_cap_50") + ": only a skill below 50 can be chosen and the gain stops at 50; "
               "with every skill at 50 the lesson gives nothing.", UNCONFIRMED))),
         Entry(ITEM, "Point Out a Rare Collectible (the chief's power)", (
-            "from Leadership level 3, with the chief placed at the top of the path, once every 23 real-life hours: "
+            "from Leadership level 3, with the chief placed at the top of the path, once every 23 real-life hours "
+            "(real time, at any speed): "
             "a rare piece from a collection chosen at random appears; the call is spent for nothing when the game "
             "picks an owned Tablet piece or a piece already out (Chances, The Tribal Chief's rare collectible)."),
             VERIFIED_C,
@@ -482,8 +485,11 @@ def _items() -> list[Entry]:
             "real-life play on Fast, Normal or Slow (The campfire)."),
             VERIFIED_C),
         Entry(ITEM, "Water for the Ash Key", (
-            "after the campfire's 61 hours of burning, 12 trips of water; the 4th puts a lit fire out, and while it "
-            "burns 10 minutes between trips starts the count again (Hidden villager stats)."), VERIFIED_E),
+            "after the campfire's 61 hours of burning (on the game's clock: 30 hours 30 minutes on Fast, 61 hours on "
+            "Normal or 101 hours 40 minutes on Slow of real-life play), 12 trips of water; the 4th puts a lit fire out, "
+            "and while it burns 10 minutes between trips starts the count again (also on the game's clock: 5, 10 or 16 "
+            "minutes 40 seconds of real-life play on Fast, Normal or Slow, 0x433BCA -> 0x426790) (Hidden villager "
+            "stats)."), VERIFIED_E),
         Entry(ITEM, "A snack at the food bin", (
             "a villager below 100 health eats 1 food and regains 1 health " + _ch(50) + " of the time (Chances)."),
             VERIFIED_C),

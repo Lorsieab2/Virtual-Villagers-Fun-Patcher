@@ -139,7 +139,8 @@ def save_status(save: Path | None, running: bool) -> str:
         return f"The save {save.name} could not be read."
     if running:
         return (f"The game is running: values are from the last save at {written}. Each game saves when it is "
-                "closed normally and every 10 real-life minutes by its autosave (see Chance and timers).")
+                "closed normally and every 10 real-life minutes by its autosave (real time, the same at every "
+                "speed; see Chance and timers).")
     return f"The save was last written {written}."
 
 

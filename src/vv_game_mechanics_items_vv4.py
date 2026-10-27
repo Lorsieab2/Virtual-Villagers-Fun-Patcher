@@ -209,12 +209,15 @@ def _puzzles() -> list[Entry]:
               VERIFIED_E),
         Entry(PUZZLE, "Purify Tree", (
             f"solved in 1 step; {tree}. One of the Purify Tree's two results gives the villager a glow for 4 "
-            "real-life minutes (240 seconds), and while it lasts their research brings 3 times the tech points."),
+            "real-life minutes (240 seconds; real time, the same at every speed), and while it lasts their research brings 3 times the tech points."),
             VERIFIED_E,
             (("Purifying the tree needs Dendrology level 3.", UNCONFIRMED),)),
         Entry(PUZZLE, "Decorating the Tree", (
             f"solved after 3 steps; {tree}. With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life "
-            "minutes, every 23 to 25 once the tree is decorated; it changes nothing."), VERIFIED_E),
+            "minutes, every 23 to 25 once the tree is decorated (whether real time or on the game's clock: the line below); it changes nothing."),
+            VERIFIED_E,
+            (("The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on the game's "
+              "clock was not traced.", UNCONFIRMED),)),
     ]
 
 
@@ -293,10 +296,10 @@ STEWS = (
     ("Sweet, sweet, soapy stew", "sweet, sweet, soapy", "the children get hiccups", VERIFIED_E),
     ("Healing stew", "sweet, soapy, soapy",
      "the villager who eats it regains 25 to 59 health (5 to 14 while the village has under 100 food), and cannot eat "
-     "this stew again for 10 real-life minutes", VERIFIED_E),
+     "this stew again for 10 real-life minutes (real time, the same at every speed)", VERIFIED_E),
     ("Soapy stew", "soapy x3",
      "the villager says \"I feel sick!\" and goes \"Throwing up soapy stew!\" -- it does not make them sick -- and "
-     "cannot eat this stew again for 10 real-life minutes", VERIFIED_E),
+     "cannot eat this stew again for 10 real-life minutes (real time, the same at every speed)", VERIFIED_E),
     ("Soap", "pulpy vines x3, in salt water, with no heat", "makes soap", VERIFIED_E),
     ("Soapy herbs in salt water", "soapy x3, in salt water, with no heat",
      "a stew of its own (stew 10 of the recipe table); what it gives was not traced here", UNCONFIRMED),
@@ -317,7 +320,8 @@ def _items() -> list[Entry]:
             "thing added."), VERIFIED_E,
             (("Some stews can be reheated by putting another hot rock in the pot.", gm.OWNER),
              ("In the game's code a hot rock that goes into the hot pot while its stew is ready makes the same stew "
-              "again and starts its 5 real-life minutes over; nothing limits how often.", VERIFIED_E))),
+              "again and starts its 5 real-life minutes over; nothing limits how often (the 5 minutes are real time, the "
+              "same at every speed).", VERIFIED_E))),
         Entry(ITEM, "A ready stew", (
             "a villager dropped on the pot eats it. The pot's on-screen countdown (5:00, 2:30 or 8:20 at the start "
             "on Normal, Fast or Slow) is under Other; the pot empties itself at 0:00, 5 real-life minutes after the "
@@ -325,7 +329,7 @@ def _items() -> list[Entry]:
         Entry(ITEM, "The grate", "the pot can be emptied by dropping a villager on the grate.", gm.OWNER),
         Entry(ITEM, "Eating a stew", (
             "a villager who already has that stew's effect, or already has 12 effects, is refused: \"That villager "
-            "can't eat more stew so soon.\" It lasts until that effect ends (10 real-life minutes for the healing "
+            "can't eat more stew so soon.\" It lasts until that effect ends (real time, the same at every speed: 10 real-life minutes for the healing "
             "and soapy stews), for that villager and that stew only; saving the game ends every villager's stew "
             "effects."), VERIFIED_E),
     ]
@@ -357,7 +361,7 @@ def _items() -> list[Entry]:
             "a set of 12 pieces; each research session pays 0 to (pieces found - 1) more tech points, each equally likely."),
             VERIFIED_E),
         Entry(ITEM, "The Mausoleum Mural collection", (
-            "a set of 12 pieces; once complete, a ghost brings a collectible every 50 to 58 real-life minutes (nothing if "
+            "a set of 12 pieces; once complete, a ghost brings a collectible every 50 to 58 real-life minutes (real time, the same at every speed; nothing if "
             "more than an hour overdue)."), VERIFIED_E),
         Entry(ITEM, "The Wind Flute collection", (
             "a set of 12 pieces; in fog the appearance roll's chance is 4 in 6,000 for every 2 pieces found: none with 0 or 1, "

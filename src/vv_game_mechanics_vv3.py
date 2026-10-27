@@ -192,11 +192,13 @@ HIDDEN_LINES = (
      "knife or he gives the flowers, both gain 25 Parenting and she conceives at once when there is room for a "
      "baby, with no conception roll and no age check of its own. Every other embrace needs both villagers 18 "
      "or older.", gm.RUNNING),
-    ('The Ash Key: no timer and no chance. The fire must have burned 61 hours on Normal in all (30.5 on Fast, '
-     '101.7 on Slow): a burnout counts its whole burn, wood added counts the time burned so far, water counts '
-     'nothing, paused time nothing. Then 12 trips of water (the 4th puts a lit fire out; while it burns, 10 '
-     "minutes between trips starts the count again); then, with the fire out, a villager dropped on the key's "
-     'spot finds it.', gm.RUNNING),
+    ('The Ash Key: no timer and no chance. The fire must have burned 61 hours of real-life play on Normal speed in '
+     "all (30.5 on Fast, 101.7 on Slow; on the game's clock): a burnout counts its whole burn, "
+     'wood added counts the time burned so far, water counts nothing, paused time nothing. Then 12 trips of water '
+     '(the 4th puts a lit fire out; while it burns, 10 minutes between trips starts the count again -- 10 minutes '
+     "on the game's clock, 5, 10 or 16 minutes 40 seconds of real-life play on Fast, Normal or Slow: each trip "
+     "sets a timer 600 seconds ahead on the game's clock, 0x433BCA -> 0x426790); then, with the fire "
+     "out, a villager dropped on the key's spot finds it.", gm.RUNNING),
 )
 
 
@@ -606,7 +608,8 @@ BLOW_LINE = ("Brewing a potion blows up {blow} of the time at this village's Alc
 # against the code: rand(300) at 0x4586E1; 17.12%, 33.8%, 50.44%, 67.07%; the fire or Aromatherapy, 0x455C00; Easy
 # rolls only 24.95% of age units, 0x460282 and 0x455C14; the game's word is "Medium").
 POTION_EFFECTS_LINE = (
-    "Potion effects are kept 10 real-life minutes (feels smarter, scientific clarity, hiccups, much healthier, feels "
+    "Potion effects are kept 10 real-life minutes (real time, the same at every speed: the end is a moment on the "
+    "computer's clock, 0x403330, so paused time counts too, and saving ends every effect) (feels smarter, scientific clarity, hiccups, much healthier, feels "
     "better with 10 to 14 health, stinky breath, tasted soapy, crazy talk), 5 real-life minutes (light and springy, "
     "fertile +50, everyone else slowing down, very fertile +100), with no time limit (the two vials carried to the "
     "ocean) or not at all (the rest, such as curing sickness, which happen at once).")
@@ -635,9 +638,10 @@ CHANCE_LINES = (
     # fire's 20 game hours, 0x433A33, under Hidden villager stats.)  0x427DD0 (from the loader's step 0x427B40) calls
     # 0x427D90, which saves the settings, the slot and slot + 20, once 600 seconds of the system clock 0x401ED0 have
     # passed; whether that step runs while a village is played is not traced.
-    ("Not traced: how long a fixed-spot coral from puzzle code stays out; the sharks' timer; and whether the game's "
-     "10-real-life-minute save timer (0x427DD0, which saves the slot and its copy 20 slots on) runs while a village "
-     "is played: a 30-minute live run left no new save.", False),
+    ("Not traced: how long a fixed-spot coral from puzzle code stays out, and the sharks' timer (so their clocks, "
+     "real time or on the game's clock, are not known). The autosave every 10 real-life minutes (real time, the same at "
+     "every speed, paused too) is under Autosave above: 0x427DD0 is the last step of the per-frame update; an "
+     "earlier 30-minute live run that left no new save is not explained.", False),
 )
 
 
@@ -671,7 +675,7 @@ def potion_line(speed: int) -> str:
 CANT_DRINK_LINE = (
     "\"That villager can't drink another potion so soon.\" is the game's answer when the rule above refuses a "
     "potion: that villager already has the same potion's effect, or already has 4 effects. It has no timer of "
-    "its own; it lasts until that villager's effect ends (10 or 5 real-life minutes after drinking, as the effect "
+    "its own; it lasts until that villager's effect ends (10 or 5 real-life minutes after drinking, real time, as the effect "
     "line says), for that villager and that effect only, so other villagers, and other potions while under 4 "
     "effects, can still be drunk. Saving the game ends every villager's potion effects, so time away never "
     "carries one over and a save holds none to count down.")
@@ -733,7 +737,8 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                         "collection raises the population limit by 5, and all four by 25 in all.", gm.CODE)
     # The chief's call 0x42DB30: always rare (0x42DC33), refused when the piece is out (0x42D7F0), carried (0x45EBF0)
     # or an owned Tablet piece (0x42D830); an earlier line named only the last.  The rule is in Chances.
-    add("Collectibles", "A Tribal Chief with Leadership 3 can call a rare collectible every 23 real-life hours (when "
+    add("Collectibles", "A Tribal Chief with Leadership 3 can call a rare collectible every 23 real-life hours (real "
+                        "time, at any speed, paused or closed; when "
                         "the call fails: Chances, The Tribal Chief's rare collectible).", gm.CODE)
     if village.has(RARE_RETRY) is not False:
         add("Collectibles", gm.patch_words(village, RARE_RETRY, "a failed call is tried again, up to 20 times"),
@@ -856,7 +861,8 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         tech=_i32(buf, POINTS), tech_words=f"Research brings them (the skill ÷ {divisor} at Science level "
                                            f"{level[SCIENCE]}); a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0, golden=village.has(GOLDEN) is True,
-        mushroom_words="About one thing appears each real-life minute while playing (not paused), 30% of them "
+        mushroom_words="About one thing appears each real-life minute while playing (not paused; real time, the "
+                       "same at every speed), 30% of them "
                        "mushrooms in fair weather and all of them in rain, so about 18 mushrooms per real-life hour in "
                        "fair weather.",
         event_next=event_at,
