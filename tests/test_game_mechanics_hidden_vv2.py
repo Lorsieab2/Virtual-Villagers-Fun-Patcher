@@ -32,6 +32,7 @@ class Hidden2(HiddenChecks, unittest.TestCase):
         ('key', 'Enter and Esc (pop-up boxes)', C, ()),
         ('key', 'Typing in a name box', C, (D,)),
         ('key', 'Tab, the arrows, Page Up, Page Down, Home, End, Insert, Delete, F2, F4, F5 to F10', C, ()),
+        ('key', 'Store screens: no redraw or reroll key', C, ()),
         ('code', 'Typed codes and name cheats', C, (U,)),
         ('click', 'The mask (village screen)', C, (C, U)),
         ('click', 'Places that show their state (village)', C, (C, C, C, C, C, C, C, C, C, C, C, C, U)),

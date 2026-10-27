@@ -35,6 +35,7 @@ class Hidden4(HiddenChecks, unittest.TestCase):
         ('key', 'Typing in a name box', C, (D,)),
         ('key', 'Tab, the arrows, Page Up, Page Down, Home, End, Insert, Delete, F2, F4, F5, F9 and F10', C, ()),
         ('key', 'Event type 7 (village screen)', D, ()),
+        ('key', 'Store screens: no redraw or reroll key', C, ()),
         ('code', 'Typed codes and name cheats', C, (U,)),
         ('click', 'The tip spot (village screen)', C, (U,)),
         ('click', 'The collection displays (village)', C, (U,)),

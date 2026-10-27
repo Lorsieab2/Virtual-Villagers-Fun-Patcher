@@ -34,6 +34,7 @@ class Hidden3(HiddenChecks, unittest.TestCase):
         ('key', 'F3 and the keys not listed', C, ()),
         ('key', "The developer's three editors (behaviour scripts, the content map, waypoints)", D, ()),
         ('key', 'Event type 7 (village screen)', D, ()),
+        ('key', 'Store screens: no redraw or reroll key', C, ()),
         ('code', 'Typed codes and name cheats', C, (U,)),
         ('click', 'The tip spot (village screen)', C, (U,)),
         ('click', 'Places that show their state (village)', C, (C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, C, U, U)),

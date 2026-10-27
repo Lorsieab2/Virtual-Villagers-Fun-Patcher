@@ -52,6 +52,10 @@ TIP_QUEUE = 0x436E60
 SPOTS = {1: (-70, 1570), 2: (520, 1570), 3: (1250, 1510), 4: (-100, 827), 5: (420, 720), 6: (1250, 710),
          7: (-205, 200), 8: (340, 130), 9: (1140, 130)}
 
+# The store-like screens' slots, checked for any random draw (the tests read them): (start, end).
+RAND = 0x4032D0
+STORE_SLOTS = ((0x462A70, 0x462C80), (0x4633A0, 0x4633F0), (0x463770, 0x4639C0), (0x464230, 0x464290), (0x464D60, 0x464D90), (0x464D90, 0x464F30), (0x465640, 0x465820))
+
 STORY = "vv3_story_cheat_upgrades"
 ORIGINS = "vv3_enable_origins_exclusive_features"
 FACTIONS = "vv3_both_factions"
@@ -114,6 +118,14 @@ def _keys() -> list[Entry]:
         Entry(KEY, "Event type 7 (village screen)", (
             "the village screen passes a type-7 event to 0x42CAD0, which returns at once; nothing makes type-7 events "
             "(the event pump makes characters and keys only)"), C, dead=True),
+        Entry(KEY, "Store screens: no redraw or reroll key", (
+            "no key or click redraws, refreshes or rerolls what The Secret City offers. Its Tech screen and the two screens that share its input slot each "
+            "offers a fixed list at fixed prices; its input, mouse and button slots "
+            "(0x462A70, 0x4633A0, 0x463770, 0x464230, 0x464D60, 0x464D90, 0x465640) draw no random number (0x4032D0) and test only Esc and F1 (above)."
+            ""
+            " The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with "
+            "no key handling of their own (native/ has no WM_KEYDOWN, WM_CHAR or key-state code), so only "
+            "Windows' own dialog keys work there; their lists are fixed"), C),
     ]
 
 

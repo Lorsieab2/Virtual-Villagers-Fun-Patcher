@@ -46,6 +46,10 @@ STRINGS_FIRST, STRINGS_COUNT = 81, 538   # F8: string 81 + the counter, the coun
 SPOTS = {1: (-70, 1570), 2: (520, 1570), 3: (1250, 1510), 4: (-100, 827), 5: (800, 790), 6: (1250, 710),
          7: (-205, 200), 8: (340, 130), 9: (1140, 130)}
 
+# The store-like screens' slots, checked for any random draw (the tests read them): (start, end).
+RAND = 0x403660
+STORE_SLOTS = ((0x441390, 0x4413C0), (0x4415F0, 0x4416F0))
+
 STORY = "vv5_story_cheat_upgrades"
 ORIGINS = "vv5_enable_origins_exclusive_features"
 DIFFICULTY = "vv5_difficulty_settings"
@@ -112,6 +116,14 @@ def _keys() -> list[Entry]:
         Entry(KEY, "Event type 7 (village screen)", (
             "theMainScene passes a type-7 event to 0x443600, which returns at once; nothing makes type-7 events (the "
             "event pump makes characters and keys only)"), C, dead=True),
+        Entry(KEY, "Store screens: no redraw or reroll key", (
+            "no key or click redraws, refreshes or rerolls what New Believers offers. Its Tech screen (CTechScene) "
+            "offers a fixed list at fixed prices; its input and button slots "
+            "(0x441390, 0x4415F0) draw no random number (0x403660) and test only Esc and F1 (above)."
+            " The screen's mouse slot 0x4413C0 draws random numbers only to scatter 8 sparkles over an icon the player can afford while the pointer moves onto it (rand(70) twice a sparkle); a click there opens that icon's description box; nothing it offers changes."
+            " The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with "
+            "no key handling of their own (native/ has no WM_KEYDOWN, WM_CHAR or key-state code), so only "
+            "Windows' own dialog keys work there; their lists are fixed"), C),
     ]
 
 

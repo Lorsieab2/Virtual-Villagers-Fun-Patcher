@@ -45,6 +45,10 @@ TIP_QUEUE = 0x4257A0
 SPOTS = {1: (-150, 1200), 2: (300, 1200), 3: (850, 1200), 4: (-150, 500), 5: (300, 570), 6: (850, 500),
          7: (-150, 0), 8: (300, 0), 9: (850, 0)}
 
+# The store-like screens' slots, checked for any random draw (the tests read them): (start, end).
+RAND = 0x4031A0
+STORE_SLOTS = ((0x441D80, 0x442280), (0x443770, 0x4437C0), (0x4437C0, 0x443AD0))
+
 STORY = "vv2_story_cheat_upgrades"
 ORIGINS = "vv2_enable_origins_exclusive_features"
 TIP_WORDING = "vv2_numeric_keys_tip_wording"
@@ -95,6 +99,14 @@ def _keys() -> list[Entry]:
                  "never makes those characters (0x403C00).", C),)),
         Entry(KEY, "Tab, the arrows, Page Up, Page Down, Home, End, Insert, Delete, F2, F4, F5 to F10", (
             "no screen of The Lost Children reacts to them (no input slot tests them)"), C),
+        Entry(KEY, "Store screens: no redraw or reroll key", (
+            "no key or click redraws, refreshes or rerolls what The Lost Children offers. Its Tech screen "
+            "offers a fixed list at fixed prices; its input, mouse and button slots "
+            "(0x441D80, 0x443770, 0x4437C0) draw no random number (0x4031A0) and test only Esc and F1 (above)."
+            ""
+            " The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with "
+            "no key handling of their own (native/ has no WM_KEYDOWN, WM_CHAR or key-state code), so only "
+            "Windows' own dialog keys work there; their lists are fixed"), C),
     ]
 
 

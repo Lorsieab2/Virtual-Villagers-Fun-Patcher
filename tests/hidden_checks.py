@@ -187,6 +187,17 @@ class HiddenChecks:
                 self.assertIn((n, base), keys.random_picks(self.GAME, start, end))
                 self.assertIn(f"rand({n}) + {base}", gm.render(self.MODULE.hidden_facts()))
 
+    def test_no_store_slot_rerolls(self) -> None:
+        """The store-like screens' slots draw no random number, so nothing there can redraw what is offered."""
+        self.need_exe()
+        listed = " ".join(e.text for e in self.entries() if e.name == "Store screens: no redraw or reroll key").lower()
+        self.assertIn(f"({self.MODULE.RAND:#x})", listed)
+        for start, end in self.MODULE.STORE_SLOTS:
+            with self.subTest(slot=hex(start)):
+                calls = [o for _a, m, o in exe_reader.exe(self.GAME).disasm(start, end) if m == "call"]
+                self.assertNotIn(f"{self.MODULE.RAND:#x}", calls)
+                self.assertIn(f"{start:#x}", listed)
+
     def test_the_tip_spot(self) -> None:
         if self.SPOT is None:
             return

@@ -41,6 +41,10 @@ RANDOM_BASE, RANDOM_COUNT = 519, 30      # 0x424EF0: rand(30) + 519 (0x4256B0 pu
 TIP_QUEUE = 0x41C960
 CHAINED = frozenset(range(264, 287, 2))  # queued by 0x41C9A0 as the tutorial's next step
 
+# The store-like screens' slots, checked for any random draw (the tests read them): (start, end).
+RAND = 0x402F10
+STORE_SLOTS = ((0x434070, 0x434570), (0x435A60, 0x435AB0), (0x435AB0, 0x435E10))
+
 STORY = "vv1_story_cheat_upgrades"
 ORIGINS = "vv1_enable_origins_exclusive_features"
 NUMBER_KEYS = "vv1_number_keys"
@@ -90,6 +94,14 @@ def _keys() -> list[Entry]:
         Entry(KEY, "Tab, the arrows, Page Up, Page Down, Home, End, Insert, Delete, F2, F4, F5, F6, F9 and F10", (
             "no screen of A New Home reacts to them (no input slot tests them; the patcher's \"Reenable F6 Clothing "
             "Change Cheat\" adds F6, below)"), C),
+        Entry(KEY, "Store screens: no redraw or reroll key", (
+            "no key or click redraws, refreshes or rerolls what A New Home offers. Its Tech screen "
+            "offers a fixed list at fixed prices; its input, mouse and button slots "
+            "(0x434070, 0x435A60, 0x435AB0) draw no random number (0x402F10) and test only Esc and F1 (above)."
+            ""
+            " The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with "
+            "no key handling of their own (native/ has no WM_KEYDOWN, WM_CHAR or key-state code), so only "
+            "Windows' own dialog keys work there; their lists are fixed"), C),
     ]
 
 
