@@ -3291,9 +3291,27 @@ class App(tk.Tk):
         messagebox.showinfo(
             "Restore Saves",
             f"Restored {what} from the backup of {info.label}: every file was "
-            f"checked against the backup.{undo}",
+            f"checked against the backup.{undo}{self._second_faction_words(result)}",
             parent=parent,
         )
+
+    @staticmethod
+    def _second_faction_words(result) -> str:
+        """The Secret City: which saves had their second faction linked again (vv3_second_faction)."""
+        lines = []
+        backups = sum(1 for slots in result.backups_relinked.values() for ok in slots.values() if ok)
+        if backups:
+            lines.append(f"The second faction was linked again in {backups} save(s) of older backups, made before "
+                         "the patcher kept it.")
+        for slot, ok in sorted(result.second_factions.items()):
+            lines.append(f"Save {slot}: its second faction was linked again." if ok else
+                         f"Save {slot}: its second faction could not be found for this backup's save (no copy "
+                         "the game wrote of it is left); restore a newer backup to keep it.")
+        missing = sum(1 for slots in result.backups_relinked.values() for ok in slots.values() if not ok)
+        if missing:
+            lines.append(f"{missing} save(s) in older backups could not be linked again: no copy the game wrote "
+                         "of them is left.")
+        return "\n\n" + "\n".join(lines) if lines else ""
 
     # -- Rename Tribe -------------------------------------------------------
 

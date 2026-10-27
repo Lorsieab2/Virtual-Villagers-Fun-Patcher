@@ -268,6 +268,7 @@ FILES = [
     "src/vv_save_backup.py",
     # Its game-speed changes replay each game's own speed routine; vv_save_backup imports it.
     "src/vv_save_clock.py",
+    "src/vv3_second_faction.py",
     # Rename Tribe; the GUI imports it too.
     "src/vv_tribe_rename.py",
     # Check Saves & Logs and Repair Saves & Logs; the GUI imports it, and Check Saves & Logs runs
