@@ -67,7 +67,7 @@ PINS = (
     ("building", "The campfire", "C", "O"),
     ("building", "The medical area", "C", "U"),
     ("item", "The herbs", "C", "OC"),
-    ("item", "Brewing a potion", "E", "EOO"),
+    ("item", "Brewing a potion", "E", "COO"),   # the code's spoil time, then the owner's word (2026-10-27)
     ("item", "Drinking a potion", "E", "O"),
     ("item", "The recipe book", "C", ""),
 ) + tuple(("item", items._potion_name(p), "C", "") for p in range(41)) + (

@@ -164,9 +164,13 @@ class SettledClocks(unittest.TestCase):
                                        r"every speed\), so the whole time closed counts; while the game is paused it "
                                        r"stands still")
 
-    def test_the_vv3_potion_follows_the_speed(self) -> None:
-        """The owner: a brewed potion's time follows the game speed."""
-        self.assertIn("the potion's time runs on the game's clock (it follows the speed, the owner's word)", self.text["general 3"])
+    def test_the_vv3_potion_gives_both_the_code_and_the_owners_word(self) -> None:
+        """The owner (2026-10-27), on the code's 300 real seconds vs "a brewed potion's time follows the game speed":
+        "Put both".  0x430E60 sets the deadline on the computer's clock; the pot's countdown is drawn at the speed."""
+        text = self.text["general 3"]
+        self.assertIn("The game spoils a brewed potion 5 real-life minutes after it is brewed, the same at every speed",
+                      text)
+        self.assertIn("The owner sees a brewed potion's time follow the game speed", text)
 
     def test_the_vv2_fire_is_set_by_the_speed_it_is_lit_at(self) -> None:
         # The fuel 0x4624CF..0x46253F: 0x8CA0, 0x11940 or 0x23280 seconds; rescale 0x43B5A0 on a speed change.

@@ -403,11 +403,13 @@ def _items() -> list[Entry]:
             "potions below. The brew blows up " + chance(at_most(100, 30)) + ", " + chance(at_most(100, 15))
             + " or " + chance(at_most(100, 0)) + " of the time at Alchemy 1, 2 or 3 (Technologies, Alchemy), costing "
             "the villager tending it 30 to 69 health."), VERIFIED_E,
-            (("The pot's on-screen countdown for a brewed potion (5:00, 2:30 or 8:20 at the start on Normal, Fast or "
-              "Slow) is under Tech points and effects; the potion is gone at 0:00, which comes sooner on Fast and later "
-              "on Slow: the potion's time runs on the game's clock (it follows the speed, the owner's word). The save does not keep "
-              "the pot.", VERIFIED_E),
-             ("A brewed potion's duration follows the game speed (the countdown shown changes with it).", gm.OWNER),
+            (("The game spoils a brewed potion 5 real-life minutes after it is brewed, the same at every speed: its "
+              "deadline is the computer's clock + 300 seconds (0x430E60, checked by the pot's update 0x430F10). The pot's "
+              "on-screen countdown shows that time on the game's clock -- it starts at 5:00, 2:30 or 8:20 on Normal, Fast "
+              "or Slow (Tech points and effects) -- and reaches 0:00 when the potion spoils. The save does not keep the "
+              "pot.", VERIFIED_C),
+             ("The owner sees a brewed potion's time follow the game speed (the countdown shown changes with it).",
+              gm.OWNER),
              ("The pot can be emptied by dropping a villager on the table with 3 herbs: the brewed potion is thrown "
               "away and the herbs stay on the table.", gm.OWNER))),
         Entry(ITEM, "Drinking a potion", (

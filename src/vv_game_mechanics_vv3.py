@@ -661,7 +661,8 @@ POTION_COUNTDOWN = {gm.FAST: "2:30", gm.NORMAL: "5:00", gm.SLOW: "8:20"}
 def potion_line(speed: int) -> str:
     return (f"A brewed potion: the pot's on-screen countdown starts at {POTION_COUNTDOWN[speed]} on "
             f"{gm.speed_name(speed)} speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with "
-            "the speed), and the potion is gone when it reaches 0:00.")
+            "the speed), and the potion is gone when it reaches 0:00 -- 5 real-life minutes after it was brewed at "
+            "every speed, by the computer's clock (0x430E60, 0x430F10).")
 
 
 # "That villager can't drink another potion so soon." (string 0x1A7, eSayCantDrinkAgain; the text at 0x49B9CC)

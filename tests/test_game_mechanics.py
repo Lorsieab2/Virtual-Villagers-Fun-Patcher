@@ -362,7 +362,8 @@ class BrewedPotion(unittest.TestCase):
                 self.assertEqual(potion[0].text, (
                     f"A brewed potion: the pot's on-screen countdown starts at {shows} on {gm.speed_name(speed)} "
                     "speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with the speed), and "
-                    "the potion is gone when it reaches 0:00."))
+                    "the potion is gone when it reaches 0:00 -- 5 real-life minutes after it was brewed at every "
+                    "speed, by the computer's clock (0x430E60, 0x430F10)."))     # the owner, 2026-10-27: "put both"
                 # Traced on the game's live code and seen by the owner: no UNCONFIRMED.
                 self.assertTrue(all(f.confirmed for f in potion))
                 text = gm.render(facts)
