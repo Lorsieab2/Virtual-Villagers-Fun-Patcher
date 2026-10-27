@@ -1918,14 +1918,14 @@ game always starts.
 
 Bulk mode validates and renders all five inputs before writing. Each supplied
 game folder is then copied into a hidden temporary sibling folder
-(`.<Modded folder name>.staging-<id>`), the modified EXE and its companion files
+(`.vvfp-stage-<id>`, short so it is never deeper than the output folder), the modified EXE and its companion files
 are written and verified there, and only then is it renamed into place as the
 short **`- Modded`** output folder. Re-running with overwrite replaces that same
 Modded folder: files you added to it are carried over, the previous folder is
-moved aside to a hidden `.backup-<id>` sibling while the new one is put in
+moved aside to a hidden `.vvfp-backup-<id>` sibling while the new one is put in
 place, and that backup is deleted once the new folder verifies, or renamed back
 if anything fails. If a failure leaves something that cannot be restored
-automatically, it is kept in a `.recovery-<id>` sibling rather than deleted.
+automatically, it is kept in a `.vvfp-recovery-<id>` sibling rather than deleted.
 The supplied original folders remain unchanged.
 
 Stock game executables, saves, and generated playtest outputs are never committed.
