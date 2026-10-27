@@ -104,6 +104,25 @@ class SecondFaction(unittest.TestCase):
         self.assertTrue(self.linked(old), "the old backup has its second faction again")
         self.assertTrue(self.linked(self.folder), "and so does the restored save")
 
+    def test_saves_that_already_match_the_backup_still_get_it_back(self):
+        """Codex, PR #650 (the owner's own case): the live saves are already the restored backup's, faction
+        file and all, so the plan alone has nothing to do; with the backups linked first (as the Restore
+        window now does), the repaired faction file is what the restore brings back."""
+        old = self.folder / "Backups" / "Backup 2026-10-25 21-58-47"
+        old.mkdir(parents=True)
+        paused = backup.pause_save_bytes(3, self.save)
+        (old / f"{BASE}1.ldw").write_bytes(paused)
+        faction.faction_file(old, 1).parent.mkdir(parents=True)
+        faction.faction_file(old, 1).write_bytes(self.dat.read_bytes())
+        (self.folder / f"{BASE}1.ldw").write_bytes(paused)              # the earlier restore
+        (self.folder / f"{BASE}21.ldw").write_bytes(self.save)          # the game's own copy
+        (old / f"{BASE}21.ldw").write_bytes(self.save)
+        self.assertEqual(backup.plan_restore(self.folder, old).changes, 0)
+        backup.relink_backups(self.folder)
+        self.assertGreater(backup.plan_restore(self.folder, old).changes, 0)
+        backup.restore_backup(self.folder, old, None, NoGame(), NOW + timedelta(minutes=1))
+        self.assertTrue(self.linked(self.folder), "the live save has its second faction again")
+
     def test_no_copy_means_no_guess(self):
         old = self.folder / "Backups" / "Backup 2026-10-25 21-58-47"
         old.mkdir(parents=True)

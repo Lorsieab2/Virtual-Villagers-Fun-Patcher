@@ -1228,7 +1228,9 @@ class RestoreGuiTests(unittest.TestCase):
 
     def test_restore_planning_runs_off_the_main_thread(self) -> None:
         run = ast.get_source_segment(self.source, self.method("_run_restore"))
-        self.assertIn("lambda: vv_save_backup.plan_restore(folder, info.path, slot)", run)
+        # Behind the wait window, with The Secret City's backups linked again first (Codex, #650).
+        self.assertIn("self._run_with_wait(\"Checking the backup\\u2026\", check)", run)
+        self.assertLess(run.index("vv_save_backup.relink_backups(folder)"), run.index("return vv_save_backup.plan_restore(folder, info.path, slot)"))
         self.assertEqual(run.count("vv_save_backup.plan_restore("), 1)
 
     def test_long_dialogs_scroll(self) -> None:

@@ -3240,10 +3240,13 @@ class App(tk.Tk):
         try:
             # Hashes both copies of every file, which can take a while on a
             # network Documents: off the main thread, behind the wait window.
-            plan = self._run_with_wait(
-                "Checking the backup\u2026",
-                lambda: vv_save_backup.plan_restore(folder, info.path, slot),
-            )
+            # The Secret City: older backups get their second faction's link back first (Codex, #650), so a
+            # backup the saves already match still restores the repaired faction file.
+            def check() -> "vv_save_backup.RestorePlan":
+                vv_save_backup.relink_backups(folder)
+                return vv_save_backup.plan_restore(folder, info.path, slot)
+
+            plan = self._run_with_wait("Checking the backup\u2026", check)
         except (vv_save_backup.BackupError, OSError) as exc:
             messagebox.showerror("Restore Saves", str(exc), parent=parent)
             return
