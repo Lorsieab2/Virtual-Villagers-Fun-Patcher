@@ -23,16 +23,22 @@ GAME = 2
 
 PINNED = {
     "Every technology": "CC",
+    "Farming level 1": "CCC",
     "Farming level 2": "CCCE",
     "Farming level 3": "CCC",
+    "Exploration level 1": "CC",
     "Exploration level 2": "CCU",
     "Exploration level 3": "CC",
+    "Science level 1": "CC",
     "Science level 2": "CCC",
     "Science level 3": "CCC",
+    "Medicine level 1": "CC",
     "Medicine level 2": "CC",
     "Medicine level 3": "CCCC",
+    "Engineering level 1": "CC",
     "Engineering level 2": "CCC",
     "Engineering level 3": "CCCC",
+    "Culture level 1": "CCC",
     "Culture level 2": "CCCUU",
     "Culture level 3": "CCCC",
     "Fire": "UEE",
@@ -64,6 +70,11 @@ PINNED = {
     "The fire pit": "EC",
     "Mushrooms": "EEC",
     "Collectibles": "EE",
+    "Butterfly Collection": "EC",
+    "Shell Collection": "EC",
+    "Beetle Collection": "EC",
+    "Pebble Collection": "EC",
+    "All four collections": "CC",
     "Stews": "ECCU",
     "A snack (the food store)": "E",
     "Teaching children": "CC",
@@ -78,7 +89,7 @@ PINNED = {
     "Origins: Villager Details rows": "UUUUC",
     "Story / Cheat Upgrades": "CCCCC",
 }
-COUNTS = {"technology": 13, "puzzle": 16, "building": 11, "item": 7, "patcher": 8}
+COUNTS = {"technology": 19, "puzzle": 16, "building": 11, "item": 12, "patcher": 8}
 
 # The tech screen's prices: (the level-3 "mov edx" address, the level-2 one) for each technology (0x4437F0..0x443A2C).
 PRICE_SITES = {"Farming": (0x44381D, 0x443824), "Exploration": (0x443875, 0x44387C), "Science": (0x4438CD, 0x4438D4),
@@ -141,6 +152,31 @@ class TheEntries(unittest.TestCase):
         for tech, (two, three) in items.TECH_COSTS.items():
             self.assertIn(f"{two:,} tech points", text(f"{tech} level 2"))
             self.assertIn(f"{three:,} tech points", text(f"{tech} level 3"))
+            self.assertEqual(entry(f"{tech} level 1").lines[0][0], items.LEVEL_ONE)     # level 1, its own entry
+        self.assertEqual(sum(1 for e in items.ENTRIES if e.kind == items.TECH), 1 + 3 * 6)
+
+    @unittest.skipUnless(exe.available(GAME), "the stock exe is not here")
+    def test_each_collection_and_the_room_it_gives_against_the_exe(self) -> None:
+        """Each collection has its own entry; the room check gives 5 for each complete one and makes four 25, and
+        the completion messages are the game's own, shown at the addresses cited."""
+        game = exe.exe(GAME)
+        for at, first in ((0x44B32B, 0), (0x44B342, 0xC), (0x44B356, 0x18), (0x44B36A, 0x24)):
+            self.assertEqual(game.instruction(at), "push " + (hex(first) if first else "edi"))
+        self.assertEqual(game.instruction(0x44B378), "cmp edi, 0x14")
+        self.assertEqual(game.instruction(0x44B37D), "mov edi, 0x19")
+        self.assertEqual(game.instruction(0x44B3AD), "add edi, 0x5a")
+        for at, string_id, name in ((0x4634DB, 0x1DE, "Butterfly"), (0x463515, 0x1DF, "Shell"),
+                                    (0x46354F, 0x1E0, "Beetle"), (0x463589, 0x1E1, "Pebble"),
+                                    (0x463609, 0x1E2, None)):
+            self.assertEqual(game.instruction(at), f"push {hex(string_id)}")
+            words = exe.text(GAME, string_id)
+            if name:
+                self.assertTrue(words.startswith(f"{name} Collection"), words)
+                self.assertTrue(words.endswith("increased by 5."), words)
+                self.assertIn(f"{name} Collection", text(f"{name} Collection"))
+            else:
+                self.assertTrue(words.endswith("increased by 10!"), words)
+        self.assertIn("90 + 25 = 115", text("All four collections"))
 
     def test_the_eighteen_stews(self) -> None:
         self.assertEqual(len(items.STEW_EFFECTS), 18)

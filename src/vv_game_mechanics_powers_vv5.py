@@ -57,6 +57,16 @@ RULES = (
      "and y above 445): the game says \"Your vision and power are blocked here!\" (0x4234C8)."),
 )
 
+# Stock vs patched (the owner, 2026-10-27: "say what god powers do"): every patch row of the patcher's catalog
+# (data/builds.json and data/vv5_*_feature.json) that touches a God Power, searched by the powers' names, their
+# handler (0x422EB0, 0x4234A0), their table (0x4CA000) and costs (0x498840) and the Divine Energy field: only Revive's
+# record (the safety rows every patched New Believers gets, and Population 256's allocator rows at 0x46FDE0).
+PATCHED = ("Stock or patched: no patch changes a power's cost, range, duration, odds or targets. Only Revive changes, "
+           "and only when no villager record is free for the stand-in it makes: every game the patcher writes refuses "
+           "that cast, nothing spent, where the stock game crashes; with the patcher's \"256 Villagers "
+           "(Experimental)\" (off by default) the records are 256 instead of 150, so that refusal comes later (see "
+           "Revive).")
+
 # (power index, main line, sub-lines); every sub-line is from the code cited in it.
 EFFECTS = (
     (0, "lasts 2 minutes 6 seconds of real-life time (real time, the same at every speed), paused or not (the real "
@@ -115,7 +125,8 @@ EFFECTS = (
       "The game also makes a second villager record for the dead one (same name, family, name number and age, 0 "
       "health), which is not shown on the island (0x41FFF0, 0x420142). With no free record (150 in use) the stock "
       "spell crashes the game; in a game written by the patcher it is refused instead, nothing spent: \"There's no "
-      "room in your village to revive this person.\" (the patcher's safety fix at 0x2341A).",
+      "room in your village to revive this person.\" (the patcher's safety fix at 0x2341A). With the patcher's \"256 "
+      "Villagers (Experimental)\" the records are 256, so the refusal comes only with all 256 in use.",
       "On the dry lake bed while The Lake is unsolved, no target is needed: with no progress yet The Lake gets 1 of "
       "its 2 points (0x4233DD); once it has progress, a Revive there gives none.")),
     (9, "makes a living believer of 14 or more 5 years old (age 100 age units), counting the age down by 3 age units "
@@ -167,6 +178,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
         f"{name} {cost} (\"{hint}\")" for name, cost, hint in TABLE) + ".")
     for text in RULES:
         add(text, sub=True)
+    add(PATCHED, gm.CODE, True)
     for index, text, subs in EFFECTS:
         name, cost, _ = TABLE[index]
         add(f"{name} ({cost}): {text}")

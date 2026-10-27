@@ -36,6 +36,11 @@ def _buy(tech: str, level: int) -> str:
             "at once and the level is never lost.")
 
 
+# Level 1 of each technology, its own entry like The Secret City's to New Believers' (the owner, 2026-10-27: "Same
+# between the virtual villagers games"): what a new village has before anything is bought.  Every line restates, for
+# level 1, a reading cited under that technology's level 2 and 3 below.
+LEVEL_ONE = "a new village's level, no price (every technology is set to 1 for a new village, 0x425229)."
+
 TECHNOLOGIES = (
     Entry(TECH, "Every technology", (
         ("The Lost Children has six: Farming, Exploration, Science, Medicine, Engineering and Culture. A new village "
@@ -43,6 +48,14 @@ TECHNOLOGIES = (
          "each one.", C),
         # docs/hidden-gates-all-five-games.md, VV2 5.1: the research dispatcher case 0x45FE6A has no tech-level gate.
         ("Research goes on at every level: no technology level stops it.", C),
+    )),
+    Entry(TECH, "Farming level 1", (
+        (LEVEL_ONE, C),
+        # 0x45FD1B..0x45FDC6 (coconuts from level 2), 0x430174 (the coconut trees' drop needs Farming >= 2).
+        ("Farmers do not harvest coconuts, and a villager dropped on the coconut trees does not harvest them; the "
+         "farmers' picks at every level are under Chances (Which food a farmer gathers).", C),
+        # 0x42FC42..0x42FC72: Sustainable Fishing needs Farming 3.
+        ("Sustainable Fishing cannot be started (it needs Farming level 3).", C),
     )),
     Entry(TECH, "Farming level 2", (
         (_buy("Farming", 2), C),
@@ -62,6 +75,14 @@ TECHNOLOGIES = (
         ("It is needed for Sustainable Fishing: a villager with Farming or Research skill 88 or more dropped in "
          "the water catches algae-eating fish.", C),
     )),
+    Entry(TECH, "Exploration level 1", (
+        (LEVEL_ONE, C),
+        # 0x415FF5 (rand(100) < Exploration + 4 each 2 s), 0x4154B8 (mushroom below 65 - 15 x Exploration), 0x415D99
+        # (rare below 2 x Exploration + 2, uncommon below 2 x Exploration + 14).
+        ("Something appears on the ground 5% of each 2-second check (about 40 real-life seconds' wait; real time, "
+         "the same at every speed, paused too); 50% of them are mushrooms; a collectible is rare 4% of the time, "
+         "uncommon 12%, otherwise common. Exact odds under Chances.", C),
+    )),
     Entry(TECH, "Exploration level 2", (
         (_buy("Exploration", 2), C),
         # 0x415FF5 (spawn: rand(100) < Exploration + 4 each 2 s), 0x4154B8 (mushroom below 65 - 15 x Exploration),
@@ -79,6 +100,13 @@ TECHNOLOGIES = (
         ("Something appears 7% of each check (about 29 real-life seconds' wait; real time, the same at every speed, paused too); 20% of them are mushrooms; a "
          "collectible is rare 8% of the time (uncommon 12%).", C),
     )),
+    Entry(TECH, "Science level 1", (
+        (LEVEL_ONE, C),
+        # Callback 31 0x46361B..0x463809: Research / 11 at Science 1 (/ 7 while catching up).
+        ("Each successful research session gives Research ÷ 11 tech points (÷ 7 while catching up), rounded down -- "
+         "nothing below Research 11; twice that on Fast speed, half on Slow when above 1, and a lit fire adds 1 more "
+         "10% of the time.", C),
+    )),
     Entry(TECH, "Science level 2", (
         (_buy("Science", 2), C),
         # Callback 31 0x46361B..0x463809.
@@ -95,6 +123,14 @@ TECHNOLOGIES = (
          "5 at level 2).", C),
         # 0x41C4E2: a picture drawn at Science >= 3.
         ("The village picture gains one more drawn piece at level 3; it changes nothing in play.", C),
+    )),
+    Entry(TECH, "Medicine level 1", (
+        (LEVEL_ONE, C),
+        # 0x43B2ED (sickness), 0x44F7A5 (conception rand(300) <= Parenting + 50 x Medicine - 50), 0x43BD73 (old age),
+        # 0x43BCC9 / 0x43B361 (elderly from 840 + 160 x Medicine), 0x44BA6A (twins only at Medicine 3).
+        ("Falling sick each age unit: 4 in 1,440 with the fire lit, 7 in 1,440 with it out (Chances: Falling sick); "
+         "conception Parenting + 1 in 300 for the villager who started the embrace (Births and gender); elderly from "
+         "50 years; old-age rolls from 55, death certain from 65 (Death and graves); no twins.", C),
     )),
     Entry(TECH, "Medicine level 2", (
         (_buy("Medicine", 2), C),
@@ -117,6 +153,13 @@ TECHNOLOGIES = (
         # Engineering 3).
         ("It is needed for The Hospital: its site appears at Medicine 3 with Engineering 3.", C),
     )),
+    Entry(TECH, "Engineering level 1", (
+        (LEVEL_ONE, C),
+        # 0x46012C..0x46028A: the thorns, the dam and the hospital need >= 2; the ruins, the vine wall and hut
+        # examining need 3.  0x4307B0: the dam drop needs >= 2.
+        ("Builders never work on their own on the briar thorns, the dam, the hospital, the ancient ruins or the vine "
+         "wall, and never examine huts; a villager dropped on the dam site does not start it.", C),
+    )),
     Entry(TECH, "Engineering level 2", (
         (_buy("Engineering", 2), C),
         # 0x46012C..0x4601E6.
@@ -134,6 +177,14 @@ TECHNOLOGIES = (
         # 0x43041C: the ruins drop needs Engineering 3 and Culture 3 -> "Uncovering ancient ruins" 0x45A000.
         ("A villager dropped on the ruins uncovers them (with Culture 3).", C),
         ("With Medicine 3 the hospital's site appears.", C),
+    )),
+    Entry(TECH, "Culture level 1", (
+        (LEVEL_ONE, C),
+        # 0x44F86F: rand(2) + 4 at Culture 1.
+        ("A baby whose parents share the same best skill starts with 4 or 5 points in it (each 1 in 2); otherwise "
+         "the baby's 5 to 7 is not changed (Hidden villager stats).", C),
+        # 0x461A88..0x461ABE: rand(100) <= 3 x Culture.
+        ("Culture activities: 4% of an adult's leisure picks that start nothing, at 4,000 food or more.", C),
     )),
     Entry(TECH, "Culture level 2", (
         (_buy("Culture", 2), C),
@@ -358,6 +409,29 @@ ITEMS = (
          "picks it up (Collectibles).", E),
         ("A piece already found pays 100, 250 or 1,500 tech points by rarity; each complete collection raises the "
          "population limit by 5, all four by 25.", E),
+    )),
+    # Each collection, its own entry as on The Tree of Life's and New Believers' tabs (the owner, 2026-10-27).  The pieces:
+    # one found byte each at state 0x2E720 + piece, 12 a collection in the order 0, 12, 24, 36 (0x426120); the
+    # pickup's completion messages 0x4634B3..0x46360E (each shown once, flags +0x20F..+0x213); the room check
+    # 0x44B310 (+5 for each complete collection, 0x44B32E..0x44B375; 20 made 25 at 0x44B378).
+    *(Entry(ITEM, f"{name} Collection", (
+        (f"pieces {first + 1} to {first + 12} of the 48: 12 pieces (4 common, 4 uncommon, 4 rare); {opens}; only a "
+         "child under 14 dropped on one picks it up, and the collection is drawn at random among the open ones "
+         "(Chances).", E),
+        (f"Completing it raises the population limit by 5; the game says \"{name} Collection ... Your village "
+         f"population maximum is increased by 5.\" ({message}).", C),
+    )) for name, first, opens, message in (
+        ("Butterfly", 0, "it can appear from a new village on", "0x4634DB"),
+        ("Shell", 12, "it can appear from a new village on", "0x463515"),
+        ("Beetle", 24, "it appears only once The Overgrown Gong Piece is solved", "0x46354F"),
+        ("Pebble", 36, "it appears only once The Dam is built", "0x463589"))),
+    Entry(ITEM, "All four collections", (
+        # 0x44B378..0x44B37D: four complete collections count 25, not 20; 0x4635A7..0x46360E: the message, once.
+        ("with all four complete the population limit is 25 higher (90 + 25 = 115); the fourth collection adds 10 "
+         "(from 15 to 25), not 5.", C),
+        ("Completing the fourth shows that collection's own message (\"increased by 5\") and then \"All Collections "
+         "Complete! ... In addition to keeping the collections, your village population maximum is increased by "
+         "10!\": the two messages say 15 for a rise of 10 (the code's figure is the one above).", C),
     )),
     Entry(ITEM, "Stews", (
         ("Cooked in the pot from water, food and herbs; ready the moment it is made and kept 15 real-life minutes (real time, the same at every speed, paused too) "

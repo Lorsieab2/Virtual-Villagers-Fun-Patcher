@@ -58,6 +58,12 @@ def _buy(tech: str, level: int) -> str:
             "at once and the level is never lost.")
 
 
+# Level 1 of each technology, its own entry like The Secret City's to New Believers' (the owner, 2026-10-27: "Same
+# between the virtual villagers games"): what a new village has before anything is bought.  Every line restates, for
+# level 1, a reading cited under that technology's level 2 and 3 below.
+LEVEL_ONE = "a new village's level, no price (every technology starts at 1, 0x41C43E..0x41C45C)."
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # Technologies.  Every reading of a level below is cited; the Chances, Births and gender, Death and graves and Food
 # sources groups give the full odds where they are the same rule.
@@ -73,6 +79,14 @@ TECHNOLOGIES = (
          "you drop on the research spot still researches.", C),
         # 0x447481: call 0x41CEA0 (the sum), cmp 0x12, jge -> no research; the work-spot route 0x447DA7..0x447DC7 has no
         # such test.
+    )),
+    Entry(TECH, "Farming level 1", (
+        (LEVEL_ONE, C),
+        # 0x4472EB (the farmers' switch on Farming): level 1 picks the berry bush only.
+        ("Farmers pick only the berry bush (Food sources); the crop field never refills (0x42EC16) and a villager "
+         "dropped on the field does not plant or harvest (0x424BCC).", C),
+        # 0x4241D6: Farming > 2 for fishing; otherwise "Going swimming".
+        ("A villager dropped in the sea only goes swimming, beach cleaned or not.", C),
     )),
     Entry(TECH, "Farming level 2", (
         (_buy("Farming", 2), C),
@@ -109,6 +123,14 @@ TECHNOLOGIES = (
         ("It is needed for The Magic Fish of Fertility (a villager with Farming skill 90 or more dropped in the "
          "lagoon).", C),
     )),
+    Entry(TECH, "Fertility level 1", (
+        (LEVEL_ONE, C),
+        # 0x43DC6B, 0x446F6B, 0x44716C: rand(300) <= Parenting - 50 + 50 x Fertility.
+        ("Every conception roll: a baby when a roll of 0 to 299 is at most the Parenting of the villager who started "
+         "the embrace, so Parenting + 1 in 300 (Births and gender).", C),
+        # 0x43BC28: twins only at Fertility 3 or with The Magic Fish; triplets need both.
+        ("No twins unless The Magic Fish of Fertility has been found (then 7% of conceptions); never triplets.", C),
+    )),
     Entry(TECH, "Fertility level 2", (
         (_buy("Fertility", 2), C),
         # 0x43DC6B (live embrace) and 0x446F6B, 0x44716C (catch-up): rand(300) <= Parenting - 50 + 50 x Fertility.
@@ -127,6 +149,13 @@ TECHNOLOGIES = (
         # 0x44638D: the devotion pick "Sees something unusual..." 0x441750 needs The Idol and Fertility 3.
         ("With The Idol done it adds \"Sees something unusual...\" to the devotion picks (Spirituality).", C),
     )),
+    Entry(TECH, "Science level 1", (
+        (LEVEL_ONE, C),
+        # 0x43B2E9: Research / 7 at Science 1.
+        ("Each successful research session gives the researcher's Research skill ÷ 7 tech points, rounded down (a "
+         "researcher of 50 gets 7, one below 7 gets nothing).", C),
+        ("Digging for The Treasure cannot start (it needs Science level 3).", C),
+    )),
     Entry(TECH, "Science level 2", (
         (_buy("Science", 2), C),
         # 0x43B2E9: Research / 7, / 5, / 3 at Science 1, 2, 3.
@@ -142,6 +171,15 @@ TECHNOLOGIES = (
          "18 at level 2, 12 at level 1).", C),
         # 0x424682: digging (drop area 19) needs Science > 2 and Construction > 2, and Building 90 or digging started.
         ("It is needed, with Construction level 3, to start digging for The Treasure.", C),
+    )),
+    Entry(TECH, "Medicine level 1", (
+        (LEVEL_ONE, C),
+        # 0x42E5D4 (rand(2400) <= 3 at 1), 0x42E624 / 0x42EDFC (elderly from 840 + 160 x Medicine age units), 0x42EE8A
+        # (old age from 940 + 160 x Medicine).
+        ("A villager of 14 or more falls sick 4 in 2,400 each age unit (Chances); \"elderly\" from 50 years; the "
+         "old-age death rolls start at 55 and death is certain from 65 (Death and graves).", C),
+        # 0x418969: the antibiotics stranger is offered only below Medicine 3.
+        ("The island encounter whose stranger gives antibiotics (+1 Medicine level) can come (Island events).", C),
     )),
     Entry(TECH, "Medicine level 2", (
         (_buy("Medicine", 2), C),
@@ -161,6 +199,14 @@ TECHNOLOGIES = (
          "old-age rolls from 71, certain death from 81.", C),
         ("The antibiotics encounter no longer comes once Medicine is at level 3.", C),
     )),
+    Entry(TECH, "Construction level 1", (
+        (LEVEL_ONE, C),
+        # 0x4475D7 (blockage and field need >= 2), 0x447664 (ruins, chiseling, digging and hut repair need 3).
+        ("Builders do not clear the blockage, water the garden field, restore the ruins, chisel the idol, dig or "
+         "examine huts on their own.", C),
+        # 0x4244AC: the blockage drop needs Construction >= 2.
+        ("A villager dropped on the blockage is left confused.", C),
+    )),
     Entry(TECH, "Construction level 2", (
         (_buy("Construction", 2), C),
         # 0x4475D7: builders clear the blockage and water the garden field only at Construction >= 2.
@@ -178,6 +224,17 @@ TECHNOLOGIES = (
         # and Science 3).
         ("A villager dropped on the ruins restores them (with Spirituality level 2 or more); one dropped on the "
          "digging site digs (with Science level 3, and Building skill 90 or the digging already started).", C),
+    )),
+    Entry(TECH, "Spirituality level 1", (
+        (LEVEL_ONE, C),
+        # 0x424543 (burial needs >= 2), 0x424C73 (ruins need 2), 0x42499C / 0x424A03 (chiseling needs 3).
+        ("Nobody can bury the dead, so The Cemetery cannot be founded; the ruins cannot be restored and the idol "
+         "cannot be chiseled.", C),
+        # 0x41CED0: 3 x Spirituality + 3 for each of the four.
+        ("Devotion's roll is 4% to 16%, by how many of The Temple, The Cemetery, The Idol and The Golden Child are "
+         "done (Spirituality level 2 gives the rule).", C),
+        # 0x418955: the whale encounter is offered while Spirituality < 3.
+        ("The beached-whale encounter (\"Your tribe has gained spirituality\", +1 level) can come.", C),
     )),
     Entry(TECH, "Spirituality level 2", (
         (_buy("Spirituality", 2), C),

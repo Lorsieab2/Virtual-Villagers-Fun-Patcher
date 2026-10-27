@@ -459,6 +459,28 @@ def _items() -> list[Entry]:
             "already owned pays 100, 250 or 1,500 tech points (common, uncommon, rare) instead; Tablet pieces "
             "already owned never appear again. Each complete collection raises the population limit by 5, all four "
             "by 25."), VERIFIED_C),
+        # Each collection, its own entry as on The Tree of Life's and New Believers' tabs (the owner, 2026-10-27).  The
+        # pickup 0x42DF17..0x42E056: item kinds 0x34..0x63, 12 to a collection (0x42DE40: complete at 12 found); the
+        # first 4 of each common (0x42D660), the next 4 uncommon (0x42D6A0), the last 4 rare (0x42D6E0); a piece found
+        # again pays 100, 250 or 1,500 tech points (0x42DF48..0x42DF79); the completion message by kind range
+        # (0x42DF9A..0x42E015: tips 720 to 723), then All Collections Complete (tip 724, 0x42E056).  The room check
+        # 0x45FE30: +5 for each complete collection (0x45FE3C..0x45FE89), 20 made 25 (0x45FE8C..0x45FE91).
+        *(Entry(ITEM, f"{name} Collection", (
+            f"a set of 12 pieces (4 common, 4 uncommon, 4 rare); {opens}. A piece found again pays 100, 250 or 1,500 tech "
+            "points by rarity instead" + (" (and a Tablet piece already owned is never placed again)"
+                                          if name == "Tablet" else "") + "."),
+            VERIFIED_C,
+            ((f"Completing it raises the population limit by 5; the game says \"{name} Collection ... Your village "
+              "population maximum is increased by 5.\"", VERIFIED_C),))
+          for name, opens in (("Turtle Shell", "it can appear from a new village on"),
+                              ("Coral", "it can appear from a new village on"),
+                              ("Tablet", "it appears only once The Ruins is at least 2% restored"),
+                              ("Feather", "it can appear from a new village on"))),
+        Entry(ITEM, "All four collections", (
+            "with all four complete the population limit is 25 higher than without any (the room check makes the "
+            "four collections' 20 into 25), so the fourth collection adds 10; the game shows that collection's own "
+            "message and then \"All Collections Complete! ... your village population maximum is increased by "
+            "5!\", together the 10 the code gives."), VERIFIED_C),
         Entry(ITEM, "Grant Food (the chief's power)", (
             "from Leadership level 1, once every 23 real-life hours (real time, at any speed): 3 x Leadership x (10 to 29, each equally "
             "likely) food -- 30 to 87 at level 1, 60 to 174 at level 2, 90 to 261 at level 3."), VERIFIED_C),

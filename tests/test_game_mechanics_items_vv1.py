@@ -26,16 +26,22 @@ LETTER = {gm.CODE: "C", gm.RUNNING: "E", gm.CLAMP: "K", gm.OWNER: "O", False: "U
 # U UNCONFIRMED).
 PINNED = {
     "Every technology": "CC",
+    "Farming level 1": "CCC",
     "Farming level 2": "CCCCCCC",
     "Farming level 3": "CCCC",
+    "Fertility level 1": "CCC",
     "Fertility level 2": "CC",
     "Fertility level 3": "CCCCC",
+    "Science level 1": "CCC",
     "Science level 2": "CCC",
     "Science level 3": "CCC",
+    "Medicine level 1": "CCC",
     "Medicine level 2": "CCC",
     "Medicine level 3": "CCC",
+    "Construction level 1": "CCC",
     "Construction level 2": "CCC",
     "Construction level 3": "CCC",
+    "Spirituality level 1": "CCCC",
     "Spirituality level 2": "CCCCC",
     "Spirituality level 3": "CCCC",
     "The Well": "CC",
@@ -79,7 +85,7 @@ PINNED = {
     "Origins: Villager Details rows": "UCCCC",
     "Story / Cheat Upgrades": "CCCC",
 }
-COUNTS = {"technology": 13, "puzzle": 16, "building": 11, "item": 5, "patcher": 8}
+COUNTS = {"technology": 19, "puzzle": 16, "building": 11, "item": 5, "patcher": 8}
 
 # The tech screen's prices: (the level-3 "mov edx" address, the level-2 one) for each technology (0x435AF8..0x435D2E).
 PRICE_SITES = {"Farming": (0x435B11, 0x435B18), "Fertility": (0x435BB5, 0x435BBC), "Science": (0x435C0D, 0x435C14),
@@ -150,7 +156,9 @@ class TheEntries(unittest.TestCase):
         for tech, (two, three) in items.TECH_COSTS.items():
             self.assertIn(f"{two:,} tech points", text(f"{tech} level 2"))
             self.assertIn(f"{three:,} tech points", text(f"{tech} level 3"))
-        self.assertEqual(sum(1 for e in items.ENTRIES if e.kind == items.TECH), 1 + 2 * 6)
+        self.assertEqual(sum(1 for e in items.ENTRIES if e.kind == items.TECH), 1 + 3 * 6)
+        for tech in items.TECH_COSTS:                  # level 1 is its own entry, as on the later games' tabs
+            self.assertEqual(entry(f"{tech} level 1").lines[0][0], items.LEVEL_ONE)
 
     def test_every_building_has_an_entry(self) -> None:
         for name in ("Population huts", "Hut repair (Examining hut, Fixing hut)", "The beach clean-up",

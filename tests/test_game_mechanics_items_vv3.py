@@ -76,6 +76,11 @@ PINS = (
     ("item", "Fish and the crab", "C", ""),
     ("item", "Mushrooms", "E", "EU"),
     ("item", "Collectibles", "C", ""),
+    ("item", "Turtle Shell Collection", "C", "C"),
+    ("item", "Coral Collection", "C", "C"),
+    ("item", "Tablet Collection", "C", "C"),
+    ("item", "Feather Collection", "C", "C"),
+    ("item", "All four collections", "C", ""),
     ("item", "Grant Food (the chief's power)", "C", ""),
     ("item", "Educate the Children (the chief's power)", "C", "UU"),
     ("item", "Point Out a Rare Collectible (the chief's power)", "C", "E"),
@@ -94,7 +99,7 @@ PINS = (
     "Pick Island Event", "Custom Island Event", "Choose Time Skip Amount", "Recharge Chief Powers",
     "Learning Skills Never Fails"))
 
-COUNTS = {"technology": 23, "puzzle": 17, "building": 8, "item": 57, "patcher": 24}
+COUNTS = {"technology": 23, "puzzle": 17, "building": 8, "item": 62, "patcher": 24}
 
 
 class Exe:
@@ -219,6 +224,30 @@ class TheGamesOwnTables(unittest.TestCase):
         self.assertEqual(data.image[0x4228A2 - data.base:0x4228AC - data.base],
                          bytes.fromhex("813d4426580088130000"))
         self.assertEqual(items.CLOTHES_PRICE, 5_000)
+
+    def test_each_collection_against_the_exe(self) -> None:
+        """Each collection has its own entry: the pickup's completion message for each 12-kind range (tips 720 to 723,
+        in the order Turtle Shell, Coral, Tablet, Feather), the rarity ranges, and the room check's 5 a collection
+        with four made 25."""
+        data = exe()
+        code = lambda start, size: data.image[start - data.base:start - data.base + size]  # noqa: E731
+        for at, first, tip in ((0x42DF9F, 0x34, 0x2D0), (0x42DFBD, 0x40, 0x2D1), (0x42DFDB, 0x4C, 0x2D2),
+                               (0x42DFF9, 0x58, 0x2D3)):
+            self.assertEqual(code(at, 2), bytes((0x6A, first)))                  # push <the collection's first kind>
+            mov = {0x2D0: 0x42DFAC, 0x2D1: 0x42DFCA, 0x2D2: 0x42DFE8, 0x2D3: 0x42E006}[tip]
+            self.assertEqual(code(mov, 5), b"\xb8" + struct.pack("<I", tip))     # mov eax, <its message>
+        self.assertEqual(code(0x42DE50, 3), bytes.fromhex("83f80c"))              # complete at 12 found
+        for at, lows in ((0x42D664, (0x34, 0x40, 0x4C, 0x58)), (0x42D6A4, (0x38, 0x44, 0x50, 0x5C)),
+                         (0x42D6E4, (0x3C, 0x48, 0x54, 0x60))):
+            self.assertEqual(code(at, 3), bytes((0x83, 0xF8, lows[0])))          # common, uncommon, rare: 4 each
+        self.assertEqual(code(0x45FE8C, 3), bytes.fromhex("83fe14"))              # cmp esi, 20
+        self.assertEqual(code(0x45FE91, 5), bytes.fromhex("be19000000"))          # mov esi, 25
+        names = {e.name: e for e in items.entries()}
+        for name in ("Turtle Shell", "Coral", "Tablet", "Feather"):
+            entry = names[f"{name} Collection"]
+            self.assertIn("12 pieces (4 common, 4 uncommon, 4 rare)", entry.text)
+            self.assertIn(f"\"{name} Collection", entry.subs[0][0])
+        self.assertIn("The Ruins", names["Tablet Collection"].text)
 
 
 class Potions(unittest.TestCase):
