@@ -393,6 +393,24 @@ class ATooDeepOutputFolder(unittest.TestCase):
             self.assertRegex(sibling.name, r"^\.vvfp-%s-[0-9a-f]{8}$" % kind)
         self.assertNotEqual(vfp._publish_sibling(parent, "stage"), vfp._publish_sibling(parent, "stage"))
 
+    def test_the_recovery_evidence_folders_are_measured(self):
+        """Codex, PR #648: an unresolved failure keeps the failed publication in
+        <recovery>\\failed-publication, deeper than the recovery sibling itself;
+        a file that fits only without that nesting is refused up front."""
+        base = Path(os.path.abspath(tempfile.gettempdir()))
+        deepest = vfp._publish_sibling(base, "recovery", "0" * vfp.PUBLISH_SIBLING_TOKEN) / "failed-publication"
+        holder = tempfile.TemporaryDirectory()
+        self.addCleanup(holder.cleanup)
+        source = Path(holder.name) / "s"
+        source.mkdir()
+        out = base / "o"                                        # a short output: the nesting is the deepest
+        room = patcher_files.MAX_PATH - 1 - len(str(deepest)) - 1
+        (source / ("f" * room)).write_bytes(b"")
+        vfp._require_patcher_files_path_fits(out, [], "g.exe", source)          # 259 in failed-publication: fits
+        (source / ("f" * (room + 1))).write_bytes(b"")
+        with self.assertRaises(vfp.PatcherError):
+            vfp._require_patcher_files_path_fits(out, [], "g.exe", source)      # 260 there: refused
+
     def test_the_games_own_files_count_too(self):
         holder = tempfile.TemporaryDirectory()
         self.addCleanup(holder.cleanup)

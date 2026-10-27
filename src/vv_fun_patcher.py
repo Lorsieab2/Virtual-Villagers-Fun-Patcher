@@ -13003,6 +13003,8 @@ def _route_companion_loads(
 # build in "...\Modded Games" needed 263 characters only in staging).
 PUBLISH_SIBLING_TOKEN = 8
 PUBLISH_SIBLING_KINDS = ("stage", "backup", "failed", "recovery")
+# Where an unresolved publish keeps the prior install and the failed publication.
+RECOVERY_RETAINED_FOLDERS = ("backup", "failed-publication")
 
 
 def _publish_sibling(parent: Path, kind: str, token: str | None = None) -> Path:
@@ -13056,6 +13058,10 @@ def _require_patcher_files_path_fits(
             if path.is_file():
                 relatives.append(str(path.relative_to(output)))
     siblings = [_publish_sibling(output.parent, kind, "0" * PUBLISH_SIBLING_TOKEN) for kind in PUBLISH_SIBLING_KINDS]
+    # An unresolved failure keeps its evidence one level deeper, inside the
+    # recovery sibling (apply_patch: "backup" and "failed-publication").
+    recovery = _publish_sibling(output.parent, "recovery", "0" * PUBLISH_SIBLING_TOKEN)
+    siblings += [recovery / name for name in RECOVERY_RETAINED_FOLDERS]
     # Windows counts UTF-16 units: a character outside the BMP (an emoji)
     # takes two, where Python's len() counts one.
     def wchars(path: str) -> int:
@@ -13333,13 +13339,13 @@ def apply_patch(
             if os.path.lexists(recovery_dir):
                 raise PatcherError("Recovery destination collision; original evidence retained")
             recovery_dir.mkdir()
-            retained_backup = recovery_dir / "backup"
+            retained_backup = recovery_dir / RECOVERY_RETAINED_FOLDERS[0]
             if backup_folder is not None and backup_folder.exists():
                 os.rename(backup_folder, retained_backup)
                 backup_folder = None
             if failed_publish is not None and failed_publish.exists():
-                os.rename(failed_publish, recovery_dir / "failed-publication")
-                retained_failed_publish = recovery_dir / "failed-publication"
+                os.rename(failed_publish, recovery_dir / RECOVERY_RETAINED_FOLDERS[1])
+                retained_failed_publish = recovery_dir / RECOVERY_RETAINED_FOLDERS[1]
             else:
                 retained_failed_publish = None
             _write_recovery_report(
