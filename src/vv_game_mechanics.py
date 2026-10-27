@@ -38,6 +38,7 @@ A fact with a due is left out of a game's general rules (general()), which have 
 """
 from __future__ import annotations
 
+import dataclasses
 import importlib
 import math
 import re
@@ -51,6 +52,7 @@ TITLE = "Game Mechanics"
 # and clocks (src/vv_game_mechanics_life.py), then the rules.
 # Time away (catch-up) right after the sources (the owner, 2026-10-24: the most important topic, near the top).
 GROUPS = ("Vital statistics", "Village counts", "Sources", "Time away (catch-up)", "Nursing and pregnancy", "Villager timers", "Village timers", "Food sources", "Refills", "Mushrooms", "Collectibles", "Tech points and effects",
+          "Technologies, items and buildings",
           "God powers", "Faith and Heathens", "Food earned", "Island events", "Death and graves", "Puzzles",
           "Golden Child", "Hidden villager stats", "Chance and timers", "Other")
 DEATH = "Death and graves"            # src/vv_game_mechanics_death.py
@@ -838,6 +840,29 @@ def save_path(folder: Path, game: int, slot: int) -> Path:
     return saves.save_path(Path(folder), slot)
 
 
+# Every technology, puzzle, building, item and patcher upgrade of each game, its own entry (the owner, 2026-10-27:
+# "Elaborate on what every store item and upgrade and research and everything does!!!"):
+# src/vv_game_mechanics_items_vv<N>.py.  One group on every game's tab.
+ITEMS = "Technologies, items and buildings"
+
+
+def items_facts(village: "Village") -> list[Fact]:
+    """The game's item entries (src/vv_game_mechanics_items_vv<N>.py), all under the one ITEMS group."""
+    try:
+        module = importlib.import_module(f"vv_game_mechanics_items_vv{village.game}")
+    except ImportError:
+        return []
+    try:
+        found = list(module.item_facts(village))
+    except TypeError:                          # a module whose entries take no village
+        found = list(module.item_facts())
+    # The Golden Mushroom is named only when its patch is in this game (the owner, 2026-10-23: without it, nothing
+    # about it at all); each module gives it one line of its own.
+    if village.has(f"vv{village.game}_super_secret_golden_mushroom") is not True:
+        found = [fact for fact in found if "golden mushroom" not in fact.text.lower()]
+    return [dataclasses.replace(fact, group=ITEMS) if fact.group != ITEMS else fact for fact in found]
+
+
 def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None,
          now: float | None = None, exe: Path | None = None) -> list[Fact]:
     """Every line of the section for one save slot, in GROUPS order.  Reads only, and reads every source again
@@ -858,7 +883,7 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
     facts = list(module.facts(village))
     if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
         facts += catchup_facts(village) + genetics_facts(village)
-        facts += chances_facts(village)
+        facts += chances_facts(village) + items_facts(village)
     import vv_game_mechanics_counts as counts      # the Village counts group (src/vv_game_mechanics_counts.py)
     facts += counts.facts(village, facts)
     if not facts:
@@ -901,6 +926,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     village = Village(Path("."), game, 1, Path(f"{game}.ldw"), blank_save(game, now), None, now, general=True)
     module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     keep = []
+    items = items_facts(village)               # the reference entries: kept whole, never filtered as save values
     for fact in list(module.facts(village)) + catchup_facts(village) + genetics_facts(village) + chances_facts(village):
         if fact.due is not None:
             continue                           # a moment of the empty save's village
@@ -913,6 +939,7 @@ def general(game: int, now: float | None = None) -> list[Fact]:
                 or fact.text.startswith("The birds:"):
             continue                           # an amount from the empty save ("Crop field: 0 of 800")
         keep.append(fact)
+    keep += [fact for fact in items if fact.due is None]
     order = {name: n for n, name in enumerate(GROUPS)}
     return sorted(keep, key=lambda fact: order.get(fact.group, len(GROUPS)))
 

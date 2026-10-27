@@ -801,9 +801,9 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     add("Other", CANT_DRINK_LINE, gm.RUNNING)
     extra = ""
     if level[5] >= 3 or nature >= 3 or village.has(MORTALITY) is True:
-        extra = gm.patch_words(village, MORTALITY, "at Nature level 3 the rolls start 7 years later (54, 62, 70 "
-                                                   "or 78 years)")
-    out.append(gm.old_age_line("47, 55, 63 or 71 years (Medicine 0 to 3)", "57, 65, 73 or 81 years", extra))
+        extra = gm.patch_words(village, MORTALITY, "at Nature level 3 the rolls start 7 years later (62, 70 "
+                                                   "or 78 years; Medicine starts at 1, 0x426F40)")
+    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1 to 3; a village starts at Medicine 1, 0x426F40)", "65, 73 or 81 years", extra))
     for line, ok in HIDDEN_LINES:
         add(gm.HIDDEN, line, ok)
     burned, water = _i32(buf, FIRE_BURNED), _i32(buf, FIRE_WATER)

@@ -189,20 +189,22 @@ def _techs() -> list[Entry]:
                "Tribal Chief (The First Chief); each power then waits 23 real-life hours at any speed, paused or "
                "closed."),
         _level("Leadership", 2, supervise.format(s=sup[2], food="60 to 174") + " The chief can Educate the "
-               "Children (Items, potions and stews)."),
+               "Children (Technologies, items and buildings)."),
         _level("Leadership", 3, supervise.format(s=sup[3], food="90 to 261") + " The chief can Point Out a Rare "
-               "Collectible (Items, potions and stews)."),
+               "Collectible (Technologies, items and buildings)."),
         # Nature (5): 0x4347C3 (fruit factor), 0x420BB9 (the Pitcher Plant art), 0x4601C4 (read, not used).
         _level("Nature", 1, (
-            "The Faction of Nature (Choosing a faction). A fruit tree's refill counts 42 fruit per game hour instead "
-            "of 37 -- 126 fruit every 3 game hours (3 real-life hours on Normal speed, 1 hour 30 minutes on Fast, 5 "
-            "hours on Slow) instead of 111; the honey is not changed."), VERIFIED_C,
-            ((patch("vv3_nature_honey_refill") + ": the fruit trees refill every 2 hours 15 minutes of the game's "
-              "clock with 56 fruit per game hour (the same 126 fruit a refill), and the honey every 45 minutes instead "
-              "of every hour, gaining 84 for every 99,900 game seconds (3.03 a game hour) instead of 2 a game hour "
-              "(Refills).", VERIFIED_E),)),
-        _level("Nature", 2, "The Pitcher Plant grows by the Alchemy Lab, a herb for potions (Items, potions and "
-                            "stews)."),
+            "The Faction of Nature (Choosing a faction). A fruit tree's refill counts 42 fruit instead of 37 per "
+            "real-life hour on Normal speed (per 30 minutes on Fast, per 1 hour 40 minutes on Slow) -- 126 fruit every "
+            "3 real-life hours on Normal speed (1 hour 30 minutes on Fast, 5 hours on Slow) instead of 111; the honey "
+            "is not changed."), VERIFIED_C,
+            ((patch("vv3_nature_honey_refill") + ": the fruit trees refill every 2 hours 15 minutes of real-life play "
+              "on Normal speed with 56 fruit per real-life hour on Normal speed (the same 126 fruit a refill), and the "
+              "honey every 45 minutes instead of every hour (on Normal speed), gaining 84 for every 27 hours 45 "
+              "minutes of real-life play on Normal speed (3.03 per real-life hour on Normal speed) instead of 2 per "
+              "real-life hour (Refills).", VERIFIED_E),)),
+        _level("Nature", 2, "The Pitcher Plant grows by the Alchemy Lab, a herb for potions (Technologies, items and "
+                            "buildings)."),
         _level("Nature", 3, (
             "Nothing: the game says it increases longevity, but the aging code reads the Nature level and throws it "
             "away."), VERIFIED_C,
@@ -211,8 +213,8 @@ def _techs() -> list[Entry]:
         # Magic (6): 0x4593DC (+1 research), 0x420BDD (the Berry Plant art), 0x45FE9D (+10 population).
         _level("Magic", 1, "The Faction of Magic (Choosing a faction). Each successful research session pays 1 more "
                            "tech point."),
-        _level("Magic", 2, "The Berry Plant grows by the Alchemy Lab, a herb for potions (Items, potions and "
-                           "stews)."),
+        _level("Magic", 2, "The Berry Plant grows by the Alchemy Lab, a herb for potions (Technologies, items and "
+                           "buildings)."),
         _level("Magic", 3, "The population limit is 10 higher: 90 + 5 for each complete collection (25 for all "
                            "four) + 10, so 125 at most in the stock game."),
         Entry(TECH, "Choosing a faction", (
@@ -241,17 +243,17 @@ def _puzzles() -> list[Entry]:
             "solved in 1 step, when a villager trying on the robe becomes the Tribal Chief. The chief never takes a job; "
             "dropped on work the chief directs it, with the Leadership supervision bonus (Technologies, "
             "Leadership), and has the once-a-day powers."), VERIFIED_C,
-            (("Only one villager, chosen secretly when the village is made, fits the robe.", UNCONFIRMED),
+            (("Only one villager, chosen when the village is made and not shown to the player, fits the robe.", UNCONFIRMED),
              (patch("vv3_everyone_tries_on_robe") + ": dropping a villager on the robe sends every active, living "
               "villager who is not nursing to try it on too, so the one it fits is found at once; the game alone "
               "still decides who becomes chief.", UNCONFIRMED))),
         Entry(PUZZLE, "The Bee Hive", (
             "solved in 1 step. Solved, farmers can gather honey while the hive holds more than 10: a pick brings 7, "
-            "3 or 2 food on Fast, Normal or Slow (4 while catching up), and the hive refills 2 honey per game hour "
-            "up to 3,000 (Refills). Unsolved, honey is never offered."), VERIFIED_C),
+            "3 or 2 food on Fast, Normal or Slow (4 while catching up), and the hive refills 2 honey per real-life "
+            "hour on Normal speed (per 30 minutes on Fast, per 1 hour 40 minutes on Slow) up to 3,000 (Refills). Unsolved, honey is never offered."), VERIFIED_C),
         Entry(PUZZLE, "The Alchemy Lab", (
             "solved after 5 steps (the lab's scattered pieces). Solved, villagers can gather the herbs and brew "
-            "potions (Items, potions and stews); before it no herb can be gathered."), VERIFIED_C),
+            "potions (Technologies, items and buildings); before it no herb can be gathered."), VERIFIED_C),
         Entry(PUZZLE, "The Roster of the Dead", (
             "solved after 700 steps; what counts a step was not traced here."), UNCONFIRMED),
         Entry(PUZZLE, "Weather Dancing", (
@@ -272,11 +274,11 @@ def _puzzles() -> list[Entry]:
             "builder to take it on alone; drawing plans needs Building 88 or more."), VERIFIED_C),
         Entry(PUZZLE, "The Orchard", (
             "solved in 1 step, while all three fruit trees are grown (unsolved again, the game solves it again at "
-            "once). A tree can be picked 8 game hours after it is planted (8 real-life hours on Normal, 4 on Fast, "
-            "13 hours 20 minutes on Slow); each tree's fruit and refill are under Food sources and Refills."),
+            "once). A tree can be picked 8 real-life hours after it is planted on Normal speed (4 on Fast, 13 "
+            "hours 20 minutes on Slow); each tree's fruit and refill are under Food sources and Refills."),
             VERIFIED_C),
         Entry(PUZZLE, "The Sharks", (
-            "solved in 1 step: a villager carrying either shark vial (Items, potions and stews) to the Diving Rock. "
+            "solved in 1 step: a villager carrying either shark vial (Technologies, items and buildings) to the Diving Rock. "
             "Solved, fishing is offered: a catch brings 11, 8 or 5 food on Fast, Normal or Slow (8 while catching "
             "up), a crab worth 55 for a fisher with Farming 88 or more (Chances, The crab). The vial of Black "
             "Orchid x2 and Pitcher Plant sends the sharks away; the other vial only sparkles over them."),
@@ -319,7 +321,7 @@ def _buildings() -> list[Entry]:
             "toward the room for babies."), VERIFIED_C),
         Entry(BUILDING, "The fourth hut", (
             "starts at 0 of 2,000 build units. It never counts toward the room for babies; finished, it is where "
-            "villagers get new clothes (Items, potions and stews)."), VERIFIED_C),
+            "villagers get new clothes (Technologies, items and buildings)."), VERIFIED_C),
         Entry(BUILDING, "Fixing huts", (
             "only once all four huts are finished: a builder examining a hut goes on to \"Fixing hut\" "
             + _ch(70) + " of the time. Fixing trains Building and changes nothing on the hut: huts never wear "
@@ -331,8 +333,8 @@ def _buildings() -> list[Entry]:
         Entry(BUILDING, "The campfire", (
             "lit, it burns 20 hours of the game's clock -- 10, 20 or 33 hours 20 minutes of real-life play on Fast, "
             "Normal or Slow -- and stops counting while paused; wood on a burning fire starts the 20 hours over. "
-            "While it burns: research pays 1 more tech point " + _ch(10) + " of sessions, falling sick is less "
-            "likely (Technologies, Medicine) and health comes back more often (Chances, Regaining health)."),
+            "While it burns: research pays 1 more tech point " + _ch(10) + " of sessions, villagers fall sick less "
+            "often (Technologies, Medicine) and health comes back more often (Chances, Regaining health)."),
             VERIFIED_C,
             (("It goes out when its timer runs out; rain and the weather do not affect it. Four trips of water for "
               "the Ash Key put a lit fire out.", gm.OWNER),)),
@@ -401,9 +403,9 @@ def _items() -> list[Entry]:
             "potions below. The brew blows up " + chance(at_most(100, 30)) + ", " + chance(at_most(100, 15))
             + " or " + chance(at_most(100, 0)) + " of the time at Alchemy 1, 2 or 3 (Technologies, Alchemy), costing "
             "the villager tending it 30 to 69 health."), VERIFIED_E,
-            (("A brewed potion: the pot's on-screen countdown starts at 5:00 on Normal speed, 2:30 on Fast and 8:20 "
-              "on Slow, and the potion is gone at 0:00 -- 5 real-life minutes at every speed. The save does not keep "
-              "the pot.", VERIFIED_E),
+            (("The pot's on-screen countdown for a brewed potion (5:00, 2:30 or 8:20 at the start on Normal, Fast or "
+              "Slow) is under Tech points and effects; the potion is gone at 0:00 -- 5 real-life minutes at every "
+              "speed. The save does not keep the pot.", VERIFIED_E),
              ("A brewed potion's duration follows the game speed (the countdown shown changes with it).", gm.OWNER),
              ("The pot can be emptied by dropping a villager on the table with 3 herbs: the brewed potion is thrown "
               "away and the herbs stay on the table.", gm.OWNER))),
@@ -476,7 +478,8 @@ def _items() -> list[Entry]:
             (("The game's question: \"Do you want to spend 5000 tech points to change this villager's clothes?\" -- "
               "the deduction itself was not traced.", UNCONFIRMED),)),
         Entry(ITEM, "Wood for the campfire", (
-            "a villager dropped on the burning campfire with wood starts its 20 game hours over (The campfire)."),
+            "a villager dropped on the burning campfire with wood starts its 20 hours of the game's clock over: 10, 20 or 33 hours 20 minutes of "
+            "real-life play on Fast, Normal or Slow (The campfire)."),
             VERIFIED_C),
         Entry(ITEM, "Water for the Ash Key", (
             "after the campfire's 61 hours of burning, 12 trips of water; the 4th puts a lit fire out, and while it "

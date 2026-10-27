@@ -178,7 +178,7 @@ def _puzzles() -> list[Entry]:
               UNCONFIRMED),
         Entry(PUZZLE, "The Stream", (
             f"solved in 1 step; {tree}. The stream gathers 2% more debris with each growth of the blackberries "
-            "(every 6 game minutes), up to 100%."), VERIFIED_E),
+            "(every 6 minutes of real-life play on Normal speed), up to 100%."), VERIFIED_E),
         Entry(PUZZLE, "Boiling Water", "solved in 1 step.", UNCONFIRMED),
         Entry(PUZZLE, "Soap Invented", (
             "solved in 1 step: soap made in the pot (pulpy vines x3 in salt water); the soap bars made count on "
@@ -196,7 +196,7 @@ def _puzzles() -> list[Entry]:
             VERIFIED_E),
         Entry(PUZZLE, "The Grand Feast", (
             "solved in 1 step: the spicy, sweet and soapy stew in a well-cooked pot (20 heat) with its 4 feast "
-            "items (Items, potions and stews)."), VERIFIED_E),
+            "items (Technologies, items and buildings)."), VERIFIED_E),
         Entry(PUZZLE, "Fishing Nets", (
             "solved in 1 step. Solved, fishing is offered: 4 food a fish before Food Mastery, or 8 for a Golden "
             "Fish, which comes (2 x fish scales found + 1)% of the time -- 3% with 1 scale, 25% with all 12, never "
@@ -243,7 +243,7 @@ def _buildings() -> list[Entry]:
               (("It is built only at Construction level 3.", UNCONFIRMED),)),
         Entry(BUILDING, "The Clothing Hut", (
             f"{steps(12)}. It never counts toward the room for babies; finished, it is where villagers get new "
-            "clothes (Items, potions and stews)."), VERIFIED_E,
+            "clothes (Technologies, items and buildings)."), VERIFIED_E,
             (("It appears as a site at Science level 2.", UNCONFIRMED),)),
         Entry(BUILDING, "The Love Shack", (
             f"{steps(200)}. Until it is finished no villager can conceive while "
@@ -319,9 +319,9 @@ def _items() -> list[Entry]:
              ("In the game's code a hot rock that goes into the hot pot while its stew is ready makes the same stew "
               "again and starts its 5 real-life minutes over; nothing limits how often.", VERIFIED_E))),
         Entry(ITEM, "A ready stew", (
-            "the pot's on-screen countdown starts at 5:00 on Normal speed, 2:30 on Fast and 8:20 on Slow, and the "
-            "pot empties itself at 0:00, 5 real-life minutes after the stew was made at every speed. A villager "
-            "dropped on the pot eats it. The save does not keep the pot."), VERIFIED_E),
+            "a villager dropped on the pot eats it. The pot's on-screen countdown (5:00, 2:30 or 8:20 at the start "
+            "on Normal, Fast or Slow) is under Other; the pot empties itself at 0:00, 5 real-life minutes after the "
+            "stew was made at every speed. The save does not keep the pot."), VERIFIED_E),
         Entry(ITEM, "The grate", "the pot can be emptied by dropping a villager on the grate.", gm.OWNER),
         Entry(ITEM, "Eating a stew", (
             "a villager who already has that stew's effect, or already has 12 effects, is refused: \"That villager "
@@ -332,7 +332,7 @@ def _items() -> list[Entry]:
     out += [Entry(ITEM, name, f"{recipe}: {does}.", ok) for name, recipe, does, ok in STEWS]
     out += [
         Entry(ITEM, "Blackberries", (
-            "the bushes hold up to 1,000 and grow 2 every 6 game minutes (6 real-life minutes on Normal speed). "
+            "the bushes hold up to 1,000 and grow 2 every 6 minutes of real-life play on Normal speed. "
             "Picking brings the berries ÷ 100 (at least 2) food, a harvest the berries up to 30, before Food "
             "Mastery; picking is offered only above 3 berries."), VERIFIED_E),
         Entry(ITEM, "Fruit", "stomping or shaking down fruit brings 3 food before Food Mastery (after The Cooking "

@@ -170,7 +170,7 @@ PUZZLE_ENTRIES = (
          "toward it) and then light it.", U),
         ("Reward: a fire that burns 10, 20 or 40 real-life hours on Fast, Normal or Slow; fuel on a burning fire "
          "fills it to that again (Other).", E),
-        ("While it burns: falling sick is half as likely; on Medium and Hard a failed health roll gets a second "
+        ("While it burns: a villager falls sick half as often; on Medium and Hard a failed health roll gets a second "
          "roll; each successful research session gives 1 more tech point 10% of the time (Chances).", E),
     )),
     Entry(PUZZLE, "The Scarecrow", (

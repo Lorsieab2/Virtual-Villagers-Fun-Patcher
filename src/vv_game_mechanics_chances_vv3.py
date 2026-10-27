@@ -88,11 +88,11 @@ ROLLS = (
          (Check(0x455CD7, 1440, None, "jg"), Check(0x455CBB, 2460, None, "jg"), Check(0x455C9F, 5400, None, "jg"),
           Check(0x455D02, 1000, 0x0E, "jle"), Check(0x460282, 100, 0x32, "jl"), Check(0x455C14, 100, 0x32, "jge")),
          (f"Medicine 1: {_sick(1, 1)} with the fire burning or Aromatherapy solved, {_sick(1, 2)} with neither.",
-          f"Medicine 2: {_sick(2, 1)} or {_sick(2, 2)}. Medicine 3: {_sick(3, 1)} or {_sick(3, 2)}. Medicine 0: no "
-          "villager rolls this.",
+          f"Medicine 2: {_sick(2, 1)} or {_sick(2, 2)}. Medicine 3: {_sick(3, 1)} or {_sick(3, 2)}. A village "
+          "starts at Medicine 1 (0x426F40).",
           f"On Hard: with both the fire burning and Aromatherapy solved, the first figure; with one of the two, the "
           f"second; with neither, {_sick(1, 3)}, {_sick(2, 3)} or {_sick(3, 3)} at Medicine 1, 2 or 3.",
-          "An elderly villager (42 years plus 8 for each Medicine level; 42 at Medicine 0) who escapes that roll has "
+          "An elderly villager (42 years plus 8 for each Medicine level: 50, 58 or 66) who escapes that roll has "
           "a second one: {3} more.",
           "On Easy the roll is made only " + _ch(times(_not(below(100, 50)), _not(below(100, 50)))) + " of age units "
           "(two rolls of 0 to 99 at 50 or more must both come up), so about a quarter of these chances.")),

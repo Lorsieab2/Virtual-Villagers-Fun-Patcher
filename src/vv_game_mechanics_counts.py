@@ -383,7 +383,7 @@ VV3_POTIONS = {
     38: ("Blannesamagawa loomajoobamooga!!", "the same words now and, for 10 real-life minutes, every time the villager "
                                             "picks what to do next (0x45C04C)"),
     39: ("Who turned out the lights?!", "goes \"Who turned out the lights?!\""),
-    40: ("Something smells YUMMY!", "every villager goes \"Something smells YUMMY!\" (0x45E0C0)"),
+    40: ("Something smells YUMMY!", "every living villager under 14 who is free walks to the pot and says \"Something smells YUMMY!\" too; adults never go (0x45E0C0 -> 0x45DDE0, flag 1)"),
 }
 
 

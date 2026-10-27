@@ -131,8 +131,10 @@ class TheEntries(unittest.TestCase):
                 for vague in ("etc.", "some effect", "and so on", "various"):
                     self.assertNotIn(vague, line, f"{e.name}: {line}")
 
-    def test_the_group_is_not_one_the_page_already_has(self) -> None:
-        self.assertNotIn(items.ITEMS_GROUP, gm.GROUPS)
+    def test_the_group_is_the_pages_items_group(self) -> None:
+        # The page's own group for these entries (gm.ITEMS), once, and no other group shares its name.
+        self.assertEqual(items.ITEMS_GROUP, gm.ITEMS)
+        self.assertEqual(gm.GROUPS.count(items.ITEMS_GROUP), 1)
 
     def test_every_puzzle_of_the_game_has_one_entry(self) -> None:
         names = [name for name, _flag, _hours in page.PUZZLES]

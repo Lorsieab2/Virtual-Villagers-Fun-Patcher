@@ -627,7 +627,19 @@ class EveryGame(unittest.TestCase):
         for name in self.SAVES:
             with self.subTest(save=name):
                 text = gm.render(self.page(name)).lower()
-                self.assertNotRegex(text, r"probabl|(?<!equally )likely|perhaps|presumab|relic")
+                # "Relics" is New Believers' own name for its first collectible set (the stock exe's "Relic
+                # Collection", "Relics:" and "Relics increase your max energy."; pinned below), so only that game
+                # may use it; anywhere else it is a name guessed from a theme.
+                self.assertNotRegex(text, r"probabl|(?<!equally )likely|perhaps|presumab"
+                                          + ("" if name.startswith("vv5") else "|relic"))
+
+    def test_relics_are_new_believers_own_name(self) -> None:
+        exe = ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe"
+        if not exe.is_file():
+            self.skipTest("the stock New Believers exe is absent")
+        raw = exe.read_bytes()
+        for words in (b"Relic Collection", b"Relics:", b"Relics increase your max energy."):
+            self.assertIn(words, raw)
     def test_golden_mushroom_facts_only_with_its_patch(self) -> None:
         """The owner, 2026-10-23: with the patch in the game the page gives the Golden Mushroom's facts (100 food, 1 in
         1,000,000 random brown or red mushrooms); without it nothing about it at all."""
@@ -646,7 +658,9 @@ class EveryGame(unittest.TestCase):
                     off = text_of([f for f in self.page(name, features=features) if f.group != gm.SOURCES]).lower()
                     self.assertNotIn("golden mushroom", off)
                     self.assertNotIn("secret", off)
-                    self.assertNotIn("1,000,000", off)
+                    # Its odds; a bare 1,000,000 is also the price of the Origins upgrades (Technologies, items and
+                    # buildings), which are shown with or without this patch.
+                    self.assertNotIn("1 in 1,000,000", off)
 
     def test_paused_saves_wait(self) -> None:
         import vv_save_backup

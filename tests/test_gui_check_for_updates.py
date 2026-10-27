@@ -172,7 +172,9 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_chances_vv2", "vv_game_mechanics_chances_vv3", "vv_game_mechanics_chances_vv4",
                "vv_game_mechanics_chances_vv5", "vv_game_mechanics_events", "vv_game_mechanics_events_vv1",
                "vv_game_mechanics_events_vv2", "vv_game_mechanics_events_vv3", "vv_game_mechanics_events_vv4",
-               "vv_game_mechanics_events_vv5", "vv_game_mechanics_faith_vv5"}
+               "vv_game_mechanics_events_vv5", "vv_game_mechanics_faith_vv5",
+               "vv_game_mechanics_items_vv1", "vv_game_mechanics_items_vv2", "vv_game_mechanics_items_vv3",
+               "vv_game_mechanics_items_vv4", "vv_game_mechanics_items_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
