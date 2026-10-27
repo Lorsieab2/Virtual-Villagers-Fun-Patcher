@@ -404,8 +404,8 @@ def _items() -> list[Entry]:
             + " or " + chance(at_most(100, 0)) + " of the time at Alchemy 1, 2 or 3 (Technologies, Alchemy), costing "
             "the villager tending it 30 to 69 health."), VERIFIED_E,
             (("The pot's on-screen countdown for a brewed potion (5:00, 2:30 or 8:20 at the start on Normal, Fast or "
-              "Slow) is under Tech points and effects; the potion is gone at 0:00 -- 5 real-life minutes at every "
-              "speed. The save does not keep the pot.", VERIFIED_E),
+              "Slow) is under Tech points and effects; the potion is gone at 0:00, which comes sooner on Fast and later "
+              "on Slow. The save does not keep the pot.", VERIFIED_E),
              ("A brewed potion's duration follows the game speed (the countdown shown changes with it).", gm.OWNER),
              ("The pot can be emptied by dropping a villager on the table with 3 herbs: the brewed potion is thrown "
               "away and the herbs stay on the table.", gm.OWNER))),
