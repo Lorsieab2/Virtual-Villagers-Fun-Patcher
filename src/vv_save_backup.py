@@ -60,6 +60,7 @@ from pathlib import Path
 from typing import Iterator, Protocol
 
 import vv_save_clock
+import vv3_second_faction
 
 # The folder the backups go into, inside each save folder. Every patcher
 # feature that reads or deletes files in a save folder looks only at named
@@ -474,6 +475,7 @@ def copy_save_folder(
                     result.not_paused.append((copied.relative.name, str(exc)))
                     continue
                 if speed is not None:
+                    _relink_second_faction(game, staging, copied.relative, original, result.files)
                     copied.size, copied.sha256 = _hash_file(staging / copied.relative)
                     result.paused_slots.append(copied.relative.name)
                     result.paused_from[copied.relative] = speed
@@ -1105,7 +1107,12 @@ def pause_saves(paths: list[Path], processes: ProcessController | None = None) -
             outcome.skipped.append((path, f"{game_exe_name(live_folder)} is running"))
             continue
         try:
+            before = path.read_bytes()
             if pause_save_file(game, path) is not None:
+                if game == vv3_second_faction.GAME:
+                    number = _save_number(path.name)
+                    if number is not None and 1 <= number <= 5:
+                        vv3_second_faction.relink(path.parent, number, before, path.read_bytes())
                 outcome.paused.append(path)
             else:
                 outcome.already.append(path)
@@ -1362,6 +1369,11 @@ def _place(source: Path, target: Path) -> None:
 class RestoreResult:
     plan: RestorePlan
     before_restore: BackupResult | None
+    # The Secret City: {slot: True / False} for each restored save whose second faction was re-linked
+    # (or could not be); see _recognise_second_factions.
+    second_factions: dict[int, bool] = field(default_factory=dict)
+    # {backup folder name: {slot: True / False}} for the backups re-linked before the restore.
+    backups_relinked: dict[str, dict[int, bool]] = field(default_factory=dict)
 
 
 def _game_running(save_folder: Path, processes: ProcessController) -> int:
@@ -1389,9 +1401,12 @@ def restore_backup(
             "menu first: a running game writes its village over the restored save "
             "when it quits. Nothing was changed."
         )
+    # The Secret City: backups made before the patcher kept the second faction's link get it back first
+    # (the owner, 2026-10-27: "retroactively fix ... the recent backups"), so the one restored has it too.
+    relinked = relink_backups(save_folder)
     plan = plan_restore(save_folder, backup, slot)
     if plan.changes == 0:
-        return RestoreResult(plan, None)
+        return RestoreResult(plan, None, backups_relinked=relinked)
     before = None
     if files_to_back_up(save_folder):
         before = copy_save_folder(save_folder, now, suffix=BEFORE_RESTORE)
@@ -1430,7 +1445,69 @@ def restore_backup(
             f"The restore failed ({exc}). Every file was put back as it was; "
             "nothing changed."
         ) from exc
-    return RestoreResult(plan, before)
+    result = RestoreResult(plan, before, backups_relinked=relinked)
+    result.second_factions = _recognise_second_factions(save_folder, plan, slot)
+    return result
+
+
+def relink_backups(save_folder: Path) -> dict[str, dict[int, bool]]:
+    """The Secret City: every finished backup's paused slot save that lost its second faction's link (backups
+    made before the patcher kept it) is linked again, in that backup's own faction file, from the game's copy
+    of the save it was made from (vv3_second_faction.recognise).  {backup name: {slot: linked}}, only backups
+    where something was found to do."""
+    game = game_number(save_folder)
+    out: dict[str, dict[int, bool]] = {}
+    if game != vv3_second_faction.GAME:
+        return out
+    for info in list_backups(save_folder):
+        for path in sorted(info.path.glob("*.ldw")):
+            number = _save_number(path.name)
+            if not is_slot_save(Path(path.name)) or number is None:
+                continue
+            try:
+                linked = vv3_second_faction.recognise(save_folder, number, path.name,
+                                                      lambda data: pause_save_bytes(game, data), info.path)
+            except OSError:
+                linked = False
+            if linked is not None:
+                out.setdefault(info.path.name, {})[number] = linked
+    return out
+
+
+def _relink_second_faction(game: int, folder: Path, relative: Path, before: bytes, files: list) -> None:
+    """The Secret City: the paused copy keeps the second faction its save had (vv3_second_faction), and the
+    backup's record of the faction file follows the new bytes."""
+    if game != vv3_second_faction.GAME:
+        return
+    number = _save_number(relative.name)
+    if number is None or not vv3_second_faction.relink(folder, number, before, (folder / relative).read_bytes()):
+        return
+    changed = vv3_second_faction.faction_file(folder, number)
+    for copied in files:
+        if folder / copied.relative == changed:
+            copied.size, copied.sha256 = _hash_file(changed)
+
+
+def _recognise_second_factions(save_folder: Path, plan, slot: int | None) -> dict[int, bool]:
+    """The Secret City: each restored save that lost its second faction to an earlier backup's pause (before
+    the patcher kept the link) gets it back from the game's own copy of it (vv3_second_faction.recognise).
+    {slot: True linked / False could not be}; slots with nothing to do are left out."""
+    game = game_number(save_folder)
+    out: dict[int, bool] = {}
+    if game != vv3_second_faction.GAME:
+        return out
+    for relative in plan.replace + plan.add:
+        number = _save_number(relative.name)
+        if not is_slot_save(relative) or number is None or (slot is not None and number != slot):
+            continue
+        try:
+            linked = vv3_second_faction.recognise(save_folder, number, relative.name,
+                                                  lambda data: pause_save_bytes(game, data))
+        except OSError:
+            linked = False
+        if linked is not None:
+            out[number] = linked
+    return out
 
 
 def _roll_back(save_folder: Path, before: BackupResult | None, done: list[Path]) -> list[str]:

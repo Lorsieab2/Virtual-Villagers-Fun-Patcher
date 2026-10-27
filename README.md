@@ -25,6 +25,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 ## What's new in v1.35.84
 
 - **Fixed: "The output folder's path is too long"** when the output folder itself fit (e.g. a Secret City 256 build in a deep folder). The patcher's hidden working folders beside the output now have short fixed-length names (such as `.vvfp-stage-1a2b3c4d`) instead of a copy of the output's name plus 32 characters. Before anything is written, every file the patch will place, including your own files a re-patch carries over, is checked against Windows' 259-character limit; a folder that is too deep is refused up front with the folder to shorten, never part-way through. Nothing in any game changes; no need to patch again.
+- **Fixed: The Secret City lost its second faction after Restore Saves** (Both Factions). Back Up Saves sets each backed-up save to Paused, and that change broke the link between the save and the patcher's second-faction file, so a restored tribe came back with one faction. Backups now keep the link, Repair's pause keeps it too, and **Restore Saves first links your older backups again** from the game's own copy of each save (a backup whose copy no longer exists is named, never guessed). Restore the backup again to get the second faction back. No need to patch again.
 
 ## What's new in v1.35.83
 
