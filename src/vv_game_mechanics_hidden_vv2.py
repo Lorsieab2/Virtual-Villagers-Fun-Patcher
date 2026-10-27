@@ -170,7 +170,7 @@ def _tips() -> list[Entry]:
                                     lambda tip: "" if tip[0] < RANDOM_BASE + LOADING_COUNT else "the mask only")),
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (tutorial and milestones)", (
             "every one, as the game words it, with the places that ask for it by number (a tip with none is asked for "
-            "by a number the game works out, which is not traced: UNCONFIRMED)"), C,
+            "by a number the game works out, which is not traced, and is labelled as not confirmed)"), C,
               subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if tip[2] else U,
                                     lambda tip: hidden.sites_note(tip[2]))),
     ]

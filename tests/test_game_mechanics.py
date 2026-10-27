@@ -627,7 +627,10 @@ class EveryGame(unittest.TestCase):
         and Wind Flute sets are named by the owner)."""
         for name in self.SAVES:
             with self.subTest(save=name):
-                text = gm.render(self.page(name)).lower()
+                # The game's own words quoted verbatim (the tips under Hidden keys, clicks and cheats: "...more likely
+                # to succeed", "It was probably...") are the game's, not guesses: only the text outside quotation
+                # marks is checked.
+                text = re.sub(r'"[^"\n]*"', '""', gm.render(self.page(name))).lower()
                 # "Relics" is New Believers' own name for its first collectible set (the stock exe's "Relic
                 # Collection", "Relics:" and "Relics increase your max energy."; pinned below), so only that game
                 # may use it; anywhere else it is a name guessed from a theme.
@@ -658,7 +661,10 @@ class EveryGame(unittest.TestCase):
                 for features in ([], None):
                     off = text_of([f for f in self.page(name, features=features) if f.group != gm.SOURCES]).lower()
                     self.assertNotIn("golden mushroom", off)
-                    self.assertNotIn("secret", off)
+                    # The patch's name ("Super-Secret Golden Mushroom"); a bare "secret" is also the game's own name
+                    # "The Secret City" and its tips' "hidden secrets" (Hidden keys, clicks and cheats).
+                    self.assertNotIn("super-secret", off)
+                    self.assertNotIn("super secret", off)
                     # Its odds; a bare 1,000,000 is also the price of the Origins upgrades (Technologies, items and
                     # buildings), which are shown with or without this patch.
                     self.assertNotIn("1 in 1,000,000", off)

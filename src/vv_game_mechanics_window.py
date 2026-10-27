@@ -50,6 +50,7 @@ MIN_WIDTH, MIN_HEIGHT = 600, 600
 # 4, not 5: a New Believers save's 24 group links need 607 pixels in 5 columns, more than the 556 the window has at
 # its smallest, so 7 of them were cut (the audit of 2026-10-25); in 4 columns they need 512.
 LINKS_PER_ROW = 4
+LINK_STYLE = "GroupLink.TButton"
 TICK_MS = 1000                  # the one timer: every countdown, and Auto-refresh
 AUTO_REFRESH_SECONDS = 30
 AUTO_REFRESH = "Auto-refresh every 30 seconds"
@@ -396,9 +397,12 @@ def _game_tab(window, notebook, app, title: str, saves, documents, bold) -> dict
         box.configure(state="disabled")
         for child in links.winfo_children():
             child.destroy()
+        # Compact link buttons (no inner padding, 1 pixel apart): a save's 25 groups take 7 rows, which must still
+        # leave the page its 80 pixels at the window's smallest (tests/test_game_mechanics.py, Window).
+        ttk.Style(links).configure(LINK_STYLE, padding=(4, 0))
         for n, group in enumerate(found):
-            ttk.Button(links, text=group, command=lambda g=group: jump(g)).grid(
-                row=n // LINKS_PER_ROW, column=n % LINKS_PER_ROW, sticky="we", padx=(0, 4), pady=(0, 2))
+            ttk.Button(links, text=group, style=LINK_STYLE, command=lambda g=group: jump(g)).grid(
+                row=n // LINKS_PER_ROW, column=n % LINKS_PER_ROW, sticky="we", padx=(0, 4), pady=(0, 1))
         for column in range(LINKS_PER_ROW):
             links.columnconfigure(column, weight=1)
         record["groups"] = found

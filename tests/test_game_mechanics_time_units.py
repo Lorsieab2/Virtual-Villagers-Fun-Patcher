@@ -53,6 +53,8 @@ CLOCK = re.compile(
     r"|\b(?:on (?:Fast|Normal|Slow)\b|Fast, Normal\b|Fast or Normal\b|at (?:every|any) speed\b).*\breal-life\b",
     re.S)
 
+QUOTED = re.compile(r'"[^"\n]*"')
+
 
 def pages():
     """(name, facts) for every tab: each game's general page, then each committed save fixture."""
@@ -72,7 +74,9 @@ def pages():
 
 def missing_clock(text: str) -> bool:
     """True when `text` states a time amount and names no clock (see the module docstring)."""
-    body = DATE.sub("<date>", gm.tidy(text))
+    # The game's own words quoted verbatim (a tip, a button, a message, in quotation marks) are not the page's
+    # wording: a quoted tip's "once a day" is the game's, so only the text outside the quotes is checked.
+    body = DATE.sub("<date>", QUOTED.sub('""', gm.tidy(text)))
     if TIME.search(body) and not CLOCK.search(body):
         return True
     rest = body.replace(gm.AGES, "")             # the ages pointer does not cover seconds, minutes, hours or days

@@ -171,7 +171,7 @@ def _tips() -> list[Entry]:
                                     else "not in the loading screen's draw")),
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (eTTip tutorial, eTip milestones)", (
             "every one, as the game words it, with its name and the places that ask for it by number (a tip with none "
-            "is asked for by a number the game works out, which is not traced: UNCONFIRMED)"), C,
+            "is asked for by a number the game works out, which is not traced, and is labelled as not confirmed)"), C,
               subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if tip[2] else U,
                                     lambda tip: tip[1] + ("; " + hidden.sites_note(tip[2]) if tip[2] else ""))),
     ]

@@ -125,9 +125,9 @@ def _clicks() -> list[Entry]:
             "(0x424EF0, 0x4256B0; shown by 0x421B40). The first click in a village also queues the tutorial tip \"Click "
             "the mask to see helpful tips at the bottom of the screen.\" while it is still armed (+0x161, tip 304); "
             "after that each click also plays a sound (67)"), C, subs=(
-                ("The message line's timer is set 5 seconds on, on the game's real-life clock (0x421B40 sets +0x284 "
-                 "to 0x402F70 + 5; 0x402F70 counts real-life seconds since the program started, also while paused); "
-                 "that the line is cleared then is not traced.", U),
+                ("The message line's timer is set 5 real-life seconds on, in real time at every speed and also while "
+                 "paused (0x421B40 sets +0x284 to 0x402F70 + 5; 0x402F70 counts real-life seconds since the program "
+                 "started); that the line is cleared then is not traced.", U),
                 ("Moving the mouse over the mask: each movement has an 11% chance (rand(100) <= 10) of starting two "
                  "of the game's short effects (type 4) at 168, 514 and 193, 505 (0x424EF0); what they look like is "
                  "not confirmed.", C),
@@ -177,7 +177,7 @@ def _tips() -> list[Entry]:
               subs=hidden.tip_lines(RANDOM_TIPS, lambda tip: C, lambda tip: "")),
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (tutorial and milestones)", (
             "every one, as the game words it, with the places that ask for it by number (a tip with none is asked for "
-            "by a number the game works out, which is not traced: UNCONFIRMED)"), C,
+            "by a number the game works out, which is not traced, and is labelled as not confirmed)"), C,
               subs=hidden.tip_lines(POPUP_TIPS, _popup_label, _popup_note)),
     ]
 
