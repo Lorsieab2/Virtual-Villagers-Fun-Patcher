@@ -487,8 +487,6 @@ VILLAGE_FILL_SAVE_VA = VILLAGE_SURFACE_SAVE_VA + 4      # +0x1C4 dword, caller's
 VILLAGE_MASK_ROW_VA = VILLAGE_FILL_SAVE_VA + 4          # +0x1C8 dword, mask colour row (mask-1) for the mask sub-draw
 VILLAGE_DBG_CALLER_VA = VILLAGE_MASK_ROW_VA + 4         # +0x1CC dword, DIAGNOSTIC: caller of a head-atlas draw seen with an invalid stash (requires runtime trace; not evidence of a separate renderer)
 VILLAGE_MASKED_BITMAP_VA = VILLAGE_DBG_CALLER_VA + 4    # +0x1D0..+0x1F0, 256-bit per-frame "already masked this villager" guard (cleared once per frame by the draw hook) so villagers drawn by more than one render pass get exactly ONE mask
-VILLAGE_DRAWFN_VA = VILLAGE_MASKED_BITMAP_VA + 0x20     # +0x1F0 dword, per-entry original draw fn (0x408840 adult / 0x408740 child-alt) so one shared 5-arg body serves both thunks
-VILLAGE_SCRATCH_END_VA = VILLAGE_DRAWFN_VA + 4          # +0x1F4 (inside patch-owned .vv1md R/W scratch)
 # The exact-build save builder at 0x402ED0 receives the numbered save slot as
 # its first argument before formatting "%s%d.ldw".  Capture that argument in
 # patch-owned R/W scratch so the DLL can select a slot-specific sidecar.  Zero
@@ -549,7 +547,6 @@ SCRATCH_SLOTS = (
     ("VILLAGE_MASK_ROW", VILLAGE_MASK_ROW_VA, 4),
     ("VILLAGE_DBG_CALLER", VILLAGE_DBG_CALLER_VA, 4),
     ("VILLAGE_MASKED_BITMAP", VILLAGE_MASKED_BITMAP_VA, 0x20),
-    ("VILLAGE_DRAWFN", VILLAGE_DRAWFN_VA, 4),
     ("MASK_SAVE_SLOT", MASK_SAVE_SLOT_VA, 4),
     ("MASK_TICK_DLL_FN", MASK_TICK_DLL_FN_VA, 4),
     ("MASK_BIRTH_DIRTY", MASK_BIRTH_DIRTY_VA, 1),
@@ -595,12 +592,6 @@ MASK_OVERLAY_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x400  # .vv1mc, 0x180 reserved
 MASK_OVERLAY_VA = mask_code_va(MASK_OVERLAY_FILE_OFFSET)
 # The active all-pose mask path uses the shared head-draw hook below. Its
 # identity comes from VILLAGE_CUR_IDX_VA; no per-frame SDL-blit list is emitted.
-# The village mask THIRD hook (alternate child render path 0x4093c0 -> 0x408740)
-# does NOT fit in the sequential VILLAGE_MASK_CAVE region. It lives in the
-# remaining patch-owned .vv1mc tail after the draw-hook stub; the reserved
-# offsets below keep the three hook families from overlapping.
-THIRD_HOOK_FILE_OFFSET = MASK_CODE_FILE_BASE + 0x5C0  # .vv1mc, 0x100 reserved
-THIRD_HOOK_VA = mask_code_va(THIRD_HOOK_FILE_OFFSET)
 # Details-screen portrait ("bighead") mask overlay: the Details portrait renders
 # through sub_437340, whose head draw at 0x43741B is the shared scaled draw
 # (0x409410). This tiny cave replaces that call: it does the original head draw,
@@ -3807,7 +3798,7 @@ def main() -> None:
             # only while performing an action (e.g. Exercising)" bug. Only 0x3dff8
             # (male_heads) and 0x3dff4 (female_heads) are the head sheets (ctor
             # 0x43C0D4 / 0x43C099). Bodies are 0x3dfe8/0x3dfe4. Adults use the SAME two
-            # head sheets, drawn through 0x4093c0 and gated in the shared 5-arg body.
+            # head sheets, drawn through 0x4093c0 and gated in the adult hook below.
         vh_head:
             # NO clear-on-consume: the stash stays valid for the WHOLE villager
             # iteration (it's overwritten at the next loop top by stash1/stash2).
@@ -3958,11 +3949,13 @@ def main() -> None:
     # thunk, so this hook covers it. 0x408740 takes 5 args (ret 0x14): arg1=sprite,
     # arg2=x, arg3=y, arg4=row, arg5=col. For the mask we set arg1=mask sprite and
     # arg4=mask colour row, leaving x/y/col identical so the mask rides the head.
-    # The body is also entered from the other 5-arg thunk 0x4093e0 -> 0x408840,
-    # but that thunk draws NO head in the village loops: its only caller there is
-    # 0x43808A, the swimming ripple under an adult in water (sprite
-    # [gameobj+0x3e008] = ripple.png, 4 cols x 1 row, ctor 0x43C2D3..0x43C2EB).
     # Shared stash + mask table + cached sprite with the child hook.
+    #
+    # No caller-address gate: the stock exe calls 0x4093c0 only from the 14 sites
+    # 0x438150..0x4387CD, all inside village loop 1's adult branch, and nothing
+    # else refers to it. The other 5-arg thunk 0x4093e0 -> 0x408840 is NOT hooked:
+    # it draws no head in the village (its only village caller, 0x43808A, draws
+    # ripple.png from [gameobj+0x3e008] under an adult in water).
     adult_hook_va = _vva
     adult_hook = assemble(
         f"""
@@ -3970,24 +3963,6 @@ def main() -> None:
             push eax
             push edx
             # [esp]=edx [+4]=fill [+8]=renderer [+0xc]=cret [+0x10]=arg1 [+0x14]=arg2 [+0x18]=arg3 [+0x1c]=arg4 [+0x20]=arg5
-            # CALLER-ADDRESS GATE (see village_hook): only mask VILLAGE-render head
-            # draws. The adult thunk 0x4093e0 has 47 call sites in 4 clusters; only
-            # the one at ~0x43808A is the village adult draw -- the 0x40C/0x41A/0x433B
-            # clusters are UI/map/portrait and must NOT be masked. Range excludes them
-            # and the Details bighead too.
-            mov edx, dword ptr [esp + 0xc]        # caller return address
-            cmp edx, 0x437790
-            jb ah_pass
-            cmp edx, 0x4392D0
-            ja ah_pass
-            # Exclude the SWIMMING RIPPLE: 0x43808A (return 0x43808F) draws ripple.png
-            # ([gameobj+0x3e008], 4x1) under an adult standing in water, just before
-            # that adult's head at 0x438150 (0x4093c0). The ripple sprite matches the
-            # 0x3e008 compare below, so without this exclusion a masked swimmer got a
-            # second mask on the ripple (the "faded duplicate"). The 0x438150 head
-            # mask is unaffected.
-            cmp edx, 0x43808F
-            je ah_pass
             mov edx, dword ptr [0x{VILLAGE_CUR_IDX_VA:X}]
             cmp edx, 0x100
             jae ah_pass
@@ -3995,9 +3970,7 @@ def main() -> None:
             test eax, eax
             jz ah_pass
             mov edx, dword ptr [esp + 0x10]       # arg1 (sprite)
-            cmp edx, dword ptr [eax + 0x3e008]    # ripple.png, NOT a head; its only village draw (0x43808A) is excluded above, so this never matches
-            je ah_head
-            cmp edx, dword ptr [eax + 0x3dff8]    # head sheet male_heads (adult heads via 0x4093c0)
+            cmp edx, dword ptr [eax + 0x3dff8]    # head sheet male_heads
             je ah_head
             cmp edx, dword ptr [eax + 0x3dff4]    # head sheet female_heads
             jne ah_pass
@@ -4055,8 +4028,8 @@ def main() -> None:
             pop edx
             pop eax
             pop ecx
-            mov ecx, dword ptr [ecx]
-            jmp dword ptr [0x{VILLAGE_DRAWFN_VA:X}]
+            mov ecx, dword ptr [ecx]              # stock thunk deref
+            jmp 0x408740
         ah_draw:
             mov ecx, dword ptr [esp + 8]
             mov ecx, dword ptr [ecx]
@@ -4072,7 +4045,7 @@ def main() -> None:
             push dword ptr [esp + 0x14]
             mov ecx, dword ptr [0x{VILLAGE_SURFACE_SAVE_VA:X}]
             mov eax, dword ptr [0x{VILLAGE_FILL_SAVE_VA:X}]
-            call dword ptr [0x{VILLAGE_DRAWFN_VA:X}]
+            call 0x408740
             push dword ptr [esp + 0x14]
             push dword ptr [esp + 0x14]
             push dword ptr [esp + 0x14]
@@ -4089,89 +4062,28 @@ def main() -> None:
             # NO X term: per-facing X is baked into mask_atlas.png (see child path), so
             # the mask seats horizontally at every facing with zero draw-time X.
             sub dword ptr [esp + 8], 48           # arg3=y: up 48 (= child scaled-lift at scale 1.0; owner in-game confirmed). Per-color Y also baked into the atlas, so one constant serves all colors.
-            # Frame selection differs by DRAW FN behaviour, not by thunk:
-            #  * 0x408840 idiv-DECODES a packed frame into row,col, so we
-            #    re-PACK: arg4 = maskrow*mask_cols(8) + facing. No head reaches
-            #    this branch: 0x4093e0's only village caller is the excluded
-            #    ripple draw (0x43808A), so every mask here goes through 0x408740.
-            #  * 0x408740 (adult heads) takes arg4,arg5 as SEPARATE row,col
-            #    indices (no idiv -- it hands them straight to 0x409f90 against the
-            #    sprite's own cols/rows). So we override ONLY the row (arg4:=mask
-            #    colour) and leave arg5 (the head's real facing column) verbatim.
-            #    Re-packing it -- what the merged body used to do to both -- shoved
-            #    maskrow*8+arg4 into a raw row index and marched the mask through
-            #    unrelated cells (the "changes sprite independently" misalignment).
-            mov ecx, dword ptr [0x{VILLAGE_DRAWFN_VA:X}]
-            cmp ecx, 0x408740
-            je msk_sep
-            mov eax, dword ptr [0x{VILLAGE_MASK_ROW_VA:X}]
-            shl eax, 3                            # maskrow * mask_cols(8)
-            add eax, dword ptr [esp + 0xc]        # + facing (original packed arg4)
-            mov dword ptr [esp + 0xc], eax        # arg4 = row*8 + facing
-            jmp msk_go
-        msk_sep:
+            # 0x408740 takes arg4,arg5 as SEPARATE row,col indices (no idiv -- it
+            # hands them straight to 0x409f90 against the sprite's own cols/rows).
+            # So override ONLY the row (arg4:=mask colour) and leave arg5 (the head's
+            # real facing column) verbatim.
             mov eax, dword ptr [0x{VILLAGE_MASK_ROW_VA:X}]
             mov dword ptr [esp + 0xc], eax        # arg4 = mask colour ROW; arg5 (facing col) left verbatim
-        msk_go:
             mov ecx, dword ptr [0x{VILLAGE_SURFACE_SAVE_VA:X}]
             mov eax, dword ptr [0x{VILLAGE_FILL_SAVE_VA:X}]
-            call dword ptr [0x{VILLAGE_DRAWFN_VA:X}]
+            call 0x408740
             ret 0x14
         """,
         adult_hook_va,
     )
-    # This body is SHARED by BOTH 5-arg thunks (0x4093e0 -> 0x408840, whose only
-    # village caller is the swimming ripple at 0x43808A, and 0x4093c0 -> 0x408740,
-    # the adult head/action draws). They differ only in the original draw fn. The
-    # head gate is male_heads/female_heads (0x3dff8/0x3dff4); 0x3e008 is
-    # ripple.png, whose one village draw is excluded by its return address. The
-    # draw fn is chosen per-thunk by a 15-byte entry stub that stores it into
-    # VILLAGE_DRAWFN_VA before jumping here; the body then draws head + mask via
-    # `call [DRAWFN]` and passes through via `jmp [DRAWFN]`. One 346-byte body
-    # instead of two -- the duplicate 0x408740 mirror didn't fit anywhere.
-    shared_body_va = adult_hook_va
     patch(
         _vfile, b"\0" * len(adult_hook), adult_hook,
-        "Village all-pose mask SHARED 5-arg hook body (serves both 5-arg thunks: 0x4093c0->0x408740, which draws every adult head (age>=0x118) from male_heads/female_heads 0x3dff8/0x3dff4, and 0x4093e0->0x408840, whose only village caller is the swimming ripple (ripple.png at 0x3e008, call 0x43808A), excluded by return address). For a masked villager's head it reissues the mask through the same draw fn (VILLAGE_DRAWFN_VA) with arg1=mask sprite and arg4=mask colour row at the head's own x/y/facing column.",
+        "Village all-pose mask adult hook (0x4093c0->0x408740 thunk replacement): every adult head (age>=0x118) is drawn here from male_heads/female_heads (0x3dff8/0x3dff4); for a masked villager's head it draws the head, then re-issues the mask through 0x408740 with arg1=mask sprite and arg4=mask colour row at the head's own x/y (lifted) and facing column. All other draws pass through unchanged.",
     )
     _vfile += len(adult_hook); _vva += len(adult_hook)
-
-    # Two tiny per-thunk entry stubs in the draw-hook gap tail (0x8B0A0): each
-    # records its thunk's original draw fn, then jumps the shared body.
-    adult_entry_va = THIRD_HOOK_VA
-    adult_entry = assemble(
-        f"""
-            mov dword ptr [0x{VILLAGE_DRAWFN_VA:X}], 0x408840
-            jmp 0x{shared_body_va:X}
-        """,
-        adult_entry_va,
-    )
-    child_entry_va = THIRD_HOOK_VA + len(adult_entry)
-    child_entry = assemble(
-        f"""
-            mov dword ptr [0x{VILLAGE_DRAWFN_VA:X}], 0x408740
-            jmp 0x{shared_body_va:X}
-        """,
-        child_entry_va,
-    )
-    entry_blob = adult_entry + child_entry
-    assert THIRD_HOOK_FILE_OFFSET + len(entry_blob) <= MASK_RESTORE_STUB_FILE_OFFSET, (
-        f"mask entry stubs ({len(entry_blob)} bytes) overflow their .vv1mc slot "
-        f"(0x{THIRD_HOOK_FILE_OFFSET:X}..0x{MASK_RESTORE_STUB_FILE_OFFSET:X})"
-    )
-    patch(
-        THIRD_HOOK_FILE_OFFSET, b"\0" * len(entry_blob), entry_blob,
-        "Village all-pose mask per-thunk entry stubs (draw-hook gap tail 0x8B0A0): stub A stores the adult draw fn 0x408840, stub B the child-alt draw fn 0x408740, then both jmp the shared 5-arg mask body. Lets one body serve both thunks; the sequential village-cave region has no room for a second 346-byte copy.",
-    )
-    patch(
-        0x93E0, assemble("mov ecx, dword ptr [ecx]\n jmp 0x408840", 0x4093E0)[:5],
-        assemble(f"jmp 0x{adult_entry_va:X}", 0x4093E0),
-        "splice the adult scaled-draw thunk 0x4093e0 into its mask entry stub (-> shared 5-arg body, draw fn 0x408840)",
-    )
     patch(
         0x93C0, assemble("mov ecx, dword ptr [ecx]\n jmp 0x408740", 0x4093C0)[:5],
-        assemble(f"jmp 0x{child_entry_va:X}", 0x4093C0),
-        "splice the alternate child/swim scaled-draw thunk 0x4093c0 into its mask entry stub (-> shared 5-arg body, draw fn 0x408740)",
+        assemble(f"jmp 0x{adult_hook_va:X}", 0x4093C0),
+        "splice the adult 5-arg draw thunk 0x4093c0 into the village adult mask hook",
     )
 
     assert _vfile <= MASK_OVERLAY_FILE_OFFSET, (

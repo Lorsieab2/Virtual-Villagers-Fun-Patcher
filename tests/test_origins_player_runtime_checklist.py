@@ -475,6 +475,10 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # splices + their stash caves (inert; hook reads the slot later).
                         "0x37798", "0x38900", "0x8B180", "0x8B191",
                         "0x8BF3C", "0x8BF76", "0x8BF90", "0x8BFAA", "0x8BFC4",
+                        # Village adult mask hook: 0x4093E0 (the swimming
+                        # ripple's thunk) is no longer spliced, its entry
+                        # stubs are gone, and the body serves only 0x4093C0.
+                        "0x93E0", "0x93C0", "0x8E5C0", "0x8E1B4",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

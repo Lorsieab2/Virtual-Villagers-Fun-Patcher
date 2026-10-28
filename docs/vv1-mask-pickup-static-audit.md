@@ -34,26 +34,27 @@ loops are:
 | `0x4093D0` | alternate non-head five-argument draw | `0x437BFA`, `0x437DDD`, `0x437EE3`, `0x4381CD`, `0x438430`, `0x438483`, `0x4384FA`, `0x438638`, `0x43868B`, `0x4386D8`, `0x438829`, `0x43887C`, `0x4388C9` |
 | `0x409420` | second-loop non-head five-argument draw | `0x438FA6`, `0x43912C`, `0x4392B1` |
 
-These are 55 direct wrapper calls in the two central loops. The head-mask
-hook's caller gate `0x437790 <= return_address < 0x4392D0` therefore covers
-both loops while excluding the Details portrait and unrelated UI/map/effect
-draw clusters. The gate's upper bound is conservative: `0x4392D0` is the
+These are 55 direct wrapper calls in the two central loops. The child
+head-mask hook (`0x409410`) has the caller gate `0x437790 <= return_address
+< 0x4392D0`, which covers both loops while excluding the Details portrait and
+unrelated UI/map/effect draw clusters. The adult hook (`0x4093C0`) needs no
+gate: all 14 of its callers are the loop-1 sites above. The gate's upper bound is conservative: `0x4392D0` is the
 next function, not another draw call.
 
 The loop-1 and loop-2 identity stashes at `0x437798` and `0x438900` provide
 the current record index to the shared mask hooks. The source hook then
 accepts only the native head sheets `0x3DFF8`/`0x3DFF4` (male_heads and
-female_heads, used by children and adults alike). The shared five-argument
-body also compares `0x3E008`, which is `ripple.png`, not a head; its only
-village draw (`0x43808A`) is excluded by return address `0x43808F` before that
-compare, so the ripple is never masked. Action sheets, body atlases, and the
-other non-head five-argument draws pass through unchanged. This covers the
+female_heads, used by children and adults alike). `0x4093E0` is left stock:
+its only village draw is the swimming ripple (`0x43808A`, `ripple.png` from
+`0x3E008`), which is not a head. Action sheets, body atlases, and the other
+non-head five-argument draws pass through unchanged. This covers the
 branch-specific adult, child, swim/sit, and other pose paths represented by
 the head callsites; it does not invent a separate action-sheet mask floor.
 
 The same wrappers are also called by non-villager clusters around
 `0x40C4EF..0x40C65B`, `0x41ABA0`, and `0x433B5B..0x434016`. Those callers use
-tile/effect/UI objects rather than villager records and are outside the gate.
+tile/effect/UI objects rather than villager records; the `0x409410` ones are
+outside its gate, and `0x4093E0` is not hooked.
 
 ## Details portrait boundary
 

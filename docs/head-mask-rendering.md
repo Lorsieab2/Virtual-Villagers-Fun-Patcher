@@ -213,8 +213,10 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 - **Not a head path:** `0x4093E0 → 0x408840` — 5 args, `ret 0x14`, **LINEAR packed
   frame** (the fn `cdq/idiv`s arg4 into row,col). Args: `arg1=sprite, arg2=x, arg3=y,
   arg4=frame, arg5=0.4f`. `0x402F70` is `ret 0` and the `0.4f` survives (caller never
-  cleans it) → arg5. In the village loops its only caller is the ripple (`0x43808A`);
-  the Origins mask hook excludes that call by its return address `0x43808F`.
+  cleans it) → arg5. In the village loops its only caller is the ripple (`0x43808A`),
+  so the Origins mask patch leaves this thunk stock.
+- **No caller gate on the adult hook:** `0x4093C0` is called only from the 14 adult-branch
+  sites `0x438150..0x4387CD`; nothing else refers to it.
 - **Age split:** `cmp [rec+0x348], 0x118` at `0x4379A7`; `jge 0x438014` = adult branch.
 - **Facings = 7 ⇒ drop the mask atlas's 8th column.**
 - **Details exact-argument wrapper:** all four head calls (`0x43741B`, `0x4374A4`,

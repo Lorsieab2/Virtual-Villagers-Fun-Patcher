@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.85
+
+- **A New Home's Heathen Mask drawing is simpler, with no change in play** (Enable Origins-Exclusive Features). The mask code used to also hook the game's draw for the ripple under a villager standing in water, and then had to skip that ripple. That code never put a mask anywhere, so it is gone: the ripple's draw is the game's own again, and every head, child or adult, swimming or not, gets its mask exactly as before. **Patch A New Home again** after updating. Not yet seen in a running game (checked by emulation on the stock exe).
+
 ## What's new in v1.35.84
 
 - **Fixed: "The output folder's path is too long"** when the output folder itself fit (e.g. a Secret City 256 build in a deep folder). The patcher's hidden working folders beside the output now have short fixed-length names (such as `.vvfp-stage-1a2b3c4d`) instead of a copy of the output's name plus 32 characters. Before anything is written, every file the patch will place, including your own files a re-patch carries over, is checked against Windows' 259-character limit; a folder that is too deep is refused up front with the folder to shorten, never part-way through. Nothing in any game changes; no need to patch again.
