@@ -548,11 +548,13 @@ class TheArt(unittest.TestCase):
                 self.assertEqual(built.tobytes(), art.preview_strip(art.load_sheet(path)).tobytes())
 
     def test_a_release_refuses_the_placeholder(self):
+        """`python scripts/build_release.py` refuses while a shipped sheet is still the mockup."""
         import build_release
-        shipped_placeholder = bool(art.placeholder_sheets())
-        if shipped_placeholder:
+        shipped = sorted(art.placeholder_sheets())
+        self.assertEqual(sorted(build_release._placeholder_art()), shipped)
+        if shipped:
             with self.assertRaisesRegex(RuntimeError, "PLACEHOLDER"):
-                build_release._refuse_placeholder_art()
+                build_release.main()
         else:
             build_release._refuse_placeholder_art()
         for name in ("assets/vv1_grey_hair/VVFP VV1 Grey Hair.dll", "assets/vv1_grey_hair/vvfp_grey_male_heads.png",
@@ -575,6 +577,22 @@ class TheArt(unittest.TestCase):
                 self.assertEqual(art.placeholder_sheets(), [])
             finally:
                 art.SHEETS, art.PLACEHOLDERS, art.ROOT = original
+        import build_release
+        with tempfile.TemporaryDirectory() as folder:
+            original = build_release.ROOT, build_release.FILES
+            try:
+                root = Path(folder)
+                (root / "assets" / "vv1_grey_hair").mkdir(parents=True)
+                (root / "assets" / "vv1_grey_hair" / "PLACEHOLDER_grey_male.png").write_bytes(b"mockup")
+                (root / "assets" / "vv1_grey_hair" / "vvfp_grey_male_heads.png").write_bytes(b"mockup")
+                build_release.ROOT = root
+                build_release.FILES = ["assets/vv1_grey_hair/vvfp_grey_male_heads.png"]
+                with self.assertRaisesRegex(RuntimeError, "PLACEHOLDER"):
+                    build_release._refuse_placeholder_art()
+                (root / "assets" / "vv1_grey_hair" / "vvfp_grey_male_heads.png").write_bytes(b"the owner's art")
+                build_release._refuse_placeholder_art()
+            finally:
+                build_release.ROOT, build_release.FILES = original
 
 
 if __name__ == "__main__":
