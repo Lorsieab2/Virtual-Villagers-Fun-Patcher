@@ -13388,13 +13388,16 @@ def refresh_shell_icons(exe: Path) -> None:
         return
     try:
         import ctypes
+    except ImportError:
+        return
+    try:
         notify = ctypes.WinDLL("shell32").SHChangeNotify
         notify.argtypes = [ctypes.c_long, ctypes.c_uint, ctypes.c_void_p, ctypes.c_void_p]
         notify.restype = None
         for path in (exe, exe.parent):
             notify(SHCNE_UPDATEITEM, SHCNF_PATHW | SHCNF_FLUSHNOWAIT, ctypes.c_wchar_p(str(path)), None)
         notify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST | SHCNF_FLUSHNOWAIT, None, None)
-    except (OSError, AttributeError):
+    except (OSError, AttributeError, ctypes.ArgumentError):
         return
 
 
