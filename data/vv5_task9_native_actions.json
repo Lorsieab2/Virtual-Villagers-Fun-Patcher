@@ -32,8 +32,8 @@
     {
       "source": "assets/head_look/VVFP Head Look.dll",
       "destination": "VVFP Head Look.dll",
-      "sha256": "1E7212C2DEC626AE045B6A3C117CBE06FBEEF1D2A10A3AB9E7153CD85943B7DF",
-      "size": 126464
+      "sha256": "3F0D6D1461EEE26E260837A4C99AF7A49EE770C02E49C581A23953025FA3095D",
+      "size": 127488
     }
   ],
   "doubler_evidence": {

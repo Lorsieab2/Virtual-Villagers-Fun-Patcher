@@ -18,6 +18,7 @@
 #include "../shared/foreign_sidecar.h" /* another village's file is never replaced */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/vv1_grey_hair.h"  /* Grey Hair at 55: the picker previews a grey head */
+#include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
 
 /* Which game this file is compiled for, for the Story / Cheat Upgrades
    companion.  The Lost Children's companion includes this file and sets 2.

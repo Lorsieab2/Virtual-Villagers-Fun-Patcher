@@ -208,6 +208,38 @@ BEGIN
     PUSHBUTTON  "Cancel", 2, 196, 168, 50, 16
 END
 
+/* Change Appearance with the head look (native/shared/head_look.h): 213 and, below the three pickers, a
+   "Head look" row -- Auto, Young or Old.  Used when "VVFP Head Look.dll" is in the game; otherwise 213. */
+218 DIALOGEX 0, 0, 364, 222
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
+CAPTION "Change Appearance"
+FONT 9, "Segoe UI"
+BEGIN
+    CTEXT       "Body", -1, 30, 8, 70, 9
+    CONTROL     "", 3101, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 70, 118
+    PUSHBUTTON  "<", 3103, 10, 72, 16, 16
+    PUSHBUTTON  ">", 3104, 104, 72, 16, 16
+
+    CTEXT       "Head", -1, 150, 8, 70, 9
+    CONTROL     "", 3102, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 20, 70, 118
+    PUSHBUTTON  "<", 3105, 130, 72, 16, 16
+    PUSHBUTTON  ">", 3106, 224, 72, 16, 16
+
+    CTEXT       "Mask", -1, 270, 8, 70, 9
+    CONTROL     "", 3107, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 270, 20, 70, 118
+    PUSHBUTTON  "<", 3108, 250, 72, 16, 16
+    PUSHBUTTON  ">", 3109, 344, 72, 16, 16
+
+    GROUPBOX        "Head look (free)", -1, 16, 144, 332, 26
+    AUTORADIOBUTTON "Auto (old from 55)", 3120, 30, 156, 100, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "Young", 3121, 160, 156, 60, 10
+    AUTORADIOBUTTON "Old", 3122, 250, 156, 60, 10
+
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 16, 176, 332, 9
+    DEFPUSHBUTTON "OK", 1, 128, 194, 50, 16
+    PUSHBUTTON  "Cancel", 2, 196, 194, 50, 16
+END
+
 /* VV2 "Change Appearance for All" (214): per-sex Head/Body/Mask selectors (each
    cycles a "No change" state + the stock options), plus a mutually-exclusive
    mask Distribution preset and a mutually-exclusive Village-wide single mask.

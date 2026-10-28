@@ -164,6 +164,8 @@ GAMES = {
             age=0x1B8C, head=0x1BB8, manager=0x4DACE0, slot_field=0x17D80, table=(0x494051, 0x41F1E6, 0x48)),
     4: dict(records=0x50E568 + 0x44, stride=0x2E3C, count=150, present=0x1CC4, name=0x1B9C, sex=0x1B90,
             age=0x1B8C, head=0x1BB8, manager=0x4CB51C, slot_field=0x17114, table=(0x488D71, 0x42001C, 0x44)),
+    2: dict(pool_global=0x499F24, stride=0xE48C, count=256, present=0x30, name=0x564, sex=0x538, age=0x530,
+            head=0x548, manager=0x4997BC, slot_field=0x30378),
     3: dict(records=0x59E110 + 0x14, stride=0x1F8C, count=150, present=0xF10, name=0xDD4, sex=0xDC8,
             age=0xDC4, head=0xDF0, manager=0x4B309C, slot_field=0x12F24, table=(0x4279B4, 0x42883A, 0x14)),
 }
@@ -187,6 +189,11 @@ class Game:
             if self.p.read(manager_imm - 1, 1) == b"\xB9" and self.p.u32(manager_imm) == 0x800000 \
                     and self.p.u32(slots_imm) == 256:
                 self.g.update(records=0x800000 + base, count=256)
+        pool = self.g.get("pool_global")
+        if pool is not None:
+            # A New Home and The Lost Children keep a pointer to their 256 records.
+            self.g["records"] = self.p.alloc(self.g["count"] * self.g["stride"])
+            self.p.put32(pool, self.g["records"])
         if start:
             self.p.export("VvfpStartup", game, 0)
         manager = self.p.alloc(self.g["slot_field"] + 0x100)

@@ -227,6 +227,19 @@ static const hl_site VV3_SITES[] = {
     CMP_ECX(0x456A15u, R_ESI, HL_NONE), CMP_ECX(0x456DCBu, R_ESI, HL_NONE),
 };
 
+/* The Lost Children: the Villager Details portrait 0x445540 (record in EDI), a villager's strip figure
+   0x445950 (EDI; the island-event and puzzle dialogs), the village 0x445B50 (EAX), and the map 0x4478E0
+   (ECX, or EDX + ESI -- the pool plus the record's offset). */
+static const hl_site VV2_SITES[] = {
+    CMP_ECX(0x445694u, R_EDI, HL_NONE), CMP_ECX(0x445A77u, R_EDI, HL_NONE), CMP_ECX(0x4469BAu, R_EAX, HL_NONE),
+    CMP_EAX(0x4481D9u, R_ECX, HL_NONE), CMP_EAX(0x448210u, R_ECX, HL_NONE), CMP_EAX(0x4482DCu, R_ECX, HL_NONE),
+    CMP_EAX(0x448390u, R_ECX, HL_NONE), CMP_EAX(0x448481u, R_ECX, HL_NONE), CMP_EAX(0x44851Cu, R_ECX, HL_NONE),
+    CMP_EAX(0x44868Au, R_ECX, HL_NONE), CMP_EAX(0x44872Bu, R_EDX, R_ESI), CMP_EAX(0x44887Eu, R_EDX, R_ESI),
+    CMP_EAX(0x448969u, R_ECX, HL_NONE), CMP_EAX(0x448A23u, R_ECX, HL_NONE), CMP_EAX(0x448AD1u, R_ECX, HL_NONE),
+    CMP_EAX(0x448BF4u, R_EDX, R_ESI), CMP_EAX(0x448CFAu, R_ECX, HL_NONE), CMP_EAX(0x448DB4u, R_ECX, HL_NONE),
+    CMP_EAX(0x448F1Cu, R_ECX, HL_NONE), CMP_EAX(0x448FC6u, R_EDX, R_ESI),
+};
+
 static const hl_site *g_sites;
 static int g_site_count;
 
@@ -268,10 +281,15 @@ static __declspec(naked) void hl_site_common(void) {
 }
 
 #define HL_STUB(n) static __declspec(naked) void hl_stub_##n(void) { __asm push n __asm jmp hl_site_common }
-HL_STUB(0) HL_STUB(1) HL_STUB(2) HL_STUB(3)
+HL_STUB(0) HL_STUB(1) HL_STUB(2) HL_STUB(3) HL_STUB(4) HL_STUB(5) HL_STUB(6) HL_STUB(7) HL_STUB(8) HL_STUB(9)
+HL_STUB(10) HL_STUB(11) HL_STUB(12) HL_STUB(13) HL_STUB(14) HL_STUB(15) HL_STUB(16) HL_STUB(17) HL_STUB(18)
+HL_STUB(19)
 
+/* One per site of the game with the most (The Lost Children's 20). */
 static void (*const HL_STUBS[])(void) = {
-    hl_stub_0, hl_stub_1, hl_stub_2, hl_stub_3,
+    hl_stub_0, hl_stub_1, hl_stub_2, hl_stub_3, hl_stub_4, hl_stub_5, hl_stub_6, hl_stub_7, hl_stub_8, hl_stub_9,
+    hl_stub_10, hl_stub_11, hl_stub_12, hl_stub_13, hl_stub_14, hl_stub_15, hl_stub_16, hl_stub_17, hl_stub_18,
+    hl_stub_19,
 };
 
 static void hl_install(const hl_site *sites, int count) {
@@ -306,6 +324,9 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         break;
     case 3:
         hl_install(VV3_SITES, (int)(sizeof VV3_SITES / sizeof VV3_SITES[0]));
+        break;
+    case 2:
+        hl_install(VV2_SITES, (int)(sizeof VV2_SITES / sizeof VV2_SITES[0]));
         break;
     default:
         break;

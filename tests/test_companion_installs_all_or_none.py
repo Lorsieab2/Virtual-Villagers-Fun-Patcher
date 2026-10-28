@@ -355,7 +355,7 @@ CASES = [
          lambda g: ["vv1_grey_hair"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpGreyHairInstalled"))[1]),
     # Change Appearance's head look (every game's Origins row): the age compares the old heads hang on.
-    Case("Head Look", "assets/head_look/VVFP Head Look.dll", (3, 4, 5),
+    Case("Head Look", "assets/head_look/VVFP Head Look.dll", (2, 3, 4, 5),
          lambda g: [f"vv{g}_enable_origins_exclusive_features"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeadLookInstalled", g))[1]),
     Case("Work First", "assets/work_first/VVFP Work First.dll", (1, 2, 4, 5),

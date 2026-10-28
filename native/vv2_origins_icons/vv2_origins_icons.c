@@ -1414,6 +1414,17 @@ static void vv2_draw_label(DRAWITEMSTRUCT *item, const char *text) {
     DrawTextA(item->hDC, text, -1, &rc, DT_CENTER | DT_WORDBREAK);
 }
 
+/* THE HEAD LOOK (native/shared/head_look.h): Auto, Young or Old, kept by "VVFP Head Look.dll" for the
+   villager, never in the record.  Offered (dialog 218) when that DLL is in the game; choosing a look is free
+   and is kept on OK -- with the head, body and mask when they changed too, alone when they did not. */
+#define IDD_VV2_APPEARANCE_LOOK 218
+#define IDC_VV2_LOOK_AUTO 3120
+#define IDC_VV2_LOOK_OLD  3122
+static vvfp_head_look_api vv2_appearance_look_api;
+static int vv2_appearance_look_offered;
+static int vv2_appearance_look;      /* 0 Auto, 1 Young, 2 Old */
+static int vv2_appearance_age;
+
 static INT_PTR CALLBACK vv2_appearance_dialog(
     HWND window,
     UINT message,
@@ -1427,6 +1438,9 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
     (void)lparam;
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(2, window);   /* "OK deducts 0 tech points" */
+        if (vv2_appearance_look_offered) {
+            CheckRadioButton(window, IDC_VV2_LOOK_AUTO, IDC_VV2_LOOK_OLD, IDC_VV2_LOOK_AUTO + vv2_appearance_look);
+        }
         vv2_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
@@ -1449,6 +1463,13 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
         }
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (vv2_appearance_look_offered && command >= IDC_VV2_LOOK_AUTO && command <= IDC_VV2_LOOK_OLD) {
+            /* The preview shows the head the village will draw with the chosen look. */
+            vv2_appearance_look = (int)(command - IDC_VV2_LOOK_AUTO);
+            vv2_appearance_old = vvfp_head_look_old(vv2_appearance_look, vv2_appearance_age);
+            vv2_appearance_repaint(window, IDC_HEAD_PREVIEW);
+            return TRUE;
+        }
         if (command == IDC_BODY_PREV) {
             vv2_appearance_body = (vv2_appearance_body + VV2_APPEARANCE_COUNT - 1) % VV2_APPEARANCE_COUNT;
             vv2_appearance_repaint(window, IDC_BODY_PREVIEW);
@@ -2618,7 +2639,7 @@ int __stdcall ShowVV2AppearanceChooser(
 ) {
     INT_PTR result;
     int *tech;
-    int sex, age, h, b, m, orig_head, orig_body, orig_mask;
+    int sex, age, h, b, m, orig_head, orig_body, orig_mask, look_was;
     if (player == 0 || record == 0 || idx < 0 || idx >= VV2_MASK_TABLE_BYTES) {
         return 0;
     }
@@ -2631,7 +2652,11 @@ int __stdcall ShowVV2AppearanceChooser(
     /* VV2 stores sex as 1 (male) or 2 (female); the stock renderer branches on
        `sex == 1` (0x4456A3). Match it: sex 1 -> male atlas (0), else female (1). */
     vv2_appearance_sex = (sex == 1) ? 0 : 1;
-    vv2_appearance_old = age >= 1100 ? 1 : 0;
+    vv2_appearance_age = age;
+    vv2_appearance_look_offered = vvfp_head_look_find(2, &vv2_appearance_look_api);
+    vv2_appearance_look = look_was = vv2_appearance_look_offered
+        ? vv2_appearance_look_api.get(2, record) : VVFP_HEAD_LOOK_AUTO;
+    vv2_appearance_old = vvfp_head_look_old(vv2_appearance_look, age);
     vv2_appearance_head = (h >= 0 && h < VV2_APPEARANCE_COUNT) ? h : 0;
     vv2_appearance_body = (b >= 0 && b < VV2_APPEARANCE_COUNT) ? b : 0;
     vv2_appearance_mask = (m >= 0 && m < VV2_MASK_COUNT) ? m : 0;
@@ -2641,13 +2666,27 @@ int __stdcall ShowVV2AppearanceChooser(
 
     result = DialogBoxParamA(
         module_instance,
-        MAKEINTRESOURCEA(IDD_VV2_APPEARANCE),
+        MAKEINTRESOURCEA(vv2_appearance_look_offered ? IDD_VV2_APPEARANCE_LOOK : IDD_VV2_APPEARANCE),
         GetForegroundWindow(),
         vv2_appearance_dialog,
         0
     );
     if (result != 1) {
         return 0;
+    }
+    /* The head look: kept on OK, free (VVFP Head Look.dll's own file); the look alone charges nothing. */
+    if (vv2_appearance_look_offered && vv2_appearance_look != look_was) {
+        if (!vv2_appearance_look_api.set(2, record, vv2_appearance_look)) {
+            MessageBoxA(GetForegroundWindow(),
+                "The head look could not be kept: the patcher's file for this save could not be written. "
+                "Nothing was changed and no tech points have been deducted.",
+                "Villager Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+            return 0;
+        }
+        if (vv2_appearance_head == orig_head && vv2_appearance_body == orig_body
+                && vv2_appearance_mask == orig_mask) {
+            return 0;
+        }
     }
     /* OK with nothing actually changed: write nothing, charge nothing. */
     if (vv2_appearance_head == orig_head && vv2_appearance_body == orig_body

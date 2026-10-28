@@ -145,7 +145,42 @@ def _branch(young: int, old: int, regs=_regs()):
     return run
 
 
+def _jump(consumer: int, taken_is_old: bool, regs):
+    """The conditional jump that reads the compare's flags (`consumer`; only mov, push, lea and cdq come
+    between): the game is run from the site to it, then one step, and whether it was taken says the head."""
+    def run(g: Game, record: int) -> bool:
+        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+        g.run(SITE[g.game][run.site], regs=regs(g, record), until=consumer, count=100_000)
+        assert g.p.reg("eip") == consumer, hex(g.p.reg("eip"))
+        length = next(Cs(CS_ARCH_X86, CS_MODE_32).disasm(g.p.read(consumer, 16), consumer)).size
+        g.p.mu.emu_start(consumer, 0, count=1)
+        taken = g.p.reg("eip") != consumer + length
+        return taken == taken_is_old
+    run.regs = regs
+    return run
+
+
+_EDI_ECX = _regs(("edi",), "ecx")
+_EAX_ECX = _regs(("eax",), "ecx")
+_ECX_EAX = _regs(("ecx",), "eax")
+_EDX_ESI_EAX = _regs(("edx", "esi"), "eax")
+
 DRAWS = {
+    2: {
+        "details": (0x445694, 6, _jump(0x4456A1, False, _EDI_ECX)),
+        "strip": (0x445A77, 6, _jump(0x445A88, False, _EDI_ECX)),
+        "village": (0x4469BA, 6, _jump(0x4469CD, False, _EAX_ECX)),
+        **{f"map {va:#x}": (va, 5, _jump(consumer, taken_is_old, regs)) for va, consumer, taken_is_old, regs in (
+            (0x4481D9, 0x4481E8, False, _ECX_EAX), (0x448210, 0x44821F, False, _ECX_EAX),
+            (0x4482DC, 0x4482EE, False, _ECX_EAX), (0x448390, 0x448397, False, _ECX_EAX),
+            (0x448481, 0x448491, False, _ECX_EAX), (0x44851C, 0x44852C, False, _ECX_EAX),
+            (0x44868A, 0x448693, False, _ECX_EAX), (0x44872B, 0x448738, False, _EDX_ESI_EAX),
+            (0x44887E, 0x44888E, False, _EDX_ESI_EAX), (0x448969, 0x448972, False, _ECX_EAX),
+            (0x448A23, 0x448A2C, True, _ECX_EAX), (0x448AD1, 0x448ADA, True, _ECX_EAX),
+            (0x448BF4, 0x448C04, False, _EDX_ESI_EAX), (0x448CFA, 0x448D03, False, _ECX_EAX),
+            (0x448DB4, 0x448DBD, False, _ECX_EAX), (0x448F1C, 0x448F2C, False, _ECX_EAX),
+            (0x448FC6, 0x448FD1, False, _EDX_ESI_EAX))},
+    },
     5: {
         "village": (0x4722A2, 10, _column_offset(0x4722B9, "ecx", _regs(ecx=0))),
         "figure": (0x466DC1, 10, _branch(0x466DDD, 0x466DCD)),
@@ -332,6 +367,11 @@ class SecretCityDraws(_DrawsBase, unittest.TestCase):
     GAME = 3
 
 
+@_skip(2)
+class LostChildrenDraws(_DrawsBase, unittest.TestCase):
+    GAME = 2
+
+
 class TheSidecar(unittest.TestCase):
     def test_the_harness_on_real_files(self):
         """native/vvfp_head_look/head_look_harness.c: round trip, follow, reuse, rename, copies, broken files,
@@ -378,8 +418,9 @@ class TheCompanion(unittest.TestCase):
                 self.assertEqual(patcher._startup_loader_mask_2(features) & bit, bit)
 
 
-ORIGINS_ROWS = {5: "vv5_task9_native_actions.json", 4: "vv4_origins_feature.json", 3: "vv3_origins_feature.json"}
-ORIGINS_IDS = {game: f"vv{game}_enable_origins_exclusive_features" for game in (5, 4, 3)}
+ORIGINS_ROWS = {5: "vv5_task9_native_actions.json", 4: "vv4_origins_feature.json", 3: "vv3_origins_feature.json",
+                2: "vv2_origins_feature.json"}
+ORIGINS_IDS = {game: f"vv{game}_enable_origins_exclusive_features" for game in (5, 4, 3, 2)}
 
 
 if __name__ == "__main__":
