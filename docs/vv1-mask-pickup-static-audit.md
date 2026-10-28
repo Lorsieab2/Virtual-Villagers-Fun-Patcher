@@ -29,28 +29,32 @@ loops are:
 | thunk | role in the loop | direct callsites |
 | --- | --- | --- |
 | `0x409410` | seven-argument scaled draw | `0x437AA8`, `0x437B45`, `0x437BAC`, `0x437C71`, `0x437D17`, `0x437E4D`, `0x437F53`, `0x437FB9`; `0x438A0E`, `0x438B24`, `0x438B9A`, `0x438CE3`, `0x438D3F`, `0x438D86`, `0x438DE2`, `0x438E3D`, `0x438EAA`, `0x438EFC`, `0x439009`, `0x439059`, `0x4390A3`, `0x43918C`, `0x439206`, `0x439256` |
-| `0x4093E0` | adult five-argument draw | `0x43808A` |
-| `0x4093C0` | alternate child/swim five-argument draw | `0x438150`, `0x438220`, `0x438273`, `0x438296`, `0x4382E9`, `0x438337`, `0x43838D`, `0x4383D5`, `0x43854F`, `0x4385A3`, `0x4385E9`, `0x438733`, `0x438787`, `0x4387CD` |
+| `0x4093E0` | swimming ripple (`ripple.png`, `[gameobj+0x3E008]`) under an adult in water | `0x43808A` |
+| `0x4093C0` | adult-branch (age `>= 0x118`) five-argument draw: heads, the swim head and action sheets | `0x438150`, `0x438220`, `0x438273`, `0x438296`, `0x4382E9`, `0x438337`, `0x43838D`, `0x4383D5`, `0x43854F`, `0x4385A3`, `0x4385E9`, `0x438733`, `0x438787`, `0x4387CD` |
 | `0x4093D0` | alternate non-head five-argument draw | `0x437BFA`, `0x437DDD`, `0x437EE3`, `0x4381CD`, `0x438430`, `0x438483`, `0x4384FA`, `0x438638`, `0x43868B`, `0x4386D8`, `0x438829`, `0x43887C`, `0x4388C9` |
 | `0x409420` | second-loop non-head five-argument draw | `0x438FA6`, `0x43912C`, `0x4392B1` |
 
-These are 55 direct wrapper calls in the two central loops. The head-mask
-hook's caller gate `0x437790 <= return_address < 0x4392D0` therefore covers
-both loops while excluding the Details portrait and unrelated UI/map/effect
-draw clusters. The gate's upper bound is conservative: `0x4392D0` is the
+These are 55 direct wrapper calls in the two central loops. The child
+head-mask hook (`0x409410`) has the caller gate `0x437790 <= return_address
+< 0x4392D0`, which covers both loops while excluding the Details portrait and
+unrelated UI/map/effect draw clusters. The adult hook (`0x4093C0`) needs no
+gate: all 14 of its callers are the loop-1 sites above. The gate's upper bound is conservative: `0x4392D0` is the
 next function, not another draw call.
 
 The loop-1 and loop-2 identity stashes at `0x437798` and `0x438900` provide
 the current record index to the shared mask hooks. The source hook then
-accepts only the native head atlases: the adult head (`0x3E008`) and child
-head atlases (`0x3DFF8`/`0x3DFF4`). Action sheets, body atlases, and the other
+accepts only the native head sheets `0x3DFF8`/`0x3DFF4` (male_heads and
+female_heads, used by children and adults alike). `0x4093E0` is left stock:
+its only village draw is the swimming ripple (`0x43808A`, `ripple.png` from
+`0x3E008`), which is not a head. Action sheets, body atlases, and the other
 non-head five-argument draws pass through unchanged. This covers the
 branch-specific adult, child, swim/sit, and other pose paths represented by
 the head callsites; it does not invent a separate action-sheet mask floor.
 
 The same wrappers are also called by non-villager clusters around
 `0x40C4EF..0x40C65B`, `0x41ABA0`, and `0x433B5B..0x434016`. Those callers use
-tile/effect/UI objects rather than villager records and are outside the gate.
+tile/effect/UI objects rather than villager records; the `0x409410` ones are
+outside its gate, and `0x4093E0` is not hooked.
 
 ## Details portrait boundary
 

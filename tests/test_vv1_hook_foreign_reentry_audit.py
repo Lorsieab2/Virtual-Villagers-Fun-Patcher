@@ -95,12 +95,11 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 #       via `mov esi,ecx`; no incoming flag is live.  The masked path builds
 #       two complete seven-argument calls and ends `ret 0x1C`, also returning
 #       with the original ESP and callee-saved registers.
-#   0x93E0/0x93C0                    confirmed.  The exact entry bytes store
-#       0x408840/0x408740 in the draw-function slot, then jump to the shared
-#       body.  The pass block restores ECX/EAX/EDX and stack, replays `8B09`,
-#       and indirect-jumps to the selected stock five-argument draw.  Those
-#       targets begin with `sub esp,0x10`; the shared masked path's calls end
-#       `ret 0x14`, so stack and callee-saved state match the native thunks.
+#   0x93C0 -> 0x408740               confirmed.  The pass block restores
+#       ECX/EAX/EDX and stack, replays `8B09`, and jumps to the stock
+#       five-argument draw, which begins with `sub esp,0x10`; the masked
+#       path's calls end `ret 0x14`, so stack and callee-saved state match the
+#       native thunk.  0x93E0 (the swimming ripple's thunk) is left stock.
 #   0x24103                         intentionally absent.  The obsolete
 #       FUN_00423390 back-edge detour was removed; the exact stock bytes remain
 #       unpatched because the old SDL-blit path is fully retired.
@@ -488,14 +487,16 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "7DD57F614B206C957C60D7BA3ED02B0FF2DA9DC43B2F693A4BD0A6B810EEB673",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "D44A6B9C0DB1C684604A9818144F1209EFCC19BA484337579CD40B644FB56257",
-    ("vv1_enable_origins_exclusive_features", "0x913C"): "E8C3E35B56C0AD00518A27056132703EE942FDC5C6BAD9C3C1F90698AD701198",
+    # Re-reviewed when the never-read DEST_SURFACE_CACHE store was removed:
+    # `mov [0x491094], ecx` wrote memory only, so ECX/ESP/flags at the resume
+    # 0x409142 are unchanged.
+    ("vv1_enable_origins_exclusive_features", "0x913C"): "500761B696C9E0758BFD17EB59D0829D6414E7B957FEA50AADDD8328298B04D1",
     # The three newer detours below are part of the same integrated mask
     # branch. Their cave contracts are pinned separately in the review notes:
-    # 0x9410 restores the original thunk pass path; 0x93E0/0x93C0 select the
-    # original 5-argument draw function before entering the shared body.
+    # 0x9410 (children) and 0x93C0 (adults) restore the original thunk pass
+    # path. 0x93E0 (the swimming ripple's thunk) is no longer hooked.
     ("vv1_enable_origins_exclusive_features", "0x9410"): "7982B49692070B5D5F0D7E6CD6DA207196D56F6F20AD25F3F3DC996712D2E303",
-    ("vv1_enable_origins_exclusive_features", "0x93E0"): "1C0DD220A551A2824C06CA9B84800EA4848EBEC44D2DF5A95D1512C0601AA1BF",
-    ("vv1_enable_origins_exclusive_features", "0x93C0"): "EE4841DFEC23F672852234656E80B117C2D70CABC3CA5031D45C2C1C08CFAAA3",
+    ("vv1_enable_origins_exclusive_features", "0x93C0"): "2A65FD7FFE0A4654428D381ACFFAE432454F8ABCFB1F8099768BBAE165A39550",
     # Re-reviewed when the save-slot capture gained the queued-event reset
     # (Barrel pending / delay counter / three-child one-shot). Register
     # behaviour is unchanged: the added stores are absolute `mov imm` with
@@ -504,7 +505,11 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # at the resume depends on is altered.
     # Re-reviewed for v1.35.45: the three-child one-shot's clear is removed
     # with the flag itself; one absolute store fewer, nothing else changes.
-    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "08F2B73E12E206FA84370D0524044FFC261AA9760A11930AD0D35E0AFBE439BE",
+    # Re-reviewed when the never-read masked-villager bitmap was removed: its
+    # `mov edi / mov ecx, 8 / rep stosd` clear is gone from inside the same
+    # pushad..popad/popfd window, so every register and flag at the resume is
+    # unchanged.
+    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "C324792685346C4E6AF2D8434F6AF59C37CB62A1482F412E57049CE70C849A52",
     ("vv1_enable_origins_exclusive_features", "0x3C393"): "D5FC3AE7C5A990A28E182EAC7C8A2D55696B8699FFD5043F27270E1366768445",
     ("vv1_enable_origins_exclusive_features", "0x3C881"): "A182B7FF5CAC72344D8166135769696A84B6DD8500B81839A5AF1F270B34A5FE",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
@@ -645,6 +650,19 @@ REVIEWED: dict[tuple[str, str, int], str] = {
     "frame, while `mov esi,ecx` consumes the restored renderer. Therefore "
     "the foreign entry has the stock ECX/ESP/argument contract and no "
     "incoming-flag dependency.",
+    (
+        "vv1_enable_origins_exclusive_features",
+        "0x93C0",
+        0x408740,
+    ): "adult 5-argument draw pass path. The cave first pushes ECX/EAX/EDX, "
+    "then the pass block pops them in reverse order, restoring the original "
+    "ESP and all three volatile values, reproduces stock `mov ecx,[ecx]`, "
+    "and jumps to 0x408740. The original thunk bytes are exactly "
+    "8B09 E979F3FFFF. At 0x408740, `sub esp,0x10` is the first instruction "
+    "and overwrites flags, `xor eax,eax` overwrites EAX, its argument reads "
+    "use the untouched 5-argument frame, and `mov esi,ecx` consumes the "
+    "restored renderer. Therefore the foreign entry has the stock "
+    "ECX/ESP/argument contract and no incoming-flag dependency.",
     (
         "vv1_f6_clothing_change_cheat",
         "0x1FF2E",

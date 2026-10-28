@@ -15,9 +15,8 @@
           [ecx]; jmp 0x4087B0`; thiscall (sprite, x, y, frame), ret 0x10) and,
           for a dropped item fading out, through the call at 0x41ABA0 to the
           5-argument thunk 0x4093E0 ((sprite, x, y, frame, float alpha), ret
-          0x14).  0x4093E0 itself is spliced by the Origins row, so the call
-          site is hooked rather than the thunk, and the golden path still
-          enters 0x4093E0.
+          0x14).  The call site is hooked rather than the thunk, and the
+          golden path still enters 0x4093E0.
      VV3  Collectable frame 50 (item 0x66 - 0x34) of the collectables sheet,
      VV4  whose pointer is the collectables manager's own field (VV3/VV4
      VV5  [0x58F428 + 0x1B0], VV5 [0x4DBFC8 + 0x840]; the manager is a static
