@@ -89,6 +89,25 @@ class GreyHair(unittest.TestCase):
                 code = at_va(path.read_bytes(), va, 10)
                 self.assertIn(b"\x4c\x04\x00\x00", code)
 
+    def test_change_appearance_look_overrides_the_age_rule_only_with_the_patch(self) -> None:
+        """The owner, 2026-10-28: each tab says Change Appearance's look overrides the age rule, when the patch
+        that ships it (the game's Origins row; A New Home: with Grey Hair too) is in the game."""
+        for game in range(1, 6):
+            needed = {genetics.ORIGINS.format(game)} | ({genetics.GREY_HAIR_PATCH} if game == 1 else set())
+            with self.subTest(game=game):
+                village = gm.Village(Path("."), game, 1, Path("x.ldw"), b"", frozenset(needed), 1_700_000_000,
+                                     general=True)
+                lines = [f.text for f in genetics.facts(village) if "head look overrides the age rule" in f.text]
+                self.assertEqual(len(lines), 1 if game in genetics.HEAD_LOOK_SITES else 0)
+                if lines:
+                    self.assertIn("Young always draws the young head and Old always the old, grey head", lines[0])
+                    self.assertIn("The head value itself never changes", lines[0])
+                    self.assertIn(genetics.HEAD_LOOK_SITES[game], lines[0])
+                village = gm.Village(Path("."), game, 1, Path("x.ldw"), b"", frozenset(), 1_700_000_000,
+                                     general=True)
+                self.assertFalse([f for f in genetics.facts(village) if "head look" in f.text])
+        self.assertIn(5, genetics.HEAD_LOOK_SITES)
+
     def test_with_the_patch_a_new_home_also_says_55(self) -> None:
         with mock.patch.object(gm.Village, "has", lambda self, feature: feature == genetics.GREY_HAIR_PATCH):
             lines = [f.text for f in gm.general(1, now=1_700_000_000)

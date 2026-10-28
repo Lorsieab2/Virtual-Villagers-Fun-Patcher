@@ -82,6 +82,9 @@ FILES = [
     "assets/vv1_grey_hair/VVFP VV1 Grey Hair.dll",
     "assets/vv1_grey_hair/vvfp_grey_male_heads.png",
     "assets/vv1_grey_hair/vvfp_grey_female_heads.png",
+    # Change Appearance's head look -- Auto, Young or Old (all five games): shipped by each game's Origins
+    # row, started by VVFP Startup.dll.
+    "assets/head_look/VVFP Head Look.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",

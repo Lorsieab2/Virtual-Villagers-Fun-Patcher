@@ -902,24 +902,26 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "459262E876BD0AA67B8189E085236B6F4DCB31A16B5A6BD36993F7CE3BFB2CE6",
-    "map": "3ABFBF552490D737F6EDB61BBF1D065B6D3439CE35A9C34ACD61F3982E3AECD8",
+    "manifest": "34B533F9D8941B533F0756120E07750969D2A4886D42A485D92C0420D0869D51",
+    "map": "8DB1E10F4C13324182EF96B0A9A46D0EEAE9AA4B84B8561E81C2EF4DFED2ACF7",
 }
-VV5_TASK9_DLL_SHA256 = "D341BDAB2C48228690CF42C2F8D6B2CCD89BE840DF2CE6CA73A10214C413EE20"
+VV5_TASK9_DLL_SHA256 = "9EB7B04DDF94488199C3271CEEB1324BE58A0E8596D6957EF4C1FF2931660E38"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
 # The tribe-delete stub's companion, shipped from this record because it owns
 # the VV5 Origins companion list.
-VV5_TASK9_SAVE_RESET_SHA256 = "3A8DA4C71319DBC17D5FC4F6FD2261A1DB6DB1D93A1CCB4DD9C00443A492AE24"
-VV5_TASK9_SAVE_RESET_SIZE = 160768
+VV5_TASK9_SAVE_RESET_SHA256 = "4C9BE227816C881D32F076FC0BF22F00C5A3FDB9DE879C28BF29123CDEE8B5CB"
+VV5_TASK9_SAVE_RESET_SIZE = 161280
+# Change Appearance's head look (native/vvfp_head_look), shipped from this record for the same reason.
+VV5_TASK9_HEAD_LOOK_SOURCE = "assets/head_look/VVFP Head Look.dll"
 VV5_TASK9_PAGE_SHA256 = {
     "collection_progression": "98029DA56907DBF713E1530EC27F92CD8CF0CAA701FC60E37286E2B07D856EE4",
     "immediate_fixed": "98029DA56907DBF713E1530EC27F92CD8CF0CAA701FC60E37286E2B07D856EE4",
     "experimental_expanded_256": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
     "experimental_expanded_256_progression": "D6881CFDBC4F96AB063A7A17D3D1B9AFE5B26590931738058373D2E5523C9282",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "92826AB0CF4AF3CCB799A7F13E0665CBD18BFF4791F2E0C293B5228E754CC81E"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "B14B61324D1E7FCEB0F04D728E94F7ABCC41CC06495A71E04EDCD37C51FB5555"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -1962,8 +1964,8 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "982CEED8B28B043B028F850E6831472B7292EB415B9D09760E74B333916F6DB5",
-    "task9_builder": "2F4827021FB8A46D5E12918054FCA26497763D15CFE2426AEE85782503A6AA71",
+    "builder": "2FFA982EEE29E12F547B85859D46CDA3B1A8448AD688120D8FF27A17C939ADFE",
+    "task9_builder": "AA44BAAAEF80613305A1EA9FA3559DCC8470DAB41F4751D25A207862131530DB",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     "vv3": {
@@ -1975,8 +1977,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "B8129ED6037BD79AD70A4A4387645792C7CF22BBE865707BD8DB2B08EE623A03",
-        "map": "B68724EDD91468C8452D9944868972BD390C9E126C4BD9D39F0C8458ABF8D902",
+        "manifest": "308E9B077DA4F1033E229626E5B95E8FF0491AF41CB09F9E3E7FA5C28A600046",
+        "map": "73F020C20BBD77724CEBEC5D9671AC150CC7C4687F5C814A3CF9E07ADBB413EF",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3398,7 +3400,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1872384,
+        "size": 1873920,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3416,10 +3418,18 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "sha256": VV5_TASK9_SAVE_RESET_SHA256,
         "size": VV5_TASK9_SAVE_RESET_SIZE,
     }
+    head_look_bytes = (ROOT / VV5_TASK9_HEAD_LOOK_SOURCE).read_bytes()
+    expected_head_look = {
+        "source": VV5_TASK9_HEAD_LOOK_SOURCE,
+        "destination": "VVFP Head Look.dll",
+        "sha256": hashlib.sha256(head_look_bytes).hexdigest().upper(),
+        "size": len(head_look_bytes),
+    }
     if record.get("companion_files") != [
         expected_companion,
         expected_bighead_atlas,
         expected_save_reset,
+        expected_head_look,
     ]:
         raise PatcherError("VV5 Task9 companion ownership metadata drifted.")
     save_reset_path = ROOT / expected_save_reset["source"]
@@ -3756,7 +3766,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1872384,
+        "size": 1873920,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
@@ -12408,7 +12418,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "3E30B0DDDD9A5BDDEE382AA1727ED2039F2011FF63E61A0165FF98ABA0C00348",
+    "sha256": "B18D64FCA9C038811600C62EF1D37729BDC94630719189FB8A3E76AE9CA7356F",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12465,6 +12475,8 @@ STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP VV1 Genetics.dll",
     "VVFP Appearance Rolls.dll",
     "VVFP VV1 Grey Hair.dll",
+    # Change Appearance's head look (all five games), shipped by each game's Origins row.
+    "VVFP Head Look.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

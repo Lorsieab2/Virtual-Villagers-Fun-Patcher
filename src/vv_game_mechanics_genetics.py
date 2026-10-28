@@ -46,6 +46,11 @@ ORIGINS = "vv{}_enable_origins_exclusive_features"
 STORY = "vv{}_story_cheat_upgrades"
 GENETICS_PATCH = "vv1_genetics"
 GREY_HAIR_PATCH = "vv1_grey_hair"
+# Change Appearance's head look (Auto, Young or Old), shipped with each game's Origins row ("VVFP Head Look.dll",
+# native/vvfp_head_look): the age compares it makes follow the look, by game (tests/test_head_look.py).
+HEAD_LOOK_SITES = {
+    5: "the village 0x4722A2, the Villager Details figure 0x466DC1 and the portrait 0x466FE6",
+}
 FIX = "vv{}_fix_vanilla_bugs"
 # What Fix Vanilla Bugs changes in a game's random looks ("VVFP Appearance Rolls.dll", native/
 # vvfp_appearance_rolls): only where the normal game's roll leaves out the last row.  A New Home (its boys'
@@ -131,6 +136,15 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
             f"{_CHOOSER_SPECIAL_ROWS.get(g, '')} -- and Change Appearance "
             "for All can give the whole village random heads by sex or heads of one hair colour (Black, Brown, Red, "
             "Blonde or Other). Neither changes anyone's recorded parents."), gm.RUNNING))
+    if g in HEAD_LOOK_SITES and village.has(ORIGINS.format(g)) and (g != 1 or village.has(GREY_HAIR_PATCH)):
+        out.append(gm.Fact(GENETICS, (
+            f"Grey hair with the patcher's \"{gm.feature_name(ORIGINS.format(g))}\" (in this game): Change "
+            "Appearance's head look overrides the age rule for each villager the player gives one -- Auto keeps the "
+            "rule (the old head from 55), Young always draws the young head and Old always the old, grey head, at "
+            "any age; every villager is Auto until given another. The head value itself never changes, so the logs, "
+            "the Family Tree and the genetics see the same head. The look is kept in the patcher's own file for "
+            "the save and follows the villager. (\"VVFP Head Look.dll\", at " + HEAD_LOOK_SITES[g] + ".)"),
+            gm.RUNNING))
     if g in (1, 2, 3) and village.has(STORY.format(g)):
         event = {1: "A Mysterious Vial (red, from the sea)", 2: "A Mysterious Vial (green)",
                  3: "The Mysterious Vial (obsidian)"}[g]

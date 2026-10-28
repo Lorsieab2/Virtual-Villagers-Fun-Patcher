@@ -15,6 +15,7 @@
 #include "../shared/foreign_sidecar.h" /* another village's file is never replaced */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/appearance_log.h" /* "Appearance changed" in the Births and Conceptions log */
+#include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20 (with
@@ -1029,6 +1030,42 @@ static int appearance_head;
 static int appearance_body;
 static int appearance_mask;  /* 0 = none, 1..5 = Blue/Orange/Red/Purple/Chief */
 
+/* THE HEAD LOOK (native/shared/head_look.h): Auto, Young or Old, kept by "VVFP Head Look.dll" for the
+   villager, never in the record.  The router hands this chooser only the villager's sex and age, so the
+   villager is the one the router itself resolves -- the selected index the game keeps at +0x17E24 of its
+   game object (0x425950), the router's own resolve_current (scripts/build_vv5_task9_native_actions.py) --
+   and is used only when its sex and age are the ones handed in.  Choosing a look is free and kept on OK
+   whatever the router then does with the head, body and mask; Cancel keeps nothing. */
+#define IDD_APPEARANCE_LOOK 208
+#define IDC_LOOK_AUTO  3120
+#define IDC_LOOK_YOUNG 3121
+#define IDC_LOOK_OLD   3122
+#define VV5_GAME_OBJECT_GETTER 0x425950u
+#define VV5_SELECTED_INDEX 0x17E24u
+static vvfp_head_look_api appearance_look_api;
+static const unsigned char *appearance_record;   /* the villager whose look is offered, or NULL */
+static int appearance_age;
+static int appearance_look;                      /* 0 Auto, 1 Young, 2 Old */
+
+static const unsigned char *vv5_selected_record(int sex, int age) {
+    typedef void *(__cdecl *getter_fn)(void);
+    const unsigned char *game = (const unsigned char *)((getter_fn)(UINT_PTR)VV5_GAME_OBJECT_GETTER)();
+    const unsigned char *record;
+    int index;
+    if (game == NULL) {
+        return NULL;
+    }
+    index = *(const int *)(game + VV5_SELECTED_INDEX);
+    if (index < 0 || index >= vv5_slots()) {
+        return NULL;
+    }
+    record = (const unsigned char *)(UINT_PTR)(vv5_rec_base() + (unsigned int)index * 0x2F44u);
+    if (record[0x1CD4] == 0 || *(const int *)(record + 0x1B90) != sex || *(const int *)(record + 0x1B8C) != age) {
+        return NULL;
+    }
+    return record;
+}
+
 static void appearance_update_mask_label(HWND window) {
     SetDlgItemTextA(window, IDC_MASK_LABEL, APPEARANCE_MASK_NAMES[appearance_mask]);
 }
@@ -1340,6 +1377,9 @@ static INT_PTR CALLBACK appearance_dialog(
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(5, window);   /* "OK deducts 0 tech points" */
         appearance_update_mask_label(window);
+        if (appearance_record != NULL) {
+            CheckRadioButton(window, IDC_LOOK_AUTO, IDC_LOOK_OLD, IDC_LOOK_AUTO + appearance_look);
+        }
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
@@ -1357,6 +1397,13 @@ static INT_PTR CALLBACK appearance_dialog(
         }
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (appearance_record != NULL && command >= IDC_LOOK_AUTO && command <= IDC_LOOK_OLD) {
+            /* The preview shows the head the village will draw with the chosen look. */
+            appearance_look = (int)(command - IDC_LOOK_AUTO);
+            appearance_old = vvfp_head_look_old(appearance_look, appearance_age);
+            appearance_repaint(window, IDC_HEAD_PREVIEW);
+            return TRUE;
+        }
         if (command == IDC_BODY_PREV) {
             appearance_body = (appearance_body + APPEARANCE_BODY_COUNT - 1) % APPEARANCE_BODY_COUNT;
             appearance_repaint(window, IDC_BODY_PREVIEW);
@@ -1416,8 +1463,18 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
     int *mask
 ) {
     INT_PTR result;
+    int look_was = 0;
     appearance_sex = sex ? 1 : 0;
-    appearance_old = age >= 1100 ? 1 : 0;
+    appearance_age = age;
+    appearance_record = NULL;
+    appearance_look = 0;
+    if (vvfp_head_look_find(5, &appearance_look_api)) {
+        appearance_record = vv5_selected_record(sex, age);
+        if (appearance_record != NULL) {
+            look_was = appearance_look = appearance_look_api.get(5, appearance_record);
+        }
+    }
+    appearance_old = vvfp_head_look_old(appearance_look, age);
     appearance_head = (head && *head >= 0 && *head < APPEARANCE_HEAD_COUNT) ? *head : 0;
     appearance_body = (body && *body >= 0 && *body < APPEARANCE_BODY_COUNT) ? *body : 0;
     appearance_mask = (mask && *mask >= 0 && *mask < APPEARANCE_MASK_COUNT) ? *mask : 0;
@@ -1430,12 +1487,25 @@ __declspec(dllexport) int __stdcall ShowAppearanceChooser(
        BeginOriginsOwner before the menu opens, so it is available here. */
     result = DialogBoxParamA(
         module_instance,
-        MAKEINTRESOURCEA(IDD_APPEARANCE),
+        MAKEINTRESOURCEA(appearance_record != NULL ? IDD_APPEARANCE_LOOK : IDD_APPEARANCE),
         GetOriginsOwner(),
         appearance_dialog,
         0
     );
     if (result == 1) {
+        int same = (!head || *head == appearance_head) && (!body || *body == appearance_body)
+            && (!mask || *mask == appearance_mask);
+        if (appearance_record != NULL && appearance_look != look_was) {
+            if (!appearance_look_api.set(5, appearance_record, appearance_look)) {
+                MessageBoxA(GetOriginsOwner(), "The head look could not be kept: the patcher's file for this "
+                            "save could not be written. Nothing else was changed.", "Change Appearance",
+                            MB_OK | MB_ICONWARNING);
+                return 0;
+            }
+            if (same) {
+                return 0;           /* the look alone: kept, and free -- nothing for the router to charge */
+            }
+        }
         if (head) {
             *head = appearance_head;
         }

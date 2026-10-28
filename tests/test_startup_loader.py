@@ -72,6 +72,10 @@ POPULATION_256 = {"vv3_population_256", "vv4_population_256", "vv5_population_25
 # displaces, and the save manager's current-slot field (crosscheck_bridge.h
 # VVFP_XC_QUIT / VVFP_XC_SLOT_FIELD; tests/test_repair_at_quit.py proves them
 # from the stock executables).
+# The age compares "VVFP Head Look.dll" splices when the game's Origins row ships it (tests/test_head_look.py).
+HEAD_LOOK_SITES = {
+    "vv5": (0x4722A2, 0x466DC1, 0x466FE6),
+}
 QUIT_SITES = {
     "vv1": (0x41B25B, "8B4E0C85C9", 0xABE4),
     "vv2": (0x423C5B, "8B4E0C85C9", 0x30378),
@@ -601,8 +605,12 @@ class OnlyThisBuildsCompanions(unittest.TestCase):
                 protected = [c[1] for c in machine.calls if c[0] == "VirtualProtect"]
                 self.assertEqual(len(pages), 1)
                 keeper = [va for va in KEEPER_SITES[game] for _ in range(2)]
+                # ...and Change Appearance's head look, which the Origins row ships (VVFP Head Look.dll):
+                # the game's age compares, each made writable and restored.
+                head_look = [va for va in HEAD_LOOK_SITES.get(game, ()) for _ in range(2)]
                 self.assertEqual(sorted(protected),
-                                 sorted([QUIT_SITES[game][0], QUIT_SITES[game][0], 0x60000000] + keeper))
+                                 sorted([QUIT_SITES[game][0], QUIT_SITES[game][0], 0x60000000] + keeper
+                                        + head_look))
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)

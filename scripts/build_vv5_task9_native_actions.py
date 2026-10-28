@@ -46,8 +46,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "92826AB0CF4AF3CCB799A7F13E0665CBD18BFF4791F2E0C293B5228E754CC81E"
-ACTIVE_SOURCE_TEXT_SHA256 = "92826AB0CF4AF3CCB799A7F13E0665CBD18BFF4791F2E0C293B5228E754CC81E"
+ACTIVE_SHA256 = "B14B61324D1E7FCEB0F04D728E94F7ABCC41CC06495A71E04EDCD37C51FB5555"
+ACTIVE_SOURCE_TEXT_SHA256 = "B14B61324D1E7FCEB0F04D728E94F7ABCC41CC06495A71E04EDCD37C51FB5555"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -4447,6 +4447,7 @@ def main() -> None:
     companion = COMPANION.read_bytes()
     bighead_atlas_png = BIGHEAD_ATLAS_PNG.read_bytes()
     save_reset_dll = (ROOT / "assets/save_reset/VVFP Save Reset.dll").read_bytes()
+    head_look_dll = (ROOT / "assets/head_look/VVFP Head Look.dll").read_bytes()
     bindings = source_bindings()
     pages: dict[str, bytes] = {}
     page_maps: dict[str, object] = {}
@@ -4515,6 +4516,14 @@ def main() -> None:
                 "destination": "VVFP Save Reset.dll",
                 "sha256": sha(save_reset_dll),
                 "size": len(save_reset_dll),
+            },
+            {
+                # Change Appearance's head look -- Auto, Young or Old (native/vvfp_head_look): started by
+                # VVFP Startup.dll's second word; the chooser asks it for the look and hands it the choice.
+                "source": "assets/head_look/VVFP Head Look.dll",
+                "destination": "VVFP Head Look.dll",
+                "sha256": sha(head_look_dll),
+                "size": len(head_look_dll),
             },
         ],
         "pe_append_transaction": {

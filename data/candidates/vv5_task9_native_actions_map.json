@@ -6,8 +6,8 @@
   },
   "active_base": {
     "size": 24426,
-    "file_sha256": "92826AB0CF4AF3CCB799A7F13E0665CBD18BFF4791F2E0C293B5228E754CC81E",
-    "source_text_sha256": "92826AB0CF4AF3CCB799A7F13E0665CBD18BFF4791F2E0C293B5228E754CC81E"
+    "file_sha256": "B14B61324D1E7FCEB0F04D728E94F7ABCC41CC06495A71E04EDCD37C51FB5555",
+    "source_text_sha256": "B14B61324D1E7FCEB0F04D728E94F7ABCC41CC06495A71E04EDCD37C51FB5555"
   },
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
@@ -18,11 +18,11 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "2F4827021FB8A46D5E12918054FCA26497763D15CFE2426AEE85782503A6AA71"
+      "source_text_sha256": "AA44BAAAEF80613305A1EA9FA3559DCC8470DAB41F4751D25A207862131530DB"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "165C6A9BCAF344246CCA2BE1F6892945E972937927A176043CED3C439D5CD79B"
+      "source_text_sha256": "711D98C86A9A6F30229211A9E78549105D45637D122F13874669EE9AEEA77C55"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
@@ -30,7 +30,7 @@
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "FBDB8EC96413BF928B629ACD9DB9C37BBBCF9AE9BA1210A890E28CC721C12B2C"
+      "source_text_sha256": "538DB3CC9333D6874066064A36D72C7D6B5BC3A0555386BD89E25D78F3AE90B4"
     },
     "companion_builder": {
       "path": "scripts/build_vv5_task9_origins_dll.ps1",
@@ -46,7 +46,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "92826AB0CF4AF3CCB799A7F13E0665CBD18BFF4791F2E0C293B5228E754CC81E"
+      "source_text_sha256": "B14B61324D1E7FCEB0F04D728E94F7ABCC41CC06495A71E04EDCD37C51FB5555"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -68,7 +68,7 @@
   },
   "companion": {
     "size": 1872384,
-    "sha256": "D341BDAB2C48228690CF42C2F8D6B2CCD89BE840DF2CE6CA73A10214C413EE20"
+    "sha256": "9EB7B04DDF94488199C3271CEEB1324BE58A0E8596D6957EF4C1FF2931660E38"
   },
   "payload": {
     "sha256": "FC05283D127AC9FEF5B9AA02406D320A9EC484FD3CE119011C0129C1F6F9ED51",

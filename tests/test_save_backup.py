@@ -673,6 +673,10 @@ class RestoreBase(TempDocuments):
             write(folder / LOGS / "Births and Conceptions" /
                   f"Virtual Villagers {g} Births and Conceptions Log {slot}.txt",
                   f"Village: {village} (Save {slot})\r\nrecord {filler}\r\n".encode())
+            # Change Appearance's head looks, in the save's own folder (native/vvfp_head_look): backed up and
+            # restored with its slot like every other patcher file.
+            write(folder / "Virtual Villagers Fun Patcher" / f"Save {slot}" / "Data" / "Head Looks"
+                  / f"Head Looks - Save {slot}.dat", f"looks {slot} {filler}".encode())
         return folder
 
     def snapshot(self, folder):
@@ -746,6 +750,7 @@ class AttributionTests(RestoreBase):
             f"{DATA}/Virtual Villagers 1 Parentage Records - Save 3.dat": 3,
             f"{DATA}/Village Masks - Save 4.dat": 4,
             f"{DATA}/Custom Titles/Custom Titles - Save 5.dat": 5,
+            "Virtual Villagers Fun Patcher/Save 2/Data/Head Looks/Head Looks - Save 2.dat": 2,
             f"{DATA}/Virtual Villagers 1 Graves - Save 1.dat": 1,
             f"{DATA}/Virtual Villagers 1 Village Roster - Save 2.dat": 2,
             f"{DATA}/Village Statistics/Village Statistics - Save 3.dat": 3,
