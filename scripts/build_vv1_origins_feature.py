@@ -485,8 +485,7 @@ VILLAGE_MASK_DLL_FN_VA = VILLAGE_MASK_SPRITE_VA + 4     # +0x1BC dword, cached V
 VILLAGE_SURFACE_SAVE_VA = VILLAGE_MASK_DLL_FN_VA + 4    # +0x1C0 dword, deref'd renderer surface across the two sub-draws
 VILLAGE_FILL_SAVE_VA = VILLAGE_SURFACE_SAVE_VA + 4      # +0x1C4 dword, caller's eax (draw fill arg) across the sub-draws
 VILLAGE_MASK_ROW_VA = VILLAGE_FILL_SAVE_VA + 4          # +0x1C8 dword, mask colour row (mask-1) for the mask sub-draw
-VILLAGE_DBG_CALLER_VA = VILLAGE_MASK_ROW_VA + 4         # +0x1CC dword, DIAGNOSTIC: caller of a head-atlas draw seen with an invalid stash (requires runtime trace; not evidence of a separate renderer)
-VILLAGE_MASKED_BITMAP_VA = VILLAGE_DBG_CALLER_VA + 4    # +0x1D0..+0x1F0, 256-bit per-frame "already masked this villager" guard (cleared once per frame by the draw hook) so villagers drawn by more than one render pass get exactly ONE mask
+VILLAGE_MASKED_BITMAP_VA = VILLAGE_MASK_ROW_VA + 4      # +0x1CC..+0x1EC, 256-bit per-frame "already masked this villager" guard (cleared once per frame by the draw hook) so villagers drawn by more than one render pass get exactly ONE mask
 # The exact-build save builder at 0x402ED0 receives the numbered save slot as
 # its first argument before formatting "%s%d.ldw".  Capture that argument in
 # patch-owned R/W scratch so the DLL can select a slot-specific sidecar.  Zero
@@ -545,7 +544,6 @@ SCRATCH_SLOTS = (
     ("VILLAGE_SURFACE_SAVE", VILLAGE_SURFACE_SAVE_VA, 4),
     ("VILLAGE_FILL_SAVE", VILLAGE_FILL_SAVE_VA, 4),
     ("VILLAGE_MASK_ROW", VILLAGE_MASK_ROW_VA, 4),
-    ("VILLAGE_DBG_CALLER", VILLAGE_DBG_CALLER_VA, 4),
     ("VILLAGE_MASKED_BITMAP", VILLAGE_MASKED_BITMAP_VA, 0x20),
     ("MASK_SAVE_SLOT", MASK_SAVE_SLOT_VA, 4),
     ("MASK_TICK_DLL_FN", MASK_TICK_DLL_FN_VA, 4),

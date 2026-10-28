@@ -502,7 +502,10 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # at the resume depends on is altered.
     # Re-reviewed for v1.35.45: the three-child one-shot's clear is removed
     # with the flag itself; one absolute store fewer, nothing else changes.
-    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "08F2B73E12E206FA84370D0524044FFC261AA9760A11930AD0D35E0AFBE439BE",
+    # Re-reviewed when the unused DIAGNOSTIC scratch dword (+0x1CC) was
+    # removed: only the `mov edi, imm32` address of the cleared bitmap moves
+    # down by 4 (0x4911D0 -> 0x4911CC), inside the same pushad..popad window.
+    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "093089092D4487F3D4D2E96ACFA9F4651857867C72B211922B6C61CE45039DD8",
     ("vv1_enable_origins_exclusive_features", "0x3C393"): "D5FC3AE7C5A990A28E182EAC7C8A2D55696B8699FFD5043F27270E1366768445",
     ("vv1_enable_origins_exclusive_features", "0x3C881"): "A182B7FF5CAC72344D8166135769696A84B6DD8500B81839A5AF1F270B34A5FE",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
