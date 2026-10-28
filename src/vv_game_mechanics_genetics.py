@@ -103,9 +103,16 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
             "father is the one Show Parents recorded at the conception; when it knows none, the mother's head "
             "alone. Twins and triplets share the first baby's head; bodies stay random. (\"VVFP VV1 "
             "Genetics.dll\", at 0x43C647, for a birth's first child only.)"), gm.RUNNING))
+    if g == 1:
+        out.append(gm.Fact(GENETICS, (
+            "Grey hair: never in the original A New Home. It has one set of head pictures for each sex "
+            "(male_heads.png and female_heads.png, made at 0x43C0D4 and 0x43C099), and its head draws read the age "
+            "only to size a child (0x437377, 0x437611, 0x4379A7, 0x438976), so a villager's hair looks the same "
+            "at every age."), gm.RUNNING))
     if g == 1 and village.has(GREY_HAIR_PATCH):
         out.append(gm.Fact(GENETICS, (
-            f"With the patcher's \"{gm.feature_name(GREY_HAIR_PATCH)}\" (in this game): a villager whose shown age is "
+            f"Grey hair with the patcher's \"{gm.feature_name(GREY_HAIR_PATCH)}\" (in this game): at 55 years. "
+            "A villager whose shown age is "
             "1,100 age units (55 years) or more is drawn from grey head pictures (Images\\vvfp_grey_male_heads.png, "
             "Images\\vvfp_grey_female_heads.png), the same row as the head value, as the later games switch to their "
             "old-age pictures at that age, head 19 too (the Golden Child himself never grows old: the age tick puts "
@@ -230,10 +237,11 @@ def _later(game: int) -> list[gm.Fact]:
     # value is read (the village; then, in VV2 and VV3, the Details portrait's own atlas choice).
     switch = {2: "0x4469BA, 0x445694", 3: "0x46086D / 0x4608AE, 0x456A15", 4: "0x467E89", 5: "0x4722A2"}[game]
     out.append(f(GENETICS, (
+        f"Grey hair: a villager turns grey at 55 years (a shown age of 1,100 age units, on the game's clock). "
         f"The game has 30 heads (0 to 29) and 30 bodies (0 to 29) for each sex, one row each of its own pictures. "
-        f"Growing older never changes the head value: an elder's head is the same row of its old-age pictures "
-        f"({old}), drawn from a shown age of 1,100 age units (55 years) on, compared against that number alone -- "
-        f"Medicine and every other technology play no part ({switch})."), gm.RUNNING))
+        f"Growing older never changes the head value: from 55 the same row is drawn from its old-age pictures "
+        f"({old}), the age compared against 1,100 alone -- Medicine and every other technology play no part "
+        f"({switch})."), gm.RUNNING))
     later = {
         2: ("What changes a head later: only the island event \"A Mysterious Vial\" (the green liquid), when the "
             "villager drinks it: the head is rolled again, a man any of 0 to 28, a woman any of 0 to 29 (it can come "
