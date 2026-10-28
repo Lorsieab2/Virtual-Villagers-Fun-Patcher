@@ -50,6 +50,7 @@ GREY_HAIR_PATCH = "vv1_grey_hair"
 # native/vvfp_head_look): the age compares it makes follow the look, by game (tests/test_head_look.py).
 HEAD_LOOK_SITES = {
     5: "the village 0x4722A2, the Villager Details figure 0x466DC1 and the portrait 0x466FE6",
+    4: "the village 0x467E89, the Villager Details figure 0x45F6C4 and the portrait 0x45F8B6",
 }
 FIX = "vv{}_fix_vanilla_bugs"
 # What Fix Vanilla Bugs changes in a game's random looks ("VVFP Appearance Rolls.dll", native/

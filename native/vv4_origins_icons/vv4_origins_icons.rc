@@ -215,6 +215,39 @@ BEGIN
     PUSHBUTTON    "Cancel", 2, 197, 172, 50, 14
 END
 
+/* Change Appearance with the head look (native/shared/head_look.h): 203 and, below the three pickers, a
+   "Head look" row -- Auto, Young or Old.  Used when "VVFP Head Look.dll" is in the game; otherwise 203. */
+208 DIALOGEX 0, 0, 366, 222
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
+CAPTION "Change Appearance"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Body", -1, 30, 8, 70, 9, SS_CENTER
+    PUSHBUTTON  "<", 2011, 10, 72, 16, 16
+    CONTROL     "", 2013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 70, 118
+    PUSHBUTTON  ">", 2012, 104, 72, 16, 16
+
+    LTEXT       "Head", -1, 150, 8, 70, 9, SS_CENTER
+    PUSHBUTTON  "<", 2001, 130, 72, 16, 16
+    CONTROL     "", 2003, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 20, 70, 118
+    PUSHBUTTON  ">", 2002, 224, 72, 16, 16
+
+    LTEXT       "Mask", -1, 270, 8, 70, 9, SS_CENTER
+    PUSHBUTTON  "<", 2021, 250, 72, 16, 16
+    CONTROL     "", 2023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 270, 20, 70, 118
+    PUSHBUTTON  ">", 2022, 344, 72, 16, 16
+    LTEXT       "(None)", 2020, 270, 140, 70, 9, SS_CENTER
+
+    GROUPBOX        "Head look (free)", -1, 17, 152, 332, 26
+    AUTORADIOBUTTON "Auto (old from 55)", 2030, 31, 164, 100, 10, WS_GROUP | WS_TABSTOP
+    AUTORADIOBUTTON "Young", 2031, 161, 164, 60, 10
+    AUTORADIOBUTTON "Old", 2032, 251, 164, 60, 10
+
+    LTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 33, 184, 300, 10, SS_CENTER
+    DEFPUSHBUTTON "OK",     1, 143, 198, 50, 14
+    PUSHBUTTON    "Cancel", 2, 197, 198, 50, 14
+END
+
 /* Change Appearance for All (Tech-screen 450,000-point upgrade). WIDE 620x340
    layout (VV2 cross-game parity) so it clears the fullscreen-centering height
    cap no matter how many village-wide radios are added: Male + Female panels on

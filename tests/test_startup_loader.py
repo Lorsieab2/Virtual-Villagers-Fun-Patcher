@@ -75,6 +75,7 @@ POPULATION_256 = {"vv3_population_256", "vv4_population_256", "vv5_population_25
 # The age compares "VVFP Head Look.dll" splices when the game's Origins row ships it (tests/test_head_look.py).
 HEAD_LOOK_SITES = {
     "vv5": (0x4722A2, 0x466DC1, 0x466FE6),
+    "vv4": (0x467E89, 0x45F6C4, 0x45F8B6),
 }
 QUIT_SITES = {
     "vv1": (0x41B25B, "8B4E0C85C9", 0xABE4),

@@ -12,6 +12,7 @@
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/foreign_sidecar.h" /* another village's file is never replaced */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
+#include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
@@ -30,9 +31,6 @@ __declspec(dllimport) BOOL __stdcall SHGetSpecialFolderPathA(HWND, LPSTR, int, B
 #endif
 #ifndef VV_DISPLAY_AGE_OFFSET
 #define VV_DISPLAY_AGE_OFFSET 0x1B8C
-#endif
-#ifndef VV_OLD_AGE_THRESHOLD
-#define VV_OLD_AGE_THRESHOLD 1100
 #endif
 /* Atlas geometry: each sprite sheet is a grid of 40x65 cells. Heads have 8
    columns (directional frames); bodies have 16 columns and 10 outfits per
@@ -1393,7 +1391,7 @@ static struct {
     int head_count;
     int body_count;
     int sex;      /* 0 / non-zero -> female / male sprite atlas */
-    int is_old;   /* displayed age >= VV_OLD_AGE_THRESHOLD */
+    int is_old;   /* the old head atlas: the head look, else displayed age >= 1,100 (head_look.h) */
 } appearance_state;
 
 /* GDI+ must NOT be started from DllMain: GdiplusStartup is unsupported under the
@@ -2178,6 +2176,30 @@ static void appearance_revert(void) {
    uses) -- this dialog never touches tech points, only the head/body
    fields, and returns 1 only when the player actually confirmed with
    OK. */
+/* THE HEAD LOOK (native/shared/head_look.h): Auto, Young or Old, kept by "VVFP Head Look.dll" for the
+   villager, never in the record.  Offered (dialog 208) when that DLL is in the game; choosing a look is free
+   and is kept on OK -- with the head, body and mask when they changed too, alone when they did not. */
+#define IDD_ORIGINS_APPEARANCE_LOOK 208
+#define ID_LOOK_AUTO  2030
+#define ID_LOOK_OLD   2032
+static vvfp_head_look_api appearance_look_api;
+static int appearance_look_offered;
+static int appearance_look;          /* 0 Auto, 1 Young, 2 Old */
+static int appearance_look_was;
+
+/* Keep the chosen look when it changed; 1 when kept (or nothing to keep).  A failure is told. */
+static int appearance_keep_look(HWND window) {
+    if (!appearance_look_offered || appearance_look == appearance_look_was) {
+        return 1;
+    }
+    if (appearance_look_api.set(4, appearance_state.villager, appearance_look)) {
+        return 1;
+    }
+    MessageBoxA(window, "The head look could not be kept: the patcher's file for this save could not be "
+                "written. Nothing was changed.", "Villager Upgrades", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
+    return 0;
+}
+
 static INT_PTR CALLBACK appearance_dialog(
     HWND window,
     UINT message,
@@ -2195,6 +2217,9 @@ static INT_PTR CALLBACK appearance_dialog(
            live head/body/mask fields directly. Show the current mask name. */
         SetDlgItemTextA(window, ID_MASK_LABEL,
                         g_mask_names[vv_get_mask(appearance_state.villager)]);
+        if (appearance_look_offered) {
+            CheckRadioButton(window, ID_LOOK_AUTO, ID_LOOK_OLD, ID_LOOK_AUTO + appearance_look);
+        }
         vv4_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
@@ -2223,6 +2248,14 @@ static INT_PTR CALLBACK appearance_dialog(
         int body_count = appearance_state.body_count;
         int *head = (int *)(appearance_state.villager + VV_HEAD_OFFSET);
         int *body = (int *)(appearance_state.villager + VV_CLOTHING_OFFSET);
+        if (appearance_look_offered && command >= ID_LOOK_AUTO && command <= ID_LOOK_OLD) {
+            /* The preview shows the head the village will draw with the chosen look. */
+            appearance_look = (int)(command - ID_LOOK_AUTO);
+            appearance_state.is_old = vvfp_head_look_old(
+                appearance_look, *(int *)(appearance_state.villager + VV_DISPLAY_AGE_OFFSET));
+            InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
+            return TRUE;
+        }
         if (command == ID_MASK_PREV || command == ID_MASK_NEXT) {
             int delta = (command == ID_MASK_NEXT) ? 1 : (VV_MASK_COUNT - 1);
             int m = (vv_get_mask(appearance_state.villager) + delta) % VV_MASK_COUNT;
@@ -2256,6 +2289,13 @@ static INT_PTR CALLBACK appearance_dialog(
             int body_changed = (*body != appearance_state.original_body);
             int mask_changed = (vv_get_mask(appearance_state.villager)
                                 != appearance_state.original_mask);
+            if (!head_changed && !body_changed && !mask_changed
+                && appearance_look_offered && appearance_look != appearance_look_was) {
+                /* The look alone: kept, and free -- nothing for the exe to charge (return 0). */
+                appearance_keep_look(window);
+                EndDialog(window, 0);
+                return TRUE;
+            }
             if (!head_changed && !body_changed && !mask_changed) {
                 /* OK with nothing changed: no write, no charge (return 0). */
                 MessageBoxA(window,
@@ -2280,6 +2320,11 @@ static INT_PTR CALLBACK appearance_dialog(
             }
             /* Something changed and was confirmed: keep it; caller charges 5,000.
                Persist the mask side-table so the choice survives save/reload. */
+            if (!appearance_keep_look(window)) {
+                appearance_revert();
+                EndDialog(window, 0);
+                return TRUE;
+            }
             vv_write_mask_sidecar();
             EndDialog(window, 1);
             return TRUE;
@@ -2763,11 +2808,13 @@ int __stdcall ShowOriginsAppearancePicker(
     appearance_state.head_count = VV_HEAD_COUNT;
     appearance_state.body_count = VV_BODY_COUNT;
     appearance_state.sex = *(int *)(villager + VV_SEX_OFFSET);
-    appearance_state.is_old =
-        *(int *)(villager + VV_DISPLAY_AGE_OFFSET) >= VV_OLD_AGE_THRESHOLD;
+    appearance_look_offered = vvfp_head_look_find(4, &appearance_look_api);
+    appearance_look = appearance_look_was =
+        appearance_look_offered ? appearance_look_api.get(4, villager) : VVFP_HEAD_LOOK_AUTO;
+    appearance_state.is_old = vvfp_head_look_old(appearance_look, *(int *)(villager + VV_DISPLAY_AGE_OFFSET));
     result = (int)DialogBoxParamA(
         module_instance,
-        MAKEINTRESOURCEA(IDD_ORIGINS_APPEARANCE),
+        MAKEINTRESOURCEA(appearance_look_offered ? IDD_ORIGINS_APPEARANCE_LOOK : IDD_ORIGINS_APPEARANCE),
         GetForegroundWindow(),
         appearance_dialog,
         (LPARAM)(UINT_PTR)villager

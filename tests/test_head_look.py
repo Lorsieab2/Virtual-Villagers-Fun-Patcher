@@ -136,6 +136,11 @@ DRAWS = {
         "figure": (0x466DC1, 10, _branch(0x466DDD, 0x466DCD)),
         "portrait": (0x466FE6, 10, _column_offset(0x46700B, "eax", {"eax": 0})),
     },
+    4: {
+        "village": (0x467E89, 10, _column_offset(0x467E9C, "edx", {"edx": 0})),
+        "figure": (0x45F6C4, 10, _branch(0x45F6E0, 0x45F6D0)),
+        "portrait": (0x45F8B6, 10, _column_offset(0x45F8DB, "eax", {"eax": 0})),
+    },
 }
 SITE = {game: {name: va for name, (va, _, _) in draws.items()} for game, draws in DRAWS.items()}
 for _game, _draws in DRAWS.items():
@@ -296,6 +301,11 @@ class NewBelieversDraws(_DrawsBase, unittest.TestCase):
     GAME = 5
 
 
+@_skip(4)
+class TreeOfLifeDraws(_DrawsBase, unittest.TestCase):
+    GAME = 4
+
+
 class TheSidecar(unittest.TestCase):
     def test_the_harness_on_real_files(self):
         """native/vvfp_head_look/head_look_harness.c: round trip, follow, reuse, rename, copies, broken files,
@@ -342,8 +352,8 @@ class TheCompanion(unittest.TestCase):
                 self.assertEqual(patcher._startup_loader_mask_2(features) & bit, bit)
 
 
-ORIGINS_ROWS = {5: "vv5_task9_native_actions.json"}
-ORIGINS_IDS = {5: "vv5_enable_origins_exclusive_features"}
+ORIGINS_ROWS = {5: "vv5_task9_native_actions.json", 4: "vv4_origins_feature.json"}
+ORIGINS_IDS = {5: "vv5_enable_origins_exclusive_features", 4: "vv4_enable_origins_exclusive_features"}
 
 
 if __name__ == "__main__":

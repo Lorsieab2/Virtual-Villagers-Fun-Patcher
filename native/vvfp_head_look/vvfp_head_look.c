@@ -208,6 +208,12 @@ static const hl_site VV5_SITES[] = {
     CMP_MEM_ESI(0x4722A2u), CMP_MEM_ESI(0x466DC1u), CMP_MEM_ESI(0x466FE6u),
 };
 
+/* The Tree of Life: the village 0x467DA0, the villager figure 0x45F550 (the Villager Details portrait,
+   through 0x460BF0) and the portrait 0x45F7C0 -- the same shapes as New Believers'. */
+static const hl_site VV4_SITES[] = {
+    CMP_MEM_ESI(0x467E89u), CMP_MEM_ESI(0x45F6C4u), CMP_MEM_ESI(0x45F8B6u),
+};
+
 static const hl_site *g_sites;
 static int g_site_count;
 
@@ -281,6 +287,9 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     switch (game) {
     case 5:
         hl_install(VV5_SITES, (int)(sizeof VV5_SITES / sizeof VV5_SITES[0]));
+        break;
+    case 4:
+        hl_install(VV4_SITES, (int)(sizeof VV4_SITES / sizeof VV4_SITES[0]));
         break;
     default:
         break;
