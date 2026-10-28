@@ -174,8 +174,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_events_vv2", "vv_game_mechanics_events_vv3", "vv_game_mechanics_events_vv4",
                "vv_game_mechanics_events_vv5", "vv_game_mechanics_faith_vv5",
                "vv_game_mechanics_items_vv1", "vv_game_mechanics_items_vv2", "vv_game_mechanics_items_vv3",
-               "vv_game_mechanics_items_vv4", "vv_game_mechanics_items_vv5",
-               "vv_game_mechanics_hidden", "vv_game_mechanics_hidden_vv1", "vv_game_mechanics_hidden_vv2",
+               "vv_game_mechanics_items_vv4", "vv_game_mechanics_items_vv5", "vv_game_mechanics_parity",
+               "vv_game_mechanics_hidden","vv_game_mechanics_hidden_vv1", "vv_game_mechanics_hidden_vv2",
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())

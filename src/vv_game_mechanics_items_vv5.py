@@ -445,6 +445,13 @@ def _item_entries() -> list[Entry]:
             "(0x46CEC7) and opens the outfit chooser: its arrows step the villager's body through the game's 29 outfits "
             "(0 to 28, 0x419CE0); one of its buttons puts the old outfit back and returns the 5,000 (0x419E77). With "
             "fewer than 5,000 tech points the villager is \"Confused\" and nothing is spent (0x46CE93)."), VERIFIED_C),
+        # The same snack as The Tree of Life's (0x46438D there), found in New Believers 2026-10-27: the "Eating" action
+        # 0x457D30 (registered as action 0x33 at 0x4641AF; its name, string 0x4C4) queues work event 0x57 (0x457DBB),
+        # which the work-event dispatcher 0x46CE60 (table 0x46DEB0, entry 76) sends to 0x46CEF6.
+        Entry(ITEM, "A snack at the food bin", "free; a villager who goes \"Eating\"", (
+            "a villager below 100 health (0x46CEFC) while the food bin holds food (0x46CF09) regains 1 health 50% of "
+            "the time (a roll of 0 to 99 under 50, 0x46CF16..0x46CF35), and the bin loses 1 food either way "
+            "(0x46CF48, the food adder 0x41EB40)."), VERIFIED_C),
         Entry(ITEM, "Tech points", "how they are earned", (
             "research (Science level 1 to 3 above), the lab gear, the fire, duplicate lab gear and island events; "
             "they are spent on the technologies and a change of clothes."), VERIFIED_E),

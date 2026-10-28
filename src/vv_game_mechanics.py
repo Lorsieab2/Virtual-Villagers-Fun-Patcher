@@ -946,6 +946,9 @@ def items_facts(village: "Village") -> list[Fact]:
     # about it at all); each module gives it one line of its own.
     if village.has(f"vv{village.game}_super_secret_golden_mushroom") is not True:
         found = [fact for fact in found if "golden mushroom" not in fact.text.lower()]
+    # The same topics on every tab (the owner, 2026-10-27: "Same between the virtual villagers games"): a topic another
+    # game has and this one does not gets one "Not in" line (src/vv_game_mechanics_parity.py).
+    found += importlib.import_module("vv_game_mechanics_parity").parity_facts(village)
     return [dataclasses.replace(fact, group=ITEMS) if fact.group != ITEMS else fact for fact in found]
 
 

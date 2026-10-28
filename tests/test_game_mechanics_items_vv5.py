@@ -87,6 +87,7 @@ PINNED = (
     ("item", "Lab gear (the second collectible set, 24 pieces)", "appear at random only once the Knowing Totem is "
                                                                  "down", E),
     ("item", "A change of clothes", "5,000 tech points, at the built Clothing Hut", C),
+    ("item", "A snack at the food bin", "free; a villager who goes \"Eating\"", C),
     ("item", "Tech points", "how they are earned", E),
     ("patcher", "Time Warp", "50,000 tech points", C),
     ("patcher", "Island Event", "30,000 tech points", C),

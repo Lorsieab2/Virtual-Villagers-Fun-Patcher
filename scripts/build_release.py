@@ -317,6 +317,7 @@ FILES = [
     "src/vv_game_mechanics_items_vv3.py",
     "src/vv_game_mechanics_items_vv4.py",
     "src/vv_game_mechanics_items_vv5.py",
+    "src/vv_game_mechanics_parity.py",
     "src/vv_game_mechanics_hidden.py",
     "src/vv_game_mechanics_hidden_vv1.py",
     "src/vv_game_mechanics_hidden_vv2.py",
