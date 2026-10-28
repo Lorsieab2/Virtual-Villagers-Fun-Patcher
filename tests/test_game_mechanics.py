@@ -362,7 +362,8 @@ class BrewedPotion(unittest.TestCase):
                 self.assertEqual(potion[0].text, (
                     f"A brewed potion: the pot's on-screen countdown starts at {shows} on {gm.speed_name(speed)} "
                     "speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with the speed), and "
-                    "the potion is gone when it reaches 0:00."))
+                    "the potion is gone when it reaches 0:00 -- 5 real-life minutes after it was brewed at every "
+                    "speed, by the computer's clock (0x430E60, 0x430F10)."))     # the owner, 2026-10-27: "put both"
                 # Traced on the game's live code and seen by the owner: no UNCONFIRMED.
                 self.assertTrue(all(f.confirmed for f in potion))
                 text = gm.render(facts)
@@ -626,8 +627,23 @@ class EveryGame(unittest.TestCase):
         and Wind Flute sets are named by the owner)."""
         for name in self.SAVES:
             with self.subTest(save=name):
-                text = gm.render(self.page(name)).lower()
-                self.assertNotRegex(text, r"probabl|(?<!equally )likely|perhaps|presumab|relic")
+                # The game's own words quoted verbatim (the tips under Hidden keys, clicks and cheats: "...more likely
+                # to succeed", "It was probably...") are the game's, not guesses: only the text outside quotation
+                # marks is checked.
+                text = re.sub(r'"[^"\n]*"', '""', gm.render(self.page(name))).lower()
+                # "Relics" is New Believers' own name for its first collectible set (the stock exe's "Relic
+                # Collection", "Relics:" and "Relics increase your max energy."; pinned below), so only that game
+                # may use it; anywhere else it is a name guessed from a theme.
+                self.assertNotRegex(text, r"probabl|(?<!equally )likely|perhaps|presumab"
+                                          + ("" if name.startswith("vv5") else "|relic"))
+
+    def test_relics_are_new_believers_own_name(self) -> None:
+        exe = ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe"
+        if not exe.is_file():
+            self.skipTest("the stock New Believers exe is absent")
+        raw = exe.read_bytes()
+        for words in (b"Relic Collection", b"Relics:", b"Relics increase your max energy."):
+            self.assertIn(words, raw)
     def test_golden_mushroom_facts_only_with_its_patch(self) -> None:
         """The owner, 2026-10-23: with the patch in the game the page gives the Golden Mushroom's facts (100 food, 1 in
         1,000,000 random brown or red mushrooms); without it nothing about it at all."""
@@ -645,8 +661,13 @@ class EveryGame(unittest.TestCase):
                 for features in ([], None):
                     off = text_of([f for f in self.page(name, features=features) if f.group != gm.SOURCES]).lower()
                     self.assertNotIn("golden mushroom", off)
-                    self.assertNotIn("secret", off)
-                    self.assertNotIn("1,000,000", off)
+                    # The patch's name ("Super-Secret Golden Mushroom"); a bare "secret" is also the game's own name
+                    # "The Secret City" and its tips' "hidden secrets" (Hidden keys, clicks and cheats).
+                    self.assertNotIn("super-secret", off)
+                    self.assertNotIn("super secret", off)
+                    # Its odds; a bare 1,000,000 is also the price of the Origins upgrades (Technologies, items and
+                    # buildings), which are shown with or without this patch.
+                    self.assertNotIn("1 in 1,000,000", off)
 
     def test_paused_saves_wait(self) -> None:
         import vv_save_backup

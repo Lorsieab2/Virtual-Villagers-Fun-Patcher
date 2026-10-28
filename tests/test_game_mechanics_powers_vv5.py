@@ -37,6 +37,37 @@ class GodPowers(unittest.TestCase):
             self.assertIn(f"{name} ({cost}):", text)
         self.assertIn("Spirituality", text)
         self.assertNotIn("belief", text.lower())
+        # Stock vs patched, its own line (the owner, 2026-10-27): CODE, from the patcher's catalog; Revive names 256.
+        patched = [f for f in mine if f.text == powers.PATCHED]
+        self.assertEqual(len(patched), 1)
+        self.assertEqual(patched[0].verified, gm.CODE)
+        self.assertIn("256 Villagers (Experimental)", gm.feature_name("vv5_population_256"))
+
+    def test_only_revive_is_touched_by_a_patch(self) -> None:
+        """No row of the patcher's catalog names a God Power, its handler, table or costs, or Divine Energy, except
+        Revive's (the game's Reanimate) record rows -- what the "Stock or patched" line says."""
+        import json
+
+        def strings(node):
+            if isinstance(node, dict):
+                for value in node.values():
+                    yield from strings(value)
+            elif isinstance(node, list):
+                for value in node:
+                    yield from strings(value)
+            elif isinstance(node, str):
+                yield node
+        # Sunshine, Tempest, Time Warp and Grant Youth are also the names of Origins upgrades and island events.
+        words = [name for name, _, _ in powers.TABLE
+                 if name not in ("Revive", "Sunshine", "Tempest", "Time Warp", "Grant Youth")]
+        words += ["0x422EB0", "0x4234A0", "0x498840", "0x4CA000", "Divine Energy", "Spell"]
+        data = ROOT / "data"
+        for path in [data / "builds.json"] + sorted(data.glob("vv5_*_feature.json")):
+            for row in strings(json.loads(path.read_text(encoding="utf-8"))):
+                for word in words:
+                    if word.lower() not in row.lower():
+                        continue
+                    self.assertIn("Reanimate", row, f"{path.name}: {word}: {row[:160]}")
 
     def test_table_matches_the_stock_exe(self) -> None:
         img = _image()

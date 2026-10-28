@@ -3240,10 +3240,13 @@ class App(tk.Tk):
         try:
             # Hashes both copies of every file, which can take a while on a
             # network Documents: off the main thread, behind the wait window.
-            plan = self._run_with_wait(
-                "Checking the backup\u2026",
-                lambda: vv_save_backup.plan_restore(folder, info.path, slot),
-            )
+            # The Secret City: older backups get their second faction's link back first (Codex, #650), so a
+            # backup the saves already match still restores the repaired faction file.
+            def check() -> "vv_save_backup.RestorePlan":
+                vv_save_backup.relink_backups(folder)
+                return vv_save_backup.plan_restore(folder, info.path, slot)
+
+            plan = self._run_with_wait("Checking the backup\u2026", check)
         except (vv_save_backup.BackupError, OSError) as exc:
             messagebox.showerror("Restore Saves", str(exc), parent=parent)
             return
@@ -3291,9 +3294,27 @@ class App(tk.Tk):
         messagebox.showinfo(
             "Restore Saves",
             f"Restored {what} from the backup of {info.label}: every file was "
-            f"checked against the backup.{undo}",
+            f"checked against the backup.{undo}{self._second_faction_words(result)}",
             parent=parent,
         )
+
+    @staticmethod
+    def _second_faction_words(result) -> str:
+        """The Secret City: which saves had their second faction linked again (vv3_second_faction)."""
+        lines = []
+        backups = sum(1 for slots in result.backups_relinked.values() for ok in slots.values() if ok)
+        if backups:
+            lines.append(f"The second faction was linked again in {backups} save(s) of older backups, made before "
+                         "the patcher kept it.")
+        for slot, ok in sorted(result.second_factions.items()):
+            lines.append(f"Save {slot}: its second faction was linked again." if ok else
+                         f"Save {slot}: its second faction could not be found for this backup's save (no copy "
+                         "the game wrote of it is left); restore a newer backup to keep it.")
+        missing = sum(1 for slots in result.backups_relinked.values() for ok in slots.values() if not ok)
+        if missing:
+            lines.append(f"{missing} save(s) in older backups could not be linked again: no copy the game wrote "
+                         "of them is left.")
+        return "\n\n" + "\n".join(lines) if lines else ""
 
     # -- Rename Tribe -------------------------------------------------------
 

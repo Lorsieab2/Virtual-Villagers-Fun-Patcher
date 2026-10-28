@@ -47,7 +47,7 @@ STEW_LINES = (
     ("Sweet x3: honours the tree; sweet, sweet, soapy: the children get hiccups; sweet, soapy, soapy: heals 25 to "
      "59 health (5 to 14 with under 100 food), and that villager cannot eat that stew again for 10 real-life "
      "minutes; soapy x3: \"I feel sick!\" and \"Throwing up soapy stew!\" (it does not make the villager sick), and "
-     "the same 10 real-life minutes. In salt water, pulpy vines x3 make soap; any other mix tastes nasty or too "
+     "the same 10 real-life minutes (real time, the same at every speed). In salt water, pulpy vines x3 make soap; any other mix tastes nasty or too "
      "salty.", gm.RUNNING),
 )
 # The stew pot (0x4D76D8) and its herb table (0x4D8220), the same design as The Secret City's potion: a stew
@@ -88,7 +88,7 @@ REHEAT_CODE_LINE = (
     "Grand Feast stays hot for 10 real-life minutes on Normal speed (5 on Fast, 16 minutes 40 seconds on Slow) "
     "after each thing added. A hot rock that goes into the hot pot while its stew is ready makes "
     "the same stew again and starts its 5 real-life minutes over; nothing limits how often, and no stew is left "
-    "out of this.")
+    "out of this (the 5 minutes are real time, the same at every speed).")
 # "That villager can't eat more stew so soon." (string 0x203) is said when the villager dropped on the pot
 # (0x42E920) is refused by the add-effect 0x460A90: the same stew's effect is already on them (0x45EB40) or they
 # have 12 (+0x1E5C).  An effect ends at a real-clock deadline (0x403750 + its length, 0x460B60); saving ends every
@@ -140,8 +140,10 @@ HIDDEN_LINES = (
      "builders take huts 29% of the time instead of 70%, 41% stop half-way (\"Running away\"), and half of "
      "drops on the wood pile end in running away.", gm.RUNNING),
     ("Running: a liking adult walks at speed 300 (150 otherwise) and one who dislikes it at 40 -- 3.4, 6.7 or "
-     "24.9 seconds for the same walk; children run unless they dislike it; the elderly always walk at 40. "
+     "24.9 seconds for the same walk (whether real time or on the game's clock was not traced: see the next line); children run unless they dislike it; the elderly always walk at 40. "
      "Jumping: liked, Dancing becomes 30 hops; disliked, every hop is skipped.", gm.RUNNING),
+    ("Running: whether a walk's 3.4, 6.7 or 24.9 seconds are real time or on the game's clock was not traced.",
+     False),
     ("Rain: liked, always \"Drinking rain\" in the rain; disliked, always \"Getting out of the rain\". Laundry: "
      "liked 38% of the time (11% otherwise), disliked never. Playing: liked, a child only plays; disliked, no "
      "dirt or sandcastle play. Dancing, disliked: never dances, and dance steps are cut from 5 other actions.",
@@ -177,7 +179,8 @@ CHANCE_V4 = (
      "events).", gm.RUNNING),
     ("A new village: one of the first five villagers has a 30% chance of liking running, and every 40 seconds "
      "each villager's queue of actions is refreshed (read from the coordinator's spec, not traced in the game's "
-     "code here, so neither the 30% nor whether the 40 seconds are real-life or in-game is proven).",
+     "code here, so neither the 30% nor the 40 seconds' clock -- real time or the game's clock -- is proven: "
+     "UNCONFIRMED).",
      False),
     ("Clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes on Fast, Normal or Slow speed, and the "
      "wind flutes play in fog every 30 to 45, 60 to 89 or 100 to 148 real-life seconds (read from the coordinator's "
@@ -258,7 +261,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Mushrooms", "While playing (not paused) a mushroom or a collectible appears by the roll under Collectibles: "
                      "about every 45 real-life seconds (an estimate: the roll is made once per update of the village, "
                      "and how many updates come each real-life second is not read here); at most 2 lie at a time, "
-                     "each gone after 90 real-life seconds.", False)
+                     "each gone after 90 real-life seconds (real time, the same at every speed: the computer's clock 0x403750).",
+                     False)
     add("Mushrooms", "30.03% of them are mushrooms, and every one while it rains or while the weather level is above "
                      f"20 (wet ground): brown 91.99% of the time, worth {food(6)} food, red (rare) 8.01%, worth "
                      f"{food(35)}.", gm.RUNNING)
@@ -274,7 +278,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # A ghost is not a buried villager (the owner, 2026-10-24): it takes a random grave's looks (0x414110).
     add("Collectibles", "The four collections are the Fish Scale, Lab Equipment, Mausoleum Mural and Wind Flute sets. "
                         "Once the Mausoleum Mural set is complete, a ghost brings a collectible every 50 to 58 real-life "
-                        "minutes (nothing if more than an hour overdue); what a ghost is: under Death and graves.",
+                        "minutes (real time, the same at every speed; nothing if more than a real-life hour overdue); what a ghost is: under Death and graves.",
         gm.RUNNING)
     add("Collectibles", "Fog increases collectible spawning if you have Wind Flute pieces collected.", gm.OWNER)
     add("Collectibles", (
@@ -290,7 +294,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             f"This village: {found} of the 12 Wind Flute pieces found, so in fog the first roll's chance is "
             f"{6 * 4 * (found // 2)} in 32,768 each update."), gm.SAVE, True))
     add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life minutes (every 23 to 25 "
-                        "once Decorate Tree is done); it changes nothing.", gm.RUNNING)
+                        "once Decorate Tree is done; whether real time or on the game's clock: the next line); it changes nothing.", gm.RUNNING)
+    add("Collectibles", "The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on "
+                        "the game's clock was not traced.", False)
     # The room check 0x468350: +5 for each complete set (0x4143F0), 20 made 25 (0x4683AA).
     add("Collectibles", "Fog comes with the weather and with island events (see Island events). Each complete "
                         "collection raises the population limit by 5, and all four by 25 (the room check 0x468350).",
@@ -312,8 +318,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         # (CPurifyTree vtable 0x48E9F8 +0x30 = 0x437EC0 -> 0x438089) gives, for 240 real-life seconds (0x4380CF ->
         # 0x460A90); 0x464E4F triples the research.  The Lab Equipment bonus: rand(pieces) (0x464E5D..0x464E82).
         add("Tech points and effects", "The Purify Tree's glow: one of the Purify Tree's two results gives the "
-                                       "villager a glow for 4 real-life minutes (240 seconds), and while it lasts "
-                                       "their research brings 3 times the tech points.", gm.RUNNING)
+                                       "villager a glow for 4 real-life minutes (240 seconds; real time, the same "
+                                       "at every speed: its end is set on the computer's clock, 0x460A90 -> "
+                                       "0x403750, so paused time counts too), and while it lasts their research "
+                                       "brings 3 times the tech points.", gm.RUNNING)
     if village.has(LEARNING) is not False:
         add("Tech points and effects", gm.patch_words(village, LEARNING, "no skill roll fails"))
     add("Tech points and effects", "Nursery School: each child gains the teacher's five skills added up ÷ 240 per "
@@ -386,7 +394,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         tech=_i32(data, TECH), tech_words="Research brings them; a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=3600 / 45 * 0.30, mastery=multiplier,
         golden=village.has(GOLDEN) is True,
-        mushroom_words="Something appears about every 45 real-life seconds while playing (twice as often on wet "
+        mushroom_words="Something appears about every 45 real-life seconds while playing (not paused; real time, the "
+                       "same at every speed; twice as often on wet "
                        "ground), 30% of them mushrooms (all in rain), so about 24 mushrooms per real-life hour.",
         event_next=event_at,
         event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,

@@ -368,8 +368,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                  ("was burning when it was saved" if paused and _i32(data, FIRE_END) > _i32(data, LAST_TICK)
                                   else "is out"))
                   + f"; a lit fire burns {gm.duration(FIRE_HOURS[speed] * 3600)} of real-life time on {on} speed "
-                    "(10, 20 or 40 hours on Fast, Normal or Slow), fuel on a burning fire fills it to that again, and "
-                    "fuel does not light a cold pit."), gm.RUNNING)
+                    "(10, 20 or 40 hours on Fast, Normal or Slow: the length is set by the speed it is lit or fuelled at, "
+                    "0x4624CF), fuel on a burning fire fills it to that again, and fuel does not light a cold pit. "
+                    "Its end is a moment on the game's real-seconds clock (0x403200), so it burns down while the "
+                    "game is closed; a speed change rescales what is left by the new speed ÷ the old (from Normal "
+                    "to Slow 20 hours left become 33 hours 20 minutes, not 40), and a pause pushes it on by the "
+                    "paused time (0x43B5A0)."), gm.RUNNING)
     add("Other", gm.FIRE_OUT, gm.OWNER)
     # The Lost Children's island events (the island-event conditions report, VV2 part): none reads or ends the fire.
     # Checked 2026-10-25: the fire's end +0x2EAC4 is written only by the new village (0x4251F8), its own expiry
@@ -461,7 +465,8 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
         village, speed_value, real_last(data), _i32(data, FOOD), low_food=150, extra_from=4001, sources=sources,
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 5 at Science 1 to 3).",
         brown=6, red=35, red_share=0.10, mushrooms_an_hour=3600 / wait * share, golden=village.has(GOLDEN) is True,
-        mushroom_words=f"At Exploration level {exploration} something appears about every {wait} real-life seconds while "
+        mushroom_words=f"At Exploration level {exploration} something appears about every {wait} real-life seconds "
+                       f"(real time, the same at every speed, paused too) while "
                        f"nothing is out, {share:.0%} of them mushrooms, picked only when you drop a child on them.",
         event_next=event_at,
         event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,

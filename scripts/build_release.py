@@ -268,6 +268,7 @@ FILES = [
     "src/vv_save_backup.py",
     # Its game-speed changes replay each game's own speed routine; vv_save_backup imports it.
     "src/vv_save_clock.py",
+    "src/vv3_second_faction.py",
     # Rename Tribe; the GUI imports it too.
     "src/vv_tribe_rename.py",
     # Check Saves & Logs and Repair Saves & Logs; the GUI imports it, and Check Saves & Logs runs
@@ -311,6 +312,18 @@ FILES = [
     "src/vv_game_mechanics_events_vv4.py",
     "src/vv_game_mechanics_events_vv5.py",
     "src/vv_game_mechanics_faith_vv5.py",
+    "src/vv_game_mechanics_items_vv1.py",
+    "src/vv_game_mechanics_items_vv2.py",
+    "src/vv_game_mechanics_items_vv3.py",
+    "src/vv_game_mechanics_items_vv4.py",
+    "src/vv_game_mechanics_items_vv5.py",
+    "src/vv_game_mechanics_parity.py",
+    "src/vv_game_mechanics_hidden.py",
+    "src/vv_game_mechanics_hidden_vv1.py",
+    "src/vv_game_mechanics_hidden_vv2.py",
+    "src/vv_game_mechanics_hidden_vv3.py",
+    "src/vv_game_mechanics_hidden_vv4.py",
+    "src/vv_game_mechanics_hidden_vv5.py",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).

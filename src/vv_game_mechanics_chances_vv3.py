@@ -88,11 +88,11 @@ ROLLS = (
          (Check(0x455CD7, 1440, None, "jg"), Check(0x455CBB, 2460, None, "jg"), Check(0x455C9F, 5400, None, "jg"),
           Check(0x455D02, 1000, 0x0E, "jle"), Check(0x460282, 100, 0x32, "jl"), Check(0x455C14, 100, 0x32, "jge")),
          (f"Medicine 1: {_sick(1, 1)} with the fire burning or Aromatherapy solved, {_sick(1, 2)} with neither.",
-          f"Medicine 2: {_sick(2, 1)} or {_sick(2, 2)}. Medicine 3: {_sick(3, 1)} or {_sick(3, 2)}. Medicine 0: no "
-          "villager rolls this.",
+          f"Medicine 2: {_sick(2, 1)} or {_sick(2, 2)}. Medicine 3: {_sick(3, 1)} or {_sick(3, 2)}. A village "
+          "starts at Medicine 1 (0x426F40).",
           f"On Hard: with both the fire burning and Aromatherapy solved, the first figure; with one of the two, the "
           f"second; with neither, {_sick(1, 3)}, {_sick(2, 3)} or {_sick(3, 3)} at Medicine 1, 2 or 3.",
-          "An elderly villager (42 years plus 8 for each Medicine level; 42 at Medicine 0) who escapes that roll has "
+          "An elderly villager (42 years plus 8 for each Medicine level: 50, 58 or 66) who escapes that roll has "
           "a second one: {3} more.",
           "On Easy the roll is made only " + _ch(times(_not(below(100, 50)), _not(below(100, 50)))) + " of age units "
           "(two rolls of 0 to 99 at 50 or more must both come up), so about a quarter of these chances.")),
@@ -197,7 +197,7 @@ ROLLS = (
          (Check(0x45FC9D, 100),),
          ("It adds a third to fish and fruit, a half to honey, 1 more to a building action, and a third (Science 0) or a "
           "quarter (Science 1 or more) to research.",)),
-    Roll("The chief's Grant Food (Leadership 1 or more, every 23 real-life hours): 3 x Leadership x (10 to 29, each "
+    Roll("The chief's Grant Food (Leadership 1 or more, every 23 real-life hours, real time at any speed): 3 x Leadership x (10 to 29, each "
          "equally) food, so 30 to 87 at Leadership 1, 60 to 174 at 2, 90 to 261 at 3.",
          (Check(0x459042, 20),)),
     Roll("Hut repairs: once all four huts are finished, a builder who examines a hut goes on to fix it {0} of the time; "
@@ -242,7 +242,7 @@ ROLLS = (
          feature="vv3_super_secret_golden_mushroom",
          patched="1 in 1,000,000 of the random brown or red mushrooms is a gold Golden Mushroom instead, worth 100 "
                  "food."),
-    Roll("The Tribal Chief's rare collectible (Leadership 3, every 23 real-life hours): the piece is always rare, from a "
+    Roll("The Tribal Chief's rare collectible (Leadership 3, every 23 real-life hours, real time at any speed): the piece is always rare, from a "
          "collection chosen at random; it is lost when the game picks an owned Tablet piece or one already out.",
          (Check(0x42DC2B, 100),),
          feature="vv3_rare_collectible_retry",

@@ -187,7 +187,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "in 32,768; in fog 36 in 32,768, and while the weather level is above 50 a second roll of 18 in "
                      "32,768 comes on top. 30% of what appears are mushrooms, and all of it while it rains or the "
                      "weather level is above 20: brown 92% worth 6 food, red (rare) 8% worth 35 (before Food Mastery), "
-                     "counted when they reach the food bin. Unpicked, a thing is gone after 1 minute 30 seconds of "
+                     "counted when they reach the food bin. Unpicked, a thing is gone after 1 minute 30 seconds (real time, the "
+                     "same at every speed: 90 seconds on the computer's clock, 0x41441B) of "
                      "real-life time.", gm.RUNNING)
     add("Mushrooms", "That is about one thing a real-life minute at any speed if the village updates about 30 times a "
                      "real-life second; the update rate was not read from the code, so this is an estimate.")
@@ -254,10 +255,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Other", line, ok)
     out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1, 2, 3)", "65, 73 or 81 years", "Heathens do not age.",
                                who="believer"))
-    if village.general:      # a save's page says it under Vital statistics ("Time and units")
-        add("Other", f"Time and units: an age unit is {unit} of real-life time and a villager year (20 age units) "
-                     f"{gm.duration(20 * 60 * speed)} on {on} speed (an age unit is 3, 6 or 10 real-life minutes on "
-                     "Fast, Normal or Slow).", gm.RUNNING)
+    # (The age unit at each speed: Vital statistics' Time and units, on the save's page and the general one alike.)
     add("Other", "Ages, pregnancies, noni, crops, weather and the fire follow the speed; mushrooms and collectibles "
                  "appearing, island events, God Power spells and a Heathen's 2-hour wait after preaching run on "
                  "real-life time at any speed.", gm.RUNNING)
@@ -305,7 +303,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 7 at Science 1 to 3).",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0,
         mastery=2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0), golden=village.has(GOLDEN) is True,
-        mushroom_words="About one thing appears each real-life minute while playing, 30% of them mushrooms (all in "
+        mushroom_words="About one thing appears each real-life minute while playing (not paused; real time, the same "
+                       "at every speed), 30% of them mushrooms (all in "
                        "rain), so about 18 mushrooms per real-life hour.",
         event_next=event_at,
         event_paused_left=max(0, _i32(data, EVENT_NEXT) - _i32(data, LAST_TICK)) if paused else None,

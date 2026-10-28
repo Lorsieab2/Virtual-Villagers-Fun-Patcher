@@ -95,8 +95,9 @@ CHANCE_LINES = (
      "one added when the game is next played; island events 12 to 23 real-life hours apart at any speed (Island "
      "events); the village step every 2 real-life seconds; the idle sweep every 40 real-life seconds; a mushroom "
      "lies 1 real-life minute.", gm.CODE),
-    ("A new village's first island event comes 15 real-life minutes after it is made, and its tutorial mushroom "
-     "lies 1 minute 40 real-life seconds.", gm.CODE),
+    ("A new village's first island event comes 15 real-life minutes after it is made (real time, the same at every "
+     "speed; the pause pushes it on), and its tutorial mushroom lies 1 minute 40 real-life seconds (real time).",
+     gm.CODE),
     # The Golden Child's timer (0x447A14..0x447A57): the full rule is in GOLDEN_CHILD_LINES.
     ("The Golden Child's cave timer: 36 real-life hours after his birth, at any speed; see Golden Child.", gm.RUNNING),
 )
@@ -136,6 +137,18 @@ HIDDEN_LINES = (
     ("Likes: at birth 70% none, 21% one, 9% two; dislikes the same; a like is never also a dislike.", gm.RUNNING),
     ("Running, liked: a villager of 14 or more runs, three times walking speed. Disliked: a child under 14 "
      "walks instead of running, and the dislike works for adults too.", gm.OWNER),
+    # The code beside the owner's word (the owner, 2026-10-27: where code and what is seen differ, write both).  The
+    # dislike test 0x4372E0 is called for word 38 (running) only at 0x43CD25 (every call scanned); the walk 0x43CCF0
+    # is step 3 of the villager step dispatcher 0x43DEF0 (jump table 0x43DF74 -> 0x43DF1E -> 0x43DF22), run from the
+    # game's own drop and walk paths (tests/test_manual_drop_breeding.py).  Step 1 (0x43DF0C -> 0x43CBD0) sets 300
+    # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read; what queues step 1 is not traced.
+    ("In the game's code the dislike of running is read in one place only, the walk's speed (the walk step "
+     "0x43CCF0): a villager under 14 who dislikes running is not given the running speed (0x43CD20..0x43CD2C), and "
+     "from 14 on only a like is read (0x43CD33), so on that walk an adult who dislikes running moves exactly as one "
+     "who neither likes nor dislikes it.", gm.CODE),
+    ("Another movement step (0x43CBD0) gives every villager under 14 the running speed without reading the "
+     "dislike; which actions use that step was not traced, so whether a child who dislikes running ever runs "
+     "through it is not settled.", False),
     ("Disliking work makes 70% of idle picks take no job; disliking medicine passes Healing over half the time. "
      "Fish, disliked: always refuses fishing (\"Running away\"); berries or bushes: refuses foraging 75% of the "
      "time; rocks: refuses clearing the blockage 75%; turnips: skips the crops 75%; drift wood: skips the beach "
@@ -208,7 +221,8 @@ GOLDEN_CHILD_LINES = (
      gm.RUNNING),
     # 0x43C7AF..0x43C80C (the creator for family 199); the owner's log (Lulu Chuchip); the owner's rule.
     ("He is born a boy of exactly 5 years (100 age units) and stays 5 for life, with 100 health, every skill at 100, "
-     "head 19 and body 19; his likes and dislikes are rolled like anyone's. His family number is 199.", gm.OWNER),
+     "head 19 and body 19; his likes and dislikes are rolled like anyone's. His family number is 199. " + gm.AGES,
+     gm.OWNER),
     # 0x42EB70..0x42EC74 (tests/test_vv1_golden_child_skips_the_age_unit.py): the age lock sets his age and
     # processed age to 100 each tick, and the age-unit body runs only while the processed age is below the age.
     # The sickness roll 0x42E590 also returns "not sick" for family 199 (0x42E5A4).
@@ -238,20 +252,22 @@ GOLDEN_CHILD_LINES = (
      "He can be picked up and dropped like anyone, and dropped on a job he does it like anyone, with its injuries "
      "(2% of trips).", gm.CODE),
     # 0x447A14..0x447A57; the clock 0x402F70 is the computer's time less the save's base (difftime, 0x44B6FE).
-    (f"The 36-hour action is the Cave Opening. From {CAVE_WAIT_HOURS} real hours after his birth, while the cave is "
+    (f"The 36-hour action is the Cave Opening. From {CAVE_WAIT_HOURS} real hours after his birth (real time, at any "
+     "speed, paused or closed), while the cave is "
      f"still shut, each time he picks what to do there is a {_pc(P_TIMER)} chance (34% x 84% x 79%) that he walks to "
      "the giant boulder (\"Unblocking the Cave\") and opens the cave. Exactly: the whole hours since the village was "
-     "started must reach his birth hour (the Puzzles screen's) plus 36, so it starts 35 to 36 real hours after his "
+     "started must reach his birth hour (the Puzzles screen's) plus 36, so it starts 35 to 36 real-life hours after his "
      "birth (36 to 37 if he was born in the village's first hour).", gm.RUNNING),
-    ("The 36 hours are real hours on the computer's clock: 36 hours on Slow, Normal and Fast alike (10.8, 18 or 36 game "
-     "years, though he never ages). They count while the game is paused or closed; the load-time catch-up does "
+    ("The 36 hours are real hours on the computer's clock (real time): 36 hours on Slow, Normal and Fast alike "
+     "(10.8, 18 or 36 game years, though he never ages). They count while the game is paused or closed; the load-time catch-up does "
      "nothing for him; each Origins Time Warp moves the clock on 12 hours on Fast or Normal and 10 hours on Slow, which "
      "counts towards them.", gm.RUNNING),
     # 0x4479F3, 0x446920, 0x446C48 (see the comment above GOLDEN_CHILD_LINES).
     (f"His own acts, at any time from his birth: each time he picks what to do, {_pc(P_SHOW)} a short show where he "
      f"stands (nothing else happens), and {_pc(P_ACT)} each of: the berry bush +400 (\"The Golden Child magically "
      "created berries!\"); at Farming level 2 or more the crop field +400 (\"The Golden Child restored the "
-     "crops!\"), which the game cuts back to 800 within 2 real-life seconds (0x42F2C5); +150 food, counted in Food "
+     "crops!\"), which the game cuts back to 800 within 2 real-life seconds (0x42F2C5; real time: the world "
+     "update runs every 2 real-life seconds, 0x42345D -> 0x42348C); +150 food, counted in Food "
      "Gathered (\"The Golden Child magically created food!\"); every living "
      "villager stops to dance (one who dislikes dancing only stops) and every sick villager is cured at once, each "
      "counted in People Cured; and, while the cave is shut, opening the cave with every living villager "
@@ -359,7 +375,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # it lies 60 real seconds at one of 9 spots; brown 8 / red 45 (effects 32 and 33, 0x43AFEF / 0x43B04C, each
     # +1 Mushrooms Found).  [0xACAC] lies past the save's last byte (state 0xABE4), so a mushroom is never saved.
     add("Mushrooms", "While none is out, a mushroom appears after about 2 real-life minutes on average, at any speed "
-                     "(even while paused), at one of 9 places, and stays 1 real-life minute; it is picked only when you "
+                     "(even while paused; real time), at one of 9 places, and stays 1 real-life minute; it is picked only when you "
                      "drop a villager on it. It is a brown mushroom worth 8 food, or 1 in 20 a red (rare) mushroom "
                      "worth 45. How many have been found is under Village counts.", gm.RUNNING)
     add("Mushrooms", "Mushrooms are not kept in the save: one lying out when the game is closed is gone when it is "
