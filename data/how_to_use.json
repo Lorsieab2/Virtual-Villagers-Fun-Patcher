@@ -554,6 +554,16 @@
       ]
     },
     {
+      "ids": ["vv1_grey_hair"],
+      "guide": [
+        "Nothing to click: tick the patch, and every villager of 55 years or more is drawn with grey hair.",
+        "It is the same head in grey, in the village, on the map and in the Villager Details portrait; Change Appearance shows it grey too.",
+        "Villagers already grey or bald look the same. The Golden Child never grows old, so he never changes; anyone else given his head shows its old version from 55.",
+        "Only the picture changes: the head number, the logs, the Family Tree and genetics stay as they were.",
+        "On by default. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv4_difficulty_settings", "vv5_difficulty_settings"],
       "guide": [
         "Open Options (in the game's menu) and choose Easy, Normal or Hard on the Difficulty row, above Game Speed.",

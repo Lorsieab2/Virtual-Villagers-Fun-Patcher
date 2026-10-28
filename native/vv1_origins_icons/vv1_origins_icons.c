@@ -17,6 +17,7 @@
 #include "../shared/mask_follow.h"   /* masks follow their villagers through a reload */
 #include "../shared/foreign_sidecar.h" /* another village's file is never replaced */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
+#include "../shared/vv1_grey_hair.h"  /* Grey Hair at 55: the picker previews a grey head */
 
 /* Which game this file is compiled for, for the Story / Cheat Upgrades
    companion.  The Lost Children's companion includes this file and sets 2.
@@ -2713,7 +2714,7 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
    different from VV5's for the same art. This is VV5's own math, so head and
    body -- and now the mask preview too, which is generated on that same
    40x65 cell -- render identically in both games' pickers. */
-static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
+static void appearance_draw_from(DRAWITEMSTRUCT *item, HINSTANCE module, int bitmap_id, int index) {
     /* The None entry has no artwork, so blitting its cell leaves an
        empty grey box next to Body and Head, which print words. Name
        it instead: a blank cell reads as a broken preview rather than
@@ -2743,7 +2744,7 @@ static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
     FillRect(item->hDC, &rc, background);
     DeleteObject(background);
 
-    bitmap = LoadBitmapA(module_instance, MAKEINTRESOURCEA(bitmap_id));
+    bitmap = LoadBitmapA(module, MAKEINTRESOURCEA(bitmap_id));
     if (bitmap == NULL) {
         return;
     }
@@ -2768,6 +2769,26 @@ static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
     SelectObject(source, previous);
     DeleteDC(source);
     DeleteObject(bitmap);
+}
+
+static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
+    appearance_draw_from(item, module_instance, bitmap_id, index);
+}
+
+/* The villager's head as the village draws it: from Grey Hair at 55's grey strip
+   (native/shared/vv1_grey_hair.h) when that companion is in the game and draws this villager
+   grey -- 55 or older -- else from this companion's young strip, as the
+   later games' pickers choose young or old heads by age 1100. */
+static void appearance_draw_head(DRAWITEMSTRUCT *item, const unsigned char *villager, int male) {
+    HMODULE grey = GetModuleHandleA(VV1_GREY_HAIR_DLL);
+    vv1_grey_hair_wanted_fn wanted = grey != NULL
+        ? (vv1_grey_hair_wanted_fn)GetProcAddress(grey, VV1_GREY_HAIR_WANTED) : NULL;
+    int head = *(const int *)(villager + VV_HEAD_OFFSET);
+    if (wanted != NULL && wanted(villager)) {
+        appearance_draw_from(item, grey, male ? VV1_GREY_HAIR_PREVIEW_MALE : VV1_GREY_HAIR_PREVIEW_FEMALE, head);
+        return;
+    }
+    appearance_draw(item, male ? IDB_HEAD_M : IDB_HEAD_F, head);
 }
 
 static void appearance_repaint(HWND window, int control_id) {
@@ -2848,11 +2869,7 @@ static INT_PTR CALLBACK appearance_dialog(
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
         if (item->CtlID == IDC_HEAD_PREVIEW) {
-            appearance_draw(
-                item,
-                appearance_state.male ? IDB_HEAD_M : IDB_HEAD_F,
-                *(int *)(appearance_state.villager + VV_HEAD_OFFSET)
-            );
+            appearance_draw_head(item, appearance_state.villager, appearance_state.male);
             return TRUE;
         }
         if (item->CtlID == IDC_MASK_PREVIEW) {

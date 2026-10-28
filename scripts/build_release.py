@@ -77,6 +77,11 @@ FILES = [
     "assets/chief_hospital/VVFP VV3 Chief Hospital.dll",
     "assets/difficulty/VVFP Difficulty.dll",
     "assets/genetics/VVFP VV1 Genetics.dll",
+    # Grey Hair at 55 (A New Home): the companion and its two new head sheets (the owner's art;
+    # _refuse_placeholder_art below stops a release while either is still the placeholder).
+    "assets/vv1_grey_hair/VVFP VV1 Grey Hair.dll",
+    "assets/vv1_grey_hair/vvfp_grey_male_heads.png",
+    "assets/vv1_grey_hair/vvfp_grey_female_heads.png",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
@@ -175,6 +180,7 @@ FILES = [
     "data/vv4_difficulty_settings_feature.json",
     "data/vv5_difficulty_settings_feature.json",
     "data/vv1_genetics_feature.json",
+    "data/vv1_grey_hair_feature.json",
     "data/vv3_both_factions_feature.json",
     "data/vv3_fruit_trees_refill_together_feature.json",
     "data/vv3_fruit_trees_take_turns_feature.json",
@@ -457,6 +463,21 @@ def _assert_no_executable_members(members: list[str]) -> None:
         )
 
 
+def _refuse_placeholder_art() -> None:
+    """Raise while a shipped grey head sheet (Grey Hair at 55) is still the machine-made PLACEHOLDER
+    mockup, byte for byte (scripts/build_vv1_grey_hair_art.py, assets/vv1_grey_hair/README.txt)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from build_vv1_grey_hair_art import placeholder_sheets
+    placeholders = placeholder_sheets()
+    if placeholders:
+        raise RuntimeError(
+            "refusing to build the release: the grey hair art is still the PLACEHOLDER mockup -- "
+            + ", ".join(placeholders)
+            + ". Drop in the final sheets (assets/vv1_grey_hair/README.txt) and run "
+            "python scripts/build_vv1_grey_hair_feature.py first."
+        )
+
+
 SOURCE_NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}-source.zip"
 
 
@@ -575,6 +596,7 @@ def _build_source_archive() -> dict | None:
 
 def main() -> int:
     _assert_no_executable_members(FILES)
+    _refuse_placeholder_art()
     # Refuse a dirty tree before anything is written: see _refuse_dirty_tree.
     _refuse_dirty_tree()
     OUTPUTS.mkdir(exist_ok=True)

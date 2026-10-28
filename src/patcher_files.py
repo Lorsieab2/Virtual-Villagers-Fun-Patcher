@@ -53,6 +53,10 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     # of Life, New Believers): the game's sprite constructor is handed
     # "golden_mushroom.png" (vvfp_golden_mushroom.c).
     "Images/golden_mushroom.png": _GAME_IMAGE,
+    # A New Home's Grey Hair at 55: the game's sprite constructor is handed
+    # "vvfp_grey_male_heads.png" / "vvfp_grey_female_heads.png" (vv1_grey_hair.c).
+    "Images/vvfp_grey_male_heads.png": _GAME_IMAGE,
+    "Images/vvfp_grey_female_heads.png": _GAME_IMAGE,
     # The Tree of Life's Origins mask atlases: the game's sprite constructor
     # formats "vvfp_mask_atlas%d%d.png" / "vvfp_bighead_mask_atlas%d%d.png"
     # and opens them from Images (vv4_origins_icons.c).

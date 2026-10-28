@@ -1,0 +1,5 @@
+LIBRARY "VVFP VV1 Grey Hair"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpGreyHairInstalled=_VvfpGreyHairInstalled@0
+    Vv1GreyHairWanted=_Vv1GreyHairWanted@4

@@ -1,0 +1,260 @@
+{
+  "id": "vv1_grey_hair",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Grey Hair at 55",
+  "description": "Gives A New Home the grey hair of the later games. In the original game a villager keeps the same head picture for life; The Lost Children, The Secret City, The Tree of Life and New Believers switch to an older-looking head at 55 years. With this patch an A New Home villager of 55 years or more is drawn with a grey-haired version of the same head everywhere the game draws one -- in the village, on the map and in the Villager Details portrait -- and Change Appearance previews it the same way. Villagers already grey or bald look the same. Every head follows the same rule, the Golden Child's head 19 too: the Golden Child himself never grows old, so he never changes, but any other villager given his head shows its old version from 55. Only the picture changes: the head number in the save stays the same, so logs, the Family Tree, genetics and Change Appearance keep reading the same head. **On by default.** **Show Parents' small pictures of a child's parents and the Family Tree keep the usual heads.** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game.** The companion is \"VVFP VV1 Grey Hair.dll\", started by VVFP Startup.dll; it adds two new pictures, Images\\vvfp_grey_male_heads.png and Images\\vvfp_grey_female_heads.png, and changes none of the game's own; if the DLL cannot be loaded, or a picture is missing, those villagers keep their usual heads.",
+  "output_tag": "Grey Hair",
+  "dependencies": [],
+  "behavior_changes": [
+    "Every draw of a villager's head from male_heads.png or female_heads.png -- the 29 reads of gameobj+0x3DFF8 / +0x3DFF4 in the Details portrait 0x437340, a dialog's villager figure 0x4375F0, the village 0x437790 and the map 0x4388E0 -- uses Images\\vvfp_grey_male_heads.png or Images\\vvfp_grey_female_heads.png instead (same column, same row) when the villager's shown age (record +0x348) is 1,100 age units (55 years) or more, the age the later games switch to their old heads (VV2 0x4469BA, VV3 0x46086D, VV4 0x467E89, VV5 0x4722A2).",
+    "Head 19 follows the same rule as every other head (the owner, 2026-10-28): the Golden Child never reaches 1,100 (the age tick puts family 199 back to 100 units, 0x42EB80..0x42EB8E), but any other villager given head 19 is drawn from row 19 of the grey sheet once 1,100 or older.",
+    "The Origins Change Appearance picker previews a villager's head from this companion's grey strip when the village draws that villager grey (Vv1GreyHairWanted)."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: the DLL verifies the 29 reads, the two engine entries and the four routines' register set-ups, and writes its 31 detours at run time through the shared all-or-none writer; a different build installs nothing.",
+    "The head value (record +0x360) and every other record field are never written: logs, the Family Tree, genetics and Change Appearance read the same head number as before.",
+    "The game's own male_heads.png and female_heads.png are not changed; the grey sheets are new files. A missing grey sheet, or one that is not exactly 280 x 1300 pixels, is never used.",
+    "The draws themselves are the game's own: the same sprite cell, position, scale and facing; the Origins masks still find the head draw by its young sheet and are drawn as before.",
+    "Show Parents' small parent figures on the Details screen (drawn by VVFP VV1 Parentage.dll from the parents' stored heads, which carry no age) and the Family Tree Maker keep the young heads."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/vv1_grey_hair/VVFP VV1 Grey Hair.dll",
+      "destination": "VVFP VV1 Grey Hair.dll",
+      "sha256": "3981FF9FEAB0572F62F7BCBA2E812511668BA3D13D81A60DF52A264491A5EC54"
+    },
+    {
+      "source": "assets/vv1_grey_hair/vvfp_grey_male_heads.png",
+      "destination": "Images/vvfp_grey_male_heads.png",
+      "sha256": "8EFE10718C91526A37D6C2325D87F0AD77BB841A5B3BA7E9394CCF1B6070E33F"
+    },
+    {
+      "source": "assets/vv1_grey_hair/vvfp_grey_female_heads.png",
+      "destination": "Images/vvfp_grey_female_heads.png",
+      "sha256": "38F003953EB06418D0E3A1F13D50B2CEEEE23E4EF91853DFAD5CC3E9046BD5FB"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x437405",
+      "stock_bytes": "8B8EF8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the Details portrait 0x437340, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x43748E",
+      "stock_bytes": "8B8EF4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the Details portrait 0x437340, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4374E6",
+      "stock_bytes": "8B86F8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the Details portrait 0x437340, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437539",
+      "stock_bytes": "8B96F4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the Details portrait 0x437340, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4376B0",
+      "stock_bytes": "8B8EF8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "a dialog's villager figure 0x4375F0, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437735",
+      "stock_bytes": "8B8EF8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "a dialog's villager figure 0x4375F0, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x43775D",
+      "stock_bytes": "8B8EF4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "a dialog's villager figure 0x4375F0, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437B9D",
+      "stock_bytes": "8B96F8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437D73",
+      "stock_bytes": "8B96F4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437E9B",
+      "stock_bytes": "8B96F8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437FA1",
+      "stock_bytes": "8B96F4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x43812F",
+      "stock_bytes": "8B8EF8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438140",
+      "stock_bytes": "8B8EF4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438265",
+      "stock_bytes": "8B8EF8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4382D7",
+      "stock_bytes": "8B8EF4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x43836C",
+      "stock_bytes": "8B8EF8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4383C2",
+      "stock_bytes": "8B8EF4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4385D9",
+      "stock_bytes": "8B8EF4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438766",
+      "stock_bytes": "8B8EF8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4387BA",
+      "stock_bytes": "8B8EF4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438BF3",
+      "stock_bytes": "8B8EF4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438D23",
+      "stock_bytes": "8B8EF8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438DDB",
+      "stock_bytes": "8B86F4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438E73",
+      "stock_bytes": "8B8EF8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438EE0",
+      "stock_bytes": "8B8EF4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x439052",
+      "stock_bytes": "8B86F8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4390D7",
+      "stock_bytes": "8B8EF4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4391CF",
+      "stock_bytes": "8B86F8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, a man's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x439249",
+      "stock_bytes": "8B86F4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, a woman's head: the read of the young head sheet (mov reg, [esi+disp]); the companion does the read itself and remembers the villager, then on at the next instruction",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x408AF0",
+      "stock_bytes": "83EC108B542424",
+      "written_bytes": "E9XXXXXXXX9090",
+      "routine": "the engine's scaled cell draw (reached through 0x409410)'s entry: a draw given the head sheet just read gets the grey sheet when that villager is 55 or older, then the displaced entry and on",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x408740",
+      "stock_bytes": "83EC108B542424",
+      "written_bytes": "E9XXXXXXXX9090",
+      "routine": "the engine's row/column cell draw (reached through 0x4093C0)'s entry: a draw given the head sheet just read gets the grey sheet when that villager is 55 or older, then the displaced entry and on",
+      "installed_by": "VVFP VV1 Grey Hair.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}
