@@ -443,12 +443,10 @@ VV1_SKILL_FIELDS = (
 # Stage 3 will mark read+execute. The mask CODE stays in .shr; it references
 # these VAs, so repointing the constants moves the writes with zero assembly
 # edits.
-DATA_SCRATCH_BASE_VA = MASK_DATA_SECTION_VA  # 0x491000: dedicated appended R/W section (.vv1md), NOT the borrowed .data BSS tail (owner: no shared caves). All derived mask-scratch VAs recompute from here; the DLL's 3 hardcoded copies (VV_MASK_TABLE/MANAGER/PORTRAIT_SCALE) must match.
+DATA_SCRATCH_BASE_VA = MASK_DATA_SECTION_VA  # 0x491000: dedicated appended R/W section (.vv1md), NOT the borrowed .data BSS tail (owner: no shared caves). All derived mask-scratch VAs recompute from here; the DLL's hardcoded copies (VV_MASK_TABLE/MANAGER/SAVE_SLOT/BIRTH_DIRTY) must match.
 # Mask writable state, laid out in .data (all zero-initialised by the loader):
 MASK_TABLE_VA = DATA_SCRATCH_BASE_VA + 0x00  # 256 villagers x 4 bits = 128 bytes
 MASK_TABLE_SIZE = 128
-MASK_SURFACES_VA = DATA_SCRATCH_BASE_VA + 0x80  # 5 x SDL_Surface* cache
-DEST_SURFACE_CACHE_VA = DATA_SCRATCH_BASE_VA + 0x94
 MASK_MANAGER_VA = DATA_SCRATCH_BASE_VA + 0x98
 # --- Retired per-frame SDL-blit scratch ------------------------------------
 # The former per-frame mask-index list and counter belonged to the SDL blit
@@ -463,11 +461,6 @@ MASK_RESTORE_DONE_VA = DATA_SCRATCH_BASE_VA + 0x1A8
 # exe portrait cave to its own .data -- the Malwarebytes-safe fixed-address
 # pattern, same as every other slot here.
 PORTRAIT_DLL_FN_VA = MASK_RESTORE_DONE_VA + 4            # +0x1AC (dword)
-# Keep the former portrait-scale dword reserved so the already-reviewed village
-# scratch addresses do not move. The exact-argument portrait wrapper no longer
-# writes it: it preserves the complete native tuple on the caller's own stack.
-PORTRAIT_RESERVED_VA = PORTRAIT_DLL_FN_VA + 4             # +0x1B0 (dword, intentionally unused)
-MASK_DATA_SCRATCH_END_VA = PORTRAIT_RESERVED_VA + 4       # +0x1B4
 # --- Village all-pose mask (shared-draw hook) scratch -----------------------
 # The village mask must ride ON the head through EVERY pose (walk/swim/bend/sit/
 # lie/idle-bob). The old blit reconstructed the villager's screen y from its
@@ -479,13 +472,12 @@ MASK_DATA_SCRATCH_END_VA = PORTRAIT_RESERVED_VA + 4       # +0x1B4
 # stash the current villager RECORD INDEX at each village loop's per-villager
 # top; the hook trusts it only when it's valid AND the sprite being drawn is a
 # head atlas (stash-as-gate: Details/UI never write it, so they self-exclude).
-VILLAGE_CUR_IDX_VA = MASK_DATA_SCRATCH_END_VA           # +0x1B4 dword, villager record index (0xFFFFFFFF = none)
+VILLAGE_CUR_IDX_VA = DATA_SCRATCH_BASE_VA + 0x1B4       # +0x1B4 dword, villager record index (0xFFFFFFFF = none)
 VILLAGE_MASK_SPRITE_VA = VILLAGE_CUR_IDX_VA + 4         # +0x1B8 dword, cached mask-atlas engine sprite (0 = untried)
 VILLAGE_MASK_DLL_FN_VA = VILLAGE_MASK_SPRITE_VA + 4     # +0x1BC dword, cached Vv1GetMaskSprite ptr (0 = unresolved)
 VILLAGE_SURFACE_SAVE_VA = VILLAGE_MASK_DLL_FN_VA + 4    # +0x1C0 dword, deref'd renderer surface across the two sub-draws
 VILLAGE_FILL_SAVE_VA = VILLAGE_SURFACE_SAVE_VA + 4      # +0x1C4 dword, caller's eax (draw fill arg) across the sub-draws
 VILLAGE_MASK_ROW_VA = VILLAGE_FILL_SAVE_VA + 4          # +0x1C8 dword, mask colour row (mask-1) for the mask sub-draw
-VILLAGE_MASKED_BITMAP_VA = VILLAGE_MASK_ROW_VA + 4      # +0x1CC..+0x1EC, 256-bit per-frame "already masked this villager" guard (cleared once per frame by the draw hook) so villagers drawn by more than one render pass get exactly ONE mask
 # The exact-build save builder at 0x402ED0 receives the numbered save slot as
 # its first argument before formatting "%s%d.ldw".  Capture that argument in
 # patch-owned R/W scratch so the DLL can select a slot-specific sidecar.  Zero
@@ -532,19 +524,15 @@ NUMBER_KEYS_UPDATE_DLL_FN_VA = DATA_SCRATCH_BASE_VA + 0x210
 # collision like the one above can never be built again.
 SCRATCH_SLOTS = (
     ("MASK_TABLE", MASK_TABLE_VA, 0x80),
-    ("MASK_SURFACES", MASK_SURFACES_VA, 0x14),
-    ("DEST_SURFACE_CACHE", DEST_SURFACE_CACHE_VA, 4),
     ("MASK_MANAGER", MASK_MANAGER_VA, 4),
     ("MASK_RESTORE_DONE", MASK_RESTORE_DONE_VA, 4),
     ("PORTRAIT_DLL_FN", PORTRAIT_DLL_FN_VA, 4),
-    ("PORTRAIT_RESERVED", PORTRAIT_RESERVED_VA, 4),
     ("VILLAGE_CUR_IDX", VILLAGE_CUR_IDX_VA, 4),
     ("VILLAGE_MASK_SPRITE", VILLAGE_MASK_SPRITE_VA, 4),
     ("VILLAGE_MASK_DLL_FN", VILLAGE_MASK_DLL_FN_VA, 4),
     ("VILLAGE_SURFACE_SAVE", VILLAGE_SURFACE_SAVE_VA, 4),
     ("VILLAGE_FILL_SAVE", VILLAGE_FILL_SAVE_VA, 4),
     ("VILLAGE_MASK_ROW", VILLAGE_MASK_ROW_VA, 4),
-    ("VILLAGE_MASKED_BITMAP", VILLAGE_MASKED_BITMAP_VA, 0x20),
     ("MASK_SAVE_SLOT", MASK_SAVE_SLOT_VA, 4),
     ("MASK_TICK_DLL_FN", MASK_TICK_DLL_FN_VA, 4),
     ("MASK_BIRTH_DIRTY", MASK_BIRTH_DIRTY_VA, 1),
@@ -869,15 +857,11 @@ MASK_PATHS_RESERVED = 5 * MASK_PATH_STRIDE
 # subtraction every native draw call in sub_437790 performs (confirmed at the
 # head-draw site 0x437d67/0x437d70, which does "sub edx,[ebx+0xc]" /
 # "sub ecx,[ebx+8]" against this same object).
-# DEST_SURFACE_CACHE_VA: a retained frame-state snapshot refreshed every real
-# frame. FUN_00409060
-# (the actual main per-frame tick -- confirmed via Ghidra to call FUN_00403830,
-# which does SDL_UpdateTexture/RenderClear/RenderCopy/RenderPresent) reads
-# *(its own esi + 0x30) at 0x40913c and pushes that exact value as
-# FUN_00403830's surface argument one instruction later. MASK_THIRD_DETOUR
-# reproduces that read and stashes it once per real frame. The retired
-# FUN_00423390 blit detour no longer consumes this snapshot; keeping the store
-# leaves the already-reviewed active tick/restore hook otherwise unchanged.
+# MASK_THIRD_DETOUR: FUN_00409060 (the actual main per-frame tick -- confirmed
+# via Ghidra to call FUN_00403830, which does SDL_UpdateTexture/RenderClear/
+# RenderCopy/RenderPresent) reads *(its own esi + 0x30) at 0x40913c and pushes
+# that exact value as FUN_00403830's surface argument one instruction later.
+# The detour runs the mask restore/tick services, then reproduces that read.
 #
 # MASK_HOOK_VA: the mask code begins right after the read-only path strings in
 # .shr. Computed from the strings' real length so it can never drift out of
@@ -995,8 +979,7 @@ NUMBER_KEYS_UPDATE_ACTIVE_VA = 0x423FAE
 # 0x409145) -- there is no more direct evidence a pointer is the real,
 # currently-presented surface than reading it at its own presentation call
 # site. This hook reproduces that exact 3-instruction sequence unchanged
-# (native behavior bit-for-bit identical) and additionally stashes the same
-# value into DEST_SURFACE_CACHE_VA for retained frame-state compatibility.
+# (native behavior bit-for-bit identical).
 MASK_THIRD_DETOUR_FILE_OFFSET = 0x913C
 MASK_THIRD_DETOUR_VA = IMAGE_BASE + MASK_THIRD_DETOUR_FILE_OFFSET
 MASK_THIRD_DETOUR_ORIGINAL_BYTES = bytes.fromhex("8B4E30518BCE")
@@ -2937,8 +2920,7 @@ def main() -> None:
     )
     # Splice point 3 (see MASK_THIRD_DETOUR_* above): reproduces
     # FUN_00409060's own displaced "mov ecx,[esi+0x30] / push ecx /
-    # mov ecx,esi" exactly, plus one extra store to cache that same value
-    # as a retained frame-state snapshot.
+    # mov ecx,esi" exactly, after the mask restore/tick service calls.
     mask_frame_cache_va = MASK_HOOK_VA + len(mask_hook_code)
     mask_frame_cache_code = assemble(
         f"""
@@ -2948,7 +2930,6 @@ def main() -> None:
         mask_restore_skip:
             call {MASK_TICK_STUB_VA:#x}                 # live dead-slot/reuse sweep every village frame
             mov ecx, dword ptr [esi + 0x30]
-            mov dword ptr [{DEST_SURFACE_CACHE_VA:#x}], ecx
             push ecx
             mov ecx, esi
             jmp {MASK_THIRD_RESUME_VA:#x}
@@ -3479,9 +3460,6 @@ def main() -> None:
             xor eax, eax
             mov edi, {MASK_TABLE_VA:#x}
             mov ecx, {MASK_TABLE_SIZE // 4}
-            rep stosd
-            mov edi, {VILLAGE_MASKED_BITMAP_VA:#x}
-            mov ecx, 8
             rep stosd
         save_slot_done:
             popad

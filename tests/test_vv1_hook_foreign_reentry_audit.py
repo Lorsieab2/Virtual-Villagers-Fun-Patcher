@@ -487,7 +487,10 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
     ("vv1_enable_origins_exclusive_features", "0x4A700"): "7DD57F614B206C957C60D7BA3ED02B0FF2DA9DC43B2F693A4BD0A6B810EEB673",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "D44A6B9C0DB1C684604A9818144F1209EFCC19BA484337579CD40B644FB56257",
-    ("vv1_enable_origins_exclusive_features", "0x913C"): "E8C3E35B56C0AD00518A27056132703EE942FDC5C6BAD9C3C1F90698AD701198",
+    # Re-reviewed when the never-read DEST_SURFACE_CACHE store was removed:
+    # `mov [0x491094], ecx` wrote memory only, so ECX/ESP/flags at the resume
+    # 0x409142 are unchanged.
+    ("vv1_enable_origins_exclusive_features", "0x913C"): "500761B696C9E0758BFD17EB59D0829D6414E7B957FEA50AADDD8328298B04D1",
     # The three newer detours below are part of the same integrated mask
     # branch. Their cave contracts are pinned separately in the review notes:
     # 0x9410 (children) and 0x93C0 (adults) restore the original thunk pass
@@ -502,10 +505,11 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # at the resume depends on is altered.
     # Re-reviewed for v1.35.45: the three-child one-shot's clear is removed
     # with the flag itself; one absolute store fewer, nothing else changes.
-    # Re-reviewed when the unused DIAGNOSTIC scratch dword (+0x1CC) was
-    # removed: only the `mov edi, imm32` address of the cleared bitmap moves
-    # down by 4 (0x4911D0 -> 0x4911CC), inside the same pushad..popad window.
-    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "093089092D4487F3D4D2E96ACFA9F4651857867C72B211922B6C61CE45039DD8",
+    # Re-reviewed when the never-read masked-villager bitmap was removed: its
+    # `mov edi / mov ecx, 8 / rep stosd` clear is gone from inside the same
+    # pushad..popad/popfd window, so every register and flag at the resume is
+    # unchanged.
+    ("vv1_enable_origins_exclusive_features", "0x2ED0"): "C324792685346C4E6AF2D8434F6AF59C37CB62A1482F412E57049CE70C849A52",
     ("vv1_enable_origins_exclusive_features", "0x3C393"): "D5FC3AE7C5A990A28E182EAC7C8A2D55696B8699FFD5043F27270E1366768445",
     ("vv1_enable_origins_exclusive_features", "0x3C881"): "A182B7FF5CAC72344D8166135769696A84B6DD8500B81839A5AF1F270B34A5FE",
     # Village all-pose mask identity stash (Stage 1): two per-loop caves that
