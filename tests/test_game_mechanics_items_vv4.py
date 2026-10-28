@@ -30,12 +30,12 @@ PINS = (
     ("technology", "Medicine level 3", "C", "U"),
     ("technology", "Learning level 1", "C", ""), ("technology", "Learning level 2", "C", ""),
     ("technology", "Learning level 3", "C", "U"),
-    ("technology", "Construction level 1", "U", ""), ("technology", "Construction level 2", "U", "U"),
-    ("technology", "Construction level 3", "U", "U"),
+    ("technology", "Construction level 1", "C", "U"), ("technology", "Construction level 2", "C", "UU"),
+    ("technology", "Construction level 3", "C", "U"),
     ("technology", "Food Mastery level 1", "E", ""), ("technology", "Food Mastery level 2", "E", ""),
     ("technology", "Food Mastery level 3", "E", ""),
-    ("technology", "Dendrology level 1", "U", ""), ("technology", "Dendrology level 2", "U", ""),
-    ("technology", "Dendrology level 3", "U", ""),
+    ("technology", "Dendrology level 1", "C", ""), ("technology", "Dendrology level 2", "C", ""),
+    ("technology", "Dendrology level 3", "C", ""),
     ("puzzle", "The Cutting Tool", "U", ""),
     ("puzzle", "The Stream", "E", ""),
     ("puzzle", "Boiling Water", "U", ""),
@@ -209,6 +209,40 @@ class TheGamesOwnTables(unittest.TestCase):
         # 0x46F75B: push 0x16 (project 22, the Clothing Hut) ... cmp [0x4D6F88], 0x1388 (5,000 tech points).
         self.assertEqual(data.at(0x46F75B, 0x46F75D), bytes.fromhex("6a16"))
         self.assertEqual(data.at(0x46F76B, 0x46F775), bytes.fromhex("813d886f4d0088130000"))
+
+    def test_the_construction_and_dendrology_drops(self) -> None:
+        """The drop chain the Construction and Dendrology levels are verified on: the drop table filled at start-up,
+        each spot's handler, the tech read (technology 3 Construction, 5 Dendrology) and its refusal message."""
+        data = exe()
+        call = lambda at, target: data.at(at, at + 5) == b"\xe8" + struct.pack("<i", target - at - 5)  # noqa: E731
+        jump = lambda at, target: data.at(at, at + 5) == b"\xe9" + struct.pack("<i", target - at - 5)  # noqa: E731
+        # theMainScene's vtable (beside its input slot 0x4409E0) -> the two mouse handlers -> the drop -> the dispatcher.
+        self.assertEqual([data.i32(0x48ED5C + 4 * k) for k in range(3)], [0x442E60, 0x4409E0, 0x443310])
+        self.assertTrue(call(0x442E82, 0x4428B0) and call(0x4428E8, 0x440F00))
+        self.assertTrue(call(0x443332, 0x442EE0) and call(0x442EE9, 0x440F00))
+        self.assertTrue(call(0x44103E, 0x46E460))
+        self.assertEqual(data.at(0x46E4F8, 0x46E4FA), bytes.fromhex("ffd1"))             # call ecx: the spot's handler
+        # The start-up initializers that fill the table: (list entry, stub, the registrar it jumps to).
+        for entry, stub, registrar in ((0x48A56C, 0x488E30, 0x46F9A0), (0x48A508, 0x488C30, 0x437DC0),
+                                       (0x48A50C, 0x488C40, 0x438620)):
+            self.assertEqual(data.i32(entry), stub)
+            self.assertTrue(jump(stub + 5, registrar), hex(stub))
+        # (where the handler is pushed, the spot, the handler, the tech read, technology, the level it needs)
+        for push, spot, handler, read, tech in ((0x46FA6A, 0x10, 0x46F300, 0x46F38A, 3),
+                                                (0x46FA7A, 0x11, 0x46F410, 0x46F477, 3),
+                                                (0x437DD7, 0x32, 0x437AD0, 0x437B12, 5),
+                                                (0x438664, 0x3A, 0x438370, 0x43847E, 5)):
+            self.assertEqual(data.at(push, push + 7), b"\x68" + struct.pack("<I", handler) + bytes((0x6A, spot)))
+            self.assertEqual(data.at(read - 7, read - 5), bytes((0x6A, tech)))
+            self.assertTrue(call(read, 0x41E1C0), hex(read))
+        self.assertEqual(data.at(0x46F38F, 0x46F392), bytes.fromhex("83f802"))           # Hut 2: Construction < 2
+        self.assertEqual(data.at(0x46F47C, 0x46F47F), bytes.fromhex("83f803"))           # Hut 3: Construction < 3
+        self.assertEqual(data.at(0x437B17, 0x437B1A), bytes.fromhex("83f802"))           # the branch: Dendrology < 2
+        self.assertEqual(data.at(0x438483, 0x438486), bytes.fromhex("83f802"))           # the tree: Dendrology <= 2
+        names = {e.name: e.text for e in items.entries()}
+        self.assertIn("Additional research may be necessary.", names["Construction level 1"])
+        self.assertIn("This may require more research.", names["Dendrology level 1"])
+        self.assertIn("Only those pure of body can purify the tree.", names["Dendrology level 3"])
 
 
 class Patcher(unittest.TestCase):

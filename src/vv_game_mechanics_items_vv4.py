@@ -148,21 +148,41 @@ def _techs() -> list[Entry]:
         _level("Learning", 2, learn.format(n=49, like=82, dis=32), VERIFIED_C),
         _level("Learning", 3, learn.format(n=64, like=97, dis=47), VERIFIED_C,
                (("Level 3 makes the Nursery School appear as a building site.", UNCONFIRMED),)),
-        _level("Construction", 1, "Hut 1 is the only hut a villager dropped there builds; dropped on the second or "
-                                  "third hut, or the rubble, the villager is \"Confused\".", UNCONFIRMED),
-        _level("Construction", 2, "Villagers dropped there build Hut 2 and clear the rubble.", UNCONFIRMED,
-               (("Level 2 makes Hut 2 appear as a building site.", UNCONFIRMED),)),
-        _level("Construction", 3, "Villagers dropped there build Hut 3.", UNCONFIRMED,
+        # The drop chain (2026-10-27): theMainScene's mouse handlers 0x442E60 / 0x443310 (its vtable 0x48ED5C,
+        # 0x48ED64, beside its input slot 0x4409E0) -> the drop 0x440F00 -> 0x46E460, which calls the handler that the
+        # spot under the villager has in the drop table 0x705158 (filled at start-up: the initializer list 0x48A56C
+        # -> 0x488E30 -> 0x46F9A0, 0x46E5E0).  Spot 0x10 (Hut 2) is 0x46F300: Construction < 2 (0x46F38A) -> action
+        # 0x1A with message 0x75 "Additional research may be necessary." and no building; spot 0x11 (Hut 3) is
+        # 0x46F410: Construction < 3 (0x46F477) -> the same.
+        _level("Construction", 1, "Hut 1 is the only hut a villager dropped there builds; dropped on Hut 2 or Hut 3 "
+                                  "the villager does not build and the game says \"Additional research may be "
+                                  "necessary.\"", VERIFIED_C,
+               (("Dropped on the rubble the villager does not clear it (0x433FB4: Construction below 2); how that "
+                 "check is reached from a drop was not traced.", UNCONFIRMED),)),
+        _level("Construction", 2, "Villagers dropped on Hut 2 build it (0x46F38A); Hut 3 still refuses.", VERIFIED_C,
+               (("Level 2 makes Hut 2 appear as a building site.", UNCONFIRMED),
+                ("Villagers dropped on the rubble clear it.", UNCONFIRMED))),
+        _level("Construction", 3, "Villagers dropped on Hut 3 build it (0x46F477).", VERIFIED_C,
                (("Level 3 makes Hut 3 appear as a building site.", UNCONFIRMED),)),
         _level("Food Mastery", 1, food.format(how="counts as it is"), VERIFIED_E),
         _level("Food Mastery", 2, food.format(how="counts half as much again (+ the amount ÷ 2, rounded down)"),
                VERIFIED_E),
         _level("Food Mastery", 3, food.format(how="counts double"), VERIFIED_E),
+        # The same drop chain: spot 0x32 (the branch) is 0x437AD0, registered by 0x437DC0 at start-up (initializer
+        # 0x48A508 -> 0x488C30): Pruning the Tree (puzzle 12) unsolved and Dendrology < 2 (0x437B12) -> message 0x192
+        # "This may require more research."; spot 0x3A (the tree) is 0x438370, registered by 0x438620 (initializer
+        # 0x48A50C -> 0x488C40): Purify Tree (puzzle 14) unsolved and Dendrology <= 2 (0x43847E) -> message 0x49; at 3
+        # a villager who fails 0x45EBE0 gets message 0x4A, one who passes starts action 0x98.
         _level("Dendrology", 1, "Neither the branch can be bound (Pruning the Tree) nor the tree purified (Purify "
-                                "Tree).", UNCONFIRMED),
-        _level("Dendrology", 2, "The branch can be bound (Pruning the Tree).", UNCONFIRMED),
-        _level("Dendrology", 3, "The tree can be purified (Purify Tree); below it the game says \"Your tribe must "
-                                "master dendrology to cure the tree.\"", UNCONFIRMED),
+                                "Tree): a villager dropped on the branch gets \"This may require more research.\", one "
+                                "dropped on the tree \"Your tribe must master dendrology to cure the tree.\"",
+               VERIFIED_C),
+        _level("Dendrology", 2, "The branch can be bound (Pruning the Tree): a villager dropped on it is no longer "
+                                "refused for want of Dendrology (0x437B12); the tree still refuses.", VERIFIED_C),
+        _level("Dendrology", 3, "The tree can be purified (Purify Tree), by a villager the game counts pure of body; "
+                                "any other dropped there gets \"Only those pure of body can purify the tree.\" "
+                                "Below level 3 the game says \"Your tribe must master dendrology to cure the tree.\"",
+               VERIFIED_C),
     ]
 
 
