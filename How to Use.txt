@@ -999,6 +999,16 @@ Fun Patcher Data", one file per save slot:
 
     Village Statistics\, Stew Discoveries\, Village Elders\  (Village Statistics)
     Custom Titles\                                 (Story / Cheat Upgrades)
+    Head Looks\                                    (Origins: Change Appearance's
+        Head Looks - Save <slot>.dat                head look -- Auto, Young or
+                                                    Old -- for each villager given
+                                                    one; all five games. Written
+                                                    in the save's own folder,
+                                                    Virtual Villagers Fun Patcher\
+                                                    Save <slot>\Data\Head Looks.
+                                                    Deleted by Start Over; delete
+                                                    it yourself and every look is
+                                                    Auto again)
     Paid Purchases\                                (Origins Barrel of Babies)
         Virtual Villagers 1 Paid Purchases - Save <slot>.dat     A New Home
         Virtual Villagers 2 Paid Purchases - Save <slot>.dat     The Lost Children
