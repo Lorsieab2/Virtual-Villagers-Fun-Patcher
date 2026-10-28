@@ -13367,7 +13367,35 @@ def apply_patch(
     finally:
         if staging_folder.exists():
             _cleanup_owned_tree(staging_folder)
+    refresh_shell_icons(output)
     return output, log_path
+
+
+SHCNE_UPDATEITEM = 0x00002000
+SHCNE_ASSOCCHANGED = 0x08000000
+SHCNF_IDLIST = 0x0000
+SHCNF_PATHW = 0x0005
+SHCNF_FLUSHNOWAIT = 0x3000
+
+
+def refresh_shell_icons(exe: Path) -> None:
+    """Tell Windows the modified game's EXE changed, so a pinned taskbar or Start icon and Explorer show its icon
+    again.  The publish swaps the whole folder in by a rename, so the shell is never told the EXE at that path is
+    a new file and keeps a stale (blank) icon for it (the owner, 2026-10-27: the pinned Secret City - Modded showed
+    no icon).  SHCNE_ASSOCCHANGED makes the shell drop its cached icons, as `ie4uinit -show` does.  Only a
+    notification: nothing is written, and it never fails a patch."""
+    if os.name != "nt":
+        return
+    try:
+        import ctypes
+        notify = ctypes.WinDLL("shell32").SHChangeNotify
+        notify.argtypes = [ctypes.c_long, ctypes.c_uint, ctypes.c_void_p, ctypes.c_void_p]
+        notify.restype = None
+        for path in (exe, exe.parent):
+            notify(SHCNE_UPDATEITEM, SHCNF_PATHW | SHCNF_FLUSHNOWAIT, ctypes.c_wchar_p(str(path)), None)
+        notify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST | SHCNF_FLUSHNOWAIT, None, None)
+    except (OSError, AttributeError):
+        return
 
 
 def apply_all(
