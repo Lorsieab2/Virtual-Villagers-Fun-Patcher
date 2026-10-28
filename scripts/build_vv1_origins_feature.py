@@ -3805,8 +3805,9 @@ def main() -> None:
             # /female_actions), NOT heads -- gating on them stamped masks onto action
             # sprites, which draw at body/ground level => the "mask flat on the floor,
             # only while performing an action (e.g. Exercising)" bug. Only 0x3dff8
-            # (male_heads) and 0x3dff4 (female_heads) are real child heads. Bodies are
-            # 0x3dfe8/0x3dfe4; adult head is gated separately in the shared body.
+            # (male_heads) and 0x3dff4 (female_heads) are the head sheets (ctor
+            # 0x43C0D4 / 0x43C099). Bodies are 0x3dfe8/0x3dfe4. Adults use the SAME two
+            # head sheets, drawn through 0x4093c0 and gated in the shared 5-arg body.
         vh_head:
             # NO clear-on-consume: the stash stays valid for the WHOLE villager
             # iteration (it's overwritten at the next loop top by stash1/stash2).
@@ -3949,16 +3950,19 @@ def main() -> None:
     )
 
     # === ADULT hook: the SECOND villager render path ========================
-    # VV1 renders by age (cmp [rec+0x348],0x118): CHILDREN (age<0x118) go through
-    # 0x409410->0x408af0 (handled above); ADULTS (age>=0x118) go through a SEPARATE
-    # thunk 0x4093e0 -> 0x408840 with head atlas [gameobj+0x3e008] (4 cols x 1 row,
-    # 65x65). The child hook can't see them, so adults render head-without-mask
-    # ("ghosts"). This mirror hook covers the adult thunk. 0x408840 takes 5 args
-    # (ret 0x14): arg1=sprite, arg2=x, arg3=y, arg4=facing(linear frame, idiv'd
-    # to row/col inside), arg5=scale(0.4f). For the mask we set arg1=mask sprite
-    # and arg4 = maskrow*mask_cols(8) + facing (row-major pack the engine decodes),
-    # leaving x/y/scale identical so the mask rides the adult head. Shared stash +
-    # mask table + cached sprite with the child hook. (VV5-decoded, confirmed 1:1.)
+    # VV1 renders by age (cmp [rec+0x348],0x118 at 0x4379A7): CHILDREN (age<0x118)
+    # go through 0x409410->0x408af0 (handled above); ADULTS (age>=0x118, the jge
+    # at 0x4379B1 -> 0x438014) draw their heads through the 5-arg thunk 0x4093c0
+    # -> 0x408740 with the same male_heads/female_heads sheets ([gameobj+0x3dff8]
+    # /[+0x3dff4]; e.g. the swim head at 0x438150). The child hook can't see that
+    # thunk, so this hook covers it. 0x408740 takes 5 args (ret 0x14): arg1=sprite,
+    # arg2=x, arg3=y, arg4=row, arg5=col. For the mask we set arg1=mask sprite and
+    # arg4=mask colour row, leaving x/y/col identical so the mask rides the head.
+    # The body is also entered from the other 5-arg thunk 0x4093e0 -> 0x408840,
+    # but that thunk draws NO head in the village loops: its only caller there is
+    # 0x43808A, the swimming ripple under an adult in water (sprite
+    # [gameobj+0x3e008] = ripple.png, 4 cols x 1 row, ctor 0x43C2D3..0x43C2EB).
+    # Shared stash + mask table + cached sprite with the child hook.
     adult_hook_va = _vva
     adult_hook = assemble(
         f"""
@@ -3976,12 +3980,12 @@ def main() -> None:
             jb ah_pass
             cmp edx, 0x4392D0
             ja ah_pass
-            # Exclude the FADED duplicate: 8 swimming adults are drawn twice -- the opaque
-            # mask via 0x438150 (0x4093c0) and a faded second draw via the adult thunk
-            # 0x4093e0 at 0x43808A (return 0x43808F). In-game capture proved 0x43808A is
-            # used by ONLY those 8 (their faded draw); excluding it kills the faded mask
-            # while the 0x438150 opaque mask remains. (Confirmed: excluding 0x438150
-            # instead left only the faded one -- so 0x43808A is the faded draw.)
+            # Exclude the SWIMMING RIPPLE: 0x43808A (return 0x43808F) draws ripple.png
+            # ([gameobj+0x3e008], 4x1) under an adult standing in water, just before
+            # that adult's head at 0x438150 (0x4093c0). The ripple sprite matches the
+            # 0x3e008 compare below, so without this exclusion a masked swimmer got a
+            # second mask on the ripple (the "faded duplicate"). The 0x438150 head
+            # mask is unaffected.
             cmp edx, 0x43808F
             je ah_pass
             mov edx, dword ptr [0x{VILLAGE_CUR_IDX_VA:X}]
@@ -3991,11 +3995,11 @@ def main() -> None:
             test eax, eax
             jz ah_pass
             mov edx, dword ptr [esp + 0x10]       # arg1 (sprite)
-            cmp edx, dword ptr [eax + 0x3e008]    # adult head atlas (via 0x4093e0)
+            cmp edx, dword ptr [eax + 0x3e008]    # ripple.png, NOT a head; its only village draw (0x43808A) is excluded above, so this never matches
             je ah_head
-            cmp edx, dword ptr [eax + 0x3dff8]    # child head atlas male_heads (via 0x4093c0)
+            cmp edx, dword ptr [eax + 0x3dff8]    # head sheet male_heads (adult heads via 0x4093c0)
             je ah_head
-            cmp edx, dword ptr [eax + 0x3dff4]    # child head atlas female_heads
+            cmp edx, dword ptr [eax + 0x3dff4]    # head sheet female_heads
             jne ah_pass
             # 0x3dff0/0x3dfec are the male/female ACTION sheets, NOT heads -- excluded
             # (see village_hook note): masking them stamped masks onto ground-level
@@ -4086,11 +4090,11 @@ def main() -> None:
             # the mask seats horizontally at every facing with zero draw-time X.
             sub dword ptr [esp + 8], 48           # arg3=y: up 48 (= child scaled-lift at scale 1.0; owner in-game confirmed). Per-color Y also baked into the atlas, so one constant serves all colors.
             # Frame selection differs by DRAW FN behaviour, not by thunk:
-            #  * 0x408840 (adult) idiv-DECODES a packed frame into row,col, so we
-            #    re-PACK: arg4 = maskrow*mask_cols(8) + facing. (Adult atlas is
-            #    4col x 1row so its arg4 is already the bare facing 0..3, hence no
-            #    %HEAD_COLS needed here -- confirmed working.)
-            #  * 0x408740 (swim/alt child) takes arg4,arg5 as SEPARATE row,col
+            #  * 0x408840 idiv-DECODES a packed frame into row,col, so we
+            #    re-PACK: arg4 = maskrow*mask_cols(8) + facing. No head reaches
+            #    this branch: 0x4093e0's only village caller is the excluded
+            #    ripple draw (0x43808A), so every mask here goes through 0x408740.
+            #  * 0x408740 (adult heads) takes arg4,arg5 as SEPARATE row,col
             #    indices (no idiv -- it hands them straight to 0x409f90 against the
             #    sprite's own cols/rows). So we override ONLY the row (arg4:=mask
             #    colour) and leave arg5 (the head's real facing column) verbatim.
@@ -4116,10 +4120,11 @@ def main() -> None:
         """,
         adult_hook_va,
     )
-    # This body is SHARED by BOTH 5-arg thunks (0x4093e0 adult, 0x4093c0 child-
-    # alt/swim). They differ only in the original draw fn (0x408840 vs 0x408740)
-    # and which head atlas matches -- and the atlas correlates with the thunk, so
-    # gating on all five (adult 0x3e008 + child 0x3dff8/f4/f0/ec) is safe. The
+    # This body is SHARED by BOTH 5-arg thunks (0x4093e0 -> 0x408840, whose only
+    # village caller is the swimming ripple at 0x43808A, and 0x4093c0 -> 0x408740,
+    # the adult head/action draws). They differ only in the original draw fn. The
+    # head gate is male_heads/female_heads (0x3dff8/0x3dff4); 0x3e008 is
+    # ripple.png, whose one village draw is excluded by its return address. The
     # draw fn is chosen per-thunk by a 15-byte entry stub that stores it into
     # VILLAGE_DRAWFN_VA before jumping here; the body then draws head + mask via
     # `call [DRAWFN]` and passes through via `jmp [DRAWFN]`. One 346-byte body
@@ -4127,7 +4132,7 @@ def main() -> None:
     shared_body_va = adult_hook_va
     patch(
         _vfile, b"\0" * len(adult_hook), adult_hook,
-        "Village all-pose mask SHARED 5-arg hook body (serves both the adult thunk 0x4093e0->0x408840 and the alternate child/swim thunk 0x4093c0->0x408740): adults (age>=0x118, atlas 0x3e008) and children in the alternate 5-arg pose (swim/sit, atlases 0x3dff8/f4/f0/ec) both render head-without-mask otherwise. Reissues the mask through the per-thunk original draw fn (VILLAGE_DRAWFN_VA) with arg1=mask sprite and arg4=maskrow*8+facing at the head's own x/y/scale.",
+        "Village all-pose mask SHARED 5-arg hook body (serves both 5-arg thunks: 0x4093c0->0x408740, which draws every adult head (age>=0x118) from male_heads/female_heads 0x3dff8/0x3dff4, and 0x4093e0->0x408840, whose only village caller is the swimming ripple (ripple.png at 0x3e008, call 0x43808A), excluded by return address). For a masked villager's head it reissues the mask through the same draw fn (VILLAGE_DRAWFN_VA) with arg1=mask sprite and arg4=mask colour row at the head's own x/y/facing column.",
     )
     _vfile += len(adult_hook); _vva += len(adult_hook)
 
