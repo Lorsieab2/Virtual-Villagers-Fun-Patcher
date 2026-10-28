@@ -62,6 +62,7 @@
 #include "../shared/patcher_files.h"
 #include "../shared/install_sites.h"
 #include "../shared/vv1_grey_hair.h"
+#include "../shared/head_look.h"
 
 #define VV1_GAME 1
 #define MALE_HEADS 0x3DFF8u             /* gameobj: male_heads.png's sprite */
@@ -157,8 +158,25 @@ typedef void *(__fastcall *ctor_fn)(void *self, void *unused, const char *name, 
 
 /* ---- the rule --------------------------------------------------------------------------------- */
 
+/* Change Appearance's head look (native/shared/head_look.h): "VVFP Head Look.dll" keeps each villager's
+   Auto, Young or Old in the save's own file.  Found once, at the first head drawn (every companion is
+   loaded by then: VVFP Startup.dll starts them all before the title screen); without it every look is
+   Auto. */
+static int look_state;                             /* 0 not looked for, 1 found, -1 not in the game */
+static vvfp_head_look_get_fn look_get;
+
+static int head_look(const unsigned char *record) {
+    if (look_state == 0) {
+        HMODULE dll = GetModuleHandleA(VVFP_HEAD_LOOK_DLL);
+        look_get = dll != NULL ? (vvfp_head_look_get_fn)GetProcAddress(dll, VVFP_HEAD_LOOK_GET) : NULL;
+        look_state = look_get != NULL ? 1 : -1;
+    }
+    return look_state == 1 ? look_get(VV1_GAME, record) : VVFP_HEAD_LOOK_AUTO;
+}
+
+/* Grey from a shown age of 1,100 -- or always (Old), or never (Young), when Change Appearance says so. */
 static int drawn_grey(const unsigned char *record) {
-    return record != NULL && *(const int *)(record + REC_AGE) >= GREY_AGE;
+    return record != NULL && vvfp_head_look_old(head_look(record), *(const int *)(record + REC_AGE));
 }
 
 /* ---- the art ------------------------------------------------------------------------------------ */
@@ -364,6 +382,8 @@ int __stdcall VvfpGreyHairInstalled(void) {
     return installed;
 }
 
+int __stdcall Vv1GreyHairUsable(int male);
+
 /* Whether the village draws this villager grey (native/shared/vv1_grey_hair.h): the splices are in,
    the rule says so, and that sex's grey sheet is there and the right size (or already built).  Asked
    from a dialog, so it never builds a sprite itself. */
@@ -374,7 +394,17 @@ int __stdcall Vv1GreyHairWanted(const void *record) {
         return 0;
     }
     male = *(const int *)(r + REC_SEX) == 1;          /* 1 a man: the sex the game picks his sheet by */
-    if (!drawn_grey(r) || sheet_state[male] < 0) {
+    if (!drawn_grey(r)) {
+        return 0;
+    }
+    return Vv1GreyHairUsable(male);
+}
+
+/* Whether the grey heads of a sex can be drawn at all (native/shared/vv1_grey_hair.h).  Asked from a
+   dialog, so it never builds a sprite itself. */
+int __stdcall Vv1GreyHairUsable(int male) {
+    male = male != 0;
+    if (!installed || sheet_state[male] < 0) {
         return 0;
     }
     return sheet_state[male] == 1 || sheet_file_fits(male);

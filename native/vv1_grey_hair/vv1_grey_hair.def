@@ -3,3 +3,4 @@ EXPORTS
     VvfpStartup=_VvfpStartup@8
     VvfpGreyHairInstalled=_VvfpGreyHairInstalled@0
     Vv1GreyHairWanted=_Vv1GreyHairWanted@4
+    Vv1GreyHairUsable=_Vv1GreyHairUsable@4

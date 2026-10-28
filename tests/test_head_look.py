@@ -372,6 +372,97 @@ class LostChildrenDraws(_DrawsBase, unittest.TestCase):
     GAME = 2
 
 
+@_skip(1)
+class ANewHome(unittest.TestCase):
+    """A New Home has no old head of its own: Grey Hair at 55 (native/vv1_grey_hair) draws the grey heads and
+    asks this DLL for each villager's look; the choice is offered only when Grey Hair is in the game."""
+
+    def test_the_dll_writes_nothing_to_the_game(self):
+        g = Game(1, stock_exe(1))
+        self.assertNotIn("VirtualProtect", g.p.api_calls)
+
+    def test_installed_only_with_grey_hair(self):
+        g = Game(1, stock_exe(1))
+        self.assertEqual(g.p.export("VvfpHeadLookInstalled", 1), 0)          # Grey Hair not in the game
+        grey = g.p.alloc(16)
+        installed = g.p.alloc(16)
+        g.p.stub(installed, lambda p: (1, 0))
+        g.p.api_handlers["GetModuleHandleA"] = lambda p: (
+            grey if p.cstring(p.arg(0)) == "VVFP VV1 Grey Hair.dll" else 0, 4)
+        g.p.api_handlers["GetProcAddress"] = lambda p: (
+            installed if p.cstring(p.arg(1)) == "VvfpGreyHairInstalled" else 0, 8)
+        self.assertEqual(g.p.export("VvfpHeadLookInstalled", 1), 1)
+
+    def test_the_look_is_kept_and_follows_the_villager(self):
+        g = Game(1, stock_exe(1))
+        g.villager(0, "Kai", age=600)
+        g.villager(1, "Lani", age=600)
+        g.villager(2, "Moku", age=600)
+        self.assertEqual(g.set_look(2, OLD), 1)
+        self.assertEqual(g.set_look(0, YOUNG), 1)
+        self.assertEqual((g.look(0), g.look(1), g.look(2)), (YOUNG, AUTO, OLD))
+        data = g.disk.files[g.disk.looks_file(1)]
+        self.assertEqual(data[:12], struct.pack("<III", 0x314C4856, 1, 256))
+        # Lani dies and is buried; the save is reloaded packed: Moku is now in record 1.
+        g.p.write(g.record(1) + g.g["present"], b"\x00")
+        g.look(0)
+        later = Game(1, stock_exe(1))
+        later.disk.files = dict(g.disk.files)
+        later.disk.folders = set(g.disk.folders)
+        later.villager(0, "Kai", age=600)
+        later.villager(1, "Moku", age=600)
+        self.assertEqual((later.look(0), later.look(1)), (YOUNG, OLD))
+
+    def test_grey_hair_draws_by_the_look(self):
+        """Grey Hair's draw asks VvfpHeadLookGet: Auto keeps 1,100; Young never grey; Old always grey.  The
+        register the read fills still holds the young sheet (the Origins masks look for it) and the head
+        value is not written."""
+        import test_vv1_grey_hair as grey
+        if not grey.have():
+            self.skipTest("Grey Hair's DLL or the stock A New Home is missing")
+        g = grey.Game()
+        looks = {}
+        module = g.p.alloc(16)
+        get = g.p.alloc(16)
+        g.p.stub(get, lambda p: (looks.get(p.arg(1), AUTO), 8))
+        g.p.api_handlers["GetModuleHandleA"] = lambda p: (
+            module if p.cstring(p.arg(0)) == "VVFP Head Look.dll" else 0, 4)
+        g.p.api_handlers["GetProcAddress"] = lambda p: (get if p.cstring(p.arg(1)) == "VvfpHeadLookGet" else 0, 8)
+        for va, reg, male, where, engine in grey.READS[::3]:
+            for look, age, drawn_grey in ((AUTO, 1099, False), (AUTO, 1100, True), (YOUNG, 1100, False),
+                                          (YOUNG, 3000, False), (OLD, 0, True), (OLD, 1099, True)):
+                with self.subTest(read=hex(va), look=look, age=age):
+                    rec = g.villager(30, age=age, head=6, male=male)
+                    looks[rec] = look
+                    before = g.p.read(rec, grey.STRIDE)
+                    filled, _, sprite = g.run_read(va, where, 30)
+                    self.assertEqual(filled, g.young[male])
+                    self.assertEqual(sprite != g.young[male], drawn_grey)
+                    self.assertEqual(g.p.read(rec, grey.STRIDE), before)
+                    self.assertEqual(g.p.u32(rec + grey.REC_HEAD), 6)
+
+    def test_masks_still_draw_on_an_old_look(self):
+        """A full build routes the head draws through the Origins mask hooks, which find a head draw by its
+        young sheet: with the Old look a 10-year-old's read still hands them the young sheet, and the head
+        reaching the engine is grey (tests/test_vv1_grey_hair.py, through the Origins mask hooks)."""
+        import test_vv1_grey_hair as grey
+        if not grey.have():
+            self.skipTest("Grey Hair's DLL or the stock A New Home is missing")
+        exe, _ = grey._rendered("collection_progression", True)
+        g = grey.Game(exe)
+        module, get = g.p.alloc(16), g.p.alloc(16)
+        g.p.stub(get, lambda p: (OLD, 8))
+        g.p.api_handlers["GetModuleHandleA"] = lambda p: (
+            module if p.cstring(p.arg(0)) == "VVFP Head Look.dll" else 0, 4)
+        g.p.api_handlers["GetProcAddress"] = lambda p: (get if p.cstring(p.arg(1)) == "VvfpHeadLookGet" else 0, 8)
+        for va, where, male in ((0x437405, grey.EDI, True), (0x437B9D, grey.VILLAGE, True), (0x438D23, grey.MAP, True)):
+            with self.subTest(read=hex(va)):
+                g.villager(12, age=200, head=4, male=male)
+                filled, engine, sprite = g.run_read(va, where, 12)
+                self.assertEqual(filled, g.young[male])
+                self.assertNotEqual(sprite, g.young[male])
+
+
 class TheSidecar(unittest.TestCase):
     def test_the_harness_on_real_files(self):
         """native/vvfp_head_look/head_look_harness.c: round trip, follow, reuse, rename, copies, broken files,
@@ -399,7 +490,7 @@ class TheCompanion(unittest.TestCase):
     def test_shipped_by_each_origins_row(self):
         dll = ROOT / "assets" / "head_look" / "VVFP Head Look.dll"
         digest = hashlib.sha256(dll.read_bytes()).hexdigest().upper()
-        for game in DRAWS:
+        for game in ORIGINS_ROWS:
             row = ORIGINS_ROWS[game]
             with self.subTest(game=game):
                 data = json.loads((ROOT / "data" / row).read_text(encoding="utf-8"))
@@ -410,7 +501,7 @@ class TheCompanion(unittest.TestCase):
 
     def test_the_bit_is_set_when_origins_ships(self):
         bit = 1 << patcher.STARTUP_LOADER_COMPANIONS_2.index("VVFP Head Look.dll")
-        for game in DRAWS:
+        for game in ORIGINS_IDS:
             with self.subTest(game=game):
                 origins = ORIGINS_IDS[game]
                 features = patcher._attach_automatic_companions(
@@ -419,8 +510,8 @@ class TheCompanion(unittest.TestCase):
 
 
 ORIGINS_ROWS = {5: "vv5_task9_native_actions.json", 4: "vv4_origins_feature.json", 3: "vv3_origins_feature.json",
-                2: "vv2_origins_feature.json"}
-ORIGINS_IDS = {game: f"vv{game}_enable_origins_exclusive_features" for game in (5, 4, 3, 2)}
+                2: "vv2_origins_feature.json", 1: "vv1_origins_feature.json"}
+ORIGINS_IDS = {game: f"vv{game}_enable_origins_exclusive_features" for game in (5, 4, 3, 2, 1)}
 
 
 if __name__ == "__main__":

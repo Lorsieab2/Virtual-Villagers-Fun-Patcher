@@ -2780,12 +2780,30 @@ static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
    (native/shared/vv1_grey_hair.h) when that companion is in the game and draws this villager
    grey -- 55 or older -- else from this companion's young strip, as the
    later games' pickers choose young or old heads by age 1100. */
+/* THE HEAD LOOK (native/shared/head_look.h): Auto, Young or Old, kept by "VVFP Head Look.dll" for the
+   villager, never in the record.  A New Home has no old head of its own, so the look is offered (dialog
+   208) only when Grey Hair at 55 draws the grey heads (VvfpHeadLookInstalled asks it).  Choosing a look is
+   free and is kept on OK -- with the head, body and mask when they changed too, alone when they did not. */
+#define IDD_ORIGINS_APPEARANCE_LOOK 208
+#define ID_LOOK_AUTO  2030
+#define ID_LOOK_OLD   2032
+static vvfp_head_look_api appearance_look_api;
+static int appearance_look_offered;
+static int appearance_look;          /* 0 Auto, 1 Young, 2 Old */
+static int appearance_look_was;
+
 static void appearance_draw_head(DRAWITEMSTRUCT *item, const unsigned char *villager, int male) {
     HMODULE grey = GetModuleHandleA(VV1_GREY_HAIR_DLL);
     vv1_grey_hair_wanted_fn wanted = grey != NULL
         ? (vv1_grey_hair_wanted_fn)GetProcAddress(grey, VV1_GREY_HAIR_WANTED) : NULL;
+    vv1_grey_hair_usable_fn usable = grey != NULL
+        ? (vv1_grey_hair_usable_fn)GetProcAddress(grey, VV1_GREY_HAIR_USABLE) : NULL;
     int head = *(const int *)(villager + VV_HEAD_OFFSET);
-    if (wanted != NULL && wanted(villager)) {
+    /* With the look offered, the preview shows the look being chosen (not yet kept). */
+    int drawn_grey = appearance_look_offered
+        ? usable != NULL && usable(male) && vvfp_head_look_old(appearance_look, *(const int *)(villager + VV_AGE_OFFSET))
+        : wanted != NULL && wanted(villager);
+    if (drawn_grey) {
         appearance_draw_from(item, grey, male ? VV1_GREY_HAIR_PREVIEW_MALE : VV1_GREY_HAIR_PREVIEW_FEMALE, head);
         return;
     }
@@ -2866,6 +2884,9 @@ static INT_PTR CALLBACK appearance_dialog(
             IDC_MASK_LABEL,
             vv1_mask_name(vv1_mask_get(appearance_state.villager))
         );
+        if (appearance_look_offered) {
+            CheckRadioButton(window, ID_LOOK_AUTO, ID_LOOK_OLD, ID_LOOK_AUTO + appearance_look);
+        }
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
@@ -2894,6 +2915,12 @@ static INT_PTR CALLBACK appearance_dialog(
         int count = appearance_state.valid_count;
         int *head = (int *)(appearance_state.villager + VV_HEAD_OFFSET);
         int *body = (int *)(appearance_state.villager + VV_CLOTHING_OFFSET);
+        if (appearance_look_offered && command >= ID_LOOK_AUTO && command <= ID_LOOK_OLD) {
+            /* The preview shows the head the village will draw with the chosen look. */
+            appearance_look = (int)(command - ID_LOOK_AUTO);
+            appearance_repaint(window, IDC_HEAD_PREVIEW);
+            return TRUE;
+        }
         if (command == ID_HEAD_PREV) {
             if (!vv1_confirm_head_genetics_warning(window)) {
                 return TRUE;
@@ -2936,6 +2963,23 @@ static INT_PTR CALLBACK appearance_dialog(
             int changed = (*head != appearance_state.original_head)
                 || (*body != appearance_state.original_body)
                 || mask_changed;
+            /* The head look: kept on OK, free ("VVFP Head Look.dll"'s own file).  The look alone
+               changes nothing the exe charges for: 0, with no message.  A look that cannot be kept
+               keeps nothing else either. */
+            if (appearance_look_offered && appearance_look != appearance_look_was) {
+                if (!appearance_look_api.set(1, appearance_state.villager, appearance_look)) {
+                    MessageBoxA(window, "The head look could not be kept: the patcher's file for this save "
+                                "could not be written. Nothing was changed.", "Villager Upgrades",
+                                MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND);
+                    appearance_revert();
+                    EndDialog(window, 0);
+                    return TRUE;
+                }
+                if (!changed) {
+                    EndDialog(window, 0);
+                    return TRUE;
+                }
+            }
             /* Persist the mask table the moment a mask edit is confirmed, so
                the choice survives a quit even without the exe's own save. */
             if (mask_changed) {
@@ -2986,11 +3030,14 @@ int __stdcall ShowOriginsAppearancePicker(
        (and set) from the picker. Female row 19 is a normal head, not golden. */
     appearance_state.valid_count = 20;
     appearance_state.head_warned = 0;
+    appearance_look_offered = vvfp_head_look_find(1, &appearance_look_api);
+    appearance_look = appearance_look_was =
+        appearance_look_offered ? appearance_look_api.get(1, villager) : VVFP_HEAD_LOOK_AUTO;
     vv1_prep_fullscreen();
     owner = GetForegroundWindow();
     result = (int)DialogBoxParamA(
         module_instance,
-        MAKEINTRESOURCEA(IDD_ORIGINS_APPEARANCE),
+        MAKEINTRESOURCEA(appearance_look_offered ? IDD_ORIGINS_APPEARANCE_LOOK : IDD_ORIGINS_APPEARANCE),
         owner,
         appearance_dialog,
         (LPARAM)(UINT_PTR)villager

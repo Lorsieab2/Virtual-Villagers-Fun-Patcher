@@ -11,8 +11,13 @@
 /* int __stdcall Vv1GreyHairWanted(const void *record): 1 when the village draws this villager (an A New
    Home villager record) with its grey head, else 0. */
 #define VV1_GREY_HAIR_WANTED "Vv1GreyHairWanted"
+/* int __stdcall Vv1GreyHairUsable(int male): 1 when the grey heads of that sex can be drawn (the splices
+   are in and that sex's grey sheet is there and the right size) -- whatever the villager's age or look.
+   The picker previews the head look being chosen with it (native/shared/head_look.h). */
+#define VV1_GREY_HAIR_USABLE "Vv1GreyHairUsable"
 #ifndef RC_INVOKED
 typedef int (__stdcall *vv1_grey_hair_wanted_fn)(const void *record);
+typedef int (__stdcall *vv1_grey_hair_usable_fn)(int male);
 #endif
 /* The preview strips in the DLL's resources: BITMAP, 40 x 1300, column 5 of the grey sheets (the column
    the young strips in native/vv1_origins_icons/appearance are cut from), one 65-pixel row per head. */

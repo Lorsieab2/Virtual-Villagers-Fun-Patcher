@@ -463,7 +463,7 @@ class TheRow(unittest.TestCase):
                          {f"0x{va:06X}" for va, *_ in READS} | {"0x408AF0", "0x408740"})
 
     def test_started_from_the_second_word(self):
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[-1], "VVFP VV1 Grey Hair.dll")
+        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[2], "VVFP VV1 Grey Hair.dll")
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         self.assertLess(header.index("VVFP Appearance Rolls.dll"), header.index("VVFP VV1 Grey Hair.dll"))
         bit = 1 << patcher.STARTUP_LOADER_COMPANIONS_2.index("VVFP VV1 Grey Hair.dll")

@@ -11,7 +11,8 @@
   "behavior_changes": [
     "Every draw of a villager's head from male_heads.png or female_heads.png -- the 29 reads of gameobj+0x3DFF8 / +0x3DFF4 in the Details portrait 0x437340, a dialog's villager figure 0x4375F0, the village 0x437790 and the map 0x4388E0 -- uses Images\\vvfp_grey_male_heads.png or Images\\vvfp_grey_female_heads.png instead (same column, same row) when the villager's shown age (record +0x348) is 1,100 age units (55 years) or more, the age the later games switch to their old heads (VV2 0x4469BA, VV3 0x46086D, VV4 0x467E89, VV5 0x4722A2).",
     "Head 19 follows the same rule as every other head (the owner, 2026-10-28): the Golden Child never reaches 1,100 (the age tick puts family 199 back to 100 units, 0x42EB80..0x42EB8E), but any other villager given head 19 is drawn from row 19 of the grey sheet once 1,100 or older.",
-    "The Origins Change Appearance picker previews a villager's head from this companion's grey strip when the village draws that villager grey (Vv1GreyHairWanted)."
+    "The Origins Change Appearance picker previews a villager's head from this companion's grey strip when the village draws that villager grey (Vv1GreyHairWanted).",
+    "Change Appearance's head look (\"VVFP Head Look.dll\", shipped by the Origins row): each draw asks it for the villager's look -- Auto keeps the 1,100 rule, Young is never drawn grey and Old is drawn grey at any age; the picker offers the look only when this companion is installed and previews it with Vv1GreyHairUsable."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: the DLL verifies the 29 reads, the two engine entries and the four routines' register set-ups, and writes its 31 detours at run time through the shared all-or-none writer; a different build installs nothing.",
@@ -24,7 +25,7 @@
     {
       "source": "assets/vv1_grey_hair/VVFP VV1 Grey Hair.dll",
       "destination": "VVFP VV1 Grey Hair.dll",
-      "sha256": "3981FF9FEAB0572F62F7BCBA2E812511668BA3D13D81A60DF52A264491A5EC54"
+      "sha256": "05B32584F5457F7E3BB493777AEE9765CBD3F24A9256E6E3CE7E562C921484C3"
     },
     {
       "source": "assets/vv1_grey_hair/vvfp_grey_male_heads.png",

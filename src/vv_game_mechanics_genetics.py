@@ -49,11 +49,12 @@ GREY_HAIR_PATCH = "vv1_grey_hair"
 # Change Appearance's head look (Auto, Young or Old), shipped with each game's Origins row ("VVFP Head Look.dll",
 # native/vvfp_head_look): the age compares it makes follow the look, by game (tests/test_head_look.py).
 HEAD_LOOK_SITES = {
-    5: "the village 0x4722A2, the Villager Details figure 0x466DC1 and the portrait 0x466FE6",
-    4: "the village 0x467E89, the Villager Details figure 0x45F6C4 and the portrait 0x45F8B6",
-    2: ("the Villager Details portrait 0x445694, a dialog's villager 0x445A77, the village 0x4469BA and the 17 "
+    1: "asked by Grey Hair at 55 at each of its 29 reads of the head pictures",
+    5: "at the village 0x4722A2, the Villager Details figure 0x466DC1 and the portrait 0x466FE6",
+    4: "at the village 0x467E89, the Villager Details figure 0x45F6C4 and the portrait 0x45F8B6",
+    2: ("at the Villager Details portrait 0x445694, a dialog's villager 0x445A77, the village 0x4469BA and the 17 "
         "compares of the map 0x4478E0 (0x4481D9 to 0x448FC6)"),
-    3: "the village 0x46086D and 0x4608AE, the Villager Details portrait 0x456A15 and a dialog's villager 0x456DCB",
+    3: "at the village 0x46086D and 0x4608AE, the Villager Details portrait 0x456A15 and a dialog's villager 0x456DCB",
 }
 FIX = "vv{}_fix_vanilla_bugs"
 # What Fix Vanilla Bugs changes in a game's random looks ("VVFP Appearance Rolls.dll", native/
@@ -147,7 +148,7 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
             "rule (the old head from 55), Young always draws the young head and Old always the old, grey head, at "
             "any age; every villager is Auto until given another. The head value itself never changes, so the logs, "
             "the Family Tree and the genetics see the same head. The look is kept in the patcher's own file for "
-            "the save and follows the villager. (\"VVFP Head Look.dll\", at " + HEAD_LOOK_SITES[g] + ".)"),
+            "the save and follows the villager. (\"VVFP Head Look.dll\", " + HEAD_LOOK_SITES[g] + ".)"),
             gm.RUNNING))
     if g in (1, 2, 3) and village.has(STORY.format(g)):
         event = {1: "A Mysterious Vial (red, from the sea)", 2: "A Mysterious Vial (green)",

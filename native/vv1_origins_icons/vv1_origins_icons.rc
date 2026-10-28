@@ -242,6 +242,40 @@ BEGIN
     PUSHBUTTON    "Cancel", 2, 187, 174, 55, 16
 END
 
+/* Change Appearance with the head look (native/shared/head_look.h): 203 and, below the three pickers, a
+   "Head look" row -- Auto, Young or Old.  Used only when "VVFP Head Look.dll" is in the game and Grey Hair
+   at 55 draws the grey heads (A New Home has no old head of its own); otherwise 203. */
+208 DIALOGEX 0, 0, 364, 222
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
+CAPTION "Change Appearance"
+FONT 9, "Segoe UI"
+BEGIN
+    CTEXT       "Body", -1, 30, 8, 70, 9
+    CONTROL     "", 2010, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 70, 118
+    PUSHBUTTON  "<", 2011, 10, 72, 16, 16
+    PUSHBUTTON  ">", 2012, 104, 72, 16, 16
+
+    CTEXT       "Head", -1, 150, 8, 70, 9
+    CONTROL     "", 2000, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 20, 70, 118
+    PUSHBUTTON  "<", 2001, 130, 72, 16, 16
+    PUSHBUTTON  ">", 2002, 224, 72, 16, 16
+
+    CTEXT       "Mask", -1, 270, 8, 70, 9
+    CONTROL     "", 2023, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 270, 20, 70, 118
+    PUSHBUTTON  "<", 2020, 250, 72, 16, 16
+    PUSHBUTTON  ">", 2022, 344, 72, 16, 16
+    CTEXT       "(None)", 2021, 270, 142, 70, 10
+
+    CONTROL     "Head look (free)", -1, "BUTTON", BS_GROUPBOX | WS_CHILD | WS_VISIBLE, 14, 154, 336, 26
+    CONTROL     "Auto (old from 55)", 2030, "BUTTON", BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP | WS_CHILD | WS_VISIBLE, 28, 166, 100, 10
+    CONTROL     "Young", 2031, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 158, 166, 60, 10
+    CONTROL     "Old", 2032, "BUTTON", BS_AUTORADIOBUTTON | WS_CHILD | WS_VISIBLE, 248, 166, 60, 10
+
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 186, 336, 9
+    DEFPUSHBUTTON "OK",     1, 122, 200, 55, 16
+    PUSHBUTTON    "Cancel", 2, 187, 200, 55, 16
+END
+
 /* Change Appearance for All (Tech-screen upgrade, 450,000 tech points).
    Two per-sex columns (Head/Body/Mask, mirroring dialog 203's controls) plus a
    whole-village mask group. Control ids: male 21xx, female 22xx, whole-village

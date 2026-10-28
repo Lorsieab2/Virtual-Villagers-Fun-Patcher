@@ -392,7 +392,9 @@ class StartupLoaderPlacement(unittest.TestCase):
         calls VvfpStartup(game, shipped)); with one it calls VvfpStartupEx(game, shipped, shipped2)."""
         game = "vv1"
         call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
-        for selection, word_2 in ((tuple(closure("vv1_show_parents")), 0), (tuple(closure("vv1_genetics")), 1)):
+        # (Last Names ships no second-word companion; Origins now ships one -- VVFP Head Look.dll.)
+        for selection, word_2 in ((tuple(closure("vv1_last_names")), 0),
+                                  (tuple(closure("vv1_genetics")), 1)):
             with self.subTest(selection=selection):
                 exe, shipped, ids = published(game, "collection_progression", selection)
                 pe = pefile.PE(data=exe)

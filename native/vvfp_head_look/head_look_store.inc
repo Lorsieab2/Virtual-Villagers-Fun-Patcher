@@ -266,14 +266,20 @@ static int hl_sync(void) {
     return 1;
 }
 
+/* The record's number, or -1 when `record` is not the start of one (the records are one array). */
 static int hl_index(const unsigned char *record) {
-    int i, slots = hl_slots();
-    for (i = 0; i < slots && i < HL_MAX; ++i) {
-        if (hl_record(i) == record) {
-            return i;
-        }
+    const unsigned char *first = hl_record(0);
+    const unsigned char *second = hl_record(1);
+    size_t stride, offset;
+    if (first == NULL || second == NULL || record < first) {
+        return -1;
     }
-    return -1;
+    stride = (size_t)(second - first);
+    offset = (size_t)(record - first);
+    if (offset % stride != 0 || offset / stride >= (size_t)hl_slots()) {
+        return -1;
+    }
+    return (int)(offset / stride);
 }
 
 /* The look of the villager in `record`: 0 Auto, 1 Young, 2 Old (Auto while the village is not known). */

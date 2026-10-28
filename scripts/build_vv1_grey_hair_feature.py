@@ -124,6 +124,10 @@ def row(dll_sha: str, sheet_sha: dict[str, str]) -> dict:
             "villager given head 19 is drawn from row 19 of the grey sheet once 1,100 or older.",
             "The Origins Change Appearance picker previews a villager's head from this companion's grey "
             "strip when the village draws that villager grey (Vv1GreyHairWanted).",
+            "Change Appearance's head look (\"VVFP Head Look.dll\", shipped by the Origins row): each draw asks "
+            "it for the villager's look -- Auto keeps the 1,100 rule, Young is never drawn grey and Old is drawn "
+            "grey at any age; the picker offers the look only when this companion is installed and previews it "
+            "with Vv1GreyHairUsable.",
         ],
         "explicit_non_changes": [
             "This row changes no executable bytes: the DLL verifies the 29 reads, the two engine entries and "
