@@ -121,8 +121,8 @@ FOUNDATION_OUTPUT = (
 # "VVFP Speed Change Timers.dll", which the Story bridge compiles in): nothing else changed.
 # Recertified for Difficulty Settings (native/shared/startup_companions.h gains "VVFP
 # Difficulty.dll" after "VVFP Speed Change Timers.dll"; the Story bridge compiles that list in).
-SOURCE_SHA256 = "012B58F7F4BB70810A54DA254E1FA1EFA5EAE0B24F4EEE8A543A435EEECBFFC4"
-SOURCE_SIZE = 1999872
+SOURCE_SHA256 = "C4B61561332F435C669B2A86FA07C9C0CA5B5F41B8BF7C87FBB497A3F3E3B6CF"
+SOURCE_SIZE = 2001920
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

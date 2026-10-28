@@ -103,43 +103,64 @@ def rendered(game: int, mode: str) -> bytes:
 
 # ---- each game's draws: (site, its length, how to run it, what it decides) ---------------------------------
 
-def _column_offset(stop: int, reg: str, before: dict[str, int]):
+def _regs(record_in=("esi",), age_in: str | None = None, **before: int):
+    """The registers a site finds the villager in: the record in `record_in` (a second register, when the
+    record is their sum, gets 0), and for `cmp reg, 1100` the age the game read from it in `age_in`."""
+    def build(g: Game, record: int) -> dict[str, int]:
+        regs = dict(before)
+        regs[record_in[0]] = record
+        for other in record_in[1:]:
+            regs[other] = 0
+        if age_in:
+            regs[age_in] = g.p.u32(record + g.g["age"])
+        return regs
+    return build
+
+
+def _column_offset(stop: int, reg: str, regs=_regs()):
     """The site's setl/sub/and: `reg` at `stop` is 0 for the young head, 8 for the old."""
     def run(g: Game, record: int) -> bool:
-
-        g.run(SITE[g.game][run.site], regs=dict(before, esi=record), until=stop, count=100_000)
+        g.run(SITE[g.game][run.site], regs=regs(g, record), until=stop, count=100_000)
         value = g.p.reg(reg)
         assert value in (0, 8), hex(value)
         return value == 8
+    run.regs = regs
     return run
 
 
-def _branch(young: int, old: int):
-    """The site's jl: where the game goes on."""
+def _branch(young: int, old: int, regs=_regs()):
+    """The site's jl / jge: where the game goes on."""
     def run(g: Game, record: int) -> bool:
         stops = []
         hooks = [g.p.mu.hook_add(UC_HOOK_CODE, lambda mu, a, s, d: (stops.append(a), mu.emu_stop()),
                                  begin=at, end=at) for at in (young, old)]
         try:
-            g.run(SITE[g.game][run.site], regs={"esi": record}, count=100_000)
+            g.run(SITE[g.game][run.site], regs=regs(g, record), count=100_000)
         finally:
             for h in hooks:
                 g.p.mu.hook_del(h)
         assert len(stops) == 1, stops
         return stops[0] == old
+    run.regs = regs
     return run
 
 
 DRAWS = {
     5: {
-        "village": (0x4722A2, 10, _column_offset(0x4722B9, "ecx", {"ecx": 0})),
+        "village": (0x4722A2, 10, _column_offset(0x4722B9, "ecx", _regs(ecx=0))),
         "figure": (0x466DC1, 10, _branch(0x466DDD, 0x466DCD)),
-        "portrait": (0x466FE6, 10, _column_offset(0x46700B, "eax", {"eax": 0})),
+        "portrait": (0x466FE6, 10, _column_offset(0x46700B, "eax", _regs(eax=0))),
     },
     4: {
-        "village": (0x467E89, 10, _column_offset(0x467E9C, "edx", {"edx": 0})),
+        "village": (0x467E89, 10, _column_offset(0x467E9C, "edx", _regs(edx=0))),
         "figure": (0x45F6C4, 10, _branch(0x45F6E0, 0x45F6D0)),
-        "portrait": (0x45F8B6, 10, _column_offset(0x45F8DB, "eax", {"eax": 0})),
+        "portrait": (0x45F8B6, 10, _column_offset(0x45F8DB, "eax", _regs(eax=0))),
+    },
+    3: {
+        "village": (0x46086D, 5, _branch(0x460890, 0x460874, _regs(age_in="eax"))),
+        "village other faction": (0x4608AE, 5, _branch(0x4608C5, 0x4608B5, _regs(age_in="eax"))),
+        "details": (0x456A15, 6, _branch(0x456A99, 0x456A24, _regs(age_in="ecx"))),
+        "figure": (0x456DCB, 6, _branch(0x456E21, 0x456DD8, _regs(age_in="ecx"))),
     },
 }
 SITE = {game: {name: va for name, (va, _, _) in draws.items()} for game, draws in DRAWS.items()}
@@ -192,12 +213,12 @@ class _DrawsBase:
         for g in (stock, hooked):
             g.villager(2, "Moana", age=1500, head=3)
         hooked.set_look(2, YOUNG)
-        for name, (va, length, _) in DRAWS[self.GAME].items():
+        for name, (va, length, run) in DRAWS[self.GAME].items():
             with self.subTest(site=name):
                 seen = []
                 for g in (stock, hooked):
-                    regs = {"eax": 0x11, "ebx": 0x22, "ecx": 0x33, "edx": 0x44, "edi": 0x55, "ebp": 0x66,
-                            "esi": g.record(2)}
+                    regs = {"eax": 0x11, "ebx": 0x22, "ecx": 0x33, "edx": 0x44, "edi": 0x55, "ebp": 0x66, "esi": 0x77}
+                    regs.update(run.regs(g, g.record(2)))
                     g.run(va, regs=regs, until=va + length, count=100_000)
                     seen.append({r: g.p.reg(r) for r in ("eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp")})
                 self.assertEqual(seen[0], seen[1])
@@ -306,6 +327,11 @@ class TreeOfLifeDraws(_DrawsBase, unittest.TestCase):
     GAME = 4
 
 
+@_skip(3)
+class SecretCityDraws(_DrawsBase, unittest.TestCase):
+    GAME = 3
+
+
 class TheSidecar(unittest.TestCase):
     def test_the_harness_on_real_files(self):
         """native/vvfp_head_look/head_look_harness.c: round trip, follow, reuse, rename, copies, broken files,
@@ -352,8 +378,8 @@ class TheCompanion(unittest.TestCase):
                 self.assertEqual(patcher._startup_loader_mask_2(features) & bit, bit)
 
 
-ORIGINS_ROWS = {5: "vv5_task9_native_actions.json", 4: "vv4_origins_feature.json"}
-ORIGINS_IDS = {5: "vv5_enable_origins_exclusive_features", 4: "vv4_enable_origins_exclusive_features"}
+ORIGINS_ROWS = {5: "vv5_task9_native_actions.json", 4: "vv4_origins_feature.json", 3: "vv3_origins_feature.json"}
+ORIGINS_IDS = {game: f"vv{game}_enable_origins_exclusive_features" for game in (5, 4, 3)}
 
 
 if __name__ == "__main__":

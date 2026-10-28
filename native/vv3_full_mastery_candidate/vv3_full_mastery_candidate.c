@@ -13,6 +13,7 @@
 #include "../shared/appearance_log.h" /* "Appearance changed" records in the Births and Conceptions log */
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
+#include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
 
 static HINSTANCE module_instance;
 
@@ -3297,6 +3298,17 @@ static void vv3_appearance_repaint(HWND window, int control) {
     InvalidateRect(GetDlgItem(window, control), NULL, TRUE);
 }
 
+/* THE HEAD LOOK (native/shared/head_look.h): Auto, Young or Old, kept by "VVFP Head Look.dll" for the
+   villager, never in the record.  Offered (dialog 208) when that DLL is in the game; choosing a look is free
+   and is kept on OK -- with the head, body and mask when they changed too, alone when they did not. */
+#define IDD_VV3_APPEARANCE_LOOK 208
+#define IDC_LOOK_AUTO  3120
+#define IDC_LOOK_OLD   3122
+static vvfp_head_look_api vv3_appearance_look_api;
+static int vv3_appearance_look_offered;
+static int vv3_appearance_look;      /* 0 Auto, 1 Young, 2 Old */
+static int vv3_appearance_age;
+
 static INT_PTR CALLBACK vv3_appearance_dialog(
     HWND window, UINT message, WPARAM wparam, LPARAM lparam
 ) {
@@ -3309,6 +3321,9 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
         vvfp_story_relabel(3, window);   /* "OK deducts 0 tech points" */
         center_topmost_on_owner(window);
         SetDlgItemTextA(window, IDC_MASK_NAME, vv3_mask_names[vv3_appearance_mask]);
+        if (vv3_appearance_look_offered) {
+            CheckRadioButton(window, IDC_LOOK_AUTO, IDC_LOOK_OLD, IDC_LOOK_AUTO + vv3_appearance_look);
+        }
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
@@ -3329,6 +3344,13 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
         }
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (vv3_appearance_look_offered && command >= IDC_LOOK_AUTO && command <= IDC_LOOK_OLD) {
+            /* The preview shows the head the village will draw with the chosen look. */
+            vv3_appearance_look = (int)(command - IDC_LOOK_AUTO);
+            vv3_appearance_old = vvfp_head_look_old(vv3_appearance_look, vv3_appearance_age);
+            vv3_appearance_repaint(window, IDC_HEAD_PREVIEW);
+            return TRUE;
+        }
         if (command == IDC_BODY_PREV) {
             vv3_appearance_body = (vv3_appearance_body + VV3_BODY_COUNT - 1) % VV3_BODY_COUNT;
             vv3_appearance_repaint(window, IDC_BODY_PREVIEW);
@@ -3716,8 +3738,13 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     int orig_body;
     int orig_mask;
     int cur_mask;
+    int look_was;
     vv3_appearance_sex = sex ? 1 : 0;
-    vv3_appearance_old = age >= 1100 ? 1 : 0;
+    vv3_appearance_age = age;
+    vv3_appearance_look_offered = record != NULL && vvfp_head_look_find(3, &vv3_appearance_look_api);
+    vv3_appearance_look = look_was = vv3_appearance_look_offered
+        ? vv3_appearance_look_api.get(3, record) : VVFP_HEAD_LOOK_AUTO;
+    vv3_appearance_old = vvfp_head_look_old(vv3_appearance_look, age);
     vv3_appearance_head = (head && *head >= 0 && *head < VV3_HEAD_COUNT) ? *head : 0;
     vv3_appearance_body = (body && *body >= 0 && *body < VV3_BODY_COUNT) ? *body : 0;
     /* The mask choice comes from the DLL-owned table (never a record byte). */
@@ -3730,7 +3757,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     owner = begin_modal_over_game();
     result = DialogBoxParamA(
         module_instance,
-        MAKEINTRESOURCEA(IDD_VV3_APPEARANCE),
+        MAKEINTRESOURCEA(vv3_appearance_look_offered ? IDD_VV3_APPEARANCE_LOOK : IDD_VV3_APPEARANCE),
         GetForegroundWindow(),
         vv3_appearance_dialog,
         0
@@ -3740,6 +3767,22 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     /* Cancel / close: no change, no charge, no message. */
     if (result != 1) {
         return 0;
+    }
+    /* The head look: kept on OK, free (VVFP Head Look.dll's own file).  The look alone changes nothing the
+       exe charges for, so it returns 0 with no message. */
+    if (vv3_appearance_look_offered && vv3_appearance_look != look_was) {
+        if (!vv3_appearance_look_api.set(3, record, vv3_appearance_look)) {
+            MessageBoxA(GetForegroundWindow(),
+                "The head look could not be kept: the patcher's file for this save could not be written. "
+                "Nothing was changed and no tech points have been deducted.",
+                "Villager Upgrades",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+            return 0;
+        }
+        if (vv3_appearance_head == orig_head && vv3_appearance_body == orig_body &&
+            vv3_appearance_mask == orig_mask) {
+            return 0;
+        }
     }
     /* OK with nothing changed: report it and do not charge. */
     if (vv3_appearance_head == orig_head && vv3_appearance_body == orig_body &&

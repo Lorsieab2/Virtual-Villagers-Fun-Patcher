@@ -76,6 +76,7 @@ POPULATION_256 = {"vv3_population_256", "vv4_population_256", "vv5_population_25
 HEAD_LOOK_SITES = {
     "vv5": (0x4722A2, 0x466DC1, 0x466FE6),
     "vv4": (0x467E89, 0x45F6C4, 0x45F8B6),
+    "vv3": (0x46086D, 0x4608AE, 0x456A15, 0x456DCB),
 }
 QUIT_SITES = {
     "vv1": (0x41B25B, "8B4E0C85C9", 0xABE4),

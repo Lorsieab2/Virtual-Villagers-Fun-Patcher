@@ -214,6 +214,19 @@ static const hl_site VV4_SITES[] = {
     CMP_MEM_ESI(0x467E89u), CMP_MEM_ESI(0x45F6C4u), CMP_MEM_ESI(0x45F8B6u),
 };
 
+/* `cmp eax, 1100` (5 bytes) and `cmp ecx, 1100` (6 bytes), the age read from [record + age] a few
+   instructions before. */
+#define CMP_EAX(va, rec_a, rec_b) { va, 5, R_EAX, rec_a, rec_b, { 0x3D, 0x4C, 0x04, 0x00, 0x00 } }
+#define CMP_ECX(va, rec_a, rec_b) { va, 6, R_ECX, rec_a, rec_b, { 0x81, 0xF9, 0x4C, 0x04, 0x00, 0x00 } }
+
+/* The Secret City (record in ESI, the age in EAX or ECX): the village 0x4605F0 (two compares, one per
+   faction branch), the Villager Details portrait 0x4568E0, and a villager's figure 0x456CA0 (the island
+   event dialog 0x418460, and 0x41BDD0). */
+static const hl_site VV3_SITES[] = {
+    CMP_EAX(0x46086Du, R_ESI, HL_NONE), CMP_EAX(0x4608AEu, R_ESI, HL_NONE),
+    CMP_ECX(0x456A15u, R_ESI, HL_NONE), CMP_ECX(0x456DCBu, R_ESI, HL_NONE),
+};
+
 static const hl_site *g_sites;
 static int g_site_count;
 
@@ -255,10 +268,10 @@ static __declspec(naked) void hl_site_common(void) {
 }
 
 #define HL_STUB(n) static __declspec(naked) void hl_stub_##n(void) { __asm push n __asm jmp hl_site_common }
-HL_STUB(0) HL_STUB(1) HL_STUB(2)
+HL_STUB(0) HL_STUB(1) HL_STUB(2) HL_STUB(3)
 
 static void (*const HL_STUBS[])(void) = {
-    hl_stub_0, hl_stub_1, hl_stub_2,
+    hl_stub_0, hl_stub_1, hl_stub_2, hl_stub_3,
 };
 
 static void hl_install(const hl_site *sites, int count) {
@@ -290,6 +303,9 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         break;
     case 4:
         hl_install(VV4_SITES, (int)(sizeof VV4_SITES / sizeof VV4_SITES[0]));
+        break;
+    case 3:
+        hl_install(VV3_SITES, (int)(sizeof VV3_SITES / sizeof VV3_SITES[0]));
         break;
     default:
         break;

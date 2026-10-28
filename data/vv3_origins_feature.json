@@ -14,12 +14,17 @@
     {
       "source": "data/candidates/VVFP VV3 Safe Upgrades.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "012B58F7F4BB70810A54DA254E1FA1EFA5EAE0B24F4EEE8A543A435EEECBFFC4"
+      "sha256": "C4B61561332F435C669B2A86FA07C9C0CA5B5F41B8BF7C87FBB497A3F3E3B6CF"
     },
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
       "sha256": "4C9BE227816C881D32F076FC0BF22F00C5A3FDB9DE879C28BF29123CDEE8B5CB"
+    },
+    {
+      "source": "assets/head_look/VVFP Head Look.dll",
+      "destination": "VVFP Head Look.dll",
+      "sha256": "1E7212C2DEC626AE045B6A3C117CBE06FBEEF1D2A10A3AB9E7153CD85943B7DF"
     }
   ],
   "doubler_evidence": {
