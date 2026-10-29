@@ -6,7 +6,7 @@ timer) and plays the ``hou.ogg`` chime.  The patch is a self-contained native
 hook that touches only unused regions, so it layers on top of any certified
 VV5 build:
 
-  * a code cave at .text VA ``0x494900`` (currently zero padding),
+  * a code cave at .text VA ``0x494890`` (currently zero padding),
   * a 5-byte hook over the click-dispatch site at ``0x404A5C``,
   * a random tip index each click from ``rdtsc`` (CPU timestamp counter) — no
     external RNG, no writable scratch needed.
@@ -62,9 +62,12 @@ SND_ID = 0x61               # play id -> hou.ogg (naive manifest id 0x62 minus o
 TIP_ID_BASE = 0x461         # eRandomTip1 string id
 TIP_COUNT = 50              # eRandomTip1..50 -> ids 0x461..0x492
 
-# vine hit-test rectangle (x = ecx, y = edx at the hook site)
-VINE_X_LO, VINE_X_HI = 729, 757
-VINE_Y_LO, VINE_Y_HI = 164, 194
+# vine hit-test rectangle, just below the stock Puzzles button (button 7 at x 105, y 690,
+# 0x4449EB..0x444A05).  At the hook site edx = x and ecx = y: the button-down case calls
+# SDL_GetMouseState(&x, &y) (0x404A4F) and then loads ecx from y (0x404A54) and edx from
+# x (0x404A58), queuing (2, x, y).
+VINE_X_LO, VINE_X_HI = 164, 194
+VINE_Y_LO, VINE_Y_HI = 729, 757
 
 # known-good reproducibility pins (informational; enforced only on a match)
 KNOWN_PARENT_SHA256 = "869C5CBA8CC051B4623B159F0BB3DC60462FE4D9CBA0A013755A893F0D2EECFB"
@@ -75,13 +78,13 @@ def _handler_bytes() -> bytes:
     asm = f"""
         pushad
         pushfd
-        cmp edx,{VINE_Y_LO}
+        cmp edx,{VINE_X_LO}
         jl done
-        cmp edx,{VINE_Y_HI}
+        cmp edx,{VINE_X_HI}
         jg done
-        cmp ecx,{VINE_X_LO}
+        cmp ecx,{VINE_Y_LO}
         jl done
-        cmp ecx,{VINE_X_HI}
+        cmp ecx,{VINE_Y_HI}
         jg done
         rdtsc
         xor edx,edx
@@ -124,7 +127,7 @@ def build(parent: bytes) -> bytes:
     if raw[v2f_text(HOOK_VA):v2f_text(HOOK_VA) + 5] != HOOK_PREIMAGE:
         raise ValueError("hook preimage mismatch at 0x404A5C; parent is not a supported VV5 build")
     if any(raw[v2f_text(a)] for a in range(CAVE_LO, CAVE_HI)):
-        raise ValueError("code cave 0x494610..0x4949B0 is not free")
+        raise ValueError("code cave 0x494610..0x4948F8 is not free")
 
     # apply: zero cave, write handler, install hook, fix checksum
     for a in range(CAVE_LO, CAVE_HI):

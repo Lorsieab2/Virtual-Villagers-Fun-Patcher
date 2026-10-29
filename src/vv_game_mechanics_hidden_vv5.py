@@ -180,14 +180,19 @@ def _tips() -> list[Entry]:
 def _patcher() -> list[Entry]:
     return [
         Entry(PATCHER, "The tip vine (village screen)", (
-            "a click on the spot the patch's hook tests at the game's click dispatch (0x404A5C: one coordinate 729 to "
-            "757, the other 164 to 194) plays the hou.ogg chime and shows one of all 50 random tips in the message bar "
-            "(0x461 + the processor's time-stamp counter modulo 50, each tip about 1 in 50 a click, any tip can come "
-            "again; the bar's own timer hides it; scripts/build_vv5_clickable_tips.py)"), C, feature=CLICKABLE_TIPS,
-              subs=(("The patch's description places it on the curled vine beneath the on-screen Puzzles button; the "
-                     "stock Puzzles button is at 105, 690 (0x444630), which fits 164 to 194 across and 729 to 757 down "
-                     "rather than the build script's own naming (x 729 to 757, y 164 to 194). Which is right is not "
-                     "confirmed in the game.", U),)),
+            "a left click on the spot the patch's hook tests at the game's click dispatch (0x404A5C: 164 to 194 across, "
+            "729 to 757 down, just below the Puzzles button the main scene places at 105, 690 (0x444630)) plays the "
+            "hou.ogg chime and shows one of all 50 random tips in the message bar (0x461 + the processor's time-stamp "
+            "counter modulo 50, each tip about 1 in 50 a click, any tip can come again; the bar's own timer hides it; "
+            "scripts/build_vv5_clickable_tips.py)"), C, feature=CLICKABLE_TIPS,
+              subs=(("Across and down are the game's own: the button-down case asks SDL_GetMouseState for x and y "
+                     "(0x404A4F) and queues them in that order for the screen (0x404A54..0x404A61), and the hook "
+                     "tests x for 164 to 194 and y for 729 to 757 (emulated in tests/test_vv5_clickable_tips.py).",
+                     C),
+                    ("The hook sits in the game's one event loop (0x4047C0, run each frame from 0x40968F), before the "
+                     "click is handed to whichever screen is open, so a left click on the same spot of another screen "
+                     "also picks a tip and plays the chime; whether the message bar is drawn on those screens is not "
+                     "traced.", U))),
         Entry(PATCHER, "Difficulty (Options dialog)", (
             "puts back the Difficulty choice -- Easy, Normal or Hard -- in the Options dialog, directly above Game "
             "Speed (native/vvfp_difficulty)"), C, feature=DIFFICULTY),

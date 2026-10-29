@@ -42,7 +42,7 @@ class Hidden5(HiddenChecks, unittest.TestCase):
         ('click', 'Clicking villagers in the tutorial (village)', C, ()),
         ('click', 'Places that show their state (village)', U, ()),
         ('tip', 'Where the tips appear', C, (C, U, U)),
-        ('patcher', 'The tip vine (village screen)', C, (U,)),
+        ('patcher', 'The tip vine (village screen)', C, (C, U)),
         ('patcher', 'Difficulty (Options dialog)', C, ()),
         ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (U,)),
         ('patcher', 'Story / Cheat menus (in the Origins Upgrades menu)', C, ()),
