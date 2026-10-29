@@ -1178,8 +1178,10 @@ class ManifestTests(unittest.TestCase):
         # Own Log (vv2_game_log), no executable byte -- its companion
         # re-enables the game's ldwLog.txt calls at run time; 32 with Esteemed Elders'
         # Totems Use No Villager Records (vv2_totems_out_of_entries), no executable byte --
-        # its companion detours the load, save, totem maker, drawing and mouse at run time.
-        self.assertEqual(len(feature_ids), 32)
+        # its companion detours the load, save, totem maker, drawing and mouse at run time;
+        # 33 with Original Looks for Reset to Original (vv2_original_look), no executable
+        # byte -- its companion splices the game's own body writers at run time.
+        self.assertEqual(len(feature_ids), 33)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4124,6 +4126,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_storytelling",
                 "vv2_game_log",
                 "vv2_totems_out_of_entries",
+                "vv2_original_look",
             },
         )
         for mode in ALL_MODES:
