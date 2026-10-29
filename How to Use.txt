@@ -848,8 +848,9 @@ stop a glide, drag the map against it: while the mouse button is held the
 glide keeps pulling, and letting go of the button (or any click on the
 village) ends it where the view is. Opening another screen ends it too. The
 keys work on the village screen: the top-row digits, and the numeric keypad
-when Num Lock is on. It also adds the loading-screen tip "You can zip around
-the island with your numeric keys."
+when Num Lock is on. It also adds the tip "You can zip around the island with
+your numeric keys." to the helpful tips shown at the bottom of the screen when
+you click the mask.
 
 The feature is its own companion, VVFP VV1 Number Keys.dll, which the game
 loads at startup. So the row runs on the

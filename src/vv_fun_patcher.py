@@ -122,7 +122,7 @@ ORIGINS_VILLAGE_WIDE_FEATURE_PATHS = tuple(
 # replaces a base-game asset (verified via preimage/restore hashes).
 TEXT_CHANGES_FEATURE_PATHS = (ROOT / "data" / "vv4_text_changes.json",)
 # The numeric-keys rows: A New Home's companion-driven island navigation with
-# its new loading-screen tip, and The Lost Children's tip reworded to match.
+# its new mask-click tip, and The Lost Children's tip reworded to match.
 NUMERIC_KEYS_FEATURE_PATHS = (
     ROOT / "data" / "vv1_number_keys_feature.json",
     ROOT / "data" / "vv2_numeric_keys_tip_feature.json",

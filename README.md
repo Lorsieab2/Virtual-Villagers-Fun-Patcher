@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.85
+
+- **Fixed: the numeric-keys tip was said to be a loading-screen tip** (A New Home and The Lost Children). The tip "You can zip around the island with your numeric keys." is one of the helpful tips shown at the bottom of the screen when you click the mask, never on the loading screen: A New Home's loading screen shows only "Loading...", and The Lost Children's loading screen picks only from its first 30 tips, while this is tip 45 of 50. The patch descriptions, How to Use, the patcher's "?" guide, the transparency log and Game Mechanics... now say so. Only the wording changed; no need to patch again.
+
 ## What's new in v1.35.84
 
 - **Fixed: "The output folder's path is too long"** when the output folder itself fit (e.g. a Secret City 256 build in a deep folder). The patcher's hidden working folders beside the output now have short fixed-length names (such as `.vvfp-stage-1a2b3c4d`) instead of a copy of the output's name plus 32 characters. Before anything is written, every file the patch will place, including your own files a re-patch carries over, is checked against Windows' 259-character limit; a folder that is too deep is refused up front with the folder to shorten, never part-way through. Nothing in any game changes; no need to patch again.
@@ -482,7 +486,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 **Numeric Keys: Zip Around the Island**
 
-The number keys glide the view to nine spots on the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), exactly the way they do in The Lost Children: the same nine spots, the same glide (a tenth of the remaining distance each update), and the same controls -- another number key changes course, dragging the map pulls against the glide while the mouse button is held and releasing the button (or any click) ends it, and opening another screen ends it. The keys work on the village screen: the top-row digits, and the numeric keypad when Num Lock is on. Adds the loading-screen tip "You can zip around the island with your numeric keys." **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL.
+The number keys glide the view to nine spots on the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), exactly the way they do in The Lost Children: the same nine spots, the same glide (a tenth of the remaining distance each update), and the same controls -- another number key changes course, dragging the map pulls against the glide while the mouse button is held and releasing the button (or any click) ends it, and opening another screen ends it. The keys work on the village screen: the top-row digits, and the numeric keypad when Num Lock is on. Adds the tip "You can zip around the island with your numeric keys." to the helpful tips shown at the bottom of the screen when you click the mask. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL.
 
 - Patch ID: `vv1_number_keys`
 
@@ -707,7 +711,7 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 **Tip Wording: Numeric Keys**
 
-Rewords the loading-screen tip "You can zip around the island with your keypad." to "You can zip around the island with your numeric keys.", matching A New Home's new tip. The keys themselves already work in The Lost Children; nothing else changes.
+Rewords the tip "You can zip around the island with your keypad.", one of the helpful tips shown at the bottom of the screen when you click the mask, to "You can zip around the island with your numeric keys.", matching A New Home's new tip. The keys themselves already work in The Lost Children; nothing else changes.
 
 - Patch ID: `vv2_numeric_keys_tip_wording`
 

@@ -5,10 +5,10 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Tip Wording: Numeric Keys",
-  "description": "Rewords the loading-screen tip \"You can zip around the island with your keypad.\" to \"You can zip around the island with your numeric keys.\", matching A New Home's new tip. The keys themselves already work in The Lost Children; nothing else changes.",
+  "description": "Rewords the tip \"You can zip around the island with your keypad.\", one of the helpful tips shown at the bottom of the screen when you click the mask, to \"You can zip around the island with your numeric keys.\", matching A New Home's new tip. The keys themselves already work in The Lost Children; nothing else changes.",
   "output_tag": "Numeric Keys Tip",
   "behavior_changes": [
-    "One loading-screen tip reads \"numeric keys\" instead of \"keypad\"."
+    "One of the tips shown when you click the mask reads \"numeric keys\" instead of \"keypad\"."
   ],
   "explicit_non_changes": [
     "No code, save, or village-state byte changes; the German text is untouched.",

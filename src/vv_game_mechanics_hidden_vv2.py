@@ -181,8 +181,8 @@ def _patcher() -> list[Entry]:
         Entry(PATCHER, "Tip 786 (the mask)", (
             "rewords \"You can zip around the island with your keypad.\" to \"You can zip around the island with "
             "your numeric keys.\"; the keys themselves are the game's own (above)"), C, feature=TIP_WORDING, subs=(
-                ("The patch's description calls it a loading-screen tip; it is tip 45 of 50, which the loading "
-                 "screen (1 to 30) never picks, so it comes from the mask.", C),)),
+                ("It is tip 45 of 50, which the loading screen (tips 1 to 30, 0x429530) never picks, so it comes "
+                 "only from the mask.", C),)),
         Entry(PATCHER, "Upgrades buttons (Tech and Villager Detail screens)", (
             "a click opens the Origins Upgrades menu (Tech screen) or the Villager Upgrades menu (Villager Detail)"),
               C, feature=ORIGINS, subs=(("Esc closing these menus is tested only in A New Home.", U),)),
