@@ -15,9 +15,16 @@
    are in and that sex's grey sheet is there and the right size) -- whatever the villager's age or look.
    The picker previews the head look being chosen with it (native/shared/head_look.h). */
 #define VV1_GREY_HAIR_USABLE "Vv1GreyHairUsable"
+/* void *__stdcall Vv1GreyHairSheetFor(const void *gameobj, const void *record, void *sprite): the sheet a
+   head draw of that villager takes -- this DLL's grey sheet of the sex `sprite` is the young sheet of
+   (gameobj+0x3DFF8 a man's, +0x3DFF4 a woman's) when the village draws that villager grey, else `sprite`
+   itself.  Show Parents (native/vv1_parentage) asks it before it draws a child's head again over the
+   parents with the Details portrait's own arguments, whose sprite is the young sheet. */
+#define VV1_GREY_HAIR_SHEET_FOR "Vv1GreyHairSheetFor"
 #ifndef RC_INVOKED
 typedef int (__stdcall *vv1_grey_hair_wanted_fn)(const void *record);
 typedef int (__stdcall *vv1_grey_hair_usable_fn)(int male);
+typedef void *(__stdcall *vv1_grey_hair_sheet_for_fn)(const void *gameobj, const void *record, void *sprite);
 #endif
 /* The preview strips in the DLL's resources: BITMAP, 40 x 1300, column 5 of the grey sheets (the column
    the young strips in native/vv1_origins_icons/appearance are cut from), one 65-pixel row per head. */

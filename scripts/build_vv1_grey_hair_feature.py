@@ -128,6 +128,9 @@ def row(dll_sha: str, sheet_sha: dict[str, str]) -> dict:
             "it for the villager's look -- Auto keeps the 1,100 rule, Young is never drawn grey and Old is drawn "
             "grey at any age; the picker offers the look only when this companion is installed and previews it "
             "with Vv1GreyHairUsable.",
+            "Show Parents (\"VVFP VV1 Parentage.dll\") draws a child's Details portrait head again over the "
+            "parents' figures with the portrait's own arguments; it asks Vv1GreyHairSheetFor for the sheet, so "
+            "that redrawn head is the same grey or young head the portrait's own draw used.",
         ],
         "explicit_non_changes": [
             "This row changes no executable bytes: the DLL verifies the 29 reads, the two engine entries and "

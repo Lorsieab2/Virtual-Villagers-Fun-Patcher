@@ -16,6 +16,8 @@ feeds, where the sprite the engine is handed is read:
 * a missing, wrong-sized or unloadable grey sheet keeps that sex young;
 * all or nothing: one changed byte anywhere the DLL checks and nothing is written;
 * the Origins mask hooks of a full build pass the young sheet on and the head is still drawn grey;
+* Vv1GreyHairSheetFor, which Show Parents asks before drawing a child's head again over the parents, gives
+  the same grey sheet for a villager drawn grey and the sprite it was given otherwise;
 * the art: a sheet of the wrong size is refused, the preview strips are the sheets' column 5, and the
   release ships the companion, both sheets and the feature manifest.
 
@@ -380,6 +382,35 @@ class TheArtInTheGame(unittest.TestCase):
         exe[0x437405 - 0x400000] ^= 0xFF
         g = Game(bytes(exe))
         self.assertEqual(g.p.call(g.p.exports["Vv1GreyHairWanted"], [g.villager(1, age=2000, head=1, male=True)]), 0)
+
+    def test_show_parents_asks_the_same_sheet(self):
+        """Vv1GreyHairSheetFor(gameobj, record, sprite), which Show Parents asks before it draws a child's
+        portrait head again over the parents (tests/test_vv1_grey_hair_show_parents.py runs that draw): the
+        grey sheet of the young sheet's sex when the villager is drawn grey, else the sprite it was given."""
+        g = Game()
+        sheet_for = g.p.exports["Vv1GreyHairSheetFor"]
+        greys = {}
+        for male in (True, False):
+            g.villager(2, age=1200, head=2, male=male)
+            greys[male] = g.run_read(0x437405 if male else 0x43748E, EDI, 2)[2]
+        for age, male, sprite, expect in (
+                (1100, True, g.young[True], greys[True]), (1100, False, g.young[False], greys[False]),
+                (1099, True, g.young[True], g.young[True]), (5000, False, g.young[False], greys[False]),
+                (1100, True, g.scratch, g.scratch),                    # not a head sheet: untouched
+                (1100, True, 0, 0)):
+            rec = g.villager(7, age=age, head=5, male=male)
+            with self.subTest(age=age, male=male, sprite=hex(sprite)):
+                self.assertEqual(g.p.call(sheet_for, [g.game, rec, sprite]), expect)
+        rec = g.villager(7, age=2000, head=5, male=True)
+        self.assertEqual(g.p.call(sheet_for, [g.game, rec + 4, g.young[True]]), g.young[True])   # not a record
+        self.assertEqual(g.p.call(sheet_for, [g.game, g.record(256), g.young[True]]), g.young[True])
+        self.assertEqual(g.p.call(sheet_for, [0, rec, g.young[True]]), g.young[True])
+        g = Game(sheets={"male": None, "female": None})                    # no grey sheet: the young one
+        rec = g.villager(7, age=2000, head=5, male=True)
+        self.assertEqual(g.p.call(g.p.exports["Vv1GreyHairSheetFor"], [g.game, rec, g.young[True]]), g.young[True])
+        g = Game(start=False)                                              # nothing installed: the young one
+        rec = g.villager(7, age=2000, head=5, male=True)
+        self.assertEqual(g.p.call(g.p.exports["Vv1GreyHairSheetFor"], [g.game, rec, g.young[True]]), g.young[True])
 
 
 @_skip()
