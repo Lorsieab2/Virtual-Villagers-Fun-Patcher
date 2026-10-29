@@ -22,6 +22,13 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.85
+
+- **Fixed: the Village Matchmaker said "The least related pairs available:" and listed nobody** (all five games). When the rules leave no woman (or no man) to pair at all, for example when every woman aged 18-49 is already expecting, it now says so and why ("no woman can be paired (of the 9 living women, 5 not aged 18-49 and 4 already expecting)"), and "Every allowed partner, per woman" says "(none)" instead of staying blank. The "Suggested pairs" heading no longer says "least related first": the pairs are listed in the order chosen under **List pairings by**.
+- **Fixed: New Believers' Heathen Mommy's "Unknown" father was drawn as a founder who left the village** (Family Tree Maker). He is the game's own word for her baby's father (head 2, body 2), a name only: the tree and the genealogy report no longer call him a Founder or say "(left the village)", and he is nobody's kin, as The Lost Children's "?" and the island events' "Joey" already were.
+- **Fixed: a Heathen's portrait said "Heathen" twice** (Family Tree Maker, New Believers).
+- **Fixed: the "Appearance changed" question named only the head** (Family Tree Maker). A change of body alone, such as The Secret City's Tribal Chief's robe, showed "New look (head 22)" and "Old look (head 22)"; both choices now give the head and the body, and the question no longer says every change was made with Change Appearance.
+
 ## What's new in v1.35.84
 
 - **Fixed: "The output folder's path is too long"** when the output folder itself fit (e.g. a Secret City 256 build in a deep folder). The patcher's hidden working folders beside the output now have short fixed-length names (such as `.vvfp-stage-1a2b3c4d`) instead of a copy of the output's name plus 32 characters. Before anything is written, every file the patch will place, including your own files a re-patch carries over, is checked against Windows' 259-character limit; a folder that is too deep is refused up front with the folder to shorten, never part-way through. Nothing in any game changes; no need to patch again.

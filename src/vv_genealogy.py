@@ -74,7 +74,10 @@ Key = tuple  # (name, head, body)
 GAME_DEFAULT_FATHERS: dict[int, frozenset] = {
     2: frozenset({("?", 0, 0)}),
     4: frozenset({("Joey", 2, 2), ("Joey Joerson", 2, 2)}),
-    5: frozenset({("Joey", 2, 2), ("Joey Joerson", 2, 2)}),
+    # New Believers also has the Heathen Mommy's "Unknown" (2, 2): the new-village code the Heathen Mommy Puzzle
+    # Restoration brings back starts her pregnancy with the game's own word "Unknown", head 2, body 2
+    # (0x465E00; docs/vv5-heathen-mommy-research.md) -- a name only, never a villager (the owner).
+    5: frozenset({("Joey", 2, 2), ("Joey Joerson", 2, 2), ("Unknown", 2, 2)}),
 }
 FALLBACK_FATHER: Key = ("Unknown", 0, 0)
 RUNNING = 38   # the like id of "running" in all five games' preference lists (grant_running.RUNNING)
@@ -2177,6 +2180,8 @@ def numbered(p: Person) -> str:
 def describe_person(village: Village, p: Person) -> str:
     if p.upcoming:
         return f"{p.name} (on the way)"
+    if p.placeholder:
+        return f"{p.name} (a default father: a name only, not a villager)"
     bits = [p.name, p.sex or "sex unknown", p.age_text()]
     if not p.alive:
         bits.append({"died": "dead", "disappeared": "disappeared"}.get(p.gone, "no longer in the village"))
@@ -2224,6 +2229,8 @@ def report(village: Village, game_title: str) -> str:
         if p.father is not None or p.mother is not None:
             parents = " and ".join(people[q].name for q in (p.mother, p.father) if q is not None)
             how = f"born to {parents}"
+        elif p.placeholder:
+            how = "named as a father only"
         elif is_arrival(p, min(snapshot_dates(village), default=None)):
             how = f"arrived ({p.how})" if p.how else "arrived"
         else:
@@ -2234,6 +2241,31 @@ def report(village: Village, game_title: str) -> str:
                      f"{how}{seen}")
     lines.append("")
     return "\n".join(lines)
+
+
+def _nobody_to_pair(village: Village, rules: Rules) -> str:
+    """Why the rules leave no man and woman to pair at all (candidates() gives no man or no woman), in
+    words: how many living villagers of that sex there are, and which rule leaves each one out."""
+    men, women = candidates(village, rules)
+    ages = rules.describe()[0].lower()
+    parts = []
+    for sex, chosen, word in (("Female", women, "woman"), ("Male", men, "man")):
+        if chosen:
+            continue
+        living = [p for p in village.living() if p.sex == sex and not p.heathen]
+        if not living:
+            parts.append(f"there is no living {word}")
+            continue
+        aged = [p for p in living if _age_ok(p, rules) and not (village.game == 1 and p.family == 199)]
+        expecting = [p for p in aged if rules.not_expecting and p.expecting]
+        noun = "woman" if sex == "Female" else "man"
+        nouns = "women" if sex == "Female" else "men"
+        why = [f"{len(living) - len(aged)} not {ages}"] if len(aged) < len(living) else []
+        if expecting:
+            why.append(f"{len(expecting)} already expecting")
+        parts.append(f"no {noun} can be paired (of the {len(living)} living {nouns if len(living) != 1 else noun}, "
+                     f"{' and '.join(why)})")
+    return ("; ".join(parts) or "no man and woman can be paired") + "."
 
 
 def pair_report(village: Village, rules: Rules, game_title: str) -> str:
@@ -2257,12 +2289,16 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     lines.append("== Pairing rules ==")
     lines += [f"  {r}" for r in rules.describe()] or ["  (none)"]
     lines.append("")
-    lines.append("== Suggested pairs (each villager once, least related first) ==")
+    # In the order "List pairings by" chose (the rules above say which); least related first within it.
+    lines.append("== Suggested pairs (each villager once) ==")
     if one_to_one:
         for n, pair in enumerate(one_to_one, 1):
             lines.append(f"  {n}. {numbered(pair.man)}, {age(pair.man)}, and "
                          f"{numbered(pair.woman)}, {age(pair.woman)}: {pair.relation}, "
                          f"related {pair.percent:g}%" + (f"; {pair.together}" if pair.together else ""))
+    elif not fallback:
+        # Nobody to pair at all: never "the least related pairs available" over an empty list.
+        lines.append("  No pair meets every rule: " + _nobody_to_pair(village, rules))
     else:
         lines.append("  No pair meets every rule.  The least related pairs available:")
         for pair in fallback:
@@ -2271,6 +2307,8 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
                          + (f"; {pair.together}" if pair.together else ""))
     lines.append("")
     lines.append("== Every allowed partner, per woman ==")
+    if not per_woman:
+        lines.append("  (none)")
     for wid, pairs in per_woman.items():
         lines.append(f"  {people[wid].name}, {age(people[wid])}:")
         for pair in pairs:

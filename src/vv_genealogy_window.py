@@ -755,6 +755,12 @@ def open_family_tree(app, build) -> None:
         ask_game_folder=True)
 
 
+def look_choice(which: str, look) -> str:
+    """A look in the Appearance changed question: head AND body -- The Secret City's chief's robe changes
+    the body only, and "New look (head 22)" / "Old look (head 22)" could not be told apart."""
+    return f"{which} look (head {look[0]}, body {look[1]})"
+
+
 def _saved_renames(folder: Path, game: int, slot: int) -> dict:
     """The renamed-villager answers the saved edits keep; none when there is no readable file."""
     try:
@@ -3131,8 +3137,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         window.transient(self)
         frame = ttk.Frame(window, padding=12)
         frame.pack(fill="both", expand=True)
-        ttk.Label(frame, text="These villagers' looks were changed with Change Appearance.  Update their "
-                              "portraits on the tree to the new look?", wraplength=460).pack(anchor="w", pady=(0, 8))
+        # Not only Change Appearance: an island event, a Custom Island Event or The Secret City's chief's robe
+        # changes a look too (each an "Appearance changed" record).
+        ttk.Label(frame, text="These villagers' looks have changed (Change Appearance, an island event or "
+                              "another change the logs record).  Update their portraits on the tree to the "
+                              "new look?", wraplength=460).pack(anchor="w", pady=(0, 8))
         # A whole village at once scrolls (Codex, #558).
         box = ttk.Frame(frame)
         box.pack(fill="both", expand=True)
@@ -3154,9 +3163,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             row = ttk.Frame(rows)
             row.pack(anchor="w", pady=2)
             ttk.Label(row, text=gen.numbered(p), width=24).pack(side="left")
-            ttk.Radiobutton(row, text=f"New look (head {p.head})", value="new", variable=var).pack(side="left")
-            ttk.Radiobutton(row, text=f"Old look (head {old[0]})", value="old", variable=var).pack(side="left",
-                                                                                                  padx=(8, 0))
+            ttk.Radiobutton(row, text=look_choice("New", (p.head, p.body)), value="new", variable=var).pack(side="left")
+            ttk.Radiobutton(row, text=look_choice("Old", old), value="old", variable=var).pack(side="left",
+                                                                                               padx=(8, 0))
 
         def done() -> None:
             for pid, (var, old) in choices.items():

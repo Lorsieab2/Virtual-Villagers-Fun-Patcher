@@ -5040,18 +5040,22 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
     ages = (["age unknown"] if p.age is None and (units or years) else
             [] if p.age is None else
             ([f"{p.age} game units"] if units else []) + ([f"{p.years} years old"] if years else []))
-    if p.alive:
+    if getattr(p, "placeholder", False):
+        extra = ""          # a default father ("?", "Joey", "Unknown") is a name only: he never lived here, nor left
+    elif p.alive:
         extra = "Heathen" if p.heathen else ""
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
-    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + descriptors(lay, p) + ([extra] if extra else [])
+    said = descriptors(lay, p)
+    # A Heathen's automatic "Heathen" mark already says it: never "Heathen | Heathen".
+    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + said + ([extra] if extra and extra not in said else [])
 
 
 def is_founder(village: gen.Village, p: gen.Person) -> bool:
     """One of the village's founders: generation I, no parents recorded, and not a later arrival (an Arrived
     record with a known "How" other than Founder, or first seen after the village's first snapshot)."""
-    if p.upcoming or p.generation != 1 or p.father is not None or p.mother is not None:
-        return False
+    if p.upcoming or getattr(p, "placeholder", False) or p.generation != 1 or p.father is not None or p.mother is not None:
+        return False                    # a default father is a name only, never one of the founders
     return not gen.is_arrival(p, min(gen.snapshot_dates(village), default=None))
 
 
@@ -5411,7 +5415,7 @@ def node_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None
 BOLD_WIDTH = 1.1                        # how much wider a bold letter is, near enough
 
 # Segoe UI's own letter widths, in thousandths of its size (Windows' font, measured): space to "~", then
-# no-break space to "ÿ".  A portrait's words are fitted by these, the same in the editor and in every
+# no-break space to "Ã¿".  A portrait's words are fitted by these, the same in the editor and in every
 # saved picture -- a fixed width a letter (0.55 of the size) let a bold "75. Mamba Chuchip" run 11 pixels
 # past its frame.
 _WIDTH_CHARS = "".join(map(chr, range(32, 127))) + "".join(map(chr, range(160, 256)))
@@ -5553,7 +5557,7 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
         room = max(1, room)
         if len(out) > room:
             last, bold, _r = out[room - 1]
-            out = out[:room - 1] + [(last[:n - 1] + "…", bold, None)]
+            out = out[:room - 1] + [(last[:n - 1] + "â€¦", bold, None)]
         return out
     pieces: list[tuple[list, bool]] = []
     if n > WRAP:
@@ -5571,7 +5575,7 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
                 break
             kept.append(cell)
             used += cell[1]
-        pieces = pieces[:room - 1] + [(kept + [("…", 1.0, kept[-1][2] if kept else {})], bold)]
+        pieces = pieces[:room - 1] + [(kept + [("â€¦", 1.0, kept[-1][2] if kept else {})], bold)]
     out = []
     for cells, bold in pieces:
         line_runs = _cells_runs(cells)
