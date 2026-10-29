@@ -223,7 +223,7 @@ class Village:
             p.stub(0x448E10, lambda q: (0, 4))
         else:
             p.stub(0x4713F0, lambda q: (1, 0))
-            p.put32(0x51D5A4, 0xFFFFFFFF)               # no barrel under way
+            p.put32(0x51D5A4, 0xFFFFFFFF)               # no God Power armed
             p.stub(0x471870, lambda q: (record, 0x38))  # fourteen arguments
             p.stub(0x417650, lambda q: (1, 0))
             p.stub(0x44C440, lambda q: (0, 4))

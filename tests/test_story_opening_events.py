@@ -226,7 +226,7 @@ class Trigger:
         if self.game == "vv3":
             p.stub(0x45C840, _p(v.record(1), 4))
         if self.game == "vv5":
-            p.put32(0x51D5A4, 0xFFFFFFFF)            # no barrel under way
+            p.put32(0x51D5A4, 0xFFFFFFFF)            # no God Power armed
         self.built = []
         builder, pop = g["builder"]
         p.stub(builder, lambda proc: (self.built.append("island") or 0, pop))
