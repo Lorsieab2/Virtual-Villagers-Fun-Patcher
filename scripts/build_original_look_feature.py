@@ -18,6 +18,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
+
 DLL_NAME = "VVFP Original Look.dll"
 DLL = ROOT / "assets" / "original_look" / DLL_NAME
 GAMES = (1, 2, 3, 4, 5)
@@ -34,9 +37,8 @@ DESCRIPTION = (
     "\"Appearance changed\" record -- and never guesses: when the logs cannot prove it, Change Appearance "
     "says the original look is not known. The looks are kept in the save's own Original Looks file, follow "
     "each villager (through deaths, reloads and renames) and are copied by Back Up Saves; Start Over clears "
-    "them. **On by default.** **Requires the Origins-exclusive base, which the patcher installs "
-    "automatically with it** (Change Appearance is there). **Works the same with every other patch and in "
-    "every population mode.** **Not yet seen in a running game.** The companion is \"" + DLL_NAME + "\", "
+    "them. **On by default.** Change Appearance is in the Origins upgrades: " + ORIGINS_BASE_SENTENCE + " "
+    "**Works the same with every other patch and in every population mode.** **Not yet seen in a running game.** The companion is \"" + DLL_NAME + "\", "
     "started by VVFP Startup.dll; it changes nothing the game does. If it cannot be loaded, Change "
     "Appearance says the original look is not known."
 )

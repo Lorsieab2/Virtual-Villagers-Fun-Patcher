@@ -42,11 +42,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "tests"))
+sys.path.insert(0, str(ROOT / "scripts"))
 
 import vv_fun_patcher as patcher  # noqa: E402
 import vv_log_tools as tools  # noqa: E402
 import vv_original_look as ol  # noqa: E402
 import vv_tribe_rename as rename  # noqa: E402
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
 
 try:
     import pefile  # noqa: F401
@@ -772,7 +774,8 @@ class HowItShips(unittest.TestCase):
                 self.assertTrue(data["enabled"] and data["catalog_enabled"] and not data["catalog_hidden"])
                 self.assertIn("**On by default.**", data["description"])
                 self.assertEqual(data["dependencies"], [f"vv{game}_enable_origins_exclusive_features"])
-                self.assertIn("**Requires the Origins-exclusive base", data["description"])
+                # The shared sentence every row on the Origins base carries (scripts/origins_base_text.py).
+                self.assertIn(ORIGINS_BASE_SENTENCE, data["description"])
                 self.assertEqual(data["companion_files"],
                                  [{"source": f"assets/original_look/{DLL_NAME}", "destination": DLL_NAME,
                                    "sha256": digest}])
