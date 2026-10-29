@@ -2,7 +2,7 @@
 docs/ (the head look row, the owner, 2026-10-28).
 
     python scripts/render_change_appearance.py <dll> <dialog id> <out.png> [<control>=<bitmap>:<cell>[:v][@<dll>] ...]
-        [--check <control> ...]
+        [--check <control> ...] [--text <control>=<words> ...]
 
 The DLL is loaded as a resource file only (none of its code runs).  The dialog is created by Windows from
 its own template, off screen, and printed with PrintWindow; each owner-drawn preview named on the command
@@ -10,6 +10,8 @@ line is filled with that cell (40 x 65) of that BITMAP resource -- of the DLL, o
 to fit as the companions draw it: cells side by side, or one under another with ":v" (A New Home's 40 x 1300
 strips and Grey Hair's grey ones).  Every other owner-drawn control is left blank.  The first radio button of
 each group is checked, as the windows open for a villager whose look is Auto, unless --check names others.
+A control's text is the template's own unless --text gives the words the companion sets at run time -- the
+mask's name under a mask preview, which the template holds as "(None)" for the companion to replace.
 Windows only.
 """
 from __future__ import annotations
@@ -23,7 +25,7 @@ CELL_W, CELL_H = 40, 65
 
 
 def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int, bool, Path | None]],
-           checked: tuple[int, ...] = ()) -> tuple[int, int]:
+           checked: tuple[int, ...] = (), texts: dict[int, str] | None = None) -> tuple[int, int]:
     from PIL import Image
 
     user32 = ctypes.WinDLL("user32", use_last_error=True)
@@ -80,6 +82,7 @@ def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int
     user32.SetWindowPos.argtypes = [wintypes.HWND, wintypes.HWND] + [ctypes.c_int] * 4 + [wintypes.UINT]
     user32.UpdateWindow.argtypes = [wintypes.HWND]
     user32.DestroyWindow.argtypes = [wintypes.HWND]
+    user32.SetDlgItemTextW.argtypes = [wintypes.HWND, ctypes.c_int, wintypes.LPCWSTR]
     kernel32.FreeLibrary.argtypes = [wintypes.HMODULE]
 
     def draw(item: DRAWITEMSTRUCT) -> None:
@@ -119,6 +122,9 @@ def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int
                 if is_radio and wanted:
                     user32.SendMessageW(child, 0x00F1, 1, 0)   # BM_SETCHECK
                 child = user32.GetWindow(child, 2)             # GW_HWNDNEXT
+            for control, words in (texts or {}).items():
+                if not user32.SetDlgItemTextW(window, control, words):
+                    raise OSError(f"dialog {dialog} has no control {control} to set text on")
             return 1
         if message == 0x002B:                                  # WM_DRAWITEM
             draw(DRAWITEMSTRUCT.from_address(lparam))
@@ -175,17 +181,22 @@ def main(argv: list[str]) -> int:
         return 2
     previews = {}
     checked = []
+    texts = {}
     specs = argv[3:]
     while specs:
         spec = specs.pop(0)
         if spec == "--check":
             checked.append(int(specs.pop(0)))
             continue
+        if spec == "--text":
+            control, _, words = specs.pop(0).partition("=")
+            texts[int(control)] = words
+            continue
         control, rest = spec.split("=")
         rest, _, other = rest.partition("@")
         parts = rest.split(":")
         previews[int(control)] = (int(parts[0]), int(parts[1]), parts[2:] == ["v"], Path(other) if other else None)
-    size = render(Path(argv[0]), int(argv[1]), Path(argv[2]), previews, tuple(checked))
+    size = render(Path(argv[0]), int(argv[1]), Path(argv[2]), previews, tuple(checked), texts)
     print(f"wrote {argv[2]} ({size[0]} x {size[1]})")
     return 0
 
