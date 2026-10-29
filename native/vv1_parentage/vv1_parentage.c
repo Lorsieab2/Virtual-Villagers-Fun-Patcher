@@ -157,6 +157,7 @@
 #include "../shared/log_slot.h"       /* one folder of logs per save slot */
 #include "../shared/birth_heading.h"  /* "Birth <n>", or an older log's "Birth" */
 #include "../shared/game_save_slot.h" /* the slot the game itself saves to */
+#include "../shared/vv1_grey_hair.h"  /* the sheet Grey Hair at 55 draws a head from */
 
 #define VV1_VILLAGE_STATE_PTR  (*(unsigned char **)0x0048AEDCu)   /* what 0x41D500 returns */
 #define VV1_VILLAGERS_PTR      (*(unsigned char **)0x0048B614u)   /* lazily built villager array */
@@ -2288,6 +2289,24 @@ static void vv1_replay_draw(void *wrapper, void *atlas, int x, int y, int row, i
     }
 }
 
+/* The sheet the child's head is drawn from again: the portrait's own sprite
+   argument is the young sheet (Grey Hair at 55 swaps the sheet only for the
+   draw that follows its read, which has already happened), so Grey Hair is
+   asked which sheet that villager's head is drawn from -- the grey one under
+   the Old look, or Auto from 55.  Without Grey Hair in the game the sprite is
+   the one given.  Found once, at the first portrait drawn (VVFP Startup.dll
+   loads every companion before the title screen). */
+static void *vv1_head_sheet(void *gameobj, const void *rec, void *sprite) {
+    static int state;             /* 0 = not tried, 1 = resolved, -1 = not in the game */
+    static vv1_grey_hair_sheet_for_fn sheet_for;
+    if (state == 0) {
+        HMODULE dll = GetModuleHandleA(VV1_GREY_HAIR_DLL);
+        sheet_for = dll ? (vv1_grey_hair_sheet_for_fn)GetProcAddress(dll, VV1_GREY_HAIR_SHEET_FOR) : NULL;
+        state = sheet_for != NULL ? 1 : -1;
+    }
+    return state == 1 ? sheet_for(gameobj, rec, sprite) : sprite;
+}
+
 /* sub_437340's body draw, recomputed from the record: children grow with
    age (scale 100 + 2*(age/7), frame +0x20 + 11, y 253), adults are fixed
    (scale 200, frame 11, y 233); x 120, flag 1; the atlas by gender. */
@@ -2685,10 +2704,13 @@ __declspec(dllexport) int __stdcall Vv1ParentageDrawPortrait(void *gameobj, void
     }
     /* The parents stand behind the child, as in the later games: the stock
        body and head are drawn again over them with the stock arguments (the
-       head's are the seven the hook handed over untouched). */
+       head's are the seven the hook handed over untouched, from the sheet
+       Grey Hair at 55 draws this child's head from; the parents' own small
+       pictures stay young). */
     vv1_replay_body(draw_wrapper, g, rec);
     if (args != NULL) {
-        vv1_replay_draw(draw_wrapper, (void *)args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        vv1_replay_draw(draw_wrapper, vv1_head_sheet(g, rec, (void *)args[0]),
+                        args[1], args[2], args[3], args[4], args[5], args[6]);
     }
     male_child = *(const int *)(rec + VV1_GENDER_OFFSET) == VV1_GENDER_MALE;
     if (vv1_mouse(&mx, &my)) {

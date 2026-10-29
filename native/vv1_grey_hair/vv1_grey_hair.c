@@ -42,7 +42,10 @@
         just remembered, and that villager is drawn grey, the draw gets the grey sheet instead.  The
         remembered pair is used once.
    So the Origins mask hooks (which find a head draw by its sprite being one of the two young sheets,
-   scripts/build_vv1_origins_feature.py) still see the young sheet and keep drawing masks.
+   scripts/build_vv1_origins_feature.py) still see the young sheet and keep drawing masks.  Show Parents
+   (native/vv1_parentage), which draws a child's portrait head again over the parents with those same
+   young-sheet arguments, asks Vv1GreyHairSheetFor for the sheet first, so the redrawn head is the one the
+   village draws; the parents' own small pictures stay young.
 
    THE ART.  Images\vvfp_grey_male_heads.png and Images\vvfp_grey_female_heads.png, beside the game's
    own sheets (the game's sprite loader opens them there by name), each exactly the stock layout:
@@ -398,6 +401,41 @@ int __stdcall Vv1GreyHairWanted(const void *record) {
         return 0;
     }
     return Vv1GreyHairUsable(male);
+}
+
+/* The sheet a head draw of `record` takes when another companion draws it again with the arguments the
+   game gave (native/shared/vv1_grey_hair.h): Show Parents (native/vv1_parentage) redraws a child's head
+   over the parents' figures with the Details portrait's own seven arguments, whose sprite is still the
+   young sheet the read handed out.  The grey sheet of that sex when this villager is drawn grey and that
+   sheet can be drawn; otherwise `sprite`, untouched -- anything not one of `gameobj`'s two young sheets
+   included.  Asked from that draw, so building the sheet here is safe (the head's own draw, just before,
+   has built it already). */
+void *__stdcall Vv1GreyHairSheetFor(const void *gameobj, const void *record, void *sprite) {
+    const unsigned char *game = (const unsigned char *)gameobj;
+    const unsigned char *r = (const unsigned char *)record;
+    unsigned int young = (unsigned int)(UINT_PTR)sprite;
+    unsigned int offset;
+    int male;
+    unsigned char *grey;
+    if (!installed || game == NULL || r == NULL || young == 0 || r < game) {
+        return sprite;
+    }
+    offset = (unsigned int)(r - game);
+    if (offset % RECORD_STRIDE != 0 || offset / RECORD_STRIDE >= RECORD_COUNT) {
+        return sprite;
+    }
+    if (young == *(const unsigned int *)(game + MALE_HEADS)) {
+        male = 1;
+    } else if (young == *(const unsigned int *)(game + FEMALE_HEADS)) {
+        male = 0;
+    } else {
+        return sprite;
+    }
+    if (!drawn_grey(r)) {
+        return sprite;
+    }
+    grey = grey_sheet(male);
+    return grey != NULL ? grey : sprite;
 }
 
 /* Whether the grey heads of a sex can be drawn at all (native/shared/vv1_grey_hair.h).  Asked from a
