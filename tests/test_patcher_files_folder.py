@@ -417,7 +417,10 @@ class ATooDeepOutputFolder(unittest.TestCase):
         source = Path(holder.name) / "s"
         (source / "Sounds" / ("x" * 60)).mkdir(parents=True)
         (source / "Sounds" / ("x" * 60) / ("y" * 60 + ".ogg")).write_bytes(b"")
-        out = Path(os.path.abspath(tempfile.gettempdir())) / ("o" * 110)   # deep enough for the game files alone
+        # 145 characters whatever the temp folder: deep enough for the game files alone (a short TEMP such
+        # as C:\t made a fixed 110-character name too shallow).
+        base = os.path.abspath(tempfile.gettempdir())
+        out = Path(base) / ("o" * (145 - len(base) - 1))
         vfp._require_patcher_files_path_fits(out, [], "g.exe")                      # without them: fits
         with self.assertRaises(vfp.PatcherError):
             vfp._require_patcher_files_path_fits(out, [], "g.exe", source)
