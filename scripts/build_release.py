@@ -77,8 +77,7 @@ FILES = [
     "assets/chief_hospital/VVFP VV3 Chief Hospital.dll",
     "assets/difficulty/VVFP Difficulty.dll",
     "assets/genetics/VVFP VV1 Genetics.dll",
-    # Grey Hair at 55 (A New Home): the companion and its two new head sheets (the owner's art;
-    # _refuse_placeholder_art below stops a release while either is still the placeholder).
+    # Grey Hair at 55 (A New Home): the companion and its two new head sheets (the owner's art).
     "assets/vv1_grey_hair/VVFP VV1 Grey Hair.dll",
     "assets/vv1_grey_hair/vvfp_grey_male_heads.png",
     "assets/vv1_grey_hair/vvfp_grey_female_heads.png",
@@ -466,27 +465,6 @@ def _assert_no_executable_members(members: list[str]) -> None:
         )
 
 
-def _placeholder_art() -> list[str]:
-    """The FILES that are, byte for byte, one of the machine-made PLACEHOLDER_*.png mockups kept beside the
-    art they stand in for (Grey Hair at 55: assets/vv1_grey_hair/README.txt)."""
-    mockups = {path.read_bytes() for path in ROOT.glob("assets/*/PLACEHOLDER_*.png")}
-    return [relative for relative in FILES
-            if mockups and (ROOT / relative).is_file() and (ROOT / relative).read_bytes() in mockups]
-
-
-def _refuse_placeholder_art() -> None:
-    """Raise while a shipped art file is still a PLACEHOLDER mockup (the grey hair sheets until the owner's
-    final art is dropped in)."""
-    placeholders = _placeholder_art()
-    if placeholders:
-        raise RuntimeError(
-            "refusing to build the release: the grey hair art is still the PLACEHOLDER mockup -- "
-            + ", ".join(placeholders)
-            + ". Drop in the final sheets (assets/vv1_grey_hair/README.txt) and run "
-            "python scripts/build_vv1_grey_hair_feature.py first."
-        )
-
-
 SOURCE_NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}-source.zip"
 
 
@@ -605,7 +583,6 @@ def _build_source_archive() -> dict | None:
 
 def main() -> int:
     _assert_no_executable_members(FILES)
-    _refuse_placeholder_art()
     # Refuse a dirty tree before anything is written: see _refuse_dirty_tree.
     _refuse_dirty_tree()
     OUTPUTS.mkdir(exist_ok=True)

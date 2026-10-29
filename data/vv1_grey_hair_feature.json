@@ -25,17 +25,17 @@
     {
       "source": "assets/vv1_grey_hair/VVFP VV1 Grey Hair.dll",
       "destination": "VVFP VV1 Grey Hair.dll",
-      "sha256": "05B32584F5457F7E3BB493777AEE9765CBD3F24A9256E6E3CE7E562C921484C3"
+      "sha256": "C6D82581D599781146FA5AAB10684ED25DE15C0211EFBDE88B009C9F938C8254"
     },
     {
       "source": "assets/vv1_grey_hair/vvfp_grey_male_heads.png",
       "destination": "Images/vvfp_grey_male_heads.png",
-      "sha256": "8EFE10718C91526A37D6C2325D87F0AD77BB841A5B3BA7E9394CCF1B6070E33F"
+      "sha256": "96AAA2FB4C17C572D591EF4B37F60B9041E8545B4FE1DD5C70A24BFE5F20ED69"
     },
     {
       "source": "assets/vv1_grey_hair/vvfp_grey_female_heads.png",
       "destination": "Images/vvfp_grey_female_heads.png",
-      "sha256": "38F003953EB06418D0E3A1F13D50B2CEEEE23E4EF91853DFAD5CC3E9046BD5FB"
+      "sha256": "58A36AD69F7DA94BA0683E1865375B1E87DD34BE39BF697A456863BE3DA51B52"
     }
   ],
   "patches": [],

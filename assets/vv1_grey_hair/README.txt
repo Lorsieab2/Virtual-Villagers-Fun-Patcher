@@ -35,9 +35,3 @@ DROPPING IN THE FINAL SHEETS:
        (native/vv1_grey_hair/preview), rebuilds "VVFP VV1 Grey Hair.dll" and pins the DLL
        and both sheets in data/vv1_grey_hair_feature.json.
     3. Run the tests: python -m pytest tests/test_vv1_grey_hair.py
-
-THE PLACEHOLDER: PLACEHOLDER_grey_male.png and PLACEHOLDER_grey_female.png are a
-machine-made mockup in the same layout, for building and testing only. Until the final
-art is dropped in, the shipped sheets are copies of them, and
-"python scripts/build_release.py" refuses to build a release
-(_refuse_placeholder_art; tests/test_vv1_grey_hair.py checks the guard).

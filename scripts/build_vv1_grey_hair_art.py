@@ -15,10 +15,6 @@ other size is refused here, and by the DLL in the game (which then keeps that se
 THE PREVIEWS: column 5 of each sheet (the column the stock Change Appearance strips are cut from,
 scripts/build_vv1_appearance_bitmaps.py), flattened onto the picker's grey (236, 236, 236), as
 native/vv1_grey_hair/preview/head_m_grey.bmp and head_f_grey.bmp, compiled into the DLL.
-
-THE PLACEHOLDER.  PLACEHOLDER_grey_male.png / PLACEHOLDER_grey_female.png are a machine-made mockup,
-for building and testing only.  While a shipped sheet is byte-for-byte one of them,
-placeholder_sheets() names it and scripts/build_release.py refuses to build a release.
 """
 from __future__ import annotations
 
@@ -30,7 +26,6 @@ ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / "assets" / "vv1_grey_hair"
 PREVIEW = ROOT / "native" / "vv1_grey_hair" / "preview"
 SHEETS = {"male": ART / "vvfp_grey_male_heads.png", "female": ART / "vvfp_grey_female_heads.png"}
-PLACEHOLDERS = (ART / "PLACEHOLDER_grey_male.png", ART / "PLACEHOLDER_grey_female.png")
 PREVIEWS = {"male": PREVIEW / "head_m_grey.bmp", "female": PREVIEW / "head_f_grey.bmp"}
 SIZE = (280, 1300)
 CELL_W, CELL_H = 40, 65
@@ -57,19 +52,10 @@ def preview_strip(sheet: Image.Image) -> Image.Image:
     return canvas
 
 
-def placeholder_sheets() -> list[str]:
-    """The shipped sheets that are still a PLACEHOLDER file, byte for byte."""
-    placeholders = {p.read_bytes() for p in PLACEHOLDERS if p.is_file()}
-    return [str(p.relative_to(ROOT)).replace("\\", "/") for p in SHEETS.values()
-            if p.is_file() and p.read_bytes() in placeholders]
-
-
 def main() -> int:
     PREVIEW.mkdir(parents=True, exist_ok=True)
     for sex, path in SHEETS.items():
         preview_strip(load_sheet(path)).save(PREVIEWS[sex])
-    for name in placeholder_sheets():
-        print(f"NOTE: {name} is still the PLACEHOLDER art; scripts/build_release.py will refuse a release.")
     print("wrote", ", ".join(str(p.relative_to(ROOT)) for p in PREVIEWS.values()))
     return 0
 

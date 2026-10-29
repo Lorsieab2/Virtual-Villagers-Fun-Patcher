@@ -16,8 +16,8 @@ feeds, where the sprite the engine is handed is read:
 * a missing, wrong-sized or unloadable grey sheet keeps that sex young;
 * all or nothing: one changed byte anywhere the DLL checks and nothing is written;
 * the Origins mask hooks of a full build pass the young sheet on and the head is still drawn grey;
-* the art: a sheet of the wrong size is refused, the preview strips are the sheets' column 5, and a release
-  build refuses while a shipped sheet is still the PLACEHOLDER mockup.
+* the art: a sheet of the wrong size is refused, the preview strips are the sheets' column 5, and the
+  release ships the companion, both sheets and the feature manifest.
 
 The live effect in a running game is NOT verified here.
 """
@@ -532,7 +532,7 @@ class TheArt(unittest.TestCase):
             self.assertEqual(art.load_sheet(path).size, (280, 1300))
 
     def test_the_shipped_sheets_and_the_references_are_the_stock_layout(self):
-        for path in list(art.SHEETS.values()) + list(art.PLACEHOLDERS):
+        for path in art.SHEETS.values():
             with self.subTest(path=path.name):
                 self.assertEqual(art.load_sheet(path).mode, "RGBA")
         for sex, letter in (("male", "m"), ("female", "f")):
@@ -547,52 +547,12 @@ class TheArt(unittest.TestCase):
                 self.assertEqual(built.size, (40, 1300))
                 self.assertEqual(built.tobytes(), art.preview_strip(art.load_sheet(path)).tobytes())
 
-    def test_a_release_refuses_the_placeholder(self):
-        """`python scripts/build_release.py` refuses while a shipped sheet is still the mockup."""
+    def test_the_release_ships_the_art(self):
         import build_release
-        shipped = sorted(art.placeholder_sheets())
-        self.assertEqual(sorted(build_release._placeholder_art()), shipped)
-        if shipped:
-            with self.assertRaisesRegex(RuntimeError, "PLACEHOLDER"):
-                build_release.main()
-        else:
-            build_release._refuse_placeholder_art()
         for name in ("assets/vv1_grey_hair/VVFP VV1 Grey Hair.dll", "assets/vv1_grey_hair/vvfp_grey_male_heads.png",
                      "assets/vv1_grey_hair/vvfp_grey_female_heads.png", "data/vv1_grey_hair_feature.json"):
             self.assertIn(name, build_release.FILES)
-        self.assertFalse([f for f in build_release.FILES if "PLACEHOLDER" in f.upper()])
 
-    def test_the_guard_sees_a_placeholder_by_its_bytes(self):
-        with tempfile.TemporaryDirectory() as folder:
-            original = art.SHEETS, art.PLACEHOLDERS, art.ROOT
-            try:
-                root = Path(folder)
-                placeholder = root / "PLACEHOLDER_grey_male.png"
-                final = root / "vvfp_grey_male_heads.png"
-                placeholder.write_bytes(b"mockup")
-                final.write_bytes(b"mockup")
-                art.SHEETS, art.PLACEHOLDERS, art.ROOT = {"male": final}, (placeholder,), root
-                self.assertEqual(art.placeholder_sheets(), ["vvfp_grey_male_heads.png"])
-                final.write_bytes(b"the owner's art")
-                self.assertEqual(art.placeholder_sheets(), [])
-            finally:
-                art.SHEETS, art.PLACEHOLDERS, art.ROOT = original
-        import build_release
-        with tempfile.TemporaryDirectory() as folder:
-            original = build_release.ROOT, build_release.FILES
-            try:
-                root = Path(folder)
-                (root / "assets" / "vv1_grey_hair").mkdir(parents=True)
-                (root / "assets" / "vv1_grey_hair" / "PLACEHOLDER_grey_male.png").write_bytes(b"mockup")
-                (root / "assets" / "vv1_grey_hair" / "vvfp_grey_male_heads.png").write_bytes(b"mockup")
-                build_release.ROOT = root
-                build_release.FILES = ["assets/vv1_grey_hair/vvfp_grey_male_heads.png"]
-                with self.assertRaisesRegex(RuntimeError, "PLACEHOLDER"):
-                    build_release._refuse_placeholder_art()
-                (root / "assets" / "vv1_grey_hair" / "vvfp_grey_male_heads.png").write_bytes(b"the owner's art")
-                build_release._refuse_placeholder_art()
-            finally:
-                build_release.ROOT, build_release.FILES = original
 
 
 if __name__ == "__main__":
