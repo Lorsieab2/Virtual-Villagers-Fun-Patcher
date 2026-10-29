@@ -1843,7 +1843,7 @@ def main() -> None:
 
     # Change Appearance action cave.  Opens the companion DLL's custom
     # head+body chooser (ShowVV3AppearanceChooser) for the selected villager.
-    # The DLL returns 1 only when the head or body actually changed and (for a
+    # The DLL returns 1 only when the head, body, mask or head look changed and (for a
     # head change) the genetics warning was confirmed; it shows the "unchanged"
     # and warning boxes itself.  On that 1, this cave deducts the 5,000-tech
     # charge (detail_charge only verified funds) and writes the chosen head

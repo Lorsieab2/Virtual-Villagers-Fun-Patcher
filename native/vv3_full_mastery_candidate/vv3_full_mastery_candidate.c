@@ -14,6 +14,8 @@
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
+#include "../shared/original_look_client.h" /* Change Appearance's Reset to original */
+#include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 
 static HINSTANCE module_instance;
 
@@ -2340,9 +2342,17 @@ static int vv3_mask_build_batch_shadow(const int *idx,
 #define VV3_BODY_COUNT 30
 #include "vv3_head_buckets.h"
 
+/* A villager's original look for Reset to original, when known and in this window's ranges. */
+static int vv3_caf_original(const unsigned char *rec, int *head, int *body, int *mask) {
+    return vvfp_original_look(3, rec, head, body, mask) && *head >= 0 && *head < VV3_HEAD_COUNT
+        && *body >= 0 && *body < VV3_BODY_COUNT && *mask >= 0 && *mask <= VV3_MASK_MAX;
+}
+
+/* `reset`: Reset to original first -- each villager whose original look is known gets its original head,
+   body and mask -- and every other choice over it. */
 static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
                              int head_f, int body_f, int mask_f, int mask_mode,
-                             int head_mode, int body_mode) {
+                             int head_mode, int body_mode, int reset) {
     unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
     int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
     int idx[256], sex[256], order[256], desired_mask[256], mask_changed[256];
@@ -2351,8 +2361,9 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
     int mask_selected[256];
     unsigned int plan_fp[256], shadow_fp[256];
     unsigned char shadow_mask[256];
+    int orig_known[256], orig_head[256], orig_body[256], orig_mask[256];
     int n = 0, chief = -1, affected = 0, mask_changed_any = 0, i, s;
-    int mask_requested = (mask_mode != 0 || mask_m >= 0 || mask_f >= 0);
+    int mask_requested = (mask_mode != 0 || mask_m >= 0 || mask_f >= 0 || reset);
     g_vv3_caf_mask_fail = VV3_CAF_MASK_OK;
     g_vv3_caf_mask_persist_failed = 0;
     if (slots < 0) slots = 0;
@@ -2364,6 +2375,7 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         sex[n] = rec[VV3_GENDER] != 0;           /* 1 = female */
         plan_fp[n] = vv3_mask_fingerprint(rec);
         if (rec[VV3_CHIEF] != 0) chief = n;       /* the robe-wearing Tribal Chief */
+        orig_known[n] = reset && vv3_caf_original(rec, &orig_head[n], &orig_body[n], &orig_mask[n]);
         ++n;
     }
     /* Prepare the sidecar before planning; this may load but never writes it. */
@@ -2378,7 +2390,7 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         }
         for (i = 0; i < n; ++i)
             mask_selected[i] =
-                (mask_mode != 0 || (sex[i] ? mask_f : mask_m) >= 0);
+                (mask_mode != 0 || (sex[i] ? mask_f : mask_m) >= 0 || orig_known[i]);
     }
     /* Plan the village-wide Head/Body result BEFORE counting, for exactly the
        reason the mask plan below exists: Random and the hair buckets must be
@@ -2388,6 +2400,7 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
     for (i = 0; i < n; ++i) {
         if (head_mode <= 0) {
             plan_head[i] = sex[i] ? head_f : head_m;
+            if (plan_head[i] < 0 && orig_known[i]) plan_head[i] = orig_head[i];
         } else if (head_mode == 1) {
             head_rng = (head_rng * 1103515245u) + 12345u;
             plan_head[i] = (int)((head_rng >> 16) % (unsigned int)VV3_HEAD_COUNT);
@@ -2397,6 +2410,7 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         }
         if (body_mode <= 0) {
             plan_body[i] = sex[i] ? body_f : body_m;
+            if (plan_body[i] < 0 && orig_known[i]) plan_body[i] = orig_body[i];
         } else {
             head_rng = (head_rng * 1103515245u) + 12345u;
             plan_body[i] = (int)((head_rng >> 16) % (unsigned int)VV3_BODY_COUNT);
@@ -2409,8 +2423,10 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
        state and does not touch a villager, the mask table, or the sidecar. */
     if (mask_requested) {
         if (mask_mode == 0) {
-            for (i = 0; i < n; ++i)
+            for (i = 0; i < n; ++i) {
                 desired_mask[i] = sex[i] ? mask_f : mask_m;
+                if (desired_mask[i] < 0 && orig_known[i]) desired_mask[i] = orig_mask[i];
+            }
         } else if (mask_mode >= 5) {
             for (i = 0; i < n; ++i)
                 desired_mask[i] = mask_mode - 5;
@@ -3308,6 +3324,67 @@ static vvfp_head_look_api vv3_appearance_look_api;
 static int vv3_appearance_look_offered;
 static int vv3_appearance_look;      /* 0 Auto, 1 Young, 2 Old */
 static int vv3_appearance_age;
+/* Undo changes, Reset to original and the randoms (native/shared/appearance_extras.h): the villager, what
+   it looks like as the window opens, and the window's dice. */
+static const void *vv3_appearance_record;
+static int vv3_appearance_open_head, vv3_appearance_open_body, vv3_appearance_open_mask;
+static int vv3_appearance_open_look;
+static unsigned int vv3_appearance_rng;
+
+/* Every control as the chosen values say: the window's start, and after Undo changes or Reset to
+   original. */
+static void vv3_appearance_show(HWND window) {
+    vv3_appearance_old = vvfp_head_look_old(vv3_appearance_look, vv3_appearance_age);
+    SetDlgItemTextA(window, IDC_MASK_NAME, vv3_mask_names[vv3_appearance_mask]);
+    if (vv3_appearance_look_offered) {
+        CheckRadioButton(window, IDC_LOOK_AUTO, IDC_LOOK_OLD, IDC_LOOK_AUTO + vv3_appearance_look);
+    }
+    vv3_appearance_repaint(window, IDC_BODY_PREVIEW);
+    vv3_appearance_repaint(window, IDC_HEAD_PREVIEW);
+    vv3_appearance_repaint(window, IDC_MASK_PREVIEW);
+}
+
+/* The window's extra buttons; 1 when `command` was one. */
+static int vv3_appearance_extra(HWND window, unsigned int command) {
+    int male = !vv3_appearance_sex;
+    if (command == VVFP_AX_UNDO) {
+        vv3_appearance_head = vv3_appearance_open_head;
+        vv3_appearance_body = vv3_appearance_open_body;
+        vv3_appearance_mask = vv3_appearance_open_mask;
+        vv3_appearance_look = vv3_appearance_open_look;
+    } else if (command == VVFP_AX_RESET) {
+        int h, b, m;
+        if (!vvfp_original_look(3, vv3_appearance_record, &h, &b, &m) || h < 0 || h >= VV3_HEAD_COUNT
+            || b < 0 || b >= VV3_BODY_COUNT || m < 0 || m >= VV3_MASK_COUNT) {
+            MessageBoxA(window, VVFP_ORIGINAL_LOOK_UNKNOWN ". Nothing was changed.", "Villager Upgrades",
+                        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+            return 1;
+        }
+        vv3_appearance_head = h;
+        vv3_appearance_body = b;
+        vv3_appearance_mask = m;
+        if (vv3_appearance_look_offered) {
+            vv3_appearance_look = VVFP_HEAD_LOOK_AUTO;
+        }
+    } else if (command == VVFP_AX_RANDOM_HEAD) {
+        vv3_appearance_head = vvfp_ax_pick_other(&vv3_appearance_rng, VV3_HEAD_COUNT, vv3_appearance_head);
+    } else if (command >= VVFP_AX_HAIR_FIRST && command <= VVFP_AX_HAIR_LAST) {
+        int c = (int)(command - VVFP_AX_HAIR_FIRST);
+        vv3_appearance_head = vvfp_ax_pick_from(&vv3_appearance_rng,
+            male ? vv3_head_bucket_m[c] : vv3_head_bucket_f[c],
+            male ? vv3_head_bucket_m_count[c] : vv3_head_bucket_f_count[c], vv3_appearance_head);
+    } else if (command == VVFP_AX_RANDOM_BODY) {
+        vv3_appearance_body = vvfp_ax_pick_other(&vv3_appearance_rng, VV3_BODY_COUNT, vv3_appearance_body);
+    } else if (command == VVFP_AX_RANDOM_MASK) {
+        vv3_appearance_mask = vvfp_ax_pick_other(&vv3_appearance_rng, VV3_MASK_COUNT, vv3_appearance_mask);
+    } else if (command == VVFP_AX_RANDOM_LOOK && vv3_appearance_look_offered) {
+        vv3_appearance_look = vvfp_ax_random_look(&vv3_appearance_rng, vv3_appearance_look);
+    } else {
+        return 0;
+    }
+    vv3_appearance_show(window);
+    return 1;
+}
 
 static INT_PTR CALLBACK vv3_appearance_dialog(
     HWND window, UINT message, WPARAM wparam, LPARAM lparam
@@ -3320,10 +3397,7 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(3, window);   /* "OK deducts 0 tech points" */
         center_topmost_on_owner(window);
-        SetDlgItemTextA(window, IDC_MASK_NAME, vv3_mask_names[vv3_appearance_mask]);
-        if (vv3_appearance_look_offered) {
-            CheckRadioButton(window, IDC_LOOK_AUTO, IDC_LOOK_OLD, IDC_LOOK_AUTO + vv3_appearance_look);
-        }
+        vv3_appearance_show(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
@@ -3349,6 +3423,9 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
             vv3_appearance_look = (int)(command - IDC_LOOK_AUTO);
             vv3_appearance_old = vvfp_head_look_old(vv3_appearance_look, vv3_appearance_age);
             vv3_appearance_repaint(window, IDC_HEAD_PREVIEW);
+            return TRUE;
+        }
+        if (vv3_appearance_extra(window, command)) {
             return TRUE;
         }
         if (command == IDC_BODY_PREV) {
@@ -3739,6 +3816,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     int orig_mask;
     int cur_mask;
     int look_was;
+    int look_changed;
     vv3_appearance_sex = sex ? 1 : 0;
     vv3_appearance_age = age;
     vv3_appearance_look_offered = record != NULL && vvfp_head_look_find(3, &vv3_appearance_look_api);
@@ -3750,9 +3828,12 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     /* The mask choice comes from the DLL-owned table (never a record byte). */
     cur_mask = VV3_GetMaskForRecord(record);
     vv3_appearance_mask = (cur_mask >= 0 && cur_mask < VV3_MASK_COUNT) ? cur_mask : 0;
-    orig_head = vv3_appearance_head;
-    orig_body = vv3_appearance_body;
-    orig_mask = vv3_appearance_mask;
+    orig_head = vv3_appearance_open_head = vv3_appearance_head;
+    orig_body = vv3_appearance_open_body = vv3_appearance_body;
+    orig_mask = vv3_appearance_open_mask = vv3_appearance_mask;
+    vv3_appearance_open_look = vv3_appearance_look;
+    vv3_appearance_record = record;
+    vv3_appearance_rng = GetTickCount() | 1u;
 
     owner = begin_modal_over_game();
     result = DialogBoxParamA(
@@ -3768,25 +3849,10 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     if (result != 1) {
         return 0;
     }
-    /* The head look: kept on OK, free (VVFP Head Look.dll's own file).  The look alone changes nothing the
-       exe charges for, so it returns 0 with no message. */
-    if (vv3_appearance_look_offered && vv3_appearance_look != look_was) {
-        if (!vv3_appearance_look_api.set(3, record, vv3_appearance_look)) {
-            MessageBoxA(GetForegroundWindow(),
-                "The head look could not be kept: the patcher's file for this save could not be written. "
-                "Nothing was changed and no tech points have been deducted.",
-                "Villager Upgrades",
-                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
-            return 0;
-        }
-        if (vv3_appearance_head == orig_head && vv3_appearance_body == orig_body &&
-            vv3_appearance_mask == orig_mask) {
-            return 0;
-        }
-    }
+    look_changed = vv3_appearance_look_offered && vv3_appearance_look != look_was;
     /* OK with nothing changed: report it and do not charge. */
     if (vv3_appearance_head == orig_head && vv3_appearance_body == orig_body &&
-        vv3_appearance_mask == orig_mask) {
+        vv3_appearance_mask == orig_mask && !look_changed) {
         MessageBoxA(GetForegroundWindow(),
             "The appearance is unchanged. No tech points have been deducted.",
             "Villager Upgrades",
@@ -3819,6 +3885,19 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
                   "No appearance was changed and no tech points have been deducted."
                 : "The appearance could not be safely matched to this villager. "
                   "No tech points have been deducted.",
+            "Villager Upgrades",
+            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    /* The head look (VVFP Head Look.dll's own file), after the mask: a look that cannot be kept puts the
+       mask back and keeps nothing.  It is charged like any change -- alone too: the exe charges on 1. */
+    if (look_changed && !vv3_appearance_look_api.set(3, record, vv3_appearance_look)) {
+        if (vv3_appearance_mask != orig_mask) {
+            (void)VV3_SetMaskForRecord(record, orig_mask);
+        }
+        MessageBoxA(GetForegroundWindow(),
+            "The head look could not be kept: the patcher's file for this save could not be written. "
+            "Nothing was changed and no tech points have been deducted.",
             "Villager Upgrades",
             MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
@@ -3887,6 +3966,53 @@ static int caf_mask_mode;                          /* 0..10 (radio id - 3301) */
 #define IDC_CAF_BODY_LAST  3411
 static int caf_head_mode;   /* 0 = off, 1 = random, 2..6 = hair colour + 2 */
 static int caf_body_mode;   /* 0 = off, 1 = random */
+/* The Head look rows ([0] men, [1] women) and Reset to original (native/shared/appearance_extras.h). */
+static int caf_look[2];
+static int caf_reset;
+static vvfp_head_look_api caf_look_api;
+static int caf_look_offered;
+
+/* Every living active villager -- the ones vv3_apply_for_all covers -- calls `visit`. */
+static void caf_each_covered(void (*visit)(const unsigned char *rec, void *ctx), void *ctx) {
+    const unsigned char *rec = (const unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int i, slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    if (slots > 256) slots = 256;
+    for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
+        if (rec[VV3_ACTIVE] == 0 || *(const int *)(rec + VV3_HEALTH) <= 0) continue;
+        visit(rec, ctx);
+    }
+}
+
+static void caf_count_one(const unsigned char *rec, void *ctx) {
+    int h, b, m;
+    ++((int *)ctx)[vv3_caf_original(rec, &h, &b, &m) ? 0 : 1];
+}
+
+static void caf_plan_one(const unsigned char *rec, void *ctx) {
+    int h, b, m;
+    vvfp_ax_look_plan_add((vvfp_ax_look_plan *)ctx, &caf_look_api, 3, rec, caf_look[rec[VV3_GENDER] != 0 ? 1 : 0],
+                          caf_reset && vv3_caf_original(rec, &h, &b, &m), &caf_rng);
+}
+
+/* Every control to its start: the window opening, and Undo changes. */
+static void caf_start(HWND w) {
+    int r;
+    caf_m_head = caf_m_body = caf_m_mask = -1;
+    caf_f_head = caf_f_body = caf_f_mask = -1;
+    caf_mask_mode = 0;
+    caf_head_mode = caf_body_mode = 0;
+    caf_reset = 0;
+    for (r = 0; r < IDC_CAF_MODE_COUNT; ++r)
+        CheckDlgButton(w, IDC_CAF_MODE_FIRST + r, r == caf_mask_mode ? BST_CHECKED : BST_UNCHECKED);
+    SetDlgItemTextA(w, IDC_CAF_M_MASK_T, "No change");
+    SetDlgItemTextA(w, IDC_CAF_F_MASK_T, "No change");
+    for (r = IDC_CAF_HEAD_FIRST; r <= IDC_CAF_HEAD_LAST; ++r)
+        CheckDlgButton(w, r, r == IDC_CAF_HEAD_FIRST ? BST_CHECKED : BST_UNCHECKED);
+    for (r = IDC_CAF_BODY_FIRST; r <= IDC_CAF_BODY_LAST; ++r)
+        CheckDlgButton(w, r, r == IDC_CAF_BODY_FIRST ? BST_CHECKED : BST_UNCHECKED);
+    vvfp_ax_look_rows_init(w, caf_look_offered, caf_look);
+    for (r = IDC_CAF_M_BODY; r <= IDC_CAF_F_MASK_T; ++r) InvalidateRect(GetDlgItem(w, r), NULL, TRUE);
+}
 
 static const char *const caf_mode_names[10] = {
     "Off (use per-sex)", "VV5-style", "Random", "Equal",
@@ -3964,19 +4090,9 @@ static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
     }
     (void)lp;
     if (msg == WM_INITDIALOG) {
-        int r;
         vvfp_story_relabel(3, w);   /* "OK deducts 0 tech points" */
         center_topmost_on_owner(w);
-        for (r = 0; r < IDC_CAF_MODE_COUNT; ++r)
-            CheckDlgButton(w, IDC_CAF_MODE_FIRST + r, r == caf_mask_mode ? BST_CHECKED : BST_UNCHECKED);
-        SetDlgItemTextA(w, IDC_CAF_M_MASK_T, caf_mask_text(caf_m_mask));
-        SetDlgItemTextA(w, IDC_CAF_F_MASK_T, caf_mask_text(caf_f_mask));
-        for (r = IDC_CAF_HEAD_FIRST; r <= IDC_CAF_HEAD_LAST; ++r)
-            CheckDlgButton(w, r, (r - IDC_CAF_HEAD_FIRST) == caf_head_mode
-                                 ? BST_CHECKED : BST_UNCHECKED);
-        for (r = IDC_CAF_BODY_FIRST; r <= IDC_CAF_BODY_LAST; ++r)
-            CheckDlgButton(w, r, (r - IDC_CAF_BODY_FIRST) == caf_body_mode
-                                 ? BST_CHECKED : BST_UNCHECKED);
+        caf_start(w);
         caf_set_mask_enable(w);
         caf_set_head_body_enable(w);
         return TRUE;
@@ -3997,6 +4113,19 @@ static INT_PTR CALLBACK vv3_caf_dialog(HWND w, UINT msg, WPARAM wp, LPARAM lp) {
            never satisfy the 3301..3310 test, so nesting them there left both
            modes stuck at zero: the radio looked selected through the control's
            own behaviour while OK saw no override at all. */
+        if (vvfp_ax_look_rows_command(id, caf_look)) return TRUE;
+        if (id == VVFP_AX_UNDO) {
+            caf_start(w);
+            caf_set_mask_enable(w);
+            caf_set_head_body_enable(w);
+            return TRUE;
+        }
+        if (id == VVFP_AX_RESET) {
+            int counts[2] = { 0, 0 };
+            caf_each_covered(caf_count_one, counts);
+            if (vvfp_ax_reset_all_ask(w, "Change Appearance for All", counts[0], counts[1])) caf_reset = 1;
+            return TRUE;
+        }
         if (id >= IDC_CAF_HEAD_FIRST && id <= IDC_CAF_HEAD_LAST) {
             caf_head_mode = (int)(id - IDC_CAF_HEAD_FIRST);
             caf_set_head_body_enable(w);
@@ -4049,10 +4178,10 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
     int *tech = (int *)(UINT_PTR)VV3_TECH_POINTS;
     INT_PTR result;
     int changed, affected;
-    caf_m_head = caf_m_body = caf_m_mask = -1;
-    caf_f_head = caf_f_body = caf_f_mask = -1;
-    caf_mask_mode = 0;
-    caf_head_mode = caf_body_mode = 0;
+    int counts[2] = { 0, 0 };
+    static vvfp_ax_look_plan looks;
+    char done[320];
+    caf_look_offered = vvfp_head_look_find(3, &caf_look_api);
 
     begin_modal_over_game();
     result = DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_VV3_APPEARANCE_ALL),
@@ -4062,7 +4191,8 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
     }
     changed = (caf_m_head >= 0 || caf_m_body >= 0 || caf_f_head >= 0 || caf_f_body >= 0
                || caf_mask_mode != 0 || caf_m_mask >= 0 || caf_f_mask >= 0
-               || caf_head_mode != 0 || caf_body_mode != 0);
+               || caf_head_mode != 0 || caf_body_mode != 0 || caf_reset
+               || caf_look[0] != VVFP_AX_LEAVE || caf_look[1] != VVFP_AX_LEAVE);
     if (!changed) {
         MessageBoxA(GetForegroundWindow(),
             "Nothing was selected to change. No tech points have been deducted.",
@@ -4075,7 +4205,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
         return 0;
     }
     /* Head is hereditary -> one genetics warning at village scale; Cancel = no charge. */
-    if (caf_m_head >= 0 || caf_f_head >= 0 || caf_head_mode != 0) {
+    if (caf_m_head >= 0 || caf_f_head >= 0 || caf_head_mode != 0 || caf_reset) {
         if (MessageBoxA(GetForegroundWindow(),
                 "Warning: This will change the head genetics of every villager "
                 "of the selected sex, affecting their descendants.\r\n\r\n"
@@ -4086,9 +4216,26 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
             return 0;
         }
     }
+    /* The looks first, in one write; put back when the rest of the same OK cannot be kept. */
+    caf_each_covered(caf_count_one, counts);
+    looks.count = 0;
+    if (caf_look_offered) caf_each_covered(caf_plan_one, &looks);
+    if (!vvfp_ax_look_plan_commit(&looks, &caf_look_api, 3)) {
+        MessageBoxA(GetForegroundWindow(),
+            "The head looks could not be kept: the patcher's file for this save could not be written. "
+            "Nothing was changed and no tech points have been deducted.",
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
     affected = vv3_apply_for_all(caf_m_head, caf_m_body, caf_m_mask,
                                  caf_f_head, caf_f_body, caf_f_mask, caf_mask_mode,
-                                 caf_head_mode, caf_body_mode);
+                                 caf_head_mode, caf_body_mode, caf_reset);
+    if (g_vv3_caf_mask_persist_failed || g_vv3_caf_mask_fail != VV3_CAF_MASK_OK) {
+        vvfp_ax_look_plan_undo(&looks, &caf_look_api, 3);
+        affected = 0;
+    } else {
+        affected += looks.count;
+    }
     if (affected == 0) {
         const char *why;
         if (g_vv3_caf_mask_persist_failed) {
@@ -4119,8 +4266,8 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceForAll(void) {
         return 0;
     }
     *tech -= vvfp_story_price(3, VV3_CAF_COST);
-    MessageBoxA(GetForegroundWindow(),
-        "Change Appearance for All applied.",
+    vvfp_ax_applied_text(done, "Change Appearance for All applied.", caf_reset, counts[1]);
+    MessageBoxA(GetForegroundWindow(), done,
         "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;
 }

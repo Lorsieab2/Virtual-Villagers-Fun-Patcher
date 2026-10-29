@@ -91,7 +91,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertIn("static int vv3_apply_for_all", dll)
         engine = dll.split("static int vv3_apply_for_all", 1)[1].split("\n}", 1)[0]
         self.assertIn("int n = 0, chief = -1, affected = 0", engine)
-        self.assertIn("mask_requested = (mask_mode != 0 || mask_m >= 0 || mask_f >= 0)", engine)
+        self.assertIn("mask_requested = (mask_mode != 0 || mask_m >= 0 || mask_f >= 0 || reset)", engine)
         self.assertIn("if (affected == 0)", engine)
         self.assertIn("return affected;", engine)
 
@@ -139,7 +139,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         # A per-sex selector of -1 must not turn an inapplicable mask into a
         # synthetic difference for the other sex.
         self.assertIn(
-            "(mask_mode != 0 || (sex[i] ? mask_f : mask_m) >= 0)",
+            "(mask_mode != 0 || (sex[i] ? mask_f : mask_m) >= 0 || orig_known[i])",
             engine,
         )
         self.assertIn(

@@ -13,6 +13,8 @@
 #include "../shared/foreign_sidecar.h" /* another village's file is never replaced */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
+#include "../shared/original_look_client.h" /* Change Appearance's Reset to original */
+#include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),

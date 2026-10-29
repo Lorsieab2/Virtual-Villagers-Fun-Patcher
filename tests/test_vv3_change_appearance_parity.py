@@ -44,9 +44,9 @@ HEADER = ROOT / "native" / "vv3_full_mastery_candidate" / "vv3_head_buckets.h"
 # The shared right-column geometry, taken from the four games that already
 # agree on it. Same captions, same boxes, same coordinates.
 SHARED_GROUPS = (
-    ('"Village-wide Heads"', 382, 2, 232, 104),
-    ('"Village-wide Bodies"', 382, 110, 232, 40),
-    ('"Village-wide Single Mask Color"', 382, 152, 232, 62),
+    ('"Village-wide Heads"', 382, 2, 232, 120),
+    ('"Village-wide Bodies"', 382, 126, 232, 40),
+    ('"Village-wide Single Mask Color"', 382, 168, 232, 78),
 )
 
 
@@ -63,7 +63,7 @@ class LayoutMatchesTheOtherGamesTests(unittest.TestCase):
         cls.rc = RC.read_text(encoding="utf-8", errors="surrogateescape")
 
     def test_the_dialog_is_the_shared_two_column_size(self) -> None:
-        self.assertRegex(self.rc, r"214 DIALOGEX 0, 0, 620, 340")
+        self.assertRegex(self.rc, r"214 DIALOGEX 0, 0, 620, 346")
 
     def test_it_centres_like_the_others(self) -> None:
         """Every other game's copy carries DS_CENTER; VV3's did not."""
@@ -82,7 +82,7 @@ class LayoutMatchesTheOtherGamesTests(unittest.TestCase):
     def test_the_mask_distribution_box_runs_full_width_along_the_bottom(self) -> None:
         self.assertRegex(
             self.dlg,
-            r'GROUPBOX\s+"Mask Distribution \(all villagers\)", -1, 6, 218, 608, 80',
+            r'GROUPBOX\s+"Mask Distribution \(all villagers\)", -1, 6, 250, 608, 54',
         )
 
     def test_the_head_override_offers_off_random_and_five_hair_colours(self) -> None:
@@ -138,7 +138,7 @@ class MaskColumnKeepsItsHeaderTests(unittest.TestCase):
     def test_the_header_still_reads_mask(self) -> None:
         dlg = dialog()
         self.assertRegex(dlg, r'CTEXT\s+"Mask", -1, 272, 12, 50, 9')
-        self.assertRegex(dlg, r'CTEXT\s+"Mask", -1, 272, 120, 50, 9')
+        self.assertRegex(dlg, r'CTEXT\s+"Mask", -1, 272, 136, 50, 9')
 
     def test_the_colour_name_has_its_own_control(self) -> None:
         dlg = dialog()
@@ -147,9 +147,9 @@ class MaskColumnKeepsItsHeaderTests(unittest.TestCase):
                 self.assertRegex(dlg, r'CTEXT\s+"", %d,' % rid)
 
     def test_those_controls_sit_inside_their_panels(self) -> None:
-        """The male panel is 6,2,368,104 and the female 6,110,368,104."""
+        """The male panel is 6,2,368,120 and the female 6,126,368,120 (each with its Head look row)."""
         dlg = dialog()
-        for rid, top, bottom in ((3210, 2, 106), (3230, 110, 214)):
+        for rid, top, bottom in ((3210, 2, 122), (3230, 126, 246)):
             with self.subTest(id=rid):
                 m = re.search(r'CTEXT\s+"", %d, \d+, (\d+), \d+, (\d+)' % rid, dlg)
                 self.assertIsNotNone(m)
@@ -216,7 +216,7 @@ class DefectsFoundInReviewTests(unittest.TestCase):
                         "the Body handler must run before the mask branch")
 
     def test_no_left_panel_crosses_the_full_width_bottom_group(self) -> None:
-        """The bottom group starts at y=218; a 110-tall female panel ends at 226."""
+        """The bottom group starts at y=250, under the female panel (126 + 120)."""
         dlg = dialog()
         for caption in ('"Male Villagers"', '"Female Villagers"'):
             with self.subTest(panel=caption):
@@ -227,7 +227,7 @@ class DefectsFoundInReviewTests(unittest.TestCase):
                 self.assertIsNotNone(m, caption + " is missing")
                 top, height = int(m.group(1)), int(m.group(2))
                 self.assertLessEqual(
-                    top + height, 218,
+                    top + height, 250,
                     caption + " overlaps the Mask Distribution group",
                 )
 
