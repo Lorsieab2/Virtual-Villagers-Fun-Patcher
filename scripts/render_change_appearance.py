@@ -114,7 +114,7 @@ def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int
                 style = user32.GetWindowLongW(child, -16)
                 name = ctypes.create_unicode_buffer(32)
                 user32.GetClassNameW(child, name, 32)
-                is_radio = name.value.lower() == "button" and style & 0xF == 9
+                is_radio = name.value.lower() == "button" and style & 0xF in (4, 9)   # BS_RADIOBUTTON, BS_AUTORADIOBUTTON
                 wanted = user32.GetDlgCtrlID(child) in checked if checked else style & 0x00020000   # first of a group
                 if is_radio and wanted:
                     user32.SendMessageW(child, 0x00F1, 1, 0)   # BM_SETCHECK

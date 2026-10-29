@@ -288,6 +288,21 @@ that villager is marked "not known" and Reset to original says so. Villagers
 the patch sees itself -- born or arrived, or already there the first time you
 play the village with it -- need nothing from the logs.
 
+CHANGE APPEARANCE (Villager Upgrades and Change Appearance for All)
+
+Change Appearance has Undo changes (every choice back to how the villager
+looks now; nothing is kept or charged), Reset to original (the original head,
+body and mask with head look Auto; "Original look not known" when the
+Original Looks patch cannot tell), Random head, Random body, Random mask, a
+Random look (Young or Old) and Head by hair colour (Black, Brown, Red /
+Ginger, Blonde, Other, for the villager's own sex). Each shows in the preview;
+press again to roll again; Cancel keeps nothing. OK costs 5,000 tech points
+for any change, a head look alone too. Change Appearance for All has a Head
+look row for the men and one for the women (Leave as is, Auto, Young, Old,
+Random), and its own Undo changes and Reset to original, which tells how many
+villagers' originals are not known. In A New Home the head look shows only
+with Grey Hair at 55.
+
 GAME MECHANICS
 
 On the Tools tab, click Game Mechanics... (or Game mechanics... on any game's
