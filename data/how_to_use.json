@@ -566,6 +566,16 @@
       ]
     },
     {
+      "ids": ["vv1_original_look", "vv2_original_look", "vv3_original_look", "vv4_original_look", "vv5_original_look"],
+      "guide": [
+        "Nothing to click: tick the patch, and each villager's look is noted the first time the patcher sees them.",
+        "Change Appearance's Reset to original then puts their head, body and mask back to that look, with the head look on Auto.",
+        "For a village you already have, Repair Saves & Logs adds the looks the logs prove for villagers changed before; it never guesses.",
+        "Where no original is known, Change Appearance says so. Start Over clears them; Back Up Saves copies them.",
+        "Needs Origins (ticked with it). On by default. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv4_difficulty_settings", "vv5_difficulty_settings"],
       "guide": [
         "Open Options (in the game's menu) and choose Easy, Normal or Hard on the Difficulty row, above Game Speed.",

@@ -277,6 +277,16 @@ first and listed in the Repairs log), and the go-ahead is then used up.
    asked: A New Home's parents are repaired as soon as the village has
    settled, everything else at the game's save when you close it.
 
+Repair Saves & Logs also adds the ORIGINAL LOOKS the logs prove (the Original
+Looks patch, on by default): for each villager whose head or body Change
+Appearance or an island event changed, the look before their earliest
+"Appearance changed" record, which Change Appearance's "Reset to original"
+puts back. It never guesses: where the logs cannot prove a villager's
+original (a change seen with no record of it, a mask the logs never named),
+that villager is marked "not known" and Reset to original says so. Villagers
+the patch sees itself -- born or arrived, or already there the first time you
+play the village with it -- need nothing from the logs.
+
 GAME MECHANICS
 
 On the Tools tab, click Game Mechanics... (or Game mechanics... on any game's
@@ -1009,6 +1019,19 @@ Fun Patcher Data", one file per save slot:
                                                     Deleted by Start Over; delete
                                                     it yourself and every look is
                                                     Auto again)
+    Original Looks\                                (Original Looks: each villager's
+        Original Looks - Save <slot>.dat            head, body and mask before any
+                                                    change, for Change Appearance's
+                                                    Reset to original; all five
+                                                    games. Written in the save's
+                                                    own folder, Virtual Villagers
+                                                    Fun Patcher\Save <slot>\Data\
+                                                    Original Looks; Repair Saves &
+                                                    Logs adds what the logs prove.
+                                                    Deleted by Start Over; delete
+                                                    it yourself and every original
+                                                    is noted again as each villager
+                                                    looks now)
     Paid Purchases\                                (Origins Barrel of Babies)
         Virtual Villagers 1 Paid Purchases - Save <slot>.dat     A New Home
         Virtual Villagers 2 Paid Purchases - Save <slot>.dat     The Lost Children

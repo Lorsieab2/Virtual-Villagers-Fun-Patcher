@@ -368,6 +368,7 @@ class ApprovalResult:
     answered: list = field(default_factory=list)  # the reconciliation's questions the player answered
     renamed: dict = field(default_factory=dict)  # (name, head, body) -> the name an answer gave back
     kept_answers: list = field(default_factory=list)  # answers kept, changed or cleared (vv_answered_questions)
+    originals: object | None = None             # src/vv_original_look.py Result: the logs' original looks added
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -561,6 +562,20 @@ def approve_repair(
                              checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id],
                              unit="record(s)" if kind.id in ("contradictions", "false_unaccounted") else "villager(s)",
                              slot=slot)
+    # The original looks behind Change Appearance's "Reset to original" (src/vv_original_look.py, the owner,
+    # 2026-10-28): what the logs prove of the villagers changed before "VVFP Original Look.dll" first saw
+    # them, added to the save's Original Looks file -- after the names above are given back, so each is keyed
+    # by the name the save has now.  It never guesses, and it never stops a Repair: a file or log it cannot
+    # read leaves the Original Looks file as it was.
+    import vv_last_names
+    import vv_original_look
+    import vv_reconcile
+    try:
+        originals = vv_original_look.backfill(folder, game, slot)
+    except (vv_original_look.OriginalLookError, vv_reconcile.ReconcileError, vv_last_names.LastNamesError, OSError,
+            ValueError, KeyError, IndexError, struct.error) as exc:
+        originals = vv_original_look.Result(vv_original_look.path(folder, slot), False,
+                                            note=f"the original looks were not added ({exc})")
     # Nothing is moved or renamed: an older build's folders and files keep their names, and every
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
@@ -575,7 +590,7 @@ def approve_repair(
         except (vv_save_backup.BackupError, OSError):
             kept_backup = backup                # kept: an unneeded backup is never a fault
     return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, kept_backup, words,
-                          added.get("sex", []), added, answered, renamed, answer_lines)
+                          added.get("sex", []), added, answered, renamed, answer_lines, originals)
 
 
 # ---------------------------------------------------------------------------

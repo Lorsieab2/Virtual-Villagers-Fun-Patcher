@@ -43,6 +43,7 @@ adding to it there until the player moves it.
 | Graves Logged, Custom Island Event Deaths, Former Heathens | `...Data\Deaths`, `...\Custom Island Event Deaths`, `...\Former Heathens` | per save | native/vvfp_cause_of_death/cod_backfill.inc cod_data_path |
 | Custom Titles | `...Data\Custom Titles` | per save | native/vvfp_story_upgrades/story_titles.inc; readers in parentage/population exporters |
 | Head Looks (Change Appearance's Auto / Young / Old) | `...Data\Head Looks` | per save; new in this layout only (never in the older layout) | native/vvfp_head_look/head_look_store.inc |
+| Original Looks (Change Appearance's Reset to original) | `...Data\Original Looks` | per save; new in this layout only (never in the older layout) | native/vvfp_original_look/original_look_store.inc; src/vv_original_look.py (Repair Saves & Logs adds the logs' originals) |
 | Paid / Story Purchases | `...Data\Paid Purchases` | per save | native/shared/paid_purchases.h |
 | Log Checks (Repair Approved, Cross-Check marker, Log Decisions) | `...Data\Log Checks` | per save | native/shared/crosscheck_bridge.h, native/vv1_parentage/vv1_crosscheck.inc, src/vv_log_tools.py, src/vv_log_decisions.py |
 | Last Names, Missing Last Names | `...Data\Last Names` | per save | native/vvfp_last_names/vvfp_last_names.c, native/shared/crosscheck_bridge.h, src/vv_last_names.py |
