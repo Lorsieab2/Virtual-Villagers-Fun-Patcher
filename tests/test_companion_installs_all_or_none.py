@@ -248,6 +248,17 @@ class Machine(Process):
     def _api_GetTickCount(self):
         return 1000, 0
 
+    # The original looks companion's look between frames (native/vvfp_original_look): a message hook on the
+    # game's own thread and a thread timer, set after its splices.
+    def _api_GetCurrentThreadId(self):
+        return 0x1234, 0
+
+    def _api_SetWindowsHookExA(self):
+        return 0x77, 16
+
+    def _api_SetTimer(self):
+        return 1, 16
+
     def _api_QueryPerformanceFrequency(self):
         self.write(self.arg(0), struct.pack("<Q", 1000000))
         return 1, 4
@@ -358,6 +369,9 @@ CASES = [
     Case("Head Look", "assets/head_look/VVFP Head Look.dll", (2, 3, 4, 5),
          lambda g: [f"vv{g}_enable_origins_exclusive_features"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeadLookInstalled", g))[1]),
+    # The original looks (each game's Original Looks row): the game's own writers of a villager's body.
+    Case("Original Look", "assets/original_look/VVFP Original Look.dll", (2, 3, 4, 5),
+         lambda g: [f"vv{g}_original_look"], _startup, reports=False),
     Case("Work First", "assets/work_first/VVFP Work First.dll", (1, 2, 4, 5),
          lambda g: [f"vv{g}_builders_and_healers_work_first"],
          lambda m, g: m.export("VvfpWorkFirstInstall", g)),

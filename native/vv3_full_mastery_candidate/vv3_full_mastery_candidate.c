@@ -14,7 +14,7 @@
 #include "../shared/orphan_masks.h"  /* the cross-check's orphan mask entries */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
-#include "../shared/original_look_client.h" /* Change Appearance's Reset to original */
+#include "../shared/original_look.h"  /* Change Appearance's Reset to original */
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 
 static HINSTANCE module_instance;
@@ -2544,10 +2544,12 @@ static int vv3_apply_for_all(int head_m, int body_m, int mask_m,
         int b = plan_body[i];
         int old_head = *(int *)(r + VV3_HEAD_OFF);
         int old_body = *(int *)(r + VV3_BODY_OFF);
+        int old_mask = VV3_GetMaskForRecord(r);   /* the live table is committed after this pass */
         if (h >= 0 && *(int *)(r + VV3_HEAD_OFF) != h) *(int *)(r + VV3_HEAD_OFF) = h;
         if (b >= 0 && *(int *)(r + VV3_BODY_OFF) != b) *(int *)(r + VV3_BODY_OFF) = b;
-        /* Change Appearance for All is logged too (Codex, #558). */
-        vv_log_appearance(3, r, old_head, old_body, *(int *)(r + VV3_HEAD_OFF), *(int *)(r + VV3_BODY_OFF));
+        /* Change Appearance for All is logged too (Codex, #558), with the masks. */
+        vv_log_appearance_mask(3, r, old_head, old_body, old_mask, *(int *)(r + VV3_HEAD_OFF),
+                               *(int *)(r + VV3_BODY_OFF), mask_changed[i] ? desired_mask[i] : old_mask);
     }
     /* Publish the already-proven, already-persisted scratch table as one
        in-memory commit.  Individual setters are intentionally not used here. */
@@ -3909,7 +3911,8 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
         *body = vv3_appearance_body;
     }
     /* The exe writes the new look into the record and charges for it as this returns 1. */
-    vv_log_appearance(3, record, orig_head, orig_body, vv3_appearance_head, vv3_appearance_body);
+    vv_log_appearance_mask(3, record, orig_head, orig_body, orig_mask, vv3_appearance_head, vv3_appearance_body,
+                           vv3_appearance_mask);
     return 1;
 }
 

@@ -34,7 +34,7 @@ class AppearanceChangeLogTests(unittest.TestCase):
                 self.assertTrue('#include "../shared/appearance_log.h"' in text
                                 or '#include "../vv1_origins_icons/vv1_origins_icons.c"' in text)
                 # Change Appearance and Change Appearance for All (Codex, #558).
-                self.assertEqual(text.count(f"vv_log_appearance({game}, "), 2)
+                self.assertEqual(text.count(f"vv_log_appearance_mask({game}, "), 2)
 
     def test_change_appearance_for_all_logs_each_villager_after_writing_them(self) -> None:
         # Codex, #558: the whole-village changes link each old look too.
@@ -50,7 +50,7 @@ class AppearanceChangeLogTests(unittest.TestCase):
                 text = COMPANIONS[game].read_text(encoding="utf-8")
                 begin = text.index(start)
                 write = text.index(last_write, begin)
-                self.assertLess(write, text.index(f"vv_log_appearance({game}, ", begin))
+                self.assertLess(write, text.index(f"vv_log_appearance_mask({game}, ", begin))
 
     def test_the_log_skips_an_unchanged_look_and_never_writes_the_villager(self) -> None:
         text = (NATIVE / "shared" / "appearance_log.h").read_text(encoding="utf-8")
@@ -63,7 +63,7 @@ class AppearanceChangeLogTests(unittest.TestCase):
     def test_vv3_logs_after_a_committed_mask_and_the_staged_look(self) -> None:
         text = COMPANIONS[3].read_text(encoding="utf-8")
         chooser = text.split("ShowVV3AppearanceChooser", 1)[1].split("Change Appearance for All dialog", 1)[0]
-        log = chooser.index("vv_log_appearance(3, ")
+        log = chooser.index("vv_log_appearance_mask(3, ")
         self.assertLess(chooser.index("!VV3_SetMaskForRecord(record, vv3_appearance_mask)"), log)
         self.assertLess(chooser.index("*body = vv3_appearance_body;"), log)
         self.assertEqual(chooser[log:].split(";", 1)[1].split("}", 1)[0].strip(), "return 1;")
@@ -74,14 +74,17 @@ class AppearanceChangeLogTests(unittest.TestCase):
         log = routine.index("push 0x{s['logappearance_export']:X}")
         self.assertLess(routine.index("mov dword ptr [esi+0x1BBC], eax"), log)
         self.assertLess(log, routine.index("push -5000"))
-        # Old head, old body, new head, new body and the record, as the export takes them.
+        # The record, old head, old body, old mask (mask_get before the chooser), new head, new body and the
+        # chosen mask, as the export takes them.
         call = routine[log:].split("log_skip:", 1)[0]
         self.assertIn(
-            "push dword ptr [ebp-0x20]\n        push dword ptr [ebp-0x1C]\n"
-            "        push dword ptr [ebp-0x30]\n        push dword ptr [ebp-0x2C]\n"
+            "push dword ptr [ebp-0x24]\n        push dword ptr [ebp-0x20]\n        push dword ptr [ebp-0x1C]\n"
+            "        push dword ptr [ebp-0x14]\n        push dword ptr [ebp-0x30]\n        push dword ptr [ebp-0x2C]\n"
             "        push dword ptr [ebp-0x18]\n        call eax",
             call,
         )
+        self.assertLess(routine.index("call 0x{page_va + OFF['mask_get']:X}\n        mov dword ptr [ebp-0x24], eax\n"
+                                      "        mov dword ptr [ebp-0x14], eax"), log)
 
     def test_vv5_companion_exports_the_logger_and_the_stock_pages_name_it(self) -> None:
         pe = pefile.PE(str(VV5_DLL))

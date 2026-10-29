@@ -19,7 +19,7 @@
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/vv1_grey_hair.h"  /* Grey Hair at 55: the picker previews a grey head */
 #include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
-#include "../shared/original_look_client.h" /* Change Appearance's Reset to original */
+#include "../shared/original_look.h"  /* Change Appearance's Reset to original */
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 
 /* Which game this file is compiled for, for the Story / Cheat Upgrades
@@ -3107,8 +3107,9 @@ int __stdcall ShowOriginsAppearancePicker(
         (LPARAM)(UINT_PTR)villager
     );
     if (result == 1) {                  /* changed and kept: the exe charges for it next */
-        vv_log_appearance(1, villager, appearance_state.original_head, appearance_state.original_body,
-                          *(int *)(villager + VV_HEAD_OFFSET), *(int *)(villager + VV_CLOTHING_OFFSET));
+        vv_log_appearance_mask(1, villager, appearance_state.original_head, appearance_state.original_body,
+                               appearance_state.original_mask, *(int *)(villager + VV_HEAD_OFFSET),
+                               *(int *)(villager + VV_CLOTHING_OFFSET), vv1_mask_get(villager));
     }
     return result;
 }
@@ -3214,19 +3215,24 @@ static int forall_apply(void) {
     int ho = forall_state.heads_override;
     int bo = forall_state.bodies_override;
     int i, occ = 0, changed = 0;
+    static int old_head[VV_MASK_SLOTS], old_body[VV_MASK_SLOTS], old_mask[VV_MASK_SLOTS];
     if (base == NULL) {
         return 0;
     }
     forall_state.rng ^= GetTickCount() * 2654435761u;
     for (i = 0; i < VV_MASK_SLOTS; i++) {
+        old_head[i] = old_body[i] = old_mask[i] = 0;
+    }
+    for (i = 0; i < VV_MASK_SLOTS; i++) {
         unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
-        int male, hcount, bcount, old_head, old_body;
+        int male, hcount, bcount;
         if (rec[VV_OCCUPIED_OFFSET] != 1) {
             continue;
         }
         occ++;
-        old_head = *(int *)(rec + VV_HEAD_OFFSET);
-        old_body = *(int *)(rec + VV_CLOTHING_OFFSET);
+        old_head[i] = *(int *)(rec + VV_HEAD_OFFSET);
+        old_body[i] = *(int *)(rec + VV_CLOTHING_OFFSET);
+        old_mask[i] = vv1_mask_get(rec);
         male = (*(int *)(rec + VV_GENDER_OFFSET) == VV_GENDER_MALE);
         hcount = male ? VV_HEAD_COUNT_M : VV_HEAD_COUNT_F;
         bcount = male ? VV_BODY_COUNT_M : VV_BODY_COUNT_F;
@@ -3274,9 +3280,6 @@ static int forall_apply(void) {
                 *(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++;
             }
         }
-        /* Change Appearance for All is logged too (Codex, #558). */
-        vv_log_appearance(1, rec, old_head, old_body, *(int *)(rec + VV_HEAD_OFFSET),
-                          *(int *)(rec + VV_CLOTHING_OFFSET));
         /* MASK: per-sex only when there is no whole-village mask override */
         if (mo == 0) {
             int m = male ? forall_state.male_mask : forall_state.female_mask;
@@ -3297,10 +3300,16 @@ static int forall_apply(void) {
         if (forall_state.reset && changed) {
             vv1_mask_sidecar_save();   /* Reset to original's masks, under the distribution */
         }
-        return changed;
-    }
-    if (changed) {
+    } else if (changed) {
         vv1_mask_sidecar_save();
+    }
+    /* Change Appearance for All is logged too (Codex, #558), with the masks once every one is set. */
+    for (i = 0; i < VV_MASK_SLOTS; i++) {
+        unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
+        if (rec[VV_OCCUPIED_OFFSET] == 1) {
+            vv_log_appearance_mask(1, rec, old_head[i], old_body[i], old_mask[i], *(int *)(rec + VV_HEAD_OFFSET),
+                                   *(int *)(rec + VV_CLOTHING_OFFSET), vv1_mask_get(rec));
+        }
     }
     return changed;
 }

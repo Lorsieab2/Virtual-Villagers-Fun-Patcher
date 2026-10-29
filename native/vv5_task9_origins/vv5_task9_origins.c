@@ -16,7 +16,7 @@
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/appearance_log.h" /* "Appearance changed" in the Births and Conceptions log */
 #include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
-#include "../shared/original_look_client.h" /* Change Appearance's Reset to original */
+#include "../shared/original_look.h"  /* Change Appearance's Reset to original */
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
@@ -1443,7 +1443,7 @@ static INT_PTR CALLBACK appearance_dialog(
         }
         if (command == VVFP_AX_RESET) {
             int h, b, m;
-            if (GetModuleHandleA(VVFP_ORIGINAL_LOOK_DLL) == NULL   /* the selected villager is asked for only then */
+            if (vvfp_original_look_find() == NULL   /* the selected villager is asked for only then */
                 || !vvfp_original_look(5, vv5_selected_record(appearance_sex, appearance_age), &h, &b, &m) || h < 0 || h >= APPEARANCE_HEAD_COUNT
                 || b < 0 || b >= APPEARANCE_BODY_COUNT || m < 0 || m >= APPEARANCE_MASK_COUNT) {
                 MessageBoxA(window, VVFP_ORIGINAL_LOOK_UNKNOWN ". Nothing was changed.", "Change Appearance",
@@ -1611,8 +1611,10 @@ __declspec(dllexport) void __stdcall LogVV5AppearanceChange(
     const void *record,
     int old_head,
     int old_body,
+    int old_mask,
     int new_head,
-    int new_body
+    int new_body,
+    int new_mask
 ) {
     /* The router has written the new head, body and mask: the look chosen with them is kept now, before
        the router's charge. */
@@ -1624,7 +1626,7 @@ __declspec(dllexport) void __stdcall LogVV5AppearanceChange(
         }
     }
     appearance_pending_record = NULL;
-    vv_log_appearance(5, record, old_head, old_body, new_head, new_body);
+    vv_log_appearance_mask(5, record, old_head, old_body, old_mask, new_head, new_body, new_mask);
 }
 
 __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table);
@@ -1885,6 +1887,7 @@ static int caf_apply(void) {
     int sex_of[VV5_REC_COUNT];
     int old_head[VV5_REC_COUNT];
     int old_body[VV5_REC_COUNT];
+    int old_mask[VV5_REC_COUNT];
     int na = 0, i, touched = 0, slots = vv5_slots();
     for (i = 0; i < slots; ++i) {
         unsigned char *r = caf_rec(i);
@@ -1893,6 +1896,7 @@ static int caf_apply(void) {
         sex_of[na] = (*(int *)(r + VV5_OFF_SEX)) ? 1 : 0;
         old_head[na] = *(int *)(r + VV5_OFF_HEAD);
         old_body[na] = *(int *)(r + VV5_OFF_BODY);
+        old_mask[na] = caf_get_mask(i);
         ++na;
     }
     if (na == 0) return 0;
@@ -1929,10 +1933,7 @@ static int caf_apply(void) {
             if (caf_body[sex_of[i]] >= 0)
                 touched += caf_set_field(active[i], VV5_OFF_BODY, caf_body[sex_of[i]]);
     }
-    /* Change Appearance for All is logged too (Codex, #558). */
-    for (i = 0; i < na; ++i)
-        vv_log_appearance(5, caf_rec(active[i]), old_head[i], old_body[i],
-                          *(int *)(caf_rec(active[i]) + VV5_OFF_HEAD), *(int *)(caf_rec(active[i]) + VV5_OFF_BODY));
+
     /* Masks */
     if (caf_single_mask >= 0) {                       /* village-wide single colour */
         for (i = 0; i < na; ++i) touched += caf_set_mask(active[i], caf_single_mask);
@@ -1972,6 +1973,11 @@ static int caf_apply(void) {
             if (caf_mask[sex_of[i]] >= 0)
                 touched += caf_set_mask(active[i], caf_mask[sex_of[i]]);
     }
+    /* Change Appearance for All is logged too (Codex, #558), with the masks once every one is set. */
+    for (i = 0; i < na; ++i)
+        vv_log_appearance_mask(5, caf_rec(active[i]), old_head[i], old_body[i], old_mask[i],
+                               *(int *)(caf_rec(active[i]) + VV5_OFF_HEAD), *(int *)(caf_rec(active[i]) + VV5_OFF_BODY),
+                               caf_get_mask(active[i]));
     return touched;
 }
 

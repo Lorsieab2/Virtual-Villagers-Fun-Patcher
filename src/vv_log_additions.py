@@ -984,8 +984,10 @@ def plan_appearance(folder: Path, game: int, slot: int) -> Kind:
     logged = set()
     for b in every:
         if b.heading == "Appearance changed":
-            values = [b.value(label) for label in ("Name", "Old head", "Old body")]
-            if all(values) and values[1].lstrip("-").isdigit() and values[2].lstrip("-").isdigit():
+            values = [b.value(label) for label in ("Name", "Old head", "Old body", "New head", "New body")]
+            # A record of the mask alone (its look lines old = new, then "Old mask" / "New mask") records no
+            # change of look.
+            if all(values) and all(v.lstrip("-").isdigit() for v in values[1:]) and values[1:3] != values[3:]:
                 logged.add((values[0], int(values[1]), int(values[2])))
     try:
         village = gen.load_village(folder, game, slot, full_names=False)

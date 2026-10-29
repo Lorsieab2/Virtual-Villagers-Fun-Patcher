@@ -1378,6 +1378,8 @@ def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> N
             if not name or not all(v and v.lstrip("-").isdigit() for v in values):
                 continue
             old_head, old_body, new_head, new_body = (int(v) for v in values)
+            if (old_head, old_body) == (new_head, new_body):
+                continue        # the mask alone changed ("Old mask" / "New mask"): the same look on the tree
             old, new = (name, old_head, old_body), (name, new_head, new_body)
             reg.relooked.pop(new, None)
             reg.relooked[old] = new

@@ -13,7 +13,7 @@
 #include "../shared/foreign_sidecar.h" /* another village's file is never replaced */
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
-#include "../shared/original_look_client.h" /* Change Appearance's Reset to original */
+#include "../shared/original_look.h"  /* Change Appearance's Reset to original */
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
@@ -2687,13 +2687,17 @@ static int vv4_apply_for_all(void) {
             *(int *)(rec + VV_HEAD_OFFSET) = plan_head[i];
         if (body_selected[i] && plan_body[i] != current_body[i])
             *(int *)(rec + VV_CLOTHING_OFFSET) = plan_body[i];
-        /* Change Appearance for All is logged too (Codex, #558). */
-        vv_log_appearance(4, rec, current_head[i], current_body[i], *(int *)(rec + VV_HEAD_OFFSET),
-                          *(int *)(rec + VV_CLOTHING_OFFSET));
-        if (mask_selected[i] && vv4_mask_plan_changes(
-                plan_mask[i], current_mask[i], raw_mask[i], raw_mask_fp[i])) {
-            vv_set_mask(rec, plan_mask[i]);
-            mask_changed = 1;
+        {
+            int new_mask = current_mask[i];
+            if (mask_selected[i] && vv4_mask_plan_changes(
+                    plan_mask[i], current_mask[i], raw_mask[i], raw_mask_fp[i])) {
+                vv_set_mask(rec, plan_mask[i]);
+                mask_changed = 1;
+                new_mask = plan_mask[i];
+            }
+            /* Change Appearance for All is logged too (Codex, #558), with the masks. */
+            vv_log_appearance_mask(4, rec, current_head[i], current_body[i], current_mask[i],
+                                   *(int *)(rec + VV_HEAD_OFFSET), *(int *)(rec + VV_CLOTHING_OFFSET), new_mask);
         }
     }
     if (mask_changed) vv_write_mask_sidecar();
@@ -2960,8 +2964,9 @@ int __stdcall ShowOriginsAppearancePicker(
         (LPARAM)(UINT_PTR)villager
     );
     if (result == 1) {                  /* changed and kept: the exe charges for it next */
-        vv_log_appearance(4, villager, appearance_state.original_head, appearance_state.original_body,
-                          *(int *)(villager + VV_HEAD_OFFSET), *(int *)(villager + VV_CLOTHING_OFFSET));
+        vv_log_appearance_mask(4, villager, appearance_state.original_head, appearance_state.original_body,
+                               appearance_state.original_mask, *(int *)(villager + VV_HEAD_OFFSET),
+                               *(int *)(villager + VV_CLOTHING_OFFSET), vv_get_mask(villager));
     }
     return result;
 }

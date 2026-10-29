@@ -69,6 +69,9 @@ STDCALL = {
     # game's own ldwLog.txt: the local time, the Documents folder and one appended line.
     "GetLocalTime": 4, "SHGetSpecialFolderPathW": 16, "CreateDirectoryW": 8, "CreateFileW": 28,
     "GetFileSizeEx": 8, "WriteFile": 20, "CloseHandle": 4,
+    # The original looks companion (native/vvfp_original_look) looks at the village between frames: a
+    # WH_GETMESSAGE hook on the game's own thread and a thread timer, set at start.
+    "GetCurrentThreadId": 0, "SetWindowsHookExA": 16, "SetTimer": 16,
 }
 # What the emulated machine answers for the Documents folder and the local time.
 # Not under \\Users\\<name>: a tracked file never names an account (test_archive_has_no_personal_paths).
@@ -390,6 +393,11 @@ class StartupMachine:
         elif name == "CloseHandle":
             self.calls.append((name, arg(0)))
             ret(1)
+        elif name == "GetCurrentThreadId":
+            ret(0x1234)
+        elif name in ("SetWindowsHookExA", "SetTimer"):
+            self.calls.append((name, arg(0), arg(2), arg(3)))
+            ret(0x77)
         elif name in ("GetFileAttributesA", "GetFileAttributesW"):
             text = wstr(arg(0)) if name.endswith("W") else cstr(arg(0))
             base_name = text.split("\\")[-1].lower()

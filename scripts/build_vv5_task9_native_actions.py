@@ -2743,7 +2743,8 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     the stock head/body sprites with arrows and, on OK (return 1), reports the
     chosen indices back through the pointers -- it never touches the record. On
     OK this router re-checks eligibility and funds, writes the chosen indices
-    into record+0x1BB8/+0x1BBC, hands the old and new look to the DLL's
+    into record+0x1BB8/+0x1BBC, hands the old and new head, body and cosmetic
+    mask (mask_get before the chooser, the chosen one after) to the DLL's
     LogVV5AppearanceChange (the Births and Conceptions log), and charges
     exactly 5,000 once. If the chosen
     head differs from the original, it first shows the companion DLL's
@@ -2863,8 +2864,10 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         call dword ptr [0x4951DC]
         test eax, eax
         jz log_skip
+        push dword ptr [ebp-0x24]
         push dword ptr [ebp-0x20]
         push dword ptr [ebp-0x1C]
+        push dword ptr [ebp-0x14]
         push dword ptr [ebp-0x30]
         push dword ptr [ebp-0x2C]
         push dword ptr [ebp-0x18]

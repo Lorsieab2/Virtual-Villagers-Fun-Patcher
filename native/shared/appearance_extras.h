@@ -1,10 +1,11 @@
 /* appearance_extras.h -- what both Change Appearance windows share in all five games (the owner,
-   2026-10-28: the two windows "just about identical").  Include after <windows.h> and head_look.h.
+   2026-10-28: the two windows "just about identical").  Include after <windows.h>, head_look.h and
+   original_look.h.
 
    THE PER-VILLAGER WINDOW
      * Undo changes        every control back to how the villager looks now: the window's own start, from
                            the head, body, mask and look saved when it opened.  Nothing is written or charged.
-     * Reset to original   the villager's original head, body and mask (native/shared/original_look_client.h),
+     * Reset to original   the villager's original head, body and mask (native/shared/original_look.h),
                            with head look Auto; "Original look not known" and nothing changed when it is not.
                            OK then keeps it like any change: same price, same records, sidecars and log.
      * Random head, Random body, Random mask (the pool of Change Appearance for All's "Random (All 5 + No
@@ -33,13 +34,28 @@
 /* Change Appearance for All's Head look rows: men 3520.., women 3530..; Leave as is, Auto, Young, Old,
    Random; the row's "Head look:" label is +5. */
 #define VVFP_AX_LOOK_ROW(sex) (3520 + 10 * (sex))
-#define VVFP_AX_LOOK_LABEL(sex) (VVFP_AX_LOOK_ROW(sex) + 5)
 
 #define VVFP_AX_LEAVE   (-1)            /* a row's Leave as is */
 #define VVFP_AX_RANDOM  3               /* a row's Random */
 #define VVFP_AX_MAX     256
 
+#define VVFP_ORIGINAL_LOOK_UNKNOWN "Original look not known"
+
 #ifndef RC_INVOKED
+/* The villager's original head, body and mask ("VVFP Original Look.dll", native/shared/original_look.h):
+   1 with the three set when known; 0, nothing set, when the DLL is not in the game or does not know it. */
+static int vvfp_original_look(int game, const void *record, int *head, int *body, int *mask) {
+    vvfp_original_look_get_fn get = vvfp_original_look_find();
+    int h = 0, b = 0, m = 0;
+    if (get == NULL || record == NULL || !get(game, record, &h, &b, &m)) {
+        return 0;
+    }
+    *head = h;
+    *body = b;
+    *mask = m;
+    return 1;
+}
+
 /* xorshift32; never 0. */
 static unsigned int vvfp_ax_rand(unsigned int *rng) {
     unsigned int x = *rng ? *rng : 0x2545F491u;
