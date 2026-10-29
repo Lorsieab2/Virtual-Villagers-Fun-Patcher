@@ -89,6 +89,22 @@ class ShowBothLinkByAge(unittest.TestCase):
         self.assertEqual(v.children_of(boy.id), [])
         self.assertEqual(v.parent_questions, [], "nothing to ask: only the elder was of age")
 
+    def test_relationships_see_two(self) -> None:
+        """The Villager Info tab's Relationships (src/vv_relationships.py) work by villager id: the elder is the
+        children's father, the boy is nobody's, and the two namesakes are not related to each other."""
+        import vv_relationships as rel
+        v = gen.load_village(self.tepeu_case(), 3, 1)
+        elder, boy = self.tepeus(v)
+        r = rel.Relationships(v)
+        kids = {q.id for q in v.people.values() if q.name in ("Ponui Kalama", "Hakuna Murago")}
+        self.assertEqual({x.pid for x in r.of(elder.id) if x.group == "Children"}, kids)
+        self.assertNotIn("Children", [x.group for x in r.of(boy.id)])
+        self.assertEqual([x for x in r.of(elder.id) if x.pid == boy.id], [])
+        self.assertEqual([x for x in r.of(boy.id) if x.pid == elder.id], [])
+        for kid in kids:
+            fathers = [x.pid for x in r.of(kid) if x.term == "Father"]
+            self.assertEqual(fathers, [elder.id])
+
     def test_numbering_the_matchmaker_and_the_tree_see_two(self) -> None:
         v = gen.load_village(self.tepeu_case(), 3, 1)
         elder, boy = self.tepeus(v)

@@ -894,8 +894,10 @@ def _namesake_for(reg: _Registry, p: Person, b) -> Person:
 def _living_namesake_births(reg: _Registry) -> None:
     """LIVING NAMESAKES' BIRTHS (the owner, v1.35.85): two living villagers of one name, head and body each take
     the Birth record naming the parents their own save record keeps (The Lost Children on) -- exactly one Birth
-    for exactly one of them, never on a guess.  A Birth no living one is told by is a villager of its own (born,
-    then gone), with that Birth's parents.  Before _namesakes_by_birth, which then has nothing left of the key."""
+    for exactly one of them, never on a guess.  Births no living one is told by are theirs, which is not known,
+    while there are no more of them than living namesakes without a Birth; beyond that, each is a villager of its
+    own (born, then gone), with that Birth's parents.  Before _namesakes_by_birth, which then has nothing left of
+    the key."""
     for key, living in reg.living_dups.items():
         living = [pid for pid in living if pid in reg.people]
         pids = list(dict.fromkeys(reg.namesakes.get(key, [living[0]])))
@@ -923,6 +925,12 @@ def _living_namesake_births(reg: _Registry) -> None:
             p.birth_record, p.litter = rec[1], rec[2]
             reg.birth_of[owner] = rec[3]
         spare = [pid for pid in pids if pid not in living]     # the Births' own villagers _births made
+        untold = [q for q in living if reg.people[q].birth_record is None]
+        if len(left) <= len(untold):
+            # No more Births left than living namesakes not told by one (twins still alive, a record keeping no
+            # parents): each Birth is one of theirs, which one is not known -- so none is given, and none is a
+            # villager of its own (no namesake who never lived).
+            left = []
         for rec in left:
             pid = spare.pop(0) if spare else max(reg.people, default=0) + 1
             p = reg.people.setdefault(pid, Person(pid, *key))
