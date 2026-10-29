@@ -337,7 +337,7 @@ def test_vv2_for_all_dynamic_modes_compare_the_materialized_plan() -> None:
 
 def test_vv2_for_all_zero_count_precedes_charge_and_sidecar_save() -> None:
     entry = DLL[DLL.index("ShowVV2AppearanceForAll(void *player)"):]
-    apply_at = entry.index("if (vv2_apply_caf(base) == 0)")
+    apply_at = entry.index("if (vv2_apply_caf(base) + looks.count == 0)")
     charge_at = entry.index("*tech -= vvfp_story_price(2, VV2_CAF_COST)", apply_at)
     save_at = entry.index("vv2_mask_sidecar_save();", charge_at)
     assert apply_at < charge_at < save_at

@@ -52,6 +52,7 @@ static unsigned int g_stable[HL_MAX];         /* ...and what a rename leaves of 
 static int g_have_roster;                     /* the table belongs to the village on screen */
 static int g_slot;                            /* the slot it was loaded for */
 static DWORD g_sync_tick;
+static int g_sync_tried;                      /* g_sync_tick holds an attempt, with or without a roster */
 static vv_sidecar_gate g_gate;
 static int g_foreign;                         /* the slot's file is another village's */
 static unsigned char g_file[HL_FILE_MAX];
@@ -220,10 +221,14 @@ static int hl_sync(void) {
     static unsigned int cur[HL_MAX], cur_stable[HL_MAX];
     DWORD now = GetTickCount();
     int slot, renamed, rewrite;
-    if (g_have_roster && (DWORD)(now - g_sync_tick) < HL_SYNC_MS) {
-        return 1;
+    /* Throttled with or without a roster: while none can be had (no slot, nobody in the records, a load
+       that is blocked) a draw must not rescan every record and clear the table each time it asks.  A
+       Change Appearance pick still looks at once (hl_set / hl_set_many move g_sync_tick back). */
+    if ((g_have_roster || g_sync_tried) && (DWORD)(now - g_sync_tick) < HL_SYNC_MS) {
+        return g_have_roster;
     }
     g_sync_tick = now;
+    g_sync_tried = 1;
     slot = hl_slot_now();
     if (slot <= 0 || hl_roster(cur, cur_stable) == 0) {
         return 0;                               /* no village known: nothing touched */

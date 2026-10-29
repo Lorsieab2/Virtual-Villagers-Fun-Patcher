@@ -114,7 +114,8 @@ static int hl_game(void) { return g_game; }
 static int hl_slots(void) { return g_count; }
 static const unsigned char *hl_record(int i) { return i >= 0 && i < g_count ? g_records[i] : NULL; }
 static int hl_present(const unsigned char *r) { return r[0] != 0; }
-static int hl_slot_now(void) { return g_slot; }
+static int g_slot_asks;                  /* how many times the store looked for the village */
+static int hl_slot_now(void) { ++g_slot_asks; return g_slot; }
 
 static unsigned int fnv(unsigned int h, const unsigned char *t, int cap) {
     int k;
@@ -185,6 +186,8 @@ static void new_session(void) {
     memset(g_stable, 0, sizeof g_stable);
     memset(&g_gate, 0, sizeof g_gate);
     g_have_roster = 0;
+    g_sync_tried = 0;
+    g_sync_tick = 0;
     g_slot = 0;
     g_foreign = 0;
     g_ticks += 10000;
@@ -482,6 +485,23 @@ int main(void) {
     }
 
     printf("no village\n");
+    new_session();
+    g_slot = 0;
+    later();
+    g_slot_asks = 0;
+    {
+        int k;
+        for (k = 0; k < 50; ++k) {
+            (void)hl_get(g_records[1]);
+        }
+    }
+    check(g_slot_asks == 1, "no village: fifty draws in one moment look for it once (throttled like a known one)");
+    later();
+    (void)hl_get(g_records[1]);
+    check(g_slot_asks == 2, "and again a moment later");
+    g_slot = 1;
+    founders(3, "Ola");
+    check(hl_set(g_records[1], 2) == 1 && hl_get(g_records[1]) == 2, "a pick is not held back by the throttle");
     new_session();
     g_slot = 0;
     check(hl_set(g_records[1], 2) == 0 && look(1) == 0, "no slot: nothing is kept or read");
