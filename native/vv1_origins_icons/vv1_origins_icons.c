@@ -2070,7 +2070,7 @@ enum {
     IDB_HEAD_F = 3002,
     IDB_BODY_M = 3011,
     IDB_BODY_F = 3012,
-    /* One 40-wide column, six 76px rows: row 0 blank for "(None)", rows 1-5
+    /* One 40-wide column, six 65px rows: row 0 blank for "(None)", rows 1-5
        the five masks head-on. Built by build_vv1_heathen_mask_sheets.py, so
        the strip is indexed by the mask value directly. */
     IDB_MASK = 3021,
