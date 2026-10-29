@@ -74,10 +74,15 @@ def _keys() -> list[Entry]:
             "(0x443290 hands the button's number -- 6, 1, 5, 7 and 4 -- to the screen's button slot 0x4463F0). Capital "
             "and small letters work alike"), C),
         Entry(KEY, "Esc (village screen)", (
-            "when the value at 0x51D5A4 is -1 it is the same as the Menu button; otherwise Esc sets that value to -1 "
-            "and stops the view's glide, and the next Esc opens the Menu (0x443540)"), C, subs=(
-                ("The stock game writes 0x51D5A4 only here (0x44356F), and the file starts it at 0; what it holds "
-                 "during play was not observed.", U),)),
+            "the same as the Menu button, unless a God Power is armed on the pointer: then Esc only puts the power "
+            "down (nothing is cast or spent) and stops the view's glide, and the next Esc opens the Menu (0x443540; "
+            "the armed power is 0x51D5A4, the God Powers' +0xDC, -1 for none)"), C, subs=(
+                ("No power is armed when the game starts: the game's own start-up sets it to none before anything else "
+                 "runs (0x420192, from 0x493D20), so the first Esc opens the Menu. Only these set it: a mouse button's "
+                 "release (0x420611: the power whose button was pressed and released there, or none), casting it or clicking its button again (0x423547), and Esc "
+                 "(0x44356F).", C),
+                ("While a power is armed, a due island event waits; it is tried on the village's next update after "
+                 "the power is cast or put down (0x442708).", C))),
         Entry(KEY, "F8 (village screen)", (
             f"shows the game's own text strings one at a time in the message bar, the next one each press: string "
             f"{STRINGS_FIRST} plus a counter that goes up by one a press and starts again after {STRINGS_COUNT} "
@@ -180,19 +185,23 @@ def _tips() -> list[Entry]:
 def _patcher() -> list[Entry]:
     return [
         Entry(PATCHER, "The tip vine (village screen)", (
-            "a left click on the spot the patch's hook tests at the game's click dispatch (0x404A5C: 164 to 194 across, "
-            "729 to 757 down, just below the Puzzles button the main scene places at 105, 690 (0x444630)) plays the "
-            "hou.ogg chime and shows one of all 50 random tips in the message bar (0x461 + the processor's time-stamp "
-            "counter modulo 50, each tip about 1 in 50 a click, any tip can come again; the bar's own timer hides it; "
+            "a left click on the village screen on the spot the patch's hook tests in the village's own mouse-down "
+            "(0x4463AD: 164 to 194 across, 729 to 757 down, just below the Puzzles button the main scene places at "
+            "105, 690 (0x444630)) plays the hou.ogg chime and shows one of all 50 random tips in the message bar "
+            "(0x461 + the processor's time-stamp counter modulo 50, each tip about 1 in 50 a click, any tip can come "
+            "again; the bar's own timer hides it; the click then goes on to the village as before; "
             "scripts/build_vv5_clickable_tips.py)"), C, feature=CLICKABLE_TIPS,
               subs=(("Across and down are the game's own: the button-down case asks SDL_GetMouseState for x and y "
-                     "(0x404A4F) and queues them in that order for the screen (0x404A54..0x404A61), and the hook "
-                     "tests x for 164 to 194 and y for 729 to 757 (emulated in tests/test_vv5_clickable_tips.py).",
-                     C),
-                    ("The hook sits in the game's one event loop (0x4047C0, run each frame from 0x40968F), before the "
-                     "click is handed to whichever screen is open, so a left click on the same spot of another screen "
-                     "also picks a tip and plays the chime; whether the message bar is drawn on those screens is not "
-                     "traced.", U))),
+                     "(0x404A4F) and queues them in that order (0x404A54..0x404A61), and the village scene's slot "
+                     "hands them on in that order (0x4463AD..0x4463B7), where the hook tests x for 164 to 194 and y "
+                     "for 729 to 757 (emulated in tests/test_vv5_clickable_tips.py).", C),
+                    ("Only the village screen: the hook is in the village scene's own input slot (0x446370, named "
+                     "only by its vtable 0x49A2F8), which the game's event queue (0x402160) calls only while that "
+                     "screen is shown and no pop-up in front has taken the click; the village's buttons hide it "
+                     "before another screen opens (Menu 0x443683, Detail 0x443837, Tech 0x44386D, Map 0x4438DD, "
+                     "Collections 0x44395D, Trophies 0x4439CD, Puzzles 0x443A3D). Before v1.35.85 the hook sat in "
+                     "the game's one event loop (0x404A5C) and the same spot of any screen gave a tip and the "
+                     "chime.", C))),
         Entry(PATCHER, "Difficulty (Options dialog)", (
             "puts back the Difficulty choice -- Easy, Normal or Hard -- in the Options dialog, directly above Game "
             "Speed (native/vvfp_difficulty)"), C, feature=DIFFICULTY),

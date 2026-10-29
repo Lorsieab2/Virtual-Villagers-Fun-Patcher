@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.85
+
+- **Fixed: Clickable Tips answered on every screen** (New Believers). A left click just below where the Puzzles button sits gave a tip and the chime on any screen -- the Menu, Tech, Map, Collections, Puzzles, Villager Detail or Trophies -- not only on the village, where the curled vine is. The check now sits in the village screen's own click handling, so the vine answers only on the village, and not while a pop-up in front takes the click, just as the village's own buttons do. **Patch New Believers again** after updating. Not yet seen in a running game (checked by emulation of the game's own click routing).
+
 ## What's new in v1.35.84
 
 - **Fixed: "The output folder's path is too long"** when the output folder itself fit (e.g. a Secret City 256 build in a deep folder). The patcher's hidden working folders beside the output now have short fixed-length names (such as `.vvfp-stage-1a2b3c4d`) instead of a copy of the output's name plus 32 characters. Before anything is written, every file the patch will place, including your own files a re-patch carries over, is checked against Windows' 259-character limit; a folder that is too deep is refused up front with the folder to shorten, never part-way through. Nothing in any game changes; no need to patch again.

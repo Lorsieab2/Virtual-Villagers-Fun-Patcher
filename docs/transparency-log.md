@@ -1678,10 +1678,10 @@ Clicking the curled vine beneath the on-screen Puzzles button shows a random in-
 
 **Requires no other patch to be ticked.**
 
-- Behavior changes: Adds a click target on the curled vine beneath the on-screen Puzzles button; clicking it shows a random eRandomTip in the gray message bar and plays the hou.ogg chime. Picks the tip at random each click (rdtsc-seeded); no persistent state.
-- Explicit non-changes/exclusions: No gameplay, villager, economy, or save-data changes. Uses only unused .text code padding; no existing engine code or data is altered besides the single hooked click-dispatch site, and no persistent or scratch memory is written.
+- Behavior changes: Adds a click target on the curled vine beneath the on-screen Puzzles button (164 to 194 across, 729 to 757 down); a left click on it on the village screen shows a random eRandomTip in the gray message bar and plays the hou.ogg chime. The vine answers only on the village screen, as the village's own buttons do: the check sits in the village scene's own mouse-down (0x4463AD), which the game calls only while that screen is shown and no pop-up in front has taken the click; other screens (Menu, Tech, Map, Collections, Puzzles, Detail, Trophies) never reach it. Picks the tip at random each click (rdtsc-seeded); no persistent state.
+- Explicit non-changes/exclusions: No gameplay, villager, economy, or save-data changes; the click still goes on to the village's own mouse-down (0x445A60) exactly as before. Uses only unused .text code padding; no existing engine code or data is altered besides the single hooked mouse-down site, and no persistent or scratch memory is written.
 - Dependencies: none
-- Evidence status: static + in-game verified (tip text and hou.ogg chime confirmed in playtest)
+- Evidence status: static + emulated (village scene's mouse-down with the click on and off the vine); the tip text and hou.ogg chime were confirmed in a playtest of the first version, the village-only check is not yet seen in a running game
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Difficulty Settings (`vv5_difficulty_settings`)
