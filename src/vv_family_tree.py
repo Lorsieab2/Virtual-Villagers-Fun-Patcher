@@ -32,6 +32,7 @@ The page is HTML with the tree in SVG; the picture (PNG or JPG) is drawn with Wi
 from __future__ import annotations
 
 import base64
+import bisect
 import html
 import json
 import functools
@@ -3908,39 +3909,56 @@ def _order_lanes(people: dict, families: list[Family], x: dict[int, float], lane
         kids = lanes.count.get(g, 0)
         couple_order = list(range(couples))
         kid_order = list(range(kids))
+        # SPEED (v1.35.85), the same answer as counting every pair at every swap: the lines' places across (x)
+        # never change while the lanes are swapped, only their heights.  So the pairs of an upright and a level
+        # line of two families that meet across are found ONCE, each height a slot of `heights` (0: above all,
+        # 1: below all, 2+c: couple lane c, 2+couples+k: children's lane k, each slot holding the height that
+        # lane's place in its order gives); and a swap of two lanes recounts only the pairs that touch them.
+        LOW, HIGH = 0, 1
+        vertical, horizontal = [], []
+        for f in fams:
+            parents = [q for q in (f.father, f.mother) if q is not None and q in x]
+            hangs = _hangs(people, f, x)
+            ky = 2 + couples + lanes.index[f.id]
+            if f.id in lanes.couple_index:
+                cy = 2 + lanes.couple_index[f.id]
+                stem = _stem(f, parents)
+                vertical += [(f.id, f.drops[q], LOW, cy) for q in parents]
+                vertical.append((f.id, stem, cy, ky))
+                horizontal.append((f.id, min(f.drops[q] for q in parents), max(f.drops[q] for q in parents), cy))
+                xs = hangs + [stem]
+            else:
+                vertical += [(f.id, f.drops[q], LOW, ky) for q in parents]
+                xs = hangs + [f.drops[q] for q in parents]
+            vertical += [(f.id, h, ky, HIGH) for h in hangs]
+            horizontal.append((f.id, min(xs), max(xs), ky))
+        meeting = [(y0, y1, hy) for fv, vx, y0, y1 in vertical for fh, x0, x1, hy in horizontal
+                   if fv != fh and x0 < vx < x1]
+        touching: dict[int, list[int]] = {}
+        for n, slots in enumerate(meeting):
+            for slot in set(slots):
+                touching.setdefault(slot, []).append(n)
+        heights = [-1e9, 1e9] + list(range(couples)) + [couples + 1 + k for k in range(kids)]
 
-        def crossings() -> int:
-            vertical, horizontal = [], []
-            for f in fams:
-                parents = [q for q in (f.father, f.mother) if q is not None and q in x]
-                hangs = _hangs(people, f, x)
-                ky = couples + 1 + kid_order.index(lanes.index[f.id])
-                if f.id in lanes.couple_index:
-                    cy = couple_order.index(lanes.couple_index[f.id])
-                    stem = _stem(f, parents)
-                    vertical += [(f.id, f.drops[q], -1e9, cy) for q in parents]
-                    vertical.append((f.id, stem, cy, ky))
-                    horizontal.append((f.id, min(f.drops[q] for q in parents), max(f.drops[q] for q in parents), cy))
-                    xs = hangs + [stem]
-                else:
-                    vertical += [(f.id, f.drops[q], -1e9, ky) for q in parents]
-                    xs = hangs + [f.drops[q] for q in parents]
-                vertical += [(f.id, h, ky, 1e9) for h in hangs]
-                horizontal.append((f.id, min(xs), max(xs), ky))
-            return sum(1 for fv, vx, y0, y1 in vertical for fh, x0, x1, hy in horizontal
-                       if fv != fh and x0 < vx < x1 and y0 < hy < y1)
+        def crossed(pairs) -> int:
+            return sum(1 for n in pairs if heights[meeting[n][0]] < heights[meeting[n][2]] < heights[meeting[n][1]])
 
-        best = crossings()
+        best = crossed(range(len(meeting)))
         for _pass in range(30):
             better = False
-            for order in (couple_order, kid_order):
+            for order, first in ((couple_order, 2), (kid_order, 2 + couples)):
                 for k in range(len(order) - 1):
+                    a, b = first + order[k], first + order[k + 1]
+                    pairs = set(touching.get(a, ())) | set(touching.get(b, ()))
+                    was = crossed(pairs)
                     order[k], order[k + 1] = order[k + 1], order[k]
-                    now = crossings()
+                    heights[a], heights[b] = heights[b], heights[a]
+                    now = best - was + crossed(pairs)
                     if now < best:
                         best, better = now, True
                     else:
                         order[k], order[k + 1] = order[k + 1], order[k]
+                        heights[a], heights[b] = heights[b], heights[a]
             if not better:
                 break
         for f in fams:
@@ -4626,22 +4644,66 @@ def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None
         _ax, at, lo, hi = runs_of(r)[0]
         was = through(r, axis, at, lo, hi) if not behind and frames else set()
         best = None
-        # Where it may go: just clear of each run near it, either side (the nearest first).
+        # (The portraits r's length passes along, found once -- only where across moves with a shift: through()'s
+        # answer for any spot, testing only these.)
+        along: list = []
+
+        def through_at(spot: float) -> set:
+            if not along:
+                along.append([(q, x0, x1) if axis == 0 else (q, y0, y1) for q, (x0, y0, x1, y1, _pts) in frames.items()
+                              if (min(hi, y1 - 2) > max(lo, y0 + 2) if axis == 0 else min(hi, x1 - 2) > max(lo, x0 + 2))])
+            return {q for q, a0, a1 in along[0] if a0 + 2 < spot < a1 - 2}
+        # SPEED (v1.35.85), the same answer as clashes(): every shift below asks it of the same runs, only `at`
+        # moving.  The runs it could ever find (in the buckets any shift's clashes() reads, overlapping r along
+        # its length, not r's own piece, not from r's start) are gathered once by the bucket they are kept in,
+        # each with how near it may come; a shift then reads exactly the buckets clashes() would.
+        # Where it may go (`places`): just clear of each run near it, either side (the nearest first) -- read in
+        # the same walk over the buckets.
+        need = width_of(r) / 2 + LINE_GAP
+        base = int(at // 8)
+        near_runs: dict[int, list] = {}
         places = set()
-        for key in range(int(at // 8) - 8, int(at // 8) + 9):
+        for key in range(base - 11, base + 12):
+            nearby = base - 8 <= key <= base + 8
             for o, (_a, oat, olo, ohi) in index.get((axis, key), ()):
-                if o is not r and min(hi, ohi) - max(lo, olo) > 0.5:
+                if o is r or min(hi, ohi) - max(lo, olo) <= 0.5:
+                    continue
+                if nearby:
                     room = width_of(r) / 2 + width_of(o) / 2 + LINE_GAP + 0.01
                     places.update((oat - room - at, oat + room - at))
+                if not (o[2] == r[2] and o[3] == r[3]) and not shared_start(r, o):
+                    near_runs.setdefault(key, []).append((oat, need + width_of(o) / 2 - 1e-6))
+        # Each bucket's runs in order across, with the farthest any of them may reach: a spot looks only at the
+        # runs that could be near it (bisect), and tests each exactly as clashes() does.
+        sorted_runs = {}
+        for key, found in near_runs.items():
+            found.sort()
+            sorted_runs[key] = ([oat for oat, _reach in found], [reach for _oat, reach in found],
+                                max(reach for _oat, reach in found))
+
+        def clear_at(spot: float) -> bool:
+            """not clashes(r, axis, spot, lo, hi, index), for a spot within 60 of `at`."""
+            k = int(spot // 8)
+            for key in range(k - 2, k + 3):
+                found = sorted_runs.get(key)
+                if found is None:
+                    continue
+                oats, reaches, widest = found
+                i = bisect.bisect_left(oats, spot - widest - 1.0)
+                while i < len(oats) and oats[i] <= spot + widest + 1.0:
+                    if abs(oats[i] - spot) < reaches[i]:
+                        return False
+                    i += 1
+            return True
         if behind:                          # (a joint may need a place a few pixels further on, clear of a stranger)
             places.update(float(d) for d in range(-24, 25))
         # (The nearest first; of two as near, right or down.)
         for shift in sorted((d for d in places if 0 < abs(d) <= 60), key=lambda d: (abs(d), -d)):
-            if clashes(r, axis, at + shift, lo, hi, index):
+            if not clear_at(at + shift):
                 continue
             if best is None:
                 best = shift                    # the nearest clear place, whatever else
-            if frames and not behind and not through(r, axis, at + shift, lo, hi) <= was:
+            if frames and not behind and not through_at(at + shift) <= was:
                 continue
             if behind and stranger_joint(r, axis, shift):
                 continue
