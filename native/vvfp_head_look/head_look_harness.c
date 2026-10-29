@@ -457,6 +457,30 @@ int main(void) {
     check(look(1) == 1, "and changes nothing");
     g_fail_writes = 0;
 
+    printf("many at once (Change Appearance for All)\n");
+    {
+        const unsigned char *many[3];
+        int looks[3];
+        many[0] = g_records[0]; many[1] = g_records[2]; many[2] = g_records[3];
+        looks[0] = 2; looks[1] = 1; looks[2] = 2;
+        check(hl_set_many(many, looks, 3) == 1, "three looks kept in one write");
+        check(look(0) == 2 && look(1) == 1 && look(2) == 1 && look(3) == 2, "each villager has its own look");
+        new_session();
+        g_slot = 1;
+        check(look(0) == 2 && look(2) == 1 && look(3) == 2, "and the file says so");
+        looks[0] = 0; looks[1] = 2; looks[2] = 1;
+        g_fail_writes = 1;
+        check(hl_set_many(many, looks, 3) == 0, "a batch that cannot be written reports so");
+        check(look(0) == 2 && look(2) == 1 && look(3) == 2, "and every look is as it was");
+        g_fail_writes = 0;
+        looks[2] = 3;
+        check(hl_set_many(many, looks, 3) == 0 && look(0) == 2 && look(2) == 1, "a look above 2 changes nobody");
+        g_records[2][0] = 0;
+        looks[2] = 1;
+        check(hl_set_many(many, looks, 3) == 0 && look(0) == 2, "a record nobody holds changes nobody");
+        g_records[2][0] = 1;
+    }
+
     printf("no village\n");
     new_session();
     g_slot = 0;

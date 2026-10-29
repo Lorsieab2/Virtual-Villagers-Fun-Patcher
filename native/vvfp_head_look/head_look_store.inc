@@ -322,3 +322,40 @@ static int hl_set(const unsigned char *record, int look) {
     }
     return 1;
 }
+
+/* Keep looks[k] for the villager in records[k], k < count, in ONE write of the file (Change Appearance for
+   All).  Every record must be a held villager of the village on screen and every look 0..2, or nothing is
+   changed; a write that fails puts every look back.  1 when the file says so for all of them. */
+static int hl_set_many(const unsigned char *const *records, const int *looks, int count) {
+    static unsigned char was[HL_MAX];
+    static unsigned int was_id[HL_MAX];
+    int at[HL_MAX];
+    int k;
+    if (records == NULL || looks == NULL || count <= 0 || count > HL_MAX) {
+        return 0;
+    }
+    g_sync_tick = GetTickCount() - HL_SYNC_MS;  /* look at the village now, not a moment ago */
+    if (!hl_sync()) {
+        return 0;
+    }
+    for (k = 0; k < count; ++k) {
+        int i = records[k] != NULL ? hl_index(records[k]) : -1;
+        if (i < 0 || looks[k] < 0 || looks[k] > 2 || !hl_present(records[k])
+            || g_roster[i] != hl_identity(records[k])) {
+            return 0;
+        }
+        at[k] = i;
+    }
+    memcpy(was, g_look, sizeof was);
+    memcpy(was_id, g_look_id, sizeof was_id);
+    for (k = 0; k < count; ++k) {
+        g_look[at[k]] = (unsigned char)looks[k];
+        g_look_id[at[k]] = looks[k] != 0 ? g_roster[at[k]] : 0u;
+    }
+    if (!hl_publish()) {
+        memcpy(g_look, was, sizeof was);        /* memory never says what the file does not */
+        memcpy(g_look_id, was_id, sizeof was_id);
+        return 0;
+    }
+    return 1;
+}

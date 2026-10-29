@@ -364,6 +364,13 @@ int __stdcall VvfpHeadLookSet(int game, const void *record, int look) {
     return hl_set((const unsigned char *)record, look);
 }
 
+int __stdcall VvfpHeadLookSetMany(int game, const void *const *records, const int *looks, int count) {
+    if (game != g_game || g_game == 0) {
+        return 0;
+    }
+    return hl_set_many((const unsigned char *const *)records, looks, count);
+}
+
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {

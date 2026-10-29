@@ -27,7 +27,7 @@
     {
       "source": "assets/head_look/VVFP Head Look.dll",
       "destination": "VVFP Head Look.dll",
-      "sha256": "E920F41D26E3D28399BE350485C7AD183FC5347739B3C807FEBC6AC17D4D464E"
+      "sha256": "C8B3F8E8DE7F0DF0B0D2468FD20B0D8E4DB380059E52EB2C3FA3425AF858EE33"
     }
   ],
   "pe_append_transaction": {
