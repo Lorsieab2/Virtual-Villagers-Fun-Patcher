@@ -197,6 +197,9 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # Show Cause of Death on Graves: loaded by the Origins
                 # companion, so it declares the Origins base.
                 "vv2_cause_of_death",
+                # Original Looks: Reset to original is in the Origins Change
+                # Appearance windows, so it declares the Origins base.
+                "vv2_original_look",
                 *PUBLIC,
             }
         ]

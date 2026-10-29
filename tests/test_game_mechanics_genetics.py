@@ -62,6 +62,61 @@ class Groups(unittest.TestCase):
                 self.assertNotIn(gm.UNCONFIRMED, gm.render(facts))
 
 
+class GreyHair(unittest.TestCase):
+    """Every tab says when grey hair appears (the owner, 2026-10-28): 55 years in VV2-VV5, never in the original
+    A New Home, and 55 with the Grey Hair patch."""
+
+    def test_every_tab_says_when_grey_hair_appears(self) -> None:
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                lines = [f.text for f in gm.general(game, now=1_700_000_000)
+                         if f.group == gm.GENETICS and f.text.startswith("Grey hair")]
+                self.assertEqual(len(lines), 1)
+                if game == 1:
+                    self.assertTrue(lines[0].startswith("Grey hair: never in the original A New Home."))
+                else:
+                    self.assertTrue(lines[0].startswith("Grey hair: a villager turns grey at 55 years"))
+                    self.assertIn("Medicine and every other technology play no part", lines[0])
+
+    def test_the_old_head_compares_are_in_the_stock_exes(self) -> None:
+        """The cited compare is `cmp ..., 0x44C` (1,100) in each stock exe."""
+        sites = {2: 0x4469BA, 3: 0x46086D, 4: 0x467E89, 5: 0x4722A2}
+        for game, va in sites.items():
+            with self.subTest(game=game):
+                path = stock(game)
+                if path is None:
+                    self.skipTest("stock executables not present")
+                code = at_va(path.read_bytes(), va, 10)
+                self.assertIn(b"\x4c\x04\x00\x00", code)
+
+    def test_change_appearance_look_overrides_the_age_rule_only_with_the_patch(self) -> None:
+        """The owner, 2026-10-28: each tab says Change Appearance's look overrides the age rule, when the patch
+        that ships it (the game's Origins row; A New Home: with Grey Hair too) is in the game."""
+        for game in range(1, 6):
+            needed = {genetics.ORIGINS.format(game)} | ({genetics.GREY_HAIR_PATCH} if game == 1 else set())
+            with self.subTest(game=game):
+                village = gm.Village(Path("."), game, 1, Path("x.ldw"), b"", frozenset(needed), 1_700_000_000,
+                                     general=True)
+                lines = [f.text for f in genetics.facts(village) if "head look overrides the age rule" in f.text]
+                self.assertEqual(len(lines), 1 if game in genetics.HEAD_LOOK_SITES else 0)
+                if lines:
+                    self.assertIn("Young always draws the young head and Old always the old, grey head", lines[0])
+                    self.assertIn("The head value itself never changes", lines[0])
+                    self.assertIn(genetics.HEAD_LOOK_SITES[game], lines[0])
+                village = gm.Village(Path("."), game, 1, Path("x.ldw"), b"", frozenset(), 1_700_000_000,
+                                     general=True)
+                self.assertFalse([f for f in genetics.facts(village) if "head look" in f.text])
+        self.assertIn(5, genetics.HEAD_LOOK_SITES)
+
+    def test_with_the_patch_a_new_home_also_says_55(self) -> None:
+        with mock.patch.object(gm.Village, "has", lambda self, feature: feature == genetics.GREY_HAIR_PATCH):
+            lines = [f.text for f in gm.general(1, now=1_700_000_000)
+                     if f.group == gm.GENETICS and f.text.startswith("Grey hair")]
+        self.assertEqual(len(lines), 2)
+        self.assertTrue(any(line.startswith("Grey hair with the patcher's") and "at 55 years" in line
+                            for line in lines))
+
+
 class Rules(unittest.TestCase):
     def test_a_new_home_has_no_inheritance(self) -> None:
         text = genetics_text(1)

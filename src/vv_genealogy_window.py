@@ -755,6 +755,12 @@ def open_family_tree(app, build) -> None:
         ask_game_folder=True)
 
 
+def look_choice(which: str, look) -> str:
+    """A look in the Appearance changed question: head AND body -- The Secret City's chief's robe changes
+    the body only, and "New look (head 22)" / "Old look (head 22)" could not be told apart."""
+    return f"{which} look (head {look[0]}, body {look[1]})"
+
+
 def _saved_renames(folder: Path, game: int, slot: int) -> dict:
     """The renamed-villager answers the saved edits keep; none when there is no readable file."""
     try:
@@ -880,6 +886,58 @@ def ask_identities(editor, questions: list | None = None):
     return window
 
 
+def ask_parents(editor, questions: list | None = None):
+    """WHICH ONE IS THE PARENT? (the owner, v1.35.85: two living villagers of one name and look are two people,
+    a child linked to the one old enough; "if both could be, ask").  Every such child in ONE window, never
+    modal, a row each: the namesakes who could be the parent, oldest first, and Don't know.  Save keeps each
+    answer in Answered questions (vv_answered_questions.keep_parent) and reads the tree again with them."""
+    questions = list(questions if questions is not None else getattr(editor.village, "parent_questions", []))
+    if not questions:
+        return None
+    import vv_answered_questions as aq
+    window = tk.Toplevel(editor)
+    window.title("Family Tree Maker: which villager is the parent?")
+    window.transient(editor)
+    window.geometry("760x480")
+    window.minsize(420, 260)
+    ttk.Label(window, wraplength=720, justify="left", padding=(12, 10, 12, 4),
+              text=f"{len(questions)} child(ren) name a parent whose name and looks two living villagers share, "
+                   "and each of them was old enough to be that parent. Which one is it? Don't know shows no parent "
+                   "and asks again next time. Your answers are kept in Repair Saves & Logs' Answered questions, "
+                   "where you can change them.").pack(fill="x")
+    frame = scrollable_frame(window, padding=8)
+    choices = []
+    for n, q in enumerate(questions):
+        row = ttk.LabelFrame(frame, text=f"{n + 1}. {q.who}: {q.label.lower()} {q.parent[0]}", padding=6)
+        row.pack(fill="x", anchor="w", pady=(0, 6))
+        var = tk.StringVar(value=IDENTITY_DONT_KNOW)
+        for text in q.texts:
+            ttk.Radiobutton(row, text=text, value=text.split(" (", 1)[0], variable=var).pack(anchor="w")
+        ttk.Radiobutton(row, text=IDENTITY_DONT_KNOW, value=IDENTITY_DONT_KNOW, variable=var).pack(anchor="w")
+        choices.append((q, var))
+
+    def save() -> None:
+        given = [(q, var.get()) for q, var in choices if var.get() != IDENTITY_DONT_KNOW]
+        try:
+            for q, answer in given:
+                aq.keep_parent(editor.folder, editor.game, editor.slot, q.child, q.parent, q.label,
+                               [t.split(" (", 1)[0] for t in q.texts], answer, q.text,
+                               child_rank=q.child_rank, parent_identity=q.identity_of(answer), group=q.group,
+                               child_marker=q.child_marker, child_group=q.child_group)
+        except OSError as exc:
+            messagebox.showerror("Family Tree Maker", f"Your answers were not kept ({exc}).", parent=window)
+            return
+        window.destroy()
+        if given:
+            editor._update_from_game(ask=False)
+
+    bar = ttk.Frame(window, padding=(12, 6))
+    bar.pack(fill="x", side="bottom")
+    ttk.Button(bar, text="Save answers", command=save).pack(side="right")
+    ttk.Button(bar, text="Ask me later", command=window.destroy).pack(side="right", padx=(0, 8))
+    return window
+
+
 def _open_editor(app, parent, folder: Path, game: int, info, title: str, images: Path | None) -> None:
     try:
         village = app._run_with_wait("Reading the family from the save and the logs...\n\nNothing is changed.",
@@ -902,6 +960,8 @@ def _open_editor(app, parent, folder: Path, game: int, info, title: str, images:
     # The same villager, or two? Asked once the tree is open, in one window beside it (never blocking it).
     if getattr(village, "identity_questions", None):
         editor.after(200, lambda: ask_identities(editor, village.identity_questions))
+    if getattr(village, "parent_questions", None):       # which living namesake is the parent?
+        editor.after(250, lambda: ask_parents(editor, village.parent_questions))
 
 
 def find_villagers(village: gen.Village, edits: ft.Edits, query: str) -> list[int]:
@@ -3131,8 +3191,11 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         window.transient(self)
         frame = ttk.Frame(window, padding=12)
         frame.pack(fill="both", expand=True)
-        ttk.Label(frame, text="These villagers' looks were changed with Change Appearance.  Update their "
-                              "portraits on the tree to the new look?", wraplength=460).pack(anchor="w", pady=(0, 8))
+        # Not only Change Appearance: an island event, a Custom Island Event or The Secret City's chief's robe
+        # changes a look too (each an "Appearance changed" record).
+        ttk.Label(frame, text="These villagers' looks have changed (Change Appearance, an island event or "
+                              "another change the logs record).  Update their portraits on the tree to the "
+                              "new look?", wraplength=460).pack(anchor="w", pady=(0, 8))
         # A whole village at once scrolls (Codex, #558).
         box = ttk.Frame(frame)
         box.pack(fill="both", expand=True)
@@ -3154,9 +3217,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             row = ttk.Frame(rows)
             row.pack(anchor="w", pady=2)
             ttk.Label(row, text=gen.numbered(p), width=24).pack(side="left")
-            ttk.Radiobutton(row, text=f"New look (head {p.head})", value="new", variable=var).pack(side="left")
-            ttk.Radiobutton(row, text=f"Old look (head {old[0]})", value="old", variable=var).pack(side="left",
-                                                                                                  padx=(8, 0))
+            ttk.Radiobutton(row, text=look_choice("New", (p.head, p.body)), value="new", variable=var).pack(side="left")
+            ttk.Radiobutton(row, text=look_choice("Old", old), value="old", variable=var).pack(side="left",
+                                                                                               padx=(8, 0))
 
         def done() -> None:
             for pid, (var, old) in choices.items():
@@ -3210,7 +3273,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.redraw()
         self._refresh_selected()
         self._refresh_hidden()
-        self.status.set(f"{len(self.village.known())} villagers shown"
+        self.status.set(f"{len(self.village.villagers())} villagers shown"
                         + ("; villagers of a tribe started over are hidden." if self.hide_gone.get() else "."))
 
     def _update_from_game(self, _event=None, ask: bool = True) -> None:
@@ -3230,7 +3293,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             messagebox.showerror("Family Tree Maker", str(exc), parent=self)
             return
         village = ask_renames(self, self.folder, self.game, self.slot, village, self.edits)
-        before = len(self.village.known())
+        before = len(self.village.villagers())
         self.full_village = village
         self.village = village = self._shown_village(village)
         self.selected = []
@@ -3238,10 +3301,12 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         self.redraw()
         self._refresh_selected()
         self._refresh_hidden()
-        self.status.set(f"Updated from the save and the logs: {len(village.known())} villagers known "
-                        f"({len(village.known()) - before:+d}).")
+        self.status.set(f"Updated from the save and the logs: {len(village.villagers())} villagers known "
+                        f"({len(village.villagers()) - before:+d}).")
         if ask and getattr(self.full_village, "identity_questions", None):
             ask_identities(self, self.full_village.identity_questions)    # the same villager, or two?
+        if ask and getattr(self.full_village, "parent_questions", None):
+            ask_parents(self, self.full_village.parent_questions)         # which living namesake is the parent?
 
     def _words_of(self, what: str) -> tuple[str, str, object]:
         """(the words as they are now, as the tree writes them, a function taking the new words) for

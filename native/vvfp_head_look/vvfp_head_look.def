@@ -1,0 +1,7 @@
+LIBRARY "VVFP Head Look"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpHeadLookInstalled=_VvfpHeadLookInstalled@4
+    VvfpHeadLookGet=_VvfpHeadLookGet@8
+    VvfpHeadLookSet=_VvfpHeadLookSet@12
+    VvfpHeadLookSetMany=_VvfpHeadLookSetMany@16

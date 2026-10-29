@@ -158,10 +158,11 @@ class ReleasesLinkTests(unittest.TestCase):
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_save_clock", "vv3_second_faction", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
-               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info",
+               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info", "vv_relationships",
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
+               "vv_original_look",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
@@ -201,8 +202,14 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_reconcile",          # the read-only reconciliation (2026-10-11)
                               "vv_answered_questions",  # a real answer is never asked again (v1.35.80)
                               "vv_number_names",       # numbers a looks change gave, taken off (v1.35.80 update)
+                              # Repair's original looks proved by the logs (function-level, v1.35.85).
+                              "vv_original_look",
                               # PATCHER_VERSION: the repair copies are named for the running build.
                               "transparency"}),
+            # The original looks behind Change Appearance's Reset to original (v1.35.85): the per-save
+            # files' places, and the logs and villagers its backfill reads (function-level).
+            ("vv_original_look", {"vv_save_layout", "vv_last_names", "vv_reconcile", "vv_log_additions",
+                                  "vv_log_decisions"}),
             # The player's "Retroactively edit records?" No answers (vv_log_decisions).
             # ...and the save slot's own log folders (vv_save_layout).
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
@@ -299,7 +306,10 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_history_revision", {"vv_log_tools", "vv_log_additions", "vv_reconcile", "vv_save_backup"}),
             # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).
             ("vv_villager_info", {"vv_family_tree", "vv_genealogy", "vv_last_names",
-                                 "vv_save_layout", "vv_log_additions", "vv_titles_file"}),
+                                 "vv_save_layout", "vv_log_additions", "vv_titles_file", "vv_relationships"}),
+            # Its Relationships section (the owner, 2026-10-28): the village model, and the tab's own words
+            # for a name (function-level).
+            ("vv_relationships", {"vv_genealogy", "vv_villager_info"}),
             # Number Duplicate Names renames through Last Names; its Repairs Made record names the tribe
             # as the save does (vv_tribe_rename).
             ("vv_number_names", {"vv_genealogy", "vv_last_names", "vv_save_backup", "vv_log_additions",

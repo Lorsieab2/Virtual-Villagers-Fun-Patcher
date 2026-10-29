@@ -1,0 +1,6 @@
+// The Change Appearance picker's grey preview strips (native/shared/vv1_grey_hair.h), written by
+// scripts/build_vv1_grey_hair_art.py from assets/vv1_grey_hair/vvfp_grey_*_heads.png.
+#include "../shared/vv1_grey_hair.h"
+
+VV1_GREY_HAIR_PREVIEW_MALE BITMAP "preview/head_m_grey.bmp"
+VV1_GREY_HAIR_PREVIEW_FEMALE BITMAP "preview/head_f_grey.bmp"

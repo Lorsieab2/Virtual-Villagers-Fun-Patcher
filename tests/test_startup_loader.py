@@ -72,6 +72,14 @@ POPULATION_256 = {"vv3_population_256", "vv4_population_256", "vv5_population_25
 # displaces, and the save manager's current-slot field (crosscheck_bridge.h
 # VVFP_XC_QUIT / VVFP_XC_SLOT_FIELD; tests/test_repair_at_quit.py proves them
 # from the stock executables).
+# The age compares "VVFP Head Look.dll" splices when the game's Origins row ships it (tests/test_head_look.py).
+HEAD_LOOK_SITES = {
+    "vv5": (0x4722A2, 0x466DC1, 0x466FE6),
+    "vv4": (0x467E89, 0x45F6C4, 0x45F8B6),
+    "vv3": (0x46086D, 0x4608AE, 0x456A15, 0x456DCB),
+    "vv2": (0x445694, 0x445A77, 0x4469BA, 0x4481D9, 0x448210, 0x4482DC, 0x448390, 0x448481, 0x44851C, 0x44868A,
+            0x44872B, 0x44887E, 0x448969, 0x448A23, 0x448AD1, 0x448BF4, 0x448CFA, 0x448DB4, 0x448F1C, 0x448FC6),
+}
 QUIT_SITES = {
     "vv1": (0x41B25B, "8B4E0C85C9", 0xABE4),
     "vv2": (0x423C5B, "8B4E0C85C9", 0x30378),
@@ -384,7 +392,9 @@ class StartupLoaderPlacement(unittest.TestCase):
         calls VvfpStartup(game, shipped)); with one it calls VvfpStartupEx(game, shipped, shipped2)."""
         game = "vv1"
         call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
-        for selection, word_2 in ((tuple(closure("vv1_show_parents")), 0), (tuple(closure("vv1_genetics")), 1)):
+        # (Last Names ships no second-word companion; Origins now ships one -- VVFP Head Look.dll.)
+        for selection, word_2 in ((tuple(closure("vv1_last_names")), 0),
+                                  (tuple(closure("vv1_genetics")), 1)):
             with self.subTest(selection=selection):
                 exe, shipped, ids = published(game, "collection_progression", selection)
                 pe = pefile.PE(data=exe)
@@ -601,8 +611,12 @@ class OnlyThisBuildsCompanions(unittest.TestCase):
                 protected = [c[1] for c in machine.calls if c[0] == "VirtualProtect"]
                 self.assertEqual(len(pages), 1)
                 keeper = [va for va in KEEPER_SITES[game] for _ in range(2)]
+                # ...and Change Appearance's head look, which the Origins row ships (VVFP Head Look.dll):
+                # the game's age compares, each made writable and restored.
+                head_look = [va for va in HEAD_LOOK_SITES.get(game, ()) for _ in range(2)]
                 self.assertEqual(sorted(protected),
-                                 sorted([QUIT_SITES[game][0], QUIT_SITES[game][0], 0x60000000] + keeper))
+                                 sorted([QUIT_SITES[game][0], QUIT_SITES[game][0], 0x60000000] + keeper
+                                        + head_look))
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)

@@ -45,6 +45,17 @@ GENETICS = gm.GENETICS
 ORIGINS = "vv{}_enable_origins_exclusive_features"
 STORY = "vv{}_story_cheat_upgrades"
 GENETICS_PATCH = "vv1_genetics"
+GREY_HAIR_PATCH = "vv1_grey_hair"
+# Change Appearance's head look (Auto, Young or Old), shipped with each game's Origins row ("VVFP Head Look.dll",
+# native/vvfp_head_look): the age compares it makes follow the look, by game (tests/test_head_look.py).
+HEAD_LOOK_SITES = {
+    1: "asked by Grey Hair at 55 at each of its 29 reads of the head pictures",
+    5: "at the village 0x4722A2, the Villager Details figure 0x466DC1 and the portrait 0x466FE6",
+    4: "at the village 0x467E89, the Villager Details figure 0x45F6C4 and the portrait 0x45F8B6",
+    2: ("at the Villager Details portrait 0x445694, a dialog's villager 0x445A77, the village 0x4469BA and the 17 "
+        "compares of the map 0x4478E0 (0x4481D9 to 0x448FC6)"),
+    3: "at the village 0x46086D and 0x4608AE, the Villager Details portrait 0x456A15 and a dialog's villager 0x456DCB",
+}
 FIX = "vv{}_fix_vanilla_bugs"
 # What Fix Vanilla Bugs changes in a game's random looks ("VVFP Appearance Rolls.dll", native/
 # vvfp_appearance_rolls): only where the normal game's roll leaves out the last row.  A New Home (its boys'
@@ -102,6 +113,22 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
             "father is the one Show Parents recorded at the conception; when it knows none, the mother's head "
             "alone. Twins and triplets share the first baby's head; bodies stay random. (\"VVFP VV1 "
             "Genetics.dll\", at 0x43C647, for a birth's first child only.)"), gm.RUNNING))
+    if g == 1:
+        out.append(gm.Fact(GENETICS, (
+            "Grey hair: never in the original A New Home. It has one set of head pictures for each sex "
+            "(male_heads.png and female_heads.png, made at 0x43C0D4 and 0x43C099), and its head draws read the age "
+            "only to size a child (0x437377, 0x437611, 0x4379A7, 0x438976), so a villager's hair looks the same "
+            "at every age."), gm.RUNNING))
+    if g == 1 and village.has(GREY_HAIR_PATCH):
+        out.append(gm.Fact(GENETICS, (
+            f"Grey hair with the patcher's \"{gm.feature_name(GREY_HAIR_PATCH)}\" (in this game): at 55 years. "
+            "A villager whose shown age is "
+            "1,100 age units (55 years) or more is drawn from grey head pictures (Images\\vvfp_grey_male_heads.png, "
+            "Images\\vvfp_grey_female_heads.png), the same row as the head value, as the later games switch to their "
+            "old-age pictures at that age, head 19 too (the Golden Child himself never grows old: the age tick puts "
+            "him back to 100 units, 0x42EB80..0x42EB8E). The head value itself never "
+            "changes. (\"VVFP VV1 Grey Hair.dll\", at the 29 reads of the head pictures in 0x437340, 0x4375F0, "
+            "0x437790 and 0x4388E0, and the draws 0x408AF0 and 0x408740.)"), gm.RUNNING))
     if g in APPEARANCE_ROLLS and village.has(FIX.format(g)):
         out.append(gm.Fact(GENETICS, (
             f"With the patcher's \"{gm.feature_name(FIX.format(g))}\" (in this game): "
@@ -114,6 +141,15 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
             f"{_CHOOSER_SPECIAL_ROWS.get(g, '')} -- and Change Appearance "
             "for All can give the whole village random heads by sex or heads of one hair colour (Black, Brown, Red, "
             "Blonde or Other). Neither changes anyone's recorded parents."), gm.RUNNING))
+    if g in HEAD_LOOK_SITES and village.has(ORIGINS.format(g)) and (g != 1 or village.has(GREY_HAIR_PATCH)):
+        out.append(gm.Fact(GENETICS, (
+            f"Grey hair with the patcher's \"{gm.feature_name(ORIGINS.format(g))}\" (in this game): Change "
+            "Appearance's head look overrides the age rule for each villager the player gives one -- Auto keeps the "
+            "rule (the old head from 55), Young always draws the young head and Old always the old, grey head, at "
+            "any age; every villager is Auto until given another. The head value itself never changes, so the logs, "
+            "the Family Tree and the genetics see the same head. The look is kept in the patcher's own file for "
+            "the save and follows the villager. (\"VVFP Head Look.dll\", " + HEAD_LOOK_SITES[g] + ".)"),
+            gm.RUNNING))
     if g in (1, 2, 3) and village.has(STORY.format(g)):
         event = {1: "A Mysterious Vial (red, from the sea)", 2: "A Mysterious Vial (green)",
                  3: "The Mysterious Vial (obsidian)"}[g]
@@ -216,10 +252,15 @@ def _later(game: int) -> list[gm.Fact]:
             + " So \"Unknown\" never stands for a head of its own and never changes a baby's head."), gm.RUNNING))
     old = {2: "male_heads_old / female_heads_old", 3: "male_heads_old / female_heads_old",
            4: "male_heads10 / female_heads10", 5: "male_heads10 / female_heads10"}[game]
+    # The old-head switch: the shown age against the constant 1,100 alone -- no technology, difficulty or other
+    # value is read (the village; then, in VV2 and VV3, the Details portrait's own atlas choice).
+    switch = {2: "0x4469BA, 0x445694", 3: "0x46086D / 0x4608AE, 0x456A15", 4: "0x467E89", 5: "0x4722A2"}[game]
     out.append(f(GENETICS, (
+        f"Grey hair: a villager turns grey at 55 years (a shown age of 1,100 age units, on the game's clock). "
         f"The game has 30 heads (0 to 29) and 30 bodies (0 to 29) for each sex, one row each of its own pictures. "
-        f"Growing older never changes the head value: an elder's head is the same row of its old-age pictures "
-        f"({old})."), gm.RUNNING))
+        f"Growing older never changes the head value: from 55 the same row is drawn from its old-age pictures "
+        f"({old}), the age compared against 1,100 alone -- Medicine and every other technology play no part "
+        f"({switch})."), gm.RUNNING))
     later = {
         2: ("What changes a head later: only the island event \"A Mysterious Vial\" (the green liquid), when the "
             "villager drinks it: the head is rolled again, a man any of 0 to 28, a woman any of 0 to 29 (it can come "

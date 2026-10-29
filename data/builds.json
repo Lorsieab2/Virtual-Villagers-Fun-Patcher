@@ -1283,26 +1283,27 @@
       "description": "Clicking the curled vine beneath the on-screen Puzzles button shows a random in-game tip in the gray message bar (with the engine's own auto-hide timer) and plays the hou.ogg chime.",
       "output_tag": "Clickable Tips",
       "behavior_changes": [
-        "Adds a click target on the curled vine beneath the on-screen Puzzles button; clicking it shows a random eRandomTip in the gray message bar and plays the hou.ogg chime.",
+        "Adds a click target on the curled vine beneath the on-screen Puzzles button (164 to 194 across, 729 to 757 down); a left click on it on the village screen shows a random eRandomTip in the gray message bar and plays the hou.ogg chime.",
+        "The vine answers only on the village screen, as the village's own buttons do: the check sits in the village scene's own mouse-down (0x4463AD), which the game calls only while that screen is shown and no pop-up in front has taken the click; other screens (Menu, Tech, Map, Collections, Puzzles, Detail, Trophies) never reach it.",
         "Picks the tip at random each click (rdtsc-seeded); no persistent state."
       ],
       "explicit_non_changes": [
-        "No gameplay, villager, economy, or save-data changes.",
-        "Uses only unused .text code padding; no existing engine code or data is altered besides the single hooked click-dispatch site, and no persistent or scratch memory is written."
+        "No gameplay, villager, economy, or save-data changes; the click still goes on to the village's own mouse-down (0x445A60) exactly as before.",
+        "Uses only unused .text code padding; no existing engine code or data is altered besides the single hooked mouse-down site, and no persistent or scratch memory is written."
       ],
-      "evidence_status": "static + in-game verified (tip text and hou.ogg chime confirmed in playtest)",
+      "evidence_status": "static + emulated (village scene's mouse-down with the click on and off the vine); the tip text and hou.ogg chime were confirmed in a playtest of the first version, the village-only check is not yet seen in a running game",
       "patches": [
         {
-          "offset": "0x4A5C",
-          "before": "83C4085152",
-          "after": "E92FFE0800",
-          "purpose": "hook the on-screen click-dispatch site (0x404A5C) to the clickable-tips handler cave"
+          "offset": "0x463AD",
+          "before": "8B5424108B44240C",
+          "after": "E9DEE40400CCCCCC",
+          "purpose": "hook the village scene's mouse-down case (theMainScene input slot 0x446370 at 0x4463AD, its two loads of x and y) to the clickable-tips handler cave"
         },
         {
           "offset": "0x94890",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "609C81FAA40000007C4281FAC20000007F3A81F9D90200007C3281F9F50200007F2A0F3131D2BB32000000F7F381C2610400006AFF52B9680F5200E890A6FBFFB940F451006A61E8647BFBFF9D6183C4085152E97901F7FF",
-          "purpose": "clickable-tips handler cave: on a qualifying click, pick a random eRandomTip and show it via Bar::SetText (0x44EF60), play hou.ogg via SoundMgr::PlaySound (0x44C440), then run the displaced dispatch bytes"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B5424108B44240C603DA40000007C413DC20000007F3A81FAD90200007C3281FAF50200007F2A0F3131D2BB32000000F7F381C2610400006AFF52B9680F5200E88BA6FBFFB940F451006A61E85F7BFBFF61E9CE1AFBFF",
+          "purpose": "clickable-tips handler cave: run the two displaced loads (y, x); on a click inside the vine pick a random eRandomTip and show it via Bar::SetText (0x44EF60) and play hou.ogg via SoundMgr::PlaySound (0x44C440); then return to 0x4463B5, which hands the click to the village's mouse-down 0x445A60"
         }
       ]
     },

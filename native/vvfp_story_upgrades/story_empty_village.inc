@@ -301,7 +301,8 @@ __declspec(naked) static void c4_count_stub(void) {
 }
 
 /* New Believers also keeps, on the empty-village path, the stock check that
-   follows its count: no purchased Barrel under way ([0x51D5A4] == -1). */
+   follows its count: no God Power armed on the pointer ([0x51D5A4] == -1, the
+   God Powers manager 0x51D4C8 +0xDC). */
 __declspec(naked) static void c5_count_stub(void) {
     __asm {
         mov eax, 0x4713F0
@@ -317,7 +318,7 @@ __declspec(naked) static void c5_count_stub(void) {
         test eax, eax
         jz nobody
         add esp, 4
-        cmp dword ptr ds:[0x51D5A4], -1   /* the stock check after the count: no Barrel under way */
+        cmp dword ptr ds:[0x51D5A4], -1   /* the stock check after the count: no God Power armed */
         jne skip
         mov ecx, dword ptr [esi + 0x10]
         mov eax, 0x417650

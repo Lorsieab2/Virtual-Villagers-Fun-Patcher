@@ -97,6 +97,10 @@ class InTheSaveAndTheLogs(unittest.TestCase):
                             "Villager 2\n  Name: Tomil Kalama\n  Head: 5\n  Body: 6\n\n"
                             "=== Virtual Villagers 3 -- 2026-09-01 ===\nVillage: Tribe (Save 1)\n"
                             "Villager 1\n  Name: Tomil Kalama\n  Head: 5\n  Body: 6\n\n")
+        # The twins' two Births are theirs (which one's is not known): the tree holds the two living twins and no
+        # namesake who never lived (vv_genealogy._living_namesake_births).
+        tree = gen.load_village(self.folder, 3, 1, full_names=False)
+        self.assertEqual(sorted(p.alive for p in tree.known() if p.key == ("Tomil Kalama", 5, 6)), [True, True])
         result, wanted = nn.number_names(self.folder, 3, 1, processes=NoGame(), now=NOW)
         self.assertEqual([n for n, _a in self.names_in_save()][:2], ["Tomil Kalama I", "Tomil Kalama II"],
                          "one age: the save's record order")

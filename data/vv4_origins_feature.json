@@ -139,7 +139,7 @@
     {
       "source": "assets/origins/VVFP VV4 Origins Icons.dll",
       "destination": "VVFP VV4 Origins Icons.dll",
-      "sha256": "45C3D4557FFFAC9027448A033156483BF343B0DCD926C52A414640BC6E6F0E5B"
+      "sha256": "327C271421DE485E648365D14EF0C20751EF6BDD478C07D13EE5E5B1DB652E6E"
     },
     {
       "source": "assets/vv4_masks/vvfp_mask_atlas.png",
@@ -159,7 +159,12 @@
     {
       "source": "assets/save_reset/VVFP Save Reset.dll",
       "destination": "VVFP Save Reset.dll",
-      "sha256": "3A8DA4C71319DBC17D5FC4F6FD2261A1DB6DB1D93A1CCB4DD9C00443A492AE24"
+      "sha256": "4C9BE227816C881D32F076FC0BF22F00C5A3FDB9DE879C28BF29123CDEE8B5CB"
+    },
+    {
+      "source": "assets/head_look/VVFP Head Look.dll",
+      "destination": "VVFP Head Look.dll",
+      "sha256": "5D3CDD232C708100B73FE37E6F50F3FDA5B663EF110B5C9955F0540E3FAEEA13"
     }
   ],
   "doubler_evidence": {

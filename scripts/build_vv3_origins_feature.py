@@ -1843,7 +1843,7 @@ def main() -> None:
 
     # Change Appearance action cave.  Opens the companion DLL's custom
     # head+body chooser (ShowVV3AppearanceChooser) for the selected villager.
-    # The DLL returns 1 only when the head or body actually changed and (for a
+    # The DLL returns 1 only when the head, body, mask or head look changed and (for a
     # head change) the genetics warning was confirmed; it shows the "unchanged"
     # and warning boxes itself.  On that 1, this cave deducts the 5,000-tech
     # charge (detail_charge only verified funds) and writes the chosen head
@@ -2703,6 +2703,15 @@ def main() -> None:
                 "destination": "VVFP Save Reset.dll",
                 "sha256": hashlib.sha256(
                     (ROOT / RESET_COMPANION_SOURCE).read_bytes()
+                ).hexdigest().upper(),
+            },
+            {
+                # Change Appearance's head look -- Auto, Young or Old (native/vvfp_head_look): started by
+                # VVFP Startup.dll's second word; the chooser asks it for the look and hands it the choice.
+                "source": "assets/head_look/VVFP Head Look.dll",
+                "destination": "VVFP Head Look.dll",
+                "sha256": hashlib.sha256(
+                    (ROOT / "assets/head_look/VVFP Head Look.dll").read_bytes()
                 ).hexdigest().upper(),
             },
         ],

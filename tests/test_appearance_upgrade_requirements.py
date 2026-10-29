@@ -301,6 +301,13 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 "data/vv1_origins_feature.json": {
                     # the dispatch stub nothing called, removed
                     "0x8B004",
+                    # The village adult mask hook serves only 0x4093C0 now:
+                    # 0x4093E0's one village caller is the swimming ripple
+                    # (ripple.png, 0x43808A), so its splice (0x93E0) and the two
+                    # per-thunk entry stubs (0x8E5C0) are removed, and the body
+                    # (0x8E1B4) loses the ripple exclusion, the 0x3E008 compare
+                    # and the never-taken 0x408840 packed-frame branch.
+                    "0x93E0", "0x93C0", "0x8E5C0", "0x8E1B4",
                     # The exact birth hook (Show Parents in Details Screen): now
                     # four splices after the pregnancy tick's child-creation
                     # calls, their site stubs, the shared body and the "Vv1Born"

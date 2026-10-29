@@ -77,6 +77,16 @@ FILES = [
     "assets/chief_hospital/VVFP VV3 Chief Hospital.dll",
     "assets/difficulty/VVFP Difficulty.dll",
     "assets/genetics/VVFP VV1 Genetics.dll",
+    # Grey Hair at 55 (A New Home): the companion and its two new head sheets (the owner's art).
+    "assets/vv1_grey_hair/VVFP VV1 Grey Hair.dll",
+    "assets/vv1_grey_hair/vvfp_grey_male_heads.png",
+    "assets/vv1_grey_hair/vvfp_grey_female_heads.png",
+    # Change Appearance's head look -- Auto, Young or Old (all five games): shipped by each game's Origins
+    # row, started by VVFP Startup.dll.
+    "assets/head_look/VVFP Head Look.dll",
+    # The original looks behind Change Appearance's Reset to original (all five games): shipped by each game's
+    # Original Looks row, started by VVFP Startup.dll.
+    "assets/original_look/VVFP Original Look.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
@@ -175,6 +185,12 @@ FILES = [
     "data/vv4_difficulty_settings_feature.json",
     "data/vv5_difficulty_settings_feature.json",
     "data/vv1_genetics_feature.json",
+    "data/vv1_grey_hair_feature.json",
+    "data/vv1_original_look_feature.json",
+    "data/vv2_original_look_feature.json",
+    "data/vv3_original_look_feature.json",
+    "data/vv4_original_look_feature.json",
+    "data/vv5_original_look_feature.json",
     "data/vv3_both_factions_feature.json",
     "data/vv3_fruit_trees_refill_together_feature.json",
     "data/vv3_fruit_trees_take_turns_feature.json",
@@ -283,6 +299,8 @@ FILES = [
     # The always-on read-only reconciliation of records, logs and files, and the pickers' run of it.
     "src/vv_reconcile.py",
     "src/vv_reconcile_view.py",
+    # The original looks Repair Saves & Logs adds from the logs (Change Appearance's Reset to original).
+    "src/vv_original_look.py",
     # Game Mechanics (Tools tab): its window, the page and each game's module (found by name).
     "src/vv_game_mechanics_window.py",
     # The tool windows' fonts (the VF1 patcher's), shared by every Tools tab window.
@@ -333,6 +351,7 @@ FILES = [
     # Auto-colour family lines (the Family Tree Maker's window imports it).
     "src/vv_line_colours.py",
     "src/vv_villager_info.py",
+    "src/vv_relationships.py",          # the Villager Info tab's Relationships
     "src/vv_genealogy_window.py",
     "src/vv_tree_editor_tools.py",
     "src/vv_last_names.py",

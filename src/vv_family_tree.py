@@ -32,6 +32,7 @@ The page is HTML with the tree in SVG; the picture (PNG or JPG) is drawn with Wi
 from __future__ import annotations
 
 import base64
+import bisect
 import html
 import json
 import functools
@@ -515,6 +516,11 @@ class Edits:
     # they have, in order; "mark" the first, as older builds read it), "unmarked" (automatic marks the
     # player took off them), ...}
     entries: dict[str, dict] = field(default_factory=dict)
+    # Living namesakes' edits (settle_namesakes; Codex, PR #653): "name|head|body" -> the group's markers,
+    # oldest first, when their edits were last kept; and "name|head|body" -> the marker of the one villager
+    # with no namesake whose edits the plain key holds.
+    namesakes: dict[str, list] = field(default_factory=dict)
+    key_owners: dict[str, str] = field(default_factory=dict)
     # Stickers (the owner: "any image file on the computer where people can drag and place them
     # like a scrapbook", "resize, rotate, transform"): pictures on top of the tree, bottom one first.
     stickers: list[dict] = field(default_factory=list)
@@ -812,6 +818,12 @@ class Edits:
         out.page_edits = clean_page_edits(data.get("page_edits"))
         out.equal_sizes = clean_equal_sizes(data.get("equal_sizes"))
         out.group_opts = clean_group_opts(data.get("group_opts"))
+        namesakes = data.get("namesakes")
+        out.namesakes = {str(k): [str(m) for m in v] for k, v in namesakes.items() if isinstance(v, list)} \
+            if isinstance(namesakes, dict) else {}
+        owners = data.get("key_owners")
+        out.key_owners = {str(k): v for k, v in owners.items() if isinstance(v, str)} \
+            if isinstance(owners, dict) else {}
         return out
 
     def save(self, path: Path) -> None:
@@ -848,7 +860,8 @@ class Edits:
                 "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers,
                 "group_opts": self.group_opts, "equal_sizes": self.equal_sizes, "monstera_v2": self.monstera_v2,
-                "feather_v2": self.feather_v2, "bakes_v3": self.bakes_v3}
+                "feather_v2": self.feather_v2, "bakes_v3": self.bakes_v3,
+                "namesakes": self.namesakes, "key_owners": self.key_owners}
 
 
 # The settings a group's portraits may have of their own (Edits.group_opts): only what is drawn inside
@@ -1667,7 +1680,134 @@ def entry_key(village: gen.Village, p: gen.Person) -> str:
     if p.upcoming:
         m = village.people[p.mother]
         return f"upcoming|{m.name}|{m.head}|{m.body}|{-(p.body or 0)}"
-    return f"{p.name}|{p.head}|{p.body}"
+    # Two living villagers of one name and look are two people, each with their own edits, kept by what tells
+    # them apart for good -- their sex and recorded parents ("|<marker>"; "|<rank>" after it only between
+    # namesakes sharing it) -- never by their place by age alone, which moves to another villager when an
+    # older namesake dies (Codex, PR #653; vv_genealogy._parents_by_age, settle_namesakes).  A villager with
+    # no living namesake: "name|head|body", as always.
+    suffix = getattr(p, "edit_suffix", "") if getattr(p, "namesake_rank", 0) else ""
+    return f"{p.name}|{p.head}|{p.body}" + suffix
+
+
+PARKED = "parked|"
+
+
+def _rekeyed(value, old: str, new: str):
+    """`value` (an edits file's data) with the villager key `old` -- a dictionary key, a list item, or a deleted
+    villager ("villager:<key>") -- made `new`.  Keys that only contain it (a family's) are left as they are."""
+    if isinstance(value, dict):
+        return {(new if k == old else k): _rekeyed(v, old, new) for k, v in value.items()}
+    if isinstance(value, list):
+        return [new if v == old else f"villager:{new}" if v == f"villager:{old}" else _rekeyed(v, old, new)
+                for v in value]
+    return value
+
+
+def _keys_used(value, out: set) -> set:
+    """Every villager key `value` (an edits file's data) uses: entries, colours, orders, deleted villagers."""
+    if isinstance(value, dict):
+        for k, v in value.items():
+            out.add(k)
+            _keys_used(v, out)
+    elif isinstance(value, list):
+        for v in value:
+            if isinstance(v, str):
+                out.add(v[len("villager:"):] if v.startswith("villager:") else v)
+            else:
+                _keys_used(v, out)
+    return out
+
+
+def settle_namesakes(village: gen.Village, edits: "Edits") -> bool:
+    """Keep each namesake's tree edits with that villager (Codex, PR #653).  Nothing is ever deleted or given to
+    another villager: an edit that cannot be told to be someone's is PARKED -- kept in the file under
+    "parked|<its key>", applied to nobody.
+      * While two or more living villagers share a name and look, each one's edits are under "name|head|body|
+        <marker>" (entry_key).  The keys an earlier build used for them -- the plain key (the oldest's, or the
+        one villager the tree showed before) and "|2", "|3"... by age -- cannot be told to be anyone's now: parked.
+      * Namesakes sharing a marker (one record's twins) are told apart by their place by age; their edits are
+        kept only while the group is exactly as it was (`edits.namesakes`, the markers oldest first), else parked.
+      * A villager whose namesakes are gone takes back their own marker's edits under the plain key (when the
+        plain key holds nothing of anyone's); edits by a place by age are parked.
+      * The plain key's edits of a villager with no namesake are recorded as theirs (`edits.key_owners`), so
+        when a namesake appears they stay that villager's (under their marker); unrecorded, they are parked.
+    True when the edits changed."""
+    data = edits.to_data()
+    data.pop("namesakes", None)                 # this function's own records: not villager keys
+    data.pop("key_owners", None)
+    used = _keys_used(data, set())
+    kept = dict(edits.namesakes)
+    owners = dict(edits.key_owners)
+    moves: list[tuple[str, str]] = []
+
+    def park(key: str) -> None:
+        target, n = PARKED + key, 2
+        while target in used or any(t == target for _k, t in moves):
+            target, n = f"{PARKED}{key}#{n}", n + 1
+        moves.append((key, target))
+
+    groups: dict[str, list] = {}
+    for p in village.people.values():
+        if p.alive and not p.upcoming and getattr(p, "namesake_rank", 0):
+            groups.setdefault(f"{p.name}|{p.head}|{p.body}", []).append(p)
+    def kind(key: str, plain: str) -> str | None:
+        """What a villager key of `plain` is: "plain", "rank" ("|2"), "marker" ("|<marker>"), "tied"
+        ("|<marker>|<rank>"); None for anything else (a family's key holds "||")."""
+        if key == plain:
+            return "plain"
+        if not key.startswith(plain + "|") or "||" in key:
+            return None
+        rest = key[len(plain) + 1:].split("|")
+        if len(rest) == 1 and rest[0].isdigit():
+            return "rank"
+        if len(rest) == 3:
+            return "marker"
+        if len(rest) == 4 and rest[3].isdigit():
+            return "tied"
+        return None
+
+    for plain, members in groups.items():
+        members.sort(key=lambda p: p.namesake_rank)
+        sig = [p.marker for p in members]
+        same_group = kept.get(plain) == sig
+        mine = {entry_key(village, p) for p in members}
+        owner = owners.pop(plain, None)
+        heir = [p for p in members if owner and p.marker == owner]
+        for key in sorted(used):
+            what = kind(key, plain)
+            if what == "plain" and len(heir) == 1 and entry_key(village, heir[0]) not in used:
+                moves.append((key, entry_key(village, heir[0])))    # the one who had it while alone keeps it
+            elif what in ("plain", "rank") or (what == "tied" and not same_group):
+                park(key)               # an earlier build's place by age, or a tie the group no longer holds
+            elif what == "tied" and key not in mine:
+                park(key)
+        kept[plain] = sig
+    for plain in [k for k in kept if k not in groups]:
+        alone = [p for p in village.people.values()
+                 if p.alive and not p.upcoming and f"{p.name}|{p.head}|{p.body}" == plain]
+        own = f"{plain}|{alone[0].marker}" if len(alone) == 1 else None
+        for key in sorted(used):
+            what = kind(key, plain)
+            if what == "marker" and key == own and plain not in used:
+                moves.append((key, plain))      # their own edits, back under the plain key
+            elif what in ("marker", "tied"):
+                park(key)
+        del kept[plain]
+    # Whose the plain key's edits are while they have no namesake: given to them alone when a namesake
+    # appears (a file first read while a group already lives has no such record: its plain key is parked).
+    for p in village.people.values():
+        plain = f"{p.name}|{p.head}|{p.body}"
+        if (p.alive and not p.upcoming and not getattr(p, "namesake_rank", 0) and p.marker and plain not in groups
+                and (plain in used or any(new == plain for _old, new in moves))):
+            owners[plain] = p.marker
+    if not moves and kept == edits.namesakes and owners == edits.key_owners:
+        return False
+    for old, new in moves:
+        data = _rekeyed(data, old, new)
+    fresh = Edits.from_data(data)
+    fresh.namesakes, fresh.key_owners = kept, owners
+    edits.__dict__.update(fresh.__dict__)
+    return True
 
 
 @dataclass
@@ -1817,6 +1957,7 @@ def arrange(village: gen.Village, edits: Edits) -> None:
     unless the player put them in another; numbered generation by generation in the tree's sort,
     or in the player's own order of a generation, left to right.  A villager deleted from the
     tree has no number, so the others' run on without a gap."""
+    settle_namesakes(village, edits)            # each namesake's edits with that villager (Codex, PR #653)
     for pid, p in village.people.items():
         own = edits.entries.get(entry_key(village, p), {}).get("generation")
         p.generation = own or village.base_generation.get(pid, p.generation)
@@ -1832,8 +1973,9 @@ def _renumber(village: gen.Village, edits: Edits) -> None:
     for pid in gone:
         village.people[pid].number = None
     n = 0
-    for g in sorted({p.generation for p in village.known()}):
-        row = sorted((p for p in village.known() if p.generation == g and p.id not in gone), key=lambda p: p.number)
+    counted = village.villagers()                # a default father is never numbered (number_people)
+    for g in sorted({p.generation for p in counted}):
+        row = sorted((p for p in counted if p.generation == g and p.id not in gone), key=lambda p: p.number)
         order = {key: i for i, key in enumerate(edits.orders.get(str(g), []))}
         row.sort(key=lambda p: (order.get(entry_key(village, p), len(order)), p.number))
         for p in row:
@@ -1843,7 +1985,7 @@ def _renumber(village: gen.Village, edits: Edits) -> None:
 
 def _place(p: gen.Person) -> tuple:
     """A row's order is its numbers' (vv_genealogy.number_people); babies on the way last."""
-    return (p.upcoming, p.number or 0, p.order_key())
+    return (p.upcoming, p.number is None, p.number or 0, p.order_key())     # a default father: after the numbered
 
 
 def group_of(p: gen.Person) -> str:
@@ -3904,39 +4046,56 @@ def _order_lanes(people: dict, families: list[Family], x: dict[int, float], lane
         kids = lanes.count.get(g, 0)
         couple_order = list(range(couples))
         kid_order = list(range(kids))
+        # SPEED (v1.35.85), the same answer as counting every pair at every swap: the lines' places across (x)
+        # never change while the lanes are swapped, only their heights.  So the pairs of an upright and a level
+        # line of two families that meet across are found ONCE, each height a slot of `heights` (0: above all,
+        # 1: below all, 2+c: couple lane c, 2+couples+k: children's lane k, each slot holding the height that
+        # lane's place in its order gives); and a swap of two lanes recounts only the pairs that touch them.
+        LOW, HIGH = 0, 1
+        vertical, horizontal = [], []
+        for f in fams:
+            parents = [q for q in (f.father, f.mother) if q is not None and q in x]
+            hangs = _hangs(people, f, x)
+            ky = 2 + couples + lanes.index[f.id]
+            if f.id in lanes.couple_index:
+                cy = 2 + lanes.couple_index[f.id]
+                stem = _stem(f, parents)
+                vertical += [(f.id, f.drops[q], LOW, cy) for q in parents]
+                vertical.append((f.id, stem, cy, ky))
+                horizontal.append((f.id, min(f.drops[q] for q in parents), max(f.drops[q] for q in parents), cy))
+                xs = hangs + [stem]
+            else:
+                vertical += [(f.id, f.drops[q], LOW, ky) for q in parents]
+                xs = hangs + [f.drops[q] for q in parents]
+            vertical += [(f.id, h, ky, HIGH) for h in hangs]
+            horizontal.append((f.id, min(xs), max(xs), ky))
+        meeting = [(y0, y1, hy) for fv, vx, y0, y1 in vertical for fh, x0, x1, hy in horizontal
+                   if fv != fh and x0 < vx < x1]
+        touching: dict[int, list[int]] = {}
+        for n, slots in enumerate(meeting):
+            for slot in set(slots):
+                touching.setdefault(slot, []).append(n)
+        heights = [-1e9, 1e9] + list(range(couples)) + [couples + 1 + k for k in range(kids)]
 
-        def crossings() -> int:
-            vertical, horizontal = [], []
-            for f in fams:
-                parents = [q for q in (f.father, f.mother) if q is not None and q in x]
-                hangs = _hangs(people, f, x)
-                ky = couples + 1 + kid_order.index(lanes.index[f.id])
-                if f.id in lanes.couple_index:
-                    cy = couple_order.index(lanes.couple_index[f.id])
-                    stem = _stem(f, parents)
-                    vertical += [(f.id, f.drops[q], -1e9, cy) for q in parents]
-                    vertical.append((f.id, stem, cy, ky))
-                    horizontal.append((f.id, min(f.drops[q] for q in parents), max(f.drops[q] for q in parents), cy))
-                    xs = hangs + [stem]
-                else:
-                    vertical += [(f.id, f.drops[q], -1e9, ky) for q in parents]
-                    xs = hangs + [f.drops[q] for q in parents]
-                vertical += [(f.id, h, ky, 1e9) for h in hangs]
-                horizontal.append((f.id, min(xs), max(xs), ky))
-            return sum(1 for fv, vx, y0, y1 in vertical for fh, x0, x1, hy in horizontal
-                       if fv != fh and x0 < vx < x1 and y0 < hy < y1)
+        def crossed(pairs) -> int:
+            return sum(1 for n in pairs if heights[meeting[n][0]] < heights[meeting[n][2]] < heights[meeting[n][1]])
 
-        best = crossings()
+        best = crossed(range(len(meeting)))
         for _pass in range(30):
             better = False
-            for order in (couple_order, kid_order):
+            for order, first in ((couple_order, 2), (kid_order, 2 + couples)):
                 for k in range(len(order) - 1):
+                    a, b = first + order[k], first + order[k + 1]
+                    pairs = set(touching.get(a, ())) | set(touching.get(b, ()))
+                    was = crossed(pairs)
                     order[k], order[k + 1] = order[k + 1], order[k]
-                    now = crossings()
+                    heights[a], heights[b] = heights[b], heights[a]
+                    now = best - was + crossed(pairs)
                     if now < best:
                         best, better = now, True
                     else:
                         order[k], order[k + 1] = order[k + 1], order[k]
+                        heights[a], heights[b] = heights[b], heights[a]
             if not better:
                 break
         for f in fams:
@@ -4622,22 +4781,66 @@ def _separate(drawn: list, lay: Layout | None = None, widths: dict | None = None
         _ax, at, lo, hi = runs_of(r)[0]
         was = through(r, axis, at, lo, hi) if not behind and frames else set()
         best = None
-        # Where it may go: just clear of each run near it, either side (the nearest first).
+        # (The portraits r's length passes along, found once -- only where across moves with a shift: through()'s
+        # answer for any spot, testing only these.)
+        along: list = []
+
+        def through_at(spot: float) -> set:
+            if not along:
+                along.append([(q, x0, x1) if axis == 0 else (q, y0, y1) for q, (x0, y0, x1, y1, _pts) in frames.items()
+                              if (min(hi, y1 - 2) > max(lo, y0 + 2) if axis == 0 else min(hi, x1 - 2) > max(lo, x0 + 2))])
+            return {q for q, a0, a1 in along[0] if a0 + 2 < spot < a1 - 2}
+        # SPEED (v1.35.85), the same answer as clashes(): every shift below asks it of the same runs, only `at`
+        # moving.  The runs it could ever find (in the buckets any shift's clashes() reads, overlapping r along
+        # its length, not r's own piece, not from r's start) are gathered once by the bucket they are kept in,
+        # each with how near it may come; a shift then reads exactly the buckets clashes() would.
+        # Where it may go (`places`): just clear of each run near it, either side (the nearest first) -- read in
+        # the same walk over the buckets.
+        need = width_of(r) / 2 + LINE_GAP
+        base = int(at // 8)
+        near_runs: dict[int, list] = {}
         places = set()
-        for key in range(int(at // 8) - 8, int(at // 8) + 9):
+        for key in range(base - 11, base + 12):
+            nearby = base - 8 <= key <= base + 8
             for o, (_a, oat, olo, ohi) in index.get((axis, key), ()):
-                if o is not r and min(hi, ohi) - max(lo, olo) > 0.5:
+                if o is r or min(hi, ohi) - max(lo, olo) <= 0.5:
+                    continue
+                if nearby:
                     room = width_of(r) / 2 + width_of(o) / 2 + LINE_GAP + 0.01
                     places.update((oat - room - at, oat + room - at))
+                if not (o[2] == r[2] and o[3] == r[3]) and not shared_start(r, o):
+                    near_runs.setdefault(key, []).append((oat, need + width_of(o) / 2 - 1e-6))
+        # Each bucket's runs in order across, with the farthest any of them may reach: a spot looks only at the
+        # runs that could be near it (bisect), and tests each exactly as clashes() does.
+        sorted_runs = {}
+        for key, found in near_runs.items():
+            found.sort()
+            sorted_runs[key] = ([oat for oat, _reach in found], [reach for _oat, reach in found],
+                                max(reach for _oat, reach in found))
+
+        def clear_at(spot: float) -> bool:
+            """not clashes(r, axis, spot, lo, hi, index), for a spot within 60 of `at`."""
+            k = int(spot // 8)
+            for key in range(k - 2, k + 3):
+                found = sorted_runs.get(key)
+                if found is None:
+                    continue
+                oats, reaches, widest = found
+                i = bisect.bisect_left(oats, spot - widest - 1.0)
+                while i < len(oats) and oats[i] <= spot + widest + 1.0:
+                    if abs(oats[i] - spot) < reaches[i]:
+                        return False
+                    i += 1
+            return True
         if behind:                          # (a joint may need a place a few pixels further on, clear of a stranger)
             places.update(float(d) for d in range(-24, 25))
         # (The nearest first; of two as near, right or down.)
         for shift in sorted((d for d in places if 0 < abs(d) <= 60), key=lambda d: (abs(d), -d)):
-            if clashes(r, axis, at + shift, lo, hi, index):
+            if not clear_at(at + shift):
                 continue
             if best is None:
                 best = shift                    # the nearest clear place, whatever else
-            if frames and not behind and not through(r, axis, at + shift, lo, hi) <= was:
+            if frames and not behind and not through_at(at + shift) <= was:
                 continue
             if behind and stranger_joint(r, axis, shift):
                 continue
@@ -4855,8 +5058,8 @@ def generation_number(lay: Layout, g: int) -> str:
 def default_label_parts(lay: Layout, g: int) -> dict[str, str]:
     v = lay.village
     members = [v.people[q] for q in lay.x if v.people[q].generation == g]
-    people = [p for p in members if not p.upcoming]
-    upcoming = len(members) - len(people)
+    people = [p for p in members if not p.upcoming and not getattr(p, "placeholder", False)]   # a default father: a name only
+    upcoming = sum(1 for p in members if p.upcoming)
     women = sum(p.sex == "Female" for p in people)
     men = sum(p.sex == "Male" for p in people)
     alive = sum(p.alive for p in people)
@@ -4931,15 +5134,41 @@ def label_boxes(village: gen.Village, edits: Edits, shown) -> dict[int, LabelBox
 def title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
     first, second = default_title_lines(lay, game_title)
     page = f" -- Page {lay.page + 1} of {lay.pages}" if lay.pages > 1 else ""
-    return (lay.edits.title or first) + page, lay.edits.subtitle or second
+    return (fresh_title(lay, lay.edits.title) or first) + page, fresh_title(lay, lay.edits.subtitle) or second
+
+
+# The facts a title line the tree wrote carries, kept current in a line the player retyped (the owner,
+# v1.35.85: "keep the owner's own words, but refresh the villager counts and the date each time the tree is
+# made").  Only these words, where the player's line still has them; every other word is the player's.
+TITLE_KNOWN = re.compile(r"(?<![\w.])\d+ villagers known(?!\w)")
+TITLE_LIVING = re.compile(r"(?<![\w.])\d+ living(?!\w)")
+TITLE_DATE = re.compile(r"(?<![\w-])\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?![\w:])")
+
+
+def title_counts(lay: Layout) -> tuple[int, int, str]:
+    """(villagers known, living, the date and time) as the title says them now: a default father ("?",
+    "Joey", "Unknown") is a name only, never counted (the owner, v1.35.85)."""
+    v = lay.village
+    return (len(v.villagers()), sum(1 for p in v.living() if not getattr(p, "placeholder", False)),
+            f"{datetime.now():%Y-%m-%d %H:%M}")
+
+
+def fresh_title(lay: Layout, text: str) -> str:
+    """The player's own title line with its villager counts and date as they are now; "" stays ""."""
+    if not text:
+        return text
+    known, living, when = title_counts(lay)
+    text = TITLE_KNOWN.sub(f"{known} villagers known", text)
+    text = TITLE_LIVING.sub(f"{living} living", text)
+    return TITLE_DATE.sub(when, text)
 
 
 def default_title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
     v = lay.village
     name = v.tribe or f"Save {v.slot}"
+    known, living, when = title_counts(lay)
     return (f"{game_title} -- Family Tree",
-            f"{name} (Save {v.slot}) -- {len(v.known())} villagers known, {len(v.living())} living -- "
-            f"{datetime.now():%Y-%m-%d %H:%M}")
+            f"{name} (Save {v.slot}) -- {known} villagers known, {living} living -- {when}")
 
 
 # Words the tree writes that the player may retype (the owner: "I wanna rename "unrelated
@@ -5040,18 +5269,24 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
     ages = (["age unknown"] if p.age is None and (units or years) else
             [] if p.age is None else
             ([f"{p.age} game units"] if units else []) + ([f"{p.years} years old"] if years else []))
-    if p.alive:
+    if getattr(p, "placeholder", False):
+        ages = []           # nor an age: shown as his name only (the owner, v1.35.85)
+        extra = ""          # a default father ("?", "Joey", "Unknown") is a name only: he never lived here, nor left
+    elif p.alive:
         extra = "Heathen" if p.heathen else ""
     else:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
-    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + descriptors(lay, p) + ([extra] if extra else [])
+    said = descriptors(lay, p)
+    # A Heathen's automatic "Heathen" mark already says it: never "Heathen | Heathen".
+    name = lay.names.get(p.id, p.name)
+    return [f"{p.number}. {name}" if p.number is not None else name] + ages + said + ([extra] if extra and extra not in said else [])
 
 
 def is_founder(village: gen.Village, p: gen.Person) -> bool:
     """One of the village's founders: generation I, no parents recorded, and not a later arrival (an Arrived
     record with a known "How" other than Founder, or first seen after the village's first snapshot)."""
-    if p.upcoming or p.generation != 1 or p.father is not None or p.mother is not None:
-        return False
+    if p.upcoming or getattr(p, "placeholder", False) or p.generation != 1 or p.father is not None or p.mother is not None:
+        return False                    # a default father is a name only, never one of the founders
     return not gen.is_arrival(p, min(gen.snapshot_dates(village), default=None))
 
 
@@ -8621,9 +8856,11 @@ def write_pairs(folder: Path, game: int, slot: int, rules: gen.Rules, game_title
     # Names as Number Duplicate Names gives them (the owner, 2026-10-08: a Roman number only for the
     # same first and last name -- "Hawa Awanata should not be called I or II unless there's literally
     # a second Hawa Awanata"), here before Repair Saves & Logs puts them in the save; in the order the
-    # tree numbers them, so the report and the tree agree.
-    for pid, name in gen.duplicate_names(village, edits.number_order).items():
-        village.people[pid].name = name
+    # tree numbers them, so the report and the tree agree -- and only while the tree's own numbering is on
+    # (the owner, v1.35.85: the Matchmaker follows the tree's "Number duplicate names" setting).
+    if edits.number_names:
+        for pid, name in gen.duplicate_names(village, edits.number_order).items():
+            village.people[pid].name = name
     text = gen.pair_report(village, rules, game_title)
     out = Path(out) if out is not None else folder / TREES
     out.mkdir(parents=True, exist_ok=True)

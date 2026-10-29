@@ -197,19 +197,28 @@ stored on the record; the head sprite frame may get an age/variant offset on top
 ### VV1 — "A New Home" (earliest; NO native mask → from-scratch)
 - **Head atlas ctor:** `0x40A070(this, "male_heads.png", 7, 0x14)` → **7 facings × 20
   variants**. Globals: male `[gameobj+0x3DFF8]`, female `[gameobj+0x3DFF4]`.
-- **Adult head atlas** `[gameobj+0x3E008]` = **4 cols × 1 row** (adults use 4 facings,
-  1 variant).
-- **THREE head-draw paths — different arg semantics, hook all three:**
-  - child-walk `0x409410 → 0x408AF0` — 7 args, `ret 0x1C`, **separate row/col**.
-  - adult `0x4093E0 → 0x408840` — 5 args, `ret 0x14`, **LINEAR packed frame** (the fn
-    `cdq/idiv`s arg4 into row,col). Args: `arg1=sprite, arg2=x, arg3=y, arg4=facing,
-    arg5=0.4f scale`. `0x402F70` is `ret 0` and the `0.4f` survives (caller never
-    cleans it) → arg5.
-  - child-swim/action `0x4093C0 → 0x408740` — 5 args, **separate row/col**.
-- **Age split:** `cmp [rec+0x348], 0x118`.
+- **Adults and children share these two head sheets.** There is no separate adult head
+  atlas.
+- **`[gameobj+0x3E008]` is `ripple.png`, not a head:** `0x40A070(this, "ripple.png", 4, 1)`
+  at `0x43C2D3..0x43C2DE`, stored at `0x43C2EB` → 4 cols × 1 row. Its only reads are the
+  teardown (`0x437213`) and the swimming-ripple draw at `0x438066`/`0x43808A`: in the
+  adult branch, when the terrain test `0x414200` at the villager's feet returns `0xF`,
+  the ripple is drawn (frame = random & 3) at `x-0xC, y+0x1C`, then the swimmer's head
+  at `0x438150`.
+- **Two head-draw paths — different arg semantics, hook both:**
+  - children `0x409410 → 0x408AF0` — 7 args, `ret 0x1C`, **separate row/col**.
+  - adults `0x4093C0 → 0x408740` — 5 args, `ret 0x14`, **separate row/col**
+    (arg4 = row, arg5 = col). Every `0x4093C0` call in loop 1 (`0x438150..0x4387CD`)
+    sits in the adult branch; some draw the head sheets, others action sheets.
+- **Not a head path:** `0x4093E0 → 0x408840` — 5 args, `ret 0x14`, **LINEAR packed
+  frame** (the fn `cdq/idiv`s arg4 into row,col). Args: `arg1=sprite, arg2=x, arg3=y,
+  arg4=frame, arg5=0.4f`. `0x402F70` is `ret 0` and the `0.4f` survives (caller never
+  cleans it) → arg5. In the village loops its only caller is the ripple (`0x43808A`),
+  so the Origins mask patch leaves this thunk stock.
+- **No caller gate on the adult hook:** `0x4093C0` is called only from the 14 adult-branch
+  sites `0x438150..0x4387CD`; nothing else refers to it.
+- **Age split:** `cmp [rec+0x348], 0x118` at `0x4379A7`; `jge 0x438014` = adult branch.
 - **Facings = 7 ⇒ drop the mask atlas's 8th column.**
-- **Linear-frame packing (adult path):** `maskArg4 = colorRow * MASK_COLS + facing`,
-  where MASK_COLS = your mask sprite's *registered* column count.
 - **Details exact-argument wrapper:** all four head calls (`0x43741B`, `0x4374A4`,
   `0x437503`, `0x437556`) remain five-byte CALLs and route through one
   ABI-compatible wrapper at `0x490720`. It duplicates and replays the untouched seven

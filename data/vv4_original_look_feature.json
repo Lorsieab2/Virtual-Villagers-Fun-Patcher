@@ -1,0 +1,42 @@
+{
+  "id": "vv4_original_look",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Original Looks for Reset to Original",
+  "description": "Remembers each villager's original look -- the head, body and mask they had before any Change Appearance or island event changed them -- so Change Appearance and Change Appearance for All can put them back with Reset to original (the head look goes back to Auto too). A look the game itself gives a villager stays: The Secret City's robe for a new Tribal Chief, and the outfit the game's own clothing dialog puts on (The Lost Children to New Believers), become part of the original. Each villager's look is noted the first time the patcher sees them: when they are born or arrive, or, for a village you already have, the first time you play it with this patch; a look noted is never written over. For villagers changed before this patch, Repair Saves & Logs adds the original the patcher's logs prove -- the look before their earliest \"Appearance changed\" record -- and never guesses: when the logs cannot prove it, Change Appearance says the original look is not known. The looks are kept in the save's own Original Looks file, follow each villager (through deaths, reloads and renames) and are copied by Back Up Saves; Start Over clears them. **On by default.** Change Appearance is in the Origins upgrades: **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. **Works the same with every other patch and in every population mode.** **Not yet seen in a running game.** The companion is \"VVFP Original Look.dll\", started by VVFP Startup.dll; it changes nothing the game does. If it cannot be loaded, Change Appearance says the original look is not known.",
+  "output_tag": "Original Looks",
+  "dependencies": [
+    "vv4_enable_origins_exclusive_features"
+  ],
+  "behavior_changes": [
+    "Each villager's head, body and mask (the mask the Origins companion keeps, its VvfpMaskOf) are noted the first time the companion sees them, in the save's own \"Virtual Villagers Fun Patcher\\Save <S>\\Data\\Original Looks\\Original Looks - Save <S>.dat\" (native/vvfp_original_look/original_look_store.inc), and never written over. The companion looks at the villager records from the game's own thread between frames (a WH_GETMESSAGE hook on that thread and a thread timer, at most every 250 ms): a villager present when a village is bound is a first-run original, one who appears after is a born / arrived one.",
+    "A village is bound only once its records have held still for 1.5 s; one whose file is missing or belongs to another village is kept in memory only until the game itself saves that slot again (so the title screen's seeded records are never written into a slot's file).",
+    "Repair Saves & Logs (game closed) adds the originals the logs prove (src/vv_original_look.py): the Old head and Old body of each villager's earliest \"Appearance changed\" record, the mask before it when logged; where a change is seen with no record, the original is marked not known.",
+    "Change Appearance's Reset to original reads it through VvfpOriginalLookGet (native/shared/original_look.h).",
+    "The game's own changes are kept: each instruction by which the game itself writes a villager's body outside Change Appearance and island events -- The Secret City's robe (0x45FBDE in the robing 0x45FBC0) and the clothing dialog's OK (The Lost Children 0x4228E4, The Secret City 0x41BF89, The Tree of Life 0x41961D, New Believers 0x419D68 and 0x419E8E) -- tells the companion the body first, which becomes part of that villager's original; the game's write then happens exactly as before. A New Home's stock game has no such writer."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: the companion splices the game's own body writers listed above at run time, after checking their stock bytes, through the shared all-or-none writer (a different build installs none, and then the game's own changes are not kept); it writes no record byte of its own -- the splice makes the very write the game makes.",
+    "Change Appearance and island events are never folded in: neither reaches those instructions.",
+    "The save is never written; the Original Looks file is the patcher's own.",
+    "A corrupt Original Looks file is moved aside intact and never read or written over; another village's file is never replaced on what is on screen alone."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/original_look/VVFP Original Look.dll",
+      "destination": "VVFP Original Look.dll",
+      "sha256": "79688145879A5C1E69ABD4D89B7D3A24B33DD430C1962998FCF29B2A27A6090E"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x41961D",
+      "stock_bytes": "8990BC1B0000",
+      "routine": "theFernsaceDialog's OK (mov [eax+0x1BBC], edx)",
+      "installed_by": "VVFP Original Look.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

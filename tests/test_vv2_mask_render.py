@@ -234,7 +234,7 @@ def test_vv2_for_all_preflight_covers_absent_matching_and_global_cases() -> None
     assert _vv2_caf_applicable([0], mask_dist=2, mask_ok=False) == 0
 
     engine = DLL[DLL.index("static int caf_plan_head"):DLL.index("#define VV2_CAF_COST")]
-    assert "int n = 0, affected = 0, mask_ok, mask_requested, i, old_head, old_body;" in engine
+    assert "int n = 0, affected = 0, mask_ok, mask_requested, i, old_head, old_body, old_mask;" in engine
     assert "mask_requested = (caf_mask[0] >= 0 || caf_mask[1] >= 0 ||" in engine
     assert "if (rec[VV2_ACTIVE_OFFSET] == 0) continue;" in engine
     assert "vv2_caf_record_needs_change(rec, idx[i], sexof[i], mask_ok)" in engine
@@ -337,7 +337,7 @@ def test_vv2_for_all_dynamic_modes_compare_the_materialized_plan() -> None:
 
 def test_vv2_for_all_zero_count_precedes_charge_and_sidecar_save() -> None:
     entry = DLL[DLL.index("ShowVV2AppearanceForAll(void *player)"):]
-    apply_at = entry.index("if (vv2_apply_caf(base) == 0)")
+    apply_at = entry.index("if (vv2_apply_caf(base) + looks.count == 0)")
     charge_at = entry.index("*tech -= vvfp_story_price(2, VV2_CAF_COST)", apply_at)
     save_at = entry.index("vv2_mask_sidecar_save();", charge_at)
     assert apply_at < charge_at < save_at

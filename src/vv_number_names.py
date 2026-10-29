@@ -101,11 +101,22 @@ def numbering(village: gen.Village, alike: dict[tuple, int] | None = None,
     # namesakes -- only its name is taken (the owner, 2026-10-20: a Repair audit found every Repair
     # renaming Gata Sirikit II to III and back, because such a record took a number each time).
     lookless = {p.id for p in village.known() if p.head is None or p.body is None}
-    weight = {p.id: alike[p.key] for p in village.known() if p.key in alike}
+    # Each look-alike key takes its numbers once, as one block (Numbering.ordered): on the first of its villagers.
+    # The family tree reads two living namesakes as two villagers (vv_genealogy, v1.35.85); the others of the key
+    # are in that block already, so they are left out of the count rather than numbered again.
+    weight: dict[int, int] = {}
+    in_block: set[int] = set()
+    for p in sorted(village.known(), key=lambda q: q.id):
+        if p.key not in alike:
+            continue
+        if p.key in {village.people[q].key for q in weight}:
+            in_block.add(p.id)
+        else:
+            weight[p.id] = alike[p.key]
     blocks: dict[int, list[str]] = {}
     numbered = gen.duplicate_names(village, order,
                                    reserved=set(nameless) | set(taken) | {village.people[q].name for q in lookless},
-                                   leave=unsure | lookless, weight=weight, blocks=blocks)
+                                   leave=unsure | lookless | in_block, weight=weight, blocks=blocks)
     for name in sorted(nameless & {p.name for p in village.known()}):
         out.notes.append(f"Older records name a {name} without saying how they look, so those records keep "
                          f"the name {name}.")

@@ -164,7 +164,7 @@ static void h_open(int sex, int age, int head, int body) {
     appearance_state.head_count = VV_HEAD_COUNT;  /* as the export sets them */
     appearance_state.body_count = VV_BODY_COUNT;
     appearance_state.sex = sex;
-    appearance_state.is_old = age >= VV_OLD_AGE_THRESHOLD;
+    appearance_state.is_old = vvfp_head_look_old(VVFP_HEAD_LOOK_AUTO, age);   /* a villager whose look is Auto */
 #endif
 }
 

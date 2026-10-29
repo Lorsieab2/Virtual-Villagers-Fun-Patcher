@@ -1863,9 +1863,14 @@ Rules for all island events in this game:
   * Timing: the next island event time is kept at manager+0x17D3C in game-clock seconds (clock
     0x4036E0). A new village sets it to 15 minutes after creation (0x424854: +0x384). When the time
     has come, the event is attempted only if the believer population (living believers plus babies
-    they carry, 0x4713F0) is above 0 AND an internal global 0x51D5A4 equals -1 (meaning not
-    determined; the stock code only ever writes -1 to it, at 0x44356F in a message handler, and
-    0x446131 makes the same test elsewhere).
+    they carry, 0x4713F0) is above 0 AND no God Power is armed on the pointer (0x442708: the
+    global 0x51D5A4, the God Powers manager 0x51D4C8 +0xDC, must be -1). It is -1 from start-up
+    (constructor 0x420170 writes it at 0x420192, run by the static initializer 0x493D20 in the
+    CRT table 0x495464..0x49558C before WinMain); a mouse button's release arms the power whose
+    button was pressed and released there, or none (0x420611); a cast or a second click on the
+    armed button sets -1 (0x423547), and so does Esc (0x44356F). While a power is armed the
+    attempt is skipped without touching +0x17D3C, so a due event is tried on the next update
+    after the power is cast or put down. 0x446131 makes the same test in other main-scene code.
   * Before every attempt the scheduler draws one random living believer of any age (picker with no
     other filters); its age (+0x1B8C) must equal its processed age +0x1C3C (the age the life tick
     has stepped up to so far, which the old-age roll uses; it trails the age while credited time is
@@ -2349,7 +2354,7 @@ NOT FULLY RESOLVED
     500 counter is exact, but which delivered item ids count as mushrooms (as opposed to other
     non-collection items) was not established.
   * Internal fields whose meaning was not determined (their required value is stated exactly): the
-    New Believers global 0x51D5A4 (must be -1); New Believers picker flag +0x1CE1 (must be clear)
+    New Believers picker flag +0x1CE1 (must be clear)
     and statuses 14-16 of +0x1CFC; The Tree of Life stream flag 0x4D8CF0+4.
   * Technology names for A New Home (+0xA2BC Spirituality, +0xA2D4 Medicine, +0xA2E4 Farming) and
     The Lost Children (+0x2EA74 Culture, +0x2EA94 Exploration) come from pairing the Technologies

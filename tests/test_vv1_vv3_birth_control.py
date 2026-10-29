@@ -96,10 +96,14 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # are Equal Division's dispatch (the villager-array argument), the Details
     # living gate (.shr raw 0x8BBE0) and detail_menu's call to it, plus the PE
     # CheckSum; Birth Control's own bytes are untouched.
+    # Re-pinned after the VV1 mask clean-up (fix/vv1-mask-ripple, 98907a9e, a21b9a8c and 19bc14f5: the
+    # 0x4093E0 ripple-thunk hook and the never-read .vv1md scratch slots removed).  This test passes at
+    # 239f8b73, before that merge, and fails with these values from dc3216f1, the merge, onward; the head
+    # look changes no VV1 Origins byte.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "DD828C8EF33D24BA731D34D87E75FE6A2BD44EE47FC233F9C001914915B672A0",
-        "collection_progression": "0C04B0AF9ADC5B127A4FDFE415CB439F0F167A5A04831BDF69DB4B9D100AD27F",
-        "immediate_fixed": "0C04B0AF9ADC5B127A4FDFE415CB439F0F167A5A04831BDF69DB4B9D100AD27F",
+        "stock": "7C14F65C87653CB24FCDCB40FB467AC1841639698EAF388CE9C25FC60DE2F72F",
+        "collection_progression": "EF5AC37A682AD8A29AE383A95724F1FAF6923BE4974D3765D9CEF6C3890A1003",
+        "immediate_fixed": "EF5AC37A682AD8A29AE383A95724F1FAF6923BE4974D3765D9CEF6C3890A1003",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}

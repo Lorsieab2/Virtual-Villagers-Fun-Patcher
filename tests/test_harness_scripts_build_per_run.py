@@ -60,8 +60,12 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # and build_dialog_kit_harness.ps1 (the companions' resizable dialogs,
         # wrapping lists and villager sorting on real windows, v1.35.80),
         # and build_change_appearance_harness.ps1 (Change Appearance reaches
-        # every head and body row in all five games).
-        self.assertEqual(len(SCRIPTS), 33, [path.name for path in SCRIPTS])
+        # every head and body row in all five games), and build_head_look_harness.ps1
+        # (Change Appearance's head look file, native/vvfp_head_look), and
+        # build_change_appearance_extras_harness.ps1 (Undo, Reset to original and the Random buttons),
+        # and build_original_look_harness.ps1 (the original looks behind Reset to original,
+        # native/vvfp_original_look).
+        self.assertEqual(len(SCRIPTS), 36, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:

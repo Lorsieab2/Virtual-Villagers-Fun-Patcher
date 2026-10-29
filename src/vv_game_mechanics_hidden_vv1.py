@@ -204,8 +204,9 @@ def _patcher() -> list[Entry]:
             "work (native/vv1_number_keys). It also adds the tip \"You can zip around the island with your numeric "
             "keys.\" as tip 549, and the mask then draws from 31 tips (0x4256B0: push 0x1E becomes push 0x1F)"), C,
               feature=NUMBER_KEYS, subs=(
-                ("The patch's description calls it a loading-screen tip; A New Home's only random-tip picker is the "
-                 "mask click (0x4256B0 is in the village's mouse slot 0x424EF0), so the tip comes from the mask.", C),)),
+                ("The tip comes only from the mask: A New Home's only random-tip picker is the mask click (0x4256B0 "
+                 "is in the village's mouse slot 0x424EF0), and its loading screen (built by 0x41F650) shows only "
+                 "\"Loading...\".", C),)),
         Entry(PATCHER, "F6 (village screen)", (
             "with a living villager selected, spends 5,000 tech points and puts that villager in the next outfit (0 to "
             "19, then 0 again); with fewer than 5,000 tech points or nobody selected nothing happens and nothing is "

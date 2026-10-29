@@ -277,6 +277,32 @@ first and listed in the Repairs log), and the go-ahead is then used up.
    asked: A New Home's parents are repaired as soon as the village has
    settled, everything else at the game's save when you close it.
 
+Repair Saves & Logs also adds the ORIGINAL LOOKS the logs prove (the Original
+Looks patch, on by default): for each villager whose head or body Change
+Appearance or an island event changed, the look before their earliest
+"Appearance changed" record, which Change Appearance's "Reset to original"
+puts back. A look the game itself gave (The Secret City's chief's robe) is
+kept as part of the original. It never guesses: where the logs cannot prove a villager's
+original (a change seen with no record of it, a mask the logs never named),
+that villager is marked "not known" and Reset to original says so. Villagers
+the patch sees itself -- born or arrived, or already there the first time you
+play the village with it -- need nothing from the logs.
+
+CHANGE APPEARANCE (Villager Upgrades and Change Appearance for All)
+
+Change Appearance has Undo changes (every choice back to how the villager
+looks now; nothing is kept or charged), Reset to original (the original head,
+body and mask with head look Auto; "Original look not known" when the
+Original Looks patch cannot tell), Random head, Random body, Random mask, a
+Random look (Young or Old) and Head by hair colour (Black, Brown, Red /
+Ginger, Blonde, Other, for the villager's own sex). Each shows in the preview;
+press again to roll again; Cancel keeps nothing. OK costs 5,000 tech points
+for any change, a head look alone too. Change Appearance for All has a Head
+look row for the men and one for the women (Leave as is, Auto, Young, Old,
+Random), and its own Undo changes and Reset to original, which tells how many
+villagers' originals are not known. In A New Home the head look shows only
+with Grey Hair at 55.
+
 GAME MECHANICS
 
 On the Tools tab, click Game Mechanics... (or Game mechanics... on any game's
@@ -848,8 +874,9 @@ stop a glide, drag the map against it: while the mouse button is held the
 glide keeps pulling, and letting go of the button (or any click on the
 village) ends it where the view is. Opening another screen ends it too. The
 keys work on the village screen: the top-row digits, and the numeric keypad
-when Num Lock is on. It also adds the loading-screen tip "You can zip around
-the island with your numeric keys."
+when Num Lock is on. It also adds the tip "You can zip around the island with
+your numeric keys." to the helpful tips shown at the bottom of the screen when
+you click the mask.
 
 The feature is its own companion, VVFP VV1 Number Keys.dll, which the game
 loads at startup. So the row runs on the
@@ -999,6 +1026,29 @@ Fun Patcher Data", one file per save slot:
 
     Village Statistics\, Stew Discoveries\, Village Elders\  (Village Statistics)
     Custom Titles\                                 (Story / Cheat Upgrades)
+    Head Looks\                                    (Origins: Change Appearance's
+        Head Looks - Save <slot>.dat                head look -- Auto, Young or
+                                                    Old -- for each villager given
+                                                    one; all five games. Written
+                                                    in the save's own folder,
+                                                    Virtual Villagers Fun Patcher\
+                                                    Save <slot>\Data\Head Looks.
+                                                    Deleted by Start Over; delete
+                                                    it yourself and every look is
+                                                    Auto again)
+    Original Looks\                                (Original Looks: each villager's
+        Original Looks - Save <slot>.dat            head, body and mask before any
+                                                    change, for Change Appearance's
+                                                    Reset to original; all five
+                                                    games. Written in the save's
+                                                    own folder, Virtual Villagers
+                                                    Fun Patcher\Save <slot>\Data\
+                                                    Original Looks; Repair Saves &
+                                                    Logs adds what the logs prove.
+                                                    Deleted by Start Over; delete
+                                                    it yourself and every original
+                                                    is noted again as each villager
+                                                    looks now)
     Paid Purchases\                                (Origins Barrel of Babies)
         Virtual Villagers 1 Paid Purchases - Save <slot>.dat     A New Home
         Virtual Villagers 2 Paid Purchases - Save <slot>.dat     The Lost Children

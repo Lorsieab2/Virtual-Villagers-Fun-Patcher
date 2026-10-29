@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv1",
   "name": "Numeric Keys: Zip Around the Island",
-  "description": "The number keys glide the view to nine spots on the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), exactly the way they do in The Lost Children: the same nine spots, the same glide (a tenth of the remaining distance each update), and the same controls -- another number key changes course, dragging the map pulls against the glide while the mouse button is held and releasing the button (or any click) ends it, and opening another screen ends it. The keys work on the village screen: the top-row digits, and the numeric keypad when Num Lock is on. Adds the loading-screen tip \"You can zip around the island with your numeric keys.\" **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL.",
+  "description": "The number keys glide the view to nine spots on the island, laid out like a numeric keypad (7 8 9 across the top, 4 5 6 in the middle, 1 2 3 along the bottom), exactly the way they do in The Lost Children: the same nine spots, the same glide (a tenth of the remaining distance each update), and the same controls -- another number key changes course, dragging the map pulls against the glide while the mouse button is held and releasing the button (or any click) ends it, and opening another screen ends it. The keys work on the village screen: the top-row digits, and the numeric keypad when Num Lock is on. Adds the tip \"You can zip around the island with your numeric keys.\" to the helpful tips shown at the bottom of the screen when you click the mask. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL.",
   "output_tag": "Numeric Keys",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"
@@ -14,7 +14,7 @@
     "Typing 1-9 on the village screen (the game's own text-character handler 0x41FDF0, detoured at 0x41FE04 as The Lost Children's 0x429E70 does it) sets the glide target to The Lost Children's nine spots 1=(-150,1200), 2=(300,1200), 3=(850,1200), 4=(-150,500), 5=(300,570), 6=(850,500), 7=(-150,0), 8=(300,0), 9=(850,0); another digit retargets from where the view is.",
     "The glide is The Lost Children's 0x42F814, run from the Origins village-update hook (0x423F89): while a target is set it zeroes the edge velocities, moves each axis a tenth of the remaining distance (truncated, no minimum step, no snap), clamps with A New Home's own clamp (an axis that hits it has its target zeroed, as in The Lost Children), and ends once both remaining distances divided by ten are zero.",
     "The map drag is untouched and moves the view against the glide while the button is held; the mouse-up branch (0x424F12), the screen buttons that leave the village view (0x4208CC, 0x420932, 0x420998) and the screen constructor (0x422555) now also clear the glide, where The Lost Children clears it. These six sites are detoured at run time by the companion after their stock bytes are checked; if any differs, nothing is installed.",
-    "One more loading-screen tip can appear: \"You can zip around the island with your numeric keys.\""
+    "Clicking the mask can show one more tip: \"You can zip around the island with your numeric keys.\""
   ],
   "explicit_non_changes": [
     "The companion writes only the camera pair and the screen's edge velocity pair (+0x2D8/+0x2DC); the native held-record carry routine refreshes a carried villager after each glide step. No save-format change is made, and with no glide the edge scrolling and map drag are stock.",
@@ -34,7 +34,7 @@
       "offset": "0X256B0",
       "before": "6A1E",
       "after": "6A1F",
-      "purpose": "draw the loading-screen tip from 31 ids instead of 30 (0x4256B0: push 0x1e -> push 0x1f), so id 0x225 -- the new tip -- can come up; the picker is 0x207 + rand(n)"
+      "purpose": "draw the tip shown when the mask is clicked from 31 ids instead of 30 (0x4256B0, in the village screen's mouse handler 0x424EF0: push 0x1e -> push 0x1f), so id 0x225 -- the new tip -- can come up; the picker is 0x207 + rand(n)"
     },
     {
       "offset": "0X346E7",

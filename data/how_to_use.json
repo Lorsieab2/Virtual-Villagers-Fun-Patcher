@@ -362,6 +362,7 @@
         "Click it, choose an upgrade and confirm; it is paid for with tech points.",
         "Includes village-wide Running, Full Mastery and Young Adults, and the Food and Tech Point Doublers.",
         "Equal Division of Labor gives each villager their best-progressed job where there is room; Clear All Skill Preferences and Check Highest Skill set job checkmarks.",
+        "Change Appearance: head look Auto, Young or Old (A New Home: with Grey Hair at 55); Undo, Reset to original, Random.",
         "If an upgrade would change nothing, no tech points are taken.",
         "Story / Cheat Upgrades needs this patch."
       ]
@@ -374,6 +375,7 @@
         "Includes Time Warp, Island Event, Barrel of Babies, the Doublers, Full Heal and village-wide upgrades.",
         "Equal Division of Labor gives each villager their best-progressed job where there is room; Clear All Skill Preferences and Check Highest Skill set job checkmarks.",
         "The village-wide Running, Full Mastery and Exactly 18 upgrades skip Heathens.",
+        "Change Appearance: head look Auto, Young or Old; Undo, Reset to original, Random.",
         "If an upgrade would change nothing, no tech points are taken.",
         "Story / Cheat Upgrades needs this patch."
       ]
@@ -397,7 +399,7 @@
     {
       "ids": ["vv2_numeric_keys_tip_wording"],
       "guide": [
-        "Changes one loading-screen tip to say \"numeric keys\" instead of \"keypad\".",
+        "Changes one of the tips shown when you click the mask to say \"numeric keys\" instead of \"keypad\".",
         "The number keys themselves already work in The Lost Children."
       ]
     },
@@ -551,6 +553,27 @@
         "Turn on Show Parents in Details Screen too: it knows each baby's father. Without it a baby takes after its mother.",
         "Boys never get the Golden Child's head; twins and triplets look alike; bodies stay random.",
         "On by default. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_grey_hair"],
+      "guide": [
+        "Nothing to click: tick the patch, and every villager of 55 years or more is drawn with grey hair.",
+        "It is the same head in grey, in the village, on the map and in the Villager Details portrait; Change Appearance shows it grey too.",
+        "Villagers already grey or bald look the same. The Golden Child never grows old, so he never changes; anyone else given his head shows its old version from 55.",
+        "Only the picture changes: the head number, the logs, the Family Tree and genetics stay as they were.",
+        "On by default. Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv1_original_look", "vv2_original_look", "vv3_original_look", "vv4_original_look", "vv5_original_look"],
+      "guide": [
+        "Nothing to click: tick the patch, and each villager's look is noted the first time the patcher sees them.",
+        "Change Appearance's Reset to original then puts their head, body and mask back to that look, with the head look on Auto.",
+        "A look the game itself gives stays: the chief's robe, and an outfit from the game's own clothing dialog.",
+        "For a village you already have, Repair Saves & Logs adds the looks the logs prove for villagers changed before; it never guesses.",
+        "Where no original is known, Change Appearance says so. Start Over clears them; Back Up Saves copies them.",
+        "Needs Origins (ticked with it). On by default. Not yet seen in a running game."
       ]
     },
     {
