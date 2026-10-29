@@ -395,6 +395,30 @@ class Backfill(unittest.TestCase):
         self.assertFalse(again.written, "this village's own file: as before, nothing new to write")
         self.assertEqual(len(list(target.parent.glob(target.name + ".another-village-*"))), 1)
 
+    def test_an_island_events_mask_change_alone_is_not_nothing(self):
+        """Codex, PR #653: a villager whose only recorded change is an island event's mask: the original is the
+        look they have now with the mask before it -- or not known when that mask is not proven."""
+        v = self.village(4)
+        a, b, c = v.people[0].seen, v.people[1].seen, v.people[2].seen
+        v.events(f"Island event 1\n  Name: {a.name}\n  Mask: Red Mask -> none\n\n"
+                 f"Island event 2\n  Name: {b.name}\n  Mask: Green Mask -> none\n\n")
+        ol.backfill(v.folder, 4, 1)
+        got = v.logged()
+        self.assertEqual((got[a.name].kind, got[a.name].head, got[a.name].body, got[a.name].mask),
+                         (ol.KNOWN, a.head, a.body, 3), "the mask before the event, with the look they have now")
+        self.assertEqual(got[b.name].kind, ol.UNKNOWN, "a mask before the event the logs cannot name: not known")
+        self.assertNotIn(c.name, got, "no record and no change: still nothing")
+
+    def test_new_believers_island_event_masks_are_still_never_taken(self):
+        v = self.village(5)
+        a, b = v.people[0].seen, v.people[1].seen
+        v.events(f"Island event 1\n  Name: {a.name}\n  Mask: Red Mask -> none\n\n"
+                 f"Island event 2\n  Name: {b.name}\n  Mask: none -> Blue Mask\n\n")
+        ol.backfill(v.folder, 5, 1)
+        got = v.logged()
+        self.assertEqual(got[a.name].kind, ol.UNKNOWN, "a Heathen's own mask cannot be told from a cosmetic one")
+        self.assertEqual((got[b.name].kind, got[b.name].mask), (ol.KNOWN, 0))
+
     def test_an_island_events_change_with_no_appearance_record_is_not_known(self):
         v = self.village(3)
         a, b = v.people[0].seen, v.people[1].seen

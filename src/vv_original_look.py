@@ -443,10 +443,25 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
     # chain", or a villager whose only change is off the way would read as never changed.
     if off_chain and unique_name:
         return Found(UNKNOWN, why="a record of their name changed a look that is not on their way")
-    if not chain:
-        return Found(None)
-    first = ev.changes[chain[0]]
     masks = [m for m in ev.masks if m[0] in names]
+    if not chain:
+        if not masks:
+            return Found(None)
+        # Their head and body never changed, but an island event changed their mask (Codex, PR #653): the
+        # original is the look they have now with the mask before the earliest such event -- when it is
+        # proven theirs.  Never "nothing to say", or the DLL would take the mask after the event.
+        if not unique_name:
+            return Found(UNKNOWN, why="an island event changed the mask of a name two villagers have")
+        mask = masks[0][1]
+        if mask is None:
+            return Found(UNKNOWN, why="the mask before an island event changed it is not recorded")
+        if len(own) == 1 and own[0][3] is not None and own[0][3] != mask:
+            return Found(UNKNOWN, why="their own record's mask is not where their mask changes start: changed "
+                                      "with no record of it")
+        if game == 5 and mask != 0:
+            return Found(UNKNOWN, why="New Believers' logs do not tell a Heathen's own mask from a cosmetic one")
+        return Found(KNOWN, state[0], state[1], mask)
+    first = ev.changes[chain[0]]
     if first.old_mask is not None:
         # The earliest change's own "Old mask": Change Appearance's mask store, whatever the game.
         return Found(KNOWN, state[0], state[1], first.old_mask, chain=tuple(chain))

@@ -369,6 +369,57 @@ class ShowBothLinkByAge(unittest.TestCase):
                                             gen.Person(6, "U", -1, -1, upcoming=True)))
 
 
+class ANamesakeOfTheOtherSexIsNeverTheParent(unittest.TestCase):
+    """Codex, PR #653: a woman and a man of one name and look; only the man can be a father, only the woman a
+    mother -- never offered, linked or answered across sexes."""
+    KAI = ("Kai", 15, 6)
+
+    def village(self, kais: list[tuple[int, int]], father=None, mother=None) -> gen.Village:
+        folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        save(folder, [
+            aged(entry("Parai Tokidoki", 1, 5, 7, 7), 900),
+            aged(entry("Pono Kea", 0, 5, 2, 2), 900),
+            *(aged(entry(self.KAI[0], sex, 30 + n, self.KAI[1], self.KAI[2],
+                         father=("Old Kai", 4, 4 + n), mother=("Ma Kai", 5, 5 + n)), age)
+              for n, (sex, age) in enumerate(kais)),
+            aged(entry("Kid", 0, 50, 20, 21, father=father or ("Pono Kea", 2, 2),
+                       mother=mother or ("Parai Tokidoki", 7, 7)), 120),
+        ])
+        return gen.load_village(folder, 3, 1)
+
+    def kai(self, v: gen.Village, sex: str) -> gen.Person:
+        return next(p for p in v.people.values() if p.key == self.KAI and p.alive and p.sex == sex)
+
+    def kid(self, v: gen.Village) -> gen.Person:
+        return next(p for p in v.people.values() if p.name == "Kid")
+
+    def test_the_man_is_the_father_without_asking(self) -> None:
+        v = self.village([(1, 1200), (0, 1000)], father=self.KAI)
+        self.assertEqual(self.kid(v).father, self.kai(v, "Male").id)
+        self.assertEqual(v.parent_questions, [], "the woman is never offered as a father")
+
+    def test_the_woman_is_the_mother_without_asking(self) -> None:
+        v = self.village([(0, 1200), (1, 1000)], mother=self.KAI)
+        self.assertEqual(self.kid(v).mother, self.kai(v, "Female").id)
+        self.assertEqual(v.parent_questions, [])
+
+    def test_no_man_of_that_name_no_father_and_nothing_asked(self) -> None:
+        v = self.village([(1, 1200), (1, 1000)], father=self.KAI)
+        self.assertIsNone(self.kid(v).father)
+        self.assertEqual(v.parent_questions, [], "never asked with women as the choices")
+        self.assertTrue(any("Kid's father is Kai" in n and "a man" in n for n in v.notes))
+
+    def test_a_mixed_sex_pair_is_numbered_and_edited_as_two(self) -> None:
+        v = self.village([(1, 1200), (0, 1000)], father=self.KAI)
+        woman, man = self.kai(v, "Female"), self.kai(v, "Male")
+        self.assertEqual(sorted(gen.duplicate_names(v)[p.id] for p in (woman, man)), ["Kai I", "Kai II"])
+        self.assertNotEqual(ft.entry_key(v, woman), ft.entry_key(v, man))
+        e = ft.Edits(entries={ft.entry_key(v, woman): {"lines": ["She"]}, ft.entry_key(v, man): {"lines": ["He"]}})
+        ft.arrange(v, e)
+        self.assertEqual((e.entries[ft.entry_key(v, woman)]["lines"], e.entries[ft.entry_key(v, man)]["lines"]),
+                         (["She"], ["He"]))
+
+
 class NamesakesKeepTheirOwnEdits(unittest.TestCase):
     """Codex, PR #653: a namesake's tree edits are kept by what tells them apart for good (sex and recorded
     parents), never by their place by age; nothing is ever given to another villager or deleted."""

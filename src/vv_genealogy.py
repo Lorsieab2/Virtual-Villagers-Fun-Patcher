@@ -1070,9 +1070,19 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
         for child in list(reg.people.values()):
             # A namesake can be the child of another namesake (a Tepeu fathered by an older Tepeu): never their
             # own parent, so the others are the candidates (Codex, PR #653).
-            pool = [pid for pid in group if pid != child.id]
+            others = [pid for pid in group if pid != child.id]
             for attr, label in (("father", "Father"), ("mother", "Mother")):
                 if getattr(child, attr) not in group:
+                    continue
+                # Only a man can be a father and only a woman a mother: namesakes of the other sex are never
+                # offered, linked or given by a kept answer (Codex, PR #653).  The sex unknown: still a candidate.
+                sex = "Male" if label == "Father" else "Female"
+                pool = [pid for pid in others if reg.people[pid].sex in (sex, None)]
+                if not pool:
+                    setattr(child, attr, None)
+                    notes.append(f"{child.name}'s {label.lower()} is {key[0]} (head {key[1]}, body {key[2]}), but no "
+                                 f"living villager of that name and look is a {'man' if sex == 'Male' else 'woman'}: "
+                                 f"no {label.lower()} is shown, and nothing is asked.")
                     continue
                 fits = [pid for pid in pool if could_be_parent(reg.people[pid], child)]
                 child_key = (child.key if not child.upcoming else
@@ -1087,7 +1097,7 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
                 said = _child_answer(answers.get((child_key, key, label), []), child_marker, child_rank,
                                      child_group)
                 who = fits or pool
-                chosen = _answered(said, group, idents, child.id, [rank_word(group.index(pid)) for pid in who])
+                chosen = _answered(said, group, idents, pool, [rank_word(group.index(pid)) for pid in who])
                 if chosen is None and len(fits) == 1:
                     chosen = fits[0]
                 setattr(child, attr, chosen)
@@ -1158,20 +1168,21 @@ def _rank_of(verdict: str | None) -> int | None:
     return None
 
 
-def _answered(said, group: list, idents: dict, child_id: int, offered: list) -> int | None:
+def _answered(said, group: list, idents: dict, allowed: list, offered: list) -> int | None:
     """The namesake a kept answer chose, when it can still be told (Codex, PR #653): never by the place by
     age alone, which moves to another villager when an older namesake dies.
       * An answer that kept the chosen parent's identity (parent_identity) picks the one living namesake with
         it; when two share it (twins of one record), the place by age, but only while the group is exactly as
         it was when answered.
       * An older answer (the place by age alone) only while the same choices would be offered.
-    Otherwise None: the question is asked again."""
+    Only the namesakes in `allowed` (the child excluded, the parent's sex only) are ever chosen.  Otherwise None:
+    the question is asked again."""
     if said is None:
         return None
     k = _rank_of(getattr(said, "verdict", said))
     ident = getattr(said, "parent", None)
     if ident:
-        matches = [pid for pid in group if pid != child_id and idents[pid] == ident]
+        matches = [pid for pid in group if pid in allowed and idents[pid] == ident]
         if len(matches) == 1:
             return matches[0]
         if len(matches) > 1 and k is not None and k < len(group) and group[k] in matches \
@@ -1180,7 +1191,7 @@ def _answered(said, group: list, idents: dict, child_id: int, offered: list) -> 
         return None
     if k is None or list(getattr(said, "options", None) or []) != offered:
         return None
-    return group[k] if k < len(group) and group[k] != child_id else None
+    return group[k] if k < len(group) and group[k] in allowed else None
 
 
 def _saved_rename_answers(folder: Path, game: int, slot: int) -> dict:
