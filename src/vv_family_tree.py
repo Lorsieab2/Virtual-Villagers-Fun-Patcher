@@ -1667,7 +1667,10 @@ def entry_key(village: gen.Village, p: gen.Person) -> str:
     if p.upcoming:
         m = village.people[p.mother]
         return f"upcoming|{m.name}|{m.head}|{m.body}|{-(p.body or 0)}"
-    return f"{p.name}|{p.head}|{p.body}"
+    # Two living villagers of one name and look are two people, each with their own edits: the oldest keeps
+    # the plain key (as before), the next "|2", "|3"... by age (vv_genealogy._parents_by_age).
+    rank = getattr(p, "namesake_rank", 0)
+    return f"{p.name}|{p.head}|{p.body}" + (f"|{rank}" if rank > 1 else "")
 
 
 @dataclass
@@ -1832,8 +1835,9 @@ def _renumber(village: gen.Village, edits: Edits) -> None:
     for pid in gone:
         village.people[pid].number = None
     n = 0
-    for g in sorted({p.generation for p in village.known()}):
-        row = sorted((p for p in village.known() if p.generation == g and p.id not in gone), key=lambda p: p.number)
+    counted = village.villagers()                # a default father is never numbered (number_people)
+    for g in sorted({p.generation for p in counted}):
+        row = sorted((p for p in counted if p.generation == g and p.id not in gone), key=lambda p: p.number)
         order = {key: i for i, key in enumerate(edits.orders.get(str(g), []))}
         row.sort(key=lambda p: (order.get(entry_key(village, p), len(order)), p.number))
         for p in row:
@@ -1843,7 +1847,7 @@ def _renumber(village: gen.Village, edits: Edits) -> None:
 
 def _place(p: gen.Person) -> tuple:
     """A row's order is its numbers' (vv_genealogy.number_people); babies on the way last."""
-    return (p.upcoming, p.number or 0, p.order_key())
+    return (p.upcoming, p.number is None, p.number or 0, p.order_key())     # a default father: after the numbered
 
 
 def group_of(p: gen.Person) -> str:
@@ -4855,8 +4859,8 @@ def generation_number(lay: Layout, g: int) -> str:
 def default_label_parts(lay: Layout, g: int) -> dict[str, str]:
     v = lay.village
     members = [v.people[q] for q in lay.x if v.people[q].generation == g]
-    people = [p for p in members if not p.upcoming]
-    upcoming = len(members) - len(people)
+    people = [p for p in members if not p.upcoming and not getattr(p, "placeholder", False)]   # a default father: a name only
+    upcoming = sum(1 for p in members if p.upcoming)
     women = sum(p.sex == "Female" for p in people)
     men = sum(p.sex == "Male" for p in people)
     alive = sum(p.alive for p in people)
@@ -4931,15 +4935,41 @@ def label_boxes(village: gen.Village, edits: Edits, shown) -> dict[int, LabelBox
 def title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
     first, second = default_title_lines(lay, game_title)
     page = f" -- Page {lay.page + 1} of {lay.pages}" if lay.pages > 1 else ""
-    return (lay.edits.title or first) + page, lay.edits.subtitle or second
+    return (fresh_title(lay, lay.edits.title) or first) + page, fresh_title(lay, lay.edits.subtitle) or second
+
+
+# The facts a title line the tree wrote carries, kept current in a line the player retyped (the owner,
+# v1.35.85: "keep the owner's own words, but refresh the villager counts and the date each time the tree is
+# made").  Only these words, where the player's line still has them; every other word is the player's.
+TITLE_KNOWN = re.compile(r"(?<![\w.])\d+ villagers known(?!\w)")
+TITLE_LIVING = re.compile(r"(?<![\w.])\d+ living(?!\w)")
+TITLE_DATE = re.compile(r"(?<![\w-])\d{4}-\d{2}-\d{2} \d{2}:\d{2}(?![\w:])")
+
+
+def title_counts(lay: Layout) -> tuple[int, int, str]:
+    """(villagers known, living, the date and time) as the title says them now: a default father ("?",
+    "Joey", "Unknown") is a name only, never counted (the owner, v1.35.85)."""
+    v = lay.village
+    return (len(v.villagers()), sum(1 for p in v.living() if not getattr(p, "placeholder", False)),
+            f"{datetime.now():%Y-%m-%d %H:%M}")
+
+
+def fresh_title(lay: Layout, text: str) -> str:
+    """The player's own title line with its villager counts and date as they are now; "" stays ""."""
+    if not text:
+        return text
+    known, living, when = title_counts(lay)
+    text = TITLE_KNOWN.sub(f"{known} villagers known", text)
+    text = TITLE_LIVING.sub(f"{living} living", text)
+    return TITLE_DATE.sub(when, text)
 
 
 def default_title_lines(lay: Layout, game_title: str) -> tuple[str, str]:
     v = lay.village
     name = v.tribe or f"Save {v.slot}"
+    known, living, when = title_counts(lay)
     return (f"{game_title} -- Family Tree",
-            f"{name} (Save {v.slot}) -- {len(v.known())} villagers known, {len(v.living())} living -- "
-            f"{datetime.now():%Y-%m-%d %H:%M}")
+            f"{name} (Save {v.slot}) -- {known} villagers known, {living} living -- {when}")
 
 
 # Words the tree writes that the player may retype (the owner: "I wanna rename "unrelated
@@ -5041,6 +5071,7 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
             [] if p.age is None else
             ([f"{p.age} game units"] if units else []) + ([f"{p.years} years old"] if years else []))
     if getattr(p, "placeholder", False):
+        ages = []           # nor an age: shown as his name only (the owner, v1.35.85)
         extra = ""          # a default father ("?", "Joey", "Unknown") is a name only: he never lived here, nor left
     elif p.alive:
         extra = "Heathen" if p.heathen else ""
@@ -5048,7 +5079,8 @@ def default_text(lay: Layout, p: gen.Person) -> list[str]:
         extra = {"died": "(deceased)", "disappeared": "(disappeared)"}.get(p.gone, "(left the village)")
     said = descriptors(lay, p)
     # A Heathen's automatic "Heathen" mark already says it: never "Heathen | Heathen".
-    return [f"{p.number}. {lay.names.get(p.id, p.name)}"] + ages + said + ([extra] if extra and extra not in said else [])
+    name = lay.names.get(p.id, p.name)
+    return [f"{p.number}. {name}" if p.number is not None else name] + ages + said + ([extra] if extra and extra not in said else [])
 
 
 def is_founder(village: gen.Village, p: gen.Person) -> bool:
@@ -5415,7 +5447,7 @@ def node_runs(lay: Layout, p: gen.Person) -> list[list[tuple[str, dict]]] | None
 BOLD_WIDTH = 1.1                        # how much wider a bold letter is, near enough
 
 # Segoe UI's own letter widths, in thousandths of its size (Windows' font, measured): space to "~", then
-# no-break space to "Ã¿".  A portrait's words are fitted by these, the same in the editor and in every
+# no-break space to "ÿ".  A portrait's words are fitted by these, the same in the editor and in every
 # saved picture -- a fixed width a letter (0.55 of the size) let a bold "75. Mamba Chuchip" run 11 pixels
 # past its frame.
 _WIDTH_CHARS = "".join(map(chr, range(32, 127))) + "".join(map(chr, range(160, 256)))
@@ -5557,7 +5589,7 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
         room = max(1, room)
         if len(out) > room:
             last, bold, _r = out[room - 1]
-            out = out[:room - 1] + [(last[:n - 1] + "â€¦", bold, None)]
+            out = out[:room - 1] + [(last[:n - 1] + "…", bold, None)]
         return out
     pieces: list[tuple[list, bool]] = []
     if n > WRAP:
@@ -5575,7 +5607,7 @@ def shown_text(lay: Layout, p: gen.Person, room: int) -> list[tuple[str, bool, l
                 break
             kept.append(cell)
             used += cell[1]
-        pieces = pieces[:room - 1] + [(kept + [("â€¦", 1.0, kept[-1][2] if kept else {})], bold)]
+        pieces = pieces[:room - 1] + [(kept + [("…", 1.0, kept[-1][2] if kept else {})], bold)]
     out = []
     for cells, bold in pieces:
         line_runs = _cells_runs(cells)
@@ -8625,9 +8657,11 @@ def write_pairs(folder: Path, game: int, slot: int, rules: gen.Rules, game_title
     # Names as Number Duplicate Names gives them (the owner, 2026-10-08: a Roman number only for the
     # same first and last name -- "Hawa Awanata should not be called I or II unless there's literally
     # a second Hawa Awanata"), here before Repair Saves & Logs puts them in the save; in the order the
-    # tree numbers them, so the report and the tree agree.
-    for pid, name in gen.duplicate_names(village, edits.number_order).items():
-        village.people[pid].name = name
+    # tree numbers them, so the report and the tree agree -- and only while the tree's own numbering is on
+    # (the owner, v1.35.85: the Matchmaker follows the tree's "Number duplicate names" setting).
+    if edits.number_names:
+        for pid, name in gen.duplicate_names(village, edits.number_order).items():
+            village.people[pid].name = name
     text = gen.pair_report(village, rules, game_title)
     out = Path(out) if out is not None else folder / TREES
     out.mkdir(parents=True, exist_ok=True)

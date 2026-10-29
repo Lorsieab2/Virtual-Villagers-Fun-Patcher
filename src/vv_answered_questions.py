@@ -355,6 +355,52 @@ def keep_identity(folder: Path, game: int, slot: int, older: tuple, newer: tuple
 
 
 # ---------------------------------------------------------------------------
+# Which of two living namesakes is the parent? (the Family Tree Maker, all five games)
+# ---------------------------------------------------------------------------
+# The owner (v1.35.85): two living villagers of one name, head and body are two people; a child is linked to the
+# one old enough to be the parent, and when both could be the Family Tree Maker asks.  The answer is the parent's
+# place by age among the namesakes ("The oldest", "The second oldest"...: vv_genealogy.RANK_WORDS), which stays
+# true while they live, kept under the child and the parent's name and look, and listed in Answered questions.
+PARENT_SOURCE = "parent"
+PARENT_LABEL = "Family Tree Maker: which villager is the parent?"
+
+
+def parent_answers(folder: Path, game: int, slot: int) -> dict[tuple, str]:
+    """{(child (name, head, body), parent (name, head, body), "Father"/"Mother"): the answer}, the latest of each.
+    Reads only; nothing when the file cannot be read."""
+    try:
+        entries, renamed = _entries(folder, game, slot, _villages(folder, game, slot))
+    except (OSError, ValueError):
+        return {}
+    out: dict[tuple, str] = {}
+    for d in sorted(entries, key=lambda d: str(d.get("date", ""))):
+        if d.get("source") != PARENT_SOURCE or not d.get("verdict") or dont_know(str(d.get("verdict"))):
+            continue
+        who = _canon(d.get("who"), renamed)
+        if len(who) == 2:
+            out[(who[0], who[1], str(d.get("fact")))] = str(d["verdict"])
+    return out
+
+
+def keep_parent(folder: Path, game: int, slot: int, child: tuple, parent: tuple, label: str, options: list[str],
+                verdict: str | None, text: str, now: datetime | None = None) -> None:
+    """Keep the player's answer to "which of these is <child>'s father (mother)?"; "Don't know" (or None)
+    takes a kept answer out, so the question is asked again."""
+    entries, renamed = _entries(folder, game, slot, None)
+    who = (tuple(child), tuple(parent))
+    field_ = base_of(PARENT_SOURCE, label, who, renamed)
+    if any(str(d.get("field")) == field_ for d in entries):
+        decisions.rewrite(Path(folder), game, slot,
+                          lambda found: [d for d in found if not (d.get("kind") == KIND and str(d.get("field")) == field_)])
+    if verdict is None or dont_know(verdict):
+        return
+    decisions.record(Path(folder), game, slot, [{
+        "kind": KIND, "village": village_header(folder, game, slot), "field": field_, "source": PARENT_SOURCE,
+        "fact": label, "who": [list(w) for w in who], "ordinal": 1, "of": 1, "question": text,
+        "options": list(options), "verdict": verdict, "label": PARENT_LABEL, "edited": False, "alone": True}], now)
+
+
+# ---------------------------------------------------------------------------
 # The section: every answer kept, changed or cleared
 # ---------------------------------------------------------------------------
 
