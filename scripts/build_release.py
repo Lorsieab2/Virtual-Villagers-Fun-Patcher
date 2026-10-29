@@ -333,6 +333,7 @@ FILES = [
     # Auto-colour family lines (the Family Tree Maker's window imports it).
     "src/vv_line_colours.py",
     "src/vv_villager_info.py",
+    "src/vv_relationships.py",          # the Villager Info tab's Relationships
     "src/vv_genealogy_window.py",
     "src/vv_tree_editor_tools.py",
     "src/vv_last_names.py",
