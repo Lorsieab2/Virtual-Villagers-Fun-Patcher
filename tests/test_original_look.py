@@ -409,6 +409,28 @@ class Backfill(unittest.TestCase):
         self.assertEqual(got[b.name].kind, ol.UNKNOWN, "a mask before the event the logs cannot name: not known")
         self.assertNotIn(c.name, got, "no record and no change: still nothing")
 
+    def test_every_mask_record_is_put_in_order_and_the_earliest_wins(self):
+        """Codex, PR #653: born with a Red Mask, an island event took it off (Red Mask -> none), then a head
+        change recorded "Old mask: none": the original mask is Red, not none."""
+        v = self.village(4)
+        a, b, c = v.people[0].seen, v.people[1].seen, v.people[2].seen
+        v.births(birth(1, a.name, a.sex, (40, 41), mask="Red Mask")
+                 + change(a.name, (40, 41), (a.head, a.body), ("none", "none"))
+                 # b: Old mask Blue, but the event says Red was taken off: the records never connect.
+                 + birth(2, b.name, b.sex, (50, 51)) + change(b.name, (50, 51), (b.head, b.body), ("Blue Mask", "Blue Mask"))
+                 # c: Change Appearance put a Red Mask on, an event took one off: which came first cannot be
+                 # told (none -> Red -> none, or Red -> none -> Red).
+                 + birth(3, c.name, c.sex, (60, 61)) + change(c.name, (60, 61), (c.head, c.body), ("none", "Red Mask")))
+        v.events(f"Island event 1\n  Name: {a.name}\n  Mask: Red Mask -> none\n\n"
+                 f"Island event 2\n  Name: {b.name}\n  Mask: Red Mask -> none\n\n"
+                 f"Island event 3\n  Name: {c.name}\n  Mask: Red Mask -> none\n\n")
+        ol.backfill(v.folder, 4, 1)
+        got = v.logged()
+        self.assertEqual((got[a.name].kind, got[a.name].head, got[a.name].body, got[a.name].mask),
+                         (ol.KNOWN, 40, 41, 3), "the mask before the earliest change: Red")
+        self.assertEqual(got[b.name].kind, ol.UNKNOWN, "mask records that do not connect")
+        self.assertEqual(got[c.name].kind, ol.UNKNOWN, "an order the two logs cannot tell")
+
     def test_new_believers_island_event_masks_are_still_never_taken(self):
         v = self.village(5)
         a, b = v.people[0].seen, v.people[1].seen

@@ -268,6 +268,9 @@ class Evidence:
     looks: list[tuple[str, str, int | None, int | None]] = field(default_factory=list)   # island event (name, "Head"/"Body", old, new)
     renames: list[tuple[str, str]] = field(default_factory=list)   # (old name, new name)
     own: list[tuple[str, str | None, tuple, int]] = field(default_factory=list)    # (name, sex, looks, mask)
+    # The masks those records name on a "Mask:" line of their own (a record without one names none here):
+    # (name, mask; None when the line names no mask this side knows).
+    own_masks: list[tuple[str, int | None]] = field(default_factory=list)
     names: set[str] = field(default_factory=set)                   # every villager name the logs know
 
 
@@ -342,12 +345,16 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
                 if child and child["Name"] and not child["Name"].startswith("("):
                     out.own.append((child["Name"], child.get("Sex"), (_int(child.get("Head")), _int(child.get("Body"))),
                                     _mask(child.get("Mask"))))
+                    if child.get("Mask") is not None:
+                        out.own_masks.append((child["Name"], _mask(child.get("Mask"))))
                     out.names.add(child["Name"])
             elif rc.ARRIVED.match(head):
                 name = b.value("Name") or ""
                 if name:
                     out.own.append((name, b.value("Sex"), (b.int_value("Head"), b.int_value("Body")),
                                     _mask(b.value("Mask"))))
+                    if b.value("Mask") is not None:
+                        out.own_masks.append((name, _mask(b.value("Mask"))))
                     out.names.add(name)
     for p in events:
         for b in additions.blocks(p):
@@ -363,6 +370,8 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
             out.names.add(name)
             if (b.value("New villager") or "").lower().startswith("yes"):
                 out.own.append((name, b.value("Sex"), (b.int_value("Head"), b.int_value("Body")), _mask(b.value("Mask"))))
+                if b.value("Mask") is not None:
+                    out.own_masks.append((name, _mask(b.value("Mask"))))
             for line in b.lines[1:]:
                 m = re.match(r"^  (Mask|Head|Body): (.*?) -> (.*?)\s*$", line)
                 if m and m.group(1) == "Mask":
@@ -444,27 +453,30 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
     if off_chain and unique_name:
         return Found(UNKNOWN, why="a record of their name changed a look that is not on their way")
     masks = [m for m in ev.masks if m[0] in names]
-    if not chain:
-        if not masks:
-            return Found(None)
-        # Their head and body never changed, but an island event changed their mask (Codex, PR #653): the
-        # original is the look they have now with the mask before the earliest such event -- when it is
-        # proven theirs.  Never "nothing to say", or the DLL would take the mask after the event.
-        if not unique_name:
+    if not chain and not masks:
+        return Found(None)
+    if not chain or ev.changes[chain[0]].old_mask is not None:
+        # EVERY piece of mask evidence, in time order (Codex, PR #653): the island events' mask steps, the
+        # Appearance changed records' Old / New mask lines, and their own record's Mask line.  The original
+        # mask is the "before" side of the earliest change, and the steps must connect.  A head and body
+        # never changed with an island event's mask change is not "nothing to say" either, or the DLL would
+        # take the mask after the event.
+        if masks and not unique_name:
             return Found(UNKNOWN, why="an island event changed the mask of a name two villagers have")
-        mask = masks[0][1]
+        steps_c = [(ev.changes[k].old_mask, ev.changes[k].new_mask) for k in chain
+                   if ev.changes[k].old_mask is not None and ev.changes[k].new_mask is not None]
+        steps_e = [(m[1], m[2]) for m in masks]
+        explicit = [m for n, m in ev.own_masks if n in names]
+        birth = explicit[0] if len(own) == 1 and len(explicit) == 1 else None
+        mask, by_change_appearance, why = _mask_origin(steps_c, steps_e, birth)
         if mask is None:
-            return Found(UNKNOWN, why="the mask before an island event changed it is not recorded")
-        if len(own) == 1 and own[0][3] is not None and own[0][3] != mask:
-            return Found(UNKNOWN, why="their own record's mask is not where their mask changes start: changed "
-                                      "with no record of it")
-        if game == 5 and mask != 0:
+            return Found(UNKNOWN, why=why)
+        if game == 5 and mask != 0 and not by_change_appearance:
+            # New Believers' logs name a Heathen's own mask (the game's, from the faction) and the patcher's
+            # cosmetic one alike (native/shared/mask_line.h): which one this was cannot be told.  The
+            # earliest change being Change Appearance's own "Old mask" is its mask store, whatever the game.
             return Found(UNKNOWN, why="New Believers' logs do not tell a Heathen's own mask from a cosmetic one")
-        return Found(KNOWN, state[0], state[1], mask)
-    first = ev.changes[chain[0]]
-    if first.old_mask is not None:
-        # The earliest change's own "Old mask": Change Appearance's mask store, whatever the game.
-        return Found(KNOWN, state[0], state[1], first.old_mask, chain=tuple(chain))
+        return Found(KNOWN, state[0], state[1], mask, chain=tuple(chain))
     if masks and masks[0][1] is not None:
         mask = masks[0][1]
     elif len(own) == 1 and own[0][3] is not None:
@@ -476,6 +488,52 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
         # cosmetic one alike (native/shared/mask_line.h): which one this was cannot be told.
         return Found(UNKNOWN, why="New Believers' logs do not tell a Heathen's own mask from a cosmetic one")
     return Found(KNOWN, state[0], state[1], mask, chain=tuple(chain))
+
+
+MASK_COUNT = 6
+MERGE_MAX = 24          # more mask steps than this between the two logs: their order is not worked out
+
+
+def _mask_origin(steps_c: list[tuple], steps_e: list[tuple], birth: int | None) -> tuple:
+    """The mask before a villager's earliest mask change (Codex, PR #653): (mask, whether that earliest step is
+    an Appearance changed record's Old mask, why not).  `steps_c` are the Appearance changed records' (old,
+    new) masks in their log's order, `steps_e` the island events' in theirs, `birth` the mask their own Birth /
+    Arrived / newcomer record names (it comes before every change).  The two logs carry no shared clock, so
+    every interleaving of the two orders is tried: the original is the start every interleaving whose steps
+    connect (each step's old mask the previous one's new) agrees on; none connecting, or two starts, and it
+    is not known -- never a guess."""
+    steps = steps_c + steps_e
+    if any(a is None or b is None for a, b in steps):
+        return None, False, "a mask in their records is not one the logs name"
+    if len(steps) > MERGE_MAX:
+        return None, False, "too many mask changes in two logs to put in order"
+    found: dict[int, set] = {}
+
+    def walk(i: int, j: int, now: int, first: int, by_ca) -> None:
+        if (i, j, now) in seen.setdefault((first, by_ca), set()):
+            return
+        seen[(first, by_ca)].add((i, j, now))
+        if i == len(steps_c) and j == len(steps_e):
+            found.setdefault(first, set()).add(by_ca)
+            return
+        if i < len(steps_c) and steps_c[i][0] == now:
+            walk(i + 1, j, steps_c[i][1], first, True if by_ca is None and steps_c[i][0] != steps_c[i][1] else by_ca)
+        if j < len(steps_e) and steps_e[j][0] == now:
+            walk(i, j + 1, steps_e[j][1], first, False if by_ca is None and steps_e[j][0] != steps_e[j][1] else by_ca)
+
+    seen: dict = {}
+    for start in ([birth] if birth is not None else range(MASK_COUNT)):
+        walk(0, 0, start, start, None)
+    if not found:
+        return None, False, ("their mask records do not connect: a mask changed with no record of it"
+                             if birth is None else "their own record's mask is not where their mask changes start")
+    if len(found) > 1:
+        return None, False, "which of their mask records came first cannot be told"
+    (mask, how), = found.items()
+    # The earliest change Change Appearance's (its Old mask) on every way that connects; with no change at
+    # all (their records only ever saw this mask), the Old mask lines all name it too.
+    by_ca = all(h is not False for h in how) and (bool(steps_c) or any(h for h in how))
+    return mask, by_ca, ""
 
 
 def _shared_name(ev: Evidence, names: set[str]) -> bool:
