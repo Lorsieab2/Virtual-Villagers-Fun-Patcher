@@ -300,8 +300,8 @@ class _DrawsBase:
         self.assertEqual(g.set_look(4, OLD), 1)
         data = g.disk.files[g.disk.looks_file(1)]
         count = 256 if g.g["count"] == 256 else g.g["count"]
-        self.assertEqual(data[:12], struct.pack("<III", 0x314C4856, self.GAME, count))
-        self.assertEqual(data[12 + count * 4 + 4], OLD)
+        self.assertEqual(data[:12], struct.pack("<III", 0x324C4856, self.GAME, count))
+        self.assertEqual(data[12 + count * 8 + 4], OLD)
         later = self.game()
         later.disk.files = dict(g.disk.files)
         later.disk.folders = set(g.disk.folders)
@@ -402,7 +402,7 @@ class ANewHome(unittest.TestCase):
         self.assertEqual(g.set_look(0, YOUNG), 1)
         self.assertEqual((g.look(0), g.look(1), g.look(2)), (YOUNG, AUTO, OLD))
         data = g.disk.files[g.disk.looks_file(1)]
-        self.assertEqual(data[:12], struct.pack("<III", 0x314C4856, 1, 256))
+        self.assertEqual(data[:12], struct.pack("<III", 0x324C4856, 1, 256))
         # Lani dies and is buried; the save is reloaded packed: Moku is now in record 1.
         g.p.write(g.record(1) + g.g["present"], b"\x00")
         g.look(0)

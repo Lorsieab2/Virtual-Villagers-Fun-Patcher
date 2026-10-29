@@ -11,18 +11,26 @@
    through native/shared/sidecar_io.h -- to "<path>.tmp", checked, then put in place, so a crash or a full disk
    never leaves half a file -- and never before the slot's load has settled.  Little-endian:
 
-       u32 magic 'VHL1' (0x314C4856), u32 game (1..5), u32 count (150 or 256, the build's records),
-       u32 roster[count]   the identity of whoever held each record when it was written (0 = nobody),
+       u32 magic 'VHL2' (0x324C4856), u32 game (1..5), u32 count (150 or 256, the build's records),
+       u32 roster[count]   the identity of the LIVING villager in each record when it was written (0 = nobody)
+       u32 id[count]       the identity each look was kept for (0 = none) -- for a look left on an empty
+                           record (a body not yet buried, a villager away) the only place it is named
        u8  look[count]     0 Auto, 1 Young, 2 Old
 
-   exactly 12 + count * 5 bytes.  A file of another shape, game or size is moved aside intact (sidecar_io.h)
-   and the village starts with every look Auto; a look value above 2 reads as Auto.
+   exactly 12 + count * 9 bytes.  The roster names the living only, so the next load's village test and its
+   packing are judged on the living: a dead villager's identity there would shift every later rank by one
+   and make the village's own file look like another village's.  The first layout, 'VHL1' (0x314C4856,
+   12 + count * 5 bytes: the roster, which named a look's identity on an empty record too, and the looks), is
+   still read.  A file of another shape, game or size is moved aside intact (sidecar_io.h) and the village
+   starts with every look Auto; a look value above 2 reads as Auto.
 
    FOLLOWING THE VILLAGER -- the pattern of the Origins masks (VV5's "Village Masks - Save S.dat",
    native/vv5_task9_origins: Vv5MaskSync, vv5_mask_sidecar_load), with the same shared rules
    (native/shared/mask_follow.h, foreign_sidecar.h):
      * the file belongs to the village whose living roster it shares a STRICT majority with (of the smaller
-       roster), never to a slot alone: slots are reused by Start Over and by copied saves;
+       roster) -- each villager found wherever it is, not only at the same record or the packed rank (a
+       death the file was not written after, a quit right after it, shifts every later rank) -- never to a
+       slot alone: slots are reused by Start Over and by copied saves;
      * on a load the game packs its records 0, 1, 2, ... (after a death everyone behind moves down), so each
        look goes to the one villager with its stored identity (name, sex and the parents' names; A New Home:
        name, sex and family), wherever they are now; an identity two villagers share is never guessed at;
@@ -38,9 +46,11 @@
    The includer defines, for its game: HL_MAX, hl_slots(), hl_record(i), hl_present(r), hl_identity(r),
    hl_stable(r), hl_slot_now(), hl_game(). */
 
-#define HL_MAGIC 0x314C4856u            /* 'VHL1' */
+#define HL_MAGIC 0x324C4856u            /* 'VHL2' */
+#define HL_MAGIC_V1 0x314C4856u         /* 'VHL1', still read */
 #define HL_HEADER 12u
-#define HL_FILE_BYTES(count) (HL_HEADER + (DWORD)(count) * 5u)
+#define HL_FILE_BYTES(count) (HL_HEADER + (DWORD)(count) * 9u)
+#define HL_FILE_BYTES_V1(count) (HL_HEADER + (DWORD)(count) * 5u)
 #define HL_FILE_MAX HL_FILE_BYTES(HL_MAX)
 #define HL_SYNC_MS 250u
 #define HL_KIND "Head Looks"
@@ -73,18 +83,20 @@ static int hl_roster(unsigned int *ids, unsigned int *stable) {
     return n;
 }
 
-/* How many of `a`'s villagers are in `b` at the same record or at their rank in `a` (the record a packed
-   load puts them in) -- vv5_roster_overlap. */
+/* How many of `a`'s villagers are in `b`, wherever they are there (a packed load moves everyone behind a
+   death down; a death the file was not written after shifts every later rank too). */
 static int hl_overlap(const unsigned int *a, const unsigned int *b) {
-    int i, n = 0, rank = 0;
+    int i, j, n = 0;
     for (i = 0; i < HL_MAX; ++i) {
         if (a[i] == 0) {
             continue;
         }
-        if (a[i] == b[i] || a[i] == b[rank]) {
-            ++n;
+        for (j = 0; j < HL_MAX; ++j) {
+            if (b[j] == a[i]) {
+                ++n;
+                break;
+            }
         }
-        ++rank;
     }
     return n;
 }
@@ -126,46 +138,50 @@ static int hl_valid(const unsigned char *data, DWORD len, void *ctx) {
     memcpy(&magic, data, 4);
     memcpy(&game, data + 4, 4);
     memcpy(&count, data + 8, 4);
-    return magic == HL_MAGIC && game == (unsigned int)hl_game() && (count == 150u || count == 256u)
-        && count <= HL_MAX && len == HL_FILE_BYTES(count);
+    return game == (unsigned int)hl_game() && (count == 150u || count == 256u) && count <= HL_MAX
+        && ((magic == HL_MAGIC && len == HL_FILE_BYTES(count))
+            || (magic == HL_MAGIC_V1 && len == HL_FILE_BYTES_V1(count)));
 }
 
 /* Write the table with the roster it belongs to.  1 when it is on disk (or there was nothing to write over
    another village's file). */
 static int hl_publish(void) {
-    static unsigned int written[HL_MAX];
+    static unsigned int ids[HL_MAX];
     char path[MAX_PATH];
     unsigned int header[3];
-    const void *parts[3];
-    DWORD sizes[3];
+    const void *parts[4];
+    DWORD sizes[4];
     int i, nothing, slots = hl_slots();
     if (!g_have_roster || !vv_sidecar_gate_ready(&g_gate, g_slot) || !hl_path(g_slot, path)) {
         return 0;
     }
-    /* A record nobody holds keeps the identity of the look left on it (a body not yet buried). */
+    /* The roster names the living only; a look left on an empty record keeps its identity in `ids` alone. */
     for (i = 0; i < HL_MAX; ++i) {
-        written[i] = g_roster[i] != 0 ? g_roster[i] : (g_look[i] != 0 ? g_look_id[i] : 0u);
+        ids[i] = g_look[i] != 0 ? g_look_id[i] : 0u;
     }
     header[0] = HL_MAGIC;
     header[1] = (unsigned int)hl_game();
     header[2] = (unsigned int)slots;
-    parts[0] = header;  sizes[0] = sizeof header;
-    parts[1] = written; sizes[1] = (DWORD)slots * sizeof(unsigned int);
-    parts[2] = g_look;  sizes[2] = (DWORD)slots;
+    parts[0] = header;   sizes[0] = sizeof header;
+    parts[1] = g_roster; sizes[1] = (DWORD)slots * sizeof(unsigned int);
+    parts[2] = ids;      sizes[2] = (DWORD)slots * sizeof(unsigned int);
+    parts[3] = g_look;   sizes[3] = (DWORD)slots;
     if (!vv_foreign_before_write(&g_foreign, path, vv_table_any(g_look, slots), &nothing)) {
         return nothing;
     }
-    return vv_sidecar_publish(&g_gate, path, parts, sizes, 3);
+    return vv_sidecar_publish(&g_gate, path, parts, sizes, 4);
 }
 
-/* Move each look to where its villager is in `live` (mask_follow.h).  1 when the table changed. */
-static int hl_follow(const unsigned int *stored_roster, const unsigned int *live, int in_play) {
+/* Move each look to where its villager is in `live` (mask_follow.h): `stored` the identity each look was
+   kept for, `stored_roster` who held each record.  1 when the table changed. */
+static int hl_follow(const unsigned int *stored, const unsigned int *stored_roster, const unsigned int *live,
+                     int in_play) {
     static unsigned char moved[HL_MAX];
     static unsigned int moved_id[HL_MAX];
     int slots = hl_slots();
     int changed = in_play
-        ? vv_mask_follow_in_play(slots, g_look, stored_roster, stored_roster, live, 0, moved, moved_id)
-        : vv_mask_follow(slots, g_look, stored_roster, stored_roster, live, 0, moved, moved_id);
+        ? vv_mask_follow_in_play(slots, g_look, stored, stored_roster, live, 0, moved, moved_id)
+        : vv_mask_follow(slots, g_look, stored, stored_roster, live, 0, moved, moved_id);
     memcpy(g_look, moved, (size_t)slots);
     memcpy(g_look_id, moved_id, (size_t)slots * sizeof(unsigned int));
     return changed;
@@ -175,10 +191,10 @@ static int hl_follow(const unsigned int *stored_roster, const unsigned int *live
    failure leaves every look Auto.  1 when the load settled (read, missing, or an invalid file moved aside),
    0 while it must stay pending (blocked: nothing may be written).  *rewrite: the looks moved on the way. */
 static int hl_load(int slot, const unsigned int *live, int *rewrite) {
-    static unsigned int filesnap[HL_MAX];
+    static unsigned int filesnap[HL_MAX], fileids[HL_MAX];
     char path[MAX_PATH];
     DWORD got = 0;
-    unsigned int count;
+    unsigned int count, magic, looks_at;
     int status, kept, i;
     memset(g_look, 0, sizeof g_look);
     memset(g_look_id, 0, sizeof g_look_id);
@@ -199,19 +215,32 @@ static int hl_load(int slot, const unsigned int *live, int *rewrite) {
     if (status != VV_SIDECAR_LOAD_VALID) {
         return 1;                               /* no file (or an invalid one set aside): every look Auto */
     }
+    memcpy(&magic, g_file, 4);
     memcpy(&count, g_file + 8, 4);
     kept = (int)count < hl_slots() ? (int)count : hl_slots();
     memset(filesnap, 0, sizeof filesnap);
+    memset(fileids, 0, sizeof fileids);
     memcpy(filesnap, g_file + HL_HEADER, (size_t)kept * sizeof(unsigned int));
+    if (magic == HL_MAGIC) {
+        memcpy(fileids, g_file + HL_HEADER + count * 4u, (size_t)kept * sizeof(unsigned int));
+        looks_at = HL_HEADER + count * 8u;
+    } else {
+        memcpy(fileids, filesnap, sizeof fileids);  /* 'VHL1': the roster named each look's villager */
+        looks_at = HL_HEADER + count * 4u;
+    }
     g_foreign = !hl_same_village(filesnap, live);
     if (g_foreign) {
         return 1;                               /* another village's file: kept, never replaced */
     }
     for (i = 0; i < kept; ++i) {
-        unsigned char v = g_file[HL_HEADER + count * 4u + (unsigned int)i];
+        unsigned char v = g_file[looks_at + (unsigned int)i];
         g_look[i] = v <= 2 ? v : 0;             /* the file is the player's to edit: anything else is Auto */
+        if (g_look[i] == 0) {
+            fileids[i] = 0;
+        }
     }
-    *rewrite = hl_follow(filesnap, live, 0);
+    /* A 'VHL1' file is written again in this layout. */
+    *rewrite = hl_follow(fileids, filesnap, live, 0) || magic != HL_MAGIC;
     return 1;
 }
 
@@ -248,7 +277,7 @@ static int hl_sync(void) {
         if (hl_same_village(g_roster, cur)) {
             if (memcmp(g_roster, cur, sizeof cur) != 0) {
                 /* A birth, a death, or a reload of the same village: each look goes to its villager. */
-                hl_follow(g_roster, cur, 1);
+                hl_follow(g_roster, g_roster, cur, 1);
                 memcpy(g_roster, cur, sizeof cur);
                 memcpy(g_stable, cur_stable, sizeof cur_stable);
                 hl_publish();

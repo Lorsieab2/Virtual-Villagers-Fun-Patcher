@@ -306,14 +306,14 @@ int main(void) {
     check(look(2) == 1 && look(3) == 2 && look(4) == 0, "the table says so");
     file_path(1, path);
     got = read_file(path, buf, sizeof buf);
-    check(got == 12 + 150 * 5, "the file is 12 + 150 * 5 bytes, in the save's own Data\\Head Looks folder");
+    check(got == 12 + 150 * 9, "the file is 12 + 150 * 9 bytes, in the save's own Data\\Head Looks folder");
     memcpy(&u, buf, 4);
-    check(u == 0x314C4856u, "magic 'VHL1'");
+    check(u == 0x324C4856u, "magic 'VHL2'");
     memcpy(&u, buf + 4, 4);
     check(u == 5, "the game");
     memcpy(&u, buf + 8, 4);
     check(u == 150, "the record count");
-    check(buf[12 + 150 * 4 + 2] == 1 && buf[12 + 150 * 4 + 3] == 2 && buf[12 + 150 * 4 + 4] == 0,
+    check(buf[12 + 150 * 8 + 2] == 1 && buf[12 + 150 * 8 + 3] == 2 && buf[12 + 150 * 8 + 4] == 0,
           "each record's look after the roster");
     memcpy(&u, buf + 12 + 3 * 4, 4);
     check(u == hl_identity(g_records[3]), "each record's identity in the roster");
@@ -337,7 +337,7 @@ int main(void) {
     check(look(2) == 2 && look(3) == 0, "after the reload the look is on Kai3 in record 2, and nobody else's");
     check(look(6) == 1 && look(7) == 0, "Kai7 (now record 6) keeps Young");
     got = read_file(path, buf, sizeof buf);
-    check(buf[12 + 150 * 4 + 2] == 2 && buf[12 + 150 * 4 + 3] == 0, "the moved table is written back at once");
+    check(buf[12 + 150 * 8 + 2] == 2 && buf[12 + 150 * 8 + 3] == 0, "the moved table is written back at once");
 
     printf("record reuse and bodies\n");
     /* Kai3 (record 2, Old) dies: a body not buried keeps the record held; the look stays. */
@@ -383,11 +383,11 @@ int main(void) {
     later();
     (void)look(0);
     got = read_file(other, buf, sizeof buf);
-    check(got == 12 + 150 * 5 && buf[12 + 150 * 4 + 6] == 1, "and is never replaced while nothing is chosen");
+    check(got == 12 + 150 * 9 && buf[12 + 150 * 8 + 6] == 1, "and is never replaced while nothing is chosen");
     check(hl_set(g_records[1], 2) == 1, "the first look chosen there is kept");
     check(count_files(2, "Head Looks - Save 2.dat.another-village-") == 1, "after the other file was moved aside");
     got = read_file(other, buf, sizeof buf);
-    check(got == 12 + 150 * 5 && buf[12 + 150 * 4 + 1] == 2, "the new file is this village's");
+    check(got == 12 + 150 * 9 && buf[12 + 150 * 8 + 1] == 2, "the new file is this village's");
 
     printf("broken files\n");
     {
@@ -426,7 +426,7 @@ int main(void) {
         check(look(1) == 0, "a missing file: every look Auto");
         hl_set(g_records[1], 2);
         got = read_file(path, buf, sizeof buf);
-        buf[12 + 150 * 4 + 1] = 7;
+        buf[12 + 150 * 8 + 1] = 7;
         write_file(path, buf, got);
         new_session();
         g_slot = 3;
@@ -484,6 +484,65 @@ int main(void) {
         g_records[2][0] = 1;
     }
 
+    printf("a death the file is written after, and a death right before a quit\n");
+    /* Kai0 (Young) dies and is buried; Kai4 is Old.  The file is written again with Kai0's record empty, and
+       on the next load the game packs everyone down one record. */
+    fresh_disk();
+    new_session();
+    g_slot = 1;
+    founders(8, "Kai");
+    hl_set(g_records[0], 1);
+    hl_set(g_records[4], 2);
+    g_records[0][0] = 0;                       /* died and buried: the record is empty */
+    later();
+    (void)look(4);                             /* a draw: the file is written again */
+    hl_set(g_records[5], 1);
+    file_path(1, path);
+    got = read_file(path, buf, sizeof buf);
+    memcpy(&u, buf + 12, 4);
+    check(got == 12 + 150 * 9 && u == 0, "the roster names the living only");
+    new_session();
+    g_slot = 1;
+    pack();
+    check(look(3) == 2 && look(4) == 1, "a reload after the burial: each look on its villager, one record down");
+    check(look(0) == 0 && look(5) == 0, "and nobody else's");
+    check(count_files(1, "Head Looks - Save 1.dat.another-village-") == 0, "the village's own file is its own");
+    /* Ann3 is Old; Ann0 dies and the game is quit before the next head draw: the file still names Ann0. */
+    fresh_disk();
+    new_session();
+    g_slot = 1;
+    founders(6, "Ann");
+    hl_set(g_records[3], 2);
+    g_records[0][0] = 0;
+    new_session();
+    g_slot = 1;
+    pack();
+    check(look(2) == 2 && look(3) == 0, "a death right before a quit: the look is found one record down");
+    check(hl_set(g_records[1], 1) == 1
+          && count_files(1, "Head Looks - Save 1.dat.another-village-") == 0,
+          "and the next pick writes the village's own file, never setting it aside");
+
+    printf("the first layout\n");
+    fresh_disk();
+    new_session();
+    g_slot = 1;
+    founders(6, "Old");
+    memset(buf, 0, sizeof buf);
+    u = 0x314C4856u; memcpy(buf, &u, 4);
+    u = 5;           memcpy(buf + 4, &u, 4);
+    u = 150;         memcpy(buf + 8, &u, 4);
+    for (u = 0; u < 6; ++u) {
+        unsigned int id = hl_identity(g_records[u]);
+        memcpy(buf + 12 + u * 4, &id, 4);
+    }
+    buf[12 + 150 * 4 + 2] = 2;
+    file_path(1, path);
+    write_file(path, buf, 12 + 150 * 5);
+    check(look(2) == 2 && look(1) == 0, "a 'VHL1' file is read");
+    got = read_file(path, buf, sizeof buf);
+    memcpy(&u, buf, 4);
+    check(got == 12 + 150 * 9 && u == 0x324C4856u && buf[12 + 150 * 8 + 2] == 2, "and written again as 'VHL2'");
+
     printf("no village\n");
     new_session();
     g_slot = 0;
@@ -517,7 +576,7 @@ int main(void) {
     founders(200, "Big");
     hl_set(g_records[199], 2);
     file_path(5, path);
-    check(read_file(path, buf, sizeof buf) == 12 + 256 * 5, "a 256-record build writes 256 entries");
+    check(read_file(path, buf, sizeof buf) == 12 + 256 * 9, "a 256-record build writes 256 entries");
     new_session();
     g_slot = 5;
     check(look(199) == 2, "and reads them back");
