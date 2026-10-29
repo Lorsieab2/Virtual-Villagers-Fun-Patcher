@@ -130,6 +130,11 @@ class Person:
     hidden_parents: dict = field(default_factory=dict)
     # Living namesakes (two living villagers of one name, head and body): 1 the oldest, 2 the next...; 0 none.
     namesake_rank: int = 0
+    # What tells them from a namesake for good (parent_identity: sex and the parents their save record names),
+    # and what their tree edits' key adds to "name|head|body" while they have a living namesake: "|<marker>",
+    # and "|<rank>" after it only between namesakes sharing the marker (vv_family_tree.entry_key; Codex, PR #653).
+    marker: str = ""
+    edit_suffix: str = ""
 
     @property
     def key(self) -> Key:
@@ -1033,6 +1038,13 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
         for rank, pid in enumerate(group, 1):
             reg.people[pid].namesake_rank = rank
         groups[key] = group
+    for pid, p in reg.people.items():
+        p.marker = parent_identity(reg, pid)
+    for group in groups.values():
+        markers = [reg.people[pid].marker for pid in group]
+        for rank, pid in enumerate(group, 1):
+            m = reg.people[pid].marker
+            reg.people[pid].edit_suffix = f"|{m}" + (f"|{rank}" if markers.count(m) > 1 else "")
     for key, group in groups.items():
         idents = {pid: parent_identity(reg, pid) for pid in group}
         first = reg.by_key.get(key, group[0])

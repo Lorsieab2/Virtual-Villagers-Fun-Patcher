@@ -13,6 +13,7 @@ Fixtures are made here (tests/test_last_names_rename.py's save layout); nothing 
 """
 from __future__ import annotations
 
+import json
 import re
 import struct
 import sys
@@ -126,7 +127,9 @@ class ShowBothLinkByAge(unittest.TestCase):
         named = gen.duplicate_names(v)
         self.assertEqual(sorted(named[p.id] for p in (elder, boy)), ["Tepeu Tamikai I", "Tepeu Tamikai II"])
         self.assertNotEqual(ft.entry_key(v, elder), ft.entry_key(v, boy), "each keeps their own tree edits")
-        self.assertEqual(ft.entry_key(v, elder), "Tepeu Tamikai|12|5", "the elder keeps the key earlier edits used")
+        # Each by what tells them apart for good, never by age (Codex, PR #653): neither has the plain key.
+        self.assertEqual(ft.entry_key(v, elder), "Tepeu Tamikai|12|5|" + elder.marker)
+        self.assertEqual(ft.entry_key(v, boy), "Tepeu Tamikai|12|5|" + boy.marker)
         men, _women = gen.candidates(v, gen.Rules(allow_50_plus=True))
         self.assertIn(elder.id, [m.id for m in men])
         self.assertEqual(gen.relationship(v, elder.id, boy.id), "no recorded common ancestor")
@@ -364,6 +367,116 @@ class ShowBothLinkByAge(unittest.TestCase):
         self.assertFalse(gen.could_be_parent(boy, gone), "a boy of 6 was never of age")
         self.assertTrue(gen.could_be_parent(gen.Person(5, "Q", 1, 1, age=360, alive=True),
                                             gen.Person(6, "U", -1, -1, upcoming=True)))
+
+
+class NamesakesKeepTheirOwnEdits(unittest.TestCase):
+    """Codex, PR #653: a namesake's tree edits are kept by what tells them apart for good (sex and recorded
+    parents), never by their place by age; nothing is ever given to another villager or deleted."""
+
+    PARENTS = {1583: (("Pichu Tamikai", 14, 18), ("Toga Helaku", 9, 17)),
+               1200: (("Oro Kenobi", 12, 9), ("Coral Guedado", 10, 17)),
+               1000: (("Lani Kekoa", 11, 3), ("Mele Pua", 8, 6))}
+    TWINS = (("Oro Kenobi", 12, 9), ("Coral Guedado", 10, 17))
+
+    def setUp(self) -> None:
+        self.dir = Path(self.enterContext(tempfile.TemporaryDirectory()))
+
+    def village(self, ages, parents=None) -> gen.Village:
+        save(self.dir, [aged(entry("Parai Tokidoki", 1, 5, 7, 7), 900),
+                        *(tepeu(a, *(parents or self.PARENTS)[a]) for a in ages)])
+        return gen.load_village(self.dir, 3, 1)
+
+    def by_age(self, v: gen.Village) -> dict:
+        return {p.age: p for p in v.people.values() if p.key == TEPEU and p.alive}
+
+    def edits(self) -> ft.Edits:
+        return ft.Edits.load(ft.Edits.path(self.dir, 3, 1))
+
+    def label(self, v: gen.Village, e: ft.Edits, age: int):
+        return e.entries.get(ft.entry_key(v, self.by_age(v)[age]), {}).get("lines")
+
+    def keep(self, v: gen.Village, e: ft.Edits) -> None:
+        ft.arrange(v, e)
+        path = ft.Edits.path(self.dir, 3, 1)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        e.save(path)
+
+    def reopen(self, ages, parents=None) -> tuple:
+        v = self.village(ages, parents)
+        e = self.edits()
+        ft.arrange(v, e)
+        return v, e
+
+    def labelled(self, ages=(1583, 1200, 1000), parents=None) -> None:
+        v = self.village(ages, parents)
+        e = ft.Edits()
+        ft.arrange(v, e)
+        for age, p in self.by_age(v).items():
+            e.entries[ft.entry_key(v, p)] = {"lines": [f"T{age}"], "hidden": True} if age == 1000 else \
+                {"lines": [f"T{age}"]}
+        self.keep(v, e)
+
+    def test_an_older_namesakes_death_moves_no_edit(self) -> None:
+        self.labelled()
+        v, e = self.reopen((1200, 1000))
+        self.assertEqual(self.label(v, e, 1200), ["T1200"], "the 1200 one keeps their own label")
+        self.assertEqual(self.label(v, e, 1000), ["T1000"])
+        self.assertIsNotNone(self.by_age(v)[1200].number, "the 1000 one's deleted flag never moves to the 1200 one")
+        self.assertIsNone(self.by_age(v)[1000].number, "and stays the 1000 one's")
+
+    def test_an_unrelated_namesakes_death_leaves_the_others(self) -> None:
+        self.labelled()
+        v, e = self.reopen((1583, 1200))
+        self.assertEqual((self.label(v, e, 1583), self.label(v, e, 1200)), (["T1583"], ["T1200"]))
+
+    def test_the_last_one_left_takes_their_own_edits_back_under_the_plain_key(self) -> None:
+        self.labelled()
+        v, e = self.reopen((1200,))
+        self.assertEqual(ft.entry_key(v, self.by_age(v)[1200]), "Tepeu Tamikai|12|5")
+        self.assertEqual(self.label(v, e, 1200), ["T1200"])
+        self.assertTrue(any(k.startswith(ft.PARKED) and v_.get("lines") == ["T1583"] for k, v_ in e.entries.items()),
+                        "the dead one's label is kept, applied to nobody")
+
+    def test_a_namesake_appearing_leaves_the_first_ones_edits_with_them(self) -> None:
+        v = self.village((1583,))
+        e = ft.Edits(entries={"Tepeu Tamikai|12|5": {"lines": ["Elder"]}})
+        self.keep(v, e)
+        v, e = self.reopen((1583, 1200))
+        self.assertEqual(self.label(v, e, 1583), ["Elder"])
+        self.assertIsNone(self.label(v, e, 1200), "the newcomer never takes them")
+
+    def test_twins_of_one_record_hold_their_edits_only_while_the_group_is_unchanged(self) -> None:
+        twins = {1200: self.TWINS, 1000: self.TWINS, 1583: self.PARENTS[1583]}
+        self.labelled((1583, 1200, 1000), twins)
+        v, e = self.reopen((1583, 1200, 1000), twins)
+        self.assertEqual((self.label(v, e, 1200), self.label(v, e, 1000)), (["T1200"], ["T1000"]))
+        v, e = self.reopen((1200, 1000), twins)
+        self.assertEqual((self.label(v, e, 1200), self.label(v, e, 1000)), (None, None),
+                         "the group changed: which twin was which is not known")
+        self.assertEqual(sorted(x["lines"][0] for k, x in e.entries.items() if k.startswith(ft.PARKED)),
+                         ["T1000", "T1200"], "the twins' edits kept, parked, never deleted")
+        self.assertIn(["T1583"], [x.get("lines") for x in e.entries.values()],
+                      "the dead one's, kept under their own key")
+
+    def test_old_rank_keys_are_never_given_to_anyone(self) -> None:
+        v = self.village((1583, 1200))
+        e = ft.Edits(entries={"Tepeu Tamikai|12|5": {"lines": ["Old first"]}, "Tepeu Tamikai|12|5|2": {"lines": ["Old second"]}},
+                     person_colours={"Tepeu Tamikai|12|5|2": "#123456"})
+        self.keep(v, e)
+        v, e = self.reopen((1200,))
+        self.assertIsNone(self.label(v, e, 1200), "an earlier build's key by age is never anyone's now")
+        self.assertEqual(sorted(x["lines"][0] for k, x in e.entries.items() if k.startswith(ft.PARKED)),
+                         ["Old first", "Old second"])
+        self.assertIn(ft.PARKED + "Tepeu Tamikai|12|5|2", e.person_colours)
+
+    def test_an_edits_file_with_no_namesakes_is_unchanged(self) -> None:
+        v = hand_village()
+        e = ft.Edits(entries={ft.entry_key(v, p): {"lines": [p.name]} for p in v.people.values()})
+        before = json.dumps(e.entries, sort_keys=True)
+        ft.arrange(v, e)
+        self.assertEqual(json.dumps(e.entries, sort_keys=True), before)
+        self.assertTrue(all(ft.entry_key(v, p) == f"{p.name}|{p.head}|{p.body}" for p in v.people.values()
+                            if not p.upcoming))
 
 
 class RetypedTitleLine(unittest.TestCase):

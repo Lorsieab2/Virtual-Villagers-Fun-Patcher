@@ -516,6 +516,11 @@ class Edits:
     # they have, in order; "mark" the first, as older builds read it), "unmarked" (automatic marks the
     # player took off them), ...}
     entries: dict[str, dict] = field(default_factory=dict)
+    # Living namesakes' edits (settle_namesakes; Codex, PR #653): "name|head|body" -> the group's markers,
+    # oldest first, when their edits were last kept; and "name|head|body" -> the marker of the one villager
+    # with no namesake whose edits the plain key holds.
+    namesakes: dict[str, list] = field(default_factory=dict)
+    key_owners: dict[str, str] = field(default_factory=dict)
     # Stickers (the owner: "any image file on the computer where people can drag and place them
     # like a scrapbook", "resize, rotate, transform"): pictures on top of the tree, bottom one first.
     stickers: list[dict] = field(default_factory=list)
@@ -813,6 +818,12 @@ class Edits:
         out.page_edits = clean_page_edits(data.get("page_edits"))
         out.equal_sizes = clean_equal_sizes(data.get("equal_sizes"))
         out.group_opts = clean_group_opts(data.get("group_opts"))
+        namesakes = data.get("namesakes")
+        out.namesakes = {str(k): [str(m) for m in v] for k, v in namesakes.items() if isinstance(v, list)} \
+            if isinstance(namesakes, dict) else {}
+        owners = data.get("key_owners")
+        out.key_owners = {str(k): v for k, v in owners.items() if isinstance(v, str)} \
+            if isinstance(owners, dict) else {}
         return out
 
     def save(self, path: Path) -> None:
@@ -849,7 +860,8 @@ class Edits:
                 "entries": self.entries,
                 "font": self.font, "styles": self.styles, "stickers": self.stickers,
                 "group_opts": self.group_opts, "equal_sizes": self.equal_sizes, "monstera_v2": self.monstera_v2,
-                "feather_v2": self.feather_v2, "bakes_v3": self.bakes_v3}
+                "feather_v2": self.feather_v2, "bakes_v3": self.bakes_v3,
+                "namesakes": self.namesakes, "key_owners": self.key_owners}
 
 
 # The settings a group's portraits may have of their own (Edits.group_opts): only what is drawn inside
@@ -1668,10 +1680,134 @@ def entry_key(village: gen.Village, p: gen.Person) -> str:
     if p.upcoming:
         m = village.people[p.mother]
         return f"upcoming|{m.name}|{m.head}|{m.body}|{-(p.body or 0)}"
-    # Two living villagers of one name and look are two people, each with their own edits: the oldest keeps
-    # the plain key (as before), the next "|2", "|3"... by age (vv_genealogy._parents_by_age).
-    rank = getattr(p, "namesake_rank", 0)
-    return f"{p.name}|{p.head}|{p.body}" + (f"|{rank}" if rank > 1 else "")
+    # Two living villagers of one name and look are two people, each with their own edits, kept by what tells
+    # them apart for good -- their sex and recorded parents ("|<marker>"; "|<rank>" after it only between
+    # namesakes sharing it) -- never by their place by age alone, which moves to another villager when an
+    # older namesake dies (Codex, PR #653; vv_genealogy._parents_by_age, settle_namesakes).  A villager with
+    # no living namesake: "name|head|body", as always.
+    suffix = getattr(p, "edit_suffix", "") if getattr(p, "namesake_rank", 0) else ""
+    return f"{p.name}|{p.head}|{p.body}" + suffix
+
+
+PARKED = "parked|"
+
+
+def _rekeyed(value, old: str, new: str):
+    """`value` (an edits file's data) with the villager key `old` -- a dictionary key, a list item, or a deleted
+    villager ("villager:<key>") -- made `new`.  Keys that only contain it (a family's) are left as they are."""
+    if isinstance(value, dict):
+        return {(new if k == old else k): _rekeyed(v, old, new) for k, v in value.items()}
+    if isinstance(value, list):
+        return [new if v == old else f"villager:{new}" if v == f"villager:{old}" else _rekeyed(v, old, new)
+                for v in value]
+    return value
+
+
+def _keys_used(value, out: set) -> set:
+    """Every villager key `value` (an edits file's data) uses: entries, colours, orders, deleted villagers."""
+    if isinstance(value, dict):
+        for k, v in value.items():
+            out.add(k)
+            _keys_used(v, out)
+    elif isinstance(value, list):
+        for v in value:
+            if isinstance(v, str):
+                out.add(v[len("villager:"):] if v.startswith("villager:") else v)
+            else:
+                _keys_used(v, out)
+    return out
+
+
+def settle_namesakes(village: gen.Village, edits: "Edits") -> bool:
+    """Keep each namesake's tree edits with that villager (Codex, PR #653).  Nothing is ever deleted or given to
+    another villager: an edit that cannot be told to be someone's is PARKED -- kept in the file under
+    "parked|<its key>", applied to nobody.
+      * While two or more living villagers share a name and look, each one's edits are under "name|head|body|
+        <marker>" (entry_key).  The keys an earlier build used for them -- the plain key (the oldest's, or the
+        one villager the tree showed before) and "|2", "|3"... by age -- cannot be told to be anyone's now: parked.
+      * Namesakes sharing a marker (one record's twins) are told apart by their place by age; their edits are
+        kept only while the group is exactly as it was (`edits.namesakes`, the markers oldest first), else parked.
+      * A villager whose namesakes are gone takes back their own marker's edits under the plain key (when the
+        plain key holds nothing of anyone's); edits by a place by age are parked.
+      * The plain key's edits of a villager with no namesake are recorded as theirs (`edits.key_owners`), so
+        when a namesake appears they stay that villager's (under their marker); unrecorded, they are parked.
+    True when the edits changed."""
+    data = edits.to_data()
+    data.pop("namesakes", None)                 # this function's own records: not villager keys
+    data.pop("key_owners", None)
+    used = _keys_used(data, set())
+    kept = dict(edits.namesakes)
+    owners = dict(edits.key_owners)
+    moves: list[tuple[str, str]] = []
+
+    def park(key: str) -> None:
+        target, n = PARKED + key, 2
+        while target in used or any(t == target for _k, t in moves):
+            target, n = f"{PARKED}{key}#{n}", n + 1
+        moves.append((key, target))
+
+    groups: dict[str, list] = {}
+    for p in village.people.values():
+        if p.alive and not p.upcoming and getattr(p, "namesake_rank", 0):
+            groups.setdefault(f"{p.name}|{p.head}|{p.body}", []).append(p)
+    def kind(key: str, plain: str) -> str | None:
+        """What a villager key of `plain` is: "plain", "rank" ("|2"), "marker" ("|<marker>"), "tied"
+        ("|<marker>|<rank>"); None for anything else (a family's key holds "||")."""
+        if key == plain:
+            return "plain"
+        if not key.startswith(plain + "|") or "||" in key:
+            return None
+        rest = key[len(plain) + 1:].split("|")
+        if len(rest) == 1 and rest[0].isdigit():
+            return "rank"
+        if len(rest) == 3:
+            return "marker"
+        if len(rest) == 4 and rest[3].isdigit():
+            return "tied"
+        return None
+
+    for plain, members in groups.items():
+        members.sort(key=lambda p: p.namesake_rank)
+        sig = [p.marker for p in members]
+        same_group = kept.get(plain) == sig
+        mine = {entry_key(village, p) for p in members}
+        owner = owners.pop(plain, None)
+        heir = [p for p in members if owner and p.marker == owner]
+        for key in sorted(used):
+            what = kind(key, plain)
+            if what == "plain" and len(heir) == 1 and entry_key(village, heir[0]) not in used:
+                moves.append((key, entry_key(village, heir[0])))    # the one who had it while alone keeps it
+            elif what in ("plain", "rank") or (what == "tied" and not same_group):
+                park(key)               # an earlier build's place by age, or a tie the group no longer holds
+            elif what == "tied" and key not in mine:
+                park(key)
+        kept[plain] = sig
+    for plain in [k for k in kept if k not in groups]:
+        alone = [p for p in village.people.values()
+                 if p.alive and not p.upcoming and f"{p.name}|{p.head}|{p.body}" == plain]
+        own = f"{plain}|{alone[0].marker}" if len(alone) == 1 else None
+        for key in sorted(used):
+            what = kind(key, plain)
+            if what == "marker" and key == own and plain not in used:
+                moves.append((key, plain))      # their own edits, back under the plain key
+            elif what in ("marker", "tied"):
+                park(key)
+        del kept[plain]
+    # Whose the plain key's edits are while they have no namesake: given to them alone when a namesake
+    # appears (a file first read while a group already lives has no such record: its plain key is parked).
+    for p in village.people.values():
+        plain = f"{p.name}|{p.head}|{p.body}"
+        if (p.alive and not p.upcoming and not getattr(p, "namesake_rank", 0) and p.marker and plain not in groups
+                and (plain in used or any(new == plain for _old, new in moves))):
+            owners[plain] = p.marker
+    if not moves and kept == edits.namesakes and owners == edits.key_owners:
+        return False
+    for old, new in moves:
+        data = _rekeyed(data, old, new)
+    fresh = Edits.from_data(data)
+    fresh.namesakes, fresh.key_owners = kept, owners
+    edits.__dict__.update(fresh.__dict__)
+    return True
 
 
 @dataclass
@@ -1821,6 +1957,7 @@ def arrange(village: gen.Village, edits: Edits) -> None:
     unless the player put them in another; numbered generation by generation in the tree's sort,
     or in the player's own order of a generation, left to right.  A villager deleted from the
     tree has no number, so the others' run on without a gap."""
+    settle_namesakes(village, edits)            # each namesake's edits with that villager (Codex, PR #653)
     for pid, p in village.people.items():
         own = edits.entries.get(entry_key(village, p), {}).get("generation")
         p.generation = own or village.base_generation.get(pid, p.generation)
