@@ -977,6 +977,17 @@ class ParentQuestion:
     # two children of one name and look are two questions, each kept under its own answer (Codex, PR #653).
     child_rank: int = 0
     child_age: str = ""
+    # parent_identity of each choice and of the whole group, oldest first: kept with the answer, so it is
+    # given to the same villager after a namesake dies (Codex, PR #653).
+    identities: list = field(default_factory=list)
+    group: list = field(default_factory=list)
+
+    def identity_of(self, answer: str) -> str | None:
+        """The identity of the choice `answer` ("The oldest"...) names."""
+        for text, ident in zip(self.texts, self.identities):
+            if text.split(" (", 1)[0] == answer:
+                return ident
+        return None
 
     @property
     def who(self) -> str:
@@ -1003,7 +1014,8 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
     """LINK BY AGE (the owner, v1.35.85): every record names a parent only by name, head and body, which two
     living namesakes share.  A child is linked to the one who was old enough to be their parent at the child's
     birth (could_be_parent); when more than one could be, to the one the player chose (`answers`: (child key,
-    parent key, "Father"/"Mother") -> a RANK_WORDS answer); otherwise to neither -- never a guess -- and the
+    parent key, "Father"/"Mother", child rank) -> vv_answered_questions.ParentAnswer, as _answered reads it);
+    otherwise to neither -- never a guess -- and the
     question is returned for the Family Tree Maker to ask.  A child who has a living namesake is told apart by
     their own place by age (`answers` keys end in that rank; 0 for a child with none, which is also what an
     answer kept before the rank was is read as -- so an old answer is never given to one of two namesakes)."""
@@ -1018,6 +1030,7 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
             reg.people[pid].namesake_rank = rank
         groups[key] = group
     for key, group in groups.items():
+        idents = {pid: parent_identity(reg, pid) for pid in group}
         first = reg.by_key.get(key, group[0])
         if reg.people[first].first_seen and key in reg.dup_seen:
             for pid in group:
@@ -1036,20 +1049,64 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
                              if child.mother in reg.people else child.key)
                 child_rank = 0 if child.upcoming else child.namesake_rank
                 said = answers.get((child_key, key, label, child_rank))
-                chosen = None
-                if said in RANK_WORDS[:len(group)] or (said or "").startswith("Number "):
-                    k = RANK_WORDS.index(said) if said in RANK_WORDS else int(said.split()[1]) - 1
-                    chosen = group[k] if k < len(group) and group[k] != child.id else None
-                elif len(fits) == 1:
+                who = fits or pool
+                chosen = _answered(said, group, idents, child.id, [rank_word(group.index(pid)) for pid in who])
+                if chosen is None and len(fits) == 1:
                     chosen = fits[0]
                 setattr(child, attr, chosen)
                 if chosen is None:              # two or more could be (or none by the ages): the player says
-                    who = fits or pool
                     questions.append(ParentQuestion(
                         child_key, key, label, who,
                         [f"{rank_word(group.index(pid))} ({reg.people[pid].age_text()})" for pid in who], child.id,
-                        child_rank, child.age_text() if child_rank else ""))
+                        child_rank, child.age_text() if child_rank else "",
+                        [idents[pid] for pid in who], [idents[pid] for pid in group]))
     return questions
+
+
+def parent_identity(reg: _Registry, pid: int) -> str:
+    """What tells one living namesake from another for good (Codex, PR #653): their sex and the parents their
+    own save record names, by name, head and body -- unchanged as they age and as others die, where their
+    place by age is not."""
+    p = reg.people[pid]
+    parents = reg.save_parents.get(pid, (None, None))
+    keys = ["#".join(str(x) for x in reg.people[q].key) if q in reg.people else "?" for q in parents]
+    return f"{p.sex or '?'}|{keys[0]}|{keys[1]}"
+
+
+def _rank_of(verdict: str | None) -> int | None:
+    if verdict in RANK_WORDS:
+        return RANK_WORDS.index(verdict)
+    if (verdict or "").startswith("Number "):
+        try:
+            return int(verdict.split()[1]) - 1
+        except (IndexError, ValueError):
+            return None
+    return None
+
+
+def _answered(said, group: list, idents: dict, child_id: int, offered: list) -> int | None:
+    """The namesake a kept answer chose, when it can still be told (Codex, PR #653): never by the place by
+    age alone, which moves to another villager when an older namesake dies.
+      * An answer that kept the chosen parent's identity (parent_identity) picks the one living namesake with
+        it; when two share it (twins of one record), the place by age, but only while the group is exactly as
+        it was when answered.
+      * An older answer (the place by age alone) only while the same choices would be offered.
+    Otherwise None: the question is asked again."""
+    if said is None:
+        return None
+    k = _rank_of(getattr(said, "verdict", said))
+    ident = getattr(said, "parent", None)
+    if ident:
+        matches = [pid for pid in group if pid != child_id and idents[pid] == ident]
+        if len(matches) == 1:
+            return matches[0]
+        if len(matches) > 1 and k is not None and k < len(group) and group[k] in matches \
+                and list(getattr(said, "group", None) or []) == [idents[pid] for pid in group]:
+            return group[k]
+        return None
+    if k is None or list(getattr(said, "options", None) or []) != offered:
+        return None
+    return group[k] if k < len(group) and group[k] != child_id else None
 
 
 def _saved_rename_answers(folder: Path, game: int, slot: int) -> dict:

@@ -331,6 +331,19 @@ class Backfill(unittest.TestCase):
         self.assertEqual(got[p[4].name].kind, ol.UNKNOWN)
         self.assertEqual((result.known, result.unknown), (1, 3))
 
+    def test_a_logged_change_that_does_not_reach_the_look_now_is_not_known(self):
+        """Codex, PR #653: a unique name, no Birth or Arrived record, and one logged change that does not end at
+        the look they have now: changed, but not on any way back -- not known, never "nothing to say"."""
+        v = self.village(2)
+        a, b = v.people[0].seen, v.people[1].seen
+        now = (a.head, a.body)
+        old = (now[0] + 2, now[1])
+        v.births(change(a.name, old, (now[0] + 1, now[1])))
+        ol.backfill(v.folder, 2, 1)
+        got = v.logged()
+        self.assertEqual(got[a.name].kind, ol.UNKNOWN)
+        self.assertNotIn(b.name, got, "no record and no change: still nothing")
+
     def test_an_island_events_change_with_no_appearance_record_is_not_known(self):
         v = self.village(3)
         a, b = v.people[0].seen, v.people[1].seen

@@ -436,10 +436,12 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
                                   "record of it")
     if unplaced and unique_name:
         return Found(UNKNOWN, why="an island event changed their look with no Appearance changed record of it")
-    if not chain:
-        return Found(None)
+    # A logged change that does not lead to the look they have now (Codex, PR #653): checked before "no
+    # chain", or a villager whose only change is off the way would read as never changed.
     if off_chain and unique_name:
         return Found(UNKNOWN, why="a record of their name changed a look that is not on their way")
+    if not chain:
+        return Found(None)
     first = ev.changes[chain[0]]
     masks = [m for m in ev.masks if m[0] in names]
     if first.old_mask is not None:

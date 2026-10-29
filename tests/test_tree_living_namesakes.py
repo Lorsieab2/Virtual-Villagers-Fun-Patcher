@@ -149,7 +149,7 @@ class ShowBothLinkByAge(unittest.TestCase):
         self.assertEqual((q.child, q.parent, q.label), (ponui.key, TEPEU, "Father"))
         self.assertEqual([t.split(" (")[0] for t in q.texts], ["The oldest", "The second oldest"])
         aq.keep_parent(folder, 3, 1, q.child, q.parent, q.label, ["The oldest", "The second oldest"],
-                       "The second oldest", q.text)
+                       "The second oldest", q.text, parent_identity=q.identity_of("The second oldest"), group=q.group)
         v = gen.load_village(folder, 3, 1)
         ponui = next(p for p in v.people.values() if p.name == "Ponui Kalama")
         younger = self.tepeus(v)[1]
@@ -185,7 +185,8 @@ class ShowBothLinkByAge(unittest.TestCase):
         self.assertIn("100 game units", qs[1].text)
         for q, answer in zip(qs, ("The oldest", "The second oldest")):
             aq.keep_parent(folder, 3, 1, q.child, q.parent, q.label, ["The oldest", "The second oldest"],
-                           answer, q.text, child_rank=q.child_rank)
+                           answer, q.text, child_rank=q.child_rank, parent_identity=q.identity_of(answer),
+                           group=q.group)
         v = gen.load_village(folder, 3, 1)
         elder, younger = self.tepeus(v)
         older_kid, younger_kid = self.kids(v)
@@ -224,6 +225,71 @@ class ShowBothLinkByAge(unittest.TestCase):
         v = gen.load_village(folder, 3, 1)
         self.assertEqual([k.father for k in self.kids(v)], [None, None], "which child it was for is not known")
         self.assertEqual(len(v.parent_questions), 2, "both are asked again")
+
+    PARENTS = {1583: (("Pichu Tamikai", 14, 18), ("Toga Helaku", 9, 17)),
+               1200: (("Oro Kenobi", 12, 9), ("Coral Guedado", 10, 17)),
+               1000: (("Lani Kekoa", 11, 3), ("Mele Pua", 8, 6))}
+
+    def three_tepeus(self, folder: Path, ages=(1583, 1200, 1000)) -> Path:
+        """Codex, PR #653: three living Tepeus, each old enough to be Ponui's father, each with their own
+        parents."""
+        for f in folder.glob("*.ldw"):
+            f.unlink()
+        return save(folder, [
+            aged(entry("Parai Tokidoki", 1, 5, 7, 7), 900),
+            aged(entry("Ponui Kalama", 0, 37, 10, 17, father=TEPEU, mother=("Parai Tokidoki", 7, 7)), 300),
+            *(tepeu(age, *self.PARENTS[age]) for age in ages),
+        ])
+
+    def ponui(self, v: gen.Village):
+        return next(p for p in v.people.values() if p.name == "Ponui Kalama")
+
+    def father_age(self, v: gen.Village):
+        p = self.ponui(v)
+        return v.people[p.father].age if p.father is not None else None
+
+    def answer(self, folder: Path, words: str, identity: bool = True) -> None:
+        q = gen.load_village(folder, 3, 1).parent_questions[0]
+        options = [t.split(" (")[0] for t in q.texts]
+        aq.keep_parent(folder, 3, 1, q.child, q.parent, q.label, options, words, q.text,
+                       parent_identity=q.identity_of(words) if identity else None,
+                       group=q.group if identity else None)
+
+    def test_an_answer_stays_with_the_parent_after_an_older_namesake_dies(self) -> None:
+        folder = self.three_tepeus(self.folder())
+        self.answer(folder, "The second oldest")
+        v = gen.load_village(folder, 3, 1)
+        self.assertEqual(self.father_age(v), 1200)
+        self.assertEqual(v.parent_questions, [])
+        # The eldest dies: "The second oldest" would now be the 1000 one; the answer stays with the 1200 one.
+        self.three_tepeus(folder, (1200, 1000))
+        v = gen.load_village(folder, 3, 1)
+        self.assertEqual(self.father_age(v), 1200, "never moved to another villager by the place by age")
+        self.assertEqual(v.parent_questions, [])
+        # The youngest dies (an unrelated death): still the 1200 one.
+        self.three_tepeus(folder, (1583, 1200))
+        v = gen.load_village(folder, 3, 1)
+        self.assertEqual(self.father_age(v), 1200)
+        self.assertEqual(v.parent_questions, [])
+
+    def test_the_chosen_parent_gone_is_asked_again(self) -> None:
+        folder = self.three_tepeus(self.folder())
+        self.answer(folder, "The second oldest")
+        self.three_tepeus(folder, (1583, 1000))
+        v = gen.load_village(folder, 3, 1)
+        self.assertIsNone(self.ponui(v).father, "the one chosen is gone: nobody else is given the answer")
+        self.assertEqual(len(v.parent_questions), 1)
+
+    def test_an_old_rank_only_answer_holds_only_while_the_group_is_as_it_was(self) -> None:
+        folder = self.three_tepeus(self.folder())
+        self.answer(folder, "The second oldest", identity=False)
+        v = gen.load_village(folder, 3, 1)
+        self.assertEqual(self.father_age(v), 1200, "the same three: the old answer still holds")
+        self.assertEqual(v.parent_questions, [])
+        self.three_tepeus(folder, (1200, 1000))
+        v = gen.load_village(folder, 3, 1)
+        self.assertIsNone(self.ponui(v).father, "the group changed: the old answer is not applied")
+        self.assertEqual(len(v.parent_questions), 1)
 
     def test_could_be_parent_by_the_games_age(self) -> None:
         old = gen.Person(1, "P", 1, 1, age=1583, alive=True)

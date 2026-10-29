@@ -922,7 +922,7 @@ def ask_parents(editor, questions: list | None = None):
             for q, answer in given:
                 aq.keep_parent(editor.folder, editor.game, editor.slot, q.child, q.parent, q.label,
                                [t.split(" (", 1)[0] for t in q.texts], answer, q.text,
-                               child_rank=q.child_rank)
+                               child_rank=q.child_rank, parent_identity=q.identity_of(answer), group=q.group)
         except OSError as exc:
             messagebox.showerror("Family Tree Maker", f"Your answers were not kept ({exc}).", parent=window)
             return

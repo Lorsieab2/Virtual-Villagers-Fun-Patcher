@@ -379,28 +379,47 @@ def _parent_field(label: str, who: tuple, renamed: dict, child_rank: int) -> str
     return f"{base}|child#{child_rank}" if child_rank else base
 
 
-def parent_answers(folder: Path, game: int, slot: int) -> dict[tuple, str]:
+@dataclass
+class ParentAnswer:
+    """One kept "which one is the parent?" answer: the place by age chosen, and (since Codex's PR #653 review)
+    the chosen parent's identity and the group's, oldest first (vv_genealogy.parent_identity), so the answer
+    stays with that villager when a namesake dies.  An older answer -- or one changed in this section -- has
+    neither: only `options`, the choices it was asked with."""
+    verdict: str
+    parent: str | None = None
+    group: list = field(default_factory=list)
+    options: list = field(default_factory=list)
+
+
+def parent_answers(folder: Path, game: int, slot: int) -> dict[tuple, ParentAnswer]:
     """{(child (name, head, body), parent (name, head, body), "Father"/"Mother", the child's namesake rank (0:
     none)): the answer}, the latest of each.  Reads only; nothing when the file cannot be read."""
     try:
         entries, renamed = _entries(folder, game, slot, _villages(folder, game, slot))
     except (OSError, ValueError):
         return {}
-    out: dict[tuple, str] = {}
+    out: dict[tuple, ParentAnswer] = {}
     for d in sorted(entries, key=lambda d: str(d.get("date", ""))):
         if d.get("source") != PARENT_SOURCE or not d.get("verdict") or dont_know(str(d.get("verdict"))):
             continue
         who = _canon(d.get("who"), renamed)
         if len(who) == 2:
-            out[(who[0], who[1], str(d.get("fact")), _child_rank(d))] = str(d["verdict"])
+            ident, group = d.get("parent_identity"), d.get("group")
+            out[(who[0], who[1], str(d.get("fact")), _child_rank(d))] = ParentAnswer(
+                str(d["verdict"]), ident if isinstance(ident, str) and ident else None,
+                [str(g) for g in group] if isinstance(group, list) else [],
+                [o for o in d.get("options") or [] if isinstance(o, str)])
     return out
 
 
 def keep_parent(folder: Path, game: int, slot: int, child: tuple, parent: tuple, label: str, options: list[str],
-                verdict: str | None, text: str, now: datetime | None = None, child_rank: int = 0) -> None:
+                verdict: str | None, text: str, now: datetime | None = None, child_rank: int = 0,
+                parent_identity: str | None = None, group: list | None = None) -> None:
     """Keep the player's answer to "which of these is <child>'s father (mother)?"; "Don't know" (or None)
     takes a kept answer out, so the question is asked again.  `child_rank` is the child's place by age among
-    their living namesakes (0: none), so two children of one name and look keep an answer each."""
+    their living namesakes (0: none), so two children of one name and look keep an answer each;
+    `parent_identity` and `group` (vv_genealogy.parent_identity of the chosen one and of every namesake,
+    oldest first) keep the answer with that villager when a namesake dies."""
     entries, renamed = _entries(folder, game, slot, None)
     who = (tuple(child), tuple(parent))
     child_rank = max(0, int(child_rank or 0))
@@ -414,7 +433,9 @@ def keep_parent(folder: Path, game: int, slot: int, child: tuple, parent: tuple,
         "kind": KIND, "village": village_header(folder, game, slot), "field": field_, "source": PARENT_SOURCE,
         "fact": label, "who": [list(w) for w in who], "ordinal": 1, "of": 1, "question": text,
         "options": list(options), "verdict": verdict, "label": PARENT_LABEL, "edited": False, "alone": True,
-        **({"child_rank": child_rank} if child_rank else {})}], now)
+        **({"child_rank": child_rank} if child_rank else {}),
+        **({"parent_identity": parent_identity, "group": [str(g) for g in group or []]} if parent_identity else {})}],
+        now)
 
 
 # ---------------------------------------------------------------------------
@@ -551,6 +572,10 @@ def change(folder: Path, game: int, slot: int, changed: dict[tuple, str], cleare
                 lines.append(f"Answer changed: {str(d.get('question') or d.get('field'))[:160]} -- {changed[ident]} "
                              f"(was: {d.get('verdict')})")
                 d = {**d, "verdict": changed[ident], "date": when}
+                # A parent answer changed here names a place by age, not the villager chosen before: the
+                # identity kept with it would overrule the change, so it goes (vv_genealogy._answered).
+                d.pop("parent_identity", None)
+                d.pop("group", None)
             out.append(d)
         return out
 
