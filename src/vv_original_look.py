@@ -478,6 +478,43 @@ class Result:
     note: str = ""
 
 
+def same_village(file_roster: list[int], live: list[int]) -> bool:
+    """The DLL's village test (original_look_store.inc ol_same_village): a STRICT majority of the smaller
+    roster -- the living ones named in each -- is in the other one, wherever it is there."""
+    a = [x for x in file_roster if x]
+    b = [x for x in live if x]
+    need = min(len(a), len(b))
+    if need == 0:
+        return False
+    there = set(b)
+    return sum(1 for x in a if x in there) >= need // 2 + 1
+
+
+def new_looks(game: int, people: list, holders: dict[int, int]) -> OriginalLooks:
+    """A file for the village `people` are, as the DLL starts one: each record's roster the identity of the
+    living villager in it (one no other living villager shares), nothing kept yet."""
+    count = 256 if game in (1, 2) or any((v.seen.record or 0) >= 150 for v in people) else 150
+    entries = [Entry() for _ in range(count)]
+    for v in people:
+        if v.seen.record is not None and 0 <= v.seen.record < count and holders.get(v.id) == 1:
+            entries[v.seen.record].roster = v.id
+    return OriginalLooks(game, entries)
+
+
+def _set_aside_foreign(target: Path) -> Path:
+    """Another village's file moved aside intact beside it, as the DLL does (native/shared/foreign_sidecar.h:
+    "<file>.another-village-<time>-<n>"), never deleted.  Raises OSError when it cannot be moved (nothing
+    is written then)."""
+    import time
+    stem = f"{target.name}.another-village-{int(time.time() * 1000) & 0xFFFFFFFF}-"
+    for n in range(1, 1000):
+        aside = target.with_name(f"{stem}{n}")
+        if not aside.exists():
+            os.replace(target, aside)
+            return aside
+    raise OSError(f"{target.name} could not be set aside")
+
+
 def backfill(folder: Path, game: int, slot: int) -> Result:
     """Add the logs' originals of the slot's village to its file (see THE RULES).  Call it only with the
     game closed (Repair Saves & Logs).  Never writes over a file that is not valid."""
@@ -507,15 +544,21 @@ def backfill(folder: Path, game: int, slot: int) -> Result:
     logged = [Logged(ident, f.head, f.body, f.mask, f.kind) for ident, f in found.items() if f.kind is not None]
     logged = logged[:LOGGED_MAX]
     known = sum(1 for e in logged if e.kind == KNOWN)
-    if looks is None:
+    # A file another village left in the slot (a save copied or restored into it): the DLL would refuse it
+    # whole (ol_same_village), so the logs' originals added to it would never apply (Codex, PR #653).  It is
+    # set aside intact, as the DLL sets aside another village's file, and this village's file is started.
+    foreign = looks is not None and not same_village([e.roster for e in looks.entries],
+                                                     [v.id for v in people if v.seen.record is not None])
+    if looks is None or foreign:
         if not logged:
             return Result(target, False, note="nothing in the logs to add")
-        count = 256 if game in (1, 2) or any((v.seen.record or 0) >= 150 for v in people) else 150
-        entries = [Entry() for _ in range(count)]
-        for v in people:
-            if v.seen.record is not None and 0 <= v.seen.record < count and holders[v.id] == 1:
-                entries[v.seen.record].roster = v.id
-        looks = OriginalLooks(game, entries)
+        aside = _set_aside_foreign(target) if foreign else None
+        looks = new_looks(game, people, holders)
+        if aside is not None:
+            looks.logged = logged
+            _write(target, build(looks))
+            return Result(target, True, known, len(logged) - known,
+                          f"another village's {target.name} was set aside as {aside.name}")
     before = build(looks)
     looks.logged = logged
     after = build(looks)

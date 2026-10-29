@@ -24,6 +24,10 @@
 #include <stdio.h>
 #include <string.h>
 
+/* Change Appearance for All's log writer and the companions' save-folder lookups resolve Documents: the whole
+   process is pointed at a throwaway %TEMP% Documents first, so no run ever touches the real Documents\LDW. */
+#include "harness_redirect_documents.h"
+
 #ifndef HARNESS_GAME
 #error "build with /DHARNESS_GAME=1..5"
 #endif
@@ -707,6 +711,10 @@ static void h_game(void) {
 #endif
 
 int main(void) {
+    if (!harness_redirect_documents_process()) {
+        printf("FAIL: Documents not redirected to a throwaway folder; not running\n");
+        return 2;
+    }
     setvbuf(stdout, NULL, _IONBF, 0);
 #if HARNESS_GAME == 2
     h_record = (unsigned char *)VirtualAlloc(NULL, 0x10000, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);

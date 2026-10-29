@@ -89,5 +89,39 @@ class DeadNamesakeAndNewborn(unittest.TestCase):
         self.assertTrue(any("Gata" in n and "Birth" in n for n in village.notes), "and the notes say so")
 
 
+class LivingNamesakesAndTheirBirths(unittest.TestCase):
+    """Codex, PR #653: two living "Tomil Kalama" (one name and look) and Births of that name and look no living
+    one is told by (the save keeps other parents): each living one stands for one of those Births, so only the
+    Births beyond them are villagers of their own -- 2 living and 3 Births make 3 people, never 5."""
+
+    def tomils(self, births: int) -> list:
+        folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        people = [entry("Ma2", 1, 7, 4, 4), entry("Pa2", 0, 7, 2, 2),
+                  entry("Tomil Kalama", 0, 7, 3, 5, father=("Pa9", 9, 9), mother=("Ma9", 8, 8)),
+                  entry("Tomil Kalama", 0, 8, 3, 5, father=("Pa9", 9, 9), mother=("Ma9", 8, 8))]
+        (folder / "Virtual Villagers - The Secret City1.ldw").write_bytes(
+            bytes(bytearray(b"ldwg" + bytes(TABLE - 4)) + b"".join(people) + bytes(64)))
+        (folder / DATA).mkdir(parents=True)
+        log = folder / LOGS / "Births and Conceptions" / "Virtual Villagers 3 Births and Conceptions Log 1.txt"
+        log.parent.mkdir(parents=True)
+        log.write_bytes((VILLAGE + "".join(birth("Tomil Kalama", 3, 5, ("Ma2", 4, 4), ("Pa2", 2, 2))
+                                           for _ in range(births))).replace("\n", "\r\n").encode("latin-1"))
+        village = gen.load_village(folder, 3, 1)
+        return [p for p in village.people.values() if p.name == "Tomil Kalama"]
+
+    def test_three_births_two_living_make_three(self):
+        tomils = self.tomils(3)
+        self.assertEqual(len(tomils), 3)
+        self.assertEqual(sum(p.alive for p in tomils), 2)
+
+    def test_two_births_two_living_make_two(self):
+        self.assertEqual(len(self.tomils(2)), 2)
+
+    def test_four_births_two_living_make_four(self):
+        tomils = self.tomils(4)
+        self.assertEqual(len(tomils), 4)
+        self.assertEqual(sum(not p.alive for p in tomils), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

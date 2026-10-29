@@ -166,6 +166,29 @@ class TheContract(unittest.TestCase):
         self.assertEqual(got[4], (40043, ol.FIRST_RUN), "everyone else is seen as they are now")
         self.assertEqual(got[0], (0, ol.FIRST_RUN))
 
+    def test_a_file_started_for_this_village_is_taken_by_the_dlls_store_and_another_villages_is_not(self):
+        """Codex, PR #653: the backfill starts a file for the village on screen (new_looks) when the slot's
+        file is another village's; the DLL takes that one and applies its logs' part, and would refuse the
+        other village's whole."""
+        from types import SimpleNamespace
+        ids = [ol.identity(5, f"Kai{i}".encode(), struct.pack("<i", i & 1))[0] for i in range(10)]
+        people = [SimpleNamespace(id=ident, seen=SimpleNamespace(record=i)) for i, ident in enumerate(ids)]
+        ours = ol.new_looks(5, people, {ident: 1 for ident in ids})
+        ours.logged = [ol.Logged(ids[3], 3, 3, 0, ol.KNOWN)]
+        theirs = ol.OriginalLooks(5, [ol.Entry(roster=0x1000 + i) for i in range(150)],
+                                  [ol.Logged(ids[3], 3, 3, 0, ol.KNOWN)])
+        self.assertTrue(ol.same_village([e.roster for e in ours.entries], ids))
+        self.assertFalse(ol.same_village([e.roster for e in theirs.entries], ids))
+        got = {}
+        for name, looks in (("ours", ours), ("theirs", theirs)):
+            with tempfile.TemporaryDirectory() as d:
+                made = Path(d) / f"{name}.dat"
+                made.write_bytes(ol.build(looks))
+                out = harness("read", str(made))
+            got[name] = {int(i): (int(o), int(s)) for i, o, s in re.findall(r"^ORIGINAL (\d+) (-?\d+) (\d+)$", out, re.M)}
+        self.assertEqual(got["ours"][3], (30030, ol.LOGS), "the DLL takes the new file and its logs' original")
+        self.assertNotEqual(got["theirs"][3][1], ol.LOGS, "another village's file is refused whole by the DLL")
+
     def test_the_game_body_mark_survives_a_repair(self):
         """Codex, PR #653: Repair rewrites the file keeping each record entry's "game body" mark (byte 18), so
         a robe or bought outfit the DLL folded in is never lost to the logs' older body."""
@@ -345,6 +368,32 @@ class Backfill(unittest.TestCase):
         got = v.logged()
         self.assertEqual(got[a.name].kind, ol.UNKNOWN)
         self.assertNotIn(b.name, got, "no record and no change: still nothing")
+
+    def test_another_villages_file_is_set_aside_and_this_villages_started(self):
+        """Codex, PR #653: a save of another village restored into a slot that still has an Original Looks file:
+        that file is set aside intact (never deleted) and one for this village is written, its roster the
+        living villagers by record, so the DLL takes it and the logs' originals apply."""
+        v = self.village(3)
+        a = v.people[0].seen
+        v.births(birth(1, a.name, a.sex, (40, 41)) + change(a.name, (40, 41), (a.head, a.body)))
+        target = ol.path(v.folder, 1)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        foreign = ol.build(ol.OriginalLooks(3, [ol.Entry(roster=0x7000 + i) for i in range(150)],
+                                            [ol.Logged(0x7001, 1, 1, 0, ol.KNOWN)]))
+        target.write_bytes(foreign)
+        result = ol.backfill(v.folder, 3, 1)
+        self.assertTrue(result.written)
+        asides = list(target.parent.glob(target.name + ".another-village-*"))
+        self.assertEqual(len(asides), 1, result.note)
+        self.assertEqual(asides[0].read_bytes(), foreign, "set aside intact")
+        looks = v.file()
+        live = {x.seen.record: x.id for x in v.people if x.seen.record is not None}
+        self.assertEqual({i: e.roster for i, e in enumerate(looks.entries) if e.roster}, live)
+        self.assertTrue(ol.same_village([e.roster for e in looks.entries], list(live.values())))
+        self.assertEqual((v.logged()[a.name].kind, v.logged()[a.name].head), (ol.KNOWN, 40))
+        again = ol.backfill(v.folder, 3, 1)
+        self.assertFalse(again.written, "this village's own file: as before, nothing new to write")
+        self.assertEqual(len(list(target.parent.glob(target.name + ".another-village-*"))), 1)
 
     def test_an_island_events_change_with_no_appearance_record_is_not_known(self):
         v = self.village(3)

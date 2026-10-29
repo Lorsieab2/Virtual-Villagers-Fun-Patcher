@@ -931,17 +931,32 @@ def _living_namesake_births(reg: _Registry) -> None:
             reg.birth_of[owner] = rec[3]
         spare = [pid for pid in pids if pid not in living]     # the Births' own villagers _births made
         untold = [q for q in living if reg.people[q].birth_record is None]
-        if len(left) <= len(untold):
-            # No more Births left than living namesakes not told by one (twins still alive, a record keeping no
-            # parents): each Birth is one of theirs, which one is not known -- so none is given, and none is a
-            # villager of its own (no namesake who never lived).
-            left = []
-        for rec in left:
+        # Each living namesake not told by a Birth stands for one of the Births left (which one is not known), so
+        # only the Births beyond them are villagers of their own (born, then gone): 2 living and 3 Births left
+        # make 1, never 3 (Codex, PR #653).  Births none of those living ones can be (the parents differ) are the
+        # gone ones first; the rest of the excess in birth order, given parents only when every such Birth names
+        # the same -- never on a guess.
+        excess = max(0, len(left) - len(untold))
+
+        def could_be(rec, q) -> bool:
+            parents = reg.save_parents.get(q)
+            return not parents or None in parents or rec[3][1:] == parents
+
+        surely = [rec for rec in left if not any(could_be(rec, q) for q in untold)]
+        maybe = [rec for rec in left if rec not in surely]
+        gone = (surely + maybe)[:excess]
+        filled = [rec for rec in gone if rec not in surely]
+        sure_parents = len({rec[3][1:] for rec in maybe}) <= 1
+        for rec in gone:
             pid = spare.pop(0) if spare else max(reg.people, default=0) + 1
             p = reg.people.setdefault(pid, Person(pid, *key))
             p.birth_record, p.litter = rec[1], rec[2]
-            p.father, p.mother = rec[3][1], rec[3][2]
-            reg.birth_of[pid] = rec[3]
+            if rec in filled and not sure_parents:
+                p.father = p.mother = None
+                reg.birth_of[pid] = (rec[3][0], None, None)
+            else:
+                p.father, p.mother = rec[3][1], rec[3][2]
+                reg.birth_of[pid] = rec[3]
         for pid in spare:                                       # a Birth a living one took: not a villager
             if not any(pid in (r.father, r.mother) for r in reg.people.values()):
                 del reg.people[pid]
