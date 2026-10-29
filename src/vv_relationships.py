@@ -16,10 +16,14 @@ Only what the tree's own records prove -- nothing is ever guessed:
 
 Blood relationships are worked out from each villager's ancestors (a breadth-first walk up the recorded
 parents, kept for every villager once per tree load): two villagers are related through a common ancestor
-by a line up from each that leaves the ancestor by a different child, one of the two children not an
-ancestor of both (so the lines never meet below it; when both are, the relationship is already counted
-through them), the nearest such pair of lines through each common ancestor.  So a first cousin is never also a second cousin
-through the grandparents' parents, and a brother and sister's children are siblings, not also cousins; in a close-knit
+by a line up from each that leaves the ancestor by a different child and never meets the other below it
+(where lines would meet is a common ancestor of both descending from both children: the relationship is
+then the one through that nearer ancestor), the nearest such pair of lines through each common ancestor.
+So a first cousin is never also a second cousin through the grandparents' parents.  Whenever each of one
+villager's two parents is a sibling of one of the other's two parents, they are double first cousins --
+even when they also share those parents: a brother and sister's children are siblings AND double first
+cousins (the owner, 2026-10-28: the strict genealogical reading), but their grandchildren by one son are
+siblings only (both lines meet again at that son).  In a close-knit
 village, though, two villagers can be related along several lines (a half-brother who is also a
 half-first cousin).  A direct ancestor counts at every distance a line gives (a grandfather who is also a
 great-grandfather), and is also related by the lines that do not go through them (a mother who had her
@@ -43,8 +47,9 @@ Conventions (one style everywhere):
 * "Half-" goes in front of the whole term wherever the link goes through only one of a couple:
   "Half-sister", "Half-aunt", "Half-great-uncle", "Half-first cousin once removed".
 * Cousins: "First cousin", "Second cousin once removed", "Third cousin twice removed", "First cousin
-  3 times removed"; "Double first cousin" when they are related through both of each one's parents (two
-  siblings' children by another pair of siblings).
+  3 times removed"; "Double first cousin" when each of one's two parents is a sibling of one of the other's
+  two parents (two siblings' children by another pair of siblings) -- also when they share those parents
+  too: a brother and sister's children are listed as siblings and as double first cousins.
 * Terms are gendered by the relative's sex (Mother/Father, Aunt/Uncle, Niece/Nephew, Sister/Brother,
   Daughter-in-law/Son-in-law...); neutral where the language is (Cousin, Partner) or the records give no sex
   (Parent, Sibling, Aunt or uncle...).
@@ -207,6 +212,11 @@ class Relationships:
                 self.births[p.litter] = self.births.get(p.litter, 0) + 1
         self.up = self._ancestors()
         self.near = {pid: {a: min(ds) for a, ds in anc.items()} for pid, anc in self.up.items()}
+        self.down: dict[int, set[int]] = {pid: set() for pid in people}    # descendants, themselves too
+        for pid, anc in self.up.items():
+            for a in anc:
+                self.down[a].add(pid)
+        self.below_both: dict[tuple[int, int], set[int]] = {}
         self.memo: dict[int, list[Relation]] = {}
 
     def _ancestors(self) -> dict[int, dict[int, frozenset]]:
@@ -335,9 +345,10 @@ class Relationships:
 
     def _through(self, a: int, ux: dict, uy: dict, common) -> set[tuple[int, int]]:
         """The (d, e) the recorded lines prove through the common ancestor `a`: a line up from x and one up
-        from y that leave `a` by two different children, at least one of whom is not an ancestor of both --
-        so the lines never meet below `a` (where they would meet is a common ancestor below both children).
-        When both children are ancestors of both, the relationship is already counted through them.  The
+        from y that leave `a` by two different children and never meet below `a` -- where they would meet is
+        a common ancestor descending from both children (_meet).  Two children who are both ancestors of
+        both still count when no such meeting point exists: a brother and sister's children are double
+        first cousins as well as siblings (the owner, 2026-10-28: the strict genealogical reading).  The
         nearest such pair of lines is the relationship through `a` (fewest generations all told, then the
         more even): further lines through the same ancestor only go round a close-knit family -- in a
         village with one father of all, everyone would be everyone's half-aunt, half-great-aunt...  A first
@@ -348,11 +359,20 @@ class Relationships:
         best = None
         for d, cx in xs:
             for e, cy in ys:
-                if cx != cy and not (cx in common and cy in common):
+                if cx != cy and not (cx in common and cy in common and self._meet(cx, cy, common)):
                     if best is None or (d + e, max(d, e)) < (sum(best), max(best)):
                         best = (d, e)
                     break                       # ys is nearest first: the rest are further for this cx
         return {best} if best else set()
+
+    def _meet(self, cx: int, cy: int, common) -> bool:
+        """Whether an ancestor of both villagers descends from both cx and cy: every line through cx and cy
+        then meets again there, and the relationship is the one through that nearer ancestor."""
+        key = (cx, cy) if cx < cy else (cy, cx)
+        both = self.below_both.get(key)
+        if both is None:
+            both = self.below_both[key] = self.down[cx] & self.down[cy]
+        return not both.isdisjoint(common)
 
     def _avoiding(self, start: int, avoid: int) -> dict[int, int]:
         """start's ancestors (themselves at 0) and the nearest distance to each by the lines that do not go

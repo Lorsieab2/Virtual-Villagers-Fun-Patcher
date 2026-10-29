@@ -201,6 +201,14 @@ class RelationshipTests(unittest.TestCase):
         v.people[43] = P(43, "Babe", 43, 43, M, 0, True, father=10, mother=15, number=43)   # Xavi and Cous
         t = terms(v, 10)
         self.assertEqual(sorted(t[15]), ["First cousin", "Partner"])
+        groups = dict(rel.Relationships(v).groups(10))
+        self.assertIn(15, [r.pid for r in groups["Partners"]])
+        self.assertIn(15, [r.pid for r in groups["First cousins"]])
+        # A close-knit line: a grandfather who is also the father.
+        close = [person(1, "Old", M), person(2, "Her", F), person(3, "Dau", F, 1, 2), person(4, "Kin", M, 1, 3)]
+        v2 = gen.Village(2, 1, "Close", {p.id: p for p in close})
+        self.assertTrue({"Father", "Grandfather"} <= set(terms(v2, 4)[1]))
+        self.assertTrue({"Mother", "Half-sister"} <= set(terms(v2, 4)[3]))       # Dau is Old's child too
         # Lines that meet again lower down repeat a relationship, never add one: the children of a brother
         # and sister's son are siblings only -- but the brother and sister's own children are also cousins.
         people = [person(1, "Root", M), person(2, "Roota", F), person(3, "Bo", M, 1, 2), person(4, "Bi", F, 1, 2),
@@ -210,15 +218,25 @@ class RelationshipTests(unittest.TestCase):
         self.assertEqual(terms(v3, 7)[3], ["Grandfather", "Great-uncle"])     # also his grandmother's brother
         people.append(person(9, "Mod", F, 3, 4))
         v4 = gen.Village(3, 1, "Knit", {p.id: p for p in people})
-        self.assertEqual(terms(v4, 5)[9], ["Sister"])          # their parents are the nearest: siblings only
-        groups = dict(rel.Relationships(v).groups(10))
-        self.assertIn(15, [r.pid for r in groups["Partners"]])
-        self.assertIn(15, [r.pid for r in groups["First cousins"]])
-        # A close-knit line: a grandfather who is also the father.
-        people = [person(1, "Old", M), person(2, "Her", F), person(3, "Dau", F, 1, 2), person(4, "Kin", M, 1, 3)]
-        v2 = gen.Village(2, 1, "Close", {p.id: p for p in people})
-        self.assertTrue({"Father", "Grandfather"} <= set(terms(v2, 4)[1]))
-        self.assertTrue({"Mother", "Half-sister"} <= set(terms(v2, 4)[3]))       # Dau is Old's child too
+        # The owner, 2026-10-28: a brother and sister's children are siblings AND double first cousins.
+        self.assertEqual(sorted(terms(v4, 5)[9]), ["Double first cousin", "Sister"])
+        self.assertEqual(sorted(terms(v4, 9)[5]), ["Brother", "Double first cousin"])
+        self.assertEqual(terms(v4, 7)[8], ["Sister"])          # their grandchildren by Mid: siblings only
+
+    def test_double_first_cousins_whenever_each_parent_is_a_sibling_of_one_of_the_others(self):
+        # Bo, Bi and Bu are siblings.  Xo is Bo and Bi's, Yu is Bu and Bi's: half-siblings through Bi, and
+        # double first cousins too (Bo is Bi's brother, Bi is Bu's sister).
+        people = [person(1, "Root", M), person(2, "Roota", F), person(3, "Bo", M, 1, 2), person(4, "Bi", F, 1, 2),
+                  person(5, "Bu", M, 1, 2), person(6, "Xo", M, 3, 4), person(7, "Yu", F, 5, 4)]
+        for game in (1, 2, 3, 4, 5):
+            v = gen.Village(game, 1, "Knit", {p.id: p for p in people})
+            self.assertEqual(sorted(terms(v, 6)[7]), ["Double first cousin", "Half-sister"], game)
+        # Two sibling pairs who share no parent: double first cousins only (the clan's Ben and Cat).
+        self.assertEqual(terms(clan(), 10)[16], ["Double first cousin"])
+        # Only one side related: a first cousin, not double.
+        more = people + [person(8, "Out", F), person(9, "Zo", F, 5, 8)]
+        v2 = gen.Village(4, 1, "Knit", {p.id: p for p in more})
+        self.assertEqual(terms(v2, 6)[9], ["First cousin", "Step-sister"])   # Bu is Bi's partner too
 
     def test_unknown_and_default_fathers_block_links(self):
         for game, key in ((1, ("Unknown", 0, 0)), (2, ("?", 0, 0)), (4, ("Joey", 2, 2)), (5, ("Joey Joerson", 2, 2))):
