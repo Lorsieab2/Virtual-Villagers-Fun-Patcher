@@ -16,7 +16,10 @@
    otherwise; Random head, the hair colours, Random body, Random mask and Random look stay in the villager's
    sex, the game's colour groups and the window's pools; Cancel writes nothing; a look-only OK is charged
    (The Lost Children) or handed on as a change; and the Change Appearance for All look rows -- per sex, the
-   covered villagers only, Leave as is changes nothing, Random only Young or Old. */
+   covered villagers only, Leave as is changes nothing, Random only Young or Old.  And Change Appearance for
+   All in A New Home and New Believers (Codex, PR #653): what is charged and logged is each villager's final
+   look against the one the window opened on -- Reset to original plus an override back to the current look
+   is no change. */
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
@@ -137,6 +140,29 @@ static int __stdcall h_look_set_many(int game, const void *const *records, const
     return 1;
 }
 
+/* "VVFP Parentage Export.dll"'s WriteVillageRecord: the "Appearance changed" records, counted here. */
+#define H_PARENTAGE ((HMODULE)(UINT_PTR)0x30000)
+static int h_log_lines;             /* "Appearance changed" records written */
+static char h_log_last[256];
+
+static int __stdcall h_write_record(int game, int kind, const void *record, int a, const char *before,
+                                    const char *b, int c) {
+    (void)game; (void)kind; (void)record; (void)a; (void)b; (void)c;
+    h_log_lines++;
+    lstrcpynA(h_log_last, before != NULL ? before : "", sizeof h_log_last);
+    return 1;
+}
+
+static HMODULE WINAPI h_LoadLibraryExW(LPCWSTR path, HANDLE file, DWORD flags) {
+    size_t n = path != NULL ? wcslen(path) : 0;
+    static const wchar_t leaf[] = L"VVFP Parentage Export.dll";
+    size_t k = sizeof leaf / sizeof leaf[0] - 1;
+    if (n >= k && lstrcmpiW(path + n - k, leaf) == 0) {
+        return H_PARENTAGE;
+    }
+    return LoadLibraryExW(path, file, flags);
+}
+
 static HMODULE WINAPI h_GetModuleHandleA(LPCSTR name) {
     if (name != NULL && lstrcmpiA(name, "VVFP Original Look.dll") == 0) {
         return h_original_there ? H_ORIGINAL : NULL;
@@ -158,10 +184,14 @@ static FARPROC WINAPI h_GetProcAddress(HMODULE module, LPCSTR name) {
         if (lstrcmpA(name, "VvfpHeadLookSetMany") == 0) return (FARPROC)h_look_set_many;
         return NULL;
     }
+    if (module == H_PARENTAGE) {
+        return lstrcmpA(name, "WriteVillageRecord") == 0 ? (FARPROC)h_write_record : NULL;
+    }
     return GetProcAddress(module, name);
 }
 
 #define EndDialog h_EndDialog
+#define LoadLibraryExW h_LoadLibraryExW
 #define MessageBoxA h_MessageBoxA
 #define InvalidateRect h_InvalidateRect
 #define DialogBoxParamA h_DialogBoxParamA
@@ -183,6 +213,7 @@ static FARPROC WINAPI h_GetProcAddress(HMODULE module, LPCSTR name) {
 #endif
 
 #undef EndDialog
+#undef LoadLibraryExW
 #undef MessageBoxA
 #undef InvalidateRect
 #undef DialogBoxParamA
@@ -197,6 +228,15 @@ static void h_check(int ok, const char *what) {
     }
 }
 
+/* The game's own fixed addresses Change Appearance for All reads: the harness is linked fixed at 0x400000
+   and this zeroed block lies past its code, over them (vv5_mask_identity_harness.c's way). */
+static unsigned char h_backing[0x500000];
+
+static int h_game_memory(unsigned int lo, unsigned int size) {
+    unsigned int b = (unsigned int)(UINT_PTR)h_backing;
+    return lo >= b && lo + size <= b + sizeof h_backing;
+}
+
 static void h_fresh(void) {
     h_original_there = 0;
     h_original_record = NULL;
@@ -204,6 +244,8 @@ static void h_fresh(void) {
     h_look_count = 0;
     h_look_writes = 0;
     h_unknown_said = 0;
+    h_log_lines = 0;
+    h_log_last[0] = '\0';
 }
 
 static int h_in(const unsigned char *rows, int n, int v) {
@@ -413,6 +455,51 @@ static void h_game(void) {
 }
 
 #elif HARNESS_GAME == 5
+/* Change Appearance for All's own apply (caf_apply): the records in the harness's memory, the mask table
+   at the 150-villager build's own address (in h_backing).  One man:
+   head 3, body 4, mask none; his original head `original_head`, body 4, mask none. */
+static void h_forall_village(unsigned char *records, int original_head) {
+    memset(records, 0, (size_t)150 * VV5_REC_STRIDE);
+    memset((void *)(UINT_PTR)VV5_STOCK_MASK_TABLE, 0, 75);
+    g_vv5_rec_base = (unsigned int)(UINT_PTR)records;
+    g_vv5_slots = 150;
+    records[VV5_OFF_ACTIVE] = 1;
+    *(int *)(records + VV5_OFF_SEX) = 0;
+    *(int *)(records + VV5_OFF_HEAD) = 3;
+    *(int *)(records + VV5_OFF_BODY) = 4;
+    h_original_there = 1;
+    h_original_record = records;
+    h_original_head = original_head;
+    h_original_body = 4;
+    h_original_mask = 0;
+    caf_head[0] = caf_head[1] = caf_body[0] = caf_body[1] = caf_mask[0] = caf_mask[1] = -1;
+    caf_heads_mode = caf_bodies_mode = caf_mask_dist = 0;
+    caf_single_mask = -1;
+    caf_look[0] = caf_look[1] = VVFP_AX_LEAVE;
+    caf_reset = 1;
+}
+
+static void h_forall(void) {
+    unsigned char *records = (unsigned char *)VirtualAlloc(NULL, (SIZE_T)150 * VV5_REC_STRIDE,
+                                                           MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    if (!h_game_memory(VV5_STOCK_MASK_TABLE, 75) || records == NULL) {
+        h_check(0, "the game's mask table address for Change Appearance for All");
+        return;
+    }
+    /* Codex, PR #653: Reset to original (head 2) and the men's head 3 -- the look he has now. */
+    h_fresh();
+    h_forall_village(records, 2);
+    caf_head[0] = 3;
+    h_check(caf_apply() == 0 && *(int *)(records + VV5_OFF_HEAD) == 3 && h_log_lines == 0,
+            "For All: Reset to original plus an override back to the current look: no change to charge, no record");
+    /* Reset to original alone, to a different original: one change and one record. */
+    h_fresh();
+    h_forall_village(records, 2);
+    h_check(caf_apply() == 1 && *(int *)(records + VV5_OFF_HEAD) == 2 && h_log_lines == 1
+            && strstr(h_log_last, "Old head: 3") != NULL && strstr(h_log_last, "New head: 2") != NULL,
+            "For All: Reset to a different original is one change and one record, old look to new");
+}
+
 static void h_game(void) {
     int s, c, k, result, h, b, m;
     {
@@ -468,6 +555,7 @@ static void h_game(void) {
         h_check(h >= 0 && h < APPEARANCE_HEAD_COUNT && b >= 0 && b < APPEARANCE_BODY_COUNT && m >= 0
                 && m < APPEARANCE_MASK_COUNT, "the randoms stay in range (the mask pool: none or any of the five)");
     }
+    h_forall();
 }
 
 #elif HARNESS_GAME == 3
@@ -543,11 +631,77 @@ static void h_game(void) {
     }
 }
 
+#elif HARNESS_GAME == 1
+/* A New Home's per-villager buttons read the mask table in the game's own memory and cannot be driven here
+   (tests/test_change_appearance_extras.py checks their source; in play they are UNCONFIRMED).  Change
+   Appearance for All can: the game's own addresses are in h_backing, and
+   the stand-in memory is zero -- no save manager and no captured slot, so the mask table fails closed
+   (every mask reads "none" and none is written, nor any sidecar). */
+static unsigned char *h_records, *h_ctx;
+
+/* One man: head 3, body 4, mask none; his original head `original_head` (body 4, mask none: the body,
+   mask and head look already match the originals). */
+static void h_forall_village(int original_head) {
+    unsigned char *rec;
+    memset(h_records, 0, (size_t)VV_MASK_SLOTS * VV_RECORD_STRIDE);
+    VV_MASK_MANAGER = h_records;
+    rec = h_records;
+    rec[VV_OCCUPIED_OFFSET] = 1;
+    *(int *)(rec + VV_GENDER_OFFSET) = VV_GENDER_MALE;
+    *(int *)(rec + VV_HEAD_OFFSET) = 3;
+    *(int *)(rec + VV_CLOTHING_OFFSET) = 4;
+    h_original_there = 1;
+    h_original_record = rec;
+    h_original_head = original_head;
+    h_original_body = 4;
+    h_original_mask = 0;
+    forall_state.male_head = forall_state.male_body = forall_state.male_mask = FORALL_NO_CHANGE;
+    forall_state.female_head = forall_state.female_body = forall_state.female_mask = FORALL_NO_CHANGE;
+    forall_state.mask_override = forall_state.heads_override = forall_state.bodies_override = 0;
+    forall_state.look[0] = forall_state.look[1] = VVFP_AX_LEAVE;
+    forall_state.reset = 1;
+    *(int *)(h_ctx + VV_TECH_POINTS_OFFSET) = 1000000;
+}
+
+static void h_game(void) {
+    static const UINT ok[] = { IDOK };
+    if (!h_game_memory(0x00480000u, 0x20000)) {
+        h_check(0, "the game's addresses 0x480000..0x4A0000 for Change Appearance for All");
+        return;
+    }
+    h_records = (unsigned char *)VirtualAlloc(NULL, (SIZE_T)VV_MASK_SLOTS * VV_RECORD_STRIDE,
+                                              MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    h_ctx = (unsigned char *)VirtualAlloc(NULL, 0x10000, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    /* Codex, PR #653: Reset to original (head 2) and the men's head 3 -- the look he has now.  Two writes,
+       no change: nothing charged, nothing logged. */
+    h_fresh();
+    h_forall_village(2);
+    forall_state.male_head = 3;
+    h_script = ok;
+    h_script_len = 1;
+    h_check(ShowOriginsAppearanceForAll((int)(UINT_PTR)h_ctx) == 0
+            && *(int *)(h_ctx + VV_TECH_POINTS_OFFSET) == 1000000,
+            "For All: Reset to original plus an override back to the current look charges nothing");
+    h_check(*(int *)(h_records + VV_HEAD_OFFSET) == 3 && h_log_lines == 0,
+            "For All: the look is as it was, and no \"Appearance changed\" record");
+    /* Reset to original alone, to a different original: one change, one charge, one record. */
+    h_fresh();
+    h_forall_village(2);
+    h_script = ok;
+    h_script_len = 1;
+    h_check(ShowOriginsAppearanceForAll((int)(UINT_PTR)h_ctx) == 1
+            && *(int *)(h_ctx + VV_TECH_POINTS_OFFSET) == 1000000 - VV_FORALL_COST,
+            "For All: Reset to a different original is charged once");
+    h_check(*(int *)(h_records + VV_HEAD_OFFSET) == 2 && h_log_lines == 1
+            && strstr(h_log_last, "Old head: 3") != NULL && strstr(h_log_last, "New head: 2") != NULL,
+            "For All: one \"Appearance changed\" record, old look to new");
+}
+
 #else
-/* A New Home and The Tree of Life write the live record from the dialog, and every button reads the mask
-   table, which lives in the game's own memory (the mask manager, the side-table and its sidecar): their
-   per-villager buttons cannot be driven here.  tests/test_change_appearance_extras.py checks their source;
-   in play they are UNCONFIRMED. */
+/* The Tree of Life writes the live record from the dialog, and every button reads the mask table, which
+   lives in the game's own memory (the mask manager, the side-table and its sidecar): its per-villager
+   buttons cannot be driven here.  tests/test_change_appearance_extras.py checks their source; in play they
+   are UNCONFIRMED. */
 static void h_game(void) {
 }
 #endif

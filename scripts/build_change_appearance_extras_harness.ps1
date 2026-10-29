@@ -3,6 +3,8 @@
 #
 # Each build compiles that game's Origins companion source unchanged into a 32-bit harness executable
 # that drives its real Change Appearance dialog procedures and exports (native/shared/appearance_extras.h).
+# It is linked fixed at 0x400000 with a large zeroed block that holds the games' own addresses Change
+# Appearance for All reads (A New Home's mask scratch, New Believers' mask table): vv5_mask_identity_harness's way.
 # Nothing is shown on screen and no file is read or written.  Each run builds into its own folder under
 # %TEMP% and removes it afterwards.  Exit code 0 means every check passed.
 param(
@@ -35,6 +37,7 @@ try {
             ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
             ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
             user32.lib gdi32.lib shell32.lib advapi32.lib gdiplus.lib `
+            /BASE:0x400000 /FIXED /DYNAMICBASE:NO `
             ("/OUT:" + $out)
         if ($LASTEXITCODE -ne 0) {
             $log | Write-Output

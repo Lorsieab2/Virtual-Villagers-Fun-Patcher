@@ -9,6 +9,10 @@ writes nothing; a look-only OK is charged (The Lost Children) or handed on as a 
 look rows reach that sex's covered villagers only, Leave as is changes nothing, Random is only Young or
 Old.  A New Home's and The Tree of Life's per-villager buttons read the mask table in the game's own
 memory, so the harness runs only the shared rows there; their wiring is checked from the source below.
+Change Appearance for All in A New Home and New Believers (Codex, PR #653): Reset to original plus an
+override that puts back the look a villager has now charges nothing and logs nothing; Reset to a different
+original is one charge and one "Appearance changed" record, old look to new.  (The Lost Children, The
+Secret City and The Tree of Life plan each villager's final look before writing, so they always did.)
 
 The checks below cover what a harness cannot: every template carries the controls, the price text, and
 the paths that charge a look-only change.

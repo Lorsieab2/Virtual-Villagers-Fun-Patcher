@@ -908,7 +908,7 @@ def ask_parents(editor, questions: list | None = None):
     frame = scrollable_frame(window, padding=8)
     choices = []
     for n, q in enumerate(questions):
-        row = ttk.LabelFrame(frame, text=f"{n + 1}. {q.child[0]}: {q.label.lower()} {q.parent[0]}", padding=6)
+        row = ttk.LabelFrame(frame, text=f"{n + 1}. {q.who}: {q.label.lower()} {q.parent[0]}", padding=6)
         row.pack(fill="x", anchor="w", pady=(0, 6))
         var = tk.StringVar(value=IDENTITY_DONT_KNOW)
         for text in q.texts:
@@ -921,7 +921,8 @@ def ask_parents(editor, questions: list | None = None):
         try:
             for q, answer in given:
                 aq.keep_parent(editor.folder, editor.game, editor.slot, q.child, q.parent, q.label,
-                               [t.split(" (", 1)[0] for t in q.texts], answer, q.text)
+                               [t.split(" (", 1)[0] for t in q.texts], answer, q.text,
+                               child_rank=q.child_rank)
         except OSError as exc:
             messagebox.showerror("Family Tree Maker", f"Your answers were not kept ({exc}).", parent=window)
             return

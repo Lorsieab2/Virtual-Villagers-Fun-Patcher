@@ -1973,11 +1973,18 @@ static int caf_apply(void) {
             if (caf_mask[sex_of[i]] >= 0)
                 touched += caf_set_mask(active[i], caf_mask[sex_of[i]]);
     }
-    /* Change Appearance for All is logged too (Codex, #558), with the masks once every one is set. */
-    for (i = 0; i < na; ++i)
+    /* Change Appearance for All is logged too (Codex, #558), with the masks once every one is set.  What is
+       charged is decided here, by each villager's final look against the one the window opened on -- never
+       by the writes above: Reset to original and an override that puts the look back write twice and change
+       nothing (Codex, PR #653). */
+    touched = 0;
+    for (i = 0; i < na; ++i) {
+        touched += *(int *)(caf_rec(active[i]) + VV5_OFF_HEAD) != old_head[i]
+            || *(int *)(caf_rec(active[i]) + VV5_OFF_BODY) != old_body[i] || caf_get_mask(active[i]) != old_mask[i];
         vv_log_appearance_mask(5, caf_rec(active[i]), old_head[i], old_body[i], old_mask[i],
                                *(int *)(caf_rec(active[i]) + VV5_OFF_HEAD), *(int *)(caf_rec(active[i]) + VV5_OFF_BODY),
                                caf_get_mask(active[i]));
+    }
     return touched;
 }
 

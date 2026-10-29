@@ -973,10 +973,21 @@ class ParentQuestion:
     choices: list
     texts: list                 # each choice in words: "The oldest (1583 game units, 79 years old; parents ...)"
     child_id: int = 0
+    # The child's own place by age among living namesakes of theirs (1 the oldest; 0 when the child has none):
+    # two children of one name and look are two questions, each kept under its own answer (Codex, PR #653).
+    child_rank: int = 0
+    child_age: str = ""
+
+    @property
+    def who(self) -> str:
+        """The child in words; a child with a living namesake is told apart by their place by age and age."""
+        if not self.child_rank:
+            return self.child[0]
+        return f"{self.child[0]} ({rank_word(self.child_rank - 1).lower()} of that name, {self.child_age})"
 
     @property
     def text(self) -> str:
-        return (f"{self.child[0]}'s {self.label.lower()} is {self.parent[0]} (head {self.parent[1]}, body "
+        return (f"{self.who}'s {self.label.lower()} is {self.parent[0]} (head {self.parent[1]}, body "
                 f"{self.parent[2]}), and {len(self.choices)} living villagers have that name and look, each old "
                 "enough to be the parent. Which one?")
 
@@ -993,8 +1004,11 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
     living namesakes share.  A child is linked to the one who was old enough to be their parent at the child's
     birth (could_be_parent); when more than one could be, to the one the player chose (`answers`: (child key,
     parent key, "Father"/"Mother") -> a RANK_WORDS answer); otherwise to neither -- never a guess -- and the
-    question is returned for the Family Tree Maker to ask."""
+    question is returned for the Family Tree Maker to ask.  A child who has a living namesake is told apart by
+    their own place by age (`answers` keys end in that rank; 0 for a child with none, which is also what an
+    answer kept before the rank was is read as -- so an old answer is never given to one of two namesakes)."""
     questions: list[ParentQuestion] = []
+    groups: dict = {}
     for key, ids in reg.living_dups.items():
         group = sorted((pid for pid in ids if pid in reg.people and reg.people[pid].alive),
                        key=lambda pid: (-(reg.people[pid].age or 0), ids.index(pid)))
@@ -1002,6 +1016,8 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
             continue
         for rank, pid in enumerate(group, 1):
             reg.people[pid].namesake_rank = rank
+        groups[key] = group
+    for key, group in groups.items():
         first = reg.by_key.get(key, group[0])
         if reg.people[first].first_seen and key in reg.dup_seen:
             for pid in group:
@@ -1018,7 +1034,8 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
                 child_key = (child.key if not child.upcoming else
                              (f"Upcoming child of {reg.people[child.mother].name}",) + reg.people[child.mother].key[1:]
                              if child.mother in reg.people else child.key)
-                said = answers.get((child_key, key, label))
+                child_rank = 0 if child.upcoming else child.namesake_rank
+                said = answers.get((child_key, key, label, child_rank))
                 chosen = None
                 if said in RANK_WORDS[:len(group)] or (said or "").startswith("Number "):
                     k = RANK_WORDS.index(said) if said in RANK_WORDS else int(said.split()[1]) - 1
@@ -1030,7 +1047,8 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
                     who = fits or pool
                     questions.append(ParentQuestion(
                         child_key, key, label, who,
-                        [f"{rank_word(group.index(pid))} ({reg.people[pid].age_text()})" for pid in who], child.id))
+                        [f"{rank_word(group.index(pid))} ({reg.people[pid].age_text()})" for pid in who], child.id,
+                        child_rank, child.age_text() if child_rank else ""))
     return questions
 
 

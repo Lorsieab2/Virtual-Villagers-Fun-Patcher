@@ -39,7 +39,7 @@ class AppearanceChangeLogTests(unittest.TestCase):
     def test_change_appearance_for_all_logs_each_villager_after_writing_them(self) -> None:
         # Codex, #558: the whole-village changes link each old look too.
         cases = {
-            1: ("static int forall_apply(void)", "*(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++;"),
+            1: ("static int forall_apply(void)", "*(int *)(rec + VV_CLOTHING_OFFSET) = b; writes++;"),
             2: ("static int vv2_apply_caf(", "*(int *)(rec + VV2_BODY_OFFSET) = caf_plan_body[idx[i]];"),
             3: ("static int vv3_apply_for_all", "*(int *)(r + VV3_BODY_OFF) = b;"),
             4: ("*(int *)(rec + VV_HEAD_OFFSET) = plan_head[i];", "*(int *)(rec + VV_CLOTHING_OFFSET) = plan_body[i];"),

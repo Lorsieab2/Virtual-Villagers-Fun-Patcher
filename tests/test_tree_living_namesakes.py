@@ -156,6 +156,75 @@ class ShowBothLinkByAge(unittest.TestCase):
         self.assertEqual(ponui.father, younger.id, "the player's answer links him")
         self.assertEqual(v.parent_questions, [])
 
+    KID = ("Kid", 20, 21)
+
+    def two_kids(self, extra: list[bytes] = ()) -> Path:
+        """Codex, PR #653: two living "Kid" namesakes (120 and 100) both name "Tepeu Tamikai" as their father, and
+        both Tepeus (1583 and 1000) were old enough to be either one's."""
+        return save(self.folder(), [
+            aged(entry("Parai Tokidoki", 1, 5, 7, 7), 900),
+            tepeu(1583, ("Pichu Tamikai", 14, 18), ("Toga Helaku", 9, 17)),
+            tepeu(1000, ("Oro Kenobi", 12, 9), ("Coral Guedado", 10, 17)),
+            aged(entry(self.KID[0], 0, 37, self.KID[1], self.KID[2], father=TEPEU,
+                       mother=("Parai Tokidoki", 7, 7)), 120),
+            aged(entry(self.KID[0], 0, 38, self.KID[1], self.KID[2], father=TEPEU,
+                       mother=("Parai Tokidoki", 7, 7)), 100),
+            *extra,
+        ])
+
+    def kids(self, v: gen.Village) -> list:
+        return sorted((p for p in v.people.values() if p.key == self.KID), key=lambda p: -(p.age or 0))
+
+    def test_two_namesake_children_keep_an_answer_each(self) -> None:
+        folder = self.two_kids()
+        v = gen.load_village(folder, 3, 1)
+        qs = sorted(v.parent_questions, key=lambda q: q.child_rank)
+        self.assertEqual([(q.child, q.child_rank) for q in qs], [(self.KID, 1), (self.KID, 2)])
+        self.assertNotEqual(qs[0].text, qs[1].text, "the owner can tell the two children apart")
+        self.assertIn("120 game units", qs[0].text)
+        self.assertIn("100 game units", qs[1].text)
+        for q, answer in zip(qs, ("The oldest", "The second oldest")):
+            aq.keep_parent(folder, 3, 1, q.child, q.parent, q.label, ["The oldest", "The second oldest"],
+                           answer, q.text, child_rank=q.child_rank)
+        v = gen.load_village(folder, 3, 1)
+        elder, younger = self.tepeus(v)
+        older_kid, younger_kid = self.kids(v)
+        self.assertEqual((older_kid.father, younger_kid.father), (elder.id, younger.id),
+                         "each child keeps their own answer after a reload")
+        self.assertEqual(v.parent_questions, [])
+        self.assertEqual(len([d for d in aq.decisions.load(folder, 3, 1) if d.get("source") == aq.PARENT_SOURCE]), 2)
+
+    def test_an_old_answer_without_a_child_rank_still_loads(self) -> None:
+        """An answer kept before the child's rank was: it still links a child with no living namesake, and is
+        never given to one of two namesake children (they are asked again)."""
+        folder = save(self.folder(), [
+            aged(entry("Parai Tokidoki", 1, 5, 7, 7), 900),
+            tepeu(1583, ("Pichu Tamikai", 14, 18), ("Toga Helaku", 9, 17)),
+            aged(entry("Ponui Kalama", 0, 37, 10, 17, father=TEPEU, mother=("Parai Tokidoki", 7, 7)), 300),
+            tepeu(1000, ("Oro Kenobi", 12, 9), ("Coral Guedado", 10, 17)),
+        ])
+        ponui = ("Ponui Kalama", 10, 17)
+        old_entry = {
+            "kind": aq.KIND, "village": aq.village_header(folder, 3, 1),
+            "field": aq.base_of(aq.PARENT_SOURCE, "Father", (ponui, TEPEU)), "source": aq.PARENT_SOURCE,
+            "fact": "Father", "who": [list(ponui), list(TEPEU)], "ordinal": 1, "of": 1, "question": "old",
+            "options": ["The oldest", "The second oldest"], "verdict": "The second oldest",
+            "label": aq.PARENT_LABEL, "edited": False, "alone": True}
+        aq.decisions.record(folder, 3, 1, [old_entry])
+        v = gen.load_village(folder, 3, 1)
+        p = next(q for q in v.people.values() if q.name == "Ponui Kalama")
+        self.assertEqual(p.father, self.tepeus(v)[1].id, "the old answer still links him")
+        self.assertEqual(v.parent_questions, [])
+
+        folder = self.two_kids()
+        aq.decisions.record(folder, 3, 1, [{
+            **old_entry, "village": aq.village_header(folder, 3, 1),
+            "field": aq.base_of(aq.PARENT_SOURCE, "Father", (self.KID, TEPEU)),
+            "who": [list(self.KID), list(TEPEU)]}])
+        v = gen.load_village(folder, 3, 1)
+        self.assertEqual([k.father for k in self.kids(v)], [None, None], "which child it was for is not known")
+        self.assertEqual(len(v.parent_questions), 2, "both are asked again")
+
     def test_could_be_parent_by_the_games_age(self) -> None:
         old = gen.Person(1, "P", 1, 1, age=1583, alive=True)
         boy = gen.Person(2, "P", 1, 1, age=120, alive=True)

@@ -3214,7 +3214,7 @@ static int forall_apply(void) {
     int mo = forall_state.mask_override;
     int ho = forall_state.heads_override;
     int bo = forall_state.bodies_override;
-    int i, occ = 0, changed = 0;
+    int i, occ = 0, writes = 0, changed = 0;
     static int old_head[VV_MASK_SLOTS], old_body[VV_MASK_SLOTS], old_mask[VV_MASK_SLOTS];
     if (base == NULL) {
         return 0;
@@ -3240,9 +3240,9 @@ static int forall_apply(void) {
         if (forall_state.reset) {
             int h, b, m;
             if (forall_original(rec, &h, &b, &m)) {
-                if (*(int *)(rec + VV_HEAD_OFFSET) != h) { *(int *)(rec + VV_HEAD_OFFSET) = h; changed++; }
-                if (*(int *)(rec + VV_CLOTHING_OFFSET) != b) { *(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++; }
-                if (vv1_mask_get(rec) != (unsigned char)m) { vv1_mask_set(rec, (unsigned char)m); changed++; }
+                if (*(int *)(rec + VV_HEAD_OFFSET) != h) { *(int *)(rec + VV_HEAD_OFFSET) = h; writes++; }
+                if (*(int *)(rec + VV_CLOTHING_OFFSET) != b) { *(int *)(rec + VV_CLOTHING_OFFSET) = b; writes++; }
+                if (vv1_mask_get(rec) != (unsigned char)m) { vv1_mask_set(rec, (unsigned char)m); writes++; }
             }
         }
         /* HEAD -- count a change only when the field actually differs, so an
@@ -3251,40 +3251,40 @@ static int forall_apply(void) {
         if (ho == 0) {
             int h = male ? forall_state.male_head : forall_state.female_head;
             if (h != FORALL_NO_CHANGE && *(int *)(rec + VV_HEAD_OFFSET) != h) {
-                *(int *)(rec + VV_HEAD_OFFSET) = h; changed++;
+                *(int *)(rec + VV_HEAD_OFFSET) = h; writes++;
             }
         } else if (ho == 1) {
             int h;
             forall_state.rng = forall_state.rng * 1664525u + 1013904223u;
             h = (int)((forall_state.rng >> 16) % (unsigned int)hcount);
             if (*(int *)(rec + VV_HEAD_OFFSET) != h) {
-                *(int *)(rec + VV_HEAD_OFFSET) = h; changed++;
+                *(int *)(rec + VV_HEAD_OFFSET) = h; writes++;
             }
         } else {
             int h = vv1_head_pick(male, ho - 2, &forall_state.rng);
             if (h >= 0 && *(int *)(rec + VV_HEAD_OFFSET) != h) {
-                *(int *)(rec + VV_HEAD_OFFSET) = h; changed++;
+                *(int *)(rec + VV_HEAD_OFFSET) = h; writes++;
             }
         }
         /* BODY */
         if (bo == 0) {
             int b = male ? forall_state.male_body : forall_state.female_body;
             if (b != FORALL_NO_CHANGE && *(int *)(rec + VV_CLOTHING_OFFSET) != b) {
-                *(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++;
+                *(int *)(rec + VV_CLOTHING_OFFSET) = b; writes++;
             }
         } else {  /* bo == 1: random by gender */
             int b;
             forall_state.rng = forall_state.rng * 1664525u + 1013904223u;
             b = (int)((forall_state.rng >> 16) % (unsigned int)bcount);
             if (*(int *)(rec + VV_CLOTHING_OFFSET) != b) {
-                *(int *)(rec + VV_CLOTHING_OFFSET) = b; changed++;
+                *(int *)(rec + VV_CLOTHING_OFFSET) = b; writes++;
             }
         }
         /* MASK: per-sex only when there is no whole-village mask override */
         if (mo == 0) {
             int m = male ? forall_state.male_mask : forall_state.female_mask;
             if (m != FORALL_NO_CHANGE && vv1_mask_get(rec) != (unsigned char)m) {
-                vv1_mask_set(rec, (unsigned char)m); changed++;
+                vv1_mask_set(rec, (unsigned char)m); writes++;
             }
         }
     }
@@ -3293,20 +3293,25 @@ static int forall_apply(void) {
            actually changed (Vv1MaskApplyDistribution returns that count and
            persists the sidecar itself only when something changed). */
         if (mo >= 1 && mo <= 4) {
-            changed += Vv1MaskApplyDistribution(mo, 0);      /* distribution mode */
+            writes += Vv1MaskApplyDistribution(mo, 0);      /* distribution mode */
         } else {
-            changed += Vv1MaskApplyDistribution(0, mo - 10); /* 10..15 -> single 0..5 */
+            writes += Vv1MaskApplyDistribution(0, mo - 10); /* 10..15 -> single 0..5 */
         }
-        if (forall_state.reset && changed) {
+        if (forall_state.reset && writes) {
             vv1_mask_sidecar_save();   /* Reset to original's masks, under the distribution */
         }
-    } else if (changed) {
+    } else if (writes) {
         vv1_mask_sidecar_save();
     }
-    /* Change Appearance for All is logged too (Codex, #558), with the masks once every one is set. */
+    /* Change Appearance for All is logged too (Codex, #558), with the masks once every one is set.  What is
+       charged is decided here, by each villager's final look against the one the window opened on -- never
+       by the writes above: Reset to original and an override that puts the look back write twice and change
+       nothing (Codex, PR #653). */
     for (i = 0; i < VV_MASK_SLOTS; i++) {
         unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
         if (rec[VV_OCCUPIED_OFFSET] == 1) {
+            changed += *(int *)(rec + VV_HEAD_OFFSET) != old_head[i]
+                || *(int *)(rec + VV_CLOTHING_OFFSET) != old_body[i] || vv1_mask_get(rec) != old_mask[i];
             vv_log_appearance_mask(1, rec, old_head[i], old_body[i], old_mask[i], *(int *)(rec + VV_HEAD_OFFSET),
                                    *(int *)(rec + VV_CLOTHING_OFFSET), vv1_mask_get(rec));
         }

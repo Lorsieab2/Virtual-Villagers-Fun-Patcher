@@ -365,9 +365,23 @@ PARENT_SOURCE = "parent"
 PARENT_LABEL = "Family Tree Maker: which villager is the parent?"
 
 
+def _child_rank(d: dict) -> int:
+    """The child's place by age among their living namesakes the answer was given for; 0 for a child with none
+    (and for an answer kept before the rank was: it applies only to a child with no living namesake)."""
+    try:
+        return max(0, int(d.get("child_rank") or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _parent_field(label: str, who: tuple, renamed: dict, child_rank: int) -> str:
+    base = base_of(PARENT_SOURCE, label, who, renamed)
+    return f"{base}|child#{child_rank}" if child_rank else base
+
+
 def parent_answers(folder: Path, game: int, slot: int) -> dict[tuple, str]:
-    """{(child (name, head, body), parent (name, head, body), "Father"/"Mother"): the answer}, the latest of each.
-    Reads only; nothing when the file cannot be read."""
+    """{(child (name, head, body), parent (name, head, body), "Father"/"Mother", the child's namesake rank (0:
+    none)): the answer}, the latest of each.  Reads only; nothing when the file cannot be read."""
     try:
         entries, renamed = _entries(folder, game, slot, _villages(folder, game, slot))
     except (OSError, ValueError):
@@ -378,17 +392,19 @@ def parent_answers(folder: Path, game: int, slot: int) -> dict[tuple, str]:
             continue
         who = _canon(d.get("who"), renamed)
         if len(who) == 2:
-            out[(who[0], who[1], str(d.get("fact")))] = str(d["verdict"])
+            out[(who[0], who[1], str(d.get("fact")), _child_rank(d))] = str(d["verdict"])
     return out
 
 
 def keep_parent(folder: Path, game: int, slot: int, child: tuple, parent: tuple, label: str, options: list[str],
-                verdict: str | None, text: str, now: datetime | None = None) -> None:
+                verdict: str | None, text: str, now: datetime | None = None, child_rank: int = 0) -> None:
     """Keep the player's answer to "which of these is <child>'s father (mother)?"; "Don't know" (or None)
-    takes a kept answer out, so the question is asked again."""
+    takes a kept answer out, so the question is asked again.  `child_rank` is the child's place by age among
+    their living namesakes (0: none), so two children of one name and look keep an answer each."""
     entries, renamed = _entries(folder, game, slot, None)
     who = (tuple(child), tuple(parent))
-    field_ = base_of(PARENT_SOURCE, label, who, renamed)
+    child_rank = max(0, int(child_rank or 0))
+    field_ = _parent_field(label, who, renamed, child_rank)
     if any(str(d.get("field")) == field_ for d in entries):
         decisions.rewrite(Path(folder), game, slot,
                           lambda found: [d for d in found if not (d.get("kind") == KIND and str(d.get("field")) == field_)])
@@ -397,7 +413,8 @@ def keep_parent(folder: Path, game: int, slot: int, child: tuple, parent: tuple,
     decisions.record(Path(folder), game, slot, [{
         "kind": KIND, "village": village_header(folder, game, slot), "field": field_, "source": PARENT_SOURCE,
         "fact": label, "who": [list(w) for w in who], "ordinal": 1, "of": 1, "question": text,
-        "options": list(options), "verdict": verdict, "label": PARENT_LABEL, "edited": False, "alone": True}], now)
+        "options": list(options), "verdict": verdict, "label": PARENT_LABEL, "edited": False, "alone": True,
+        **({"child_rank": child_rank} if child_rank else {})}], now)
 
 
 # ---------------------------------------------------------------------------
