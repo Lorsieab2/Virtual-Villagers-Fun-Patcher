@@ -164,6 +164,17 @@ class TheContract(unittest.TestCase):
         self.assertEqual(got[4], (40043, ol.FIRST_RUN), "everyone else is seen as they are now")
         self.assertEqual(got[0], (0, ol.FIRST_RUN))
 
+    def test_the_game_body_mark_survives_a_repair(self):
+        """Codex, PR #653: Repair rewrites the file keeping each record entry's "game body" mark (byte 18), so
+        a robe or bought outfit the DLL folded in is never lost to the logs' older body."""
+        entries = [ol.Entry() for _ in range(150)]
+        entries[2] = ol.Entry(roster=7, id=7, head=2, body=29, mask=0, source=ol.LOGS, game_body=1)
+        data = ol.build(ol.OriginalLooks(3, entries, [ol.Logged(7, 2, 2, 0, ol.KNOWN)]))
+        self.assertEqual(data[24 + 2 * 20 + 18], 1)
+        again = ol.parse(data, 3)
+        self.assertEqual(again.entries[2].game_body, 1)
+        self.assertEqual(ol.build(again), data)
+
     def test_the_header(self):
         text = (ROOT / "native" / "shared" / "original_look.h").read_text(encoding="utf-8")
         self.assertIn('#define VVFP_ORIGINAL_LOOK_DLL "VVFP Original Look.dll"', text)

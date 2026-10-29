@@ -614,6 +614,18 @@ int main(int argc, char **argv) {
         check(original(kai7) == -1, "and no first sight is ever recorded for that villager");
         got = read_file(path, buf, sizeof buf);
         check(u32_at(buf, 16) == 3 && got == 28 + 150 * 20 + 3 * 16, "the companion keeps the logs' part as it read it");
+        /* Codex, PR #653: the game's own body (the robe, a bought outfit) given to a villager whose original
+           came from the logs is folded in, and the logs' older body never takes it back. */
+        check(ol_game_body(rec(kai6), 29) == 1, "the game's body for a villager the logs' original came from is folded in");
+        (void)tick();
+        check(original(kai6) == 330292, "...and the logs' original does not take it back on the next look");
+        got = read_file(path, buf, sizeof buf);
+        check(buf[24 + kai6 * 20 + 18] == 1, "...the file marks the body as the game's own");
+        new_session();
+        g_game_slot = 1;
+        settle();
+        check(original(kai6) == 330292, "...nor after a reload");
+        check(ol_game_body(rec(kai6), 29) == 0, "...and the same body again changes nothing");
     }
 
     printf("the game's own changes are kept\n");

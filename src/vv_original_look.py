@@ -89,6 +89,7 @@ class Entry:
     body: int = 0
     mask: int = 0
     source: int = 0
+    game_body: int = 0       # 1: the game itself set the body since (the DLL's ol_game_body); kept as it is
 
 
 @dataclass
@@ -129,8 +130,8 @@ def parse(data: bytes, game: int) -> OriginalLooks | None:
         return None
     entries = []
     for i in range(count):
-        roster, ident, head, body, mask, source = struct.unpack_from("<IIiiBB", data, HEADER + i * ENTRY)
-        entries.append(Entry(roster, ident, head, body, mask, source))
+        roster, ident, head, body, mask, source, game_body = struct.unpack_from("<IIiiBBB", data, HEADER + i * ENTRY)
+        entries.append(Entry(roster, ident, head, body, mask, source, game_body))
     at = HEADER + count * ENTRY
     kept = []
     for i in range(logged):
@@ -145,7 +146,7 @@ def build(looks: OriginalLooks) -> bytes:
         raise OriginalLookError("The original looks do not fit the file.")
     out = bytearray(struct.pack("<6I", MAGIC, VERSION, looks.game, looks.count, len(looks.logged), 0))
     for e in looks.entries:
-        out += struct.pack("<IIiiBBBB", e.roster, e.id, e.head, e.body, e.mask, e.source, 0, 0)
+        out += struct.pack("<IIiiBBBB", e.roster, e.id, e.head, e.body, e.mask, e.source, e.game_body, 0)
     for e in looks.logged:
         out += struct.pack("<IiiBBBB", e.id, e.head, e.body, e.mask, e.kind, 0, 0)
     out += struct.pack("<I", zlib.crc32(bytes(out)))

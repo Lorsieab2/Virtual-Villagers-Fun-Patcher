@@ -26,7 +26,9 @@
        count x { u32 roster   the identity of whoever held the record when it was written (0 = nobody: the
                               living only, so a load's village test and packing are judged on the living)
                  u32 id       the identity the original was kept for (0 = none kept on this record)
-                 i32 head, i32 body, u8 mask, u8 source (1..3 above), u8 0, u8 0 }       20 bytes each
+                 i32 head, i32 body, u8 mask, u8 source (1..3 above),
+                 u8 game body (1: the game itself set the body since -- the robe, a bought outfit -- so the
+                 logs' original never takes it back; 0 otherwise), u8 0 }                 20 bytes each
        logged x { u32 id      the villager's identity in the save, by Repair Saves & Logs
                   i32 head, i32 body, u8 mask, u8 kind (1 the original is proven, 2 it is NOT known: the
                   villager was seen changed with no record of it, so nothing is ever recorded for them),
@@ -96,6 +98,7 @@ static unsigned char g_source[OL_MAX];        /* by record: OL_NONE..OL_LOGS */
 static unsigned int g_id[OL_MAX];             /* the identity each original was kept for */
 static int g_head[OL_MAX], g_body[OL_MAX];
 static unsigned char g_mask[OL_MAX];
+static unsigned char g_game_body[OL_MAX];     /* 1: the body is the game's own since (ol_game_body) */
 static ol_logged g_logged[OL_LOGGED_MAX];     /* the logs' originals (src/vv_original_look.py) */
 static unsigned int g_logged_count;
 static unsigned int g_roster[OL_MAX];         /* who held each record at the last look */
@@ -235,7 +238,8 @@ static int ol_publish(void) {
         unsigned char tail[4];
         tail[0] = g_source[i] != OL_NONE ? g_mask[i] : 0;
         tail[1] = g_source[i];
-        tail[2] = tail[3] = 0;
+        tail[2] = g_source[i] != OL_NONE ? g_game_body[i] : 0;
+        tail[3] = 0;
         any |= g_source[i];
         memcpy(out + at, &roster, 4);
         memcpy(out + at + 4, &id, 4);
@@ -271,7 +275,7 @@ static int ol_publish(void) {
 static int ol_follow(const unsigned int *stored_roster, const unsigned int *live, int in_play) {
     static unsigned char value[OL_MAX], moved[OL_MAX];
     static unsigned int moved_id[OL_MAX];
-    static unsigned char source[OL_MAX], mask[OL_MAX];
+    static unsigned char source[OL_MAX], mask[OL_MAX], game_body[OL_MAX];
     static unsigned int id[OL_MAX];
     static int head[OL_MAX], body[OL_MAX];
     int slots = ol_slots(), t, i, changed;
@@ -306,6 +310,7 @@ static int ol_follow(const unsigned int *stored_roster, const unsigned int *live
         head[t] = g_head[from];
         body[t] = g_body[from];
         mask[t] = g_mask[from];
+        game_body[t] = g_game_body[from];
     }
     for (t = 0; t < slots; ++t) {
         g_source[t] = source[t];
@@ -313,6 +318,7 @@ static int ol_follow(const unsigned int *stored_roster, const unsigned int *live
         g_head[t] = source[t] != OL_NONE ? head[t] : 0;
         g_body[t] = source[t] != OL_NONE ? body[t] : 0;
         g_mask[t] = source[t] != OL_NONE ? mask[t] : 0;
+        g_game_body[t] = source[t] != OL_NONE ? game_body[t] : 0;
     }
     return changed;
 }
@@ -349,7 +355,7 @@ static int ol_apply_logged(const unsigned int *live) {
     int i, changed = 0, slots = ol_slots();
     for (i = 0; i < slots; ++i) {
         const ol_logged *e;
-        int k;
+        int k, body;
         if (live[i] == 0 || ol_holders(live, live[i]) != 1 || (k = ol_logged_of(live[i])) < 0) {
             continue;
         }
@@ -360,18 +366,23 @@ static int ol_apply_logged(const unsigned int *live) {
                 g_id[i] = 0u;
                 g_head[i] = g_body[i] = 0;
                 g_mask[i] = 0;
+                g_game_body[i] = 0;
                 changed = 1;
             }
             continue;
         }
+        /* A body the game itself set since (the robe, a bought outfit) is part of the original: the logs,
+           written before it, never take it back (the owner, 2026-10-28: Reset keeps the game's changes). */
+        body = g_source[i] != OL_NONE && g_game_body[i] ? g_body[i] : e->body;
         if (e->kind != OL_LOGGED_KNOWN || g_source[i] == OL_SEEN
-            || (g_source[i] == OL_LOGS && g_head[i] == e->head && g_body[i] == e->body && g_mask[i] == e->mask)) {
+            || (g_source[i] == OL_LOGS && g_head[i] == e->head && g_body[i] == body && g_mask[i] == e->mask)) {
             continue;
         }
+        g_game_body[i] = (unsigned char)(body != e->body);
         g_source[i] = OL_LOGS;
         g_id[i] = live[i];
         g_head[i] = e->head;
-        g_body[i] = e->body;
+        g_body[i] = body;
         g_mask[i] = e->mask;
         changed = 1;
     }
@@ -397,6 +408,7 @@ static int ol_first_sight(const unsigned int *live) {
         g_head[i] = head;
         g_body[i] = body;
         g_mask[i] = (unsigned char)mask;
+        g_game_body[i] = 0;
         changed = 1;
     }
     return changed;
@@ -417,6 +429,7 @@ static int ol_load(int slot, const unsigned int *live, int *rewrite) {
     memset(g_head, 0, sizeof g_head);
     memset(g_body, 0, sizeof g_body);
     memset(g_mask, 0, sizeof g_mask);
+    memset(g_game_body, 0, sizeof g_game_body);
     g_logged_count = 0;
     g_foreign = 0;
     *rewrite = 0;
@@ -457,6 +470,7 @@ static int ol_load(int slot, const unsigned int *live, int *rewrite) {
         memcpy(&g_body[i], e + 12, 4);
         g_mask[i] = e[16];
         g_source[i] = e[17];
+        g_game_body[i] = (unsigned char)(e[18] == 1);
     }
     at = OL_HEADER + count * OL_ENTRY;
     for (i = 0; i < logged; ++i, at += OL_LOGGED_ENTRY) {
@@ -593,10 +607,11 @@ static int ol_game_body(const unsigned char *record, int body) {
     int i;
     if (record == NULL || g_state == OL_UNBOUND || (i = ol_index(record)) < 0 || g_source[i] == OL_NONE
         || g_roster[i] == 0 || g_roster[i] != ol_identity(record) || g_id[i] != g_roster[i]
-        || g_body[i] == body) {
+        || (g_body[i] == body && g_game_body[i])) {
         return 0;
     }
     g_body[i] = body;
+    g_game_body[i] = 1;
     if (g_state == OL_BOUND) {
         ol_publish();
     }
