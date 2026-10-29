@@ -74,7 +74,10 @@ Key = tuple  # (name, head, body)
 GAME_DEFAULT_FATHERS: dict[int, frozenset] = {
     2: frozenset({("?", 0, 0)}),
     4: frozenset({("Joey", 2, 2), ("Joey Joerson", 2, 2)}),
-    5: frozenset({("Joey", 2, 2), ("Joey Joerson", 2, 2)}),
+    # New Believers also has the Heathen Mommy's "Unknown" (2, 2): the new-village code the Heathen Mommy Puzzle
+    # Restoration brings back starts her pregnancy with the game's own word "Unknown", head 2, body 2
+    # (0x465E00; docs/vv5-heathen-mommy-research.md) -- a name only, never a villager (the owner).
+    5: frozenset({("Joey", 2, 2), ("Joey Joerson", 2, 2), ("Unknown", 2, 2)}),
 }
 FALLBACK_FATHER: Key = ("Unknown", 0, 0)
 RUNNING = 38   # the like id of "running" in all five games' preference lists (grant_running.RUNNING)
@@ -125,6 +128,8 @@ class Person:
     masters: list[str] = field(default_factory=list)
     # A parent "Hide unconverted Heathens" left off the tree: "Father" / "Mother" -> their name (without_heathens).
     hidden_parents: dict = field(default_factory=dict)
+    # Living namesakes (two living villagers of one name, head and body): 1 the oldest, 2 the next...; 0 none.
+    namesake_rank: int = 0
 
     @property
     def key(self) -> Key:
@@ -330,6 +335,8 @@ class Village:
     # IdentityQuestion: an older record and a villager the records cannot say are one villager or two
     # (their looks or title changed, and nothing certain ties them): the Family Tree Maker asks.
     identity_questions: list = field(default_factory=list)
+    # ParentQuestion: a parent named by a name and look two living villagers share, both old enough (_parents_by_age).
+    parent_questions: list = field(default_factory=list)
 
     def living(self) -> list[Person]:
         return [p for p in self.people.values() if p.alive]
@@ -337,6 +344,11 @@ class Village:
     def known(self) -> list[Person]:
         """Every villager the records name (the babies on the way are not villagers yet)."""
         return [p for p in self.people.values() if not p.upcoming]
+
+    def villagers(self) -> list[Person]:
+        """The villagers the tree numbers and counts: the known, less the default fathers ("?", "Joey",
+        "Unknown"), who are names only (the owner, v1.35.85)."""
+        return [p for p in self.known() if not getattr(p, "placeholder", False)]
 
     def children_of(self, pid: int) -> list[Person]:
         return [p for p in self.people.values() if pid in (p.father, p.mother)]
@@ -428,6 +440,12 @@ class _Registry:
         self.birth_of: dict[int, tuple] = {}
         self.save_parents: dict[int, tuple] = {}
         self.bodies: set[Key] = set()                  # the dead lying unburied in the save (name, head, body)
+        # LIVING NAMESAKES (the owner, v1.35.85: "show both, link by age"): two living villagers of one name,
+        # head and body are two people -- one for each of the save's records, never merged.  key -> their ids,
+        # in save order (the registry's own first, by_key's); each record names their own parents.
+        self.living_dups: dict[Key, list[int]] = {}
+        # key -> the earliest History snapshot that lists two villagers of it (when the second one appears).
+        self.dup_seen: dict[Key, str] = {}
 
     def current(self, key: Key) -> Key:
         """The look a villager has now, following their Change Appearance records, under the full name
@@ -469,6 +487,13 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         reg.bodies = set()
     for at in ln._entries(game, data):
         p = reg.get(_cstr(data, at, f.name_cap), _i32(data, at + f.head), _i32(data, at + f.body))
+        if p.alive:
+            # A second living record of this name and look is a second villager (its own age, parents, likes:
+            # the save's record is the identity), never the first one's record written over.
+            first = p
+            pid = max(reg.people, default=0) + 1
+            p = reg.people[pid] = Person(pid, first.name, first.head, first.body)
+            reg.living_dups.setdefault(first.key, [first.id]).append(pid)
         p.alive = True
         p.sex = "Male" if _i32(data, at + f.sex) == f.male else "Female"
         p.age = _i32(data, at + age_at)
@@ -561,6 +586,7 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     # ("Retroactively edit records?" No): read as if gone (src/vv_log_decisions.py).
     voided = decisions.decided(folder, game, slot, "born_arrived", "remove",
                                additions.current_villages(folder, game, slot))
+    listed: dict[tuple, int] = {}               # (snapshot date, living namesakes' key) -> how many it lists
     for b in additions.person_blocks(folder, slot, game):
         name, head, body = b.identity
         if not name or head is None or body is None:
@@ -626,6 +652,11 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             if seen and (p.first_seen is None or seen.group(1) < p.first_seen[:16]):
                 p.first_seen = seen.group(1)
         if b.date and b.heading.startswith("Villager ") and not additions.is_population(b.path):
+            if p.key in reg.living_dups:            # two of this name and look listed in one snapshot
+                seen_twice = listed.setdefault((b.date, p.key), 0) + 1
+                listed[(b.date, p.key)] = seen_twice
+                if seen_twice == 2 and (p.key not in reg.dup_seen or b.date < reg.dup_seen[p.key]):
+                    reg.dup_seen[p.key] = b.date
             reg.snapshots.setdefault(b.date, set()).add(p.id)
             if p.first_seen is None or b.date < p.first_seen:
                 p.first_seen = b.date
@@ -860,6 +891,140 @@ def _namesake_for(reg: _Registry, p: Person, b) -> Person:
     return others[0] if len(others) == 1 else p
 
 
+def _living_namesake_births(reg: _Registry) -> None:
+    """LIVING NAMESAKES' BIRTHS (the owner, v1.35.85): two living villagers of one name, head and body each take
+    the Birth record naming the parents their own save record keeps (The Lost Children on) -- exactly one Birth
+    for exactly one of them, never on a guess.  A Birth no living one is told by is a villager of its own (born,
+    then gone), with that Birth's parents.  Before _namesakes_by_birth, which then has nothing left of the key."""
+    for key, living in reg.living_dups.items():
+        living = [pid for pid in living if pid in reg.people]
+        pids = list(dict.fromkeys(reg.namesakes.get(key, [living[0]])))
+        records = [(pid, reg.people[pid].birth_record, reg.people[pid].litter, reg.birth_of[pid])
+                   for pid in pids if pid in reg.birth_of]
+        reg.namesakes.pop(key, None)
+        if not records:
+            continue
+        for pid, *_rest in records:
+            reg.people[pid].birth_record = reg.people[pid].litter = None
+            reg.birth_of.pop(pid, None)
+        claims: dict[int, list] = {}
+        for rec in records:
+            fits = [q for q in living if reg.save_parents.get(q) and None not in reg.save_parents[q]
+                    and rec[3][1:] == reg.save_parents[q]]
+            if len(fits) == 1:
+                claims.setdefault(fits[0], []).append(rec)
+        left = []
+        for rec in records:
+            owner = next((q for q, recs in claims.items() if rec in recs and len(recs) == 1), None)
+            if owner is None:
+                left.append(rec)
+                continue
+            p = reg.people[owner]
+            p.birth_record, p.litter = rec[1], rec[2]
+            reg.birth_of[owner] = rec[3]
+        spare = [pid for pid in pids if pid not in living]     # the Births' own villagers _births made
+        for rec in left:
+            pid = spare.pop(0) if spare else max(reg.people, default=0) + 1
+            p = reg.people.setdefault(pid, Person(pid, *key))
+            p.birth_record, p.litter = rec[1], rec[2]
+            p.father, p.mother = rec[3][1], rec[3][2]
+            reg.birth_of[pid] = rec[3]
+        for pid in spare:                                       # a Birth a living one took: not a villager
+            if not any(pid in (r.father, r.mother) for r in reg.people.values()):
+                del reg.people[pid]
+
+
+# The game's own age for having a child: 18 villager years at conception, 360 age units (the partner search
+# 0x45CE00 and the picker's adult class 0x45D460 take 18 to 49: vv_game_mechanics_catchup).  A parent is at least
+# that old when the child is born.  Only that bound rules anyone out: the upper one (49) is not used, because
+# the owner's saves hold fathers older than it at the birth (The Secret City's 256 copy: Tepeu Tamikai, 71 at
+# Sakou Makawee's birth) -- a wider window only asks more often, it never links wrongly.
+ADULT_UNITS = YOUNGEST_YEARS * UNITS_PER_YEAR
+
+
+def could_be_parent(parent: Person, child: Person) -> bool:
+    """Whether a LIVING villager was old enough to be `child`'s parent by the game's age: the child's age now and
+    the parent's give the parent's age at the birth; a child gone (no age now) or on the way asks only that the
+    parent is, or was, of age."""
+    if parent.age is None:
+        return True
+    if child.alive and not child.upcoming and child.age is not None:
+        return parent.age - child.age >= ADULT_UNITS
+    return parent.age >= ADULT_UNITS
+
+
+@dataclass
+class ParentQuestion:
+    """A child whose record names a parent by a name and look two (or more) living villagers have, each old
+    enough to be that parent: which one?  `choices` are the living namesakes, oldest first (their ids); the
+    answer is kept as "The oldest", "The second oldest"... in Answered questions (vv_answered_questions.
+    keep_parent), which stays true as they age together."""
+    child: Key
+    parent: Key
+    label: str                  # "Father" or "Mother"
+    choices: list
+    texts: list                 # each choice in words: "The oldest (1583 game units, 79 years old; parents ...)"
+    child_id: int = 0
+
+    @property
+    def text(self) -> str:
+        return (f"{self.child[0]}'s {self.label.lower()} is {self.parent[0]} (head {self.parent[1]}, body "
+                f"{self.parent[2]}), and {len(self.choices)} living villagers have that name and look, each old "
+                "enough to be the parent. Which one?")
+
+
+RANK_WORDS = ("The oldest", "The second oldest", "The third oldest", "The fourth oldest", "The fifth oldest")
+
+
+def rank_word(k: int) -> str:
+    return RANK_WORDS[k] if k < len(RANK_WORDS) else f"Number {k + 1} by age"
+
+
+def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[ParentQuestion]:
+    """LINK BY AGE (the owner, v1.35.85): every record names a parent only by name, head and body, which two
+    living namesakes share.  A child is linked to the one who was old enough to be their parent at the child's
+    birth (could_be_parent); when more than one could be, to the one the player chose (`answers`: (child key,
+    parent key, "Father"/"Mother") -> a RANK_WORDS answer); otherwise to neither -- never a guess -- and the
+    question is returned for the Family Tree Maker to ask."""
+    questions: list[ParentQuestion] = []
+    for key, ids in reg.living_dups.items():
+        group = sorted((pid for pid in ids if pid in reg.people and reg.people[pid].alive),
+                       key=lambda pid: (-(reg.people[pid].age or 0), ids.index(pid)))
+        if len(group) < 2:
+            continue
+        for rank, pid in enumerate(group, 1):
+            reg.people[pid].namesake_rank = rank
+        first = reg.by_key.get(key, group[0])
+        if reg.people[first].first_seen and key in reg.dup_seen:
+            for pid in group:
+                if reg.people[pid].first_seen is None:
+                    reg.people[pid].first_seen = reg.dup_seen[key]
+        for child in list(reg.people.values()):
+            if child.id in group:
+                continue
+            for attr, label in (("father", "Father"), ("mother", "Mother")):
+                if getattr(child, attr) not in group:
+                    continue
+                fits = [pid for pid in group if could_be_parent(reg.people[pid], child)]
+                child_key = (child.key if not child.upcoming else
+                             (f"Upcoming child of {reg.people[child.mother].name}",) + reg.people[child.mother].key[1:]
+                             if child.mother in reg.people else child.key)
+                said = answers.get((child_key, key, label))
+                chosen = None
+                if said in RANK_WORDS[:len(group)] or (said or "").startswith("Number "):
+                    k = RANK_WORDS.index(said) if said in RANK_WORDS else int(said.split()[1]) - 1
+                    chosen = group[k] if k < len(group) else None
+                elif len(fits) == 1:
+                    chosen = fits[0]
+                setattr(child, attr, chosen)
+                if chosen is None:              # two or more could be (or none by the ages): the player says
+                    who = fits or group
+                    questions.append(ParentQuestion(
+                        child_key, key, label, who,
+                        [f"{rank_word(group.index(pid))} ({reg.people[pid].age_text()})" for pid in who], child.id))
+    return questions
+
+
 def _saved_rename_answers(folder: Path, game: int, slot: int) -> dict:
     """The renamed-villager answers the Family Tree Maker's saved edits keep; none when there is no
     readable file (a damaged file is the tree's to report, not this loader's)."""
@@ -934,6 +1099,7 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
     _appearance_changes(reg, folder, game, slot)
     _save_people(reg, folder, game, slot)
     _births(reg, folder, game, slot)
+    _living_namesake_births(reg)
     _namesakes_by_birth(reg, notes)
     _log_people(reg, folder, game, slot)
     if game == 1:
@@ -961,12 +1127,15 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
     except (OSError, KeyError, ValueError):
         pass
     _upcoming(reg)
+    import vv_answered_questions as aq
+    parent_questions = _parents_by_age(reg, aq.parent_answers(folder, game, slot) if reg.living_dups else {}, notes)
     for (name, _head, _body), babies in reg.lost:
         notes.append(f"{name} lost {'a baby' if babies == 1 else f'{babies} babies'} before birth: she died or "
                      "disappeared while carrying or nursing, and "
                      f"{'it was' if babies == 1 else 'they were'} never born.")
     village = Village(game, slot, tribe, reg.people, notes, sorted(reg.snapshots))
     village.rename_questions = questions
+    village.parent_questions = parent_questions
     village.identity_questions = [q for q in identity_questions
                                   if q.older in reg.by_key and q.newer in reg.by_key
                                   and reg.by_key[q.older] != reg.by_key[q.newer]]
@@ -1531,8 +1700,13 @@ def number_people(village: Village, sort: str = "appearance") -> None:
     A baby on the way has none yet, and comes last in its row."""
     n = 0
     people = village.people
-    for g in sorted({p.generation for p in village.known()}):
-        row = [p for p in village.known() if p.generation == g]
+    # A default father ("?", "Joey", "Unknown") is a name only: never numbered (the owner, v1.35.85).
+    for p in village.known():
+        if getattr(p, "placeholder", False):
+            p.number = None
+    counted = village.villagers()
+    for g in sorted({p.generation for p in counted}):
+        row = [p for p in counted if p.generation == g]
         if sort == "age":
             row.sort(key=lambda q: (-(q.age or 0), q.order_key()))
         elif sort == "name":
@@ -2179,6 +2353,8 @@ def numbered(p: Person) -> str:
 def describe_person(village: Village, p: Person) -> str:
     if p.upcoming:
         return f"{p.name} (on the way)"
+    if p.placeholder:
+        return f"{p.name} (a default father: a name only, not a villager)"
     bits = [p.name, p.sex or "sex unknown", p.age_text()]
     if not p.alive:
         bits.append({"died": "dead", "disappeared": "disappeared"}.get(p.gone, "no longer in the village"))
@@ -2208,8 +2384,8 @@ def report(village: Village, game_title: str) -> str:
     lines.append("== Generations ==")
     for g in sorted(by_gen):
         group = sorted(by_gen[g], key=lambda q: (-(q.age or 0), q.name))
-        born = [p for p in group if not p.upcoming]
-        coming = len(group) - len(born)
+        born = [p for p in group if not p.upcoming and not p.placeholder]     # a default father: a name only
+        coming = sum(1 for p in group if p.upcoming)
         lines.append(f"Generation {roman(g)}: {len(born)} villagers ({sum(p.alive for p in born)} living)"
                      + (f", {coming} on the way" if coming else ""))
         for p in group:
@@ -2226,6 +2402,8 @@ def report(village: Village, game_title: str) -> str:
         if p.father is not None or p.mother is not None:
             parents = " and ".join(people[q].name for q in (p.mother, p.father) if q is not None)
             how = f"born to {parents}"
+        elif p.placeholder:
+            how = "named as a father only"
         elif is_arrival(p, min(snapshot_dates(village), default=None)):
             how = f"arrived ({p.how})" if p.how else "arrived"
         else:
@@ -2236,6 +2414,31 @@ def report(village: Village, game_title: str) -> str:
                      f"{how}{seen}")
     lines.append("")
     return "\n".join(lines)
+
+
+def _nobody_to_pair(village: Village, rules: Rules) -> str:
+    """Why the rules leave no man and woman to pair at all (candidates() gives no man or no woman), in
+    words: how many living villagers of that sex there are, and which rule leaves each one out."""
+    men, women = candidates(village, rules)
+    ages = rules.describe()[0].lower()
+    parts = []
+    for sex, chosen, word in (("Female", women, "woman"), ("Male", men, "man")):
+        if chosen:
+            continue
+        living = [p for p in village.living() if p.sex == sex and not p.heathen]
+        if not living:
+            parts.append(f"there is no living {word}")
+            continue
+        aged = [p for p in living if _age_ok(p, rules) and not (village.game == 1 and p.family == 199)]
+        expecting = [p for p in aged if rules.not_expecting and p.expecting]
+        noun = "woman" if sex == "Female" else "man"
+        nouns = "women" if sex == "Female" else "men"
+        why = [f"{len(living) - len(aged)} not {ages}"] if len(aged) < len(living) else []
+        if expecting:
+            why.append(f"{len(expecting)} already expecting")
+        parts.append(f"no {noun} can be paired (of the {len(living)} living {nouns if len(living) != 1 else noun}, "
+                     f"{' and '.join(why)})")
+    return ("; ".join(parts) or "no man and woman can be paired") + "."
 
 
 def pair_report(village: Village, rules: Rules, game_title: str) -> str:
@@ -2259,12 +2462,16 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
     lines.append("== Pairing rules ==")
     lines += [f"  {r}" for r in rules.describe()] or ["  (none)"]
     lines.append("")
-    lines.append("== Suggested pairs (each villager once, least related first) ==")
+    # In the order "List pairings by" chose (the rules above say which); least related first within it.
+    lines.append("== Suggested pairs (each villager once) ==")
     if one_to_one:
         for n, pair in enumerate(one_to_one, 1):
             lines.append(f"  {n}. {numbered(pair.man)}, {age(pair.man)}, and "
                          f"{numbered(pair.woman)}, {age(pair.woman)}: {pair.relation}, "
                          f"related {pair.percent:g}%" + (f"; {pair.together}" if pair.together else ""))
+    elif not fallback:
+        # Nobody to pair at all: never "the least related pairs available" over an empty list.
+        lines.append("  No pair meets every rule: " + _nobody_to_pair(village, rules))
     else:
         lines.append("  No pair meets every rule.  The least related pairs available:")
         for pair in fallback:
@@ -2273,6 +2480,8 @@ def pair_report(village: Village, rules: Rules, game_title: str) -> str:
                          + (f"; {pair.together}" if pair.together else ""))
     lines.append("")
     lines.append("== Every allowed partner, per woman ==")
+    if not per_woman:
+        lines.append("  (none)")
     for wid, pairs in per_woman.items():
         lines.append(f"  {people[wid].name}, {age(people[wid])}:")
         for pair in pairs:
