@@ -1008,12 +1008,13 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
                 if reg.people[pid].first_seen is None:
                     reg.people[pid].first_seen = reg.dup_seen[key]
         for child in list(reg.people.values()):
-            if child.id in group:
-                continue
+            # A namesake can be the child of another namesake (a Tepeu fathered by an older Tepeu): never their
+            # own parent, so the others are the candidates (Codex, PR #653).
+            pool = [pid for pid in group if pid != child.id]
             for attr, label in (("father", "Father"), ("mother", "Mother")):
                 if getattr(child, attr) not in group:
                     continue
-                fits = [pid for pid in group if could_be_parent(reg.people[pid], child)]
+                fits = [pid for pid in pool if could_be_parent(reg.people[pid], child)]
                 child_key = (child.key if not child.upcoming else
                              (f"Upcoming child of {reg.people[child.mother].name}",) + reg.people[child.mother].key[1:]
                              if child.mother in reg.people else child.key)
@@ -1021,12 +1022,12 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
                 chosen = None
                 if said in RANK_WORDS[:len(group)] or (said or "").startswith("Number "):
                     k = RANK_WORDS.index(said) if said in RANK_WORDS else int(said.split()[1]) - 1
-                    chosen = group[k] if k < len(group) else None
+                    chosen = group[k] if k < len(group) and group[k] != child.id else None
                 elif len(fits) == 1:
                     chosen = fits[0]
                 setattr(child, attr, chosen)
                 if chosen is None:              # two or more could be (or none by the ages): the player says
-                    who = fits or group
+                    who = fits or pool
                     questions.append(ParentQuestion(
                         child_key, key, label, who,
                         [f"{rank_word(group.index(pid))} ({reg.people[pid].age_text()})" for pid in who], child.id))

@@ -89,6 +89,19 @@ class ShowBothLinkByAge(unittest.TestCase):
         self.assertEqual(v.children_of(boy.id), [])
         self.assertEqual(v.parent_questions, [], "nothing to ask: only the elder was of age")
 
+    def test_a_namesake_fathered_by_a_namesake_links_to_the_elder(self) -> None:
+        """Codex, PR #653: the younger Tepeu names "Tepeu Tamikai" as his father and comes first in the save; he
+        is never his own father, and links to the elder, the only one old enough."""
+        v = gen.load_village(save(self.folder(), [
+            aged(entry("Parai Tokidoki", 1, 5, 7, 7), 900),
+            tepeu(120, TEPEU, ("Parai Tokidoki", 7, 7)),
+            tepeu(1583, ("Pichu Tamikai", 14, 18), ("Toga Helaku", 9, 17)),
+        ]), 3, 1)
+        elder, boy = self.tepeus(v)
+        self.assertNotEqual(boy.father, boy.id, "never his own father")
+        self.assertEqual(boy.father, elder.id)
+        self.assertEqual(v.parent_questions, [], "only the elder could be his father")
+
     def test_relationships_see_two(self) -> None:
         """The Villager Info tab's Relationships (src/vv_relationships.py) work by villager id: the elder is the
         children's father, the boy is nobody's, and the two namesakes are not related to each other."""
