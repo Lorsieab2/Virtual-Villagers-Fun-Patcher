@@ -626,6 +626,24 @@ int main(int argc, char **argv) {
         settle();
         check(original(kai6) == 330292, "...nor after a reload");
         check(ol_game_body(rec(kai6), 29) == 0, "...and the same body again changes nothing");
+        /* Codex, PR #653: a logged "not known" follows the villager through a rename in play -- the logs'
+           entry stays under the old identity -- so no first sight is recorded under the new name. */
+        check(g_source[kai7] == OL_NOT_KNOWN, "a logged \"not known\" is kept on the villager's record");
+        lstrcpyA((char *)rec(kai7) + LAYOUT[5].name, "Keoni");
+        (void)tick();
+        check(g_source[kai7] == OL_NOT_KNOWN && g_id[kai7] == ol_identity(rec(kai7)),
+              "a rename in play carries the \"not known\" to the new name");
+        check(original(kai7) == -1, "...no first sight is recorded, and Get still says not known");
+        got = read_file(path, buf, sizeof buf);
+        check(buf[24 + kai7 * 20 + 17] == OL_NOT_KNOWN && u32_at(buf, 24 + kai7 * 20 + 4) == ol_identity(rec(kai7)),
+              "...the file keeps it on the record, under the new identity");
+        new_session();
+        g_game_slot = 1;
+        settle();
+        check(g_source[kai7] == OL_NOT_KNOWN && original(kai7) == -1, "...and after a reload, still not known");
+        set_look(kai7, 12, 3);
+        (void)tick();
+        check(original(kai7) == -1, "...whatever look they have now");
     }
 
     printf("the game's own changes are kept\n");

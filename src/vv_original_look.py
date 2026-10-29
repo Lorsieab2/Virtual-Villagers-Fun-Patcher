@@ -60,7 +60,10 @@ ENTRY = 20
 LOGGED_ENTRY = 16
 LOGGED_MAX = 256
 COUNTS = (150, 256)
-FIRST_RUN, SEEN, LOGS = 1, 2, 3
+# A record entry's source (the DLL's original_look_store.inc): 4 NOT KNOWN is the DLL's own copy of a logged
+# "not known", kept on the villager's record so it follows them through a rename in play (Codex, PR #653).
+# Every record entry is kept here byte for byte, whatever its source.
+FIRST_RUN, SEEN, LOGS, NOT_KNOWN = 1, 2, 3, 4
 KNOWN, UNKNOWN = 1, 2
 MASKS = {"none": 0, "": 0, "blue mask": 1, "orange mask": 2, "red mask": 3, "purple mask": 4,
          "tribal chief mask": 5}

@@ -176,6 +176,9 @@ class ShowBothLinkByAge(unittest.TestCase):
         return sorted((p for p in v.people.values() if p.key == self.KID), key=lambda p: -(p.age or 0))
 
     def test_two_namesake_children_keep_an_answer_each(self) -> None:
+        self.answer_two_kids()
+
+    def answer_two_kids(self) -> Path:
         folder = self.two_kids()
         v = gen.load_village(folder, 3, 1)
         qs = sorted(v.parent_questions, key=lambda q: q.child_rank)
@@ -186,7 +189,7 @@ class ShowBothLinkByAge(unittest.TestCase):
         for q, answer in zip(qs, ("The oldest", "The second oldest")):
             aq.keep_parent(folder, 3, 1, q.child, q.parent, q.label, ["The oldest", "The second oldest"],
                            answer, q.text, child_rank=q.child_rank, parent_identity=q.identity_of(answer),
-                           group=q.group)
+                           group=q.group, child_marker=q.child_marker, child_group=q.child_group)
         v = gen.load_village(folder, 3, 1)
         elder, younger = self.tepeus(v)
         older_kid, younger_kid = self.kids(v)
@@ -194,6 +197,65 @@ class ShowBothLinkByAge(unittest.TestCase):
                          "each child keeps their own answer after a reload")
         self.assertEqual(v.parent_questions, [])
         self.assertEqual(len([d for d in aq.decisions.load(folder, 3, 1) if d.get("source") == aq.PARENT_SOURCE]), 2)
+        return folder
+
+    def test_a_tie_between_children_holds_only_while_their_group_is_unchanged(self) -> None:
+        """The two Kids share their marker (a boy, mother Parai): only their place by age tells them apart, so
+        once one of them is gone the other is asked again (Codex, PR #653)."""
+        markers = {q.child_marker for q in gen.load_village(self.two_kids(), 3, 1).parent_questions}
+        self.assertEqual(len(markers), 1, "(the two Kids share their marker)")
+        folder = self.answer_two_kids()
+        save(folder, [
+            aged(entry("Parai Tokidoki", 1, 5, 7, 7), 900),
+            tepeu(1583, ("Pichu Tamikai", 14, 18), ("Toga Helaku", 9, 17)),
+            tepeu(1000, ("Oro Kenobi", 12, 9), ("Coral Guedado", 10, 17)),
+            aged(entry(self.KID[0], 0, 38, self.KID[1], self.KID[2], father=TEPEU,
+                       mother=("Parai Tokidoki", 7, 7)), 100),
+        ])
+        v = gen.load_village(folder, 3, 1)
+        self.assertIsNone(self.kids(v)[0].father, "which of the two it was is not known any more")
+        self.assertEqual(len(v.parent_questions), 1)
+
+    MOTHERS = {140: ("Ana Ke", 8, 8), 120: ("Ana Lu", 9, 9), 100: ("Ana Mo", 10, 10)}
+
+    def three_kids(self, folder: Path, ages=(140, 120, 100)) -> Path:
+        """Codex, PR #653: three living "Kid" namesakes, each of their own mother, all naming "Tepeu Tamikai"
+        as their father; both Tepeus old enough to be any one's."""
+        return save(folder, [
+            *(aged(entry(m[0], 1, 5, m[1], m[2]), 900) for m in self.MOTHERS.values()),
+            tepeu(1583, ("Pichu Tamikai", 14, 18), ("Toga Helaku", 9, 17)),
+            tepeu(1000, ("Oro Kenobi", 12, 9), ("Coral Guedado", 10, 17)),
+            *(aged(entry(self.KID[0], 0, 37, self.KID[1], self.KID[2], father=TEPEU, mother=self.MOTHERS[a]), a)
+              for a in ages),
+        ])
+
+    def kid_fathers(self, folder: Path) -> dict:
+        v = gen.load_village(folder, 3, 1)
+        return {k.age: (v.people[k.father].age if k.father is not None else None) for k in self.kids(v)}, v
+
+    def test_a_childs_answer_stays_theirs_when_an_older_namesake_child_dies(self) -> None:
+        folder = self.three_kids(self.folder())
+        v = gen.load_village(folder, 3, 1)
+        self.assertEqual(len(v.parent_questions), 3)
+        wanted = {140: "The oldest", 120: "The second oldest", 100: "The oldest"}
+        for q in v.parent_questions:
+            age = v.people[q.child_id].age
+            aq.keep_parent(folder, 3, 1, q.child, q.parent, q.label, [t.split(" (")[0] for t in q.texts],
+                           wanted[age], q.text, child_rank=q.child_rank, parent_identity=q.identity_of(wanted[age]),
+                           group=q.group, child_marker=q.child_marker, child_group=q.child_group)
+        fathers, v = self.kid_fathers(folder)
+        self.assertEqual(fathers, {140: 1583, 120: 1000, 100: 1583})
+        self.assertEqual(v.parent_questions, [])
+        # The eldest Kid dies: the 120 one is now "the oldest of that name", and keeps their own answer.
+        self.three_kids(folder, (120, 100))
+        fathers, v = self.kid_fathers(folder)
+        self.assertEqual(fathers, {120: 1000, 100: 1583}, "never the dead child's answer")
+        self.assertEqual(v.parent_questions, [])
+        # The youngest dies instead (an unrelated child): the others keep theirs.
+        self.three_kids(folder, (140, 120))
+        fathers, v = self.kid_fathers(folder)
+        self.assertEqual(fathers, {140: 1583, 120: 1000})
+        self.assertEqual(v.parent_questions, [])
 
     def test_an_old_answer_without_a_child_rank_still_loads(self) -> None:
         """An answer kept before the child's rank was: it still links a child with no living namesake, and is

@@ -160,7 +160,9 @@ class TheContract(unittest.TestCase):
             out = harness("read", str(made))
         got = {int(i): (int(o), int(s)) for i, o, s in re.findall(r"^ORIGINAL (\d+) (-?\d+) (\d+)$", out, re.M)}
         self.assertEqual(got[3], (30030, ol.LOGS), "Kai3, changed since, gets the logs' original")
-        self.assertEqual(got[5], (-1, 0), "Kai5's original is not known: nothing recorded")
+        self.assertEqual(got[5], (-1, ol.NOT_KNOWN),
+                         "Kai5's original is not known: no look recorded, the record marked NOT KNOWN (it follows "
+                         "Kai5 through a rename: Codex, PR #653)")
         self.assertEqual(got[4], (40043, ol.FIRST_RUN), "everyone else is seen as they are now")
         self.assertEqual(got[0], (0, ol.FIRST_RUN))
 

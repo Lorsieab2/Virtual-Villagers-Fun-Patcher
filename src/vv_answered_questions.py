@@ -366,67 +366,97 @@ PARENT_LABEL = "Family Tree Maker: which villager is the parent?"
 
 
 def _child_rank(d: dict) -> int:
-    """The child's place by age among their living namesakes the answer was given for; 0 for a child with none
-    (and for an answer kept before the rank was: it applies only to a child with no living namesake)."""
+    """The child's place by age among their living namesakes the answer was given for; 0 for a child with none."""
     try:
         return max(0, int(d.get("child_rank") or 0))
     except (TypeError, ValueError):
         return 0
 
 
-def _parent_field(label: str, who: tuple, renamed: dict, child_rank: int) -> str:
+def _parent_field(label: str, who: tuple, renamed: dict, child_rank: int, child_marker: str | None = None,
+                  child_group: list | None = None) -> str:
+    """The answer's field: one per child -- by the child's marker (vv_genealogy.child_identity), and their place by
+    age only when children sharing the marker are told apart by it; a child with no living namesake, none."""
     base = base_of(PARENT_SOURCE, label, who, renamed)
+    if child_marker:
+        tied = list(child_group or []).count(child_marker) > 1
+        return f"{base}|child#{child_marker}" + (f"#{child_rank}" if tied else "")
     return f"{base}|child#{child_rank}" if child_rank else base
 
 
 @dataclass
 class ParentAnswer:
-    """One kept "which one is the parent?" answer: the place by age chosen, and (since Codex's PR #653 review)
-    the chosen parent's identity and the group's, oldest first (vv_genealogy.parent_identity), so the answer
-    stays with that villager when a namesake dies.  An older answer -- or one changed in this section -- has
-    neither: only `options`, the choices it was asked with."""
+    """One kept "which one is the parent?" answer (Codex's PR #653 review): the place by age chosen; the chosen
+    parent's identity and the group's, oldest first (vv_genealogy.parent_identity), so the answer stays with
+    that villager when a namesake dies; and the child's own marker, place by age and namesake group
+    (vv_genealogy.child_identity), so it stays that child's when a namesake child dies.  An older answer -- or
+    one changed in this section -- lacks the parent's identity: only `options`, the choices it was asked with."""
     verdict: str
     parent: str | None = None
     group: list = field(default_factory=list)
     options: list = field(default_factory=list)
+    child_marker: str | None = None
+    child_rank: int = 0
+    child_group: list = field(default_factory=list)
 
 
-def parent_answers(folder: Path, game: int, slot: int) -> dict[tuple, ParentAnswer]:
-    """{(child (name, head, body), parent (name, head, body), "Father"/"Mother", the child's namesake rank (0:
-    none)): the answer}, the latest of each.  Reads only; nothing when the file cannot be read."""
+def _strings(value) -> list:
+    return [str(v) for v in value] if isinstance(value, list) else []
+
+
+def parent_answers(folder: Path, game: int, slot: int) -> dict[tuple, list[ParentAnswer]]:
+    """{(child (name, head, body), parent (name, head, body), "Father"/"Mother"): every answer kept about it,
+    oldest first} (vv_genealogy._child_answer says which is a given child's).  Reads only; nothing when the
+    file cannot be read."""
     try:
         entries, renamed = _entries(folder, game, slot, _villages(folder, game, slot))
     except (OSError, ValueError):
         return {}
-    out: dict[tuple, ParentAnswer] = {}
+    out: dict[tuple, list[ParentAnswer]] = {}
     for d in sorted(entries, key=lambda d: str(d.get("date", ""))):
         if d.get("source") != PARENT_SOURCE or not d.get("verdict") or dont_know(str(d.get("verdict"))):
             continue
         who = _canon(d.get("who"), renamed)
         if len(who) == 2:
-            ident, group = d.get("parent_identity"), d.get("group")
-            out[(who[0], who[1], str(d.get("fact")), _child_rank(d))] = ParentAnswer(
-                str(d["verdict"]), ident if isinstance(ident, str) and ident else None,
-                [str(g) for g in group] if isinstance(group, list) else [],
-                [o for o in d.get("options") or [] if isinstance(o, str)])
+            ident, marker = d.get("parent_identity"), d.get("child_marker")
+            out.setdefault((who[0], who[1], str(d.get("fact"))), []).append(ParentAnswer(
+                str(d["verdict"]), ident if isinstance(ident, str) and ident else None, _strings(d.get("group")),
+                [o for o in d.get("options") or [] if isinstance(o, str)],
+                marker if isinstance(marker, str) and marker else None, _child_rank(d),
+                _strings(d.get("child_group"))))
     return out
 
 
 def keep_parent(folder: Path, game: int, slot: int, child: tuple, parent: tuple, label: str, options: list[str],
                 verdict: str | None, text: str, now: datetime | None = None, child_rank: int = 0,
-                parent_identity: str | None = None, group: list | None = None) -> None:
+                parent_identity: str | None = None, group: list | None = None, child_marker: str | None = None,
+                child_group: list | None = None) -> None:
     """Keep the player's answer to "which of these is <child>'s father (mother)?"; "Don't know" (or None)
-    takes a kept answer out, so the question is asked again.  `child_rank` is the child's place by age among
-    their living namesakes (0: none), so two children of one name and look keep an answer each;
-    `parent_identity` and `group` (vv_genealogy.parent_identity of the chosen one and of every namesake,
-    oldest first) keep the answer with that villager when a namesake dies."""
+    takes a kept answer out, so the question is asked again.  `parent_identity` and `group` (vv_genealogy.
+    parent_identity of the chosen one and of every namesake, oldest first) keep the answer with that villager
+    when a namesake dies; `child_marker`, `child_rank` and `child_group` (vv_genealogy.child_identity of the
+    child and of their living namesakes, oldest first) keep it this child's when a namesake child dies."""
     entries, renamed = _entries(folder, game, slot, None)
     who = (tuple(child), tuple(parent))
     child_rank = max(0, int(child_rank or 0))
-    field_ = _parent_field(label, who, renamed, child_rank)
-    if any(str(d.get("field")) == field_ for d in entries):
-        decisions.rewrite(Path(folder), game, slot,
-                          lambda found: [d for d in found if not (d.get("kind") == KIND and str(d.get("field")) == field_)])
+    child_group = [str(g) for g in child_group or []]
+    field_ = _parent_field(label, who, renamed, child_rank, child_marker, child_group)
+    base = base_of(PARENT_SOURCE, label, who, renamed)
+    alone = bool(child_marker) and child_group.count(child_marker) <= 1
+
+    def same(d: dict) -> bool:
+        # This child's earlier answer: the same field, or -- the only child with this marker -- any answer kept
+        # under it when it was the only one too (the field of a tie carries a place by age that moves).
+        if d.get("kind") != KIND:
+            return False
+        if str(d.get("field")) == field_:
+            return True
+        return (alone and d.get("source") == PARENT_SOURCE and d.get("child_marker") == child_marker
+                and str(d.get("field")).startswith(base + "|child#")
+                and _strings(d.get("child_group")).count(child_marker) <= 1)
+
+    if any(same(d) for d in entries):
+        decisions.rewrite(Path(folder), game, slot, lambda found: [d for d in found if not same(d)])
     if verdict is None or dont_know(verdict):
         return
     decisions.record(Path(folder), game, slot, [{
@@ -434,6 +464,7 @@ def keep_parent(folder: Path, game: int, slot: int, child: tuple, parent: tuple,
         "fact": label, "who": [list(w) for w in who], "ordinal": 1, "of": 1, "question": text,
         "options": list(options), "verdict": verdict, "label": PARENT_LABEL, "edited": False, "alone": True,
         **({"child_rank": child_rank} if child_rank else {}),
+        **({"child_marker": child_marker, "child_group": child_group} if child_marker else {}),
         **({"parent_identity": parent_identity, "group": [str(g) for g in group or []]} if parent_identity else {})}],
         now)
 

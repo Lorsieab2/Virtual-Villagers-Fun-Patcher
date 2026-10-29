@@ -981,6 +981,10 @@ class ParentQuestion:
     # given to the same villager after a namesake dies (Codex, PR #653).
     identities: list = field(default_factory=list)
     group: list = field(default_factory=list)
+    # child_identity of the child and of their living namesakes, oldest first (none for a child with none):
+    # kept with the answer, so it stays this child's when an older namesake child dies (Codex, PR #653).
+    child_marker: str | None = None
+    child_group: list = field(default_factory=list)
 
     def identity_of(self, answer: str) -> str | None:
         """The identity of the choice `answer` ("The oldest"...) names."""
@@ -1014,11 +1018,11 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
     """LINK BY AGE (the owner, v1.35.85): every record names a parent only by name, head and body, which two
     living namesakes share.  A child is linked to the one who was old enough to be their parent at the child's
     birth (could_be_parent); when more than one could be, to the one the player chose (`answers`: (child key,
-    parent key, "Father"/"Mother", child rank) -> vv_answered_questions.ParentAnswer, as _answered reads it);
+    parent key, "Father"/"Mother") -> the vv_answered_questions.ParentAnswer kept, as _child_answer and
+    _answered read them);
     otherwise to neither -- never a guess -- and the
     question is returned for the Family Tree Maker to ask.  A child who has a living namesake is told apart by
-    their own place by age (`answers` keys end in that rank; 0 for a child with none, which is also what an
-    answer kept before the rank was is read as -- so an old answer is never given to one of two namesakes)."""
+    their own marker (child_identity), their place by age only between children sharing it (_child_answer)."""
     questions: list[ParentQuestion] = []
     groups: dict = {}
     for key, ids in reg.living_dups.items():
@@ -1048,7 +1052,13 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
                              (f"Upcoming child of {reg.people[child.mother].name}",) + reg.people[child.mother].key[1:]
                              if child.mother in reg.people else child.key)
                 child_rank = 0 if child.upcoming else child.namesake_rank
-                said = answers.get((child_key, key, label, child_rank))
+                # The child's own marker, and their living namesakes' (oldest first): a namesake child's answer
+                # is theirs by it, never by their place by age alone (Codex, PR #653).
+                child_marker = None if child.upcoming else child_identity(reg, child.id, label)
+                kin = groups.get(child.key, []) if child_rank else []
+                child_group = [child_identity(reg, pid, label) for pid in kin] if child_rank else [child_marker]
+                said = _child_answer(answers.get((child_key, key, label), []), child_marker, child_rank,
+                                     child_group)
                 who = fits or pool
                 chosen = _answered(said, group, idents, child.id, [rank_word(group.index(pid)) for pid in who])
                 if chosen is None and len(fits) == 1:
@@ -1059,8 +1069,45 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
                         child_key, key, label, who,
                         [f"{rank_word(group.index(pid))} ({reg.people[pid].age_text()})" for pid in who], child.id,
                         child_rank, child.age_text() if child_rank else "",
-                        [idents[pid] for pid in who], [idents[pid] for pid in group]))
+                        [idents[pid] for pid in who], [idents[pid] for pid in group],
+                        child_marker if child_rank else None, child_group if child_rank else []))
     return questions
+
+
+def child_identity(reg: _Registry, pid: int, label: str) -> str:
+    """What tells one namesake child from another for good, for the question about their `label` parent
+    (Codex, PR #653): their sex and the OTHER parent their own save record names (the mother when the father is
+    asked), by name, head and body -- unchanged as they age and as others die."""
+    p = reg.people[pid]
+    parents = reg.save_parents.get(pid, (None, None))
+    other = parents[1] if label == "Father" else parents[0]
+    key = "#".join(str(x) for x in reg.people[other].key) if other in reg.people else "?"
+    return f"{p.sex or '?'}|{key}"
+
+
+def _child_answer(kept: list, marker: str | None, rank: int, group: list):
+    """Which of the answers kept about this child's parent (oldest first) is this child's (Codex, PR #653):
+      * one kept with a child marker: theirs when it is their marker and -- answered for the only child with it
+        -- they are still the only living namesake with it; answered for one of several children sharing it,
+        only while that child group is exactly as it was and they hold the same place by age;
+      * one kept without (before the marker was): theirs only when they have no living namesake and it was
+        answered for a child with none.
+    The latest that is theirs, or None (asked again)."""
+    mine = None
+    for a in kept:
+        kept_marker = getattr(a, "child_marker", None)
+        if kept_marker:
+            if kept_marker != marker:
+                continue
+            answered_group = list(getattr(a, "child_group", None) or [])
+            if answered_group.count(kept_marker) > 1:
+                if answered_group == group and getattr(a, "child_rank", 0) == rank:
+                    mine = a
+            elif group.count(marker) == 1:
+                mine = a
+        elif not getattr(a, "child_rank", 0) and not rank:
+            mine = a
+    return mine
 
 
 def parent_identity(reg: _Registry, pid: int) -> str:

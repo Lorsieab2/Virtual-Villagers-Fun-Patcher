@@ -26,7 +26,10 @@
        count x { u32 roster   the identity of whoever held the record when it was written (0 = nobody: the
                               living only, so a load's village test and packing are judged on the living)
                  u32 id       the identity the original was kept for (0 = none kept on this record)
-                 i32 head, i32 body, u8 mask, u8 source (1..3 above),
+                 i32 head, i32 body, u8 mask, u8 source (1..3 above, or 4 NOT KNOWN: the logs said the
+                 original of this villager is not known; kept on the record and following the villager like
+                 an original -- through a load's packing and a rename in play, where the logs' entry stays
+                 under the old identity -- so no first sight is ever recorded for them; head, body and mask 0),
                  u8 game body (1: the game itself set the body since -- the robe, a bought outfit -- so the
                  logs' original never takes it back; 0 otherwise), u8 0 }                 20 bytes each
        logged x { u32 id      the villager's identity in the save, by Repair Saves & Logs
@@ -84,7 +87,7 @@
 #define OL_SETTLE_MS 1500u              /* a village is bound only after its roster held this long */
 #define OL_KIND "Original Looks"
 
-enum { OL_NONE = 0, OL_FIRST_RUN = 1, OL_SEEN = 2, OL_LOGS = 3 };
+enum { OL_NONE = 0, OL_FIRST_RUN = 1, OL_SEEN = 2, OL_LOGS = 3, OL_NOT_KNOWN = 4 };
 enum { OL_LOGGED_KNOWN = 1, OL_LOGGED_UNKNOWN = 2 };
 enum { OL_UNBOUND = 0, OL_PENDING = 1, OL_BOUND = 2 };
 
@@ -361,9 +364,13 @@ static int ol_apply_logged(const unsigned int *live) {
         }
         e = &g_logged[k];
         if (e->kind == OL_LOGGED_UNKNOWN) {
-            if (g_source[i] == OL_FIRST_RUN) {
-                g_source[i] = OL_NONE;
-                g_id[i] = 0u;
+            /* Not known: kept on the record as NOT KNOWN (over a first-run snapshot too), so it follows the
+               villager through a rename in play -- the logs' entry stays under the old identity (Codex, PR
+               #653) -- and no first sight is ever recorded for them. */
+            if (g_source[i] == OL_NONE || g_source[i] == OL_FIRST_RUN
+                || (g_source[i] == OL_NOT_KNOWN && g_id[i] != live[i])) {
+                g_source[i] = OL_NOT_KNOWN;
+                g_id[i] = live[i];
                 g_head[i] = g_body[i] = 0;
                 g_mask[i] = 0;
                 g_game_body[i] = 0;
@@ -462,7 +469,7 @@ static int ol_load(int slot, const unsigned int *live, int *rewrite) {
     for (i = 0; i < (unsigned int)kept; ++i) {
         const unsigned char *e = g_file + OL_HEADER + i * OL_ENTRY;
         unsigned int id = ol_u32(e + 4);
-        if (id == 0u || e[17] < OL_FIRST_RUN || e[17] > OL_LOGS || e[16] > 5) {
+        if (id == 0u || e[17] < OL_FIRST_RUN || e[17] > OL_NOT_KNOWN || e[16] > 5) {
             continue;                           /* nothing kept here (or nothing this build knows) */
         }
         g_id[i] = id;
@@ -606,7 +613,7 @@ static int ol_index(const unsigned char *record) {
 static int ol_game_body(const unsigned char *record, int body) {
     int i;
     if (record == NULL || g_state == OL_UNBOUND || (i = ol_index(record)) < 0 || g_source[i] == OL_NONE
-        || g_roster[i] == 0 || g_roster[i] != ol_identity(record) || g_id[i] != g_roster[i]
+        || g_source[i] == OL_NOT_KNOWN || g_roster[i] == 0 || g_roster[i] != ol_identity(record) || g_id[i] != g_roster[i]
         || (g_body[i] == body && g_game_body[i])) {
         return 0;
     }
@@ -625,7 +632,8 @@ static int ol_get(const unsigned char *record, int *head, int *body, int *mask) 
         return 0;
     }
     i = ol_index(record);
-    if (i < 0 || g_roster[i] == 0 || g_source[i] == OL_NONE || g_roster[i] != ol_identity(record)
+    if (i < 0 || g_roster[i] == 0 || g_source[i] == OL_NONE || g_source[i] == OL_NOT_KNOWN
+        || g_roster[i] != ol_identity(record)
         || g_id[i] != g_roster[i]) {
         return 0;
     }
